@@ -1,485 +1,258 @@
-Return-Path: <SRS0=SXQY=SF=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=xpCi=SG=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85EBEC4360F
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 21:28:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCC9BC4360F
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 02:52:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 206452082C
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Apr 2019 21:28:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85B602133D
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 02:52:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="IMX5LLL9"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="VPcIK+aV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbfDCV2h (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 3 Apr 2019 17:28:37 -0400
-Received: from mail-it1-f195.google.com ([209.85.166.195]:35019 "EHLO
-        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726444AbfDCV2g (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Apr 2019 17:28:36 -0400
-Received: by mail-it1-f195.google.com with SMTP id w15so367686itc.0
-        for <linux-rtc@vger.kernel.org>; Wed, 03 Apr 2019 14:28:35 -0700 (PDT)
+        id S1726544AbfDDCwp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Apr 2019 22:52:45 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:34603 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726218AbfDDCwp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Apr 2019 22:52:45 -0400
+Received: by mail-pg1-f194.google.com with SMTP id v12so466782pgq.1
+        for <linux-rtc@vger.kernel.org>; Wed, 03 Apr 2019 19:52:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=dgX/CD/5cK+oHtQ3hBkPjpFMZ7hbWzjXXMy+UmilTow=;
-        b=IMX5LLL9yLi+aQKsN98XtwMPIx81q3svJZXlSXEMneFLS5zGl4ruhrKh6VHaAtYxgq
-         YygVXS+uMu/n9divvmOwh5clu2br3PCGVWBAjGobP38oAuFLqr4q7fFxCwjbNHBF+kfT
-         YubXypwJJKnXKeaWX6AadGyo73PSbUjy4x6wA=
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=VRIJ8X5WvK/kgKb9Km3bq8sEPdqzpTtDdrdaKOlk/p8=;
+        b=VPcIK+aV5kEiQAzjoyH9V/iDlUlXEotSxwXG2abEA+4Zhg7NjB8A6mL3kb06+Q/xUE
+         WaB4eZ4IMj+XIcDM3/iaUCDgGuyIsC/jBX+uJsFMtHrBcSgwIW2Fj/iPFO7Qzjk1+sY3
+         /frq2DjUTR2S1o80f0i01iEr6dC7/6iQ00zuXY5tedJJN40VC8vK93F0Kc0/Fzi/pH3R
+         r8Xatj1DCa8960aPfdU6W4m1iqkZuv2oLSauwaJd3wINsAtl1g5TusOTQP+4T0wEg20U
+         f+0RoolXkfx941pgmwh+zPVsqjkAS++2TOWJ2j9P3NzFwDEsHdIl/U0guDTJiakHJHXr
+         QjJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=dgX/CD/5cK+oHtQ3hBkPjpFMZ7hbWzjXXMy+UmilTow=;
-        b=HaHUZa8mnSmEGDbeew0W+F81xcCKTXouCLku0J1lnguvZ9M0bYmGDHoPvJFj8BB7ex
-         VFHYI2hnhroiQ5pNLjw4wM21oqZhzh9kWXE4uDaRxOFLX2RCLIGfClIcpdbGR+AAYAoh
-         8X4a8VpOtRLsTvF7NEryCou2nbCNivU13CXWeGWruDCUylsYLo8vi8q/Vuko44l2OAMy
-         4bSG+z5ULpU8iR2QkPrP6tHpYwV5/hOo0fd95A2gPxkdmrArhYLMGIa/eaR49VII1Wzc
-         8yaHonhQpzfcQKXS0Du2jCFiMME8VyXyoJRT0JiBIRtrLgX2ZOrihRSm2+UGwz6N+BQd
-         DB6Q==
-X-Gm-Message-State: APjAAAWGnYwLZUIrBdCa12/Ye/0Da9J9cEMShJdeg+wSOMAf36F/i419
-        lUF8Xp4kXZSCurNuKf1ccAhYDQ==
-X-Google-Smtp-Source: APXvYqy5WKmfwJktK8voeIvifVd9X9s1WhrkqsauEuXxIFNXm9vmQk5v0ANQdhPUXX7skHbPBdEf+w==
-X-Received: by 2002:a24:2251:: with SMTP id o78mr2142156ito.134.1554326915338;
-        Wed, 03 Apr 2019 14:28:35 -0700 (PDT)
-Received: from ncrews2.bld.corp.google.com ([2620:15c:183:200:8140:8e3f:aea5:bcdf])
-        by smtp.gmail.com with ESMTPSA id b129sm1840009ita.14.2019.04.03.14.28.34
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 03 Apr 2019 14:28:34 -0700 (PDT)
-From:   Nick Crews <ncrews@chromium.org>
-To:     enric.balletbo@collabora.com, bleung@chromium.org,
-        linux-leds@vger.kernel.org, jacek.anaszewski@gmail.com,
-        pavel@ucw.cz, alexandre.belloni@bootlin.com, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, dlaurie@chromium.org, sjg@google.com,
-        groeck@google.com, dtor@google.com,
-        Nick Crews <ncrews@chromium.org>
-Subject: [PATCH v4 2/2] platform/chrome: Add Wilco EC keyboard backlight LEDs support
-Date:   Wed,  3 Apr 2019 15:27:58 -0600
-Message-Id: <20190403212757.132684-2-ncrews@chromium.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190403212757.132684-1-ncrews@chromium.org>
-References: <20190403212757.132684-1-ncrews@chromium.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=VRIJ8X5WvK/kgKb9Km3bq8sEPdqzpTtDdrdaKOlk/p8=;
+        b=diot2TJO6WbOc47RYID+8lUzxNjpHgf/KkLNvIWZywWc47JQkEatFoDajqnk72lvar
+         orGDWl1gu6xY+dqQcxs8jnZoDDMZvO1p6A8/KuEPi0SPjpRhfT6lmGj1zrf3yFXLuWQW
+         F/xLNyIF4Go8Vp7kP1L/5yhpI/q3FczHhrpPlQON8z6Erw49gqQI1TvfuEXKjW0aWjpJ
+         WFqlSvL3vGDgRJJYF0xArfei7xZ1gt5m+Y2RbCmFLMvMjA37kHWDGT7cZowm/w1HbBcB
+         ee3FX/jNJXXjlipMpq5eWDlOdPUi+fw3p9bTpkSKDuetMtWA5xQCYKGuJgGwOfKlyPbr
+         /Usw==
+X-Gm-Message-State: APjAAAXBJDBZqS07fQRoXjudxE/Y6Vsbx2SYMGgTpec9bPCjixdK8DwC
+        sgRp32VyamR0u0VW/qely1tpSA==
+X-Google-Smtp-Source: APXvYqzkONlxJ9q1lOATqMHzdwfTmyw4XCKq/MyaZPLUW9fHiK1uCRuxY6q5Fs/8DDKZIYBGo6LADQ==
+X-Received: by 2002:a62:6985:: with SMTP id e127mr3200910pfc.188.1554346364181;
+        Wed, 03 Apr 2019 19:52:44 -0700 (PDT)
+Received: from dell ([147.50.13.10])
+        by smtp.gmail.com with ESMTPSA id g67sm27027290pfg.94.2019.04.03.19.52.37
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 03 Apr 2019 19:52:43 -0700 (PDT)
+Date:   Thu, 4 Apr 2019 03:52:34 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
+Cc:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
+        "mturquette@baylibre.com" <mturquette@baylibre.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "sre@kernel.org" <sre@kernel.org>,
+        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
+        "sboyd@kernel.org" <sboyd@kernel.org>,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
+        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
+        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v11 2/8] mfd: bd70528: Support ROHM bd70528 PMIC - core
+Message-ID: <20190404025234.GB6830@dell>
+References: <cover.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <39efebe0396dd42de30d37c6f3c1ef2926c90210.1553515333.git.matti.vaittinen@fi.rohmeurope.com>
+ <20190403073152.GM4187@dell>
+ <20190403084732.GA3493@localhost.localdomain>
+ <20190403093015.GJ11301@dell>
+ <20190403101003.GC3493@localhost.localdomain>
+ <20190403112559.GP11301@dell>
+ <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <85b20828bb4fb51e6df1d5d9d1c1f667db3a7c48.camel@fi.rohmeurope.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The EC is in charge of controlling the keyboard backlight on
-the Wilco platform. We expose a standard LED class device at
-/sys/class/leds/chromeos::kbd_backlight. This driver is modeled
-after the standard Chrome OS keyboard backlight driver at
-drivers/platform/chrome/cros_kbd_led_backlight.c
+On Wed, 03 Apr 2019, Vaittinen, Matti wrote:
 
-Some Wilco devices do not support a keyboard backlight. This
-is checked via wilco_ec_keyboard_leds_exist() in the core driver,
-and a platform_device will only be registered by the core if
-a backlight is supported.
+> On Wed, 2019-04-03 at 12:25 +0100, Lee Jones wrote:
+> > On Wed, 03 Apr 2019, Matti Vaittinen wrote:
+> > 
+> > > On Wed, Apr 03, 2019 at 10:30:15AM +0100, Lee Jones wrote:
+> > > > On Wed, 03 Apr 2019, Matti Vaittinen wrote:
+> > > > 
+> > > > > Hello Lee,
+> > > > > 
+> > > > > Thanks for taking a look on this again =) I agree with most of
+> > > > > the
+> > > > > comments and correct them at next version.
+> > > > > 
+> > > > > On Wed, Apr 03, 2019 at 08:31:52AM +0100, Lee Jones wrote:
+> > > > > > On Mon, 25 Mar 2019, Matti Vaittinen wrote:
+> > > > > > 
+> > > > > > > ROHM BD70528MWV is an ultra-low quiescent current general
+> > > > > > > purpose single-chip power management IC for battery-powered
+> > > > > > > portable devices.
+> > > > > > > 
+> > > > > > > Add MFD core which enables chip access for following
+> > > > > > > subdevices:
+> > > > > > > 	- regulators/LED drivers
+> > > > > > > 	- battery-charger
+> > > > > > > 	- gpios
+> > > > > > > 	- 32.768kHz clk
+> > > > > > > 	- RTC
+> > > > > > > 	- watchdog
+> > > > > > > 
+> > > > > > > Signed-off-by: Matti Vaittinen <
+> > > > > > > matti.vaittinen@fi.rohmeurope.com>
+> > > > > > > + * Mapping of main IRQ register bits to sub irq register
+> > > > > > > offsets so
+> > > > > > 
+> > > > > > "sub-IRQ"
+> > > > > > 
+> > > > > > > + * that we can access corect sub IRQ registers based on
+> > > > > > > bits that
+> > > > > > 
+> > > > > > "sub IRQ" is also fine, but please standardise.
+> > > > > > 
+> > > > > > I do prefer "sub-IRQ" though.
+> > > > > 
+> > > > > I'll go with "sub-IRQ" then
+> > > > > 
+> > > > > > > +
+> > > > > > > +#define WD_CTRL_MAGIC1 0x55
+> > > > > > > +#define WD_CTRL_MAGIC2 0xAA
+> > > > > > > +/**
+> > > > > > > + * bd70528_wdt_set - arm or disarm watchdog timer
+> > > > > > > + *
+> > > > > > > + * @data:	device data for the PMIC instance we want to
+> > > > > > > operate on
+> > > > > > > + * @enable:	new state of WDT. zero to disable, non
+> > > > > > > zero to enable
+> > > > > > > + * @old_state:	previous state of WDT will be filled
+> > > > > > > here
+> > > > > > > + *
+> > > > > > > + * Arm or disarm WDT on BD70528 PMIC. Expected to be
+> > > > > > > called only by
+> > > > > > > + * BD70528 RTC and BD70528 WDT drivers. The rtc_timer_lock
+> > > > > > > must be taken
+> > > > > > > + * by calling bd70528_wdt_lock before calling
+> > > > > > > bd70528_wdt_set.
+> > > > > > > + */
+> > > > > > > +int bd70528_wdt_set(struct rohm_regmap_dev *data, int
+> > > > > > > enable, int *old_state)
+> > > > > > 
+> > > > > > Why doesn't this reside in the watchdog driver?
+> > > > > 
+> > > > > If my memory serves me right we shortly discussed this already
+> > > > > during v8
+> > > > > review ;) Cant blame you though as I have seen some of the mail
+> > > > > traffic
+> > > > > going through your inbox :D
+> > > > > 
+> > > > > The motivation to have the functions exported from MFD is to
+> > > > > not create
+> > > > > sirect dependency between RTC and WDT. There may be cases where
+> > > > > we want
+> > > > > to leave either RTC or WDT out of compilation. MFD is always
+> > > > > needed so
+> > > > > the dependency from MFD to RTC/WDT does not harm.
+> > > > > 
+> > > > > (Here's some discussion necromancy if you are interested in re-
+> > > > > reading
+> > > > > how we did end up with this implementation:
+> > > > > https://lore.kernel.org/lkml/20190212091723.GZ20638@dell/)
+> > > > > 
+> > > > > I hope you are still Ok with having the WDT control functions
+> > > > > in MFD.
+> > > > 
+> > > > OOI, why does the RTC need to control the WDT?
+> > > 
+> > > I thought I had a comment about this somewhere in code... O_o Must
+> > > have
+> > > been in some development branch I had :/
+> > > 
+> > > Anyways, setting the RTC counter may cause watchdog to trigger. It
+> > > is not
+> > > further explained why but I would guess watchdog uses RTC counter
+> > > to check
+> > > if it should've been pinged already. So RTC needs to disable watch
+> > > dog for
+> > > the duration of hwclock setting and enable it again after the new
+> > > time is
+> > > set. I can add a comment about this to MFD driver if it helps :)
+> > 
+> > How does the user select between using the RTC and the WDT?
+> > 
+> > Or are the generally both enabled at the same time?
+> > 
+> 
+> Both RTC and WDT can be enabled at the same time. But they are not
+> required to be used. When WDT is enabled, it uses current RTC time as
+> 'base' (and RTC time is running no matter if we have the RTC driver
+> here or not) - and time-out gets scheduled to specified amount of time
+> into future. (Same setting timeout into the future happens when WDT is
+> pinged).
+> 
+> When we set RTC, we disable WDT (if it was enabled), set clock and re-
+> enable WDT. This causes the previously used time-out value to be set to
+> WDT again. This works Ok because BD70528 does not support 'short ping
+> detection'. Only side-effect will be one 'prolonged' WDT feeding period
+> when RTC is set. (absolute time when RTC was set minus absolute time
+> when previous WD ping or enable was done) longer than reqular period.
+> 
+> So user should not need to care about this 'dependency'. Basically the
+> only possible problem I see is that someone could accidentally hang the
+> system with something that keeps setting the RTC time - this would then
+> prevent watch dog from doing the reset. This, I believe, is a corner
+> case which I don't consider now - and if this is considered to be an
+> issue then such a system may disable the RTC driver and do RTC setting
+> in a what-ever-manner sees practical.
+> 
+> I'm not sure if I answered to question you asked though =)
 
-After an EC reset the backlight could be in a non-PWM mode.
-Earlier in the boot sequence the BIOS should send a command to
-the EC to set the brightness, so things **should** be set up,
-but we double check in probe() as we query the initial brightness.
-If not set up, then set the brightness to 0.
+I think you answered it just fine.
 
-Since the EC will never change the backlight level of its own accord,
-we don't need to implement a brightness_get() method.
+So my suggestion is to have the RTC depend on the WRT via Kconfig, and
+place this WRT code in the WRT driver where it belongs.  These
+functions can be exported from the WRT driver and the RTC can call
+into them in the same way it calls into the MFD driver currently.
 
-v4 changes:
--Call keyboard_led_set_brightness() directly within
- initialize_brightness(), instead of calling the library function.
+Avoiding a dependency on the WRT would seem strange, because there is
+one.
 
-v3 changes:
--Since this behaves the same as the standard Chrome OS keyboard
- backlight, rename the led device to "chromeos::kbd_backlight"
--Move wilco_ec_keyboard_backlight_exists() into core module, so
- that the core does not depend upon the keyboard backlight driver.
--This required moving some code into wilco-ec.h
--Refactor out some common code in set_brightness() and
- initialize_brightness()
-
-v2 changes:
--Remove and fix uses of led vs LED in kconfig
--Assume BIOS initializes brightness, but double check in probe()
--Remove get_brightness() callback, as EC never changes brightness
- by itself.
--Use a __packed struct as message instead of opaque array
--Add exported wilco_ec_keyboard_leds_exist() so the core driver
- now only creates a platform _device if relevant
--Fix use of keyboard_led_set_brightness() since it can sleep
-
-Signed-off-by: Nick Crews <ncrews@chromium.org>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
----
- drivers/platform/chrome/wilco_ec/Kconfig      |   9 +
- drivers/platform/chrome/wilco_ec/Makefile     |   2 +
- drivers/platform/chrome/wilco_ec/core.c       |  58 ++++++
- .../chrome/wilco_ec/kbd_led_backlight.c       | 168 ++++++++++++++++++
- include/linux/platform_data/wilco-ec.h        |  38 ++++
- 5 files changed, 275 insertions(+)
- create mode 100644 drivers/platform/chrome/wilco_ec/kbd_led_backlight.c
-
-diff --git a/drivers/platform/chrome/wilco_ec/Kconfig b/drivers/platform/chrome/wilco_ec/Kconfig
-index e09e4cebe9b4..d8cf4a60d1b5 100644
---- a/drivers/platform/chrome/wilco_ec/Kconfig
-+++ b/drivers/platform/chrome/wilco_ec/Kconfig
-@@ -18,3 +18,12 @@ config WILCO_EC_DEBUGFS
- 	  manipulation and allow for testing arbitrary commands.  This
- 	  interface is intended for debug only and will not be present
- 	  on production devices.
-+
-+config WILCO_EC_KBD_BACKLIGHT
-+	tristate "Enable keyboard backlight control"
-+	depends on WILCO_EC
-+	help
-+	  If you say Y here, you get support to set the keyboard backlight
-+	  brightness. This happens via a standard LED driver that uses the
-+	  Wilco EC mailbox interface. A standard LED class device will
-+	  appear under /sys/class/leds/chromeos::kbd_backlight
-diff --git a/drivers/platform/chrome/wilco_ec/Makefile b/drivers/platform/chrome/wilco_ec/Makefile
-index 063e7fb4ea17..8436539813cd 100644
---- a/drivers/platform/chrome/wilco_ec/Makefile
-+++ b/drivers/platform/chrome/wilco_ec/Makefile
-@@ -4,3 +4,5 @@ wilco_ec-objs				:= core.o mailbox.o
- obj-$(CONFIG_WILCO_EC)			+= wilco_ec.o
- wilco_ec_debugfs-objs			:= debugfs.o
- obj-$(CONFIG_WILCO_EC_DEBUGFS)		+= wilco_ec_debugfs.o
-+wilco_kbd_backlight-objs		:= kbd_led_backlight.o
-+obj-$(CONFIG_WILCO_EC_KBD_BACKLIGHT)	+= wilco_kbd_backlight.o
-diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
-index 05e1e2be1c91..3c45c157b7da 100644
---- a/drivers/platform/chrome/wilco_ec/core.c
-+++ b/drivers/platform/chrome/wilco_ec/core.c
-@@ -38,11 +38,47 @@ static struct resource *wilco_get_resource(struct platform_device *pdev,
- 				   dev_name(dev));
- }
- 
-+/**
-+ * wilco_ec_keyboard_backlight_exists() - Is the keyboad backlight supported?
-+ * @ec: EC device to query.
-+ * @exists: Return value to fill in.
-+ *
-+ * Return: 0 on success, negative error code on failure.
-+ */
-+static int wilco_ec_keyboard_backlight_exists(struct wilco_ec_device *ec,
-+					      bool *exists)
-+{
-+	struct wilco_ec_kbbl_msg request;
-+	struct wilco_ec_kbbl_msg response;
-+	struct wilco_ec_message msg;
-+	int ret;
-+
-+	memset(&request, 0, sizeof(request));
-+	request.command = WILCO_EC_COMMAND_KBBL;
-+	request.subcmd = WILCO_KBBL_SUBCMD_GET_FEATURES;
-+
-+	memset(&msg, 0, sizeof(msg));
-+	msg.type = WILCO_EC_MSG_LEGACY;
-+	msg.request_data = &request;
-+	msg.request_size = sizeof(request);
-+	msg.response_data = &response;
-+	msg.response_size = sizeof(response);
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	*exists = response.status != 0xFF;
-+
-+	return 0;
-+}
-+
- static int wilco_ec_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct wilco_ec_device *ec;
- 	int ret;
-+	bool kbbl_exists;
- 
- 	ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
- 	if (!ec)
-@@ -89,8 +125,29 @@ static int wilco_ec_probe(struct platform_device *pdev)
- 		goto unregister_debugfs;
- 	}
- 
-+	/* Register child dev to be found by the keyboard backlight driver. */
-+	ret = wilco_ec_keyboard_backlight_exists(ec, &kbbl_exists);
-+	if (ret) {
-+		dev_err(ec->dev,
-+			"Failed checking keyboard backlight support: %d", ret);
-+		goto unregister_rtc;
-+	}
-+	if (kbbl_exists) {
-+		ec->kbbl_pdev = platform_device_register_data(dev,
-+						"wilco-kbd-backlight",
-+						PLATFORM_DEVID_AUTO, NULL, 0);
-+		if (IS_ERR(ec->kbbl_pdev)) {
-+			dev_err(dev,
-+				"Failed to create keyboard backlight pdev\n");
-+			ret = PTR_ERR(ec->kbbl_pdev);
-+			goto unregister_rtc;
-+		}
-+	}
-+
- 	return 0;
- 
-+unregister_rtc:
-+	platform_device_unregister(ec->rtc_pdev);
- unregister_debugfs:
- 	if (ec->debugfs_pdev)
- 		platform_device_unregister(ec->debugfs_pdev);
-@@ -102,6 +159,7 @@ static int wilco_ec_remove(struct platform_device *pdev)
- {
- 	struct wilco_ec_device *ec = platform_get_drvdata(pdev);
- 
-+	platform_device_unregister(ec->kbbl_pdev);
- 	platform_device_unregister(ec->rtc_pdev);
- 	if (ec->debugfs_pdev)
- 		platform_device_unregister(ec->debugfs_pdev);
-diff --git a/drivers/platform/chrome/wilco_ec/kbd_led_backlight.c b/drivers/platform/chrome/wilco_ec/kbd_led_backlight.c
-new file mode 100644
-index 000000000000..6468ec51fb51
---- /dev/null
-+++ b/drivers/platform/chrome/wilco_ec/kbd_led_backlight.c
-@@ -0,0 +1,168 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Keyboard backlight LED driver for the Wilco Embedded Controller
-+ *
-+ * Copyright 2019 Google LLC
-+ *
-+ * The EC is in charge of controlling the keyboard backlight on
-+ * the Wilco platform. We expose a standard LED class device at
-+ * /sys/class/leds/chromeos::kbd_backlight. Power Manager normally
-+ * controls the backlight by writing a percentage in range [0, 100]
-+ * to the brightness property. This driver is modeled after the
-+ * standard Chrome OS keyboard backlight driver at
-+ * drivers/platform/chrome/cros_kbd_led_backlight.c
-+ *
-+ * Some Wilco devices do not support a keyboard backlight. This
-+ * is checked via wilco_ec_keyboard_backlight_exists() in the core driver,
-+ * and a platform_device will only be registered by the core if
-+ * a backlight is supported.
-+ *
-+ * After an EC reset the backlight could be in a non-PWM mode.
-+ * Earlier in the boot sequence the BIOS should send a command to
-+ * the EC to set the brightness, so things **should** be set up,
-+ * but we double check in probe() as we query the initial brightness.
-+ * If not set up, then we set the brightness to KBBL_DEFAULT_BRIGHTNESS.
-+ *
-+ * Since the EC will never change the backlight level of its own accord,
-+ * we don't need to implement a brightness_get() method.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/err.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+#include <linux/platform_data/wilco-ec.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+
-+#define DRV_NAME		"wilco-kbd-backlight"
-+
-+#define KBBL_DEFAULT_BRIGHTNESS	0
-+
-+struct wilco_keyboard_led_data {
-+	struct wilco_ec_device *ec;
-+	struct led_classdev keyboard;
-+};
-+
-+/* Send a request, get a response, and check that the response is good. */
-+static int send_kbbl_msg(struct wilco_ec_device *ec,
-+			 const struct wilco_ec_kbbl_msg *request,
-+			 struct wilco_ec_kbbl_msg *response)
-+{
-+	struct wilco_ec_message msg;
-+	int ret;
-+
-+	memset(&msg, 0, sizeof(msg));
-+	msg.type = WILCO_EC_MSG_LEGACY;
-+	msg.request_data = &request;
-+	msg.request_size = sizeof(request);
-+	msg.response_data = &response;
-+	msg.response_size = sizeof(response);
-+
-+	ret = wilco_ec_mailbox(ec, &msg);
-+	if (ret < 0)
-+		dev_err(ec->dev, "Failed sending brightness command: %d", ret);
-+
-+	if (response->status) {
-+		dev_err(ec->dev,
-+			"EC reported failure sending brightness command: %d",
-+			response->status);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/* This may sleep because it uses wilco_ec_mailbox() */
-+static int keyboard_led_set_brightness(struct led_classdev *cdev,
-+				       enum led_brightness brightness)
-+{
-+	struct wilco_ec_kbbl_msg request;
-+	struct wilco_ec_kbbl_msg response;
-+	struct wilco_keyboard_led_data *data;
-+
-+	memset(&request, 0, sizeof(request));
-+	request.command = WILCO_EC_COMMAND_KBBL;
-+	request.subcmd = WILCO_KBBL_SUBCMD_GET_STATE;
-+	request.mode = WILCO_KBBL_MODE_FLAG_PWM;
-+	request.percent = brightness;
-+
-+	data = container_of(cdev, struct wilco_keyboard_led_data, keyboard);
-+	return send_kbbl_msg(data->ec, &request, &response);
-+}
-+
-+/*
-+ * Get the current brightness, ensuring that we are in PWM mode. If not
-+ * in PWM mode, then the current brightness is meaningless, so set the
-+ * brightness to KBBL_DEFAULT_BRIGHTNESS.
-+ *
-+ * Return: Final brightness of the keyboard, or negative error code on failure.
-+ */
-+static int initialize_brightness(struct wilco_keyboard_led_data *data)
-+{
-+	struct wilco_ec_kbbl_msg request;
-+	struct wilco_ec_kbbl_msg response;
-+	int ret;
-+
-+	memset(&request, 0, sizeof(request));
-+	request.command = WILCO_EC_COMMAND_KBBL;
-+	request.subcmd = WILCO_KBBL_SUBCMD_GET_STATE;
-+
-+	ret = send_kbbl_msg(data->ec, &request, &response);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (response.mode & WILCO_KBBL_MODE_FLAG_PWM)
-+		return response.percent;
-+
-+	dev_warn(data->ec->dev, "Keyboard brightness not initialized by BIOS");
-+	ret = keyboard_led_set_brightness(&data->keyboard,
-+					  KBBL_DEFAULT_BRIGHTNESS);
-+	if (ret < 0)
-+		return ret;
-+
-+	return KBBL_DEFAULT_BRIGHTNESS;
-+}
-+
-+static int keyboard_led_probe(struct platform_device *pdev)
-+{
-+	struct wilco_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
-+	struct wilco_keyboard_led_data *data;
-+	int ret;
-+
-+	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->ec = ec;
-+	/* This acts the same as the CrOS backlight, so use the same name */
-+	data->keyboard.name = "chromeos::kbd_backlight";
-+	data->keyboard.max_brightness = 100;
-+	data->keyboard.flags = LED_CORE_SUSPENDRESUME;
-+	data->keyboard.brightness_set_blocking = keyboard_led_set_brightness;
-+	ret = initialize_brightness(data);
-+	if (ret < 0)
-+		return ret;
-+	data->keyboard.brightness = ret;
-+
-+	ret = devm_led_classdev_register(&pdev->dev, &data->keyboard);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static struct platform_driver keyboard_led_driver = {
-+	.driver = {
-+		.name = DRV_NAME,
-+	},
-+	.probe = keyboard_led_probe,
-+};
-+module_platform_driver(keyboard_led_driver);
-+
-+MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
-+MODULE_DESCRIPTION("Wilco keyboard backlight LED driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:" DRV_NAME);
-diff --git a/include/linux/platform_data/wilco-ec.h b/include/linux/platform_data/wilco-ec.h
-index 1ff224793c99..c3965b7f397d 100644
---- a/include/linux/platform_data/wilco-ec.h
-+++ b/include/linux/platform_data/wilco-ec.h
-@@ -32,6 +32,7 @@
-  * @data_size: Size of the data buffer used for EC communication.
-  * @debugfs_pdev: The child platform_device used by the debugfs sub-driver.
-  * @rtc_pdev: The child platform_device used by the RTC sub-driver.
-+ * @kbbl_pdev: The child pdev used by the keyboard backlight sub-driver.
-  */
- struct wilco_ec_device {
- 	struct device *dev;
-@@ -43,6 +44,7 @@ struct wilco_ec_device {
- 	size_t data_size;
- 	struct platform_device *debugfs_pdev;
- 	struct platform_device *rtc_pdev;
-+	struct platform_device *kbbl_pdev;
- };
- 
- /**
-@@ -114,6 +116,42 @@ struct wilco_ec_message {
- 	void *response_data;
- };
- 
-+/* Constants and structs useful for keyboard backlight (KBBL) control */
-+
-+#define WILCO_EC_COMMAND_KBBL		0x75
-+#define WILCO_KBBL_MODE_FLAG_PWM	BIT(1)	/* Set brightness by percent. */
-+
-+/**
-+ * enum kbbl_subcommand - What action does the EC perform?
-+ * @WILCO_KBBL_SUBCMD_GET_FEATURES: Request available functionality from EC.
-+ * @WILCO_KBBL_SUBCMD_GET_STATE: Request current mode and brightness from EC.
-+ * @WILCO_KBBL_SUBCMD_SET_STATE: Write mode and brightness to EC.
-+ */
-+enum kbbl_subcommand {
-+	WILCO_KBBL_SUBCMD_GET_FEATURES = 0x00,
-+	WILCO_KBBL_SUBCMD_GET_STATE = 0x01,
-+	WILCO_KBBL_SUBCMD_SET_STATE = 0x02,
-+};
-+
-+/**
-+ * struct wilco_ec_kbbl_msg - Message to/from EC for keyboard backlight control.
-+ * @command: Always WILCO_EC_COMMAND_KBBL.
-+ * @status: Set by EC to 0 on success, 0xFF on failure.
-+ * @subcmd: One of enum kbbl_subcommand.
-+ * @mode: Bit flags for used mode, we want to use WILCO_KBBL_MODE_FLAG_PWM.
-+ * @percent: Brightness in 0-100. Only meaningful in PWM mode.
-+ */
-+struct wilco_ec_kbbl_msg {
-+	u8 command;
-+	u8 status;
-+	u8 subcmd;
-+	u8 reserved3;
-+	u8 mode;
-+	u8 reserved5to8[4];
-+	u8 percent;
-+	u8 reserved10to15[6];
-+} __packed;
-+
- /**
-  * wilco_ec_mailbox() - Send request to the EC and receive the response.
-  * @ec: Wilco EC device.
 -- 
-2.20.1
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
