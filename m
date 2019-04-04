@@ -6,74 +6,70 @@ X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F49C4360F
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 11:17:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA51AC4360F
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 14:11:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB01120820
-	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 11:17:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C04FC2082E
+	for <linux-rtc@archiver.kernel.org>; Thu,  4 Apr 2019 14:11:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbfDDLRc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 4 Apr 2019 07:17:32 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:48333 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727341AbfDDLRc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 4 Apr 2019 07:17:32 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 8EDF480323; Thu,  4 Apr 2019 13:17:20 +0200 (CEST)
-Date:   Thu, 4 Apr 2019 13:17:31 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Nick Crews <ncrews@chromium.org>
-Cc:     enric.balletbo@collabora.com, bleung@chromium.org,
-        linux-leds@vger.kernel.org, jacek.anaszewski@gmail.com,
-        alexandre.belloni@bootlin.com, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dlaurie@chromium.org, sjg@google.com, groeck@google.com,
-        dtor@google.com
-Subject: Re: [PATCH v4 2/2] platform/chrome: Add Wilco EC keyboard backlight
- LEDs support
-Message-ID: <20190404111731.GA18653@amd>
-References: <20190403212757.132684-1-ncrews@chromium.org>
- <20190403212757.132684-2-ncrews@chromium.org>
+        id S1727310AbfDDOLN convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 4 Apr 2019 10:11:13 -0400
+Received: from muru.com ([72.249.23.125]:44338 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726618AbfDDOLN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 4 Apr 2019 10:11:13 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id C710080D4;
+        Thu,  4 Apr 2019 14:11:26 +0000 (UTC)
+Date:   Thu, 4 Apr 2019 07:11:09 -0700
+From:   Tony Lindgren <tony@atomide.com>
+To:     Andreas Kemnade <andreas@kemnade.info>
+Cc:     Keerthy <j-keerthy@ti.com>, alexandre.belloni@bootlin.com,
+        a.zummo@towertech.it, t-kristo@ti.com, ssantosh@kernel.org,
+        d-gerlach@ti.com, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 3/5] arm: mach-omap2: pm33xx: Add support for rtc+ddr in
+ self refresh mode
+Message-ID: <20190404141108.GC49658@atomide.com>
+References: <20190322171619.4180-1-j-keerthy@ti.com>
+ <20190322171619.4180-4-j-keerthy@ti.com>
+ <20190401175245.GJ49658@atomide.com>
+ <20190401203854.3b6ec1a2@kemnade.info>
+ <20190401204033.GK49658@atomide.com>
+ <20190404125111.3800e26d@kemnade.info>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190403212757.132684-2-ncrews@chromium.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20190404125111.3800e26d@kemnade.info>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+* Andreas Kemnade <andreas@kemnade.info> [190404 10:53]:
+> On Mon, 1 Apr 2019 13:40:33 -0700
+> Tony Lindgren <tony@atomide.com> wrote:
+> > * Andreas Kemnade <andreas@kemnade.info> [190401 18:39]:
+> > > Could we somehow describe this property of the hardware
+> > > (is-offmode-capable or is-wired-for-offmode) as a separate devicetree
+> > > property of the soc?
+> > > 
+> > > In mmc we have for example "cap-power-off-card" for
+> > > indicating some is-wired-suitable-for thing.  
+> > 
+> > And we also have "regulator-off-in-suspend".
+> > 
+> > How about "soc-off-in-suspend" for the generic name?
+> > 
+> Well, remember my "omap3: give off mode enable a more prominent place"
+> maybe we can use the same  capability property for both proposes.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes. I don't think we need a Kconfig option for it though.
+Seems just a device specific property should be enough for now.
 
-On Wed 2019-04-03 15:27:58, Nick Crews wrote:
-> The EC is in charge of controlling the keyboard backlight on
-> the Wilco platform. We expose a standard LED class device at
-> /sys/class/leds/chromeos::kbd_backlight. This driver is modeled
+Regards,
 
-Please use platform::kbd_backlight.
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlyl58sACgkQMOfwapXb+vJt3QCghaHErLDMJqTNyiuOdDItOitT
-GksAn3e8UW+bDBwdh66UJ0k4HR+I51RZ
-=yv61
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
+Tony
