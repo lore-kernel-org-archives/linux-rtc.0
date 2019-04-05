@@ -2,233 +2,237 @@ Return-Path: <SRS0=YS69=SH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F629C4360F
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 11:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35B94C282CE
+	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 20:00:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D764F2186A
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 11:15:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF50D20855
+	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 20:00:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=vaisala.com header.i=@vaisala.com header.b="WAF/0RyI"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JUHRf3Cm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbfDELPT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 5 Apr 2019 07:15:19 -0400
-Received: from mail-eopbgr40078.outbound.protection.outlook.com ([40.107.4.78]:17282
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730596AbfDELPS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 5 Apr 2019 07:15:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vaisala.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QElaM6p9aA7sjRAUh6b2AVsJK7Z56K1x57AuugQLrqU=;
- b=WAF/0RyId60osSK7K+XIMgbOVd5h3r99x+byAW9hdQRtTvMVS1BIZjKeeMyf+lBIwVwRsUvBvlYJDDjWZwLB89DQuU2KoG20gOuVSXgpBfwK4JyqKtQBJhanrmqOdDiG+kadf4WtuRW2iy3kVMRpAyu/6lYu9aIDfQc+gBVDvGI=
-Received: from AM6PR06MB5557.eurprd06.prod.outlook.com (20.178.94.211) by
- AM6PR06MB5944.eurprd06.prod.outlook.com (20.178.95.97) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1750.19; Fri, 5 Apr 2019 11:14:35 +0000
-Received: from AM6PR06MB5557.eurprd06.prod.outlook.com
- ([fe80::c0b4:b693:fdc7:e476]) by AM6PR06MB5557.eurprd06.prod.outlook.com
- ([fe80::c0b4:b693:fdc7:e476%4]) with mapi id 15.20.1750.014; Fri, 5 Apr 2019
- 11:14:35 +0000
-From:   Han Nandor <nandor.han@vaisala.com>
-To:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     Han Nandor <nandor.han@vaisala.com>
-Subject: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
-Thread-Topic: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
-Thread-Index: AQHU66DAdPJX3q+9E0y1tHM/Hisrmw==
-Date:   Fri, 5 Apr 2019 11:14:35 +0000
-Message-ID: <20190405111348.28935-1-nandor.han@vaisala.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: HE1PR0701CA0062.eurprd07.prod.outlook.com
- (2603:10a6:3:9e::30) To AM6PR06MB5557.eurprd06.prod.outlook.com
- (2603:10a6:20b:9c::19)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=nandor.han@vaisala.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.17.2
-x-originating-ip: [193.143.230.131]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 102e48dc-8f74-4e23-5732-08d6b9b7e26f
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600139)(711020)(4605104)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:AM6PR06MB5944;
-x-ms-traffictypediagnostic: AM6PR06MB5944:
-x-tenant-id: 6d7393e0-41f5-4c2e-9b12-4c2be5da5c57
-x-microsoft-antispam-prvs: <AM6PR06MB59444527B3420178C541A67785510@AM6PR06MB5944.eurprd06.prod.outlook.com>
-x-forefront-prvs: 0998671D02
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(346002)(396003)(376002)(366004)(39850400004)(189003)(199004)(86362001)(53936002)(6486002)(5660300002)(2201001)(305945005)(68736007)(256004)(71200400001)(14454004)(105586002)(14444005)(6116002)(6512007)(106356001)(71190400001)(66066001)(4326008)(3846002)(6436002)(8676002)(7736002)(107886003)(2906002)(81166006)(50226002)(36756003)(386003)(99286004)(478600001)(81156014)(110136005)(102836004)(316002)(1076003)(8936002)(52116002)(186003)(2616005)(486006)(476003)(2501003)(97736004)(25786009)(6506007)(26005);DIR:OUT;SFP:1101;SCL:1;SRVR:AM6PR06MB5944;H:AM6PR06MB5557.eurprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: vaisala.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: CJX6A0Aij/FtqS7qovOB5Wg9zhTXr3I4VnnfL3wi67YDz00Q4vxpNInVC7oj0zTU0+zmFvyxfZEdFmnYswoCMSZ4Nv7sK/xC+Qy57Rt+Bu72tzXTAbIpuCV1kn0EXP/GanKyYW36U2v1SHw23T68lmkwpVqCZsdG6GjAW6LAS650vWvkR+NwHy5ZQoFYozUymxgqglX/FgpziyB+UpHsrxlQis9a4E60EL6nCduDIhMAF7pnvpps7oEmHJpNPaUEKrpvz1zcVWG0+DGoOkSOwfh0MGxKWm4A2lWXW3okjf3SENUq7mTM9chfWSJKkJ/C3nMLeZyxzzXKShrAh01pjolBcF2mw07AaGKugYH+YtqnoiGRXlEjnwxtlJ1cBQ84lLSgqrB+xA9fjCFwX1vXeYzH84zGzSt7rHoIge1DfGs=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1731611AbfDEUAN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 5 Apr 2019 16:00:13 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:42294 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731589AbfDEUAN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 Apr 2019 16:00:13 -0400
+Received: by mail-wr1-f67.google.com with SMTP id g3so9337632wrx.9;
+        Fri, 05 Apr 2019 13:00:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Ao0rMgygIigF4/A3IIXKESY+E+98suF4TFmIM9PfRc8=;
+        b=JUHRf3CmolO78xLfnct/hqCYi1BMIOoyNUS8uXP6+tFWyCH25qS/U1b3Mkw1Oyu3go
+         Xi73Cbn1gISQvXb/rguSt0WFJk4D5w/g2exSvSwAx1CqWRq3XSUfvJTkYT4W5wmuWjnd
+         yhZWWhB/B3kpXzYISEfCCRd8XKkEzm5cD8DD4H+B1vicj2CbATiDSiX5LYz+bZYG7pXl
+         VkjVDZXQERk2geJbpKtXh2w+WGE9sQ51oLXcX7UaZrBc6ewcUljCFpRGSyA6JeYEC0Gj
+         aZJVzq9njPihF6c2y1mDztK95BQgWN+akKF3G1jhntJl5/fHx5lrkN/OdMB87Z0bIkoz
+         3tmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Ao0rMgygIigF4/A3IIXKESY+E+98suF4TFmIM9PfRc8=;
+        b=a6FTB1cwmiCmtQS4nqpn4QbNuRnjGYvk4N+9d+TkVjC8OOjmqI4BLGjl6dPngzKbcs
+         I2zmmji+SCDco/b8HCnVBVqgoi1seDTL3W9PpjOFBceh8rQtYf4S6hzTJ9/h8DKBdzI1
+         6lFU29xP8CyzNZj78Wo8ekOI7JBcK9Bq1HbQAuOciYY7rTWrzRXtoYHF1/Ewg58Sz5aV
+         7yPMR9wCbefC8AYL/vW9x7JYzcINiKpj9U6DZEVFTHyfTH5y9TUXkCs/8fSUzpYLvY/e
+         yEUz3JBlfHl9mZBBU8LqtqAUUGRkWUcQK/xe4P5dLRmMekEO4v17ZPDVB7+DbcgtuJVg
+         CmMg==
+X-Gm-Message-State: APjAAAUckPau1AJ3Jku5OpmZeAQKBlNKAd6VwdvnnTE2UeF0mpy9T1Si
+        0ngKTBuhiHavN7dStJCcu/0=
+X-Google-Smtp-Source: APXvYqycIgViNakHJ1k3mzyGgkyrHOlCYvyCcdf9KNNzMuAfieGyvnXVO8KZV8iv3jz4h6v0HBsqWg==
+X-Received: by 2002:a5d:4d42:: with SMTP id a2mr9822411wru.130.1554494410365;
+        Fri, 05 Apr 2019 13:00:10 -0700 (PDT)
+Received: from [192.168.1.19] (bga218.neoplus.adsl.tpnet.pl. [83.28.64.218])
+        by smtp.gmail.com with ESMTPSA id 4sm2593984wmi.14.2019.04.05.13.00.08
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 05 Apr 2019 13:00:09 -0700 (PDT)
+Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
+ backlight name
+To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Guenter Roeck <groeck@google.com>, Pavel Machek <pavel@ucw.cz>
+Cc:     Dmitry Torokhov <dtor@google.com>,
+        Nick Crews <ncrews@chromium.org>,
+        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Duncan Laurie <dlaurie@chromium.org>,
+        Simon Glass <sjg@google.com>
+References: <20190404185919.GB27340@amd>
+ <CAE_wzQ-XuK7WOyPm6yXsmjp7z0=T92mMrfn1TVaavaLejcYVGA@mail.gmail.com>
+ <20190404191931.GA29984@amd>
+ <CAE_wzQ8y8i7C+_tv0CdnbUw0r21g1ggv2YUuzCog1xABivEvWA@mail.gmail.com>
+ <20190404200658.GD29984@amd>
+ <CAE_wzQ8WcMCzYqvxA_JBZKNza7ca3QE-VShmMxv5++_4F8RR=g@mail.gmail.com>
+ <20190404202042.GF29984@amd>
+ <CAE_wzQ-8XwzptH7EqNrELxjBzY2+0oHJGB3Va=vZwwK3csu_aA@mail.gmail.com>
+ <20190404204207.GH29984@amd>
+ <CAE_wzQ8xe=x0uYcZkDRVKpUAQ_1vVdEPHU3XnEV1=_WN1-AMfw@mail.gmail.com>
+ <20190404220509.GA14690@amd>
+ <CABXOdTeQgjd2-T+eZCMdTDWBGLHEk6kvnYR0DjJYR7zuvVTMsQ@mail.gmail.com>
+ <df9577fd-c526-77e9-c11c-5416387121db@collabora.com>
+From:   Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Message-ID: <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
+Date:   Fri, 5 Apr 2019 22:00:04 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-X-OriginatorOrg: vaisala.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 102e48dc-8f74-4e23-5732-08d6b9b7e26f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Apr 2019 11:14:35.1257
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 6d7393e0-41f5-4c2e-9b12-4c2be5da5c57
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR06MB5944
+In-Reply-To: <df9577fd-c526-77e9-c11c-5416387121db@collabora.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-DS3232 RTC has 236 bytes of persistent memory.
+Hi all,
 
-Add RTC SRAM read and write access using
-the NVMEM Framework.
+On 4/5/19 10:42 AM, Enric Balletbo i Serra wrote:
+> Hi,
+> 
+> On 5/4/19 0:42, Guenter Roeck wrote:
+>> On Thu, Apr 4, 2019 at 3:05 PM Pavel Machek <pavel@ucw.cz> wrote:
+>>>
+>>> On Thu 2019-04-04 14:48:35, Dmitry Torokhov wrote:
+>>>> On Thu, Apr 4, 2019 at 1:42 PM Pavel Machek <pavel@ucw.cz> wrote:
+>>>>>
+>>>>> Hi!
+>>>>>
+>>>>>>>> And what to do if internal keyboard is not platform but USB? Like
+>>>>>>>> Google "Whiskers"? (I am not sure why you decided to drop my mention
+>>>>>>>> of internal USB keyboards completely off your reply).
+>>>>>>>
+>>>>>>> I don't have answers for everything. Even if you have USB keyboard, you'll
+>>>>>>> likely still have backlight connected to embedded controller. If not,
+>>>>>>> then maybe you have exception userland needs to know about.
+>>>>>>>
+>>>>>>> Still better than making everything an exception.
+>>>>>>
+>>>>>> You do not need to make everything exception. You just need to look
+>>>>>> beyond the name, and see how the device is connected. And then apply
+>>>>>> your exceptions for "weird" devices.
+>>>>>
+>>>>> "Where it is connected" is not interesting to the userland. "Is it
+>>>>> backlight for internal keyboard" is the right question. It may be
+>>>>> connected to embedded controller or some kind of controller over
+>>>>> i2c... my shell scripts should not need to know about architecture of
+>>>>> every notebook out there.
+>>>>
+>>>> Then your scripts will be failing for some setups.
+>>>
+>>> Well, yes. Do you want to guess what "lp5523:kb3" is?
+>>>
+>>
+>> Oh, please. The discussion is about the driver name part, which you
+>> want to overload with some string to mean "internal", which in turn
+>> is, if anything, part of the functionality.
+>>
+>> With "platform", you'll at some point have two
+>> "platform::kbd_backlight" entries. Remind me to send you a "told you
+>> so" when that happens.
+>>
+>> Guenter
+>>
+>>>>> But I don't see why I should do additional work when its trivial for
+>>>>> kernel to just name the LED in an useful way.
+>>>>>
+>>>>> "platform::kbd_backlight" has no disadvantages compared to
+>>>>> "wilco::kbd_backlight" ... so lets just use it.
+>>>>
+>>>> It has disadvantages because it promises more than it can deliver IMO.
+>>>> If device name != "platform::kbd_backlight" it does not mean that it
+>>>> is not internal keyboard.
+>>>
+>>> My promise is if "platform::kbd_backlight" exists, it is backlight for
+>>> internal keyboard. (And second half is "if it is easy for kernel, we
+>>> name backlight for internal keyboard platform::kbd_backlight").
+>>>
+>>>> And you still have not resolved how you will
+>>>> handle cases when there is more than one deice that can be considered
+>>>> internal and may have a backlight.
+>>>
+>>> Is that realistic? How would that device look like?
+>>>
+> 
+> Maybe is something "weird" in the PC/laptop world but in the Embedded world is
+> not as weird as you think. I worked on devices that has two internal backlights,
+> one to lit the qwerty keyboard and the other one to lit the numeric pad. We used
+> the device field to differentiate both.
+> 
+>    keyboardist::kbd_backlight
+>    tclnumpad::kbd_backlight
+> 
+> Taking this to the extreme you can also think in a device where every key has
+> its own LED backlight, this happens for example in this device [1]. The device
+> can lit only specific keys giving to the user a word prediction experience (i.e
+> After press a key, only the keys that match with a possible word are lit on)
 
-Signed-off-by: Nandor Han <nandor.han@vaisala.com>
----
+While we have your attention at the subject of LED naming I would like
+to invite you all to reviewing my recent patch set [0], available
+also on the led_naming_v3 branch of linux-leds.git [1].
 
-Description
------------
-Provides DS3232 RTC SRAM access using NVMEM framework.
+The patch set introduces generic, backward compatible mechanism for
+composing LED class devices names. It also aims to deprecate current
+LED naming convention and encourage dropping "devicename" section.
 
-Testing
--------
-The test was done on a custom board which contains a
-DS3232 RTC device.
-Kernel Version: 4.14.60 (Just for clarity, the patch is against master)
+Patch 5/25 from the discussed patch set includes
+get_led_device_name_info.sh script proving that parent device name
+of the LED class device is available in the sysfs and its presence
+in the LED name is unjustified and redundant. The argument being raised
+here related to name clash risk when there is no unique devicename
+section included into the LED name is unjustified since LED core has
+a protection against that and adds "_n" numerical suffix to the
+requested LED name when it is already taken.
 
-1. Verify that SRAM is accessible using NVMEM interface: PASS
-`
-# hexdump /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-0000000 0000 0000 0000 0000 0000 0000 0000 0000
-*
-00000e0
-`
-2. Modify the content.
-`
-# echo testing > /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-#
-`
-3. Power cycle the board and verify that contents are preserved: PASS
-`
-# hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
-0000000a
-`
+The patch set introduces also a set of predefined LED_FUNCTION
+names to be used in DT bindings. This along with the removal
+of devicename section from LED naming pattern will help to keep
+LED sysfs interface more uniform and not varying depending on
+underlaying hardware driving the LEDs.
 
- drivers/rtc/rtc-ds3232.c | 41 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+Regarding the problem discussed in this thread - I would not necessarily
+go for "platform" in place of devicename LED name section in the
+cros_kbd_led_backlight driver. If we change it (should we at all - it is
+already in 5.0 AFAICS?), then I would opt for dropping the "chromeos:"
+part. It believe it will be possible to retrieve this name with
+get_led_device_info.sh script. It would be good exercise to check
+it out.
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 7184e5145f12..fe615aedaa9a 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -24,6 +24,8 @@
- #include <linux/regmap.h>
- #include <linux/hwmon.h>
-=20
-+#include "rtc-core.h"
-+
- #define DS3232_REG_SECONDS      0x00
- #define DS3232_REG_MINUTES      0x01
- #define DS3232_REG_HOURS        0x02
-@@ -48,12 +50,17 @@
- #       define DS3232_REG_SR_A1F     0x01
-=20
- #define DS3232_REG_TEMPERATURE	0x11
-+#define DS3232_REG_SRAM_START   0x14
-+#define DS3232_REG_SRAM_END     0xFF
-+
-+#define DS3232_REG_SRAM_SIZE    236
-=20
- struct ds3232 {
- 	struct device *dev;
- 	struct regmap *regmap;
- 	int irq;
- 	struct rtc_device *rtc;
-+	struct nvmem_config	nvmem_cfg;
-=20
- 	bool suspended;
- };
-@@ -461,6 +468,24 @@ static const struct rtc_class_ops ds3232_rtc_ops =3D {
- 	.alarm_irq_enable =3D ds3232_alarm_irq_enable,
- };
-=20
-+static int ds3232_nvmem_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
-+{
-+	struct ds3232 *ds3232 =3D (struct ds3232 *)priv;
-+
-+	return regmap_bulk_read(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-+				val, bytes);
-+}
-+
-+static int ds3232_nvmem_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
-+{
-+	struct ds3232 *ds3232 =3D (struct ds3232 *)priv;
-+
-+	return regmap_bulk_write(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-+				 val, bytes);
-+}
-+
- static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq=
-,
- 			const char *name)
- {
-@@ -476,6 +501,14 @@ static int ds3232_probe(struct device *dev, struct reg=
-map *regmap, int irq,
- 	ds3232->dev =3D dev;
- 	dev_set_drvdata(dev, ds3232);
-=20
-+	ds3232->nvmem_cfg.name =3D "ds3232_sram";
-+	ds3232->nvmem_cfg.stride =3D 1;
-+	ds3232->nvmem_cfg.size =3D DS3232_REG_SRAM_SIZE;
-+	ds3232->nvmem_cfg.word_size =3D 1;
-+	ds3232->nvmem_cfg.reg_read =3D ds3232_nvmem_read;
-+	ds3232->nvmem_cfg.reg_write =3D ds3232_nvmem_write;
-+	ds3232->nvmem_cfg.priv =3D ds3232;
-+
- 	ret =3D ds3232_check_rtc_status(dev);
- 	if (ret)
- 		return ret;
-@@ -490,6 +523,10 @@ static int ds3232_probe(struct device *dev, struct reg=
-map *regmap, int irq,
- 	if (IS_ERR(ds3232->rtc))
- 		return PTR_ERR(ds3232->rtc);
-=20
-+	ds3232->rtc->dev.of_node =3D dev->of_node;
-+	ds3232->rtc->nvmem_config =3D &ds3232->nvmem_cfg;
-+	rtc_nvmem_register(ds3232->rtc);
-+
- 	if (ds3232->irq > 0) {
- 		ret =3D devm_request_threaded_irq(dev, ds3232->irq, NULL,
- 						ds3232_irq,
-@@ -542,7 +579,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
- 	static const struct regmap_config config =3D {
- 		.reg_bits =3D 8,
- 		.val_bits =3D 8,
--		.max_register =3D 0x13,
-+		.max_register =3D DS3232_REG_SRAM_END,
- 	};
-=20
- 	regmap =3D devm_regmap_init_i2c(client, &config);
-@@ -609,7 +646,7 @@ static int ds3234_probe(struct spi_device *spi)
- 	static const struct regmap_config config =3D {
- 		.reg_bits =3D 8,
- 		.val_bits =3D 8,
--		.max_register =3D 0x13,
-+		.max_register =3D DS3232_REG_SRAM_END,
- 		.write_flag_mask =3D 0x80,
- 	};
- 	struct regmap *regmap;
---=20
-2.17.2
+In cases like above:
 
+     keyboardist::kbd_backlight
+     tclnumpad::kbd_backlight
+
+we could do with the following:
+
+     :kbd-backlight
+     :numpad-backlight
+
+I used hyphens instead of underscores since we will have this convention
+in the LED_FUNCTION names, which is more common for Device Tree, and
+some of existing LED triggers.
+
+W could also think of placing common LED_FUNCTION definitions in
+include/leds/led-functions.h and include it in both include/leds/leds.h
+and include/dt-bindings/leds/common.h, so that they would be more
+naturally accessible for non DT based drivers.
+
+
+[0] https://lkml.org/lkml/2019/3/31/222
+[1] 
+https://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds.git/log/?h=led_naming_v3
+
+-- 
+Best regards,
+Jacek Anaszewski
