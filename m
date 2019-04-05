@@ -2,126 +2,216 @@ Return-Path: <SRS0=YS69=SH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9517CC282CE
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 20:15:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3516C282CE
+	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 21:45:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 58FDD2146F
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 20:15:38 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZqwAcBd5"
+	by mail.kernel.org (Postfix) with ESMTP id BCCC120663
+	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 21:45:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726352AbfDEUPh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 5 Apr 2019 16:15:37 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:43255 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725946AbfDEUPh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 Apr 2019 16:15:37 -0400
-Received: by mail-pf1-f195.google.com with SMTP id c8so3855011pfd.10;
-        Fri, 05 Apr 2019 13:15:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QW9mAbN3hAuEFgKURNXSsviVwfKLY+YqAv655b7PBfE=;
-        b=ZqwAcBd5NX1n/GW2fzhqvYFl1/UXU+/i/5wXYF1TmU2SHKAvXinyFkgWGM/d/mhIv4
-         KgwtYAM6R7Vdner9fb/7grCra1HGgGgOTu+nqTpkcLcIfy8qrLby0CP5V/424HN13nvi
-         gbWy1voI4ZIMC0/mAr0c8X8nyUP6ASDFh3hsoi18VcrtwGMaYFeNnajezLKJkaA5qbS/
-         8vGZZqcOAmGKP0diIMoGxKCaiQAHkObKPgLWTSqPb5TUVKWdRPo5uGRAUANOxyDSC0pN
-         SFpu5Uvv8oxk7b08PmZ7lXA/M3OnURfH6dSJzc+W4gYkwxWmsgSjkoKSvaAg/U3qN0yg
-         4S0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QW9mAbN3hAuEFgKURNXSsviVwfKLY+YqAv655b7PBfE=;
-        b=DqyrhMA/C8ysIFbaydq+l+ThYpTKibFLCgW4h5/pFVxTMt2jJj0l6z4KQcahD0/bef
-         wjC4jTjIigGbLw4h62qZstlXOxhwiKRlIRBSEk3T5UxFCdnYVz/vqG+eJwA1+MNi1znz
-         Eot34bKWXdhPKq+v+kS/EZ8Tm8TjcsEjDaIcPNP2D/WA5/O8I2l+/LhuQUGgEumYYsL/
-         F9RGyYe8BM+wavpvJUrqx9B8WT9K4kKiSUVokxv9KdD+4eO6B6uOtbXVmKMDAZtLu9tM
-         V4aBHAhACeL2o2TwCNWE1574qDPuwgtfijcdRal5t4KFn+z75nan8DxjyNSoKWYEcRLb
-         0tLQ==
-X-Gm-Message-State: APjAAAWCYdH2iIbqbLJxcXQGwNUwEw7IMsqjpOwVypFzDvUw5jmsFgbZ
-        t9z4bFNj7Z/BT8+o/yForHYFe+Kq
-X-Google-Smtp-Source: APXvYqwF/WHq9MbD/opCjhvqJbNAX1Z15ZkIRA76vVGb8PTFSQrYPafdmohdpB6soGr+iKtUQkvSbQ==
-X-Received: by 2002:aa7:9421:: with SMTP id y1mr14891894pfo.147.1554495336913;
-        Fri, 05 Apr 2019 13:15:36 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h4sm24915865pgn.20.2019.04.05.13.15.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 05 Apr 2019 13:15:35 -0700 (PDT)
-Date:   Fri, 5 Apr 2019 13:15:34 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Nick Crews <ncrews@chromium.org>
-Cc:     enric.balletbo@collabora.com, bleung@chromium.org,
-        linux-leds@vger.kernel.org, jacek.anaszewski@gmail.com,
-        pavel@ucw.cz, alexandre.belloni@bootlin.com, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dlaurie@chromium.org, sjg@google.com, groeck@google.com,
-        dtor@google.com
-Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
- LEDs support
-Message-ID: <20190405201534.GA4426@roeck-us.net>
-References: <20190404171007.160878-1-ncrews@chromium.org>
- <20190404171007.160878-2-ncrews@chromium.org>
+        id S1726561AbfDEVo6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 5 Apr 2019 17:44:58 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:34379 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726535AbfDEVo6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 Apr 2019 17:44:58 -0400
+X-Originating-IP: 86.202.231.219
+Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id F1A07E0003;
+        Fri,  5 Apr 2019 21:44:54 +0000 (UTC)
+Date:   Fri, 5 Apr 2019 23:44:54 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Han Nandor <nandor.han@vaisala.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
+Message-ID: <20190405214454.GJ22216@piout.net>
+References: <20190405111348.28935-1-nandor.han@vaisala.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190404171007.160878-2-ncrews@chromium.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190405111348.28935-1-nandor.han@vaisala.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Apr 04, 2019 at 11:10:08AM -0600, Nick Crews wrote:
-> The EC is in charge of controlling the keyboard backlight on
-> the Wilco platform. We expose a standard LED class device at
-> /sys/class/leds/platform::kbd_backlight. This driver is modeled
-> after the standard Chrome OS keyboard backlight driver at
-> drivers/platform/chrome/cros_kbd_led_backlight.c
+Hi,
+
+On 05/04/2019 11:14:35+0000, Han Nandor wrote:
+> DS3232 RTC has 236 bytes of persistent memory.
 > 
-> Some Wilco devices do not support a keyboard backlight. This
-> is checked via wilco_ec_keyboard_leds_exist() in the core driver,
-> and a platform_device will only be registered by the core if
-> a backlight is supported.
+> Add RTC SRAM read and write access using
+> the NVMEM Framework.
 > 
-> After an EC reset the backlight could be in a non-PWM mode.
-> Earlier in the boot sequence the BIOS should send a command to
-> the EC to set the brightness, so things **should** be set up,
-> but we double check in probe() as we query the initial brightness.
-> If not set up, then set the brightness to 0.
+> Signed-off-by: Nandor Han <nandor.han@vaisala.com>
+> ---
 > 
-> Since the EC will never change the backlight level of its own accord,
-> we don't need to implement a brightness_get() method.
+> Description
+> -----------
+> Provides DS3232 RTC SRAM access using NVMEM framework.
 > 
-> v5 changes:
-> -Rename the LED device to "platform::kbd_backlight", to
-> denote that this is the built-in system keyboard.
+> Testing
+> -------
+> The test was done on a custom board which contains a
+> DS3232 RTC device.
+> Kernel Version: 4.14.60 (Just for clarity, the patch is against master)
+> 
+> 1. Verify that SRAM is accessible using NVMEM interface: PASS
+> `
+> # hexdump /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> 0000000 0000 0000 0000 0000 0000 0000 0000 0000
+> *
+> 00000e0
+> `
+> 2. Modify the content.
+> `
+> # echo testing > /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> #
+> `
+> 3. Power cycle the board and verify that contents are preserved: PASS
+> `
+> # hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> 00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
+> 0000000a
+> `
 > 
 
-NACK.
+Thanks for that nice description!
 
-Per Documentation/leds/leds-class.txt, LED devices are named
-	"devicename:colour:function"
+>  drivers/rtc/rtc-ds3232.c | 41 ++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 39 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+> index 7184e5145f12..fe615aedaa9a 100644
+> --- a/drivers/rtc/rtc-ds3232.c
+> +++ b/drivers/rtc/rtc-ds3232.c
+> @@ -24,6 +24,8 @@
+>  #include <linux/regmap.h>
+>  #include <linux/hwmon.h>
+>  
+> +#include "rtc-core.h"
+> +
 
-This document also states "The naming scheme above leaves scope
-for further attributes should they be needed". It does not permit,
-however, to redefine one of the fields to mean "location", much less
-the declaration that a devicename of "platform" shall refer to an
-"internal" backlight, or that there shall be no more than one
-"internal" backlight in a given system.
+The drivers should not have to include that header, see
+fd5cd21d995e67f87b3eb4adf938be85fe83ef4b (from 4.16).
 
-On top of that, with this naming scheme any system with more than
-one internal backlight may result in duplicate sysfs attribute names.
+>  #define DS3232_REG_SECONDS      0x00
+>  #define DS3232_REG_MINUTES      0x01
+>  #define DS3232_REG_HOURS        0x02
+> @@ -48,12 +50,17 @@
+>  #       define DS3232_REG_SR_A1F     0x01
+>  
+>  #define DS3232_REG_TEMPERATURE	0x11
+> +#define DS3232_REG_SRAM_START   0x14
+> +#define DS3232_REG_SRAM_END     0xFF
+> +
+> +#define DS3232_REG_SRAM_SIZE    236
+>  
 
-If an attribute for "location" is desired or necessary as part of
-the LED attribute name, such a change should be well defined, and
-it should be documented, and it must not create the risk of
-duplicate sysfs attribute names.
+>  struct ds3232 {
+>  	struct device *dev;
+>  	struct regmap *regmap;
+>  	int irq;
+>  	struct rtc_device *rtc;
+> +	struct nvmem_config	nvmem_cfg;
+>  
 
-Thanks,
-Guenter
+You don't actually need to keep that structure for the whole life of the
+device as it is copied as soon as it is registered. I usually prefer to
+have it on the stack.
+
+>  	bool suspended;
+>  };
+> @@ -461,6 +468,24 @@ static const struct rtc_class_ops ds3232_rtc_ops = {
+>  	.alarm_irq_enable = ds3232_alarm_irq_enable,
+>  };
+>  
+> +static int ds3232_nvmem_read(void *priv, unsigned int offset, void *val,
+> +			     size_t bytes)
+> +{
+> +	struct ds3232 *ds3232 = (struct ds3232 *)priv;
+> +
+> +	return regmap_bulk_read(ds3232->regmap, DS3232_REG_SRAM_START + offset,
+> +				val, bytes);
+> +}
+> +
+> +static int ds3232_nvmem_write(void *priv, unsigned int offset, void *val,
+> +			      size_t bytes)
+> +{
+> +	struct ds3232 *ds3232 = (struct ds3232 *)priv;
+> +
+> +	return regmap_bulk_write(ds3232->regmap, DS3232_REG_SRAM_START + offset,
+> +				 val, bytes);
+> +}
+> +
+>  static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>  			const char *name)
+>  {
+> @@ -476,6 +501,14 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>  	ds3232->dev = dev;
+>  	dev_set_drvdata(dev, ds3232);
+>  
+> +	ds3232->nvmem_cfg.name = "ds3232_sram";
+> +	ds3232->nvmem_cfg.stride = 1;
+> +	ds3232->nvmem_cfg.size = DS3232_REG_SRAM_SIZE;
+> +	ds3232->nvmem_cfg.word_size = 1;
+> +	ds3232->nvmem_cfg.reg_read = ds3232_nvmem_read;
+> +	ds3232->nvmem_cfg.reg_write = ds3232_nvmem_write;
+> +	ds3232->nvmem_cfg.priv = ds3232;
+
+Please also set the type (battery backed).
+
+> +
+>  	ret = ds3232_check_rtc_status(dev);
+>  	if (ret)
+>  		return ret;
+> @@ -490,6 +523,10 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+>  	if (IS_ERR(ds3232->rtc))
+>  		return PTR_ERR(ds3232->rtc);
+>  
+> +	ds3232->rtc->dev.of_node = dev->of_node;
+
+Please don't mess with rtc->dev.
+
+> +	ds3232->rtc->nvmem_config = &ds3232->nvmem_cfg;
+> +	rtc_nvmem_register(ds3232->rtc);
+
+This part will not compile on v5.1-rc1.
+
+> +
+>  	if (ds3232->irq > 0) {
+>  		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
+>  						ds3232_irq,
+> @@ -542,7 +579,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
+>  	static const struct regmap_config config = {
+>  		.reg_bits = 8,
+>  		.val_bits = 8,
+> -		.max_register = 0x13,
+> +		.max_register = DS3232_REG_SRAM_END,
+>  	};
+>  
+>  	regmap = devm_regmap_init_i2c(client, &config);
+> @@ -609,7 +646,7 @@ static int ds3234_probe(struct spi_device *spi)
+>  	static const struct regmap_config config = {
+>  		.reg_bits = 8,
+>  		.val_bits = 8,
+> -		.max_register = 0x13,
+> +		.max_register = DS3232_REG_SRAM_END,
+>  		.write_flag_mask = 0x80,
+>  	};
+>  	struct regmap *regmap;
+> -- 
+> 2.17.2
+> 
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
