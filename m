@@ -1,217 +1,102 @@
-Return-Path: <SRS0=YS69=SH=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=NN/7=SI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3516C282CE
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 21:45:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 086D6C10F06
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 06:07:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BCCC120663
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 Apr 2019 21:45:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE3D221855
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 06:07:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1554530837;
+	bh=HovPAW/0sgmEibhiCsPOBHtw9jkitpEIaTOL831TlXw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=leOmTtM0hEWaBoG9+BZ5QwuLfYdkE8gjh1h128IQHbBCxaNX9T1bcD+/Ghvh7ypzY
+	 XbNVLQPYab+0Ht6kVifBwlppTdqgY0ImgjBovENFbr66iw9+zhBKwIfRirPvxrO0bt
+	 7bq9y3BrWRaTaSY4C1IVq/vjpHahykdHHmaEghLE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726561AbfDEVo6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 5 Apr 2019 17:44:58 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:34379 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726535AbfDEVo6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 Apr 2019 17:44:58 -0400
-X-Originating-IP: 86.202.231.219
-Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id F1A07E0003;
-        Fri,  5 Apr 2019 21:44:54 +0000 (UTC)
-Date:   Fri, 5 Apr 2019 23:44:54 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Han Nandor <nandor.han@vaisala.com>
-Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
-Message-ID: <20190405214454.GJ22216@piout.net>
-References: <20190405111348.28935-1-nandor.han@vaisala.com>
+        id S1726436AbfDFGHR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Apr 2019 02:07:17 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:42785 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725973AbfDFGHR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 02:07:17 -0400
+Received: by mail-pg1-f196.google.com with SMTP id p6so4190789pgh.9;
+        Fri, 05 Apr 2019 23:07:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:to:cc:subject:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=TJGyTmZcvGj3SJQPEQ9UUAlClEcIPymtak6Vu4TKLX8=;
+        b=E9gdXYhPGvID6uslAwNHQP1n6CAeSGE4pqxtNLRjBm2h5erk+7uHjfVbcLrvGWsygi
+         +JbgfEjpyzghxUWOHADTNpa+sGyOAKG6mnlfrF3BSQpc+WmJjVzDlk8ywyOCke6FgFJa
+         34Bo8JKCjdSZshdE1SLaz1NmBnwBNK/A/GxyUav5W4MYmIUqkAG+uubxtJLEZjee9xUm
+         OLaH11t9PYGf5ISgBrlkAeJQI20ti/qEXgXaA6tjM6IYrWss/UeYOIwhbADAWfhYCJXj
+         cnOEPA1Q9ItOVMr4IQ0SGQhZP6U69dGNfR24QiEVFpZQS+q0EK2FjKp6mJplDZ/vT5rU
+         rcUw==
+X-Gm-Message-State: APjAAAVAleDeSiFro8RCGrHW5AzeLTYF6JeEKd6lDZOX5hThnjJr5eXo
+        YyQVyrrm1Me4hJHZbiuak6a1Avkwtg==
+X-Google-Smtp-Source: APXvYqy05XRQoTkZEqLEpVfMw9xG6U1UwV9mCt+vAnOij7ceAW6Ks1scvsB6+J0oE/JXa32udi4ecA==
+X-Received: by 2002:a63:3fc2:: with SMTP id m185mr15706512pga.145.1554530836562;
+        Fri, 05 Apr 2019 23:07:16 -0700 (PDT)
+Received: from localhost ([210.160.217.71])
+        by smtp.gmail.com with ESMTPSA id a72sm6708888pge.0.2019.04.05.23.07.15
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 05 Apr 2019 23:07:16 -0700 (PDT)
+Message-ID: <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
+Date:   Sat, 06 Apr 2019 01:07:13 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Flavio Suligoi <f.suligoi@asem.it>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
+References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190405111348.28935-1-nandor.han@vaisala.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+In-Reply-To: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
+X-Mutt-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
-
-On 05/04/2019 11:14:35+0000, Han Nandor wrote:
-> DS3232 RTC has 236 bytes of persistent memory.
+On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
+> Some RTC devices have a battery-low automatic detection circuit.
+> The battery-low event is usually reported with:
 > 
-> Add RTC SRAM read and write access using
-> the NVMEM Framework.
+> - a bit change in a RTC status register
+> - a hw signaling (generally using an interrupt generation), changing
+>   the hw level of a specific pin;
 > 
-> Signed-off-by: Nandor Han <nandor.han@vaisala.com>
+> The new property "battery-low-hw-alarm" enable the RTC to generate the
+> hw signaling in case of battery-low event.
+> 
+> Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
 > ---
+>  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> Description
-> -----------
-> Provides DS3232 RTC SRAM access using NVMEM framework.
-> 
-> Testing
-> -------
-> The test was done on a custom board which contains a
-> DS3232 RTC device.
-> Kernel Version: 4.14.60 (Just for clarity, the patch is against master)
-> 
-> 1. Verify that SRAM is accessible using NVMEM interface: PASS
-> `
-> # hexdump /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-> 0000000 0000 0000 0000 0000 0000 0000 0000 0000
-> *
-> 00000e0
-> `
-> 2. Modify the content.
-> `
-> # echo testing > /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-> #
-> `
-> 3. Power cycle the board and verify that contents are preserved: PASS
-> `
-> # hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-> 00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
-> 0000000a
-> `
-> 
+> diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt b/Documentation/devicetree/bindings/rtc/rtc.txt
+> index a97fc6a..f93a44d 100644
+> --- a/Documentation/devicetree/bindings/rtc/rtc.txt
+> +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
+> @@ -31,6 +31,9 @@ below.
+>                              expressed in femto Farad (fF).
+>                              The default value shall be listed (if optional),
+>                              and likewise all valid values.
+> +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This function
+> +                            is available on the following devices:
+> +                            - pcf2127 - pin used for alarm: INTn
 
-Thanks for that nice description!
+Boolean? If there's cases where which pin is selectable, then we'd need 
+this to take a value. Not sure how likely that is?
 
->  drivers/rtc/rtc-ds3232.c | 41 ++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 39 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-> index 7184e5145f12..fe615aedaa9a 100644
-> --- a/drivers/rtc/rtc-ds3232.c
-> +++ b/drivers/rtc/rtc-ds3232.c
-> @@ -24,6 +24,8 @@
->  #include <linux/regmap.h>
->  #include <linux/hwmon.h>
->  
-> +#include "rtc-core.h"
-> +
+Rob
 
-The drivers should not have to include that header, see
-fd5cd21d995e67f87b3eb4adf938be85fe83ef4b (from 4.16).
-
->  #define DS3232_REG_SECONDS      0x00
->  #define DS3232_REG_MINUTES      0x01
->  #define DS3232_REG_HOURS        0x02
-> @@ -48,12 +50,17 @@
->  #       define DS3232_REG_SR_A1F     0x01
->  
->  #define DS3232_REG_TEMPERATURE	0x11
-> +#define DS3232_REG_SRAM_START   0x14
-> +#define DS3232_REG_SRAM_END     0xFF
-> +
-> +#define DS3232_REG_SRAM_SIZE    236
->  
-
->  struct ds3232 {
->  	struct device *dev;
->  	struct regmap *regmap;
->  	int irq;
->  	struct rtc_device *rtc;
-> +	struct nvmem_config	nvmem_cfg;
->  
-
-You don't actually need to keep that structure for the whole life of the
-device as it is copied as soon as it is registered. I usually prefer to
-have it on the stack.
-
->  	bool suspended;
->  };
-> @@ -461,6 +468,24 @@ static const struct rtc_class_ops ds3232_rtc_ops = {
->  	.alarm_irq_enable = ds3232_alarm_irq_enable,
->  };
->  
-> +static int ds3232_nvmem_read(void *priv, unsigned int offset, void *val,
-> +			     size_t bytes)
-> +{
-> +	struct ds3232 *ds3232 = (struct ds3232 *)priv;
-> +
-> +	return regmap_bulk_read(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-> +				val, bytes);
-> +}
-> +
-> +static int ds3232_nvmem_write(void *priv, unsigned int offset, void *val,
-> +			      size_t bytes)
-> +{
-> +	struct ds3232 *ds3232 = (struct ds3232 *)priv;
-> +
-> +	return regmap_bulk_write(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-> +				 val, bytes);
-> +}
-> +
->  static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->  			const char *name)
->  {
-> @@ -476,6 +501,14 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->  	ds3232->dev = dev;
->  	dev_set_drvdata(dev, ds3232);
->  
-> +	ds3232->nvmem_cfg.name = "ds3232_sram";
-> +	ds3232->nvmem_cfg.stride = 1;
-> +	ds3232->nvmem_cfg.size = DS3232_REG_SRAM_SIZE;
-> +	ds3232->nvmem_cfg.word_size = 1;
-> +	ds3232->nvmem_cfg.reg_read = ds3232_nvmem_read;
-> +	ds3232->nvmem_cfg.reg_write = ds3232_nvmem_write;
-> +	ds3232->nvmem_cfg.priv = ds3232;
-
-Please also set the type (battery backed).
-
-> +
->  	ret = ds3232_check_rtc_status(dev);
->  	if (ret)
->  		return ret;
-> @@ -490,6 +523,10 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
->  	if (IS_ERR(ds3232->rtc))
->  		return PTR_ERR(ds3232->rtc);
->  
-> +	ds3232->rtc->dev.of_node = dev->of_node;
-
-Please don't mess with rtc->dev.
-
-> +	ds3232->rtc->nvmem_config = &ds3232->nvmem_cfg;
-> +	rtc_nvmem_register(ds3232->rtc);
-
-This part will not compile on v5.1-rc1.
-
-> +
->  	if (ds3232->irq > 0) {
->  		ret = devm_request_threaded_irq(dev, ds3232->irq, NULL,
->  						ds3232_irq,
-> @@ -542,7 +579,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
->  	static const struct regmap_config config = {
->  		.reg_bits = 8,
->  		.val_bits = 8,
-> -		.max_register = 0x13,
-> +		.max_register = DS3232_REG_SRAM_END,
->  	};
->  
->  	regmap = devm_regmap_init_i2c(client, &config);
-> @@ -609,7 +646,7 @@ static int ds3234_probe(struct spi_device *spi)
->  	static const struct regmap_config config = {
->  		.reg_bits = 8,
->  		.val_bits = 8,
-> -		.max_register = 0x13,
-> +		.max_register = DS3232_REG_SRAM_END,
->  		.write_flag_mask = 0x80,
->  	};
->  	struct regmap *regmap;
-> -- 
-> 2.17.2
-> 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
