@@ -2,84 +2,93 @@ Return-Path: <SRS0=NN/7=SI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01213C282DA
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 12:55:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6169DC10F06
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 13:06:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE37D20B1F
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 12:55:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DF122146F
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 13:06:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726404AbfDFMzy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 6 Apr 2019 08:55:54 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:41747 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726316AbfDFMzx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 08:55:53 -0400
+        id S1726353AbfDFNGf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Apr 2019 09:06:35 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:50429 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbfDFNGf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 09:06:35 -0400
 X-Originating-IP: 86.202.231.219
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 63466240003;
-        Sat,  6 Apr 2019 12:55:50 +0000 (UTC)
-Date:   Sat, 6 Apr 2019 14:55:50 +0200
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 0591D20008;
+        Sat,  6 Apr 2019 13:06:30 +0000 (UTC)
+Date:   Sat, 6 Apr 2019 15:06:30 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Flavio Suligoi <f.suligoi@asem.it>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-Message-ID: <20190406125550.GA7480@piout.net>
-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
- <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
+To:     Xuefeng Wang <wxf.wang@hisilicon.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tanxiaojun@huawei.com
+Subject: Re: [PATCH] drivers/rtc/rtc-lib.c: check whether tm->tm_year in
+ int32 range
+Message-ID: <20190406130630.GB7480@piout.net>
+References: <1550200439-62533-1-git-send-email-wxf.wang@hisilicon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
+In-Reply-To: <1550200439-62533-1-git-send-email-wxf.wang@hisilicon.com>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 06/04/2019 01:07:13-0500, Rob Herring wrote:
-> On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
-> > Some RTC devices have a battery-low automatic detection circuit.
-> > The battery-low event is usually reported with:
-> > 
-> > - a bit change in a RTC status register
-> > - a hw signaling (generally using an interrupt generation), changing
-> >   the hw level of a specific pin;
-> > 
-> > The new property "battery-low-hw-alarm" enable the RTC to generate the
-> > hw signaling in case of battery-low event.
-> > 
-> > Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-> > ---
-> >  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt b/Documentation/devicetree/bindings/rtc/rtc.txt
-> > index a97fc6a..f93a44d 100644
-> > --- a/Documentation/devicetree/bindings/rtc/rtc.txt
-> > +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
-> > @@ -31,6 +31,9 @@ below.
-> >                              expressed in femto Farad (fF).
-> >                              The default value shall be listed (if optional),
-> >                              and likewise all valid values.
-> > +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This function
-> > +                            is available on the following devices:
-> > +                            - pcf2127 - pin used for alarm: INTn
+On 15/02/2019 11:13:59+0800, Xuefeng Wang wrote:
+> When setting rtc alarm (RTC_WKALM_SET), the tm_year is not checked if it
+> is in suiteable range. Use INT_MAX - 1900 to check it.
 > 
-> Boolean? If there's cases where which pin is selectable, then we'd need 
-> this to take a value. Not sure how likely that is?
+> UBSAN: Undefined behaviour in drivers/rtc/rtc-lib.c:119:30
+> signed integer overflow:
+> 2147483647 + 1900 cannot be represented in type 'int'
+> CPU: 1 PID: 20994 Comm: syz-executor0 Not tainted 4.19.18-514.55.6.9.x86_64
+> + #1
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1
+> 04/01/2014
+> Call Trace:
+>  __dump_stack lib/dump_stack.c:77 [inline]
+>  dump_stack+0xca/0x13e lib/dump_stack.c:113
+>  ubsan_epilogue+0xe/0x81 lib/ubsan.c:159
+>  handle_overflow+0x193/0x1e2 lib/ubsan.c:190
+>  rtc_tm_to_time64+0x267/0x280 drivers/rtc/rtc-lib.c:119
+>  rtc_tm_to_ktime+0x16/0x70 drivers/rtc/rtc-lib.c:129
+>  rtc_set_alarm+0x1a9/0x2d0 drivers/rtc/interface.c:466
+>  rtc_dev_ioctl+0x6db/0x810 drivers/rtc/rtc-dev.c:380
+>  vfs_ioctl fs/ioctl.c:46 [inline]
+>  do_vfs_ioctl+0x1a5/0x10b0 fs/ioctl.c:690
+>  ksys_ioctl+0x89/0xa0 fs/ioctl.c:705
+>  __do_sys_ioctl fs/ioctl.c:712 [inline]
+>  __se_sys_ioctl fs/ioctl.c:710 [inline]
+>  __x64_sys_ioctl+0x74/0xb0 fs/ioctl.c:710
+>  do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
+>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x462589
+> Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89
+> f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08
+> 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8
+> 64 89 01 48
+> RSP: 002b:00007f5348896c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> RAX: ffffffffffffffda RBX: 000000000072bf00 RCX: 0000000000462589
+> RDX: 0000000020000000 RSI: 000000004028700f RDI: 0000000000000003
+> RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f53488976bc
+> R13: 00000000004bf67e R14: 00000000006f96e0 R15: 00000000ffffffff
+> ==========================================================================
 > 
-
-Indeed, there is at least the pcf85363 that has two possible pins for
-that interrupt. How would you select the pin then? a zero based index? a
-string?
+> Signed-off-by: Xuefeng Wang <wxf.wang@hisilicon.com>
+> ---
+>  drivers/rtc/rtc-lib.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+Applied, thanks.
 
 -- 
 Alexandre Belloni, Bootlin
