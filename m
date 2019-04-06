@@ -2,101 +2,117 @@ Return-Path: <SRS0=NN/7=SI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 086D6C10F06
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 06:07:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C74C282DC
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 08:41:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE3D221855
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 06:07:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1554530837;
-	bh=HovPAW/0sgmEibhiCsPOBHtw9jkitpEIaTOL831TlXw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=leOmTtM0hEWaBoG9+BZ5QwuLfYdkE8gjh1h128IQHbBCxaNX9T1bcD+/Ghvh7ypzY
-	 XbNVLQPYab+0Ht6kVifBwlppTdqgY0ImgjBovENFbr66iw9+zhBKwIfRirPvxrO0bt
-	 7bq9y3BrWRaTaSY4C1IVq/vjpHahykdHHmaEghLE=
+	by mail.kernel.org (Postfix) with ESMTP id A369D218AE
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 08:41:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726436AbfDFGHR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 6 Apr 2019 02:07:17 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:42785 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725973AbfDFGHR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 02:07:17 -0400
-Received: by mail-pg1-f196.google.com with SMTP id p6so4190789pgh.9;
-        Fri, 05 Apr 2019 23:07:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:to:cc:subject:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=TJGyTmZcvGj3SJQPEQ9UUAlClEcIPymtak6Vu4TKLX8=;
-        b=E9gdXYhPGvID6uslAwNHQP1n6CAeSGE4pqxtNLRjBm2h5erk+7uHjfVbcLrvGWsygi
-         +JbgfEjpyzghxUWOHADTNpa+sGyOAKG6mnlfrF3BSQpc+WmJjVzDlk8ywyOCke6FgFJa
-         34Bo8JKCjdSZshdE1SLaz1NmBnwBNK/A/GxyUav5W4MYmIUqkAG+uubxtJLEZjee9xUm
-         OLaH11t9PYGf5ISgBrlkAeJQI20ti/qEXgXaA6tjM6IYrWss/UeYOIwhbADAWfhYCJXj
-         cnOEPA1Q9ItOVMr4IQ0SGQhZP6U69dGNfR24QiEVFpZQS+q0EK2FjKp6mJplDZ/vT5rU
-         rcUw==
-X-Gm-Message-State: APjAAAVAleDeSiFro8RCGrHW5AzeLTYF6JeEKd6lDZOX5hThnjJr5eXo
-        YyQVyrrm1Me4hJHZbiuak6a1Avkwtg==
-X-Google-Smtp-Source: APXvYqy05XRQoTkZEqLEpVfMw9xG6U1UwV9mCt+vAnOij7ceAW6Ks1scvsB6+J0oE/JXa32udi4ecA==
-X-Received: by 2002:a63:3fc2:: with SMTP id m185mr15706512pga.145.1554530836562;
-        Fri, 05 Apr 2019 23:07:16 -0700 (PDT)
-Received: from localhost ([210.160.217.71])
-        by smtp.gmail.com with ESMTPSA id a72sm6708888pge.0.2019.04.05.23.07.15
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 05 Apr 2019 23:07:16 -0700 (PDT)
-Message-ID: <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
-Date:   Sat, 06 Apr 2019 01:07:13 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Flavio Suligoi <f.suligoi@asem.it>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Rutland <mark.rutland@arm.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
+        id S1726435AbfDFIl5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Apr 2019 04:41:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43764 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726264AbfDFIl4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 04:41:56 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 0FB82807F5; Sat,  6 Apr 2019 10:41:45 +0200 (CEST)
+Date:   Sat, 6 Apr 2019 10:41:57 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Nick Crews <ncrews@chromium.org>, enric.balletbo@collabora.com,
+        bleung@chromium.org, linux-leds@vger.kernel.org,
+        jacek.anaszewski@gmail.com, alexandre.belloni@bootlin.com,
+        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dlaurie@chromium.org, sjg@google.com,
+        groeck@google.com, dtor@google.com
+Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
+ LEDs support
+Message-ID: <20190406084157.GA27043@amd>
+References: <20190404171007.160878-1-ncrews@chromium.org>
+ <20190404171007.160878-2-ncrews@chromium.org>
+ <20190405201534.GA4426@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-In-Reply-To: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
-X-Mutt-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
+In-Reply-To: <20190405201534.GA4426@roeck-us.net>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
-> Some RTC devices have a battery-low automatic detection circuit.
-> The battery-low event is usually reported with:
-> 
-> - a bit change in a RTC status register
-> - a hw signaling (generally using an interrupt generation), changing
->   the hw level of a specific pin;
-> 
-> The new property "battery-low-hw-alarm" enable the RTC to generate the
-> hw signaling in case of battery-low event.
-> 
-> Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-> ---
->  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt b/Documentation/devicetree/bindings/rtc/rtc.txt
-> index a97fc6a..f93a44d 100644
-> --- a/Documentation/devicetree/bindings/rtc/rtc.txt
-> +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
-> @@ -31,6 +31,9 @@ below.
->                              expressed in femto Farad (fF).
->                              The default value shall be listed (if optional),
->                              and likewise all valid values.
-> +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This function
-> +                            is available on the following devices:
-> +                            - pcf2127 - pin used for alarm: INTn
 
-Boolean? If there's cases where which pin is selectable, then we'd need 
-this to take a value. Not sure how likely that is?
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Rob
+On Fri 2019-04-05 13:15:34, Guenter Roeck wrote:
+> On Thu, Apr 04, 2019 at 11:10:08AM -0600, Nick Crews wrote:
+> > The EC is in charge of controlling the keyboard backlight on
+> > the Wilco platform. We expose a standard LED class device at
+> > /sys/class/leds/platform::kbd_backlight. This driver is modeled
+> > after the standard Chrome OS keyboard backlight driver at
+> > drivers/platform/chrome/cros_kbd_led_backlight.c
+> >=20
+> > Some Wilco devices do not support a keyboard backlight. This
+> > is checked via wilco_ec_keyboard_leds_exist() in the core driver,
+> > and a platform_device will only be registered by the core if
+> > a backlight is supported.
+> >=20
+> > After an EC reset the backlight could be in a non-PWM mode.
+> > Earlier in the boot sequence the BIOS should send a command to
+> > the EC to set the brightness, so things **should** be set up,
+> > but we double check in probe() as we query the initial brightness.
+> > If not set up, then set the brightness to 0.
+> >=20
+> > Since the EC will never change the backlight level of its own accord,
+> > we don't need to implement a brightness_get() method.
+> >=20
+> > v5 changes:
+> > -Rename the LED device to "platform::kbd_backlight", to
+> > denote that this is the built-in system keyboard.
+> >=20
+>=20
+> NACK.
 
+Please keep it as it is, it is okay.
+
+> Per Documentation/leds/leds-class.txt, LED devices are named
+> 	"devicename:colour:function"
+
+You failed to follow threads explaining this is being changed, even
+when I pointed you at them. What you are doing here is not helpful.
+
+> This document also states "The naming scheme above leaves scope
+> for further attributes should they be needed". It does not permit,
+> however, to redefine one of the fields to mean "location", much less
+> the declaration that a devicename of "platform" shall refer to an
+> "internal" backlight, or that there shall be no more than one
+> "internal" backlight in a given system.
+
+"platform" is as good devicename as "wilco" or "chromeos".
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlyoZlUACgkQMOfwapXb+vIzTgCdGkShC0MeKZrta+HxTkQUi6AB
+H04AnRnwkj3XaficTFJiKbidp2+kFc+i
+=ui1D
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--
