@@ -3,43 +3,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C74C282DC
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 08:41:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FBD5C10F06
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 09:53:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A369D218AE
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 08:41:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46F2521855
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 09:53:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726435AbfDFIl5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 6 Apr 2019 04:41:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43764 "EHLO
+        id S1726316AbfDFJxp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Apr 2019 05:53:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:49758 "EHLO
         atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726264AbfDFIl4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 04:41:56 -0400
+        with ESMTP id S1726036AbfDFJxp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 05:53:45 -0400
 Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 0FB82807F5; Sat,  6 Apr 2019 10:41:45 +0200 (CEST)
-Date:   Sat, 6 Apr 2019 10:41:57 +0200
+        id C5B1C805F7; Sat,  6 Apr 2019 11:53:34 +0200 (CEST)
+Date:   Sat, 6 Apr 2019 11:53:46 +0200
 From:   Pavel Machek <pavel@ucw.cz>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Nick Crews <ncrews@chromium.org>, enric.balletbo@collabora.com,
-        bleung@chromium.org, linux-leds@vger.kernel.org,
-        jacek.anaszewski@gmail.com, alexandre.belloni@bootlin.com,
-        a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dlaurie@chromium.org, sjg@google.com,
-        groeck@google.com, dtor@google.com
-Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
- LEDs support
-Message-ID: <20190406084157.GA27043@amd>
-References: <20190404171007.160878-1-ncrews@chromium.org>
- <20190404171007.160878-2-ncrews@chromium.org>
- <20190405201534.GA4426@roeck-us.net>
+To:     Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Guenter Roeck <groeck@google.com>,
+        Dmitry Torokhov <dtor@google.com>,
+        Nick Crews <ncrews@chromium.org>,
+        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Duncan Laurie <dlaurie@chromium.org>,
+        Simon Glass <sjg@google.com>
+Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
+ backlight name
+Message-ID: <20190406095346.GB7546@amd>
+References: <20190404200658.GD29984@amd>
+ <CAE_wzQ8WcMCzYqvxA_JBZKNza7ca3QE-VShmMxv5++_4F8RR=g@mail.gmail.com>
+ <20190404202042.GF29984@amd>
+ <CAE_wzQ-8XwzptH7EqNrELxjBzY2+0oHJGB3Va=vZwwK3csu_aA@mail.gmail.com>
+ <20190404204207.GH29984@amd>
+ <CAE_wzQ8xe=x0uYcZkDRVKpUAQ_1vVdEPHU3XnEV1=_WN1-AMfw@mail.gmail.com>
+ <20190404220509.GA14690@amd>
+ <CABXOdTeQgjd2-T+eZCMdTDWBGLHEk6kvnYR0DjJYR7zuvVTMsQ@mail.gmail.com>
+ <df9577fd-c526-77e9-c11c-5416387121db@collabora.com>
+ <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+        protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
 Content-Disposition: inline
-In-Reply-To: <20190405201534.GA4426@roeck-us.net>
+In-Reply-To: <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -47,72 +59,71 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---BXVAT5kNtrzKuDFl
+--hHWLQfXTYDoKhP50
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri 2019-04-05 13:15:34, Guenter Roeck wrote:
-> On Thu, Apr 04, 2019 at 11:10:08AM -0600, Nick Crews wrote:
-> > The EC is in charge of controlling the keyboard backlight on
-> > the Wilco platform. We expose a standard LED class device at
-> > /sys/class/leds/platform::kbd_backlight. This driver is modeled
-> > after the standard Chrome OS keyboard backlight driver at
-> > drivers/platform/chrome/cros_kbd_led_backlight.c
-> >=20
-> > Some Wilco devices do not support a keyboard backlight. This
-> > is checked via wilco_ec_keyboard_leds_exist() in the core driver,
-> > and a platform_device will only be registered by the core if
-> > a backlight is supported.
-> >=20
-> > After an EC reset the backlight could be in a non-PWM mode.
-> > Earlier in the boot sequence the BIOS should send a command to
-> > the EC to set the brightness, so things **should** be set up,
-> > but we double check in probe() as we query the initial brightness.
-> > If not set up, then set the brightness to 0.
-> >=20
-> > Since the EC will never change the backlight level of its own accord,
-> > we don't need to implement a brightness_get() method.
-> >=20
-> > v5 changes:
-> > -Rename the LED device to "platform::kbd_backlight", to
-> > denote that this is the built-in system keyboard.
-> >=20
+Hi!
+
+> The patch set introduces also a set of predefined LED_FUNCTION
+> names to be used in DT bindings. This along with the removal
+> of devicename section from LED naming pattern will help to keep
+> LED sysfs interface more uniform and not varying depending on
+> underlaying hardware driving the LEDs.
 >=20
-> NACK.
+> Regarding the problem discussed in this thread - I would not necessarily
+> go for "platform" in place of devicename LED name section in the
+> cros_kbd_led_backlight driver. If we change it (should we at all - it is
+> already in 5.0 AFAICS?), then I would opt for dropping the "chromeos:"
+> part. It believe it will be possible to retrieve this name with
+> get_led_device_info.sh script. It would be good exercise to check
+> it out.
 
-Please keep it as it is, it is okay.
+I am not sure about existing driver. Important thing for me is that
+new drivers use consistent naming.
 
-> Per Documentation/leds/leds-class.txt, LED devices are named
-> 	"devicename:colour:function"
+> In cases like above:
+>=20
+>     keyboardist::kbd_backlight
+>     tclnumpad::kbd_backlight
+>=20
+> we could do with the following:
+>=20
+>     :kbd-backlight
+>     :numpad-backlight
+>=20
+> I used hyphens instead of underscores since we will have this convention
+> in the LED_FUNCTION names, which is more common for Device Tree, and
+> some of existing LED triggers.
 
-You failed to follow threads explaining this is being changed, even
-when I pointed you at them. What you are doing here is not helpful.
+Existing userspace already searches for *:kbd_backlight", AFAICT, so
+we probably want to keep the "_".
 
-> This document also states "The naming scheme above leaves scope
-> for further attributes should they be needed". It does not permit,
-> however, to redefine one of the fields to mean "location", much less
-> the declaration that a devicename of "platform" shall refer to an
-> "internal" backlight, or that there shall be no more than one
-> "internal" backlight in a given system.
+I don't care much if we use "platform:" or no prefix at all for
+backlight of internal keyboard, as long as it is consistent across all
+devices.
 
-"platform" is as good devicename as "wilco" or "chromeos".
+We certainly want to use some prefix (probably inputX:) for backlight
+on USB keyboards.
+
+Best regards,
 									Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---BXVAT5kNtrzKuDFl
+--hHWLQfXTYDoKhP50
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAlyoZlUACgkQMOfwapXb+vIzTgCdGkShC0MeKZrta+HxTkQUi6AB
-H04AnRnwkj3XaficTFJiKbidp2+kFc+i
-=ui1D
+iEYEARECAAYFAlyodyoACgkQMOfwapXb+vL5oQCcCFra/9cmt+6pqBH7En0ogzC/
+8gcAoLamY/jmw88Z2vDKZI9Jtyw0MeaG
+=7wli
 -----END PGP SIGNATURE-----
 
---BXVAT5kNtrzKuDFl--
+--hHWLQfXTYDoKhP50--
