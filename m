@@ -2,128 +2,83 @@ Return-Path: <SRS0=NN/7=SI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+X-Spam-Status: No, score=-12.5 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FBD5C10F06
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 09:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC2EBC10F06
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 12:06:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 46F2521855
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 09:53:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B6BB62087F
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 12:06:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726316AbfDFJxp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 6 Apr 2019 05:53:45 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:49758 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726036AbfDFJxp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 05:53:45 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id C5B1C805F7; Sat,  6 Apr 2019 11:53:34 +0200 (CEST)
-Date:   Sat, 6 Apr 2019 11:53:46 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@google.com>,
-        Dmitry Torokhov <dtor@google.com>,
-        Nick Crews <ncrews@chromium.org>,
-        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Duncan Laurie <dlaurie@chromium.org>,
-        Simon Glass <sjg@google.com>
-Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
- backlight name
-Message-ID: <20190406095346.GB7546@amd>
-References: <20190404200658.GD29984@amd>
- <CAE_wzQ8WcMCzYqvxA_JBZKNza7ca3QE-VShmMxv5++_4F8RR=g@mail.gmail.com>
- <20190404202042.GF29984@amd>
- <CAE_wzQ-8XwzptH7EqNrELxjBzY2+0oHJGB3Va=vZwwK3csu_aA@mail.gmail.com>
- <20190404204207.GH29984@amd>
- <CAE_wzQ8xe=x0uYcZkDRVKpUAQ_1vVdEPHU3XnEV1=_WN1-AMfw@mail.gmail.com>
- <20190404220509.GA14690@amd>
- <CABXOdTeQgjd2-T+eZCMdTDWBGLHEk6kvnYR0DjJYR7zuvVTMsQ@mail.gmail.com>
- <df9577fd-c526-77e9-c11c-5416387121db@collabora.com>
- <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
+        id S1726271AbfDFMG4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Apr 2019 08:06:56 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:48523 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726424AbfDFMG4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 08:06:56 -0400
+X-Originating-IP: 86.202.231.219
+Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id E413F1BF207;
+        Sat,  6 Apr 2019 12:06:53 +0000 (UTC)
+Date:   Sat, 6 Apr 2019 14:06:53 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] RTC fixes for 5.1
+Message-ID: <20190406120653.GA10170@piout.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Hello Linus,
 
---hHWLQfXTYDoKhP50
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here are a few fixes for 5.1, please pull.
 
-Hi!
+The following changes since commit 9e98c678c2d6ae3a17cb2de55d17f69dddaa231b:
 
-> The patch set introduces also a set of predefined LED_FUNCTION
-> names to be used in DT bindings. This along with the removal
-> of devicename section from LED naming pattern will help to keep
-> LED sysfs interface more uniform and not varying depending on
-> underlaying hardware driving the LEDs.
->=20
-> Regarding the problem discussed in this thread - I would not necessarily
-> go for "platform" in place of devicename LED name section in the
-> cros_kbd_led_backlight driver. If we change it (should we at all - it is
-> already in 5.0 AFAICS?), then I would opt for dropping the "chromeos:"
-> part. It believe it will be possible to retrieve this name with
-> get_led_device_info.sh script. It would be good exercise to check
-> it out.
+  Linux 5.1-rc1 (2019-03-17 14:22:26 -0700)
 
-I am not sure about existing driver. Important thing for me is that
-new drivers use consistent naming.
+are available in the Git repository at:
 
-> In cases like above:
->=20
->     keyboardist::kbd_backlight
->     tclnumpad::kbd_backlight
->=20
-> we could do with the following:
->=20
->     :kbd-backlight
->     :numpad-backlight
->=20
-> I used hyphens instead of underscores since we will have this convention
-> in the LED_FUNCTION names, which is more common for Device Tree, and
-> some of existing LED triggers.
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-5.1-2
 
-Existing userspace already searches for *:kbd_backlight", AFAICT, so
-we probably want to keep the "_".
+for you to fetch changes up to 882c5e552ffd06856de42261460f46e18319d259:
 
-I don't care much if we use "platform:" or no prefix at all for
-backlight of internal keyboard, as long as it is consistent across all
-devices.
+  rtc: da9063: set uie_unsupported when relevant (2019-04-02 23:33:09 +0200)
 
-We certainly want to use some prefix (probably inputX:) for backlight
-on USB keyboards.
+----------------------------------------------------------------
+RTC fixes for 5.1
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+ - Various alarm fixes for da9063, cros-ec and sh
+ - sd3078 manufacturer name fix as this was introduced this cycle
 
---hHWLQfXTYDoKhP50
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+----------------------------------------------------------------
+Alexandre Belloni (2):
+      rtc: sd3078: fix manufacturer name
+      rtc: da9063: set uie_unsupported when relevant
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Geert Uytterhoeven (1):
+      rtc: sh: Fix invalid alarm warning for non-enabled alarm
 
-iEYEARECAAYFAlyodyoACgkQMOfwapXb+vL5oQCcCFra/9cmt+6pqBH7En0ogzC/
-8gcAoLamY/jmw88Z2vDKZI9Jtyw0MeaG
-=7wli
------END PGP SIGNATURE-----
+Stephen Boyd (1):
+      rtc: cros-ec: Fail suspend/resume if wake IRQ can't be configured
 
---hHWLQfXTYDoKhP50--
+ drivers/rtc/Kconfig       | 4 ++--
+ drivers/rtc/rtc-cros-ec.c | 4 ++--
+ drivers/rtc/rtc-da9063.c  | 7 +++++++
+ drivers/rtc/rtc-sh.c      | 2 +-
+ 4 files changed, 12 insertions(+), 5 deletions(-)
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
