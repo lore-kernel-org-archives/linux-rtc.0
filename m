@@ -4,33 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B31DFC10F0E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:06:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BBDBC282DD
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:06:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7A48E2087F
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:06:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED626213F2
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:06:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726456AbfDGVGV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 17:06:21 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:60187 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726415AbfDGVGU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 17:06:20 -0400
+        id S1726615AbfDGVGd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 17:06:33 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:36483 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726437AbfDGVGZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 17:06:25 -0400
 X-Originating-IP: 86.202.231.219
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 5E72B60006;
-        Sun,  7 Apr 2019 21:06:18 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 2C44B240008;
+        Sun,  7 Apr 2019 21:06:23 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/8] rtc: ds1672: set range
-Date:   Sun,  7 Apr 2019 23:05:34 +0200
-Message-Id: <20190407210541.13409-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 8/8] rtc: ds1672: switch debug message to %ptR
+Date:   Sun,  7 Apr 2019 23:05:41 +0200
+Message-Id: <20190407210541.13409-8-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190407210541.13409-1-alexandre.belloni@bootlin.com>
+References: <20190407210541.13409-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -38,53 +40,29 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The ds1672 is a 32bit seconds counter.
-
-Also remove erroneous comment claiming that epoch is set to 2000, it was
-not.
+Use %ptR to simplify debug message.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1672.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-ds1672.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index b1ebca099b0d..b9860820cc90 100644
+index 95c23b31c952..e9e8d02743ee 100644
 --- a/drivers/rtc/rtc-ds1672.c
 +++ b/drivers/rtc/rtc-ds1672.c
-@@ -21,12 +21,10 @@
+@@ -73,10 +73,7 @@ static int ds1672_read_time(struct device *dev, struct rtc_time *tm)
  
- #define DS1672_REG_CONTROL_EOSC	0x80
+ 	rtc_time64_to_tm(time, tm);
  
--static struct i2c_driver ds1672_driver;
--
- /*
-  * In the routines that deal directly with the ds1672 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
-- * Epoch is initialized as 2000. Time is set to UTC.
-+ * Time is set to UTC.
-  */
- static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- {
-@@ -164,8 +162,16 @@ static int ds1672_probe(struct i2c_client *client,
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
- 		return -ENODEV;
+-	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
+-		"mday=%d, mon=%d, year=%d, wday=%d\n",
+-		__func__, tm->tm_sec, tm->tm_min, tm->tm_hour,
+-		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++	dev_dbg(&client->dev, "%s: tm is %ptR\n", __func__, tm);
  
--	rtc = devm_rtc_device_register(&client->dev, ds1672_driver.driver.name,
--				  &ds1672_rtc_ops, THIS_MODULE);
-+	rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+
-+	rtc->ops = &ds1672_rtc_ops;
-+	rtc->range_max = U32_MAX;
-+
-+	err = rtc_register_device(rtc);
-+	if (err)
-+		return err;
- 
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
+ 	return 0;
+ }
 -- 
 2.20.1
 
