@@ -3,57 +3,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B33D9C10F0E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 14:07:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DC13C10F0E
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 18:44:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7E7FE20870
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 14:07:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68CE420896
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 18:44:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726314AbfDGOHq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 10:07:46 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:42663 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbfDGOHp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 10:07:45 -0400
-X-Originating-IP: 86.202.231.219
-Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 3D0491BF205;
-        Sun,  7 Apr 2019 14:07:42 +0000 (UTC)
-Date:   Sun, 7 Apr 2019 16:07:41 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Antonio Ospite <ao2@ao2.it>, Harald Welte <laforge@gnumonks.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Removing pcap?
-Message-ID: <20190407140741.GE7480@piout.net>
+        id S1726376AbfDGSoo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 14:44:44 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:60486 "EHLO
+        ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726362AbfDGSoo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 14:44:44 -0400
+X-Greylist: delayed 1172 seconds by postgrey-1.27 at vger.kernel.org; Sun, 07 Apr 2019 14:44:43 EDT
+Received: from uucp by ganesha.gnumonks.org with local-bsmtp (Exim 4.84_2)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1hDCTd-0007CE-Rl; Sun, 07 Apr 2019 20:25:09 +0200
+Received: from laforge by nataraja.lan with local (Exim 4.92)
+        (envelope-from <laforge@gnumonks.org>)
+        id 1hDC98-0000gY-T9; Sun, 07 Apr 2019 20:03:58 +0200
+Date:   Sun, 7 Apr 2019 20:03:58 +0200
+From:   Harald Welte <laforge@gnumonks.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Antonio Ospite <ao2@ao2.it>, Arnd Bergmann <arnd@arndb.de>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Removing pcap?
+Message-ID: <20190407180358.GL25552@nataraja>
+References: <20190407140741.GE7480@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.11.3 (2019-02-01)
+In-Reply-To: <20190407140741.GE7480@piout.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello Antonio, Harald,
+Hi Alexandre,
 
-I've had a look at the PCAP RTC driver because I'm removing a few
-deprecated APIs. While doing so, I've discovered that the driver has
-never worked properly because PCAP_RTC_TOD_MASK and PCAP_RTC_DAY_MASK
-are both missing a bit so every day would roll over at 18:12:15 and the
-whole the date would roll over in 2014.
+On Sun, Apr 07, 2019 at 04:07:41PM +0200, Alexandre Belloni wrote:
+> Is it worth fixing the RTC driver or could I remove it?
 
-I discussed with Arnd about 59ee93a528b9 ("ARM: pxa: remove irq_to_gpio
-from ezx-pcap driver") and it seems the whole EZX support has been
-broken for a while.
+I've left OpenEZX behind quite a long time ago.  Antonio was working
+on it for some more time, I don't know if he's still actively using
+or maintaining it.
 
-Is it worth fixing the RTC driver or could I remove it?
+From my personal point of view, it's only historically relevant and
+can certainly be removed from current-day mainline kernels.  That's of
+course unless some other people are still actively using it, which
+I somewhat doubt about a decade since those phones were last made.
+
+Regards,
+	Harlad
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+============================================================================
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
