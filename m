@@ -2,27 +2,65 @@ Return-Path: <SRS0=Oa4n=SJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CA86C10F0E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:18:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F20F8C10F0E
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:27:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E01A20863
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:18:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFB672087F
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:27:17 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BYaL3/4z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726415AbfDGWSq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 18:18:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:46968 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726403AbfDGWSp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 18:18:45 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 9259980365; Mon,  8 Apr 2019 00:18:35 +0200 (CEST)
-Date:   Mon, 8 Apr 2019 00:18:46 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Dmitry Torokhov <dtor@google.com>
+        id S1726396AbfDGW1R (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 18:27:17 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41234 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726366AbfDGW1M (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 18:27:12 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k8so9477569lja.8
+        for <linux-rtc@vger.kernel.org>; Sun, 07 Apr 2019 15:27:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3KRrlEke/H6J1LD72SPEhb7Dk0Tudzv8yTbNbrjV3zg=;
+        b=BYaL3/4zKn/eARcXnUdczX/bC6PHCzNT/Jjkhg+Kr8SB+g1dzzmTznNvMfGoMhnKCy
+         mS/eiWbKUbK9X6XE7VeMQaMLbZ1y9jKnG85KFLcjHAa31Lfig3wP9+NOWPxOARGaffkM
+         doQiu39ihkBau97LC202c1m+aoGcsuIALEUVFg+zZ5MzdH44ccnLyQgFJwa4dRKemVDK
+         6jD/AyKzw1zBSCX2DzDBpYg6FnvkiWr0fc8CHJPITIqyRJILp1d70VYI2nQ1MSaM1jJP
+         +xjCZ+TN954JS+LPZhquejFiZIxdTGK/lsPsdK4mh9uT92EnCVtw5DhWmQMM/Xb9lHS+
+         nHmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3KRrlEke/H6J1LD72SPEhb7Dk0Tudzv8yTbNbrjV3zg=;
+        b=DWbaa1CWnHMLxj290t0Yk7D0niqzqZoM7yyOPNhA3WnA4CEgE06pRVOA0pt8LQkE2T
+         wEZuXJUjnPbokHKY+lcr3bHzZ9I/YDU3YmDsLHV9NrGT+JxwjJH0qazzWoz1YHg+jEid
+         1YPRvhZMczaYT85yBaG0Ix31usuZ76RtIRGVDl788ijhkOoh9yY12zZH23km0FFwCyxg
+         9kQodEk3y6EAno4OIwljdQJ0iGbrEmFQZEzoRu/pY0p2Ra19Kq/9E4On0E/D4vtKnMpL
+         RjQDmkYTpgfXl3ID/UpAomms5m7s7oaHabgTKoJXfdfcJBr6H6KHCW9W7ZMgQn/Tj22T
+         KkUg==
+X-Gm-Message-State: APjAAAXLKm3PzI2v41cMoW+kzC1OqmIcKtT0t2lMESOOFaIHwrfJ2inf
+        ScbH4d5+5UO0lH8+ogxWIEv+SNeN1qsVwZNR/zqaeQ==
+X-Google-Smtp-Source: APXvYqw6+VIEB6M9tdOHI6Y06dzPRhB/OuNep+lW94BJtLo13hOMrfel++G4/ywQhBuJ/6sNG5e8NhYxZbNnm4vn8K0=
+X-Received: by 2002:a2e:844a:: with SMTP id u10mr14326883ljh.41.1554676029606;
+ Sun, 07 Apr 2019 15:27:09 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-2-ncrews@chromium.org>
+ <20190405201534.GA4426@roeck-us.net> <20190406084157.GA27043@amd>
+ <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com> <20190407221846.GB6327@amd>
+In-Reply-To: <20190407221846.GB6327@amd>
+From:   Dmitry Torokhov <dtor@google.com>
+Date:   Sun, 7 Apr 2019 15:26:58 -0700
+Message-ID: <CAE_wzQ_5Ha6hNt28_+j-pF3mAdXXifv9CuotDCeXff8KC1DNmA@mail.gmail.com>
+Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
+ LEDs support
+To:     Pavel Machek <pavel@ucw.cz>
 Cc:     Guenter Roeck <linux@roeck-us.net>,
         Nick Crews <ncrews@chromium.org>, enric.balletbo@collabora.com,
         Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
@@ -31,61 +69,34 @@ Cc:     Guenter Roeck <linux@roeck-us.net>,
         linux-rtc@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
         dlaurie@chromium.org, sjg@google.com,
         Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
- LEDs support
-Message-ID: <20190407221846.GB6327@amd>
-References: <20190404171007.160878-1-ncrews@chromium.org>
- <20190404171007.160878-2-ncrews@chromium.org>
- <20190405201534.GA4426@roeck-us.net>
- <20190406084157.GA27043@amd>
- <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
-Content-Disposition: inline
-In-Reply-To: <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-
---XF85m9dhOBO43t/C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > > This document also states "The naming scheme above leaves scope
-> > > for further attributes should they be needed". It does not permit,
-> > > however, to redefine one of the fields to mean "location", much less
-> > > the declaration that a devicename of "platform" shall refer to an
-> > > "internal" backlight, or that there shall be no more than one
-> > > "internal" backlight in a given system.
+On Sun, Apr 7, 2019 at 3:18 PM Pavel Machek <pavel@ucw.cz> wrote:
+>
+>
+> > > > This document also states "The naming scheme above leaves scope
+> > > > for further attributes should they be needed". It does not permit,
+> > > > however, to redefine one of the fields to mean "location", much less
+> > > > the declaration that a devicename of "platform" shall refer to an
+> > > > "internal" backlight, or that there shall be no more than one
+> > > > "internal" backlight in a given system.
+> > >
+> > > "platform" is as good devicename as "wilco" or "chromeos".
 > >
-> > "platform" is as good devicename as "wilco" or "chromeos".
->=20
-> No, because "platform" is not a device, it is something that you are
-> trying to assign a magic meaning to.
+> > No, because "platform" is not a device, it is something that you are
+> > trying to assign a magic meaning to.
+>
+> "chromeos" is not a device, either.
 
-"chromeos" is not a device, either.
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+I agree, it is not a device name. We do not assign any specific
+meaning to it though. We could change it to "cros_ec" if so desired
+and nothing should break.
 
---XF85m9dhOBO43t/C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlyqd0YACgkQMOfwapXb+vLtYwCdGp9/oNzPX4vOhq2Yzpll0S50
-mmcAnirJtJ2D5e4gsKwodYatGCp+mInX
-=DsRh
------END PGP SIGNATURE-----
-
---XF85m9dhOBO43t/C--
+-- 
+Dmitry
