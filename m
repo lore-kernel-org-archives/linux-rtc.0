@@ -2,84 +2,139 @@ Return-Path: <SRS0=Oa4n=SJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2640BC282DE
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:30:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 051CDC282DE
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:46:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E385420883
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:30:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C59792087F
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 21:46:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="c5gvf/t7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfDGVaX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 17:30:23 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:39781 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726437AbfDGVaX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 17:30:23 -0400
-Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id A6EED100003;
-        Sun,  7 Apr 2019 21:30:20 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: test: use .set_time
-Date:   Sun,  7 Apr 2019 23:30:12 +0200
-Message-Id: <20190407213012.16108-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726562AbfDGVqm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 17:46:42 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:33045 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbfDGVqm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 17:46:42 -0400
+Received: by mail-lj1-f194.google.com with SMTP id f23so9493102ljc.0
+        for <linux-rtc@vger.kernel.org>; Sun, 07 Apr 2019 14:46:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tt4h0HcSfIPpBua6kI5tfB/v3gS3Ph/COQYGEMLRKK8=;
+        b=c5gvf/t7JfSRJp3sKmF530MyJQ7rjwBkjJManjXmqcyIj3SL2MVzlAhVk56Iagxaaq
+         AkPpDpDaKDoCTZaNLfHKuSkEE6/aBbCrV7eeeW86OJ55ZmC30N2/eEQ9vVXhfc52PgDN
+         ftRjOFDjqgQytcHh5n6H150Qz3rKypF02cWY9wm1ggnI6T41iqzXlYaW6pmal63+fEU/
+         CCCRVanC8bGpfSQ3vvvj980UaWxIKL3J1y0tuj7xB4jsIQnJhFQrvzApRE/xnvMKkjAs
+         MyHT/N543CDYzflUAuQ/tv5kZSXC0QqKruQt4vE+9nKFXbT5etqDtd+jav4OGWJDOMQA
+         yYjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tt4h0HcSfIPpBua6kI5tfB/v3gS3Ph/COQYGEMLRKK8=;
+        b=LN9+L5X2bqZ+y6Eq20DU+hw12EFrgnz4oB0XXY4NKHCXkV45W+ZKETEDoCm7Fj7YJH
+         ktiuK/Do0sDtbjRRRp6tnSKhtrNxh+jFVgmPwjwx6t+9zmEwpynXhVQJ2VWt5D6JZHlk
+         HLnqHf7KXvdH/VAYaUFj+TwIRYDgssmlkhGPDas0xKY62UY9bjjmPDz2qbGmGL7DcwUr
+         7/4LgXaV5K5dkJEM4kOTTF8IBciivxum+fIQfdlmBNQkjKHGMr5YzBTHcECUhbU1mdfE
+         kmdIFJTCumVaETeQNp18urnRCeMQ9NMtVr92kxDzySKLErfhPKyS+rxY4zwZLrvkH0HA
+         9scQ==
+X-Gm-Message-State: APjAAAXWBrKSBPeXVZOfPj0xWwT9jwnsallleqvd1PEXQQS6j9Yb+wRH
+        fqqAcaSJ+dYs+GfUvFtsb1kismj/Ig+/zPJ+2CVJaw==
+X-Google-Smtp-Source: APXvYqzSbXBGcIaB1Kvv+f3juI6esTRMR/xcXn9le6V85uN12KfVQvfPTBNWqkh+HGPtxVtoXLu5dHTVH/RPtckcYK4=
+X-Received: by 2002:a2e:7d19:: with SMTP id y25mr11143388ljc.126.1554673599589;
+ Sun, 07 Apr 2019 14:46:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-2-ncrews@chromium.org>
+ <20190405201534.GA4426@roeck-us.net> <20190406084157.GA27043@amd>
+In-Reply-To: <20190406084157.GA27043@amd>
+From:   Dmitry Torokhov <dtor@google.com>
+Date:   Sun, 7 Apr 2019 14:46:28 -0700
+Message-ID: <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com>
+Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
+ LEDs support
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Nick Crews <ncrews@chromium.org>, enric.balletbo@collabora.com,
+        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
+        jacek.anaszewski@gmail.com, alexandre.belloni@bootlin.com,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+        dlaurie@chromium.org, sjg@google.com,
+        Guenter Roeck <groeck@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use .set_time instead of the deprecated .set_mmss64.
+On Sat, Apr 6, 2019 at 1:41 AM Pavel Machek <pavel@ucw.cz> wrote:
+>
+> On Fri 2019-04-05 13:15:34, Guenter Roeck wrote:
+> > On Thu, Apr 04, 2019 at 11:10:08AM -0600, Nick Crews wrote:
+> > > The EC is in charge of controlling the keyboard backlight on
+> > > the Wilco platform. We expose a standard LED class device at
+> > > /sys/class/leds/platform::kbd_backlight. This driver is modeled
+> > > after the standard Chrome OS keyboard backlight driver at
+> > > drivers/platform/chrome/cros_kbd_led_backlight.c
+> > >
+> > > Some Wilco devices do not support a keyboard backlight. This
+> > > is checked via wilco_ec_keyboard_leds_exist() in the core driver,
+> > > and a platform_device will only be registered by the core if
+> > > a backlight is supported.
+> > >
+> > > After an EC reset the backlight could be in a non-PWM mode.
+> > > Earlier in the boot sequence the BIOS should send a command to
+> > > the EC to set the brightness, so things **should** be set up,
+> > > but we double check in probe() as we query the initial brightness.
+> > > If not set up, then set the brightness to 0.
+> > >
+> > > Since the EC will never change the backlight level of its own accord,
+> > > we don't need to implement a brightness_get() method.
+> > >
+> > > v5 changes:
+> > > -Rename the LED device to "platform::kbd_backlight", to
+> > > denote that this is the built-in system keyboard.
+> > >
+> >
+> > NACK.
+>
+> Please keep it as it is, it is okay.
+>
+> > Per Documentation/leds/leds-class.txt, LED devices are named
+> >       "devicename:colour:function"
+>
+> You failed to follow threads explaining this is being changed, even
+> when I pointed you at them. What you are doing here is not helpful.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-test.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Pavel, what I find is unhelpful is you requiring to conform to the new
+rules that have not been accepted yet and for which there clearly are
+objections. You keep ignoring all the issues that we continue to point
+out with your proposed scheme.
 
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index f1a6dc5ad013..b298e9902f45 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -70,11 +70,11 @@ static int test_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
- 
--static int test_rtc_set_mmss64(struct device *dev, time64_t secs)
-+static int test_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct rtc_test_data *rtd = dev_get_drvdata(dev);
- 
--	rtd->offset = secs - ktime_get_real_seconds();
-+	rtd->offset = rtc_tm_to_time64(tm) - ktime_get_real_seconds();
- 
- 	return 0;
- }
-@@ -94,15 +94,15 @@ static int test_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- 
- static const struct rtc_class_ops test_rtc_ops_noalm = {
- 	.read_time = test_rtc_read_time,
--	.set_mmss64 = test_rtc_set_mmss64,
-+	.set_time = test_rtc_set_time,
- 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
- };
- 
- static const struct rtc_class_ops test_rtc_ops = {
- 	.read_time = test_rtc_read_time,
-+	.set_time = test_rtc_set_time,
- 	.read_alarm = test_rtc_read_alarm,
- 	.set_alarm = test_rtc_set_alarm,
--	.set_mmss64 = test_rtc_set_mmss64,
- 	.alarm_irq_enable = test_rtc_alarm_irq_enable,
- };
- 
+I will go and try to reply to Jacek's thread, but it is my firm belief
+that changing naming scheme is not what we need to do here.
+
+>
+> > This document also states "The naming scheme above leaves scope
+> > for further attributes should they be needed". It does not permit,
+> > however, to redefine one of the fields to mean "location", much less
+> > the declaration that a devicename of "platform" shall refer to an
+> > "internal" backlight, or that there shall be no more than one
+> > "internal" backlight in a given system.
+>
+> "platform" is as good devicename as "wilco" or "chromeos".
+
+No, because "platform" is not a device, it is something that you are
+trying to assign a magic meaning to.
+
+Thanks.
+
 -- 
-2.20.1
-
+Dmitry
