@@ -2,82 +2,58 @@ Return-Path: <SRS0=Oa4n=SJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 404B4C10F0E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 11:54:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B33D9C10F0E
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 14:07:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 16C9920880
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 11:54:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E7FE20870
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 14:07:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbfDGLys (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 07:54:48 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:50153 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726263AbfDGLys (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 07:54:48 -0400
+        id S1726314AbfDGOHq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 10:07:46 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:42663 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726049AbfDGOHp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 10:07:45 -0400
 X-Originating-IP: 86.202.231.219
 Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 1F65F1C0009;
-        Sun,  7 Apr 2019 11:54:45 +0000 (UTC)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 3D0491BF205;
+        Sun,  7 Apr 2019 14:07:42 +0000 (UTC)
+Date:   Sun, 7 Apr 2019 16:07:41 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, patches@opensource.cirrus.com,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: wm831x: use .set_time
-Date:   Sun,  7 Apr 2019 13:54:44 +0200
-Message-Id: <20190407115444.20650-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
+To:     Antonio Ospite <ao2@ao2.it>, Harald Welte <laforge@gnumonks.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Removing pcap?
+Message-ID: <20190407140741.GE7480@piout.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use .set_time instead of the deprecated .set_mmss.
+Hello Antonio, Harald,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-wm831x.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+I've had a look at the PCAP RTC driver because I'm removing a few
+deprecated APIs. While doing so, I've discovered that the driver has
+never worked properly because PCAP_RTC_TOD_MASK and PCAP_RTC_DAY_MASK
+are both missing a bit so every day would roll over at 18:12:15 and the
+whole the date would roll over in 2014.
 
-diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
-index 6a0defd16088..ed29f4df2a3c 100644
---- a/drivers/rtc/rtc-wm831x.c
-+++ b/drivers/rtc/rtc-wm831x.c
-@@ -165,15 +165,17 @@ static int wm831x_rtc_readtime(struct device *dev, struct rtc_time *tm)
- /*
-  * Set current time and date in RTC
-  */
--static int wm831x_rtc_set_mmss(struct device *dev, unsigned long time)
-+static int wm831x_rtc_settime(struct device *dev, struct rtc_time *tm)
- {
- 	struct wm831x_rtc *wm831x_rtc = dev_get_drvdata(dev);
- 	struct wm831x *wm831x = wm831x_rtc->wm831x;
- 	struct rtc_time new_tm;
--	unsigned long new_time;
-+	unsigned long time, new_time;
- 	int ret;
- 	int count = 0;
- 
-+	time = rtc_tm_to_time64(tm);
-+
- 	ret = wm831x_reg_write(wm831x, WM831X_RTC_TIME_1,
- 			       (time >> 16) & 0xffff);
- 	if (ret < 0) {
-@@ -334,7 +336,7 @@ static irqreturn_t wm831x_alm_irq(int irq, void *data)
- 
- static const struct rtc_class_ops wm831x_rtc_ops = {
- 	.read_time = wm831x_rtc_readtime,
--	.set_mmss = wm831x_rtc_set_mmss,
-+	.set_time = wm831x_rtc_settime,
- 	.read_alarm = wm831x_rtc_readalarm,
- 	.set_alarm = wm831x_rtc_setalarm,
- 	.alarm_irq_enable = wm831x_rtc_alarm_irq_enable,
+I discussed with Arnd about 59ee93a528b9 ("ARM: pxa: remove irq_to_gpio
+from ezx-pcap driver") and it seems the whole EZX support has been
+broken for a while.
+
+Is it worth fixing the RTC driver or could I remove it?
+
 -- 
-2.20.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
