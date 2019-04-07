@@ -1,153 +1,83 @@
-Return-Path: <SRS0=NN/7=SI=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Oa4n=SJ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C37AAC282DA
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 22:17:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 404B4C10F0E
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 11:54:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 956EC21019
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Apr 2019 22:17:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 16C9920880
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 11:54:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726326AbfDFWRz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 6 Apr 2019 18:17:55 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:37110 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726151AbfDFWRz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 6 Apr 2019 18:17:55 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id F415F80378; Sun,  7 Apr 2019 00:17:44 +0200 (CEST)
-Date:   Sun, 7 Apr 2019 00:17:56 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@google.com>,
-        Dmitry Torokhov <dtor@google.com>,
-        Nick Crews <ncrews@chromium.org>,
-        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Duncan Laurie <dlaurie@chromium.org>,
-        Simon Glass <sjg@google.com>
-Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
- backlight name
-Message-ID: <20190406221756.GA4472@amd>
-References: <20190404202042.GF29984@amd>
- <CAE_wzQ-8XwzptH7EqNrELxjBzY2+0oHJGB3Va=vZwwK3csu_aA@mail.gmail.com>
- <20190404204207.GH29984@amd>
- <CAE_wzQ8xe=x0uYcZkDRVKpUAQ_1vVdEPHU3XnEV1=_WN1-AMfw@mail.gmail.com>
- <20190404220509.GA14690@amd>
- <CABXOdTeQgjd2-T+eZCMdTDWBGLHEk6kvnYR0DjJYR7zuvVTMsQ@mail.gmail.com>
- <df9577fd-c526-77e9-c11c-5416387121db@collabora.com>
- <469dfb68-a7ab-668d-15cb-9e021c0d3f0c@gmail.com>
- <20190406095346.GB7546@amd>
- <1b45b4e8-18b6-62d5-7d42-0feed57c2c73@gmail.com>
+        id S1726437AbfDGLys (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Apr 2019 07:54:48 -0400
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:50153 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726263AbfDGLys (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 07:54:48 -0400
+X-Originating-IP: 86.202.231.219
+Received: from localhost (lfbn-lyo-1-149-219.w86-202.abo.wanadoo.fr [86.202.231.219])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 1F65F1C0009;
+        Sun,  7 Apr 2019 11:54:45 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, patches@opensource.cirrus.com,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: wm831x: use .set_time
+Date:   Sun,  7 Apr 2019 13:54:44 +0200
+Message-Id: <20190407115444.20650-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
-Content-Disposition: inline
-In-Reply-To: <1b45b4e8-18b6-62d5-7d42-0feed57c2c73@gmail.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Use .set_time instead of the deprecated .set_mmss.
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-wm831x.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Hi!
+diff --git a/drivers/rtc/rtc-wm831x.c b/drivers/rtc/rtc-wm831x.c
+index 6a0defd16088..ed29f4df2a3c 100644
+--- a/drivers/rtc/rtc-wm831x.c
++++ b/drivers/rtc/rtc-wm831x.c
+@@ -165,15 +165,17 @@ static int wm831x_rtc_readtime(struct device *dev, struct rtc_time *tm)
+ /*
+  * Set current time and date in RTC
+  */
+-static int wm831x_rtc_set_mmss(struct device *dev, unsigned long time)
++static int wm831x_rtc_settime(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct wm831x_rtc *wm831x_rtc = dev_get_drvdata(dev);
+ 	struct wm831x *wm831x = wm831x_rtc->wm831x;
+ 	struct rtc_time new_tm;
+-	unsigned long new_time;
++	unsigned long time, new_time;
+ 	int ret;
+ 	int count = 0;
+ 
++	time = rtc_tm_to_time64(tm);
++
+ 	ret = wm831x_reg_write(wm831x, WM831X_RTC_TIME_1,
+ 			       (time >> 16) & 0xffff);
+ 	if (ret < 0) {
+@@ -334,7 +336,7 @@ static irqreturn_t wm831x_alm_irq(int irq, void *data)
+ 
+ static const struct rtc_class_ops wm831x_rtc_ops = {
+ 	.read_time = wm831x_rtc_readtime,
+-	.set_mmss = wm831x_rtc_set_mmss,
++	.set_time = wm831x_rtc_settime,
+ 	.read_alarm = wm831x_rtc_readalarm,
+ 	.set_alarm = wm831x_rtc_setalarm,
+ 	.alarm_irq_enable = wm831x_rtc_alarm_irq_enable,
+-- 
+2.20.1
 
-> >I am not sure about existing driver. Important thing for me is that
-> >new drivers use consistent naming.
-> >
-> >>In cases like above:
-> >>
-> >>     keyboardist::kbd_backlight
-> >>     tclnumpad::kbd_backlight
-> >>
-> >>we could do with the following:
-> >>
-> >>     :kbd-backlight
-> >>     :numpad-backlight
-> >>
-> >>I used hyphens instead of underscores since we will have this convention
-> >>in the LED_FUNCTION names, which is more common for Device Tree, and
-> >>some of existing LED triggers.
-> >
-> >Existing userspace already searches for *:kbd_backlight", AFAICT, so
-> >we probably want to keep the "_".
->=20
-> OK, but it should be an exception but not a rule.
-> This "kbd-*" naming is used in input and tty subsystems which register
-> keyboard triggers with this style:
->=20
-> ~/kernel$ git grep  ".*[\":]kbd-" -- "*.c"
-> drivers/input/input-leds.c:     [LED_NUML]      =3D { "numlock",
-> VT_TRIGGER("kbd-numlock") },
-
-> "kbd_" naming is used only in case of backlight LEDs:
->=20
-> ~/kernel$ git grep  ".*[\":]kbd_" -- "*.c"
-> drivers/hid/hid-asus.c: drvdata->kbd_backlight->cdev.name =3D
-> "asus::kbd_backlight";
-
-Yes, but userland already knows about kbd_backlight, so we really can
-not change this.
-
-> With LEDs in platform drivers is that problem that we have the name
-> compiled into the kernel. Maybe to make it more flexible we could
-> use kernel config to choose between new "kbd-" and legacy "kbd_"
-> naming.
-
-No, I don't think that is suitable use for config option.
-
-> >I don't care much if we use "platform:" or no prefix at all for
-> >backlight of internal keyboard, as long as it is consistent across all
-> >devices.
-> >
-> >We certainly want to use some prefix (probably inputX:) for backlight
-> >on USB keyboards.
->=20
-> For LEDs exposed through the input-LED bridge my get_led_device_info.sh
-> script nicely reports:
->=20
-> associated input node: input1
->=20
-> It just does:
->=20
-> readlink input1\:\:numlock/device
->=20
-> which prints: "../../input1 "
-
-Yes, that will probably work for USB keyboards. (But not for internal
-keyboards on phones, etc).
-
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---G4iJoqBmSsgzjUCe
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlypJZQACgkQMOfwapXb+vJtUACcDprz07bWGG7owVUANpYCh1Dn
-nncAn3OE1uj6KGpEPmzK7C18vf/0BB89
-=6fQc
------END PGP SIGNATURE-----
-
---G4iJoqBmSsgzjUCe--
