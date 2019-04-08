@@ -1,102 +1,117 @@
-Return-Path: <SRS0=Oa4n=SJ=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F20F8C10F0E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:27:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 882C3C282CE
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:22:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BFB672087F
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Apr 2019 22:27:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BYaL3/4z"
+	by mail.kernel.org (Postfix) with ESMTP id 6341420883
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:22:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbfDGW1R (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Apr 2019 18:27:17 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41234 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726366AbfDGW1M (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Apr 2019 18:27:12 -0400
-Received: by mail-lj1-f194.google.com with SMTP id k8so9477569lja.8
-        for <linux-rtc@vger.kernel.org>; Sun, 07 Apr 2019 15:27:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3KRrlEke/H6J1LD72SPEhb7Dk0Tudzv8yTbNbrjV3zg=;
-        b=BYaL3/4zKn/eARcXnUdczX/bC6PHCzNT/Jjkhg+Kr8SB+g1dzzmTznNvMfGoMhnKCy
-         mS/eiWbKUbK9X6XE7VeMQaMLbZ1y9jKnG85KFLcjHAa31Lfig3wP9+NOWPxOARGaffkM
-         doQiu39ihkBau97LC202c1m+aoGcsuIALEUVFg+zZ5MzdH44ccnLyQgFJwa4dRKemVDK
-         6jD/AyKzw1zBSCX2DzDBpYg6FnvkiWr0fc8CHJPITIqyRJILp1d70VYI2nQ1MSaM1jJP
-         +xjCZ+TN954JS+LPZhquejFiZIxdTGK/lsPsdK4mh9uT92EnCVtw5DhWmQMM/Xb9lHS+
-         nHmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3KRrlEke/H6J1LD72SPEhb7Dk0Tudzv8yTbNbrjV3zg=;
-        b=DWbaa1CWnHMLxj290t0Yk7D0niqzqZoM7yyOPNhA3WnA4CEgE06pRVOA0pt8LQkE2T
-         wEZuXJUjnPbokHKY+lcr3bHzZ9I/YDU3YmDsLHV9NrGT+JxwjJH0qazzWoz1YHg+jEid
-         1YPRvhZMczaYT85yBaG0Ix31usuZ76RtIRGVDl788ijhkOoh9yY12zZH23km0FFwCyxg
-         9kQodEk3y6EAno4OIwljdQJ0iGbrEmFQZEzoRu/pY0p2Ra19Kq/9E4On0E/D4vtKnMpL
-         RjQDmkYTpgfXl3ID/UpAomms5m7s7oaHabgTKoJXfdfcJBr6H6KHCW9W7ZMgQn/Tj22T
-         KkUg==
-X-Gm-Message-State: APjAAAXLKm3PzI2v41cMoW+kzC1OqmIcKtT0t2lMESOOFaIHwrfJ2inf
-        ScbH4d5+5UO0lH8+ogxWIEv+SNeN1qsVwZNR/zqaeQ==
-X-Google-Smtp-Source: APXvYqw6+VIEB6M9tdOHI6Y06dzPRhB/OuNep+lW94BJtLo13hOMrfel++G4/ywQhBuJ/6sNG5e8NhYxZbNnm4vn8K0=
-X-Received: by 2002:a2e:844a:: with SMTP id u10mr14326883ljh.41.1554676029606;
- Sun, 07 Apr 2019 15:27:09 -0700 (PDT)
+        id S1725881AbfDHHWt convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 03:22:49 -0400
+Received: from smtp.asem.it ([151.1.184.197]:50917 "EHLO smtp.asem.it"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725871AbfDHHWs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 8 Apr 2019 03:22:48 -0400
+Received: from webmail.asem.it
+        by asem.it (smtp.asem.it)
+        (SecurityGateway 5.5.0)
+        with ESMTP id SG003797119.MSG 
+        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 09:22:44 +0200S
+Received: from ASAS044.asem.intra (172.16.16.44) by ASAS044.asem.intra
+ (172.16.16.44) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1261.35; Mon, 8
+ Apr 2019 09:22:44 +0200
+Received: from ASAS044.asem.intra ([::1]) by ASAS044.asem.intra ([::1]) with
+ mapi id 15.01.1261.035; Mon, 8 Apr 2019 09:22:44 +0200
+From:   Flavio Suligoi <f.suligoi@asem.it>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh@kernel.org>
+CC:     Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Rutland <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
+Thread-Topic: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
+Thread-Index: AQHU6izzMP9bJdl0YUGdR5AsgVFjFaYuiBOAgAByKgCAAuR9QA==
+Date:   Mon, 8 Apr 2019 07:22:44 +0000
+Message-ID: <58b8e1bc2b064abcb67db04369cf9c6e@asem.it>
+References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
+ <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
+ <20190406125550.GA7480@piout.net>
+In-Reply-To: <20190406125550.GA7480@piout.net>
+Accept-Language: it-IT, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.16.17.208]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-2-ncrews@chromium.org>
- <20190405201534.GA4426@roeck-us.net> <20190406084157.GA27043@amd>
- <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com> <20190407221846.GB6327@amd>
-In-Reply-To: <20190407221846.GB6327@amd>
-From:   Dmitry Torokhov <dtor@google.com>
-Date:   Sun, 7 Apr 2019 15:26:58 -0700
-Message-ID: <CAE_wzQ_5Ha6hNt28_+j-pF3mAdXXifv9CuotDCeXff8KC1DNmA@mail.gmail.com>
-Subject: Re: [PATCH v5 2/3] platform/chrome: Add Wilco EC keyboard backlight
- LEDs support
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Nick Crews <ncrews@chromium.org>, enric.balletbo@collabora.com,
-        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
-        jacek.anaszewski@gmail.com, alexandre.belloni@bootlin.com,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-        dlaurie@chromium.org, sjg@google.com,
-        Guenter Roeck <groeck@google.com>
-Content-Type: text/plain; charset="UTF-8"
+X-SGHeloLookup-Result: pass smtp.helo=webmail.asem.it (ip=172.16.16.44)
+X-SGSPF-Result: none (smtp.asem.it)
+X-SGOP-RefID: str=0001.0A0B0213.5CAAF6C5.0031,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sun, Apr 7, 2019 at 3:18 PM Pavel Machek <pavel@ucw.cz> wrote:
->
->
-> > > > This document also states "The naming scheme above leaves scope
-> > > > for further attributes should they be needed". It does not permit,
-> > > > however, to redefine one of the fields to mean "location", much less
-> > > > the declaration that a devicename of "platform" shall refer to an
-> > > > "internal" backlight, or that there shall be no more than one
-> > > > "internal" backlight in a given system.
+HI,
+
+> On 06/04/2019 01:07:13-0500, Rob Herring wrote:
+> > On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
+> > > Some RTC devices have a battery-low automatic detection circuit.
+> > > The battery-low event is usually reported with:
 > > >
-> > > "platform" is as good devicename as "wilco" or "chromeos".
+> > > - a bit change in a RTC status register
+> > > - a hw signaling (generally using an interrupt generation), changing
+> > >   the hw level of a specific pin;
+> > >
+> > > The new property "battery-low-hw-alarm" enable the RTC to generate the
+> > > hw signaling in case of battery-low event.
+> > >
+> > > Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+> > > ---
+> > >  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
+> > >  1 file changed, 3 insertions(+)
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt
+> b/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > index a97fc6a..f93a44d 100644
+> > > --- a/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > @@ -31,6 +31,9 @@ below.
+> > >                              expressed in femto Farad (fF).
+> > >                              The default value shall be listed (if
+> optional),
+> > >                              and likewise all valid values.
+> > > +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This
+> function
+> > > +                            is available on the following devices:
+> > > +                            - pcf2127 - pin used for alarm: INTn
 > >
-> > No, because "platform" is not a device, it is something that you are
-> > trying to assign a magic meaning to.
->
-> "chromeos" is not a device, either.
+> > Boolean? If there's cases where which pin is selectable, then we'd need
+> > this to take a value. Not sure how likely that is?
+> >
+> 
+> Indeed, there is at least the pcf85363 that has two possible pins for
+> that interrupt. How would you select the pin then? a zero based index? a
+> string?
 
-I agree, it is not a device name. We do not assign any specific
-meaning to it though. We could change it to "cros_ec" if so desired
-and nothing should break.
+I think the string could be clearer for the final user and would give
+more freedom for future changes.
+For example, we can call this property, instead of "battery-low-alarm" or 
+"low-voltage-alarm", simply: "alarm-pin_1" and then the string argument 
+can describe the function used; for example:
 
-Thanks.
+alarm-pin_1 = "backup-supply-low-voltage-alarm";
+alarm-pin_2 = "......";
 
--- 
-Dmitry
+Flavio Suligoi
