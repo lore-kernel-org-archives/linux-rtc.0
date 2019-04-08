@@ -2,89 +2,81 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CDA5C10F14
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:22:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F3A3C282CE
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:58:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F87A21473
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:22:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 218A4214C6
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:58:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726633AbfDHOWO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 10:22:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33794 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726630AbfDHOV1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Apr 2019 10:21:27 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id DE316AFFA;
-        Mon,  8 Apr 2019 14:21:24 +0000 (UTC)
-From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
-To:     Ralf Baechle <ralf@linux-mips.org>,
+        id S1726931AbfDHO6l (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 10:58:41 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:47325 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbfDHO6l (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 10:58:41 -0400
+X-Originating-IP: 109.213.33.177
+Received: from localhost (alyon-652-1-42-177.w109-213.abo.wanadoo.fr [109.213.33.177])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 3FA6220007;
+        Mon,  8 Apr 2019 14:58:35 +0000 (UTC)
+Date:   Mon, 8 Apr 2019 16:58:34 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Cc:     Ralf Baechle <ralf@linux-mips.org>,
         Paul Burton <paul.burton@mips.com>,
         James Hogan <jhogan@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-serial@vger.kernel.org
-Subject: [PATCH 1/6] MIPS: SGI-IP27: remove ioc3 ethernet init
-Date:   Mon,  8 Apr 2019 16:20:53 +0200
-Message-Id: <20190408142100.27618-2-tbogendoerfer@suse.de>
-X-Mailer: git-send-email 2.13.7
-In-Reply-To: <20190408142100.27618-1-tbogendoerfer@suse.de>
+Subject: Re: [PATCH 4/6] MIPS: SGI-IP27: fix readb/writeb addressing
+Message-ID: <20190408145834.GO7480@piout.net>
 References: <20190408142100.27618-1-tbogendoerfer@suse.de>
+ <20190408142100.27618-5-tbogendoerfer@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190408142100.27618-5-tbogendoerfer@suse.de>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Removed not needed disabling of ethernet interrupts in IP27 platform code.
+On 08/04/2019 16:20:56+0200, Thomas Bogendoerfer wrote:
+> diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+> index 0cf6507de3c7..05f0d91366af 100644
+> --- a/drivers/rtc/rtc-m48t35.c
+> +++ b/drivers/rtc/rtc-m48t35.c
+> @@ -24,6 +24,16 @@
+>  
+>  struct m48t35_rtc {
+>  	u8	pad[0x7ff8];    /* starts at 0x7ff8 */
+> +#ifdef CONFIG_SGI_IP27
+> +	u8	hour;
+> +	u8	min;
+> +	u8	sec;
+> +	u8	control;
+> +	u8	year;
+> +	u8	month;
+> +	u8	date;
+> +	u8	day;
+> +#else
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
----
- arch/mips/sgi-ip27/ip27-init.c | 13 -------------
- 1 file changed, 13 deletions(-)
+I'm not sure why the RTC driver has to know about that. Shouldn't your
+accessors be fixing that?
 
-diff --git a/arch/mips/sgi-ip27/ip27-init.c b/arch/mips/sgi-ip27/ip27-init.c
-index 066b33f50bcc..59d5375c9021 100644
---- a/arch/mips/sgi-ip27/ip27-init.c
-+++ b/arch/mips/sgi-ip27/ip27-init.c
-@@ -130,17 +130,6 @@ cnodeid_t get_compact_nodeid(void)
- 	return NASID_TO_COMPACT_NODEID(get_nasid());
- }
- 
--static inline void ioc3_eth_init(void)
--{
--	struct ioc3 *ioc3;
--	nasid_t nid;
--
--	nid = get_nasid();
--	ioc3 = (struct ioc3 *) KL_CONFIG_CH_CONS_INFO(nid)->memory_base;
--
--	ioc3->eier = 0;
--}
--
- extern void ip27_reboot_setup(void);
- 
- void __init plat_mem_setup(void)
-@@ -182,8 +171,6 @@ void __init plat_mem_setup(void)
- 		panic("Kernel compiled for N mode.");
- #endif
- 
--	ioc3_eth_init();
--
- 	ioport_resource.start = 0;
- 	ioport_resource.end = ~0UL;
- 	set_io_port_base(IO_BASE);
+
 -- 
-2.13.7
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
