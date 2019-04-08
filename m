@@ -2,116 +2,101 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 882C3C282CE
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:22:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FEF3C282DD
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:34:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6341420883
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:22:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01005208E3
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 07:34:17 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=ao2.it header.i=@ao2.it header.b="imluKER+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725881AbfDHHWt convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 03:22:49 -0400
-Received: from smtp.asem.it ([151.1.184.197]:50917 "EHLO smtp.asem.it"
+        id S1726489AbfDHHeR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 03:34:17 -0400
+Received: from mail.ao2.it ([92.243.12.208]:40435 "EHLO ao2.it"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725871AbfDHHWs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Apr 2019 03:22:48 -0400
-Received: from webmail.asem.it
-        by asem.it (smtp.asem.it)
-        (SecurityGateway 5.5.0)
-        with ESMTP id SG003797119.MSG 
-        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 09:22:44 +0200S
-Received: from ASAS044.asem.intra (172.16.16.44) by ASAS044.asem.intra
- (172.16.16.44) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1261.35; Mon, 8
- Apr 2019 09:22:44 +0200
-Received: from ASAS044.asem.intra ([::1]) by ASAS044.asem.intra ([::1]) with
- mapi id 15.01.1261.035; Mon, 8 Apr 2019 09:22:44 +0200
-From:   Flavio Suligoi <f.suligoi@asem.it>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh@kernel.org>
-CC:     Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-Thread-Topic: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-Thread-Index: AQHU6izzMP9bJdl0YUGdR5AsgVFjFaYuiBOAgAByKgCAAuR9QA==
-Date:   Mon, 8 Apr 2019 07:22:44 +0000
-Message-ID: <58b8e1bc2b064abcb67db04369cf9c6e@asem.it>
-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
- <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
- <20190406125550.GA7480@piout.net>
-In-Reply-To: <20190406125550.GA7480@piout.net>
-Accept-Language: it-IT, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.16.17.208]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-X-SGHeloLookup-Result: pass smtp.helo=webmail.asem.it (ip=172.16.16.44)
-X-SGSPF-Result: none (smtp.asem.it)
-X-SGOP-RefID: str=0001.0A0B0213.5CAAF6C5.0031,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
+        id S1726374AbfDHHeR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 8 Apr 2019 03:34:17 -0400
+X-Greylist: delayed 2161 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Apr 2019 03:34:16 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ao2.it; s=20180927;
+        h=Content-Transfer-Encoding:Content-Type:Mime-Version:References:In-Reply-To:Message-Id:Subject:Cc:To:From:Date; bh=bzYxMZfT5myZia6YYJj+MUEvZL+GXpdcny61CWF1K9w=;
+        b=imluKER+OK5IMNSMfxS+DKfugaCRw1sOMVtTqNrshM9BqmW/KKJM/+X/V6jYoBvrBkXO9KXKuHkTpVcGcHNfwZkUaDXMUKYAxVgcsHVg3fSNEqN0LlgxuSTVJZaoAl82QExLFoYKTUlsXToW/Rip6gQsBhtG37Jt0lklBwVRFAwAICP4tztnuCo4cCqvfP+uMnO9NFWnfdxjZkkRAKzIYwNSARp4txcNSkpy8zvlAAhbN08FhJN9mRQw7WdMThHR29QXAnJ56znxdvjrT4TDqEddX/9keJ2N35G0Ow+XBdeQbY7RsKp4+ovxeL+ES0wvgJTK7eUJAd9rrcCCXeT7ug==;
+Received: from localhost ([::1] helo=jcn.localdomain)
+        by ao2.it with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.84_2)
+        (envelope-from <ao2@ao2.it>)
+        id 1hDOEG-0007DH-26; Mon, 08 Apr 2019 08:58:04 +0200
+Date:   Mon, 8 Apr 2019 08:58:12 +0200
+From:   Antonio Ospite <ao2@ao2.it>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Harald Welte <laforge@gnumonks.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: Removing pcap? (EZX support in mainline linux)
+Message-Id: <20190408085812.db187b4a6f8ffc76d3d5ebdc@ao2.it>
+In-Reply-To: <20190407140741.GE7480@piout.net>
+References: <20190407140741.GE7480@piout.net>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-unknown-linux-gnu)
+X-Face: z*RaLf`X<@C75u6Ig9}{oW$H;1_\2t5)({*|jhM<pyWR#k60!#=#>/Vb;]yA5<GWI5`6u&+
+ ;6b'@y|8w"wB;4/e!7wYYrcqdJFY,~%Gk_4]cq$Ei/7<j&N3ah(m`ku?pX.&+~:_/wC~dwn^)MizBG !pE^+iDQQ1yC6^,)YDKkxDd!T>\I~93>J<_`<4)A{':UrE
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-HI,
+On Sun, 7 Apr 2019 16:07:41 +0200
+Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
 
-> On 06/04/2019 01:07:13-0500, Rob Herring wrote:
-> > On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
-> > > Some RTC devices have a battery-low automatic detection circuit.
-> > > The battery-low event is usually reported with:
-> > >
-> > > - a bit change in a RTC status register
-> > > - a hw signaling (generally using an interrupt generation), changing
-> > >   the hw level of a specific pin;
-> > >
-> > > The new property "battery-low-hw-alarm" enable the RTC to generate the
-> > > hw signaling in case of battery-low event.
-> > >
-> > > Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-> > > ---
-> > >  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
-> > >  1 file changed, 3 insertions(+)
-> > >
-> > > diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt
-> b/Documentation/devicetree/bindings/rtc/rtc.txt
-> > > index a97fc6a..f93a44d 100644
-> > > --- a/Documentation/devicetree/bindings/rtc/rtc.txt
-> > > +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
-> > > @@ -31,6 +31,9 @@ below.
-> > >                              expressed in femto Farad (fF).
-> > >                              The default value shall be listed (if
-> optional),
-> > >                              and likewise all valid values.
-> > > +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This
-> function
-> > > +                            is available on the following devices:
-> > > +                            - pcf2127 - pin used for alarm: INTn
-> >
-> > Boolean? If there's cases where which pin is selectable, then we'd need
-> > this to take a value. Not sure how likely that is?
-> >
+> Hello Antonio, Harald,
+>
+
+Hi everyone,
+
+adding Robert to CC as he is listed as the current maintainer of
+ARM/EZX SMARTPHONES in the MAINTAINERS file.
+
+> I've had a look at the PCAP RTC driver because I'm removing a few
+> deprecated APIs. While doing so, I've discovered that the driver has
+> never worked properly because PCAP_RTC_TOD_MASK and PCAP_RTC_DAY_MASK
+> are both missing a bit so every day would roll over at 18:12:15 and the
+> whole the date would roll over in 2014.
 > 
-> Indeed, there is at least the pcf85363 that has two possible pins for
-> that interrupt. How would you select the pin then? a zero based index? a
-> string?
+> I discussed with Arnd about 59ee93a528b9 ("ARM: pxa: remove irq_to_gpio
+> from ezx-pcap driver") and it seems the whole EZX support has been
+> broken for a while.
+>
 
-I think the string could be clearer for the final user and would give
-more freedom for future changes.
-For example, we can call this property, instead of "battery-low-alarm" or 
-"low-voltage-alarm", simply: "alarm-pin_1" and then the string argument 
-can describe the function used; for example:
+As Harald said in another message I tried taking over OpenEZX for a
+while, but eventually lost interest.
 
-alarm-pin_1 = "backup-supply-low-voltage-alarm";
-alarm-pin_2 = "......";
+JFTR some parts of the project has been backed up here:
+https://gitlab.com/openezx
 
-Flavio Suligoi
+I should also have a git backup of the wiki somewhere.
+
+> Is it worth fixing the RTC driver or could I remove it?
+> 
+
+I am not aware of any active user but I'd leave the final word to
+Robert, IIRC he received some EZX hardware "recently".
+
+FWIW I think EZX code can be removed if it is a maintenance burden for
+anyone.
+
+Thank you,
+   Antonio
+
+-- 
+Antonio Ospite
+https://ao2.it
+https://twitter.com/ao2it
+
+A: Because it messes up the order in which people normally read text.
+   See http://en.wikipedia.org/wiki/Posting_style
+Q: Why is top-posting such a bad thing?
