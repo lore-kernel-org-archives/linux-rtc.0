@@ -6,21 +6,21 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C798C282CE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC26CC282DE
 	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:22:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 080722147A
+	by mail.kernel.org (Postfix) with ESMTP id B6EB42147A
 	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:22:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727214AbfDHOVc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1727185AbfDHOVc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 8 Apr 2019 10:21:32 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33940 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:33896 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727159AbfDHOVa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1726558AbfDHOVa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Mon, 8 Apr 2019 10:21:30 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id F3192B015;
+        by mx1.suse.de (Postfix) with ESMTP id 77926B011;
         Mon,  8 Apr 2019 14:21:27 +0000 (UTC)
 From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
 To:     Ralf Baechle <ralf@linux-mips.org>,
@@ -36,9 +36,9 @@ To:     Ralf Baechle <ralf@linux-mips.org>,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-serial@vger.kernel.org
-Subject: [PATCH 6/6] Input: add IOC3 serio driver
-Date:   Mon,  8 Apr 2019 16:20:58 +0200
-Message-Id: <20190408142100.27618-7-tbogendoerfer@suse.de>
+Subject: [PATCH 5/6] tty: serial: Add 8250-core base IOC3 driver
+Date:   Mon,  8 Apr 2019 16:20:57 +0200
+Message-Id: <20190408142100.27618-6-tbogendoerfer@suse.de>
 X-Mailer: git-send-email 2.13.7
 In-Reply-To: <20190408142100.27618-1-tbogendoerfer@suse.de>
 References: <20190408142100.27618-1-tbogendoerfer@suse.de>
@@ -47,241 +47,155 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patch adds a platform driver for supporting keyboard and mouse
-interface of SGI IOC3 chips.
+This patch adds 8250 IOC3 platform driver for serial ports connected via
+a SuperIO chip to a SGI IOC3 chip.
 
 Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 ---
- drivers/input/serio/Kconfig   |  12 +++
- drivers/input/serio/Makefile  |   1 +
- drivers/input/serio/ioc3kbd.c | 183 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 196 insertions(+)
- create mode 100644 drivers/input/serio/ioc3kbd.c
+ drivers/tty/serial/8250/8250_ioc3.c | 98 +++++++++++++++++++++++++++++++++++++
+ drivers/tty/serial/8250/Kconfig     | 11 +++++
+ drivers/tty/serial/8250/Makefile    |  1 +
+ 3 files changed, 110 insertions(+)
+ create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
 
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index c9c7224d5ae0..ceb89d8b785d 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -164,6 +164,18 @@ config SERIO_MACEPS2
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called maceps2.
- 
-+config SERIO_SGI_IOC3
-+	tristate "SGI IOC3 PS/2 controller"
-+	depends on SGI_MFD_IOC3
-+	help
-+	  Say Y here if you have an SGI Onyx2, SGI Octane or IOC3 PCI card
-+	  and you want to attach and use a keyboard, mouse, or both.
-+
-+	  Do not use on an SGI Origin 2000, as the IO6 board in those
-+	  systems lacks the necessary PS/2 ports.  You will need to add
-+	  an IOC3 PCI card (CADduo) via a PCI Shoehorn XIO card or the
-+	  PCI Cardcage (shoebox) first.
-+
- config SERIO_LIBPS2
- 	tristate "PS/2 driver library"
- 	depends on SERIO_I8042 || SERIO_I8042=n
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 67950a5ccb3f..6d97bad7b844 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_HIL_MLC)		+= hp_sdc_mlc.o hil_mlc.o
- obj-$(CONFIG_SERIO_PCIPS2)	+= pcips2.o
- obj-$(CONFIG_SERIO_PS2MULT)	+= ps2mult.o
- obj-$(CONFIG_SERIO_MACEPS2)	+= maceps2.o
-+obj-$(CONFIG_SERIO_SGI_IOC3)	+= ioc3kbd.o
- obj-$(CONFIG_SERIO_LIBPS2)	+= libps2.o
- obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
- obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
-diff --git a/drivers/input/serio/ioc3kbd.c b/drivers/input/serio/ioc3kbd.c
+diff --git a/drivers/tty/serial/8250/8250_ioc3.c b/drivers/tty/serial/8250/8250_ioc3.c
 new file mode 100644
-index 000000000000..8ff46a9f3d98
+index 000000000000..4c405f1b9c67
 --- /dev/null
-+++ b/drivers/input/serio/ioc3kbd.c
-@@ -0,0 +1,183 @@
++++ b/drivers/tty/serial/8250/8250_ioc3.c
+@@ -0,0 +1,98 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * SGI IOC3 PS/2 controller driver for linux
++ * SGI IOC3 8250 UART driver
 + *
 + * Copyright (C) 2019 Thomas Bogendoerfer <tbogendoerfer@suse.de>
 + *
-+ * Based on code Copyright (C) 2005 Stanislaw Skowronek <skylark@unaligned.org>
-+ *               Copyright (C) 2009 Johannes Dickgreber <tanzy@gmx.de>
++ * based on code Copyright (C) 2005 Stanislaw Skowronek <skylark@unaligned.org>
++ *               Copyright (C) 2014 Joshua Kinard <kumba@gentoo.org>
 + */
 +
-+#include <linux/delay.h>
-+#include <linux/init.h>
-+#include <linux/io.h>
-+#include <linux/serio.h>
 +#include <linux/module.h>
++#include <linux/errno.h>
++#include <linux/io.h>
 +#include <linux/platform_device.h>
 +
-+#include <asm/sn/ioc3.h>
++#include "8250.h"
 +
-+struct ioc3kbd_data {
-+	struct ioc3_serioregs __iomem *regs;
-+	struct serio *kbd, *aux;
++#define IOC3_UARTCLK (22000000 / 3)
++
++struct ioc3_8250_data {
++	int line;
 +};
 +
-+static int ioc3kbd_write(struct serio *dev, u8 val)
++static unsigned int ioc3_serial_in(struct uart_port *p, int offset)
 +{
-+	struct ioc3kbd_data *d = (struct ioc3kbd_data *)(dev->port_data);
-+	unsigned long timeout = 0;
-+	u32 mask;
-+
-+	mask = (dev == d->aux) ? KM_CSR_M_WRT_PEND : KM_CSR_K_WRT_PEND;
-+	while ((readl(&d->regs->km_csr) & mask) && (timeout < 1000)) {
-+		udelay(100);
-+		timeout++;
-+	}
-+
-+	if (dev == d->aux)
-+		writel(((u32)val) & 0x000000ff, &d->regs->m_wd);
-+	else
-+		writel(((u32)val) & 0x000000ff, &d->regs->k_wd);
-+
-+	if (timeout >= 1000)
-+		return -1;
-+	return 0;
++	return readb(p->membase + (offset ^ 3));
 +}
 +
-+static irqreturn_t ioc3kbd_intr(int itq, void *dev_id)
++static void ioc3_serial_out(struct uart_port *p, int offset, int value)
 +{
-+	struct ioc3kbd_data *d = dev_id;
-+	u32 data_k, data_m;
-+
-+	data_k = readl(&d->regs->k_rd);
-+	data_m = readl(&d->regs->m_rd);
-+
-+	if (data_k & KM_RD_VALID_0)
-+		serio_interrupt(d->kbd,
-+		(data_k >> KM_RD_DATA_0_SHIFT) & 0xff, 0);
-+	if (data_k & KM_RD_VALID_1)
-+		serio_interrupt(d->kbd,
-+		(data_k >> KM_RD_DATA_1_SHIFT) & 0xff, 0);
-+	if (data_k & KM_RD_VALID_2)
-+		serio_interrupt(d->kbd,
-+		(data_k >> KM_RD_DATA_2_SHIFT) & 0xff, 0);
-+	if (data_m & KM_RD_VALID_0)
-+		serio_interrupt(d->aux,
-+		(data_m >> KM_RD_DATA_0_SHIFT) & 0xff, 0);
-+	if (data_m & KM_RD_VALID_1)
-+		serio_interrupt(d->aux,
-+		(data_m >> KM_RD_DATA_1_SHIFT) & 0xff, 0);
-+	if (data_m & KM_RD_VALID_2)
-+		serio_interrupt(d->aux,
-+		(data_m >> KM_RD_DATA_2_SHIFT) & 0xff, 0);
-+
-+	return 0;
++	writeb(value, p->membase + (offset ^ 3));
 +}
 +
-+static int ioc3kbd_open(struct serio *dev)
++static int serial8250_ioc3_probe(struct platform_device *pdev)
 +{
-+	return 0;
-+}
++	struct ioc3_8250_data *data;
++	struct uart_8250_port up;
++	struct resource *r;
++	void __iomem *membase;
++	int irq, line;
 +
-+static void ioc3kbd_close(struct serio *dev)
-+{
-+	/* Empty */
-+}
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!r)
++		return -ENODEV;
 +
-+static struct ioc3kbd_data *ioc3kbd_alloc_port(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct ioc3_serioregs __iomem *regs;
-+	struct ioc3kbd_data *d;
-+	struct serio *sk, *sa;
-+	struct resource *mem;
-+	int irq;
++	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
 +
-+	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!mem)
-+		return NULL;
++	membase = devm_ioremap_nocache(&pdev->dev, r->start, resource_size(r));
++	if (!membase)
++		return -ENOMEM;
 +
 +	irq = platform_get_irq(pdev, 0);
 +	if (irq < 0)
-+		return NULL;
++		irq = 0; /* no interrupt -> use polling */
 +
-+	regs = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
-+	if (!regs)
-+		return NULL;
++	/* Register serial ports with 8250.c */
++	memset(&up, 0, sizeof(struct uart_8250_port));
++	up.port.iotype = UPIO_MEM;
++	up.port.uartclk = IOC3_UARTCLK;
++	up.port.type = PORT_16550A;
++	up.port.irq = irq;
++	up.port.flags = (UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ);
++	up.port.dev = &pdev->dev;
++	up.port.membase = membase;
++	up.port.mapbase = r->start;
++	up.port.serial_in = ioc3_serial_in;
++	up.port.serial_out = ioc3_serial_out;
++	line = serial8250_register_8250_port(&up);
++	if (line < 0)
++		return line;
 +
-+	sk = devm_kzalloc(dev, sizeof(struct serio), GFP_KERNEL);
-+	if (!sk)
-+		return NULL;
-+
-+	sa = devm_kzalloc(dev, sizeof(struct serio), GFP_KERNEL);
-+	if (!sa)
-+		return NULL;
-+
-+	d = devm_kzalloc(dev, sizeof(struct ioc3kbd_data),
-+			 GFP_KERNEL);
-+	if (!d)
-+		return NULL;
-+
-+	if (request_irq(irq, ioc3kbd_intr, IRQF_SHARED, "ioc3-kbd", d))
-+		return NULL;
-+
-+	sk->id.type = SERIO_8042;
-+	sk->write = ioc3kbd_write;
-+	sk->open = ioc3kbd_open;
-+	sk->close = ioc3kbd_close;
-+	snprintf(sk->name, sizeof(sk->name), "IOC3 keyboard %d", pdev->id);
-+	snprintf(sk->phys, sizeof(sk->phys), "ioc3/serio%dkbd", pdev->id);
-+	sk->port_data = d;
-+	sk->dev.parent = &pdev->dev;
-+
-+	sa->id.type = SERIO_8042;
-+	sa->write = ioc3kbd_write;
-+	sa->open = ioc3kbd_open;
-+	sa->close = ioc3kbd_close;
-+	snprintf(sa->name, sizeof(sa->name), "IOC3 auxiliary %d", pdev->id);
-+	snprintf(sa->phys, sizeof(sa->phys), "ioc3/serio%daux", pdev->id);
-+	sa->port_data = d;
-+	sa->dev.parent = dev;
-+
-+	d->regs = regs;
-+	d->kbd = sk;
-+	d->aux = sa;
-+	return d;
-+}
-+
-+static int ioc3kbd_probe(struct platform_device *pdev)
-+{
-+	struct ioc3kbd_data *d;
-+
-+	d = ioc3kbd_alloc_port(pdev);
-+	if (!d)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, d);
-+	serio_register_port(d->kbd);
-+	serio_register_port(d->aux);
-+
++	platform_set_drvdata(pdev, data);
 +	return 0;
 +}
 +
-+static int ioc3kbd_remove(struct platform_device *pdev)
++static int serial8250_ioc3_remove(struct platform_device *pdev)
 +{
-+	struct ioc3kbd_data *d = platform_get_drvdata(pdev);
++	struct ioc3_8250_data *data = platform_get_drvdata(pdev);
 +
-+	serio_unregister_port(d->kbd);
-+	serio_unregister_port(d->aux);
++	serial8250_unregister_port(data->line);
 +	return 0;
 +}
 +
-+static struct platform_driver ioc3kbd_driver = {
-+	.probe          = ioc3kbd_probe,
-+	.remove         = ioc3kbd_remove,
++static struct platform_driver serial8250_ioc3_driver = {
++	.probe  = serial8250_ioc3_probe,
++	.remove = serial8250_ioc3_remove,
 +	.driver = {
-+		.name = "ioc3-kbd",
-+	},
++		.name = "ioc3-serial8250",
++	}
 +};
-+module_platform_driver(ioc3kbd_driver);
 +
-+MODULE_AUTHOR("Stanislaw Skowronek <skylark@unaligned.org>");
-+MODULE_DESCRIPTION("SGI IOC3 serio driver");
++module_platform_driver(serial8250_ioc3_driver);
++
++MODULE_AUTHOR("Thomas Bogendoerfer <tbogendoerfer@suse.de>");
++MODULE_DESCRIPTION("SGI IOC3 8250 UART driver");
 +MODULE_LICENSE("GPL");
+diff --git a/drivers/tty/serial/8250/Kconfig b/drivers/tty/serial/8250/Kconfig
+index 15c2c5463835..9d24615aabfb 100644
+--- a/drivers/tty/serial/8250/Kconfig
++++ b/drivers/tty/serial/8250/Kconfig
+@@ -364,6 +364,17 @@ config SERIAL_8250_EM
+ 	  port hardware found on the Emma Mobile line of processors.
+ 	  If unsure, say N.
+ 
++config SERIAL_8250_IOC3
++	tristate "SGI IOC3 8250 UART support"
++	depends on SGI_MFD_IOC3 && SERIAL_8250
++	select SERIAL_8250_EXTENDED
++	select SERIAL_8250_SHARE_IRQ
++	help
++	  Enable this if you have a SGI Origin or Octane machine. This module
++	  provides basic serial support by directly driving the UART chip
++	  behind the IOC3 device on those systems.  Maximum baud speed is
++	  38400bps using this driver.
++
+ config SERIAL_8250_RT288X
+ 	bool "Ralink RT288x/RT305x/RT3662/RT3883 serial port support"
+ 	depends on SERIAL_8250
+diff --git a/drivers/tty/serial/8250/Makefile b/drivers/tty/serial/8250/Makefile
+index 18751bc63a84..79f74b4d57e5 100644
+--- a/drivers/tty/serial/8250/Makefile
++++ b/drivers/tty/serial/8250/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_SERIAL_8250_FSL)		+= 8250_fsl.o
+ obj-$(CONFIG_SERIAL_8250_MEN_MCB)	+= 8250_men_mcb.o
+ obj-$(CONFIG_SERIAL_8250_DW)		+= 8250_dw.o
+ obj-$(CONFIG_SERIAL_8250_EM)		+= 8250_em.o
++obj-$(CONFIG_SERIAL_8250_IOC3)		+= 8250_ioc3.o
+ obj-$(CONFIG_SERIAL_8250_OMAP)		+= 8250_omap.o
+ obj-$(CONFIG_SERIAL_8250_LPC18XX)	+= 8250_lpc18xx.o
+ obj-$(CONFIG_SERIAL_8250_MT6577)	+= 8250_mtk.o
 -- 
 2.13.7
 
