@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C99DC10F13
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 10:35:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D107BC10F13
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 11:08:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 482F720870
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 10:35:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 80F0220857
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 11:08:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="oHoDo2GM"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="fprIPmeI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726025AbfDHKfd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 06:35:33 -0400
-Received: from mail-eopbgr10074.outbound.protection.outlook.com ([40.107.1.74]:32488
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        id S1726005AbfDHLIz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 07:08:55 -0400
+Received: from mail-eopbgr80081.outbound.protection.outlook.com ([40.107.8.81]:8197
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725881AbfDHKfc (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Apr 2019 06:35:32 -0400
+        id S1725881AbfDHLIy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 8 Apr 2019 07:08:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iFv5YM4+53V60QfBpIKpZF2QpbE3J6Ht2kzb3FvvBjM=;
- b=oHoDo2GM6RDHgqf8esHbDQyYsq5Iik7pfL032sOd7t+W5DmTnTvaU8DUFly2xy3TSb08mAacGvKQwPHFjmIUCcyd6KwKTdYpmqR/7Y8dXOFDz48ssS095YTt081oEEq+s7TPbzh/Yv6TrpHPv1NEJIy7T5LpFwK+xCUu2t6T5R4=
+ bh=Hcxjxn+0emttIXHWWn0yFUoYsaSSshsaGOCLQLyaRCY=;
+ b=fprIPmeICgH6nWucFQhMQWS1c7KusLofq2xY1ZGRGAdzPEZJBwkmdhAguo33G+qWQZQiEwNyfVQ4tOy1iZqT6GWL1KUwQhDpcptfhP/55gO0DubF5JK+MC/JSmIEjllcOtQ4xkunD/86eTbnNLUu7Odhc3mhOIDrLWKdC1OQfv0=
 Received: from AM0PR04MB4211.eurprd04.prod.outlook.com (52.134.92.158) by
- AM0PR04MB4900.eurprd04.prod.outlook.com (20.176.215.209) with Microsoft SMTP
+ AM0PR04MB4402.eurprd04.prod.outlook.com (52.135.148.20) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1771.16; Mon, 8 Apr 2019 10:35:26 +0000
+ 15.20.1771.19; Mon, 8 Apr 2019 11:08:48 +0000
 Received: from AM0PR04MB4211.eurprd04.prod.outlook.com
  ([fe80::8cda:4e52:8e87:8f0e]) by AM0PR04MB4211.eurprd04.prod.outlook.com
  ([fe80::8cda:4e52:8e87:8f0e%2]) with mapi id 15.20.1771.016; Mon, 8 Apr 2019
- 10:35:26 +0000
+ 11:08:48 +0000
 From:   Aisheng Dong <aisheng.dong@nxp.com>
 To:     Anson Huang <anson.huang@nxp.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
@@ -52,15 +52,14 @@ To:     Anson Huang <anson.huang@nxp.com>,
         <linux-arm-kernel@lists.infradead.org>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
 CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: RE: [PATCH V5 2/4] firmware: imx: enable imx scu general irq function
-Thread-Topic: [PATCH V5 2/4] firmware: imx: enable imx scu general irq
- function
-Thread-Index: AQHU3TgQGWe7UaJrGEy/JdXOZrh4C6YyMA3g
-Date:   Mon, 8 Apr 2019 10:35:26 +0000
-Message-ID: <AM0PR04MB42115BC951C501A5886B0C6B802C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+Subject: RE: [PATCH V5 4/4] rtc: imx-sc: add rtc alarm support
+Thread-Topic: [PATCH V5 4/4] rtc: imx-sc: add rtc alarm support
+Thread-Index: AQHU3TgXVF69xScZaEuBoN4oQ+OPnaYyOqtQ
+Date:   Mon, 8 Apr 2019 11:08:48 +0000
+Message-ID: <AM0PR04MB4211209072B94795A6A04E9A802C0@AM0PR04MB4211.eurprd04.prod.outlook.com>
 References: <1552878291-22866-1-git-send-email-Anson.Huang@nxp.com>
- <1552878291-22866-2-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1552878291-22866-2-git-send-email-Anson.Huang@nxp.com>
+ <1552878291-22866-4-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <1552878291-22866-4-git-send-email-Anson.Huang@nxp.com>
 Accept-Language: zh-CN, en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -69,28 +68,28 @@ authentication-results: spf=none (sender IP is )
  smtp.mailfrom=aisheng.dong@nxp.com; 
 x-originating-ip: [119.31.174.66]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 41a13d9e-9adc-4c8b-5c18-08d6bc0dea1a
+x-ms-office365-filtering-correlation-id: bc59e528-2bfe-4680-1eb9-08d6bc129304
 x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:AM0PR04MB4900;
-x-ms-traffictypediagnostic: AM0PR04MB4900:
-x-microsoft-antispam-prvs: <AM0PR04MB49009237B333A636700C950C802C0@AM0PR04MB4900.eurprd04.prod.outlook.com>
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600139)(711020)(4605104)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:AM0PR04MB4402;
+x-ms-traffictypediagnostic: AM0PR04MB4402:
+x-microsoft-antispam-prvs: <AM0PR04MB44029832A96C943E1DE982F5802C0@AM0PR04MB4402.eurprd04.prod.outlook.com>
 x-forefront-prvs: 0001227049
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(396003)(366004)(346002)(376002)(39860400002)(199004)(189003)(33656002)(229853002)(486006)(86362001)(102836004)(5660300002)(2201001)(14444005)(105586002)(71190400001)(71200400001)(97736004)(6436002)(256004)(8676002)(2501003)(11346002)(446003)(53936002)(26005)(7696005)(25786009)(66066001)(2906002)(99286004)(186003)(106356001)(44832011)(81156014)(81166006)(6506007)(4326008)(476003)(68736007)(8936002)(14454004)(110136005)(3846002)(55016002)(478600001)(76176011)(316002)(74316002)(305945005)(6246003)(6116002)(7736002)(52536014)(9686003)(7416002)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4900;H:AM0PR04MB4211.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(136003)(346002)(376002)(396003)(366004)(199004)(189003)(66066001)(7416002)(55016002)(68736007)(3846002)(6116002)(7696005)(6246003)(9686003)(71190400001)(2201001)(25786009)(71200400001)(4326008)(53936002)(86362001)(6506007)(81166006)(81156014)(11346002)(52536014)(446003)(26005)(106356001)(8676002)(102836004)(105586002)(44832011)(486006)(14444005)(256004)(76176011)(229853002)(14454004)(110136005)(7736002)(478600001)(8936002)(2906002)(99286004)(2501003)(74316002)(316002)(5660300002)(186003)(6436002)(33656002)(305945005)(97736004)(476003)(921003)(1121003);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4402;H:AM0PR04MB4211.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
 received-spf: None (protection.outlook.com: nxp.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: PIwMk3/qx3Ii/JQ4jAyi/SW8zfmUw1fYCAnTkbWhHiETwRIuiXIPIKQq7QV2zo1kDoMNRBBMpTnxEa/8Q+JxvtcpH4nPBfVZWCDCnRJvJNmnDby+OpPanYl2gPIT1duxeVKJ5T/QencFwOkAJaIedIJ0qONDN8Mi8tpmxTqZCkey3qbWM0fsO6PcIgdVjUQwBf41XiH5HEfDzd4fIWTrSesie0OEEqHWvJVqZgXI3NG3TGdQdRtBxyibdUUmDwhu0MbDC0tc5g25I9IYxHjFhaYiKrh0MLT23xewyJWc7rACcaoMrjw25yqacNcXlVHnOghrbbED39mHgBJjPOV4daEtg7xi0oeRbU1ka49h5wixb/Gwvg5r720v8sO/q8Math7Qk0rwy+fmsXV9GTkSqzeeMUkT2QLksYBUTiEVwAg=
+x-microsoft-antispam-message-info: aPvW8SMnv8uoVoPvt+ETIgYGQpwXLFJoiALL2LwHwxmzCEWQ9sti7TA9y4ziB7wf5lx4VwabBAMTmAaC2sFIxzl/a50z1TYJw6xjGH3i5SSIGmgeXYRP03ZDwAG6R1ZweHe3R3j9Xz1jKYHKJzRhrmuG04ziZUiHcK3aQJF/fwZx0pOxsiL4/KxgGHYDWgqX038rPho+Me+DWuohTSaW67Kyoyx1UgWHjsA2IGgY2ICz2VIAw/N4TInNEOiudCuCBFTPtIfCatrZ2eM8o+LAWk+pOA55s7Ak9ckXkvQl1y9viEjpdsGEHPaXqL42EvhRPZ0pROqwe5EdXeW3Dn2V51h1tp5S3cAStT3fxI7mkBiWFAWhUlrnd0Z1CPCPRXwMrgQNP+EvbelSUL5tSW7cXEbsopyS7HWwdZPJ8dJrZ3w=
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 41a13d9e-9adc-4c8b-5c18-08d6bc0dea1a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Apr 2019 10:35:26.6055
+X-MS-Exchange-CrossTenant-Network-Message-Id: bc59e528-2bfe-4680-1eb9-08d6bc129304
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Apr 2019 11:08:48.0597
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4900
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4402
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -99,243 +98,210 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 > From: Anson Huang
 > Sent: Monday, March 18, 2019 11:10 AM
 >=20
-> The System Controller Firmware (SCFW) controls RTC, thermal and WDOG etc.=
-,
-> these resources' interrupt function are managed by SCU. When any IRQ
-> pending, SCU will notify Linux via MU general interrupt channel #3, and L=
-inux
-> kernel needs to call SCU APIs to get IRQ status and notify each module to
-> handle the interrupt.
->=20
-> Since there is no data transmission for SCU IRQ notification, so doorbell=
- mode
-> is used for this MU channel, and SCU driver will use notifier mechanism t=
-o
-> broadcast to every module which registers the SCU block notifier.
+> Add i.MX system controller RTC alarm support, the RTC alarm is implemente=
+d
+> via SIP(silicon provider) runtime service call and ARM-Trusted-Firmware w=
+ill
+> communicate with system controller via MU(message unit) IPC to set RTC
+> alarm. When RTC alarm fires, system controller will generate a common MU
+> irq event and notify system controller RTC driver to handle the irq event=
+.
 >=20
 > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-
-This patch mostly looks good me, except a few minor comments.
-Otherwise, you can add my tag.
-
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-
 > ---
-> Changes since V4:
-> 	- move scu irq support to a new file imx-scu-irq.c;
-> 	- improve the function name with "imx_scu_irq_" as prefix for irq relate=
-d
-> functions;
-> 	- move MU IRQ sources id out of sc ipc struct;
-> 	- add IRQ group info message print when get irq status fail;
-> 	- move MU ID parse into imx_scu_enable_general_irq_channel() function
-> and ONLY do it
-> 	  when irq channel enable successfully.
-> 	- change max IRQ group supported to 4, ONLY support for those kernel
-> features.
+> No function changes, just update imx_scu_irq_register_notifier() function
+> name according to SCU IRQ function name change.
 > ---
->  drivers/firmware/imx/Makefile      |   2 +-
->  drivers/firmware/imx/imx-scu-irq.c | 133
-> +++++++++++++++++++++++++++++++++++++
->  drivers/firmware/imx/imx-scu.c     |   6 ++
->  include/linux/firmware/imx/sci.h   |   4 ++
->  4 files changed, 144 insertions(+), 1 deletion(-)  create mode 100644
-> drivers/firmware/imx/imx-scu-irq.c
+>  drivers/rtc/rtc-imx-sc.c | 112
+> +++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 112 insertions(+)
 >=20
-> diff --git a/drivers/firmware/imx/Makefile b/drivers/firmware/imx/Makefil=
-e
-> index 1b2e15b..802c4ad 100644
-> --- a/drivers/firmware/imx/Makefile
-> +++ b/drivers/firmware/imx/Makefile
-> @@ -1,3 +1,3 @@
->  # SPDX-License-Identifier: GPL-2.0
-> -obj-$(CONFIG_IMX_SCU)		+=3D imx-scu.o misc.o
-> +obj-$(CONFIG_IMX_SCU)		+=3D imx-scu.o misc.o imx-scu-irq.o
->  obj-$(CONFIG_IMX_SCU_PD)	+=3D scu-pd.o
-> diff --git a/drivers/firmware/imx/imx-scu-irq.c
-> b/drivers/firmware/imx/imx-scu-irq.c
-> new file mode 100644
-> index 0000000..0e20aa7
-> --- /dev/null
-> +++ b/drivers/firmware/imx/imx-scu-irq.c
-> @@ -0,0 +1,133 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + * Copyright 2019 NXP
-> + *
-> + * Implementation of the SCU IRQ functions using MU.
-> + *
-> + */
+> diff --git a/drivers/rtc/rtc-imx-sc.c b/drivers/rtc/rtc-imx-sc.c index
+> 19642bf..9df4990 100644
+> --- a/drivers/rtc/rtc-imx-sc.c
+> +++ b/drivers/rtc/rtc-imx-sc.c
+> @@ -3,6 +3,7 @@
+>   * Copyright 2018 NXP.
+>   */
+>=20
+> +#include <dt-bindings/firmware/imx/rsrc.h>
+>  #include <linux/arm-smccc.h>
+>  #include <linux/firmware/imx/sci.h>
+>  #include <linux/module.h>
+> @@ -11,11 +12,17 @@
+>  #include <linux/rtc.h>
+>=20
+>  #define IMX_SC_TIMER_FUNC_GET_RTC_SEC1970	9
+> +#define IMX_SC_TIMER_FUNC_SET_RTC_ALARM		8
+>  #define IMX_SC_TIMER_FUNC_SET_RTC_TIME		6
+>=20
+> +#define IMX_SC_IRQ_FUNC_ENABLE			1
 > +
-> +#include <dt-bindings/firmware/imx/rsrc.h> #include
-> +<linux/firmware/imx/ipc.h> #include <linux/mailbox_client.h>
+>  #define IMX_SIP_SRTC			0xC2000002
+>  #define IMX_SIP_SRTC_SET_TIME		0x0
+>=20
+> +#define SC_IRQ_GROUP_RTC    2
+> +#define SC_IRQ_RTC          1
 > +
-> +#define IMX_SC_IRQ_FUNC_STATUS	2
-> +#define IMX_SC_IRQ_NUM_GROUP	4
-> +
-> +static u32 mu_resource_id;
-> +
-> +struct imx_sc_msg_irq_get_status {
+>  static struct imx_sc_ipc *rtc_ipc_handle;  static struct rtc_device
+> *imx_sc_rtc;
+>=20
+> @@ -24,6 +31,24 @@ struct imx_sc_msg_timer_get_rtc_time {
+>  	u32 time;
+>  } __packed;
+>=20
+> +struct imx_sc_msg_timer_enable_irq {
 > +	struct imx_sc_rpc_msg hdr;
-> +	union {
-> +		struct {
-> +			u16 resource;
-> +			u8 group;
-> +			u8 reserved;
-> +		} __packed req;
-> +		struct {
-> +			u32 status;
-> +		} resp;
-> +	} data;
-> +};
+> +	u32 mask;
+> +	u16 resource;
+> +	u8 group;
+> +	u8 enable;
+> +} __packed;
 > +
-> +static struct imx_sc_ipc *imx_sc_irq_ipc_handle; static struct
-> +work_struct imx_sc_irq_work; static
-> +BLOCKING_NOTIFIER_HEAD(imx_scu_irq_notifier_chain);
+> +struct imx_sc_msg_timer_rtc_set_alarm {
+> +	struct imx_sc_rpc_msg hdr;
+> +	u16 year;
+> +	u8 mon;
+> +	u8 day;
+> +	u8 hour;
+> +	u8 min;
+> +	u8 sec;
+> +} __packed;
 > +
-> +int imx_scu_irq_register_notifier(struct notifier_block *nb) {
-> +	return blocking_notifier_chain_register(
+>  static int imx_sc_rtc_read_time(struct device *dev, struct rtc_time *tm)=
+  {
+>  	struct imx_sc_msg_timer_get_rtc_time msg; @@ -60,9 +85,92 @@ static
+> int imx_sc_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>  	return res.a0;
+>  }
+>=20
+> +static int imx_sc_rtc_alarm_irq_enable(struct device *dev, unsigned int
+> +enable) {
 
-We probably can use atomic_notifier_call_chain as it's used for irq functio=
-n.
+I think you shouldn't implement this generic function in rtc driver instead=
+ of
+Imx-scu-irq driver.
 
-> +		&imx_scu_irq_notifier_chain, nb);
-> +}
-> +EXPORT_SYMBOL(imx_scu_irq_register_notifier);
-> +
-> +int imx_scu_irq_unregister_notifier(struct notifier_block *nb) {
-> +	return blocking_notifier_chain_unregister(
-> +		&imx_scu_irq_notifier_chain, nb);
-> +}
-> +EXPORT_SYMBOL(imx_scu_irq_unregister_notifier);
-> +
-> +static int imx_scu_irq_notifier_call_chain(unsigned long status, u8
-> +*group) {
-> +	return blocking_notifier_call_chain(&imx_scu_irq_notifier_chain,
-> +		status, (void *)group);
-> +}
-> +
-> +static void imx_scu_irq_work_handler(struct work_struct *work) {
-> +	struct imx_sc_msg_irq_get_status msg;
+> +	struct imx_sc_msg_timer_enable_irq msg;
 > +	struct imx_sc_rpc_msg *hdr =3D &msg.hdr;
-> +	u32 irq_status;
 > +	int ret;
-> +	u8 i;
 > +
-> +	for (i =3D 0; i < IMX_SC_IRQ_NUM_GROUP; i++) {
-> +		hdr->ver =3D IMX_SC_RPC_VERSION;
-> +		hdr->svc =3D IMX_SC_RPC_SVC_IRQ;
-> +		hdr->func =3D IMX_SC_IRQ_FUNC_STATUS;
-> +		hdr->size =3D 2;
+> +	hdr->ver =3D IMX_SC_RPC_VERSION;
+> +	hdr->svc =3D IMX_SC_RPC_SVC_IRQ;
+> +	hdr->func =3D IMX_SC_IRQ_FUNC_ENABLE;
+> +	hdr->size =3D 3;
 > +
-> +		msg.data.req.resource =3D mu_resource_id;
-> +		msg.data.req.group =3D i;
-> +
-> +		ret =3D imx_scu_call_rpc(imx_sc_irq_ipc_handle, &msg, true);
-> +		if (ret) {
-> +			pr_err("get irq group %d status failed, ret %d\n",
-> +			       i, ret);
-> +			return;
-> +		}
-> +
-> +		irq_status =3D msg.data.resp.status;
-> +		if (!irq_status)
-> +			continue;
-> +
-> +		imx_scu_irq_notifier_call_chain(irq_status, &i);
-> +	}
-> +}
-> +
-> +static void imx_scu_irq_callback(struct mbox_client *c, void *msg) {
-> +	schedule_work(&imx_sc_irq_work);
-> +}
-> +
-> +int imx_scu_enable_general_irq_channel(struct device *dev) {
-> +	struct of_phandle_args spec;
-> +	struct mbox_client *cl;
-> +	struct mbox_chan *ch;
-> +	int ret =3D 0, i =3D 0;
-> +
-> +	cl =3D devm_kzalloc(dev, sizeof(*cl), GFP_KERNEL);
-> +	if (!cl)
-> +		return -ENOMEM;
-> +
-> +	cl->dev =3D dev;
-> +	cl->rx_callback =3D imx_scu_irq_callback;
-> +
-> +	/* SCU general IRQ uses general interrupt channel 3 */
-> +	ch =3D mbox_request_channel_byname(cl, "gip3");
-> +	if (IS_ERR(ch)) {
-> +		ret =3D PTR_ERR(ch);
-> +		dev_err(dev, "failed to request mbox chan gip3, ret %d\n", ret);
+> +	msg.resource =3D IMX_SC_R_MU_1A;
 
-There may be memory leak as this function is optional in imx-scu.c.
-So here seems to miss a devm_kfree
+Here may be wrong as it is not align with what you did in Patch 2
+that MU resource is dynamically detected.
+
+> +	msg.group =3D SC_IRQ_GROUP_RTC;
+> +	msg.mask =3D SC_IRQ_RTC;
+> +	msg.enable =3D enable;
+> +
+> +	ret =3D imx_scu_call_rpc(rtc_ipc_handle, &msg, true);
+> +	if (ret) {
+> +		dev_err(dev, "enable rtc irq failed, ret %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int imx_sc_rtc_read_alarm(struct device *dev, struct rtc_wkalrm
+> +*alrm) {
+> +	return 0;
+> +}
+
+Can't avoid define NULL function?
+
+> +
+> +static int imx_sc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm
+> +*alrm) {
+> +	struct imx_sc_msg_timer_rtc_set_alarm msg;
+> +	struct imx_sc_rpc_msg *hdr =3D &msg.hdr;
+> +	int ret;
+> +	struct rtc_time *alrm_tm =3D &alrm->time;
+> +
+> +	hdr->ver =3D IMX_SC_RPC_VERSION;
+> +	hdr->svc =3D IMX_SC_RPC_SVC_TIMER;
+> +	hdr->func =3D IMX_SC_TIMER_FUNC_SET_RTC_ALARM;
+> +	hdr->size =3D 3;
+> +
+> +	msg.year =3D alrm_tm->tm_year + 1900;
+> +	msg.mon =3D alrm_tm->tm_mon + 1;
+> +	msg.day =3D alrm_tm->tm_mday;
+> +	msg.hour =3D alrm_tm->tm_hour;
+> +	msg.min =3D alrm_tm->tm_min;
+> +	msg.sec =3D alrm_tm->tm_sec;
+> +
+> +	ret =3D imx_scu_call_rpc(rtc_ipc_handle, &msg, true);
+> +	if (ret) {
+> +		dev_err(dev, "set rtc alarm failed, ret %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret =3D imx_sc_rtc_alarm_irq_enable(dev, alrm->enabled);
+
+Just curious we already have .alarm_irq_enable().
+Why do we need call it again here?
 
 Regards
 Dong Aisheng
 
+> +	if (ret) {
+> +		dev_err(dev, "enable rtc alarm failed, ret %d\n", ret);
 > +		return ret;
 > +	}
 > +
-> +	ret =3D imx_scu_get_handle(&imx_sc_irq_ipc_handle);
-> +	if (ret)
-> +		return ret;
-> +
-> +	INIT_WORK(&imx_sc_irq_work, imx_scu_irq_work_handler);
-> +
-> +	if (!of_parse_phandle_with_args(dev->of_node, "mboxes",
-> +				       "#mbox-cells", 0, &spec))
-> +		i =3D of_alias_get_id(spec.np, "mu");
-> +
-> +	/* use mu1 as general mu irq channel if failed */
-> +	if (i < 0)
-> +		i =3D 1;
-> +
-> +	mu_resource_id =3D IMX_SC_R_MU_0A + i;
-> +
-> +	return ret;
+> +	return 0;
 > +}
-> +EXPORT_SYMBOL(imx_scu_enable_general_irq_channel);
-> diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-sc=
-u.c
-> index 2bb1a19..04a24a8 100644
-> --- a/drivers/firmware/imx/imx-scu.c
-> +++ b/drivers/firmware/imx/imx-scu.c
-> @@ -10,6 +10,7 @@
->  #include <linux/err.h>
->  #include <linux/firmware/imx/types.h>
->  #include <linux/firmware/imx/ipc.h>
-> +#include <linux/firmware/imx/sci.h>
->  #include <linux/interrupt.h>
->  #include <linux/irq.h>
->  #include <linux/kernel.h>
-> @@ -246,6 +247,11 @@ static int imx_scu_probe(struct platform_device
+> +
+>  static const struct rtc_class_ops imx_sc_rtc_ops =3D {
+>  	.read_time =3D imx_sc_rtc_read_time,
+>  	.set_time =3D imx_sc_rtc_set_time,
+> +	.read_alarm =3D imx_sc_rtc_read_alarm,
+> +	.set_alarm =3D imx_sc_rtc_set_alarm,
+> +	.alarm_irq_enable =3D imx_sc_rtc_alarm_irq_enable, };
+> +
+> +static int imx_sc_rtc_alarm_sc_notify(struct notifier_block *nb,
+> +					unsigned long event, void *group)
+> +{
+> +	/* ignore non-rtc irq */
+> +	if (!((event & SC_IRQ_RTC) && (*(u8 *)group =3D=3D SC_IRQ_GROUP_RTC)))
+> +		return 0;
+> +
+> +	rtc_update_irq(imx_sc_rtc, 1, RTC_IRQF | RTC_AF);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct notifier_block imx_sc_rtc_alarm_sc_notifier =3D {
+> +	.notifier_call =3D imx_sc_rtc_alarm_sc_notify,
+>  };
+>=20
+>  static int imx_sc_rtc_probe(struct platform_device *pdev) @@ -73,6 +181,=
+8
+> @@ static int imx_sc_rtc_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		return ret;
+>=20
+> +	device_init_wakeup(&pdev->dev, true);
+> +
+>  	imx_sc_rtc =3D devm_rtc_allocate_device(&pdev->dev);
+>  	if (IS_ERR(imx_sc_rtc))
+>  		return PTR_ERR(imx_sc_rtc);
+> @@ -87,6 +197,8 @@ static int imx_sc_rtc_probe(struct platform_device
 > *pdev)
+>  		return ret;
+>  	}
 >=20
->  	imx_sc_ipc_handle =3D sc_ipc;
->=20
-> +	ret =3D imx_scu_enable_general_irq_channel(dev);
-> +	if (ret)
-> +		dev_warn(dev,
-> +			"failed to enable general irq channel: %d\n", ret);
+> +	imx_scu_irq_register_notifier(&imx_sc_rtc_alarm_sc_notifier);
 > +
->  	dev_info(dev, "NXP i.MX SCU Initialized\n");
+>  	return 0;
+>  }
 >=20
->  	return devm_of_platform_populate(dev); diff --git
-> a/include/linux/firmware/imx/sci.h b/include/linux/firmware/imx/sci.h
-> index ebc5509..918fa16 100644
-> --- a/include/linux/firmware/imx/sci.h
-> +++ b/include/linux/firmware/imx/sci.h
-> @@ -15,4 +15,8 @@
->=20
->  #include <linux/firmware/imx/svc/misc.h>  #include
-> <linux/firmware/imx/svc/pm.h>
-> +
-> +int imx_scu_enable_general_irq_channel(struct device *dev); int
-> +imx_scu_irq_register_notifier(struct notifier_block *nb); int
-> +imx_scu_irq_unregister_notifier(struct notifier_block *nb);
->  #endif /* _SC_SCI_H */
 > --
 > 2.7.4
 
