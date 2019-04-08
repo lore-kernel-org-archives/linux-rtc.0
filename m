@@ -2,145 +2,78 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B416C282CE
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:01:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA155C282CE
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:11:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D3B2520870
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:01:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D1D620870
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:11:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="NSZE9Ui6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726493AbfDHJBc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 05:01:32 -0400
-Received: from hel-mailgw-01.vaisala.com ([193.143.230.17]:4856 "EHLO
-        hel-mailgw-01.vaisala.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726189AbfDHJBc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 05:01:32 -0400
-X-Greylist: delayed 611 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Apr 2019 05:01:30 EDT
-X-IronPort-AV: E=Sophos;i="5.60,324,1549922400"; 
-   d="scan'208";a="215973045"
-Subject: Re: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20190405111348.28935-1-nandor.han@vaisala.com>
- <20190405214454.GJ22216@piout.net>
-From:   Nandor Han <nandor.han@vaisala.com>
-Message-ID: <ca262241-16f3-ab43-f63e-fb6293798d21@vaisala.com>
-Date:   Mon, 8 Apr 2019 11:51:15 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1726388AbfDHJLA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 05:11:00 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:41264 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726369AbfDHJLA (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 05:11:00 -0400
+Received: by mail-lf1-f68.google.com with SMTP id 10so8895181lfr.8
+        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 02:10:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=knCIHqOSCy6Gb+ywFDrlCvuMwcxt5qtF6l4vOq1t5FM=;
+        b=NSZE9Ui6b3Iis22/fDtn8JCFkt4fBk7BO4y1lPBqyKNzp3gEXZ2Layh0NnpOvKt5Kn
+         jDpWJORhLPR9nX3BHOSQlIKnW1yywDOAnArTMYUOvdAjSMvtZVVkA6XZVdKgsksGOuuO
+         4t3uN2YkpA/jzW0Bj2VWdgAWukq/h6iy6TxUHzQaZJcqvVl1/4yD9KmcwKSqYteTipq8
+         t4wc/Icon/8OmTTMvag+UVz3hgU/MbgQRwQQuSkpI/kchXKOpuRGEwdLYb2rH8Q+87/A
+         D2zcsiAuGg4e+Z33JbPu8hWnac6O8GIchQj5P0McK4P2zjOXOnt8GScAAsczfpOhIL9+
+         s6rg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=knCIHqOSCy6Gb+ywFDrlCvuMwcxt5qtF6l4vOq1t5FM=;
+        b=jhfmsAA6SB2xTYXNejyQeek+9tXOkpVFXmHkDgVUNI8Y/UUMat1FQsusXol4qXtB5c
+         86CJigYQ2P+3EfpqEDLUc7NxUpTqXEn9aHL+lzw5BXznrjA3ZSZaF0UdEeNfvyOu94Bq
+         xdDkhMowBtEKqHOYL/30yCyaFHydHa0JN9WhLaclJPW3bTfEzU68lz1SZ8iQ6jg6izJI
+         YCx1GgLR3oiqucYfF6CKSEjOYbNaD3ODntQrMUrm3UV6A/bpqnOoFPM4Isgs4z32qIE8
+         FErQamROUqdwX6+IbOdmI0lSYlkpP5q4M8V93621z2V34y7JA6MVcJ44/seF+1eVHto4
+         U37w==
+X-Gm-Message-State: APjAAAWBelFM/ux/lQL3iGv847ZdrjppIbcNpPkYGL3UzmQkGW17k7Ym
+        VDGEd01o05aOUAq31Z9b9ufrAtz5FQwPBsTBaReh4A==
+X-Google-Smtp-Source: APXvYqwHHGeAwRwclgpMfaJogjd5gYYg5mzN5HDkwUqbIVTNaZ3YTjnpv6mtNxCPH+oQIr8RvGCizl6HMDmERJT9IzU=
+X-Received: by 2002:ac2:546c:: with SMTP id e12mr3887892lfn.121.1554714657992;
+ Mon, 08 Apr 2019 02:10:57 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190405214454.GJ22216@piout.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Apr 2019 08:51:15.0384 (UTC) FILETIME=[39859B80:01D4EDE8]
+References: <20190407211027.14012-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20190407211027.14012-1-alexandre.belloni@bootlin.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 8 Apr 2019 11:10:46 +0200
+Message-ID: <CACRpkdbGhTjFffm7Co6YEBRm5CfTdOTTHFsxH32Ybcp+P-F=rg@mail.gmail.com>
+Subject: Re: [PATCH 1/4] rtc: coh901331: set range
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 4/6/19 12:44 AM, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 05/04/2019 11:14:35+0000, Han Nandor wrote:
+On Sun, Apr 7, 2019 at 11:10 PM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
 
-<snip>
+> The COH 901 331 is a 32bit seconds counter.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
->> `
->> # hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
->> 00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
->> 0000000a
->> `
->>
-> 
-> Thanks for that nice description!
-> 
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Glad that you like it. :)
-
-
->>   drivers/rtc/rtc-ds3232.c | 41 ++++++++++++++++++++++++++++++++++++++--
->>   1 file changed, 39 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
->> index 7184e5145f12..fe615aedaa9a 100644
->> --- a/drivers/rtc/rtc-ds3232.c
->> +++ b/drivers/rtc/rtc-ds3232.c
->> @@ -24,6 +24,8 @@
->>   #include <linux/regmap.h>
->>   #include <linux/hwmon.h>
->>   
->> +#include "rtc-core.h"
->> +
-> 
-> The drivers should not have to include that header, see
-> fd5cd21d995e67f87b3eb4adf938be85fe83ef4b (from 4.16).
-> 
-
-Ahh...right. I did the implementation on 4.14 and it was needed there.
-I will change the implementation but I'll not be able to fully test it.
-
-<snip>
-
->>   struct ds3232 {
->>   	struct device *dev;
->>   	struct regmap *regmap;
->>   	int irq;
->>   	struct rtc_device *rtc;
->> +	struct nvmem_config	nvmem_cfg;
->>   
-> 
-> You don't actually need to keep that structure for the whole life of the
-> device as it is copied as soon as it is registered. I usually prefer to
-> have it on the stack.
-> 
-
-Very true. Done
-
-<snip>
-
->> +	ds3232->nvmem_cfg.stride = 1;
->> +	ds3232->nvmem_cfg.size = DS3232_REG_SRAM_SIZE;
->> +	ds3232->nvmem_cfg.word_size = 1;
->> +	ds3232->nvmem_cfg.reg_read = ds3232_nvmem_read;
->> +	ds3232->nvmem_cfg.reg_write = ds3232_nvmem_write;
->> +	ds3232->nvmem_cfg.priv = ds3232;
-> 
-> Please also set the type (battery backed).
-> 
-
-Done.
-
-<snip>
-
->>   
->> +	ds3232->rtc->dev.of_node = dev->of_node;
-> 
-> Please don't mess with rtc->dev.
-> 
-
-In my use-case I do use the device tree to declare a nvmem cell in this 
-RTC node, which is used by another driver. Without this change finding 
-the cell (using `devm_nvmem_cell_get` function) was failing because of 
-missing `of_node` (again this was on 4.14).
-
-I can do a bit of digging to see if something was changed, but I will 
-really appreciate your advice, because I'm not be able to test the fix 
-on linux-next.
-
->> +	ds3232->rtc->nvmem_config = &ds3232->nvmem_cfg;
->> +	rtc_nvmem_register(ds3232->rtc);
-> 
-> This part will not compile on v5.1-rc1.
-> 
-
-Sorry. I will fix this, and I will at least see that it builds on 
-linux-next.
-
-Thanks for review,
-Nandor
+Yours,
+Linus Walleij
