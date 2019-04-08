@@ -2,168 +2,95 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F9C3C10F13
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 13:32:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B49A4C10F13
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:02:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3481C21473
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 13:32:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OTGcX3vj"
+	by mail.kernel.org (Postfix) with ESMTP id 87C7E2147A
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:02:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726771AbfDHNb5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 09:31:57 -0400
-Received: from mail-yw1-f68.google.com ([209.85.161.68]:35201 "EHLO
-        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726711AbfDHNb5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 09:31:57 -0400
-Received: by mail-yw1-f68.google.com with SMTP id d132so4924647ywa.2
-        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 06:31:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=G9VPWjDU11pJOhL/2BMMgekm0GjE3j5AMoXdnY1fJ54=;
-        b=OTGcX3vjyadq3eM401I8BejnBFwj5312peBFEwUUksVhW2XkiUO+1H3tGrah9hTqg1
-         qediCgSu0auLc5yqRx6ZSuFmHBbqNn+ZgYu5h6cWZ5GSXOZ/x2NJXlY3Sy2dAcjV4Ovw
-         h2Eztc5esVGAhhzpweI4IM3tixo/8NjkgkmTpWEw83T31AbQ2ASYeO/zpb57D3qA7L14
-         vA+w46rtWrLeWLUGgxjxcGZQZMFiHERbZW7Ejj6A7DN0dC1p5mFhZeaY+jT14Yx39AUo
-         0upMSyEwFTrhZRqr+tMwuvAFDhgDJ/B4apypbyFdAVeF5fzDpP3Q4DrEJuRkumtPRuLm
-         1sgA==
+        id S1726383AbfDHOC3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 10:02:29 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:39837 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725983AbfDHOC3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 10:02:29 -0400
+Received: by mail-qt1-f193.google.com with SMTP id t28so15484808qte.6;
+        Mon, 08 Apr 2019 07:02:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=G9VPWjDU11pJOhL/2BMMgekm0GjE3j5AMoXdnY1fJ54=;
-        b=ba7+Xj2k0gFSXTcpgeq5O38pPxyauUMRiZrCaSTjMmut+0uX3C2Nr+XEusTmDwHNDI
-         88nuo9p4HtvfBgDZumGpoUmkj7jN6/uUEosWdpbvMKBXUeWxlGkHHQZZuPrM4NYm3cMX
-         KOLQVeujwwrECkOuO+Q8z6gkPwFXKhnbwNEi91MfoskHr1+TbpkUpgcPpc3MXnKVh8Ep
-         KPaE9U/X7pTPNatWGAXA5bd1LnuokjCxtDtulmMxc6a1O4N/yXSSBzGvxa0/EjWbQiyc
-         pzTMv3LHklR4rUCdIxJ9iQD3AnLMtVjf9sBCDSXyThGdVP8zoEOMN3JzIvyAyGl2VtGw
-         2Wdg==
-X-Gm-Message-State: APjAAAVyPvM6I2dT5gNeSALaSPd+Sz+rnWnel93TOktMxjw1JBfzsU3y
-        4/RQFerqWBarEc1I+YBqiC0L4rp1sX8OgKoPnO5E6OjoA3o=
-X-Google-Smtp-Source: APXvYqw8GuYUJgZmZMJgIxYv5LbC6THoBH5c9f0dJ/Usb5OyMGxvPZAzRA06/arLCNDE7L3kCIrDLcqKuEk492Rcq4A=
-X-Received: by 2002:a81:3c14:: with SMTP id j20mr23304745ywa.367.1554730315766;
- Mon, 08 Apr 2019 06:31:55 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=5yuKN26rYg6l+QIW3rEeREcNG5bzTh6MchTpVd+Fy9w=;
+        b=NOLpfUSVt45L6UfqBhsOFxPWVq53x6NTbFWwd+XE7IFbXuouAXubM0K6Ow2LPAoy73
+         VSQjpFzKQntXUBoSI9FUahKNGMZhHZqyZEzsfcnCQXLh1+nSwIW2GzjJFuBb1gGbT4k4
+         UKfacVMoAKxZcNqepQn/l5rnOO06nMNrI7eGY0cgP7qKRVzHYXSDS/uE0qUoZUkZX9pa
+         03NjWbEl0Oo2iUJcqws0/gy2tUJRs5SKWaFHQ6t36vWwQQDtE8nKNAewZsIjmEgp8pLn
+         akRTHOeX62maYQzK8IYJVrODIpZSykpHDtqJfBzL+Kq25F/reerm07UK5FTTbpmTEVxy
+         c+sg==
+X-Gm-Message-State: APjAAAXLJ7yR56So+0GtvEGtquP8QhpmaI2aWRqXi9WvaZ+eV5R/TBxY
+        gEzeCl9vXt+zMN9SBmpDFX+KvWlWoA17zDEgPHc=
+X-Google-Smtp-Source: APXvYqzTA87jgwpL66Wb5dUEQW8CRB0gSz1o58R7QIJssUUEt60fLdlTxutLd/VVNvBDOx5rppp+3WJpkdafnF4mmf8=
+X-Received: by 2002:a0c:e014:: with SMTP id j20mr23307167qvk.172.1554732148079;
+ Mon, 08 Apr 2019 07:02:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-2-ncrews@chromium.org>
- <20190405201534.GA4426@roeck-us.net> <20190406084157.GA27043@amd>
- <CAE_wzQ9WG1+K1ZzVoii8ukDe_g+4Ha0bh6YvsRhceinwPjC+Kw@mail.gmail.com>
- <20190407221846.GB6327@amd> <CAE_wzQ_5Ha6hNt28_+j-pF3mAdXXifv9CuotDCeXff8KC1DNmA@mail.gmail.com>
- <20190408094113.GB30958@amd>
-In-Reply-To: <20190408094113.GB30958@amd>
-From:   Guenter Roeck <groeck@google.com>
-Date:   Mon, 8 Apr 2019 06:31:44 -0700
-Message-ID: <CABXOdTcrQELWVc5SwPHAk6BP5wq=kQg6K_g-7p+Y73tPFAFTdQ@mail.gmail.com>
-Subject: Re: Keyboard backlight LED naming was Re: [PATCH v5 2/3]
- platform/chrome: Add Wilco EC keyboard backlight LEDs support
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Dmitry Torokhov <dtor@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Nick Crews <ncrews@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-        Duncan Laurie <dlaurie@chromium.org>,
-        Simon Glass <sjg@google.com>
+References: <20190407140741.GE7480@piout.net> <20190408085812.db187b4a6f8ffc76d3d5ebdc@ao2.it>
+In-Reply-To: <20190408085812.db187b4a6f8ffc76d3d5ebdc@ao2.it>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 8 Apr 2019 16:02:11 +0200
+Message-ID: <CAK8P3a0TKUQC7GkYsWrJGFaRsvK5AQjPn74AnkRcPioXUFef-Q@mail.gmail.com>
+Subject: Re: Removing pcap? (EZX support in mainline linux)
+To:     Antonio Ospite <ao2@ao2.it>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Harald Welte <laforge@gnumonks.org>, linux-rtc@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Robert Jarzmik <robert.jarzmik@free.fr>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Apr 8, 2019 at 2:41 AM Pavel Machek <pavel@ucw.cz> wrote:
+On Mon, Apr 8, 2019 at 8:58 AM Antonio Ospite <ao2@ao2.it> wrote:
+> On Sun, 7 Apr 2019 16:07:41 +0200
+> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> adding Robert to CC as he is listed as the current maintainer of
+> ARM/EZX SMARTPHONES in the MAINTAINERS file.
 >
-> Hi!
->
-> > > > > > This document also states "The naming scheme above leaves scope
-> > > > > > for further attributes should they be needed". It does not perm=
-it,
-> > > > > > however, to redefine one of the fields to mean "location", much=
- less
-> > > > > > the declaration that a devicename of "platform" shall refer to =
-an
-> > > > > > "internal" backlight, or that there shall be no more than one
-> > > > > > "internal" backlight in a given system.
-> > > > >
-> > > > > "platform" is as good devicename as "wilco" or "chromeos".
-> > > >
-> > > > No, because "platform" is not a device, it is something that you ar=
-e
-> > > > trying to assign a magic meaning to.
-> > >
-> > > "chromeos" is not a device, either.
+> > I've had a look at the PCAP RTC driver because I'm removing a few
+> > deprecated APIs. While doing so, I've discovered that the driver has
+> > never worked properly because PCAP_RTC_TOD_MASK and PCAP_RTC_DAY_MASK
+> > are both missing a bit so every day would roll over at 18:12:15 and the
+> > whole the date would roll over in 2014.
 > >
-> > I agree, it is not a device name. We do not assign any specific
-> > meaning to it though. We could change it to "cros_ec" if so desired
-> > and nothing should break.
+> > I discussed with Arnd about 59ee93a528b9 ("ARM: pxa: remove irq_to_gpio
+> > from ezx-pcap driver") and it seems the whole EZX support has been
+> > broken for a while.
+> >
 >
-> Yes. And you can also change it to "platform" and nothing will break
-> :-). Can we end the discussion here?
+> As Harald said in another message I tried taking over OpenEZX for a
+> while, but eventually lost interest.
 >
-> If not, lets take a look at existing names:
+> JFTR some parts of the project has been backed up here:
+> https://gitlab.com/openezx
 >
-> ./drivers/platform/x86/asus-laptop.c:           cdev->name =3D "asus::kbd=
-_backlight";
-> ./drivers/platform/x86/samsung-laptop.c:                samsung->kbd_led.=
-name =3D "samsung::kbd_backlight";
-> ./drivers/platform/x86/thinkpad_acpi.c:         .name           =3D "tpac=
-pi::kbd_backlight",
-> ./drivers/platform/x86/toshiba_acpi.c:          dev->kbd_led.name =3D "to=
-shiba::kbd_backlight";
-> ./drivers/platform/x86/asus-wmi.c:              asus->kbd_led.name =3D "a=
-sus::kbd_backlight";
-> ./drivers/platform/x86/dell-laptop.c:   .name           =3D "dell::kbd_ba=
-cklight",
-> ./drivers/platform/chrome/cros_kbd_led_backlight.c:     cdev->name =3D "c=
-hromeos::kbd_backlight";
-> ./drivers/hwmon/applesmc.c:     .name                   =3D "smc::kbd_bac=
-klight",
-> ./drivers/hid/hid-asus.c:       drvdata->kbd_backlight->cdev.name =3D "as=
-us::kbd_backlight";
-> ./drivers/hid/hid-google-hammer.c:      kbd_backlight->cdev.name =3D "ham=
-mer::kbd_backlight";
-> ./drivers/input/misc/ims-pcu.c:          "pcu%d::kbd_backlight", pcu->dev=
-ice_no);
+> I should also have a git backup of the wiki somewhere.
 >
-> asus, samsung, toshiba, asus, dell, chromeos... Those are really not
-> device names, either. But in these cases, LED is probably controlled
-> by EC, or by ACPI BIOS talking to the EC. People usually call such
-> devices "platform devices".
+> > Is it worth fixing the RTC driver or could I remove it?
+> >
 >
-> (Linux Platform Device Driver - CodeProject
-> =EF=BF=BChttps://www.codeproject.com/tips/1080177/linux-platform-device-d=
-river
-> A platform device is one which is hardwired on the board and hence not
-> hot-pluggable. )
+> I am not aware of any active user but I'd leave the final word to
+> Robert, IIRC he received some EZX hardware "recently".
 >
-> You can take a look at discussion around micmute LED.
->
-> Thus "platform" is quite suitable name in your case, and incidentaly,
-> it will be more useful for userspace than "cros_ec".
->
-No, it isn't. All those name are at least roughly associated with the
-driver name, and they all do reflect the abbreviated driver name.
-"platform" isn't, and is prone to duplicates.
+> FWIW I think EZX code can be removed if it is a maintenance burden for
+> anyone.
 
-If you want the location reflected in the led sysfs atttribute name,
-say so. "platform" is neither a driver name nor a location. On a side
-note, appending a number to the attribute name is not a good idea. In
-addition to not being backward compatible, it would be prone to
-renumbering at each reboot.
+I would prefer if we could either keep or remove all of the ezx code, but not
+just remove a particular driver. Removing it all now would let us skip that
+discussion the next time someone has a problem with another device driver
+for it.
 
-Guenter
-
->                                                                 Pavel
-> --
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+      Arnd
