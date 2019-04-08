@@ -2,247 +2,145 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 528CAC282CE
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 08:52:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B416C282CE
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:01:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F1D2920880
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 08:52:43 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=vaisala.com header.i=@vaisala.com header.b="EzSOjBqP"
+	by mail.kernel.org (Postfix) with ESMTP id D3B2520870
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 09:01:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726189AbfDHIwn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 04:52:43 -0400
-Received: from mail-eopbgr150079.outbound.protection.outlook.com ([40.107.15.79]:60910
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726415AbfDHIwn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Apr 2019 04:52:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vaisala.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IrFOUv8gIxNZogmXnnSBAib6ng5Zf8yfqkRqI1wMsLg=;
- b=EzSOjBqPx1ZEvZhvjja8QUh1sZdUYgTUCBI+0mN03QrPKk8NW9B+boh7RIf1JX2LrV/EyOosDnsgVNJjpdebObS6EjNyP84QZtG1FkOzoZVMbLESKJxCwrony5H0J+Gq1DabqnU7RvE8bIuatmR8qYwRwO5yLzhDhfcuSxUQdb8=
-Received: from DB7PR06MB5563.eurprd06.prod.outlook.com (20.178.104.212) by
- DB7PR06MB5765.eurprd06.prod.outlook.com (20.177.192.144) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1771.19; Mon, 8 Apr 2019 08:52:39 +0000
-Received: from DB7PR06MB5563.eurprd06.prod.outlook.com
- ([fe80::edef:902c:11a7:478]) by DB7PR06MB5563.eurprd06.prod.outlook.com
- ([fe80::edef:902c:11a7:478%6]) with mapi id 15.20.1771.016; Mon, 8 Apr 2019
- 08:52:39 +0000
-From:   Han Nandor <nandor.han@vaisala.com>
-To:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        id S1726493AbfDHJBc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 05:01:32 -0400
+Received: from hel-mailgw-01.vaisala.com ([193.143.230.17]:4856 "EHLO
+        hel-mailgw-01.vaisala.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbfDHJBc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 05:01:32 -0400
+X-Greylist: delayed 611 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Apr 2019 05:01:30 EDT
+X-IronPort-AV: E=Sophos;i="5.60,324,1549922400"; 
+   d="scan'208";a="215973045"
+Subject: Re: [PATCH 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     Han Nandor <nandor.han@vaisala.com>
-Subject: [PATCH v2 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
-Thread-Topic: [PATCH v2 1/1] rtc: ds3232: get SRAM access using NVMEM
- Framework
-Thread-Index: AQHU7ehrOoyWKU0ZoEy/KheJ21Jy6w==
-Date:   Mon, 8 Apr 2019 08:52:39 +0000
-Message-ID: <20190408085141.21284-1-nandor.han@vaisala.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: HE1PR07CA0008.eurprd07.prod.outlook.com
- (2603:10a6:7:67::18) To DB7PR06MB5563.eurprd06.prod.outlook.com
- (2603:10a6:10:83::20)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=nandor.han@vaisala.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.17.2
-x-originating-ip: [193.143.230.131]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 95fc2d0e-ed9f-44a5-e2f9-08d6bbff8ded
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(2017052603328)(7193020);SRVR:DB7PR06MB5765;
-x-ms-traffictypediagnostic: DB7PR06MB5765:
-x-tenant-id: 6d7393e0-41f5-4c2e-9b12-4c2be5da5c57
-x-microsoft-antispam-prvs: <DB7PR06MB57652285181AA3FE44CDAD33852C0@DB7PR06MB5765.eurprd06.prod.outlook.com>
-x-forefront-prvs: 0001227049
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(366004)(39850400004)(376002)(396003)(136003)(189003)(199004)(81166006)(99286004)(14444005)(256004)(7736002)(53936002)(5660300002)(2616005)(316002)(186003)(105586002)(4326008)(102836004)(50226002)(97736004)(68736007)(81156014)(26005)(486006)(305945005)(107886003)(6506007)(386003)(106356001)(476003)(8936002)(8676002)(2501003)(1076003)(6512007)(6436002)(36756003)(2201001)(6116002)(86362001)(2906002)(66066001)(25786009)(3846002)(478600001)(6486002)(71200400001)(71190400001)(14454004)(110136005)(52116002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB7PR06MB5765;H:DB7PR06MB5563.eurprd06.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: vaisala.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: PUUgDQCu+T540wEawOwRaalMv9owhjGf0w0nCIsSgrLY/aGKgIvOL+IW1FpJR90ES8nCIW08iUijRXbeN3E95yS6atMQTFodLzCqh/CY19jPCkPlw0Bmlm0bWV2BKlFBsGDblgyFDUpaFRy2NjSKvCPc68R6DcauFJc3JXGHssYU+1JCFOO4YH3XV2pdbYloTuW2WB3HNDnxXZ7TnEoXB7RGP9IAiwCMHhHGImvEdqA9LrB6ofTsDIq8cxVEh8tzhzcHmI2+wKY5UiuuHY1SF9W8gawJGwNDlo4EFQiN6m47/dDnSJ6ZYNkAFMZkhyoRdyAGUdUmTDQo1CW7qCYyyo5QT04yAGCIfHkDUBERN83Ycr+ky/i2nthKgsIzsUsChGR4X11jWNZYWc+1ggqhBjWTyDLq2JFDoc99J9Be7eo=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+References: <20190405111348.28935-1-nandor.han@vaisala.com>
+ <20190405214454.GJ22216@piout.net>
+From:   Nandor Han <nandor.han@vaisala.com>
+Message-ID: <ca262241-16f3-ab43-f63e-fb6293798d21@vaisala.com>
+Date:   Mon, 8 Apr 2019 11:51:15 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-X-OriginatorOrg: vaisala.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 95fc2d0e-ed9f-44a5-e2f9-08d6bbff8ded
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Apr 2019 08:52:39.5708
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 6d7393e0-41f5-4c2e-9b12-4c2be5da5c57
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR06MB5765
+In-Reply-To: <20190405214454.GJ22216@piout.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Apr 2019 08:51:15.0384 (UTC) FILETIME=[39859B80:01D4EDE8]
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-DS3232 RTC has 236 bytes of persistent memory.
+On 4/6/19 12:44 AM, Alexandre Belloni wrote:
+> Hi,
+> 
+> On 05/04/2019 11:14:35+0000, Han Nandor wrote:
 
-Add RTC SRAM read and write access using
-the NVMEM Framework.
+<snip>
 
-Signed-off-by: Nandor Han <nandor.han@vaisala.com>
----
+>> `
+>> # hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+>> 00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
+>> 0000000a
+>> `
+>>
+> 
+> Thanks for that nice description!
+> 
 
-Description
------------
-Provides DS3232 RTC SRAM access using NVMEM framework.
-
-Testing
--------
-The test was done on a custom board which contains a
-DS3232 RTC device.
-Kernel Version: 4.14.60 (Just for clarity, the patch is against master)
-
-1. Verify that SRAM is accessible using NVMEM interface: PASS
-`
-# hexdump /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-0000000 0000 0000 0000 0000 0000 0000 0000 0000
-*
-00000e0
-`
-2. Modify the content.
-`
-# echo testing > /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-#
-`
-3. Power cycle the board and verify that contents are preserved: PASS
-`
-# hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
-00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
-0000000a
-`
-
-Testing on Kernel v5.1.0-rc3
-
-1. Update `arch/arm/configs/imx_v6_v7_defconfig` to contain
-`CONFIG_RTC_DRV_DS3232=3Dy`
-2. Verify that building the kernel is successful: PASS
-`
-make ARCH=3Darm CROSS_COMPILE=3Darm-linux-gnu- imx_v6_v7_defconfig zImage
-...
-CC      drivers/rtc/rtc-ds3232.o
-...
-Kernel: arch/arm/boot/zImage is ready
-`
-
-Changes since v1
-----------------
- - remove the unnecessary header "rtc-core.h"
- - use nvmem_config from the stack
- - configure the nvmem type
- - remove the `of_node` configuration
+Glad that you like it. :)
 
 
- drivers/rtc/rtc-ds3232.c | 40 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 38 insertions(+), 2 deletions(-)
+>>   drivers/rtc/rtc-ds3232.c | 41 ++++++++++++++++++++++++++++++++++++++--
+>>   1 file changed, 39 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+>> index 7184e5145f12..fe615aedaa9a 100644
+>> --- a/drivers/rtc/rtc-ds3232.c
+>> +++ b/drivers/rtc/rtc-ds3232.c
+>> @@ -24,6 +24,8 @@
+>>   #include <linux/regmap.h>
+>>   #include <linux/hwmon.h>
+>>   
+>> +#include "rtc-core.h"
+>> +
+> 
+> The drivers should not have to include that header, see
+> fd5cd21d995e67f87b3eb4adf938be85fe83ef4b (from 4.16).
+> 
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 7184e5145f12..77908c9e5e09 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -48,6 +48,10 @@
- #       define DS3232_REG_SR_A1F     0x01
-=20
- #define DS3232_REG_TEMPERATURE	0x11
-+#define DS3232_REG_SRAM_START   0x14
-+#define DS3232_REG_SRAM_END     0xFF
-+
-+#define DS3232_REG_SRAM_SIZE    236
-=20
- struct ds3232 {
- 	struct device *dev;
-@@ -461,11 +465,30 @@ static const struct rtc_class_ops ds3232_rtc_ops =3D =
-{
- 	.alarm_irq_enable =3D ds3232_alarm_irq_enable,
- };
-=20
-+static int ds3232_nvmem_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
-+{
-+	struct ds3232 *ds3232 =3D (struct ds3232 *)priv;
-+
-+	return regmap_bulk_read(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-+				val, bytes);
-+}
-+
-+static int ds3232_nvmem_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
-+{
-+	struct ds3232 *ds3232 =3D (struct ds3232 *)priv;
-+
-+	return regmap_bulk_write(ds3232->regmap, DS3232_REG_SRAM_START + offset,
-+				 val, bytes);
-+}
-+
- static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq=
-,
- 			const char *name)
- {
- 	struct ds3232 *ds3232;
- 	int ret;
-+	struct nvmem_config nvmem_cfg;
-=20
- 	ds3232 =3D devm_kzalloc(dev, sizeof(*ds3232), GFP_KERNEL);
- 	if (!ds3232)
-@@ -476,6 +499,15 @@ static int ds3232_probe(struct device *dev, struct reg=
-map *regmap, int irq,
- 	ds3232->dev =3D dev;
- 	dev_set_drvdata(dev, ds3232);
-=20
-+	nvmem_cfg.name =3D "ds3232_sram";
-+	nvmem_cfg.stride =3D 1;
-+	nvmem_cfg.size =3D DS3232_REG_SRAM_SIZE;
-+	nvmem_cfg.word_size =3D 1;
-+	nvmem_cfg.reg_read =3D ds3232_nvmem_read;
-+	nvmem_cfg.reg_write =3D ds3232_nvmem_write;
-+	nvmem_cfg.priv =3D ds3232;
-+	nvmem_cfg.type =3D NVMEM_TYPE_BATTERY_BACKED;
-+
- 	ret =3D ds3232_check_rtc_status(dev);
- 	if (ret)
- 		return ret;
-@@ -490,6 +522,10 @@ static int ds3232_probe(struct device *dev, struct reg=
-map *regmap, int irq,
- 	if (IS_ERR(ds3232->rtc))
- 		return PTR_ERR(ds3232->rtc);
-=20
-+	ret =3D rtc_nvmem_register(ds3232->rtc, &nvmem_cfg);
-+	if(ret)
-+		return ret;
-+
- 	if (ds3232->irq > 0) {
- 		ret =3D devm_request_threaded_irq(dev, ds3232->irq, NULL,
- 						ds3232_irq,
-@@ -542,7 +578,7 @@ static int ds3232_i2c_probe(struct i2c_client *client,
- 	static const struct regmap_config config =3D {
- 		.reg_bits =3D 8,
- 		.val_bits =3D 8,
--		.max_register =3D 0x13,
-+		.max_register =3D DS3232_REG_SRAM_END,
- 	};
-=20
- 	regmap =3D devm_regmap_init_i2c(client, &config);
-@@ -609,7 +645,7 @@ static int ds3234_probe(struct spi_device *spi)
- 	static const struct regmap_config config =3D {
- 		.reg_bits =3D 8,
- 		.val_bits =3D 8,
--		.max_register =3D 0x13,
-+		.max_register =3D DS3232_REG_SRAM_END,
- 		.write_flag_mask =3D 0x80,
- 	};
- 	struct regmap *regmap;
---=20
-2.17.2
+Ahh...right. I did the implementation on 4.14 and it was needed there.
+I will change the implementation but I'll not be able to fully test it.
 
+<snip>
+
+>>   struct ds3232 {
+>>   	struct device *dev;
+>>   	struct regmap *regmap;
+>>   	int irq;
+>>   	struct rtc_device *rtc;
+>> +	struct nvmem_config	nvmem_cfg;
+>>   
+> 
+> You don't actually need to keep that structure for the whole life of the
+> device as it is copied as soon as it is registered. I usually prefer to
+> have it on the stack.
+> 
+
+Very true. Done
+
+<snip>
+
+>> +	ds3232->nvmem_cfg.stride = 1;
+>> +	ds3232->nvmem_cfg.size = DS3232_REG_SRAM_SIZE;
+>> +	ds3232->nvmem_cfg.word_size = 1;
+>> +	ds3232->nvmem_cfg.reg_read = ds3232_nvmem_read;
+>> +	ds3232->nvmem_cfg.reg_write = ds3232_nvmem_write;
+>> +	ds3232->nvmem_cfg.priv = ds3232;
+> 
+> Please also set the type (battery backed).
+> 
+
+Done.
+
+<snip>
+
+>>   
+>> +	ds3232->rtc->dev.of_node = dev->of_node;
+> 
+> Please don't mess with rtc->dev.
+> 
+
+In my use-case I do use the device tree to declare a nvmem cell in this 
+RTC node, which is used by another driver. Without this change finding 
+the cell (using `devm_nvmem_cell_get` function) was failing because of 
+missing `of_node` (again this was on 4.14).
+
+I can do a bit of digging to see if something was changed, but I will 
+really appreciate your advice, because I'm not be able to test the fix 
+on linux-next.
+
+>> +	ds3232->rtc->nvmem_config = &ds3232->nvmem_cfg;
+>> +	rtc_nvmem_register(ds3232->rtc);
+> 
+> This part will not compile on v5.1-rc1.
+> 
+
+Sorry. I will fix this, and I will at least see that it builds on 
+linux-next.
+
+Thanks for review,
+Nandor
