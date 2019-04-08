@@ -2,95 +2,89 @@ Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B49A4C10F13
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:02:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5EA1C10F13
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:21:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 87C7E2147A
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:02:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D2F921473
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 14:21:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726383AbfDHOC3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 10:02:29 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:39837 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725983AbfDHOC3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 10:02:29 -0400
-Received: by mail-qt1-f193.google.com with SMTP id t28so15484808qte.6;
-        Mon, 08 Apr 2019 07:02:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5yuKN26rYg6l+QIW3rEeREcNG5bzTh6MchTpVd+Fy9w=;
-        b=NOLpfUSVt45L6UfqBhsOFxPWVq53x6NTbFWwd+XE7IFbXuouAXubM0K6Ow2LPAoy73
-         VSQjpFzKQntXUBoSI9FUahKNGMZhHZqyZEzsfcnCQXLh1+nSwIW2GzjJFuBb1gGbT4k4
-         UKfacVMoAKxZcNqepQn/l5rnOO06nMNrI7eGY0cgP7qKRVzHYXSDS/uE0qUoZUkZX9pa
-         03NjWbEl0Oo2iUJcqws0/gy2tUJRs5SKWaFHQ6t36vWwQQDtE8nKNAewZsIjmEgp8pLn
-         akRTHOeX62maYQzK8IYJVrODIpZSykpHDtqJfBzL+Kq25F/reerm07UK5FTTbpmTEVxy
-         c+sg==
-X-Gm-Message-State: APjAAAXLJ7yR56So+0GtvEGtquP8QhpmaI2aWRqXi9WvaZ+eV5R/TBxY
-        gEzeCl9vXt+zMN9SBmpDFX+KvWlWoA17zDEgPHc=
-X-Google-Smtp-Source: APXvYqzTA87jgwpL66Wb5dUEQW8CRB0gSz1o58R7QIJssUUEt60fLdlTxutLd/VVNvBDOx5rppp+3WJpkdafnF4mmf8=
-X-Received: by 2002:a0c:e014:: with SMTP id j20mr23307167qvk.172.1554732148079;
- Mon, 08 Apr 2019 07:02:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190407140741.GE7480@piout.net> <20190408085812.db187b4a6f8ffc76d3d5ebdc@ao2.it>
-In-Reply-To: <20190408085812.db187b4a6f8ffc76d3d5ebdc@ao2.it>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 8 Apr 2019 16:02:11 +0200
-Message-ID: <CAK8P3a0TKUQC7GkYsWrJGFaRsvK5AQjPn74AnkRcPioXUFef-Q@mail.gmail.com>
-Subject: Re: Removing pcap? (EZX support in mainline linux)
-To:     Antonio Ospite <ao2@ao2.it>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Harald Welte <laforge@gnumonks.org>, linux-rtc@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Robert Jarzmik <robert.jarzmik@free.fr>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726785AbfDHOV1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 10:21:27 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33780 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726558AbfDHOV1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 8 Apr 2019 10:21:27 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id DE2C1AD7C;
+        Mon,  8 Apr 2019 14:21:24 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-serial@vger.kernel.org
+Subject: [PATCH 0/6] Use MFD framework for SGI IOC3 drivers
+Date:   Mon,  8 Apr 2019 16:20:52 +0200
+Message-Id: <20190408142100.27618-1-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.13.7
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Apr 8, 2019 at 8:58 AM Antonio Ospite <ao2@ao2.it> wrote:
-> On Sun, 7 Apr 2019 16:07:41 +0200
-> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> adding Robert to CC as he is listed as the current maintainer of
-> ARM/EZX SMARTPHONES in the MAINTAINERS file.
->
-> > I've had a look at the PCAP RTC driver because I'm removing a few
-> > deprecated APIs. While doing so, I've discovered that the driver has
-> > never worked properly because PCAP_RTC_TOD_MASK and PCAP_RTC_DAY_MASK
-> > are both missing a bit so every day would roll over at 18:12:15 and the
-> > whole the date would roll over in 2014.
-> >
-> > I discussed with Arnd about 59ee93a528b9 ("ARM: pxa: remove irq_to_gpio
-> > from ezx-pcap driver") and it seems the whole EZX support has been
-> > broken for a while.
-> >
->
-> As Harald said in another message I tried taking over OpenEZX for a
-> while, but eventually lost interest.
->
-> JFTR some parts of the project has been backed up here:
-> https://gitlab.com/openezx
->
-> I should also have a git backup of the wiki somewhere.
->
-> > Is it worth fixing the RTC driver or could I remove it?
-> >
->
-> I am not aware of any active user but I'd leave the final word to
-> Robert, IIRC he received some EZX hardware "recently".
->
-> FWIW I think EZX code can be removed if it is a maintenance burden for
-> anyone.
+SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
+NIC (number in a can), GPIO and a byte  bus. By attaching a
+SuperIO chip to it, it also supports serial lines and a parallel
+port. The chip is used on a variety of SGI systems with different
+configurations. This patchset moves code out of the network driver,
+which doesn't belong there, into its new place a MFD driver and
+specific platform drivers for the different subfunctions.
 
-I would prefer if we could either keep or remove all of the ezx code, but not
-just remove a particular driver. Removing it all now would let us skip that
-discussion the next time someone has a problem with another device driver
-for it.
+Thomas Bogendoerfer (6):
+  MIPS: SGI-IP27: remove ioc3 ethernet init
+  MIPS: SGI-IP27: remove setup of RTC platform device
+  mfd: ioc3: Add driver for SGI IOC3 chip
+  MIPS: SGI-IP27: fix readb/writeb addressing
+  tty: serial: Add 8250-core base IOC3 driver
+  Input: add IOC3 serio driver
 
-      Arnd
+ arch/mips/include/asm/mach-ip27/mangle-port.h |    2 +-
+ arch/mips/include/asm/sn/ioc3.h               |  350 ++---
+ arch/mips/sgi-ip27/ip27-console.c             |    5 +-
+ arch/mips/sgi-ip27/ip27-init.c                |   13 -
+ arch/mips/sgi-ip27/ip27-timer.c               |   20 -
+ drivers/input/serio/Kconfig                   |   12 +
+ drivers/input/serio/Makefile                  |    1 +
+ drivers/input/serio/ioc3kbd.c                 |  183 +++
+ drivers/mfd/Kconfig                           |   13 +
+ drivers/mfd/Makefile                          |    1 +
+ drivers/mfd/ioc3.c                            |  802 +++++++++++
+ drivers/net/ethernet/sgi/Kconfig              |    4 +-
+ drivers/net/ethernet/sgi/ioc3-eth.c           | 1869 +++++++++----------------
+ drivers/rtc/rtc-m48t35.c                      |   11 +
+ drivers/tty/serial/8250/8250_ioc3.c           |   98 ++
+ drivers/tty/serial/8250/Kconfig               |   11 +
+ drivers/tty/serial/8250/Makefile              |    1 +
+ include/linux/platform_data/ioc3eth.h         |   15 +
+ 18 files changed, 1974 insertions(+), 1437 deletions(-)
+ create mode 100644 drivers/input/serio/ioc3kbd.c
+ create mode 100644 drivers/mfd/ioc3.c
+ create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
+ create mode 100644 include/linux/platform_data/ioc3eth.h
+
+-- 
+2.13.7
+
