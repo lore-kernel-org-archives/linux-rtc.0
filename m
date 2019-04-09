@@ -6,33 +6,34 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35A66C10F0E
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0857C282DA
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F045A2084F
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C844F2084F
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726035AbfDIKQg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 9 Apr 2019 06:16:36 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:34943 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726001AbfDIKQg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Apr 2019 06:16:36 -0400
-X-Originating-IP: 109.213.33.177
+        id S1727059AbfDIKQs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 9 Apr 2019 06:16:48 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:47681 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727073AbfDIKQr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Apr 2019 06:16:47 -0400
 Received: from localhost (alyon-652-1-42-177.w109-213.abo.wanadoo.fr [109.213.33.177])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 7138224001B;
-        Tue,  9 Apr 2019 10:16:33 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 2BC1510000B;
+        Tue,  9 Apr 2019 10:16:44 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Vladimir Zapolskiy <vz@mleia.com>,
         Sylvain Lemieux <slemieux.tyco@gmail.com>,
         linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/6] rtc: lpc32xx: convert to devm_rtc_allocate_device
-Date:   Tue,  9 Apr 2019 12:16:26 +0200
-Message-Id: <20190409101631.5116-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/6] rtc: lpc32xx: convert to SPDX identifier
+Date:   Tue,  9 Apr 2019 12:16:31 +0200
+Message-Id: <20190409101631.5116-6-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190409101631.5116-1-alexandre.belloni@bootlin.com>
+References: <20190409101631.5116-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -40,65 +41,33 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver.
+Use SPDX-License-Identifier instead of a verbose license text.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-lpc32xx.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-lpc32xx.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
 diff --git a/drivers/rtc/rtc-lpc32xx.c b/drivers/rtc/rtc-lpc32xx.c
-index 910e600275b9..295dc6ddac6d 100644
+index 0ddb1ef98121..ac393230e592 100644
 --- a/drivers/rtc/rtc-lpc32xx.c
 +++ b/drivers/rtc/rtc-lpc32xx.c
-@@ -47,8 +47,6 @@
+@@ -1,14 +1,6 @@
++// SPDX-License-Identifier: GPL-2.0+
+ /*
+  * Copyright (C) 2010 NXP Semiconductors
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- *  You should have received a copy of the GNU General Public License along
+- *  with this program; if not, write to the Free Software Foundation, Inc.,
+- *  675 Mass Ave, Cambridge, MA 02139, USA.
+  */
  
- #define LPC32XX_RTC_KEY_ONSW_LOADVAL	0xB5C13F27
- 
--#define RTC_NAME "rtc-lpc32xx"
--
- #define rtc_readl(dev, reg) \
- 	__raw_readl((dev)->rtc_base + (reg))
- #define rtc_writel(dev, reg, val) \
-@@ -201,7 +199,7 @@ static int lpc32xx_rtc_probe(struct platform_device *pdev)
- {
- 	struct resource *res;
- 	struct lpc32xx_rtc *rtc;
--	int rtcirq;
-+	int rtcirq, err;
- 	u32 tmp;
- 
- 	rtcirq = platform_get_irq(pdev, 0);
-@@ -256,12 +254,15 @@ static int lpc32xx_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, rtc);
- 
--	rtc->rtc = devm_rtc_device_register(&pdev->dev, RTC_NAME,
--					&lpc32xx_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc)) {
--		dev_err(&pdev->dev, "Can't get RTC\n");
-+	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc->rtc))
- 		return PTR_ERR(rtc->rtc);
--	}
-+
-+	rtc->rtc->ops = &lpc32xx_rtc_ops;
-+
-+	err = rtc_register_device(rtc->rtc);
-+	if (err)
-+		return err;
- 
- 	/*
- 	 * IRQ is enabled after device registration in case alarm IRQ
-@@ -374,7 +375,7 @@ static struct platform_driver lpc32xx_rtc_driver = {
- 	.probe		= lpc32xx_rtc_probe,
- 	.remove		= lpc32xx_rtc_remove,
- 	.driver = {
--		.name	= RTC_NAME,
-+		.name	= "rtc-lpc32xx",
- 		.pm	= LPC32XX_RTC_PM_OPS,
- 		.of_match_table = of_match_ptr(lpc32xx_rtc_match),
- 	},
+ #include <linux/kernel.h>
 -- 
 2.20.1
 
