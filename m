@@ -1,125 +1,127 @@
-Return-Path: <SRS0=NKr3=SK=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=ZSCd=SL=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 438ADC10F13
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 23:58:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B9C4C10F13
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 01:18:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE90420863
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Apr 2019 23:58:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="H0JiN23W"
+	by mail.kernel.org (Postfix) with ESMTP id F16E921841
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 01:18:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1554772699;
+	bh=rLjHczM1eoSRrpHR2Rcw+V0t8QCKzoYFvPsJ1LtNbQA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=AAIl++CjDaV+AI9tljW2+vjBMAS6F1PcJszwOrIyuL6EkZVstro5QUXbIIkA+eJq/
+	 dKesOhQkMnL6z6M8q3IKUJ5HA8cIJ2LkoaxZ52+PgKo/8Np5WV92eB7mBUlGJTjC82
+	 YhOSoiUb2EwshNITKXaALJkKYu8Kl0buz+bv+HeA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbfDHX6b (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Apr 2019 19:58:31 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:46486 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726902AbfDHX6b (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Apr 2019 19:58:31 -0400
-Received: by mail-ot1-f68.google.com with SMTP id s24so8720301otk.13
-        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 16:58:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JE1WYVGVNZvhKVkDzi+IvgK1LGy4Jum42vFJlF26XjM=;
-        b=H0JiN23WqMaS6Bz6v4EQer4AcYbtrYtN9qAENkloOrBeH9NEw/mU4pOG6k2k0CB/Oe
-         K6R+iR81aDfaCgwyVC6Oc1cj3LSztvEu0c1vBG+RYWQgFcPp4wk9a7UVKFG+ZZqYDWFv
-         COOpFloRlQahqhC9hH9ZaEICJQ/8M32g8R/L8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JE1WYVGVNZvhKVkDzi+IvgK1LGy4Jum42vFJlF26XjM=;
-        b=oQNIuY/dpOfsSnm1cYPxPiiKztSKB1nZSelcRMNzNZPffelvPQqqmuMaOP3U31Da07
-         p1+YuXFTeGpql+tXdko0cdKuaRfUjuRQJ6CFr2bAngR2JnwAQK1l21Z79ewUEV0YnsRv
-         OeCg5nldiK18o7cHUk2moIsNQc2qTPfoR8DYuEIcrmG9WOyFC2dbB8WqUdBDMUwRBauD
-         739kW8RUyseVra1VLlFtQexrqskVTjazKwJCwkl1JL0R3inGSHWZNlW8G6xGleF3oJU6
-         Q3nhMiylve0MRjSRGDR+OoIb/uAgFKR1Q4j5AZPsAFyNL5MP9FvgR949gjEv4O1OWPve
-         kpag==
-X-Gm-Message-State: APjAAAUhJPONmj2ApbxXJ13ysi+IGc9ghQ18UAOzw/WPBFRP9eeNdbFH
-        ELG2StcMDCMGvFeVZwlVosRjP5zQgsw=
-X-Google-Smtp-Source: APXvYqxClYAFwwbSUvkqGYdDnzTRNGCCGcUZqFW2FCjzPH838vlxJ/T2PKmVfRttYVot/NlgRlS4dA==
-X-Received: by 2002:a05:6830:135a:: with SMTP id r26mr21173381otq.297.1554767910410;
-        Mon, 08 Apr 2019 16:58:30 -0700 (PDT)
-Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com. [209.85.167.170])
-        by smtp.gmail.com with ESMTPSA id k60sm13112341otc.42.2019.04.08.16.58.28
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Apr 2019 16:58:29 -0700 (PDT)
-Received: by mail-oi1-f170.google.com with SMTP id 3so12029676oir.7
-        for <linux-rtc@vger.kernel.org>; Mon, 08 Apr 2019 16:58:28 -0700 (PDT)
-X-Received: by 2002:aca:3905:: with SMTP id g5mr18501995oia.49.1554767908118;
- Mon, 08 Apr 2019 16:58:28 -0700 (PDT)
+        id S1725971AbfDIBSS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Apr 2019 21:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43370 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725950AbfDIBSS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 8 Apr 2019 21:18:18 -0400
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F19321841;
+        Tue,  9 Apr 2019 01:18:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1554772697;
+        bh=rLjHczM1eoSRrpHR2Rcw+V0t8QCKzoYFvPsJ1LtNbQA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=ZeYQtVe7pbmE3fqefs/62T4OIAc+kTJMvRjZ10UnRnuFQdKRcs5LmlZsk0Y0dUdTz
+         XHptHdz/4pnWW5XugeSvnXi19Mj9hVLzjJ+7Vo4CZiWMvPWcvbSgWkm2t7fmq6crwr
+         3PzMei7l6xHeuNBVkzK/jVpQeTgO4zDigvIEIH9E=
+Received: by mail-qk1-f175.google.com with SMTP id w20so9259219qka.7;
+        Mon, 08 Apr 2019 18:18:17 -0700 (PDT)
+X-Gm-Message-State: APjAAAUMuJ0IgUG8OCGYj5yUiXdFnvkePz50E1pvXgoK3SvWqz1aTdKz
+        j591PbAckPFQ6mPbX5LmNIN/yvoaavJNBAoZhQ==
+X-Google-Smtp-Source: APXvYqwQ+7nn5OkCgR3ReLL2YIREWjc9gB13vhodkvVViZN2Mi237p/7zXwjo5pi+5ufShlhcU0IPkRhmqBMeS8/qBc=
+X-Received: by 2002:a37:7183:: with SMTP id m125mr11798299qkc.119.1554772696266;
+ Mon, 08 Apr 2019 18:18:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190404171007.160878-1-ncrews@chromium.org> <20190404171007.160878-3-ncrews@chromium.org>
-In-Reply-To: <20190404171007.160878-3-ncrews@chromium.org>
-From:   Nick Crews <ncrews@chromium.org>
-Date:   Mon, 8 Apr 2019 17:58:16 -0600
-X-Gmail-Original-Message-ID: <CAHX4x87XiNMnjr+-2A2yHgKbZLaDBXO-U1Uij2sCq=gH9Vv4jw@mail.gmail.com>
-Message-ID: <CAHX4x87XiNMnjr+-2A2yHgKbZLaDBXO-U1Uij2sCq=gH9Vv4jw@mail.gmail.com>
-Subject: Re: [PATCH v5 3/3] platform/chrome: Standardize Chrome OS keyboard
- backlight name
-To:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Benson Leung <bleung@chromium.org>, linux-leds@vger.kernel.org,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
+ <5ca84214.1c69fb81.e3ace.21e5@mx.google.com> <20190406125550.GA7480@piout.net>
+ <58b8e1bc2b064abcb67db04369cf9c6e@asem.it>
+In-Reply-To: <58b8e1bc2b064abcb67db04369cf9c6e@asem.it>
+From:   Rob Herring <robh@kernel.org>
+Date:   Mon, 8 Apr 2019 20:18:04 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLO20u39Vds_Z_S325D2My1aYKM6BS6RKdWSmyEVh-DtQ@mail.gmail.com>
+Message-ID: <CAL_JsqLO20u39Vds_Z_S325D2My1aYKM6BS6RKdWSmyEVh-DtQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
+To:     Flavio Suligoi <f.suligoi@asem.it>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Duncan Laurie <dlaurie@chromium.org>,
-        Simon Glass <sjg@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Dmitry Torokhov <dtor@google.com>
+        Mark Rutland <mark.rutland@arm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I've just found a few [embarrassing :)] bugs in this version,
-so after we figure out the naming, please wait for me to send
-out another patch that fixes these.
+On Mon, Apr 8, 2019 at 2:22 AM Flavio Suligoi <f.suligoi@asem.it> wrote:
+>
+> HI,
+>
+> > On 06/04/2019 01:07:13-0500, Rob Herring wrote:
+> > > On Wed, Apr 03, 2019 at 04:52:44PM +0200, Flavio Suligoi wrote:
+> > > > Some RTC devices have a battery-low automatic detection circuit.
+> > > > The battery-low event is usually reported with:
+> > > >
+> > > > - a bit change in a RTC status register
+> > > > - a hw signaling (generally using an interrupt generation), changing
+> > > >   the hw level of a specific pin;
+> > > >
+> > > > The new property "battery-low-hw-alarm" enable the RTC to generate the
+> > > > hw signaling in case of battery-low event.
+> > > >
+> > > > Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/rtc/rtc.txt | 3 +++
+> > > >  1 file changed, 3 insertions(+)
+> > > >
+> > > > diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt
+> > b/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > > index a97fc6a..f93a44d 100644
+> > > > --- a/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > > +++ b/Documentation/devicetree/bindings/rtc/rtc.txt
+> > > > @@ -31,6 +31,9 @@ below.
+> > > >                              expressed in femto Farad (fF).
+> > > >                              The default value shall be listed (if
+> > optional),
+> > > >                              and likewise all valid values.
+> > > > +- battery-low-hw-alarm :    Enable the "battery-low" output pin. This
+> > function
+> > > > +                            is available on the following devices:
+> > > > +                            - pcf2127 - pin used for alarm: INTn
+> > >
+> > > Boolean? If there's cases where which pin is selectable, then we'd need
+> > > this to take a value. Not sure how likely that is?
+> > >
+> >
+> > Indeed, there is at least the pcf85363 that has two possible pins for
+> > that interrupt. How would you select the pin then? a zero based index? a
+> > string?
 
-Thanks, Nick
+I prefer an index.
 
-On Thu, Apr 4, 2019 at 11:10 AM Nick Crews <ncrews@chromium.org> wrote:
+> I think the string could be clearer for the final user and would give
+> more freedom for future changes.
+> For example, we can call this property, instead of "battery-low-alarm" or
+> "low-voltage-alarm", simply: "alarm-pin_1" and then the string argument
+> can describe the function used; for example:
 >
-> We want all backlights for the system keyboard to
-> use a common name, so the name "platform::kbd_backlight"
-> would be better than the current "chromeos::kbd_backlight"
-> name. Normally this wouldn't be worth changing, but the new
-> Wilco keyboard backlight driver uses the "platform" name.
-> We want to make it so all Chrome OS devices are consistent,
-> so we'll change the name here too.
->
-> The Power Manager daemon only looks for LEDs that match the
-> pattern "*:kbd_backlight", so this change won't affect that.
->
-> Signed-off-by: Nick Crews <ncrews@chromium.org>
-> ---
->  drivers/platform/chrome/cros_kbd_led_backlight.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/platform/chrome/cros_kbd_led_backlight.c b/drivers/platform/chrome/cros_kbd_led_backlight.c
-> index aa409f0201fb..c56c8405f39c 100644
-> --- a/drivers/platform/chrome/cros_kbd_led_backlight.c
-> +++ b/drivers/platform/chrome/cros_kbd_led_backlight.c
-> @@ -77,7 +77,7 @@ static int keyboard_led_probe(struct platform_device *pdev)
->         if (!cdev)
->                 return -ENOMEM;
->
-> -       cdev->name = "chromeos::kbd_backlight";
-> +       cdev->name = "platform::kbd_backlight";
->         cdev->max_brightness = ACPI_KEYBOARD_BACKLIGHT_MAX;
->         cdev->flags |= LED_CORE_SUSPENDRESUME;
->         cdev->brightness_set = keyboard_led_set_brightness;
-> --
-> 2.20.1
->
+> alarm-pin_1 = "backup-supply-low-voltage-alarm";
+> alarm-pin_2 = "......";
+
+How many pins and functions then? And how does this relate to any interrupts?
+
+Rob
