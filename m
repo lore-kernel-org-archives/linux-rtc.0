@@ -4,33 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0857C282DA
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B81C3C10F0E
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C844F2084F
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FDD62133D
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Apr 2019 10:16:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727059AbfDIKQs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 9 Apr 2019 06:16:48 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:47681 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727073AbfDIKQr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Apr 2019 06:16:47 -0400
+        id S1727069AbfDIKQq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 9 Apr 2019 06:16:46 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:50997 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727059AbfDIKQp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Apr 2019 06:16:45 -0400
+X-Originating-IP: 109.213.33.177
 Received: from localhost (alyon-652-1-42-177.w109-213.abo.wanadoo.fr [109.213.33.177])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 2BC1510000B;
-        Tue,  9 Apr 2019 10:16:44 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 0F6C424000E;
+        Tue,  9 Apr 2019 10:16:42 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Vladimir Zapolskiy <vz@mleia.com>,
         Sylvain Lemieux <slemieux.tyco@gmail.com>,
         linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6/6] rtc: lpc32xx: convert to SPDX identifier
-Date:   Tue,  9 Apr 2019 12:16:31 +0200
-Message-Id: <20190409101631.5116-6-alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/6] rtc: lpc32xx: use .set_time
+Date:   Tue,  9 Apr 2019 12:16:30 +0200
+Message-Id: <20190409101631.5116-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190409101631.5116-1-alexandre.belloni@bootlin.com>
 References: <20190409101631.5116-1-alexandre.belloni@bootlin.com>
@@ -41,33 +42,38 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use SPDX-License-Identifier instead of a verbose license text.
+Use .set_time instead of the deprecated .set_mmss.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-lpc32xx.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/rtc/rtc-lpc32xx.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-lpc32xx.c b/drivers/rtc/rtc-lpc32xx.c
-index 0ddb1ef98121..ac393230e592 100644
+index bd5186928eae..0ddb1ef98121 100644
 --- a/drivers/rtc/rtc-lpc32xx.c
 +++ b/drivers/rtc/rtc-lpc32xx.c
-@@ -1,14 +1,6 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * Copyright (C) 2010 NXP Semiconductors
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- *  You should have received a copy of the GNU General Public License along
-- *  with this program; if not, write to the Free Software Foundation, Inc.,
-- *  675 Mass Ave, Cambridge, MA 02139, USA.
-  */
+@@ -71,9 +71,10 @@ static int lpc32xx_rtc_read_time(struct device *dev, struct rtc_time *time)
+ 	return 0;
+ }
  
- #include <linux/kernel.h>
+-static int lpc32xx_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int lpc32xx_rtc_set_time(struct device *dev, struct rtc_time *time)
+ {
+ 	struct lpc32xx_rtc *rtc = dev_get_drvdata(dev);
++	u32 secs = rtc_tm_to_time64(time);
+ 	u32 tmp;
+ 
+ 	spin_lock_irq(&rtc->lock);
+@@ -184,7 +185,7 @@ static irqreturn_t lpc32xx_rtc_alarm_interrupt(int irq, void *dev)
+ 
+ static const struct rtc_class_ops lpc32xx_rtc_ops = {
+ 	.read_time		= lpc32xx_rtc_read_time,
+-	.set_mmss		= lpc32xx_rtc_set_mmss,
++	.set_time		= lpc32xx_rtc_set_time,
+ 	.read_alarm		= lpc32xx_rtc_read_alarm,
+ 	.set_alarm		= lpc32xx_rtc_set_alarm,
+ 	.alarm_irq_enable	= lpc32xx_rtc_alarm_irq_enable,
 -- 
 2.20.1
 
