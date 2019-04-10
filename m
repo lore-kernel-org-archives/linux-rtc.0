@@ -2,132 +2,226 @@ Return-Path: <SRS0=qdFt=SM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2679FC10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 21:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2117C10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 22:16:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E5F3E20820
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 21:11:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95B9B2082E
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 22:16:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbfDJVLH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 10 Apr 2019 17:11:07 -0400
-Received: from mpt1.mothictech.com ([71.19.145.203]:53016 "EHLO
-        mpt1.mothictech.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726073AbfDJVLH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 17:11:07 -0400
-X-Greylist: delayed 561 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Apr 2019 17:11:07 EDT
-Received: from wish.monmotha.net (wish.monmotha.net [IPv6:2001:470:c5f2:8::2])
-        by mpt1.mothictech.com (Postfix) with ESMTPS id 435C743C56;
-        Wed, 10 Apr 2019 14:02:17 -0700 (PDT)
-Received: from [IPv6:2001:470:c5f2:14:3c2d:b94a:32ca:8297] (unknown [IPv6:2001:470:c5f2:14:3c2d:b94a:32ca:8297])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by wish.monmotha.net (Postfix) with ESMTPSA id 65A3759;
-        Wed, 10 Apr 2019 17:01:43 -0400 (EDT)
-Subject: Re: [PATCH 5/5] rtc: pcf85363: convert to SPDX identifier
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-References: <20190410205604.25262-1-alexandre.belloni@bootlin.com>
- <20190410205604.25262-5-alexandre.belloni@bootlin.com>
-From:   Brandon Martin <martinbv@mothictech.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=martinbv@mothictech.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Mothic Technologies
-Message-ID: <8e70712a-c3d5-6101-f33c-8452559038f7@mothictech.com>
-Date:   Wed, 10 Apr 2019 17:01:42 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726073AbfDJWQl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 10 Apr 2019 18:16:41 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:46677 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725982AbfDJWQl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 18:16:41 -0400
+X-Originating-IP: 90.66.53.80
+Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 5B4F2E0006;
+        Wed, 10 Apr 2019 22:16:38 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     Mastro Gippo <gipmad@gmail.com>, linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc: ds1307: properly handle oscillator failure flags
+Date:   Thu, 11 Apr 2019 00:16:29 +0200
+Message-Id: <20190410221629.18906-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <20190410205604.25262-5-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 4/10/19 4:56 PM, Alexandre Belloni wrote:
-> Use SPDX-License-Identifier instead of a verbose license text.
-> 
-> The original text refers to version 2 so also update MODULE_LICENSE() to
-> "GPL v2" instead of "GPL".
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->   drivers/rtc/rtc-pcf85363.c | 7 +------
->   1 file changed, 1 insertion(+), 6 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index afb1baacdaa7..a075e77617dc 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -1,15 +1,10 @@
-> +// SPDX-License-Identifier: GPL-2.0
->   /*
->    * drivers/rtc/rtc-pcf85363.c
->    *
->    * Driver for NXP PCF85363 real-time clock.
->    *
->    * Copyright (C) 2017 Eric Nelson
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 as
-> - * published by the Free Software Foundation.
-> - *
-> - * Based loosely on rtc-8583 by Russell King, Wolfram Sang and Juergen Beisert
->    */
->   #include <linux/module.h>
->   #include <linux/i2c.h>
-> 
+Stop enabling the oscillator and removing the oscillator failure flags in
+probe. Instead, return -EINVAL in .read_time when the oscillaotr is not
+start or when it failed at some point. The oscillator gets enabled on the
+first .set_time after failure and the failure flags are cleared.
 
-Looks like you did not update MODULE_LICENSE as stated in the comment?
+This also removes the possibility of an infinite loop at probe where a
+failing RTC will make the goto read_rtc to be taken every time.
+
+Tested on mcp79411.
+
+Reported-by: Mastro Gippo <gipmad@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1307.c | 129 ++++++++++++++++++---------------------
+ 1 file changed, 58 insertions(+), 71 deletions(-)
+
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 07530fe1da2a..7f8b236c935c 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -225,6 +225,45 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 		return -EINVAL;
+ 	}
+ 
++	tmp = regs[DS1307_REG_SECS];
++	switch (ds1307->type) {
++	case ds_1307:
++	case m41t0:
++	case m41t00:
++	case m41t11:
++		if (tmp & DS1307_BIT_CH)
++			return -EINVAL;
++		break;
++	case ds_1308:
++	case ds_1338:
++		if (tmp & DS1307_BIT_CH)
++			return -EINVAL;
++
++		ret = regmap_read(ds1307->regmap, DS1307_REG_CONTROL, &tmp);
++		if (ret)
++			return ret;
++		if (tmp & DS1338_BIT_OSF)
++			return -EINVAL;
++		break;
++	case ds_1340:
++		if (tmp & DS1340_BIT_nEOSC)
++			return -EINVAL;
++
++		ret = regmap_read(ds1307->regmap, DS1340_REG_FLAG, &tmp);
++		if (ret)
++			return ret;
++		if (tmp & DS1340_BIT_OSF)
++			return -EINVAL;
++		break;
++	case mcp794xx:
++		if (!(tmp & MCP794XX_BIT_ST))
++			return -EINVAL;
++
++		break;
++	default:
++		break;
++	}
++
+ 	t->tm_sec = bcd2bin(regs[DS1307_REG_SECS] & 0x7f);
+ 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
+ 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
+@@ -289,7 +328,17 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	if (t->tm_year > 199 && chip->century_bit)
+ 		regs[chip->century_reg] |= chip->century_bit;
+ 
+-	if (ds1307->type == mcp794xx) {
++	switch (ds1307->type) {
++	case ds_1308:
++	case ds_1338:
++		regmap_update_bits(ds1307->regmap, DS1307_REG_CONTROL,
++				   DS1338_BIT_OSF, 0);
++		break;
++	case ds_1340:
++		regmap_update_bits(ds1307->regmap, DS1340_REG_FLAG,
++				   DS1340_BIT_OSF, 0);
++		break;
++	case mcp794xx:
+ 		/*
+ 		 * these bits were cleared when preparing the date/time
+ 		 * values and need to be set again before writing the
+@@ -297,6 +346,9 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		 */
+ 		regs[DS1307_REG_SECS] |= MCP794XX_BIT_ST;
+ 		regs[DS1307_REG_WDAY] |= MCP794XX_BIT_VBATEN;
++		break;
++	default:
++		break;
+ 	}
+ 
+ 	dev_dbg(dev, "%s: %7ph\n", "write", regs);
+@@ -1705,7 +1757,6 @@ static int ds1307_probe(struct i2c_client *client,
+ 		break;
+ 	}
+ 
+-read_rtc:
+ 	/* read RTC registers */
+ 	err = regmap_bulk_read(ds1307->regmap, chip->offset, regs,
+ 			       sizeof(regs));
+@@ -1714,75 +1765,11 @@ static int ds1307_probe(struct i2c_client *client,
+ 		goto exit;
+ 	}
+ 
+-	/*
+-	 * minimal sanity checking; some chips (like DS1340) don't
+-	 * specify the extra bits as must-be-zero, but there are
+-	 * still a few values that are clearly out-of-range.
+-	 */
+-	tmp = regs[DS1307_REG_SECS];
+-	switch (ds1307->type) {
+-	case ds_1307:
+-	case m41t0:
+-	case m41t00:
+-	case m41t11:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1307_BIT_CH) {
+-			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+-			dev_warn(ds1307->dev, "SET TIME!\n");
+-			goto read_rtc;
+-		}
+-		break;
+-	case ds_1308:
+-	case ds_1338:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1307_BIT_CH)
+-			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+-
+-		/* oscillator fault?  clear flag, and warn */
+-		if (regs[DS1307_REG_CONTROL] & DS1338_BIT_OSF) {
+-			regmap_write(ds1307->regmap, DS1307_REG_CONTROL,
+-				     regs[DS1307_REG_CONTROL] &
+-				     ~DS1338_BIT_OSF);
+-			dev_warn(ds1307->dev, "SET TIME!\n");
+-			goto read_rtc;
+-		}
+-		break;
+-	case ds_1340:
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (tmp & DS1340_BIT_nEOSC)
+-			regmap_write(ds1307->regmap, DS1307_REG_SECS, 0);
+-
+-		err = regmap_read(ds1307->regmap, DS1340_REG_FLAG, &tmp);
+-		if (err) {
+-			dev_dbg(ds1307->dev, "read error %d\n", err);
+-			goto exit;
+-		}
+-
+-		/* oscillator fault?  clear flag, and warn */
+-		if (tmp & DS1340_BIT_OSF) {
+-			regmap_write(ds1307->regmap, DS1340_REG_FLAG, 0);
+-			dev_warn(ds1307->dev, "SET TIME!\n");
+-		}
+-		break;
+-	case mcp794xx:
+-		/* make sure that the backup battery is enabled */
+-		if (!(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
+-			regmap_write(ds1307->regmap, DS1307_REG_WDAY,
+-				     regs[DS1307_REG_WDAY] |
+-				     MCP794XX_BIT_VBATEN);
+-		}
+-
+-		/* clock halted?  turn it on, so clock can tick. */
+-		if (!(tmp & MCP794XX_BIT_ST)) {
+-			regmap_write(ds1307->regmap, DS1307_REG_SECS,
+-				     MCP794XX_BIT_ST);
+-			dev_warn(ds1307->dev, "SET TIME!\n");
+-			goto read_rtc;
+-		}
+-
+-		break;
+-	default:
+-		break;
++	if (ds1307->type == mcp794xx &&
++	    !(regs[DS1307_REG_WDAY] & MCP794XX_BIT_VBATEN)) {
++		regmap_write(ds1307->regmap, DS1307_REG_WDAY,
++			     regs[DS1307_REG_WDAY] |
++			     MCP794XX_BIT_VBATEN);
+ 	}
+ 
+ 	tmp = regs[DS1307_REG_HOUR];
 -- 
-Brandon Martin
-Mothic Technologies
-317-565-1357 x7000
+2.20.1
+
