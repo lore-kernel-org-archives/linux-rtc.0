@@ -6,37 +6,30 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67A70C10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 14:06:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1A7CC10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3418720818
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 14:06:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85D8F20830
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732541AbfDJOGE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 10 Apr 2019 10:06:04 -0400
-Received: from mga02.intel.com ([134.134.136.20]:61664 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728160AbfDJOGD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 10 Apr 2019 10:06:03 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Apr 2019 07:06:02 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.60,332,1549958400"; 
-   d="scan'208";a="160423026"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga004.fm.intel.com with ESMTP; 10 Apr 2019 07:06:00 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id C8BF2EC; Wed, 10 Apr 2019 17:05:59 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1] rtc: rx8025: Fix a parameter to %ptR in rx8025_read_alarm()
-Date:   Wed, 10 Apr 2019 17:05:59 +0300
-Message-Id: <20190410140559.12909-1-andriy.shevchenko@linux.intel.com>
+        id S1726215AbfDJU4K (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 10 Apr 2019 16:56:10 -0400
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:42123 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbfDJU4K (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 16:56:10 -0400
+X-Originating-IP: 90.66.53.80
+Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id C39D140002;
+        Wed, 10 Apr 2019 20:56:07 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/5] rtc: pcf85363: remove unused struct pcf85363 member
+Date:   Wed, 10 Apr 2019 22:56:00 +0200
+Message-Id: <20190410205604.25262-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -45,31 +38,46 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The commit 1921cab11723 ("rtc: rx8025: Switch to use %ptR") converted
-the driver to use new %p extension, but actually used wrong type of
-the parameter in one case.
+pcf85363->dev is unused, remove it.
 
-Fix a parameter to %ptR in rx8025_read_alarm().
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rx8025.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf85363.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index 41de38acc570..fddc996cb38d 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -311,7 +311,7 @@ static int rx8025_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		t->time.tm_hour = bcd2bin(ald[1] & 0x1f) % 12
- 			+ (ald[1] & 0x20 ? 12 : 0);
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index a3988079f60a..3905c0ad9d83 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -115,7 +115,6 @@
+ static struct i2c_driver pcf85363_driver;
  
--	dev_dbg(dev, "%s: date: %ptRr\n", __func__, t);
-+	dev_dbg(dev, "%s: date: %ptRr\n", __func__, &t->time);
- 	t->enabled = !!(rx8025->ctrl1 & RX8025_BIT_CTRL1_DALE);
- 	t->pending = (ctrl2 & RX8025_BIT_CTRL2_DAFG) && t->enabled;
+ struct pcf85363 {
+-	struct device		*dev;
+ 	struct rtc_device	*rtc;
+ 	struct regmap		*regmap;
+ };
+@@ -400,10 +399,9 @@ static int pcf85363_probe(struct i2c_client *client,
+ 		return PTR_ERR(pcf85363->regmap);
+ 	}
  
+-	pcf85363->dev = &client->dev;
+ 	i2c_set_clientdata(client, pcf85363);
+ 
+-	pcf85363->rtc = devm_rtc_allocate_device(pcf85363->dev);
++	pcf85363->rtc = devm_rtc_allocate_device(&client->dev);
+ 	if (IS_ERR(pcf85363->rtc))
+ 		return PTR_ERR(pcf85363->rtc);
+ 
+@@ -413,7 +411,7 @@ static int pcf85363_probe(struct i2c_client *client,
+ 		regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
+ 		regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
+ 				   PIN_IO_INTA_OUT, PIN_IO_INTAPM);
+-		ret = devm_request_threaded_irq(pcf85363->dev, client->irq,
++		ret = devm_request_threaded_irq(&client->dev, client->irq,
+ 						NULL, pcf85363_rtc_handle_irq,
+ 						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+ 						"pcf85363", client);
 -- 
 2.20.1
 
