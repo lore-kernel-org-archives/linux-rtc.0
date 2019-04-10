@@ -2,114 +2,152 @@ Return-Path: <SRS0=qdFt=SM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD6A5C10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 08:04:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0815CC10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 10:27:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B3C6220818
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 08:04:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B560F20830
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 10:27:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=pimoroni-co-uk.20150623.gappssmtp.com header.i=@pimoroni-co-uk.20150623.gappssmtp.com header.b="lM3ADqfV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbfDJIEQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 10 Apr 2019 04:04:16 -0400
-Received: from smtp.asem.it ([151.1.184.197]:64288 "EHLO smtp.asem.it"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726466AbfDJIEQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 10 Apr 2019 04:04:16 -0400
-Received: from webmail.asem.it
-        by asem.it (smtp.asem.it)
-        (SecurityGateway 5.5.0)
-        with ESMTP id SG003803464.MSG 
-        for <linux-rtc@vger.kernel.org>; Wed, 10 Apr 2019 10:04:13 +0200S
-Received: from ASAS044.asem.intra (172.16.16.44) by ASAS044.asem.intra
- (172.16.16.44) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1261.35; Wed, 10
- Apr 2019 10:04:12 +0200
-Received: from ASAS044.asem.intra ([::1]) by ASAS044.asem.intra ([::1]) with
- mapi id 15.01.1261.035; Wed, 10 Apr 2019 10:04:12 +0200
-From:   Flavio Suligoi <f.suligoi@asem.it>
-To:     Rob Herring <robh@kernel.org>
-CC:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-Thread-Topic: [PATCH 1/2] dt-bindings: rtc: add battery-low-hw-alarm property
-Thread-Index: AQHU6izzMP9bJdl0YUGdR5AsgVFjFaYuiBOAgAByKgCAAuR9QIABD44AgAIjV3A=
-Date:   Wed, 10 Apr 2019 08:04:12 +0000
-Message-ID: <795c8ed2df204658832a93d06caef444@asem.it>
-References: <1554303165-24813-1-git-send-email-f.suligoi@asem.it>
- <5ca84214.1c69fb81.e3ace.21e5@mx.google.com>
- <20190406125550.GA7480@piout.net> <58b8e1bc2b064abcb67db04369cf9c6e@asem.it>
- <CAL_JsqLO20u39Vds_Z_S325D2My1aYKM6BS6RKdWSmyEVh-DtQ@mail.gmail.com>
-In-Reply-To: <CAL_JsqLO20u39Vds_Z_S325D2My1aYKM6BS6RKdWSmyEVh-DtQ@mail.gmail.com>
-Accept-Language: it-IT, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [172.16.17.208]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1728543AbfDJK1I (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 10 Apr 2019 06:27:08 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46675 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727943AbfDJK1I (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 06:27:08 -0400
+Received: by mail-wr1-f65.google.com with SMTP id t17so2227295wrw.13
+        for <linux-rtc@vger.kernel.org>; Wed, 10 Apr 2019 03:27:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pimoroni-co-uk.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=xuw9CH1UEuJv2KoL2snGmR07N813xLW1PGbgsl7wo5k=;
+        b=lM3ADqfVJO44T9VUXy66XXcwSqz9bhXn+aGJB/3Dvb6JNTKGC6KXfNGRaOByzca6W0
+         4qX84Yky7btuVAkSwj9UtesnXlbH306U/cLMRMFdQbjV7gvsUFDrb0HQaj+fZWxch+V4
+         jU/TogzUgkyygKqI6DiIFvrhbyhmi5FYuevUzagWUP6Y9VEUTeF9ejSkS0utBxrp12d1
+         YvhYKuTIK4J0A0GI/Zb4gjNOz+Fle6buYVnuB3eTu4Y1np9G4fV/zf8A4MWWk7q9pEQl
+         A9JqJO1KvPnAl+4q9X2geIa3Vexhk1nNrsTMx9l7PXQljyWdZ1WJ82t+tWw3mI7b50sQ
+         peyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=xuw9CH1UEuJv2KoL2snGmR07N813xLW1PGbgsl7wo5k=;
+        b=pCQ9k1cW1KXuUdgcHF3nJ2NQjalliIoKzP5biPzIDwWEDaNk2HlEDpoP+T7kf4U5Ct
+         Swobn9AIUT9ncvWMr/bz9yDWCkdboFWQBiuqSjKhN5BQUmZ1PkR6Ac5FYzj/r8hU5HIC
+         iXv5XbnKRag5bUOHlyVnOJspdTNBLPZ3SAP6g0BbVm307RZ4bNAEol6wioFhIGwJ5KmD
+         PP8BPtpl6SBb0dJ/3HrR5YGgdpI7gliHa7kf2tLRVhSByUekGG9UMMP2g5WKEPyn0hTg
+         HaIgmatzduj6eOnMYw9h5sLdEdM9cwmQ6nneFKLhnMrrX9d0uR0V894DctiiUVvJ80jx
+         aYAw==
+X-Gm-Message-State: APjAAAUBgSwF+DvhoLN98v3id597yvvJKyFnNI7Qu59FUcb+JjxDZpE9
+        pmjU0YU2isCWJtsKuKZoEImDFsjEgqAreN1Pb0tz2vrP2+w=
+X-Google-Smtp-Source: APXvYqydJcHCXIqs+64pMHRyZWe9Jxexfg/yP8viNfpjRrHi9lEump9wH14HgHeJQHg4QENAtpXhtGeS8I5dlgD3IF0=
+X-Received: by 2002:a5d:6a4f:: with SMTP id t15mr6323288wrw.156.1554892026106;
+ Wed, 10 Apr 2019 03:27:06 -0700 (PDT)
 MIME-Version: 1.0
-X-SGHeloLookup-Result: pass smtp.helo=webmail.asem.it (ip=172.16.16.44)
-X-SGSPF-Result: none (smtp.asem.it)
-X-SGOP-RefID: str=0001.0A0B0202.5CADA37C.00B6,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0 (_st=1 _vt=0 _iwf=0)
+From:   Phil Howard <phil@pimoroni.co.uk>
+Date:   Wed, 10 Apr 2019 11:26:58 +0100
+Message-ID: <CAGk-eV5UPsJGvmovyz5maEHuEDN3374hzxSptsXxghu3KRO6QQ@mail.gmail.com>
+Subject: rtc: rv3028: Add backup switchover mode support
+To:     linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-SGkgUm9iLA0KDQo+IE9uIE1vbiwgQXByIDgsIDIwMTkgYXQgMjoyMiBBTSBGbGF2aW8gU3VsaWdv
-aSA8Zi5zdWxpZ29pQGFzZW0uaXQ+IHdyb3RlOg0KPiA+DQo+ID4gSEksDQo+ID4NCj4gPiA+IE9u
-IDA2LzA0LzIwMTkgMDE6MDc6MTMtMDUwMCwgUm9iIEhlcnJpbmcgd3JvdGU6DQo+ID4gPiA+IE9u
-IFdlZCwgQXByIDAzLCAyMDE5IGF0IDA0OjUyOjQ0UE0gKzAyMDAsIEZsYXZpbyBTdWxpZ29pIHdy
-b3RlOg0KPiA+ID4gPiA+IFNvbWUgUlRDIGRldmljZXMgaGF2ZSBhIGJhdHRlcnktbG93IGF1dG9t
-YXRpYyBkZXRlY3Rpb24gY2lyY3VpdC4NCj4gPiA+ID4gPiBUaGUgYmF0dGVyeS1sb3cgZXZlbnQg
-aXMgdXN1YWxseSByZXBvcnRlZCB3aXRoOg0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gLSBhIGJpdCBj
-aGFuZ2UgaW4gYSBSVEMgc3RhdHVzIHJlZ2lzdGVyDQo+ID4gPiA+ID4gLSBhIGh3IHNpZ25hbGlu
-ZyAoZ2VuZXJhbGx5IHVzaW5nIGFuIGludGVycnVwdCBnZW5lcmF0aW9uKSwNCj4gY2hhbmdpbmcN
-Cj4gPiA+ID4gPiAgIHRoZSBodyBsZXZlbCBvZiBhIHNwZWNpZmljIHBpbjsNCj4gPiA+ID4gPg0K
-PiA+ID4gPiA+IFRoZSBuZXcgcHJvcGVydHkgImJhdHRlcnktbG93LWh3LWFsYXJtIiBlbmFibGUg
-dGhlIFJUQyB0byBnZW5lcmF0ZQ0KPiB0aGUNCj4gPiA+ID4gPiBodyBzaWduYWxpbmcgaW4gY2Fz
-ZSBvZiBiYXR0ZXJ5LWxvdyBldmVudC4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IFNpZ25lZC1vZmYt
-Ynk6IEZsYXZpbyBTdWxpZ29pIDxmLnN1bGlnb2lAYXNlbS5pdD4NCj4gPiA+ID4gPiAtLS0NCj4g
-PiA+ID4gPiAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3J0Yy9ydGMudHh0IHwg
-MyArKysNCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQ0KPiA+ID4g
-PiA+DQo+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5k
-aW5ncy9ydGMvcnRjLnR4dA0KPiA+ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
-Z3MvcnRjL3J0Yy50eHQNCj4gPiA+ID4gPiBpbmRleCBhOTdmYzZhLi5mOTNhNDRkIDEwMDY0NA0K
-PiA+ID4gPiA+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9ydGMvcnRj
-LnR4dA0KPiA+ID4gPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9y
-dGMvcnRjLnR4dA0KPiA+ID4gPiA+IEBAIC0zMSw2ICszMSw5IEBAIGJlbG93Lg0KPiA+ID4gPiA+
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXhwcmVzc2VkIGluIGZlbXRvIEZhcmFkIChm
-RikuDQo+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUaGUgZGVmYXVsdCB2
-YWx1ZSBzaGFsbCBiZSBsaXN0ZWQgKGlmDQo+ID4gPiBvcHRpb25hbCksDQo+ID4gPiA+ID4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBhbmQgbGlrZXdpc2UgYWxsIHZhbGlkIHZhbHVlcy4N
-Cj4gPiA+ID4gPiArLSBiYXR0ZXJ5LWxvdy1ody1hbGFybSA6ICAgIEVuYWJsZSB0aGUgImJhdHRl
-cnktbG93IiBvdXRwdXQgcGluLg0KPiBUaGlzDQo+ID4gPiBmdW5jdGlvbg0KPiA+ID4gPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgaXMgYXZhaWxhYmxlIG9uIHRoZSBmb2xsb3dpbmcN
-Cj4gZGV2aWNlczoNCj4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgIC0gcGNm
-MjEyNyAtIHBpbiB1c2VkIGZvciBhbGFybTogSU5Ubg0KPiA+ID4gPg0KPiA+ID4gPiBCb29sZWFu
-PyBJZiB0aGVyZSdzIGNhc2VzIHdoZXJlIHdoaWNoIHBpbiBpcyBzZWxlY3RhYmxlLCB0aGVuIHdl
-J2QNCj4gbmVlZA0KPiA+ID4gPiB0aGlzIHRvIHRha2UgYSB2YWx1ZS4gTm90IHN1cmUgaG93IGxp
-a2VseSB0aGF0IGlzPw0KPiA+ID4gPg0KPiA+ID4NCj4gPiA+IEluZGVlZCwgdGhlcmUgaXMgYXQg
-bGVhc3QgdGhlIHBjZjg1MzYzIHRoYXQgaGFzIHR3byBwb3NzaWJsZSBwaW5zIGZvcg0KPiA+ID4g
-dGhhdCBpbnRlcnJ1cHQuIEhvdyB3b3VsZCB5b3Ugc2VsZWN0IHRoZSBwaW4gdGhlbj8gYSB6ZXJv
-IGJhc2VkIGluZGV4Pw0KPiBhDQo+ID4gPiBzdHJpbmc/DQo+IA0KPiBJIHByZWZlciBhbiBpbmRl
-eC4NCg0KT2ssIHNvIHdlIGNhbiBjYWxsIHRoaXMgcHJvcGVydHkgYXM6DQoNCmxvdy12b2x0YWdl
-LWFsYXJtDQoNCmFuZCB3ZSBjYW4gc2VsZWN0IHRoZSBwaW4gdXNpbmcgYSB6ZXJvLWJhc2UgaW5k
-ZXgsDQphbHNvIGZvciBmdXR1cmUgZGV2ZWxvcG1lbnRzLg0KDQo+IA0KPiA+IEkgdGhpbmsgdGhl
-IHN0cmluZyBjb3VsZCBiZSBjbGVhcmVyIGZvciB0aGUgZmluYWwgdXNlciBhbmQgd291bGQgZ2l2
-ZQ0KPiA+IG1vcmUgZnJlZWRvbSBmb3IgZnV0dXJlIGNoYW5nZXMuDQo+ID4gRm9yIGV4YW1wbGUs
-IHdlIGNhbiBjYWxsIHRoaXMgcHJvcGVydHksIGluc3RlYWQgb2YgImJhdHRlcnktbG93LWFsYXJt
-Ig0KPiBvcg0KPiA+ICJsb3ctdm9sdGFnZS1hbGFybSIsIHNpbXBseTogImFsYXJtLXBpbl8xIiBh
-bmQgdGhlbiB0aGUgc3RyaW5nIGFyZ3VtZW50DQo+ID4gY2FuIGRlc2NyaWJlIHRoZSBmdW5jdGlv
-biB1c2VkOyBmb3IgZXhhbXBsZToNCj4gPg0KPiA+IGFsYXJtLXBpbl8xID0gImJhY2t1cC1zdXBw
-bHktbG93LXZvbHRhZ2UtYWxhcm0iOw0KPiA+IGFsYXJtLXBpbl8yID0gIi4uLi4uLiI7DQo+IA0K
-PiBIb3cgbWFueSBwaW5zIGFuZCBmdW5jdGlvbnMgdGhlbj8gQW5kIGhvdyBkb2VzIHRoaXMgcmVs
-YXRlIHRvIGFueQ0KPiBpbnRlcnJ1cHRzPw0KDQpJZiB3ZSB1c2UgaW5kZXgsIHdlIGRvbid0IHVz
-ZSBzdHJpbmdzIGFueSBtb3JlLg0K
+Adds support for the backup switchover mode register in the rv3028
+RTC. This allows the clock to automatically switch over to a backup
+power supply when the main power supply is lost.
+
+From 7ee04005288f0543debe46ed918b77374ad63adf Mon Sep 17 00:00:00 2001
+From: Phil Howard <phil@gadgetoid.com>
+Date: Fri, 29 Mar 2019 10:53:14 +0000
+Subject: [PATCH 1/3] rtc: rv3028: Add backup switchover mode support
+
+Signed-off-by: Phil Howard <phil@pimoroni.com>
+---
+ drivers/rtc/rtc-rv3028.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index d04c2d4816555..b69d8e6408aae 100644
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -74,6 +74,7 @@
+
+ #define RV3028_BACKUP_TCE        BIT(5)
+ #define RV3028_BACKUP_TCR_MASK        GENMASK(1,0)
++#define RV3028_BACKUP_BSM_MASK        0x0C
+
+ #define OFFSET_STEP_PPT            953674
+
+@@ -601,6 +602,7 @@ static int rv3028_probe(struct i2c_client *client)
+     struct rv3028_data *rv3028;
+     int ret, status;
+     u32 ohms;
++    u8 bsm;
+     struct nvmem_config nvmem_cfg = {
+         .name = "rv3028_nvram",
+         .word_size = 1,
+@@ -671,6 +673,21 @@ static int rv3028_probe(struct i2c_client *client)
+     if (ret)
+         return ret;
+
++    /* setup backup switchover mode */
++    if (!device_property_read_u8(&client->dev, "backup-switchover-mode",
++                     &bsm))  {
++        if (bsm <= 3) {
++            ret = regmap_update_bits(rv3028->regmap, RV3028_BACKUP,
++                RV3028_BACKUP_BSM_MASK,
++                (bsm & 0x03) << 2);
++
++            if (ret)
++                return ret;
++        } else {
++            dev_warn(&client->dev, "invalid backup switchover mode value\n");
++        }
++    }
++
+     /* setup trickle charger */
+     if (!device_property_read_u32(&client->dev, "trickle-resistor-ohms",
+                       &ohms)) {
+
+From ae9228b10d864368b934839156b6d9fa58fb5724 Mon Sep 17 00:00:00 2001
+From: Phil Howard <phil@gadgetoid.com>
+Date: Fri, 29 Mar 2019 10:57:07 +0000
+Subject: [PATCH 2/3] dt-bindings: rv3028 backup switchover support
+
+Signed-off-by: Phil Howard <phil@pimoroni.com>
+---
+ Documentation/devicetree/bindings/rtc/rtc.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.txt
+b/Documentation/devicetree/bindings/rtc/rtc.txt
+index 3e6a215e7304b..33fcad8754ec2 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc.txt
+@@ -26,6 +26,7 @@ below.
+ - trickle-diode-disable :   Do not use internal trickle charger diode Should be
+                             given if internal trickle charger diode should be
+                             disabled
++- backup-switchover-mode :  Configure RTC backup power supply switch behaviour
+ - wakeup-source :           Enables wake up of host system on alarm
+ - quartz-load-femtofarads : The capacitive load of the quartz(x-tal),
+                             expressed in femto Farad (fF).
+
+
+
+-- 
+--
+Philip Howard
+Maker, Pimoroni Ltd.
+
+phil@pimoroni.com
+http://pimoroni.com
+@pimoroni
