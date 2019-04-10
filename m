@@ -3,32 +3,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98D9EC10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1DC4C10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6E23820830
-	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B49D20830
+	for <linux-rtc@archiver.kernel.org>; Wed, 10 Apr 2019 20:56:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726753AbfDJU4M (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 10 Apr 2019 16:56:12 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:38383 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbfDJU4L (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 16:56:11 -0400
+        id S1726085AbfDJU4S (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 10 Apr 2019 16:56:18 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:35673 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726732AbfDJU4M (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 10 Apr 2019 16:56:12 -0400
 Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id D70EA20000F;
-        Wed, 10 Apr 2019 20:56:09 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 7D199240009;
+        Wed, 10 Apr 2019 20:56:10 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4/5] rtc: pcf85363: remove useless forward declaration
-Date:   Wed, 10 Apr 2019 22:56:03 +0200
-Message-Id: <20190410205604.25262-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/5] rtc: pcf85363: convert to SPDX identifier
+Date:   Wed, 10 Apr 2019 22:56:04 +0200
+Message-Id: <20190410205604.25262-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190410205604.25262-1-alexandre.belloni@bootlin.com>
 References: <20190410205604.25262-1-alexandre.belloni@bootlin.com>
@@ -39,27 +39,37 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-It is not necessary to forward declare pcf85363_driver as it is not used
-before being declared.
+Use SPDX-License-Identifier instead of a verbose license text.
+
+The original text refers to version 2 so also update MODULE_LICENSE() to
+"GPL v2" instead of "GPL".
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf85363.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index 5e369846795e..afb1baacdaa7 100644
+index afb1baacdaa7..a075e77617dc 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -112,8 +112,6 @@
- 
- #define NVRAM_SIZE	0x40
- 
--static struct i2c_driver pcf85363_driver;
--
- struct pcf85363 {
- 	struct rtc_device	*rtc;
- 	struct regmap		*regmap;
+@@ -1,15 +1,10 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * drivers/rtc/rtc-pcf85363.c
+  *
+  * Driver for NXP PCF85363 real-time clock.
+  *
+  * Copyright (C) 2017 Eric Nelson
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- *
+- * Based loosely on rtc-8583 by Russell King, Wolfram Sang and Juergen Beisert
+  */
+ #include <linux/module.h>
+ #include <linux/i2c.h>
 -- 
 2.20.1
 
