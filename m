@@ -2,79 +2,80 @@ Return-Path: <SRS0=3NBh=SN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 967BBC10F13
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 13:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DD11C10F13
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 14:33:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5CD0E217F4
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 13:39:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Cq25d18D"
+	by mail.kernel.org (Postfix) with ESMTP id E003B206B7
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 14:33:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726666AbfDKNjO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 11 Apr 2019 09:39:14 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41118 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726264AbfDKNjN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Apr 2019 09:39:13 -0400
-Received: by mail-lj1-f194.google.com with SMTP id k8so5549191lja.8
-        for <linux-rtc@vger.kernel.org>; Thu, 11 Apr 2019 06:39:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4n970sNmM78f9cVQpUJA48QdfoCTSqP3bdkBrlTp+go=;
-        b=Cq25d18Dp8VNkOW/Ns791+NCirCzCDyU7jLJwG3fhqoimX9vzje3tZEpKlNh78vtvW
-         g1VGeW6unprMDB0MpDuu8OyafiVueWhTCcW13KNERl1r+B5rEGrR4sKoqVqbDS/a3Nmq
-         KBeOMcNcuNT4lopsHjXZ48VnQm2YYdf3QH0I9D7dvSXlVIs8vmNsT4K4WaSfZ+vqE2xp
-         LoSh8HbbFy2So5NBd0djuxk4sAb/sk0x09QCUCJoL6HS2cP5VTdsWzb1aAuiuoFGJZLE
-         JTN4rbwFiWxjh0Nkk6GwbT9rTf0/CuhqGumpO8ruI+L8uOu/qLIDGuXLVi+Mj2M218cz
-         jHVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4n970sNmM78f9cVQpUJA48QdfoCTSqP3bdkBrlTp+go=;
-        b=CdlK6x2vTMJJBfEmjeInWK6LIBJWbORpVQcBChVCNB2+ti6CYvOzFTkixsCl7EGujM
-         b1SHkbEo1uavjAb3Rza1GOxDMzDEKIClv18WweJ/naq1BQrSeE5dBjutO3U46msROiGR
-         clxkmhnslegqX44Qfz3PSYAbkcW3XC6VMZZiTL3bjMBP3IL1LPxG5QLQ/JW4ubTt5Qap
-         7JPINax7PGk75UqSHGROPeGH+958s+XH47tQxw2MSXSRAiyOlj9TOp7BvBFrm9joC7k/
-         9bUO6tgvfh22Y4jxplbzcudtobL+Qzn29zaz2awFePiOQdTNkJSqYFJmbLLd4nE5SM2G
-         wKhQ==
-X-Gm-Message-State: APjAAAUpN8zliQUBTkNra29jLSk5802nnFIpDOJOVRKTGBR7iLsUMNps
-        NQGYpPicOADNclJ3Up+HCU+MB3nIzRKBXzW7gYX5ow==
-X-Google-Smtp-Source: APXvYqwE6U6rQsN6xUJKLSqrSmzIraPuNPOZy0/6YUIwnC3oNILXbO/9Xe8VbJsLu5IQ7uaOi4jKNwsNF01+dCvxhQI=
-X-Received: by 2002:a2e:3512:: with SMTP id z18mr25969221ljz.25.1554989951785;
- Thu, 11 Apr 2019 06:39:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190409195945.20725-1-alexandre.belloni@bootlin.com> <20190409195945.20725-3-alexandre.belloni@bootlin.com>
-In-Reply-To: <20190409195945.20725-3-alexandre.belloni@bootlin.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 11 Apr 2019 15:38:59 +0200
-Message-ID: <CACRpkdYum4vpTYDaME2tAd492Rbni7OBuF6LCD+C4+rk7Ye32Q@mail.gmail.com>
-Subject: Re: [PATCH 3/3] rtc: ab3100: convert to SPDX identifier
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726656AbfDKOdf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 11 Apr 2019 10:33:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39408 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726145AbfDKOdf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 11 Apr 2019 10:33:35 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 2B656AF50;
+        Thu, 11 Apr 2019 14:33:34 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Joshua Kinard <kumba@gentoo.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] rtc: ds1685: fix crash caused by referencing wrong device struct
+Date:   Thu, 11 Apr 2019 16:33:21 +0200
+Message-Id: <20190411143323.20945-1-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.13.7
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Apr 9, 2019 at 10:00 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
+sysfs entries added by rtc_add_group are called with the rtc device
+as argument and not the underlying device. Fixed by using the dev->parent
 
-> Use SPDX-License-Identifier instead of the custom license line.
->
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: cfb74916e2ec ("rtc: ds1685: use rtc_add_group")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ drivers/rtc/rtc-ds1685.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 2710f2594c42..2f5194df239e 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -1004,7 +1004,7 @@ static ssize_t
+ ds1685_rtc_sysfs_battery_show(struct device *dev,
+ 			      struct device_attribute *attr, char *buf)
+ {
+-	struct ds1685_priv *rtc = dev_get_drvdata(dev);
++	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+ 	u8 ctrld;
+ 
+ 	ctrld = rtc->read(rtc, RTC_CTRL_D);
+@@ -1024,7 +1024,7 @@ static ssize_t
+ ds1685_rtc_sysfs_auxbatt_show(struct device *dev,
+ 			      struct device_attribute *attr, char *buf)
+ {
+-	struct ds1685_priv *rtc = dev_get_drvdata(dev);
++	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+ 	u8 ctrl4a;
+ 
+ 	ds1685_rtc_switch_to_bank1(rtc);
+@@ -1046,7 +1046,7 @@ static ssize_t
+ ds1685_rtc_sysfs_serial_show(struct device *dev,
+ 			     struct device_attribute *attr, char *buf)
+ {
+-	struct ds1685_priv *rtc = dev_get_drvdata(dev);
++	struct ds1685_priv *rtc = dev_get_drvdata(dev->parent);
+ 	u8 ssn[8];
+ 
+ 	ds1685_rtc_switch_to_bank1(rtc);
+-- 
+2.13.7
 
-Yours,
-Linus Walleij
