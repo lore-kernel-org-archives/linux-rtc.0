@@ -2,88 +2,89 @@ Return-Path: <SRS0=3NBh=SN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66440C10F13
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 07:34:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 915FBC10F13
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 12:53:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3225021841
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 07:34:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1554968082;
-	bh=bSprz5PlLcdDdW1vrGKjZixQhlog93geXRE8o9xic68=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=F+/dvjObYJx8OVnFZztf06SCp7t4q28YRvBg+nU7O3M8dvi6J7ua3j7f0+ODNphCV
-	 fIJQSh+KuGprETs0AKoob0YIyesEZ7ds46mAhO4zkijCoq3XLl9avt9FJ5GONqM0fv
-	 8N+CJ+2Ul3evSSqpypfs8fdAHWgUgz1L/XVeiXl8=
+	by mail.kernel.org (Postfix) with ESMTP id 664162184E
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Apr 2019 12:53:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbfDKHel (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 11 Apr 2019 03:34:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59284 "EHLO mail.kernel.org"
+        id S1726690AbfDKMxG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 11 Apr 2019 08:53:06 -0400
+Received: from gloria.sntech.de ([185.11.138.130]:58202 "EHLO gloria.sntech.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726137AbfDKHel (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 11 Apr 2019 03:34:41 -0400
-Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E011B20873;
-        Thu, 11 Apr 2019 07:34:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1554968081;
-        bh=bSprz5PlLcdDdW1vrGKjZixQhlog93geXRE8o9xic68=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TIAFUEF2++9SYhXSMGD1rVh0/5+wpVcO/47UrDvN7Jmx9IDIvqFmkOzDxzdtLpD3j
-         ffe3Ax3Rm88n89ExVt53ZNrmTwZuLGZc+1T9QfQfeP6xKZSQspKJPl9+NVjx3DyYzb
-         WofHOnAvdT0JRqKvWkc9dIhBjc09uhVM9anSiBDw=
-Date:   Thu, 11 Apr 2019 15:34:21 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Anson Huang <anson.huang@nxp.com>
-Cc:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>,
-        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>, Peng Fan <peng.fan@nxp.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        dl-linux-imx <linux-imx@nxp.com>
-Subject: Re: [PATCH V7 3/4] arm64: dts: freescale: imx8qxp: enable scu
- general irq channel
-Message-ID: <20190411073420.GD3050@dragon>
-References: <1554785675-8090-1-git-send-email-Anson.Huang@nxp.com>
- <1554785675-8090-3-git-send-email-Anson.Huang@nxp.com>
+        id S1726014AbfDKMxG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 11 Apr 2019 08:53:06 -0400
+Received: from wf0380.dip.tu-dresden.de ([141.76.181.124] helo=phil.localnet)
+        by gloria.sntech.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <heiko@sntech.de>)
+        id 1hEZCC-0007yb-Ce; Thu, 11 Apr 2019 14:52:48 +0200
+From:   Heiko Stuebner <heiko@sntech.de>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Tony Xie <tony.xie@rock-chips.com>, broonie@kernel.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v7 2/6] mfd: rk808: Add RK817 and RK809 support
+Date:   Thu, 11 Apr 2019 14:52:47 +0200
+Message-ID: <518340124.P20tlEWT52@phil>
+In-Reply-To: <20190402063305.GZ4187@dell>
+References: <20190102102002.29245-1-tony.xie@rock-chips.com> <20190102102002.29245-3-tony.xie@rock-chips.com> <20190402063305.GZ4187@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1554785675-8090-3-git-send-email-Anson.Huang@nxp.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Apr 09, 2019 at 05:00:01AM +0000, Anson Huang wrote:
-> On i.MX8QXP, SCU uses MU1 general interrupt channel #3 to notify
-> user for IRQs of RTC alarm, thermal alarm and WDOG etc., mailbox
-> RX doorbell mode is used for this function, this patch adds
-> support for it.
+Hi Lee,
+
+Am Dienstag, 2. April 2019, 08:33:05 CEST schrieb Lee Jones:
+> On Wed, 02 Jan 2019, Tony Xie wrote:
 > 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+> > The RK809 and RK817 are a Power Management IC (PMIC) for multimedia
+> > and handheld devices. They contains the following components:
+> >   - Regulators
+> >   - RTC
+> >   - Clocking
+> > 
+> > Both RK809 and RK817 chips are using a similar register map,
+> > so we can reuse the RTC and Clocking functionality.
+> > Most of regulators have a some implementation also.
+> > 
+> > Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
+> > Acked-by: Stephen Boyd <sboyd@kernel.org>
+> > ---
+> >  drivers/mfd/Kconfig       |   6 +-
+> >  drivers/mfd/rk808.c       | 192 +++++++++++++++++++++++++++++++++++++-
+> >  include/linux/mfd/rk808.h | 172 ++++++++++++++++++++++++++++++++++
+> >  3 files changed, 364 insertions(+), 6 deletions(-)
+> 
+> For my own reference:
+>   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
-Prefix 'arm64: dts: imx8qxp:' would be good enough, and no need for
-'freescale' in there.
+do you have some sort of merge plan for this or are you waiting for
+specific Acks? I guess if we're waiting for an Ack from Mark Brown,
+we'll need a resend of the patch.
 
-I fixed it up and applied the patch.
+All other patches have Acks from their subsystem maintainers (rtc, clk)
+so you could pick up all patches except patch3 and I could just resend
+this one, which in turn could also go through the regulator tree.
 
-Shawn
+Otherwise we'll probably need a resend of the series, as Mark most of
+the time doesn't keep old patch series around.
+
+
+Heiko
+
+
