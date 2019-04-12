@@ -4,37 +4,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96DA2C282CE
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 02:25:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68EA6C10F13
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 02:33:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 653C821721
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 02:25:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20B7C2083E
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 02:33:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="X+nvi14o"
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="i2cIAXTG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726677AbfDLCZq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 11 Apr 2019 22:25:46 -0400
-Received: from mail-eopbgr40084.outbound.protection.outlook.com ([40.107.4.84]:24131
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        id S1726682AbfDLCdA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 11 Apr 2019 22:33:00 -0400
+Received: from mail-eopbgr50076.outbound.protection.outlook.com ([40.107.5.76]:2574
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726661AbfDLCZq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 11 Apr 2019 22:25:46 -0400
+        id S1726636AbfDLCdA (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 11 Apr 2019 22:33:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=45NpUaJ16rCVVf/LFAh1yory77Vj7fwAp5I5rDKt+VQ=;
- b=X+nvi14omlIRxKoaKI3H7U1wfhr3XaUSvhaYq1xxXswbtNNcPf/1XsA8HTHRkhBXJ87rr+cjB4+MnNJcHzB07oMeoMF9fVwC3hziyAmmGtyVHrXnfafbcMmtJYgUIDFlihUyh8HmuxNU4XWmP64PtorYRsqZzbTGM2KJzBkKP9U=
-Received: from AM0PR04MB4211.eurprd04.prod.outlook.com (52.134.92.158) by
- AM0PR04MB5924.eurprd04.prod.outlook.com (20.178.117.86) with Microsoft SMTP
+ bh=g2Jc+qzouzp7yeg1VmlMpeydRc6iSiByV/V6CqW0bZc=;
+ b=i2cIAXTGoH4Jl6z1+Tp7fMxcu1fv9fNVt+NosE22En0AkvOrtQiH/I6XTwzuzHdMWADqaUoN7C7iDO5r24rRUlKaNXcNkWwy7r952f3EbxTqhuaehSTcIU0xm13+IKJx3YhCBvyB74RJFuDCUWe29YP6kXnXU9Sgj3gChtaC1xc=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3819.eurprd04.prod.outlook.com (52.134.71.158) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1771.16; Fri, 12 Apr 2019 02:25:42 +0000
-Received: from AM0PR04MB4211.eurprd04.prod.outlook.com
- ([fe80::8cda:4e52:8e87:8f0e]) by AM0PR04MB4211.eurprd04.prod.outlook.com
- ([fe80::8cda:4e52:8e87:8f0e%2]) with mapi id 15.20.1792.009; Fri, 12 Apr 2019
- 02:25:42 +0000
-From:   Aisheng Dong <aisheng.dong@nxp.com>
-To:     Anson Huang <anson.huang@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+ 15.20.1792.14; Fri, 12 Apr 2019 02:32:54 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170%3]) with mapi id 15.20.1792.016; Fri, 12 Apr 2019
+ 02:32:54 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     Aisheng Dong <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>
 CC:     "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
@@ -56,82 +57,90 @@ Subject: RE: [EXT] Re: [PATCH V7 2/4] firmware: imx: enable imx scu general
  irq function
 Thread-Topic: [EXT] Re: [PATCH V7 2/4] firmware: imx: enable imx scu general
  irq function
-Thread-Index: AQHU7pET1wfs7oociU2EvcNWCsnYxqY2lGmAgAEmHACAABRYkA==
-Date:   Fri, 12 Apr 2019 02:25:42 +0000
-Message-ID: <AM0PR04MB4211816EDBEF23F7B330CCCB80280@AM0PR04MB4211.eurprd04.prod.outlook.com>
+Thread-Index: AQHU7pESFiPArqSQREy0TQYaxheiu6Y2lGmAgAElItCAABdgAIAAAZZg
+Date:   Fri, 12 Apr 2019 02:32:54 +0000
+Message-ID: <DB3PR0402MB39162D194A2B5B79211C1774F5280@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 References: <1554785675-8090-1-git-send-email-Anson.Huang@nxp.com>
  <1554785675-8090-2-git-send-email-Anson.Huang@nxp.com>
  <20190411073252.GC3050@dragon>
  <DB3PR0402MB3916B67E6DA995AB70C29799F5280@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-In-Reply-To: <DB3PR0402MB3916B67E6DA995AB70C29799F5280@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-Accept-Language: zh-CN, en-US
+ <AM0PR04MB4211816EDBEF23F7B330CCCB80280@AM0PR04MB4211.eurprd04.prod.outlook.com>
+In-Reply-To: <AM0PR04MB4211816EDBEF23F7B330CCCB80280@AM0PR04MB4211.eurprd04.prod.outlook.com>
+Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 authentication-results: spf=none (sender IP is )
- smtp.mailfrom=aisheng.dong@nxp.com; 
+ smtp.mailfrom=anson.huang@nxp.com; 
 x-originating-ip: [119.31.174.66]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 1e4b4676-c267-4a72-54ab-08d6beee2960
+x-ms-office365-filtering-correlation-id: 030bd3a3-a5af-410e-8091-08d6beef2ac5
 x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:AM0PR04MB5924;
-x-ms-traffictypediagnostic: AM0PR04MB5924:
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600139)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:DB3PR0402MB3819;
+x-ms-traffictypediagnostic: DB3PR0402MB3819:
 x-ms-exchange-purlcount: 1
-x-microsoft-antispam-prvs: <AM0PR04MB59243567F89B701410BE87CB80280@AM0PR04MB5924.eurprd04.prod.outlook.com>
+x-microsoft-antispam-prvs: <DB3PR0402MB3819F4CA15214654A25D0664F5280@DB3PR0402MB3819.eurprd04.prod.outlook.com>
 x-forefront-prvs: 0005B05917
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(366004)(136003)(376002)(39860400002)(396003)(199004)(189003)(44832011)(74316002)(52536014)(81156014)(81166006)(476003)(66066001)(8676002)(68736007)(11346002)(486006)(86362001)(93886005)(446003)(6246003)(256004)(71200400001)(478600001)(102836004)(14444005)(25786009)(33656002)(966005)(2906002)(26005)(71190400001)(6506007)(186003)(53936002)(54906003)(97736004)(55016002)(5660300002)(6306002)(76176011)(7416002)(305945005)(99286004)(7696005)(4326008)(14454004)(8936002)(3846002)(105586002)(7736002)(9686003)(2501003)(316002)(106356001)(6116002)(229853002)(6436002)(110136005);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB5924;H:AM0PR04MB4211.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(136003)(376002)(396003)(366004)(189003)(199004)(13464003)(54906003)(478600001)(316002)(93886005)(256004)(52536014)(66066001)(5660300002)(486006)(7736002)(14444005)(97736004)(2906002)(44832011)(6116002)(3846002)(305945005)(74316002)(476003)(11346002)(229853002)(6436002)(8936002)(106356001)(53936002)(68736007)(26005)(966005)(71200400001)(186003)(4326008)(446003)(86362001)(71190400001)(81156014)(81166006)(105586002)(7416002)(7696005)(25786009)(6506007)(9686003)(53546011)(76176011)(33656002)(102836004)(6306002)(110136005)(55016002)(99286004)(2501003)(14454004)(6246003)(8676002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3819;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
 received-spf: None (protection.outlook.com: nxp.com does not designate
  permitted sender hosts)
 x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: xp5lbjbLgBVZ+LEEIBjLvid1Cy5dQUgZpkC5lugjLtkaF2mwHLHLr6HpmUbBG/B6d0ajTrWYvBFgScx4JEohaMOgsXVd0tGyi6W3CKEKgs43Ux5dDZ4XEafRP1847JV749oLGDRf9N1dtauW1e+DhKrwebr7cBYKffLufKFPfCr/h7jf3aUqSN8TmHT8yVCAXBtnxF9/7AsGZ1+jkZPpChWrfWg+jR83bods3N8JS91Cm67EFWKX4M562pupMIBIyn00b2zysrJo3675eMDFMZwceSBnlyHS28F9KWL8vjwb8Pam5rMa8ywzYniD5+bohFu/rGoANCa/ib2sC4p0SU5zrELoZSqobrXE+6xP1XPrP7RMi7SzTUJThggfivQk7W8oRR0INHKfnkGS1YDJgXdN8VlSXFanCFtXaTimxQk=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+x-microsoft-antispam-message-info: tH0HfsQzRa8IqQibL0cxBJjKETo4zvohb2rH45wLNrLWB4mQfP7HBNjQ+Iu7bef/ShgXXQ7qDocYzRfpl6+GP6HwNUhw2dYGOZ7vSmmowvLjgDmTnyiMTApWhPC658E0KCQYLqE7hWUvw8Kpfno4ps2ovLL2oyRkslO/i4AqtTcuU9bX0Hk0FbkeT8EHFD2iSa/tORLCXqhGm91ks9Hzd0SaHgqcnt23OVlCDWAXFPmp8NQUGo7+SkIpuBOLkFaOtANmrYBezpboqQaQssE5p2tCpW8+8c5hGI1rjD77gCcRJxHlVj1B3NZ7/XUi20zoc2IUPpi5Su6oQCOCQDl0G7wLvrd9hebLblClTeSFyvf6DEwUSRs0nIyz//rl+NG5b4Ttuk+KO9tYGXn/Cpm2WUNbys7FdMQA8q9S0mSL07w=
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1e4b4676-c267-4a72-54ab-08d6beee2960
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Apr 2019 02:25:42.4326
+X-MS-Exchange-CrossTenant-Network-Message-Id: 030bd3a3-a5af-410e-8091-08d6beef2ac5
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Apr 2019 02:32:54.1700
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB5924
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3819
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-> From: Anson Huang
-> Sent: Friday, April 12, 2019 9:06 AM
->=20
-> Hello, Alexandre
-> 	As i.MX SCU general irq function is picked up by Shawn, could you please
-> also pick up below i.MX SC RTC alarm support patch ?
-> 	https://patchwork.kernel.org/patch/10890525/
->=20
-
-No, it can't go through Alexandre's tree due to dependency issue.
-
-Shawn,
-Do you think you can pick it up? Alexandre already gave the Ack.
-
-AFAIK there's no other SCU RTC patches since v5.1-rc1 in Alexandre's tree.
-
-Regards
-Dong Aisheng
-
-> > On Tue, Apr 09, 2019 at 04:59:55AM +0000, Anson Huang wrote:
-> > > The System Controller Firmware (SCFW) controls RTC, thermal and WDOG
-> > > etc., these resources' interrupt function are managed by SCU. When
-> > > any IRQ pending, SCU will notify Linux via MU general interrupt
-> > > channel #3, and Linux kernel needs to call SCU APIs to get IRQ
-> > > status and notify each module to handle the interrupt.
-> > >
-> > > Since there is no data transmission for SCU IRQ notification, so
-> > > doorbell mode is used for this MU channel, and SCU driver will use
-> > > notifier mechanism to broadcast to every module which registers the
-> > > SCU block notifier.
-> > >
-> > > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> > > Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-> >
-> > Applied, thanks.
+DQoNCkJlc3QgUmVnYXJkcyENCkFuc29uIEh1YW5nDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
+LS0tLS0NCj4gRnJvbTogQWlzaGVuZyBEb25nDQo+IFNlbnQ6IDIwMTnE6jTUwjEyyNUgMTA6MjYN
+Cj4gVG86IEFuc29uIEh1YW5nIDxhbnNvbi5odWFuZ0BueHAuY29tPjsgU2hhd24gR3VvDQo+IDxz
+aGF3bmd1b0BrZXJuZWwub3JnPjsgYWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5jb20NCj4gQ2M6
+IHJvYmgrZHRAa2VybmVsLm9yZzsgbWFyay5ydXRsYW5kQGFybS5jb207IHMuaGF1ZXJAcGVuZ3V0
+cm9uaXguZGU7DQo+IGtlcm5lbEBwZW5ndXRyb25peC5kZTsgZmVzdGV2YW1AZ21haWwuY29tOyBh
+Lnp1bW1vQHRvd2VydGVjaC5pdDsNCj4gYWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5jb207IHVs
+Zi5oYW5zc29uQGxpbmFyby5vcmc7IHNib3lkQGtlcm5lbC5vcmc7DQo+IFBlbmcgRmFuIDxwZW5n
+LmZhbkBueHAuY29tPjsgRGFuaWVsIEJhbHV0YSA8ZGFuaWVsLmJhbHV0YUBueHAuY29tPjsNCj4g
+ZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7
+IGxpbnV4LWFybS0NCj4ga2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LXJ0Y0B2Z2Vy
+Lmtlcm5lbC5vcmc7IGRsLWxpbnV4LWlteCA8bGludXgtDQo+IGlteEBueHAuY29tPg0KPiBTdWJq
+ZWN0OiBSRTogW0VYVF0gUmU6IFtQQVRDSCBWNyAyLzRdIGZpcm13YXJlOiBpbXg6IGVuYWJsZSBp
+bXggc2N1IGdlbmVyYWwNCj4gaXJxIGZ1bmN0aW9uDQo+IA0KPiA+IEZyb206IEFuc29uIEh1YW5n
+DQo+ID4gU2VudDogRnJpZGF5LCBBcHJpbCAxMiwgMjAxOSA5OjA2IEFNDQo+ID4NCj4gPiBIZWxs
+bywgQWxleGFuZHJlDQo+ID4gCUFzIGkuTVggU0NVIGdlbmVyYWwgaXJxIGZ1bmN0aW9uIGlzIHBp
+Y2tlZCB1cCBieSBTaGF3biwgY291bGQgeW91DQo+ID4gcGxlYXNlIGFsc28gcGljayB1cCBiZWxv
+dyBpLk1YIFNDIFJUQyBhbGFybSBzdXBwb3J0IHBhdGNoID8NCj4gPiAJaHR0cHM6Ly9wYXRjaHdv
+cmsua2VybmVsLm9yZy9wYXRjaC8xMDg5MDUyNS8NCj4gPg0KPiANCj4gTm8sIGl0IGNhbid0IGdv
+IHRocm91Z2ggQWxleGFuZHJlJ3MgdHJlZSBkdWUgdG8gZGVwZW5kZW5jeSBpc3N1ZS4NCj4gDQo+
+IFNoYXduLA0KPiBEbyB5b3UgdGhpbmsgeW91IGNhbiBwaWNrIGl0IHVwPyBBbGV4YW5kcmUgYWxy
+ZWFkeSBnYXZlIHRoZSBBY2suDQo+IA0KPiBBRkFJSyB0aGVyZSdzIG5vIG90aGVyIFNDVSBSVEMg
+cGF0Y2hlcyBzaW5jZSB2NS4xLXJjMSBpbiBBbGV4YW5kcmUncyB0cmVlLg0KDQpZZXMsIG5lZWQg
+dG8gbWFrZSBzdXJlIHRoZSBkZXBlbmRlbmN5IGlzIGhhbmRsZWQsIHRoZSBSVEMgYWxhcm0gcGF0
+Y2ggTVVTVCBiZSBwaWNrZWQgdXANCk9OTFkgd2hlbiBzY3UgaXJxIHBhdGNoIGlzIHJlYWR5LCBO
+T1Qgc3VyZSBob3cgdG8gaGFuZGxlIHRoaXMgY2FzZSBmb3Igc3VjaCBzY2VuYXJpbz8NCg0KQW5z
+b24uDQoNCj4gDQo+IFJlZ2FyZHMNCj4gRG9uZyBBaXNoZW5nDQo+IA0KPiA+ID4gT24gVHVlLCBB
+cHIgMDksIDIwMTkgYXQgMDQ6NTk6NTVBTSArMDAwMCwgQW5zb24gSHVhbmcgd3JvdGU6DQo+ID4g
+PiA+IFRoZSBTeXN0ZW0gQ29udHJvbGxlciBGaXJtd2FyZSAoU0NGVykgY29udHJvbHMgUlRDLCB0
+aGVybWFsIGFuZA0KPiA+ID4gPiBXRE9HIGV0Yy4sIHRoZXNlIHJlc291cmNlcycgaW50ZXJydXB0
+IGZ1bmN0aW9uIGFyZSBtYW5hZ2VkIGJ5IFNDVS4NCj4gPiA+ID4gV2hlbiBhbnkgSVJRIHBlbmRp
+bmcsIFNDVSB3aWxsIG5vdGlmeSBMaW51eCB2aWEgTVUgZ2VuZXJhbA0KPiA+ID4gPiBpbnRlcnJ1
+cHQgY2hhbm5lbCAjMywgYW5kIExpbnV4IGtlcm5lbCBuZWVkcyB0byBjYWxsIFNDVSBBUElzIHRv
+DQo+ID4gPiA+IGdldCBJUlEgc3RhdHVzIGFuZCBub3RpZnkgZWFjaCBtb2R1bGUgdG8gaGFuZGxl
+IHRoZSBpbnRlcnJ1cHQuDQo+ID4gPiA+DQo+ID4gPiA+IFNpbmNlIHRoZXJlIGlzIG5vIGRhdGEg
+dHJhbnNtaXNzaW9uIGZvciBTQ1UgSVJRIG5vdGlmaWNhdGlvbiwgc28NCj4gPiA+ID4gZG9vcmJl
+bGwgbW9kZSBpcyB1c2VkIGZvciB0aGlzIE1VIGNoYW5uZWwsIGFuZCBTQ1UgZHJpdmVyIHdpbGwg
+dXNlDQo+ID4gPiA+IG5vdGlmaWVyIG1lY2hhbmlzbSB0byBicm9hZGNhc3QgdG8gZXZlcnkgbW9k
+dWxlIHdoaWNoIHJlZ2lzdGVycw0KPiA+ID4gPiB0aGUgU0NVIGJsb2NrIG5vdGlmaWVyLg0KPiA+
+ID4gPg0KPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBBbnNvbiBIdWFuZyA8QW5zb24uSHVhbmdAbnhw
+LmNvbT4NCj4gPiA+ID4gUmV2aWV3ZWQtYnk6IERvbmcgQWlzaGVuZyA8YWlzaGVuZy5kb25nQG54
+cC5jb20+DQo+ID4gPg0KPiA+ID4gQXBwbGllZCwgdGhhbmtzLg0K
