@@ -3,39 +3,38 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA6A2C10F0E
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:45:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA733C10F0E
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:49:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7A4E62171F
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:45:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AFC6B20850
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:49:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfDLLpF convert rfc822-to-8bit (ORCPT
+        id S1726697AbfDLLto convert rfc822-to-8bit (ORCPT
         <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 12 Apr 2019 07:45:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40246 "EHLO mx1.suse.de"
+        Fri, 12 Apr 2019 07:49:44 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41838 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726714AbfDLLpF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 12 Apr 2019 07:45:05 -0400
+        id S1726244AbfDLLto (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 12 Apr 2019 07:49:44 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 780D8AC89;
-        Fri, 12 Apr 2019 11:45:04 +0000 (UTC)
-Date:   Fri, 12 Apr 2019 13:44:59 +0200
+        by mx1.suse.de (Postfix) with ESMTP id 20CCCAA85;
+        Fri, 12 Apr 2019 11:49:43 +0000 (UTC)
+Date:   Fri, 12 Apr 2019 13:49:39 +0200
 From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Joshua Kinard <kumba@gentoo.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] rtc: ds1685: use correct device struct to get
- platform device struct
-Message-Id: <20190412134459.446ef705c86aa1c7b926abc7@suse.de>
-In-Reply-To: <20190412101106.GU3578@piout.net>
+Subject: Re: [PATCH 3/3] rtc: ds1685: disable interrupts when moving work to
+ work queue
+Message-Id: <20190412134939.cf32e03ba23cf8c8eef36bf4@suse.de>
+In-Reply-To: <20190412101418.GV3578@piout.net>
 References: <20190411143323.20945-1-tbogendoerfer@suse.de>
-        <20190411143323.20945-2-tbogendoerfer@suse.de>
-        <20190412101106.GU3578@piout.net>
+        <20190411143323.20945-3-tbogendoerfer@suse.de>
+        <20190412101418.GV3578@piout.net>
 X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-suse-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
@@ -45,15 +44,21 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 12 Apr 2019 12:11:06 +0200
+On Fri, 12 Apr 2019 12:14:18 +0200
 Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
 
-> Every patch need a commit message. Maybe you could indicate that this
-> never gave any issue because parent is the first member of struct
-> device.
+> On 11/04/2019 16:33:23+0200, Thomas Bogendoerfer wrote:
+> > Handling of extended interrupts (kickstart, wake-up, ram-clear) is
+> > moved off to a work queue, but the interrupts aren't acknowledged
+> > in the interrupt handler. This leads to a deadlock, if driver
+> > is used with interrupts. To fix this we now disable in irq handler
+> > and re-enable it after work queue is done.
+> > 
+> 
+> The correct fix to that seems to switch to a threaded interrupt handler.
+> Can you do that?
 
-I'll update the commit message, I get a nice stacktrace because of that
-bug, so the path from work_queue calling ds1685_rtc_poweroff never worked.
+sure, shouldn't be a big problem.
 
 Thomas.
 
