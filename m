@@ -2,60 +2,62 @@ Return-Path: <SRS0=HMI1=SO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7EFAC10F0E
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 10:15:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA6A2C10F0E
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:45:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 929EA2083E
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 10:15:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7A4E62171F
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 Apr 2019 11:45:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726727AbfDLKPA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 12 Apr 2019 06:15:00 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:46893 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726697AbfDLKPA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 12 Apr 2019 06:15:00 -0400
-X-Originating-IP: 109.213.223.232
-Received: from localhost (alyon-652-1-80-232.w109-213.abo.wanadoo.fr [109.213.223.232])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 1BDE0E0014;
-        Fri, 12 Apr 2019 10:14:56 +0000 (UTC)
-Date:   Fri, 12 Apr 2019 12:14:56 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Thomas Bogendoerfer <tbogendoerfer@suse.de>
+        id S1726757AbfDLLpF convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 12 Apr 2019 07:45:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40246 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726714AbfDLLpF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 12 Apr 2019 07:45:05 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 780D8AC89;
+        Fri, 12 Apr 2019 11:45:04 +0000 (UTC)
+Date:   Fri, 12 Apr 2019 13:44:59 +0200
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Joshua Kinard <kumba@gentoo.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] rtc: ds1685: fix crash caused by referencing wrong
- device struct
-Message-ID: <20190412101456.GW3578@piout.net>
+Subject: Re: [PATCH 2/3] rtc: ds1685: use correct device struct to get
+ platform device struct
+Message-Id: <20190412134459.446ef705c86aa1c7b926abc7@suse.de>
+In-Reply-To: <20190412101106.GU3578@piout.net>
 References: <20190411143323.20945-1-tbogendoerfer@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190411143323.20945-1-tbogendoerfer@suse.de>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+        <20190411143323.20945-2-tbogendoerfer@suse.de>
+        <20190412101106.GU3578@piout.net>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-suse-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 11/04/2019 16:33:21+0200, Thomas Bogendoerfer wrote:
-> sysfs entries added by rtc_add_group are called with the rtc device
-> as argument and not the underlying device. Fixed by using the dev->parent
-> 
-> Fixes: cfb74916e2ec ("rtc: ds1685: use rtc_add_group")
-> Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-> ---
->  drivers/rtc/rtc-ds1685.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-Applied, thanks.
+On Fri, 12 Apr 2019 12:11:06 +0200
+Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+
+> Every patch need a commit message. Maybe you could indicate that this
+> never gave any issue because parent is the first member of struct
+> device.
+
+I'll update the commit message, I get a nice stacktrace because of that
+bug, so the path from work_queue calling ds1685_rtc_poweroff never worked.
+
+Thomas.
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+SUSE Linux GmbH
+GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG Nürnberg)
