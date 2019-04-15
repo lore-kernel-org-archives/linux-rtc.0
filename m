@@ -2,147 +2,105 @@ Return-Path: <SRS0=Bgbz=SR=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1C9CC10F11
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 08:18:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A5B5C10F0E
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 09:24:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8B52420833
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 08:18:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 485D42073F
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 09:24:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1555320244;
+	bh=JulKskcohmjU1LQCxlJpqEI+tr9kx1WSlzr48IXgw5g=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=hhhLu4LnuAsXlWeYlTy/XiEBIIFiAttHKy0pqd67hcqDQY4YnrstxnH4+nz2VevaN
+	 nwsu3auBt0g1+snpzk3UXFWosqpcPBroy6Cw3we5NvJ61Mkg1+V9pnG27UHhWzkY7/
+	 1mz7Ngcq+L8Q1wBUIHIVAyW5aZXD59+3PcDD5lis=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725851AbfDOIS1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 15 Apr 2019 04:18:27 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:33183 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725779AbfDOIS0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 15 Apr 2019 04:18:26 -0400
-Received: by mail-ed1-f66.google.com with SMTP id d55so13069189ede.0;
-        Mon, 15 Apr 2019 01:18:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7ecOXDlNYrgaSWCYKkeZwcYkvFqlf/u+gwlZpWq4i8Q=;
-        b=p7biLxrDk0Im1YLf3t2FApLKj0MR5+zouFJK0YGW15GKWVyL/dE9PqqxapVNXSVgtH
-         K17V55mBOpF8k1gRtm6j+gGnIF0zC8Z23QpBFm6HYjGwsZPlvRZ8o42AAnpXlcxfwPN6
-         bIwG4EjkGMVgbeKaWuBgShyisEfBVHByBe3AK/ei/MzM37CUcZf7GyKghMq1zeyU5dM1
-         lxZqoD8+YTrAza03lxTQtvEkocfxADoKMpp/3yjGU872ApkVXmU9+6tpifb2e2zTIQqI
-         m6lVVX0+GdJgNou9vqJ0u0/fiEcAbSqLEDklVbQJX/E2lf+ak6VWAqSdrL5utrCtIa8L
-         nEPA==
-X-Gm-Message-State: APjAAAVPgdpN5vG/BenEDLGulFZvljVb6X9VIs7CSKyf4a1P/Oxv5gdd
-        zR+WkfFEoS9/AbRVnHPXLyeMEi8KvPY=
-X-Google-Smtp-Source: APXvYqxmlpTDHnvJ/IlAlSbefBh/GPtu4fPwuiThTnVrOt+8suE8tfpk4Cjp3Z3dKWm7NjW3A1dyyA==
-X-Received: by 2002:a17:906:3e91:: with SMTP id a17mr39644596ejj.73.1555316304832;
-        Mon, 15 Apr 2019 01:18:24 -0700 (PDT)
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com. [209.85.128.52])
-        by smtp.gmail.com with ESMTPSA id a8sm3668267edv.81.2019.04.15.01.18.23
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 15 Apr 2019 01:18:23 -0700 (PDT)
-Received: by mail-wm1-f52.google.com with SMTP id a184so19425705wma.2;
-        Mon, 15 Apr 2019 01:18:23 -0700 (PDT)
-X-Received: by 2002:a05:600c:2118:: with SMTP id u24mr21080948wml.24.1555316303380;
- Mon, 15 Apr 2019 01:18:23 -0700 (PDT)
+        id S1726299AbfDOJYE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 15 Apr 2019 05:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50178 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725798AbfDOJYD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 15 Apr 2019 05:24:03 -0400
+Received: from X250.skyworth_vap (98.142.130.235.16clouds.com [98.142.130.235])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C0DF20656;
+        Mon, 15 Apr 2019 09:23:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1555320243;
+        bh=JulKskcohmjU1LQCxlJpqEI+tr9kx1WSlzr48IXgw5g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mPiLlj6fvXqyHnS3MqqlO/pxiwz87HdwMQbjjkRGIWvB7hZSdseWXBZoe6Y08YVRx
+         orjFxfk6P/C6R9i3gU8mS4xe/WRK/O5zZsW2LUWmngYpywMZInFvBpsk1plUWGHeFn
+         QNwx4lg5tJoovZXubKyMhL/hRPiiEeXuYiCWMU/I=
+Date:   Mon, 15 Apr 2019 17:23:54 +0800
+From:   Shawn Guo <shawnguo@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Anson Huang <anson.huang@nxp.com>,
+        Aisheng Dong <aisheng.dong@nxp.com>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
+        "kernel@pengutronix.de" <kernel@pengutronix.de>,
+        "festevam@gmail.com" <festevam@gmail.com>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "ulf.hansson@linaro.org" <ulf.hansson@linaro.org>,
+        "sboyd@kernel.org" <sboyd@kernel.org>, Peng Fan <peng.fan@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>
+Subject: Re: [EXT] Re: [PATCH V7 2/4] firmware: imx: enable imx scu general
+ irq function
+Message-ID: <20190415092350.GC18917@X250.skyworth_vap>
+References: <1554785675-8090-1-git-send-email-Anson.Huang@nxp.com>
+ <1554785675-8090-2-git-send-email-Anson.Huang@nxp.com>
+ <20190411073252.GC3050@dragon>
+ <DB3PR0402MB3916B67E6DA995AB70C29799F5280@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <AM0PR04MB4211816EDBEF23F7B330CCCB80280@AM0PR04MB4211.eurprd04.prod.outlook.com>
+ <DB3PR0402MB39162D194A2B5B79211C1774F5280@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+ <20190412084116.GS3578@piout.net>
 MIME-Version: 1.0
-References: <20190412120730.473-1-megous@megous.com>
-In-Reply-To: <20190412120730.473-1-megous@megous.com>
-From:   Chen-Yu Tsai <wens@csie.org>
-Date:   Mon, 15 Apr 2019 16:18:12 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66cbpsoHJoiFJkBwhZ5SbO+uO+Kf6gtnA3kPFQZq0329Q@mail.gmail.com>
-Message-ID: <CAGb2v66cbpsoHJoiFJkBwhZ5SbO+uO+Kf6gtnA3kPFQZq0329Q@mail.gmail.com>
-Subject: Re: [linux-sunxi] [PATCH 0/3] Add basic support for RTC on Allwinner
- H6 SoC
-To:     =?UTF-8?Q?Ond=C5=99ej_Jirman?= <megous@megous.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        linux-rtc@vger.kernel.org, devicetree <devicetree@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190412084116.GS3578@piout.net>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Apr 12, 2019 at 8:07 PM megous via linux-sunxi
-<linux-sunxi@googlegroups.com> wrote:
->
-> From: Ondrej Jirman <megous@megous.com>
->
-> I went through the datasheets for H6 and H5, and compared the differences.
-> RTCs are largely similar, but not entirely compatible. Incompatibilities
-> are in details not yet implemented by the rtc driver though.
->
-> I also corrected the clock tree in H6 DTSI.
+On Fri, Apr 12, 2019 at 10:41:16AM +0200, Alexandre Belloni wrote:
+> On 12/04/2019 02:32:54+0000, Anson Huang wrote:
+> > > > 	As i.MX SCU general irq function is picked up by Shawn, could you
+> > > > please also pick up below i.MX SC RTC alarm support patch ?
+> > > > 	https://patchwork.kernel.org/patch/10890525/
+> > > >
+> > > 
+> > > No, it can't go through Alexandre's tree due to dependency issue.
+> > > 
+> > > Shawn,
+> > > Do you think you can pick it up? Alexandre already gave the Ack.
+> > > 
+> > > AFAIK there's no other SCU RTC patches since v5.1-rc1 in Alexandre's tree.
+> > 
+> > Yes, need to make sure the dependency is handled, the RTC alarm patch MUST be picked up
+> > ONLY when scu irq patch is ready, NOT sure how to handle this case for such scenario?
+> > 
+> 
+> Either it goes through arm-soc or if it can wait one release, I pick it
+> up for 5.3. The other solution involves immutable branch but I don't
+> think this is necessary.
 
-Please also add DCXO clock input/output and XO clock input to the bindings
-and DT, and also fix up the clock tree. You can skip them in the driver for
-now, but please add a TODO. As long as you don't change the clock-output-name
-of osc24M, everything should work as before.
+I send other subsystem patch through arm-soc tree only when it's
+absolutely necessary. This is not anything either critical or urgent,
+so I'm not going to take it.  Wait one release, I'd say.
 
-We just want the DT to describe what is actually there. For the XO input,
-you could just directly reference the external crystal node. The gate for
-it is likely somewhere in the PRCM block, which we don't have docs for.
-
-> There's a small detail here, that's not described absolutely correctly in
-> DTSI, but the difference is not really that material. ext_osc32k is
-> originally modelled as a fixed clock that feeds into RTC module, but in
-> reality it's the RTC module that implements via its registers enabling and
-> disabling of this oscillator/clock.
->
-> Though:
-> - there's no other possible user of ext_osc32k than RTC module
-> - there's no other possible external configuration for the crystal
->   circuit that would need to be handled in the dts per board
->
-> So I guess, while the description is not perfect, this patch series still
-> improves the current situation. Or maybe I'm misunderstanding something,
-> and &ext_osc32k node just describes a fact that there's a crystal on
-> the board. Then, everything is perhaps fine. :)
-
-Correct. The external clock nodes are modeling the crystal, not the internal
-clock gate / distributor.
-
-Were the vendor to not include the crystal (for whatever reasons), the DT
-should be able to describe it via the absence of the clock input, and the
-driver should correctly use the internal (inaccurate) oscillator. I realize
-the clocks property is required, and the driver doesn't handle this case
-either, so we might have to fix that if it were to appear in the wild.
-
-> For now, the enable bit for this oscillator is toggled by the re-parenting
-> code automatically, as needed.
-
-That's fine. No need to increase the clock tree depth.
-
-ChenYu
-
-> This patchset is necessary for implementing the WiFi/Bluetooth support
-> on boards using H6 SoC.
->
-> Please take a look.
->
-> Thank you and regards,
->   Ondrej Jirman
->
-> Ondrej Jirman (3):
->   dt-bindings: Add compatible for H6 RTC
->   rtc: sun6i: Add support for H6 RTC
->   arm64: dts: sun50i-h6: Add support for RTC and fix the clock tree
->
->  .../devicetree/bindings/rtc/sun6i-rtc.txt     |  1 +
->  arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi  | 30 +++++++-------
->  drivers/rtc/rtc-sun6i.c                       | 40 ++++++++++++++++++-
->  3 files changed, 55 insertions(+), 16 deletions(-)
->
-> --
-> 2.21.0
->
-> --
-> You received this message because you are subscribed to the Google Groups "linux-sunxi" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to linux-sunxi+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
+Shawn
