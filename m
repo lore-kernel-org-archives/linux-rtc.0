@@ -4,85 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A20C10F14
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:35:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A26F4C10F13
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 09:34:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B29742073F
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:35:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70E6320651
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 09:34:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbfDPIeu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 16 Apr 2019 04:34:50 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:43071 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726576AbfDPIeu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 04:34:50 -0400
-Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id C0E6D240008;
-        Tue, 16 Apr 2019 08:34:45 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/5] rtc: imxdi: switch to rtc_time64_to_tm/rtc_tm_to_time64
-Date:   Tue, 16 Apr 2019 10:34:29 +0200
-Message-Id: <20190416083432.14483-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190416083432.14483-1-alexandre.belloni@bootlin.com>
-References: <20190416083432.14483-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1728336AbfDPJeN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Apr 2019 05:34:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41622 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726739AbfDPJeN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 16 Apr 2019 05:34:13 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id C893BAE12;
+        Tue, 16 Apr 2019 09:34:11 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Joshua Kinard <kumba@gentoo.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] rtc: ds1685: remove dead code
+Date:   Tue, 16 Apr 2019 11:34:03 +0200
+Message-Id: <20190416093404.6785-1-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.13.7
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Call the 64bit versions of rtc_tm time conversion now that the range is
-enforced by the core.
+ds1685_rtc_begin_ctrl_access/ds1685_rtc_end_ctrl_access aren't used,
+so get rid of it.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 ---
- drivers/rtc/rtc-imxdi.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-ds1685.c | 36 ------------------------------------
+ 1 file changed, 36 deletions(-)
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index 43d9cad69241..8a7ad1502e4f 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -552,7 +552,7 @@ static int dryice_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	unsigned long now;
- 
- 	now = readl(imxdi->ioaddr + DTCMR);
--	rtc_time_to_tm(now, tm);
-+	rtc_time64_to_tm(now, tm);
- 
- 	return 0;
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 2f5194df239e..33781be58f16 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -192,42 +192,6 @@ ds1685_rtc_end_data_access(struct ds1685_priv *rtc)
  }
-@@ -618,7 +618,7 @@ static int dryice_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	u32 dcamr;
  
- 	dcamr = readl(imxdi->ioaddr + DCAMR);
--	rtc_time_to_tm(dcamr, &alarm->time);
-+	rtc_time64_to_tm(dcamr, &alarm->time);
- 
- 	/* alarm is enabled if the interrupt is enabled */
- 	alarm->enabled = (readl(imxdi->ioaddr + DIER) & DIER_CAIE) != 0;
-@@ -644,9 +644,7 @@ static int dryice_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	unsigned long alarm_time;
- 	int rc;
- 
--	rc = rtc_tm_to_time(&alarm->time, &alarm_time);
--	if (rc)
--		return rc;
-+	alarm_time = rtc_tm_to_time64(&alarm->time);
- 
- 	/* don't allow setting alarm in the past */
- 	now = readl(imxdi->ioaddr + DTCMR);
+ /**
+- * ds1685_rtc_begin_ctrl_access - prepare the rtc for ctrl access.
+- * @rtc: pointer to the ds1685 rtc structure.
+- * @flags: irq flags variable for spin_lock_irqsave.
+- *
+- * This takes several steps to prepare the rtc for access to read just the
+- * control registers:
+- *  - Sets a spinlock on the rtc IRQ.
+- *  - Switches the rtc to bank 1.  This allows access to the two extended
+- *    control registers.
+- *
+- * Only use this where you are certain another lock will not be held.
+- */
+-static inline void
+-ds1685_rtc_begin_ctrl_access(struct ds1685_priv *rtc, unsigned long *flags)
+-{
+-	spin_lock_irqsave(&rtc->lock, *flags);
+-	ds1685_rtc_switch_to_bank1(rtc);
+-}
+-
+-/**
+- * ds1685_rtc_end_ctrl_access - end ctrl access on the rtc.
+- * @rtc: pointer to the ds1685 rtc structure.
+- * @flags: irq flags variable for spin_unlock_irqrestore.
+- *
+- * This ends what was started by ds1685_rtc_begin_ctrl_access:
+- *  - Switches the rtc back to bank 0.
+- *  - Unsets the spinlock on the rtc IRQ.
+- */
+-static inline void
+-ds1685_rtc_end_ctrl_access(struct ds1685_priv *rtc, unsigned long flags)
+-{
+-	ds1685_rtc_switch_to_bank0(rtc);
+-	spin_unlock_irqrestore(&rtc->lock, flags);
+-}
+-
+-/**
+  * ds1685_rtc_get_ssn - retrieve the silicon serial number.
+  * @rtc: pointer to the ds1685 rtc structure.
+  * @ssn: u8 array to hold the bits of the silicon serial number.
 -- 
-2.20.1
+2.13.7
 
