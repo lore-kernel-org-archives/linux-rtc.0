@@ -2,252 +2,271 @@ Return-Path: <SRS0=M8gk=SS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EBD3C10F13
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 20:21:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE53FC10F14
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 20:21:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 65FF820663
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 20:21:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 809C320663
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 20:21:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730656AbfDPUVm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 16 Apr 2019 16:21:42 -0400
-Received: from mout.kundenserver.de ([212.227.126.134]:48463 "EHLO
+        id S1730390AbfDPUVu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Apr 2019 16:21:50 -0400
+Received: from mout.kundenserver.de ([212.227.126.134]:46449 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730022AbfDPUVj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 16:21:39 -0400
+        with ESMTP id S1730022AbfDPUVr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 16:21:47 -0400
 Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
  (mreue012 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1MK5BG-1hYhwa1x9y-00LYy0; Tue, 16 Apr 2019 22:20:34 +0200
+ 1MK5BG-1hYhvb2HTK-00LYy0; Tue, 16 Apr 2019 22:21:37 +0200
 From:   Arnd Bergmann <arnd@arndb.de>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>
 Cc:     linux-fsdevel@vger.kernel.org, y2038@lists.linaro.org,
         linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Karsten Keil <isdn@linux-pingi.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Marcel Holtmann <marcel@holtmann.org>, netdev@vger.kernel.org,
-        devel@driverdev.osuosl.org, linux-integrity@vger.kernel.org,
-        qat-linux@intel.com, linux-crypto@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux1394-devel@lists.sourceforge.net,
-        amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-ide@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-mtd@lists.infradead.org, linux-ppp@vger.kernel.org,
-        linux-nvme@lists.infradead.org,
-        platform-driver-x86@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        linux-bluetooth@vger.kernel.org, linux-wireless@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH v3 00/26] compat_ioctl: cleanups
-Date:   Tue, 16 Apr 2019 22:19:38 +0200
-Message-Id: <20190416202013.4034148-1-arnd@arndb.de>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v3 07/26] compat_ioctl: move rtc handling into rtc-dev.c
+Date:   Tue, 16 Apr 2019 22:19:45 +0200
+Message-Id: <20190416202013.4034148-8-arnd@arndb.de>
 X-Mailer: git-send-email 2.20.0
+In-Reply-To: <20190416202013.4034148-1-arnd@arndb.de>
+References: <20190416202013.4034148-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:mvmRBVqmcY1mhupTDI+zdTPTOsWPDzdt5BCk66I7Xg6IdvERZEQ
- hRpELhbiULHqPfrFcKxAriH7V1lp/edkgqwfhvhGT7toE1JGZlBQqZQbzlO+eWCP2ER4sRI
- in0P9PUn+JskXwI/0DeODFTzggwqBwkA2RyOC6uS1Bny6OQqf072778J9AqViE858nJkb+Q
- eFCv7b9/d64u+uVjuBSrw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:4YXF1UI2n5Q=:2lrB6KN7HwAQtli1cWDOA1
- ltGxgBmWd8Fqoc71LQ8VzLwWLaNvj+CW12qPzYpO1l8AZdyrYZyP0N4PsQEdUAbJF5uuHUksh
- n1DDxCihVRi61gQcMVsrO1pG1YPKFaPQzVTeaYOpxWoNb8K7HJ6r7ksA8P1//8F3tGpjLIpsr
- 2uGXhdguNTKZ6RC0DDjnP6sKO4k4wGK3n2+VH2IapXNqay1Rnxy7n/3KNpwoEzu7pus3KhjDx
- trDD0YdU4bzJfV+eAUb2FrbQXzjNf2xES3GuI7loJs5iR+V11xnIRGXgjJCR0qspPApVJfBmX
- neVC6QfvFYilQE6IOSF/4bAOsLC5A4r2kszz8FpAuwQjmxBVdxeXF7FMMjiFg8BnAKBbvAC1T
- xhQmG9hQmHoOtQ/Yr6HU7Tfy/zeLAVW4SVL/VydRuFf8DXue+RdSJDb3hpccGIeb63LIO0G1v
- e4XgL55OxAPj4vXQqm4d1WoYV+utT6+JgILxp13ecCuEqq3MqpBOPkc8XNWr+Ry55jDDjAt8C
- aP7iHyI2Tqmu7o1RFZ5HsozgGiVuoCefRN8AJnp/570z1fB0aVB4uY6jaGNmZfRjyOtrb1EjF
- HD/vjiujlkTbHo3Fk9GP+W2YVhzzod6JubIkdRkIipbXVKbSLHv0aXWv5TVkWWJriq1edvctS
- KJqDn2/1AHnjJ2I6pcNw1jOdZrwlt0opNSNamI11DM7UpEi4Woh+mGm9U1Ei44E6M0mpM6Xnl
- pi7O5Ccuju0WtClcha6vz7mVFLqKwYrWB1kFcA==
+X-Provags-ID: V03:K1:B2ClSMSiEFlnaEEi3ndg7yav6kA3YQMp22nXP4yMYACDK4GCVb8
+ so8/3NOd0R8UETnhaAWoNo8PJueRe4PlnmV/ESRHVb3ZnuTV5i0rkpbg5tGVq6jeY3MfCJo
+ KONeeBv5yswcOlSgGCwuYRDAJLVMmi0N+iCoOX88gKvK6v6vqiPXb9upPHvJu3hptAjzTpl
+ 7S7kIEa+X35b9UoxeZu5w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:0MmAwt7Sbvk=:fEf2j0EDW7jMOmEKI61Onk
+ /uMt4yFXfPUDC7H4WXsovokdtvCOqDjm6IRHEvf4NYW3a/7GaCwJDf/3Ol+Pt5UwAEvBSQe8t
+ OEposH/RXVTu0ClMzs0XJCZvW8fzHX73ugPoirOpNOyaX4IXHCxhnLx3S1Llx30mPFm98bRL7
+ t55yZp4xJnlRHsTKBp6RGd5SiAeBVuJX+QgITzgCiwUQRyNAkNl0BmqpEeN1Sx7q1EfKYkK0I
+ 0CbczoMSrnbTnX+CZLsHjg3rMpqfdevS143P1REMXfveYLfQYRc8XeyRWsEzOtnSlZSS13ilJ
+ OGrUCB2767hNAr1W7Jy9fxX+WRSE0NLbUiaRCX8PV7js/RAQHYG8ibFCk8G7C2ianjgNu6w2z
+ K64IkyPiss326rAkjXrkOEdqYjp0kx12/hNbKVPYTP7bXR9JvQ+LlUhddRT9z7Mn5B8RojJ59
+ NbgzhqenuM+Kcw8PFMuo3A6A3JclLy1pde+oP0UF/wDyfEvr8jYsHi+lbVQa0hZ5MJF0LF+l1
+ MRiTB4Zw3aDerVOrWdxaxYWSjG3fr1uwv8QmowYuhsWD0adelfl6/+jnuyXZ4b1fmvzTLWkE5
+ jnqO/QnFYJgsDUGdxOhKQq21e2c9ByLOR9HITFiKHtyMXg3EzlnBByF6rSSZW/OUHHEfm7JCf
+ 8stZMR4cVAzwcEVek1O9IFmr7nIsOlfPRM0o5g1B8yyYeFUDZkTTWO6il8Jj7LDU9mBvJ8MQu
+ Oab33A9/ZJL/xvy/JnrRQUqyOADHsS46zhjoDQ==
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Al,
+We no longer need the rtc compat handling to be in common code, now that
+all drivers are either moved to the rtc-class framework, or (rarely)
+exist in drivers/char for architectures without compat mode (m68k,
+alpha and ia64, respectively).
 
-It took me way longer than I had hoped to revisit this series, see
-https://lore.kernel.org/lkml/20180912150142.157913-1-arnd@arndb.de/
-for the previously posted version.
+I checked the list of ioctl commands in drivers, and the ones that are
+not already handled are all compatible, again with the one exception of
+m68k driver, which implements RTC_PLL_GET and RTC_PLL_SET, but has no
+compat mode.
 
-I've come to the point where all conversion handlers and most
-COMPATIBLE_IOCTL() entries are gone from this file, but for
-now, this series only has the parts that have either been reviewed
-previously, or that are simple enough to include.
+Since the ioctl commands are either compatible or differ in both structure
+and command code between 32-bit and 64-bit, we can merge the compat
+handler into the native one and just implement the two common compat
+commands (RTC_IRQP_READ, RTC_IRQP_SET) there. The result is a slight
+change in behavior, as a native 64-bit process will now also handle the
+32-bit commands (RTC_IRQP_SET32/RTC_IRQP_SET).
 
-The main missing piece is the SG_IO/SG_GET_REQUEST_TABLE conversion.
-I'll post the patches I made for that later, as they need more
-testing and review from the scsi maintainers.
+The old conversion handler also deals with RTC_EPOCH_READ and
+RTC_EPOCH_SET, which are not handled in rtc-dev.c but only in a single
+device driver (rtc-vr41xx), so I'm adding the compat version in the same
+place. I don't expect other drivers to need those commands in the future.
 
-I hope you can still take these for the coming merge window, unless
-new problems come up.
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+v2: merge compat handler into ioctl function to avoid the
+    compat_alloc_user_space() roundtrip, based on feedback
+    from Al Viro.
+---
+ drivers/rtc/dev.c        | 13 ++++++++-
+ drivers/rtc/rtc-vr41xx.c | 10 +++++++
+ fs/compat_ioctl.c        | 61 ++--------------------------------------
+ 3 files changed, 25 insertions(+), 59 deletions(-)
 
-      Arnd
-
-Arnd Bergmann (26):
-  compat_ioctl: pppoe: fix PPPOEIOCSFWD handling
-  compat_ioctl: move simple ppp command handling into driver
-  compat_ioctl: avoid unused function warning for do_ioctl
-  compat_ioctl: move PPPIOCSCOMPRESS32 to ppp-generic.c
-  compat_ioctl: move PPPIOCSPASS32/PPPIOCSACTIVE32 to ppp_generic.c
-  compat_ioctl: handle PPPIOCGIDLE for 64-bit time_t
-  compat_ioctl: move rtc handling into rtc-dev.c
-  compat_ioctl: add compat_ptr_ioctl()
-  compat_ioctl: move drivers to compat_ptr_ioctl
-  compat_ioctl: use correct compat_ptr() translation in drivers
-  ceph: fix compat_ioctl for ceph_dir_operations
-  compat_ioctl: move more drivers to compat_ptr_ioctl
-  compat_ioctl: move tape handling into drivers
-  compat_ioctl: move ATYFB_CLK handling to atyfb driver
-  compat_ioctl: move isdn/capi ioctl translation into driver
-  compat_ioctl: move rfcomm handlers into driver
-  compat_ioctl: move hci_sock handlers into driver
-  compat_ioctl: remove HCIUART handling
-  compat_ioctl: remove HIDIO translation
-  compat_ioctl: remove translation for sound ioctls
-  compat_ioctl: remove IGNORE_IOCTL()
-  compat_ioctl: remove /dev/random commands
-  compat_ioctl: remove joystick ioctl translation
-  compat_ioctl: remove PCI ioctl translation
-  compat_ioctl: remove /dev/raw ioctl translation
-  compat_ioctl: remove last RAID handling code
-
- Documentation/networking/ppp_generic.txt    |   2 +
- arch/um/drivers/hostaudio_kern.c            |   1 +
- drivers/android/binder.c                    |   2 +-
- drivers/char/ppdev.c                        |  12 +-
- drivers/char/random.c                       |   1 +
- drivers/char/tpm/tpm_vtpm_proxy.c           |  12 +-
- drivers/crypto/qat/qat_common/adf_ctl_drv.c |   2 +-
- drivers/dma-buf/dma-buf.c                   |   4 +-
- drivers/dma-buf/sw_sync.c                   |   2 +-
- drivers/dma-buf/sync_file.c                 |   2 +-
- drivers/firewire/core-cdev.c                |  12 +-
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c    |   2 +-
- drivers/hid/hidraw.c                        |   4 +-
- drivers/hid/usbhid/hiddev.c                 |  11 +-
- drivers/hwtracing/stm/core.c                |  12 +-
- drivers/ide/ide-tape.c                      |  31 +-
- drivers/iio/industrialio-core.c             |   2 +-
- drivers/infiniband/core/uverbs_main.c       |   4 +-
- drivers/isdn/capi/capi.c                    |  31 +
- drivers/isdn/i4l/isdn_ppp.c                 |  14 +-
- drivers/media/rc/lirc_dev.c                 |   4 +-
- drivers/mfd/cros_ec_dev.c                   |   4 +-
- drivers/misc/cxl/flash.c                    |   8 +-
- drivers/misc/genwqe/card_dev.c              |  23 +-
- drivers/misc/mei/main.c                     |  22 +-
- drivers/misc/vmw_vmci/vmci_host.c           |   2 +-
- drivers/mtd/ubi/cdev.c                      |  36 +-
- drivers/net/ppp/ppp_generic.c               |  99 +++-
- drivers/net/ppp/pppoe.c                     |   7 +
- drivers/net/ppp/pptp.c                      |   3 +
- drivers/net/tap.c                           |  12 +-
- drivers/nvdimm/bus.c                        |   4 +-
- drivers/nvme/host/core.c                    |   2 +-
- drivers/pci/switch/switchtec.c              |   2 +-
- drivers/platform/x86/wmi.c                  |   2 +-
- drivers/rpmsg/rpmsg_char.c                  |   4 +-
- drivers/rtc/dev.c                           |  13 +-
- drivers/rtc/rtc-vr41xx.c                    |  10 +
- drivers/s390/char/tape_char.c               |  41 +-
- drivers/sbus/char/display7seg.c             |   2 +-
- drivers/sbus/char/envctrl.c                 |   4 +-
- drivers/scsi/3w-xxxx.c                      |   4 +-
- drivers/scsi/cxlflash/main.c                |   2 +-
- drivers/scsi/esas2r/esas2r_main.c           |   2 +-
- drivers/scsi/megaraid/megaraid_mm.c         |  28 +-
- drivers/scsi/osst.c                         |  34 +-
- drivers/scsi/pmcraid.c                      |   4 +-
- drivers/scsi/st.c                           |  35 +-
- drivers/staging/android/ion/ion.c           |   4 +-
- drivers/staging/pi433/pi433_if.c            |  12 +-
- drivers/staging/vme/devices/vme_user.c      |   2 +-
- drivers/tee/tee_core.c                      |   2 +-
- drivers/usb/class/cdc-wdm.c                 |   2 +-
- drivers/usb/class/usbtmc.c                  |   4 +-
- drivers/usb/core/devio.c                    |  16 +-
- drivers/usb/gadget/function/f_fs.c          |  12 +-
- drivers/vfio/vfio.c                         |  39 +-
- drivers/vhost/net.c                         |  12 +-
- drivers/vhost/scsi.c                        |  12 +-
- drivers/vhost/test.c                        |  12 +-
- drivers/vhost/vsock.c                       |  12 +-
- drivers/video/fbdev/aty/atyfb_base.c        |  12 +-
- drivers/virt/fsl_hypervisor.c               |   2 +-
- fs/btrfs/super.c                            |   2 +-
- fs/ceph/dir.c                               |   1 +
- fs/ceph/file.c                              |   2 +-
- fs/compat_ioctl.c                           | 602 +-------------------
- fs/fat/file.c                               |  13 +-
- fs/fuse/dev.c                               |   2 +-
- fs/notify/fanotify/fanotify_user.c          |   2 +-
- fs/userfaultfd.c                            |   2 +-
- include/linux/fs.h                          |   7 +
- include/linux/if_pppox.h                    |   2 +
- include/linux/mtio.h                        |  58 ++
- include/uapi/linux/ppp-ioctl.h              |   2 +
- include/uapi/linux/ppp_defs.h               |  14 +
- net/bluetooth/hci_sock.c                    |  21 +-
- net/bluetooth/rfcomm/sock.c                 |  14 +-
- net/l2tp/l2tp_ppp.c                         |   3 +
- net/rfkill/core.c                           |   2 +-
- sound/core/oss/pcm_oss.c                    |   4 +
- sound/oss/dmasound/dmasound_core.c          |   2 +
- 82 files changed, 452 insertions(+), 1034 deletions(-)
- create mode 100644 include/linux/mtio.h
-
+diff --git a/drivers/rtc/dev.c b/drivers/rtc/dev.c
+index 1d006ef4bb57..a63779ccc8aa 100644
+--- a/drivers/rtc/dev.c
++++ b/drivers/rtc/dev.c
+@@ -13,6 +13,7 @@
+ 
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
++#include <linux/compat.h>
+ #include <linux/module.h>
+ #include <linux/rtc.h>
+ #include <linux/sched/signal.h>
+@@ -359,10 +360,19 @@ static long rtc_dev_ioctl(struct file *file,
+ 		mutex_unlock(&rtc->ops_lock);
+ 		return rtc_update_irq_enable(rtc, 0);
+ 
++#ifdef CONFIG_64BIT
++#define RTC_IRQP_SET32		_IOW('p', 0x0c, __u32)
++#define RTC_IRQP_READ32		_IOR('p', 0x0b, __u32)
++	case RTC_IRQP_SET32:
++		err = rtc_irq_set_freq(rtc, arg);
++		break;
++	case RTC_IRQP_READ32:
++		err = put_user(rtc->irq_freq, (unsigned int __user *)uarg);
++		break;
++#endif
+ 	case RTC_IRQP_SET:
+ 		err = rtc_irq_set_freq(rtc, arg);
+ 		break;
+-
+ 	case RTC_IRQP_READ:
+ 		err = put_user(rtc->irq_freq, (unsigned long __user *)uarg);
+ 		break;
+@@ -434,6 +444,7 @@ static const struct file_operations rtc_dev_fops = {
+ 	.read		= rtc_dev_read,
+ 	.poll		= rtc_dev_poll,
+ 	.unlocked_ioctl	= rtc_dev_ioctl,
++	.compat_ioctl	= compat_ptr_ioctl,
+ 	.open		= rtc_dev_open,
+ 	.release	= rtc_dev_release,
+ 	.fasync		= rtc_dev_fasync,
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index e66d0f63cee2..62c16a3b2d5c 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -17,6 +17,7 @@
+  *  along with this program; if not, write to the Free Software
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
++#include <linux/compat.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/init.h>
+@@ -79,6 +80,10 @@ static void __iomem *rtc2_base;
+ #define rtc2_read(offset)		readw(rtc2_base + (offset))
+ #define rtc2_write(offset, value)	writew((value), rtc2_base + (offset))
+ 
++/* 32-bit compat for ioctls that nobody else uses */
++#define RTC_EPOCH_READ32	_IOR('p', 0x0d, __u32)
++#define RTC_EPOCH_SET32		_IOW('p', 0x0e, __u32)
++
+ static unsigned long epoch = 1970;	/* Jan 1 1970 00:00:00 */
+ 
+ static DEFINE_SPINLOCK(rtc_lock);
+@@ -192,6 +197,11 @@ static int vr41xx_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long
+ 	switch (cmd) {
+ 	case RTC_EPOCH_READ:
+ 		return put_user(epoch, (unsigned long __user *)arg);
++#ifdef CONFIG_64BIT
++	case RTC_EPOCH_READ32:
++		return put_user(epoch, (unsigned int __user *)arg);
++	case RTC_EPOCH_SET32:
++#endif
+ 	case RTC_EPOCH_SET:
+ 		/* Doesn't support before 1900 */
+ 		if (arg < 1900)
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index e6dbd956cf66..fee116e822d8 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -32,7 +32,6 @@
+ #include <linux/vt_kern.h>
+ #include <linux/raw.h>
+ #include <linux/blkdev.h>
+-#include <linux/rtc.h>
+ #include <linux/pci.h>
+ #include <linux/serial.h>
+ #include <linux/ctype.h>
+@@ -343,37 +342,6 @@ static int mt_ioctl_trans(struct file *file,
+ #define HCIUARTSETFLAGS		_IOW('U', 203, int)
+ #define HCIUARTGETFLAGS		_IOR('U', 204, int)
+ 
+-#define RTC_IRQP_READ32		_IOR('p', 0x0b, compat_ulong_t)
+-#define RTC_IRQP_SET32		_IOW('p', 0x0c, compat_ulong_t)
+-#define RTC_EPOCH_READ32	_IOR('p', 0x0d, compat_ulong_t)
+-#define RTC_EPOCH_SET32		_IOW('p', 0x0e, compat_ulong_t)
+-
+-static int rtc_ioctl(struct file *file,
+-		unsigned cmd, void __user *argp)
+-{
+-	unsigned long __user *valp = compat_alloc_user_space(sizeof(*valp));
+-	int ret;
+-
+-	if (valp == NULL)
+-		return -EFAULT;
+-	switch (cmd) {
+-	case RTC_IRQP_READ32:
+-	case RTC_EPOCH_READ32:
+-		ret = do_ioctl(file, (cmd == RTC_IRQP_READ32) ?
+-					RTC_IRQP_READ : RTC_EPOCH_READ,
+-					(unsigned long)valp);
+-		if (ret)
+-			return ret;
+-		return convert_in_user(valp, (unsigned int __user *)argp);
+-	case RTC_IRQP_SET32:
+-		return do_ioctl(file, RTC_IRQP_SET, (unsigned long)argp);
+-	case RTC_EPOCH_SET32:
+-		return do_ioctl(file, RTC_EPOCH_SET, (unsigned long)argp);
+-	}
+-
+-	return -ENOIOCTLCMD;
+-}
+-
+ /* on ia32 l_start is on a 32-bit boundary */
+ #if defined(CONFIG_IA64) || defined(CONFIG_X86_64)
+ struct space_resv_32 {
+@@ -457,21 +425,6 @@ COMPATIBLE_IOCTL(SCSI_IOCTL_GET_PCI)
+ /* Big V (don't complain on serial console) */
+ IGNORE_IOCTL(VT_OPENQRY)
+ IGNORE_IOCTL(VT_GETMODE)
+-/* Little p (/dev/rtc, /dev/envctrl, etc.) */
+-COMPATIBLE_IOCTL(RTC_AIE_ON)
+-COMPATIBLE_IOCTL(RTC_AIE_OFF)
+-COMPATIBLE_IOCTL(RTC_UIE_ON)
+-COMPATIBLE_IOCTL(RTC_UIE_OFF)
+-COMPATIBLE_IOCTL(RTC_PIE_ON)
+-COMPATIBLE_IOCTL(RTC_PIE_OFF)
+-COMPATIBLE_IOCTL(RTC_WIE_ON)
+-COMPATIBLE_IOCTL(RTC_WIE_OFF)
+-COMPATIBLE_IOCTL(RTC_ALM_SET)
+-COMPATIBLE_IOCTL(RTC_ALM_READ)
+-COMPATIBLE_IOCTL(RTC_RD_TIME)
+-COMPATIBLE_IOCTL(RTC_SET_TIME)
+-COMPATIBLE_IOCTL(RTC_WKALM_SET)
+-COMPATIBLE_IOCTL(RTC_WKALM_RD)
+ /*
+  * These two are only for the sbus rtc driver, but
+  * hwclock tries them on every rtc device first when
+@@ -806,24 +759,16 @@ IGNORE_IOCTL(FBIOGCURSOR32)
+ static long do_ioctl_trans(unsigned int cmd,
+ 		 unsigned long arg, struct file *file)
+ {
+-	void __user *argp = compat_ptr(arg);
+-
+ 	switch (cmd) {
+ #ifdef CONFIG_BLOCK
+ 	case SG_IO:
+-		return sg_ioctl_trans(file, cmd, argp);
++		return sg_ioctl_trans(file, cmd, compat_ptr(arg));
+ 	case SG_GET_REQUEST_TABLE:
+-		return sg_grt_trans(file, cmd, argp);
++		return sg_grt_trans(file, cmd, compat_ptr(arg));
+ 	case MTIOCGET32:
+ 	case MTIOCPOS32:
+-		return mt_ioctl_trans(file, cmd, argp);
++		return mt_ioctl_trans(file, cmd, compat_ptr(arg));
+ #endif
+-	/* Not implemented in the native kernel */
+-	case RTC_IRQP_READ32:
+-	case RTC_IRQP_SET32:
+-	case RTC_EPOCH_READ32:
+-	case RTC_EPOCH_SET32:
+-		return rtc_ioctl(file, cmd, argp);
+ 	}
+ 
+ 	/*
 -- 
 2.20.0
 
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Karsten Keil <isdn@linux-pingi.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: devel@driverdev.osuosl.org
-Cc: linux-integrity@vger.kernel.org
-Cc: qat-linux@intel.com
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux1394-devel@lists.sourceforge.net
-Cc: amd-gfx@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-ide@vger.kernel.org
-Cc: linux-iio@vger.kernel.org
-Cc: linux-rdma@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-mtd@lists.infradead.org
-Cc: linux-ppp@vger.kernel.org
-Cc: linux-nvme@lists.infradead.org
-Cc: platform-driver-x86@vger.kernel.org
-Cc: linux-remoteproc@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-s390@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: linux-fbdev@vger.kernel.org
-Cc: linux-btrfs@vger.kernel.org
-Cc: ceph-devel@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: linux-bluetooth@vger.kernel.org
-Cc: linux-wireless@vger.kernel.org
-Cc: alsa-devel@alsa-project.org
-Cc: y2038@lists.linaro.org
