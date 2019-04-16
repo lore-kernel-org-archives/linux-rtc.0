@@ -1,60 +1,92 @@
-Return-Path: <SRS0=Bgbz=SR=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=M8gk=SS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F9DCC10F0E
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 15:34:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E312C10F13
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:30:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E75C02075B
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Apr 2019 15:34:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 248312073F
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:30:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727143AbfDOPer (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 15 Apr 2019 11:34:47 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:49803 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726785AbfDOPer (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 15 Apr 2019 11:34:47 -0400
+        id S1726576AbfDPIaw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Apr 2019 04:30:52 -0400
+Received: from relay5-d.mail.gandi.net ([217.70.183.197]:40423 "EHLO
+        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725840AbfDPIaw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 04:30:52 -0400
 X-Originating-IP: 109.212.207.226
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 8077740007;
-        Mon, 15 Apr 2019 15:34:45 +0000 (UTC)
-Date:   Mon, 15 Apr 2019 17:34:45 +0200
+        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id EBD2B1C0007;
+        Tue, 16 Apr 2019 08:30:49 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Mastro Gippo <gipmad@gmail.com>
-Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org
-Subject: Re: Infinite loop on edge cases
-Message-ID: <20190415153444.GI3578@piout.net>
-References: <CADjOgT97-8PM1=Nm+Mk4jw_8vzt3i9KXUohDAkUsptxS7JuU6Q@mail.gmail.com>
- <20190409090119.GT7480@piout.net>
- <CADjOgT-BK2SyoZD76iLj-fYG-7-2G0SvkFC4M6zakQc+7Q3g_w@mail.gmail.com>
- <20190409112754.GU7480@piout.net>
- <CADjOgT8-C+6WO0Y9c2bDJJhTcpMkKozcru0SuWOEO_Xa6v5hyg@mail.gmail.com>
+To:     linux-rtc@vger.kernel.org
+Cc:     Fabio Estevam <fabio.estevam@nxp.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/3] rtc: mxc: fix possible race condition
+Date:   Tue, 16 Apr 2019 10:30:43 +0200
+Message-Id: <20190416083045.13924-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADjOgT8-C+6WO0Y9c2bDJJhTcpMkKozcru0SuWOEO_Xa6v5hyg@mail.gmail.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-On 09/04/2019 16:35:29+0200, Mastro Gippo wrote:
-> Thanks Alexandre, let me know if you need help testing the patches
-> when they're available.
-> I can "simulate" various failure modes on my hardware.
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+struct before requesting the IRQ.
 
-Did you have a chance to test the patch I sent?
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-mxc.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
+index 708b9e9b86a6..d9a038afedf0 100644
+--- a/drivers/rtc/rtc-mxc.c
++++ b/drivers/rtc/rtc-mxc.c
+@@ -340,6 +340,13 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->ioaddr))
+ 		return PTR_ERR(pdata->ioaddr);
+ 
++	rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	pdata->rtc = rtc;
++	rtc->ops = &mxc_rtc_ops;
++
+ 	pdata->clk_ipg = devm_clk_get(&pdev->dev, "ipg");
+ 	if (IS_ERR(pdata->clk_ipg)) {
+ 		dev_err(&pdev->dev, "unable to get ipg clock!\n");
+@@ -402,14 +409,9 @@ static int mxc_rtc_probe(struct platform_device *pdev)
+ 			dev_err(&pdev->dev, "failed to enable irq wake\n");
+ 	}
+ 
+-	rtc = devm_rtc_device_register(&pdev->dev, pdev->name, &mxc_rtc_ops,
+-				  THIS_MODULE);
+-	if (IS_ERR(rtc)) {
+-		ret = PTR_ERR(rtc);
++	ret = rtc_register_device(rtc);
++	if (ret)
+ 		goto exit_put_clk_ref;
+-	}
+-
+-	pdata->rtc = rtc;
+ 
+ 	return 0;
+ 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
