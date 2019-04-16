@@ -4,37 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F5C7C10F14
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:31:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8701C10F14
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:33:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 36A412086A
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:31:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B144420868
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Apr 2019 08:33:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725840AbfDPIbA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 16 Apr 2019 04:31:00 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:34915 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728717AbfDPIaz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 04:30:55 -0400
-X-Originating-IP: 109.212.207.226
+        id S1728775AbfDPIdS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Apr 2019 04:33:18 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:36401 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728748AbfDPIdR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Apr 2019 04:33:17 -0400
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id D65121C0007;
-        Tue, 16 Apr 2019 08:30:52 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 4280D20000F;
+        Tue, 16 Apr 2019 08:33:15 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
-Cc:     Fabio Estevam <fabio.estevam@nxp.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        linux-kernel@vger.kernel.org,
+Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/3] rtc: mxc: use .set_time
-Date:   Tue, 16 Apr 2019 10:30:45 +0200
-Message-Id: <20190416083045.13924-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/4] rtc: mc13xxx: fix style issue
+Date:   Tue, 16 Apr 2019 10:33:08 +0200
+Message-Id: <20190416083308.14220-4-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190416083045.13924-1-alexandre.belloni@bootlin.com>
-References: <20190416083045.13924-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20190416083308.14220-1-alexandre.belloni@bootlin.com>
+References: <20190416083308.14220-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -42,38 +39,26 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use .set_time instead of the deprecated .set_mmss64.
+Use unsigned int instead of unsigned.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-mxc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-mc13xxx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mxc.c b/drivers/rtc/rtc-mxc.c
-index 31d3f375bc0f..e697e96612bb 100644
---- a/drivers/rtc/rtc-mxc.c
-+++ b/drivers/rtc/rtc-mxc.c
-@@ -254,8 +254,10 @@ static int mxc_rtc_read_time(struct device *dev, struct rtc_time *tm)
- /*
-  * This function sets the internal RTC time based on tm in Gregorian date.
-  */
--static int mxc_rtc_set_mmss(struct device *dev, time64_t time)
-+static int mxc_rtc_set_time(struct device *dev, struct rtc_time *tm)
+diff --git a/drivers/rtc/rtc-mc13xxx.c b/drivers/rtc/rtc-mc13xxx.c
+index 475def1604e6..afce2c0b4bd6 100644
+--- a/drivers/rtc/rtc-mc13xxx.c
++++ b/drivers/rtc/rtc-mc13xxx.c
+@@ -155,7 +155,7 @@ static int mc13xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static int mc13xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
  {
-+	time64_t time = rtc_tm_to_time64(tm);
-+
- 	/* Avoid roll-over from reading the different registers */
- 	do {
- 		set_alarm_or_time(dev, MXC_RTC_TIME, time);
-@@ -298,7 +300,7 @@ static int mxc_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- /* RTC layer */
- static const struct rtc_class_ops mxc_rtc_ops = {
- 	.read_time		= mxc_rtc_read_time,
--	.set_mmss64		= mxc_rtc_set_mmss,
-+	.set_time		= mxc_rtc_set_time,
- 	.read_alarm		= mxc_rtc_read_alarm,
- 	.set_alarm		= mxc_rtc_set_alarm,
- 	.alarm_irq_enable	= mxc_rtc_alarm_irq_enable,
+ 	struct mc13xxx_rtc *priv = dev_get_drvdata(dev);
+-	unsigned seconds, days;
++	unsigned int seconds, days;
+ 	time64_t s1970;
+ 	int enabled, pending;
+ 	int ret;
 -- 
 2.20.1
 
