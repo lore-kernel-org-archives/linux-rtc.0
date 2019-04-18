@@ -6,32 +6,31 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_RHS_DOB,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B23C282DD
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5A8FC10F14
 	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:01:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB33021479
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:01:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 84D0121479
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:01:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388673AbfDRKBG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 Apr 2019 06:01:06 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:49113 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388664AbfDRKBG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Apr 2019 06:01:06 -0400
-X-Originating-IP: 109.212.207.226
+        id S2388667AbfDRKBF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Apr 2019 06:01:05 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:43151 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388577AbfDRKBE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Apr 2019 06:01:04 -0400
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 27F5DFF808;
-        Thu, 18 Apr 2019 10:01:04 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id B7C07240018;
+        Thu, 18 Apr 2019 10:01:01 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Paul Cercueil <paul@crapouillou.net>,
         Mathieu Malaterre <malat@debian.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/7] rtc: jz4740: use dev_pm_set_wake_irq() to simplify code
-Date:   Thu, 18 Apr 2019 12:00:43 +0200
-Message-Id: <20190418100045.29288-5-alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/7] rtc: jz4740: use .set_time
+Date:   Thu, 18 Apr 2019 12:00:42 +0200
+Message-Id: <20190418100045.29288-4-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
 References: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
@@ -42,83 +41,40 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use dev_pm_set_wake_irq() to set the RTC as a wakeup source for suspend.
-This allows to remove the whole dev_pm_ops structure.
+Use .set_time instead of the deprecated .set_mmss.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-jz4740.c | 37 +++++++------------------------------
- 1 file changed, 7 insertions(+), 30 deletions(-)
+ drivers/rtc/rtc-jz4740.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index 91ccb45bb886..fa15ad9fbe13 100644
+index a7e1a382cac5..91ccb45bb886 100644
 --- a/drivers/rtc/rtc-jz4740.c
 +++ b/drivers/rtc/rtc-jz4740.c
-@@ -20,6 +20,7 @@
- #include <linux/module.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/reboot.h>
- #include <linux/rtc.h>
- #include <linux/slab.h>
-@@ -346,6 +347,12 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
-+	ret = dev_pm_set_wake_irq(&pdev->dev, rtc->irq);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to set wake irq: %d\n", ret);
-+		return ret;
-+	}
-+
- 	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc->rtc)) {
- 		ret = PTR_ERR(rtc->rtc);
-@@ -403,35 +410,6 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+@@ -176,11 +176,11 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
  	return 0;
  }
  
--#ifdef CONFIG_PM
--static int jz4740_rtc_suspend(struct device *dev)
--{
--	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
--
--	if (device_may_wakeup(dev))
--		enable_irq_wake(rtc->irq);
--	return 0;
--}
--
--static int jz4740_rtc_resume(struct device *dev)
--{
--	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
--
--	if (device_may_wakeup(dev))
--		disable_irq_wake(rtc->irq);
--	return 0;
--}
--
--static const struct dev_pm_ops jz4740_pm_ops = {
--	.suspend = jz4740_rtc_suspend,
--	.resume  = jz4740_rtc_resume,
--};
--#define JZ4740_RTC_PM_OPS (&jz4740_pm_ops)
--
--#else
--#define JZ4740_RTC_PM_OPS NULL
--#endif  /* CONFIG_PM */
--
- static const struct platform_device_id jz4740_rtc_ids[] = {
- 	{ "jz4740-rtc", ID_JZ4740 },
- 	{ "jz4780-rtc", ID_JZ4780 },
-@@ -443,7 +421,6 @@ static struct platform_driver jz4740_rtc_driver = {
- 	.probe	 = jz4740_rtc_probe,
- 	.driver	 = {
- 		.name  = "jz4740-rtc",
--		.pm    = JZ4740_RTC_PM_OPS,
- 		.of_match_table = of_match_ptr(jz4740_rtc_of_match),
- 	},
- 	.id_table = jz4740_rtc_ids,
+-static int jz4740_rtc_set_mmss(struct device *dev, unsigned long secs)
++static int jz4740_rtc_set_time(struct device *dev, struct rtc_time *time)
+ {
+ 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
+ 
+-	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, secs);
++	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, rtc_tm_to_time64(time));
+ }
+ 
+ static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -223,7 +223,7 @@ static int jz4740_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 
+ static const struct rtc_class_ops jz4740_rtc_ops = {
+ 	.read_time	= jz4740_rtc_read_time,
+-	.set_mmss	= jz4740_rtc_set_mmss,
++	.set_time	= jz4740_rtc_set_time,
+ 	.read_alarm	= jz4740_rtc_read_alarm,
+ 	.set_alarm	= jz4740_rtc_set_alarm,
+ 	.alarm_irq_enable = jz4740_rtc_alarm_irq_enable,
 -- 
 2.20.1
 
