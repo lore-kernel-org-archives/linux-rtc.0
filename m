@@ -4,35 +4,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	URIBL_RHS_DOB,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_RHS_DOB,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C700CC10F0E
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:00:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCFE8C282DD
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:01:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9EB8421479
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:00:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 96AFB21479
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Apr 2019 10:01:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388573AbfDRKA5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 Apr 2019 06:00:57 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:53437 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733049AbfDRKA4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Apr 2019 06:00:56 -0400
-X-Originating-IP: 109.212.207.226
+        id S2388664AbfDRKBJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Apr 2019 06:01:09 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:37425 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388683AbfDRKBI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Apr 2019 06:01:08 -0400
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 5534A24001B;
-        Thu, 18 Apr 2019 10:00:54 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 8720C240015;
+        Thu, 18 Apr 2019 10:01:05 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     Paul Cercueil <paul@crapouillou.net>,
         Mathieu Malaterre <malat@debian.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/7] rtc: jz4740: set range
-Date:   Thu, 18 Apr 2019 12:00:39 +0200
-Message-Id: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 6/7] rtc: jz4740: rework invalid time detection
+Date:   Thu, 18 Apr 2019 12:00:44 +0200
+Message-Id: <20190418100045.29288-6-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
+References: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -40,38 +42,69 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-RTC_SEC is a 32-bit seconds counter.
+The scratchpad register is used to detect an invalid time when power to the
+RTC has been lost. Instead of deleting that precious information and set
+the time to the UNIX epoch, forward it to userspace.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-jz4740.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-jz4740.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-index d0a891777f44..079469627bd7 100644
+index fa15ad9fbe13..c9e16d857fa8 100644
 --- a/drivers/rtc/rtc-jz4740.c
 +++ b/drivers/rtc/rtc-jz4740.c
-@@ -348,10 +348,18 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+@@ -157,6 +157,9 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
+ 	uint32_t secs, secs2;
+ 	int timeout = 5;
  
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&jz4740_rtc_ops, THIS_MODULE);
-+	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc->rtc)) {
- 		ret = PTR_ERR(rtc->rtc);
-+		dev_err(&pdev->dev, "Failed to allocate rtc device: %d\n", ret);
++	if (jz4740_rtc_reg_read(rtc, JZ_REG_RTC_SCRATCHPAD) != 0x12345678)
++		return -EINVAL;
++
+ 	/* If the seconds register is read while it is updated, it can contain a
+ 	 * bogus value. This can be avoided by making sure that two consecutive
+ 	 * reads have the same value.
+@@ -180,8 +183,13 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
+ static int jz4740_rtc_set_time(struct device *dev, struct rtc_time *time)
+ {
+ 	struct jz4740_rtc *rtc = dev_get_drvdata(dev);
++	int ret;
++
++	ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, rtc_tm_to_time64(time));
++	if (ret)
 +		return ret;
-+	}
-+
-+	rtc->rtc->ops = &jz4740_rtc_ops;
-+	rtc->rtc->range_max = U32_MAX;
-+
-+	ret = rtc_register_device(rtc->rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register rtc device: %d\n", ret);
+ 
+-	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, rtc_tm_to_time64(time));
++	return jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SCRATCHPAD, 0x12345678);
+ }
+ 
+ static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -308,7 +316,6 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+ 	struct jz4740_rtc *rtc;
+-	uint32_t scratchpad;
+ 	struct resource *mem;
+ 	const struct platform_device_id *id = platform_get_device_id(pdev);
+ 	const struct of_device_id *of_id = of_match_device(
+@@ -376,16 +383,6 @@ static int jz4740_rtc_probe(struct platform_device *pdev)
  		return ret;
  	}
+ 
+-	scratchpad = jz4740_rtc_reg_read(rtc, JZ_REG_RTC_SCRATCHPAD);
+-	if (scratchpad != 0x12345678) {
+-		ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SCRATCHPAD, 0x12345678);
+-		ret = jz4740_rtc_reg_write(rtc, JZ_REG_RTC_SEC, 0);
+-		if (ret) {
+-			dev_err(&pdev->dev, "Could not write to RTC registers\n");
+-			return ret;
+-		}
+-	}
+-
+ 	if (np && of_device_is_system_power_controller(np)) {
+ 		if (!pm_power_off) {
+ 			/* Default: 60ms */
 -- 
 2.20.1
 
