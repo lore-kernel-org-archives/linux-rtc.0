@@ -2,76 +2,116 @@ Return-Path: <SRS0=Vb+C=SV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F89BC282DF
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 20:06:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 180AEC282E2
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 20:39:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 218962171F
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 20:06:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DFB17208C0
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 20:39:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbfDSUGo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Apr 2019 16:06:44 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:56476 "EHLO
-        mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727427AbfDSUGn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 16:06:43 -0400
-Received: from relay12.mail.gandi.net (unknown [217.70.178.232])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id B045B3A8D47;
-        Fri, 19 Apr 2019 08:00:14 +0000 (UTC)
-Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
+        id S1726336AbfDSUjm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Apr 2019 16:39:42 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:36467 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725897AbfDSUjm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 16:39:42 -0400
+X-Originating-IP: 90.66.53.80
+Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 75C30200011;
-        Fri, 19 Apr 2019 08:00:13 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 6E203C0009;
+        Fri, 19 Apr 2019 20:39:39 +0000 (UTC)
+Date:   Fri, 19 Apr 2019 22:39:39 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/8] rtc: ep93xx: convert to devm_rtc_allocate_device
-Date:   Fri, 19 Apr 2019 09:59:59 +0200
-Message-Id: <20190419080005.16138-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
-References: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
+To:     Han Nandor <nandor.han@vaisala.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3 1/1] rtc: ds3232: get SRAM access using NVMEM Framework
+Message-ID: <20190419203939.GG12992@piout.net>
+References: <33e0d0d0764c8606dc611721c8c5abe37678675a>
+ <20190416105741.11895-1-nandor.han@vaisala.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190416105741.11895-1-nandor.han@vaisala.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver.
+On 16/04/2019 10:57:54+0000, Han Nandor wrote:
+> DS3232 RTC has 236 bytes of persistent memory.
+> 
+> Add RTC SRAM read and write access using
+> the NVMEM Framework.
+> 
+> Signed-off-by: Nandor Han <nandor.han@vaisala.com>
+> ---
+> 
+> Description
+> -----------
+> Provides DS3232 RTC SRAM access using NVMEM framework.
+> 
+> Testing
+> -------
+> The test was done on a custom board which contains a
+> DS3232 RTC device.
+> Kernel Version: 4.14.60 (Just for clarity, the patch is against master)
+> 
+> 1. Verify that SRAM is accessible using NVMEM interface: PASS
+> `
+> # hexdump /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> 0000000 0000 0000 0000 0000 0000 0000 0000 0000
+> *
+> 00000e0
+> `
+> 2. Modify the content.
+> `
+> # echo testing > /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> #
+> `
+> 3. Power cycle the board and verify that contents are preserved: PASS
+> `
+> # hexdump -n 10 -C /sys/bus/nvmem/devices/ds3232_sram0/nvmem
+> 00000000  74 65 73 74 69 6e 67 0a  00 00                    |testing...|
+> 0000000a
+> `
+> 
+> Testing on Kernel v5.1.0-rc3
+> 
+> 1. Update `arch/arm/configs/imx_v6_v7_defconfig` to contain
+> `CONFIG_RTC_DRV_DS3232=y`
+> 2. Verify that building the kernel is successful: PASS
+> `
+> make ARCH=arm CROSS_COMPILE=arm-linux-gnu- imx_v6_v7_defconfig zImage
+> ...
+> CC      drivers/rtc/rtc-ds3232.o
+> ...
+> Kernel: arch/arm/boot/zImage is ready
+> `
+> 
+> Changes since v1
+> ----------------
+>  - remove the unnecessary header "rtc-core.h"
+>  - use nvmem_config from the stack
+>  - configure the nvmem type
+>  - remove the `of_node` configuration
+> 
+> Changes since v2
+> ----------------
+>  - init unused struct nvmem_cfg members to 0
+>  - use regmap as private data to nvmem struct
+> 
+>  drivers/rtc/rtc-ds3232.c | 40 ++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 38 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-ep93xx.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
-index db04ac445c69..f15391bc4597 100644
---- a/drivers/rtc/rtc-ep93xx.c
-+++ b/drivers/rtc/rtc-ep93xx.c
-@@ -138,11 +138,16 @@ static int ep93xx_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, ep93xx_rtc);
- 
--	ep93xx_rtc->rtc = devm_rtc_device_register(&pdev->dev,
--				pdev->name, &ep93xx_rtc_ops, THIS_MODULE);
-+	ep93xx_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(ep93xx_rtc->rtc))
- 		return PTR_ERR(ep93xx_rtc->rtc);
- 
-+	ep93xx_rtc->rtc->ops = &ep93xx_rtc_ops;
-+
-+	err = rtc_register_device(ep93xx_rtc->rtc);
-+	if (err)
-+		return err;
-+
- 	err = sysfs_create_group(&pdev->dev.kobj, &ep93xx_rtc_sysfs_files);
- 	if (err)
- 		return err;
 -- 
-2.20.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
