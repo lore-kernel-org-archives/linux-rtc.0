@@ -6,33 +6,33 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 272D3C282E0
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:01:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E9F7C282DA
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:01:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E8B8C20643
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:01:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DB9F720643
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:01:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbfDSTBX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Apr 2019 15:01:23 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:38444 "EHLO
+        id S1728347AbfDSTBj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Apr 2019 15:01:39 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:38676 "EHLO
         mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728860AbfDSTBU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 15:01:20 -0400
+        with ESMTP id S1728039AbfDSTBi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 15:01:38 -0400
 Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id 646EC3AAF05;
-        Fri, 19 Apr 2019 08:00:20 +0000 (UTC)
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id 820FC3A50EE;
+        Fri, 19 Apr 2019 08:00:21 +0000 (UTC)
 X-Originating-IP: 109.212.207.226
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 830EDFF809;
-        Fri, 19 Apr 2019 08:00:19 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id BC1D3FF809;
+        Fri, 19 Apr 2019 08:00:20 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 6/8] rtc: ep93xx: use .set_time
-Date:   Fri, 19 Apr 2019 10:00:03 +0200
-Message-Id: <20190419080005.16138-6-alexandre.belloni@bootlin.com>
+Subject: [PATCH 7/8] rtc: ep93xx: convert to SPDX identifier
+Date:   Fri, 19 Apr 2019 10:00:04 +0200
+Message-Id: <20190419080005.16138-7-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
 References: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
@@ -43,38 +43,31 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use .set_time instead of the deprecated .set_mmss.
+Use SPDX-License-Identifier instead of a verbose license text.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ep93xx.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-ep93xx.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
-index 60e390c6ef06..a243bd85b842 100644
+index a243bd85b842..8dd85d602afd 100644
 --- a/drivers/rtc/rtc-ep93xx.c
 +++ b/drivers/rtc/rtc-ep93xx.c
-@@ -63,9 +63,10 @@ static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	return 0;
- }
+@@ -1,12 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * A driver for the RTC embedded in the Cirrus Logic EP93XX processors
+  * Copyright (c) 2006 Tower Technologies
+  *
+  * Author: Alessandro Zummo <a.zummo@towertech.it>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+  */
  
--static int ep93xx_rtc_set_mmss(struct device *dev, unsigned long secs)
-+static int ep93xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
-+	unsigned long secs = rtc_tm_to_time64(tm);
- 
- 	writel(secs + 1, ep93xx_rtc->mmio_base + EP93XX_RTC_LOAD);
- 	return 0;
-@@ -85,7 +86,7 @@ static int ep93xx_rtc_proc(struct device *dev, struct seq_file *seq)
- 
- static const struct rtc_class_ops ep93xx_rtc_ops = {
- 	.read_time	= ep93xx_rtc_read_time,
--	.set_mmss	= ep93xx_rtc_set_mmss,
-+	.set_time	= ep93xx_rtc_set_time,
- 	.proc		= ep93xx_rtc_proc,
- };
- 
+ #include <linux/module.h>
 -- 
 2.20.1
 
