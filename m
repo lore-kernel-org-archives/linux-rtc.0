@@ -6,35 +6,34 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9652AC282DA
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12001C282DA
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:01:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67F3B20643
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:00:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA78520643
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:00:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727551AbfDSTAl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Apr 2019 15:00:41 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:37798 "EHLO
+        id S1728506AbfDSTA7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Apr 2019 15:00:59 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:38104 "EHLO
         mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726514AbfDSTAk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 15:00:40 -0400
-Received: from relay10.mail.gandi.net (unknown [217.70.178.230])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id E3E923AAEEA;
-        Fri, 19 Apr 2019 08:00:18 +0000 (UTC)
+        with ESMTP id S1727676AbfDSTA7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 15:00:59 -0400
+Received: from relay2-d.mail.gandi.net (unknown [217.70.183.194])
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id E56723A8D17;
+        Fri, 19 Apr 2019 08:00:12 +0000 (UTC)
+X-Originating-IP: 109.212.207.226
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 27728240018;
-        Fri, 19 Apr 2019 08:00:17 +0000 (UTC)
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 03DFC4000C;
+        Fri, 19 Apr 2019 08:00:11 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/8] rtc: ep93xx: switch to rtc_time64_to_tm
-Date:   Fri, 19 Apr 2019 10:00:02 +0200
-Message-Id: <20190419080005.16138-5-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/8] rtc: ep93xx: stop setting platform_data
+Date:   Fri, 19 Apr 2019 09:59:58 +0200
+Message-Id: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
-References: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -42,27 +41,65 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Call the 64bit version of rtc_time_to_tm now that the range is enforced by
-the core.
+Since commit 28dc5f803899 ("drivers/rtc/rtc-ep93xx.c: use
+dev_get_platdata()"), platform_data is not used directly, it is not
+necessary to set it anymore.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-ep93xx.c | 18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
-index 32d7b3ec816d..60e390c6ef06 100644
+index 1932a4f861d1..db04ac445c69 100644
 --- a/drivers/rtc/rtc-ep93xx.c
 +++ b/drivers/rtc/rtc-ep93xx.c
-@@ -59,7 +59,7 @@ static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+@@ -28,10 +28,6 @@
+ #define  EP93XX_RTC_SWCOMP_INT_MASK	 0x0000ffff
+ #define  EP93XX_RTC_SWCOMP_INT_SHIFT	 0
  
- 	time = readl(ep93xx_rtc->mmio_base + EP93XX_RTC_DATA);
+-/*
+- * struct device dev.platform_data is used to store our private data
+- * because struct rtc_device does not have a variable to hold it.
+- */
+ struct ep93xx_rtc {
+ 	void __iomem	*mmio_base;
+ 	struct rtc_device *rtc;
+@@ -140,31 +136,23 @@ static int ep93xx_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(ep93xx_rtc->mmio_base))
+ 		return PTR_ERR(ep93xx_rtc->mmio_base);
  
--	rtc_time_to_tm(time, tm);
-+	rtc_time64_to_tm(time, tm);
+-	pdev->dev.platform_data = ep93xx_rtc;
+ 	platform_set_drvdata(pdev, ep93xx_rtc);
+ 
+ 	ep93xx_rtc->rtc = devm_rtc_device_register(&pdev->dev,
+ 				pdev->name, &ep93xx_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(ep93xx_rtc->rtc)) {
+-		err = PTR_ERR(ep93xx_rtc->rtc);
+-		goto exit;
+-	}
++	if (IS_ERR(ep93xx_rtc->rtc))
++		return PTR_ERR(ep93xx_rtc->rtc);
+ 
+ 	err = sysfs_create_group(&pdev->dev.kobj, &ep93xx_rtc_sysfs_files);
+ 	if (err)
+-		goto exit;
++		return err;
+ 
  	return 0;
+-
+-exit:
+-	pdev->dev.platform_data = NULL;
+-	return err;
  }
  
+ static int ep93xx_rtc_remove(struct platform_device *pdev)
+ {
+ 	sysfs_remove_group(&pdev->dev.kobj, &ep93xx_rtc_sysfs_files);
+-	pdev->dev.platform_data = NULL;
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
