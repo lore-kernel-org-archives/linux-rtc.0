@@ -2,37 +2,41 @@ Return-Path: <SRS0=Vb+C=SV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 720D5C282DA
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 482D6C282DA
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:00:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4355A20643
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E2AD20643
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 19:00:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbfDSS7j (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Apr 2019 14:59:39 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:36960 "EHLO
+        id S1728562AbfDSTAB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Apr 2019 15:00:01 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:37320 "EHLO
         mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727636AbfDSS7j (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 14:59:39 -0400
-Received: from relay10.mail.gandi.net (unknown [217.70.178.230])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id C6B953A7CBA;
-        Fri, 19 Apr 2019 08:25:06 +0000 (UTC)
+        with ESMTP id S1727100AbfDSS77 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 14:59:59 -0400
+Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id 9F4433A8D56;
+        Fri, 19 Apr 2019 08:00:22 +0000 (UTC)
+X-Originating-IP: 109.212.207.226
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id D384A240007;
-        Fri, 19 Apr 2019 08:25:05 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id C0335FF809;
+        Fri, 19 Apr 2019 08:00:21 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/6] rtc: ds2404: set range
-Date:   Fri, 19 Apr 2019 10:24:56 +0200
-Message-Id: <20190419082501.17549-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 8/8] rtc: ep93xx: fix checkpatch issues
+Date:   Fri, 19 Apr 2019 10:00:05 +0200
+Message-Id: <20190419080005.16138-8-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
+References: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -40,49 +44,73 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The real-time clock is a 5-byte binary counter. It is incremented 256 times
-per second. The least significant byte is a count of fractional seconds.
-The upper four bytes are a count of seconds. The realtime clock can
-accumulate 136 years of seconds before rolling over.
+Fix sysfs attribute declaration as suggested by checkpatch.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds2404.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-ep93xx.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds2404.c b/drivers/rtc/rtc-ds2404.c
-index b886b6a5c178..7b36c09bed10 100644
---- a/drivers/rtc/rtc-ds2404.c
-+++ b/drivers/rtc/rtc-ds2404.c
-@@ -234,6 +234,10 @@ static int rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
+index 8dd85d602afd..1766496385fe 100644
+--- a/drivers/rtc/rtc-ep93xx.c
++++ b/drivers/rtc/rtc-ep93xx.c
+@@ -15,10 +15,10 @@
+ #define EP93XX_RTC_DATA			0x000
+ #define EP93XX_RTC_MATCH		0x004
+ #define EP93XX_RTC_STATUS		0x008
+-#define  EP93XX_RTC_STATUS_INTR		 (1<<0)
++#define  EP93XX_RTC_STATUS_INTR		 BIT(0)
+ #define EP93XX_RTC_LOAD			0x00C
+ #define EP93XX_RTC_CONTROL		0x010
+-#define  EP93XX_RTC_CONTROL_MIE		 (1<<0)
++#define  EP93XX_RTC_CONTROL_MIE		 BIT(0)
+ #define EP93XX_RTC_SWCOMP		0x108
+ #define  EP93XX_RTC_SWCOMP_DEL_MASK	 0x001f0000
+ #define  EP93XX_RTC_SWCOMP_DEL_SHIFT	 16
+@@ -31,7 +31,7 @@ struct ep93xx_rtc {
+ };
  
- 	chip->ops = &ds2404_gpio_ops;
+ static int ep93xx_rtc_get_swcomp(struct device *dev, unsigned short *preload,
+-				unsigned short *delete)
++				 unsigned short *delete)
+ {
+ 	struct ep93xx_rtc *ep93xx_rtc = dev_get_platdata(dev);
+ 	unsigned long comp;
+@@ -87,8 +87,8 @@ static const struct rtc_class_ops ep93xx_rtc_ops = {
+ 	.proc		= ep93xx_rtc_proc,
+ };
  
-+	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(chip->rtc))
-+		return PTR_ERR(chip->rtc);
-+
- 	retval = chip->ops->map_io(chip, pdev, pdata);
- 	if (retval)
- 		goto err_chip;
-@@ -244,12 +248,12 @@ static int rtc_probe(struct platform_device *pdev)
+-static ssize_t ep93xx_rtc_show_comp_preload(struct device *dev,
+-			struct device_attribute *attr, char *buf)
++static ssize_t comp_preload_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
+ {
+ 	unsigned short preload;
  
- 	platform_set_drvdata(pdev, chip);
+@@ -96,10 +96,10 @@ static ssize_t ep93xx_rtc_show_comp_preload(struct device *dev,
  
--	chip->rtc = devm_rtc_device_register(&pdev->dev, "ds2404",
--					&ds2404_rtc_ops, THIS_MODULE);
--	if (IS_ERR(chip->rtc)) {
--		retval = PTR_ERR(chip->rtc);
-+	chip->rtc->ops = &ds2404_rtc_ops;
-+	chip->rtc->range_max = U32_MAX;
-+
-+	retval = rtc_register_device(chip->rtc);
-+	if (retval)
- 		goto err_io;
--	}
+ 	return sprintf(buf, "%d\n", preload);
+ }
+-static DEVICE_ATTR(comp_preload, S_IRUGO, ep93xx_rtc_show_comp_preload, NULL);
++static DEVICE_ATTR_RO(comp_preload);
  
- 	ds2404_enable_osc(&pdev->dev);
- 	return 0;
+-static ssize_t ep93xx_rtc_show_comp_delete(struct device *dev,
+-			struct device_attribute *attr, char *buf)
++static ssize_t comp_delete_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
+ {
+ 	unsigned short delete;
+ 
+@@ -107,7 +107,7 @@ static ssize_t ep93xx_rtc_show_comp_delete(struct device *dev,
+ 
+ 	return sprintf(buf, "%d\n", delete);
+ }
+-static DEVICE_ATTR(comp_delete, S_IRUGO, ep93xx_rtc_show_comp_delete, NULL);
++static DEVICE_ATTR_RO(comp_delete);
+ 
+ static struct attribute *ep93xx_rtc_attrs[] = {
+ 	&dev_attr_comp_preload.attr,
 -- 
 2.20.1
 
