@@ -3,38 +3,36 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C295FC282DA
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 720D5C282DA
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 917CD205ED
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4355A20643
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Apr 2019 18:59:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbfDSS7N (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Apr 2019 14:59:13 -0400
-Received: from mslow2.mail.gandi.net ([217.70.178.242]:36370 "EHLO
+        id S1728060AbfDSS7j (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Apr 2019 14:59:39 -0400
+Received: from mslow2.mail.gandi.net ([217.70.178.242]:36960 "EHLO
         mslow2.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727384AbfDSS7N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 14:59:13 -0400
-Received: from relay12.mail.gandi.net (unknown [217.70.178.232])
-        by mslow2.mail.gandi.net (Postfix) with ESMTP id D7B203AAEB6;
-        Fri, 19 Apr 2019 08:00:15 +0000 (UTC)
+        with ESMTP id S1727636AbfDSS7j (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 19 Apr 2019 14:59:39 -0400
+Received: from relay10.mail.gandi.net (unknown [217.70.178.230])
+        by mslow2.mail.gandi.net (Postfix) with ESMTP id C6B953A7CBA;
+        Fri, 19 Apr 2019 08:25:06 +0000 (UTC)
 Received: from localhost (alyon-652-1-176-226.w109-212.abo.wanadoo.fr [109.212.207.226])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 0EEEF200028;
-        Fri, 19 Apr 2019 08:00:14 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id D384A240007;
+        Fri, 19 Apr 2019 08:25:05 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/8] rtc: ep93xx: use rtc_add_group
-Date:   Fri, 19 Apr 2019 10:00:00 +0200
-Message-Id: <20190419080005.16138-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/6] rtc: ds2404: set range
+Date:   Fri, 19 Apr 2019 10:24:56 +0200
+Message-Id: <20190419082501.17549-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
-References: <20190419080005.16138-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -42,69 +40,49 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use rtc_add_group to add the sysfs group in a race free manner.
-This has the side effect of moving the files to their proper location.
+The real-time clock is a 5-byte binary counter. It is incremented 256 times
+per second. The least significant byte is a count of fractional seconds.
+The upper four bytes are a count of seconds. The realtime clock can
+accumulate 136 years of seconds before rolling over.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ep93xx.c | 20 ++++----------------
- 1 file changed, 4 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-ds2404.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ep93xx.c b/drivers/rtc/rtc-ep93xx.c
-index f15391bc4597..27417b4a8095 100644
---- a/drivers/rtc/rtc-ep93xx.c
-+++ b/drivers/rtc/rtc-ep93xx.c
-@@ -94,7 +94,7 @@ static ssize_t ep93xx_rtc_show_comp_preload(struct device *dev,
- {
- 	unsigned short preload;
+diff --git a/drivers/rtc/rtc-ds2404.c b/drivers/rtc/rtc-ds2404.c
+index b886b6a5c178..7b36c09bed10 100644
+--- a/drivers/rtc/rtc-ds2404.c
++++ b/drivers/rtc/rtc-ds2404.c
+@@ -234,6 +234,10 @@ static int rtc_probe(struct platform_device *pdev)
  
--	ep93xx_rtc_get_swcomp(dev, &preload, NULL);
-+	ep93xx_rtc_get_swcomp(dev->parent, &preload, NULL);
+ 	chip->ops = &ds2404_gpio_ops;
  
- 	return sprintf(buf, "%d\n", preload);
- }
-@@ -105,7 +105,7 @@ static ssize_t ep93xx_rtc_show_comp_delete(struct device *dev,
- {
- 	unsigned short delete;
++	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(chip->rtc))
++		return PTR_ERR(chip->rtc);
++
+ 	retval = chip->ops->map_io(chip, pdev, pdata);
+ 	if (retval)
+ 		goto err_chip;
+@@ -244,12 +248,12 @@ static int rtc_probe(struct platform_device *pdev)
  
--	ep93xx_rtc_get_swcomp(dev, NULL, &delete);
-+	ep93xx_rtc_get_swcomp(dev->parent, NULL, &delete);
+ 	platform_set_drvdata(pdev, chip);
  
- 	return sprintf(buf, "%d\n", delete);
- }
-@@ -144,22 +144,11 @@ static int ep93xx_rtc_probe(struct platform_device *pdev)
+-	chip->rtc = devm_rtc_device_register(&pdev->dev, "ds2404",
+-					&ds2404_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(chip->rtc)) {
+-		retval = PTR_ERR(chip->rtc);
++	chip->rtc->ops = &ds2404_rtc_ops;
++	chip->rtc->range_max = U32_MAX;
++
++	retval = rtc_register_device(chip->rtc);
++	if (retval)
+ 		goto err_io;
+-	}
  
- 	ep93xx_rtc->rtc->ops = &ep93xx_rtc_ops;
- 
--	err = rtc_register_device(ep93xx_rtc->rtc);
-+	err = rtc_add_group(ep93xx_rtc->rtc, &ep93xx_rtc_sysfs_files);
- 	if (err)
- 		return err;
- 
--	err = sysfs_create_group(&pdev->dev.kobj, &ep93xx_rtc_sysfs_files);
--	if (err)
--		return err;
--
--	return 0;
--}
--
--static int ep93xx_rtc_remove(struct platform_device *pdev)
--{
--	sysfs_remove_group(&pdev->dev.kobj, &ep93xx_rtc_sysfs_files);
--
--	return 0;
-+	return rtc_register_device(ep93xx_rtc->rtc);
- }
- 
- static struct platform_driver ep93xx_rtc_driver = {
-@@ -167,7 +156,6 @@ static struct platform_driver ep93xx_rtc_driver = {
- 		.name	= "ep93xx-rtc",
- 	},
- 	.probe		= ep93xx_rtc_probe,
--	.remove		= ep93xx_rtc_remove,
- };
- 
- module_platform_driver(ep93xx_rtc_driver);
+ 	ds2404_enable_osc(&pdev->dev);
+ 	return 0;
 -- 
 2.20.1
 
