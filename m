@@ -2,106 +2,97 @@ Return-Path: <SRS0=SQ63=S2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D05BC10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 12:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E20C10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:38:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2E4CF20811
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 12:27:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=st.com header.i=@st.com header.b="iU1/aiQT"
+	by mail.kernel.org (Postfix) with ESMTP id 9339E218FE
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:38:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1556116729;
+	bh=JzcgIQbgHM8tbZl+eshRk9MogHw5w0MZ59afCvYauKg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=JkEe2W+JkaP8xBRFOz5l8tpoejHFCcmAJUMfGMXYX9JRA3Ci+IqfcxKybVdW3CN4f
+	 OqOnDH+Hp8hZx08+FGE4xBtFpD7MVwCiQUlFIr6bXLmUremJOm3n7MsFr5ilqYGH/G
+	 Fz1nGncMzUO3NpryB8L2UKvjOgz592itIg6IWf78=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727383AbfDXM1O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 24 Apr 2019 08:27:14 -0400
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:51044 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726880AbfDXM1N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 24 Apr 2019 08:27:13 -0400
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx08-00178001.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x3OC6eQN024358;
-        Wed, 24 Apr 2019 14:26:56 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=STMicroelectronics;
- bh=h9D+RmnNCvP7dwWVcYtp3MBpjBes7RInZNX3mwfwoo8=;
- b=iU1/aiQTc/ikYT7DchSugv7ll+UijXK1m05lk2SWXlxczUnjSsO5OZHgbN+hMNQ33eo/
- vtRzQhZoe39oWMBznj5tCPI4EEPrZfsAWHSjD5VAwZ5+JyVsQAEfVHLI6WmlsAoZ+Ww8
- kiLXyV5RnscLnOuzG0W77Nf6rv802g+yOAHBc9vTekTFw1Fx559yGIXCH8kIw/MM+BKM
- axoEJukU4PK7+MutFY6XpGCYmdl4+eAmsqq839gcOlsZiVXb+xdbNFfC+nV6gR8UT2Gm
- ZoRjldpibfpqt15lNZCTvrQUEASZg/5UrKEbliVEGIl4Gk53wJN8rjYTS8xW8Uq5d5oR 7g== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx08-00178001.pphosted.com with ESMTP id 2rytad6fg8-1
-        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
-        Wed, 24 Apr 2019 14:26:56 +0200
-Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 1492D31;
-        Wed, 24 Apr 2019 12:26:55 +0000 (GMT)
-Received: from Webmail-eu.st.com (Safex1hubcas24.st.com [10.75.90.94])
-        by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id DA84C254E;
-        Wed, 24 Apr 2019 12:26:54 +0000 (GMT)
-Received: from SAFEX1HUBCAS23.st.com (10.75.90.47) by Safex1hubcas24.st.com
- (10.75.90.94) with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 24 Apr
- 2019 14:26:54 +0200
-Received: from localhost (10.201.23.25) by webmail-ga.st.com (10.75.90.48)
- with Microsoft SMTP Server (TLS) id 14.3.439.0; Wed, 24 Apr 2019 14:26:54
- +0200
-From:   Fabien Dessenne <fabien.dessenne@st.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        <linux-rtc@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     Fabien Dessenne <fabien.dessenne@st.com>
-Subject: [PATCH] rtc: stm32: manage the get_irq probe defer case
-Date:   Wed, 24 Apr 2019 14:26:48 +0200
-Message-ID: <1556108808-32722-1-git-send-email-fabien.dessenne@st.com>
-X-Mailer: git-send-email 2.7.4
+        id S1731445AbfDXOih (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 24 Apr 2019 10:38:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731307AbfDXOfN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 24 Apr 2019 10:35:13 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5ACFD218FE;
+        Wed, 24 Apr 2019 14:35:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1556116512;
+        bh=JzcgIQbgHM8tbZl+eshRk9MogHw5w0MZ59afCvYauKg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=x88bxn+CZqgokDov6Xscp2i+jXhzv8PzC9uRRo47kH4L6VG4WhI/+wBSt/rJQ6XUy
+         rspdJBVq/dyhM5UzvongwzsqbQ+8TMhP6nVdcpOsj6sJhVwck5GEli46dg49qmhipX
+         IOtFPYIIIxwbF/hZs3W8kyX+AKaOaQbMEh8vyWSA=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 37/66] rtc: da9063: set uie_unsupported when relevant
+Date:   Wed, 24 Apr 2019 10:33:11 -0400
+Message-Id: <20190424143341.27665-37-sashal@kernel.org>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20190424143341.27665-1-sashal@kernel.org>
+References: <20190424143341.27665-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.201.23.25]
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-04-24_08:,,
- signatures=0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Manage the -EPROBE_DEFER error case for the wake IRQ.
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
+
+The DA9063AD doesn't support alarms on any seconds and its granularity is
+the minute. Set uie_unsupported in that case.
+
+Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/rtc/rtc-stm32.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-da9063.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index c5908cf..8e6c9b3 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -788,11 +788,14 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 	ret = device_init_wakeup(&pdev->dev, true);
- 	if (rtc->data->has_wakeirq) {
- 		rtc->wakeirq_alarm = platform_get_irq(pdev, 1);
--		if (rtc->wakeirq_alarm <= 0)
--			ret = rtc->wakeirq_alarm;
--		else
-+		if (rtc->wakeirq_alarm > 0) {
- 			ret = dev_pm_set_dedicated_wake_irq(&pdev->dev,
- 							    rtc->wakeirq_alarm);
-+		} else {
-+			ret = rtc->wakeirq_alarm;
-+			if (rtc->wakeirq_alarm == -EPROBE_DEFER)
-+				goto err;
-+		}
- 	}
- 	if (ret)
- 		dev_warn(&pdev->dev, "alarm can't wake up the system: %d", ret);
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index b4e054c64bad..69b54e5556c0 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
+ 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+ 	rtc->rtc_sync = false;
+ 
++	/*
++	 * TODO: some models have alarms on a minute boundary but still support
++	 * real hardware interrupts. Add this once the core supports it.
++	 */
++	if (config->rtc_data_start != RTC_SEC)
++		rtc->rtc_dev->uie_unsupported = 1;
++
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
 -- 
-2.7.4
+2.19.1
 
