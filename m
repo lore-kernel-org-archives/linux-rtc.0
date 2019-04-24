@@ -7,49 +7,44 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F200EC282E1
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:39:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12710C282E1
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:43:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C337821903
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:39:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C1C28218FC
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556116766;
-	bh=6qqmETBo/nc4faKEAgvHUD6ZCm0mocVHbn1DDQT2a4A=;
+	s=default; t=1556117001;
+	bh=JB4O/BtU8CAnzEOASc8eo/2jp3RpBAdJI4FR+KJI/IE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Su/UjMVFKxlsPjXyeCQGMPwnvAGpspVf5KnclqMzWV72lX3BfRFaJ1pOAdtB7/CAs
-	 FFadT2Tq6sokeslQW6OaiqVjsdc76w+yfstSSP13QCmBhEmgRrS2poBK7tpQmdIRmy
-	 ycMMuaY8udItxtzBfH+tlvXZPGfgBRvJ/IOKJhTA=
+	b=hbiRPUbEUO+TVfvbXXAh9t9BZOVqj6hZ1/u+BzcW+LH1AAbQmqtuGorVVJLmg5yuJ
+	 7C0F9GzaMbdB25IPYVBiNo8mTVP3RadXBiY6xHgPg9R0CpH7QgXWmiQP457DOCN32+
+	 thmcKZDEZfKdvrO31ntgQOJvq84nwCR0e80Ub3FE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731677AbfDXOjZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 24 Apr 2019 10:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
+        id S1731911AbfDXOkU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 24 Apr 2019 10:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731484AbfDXOjX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 24 Apr 2019 10:39:23 -0400
+        id S1731356AbfDXOkS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 24 Apr 2019 10:40:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 210E921901;
-        Wed, 24 Apr 2019 14:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D6A21909;
+        Wed, 24 Apr 2019 14:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556116763;
-        bh=6qqmETBo/nc4faKEAgvHUD6ZCm0mocVHbn1DDQT2a4A=;
+        s=default; t=1556116818;
+        bh=JB4O/BtU8CAnzEOASc8eo/2jp3RpBAdJI4FR+KJI/IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjDvpk+IGUtPwvCieqM87xJNB2DojiuL8fZpbVDXAE1RC8ue9v8TaHy0I1vmU379/
-         KX3ag90Jln0ccRgacD0K5oVu7Cx8IyCCDsUbKn34s1qvByWSEobdqyP+m3RwCUHQ1N
-         tQgxc+hevMJkwUd3SdeqtjdtjDvk7QW5gRskVfBw=
+        b=pdIaGerRy0x16XaPBu64LPXy/f0qyz2JQsB1+WFquZmmh2Udjk9ksa3VcwRmxyAZq
+         uPynr2M0vcgrYwlXh4fNEFETossUHCrNOccE2TqonpbDo9zHwdZT5Pz/Ch+/uiExYx
+         Fq7cAPvek354q02b3QtA4L5ZB5rbRgp+ZZ/Pbr1c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Boyd <swboyd@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Evan Green <evgreen@chromium.org>,
-        Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/52] rtc: cros-ec: Fail suspend/resume if wake IRQ can't be configured
-Date:   Wed, 24 Apr 2019 10:38:22 -0400
-Message-Id: <20190424143911.28890-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 29/52] rtc: da9063: set uie_unsupported when relevant
+Date:   Wed, 24 Apr 2019 10:38:47 -0400
+Message-Id: <20190424143911.28890-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
 References: <20190424143911.28890-1-sashal@kernel.org>
@@ -62,65 +57,42 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit d6752e185c3168771787a02dc6a55f32260943cc ]
+[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
 
-If we encounter a failure during suspend where this RTC was programmed
-to wakeup the system from suspend, but that wakeup couldn't be
-configured because the system didn't support wakeup interrupts, we'll
-run into the following warning:
+The DA9063AD doesn't support alarms on any seconds and its granularity is
+the minute. Set uie_unsupported in that case.
 
-	Unbalanced IRQ 166 wake disable
-	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
-
-This happens because the suspend process isn't aborted when the RTC
-fails to configure the wakeup IRQ. Instead, we continue suspending the
-system and then another suspend callback fails the suspend process and
-"unwinds" the previously suspended drivers by calling their resume
-callbacks. When we get back to resuming this RTC driver, we'll call
-disable_irq_wake() on an IRQ that hasn't been configured for wake.
-
-Let's just fail suspend/resume here if we can't configure the system to
-wake and the user has chosen to wakeup with this device. This fixes this
-warning and makes the code more robust in case there are systems out
-there that can't wakeup from suspend on this line but the user has
-chosen to do so.
-
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Evan Green <evgreen@chromium.org>
-Cc: Benson Leung <bleung@chromium.org>
-Cc: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Acked-By: Benson Leung <bleung@chromium.org>
+Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cros-ec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-da9063.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index e5444296075e..4d6bf9304ceb 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -298,7 +298,7 @@ static int cros_ec_rtc_suspend(struct device *dev)
- 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
+diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+index b4e054c64bad..69b54e5556c0 100644
+--- a/drivers/rtc/rtc-da9063.c
++++ b/drivers/rtc/rtc-da9063.c
+@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
+ 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
+ 	rtc->rtc_sync = false;
  
- 	if (device_may_wakeup(dev))
--		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+		return enable_irq_wake(cros_ec_rtc->cros_ec->irq);
- 
- 	return 0;
- }
-@@ -309,7 +309,7 @@ static int cros_ec_rtc_resume(struct device *dev)
- 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
- 
- 	if (device_may_wakeup(dev))
--		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
-+		return disable_irq_wake(cros_ec_rtc->cros_ec->irq);
- 
- 	return 0;
- }
++	/*
++	 * TODO: some models have alarms on a minute boundary but still support
++	 * real hardware interrupts. Add this once the core supports it.
++	 */
++	if (config->rtc_data_start != RTC_SEC)
++		rtc->rtc_dev->uie_unsupported = 1;
++
+ 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
+ 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
+ 					da9063_alarm_event,
 -- 
 2.19.1
 
