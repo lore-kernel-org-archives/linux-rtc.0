@@ -7,44 +7,45 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12710C282E1
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:43:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0B5C10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:45:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C1C28218FC
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:43:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BCD0218FC
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556117001;
-	bh=JB4O/BtU8CAnzEOASc8eo/2jp3RpBAdJI4FR+KJI/IE=;
+	s=default; t=1556117123;
+	bh=A22CcbdAbS1O+U0z6EsgiEOyjFqs4R5FsWtN+ZIuQNw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=hbiRPUbEUO+TVfvbXXAh9t9BZOVqj6hZ1/u+BzcW+LH1AAbQmqtuGorVVJLmg5yuJ
-	 7C0F9GzaMbdB25IPYVBiNo8mTVP3RadXBiY6xHgPg9R0CpH7QgXWmiQP457DOCN32+
-	 thmcKZDEZfKdvrO31ntgQOJvq84nwCR0e80Ub3FE=
+	b=OQ00A+VPxDlzaR0QN5UC0oH4c8MSlRlk6U0yO1FQ8NDl78t695wAso4IiUmUPDFRV
+	 T17DbFnE6H4CxU94x8ZxJwwFVzp5eSM9b57TzgPEjfBgzaenEJaFbn46HuODZWx24b
+	 pLNwm6vp6GPFhRUlexvnRcTaD2pWtgothGiytpmA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731911AbfDXOkU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 24 Apr 2019 10:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S1731684AbfDXOpR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 24 Apr 2019 10:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731356AbfDXOkS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 24 Apr 2019 10:40:18 -0400
+        id S1731627AbfDXOjZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 24 Apr 2019 10:39:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D6A21909;
-        Wed, 24 Apr 2019 14:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A81E218FE;
+        Wed, 24 Apr 2019 14:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556116818;
-        bh=JB4O/BtU8CAnzEOASc8eo/2jp3RpBAdJI4FR+KJI/IE=;
+        s=default; t=1556116764;
+        bh=A22CcbdAbS1O+U0z6EsgiEOyjFqs4R5FsWtN+ZIuQNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdIaGerRy0x16XaPBu64LPXy/f0qyz2JQsB1+WFquZmmh2Udjk9ksa3VcwRmxyAZq
-         uPynr2M0vcgrYwlXh4fNEFETossUHCrNOccE2TqonpbDo9zHwdZT5Pz/Ch+/uiExYx
-         Fq7cAPvek354q02b3QtA4L5ZB5rbRgp+ZZ/Pbr1c=
+        b=OJRtwtYUHyFwdIvPw44sK9y26xkfK/o4DeUy212P6Gcp5lOSoqyHjS3/g9wtuiToG
+         ne/vG2xOSt9mysAM5Quhh2bnh2iC5hx9py3BRGV3LgZ3mhAj6TvbsD9GdNnIz6ahj/
+         JCnF3k9iA78fAmtKyYAs/5mGSq4EuVK+s/NfM/YI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 29/52] rtc: da9063: set uie_unsupported when relevant
-Date:   Wed, 24 Apr 2019 10:38:47 -0400
-Message-Id: <20190424143911.28890-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/52] rtc: sh: Fix invalid alarm warning for non-enabled alarm
+Date:   Wed, 24 Apr 2019 10:38:23 -0400
+Message-Id: <20190424143911.28890-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
 References: <20190424143911.28890-1-sashal@kernel.org>
@@ -57,42 +58,46 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 882c5e552ffd06856de42261460f46e18319d259 ]
+[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
 
-The DA9063AD doesn't support alarms on any seconds and its granularity is
-the minute. Set uie_unsupported in that case.
+When no alarm has been programmed on RSK-RZA1, an error message is
+printed during boot:
 
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Steve Twiss <stwiss.opensource@diasemi.com>
+    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+
+sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
+field that is not enabled.  __rtc_read_alarm() validates the received
+alarm values, and fills in missing fields when needed.
+While 0xff is handled fine for the year, month, and day fields, and
+corrected as considered being out-of-range, this is not the case for the
+hour, minute, and second fields, where -1 is expected for missing
+fields.
+
+Fix this by returning -1 instead, as this value is handled fine for all
+fields.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-da9063.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/rtc/rtc-sh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
-index b4e054c64bad..69b54e5556c0 100644
---- a/drivers/rtc/rtc-da9063.c
-+++ b/drivers/rtc/rtc-da9063.c
-@@ -480,6 +480,13 @@ static int da9063_rtc_probe(struct platform_device *pdev)
- 	da9063_data_to_tm(data, &rtc->alarm_time, rtc);
- 	rtc->rtc_sync = false;
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index 51ba414798a8..3d7414e5ed35 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -377,7 +377,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
+ {
+ 	unsigned int byte;
+-	int value = 0xff;	/* return 0xff for ignored values */
++	int value = -1;			/* return -1 for ignored values */
  
-+	/*
-+	 * TODO: some models have alarms on a minute boundary but still support
-+	 * real hardware interrupts. Add this once the core supports it.
-+	 */
-+	if (config->rtc_data_start != RTC_SEC)
-+		rtc->rtc_dev->uie_unsupported = 1;
-+
- 	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
- 	ret = devm_request_threaded_irq(&pdev->dev, irq_alarm, NULL,
- 					da9063_alarm_event,
+ 	byte = readb(rtc->regbase + reg_off);
+ 	if (byte & AR_ENB) {
 -- 
 2.19.1
 
