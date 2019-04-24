@@ -7,45 +7,49 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7928C282CE
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 15:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF808C282E1
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 15:00:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A7DE52084F
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 15:00:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 91A032084F
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 15:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556118017;
-	bh=K2kkRlrQwKuVZPagHmuVSa/rBWqwm+gpMlPD9DdRpCg=;
+	s=default; t=1556118018;
+	bh=D5foliqRf+QYmfVkErUvdWWa6s5sVbXIsFXb9JvYSLs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=cAwXrEAC8lh5LlIceTCZxRlc3v6xjrd2GAzOzBJ4vXOOWyrEWaMTqxd97moORjWUl
-	 NRnngF5jzS2u05xNYdkpikGvnQCDXjJ08QH96PBs+kZGy+fVkWoaDuK9NOt84J5ny0
-	 ZMY3t+aIri09lo+JF1Wf0j31xDH977GAprFk3rOc=
+	b=lW9bmfCZdCCjT3qBolweRg6tLf7Pe8LQa/rDq9sV/annE0gNACEUXlMt9kPLEoom3
+	 5Ff6UWFKe5W1tgCAqKmx41DNldK/fT5Udujxn1MuE3h1ePgwdQnoBL3/UEYIgnLytp
+	 NpNhlw/ZkzjkjxzUjm/sWOV6jvsAg0D5NFiz55n8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbfDXOd5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 24 Apr 2019 10:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37886 "EHLO mail.kernel.org"
+        id S1730727AbfDXOd4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 24 Apr 2019 10:33:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730639AbfDXOd5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 24 Apr 2019 10:33:57 -0400
+        id S1730687AbfDXOdz (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 24 Apr 2019 10:33:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C7E1218FD;
-        Wed, 24 Apr 2019 14:33:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 370552089F;
+        Wed, 24 Apr 2019 14:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556116436;
-        bh=K2kkRlrQwKuVZPagHmuVSa/rBWqwm+gpMlPD9DdRpCg=;
+        s=default; t=1556116434;
+        bh=D5foliqRf+QYmfVkErUvdWWa6s5sVbXIsFXb9JvYSLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lp6RUjguRcJUo3Q4wvssf4G4UG8rXfB3JhISxSLI2CgKwiy8ISW8rGO9EYPdrwFeA
-         H57xgBZKEPXXksZLWMO5+Vwqsg1Ror1JhxqnBgG/pYm4HK20THFH5AIjnCpS1kPwJ9
-         9Cqgzm0Ja0xClej7bVzDg41wQ/4VXzjNpOU50an8=
+        b=O1+mvSskfruZXEpBj+i30C4dFZRwgXFQn7gRr3Soo6YlOcCNCSjcjGaUZrUMUrgRV
+         2FlKpaNhKIWUDtkJCyGUaotT34L9zUg/3F/jKoYUu6OfnEAf5jUxHPIAtvikJiNkDB
+         SfXYCO5a03XLmAkMNqqFg7pJh4DbwWgv+qX7zdRc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     Stephen Boyd <swboyd@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Evan Green <evgreen@chromium.org>,
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 06/66] rtc: sh: Fix invalid alarm warning for non-enabled alarm
-Date:   Wed, 24 Apr 2019 10:32:40 -0400
-Message-Id: <20190424143341.27665-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 05/66] rtc: cros-ec: Fail suspend/resume if wake IRQ can't be configured
+Date:   Wed, 24 Apr 2019 10:32:39 -0400
+Message-Id: <20190424143341.27665-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <20190424143341.27665-1-sashal@kernel.org>
 References: <20190424143341.27665-1-sashal@kernel.org>
@@ -58,46 +62,65 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 15d82d22498784966df8e4696174a16b02cc1052 ]
+[ Upstream commit d6752e185c3168771787a02dc6a55f32260943cc ]
 
-When no alarm has been programmed on RSK-RZA1, an error message is
-printed during boot:
+If we encounter a failure during suspend where this RTC was programmed
+to wakeup the system from suspend, but that wakeup couldn't be
+configured because the system didn't support wakeup interrupts, we'll
+run into the following warning:
 
-    rtc rtc0: invalid alarm value: 2019-03-14T255:255:255
+	Unbalanced IRQ 166 wake disable
+	WARNING: CPU: 7 PID: 3071 at kernel/irq/manage.c:669 irq_set_irq_wake+0x108/0x278
 
-sh_rtc_read_alarm_value() returns 0xff when querying a hardware alarm
-field that is not enabled.  __rtc_read_alarm() validates the received
-alarm values, and fills in missing fields when needed.
-While 0xff is handled fine for the year, month, and day fields, and
-corrected as considered being out-of-range, this is not the case for the
-hour, minute, and second fields, where -1 is expected for missing
-fields.
+This happens because the suspend process isn't aborted when the RTC
+fails to configure the wakeup IRQ. Instead, we continue suspending the
+system and then another suspend callback fails the suspend process and
+"unwinds" the previously suspended drivers by calling their resume
+callbacks. When we get back to resuming this RTC driver, we'll call
+disable_irq_wake() on an IRQ that hasn't been configured for wake.
 
-Fix this by returning -1 instead, as this value is handled fine for all
-fields.
+Let's just fail suspend/resume here if we can't configure the system to
+wake and the user has chosen to wakeup with this device. This fixes this
+warning and makes the code more robust in case there are systems out
+there that can't wakeup from suspend on this line but the user has
+chosen to do so.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Benson Leung <bleung@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Acked-By: Benson Leung <bleung@chromium.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/rtc/rtc-sh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cros-ec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index d417b203cbc5..1d3de2a3d1a4 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -374,7 +374,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
- {
- 	unsigned int byte;
--	int value = 0xff;	/* return 0xff for ignored values */
-+	int value = -1;			/* return -1 for ignored values */
+diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
+index e5444296075e..4d6bf9304ceb 100644
+--- a/drivers/rtc/rtc-cros-ec.c
++++ b/drivers/rtc/rtc-cros-ec.c
+@@ -298,7 +298,7 @@ static int cros_ec_rtc_suspend(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
  
- 	byte = readb(rtc->regbase + reg_off);
- 	if (byte & AR_ENB) {
+ 	if (device_may_wakeup(dev))
+-		enable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return enable_irq_wake(cros_ec_rtc->cros_ec->irq);
+ 
+ 	return 0;
+ }
+@@ -309,7 +309,7 @@ static int cros_ec_rtc_resume(struct device *dev)
+ 	struct cros_ec_rtc *cros_ec_rtc = dev_get_drvdata(&pdev->dev);
+ 
+ 	if (device_may_wakeup(dev))
+-		disable_irq_wake(cros_ec_rtc->cros_ec->irq);
++		return disable_irq_wake(cros_ec_rtc->cros_ec->irq);
+ 
+ 	return 0;
+ }
 -- 
 2.19.1
 
