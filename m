@@ -4,51 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0B5C10F11
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:45:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00441C10F11
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:50:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9BCD0218FC
-	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:45:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B87B7218FC
+	for <linux-rtc@archiver.kernel.org>; Wed, 24 Apr 2019 14:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1556117123;
-	bh=A22CcbdAbS1O+U0z6EsgiEOyjFqs4R5FsWtN+ZIuQNw=;
+	s=default; t=1556117423;
+	bh=UiO+nVIPhQ/eG1HaAS3VaFLNOkSdijG8J63yZzs1Lzo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=OQ00A+VPxDlzaR0QN5UC0oH4c8MSlRlk6U0yO1FQ8NDl78t695wAso4IiUmUPDFRV
-	 T17DbFnE6H4CxU94x8ZxJwwFVzp5eSM9b57TzgPEjfBgzaenEJaFbn46HuODZWx24b
-	 pLNwm6vp6GPFhRUlexvnRcTaD2pWtgothGiytpmA=
+	b=h2nEwM8pNCF3qCkf4Dxm34vrV+W6ssWbGnI/uXz44ij/cbSXe4H6Sg19S9WB4YoyZ
+	 Lr7uM5LpT0iE3TioRR+KwET7i2DxF7WRqTIJu8Cbhnroa44vwX2mLxxk02HYf5QVlX
+	 9mhrYhC2XFvQdLgociS5u6LGG+8EPbHK7j5vc5To=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731684AbfDXOpR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 24 Apr 2019 10:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41814 "EHLO mail.kernel.org"
+        id S1732155AbfDXOuW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 24 Apr 2019 10:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731627AbfDXOjZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 24 Apr 2019 10:39:25 -0400
+        id S1732547AbfDXOuV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 24 Apr 2019 10:50:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A81E218FE;
-        Wed, 24 Apr 2019 14:39:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E305E218FC;
+        Wed, 24 Apr 2019 14:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1556116764;
-        bh=A22CcbdAbS1O+U0z6EsgiEOyjFqs4R5FsWtN+ZIuQNw=;
+        s=default; t=1556117420;
+        bh=UiO+nVIPhQ/eG1HaAS3VaFLNOkSdijG8J63yZzs1Lzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJRtwtYUHyFwdIvPw44sK9y26xkfK/o4DeUy212P6Gcp5lOSoqyHjS3/g9wtuiToG
-         ne/vG2xOSt9mysAM5Quhh2bnh2iC5hx9py3BRGV3LgZ3mhAj6TvbsD9GdNnIz6ahj/
-         JCnF3k9iA78fAmtKyYAs/5mGSq4EuVK+s/NfM/YI=
+        b=iRpcGBOiXjzJQ7lg829o9pSjbfLbWOWIwFmPovrm2zkdB3RxN338O9b2O0jg/lliZ
+         AFEMtPEy/EDd/8OmdPBYY1TBRJHALzx9WeszT4CSbrcklD+NzKShJsZwcmxrFyFzff
+         2ZJcEP43a5V/hT+j2OvicYKcji3WkDALOJEzazGs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/52] rtc: sh: Fix invalid alarm warning for non-enabled alarm
-Date:   Wed, 24 Apr 2019 10:38:23 -0400
-Message-Id: <20190424143911.28890-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 03/28] rtc: sh: Fix invalid alarm warning for non-enabled alarm
+Date:   Wed, 24 Apr 2019 10:49:47 -0400
+Message-Id: <20190424145012.30886-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
-References: <20190424143911.28890-1-sashal@kernel.org>
+In-Reply-To: <20190424145012.30886-1-sashal@kernel.org>
+References: <20190424145012.30886-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -86,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 51ba414798a8..3d7414e5ed35 100644
+index 17b6235d67a5..600fb7f93939 100644
 --- a/drivers/rtc/rtc-sh.c
 +++ b/drivers/rtc/rtc-sh.c
-@@ -377,7 +377,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -454,7 +454,7 @@ static int sh_rtc_set_time(struct device *dev, struct rtc_time *tm)
  static inline int sh_rtc_read_alarm_value(struct sh_rtc *rtc, int reg_off)
  {
  	unsigned int byte;
