@@ -2,111 +2,102 @@ Return-Path: <SRS0=ApoW=S4=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6706C43219
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 14:38:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A610C43218
+	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:36:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B1E7D2077B
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 14:38:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5190A2084F
+	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:36:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nW+VsH4R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbfDZOiZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 26 Apr 2019 10:38:25 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:40617 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726154AbfDZOiZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Apr 2019 10:38:25 -0400
-X-Originating-IP: 109.213.12.238
-Received: from localhost (alyon-652-1-29-238.w109-213.abo.wanadoo.fr [109.213.12.238])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id F134740008;
-        Fri, 26 Apr 2019 14:38:22 +0000 (UTC)
-Date:   Fri, 26 Apr 2019 16:38:22 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Mathieu Malaterre <malat@debian.org>
-Cc:     linux-rtc@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        linux-arm-kernel@lists.infradead.org,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/7] rtc: jz4740: switch to
- rtc_time64_to_tm/rtc_tm_to_time64
-Message-ID: <20190426143822.GS14604@piout.net>
-References: <20190418100045.29288-1-alexandre.belloni@bootlin.com>
- <20190418100045.29288-2-alexandre.belloni@bootlin.com>
- <CA+7wUswt4mEyrrVugOMgjC=jTnQwf1cTeVwd9BtZtApjmo8gGQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+7wUswt4mEyrrVugOMgjC=jTnQwf1cTeVwd9BtZtApjmo8gGQ@mail.gmail.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+        id S1726053AbfDZSgm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 26 Apr 2019 14:36:42 -0400
+Received: from mail-it1-f193.google.com ([209.85.166.193]:37010 "EHLO
+        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726005AbfDZSgl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Apr 2019 14:36:41 -0400
+Received: by mail-it1-f193.google.com with SMTP id u65so7301924itc.2;
+        Fri, 26 Apr 2019 11:36:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=85fnnK5bfiR5WN6DW7WAGB8ZeLpOtCa3pDezC5i13RY=;
+        b=nW+VsH4Rx+BWGCjMa2TX+NMRPc+3B388r3nUiR0AxBFSND8TZZ65sbIhRPL7BhdyOI
+         EtB2ahEfSCdWDN/Mo1bYnDjh2I1UHOLCp+5mUwQWaFypvWuyLRq5JBaUSH01XvRRsgoK
+         EdAxWtlB9Av8iNPs74WTecPQo7DSgHieu2sSbn3y8r4BHzpeduzHCTL4zJNevK+JmOzB
+         2vv4FsvXaCT24cc9usOQRzFZcesj/ztKAZpDocP3SdQIj2B9sweKfH2O890UAK3lQ8+X
+         oyIiSkHFDyQr0kNDQRKf5ohIbizp5vD/IHX393cLmwu8fkjwDkVvL8Bfn2IEdoCL5CcT
+         /UUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=85fnnK5bfiR5WN6DW7WAGB8ZeLpOtCa3pDezC5i13RY=;
+        b=mp90LNmlZUmOLHnJ7Syp8LDp0HUTBKUrtxcwzXJhfbkt4U+/QXQYExlijOST3tDwFA
+         URlcokJ74KAzL1gI0MS9jL/ub9Hj/93AuMEqdI2dcMHhHb71B4e6a7vRKLhwsXkw2NxM
+         HNKKVjCaKPJADNZG9NUkPlHs9DeVCt7wwyLuA1rY55FOGsWrl7FW7WSfENpCdJy+qb8X
+         wmizv5aVqDZTtYwzI6DsB8MMB2vQnOdI+MhUFJQljngj7MQCZ5POew0iLDrOArc++Tx1
+         wYCyjUYHfbbl7HAGZPs1YnzEAb+ogd0l85/jCtiswb3pEf50vbCePDOv6LZ5BDskuFiZ
+         GZgw==
+X-Gm-Message-State: APjAAAVexZgr7Ini03nqDfRIAldclsHPb8cEeIddZG80FXABRiJE7WcL
+        BfJbOzCD1WuMr6n/pMvTOIGLZlBX
+X-Google-Smtp-Source: APXvYqxRlszLrM7w6C1HA/XQstwsI4abUrQXlOfHsStD7kdhiAonH3C9o3O7JGuM70SJWOtd8MHPLQ==
+X-Received: by 2002:a05:660c:586:: with SMTP id g6mr10748992itk.116.1556303801091;
+        Fri, 26 Apr 2019 11:36:41 -0700 (PDT)
+Received: from svens-asus.arcx.com ([184.94.50.30])
+        by smtp.gmail.com with ESMTPSA id d143sm12730961itd.44.2019.04.26.11.36.40
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 26 Apr 2019 11:36:40 -0700 (PDT)
+From:   Sven Van Asbroeck <thesven73@gmail.com>
+X-Google-Original-From: Sven Van Asbroeck <TheSven73@gmail.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: 88pm860x: prevent use-after-free on device remove
+Date:   Fri, 26 Apr 2019 14:36:35 -0400
+Message-Id: <20190426183635.9477-1-TheSven73@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 26/04/2019 16:29:36+0200, Mathieu Malaterre wrote:
-> On Thu, Apr 18, 2019 at 12:00 PM Alexandre Belloni
-> <alexandre.belloni@bootlin.com> wrote:
-> >
-> > Call the 64bit versions of rtc_tm time conversion now that the range is
-> > enforced by the core.
-> >
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> > ---
-> >  drivers/rtc/rtc-jz4740.c | 8 +++-----
-> >  1 file changed, 3 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-> > index 079469627bd7..15b6832f3931 100644
-> > --- a/drivers/rtc/rtc-jz4740.c
-> > +++ b/drivers/rtc/rtc-jz4740.c
-> > @@ -171,7 +171,7 @@ static int jz4740_rtc_read_time(struct device *dev, struct rtc_time *time)
-> >         if (timeout == 0)
-> >                 return -EIO;
-> >
-> > -       rtc_time_to_tm(secs, time);
-> > +       rtc_time64_to_tm(secs, time);
-> >
-> >         return 0;
-> >  }
-> > @@ -196,7 +196,7 @@ static int jz4740_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >         alrm->enabled = !!(ctrl & JZ_RTC_CTRL_AE);
-> >         alrm->pending = !!(ctrl & JZ_RTC_CTRL_AF);
-> >
-> > -       rtc_time_to_tm(secs, &alrm->time);
-> > +       rtc_time64_to_tm(secs, &alrm->time);
-> >
-> >         return rtc_valid_tm(&alrm->time);
-> >  }
-> > @@ -205,9 +205,7 @@ static int jz4740_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-> >  {
-> >         int ret;
-> >         struct jz4740_rtc *rtc = dev_get_drvdata(dev);
-> > -       unsigned long secs;
-> > -
-> > -       rtc_tm_to_time(&alrm->time, &secs);
-> > +       unsigned long secs = rtc_tm_to_time64(&alrm->time);
-> 
-> nitpick: all other declarations are done with uint32_t, so to make it
-> clear (maybe) with something like:
-> 
-> uint32_t secs = lower_32_bits(rtc_tm_to_time64(&alrm->time));
-> 
+The device's remove() attempts to shut down the delayed_work scheduled
+on the kernel-global workqueue by calling flush_scheduled_work().
 
-Ok, I'll change that.
+Unfortunately, flush_scheduled_work() does not prevent the delayed_work
+from re-scheduling itself. The delayed_work might run after the device
+has been removed, and touch the already de-allocated info structure.
+This is a potential use-after-free.
 
-> Technically I would have stored the full time64_t here and put a
-> WARN_ON(secs > U32_MAX) but I am not sure what other driver are
-> supposed to do in this case.
-> 
+Fix by calling cancel_delayed_work_sync() during remove(): this ensures
+that the delayed work is properly cancelled, is no longer running, and
+is not able to re-schedule itself.
 
-Because range_max is set properly, the core will ensure that all the
-times passed to the driver fit within the range.
+This issue was detected with the help of Coccinelle.
 
-Thanks for the review!
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+---
+ drivers/rtc/rtc-88pm860x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index d25282b4a7dd..73697e4b18a9 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -421,7 +421,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
+ 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
+ 
+ #ifdef VRTC_CALIBRATION
+-	flush_scheduled_work();
++	cancel_delayed_work_sync(&info->calib_work);
+ 	/* disable measurement */
+ 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
+ #endif	/* VRTC_CALIBRATION */
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
+
