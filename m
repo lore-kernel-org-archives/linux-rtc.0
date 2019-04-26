@@ -6,59 +6,60 @@ X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_MUTT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2889EC43219
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:52:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 876A8C43219
+	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:57:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 036AA2064A
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:52:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45F672067D
+	for <linux-rtc@archiver.kernel.org>; Fri, 26 Apr 2019 18:57:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726053AbfDZSw3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 26 Apr 2019 14:52:29 -0400
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:37059 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbfDZSw3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Apr 2019 14:52:29 -0400
+        id S1726272AbfDZS5U (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 26 Apr 2019 14:57:20 -0400
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:43247 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725875AbfDZS5T (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Apr 2019 14:57:19 -0400
 X-Originating-IP: 90.66.53.80
 Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 7A3C0C0009;
-        Fri, 26 Apr 2019 18:52:26 +0000 (UTC)
-Date:   Fri, 26 Apr 2019 20:52:25 +0200
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 5C8E340009;
+        Fri, 26 Apr 2019 18:57:17 +0000 (UTC)
+Date:   Fri, 26 Apr 2019 20:57:17 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH next 21/25] rtc: Use dev_get_drvdata()
-Message-ID: <20190426185225.GU14604@piout.net>
-References: <20190423075020.173734-1-wangkefeng.wang@huawei.com>
- <20190423075020.173734-22-wangkefeng.wang@huawei.com>
+To:     Sven Van Asbroeck <thesven73@gmail.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: 88pm860x: prevent use-after-free on device remove
+Message-ID: <20190426185717.GV14604@piout.net>
+References: <20190426183635.9477-1-TheSven73@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190423075020.173734-22-wangkefeng.wang@huawei.com>
+In-Reply-To: <20190426183635.9477-1-TheSven73@gmail.com>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 23/04/2019 15:50:16+0800, Kefeng Wang wrote:
-> Using dev_get_drvdata directly.
+On 26/04/2019 14:36:35-0400, Sven Van Asbroeck wrote:
+> The device's remove() attempts to shut down the delayed_work scheduled
+> on the kernel-global workqueue by calling flush_scheduled_work().
 > 
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: linux-rtc@vger.kernel.org
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> Unfortunately, flush_scheduled_work() does not prevent the delayed_work
+> from re-scheduling itself. The delayed_work might run after the device
+> has been removed, and touch the already de-allocated info structure.
+> This is a potential use-after-free.
+> 
+> Fix by calling cancel_delayed_work_sync() during remove(): this ensures
+> that the delayed work is properly cancelled, is no longer running, and
+> is not able to re-schedule itself.
+> 
+> This issue was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
 > ---
->  drivers/rtc/rtc-hid-sensor-time.c |  3 +--
->  drivers/rtc/rtc-pxa.c             |  3 +--
->  drivers/rtc/rtc-rk808.c           |  6 ++----
->  drivers/rtc/rtc-tx4939.c          | 17 ++++++-----------
->  drivers/rtc/rtc-wm831x.c          | 18 +++++++-----------
->  drivers/rtc/rtc-wm8350.c          | 12 ++++--------
->  6 files changed, 21 insertions(+), 38 deletions(-)
+>  drivers/rtc/rtc-88pm860x.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 Applied, thanks.
 
