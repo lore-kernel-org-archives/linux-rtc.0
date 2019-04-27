@@ -2,386 +2,211 @@ Return-Path: <SRS0=fKgR=S5=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3084C43218
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:00:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B44C43218
+	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:11:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9BADD2087C
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:00:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 64964208C2
+	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:11:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbfD0NA6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 27 Apr 2019 09:00:58 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:34655 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726425AbfD0NA6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 27 Apr 2019 09:00:58 -0400
+        id S1726512AbfD0NLZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 27 Apr 2019 09:11:25 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:34867 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbfD0NLZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 27 Apr 2019 09:11:25 -0400
+X-Originating-IP: 90.66.53.80
 Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 956EC240002;
-        Sat, 27 Apr 2019 13:00:54 +0000 (UTC)
-Date:   Sat, 27 Apr 2019 15:00:54 +0200
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 36DE5E0004;
+        Sat, 27 Apr 2019 13:11:21 +0000 (UTC)
+Date:   Sat, 27 Apr 2019 15:11:21 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     "Howey, Dylan" <Dylan.Howey@tennantco.com>
 Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH 1/2] Port rtc-pcf2123 to regmap
-Message-ID: <20190427130054.GY14604@piout.net>
+Subject: Re: [PATCH 2/2] Add alarm support to rtc-pcf2123
+Message-ID: <20190427131121.GZ14604@piout.net>
 References: <20190426193648.1599-1-Dylan.Howey@tennantco.com>
+ <20190426193648.1599-2-Dylan.Howey@tennantco.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190426193648.1599-1-Dylan.Howey@tennantco.com>
+In-Reply-To: <20190426193648.1599-2-Dylan.Howey@tennantco.com>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
-
-Please use a subject consistent with the subsystem style (here rtc:
-pcf2123: ... ).
-
-On 26/04/2019 19:37:11+0000, Howey, Dylan wrote:
-> Replace all calls to pcf2123_read and _write with regmap.
-> 
-> Also remove pcf2123_delay_trec. This claimed to add a 30ns delay to SPI
-> writes, but I could not see any reference to this requirement in the
-> datasheet. Closest thing I could find to a requirement are timings for the
-> SPI chip enable line, which cannot be controlled by this driver (the ndelay
-> came after the call to spi_write_then_read, which means it would sleep
-> after CE has already gone inactive). Things seem to work fine without it.
-> 
-> Signed-off-by: Dylan Howey <Dylan.Howey@tennantco.com>
-
-This has to match the From: of the email.
-
-> ---
->  drivers/rtc/rtc-pcf2123.c | 156 ++++++++++++++++++--------------------
->  1 file changed, 75 insertions(+), 81 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-> index 39da8b214275..4bfcb1e67c9b 100644
-> --- a/drivers/rtc/rtc-pcf2123.c
-> +++ b/drivers/rtc/rtc-pcf2123.c
-> @@ -45,6 +45,7 @@
->  #include <linux/spi/spi.h>
->  #include <linux/module.h>
->  #include <linux/sysfs.h>
-> +#include <linux/regmap.h>
->  
->  /* REGISTERS */
->  #define PCF2123_REG_CTRL1	(0x00)	/* Control Register 1 */
-> @@ -114,58 +115,29 @@ struct pcf2123_sysfs_reg {
->  
->  struct pcf2123_plat_data {
->  	struct rtc_device *rtc;
-> +	struct regmap *map;
->  	struct pcf2123_sysfs_reg regs[16];
->  };
->  
-> -/*
-> - * Causes a 30 nanosecond delay to ensure that the PCF2123 chip select
-> - * is released properly after an SPI write.  This function should be
-> - * called after EVERY read/write call over SPI.
-> - */
-> -static inline void pcf2123_delay_trec(void)
-> -{
-> -	ndelay(30);
-> -}
-> -
-> -static int pcf2123_read(struct device *dev, u8 reg, u8 *rxbuf, size_t size)
-> -{
-> -	struct spi_device *spi = to_spi_device(dev);
-> -	int ret;
-> -
-> -	reg |= PCF2123_READ;
-> -	ret = spi_write_then_read(spi, &reg, 1, rxbuf, size);
-> -	pcf2123_delay_trec();
-> -
-> -	return ret;
-> -}
-> -
-> -static int pcf2123_write(struct device *dev, u8 *txbuf, size_t size)
-> -{
-> -	struct spi_device *spi = to_spi_device(dev);
-> -	int ret;
-> -
-> -	txbuf[0] |= PCF2123_WRITE;
-> -	ret = spi_write(spi, txbuf, size);
-> -	pcf2123_delay_trec();
-> -
-> -	return ret;
-> -}
-> -
-> -static int pcf2123_write_reg(struct device *dev, u8 reg, u8 val)
-> -{
-> -	u8 txbuf[2];
-> +static const struct regmap_range pcf2123_ranges[] = {
-> +	{
-> +		.range_min = PCF2123_REG_CTRL1,
-> +		.range_max = PCF2123_REG_CTDWN_TMR,
-> +	},
-> +};
->  
-> -	txbuf[0] = reg;
-> -	txbuf[1] = val;
-> -	return pcf2123_write(dev, txbuf, sizeof(txbuf));
-> -}
-> +static const struct regmap_access_table pcf2123_access_table = {
-> +	.yes_ranges = pcf2123_ranges,
-> +	.n_yes_ranges = ARRAY_SIZE(pcf2123_ranges),
-> +};
-
-This covers all the registers, I don't think this is necessary.
-
->  
->  static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  			    char *buffer)
->  {
+On 26/04/2019 19:37:15+0000, Howey, Dylan wrote:
+> +static int pcf2123_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+> +{
 > +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
->  	struct pcf2123_sysfs_reg *r;
-> -	u8 rxbuf[1];
->  	unsigned long reg;
-> +	unsigned int val = 0;
->  	int ret;
->  
->  	r = container_of(attr, struct pcf2123_sysfs_reg, attr);
-> @@ -174,16 +146,17 @@ static ssize_t pcf2123_show(struct device *dev, struct device_attribute *attr,
->  	if (ret)
->  		return ret;
->  
-> -	ret = pcf2123_read(dev, reg, rxbuf, 1);
-> -	if (ret < 0)
-> +	ret = regmap_read(pdata->map, reg, &val);
-> +	if (ret)
->  		return -EIO;
->  
-> -	return sprintf(buffer, "0x%x\n", rxbuf[0]);
-> +	return sprintf(buffer, "0x%x\n", val);
->  }
->  
->  static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  			     const char *buffer, size_t count)
->  {
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
->  	struct pcf2123_sysfs_reg *r;
->  	unsigned long reg;
->  	unsigned long val;
-> @@ -200,19 +173,20 @@ static ssize_t pcf2123_store(struct device *dev, struct device_attribute *attr,
->  	if (ret)
->  		return ret;
->  
-> -	ret = pcf2123_write_reg(dev, reg, val);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, reg, val);
-> +	if (ret)
->  		return -EIO;
->  	return count;
->  }
->  
-
-You should add a preliminary patch removing that sysfs interface
-exposing all the registers. regmap will anyway provide you a debugfs
-interface.
-
->  static int pcf2123_read_offset(struct device *dev, long *offset)
->  {
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
->  	int ret;
->  	s8 reg;
->  
-> -	ret = pcf2123_read(dev, PCF2123_REG_OFFSET, &reg, 1);
-> -	if (ret < 0)
-> +	ret = regmap_raw_read(pdata->map, PCF2123_REG_OFFSET, &reg, 1);
-
-Do you really need the raw version of regmap_read?
-
-> +	if (ret)
->  		return ret;
->  
->  	if (reg & OFFSET_COARSE)
-> @@ -237,6 +211,8 @@ static int pcf2123_read_offset(struct device *dev, long *offset)
->   */
->  static int pcf2123_set_offset(struct device *dev, long offset)
->  {
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
+> +	u8 rxbuf[4];
 > +	int ret;
->  	s8 reg;
->  
->  	if (offset > OFFSET_STEP * 127)
-> @@ -256,16 +232,18 @@ static int pcf2123_set_offset(struct device *dev, long offset)
->  		reg |= OFFSET_COARSE;
->  	}
->  
-> -	return pcf2123_write_reg(dev, PCF2123_REG_OFFSET, reg);
-> +	ret = regmap_raw_write(pdata->map, PCF2123_REG_OFFSET, &reg, 1);
-> +	return ret;
-
-ret is not necessary here.
-
->  }
->  
->  static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  {
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
->  	u8 rxbuf[7];
->  	int ret;
->  
-> -	ret = pcf2123_read(dev, PCF2123_REG_SC, rxbuf, sizeof(rxbuf));
-> -	if (ret < 0)
-> +	ret = regmap_bulk_read(pdata->map, PCF2123_REG_SC, rxbuf, 7);
-
-you should keep using sizeof(rxbuf).
-
-> +	if (ret)
->  		return ret;
->  
->  	if (rxbuf[0] & OSC_HAS_STOPPED) {
-> @@ -294,7 +272,8 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
->  
->  static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  {
-> -	u8 txbuf[8];
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
-> +	u8 txbuf[7];
->  	int ret;
->  
->  	dev_dbg(dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
-> @@ -304,27 +283,26 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
->  
->  	/* Stop the counter first */
-> -	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_STOP);
-> +	if (ret)
->  		return ret;
->  
->  	/* Set the new time */
-> -	txbuf[0] = PCF2123_REG_SC;
-> -	txbuf[1] = bin2bcd(tm->tm_sec & 0x7F);
-> -	txbuf[2] = bin2bcd(tm->tm_min & 0x7F);
-> -	txbuf[3] = bin2bcd(tm->tm_hour & 0x3F);
-> -	txbuf[4] = bin2bcd(tm->tm_mday & 0x3F);
-> -	txbuf[5] = tm->tm_wday & 0x07;
-> -	txbuf[6] = bin2bcd((tm->tm_mon + 1) & 0x1F); /* rtc mn 1-12 */
-> -	txbuf[7] = bin2bcd(tm->tm_year < 100 ? tm->tm_year : tm->tm_year - 100);
-> -
-> -	ret = pcf2123_write(dev, txbuf, sizeof(txbuf));
-> -	if (ret < 0)
-> +	txbuf[0] = bin2bcd(tm->tm_sec & 0x7F);
-> +	txbuf[1] = bin2bcd(tm->tm_min & 0x7F);
-> +	txbuf[2] = bin2bcd(tm->tm_hour & 0x3F);
-> +	txbuf[3] = bin2bcd(tm->tm_mday & 0x3F);
-> +	txbuf[4] = tm->tm_wday & 0x07;
-> +	txbuf[5] = bin2bcd((tm->tm_mon + 1) & 0x1F); /* rtc mn 1-12 */
-> +	txbuf[6] = bin2bcd(tm->tm_year < 100 ? tm->tm_year : tm->tm_year - 100);
-> +
-> +	ret = regmap_bulk_write(pdata->map, PCF2123_REG_SC, txbuf, 7);
-
-Ditto for txbuf
-
-> +	if (ret)
->  		return ret;
->  
->  	/* Start the counter */
-> -	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
-> +	if (ret)
->  		return ret;
->  
->  	return 0;
-> @@ -332,33 +310,33 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  
->  static int pcf2123_reset(struct device *dev)
->  {
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
->  	int ret;
-> -	u8  rxbuf[2];
 > +	unsigned int val = 0;
->  
-> -	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
+> +
+> +	ret = regmap_bulk_read(pdata->map, PCF2123_REG_ALRM_MN, rxbuf, 4);
+
+sizeof(rxbuf) instead of 4.
+
 > +	if (ret)
->  		return ret;
->  
->  	/* Stop the counter */
->  	dev_dbg(dev, "stopping RTC\n");
-> -	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_STOP);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_STOP);
-> +	if (ret)
->  		return ret;
->  
->  	/* See if the counter was actually stopped */
->  	dev_dbg(dev, "checking for presence of RTC\n");
-> -	ret = pcf2123_read(dev, PCF2123_REG_CTRL1, rxbuf, sizeof(rxbuf));
-> -	if (ret < 0)
-> +	ret = regmap_read(pdata->map, PCF2123_REG_CTRL1, &val);
-> +	if (ret)
->  		return ret;
->  
-> -	dev_dbg(dev, "received data from RTC (0x%02X 0x%02X)\n",
-> -		rxbuf[0], rxbuf[1]);
-> -	if (!(rxbuf[0] & CTRL1_STOP))
-> +	dev_dbg(dev, "received data from RTC (0x%08X)\n", val);
-> +	if (!(val & CTRL1_STOP))
->  		return -ENODEV;
->  
->  	/* Start the counter */
-> -	ret = pcf2123_write_reg(dev, PCF2123_REG_CTRL1, CTRL1_CLEAR);
-> -	if (ret < 0)
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
-> +	if (ret)
->  		return ret;
->  
->  	return 0;
-> @@ -377,7 +355,8 @@ static int pcf2123_probe(struct spi_device *spi)
->  	struct rtc_device *rtc;
->  	struct rtc_time tm;
->  	struct pcf2123_plat_data *pdata;
-> -	int ret, i;
-> +	struct regmap_config config;
-> +	int ret = 0, i;
->  
->  	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
->  				GFP_KERNEL);
-> @@ -385,6 +364,21 @@ static int pcf2123_probe(struct spi_device *spi)
->  		return -ENOMEM;
->  	spi->dev.platform_data = pdata;
->  
-> +	memset(&config, 0, sizeof(config));
-> +	config.reg_bits = 8;
-> +	config.val_bits = 8;
-> +	config.read_flag_mask = PCF2123_READ;
-> +	config.write_flag_mask = PCF2123_WRITE;
-> +	config.max_register = PCF2123_REG_CTDWN_TMR;
-> +	config.wr_table = &pcf2123_access_table;
+> +		return ret;
+> +
+> +	alm->time.tm_min = bcd2bin(rxbuf[0] & 0x7F);
+> +	alm->time.tm_hour = bcd2bin(rxbuf[1] & 0x3F);
+> +	alm->time.tm_mday = bcd2bin(rxbuf[2] & 0x3F);
+> +	alm->time.tm_wday = bcd2bin(rxbuf[3] & 0x07);
+> +
+> +	dev_dbg(dev, "%s: alm is secs=%d, mins=%d, hours=%d mday=%d, mon=%d, year=%d, wday=%d\n",
+> +			__func__,
+> +			alm->time.tm_sec, alm->time.tm_min, alm->time.tm_hour,
+> +			alm->time.tm_mday, alm->time.tm_mon, alm->time.tm_year,
+> +			alm->time.tm_wday);
 > +
 
-You should probably have the regmap_config as a global static const.
-This would make the initialization easier.
+Please use %ptR.
 
-> +	pdata->map = devm_regmap_init_spi(spi, &config);
+> +	ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
+> +	if (ret)
+> +		return ret;
 > +
-> +	if (IS_ERR(pdata->map)) {
-> +		dev_err(&spi->dev, "regmap init failed.\n");
-> +		goto kfree_exit;
+> +	alm->enabled = !!(val & CTRL2_AIE);
+> +
+> +	return 0;
+> +}
+> +
+> +static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+> +{
+> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
+> +	u8 txbuf[4];
+> +	int ret;
+> +	unsigned int val = 0;
+> +
+> +	dev_dbg(dev, "%s: alm is secs=%d, mins=%d, hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
+> +			__func__,
+> +			alm->time.tm_sec, alm->time.tm_min, alm->time.tm_hour,
+> +			alm->time.tm_mday, alm->time.tm_mon, alm->time.tm_year,
+> +			alm->time.tm_wday);
+> +
+
+Ditto
+
+> +	/* Disable alarm */
+> +	ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
+> +	if (ret)
+> +		return ret;
+> +
+> +	val &= ~(CTRL2_AIE);
+> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
+> +
+Please use regmap_update_bits
+
+> +	/* Set new alarm */
+> +	txbuf[0] = bin2bcd(alm->time.tm_min & 0x7F);
+> +	txbuf[1] = bin2bcd(alm->time.tm_hour & 0x3F);
+> +	txbuf[2] = bin2bcd(alm->time.tm_mday & 0x3F);
+> +	txbuf[3] = bin2bcd(alm->time.tm_wday & 0x07);
+> +
+> +	ret = regmap_bulk_write(pdata->map, PCF2123_REG_ALRM_MN, txbuf, 4);
+
+sizeof(txbuf)
+
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (alm->enabled)	{
+> +		ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
+> +		if (ret)
+> +			return ret;
+> +
+> +		val |= CTRL2_AIE;
+> +		ret = regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
+> +		if (ret)
+> +			return ret;
+
+Use regmap_update_bits
+
 > +	}
 > +
->  	ret = pcf2123_rtc_read_time(&spi->dev, &tm);
->  	if (ret < 0) {
->  		ret = pcf2123_reset(&spi->dev);
-> -- 
-> 2.17.1
-> 
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t pcf2123_rtc_irq(int irq, void *dev)
+> +{
+> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
+> +	struct mutex *lock = &pdata->rtc->ops_lock;
+> +	unsigned int val = 0;
+> +	int ret = IRQ_NONE;
+> +
+> +	mutex_lock(lock);
+> +	regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
+> +
+> +	/* Alarm? */
+> +	if (val & CTRL2_AF) {
+> +		ret = IRQ_HANDLED;
+> +
+> +		val &= ~(CTRL2_AF);
+> +		regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
+> +
+> +		rtc_update_irq(pdata->rtc, 1, RTC_IRQF | RTC_AF);
+> +	}
+> +
+> +	mutex_unlock(lock);
+> +
+> +	return ret;
+> +}
+> +
+>  static int pcf2123_reset(struct device *dev)
+>  {
+>  	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
+> @@ -347,6 +448,8 @@ static const struct rtc_class_ops pcf2123_rtc_ops = {
+>  	.set_time	= pcf2123_rtc_set_time,
+>  	.read_offset	= pcf2123_read_offset,
+>  	.set_offset	= pcf2123_set_offset,
+> +	.read_alarm = pcf2123_rtc_read_alarm,
+> +	.set_alarm = pcf2123_rtc_set_alarm,
+
+Please keep that struct aligned
+
+>  
+>  };
+>  
+> @@ -391,6 +494,8 @@ static int pcf2123_probe(struct spi_device *spi)
+>  	dev_info(&spi->dev, "spiclk %u KHz.\n",
+>  			(spi->max_speed_hz + 500) / 1000);
+>  
+> +	device_init_wakeup(&spi->dev, true);
+> +
+
+This should be done only when you have an irq and the irq handler was
+properly registered.
+
+>  	/* Finalize the initialization */
+>  	rtc = devm_rtc_device_register(&spi->dev, pcf2123_driver.driver.name,
+>  			&pcf2123_rtc_ops, THIS_MODULE);
+> @@ -418,6 +523,16 @@ static int pcf2123_probe(struct spi_device *spi)
+>  		}
+>  	}
+>  
+> +	/* Register alarm irq */
+> +	if (spi->irq >= 0)	{
+> +		ret = devm_request_threaded_irq(&spi->dev, spi->irq, NULL,
+> +				pcf2123_rtc_irq,
+> +				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> +				pcf2123_driver.driver.name, &spi->dev);
+> +		if (ret)
+> +			dev_err(&spi->dev, "could not request irq.\n");
+> +	}
+> +
+
+As this RTC only has a minute granularity, you must set uie_unsupported
+to get the UIE emulation working. You should probably run rtctest, this
+would have uncovered the issue.
 
 -- 
 Alexandre Belloni, Bootlin
