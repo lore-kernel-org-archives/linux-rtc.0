@@ -1,214 +1,119 @@
-Return-Path: <SRS0=fKgR=S5=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=xsq1=S7=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89B44C43218
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:11:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4764C43219
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Apr 2019 07:02:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 64964208C2
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Apr 2019 13:11:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A34E92053B
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Apr 2019 07:02:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="EMTWwPAs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbfD0NLZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 27 Apr 2019 09:11:25 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:34867 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbfD0NLZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 27 Apr 2019 09:11:25 -0400
-X-Originating-IP: 90.66.53.80
-Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 36DE5E0004;
-        Sat, 27 Apr 2019 13:11:21 +0000 (UTC)
-Date:   Sat, 27 Apr 2019 15:11:21 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "Howey, Dylan" <Dylan.Howey@tennantco.com>
-Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Add alarm support to rtc-pcf2123
-Message-ID: <20190427131121.GZ14604@piout.net>
-References: <20190426193648.1599-1-Dylan.Howey@tennantco.com>
- <20190426193648.1599-2-Dylan.Howey@tennantco.com>
+        id S1727246AbfD2HCi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 29 Apr 2019 03:02:38 -0400
+Received: from mail-eopbgr20060.outbound.protection.outlook.com ([40.107.2.60]:11482
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726589AbfD2HCi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 29 Apr 2019 03:02:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=EwpnJVk+iG5QHR1SlFHe5hn8cVeoTjEC4yT8OGrCtxc=;
+ b=EMTWwPAssiFscffDmI9e/fDVsN0ka+qONwreM4W+aQcwMiuRpN5G+Z2b4QQvQieiuPhTim1C5de4EuD+U2bNVaQUa/UAPGNTLujnD+RRt+RmSVztt/mL1WNEiUiMhE9d/ZGt1pDVC/fzCOaYVFQi2/Z2j05fkcQnbmj1NNfrILk=
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com (52.134.72.18) by
+ DB3PR0402MB3724.eurprd04.prod.outlook.com (52.134.66.147) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1835.12; Mon, 29 Apr 2019 07:02:33 +0000
+Received: from DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170]) by DB3PR0402MB3916.eurprd04.prod.outlook.com
+ ([fe80::e8ca:4f6b:e43:c170%3]) with mapi id 15.20.1835.018; Mon, 29 Apr 2019
+ 07:02:33 +0000
+From:   Anson Huang <anson.huang@nxp.com>
+To:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     dl-linux-imx <linux-imx@nxp.com>
+Subject: [PATCH] rtc: snvs: Use __maybe_unused instead of #if CONFIG_PM_SLEEP
+Thread-Topic: [PATCH] rtc: snvs: Use __maybe_unused instead of #if
+ CONFIG_PM_SLEEP
+Thread-Index: AQHU/lmEml9HNTGs9Ea7jhPERyCyyA==
+Date:   Mon, 29 Apr 2019 07:02:33 +0000
+Message-ID: <1556521071-8981-1-git-send-email-Anson.Huang@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.7.4
+x-clientproxiedby: HK0PR03CA0083.apcprd03.prod.outlook.com
+ (2603:1096:203:72::23) To DB3PR0402MB3916.eurprd04.prod.outlook.com
+ (2603:10a6:8:10::18)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=anson.huang@nxp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [119.31.174.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: c8587ecd-f884-4557-40f2-08d6cc70a73c
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600141)(711020)(4605104)(4618075)(2017052603328)(7193020);SRVR:DB3PR0402MB3724;
+x-ms-traffictypediagnostic: DB3PR0402MB3724:
+x-microsoft-antispam-prvs: <DB3PR0402MB37240747D16525118EE14631F5390@DB3PR0402MB3724.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4714;
+x-forefront-prvs: 0022134A87
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(396003)(136003)(366004)(346002)(39860400002)(376002)(199004)(189003)(86362001)(71200400001)(6486002)(71190400001)(36756003)(6436002)(5660300002)(68736007)(256004)(14444005)(99286004)(52116002)(50226002)(81166006)(14454004)(316002)(8676002)(81156014)(2501003)(8936002)(305945005)(478600001)(110136005)(7736002)(26005)(4326008)(53936002)(186003)(25786009)(97736004)(66066001)(102836004)(386003)(6506007)(66446008)(6512007)(476003)(64756008)(2616005)(66476007)(66556008)(3846002)(66946007)(73956011)(6116002)(486006)(2201001)(2906002);DIR:OUT;SFP:1101;SCL:1;SRVR:DB3PR0402MB3724;H:DB3PR0402MB3916.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: OB6tyzMfPPSSA6++ZZhXNtUIDlbisndGXOfe6msmqw4d1BgLbye8pc8QMyToeoqQVO8blZeOVy+JK1dLHFblpq6KOTW2VcTh+aiL3/KAOP3pNk5hHS6YMO27EiI1SgFio7DzA7mm8IrjttPMP6SWC6CxYT/eNs3ksChY45c73HNnXGk2RAkj2p6r3N4CuC7fzsd8GuazBeaWFNSFmdI2sPDcso9JH5ySuEucSZQyXXl80zkpL4LD9Tmfp/G0INfaaNE6KxZjKQUOLKcsuQtdURA53hhhp1eqtUQsLk1Y9fVuKc/g02N5/WxU/JCYoXlwkJqEkMME/ho6rHBtlObLE4X9RJkSTe5wXmQ0iF1JkqeBsk8RKGlHKsI+4iEfcQE6xkaltLlrDIukN1O+W6MpxuglQxO59sT0nAjtcNxlAWI=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190426193648.1599-2-Dylan.Howey@tennantco.com>
-User-Agent: Mutt/1.11.3 (2019-02-01)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c8587ecd-f884-4557-40f2-08d6cc70a73c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Apr 2019 07:02:33.6833
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3PR0402MB3724
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 26/04/2019 19:37:15+0000, Howey, Dylan wrote:
-> +static int pcf2123_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
-> +{
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
-> +	u8 rxbuf[4];
-> +	int ret;
-> +	unsigned int val = 0;
-> +
-> +	ret = regmap_bulk_read(pdata->map, PCF2123_REG_ALRM_MN, rxbuf, 4);
-
-sizeof(rxbuf) instead of 4.
-
-> +	if (ret)
-> +		return ret;
-> +
-> +	alm->time.tm_min = bcd2bin(rxbuf[0] & 0x7F);
-> +	alm->time.tm_hour = bcd2bin(rxbuf[1] & 0x3F);
-> +	alm->time.tm_mday = bcd2bin(rxbuf[2] & 0x3F);
-> +	alm->time.tm_wday = bcd2bin(rxbuf[3] & 0x07);
-> +
-> +	dev_dbg(dev, "%s: alm is secs=%d, mins=%d, hours=%d mday=%d, mon=%d, year=%d, wday=%d\n",
-> +			__func__,
-> +			alm->time.tm_sec, alm->time.tm_min, alm->time.tm_hour,
-> +			alm->time.tm_mday, alm->time.tm_mon, alm->time.tm_year,
-> +			alm->time.tm_wday);
-> +
-
-Please use %ptR.
-
-> +	ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	alm->enabled = !!(val & CTRL2_AIE);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-> +{
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
-> +	u8 txbuf[4];
-> +	int ret;
-> +	unsigned int val = 0;
-> +
-> +	dev_dbg(dev, "%s: alm is secs=%d, mins=%d, hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
-> +			__func__,
-> +			alm->time.tm_sec, alm->time.tm_min, alm->time.tm_hour,
-> +			alm->time.tm_mday, alm->time.tm_mon, alm->time.tm_year,
-> +			alm->time.tm_wday);
-> +
-
-Ditto
-
-> +	/* Disable alarm */
-> +	ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	val &= ~(CTRL2_AIE);
-> +	ret = regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
-> +
-Please use regmap_update_bits
-
-> +	/* Set new alarm */
-> +	txbuf[0] = bin2bcd(alm->time.tm_min & 0x7F);
-> +	txbuf[1] = bin2bcd(alm->time.tm_hour & 0x3F);
-> +	txbuf[2] = bin2bcd(alm->time.tm_mday & 0x3F);
-> +	txbuf[3] = bin2bcd(alm->time.tm_wday & 0x07);
-> +
-> +	ret = regmap_bulk_write(pdata->map, PCF2123_REG_ALRM_MN, txbuf, 4);
-
-sizeof(txbuf)
-
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (alm->enabled)	{
-> +		ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
-> +		if (ret)
-> +			return ret;
-> +
-> +		val |= CTRL2_AIE;
-> +		ret = regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
-> +		if (ret)
-> +			return ret;
-
-Use regmap_update_bits
-
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static irqreturn_t pcf2123_rtc_irq(int irq, void *dev)
-> +{
-> +	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
-> +	struct mutex *lock = &pdata->rtc->ops_lock;
-> +	unsigned int val = 0;
-> +	int ret = IRQ_NONE;
-> +
-> +	mutex_lock(lock);
-> +	regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
-> +
-> +	/* Alarm? */
-> +	if (val & CTRL2_AF) {
-> +		ret = IRQ_HANDLED;
-> +
-> +		val &= ~(CTRL2_AF);
-> +		regmap_write(pdata->map, PCF2123_REG_CTRL2, val);
-> +
-> +		rtc_update_irq(pdata->rtc, 1, RTC_IRQF | RTC_AF);
-> +	}
-> +
-> +	mutex_unlock(lock);
-> +
-> +	return ret;
-> +}
-> +
->  static int pcf2123_reset(struct device *dev)
->  {
->  	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
-> @@ -347,6 +448,8 @@ static const struct rtc_class_ops pcf2123_rtc_ops = {
->  	.set_time	= pcf2123_rtc_set_time,
->  	.read_offset	= pcf2123_read_offset,
->  	.set_offset	= pcf2123_set_offset,
-> +	.read_alarm = pcf2123_rtc_read_alarm,
-> +	.set_alarm = pcf2123_rtc_set_alarm,
-
-Please keep that struct aligned
-
->  
->  };
->  
-> @@ -391,6 +494,8 @@ static int pcf2123_probe(struct spi_device *spi)
->  	dev_info(&spi->dev, "spiclk %u KHz.\n",
->  			(spi->max_speed_hz + 500) / 1000);
->  
-> +	device_init_wakeup(&spi->dev, true);
-> +
-
-This should be done only when you have an irq and the irq handler was
-properly registered.
-
->  	/* Finalize the initialization */
->  	rtc = devm_rtc_device_register(&spi->dev, pcf2123_driver.driver.name,
->  			&pcf2123_rtc_ops, THIS_MODULE);
-> @@ -418,6 +523,16 @@ static int pcf2123_probe(struct spi_device *spi)
->  		}
->  	}
->  
-> +	/* Register alarm irq */
-> +	if (spi->irq >= 0)	{
-> +		ret = devm_request_threaded_irq(&spi->dev, spi->irq, NULL,
-> +				pcf2123_rtc_irq,
-> +				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				pcf2123_driver.driver.name, &spi->dev);
-> +		if (ret)
-> +			dev_err(&spi->dev, "could not request irq.\n");
-> +	}
-> +
-
-As this RTC only has a minute granularity, you must set uie_unsupported
-to get the UIE emulation working. You should probably run rtctest, this
-would have uncovered the issue.
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+VXNlIF9fbWF5YmVfdW51c2VkIGZvciBwb3dlciBtYW5hZ2VtZW50IHJlbGF0ZWQgZnVuY3Rpb25z
+DQppbnN0ZWFkIG9mICNpZiBDT05GSUdfUE1fU0xFRVAgdG8gc2ltcGx5IHRoZSBjb2RlLg0KDQpT
+aWduZWQtb2ZmLWJ5OiBBbnNvbiBIdWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCi0tLQ0KIGRy
+aXZlcnMvcnRjL3J0Yy1zbnZzLmMgfCAxNiArKystLS0tLS0tLS0tLS0tDQogMSBmaWxlIGNoYW5n
+ZWQsIDMgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2
+ZXJzL3J0Yy9ydGMtc252cy5jIGIvZHJpdmVycy9ydGMvcnRjLXNudnMuYw0KaW5kZXggZTBlZGQ1
+OTQuLjJhMmI4ZGEgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL3J0Yy9ydGMtc252cy5jDQorKysgYi9k
+cml2ZXJzL3J0Yy9ydGMtc252cy5jDQpAQCAtMzYwLDkgKzM2MCw3IEBAIHN0YXRpYyBpbnQgc252
+c19ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiAJcmV0dXJuIHJldDsN
+CiB9DQogDQotI2lmZGVmIENPTkZJR19QTV9TTEVFUA0KLQ0KLXN0YXRpYyBpbnQgc252c19ydGNf
+c3VzcGVuZF9ub2lycShzdHJ1Y3QgZGV2aWNlICpkZXYpDQorc3RhdGljIGludCBfX21heWJlX3Vu
+dXNlZCBzbnZzX3J0Y19zdXNwZW5kX25vaXJxKHN0cnVjdCBkZXZpY2UgKmRldikNCiB7DQogCXN0
+cnVjdCBzbnZzX3J0Y19kYXRhICpkYXRhID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQogDQpAQCAt
+MzcyLDcgKzM3MCw3IEBAIHN0YXRpYyBpbnQgc252c19ydGNfc3VzcGVuZF9ub2lycShzdHJ1Y3Qg
+ZGV2aWNlICpkZXYpDQogCXJldHVybiAwOw0KIH0NCiANCi1zdGF0aWMgaW50IHNudnNfcnRjX3Jl
+c3VtZV9ub2lycShzdHJ1Y3QgZGV2aWNlICpkZXYpDQorc3RhdGljIGludCBfX21heWJlX3VudXNl
+ZCBzbnZzX3J0Y19yZXN1bWVfbm9pcnEoc3RydWN0IGRldmljZSAqZGV2KQ0KIHsNCiAJc3RydWN0
+IHNudnNfcnRjX2RhdGEgKmRhdGEgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCiANCkBAIC0zODcs
+MTQgKzM4NSw2IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZGV2X3BtX29wcyBzbnZzX3J0Y19wbV9v
+cHMgPSB7DQogCS5yZXN1bWVfbm9pcnEgPSBzbnZzX3J0Y19yZXN1bWVfbm9pcnEsDQogfTsNCiAN
+Ci0jZGVmaW5lIFNOVlNfUlRDX1BNX09QUwkoJnNudnNfcnRjX3BtX29wcykNCi0NCi0jZWxzZQ0K
+LQ0KLSNkZWZpbmUgU05WU19SVENfUE1fT1BTCU5VTEwNCi0NCi0jZW5kaWYNCi0NCiBzdGF0aWMg
+Y29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCBzbnZzX2R0X2lkc1tdID0gew0KIAl7IC5jb21wYXRp
+YmxlID0gImZzbCxzZWMtdjQuMC1tb24tcnRjLWxwIiwgfSwNCiAJeyAvKiBzZW50aW5lbCAqLyB9
+DQpAQCAtNDA0LDcgKzM5NCw3IEBAIE1PRFVMRV9ERVZJQ0VfVEFCTEUob2YsIHNudnNfZHRfaWRz
+KTsNCiBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RyaXZlciBzbnZzX3J0Y19kcml2ZXIgPSB7DQog
+CS5kcml2ZXIgPSB7DQogCQkubmFtZQk9ICJzbnZzX3J0YyIsDQotCQkucG0JPSBTTlZTX1JUQ19Q
+TV9PUFMsDQorCQkucG0JPSAmc252c19ydGNfcG1fb3BzLA0KIAkJLm9mX21hdGNoX3RhYmxlID0g
+c252c19kdF9pZHMsDQogCX0sDQogCS5wcm9iZQkJPSBzbnZzX3J0Y19wcm9iZSwNCi0tIA0KMi43
+LjQNCg0K
