@@ -2,87 +2,98 @@ Return-Path: <SRS0=V2Ez=TA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ED90C04AA6
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Apr 2019 09:33:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43BEDC43219
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Apr 2019 11:25:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B02721670
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Apr 2019 09:33:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1184920675
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Apr 2019 11:25:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726309AbfD3JdW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 30 Apr 2019 05:33:22 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:33773 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726263AbfD3JdJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Apr 2019 05:33:09 -0400
-Received: from localhost (alyon-652-1-31-175.w109-213.abo.wanadoo.fr [109.213.14.175])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 7AF48200025;
-        Tue, 30 Apr 2019 09:33:07 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/4] rtc: pcap: switch to rtc_time64_to_tm/rtc_tm_to_time64
-Date:   Tue, 30 Apr 2019 11:33:00 +0200
-Message-Id: <20190430093302.28648-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190430093302.28648-1-alexandre.belloni@bootlin.com>
-References: <20190430093302.28648-1-alexandre.belloni@bootlin.com>
+        id S1726436AbfD3LZr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 30 Apr 2019 07:25:47 -0400
+Received: from guitar.tcltek.co.il ([192.115.133.116]:58371 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726129AbfD3LZr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 30 Apr 2019 07:25:47 -0400
+Received: from tarshish (unknown [10.0.8.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx.tkos.co.il (Postfix) with ESMTPS id C72FE44028D;
+        Tue, 30 Apr 2019 14:25:43 +0300 (IDT)
+References: <20190430093212.28425-1-alexandre.belloni@bootlin.com>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Baruch Siach <baruch@tkos.co.il>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] rtc: digicolor: fix possible race condition
+In-reply-to: <20190430093212.28425-1-alexandre.belloni@bootlin.com>
+Date:   Tue, 30 Apr 2019 14:25:43 +0300
+Message-ID: <878svru43s.fsf@tarshish>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Call the 64bit versions of rtc_tm time conversion now that the range is
-enforced by the core.
+Hi Alexandre,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-pcap.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+On Tue, Apr 30 2019, Alexandre Belloni wrote:
+> The IRQ is requested before the struct rtc is allocated and registered, but
+> this struct is used in the IRQ handler. This may lead to a NULL pointer
+> dereference.
+>
+> Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+> struct before requesting the IRQ.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-pcap.c b/drivers/rtc/rtc-pcap.c
-index 976240853260..be2678042fcc 100644
---- a/drivers/rtc/rtc-pcap.c
-+++ b/drivers/rtc/rtc-pcap.c
-@@ -55,7 +55,7 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAYA, &days);
- 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
- 
--	rtc_time_to_tm(secs, tm);
-+	rtc_time64_to_tm(secs, tm);
- 
- 	return 0;
- }
-@@ -63,12 +63,9 @@ static int pcap_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int pcap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcap_rtc *pcap_rtc = dev_get_drvdata(dev);
--	struct rtc_time *tm = &alrm->time;
--	unsigned long secs;
-+	unsigned long secs = rtc_tm_to_time64(&alrm->time);
- 	u32 tod, days;
- 
--	rtc_tm_to_time(tm, &secs);
--
- 	tod = secs % SEC_PER_DAY;
- 	ezx_pcap_write(pcap_rtc->pcap, PCAP_REG_RTC_TODA, tod);
- 
-@@ -90,7 +87,7 @@ static int pcap_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	ezx_pcap_read(pcap_rtc->pcap, PCAP_REG_RTC_DAY, &days);
- 	secs += (days & PCAP_RTC_DAY_MASK) * SEC_PER_DAY;
- 
--	rtc_time_to_tm(secs, tm);
-+	rtc_time64_to_tm(secs, tm);
- 
- 	return 0;
- }
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+
+baruch
+
+> ---
+>  drivers/rtc/rtc-digicolor.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+> index b253bf1b3531..5bb14c56bc9a 100644
+> --- a/drivers/rtc/rtc-digicolor.c
+> +++ b/drivers/rtc/rtc-digicolor.c
+> @@ -192,6 +192,10 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>  	if (IS_ERR(rtc->regs))
+>  		return PTR_ERR(rtc->regs);
+>  
+> +	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
+> +	if (IS_ERR(rtc->rtc_dev))
+> +		return PTR_ERR(rtc->rtc_dev);
+> +
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0)
+>  		return irq;
+> @@ -200,12 +204,10 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>  		return ret;
+>  
+>  	platform_set_drvdata(pdev, rtc);
+> -	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+> -						&dc_rtc_ops, THIS_MODULE);
+> -	if (IS_ERR(rtc->rtc_dev))
+> -		return PTR_ERR(rtc->rtc_dev);
+>  
+> -	return 0;
+> +	rtc->rtc_dev->ops = &dc_rtc_ops;
+> +
+> +	return rtc_register_device(rtc->rtc_dev);
+>  }
+>  
+>  static const struct of_device_id dc_dt_ids[] = {
+
+
 -- 
-2.20.1
-
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
