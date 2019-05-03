@@ -2,147 +2,319 @@ Return-Path: <SRS0=nsZp=TD=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C13C0C43219
-	for <linux-rtc@archiver.kernel.org>; Fri,  3 May 2019 05:30:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BFABC43219
+	for <linux-rtc@archiver.kernel.org>; Fri,  3 May 2019 09:32:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8D0FC2081C
-	for <linux-rtc@archiver.kernel.org>; Fri,  3 May 2019 05:30:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27C752087F
+	for <linux-rtc@archiver.kernel.org>; Fri,  3 May 2019 09:32:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725997AbfECFaC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 3 May 2019 01:30:02 -0400
-Received: from mailgate1.rohmeurope.com ([178.15.145.194]:58930 "EHLO
-        mailgate1.rohmeurope.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725765AbfECFaC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 3 May 2019 01:30:02 -0400
-X-AuditID: c0a8fbf4-501ff700000014c1-38-5ccbd1d6c247
-Received: from smtp.reu.rohmeu.com (will-cas002.reu.rohmeu.com [192.168.251.178])
-        by mailgate1.rohmeurope.com (Symantec Messaging Gateway) with SMTP id 00.CF.05313.6D1DBCC5; Fri,  3 May 2019 07:29:58 +0200 (CEST)
-Received: from WILL-MAIL001.REu.RohmEu.com ([fe80::2915:304f:d22c:c6ba]) by
- WILL-CAS002.REu.RohmEu.com ([fe80::fc24:4cbc:e287:8659%12]) with mapi id
- 14.03.0439.000; Fri, 3 May 2019 07:29:54 +0200
-From:   "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-To:     "sebastian.reichel@collabora.com" <sebastian.reichel@collabora.com>
-CC:     "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>,
-        "Mutanen, Mikko" <Mikko.Mutanen@fi.rohmeurope.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "wim@linux-watchdog.org" <wim@linux-watchdog.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "Haikola, Heikki" <Heikki.Haikola@fi.rohmeurope.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v14 7/8] power: supply: Initial support for ROHM BD70528
- PMIC charger block
-Thread-Topic: [PATCH v14 7/8] power: supply: Initial support for ROHM
- BD70528 PMIC charger block
-Thread-Index: AQHVAMfZHKgWTJ2VgUSUAlV6mCtylaZYHZeAgAChyIA=
-Date:   Fri, 3 May 2019 05:29:53 +0000
-Message-ID: <322fa765ddd72972aba931c706657661ca685afa.camel@fi.rohmeurope.com>
-References: <cover.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
-         <eece016c86483d55befab1a06fb299c9d6d17134.1556787930.git.matti.vaittinen@fi.rohmeurope.com>
-         <20190502195049.brysexbyyq7khtr4@earth.universe>
-In-Reply-To: <20190502195049.brysexbyyq7khtr4@earth.universe>
-Accept-Language: en-US, de-DE
-Content-Language: de-DE
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [213.255.186.46]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <EECE8E2DA13B254A9D94FC7DADE8ADED@de.rohmeurope.com>
-Content-Transfer-Encoding: base64
+        id S1727042AbfECJct (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 3 May 2019 05:32:49 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:32779 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726372AbfECJct (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 3 May 2019 05:32:49 -0400
+X-UUID: afbb243bead048f08544f6b066339ff9-20190503
+X-UUID: afbb243bead048f08544f6b066339ff9-20190503
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (mhqrelay.mediatek.com ESMTP with TLS)
+        with ESMTP id 1454124218; Fri, 03 May 2019 17:32:41 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs03n2.mediatek.inc (172.21.101.182) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Fri, 3 May 2019 17:32:40 +0800
+Received: from mtkslt302.mediatek.inc (10.21.14.115) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Fri, 3 May 2019 17:32:40 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+CC:     Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <srv_heupstream@mediatek.com>
+Subject: [PATCH v3 03/10] mfd: mt6397: modify suspend/resume behavior
+Date:   Fri, 3 May 2019 17:31:10 +0800
+Message-ID: <20190503093117.54830-4-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20190503093117.54830-1-hsin-hsiung.wang@mediatek.com>
+References: <20190503093117.54830-1-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-X-Brightmail-Tracker: H4sIAAAAAAAAA01TbUwURxjO7MftHrDNcJ7eFHuNXk0bTUFNjE5a25p+2KVNTWNb0jbEYykr
-        S+Q+snugtH+IH7FHa6QWUznhtAbU2ivGM02BaMNdqSgQlJSiKCclXDGgQC9QkEjO7rhV+DPz
-        zPvM8zzvJO/wtGUvl8EXuX2y6paKHaYUpuX0g3Bmb3dH7pqje1fiuu4/Obx//CSHp2rbGXx4
-        MG7Cx1q7WDzw7+8AT/d8SeGquVMUTnx9m8Xnj80B/EdzjQlPHmgF+NKPPSZ8o+FXDse/76Rw
-        /fVuCtfUX2Zwd/tbeN/FVg4ne88xOHZ3Cx4aSdKbloihYAiIEzf2cWIw9IXYGKsDYlMgxonh
-        M36T2N97wST+EAqxYtNMOSd+F5ylxMnws++nfpq6MV/ylX5QVOhe/WpeqnL/1k+MN7lsV0fX
-        N1Q5qFxWAcw8guvQpf09oAKk8BbYC1Db2d2UcWgDqK9zVD/wvAluRBV9HIFW+DaqrhLJFRr+
-        bUaRgw9ZYrQISujoWBAQbIX56K+2ZsbAL6Gb/lM0wQxcgfZEJh7dEeAWdO/+bdrIug5Q6B//
-        IyMzfAX5+/dwBANoR/7ycYpgGtpQeHiGNbqGqO7CVdrAi9HIUPL/ugNdnB1kSKM0XInONq82
-        pJvQt/2jrIGXo6qvBjmjh3R0pTrOVIIlgQUJgXl1YIE6sEAdWKA+DtgzALmkouJCySevzVLl
-        kizVo7j07TOPKwyM2ZlqBA+j2VEAeeBIE6avdORaWKlUK3NFwdM85VgsBFv00lP5noIyRdIU
-        p1pSLGtRgHjaYRW2JdpzLUKBVPa5rHoeU0t5xmETHjRHci2QJO+QZa+sPmaf4XkHEt69ppum
-        q3KhvGt7UbFvnqZ4MzFPybBqsrtAVqUSn+Ik0+LU9HEhVJqe20DkguaVXHrVkLaDDXzLicFa
-        mo/MkPXIwLC+jkXu1NIWxu1xyxk2IXZVl0EiU0rcT0JHgU1/+yIhStg0/Ws98RzV4yg97s4h
-        8kzNJ81TGeXg/MEEzsr0rnntk4k8i/+NxvHp+pz0ypwx+0f5xzf/fDf7N5BuX7Vz247nl77Y
-        8MuhF9YvX8fW2GvfUxo+vndY6Tkyt2Jr11xwQ5Kunr25e+CdDw9kTpvj4bwTwzbrc/amKW+2
-        7Jw0Nzm7fHTpwLnXc+KJ2LVEJ35zZGbny6c3e7W+IQejKdLaVbSqSf8BrLZD8xcEAAA=
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 61EBBF2BCD1705BD69145CF72B24886C465F70180C476E8F381513D85FF0DDC52000:8
+X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-SGVsbG8gU2ViYXN0aWFuLA0KDQpPbiBUaHUsIDIwMTktMDUtMDIgYXQgMjE6NTAgKzAyMDAsIFNl
-YmFzdGlhbiBSZWljaGVsIHdyb3RlOg0KPiBIaSwNCj4gDQo+IE9uIFRodSwgTWF5IDAyLCAyMDE5
-IGF0IDEyOjE3OjEyUE0gKzAzMDAsIE1hdHRpIFZhaXR0aW5lbiB3cm90ZToNCj4gPiBST0hNIEJE
-NzA1MjggUE1JQyBpbmNsdWRlcyBiYXR0ZXJ5IGNoYXJnZXIgYmxvY2suIFN1cHBvcnQgY2hhcmdl
-cg0KPiA+IHN0YXVzIHF1ZXJpZXMgYW5kIGRvaW5nIGZldyBiYXNpYyBzZXR0aW5ncyBsaWtlIGlu
-cHV0IGN1cnJlbnQgbGltaXQNCj4gPiBhbmQgY2hhcmdpbmcgY3VycmVudC4NCj4gPiANCj4gPiBT
-aWduZWQtb2ZmLWJ5OiBNYXR0aSBWYWl0dGluZW4gPG1hdHRpLnZhaXR0aW5lbkBmaS5yb2htZXVy
-b3BlLmNvbT4NCj4gPiBBY2tlZC1ieTogU2ViYXN0aWFuIFJlaWNoZWwgPHNlYmFzdGlhbi5yZWlj
-aGVsQGNvbGxhYm9yYS5jb20+DQo+IA0KPiBQbGVhc2Ugb25seSBhZGQgQWNrZWQtYnkgd2hlbiB5
-b3UgcmVjZWl2ZSBvbmUsIGVzcGVjaWFsbHkgd2hlbiB5b3UNCj4gZG8gbm90IGltcGxlbWVudCBh
-bGwgcmVxdWVzdGVkIGNoYW5nZXMgOikNCg0KU29ycnkuIFRoaXMgaXMgbXkgYmFkLiBJIHRyYW5z
-bGF0ZWQgeW91cjogIk90aGVyd2lzZSBsb29rcyBvayB0byBtZS4iDQotIHRvIGFuIGFjay4gQW5k
-IEkgd2FzIHByZXR0eSBzdXJlIHlvdSBkaWRuJ3Qgd2FudCB0byBzdGF0aWNpemUgdGhlDQpsb2Nh
-bCBhcnJheS4gSSBzaG91bGQndmUga25vd24gYmV0dGVyLiBJIHNob3VsZCBoYXZlIHdhaXRlZCBm
-b3IgeW91ciBPaw0KdG8gbGVhdmluZyB0aGUgc3RhdGljIG91dCBiZWZvcmUgYWRkaW5nIGFuIGFj
-ay4NCg0KPiANCj4gPiArc3RhdGljIGludCBiZDcwNTI4X2dldF9pcnFzKHN0cnVjdCBwbGF0Zm9y
-bV9kZXZpY2UgKnBkZXYsDQo+ID4gKwkJCSAgICBzdHJ1Y3QgYmQ3MDUyOF9wc3kgKmJkcHN5KQ0K
-PiA+ICt7DQo+ID4gKwlpbnQgaXJxLCBpLCByZXQ7DQo+ID4gKwl1bnNpZ25lZCBpbnQgbWFzazsN
-Cj4gPiArCWNvbnN0IHN0cnVjdCBpcnFfbmFtZV9wYWlyIGJkNzA1MjhfY2hnX2lycXNbXSA9IHsN
-Cj4gPiArCQl7IC5uID0gImJkNzA1MjgtYmF0LW92LXJlcyIsIC5oID0NCj4gPiBCRF9JUlFfSE5E
-KEJBVF9PVl9SRVMpIH0sDQo+ID4gKwkJeyAubiA9ICJiZDcwNTI4LWJhdC1vdi1kZXQiLCAuaCA9
-DQo+ID4gQkRfSVJRX0hORChCQVRfT1ZfREVUKSB9LA0KPiA+ICsJCXsgLm4gPSAiYmQ3MDUyOC1i
-YXQtZGVhZCIsIC5oID0gQkRfSVJRX0hORChEQkFUX0RFVCkgfSwNCj4gPiArCQl7IC5uID0gImJk
-NzA1MjgtYmF0LXdhcm1lZCIsIC5oID0gQkRfSVJRX0hORChDT0xEX1JFUykNCj4gPiB9LA0KPiA+
-ICsJCXsgLm4gPSAiYmQ3MDUyOC1iYXQtY29sZCIsIC5oID0gQkRfSVJRX0hORChDT0xEX0RFVCkg
-fSwNCj4gPiArCQl7IC5uID0gImJkNzA1MjgtYmF0LWNvb2xlZCIsIC5oID0gQkRfSVJRX0hORChI
-T1RfUkVTKQ0KPiA+IH0sDQo+ID4gKwkJeyAubiA9ICJiZDcwNTI4LWJhdC1ob3QiLCAuaCA9IEJE
-X0lSUV9ITkQoSE9UX0RFVCkgfSwNCj4gPiArCQl7IC5uID0gImJkNzA1MjgtY2hnLXRzaGQiLCAu
-aCA9IEJEX0lSUV9ITkQoQ0hHX1RTRCkgfSwNCj4gPiArCQl7IC5uID0gImJkNzA1MjgtYmF0LXJl
-bW92ZWQiLCAuaCA9IEJEX0lSUV9ITkQoQkFUX1JNVikNCj4gPiB9LA0KPiA+ICsJCXsgLm4gPSAi
-YmQ3MDUyOC1iYXQtZGV0ZWN0ZWQiLCAuaCA9IEJEX0lSUV9ITkQoQkFUX0RFVCkNCj4gPiB9LA0K
-PiA+ICsJCXsgLm4gPSAiYmQ3MDUyOC1kY2luMi1vdi1yZXMiLCAuaCA9DQo+ID4gQkRfSVJRX0hO
-RChEQ0lOMl9PVl9SRVMpIH0sDQo+ID4gKwkJeyAubiA9ICJiZDcwNTI4LWRjaW4yLW92LWRldCIs
-IC5oID0NCj4gPiBCRF9JUlFfSE5EKERDSU4yX09WX0RFVCkgfSwNCj4gPiArCQl7IC5uID0gImJk
-NzA1MjgtZGNpbjItcmVtb3ZlZCIsIC5oID0NCj4gPiBCRF9JUlFfSE5EKERDSU4yX1JNVikgfSwN
-Cj4gPiArCQl7IC5uID0gImJkNzA1MjgtZGNpbjItZGV0ZWN0ZWQiLCAuaCA9DQo+ID4gQkRfSVJR
-X0hORChEQ0lOMl9ERVQpIH0sDQo+ID4gKwkJeyAubiA9ICJiZDcwNTI4LWRjaW4xLXJlbW92ZWQi
-LCAuaCA9DQo+ID4gQkRfSVJRX0hORChEQ0lOMV9STVYpIH0sDQo+ID4gKwkJeyAubiA9ICJiZDcw
-NTI4LWRjaW4xLWRldGVjdGVkIiwgLmggPQ0KPiA+IEJEX0lSUV9ITkQoRENJTjFfREVUKSB9LA0K
-PiA+ICsJfTsNCj4gDQo+IFBsZWFzZSBhbHNvIG1ha2UgaXQgc3RhdGljLiBUaGF0IHdpbGwgbW92
-ZSB0aGUgd2hvbGUgdGhpbmcgdG8NCj4gcmVhZC1vbmx5IChiZWNhdXNlIG9mIGNvbnN0KSBkYXRh
-IHNlY3Rpb24uIFRoaXMgaW1wcm92ZXMgdGhlDQo+IHNlY3VyaXR5IGFuZCB0aGUgcmVxdWlyZWQg
-Y3B1IHRpbWUgYXQgdGhlIHNhbWUgdGltZSAobm8gbmVlZA0KPiB0byBjb3B5IHZhbHVlcyB0byB0
-aGUgc3RhY2spLg0KDQpPay4gSSBzZWUgeW91ciBwb2ludCBhbmQgaXQgc291bmRzIHJlYXNvbmFi
-bGUuDQoNCj4gQnV0IHRoaXMgY2FuIGJlIGNoYW5nZWQgbGF0ZXIsIHNvIG5vIG5lZWQgdG8gYmxv
-Y2sgdGhlIHdob2xlDQo+IHBhdGNoc2V0IGp1c3QgYmVjYXVzZSBvZiB0aGlzLiBJZiBMZWUgd2Fu
-dHMgdG8gbWVyZ2UgdGhpcyBmb3INCj4gNS4yLCB0aGF0IHdvdWxkIGJlIGZpbmUgd2l0aCBtZS4g
-QnV0IHBsZWFzZSBhZGQgaXQgZGlyZWN0bHkgaW4NCj4gYSBuZXcgcGF0Y2ggcmV2aXNpb24gaWYg
-dGhlIHBhdGNoIGRvZXMgbm90IG1ha2UgaXQgaW50byA1LjIuDQoNCkl0IHdvdWxkIGJlIGdyZWF0
-IHRvIGdldCB0aGlzIGluLCBpdCBoYXMgYmVlbiByZXNwaW5uZWQgcXVpdGUgYSBmZXcNCnRpbWVz
-IGFscmVhZHkuLi4gSSBob3BlIExlZSB0YWtlcyB0aGUgc2VyaWVzIGluIHdoZW4gaGUncyBiYWNr
-IGZyb20gaGlzDQpsZWF2ZSAtIGJ1dCBpdCBpcyBub3QgYSBwcm9ibGVtIGZvciBtZSB0byBjaGFu
-Z2UgdGhpcyB3aXRoIGxhdGVyIHBhdGNoDQoob3IgY2hhbmdlIHRoaXMgaW4gdGhlIHNlcmllcyBp
-ZiBpdCBzdGlsbCBuZWVkcyB0byBiZSByZXdvcmtlZCkuDQoNCg0KQnIsDQoJTWF0dGkgVmFpdHRp
-bmVuDQo=
+Some pmics don't need backup interrupt settings, so we change to use
+pm notifier for the pmics which are necessary to store settings.
+
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c       | 89 ++++++++++++++-------------------
+ drivers/mfd/mt6397-irq.c        | 33 ++++++++++++
+ include/linux/mfd/mt6397/core.h |  3 ++
+ 3 files changed, 73 insertions(+), 52 deletions(-)
+
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index c80f0449fe7e..719687a341de 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -12,7 +12,6 @@
+  * GNU General Public License for more details.
+  */
+ 
+-#include <linux/interrupt.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
+@@ -90,40 +89,27 @@ static const struct mfd_cell mt6397_devs[] = {
+ 	}
+ };
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int mt6397_irq_suspend(struct device *dev)
+-{
+-	struct mt6397_chip *chip = dev_get_drvdata(dev);
+-
+-	regmap_write(chip->regmap, chip->int_con[0], chip->wake_mask[0]);
+-	regmap_write(chip->regmap, chip->int_con[1], chip->wake_mask[1]);
+-
+-	enable_irq_wake(chip->irq);
+-
+-	return 0;
+-}
+-
+-static int mt6397_irq_resume(struct device *dev)
+-{
+-	struct mt6397_chip *chip = dev_get_drvdata(dev);
+-
+-	regmap_write(chip->regmap, chip->int_con[0], chip->irq_masks_cur[0]);
+-	regmap_write(chip->regmap, chip->int_con[1], chip->irq_masks_cur[1]);
+-
+-	disable_irq_wake(chip->irq);
++struct chip_data {
++	u32 cid_addr;
++	u32 cid_shift;
++};
+ 
+-	return 0;
+-}
+-#endif
++static const struct chip_data mt6323_core = {
++	.cid_addr = MT6323_CID,
++	.cid_shift = 0,
++};
+ 
+-static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_irq_suspend,
+-			mt6397_irq_resume);
++static const struct chip_data mt6397_core = {
++	.cid_addr = MT6397_CID,
++	.cid_shift = 0,
++};
+ 
+ static int mt6397_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+ 	unsigned int id;
+ 	struct mt6397_chip *pmic;
++	const struct chip_data *pmic_core;
+ 
+ 	pmic = devm_kzalloc(&pdev->dev, sizeof(*pmic), GFP_KERNEL);
+ 	if (!pmic)
+@@ -139,28 +125,30 @@ static int mt6397_probe(struct platform_device *pdev)
+ 	if (!pmic->regmap)
+ 		return -ENODEV;
+ 
+-	platform_set_drvdata(pdev, pmic);
++	pmic_core = of_device_get_match_data(&pdev->dev);
++	if (!pmic_core)
++		return -ENODEV;
+ 
+-	ret = regmap_read(pmic->regmap, MT6397_CID, &id);
++	ret = regmap_read(pmic->regmap, pmic_core->cid_addr, &id);
+ 	if (ret) {
+-		dev_err(pmic->dev, "Failed to read chip id: %d\n", ret);
++		dev_err(&pdev->dev, "Failed to read chip id: %d\n", ret);
+ 		return ret;
+ 	}
+ 
++	pmic->chip_id = (id >> pmic_core->cid_shift) & 0xff;
++
++	platform_set_drvdata(pdev, pmic);
++
+ 	pmic->irq = platform_get_irq(pdev, 0);
+ 	if (pmic->irq <= 0)
+ 		return pmic->irq;
+ 
+-	switch (id & 0xff) {
+-	case MT6323_CHIP_ID:
+-		pmic->int_con[0] = MT6323_INT_CON0;
+-		pmic->int_con[1] = MT6323_INT_CON1;
+-		pmic->int_status[0] = MT6323_INT_STATUS0;
+-		pmic->int_status[1] = MT6323_INT_STATUS1;
+-		ret = mt6397_irq_init(pmic);
+-		if (ret)
+-			return ret;
++	ret = mt6397_irq_init(pmic);
++	if (ret)
++		return ret;
+ 
++	switch (pmic->chip_id) {
++	case MT6323_CHIP_ID:
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+ 					   ARRAY_SIZE(mt6323_devs), NULL,
+ 					   0, pmic->irq_domain);
+@@ -168,21 +156,13 @@ static int mt6397_probe(struct platform_device *pdev)
+ 
+ 	case MT6391_CHIP_ID:
+ 	case MT6397_CHIP_ID:
+-		pmic->int_con[0] = MT6397_INT_CON0;
+-		pmic->int_con[1] = MT6397_INT_CON1;
+-		pmic->int_status[0] = MT6397_INT_STATUS0;
+-		pmic->int_status[1] = MT6397_INT_STATUS1;
+-		ret = mt6397_irq_init(pmic);
+-		if (ret)
+-			return ret;
+-
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+ 					   ARRAY_SIZE(mt6397_devs), NULL,
+ 					   0, pmic->irq_domain);
+ 		break;
+ 
+ 	default:
+-		dev_err(&pdev->dev, "unsupported chip: %d\n", id);
++		dev_err(&pdev->dev, "unsupported chip: %d\n", pmic->chip_id);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -195,9 +175,15 @@ static int mt6397_probe(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id mt6397_of_match[] = {
+-	{ .compatible = "mediatek,mt6397" },
+-	{ .compatible = "mediatek,mt6323" },
+-	{ }
++	{
++		.compatible = "mediatek,mt6323",
++		.data = &mt6323_core,
++	}, {
++		.compatible = "mediatek,mt6397",
++		.data = &mt6397_core,
++	}, {
++		/* sentinel */
++	}
+ };
+ MODULE_DEVICE_TABLE(of, mt6397_of_match);
+ 
+@@ -212,7 +198,6 @@ static struct platform_driver mt6397_driver = {
+ 	.driver = {
+ 		.name = "mt6397",
+ 		.of_match_table = of_match_ptr(mt6397_of_match),
+-		.pm = &mt6397_pm_ops,
+ 	},
+ 	.id_table = mt6397_id,
+ };
+diff --git a/drivers/mfd/mt6397-irq.c b/drivers/mfd/mt6397-irq.c
+index b2d3ce1f3115..669e93df54ef 100644
+--- a/drivers/mfd/mt6397-irq.c
++++ b/drivers/mfd/mt6397-irq.c
+@@ -9,6 +9,7 @@
+ #include <linux/of_irq.h>
+ #include <linux/platform_device.h>
+ #include <linux/regmap.h>
++#include <linux/suspend.h>
+ #include <linux/mfd/mt6323/core.h>
+ #include <linux/mfd/mt6323/registers.h>
+ #include <linux/mfd/mt6397/core.h>
+@@ -128,6 +129,36 @@ static const struct irq_domain_ops mt6397_irq_domain_ops = {
+ 	.map = mt6397_irq_domain_map,
+ };
+ 
++static int mt6397_irq_pm_notifier(struct notifier_block *notifier,
++				  unsigned long pm_event, void *unused)
++{
++	struct mt6397_chip *chip =
++		container_of(notifier, struct mt6397_chip, pm_nb);
++
++	switch (pm_event) {
++	case PM_SUSPEND_PREPARE:
++		regmap_write(chip->regmap,
++			     chip->int_con[0], chip->wake_mask[0]);
++		regmap_write(chip->regmap,
++			     chip->int_con[1], chip->wake_mask[1]);
++		enable_irq_wake(chip->irq);
++		break;
++
++	case PM_POST_SUSPEND:
++		regmap_write(chip->regmap,
++			     chip->int_con[0], chip->irq_masks_cur[0]);
++		regmap_write(chip->regmap,
++			     chip->int_con[1], chip->irq_masks_cur[1]);
++		disable_irq_wake(chip->irq);
++		break;
++
++	default:
++		break;
++	}
++
++	return NOTIFY_DONE;
++}
++
+ int mt6397_irq_init(struct mt6397_chip *chip)
+ {
+ 	int ret;
+@@ -159,6 +190,7 @@ int mt6397_irq_init(struct mt6397_chip *chip)
+ 	regmap_write(chip->regmap, chip->int_con[0], 0x0);
+ 	regmap_write(chip->regmap, chip->int_con[1], 0x0);
+ 
++	chip->pm_nb.notifier_call = mt6397_irq_pm_notifier;
+ 	chip->irq_domain = irq_domain_add_linear(chip->dev->of_node,
+ 						 MT6397_IRQ_NR,
+ 						 &mt6397_irq_domain_ops,
+@@ -177,5 +209,6 @@ int mt6397_irq_init(struct mt6397_chip *chip)
+ 		return ret;
+ 	}
+ 
++	register_pm_notifier(&chip->pm_nb);
+ 	return 0;
+ }
+diff --git a/include/linux/mfd/mt6397/core.h b/include/linux/mfd/mt6397/core.h
+index 93f9f5235575..0cb5d4b0895b 100644
+--- a/include/linux/mfd/mt6397/core.h
++++ b/include/linux/mfd/mt6397/core.h
+@@ -15,6 +15,8 @@
+ #ifndef __MFD_MT6397_CORE_H__
+ #define __MFD_MT6397_CORE_H__
+ 
++#include <linux/notifier.h>
++
+ enum chip_id {
+ 	MT6323_CHIP_ID = 0x23,
+ 	MT6391_CHIP_ID = 0x91,
+@@ -60,6 +62,7 @@ enum mt6397_irq_numbers {
+ struct mt6397_chip {
+ 	struct device *dev;
+ 	struct regmap *regmap;
++	struct notifier_block pm_nb;
+ 	int irq;
+ 	struct irq_domain *irq_domain;
+ 	struct mutex irqlock;
+-- 
+2.18.0
+
