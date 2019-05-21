@@ -1,97 +1,49 @@
-Return-Path: <SRS0=19Lw=TP=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=9XSd=TV=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,PRICE_CATALOG,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2C05C04E53
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 May 2019 14:20:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FDC5C04AAF
+	for <linux-rtc@archiver.kernel.org>; Tue, 21 May 2019 08:12:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 692AC2084E
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 May 2019 14:20:40 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=globallogic.com header.i=@globallogic.com header.b="iPhqIpdq"
+	by mail.kernel.org (Postfix) with ESMTP id 0906E2173E
+	for <linux-rtc@archiver.kernel.org>; Tue, 21 May 2019 08:12:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbfEOOUk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 15 May 2019 10:20:40 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:37049 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725953AbfEOOUk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 May 2019 10:20:40 -0400
-Received: by mail-lj1-f194.google.com with SMTP id h19so2701812ljj.4
-        for <linux-rtc@vger.kernel.org>; Wed, 15 May 2019 07:20:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=globallogic.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=YMwQpxiUwj2cT4FqUrUHXV80PQdmZFxXDMY3ylf0go4=;
-        b=iPhqIpdqqX9dUqy4uUKArSPUkyXqjPd1GOQr/5AaYIOa4vMVTRPhiV4Jm1OEc5JW9K
-         FmUr9U2FuzrTf4oXQbcSlXq+gvWbserHTyxMjTdR6G5y597mnGg9mkczEw12ekmtbnm7
-         MG0QsErF1v8fNuPIEpD5Nl/NyFz7m3kHa1M9aLlsFmq6+rBlfy9+HiqVFi0/I6RcPxMC
-         7N85aASBxWA79/QdZZQZ4W5CfBxOyyDliMPgJMo+kGEeFLBosxpVoX8uyJ21m6zA5oKf
-         f1cW6vVQRPSzwfTgFQiDi/M735jTbDrJ70TjUBWtRES5+9jmG7N1ntJor8aji8txkna9
-         zXmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=YMwQpxiUwj2cT4FqUrUHXV80PQdmZFxXDMY3ylf0go4=;
-        b=ItjxekLIxAkhsR4PbclvIbU/TkuzQROrCw+D3CbGiANLxhB3dDyfvfi0GUvpTJjETo
-         fXXdAVmXWn9uWuySlu8QrP9Kq2HL8t9Ry9ra58msBNQc3bfh8/xiws6v1LQaUvhILIKY
-         9JLEumn/XaBFgTxercfXpA6GJgXEtaDxh+TV+o1P+Lun3xII0xA8GqVzPszhK/saq9La
-         wGUV7ZBWwuXRjotkKruILoR47F1LVeicb7t7fUM1OCh2pVhYjELKZsQaquGwVXjO+rVx
-         KArJ4R4VCrsQifsus6Ek+nNVHTs0ywvSL9uyEinTUmtmT12KsO+/nPWI6dy0ZR0I9/wC
-         c8jA==
-X-Gm-Message-State: APjAAAV1+Cp6QWkPfUn9ELZLp8rwlfYuq8JIUGlVKs9u3JCW1xS+7V5Y
-        mNcGKbPvxeo5FHziY93jz0pkpw==
-X-Google-Smtp-Source: APXvYqxLD/Xz/XOt80cJ7YXHPOP+mYypFxg9knaqEMHMXEygAeuW2r8l1jyoq+xHXe44xruKXkwNkA==
-X-Received: by 2002:a2e:9142:: with SMTP id q2mr1086173ljg.18.1557930038264;
-        Wed, 15 May 2019 07:20:38 -0700 (PDT)
-Received: from roman-VirtualBox.synapse.com ([195.238.92.107])
-        by smtp.gmail.com with ESMTPSA id h11sm414592lfh.8.2019.05.15.07.20.36
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 15 May 2019 07:20:37 -0700 (PDT)
-From:   roman.stratiienko@globallogic.com
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Roman Stratiienko <roman.stratiienko@globallogic.com>
-Subject: [PATCH v2] rtc: test: enable wakeup flags
-Date:   Wed, 15 May 2019 17:20:22 +0300
-Message-Id: <20190515142022.15019-1-roman.stratiienko@globallogic.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727219AbfEUIMR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 21 May 2019 04:12:17 -0400
+Received: from [159.89.165.40] ([159.89.165.40]:57332 "EHLO mail.boombf2am.ml"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S1727132AbfEUIMR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 21 May 2019 04:12:17 -0400
+Received: by mail.boombf2am.ml (Postfix, from userid 48)
+        id 1DF5E79217B; Tue, 21 May 2019 06:08:22 +0000 (UTC)
+To:     linux-rtc@vger.kernel.org
+Subject: Trade enquiry 21/May/2019
+X-PHP-Originating-Script: 0:hdahged.php
+From:   Daniel Murray <sinara-group@bk.ru>
+Reply-To: danielmurray@mail.ru
+MIME-Version: 1.0
+Content-Type:   text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20190521063555.1DF5E79217B@mail.boombf2am.ml>
+Date:   Tue, 21 May 2019 06:08:22 +0000 (UTC)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Roman Stratiienko <roman.stratiienko@globallogic.com>
+Hi,friend,
 
-Alarmtimer interface uses only the RTC with wekeup flags enabled.
-Allow to use rtc-test driver with alarmtimer interface.
+This is Daniel Murray and i am from Sinara Group Co.Ltd in Russia.
+We are glad to know about your company from the web and we are interested in your products.
+Could you kindly send us your Latest catalog and price list for our trial order.
 
-Signed-off-by: Roman Stratiienko <roman.stratiienko@globallogic.com>
+Best Regards,
 
----
-Changes in v2:
+Daniel Murray
+Purchasing Manager
 
-Wakeup flags applied only for the RTCs with alarm support
-
- drivers/rtc/rtc-test.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/rtc/rtc-test.c b/drivers/rtc/rtc-test.c
-index 6c5f09c815e8..473bbb30bc1c 100644
---- a/drivers/rtc/rtc-test.c
-+++ b/drivers/rtc/rtc-test.c
-@@ -133,6 +133,7 @@ static int test_probe(struct platform_device *plat_dev)
- 		break;
- 	default:
- 		rtd->rtc->ops = &test_rtc_ops;
-+		device_init_wakeup(&plat_dev->dev, 1);
- 	}
- 
- 	timer_setup(&rtd->alarm, test_rtc_alarm_handler, 0);
--- 
-2.17.1
 
