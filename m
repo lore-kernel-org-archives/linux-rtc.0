@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DB1C282CE
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:34:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4E4EC282DD
+	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:36:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2BF492081C
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:34:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE45920675
+	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1558553645;
+	s=default; t=1558553777;
 	bh=Z5M97+wnGla18P25MkB3sjrGHWb2JtxK/um22vBOWNQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ot1g7KWZu06DrjLe3oqhjF+4kGlTiWaqhIFIdfuf08bju6eK6eM6SlEtMw55I3Qma
-	 JpnlTqbmGghj0C1nRRAAVK5U6ycbrYR5e0UoOUGVxbf+YD4XMfEIDx4Nfjc8Lvbpm9
-	 s9tTImXejLVv1Y20uJIsUn4a18v9evjQpwnZSY+E=
+	b=bPKMC0n4UJRAkPj6qc3XvgrpG0DZ3PAxo2ib+RW9Z5avt+DGx7DT1eBYaApaT8QTy
+	 XxlfZ/v4De796p4ciiQ6xDBoLi4aNh6pAzyd3mJSjOcqQVLGERmIl6iQThRLz6/NW/
+	 PY2eqb8ijY6hoLluFnzQ60AarhNMZ53v+m5s1jTw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730502AbfEVTd7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 22 May 2019 15:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55224 "EHLO mail.kernel.org"
+        id S2387396AbfEVTau (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 22 May 2019 15:30:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387586AbfEVTbl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 22 May 2019 15:31:41 -0400
+        id S1732913AbfEVTas (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 22 May 2019 15:30:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3225A2173C;
-        Wed, 22 May 2019 19:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE23921473;
+        Wed, 22 May 2019 19:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558553500;
+        s=default; t=1558553447;
         bh=Z5M97+wnGla18P25MkB3sjrGHWb2JtxK/um22vBOWNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvbRErWoTXFOLvwuGYgJVZ3dUU1zswSHi76dQTZimcomh84xbF4JpEzPC187FMD+f
-         n4ZLIlKmo2AcSXgmAaMsrh2q6aRtre6iVMsWDD+VURtXqt9dMphC1mUWsfLSXCkTOB
-         rRVVpYamVk3eULxbhI2bjd+ZO4fye5PuTNavL8QI=
+        b=o+cy/+wVR8Q2Tuue1s+++sEaaVpbgChfOGkTX5Zuv1bNffzgui3BaCtEIM7kE96nu
+         FQd9jZRxZWUYB52eI2irCTR49EMJkKwZYOTrUXF4ndoMOJJOx+fPAqOrAipsdr+cI5
+         ZldGjhuCQqdPqKdUIg5QNwGUCj5eFjtSyBFYSKVA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
         Sven Van Asbroeck <TheSven73@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 08/92] rtc: 88pm860x: prevent use-after-free on device remove
-Date:   Wed, 22 May 2019 15:30:03 -0400
-Message-Id: <20190522193127.27079-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 017/114] rtc: 88pm860x: prevent use-after-free on device remove
+Date:   Wed, 22 May 2019 15:28:40 -0400
+Message-Id: <20190522193017.26567-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190522193127.27079-1-sashal@kernel.org>
-References: <20190522193127.27079-1-sashal@kernel.org>
+In-Reply-To: <20190522193017.26567-1-sashal@kernel.org>
+References: <20190522193017.26567-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
