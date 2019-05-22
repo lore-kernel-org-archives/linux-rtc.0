@@ -2,45 +2,101 @@ Return-Path: <SRS0=f2mB=TW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=FREEMAIL_REPLYTO_END_DIGIT,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 206E8C282CE
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 10:52:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DB1C282CE
+	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:34:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F3FB4217D4
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 10:52:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BF492081C
+	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 19:34:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1558553645;
+	bh=Z5M97+wnGla18P25MkB3sjrGHWb2JtxK/um22vBOWNQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=ot1g7KWZu06DrjLe3oqhjF+4kGlTiWaqhIFIdfuf08bju6eK6eM6SlEtMw55I3Qma
+	 JpnlTqbmGghj0C1nRRAAVK5U6ycbrYR5e0UoOUGVxbf+YD4XMfEIDx4Nfjc8Lvbpm9
+	 s9tTImXejLVv1Y20uJIsUn4a18v9evjQpwnZSY+E=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729527AbfEVKwA convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 22 May 2019 06:52:00 -0400
-Received: from mail.contraloria.gob.bo ([190.11.83.39]:48894 "HELO
-        mail.contraloria.gob.bo" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1729471AbfEVKv7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 22 May 2019 06:51:59 -0400
-Received: from [192.99.195.49] (ip49.ip-192-99-195.net [192.99.195.49])
-        by mail.contraloria.gob.bo (Postfix) with ESMTPSA id 71091307D7D3
-        for <linux-rtc@vger.kernel.org>; Wed, 22 May 2019 04:22:47 -0400 (BOT)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1730502AbfEVTd7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 22 May 2019 15:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55224 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387586AbfEVTbl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 22 May 2019 15:31:41 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3225A2173C;
+        Wed, 22 May 2019 19:31:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558553500;
+        bh=Z5M97+wnGla18P25MkB3sjrGHWb2JtxK/um22vBOWNQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PvbRErWoTXFOLvwuGYgJVZ3dUU1zswSHi76dQTZimcomh84xbF4JpEzPC187FMD+f
+         n4ZLIlKmo2AcSXgmAaMsrh2q6aRtre6iVMsWDD+VURtXqt9dMphC1mUWsfLSXCkTOB
+         rRVVpYamVk3eULxbhI2bjd+ZO4fye5PuTNavL8QI=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 08/92] rtc: 88pm860x: prevent use-after-free on device remove
+Date:   Wed, 22 May 2019 15:30:03 -0400
+Message-Id: <20190522193127.27079-8-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190522193127.27079-1-sashal@kernel.org>
+References: <20190522193127.27079-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: [No Subject]
-To:     linux-rtc@vger.kernel.org
-From:   "Gardner, Tim" <usrtch@contraloria.gob.bo>
-Date:   Wed, 22 May 2019 01:53:09 -0700
-Reply-To: adamlui32@aol.com
-X-Mailer: iPad Mail (14G60)
-Message-Id: <20190522082247.71091307D7D3@mail.contraloria.gob.bo>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-We are now providing business & personal loans: 
--Rate starting at: 2.05%. 
--Flexible repayment: up to 30 years. 
-For more information and application, please reply. 
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-> To unsubscribe please reply with "unsubscribe" as subject. 
+[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
+
+The device's remove() attempts to shut down the delayed_work scheduled
+on the kernel-global workqueue by calling flush_scheduled_work().
+
+Unfortunately, flush_scheduled_work() does not prevent the delayed_work
+from re-scheduling itself. The delayed_work might run after the device
+has been removed, and touch the already de-allocated info structure.
+This is a potential use-after-free.
+
+Fix by calling cancel_delayed_work_sync() during remove(): this ensures
+that the delayed work is properly cancelled, is no longer running, and
+is not able to re-schedule itself.
+
+This issue was detected with the help of Coccinelle.
+
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/rtc/rtc-88pm860x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index 19e53b3b8e005..166faae3a59cd 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -414,7 +414,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
+ 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
+ 
+ #ifdef VRTC_CALIBRATION
+-	flush_scheduled_work();
++	cancel_delayed_work_sync(&info->calib_work);
+ 	/* disable measurement */
+ 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
+ #endif	/* VRTC_CALIBRATION */
+-- 
+2.20.1
+
