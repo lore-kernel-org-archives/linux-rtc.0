@@ -1,102 +1,122 @@
-Return-Path: <SRS0=f2mB=TW=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=W9OE=TX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1832CC282CE
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 20:00:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B765C282DD
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 11:55:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D04A420856
-	for <linux-rtc@archiver.kernel.org>; Wed, 22 May 2019 20:00:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1558555231;
-	bh=jF0IG8seK5yfPVv0jnKmDcjfxxH3S6pb05UYr0vEJKI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=2RdljMVyt3lWx9mKQwm5K2JCJ8i0z17sFluKDIO0A8B1YaYrrxg14FjDaaCWUkOZ5
-	 s09Qi/rvET2mLm+VRZgGmkBoZVB69QnIWtznwzMWivxmdJCUnYe6Jn67Pp63XS0whE
-	 iqSt1+H9pX+gat7QNhNttumyAwsdtX+WEWInxPas=
+	by mail.kernel.org (Postfix) with ESMTP id 660BF20881
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 11:55:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=skidata.com header.i=@skidata.com header.b="cvxHPDxp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730732AbfEVTXE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 22 May 2019 15:23:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43922 "EHLO mail.kernel.org"
+        id S1729698AbfEWLz1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 23 May 2019 07:55:27 -0400
+Received: from mail2.skidata.com ([91.230.2.91]:48019 "EHLO mail2.skidata.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729965AbfEVTXD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 22 May 2019 15:23:03 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EB8121850;
-        Wed, 22 May 2019 19:23:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558552983;
-        bh=jF0IG8seK5yfPVv0jnKmDcjfxxH3S6pb05UYr0vEJKI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yX9Rjnw2qZJIJy90nvEgmPD3ZDtLRvy2wg99B3p6BkRX6GmssCe+vDc81fkebOhVi
-         OZ1zvUJpv7PhxH+A+OeDcxxZyByYkFU7IpxUh/IgN6HcUnmLqCnIsCDeMKwdSwOjsd
-         5PKoV9jGiF4MrgQ1ZdKdmVNQGoNJD5raOjWLU684=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 061/375] rtc: 88pm860x: prevent use-after-free on device remove
-Date:   Wed, 22 May 2019 15:16:01 -0400
-Message-Id: <20190522192115.22666-61-sashal@kernel.org>
+        id S1729361AbfEWLz1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 23 May 2019 07:55:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=skidata.com; i=@skidata.com; q=dns/txt; s=selector1;
+  t=1558612549; x=1590148549;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=O96KBXfBS7uBizMwp2s/jwpgKuAl+d+1cTWdfbrTGg4=;
+  b=cvxHPDxpp3ddy3Pk3uq/dcmLidGdn+dY06lMhfWqtBp5BEmP5DkKm/Ay
+   j2Hf/wk7M5QPBcueLU0C3xVZRsjDnGZMC7sMK+dhlwJauzWgue2nXPY7E
+   4PxJFxWgcTG/cYBFplZ/74yKXpBmEhzVOCaRzFl/8XaKpeGykt+8PkArh
+   E/DzvMogZA4B1b+bu9yh9OEyhx8/rmenexNuRhwYiUNoq29b1EvRPyl6X
+   PanQDI9IhEBJ+ORh/dstax85ojNBaN6VwojYfrf9kfcrYuU2biG4jFOAt
+   +Ca09c7r27zLHJBqV+QVh0X5DhVBkSvKoy0xCqRJOSCQyXCAZYzwoQgTA
+   w==;
+IronPort-SDR: WvICdEuj5J2cL3KxrYu9ZlE8SY3L/WWvvTLYgdI+7Y36C2QLCkKsBn7GBB9pKFH04z8CS3qMPO
+ +qZS+TcI3O7DvC4HsNZPwMKq1qyO7+GGxFilJ4pH92HwXFNJZ+j4uqsYh8dgtP4vNUfw67y1gm
+ Ytpb2kKxQv9ZjjkeNZFtIBnJxsWJxiFzRc4i5TQXr+yFw8BbEigIVzV3h7L6GLoWM4KQQ3UzFU
+ jA8JeBypvXEys5UMAoD2TgtnKEUK9H5dsGCxM/RUbvLIOzNQDybVb4VqgwZiOXQRmcBoMiqx88
+ 7Rw=
+X-IronPort-AV: E=Sophos;i="5.60,502,1549926000"; 
+   d="scan'208";a="2154450"
+From:   Richard Leitner <richard.leitner@skidata.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Richard Leitner <richard.leitner@skidata.com>
+Subject: [PATCH v2 1/4] rtc: s35390a: clarify INT2 pin output modes
+Date:   Thu, 23 May 2019 13:54:48 +0200
+Message-ID: <20190523115451.20007-2-richard.leitner@skidata.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190522192115.22666-1-sashal@kernel.org>
-References: <20190522192115.22666-1-sashal@kernel.org>
+In-Reply-To: <20190523115451.20007-1-richard.leitner@skidata.com>
+References: <20190523115451.20007-1-richard.leitner@skidata.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [192.168.111.252]
+X-ClientProxiedBy: sdex4srv.skidata.net (192.168.111.82) To
+ sdex5srv.skidata.net (192.168.111.83)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+Fix the INT2 mode mask to not include the "TEST" flag. Furthermore
+remove the not needed reversion of bits when parsing the INT2 modes.
+Instead reverse the INT2_MODE defines to match the bit order from the
+datasheet.
 
-[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
+Additionally mention the flag names from the datasheet for the different
+modes in the comments.
 
-The device's remove() attempts to shut down the delayed_work scheduled
-on the kernel-global workqueue by calling flush_scheduled_work().
-
-Unfortunately, flush_scheduled_work() does not prevent the delayed_work
-from re-scheduling itself. The delayed_work might run after the device
-has been removed, and touch the already de-allocated info structure.
-This is a potential use-after-free.
-
-Fix by calling cancel_delayed_work_sync() during remove(): this ensures
-that the delayed work is properly cancelled, is no longer running, and
-is not able to re-schedule itself.
-
-This issue was detected with the help of Coccinelle.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
 ---
- drivers/rtc/rtc-88pm860x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-s35390a.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index d25282b4a7dd1..73697e4b18a9d 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -421,7 +421,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
- 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 3c64dbb08109..fb795c454077 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -45,12 +45,13 @@
+ /* flag for STATUS2 */
+ #define S35390A_FLAG_TEST	0x01
  
- #ifdef VRTC_CALIBRATION
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&info->calib_work);
- 	/* disable measurement */
- 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
- #endif	/* VRTC_CALIBRATION */
+-#define S35390A_INT2_MODE_MASK		0xF0
+-
++/* INT2 pin output mode */
++#define S35390A_INT2_MODE_MASK		0x0E
+ #define S35390A_INT2_MODE_NOINTR	0x00
+-#define S35390A_INT2_MODE_FREQ		0x10
+-#define S35390A_INT2_MODE_ALARM		0x40
+-#define S35390A_INT2_MODE_PMIN_EDG	0x20
++#define S35390A_INT2_MODE_ALARM		BIT(1) /* INT2AE */
++#define S35390A_INT2_MODE_PMIN_EDG	BIT(2) /* INT2ME */
++#define S35390A_INT2_MODE_FREQ		BIT(3) /* INT2FE */
++#define S35390A_INT2_MODE_PMIN		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
+ 
+ static const struct i2c_device_id s35390a_id[] = {
+ 	{ "s35390a", 0 },
+@@ -303,9 +304,6 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	else
+ 		sts = S35390A_INT2_MODE_NOINTR;
+ 
+-	/* This chip expects the bits of each byte to be in reverse order */
+-	sts = bitrev8(sts);
+-
+ 	/* set interupt mode*/
+ 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+ 	if (err < 0)
+@@ -343,7 +341,7 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	if (err < 0)
+ 		return err;
+ 
+-	if ((bitrev8(sts) & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
++	if ((sts & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
+ 		/*
+ 		 * When the alarm isn't enabled, the register to configure
+ 		 * the alarm time isn't accessible.
 -- 
 2.20.1
 
