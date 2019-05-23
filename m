@@ -2,99 +2,82 @@ Return-Path: <SRS0=W9OE=TX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 898AAC282E1
-	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 12:03:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C398C282DD
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 15:42:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4B51B20881
-	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 12:03:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=skidata.com header.i=@skidata.com header.b="X3xQbIsa"
+	by mail.kernel.org (Postfix) with ESMTP id 5EA4B2133D
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 15:42:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729762AbfEWMDH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 23 May 2019 08:03:07 -0400
-Received: from mail1.skidata.com ([91.230.2.99]:1649 "EHLO mail1.skidata.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729361AbfEWMDH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 23 May 2019 08:03:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=skidata.com; i=@skidata.com; q=dns/txt; s=selector1;
-  t=1558613008; x=1590149008;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=BsXCeB/+8nXIFLIExpSSR1992V0/zCsuaE0B3Mxz00A=;
-  b=X3xQbIsaSxINQ42kztWvA6cf3uhrCGiTsGXRauPJxn6LOx4fCsALWQBC
-   xkGsFSu8qsnTLAH6UDyBNZnNw02x1VgcoyKNOs+GDup65UCpzy4OMf/Xh
-   Vc8dK9Yy66qgWSoW9WBUqg44voAUqC8eUa81BjvvS5ubNwTzb80iJxQBP
-   PIo/5LXmaVkOwQnkd5ovxBsR5R7ADWFmWGT8KMkwdGPlxUnT3SJYBIc9m
-   hUE7Ds9/gH3dYe98HFMu7xN3G4Ge/YEEMiNns/1sV0/daZFp8ufYhUEc9
-   UVvmbsyYJfXQru+fGBMw4r3tOztmlJSg+WuqlUKQkNe0vLNFbf+EA4Lqj
-   A==;
-IronPort-SDR: jVvamI5YPUJ4BjtZ/ivwpnxyAiIhKCF3881WsvJZLF24nG9EnfsT6GfkTlOM6+nZ5nbYb6ym12
- nkofNIKS17YNeCrKgWisFiwhWlUTb5saw15vpgAmbRmTjH219w1shKRitrtW10kcz08AMNUnvL
- hst+rY3aCgK88lhbMKXaOlAWelRMy91HXXieZ9PQW7jjjL/oBxS4lJ3irnWLrjGOh1YGYQnkDM
- eGf+lCCY6f/p9D1xdrkno4E0DOxiyRtKNmE/uR60qr3jKLQ3jOk/cnOUwlhh2aNwRlgZcC7M2R
- 3fg=
-X-IronPort-AV: E=Sophos;i="5.60,502,1549926000"; 
-   d="scan'208";a="17248281"
-From:   Richard Leitner <richard.leitner@skidata.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Richard Leitner <richard.leitner@skidata.com>
-Subject: [PATCH v2 4/4] rtc: s35390a: change FLAG defines to use BIT macro
-Date:   Thu, 23 May 2019 13:54:51 +0200
-Message-ID: <20190523115451.20007-5-richard.leitner@skidata.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190523115451.20007-1-richard.leitner@skidata.com>
-References: <20190523115451.20007-1-richard.leitner@skidata.com>
+        id S1730918AbfEWPmr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 23 May 2019 11:42:47 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:55309 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730913AbfEWPmr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 May 2019 11:42:47 -0400
+X-Originating-IP: 90.66.53.80
+Received: from localhost (lfbn-1-3034-80.w90-66.abo.wanadoo.fr [90.66.53.80])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 6ECBFC0008;
+        Thu, 23 May 2019 15:42:44 +0000 (UTC)
+Date:   Thu, 23 May 2019 17:42:44 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Nicholas Mc Guire <hofrat@osadl.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds2404: use hw endiannes variable
+Message-ID: <20190523154244.GU3274@piout.net>
+References: <1557368035-6787-1-git-send-email-hofrat@osadl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [192.168.111.252]
-X-ClientProxiedBy: sdex4srv.skidata.net (192.168.111.82) To
- sdex5srv.skidata.net (192.168.111.83)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1557368035-6787-1-git-send-email-hofrat@osadl.org>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-To be consistent change the S35390A_FLAG defines to use the BIT
-macro (like the S35390A_INT2_MODE defines).
+On 09/05/2019 04:13:55+0200, Nicholas Mc Guire wrote:
+> Converting from hardware to host endiannes was done using reassignment
+> to the same variable which makes sparse unhappy as it can not verify
+> the endiannes handling properly. To allow sparse to verify endiannes
+> handling an explicit __le32 is introduced. Note that this patch does
+> not change the generated binary (x86_64 and ppc64 binary diff).
+> 
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> ---
+> 
+> Problem located by an experimental coccinelle script to locate
+> patters that make sparse unhappy (false positives):
+> 
+> on little-endian x86_64 sparse complains about:
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> on big-endian ppc64 sparse complains about
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> drivers/rtc/rtc-ds2404.c:187:16: warning: cast to restricted __le32
+> 
+> Patch was compiletested with:
+>  x86_64_defconfig + RTC_DRV_DS2404=m
+>  ppc64_defconfig + RTC_DRV_DS2404=m
+> 
+> in both cases applying the patch has no impact on the generated binary.
+> 
+> Patch is against 5.1 (localversion-next is next-20190508)
+> 
+>  drivers/rtc/rtc-ds2404.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+Applied, thanks.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
----
- drivers/rtc/rtc-s35390a.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 7293dcdea692..b18ce5610a94 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -36,14 +36,14 @@
- #define S35390A_ALRM_BYTE_MINS	2
- 
- /* flags for STATUS1 */
--#define S35390A_FLAG_POC	0x01
--#define S35390A_FLAG_BLD	0x02
--#define S35390A_FLAG_INT2	0x04
--#define S35390A_FLAG_24H	0x40
--#define S35390A_FLAG_RESET	0x80
-+#define S35390A_FLAG_POC	BIT(0)
-+#define S35390A_FLAG_BLD	BIT(1)
-+#define S35390A_FLAG_INT2	BIT(2)
-+#define S35390A_FLAG_24H	BIT(6)
-+#define S35390A_FLAG_RESET	BIT(7)
- 
- /* flag for STATUS2 */
--#define S35390A_FLAG_TEST	0x01
-+#define S35390A_FLAG_TEST	BIT(0)
- 
- /* INT2 pin output mode */
- #define S35390A_INT2_MODE_MASK		0x0E
 -- 
-2.20.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
