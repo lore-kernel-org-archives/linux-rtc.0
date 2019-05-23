@@ -2,55 +2,53 @@ Return-Path: <SRS0=W9OE=TX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1784AC282DD
-	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 11:55:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB0E8C282DD
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 12:02:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA34720881
-	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 11:55:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6D6720881
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 May 2019 12:02:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=skidata.com header.i=@skidata.com header.b="Isah6zIl"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=skidata.com header.i=@skidata.com header.b="mEoSrR4R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729698AbfEWLzu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 23 May 2019 07:55:50 -0400
-Received: from mail2.skidata.com ([91.230.2.91]:4979 "EHLO mail2.skidata.com"
+        id S1729762AbfEWMCV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 23 May 2019 08:02:21 -0400
+Received: from mail1.skidata.com ([91.230.2.99]:1617 "EHLO mail1.skidata.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730369AbfEWLzu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 23 May 2019 07:55:50 -0400
+        id S1728309AbfEWMCV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 23 May 2019 08:02:21 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Thu, 23 May 2019 08:02:20 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=skidata.com; i=@skidata.com; q=dns/txt; s=selector1;
-  t=1558612571; x=1590148571;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=LHYo3tTfmdsQL0ufgdrCAlM9ZwkBpOXIjAvQU0guZW0=;
-  b=Isah6zIlE7pTktLec4fvIMDpKwPb9MuqVd7NREvXfve35tS9iEtzSrKd
-   PT+UhVZCFTLdGbyeqxzmXtKdM0hQGE5mPspmqjS/+29qYKw+6fyeBkCwo
-   sI2EtH+HKsadYUgceKdvZVD12sqzZagPBuJklXVHxb6u9pw7I6C9F5MIk
-   6UfP1XHGgFri9fAACi4UxjAomeRrcLRbkFnwJc1mnjgnHF6YnRsJDQ8wl
-   GO4meWcxoRXO3hCiyZ3DbDEVjGeiFA0iaKq0a2f9OZ7tJdc/yWE/D5jsr
-   9uCLB9WbNjEibS7EALQX4EUCa2TLMzipKtpw2KtMSPpDeczrSGjIY/AmH
-   g==;
-IronPort-SDR: UdRrGyZ7xWJT96tyQxEWE3ii3o5rp+4uo7+2nMjR0rINN2ohau34/e4je2fYMKsTUA13Ppa3ER
- vNqdgRKVx9bOPK3Psis2MiEHViQPkOQbC/EltjvawM8S3LSiZk/guT5Sid2oQ3C/q7AHgP8cXb
- 7AH92hvcQ2VujJb7EO/Pim95pFl6jem8gqffzX5divs1T3J0IoMnf55AghHV/VttgKbhqRDMm1
- 2qBFoxUMfhKTVfliBt4tHc7Xj/GXin5RkONvKg5nNqcaz7A9bXIGD9svC2cMDCo1KtyY9+InKb
- cNY=
+  t=1558612963; x=1590148963;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=TxGXbfw7z2292Z6hKFmKjnZyC5PGKjytRrBvM3a9feQ=;
+  b=mEoSrR4RWwIu4bsbpPQ4NtwhW0u67Y/BvGwkFAc1TnR3nKQqKiX8gmrB
+   TgETUNeeX9SArl5AbjCAR+QFDr5na3krjVyTfp1AncRtqKqngSTYCMZ4G
+   YeZn5T/wAkky6w57JuCM/8bRR+C7ybIIOI9AuFMZEE9YjvN92kgXS5ImH
+   RbaN54acBmWcpqd49tcnvEpoThiG8uUDkCSiAGu4vpSGr1/CLCQ5x22Xs
+   hcVVBo8UfS6dMrf4k2ADZlxkq4fXPSUMysjAXgKnqIIOhR3mZPkSCNHzW
+   T8ZIbGmZCvt62g2VZoS/CD5+EIpR5VjLy+m10FJw4+xvkE+NQGoe+4QHv
+   Q==;
+IronPort-SDR: GjI7Wes/nu3epiSwuwoBb18m62MUi8Drc+pJORFAZtrYEVK2dKGSpaQiVfpPRFGjy5wcXFZv92
+ kXG/fb+i9bLeLdx45nz9l2c8dT7vP9BadkL30Vobliv5RBIxoVBn191Vqq4WpWw+USLu4TJjwH
+ 5xLc1AdtrCLikmBuT8Upc2RpsM8neeiwVAw+cUtmfYrBfq4ooum9ujYe80Au5Llf8Ku2y9yJyL
+ qFr6j9IgqO8dmk+8X30CyYoV9PBNf7Hdsm97FMHDD0h5LSbVeK7d+s9nt8q7droksQ0DMI3T4e
+ ECw=
 X-IronPort-AV: E=Sophos;i="5.60,502,1549926000"; 
-   d="scan'208";a="2154451"
+   d="scan'208";a="17248255"
 From:   Richard Leitner <richard.leitner@skidata.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
 CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Richard Leitner <richard.leitner@skidata.com>
-Subject: [PATCH v2 3/4] rtc: s35390a: introduce struct device in probe
-Date:   Thu, 23 May 2019 13:54:50 +0200
-Message-ID: <20190523115451.20007-4-richard.leitner@skidata.com>
+Subject: [PATCH v2 0/4] rtc: s35390a: uie_unsupported and minor fixes
+Date:   Thu, 23 May 2019 13:54:47 +0200
+Message-ID: <20190523115451.20007-1-richard.leitner@skidata.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190523115451.20007-1-richard.leitner@skidata.com>
-References: <20190523115451.20007-1-richard.leitner@skidata.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -62,83 +60,27 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-To simplify access and shorten code introduce a struct device pointer in
-the s35390a probe function.
+As the s35390a does only support per-minute based alarms we have to
+set the uie_unsupported flag. Otherwise it delays for 10sec and 
+fails afterwards with modern hwclock versions.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
----
- drivers/rtc/rtc-s35390a.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+Furthermore some other minor changes are made.
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 4ca37f281ed9..7293dcdea692 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -436,14 +436,14 @@ static int s35390a_probe(struct i2c_client *client,
- 	unsigned int i;
- 	struct s35390a *s35390a;
- 	char buf, status1;
-+	struct device *dev = &client->dev;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		err = -ENODEV;
- 		goto exit;
- 	}
- 
--	s35390a = devm_kzalloc(&client->dev, sizeof(struct s35390a),
--				GFP_KERNEL);
-+	s35390a = devm_kzalloc(dev, sizeof(struct s35390a), GFP_KERNEL);
- 	if (!s35390a) {
- 		err = -ENOMEM;
- 		goto exit;
-@@ -457,8 +457,8 @@ static int s35390a_probe(struct i2c_client *client,
- 		s35390a->client[i] = i2c_new_dummy(client->adapter,
- 					client->addr + i);
- 		if (!s35390a->client[i]) {
--			dev_err(&client->dev, "Address %02x unavailable\n",
--						client->addr + i);
-+			dev_err(dev, "Address %02x unavailable\n",
-+				client->addr + i);
- 			err = -EBUSY;
- 			goto exit_dummy;
- 		}
-@@ -467,7 +467,7 @@ static int s35390a_probe(struct i2c_client *client,
- 	err_read = s35390a_read_status(s35390a, &status1);
- 	if (err_read < 0) {
- 		err = err_read;
--		dev_err(&client->dev, "error resetting chip\n");
-+		dev_err(dev, "error resetting chip\n");
- 		goto exit_dummy;
- 	}
- 
-@@ -481,22 +481,21 @@ static int s35390a_probe(struct i2c_client *client,
- 		buf = 0;
- 		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
- 		if (err < 0) {
--			dev_err(&client->dev, "error disabling alarm");
-+			dev_err(dev, "error disabling alarm");
- 			goto exit_dummy;
- 		}
- 	} else {
- 		err = s35390a_disable_test_mode(s35390a);
- 		if (err < 0) {
--			dev_err(&client->dev, "error disabling test mode\n");
-+			dev_err(dev, "error disabling test mode\n");
- 			goto exit_dummy;
- 		}
- 	}
- 
--	device_set_wakeup_capable(&client->dev, 1);
-+	device_set_wakeup_capable(dev, 1);
- 
--	s35390a->rtc = devm_rtc_device_register(&client->dev,
--					s35390a_driver.driver.name,
--					&s35390a_rtc_ops, THIS_MODULE);
-+	s35390a->rtc = devm_rtc_device_register(dev, s35390a_driver.driver.name,
-+						&s35390a_rtc_ops, THIS_MODULE);
- 
- 	if (IS_ERR(s35390a->rtc)) {
- 		err = PTR_ERR(s35390a->rtc);
+All patches were tested on an i.MX6 platform.
+
+CHANGES v2:
+ - use BIT in "clarify INT2 pin output modes"
+ - add "change FLAG defines to use BIT macro"
+
+Richard Leitner (4):
+  rtc: s35390a: clarify INT2 pin output modes
+  rtc: s35390a: set uie_unsupported
+  rtc: s35390a: introduce struct device in probe
+  rtc: s35390a: change FLAG defines to use BIT macro
+
+ drivers/rtc/rtc-s35390a.c | 55 +++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 26 deletions(-)
+
 -- 
 2.20.1
 
