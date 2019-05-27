@@ -2,68 +2,71 @@ Return-Path: <SRS0=Nblm=T3=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E5F8C04AB3
-	for <linux-rtc@archiver.kernel.org>; Mon, 27 May 2019 10:14:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FC94C04AB3
+	for <linux-rtc@archiver.kernel.org>; Mon, 27 May 2019 10:14:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D6E720859
-	for <linux-rtc@archiver.kernel.org>; Mon, 27 May 2019 10:14:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73D1F20883
+	for <linux-rtc@archiver.kernel.org>; Mon, 27 May 2019 10:14:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I3oyGoSL"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cW7Gw5Rc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726071AbfE0KOJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 27 May 2019 06:14:09 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35870 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725943AbfE0KOJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 27 May 2019 06:14:09 -0400
-Received: by mail-wr1-f66.google.com with SMTP id s17so16376255wru.3;
-        Mon, 27 May 2019 03:14:07 -0700 (PDT)
+        id S1726879AbfE0KOO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 27 May 2019 06:14:14 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:50652 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726626AbfE0KOO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 27 May 2019 06:14:14 -0400
+Received: by mail-wm1-f68.google.com with SMTP id f204so15593631wme.0;
+        Mon, 27 May 2019 03:14:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UmYyXClEyhCB/k7IkxkZpBXMb+GcpwSLAb7EW1GLi88=;
-        b=I3oyGoSLMpNOl0adhWiJdseBKUmXiEfkBQCy4WrjmAF8wMRV8ogrVD1gUZxw5x7ZZh
-         c7ar2ecnLchcZ8xzZC9cjgwqc2P8UrtWOZnqWiS/NQXm4kg/hZ5yqOP69lekentAl2pH
-         RBHssHXASRuE8WtSC4T+xPhS3s3bUBr+DbrZmJyy/qa75w7qQVVav15nXBg0nf/qlDR3
-         gIHI/Os6RlqPkA5zJQdxZNsSajM0gajnaXvkgmcXW/p5tq9Qod4In8XZL8fuMcIpWkFw
-         BunJV+wn9yzgAicFX2NA7X8eKKpVpfU8WnC3WzH2guGuKTkR0wlzYhFtU1A5ro/8l6Pk
-         +HJg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=9AMH17m9bkd9xBQ84jMqHVsdu+Aw8uZOs+xLuI44dKQ=;
+        b=cW7Gw5RcInassntx8h6jvpum6B+yvq3UlkoBex9Hl4yNw/UDWBwzH7TylzvsNNebg2
+         TtjCIQBMku/Vvdyh/foFH5j1VpNXiWMF04+Xw1Qtmul/QEqSvpabvLlfonFAApymsHJt
+         zDeiThcgUEGKXGKxlAPCuCpbYzrbsKacI3OrisSs9QURSkqzwcpgoLnFbRvPKDkVCu5m
+         YbGsNU1ysOrXgmEPN/PWa28HrRb4bbtD8T4tqGGuL4xted9F0e6P+yxRClZzMaJQSSAZ
+         mcvW9shC1krtHL0bPRMBmhWTwKbM4v1E/u0MRJG7fn9EPYd85sw40hJmvOEx8aDTcVsb
+         rdJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UmYyXClEyhCB/k7IkxkZpBXMb+GcpwSLAb7EW1GLi88=;
-        b=og5dkJ3EEgNYUhFWKcJHIc9NeAp/cZ0CBHnVEI+hSv7/ikFfTrQqB/8NayJ8q78rsR
-         8oJCDIiOqmzl4nqjwrPlFguPcGR4igrrd5JkfEHOfIrYKcVvzKNbvun7ucX9jJYqjTdy
-         CZ8eB/Ea8g4z16IGmDrzN6M5IVNiSJFjb1bZVpr6Lv+QeNQiciJQhUZ86jOqAFusTber
-         ZI6YYvaFZ8Sov/z+pbxtyIL5IICro0dQ9OYJPHhHL6sER8BB1SsEXKF3uzms8LsvyTxL
-         PnAWeXXRT4ZI185MqAcnFA+TD3hyu1tu99Y96j/Cq5NOh3UTgtIHFeVBy1Z2uo9twXYt
-         HkKw==
-X-Gm-Message-State: APjAAAXE48IF+S9FwI9xFRDe/38LqwaaVvk109RQXVVOeIXIUilUY/Hs
-        8t11qVvJA8J0WkbbQPR0hd8=
-X-Google-Smtp-Source: APXvYqxhPOJCwQVz46MEKCJymC6evZIIV7z7pSiVare5OCVTssJlh1PTBDczLKmzHQL3arHbuREiqw==
-X-Received: by 2002:a5d:4f0d:: with SMTP id c13mr6408503wru.117.1558952046820;
-        Mon, 27 May 2019 03:14:06 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=9AMH17m9bkd9xBQ84jMqHVsdu+Aw8uZOs+xLuI44dKQ=;
+        b=k8gXAymNQWEePS/g9XoLXUhyRk3It8rIzh5aP3ZRAfV4Ou+7cLP/dhTOjKW/kBUDY8
+         iTFcei19n9TTmAP6fg0NAN1bTvzI31u0LdU5OPEwtW1rTPqtMEOXb/U/VutdW9CvDAUi
+         Z+tGc0OfFCFYyMuBZzqscMSacGgFJr9iujDhoHCbh0CZaztMXtXGKyCV/fy0UhrlQ1jZ
+         8CuS9JFAlimo8/9shO+JIijmvkdKUWagGRV4wuqjhNnhFDAY3G6mlO85fVJVfT2G+aHW
+         tCY+ZR9TleLJlmy9dFw0VodmzxG4D3/+jJigAJwPAClsJjKvRyAzXYh7QPSV/tWUvCCY
+         N+zw==
+X-Gm-Message-State: APjAAAU0CdseM0DCTIbE/JEJtjuoqWSXFaMGwxloA0kG/w35td0O/PYc
+        GosG3EWScdZ+h7HBuVNsoEs=
+X-Google-Smtp-Source: APXvYqxuoXNjr/uGKKOy7i1mJ0Nz9tk6F+28rnvwa+15KVE/sz4/ERJv6r7vIngVOb064HlBR7uZxg==
+X-Received: by 2002:a7b:cd84:: with SMTP id y4mr16376378wmj.41.1558952051534;
+        Mon, 27 May 2019 03:14:11 -0700 (PDT)
 Received: from localhost (p2E5BEF36.dip0.t-ipconnect.de. [46.91.239.54])
-        by smtp.gmail.com with ESMTPSA id s9sm3443171wmc.1.2019.05.27.03.14.06
+        by smtp.gmail.com with ESMTPSA id u11sm9327783wrn.1.2019.05.27.03.14.10
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 27 May 2019 03:14:06 -0700 (PDT)
+        Mon, 27 May 2019 03:14:11 -0700 (PDT)
 From:   Thierry Reding <thierry.reding@gmail.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Jon Hunter <jonathanh@nvidia.com>,
         Kartik Kartik <kkartik@nvidia.com>, linux-rtc@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] rtc: tegra: Dust off and deferred probe support
-Date:   Mon, 27 May 2019 12:13:56 +0200
-Message-Id: <20190527101359.5898-1-thierry.reding@gmail.com>
+Subject: [PATCH 3/3] rtc: tegra: Turn into regular driver
+Date:   Mon, 27 May 2019 12:13:59 +0200
+Message-Id: <20190527101359.5898-4-thierry.reding@gmail.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190527101359.5898-1-thierry.reding@gmail.com>
+References: <20190527101359.5898-1-thierry.reding@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -73,25 +76,64 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Thierry Reding <treding@nvidia.com>
 
-The NVIDIA Tegra RTC driver has accumulated a bit of dust over the
-years. Make a pass over it, addressing checkpatch warnings and fixing
-some inconsistencies in comments and kernel messages as well as in
-variable types and names.
+Drivers registered with module_platform_driver_probe() are considered
+non-hotpluggable, which among other things means that they don't support
+deferred probe. However, recent changes in how the ARM SMMU works have
+required the BPMP (which is the clock provider on Tegra186 and later) be
+bound to the SMMU, which in turn means that the BPMP driver can defer
+probe and hence clocks become available much later than they used to.
+For most other drivers this is not a problem because they already
+properly support deferred probe, but rtc-tegra is the odd one out that
+now fails to probe and will therefore never be registered.
 
-Once cleaned up, also turn the driver into a regular driver in order
-to support deferred probe which is needed to avoid a future regression
-on Tegra186 and later.
+Fix this by making the driver a regular driver that supports unloading
+and deferred probe.
 
-Thierry
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/rtc/rtc-tegra.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Thierry Reding (3):
-  rtc: tegra: checkpatch and miscellaneous cleanups
-  rtc: tegra: Use consistent variable names and types
-  rtc: tegra: Turn into regular driver
-
- drivers/rtc/rtc-tegra.c | 254 ++++++++++++++++++++--------------------
- 1 file changed, 128 insertions(+), 126 deletions(-)
-
+diff --git a/drivers/rtc/rtc-tegra.c b/drivers/rtc/rtc-tegra.c
+index b68ba2dd1d36..8bbaea24926e 100644
+--- a/drivers/rtc/rtc-tegra.c
++++ b/drivers/rtc/rtc-tegra.c
+@@ -2,7 +2,7 @@
+ /*
+  * An RTC driver for the NVIDIA Tegra 200 series internal RTC.
+  *
+- * Copyright (c) 2010, NVIDIA Corporation.
++ * Copyright (c) 2010-2019, NVIDIA Corporation.
+  */
+ 
+ #include <linux/clk.h>
+@@ -274,7 +274,7 @@ static const struct of_device_id tegra_rtc_dt_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, tegra_rtc_dt_match);
+ 
+-static int __init tegra_rtc_probe(struct platform_device *pdev)
++static int tegra_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_rtc_info *info;
+ 	struct resource *res;
+@@ -406,6 +406,7 @@ static void tegra_rtc_shutdown(struct platform_device *pdev)
+ }
+ 
+ static struct platform_driver tegra_rtc_driver = {
++	.probe = tegra_rtc_probe,
+ 	.remove = tegra_rtc_remove,
+ 	.shutdown = tegra_rtc_shutdown,
+ 	.driver = {
+@@ -414,8 +415,7 @@ static struct platform_driver tegra_rtc_driver = {
+ 		.pm = &tegra_rtc_pm_ops,
+ 	},
+ };
+-
+-module_platform_driver_probe(tegra_rtc_driver, tegra_rtc_probe);
++module_platform_driver(tegra_rtc_driver);
+ 
+ MODULE_AUTHOR("Jon Mayo <jmayo@nvidia.com>");
+ MODULE_DESCRIPTION("driver for Tegra internal RTC");
 -- 
 2.21.0
 
