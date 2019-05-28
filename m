@@ -6,22 +6,22 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45289C04AB6
-	for <linux-rtc@archiver.kernel.org>; Tue, 28 May 2019 20:31:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E987FC04AB6
+	for <linux-rtc@archiver.kernel.org>; Tue, 28 May 2019 20:31:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 28E8121670
-	for <linux-rtc@archiver.kernel.org>; Tue, 28 May 2019 20:31:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE17620B7C
+	for <linux-rtc@archiver.kernel.org>; Tue, 28 May 2019 20:31:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727268AbfE1UbL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 28 May 2019 16:31:11 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:55525 "EHLO
+        id S1727194AbfE1UbO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 28 May 2019 16:31:14 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:43079 "EHLO
         relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727369AbfE1UbH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 May 2019 16:31:07 -0400
+        with ESMTP id S1727463AbfE1UbO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 May 2019 16:31:14 -0400
 Received: from localhost (lfbn-1-10718-76.w90-89.abo.wanadoo.fr [90.89.68.76])
         (Authenticated sender: maxime.ripard@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 4F19320001E;
-        Tue, 28 May 2019 20:31:04 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 18C9720001A;
+        Tue, 28 May 2019 20:31:10 +0000 (UTC)
 From:   Maxime Ripard <maxime.ripard@bootlin.com>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -31,9 +31,9 @@ To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Maxime Ripard <maxime.ripard@bootlin.com>
 Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-rtc@vger.kernel.org
-Subject: [PATCH v2 09/11] ARM: dts: sun8i: v3s: Fix the RTC node
-Date:   Tue, 28 May 2019 22:30:39 +0200
-Message-Id: <6051e00cea17a8575dc400c448dc8fc212c94492.1559075389.git-series.maxime.ripard@bootlin.com>
+Subject: [PATCH v2 11/11] ARM: dts: sun8i: r40: Change the RTC compatible
+Date:   Tue, 28 May 2019 22:30:41 +0200
+Message-Id: <f123c02a0458a4a90234f636b85a2ef048075794.1559075389.git-series.maxime.ripard@bootlin.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <434446bc5541d7dfe5823874355c7db8c7e213fa.1559075389.git-series.maxime.ripard@bootlin.com>
 References: <434446bc5541d7dfe5823874355c7db8c7e213fa.1559075389.git-series.maxime.ripard@bootlin.com>
@@ -44,68 +44,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-For some reason, while the v3s has a dedicated compatible in the RTC
-binding, the one actually used was the A31's. However, it turns out that
-the controller is pretty different (which justified the compatible).
-
-Let's use the proper compatible, and use the proper binding description as
-well.
+Unlike what's being reported in the device tree so far, the RTC in the R40
+is quite different from the H3. Indeed it doesn't have the internal
+oscillator output, and it has only a single interrupt. Let's add a
+compatible for it.
 
 Acked-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-
 ---
+ arch/arm/boot/dts/sun8i-r40.dtsi | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Changes from v1:
-  - Split that patch into two
----
- arch/arm/boot/dts/sun8i-v3s.dtsi | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/arch/arm/boot/dts/sun8i-v3s.dtsi b/arch/arm/boot/dts/sun8i-v3s.dtsi
-index df72b1719c34..6ba9377458b3 100644
---- a/arch/arm/boot/dts/sun8i-v3s.dtsi
-+++ b/arch/arm/boot/dts/sun8i-v3s.dtsi
-@@ -91,7 +91,7 @@
- 			#clock-cells = <0>;
- 			compatible = "fixed-clock";
- 			clock-frequency = <32768>;
--			clock-output-names = "osc32k";
-+			clock-output-names = "ext-osc32k";
- 		};
- 	};
- 
-@@ -264,17 +264,20 @@
- 		ccu: clock@1c20000 {
- 			compatible = "allwinner,sun8i-v3s-ccu";
- 			reg = <0x01c20000 0x400>;
--			clocks = <&osc24M>, <&osc32k>;
-+			clocks = <&osc24M>, <&rtc 0>;
- 			clock-names = "hosc", "losc";
- 			#clock-cells = <1>;
- 			#reset-cells = <1>;
+diff --git a/arch/arm/boot/dts/sun8i-r40.dtsi b/arch/arm/boot/dts/sun8i-r40.dtsi
+index bb856e53b806..6007d0cc252d 100644
+--- a/arch/arm/boot/dts/sun8i-r40.dtsi
++++ b/arch/arm/boot/dts/sun8i-r40.dtsi
+@@ -318,8 +318,7 @@
  		};
  
  		rtc: rtc@1c20400 {
--			compatible = "allwinner,sun6i-a31-rtc";
-+			#clock-cells = <1>;
-+			compatible = "allwinner,sun8i-v3-rtc";
- 			reg = <0x01c20400 0x54>;
- 			interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&osc32k>;
-+			clock-output-names = "osc32k", "osc32k-out";
- 		};
- 
- 		pio: pinctrl@1c20800 {
-@@ -282,7 +285,7 @@
- 			reg = <0x01c20800 0x400>;
- 			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&osc32k>;
-+			clocks = <&ccu CLK_BUS_PIO>, <&osc24M>, <&rtc 0>;
- 			clock-names = "apb", "hosc", "losc";
- 			gpio-controller;
- 			#gpio-cells = <3>;
+-			compatible = "allwinner,sun8i-r40-rtc",
+-				     "allwinner,sun8i-h3-rtc";
++			compatible = "allwinner,sun8i-r40-rtc";
+ 			reg = <0x01c20400 0x400>;
+ 			interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+ 			clock-output-names = "osc32k", "osc32k-out";
 -- 
 git-series 0.9.1
