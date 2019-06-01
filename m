@@ -1,81 +1,73 @@
-Return-Path: <SRS0=48Cb=T5=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=K4ch=UA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54A4AC04AB3
-	for <linux-rtc@archiver.kernel.org>; Wed, 29 May 2019 07:38:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1ABAC28CC1
+	for <linux-rtc@archiver.kernel.org>; Sat,  1 Jun 2019 20:40:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 28CAC208C3
-	for <linux-rtc@archiver.kernel.org>; Wed, 29 May 2019 07:38:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="QyM70De9"
+	by mail.kernel.org (Postfix) with ESMTP id C3FFD2778B
+	for <linux-rtc@archiver.kernel.org>; Sat,  1 Jun 2019 20:40:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbfE2HiX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 29 May 2019 03:38:23 -0400
-Received: from mail-m972.mail.163.com ([123.126.97.2]:60186 "EHLO
-        mail-m972.mail.163.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726418AbfE2HiX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 29 May 2019 03:38:23 -0400
-X-Greylist: delayed 919 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 May 2019 03:38:23 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id; bh=BX/qclNsTllMYtxUyN
-        znnvi5uS276rsIV4MQsuNVavs=; b=QyM70De9F0iMSyvqNNouTCOiJTuwr4OeBO
-        tRvrY6YIgMJK2lLrr1Kv1dqX+NKVLeOJCn3iKHH0bYZxNg2Dii5xxVEYcc9/rHyh
-        hbe++uFPovLA1MzgC+EIa35iVdvnpSNHi56FKlgYr4CACknYBEGWQ9rGOv/VEpxL
-        SKXKI3Aog=
-Received: from localhost.localdomain (unknown [218.106.182.173])
-        by smtp16 (Coremail) with SMTP id GtxpCgBXE7M_M+5cnbSYAA--.352S3;
-        Wed, 29 May 2019 15:22:44 +0800 (CST)
-From:   Xidong Wang <wangxidong_97@163.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Xidong Wang <wangxidong_97@163.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] rtc: rv3028: check return value
-Date:   Wed, 29 May 2019 15:22:20 +0800
-Message-Id: <1559114540-30878-1-git-send-email-wangxidong_97@163.com>
-X-Mailer: git-send-email 2.7.4
-X-CM-TRANSID: GtxpCgBXE7M_M+5cnbSYAA--.352S3
-X-Coremail-Antispam: 1Uf129KBjvdXoWrZrWUAFyUuF48ZF4DWrW7urg_yoW3GFX_Ka
-        4ayryfJa4DGF1YgwnrZr95ZryUKF40qryIvr1xKa93Aw47JFn2vas7uFZrJw1DWry8Z3yY
-        grnruryxurnxJjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7xRRZqXtUUUUU==
-X-Originating-IP: [218.106.182.173]
-X-CM-SenderInfo: pzdqw5xlgr0wrbzxqiywtou0bp/xtbBFQTD81XlgQH9kgAAs+
+        id S1726246AbfFAUkF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 1 Jun 2019 16:40:05 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:40787 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbfFAUkE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 1 Jun 2019 16:40:04 -0400
+Received: from localhost (hy283-1-82-246-155-60.fbx.proxad.net [82.246.155.60])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 5F693200009;
+        Sat,  1 Jun 2019 20:39:57 +0000 (UTC)
+Date:   Sat, 1 Jun 2019 22:39:55 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Kartik Kartik <kkartik@nvidia.com>, linux-rtc@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] rtc: tegra: Dust off and deferred probe support
+Message-ID: <20190601203955.GZ3274@piout.net>
+References: <20190527101359.5898-1-thierry.reding@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190527101359.5898-1-thierry.reding@gmail.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In rv3028_probe(), the return value of devm_regmap_init_i2c() should
-be checked before it is used.
+On 27/05/2019 12:13:56+0200, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
+> 
+> The NVIDIA Tegra RTC driver has accumulated a bit of dust over the
+> years. Make a pass over it, addressing checkpatch warnings and fixing
+> some inconsistencies in comments and kernel messages as well as in
+> variable types and names.
+> 
+> Once cleaned up, also turn the driver into a regular driver in order
+> to support deferred probe which is needed to avoid a future regression
+> on Tegra186 and later.
+> 
+> Thierry
+> 
+> Thierry Reding (3):
+>   rtc: tegra: checkpatch and miscellaneous cleanups
+>   rtc: tegra: Use consistent variable names and types
+>   rtc: tegra: Turn into regular driver
+> 
+>  drivers/rtc/rtc-tegra.c | 254 ++++++++++++++++++++--------------------
+>  1 file changed, 128 insertions(+), 126 deletions(-)
+> 
 
-Signed-off-by: Xidong Wang <wangxidong_97@163.com>
----
- drivers/rtc/rtc-rv3028.c | 4 ++++
- 1 file changed, 4 insertions(+)
+All applied, thanks.
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index 06884eb..29a8c4e 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -626,6 +626,10 @@ static int rv3028_probe(struct i2c_client *client)
- 
- 	rv3028->regmap = devm_regmap_init_i2c(client, &regmap_config);
- 
-+	if (IS_ERR(rv3028->regmap)) {
-+		return PTR_ERR(rv3028->regmap);
-+	}
-+
- 	i2c_set_clientdata(client, rv3028);
- 
- 	ret = regmap_read(rv3028->regmap, RV3028_STATUS, &status);
 -- 
-2.7.4
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
