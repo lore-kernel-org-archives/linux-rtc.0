@@ -2,84 +2,88 @@ Return-Path: <SRS0=MESL=UH=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D8C6C28CC5
-	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:19:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E248C28CC5
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3C80E212F5
-	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:19:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="A1Tf+oKf"
+	by mail.kernel.org (Postfix) with ESMTP id 745E4212F5
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbfFHKTw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 8 Jun 2019 06:19:52 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:49572 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726692AbfFHKTw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 8 Jun 2019 06:19:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1559989187; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8NE8iJ1tXNtCj76fVN4fK098gqqNEc6CFVlZPcPldXE=;
-        b=A1Tf+oKfHq5/Uxxno7gNPEu3ldLB+2ACNj3cbPZ6vJxF4HAFfkq3IcbGAf9HGqyQP+dMTo
-        xZt17uQESHRZjmCsk7gx6hsjnLPkWt0/9G8ut6FF6vfoFMAYg6HwZ4q69n3wnNBudtC0aX
-        x9Wgv5fqlRojyp2ZH3h1o/6kE49GjAM=
-Date:   Sat, 08 Jun 2019 12:19:42 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] rtc: jz4740: Make probe function __init_or_module
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     od@zcrc.me, linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <1559989182.1815.3@crapouillou.net>
-In-Reply-To: <20190607155438.14342-1-paul@crapouillou.net>
-References: <20190607155438.14342-1-paul@crapouillou.net>
+        id S1727164AbfFHK44 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 8 Jun 2019 06:56:56 -0400
+Received: from sauhun.de ([88.99.104.3]:51934 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727134AbfFHK44 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 8 Jun 2019 06:56:56 -0400
+Received: from localhost (p5486CBCC.dip0.t-ipconnect.de [84.134.203.204])
+        by pokefinder.org (Postfix) with ESMTPSA id AD80A3E4788;
+        Sat,  8 Jun 2019 12:56:54 +0200 (CEST)
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 26/34] rtc: fm3130: simplify getting the adapter of a client
+Date:   Sat,  8 Jun 2019 12:56:05 +0200
+Message-Id: <20190608105619.593-27-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
+References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I misunderstood what __init_or_module was for. Please ignore this patch.
+We have a dedicated pointer for that, so use it. Much easier to read and
+less computation involved.
 
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-Le ven. 7 juin 2019 =E0 17:54, Paul Cercueil <paul@crapouillou.net> a=20
-=E9crit :
-> This allows the probe function to be dropped after the kernel finished
-> its initialization, in the case where the driver was not compiled as a
-> module.
->=20
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
->  drivers/rtc/rtc-jz4740.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
-> index 9e7b3a04debc..a20e7dc794dd 100644
-> --- a/drivers/rtc/rtc-jz4740.c
-> +++ b/drivers/rtc/rtc-jz4740.c
-> @@ -303,7 +303,7 @@ static const struct of_device_id=20
-> jz4740_rtc_of_match[] =3D {
->  };
->  MODULE_DEVICE_TABLE(of, jz4740_rtc_of_match);
->=20
-> -static int jz4740_rtc_probe(struct platform_device *pdev)
-> +static int __init_or_module jz4740_rtc_probe(struct platform_device=20
-> *pdev)
->  {
->  	int ret;
->  	struct jz4740_rtc *rtc;
-> --
-> 2.21.0.593.g511ec345e18
->=20
+Please apply to your subsystem tree.
 
-=
+ drivers/rtc/rtc-fm3130.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/rtc/rtc-fm3130.c b/drivers/rtc/rtc-fm3130.c
+index e1137670d4d2..015cf639166e 100644
+--- a/drivers/rtc/rtc-fm3130.c
++++ b/drivers/rtc/rtc-fm3130.c
+@@ -107,8 +107,7 @@ static int fm3130_get_time(struct device *dev, struct rtc_time *t)
+ 	fm3130_rtc_mode(dev, FM3130_MODE_READ);
+ 
+ 	/* read the RTC date and time registers all at once */
+-	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
+-			fm3130->msg, 2);
++	tmp = i2c_transfer(fm3130->client->adapter, fm3130->msg, 2);
+ 	if (tmp != 2) {
+ 		dev_err(dev, "%s error %d\n", "read", tmp);
+ 		return -EIO;
+@@ -200,8 +199,7 @@ static int fm3130_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	}
+ 
+ 	/* read the RTC alarm registers all at once */
+-	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
+-			&fm3130->msg[2], 2);
++	tmp = i2c_transfer(fm3130->client->adapter, &fm3130->msg[2], 2);
+ 	if (tmp != 2) {
+ 		dev_err(dev, "%s error %d\n", "read", tmp);
+ 		return -EIO;
+@@ -351,7 +349,7 @@ static int fm3130_probe(struct i2c_client *client,
+ 	struct fm3130		*fm3130;
+ 	int			err = -ENODEV;
+ 	int			tmp;
+-	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
++	struct i2c_adapter	*adapter = client->adapter;
+ 
+ 	if (!i2c_check_functionality(adapter,
+ 			I2C_FUNC_I2C | I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
+-- 
+2.19.1
 
