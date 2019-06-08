@@ -6,30 +6,30 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E248C28CC5
-	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79755C468BD
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 745E4212F5
-	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59572214D8
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Jun 2019 10:56:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727164AbfFHK44 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 8 Jun 2019 06:56:56 -0400
-Received: from sauhun.de ([88.99.104.3]:51934 "EHLO pokefinder.org"
+        id S1727181AbfFHK46 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 8 Jun 2019 06:56:58 -0400
+Received: from sauhun.de ([88.99.104.3]:51870 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727134AbfFHK44 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 8 Jun 2019 06:56:56 -0400
+        id S1727161AbfFHK45 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 8 Jun 2019 06:56:57 -0400
 Received: from localhost (p5486CBCC.dip0.t-ipconnect.de [84.134.203.204])
-        by pokefinder.org (Postfix) with ESMTPSA id AD80A3E4788;
-        Sat,  8 Jun 2019 12:56:54 +0200 (CEST)
+        by pokefinder.org (Postfix) with ESMTPSA id 4A08E3E4771;
+        Sat,  8 Jun 2019 12:56:56 +0200 (CEST)
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-i2c@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 26/34] rtc: fm3130: simplify getting the adapter of a client
-Date:   Sat,  8 Jun 2019 12:56:05 +0200
-Message-Id: <20190608105619.593-27-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 29/34] rtc: rx8010: simplify getting the adapter of a client
+Date:   Sat,  8 Jun 2019 12:56:08 +0200
+Message-Id: <20190608105619.593-30-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
@@ -48,42 +48,22 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/rtc/rtc-fm3130.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-rx8010.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-fm3130.c b/drivers/rtc/rtc-fm3130.c
-index e1137670d4d2..015cf639166e 100644
---- a/drivers/rtc/rtc-fm3130.c
-+++ b/drivers/rtc/rtc-fm3130.c
-@@ -107,8 +107,7 @@ static int fm3130_get_time(struct device *dev, struct rtc_time *t)
- 	fm3130_rtc_mode(dev, FM3130_MODE_READ);
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index 7ddc22eb5b0f..2b58b9b683a9 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -437,7 +437,7 @@ static struct rtc_class_ops rx8010_rtc_ops = {
+ static int rx8010_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+-	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
++	struct i2c_adapter *adapter = client->adapter;
+ 	struct rx8010_data *rx8010;
+ 	int err = 0;
  
- 	/* read the RTC date and time registers all at once */
--	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
--			fm3130->msg, 2);
-+	tmp = i2c_transfer(fm3130->client->adapter, fm3130->msg, 2);
- 	if (tmp != 2) {
- 		dev_err(dev, "%s error %d\n", "read", tmp);
- 		return -EIO;
-@@ -200,8 +199,7 @@ static int fm3130_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	}
- 
- 	/* read the RTC alarm registers all at once */
--	tmp = i2c_transfer(to_i2c_adapter(fm3130->client->dev.parent),
--			&fm3130->msg[2], 2);
-+	tmp = i2c_transfer(fm3130->client->adapter, &fm3130->msg[2], 2);
- 	if (tmp != 2) {
- 		dev_err(dev, "%s error %d\n", "read", tmp);
- 		return -EIO;
-@@ -351,7 +349,7 @@ static int fm3130_probe(struct i2c_client *client,
- 	struct fm3130		*fm3130;
- 	int			err = -ENODEV;
- 	int			tmp;
--	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
-+	struct i2c_adapter	*adapter = client->adapter;
- 
- 	if (!i2c_check_functionality(adapter,
- 			I2C_FUNC_I2C | I2C_FUNC_SMBUS_WRITE_BYTE_DATA))
 -- 
 2.19.1
 
