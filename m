@@ -2,107 +2,425 @@ Return-Path: <SRS0=DhXe=UM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FD2DC31E45
-	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 16:29:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 166ADC31E45
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 17:07:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 78A8F20449
-	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 16:29:23 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OxnRIln/"
+	by mail.kernel.org (Postfix) with ESMTP id D4F5C2063F
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 17:07:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392482AbfFMQ3V (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 13 Jun 2019 12:29:21 -0400
-Received: from mail-vs1-f65.google.com ([209.85.217.65]:37644 "EHLO
-        mail-vs1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730925AbfFMIfS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jun 2019 04:35:18 -0400
-Received: by mail-vs1-f65.google.com with SMTP id v6so12118840vsq.4;
-        Thu, 13 Jun 2019 01:35:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M/j512S8iNawEe8Fwmcxi5za0FB/PptLS7JGUaidYWg=;
-        b=OxnRIln/sM87E9yAMKkBvxzTuS55PzqwilzIiUk16/vzQLB+YOVGxrkEOMI/1T0fef
-         Tjz9MlXar7WzM/oRrPg8KIGEA5YlpiPcjw/e2QqsyG5dYc2SqlOwKu3q5+itA54IALWn
-         i96hlCvrcOOhMadLxROp27+OUusTMbi4nQ115G/RCUC6eYXU8ff6zsvwdCqPbhqW0EgS
-         m7zoVLxR8BXVvsqTQF04zStHGjY9yKdLJQEaxG2TAM44GxQitJ+n+Dyw+5dYgvENw2u8
-         PiEQV5fuRzvkDr6D0I8omoYJl4DVMhg+0BqBmwJKtbxT/nznxzjNEtJil+Csn25bB3et
-         cbFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M/j512S8iNawEe8Fwmcxi5za0FB/PptLS7JGUaidYWg=;
-        b=LSkFMlSIR2q7+qqD8Sx/v34wjavq/hJ6nu0QV6B9FuOdg8xlLEVq43iez72S58PTo5
-         XvVsaKlhYGomWO0OzyzzRbQCaOiHFoO1mCuUzE9+/MC7k5W8G3VTMTLyL9si90CIgtyQ
-         UdgEKH1lh2GM7AIfojwD+8wZnuXpEP5Fp6/lWlrvtseUDVIs0N7hkp3d/2L+yeVd2X2p
-         xlkDbfeQn0eByq6b5fijvNEATjGY4jVB4bF4cdGn4uX5SgeTwNhW2rSaapyf2/Z9rOjc
-         UQDyRe82kFx96qumUGUGYTolFLF/3hn3AXqGpKagO+lLDXsu3V7xEdR0yO/X3EtqS/yN
-         YFmw==
-X-Gm-Message-State: APjAAAWRmi7aEEHndzryzvc9ReAvx5KPlzokErywysDEHjEYSHilwSKi
-        jUrXLJP+i0EU77ELYlYCjj/UPsdbFQ4fd6gJ9RE=
-X-Google-Smtp-Source: APXvYqzXlBh2rBUbKHiKWqg1RIV3kUDnHNMsS0QRYDwTtb3AQTQI4zniACIqmZ18a8Q2qK+cPo7L2dtUQdc3qhiJdAo=
-X-Received: by 2002:a67:fb8d:: with SMTP id n13mr32198844vsr.46.1560414917499;
- Thu, 13 Jun 2019 01:35:17 -0700 (PDT)
-MIME-Version: 1.0
-References: <cover.1559546139.git.matti.vaittinen@fi.rohmeurope.com>
- <20190611200043.eib3g3acc7ilawsx@earth.universe> <20190612060328.GQ4797@dell>
-In-Reply-To: <20190612060328.GQ4797@dell>
-From:   Matti Vaittinen <mazziesaccount@gmail.com>
-Date:   Thu, 13 Jun 2019 11:35:06 +0300
-Message-ID: <CANhJrGNM7fBXa8cY6ybF8WsaigwcREMvbGN0K4pdUVKck4POzw@mail.gmail.com>
-Subject: Re: [PATCH v15 0/7] support ROHM BD70528 PMIC
-To:     Lee Jones <lee.jones@linaro.org>,
-        "Vaittinen, Matti" <matti.vaittinen@fi.rohmeurope.com>
-Cc:     Sebastian Reichel <sre@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        id S2393495AbfFMRHF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Jun 2019 13:07:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52232 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2393485AbfFMRHE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 13 Jun 2019 13:07:04 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id D117AAEEC;
+        Thu, 13 Jun 2019 17:07:01 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-serial@vger.kernel.org
+Subject: [PATCH v3 6/7] MIPS: SGI-IP27: fix readb/writeb addressing
+Date:   Thu, 13 Jun 2019 19:06:32 +0200
+Message-Id: <20190613170636.6647-7-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.13.7
+In-Reply-To: <20190613170636.6647-1-tbogendoerfer@suse.de>
+References: <20190613170636.6647-1-tbogendoerfer@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 9:03 AM Lee Jones <lee.jones@linaro.org> wrote:
->
-> On Tue, 11 Jun 2019, Sebastian Reichel wrote:
->
-> > Hi,
-> >
-> > On Mon, Jun 03, 2019 at 10:23:37AM +0300, Matti Vaittinen wrote:
-> > > Patch series introducing support for ROHM BD70528 PMIC
-> > > [...]
-> >
-> > I think all patches have been reviewed by the respective subsystem
-> > maintainers. Lee, can you provide an immutable branch with the MFD
-> > patches (1, 2, 4)? Looks like the other patches only depend on those
-> > and can go through their respective subsystems.
->
-> Yes.  It's on my TODO list.
->
-> Would you prefer this method over me just taking them all and sending
-> out a PR?  The latter is my usual flow, but I'm happy with either.
+Our chosen byte swapping, which is what firmware already uses, is to
+do readl/writel by normal lw/sw intructions (data invariance). This
+also means we need to mangle addresses for u8 and u16 accesses. The
+mangling for 16bit has been done aready, but 8bit one was missing.
+Correcting this causes different addresses for accesses to the
+SuperIO and local bus of the IOC3 chip. This is fixed by changing
+byte order in ioc3 and m48rtc_rtc structs.
 
-Thanks guys for taking care of this! :)
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ arch/mips/include/asm/mach-ip27/mangle-port.h |   4 +-
+ arch/mips/include/asm/sn/ioc3.h               | 198 +++++++++++++-------------
+ arch/mips/sgi-ip27/ip27-console.c             |   5 +-
+ drivers/rtc/rtc-m48t35.c                      |  11 ++
+ drivers/tty/serial/8250/8250_ioc3.c           |   4 +-
+ 5 files changed, 115 insertions(+), 107 deletions(-)
 
---Matti
+diff --git a/arch/mips/include/asm/mach-ip27/mangle-port.h b/arch/mips/include/asm/mach-ip27/mangle-port.h
+index f6e4912ea062..27c56efa519f 100644
+--- a/arch/mips/include/asm/mach-ip27/mangle-port.h
++++ b/arch/mips/include/asm/mach-ip27/mangle-port.h
+@@ -8,7 +8,7 @@
+ #ifndef __ASM_MACH_IP27_MANGLE_PORT_H
+ #define __ASM_MACH_IP27_MANGLE_PORT_H
+ 
+-#define __swizzle_addr_b(port)	(port)
++#define __swizzle_addr_b(port)	((port) ^ 3)
+ #define __swizzle_addr_w(port)	((port) ^ 2)
+ #define __swizzle_addr_l(port)	(port)
+ #define __swizzle_addr_q(port)	(port)
+@@ -20,6 +20,6 @@
+ # define ioswabl(a, x)		(x)
+ # define __mem_ioswabl(a, x)	cpu_to_le32(x)
+ # define ioswabq(a, x)		(x)
+-# define __mem_ioswabq(a, x)	cpu_to_le32(x)
++# define __mem_ioswabq(a, x)	cpu_to_le64(x)
+ 
+ #endif /* __ASM_MACH_IP27_MANGLE_PORT_H */
+diff --git a/arch/mips/include/asm/sn/ioc3.h b/arch/mips/include/asm/sn/ioc3.h
+index 89938fdce8ef..ac6d7e6e31e0 100644
+--- a/arch/mips/include/asm/sn/ioc3.h
++++ b/arch/mips/include/asm/sn/ioc3.h
+@@ -10,35 +10,35 @@
+ 
+ /* serial port register map */
+ struct ioc3_serialregs {
+-	uint32_t	sscr;
+-	uint32_t	stpir;
+-	uint32_t	stcir;
+-	uint32_t	srpir;
+-	uint32_t	srcir;
+-	uint32_t	srtr;
+-	uint32_t	shadow;
++	u32	sscr;
++	u32	stpir;
++	u32	stcir;
++	u32	srpir;
++	u32	srcir;
++	u32	srtr;
++	u32	shadow;
+ };
+ 
+ /* SUPERIO uart register map */
+ struct ioc3_uartregs {
++	u8	iu_lcr;
+ 	union {
+-		char	rbr;	/* read only, DLAB == 0 */
+-		char	thr;	/* write only, DLAB == 0 */
+-		char	dll;	/* DLAB == 1 */
+-	} u1;
++		u8	iir;	/* read only */
++		u8	fcr;	/* write only */
++	};
+ 	union {
+-		char	ier;	/* DLAB == 0 */
+-		char	dlm;	/* DLAB == 1 */
+-	} u2;
++		u8	ier;	/* DLAB == 0 */
++		u8	dlm;	/* DLAB == 1 */
++	};
+ 	union {
+-		char	iir;	/* read only */
+-		char	fcr;	/* write only */
+-	} u3;
+-	char	iu_lcr;
+-	char	iu_mcr;
+-	char	iu_lsr;
+-	char	iu_msr;
+-	char	iu_scr;
++		u8	rbr;	/* read only, DLAB == 0 */
++		u8	thr;	/* write only, DLAB == 0 */
++		u8	dll;	/* DLAB == 1 */
++	} u1;
++	u8	iu_scr;
++	u8	iu_msr;
++	u8	iu_lsr;
++	u8	iu_mcr;
+ };
+ 
+ #define iu_rbr u1.rbr
+@@ -50,122 +50,122 @@ struct ioc3_uartregs {
+ #define iu_fcr u3.fcr
+ 
+ struct ioc3_sioregs {
+-	char	fill[0x141];	/* starts at 0x141 */
++	u8	fill[0x141];	/* starts at 0x141 */
+ 
+-	char	uartc;
+-	char	kbdcg;
++	u8	kbdcg;
++	u8	uartc;
+ 
+-	char	fill0[0x150 - 0x142 - 1];
++	u8	fill0[0x151 - 0x142 - 1];
+ 
+-	char	pp_data;
+-	char	pp_dsr;
+-	char	pp_dcr;
++	u8	pp_dcr;
++	u8	pp_dsr;
++	u8	pp_data;
+ 
+-	char	fill1[0x158 - 0x152 - 1];
++	u8	fill1[0x159 - 0x153 - 1];
+ 
+-	char	pp_fifa;
+-	char	pp_cfgb;
+-	char	pp_ecr;
++	u8	pp_ecr;
++	u8	pp_cfgb;
++	u8	pp_fifa;
+ 
+-	char	fill2[0x168 - 0x15a - 1];
++	u8	fill2[0x16a - 0x15b - 1];
+ 
+-	char	rtcad;
+-	char	rtcdat;
++	u8	rtcdat;
++	u8	rtcad;
+ 
+-	char	fill3[0x170 - 0x169 - 1];
++	u8	fill3[0x170 - 0x16b - 1];
+ 
+ 	struct ioc3_uartregs	uartb;	/* 0x20170  */
+ 	struct ioc3_uartregs	uarta;	/* 0x20178  */
+ };
+ 
+ struct ioc3_ethregs {
+-	uint32_t	emcr;		/* 0x000f0  */
+-	uint32_t	eisr;		/* 0x000f4  */
+-	uint32_t	eier;		/* 0x000f8  */
+-	uint32_t	ercsr;		/* 0x000fc  */
+-	uint32_t	erbr_h;		/* 0x00100  */
+-	uint32_t	erbr_l;		/* 0x00104  */
+-	uint32_t	erbar;		/* 0x00108  */
+-	uint32_t	ercir;		/* 0x0010c  */
+-	uint32_t	erpir;		/* 0x00110  */
+-	uint32_t	ertr;		/* 0x00114  */
+-	uint32_t	etcsr;		/* 0x00118  */
+-	uint32_t	ersr;		/* 0x0011c  */
+-	uint32_t	etcdc;		/* 0x00120  */
+-	uint32_t	ebir;		/* 0x00124  */
+-	uint32_t	etbr_h;		/* 0x00128  */
+-	uint32_t	etbr_l;		/* 0x0012c  */
+-	uint32_t	etcir;		/* 0x00130  */
+-	uint32_t	etpir;		/* 0x00134  */
+-	uint32_t	emar_h;		/* 0x00138  */
+-	uint32_t	emar_l;		/* 0x0013c  */
+-	uint32_t	ehar_h;		/* 0x00140  */
+-	uint32_t	ehar_l;		/* 0x00144  */
+-	uint32_t	micr;		/* 0x00148  */
+-	uint32_t	midr_r;		/* 0x0014c  */
+-	uint32_t	midr_w;		/* 0x00150  */
++	u32	emcr;		/* 0x000f0  */
++	u32	eisr;		/* 0x000f4  */
++	u32	eier;		/* 0x000f8  */
++	u32	ercsr;		/* 0x000fc  */
++	u32	erbr_h;		/* 0x00100  */
++	u32	erbr_l;		/* 0x00104  */
++	u32	erbar;		/* 0x00108  */
++	u32	ercir;		/* 0x0010c  */
++	u32	erpir;		/* 0x00110  */
++	u32	ertr;		/* 0x00114  */
++	u32	etcsr;		/* 0x00118  */
++	u32	ersr;		/* 0x0011c  */
++	u32	etcdc;		/* 0x00120  */
++	u32	ebir;		/* 0x00124  */
++	u32	etbr_h;		/* 0x00128  */
++	u32	etbr_l;		/* 0x0012c  */
++	u32	etcir;		/* 0x00130  */
++	u32	etpir;		/* 0x00134  */
++	u32	emar_h;		/* 0x00138  */
++	u32	emar_l;		/* 0x0013c  */
++	u32	ehar_h;		/* 0x00140  */
++	u32	ehar_l;		/* 0x00144  */
++	u32	micr;		/* 0x00148  */
++	u32	midr_r;		/* 0x0014c  */
++	u32	midr_w;		/* 0x00150  */
+ };
+ 
+ struct ioc3_serioregs {
+-	uint32_t	km_csr;		/* 0x0009c  */
+-	uint32_t	k_rd;		/* 0x000a0  */
+-	uint32_t	m_rd;		/* 0x000a4  */
+-	uint32_t	k_wd;		/* 0x000a8  */
+-	uint32_t	m_wd;		/* 0x000ac  */
++	u32	km_csr;		/* 0x0009c  */
++	u32	k_rd;		/* 0x000a0  */
++	u32	m_rd;		/* 0x000a4  */
++	u32	k_wd;		/* 0x000a8  */
++	u32	m_wd;		/* 0x000ac  */
+ };
+ 
+ /* Register layout of IOC3 in configuration space.  */
+ struct ioc3 {
+ 	/* PCI Config Space registers  */
+-	uint32_t	pci_id;		/* 0x00000  */
+-	uint32_t	pci_scr;	/* 0x00004  */
+-	uint32_t	pci_rev;	/* 0x00008  */
+-	uint32_t	pci_lat;	/* 0x0000c  */
+-	uint32_t	pci_addr;	/* 0x00010  */
+-	uint32_t	pci_err_addr_l;	/* 0x00014  */
+-	uint32_t	pci_err_addr_h;	/* 0x00018  */
+-
+-	uint32_t	sio_ir;		/* 0x0001c  */
+-	uint32_t	sio_ies;	/* 0x00020  */
+-	uint32_t	sio_iec;	/* 0x00024  */
+-	uint32_t	sio_cr;		/* 0x00028  */
+-	uint32_t	int_out;	/* 0x0002c  */
+-	uint32_t	mcr;		/* 0x00030  */
++	u32	pci_id;		/* 0x00000  */
++	u32	pci_scr;	/* 0x00004  */
++	u32	pci_rev;	/* 0x00008  */
++	u32	pci_lat;	/* 0x0000c  */
++	u32	pci_addr;	/* 0x00010  */
++	u32	pci_err_addr_l;	/* 0x00014  */
++	u32	pci_err_addr_h;	/* 0x00018  */
++
++	u32	sio_ir;		/* 0x0001c  */
++	u32	sio_ies;	/* 0x00020  */
++	u32	sio_iec;	/* 0x00024  */
++	u32	sio_cr;		/* 0x00028  */
++	u32	int_out;	/* 0x0002c  */
++	u32	mcr;		/* 0x00030  */
+ 
+ 	/* General Purpose I/O registers  */
+-	uint32_t	gpcr_s;		/* 0x00034  */
+-	uint32_t	gpcr_c;		/* 0x00038  */
+-	uint32_t	gpdr;		/* 0x0003c  */
+-	uint32_t	gppr[16];	/* 0x00040  */
++	u32	gpcr_s;		/* 0x00034  */
++	u32	gpcr_c;		/* 0x00038  */
++	u32	gpdr;		/* 0x0003c  */
++	u32	gppr[16];	/* 0x00040  */
+ 
+ 	/* Parallel Port Registers  */
+-	uint32_t	ppbr_h_a;	/* 0x00080  */
+-	uint32_t	ppbr_l_a;	/* 0x00084  */
+-	uint32_t	ppcr_a;		/* 0x00088  */
+-	uint32_t	ppcr;		/* 0x0008c  */
+-	uint32_t	ppbr_h_b;	/* 0x00090  */
+-	uint32_t	ppbr_l_b;	/* 0x00094  */
+-	uint32_t	ppcr_b;		/* 0x00098  */
++	u32	ppbr_h_a;	/* 0x00080  */
++	u32	ppbr_l_a;	/* 0x00084  */
++	u32	ppcr_a;		/* 0x00088  */
++	u32	ppcr;		/* 0x0008c  */
++	u32	ppbr_h_b;	/* 0x00090  */
++	u32	ppbr_l_b;	/* 0x00094  */
++	u32	ppcr_b;		/* 0x00098  */
+ 
+ 	/* Keyboard and Mouse Registers	 */
+ 	struct ioc3_serioregs	serio;
+ 
+ 	/* Serial Port Registers  */
+-	uint32_t	sbbr_h;		/* 0x000b0  */
+-	uint32_t	sbbr_l;		/* 0x000b4  */
++	u32	sbbr_h;		/* 0x000b0  */
++	u32	sbbr_l;		/* 0x000b4  */
+ 	struct ioc3_serialregs	port_a;
+ 	struct ioc3_serialregs	port_b;
+ 
+ 	/* Ethernet Registers */
+ 	struct ioc3_ethregs	eth;
+-	uint32_t	pad1[(0x20000 - 0x00154) / 4];
++	u32	pad1[(0x20000 - 0x00154) / 4];
+ 
+ 	/* SuperIO Registers  XXX */
+ 	struct ioc3_sioregs	sregs;	/* 0x20000 */
+-	uint32_t	pad2[(0x40000 - 0x20180) / 4];
++	u32	pad2[(0x40000 - 0x20180) / 4];
+ 
+ 	/* SSRAM Diagnostic Access */
+-	uint32_t	ssram[(0x80000 - 0x40000) / 4];
++	u32	ssram[(0x80000 - 0x40000) / 4];
+ 
+ 	/* Bytebus device offsets
+ 	   0x80000 -   Access to the generic devices selected with   DEV0
+@@ -598,10 +598,6 @@ struct ioc3_etxd {
+ 
+ #define MIDR_DATA_MASK		0x0000ffff
+ 
+-#if defined(CONFIG_SGI_IP27) || defined(CONFIG_SGI_IP30)
+-extern int bridge_alloc_irq(struct pci_dev *dev);
+-#endif
+-
+ /* subsystem IDs supplied by card detection in pci-xtalk-bridge */
+ #define	IOC3_SUBSYS_IP27_BASEIO6G	0xc300
+ #define	IOC3_SUBSYS_IP27_MIO		0xc301
+diff --git a/arch/mips/sgi-ip27/ip27-console.c b/arch/mips/sgi-ip27/ip27-console.c
+index 6bdb48d41276..5886bee89d06 100644
+--- a/arch/mips/sgi-ip27/ip27-console.c
++++ b/arch/mips/sgi-ip27/ip27-console.c
+@@ -35,6 +35,7 @@ void prom_putchar(char c)
+ {
+ 	struct ioc3_uartregs *uart = console_uart();
+ 
+-	while ((uart->iu_lsr & 0x20) == 0);
+-	uart->iu_thr = c;
++	while ((readb(&uart->iu_lsr) & 0x20) == 0)
++		;
++	writeb(c, &uart->iu_thr);
+ }
+diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+index d3a75d447fce..e8194f1f01a8 100644
+--- a/drivers/rtc/rtc-m48t35.c
++++ b/drivers/rtc/rtc-m48t35.c
+@@ -20,6 +20,16 @@
+ 
+ struct m48t35_rtc {
+ 	u8	pad[0x7ff8];    /* starts at 0x7ff8 */
++#ifdef CONFIG_SGI_IP27
++	u8	hour;
++	u8	min;
++	u8	sec;
++	u8	control;
++	u8	year;
++	u8	month;
++	u8	date;
++	u8	day;
++#else
+ 	u8	control;
+ 	u8	sec;
+ 	u8	min;
+@@ -28,6 +38,7 @@ struct m48t35_rtc {
+ 	u8	date;
+ 	u8	month;
+ 	u8	year;
++#endif
+ };
+ 
+ #define M48T35_RTC_SET		0x80
+diff --git a/drivers/tty/serial/8250/8250_ioc3.c b/drivers/tty/serial/8250/8250_ioc3.c
+index 2be6ed2967e0..4c405f1b9c67 100644
+--- a/drivers/tty/serial/8250/8250_ioc3.c
++++ b/drivers/tty/serial/8250/8250_ioc3.c
+@@ -23,12 +23,12 @@ struct ioc3_8250_data {
+ 
+ static unsigned int ioc3_serial_in(struct uart_port *p, int offset)
+ {
+-	return readb(p->membase + offset);
++	return readb(p->membase + (offset ^ 3));
+ }
+ 
+ static void ioc3_serial_out(struct uart_port *p, int offset, int value)
+ {
+-	writeb(value, p->membase + offset);
++	writeb(value, p->membase + (offset ^ 3));
+ }
+ 
+ static int serial8250_ioc3_probe(struct platform_device *pdev)
+-- 
+2.13.7
+
