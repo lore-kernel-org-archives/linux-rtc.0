@@ -1,63 +1,47 @@
-Return-Path: <SRS0=1b98=UL=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=DhXe=UM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_NEOMUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E25F2C31E46
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Jun 2019 06:03:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04FCFC31E45
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 15:18:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B728320896
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Jun 2019 06:03:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="kQgNEe7l"
+	by mail.kernel.org (Postfix) with ESMTP id CFCE12054F
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Jun 2019 15:18:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1560439128;
+	bh=9nw7s7Y1QRBTXFeeD1F8tOL9Kaizm2l7e3Ph/Xz+h50=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=bgCs+smNFFiv+/z+Ny0V4qZjZ7eHbPF8byRhVfLyoZGqdtpwOiKG8lQpUOUurQgFb
+	 FCnxVYXVQ2G11CbBB1ji0AbjbjPFR9QhIPvhimxhCrBeSErCXGBcaeP6gzsZWVZrUQ
+	 5Xxpx7EpeSub258ZiRqXD/U9Ljbn54cdepjSDovg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730868AbfFLGDc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 Jun 2019 02:03:32 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:42776 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730865AbfFLGDc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jun 2019 02:03:32 -0400
-Received: by mail-wr1-f66.google.com with SMTP id x17so161234wrl.9
-        for <linux-rtc@vger.kernel.org>; Tue, 11 Jun 2019 23:03:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=+13q810llW4ErXXIetgj/sg6McW6pFvv2Q8IXgzsfkA=;
-        b=kQgNEe7lU75z3OeBABAC6Q8trmmoqyeiGjh+GcqkEXYi72whxbc7gOEEHkeVhfjLhN
-         FU8ME53uN7CbcnKand3X6rJlYfGiD+5rRC+f/oCFUZmtLHbic1O7pMQlI9E3n0Z7uLtl
-         HqKADy95Q0V50tbehahY8zw/vnxoekQFiAQj6rg/4AwpzP410tAT4Dp5UC2K7d9UunNu
-         4L7jAh2jHoyUmhZzm90OIv/UXl1bZCLFjbZU8XKncBBv/I75Z86NRu71gLyMuFWB5uY3
-         zOYgwcDKZxQuPwetUB8A7f8OkJBhV4OugGkt76kHe7JTrlethDQpEDis/afWlkOOHl8J
-         56uw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=+13q810llW4ErXXIetgj/sg6McW6pFvv2Q8IXgzsfkA=;
-        b=rOH6kFC98necqUtmm0+ay8NwRRwDG5nnMGZ3x8oAYGGoogA5/MDyhfyrP+5eBahBVU
-         gCyrvkVwMfMwKm28CywK6NoAIUikY1jpENlWDJWExhULxA5xXIp4yg0DbPmK9aXvHTuf
-         jtpbbghpN52y3qbp7+HoaOboiKwiOQf47pGA/I+b291menlO3YFS4H0/d7GAmbdDFkHV
-         6lLWbj52KAqbAOHmF6kMh+SwkLkO+/vtAwEUFunhGYoM4keV+ADf4+IIXOFctSxZz7Tf
-         nTw3pcqal138iIKgkK0SB119/3vFBiY5uXwMmLaqANjTZ5JY8+OciMqL19U5aaC0pkra
-         9Anw==
-X-Gm-Message-State: APjAAAW4+8VpPt4LWMZgqg8CIixstUpsRVhK/Tkz+YwnZm+VMmhw1wpW
-        jpa2ViSfcDdeVq8WXJrkyBwWyQ==
-X-Google-Smtp-Source: APXvYqyxgC+MOxZ/tRXB4Hv5XucD8WakihBGUs4FQKs/N+4M4iopyF7/hlrp1gR87azKIfrbFj6+Bw==
-X-Received: by 2002:a5d:4703:: with SMTP id y3mr669507wrq.248.1560319410440;
-        Tue, 11 Jun 2019 23:03:30 -0700 (PDT)
-Received: from dell ([2.27.35.243])
-        by smtp.gmail.com with ESMTPSA id w6sm23656976wro.71.2019.06.11.23.03.29
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 11 Jun 2019 23:03:29 -0700 (PDT)
-Date:   Wed, 12 Jun 2019 07:03:28 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Sebastian Reichel <sre@kernel.org>
+        id S1732734AbfFMPSj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Jun 2019 11:18:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38886 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732155AbfFMNFd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 13 Jun 2019 09:05:33 -0400
+Received: from earth.universe (dyndsl-095-033-011-189.ewe-ip-backbone.de [95.33.11.189])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67C3B205ED;
+        Thu, 13 Jun 2019 13:05:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560431132;
+        bh=9nw7s7Y1QRBTXFeeD1F8tOL9Kaizm2l7e3Ph/Xz+h50=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wzRm/x10/pYWTJzw5naJiqba5efR9LYMIKMLRdFAtvkvh4JkXIQ56p6+ZjI0kXE0E
+         4jpE1a6LzXszIazL6ARJUwzldZdqylsrebyOpqTNJ5qL7VHd/4wQCvVTMNCCqflaAB
+         cl/R3NEOjn2v+4zgAZE6fn0tBF9DEiTradMT58MI=
+Received: by earth.universe (Postfix, from userid 1000)
+        id 0F2303C0C77; Thu, 13 Jun 2019 15:05:30 +0200 (CEST)
+Date:   Thu, 13 Jun 2019 15:05:29 +0200
+From:   Sebastian Reichel <sre@kernel.org>
+To:     Lee Jones <lee.jones@linaro.org>
 Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Michael Turquette <mturquette@baylibre.com>,
@@ -72,40 +56,71 @@ Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
         linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org
 Subject: Re: [PATCH v15 0/7] support ROHM BD70528 PMIC
-Message-ID: <20190612060328.GQ4797@dell>
+Message-ID: <20190613130529.kgswgbuszb24itxz@earth.universe>
 References: <cover.1559546139.git.matti.vaittinen@fi.rohmeurope.com>
  <20190611200043.eib3g3acc7ilawsx@earth.universe>
+ <20190612060328.GQ4797@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="z7gwwmvwfgzls6v6"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190611200043.eib3g3acc7ilawsx@earth.universe>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20190612060328.GQ4797@dell>
+User-Agent: NeoMutt/20180716
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 11 Jun 2019, Sebastian Reichel wrote:
 
-> Hi,
-> 
-> On Mon, Jun 03, 2019 at 10:23:37AM +0300, Matti Vaittinen wrote:
-> > Patch series introducing support for ROHM BD70528 PMIC
-> > [...]
-> 
-> I think all patches have been reviewed by the respective subsystem
-> maintainers. Lee, can you provide an immutable branch with the MFD
-> patches (1, 2, 4)? Looks like the other patches only depend on those
-> and can go through their respective subsystems.
+--z7gwwmvwfgzls6v6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes.  It's on my TODO list.
+Hi,
 
-Would you prefer this method over me just taking them all and sending
-out a PR?  The latter is my usual flow, but I'm happy with either.
+On Wed, Jun 12, 2019 at 07:03:28AM +0100, Lee Jones wrote:
+> On Tue, 11 Jun 2019, Sebastian Reichel wrote:
+> > On Mon, Jun 03, 2019 at 10:23:37AM +0300, Matti Vaittinen wrote:
+> > > Patch series introducing support for ROHM BD70528 PMIC
+> > > [...]
+> >=20
+> > I think all patches have been reviewed by the respective subsystem
+> > maintainers. Lee, can you provide an immutable branch with the MFD
+> > patches (1, 2, 4)? Looks like the other patches only depend on those
+> > and can go through their respective subsystems.
+>=20
+> Yes.  It's on my TODO list.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks.
+
+> Would you prefer this method over me just taking them all and sending
+> out a PR?  The latter is my usual flow, but I'm happy with either.
+
+Both methods are fine with me. I usually go with "my" method, since
+that results in less shared commits. It simplifies potential
+follow-up bug fixes, since there is only one tree to fix.
+
+-- Sebastian
+
+--z7gwwmvwfgzls6v6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl0CShYACgkQ2O7X88g7
++pr+dQ//UKZYRSKZHKIkw81U/LPaGmkXOWyyYGwVfxHDYeMyeHur/klljg+mU4bW
+gMCGCns23SP/L4c9lOc3aY/Ovkjuq2gjonKtMFo66fY9slf6MdnC4L9FNXXUqsPK
+oa8Fir0ful7FdJ4HxsxLqkiTT1wWDNRgchMI/iNEhcjMt14rlzwIM7wyktT8O/Zr
+9Om2Cx282JEE5hGbl2D98VPrR67vqNRqOwIhZ+lQBNgXiOUgvlh2UDqpXziOjdwX
+vxgmoxUB1v72itnyz0qf46L+ayqnPmBH6MSEdTYs5vYz4l64c4jIXoyyJ/pPr+ck
+rb6eygO0LkADnW6zab11yWn1HH/CYJG1TUNMNOw8a4RFPpCyDW17U5ksICi55hhx
+HrG1YXCPgpiGV2d0MawLwLhEbv3FXIYDPPt6xEne0FXUHg53apOQjmyPoGP404RN
+M7jJJlpkGyHd5N2iskFU79NBES64aHkc/uvmEZw56xHUVg0SZ9e/V7zLKWwxMYeM
+C0kaTjsN86xnoNwsMoVx94RiIjk38xDz1anaAafOtpkUxdFb2xL9qpGWiUlwZKVJ
+ALa7k8jleI0Mzv/fOFHGBZzkGoPCdqURkANKyCLHBA8Pi++nGR4RHF2Om/goK/mb
+pLme4LVfDKswR8HYUbrfCBLsG/uBNX1GfoEH9/CQ2gNKSphUZ90=
+=ScGm
+-----END PGP SIGNATURE-----
+
+--z7gwwmvwfgzls6v6--
