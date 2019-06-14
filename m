@@ -2,180 +2,105 @@ Return-Path: <SRS0=R1dF=UN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67E46C468B0
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 17:56:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4043DC31E4E
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 18:24:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4DEF52183E
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 17:56:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A3172183E
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 18:24:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1560536680;
+	bh=YbbA1R/wR3/o92dBrCRglYZG5dyadCxtJskphLWqUEA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=IYMrEjT3DO6WqSiDn+TIJLhs9jf5paB8sm6IglZiFTOkWbVqOsDCspTY2Byxu1kqj
+	 /4vFLesCT3XksrDVfDfgKoDlvWgX2fa9IIJ6/VyHrFrKBBKr3ql3xBjBOnylAyo39Z
+	 lah9Kk2N/pBvaJq0v/zFSjNxmHsWI0VR2osdsBM8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727464AbfFNRzH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 14 Jun 2019 13:55:07 -0400
-Received: from foss.arm.com ([217.140.110.172]:39448 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727434AbfFNRzH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 14 Jun 2019 13:55:07 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3123E346;
-        Fri, 14 Jun 2019 10:55:06 -0700 (PDT)
-Received: from en101.cambridge.arm.com (en101.cambridge.arm.com [10.1.196.93])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 302813F718;
-        Fri, 14 Jun 2019 10:55:03 -0700 (PDT)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, rafael@kernel.org,
-        suzuki.poulose@arm.com, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>, Dan Murphy <dmurphy@ti.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>, linux-leds@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-wpan@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH v2 10/28] drivers: Add generic helper to match by name
-Date:   Fri, 14 Jun 2019 18:54:05 +0100
-Message-Id: <1560534863-15115-11-git-send-email-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
-References: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
+        id S1726551AbfFNSYf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 14 Jun 2019 14:24:35 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:42774 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbfFNSYe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 14 Jun 2019 14:24:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=TC1DIbwZfF3TMyvcbViFGCwFe/sxI0poVP7S8t8eBkE=; b=L6PAY7gXR8eXr6P33xSeUZj+U
+        yEIp9AKwS4nTSsPfdUPjwRMP48ZS7U/8yvWHno2h4fIzlKQ9aKM19v210bkKioSACeA45EYDl4+D5
+        xIx3jMGWULyRK88mfuEkTVuSrFOIYGx5X60j6jbLHlAu4EnbdQzheeuxK6QcxUXRMGdDg=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hbqsA-0000FE-Fg; Fri, 14 Jun 2019 18:24:22 +0000
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+        id CA8F3440046; Fri, 14 Jun 2019 19:24:21 +0100 (BST)
+Date:   Fri, 14 Jun 2019 19:24:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Tony Xie <tony.xie@rock-chips.com>
+Cc:     heiko@sntech.de, lee.jones@linaro.org, robh+dt@kernel.org,
+        mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, sboyd@kernel.org,
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
+        xsf@rock-chips.com, zhangqing@rock-chips.com,
+        huangtao@rock-chips.com
+Subject: Re: [PATCH v9 3/6] regulator: rk808: add RK809 and RK817 support.
+Message-ID: <20190614182421.GI5316@sirena.org.uk>
+References: <20190614031425.15741-1-tony.xie@rock-chips.com>
+ <20190614031425.15741-4-tony.xie@rock-chips.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="je2i5r69C8+2chMc"
+Content-Disposition: inline
+In-Reply-To: <20190614031425.15741-4-tony.xie@rock-chips.com>
+X-Cookie: Editing is a rewording activity.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add a helper to match the device name. Also reuse this generic
-exported helper for bus_find_device_by_name(). This will also be
-used to add similar interface for (driver/class)_find_device()
 
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexander Aring <alex.aring@gmail.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dan Murphy <dmurphy@ti.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: linux-leds@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Cc: linux-wpan@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Stefan Schmidt <stefan@datenfreihafen.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
- drivers/base/bus.c     | 24 ------------------------
- drivers/base/core.c    |  6 ++++++
- include/linux/device.h | 18 +++++++++++++++---
- 3 files changed, 21 insertions(+), 27 deletions(-)
+--je2i5r69C8+2chMc
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index df3cac7..a1d1e82 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -342,30 +342,6 @@ struct device *bus_find_device(struct bus_type *bus,
- }
- EXPORT_SYMBOL_GPL(bus_find_device);
- 
--static int match_name(struct device *dev, const void *data)
--{
--	const char *name = data;
--
--	return sysfs_streq(name, dev_name(dev));
--}
--
--/**
-- * bus_find_device_by_name - device iterator for locating a particular device of a specific name
-- * @bus: bus type
-- * @start: Device to begin with
-- * @name: name of the device to match
-- *
-- * This is similar to the bus_find_device() function above, but it handles
-- * searching by a name automatically, no need to write another strcmp matching
-- * function.
-- */
--struct device *bus_find_device_by_name(struct bus_type *bus,
--				       struct device *start, const char *name)
--{
--	return bus_find_device(bus, start, (void *)name, match_name);
--}
--EXPORT_SYMBOL_GPL(bus_find_device_by_name);
--
- /**
-  * subsys_find_device_by_id - find a device with a specific enumeration number
-  * @subsys: subsystem
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 597095b..5724f93 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -3352,3 +3352,9 @@ int device_match_acpi_dev(struct device *dev, const void *adev)
- 	return ACPI_COMPANION(dev) == adev;
- }
- EXPORT_SYMBOL(device_match_acpi_dev);
-+
-+int device_match_name(struct device *dev, const void *name)
-+{
-+	return sysfs_streq(dev_name(dev), name);
-+}
-+EXPORT_SYMBOL_GPL(device_match_name);
-diff --git a/include/linux/device.h b/include/linux/device.h
-index a03b50d..b9b82b7 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -167,15 +167,27 @@ int device_match_of_node(struct device *dev, const void *np);
- int device_match_fwnode(struct device *dev, const void *fwnode);
- int device_match_devt(struct device *dev, const void *pdevt);
- int device_match_acpi_dev(struct device *dev, const void *adev);
-+int device_match_name(struct device *dev, const void *name);
- 
- int bus_for_each_dev(struct bus_type *bus, struct device *start, void *data,
- 		     int (*fn)(struct device *dev, void *data));
- struct device *bus_find_device(struct bus_type *bus, struct device *start,
- 			       const void *data,
- 			       int (*match)(struct device *dev, const void *data));
--struct device *bus_find_device_by_name(struct bus_type *bus,
--				       struct device *start,
--				       const char *name);
-+/**
-+ * bus_find_device_by_name - device iterator for locating a particular device
-+ * of a specific name.
-+ * @bus: bus type
-+ * @start: Device to begin with
-+ * @name: name of the device to match
-+ */
-+static inline struct device *bus_find_device_by_name(struct bus_type *bus,
-+						     struct device *start,
-+						     const char *name)
-+{
-+	return bus_find_device(bus, start, name, device_match_name);
-+}
-+
- struct device *subsys_find_device_by_id(struct bus_type *bus, unsigned int id,
- 					struct device *hint);
- int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
--- 
-2.7.4
+On Thu, Jun 13, 2019 at 11:14:22PM -0400, Tony Xie wrote:
+>     Add support for the rk809 and rk817 regulator driver.
+>     Their specifications are as follows=EF=BC=9A
+>     1. The RK809 and RK809 consist of 5 DCDCs, 9 LDOs
+>        and have the same registers for these components except dcdc5.
+>     2. The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
+>     3. The RK817 has one switch but The Rk809 has two.
+>=20
+>     The output voltages are configurable and are meant to supply power
+>     to the main processor and other components.
 
+Acked-by: Mark Brown <broonie@kernel.org>
+
+--je2i5r69C8+2chMc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl0D5lQACgkQJNaLcl1U
+h9Cg3gf+PI+oNUSN6SISGiEj0NLwGYqM6Zuaotd0ItoKH0gSxFrTbuNhIGdsI/mN
+fjDHx3QiGEsRBgKLaae3GP35+L2B7d4sUs7+ZpVC0DrldSFUQ3G6xbsez1CKm5wB
+o3u5dBWZSKGHHxjJV/VH27wu6BonLndiAbFuwA/vjB2tTr7003bRMYeVDoI3uPik
+o7vU+ZwFhCGUuh4TmPusYRWepB5cyGCuo9j/IX+HfWnLeVvcOlz0qtIVcr0DARzF
+ZPAxMHqtm2lvyldzgU456YAA1wTVihRwRvhSyz3hAKgZLzlngjGxPrrgszbJJ05I
+SUAgVqBJ/phpgaL6BBLqlGNDtUXPmg==
+=Qfnw
+-----END PGP SIGNATURE-----
+
+--je2i5r69C8+2chMc--
