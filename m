@@ -2,136 +2,104 @@ Return-Path: <SRS0=R1dF=UN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1B03C31E4C
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:22:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E956BC31E44
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 10:47:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A07B520645
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:22:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8A07208CA
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 10:47:51 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s9ovk65w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726811AbfFNDWG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 13 Jun 2019 23:22:06 -0400
-Received: from lucky1.263xmail.com ([211.157.147.130]:38100 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726028AbfFNDWF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jun 2019 23:22:05 -0400
-Received: from tony.xie?rock-chips.com (unknown [192.168.167.229])
-        by lucky1.263xmail.com (Postfix) with ESMTP id B29D95E8A4;
-        Fri, 14 Jun 2019 11:14:37 +0800 (CST)
-X-263anti-spam: KSV:0;BIG:0;
-X-MAIL-GRAY: 1
-X-MAIL-DELIVERY: 0
-X-KSVirus-check: 0
-X-ADDR-CHECKED4: 1
-X-ABS-CHECKED: 1
-X-SKE-CHECKED: 1
-X-ANTISPAM-LEVEL: 2
-Received: from localhost.localdomain (unknown [58.22.7.114])
-        by smtp.263.net (postfix) whith ESMTP id P13273T140214467016448S1560482074692142_;
-        Fri, 14 Jun 2019 11:14:36 +0800 (CST)
-X-IP-DOMAINF: 1
-X-UNIQUE-TAG: <da7045de40a53e67fa1df5b4903fd717>
-X-RL-SENDER: tony.xie@rock-chips.com
-X-SENDER: xxx@rock-chips.com
-X-LOGIN-NAME: tony.xie@rock-chips.com
-X-FST-TO: heiko@sntech.de
-X-SENDER-IP: 58.22.7.114
-X-ATTACHMENT-NUM: 0
-X-DNS-TYPE: 0
-From:   Tony Xie <tony.xie@rock-chips.com>
-To:     heiko@sntech.de
-Cc:     broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
-        mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, sboyd@kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
-        xsf@rock-chips.com, zhangqing@rock-chips.com,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v9 0/6] support a new type of PMIC,including two chips(rk817 and rk809)
-Date:   Thu, 13 Jun 2019 23:14:19 -0400
-Message-Id: <20190614031425.15741-1-tony.xie@rock-chips.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727054AbfFNKrv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 14 Jun 2019 06:47:51 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:34804 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726767AbfFNKrv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 14 Jun 2019 06:47:51 -0400
+Received: by mail-wr1-f65.google.com with SMTP id k11so2035587wrl.1;
+        Fri, 14 Jun 2019 03:47:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4kJkce9QnAQ2uiZZ7WIZ0dOp6754sfSUCWC444c4ZX8=;
+        b=s9ovk65wR09SMBZkhl/aHPmD0VGxq9BjXa3YN4IvlDonT4j9AB7svsn6ssnuk6dH1T
+         uMIOmzknk7peaKjVah/JWlQDQ7+bnOB9wrBprU9Gc8JatXJmt+xN3s5DqK0YMXSTe4bz
+         GOBDgEy0kNT9tpCVmuEtPoP4WVEvkYRu1rCIK9bBFxpL8zmpgA0FBSWgGL6w6Adyb0+R
+         EorvOb6sQQe3vZN4F4dUBooR1/u7Ju8Mc/pz+Moh42fFOfzYjdchxky+ah1NK/n5A0O0
+         395ikpdlWJUfhvGgMti0G7wofKKqQNqvfUNyDtgxrHT3mCS9IVznIGM/4pybFGKX/oBj
+         aVgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4kJkce9QnAQ2uiZZ7WIZ0dOp6754sfSUCWC444c4ZX8=;
+        b=t5LoMTyBQAZkuvEtLX+DlBTQIA6W/Xo9CaGEjN2o0QmqGruy4ZZSlcXS+9Z0xKZ2H6
+         dUFpHRMk03wlAtg/mAtrfUaXdR9rx0Tqa1XDY+DVycQ7eYqemJWA9Z2/vmxF0nVHRuTO
+         pkRmOI8eBCOQE6OKCOC2uvEm9Jrwpr9wN3OrYWUd/35zeCu2/Nz/Rcc5PHHSFsCc3i6O
+         PrM47zstrVii1KEIW/BubgWcEbE+wNm2Ilrk/0+Iq+FUZohaA72XLboFZSw4n4YyExTi
+         h0k5fWMAJk+8h8RNmZC9HtO7LGo0CoWmoMzj0qyuNvhURpRiVtN0p1p0hbLHqKeUVner
+         Khlw==
+X-Gm-Message-State: APjAAAVLKhgjla2Ht6ViAhrkN9LYwHQTSdT/FC3lWSu6IM8u7ixk2t93
+        VmBjc2/g+l3ZsE0I4ww4xO4=
+X-Google-Smtp-Source: APXvYqxyE04Ux17OdI3cnfl25wz19B8Y9lVATZFL7+lepI3B7xi5/of6zkce+HAIRMo57HhBintKcA==
+X-Received: by 2002:adf:cf0a:: with SMTP id o10mr1009433wrj.37.1560509269308;
+        Fri, 14 Jun 2019 03:47:49 -0700 (PDT)
+Received: from localhost (p2E5BEF36.dip0.t-ipconnect.de. [46.91.239.54])
+        by smtp.gmail.com with ESMTPSA id y17sm5200554wrg.18.2019.06.14.03.47.48
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 14 Jun 2019 03:47:48 -0700 (PDT)
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        linux-tegra@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] clocksource: tegra: Use rating when registering clock source
+Date:   Fri, 14 Jun 2019 12:47:46 +0200
+Message-Id: <20190614104747.19712-1-thierry.reding@gmail.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Most of functions and registers of the rk817 and rk808 are the same,
-so they can share allmost all codes.
+From: Thierry Reding <treding@nvidia.com>
 
-Their specifications are as follows:
-  1) The RK809 and RK809 consist of 5 DCDCs, 9 LDOs and have the same
-registers
-     for these components except dcdc5.
-  2) The dcdc5 is a boost dcdc for RK817 and is a buck for RK809.
-  3) The RK817 has one switch but The Rk809 has two.
+The rating is parameterized depending on SoC generation to make sure it
+takes precedence on implementations where the architected timer can't be
+used. This rating is already used for the clock event device. Use the
+same rating for the clock source to be consistent.
 
-Changes in V2:
-1. initialize the pm_pwroff_fn to NULL.
-2. use EXPORT_SYMBOL_GPL to export pm_power_off_prepare.
-3. change patch 2/3/4/5 subjects.
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/clocksource/timer-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Changes in V3
-1. change patch 4 subjects
-2. replace pr_ with dev_ for printing in patch 2
-3. modify switch1 and switch2 configs in patch 2
-4. explain gpio information for rk809 and rk817 in patch 4
-
-Changes in V4:
-1. modify some codes for patch 2 and patch 5 according to comments
-2. add reviewer mail lists for patch 3 and 4
-
-Changes in V5:
-modify some codes for patch 1 according to reveiw comments for v3.
- 1) remove the pm_power_off_prepare() and replace with shutdown
-call-back from syscore
- 2) move the macro REGMAP_IRQ_M into the regmap.h and rename it
-REGMAP_IRQ_LINE
- 3) make some dev_warn() log clear
-
-Changes in V6:
-modify some codes according to reveiw comments for v5.
-
-Changes in V7:
-modify some codes for patch 2 according to reveiw comments.
-
-Changes in V8:
-For helping me promote this work, Heiko send the V8
-
-Changes in V9:
-1.base on the V8
-2.modify some codes according to reveiw comments for V8 from Mark Brown
-
-Tony Xie (6):
-  mfd: rk808: remove the id_table
-  mfd: rk808: Add RK817 and RK809 support
-  regulator: rk808: add RK809 and RK817 support.
-  dt-bindings: mfd: rk808: Add binding information for RK809 and RK817.
-  rtc: rk808: add RK809 and RK817 support.
-  clk: RK808: add RK809 and RK817 support.
-
- .../devicetree/bindings/mfd/rk808.txt         |  44 ++
- drivers/clk/Kconfig                           |   9 +-
- drivers/clk/clk-rk808.c                       |  64 +-
- drivers/mfd/Kconfig                           |   6 +-
- drivers/mfd/rk808.c                           | 199 +++++-
- drivers/regulator/Kconfig                     |   4 +-
- drivers/regulator/rk808-regulator.c           | 646 +++++++++++++++++-
- drivers/rtc/Kconfig                           |   4 +-
- drivers/rtc/rtc-rk808.c                       |  68 +-
- include/linux/mfd/rk808.h                     | 175 +++++
- 10 files changed, 1155 insertions(+), 64 deletions(-)
-
+diff --git a/drivers/clocksource/timer-tegra.c b/drivers/clocksource/timer-tegra.c
+index f6a8eb0d7322..e6608141cccb 100644
+--- a/drivers/clocksource/timer-tegra.c
++++ b/drivers/clocksource/timer-tegra.c
+@@ -318,7 +318,7 @@ static int __init tegra_init_timer(struct device_node *np, bool tegra20,
+ 	sched_clock_register(tegra_read_sched_clock, 32, TIMER_1MHz);
+ 
+ 	ret = clocksource_mmio_init(timer_reg_base + TIMERUS_CNTR_1US,
+-				    "timer_us", TIMER_1MHz, 300, 32,
++				    "timer_us", TIMER_1MHz, rating, 32,
+ 				    clocksource_mmio_readl_up);
+ 	if (ret)
+ 		pr_err("failed to register clocksource: %d\n", ret);
 -- 
-2.17.1
-
-
+2.21.0
 
