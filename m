@@ -4,24 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8BE8C31E45
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:20:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10819C31E45
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:22:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B99202073F
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:20:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D58712073F
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Jun 2019 03:22:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbfFNDUG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 13 Jun 2019 23:20:06 -0400
-Received: from lucky1.263xmail.com ([211.157.147.132]:34690 "EHLO
+        id S1726638AbfFNDWD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Jun 2019 23:22:03 -0400
+Received: from lucky1.263xmail.com ([211.157.147.134]:33330 "EHLO
         lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726305AbfFNDUF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jun 2019 23:20:05 -0400
-Received: from tony.xie?rock-chips.com (unknown [192.168.167.152])
-        by lucky1.263xmail.com (Postfix) with ESMTP id 28D7C54DEB;
-        Fri, 14 Jun 2019 11:17:43 +0800 (CST)
+        with ESMTP id S1725825AbfFNDWD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Jun 2019 23:22:03 -0400
+Received: from tony.xie?rock-chips.com (unknown [192.168.167.229])
+        by lucky1.263xmail.com (Postfix) with ESMTP id 050DE37411;
+        Fri, 14 Jun 2019 11:14:39 +0800 (CST)
 X-263anti-spam: KSV:0;BIG:0;
 X-MAIL-GRAY: 1
 X-MAIL-DELIVERY: 0
@@ -31,10 +30,10 @@ X-ABS-CHECKED: 1
 X-SKE-CHECKED: 1
 X-ANTISPAM-LEVEL: 2
 Received: from localhost.localdomain (unknown [58.22.7.114])
-        by smtp.263.net (postfix) whith ESMTP id P20303T139952891324160S1560482259794024_;
-        Fri, 14 Jun 2019 11:17:41 +0800 (CST)
+        by smtp.263.net (postfix) whith ESMTP id P13273T140214467016448S1560482074692142_;
+        Fri, 14 Jun 2019 11:14:37 +0800 (CST)
 X-IP-DOMAINF: 1
-X-UNIQUE-TAG: <253e62f960b9431d8ca182157cc282f4>
+X-UNIQUE-TAG: <b51261e4f9f8107af950d2ff69e11f3a>
 X-RL-SENDER: tony.xie@rock-chips.com
 X-SENDER: xxx@rock-chips.com
 X-LOGIN-NAME: tony.xie@rock-chips.com
@@ -53,9 +52,9 @@ Cc:     broonie@kernel.org, lee.jones@linaro.org, robh+dt@kernel.org,
         linux-kernel@vger.kernel.org, chenjh@rock-chips.com,
         xsf@rock-chips.com, zhangqing@rock-chips.com,
         huangtao@rock-chips.com, tony.xie@rock-chips.com
-Subject: [PATCH v9 6/6] clk: RK808: add RK809 and RK817 support.
-Date:   Thu, 13 Jun 2019 23:17:38 -0400
-Message-Id: <20190614031738.15909-1-tony.xie@rock-chips.com>
+Subject: [PATCH v9 1/6] mfd: rk808: remove the id_table
+Date:   Thu, 13 Jun 2019 23:14:20 -0400
+Message-Id: <20190614031425.15741-2-tony.xie@rock-chips.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190614031425.15741-1-tony.xie@rock-chips.com>
 References: <20190614031425.15741-1-tony.xie@rock-chips.com>
@@ -64,121 +63,40 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-RK809 and RK817 are power management IC chips for multimedia products.
-most of their functions and registers are same, including the clkout
-funciton.
+Remove the id_table because it's not used.
 
 Signed-off-by: Tony Xie <tony.xie@rock-chips.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
 ---
- drivers/clk/Kconfig     |  9 +++---
- drivers/clk/clk-rk808.c | 64 ++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 67 insertions(+), 6 deletions(-)
+ drivers/mfd/rk808.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index e5b2fe80eab4..532ab112fa8a 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -52,13 +52,12 @@ config COMMON_CLK_MAX9485
- 	  This driver supports Maxim 9485 Programmable Audio Clock Generator
- 
- config COMMON_CLK_RK808
--	tristate "Clock driver for RK805/RK808/RK818"
-+	tristate "Clock driver for RK805/RK808/RK809/RK817/RK818"
- 	depends on MFD_RK808
- 	---help---
--	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
--	  multi-function devices have two fixed-rate oscillators,
--	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
--	  by control register.
-+	  This driver supports RK805, RK809 and RK817, RK808 and RK818 crystal oscillator clock.
-+	  These multi-function devices have two fixed-rate oscillators, clocked at 32KHz each.
-+	  Clkout1 is always on, Clkout2 can off by control register.
- 
- config COMMON_CLK_HI655X
- 	tristate "Clock driver for Hi655x" if EXPERT
-diff --git a/drivers/clk/clk-rk808.c b/drivers/clk/clk-rk808.c
-index 8d90bdf5b946..75f2cf0dfc9f 100644
---- a/drivers/clk/clk-rk808.c
-+++ b/drivers/clk/clk-rk808.c
-@@ -96,6 +96,68 @@ of_clk_rk808_get(struct of_phandle_args *clkspec, void *data)
- 	return idx ? &rk808_clkout->clkout2_hw : &rk808_clkout->clkout1_hw;
+diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
+index 216fbf6adec9..94377782d208 100644
+--- a/drivers/mfd/rk808.c
++++ b/drivers/mfd/rk808.c
+@@ -568,14 +568,6 @@ static int rk808_remove(struct i2c_client *client)
+ 	return 0;
  }
  
-+static int rk817_clkout2_enable(struct clk_hw *hw, bool enable)
-+{
-+	struct rk808_clkout *rk808_clkout = container_of(hw,
-+							 struct rk808_clkout,
-+							 clkout2_hw);
-+	struct rk808 *rk808 = rk808_clkout->rk808;
-+
-+	return regmap_update_bits(rk808->regmap, RK817_SYS_CFG(1),
-+				  RK817_CLK32KOUT2_EN,
-+				  enable ? RK817_CLK32KOUT2_EN : 0);
-+}
-+
-+static int rk817_clkout2_prepare(struct clk_hw *hw)
-+{
-+	return rk817_clkout2_enable(hw, true);
-+}
-+
-+static void rk817_clkout2_unprepare(struct clk_hw *hw)
-+{
-+	rk817_clkout2_enable(hw, false);
-+}
-+
-+static int rk817_clkout2_is_prepared(struct clk_hw *hw)
-+{
-+	struct rk808_clkout *rk808_clkout = container_of(hw,
-+							 struct rk808_clkout,
-+							 clkout2_hw);
-+	struct rk808 *rk808 = rk808_clkout->rk808;
-+	unsigned int val;
-+
-+	int ret = regmap_read(rk808->regmap, RK817_SYS_CFG(1), &val);
-+
-+	if (ret < 0)
-+		return 0;
-+
-+	return (val & RK817_CLK32KOUT2_EN) ? 1 : 0;
-+}
-+
-+static const struct clk_ops rk817_clkout2_ops = {
-+	.prepare = rk817_clkout2_prepare,
-+	.unprepare = rk817_clkout2_unprepare,
-+	.is_prepared = rk817_clkout2_is_prepared,
-+	.recalc_rate = rk808_clkout_recalc_rate,
-+};
-+
-+static const struct clk_ops *rkpmic_get_ops(long variant)
-+{
-+	switch (variant) {
-+	case RK809_ID:
-+	case RK817_ID:
-+		return &rk817_clkout2_ops;
-+	/*
-+	 * For the default case, it match the following PMIC type.
-+	 * RK805_ID
-+	 * RK808_ID
-+	 * RK818_ID
-+	 */
-+	default:
-+		return &rk808_clkout2_ops;
-+	}
-+}
-+
- static int rk808_clkout_probe(struct platform_device *pdev)
- {
- 	struct rk808 *rk808 = dev_get_drvdata(pdev->dev.parent);
-@@ -127,7 +189,7 @@ static int rk808_clkout_probe(struct platform_device *pdev)
- 		return ret;
+-static const struct i2c_device_id rk808_ids[] = {
+-	{ "rk805" },
+-	{ "rk808" },
+-	{ "rk818" },
+-	{ },
+-};
+-MODULE_DEVICE_TABLE(i2c, rk808_ids);
+-
+ static struct i2c_driver rk808_i2c_driver = {
+ 	.driver = {
+ 		.name = "rk808",
+@@ -583,7 +575,6 @@ static struct i2c_driver rk808_i2c_driver = {
+ 	},
+ 	.probe    = rk808_probe,
+ 	.remove   = rk808_remove,
+-	.id_table = rk808_ids,
+ };
  
- 	init.name = "rk808-clkout2";
--	init.ops = &rk808_clkout2_ops;
-+	init.ops = rkpmic_get_ops(rk808->variant);
- 	rk808_clkout->clkout2_hw.init = &init;
- 
- 	/* optional override of the clockname */
+ module_i2c_driver(rk808_i2c_driver);
 -- 
 2.17.1
 
