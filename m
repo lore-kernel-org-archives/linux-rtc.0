@@ -1,88 +1,112 @@
-Return-Path: <SRS0=sMdj=UU=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=I/F0=UW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A53DDC43613
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Jun 2019 11:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38341C43613
+	for <linux-rtc@archiver.kernel.org>; Sun, 23 Jun 2019 12:10:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F59F208CA
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Jun 2019 11:02:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E414205F4
+	for <linux-rtc@archiver.kernel.org>; Sun, 23 Jun 2019 12:10:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726725AbfFULCh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 21 Jun 2019 07:02:37 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:52038 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726218AbfFULCh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Jun 2019 07:02:37 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 13A8A80580; Fri, 21 Jun 2019 13:02:25 +0200 (CEST)
-Date:   Fri, 21 Jun 2019 13:02:12 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
-        rafael@kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Dan Murphy <dmurphy@ti.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        linux-leds@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-wpan@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: Re: [PATCH v2 12/28] drivers: Introduce class_find_device_by_name()
- helper
-Message-ID: <20190621110212.GE24145@amd>
-References: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
- <1560534863-15115-13-git-send-email-suzuki.poulose@arm.com>
+        id S1726453AbfFWMKx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 23 Jun 2019 08:10:53 -0400
+Received: from mail-out.m-online.net ([212.18.0.10]:53137 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726429AbfFWMKx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 23 Jun 2019 08:10:53 -0400
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 45WrqH1X3Fz1rbk7;
+        Sun, 23 Jun 2019 14:10:51 +0200 (CEST)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 45WrqH1FCNz1qrQJ;
+        Sun, 23 Jun 2019 14:10:51 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id 7Qi0eW6wHmmb; Sun, 23 Jun 2019 14:10:50 +0200 (CEST)
+X-Auth-Info: ThwALe0U7CD2BDTgZnIfWIK452KsZDoFZOFSl7WB8TA=
+Received: from kurokawa.lan (ip-86-49-110-70.net.upcbroadband.cz [86.49.110.70])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Sun, 23 Jun 2019 14:10:50 +0200 (CEST)
+From:   Marek Vasut <marex@denx.de>
+To:     linux-rtc@vger.kernel.org
+Cc:     Marek Vasut <marex@denx.de>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: [PATCH] rtc: abx80x: Implement procfs interface
+Date:   Sun, 23 Jun 2019 14:08:54 +0200
+Message-Id: <20190623120854.3179-1-marex@denx.de>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="maH1Gajj2nflutpK"
-Content-Disposition: inline
-In-Reply-To: <1560534863-15115-13-git-send-email-suzuki.poulose@arm.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Implement procfs interface for polling battery status of the RTC
+via /proc/driver/rtc .
 
---maH1Gajj2nflutpK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+---
+ drivers/rtc/rtc-abx80x.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-On Fri 2019-06-14 18:54:07, Suzuki K Poulose wrote:
-> Add a new wrapper for class_find_device() to search for devices
-> by name and convert the existing users to use the new helper.
->=20
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index 73830670a41f..4fab024fb508 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -78,6 +78,10 @@
+ 
+ #define ABX8XX_REG_ID0		0x28
+ 
++#define ABX8XX_REG_ANA_STATUS	0x2f
++#define ABX8XX_ANA_BREFD	BIT(7)
++#define ABX8XX_ANA_BMIN		BIT(6)
++
+ #define ABX8XX_REG_OUT_CTRL	0x30
+ #define ABX8XX_OUT_CTRL_EXDS	BIT(4)
+ 
+@@ -548,6 +552,25 @@ static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 	}
+ }
+ 
++static int abx80x_proc(struct device *dev, struct seq_file *seq)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	int status, tmp;
++
++	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_ANA_STATUS);
++	if (status < 0)
++		return status;
++
++	if (status & ABX8XX_ANA_BREFD)
++		seq_printf(seq, "battery\t\t: ok\n");
++	else if (status & ABX8XX_ANA_BMIN)
++		seq_printf(seq, "battery\t\t: low\n");
++	else
++		seq_printf(seq, "battery\t\t: exhausted\n");
++
++	return 0;
++}
++
+ static const struct rtc_class_ops abx80x_rtc_ops = {
+ 	.read_time	= abx80x_rtc_read_time,
+ 	.set_time	= abx80x_rtc_set_time,
+@@ -555,6 +578,7 @@ static const struct rtc_class_ops abx80x_rtc_ops = {
+ 	.set_alarm	= abx80x_set_alarm,
+ 	.alarm_irq_enable = abx80x_alarm_irq_enable,
+ 	.ioctl		= abx80x_ioctl,
++	.proc		= abx80x_proc,
+ };
+ 
+ static int abx80x_dt_trickle_cfg(struct device_node *np)
+-- 
+2.20.1
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---maH1Gajj2nflutpK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl0MuTQACgkQMOfwapXb+vJ8WgCgnOZkd5moXKRPvuQkd1eU8H06
-grYAn0ag+mNIvHHKvgTnU0Y6VSeNUVZt
-=oxwG
------END PGP SIGNATURE-----
-
---maH1Gajj2nflutpK--
