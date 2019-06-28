@@ -2,326 +2,130 @@ Return-Path: <SRS0=FxIn=U3=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BF68C5B578
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jun 2019 21:23:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92712C5B578
+	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jun 2019 21:55:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D77F02086D
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jun 2019 21:23:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6854B20828
+	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jun 2019 21:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1561757011;
-	bh=EanDbGUQq4ouO2q1LxiQ7vRxnwvgy1EMv0+Xopj/9EA=;
-	h=From:To:Cc:Subject:Date:List-ID:From;
-	b=cRFJWyWyR7SgpQK2gVCjtDnC97c3e2cZDYav4dQDfI8HPEjke51FND+ldljlp/dyw
-	 qNf/gbZU+7e8+rf16QFPQfAWPEcEJXaUiByRbeAnCczck5V/C/KuNEwnGgx5KSb0Go
-	 sm4OfAEjsFtq9Yy2THHUh7+5HW3TXTUi7YZk/4S8=
+	s=default; t=1561758908;
+	bh=n/U7yw/qYERwdUMLx6v+N2gAFcCtszCvOpaPbAcQW8E=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
+	b=2rLjnIGTdYY1t/rbeUvBz90lT4eKN9MNAf8iMDTMYF5YLL7+0yqyvN2XHfjfHcXTa
+	 IRfyxjB852TucIUYay2Y68JZPnepaLsqE60NnRY0B+DqFeoly62qRMKwrjfOS9gHKD
+	 B/qQsqIa9JMGXZ6pHq+mq8UFJ8oMaXkdXd693IYo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726829AbfF1VXa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 28 Jun 2019 17:23:30 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:50806 "EHLO
+        id S1726794AbfF1VzE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 28 Jun 2019 17:55:04 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:52740 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726818AbfF1VX3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Jun 2019 17:23:29 -0400
+        with ESMTP id S1726557AbfF1VzD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Jun 2019 17:55:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Sender:Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:Content-Type:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:
+        From:Date:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=oT08YEQUDLqVqzFxgcIkHyl/r2ihBR8REh3Hrnc8vGU=; b=OEOJj5EOPj7GGmZBMhuAWMeHW
-        LMATdNuwRnzPP8MZI91r0pnW8M/WZAaJ68nzmmSX1j9uTFsQhaPSyeMGYeAxYtsf2nKXo1Tv7Ps2n
-        fHdUXKH4hdF+IjzDccAyLJKlbNbKe8QXCc7YpSrSVlRSQg2yb1d8voSS7hJ6hpZBzB9DYaF1CPsNy
-        ++DOQ7l4Zitjw4RekJJJwqaQhYgE9SKozhjYh0KYBK0AGLdIruTCGZsd58e2ans9uwoPDQ+QZew9n
-        6b66ZZ62LlKV8CGmWlBFmsgrKbTu1iNHQYKRtzCVPH/FuONRb4kV9btAnqsxSE8h68Uh6rl9/69R8
-        QdZmtIBsQ==;
-Received: from [187.113.3.250] (helo=bombadil.infradead.org)
+         bh=1YowApiCP7t4yhyLsuBrY7Q1RescjtXFLK0Ces5k/yI=; b=KSIL64tdqtX9cRqQtYeK6D9fM
+        4kAZVnYOTgI7OBgJUexbUe51eHPQ8UN8CkPdse2vfvXJIUXRCjEcu/X0Pd442Eyf2YfxZVdPW2MGa
+        5HOfBZBfOvrFcPXgAQukWdsLqHRtECBHc86yusYZgwFr1l0YN4eUldAEdKCvpc7li44icQKYfTXV4
+        CZiG9zdsH5OMhkAU1WYIgmkRhk9hdLUqHr/fdGO9ELPXFLunwX+9EZgz/X31c0t636O4npqKzj0Yr
+        AQQLFxAB3QB/LukvEhG3RP/5+ZnFQOfwIDJTx/g/JexwB78mo5kKMlgvwa+wkpA45h7gFXySp93tG
+        /3XdVI4aw==;
+Received: from [187.113.3.250] (helo=coco.lan)
         by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hgyL2-0001VD-K7; Fri, 28 Jun 2019 21:23:21 +0000
-Received: from mchehab by bombadil.infradead.org with local (Exim 4.92)
-        (envelope-from <mchehab@bombadil.infradead.org>)
-        id 1hgyKz-0002dj-SB; Fri, 28 Jun 2019 18:23:17 -0300
+        id 1hgypa-0002Bz-IF; Fri, 28 Jun 2019 21:54:54 +0000
+Date:   Fri, 28 Jun 2019 18:54:45 -0300
 From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Linux Doc Mailing List <linux-doc@vger.kernel.org>,
         Mauro Carvalho Chehab <mchehab@infradead.org>,
         linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Darren Hart <dvhart@infradead.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        linux-spi@vger.kernel.org, Seth Heasley <seth.heasley@intel.com>,
-        Ajay Gupta <ajayg@nvidia.com>,
-        Jim Cromie <jim.cromie@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Rudolf Marek <r.marek@assembler.cz>,
-        Andreas Werner <andreas.werner@men.de>,
+        Peter Rosin <peda@axentia.se>,
         Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Peter Rosin <peda@axentia.se>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Brown <broonie@kernel.org>, linux-rtc@vger.kernel.org,
-        Wolfram Sang <wsa@the-dreams.de>, linux-hwmon@vger.kernel.org,
-        Vadim Pasternak <vadimp@mellanox.com>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Eric Piel <eric.piel@tremplin-utc.net>,
-        Evgeniy Polyakov <zbr@ioremap.net>, linux-iio@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        platform-driver-x86@vger.kernel.org,
-        Andy Shevchenko <andy@infradead.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org,
-        Michael Shych <michaelsh@mellanox.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>, devicetree@vger.kernel.org,
         Jean Delvare <jdelvare@suse.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 0/5] Convert misc-devices, i2c, w1, spi and some markdown files to ReST
-Date:   Fri, 28 Jun 2019 18:23:11 -0300
-Message-Id: <cover.1561756511.git.mchehab+samsung@kernel.org>
-X-Mailer: git-send-email 2.21.0
+        Guenter Roeck <linux@roeck-us.net>,
+        Andreas Werner <andreas.werner@men.de>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Rudolf Marek <r.marek@assembler.cz>,
+        Seth Heasley <seth.heasley@intel.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Michael Shych <michaelsh@mellanox.com>,
+        Ajay Gupta <ajayg@nvidia.com>,
+        Peter Korsgaard <peter@korsgaard.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Jim Cromie <jim.cromie@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-hwmon@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 3/5] docs: i2c: convert to ReST and add to driver-api
+ bookset
+Message-ID: <20190628185445.71eb824b@coco.lan>
+In-Reply-To: <20190628214138.GU3692@piout.net>
+References: <cover.1561756511.git.mchehab+samsung@kernel.org>
+        <3997b54a2e73887b96ec665573f08ded78b71421.1561756511.git.mchehab+samsung@kernel.org>
+        <20190628214138.GU3692@piout.net>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-There are some files under Documentation/ that don't end with .txt but
-as plain text files. If I did the math right, ~140 of such files make sense
-to convert, IMO. 
+Em Fri, 28 Jun 2019 23:41:38 +0200
+Alexandre Belloni <alexandre.belloni@bootlin.com> escreveu:
 
-This series convert most of them. After this series, there will be around
-30-40 files without any extension to be converted.
+> On 28/06/2019 18:23:14-0300, Mauro Carvalho Chehab wrote:
+> > diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+> > index 225a8df1d4e9..1803f3cab39f 100644
+> > --- a/drivers/rtc/rtc-ds1374.c
+> > +++ b/drivers/rtc/rtc-ds1374.c
+> > @@ -14,7 +14,7 @@
+> >   */
+> >  /*
+> >   * It would be more efficient to use i2c msgs/i2c_transfer directly but, as
+> > - * recommened in .../Documentation/i2c/writing-clients section
+> > + * recommened in .../Documentation/i2c/writing-clients.rst section
+> >   * "Sending and receiving", using SMBus level communication is preferred.
+> >   */
+> >    
+> 
+> Honestly, the whole comment could be removed. The current trend is to
+> move everything to regmap anyway.
+> 
+> However, I'm fine with that change if you want to keep it that way (and
+> probably scripted).
 
-The results of this conversion (applied after my big conversion series)
-can be seen at:
+While the conversion was manually made, the renames were scripted,
+and checked with:
 
-	https://www.infradead.org/~mchehab/rst_conversion/
+	./scripts/documentation-file-ref-check
 
-In order to make easier to merge, I'm placing one patch per subsystem,
-plus a patch for the markdown->ReST conversion.
+Otherwise I would very likely fix the typo:
 
-Mauro Carvalho Chehab (5):
-  docs: convert markdown documents to ReST
-  docs: misc-devices: convert files without extension to ReST
-  docs: i2c: convert to ReST and add to driver-api bookset
-  docs: w1: convert to ReST and add to the kAPI group of docs
-  docs: spi: convert to ReST and add it to the kABI bookset
+	recommened -> recommended
 
- Documentation/ABI/stable/sysfs-bus-w1         |   2 +-
- .../ABI/stable/sysfs-driver-w1_ds28e04        |   4 +-
- .../ABI/stable/sysfs-driver-w1_ds28ea00       |   2 +-
- Documentation/IPMB.txt                        |   2 +-
- .../devicetree/bindings/i2c/i2c-mux-gpmux.txt |   2 +-
- Documentation/devicetree/writing-schema.md    | 130 ------------
- Documentation/devicetree/writing-schema.rst   | 153 ++++++++++++++
- ...entication.md => ubifs-authentication.rst} |  70 ++++---
- Documentation/hwmon/adm1021.rst               |   2 +-
- Documentation/hwmon/adm1275.rst               |   2 +-
- Documentation/hwmon/hih6130.rst               |   2 +-
- Documentation/hwmon/ibm-cffps.rst             |   2 +-
- Documentation/hwmon/lm25066.rst               |   2 +-
- Documentation/hwmon/max16064.rst              |   2 +-
- Documentation/hwmon/max16065.rst              |   2 +-
- Documentation/hwmon/max20751.rst              |   2 +-
- Documentation/hwmon/max34440.rst              |   2 +-
- Documentation/hwmon/max6650.rst               |   2 +-
- Documentation/hwmon/max8688.rst               |   2 +-
- Documentation/hwmon/menf21bmc.rst             |   2 +-
- Documentation/hwmon/pcf8591.rst               |   2 +-
- Documentation/hwmon/sht3x.rst                 |   2 +-
- Documentation/hwmon/shtc1.rst                 |   2 +-
- Documentation/hwmon/tmp103.rst                |   2 +-
- Documentation/hwmon/tps40422.rst              |   2 +-
- Documentation/hwmon/ucd9000.rst               |   2 +-
- Documentation/hwmon/ucd9200.rst               |   2 +-
- Documentation/hwmon/via686a.rst               |   2 +-
- Documentation/hwmon/zl6100.rst                |   2 +-
- .../busses/{i2c-ali1535 => i2c-ali1535.rst}   |  13 +-
- .../busses/{i2c-ali1563 => i2c-ali1563.rst}   |   3 +
- .../busses/{i2c-ali15x3 => i2c-ali15x3.rst}   |  63 +++---
- Documentation/i2c/busses/i2c-amd-mp2          |  23 ---
- Documentation/i2c/busses/i2c-amd-mp2.rst      |  25 +++
- .../i2c/busses/{i2c-amd756 => i2c-amd756.rst} |   8 +-
- .../busses/{i2c-amd8111 => i2c-amd8111.rst}   |  14 +-
- .../{i2c-diolan-u2c => i2c-diolan-u2c.rst}    |   3 +
- .../i2c/busses/{i2c-i801 => i2c-i801.rst}     |  31 ++-
- .../i2c/busses/{i2c-ismt => i2c-ismt.rst}     |  20 +-
- .../busses/{i2c-mlxcpld => i2c-mlxcpld.rst}   |   6 +
- .../busses/{i2c-nforce2 => i2c-nforce2.rst}   |  23 ++-
- .../{i2c-nvidia-gpu => i2c-nvidia-gpu.rst}    |   6 +-
- .../i2c/busses/{i2c-ocores => i2c-ocores.rst} |  22 +-
- Documentation/i2c/busses/i2c-parport          | 178 ----------------
- ...2c-parport-light => i2c-parport-light.rst} |   2 +
- Documentation/i2c/busses/i2c-parport.rst      | 190 +++++++++++++++++
- .../busses/{i2c-pca-isa => i2c-pca-isa.rst}   |   9 +-
- .../i2c/busses/{i2c-piix4 => i2c-piix4.rst}   |  14 +-
- .../busses/{i2c-sis5595 => i2c-sis5595.rst}   |  18 +-
- Documentation/i2c/busses/i2c-sis630           |  58 ------
- Documentation/i2c/busses/i2c-sis630.rst       |  64 ++++++
- .../i2c/busses/{i2c-sis96x => i2c-sis96x.rst} |  28 ++-
- .../busses/{i2c-taos-evm => i2c-taos-evm.rst} |   8 +-
- .../i2c/busses/{i2c-via => i2c-via.rst}       |  20 +-
- .../i2c/busses/{i2c-viapro => i2c-viapro.rst} |  12 +-
- Documentation/i2c/busses/index.rst            |  33 +++
- .../i2c/busses/{scx200_acb => scx200_acb.rst} |   9 +-
- .../i2c/{dev-interface => dev-interface.rst}  |  94 +++++----
- ...-considerations => dma-considerations.rst} |   0
- .../i2c/{fault-codes => fault-codes.rst}      |   4 +
- .../i2c/{functionality => functionality.rst}  |  18 +-
- ...ult-injection => gpio-fault-injection.rst} |  12 +-
- .../i2c/{i2c-protocol => i2c-protocol.rst}    |  28 ++-
- Documentation/i2c/{i2c-stub => i2c-stub.rst}  |  19 +-
- .../i2c/{i2c-topology => i2c-topology.rst}    |  68 +++---
- Documentation/i2c/index.rst                   |  38 ++++
- ...ting-devices => instantiating-devices.rst} |  45 ++--
- .../muxes/{i2c-mux-gpio => i2c-mux-gpio.rst}  |  26 +--
- ...e-parameters => old-module-parameters.rst} |  27 ++-
- ...eprom-backend => slave-eeprom-backend.rst} |   3 +-
- .../{slave-interface => slave-interface.rst}  |  32 +--
- .../{smbus-protocol => smbus-protocol.rst}    |  74 ++++---
- Documentation/i2c/{summary => summary.rst}    |   4 +-
- ...en-bit-addresses => ten-bit-addresses.rst} |   5 +
- ...pgrading-clients => upgrading-clients.rst} | 194 +++++++++---------
- .../{writing-clients => writing-clients.rst}  |  94 +++++----
- Documentation/index.rst                       |   3 +
- .../misc-devices/{eeprom => eeprom.rst}       |  43 ++--
- .../{ics932s401 => ics932s401.rst}            |   7 +-
- Documentation/misc-devices/index.rst          |   5 +
- .../misc-devices/{isl29003 => isl29003.rst}   |  15 +-
- .../misc-devices/{lis3lv02d => lis3lv02d.rst} |  20 +-
- .../misc-devices/{max6875 => max6875.rst}     |  52 +++--
- .../spi/{butterfly => butterfly.rst}          |  44 ++--
- Documentation/spi/index.rst                   |  23 +++
- Documentation/spi/{pxa2xx => pxa2xx.rst}      |  94 +++++----
- .../spi/{spi-lm70llp => spi-lm70llp.rst}      |  17 +-
- .../spi/{spi-sc18is602 => spi-sc18is602.rst}  |   5 +-
- .../spi/{spi-summary => spi-summary.rst}      | 103 ++++++----
- Documentation/spi/{spidev => spidev.rst}      |  30 ++-
- Documentation/w1/index.rst                    |  22 ++
- .../w1/masters/{ds2482 => ds2482.rst}         |  17 +-
- .../w1/masters/{ds2490 => ds2490.rst}         |   6 +-
- Documentation/w1/masters/index.rst            |  14 ++
- Documentation/w1/masters/mxc-w1               |  12 --
- Documentation/w1/masters/mxc-w1.rst           |  17 ++
- .../w1/masters/{omap-hdq => omap-hdq.rst}     |  12 +-
- .../w1/masters/{w1-gpio => w1-gpio.rst}       |  21 +-
- Documentation/w1/slaves/index.rst             |  16 ++
- .../w1/slaves/{w1_ds2406 => w1_ds2406.rst}    |   2 +
- .../w1/slaves/{w1_ds2413 => w1_ds2413.rst}    |   9 +
- Documentation/w1/slaves/w1_ds2423             |  47 -----
- Documentation/w1/slaves/w1_ds2423.rst         |  54 +++++
- .../w1/slaves/{w1_ds2438 => w1_ds2438.rst}    |  10 +-
- .../w1/slaves/{w1_ds28e04 => w1_ds28e04.rst}  |   5 +
- .../w1/slaves/{w1_ds28e17 => w1_ds28e17.rst}  |  15 +-
- .../w1/slaves/{w1_therm => w1_therm.rst}      |  11 +-
- .../w1/{w1.generic => w1-generic.rst}         |  88 ++++----
- .../w1/{w1.netlink => w1-netlink.rst}         |  83 ++++----
- MAINTAINERS                                   |  52 ++---
- Next/merge.log                                |   6 +-
- drivers/hwmon/atxp1.c                         |   2 +-
- drivers/hwmon/smm665.c                        |   2 +-
- drivers/i2c/Kconfig                           |   4 +-
- drivers/i2c/busses/Kconfig                    |   2 +-
- drivers/i2c/busses/i2c-i801.c                 |   2 +-
- drivers/i2c/busses/i2c-taos-evm.c             |   2 +-
- drivers/i2c/i2c-core-base.c                   |   4 +-
- drivers/iio/dummy/iio_simple_dummy.c          |   4 +-
- drivers/misc/isl29003.c                       |   2 +-
- drivers/platform/x86/Kconfig                  |   2 +-
- drivers/rtc/rtc-ds1374.c                      |   2 +-
- drivers/spi/Kconfig                           |   2 +-
- drivers/spi/spi-butterfly.c                   |   2 +-
- drivers/spi/spi-lm70llp.c                     |   2 +-
- include/linux/i2c.h                           |   2 +-
- include/linux/platform_data/sc18is602.h       |   2 +-
- 127 files changed, 1874 insertions(+), 1239 deletions(-)
- delete mode 100644 Documentation/devicetree/writing-schema.md
- create mode 100644 Documentation/devicetree/writing-schema.rst
- rename Documentation/filesystems/{ubifs-authentication.md => ubifs-authentication.rst} (95%)
- rename Documentation/i2c/busses/{i2c-ali1535 => i2c-ali1535.rst} (82%)
- rename Documentation/i2c/busses/{i2c-ali1563 => i2c-ali1563.rst} (93%)
- rename Documentation/i2c/busses/{i2c-ali15x3 => i2c-ali15x3.rst} (72%)
- delete mode 100644 Documentation/i2c/busses/i2c-amd-mp2
- create mode 100644 Documentation/i2c/busses/i2c-amd-mp2.rst
- rename Documentation/i2c/busses/{i2c-amd756 => i2c-amd756.rst} (79%)
- rename Documentation/i2c/busses/{i2c-amd8111 => i2c-amd8111.rst} (66%)
- rename Documentation/i2c/busses/{i2c-diolan-u2c => i2c-diolan-u2c.rst} (91%)
- rename Documentation/i2c/busses/{i2c-i801 => i2c-i801.rst} (89%)
- rename Documentation/i2c/busses/{i2c-ismt => i2c-ismt.rst} (81%)
- rename Documentation/i2c/busses/{i2c-mlxcpld => i2c-mlxcpld.rst} (88%)
- rename Documentation/i2c/busses/{i2c-nforce2 => i2c-nforce2.rst} (68%)
- rename Documentation/i2c/busses/{i2c-nvidia-gpu => i2c-nvidia-gpu.rst} (63%)
- rename Documentation/i2c/busses/{i2c-ocores => i2c-ocores.rst} (82%)
- delete mode 100644 Documentation/i2c/busses/i2c-parport
- rename Documentation/i2c/busses/{i2c-parport-light => i2c-parport-light.rst} (92%)
- create mode 100644 Documentation/i2c/busses/i2c-parport.rst
- rename Documentation/i2c/busses/{i2c-pca-isa => i2c-pca-isa.rst} (72%)
- rename Documentation/i2c/busses/{i2c-piix4 => i2c-piix4.rst} (92%)
- rename Documentation/i2c/busses/{i2c-sis5595 => i2c-sis5595.rst} (74%)
- delete mode 100644 Documentation/i2c/busses/i2c-sis630
- create mode 100644 Documentation/i2c/busses/i2c-sis630.rst
- rename Documentation/i2c/busses/{i2c-sis96x => i2c-sis96x.rst} (75%)
- rename Documentation/i2c/busses/{i2c-taos-evm => i2c-taos-evm.rst} (91%)
- rename Documentation/i2c/busses/{i2c-via => i2c-via.rst} (61%)
- rename Documentation/i2c/busses/{i2c-viapro => i2c-viapro.rst} (87%)
- create mode 100644 Documentation/i2c/busses/index.rst
- rename Documentation/i2c/busses/{scx200_acb => scx200_acb.rst} (86%)
- rename Documentation/i2c/{dev-interface => dev-interface.rst} (71%)
- rename Documentation/i2c/{DMA-considerations => dma-considerations.rst} (100%)
- rename Documentation/i2c/{fault-codes => fault-codes.rst} (98%)
- rename Documentation/i2c/{functionality => functionality.rst} (91%)
- rename Documentation/i2c/{gpio-fault-injection => gpio-fault-injection.rst} (97%)
- rename Documentation/i2c/{i2c-protocol => i2c-protocol.rst} (83%)
- rename Documentation/i2c/{i2c-stub => i2c-stub.rst} (93%)
- rename Documentation/i2c/{i2c-topology => i2c-topology.rst} (89%)
- create mode 100644 Documentation/i2c/index.rst
- rename Documentation/i2c/{instantiating-devices => instantiating-devices.rst} (93%)
- rename Documentation/i2c/muxes/{i2c-mux-gpio => i2c-mux-gpio.rst} (85%)
- rename Documentation/i2c/{old-module-parameters => old-module-parameters.rst} (75%)
- rename Documentation/i2c/{slave-eeprom-backend => slave-eeprom-backend.rst} (90%)
- rename Documentation/i2c/{slave-interface => slave-interface.rst} (94%)
- rename Documentation/i2c/{smbus-protocol => smbus-protocol.rst} (84%)
- rename Documentation/i2c/{summary => summary.rst} (96%)
- rename Documentation/i2c/{ten-bit-addresses => ten-bit-addresses.rst} (95%)
- rename Documentation/i2c/{upgrading-clients => upgrading-clients.rst} (56%)
- rename Documentation/i2c/{writing-clients => writing-clients.rst} (91%)
- rename Documentation/misc-devices/{eeprom => eeprom.rst} (76%)
- rename Documentation/misc-devices/{ics932s401 => ics932s401.rst} (94%)
- rename Documentation/misc-devices/{isl29003 => isl29003.rst} (77%)
- rename Documentation/misc-devices/{lis3lv02d => lis3lv02d.rst} (90%)
- rename Documentation/misc-devices/{max6875 => max6875.rst} (83%)
- rename Documentation/spi/{butterfly => butterfly.rst} (71%)
- create mode 100644 Documentation/spi/index.rst
- rename Documentation/spi/{pxa2xx => pxa2xx.rst} (83%)
- rename Documentation/spi/{spi-lm70llp => spi-lm70llp.rst} (88%)
- rename Documentation/spi/{spi-sc18is602 => spi-sc18is602.rst} (92%)
- rename Documentation/spi/{spi-summary => spi-summary.rst} (93%)
- rename Documentation/spi/{spidev => spidev.rst} (90%)
- create mode 100644 Documentation/w1/index.rst
- rename Documentation/w1/masters/{ds2482 => ds2482.rst} (71%)
- rename Documentation/w1/masters/{ds2490 => ds2490.rst} (98%)
- create mode 100644 Documentation/w1/masters/index.rst
- delete mode 100644 Documentation/w1/masters/mxc-w1
- create mode 100644 Documentation/w1/masters/mxc-w1.rst
- rename Documentation/w1/masters/{omap-hdq => omap-hdq.rst} (90%)
- rename Documentation/w1/masters/{w1-gpio => w1-gpio.rst} (75%)
- create mode 100644 Documentation/w1/slaves/index.rst
- rename Documentation/w1/slaves/{w1_ds2406 => w1_ds2406.rst} (97%)
- rename Documentation/w1/slaves/{w1_ds2413 => w1_ds2413.rst} (81%)
- delete mode 100644 Documentation/w1/slaves/w1_ds2423
- create mode 100644 Documentation/w1/slaves/w1_ds2423.rst
- rename Documentation/w1/slaves/{w1_ds2438 => w1_ds2438.rst} (93%)
- rename Documentation/w1/slaves/{w1_ds28e04 => w1_ds28e04.rst} (93%)
- rename Documentation/w1/slaves/{w1_ds28e17 => w1_ds28e17.rst} (88%)
- rename Documentation/w1/slaves/{w1_therm => w1_therm.rst} (95%)
- rename Documentation/w1/{w1.generic => w1-generic.rst} (59%)
- rename Documentation/w1/{w1.netlink => w1-netlink.rst} (79%)
+:-)
 
--- 
-2.21.0
+I can certainly add new patch at this (before or after patch 3/5 - as you
+prefer) in order to get rid of the comment, but I would avoid doing a
+somewhat unrelated changes at the same documentation patch.
 
-
+Thanks,
+Mauro
