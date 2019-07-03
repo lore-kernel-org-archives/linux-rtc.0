@@ -1,90 +1,119 @@
-Return-Path: <SRS0=gCeF=U7=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=nHL6=VA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CDC6C5B57D
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Jul 2019 05:10:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 641BFC4646D
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:49:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4CC3621721
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Jul 2019 05:10:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1562044241;
-	bh=4GlxId9YdbFjT52X/hvaAqjT79EiXpf7emdd7hFBdic=;
-	h=Date:From:To:Cc:Subject:List-ID:From;
-	b=ITsva4ailmdIQuInoOVmDWZsfoOPWFqhug/b/mbL4CNNUsqxQCYiqqzrW2OWZkczl
-	 NRW66XLCcI4yqESm9dvPEO7NJCYRvxTVD8i7vJ0Od9Cshy1Y/34ybKQC3TQRgRUdZa
-	 F57GjBRBP3K0xBdx58NToP3Wz4w0YZ4L4XUco+1E=
+	by mail.kernel.org (Postfix) with ESMTP id 3D8B8218AD
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:49:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="D9XJFLAB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725845AbfGBFKl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Jul 2019 01:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54826 "EHLO mail.kernel.org"
+        id S1727182AbfGCQtn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Jul 2019 12:49:43 -0400
+Received: from mout.gmx.net ([212.227.15.18]:55005 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725775AbfGBFKk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 2 Jul 2019 01:10:40 -0400
-Received: from sol.localdomain (c-24-5-143-220.hsd1.ca.comcast.net [24.5.143.220])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EFAB216C8;
-        Tue,  2 Jul 2019 05:10:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562044239;
-        bh=4GlxId9YdbFjT52X/hvaAqjT79EiXpf7emdd7hFBdic=;
-        h=Date:From:To:Cc:Subject:From;
-        b=EPLNmdsIaRIi9UZuIJBoJw1UDpeqVMgqzgTDzXxWwmk8eiv/QUpA+yiUfFTINPzW2
-         Dgfwby28AMWubdbDqO84jre/PCJrsKTxeo5Ol95PKM8FjSToXQS3ylZpTOXXOSwefN
-         NI0DS+mGHYy95f61CuBAiW/D1nQoIWAGkRqlDBso=
-Date:   Mon, 1 Jul 2019 22:10:38 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Subject: Reminder: 1 open syzbot bug in rtc subsystem
-Message-ID: <20190702051038.GC23743@sol.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S1727113AbfGCQtl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 3 Jul 2019 12:49:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1562172518;
+        bh=mlVtn+Ho9nIUbfGR8C2oGgrsdZ7rqHETi2ijdwOPmY8=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=D9XJFLABs755rRVSJSHjeQOPFBEi/QylsfND1jDl+D71/FShQ8GmFYCDto0sDl5KM
+         Q/03aI//Mz1BUAdEakHPxyu/3DI36ek3Fi8gYz7YdSzSZEdazh9Kud8CfzYneTQ1FY
+         tnl5hH75JarH/URPtt50e9KcXTk+d1teJroTlLJA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([217.61.158.204]) by mail.gmx.com
+ (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 1MmULr-1iQt0O3f4T-00iTAm; Wed, 03 Jul 2019 18:48:37 +0200
+From:   Frank Wunderlich <frank-w@public-files.de>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Richard Fontana <rfontana@redhat.com>,
+        Allison Randal <allison@lohutok.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Rob Herring <robh@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "Paul E . McKenney" <paulmck@linux.ibm.com>
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v2 6/7] MAINTAINERS: add Mediatek shutdown drivers
+Date:   Wed,  3 Jul 2019 18:48:21 +0200
+Message-Id: <20190703164822.17924-7-frank-w@public-files.de>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190703164822.17924-1-frank-w@public-files.de>
+References: <20190703164822.17924-1-frank-w@public-files.de>
+X-Provags-ID: V03:K1:euDHaiPM7bK1qAj7PUZGcpgw9FdWaWQgXoeWf9VCM+aHITNZE9y
+ qvR6MGo2hg7bVjQxM2ISS4YDcnUXx4hDaW8Pd4EuEKg+7Be3mp6iYwJLySN8M7IcMlkjiXm
+ iq+CAjuuPSTcxjx7+T0ELbu43Syt1BWFzQ7sKBFeLD1GNywJpGvzYiRQI4Tv+3v5MJUY4Ax
+ hG4a2F3abn3DTaj2h0bkw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:oLhiCmVflpg=:55PrqKYumlca4tcJG/sF/k
+ iUkVI+SxVn96HR5bzBwgcA5SG/ecC9yKsCn1z0aOVIg7vCjd2FldXZzSVzue+oW97ZKc7mzOY
+ AJMwnog8dXsxXBQOEJD73vMHM4CWAPYKb+bF3Z8mYhsIevq9FSvfA6Iuw6LLN1lEwquTru+Rt
+ Fr7o9M37j5bAWHqhjrM10IwTJabfuAqi1T3L0BWligfx3O5eu2Mu1rjQPm3VOfjXsfLY//dxA
+ 75L0gdBDyp53E3qbWM8WicgOabyd0YtyEmKgVV+UD+GuqycYHsR5hqoMVhQ2T5uzXGaPaPKnt
+ 5OME6X8Q9hvLZHb6FOjgxmSi8n1K5OUzV5cuZauNjrgBsExQ1jX8joHXTP6puSATN1zevu2cK
+ U7/XSQH0kGZdzPAu6rglM8ABFvdCznPBG7H9n/QjzPdcsG6d5pCXGCFmbny4BiQSO3NIEFCfK
+ 7a6+lUNKk+DkhvfDhaSDkrMmQ/xJZd9LUBLmBCwDePob6gfjCbifVQ6vfjXvM8khqdAM53hQs
+ tztryWKuj1w8mo9hhjya/jS/8BDCAyd8yc9aR4puA3d9cEZkzcwonWXj8YZbti9bq6SPkrXuy
+ 7HIICdbGSIEBBypzVBEgTMA5qij5VIHhhuX98lxcu0mbzlcLcZ5jCiDBLVoyJu2nVlOfm1k2s
+ o9HKiOfbCvtV3dRwerYCc8dCjUfOeknVVZ1wjK3kmfOyeZt5hZ/SUlqMBDYOrfAtpj6eqxUEk
+ jsdnv/jXqD9+2P51eIaIoQtmclhM2QHHJ3cksqXXaLiHIKza4DyQc9d6c8PKcCTFZ1gwEFgCa
+ iqEmPezB8vqP0anNlzFoBv/2+ocb5sDrpp/wZXPDucO742895fkSXk0swGlCqocYhIKSDFWe+
+ /0uHog17t1XWB7RuVn+oryAPAXMR2eZy9h2pGwG9wDpFEdLAWuOfSUYp7Ml7qMm4qFBtN0DQv
+ Fwa/aBNwp91+zuqBWzNu7FC6iEQFrMBQJYVbYz+5fU7nZUHTnr3r1u2fSxmwo7v378fIj4hCN
+ wxC/UZg4+hEWH1llQsG8gGwZvjJh/IJW2YePtFK6pGVllkwKo8NX69ydxdyXxyAsIBcryQm87
+ gZmuT6VWEm9tGw=
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-[This email was generated by a script.  Let me know if you have any suggestions
-to make it better, or if you want it re-generated with the latest status.]
+From: Josef Friedl <josef.friedl@speed.at>
 
-Of the currently open syzbot reports against the upstream kernel, I've manually
-marked 1 of them as possibly being a bug in the rtc subsystem.
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+=2D--
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-If you believe this bug is no longer valid, please close the syzbot report by
-sending a '#syz fix', '#syz dup', or '#syz invalid' command in reply to the
-original thread, as explained at https://goo.gl/tpsmEJ#status
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 01a52fc964da..31c1e882b7d2 100644
+=2D-- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9920,6 +9920,13 @@ S:	Maintained
+ F:	drivers/net/dsa/mt7530.*
+ F:	net/dsa/tag_mtk.c
 
-If you believe I misattributed this bug to the rtc subsystem, please let me
-know, and if possible forward the report to the correct people or mailing list.
-
-Here is the bug:
-
---------------------------------------------------------------------------------
-Title:              BUG: workqueue lockup (4)
-Last occurred:      19 days ago
-Reported:           267 days ago
-Branches:           Mainline and others
-Dashboard link:     https://syzkaller.appspot.com/bug?id=0041bf1423916e9ae458b08b760e269a33c14960
-Original thread:    https://lkml.kernel.org/lkml/0000000000005764090577a27486@google.com/T/#u
-
-This bug has a C reproducer.
-
-The original thread for this bug received 4 replies; the last was 20 days ago.
-
-If you fix this bug, please add the following tag to the commit:
-    Reported-by: syzbot+08116743f8ad6f9a6de7@syzkaller.appspotmail.com
-
-If you send any email or patch for this bug, please consider replying to the
-original thread.  For the git send-email command to use, or tips on how to reply
-if the thread isn't in your mailbox, see the "Reply instructions" at
-https://lkml.kernel.org/r/0000000000005764090577a27486@google.com
++MEDIATEK BOARD LEVEL SHUTDOWN DRIVERS
++M:	Sean Wang <sean.wang@mediatek.com>
++L:	linux-pm@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
++F:	drivers/power/reset/mt6323-poweroff.c
++
+ MEDIATEK JPEG DRIVER
+ M:	Rick Chang <rick.chang@mediatek.com>
+ M:	Bin Liu <bin.liu@mediatek.com>
+=2D-
+2.17.1
 
