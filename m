@@ -2,35 +2,36 @@ Return-Path: <SRS0=nHL6=VA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DE62C06514
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 753C6C0650E
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:50:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4EF51218A0
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:50:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 417E1218A0
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jul 2019 16:50:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="MV6Va6oT"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="NJL6u9vC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727182AbfGCQuD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 3 Jul 2019 12:50:03 -0400
-Received: from mout.gmx.net ([212.227.15.15]:44177 "EHLO mout.gmx.net"
+        id S1727165AbfGCQtm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Jul 2019 12:49:42 -0400
+Received: from mout.gmx.net ([212.227.15.15]:48097 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727147AbfGCQtn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 3 Jul 2019 12:49:43 -0400
+        id S1727117AbfGCQtl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 3 Jul 2019 12:49:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1562172510;
-        bh=Me1SvsLDyMMGaUAM+H2U6QR3rP8Y3XVwEjAtU6m8VUA=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=MV6Va6oTlm89ruMxAxb87nEE2pPoh3n4vLdyHMS/pwe0XAqsgXSoh6piSJ85L+fZ+
-         sgvmA53g2n+XMMAAp0AJk0bPzDzrj4b4WNENRhxpuD3EyGTX/635+Twttk5ALFoVPE
-         XNxzEw/MJF8MVJWtuWJW4wXKFLb44ksoCMESeWpA=
+        s=badeba3b8450; t=1562172514;
+        bh=/9xBDfa8MmyCEGy9lts4eV0fUCDWP2vWjFBrUMAHZIw=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=NJL6u9vCVUAcj0aiV9JL+ahQq/Z3X+rRu6afSaN6dMYm+Evbul46DCtz365/Naq2f
+         RSTEGdTVeueXpiveIakMux/69G0mtdqLpPiDN3f+KIueDJAgt0jB0lZ8ej6mdwiwDD
+         9bB2mbSEgwKIQ4a0M/fu/pfntvqwrENfhrz9JTj4=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from localhost.localdomain ([217.61.158.204]) by mail.gmx.com
  (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 1Mv2xO-1iZJ3G21eS-00r1tZ; Wed, 03 Jul 2019 18:48:30 +0200
+ 1M42jK-1hiiQr3zXc-0001fV; Wed, 03 Jul 2019 18:48:34 +0200
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -53,79 +54,196 @@ To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         "Paul E . McKenney" <paulmck@linux.ibm.com>
-Cc:     Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH v2 0/7] implement poweroff for mt6323/6397
-Date:   Wed,  3 Jul 2019 18:48:15 +0200
-Message-Id: <20190703164822.17924-1-frank-w@public-files.de>
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v2 2/7] rtc: mt6397: move some common definitions into rtc.h
+Date:   Wed,  3 Jul 2019 18:48:17 +0200
+Message-Id: <20190703164822.17924-3-frank-w@public-files.de>
 X-Mailer: git-send-email 2.17.1
-X-Provags-ID: V03:K1:Q7bwDdrEsaphQYrmHhp90HE//kekmdWGTaievfmTLBQ650JdlG0
- ZFc89t3IpqF6r+6VIT+crsEBq/Xze1pedGbOYkWYQfBHJcBZWJae3I7ecQ1H/v2yoJF8OpX
- Pf8SwioVIe5yR86V2HhD2iyrRPnU9EZxKaK/fDp6sj/cNdKzfwD7IhaXPNReS4u11f3x2QB
- D7KWSsmavk+XqjXkrbOpA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:80cN8sB+jW0=:MrqNVi7o1rXFaCcRKYMpMr
- w42OIhPPamz4BFUxxD4WMAHwfFtF5Af/vkftOIq7mwDnmmLVjvzpDCY9WCe+26/fmhm9ILqrW
- FlaWUzNwCyTbmexafmmy0f91BemYMTQny1Fh37Gy7/GX3Xw+J5/nUfZOCJ2exG/XYIluMDmy1
- 0q4mBFg7UmyUtQO+ytaMzkxVjE2oF/JKKZ5drh/6iOFGqbGHl6EbrcaI0NGLIiQXE3xynUQaY
- WW1Yre6qDx+HjMJ9Lk5dJMbEI57lMR5YuwgjOebQDEBq6Xe1uYXOrzQR1wkevI09OhmGYYLlT
- AimTIiXaIOSqccv46iS0RLais/yHBL82Mz0q6lDrlsJNUJsxltDWWK8DBL2OcuT4ruWkeM1ea
- BRuglTOqIvDTmPPygFhbdvUPT6iPFC7afxNXsGefI4bbjeNhYX6nS0F6cwLQ2LIWga4XZkEZd
- z6sIuSnVYTe+hqvFwc+wKCzx53SS1hI7i5L0KpagtNitCMJqykKo0ImhRAKAg080rNWownjRu
- IPF/cHMBG0dPqoq4tjWbz8fm1ABB8geWNY2G5YJw+XustSCnZIeRDuYUn3vntf3hSxyCvx/h6
- MUbKc6EOnU3cwHaV2hAPdxdQaQVe0v5g5AqlyYzLoEe7LdHwl/8Ck/aMLs/1/dJgRKxLbPsgC
- UyZqBeY7unxw19J2xnG0Rh0BmWuPeaNKNP+zSqXTSQtW0xKi6IF4r3mcK8qS4aF+fx1jPOjPU
- FJ/4FPuvumLOfqR2xMCUtQ6ttO9gm7EQrFRiOoerJYoin92K1LI3mvoWpSnTnqjVhQycnPTH1
- MeV3DKDczqlWEV/1LfDYSeSftVblK3KgGgG4cTpn710t5TFBO5gsiAHq88wJmaWek/LpO45iM
- lfH96Cnhp+nsfsx6Zf44h1aGTG813Gh62z+M9mCsiiKkDVkBwA8dthC2A5gYrTY8a+bpgDYYq
- a/PprCwYWXTxAJDQUXN9vx6seI1oJ1RF8Dn4qKzj8/2YFP3OpbfqnIVlrgV52vYoI/gQq8HBW
- EDEaEam7lcXmITZU6/tZX/iLapG/9XXkG0MhyT4QusnNpUDoDd0WocRAYIjyBDgPfyREQFliV
- HSgBUVFAVXoG6U=
+In-Reply-To: <20190703164822.17924-1-frank-w@public-files.de>
+References: <20190703164822.17924-1-frank-w@public-files.de>
+X-Provags-ID: V03:K1:eNTAGak/khtebF18hP1o00uJHTFlKw0xrt738upulxWk1z31acU
+ PoB2U9jBsL3a67ozQdB+gG5Tq5CJQPDRj0dNh3mKEH1ReCjxe96SLWjYx9mEeCzDeIYs1eE
+ BYo7WMGYd5CUSfhSLvOqR02xzohVYND0/oRHlhR7xCxaVLxuHJxze47sRzK2taMUN5K6QHZ
+ IPFfX9BTpN8nR4lpP3t7A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:hrXaNRx2yJU=:n8xY8hWfUEOQNncyM2MDfb
+ hgyC4lTVSopY06MROwkDrLATI7KOf4BREy8UbjkvevcUbP4bo5sS3X0ccBpwv+LSxbLvv2bT6
+ ttpL9s26RLDTYq8XPNI+DfEz7fk1JIYwyXVfjrahDo9t1gymXebc8+AL1yiURT7SSPQkPa6Om
+ 8jweZxjKExbRyKfcakJOQvSXiI2DzhVePFsHbb0NpOEaLjVHCHnUvoghqrbAhc5TBDMYk507J
+ 3aT6AJSgAJYTEbLRUCmEWBoyZ7bG5BCi1UBDegmje2IxGOOLPndIrZ2M1qioBdm2K5RU1v1Ta
+ II8QrtGmItpLyoOIciLHCgn+6gZ0r7zBAM94DjgmIFZRPvOq2uxzUNJ0+JPlN65XF0wkSRbKm
+ wStGGr9H6EF7GdUlejbBJ28BX0apwmU/ZlH0kR2nGczm4sp08ZQgEV7dv8d9N4kDu9J2+r6xv
+ PZaqWYe32TkeI+lAoQqVhDKzr8i5lKPWTgFcn94Rnr3FaoiNE6VPHupq7vpXHGhef5CwwHVK9
+ j+uBjgyExZ1pBjLO6X9rx3KW5j1FiCE6GHSKtZt7wz5feqYEV8pd5ohXSqiBanx+hbVH7byQG
+ ua39EHS9jirtv1JtXBFl1QW8JO5Ui4KxuMElsaYCeHwdV00Mt/D1wj0aXg6zocC+zwerw5uJ5
+ djRwYqlIyr91G7i1qRFAP2KDvPX42lK1LWpXXICoyT3onns0k302e1vFS+PxlDzC9VMn2kLci
+ aASSswHtFmYPuFBbGQE417bNLH8vXTPQR+nlCzqING608uUxya3ZCRlZKY53FI2jjC6tI/oiD
+ 0UGtZyTCaK5x5ftWGdUWavLNF8rB8RnJDxVTm3jyne4C7mNDJ+AyDIb1orvJw0Bbb8aZUopFo
+ 2MTz+ca155ddzmrY6Tt9lOqy3xNc23yrzbBEt4ERl1lodvnfJgNTmhhi3dgD6XspcD9fZEpNA
+ RHRxfcrtVMGMXiuVkzDwhND9BsB2vtj5EoX3YcG0k3vlg0iL66fApiWnXBIkKFyKWUr/pciph
+ ayZcEgOAUcqfyrLmvtHT2OotSl4rfNSzdwjgu0Zs7bk+R6tPNt3kCSrSF2z9UmgHLM/l9r6p2
+ vYvFnzLNIXh0Nc=
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-mainline-driver does not support mt6323
+From: Josef Friedl <josef.friedl@speed.at>
 
-this series adds mt6323 to mt6397-rtc-driver and implement
-power-controller on it.
-
-with this poweroff is working on bananapi-r2
-
-Original Patch from Josef Friedl
-
-changes since v1:
-	- splitted into functional parts
-	- more infos about changes
-
-Josef Friedl (7):
-  docs: dt-bindings: add poweroff
-  rtc: mt6397: move some common definitions into rtc.h
-  rtc: mt6397: improvements of rtc driver
-  mfd: mt6323: some improvements of mt6397-core
-  power: reset: add driver for mt6323 poweroff
-  MAINTAINERS: add Mediatek shutdown drivers
-  arm: dts: mt6323: add keys, power-controller, rtc and codec
-
- .../devicetree/bindings/mfd/mt6397.txt        |  10 +-
- .../bindings/power/reset/mt6323-poweroff.txt  |  20 ++++
- .../devicetree/bindings/rtc/rtc-mt6397.txt    |  29 +++++
- MAINTAINERS                                   |   7 ++
- arch/arm/boot/dts/mt6323.dtsi                 |  27 +++++
- drivers/mfd/mt6397-core.c                     |  40 +++++--
- drivers/power/reset/Kconfig                   |  10 ++
- drivers/power/reset/Makefile                  |   1 +
- drivers/power/reset/mt6323-poweroff.c         |  97 +++++++++++++++
- drivers/rtc/rtc-mt6397.c                      | 110 ++++--------------
- include/linux/mfd/mt6397/core.h               |   2 +
- include/linux/mfd/mt6397/rtc.h                |  71 +++++++++++
- 12 files changed, 325 insertions(+), 99 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-p=
-oweroff.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- create mode 100644 drivers/power/reset/mt6323-poweroff.c
+Suggested-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+=2D--
+ drivers/rtc/rtc-mt6397.c       | 55 +-------------------------
+ include/linux/mfd/mt6397/rtc.h | 71 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+), 54 deletions(-)
  create mode 100644 include/linux/mfd/mt6397/rtc.h
 
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index b46ed4dc7015..c08ee5edf865 100644
+=2D-- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -9,60 +9,7 @@
+ #include <linux/module.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+-#include <linux/irqdomain.h>
+-#include <linux/platform_device.h>
+-#include <linux/of_address.h>
+-#include <linux/of_irq.h>
+-#include <linux/io.h>
+-#include <linux/mfd/mt6397/core.h>
+-
+-#define RTC_BBPU		0x0000
+-#define RTC_BBPU_CBUSY		BIT(6)
+-
+-#define RTC_WRTGR		0x003c
+-
+-#define RTC_IRQ_STA		0x0002
+-#define RTC_IRQ_STA_AL		BIT(0)
+-#define RTC_IRQ_STA_LP		BIT(3)
+-
+-#define RTC_IRQ_EN		0x0004
+-#define RTC_IRQ_EN_AL		BIT(0)
+-#define RTC_IRQ_EN_ONESHOT	BIT(2)
+-#define RTC_IRQ_EN_LP		BIT(3)
+-#define RTC_IRQ_EN_ONESHOT_AL	(RTC_IRQ_EN_ONESHOT | RTC_IRQ_EN_AL)
+-
+-#define RTC_AL_MASK		0x0008
+-#define RTC_AL_MASK_DOW		BIT(4)
+-
+-#define RTC_TC_SEC		0x000a
+-/* Min, Hour, Dom... register offset to RTC_TC_SEC */
+-#define RTC_OFFSET_SEC		0
+-#define RTC_OFFSET_MIN		1
+-#define RTC_OFFSET_HOUR		2
+-#define RTC_OFFSET_DOM		3
+-#define RTC_OFFSET_DOW		4
+-#define RTC_OFFSET_MTH		5
+-#define RTC_OFFSET_YEAR		6
+-#define RTC_OFFSET_COUNT	7
+-
+-#define RTC_AL_SEC		0x0018
+-
+-#define RTC_PDN2		0x002e
+-#define RTC_PDN2_PWRON_ALARM	BIT(4)
+-
+-#define RTC_MIN_YEAR		1968
+-#define RTC_BASE_YEAR		1900
+-#define RTC_NUM_YEARS		128
+-#define RTC_MIN_YEAR_OFFSET	(RTC_MIN_YEAR - RTC_BASE_YEAR)
+-
+-struct mt6397_rtc {
+-	struct device		*dev;
+-	struct rtc_device	*rtc_dev;
+-	struct mutex		lock;
+-	struct regmap		*regmap;
+-	int			irq;
+-	u32			addr_base;
+-};
++#include <linux/mfd/mt6397/rtc.h>
+
+ static int mtk_rtc_write_trigger(struct mt6397_rtc *rtc)
+ {
+diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc=
+.h
+new file mode 100644
+index 000000000000..b702c29e8c74
+=2D-- /dev/null
++++ b/include/linux/mfd/mt6397/rtc.h
+@@ -0,0 +1,71 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) 2014-2018 MediaTek Inc.
++ *
++ * Author: Tianping.Fang <tianping.fang@mediatek.com>
++ *        Sean Wang <sean.wang@mediatek.com>
++ */
++
++#ifndef _LINUX_MFD_MT6397_RTC_H_
++#define _LINUX_MFD_MT6397_RTC_H_
++
++#include <linux/jiffies.h>
++#include <linux/mutex.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++
++#define RTC_BBPU               0x0000
++#define RTC_BBPU_CBUSY         BIT(6)
++#define RTC_BBPU_KEY            (0x43 << 8)
++
++#define RTC_WRTGR              0x003c
++
++#define RTC_IRQ_STA            0x0002
++#define RTC_IRQ_STA_AL         BIT(0)
++#define RTC_IRQ_STA_LP         BIT(3)
++
++#define RTC_IRQ_EN             0x0004
++#define RTC_IRQ_EN_AL          BIT(0)
++#define RTC_IRQ_EN_ONESHOT     BIT(2)
++#define RTC_IRQ_EN_LP          BIT(3)
++#define RTC_IRQ_EN_ONESHOT_AL  (RTC_IRQ_EN_ONESHOT | RTC_IRQ_EN_AL)
++
++#define RTC_AL_MASK            0x0008
++#define RTC_AL_MASK_DOW                BIT(4)
++
++#define RTC_TC_SEC             0x000a
++/* Min, Hour, Dom... register offset to RTC_TC_SEC */
++#define RTC_OFFSET_SEC         0
++#define RTC_OFFSET_MIN         1
++#define RTC_OFFSET_HOUR                2
++#define RTC_OFFSET_DOM         3
++#define RTC_OFFSET_DOW         4
++#define RTC_OFFSET_MTH         5
++#define RTC_OFFSET_YEAR                6
++#define RTC_OFFSET_COUNT       7
++
++#define RTC_AL_SEC             0x0018
++
++#define RTC_PDN2               0x002e
++#define RTC_PDN2_PWRON_ALARM   BIT(4)
++
++#define RTC_MIN_YEAR           1968
++#define RTC_BASE_YEAR          1900
++#define RTC_NUM_YEARS          128
++#define RTC_MIN_YEAR_OFFSET    (RTC_MIN_YEAR - RTC_BASE_YEAR)
++
++#define MTK_RTC_POLL_DELAY_US  10
++#define MTK_RTC_POLL_TIMEOUT   (jiffies_to_usecs(HZ))
++
++struct mt6397_rtc {
++	struct device           *dev;
++	struct rtc_device       *rtc_dev;
++
++	/* Protect register access from multiple tasks */
++	struct mutex            lock;
++	struct regmap           *regmap;
++	int                     irq;
++	u32                     addr_base;
++};
++
++#endif /* _LINUX_MFD_MT6397_RTC_H_ */
 =2D-
 2.17.1
 
