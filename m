@@ -2,177 +2,129 @@ Return-Path: <SRS0=VsDc=VN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.2 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F10B6C76188
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Jul 2019 09:55:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D38ABC76188
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Jul 2019 10:26:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CA7D420880
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Jul 2019 09:55:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AFBBB2145D
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Jul 2019 10:26:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733114AbfGPJzT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 16 Jul 2019 05:55:19 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:34307 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732923AbfGPJzT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Jul 2019 05:55:19 -0400
-X-Originating-IP: 92.137.69.152
-Received: from localhost (alyon-656-1-672-152.w92-137.abo.wanadoo.fr [92.137.69.152])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 13B4224001C;
-        Tue, 16 Jul 2019 09:54:06 +0000 (UTC)
-Date:   Tue, 16 Jul 2019 11:54:05 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC for 5.3
-Message-ID: <20190716095405.GA2449@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.12.0 (2019-05-25)
+        id S1732574AbfGPK0Y (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Jul 2019 06:26:24 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:36630 "EHLO inva021.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732546AbfGPK0Y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 16 Jul 2019 06:26:24 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 1FC192000B1;
+        Tue, 16 Jul 2019 12:26:22 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id E46DA200042;
+        Tue, 16 Jul 2019 12:26:15 +0200 (CEST)
+Received: from titan.ap.freescale.net (TITAN.ap.freescale.net [10.192.208.233])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 9B102402D6;
+        Tue, 16 Jul 2019 18:26:08 +0800 (SGT)
+From:   Biwen Li <biwen.li@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        leoyang.li@nxp.com, robh+dt@kernel.org
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        xiaobo.xie@nxp.com, jiafei.pan@nxp.com, ran.wang_1@nxp.com,
+        mark.rutland@arm.com, devicetree@vger.kernel.org,
+        Biwen Li <biwen.li@nxp.com>
+Subject: [v5,2/2] Documentation: dt: binding: rtc: add binding for ftm alarm driver
+Date:   Tue, 16 Jul 2019 18:16:55 +0800
+Message-Id: <20190716101655.47418-2-biwen.li@nxp.com>
+X-Mailer: git-send-email 2.9.5
+In-Reply-To: <20190716101655.47418-1-biwen.li@nxp.com>
+References: <20190716101655.47418-1-biwen.li@nxp.com>
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello Linus,
+The patch adds binding for ftm alarm driver
 
-A quiet cycle this time. I'm a bit late for this PR but I threw in a few
-fixes instead of waiting for -rc1.
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+---
+Change in v5:
+    - None
 
-The following changes since commit a188339ca5a396acc588e5851ed7e19f66b0ebd9:
+Change in v4:
+    - add note about dts and kernel options
+    - add aliases in example
 
-  Linux 5.2-rc1 (2019-05-19 15:47:09 -0700)
+Change in v3:
+	- remove reg-names property
+	- correct cells number
 
-are available in the Git repository at:
+Change in v2:
+	- replace ls1043a with ls1088a as example
+	- add rcpm node and fsl,rcpm-wakeup property
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-5.3
 
-for you to fetch changes up to f0162d21cc8025c828fafe56ee25801f770f41da:
+ .../bindings/rtc/rtc-fsl-ftm-alarm.txt        | 49 +++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-fsl-ftm-alarm.txt
 
-  rtc: wm831x: Add IRQF_ONESHOT flag (2019-07-13 21:39:51 +0200)
-
-----------------------------------------------------------------
-RTC for 5.3
-
-Drivers:
- - ds1307: properly handle oscillator failure flags
- - imx-sc: alarm support
- - pcf2123: alarm support, correct offset handling
- - sun6i: add R40 support
- - simplify getting the adapter of an i2c client
-
-----------------------------------------------------------------
-Alexandre Belloni (3):
-      rtc: ds1307: properly handle oscillator failure flags
-      rtc: st-lpc: remove unnecessary check
-      rtc: pcf2123: fix negative offset rounding
-
-Anson Huang (1):
-      rtc: imx-sc: add rtc alarm support
-
-Chen-Yu Tsai (2):
-      rtc: pcf8563: Fix interrupt trigger method
-      rtc: pcf8563: Clear event flags and disable interrupts before requesting irq
-
-Dmitry Osipenko (1):
-      rtc: tegra: Drop MODULE_ALIAS
-
-Dylan Howey (4):
-      rtc: pcf2123: remove sysfs register view
-      rtc: pcf2123: port to regmap
-      rtc: pcf2123: use %ptR
-      rtc: pcf2123: add alarm support
-
-Hariprasad Kelam (1):
-      rtc: wm831x: Add IRQF_ONESHOT flag
-
-Markus Elfring (1):
-      rtc: stm32: remove one condition check in stm32_rtc_set_alarm()
-
-Maxime Ripard (6):
-      dt-bindings: rtc: Add YAML schemas for the generic RTC bindings
-      dt-bindings: rtc: Move trivial RTC over to a schemas of their own
-      dt-bindings: rtc: Convert Allwinner A10 RTC to a schema
-      dt-bindings: rtc: Convert Allwinner A31 RTC to a schema
-      dt-bindings: rtc: sun6i: Add the R40 RTC compatible
-      rtc: sun6i: Add R40 compatible
-
-Michał Mirosław (2):
-      rtc: tps65910: remove superfluous Kconfig dependency
-      rtc: tps65910: fix typo in register name in read_alarm()
-
-Nicholas Mc Guire (1):
-      rtc: ds2404: use hw endiannes variable
-
-Puranjay Mohan (1):
-      rtc: interface: Change type of 'count' from int to u64
-
-Richard Leitner (4):
-      rtc: s35390a: clarify INT2 pin output modes
-      rtc: s35390a: set uie_unsupported
-      rtc: s35390a: introduce struct device in probe
-      rtc: s35390a: change FLAG defines to use BIT macro
-
-Roman Stratiienko (1):
-      rtc: test: enable wakeup flags
-
-Thierry Reding (3):
-      rtc: tegra: checkpatch and miscellaneous cleanups
-      rtc: tegra: Use consistent variable names and types
-      rtc: tegra: Turn into regular driver
-
-Wolfram Sang (5):
-      rtc: fm3130: simplify getting the adapter of a client
-      rtc: m41t80: simplify getting the adapter of a client
-      rtc: rv8803: simplify getting the adapter of a client
-      rtc: rx8010: simplify getting the adapter of a client
-      rtc: rx8025: simplify getting the adapter of a client
-
-YueHaibing (1):
-      rtc: pcf2123: Fix build error
-
- .../bindings/rtc/allwinner,sun4i-a10-rtc.yaml      |  43 +++
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml      | 134 ++++++++
- Documentation/devicetree/bindings/rtc/rtc.txt      |  73 +----
- Documentation/devicetree/bindings/rtc/rtc.yaml     |  50 +++
- .../devicetree/bindings/rtc/sun6i-rtc.txt          |  46 ---
- .../devicetree/bindings/rtc/sunxi-rtc.txt          |  17 -
- .../devicetree/bindings/rtc/trivial-rtc.yaml       |  92 ++++++
- drivers/rtc/Kconfig                                |   3 +-
- drivers/rtc/interface.c                            |   2 +-
- drivers/rtc/rtc-ds1307.c                           | 129 ++++----
- drivers/rtc/rtc-ds2404.c                           |   5 +-
- drivers/rtc/rtc-fm3130.c                           |   8 +-
- drivers/rtc/rtc-imx-sc.c                           |  87 +++++
- drivers/rtc/rtc-m41t80.c                           |   2 +-
- drivers/rtc/rtc-pcf2123.c                          | 354 ++++++++++-----------
- drivers/rtc/rtc-pcf8563.c                          |  13 +-
- drivers/rtc/rtc-rv8803.c                           |   2 +-
- drivers/rtc/rtc-rx8010.c                           |   2 +-
- drivers/rtc/rtc-rx8025.c                           |   2 +-
- drivers/rtc/rtc-s35390a.c                          |  55 ++--
- drivers/rtc/rtc-st-lpc.c                           |   4 -
- drivers/rtc/rtc-stm32.c                            |   6 +-
- drivers/rtc/rtc-sun6i.c                            |   1 +
- drivers/rtc/rtc-tegra.c                            | 253 +++++++--------
- drivers/rtc/rtc-test.c                             |   1 +
- drivers/rtc/rtc-tps65910.c                         |   2 +-
- drivers/rtc/rtc-wm831x.c                           |   3 +-
- 27 files changed, 821 insertions(+), 568 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/allwinner,sun4i-a10-rtc.yaml
- create mode 100644 Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc.yaml
- delete mode 100644 Documentation/devicetree/bindings/rtc/sun6i-rtc.txt
- delete mode 100644 Documentation/devicetree/bindings/rtc/sunxi-rtc.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-fsl-ftm-alarm.txt b/Documentation/devicetree/bindings/rtc/rtc-fsl-ftm-alarm.txt
+new file mode 100644
+index 000000000000..fb018065406c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-fsl-ftm-alarm.txt
+@@ -0,0 +1,49 @@
++Freescale FlexTimer Module (FTM) Alarm
++
++Note:
++- The driver depends on RCPM driver
++  to wake up system in sleep.
++- Need stop using RTC_HCTOSYS or use the DT aliases
++  to ensure the driver is not used as the primary RTC.
++  (Select DT aliases defaultly)
++
++Required properties:
++- compatible : Should be "fsl,<chip>-ftm-alarm", the
++	       supported chips include
++	       "fsl,ls1012a-ftm-alarm"
++	       "fsl,ls1021a-ftm-alarm"
++	       "fsl,ls1028a-ftm-alarm"
++	       "fsl,ls1043a-ftm-alarm"
++	       "fsl,ls1046a-ftm-alarm"
++	       "fsl,ls1088a-ftm-alarm"
++	       "fsl,ls208xa-ftm-alarm"
++- reg : Specifies base physical address and size of the register sets for the
++  FlexTimer Module and base physical address of IP Powerdown Exception Control
++  Register.
++- interrupts : Should be the FlexTimer Module interrupt.
++- fsl,rcpm-wakeup property and rcpm node : Please refer
++	Documentation/devicetree/bindings/soc/fsl/rcpm.txt
++
++Optional properties:
++- big-endian: If the host controller is big-endian mode, specify this property.
++  The default endian mode is little-endian.
++
++Example:
++aliases {
++	...
++	rtc1 = ftm_alarm0; /* Use flextimer alarm driver as /dev/rtc1 */
++	...
++};
++
++rcpm: rcpm@1e34040 {
++	compatible = "fsl,ls1088a-rcpm", "fsl,qoriq-rcpm-2.1+";
++	reg = <0x0 0x1e34040 0x0 0x18>;
++	fsl,#rcpm-wakeup-cells = <6>;
++};
++
++ftm_alarm0: timer@2800000 {
++	compatible = "fsl,ls1088a-ftm-alarm";
++	reg = <0x0 0x2800000 0x0 0x10000>;
++	fsl,rcpm-wakeup = <&rcpm 0x0 0x0 0x0 0x0 0x4000 0x0>;
++	interrupts = <0 44 4>;
++};
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
+
