@@ -7,31 +7,31 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85D93C7618B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9D4AC7618E
 	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 17:43:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 629BB2184E
+	by mail.kernel.org (Postfix) with ESMTP id B95D32184D
 	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 17:43:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="UmqJim9r"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="VzxBOSkQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387750AbfG2RnI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S2387738AbfG2RnI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 29 Jul 2019 13:43:08 -0400
-Received: from mout.gmx.net ([212.227.15.18]:39867 "EHLO mout.gmx.net"
+Received: from mout.gmx.net ([212.227.15.15]:42851 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387681AbfG2RnI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 29 Jul 2019 13:43:08 -0400
+        id S2387679AbfG2RnH (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 29 Jul 2019 13:43:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1564422141;
-        bh=dzo7VpO1uUdQBSkujY0kbWJNhQ71gTV1phA9QbhtsCo=;
+        s=badeba3b8450; t=1564422136;
+        bh=2upA4Eee2eLxGKQpMOKxUWbTwNeRMbtSYCSugmC0GWc=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=UmqJim9rhKYYI6rg1gxZHvdyPwGur0+DZZ0Al0NvImxc1/42K6ZznDtK5I+UE4FkU
-         CH8Ckn7NSl+PE8DYdPpn7MBOuz0sCuLgopubbWdHfSp38AFPj3TSaKpXnzXJ1Fnqv6
-         qGVQgfRn4OjBkq4blGyemMlReFXIznQ/sfs7N97Y=
+        b=VzxBOSkQ57/fGvyduo8JBaFAJ+4VaF5CN4fW7TY2VDUPAkXvgMAcV3EEXSU8TTIV4
+         QzknCcyJLENarfrzz7nLk58UoDs17jWocp4aEaE09F9wttAq+No0HgtpWRw8pv0uQt
+         aFj27TlQ8tjwfDcuAN2ZNYmIDJd47SlpJ2oN66tY=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from localhost.localdomain ([185.76.97.79]) by mail.gmx.com
  (mrgmx001 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 0McDl1-1i7tEI19k7-00Ja6q; Mon, 29 Jul 2019 19:42:21 +0200
+ 0LwaQZ-1iRnd926zn-018Gvw; Mon, 29 Jul 2019 19:42:16 +0200
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -56,33 +56,33 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         "Tianping . Fang" <tianping.fang@mediatek.com>
 Cc:     Josef Friedl <josef.friedl@speed.at>,
         Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH v3 05/10] rtc: mt6397: add compatible for mt6323
-Date:   Mon, 29 Jul 2019 19:41:49 +0200
-Message-Id: <20190729174154.4335-6-frank-w@public-files.de>
+Subject: [PATCH v3 02/10] dt-bindings: add missing mt6397 rtc
+Date:   Mon, 29 Jul 2019 19:41:46 +0200
+Message-Id: <20190729174154.4335-3-frank-w@public-files.de>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190729174154.4335-1-frank-w@public-files.de>
 References: <20190729174154.4335-1-frank-w@public-files.de>
-X-Provags-ID: V03:K1:wxxknIib8Ozn5fRGGdL5blyAR19Ib6OBg90MqLFfw8GTFHxWpjh
- Qpy9UZvf36GuixWQCNxGEoRPdgoZMsujvnPVmdCOD317NbzrIihWrc99GLDxCHitJUkm6xA
- IyETGHnqpx3lPWjUznCNCTlZmhEeVBSt2ZoqibwTNq8DsS+YUcdk2WuwgfoyqNsK3le1Fnh
- 5ZfPi2l+Qp7hdiFt4pXzg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:xqnkkcUrSzE=:v6qNQBXYEiH6f/XVCnuvr2
- Gesj4iyGIi6cG6nBK0kuG+DpbOpg/f8oKKBF/rFtG2+8g4id+v7+lRnL7RcjYYPFLjHJ7tWHe
- PeqAG2j27WUWDHighouBhLbZ6biSQ/Tn+ueFOmy8MFjOHTwi6UQ4w9a8n1DNSdUpatK/eoaVd
- dmVpOS95YcBate5CavOxcMC0BSsZCpOCaNUrYjc458b+Bi4ZV4GDNSGG8yioeeXGDioz0N/Eb
- dUN4haKMwS5Glj5CNgJgXEbNVmFwflqZ3waZEe2Or82L0PSLNs5jWd0wL6k7ZGpKrI6+RDUtT
- x6VM5IftuUAEiEqYV9eXbkjtaLsYtZ9RN1+0oytQBbpjc2+BH90fXx0OpCdZAdmCyLMeX4gtn
- fJw8oF4UtEyB8TbTKh/3jmYPsQ5TTrGCp/tUCdpIT1mu5ZCc62R/b9f8IlHykv61a66hXArHM
- QrnX/FEPY4JBYb5v03ORDb6negchM0Hs3jqal+p30/txIyunne+/166uvTixFDsxzkISP1TtI
- aGzzi5gXp+lnXu9OLY3iw/sFrAh25B7v3ThQHsD8ZWIHYk8ARLkRGCjXzWLhv8wf8Vegnhe9h
- d8Bi4pjMLf/tQzLt+RII8bTZEa2Fg2dK6zb0ZYdBeZrfIkCvDaDOGyH0x8aL4cWQ8ttA3G8qb
- YWrpLtI4d5em3N5WyA96hjaUe0dgpEko+gCrNraeqxKHuW25E7R4uiEZKlQDOi/ea2QGPpjyv
- UXYeZsRAav+t9wU6CYqVHbUWS+WXgAD1c4u+Jo2UjOzB0KDK4VFU2EkSihtEYGRj65eoPFq6m
- thbwC09b7Zr3jPEei+aKyls+h0/uo+K0nA43z06nPmSRZXSddliN0GR1n6pYNC6mz0ETM2FKM
- yMRfi8DR7+tezV09FPIoeQS5C3YvuvzIZHRVBw8mZl9VvJnUxjR9rXLe81zK8mgJ0uoYaApD7
- LRDSA8YfxH4PeYs38ZRck79RQMM9ufG4MLhlDD4zeP5SVYyLLmfcB78+eOQ1a0AvG5vLHmCq/
- 83/Ib4+NzjIB4zSmTvledXS0P/ZzE5u+l5m1QwtYG3PwY2Y7i+c/gCleFvPmLi6ucQMgRXu6f
- bcz9JphWkQOuSQ=
+X-Provags-ID: V03:K1:n2zUh/vBMrR/T/FmmAN+wn7QKL0aiwb8lCVGDcRqmLkY60+LbYp
+ 75Yof9evGGAzVYq9T7To3kmtms+cHY1cVVgtyBTBTTcA6ILiDSHdco6fnRBkBVOFZWOgYB/
+ +mflzaL6iXpplrBY8RqzW8mD3pso3luf6hoAVRWBqYJr9F133IWFvdnHnVi760Wayt29vUB
+ DFXx+EoY/2zJUHu9L0pKQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:3BCmzlM7TJA=:/nJkZvBc4do4lI0pWVrXDu
+ fHAfzfWinW0B6mPgALHOmP3HwFCiJOmcN54Gq7X+9cPdGCfSx9tCoLpStWPNB+CBR9qwkqho4
+ r4ut0m4JUYbg+ZzLd+VkDyvISw4LKj/msNspivDKgUC3Qg9H9Zt716kgHwfrzNQXmLKBdoWlX
+ Tylf/ZNz+hT5FqzbZ5TJRX1xoI3ORKdhrHZy4y3BNGB09kuyrwkwrlWM+PC13R0iGFeOP70K+
+ SINkemcm/T0vK096Yei+cIZyrlt9ZZtet1+664WrbtvC2OwfB35ToHWqT07KVN0L17cruOGi5
+ 8UrpLVZkf8bjOXVwc5gec5BN+e1Jjn8M0PAkIQ1H4yDYAq1AJpTn1Fq0Ip45+BXcffemK9jF2
+ F/LN+SSGl1bN9GUv+REV1ZX/tEBNKrrEDG6S856a6W2zfOOU5yvi/r5VLiUhsZv/CWi1g8c6J
+ rejZOQcWdZcxc5Y96oCmTRNFdV6o1u+E4uYa402iMDW4WXgvs7LsNnx1oDNx9AvmlKeaA9+h1
+ OGfD4q0UobAfVJ2/I015fi9efjAUXoK3S0njDCypDdQloHPYjUx0rNW7ND0flKSl5hWSuRR+H
+ dIZrQQkm02s1bI8HQSqivuxxbFdAZo8bpbF2nlevAWDoxKfgarBuihytBUyB62ZSaz6Bg3vMR
+ ZjRofVttHU6kJDhwabkvEb7PU8hzRRTY1p2bjOnogGEhLeYNR8rgCJVzwJZSKNS6nLe3zuwgc
+ dzOSmlYWvMKQdvIE2l4vKPsWqzdJYom0wcVl8/L9gzUYb09p7pu9rWKKOkkkfMIX/4+MBSYHZ
+ mdCMYjMkYyJM1SPPRCgi9QvJDniXokzLN4nqqwnlX904L11+RlPckML8qM6xjEH4EuAex6Cng
+ b0ow36LqBD5lfuzSm5Rjqv9prApeZpbSTjfSKm7IXSRdZJq8rUxtdDmKTHRYDbD4j6zF838sz
+ XYsSb59qYHtTqMrJjn0FPtukG+/Kc5PGenkzXVGBxAvMDpg7YGJLE1GiXxZD46c2yGg5GHYtq
+ oDV0pdXxsrg1/X4PdtqRqhZRpNaTydxnTvfZPrpsiFz7NxGywxIcQSn5mvSKVuzUesbv/Rjk4
+ V7HMJZgp3cOoec=
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
@@ -91,30 +91,57 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Josef Friedl <josef.friedl@speed.at>
 
-use mt6397 rtc driver also for mt6323
-compatible needed because of different rtc-base/size see part 7
+add missing devicetree-binding document for mt6397 rtc
+in later patch driver is extended with mt6323 chip
 
-changes since v2: splitted this from v2.3 suggested-by Alexandre Belloni
+changes since v2: splitted rtc-mt6397.txt from first patch
 
-Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Suggested-By: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
 =2D--
- drivers/rtc/rtc-mt6397.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/rtc/rtc-mt6397.txt    | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 9370b7fc9f81..21cd9cc8b4c7 100644
-=2D-- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -325,6 +325,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_sus=
-pend,
- 			mt6397_rtc_resume);
-
- static const struct of_device_id mt6397_rtc_of_match[] =3D {
-+	{ .compatible =3D "mediatek,mt6323-rtc", },
- 	{ .compatible =3D "mediatek,mt6397-rtc", },
- 	{ }
- };
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Docume=
+ntation/devicetree/bindings/rtc/rtc-mt6397.txt
+new file mode 100644
+index 000000000000..ebd1cf80dcc8
+=2D-- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+@@ -0,0 +1,29 @@
++Device-Tree bindings for MediaTek PMIC based RTC
++
++MediaTek PMIC based RTC is an independent function of MediaTek PMIC that =
+works
++as a type of multi-function device (MFD). The RTC can be configured and s=
+et up
++with PMIC wrapper bus which is a common resource shared with the other
++functions found on the same PMIC.
++
++For MediaTek PMIC MFD bindings, see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++For MediaTek PMIC wrapper bus bindings, see:
++Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
++
++Required properties:
++- compatible: Should be one of follows
++       "mediatek,mt6323-rtc": for MT6323 PMIC
++       "mediatek,mt6397-rtc": for MT6397 PMIC
++
++Example:
++
++       pmic {
++               compatible =3D "mediatek,mt6323";
++
++               ...
++
++               rtc {
++                       compatible =3D "mediatek,mt6323-rtc";
++               };
++       };
 =2D-
 2.17.1
 
