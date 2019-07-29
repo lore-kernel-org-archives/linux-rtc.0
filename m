@@ -2,45 +2,33 @@ Return-Path: <SRS0=i+SU=V2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE694C433FF
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 18:31:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF4E9C433FF
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 18:33:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B3DD82073F
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 18:31:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=mailerdienst.de header.i=@mailerdienst.de header.b="sm+KrCEU"
+	by mail.kernel.org (Postfix) with ESMTP id 847442073F
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jul 2019 18:33:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387705AbfG2SbF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 29 Jul 2019 14:31:05 -0400
-Received: from mxwww.masterlogin.de ([95.129.51.170]:34404 "EHLO
+        id S2387850AbfG2Sd6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 29 Jul 2019 14:33:58 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.220]:40432 "EHLO
         mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387573AbfG2SbF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jul 2019 14:31:05 -0400
-X-Greylist: delayed 599 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Jul 2019 14:31:03 EDT
+        with ESMTP id S2387536AbfG2Sd6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jul 2019 14:33:58 -0400
+X-Greylist: delayed 581 seconds by postgrey-1.27 at vger.kernel.org; Mon, 29 Jul 2019 14:33:56 EDT
 Received: from mxout1.routing.net (unknown [192.168.10.81])
-        by backup.mxwww.masterlogin.de (Postfix) with ESMTPS id E60D72C41E;
-        Mon, 29 Jul 2019 18:16:19 +0000 (UTC)
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 94D8196323;
+        Mon, 29 Jul 2019 18:24:26 +0000 (UTC)
 Received: from mxbox1.masterlogin.de (unknown [192.168.10.253])
-        by mxout1.routing.net (Postfix) with ESMTP id C9DC743E4E;
-        Mon, 29 Jul 2019 18:16:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
-        s=dkim; t=1564424174; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HP6trMB9va7UVgbWclPeNJtnCBo+M1pqC/xaYjKxvj8=;
-        b=sm+KrCEUw+eAxXAsg/LcgF3MQTCbRVLNqKsuxtH5m8fYpSZWdaXQCQ/KPJ7vK5JYq1JR8F
-        oBeNmeY7VC5uTNpp+UVWvnXAu8LjpojxVF3JwQWgv7ieQg5e+fWpX/2UdpF/MvEyliNoiW
-        r1m9nL5PR+zxy0ff3ItRqhSzBj5pNiE=
-Received: from [192.168.0.21] (fttx-pool-185.76.97.79.bambit.de [185.76.97.79])
-        by mxbox1.masterlogin.de (Postfix) with ESMTPSA id 7DC8D405D3;
-        Mon, 29 Jul 2019 20:16:13 +0200 (CEST)
-Subject: Re: [PATCH v3 00/10] implement poweroff for mt6323 / bpi-r2
+        by mxout1.routing.net (Postfix) with ESMTP id C407B40983;
+        Mon, 29 Jul 2019 18:24:26 +0000 (UTC)
+Received: from localhost.localdomain (fttx-pool-185.76.97.79.bambit.de [185.76.97.79])
+        by mxbox1.masterlogin.de (Postfix) with ESMTPSA id 78DB0405D3;
+        Mon, 29 Jul 2019 20:24:25 +0200 (CEST)
+From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Allison Randal <allison@lohutok.net>,
@@ -62,27 +50,67 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Sebastian Reichel <sre@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         "Tianping . Fang" <tianping.fang@mediatek.com>
-References: <20190729174154.4335-1-frank-w@public-files.de>
-From:   Frank Wunderlich <frank@fw-web.de>
-Message-ID: <e1274024-b67c-3d04-50d3-f6fcd3b3cbe6@fw-web.de>
-Date:   Mon, 29 Jul 2019 20:16:13 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20190729174154.4335-1-frank-w@public-files.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v3 10/10] arm: dts: mt6323: add keys, power-controller, rtc and codec
+Date:   Mon, 29 Jul 2019 20:24:21 +0200
+Message-Id: <20190729182421.7192-1-frank-w@public-files.de>
+X-Mailer: git-send-email 2.17.1
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+From: Josef Friedl <josef.friedl@speed.at>
 
-sorry about missing part 9+10, my mail-provider blocks the mails, 
-currently i cannot send with this account
+support poweroff and power-related keys on bpi-r2
 
-i try sending with another
+changes since v2: none (=v2 part 7)
 
-regards Frank
+Suggested-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+---
+ arch/arm/boot/dts/mt6323.dtsi | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/arch/arm/boot/dts/mt6323.dtsi b/arch/arm/boot/dts/mt6323.dtsi
+index ba397407c1dd..7fda40ab5fe8 100644
+--- a/arch/arm/boot/dts/mt6323.dtsi
++++ b/arch/arm/boot/dts/mt6323.dtsi
+@@ -238,5 +238,32 @@
+ 				regulator-enable-ramp-delay = <216>;
+ 			};
+ 		};
++
++		mt6323keys: mt6323keys {
++			compatible = "mediatek,mt6323-keys";
++			mediatek,long-press-mode = <1>;
++			power-off-time-sec = <0>;
++
++			power {
++				linux,keycodes = <116>;
++				wakeup-source;
++			};
++
++			home {
++				linux,keycodes = <114>;
++			};
++		};
++
++		codec: mt6397codec {
++			compatible = "mediatek,mt6397-codec";
++		};
++
++		power-controller {
++			compatible = "mediatek,mt6323-pwrc";
++		};
++
++		rtc {
++			compatible = "mediatek,mt6323-rtc";
++		};
+ 	};
+ };
+-- 
+2.17.1
+
