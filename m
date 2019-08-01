@@ -1,104 +1,96 @@
-Return-Path: <SRS0=vSLi=V4=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=TU+6=V5=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74B73C433FF
-	for <linux-rtc@archiver.kernel.org>; Wed, 31 Jul 2019 02:33:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D859C41514
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:01:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 422BF2089E
-	for <linux-rtc@archiver.kernel.org>; Wed, 31 Jul 2019 02:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1564540424;
-	bh=mOgp1gGuB0ZTei6SqT972fot/2M39pzT02+gl9jejbA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=G+LGsKOi+zS6bZU/1bk8lwki/Ub0ShnSxa8okKqQJcNdhjWzE3jwzM8Kpx5mJprcn
-	 DJ8677RpFbCkikWqoUtcwoyY0GnzAvOn6WC6otwegVwqX3cRsQCylIilUwRdPAAiCv
-	 1UCzW7LTbQeaU5WBWEGk/P7VH29DtFRJppURzhyg=
+	by mail.kernel.org (Postfix) with ESMTP id E8202214DA
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:01:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbfGaCdo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 30 Jul 2019 22:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59454 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725877AbfGaCdn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 30 Jul 2019 22:33:43 -0400
-Received: from sol.localdomain (c-24-5-143-220.hsd1.ca.comcast.net [24.5.143.220])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4044F206E0;
-        Wed, 31 Jul 2019 02:33:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564540423;
-        bh=mOgp1gGuB0ZTei6SqT972fot/2M39pzT02+gl9jejbA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YJ8V0yxJ+fxwpThn3lp89oCV859VEwbAMyhwRys3utwcaQGiEo/xYZpI75BK70cP+
-         xMqnsgC+k+L+5096dJwXEKnTIJi7jmLhvVsR5CxlULbx3QTFzDdmR+TOTmX0suZamq
-         bgjrl/NHjn8IYsE9tlcQtbV77Nqnv5iAtVA8qFAY=
-Date:   Tue, 30 Jul 2019 19:33:41 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Hillf Danton <hdanton@sina.com>
-Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Subject: Re: Reminder: 1 open syzbot bug in rtc subsystem
-Message-ID: <20190731023341.GD687@sol.localdomain>
-Mail-Followup-To: Hillf Danton <hdanton@sina.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-References: <20190724025008.GL643@sol.localdomain>
+        id S1731355AbfHALBs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 1 Aug 2019 07:01:48 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:3039 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726227AbfHALBq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Aug 2019 07:01:46 -0400
+X-UUID: 6f54a5301c2e4239b0b53d9f2b010548-20190801
+X-UUID: 6f54a5301c2e4239b0b53d9f2b010548-20190801
+Received: from mtkmrs01.mediatek.inc [(172.21.131.159)] by mailgw01.mediatek.com
+        (envelope-from <ran.bi@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
+        with ESMTP id 1259157827; Thu, 01 Aug 2019 19:01:36 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Thu, 1 Aug 2019 19:01:38 +0800
+Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Thu, 1 Aug 2019 19:01:37 +0800
+From:   Ran Bi <ran.bi@mediatek.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+CC:     Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <srv_heupstream@mediatek.com>, YT Shen <yt.shen@mediatek.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        Flora Fu <flora.fu@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Ran Bi <ran.bi@mediatek.com>
+Subject: [PATCH v2 3/4] arm64: dts: add RTC nodes for MT2712
+Date:   Thu, 1 Aug 2019 19:01:21 +0800
+Message-ID: <20190801110122.26834-4-ran.bi@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20190801110122.26834-1-ran.bi@mediatek.com>
+References: <20190801110122.26834-1-ran.bi@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190724025008.GL643@sol.localdomain>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain
+X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Jul 29, 2019 at 03:47:45PM +0800, Hillf Danton wrote:
-> 
-> On Tue, 23 Jul 2019 19:50:08 -0700
-> > 
-> > [This email was generated by a script.  Let me know if you have any suggestions
-> > to make it better, or if you want it re-generated with the latest status.]
-> > 
-> > Of the currently open syzbot reports against the upstream kernel, I've manually
-> > marked 1 of them as possibly being a bug in the rtc subsystem.
-> > 
-> > If you believe this bug is no longer valid, please close the syzbot report by
-> > sending a '#syz fix', '#syz dup', or '#syz invalid' command in reply to the
-> > original thread, as explained at https://goo.gl/tpsmEJ#status
-> > 
-> > If you believe I misattributed this bug to the rtc subsystem, please let me
-> > know, and if possible forward the report to the correct people or mailing list.
-> > 
-> > Here is the bug:
-> > 
-> > --------------------------------------------------------------------------------
-> > Title:              BUG: workqueue lockup (4)
-> > Last occurred:      40 days ago
-> > Reported:           289 days ago
-> > Branches:           Mainline and others
-> > Dashboard link:     https://syzkaller.appspot.com/bug?id=0041bf1423916e9ae458b08b760e269a33c14960
-> > Original thread:    https://lkml.kernel.org/lkml/0000000000005764090577a27486@google.com/T/#u
-> > 
-> Better if %s=lkml.kernel.org=lore.kernel.org=
-> 
+This patch add device node for MT2712 RTC.
 
-Out of curiosity, is there a reason for this?  They both go to the same place,
-but the reason I used lkml.kernel.org is that some high-profile kernel
-developers (e.g. Andrew Morton) are using it in the "Link: " tag in commits.
-So it seems like lkml.kernel.org is maybe "right" one that is intended to
-always keep working in the future?
+Signed-off-by: Ran Bi <ran.bi@mediatek.com>
+---
+ arch/arm64/boot/dts/mediatek/mt2712e.dtsi | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-But then I see Greg KH is using lore.kernel.org, so maybe it doesn't matter?
+diff --git a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+index 43307bad3f0d..31166c17c39a 100644
+--- a/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt2712e.dtsi
+@@ -303,6 +303,12 @@
+ 		status = "disabled";
+ 	};
+ 
++	rtc: rtc@10011000 {
++		compatible = "mediatek,mt2712-rtc";
++		reg = <0 0x10011000 0 0x1000>;
++		interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_LOW>;
++	};
++
+ 	spis1: spi@10013000 {
+ 		compatible = "mediatek,mt2712-spi-slave";
+ 		reg = <0 0x10013000 0 0x100>;
+-- 
+2.21.0
 
-Maybe lore.kernel.org is better because people won't confuse it with lkml.org
-and refuse to go to it :-)
-
-- Eric
