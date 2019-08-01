@@ -4,33 +4,33 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7345C19759
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A8CC32753
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C7E63214DA
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3734721726
+	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731357AbfHALBs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 1 Aug 2019 07:01:48 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:12106 "EHLO
+        id S1731334AbfHALBo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 1 Aug 2019 07:01:44 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:2534 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731330AbfHALBq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Aug 2019 07:01:46 -0400
-X-UUID: 891da93d988149bd8c9b89c86d615c76-20190801
-X-UUID: 891da93d988149bd8c9b89c86d615c76-20190801
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
+        with ESMTP id S1728884AbfHALBo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Aug 2019 07:01:44 -0400
+X-UUID: c6d8adce30634400938f08c80ac5fe95-20190801
+X-UUID: c6d8adce30634400938f08c80ac5fe95-20190801
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
         (envelope-from <ran.bi@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
-        with ESMTP id 1869350164; Thu, 01 Aug 2019 19:01:39 +0800
+        with ESMTP id 1792032667; Thu, 01 Aug 2019 19:01:36 +0800
 Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Thu, 1 Aug 2019 19:01:40 +0800
+ mtkmbs08n2.mediatek.inc (172.21.101.56) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Thu, 1 Aug 2019 19:01:35 +0800
 Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Thu, 1 Aug 2019 19:01:39 +0800
+ Transport; Thu, 1 Aug 2019 19:01:34 +0800
 From:   Ran Bi <ran.bi@mediatek.com>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -53,41 +53,50 @@ CC:     Alessandro Zummo <a.zummo@towertech.it>,
         Flora Fu <flora.fu@mediatek.com>,
         Sean Wang <sean.wang@mediatek.com>,
         Ran Bi <ran.bi@mediatek.com>
-Subject: [PATCH v2 4/4] MAINTAINERS: add MT2712 RTC files
-Date:   Thu, 1 Aug 2019 19:01:22 +0800
-Message-ID: <20190801110122.26834-5-ran.bi@mediatek.com>
+Subject: [PATCH v2 1/4] bindings: rtc: add bindings for MT2712 RTC
+Date:   Thu, 1 Aug 2019 19:01:19 +0800
+Message-ID: <20190801110122.26834-2-ran.bi@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20190801110122.26834-1-ran.bi@mediatek.com>
 References: <20190801110122.26834-1-ran.bi@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
+X-TM-SNTS-SMTP: 45D06EDA4E97A365DDB8FC8411C231299BF4772F0DC4E18D4349508AB0B90A912000:8
 X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patch add MT2712 RTC related files to MAINTAINERS.
+Document the binding for MT2712 RTC implemented by rtc-mt2712.
 
 Signed-off-by: Ran Bi <ran.bi@mediatek.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+ .../devicetree/bindings/rtc/rtc-mt2712.txt         | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt2712.txt
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 783569e3c4b4..11f73a4c75eb 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1892,7 +1892,9 @@ M:	Sean Wang <sean.wang@mediatek.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- L:	linux-mediatek@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/rtc-mt2712.txt
- F:	Documentation/devicetree/bindings/rtc/rtc-mt7622.txt
-+F:	drivers/rtc/rtc-mt2712.c
- F:	drivers/rtc/rtc-mt6397.c
- F:	drivers/rtc/rtc-mt7622.c
- 
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt2712.txt b/Documentation/devicetree/bindings/rtc/rtc-mt2712.txt
+new file mode 100644
+index 000000000000..c33d87e5e753
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/rtc-mt2712.txt
+@@ -0,0 +1,14 @@
++Device-Tree bindings for MediaTek SoC based RTC
++
++Required properties:
++- compatible	    : Should be "mediatek,mt2712-rtc" : for MT2712 SoC
++- reg 		    : Specifies base physical address and size of the registers;
++- interrupts	    : Should contain the interrupt for RTC alarm;
++
++Example:
++
++rtc: rtc@10011000 {
++	compatible = "mediatek,mt2712-rtc";
++	reg = <0 0x10011000 0 0x1000>;
++	interrupts = <GIC_SPI 239 IRQ_TYPE_LEVEL_LOW>;
++};
 -- 
 2.21.0
 
