@@ -1,97 +1,129 @@
-Return-Path: <SRS0=TU+6=V5=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=4v43=V6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3747EC32754
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4EDBC433FF
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Aug 2019 10:24:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 073A7214DA
-	for <linux-rtc@archiver.kernel.org>; Thu,  1 Aug 2019 11:02:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8A73F20665
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Aug 2019 10:24:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbfHALBl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 1 Aug 2019 07:01:41 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:4016 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726227AbfHALBl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 1 Aug 2019 07:01:41 -0400
-X-UUID: e74bd83137a940449891aed9a2be2cc6-20190801
-X-UUID: e74bd83137a940449891aed9a2be2cc6-20190801
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
-        (envelope-from <ran.bi@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
-        with ESMTP id 1701189342; Thu, 01 Aug 2019 19:01:32 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Thu, 1 Aug 2019 19:01:34 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Thu, 1 Aug 2019 19:01:33 +0800
-From:   Ran Bi <ran.bi@mediatek.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     Alessandro Zummo <a.zummo@towertech.it>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <srv_heupstream@mediatek.com>, YT Shen <yt.shen@mediatek.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Flora Fu <flora.fu@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Ran Bi <ran.bi@mediatek.com>
-Subject: [PATCH v2 0/4] Add Support for MediaTek MT2712 RTC
-Date:   Thu, 1 Aug 2019 19:01:18 +0800
-Message-ID: <20190801110122.26834-1-ran.bi@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        id S2390829AbfHBKYn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 2 Aug 2019 06:24:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:43479 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730941AbfHBKYn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Aug 2019 06:24:43 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id DB30980355; Fri,  2 Aug 2019 12:24:27 +0200 (CEST)
+Date:   Fri, 2 Aug 2019 12:24:39 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Subject: Re: Reminder: 1 open syzbot bug in rtc subsystem
+Message-ID: <20190802102439.GA29677@amd>
+References: <20190724025008.GL643@sol.localdomain>
+ <20190728132332.GB8718@xo-6d-61-c0.localdomain>
+ <20190731022707.GC687@sol.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+In-Reply-To: <20190731022707.GC687@sol.localdomain>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patchset add support to MT2712 RTC. MT2712 RTC is a SoC based RTC
-with different architecture compared to MT7622 RTC.
 
-Changes in V2:
-1. change minimum year from 1968 to 2000
-2. fix lock usage
-3. stop to calculate useless day of week
-4. stop to set default date after init
-5. change the prefix of functions
-6. use devm_request_threaded_irq() to replace request_threaded_irq()
-7. add mt2712 rtc related files into MAINTAINERS
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ran Bi (4):
-  bindings: rtc: add bindings for MT2712 RTC
-  rtc: Add support for the MediaTek MT2712 RTC
-  arm64: dts: add RTC nodes for MT2712
-  MAINTAINERS: add MT2712 RTC files
+On Tue 2019-07-30 19:27:07, Eric Biggers wrote:
+> On Sun, Jul 28, 2019 at 03:23:33PM +0200, Pavel Machek wrote:
+> > On Tue 2019-07-23 19:50:08, Eric Biggers wrote:
+> > > [This email was generated by a script.  Let me know if you have any s=
+uggestions
+> > > to make it better, or if you want it re-generated with the latest sta=
+tus.]
+> > >=20
+> > > Of the currently open syzbot reports against the upstream kernel, I'v=
+e manually
+> > > marked 1 of them as possibly being a bug in the rtc subsystem.
+> > >=20
+> > > If you believe this bug is no longer valid, please close the syzbot r=
+eport by
+> > > sending a '#syz fix', '#syz dup', or '#syz invalid' command in reply =
+to the
+> > > original thread, as explained at https://goo.gl/tpsmEJ#status
+> > >=20
+> > > If you believe I misattributed this bug to the rtc subsystem, please =
+let me
+> > > know, and if possible forward the report to the correct people or mai=
+ling list.
+> > >=20
+> > > Here is the bug:
+> >=20
+> >=20
+> > Can you stop spamming lkml?
+> >=20
+> > Sending 20 "reminders" in a row is not something human would do, and it=
+ is not
+> > something your bot should be allowed to do, either.
+> >=20
+>=20
+> Hi Pavel, just to clarify, though I used a script to generate these email=
+s, I
+> manually reviewed and sent each one; I also manually assigned the subsyst=
+ems and
+> sanity checked the bisection results.  (I'm also not on the syzbot team. =
+ I just
+> care about the security and reliability of the Linux kernel...)  The reas=
+on
+> there are so many of these emails is that there are a lot of kernel subsy=
+stems
+> with open bug reports, many clearly still valid -- even considering that I
+> decided to skip some subsystems after deciding to just fix the bugs mysel=
+f,
+> update the bug statuses myself, send some other email, or just wait.
+>=20
+> I suppose there's some argument to be made that it's too noisy to Cc
+> linux-kernel when I've already assigned a subsystem, though, so I'll try
+> dropping linux-kernel from Cc for next time and just using the subsystem =
+list
+> and maintainers, and see if that goes any better or worse.
 
- .../devicetree/bindings/rtc/rtc-mt2712.txt    |  14 +
- MAINTAINERS                                   |   2 +
- arch/arm64/boot/dts/mediatek/mt2712e.dtsi     |   6 +
- drivers/rtc/Kconfig                           |  10 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-mt2712.c                      | 444 ++++++++++++++++++
- 6 files changed, 477 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt2712.txt
- create mode 100644 drivers/rtc/rtc-mt2712.c
+That should do the trick. Thanks!
 
--- 
-2.21.0
+> Note that the syzbot reports themselves are still going to linux-kernel, =
+though.
 
+Yes, I know. I'm not entirely sure that is good idea.
+
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl1ED2YACgkQMOfwapXb+vIueQCguHwb6twaVho51dNDt9htIUGs
+aQwAoMIK2npDdI7S60cvc1VXN2zWACBg
+=aCxV
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
