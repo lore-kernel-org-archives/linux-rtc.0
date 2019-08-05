@@ -4,30 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF200C0650F
-	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 10:20:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5DA8C433FF
+	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 10:45:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E8BB20880
-	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 10:20:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD6AE20679
+	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 10:45:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="gsRiiR+h"
+	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="rtsidnR5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727158AbfHEKUE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 5 Aug 2019 06:20:04 -0400
-Received: from vps.xff.cz ([195.181.215.36]:59036 "EHLO vps.xff.cz"
+        id S1727739AbfHEKpc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 5 Aug 2019 06:45:32 -0400
+Received: from vps.xff.cz ([195.181.215.36]:59488 "EHLO vps.xff.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726454AbfHEKUE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 5 Aug 2019 06:20:04 -0400
+        id S1727349AbfHEKpc (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 5 Aug 2019 06:45:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1565000401; bh=UbKSHNJhmMN1hbm43YULL0GmnUkGg9ph8ySUEjcpnw0=;
+        t=1565001930; bh=W7YU1/q/aKB7zPV20b+aOpwNuBfRX4fYBwxtrKTypcs=;
         h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
-        b=gsRiiR+hnT1hK6iZz/qjoDRZZUwcrGRhpW7vfRTN2k5xKzRytohkBdYtwuthstZt2
-         GShvGFYLVp7Due3TLXPxA5DD084qKPe0jdHh72dNNW1aFWkq0LPgoS8+R69qLgP1ZH
-         0bSenMR3uUaxxtBVF+UvvsOSPh7jTqXHluzeQFEc=
-Date:   Mon, 5 Aug 2019 12:20:01 +0200
+        b=rtsidnR5e6wz7P8Kq/lk2ZT/uWN8M1hVUELvi6u5HAxdgkTYzZJz32UfKicJ5MkFY
+         iPpXJxY4MVkE9Yl9G9ZH7h1IN7fMV2/EBR+ZGxV7MOmwFDkc5DiQKlxCFp+Hqu/KkU
+         KxZjjI6dvTxMrZlvQg5W9oI6NuwzEhxSzSGfQXgc=
+Date:   Mon, 5 Aug 2019 12:45:29 +0200
 From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
 To:     Chen-Yu Tsai <wens@csie.org>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
@@ -40,7 +40,7 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         linux-sunxi <linux-sunxi@googlegroups.com>
 Subject: Re: [linux-sunxi] [PATCH 2/3] rtc: sun6i: Add support for H6 RTC
-Message-ID: <20190805102001.guo7e52bl5agp2w4@core.my.home>
+Message-ID: <20190805104529.z3mex3m2tss7lzlr@core.my.home>
 Mail-Followup-To: Chen-Yu Tsai <wens@csie.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -110,14 +110,59 @@ On Mon, Aug 05, 2019 at 06:16:14PM +0800, Chen-Yu Tsai wrote:
 > 
 > The rest looks ok.
 
-Yes, see H6 BSP:
-
-drivers/rtc/rtc-sunxi.h
+To give you more information. This is a new thing in H6 BSP, compared
+to BSPs for previous SoCs (H5/H3).
 
  20 #define REG_CLK32K_AUTO_SWT_EN                  BIT(14)
  21 #define REG_CLK32K_AUTO_SWT_BYPASS              BIT(15)
 
+Init sequence changed in H6 BSP to:
+
+646         /*
+647          * Step1: select RTC clock source
+648          */
+649         tmp_data = readl(chip->base + SUNXI_LOSC_CTRL);
+650         tmp_data &= (~REG_CLK32K_AUTO_SWT_EN);
+651
+652         /* Disable auto switch function */
+653         tmp_data |= REG_CLK32K_AUTO_SWT_BYPASS;
+654         writel(tmp_data, chip->base + SUNXI_LOSC_CTRL);
+655
+656         tmp_data = readl(chip->base + SUNXI_LOSC_CTRL);
+657         tmp_data |= (RTC_SOURCE_EXTERNAL | REG_LOSCCTRL_MAGIC);
+658         writel(tmp_data, chip->base + SUNXI_LOSC_CTRL);
+659
+660         /* We need to set GSM after change clock source */
+661         udelay(10);
+662         tmp_data = readl(chip->base + SUNXI_LOSC_CTRL);
+663         tmp_data |= (EXT_LOSC_GSM | REG_LOSCCTRL_MAGIC);
+664         writel(tmp_data, chip->base + SUNXI_LOSC_CTRL);
+665
+
+For older BSPs, the init sequence looked like this:
+
+482         /*
+483          * Step1: select RTC clock source
+484          */
+485         tmp_data = sunxi_rtc_read(SUNXI_LOSC_CTRL_REG);
+486         tmp_data &= (~REG_CLK32K_AUTO_SWT_EN);
+487         tmp_data |= (RTC_SOURCE_EXTERNAL | REG_LOSCCTRL_MAGIC);
+488         tmp_data |= (EXT_LOSC_GSM);
+489         sunxi_rtc_write(tmp_data, SUNXI_LOSC_CTRL_REG);
+490
+
+EXT_LOSC_GSM has values 4 values from low to high, and I guess it configures
+gain for the oscillator's amplifier in the feedback loop of the circuit.
+
+So the new code, for some reason changed from single write to sequence
+of individual writes/config steps:
+
+1) disable auto-switch and enable auto-switch bypass
+2) select RTC clock source (to LOSC)
+  (wait)
+3) configure gain on the LOSC
+
 regards,
-	Ondrej
+	o.
 
 > ChenYu
