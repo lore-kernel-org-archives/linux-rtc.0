@@ -2,58 +2,83 @@ Return-Path: <SRS0=PkG4=WB=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94BEAC32751
-	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 13:16:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F07EAC0650F
+	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 13:17:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7123720679
-	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 13:16:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C66C82075B
+	for <linux-rtc@archiver.kernel.org>; Mon,  5 Aug 2019 13:17:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbfHENQZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 5 Aug 2019 09:16:25 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:52835 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729582AbfHENQZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Aug 2019 09:16:25 -0400
+        id S1728837AbfHENRV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 5 Aug 2019 09:17:21 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:59145 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728854AbfHENFa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 5 Aug 2019 09:05:30 -0400
 X-Originating-IP: 82.246.155.60
 Received: from localhost (hy283-1-82-246-155-60.fbx.proxad.net [82.246.155.60])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id C99B71C000B;
-        Mon,  5 Aug 2019 13:16:21 +0000 (UTC)
-Date:   Mon, 5 Aug 2019 15:16:20 +0200
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 064A3FF80C;
+        Mon,  5 Aug 2019 13:05:27 +0000 (UTC)
+Date:   Mon, 5 Aug 2019 15:05:26 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     marcus.wolf@wolf-entwicklungen.de
 Cc:     a.zummo@towertech.it, havasi@efr.de, linux-rtc@vger.kernel.org,
         b.spranger@linutronix.de
 Subject: Re: RTC Epson Toyocom RX-8025T
-Message-ID: <20190805131620.GE3600@piout.net>
+Message-ID: <20190805130526.GD3600@piout.net>
 References: <20190727084806.7DF892CE0139@dd39320.kasserver.com>
- <20190805130526.GD3600@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190805130526.GD3600@piout.net>
+In-Reply-To: <20190727084806.7DF892CE0139@dd39320.kasserver.com>
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 05/08/2019 15:05:29+0200, Alexandre Belloni wrote:
-> > Would you like me to propose you the support for the RX-8025T as a separate
-> > implementation - aka new driver?
+Hi,
+
+On 27/07/2019 10:48:06+0200, marcus.wolf@wolf-entwicklungen.de wrote:
+> Hello Alessandro, hello Alexandre,
 > 
-> I think that what you have is actually a RX-8801SA. Can you check that the
-> register layout is the same? The datasheet is available here:
+> in a product of a customer of mine, the RX-8025T real time clock from Epson
+> Toyocom is used.
 > 
-> https://support.epson.biz/td/api/doc_check.php?dl=app_RX-8801SA&lang=en
+> My customer would like me to integrate the driver for this clock to mainline of
+> the kernel.
+> 
+> At the moment, we have a seperate implementation, basing on the implemenattion
+> of the existing RX-8025 driver.
+> 
+> Although the rtc of my customer has almost the same "name" as the one, the
+> current driver is available for (just last letter differs), it works quite
+> different. So for example I compared the registerset of the two clocks.Only 5
+> of 16 registers are identical, 3 are very similar, but the other 8 are
+> completely different. Also the functionality is quite different. Of course
+> first of all, both are clocks, but all aditional features are not identical.
+> The already supported SA type has two alarms - a day and a week alarm. The tyoe
+> of my customer (t) just has one alarm, that can be switched to day and to week
+> mode. In adition it has a timer and an 8bit RAM cell. In addition the protocol
+> how to adress the registers on I2C is different....
+> 
+> Would you like me to propose you the support for the RX-8025T as a separate
+> implementation - aka new driver?
+
+I think that what you have is actually a RX-8801SA. Can you check that the
+register layout is the same? The datasheet is available here:
+
+https://support.epson.biz/td/api/doc_check.php?dl=app_RX-8801SA&lang=en
+
+> On which base you'd like to see the patches? Head of mainline, last stable
+> (5.2.2), or ....?
 > 
 
-To elaborate, if this is the case, then the rv8803 should already work
-properly.
+v5.3-rc1 or rtc-next.
 
 
 -- 
