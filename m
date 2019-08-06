@@ -2,121 +2,120 @@ Return-Path: <SRS0=HeS7=WC=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE6F9C31E40
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 12:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACADBC41517
+	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:29:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB7BE2086D
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 12:21:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 80F2120C01
+	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:29:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="T0iVRuoT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726373AbfHFMVq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 6 Aug 2019 08:21:46 -0400
-Received: from dd39320.kasserver.com ([85.13.155.146]:37600 "EHLO
-        dd39320.kasserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726036AbfHFMVq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Aug 2019 08:21:46 -0400
-Received: from [192.168.1.21] (24-194-52-37.pool.ukrtel.net [37.52.194.24])
-        by dd39320.kasserver.com (Postfix) with ESMTPSA id A94522CE0063;
-        Tue,  6 Aug 2019 14:21:42 +0200 (CEST)
-Subject: Re: RTC Epson Toyocom RX-8025T
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     a.zummo@towertech.it, havasi@efr.de, linux-rtc@vger.kernel.org,
-        b.spranger@linutronix.de
-References: <20190727084806.7DF892CE0139@dd39320.kasserver.com>
- <20190805130526.GD3600@piout.net> <20190805131620.GE3600@piout.net>
-From:   Marcus Wolf <marcus.wolf@wolf-entwicklungen.de>
-Openpgp: preference=signencrypt
-Autocrypt: addr=marcus.wolf@wolf-entwicklungen.de; prefer-encrypt=mutual;
- keydata=
- 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
- X9MwmTFmYMb+4DWWcezkHhAUPK4=
-Message-ID: <46deaf8f-bca6-872a-2a97-c93310aa6509@wolf-entwicklungen.de>
-Date:   Tue, 6 Aug 2019 14:21:41 +0200
-User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20190805131620.GE3600@piout.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+        id S2387914AbfHFQ3D (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 6 Aug 2019 12:29:03 -0400
+Received: from mout.gmx.net ([212.227.17.22]:42383 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387893AbfHFQ3B (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 6 Aug 2019 12:29:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1565108892;
+        bh=3PISsFhP2p4tj5ULA7y6xFGMEsiPJROECIygBRA4/zw=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=T0iVRuoT39ebTrgaB4OPmg8iKCMVi7occ3T/FDP4lznR919TIUhhex3qNkfFO/XJD
+         JB6x5QXGcc2Z6dMM/2LvbOOXTTMb4Cf/Dt0uU3pTZBAWBzxa2c+kwIn/aHF02ERY+i
+         RXrbehwbzB2PTGqqOMRELCEwuNmrVkUTeHdIiz1s=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from localhost.localdomain ([217.61.153.94]) by mail.gmx.com
+ (mrgmx103 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 0M1nOg-1iAuD01Mxm-00tlSl; Tue, 06 Aug 2019 18:28:12 +0200
+From:   Frank Wunderlich <frank-w@public-files.de>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Allison Randal <allison@lohutok.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        devicetree@vger.kernel.org, Eddie Huang <eddie.huang@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Richard Fontana <rfontana@redhat.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Tianping . Fang" <tianping.fang@mediatek.com>
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v4 06/10] rtc: mt6397: add compatible for mt6323
+Date:   Tue,  6 Aug 2019 18:27:41 +0200
+Message-Id: <20190806162745.8414-7-frank-w@public-files.de>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190806162745.8414-1-frank-w@public-files.de>
+References: <20190806162745.8414-1-frank-w@public-files.de>
+X-Provags-ID: V03:K1:DIhRHK2hht0aS3gGjUBdMit/fe5lr9+ny2VtU0f6VLpF4RgJt8C
+ Ny5zDjYzK3kf7a1hq2zGlC6rBLjIORmId4UnzIKKaj3aDh+S033M7zD5wxBBv7c9usz0me8
+ lAPNLVND/HByjaQNmrq7dlxPC/nk3seTF7rC6T4zZWTZoX3Myf0SkR6QS/2uCrRC8FqNBIj
+ RpFLUf40mm8Ixb9lHkRaA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:E2LKdkfghHA=:FNem/ARHXV0uE2yKyiYHq5
+ gY2PBWiTOl70HXT2nYwno+ily3sUA4zF6RH2X6jPdcezoNtDW0fpVgTll1zlwPeq6Tw2ub8Rh
+ 2DLriMUfIv4XlI/ncDzyEsiBAjtRLwzGfzPsHMwUj/Wl9ZfBUgZHNcwMGRrKMWpEBZDMQe3MA
+ 40RANSqPGoLq8gRDOILBjzXQ/2BuDR9gCOEuupkUc2lXuDRHXHbD4ThS6RYnu5Z0cn+Gi1KFD
+ LYMHR+GzdSqPtFAy+XhcGSA/I5KpbH6J8GLn/LOJNfWQz9SyQDrY5PmNbYwWthglBYrE9hiBM
+ 2dyibsQZIos8kXbtwoYjpC6xQ6zuaoOc+LNJtSELPkyn0a6YoHAvapE+enMJ13xzXqFry9Sm+
+ jaIWjOOJwJX5oBn9vmD8xD16S9Vdpo5TF1uWeDcgLFnF5nqrqPKksW/Br+h6/AC/8T3k7LwnV
+ DPspmn7LgPYxWTYu5gm7BGQcz2xh0/CIi0I9rRMC/QwJUBsPv1NOpINrzBQ5cscHM1/JeX4yg
+ UddkmfaCEOZK5J64UCYbahuJVmvyr0GJL9eYhVMaYgH6U8sBnr2ffYzBRLTTafV5mBqhO3dy+
+ Bx2Rs8b3QG44khaV9pZ7wcGjl7cGKUHzsS/3tF6MD54cRvPBGrlzTPMOG/L7QsoVqhJwJjxyK
+ 1bcmddHtIQEVPdd0UbPJz7Rb9dQqwd509SQEE9EHOob1v4Lc75sXYIF5Dy+s+7PTvEg9ExrTU
+ oUknbl01i9Ro0FT+8HcYIWXwFBfOPRxq+TPqkl7RE+dKTAkYt9J2dqt4Ti3jTxyspfevS2dVi
+ wAVKFf+bEijKxm4qvqTNLNz6iZUYVETBgVCFh1pry7t7Xl4t+muKh+YdDmFBEKUJB5QzVN9nL
+ 2KXBIRoKtZONJ5pFopJyRjfPjLnrqICzU5ZD2Th8JDqeVjJOWddlHsNtYyT2jbr6sGshe/Ak/
+ fnRiizWw3kUvQ6xUX/Mit6facC85cft/l/ziBX6Ozlhz9dND526CTsRN4Ym56T5SAjC7O9/LM
+ zqpKrMeRZNwABkCelzWUxfKrTOI/7YumvfaTL55UMibw9pwOMmkMo7HI24Mxb5UJZHgVCCFn4
+ JukOcDmXXHQvKfHc4/TxuTbdyIKcKMo8Xcg/uHjyZE9VlfLbTbE66IFDw==
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Alexandre,
+From: Josef Friedl <josef.friedl@speed.at>
 
-yes, it looks like the programming interface of the 8801SA is identical
-to the interface 8025T.
+use mt6397 rtc driver also for mt6323 but with different
+base/size see "mfd: mt6323: add mt6323 rtc+pwrc"
 
-I will compile a kernel version with the rv8003 and check, if it works
-next week. If it will, for sure we do not need a new driver.
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+=2D--
+changes since v3: moved (was part 5)
+changes since v2: splitted this from v2.3 suggested-by Alexandre Belloni
 
-Keep you tuned.
+ drivers/rtc/rtc-mt6397.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Marcus
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 9370b7fc9f81..21cd9cc8b4c7 100644
+=2D-- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -325,6 +325,7 @@ static SIMPLE_DEV_PM_OPS(mt6397_pm_ops, mt6397_rtc_sus=
+pend,
+ 			mt6397_rtc_resume);
 
-Am 05.08.2019 um 15:16 schrieb Alexandre Belloni:
-> On 05/08/2019 15:05:29+0200, Alexandre Belloni wrote:
->>> Would you like me to propose you the support for the RX-8025T as a separate
->>> implementation - aka new driver?
->>
->> I think that what you have is actually a RX-8801SA. Can you check that the
->> register layout is the same? The datasheet is available here:
->>
->> https://support.epson.biz/td/api/doc_check.php?dl=app_RX-8801SA&lang=en
->>
-> 
-> To elaborate, if this is the case, then the rv8803 should already work
-> properly.
-> 
-> 
+ static const struct of_device_id mt6397_rtc_of_match[] =3D {
++	{ .compatible =3D "mediatek,mt6323-rtc", },
+ 	{ .compatible =3D "mediatek,mt6397-rtc", },
+ 	{ }
+ };
+=2D-
+2.17.1
 
--- 
-Marcus Wolf
-
-Wolf-Entwicklungen
-Helene-Lange-Weg 23
-80637 München
