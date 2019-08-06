@@ -2,36 +2,33 @@ Return-Path: <SRS0=HeS7=WC=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84C1BC433FF
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:29:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E493CC31E40
+	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:39:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 54783217D9
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:29:44 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="baKyKelj"
+	by mail.kernel.org (Postfix) with ESMTP id C4087208C3
+	for <linux-rtc@archiver.kernel.org>; Tue,  6 Aug 2019 16:39:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388056AbfHFQ3n (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 6 Aug 2019 12:29:43 -0400
-Received: from mout.gmx.net ([212.227.17.21]:53185 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387912AbfHFQ3C (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 6 Aug 2019 12:29:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1565108886;
-        bh=VLX9HTUE+wmslMOMb17Tzc973mqiJr+Dnn3HZbMgnn0=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=baKyKeljVeqoNyXI4cQXWi5NcbcAkx3TMg8CMSG1yOf6cTcuEoXalPAE0HoK0zvDy
-         WsZ50oHWZ6u4YRHmZCmqc9hlRvbNtd19Kz41VKhvXSFPPIrtQJ79DsdiwLetjzv+WZ
-         67NnIQOm+A17LNiUKgFzbZhtnaIfh00sP4aBLunM=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost.localdomain ([217.61.153.94]) by mail.gmx.com
- (mrgmx103 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0M6ioC-1iI5TO0Gpw-00wWc1; Tue, 06 Aug 2019 18:28:06 +0200
+        id S2387897AbfHFQjF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 6 Aug 2019 12:39:05 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.220]:38588 "EHLO
+        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732743AbfHFQjE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Aug 2019 12:39:04 -0400
+X-Greylist: delayed 505 seconds by postgrey-1.27 at vger.kernel.org; Tue, 06 Aug 2019 12:39:03 EDT
+Received: from mxout1.routing.net (unknown [192.168.10.81])
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id E164A96CDE;
+        Tue,  6 Aug 2019 16:30:38 +0000 (UTC)
+Received: from mxbox1.masterlogin.de (unknown [192.168.10.253])
+        by mxout1.routing.net (Postfix) with ESMTP id 1E41143C54;
+        Tue,  6 Aug 2019 16:30:39 +0000 (UTC)
+Received: from localhost.localdomain (fttx-pool-217.61.153.94.bambit.de [217.61.153.94])
+        by mxbox1.masterlogin.de (Postfix) with ESMTPSA id DF773403C7;
+        Tue,  6 Aug 2019 18:30:37 +0200 (CEST)
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -56,34 +53,12 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         "Tianping . Fang" <tianping.fang@mediatek.com>
 Cc:     Josef Friedl <josef.friedl@speed.at>,
         Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH v4 02/10] dt-bindings: add missing mt6397 rtc
-Date:   Tue,  6 Aug 2019 18:27:37 +0200
-Message-Id: <20190806162745.8414-3-frank-w@public-files.de>
+Subject: [PATCH v4 10/10] arm: dts: mt6323: add keys, power-controller, rtc and codec
+Date:   Tue,  6 Aug 2019 18:30:26 +0200
+Message-Id: <20190806163026.8530-2-frank-w@public-files.de>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190806162745.8414-1-frank-w@public-files.de>
-References: <20190806162745.8414-1-frank-w@public-files.de>
-X-Provags-ID: V03:K1:D9CrS8W2Jt6EUrtYbAmTXR2EPFc9FV/KlELr/U3yFcQs96LMz2L
- 7wbIt7yjgZqE4q03I87LOvJLuxjjYHUx80fkTLla6PNa0RXVJyJCyvugHqnFm/NgggSb2Wv
- ckPxkPl9ss+Fpsqi4Nk7FYjeVqc5v/U0coLTIpl8FCvZWi4n+ZmhE9mQhVlviKt3S9tCyZV
- uYdR0WKJK8A4i+EhOM/Cg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:odKRs4cm06A=:4nolkJEMYxs1kTVI3ZyguN
- oBKZp+Kyium1XB72WISTc1o62MGS6+qLQhpeg/w0VTuWJbzyKtn6IqMaA2lQyZEDPBJSlRgjJ
- ZEn6vOQUH6ZFspPwXlsSJo/QMq7iXlgmz0M2s6y4NUsmPTstIukWJx8RFbJAOxbWVWM5OMyEH
- qCR+QcDVDeZBWJvJ4xXTD6dx0vOLNS0mq/wwamKnhPPOpEKZTGYVeQ9LpHQ0y4pH9UXpt9gbN
- nupqDjZRqxXSsOr/FiVGalcNVnQvWN34H9JeceERHzEfqhYuqHMXvMnZyWptIWEro093u9DBv
- 8a0PMCGVLWwwkGRzei/OfbeePTI9QnsuaIV3TRt3w+uj3GbYM3lmgQO7aMF4AvIJcULEwbiCD
- L50WhUvfdUEP/l7vHv8QawaTr6BVd5DiX6m5cwrKvossu/OfDnYlDvvjd8b42MACzxGLaxu6D
- ywl3+Hftge1v10vFfnafXQ7U9gG4mdBAJN51xPXQUCDQsOY1v+HKF+mMsFQhnnTncNsr1uNfr
- jhO7rqym3pY/TnGdxsTU4daaiArm9v7jH6riZVbwm0XIO+93iG67yfyHOL2M8mNhKb+otQ+JD
- gO1WkKDpD2dPCNaFQH8f+P+TGkGT1G4GJwVspD702YHCQ8GYT/J8QD8PoPKAc0t5wh/U1mT7+
- 9+6R8zopzJAxccpdJBTzMV+AfRiqC4aCjVoPNlGjqvBUDfNzNU4KC5Saj3dxgnb9my58uBU0Z
- 7BUWoscMfQ53AhrPLmKCBzH5Pj4dAnNsdN8iixZkUP33BSe7p3k45ZJuSWHnmprJY6AUZ0gxi
- 2bWjhI9i856I4kYfnhJ6CwO67o9iWV3CPwbEir+wG+55ECNowJb4+8B0cqr81PlS/h+muwqgv
- T33f3d0+SPFEFfQ5fwlZSn++ToK+ijTgdcfKBC1dhzSQ6hLhZsHXLL3FZy52G4t1WT1rv7hHy
- s69kDK+npcHt+QKts32wYVM7nOSWkbQV4BqDEzx42tMwd2fgwl2/baE7YWffqDZrGwrWbzPF9
- Qhzc6shkpkWJLkE+jLFRz7qgeAdz0EcI6jDHnw75qK0tQNfz/q6dlBL1lJh9pi2hAI8Eg7PJy
- r0sww1CjlcMBtvrfkzi3YlZyg8GqYc4P28vxVllKxXzgmt88up8bNPa8w==
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190806163026.8530-1-frank-w@public-files.de>
+References: <20190806163026.8530-1-frank-w@public-files.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -91,58 +66,55 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Josef Friedl <josef.friedl@speed.at>
 
-add missing devicetree-binding document for mt6397 rtc
-in later patch driver is extended with mt6323 chip
+support poweroff and power-related keys on bpi-r2
 
-Suggested-By: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Suggested-by: Frank Wunderlich <frank-w@public-files.de>
 Signed-off-by: Josef Friedl <josef.friedl@speed.at>
 Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-=2D--
-changes since v3: moved SOB
-changes since v2: splitted rtc-mt6397.txt from first patch
+---
+changes since v3: none
+changes since v2: none (=v2 part 7)
 
- .../devicetree/bindings/rtc/rtc-mt6397.txt    | 29 +++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+ arch/arm/boot/dts/mt6323.dtsi | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Docume=
-ntation/devicetree/bindings/rtc/rtc-mt6397.txt
-new file mode 100644
-index 000000000000..ebd1cf80dcc8
-=2D-- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-@@ -0,0 +1,29 @@
-+Device-Tree bindings for MediaTek PMIC based RTC
+diff --git a/arch/arm/boot/dts/mt6323.dtsi b/arch/arm/boot/dts/mt6323.dtsi
+index ba397407c1dd..7fda40ab5fe8 100644
+--- a/arch/arm/boot/dts/mt6323.dtsi
++++ b/arch/arm/boot/dts/mt6323.dtsi
+@@ -238,5 +238,32 @@
+ 				regulator-enable-ramp-delay = <216>;
+ 			};
+ 		};
 +
-+MediaTek PMIC based RTC is an independent function of MediaTek PMIC that =
-works
-+as a type of multi-function device (MFD). The RTC can be configured and s=
-et up
-+with PMIC wrapper bus which is a common resource shared with the other
-+functions found on the same PMIC.
++		mt6323keys: mt6323keys {
++			compatible = "mediatek,mt6323-keys";
++			mediatek,long-press-mode = <1>;
++			power-off-time-sec = <0>;
 +
-+For MediaTek PMIC MFD bindings, see:
-+Documentation/devicetree/bindings/mfd/mt6397.txt
++			power {
++				linux,keycodes = <116>;
++				wakeup-source;
++			};
 +
-+For MediaTek PMIC wrapper bus bindings, see:
-+Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
++			home {
++				linux,keycodes = <114>;
++			};
++		};
 +
-+Required properties:
-+- compatible: Should be one of follows
-+       "mediatek,mt6323-rtc": for MT6323 PMIC
-+       "mediatek,mt6397-rtc": for MT6397 PMIC
++		codec: mt6397codec {
++			compatible = "mediatek,mt6397-codec";
++		};
 +
-+Example:
++		power-controller {
++			compatible = "mediatek,mt6323-pwrc";
++		};
 +
-+       pmic {
-+               compatible =3D "mediatek,mt6323";
-+
-+               ...
-+
-+               rtc {
-+                       compatible =3D "mediatek,mt6323-rtc";
-+               };
-+       };
-=2D-
++		rtc {
++			compatible = "mediatek,mt6323-rtc";
++		};
+ 	};
+ };
+-- 
 2.17.1
 
