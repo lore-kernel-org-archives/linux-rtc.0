@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D49E6C31E40
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BFD2C32757
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB9F7208C3
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CB9C208C3
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406259AbfHIKdf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 9 Aug 2019 06:33:35 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41698 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2405948AbfHIKcr (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S2406419AbfHIKcr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Fri, 9 Aug 2019 06:32:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41634 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2405760AbfHIKcq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 9 Aug 2019 06:32:46 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id E925AAFFB;
-        Fri,  9 Aug 2019 10:32:44 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id C025FAEF5;
+        Fri,  9 Aug 2019 10:32:43 +0000 (UTC)
 From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
 To:     Ralf Baechle <ralf@linux-mips.org>,
         Paul Burton <paul.burton@mips.com>,
@@ -39,9 +39,9 @@ To:     Ralf Baechle <ralf@linux-mips.org>,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-serial@vger.kernel.org
-Subject: [PATCH v4 4/9] MIPS: PCI: refactor ioc3 special handling
-Date:   Fri,  9 Aug 2019 12:32:26 +0200
-Message-Id: <20190809103235.16338-5-tbogendoerfer@suse.de>
+Subject: [PATCH v4 2/9] w1: add DS2501, DS2502, DS2505 EPROM device driver
+Date:   Fri,  9 Aug 2019 12:32:24 +0200
+Message-Id: <20190809103235.16338-3-tbogendoerfer@suse.de>
 X-Mailer: git-send-email 2.13.7
 In-Reply-To: <20190809103235.16338-1-tbogendoerfer@suse.de>
 References: <20190809103235.16338-1-tbogendoerfer@suse.de>
@@ -50,278 +50,346 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Refactored code to only have one ioc3 special handling for read
-access and one for write access.
+Add a 1-Wire slave driver to support DS250x EPROM deivces. This
+slave driver attaches the devices to the NVMEM subsystem for
+an easy in-kernel usage.
 
 Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 ---
- arch/mips/pci/pci-xtalk-bridge.c | 167 +++++++++++++++------------------------
- 1 file changed, 62 insertions(+), 105 deletions(-)
+ drivers/w1/slaves/Kconfig     |   6 +
+ drivers/w1/slaves/Makefile    |   1 +
+ drivers/w1/slaves/w1_ds250x.c | 293 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 300 insertions(+)
+ create mode 100644 drivers/w1/slaves/w1_ds250x.c
 
-diff --git a/arch/mips/pci/pci-xtalk-bridge.c b/arch/mips/pci/pci-xtalk-bridge.c
-index bcf7f559789a..7b4d40354ee7 100644
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -20,16 +20,50 @@
-  * Most of the IOC3 PCI config register aren't present
-  * we emulate what is needed for a normal PCI enumeration
-  */
--static u32 emulate_ioc3_cfg(int where, int size)
-+static int ioc3_cfg_rd(void *addr, int where, int size, u32 *value)
- {
--	if (size == 1 && where == 0x3d)
--		return 0x01;
--	else if (size == 2 && where == 0x3c)
--		return 0x0100;
--	else if (size == 4 && where == 0x3c)
--		return 0x00000100;
-+	u32 cf, shift, mask;
+diff --git a/drivers/w1/slaves/Kconfig b/drivers/w1/slaves/Kconfig
+index 37aaad26b373..ebed495b9e69 100644
+--- a/drivers/w1/slaves/Kconfig
++++ b/drivers/w1/slaves/Kconfig
+@@ -101,6 +101,12 @@ config W1_SLAVE_DS2438
+ 	  Say Y here if you want to use a 1-wire
+ 	  DS2438 Smart Battery Monitor device support
  
--	return 0;
-+	switch (where & ~3) {
-+	case 0x00 ... 0x10:
-+	case 0x40 ... 0x44:
-+		if (get_dbe(cf, (u32 *)addr))
-+			return PCIBIOS_DEVICE_NOT_FOUND;
-+		break;
-+	case 0x3c:
-+		/* emulate sane interrupt pin value */
-+		cf = 0x00000100;
-+		break;
-+	default:
-+		cf = 0;
-+		break;
-+	}
-+	shift = (where & 3) << 3;
-+	mask = 0xffffffffU >> ((4 - size) << 3);
-+	*value = (cf >> shift) & mask;
++config W1_SLAVE_DS250X
++	tristate "512b/1kb/16kb EPROM family support"
++	help
++	  Say Y here if you want to use a 1-wire
++	  512b/1kb/16kb EPROM family device (DS250x).
 +
-+	return PCIBIOS_SUCCESSFUL;
+ config W1_SLAVE_DS2780
+ 	tristate "Dallas 2780 battery monitor chip"
+ 	help
+diff --git a/drivers/w1/slaves/Makefile b/drivers/w1/slaves/Makefile
+index eab29f151413..8e9655eaa478 100644
+--- a/drivers/w1/slaves/Makefile
++++ b/drivers/w1/slaves/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_W1_SLAVE_DS2431)	+= w1_ds2431.o
+ obj-$(CONFIG_W1_SLAVE_DS2805)	+= w1_ds2805.o
+ obj-$(CONFIG_W1_SLAVE_DS2433)	+= w1_ds2433.o
+ obj-$(CONFIG_W1_SLAVE_DS2438)	+= w1_ds2438.o
++obj-$(CONFIG_W1_SLAVE_DS250X)	+= w1_ds250x.o
+ obj-$(CONFIG_W1_SLAVE_DS2780)	+= w1_ds2780.o
+ obj-$(CONFIG_W1_SLAVE_DS2781)	+= w1_ds2781.o
+ obj-$(CONFIG_W1_SLAVE_DS28E04)	+= w1_ds28e04.o
+diff --git a/drivers/w1/slaves/w1_ds250x.c b/drivers/w1/slaves/w1_ds250x.c
+new file mode 100644
+index 000000000000..78da3774bbbe
+--- /dev/null
++++ b/drivers/w1/slaves/w1_ds250x.c
+@@ -0,0 +1,293 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * w1_ds250x.c - w1 family 09/0b/89/91 (DS250x) driver
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/device.h>
++#include <linux/types.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
++#include <linux/crc16.h>
++
++#include <linux/w1.h>
++#include <linux/nvmem-provider.h>
++
++#define W1_DS2501_UNW_FAMILY    0x91
++#define W1_DS2501_SIZE          64
++
++#define W1_DS2502_FAMILY        0x09
++#define W1_DS2502_UNW_FAMILY    0x89
++#define W1_DS2502_SIZE          128
++
++#define W1_DS2505_FAMILY	0x0b
++#define W1_DS2505_SIZE		2048
++
++#define W1_PAGE_SIZE		32
++
++#define W1_EXT_READ_MEMORY	0xA5
++#define W1_READ_DATA_CRC        0xC3
++
++#define OFF2PG(off)	((off) / W1_PAGE_SIZE)
++
++#define CRC16_INIT		0
++#define CRC16_VALID		0xb001
++
++struct w1_eprom_data {
++	size_t size;
++	int (*read)(struct w1_slave *sl, int pageno);
++	u8 eprom[W1_DS2505_SIZE];
++	DECLARE_BITMAP(page_present, W1_DS2505_SIZE / W1_PAGE_SIZE);
++	char nvmem_name[64];
++};
++
++static int w1_ds2502_read_page(struct w1_slave *sl, int pageno)
++{
++	struct w1_eprom_data *data = sl->family_data;
++	int pgoff = pageno * W1_PAGE_SIZE;
++	int ret = -EIO;
++	u8 buf[3];
++	u8 crc8;
++
++	if (test_bit(pageno, data->page_present))
++		return 0; /* page already present */
++
++	mutex_lock(&sl->master->bus_mutex);
++
++	if (w1_reset_select_slave(sl))
++		goto err;
++
++	buf[0] = W1_READ_DATA_CRC;
++	buf[1] = pgoff & 0xff;
++	buf[2] = pgoff >> 8;
++	w1_write_block(sl->master, buf, 3);
++
++	crc8 = w1_read_8(sl->master);
++	if (w1_calc_crc8(buf, 3) != crc8)
++		goto err;
++
++	w1_read_block(sl->master, &data->eprom[pgoff], W1_PAGE_SIZE);
++
++	crc8 = w1_read_8(sl->master);
++	if (w1_calc_crc8(&data->eprom[pgoff], W1_PAGE_SIZE) != crc8)
++		goto err;
++
++	set_bit(pageno, data->page_present); /* mark page present */
++	ret = 0;
++err:
++	mutex_unlock(&sl->master->bus_mutex);
++	return ret;
 +}
 +
-+static int ioc3_cfg_wr(void *addr, int where, int size, u32 value)
++static int w1_ds2505_read_page(struct w1_slave *sl, int pageno)
 +{
-+	u32 cf, shift, mask, smask;
++	struct w1_eprom_data *data = sl->family_data;
++	int redir_retries = 16;
++	int pgoff, epoff;
++	int ret = -EIO;
++	u8 buf[6];
++	u8 redir;
++	u16 crc;
 +
-+	if ((where >= 0x14 && where < 0x40) || (where >= 0x48))
-+		return PCIBIOS_SUCCESSFUL;
++	if (test_bit(pageno, data->page_present))
++		return 0; /* page already present */
 +
-+	if (get_dbe(cf, (u32 *)addr))
-+		return PCIBIOS_DEVICE_NOT_FOUND;
++	epoff = pgoff = pageno * W1_PAGE_SIZE;
++	mutex_lock(&sl->master->bus_mutex);
 +
-+	shift = ((where & 3) << 3);
-+	mask = (0xffffffffU >> ((4 - size) << 3));
-+	smask = mask << shift;
++retry:
++	if (w1_reset_select_slave(sl))
++		goto err;
 +
-+	cf = (cf & ~smask) | ((value & mask) << shift);
-+	if (put_dbe(cf, (u32 *)addr))
-+		return PCIBIOS_DEVICE_NOT_FOUND;
++	buf[0] = W1_EXT_READ_MEMORY;
++	buf[1] = pgoff & 0xff;
++	buf[2] = pgoff >> 8;
++	w1_write_block(sl->master, buf, 3);
++	w1_read_block(sl->master, buf + 3, 3); /* redir, crc16 */
++	redir = buf[3];
++	crc = crc16(CRC16_INIT, buf, 6);
 +
-+	return PCIBIOS_SUCCESSFUL;
- }
- 
- static void bridge_disable_swapping(struct pci_dev *dev)
-@@ -64,7 +98,7 @@ static int pci_conf0_read_config(struct pci_bus *bus, unsigned int devfn,
- 	int slot = PCI_SLOT(devfn);
- 	int fn = PCI_FUNC(devfn);
- 	void *addr;
--	u32 cf, shift, mask;
-+	u32 cf;
- 	int res;
- 
- 	addr = &bridge->b_type0_cfg_dev[slot].f[fn].c[PCI_VENDOR_ID];
-@@ -75,8 +109,10 @@ static int pci_conf0_read_config(struct pci_bus *bus, unsigned int devfn,
- 	 * IOC3 is broken beyond belief ...  Don't even give the
- 	 * generic PCI code a chance to look at it for real ...
- 	 */
--	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16)))
--		goto is_ioc3;
-+	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16))) {
-+		addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
-+		return ioc3_cfg_rd(addr, where, size, value);
++	if (crc != CRC16_VALID)
++		goto err;
++
++
++	if (redir != 0xff) {
++		redir_retries--;
++		if (redir_retries < 0)
++			goto err;
++
++		pgoff = (redir ^ 0xff) * W1_PAGE_SIZE;
++		goto retry;
 +	}
- 
- 	addr = &bridge->b_type0_cfg_dev[slot].f[fn].c[where ^ (4 - size)];
- 
-@@ -88,26 +124,6 @@ static int pci_conf0_read_config(struct pci_bus *bus, unsigned int devfn,
- 		res = get_dbe(*value, (u32 *)addr);
- 
- 	return res ? PCIBIOS_DEVICE_NOT_FOUND : PCIBIOS_SUCCESSFUL;
--
--is_ioc3:
--
--	/*
--	 * IOC3 special handling
--	 */
--	if ((where >= 0x14 && where < 0x40) || (where >= 0x48)) {
--		*value = emulate_ioc3_cfg(where, size);
--		return PCIBIOS_SUCCESSFUL;
--	}
--
--	addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
--	if (get_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	shift = ((where & 3) << 3);
--	mask = (0xffffffffU >> ((4 - size) << 3));
--	*value = (cf >> shift) & mask;
--
--	return PCIBIOS_SUCCESSFUL;
- }
- 
- static int pci_conf1_read_config(struct pci_bus *bus, unsigned int devfn,
-@@ -119,7 +135,7 @@ static int pci_conf1_read_config(struct pci_bus *bus, unsigned int devfn,
- 	int slot = PCI_SLOT(devfn);
- 	int fn = PCI_FUNC(devfn);
- 	void *addr;
--	u32 cf, shift, mask;
-+	u32 cf;
- 	int res;
- 
- 	bridge_write(bc, b_pci_cfg, (busno << 16) | (slot << 11));
-@@ -131,8 +147,10 @@ static int pci_conf1_read_config(struct pci_bus *bus, unsigned int devfn,
- 	 * IOC3 is broken beyond belief ...  Don't even give the
- 	 * generic PCI code a chance to look at it for real ...
- 	 */
--	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16)))
--		goto is_ioc3;
-+	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16))) {
-+		addr = &bridge->b_type1_cfg.c[(fn << 8) | (where & ~3)];
-+		return ioc3_cfg_rd(addr, where, size, value);
++
++	w1_read_block(sl->master, &data->eprom[epoff], W1_PAGE_SIZE);
++	w1_read_block(sl->master, buf, 2); /* crc16 */
++	crc = crc16(CRC16_INIT, &data->eprom[epoff], W1_PAGE_SIZE);
++	crc = crc16(crc, buf, 2);
++
++	if (crc != CRC16_VALID)
++		goto err;
++
++	set_bit(pageno, data->page_present);
++	ret = 0;
++err:
++	mutex_unlock(&sl->master->bus_mutex);
++	return ret;
++}
++
++static int w1_nvmem_read(void *priv, unsigned int off, void *buf, size_t count)
++{
++	struct w1_slave *sl = priv;
++	struct w1_eprom_data *data = sl->family_data;
++	size_t eprom_size = data->size;
++	int ret;
++	int i;
++
++	if (off > eprom_size)
++		return -EINVAL;
++
++	if ((off + count) > eprom_size)
++		count = eprom_size - off;
++
++	i = OFF2PG(off);
++	do {
++		ret = data->read(sl, i++);
++		if (ret < 0)
++			return ret;
++	} while (i < OFF2PG(off + count));
++
++	memcpy(buf, &data->eprom[off], count);
++	return 0;
++}
++
++static int w1_eprom_add_slave(struct w1_slave *sl)
++{
++	struct w1_eprom_data *data;
++	struct nvmem_device *nvmem;
++	struct nvmem_config nvmem_cfg = {
++		.dev = &sl->dev,
++		.reg_read = w1_nvmem_read,
++		.type = NVMEM_TYPE_OTP,
++		.read_only = true,
++		.word_size = 1,
++		.priv = sl,
++		.id = -1
++	};
++
++	data = devm_kzalloc(&sl->dev, sizeof(struct w1_eprom_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	sl->family_data = data;
++	switch (sl->family->fid) {
++	case W1_DS2501_UNW_FAMILY:
++		data->size = W1_DS2501_SIZE;
++		data->read = w1_ds2502_read_page;
++		break;
++	case W1_DS2502_FAMILY:
++	case W1_DS2502_UNW_FAMILY:
++		data->size = W1_DS2502_SIZE;
++		data->read = w1_ds2502_read_page;
++		break;
++	case W1_DS2505_FAMILY:
++		data->size = W1_DS2505_SIZE;
++		data->read = w1_ds2505_read_page;
++		break;
 +	}
- 
- 	addr = &bridge->b_type1_cfg.c[(fn << 8) | (where ^ (4 - size))];
- 
-@@ -144,26 +162,6 @@ static int pci_conf1_read_config(struct pci_bus *bus, unsigned int devfn,
- 		res = get_dbe(*value, (u32 *)addr);
- 
- 	return res ? PCIBIOS_DEVICE_NOT_FOUND : PCIBIOS_SUCCESSFUL;
--
--is_ioc3:
--
--	/*
--	 * IOC3 special handling
--	 */
--	if ((where >= 0x14 && where < 0x40) || (where >= 0x48)) {
--		*value = emulate_ioc3_cfg(where, size);
--		return PCIBIOS_SUCCESSFUL;
--	}
--
--	addr = &bridge->b_type1_cfg.c[(fn << 8) | where];
--	if (get_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	shift = ((where & 3) << 3);
--	mask = (0xffffffffU >> ((4 - size) << 3));
--	*value = (cf >> shift) & mask;
--
--	return PCIBIOS_SUCCESSFUL;
- }
- 
- static int pci_read_config(struct pci_bus *bus, unsigned int devfn,
-@@ -183,7 +181,7 @@ static int pci_conf0_write_config(struct pci_bus *bus, unsigned int devfn,
- 	int slot = PCI_SLOT(devfn);
- 	int fn = PCI_FUNC(devfn);
- 	void *addr;
--	u32 cf, shift, mask, smask;
-+	u32 cf;
- 	int res;
- 
- 	addr = &bridge->b_type0_cfg_dev[slot].f[fn].c[PCI_VENDOR_ID];
-@@ -194,8 +192,10 @@ static int pci_conf0_write_config(struct pci_bus *bus, unsigned int devfn,
- 	 * IOC3 is broken beyond belief ...  Don't even give the
- 	 * generic PCI code a chance to look at it for real ...
- 	 */
--	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16)))
--		goto is_ioc3;
-+	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16))) {
-+		addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
-+		return ioc3_cfg_wr(addr, where, size, value);
-+	}
- 
- 	addr = &bridge->b_type0_cfg_dev[slot].f[fn].c[where ^ (4 - size)];
- 
-@@ -210,29 +210,6 @@ static int pci_conf0_write_config(struct pci_bus *bus, unsigned int devfn,
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
- 	return PCIBIOS_SUCCESSFUL;
--
--is_ioc3:
--
--	/*
--	 * IOC3 special handling
--	 */
--	if ((where >= 0x14 && where < 0x40) || (where >= 0x48))
--		return PCIBIOS_SUCCESSFUL;
--
--	addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
--
--	if (get_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	shift = ((where & 3) << 3);
--	mask = (0xffffffffU >> ((4 - size) << 3));
--	smask = mask << shift;
--
--	cf = (cf & ~smask) | ((value & mask) << shift);
--	if (put_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	return PCIBIOS_SUCCESSFUL;
- }
- 
- static int pci_conf1_write_config(struct pci_bus *bus, unsigned int devfn,
-@@ -244,7 +221,7 @@ static int pci_conf1_write_config(struct pci_bus *bus, unsigned int devfn,
- 	int fn = PCI_FUNC(devfn);
- 	int busno = bus->number;
- 	void *addr;
--	u32 cf, shift, mask, smask;
-+	u32 cf;
- 	int res;
- 
- 	bridge_write(bc, b_pci_cfg, (busno << 16) | (slot << 11));
-@@ -256,8 +233,10 @@ static int pci_conf1_write_config(struct pci_bus *bus, unsigned int devfn,
- 	 * IOC3 is broken beyond belief ...  Don't even give the
- 	 * generic PCI code a chance to look at it for real ...
- 	 */
--	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16)))
--		goto is_ioc3;
-+	if (cf == (PCI_VENDOR_ID_SGI | (PCI_DEVICE_ID_SGI_IOC3 << 16))) {
-+		addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
-+		return ioc3_cfg_wr(addr, where, size, value);
-+	}
- 
- 	addr = &bridge->b_type1_cfg.c[(fn << 8) | (where ^ (4 - size))];
- 
-@@ -272,28 +251,6 @@ static int pci_conf1_write_config(struct pci_bus *bus, unsigned int devfn,
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 
- 	return PCIBIOS_SUCCESSFUL;
--
--is_ioc3:
--
--	/*
--	 * IOC3 special handling
--	 */
--	if ((where >= 0x14 && where < 0x40) || (where >= 0x48))
--		return PCIBIOS_SUCCESSFUL;
--
--	addr = &bridge->b_type0_cfg_dev[slot].f[fn].l[where >> 2];
--	if (get_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	shift = ((where & 3) << 3);
--	mask = (0xffffffffU >> ((4 - size) << 3));
--	smask = mask << shift;
--
--	cf = (cf & ~smask) | ((value & mask) << shift);
--	if (put_dbe(cf, (u32 *)addr))
--		return PCIBIOS_DEVICE_NOT_FOUND;
--
--	return PCIBIOS_SUCCESSFUL;
- }
- 
- static int pci_write_config(struct pci_bus *bus, unsigned int devfn,
++
++	if (sl->master->bus_master->dev_id)
++		snprintf(data->nvmem_name, sizeof(data->nvmem_name),
++			 "%s-%02x-%012llx",
++			 sl->master->bus_master->dev_id, sl->reg_num.family,
++			 (unsigned long long)sl->reg_num.id);
++	else
++		snprintf(data->nvmem_name, sizeof(data->nvmem_name),
++			 "%02x-%012llx",
++			 sl->reg_num.family,
++			 (unsigned long long)sl->reg_num.id);
++
++	nvmem_cfg.name = data->nvmem_name;
++	nvmem_cfg.size = data->size;
++
++	nvmem = devm_nvmem_register(&sl->dev, &nvmem_cfg);
++	if (IS_ERR(nvmem))
++		return PTR_ERR(nvmem);
++
++	return 0;
++}
++
++static struct w1_family_ops w1_eprom_fops = {
++	.add_slave	= w1_eprom_add_slave,
++};
++
++static struct w1_family w1_family_09 = {
++	.fid = W1_DS2502_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_0b = {
++	.fid = W1_DS2505_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_89 = {
++	.fid = W1_DS2502_UNW_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static struct w1_family w1_family_91 = {
++	.fid = W1_DS2501_UNW_FAMILY,
++	.fops = &w1_eprom_fops,
++};
++
++static int __init w1_ds250x_init(void)
++{
++	int err;
++
++	err = w1_register_family(&w1_family_09);
++	if (err)
++		return err;
++
++	err = w1_register_family(&w1_family_0b);
++	if (err)
++		goto err_0b;
++
++	err = w1_register_family(&w1_family_89);
++	if (err)
++		goto err_89;
++
++	err = w1_register_family(&w1_family_91);
++	if (err)
++		goto err_91;
++
++	return 0;
++
++err_91:
++	w1_unregister_family(&w1_family_89);
++err_89:
++	w1_unregister_family(&w1_family_0b);
++err_0b:
++	w1_unregister_family(&w1_family_09);
++	return err;
++}
++
++static void __exit w1_ds250x_exit(void)
++{
++	w1_unregister_family(&w1_family_09);
++	w1_unregister_family(&w1_family_0b);
++	w1_unregister_family(&w1_family_89);
++	w1_unregister_family(&w1_family_91);
++}
++
++module_init(w1_ds250x_init);
++module_exit(w1_ds250x_exit);
++
++MODULE_AUTHOR("Thomas Bogendoerfer <tbogendoerfe@suse.de>");
++MODULE_DESCRIPTION("w1 family driver for DS250x Add Only Memory");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2502_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2505_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2501_UNW_FAMILY));
++MODULE_ALIAS("w1-family-" __stringify(W1_DS2502_UNW_FAMILY));
 -- 
 2.13.7
 
