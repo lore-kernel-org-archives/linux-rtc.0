@@ -2,139 +2,266 @@ Return-Path: <SRS0=K4kQ=WF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ECDEC433FF
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 09:16:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC38DC433FF
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 52C8F21783
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 09:16:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="QED54Z6S"
+	by mail.kernel.org (Postfix) with ESMTP id 8DC3321743
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Aug 2019 10:33:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406008AbfHIJQ3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 9 Aug 2019 05:16:29 -0400
-Received: from vps.xff.cz ([195.181.215.36]:46522 "EHLO vps.xff.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405641AbfHIJQ3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 9 Aug 2019 05:16:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1565342186; bh=058fnVgEdld0XWcxrIoVMkGIvEFjKF/KELntlth1H7Y=;
-        h=Date:From:To:Cc:Subject:References:X-My-GPG-KeyId:From;
-        b=QED54Z6SSAM6GpHg9GkeBumXygOE+uGYcbOUyEZ9cs3qsVjloPPJcPaoWwHrtpIsq
-         98dW5idtdWYH3HUAO8Xn4vgDBzZhDR7Bv02o8SKJTsAafO6SXIZSriBzJmZV/HcfIQ
-         BZIUIfh4poi+kviXd1y+WPaGI2SqNEYTghwjBE0Q=
-Date:   Fri, 9 Aug 2019 11:16:26 +0200
-From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Chen-Yu Tsai <wens@csie.org>, Mark Rutland <mark.rutland@arm.com>,
+        id S2406357AbfHIKdC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 9 Aug 2019 06:33:02 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41870 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2406477AbfHIKcy (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 9 Aug 2019 06:32:54 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 78980B04F;
+        Fri,  9 Aug 2019 10:32:51 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        devicetree <devicetree@vger.kernel.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [linux-sunxi] [PATCH 0/3] Add basic support for RTC on Allwinner
- H6 SoC
-Message-ID: <20190809091626.6kanjbmvbi4oipco@core.my.home>
-Mail-Followup-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Mark Rutland <mark.rutland@arm.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        devicetree <devicetree@vger.kernel.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-rtc@vger.kernel.org
-References: <20190412120730.473-1-megous@megous.com>
- <CAGb2v66cbpsoHJoiFJkBwhZ5SbO+uO+Kf6gtnA3kPFQZq0329Q@mail.gmail.com>
- <20190806183045.edhm3qzpegscf2z7@core.my.home>
- <20190807105502.GK3600@piout.net>
- <20190808121237.g6twq2nh3sayu3vx@core.my.home>
- <20190808233930.GM3600@piout.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190808233930.GM3600@piout.net>
-X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
- <https://xff.cz/key.txt>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Evgeniy Polyakov <zbr@ioremap.net>, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-serial@vger.kernel.org
+Subject: [PATCH v4 9/9] Input: add IOC3 serio driver
+Date:   Fri,  9 Aug 2019 12:32:31 +0200
+Message-Id: <20190809103235.16338-10-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.13.7
+In-Reply-To: <20190809103235.16338-1-tbogendoerfer@suse.de>
+References: <20190809103235.16338-1-tbogendoerfer@suse.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Aug 09, 2019 at 01:39:30AM +0200, Alexandre Belloni wrote:
-> On 08/08/2019 14:12:37+0200, Ondřej Jirman wrote:
-> > On Wed, Aug 07, 2019 at 12:55:02PM +0200, Alexandre Belloni wrote:
-> > > Hi,
-> > > 
-> > > On 06/08/2019 20:30:45+0200, Ondřej Jirman wrote:
-> > > > Maybe whether XO or DCXO is used also matters if you want to do some fine
-> > > > tunning of DCXO (control register has pletny of options), but that's probably
-> > > > better done in u-boot. And there's still no need to read HOSC source from DT.
-> > > > The driver can just check compatible, and if it is H6 and OSC_CLK_SRC_SEL is 1,
-> > > > it can do it's DCXO tunning, or whatever. But neither OS nor bootloader will
-> > > > be using this info to gate/disable the osciallator.
-> > > > 
-> > > 
-> > > It is actually useful to be able to tweak the crystal tuning at
-> > > runtime to be able to reduce clock drift and compare with a reliable
-> > > source (e.g. NTP).
-> > 
-> > I don't think there's a Linux kernel API that you can use to achieve that, so
-> > that's a rather theoretical concern at the moment.
-> > 
-> 
-> There is /sys/class/rtc/rtcX/offset which is even properly documented.
-> 
-> The reason I asked is that some RTCs have both analog (changing the
-> oscillator capacitance) and digital (changing the RTC counter) so I'm
-> wondering whether this interface should be extended.
+This patch adds a platform driver for supporting keyboard and mouse
+interface of SGI IOC3 chips.
 
-As I wrote below, that can't be achieved by tuning DCXO.
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ drivers/input/serio/Kconfig   |  10 +++
+ drivers/input/serio/Makefile  |   1 +
+ drivers/input/serio/ioc3kbd.c | 163 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
+ create mode 100644 drivers/input/serio/ioc3kbd.c
 
-> > Also there are multiple clocks, that can drive the RTC, and you usually don't
-> > drive it from 24MHz DCXO oscillator. The reason is that you'd have to deal with
-> > the fact that the clock for RTC then becomes 24000000/750 (750 is fixed
-> > divider), which is 32000.
-> > 
-> > So if you want to get 32768Hz for RTC by tuning the DCXO, it would have to have
-> > 24 576 000 Hz. And even if you could achieve that (doubtful), it would throw off
-> > timings in the rest of the system (say UART, USB, CPU, display ctl) in a major way.
-> > 
-> > I guess you can try tuning 24MHz oscillator so that it's closer to the
-> > real-world 24MHz via NTP reference for other reasons. But it would be
-> > complicated, and require precise interaction with other components, like using
-> > HW timers sourced from 24MHz HOSC clock, because you can't use CPU's timers,
-> > because of inaccuracies introduced during DVFS, for example.
-> > 
-> > regards,
-> > 	o.
-> > 
-> > > I'm curious, what kind of options does this RTC have?
-> > > 
-> > > -- 
-> > > Alexandre Belloni, Bootlin
-> > > Embedded Linux and Kernel engineering
-> > > https://bootlin.com
-> > > 
-> > > _______________________________________________
-> > > linux-arm-kernel mailing list
-> > > linux-arm-kernel@lists.infradead.org
-> > > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
-> -- 
-> Alexandre Belloni, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index f3e18f8ef9ca..373a1646019e 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -165,6 +165,16 @@ config SERIO_MACEPS2
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called maceps2.
+ 
++config SERIO_SGI_IOC3
++	tristate "SGI IOC3 PS/2 controller"
++	depends on SGI_MFD_IOC3
++	help
++	  Say Y here if you have an SGI Onyx2, SGI Octane or IOC3 PCI card
++	  and you want to attach and use a keyboard, mouse, or both.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ioc3kbd.
++
+ config SERIO_LIBPS2
+ 	tristate "PS/2 driver library"
+ 	depends on SERIO_I8042 || SERIO_I8042=n
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index 67950a5ccb3f..6d97bad7b844 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -20,6 +20,7 @@ obj-$(CONFIG_HIL_MLC)		+= hp_sdc_mlc.o hil_mlc.o
+ obj-$(CONFIG_SERIO_PCIPS2)	+= pcips2.o
+ obj-$(CONFIG_SERIO_PS2MULT)	+= ps2mult.o
+ obj-$(CONFIG_SERIO_MACEPS2)	+= maceps2.o
++obj-$(CONFIG_SERIO_SGI_IOC3)	+= ioc3kbd.o
+ obj-$(CONFIG_SERIO_LIBPS2)	+= libps2.o
+ obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
+ obj-$(CONFIG_SERIO_AMS_DELTA)	+= ams_delta_serio.o
+diff --git a/drivers/input/serio/ioc3kbd.c b/drivers/input/serio/ioc3kbd.c
+new file mode 100644
+index 000000000000..6840e3c23fed
+--- /dev/null
++++ b/drivers/input/serio/ioc3kbd.c
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * SGI IOC3 PS/2 controller driver for linux
++ *
++ * Copyright (C) 2019 Thomas Bogendoerfer <tbogendoerfer@suse.de>
++ *
++ * Based on code Copyright (C) 2005 Stanislaw Skowronek <skylark@unaligned.org>
++ *               Copyright (C) 2009 Johannes Dickgreber <tanzy@gmx.de>
++ */
++
++#include <linux/delay.h>
++#include <linux/init.h>
++#include <linux/io.h>
++#include <linux/serio.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++
++#include <asm/sn/ioc3.h>
++
++struct ioc3kbd_data {
++	struct ioc3_serioregs __iomem *regs;
++	struct serio *kbd, *aux;
++	int irq;
++};
++
++static int ioc3kbd_write(struct serio *dev, u8 val)
++{
++	struct ioc3kbd_data *d = dev->port_data;
++	unsigned long timeout = 0;
++	u32 mask;
++
++	mask = (dev == d->aux) ? KM_CSR_M_WRT_PEND : KM_CSR_K_WRT_PEND;
++	while ((readl(&d->regs->km_csr) & mask) && (timeout < 1000)) {
++		udelay(100);
++		timeout++;
++	}
++
++	if (timeout >= 1000)
++		return -ETIMEDOUT;
++
++	writel(val, dev == d->aux ? &d->regs->m_wd : &d->regs->k_wd);
++
++	return 0;
++}
++
++static irqreturn_t ioc3kbd_intr(int itq, void *dev_id)
++{
++	struct ioc3kbd_data *d = dev_id;
++	u32 data_k, data_m;
++
++	data_k = readl(&d->regs->k_rd);
++	data_m = readl(&d->regs->m_rd);
++
++	if (data_k & KM_RD_VALID_0)
++		serio_interrupt(d->kbd, (data_k >> KM_RD_DATA_0_SHIFT) & 0xff,
++				0);
++	if (data_k & KM_RD_VALID_1)
++		serio_interrupt(d->kbd, (data_k >> KM_RD_DATA_1_SHIFT) & 0xff,
++				0);
++	if (data_k & KM_RD_VALID_2)
++		serio_interrupt(d->kbd, (data_k >> KM_RD_DATA_2_SHIFT) & 0xff,
++				0);
++	if (data_m & KM_RD_VALID_0)
++		serio_interrupt(d->aux, (data_m >> KM_RD_DATA_0_SHIFT) & 0xff,
++				0);
++	if (data_m & KM_RD_VALID_1)
++		serio_interrupt(d->aux, (data_m >> KM_RD_DATA_1_SHIFT) & 0xff,
++				0);
++	if (data_m & KM_RD_VALID_2)
++		serio_interrupt(d->aux, (data_m >> KM_RD_DATA_2_SHIFT) & 0xff,
++				0);
++
++	return 0;
++}
++
++static int ioc3kbd_probe(struct platform_device *pdev)
++{
++	struct ioc3_serioregs __iomem *regs;
++	struct device *dev = &pdev->dev;
++	struct ioc3kbd_data *d;
++	struct serio *sk, *sa;
++	int irq, ret;
++
++	regs = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(regs))
++		return PTR_ERR(regs);
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return -ENXIO;
++
++	d = devm_kzalloc(&pdev->dev, sizeof(*d), GFP_KERNEL);
++	if (!d)
++		return -ENOMEM;
++
++	sk = kzalloc(sizeof(*sk), GFP_KERNEL);
++	if (!sk)
++		return -ENOMEM;
++
++	sa = kzalloc(sizeof(*sa), GFP_KERNEL);
++	if (!sa) {
++		kfree(sk);
++		return -ENOMEM;
++	}
++
++	sk->id.type = SERIO_8042;
++	sk->write = ioc3kbd_write;
++	snprintf(sk->name, sizeof(sk->name), "IOC3 keyboard %d", pdev->id);
++	snprintf(sk->phys, sizeof(sk->phys), "ioc3/serio%dkbd", pdev->id);
++	sk->port_data = d;
++	sk->dev.parent = &pdev->dev;
++
++	sa->id.type = SERIO_8042;
++	sa->write = ioc3kbd_write;
++	snprintf(sa->name, sizeof(sa->name), "IOC3 auxiliary %d", pdev->id);
++	snprintf(sa->phys, sizeof(sa->phys), "ioc3/serio%daux", pdev->id);
++	sa->port_data = d;
++	sa->dev.parent = dev;
++
++	d->regs = regs;
++	d->kbd = sk;
++	d->aux = sa;
++	d->irq = irq;
++
++	platform_set_drvdata(pdev, d);
++	serio_register_port(d->kbd);
++	serio_register_port(d->aux);
++
++	ret = devm_request_irq(&pdev->dev, irq, ioc3kbd_intr, IRQF_SHARED,
++			       "ioc3-kbd", d);
++	if (ret) {
++		dev_err(&pdev->dev, "could not request IRQ %d\n", irq);
++		serio_unregister_port(d->kbd);
++		serio_unregister_port(d->aux);
++		kfree(sk);
++		kfree(sa);
++		return ret;
++	}
++	return 0;
++}
++
++static int ioc3kbd_remove(struct platform_device *pdev)
++{
++	struct ioc3kbd_data *d = platform_get_drvdata(pdev);
++
++	devm_free_irq(&pdev->dev, d->irq, d);
++	serio_unregister_port(d->kbd);
++	serio_unregister_port(d->aux);
++	return 0;
++}
++
++static struct platform_driver ioc3kbd_driver = {
++	.probe          = ioc3kbd_probe,
++	.remove         = ioc3kbd_remove,
++	.driver = {
++		.name = "ioc3-kbd",
++	},
++};
++module_platform_driver(ioc3kbd_driver);
++
++MODULE_AUTHOR("Thomas Bogendoerfer <tbogendoerfer@suse.de>");
++MODULE_DESCRIPTION("SGI IOC3 serio driver");
++MODULE_LICENSE("GPL");
+-- 
+2.13.7
+
