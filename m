@@ -2,64 +2,33 @@ Return-Path: <SRS0=DqQs=WI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD19C32750
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 11:51:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11A00C31E40
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0C83621744
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 11:51:54 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="nz/9gOYB"
+	by mail.kernel.org (Postfix) with ESMTP id E4BB2216F4
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728229AbfHLLvx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Aug 2019 07:51:53 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:55501 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728180AbfHLLvx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 07:51:53 -0400
-Received: by mail-wm1-f66.google.com with SMTP id f72so11851131wmf.5
-        for <linux-rtc@vger.kernel.org>; Mon, 12 Aug 2019 04:51:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=RBO3DRjOTnD2wLqgKm2sOWPkxUiw82Gd++GtZ0/46Pk=;
-        b=nz/9gOYBm5f41AVteysD7l24n/Fd0CiOd3001w0L8BtaHes0R2oAL3pINo1E67hDqy
-         LYLZYDx2CxxVwMBSRwITxQ7LBANizanIV8XLQDJPMvsJ77m9tES+HS7jSPuaZNNf5zLH
-         nJNC3fbaSgk6TIwPbEkvXAR9YMr4uaJGNyujl8nkgLPC2ajuplKaJMLBVMygaRw4mctr
-         v9K4EXL7KXzp3RsqZvOuNFZZIBgL3EH8ok18K9QCfbZD0XeauBkGNU8sGb/rdBD+mhii
-         VoucQhke9qSJVeBDCh/U7CT6nQl1GGi3bHOV9kBWWjJvjTkOKetcXv8rzrMZAI1jwibq
-         JScg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=RBO3DRjOTnD2wLqgKm2sOWPkxUiw82Gd++GtZ0/46Pk=;
-        b=oWxPKRj4NRs81ZVFwbLzBnog5GjA/ZfbEB5XP+UYdfEPolVGPMcjk3kihUSNzH6/4M
-         EzKd+1z9ugEdM/QBhbXabyA/ZEBq93KupsLSColO3dBiyIx8+fjVaSNNc526mD0YqbDb
-         P3KWOpbC0ebnwl+xomxvXSu225aLM7uG845y4EHodByleaJnxSLqWntEmHBl0Y+ulQ+D
-         ZHVge4qiOZozKySZvhMl2h0GoiZJEiR+OJmyn2Z8BnjCdcUAJegLpQ4y1ja+0KMLNWnY
-         ku8E6WROjgzT4+BRBMDcmG/79Nge41vkFzDpQFAxyK4jFdN0ak2ttf2TMjOb29QErsKK
-         BLZw==
-X-Gm-Message-State: APjAAAWzgnVHneaQV20f/wZkwwscETmJCZxEavoTlh8HGkkU5EaHTKM+
-        THID7B1fE2dt5lxctodTNTWEcw==
-X-Google-Smtp-Source: APXvYqwV9aoRqyXcZZQN5vuglpU7Un+RzXUmxodwxoqrNtY4ZzQnftXwr2r3/ozL4duHxbq6J6RM+w==
-X-Received: by 2002:a1c:a985:: with SMTP id s127mr26790055wme.163.1565610711038;
-        Mon, 12 Aug 2019 04:51:51 -0700 (PDT)
-Received: from dell ([2.27.35.255])
-        by smtp.gmail.com with ESMTPSA id s64sm22246982wmf.16.2019.08.12.04.51.49
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 12 Aug 2019 04:51:50 -0700 (PDT)
-Date:   Mon, 12 Aug 2019 12:51:48 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Frank Wunderlich <frank-w@public-files.de>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S1728536AbfHLMYK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Aug 2019 08:24:10 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.220]:59228 "EHLO
+        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728294AbfHLMYK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 08:24:10 -0400
+Received: from mxout2.routing.net (unknown [192.168.10.82])
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 9C48C96E51;
+        Mon, 12 Aug 2019 12:15:40 +0000 (UTC)
+Received: from mxbox2.masterlogin.de (unknown [192.168.10.253])
+        by mxout2.routing.net (Postfix) with ESMTP id F407964895;
+        Mon, 12 Aug 2019 12:15:40 +0000 (UTC)
+Received: from localhost.localdomain (fttx-pool-217.61.152.193.bambit.de [217.61.152.193])
+        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id E810110083A;
+        Mon, 12 Aug 2019 14:15:39 +0200 (CEST)
+From:   Frank Wunderlich <frank-w@public-files.de>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Allison Randal <allison@lohutok.net>,
         "David S. Miller" <davem@davemloft.net>,
@@ -67,6 +36,7 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Kate Stewart <kstewart@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
@@ -78,47 +48,72 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Sean Wang <sean.wang@mediatek.com>,
         Sebastian Reichel <sre@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        "Tianping . Fang" <tianping.fang@mediatek.com>,
-        Josef Friedl <josef.friedl@speed.at>
-Subject: Re: Re: Re: [PATCH v3 01/10] dt-bindings: add powercontroller
-Message-ID: <20190812115148.GT26727@dell>
-References: <20190729174154.4335-1-frank-w@public-files.de>
- <20190729174154.4335-2-frank-w@public-files.de>
- <20190812102035.GH26727@dell>
- <trinity-a6c06411-16d3-40ab-a4fb-3494131c8ed6-1565608221532@3c-app-gmx-bs80>
- <20190812112507.GR26727@dell>
- <trinity-738d59ed-ecac-4025-a729-0888eaea1f95-1565609875829@3c-app-gmx-bs80>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <trinity-738d59ed-ecac-4025-a729-0888eaea1f95-1565609875829@3c-app-gmx-bs80>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        "Tianping . Fang" <tianping.fang@mediatek.com>
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v5 10/10] arm: dts: mt6323: add keys, power-controller, rtc and codec
+Date:   Mon, 12 Aug 2019 14:15:11 +0200
+Message-Id: <20190812121511.4169-11-frank-w@public-files.de>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190812121511.4169-1-frank-w@public-files.de>
+References: <20190812121511.4169-1-frank-w@public-files.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 12 Aug 2019, Frank Wunderlich wrote:
+From: Josef Friedl <josef.friedl@speed.at>
 
-> > Gesendet: Montag, 12. August 2019 um 13:25 Uhr
-> > Von: "Lee Jones" <lee.jones@linaro.org>
-> > It was an example (hence the "E.g.").
-> >
-> > You will need to adapt it depending on where the file ends up.
-> 
-> i saw the e.g., but i wanted to know relative to which directory ;) your example mentions that it should contain the dt-bindings-folder and i think it should be relative to current file...
-> 
-> have applied your suggestions to my tree
-> 
-> https://github.com/frank-w/BPI-R2-4.14/commits/5.3-poweroff
-> 
-> please take a short look if i don't miss anything
+support poweroff and power-related keys on bpi-r2
 
-Just resubmit them.  Doing off-list reviews is a slippery slope.
+Suggested-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+---
+changes since v4: none
+changes since v3: none
+changes since v2: none (=v2 part 7)
+---
+ arch/arm/boot/dts/mt6323.dtsi | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
+diff --git a/arch/arm/boot/dts/mt6323.dtsi b/arch/arm/boot/dts/mt6323.dtsi
+index ba397407c1dd..7fda40ab5fe8 100644
+--- a/arch/arm/boot/dts/mt6323.dtsi
++++ b/arch/arm/boot/dts/mt6323.dtsi
+@@ -238,5 +238,32 @@
+ 				regulator-enable-ramp-delay = <216>;
+ 			};
+ 		};
++
++		mt6323keys: mt6323keys {
++			compatible = "mediatek,mt6323-keys";
++			mediatek,long-press-mode = <1>;
++			power-off-time-sec = <0>;
++
++			power {
++				linux,keycodes = <116>;
++				wakeup-source;
++			};
++
++			home {
++				linux,keycodes = <114>;
++			};
++		};
++
++		codec: mt6397codec {
++			compatible = "mediatek,mt6397-codec";
++		};
++
++		power-controller {
++			compatible = "mediatek,mt6323-pwrc";
++		};
++
++		rtc {
++			compatible = "mediatek,mt6323-rtc";
++		};
+ 	};
+ };
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1
+
