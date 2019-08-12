@@ -2,31 +2,32 @@ Return-Path: <SRS0=DqQs=WI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC87FC433FF
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5007EC433FF
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B78A621743
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F7DC214C6
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728669AbfHLMYO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Aug 2019 08:24:14 -0400
-Received: from mxwww.masterlogin.de ([95.129.51.220]:59310 "EHLO
+        id S1728705AbfHLMYW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Aug 2019 08:24:22 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.220]:59314 "EHLO
         mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728562AbfHLMYN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 08:24:13 -0400
-Received: from mxout2.routing.net (unknown [192.168.10.82])
-        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id B35E796D58;
-        Mon, 12 Aug 2019 12:15:26 +0000 (UTC)
+        with ESMTP id S1728574AbfHLMYO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 08:24:14 -0400
+Received: from mxout1.routing.net (unknown [192.168.10.81])
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 156BB96DDB;
+        Mon, 12 Aug 2019 12:15:36 +0000 (UTC)
 Received: from mxbox2.masterlogin.de (unknown [192.168.10.253])
-        by mxout2.routing.net (Postfix) with ESMTP id E85345FA23;
-        Mon, 12 Aug 2019 12:15:26 +0000 (UTC)
+        by mxout1.routing.net (Postfix) with ESMTP id 4216643E03;
+        Mon, 12 Aug 2019 12:15:36 +0000 (UTC)
 Received: from localhost.localdomain (fttx-pool-217.61.152.193.bambit.de [217.61.152.193])
-        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 7E70610083A;
-        Mon, 12 Aug 2019 14:15:25 +0200 (CEST)
+        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 24FC4100D06;
+        Mon, 12 Aug 2019 14:15:35 +0200 (CEST)
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -49,82 +50,93 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Sebastian Reichel <sre@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         "Tianping . Fang" <tianping.fang@mediatek.com>
-Cc:     Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH v5 00/10] implement poweroff for mt6323 / bpi-r2
-Date:   Mon, 12 Aug 2019 14:15:01 +0200
-Message-Id: <20190812121511.4169-1-frank-w@public-files.de>
+Cc:     Josef Friedl <josef.friedl@speed.at>,
+        Frank Wunderlich <frank-w@public-files.de>
+Subject: [PATCH v5 07/10] mfd: mt6323: add mt6323 rtc+pwrc
+Date:   Mon, 12 Aug 2019 14:15:08 +0200
+Message-Id: <20190812121511.4169-8-frank-w@public-files.de>
 X-Mailer: git-send-email 2.17.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190812121511.4169-1-frank-w@public-files.de>
+References: <20190812121511.4169-1-frank-w@public-files.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-mainline-driver does not support mt6323
+From: Josef Friedl <josef.friedl@speed.at>
 
-this series makes some cleanup to mt6397-rtc-driver, adds mt6323 and
-implement power-controller on it.
+add entry for rtc and power-controller to mt6323
 
-tested on bananapi-r2
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+---
+changes since v4: none
+changes since v3: none
+changes since v2: only splitting, second part of v2 part 4
+---
+ drivers/mfd/mt6397-core.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Original Patch from Josef Friedl
-
-changes since v4:
-	- relative path in part 1+2
-	- drop change of copyright-year in part 5
-changes since v3:
-	- moved SOB in 2/10 and 9/10
-	- moved part 5 to 6 to be near driver-change
-	- changehistory of patches below ---
-
-changes since v2:
-	- Splitted some parts and rebased on 5.3-rc2:
-
-	v2.1 dt-bindings: add powercontroller – try to make better subject
-	v2.2 separate rtc-mt6397.txt (suggested by Alexandre Belloni)
-	     add missing commit-message (suggested by Matthias Brugger)
-	v2.3 fix alloc after IRQ (suggested by Alexandre Belloni)
-	     new compatible (splitting suggested by Alexandre Belloni)
-	     needed due to different rtc-base/size see #7
-	v2.4 simplifications (Define-res-macros)
-	     add mt6323 rtc+pwrc
-	v2.5 add poweroff-driver (no change)
-	v2.6 MAINTAINERS (no change)
-	v2.7 DTS-Changes (no change)
-
-
-Josef Friedl (10):
-  dt-bindings: add powercontroller
-  dt-bindings: add missing mt6397 rtc
-  rtc: mt6397: move some common definitions into rtc.h
-  rtc: mt6397: improvements of rtc driver
-  mfd: mt6323: some improvements of mt6397-core
-  rtc: mt6397: add compatible for mt6323
-  mfd: mt6323: add mt6323 rtc+pwrc
-  power: reset: add driver for mt6323 poweroff
-  MAINTAINERS: add Mediatek shutdown drivers
-  arm: dts: mt6323: add keys, power-controller, rtc and codec
-
- .../devicetree/bindings/mfd/mt6397.txt        |  20 +++-
- .../bindings/power/reset/mt6323-poweroff.txt  |  20 ++++
- .../devicetree/bindings/rtc/rtc-mt6397.txt    |  29 +++++
- MAINTAINERS                                   |   7 ++
- arch/arm/boot/dts/mt6323.dtsi                 |  27 +++++
- drivers/mfd/mt6397-core.c                     |  38 +++++--
- drivers/power/reset/Kconfig                   |  10 ++
- drivers/power/reset/Makefile                  |   1 +
- drivers/power/reset/mt6323-poweroff.c         |  97 ++++++++++++++++
- drivers/rtc/rtc-mt6397.c                      | 107 ++++--------------
- include/linux/mfd/mt6397/core.h               |   2 +
- include/linux/mfd/mt6397/rtc.h                |  71 ++++++++++++
- 12 files changed, 327 insertions(+), 102 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/power/reset/mt6323-poweroff.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
- create mode 100644 drivers/power/reset/mt6323-poweroff.c
- create mode 100644 include/linux/mfd/mt6397/rtc.h
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index c9a81087fa55..5916978a8feb 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -16,13 +16,24 @@
+ #include <linux/mfd/mt6397/registers.h>
+ #include <linux/mfd/mt6323/registers.h>
+ 
++#define MT6323_RTC_BASE		0x8000
++#define MT6323_RTC_SIZE		0x40
++
+ #define MT6397_RTC_BASE		0xe000
+ #define MT6397_RTC_SIZE		0x3e
+ 
++#define MT6323_PWRC_BASE	0x8000
++#define MT6323_PWRC_SIZE	0x40
++
+ #define MT6323_CID_CODE		0x23
+ #define MT6391_CID_CODE		0x91
+ #define MT6397_CID_CODE		0x97
+ 
++static const struct resource mt6323_rtc_resources[] = {
++	DEFINE_RES_MEM(MT6323_RTC_BASE, MT6323_RTC_SIZE),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_RTC),
++};
++
+ static const struct resource mt6397_rtc_resources[] = {
+ 	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
+ 	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
+@@ -38,8 +49,17 @@ static const struct resource mt6397_keys_resources[] = {
+ 	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
+ };
+ 
++static const struct resource mt6323_pwrc_resources[] = {
++	DEFINE_RES_MEM(MT6323_PWRC_BASE, MT6323_PWRC_SIZE),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
++		.name = "mt6323-rtc",
++		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
++		.resources = mt6323_rtc_resources,
++		.of_compatible = "mediatek,mt6323-rtc",
++	}, {
+ 		.name = "mt6323-regulator",
+ 		.of_compatible = "mediatek,mt6323-regulator"
+ 	}, {
+@@ -50,6 +70,11 @@ static const struct mfd_cell mt6323_devs[] = {
+ 		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
+ 		.resources = mt6323_keys_resources,
+ 		.of_compatible = "mediatek,mt6323-keys"
++	}, {
++		.name = "mt6323-pwrc",
++		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
++		.resources = mt6323_pwrc_resources,
++		.of_compatible = "mediatek,mt6323-pwrc"
+ 	},
+ };
+ 
 -- 
 2.17.1
 
