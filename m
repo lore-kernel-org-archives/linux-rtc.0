@@ -2,34 +2,64 @@ Return-Path: <SRS0=DqQs=WI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97F81C31E40
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B69FAC31E40
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 13:24:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 77B282184D
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 12:24:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88856208C2
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 13:24:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="KdowPy/Z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbfHLMYx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Aug 2019 08:24:53 -0400
-Received: from mxwww.masterlogin.de ([95.129.51.220]:59246 "EHLO
-        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728510AbfHLMYK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 08:24:10 -0400
-Received: from mxout2.routing.net (unknown [192.168.10.82])
-        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 7729A96D5E;
-        Mon, 12 Aug 2019 12:15:30 +0000 (UTC)
-Received: from mxbox2.masterlogin.de (unknown [192.168.10.253])
-        by mxout2.routing.net (Postfix) with ESMTP id C7876647BC;
-        Mon, 12 Aug 2019 12:15:30 +0000 (UTC)
-Received: from localhost.localdomain (fttx-pool-217.61.152.193.bambit.de [217.61.152.193])
-        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 7BDD1100D0A;
-        Mon, 12 Aug 2019 14:15:29 +0200 (CEST)
-From:   Frank Wunderlich <frank-w@public-files.de>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S1728552AbfHLNYC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Aug 2019 09:24:02 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:35711 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728117AbfHLNYC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 09:24:02 -0400
+Received: by mail-wr1-f66.google.com with SMTP id k2so18706410wrq.2
+        for <linux-rtc@vger.kernel.org>; Mon, 12 Aug 2019 06:24:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=nC0XBOiWbAbQwJIvttLNUSDXZEWVPgrZEH9kYI4ESEg=;
+        b=KdowPy/ZBvnwn/HSU7gjkVq9UrYpR3h4Rz7yrxwQA3ohuwT4La1YEbafzwTQiyGbB3
+         6QonaqtKmwTvQvVAkUuXqhFlDfDjkaXKQ7zpwE7eGxhuj1ceYyytsva8K5UQ8S9Sxa1l
+         0Y1oon8rOVVaf+boODQgVUswo8xgye+BoTn+yDsiXWTW/NS6IQsn/plpM4JQaaNP4O6B
+         TqZTxR3XHrKVwJXd9XdY0hqFqBNW8M1q45w82I966F/alSFqF39B+Nsz1nWQEnNynAc4
+         A2YNPddK8smYE3BcVulLdkdiz+QMZyywgQdjm7O4meR9DNvs9jp6Y3XjTE1cuP7rEBBJ
+         1TgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=nC0XBOiWbAbQwJIvttLNUSDXZEWVPgrZEH9kYI4ESEg=;
+        b=Os8PbTYfiAuzE0gNWgWgkD8ezbOLL1RTQb0KVocb9UzU5UniqnHjB9GSusQ3giqSxe
+         XknaRRQOaiO+zpueii2Y+DWizSS868M8cy3k8qE15LTKy5kU/KV0wPIFG7iLc5nR1gb9
+         MfDL2KEWaHt+6jQLmiZiW6OGMFtadnkIl2F+n4wrlSlgaS7saiCg7BI1mTyv1LfT66kW
+         +AatUHgXB+3YIvclmeM/WT4WDoruFExIuzNF1il2i9a2joV93J+GdRdtasqd+/5mR4sU
+         41RqyGBKMRaE0CPEr6CqoCJlUs9P5Ha00d6Ccfqsl9Gpf3jUQwskoIPMBbCq0Ivr2M07
+         pGDQ==
+X-Gm-Message-State: APjAAAU9DlxBI6blzbkuATue209wFRiLeyuDfzx4Dl5MfoEgc2yKa60t
+        8Gi+5K8yhzf+czE7acNhhzKyvQ==
+X-Google-Smtp-Source: APXvYqzLO2AY4MikUonMGWLbUw1cnzGTo7DsP/PsiUuAIcFjooUQxIKV9Ku81rDgvyEOx2q7Cg6gpA==
+X-Received: by 2002:adf:8364:: with SMTP id 91mr40735060wrd.13.1565616239967;
+        Mon, 12 Aug 2019 06:23:59 -0700 (PDT)
+Received: from dell ([2.27.35.255])
+        by smtp.gmail.com with ESMTPSA id g7sm25060681wmg.8.2019.08.12.06.23.58
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 12 Aug 2019 06:23:59 -0700 (PDT)
+Date:   Mon, 12 Aug 2019 14:23:57 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Frank Wunderlich <frank-w@public-files.de>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Allison Randal <allison@lohutok.net>,
         "David S. Miller" <davem@davemloft.net>,
@@ -37,7 +67,6 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Kate Stewart <kstewart@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-mediatek@lists.infradead.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
@@ -49,72 +78,49 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Sean Wang <sean.wang@mediatek.com>,
         Sebastian Reichel <sre@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        "Tianping . Fang" <tianping.fang@mediatek.com>
-Cc:     Josef Friedl <josef.friedl@speed.at>,
-        Frank Wunderlich <frank-w@public-files.de>
-Subject: [PATCH v5 02/10] dt-bindings: add missing mt6397 rtc
-Date:   Mon, 12 Aug 2019 14:15:03 +0200
-Message-Id: <20190812121511.4169-3-frank-w@public-files.de>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190812121511.4169-1-frank-w@public-files.de>
+        "Tianping . Fang" <tianping.fang@mediatek.com>,
+        Josef Friedl <josef.friedl@speed.at>
+Subject: Re: [PATCH v5 08/10] power: reset: add driver for mt6323 poweroff
+Message-ID: <20190812132357.GU26727@dell>
 References: <20190812121511.4169-1-frank-w@public-files.de>
+ <20190812121511.4169-9-frank-w@public-files.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190812121511.4169-9-frank-w@public-files.de>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Josef Friedl <josef.friedl@speed.at>
+On Mon, 12 Aug 2019, Frank Wunderlich wrote:
 
-add missing devicetree-binding document for mt6397 rtc
-in later patch driver is extended with mt6323 chip
+> From: Josef Friedl <josef.friedl@speed.at>
+> 
+> add poweroff driver for mt6323 and make Makefile and Kconfig-Entries
+> 
+> Suggested-by: Frank Wunderlich <frank-w@public-files.de>
+> Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+> Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+> ---
+> changes since v4: none
+> changes since v3: none
+> changes since v2: none (=v2 part 5)
+> ---
+>  drivers/power/reset/Kconfig           | 10 +++
+>  drivers/power/reset/Makefile          |  1 +
+>  drivers/power/reset/mt6323-poweroff.c | 97 +++++++++++++++++++++++++++
 
-Suggested-By: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Josef Friedl <josef.friedl@speed.at>
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
----
-changes since v4: use relative path
-changes since v3: moved SOB
-changes since v2: splitted rtc-mt6397.txt from first patch
----
- .../devicetree/bindings/rtc/rtc-mt6397.txt    | 29 +++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
+>  include/linux/mfd/mt6397/core.h       |  2 +
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-new file mode 100644
-index 000000000000..4d2d8317e16b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-@@ -0,0 +1,29 @@
-+Device-Tree bindings for MediaTek PMIC based RTC
-+
-+MediaTek PMIC based RTC is an independent function of MediaTek PMIC that works
-+as a type of multi-function device (MFD). The RTC can be configured and set up
-+with PMIC wrapper bus which is a common resource shared with the other
-+functions found on the same PMIC.
-+
-+For MediaTek PMIC MFD bindings, see:
-+../../bindings/mfd/mt6397.txt
-+
-+For MediaTek PMIC wrapper bus bindings, see:
-+../../bindings/soc/mediatek/pwrap.txt
-+
-+Required properties:
-+- compatible: Should be one of follows
-+       "mediatek,mt6323-rtc": for MT6323 PMIC
-+       "mediatek,mt6397-rtc": for MT6397 PMIC
-+
-+Example:
-+
-+       pmic {
-+               compatible = "mediatek,mt6323";
-+
-+               ...
-+
-+               rtc {
-+                       compatible = "mediatek,mt6323-rtc";
-+               };
-+       };
+This looks like an unrelated change.
+
+Please separate it out.
+
 -- 
-2.17.1
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
