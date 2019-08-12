@@ -6,52 +6,70 @@ X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B85A2C433FF
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 20:57:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D500C31E40
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 21:02:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8DED020684
-	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 20:57:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 670672085A
+	for <linux-rtc@archiver.kernel.org>; Mon, 12 Aug 2019 21:02:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726655AbfHLU5j (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 12 Aug 2019 16:57:39 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:55087 "EHLO
+        id S1726925AbfHLVCa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 12 Aug 2019 17:02:30 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:36697 "EHLO
         relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726530AbfHLU5j (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 16:57:39 -0400
+        with ESMTP id S1726663AbfHLVC3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 12 Aug 2019 17:02:29 -0400
 X-Originating-IP: 90.65.161.137
 Received: from localhost (lfbn-1-1545-137.w90-65.abo.wanadoo.fr [90.65.161.137])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id DEDD120007;
-        Mon, 12 Aug 2019 20:57:36 +0000 (UTC)
-Date:   Mon, 12 Aug 2019 22:57:36 +0200
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 9CE6C20008;
+        Mon, 12 Aug 2019 21:02:27 +0000 (UTC)
+Date:   Mon, 12 Aug 2019 23:02:27 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     soc@kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 14/16] rtc: remove w90x900/nuc900 driver
-Message-ID: <20190812205736.GT3600@piout.net>
-References: <20190809202749.742267-1-arnd@arndb.de>
- <20190809202749.742267-15-arnd@arndb.de>
+To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc:     mazziesaccount@gmail.com, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "yuehaibing@huawei.com" <yuehaibing@huawei.com>
+Subject: Re: [PATCH] rtc: bd70528: fix driver dependencies
+Message-ID: <20190812210227.GU3600@piout.net>
+References: <84462e01e43d39024948a3bdd24087ff87dc2255.1565591387.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190809202749.742267-15-arnd@arndb.de>
+In-Reply-To: <84462e01e43d39024948a3bdd24087ff87dc2255.1565591387.git.matti.vaittinen@fi.rohmeurope.com>
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 09/08/2019 22:27:42+0200, Arnd Bergmann wrote:
-> The ARM w90x900 platform is getting removed, so this driver is obsolete.
+On 12/08/2019 09:36:11+0300, Matti Vaittinen wrote:
+> With CONFIG_BD70528_WATCHDOG=m, a built-in rtc driver cannot call
+> into the low-level functions that are part of the watchdog module:
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> drivers/rtc/rtc-bd70528.o: In function `bd70528_set_time':
+> rtc-bd70528.c:(.text+0x22c): undefined reference to `bd70528_wdt_lock'
+> rtc-bd70528.c:(.text+0x2a8): undefined reference to `bd70528_wdt_unlock'
+> drivers/rtc/rtc-bd70528.o: In function `bd70528_set_rtc_based_timers':
+> rtc-bd70528.c:(.text+0x50c): undefined reference to `bd70528_wdt_set'
+> 
+> Add a Kconfig dependency which forces RTC to be a module if watchdog is a
+> module. If watchdog is not compiled at all the stub functions for watchdog
+> control are used. compiling the RTC without watchdog is fine.
+> 
+> Fixes: 32a4a4ebf768 ("rtc: bd70528: Initial support for ROHM bd70528 RTC")
+> Suggested-by: Arnd Bergmann <arnd@arndb.de>
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 > ---
->  drivers/rtc/Kconfig      |   7 -
->  drivers/rtc/Makefile     |   1 -
->  drivers/rtc/rtc-nuc900.c | 271 ---------------------------------------
->  3 files changed, 279 deletions(-)
->  delete mode 100644 drivers/rtc/rtc-nuc900.c
+>  Issue was found by kbuildbot from linux-next. Issue was addressed by
+>  Arnd and Randy - but those solutions disallowed compiling the RTC
+>  without watchdog. This patch is a result of discussion with Arnd and it
+>  was created on top of Linus' tree (tag v5.3-rc4).
+>  drivers/rtc/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 > 
 Applied, thanks.
 
