@@ -4,32 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1428C433FF
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E927AC32753
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F0C62083B
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB2A72083B
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728170AbfHNPKM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Aug 2019 11:10:12 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:42589 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728132AbfHNPKM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Aug 2019 11:10:12 -0400
-X-Originating-IP: 92.137.69.152
+        id S1728309AbfHNPKR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Aug 2019 11:10:17 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:40731 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728303AbfHNPKQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Aug 2019 11:10:16 -0400
 Received: from localhost (alyon-656-1-672-152.w92-137.abo.wanadoo.fr [92.137.69.152])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id DCE1E1BF204;
-        Wed, 14 Aug 2019 15:10:10 +0000 (UTC)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 10A11200011;
+        Wed, 14 Aug 2019 15:10:14 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v2 4/9] rtc: pcf2123: convert to devm_rtc_allocate_device
-Date:   Wed, 14 Aug 2019 17:09:57 +0200
-Message-Id: <20190814151002.7324-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH v2 9/9] rtc: pcf2123: add proper compatible string
+Date:   Wed, 14 Aug 2019 17:10:02 +0200
+Message-Id: <20190814151002.7324-9-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190814151002.7324-1-alexandre.belloni@bootlin.com>
 References: <20190814151002.7324-1-alexandre.belloni@bootlin.com>
@@ -40,52 +40,53 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver. Also remove the unecessary
-error string as the core will already display error messages.
+nxp,rtc-pcf2123 is not a proper compatible strong for this RTC. The part
+name is only pcf2123 and is less confusing.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt | 4 ++--
+ drivers/rtc/rtc-pcf2123.c                              | 4 +++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt b/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
+index 1994f601800a..7371f525a687 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
++++ b/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
+@@ -1,7 +1,7 @@
+ NXP PCF2123 SPI Real Time Clock
+ 
+ Required properties:
+-- compatible: should be: "nxp,rtc-pcf2123"
++- compatible: should be: "nxp,pcf2123"
+                       or "microcrystal,rv2123"
+ - reg: should be the SPI slave chipselect address
+ 
+@@ -11,7 +11,7 @@ Optional properties:
+ Example:
+ 
+ pcf2123: rtc@3 {
+-	compatible = "nxp,rtc-pcf2123"
++	compatible = "nxp,pcf2123"
+ 	reg = <3>
+ 	spi-cs-high;
+ };
 diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 2e2a14134346..7d79180a4292 100644
+index bda4b1687318..c3691fa4210e 100644
 --- a/drivers/rtc/rtc-pcf2123.c
 +++ b/drivers/rtc/rtc-pcf2123.c
-@@ -407,17 +407,12 @@ static int pcf2123_probe(struct spi_device *spi)
- 			(spi->max_speed_hz + 500) / 1000);
+@@ -443,8 +443,10 @@ static int pcf2123_probe(struct spi_device *spi)
  
- 	/* Finalize the initialization */
--	rtc = devm_rtc_device_register(&spi->dev, pcf2123_driver.driver.name,
--			&pcf2123_rtc_ops, THIS_MODULE);
--
--	if (IS_ERR(rtc)) {
--		dev_err(&spi->dev, "failed to register.\n");
-+	rtc = devm_rtc_allocate_device(&spi->dev);
-+	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
--	}
- 
- 	pcf2123->rtc = rtc;
- 
--
- 	/* Register alarm irq */
- 	if (spi->irq > 0) {
- 		ret = devm_request_threaded_irq(&spi->dev, spi->irq, NULL,
-@@ -434,7 +429,12 @@ static int pcf2123_probe(struct spi_device *spi)
- 	 * support to this driver to generate interrupts more than once
- 	 * per minute.
- 	 */
--	pcf2123->rtc->uie_unsupported = 1;
-+	rtc->uie_unsupported = 1;
-+	rtc->ops = &pcf2123_rtc_ops;
-+
-+	ret = rtc_register_device(rtc);
-+	if (ret)
-+		return ret;
- 
- 	return 0;
- }
+ #ifdef CONFIG_OF
+ static const struct of_device_id pcf2123_dt_ids[] = {
+-	{ .compatible = "nxp,rtc-pcf2123", },
++	{ .compatible = "nxp,pcf2123", },
+ 	{ .compatible = "microcrystal,rv2123", },
++	/* Deprecated, do not use */
++	{ .compatible = "nxp,rtc-pcf2123", },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, pcf2123_dt_ids);
 -- 
 2.21.0
 
