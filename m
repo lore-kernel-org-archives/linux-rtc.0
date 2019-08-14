@@ -7,29 +7,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA76CC32753
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5311BC32753
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AA294216F4
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B18B2083B
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Aug 2019 15:10:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728191AbfHNPKN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Aug 2019 11:10:13 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:53663 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728134AbfHNPKN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Aug 2019 11:10:13 -0400
+        id S1728164AbfHNPKM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Aug 2019 11:10:12 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:48095 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728128AbfHNPKM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Aug 2019 11:10:12 -0400
+X-Originating-IP: 92.137.69.152
 Received: from localhost (alyon-656-1-672-152.w92-137.abo.wanadoo.fr [92.137.69.152])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 7C0E2100007;
-        Wed, 14 Aug 2019 15:10:11 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id DC7F624000A;
+        Wed, 14 Aug 2019 15:10:09 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v2 5/9] rtc: pcf2123: let the core handle range offsetting
-Date:   Wed, 14 Aug 2019 17:09:58 +0200
-Message-Id: <20190814151002.7324-5-alexandre.belloni@bootlin.com>
+Subject: [PATCH v2 3/9] rtc: pcf2123: remove useless error path goto
+Date:   Wed, 14 Aug 2019 17:09:56 +0200
+Message-Id: <20190814151002.7324-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190814151002.7324-1-alexandre.belloni@bootlin.com>
 References: <20190814151002.7324-1-alexandre.belloni@bootlin.com>
@@ -40,48 +41,60 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Set the RTC range properly and use the core windowing and offsetting to
-(unfortunately) map back to a 1970-2069 range.
+kfree_exit only returns ret, remove it. This also fixes the
+devm_regmap_init_spi error case where the probe wouldn't actually fail
+because ret is initialized to 0.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf2123.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf2123.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index 7d79180a4292..ba37060f299e 100644
+index 106d5a4cf9b8..2e2a14134346 100644
 --- a/drivers/rtc/rtc-pcf2123.c
 +++ b/drivers/rtc/rtc-pcf2123.c
-@@ -194,9 +194,7 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_mday = bcd2bin(rxbuf[3] & 0x3F);
- 	tm->tm_wday = rxbuf[4] & 0x07;
- 	tm->tm_mon = bcd2bin(rxbuf[5] & 0x1F) - 1; /* rtc mn 1-12 */
--	tm->tm_year = bcd2bin(rxbuf[6]);
--	if (tm->tm_year < 70)
--		tm->tm_year += 100;	/* assume we are in 1970...2069 */
-+	tm->tm_year = bcd2bin(rxbuf[6]) + 100;
+@@ -389,10 +389,9 @@ static int pcf2123_probe(struct spi_device *spi)
+ 	dev_set_drvdata(&spi->dev, pcf2123);
  
- 	dev_dbg(dev, "%s: tm is %ptR\n", __func__, tm);
+ 	pcf2123->map = devm_regmap_init_spi(spi, &pcf2123_regmap_config);
+-
+ 	if (IS_ERR(pcf2123->map)) {
+ 		dev_err(&spi->dev, "regmap init failed.\n");
+-		goto kfree_exit;
++		return PTR_ERR(pcf2123->map);
+ 	}
  
-@@ -223,7 +221,7 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	txbuf[3] = bin2bcd(tm->tm_mday & 0x3F);
- 	txbuf[4] = tm->tm_wday & 0x07;
- 	txbuf[5] = bin2bcd((tm->tm_mon + 1) & 0x1F); /* rtc mn 1-12 */
--	txbuf[6] = bin2bcd(tm->tm_year < 100 ? tm->tm_year : tm->tm_year - 100);
-+	txbuf[6] = bin2bcd(tm->tm_year - 100);
+ 	ret = pcf2123_rtc_read_time(&spi->dev, &tm);
+@@ -400,7 +399,7 @@ static int pcf2123_probe(struct spi_device *spi)
+ 		ret = pcf2123_reset(&spi->dev);
+ 		if (ret < 0) {
+ 			dev_err(&spi->dev, "chip not found\n");
+-			goto kfree_exit;
++			return ret;
+ 		}
+ 	}
  
- 	ret = regmap_bulk_write(pcf2123->map, PCF2123_REG_SC, txbuf,
- 				sizeof(txbuf));
-@@ -431,6 +429,9 @@ static int pcf2123_probe(struct spi_device *spi)
- 	 */
- 	rtc->uie_unsupported = 1;
- 	rtc->ops = &pcf2123_rtc_ops;
-+	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	rtc->set_start_time = true;
+@@ -413,8 +412,7 @@ static int pcf2123_probe(struct spi_device *spi)
  
- 	ret = rtc_register_device(rtc);
- 	if (ret)
+ 	if (IS_ERR(rtc)) {
+ 		dev_err(&spi->dev, "failed to register.\n");
+-		ret = PTR_ERR(rtc);
+-		goto kfree_exit;
++		return PTR_ERR(rtc);
+ 	}
+ 
+ 	pcf2123->rtc = rtc;
+@@ -439,9 +437,6 @@ static int pcf2123_probe(struct spi_device *spi)
+ 	pcf2123->rtc->uie_unsupported = 1;
+ 
+ 	return 0;
+-
+-kfree_exit:
+-	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.21.0
 
