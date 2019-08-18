@@ -1,135 +1,89 @@
-Return-Path: <SRS0=+CoT=WN=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=lFPB=WO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC8BBC3A59B
-	for <linux-rtc@archiver.kernel.org>; Sat, 17 Aug 2019 06:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57013C3A589
+	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:04:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E236205ED
-	for <linux-rtc@archiver.kernel.org>; Sat, 17 Aug 2019 06:56:43 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Wwwaz8R2"
+	by mail.kernel.org (Postfix) with ESMTP id 237B32086C
+	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:04:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725965AbfHQG4n (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 17 Aug 2019 02:56:43 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:51946 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbfHQG4n (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 17 Aug 2019 02:56:43 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7H6rkhg051043;
-        Sat, 17 Aug 2019 06:56:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2019-08-05;
- bh=4xPc7OH03Qeh9EEBQIHWiTpUV95grQ6Z7qmeUrKMVG0=;
- b=Wwwaz8R2N5fmwk1zSVdU1rEm6WTQMW3OO/Dv+Ma2/72OrYbmQEg1XuIjg0zyI9DCUZnP
- zFk5979UacELNqSGXDu/tnxXQ4waXla0/96CooIT+/trVoT2fcqEyAVV7OWKGmRQrC7/
- MzpI2yqAXC1at897I/Eb0UCzXcSXwwTCOsZIHBl1IORt+YHd3kPFskGasbZIAQF98afY
- RfYGANYDbY8ND9Ri9o4uS7fZBS5PdD4Rc9TZfzPHsr5KnIPewuMcxdWp1KJG6bo8rWrE
- JdFcucnaoPJlGvJQ3TMV/X3fH0jCoxQkyoXB9N0DNMt85viDvdr2BshcDCQ4KD7d+6GE Pg== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 2ue9hp0hhx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 17 Aug 2019 06:56:20 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x7H6s3Ps117026;
-        Sat, 17 Aug 2019 06:56:20 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 2ue8wwd5ag-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sat, 17 Aug 2019 06:56:19 +0000
-Received: from abhmp0009.oracle.com (abhmp0009.oracle.com [141.146.116.15])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x7H6uBgs032722;
-        Sat, 17 Aug 2019 06:56:13 GMT
-Received: from mwanda (/41.57.98.10)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 16 Aug 2019 23:56:10 -0700
-Date:   Sat, 17 Aug 2019 09:56:04 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Tom Evans <tom.evans@motec.com.au>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH] rtc: rv3029: Revert my error handling patch to
- rv3029_eeprom_write()
-Message-ID: <20190817065604.GB29951@mwanda>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9351 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1906280000 definitions=main-1908170074
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9351 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1906280000
- definitions=main-1908170074
+        id S1726810AbfHROER (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 18 Aug 2019 10:04:17 -0400
+Received: from mxwww.masterlogin.de ([95.129.51.220]:42954 "EHLO
+        mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726760AbfHROER (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Aug 2019 10:04:17 -0400
+Received: from mxout1.routing.net (unknown [192.168.10.81])
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 9115496DF1;
+        Sun, 18 Aug 2019 13:56:24 +0000 (UTC)
+Received: from mxbox3.masterlogin.de (unknown [192.168.10.253])
+        by mxout1.routing.net (Postfix) with ESMTP id E4AB243CE1;
+        Sun, 18 Aug 2019 13:56:24 +0000 (UTC)
+Received: from localhost.localdomain (fttx-pool-185.53.43.183.bambit.de [185.53.43.183])
+        by mxbox3.masterlogin.de (Postfix) with ESMTPSA id E229A36043A;
+        Sun, 18 Aug 2019 15:56:23 +0200 (CEST)
+From:   Frank Wunderlich <frank-w@public-files.de>
+To:     linux-mediatek@lists.infradead.org
+Cc:     Frank Wunderlich <frank-w@public-files.de>,
+        devicetree@vger.kernel.org,
+        "linux-arm-kernel @ lists . infradead . org Alessandro Zummo" 
+        <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Josef Friedl <josef.friedl@speed.at>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        "Tianping Fang" <tianping.fang@mediatek.com>
+Subject: [PATCH v6 02/13] dt-bindings: mfd: mediatek: update rtc to include mt6323
+Date:   Sun, 18 Aug 2019 15:56:00 +0200
+Message-Id: <20190818135611.7776-3-frank-w@public-files.de>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190818135611.7776-1-frank-w@public-files.de>
+References: <20190818135611.7776-1-frank-w@public-files.de>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-My error handling "cleanup" was totally wrong.  Both the "err" and "ret"
-variables are required.  The "err" variable holds the error codes for
-rv3029_eeprom_enter/exit() and the "ret" variable holds the error codes
-for if actual write fails.  In my patch if the write failed, the
-function probably still returned success.
+From: Josef Friedl <josef.friedl@speed.at>
 
-Reported-by: Tom Evans <tom.evans@motec.com.au>
-Fixes: 97f5b0379c38 ("rtc: rv3029: Clean up error handling in rv3029_eeprom_write()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+add mt6323 to rtc-bindings
+
+Signed-off-by: Josef Friedl <josef.friedl@speed.at>
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 ---
- drivers/rtc/rtc-rv3029c2.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+changes since v5: splitted from "dt-bindings: add powercontroller"
+---
+ Documentation/devicetree/bindings/mfd/mt6397.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 4a0e8ec015cc..4cdf6588e1d9 100644
---- a/drivers/rtc/rtc-rv3029c2.c
-+++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -278,13 +278,13 @@ static int rv3029_eeprom_read(struct device *dev, u8 reg,
- static int rv3029_eeprom_write(struct device *dev, u8 reg,
- 			       u8 const buf[], size_t len)
- {
--	int ret;
-+	int ret, err;
- 	size_t i;
- 	u8 tmp;
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index ab3163a60929..5fccf987865b 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -22,8 +22,10 @@ compatible: "mediatek,mt6397" or "mediatek,mt6323"
+ Optional subnodes:
  
--	ret = rv3029_eeprom_enter(dev);
--	if (ret < 0)
--		return ret;
-+	err = rv3029_eeprom_enter(dev);
-+	if (err < 0)
-+		return err;
- 
- 	for (i = 0; i < len; i++, reg++) {
- 		ret = rv3029_read_regs(dev, reg, &tmp, 1);
-@@ -300,11 +300,11 @@ static int rv3029_eeprom_write(struct device *dev, u8 reg,
- 			break;
- 	}
- 
--	ret = rv3029_eeprom_exit(dev);
--	if (ret < 0)
--		return ret;
-+	err = rv3029_eeprom_exit(dev);
-+	if (err < 0)
-+		return err;
- 
--	return 0;
-+	return ret;
- }
- 
- static int rv3029_eeprom_update_bits(struct device *dev,
+ - rtc
+-	Required properties:
++	Required properties: Should be one of follows
++		- compatible: "mediatek,mt6323-rtc"
+ 		- compatible: "mediatek,mt6397-rtc"
++	For details, see ../rtc/rtc-mt6397.txt
+ - regulators
+ 	Required properties:
+ 		- compatible: "mediatek,mt6397-regulator"
 -- 
-2.20.1
+2.17.1
 
