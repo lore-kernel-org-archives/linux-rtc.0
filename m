@@ -4,29 +4,30 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13441C3A589
-	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:05:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F733C3A59F
+	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:05:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E179520B7C
-	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:05:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA26B218AD
+	for <linux-rtc@archiver.kernel.org>; Sun, 18 Aug 2019 14:05:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbfHROEi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1726948AbfHROEi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Sun, 18 Aug 2019 10:04:38 -0400
-Received: from mxwww.masterlogin.de ([95.129.51.220]:43034 "EHLO
+Received: from mxwww.masterlogin.de ([95.129.51.220]:43040 "EHLO
         mxwww.masterlogin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726817AbfHROE0 (ORCPT
+        with ESMTP id S1726820AbfHROE0 (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Aug 2019 10:04:26 -0400
 Received: from mxout1.routing.net (unknown [192.168.10.81])
-        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id 7FA6696DFB;
-        Sun, 18 Aug 2019 13:56:30 +0000 (UTC)
+        by new.mxwww.masterlogin.de (Postfix) with ESMTPS id EB2EC96DFC;
+        Sun, 18 Aug 2019 13:56:28 +0000 (UTC)
 Received: from mxbox3.masterlogin.de (unknown [192.168.10.253])
-        by mxout1.routing.net (Postfix) with ESMTP id BF88743D5A;
-        Sun, 18 Aug 2019 13:56:30 +0000 (UTC)
+        by mxout1.routing.net (Postfix) with ESMTP id 46D0F43CE1;
+        Sun, 18 Aug 2019 13:56:29 +0000 (UTC)
 Received: from localhost.localdomain (fttx-pool-185.53.43.183.bambit.de [185.53.43.183])
-        by mxbox3.masterlogin.de (Postfix) with ESMTPSA id EAAAC36043A;
-        Sun, 18 Aug 2019 15:56:29 +0200 (CEST)
+        by mxbox3.masterlogin.de (Postfix) with ESMTPSA id 7662136043A;
+        Sun, 18 Aug 2019 15:56:28 +0200 (CEST)
 From:   Frank Wunderlich <frank-w@public-files.de>
 To:     linux-mediatek@lists.infradead.org
 Cc:     Frank Wunderlich <frank-w@public-files.de>,
@@ -45,9 +46,9 @@ Cc:     Frank Wunderlich <frank-w@public-files.de>,
         Sean Wang <sean.wang@mediatek.com>,
         Sebastian Reichel <sre@kernel.org>,
         "Tianping Fang" <tianping.fang@mediatek.com>
-Subject: [PATCH v6 10/13] mfd: mt6323: add mt6323 rtc+pwrc
-Date:   Sun, 18 Aug 2019 15:56:08 +0200
-Message-Id: <20190818135611.7776-11-frank-w@public-files.de>
+Subject: [PATCH v6 08/13] mfd: mt6323: some improvements of mt6397-core
+Date:   Sun, 18 Aug 2019 15:56:06 +0200
+Message-Id: <20190818135611.7776-9-frank-w@public-files.de>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190818135611.7776-1-frank-w@public-files.de>
 References: <20190818135611.7776-1-frank-w@public-files.de>
@@ -58,79 +59,51 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Josef Friedl <josef.friedl@speed.at>
 
-add entry for rtc and power-controller to mt6323
+simplyfications (resource definitions my DEFINE_RES_* macros)
 
 Signed-off-by: Josef Friedl <josef.friedl@speed.at>
 Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
 changes since v5: none
-changes since v4: none
-changes since v3: none
-changes since v2: only splitting, second part of v2 part 4
+changes since v4: do not touch year of copyright
+changes since v3: moved part 6 forward to let compatible and driver be together
+changes since v2: splitted v2 part 4 into 6+7
 ---
- drivers/mfd/mt6397-core.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/mfd/mt6397-core.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index c9a81087fa55..5916978a8feb 100644
+index 337bcccdb914..c9a81087fa55 100644
 --- a/drivers/mfd/mt6397-core.c
 +++ b/drivers/mfd/mt6397-core.c
-@@ -16,13 +16,24 @@
- #include <linux/mfd/mt6397/registers.h>
- #include <linux/mfd/mt6323/registers.h>
+@@ -5,6 +5,7 @@
+  */
  
-+#define MT6323_RTC_BASE		0x8000
-+#define MT6323_RTC_SIZE		0x40
-+
- #define MT6397_RTC_BASE		0xe000
- #define MT6397_RTC_SIZE		0x3e
- 
-+#define MT6323_PWRC_BASE	0x8000
-+#define MT6323_PWRC_SIZE	0x40
-+
- #define MT6323_CID_CODE		0x23
- #define MT6391_CID_CODE		0x91
+ #include <linux/interrupt.h>
++#include <linux/ioport.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
+@@ -23,16 +24,8 @@
  #define MT6397_CID_CODE		0x97
  
-+static const struct resource mt6323_rtc_resources[] = {
-+	DEFINE_RES_MEM(MT6323_RTC_BASE, MT6323_RTC_SIZE),
-+	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_RTC),
-+};
-+
  static const struct resource mt6397_rtc_resources[] = {
- 	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
- 	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
-@@ -38,8 +49,17 @@ static const struct resource mt6397_keys_resources[] = {
- 	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
+-	{
+-		.start = MT6397_RTC_BASE,
+-		.end   = MT6397_RTC_BASE + MT6397_RTC_SIZE,
+-		.flags = IORESOURCE_MEM,
+-	},
+-	{
+-		.start = MT6397_IRQ_RTC,
+-		.end   = MT6397_IRQ_RTC,
+-		.flags = IORESOURCE_IRQ,
+-	},
++	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
++	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
  };
  
-+static const struct resource mt6323_pwrc_resources[] = {
-+	DEFINE_RES_MEM(MT6323_PWRC_BASE, MT6323_PWRC_SIZE),
-+};
-+
- static const struct mfd_cell mt6323_devs[] = {
- 	{
-+		.name = "mt6323-rtc",
-+		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
-+		.resources = mt6323_rtc_resources,
-+		.of_compatible = "mediatek,mt6323-rtc",
-+	}, {
- 		.name = "mt6323-regulator",
- 		.of_compatible = "mediatek,mt6323-regulator"
- 	}, {
-@@ -50,6 +70,11 @@ static const struct mfd_cell mt6323_devs[] = {
- 		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
- 		.resources = mt6323_keys_resources,
- 		.of_compatible = "mediatek,mt6323-keys"
-+	}, {
-+		.name = "mt6323-pwrc",
-+		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
-+		.resources = mt6323_pwrc_resources,
-+		.of_compatible = "mediatek,mt6323-pwrc"
- 	},
- };
- 
+ static const struct resource mt6323_keys_resources[] = {
 -- 
 2.17.1
 
