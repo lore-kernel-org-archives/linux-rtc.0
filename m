@@ -2,72 +2,91 @@ Return-Path: <SRS0=MZWD=WP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C05C3A5A0
-	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC5D0C3A5A0
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 23:52:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E869322CF6
-	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA5D120644
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 23:52:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=netronome-com.20150623.gappssmtp.com header.i=@netronome-com.20150623.gappssmtp.com header.b="mXpS0Puu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728330AbfHSS1A (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 19 Aug 2019 14:27:00 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:54769 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727970AbfHSS1A (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Aug 2019 14:27:00 -0400
-Received: from localhost (lfbn-1-1545-137.w90-65.abo.wanadoo.fr [90.65.161.137])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 1AFD1200003;
-        Mon, 19 Aug 2019 18:26:58 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 1/9] rtc: pcf2123: don't use weekday alarm
-Date:   Mon, 19 Aug 2019 20:26:48 +0200
-Message-Id: <20190819182656.29744-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.21.0
+        id S1728494AbfHSXwC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 19 Aug 2019 19:52:02 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:39389 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728768AbfHSXwC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Aug 2019 19:52:02 -0400
+Received: by mail-qk1-f193.google.com with SMTP id 125so3023352qkl.6
+        for <linux-rtc@vger.kernel.org>; Mon, 19 Aug 2019 16:52:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=netronome-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :organization:mime-version:content-transfer-encoding;
+        bh=a/2XLdHfSdB0b6RIPrdy3mFXWwjPe+7l5bCqv2Lo3ZU=;
+        b=mXpS0Puu27Rc54x05eebbDC0TGOxOcF7pPi9XLEJQiWepOTmboPHwcQutctjuE40SV
+         0vOgp8/QSdSXeBFFS97m7rsH3qEZpkzmX9p/PGQIxU3bHembgxm4G8aoq49hGpkHYbuB
+         fAo1Y5lgdMQn00YqCCJSGNFeAC+3IW7qj7JueJ2s2hYsplYGuPquLdsDCiZlg6nflUYS
+         QKBnReyxrhpMPgaJtFUjqoXxZkCn02tA+QzvbR9x8qBKQMcTiM7CjkH8jWM2V5iTkpdM
+         wovjXVvFfFP4VWCDNZiYXCLexf+qZsD03+XmfJZzxsd8qOCXvyVBC1VOMorVC8HSTAAr
+         i5rA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:organization:mime-version:content-transfer-encoding;
+        bh=a/2XLdHfSdB0b6RIPrdy3mFXWwjPe+7l5bCqv2Lo3ZU=;
+        b=SbFaewZXzSoJLbFMNI6dCz0vseZ8yonBqnhgswx+3UsWewMJlzWPeaU7/z4g0JlP7J
+         zScGEyx7uHKEH4q9LKCASarOmxIIVYhhpF8Cb4UPOB+82y7ISCPU2EuS4EJq2jCFvrCq
+         znGKHD8bG56rD32mX1WDv0S5cLfnAY2i/cVqlEFBT3HQCIoLqqzJzLH/ZAkzG6JoHR/g
+         dhrTljoNYOWef/pRibzLHb2t2ZxSzN8IohE8kgRxYxUhsgQLLlCwzjYbJhZNN7t4ngyA
+         bThACiWkbfxwaRAm0DktB/yYYx9/vBXGEmhmATpq4tRQ/7oJihQLlvqo7msJGdu7Bdv6
+         SiFA==
+X-Gm-Message-State: APjAAAXZnoSUBOrrNYFdoPwNfJfzZikMMO7RRtKW/4TOTMN8e0zFtknu
+        kLaYpLgjS80643wtQdLmTMmvvg==
+X-Google-Smtp-Source: APXvYqwGNe8Ex149O1rS0+k/zybKrFzFtdGIiowvDePNSIyU8GYvbJ3wuW4uS2CwSOOrujZstu9ViA==
+X-Received: by 2002:a05:620a:1590:: with SMTP id d16mr23669201qkk.18.1566258721246;
+        Mon, 19 Aug 2019 16:52:01 -0700 (PDT)
+Received: from cakuba.netronome.com ([66.60.152.14])
+        by smtp.gmail.com with ESMTPSA id r14sm8007255qke.47.2019.08.19.16.51.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Aug 2019 16:52:01 -0700 (PDT)
+Date:   Mon, 19 Aug 2019 16:51:51 -0700
+From:   Jakub Kicinski <jakub.kicinski@netronome.com>
+To:     Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Cc:     Jonathan Corbet <corbet@lwn.net>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Evgeniy Polyakov <zbr@ioremap.net>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-input@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: Re: [PATCH v5 00/17] Use MFD framework for SGI IOC3 drivers
+Message-ID: <20190819165151.6ebd3063@cakuba.netronome.com>
+In-Reply-To: <20190819163144.3478-1-tbogendoerfer@suse.de>
+References: <20190819163144.3478-1-tbogendoerfer@suse.de>
+Organization: Netronome Systems, Ltd.
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The week day may not be set properly by userspace. This would result is
-missed alarms. Disable alarm matching on weekday.
+On Mon, 19 Aug 2019 18:31:23 +0200, Thomas Bogendoerfer wrote:
+>  - requested by Jakub I've splitted ioc3 ethernet driver changes into
+>    more steps to make the transition more visible; 
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-pcf2123.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index fb542a930bf0..5f604d83289c 100644
---- a/drivers/rtc/rtc-pcf2123.c
-+++ b/drivers/rtc/rtc-pcf2123.c
-@@ -82,7 +82,7 @@
- #define OSC_HAS_STOPPED		BIT(7)	/* Clock has been stopped */
- 
- /* PCF2123_REG_ALRM_XX BITS */
--#define ALRM_ENABLE		BIT(7)	/* MN, HR, DM, or DW alarm enable */
-+#define ALRM_DISABLE		BIT(7)	/* MN, HR, DM, or DW alarm matching */
- 
- /* PCF2123_REG_TMR_CLKOUT BITS */
- #define CD_TMR_4096KHZ		(0)	/* 4096 KHz countdown timer */
-@@ -288,7 +288,7 @@ static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	txbuf[0] = bin2bcd(alm->time.tm_min & 0x7F);
- 	txbuf[1] = bin2bcd(alm->time.tm_hour & 0x3F);
- 	txbuf[2] = bin2bcd(alm->time.tm_mday & 0x3F);
--	txbuf[3] = bin2bcd(alm->time.tm_wday & 0x07);
-+	txbuf[3] = ALRM_DISABLE;
- 
- 	ret = regmap_bulk_write(pdata->map, PCF2123_REG_ALRM_MN, txbuf,
- 				sizeof(txbuf));
--- 
-2.21.0
-
+Thanks a lot for doing that!
