@@ -2,34 +2,35 @@ Return-Path: <SRS0=MZWD=WP=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A2EBC3A5A6
-	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C5FC3A5A7
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2742E22CF4
-	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82EBD22CF5
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Aug 2019 18:27:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbfHSS1E (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 19 Aug 2019 14:27:04 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:58737 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728357AbfHSS1E (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Aug 2019 14:27:04 -0400
+        id S1728357AbfHSS1S (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 19 Aug 2019 14:27:18 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:60231 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728328AbfHSS1C (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 19 Aug 2019 14:27:02 -0400
 X-Originating-IP: 90.65.161.137
 Received: from localhost (lfbn-1-1545-137.w90-65.abo.wanadoo.fr [90.65.161.137])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id B79441C0002;
-        Mon, 19 Aug 2019 18:27:01 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id E5443FF806;
+        Mon, 19 Aug 2019 18:26:59 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 9/9] rtc: pcf2123: add proper compatible string
-Date:   Mon, 19 Aug 2019 20:26:56 +0200
-Message-Id: <20190819182656.29744-9-alexandre.belloni@bootlin.com>
+Subject: [PATCH v3 5/9] rtc: pcf2123: rename struct and variables
+Date:   Mon, 19 Aug 2019 20:26:52 +0200
+Message-Id: <20190819182656.29744-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190819182656.29744-1-alexandre.belloni@bootlin.com>
 References: <20190819182656.29744-1-alexandre.belloni@bootlin.com>
@@ -40,53 +41,278 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-nxp,rtc-pcf2123 is not a proper compatible strong for this RTC. The part
-name is only pcf2123 and is less confusing.
+Rename struct pcf2123_plat_data to struct pcf2123_data and pdata to
+pcf2123 to make the driver use a more common subsystem style.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt | 4 ++--
- drivers/rtc/rtc-pcf2123.c                              | 4 +++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-pcf2123.c | 76 +++++++++++++++++++--------------------
+ 1 file changed, 38 insertions(+), 38 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt b/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
-index 1994f601800a..7371f525a687 100644
---- a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
-+++ b/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
-@@ -1,7 +1,7 @@
- NXP PCF2123 SPI Real Time Clock
- 
- Required properties:
--- compatible: should be: "nxp,rtc-pcf2123"
-+- compatible: should be: "nxp,pcf2123"
-                       or "microcrystal,rv2123"
- - reg: should be the SPI slave chipselect address
- 
-@@ -11,7 +11,7 @@ Optional properties:
- Example:
- 
- pcf2123: rtc@3 {
--	compatible = "nxp,rtc-pcf2123"
-+	compatible = "nxp,pcf2123"
- 	reg = <3>
- 	spi-cs-high;
- };
 diff --git a/drivers/rtc/rtc-pcf2123.c b/drivers/rtc/rtc-pcf2123.c
-index bda4b1687318..c3691fa4210e 100644
+index efbf3a371b5e..df20dd229140 100644
 --- a/drivers/rtc/rtc-pcf2123.c
 +++ b/drivers/rtc/rtc-pcf2123.c
-@@ -443,8 +443,10 @@ static int pcf2123_probe(struct spi_device *spi)
+@@ -104,7 +104,7 @@
  
- #ifdef CONFIG_OF
- static const struct of_device_id pcf2123_dt_ids[] = {
--	{ .compatible = "nxp,rtc-pcf2123", },
-+	{ .compatible = "nxp,pcf2123", },
- 	{ .compatible = "microcrystal,rv2123", },
-+	/* Deprecated, do not use */
-+	{ .compatible = "nxp,rtc-pcf2123", },
- 	{ /* sentinel */ }
+ static struct spi_driver pcf2123_driver;
+ 
+-struct pcf2123_plat_data {
++struct pcf2123_data {
+ 	struct rtc_device *rtc;
+ 	struct regmap *map;
  };
- MODULE_DEVICE_TABLE(of, pcf2123_dt_ids);
+@@ -119,11 +119,11 @@ static const struct regmap_config pcf2123_regmap_config = {
+ 
+ static int pcf2123_read_offset(struct device *dev, long *offset)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	int ret, val;
+ 	unsigned int reg;
+ 
+-	ret = regmap_read(pdata->map, PCF2123_REG_OFFSET, &reg);
++	ret = regmap_read(pcf2123->map, PCF2123_REG_OFFSET, &reg);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -149,7 +149,7 @@ static int pcf2123_read_offset(struct device *dev, long *offset)
+  */
+ static int pcf2123_set_offset(struct device *dev, long offset)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	s8 reg;
+ 
+ 	if (offset > OFFSET_STEP * 127)
+@@ -169,16 +169,16 @@ static int pcf2123_set_offset(struct device *dev, long offset)
+ 		reg |= OFFSET_COARSE;
+ 	}
+ 
+-	return regmap_write(pdata->map, PCF2123_REG_OFFSET, (unsigned int)reg);
++	return regmap_write(pcf2123->map, PCF2123_REG_OFFSET, (unsigned int)reg);
+ }
+ 
+ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	u8 rxbuf[7];
+ 	int ret;
+ 
+-	ret = regmap_bulk_read(pdata->map, PCF2123_REG_SC, rxbuf,
++	ret = regmap_bulk_read(pcf2123->map, PCF2123_REG_SC, rxbuf,
+ 				sizeof(rxbuf));
+ 	if (ret)
+ 		return ret;
+@@ -205,14 +205,14 @@ static int pcf2123_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	u8 txbuf[7];
+ 	int ret;
+ 
+ 	dev_dbg(dev, "%s: tm is %ptR\n", __func__, tm);
+ 
+ 	/* Stop the counter first */
+-	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_STOP);
++	ret = regmap_write(pcf2123->map, PCF2123_REG_CTRL1, CTRL1_STOP);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -225,13 +225,13 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	txbuf[5] = bin2bcd((tm->tm_mon + 1) & 0x1F); /* rtc mn 1-12 */
+ 	txbuf[6] = bin2bcd(tm->tm_year < 100 ? tm->tm_year : tm->tm_year - 100);
+ 
+-	ret = regmap_bulk_write(pdata->map, PCF2123_REG_SC, txbuf,
++	ret = regmap_bulk_write(pcf2123->map, PCF2123_REG_SC, txbuf,
+ 				sizeof(txbuf));
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Start the counter */
+-	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
++	ret = regmap_write(pcf2123->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -240,20 +240,20 @@ static int pcf2123_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 
+ static int pcf2123_rtc_alarm_irq_enable(struct device *dev, unsigned int en)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_platdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 
+-	return regmap_update_bits(pdata->map, PCF2123_REG_CTRL2, CTRL2_AIE,
++	return regmap_update_bits(pcf2123->map, PCF2123_REG_CTRL2, CTRL2_AIE,
+ 				  en ? CTRL2_AIE : 0);
+ }
+ 
+ static int pcf2123_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	u8 rxbuf[4];
+ 	int ret;
+ 	unsigned int val = 0;
+ 
+-	ret = regmap_bulk_read(pdata->map, PCF2123_REG_ALRM_MN, rxbuf,
++	ret = regmap_bulk_read(pcf2123->map, PCF2123_REG_ALRM_MN, rxbuf,
+ 				sizeof(rxbuf));
+ 	if (ret)
+ 		return ret;
+@@ -265,7 +265,7 @@ static int pcf2123_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ 	dev_dbg(dev, "%s: alm is %ptR\n", __func__, &alm->time);
+ 
+-	ret = regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
++	ret = regmap_read(pcf2123->map, PCF2123_REG_CTRL2, &val);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -276,19 +276,19 @@ static int pcf2123_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	u8 txbuf[4];
+ 	int ret;
+ 
+ 	dev_dbg(dev, "%s: alm is %ptR\n", __func__, &alm->time);
+ 
+ 	/* Disable alarm interrupt */
+-	ret = regmap_update_bits(pdata->map, PCF2123_REG_CTRL2, CTRL2_AIE, 0);
++	ret = regmap_update_bits(pcf2123->map, PCF2123_REG_CTRL2, CTRL2_AIE, 0);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Ensure alarm flag is clear */
+-	ret = regmap_update_bits(pdata->map, PCF2123_REG_CTRL2, CTRL2_AF, 0);
++	ret = regmap_update_bits(pcf2123->map, PCF2123_REG_CTRL2, CTRL2_AF, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -298,7 +298,7 @@ static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	txbuf[2] = bin2bcd(alm->time.tm_mday & 0x3F);
+ 	txbuf[3] = ALRM_DISABLE;
+ 
+-	ret = regmap_bulk_write(pdata->map, PCF2123_REG_ALRM_MN, txbuf,
++	ret = regmap_bulk_write(pcf2123->map, PCF2123_REG_ALRM_MN, txbuf,
+ 				sizeof(txbuf));
+ 	if (ret)
+ 		return ret;
+@@ -308,22 +308,22 @@ static int pcf2123_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ static irqreturn_t pcf2123_rtc_irq(int irq, void *dev)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
+-	struct mutex *lock = &pdata->rtc->ops_lock;
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
++	struct mutex *lock = &pcf2123->rtc->ops_lock;
+ 	unsigned int val = 0;
+ 	int ret = IRQ_NONE;
+ 
+ 	mutex_lock(lock);
+-	regmap_read(pdata->map, PCF2123_REG_CTRL2, &val);
++	regmap_read(pcf2123->map, PCF2123_REG_CTRL2, &val);
+ 
+ 	/* Alarm? */
+ 	if (val & CTRL2_AF) {
+ 		ret = IRQ_HANDLED;
+ 
+ 		/* Clear alarm flag */
+-		regmap_update_bits(pdata->map, PCF2123_REG_CTRL2, CTRL2_AF, 0);
++		regmap_update_bits(pcf2123->map, PCF2123_REG_CTRL2, CTRL2_AF, 0);
+ 
+-		rtc_update_irq(pdata->rtc, 1, RTC_IRQF | RTC_AF);
++		rtc_update_irq(pcf2123->rtc, 1, RTC_IRQF | RTC_AF);
+ 	}
+ 
+ 	mutex_unlock(lock);
+@@ -333,23 +333,23 @@ static irqreturn_t pcf2123_rtc_irq(int irq, void *dev)
+ 
+ static int pcf2123_reset(struct device *dev)
+ {
+-	struct pcf2123_plat_data *pdata = dev_get_drvdata(dev);
++	struct pcf2123_data *pcf2123 = dev_get_drvdata(dev);
+ 	int ret;
+ 	unsigned int val = 0;
+ 
+-	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
++	ret = regmap_write(pcf2123->map, PCF2123_REG_CTRL1, CTRL1_SW_RESET);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* Stop the counter */
+ 	dev_dbg(dev, "stopping RTC\n");
+-	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_STOP);
++	ret = regmap_write(pcf2123->map, PCF2123_REG_CTRL1, CTRL1_STOP);
+ 	if (ret)
+ 		return ret;
+ 
+ 	/* See if the counter was actually stopped */
+ 	dev_dbg(dev, "checking for presence of RTC\n");
+-	ret = regmap_read(pdata->map, PCF2123_REG_CTRL1, &val);
++	ret = regmap_read(pcf2123->map, PCF2123_REG_CTRL1, &val);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -358,7 +358,7 @@ static int pcf2123_reset(struct device *dev)
+ 		return -ENODEV;
+ 
+ 	/* Start the counter */
+-	ret = regmap_write(pdata->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
++	ret = regmap_write(pcf2123->map, PCF2123_REG_CTRL1, CTRL1_CLEAR);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -379,19 +379,19 @@ static int pcf2123_probe(struct spi_device *spi)
+ {
+ 	struct rtc_device *rtc;
+ 	struct rtc_time tm;
+-	struct pcf2123_plat_data *pdata;
++	struct pcf2123_data *pcf2123;
+ 	int ret = 0;
+ 
+-	pdata = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_plat_data),
++	pcf2123 = devm_kzalloc(&spi->dev, sizeof(struct pcf2123_data),
+ 				GFP_KERNEL);
+-	if (!pdata)
++	if (!pcf2123)
+ 		return -ENOMEM;
+ 
+-	dev_set_drvdata(&spi->dev, pdata);
++	dev_set_drvdata(&spi->dev, pcf2123);
+ 
+-	pdata->map = devm_regmap_init_spi(spi, &pcf2123_regmap_config);
++	pcf2123->map = devm_regmap_init_spi(spi, &pcf2123_regmap_config);
+ 
+-	if (IS_ERR(pdata->map)) {
++	if (IS_ERR(pcf2123->map)) {
+ 		dev_err(&spi->dev, "regmap init failed.\n");
+ 		goto kfree_exit;
+ 	}
+@@ -418,7 +418,7 @@ static int pcf2123_probe(struct spi_device *spi)
+ 		goto kfree_exit;
+ 	}
+ 
+-	pdata->rtc = rtc;
++	pcf2123->rtc = rtc;
+ 
+ 
+ 	/* Register alarm irq */
+@@ -437,7 +437,7 @@ static int pcf2123_probe(struct spi_device *spi)
+ 	 * support to this driver to generate interrupts more than once
+ 	 * per minute.
+ 	 */
+-	pdata->rtc->uie_unsupported = 1;
++	pcf2123->rtc->uie_unsupported = 1;
+ 
+ 	return 0;
+ 
 -- 
 2.21.0
 
