@@ -2,43 +2,33 @@ Return-Path: <SRS0=cHEN=WQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D316DC3A59D
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Aug 2019 15:19:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47103C3A589
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Aug 2019 15:42:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E1FB22DD6
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Aug 2019 15:19:54 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=megous.com header.i=@megous.com header.b="RqPDvgDP"
+	by mail.kernel.org (Postfix) with ESMTP id 239502332A
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Aug 2019 15:42:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730443AbfHTPTh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 20 Aug 2019 11:19:37 -0400
-Received: from vps.xff.cz ([195.181.215.36]:32796 "EHLO vps.xff.cz"
+        id S1727988AbfHTPmq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 20 Aug 2019 11:42:46 -0400
+Received: from sauhun.de ([88.99.104.3]:37528 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbfHTPTh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 20 Aug 2019 11:19:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
-        t=1566314375; bh=3n0q7CBc9P4bQG/G0hfq9MsM1NWknDFFdma8+IRC/cg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RqPDvgDPVzlnaRwp8M3IghFK1wQglwVFc5+QYKZLLecgLDG5Wil2dozlnMco/EYls
-         /tTRCmZRHy22lpoHwy9E9Fr/ySqpCuyc55Qs9fnt0P+1UVmbOrWTAtsc86mOFmndqh
-         t3CYfwOjHBGp7SjGsGvlX8D7XF7SfRw54iJgeEMc=
-From:   megous@megous.com
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     Ondrej Jirman <megous@megous.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
-Subject: [PATCH v2 0/3] Add basic support for RTC on Allwinner H6 SoC
-Date:   Tue, 20 Aug 2019 17:19:31 +0200
-Message-Id: <20190820151934.3860-1-megous@megous.com>
+        id S1726717AbfHTPmq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Aug 2019 11:42:46 -0400
+Received: from localhost (p54B333DC.dip0.t-ipconnect.de [84.179.51.220])
+        by pokefinder.org (Postfix) with ESMTPSA id 0D5CE2C3014;
+        Tue, 20 Aug 2019 17:42:45 +0200 (CEST)
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-i2c@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 0/2] rtc: convert two drivers to devm_i2c_new_dummy_device()
+Date:   Tue, 20 Aug 2019 17:42:36 +0200
+Message-Id: <20190820154239.8230-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -46,45 +36,20 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+I was about to simplify the call to i2c_unregister_device() when I
+realized that converting to devm_i2c_new_dummy_device() will simplify
+the drivers a lot. So I took this approach.
 
-I went through the datasheets for H6 and H5, and compared the differences.
-RTCs are largely similar, but not entirely compatible. Incompatibilities
-are in details not yet implemented by the rtc driver though.
+Only build tested, but visually reviewed multiple times.
 
-I also corrected the clock tree in H6 DTSI.
+Wolfram Sang (2):
+  rtc: max77686: convert to devm_i2c_new_dummy_device()
+  rtc: s35390a: convert to devm_i2c_new_dummy_device()
 
-This patchset is necessary for implementing the WiFi/Bluetooth support
-on boards using H6 SoC.
-
-There was some discussion previously of describing HOSC, DCXO and XO
-oscillators and clocks as part of RTC in DT, but I decided against it
-because it's not necessary, becuse information that would be provided
-as a part of DT can already be determined at runtime from RTC registers,
-so this woudn't add any value and would only introduce complications
-to the driver. See: https://patchwork.kernel.org/cover/10898083/
-
-Please take a look.
-
-
-Thank you and regards,
-  Ondrej Jirman
-
-
-Changes in v2:
-- bindings converted to yaml
-- added reviewed by tags
-
-Ondrej Jirman (3):
-  dt-bindings: Add compatible for H6 RTC
-  rtc: sun6i: Add support for H6 RTC
-  arm64: dts: sun50i-h6: Add support for RTC and fix the clock tree
-
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 13 ++++++
- arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi  | 30 +++++++-------
- drivers/rtc/rtc-sun6i.c                       | 40 ++++++++++++++++++-
- 3 files changed, 67 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-max77686.c | 17 +++---------
+ drivers/rtc/rtc-s35390a.c  | 54 +++++++++-----------------------------
+ 2 files changed, 17 insertions(+), 54 deletions(-)
 
 -- 
-2.22.1
+2.20.1
 
