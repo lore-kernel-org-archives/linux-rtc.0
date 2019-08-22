@@ -4,77 +4,77 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B129C3A5A1
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Aug 2019 21:12:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2487DC3A5A1
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Aug 2019 21:16:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D00CA233FD
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Aug 2019 21:12:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDA3220673
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Aug 2019 21:16:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389865AbfHVVMh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Aug 2019 17:12:37 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:56203 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729718AbfHVVMh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Aug 2019 17:12:37 -0400
+        id S2391527AbfHVVQF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Aug 2019 17:16:05 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:47011 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390414AbfHVVQF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Aug 2019 17:16:05 -0400
 X-Originating-IP: 90.65.161.137
 Received: from localhost (lfbn-1-1545-137.w90-65.abo.wanadoo.fr [90.65.161.137])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 5419DE0004;
-        Thu, 22 Aug 2019 21:12:34 +0000 (UTC)
-Date:   Thu, 22 Aug 2019 23:12:33 +0200
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id BC180FF807;
+        Thu, 22 Aug 2019 21:16:01 +0000 (UTC)
+Date:   Thu, 22 Aug 2019 23:16:01 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Biwen Li <biwen.li@nxp.com>
-Cc:     a.zummo@towertech.it, leoyang.li@nxp.com, robh+dt@kernel.org,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        xiaobo.xie@nxp.com, jiafei.pan@nxp.com, ran.wang_1@nxp.com,
-        mark.rutland@arm.com, devicetree@vger.kernel.org
-Subject: Re: [v7,2/2] dt-bindings: rtc: add bindings for FlexTimer Module
-Message-ID: <20190822211233.GD27031@piout.net>
-References: <20190813030157.48590-1-biwen.li@nxp.com>
- <20190813030157.48590-2-biwen.li@nxp.com>
+To:     megous@megous.com
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com
+Subject: Re: [PATCH v2 2/3] rtc: sun6i: Add support for H6 RTC
+Message-ID: <20190822211601.GF27031@piout.net>
+References: <20190820151934.3860-1-megous@megous.com>
+ <20190820151934.3860-3-megous@megous.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190813030157.48590-2-biwen.li@nxp.com>
+In-Reply-To: <20190820151934.3860-3-megous@megous.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 13/08/2019 11:01:57+0800, Biwen Li wrote:
-> The patch adds bindings for FlexTimer Module
+On 20/08/2019 17:19:33+0200, megous@megous.com wrote:
+> From: Ondrej Jirman <megous@megous.com>
 > 
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> RTC on H6 is mostly the same as on H5 and H3. It has slight differences
+> mostly in features that are not yet supported by this driver.
+> 
+> Some differences are already stated in the comments in existing code.
+> One other difference is that H6 has extra bit in LOSC_CTRL_REG, called
+> EXT_LOSC_EN to enable/disable external low speed crystal oscillator.
+> 
+> It also has bit EXT_LOSC_STA in LOSC_AUTO_SWT_STA_REG, to check whether
+> external low speed oscillator is working correctly.
+> 
+> This patch adds support for enabling LOSC when necessary:
+> 
+> - during reparenting
+> - when probing the clock
+> 
+> H6 also has capacbility to automatically reparent RTC clock from
+> external crystal oscillator, to internal RC oscillator, if external
+> oscillator fails. This is enabled by default. Disable it during
+> probe.
+> 
+> Signed-off-by: Ondrej Jirman <megous@megous.com>
+> Reviewed-by: Chen-Yu Tsai <wens@csie.org>
 > ---
-> Change in v7:
->     - delete aliases
-> 
-> Change in v6:
->     - correct subject
->     - delete note
->     - remove reg property about IP Powerdown exception register
-> 
-> Change in v5:
->     - None
-> 
-> Change in v4:
->     - add note about dts and kernel options
->     - add aliases in example
-> 
-> Change in v3:
-> 	- remove reg-names property
-> 	- correct cells number
-> 
-> Change in v2:
-> 	- replace ls1043a with ls1088a as example
-> 	- add rcpm node and fsl,rcpm-wakeup property
-> 
->  .../bindings/rtc/rtc-fsl-ftm-alarm.txt        | 35 +++++++++++++++++++
->  1 file changed, 35 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/rtc-fsl-ftm-alarm.txt
+>  drivers/rtc/rtc-sun6i.c | 40 ++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 38 insertions(+), 2 deletions(-)
 > 
 Applied, thanks.
 
