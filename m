@@ -6,69 +6,64 @@ X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 576B3C3A5A2
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 14:05:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCEC2C3A5A2
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 14:25:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 365BF21848
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 14:05:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B62EA22CE3
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 14:25:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390206AbfHWOFS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 23 Aug 2019 10:05:18 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:58397 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726894AbfHWOFR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Aug 2019 10:05:17 -0400
+        id S2395205AbfHWOZI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 23 Aug 2019 10:25:08 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:49257 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730899AbfHWOZI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Aug 2019 10:25:08 -0400
+X-Originating-IP: 86.207.98.53
 Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id 22A26100016;
-        Fri, 23 Aug 2019 14:05:14 +0000 (UTC)
-Date:   Fri, 23 Aug 2019 16:05:13 +0200
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id E8D7A6000B;
+        Fri, 23 Aug 2019 14:25:05 +0000 (UTC)
+Date:   Fri, 23 Aug 2019 16:25:04 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     YueHaibing <yuehaibing@huawei.com>
-Cc:     a.zummo@towertech.it, bruno.thomsen@gmail.com, linux@roeck-us.net,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -next] rtc: pcf2127: Fix build error without
- CONFIG_WATCHDOG_CORE
-Message-ID: <20190823140513.GB9844@piout.net>
-References: <20190823124553.19364-1-yuehaibing@huawei.com>
+To:     Biwen Li <biwen.li@nxp.com>
+Cc:     a.zummo@towertech.it, leoyang.li@nxp.com, robh+dt@kernel.org,
+        mark.rutland@arm.com, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [1/3] rtc/fsl: support flextimer for lx2160a
+Message-ID: <20190823142504.GA30479@piout.net>
+References: <20190823095740.12280-1-biwen.li@nxp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190823124553.19364-1-yuehaibing@huawei.com>
+In-Reply-To: <20190823095740.12280-1-biwen.li@nxp.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 23/08/2019 20:45:53+0800, YueHaibing wrote:
-> If WATCHDOG_CORE is not set, build fails:
+On 23/08/2019 17:57:38+0800, Biwen Li wrote:
+> The patch supports flextimer for lx2160a
 > 
-> drivers/rtc/rtc-pcf2127.o: In function `pcf2127_probe.isra.6':
-> drivers/rtc/rtc-pcf2127.c:478: undefined reference to `devm_watchdog_register_device'
-> 
-> Add WATCHDOG_CORE Kconfig dependency to fix this.
-> 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Fixes: bbc597561ce1 ("rtc: pcf2127: add watchdog feature support")
-> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> Signed-off-by: Biwen Li <biwen.li@nxp.com>
 > ---
->  drivers/rtc/Kconfig | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/rtc/rtc-fsl-ftm-alarm.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 25af63d..9dce7dc 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -886,6 +886,8 @@ config RTC_DRV_DS3232_HWMON
->  config RTC_DRV_PCF2127
->  	tristate "NXP PCF2127"
->  	depends on RTC_I2C_AND_SPI
-> +	depends on WATCHDOG
+> diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
+> index 4f7259c2d6a3..2b81525f6db8 100644
+> --- a/drivers/rtc/rtc-fsl-ftm-alarm.c
+> +++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
+> @@ -313,6 +313,7 @@ static const struct of_device_id ftm_rtc_match[] = {
+>  	{ .compatible = "fsl,ls1088a-ftm-alarm", },
+>  	{ .compatible = "fsl,ls208xa-ftm-alarm", },
+>  	{ .compatible = "fsl,ls1028a-ftm-alarm", },
+> +	{ .compatible = "fsl,lx2160a-ftm-alarm", },
+>  	{ },
+>  };
 
-Definitively not, I fixed it that way:
-+       select WATCHDOG_CORE if WATCHDOG
-
+I've squashed it with 3/3 and in the patch adding the driver. I also
+added proper documentation.
 
 -- 
 Alexandre Belloni, Bootlin
