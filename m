@@ -2,35 +2,35 @@ Return-Path: <SRS0=c7na=WT=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 868EBC3A5A3
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 03:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAF8CC3A5A1
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 03:46:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 63DE923407
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 03:46:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B849F23407
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Aug 2019 03:46:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389910AbfHWDpt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Aug 2019 23:45:49 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:1839 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1732546AbfHWDps (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Aug 2019 23:45:48 -0400
-X-UUID: a7052b743f4347bc9df8a596edc75cea-20190823
-X-UUID: a7052b743f4347bc9df8a596edc75cea-20190823
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        id S2389608AbfHWDq1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Aug 2019 23:46:27 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:8831 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732929AbfHWDpr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Aug 2019 23:45:47 -0400
+X-UUID: d8874cce2cf84cf6a47dc44f740b502e-20190823
+X-UUID: d8874cce2cf84cf6a47dc44f740b502e-20190823
+Received: from mtkcas08.mediatek.inc [(172.21.101.126)] by mailgw02.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.10 Build 0707 with TLS)
-        with ESMTP id 1160401518; Fri, 23 Aug 2019 11:45:41 +0800
+        with ESMTP id 19840464; Fri, 23 Aug 2019 11:45:42 +0800
 Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Fri, 23 Aug 2019 11:45:34 +0800
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Fri, 23 Aug 2019 11:45:36 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by MTKCAS06.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Fri, 23 Aug 2019 11:45:34 +0800
+ Transport; Fri, 23 Aug 2019 11:45:36 +0800
 From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Mark Brown <broonie@kernel.org>,
@@ -50,76 +50,116 @@ CC:     Mark Rutland <mark.rutland@arm.com>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-mediatek@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>
-Subject: [PATCH v5 01/10] mfd: mt6397: clean up code
-Date:   Fri, 23 Aug 2019 11:45:22 +0800
-Message-ID: <1566531931-9772-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+        <srv_heupstream@mediatek.com>, Ran Bi <ran.bi@mediatek.com>
+Subject: [PATCH v5 09/10] rtc: mt6397: fix alarm register overwrite
+Date:   Fri, 23 Aug 2019 11:45:30 +0800
+Message-ID: <1566531931-9772-10-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 1.9.1
 In-Reply-To: <1566531931-9772-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 References: <1566531931-9772-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
+X-TM-SNTS-SMTP: 2E3B4B837B7F74EC272AEACC6B0957C7877B5D51C55DC4AD3990254C0E4EF8972000:8
 X-MTK:  N
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-refine some variable name for more readable
+From: Ran Bi <ran.bi@mediatek.com>
 
-Acked-for-mfd-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Alarm registers high byte was reserved for other functions.
+This add mask in alarm registers operation functions.
+This also fix error condition in interrupt handler.
+
+Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Ran Bi <ran.bi@mediatek.com>
 ---
- drivers/mfd/mt6397-core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-mt6397.c | 47 +++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 337bccc..c070862 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -10,17 +10,17 @@
- #include <linux/of_irq.h>
- #include <linux/regmap.h>
- #include <linux/mfd/core.h>
--#include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6323/core.h>
--#include <linux/mfd/mt6397/registers.h>
-+#include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6323/registers.h>
-+#include <linux/mfd/mt6397/registers.h>
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index b46ed4d..828def7 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -47,6 +47,14 @@
  
- #define MT6397_RTC_BASE		0xe000
- #define MT6397_RTC_SIZE		0x3e
+ #define RTC_AL_SEC		0x0018
  
--#define MT6323_CID_CODE		0x23
--#define MT6391_CID_CODE		0x91
--#define MT6397_CID_CODE		0x97
-+#define MT6323_CHIP_ID		0x23
-+#define MT6391_CHIP_ID		0x91
-+#define MT6397_CHIP_ID		0x97
++#define RTC_AL_SEC_MASK		0x003f
++#define RTC_AL_MIN_MASK		0x003f
++#define RTC_AL_HOU_MASK		0x001f
++#define RTC_AL_DOM_MASK		0x001f
++#define RTC_AL_DOW_MASK		0x0007
++#define RTC_AL_MTH_MASK		0x000f
++#define RTC_AL_YEA_MASK		0x007f
++
+ #define RTC_PDN2		0x002e
+ #define RTC_PDN2_PWRON_ALARM	BIT(4)
  
- static const struct resource mt6397_rtc_resources[] = {
- 	{
-@@ -290,7 +290,7 @@ static int mt6397_probe(struct platform_device *pdev)
- 		return pmic->irq;
+@@ -103,7 +111,7 @@ static irqreturn_t mtk_rtc_irq_handler_thread(int irq, void *data)
+ 		irqen = irqsta & ~RTC_IRQ_EN_AL;
+ 		mutex_lock(&rtc->lock);
+ 		if (regmap_write(rtc->regmap, rtc->addr_base + RTC_IRQ_EN,
+-				 irqen) < 0)
++				 irqen) == 0)
+ 			mtk_rtc_write_trigger(rtc);
+ 		mutex_unlock(&rtc->lock);
  
- 	switch (id & 0xff) {
--	case MT6323_CID_CODE:
-+	case MT6323_CHIP_ID:
- 		pmic->int_con[0] = MT6323_INT_CON0;
- 		pmic->int_con[1] = MT6323_INT_CON1;
- 		pmic->int_status[0] = MT6323_INT_STATUS0;
-@@ -304,8 +304,8 @@ static int mt6397_probe(struct platform_device *pdev)
- 					   0, pmic->irq_domain);
- 		break;
+@@ -225,12 +233,12 @@ static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	alm->pending = !!(pdn2 & RTC_PDN2_PWRON_ALARM);
+ 	mutex_unlock(&rtc->lock);
  
--	case MT6397_CID_CODE:
--	case MT6391_CID_CODE:
-+	case MT6391_CHIP_ID:
-+	case MT6397_CHIP_ID:
- 		pmic->int_con[0] = MT6397_INT_CON0;
- 		pmic->int_con[1] = MT6397_INT_CON1;
- 		pmic->int_status[0] = MT6397_INT_STATUS0;
+-	tm->tm_sec = data[RTC_OFFSET_SEC];
+-	tm->tm_min = data[RTC_OFFSET_MIN];
+-	tm->tm_hour = data[RTC_OFFSET_HOUR];
+-	tm->tm_mday = data[RTC_OFFSET_DOM];
+-	tm->tm_mon = data[RTC_OFFSET_MTH];
+-	tm->tm_year = data[RTC_OFFSET_YEAR];
++	tm->tm_sec = data[RTC_OFFSET_SEC] & RTC_AL_SEC_MASK;
++	tm->tm_min = data[RTC_OFFSET_MIN] & RTC_AL_MIN_MASK;
++	tm->tm_hour = data[RTC_OFFSET_HOUR] & RTC_AL_HOU_MASK;
++	tm->tm_mday = data[RTC_OFFSET_DOM] & RTC_AL_DOM_MASK;
++	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
++	tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
+ 
+ 	tm->tm_year += RTC_MIN_YEAR_OFFSET;
+ 	tm->tm_mon--;
+@@ -251,14 +259,25 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
+ 	tm->tm_mon++;
+ 
+-	data[RTC_OFFSET_SEC] = tm->tm_sec;
+-	data[RTC_OFFSET_MIN] = tm->tm_min;
+-	data[RTC_OFFSET_HOUR] = tm->tm_hour;
+-	data[RTC_OFFSET_DOM] = tm->tm_mday;
+-	data[RTC_OFFSET_MTH] = tm->tm_mon;
+-	data[RTC_OFFSET_YEAR] = tm->tm_year;
+-
+ 	mutex_lock(&rtc->lock);
++	ret = regmap_bulk_read(rtc->regmap, rtc->addr_base + RTC_AL_SEC,
++			       data, RTC_OFFSET_COUNT);
++	if (ret < 0)
++		goto exit;
++
++	data[RTC_OFFSET_SEC] = ((data[RTC_OFFSET_SEC] & ~(RTC_AL_SEC_MASK)) |
++				(tm->tm_sec & RTC_AL_SEC_MASK));
++	data[RTC_OFFSET_MIN] = ((data[RTC_OFFSET_MIN] & ~(RTC_AL_MIN_MASK)) |
++				(tm->tm_min & RTC_AL_MIN_MASK));
++	data[RTC_OFFSET_HOUR] = ((data[RTC_OFFSET_HOUR] & ~(RTC_AL_HOU_MASK)) |
++				(tm->tm_hour & RTC_AL_HOU_MASK));
++	data[RTC_OFFSET_DOM] = ((data[RTC_OFFSET_DOM] & ~(RTC_AL_DOM_MASK)) |
++				(tm->tm_mday & RTC_AL_DOM_MASK));
++	data[RTC_OFFSET_MTH] = ((data[RTC_OFFSET_MTH] & ~(RTC_AL_MTH_MASK)) |
++				(tm->tm_mon & RTC_AL_MTH_MASK));
++	data[RTC_OFFSET_YEAR] = ((data[RTC_OFFSET_YEAR] & ~(RTC_AL_YEA_MASK)) |
++				(tm->tm_year & RTC_AL_YEA_MASK));
++
+ 	if (alm->enabled) {
+ 		ret = regmap_bulk_write(rtc->regmap,
+ 					rtc->addr_base + RTC_AL_SEC,
 -- 
 1.9.1
 
