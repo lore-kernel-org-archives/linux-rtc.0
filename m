@@ -1,98 +1,130 @@
-Return-Path: <SRS0=cdoK=WZ=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=eSlA=W2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27BBCC3A59F
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Aug 2019 21:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 178AEC3A5A4
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 09:27:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F36A22189D
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Aug 2019 21:26:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5ED223427
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 09:27:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727926AbfH2V0L (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 29 Aug 2019 17:26:11 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:45881 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726944AbfH2VZ6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 29 Aug 2019 17:25:58 -0400
-X-Originating-IP: 90.65.161.137
-Received: from localhost (lfbn-1-1545-137.w90-65.abo.wanadoo.fr [90.65.161.137])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 3873C1C0004;
-        Thu, 29 Aug 2019 21:25:57 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 3/5] rtc: pcf8563: convert to devm_rtc_allocate_device
-Date:   Thu, 29 Aug 2019 23:25:45 +0200
-Message-Id: <20190829212547.19185-3-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190829212547.19185-1-alexandre.belloni@bootlin.com>
-References: <20190829212547.19185-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1728094AbfH3J1d (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 30 Aug 2019 05:27:33 -0400
+Received: from inva020.nxp.com ([92.121.34.13]:50538 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726461AbfH3J1d (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 30 Aug 2019 05:27:33 -0400
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C9E9D1A03CC;
+        Fri, 30 Aug 2019 11:27:30 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 395DE1A00A9;
+        Fri, 30 Aug 2019 11:27:26 +0200 (CEST)
+Received: from titan.ap.freescale.net (TITAN.ap.freescale.net [10.192.208.233])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 4B845402D7;
+        Fri, 30 Aug 2019 17:27:20 +0800 (SGT)
+From:   Biwen Li <biwen.li@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, leoyang.li@nxp.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
+        Martin Fuzzey <mfuzzey@parkeon.com>
+Subject: [1/2] dt-bindings: rtc: pcf85263/pcf85363: add some properties
+Date:   Fri, 30 Aug 2019 17:17:19 +0800
+Message-Id: <20190830091720.41156-1-biwen.li@nxp.com>
+X-Mailer: git-send-email 2.9.5
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This allows further improvement of the driver.
+Add some properties for pcf85263/pcf85363 as follows:
+  - interrupt-output-pin: string type
+  - quartz-load-capacitance: integer type
+  - quartz-drive-strength: integer type
+  - quartz-low-jitter: bool type
+  - wakeup-source: bool type
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- drivers/rtc/rtc-pcf8563.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ .../devicetree/bindings/rtc/pcf85363.txt      | 31 +++++++++++++++++++
+ include/dt-bindings/rtc/pcf85363.h            | 15 +++++++++
+ 2 files changed, 46 insertions(+)
+ create mode 100644 include/dt-bindings/rtc/pcf85363.h
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 1b452da75eb8..0e375e19c149 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -591,13 +591,14 @@ static int pcf8563_probe(struct i2c_client *client,
- 		return err;
- 	}
+diff --git a/Documentation/devicetree/bindings/rtc/pcf85363.txt b/Documentation/devicetree/bindings/rtc/pcf85363.txt
+index 94adc1cf93d9..d83359990bd7 100644
+--- a/Documentation/devicetree/bindings/rtc/pcf85363.txt
++++ b/Documentation/devicetree/bindings/rtc/pcf85363.txt
+@@ -8,10 +8,41 @@ Required properties:
+ Optional properties:
+ - interrupts: IRQ line for the RTC (not implemented).
  
--	pcf8563->rtc = devm_rtc_device_register(&client->dev,
--				pcf8563_driver.driver.name,
--				&pcf8563_rtc_ops, THIS_MODULE);
--
-+	pcf8563->rtc = devm_rtc_allocate_device(&client->dev);
- 	if (IS_ERR(pcf8563->rtc))
- 		return PTR_ERR(pcf8563->rtc);
- 
-+	pcf8563->rtc->ops = &pcf8563_rtc_ops;
-+	/* the pcf8563 alarm only supports a minute accuracy */
-+	pcf8563->rtc->uie_unsupported = 1;
++- interrupt-output-pin: The interrupt output pin must be
++  "NONE", "INTA" or "INTB", default value is "NONE"
 +
- 	if (client->irq > 0) {
- 		err = devm_request_threaded_irq(&client->dev, client->irq,
- 				NULL, pcf8563_irq,
-@@ -608,17 +609,17 @@ static int pcf8563_probe(struct i2c_client *client,
- 								client->irq);
- 			return err;
- 		}
--
- 	}
- 
-+	err = rtc_register_device(pcf8563->rtc);
-+	if (err)
-+		return err;
++- quartz-load-capacitance: The internal capacitor to select for the quartz:
++	PCF85263_QUARTZCAP_7pF		[0]
++	PCF85263_QUARTZCAP_6pF		[1]
++	PCF85263_QUARTZCAP_12p5pF	[2] DEFAULT
 +
- #ifdef CONFIG_COMMON_CLK
- 	/* register clk in common clk framework */
- 	pcf8563_clkout_register_clk(pcf8563);
- #endif
++- quartz-drive-strength: Drive strength for the quartz:
++	PCF85263_QUARTZDRIVE_NORMAL	[0] DEFAULT
++	PCF85263_QUARTZDRIVE_LOW	[1]
++	PCF85263_QUARTZDRIVE_HIGH	[2]
++
++- quartz-low-jitter: Boolean property, if present enables low jitter mode
++  which reduces jitter at the cost of increased power consumption.
++
++- wakeup-source: Boolean property, mark the chip as a wakeup source,
++  independently of the availability of an IRQ line connected to the SoC.
++  This is useful if the IRQ line is connected to a PMIC or other circuit
++  that can power up the device rather than to a normal SOC interrupt.
++
+ Example:
  
--	/* the pcf8563 alarm only supports a minute accuracy */
--	pcf8563->rtc->uie_unsupported = 1;
--
- 	return 0;
- }
+ pcf85363: pcf85363@51 {
+ 	compatible = "nxp,pcf85363";
+ 	reg = <0x51>;
++
++	interrupt-parent = <&gpio1>;
++	interrupts = <18 IRQ_TYPE_EDGE_FALLING>;
++
++	#include <dt-bindings/rtc/pcf85363.h>
++	wakeup-source;
++	interrupt-output-pin = "INTA";
++	quartz-load-capacitance = <PCF85363_QUARTZCAP_12p5pF>;
++	quartz-drive-strength = <PCF85363_QUARTZDRIVE_LOW>;
++	quartz-low-jitter;
+ };
  
+diff --git a/include/dt-bindings/rtc/pcf85363.h b/include/dt-bindings/rtc/pcf85363.h
+new file mode 100644
+index 000000000000..2c06c28eb5ff
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _DT_BINDINGS_RTC_PCF85363_H
++#define _DT_BINDINGS_RTC_PCF85363_H
++
++/* Quartz capacitance */
++#define PCF85363_QUARTZCAP_7pF		0
++#define PCF85363_QUARTZCAP_6pF		1
++#define PCF85363_QUARTZCAP_12p5pF	2
++
++/* Quartz drive strength */
++#define PCF85363_QUARTZDRIVE_NORMAL	0
++#define PCF85363_QUARTZDRIVE_LOW	1
++#define PCF85363_QUARTZDRIVE_HIGH	2
++
++#endif /* _DT_BINDINGS_RTC_PCF85363_H */
 -- 
-2.21.0
+2.17.1
 
