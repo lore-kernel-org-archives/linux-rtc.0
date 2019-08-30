@@ -4,114 +4,66 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A53E0C3A5A4
-	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 13:31:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1FFC3A5A4
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 13:47:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8503F22CE9
-	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 13:31:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B9D020820
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Aug 2019 13:47:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbfH3Nb3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 30 Aug 2019 09:31:29 -0400
-Received: from sauhun.de ([88.99.104.3]:54416 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727780AbfH3Nb3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 30 Aug 2019 09:31:29 -0400
-Received: from localhost (p54B335BE.dip0.t-ipconnect.de [84.179.53.190])
-        by pokefinder.org (Postfix) with ESMTPSA id D3E512C00A0;
-        Fri, 30 Aug 2019 15:31:26 +0200 (CEST)
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-i2c@vger.kernel.org
-Cc:     linux-rtc@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] rtc: max77686: convert to devm_i2c_new_dummy_device()
-Date:   Fri, 30 Aug 2019 15:31:23 +0200
-Message-Id: <20190830133124.21633-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190830133124.21633-1-wsa+renesas@sang-engineering.com>
-References: <20190830133124.21633-1-wsa+renesas@sang-engineering.com>
+        id S1727754AbfH3Nr7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 30 Aug 2019 09:47:59 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:56409 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727751AbfH3Nr7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Aug 2019 09:47:59 -0400
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <bst@pengutronix.de>)
+        id 1i3hFt-00016X-MR; Fri, 30 Aug 2019 15:47:57 +0200
+From:   Bastian Krause <bst@pengutronix.de>
+To:     linux-rtc@vger.kernel.org
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
+        devicetree@vger.kernel.org, kernel@pengutronix.de,
+        Bastian Krause <bst@pengutronix.de>
+Subject: [PATCH] dt-bindings: rtc: add missing rx8130 compatible
+Date:   Fri, 30 Aug 2019 15:47:55 +0200
+Message-Id: <20190830134755.1121-1-bst@pengutronix.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: bst@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I was about to simplify the call to i2c_unregister_device() when I
-realized that converting to devm_i2c_new_dummy_device() will simplify
-the driver a lot. So I took this approach.
+The required OF entries were added with 47dd47292828
+("rtc: ds1307: add OF and ACPI entries for Epson RX8130").
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Bastian Krause <bst@pengutronix.de>
 ---
- drivers/rtc/rtc-max77686.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index 7a98e0744878..d5a0e27dd0a0 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -690,8 +690,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
- 		goto add_rtc_irq;
- 	}
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index eaee19b60960..66f0a31ae9ce 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -19,6 +19,7 @@ Required properties:
+ 	"pericom,pt7c4338",
+ 	"epson,rx8025",
+ 	"isil,isl12057"
++	"epson,rx8130"
+ - reg: I2C bus address of the device
  
--	info->rtc = i2c_new_dummy_device(parent_i2c->adapter,
--					 info->drv_data->rtc_i2c_addr);
-+	info->rtc = devm_i2c_new_dummy_device(info->dev, parent_i2c->adapter,
-+					      info->drv_data->rtc_i2c_addr);
- 	if (IS_ERR(info->rtc)) {
- 		dev_err(info->dev, "Failed to allocate I2C device for RTC\n");
- 		return PTR_ERR(info->rtc);
-@@ -702,7 +702,7 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
- 	if (IS_ERR(info->rtc_regmap)) {
- 		ret = PTR_ERR(info->rtc_regmap);
- 		dev_err(info->dev, "Failed to allocate RTC regmap: %d\n", ret);
--		goto err_unregister_i2c;
-+		return ret;
- 	}
- 
- add_rtc_irq:
-@@ -712,15 +712,10 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
- 				  &info->rtc_irq_data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
--		goto err_unregister_i2c;
-+		return ret;
- 	}
- 
- 	return 0;
--
--err_unregister_i2c:
--	if (info->rtc)
--		i2c_unregister_device(info->rtc);
--	return ret;
- }
- 
- static int max77686_rtc_probe(struct platform_device *pdev)
-@@ -783,8 +778,6 @@ static int max77686_rtc_probe(struct platform_device *pdev)
- 
- err_rtc:
- 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
--	if (info->rtc)
--		i2c_unregister_device(info->rtc);
- 
- 	return ret;
- }
-@@ -795,8 +788,6 @@ static int max77686_rtc_remove(struct platform_device *pdev)
- 
- 	free_irq(info->virq, info);
- 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
--	if (info->rtc)
--		i2c_unregister_device(info->rtc);
- 
- 	return 0;
- }
+ Optional properties:
 -- 
-2.20.1
+2.23.0
 
