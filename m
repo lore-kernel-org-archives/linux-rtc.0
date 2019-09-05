@@ -2,28 +2,29 @@ Return-Path: <SRS0=g8wx=XA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A167C3A5A5
-	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15C8DC3A5A5
+	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E097D2173B
-	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBD592173B
+	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731012AbfIEGqX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1730716AbfIEGqX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Thu, 5 Sep 2019 02:46:23 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:35676 "EHLO huawei.com"
+Received: from szxga04-in.huawei.com ([45.249.212.190]:6677 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726097AbfIEGqX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1725290AbfIEGqX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Thu, 5 Sep 2019 02:46:23 -0400
 Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 9F244DBF19FA7DA58829;
+        by Forcepoint Email with ESMTP id 752D65998B31670E5797;
         Thu,  5 Sep 2019 14:46:21 +0800 (CST)
 Received: from linux-ibm.site (10.175.102.37) by
  DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
- 14.3.439.0; Thu, 5 Sep 2019 14:46:10 +0800
+ 14.3.439.0; Thu, 5 Sep 2019 14:46:14 +0800
 From:   zhong jiang <zhongjiang@huawei.com>
 To:     <tony@atomide.com>, <udeep.dutt@intel.com>,
         <ashutosh.dixit@intel.com>, <gregkh@linuxfoundation.org>,
@@ -32,10 +33,12 @@ To:     <tony@atomide.com>, <udeep.dutt@intel.com>,
 CC:     <zhongjiang@huawei.com>, <linux-kernel@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>, <arnd@arndb.de>,
         <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 0/4] Use PTR_ERR_OR_ZERO directly
-Date:   Thu, 5 Sep 2019 14:43:11 +0800
-Message-ID: <1567665795-5901-1-git-send-email-zhongjiang@huawei.com>
+Subject: [PATCH 4/4] rtc: ds1347: Use PTR_ERR_OR_ZERO rather than its implementation
+Date:   Thu, 5 Sep 2019 14:43:15 +0800
+Message-ID: <1567665795-5901-5-git-send-email-zhongjiang@huawei.com>
 X-Mailer: git-send-email 1.7.12.4
+In-Reply-To: <1567665795-5901-1-git-send-email-zhongjiang@huawei.com>
+References: <1567665795-5901-1-git-send-email-zhongjiang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.175.102.37]
@@ -45,21 +48,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-With the help of ptr_ret.cocci, I find some place to use
-PTR_ERR_OR_ZERO directly.
+PTR_ERR_OR_ZERO contains if(IS_ERR(...)) + PTR_ERR. It is better to
+use it directly. hence just replace it.
 
-zhong jiang (4):
-  bus: ti-sysc: Use PTR_ERR_OR_ZERO rather than its implementation
-  misc: mic: Use PTR_ERR_OR_ZERO rather than its implementation
-  phy: tegra: Use PTR_ERR_OR_ZERO rather than its implementation
-  rtc: ds1347: Use PTR_ERR_OR_ZERO rather than its implementation
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+---
+ drivers/rtc/rtc-ds1347.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
- drivers/bus/ti-sysc.c                | 4 +---
- drivers/misc/mic/scif/scif_epd.h     | 5 ++---
- drivers/phy/tegra/phy-tegra194-p2u.c | 4 +---
- drivers/rtc/rtc-ds1347.c             | 5 +----
- 4 files changed, 5 insertions(+), 13 deletions(-)
-
+diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+index d392a7b..5a64eea 100644
+--- a/drivers/rtc/rtc-ds1347.c
++++ b/drivers/rtc/rtc-ds1347.c
+@@ -151,10 +151,7 @@ static int ds1347_probe(struct spi_device *spi)
+ 	rtc = devm_rtc_device_register(&spi->dev, "ds1347",
+ 				&ds1347_rtc_ops, THIS_MODULE);
+ 
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
+-
+-	return 0;
++	return PTR_ERR_OR_ZERO(rtc);
+ }
+ 
+ static struct spi_driver ds1347_driver = {
 -- 
 1.7.12.4
 
