@@ -1,62 +1,76 @@
-Return-Path: <SRS0=sYll=W6=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=g8wx=XA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A94FC3A5A2
-	for <linux-rtc@archiver.kernel.org>; Tue,  3 Sep 2019 22:49:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1222CC3A5AB
+	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1938B215EA
-	for <linux-rtc@archiver.kernel.org>; Tue,  3 Sep 2019 22:49:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8A1E2173B
+	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 06:46:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726009AbfICWt3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 3 Sep 2019 18:49:29 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:34764 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725990AbfICWt3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 3 Sep 2019 18:49:29 -0400
-Received: from p5de0b6c5.dip0.t-ipconnect.de ([93.224.182.197] helo=nanos)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1i5Hc2-0006tz-Pu; Wed, 04 Sep 2019 00:49:23 +0200
-Date:   Wed, 4 Sep 2019 00:49:21 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Michael <michael@mipisi.de>
-cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: Problem when function alarmtimer_suspend returns 0 if time delta
- is zero
-In-Reply-To: <4fc3a016-ec2f-a15e-5fd1-6794a001e2d9@mipisi.de>
-Message-ID: <alpine.DEB.2.21.1909040047210.1902@nanos.tec.linutronix.de>
-References: <S1728511AbfHaSEm/20190831180442Z+580@vger.kernel.org> <08fbdf25-faa1-aa13-4f13-d30acbf27dda@mipisi.de> <20190902074917.GA21922@piout.net> <alpine.DEB.2.21.1909021247250.3955@nanos.tec.linutronix.de>
- <4fc3a016-ec2f-a15e-5fd1-6794a001e2d9@mipisi.de>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S1731211AbfIEGqY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 5 Sep 2019 02:46:24 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:6678 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726089AbfIEGqY (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 5 Sep 2019 02:46:24 -0400
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 7D494C6F98C930736F07;
+        Thu,  5 Sep 2019 14:46:21 +0800 (CST)
+Received: from linux-ibm.site (10.175.102.37) by
+ DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
+ 14.3.439.0; Thu, 5 Sep 2019 14:46:11 +0800
+From:   zhong jiang <zhongjiang@huawei.com>
+To:     <tony@atomide.com>, <udeep.dutt@intel.com>,
+        <ashutosh.dixit@intel.com>, <gregkh@linuxfoundation.org>,
+        <kishon@ti.com>, <jonathanh@nvidia.com>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>
+CC:     <zhongjiang@huawei.com>, <linux-kernel@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <arnd@arndb.de>,
+        <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 1/4] bus: ti-sysc: Use PTR_ERR_OR_ZERO rather than its implementation
+Date:   Thu, 5 Sep 2019 14:43:12 +0800
+Message-ID: <1567665795-5901-2-git-send-email-zhongjiang@huawei.com>
+X-Mailer: git-send-email 1.7.12.4
+In-Reply-To: <1567665795-5901-1-git-send-email-zhongjiang@huawei.com>
+References: <1567665795-5901-1-git-send-email-zhongjiang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain
+X-Originating-IP: [10.175.102.37]
+X-CFilter-Loop: Reflected
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 3 Sep 2019, Michael wrote:
+PTR_ERR_OR_ZERO contains if(IS_ERR(...)) + PTR_ERR. It is better to
+use it directly. hence just replace it.
 
-> Thomas,
-> 
-> thank you very much for your patch. Unfortunately currently I can only test it
-> with a kernel 4.1.52 but i've tried to patch
-> your new logic into my older kernel version.
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+---
+ drivers/bus/ti-sysc.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-<formletter>
-
- https://people.kernel.org/tglx/notes-about-netiquette
-
-</formletter>
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 9207ac2..6f4c102 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -504,10 +504,8 @@ static int sysc_init_resets(struct sysc *ddata)
+ {
+ 	ddata->rsts =
+ 		devm_reset_control_get_optional_shared(ddata->dev, "rstctrl");
+-	if (IS_ERR(ddata->rsts))
+-		return PTR_ERR(ddata->rsts);
+ 
+-	return 0;
++	return PTR_ERR_OR_ZERO(ddata->rsts);
+ }
+ 
+ /**
+-- 
+1.7.12.4
 
