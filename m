@@ -1,117 +1,99 @@
-Return-Path: <SRS0=g8wx=XA=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=0HkB=XB=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF39C3A5A5
-	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 13:04:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A3A9C43331
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Sep 2019 13:07:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A7DC921D7B
-	for <linux-rtc@archiver.kernel.org>; Thu,  5 Sep 2019 13:04:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 444FB214DE
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Sep 2019 13:07:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="i19y1XQ+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389718AbfIENEK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 5 Sep 2019 09:04:10 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:56316 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726097AbfIENEJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 5 Sep 2019 09:04:09 -0400
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 46PLVb5tjnz1rQ59;
-        Thu,  5 Sep 2019 15:04:07 +0200 (CEST)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 46PLVb5QjLz1qqkk;
-        Thu,  5 Sep 2019 15:04:07 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id H_y-JTymBGaf; Thu,  5 Sep 2019 15:04:06 +0200 (CEST)
-X-Auth-Info: 9DK+ylPD6ffWgP56bFYGTk0nejn5p3/Hhms7Pq9ADjI=
-Received: from [IPv6:::1] (unknown [195.140.253.167])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Thu,  5 Sep 2019 15:04:06 +0200 (CEST)
-Subject: Re: [PATCH] rtc: ds1307: Enable battery backup on RX8130
-To:     Bastian Krause <bst@pengutronix.de>, linux-rtc@vger.kernel.org
-Cc:     Arnaud Ebalard <arno@natisbad.org>,
-        Alexandre Belloni <alexandre.belloni@free-electrons.com>,
-        kernel@pengutronix.de
-References: <20190628002151.4925-1-marex@denx.de>
- <acf967d9-cd5e-abf5-803d-4038b8ff3c51@pengutronix.de>
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <d15d2a30-fea7-bc34-1623-37ca122a3a47@denx.de>
-Date:   Thu, 5 Sep 2019 15:00:58 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S2405116AbfIFNHC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 6 Sep 2019 09:07:02 -0400
+Received: from mout.gmx.net ([212.227.17.21]:57857 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732510AbfIFNHC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 6 Sep 2019 09:07:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1567775184;
+        bh=0OF9nooHaaz9QiSyWV5QXoHDrg/gupxebmNBl1oIx/g=;
+        h=X-UI-Sender-Class:Date:In-Reply-To:References:Subject:Reply-to:To:
+         CC:From;
+        b=i19y1XQ+Sjb3Bf6S8JT/ov4XiVViT4w3FmhmkXSFhxP1ExYkhhJh5xlnkxozMzdPM
+         P/jf/5zVqMgnCM+ZJTXaIQfEy6GJvi3qWzmbPnthfVrnb79F3lpZgiWUo0Fb1Io/7i
+         MI9+Sml/1ZkmccIktxdk6XvudYj+hZ+5PL3LP8lU=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [10.17.198.103] ([80.187.119.108]) by mail.gmx.com (mrgmx103
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 0LfC4q-1iUZHE1Ahk-00oo3Y; Fri, 06
+ Sep 2019 15:06:24 +0200
+Date:   Fri, 06 Sep 2019 15:06:19 +0200
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20190818135611.7776-1-frank-w@public-files.de>
+References: <20190818135611.7776-1-frank-w@public-files.de>
 MIME-Version: 1.0
-In-Reply-To: <acf967d9-cd5e-abf5-803d-4038b8ff3c51@pengutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v6 00/13] implement poweroff for mt6323 / bpi-r2
+Reply-to: frank-w@public-files.de
+To:     linux-mediatek@lists.infradead.org
+CC:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        "linux-arm-kernel @ lists . infradead . org Alessandro Zummo" 
+        <a.zummo@towertech.it>, linux-pm@vger.kernel.org,
+        Josef Friedl <josef.friedl@speed.at>,
+        linux-kernel@vger.kernel.org,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-arm-kernel@lists.infradead.org
+From:   Frank Wunderlich <frank-w@public-files.de>
+Message-ID: <BB9183EF-A385-473B-A7D7-61D96499A291@public-files.de>
+X-Provags-ID: V03:K1:V5jGArpFSoQO8rcBj/oQ7M7hCM+ph33LHPzlmTu2/Uz+Z+NoTcX
+ mrjNJebj4twFmn5jbSeWp4bZPiW/10grqByIrn4WtPCQgOCLPpXEaJ2yGFdgw7i6E5BUstR
+ PmB+0+7nZYeOikJPMidf6hjMitlyBSpljFZhNe1dJmHRpmpIxFDwyq26Z8gJSLVkTUkP345
+ sigUEW/eA5FXNm5okGVWA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:LbUxFDSt/zk=:PJB+ZDjqw9jlHwGn0v8G+9
+ ZoPPHWH6MdiweCHknS64vnRdhUSdAjXf2iNfRIxkJw/Wd9GGsqM2WFeltXxYoRLzbWs1Bf/ma
+ t0Dxia/F/n4J39LCCmwCmOUR1z7II/VEuNpW2BH8tGbyq/TRXSY8DVL825VR1ldMhwbMI633Y
+ p4kNR2U8011tsKhy70Z+3LXbkfQLmtT42pGZms01zWEoWm0adawZGytqFK+CziG19bKgzb4F5
+ gjsweP9/ldVIUbBzlPV5/tYpUvvcdiTqwLKxMAACQQAn//hGZITZ5DJqk394LtxEzwXv1fRKX
+ K77zFNi6jvITwa1drVRrZ5UKJjwXcyUdokLikgWtInMttdDl+vMw5VZszP0DkdAFXLWNgNwSj
+ 7g4tbsc8Z7annB6R0NXWXX1iYyJy/oN0gxneOfrmofD8yUNhHBITrMEoZ63RHw3xZ+1vW9tz5
+ zM6MFCwEs9gja5EsoR5EKOzGl7zx/xawvxzaOnjlRF8qqBz/Aq6kdD3RHXYJyQHnDgjX+lPMo
+ sbqVCvlI27Udtg2KZzViMnT8DvM+BTlAdP7d5/tJr9/wEYaTmrkkBFpOlQTX17xxOSHxtHDL8
+ ZeN+N3nM+8Y0XqPLfoyj77ug9jQblhYJ4WQhlZ4F+b3ltJzKX6T6RLtfDfjTjHw1Brng7YVUs
+ L7WY6TYOEaiSow4rT9ZRMsO7fbYsClxiAIxBtLPYxy1yY0z5aH1KVAGQOeyB1UkIpDENZzNUn
+ 6yDwSc602T5HwU4CSXILbA9GCgLK/9mi6TjoU7pXct4m1fe2OG1ODkTmHnTVFg4nz7j42262K
+ UI+LtfGaufr8CDFFAr8dHUOuXpZqK7WATZgTAJ/miO5QtsyudWrnrAvbZMUV3CIsoqOD5FEKq
+ Ok3P7JS/ZgEakHaXCM8OdKC68A3+VNdASSVzSQhNQzGDMf0nwkqBZVcQJCvuOVAcfTJPOFThX
+ P5pye6mweyyWCnmCUF9koHbO0kR/1jayur2+9LEzO4xzN+9EFjlGAmRrssiuAzc0qFSkFLctC
+ yx341pRqpYY5NmA585RnYd55lwz2IK0A0+wy3GdVOUEtQqOt8+Wlo0yuz78LR1NQE5p5nP6WP
+ 7ZfAkS2I7zrD7knwe8/lk3PX0Ug1UJkFk16VDj0a6tsivIwSRnvwZCR5IdxQASTEl+j8xoGUR
+ jpzoro+p01afJHGmXRY9lugwG2PLTqd6O6QNwYjgkjtvEVnj0nCbywyHVeT5b1wjSgVYlR7TY
+ B0mvQACDg7E77Exb0
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 8/30/19 12:42 PM, Bastian Krause wrote:
-> Hi Marek,
-
 Hi,
 
-> On 6/28/19 2:21 AM, Marek Vasut wrote:
->> The battery backup can be disabled on this RTC, e.g. if populated right
->> out of production. Force the battery backup bit on to enable it.
->>
->> Signed-off-by: Marek Vasut <marex@denx.de>
->> Cc: Arnaud Ebalard <arno@natisbad.org>
->> Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->> ---
->>  drivers/rtc/rtc-ds1307.c | 7 +++++++
->>  1 file changed, 7 insertions(+)
->>
->> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
->> index 1f7e8aefc1eb..4af00cac1eff 100644
->> --- a/drivers/rtc/rtc-ds1307.c
->> +++ b/drivers/rtc/rtc-ds1307.c
->> @@ -121,6 +121,8 @@ enum ds_type {
->>  #define RX8130_REG_FLAG_AF		BIT(3)
->>  #define RX8130_REG_CONTROL0		0x1e
->>  #define RX8130_REG_CONTROL0_AIE		BIT(3)
->> +#define RX8130_REG_CONTROL1		0x0f
-> 
-> I think it is surprising that RX8130_REG_CONTROL0 is defined absolute
-> and RX8130_REG_CONTROL1 must be used with chip offset. Having this
-> defined consistently would be nice.
+Just a friedly reminder=2E
 
-It's because this old patch was rebased from before the regmap changes
-were even in.
+MFD-part was applied and visible in linux-next, the other parts acknowledg=
+ed by maintainers=2E Is anything additional needed before applying the rtc/=
+power/dts-parts?
 
->> +#define RX8130_REG_CONTROL1_INIEN	BIT(4)
->>  
->>  #define MCP794XX_REG_CONTROL		0x07
->>  #	define MCP794XX_BIT_ALM0_EN	0x10
->> @@ -1750,6 +1752,11 @@ static int ds1307_probe(struct i2c_client *client,
->>  				     DS1307_REG_HOUR << 4 | 0x08, hour);
->>  		}
->>  		break;
->> +	case rx_8130:
->> +		/* make sure that the backup battery is enabled */
->> +		regmap_write(ds1307->regmap, chip->offset + RX8130_REG_CONTROL1,
->> +			     RX8130_REG_CONTROL1_INIEN);
->> +		break;
-> 
-> Quick note: if a rechargeable battery or supercap is used the CHGEN bit
-> must be set also.
-
-By rechargable battery, you mean coin cell one ?
-
--- 
-Best regards,
-Marek Vasut
-
-DENX Software Engineering GmbH, Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: (+49)-8142-66989-56 Email: marex@denx.de
+Regards Frank
