@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 052E3C43140
-	for <linux-rtc@archiver.kernel.org>; Sat,  7 Sep 2019 09:21:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E449C43331
+	for <linux-rtc@archiver.kernel.org>; Sat,  7 Sep 2019 09:21:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D24BC21BE5
-	for <linux-rtc@archiver.kernel.org>; Sat,  7 Sep 2019 09:21:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76F6021871
+	for <linux-rtc@archiver.kernel.org>; Sat,  7 Sep 2019 09:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1567848080;
-	bh=szqE7WiJE89jv3JbD2laqpsXkx3HLaIdOm2W3JGMdpE=;
+	s=default; t=1567848085;
+	bh=FKDNpqBcuyt8PrcvNXXOdfOUsrAaU52nYkpwBFFp2hw=;
 	h=From:To:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=H6zEG6hdLDoyV/+j1If0bpwN4oVFRVDAEGEwQptfcpByUOBw5vEvyRdduh/hyeHrX
-	 N1S84HlfKKXc2gqoCXMgqh07ozh7gogd6nRk42cTi4kaRafhm7djQWHNjhMZiFww79
-	 y9N42ayCCDQvd0gDaQOvfqDJNevKnXhT/PY7XW4c=
+	b=Te3oDvUKXZofkVh65C7n2BU/amiUkM7HKFlqm/j5s10fkfI3BHNlyrWJI2lOAN5P7
+	 NSfHTF5TDxH3UYLp+xjcmcPl2ZlE2Sq/KF+ELX04J4nF9Yrh3IG3+qrNzyAQXOK1Wx
+	 pDOhxM0a5ZyaMRemMazqaVeEWulPRFBrsYduEyes=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405860AbfIGJVO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 7 Sep 2019 05:21:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60196 "EHLO mail.kernel.org"
+        id S2406607AbfIGJUp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 7 Sep 2019 05:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392381AbfIGJVO (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 7 Sep 2019 05:21:14 -0400
+        id S2406600AbfIGJUp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 7 Sep 2019 05:20:45 -0400
 Received: from localhost.localdomain (unknown [194.230.155.145])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF7AC21907;
-        Sat,  7 Sep 2019 09:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB5A218AE;
+        Sat,  7 Sep 2019 09:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1567848073;
-        bh=szqE7WiJE89jv3JbD2laqpsXkx3HLaIdOm2W3JGMdpE=;
+        s=default; t=1567848044;
+        bh=FKDNpqBcuyt8PrcvNXXOdfOUsrAaU52nYkpwBFFp2hw=;
         h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=zd0Y7YJtoxY5qK8DvNeob75REKPQ9QeNh0+sDDr8qLaL/9R74fyOJNRmufmuz7tff
-         MlS5uhzeyIOeLBd+LfG7MUJpPI2fmPlH4KI0It9IEYADDHpW6/5K/Xdk2kiFxSCc/s
-         Nht6nLxiSI40MyvaLcODhJKtyyhTWxY0Hed9MYzE=
+        b=jLsyVOCxyNfQThyEvBYXsqSUPxMD2FyRgLjXnwq+p9yFu/1cdHOQ1HGwWnI+rhA1S
+         adTYpVVTsi2hhc2qCOqfmjCjBs343Y4p0/6mN+3/IMCQNhdmucZSY+cjcZvsH4tKmQ
+         WMzI1vSGd4cDGBjz+ULrfv1+hY8AH/H0p/b4rhos=
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -55,9 +55,9 @@ To:     Rob Herring <robh+dt@kernel.org>,
         linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-iio@vger.kernel.org, linux-pm@vger.kernel.org,
         linux-rtc@vger.kernel.org
-Subject: [PATCH v2 11/11] dt-bindings: iio: adc: exynos: Remove old requirement of two register address ranges
-Date:   Sat,  7 Sep 2019 11:20:07 +0200
-Message-Id: <20190907092007.9946-11-krzk@kernel.org>
+Subject: [PATCH v2 05/11] dt-bindings: arm: samsung: Document missing Exynos7 boards bindings
+Date:   Sat,  7 Sep 2019 11:20:01 +0200
+Message-Id: <20190907092007.9946-5-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190907092007.9946-1-krzk@kernel.org>
 References: <20190907092007.9946-1-krzk@kernel.org>
@@ -66,64 +66,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Commit fafb37cfae6d ("iio: exyno-adc: use syscon for PMU
-register access") changed the Exynos ADC driver so the PMU syscon
-phandle is required instead of second register address space.  The
-bindings were not updated so fix them now.
+Add missing documentation of ARMv8 Samsung Exynos7 SoC based boards
+bindings.
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-
 ---
+ .../devicetree/bindings/arm/samsung/samsung-boards.yaml     | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Changes since v1:
-1. New patch.
----
- .../bindings/iio/adc/samsung,exynos-adc.yaml     | 16 ++--------------
- 1 file changed, 2 insertions(+), 14 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.yaml b/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.yaml
-index dd58121f25b1..b4c6c26681d9 100644
---- a/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.yaml
-+++ b/Documentation/devicetree/bindings/iio/adc/samsung,exynos-adc.yaml
-@@ -25,8 +25,7 @@ properties:
-       - samsung,s5pv210-adc
+diff --git a/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml b/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
+index 98401a6db2a0..63acd57c4799 100644
+--- a/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
++++ b/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
+@@ -171,5 +171,11 @@ properties:
+               - samsung,tm2e                    # Samsung TM2E
+           - const: samsung,exynos5433
  
-   reg:
--    minItems: 1
--    maxItems: 2
-+    maxItems: 1
- 
-   clocks:
-     description:
-@@ -55,7 +54,7 @@ properties:
-     $ref: '/schemas/types.yaml#/definitions/phandle'
-     description:
-       Phandle to the PMU system controller node (to access the ADC_PHY
--      register on Exynos5250/5420/5800/3250).
-+      register on Exynos3250/4x12/5250/5420/5800).
- 
-   has-touchscreen:
-     description:
-@@ -83,19 +82,8 @@ allOf:
-               - samsung,exynos4212-adc
-               - samsung,s5pv210-adc
-     then:
--      properties:
--        reg:
--          items:
--            # For S5P and Exynos
--            - description: base registers
--            - description: phy registers
-       required:
-         - samsung,syscon-phandle
--    else:
--      properties:
--        reg:
--          items:
--            - description: base registers
- 
-   - if:
-       properties:
++      - description: Exynos7 based boards
++        items:
++          - enum:
++              - samsung,exynos7-espresso        # Samsung Exynos7 Espresso
++          - const: samsung,exynos7
++
+ required:
+   - compatible
 -- 
 2.17.1
 
