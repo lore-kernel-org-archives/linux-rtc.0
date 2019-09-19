@@ -1,243 +1,166 @@
-Return-Path: <SRS0=a12R=XN=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=/J5j=XO=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 044ECC4CEC9
-	for <linux-rtc@archiver.kernel.org>; Wed, 18 Sep 2019 13:17:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 783AAC4CEC4
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Sep 2019 01:56:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C37992067B
-	for <linux-rtc@archiver.kernel.org>; Wed, 18 Sep 2019 13:17:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1568812671;
-	bh=uQfrdHHdsXozo1S1kyD80ljEIP+JpLM1abceUoVVsCs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=FdhI6Dr4l49kyDGIAgJtpC+VLCzyxzPv1sLuDubqActW+yQR8+yx2ix2LT74PIDHF
-	 vqm0T8CPSn172QUPvy+6ytQrrgUwdtsQYYtJkM8FTLA7/VRDeOJwjcg3RngmPDonY3
-	 o0YSQTVSEhlW3T9WEF//wbFR6AJotmUrHRmpdiLo=
+	by mail.kernel.org (Postfix) with ESMTP id 54F0320578
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Sep 2019 01:56:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730034AbfIRNRt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 18 Sep 2019 09:17:49 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:34118 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726268AbfIRNRt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 18 Sep 2019 09:17:49 -0400
-Received: by mail-wr1-f68.google.com with SMTP id a11so6928673wrx.1;
-        Wed, 18 Sep 2019 06:17:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=e6a38RN6FN8dThc0RVo5hV5uWnsoTfPqGl5eeZaZimE=;
-        b=pWD5SV5m2YY+DlcWFFBxBnlVgpTdi535GmGMT+3c29ByJPJU1H+uPaXxPtFssiu578
-         iVLYJnAj8HEalXRfcUTYFRtL/HcENGdZwNAITZ85nAeDI1/Jzlss9XmGiZLihNs7YaX5
-         OF+8+4ayb1SzagUfoY5FQMtSGOZSdYxEimmurLj+Qjv6zA8v6Md+7bHKdXwo1mQLhc/H
-         MUpXpGx+6WtxbgID2+BtqGQpKSzeLNPa8AOXV1nXbhGbDjBhjUiLat9bWM8qSQpkDGP6
-         DfK8I+UE+DrclI22hj1Ipzum4w7FRfK/ZdKg7frdEoDAk8emYu1Zj/qX1C11d+1DUnn5
-         wOiw==
-X-Gm-Message-State: APjAAAU0hwIUhIf3OxpCEfRVKskUOSiV+c8w65S8WTkjsmmF1omhhgGz
-        Mu8UqML3yJn+8GMGeiBD6vE=
-X-Google-Smtp-Source: APXvYqxWVPjcF1VpJfpk6Lp6k4HOBxolAT7MHjlWITs7v+8tF1+4yScFg1b7sFVdBQuKIhoXHhpLuA==
-X-Received: by 2002:adf:e3c4:: with SMTP id k4mr3158989wrm.157.1568812665355;
-        Wed, 18 Sep 2019 06:17:45 -0700 (PDT)
-Received: from pi3 ([194.230.155.145])
-        by smtp.googlemail.com with ESMTPSA id 207sm4243477wme.17.2019.09.18.06.17.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Sep 2019 06:17:43 -0700 (PDT)
-Date:   Wed, 18 Sep 2019 15:17:40 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Rob Herring <robh@kernel.org>
-Cc:     Mark Rutland <mark.rutland@arm.com>, Kukjin Kim <kgene@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Sebastian Reichel <sre@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 07/11] dt-bindings: arm: samsung: Convert Exynos PMU
- bindings to json-schema
-Message-ID: <20190918131740.GA668@pi3>
-References: <20190907092007.9946-1-krzk@kernel.org>
- <20190907092007.9946-7-krzk@kernel.org>
- <20190918124306.GB318@bogus>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20190918124306.GB318@bogus>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S2387851AbfISB4S (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 18 Sep 2019 21:56:18 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:52356 "EHLO inva021.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387690AbfISB4R (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 18 Sep 2019 21:56:17 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id D2EAA20016B;
+        Thu, 19 Sep 2019 03:56:14 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 824A4200019;
+        Thu, 19 Sep 2019 03:56:09 +0200 (CEST)
+Received: from titan.ap.freescale.net (TITAN.ap.freescale.net [10.192.208.233])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 7C7A9402CA;
+        Thu, 19 Sep 2019 09:56:03 +0800 (SGT)
+From:   Biwen Li <biwen.li@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        robh+dt@kernel.org, mark.rutland@arm.com, leoyang.li@nxp.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
+        Martin Fuzzey <mfuzzey@parkeon.com>
+Subject: [v5,1/2] dt-bindings: rtc: pcf85263/pcf85363: add some properties
+Date:   Thu, 19 Sep 2019 09:45:19 +0800
+Message-Id: <20190919014520.15500-1-biwen.li@nxp.com>
+X-Mailer: git-send-email 2.9.5
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 07:43:06AM -0500, Rob Herring wrote:
-> On Sat, Sep 07, 2019 at 11:20:03AM +0200, Krzysztof Kozlowski wrote:
-> > Convert Samsung Exynos Power Management Unit (PMU) bindings to DT schema
-> > format using json-schema.
-> > 
-> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > 
-> > ---
-> > 
-> > Changes since v1:
-> > 1. Fix clock-names to match all elements against schema (any number of
-> >    any clkoutN values).
-> >    This currently fails:
-> >        properties:clock-names:items: {'enum': ['clkout0', 'clkout1', 'clkout2',
-> >        'clkout3', 'clkout4', 'clkout5', 'clkout6', 'clkout7', 'clkout8',
-> >        'clkout9', 'clkout10', 'clkout11', 'clkout12', 'clkout13', 'clkout14',
-> >        'clkout15', 'clkout16']} is not of type 'array
-> > 
-> > 2. Add syscon reboot and poweroff nodes.
-> > ---
-> >  .../devicetree/bindings/arm/samsung/pmu.txt   |  72 -----------
-> >  .../devicetree/bindings/arm/samsung/pmu.yaml  | 117 ++++++++++++++++++
-> >  2 files changed, 117 insertions(+), 72 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> >  create mode 100644 Documentation/devicetree/bindings/arm/samsung/pmu.yaml
-> > 
-> > diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.txt b/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> > deleted file mode 100644
-> > index 433bfd7593ac..000000000000
-> > --- a/Documentation/devicetree/bindings/arm/samsung/pmu.txt
-> > +++ /dev/null
-> > @@ -1,72 +0,0 @@
-> > -SAMSUNG Exynos SoC series PMU Registers
-> > -
-> > -Properties:
-> > - - compatible : should contain two values. First value must be one from following list:
-> > -		   - "samsung,exynos3250-pmu" - for Exynos3250 SoC,
-> > -		   - "samsung,exynos4210-pmu" - for Exynos4210 SoC,
-> > -		   - "samsung,exynos4412-pmu" - for Exynos4412 SoC,
-> > -		   - "samsung,exynos5250-pmu" - for Exynos5250 SoC,
-> > -		   - "samsung,exynos5260-pmu" - for Exynos5260 SoC.
-> > -		   - "samsung,exynos5410-pmu" - for Exynos5410 SoC,
-> > -		   - "samsung,exynos5420-pmu" - for Exynos5420 SoC.
-> > -		   - "samsung,exynos5433-pmu" - for Exynos5433 SoC.
-> > -		   - "samsung,exynos7-pmu" - for Exynos7 SoC.
-> > -		second value must be always "syscon".
-> > -
-> > - - reg : offset and length of the register set.
-> > -
-> > - - #clock-cells : must be <1>, since PMU requires once cell as clock specifier.
-> > -		The single specifier cell is used as index to list of clocks
-> > -		provided by PMU, which is currently:
-> > -			0 : SoC clock output (CLKOUT pin)
-> > -
-> > - - clock-names : list of clock names for particular CLKOUT mux inputs in
-> > -		following format:
-> > -			"clkoutN", where N is a decimal number corresponding to
-> > -			CLKOUT mux control bits value for given input, e.g.
-> > -				"clkout0", "clkout7", "clkout15".
-> > -
-> > - - clocks : list of phandles and specifiers to all input clocks listed in
-> > -		clock-names property.
-> > -
-> > -Optional properties:
-> > -
-> > -Some PMUs are capable of behaving as an interrupt controller (mostly
-> > -to wake up a suspended PMU). In which case, they can have the
-> > -following properties:
-> > -
-> > -- interrupt-controller: indicate that said PMU is an interrupt controller
-> > -
-> > -- #interrupt-cells: must be identical to the that of the parent interrupt
-> > -  controller.
-> > -
-> > -
-> > -Optional nodes:
-> > -
-> > -- nodes defining the restart and poweroff syscon children
-> > -
-> > -
-> > -Example :
-> > -pmu_system_controller: system-controller@10040000 {
-> > -	compatible = "samsung,exynos5250-pmu", "syscon";
-> > -	reg = <0x10040000 0x5000>;
-> > -	interrupt-controller;
-> > -	#interrupt-cells = <3>;
-> > -	interrupt-parent = <&gic>;
-> > -	#clock-cells = <1>;
-> > -	clock-names = "clkout0", "clkout1", "clkout2", "clkout3",
-> > -			"clkout4", "clkout8", "clkout9";
-> > -	clocks = <&clock CLK_OUT_DMC>, <&clock CLK_OUT_TOP>,
-> > -		<&clock CLK_OUT_LEFTBUS>, <&clock CLK_OUT_RIGHTBUS>,
-> > -		<&clock CLK_OUT_CPU>, <&clock CLK_XXTI>,
-> > -		<&clock CLK_XUSBXTI>;
-> > -};
-> > -
-> > -Example of clock consumer :
-> > -
-> > -usb3503: usb3503@8 {
-> > -	/* ... */
-> > -	clock-names = "refclk";
-> > -	clocks = <&pmu_system_controller 0>;
-> > -	/* ... */
-> > -};
-> > diff --git a/Documentation/devicetree/bindings/arm/samsung/pmu.yaml b/Documentation/devicetree/bindings/arm/samsung/pmu.yaml
-> > new file mode 100644
-> > index 000000000000..a5a02f8237fb
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/arm/samsung/pmu.yaml
-> > @@ -0,0 +1,117 @@
-> > +# SPDX-License-Identifier: GPL-2.0
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/arm/samsung/pmu.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Samsung Exynos SoC series Power Management Unit (PMU)
-> > +
-> > +maintainers:
-> > +  - Krzysztof Kozlowski <krzk@kernel.org>
-> > +
-> > +properties:
-> > +  compatible:
-> > +    items:
-> > +      - enum:
-> > +          - samsung,exynos3250-pmu
-> > +          - samsung,exynos4210-pmu
-> > +          - samsung,exynos4412-pmu
-> > +          - samsung,exynos5250-pmu
-> > +          - samsung,exynos5260-pmu
-> > +          - samsung,exynos5410-pmu
-> > +          - samsung,exynos5420-pmu
-> > +          - samsung,exynos5433-pmu
-> > +          - samsung,exynos7-pmu
-> > +      - const: syscon
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  '#clock-cells':
-> > +    const: 1
-> > +
-> > +  clock-names:
-> > +    description:
-> > +      List of clock names for particular CLKOUT mux inputs
-> > +    minItems: 1
-> > +    maxItems: 32
-> > +    items:
-> > +      enum:
-> > +        - clkout0
-> > +        - clkout1
-> 
-> Looking at this again, instead of enum, we can just do:
-> 
-> pattern: '^clkout([0-9]|[12][0-9]|3[0-1])$'
+Add some properties for pcf85263/pcf85363 as follows:
+  - nxp,rtc-interrupt-type: integer type
+  - nxp,rtc-interrupt-output-pin: string type
+  - quartz-load-femtofarads: integer type
+  - quartz-drive-strength-ohms: integer type
+  - nxp,quartz-low-jitter: bool type
+  - wakeup-source: bool type
 
-Indeed looks better.
+Signed-off-by: Martin Fuzzey <mfuzzey@parkeon.com>
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+---
+Change in v5:
+	- Replace nxp,quartz-drive-strength with
+	  quartz-drive-strength-ohms
+	- Select ohm unit for quartz drive strength
 
-Best regards,
-Krzysztof
+Change in v4:
+	- Drop robust defines in include/dt-bindings/rtc/pcf85363.h
+	- Add nxp,rtc-interrupt-type property
+	- Replace interrupt-output-pin with nxp,rtc-interrupt-output-pin
+
+Change in v3:
+	- None
+
+Change in v2:
+	- Replace properties name
+	  quartz-load-capacitance -> quartz-load-femtofarads
+	  quartz-drive-strength -> nxp,quartz-drive-strength
+	  quartz-low-jitter -> nxp,quartz-low-jitter
+	- Replace drive strength name
+	  PCF85263_QUARTZDRIVE_NORMAL -> PCF85263_QUARTZDRIVE_100ko
+	  PCF85263_QUARTZDRIVE_LOW -> PCF85263_QUARTZDRIVE_60ko
+	  PCF85263_QUARTZDRIVE_HIGH -> PCF85263_QUARTZDRIVE_500ko
+	- Set default interrupt-output-pin as "INTA"
+
+ .../devicetree/bindings/rtc/pcf85363.txt      | 44 ++++++++++++++++++-
+ include/dt-bindings/rtc/pcf85363.h            | 14 ++++++
+ 2 files changed, 57 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/rtc/pcf85363.h
+
+diff --git a/Documentation/devicetree/bindings/rtc/pcf85363.txt b/Documentation/devicetree/bindings/rtc/pcf85363.txt
+index 94adc1cf93d9..7f907581d5db 100644
+--- a/Documentation/devicetree/bindings/rtc/pcf85363.txt
++++ b/Documentation/devicetree/bindings/rtc/pcf85363.txt
+@@ -8,10 +8,52 @@ Required properties:
+ Optional properties:
+ - interrupts: IRQ line for the RTC (not implemented).
+ 
++- nxp,rtc-interrupt-type: integer property, represent the interrupt's
++  type. Valid values are
++  INT_PIE(periodic interrupt enable),
++  INT_OIE(offset correction interrupt enable),
++  INT_A1IE(alarm1 interrupt enable),
++  INT_A2IE(alarm2 interrupt enable),
++  INT_TSRIE(timestamp register interrupt enable)
++  INT_BSIE(battery switch interrupt enable),
++  INT_WDIE(WatchDog interrupt enable,and
++  compose these values such as: INT_A1IE | INT_A2IE,
++  but currently only support INT_A1IE, default value is INT_A1IE.
++  The property and property nxp,rtc-interrupt-output-pin
++  work together to generate some interrupts on some pins.
++
++- nxp,rtc-interrupt-output-pin: The interrupt output pin must be
++  "INTA" or "INTB", default value is "INTA". The property and property
++  nxp,rtc-interrupt-type work together to generate some interrupts on
++  some pins.
++
++- quartz-load-femtofarads: The internal capacitor to select for the quartz,
++  expressed in femto Farad (fF). Valid values are 6000, 7000 and 12500.
++  Default value is 12500fF.
++
++- quartz-drive-strength-ohms: Drive strength for the quartz,
++  expressed in ohm, Valid values are 60000, 100000 and 500000.
++  Default value is 100000 ohm.
++
++- nxp,quartz-low-jitter: Boolean property, if present enables low jitter mode
++  which reduces jitter at the cost of increased power consumption.
++
++- wakeup-source: Boolean property, Please refer to
++  Documentation/devicetree/bindings/power/wakeup-source.txt
++
+ Example:
+ 
+ pcf85363: pcf85363@51 {
+ 	compatible = "nxp,pcf85363";
+ 	reg = <0x51>;
+-};
+ 
++	interrupt-parent = <&gpio1>;
++	interrupts = <18 IRQ_TYPE_EDGE_FALLING>;
++
++	wakeup-source;
++	nxp,rtc-interrupt-output-pin = "INTA";
++	nxp,rtc-interrupt-type = <INT_A1IE>;
++	quartz-load-femtofarads = <12500>;
++	quartz-drive-strength-ohms = <60000>;
++	nxp,quartz-low-jitter;
++};
+diff --git a/include/dt-bindings/rtc/pcf85363.h b/include/dt-bindings/rtc/pcf85363.h
+new file mode 100644
+index 000000000000..6340bf2da8f5
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _DT_BINDINGS_RTC_PCF85363_H
++#define _DT_BINDINGS_RTC_PCF85363_H
++
++/* Interrupt type */
++#define INT_WDIE	(1 << 0)
++#define INT_BSIE	(1 << 1)
++#define INT_TSRIE	(1 << 2)
++#define INT_A2IE	(1 << 3)
++#define INT_A1IE	(1 << 4)
++#define INT_OIE		(1 << 5)
++#define INT_PIE		(1 << 6)
++
++#endif /* _DT_BINDINGS_RTC_PCF85363_H */
+-- 
+2.17.1
 
