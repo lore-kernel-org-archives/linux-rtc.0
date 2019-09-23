@@ -2,217 +2,177 @@ Return-Path: <SRS0=dQGz=XS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1224C32755
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Sep 2019 11:47:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13D6BC04EBF
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Sep 2019 12:14:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 918FD207FD
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Sep 2019 11:47:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E40AC20820
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Sep 2019 12:14:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2501920AbfIWLrP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Sep 2019 07:47:15 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54676 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729470AbfIWLqw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 23 Sep 2019 07:46:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0C867B0E5;
-        Mon, 23 Sep 2019 11:46:49 +0000 (UTC)
-From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
-To:     Jonathan Corbet <corbet@lwn.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH v6 1/4] nvmem: core: add nvmem_device_find
-Date:   Mon, 23 Sep 2019 13:46:31 +0200
-Message-Id: <20190923114636.6748-2-tbogendoerfer@suse.de>
-X-Mailer: git-send-email 2.13.7
-In-Reply-To: <20190923114636.6748-1-tbogendoerfer@suse.de>
-References: <20190923114636.6748-1-tbogendoerfer@suse.de>
+        id S1730569AbfIWMOJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Sep 2019 08:14:09 -0400
+Received: from kirsty.vergenet.net ([202.4.237.240]:59926 "EHLO
+        kirsty.vergenet.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726212AbfIWMOJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Sep 2019 08:14:09 -0400
+Received: from reginn.horms.nl (watermunt.horms.nl [80.127.179.77])
+        by kirsty.vergenet.net (Postfix) with ESMTPA id 6F7E125AD78;
+        Mon, 23 Sep 2019 22:14:07 +1000 (AEST)
+Received: by reginn.horms.nl (Postfix, from userid 7100)
+        id 6B047944434; Mon, 23 Sep 2019 14:14:05 +0200 (CEST)
+From:   Simon Horman <horms+renesas@verge.net.au>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Yoshihiro Kaneko <ykaneko0929@gmail.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org,
+        Simon Horman <horms+renesas@verge.net.au>
+Subject: [PATCH v2] dt-bindings: rtc: rtc-sh: convert bindings to json-schema
+Date:   Mon, 23 Sep 2019 14:14:04 +0200
+Message-Id: <20190923121404.32585-1-horms+renesas@verge.net.au>
+X-Mailer: git-send-email 2.11.0
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-nvmem_device_find provides a way to search for nvmem devices with
-the help of a match function simlair to bus_find_device.
+Convert Real Time Clock for Renesas SH and ARM SoCs bindings documentation
+to json-schema.  Also name bindings documentation file according to the
+compat string being documented.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Also correct syntax error in interrupts field in example.
+
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
 ---
- Documentation/driver-api/nvmem.rst |  2 ++
- drivers/nvmem/core.c               | 61 +++++++++++++++++---------------------
- include/linux/nvmem-consumer.h     |  9 ++++++
- 3 files changed, 38 insertions(+), 34 deletions(-)
+v2
+* Added reviewed-by tag from Ulrich
+* Constrain clocks and clock-names as suggested by Rob Herring
+---
+ .../devicetree/bindings/rtc/renesas,sh-rtc.yaml    | 70 ++++++++++++++++++++++
+ Documentation/devicetree/bindings/rtc/rtc-sh.txt   | 28 ---------
+ 2 files changed, 70 insertions(+), 28 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/renesas,sh-rtc.yaml
+ delete mode 100644 Documentation/devicetree/bindings/rtc/rtc-sh.txt
 
-diff --git a/Documentation/driver-api/nvmem.rst b/Documentation/driver-api/nvmem.rst
-index d9d958d5c824..287e86819640 100644
---- a/Documentation/driver-api/nvmem.rst
-+++ b/Documentation/driver-api/nvmem.rst
-@@ -129,6 +129,8 @@ To facilitate such consumers NVMEM framework provides below apis::
-   struct nvmem_device *nvmem_device_get(struct device *dev, const char *name);
-   struct nvmem_device *devm_nvmem_device_get(struct device *dev,
- 					   const char *name);
-+  struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data));
-   void nvmem_device_put(struct nvmem_device *nvmem);
-   int nvmem_device_read(struct nvmem_device *nvmem, unsigned int offset,
- 		      size_t bytes, void *buf);
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 057d1ff87d5d..9f1ee9c766ec 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -76,33 +76,6 @@ static struct bus_type nvmem_bus_type = {
- 	.name		= "nvmem",
- };
- 
--static struct nvmem_device *of_nvmem_find(struct device_node *nvmem_np)
--{
--	struct device *d;
--
--	if (!nvmem_np)
--		return NULL;
--
--	d = bus_find_device_by_of_node(&nvmem_bus_type, nvmem_np);
--
--	if (!d)
--		return NULL;
--
--	return to_nvmem_device(d);
--}
--
--static struct nvmem_device *nvmem_find(const char *name)
--{
--	struct device *d;
--
--	d = bus_find_device_by_name(&nvmem_bus_type, NULL, name);
--
--	if (!d)
--		return NULL;
--
--	return to_nvmem_device(d);
--}
--
- static void nvmem_cell_drop(struct nvmem_cell *cell)
- {
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_CELL_REMOVE, cell);
-@@ -532,13 +505,16 @@ int devm_nvmem_unregister(struct device *dev, struct nvmem_device *nvmem)
- }
- EXPORT_SYMBOL(devm_nvmem_unregister);
- 
--static struct nvmem_device *__nvmem_device_get(struct device_node *np,
--					       const char *nvmem_name)
-+static struct nvmem_device *__nvmem_device_get(void *data,
-+			int (*match)(struct device *dev, const void *data))
- {
- 	struct nvmem_device *nvmem = NULL;
-+	struct device *dev;
- 
- 	mutex_lock(&nvmem_mutex);
--	nvmem = np ? of_nvmem_find(np) : nvmem_find(nvmem_name);
-+	dev = bus_find_device(&nvmem_bus_type, NULL, data, match);
-+	if (dev)
-+		nvmem = to_nvmem_device(dev);
- 	mutex_unlock(&nvmem_mutex);
- 	if (!nvmem)
- 		return ERR_PTR(-EPROBE_DEFER);
-@@ -587,7 +563,7 @@ struct nvmem_device *of_nvmem_device_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-ENOENT);
- 
--	return __nvmem_device_get(nvmem_np, NULL);
-+	return __nvmem_device_get(nvmem_np, device_match_of_node);
- }
- EXPORT_SYMBOL_GPL(of_nvmem_device_get);
- #endif
-@@ -613,10 +589,26 @@ struct nvmem_device *nvmem_device_get(struct device *dev, const char *dev_name)
- 
- 	}
- 
--	return __nvmem_device_get(NULL, dev_name);
-+	return __nvmem_device_get((void *)dev_name, device_match_name);
- }
- EXPORT_SYMBOL_GPL(nvmem_device_get);
- 
-+/**
-+ * nvmem_device_find() - Find nvmem device with matching function
-+ *
-+ * @data: Data to pass to match function
-+ * @match: Callback function to check device
-+ *
-+ * Return: ERR_PTR() on error or a valid pointer to a struct nvmem_device
-+ * on success.
-+ */
-+struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data))
-+{
-+	return __nvmem_device_get(data, match);
-+}
-+EXPORT_SYMBOL_GPL(nvmem_device_find);
+diff --git a/Documentation/devicetree/bindings/rtc/renesas,sh-rtc.yaml b/Documentation/devicetree/bindings/rtc/renesas,sh-rtc.yaml
+new file mode 100644
+index 000000000000..dcff573cbdb1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/renesas,sh-rtc.yaml
+@@ -0,0 +1,70 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/renesas,sh-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- static int devm_nvmem_device_match(struct device *dev, void *res, void *data)
- {
- 	struct nvmem_device **nvmem = res;
-@@ -710,7 +702,8 @@ nvmem_cell_get_from_lookup(struct device *dev, const char *con_id)
- 		if ((strcmp(lookup->dev_id, dev_id) == 0) &&
- 		    (strcmp(lookup->con_id, con_id) == 0)) {
- 			/* This is the right entry. */
--			nvmem = __nvmem_device_get(NULL, lookup->nvmem_name);
-+			nvmem = __nvmem_device_get((void *)lookup->nvmem_name,
-+						   device_match_name);
- 			if (IS_ERR(nvmem)) {
- 				/* Provider may not be registered yet. */
- 				cell = ERR_CAST(nvmem);
-@@ -780,7 +773,7 @@ struct nvmem_cell *of_nvmem_cell_get(struct device_node *np, const char *id)
- 	if (!nvmem_np)
- 		return ERR_PTR(-EINVAL);
- 
--	nvmem = __nvmem_device_get(nvmem_np, NULL);
-+	nvmem = __nvmem_device_get(nvmem_np, device_match_of_node);
- 	of_node_put(nvmem_np);
- 	if (IS_ERR(nvmem))
- 		return ERR_CAST(nvmem);
-diff --git a/include/linux/nvmem-consumer.h b/include/linux/nvmem-consumer.h
-index 8f8be5b00060..02dc4aa992b2 100644
---- a/include/linux/nvmem-consumer.h
-+++ b/include/linux/nvmem-consumer.h
-@@ -89,6 +89,9 @@ void nvmem_del_cell_lookups(struct nvmem_cell_lookup *entries,
- int nvmem_register_notifier(struct notifier_block *nb);
- int nvmem_unregister_notifier(struct notifier_block *nb);
- 
-+struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data));
++title: Real Time Clock for Renesas SH and ARM SoCs
 +
- #else
- 
- static inline struct nvmem_cell *nvmem_cell_get(struct device *dev,
-@@ -204,6 +207,12 @@ static inline int nvmem_unregister_notifier(struct notifier_block *nb)
- 	return -EOPNOTSUPP;
- }
- 
-+static inline struct nvmem_device *nvmem_device_find(void *data,
-+			int (*match)(struct device *dev, const void *data))
-+{
-+	return NULL;
-+}
++maintainers:
++  - Chris Brandt <chris.brandt@renesas.com>
++  - Geert Uytterhoeven <geert+renesas@glider.be>
 +
- #endif /* CONFIG_NVMEM */
- 
- #if IS_ENABLED(CONFIG_NVMEM) && IS_ENABLED(CONFIG_OF)
++properties:
++  compatible:
++    items:
++      - const: renesas,r7s72100-rtc  # RZ/A1H
++      - const: renesas,sh-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 3
++
++  interrupt-names:
++    items:
++      - const: alarm
++      - const: period
++      - const: carry
++
++  clocks:
++    # The functional clock source for the RTC controller must be listed
++    # first (if it exists). Additionally, potential clock counting sources
++    # are to be listed.
++    minItems: 1
++    maxItems: 4
++
++  clock-names:
++    # The functional clock must be labeled as "fck". Other clocks
++    # may be named in accordance to the SoC hardware manuals.
++    minItems: 1
++    maxItems: 4
++    items:
++      enum: [ fck, rtc_x1, rtc_x3, extal ]
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-names
++  - clocks
++  - clock-names
++
++examples:
++  - |
++    #include <dt-bindings/clock/r7s72100-clock.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    rtc: rtc@fcff1000 {
++        compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
++        reg = <0xfcff1000 0x2e>;
++        interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING>,
++                     <GIC_SPI 277 IRQ_TYPE_EDGE_RISING>,
++                     <GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
++        interrupt-names = "alarm", "period", "carry";
++        clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
++                 <&rtc_x3_clk>, <&extal_clk>;
++        clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
++    };
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-sh.txt b/Documentation/devicetree/bindings/rtc/rtc-sh.txt
+deleted file mode 100644
+index 7676c7d28874..000000000000
+--- a/Documentation/devicetree/bindings/rtc/rtc-sh.txt
++++ /dev/null
+@@ -1,28 +0,0 @@
+-* Real Time Clock for Renesas SH and ARM SoCs
+-
+-Required properties:
+-- compatible: Should be "renesas,r7s72100-rtc" and "renesas,sh-rtc" as a
+-  fallback.
+-- reg: physical base address and length of memory mapped region.
+-- interrupts: 3 interrupts for alarm, period, and carry.
+-- interrupt-names: The interrupts should be labeled as "alarm", "period", and
+-  "carry".
+-- clocks: The functional clock source for the RTC controller must be listed
+-  first (if exists). Additionally, potential clock counting sources are to be
+-  listed.
+-- clock-names: The functional clock must be labeled as "fck". Other clocks
+-  may be named in accordance to the SoC hardware manuals.
+-
+-
+-Example:
+-rtc: rtc@fcff1000 {
+-	compatible = "renesas,r7s72100-rtc", "renesas,sh-rtc";
+-	reg = <0xfcff1000 0x2e>;
+-	interrupts = <GIC_SPI 276 IRQ_TYPE_EDGE_RISING
+-		      GIC_SPI 277 IRQ_TYPE_EDGE_RISING
+-		      GIC_SPI 278 IRQ_TYPE_EDGE_RISING>;
+-	interrupt-names = "alarm", "period", "carry";
+-	clocks = <&mstp6_clks R7S72100_CLK_RTC>, <&rtc_x1_clk>,
+-		 <&rtc_x3_clk>, <&extal_clk>;
+-	clock-names = "fck", "rtc_x1", "rtc_x3", "extal";
+-};
 -- 
-2.13.7
+2.11.0
 
