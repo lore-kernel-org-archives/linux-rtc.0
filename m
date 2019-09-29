@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEE55C32793
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:33:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2205C32793
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:38:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AF60421D82
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:33:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BDFE21906
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778412;
-	bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
+	s=default; t=1569778725;
+	bh=QKRCG8f/z7TmRpXy/oFC4HCqvZVx9ImvcBK7A1PeQ10=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Vet/3skLKeXZjoq28KEgDtdnKv88dDIn8blua7M3oYFllEgM+TVHPALCLev3tARje
-	 nWb2BMBjcGEk2GjEfpn6XNNRWoUCrdkXQopSfrL1gwqSyeu4NVkyugip5QONShEJTr
-	 y8OXlTagERsOWISd/EuEXqduGgjNPkAsbnTmeFA4=
+	b=GnXdGc3BRH32kvcLXodiNViJViRIKTY9dFMy4zQwSSl36UY1juxmKcODUqAxfiWX3
+	 sHhOHeCB7cEh86L+cc5z77ALh1Cr7m3AOPvJIVB+1OAbSfCxmQ2IFQiznLv2jJ4nn7
+	 iClwQ/hTK8PnScb2xgizAjVXtOOfLStamm1CRNxE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730080AbfI2Rdc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44798 "EHLO mail.kernel.org"
+        id S1729888AbfI2Rii (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 29 Sep 2019 13:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730069AbfI2Rda (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:33:30 -0400
+        id S1730700AbfI2Rf7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:35:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BCA421A4C;
-        Sun, 29 Sep 2019 17:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF46E2196E;
+        Sun, 29 Sep 2019 17:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778409;
-        bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
+        s=default; t=1569778558;
+        bh=QKRCG8f/z7TmRpXy/oFC4HCqvZVx9ImvcBK7A1PeQ10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAcL46SzlVdoaxXOHNX9Lw2tXf0wQIO9/fj1m4KrMgNED32bus15lTOcDP0kRx9QB
-         MYArH95ahjfC/GIr4MeCcsOGVMtVz+EbBqBNz/zf65IY781LWEZLZowkExsM9eTAEH
-         0pJP9mJ9I6tzplrDbB0WueOvI4QNpbFKMVJnohUs=
+        b=qqQ8ghHx4M6wlN/IXfIAveqOirkpdoEs0z3Fg8lM309oUdct/siDHNb7ZdF494+Ed
+         DVL0UYFSkBq005gBf54dvQ+gBgNYYXs6BvFZENY4CVwgqQUW+1srxkyiHY2CHvBTig
+         zwvyRH6NWLiHh2CtvjDOaM9aC5HWtmfQLPeTpZyU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Anson Huang <Anson.Huang@nxp.com>,
         Dong Aisheng <aisheng.dong@nxp.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 19/42] rtc: snvs: fix possible race condition
-Date:   Sun, 29 Sep 2019 13:32:18 -0400
-Message-Id: <20190929173244.8918-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 11/23] rtc: snvs: fix possible race condition
+Date:   Sun, 29 Sep 2019 13:35:21 -0400
+Message-Id: <20190929173535.9744-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
-References: <20190929173244.8918-1-sashal@kernel.org>
+In-Reply-To: <20190929173535.9744-1-sashal@kernel.org>
+References: <20190929173535.9744-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index 7ee673a25fd0a..4f9a107a04277 100644
+index 71eee39520f0b..7aa2c5ea0de4f 100644
 --- a/drivers/rtc/rtc-snvs.c
 +++ b/drivers/rtc/rtc-snvs.c
-@@ -279,6 +279,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+@@ -280,6 +280,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
  	if (!data)
  		return -ENOMEM;
  
@@ -94,7 +94,7 @@ index 7ee673a25fd0a..4f9a107a04277 100644
  	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
  
  	if (IS_ERR(data->regmap)) {
-@@ -343,10 +347,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+@@ -342,10 +346,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
  		goto error_rtc_device_register;
  	}
  
