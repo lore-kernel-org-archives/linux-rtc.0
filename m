@@ -7,45 +7,46 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18021C4360C
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2099C4360C
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E466B21835
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 743402086A
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778996;
-	bh=YDlb7eJfsCJYSe+W+bAGfQM6oR+1wKO4K2sY+007I9Y=;
+	s=default; t=1569778999;
+	bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=uIkbIjgqjrw/AUkHSvqn/OVp21mPZ/9341CdDGBDfH4crwrDUmzDGqJQFGlyjaWMf
-	 e7Cf0NC4KFUxevDnvvcIomamfgZ3s2qTV6r0vc85+nFEFxbH1WuNTo+iQcBdBHVWz/
-	 aWx13x0tlCtc9zqAFkwi4YBvc/1vOPtUpGqnEbzA=
+	b=IQAZniWRGdGPwgKRn+4v+TrIM0H8+RQVpk4HnWLJRFvM9917WlsBaBVI7tpg8xz/8
+	 Zl5reRpjd+AarvaDUFGrVcnJAD+vPurHDURdI1YtAiXF4sQNaFrNuL+cTz4e8Tyoy5
+	 UbbCRUZmwIi53jONuGWiOszGXB/jv4CXhvwOyXY4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729412AbfI2Rbn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
+        id S1729396AbfI2Rbl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 29 Sep 2019 13:31:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbfI2Rbm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:42 -0400
+        id S1729384AbfI2Rbl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:31:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55EDC21927;
-        Sun, 29 Sep 2019 17:31:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 350D121925;
+        Sun, 29 Sep 2019 17:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778302;
-        bh=YDlb7eJfsCJYSe+W+bAGfQM6oR+1wKO4K2sY+007I9Y=;
+        s=default; t=1569778301;
+        bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ck8SwxTPB0FMQOPifGumC2DFFe0amVNVrz4g2yvnkH9zuScnQABJE5iwLQRtb/Uwq
-         U5kpjExtM4B15kIhkZKUY42yXIqmBNFOjJciabpFf3bfJin9ybVJl3AOPBDwJ/XL91
-         3if0Nq44qb5ip+GkM5SAG2NAGODxY4HLSoC6jyfA=
+        b=pMPy7x/UDj+MvvtLl/NY2ZuRqc9JYwUMUQG7LoxRCU1KbISvu2igF+zqDiT/nTl6a
+         Xu5GFq61xrVSaMEL5N3FY3/vAEeveWSLqjgek7tiIgCUkkh6vgJhhcFC6OkxnM8tbr
+         uzXuQa6/3cjQwW8wn9BAak7WqSsEHp8pdClMrXMQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biwen Li <biwen.li@nxp.com>,
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 22/49] rtc: pcf85363/pcf85263: fix regmap error in set_time
-Date:   Sun, 29 Sep 2019 13:30:22 -0400
-Message-Id: <20190929173053.8400-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 21/49] rtc: snvs: fix possible race condition
+Date:   Sun, 29 Sep 2019 13:30:21 -0400
+Message-Id: <20190929173053.8400-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
 References: <20190929173053.8400-1-sashal@kernel.org>
@@ -58,60 +59,55 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
+[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
 
-Issue:
-    - # hwclock -w
-      hwclock: RTC_SET_TIME: Invalid argument
+The RTC IRQ is requested before the struct rtc_device is allocated,
+this may lead to a NULL pointer dereference in IRQ handler.
 
-Why:
-    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
-      writeable before writing operations"), this patch
-      will always check for unwritable registers, it will compare reg
-      with max_register in regmap_writeable.
+To fix this issue, allocating the rtc_device struct before requesting
+the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
+to register the RTC device.
 
-    - The pcf85363/pcf85263 has the capability of address wrapping
-      which means if you access an address outside the allowed range
-      (0x00-0x2f) hardware actually wraps the access to a lower address.
-      The rtc-pcf85363 driver will use this feature to configure the time
-      and execute 2 actions in the same i2c write operation (stopping the
-      clock and configure the time). However the driver has also
-      configured the `regmap maxregister` protection mechanism that will
-      block accessing addresses outside valid range (0x00-0x2f).
-
-How:
-    - Split of writing regs to two parts, first part writes control
-      registers about stop_enable and resets, second part writes
-      RTC time and date registers.
-
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf85363.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-snvs.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index a075e77617dcb..3450d615974d5 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -166,7 +166,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 7ee673a25fd0a..4f9a107a04277 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -279,6 +279,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 	if (!data)
+ 		return -ENOMEM;
  
- 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
--				tmp, sizeof(tmp));
-+				tmp, 2);
-+	if (ret)
-+		return ret;
++	data->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(data->rtc))
++		return PTR_ERR(data->rtc);
 +
-+	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
-+				buf, sizeof(tmp) - 2);
- 	if (ret)
- 		return ret;
+ 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
  
+ 	if (IS_ERR(data->regmap)) {
+@@ -343,10 +347,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 		goto error_rtc_device_register;
+ 	}
+ 
+-	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					&snvs_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(data->rtc)) {
+-		ret = PTR_ERR(data->rtc);
++	data->rtc->ops = &snvs_rtc_ops;
++	ret = rtc_register_device(data->rtc);
++	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
+ 		goto error_rtc_device_register;
+ 	}
 -- 
 2.20.1
 
