@@ -4,52 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAFDFC4360C
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E77CCC32793
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:41:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB56C21BE5
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:40:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C512A21835
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Sep 2019 17:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778825;
-	bh=l7NP07G1Ea8ObzNjqXfvhMjFFJVuFFmr/gpg2A2d3/U=;
+	s=default; t=1569778904;
+	bh=YDlb7eJfsCJYSe+W+bAGfQM6oR+1wKO4K2sY+007I9Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=zyCrej7e5CL+A72Ec9YiNT90xVKfSEmsWQ2uQvgEJFXkjgJ9jD0CrTEtm2eUJEDUo
-	 9WN4tnqf7G/6bfXi63RT3MgR7PSfcBIzqV9JrfFNHFaOkqGzmxS45bDYlqtiizHx1P
-	 h6gGdKS1ITTM2eOVge2Z1QxyFePn7D8LhXuk0Kw0=
+	b=RjBEZctWqMm+DU2l/aQ1UlYu4m8+deMB0iTYxVeLNf3NX8UpwSTd6rK0M8YR6C51M
+	 dYIs2z0m0eHvgPic2d3pBhkAjbhVVfjG8/+f6QT7y4tbD3AV+nMFI+kE6Zf/8hKrak
+	 kNuaBkm8qmsHQM0KevjXOGQ9onydbNLTTivuakyg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729797AbfI2RkY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:40:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46978 "EHLO mail.kernel.org"
+        id S1730074AbfI2Rdb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 29 Sep 2019 13:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729567AbfI2Rex (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:34:53 -0400
+        id S1730049AbfI2Rdb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:33:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0092821928;
-        Sun, 29 Sep 2019 17:34:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E68121D7C;
+        Sun, 29 Sep 2019 17:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778492;
-        bh=l7NP07G1Ea8ObzNjqXfvhMjFFJVuFFmr/gpg2A2d3/U=;
+        s=default; t=1569778410;
+        bh=YDlb7eJfsCJYSe+W+bAGfQM6oR+1wKO4K2sY+007I9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGENUDyN67PgqZdWVnEfPUTCDNAZ6qkjMKY5BzufB64GNgSHNIqIN3AagC7wv6Dbn
-         K8nW3/ivqA0fOkLjISRD6HgxSxIOcEK/P1ZF6rMJUas6hIFIYHvkNSgPuDah/A3ZYl
-         YQKENQ0Ca8nsJ69bMvWclqLs1jfe53oghlhx3eAY=
+        b=du/I6ZntEAHQUnFTk6WGLJTUvNilRGF+m/HhCt0QRiTBXkey1lHnyRacHW90mg8Td
+         wkCQk8aHKfPeaa3hvlG7nCXjdgfp7agyffKmd3Yx9DPt+l+tnuEEyb1eXO1d/ETMwG
+         dJZ1Z7nS9wfIusxdgsw33ExkFb6pG/27N13g9cXs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
+Cc:     Biwen Li <biwen.li@nxp.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/33] rtc: snvs: fix possible race condition
-Date:   Sun, 29 Sep 2019 13:34:02 -0400
-Message-Id: <20190929173424.9361-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 20/42] rtc: pcf85363/pcf85263: fix regmap error in set_time
+Date:   Sun, 29 Sep 2019 13:32:19 -0400
+Message-Id: <20190929173244.8918-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
-References: <20190929173424.9361-1-sashal@kernel.org>
+In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
+References: <20190929173244.8918-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,55 +58,60 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Biwen Li <biwen.li@nxp.com>
 
-[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
+[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in IRQ handler.
+Issue:
+    - # hwclock -w
+      hwclock: RTC_SET_TIME: Invalid argument
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+Why:
+    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
+      writeable before writing operations"), this patch
+      will always check for unwritable registers, it will compare reg
+      with max_register in regmap_writeable.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
+    - The pcf85363/pcf85263 has the capability of address wrapping
+      which means if you access an address outside the allowed range
+      (0x00-0x2f) hardware actually wraps the access to a lower address.
+      The rtc-pcf85363 driver will use this feature to configure the time
+      and execute 2 actions in the same i2c write operation (stopping the
+      clock and configure the time). However the driver has also
+      configured the `regmap maxregister` protection mechanism that will
+      block accessing addresses outside valid range (0x00-0x2f).
+
+How:
+    - Split of writing regs to two parts, first part writes control
+      registers about stop_enable and resets, second part writes
+      RTC time and date registers.
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index b2483a749ac45..3cf011e120530 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -273,6 +273,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	if (!data)
- 		return -ENOMEM;
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index a075e77617dcb..3450d615974d5 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -166,7 +166,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
  
-+	data->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(data->rtc))
-+		return PTR_ERR(data->rtc);
+ 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
+-				tmp, sizeof(tmp));
++				tmp, 2);
++	if (ret)
++		return ret;
 +
- 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
++	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
++				buf, sizeof(tmp) - 2);
+ 	if (ret)
+ 		return ret;
  
- 	if (IS_ERR(data->regmap)) {
-@@ -335,10 +339,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 		goto error_rtc_device_register;
- 	}
- 
--	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&snvs_rtc_ops, THIS_MODULE);
--	if (IS_ERR(data->rtc)) {
--		ret = PTR_ERR(data->rtc);
-+	data->rtc->ops = &snvs_rtc_ops;
-+	ret = rtc_register_device(data->rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
- 		goto error_rtc_device_register;
- 	}
 -- 
 2.20.1
 
