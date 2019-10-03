@@ -2,132 +2,80 @@ Return-Path: <SRS0=4QPc=X4=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DD0EC10F14
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Oct 2019 09:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FBE6C10F14
+	for <linux-rtc@archiver.kernel.org>; Thu,  3 Oct 2019 11:48:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 601C221D71
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Oct 2019 09:53:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B6792086A
+	for <linux-rtc@archiver.kernel.org>; Thu,  3 Oct 2019 11:48:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729469AbfJCJwx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 3 Oct 2019 05:52:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37284 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728992AbfJCJww (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 3 Oct 2019 05:52:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 67E80B14A;
-        Thu,  3 Oct 2019 09:52:49 +0000 (UTC)
-From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
-To:     Jonathan Corbet <corbet@lwn.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH v7 0/5] Use MFD framework for SGI IOC3 drivers
-Date:   Thu,  3 Oct 2019 11:52:28 +0200
-Message-Id: <20191003095235.5158-1-tbogendoerfer@suse.de>
-X-Mailer: git-send-email 2.16.4
+        id S1728017AbfJCLse (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 3 Oct 2019 07:48:34 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:35605 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726523AbfJCLsd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 3 Oct 2019 07:48:33 -0400
+X-Originating-IP: 86.207.98.53
+Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id F131824000C;
+        Thu,  3 Oct 2019 11:48:31 +0000 (UTC)
+Date:   Thu, 3 Oct 2019 13:48:31 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Lukasz Majewski <lukma@denx.de>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: Add support for century bits to m41t62 (rv4162) RTC
+ devices
+Message-ID: <20191003114831.GR4106@piout.net>
+References: <20190911154803.15969-1-lukma@denx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190911154803.15969-1-lukma@denx.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
-NIC (number in a can), GPIO and a byte  bus. By attaching a
-SuperIO chip to it, it also supports serial lines and a parallel
-port. The chip is used on a variety of SGI systems with different
-configurations. This patchset moves code out of the network driver,
-which doesn't belong there, into its new place a MFD driver and
-specific platform drivers for the different subfunctions.
+Hello,
 
-Changes in v7:
- - added patch to enable ethernet phy for Origin 200 systems
- - depend on 64bit for ioc3 mfd driver
+On 11/09/2019 17:48:03+0200, Lukasz Majewski wrote:
+> This change adds support for 'century bits' on 4162 family of RTC devices
+> (from ST or microcrystal), which allow storing time beyond year 2099.
+> 
+> For rv4162 century bits - CB1[7]:CB0[6] are stored in reg6 - 0x6 (MONTH):
+> CB1  CB0
+>  0    0      (year 2000 - 2099)
+>  0    1      (year 2100 - 2199)
+>  1    0      (year 2200 - 2299)
+>  1    1      (year 2300 - 2399)
+> 
+> The driver has been also adjusted to allow setting time up to year 2399
+> if the M41T80_FEATURE_CB is set in its DTS/I2C data.
+> 
+> There shall be no functional changes for devices not supporting this
+> feature. However, other devices - like m41t80 - have different approaches
+> to handle century information.
+> 
 
-Changes in v6:
- - dropped patches accepted for v5.4-rc1
- - moved serio patch to ip30 patch series
- - adapted nvmem patch
+This does not work because the RTC doesn't handle leap years on century
+properly. This means that if you do that, then there is no guarantee the
+date will be the correct after 2099. As far as the m41t62 and rv4162
+are concerned, there is no way to make the century bits useful.
 
-Changes in v5:
- - requested by Jakub I've splited ioc3 ethernet driver changes into
-   more steps to make the transition more visible; on the way there 
-   I've "checkpatched" the driver and reduced code reorderings
- - dropped all uint16_t and uint32_t
- - added nvmem API extension to the documenation file
- - changed to use request_irq/free_irq in serio driver
- - removed wrong kfree() in serio error path
+See the datasheet:
 
-Changes in v4:
- - added w1 drivers to the series after merge in 5.3 failed because
-   of no response from maintainer and other parts of this series
-   won't work without that drivers
- - moved ip30 systemboard support to the ip30 series, which will
-   deal with rtc oddity Lee found
- - converted to use devm_platform_ioremap_resource
- - use PLATFORM_DEVID_AUTO for serial, ethernet and serio in mfd driver
- - fixed reverse christmas order in ioc3-eth.c
- - formating issue found by Lee
- - re-worked irq request/free in serio driver to avoid crashes during
-   probe/remove
-
-Changes in v3:
- - use 1-wire subsystem for handling proms
- - pci-xtalk driver uses prom information to create PCI subsystem
-   ids for use in MFD driver
- - changed MFD driver to only use static declared mfd_cells
- - added IP30 system board setup to MFD driver
- - mac address is now read from ioc3-eth driver with nvmem framework
-
-Changes in v2:
- - fixed issue in ioc3kbd.c reported by Dmitry Torokhov
- - merged IP27 RTC removal and 8250 serial driver addition into
-   main MFD patch to keep patches bisectable
-
-Thomas Bogendoerfer (5):
-  nvmem: core: add nvmem_device_find
-  MIPS: PCI: use information from 1-wire PROM for IOC3 detection
-  mfd: ioc3: Add driver for SGI IOC3 chip
-  MIPS: SGI-IP27: fix readb/writeb addressing
-  MIPS: SGI-IP27: Enable ethernet phy on second Origin 200 module
-
- Documentation/driver-api/nvmem.rst            |   2 +
- arch/mips/include/asm/mach-ip27/mangle-port.h |   4 +-
- arch/mips/include/asm/pci/bridge.h            |   1 +
- arch/mips/include/asm/sn/ioc3.h               |  47 ++-
- arch/mips/pci/pci-ip27.c                      |  22 +
- arch/mips/pci/pci-xtalk-bridge.c              | 135 +++++-
- arch/mips/sgi-ip27/ip27-timer.c               |  20 -
- arch/mips/sgi-ip27/ip27-xtalk.c               |  38 +-
- drivers/mfd/Kconfig                           |  13 +
- drivers/mfd/Makefile                          |   1 +
- drivers/mfd/ioc3.c                            | 585 ++++++++++++++++++++++++++
- drivers/net/ethernet/sgi/Kconfig              |   4 +-
- drivers/net/ethernet/sgi/ioc3-eth.c           | 561 +++++-------------------
- drivers/nvmem/core.c                          |  61 ++-
- drivers/rtc/rtc-m48t35.c                      |  11 +
- drivers/tty/serial/8250/8250_ioc3.c           |  98 +++++
- drivers/tty/serial/8250/Kconfig               |  11 +
- drivers/tty/serial/8250/Makefile              |   1 +
- include/linux/nvmem-consumer.h                |   9 +
- 19 files changed, 1076 insertions(+), 548 deletions(-)
- create mode 100644 drivers/mfd/ioc3.c
- create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
+"During any year which is a multiple of 4, the RV-4162 RTC will
+automatically insert leap day, February 29.  Therefore, the application
+software must correct for this during the exception years (2100, 2200,
+etc.) as noted above."
 
 -- 
-2.16.4
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
