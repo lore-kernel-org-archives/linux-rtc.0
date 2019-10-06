@@ -6,24 +6,24 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B9BEC4360C
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4614FC10F14
 	for <linux-rtc@archiver.kernel.org>; Sun,  6 Oct 2019 10:34:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E77AA20867
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Oct 2019 10:34:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E1DD2087E
+	for <linux-rtc@archiver.kernel.org>; Sun,  6 Oct 2019 10:34:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726988AbfJFKdY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 6 Oct 2019 06:33:24 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:3211 "EHLO huawei.com"
+        id S1726892AbfJFKdG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 6 Oct 2019 06:33:06 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:3253 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726984AbfJFKdX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 6 Oct 2019 06:33:23 -0400
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id C92F8C8BB3CA3C0A97D1;
-        Sun,  6 Oct 2019 18:33:20 +0800 (CST)
-Received: from localhost (10.133.213.239) by DGGEMS409-HUB.china.huawei.com
- (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Sun, 6 Oct 2019
- 18:33:10 +0800
+        id S1726828AbfJFKdG (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 6 Oct 2019 06:33:06 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id A8A85FC4CBFC0474C99B;
+        Sun,  6 Oct 2019 18:33:03 +0800 (CST)
+Received: from localhost (10.133.213.239) by DGGEMS407-HUB.china.huawei.com
+ (10.3.19.207) with Microsoft SMTP Server id 14.3.439.0; Sun, 6 Oct 2019
+ 18:32:55 +0800
 From:   YueHaibing <yuehaibing@huawei.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
         <joel@jms.id.au>, <andrew@aj.id.au>, <nicolas.ferre@microchip.com>,
@@ -45,9 +45,9 @@ CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
         <linux-stm32@st-md-mailman.stormreply.com>,
         <linux-tegra@vger.kernel.org>, YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH -next 20/34] rtc: pic32: use devm_platform_ioremap_resource() to simplify code
-Date:   Sun, 6 Oct 2019 18:29:39 +0800
-Message-ID: <20191006102953.57536-21-yuehaibing@huawei.com>
+Subject: [PATCH -next 16/34] rtc: meson: use devm_platform_ioremap_resource() to simplify code
+Date:   Sun, 6 Oct 2019 18:29:35 +0800
+Message-ID: <20191006102953.57536-17-yuehaibing@huawei.com>
 X-Mailer: git-send-email 2.10.2.windows.1
 In-Reply-To: <20191006102953.57536-1-yuehaibing@huawei.com>
 References: <20191006102953.57536-1-yuehaibing@huawei.com>
@@ -65,30 +65,30 @@ This is detected by coccinelle.
 
 Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 ---
- drivers/rtc/rtc-pic32.c | 4 +---
+ drivers/rtc/rtc-meson.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pic32.c b/drivers/rtc/rtc-pic32.c
-index 17653ed..2b69467 100644
---- a/drivers/rtc/rtc-pic32.c
-+++ b/drivers/rtc/rtc-pic32.c
-@@ -298,7 +298,6 @@ static int pic32_rtc_remove(struct platform_device *pdev)
- static int pic32_rtc_probe(struct platform_device *pdev)
- {
- 	struct pic32_rtc_dev *pdata;
+diff --git a/drivers/rtc/rtc-meson.c b/drivers/rtc/rtc-meson.c
+index e08b981..9bd8478 100644
+--- a/drivers/rtc/rtc-meson.c
++++ b/drivers/rtc/rtc-meson.c
+@@ -292,7 +292,6 @@ static int meson_rtc_probe(struct platform_device *pdev)
+ 	};
+ 	struct device *dev = &pdev->dev;
+ 	struct meson_rtc *rtc;
 -	struct resource *res;
+ 	void __iomem *base;
  	int ret;
- 
- 	pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-@@ -311,8 +310,7 @@ static int pic32_rtc_probe(struct platform_device *pdev)
- 	if (pdata->alarm_irq < 0)
- 		return pdata->alarm_irq;
+ 	u32 tm;
+@@ -312,8 +311,7 @@ static int meson_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtc->ops = &meson_rtc_ops;
+ 	rtc->rtc->range_max = U32_MAX;
  
 -	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	pdata->reg_base = devm_ioremap_resource(&pdev->dev, res);
-+	pdata->reg_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(pdata->reg_base))
- 		return PTR_ERR(pdata->reg_base);
+-	base = devm_ioremap_resource(dev, res);
++	base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
  
 -- 
 2.7.4
