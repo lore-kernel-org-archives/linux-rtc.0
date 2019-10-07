@@ -6,30 +6,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23A11ECE58C
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E9DECE58D
 	for <linux-rtc@archiver.kernel.org>; Mon,  7 Oct 2019 13:47:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 050B72196E
+	by mail.kernel.org (Postfix) with ESMTP id 982CA20867
 	for <linux-rtc@archiver.kernel.org>; Mon,  7 Oct 2019 13:47:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728327AbfJGNrf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Oct 2019 09:47:35 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:42101 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728238AbfJGNre (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Oct 2019 09:47:34 -0400
+        id S1728290AbfJGNre (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Oct 2019 09:47:34 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:54525 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728158AbfJGNrd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Oct 2019 09:47:33 -0400
 X-Originating-IP: 86.207.98.53
 Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 19E221BF214;
-        Mon,  7 Oct 2019 13:47:33 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id CA635FF80A;
+        Mon,  7 Oct 2019 13:47:31 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 07/10] rtc: ds1347: set range
-Date:   Mon,  7 Oct 2019 15:47:21 +0200
-Message-Id: <20191007134724.15505-7-alexandre.belloni@bootlin.com>
+Subject: [PATCH 05/10] rtc: ds1347: mask ALM OUT when reading time
+Date:   Mon,  7 Oct 2019 15:47:19 +0200
+Message-Id: <20191007134724.15505-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20191007134724.15505-1-alexandre.belloni@bootlin.com>
 References: <20191007134724.15505-1-alexandre.belloni@bootlin.com>
@@ -40,27 +40,27 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The DS1347 handle dates from year 0000 to 9999. Leap years are claimed to
-be handled correctly in the datasheet.
+Bit 7 of the minutes registers is ALM OUT. It indicates an alarm fired.
+Mask it out when reading the time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1347.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-ds1347.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
-index 75c522c8ab26..22a75b01f1ac 100644
+index 06abf0b47e16..763eb60e5e8f 100644
 --- a/drivers/rtc/rtc-ds1347.c
 +++ b/drivers/rtc/rtc-ds1347.c
-@@ -134,6 +134,8 @@ static int ds1347_probe(struct spi_device *spi)
- 		return PTR_ERR(rtc);
+@@ -52,7 +52,7 @@ static int ds1347_read_time(struct device *dev, struct rtc_time *dt)
+ 		return err;
  
- 	rtc->ops = &ds1347_rtc_ops;
-+	rtc->range_min = RTC_TIMESTAMP_BEGIN_0000;
-+	rtc->range_max = RTC_TIMESTAMP_END_9999;
- 
- 	return rtc_register_device(rtc);
- }
+ 	dt->tm_sec = bcd2bin(buf[0]);
+-	dt->tm_min = bcd2bin(buf[1]);
++	dt->tm_min = bcd2bin(buf[1] & 0x7f);
+ 	dt->tm_hour = bcd2bin(buf[2] & 0x3F);
+ 	dt->tm_mday = bcd2bin(buf[3]);
+ 	dt->tm_mon = bcd2bin(buf[4]) - 1;
 -- 
 2.21.0
 
