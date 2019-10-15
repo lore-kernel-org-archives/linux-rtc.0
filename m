@@ -2,74 +2,90 @@ Return-Path: <SRS0=jdcY=YI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A9DC10F14
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Oct 2019 12:10:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07AE4ECE588
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Oct 2019 17:10:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6BE5E205F4
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Oct 2019 12:10:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBE7F2084B
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Oct 2019 17:10:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1571159453;
+	bh=mDEtXLSoQfNWU7CmHmgTRDGBYS6McxGZnZilTrAP4ls=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=mD9utuqGzkT/vGymglWQcqcHHAv0KxcENMDIGmbhS0xsKF5VxAupt2h4gBuXqY4VI
+	 lftGY2tfhDxU1CaHl6YRg5BcG9N5v+8JumcRUDyGwlDgsKmbVHlO/BYTx2ifj3iyPU
+	 v5Y8kPGyfvOjFMDH8LO/177o/8FwDv7NmanIupwM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730699AbfJOMKF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Oct 2019 08:10:05 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58068 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730681AbfJOMKF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 15 Oct 2019 08:10:05 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id EEE54B395;
-        Tue, 15 Oct 2019 12:10:00 +0000 (UTC)
-From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
-To:     Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1728162AbfJORKu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 15 Oct 2019 13:10:50 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:45820 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727810AbfJORKu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Oct 2019 13:10:50 -0400
+Received: by mail-oi1-f195.google.com with SMTP id o205so17462108oib.12;
+        Tue, 15 Oct 2019 10:10:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MuM5OXPQEf/qQaZDX6U88QiRRUcUu9cQvoANannVLLg=;
+        b=f9dFBLTg/nyxklKIG/IbWsoWkAZnfBJzBWpdXdavLSfGmiyLiia8m6EVTqCnWpie8b
+         MAUTLwRzRrSLoad0hSCyJDIUp3qcA6cMlAs8Xe9t7WW217/jYqRS9mOyD9hNg65/cmjs
+         y+wnuc1fyUFJmm6gb4cFM8hwdMKQ3n0Zx8WMQBDsWp0PsSaOIqbuir8SzHFQa5twZ76E
+         GYbf9oheO8ogbARb4KgKkdLz4WRli/jlgz/QIdP2UkEcaOBAW4HPX8xyZumhFrExowpY
+         C+WVWyjcEYlbHS6MUhrzIzkiXgSH4mRnQiR/cnO6y4Q2354Yv5PLidu9rq1eJ1h+JzJg
+         rjLg==
+X-Gm-Message-State: APjAAAUm9UUEUCOBO9w0kA/ZHK4nkNemuvaDXHO81GPyiLbvPIDZYrOv
+        CVkSFYDEt4pPVTm1O3GiCHXuB9g=
+X-Google-Smtp-Source: APXvYqzaGxPe8TwkXiP2OfuHpB4m420Ks0jDce+UGmdVQ7BdQQbg5qasG/3Db5bbjpGHHy65AoHC5g==
+X-Received: by 2002:a05:6808:9:: with SMTP id u9mr30411976oic.98.1571159449283;
+        Tue, 15 Oct 2019 10:10:49 -0700 (PDT)
+Received: from localhost (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id n27sm6583417otr.32.2019.10.15.10.10.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Oct 2019 10:10:48 -0700 (PDT)
+Date:   Tue, 15 Oct 2019 12:10:48 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH v10 3/6] MIPS: PCI: Fix fake subdevice ID for IOC3
-Date:   Tue, 15 Oct 2019 14:09:48 +0200
-Message-Id: <20191015120953.2597-4-tbogendoerfer@suse.de>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20191015120953.2597-1-tbogendoerfer@suse.de>
-References: <20191015120953.2597-1-tbogendoerfer@suse.de>
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 1/4] dt-bindings: samsung: Indent examples with four
+ spaces
+Message-ID: <20191015171048.GA10675@bogus>
+References: <20191002160744.11307-1-krzk@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191002160744.11307-1-krzk@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Generation of fake subdevice ID had vendor and device ID swapped.
+On Wed,  2 Oct 2019 18:07:41 +0200, Krzysztof Kozlowski wrote:
+> Change the indentation of examples used in json-schema bindings from two
+> to four spaces as this makes the code easier to read and seems to be
+> preferred in other files.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  .../bindings/arm/samsung/exynos-chipid.yaml   |  4 +-
+>  .../bindings/iio/adc/samsung,exynos-adc.yaml  | 64 +++++++++----------
+>  .../bindings/power/reset/syscon-poweroff.yaml |  8 +--
+>  .../bindings/power/reset/syscon-reboot.yaml   |  8 +--
+>  .../devicetree/bindings/rtc/s3c-rtc.yaml      | 12 ++--
+>  5 files changed, 48 insertions(+), 48 deletions(-)
+> 
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
----
- arch/mips/pci/pci-xtalk-bridge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied, thanks.
 
-diff --git a/arch/mips/pci/pci-xtalk-bridge.c b/arch/mips/pci/pci-xtalk-bridge.c
-index dcf6117a17c3..d1d5f54c2632 100644
---- a/arch/mips/pci/pci-xtalk-bridge.c
-+++ b/arch/mips/pci/pci-xtalk-bridge.c
-@@ -437,7 +437,7 @@ static int bridge_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
- 	return irq;
- }
- 
--#define IOC3_SID(sid)	(PCI_VENDOR_ID_SGI << 16 | (sid))
-+#define IOC3_SID(sid)	(PCI_VENDOR_ID_SGI | ((sid) << 16))
- 
- static void bridge_setup_ip27_baseio6g(struct bridge_controller *bc)
- {
--- 
-2.16.4
-
+Rob
