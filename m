@@ -2,64 +2,65 @@ Return-Path: <SRS0=vscC=YM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F100ECA9EAC
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:50:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9853CA9EAB
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 21:14:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC2C0222C2
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:50:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A532A2064A
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 21:14:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726146AbfJSUui (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 19 Oct 2019 16:50:38 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:35057 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726145AbfJSUui (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Oct 2019 16:50:38 -0400
-X-Originating-IP: 86.202.229.42
+        id S1726133AbfJSVOi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 19 Oct 2019 17:14:38 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:52797 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726129AbfJSVOi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Oct 2019 17:14:38 -0400
 Received: from localhost (lfbn-lyo-1-146-42.w86-202.abo.wanadoo.fr [86.202.229.42])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 9E2351C0002;
-        Sat, 19 Oct 2019 20:50:36 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 42419240002;
+        Sat, 19 Oct 2019 21:14:36 +0000 (UTC)
+Date:   Sat, 19 Oct 2019 23:14:35 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH] rtc: introduce lock helpers
-Date:   Sat, 19 Oct 2019 22:50:34 +0200
-Message-Id: <20191019205034.6382-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.21.0
+To:     Parthiban Nallathambi <pn@denx.de>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, parthitce@gmail.com
+Subject: Re: [PATCH v2] rtc: rv3028: add clkout support
+Message-ID: <20191019211435.GN3125@piout.net>
+References: <20191018100425.1687979-1-pn@denx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191018100425.1687979-1-pn@denx.de>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Introduce rtc_lock and rtc_unlock to shorten the code when locking and
-unlocking ops_lock from drivers.
+On 18/10/2019 12:04:25+0200, Parthiban Nallathambi wrote:
+> rv3028 provides clkout (enabled by default). Add clkout
+> to clock framework source and control from device tree for
+> variable frequency with enable and disable functionality.
+> 
+> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
+> ---
+> 
+> Notes:
+>     Notes:
+>     Changlog in v2:
+>     	- Removed disabling the clock. clk core will disable it
+>     	when no consumer is detected
+>     	- Remove multiple write to CLKF
+> 
+>  drivers/rtc/rtc-rv3028.c | 146 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 146 insertions(+)
+> 
+Applied, thanks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- include/linux/rtc.h | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index e86a9f307b82..4e9d3c71addb 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -159,6 +159,9 @@ struct rtc_device {
- };
- #define to_rtc_device(d) container_of(d, struct rtc_device, dev)
- 
-+#define rtc_lock(d) mutex_lock(&d->ops_lock)
-+#define rtc_unlock(d) mutex_unlock(&d->ops_lock)
-+
- /* useful timestamps */
- #define RTC_TIMESTAMP_BEGIN_0000	-62167219200ULL /* 0000-01-01 00:00:00 */
- #define RTC_TIMESTAMP_BEGIN_1900	-2208988800LL /* 1900-01-01 00:00:00 */
 -- 
-2.21.0
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
