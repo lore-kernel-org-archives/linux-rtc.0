@@ -6,31 +6,33 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C70C5CA9EAC
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:49:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 967C7CA9EAC
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:49:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A322421925
-	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:49:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77B9D21925
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 20:49:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbfJSUtq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1726316AbfJSUtq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Sat, 19 Oct 2019 16:49:46 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:60343 "EHLO
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:48895 "EHLO
         relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbfJSUtq (ORCPT
+        with ESMTP id S1726143AbfJSUtq (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Oct 2019 16:49:46 -0400
 X-Originating-IP: 86.202.229.42
 Received: from localhost (lfbn-lyo-1-146-42.w86-202.abo.wanadoo.fr [86.202.229.42])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id D2310240006;
-        Sat, 19 Oct 2019 20:49:43 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id B727F240008;
+        Sat, 19 Oct 2019 20:49:44 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 1/9] rtc: ds1343: set range
-Date:   Sat, 19 Oct 2019 22:49:33 +0200
-Message-Id: <20191019204941.6203-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 3/9] rtc: ds1343: use burst write to set time
+Date:   Sat, 19 Oct 2019 22:49:35 +0200
+Message-Id: <20191019204941.6203-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20191019204941.6203-1-alexandre.belloni@bootlin.com>
+References: <20191019204941.6203-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -38,27 +40,77 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This is a standard BCD rtc with a useless century bit (no leap year
-correction after 2099).
+To avoid possible race condition, use regmap_bulk_write to write all the
+date/time registers at once instead of sequentially.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds1343.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-ds1343.c | 52 ++++++++++------------------------------
+ 1 file changed, 12 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
-index fa6de31d5793..b45d1b8fd631 100644
+index 9d7d571e722b..8a4f1fbb57fd 100644
 --- a/drivers/rtc/rtc-ds1343.c
 +++ b/drivers/rtc/rtc-ds1343.c
-@@ -520,6 +520,8 @@ static int ds1343_probe(struct spi_device *spi)
+@@ -236,46 +236,18 @@ static int ds1343_read_time(struct device *dev, struct rtc_time *dt)
+ static int ds1343_set_time(struct device *dev, struct rtc_time *dt)
+ {
+ 	struct ds1343_priv *priv = dev_get_drvdata(dev);
+-	int res;
+-
+-	res = regmap_write(priv->map, DS1343_SECONDS_REG,
+-				bin2bcd(dt->tm_sec));
+-	if (res)
+-		return res;
+-
+-	res = regmap_write(priv->map, DS1343_MINUTES_REG,
+-				bin2bcd(dt->tm_min));
+-	if (res)
+-		return res;
+-
+-	res = regmap_write(priv->map, DS1343_HOURS_REG,
+-				bin2bcd(dt->tm_hour) & 0x3F);
+-	if (res)
+-		return res;
+-
+-	res = regmap_write(priv->map, DS1343_DAY_REG,
+-				bin2bcd(dt->tm_wday + 1));
+-	if (res)
+-		return res;
+-
+-	res = regmap_write(priv->map, DS1343_DATE_REG,
+-				bin2bcd(dt->tm_mday));
+-	if (res)
+-		return res;
+-
+-	res = regmap_write(priv->map, DS1343_MONTH_REG,
+-				bin2bcd(dt->tm_mon + 1));
+-	if (res)
+-		return res;
+-
+-	dt->tm_year %= 100;
+-
+-	res = regmap_write(priv->map, DS1343_YEAR_REG,
+-				bin2bcd(dt->tm_year));
+-	if (res)
+-		return res;
+-
+-	return 0;
++	u8 buf[7];
++
++	buf[0] = bin2bcd(dt->tm_sec);
++	buf[1] = bin2bcd(dt->tm_min);
++	buf[2] = bin2bcd(dt->tm_hour) & 0x3F;
++	buf[3] = bin2bcd(dt->tm_wday + 1);
++	buf[4] = bin2bcd(dt->tm_mday);
++	buf[5] = bin2bcd(dt->tm_mon + 1);
++	buf[6] = bin2bcd(dt->tm_year - 100);
++
++	return regmap_bulk_write(priv->map, DS1343_SECONDS_REG,
++				 buf, sizeof(buf));
+ }
  
- 	priv->rtc->nvram_old_abi = true;
- 	priv->rtc->ops = &ds1343_rtc_ops;
-+	priv->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	priv->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 
- 	res = rtc_register_device(priv->rtc);
- 	if (res)
+ static int ds1343_update_alarm(struct device *dev)
 -- 
 2.21.0
 
