@@ -1,146 +1,127 @@
-Return-Path: <SRS0=l8Hz=YL=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=vscC=YM=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06651CA9EA9
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Oct 2019 22:16:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 669E3CA9EA9
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 01:03:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CEDD221D7C
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Oct 2019 22:16:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1571436985;
-	bh=Z4Vr1KaooQILrkTf+O1jZFGQD7EZq+zGisiVEVxIL2I=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=YBPGG0wkhG4BewX3N5/th2KXSDH6cboIajlk3hOOnOWD7Z8jRjzvYCgvtQ2v9vuYG
-	 bi1blbTrPetrDy9S1LXfWLmS8v4yIpPB8SMf/OxZx8pDkrB7UPXkGvI0v2BzUOntx3
-	 NNj6YanHinx34esF8ZEMG+DzWwvIHiXdmp5TCDGY=
+	by mail.kernel.org (Postfix) with ESMTP id 3C7BF222C2
+	for <linux-rtc@archiver.kernel.org>; Sat, 19 Oct 2019 01:03:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZFvZMeNd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387696AbfJRWIV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 18 Oct 2019 18:08:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40740 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387671AbfJRWIT (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:19 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B4AB205F4;
-        Fri, 18 Oct 2019 22:08:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436499;
-        bh=Z4Vr1KaooQILrkTf+O1jZFGQD7EZq+zGisiVEVxIL2I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ml7D9Tkhmi+TTFYxHgGvzoyS3P2l3J+Sx+0QQ2LjPW3DGldWxPqQ7iJpmlusqwWqp
-         0vVfBaW/bi4ecnb9I8/S3Iu7Lc9pTvTpUuZqPPbXnvtqiI2Oti56GmtG763eFzxsFL
-         f9TA4OC/mBDZVsmqEhX8VpjRY5TVXyPyzImT8DKU=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam Ravnborg <sam@ravnborg.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/56] rtc: pcf8523: set xtal load capacitance from DT
-Date:   Fri, 18 Oct 2019 18:07:09 -0400
-Message-Id: <20191018220753.10002-12-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
-References: <20191018220753.10002-1-sashal@kernel.org>
+        id S1728254AbfJSBDD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 18 Oct 2019 21:03:03 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:44573 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726743AbfJSBDC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Oct 2019 21:03:02 -0400
+Received: by mail-pg1-f193.google.com with SMTP id e10so4236408pgd.11;
+        Fri, 18 Oct 2019 18:03:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=O2vDP5dhX90+NEeZF4xwy/6nZiyy5Chs2FfT8NPVR7E=;
+        b=ZFvZMeNde3XSQbCX5z+A8LC9qIkMj77Zzi+EgKADvigb12CI/Atx5eiO423UuVNTZ4
+         FMRj0TTh5vYpzBJFf3onEv/NHctJbLDMvw72Wm/UAs/vKZecv2U7aiKsK5O98DMCY3LN
+         6P8SWWQFoi0WW7dNj9CrT+uf0KK0LjF+3+/cSfQNkEYtvDykIjEQuh6qD2TVjSbIXoLH
+         0NoyZAo/m7sgpGHXCa5h6dWvnJlDsRbI4TfaO4uSF0QgVAzYFE5KMcLQFbvw7OGqrAEI
+         4v0uNLLBBCk7L6lzLHiVmoKSbmmeLfyP8LnUo6lczAWEEIGT7byS+WfZ7fYM1pCa1V6t
+         b94w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=O2vDP5dhX90+NEeZF4xwy/6nZiyy5Chs2FfT8NPVR7E=;
+        b=Cs6svu5TBVneapfDeF1cl88fLEO4eJMVjiW0eRMaVqngna/yQfIeyXNksrhczPppab
+         F9DZFufQuoMgQVF4AqjK1BB3/Pijc1wl2THZzorzyf5HS0LJC4vKw+JkCjKmF5YB6YTa
+         HH3dpKVCjMepemN8nl7VMuFmukJfZ7Ym3dsCGY+1v0YM97fb0niWl+nJaX1//pwcpeim
+         hC60cnZJPN8ST8ZrqWO6oA/aB00BmQGj4Ox7MALU1LQFzC7j3PkouKievz5lHO/6Cap9
+         uyrWE9s23t2gFWYpHLtTjSXmsoZmNKfATgBiJ4OkoFtRO/QhffUzValM1xCtjF0s8EKC
+         1VPw==
+X-Gm-Message-State: APjAAAVgsokVXL/etNlbNK/7y3eQxkJvFNsnT7BEvWNrAdzDaHrp2Paj
+        50g0IEeTefgzQ7e1OFoc9qexMMNU
+X-Google-Smtp-Source: APXvYqyfRaTHhsimbDLjYp5YZtM7EeE6UsAbtJraEIbyzdK0a87RqNrOa51iK+zxPIPUiG8is3MEFw==
+X-Received: by 2002:a63:f5a:: with SMTP id 26mr13333625pgp.63.1571446981132;
+        Fri, 18 Oct 2019 18:03:01 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id h14sm7304535pfo.15.2019.10.18.18.02.58
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 18 Oct 2019 18:03:00 -0700 (PDT)
+Subject: Re: [PATCH 00/46] ARM: pxa: towards multiplatform support
+To:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-clk@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-ide@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-watchdog@vger.kernel.org
+References: <20191018154052.1276506-1-arnd@arndb.de>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <803f6fa5-b929-007c-5302-4a2d5042241c@roeck-us.net>
+Date:   Fri, 18 Oct 2019 18:02:57 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191018154052.1276506-1-arnd@arndb.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
+On 10/18/19 8:40 AM, Arnd Bergmann wrote:
+> 
+> Hi PXA maintainers,
+> 
+> I'm in the process of getting the old ARM platforms to all build
+> in a single kernel. The largest part of that work is changing all
+> the device drivers to no longer require mach/*.h header files.
+> 
+> This series does it for arch/pxa/.
+> 
+> As with the omap1 and s3c24xx series I sent before, I don't
+> expect this all to be correct in the first version, though
+> a lot of the patches are fairly simple and I did exhaustive
+> compile-time testing on them.
+> 
+> Please test if you have the hardware, or review!
+> 
 
-[ Upstream commit 189927e719e36ceefbb8037f23d3849e47833aef ]
+I don't get very far.
 
-Add support for specifying the xtal load capacitance in the DT node.
-The pcf8523 supports xtal load capacitance of 7pF or 12.5pF.
-If the rtc has the wrong configuration the time will
-drift several hours/week.
+$ make-arm pxa_defconfig
+arch/arm/Kconfig:677: can't open file "arch/arm/plat-pxa/Kconfig"
+scripts/kconfig/Makefile:90: recipe for target 'pxa_defconfig' failed
+make[1]: *** [pxa_defconfig] Error 1
+Makefile:567: recipe for target 'pxa_defconfig' failed
+make: *** [pxa_defconfig] Error 2
+$ git describe
+v5.4-rc3-52-gfcc4181cd625
 
-The driver use the default value 12.5pF.
+Also:
 
-The DT may specify either 7000fF or 12500fF.
-(The DT uses femto Farad to avoid decimal numbers).
-Other values are warned and the driver uses the default value.
+$ git grep plat-pxa
+Documentation/arm/marvel.rst:   arch/arm/plat-pxa
+Documentation/arm/marvel.rst:   arch/arm/plat-pxa
+Documentation/arm/marvel.rst:   directory. The plat-pxa/ would therefore disappear.
+arch/arm/Kconfig:source "arch/arm/plat-pxa/Kconfig"
+arch/arm/mach-mmp/Makefile:ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/arch/arm/plat-pxa/include
+drivers/gpio/gpio-pxa.c: *  linux/arch/arm/plat-pxa/gpio.c
+drivers/soc/pxa/mfp.c: * linux/arch/arm/plat-pxa/mfp.c
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/rtc/rtc-pcf8523.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+Did I pick the wrong tree ?
 
-diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-index 3c8c6f942e67f..a06792966ea90 100644
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -94,8 +94,9 @@ static int pcf8523_voltage_low(struct i2c_client *client)
- 	return !!(value & REG_CONTROL3_BLF);
- }
- 
--static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
-+static int pcf8523_load_capacitance(struct i2c_client *client)
- {
-+	u32 load;
- 	u8 value;
- 	int err;
- 
-@@ -103,14 +104,24 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
- 	if (err < 0)
- 		return err;
- 
--	if (!high)
--		value &= ~REG_CONTROL1_CAP_SEL;
--	else
-+	load = 12500;
-+	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
-+			     &load);
-+
-+	switch (load) {
-+	default:
-+		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 12500",
-+			 load);
-+		/* fall through */
-+	case 12500:
- 		value |= REG_CONTROL1_CAP_SEL;
-+		break;
-+	case 7000:
-+		value &= ~REG_CONTROL1_CAP_SEL;
-+		break;
-+	}
- 
- 	err = pcf8523_write(client, REG_CONTROL1, value);
--	if (err < 0)
--		return err;
- 
- 	return err;
- }
-@@ -307,9 +318,10 @@ static int pcf8523_probe(struct i2c_client *client,
- 	if (!pcf)
- 		return -ENOMEM;
- 
--	err = pcf8523_select_capacitance(client, true);
-+	err = pcf8523_load_capacitance(client);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
-+			 err);
- 
- 	err = pcf8523_set_pm(client, 0);
- 	if (err < 0)
--- 
-2.20.1
-
+Guenter
