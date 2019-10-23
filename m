@@ -6,67 +6,77 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE91DCA9EB9
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Oct 2019 18:46:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45D1ECA9EB9
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Oct 2019 20:01:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A0F962086D
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Oct 2019 18:46:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1497420663
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Oct 2019 20:01:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389999AbfJWSqS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 23 Oct 2019 14:46:18 -0400
-Received: from mga03.intel.com ([134.134.136.65]:16608 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389979AbfJWSqS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 23 Oct 2019 14:46:18 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Oct 2019 11:46:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,221,1569308400"; 
-   d="scan'208";a="197500453"
-Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.68])
-  by fmsmga007.fm.intel.com with ESMTP; 23 Oct 2019 11:46:16 -0700
-Date:   Wed, 23 Oct 2019 11:46:16 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        id S2404176AbfJWUBi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Oct 2019 16:01:38 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:57269 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733176AbfJWUBi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Oct 2019 16:01:38 -0400
+X-Originating-IP: 86.202.229.42
+Received: from localhost (lfbn-lyo-1-146-42.w86-202.abo.wanadoo.fr [86.202.229.42])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id EF7A660006;
+        Wed, 23 Oct 2019 20:01:35 +0000 (UTC)
+Date:   Wed, 23 Oct 2019 22:01:35 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     "Luck, Tony" <tony.luck@intel.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         linux-ia64@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
         Stephane Eranian <eranian@google.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/2] rtc/ia64: remove legacy efirtc driver
-Message-ID: <20191023184616.GA17078@agluck-desk2.amr.corp.intel.com>
+Message-ID: <20191023200135.GT3125@piout.net>
 References: <20191023150311.844123-1-arnd@arndb.de>
+ <20191023184616.GA17078@agluck-desk2.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191023150311.844123-1-arnd@arndb.de>
+In-Reply-To: <20191023184616.GA17078@agluck-desk2.amr.corp.intel.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 05:01:58PM +0200, Arnd Bergmann wrote:
-> There are two EFI RTC drivers, the original drivers/char/efirtc.c
-> driver and the more modern drivers/rtc/rtc-efi.c.
+On 23/10/2019 11:46:16-0700, Luck, Tony wrote:
+> On Wed, Oct 23, 2019 at 05:01:58PM +0200, Arnd Bergmann wrote:
+> > There are two EFI RTC drivers, the original drivers/char/efirtc.c
+> > driver and the more modern drivers/rtc/rtc-efi.c.
+> > 
+> > Both implement the same interface, but the new one does so
+> > in a more portable way.
+> > 
+> > Move everything over to that one and remove the old one.
 > 
-> Both implement the same interface, but the new one does so
-> in a more portable way.
+> The new one is more talkative that the old one. I see this extra
+> line on the console when I boot ia64:
 > 
-> Move everything over to that one and remove the old one.
+> rtc-efi rtc-efi: setting system clock to 2019-10-23T18:30:23 UTC (1571855423)
+> 
+> That seems somewhat useful & informative (though the repeated "rtc-efi"
+> at the start of the line is redundant).
+> 
 
-The new one is more talkative that the old one. I see this extra
-line on the console when I boot ia64:
+You can remove CONFIG_RTC_HCTOSYS, this line will disappear, systemd
+will not like that but efirtc was not setting the system time anyway so
+this shouldn't change the behaviour.
 
-rtc-efi rtc-efi: setting system clock to 2019-10-23T18:30:23 UTC (1571855423)
+The redundancy in the log is kind of specific to this RTC. For CMOS,
+this is: rtc_cmos 00:01, it should identify the RTC uniquely.
 
-That seems somewhat useful & informative (though the repeated "rtc-efi"
-at the start of the line is redundant).
+> Acked-by: Tony Luck <tony.luck@intel.com>
+> 
+> -Tony
 
-Acked-by: Tony Luck <tony.luck@intel.com>
-
--Tony
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
