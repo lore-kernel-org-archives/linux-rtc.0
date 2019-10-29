@@ -2,32 +2,65 @@ Return-Path: <SRS0=pxwe=YW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D289CA9EC2
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 06:29:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0415BCA9EAE
+	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:08:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 00E8921835
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 06:29:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBDD0208E3
+	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:08:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="P5lX77UJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732569AbfJ2G26 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 29 Oct 2019 02:28:58 -0400
-Received: from mailgate1.rohmeurope.com ([178.15.145.194]:50556 "EHLO
-        mailgate1.rohmeurope.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732549AbfJ2G26 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Oct 2019 02:28:58 -0400
-X-AuditID: c0a8fbf4-183ff70000001fa6-f5-5db7dc27a4dc
-Received: from smtp.reu.rohmeu.com (will-cas001.reu.rohmeu.com [192.168.251.177])
-        by mailgate1.rohmeurope.com (Symantec Messaging Gateway) with SMTP id 70.9A.08102.72CD7BD5; Tue, 29 Oct 2019 07:28:55 +0100 (CET)
-Received: from WILL-MAIL002.REu.RohmEu.com ([fe80::e0c3:e88c:5f22:d174]) by
- WILL-CAS001.REu.RohmEu.com ([fe80::d57e:33d0:7a5d:f0a6%16]) with mapi id
- 14.03.0439.000; Tue, 29 Oct 2019 07:28:51 +0100
-From:   "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-To:     "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "sboyd@kernel.org" <sboyd@kernel.org>
-CC:     "dmurphy@ti.com" <dmurphy@ti.com>,
+        id S1730482AbfJ2MIa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 29 Oct 2019 08:08:30 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:43359 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731291AbfJ2MI1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Oct 2019 08:08:27 -0400
+Received: by mail-wr1-f67.google.com with SMTP id n1so5901609wra.10
+        for <linux-rtc@vger.kernel.org>; Tue, 29 Oct 2019 05:08:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=AThmdWLvoHXRd+gCJ7Rc/MdmxHKDL94oX7/2fySCtI4=;
+        b=P5lX77UJ1HJtxK6+w+SrHuDYaDtyieTnHZhqXpqYQooiSH5Kll8AXspDAhkEL4wIlw
+         hBQYFRsjp/fhhGLvnGTbxW6Cyas8J5lT2DcgCgvszMF1npFF0o8wt1J4os797vV6KthD
+         nch41e/zHWkALfLf1XQs2qEjEnQM6Z9jR0kMq9jvNfBVQj50Ghnb0ZLGlD58WAS85xzH
+         TTGyIn5cfIa7QmPPxEX7tFIwsMjItnnJ5oIxUu8Tvlmktoq1n6/IUWv/sEjQKzxXF3B1
+         rsdKdUZQNLGLRGmFYe1SoMSneOkEPEKsXkC4N3S2QAEX/dSXn/h+46Mutakba5iRRMUf
+         9RuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=AThmdWLvoHXRd+gCJ7Rc/MdmxHKDL94oX7/2fySCtI4=;
+        b=S11H9jMKOgbpMiWIf2zKdUqcQzdZr/WicwLoMC9jQFx7mZT/LqKiV9RgZDVXqDnsTw
+         RQi09zEVa46/WpU/URE+ROk3Yo7qwtLviDPwPMyl3QomatU4Xp9hv1sgUhuy5Xeb9Hnm
+         cUfBjbZBTUWfIQmXIVbpXSEBXViqY1mnwo0mQMYHAl+JRu+52IZDQArSavSUsB9VrhGk
+         xy2rG6RiOnsMo9klhgLagizRwnUikmU15dz59deLgy2QvDU4AzHhvUhLr9Y8lvqYd5C0
+         MzsOvu1rq8lnJr+msW7MjmOcO87XvvNZGIRKJS6uPYS9C2R26PK54+cOZbtEkXggU3Bj
+         Gy4Q==
+X-Gm-Message-State: APjAAAVVPvrh1jIb7aPSjeSXhYpNL0ZiIJ37ChPGwm1xo9MxVj7HSGxM
+        gMBgaasDzpqR1pDBjWUQfaDDWg==
+X-Google-Smtp-Source: APXvYqzgTN+N15xxbnf2G3a5OZaR/6UqN35YmkJy8Yi15GIpGWNYrXR0LpTtgteSgBb/D3JIn1j0jQ==
+X-Received: by 2002:adf:e488:: with SMTP id i8mr19406966wrm.302.1572350903096;
+        Tue, 29 Oct 2019 05:08:23 -0700 (PDT)
+Received: from dell ([2.31.163.64])
+        by smtp.gmail.com with ESMTPSA id g5sm2893643wmg.12.2019.10.29.05.08.21
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 29 Oct 2019 05:08:22 -0700 (PDT)
+Date:   Tue, 29 Oct 2019 12:08:20 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
+Cc:     "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
+        "dmurphy@ti.com" <dmurphy@ti.com>,
         "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
         "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
         "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
@@ -35,123 +68,75 @@ CC:     "dmurphy@ti.com" <dmurphy@ti.com>,
         "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
         "mturquette@baylibre.com" <mturquette@baylibre.com>,
         "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "jacek.anaszewski@gmail.com" <jacek.anaszewski@gmail.com>,
         "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "jacek.anaszewski@gmail.com" <jacek.anaszewski@gmail.com>,
         "a.zummo@towertech.it" <a.zummo@towertech.it>,
         "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
         "mark.rutland@arm.com" <mark.rutland@arm.com>,
         "robh+dt@kernel.org" <robh+dt@kernel.org>,
         "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
         "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
+        "sboyd@kernel.org" <sboyd@kernel.org>,
         "pavel@ucw.cz" <pavel@ucw.cz>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
         "broonie@kernel.org" <broonie@kernel.org>
-Subject: Re: [RFC PATCH v2 05/13] clk: bd718x7: Support ROHM BD71828 clk
- block
-Thread-Topic: [RFC PATCH v2 05/13] clk: bd718x7: Support ROHM BD71828 clk
- block
-Thread-Index: AQHVimBwjNMwf0EEZEiGH5vTJctNV6dwqoeAgAB0NIA=
-Date:   Tue, 29 Oct 2019 06:28:51 +0000
-Message-ID: <95b21eeaee8025dc430623429273116c35c1b769.camel@fi.rohmeurope.com>
+Subject: Re: [RFC PATCH v2 02/13] dt-bindings: mfd: Document ROHM BD71828
+ bindings
+Message-ID: <20191029120820.GA4484@dell>
 References: <cover.1571915550.git.matti.vaittinen@fi.rohmeurope.com>
-         <5c66ac7d43ae1f57c335b6e565553fe1df703a83.1571915550.git.matti.vaittinen@fi.rohmeurope.com>
-         <20191028233256.798AD21479@mail.kernel.org>
-In-Reply-To: <20191028233256.798AD21479@mail.kernel.org>
-Accept-Language: en-US, de-DE
-Content-Language: de-DE
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [213.255.186.46]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <BA1237DA9BAD5540B994689D32145663@de.rohmeurope.com>
-Content-Transfer-Encoding: base64
+ <0182df3c49c6c804ee20ef32fc4b85b50ff45fca.1571915550.git.matti.vaittinen@fi.rohmeurope.com>
+ <ed0b2aa8-8a70-0341-4ecf-8959f37c53bd@ti.com>
+ <5c793f1308ccc6e787260b64fe6a875a8d0eb9d0.camel@fi.rohmeurope.com>
 MIME-Version: 1.0
-X-Brightmail-Tracker: H4sIAAAAAAAAA01TWUwTQRh2dre7S3HNUoqMqEQbTb0Fo2aiRnkxWYzxfDEaxAUW2tCDbIvn
-        C4lHpZB4gUflUAQkQFQQRYk1iFC0arEeiHhRr1BD8EINEcVdVoWn+TLf9U/yD41rAmQUbbTY
-        BdHCm3Skmmis+FkzW/+8PiHmYVc0KvU/ppCjt5xCfYVeAuUH3pKouNmnQjl36lTo2aULBHr1
-        rQWg74/2Yyhv4CyGPue+VKGLxQMAPWwoINGlnnMAeaoekajsiR9DBWW3COT3LkcvvC0k2utu
-        ptDv9hoiLoKrLqoG3MeOvRRXVL2Lu+p6QXG1ldkk97z9Gsm1dtRj3LGifoyrqPpBcV9ro9eo
-        N4YuSeLtW9cb0yxzl24JNew78FmV0TBt+9GqfCIL1OmdIISG7HzYcf0XKWMN+xjAntY4J1BL
-        +BaAlS31wAlommSXQOdTStZo2SR48UsOIWtw9hsF7w+6CZkIZ9fArKAPU0Rroev4e5WCF8Hd
-        3/uGMMFOhVdfN+IyZthV8HpeDVDKHgD4wF8NZCKERTDXs2dIBNiJMDurdygUZyNh7fsfKmVq
-        FpZea8MVHAGDb37/vddBd3+AkIfG2enwfMNcxRoH8+87CAVPhnk5AUqZIQzePvGWOAjGukY0
-        uIbdrhFu1wi3a4T7FFBVAmjmjaY03i7EzhGFzDmi1WCWjmSruRYoK9N3BQw2xTcBjAZNYByN
-        6SKYAU99gmZMkjVlh4G3GRLFTJNgawKQxnVaxn/3coKGSeF37BRE6z9qPE3oIhl94FCChpW7
-        0gUhQxD/sRNoWgeZqc+k0DBRSBO2pxpN9mEao0PkcHWU1iZYUgSRz7QbEuX9SLRJCyJTo6Ve
-        lWxnbBm8WbpVrF4wkz4YLCzB6ebCshJcQ1isFiEqktHKUlaWGjIt/4s+gEga6MKZkk6JHS39
-        m/85H6QKTKqY1S8/zWbnh6moLBDW9sS0wid0m7M94T3qXmN6c9/JI+M6F/Z0nYxddvtwzDxf
-        zQazd6Vzt/7eFMeGmOkv09eN6g9aqAPR2woWuO/uXFt+/kbvhNW/rOmb4gfbikvjGxen+vSB
-        Y4mbHV0omOS42Zlsqvv07ijo3h+R64kO9bYnT8LGpGmmrTytdZ/prtQRNgMfOwMXbfwfGu26
-        MfQDAAA=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5c793f1308ccc6e787260b64fe6a875a8d0eb9d0.camel@fi.rohmeurope.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-SGVsbG8gU3RlcGhlbiwNCg0KVGhhbmtzIGZvciB0aGUgY29tbWVudHMgb25jZSBhZ2FpbiA6KQ0K
-DQpPbiBNb24sIDIwMTktMTAtMjggYXQgMTY6MzIgLTA3MDAsIFN0ZXBoZW4gQm95ZCB3cm90ZToN
-Cj4gUXVvdGluZyBNYXR0aSBWYWl0dGluZW4gKDIwMTktMTAtMjQgMDQ6NDQ6NDApDQo+ID4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvY2xrL2Nsay1iZDcxOHg3LmMgYi9kcml2ZXJzL2Nsay9jbGstYmQ3
-MTh4Ny5jDQo+ID4gaW5kZXggYWU2ZTViYWVlMzMwLi5kMTdhMTllMDQ1OTIgMTAwNjQ0DQo+ID4g
-LS0tIGEvZHJpdmVycy9jbGsvY2xrLWJkNzE4eDcuYw0KPiA+ICsrKyBiL2RyaXZlcnMvY2xrL2Ns
-ay1iZDcxOHg3LmMNCj4gPiBAQCAtOCw2ICs4LDcgQEANCj4gPiAgI2luY2x1ZGUgPGxpbnV4L3Bs
-YXRmb3JtX2RldmljZS5oPg0KPiA+ICAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KPiA+ICAjaW5j
-bHVkZSA8bGludXgvbWZkL3JvaG0tYmQ3MTh4Ny5oPg0KPiA+ICsjaW5jbHVkZSA8bGludXgvbWZk
-L3JvaG0tYmQ3MTgyOC5oPg0KPiA+ICAjaW5jbHVkZSA8bGludXgvbWZkL3JvaG0tYmQ3MDUyOC5o
-Pg0KPiANCj4gSXQgd291bGQgYmUgcmVhbGx5IGdyZWF0IHRvIG5vdCBuZWVkIHRvIGluY2x1ZGUg
-dGhlc2UgcmFuZG9tIGhlYWRlcg0KPiBmaWxlcyBpbiB0aGlzIGRyaXZlciBhbmQganVzdCB1c2Ug
-cmF3IG51bWJlcnMgc29tZWhvdy4gTG9va3MgbGlrZQ0KPiBtYXliZQ0KPiBpdCBjYW4gYmUgZG9u
-ZSBieSBwb3B1bGF0aW5nIGEgZGlmZmVyZW50IGRldmljZSBuYW1lIGZyb20gdGhlIG1mZA0KPiBk
-cml2ZXINCj4gZGVwZW5kaW5nIG9uIHRoZSB2ZXJzaW9uIG9mIHRoZSBjbGsgY29udHJvbGxlciBk
-ZXNpcmVkPyBUaGVuIHRoYXQgY2FuDQo+IGJlDQo+IG1hdGNoZWQgaW4gdGhpcyBjbGsgZHJpdmVy
-IGFuZCB3ZSBjYW4ganVzdCBwdXQgdGhlIHJlZ2lzdGVyIGluZm8gaW4NCj4gdGhpcw0KPiBmaWxl
-Pw0KDQpJIHN0aWxsIGxpa2Uga2VlcGluZyB0aGUgY2hpcCB0eXBlIGluZm9ybWF0aW9uIG9uIG9u
-ZSBoZWFkZXIgLSBubw0KbWF0dGVyIHdoYXQtZXZlciBmb3JtYXQgdGhlIGNsay1jb250cm9sbGVy
-IHR5cGUvdmVyc2lvbiBpbmZvcm1hdGlvbiBpcy4NClJhdGlvbmFsZSBpcyB0aGF0IE1GRCBhbmQg
-YWxzbyBmZXcgb3RoZXIgc3ViLWRldmljZXMgKG5vdCBvbmx5IHRoZSBjbGspDQpuZWVkIHRvIHVz
-ZSBpdC4gQ3VycmVudGx5IGF0IGxlYXN0IHRoZSBSVEMuDQoNCkJ1dCBpZiB3ZSBkZWZpbmUgY2xr
-IHJlZ2lzdGVyIGluZm9ybWF0aW9uIGZvciBhbGwgUE1JQ3MgaW4gdGhpcyBjLWZpbGUsIA0KdGhl
-biAoSSB0aGluaykgd2UgY2FuIG9ubHkgaW5jbHVkZSB0aGUgPGxpbnV4L21mZC9yb2htLWdlbmVy
-aWMuaD4gLQ0Kd2hpY2ggY29udGFpbnMgdGhlIFBNSUMgdHlwZSBkZWZpbmVzIGFuZCB0aGUgZ2Vu
-ZXJpYyBNRkQgZGF0YQ0Kc3RydWN0dXJlLiBUaGF0IHdvdWxkOg0KDQotI2luY2x1ZGUgPGxpbnV4
-L21mZC9yb2htLWJkNzE4eDcuaD4NCi0jaW5jbHVkZSA8bGludXgvbWZkL3JvaG0tYmQ3MTgyOC5o
-Pg0KLSNpbmNsdWRlIDxsaW51eC9tZmQvcm9obS1iZDcwNTI4Lmg+DQorI2luY2x1ZGUgPGxpbnV4
-L21mZC9yb2htLWdlbmVyaWMuaD4NCg0KVGhhdCB3YXkgdGhlIGNoaXAtdHlwZSBpbmZvcm1hdGlv
-biBjb3VsZCBzdGlsbCBiZSBzYW1lIGZvciBNRkQgYW5kIGFsbA0Kc3ViLWRldmljZXMgYnV0IGNs
-ayBkcml2ZXIgd291bGQgbm90IG5lZWQgdG8gaW5jbHVkZSBhbGwgdGhlIGRldGFpbHMNCmZvciBh
-bGwgdGhlIFBNSUNzLiBJIHVuZGVyc3RhbmQgeW91ciBwb2ludCB3ZWxsIGFzIGNsayByZWdpc3Rl
-cnMgZm9yDQp0aGVzZSBQTUlDcyBhcmUgcmVhbGx5ICpsaW1pdGVkKi4NCg0KPiANCj4gPiAgI2lu
-Y2x1ZGUgPGxpbnV4L2Nsay1wcm92aWRlci5oPg0KPiA+ICAjaW5jbHVkZSA8bGludXgvY2xrZGV2
-Lmg+DQo+ID4gQEAgLTIxLDEwICsyMiw4IEBAIHN0cnVjdCBiZDcxOHh4X2NsayB7DQo+ID4gICAg
-ICAgICBzdHJ1Y3Qgcm9obV9yZWdtYXBfZGV2ICptZmQ7DQo+ID4gIH07DQo+ID4gIA0KPiA+IC1z
-dGF0aWMgaW50IGJkNzE4MzdfY2xrX3NldChzdHJ1Y3QgY2xrX2h3ICpodywgaW50IHN0YXR1cykN
-Cj4gPiArc3RhdGljIGludCBiZDcxODM3X2Nsa19zZXQoc3RydWN0IGJkNzE4eHhfY2xrICpjLCBp
-bnQgc3RhdHVzKQ0KPiANCj4gc2hvdWxkIGl0IGJlIHVuc2lnbmVkIGludCBzdGF0dXM/IE9yIG1h
-eWJlIHUzMj8NCj4gDQo+ID4gIHsNCj4gPiAtICAgICAgIHN0cnVjdCBiZDcxOHh4X2NsayAqYyA9
-IGNvbnRhaW5lcl9vZihodywgc3RydWN0DQo+ID4gYmQ3MTh4eF9jbGssIGh3KTsNCj4gPiAtDQo+
-ID4gICAgICAgICByZXR1cm4gcmVnbWFwX3VwZGF0ZV9iaXRzKGMtPm1mZC0+cmVnbWFwLCBjLT5y
-ZWcsIGMtPm1hc2ssDQo+ID4gc3RhdHVzKTsNCj4gPiAgfQ0KPiA+ICANCj4gPiBAQCAtMzMsMTQg
-KzMyLDE2IEBAIHN0YXRpYyB2b2lkIGJkNzE4MzdfY2xrX2Rpc2FibGUoc3RydWN0IGNsa19odw0K
-PiA+ICpodykNCj4gPiAgICAgICAgIGludCBydjsNCj4gPiAgICAgICAgIHN0cnVjdCBiZDcxOHh4
-X2NsayAqYyA9IGNvbnRhaW5lcl9vZihodywgc3RydWN0DQo+ID4gYmQ3MTh4eF9jbGssIGh3KTsN
-Cj4gPiAgDQo+ID4gLSAgICAgICBydiA9IGJkNzE4MzdfY2xrX3NldChodywgMCk7DQo+ID4gKyAg
-ICAgICBydiA9IGJkNzE4MzdfY2xrX3NldChjLCAwKTsNCj4gPiAgICAgICAgIGlmIChydikNCj4g
-PiAgICAgICAgICAgICAgICAgZGV2X2RiZygmYy0+cGRldi0+ZGV2LCAiRmFpbGVkIHRvIGRpc2Fi
-bGUgMzJLIGNsaw0KPiA+ICglZClcbiIsIHJ2KTsNCj4gPiAgfQ0KPiA+ICANCj4gPiAgc3RhdGlj
-IGludCBiZDcxODM3X2Nsa19lbmFibGUoc3RydWN0IGNsa19odyAqaHcpDQo+ID4gIHsNCj4gPiAt
-ICAgICAgIHJldHVybiBiZDcxODM3X2Nsa19zZXQoaHcsIDEpOw0KPiA+ICsgICAgICAgc3RydWN0
-IGJkNzE4eHhfY2xrICpjID0gY29udGFpbmVyX29mKGh3LCBzdHJ1Y3QNCj4gPiBiZDcxOHh4X2Ns
-aywgaHcpOw0KPiA+ICsNCj4gPiArICAgICAgIHJldHVybiBiZDcxODM3X2Nsa19zZXQoYywgMHhm
-ZmZmZmZmZik7DQo+IA0KPiBCZWNhdXNlIG5vdyB0aGlzIGlzIHBhc3NpbmcgLTEgdG8gdW5zaWdu
-ZWQgaW50IHRha2luZw0KPiByZWdtYXBfdXBkYXRlX2JpdHMoKT8NCg0KSSB0aGluayB0aGF0IGJp
-dC13aXNlIGl0IGlzIGFsbCB0aGUgc2FtZS4gQ3VycmVudGx5IHJlZ2lzdGVycyBhcmUgb25seQ0K
-OGJpdHMgd2lkZSBzbyBpdCBpcyBlbm91Z2ggdGhhdCBsb3dlc3QgOCBiaXRzIGFyZSBzZXQuIEFu
-ZCAweGZmZmZmZmZmDQpzaG91bGQgd29yayBuaWNlbHkgdXAtdG8gMzJiaXQgcmVnaXN0ZXJzIGFz
-IGxvbmcgYXMgaW50IGlzIDMyIGJpdCBvcg0KbW9yZS4NCg0KQnV0IHlvdSBhcmUgY29ycmVjdCB0
-aGF0IHRoaXMgaXMgbm90IGxvb2tpbmcgZ29vZC4gQXQgZmlyc3Qgc2lnaHQNCnVuc2lnbmVkIGlu
-dCBpcyBtdWNoIG5pY2VyLiBJIHByZWZlciB1bnNpZ25lZCBpbnQgb3ZlciBmb3JjZWQgdTMyIHRv
-DQpndWFyYW50ZWUgbmF0dXJhbCBhbGlnbm1lbnQgLSB3aGljaCBkb2VzIG5vdCByZWFsbHkgbWF0
-dGVyIGluIHRoaXMgY2FzZQ0KZWl0aGVyLiB1bnNpZ25lZCBpbnQgbWF0Y2hlcyByZWdtYXAgdGhv
-dWdoIHNvIEknbGwgc3dpdGNoIHRvIGl0LiBUaGFua3MNCmZvciBwb2ludGluZyB0aGlzIG91dCA6
-KQ0KDQpJJ2xsIHRyeSB0byBpbmNsdWRlIHRoZXNlIGNsayBjaGFuZ2VzIGluIHYzLg0KDQoNCkJy
-LA0KCU1hdHRpIFZhaXR0aW5lbg0K
+On Fri, 25 Oct 2019, Vaittinen, Matti wrote:
+
+> Hello Dan,
+> 
+> Thanks again for checking this :)
+> 
+> On Thu, 2019-10-24 at 14:35 -0500, Dan Murphy wrote:
+> > Matti
+> > 
+> > On 10/24/19 6:41 AM, Matti Vaittinen wrote:
+> > > ROHM BD71828 Power management IC integrates 7 buck converters, 7
+> > > LDOs,
+> > > a real-time clock (RTC), 3 GPO/regulator control pins, HALL input
+> > > and a 32.768 kHz clock gate.
+> > > 
+> > > Document the dt bindings drivers are using.
+> > > 
+> > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > > ---
+> > > 
+> > > No changes since v1
+> > > 
+> > >   .../bindings/mfd/rohm,bd71828-pmic.txt        | 180
+> > > ++++++++++++++++++
+> > >   1 file changed, 180 insertions(+)
+> > >   create mode 100644
+> > > Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.txt
+> > 
+> > I will let maintainers weigh in here but if this is new this should 
+> > probably be in the yaml format to avoid conversion in the future
+
+Yes please.
+
+> Oh... This is new to me. I guess there are reasons for this - but I
+> must say I am not excited as I have never used yaml for anything. I'll
+> do as you suggest and wait for what others have to say :) Thanks for
+> pointing this out though.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
