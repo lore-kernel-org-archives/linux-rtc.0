@@ -2,141 +2,138 @@ Return-Path: <SRS0=pxwe=YW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0415BCA9EAE
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:08:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D1D4CA9EAE
+	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:12:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBDD0208E3
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:08:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBC9320679
+	for <linux-rtc@archiver.kernel.org>; Tue, 29 Oct 2019 12:12:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="P5lX77UJ"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="Bkgtdolu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730482AbfJ2MIa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 29 Oct 2019 08:08:30 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:43359 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731291AbfJ2MI1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Oct 2019 08:08:27 -0400
-Received: by mail-wr1-f67.google.com with SMTP id n1so5901609wra.10
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Oct 2019 05:08:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=AThmdWLvoHXRd+gCJ7Rc/MdmxHKDL94oX7/2fySCtI4=;
-        b=P5lX77UJ1HJtxK6+w+SrHuDYaDtyieTnHZhqXpqYQooiSH5Kll8AXspDAhkEL4wIlw
-         hBQYFRsjp/fhhGLvnGTbxW6Cyas8J5lT2DcgCgvszMF1npFF0o8wt1J4os797vV6KthD
-         nch41e/zHWkALfLf1XQs2qEjEnQM6Z9jR0kMq9jvNfBVQj50Ghnb0ZLGlD58WAS85xzH
-         TTGyIn5cfIa7QmPPxEX7tFIwsMjItnnJ5oIxUu8Tvlmktoq1n6/IUWv/sEjQKzxXF3B1
-         rsdKdUZQNLGLRGmFYe1SoMSneOkEPEKsXkC4N3S2QAEX/dSXn/h+46Mutakba5iRRMUf
-         9RuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=AThmdWLvoHXRd+gCJ7Rc/MdmxHKDL94oX7/2fySCtI4=;
-        b=S11H9jMKOgbpMiWIf2zKdUqcQzdZr/WicwLoMC9jQFx7mZT/LqKiV9RgZDVXqDnsTw
-         RQi09zEVa46/WpU/URE+ROk3Yo7qwtLviDPwPMyl3QomatU4Xp9hv1sgUhuy5Xeb9Hnm
-         cUfBjbZBTUWfIQmXIVbpXSEBXViqY1mnwo0mQMYHAl+JRu+52IZDQArSavSUsB9VrhGk
-         xy2rG6RiOnsMo9klhgLagizRwnUikmU15dz59deLgy2QvDU4AzHhvUhLr9Y8lvqYd5C0
-         MzsOvu1rq8lnJr+msW7MjmOcO87XvvNZGIRKJS6uPYS9C2R26PK54+cOZbtEkXggU3Bj
-         Gy4Q==
-X-Gm-Message-State: APjAAAVVPvrh1jIb7aPSjeSXhYpNL0ZiIJ37ChPGwm1xo9MxVj7HSGxM
-        gMBgaasDzpqR1pDBjWUQfaDDWg==
-X-Google-Smtp-Source: APXvYqzgTN+N15xxbnf2G3a5OZaR/6UqN35YmkJy8Yi15GIpGWNYrXR0LpTtgteSgBb/D3JIn1j0jQ==
-X-Received: by 2002:adf:e488:: with SMTP id i8mr19406966wrm.302.1572350903096;
-        Tue, 29 Oct 2019 05:08:23 -0700 (PDT)
-Received: from dell ([2.31.163.64])
-        by smtp.gmail.com with ESMTPSA id g5sm2893643wmg.12.2019.10.29.05.08.21
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 29 Oct 2019 05:08:22 -0700 (PDT)
-Date:   Tue, 29 Oct 2019 12:08:20 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "dmurphy@ti.com" <dmurphy@ti.com>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "jacek.anaszewski@gmail.com" <jacek.anaszewski@gmail.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "pavel@ucw.cz" <pavel@ucw.cz>,
-        "broonie@kernel.org" <broonie@kernel.org>
-Subject: Re: [RFC PATCH v2 02/13] dt-bindings: mfd: Document ROHM BD71828
- bindings
-Message-ID: <20191029120820.GA4484@dell>
-References: <cover.1571915550.git.matti.vaittinen@fi.rohmeurope.com>
- <0182df3c49c6c804ee20ef32fc4b85b50ff45fca.1571915550.git.matti.vaittinen@fi.rohmeurope.com>
- <ed0b2aa8-8a70-0341-4ecf-8959f37c53bd@ti.com>
- <5c793f1308ccc6e787260b64fe6a875a8d0eb9d0.camel@fi.rohmeurope.com>
+        id S1730377AbfJ2MMb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 29 Oct 2019 08:12:31 -0400
+Received: from mail.andi.de1.cc ([85.214.55.253]:53398 "EHLO mail.andi.de1.cc"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730269AbfJ2MMa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 29 Oct 2019 08:12:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=Content-Type:MIME-Version:References:
+        In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=Eiamd8BZfLfRuXNZB2AmOrEcDfBpZ/Uhno+/TVo4R04=; b=BkgtdoluLOQ/wU6W7bXTn08LW
+        /CDuKs2U9LxRap16ydtYGsiNXTM8KbS90p4L6IK0pCK43+VyuxVM6vfrB3VPq6+MrVpVx8WCnItMp
+        EfjmhjJ9/MjaDb6GpE3b+e8em1ltjaLqKgXZVH7B7eA7xn5VzDAsOc3W9PNOAz7PLQS+8=;
+Received: from [2a02:790:ff:919:7ee9:d3ff:fe1f:a246] (helo=localhost)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1iPQMJ-00070z-HR; Tue, 29 Oct 2019 13:12:26 +0100
+Received: from [::1] (helo=localhost)
+        by eeepc with esmtp (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1iPLGh-00077y-7E; Tue, 29 Oct 2019 07:46:15 +0100
+Date:   Tue, 29 Oct 2019 07:46:03 +0100
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     lee.jones@linaro.org, a.zummo@towertech.it,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        phh@phh.me, b.galvani@gmail.com, stefan@agner.ch,
+        letux-kernel@openphoenux.org
+Subject: Re: [PATCH 5/5] rtc: rtc-rc5t583: add ricoh rc5t619 RTC driver
+Message-ID: <20191029074603.499a3940@kemnade.info>
+In-Reply-To: <20191023231717.GU3125@piout.net>
+References: <20191021054104.26155-1-andreas@kemnade.info>
+        <20191021054104.26155-6-andreas@kemnade.info>
+        <20191021101528.GU3125@piout.net>
+        <20191021231359.1cada218@kemnade.info>
+        <20191023231717.GU3125@piout.net>
+X-Mailer: Claws Mail 3.14.1 (GTK+ 2.24.31; i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5c793f1308ccc6e787260b64fe6a875a8d0eb9d0.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/t.bt3Q4nWziP.Q+C7kPJ5iY"; protocol="application/pgp-signature"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 25 Oct 2019, Vaittinen, Matti wrote:
+--Sig_/t.bt3Q4nWziP.Q+C7kPJ5iY
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> Hello Dan,
-> 
-> Thanks again for checking this :)
-> 
-> On Thu, 2019-10-24 at 14:35 -0500, Dan Murphy wrote:
-> > Matti
-> > 
-> > On 10/24/19 6:41 AM, Matti Vaittinen wrote:
-> > > ROHM BD71828 Power management IC integrates 7 buck converters, 7
-> > > LDOs,
-> > > a real-time clock (RTC), 3 GPO/regulator control pins, HALL input
-> > > and a 32.768 kHz clock gate.
-> > > 
-> > > Document the dt bindings drivers are using.
-> > > 
-> > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > > ---
-> > > 
-> > > No changes since v1
-> > > 
-> > >   .../bindings/mfd/rohm,bd71828-pmic.txt        | 180
-> > > ++++++++++++++++++
-> > >   1 file changed, 180 insertions(+)
-> > >   create mode 100644
-> > > Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.txt
-> > 
-> > I will let maintainers weigh in here but if this is new this should 
-> > probably be in the yaml format to avoid conversion in the future
+On Thu, 24 Oct 2019 01:17:17 +0200
+Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
 
-Yes please.
+[...]
+> > > Is the RTC 1900-2099 or 2000-2199? Please include the ouput of rtc-ra=
+nge
+> > > in the commit log:
+> > >=20
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/rtc-tools.gi=
+t/tree/rtc-range.c
+> > >  =20
+> > # ./rtc-range=20
+> >=20
+> > Testing 2000-02-28 23:59:59.
+> > OK
+> >=20
+> > Testing 2038-01-19 03:14:07.
+> > OK
+> >=20
+> > Testing 2069-12-31 23:59:59.
+> > OK
+> >=20
+> > Testing 2099-12-31 23:59:59.
+> > KO RTC_RD_TIME returned 22 (line 138)
+> >=20
+> > Testing 2100-02-28 23:59:59.
+> > KO RTC_RD_TIME returned 22 (line 138)
+> >=20
+> > Testing 2106-02-07 06:28:15.
+> > OK
+> >=20
+> > Testing 2262-04-11 23:47:16.
+> > KO  Read back 2102-04-11 23:47:16.
+> >=20
+> > I think it is 1900 to 2099.
+> >  =20
+>=20
+> It is, I'm very curious to know why it doesn't roll over properly from
+> 2099-12-31 23:59:59 to 1900-01-01 00:00:00.
+>=20
+It rolls over correcly, but rtc_valid_tm() bails out if
+year < 70.
 
-> Oh... This is new to me. I guess there are reasons for this - but I
-> must say I am not excited as I have never used yaml for anything. I'll
-> do as you suggest and wait for what others have to say :) Thanks for
-> pointing this out though.
+I am preparing a v2 of this series.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Regards,
+Andreas
+
+--Sig_/t.bt3Q4nWziP.Q+C7kPJ5iY
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEPIWxmAFyOaBcwCpFl4jFM1s/ye8FAl234CwACgkQl4jFM1s/
+ye9YORAAlarwaf3wXAvD0muX8zYJ4SLGZ+jOO9JLBcR8mAWjevZg/fsK0juGopPO
+FJrDvCIYOQ42i92/nNuALcQz4uGbsUqnYQB9KvxDwGeYIMRijjPciNeYgBwegPrk
+QpwhWFXKQQrcgvGb/KvZMxmHnoFmOMDY4qa+ZmxhzCtRr0FKC57lGa+isTcihxm7
+0LAb35kb2Vqx+O4LZsS5agDiToJT6oW3bDG7MwjTkgul1Z+8mMitr43zIlVM6OcI
+ASt8rNddP++fOsexd3ossl9EH+/cpOe2m6S/Qgm2vwTxpEr9lmeQ4KYKpb6b8FqP
+ZfOznrGGNZgzOGjx/3EIUBFXvTrISmcmdQymj0Y0P0omqc+qeGnCt5K6LDdcBcQU
+83XcaAPAhIkz2cHmQ6FRTpIRoM5O+bjt1fduQF458vfasNicCE1jPUozYJsVgCzh
+aetmPqSviPt3ha2d9hq1A96+L+zFel0F60KqwI1jrnxpu4Q59Q7d5uGBcHBnnqk8
+BT7EZe6DCnHRPVDGPipjqHdefeQu+2FXcrQPbLxfuNewDowj5KDCRQyFVAgNjvFy
+sFL/anHT15WFB3tt425cChaTC2V2U3QfguUuOFhYJ7EUqLA5TAKWwcTUV7WqlUap
+udFGCx9RREvi9WkCTXpD06y4Geg/MAaUvrNZxKcYFRqVGGHmMEw=
+=XPEe
+-----END PGP SIGNATURE-----
+
+--Sig_/t.bt3Q4nWziP.Q+C7kPJ5iY--
