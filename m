@@ -2,92 +2,119 @@ Return-Path: <SRS0=I3d/=ZA=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3123C43331
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Nov 2019 00:24:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B41AC5DF60
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Nov 2019 11:44:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8BBBD2084C
-	for <linux-rtc@archiver.kernel.org>; Fri,  8 Nov 2019 00:24:56 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nigauri-org.20150623.gappssmtp.com header.i=@nigauri-org.20150623.gappssmtp.com header.b="t2ABnA0l"
+	by mail.kernel.org (Postfix) with ESMTP id ECB4D2245B
+	for <linux-rtc@archiver.kernel.org>; Fri,  8 Nov 2019 11:44:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1573213480;
+	bh=Fu/I8ZnolOKDPg+/vRX8DzeqchGrL8EOnR20nT0rL9U=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=b4k+NLt2tLJnzl/gJRcw7eQY8vPiEwdS9yDA3ewY2kb8pc0vux1CfK0bARg4DK8Tp
+	 ThbwfJHY91r9kt77Yp4dvKzpv8B6CWrOIoUKuRklJy/mNgZKiDxBalSBReJhr4LLDu
+	 ctBR7GSQFFCibGeX1Fps0EsU5EJwOv4gKwlzXQlI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbfKHAY4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 7 Nov 2019 19:24:56 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:34110 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725928AbfKHAY4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 Nov 2019 19:24:56 -0500
-Received: by mail-pl1-f196.google.com with SMTP id k7so2799387pll.1
-        for <linux-rtc@vger.kernel.org>; Thu, 07 Nov 2019 16:24:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nigauri-org.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dxGkLl0txDSPVHDpFQHHcARZeMcTTmVGugSLhAA/rSY=;
-        b=t2ABnA0lVKrBUldUNOlSRCAwEcBfTTWRbt3KEcXn50VlFOYHNuFmnGOFfMeWQo0NsM
-         uMgMcLJD7qqk8hgaK36B04h7ErX3UZCsbmw9oYvIzCNFSMOBDn41iMeoy2+RaUXi4Hd3
-         JqnVc1VAeN/k/1dsQcQS/oMa1VZhKZTbq3DUrz6PJ/qV5lc4sNsf7DQZsl5payAMOqFY
-         syP6qITSA1Te1h0/DUZwijI3vjr3WeQ+uoB5dULVmkyrfy+0/z9Q/AbYvcpiQfgLzJ1z
-         +w9RKcLIaRQSc+icViFJTedKTvNo32boTJIIy8evqFEjPKqS+6A1xoRjcZkQkYe9QO2I
-         Fglg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=dxGkLl0txDSPVHDpFQHHcARZeMcTTmVGugSLhAA/rSY=;
-        b=LuhdoCetcdFUfTGO9vRWxKXvRVEdzXuRspKilBC6+TJw4QYs+ZGPcJlKi1GFN39A+w
-         0qtCnoQ9N7h5ZDnWSytkvWGBKqFAvuNIdQrE+OLdlwOgZo6CT65CxEZsgVayHj9r2aEi
-         hg241WiC8fkHvNXVZQ0n22bCdiZPBy80Rwfth11H/jEJQDT+R1oJ48uAah4EGKp6BZWI
-         vKkIFbphyqgmcT//rJHnk/pyrAFuoyFEsM319Ycyl7mVDFmzuB7cremkVDCugNY5VfrY
-         MZLmo84e0XY8qpslhIwl9EbBzKps/MibA11AynalOAcwGz6ZRg3/L8AxHmiRdbvHYuSz
-         jeZQ==
-X-Gm-Message-State: APjAAAVVLUbd9aWpxMfYRB+Z+tiKt+0QFisM9CiR2JoAqauthMbcbk8x
-        mB9MI0LyZb4YPWaPg55waUF0
-X-Google-Smtp-Source: APXvYqzsjZi06U6KDjZpY5SN94Oh6dVcbFbUWZaLZOfgomMVn72UFfZTYmPlp4YxyMypd9mD74+ZuA==
-X-Received: by 2002:a17:902:8ec7:: with SMTP id x7mr7237123plo.88.1573172693933;
-        Thu, 07 Nov 2019 16:24:53 -0800 (PST)
-Received: from localhost (b152239.dynamic.ppp.asahi-net.or.jp. [202.213.152.239])
-        by smtp.gmail.com with ESMTPSA id 19sm3919189pjd.23.2019.11.07.16.24.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Nov 2019 16:24:53 -0800 (PST)
-From:   Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Subject: [PATCH] rtc: pcf8563: Constify clkout_rates
-Date:   Fri,  8 Nov 2019 09:24:49 +0900
-Message-Id: <20191108002449.15097-1-iwamatsu@nigauri.org>
-X-Mailer: git-send-email 2.24.0.rc1
+        id S2390840AbfKHLoj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 8 Nov 2019 06:44:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59656 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390828AbfKHLoi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:44:38 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89BCE2246A;
+        Fri,  8 Nov 2019 11:44:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573213478;
+        bh=Fu/I8ZnolOKDPg+/vRX8DzeqchGrL8EOnR20nT0rL9U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cdm8VSmW1kv3q/l7eJD6rmoZmXffSjaFfBmfUXctQN+Yna0BOFdnkNkkxsAPiRxJ7
+         iQFa13G9W03noLS5KL02WgNNI96HH0guOJfQqHjy4d3pmd9k9/62h/UWRwV9zLJs0v
+         TVVuYyKNAPdecJVpoOyqoHhzFPRT1XGlI3q3EReE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 060/103] rtc: mt6397: fix possible race condition
+Date:   Fri,  8 Nov 2019 06:42:25 -0500
+Message-Id: <20191108114310.14363-60-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
+References: <20191108114310.14363-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The lates of clockout should be marked const. Make that so.
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+[ Upstream commit babab2f86440352d24e76118fdd7d40cab5fd7bf ]
+
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
+
+Acked-by: Eddie Huang <eddie.huang@mediatek.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-mt6397.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 24baa4767b11..3c322f3079b0 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -390,7 +390,7 @@ static int pcf8563_irq_enable(struct device *dev, unsigned int enabled)
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 1a61fa56f3ad7..e82df43e5ca28 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -333,6 +333,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
  
- #define clkout_hw_to_pcf8563(_hw) container_of(_hw, struct pcf8563, clkout_hw)
+ 	platform_set_drvdata(pdev, rtc);
  
--static int clkout_rates[] = {
-+static const int clkout_rates[] = {
- 	32768,
- 	1024,
- 	32,
++	rtc->rtc_dev = devm_rtc_allocate_device(rtc->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
+ 	ret = request_threaded_irq(rtc->irq, NULL,
+ 				   mtk_rtc_irq_handler_thread,
+ 				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+@@ -345,11 +349,11 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
+-					   &mtk_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
++	rtc->rtc_dev->ops = &mtk_rtc_ops;
++
++	ret = rtc_register_device(rtc->rtc_dev);
++	if (ret) {
+ 		dev_err(&pdev->dev, "register rtc device failed\n");
+-		ret = PTR_ERR(rtc->rtc_dev);
+ 		goto out_free_irq;
+ 	}
+ 
+@@ -366,7 +370,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
+ 
+-	rtc_device_unregister(rtc->rtc_dev);
+ 	free_irq(rtc->irq, rtc->rtc_dev);
+ 	irq_dispose_mapping(rtc->irq);
+ 
 -- 
-2.24.0.rc1
+2.20.1
 
