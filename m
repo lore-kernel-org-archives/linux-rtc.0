@@ -1,121 +1,138 @@
-Return-Path: <SRS0=B3OV=ZB=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=HlGm=ZC=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 845B3C43331
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Nov 2019 15:47:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 665ACC17444
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Nov 2019 03:00:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4AA76214E0
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Nov 2019 15:47:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O0B6+Ie/"
+	by mail.kernel.org (Postfix) with ESMTP id 3A2E6208C3
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Nov 2019 03:00:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1573354842;
+	bh=zLBMsUvrWZHV7E188F4FwrNzMEHGylV/Lj4NfRV7Mao=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=lOf+BZLhzL+mAJ3EDsFvY+kgcIb54NJx5e7aJmjnB8I2GJ9Er1Xe/n3Rie3PDAvpq
+	 921Xf/K64NsdeijqmSMkF5eeoqzBEScSE9+/lJ7mXi1/Oxs21mTh8pf6cKPHxnA/HT
+	 +Hmqi6LTCJ2vzzcC5GBsyCUe6Eb5Iapr5TUovzto=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726061AbfKIPrB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 9 Nov 2019 10:47:01 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:37755 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726026AbfKIPrB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 9 Nov 2019 10:47:01 -0500
-Received: by mail-lf1-f67.google.com with SMTP id b20so6724487lfp.4;
-        Sat, 09 Nov 2019 07:47:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=X2MNWyYxDIwl5/Y9DLOD0SRUpFh0800mLWYZQrn0cFw=;
-        b=O0B6+Ie/CO8H2I8KqlKT5A11S9gWLbnRbEKHRPQjq9M4dQwy9khnxFG2rp1S5wnWYr
-         bjagMxx1Sg20hb85dtRGpUTZjYlvKbl+uPMQiqZYuhms8+KHBy7kgHmcOE+Yy8ySRUhW
-         RODFrqLNTx6Wc0Ui3Ae1eH++IwrCqpbVyYe9mE1Dg2S/atkh9NZEmYyJkMRRFWXSJtMl
-         JgW5qcPxDSeglcyoeAc2vvg9vcYZlpS+r7pexwuvmArzoUXclK2iYFlwrGlomXiYe2fE
-         NF6ru+eceDaHO60BUmSKnffAZz6VI8jDDHsiaKYRZolEpD2HpbLGcWDf9HrEAD7EIrpz
-         sTow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=X2MNWyYxDIwl5/Y9DLOD0SRUpFh0800mLWYZQrn0cFw=;
-        b=qQTSgyJJcClVVA7bC/UcT8CwEew10NVgqtT5RYFh7/PgWN7liMV6HEvUBM7Vn5lAVQ
-         UCHhcXPfx11w5vCrML75X4dHyQzcdWSZ8jCXrlQaFatL8/eGamZozPMCqxQj5V4Z4y94
-         4yPVgOFEPVr9oqOiu4mhy896a3r7M+zQe29jvP7YUTpGPuqTb8QLO4leMMaM+1YI4OYH
-         9qhqpwmCH8Q0jqUPatA4Kxjoo7D0SL8fU1GzrQhHGvrzkyKqXlDTHKyr4gt0IZdSOhl3
-         TEYti+xhVIbnbsPxjAMzm2hHQVR/GQj8lbVA/YREKyXeeByKavI10QRuWBVQC8NmCUiM
-         tlbw==
-X-Gm-Message-State: APjAAAVs2KVSre5o/6aGZF+ft7lXRcRMVXwzsSAgyvWvz2PzbQguIwun
-        wm1mHHZQVaQVpu+ZEdLXQUA=
-X-Google-Smtp-Source: APXvYqw7Wc2SqEr14zEtA4gEhuGkHtPnDY8WzisxoCQksCKTowyLt6PBdISKi9DqX1DMkNxmCsHwDA==
-X-Received: by 2002:a19:4909:: with SMTP id w9mr9975308lfa.174.1573314419271;
-        Sat, 09 Nov 2019 07:46:59 -0800 (PST)
-Received: from localhost.localdomain ([188.243.226.168])
-        by smtp.gmail.com with ESMTPSA id g21sm4141987ljh.2.2019.11.09.07.46.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Nov 2019 07:46:58 -0800 (PST)
-From:   Andrey Skvortsov <andrej.skvortzov@gmail.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Andrey Skvortsov <andrej.skvortzov@gmail.com>
-Subject: [PATCH] rtc: tps65910: allow using RTC without alarm interrupt
-Date:   Sat,  9 Nov 2019 18:46:52 +0300
-Message-Id: <20191109154652.7419-1-andrej.skvortzov@gmail.com>
+        id S1729257AbfKJC4q (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 9 Nov 2019 21:56:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47202 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729170AbfKJC4q (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:46 -0500
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33A3C2255A;
+        Sun, 10 Nov 2019 02:48:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573354115;
+        bh=zLBMsUvrWZHV7E188F4FwrNzMEHGylV/Lj4NfRV7Mao=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=1Be8prusP4u4LOh+eNAW0qALV62DFxQKKFBoW+poBy/aE42B4r0qR4LRdkfBm//Pw
+         pPnZjG4bhK7tUY/qXb23jyHKeTjjjx914ER3SV9fWmuHu7aE5Ut4zl5b6riNNzXZhW
+         cbhGVyBLtVWpQyAbH5E7z+5ZI0eUUKjgEK0Z0WNM=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 104/109] rtc: armada38x: fix possible race condition
+Date:   Sat,  9 Nov 2019 21:45:36 -0500
+Message-Id: <20191110024541.31567-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
+References: <20191110024541.31567-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Signed-off-by: Andrey Skvortsov <andrej.skvortzov@gmail.com>
----
- drivers/rtc/rtc-tps65910.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-index 2c0467a9e717..aa3a001ef413 100644
---- a/drivers/rtc/rtc-tps65910.c
-+++ b/drivers/rtc/rtc-tps65910.c
-@@ -361,6 +361,13 @@ static const struct rtc_class_ops tps65910_rtc_ops = {
- 	.set_offset	= tps65910_set_offset,
- };
+[ Upstream commit 7d61cbb945a753af08e247b5f10bdd5dbb8d6c80 ]
+
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
+
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/rtc/rtc-armada38x.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 21f355c37eab5..10b5c85490392 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -390,7 +390,6 @@ MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
  
-+static const struct rtc_class_ops tps65910_rtc_ops_noirq = {
-+	.read_time	= tps65910_rtc_read_time,
-+	.set_time	= tps65910_rtc_set_time,
-+	.read_offset	= tps65910_read_offset,
-+	.set_offset	= tps65910_set_offset,
-+};
-+
- static int tps65910_rtc_probe(struct platform_device *pdev)
+ static __init int armada38x_rtc_probe(struct platform_device *pdev)
  {
- 	struct tps65910 *tps65910 = NULL;
-@@ -415,13 +422,17 @@ static int tps65910_rtc_probe(struct platform_device *pdev)
- 		tps65910_rtc_interrupt, IRQF_TRIGGER_LOW,
- 		dev_name(&pdev->dev), &pdev->dev);
- 	if (ret < 0) {
--		dev_err(&pdev->dev, "IRQ is not free.\n");
--		return ret;
-+		dev_err(&pdev->dev, "request IRQ:%d failed, err = %d\n",
-+			 irq, ret);
-+		irq = -1;
+-	const struct rtc_class_ops *ops;
+ 	struct resource *res;
+ 	struct armada38x_rtc *rtc;
+ 	const struct of_device_id *match;
+@@ -427,6 +426,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "no irq\n");
+ 		return rtc->irq;
  	}
- 	tps_rtc->irq = irq;
--	device_set_wakeup_capable(&pdev->dev, 1);
-+	if (irq != -1) {
-+		device_set_wakeup_capable(&pdev->dev, 1);
-+		tps_rtc->rtc->ops = &tps65910_rtc_ops;
-+	} else
-+		tps_rtc->rtc->ops = &tps65910_rtc_ops_noirq;
++
++	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
+ 	if (devm_request_irq(&pdev->dev, rtc->irq, armada38x_rtc_alarm_irq,
+ 				0, pdev->name, rtc) < 0) {
+ 		dev_warn(&pdev->dev, "Interrupt not available.\n");
+@@ -436,28 +440,24 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
  
--	tps_rtc->rtc->ops = &tps65910_rtc_ops;
- 	tps_rtc->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	tps_rtc->rtc->range_max = RTC_TIMESTAMP_END_2099;
+ 	if (rtc->irq != -1) {
+ 		device_init_wakeup(&pdev->dev, 1);
+-		ops = &armada38x_rtc_ops;
++		rtc->rtc_dev->ops = &armada38x_rtc_ops;
+ 	} else {
+ 		/*
+ 		 * If there is no interrupt available then we can't
+ 		 * use the alarm
+ 		 */
+-		ops = &armada38x_rtc_ops_noirq;
++		rtc->rtc_dev->ops = &armada38x_rtc_ops_noirq;
+ 	}
+ 	rtc->data = (struct armada38x_rtc_data *)match->data;
  
+-
+ 	/* Update RTC-MBUS bridge timing parameters */
+ 	rtc->data->update_mbus_timing(rtc);
+ 
+-	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+-						ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
+-		ret = PTR_ERR(rtc->rtc_dev);
++	ret = rtc_register_device(rtc->rtc_dev);
++	if (ret)
+ 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+-		return ret;
+-	}
+-	return 0;
++
++	return ret;
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.20.1
 
