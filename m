@@ -6,48 +6,47 @@ X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B0D4C432C3
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Nov 2019 11:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47DE2C432C3
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Nov 2019 11:01:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB9532072B
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Nov 2019 11:01:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27F532072B
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Nov 2019 11:01:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727132AbfKOLBM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 15 Nov 2019 06:01:12 -0500
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:54635 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726983AbfKOLBM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Nov 2019 06:01:12 -0500
+        id S1727132AbfKOLB0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 15 Nov 2019 06:01:26 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:37033 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726983AbfKOLBZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Nov 2019 06:01:25 -0500
 X-Originating-IP: 90.66.177.178
 Received: from localhost (lfbn-1-2888-178.w90-66.abo.wanadoo.fr [90.66.177.178])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 537CA1BF21B;
-        Fri, 15 Nov 2019 11:01:09 +0000 (UTC)
-Date:   Fri, 15 Nov 2019 12:01:09 +0100
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 614F2240010;
+        Fri, 15 Nov 2019 11:01:24 +0000 (UTC)
+Date:   Fri, 15 Nov 2019 12:01:23 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        val.krutov@erd.epson.com
-Subject: Re: [PATCH] rtc: rx6110: Convert to SPDX identifier
-Message-ID: <20191115110109.GO3572@piout.net>
-References: <20191108002250.14937-1-iwamatsu@nigauri.org>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds1302: Remove unused DRV_NAME
+Message-ID: <20191115110123.GP3572@piout.net>
+References: <20191108002354.15016-1-iwamatsu@nigauri.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191108002250.14937-1-iwamatsu@nigauri.org>
+In-Reply-To: <20191108002354.15016-1-iwamatsu@nigauri.org>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 08/11/2019 09:22:50+0900, Nobuhiro Iwamatsu wrote:
-> Use SPDX-License-Identifier instead of a verbose license text.
+On 08/11/2019 09:23:54+0900, Nobuhiro Iwamatsu wrote:
+> DRV_NAME is unused, remove it.
 > 
 > Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 > ---
->  drivers/rtc/rtc-rx6110.c | 10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
+>  drivers/rtc/rtc-ds1302.c | 2 --
+>  1 file changed, 2 deletions(-)
 > 
 Applied, thanks.
 
