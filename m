@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-15.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A939CC43215
-	for <linux-rtc@archiver.kernel.org>; Sat, 16 Nov 2019 15:48:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58037C432C3
+	for <linux-rtc@archiver.kernel.org>; Sat, 16 Nov 2019 15:52:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 78B56207FA
-	for <linux-rtc@archiver.kernel.org>; Sat, 16 Nov 2019 15:48:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2366220857
+	for <linux-rtc@archiver.kernel.org>; Sat, 16 Nov 2019 15:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1573919322;
-	bh=ciBTAO0/irxf/1CCJl7nrAegNLguTJ7+lSjQc6WKeCA=;
+	s=default; t=1573919522;
+	bh=MAOsExUO1LX6olohxHbtXv7sXIynRIuvN8sG2DMYCAI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=zwYKg/iO0CCoChR0E2r1EOfwkSkSaqdt7HjqogFo4C0uu22rQsKW4TXyyPi6Sm7/e
-	 s/qEDjLqhOclHcK1beY+NNzD9d41fg2Zjawe0VkD4m2EMTtrRMpiwSvh1Avry5QSwV
-	 6RBAwOX1ifk4QglhUEcC76sTeKi9oV0+5TkxebXM=
+	b=rzXosfpvBSPnKI4qfyd74Chx4jn9hIz47TzZCQ5BYd9CbMXGG1vOUj6LXJ0F9fQM3
+	 I/gE5tPYhqHxayf5gqgAzfJ+c5CqYzkYppXKfCfBhyryKq69dCRemNIn+XDxBw9/x2
+	 oSQ22Ffg9v2QgWwOVJ6nbutTKqtuOq95lEIp2El4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730133AbfKPPsl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 16 Nov 2019 10:48:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
+        id S1730886AbfKPPv7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 16 Nov 2019 10:51:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728642AbfKPPsk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:40 -0500
+        id S1730881AbfKPPv7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:51:59 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 100C820870;
-        Sat, 16 Nov 2019 15:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E2DF20871;
+        Sat, 16 Nov 2019 15:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919320;
-        bh=ciBTAO0/irxf/1CCJl7nrAegNLguTJ7+lSjQc6WKeCA=;
+        s=default; t=1573919518;
+        bh=MAOsExUO1LX6olohxHbtXv7sXIynRIuvN8sG2DMYCAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEzkBOgNs5Q6fIOo8G4EqdbOfqzEiFdwHvroqIkIb26lMhfkNTCmQjeg52xFhVQZ0
-         0yxLsYGK344/pAJh9eazdo8/vGyvwMr6EAfRSdKNf2Y7KxgdM+R6L/ms++FfcIq/VS
-         DA7kml1iYDdNJxJ+GgVccDFNhdsnmbU3XyXDeBm0=
+        b=L2tfFxWQFMJHmHA+rMv4dola2FaeKn5V8snW3FAugl/VKwluBWoVCK6Pid4b6X+fA
+         kwKQA4oRG6vtC5eeroKWp4oXcuKycQ7tmoul8kG++rUzr2afO1rpSwAvPM3oD1Py5F
+         1jXj5nFR8o/BWcB7vQqeMstkQE4KyzlVD7UyZ+00=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <natechancellor@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
         clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 062/150] rtc: s35390a: Change buf's type to u8 in s35390a_init
-Date:   Sat, 16 Nov 2019 10:46:00 -0500
-Message-Id: <20191116154729.9573-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 40/99] rtc: s35390a: Change buf's type to u8 in s35390a_init
+Date:   Sat, 16 Nov 2019 10:50:03 -0500
+Message-Id: <20191116155103.10971-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
-References: <20191116154729.9573-1-sashal@kernel.org>
+In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
+References: <20191116155103.10971-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -83,12 +83,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 7067bca5c20d9..6bfff0a6d6552 100644
+index 5dab4665ca3bd..3e0eea3aa876d 100644
 --- a/drivers/rtc/rtc-s35390a.c
 +++ b/drivers/rtc/rtc-s35390a.c
-@@ -108,7 +108,7 @@ static int s35390a_get_reg(struct s35390a *s35390a, int reg, char *buf, int len)
- 
- static int s35390a_init(struct s35390a *s35390a)
+@@ -106,7 +106,7 @@ static int s35390a_get_reg(struct s35390a *s35390a, int reg, char *buf, int len)
+  */
+ static int s35390a_reset(struct s35390a *s35390a, char *status1)
  {
 -	char buf;
 +	u8 buf;
