@@ -4,31 +4,32 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27D62C43603
-	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70127C3F68F
+	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED79C206D8
-	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B6A0206D8
+	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbfLNWKm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 14 Dec 2019 17:10:42 -0500
-Received: from relay11.mail.gandi.net ([217.70.178.231]:54179 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727170AbfLNWKe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Dec 2019 17:10:34 -0500
+        id S1727250AbfLNWKn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 14 Dec 2019 17:10:43 -0500
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:50733 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727036AbfLNWKc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Dec 2019 17:10:32 -0500
+X-Originating-IP: 90.65.92.102
 Received: from localhost (lfbn-lyo-1-1913-102.w90-65.abo.wanadoo.fr [90.65.92.102])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id C66A7100009;
-        Sat, 14 Dec 2019 22:10:32 +0000 (UTC)
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id A3B9F40008;
+        Sat, 14 Dec 2019 22:10:30 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 16/16] rtc: rv3029: add nvram support
-Date:   Sat, 14 Dec 2019 23:10:22 +0100
-Message-Id: <20191214221022.622482-17-alexandre.belloni@bootlin.com>
+Subject: [PATCH 11/16] rtc: rv3029: correctly handle PON and VLOW2
+Date:   Sat, 14 Dec 2019 23:10:17 +0100
+Message-Id: <20191214221022.622482-12-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191214221022.622482-1-alexandre.belloni@bootlin.com>
 References: <20191214221022.622482-1-alexandre.belloni@bootlin.com>
@@ -39,81 +40,75 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Export the 8 byte RAM using nvmem.
+In case the data is invalid (PON or VLOW2 are set in STATUS, explicitly
+tell userspace that the time is invalid. Only remove VLOW2 when setting a
+new valid time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv3029c2.c | 36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-rv3029c2.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index 5610ff562652..4eda0db72b66 100644
+index 6ae96baa111a..433aad16897e 100644
 --- a/drivers/rtc/rtc-rv3029c2.c
 +++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -109,10 +109,8 @@
- #define RV3029_CONTROL_E2P_TOV_MASK	0x3F /* XTAL turnover temp mask */
- 
- /* user ram section */
--#define RV3029_USR1_RAM_PAGE		0x38
--#define RV3029_USR1_SECTION_LEN		0x04
--#define RV3029_USR2_RAM_PAGE		0x3C
--#define RV3029_USR2_SECTION_LEN		0x04
-+#define RV3029_RAM_PAGE			0x38
-+#define RV3029_RAM_SECTION_LEN		8
- 
- struct rv3029_data {
- 	struct device		*dev;
-@@ -474,6 +472,18 @@ static int rv3029_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 	}
- }
- 
-+static int rv3029_nvram_write(void *priv, unsigned int offset, void *val,
-+			      size_t bytes)
-+{
-+	return regmap_bulk_write(priv, RV3029_RAM_PAGE + offset, val, bytes);
-+}
-+
-+static int rv3029_nvram_read(void *priv, unsigned int offset, void *val,
-+			     size_t bytes)
-+{
-+	return regmap_bulk_read(priv, RV3029_RAM_PAGE + offset, val, bytes);
-+}
-+
- static const struct rv3029_trickle_tab_elem {
- 	u32 r;		/* resistance in ohms */
- 	u8 conf;	/* trickle config bits */
-@@ -694,6 +704,15 @@ static int rv3029_probe(struct device *dev, struct regmap *regmap, int irq,
- 			const char *name)
+@@ -159,20 +159,21 @@ static int rv3029_eeprom_enter(struct rv3029_data *rv3029)
+ 	ret = regmap_read(rv3029->regmap, RV3029_STATUS, &sr);
+ 	if (ret < 0)
+ 		return ret;
+-	if (sr & (RV3029_STATUS_VLOW1 | RV3029_STATUS_VLOW2)) {
++	if (sr & RV3029_STATUS_VLOW2)
++		return -ENODEV;
++	if (sr & RV3029_STATUS_VLOW1) {
+ 		/* We clear the bits and retry once just in case
+ 		 * we had a brown out in early startup.
+ 		 */
+ 		ret = regmap_update_bits(rv3029->regmap, RV3029_STATUS,
+-					 RV3029_STATUS_VLOW1 |
+-					 RV3029_STATUS_VLOW2, 0);
++					 RV3029_STATUS_VLOW1, 0);
+ 		if (ret < 0)
+ 			return ret;
+ 		usleep_range(1000, 10000);
+ 		ret = regmap_read(rv3029->regmap, RV3029_STATUS, &sr);
+ 		if (ret < 0)
+ 			return ret;
+-		if (sr & (RV3029_STATUS_VLOW1 | RV3029_STATUS_VLOW2)) {
++		if (sr & RV3029_STATUS_VLOW1) {
+ 			dev_err(rv3029->dev,
+ 				"Supply voltage is too low to safely access the EEPROM.\n");
+ 			return -ENODEV;
+@@ -306,9 +307,17 @@ static irqreturn_t rv3029_handle_irq(int irq, void *dev_id)
+ static int rv3029_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	struct rv3029_data *rv3029;
-+	struct nvmem_config nvmem_cfg = {
-+		.name = "rv3029_nvram",
-+		.word_size = 1,
-+		.stride = 1,
-+		.size = RV3029_RAM_SECTION_LEN,
-+		.type = NVMEM_TYPE_BATTERY_BACKED,
-+		.reg_read = rv3029_nvram_read,
-+		.reg_write = rv3029_nvram_write,
-+	};
- 	int rc = 0;
+ 	struct rv3029_data *rv3029 = dev_get_drvdata(dev);
++	unsigned int sr;
+ 	int ret;
+ 	u8 regs[RV3029_WATCH_SECTION_LEN] = { 0, };
  
- 	rv3029 = devm_kzalloc(dev, sizeof(*rv3029), GFP_KERNEL);
-@@ -731,7 +750,14 @@ static int rv3029_probe(struct device *dev, struct regmap *regmap, int irq,
- 	rv3029->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	rv3029->rtc->range_max = RTC_TIMESTAMP_END_2079;
++	ret = regmap_read(rv3029->regmap, RV3029_STATUS, &sr);
++	if (ret < 0)
++		return ret;
++
++	if (sr & (RV3029_STATUS_VLOW2 | RV3029_STATUS_PON))
++		return -EINVAL;
++
+ 	ret = regmap_bulk_read(rv3029->regmap, RV3029_W_SEC, regs,
+ 			       RV3029_WATCH_SECTION_LEN);
+ 	if (ret < 0) {
+@@ -454,9 +463,9 @@ static int rv3029_set_time(struct device *dev, struct rtc_time *tm)
+ 	if (ret < 0)
+ 		return ret;
  
--	return rtc_register_device(rv3029->rtc);
-+	rc = rtc_register_device(rv3029->rtc);
-+	if (rc)
-+		return rc;
-+
-+	nvmem_cfg.priv = rv3029->regmap;
-+	rtc_nvmem_register(rv3029->rtc, &nvmem_cfg);
-+
-+	return 0;
+-	/* clear PON bit */
++	/* clear PON and VLOW2 bits */
+ 	return regmap_update_bits(rv3029->regmap, RV3029_STATUS,
+-				  RV3029_STATUS_PON, 0);
++				  RV3029_STATUS_PON | RV3029_STATUS_VLOW2, 0);
  }
  
- static const struct regmap_range rv3029_holes_range[] = {
+ static int rv3029_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
 -- 
 2.23.0
 
