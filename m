@@ -6,30 +6,29 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C956C2D0CA
-	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2110FC2D0CC
+	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6C11D20866
+	by mail.kernel.org (Postfix) with ESMTP id EF348206D8
 	for <linux-rtc@archiver.kernel.org>; Sat, 14 Dec 2019 22:10:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbfLNWKn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 14 Dec 2019 17:10:43 -0500
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:59967 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726713AbfLNWKd (ORCPT
+        id S1727231AbfLNWKm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 14 Dec 2019 17:10:42 -0500
+Received: from relay11.mail.gandi.net ([217.70.178.231]:57125 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727160AbfLNWKd (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Dec 2019 17:10:33 -0500
-X-Originating-IP: 90.65.92.102
 Received: from localhost (lfbn-lyo-1-1913-102.w90-65.abo.wanadoo.fr [90.65.92.102])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 5BE20FF804;
-        Sat, 14 Dec 2019 22:10:32 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id E9D1B100004;
+        Sat, 14 Dec 2019 22:10:31 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 15/16] rtc: rv3029: annotate init and exit functions
-Date:   Sat, 14 Dec 2019 23:10:21 +0100
-Message-Id: <20191214221022.622482-16-alexandre.belloni@bootlin.com>
+Subject: [PATCH 14/16] rtc: rv3029: remove useless error messages
+Date:   Sat, 14 Dec 2019 23:10:20 +0100
+Message-Id: <20191214221022.622482-15-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191214221022.622482-1-alexandre.belloni@bootlin.com>
 References: <20191214221022.622482-1-alexandre.belloni@bootlin.com>
@@ -40,76 +39,101 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-rv30{2,4}9_register_driver and rv30{2,4}9_unregister_driver are only called
-from the init and exit functions of the module. Annotate them properly.
+Remove redundant messages or messages that would not add any value because
+the information is already conveyed properly using errno.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv3029c2.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-rv3029c2.c | 37 +++++++++----------------------------
+ 1 file changed, 9 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
-index b8d501abf2a7..5610ff562652 100644
+index 001d98aa33cc..b8d501abf2a7 100644
 --- a/drivers/rtc/rtc-rv3029c2.c
 +++ b/drivers/rtc/rtc-rv3029c2.c
-@@ -797,24 +797,24 @@ static struct i2c_driver rv3029_driver = {
- 	.id_table	= rv3029_id,
- };
+@@ -320,10 +320,8 @@ static int rv3029_read_time(struct device *dev, struct rtc_time *tm)
  
--static int rv3029_register_driver(void)
-+static int __init rv3029_register_driver(void)
- {
- 	return i2c_add_driver(&rv3029_driver);
+ 	ret = regmap_bulk_read(rv3029->regmap, RV3029_W_SEC, regs,
+ 			       RV3029_WATCH_SECTION_LEN);
+-	if (ret < 0) {
+-		dev_err(dev, "%s: reading RTC section failed\n", __func__);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	tm->tm_sec = bcd2bin(regs[RV3029_W_SEC - RV3029_W_SEC]);
+ 	tm->tm_min = bcd2bin(regs[RV3029_W_MINUTES - RV3029_W_SEC]);
+@@ -359,21 +357,16 @@ static int rv3029_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 	ret = regmap_bulk_read(rv3029->regmap, RV3029_A_SC, regs,
+ 			       RV3029_ALARM_SECTION_LEN);
+-	if (ret < 0) {
+-		dev_err(dev, "%s: reading alarm section failed\n", __func__);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	ret = regmap_read(rv3029->regmap, RV3029_IRQ_CTRL, &controls);
+-	if (ret) {
+-		dev_err(dev, "Read IRQ Control Register error %d\n", ret);
++	if (ret)
+ 		return ret;
+-	}
++
+ 	ret = regmap_read(rv3029->regmap, RV3029_IRQ_FLAGS, &flags);
+-	if (ret < 0) {
+-		dev_err(dev, "Read IRQ Flags Register error %d\n", ret);
++	if (ret < 0)
+ 		return ret;
+-	}
+ 
+ 	tm->tm_sec = bcd2bin(regs[RV3029_A_SC - RV3029_A_SC] & 0x7f);
+ 	tm->tm_min = bcd2bin(regs[RV3029_A_MN - RV3029_A_SC] & 0x7f);
+@@ -776,11 +769,8 @@ static int rv3029_i2c_probe(struct i2c_client *client,
+ 	}
+ 
+ 	regmap = devm_regmap_init_i2c(client, &config);
+-	if (IS_ERR(regmap)) {
+-		dev_err(&client->dev, "%s: regmap allocation failed: %ld\n",
+-			__func__, PTR_ERR(regmap));
++	if (IS_ERR(regmap))
+ 		return PTR_ERR(regmap);
+-	}
+ 
+ 	return rv3029_probe(&client->dev, regmap, client->irq, client->name);
  }
+@@ -837,11 +827,8 @@ static int rv3049_probe(struct spi_device *spi)
+ 	struct regmap *regmap;
  
--static void rv3029_unregister_driver(void)
-+static void __exit rv3029_unregister_driver(void)
- {
- 	i2c_del_driver(&rv3029_driver);
+ 	regmap = devm_regmap_init_spi(spi, &config);
+-	if (IS_ERR(regmap)) {
+-		dev_err(&spi->dev, "%s: regmap allocation failed: %ld\n",
+-			__func__, PTR_ERR(regmap));
++	if (IS_ERR(regmap))
+ 		return PTR_ERR(regmap);
+-	}
+ 
+ 	return rv3029_probe(&spi->dev, regmap, spi->irq, "rv3049");
  }
+@@ -881,16 +868,10 @@ static int __init rv30x9_init(void)
+ 	int ret;
  
- #else
+ 	ret = rv3029_register_driver();
+-	if (ret) {
+-		pr_err("Failed to register rv3029 driver: %d\n", ret);
++	if (ret)
+ 		return ret;
+-	}
  
--static int rv3029_register_driver(void)
-+static int __init rv3029_register_driver(void)
- {
- 	return 0;
+-	ret = rv3049_register_driver();
+-	if (ret) {
+-		pr_err("Failed to register rv3049 driver: %d\n", ret);
+-		rv3029_unregister_driver();
+-	}
++	return rv3049_register_driver();
+ 
+ 	return ret;
  }
- 
--static void rv3029_unregister_driver(void)
-+static void __exit rv3029_unregister_driver(void)
- {
- }
- 
-@@ -840,24 +840,24 @@ static struct spi_driver rv3049_driver = {
- 	.probe   = rv3049_probe,
- };
- 
--static int rv3049_register_driver(void)
-+static int __init rv3049_register_driver(void)
- {
- 	return spi_register_driver(&rv3049_driver);
- }
- 
--static void rv3049_unregister_driver(void)
-+static void __exit rv3049_unregister_driver(void)
- {
- 	spi_unregister_driver(&rv3049_driver);
- }
- 
- #else
- 
--static int rv3049_register_driver(void)
-+static int __init rv3049_register_driver(void)
- {
- 	return 0;
- }
- 
--static void rv3049_unregister_driver(void)
-+static void __exit rv3049_unregister_driver(void)
- {
- }
- 
 -- 
 2.23.0
 
