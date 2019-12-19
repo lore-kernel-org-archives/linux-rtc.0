@@ -2,132 +2,70 @@ Return-Path: <SRS0=Ryen=2J=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48128C2D0C1
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Dec 2019 14:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10EC8C2D0C1
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Dec 2019 18:57:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1CB5B24679
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Dec 2019 14:36:51 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="YK7Ldqaa"
+	by mail.kernel.org (Postfix) with ESMTP id E48D32465E
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Dec 2019 18:57:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726830AbfLSOgu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Dec 2019 09:36:50 -0500
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:39946 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726751AbfLSOgu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Dec 2019 09:36:50 -0500
-Received: by mail-wm1-f68.google.com with SMTP id t14so5837488wmi.5
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Dec 2019 06:36:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=AoW0ANcjhnWhVQy1nVWVlNehespmk84ZLnrhmIANeDA=;
-        b=YK7LdqaacIifpKR43grXurOLS6lstMbGSX6yh9BiZsQbKGNAobIumTzzfI0vzVab3R
-         BkL1DaoAW+buzNT46GZR1VAyTxwQHfe6Iqdri+qpsLkTm1jLnks+ua7+UCV5dwzRWpBr
-         zHE1KRA4Iy2WKEJFJsjuikO4s1AxpUw2M4/JDE9e80qW+IzcNdabq4wW2jwE6Xy00jH5
-         8JUp76OYneB+zZAZuHdXWgdWHsHIhMW2gicqtOp+PQxuKbTk7uEprMzGXTs55KHJtezM
-         aAawLm+qXV4CRlSmp8cS3SguI+nL2u/3rdPi/AuPaXieEK/Qv5k6q+UklgBSCRaqY02x
-         TROw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=AoW0ANcjhnWhVQy1nVWVlNehespmk84ZLnrhmIANeDA=;
-        b=Rel6xTZ/7lTxk80M05bymP2rCLDI09+QEdt4XdFe8RqmQ9rodoaDjyygLsxm4b0xIs
-         GnfXYFqrYn1wfq7IkxPSVaQh1iO2CNM0FQV9o/g81u/OyC57At3O4OJHvLTxLM2kxZ8z
-         UuhMCGaxx8oBU8FS/B7lLllwCLgcBE2txMQ2mo72ARJnw5T2//tM9vYs8a86FynDU+GD
-         IiQpbIdEtVzWVQ5UYS/NJL08qbCrvh1JJYRn0R9X+ggxiuMGPcb3EN29V+JC2eV1sm/T
-         toMS9v6Eo/MHJUvElVIk0I7Y7aERiAdeHFTRB3zwaYCDES/znwFghi9FfuAduN5sX0tR
-         QNuA==
-X-Gm-Message-State: APjAAAXZ055wvrvIo4j2/xGmkge5XOqFsMdJ75DeXX5+uzDYobZJPQVY
-        w4kd7S+IPde7hLDGQhAQbl5wgQ==
-X-Google-Smtp-Source: APXvYqzWCOPBrg4orgmeiuAAjBbDOGoPenNVv75ndLEhJ5dP0c89acYNuswyk6Faok6Xlh/8ZdFv0Q==
-X-Received: by 2002:a7b:ce81:: with SMTP id q1mr10589381wmj.47.1576766208594;
-        Thu, 19 Dec 2019 06:36:48 -0800 (PST)
-Received: from dell ([2.27.35.132])
-        by smtp.gmail.com with ESMTPSA id 188sm6700579wmd.1.2019.12.19.06.36.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Dec 2019 06:36:47 -0800 (PST)
-Date:   Thu, 19 Dec 2019 14:36:47 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "dmurphy@ti.com" <dmurphy@ti.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "jacek.anaszewski@gmail.com" <jacek.anaszewski@gmail.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "pavel@ucw.cz" <pavel@ucw.cz>
-Subject: Re: [PATCH v7 02/12] dt-bindings: mfd: Document ROHM BD71828 bindings
-Message-ID: <20191219143647.GQ18955@dell>
-References: <cover.1576745635.git.matti.vaittinen@fi.rohmeurope.com>
- <702daeb9d8604e2feddd5f6f92b067a2d60d81ad.1576745635.git.matti.vaittinen@fi.rohmeurope.com>
- <f9b0fbb7b898691d09ed8954e8df67cf3706aa96.camel@fi.rohmeurope.com>
+        id S1730425AbfLSS5C (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Dec 2019 13:57:02 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:50189 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730815AbfLSS4j (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Dec 2019 13:56:39 -0500
+Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <colin.king@canonical.com>)
+        id 1ii0xz-0004Ep-UI; Thu, 19 Dec 2019 18:56:08 +0000
+From:   Colin King <colin.king@canonical.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][next] rtc: rv3029: remove redundant return statement
+Date:   Thu, 19 Dec 2019 18:56:07 +0000
+Message-Id: <20191219185607.21285-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <f9b0fbb7b898691d09ed8954e8df67cf3706aa96.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 19 Dec 2019, Vaittinen, Matti wrote:
+From: Colin Ian King <colin.king@canonical.com>
 
-> Hello Mark, Lee, Rob
-> 
-> I just noticed we have a dependency here. This binding is referring to
-> regulator binding - which was applied by Mark and is thus missing from
-> the series. What's the best way forward?
-> 
-> On Thu, 2019-12-19 at 11:46 +0200, Matti Vaittinen wrote:
-> > ROHM BD71828 Power management IC integrates 7 buck converters, 7
-> > LDOs,
-> > a real-time clock (RTC), 3 GPO/regulator control pins, HALL input
-> > and a 32.768 kHz clock gate.
-> > 
-> > Document the dt bindings drivers are using.
-> > 
-> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > Reviewed-by: Rob Herring <robh@kernel.org>
-> > ---
-> > 
-> > No changes since v6
-> 
-> //snip
-> 
-> > +  regulators:
-> > +    $ref: ../regulator/rohm,bd71828-regulator.yaml
-> 
-> This file is missing from the series and is applied to Mark's tree.
+There are two return statements at the end of the function
+rv30x9_init, the latter is redundant and can be removed. Remove
+it.
 
-Shouldn't matter.  I guess they're all heading for he same release.
+Addresses-Coverity: ("Structurally dead code")
+Fixes: ef2f1df54a29 ("rtc: rv3029: remove useless error messages")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/rtc/rtc-rv3029c2.c | 2 --
+ 1 file changed, 2 deletions(-)
 
+diff --git a/drivers/rtc/rtc-rv3029c2.c b/drivers/rtc/rtc-rv3029c2.c
+index 4eda0db72b66..7c52efb7d113 100644
+--- a/drivers/rtc/rtc-rv3029c2.c
++++ b/drivers/rtc/rtc-rv3029c2.c
+@@ -898,8 +898,6 @@ static int __init rv30x9_init(void)
+ 		return ret;
+ 
+ 	return rv3049_register_driver();
+-
+-	return ret;
+ }
+ module_init(rv30x9_init)
+ 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.24.0
+
