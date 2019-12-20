@@ -2,152 +2,114 @@ Return-Path: <SRS0=qZkv=2K=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B774CC2D0D2
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 10:55:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 154EBC2D0D2
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 12:24:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8BE3424682
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 10:55:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E08DB24684
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 12:24:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lnsxrNEC"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="ASNoFJRQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727216AbfLTKzH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 20 Dec 2019 05:55:07 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:36726 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727185AbfLTKzH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 20 Dec 2019 05:55:07 -0500
-Received: by mail-wr1-f67.google.com with SMTP id z3so8994274wru.3
-        for <linux-rtc@vger.kernel.org>; Fri, 20 Dec 2019 02:55:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=a9C14P9lsGAuh8F6Rdx7vHrUThQ9aonGy2O3DOUo7Ds=;
-        b=lnsxrNECjkBnFDoUoh4Zk3vI7gih7BdHS5VDD/ljXCsq9ilLRKOZ8GzzX7sx/6q8XK
-         zXuAKwefaAx9xOCMJiNWqqF/21CHWenY5X0UiZceAAACBFFJpSOR2/UekgYy3Alhn+7K
-         ieZJlFRB2hooAr36DkhTxOLH/VBGWvH3v/mySwaI6BcLANoApcE8RhKRUozqUqqmupM9
-         pRRKHrcSYVWSErKLI8B7XsVpW7oGvA9qLZMI7MVHFPZ7zG0gSaC9VyAIgYXmv8TF26Ih
-         fDVRzS4kElTzBv5ztckoj5PvaMpdOldZIi3GMchS7cYL/6H8DBkQYaUkNyrvhqkZXB72
-         YaSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=a9C14P9lsGAuh8F6Rdx7vHrUThQ9aonGy2O3DOUo7Ds=;
-        b=HBeZi/WY82Rjp56hFc4C9LDLaGDt4lrrfEvsOtnZvQApAzdM4XwFfXhQn6naTNoYez
-         KZo+EnQSEmPDhCx6nKow8blZqCc4BNARBXKaYo8DFcIVGQnffIlgfVRk7+OsqY6Ae2kh
-         W39q4g8cZsRYfQGxM1JK5KdUb0M8+EjfhhKtqTGn3MQDd2gQxfBwIVxyH5EpIqBWG5wj
-         4UwtmuE+lRH2VjyBjMuCcX2uvIagiWcQGdDuxV/64vnncilvWiLJlmlpAYG0HdZlRREU
-         e0OH/vizn3KBQWi4/OH5ife1rKddJ5CL+EME1nfkGT1hFFjYrDXdINWYnm8XYMaoBG97
-         7oeg==
-X-Gm-Message-State: APjAAAWToBjUwOKVZRUqOb+mqAfLOCOPHP8tP3xax+yZEgfwvUK+jybI
-        f42PA+qO4o5yaq680BCZ+rdWmQ==
-X-Google-Smtp-Source: APXvYqyicvSFzhHzxpljiw/uidTI78NGorAjjg+bi/J4O8iYxkHUB7TVkQ+2LhBMrPCHOQeS/2zn7Q==
-X-Received: by 2002:adf:f052:: with SMTP id t18mr14250816wro.192.1576839304724;
-        Fri, 20 Dec 2019 02:55:04 -0800 (PST)
-Received: from dell ([2.27.35.132])
-        by smtp.gmail.com with ESMTPSA id f17sm9339549wmc.8.2019.12.20.02.55.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Dec 2019 02:55:04 -0800 (PST)
-Date:   Fri, 20 Dec 2019 10:55:05 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "dmurphy@ti.com" <dmurphy@ti.com>,
-        "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "mazziesaccount@gmail.com" <mazziesaccount@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "jacek.anaszewski@gmail.com" <jacek.anaszewski@gmail.com>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "bgolaszewski@baylibre.com" <bgolaszewski@baylibre.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "pavel@ucw.cz" <pavel@ucw.cz>,
-        "broonie@kernel.org" <broonie@kernel.org>
-Subject: Re: [PATCH v7 02/12] dt-bindings: mfd: Document ROHM BD71828 bindings
-Message-ID: <20191220105505.GS18955@dell>
-References: <cover.1576745635.git.matti.vaittinen@fi.rohmeurope.com>
- <702daeb9d8604e2feddd5f6f92b067a2d60d81ad.1576745635.git.matti.vaittinen@fi.rohmeurope.com>
- <f9b0fbb7b898691d09ed8954e8df67cf3706aa96.camel@fi.rohmeurope.com>
- <20191219143647.GQ18955@dell>
- <e734a11ed158814119256a3fac253a8574c90837.camel@fi.rohmeurope.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e734a11ed158814119256a3fac253a8574c90837.camel@fi.rohmeurope.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727378AbfLTMY4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 20 Dec 2019 07:24:56 -0500
+Received: from mail.andi.de1.cc ([85.214.55.253]:48360 "EHLO mail.andi.de1.cc"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727346AbfLTMY4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Dec 2019 07:24:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=References:In-Reply-To:Message-Id:Date:Subject:
+        Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=q7Pl04+25XaAjE2x9uF6zsDQzpaHxRr7Osf7kSzlnZI=; b=ASNoFJRQG7/VkrK8hr04zadi7
+        ZsALiXvrb3/UXcAzLbpnfRguYxa/13dnhb3ukoG07kjczAdxcoI7lhdLJhFOpiXrSsf3oF1GsFPaa
+        4Coxq5bTIA6PM+ryOCA2GE16OXyhDGZQGnLimOxrmyqSs4c13JjjDqVTE666nYp/5mIEA=;
+Received: from [2a02:790:ff:1019:7ee9:d3ff:fe1f:a246] (helo=localhost)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1iiHKq-0001zU-UV; Fri, 20 Dec 2019 13:24:49 +0100
+Received: from andi by localhost with local (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1iiHKo-0008Tl-K8; Fri, 20 Dec 2019 13:24:46 +0100
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
+        phh@phh.me, letux-kernel@openphoenux.org
+Cc:     Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH v5 4/5] mfd: rn5t618: add more subdevices
+Date:   Fri, 20 Dec 2019 13:24:15 +0100
+Message-Id: <20191220122416.31881-5-andreas@kemnade.info>
+X-Mailer: git-send-email 2.11.0
+In-Reply-To: <20191220122416.31881-1-andreas@kemnade.info>
+References: <20191220122416.31881-1-andreas@kemnade.info>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 20 Dec 2019, Vaittinen, Matti wrote:
+The RC5T619 has a RTC which is missing in the
+RN5T618. Add it as subdevice to prepare for their implementation
 
-> 
-> On Thu, 2019-12-19 at 14:36 +0000, Lee Jones wrote:
-> > On Thu, 19 Dec 2019, Vaittinen, Matti wrote:
-> > 
-> > > Hello Mark, Lee, Rob
-> > > 
-> > > I just noticed we have a dependency here. This binding is referring
-> > > to
-> > > regulator binding - which was applied by Mark and is thus missing
-> > > from
-> > > the series. What's the best way forward?
-> > > 
-> > > On Thu, 2019-12-19 at 11:46 +0200, Matti Vaittinen wrote:
-> > > > ROHM BD71828 Power management IC integrates 7 buck converters, 7
-> > > > LDOs,
-> > > > a real-time clock (RTC), 3 GPO/regulator control pins, HALL input
-> > > > and a 32.768 kHz clock gate.
-> > > > 
-> > > > Document the dt bindings drivers are using.
-> > > > 
-> > > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com
-> > > > >
-> > > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > > > ---
-> > > > 
-> > > > No changes since v6
-> > > 
-> > > //snip
-> > > 
-> > > > +  regulators:
-> > > > +    $ref: ../regulator/rohm,bd71828-regulator.yaml
-> > > 
-> > > This file is missing from the series and is applied to Mark's tree.
-> > 
-> > Shouldn't matter.  I guess they're all heading for he same release.
-> > 
-> Ok. Thanks for clarification. I was asking this because Rob asked me to
-> reorder the patches a few versions ago so that the dt_binding_check
-> Make target would not be broken between commits. He asked me to submit
-> the regulator and LED bindings first and MFD (which refers to those)
-> only after them. Thus I was wondering if the final merge order of MFD
-> and regulator trees is such that it can result the breakage Rob hoped
-> to avoid. But I am more than glad if the series can go in like this :)
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+Changes in v3:
+- alignment cleanup
+ drivers/mfd/rn5t618.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-It's not something that concerns me personally.  I only care about
-*build* breakages.  Rob might be more upset about it however.
-
+diff --git a/drivers/mfd/rn5t618.c b/drivers/mfd/rn5t618.c
+index 6bdc5a023cbf..ec378715137b 100644
+--- a/drivers/mfd/rn5t618.c
++++ b/drivers/mfd/rn5t618.c
+@@ -14,6 +14,7 @@
+ #include <linux/mfd/rn5t618.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/regmap.h>
+ 
+@@ -22,6 +23,12 @@ static const struct mfd_cell rn5t618_cells[] = {
+ 	{ .name = "rn5t618-wdt" },
+ };
+ 
++static const struct mfd_cell rc5t619_cells[] = {
++	{ .name = "rn5t618-regulator" },
++	{ .name = "rc5t619-rtc" },
++	{ .name = "rn5t618-wdt" },
++};
++
+ static bool rn5t618_volatile_reg(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+@@ -173,8 +180,16 @@ static int rn5t618_i2c_probe(struct i2c_client *i2c,
+ 		return ret;
+ 	}
+ 
+-	ret = devm_mfd_add_devices(&i2c->dev, -1, rn5t618_cells,
+-				   ARRAY_SIZE(rn5t618_cells), NULL, 0, NULL);
++	if (priv->variant == RC5T619)
++		ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_NONE,
++					   rc5t619_cells,
++					   ARRAY_SIZE(rc5t619_cells),
++					   NULL, 0, NULL);
++	else
++		ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_NONE,
++					   rn5t618_cells,
++					   ARRAY_SIZE(rn5t618_cells),
++					   NULL, 0, NULL);
+ 	if (ret) {
+ 		dev_err(&i2c->dev, "failed to add sub-devices: %d\n", ret);
+ 		return ret;
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.11.0
+
