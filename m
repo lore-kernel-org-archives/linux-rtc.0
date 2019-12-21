@@ -1,109 +1,109 @@
-Return-Path: <SRS0=qZkv=2K=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=zRvz=2L=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD88CC43603
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 12:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AC13C2D0C3
+	for <linux-rtc@archiver.kernel.org>; Sat, 21 Dec 2019 18:21:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A513E24684
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Dec 2019 12:25:20 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="Tk2mRZKA"
+	by mail.kernel.org (Postfix) with ESMTP id 3B61A20665
+	for <linux-rtc@archiver.kernel.org>; Sat, 21 Dec 2019 18:21:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727394AbfLTMY4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 20 Dec 2019 07:24:56 -0500
-Received: from mail.andi.de1.cc ([85.214.55.253]:48358 "EHLO mail.andi.de1.cc"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727347AbfLTMY4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 20 Dec 2019 07:24:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Message-Id:Date:Subject:Cc:To:From:Sender:
-        Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=RBosA1WXv7+ZQ+18j+VhmhTjKGR8E8xllD/Rd9oJey4=; b=Tk2mRZKAgHCqxHXhZkJZCaXkcz
-        ziDMUULEv7GANWvFA+/U0sKpZscZo/do24A4Pg4/5KH64P9F78UefievcccXdBj7+1VGNHClW4MJH
-        sQ8WBEu8GuWD8jbx+pvJ5dSFsJRXwj3nz+iPQwVArFVRU+VN/V3EgD/ointGEBkabTOM=;
-Received: from [2a02:790:ff:1019:7ee9:d3ff:fe1f:a246] (helo=localhost)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1iiHKn-0001zJ-6K; Fri, 20 Dec 2019 13:24:45 +0100
-Received: from andi by localhost with local (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1iiHKj-0008TW-Ni; Fri, 20 Dec 2019 13:24:42 +0100
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
-        phh@phh.me, letux-kernel@openphoenux.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH v5 0/5] Add rtc support for rn5t618 mfd
-Date:   Fri, 20 Dec 2019 13:24:11 +0100
-Message-Id: <20191220122416.31881-1-andreas@kemnade.info>
-X-Mailer: git-send-email 2.11.0
+        id S1727040AbfLUSVB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 21 Dec 2019 13:21:01 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:38364 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726107AbfLUSVA (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 21 Dec 2019 13:21:00 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 4B2391C24DF; Sat, 21 Dec 2019 19:20:58 +0100 (CET)
+Date:   Sat, 21 Dec 2019 19:20:57 +0100
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>
+Cc:     linux-realtek-soc@lists.infradead.org, linux-leds@vger.kernel.org,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Dan Murphy <dmurphy@ti.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-spi@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        linux-amlogic@lists.infradead.org, Roc He <hepeng@zidoo.tv>,
+        zypeng@titanmec.com, sales@fdhisi.com, csd@princeton.com.tw
+Subject: Re: [RFC 00/25] arm64: realtek: Add Xnano X5 and implement
+ TM1628/FD628/AiP1618 LED controllers
+Message-ID: <20191221182057.GA32732@amd>
+References: <20191212033952.5967-1-afaerber@suse.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+In-Reply-To: <20191212033952.5967-1-afaerber@suse.de>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In the variant RC5T619 the mfd has an RTC. This patchset adds
-support for it. To do so it adds the missing register defines in 
-rn5t618.h and general irq handling for that.
-It seems that the irq definitions are the same except missing RTC
-but due to missing ability to test that I do not add them here.
 
-The rtc driver itself is based on 
-https://github.com/kobolabs/Kobo-Reader/blob/master/hw/imx6sll-clara/kernel.tar.bz2
-but heavily reworked.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It was tested on the Kobo Clara HD.
+Hi!
 
-For cleaning up there is a separate off-topic patch:
-mfd: rn5t618: cleanup i2c_device_id
+> This patch series implements the LED controllers found in some RTD1295 ba=
+sed
+> TV set-top boxes.
+>=20
+> Ever since I've had mainline Linux kernels booting on my Zidoo X9S TV box,
+> it's been bugging me that it kept displaying "boot" on its front display.
+> A hot lead was a TM1628 chip on the front display's daughterboard, which
+> English and Chinese datasheets were available for. The biggest
+> hurdle
 
-Changes in v5:
-- static rn5t618_irq_init
-- PLATFORM_DEVID_NONE
-- added some Acked-Bys
+Fun :-).
 
-Changes in v4:
-- use macros for IRQ definitions
-- merge rn5t618-core.c and rn5t618-irq.c
+> It goes on to add a "text" attribute to the driver that enables DT-config=
+ured
+> seven-segment displays; I was expecting to find precedence in auxdisplay
+> subsystem but came up empty. So my driver currently integrates its own
+> generic (but incomplete) character-to-8-segments mapping, as well as in a
+> second step a combined-characters-to-8-segments mapping, which then gets
+> mapped to the chipset's available output lines. Doing this as sysfs
+> device
 
-Changes in v3:
-- alignment cleanup
-- output cleanup, remove useless toggling of alarm flag in rtc probe
-- updated bindings description, so patch 1/5 becomes 2/6 and so on
+I did not investigate this in great detail; but if it is displaying
+characters, auxdisplay is probably right subsystem to handle that. I
+guess LEDs can still take the low-level parts...
 
-Changes in v2:
-- no dead code in irq code
-- various improvements and cleanups in rtc driver itself
+Oh, and common dimming for many LEDs is seen on other hardware, too
+(Turris routers). Not sure how to handle that, either :-(.
 
-Andreas Kemnade (5):
-  dt-bindings: mfd: rn5t618: Document optional property interrupts
-  mfd: rn5t618: add IRQ support
-  mfd: rn5t618: add RTC related registers
-  mfd: rn5t618: add more subdevices
-  rtc: rc5t619: add ricoh rc5t619 RTC driver
+Best regards,
+									Pavel
 
- Documentation/devicetree/bindings/mfd/rn5t618.txt |   4 +
- drivers/mfd/Kconfig                               |   1 +
- drivers/mfd/rn5t618.c                             | 109 +++++-
- drivers/rtc/Kconfig                               |  10 +
- drivers/rtc/Makefile                              |   1 +
- drivers/rtc/rtc-rc5t619.c                         | 444 ++++++++++++++++++++++
- include/linux/mfd/rn5t618.h                       |  26 ++
- 7 files changed, 593 insertions(+), 2 deletions(-)
- create mode 100644 drivers/rtc/rtc-rc5t619.c
 
--- 
-2.11.0
 
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl3+YokACgkQMOfwapXb+vJoqgCfY5/dzSIdT0c0DWaA1+WWkFdQ
+6wkAoIzd/X2VTQwW3tq7WApoawbDjUdO
+=xFhp
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--
