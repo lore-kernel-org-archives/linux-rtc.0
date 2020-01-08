@@ -6,18 +6,18 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3201C282DD
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FDE6C33CA1
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 92073206F0
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3CC07206F0
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728576AbgAHM5m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 8 Jan 2020 07:57:42 -0500
+        id S1728478AbgAHM5T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 8 Jan 2020 07:57:19 -0500
 Received: from esa4.microchip.iphmx.com ([68.232.154.123]:31439 "EHLO
         esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728497AbgAHM5W (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jan 2020 07:57:22 -0500
+        with ESMTP id S1726319AbgAHM5S (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jan 2020 07:57:18 -0500
 Received-SPF: Pass (esa4.microchip.iphmx.com: domain of
   Claudiu.Beznea@microchip.com designates 198.175.253.82 as
   permitted sender) identity=mailfrom;
@@ -37,22 +37,22 @@ Received-SPF: None (esa4.microchip.iphmx.com: no sender
   x-sender="postmaster@email.microchip.com";
   x-conformance=spf_only
 Authentication-Results: esa4.microchip.iphmx.com; dkim=none (message not signed) header.i=none; spf=Pass smtp.mailfrom=Claudiu.Beznea@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
-IronPort-SDR: tEBIP2AD+c8PXWrQNHC3xz5eOwxGV2ntnn+eZrs3NjPB1XjDv4+GS8qp0ji3bWdSpDPSWOxesK
- rL204wPb2jZQLFNJIR3cH405BIWbxyvG8c+W9H9P4KTmTQrXfbUICNvZbggYLUI6Q5zbQiSql4
- G0j4AVuz8J7Jt8Gutx39eml+g10/fKnXihl3aTSvxwuNArxDt9NnPUQrvLAEBAi/ZBFeLLLAgh
- j2JL2DJ7lR5YuvABUWbOFL7TzKB3VMDOuQehWbhyv98CyeaCI6oD3TJlLqMFZfH+NhaQ5orUIy
- uKY=
+IronPort-SDR: 9ehLZOiS1j5cQb1qM5hUEXDBgFknLEoEWycLBkeu09mjURNxNeKxuHyaQYM95qNdPm4zWaNphw
+ yr879yzJsoIf5+6YRRPob+B8LryOJ5OOMOLRt7YySMX1z0w0dxebLmCs0fOguGNMs8ou/BBJ1l
+ 2JsH4SXoY3ZraA4pSSsnx2FPFf/ujLP4B1cWruuShNIdy9sUGBIjLALGnkme9/djUlcs899XBG
+ IgcbhZeIDsnemgnCCsWqf9nhUpVqniQ2g16azBOpDHbW4qo2PCQAm2vsBwwPvbHypDnPuzxyXP
+ m+U=
 X-IronPort-AV: E=Sophos;i="5.69,410,1571727600"; 
-   d="scan'208";a="60517613"
+   d="scan'208";a="60517594"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Jan 2020 05:57:21 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Jan 2020 05:57:17 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 8 Jan 2020 05:57:11 -0700
+ 15.1.1713.5; Wed, 8 Jan 2020 05:56:56 -0700
 Received: from m18063-ThinkPad-T460p.microchip.com (10.10.85.251) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.1713.5 via Frontend Transport; Wed, 8 Jan 2020 05:57:04 -0700
+ 15.1.1713.5 via Frontend Transport; Wed, 8 Jan 2020 05:56:49 -0700
 From:   Claudiu Beznea <claudiu.beznea@microchip.com>
 To:     <robh+dt@kernel.org>, <mark.rutland@arm.com>,
         <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
@@ -72,9 +72,9 @@ CC:     <devicetree@vger.kernel.org>,
         <linux-can@vger.kernel.org>, <netdev@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>,
         Claudiu Beznea <claudiu.beznea@microchip.com>
-Subject: [PATCH 09/16] dt-bindings: atmel-smc: add microchip,sam9x60-smc
-Date:   Wed, 8 Jan 2020 14:55:16 +0200
-Message-ID: <1578488123-26127-10-git-send-email-claudiu.beznea@microchip.com>
+Subject: [PATCH 07/16] dt-bindings: atmel-nand: add microchip,sam9x60-pmecc
+Date:   Wed, 8 Jan 2020 14:55:14 +0200
+Message-ID: <1578488123-26127-8-git-send-email-claudiu.beznea@microchip.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1578488123-26127-1-git-send-email-claudiu.beznea@microchip.com>
 References: <1578488123-26127-1-git-send-email-claudiu.beznea@microchip.com>
@@ -85,24 +85,24 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add microchip,sam9x60-smc to DT bindings documentation.
+Add microchip,sam9x60-pmecc to DT bindings documentation.
 
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 ---
- Documentation/devicetree/bindings/mfd/atmel-smc.txt | 1 +
+ Documentation/devicetree/bindings/mtd/atmel-nand.txt | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/atmel-smc.txt b/Documentation/devicetree/bindings/mfd/atmel-smc.txt
-index 1103ce2030fb..5696d9fcb5dc 100644
---- a/Documentation/devicetree/bindings/mfd/atmel-smc.txt
-+++ b/Documentation/devicetree/bindings/mfd/atmel-smc.txt
-@@ -9,6 +9,7 @@ Required properties:
- 			"atmel,at91sam9260-smc", "syscon"
- 			"atmel,sama5d3-smc", "syscon"
- 			"atmel,sama5d2-smc", "syscon"
-+			"microchip,sam9x60-smc", "syscon"
- - reg:			Contains offset/length value of the SMC memory
- 			region.
+diff --git a/Documentation/devicetree/bindings/mtd/atmel-nand.txt b/Documentation/devicetree/bindings/mtd/atmel-nand.txt
+index 68b51dc58816..3aa297c97ab6 100644
+--- a/Documentation/devicetree/bindings/mtd/atmel-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/atmel-nand.txt
+@@ -57,6 +57,7 @@ Required properties:
+ 	"atmel,at91sam9g45-pmecc"
+ 	"atmel,sama5d4-pmecc"
+ 	"atmel,sama5d2-pmecc"
++	"microchip,sam9x60-pmecc"
+ - reg: should contain 2 register ranges. The first one is pointing to the PMECC
+        block, and the second one to the PMECC_ERRLOC block.
  
 -- 
 2.7.4
