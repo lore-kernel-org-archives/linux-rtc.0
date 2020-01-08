@@ -6,22 +6,22 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 903DDC33CA1
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3201C282DD
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 703BB206F0
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92073206F0
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 12:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728657AbgAHM6B (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 8 Jan 2020 07:58:01 -0500
-Received: from esa3.microchip.iphmx.com ([68.232.153.233]:35640 "EHLO
-        esa3.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726760AbgAHM5x (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jan 2020 07:57:53 -0500
-Received-SPF: Pass (esa3.microchip.iphmx.com: domain of
+        id S1728576AbgAHM5m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 8 Jan 2020 07:57:42 -0500
+Received: from esa4.microchip.iphmx.com ([68.232.154.123]:31439 "EHLO
+        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728497AbgAHM5W (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jan 2020 07:57:22 -0500
+Received-SPF: Pass (esa4.microchip.iphmx.com: domain of
   Claudiu.Beznea@microchip.com designates 198.175.253.82 as
   permitted sender) identity=mailfrom;
-  client-ip=198.175.253.82; receiver=esa3.microchip.iphmx.com;
+  client-ip=198.175.253.82; receiver=esa4.microchip.iphmx.com;
   envelope-from="Claudiu.Beznea@microchip.com";
   x-sender="Claudiu.Beznea@microchip.com";
   x-conformance=spf_only; x-record-type="v=spf1";
@@ -29,30 +29,30 @@ Received-SPF: Pass (esa3.microchip.iphmx.com: domain of
   a:smtpout.microchip.com -exists:%{i}.spf.microchip.iphmx.com
   include:servers.mcsv.net include:mktomail.com
   include:spf.protection.outlook.com ~all"
-Received-SPF: None (esa3.microchip.iphmx.com: no sender
+Received-SPF: None (esa4.microchip.iphmx.com: no sender
   authenticity information available from domain of
   postmaster@email.microchip.com) identity=helo;
-  client-ip=198.175.253.82; receiver=esa3.microchip.iphmx.com;
+  client-ip=198.175.253.82; receiver=esa4.microchip.iphmx.com;
   envelope-from="Claudiu.Beznea@microchip.com";
   x-sender="postmaster@email.microchip.com";
   x-conformance=spf_only
-Authentication-Results: esa3.microchip.iphmx.com; dkim=none (message not signed) header.i=none; spf=Pass smtp.mailfrom=Claudiu.Beznea@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
-IronPort-SDR: zZyrzAeRS6ZjciCUnVdrqO74+rJjsEolZK9q+ZrLuU92XIJUowEfCtwhfVUROEd355pPbitF39
- TbbKvov42iGr89vQFkql3SncElGdSkrwmCHo7rvVYVa26iyGyvEL79QF8CGyveKdxMjNOXVtta
- cbQOAdLmLGPUvOpLNBe84TqjNVmUHPLrrzBXKIUmDYyu+RoEI5df0yFRJ20bnjlaKbqzYavW4S
- wJbAE1HeCcnWkSa5gEv/dPC6cpftyF8TxUNhUO1GUUxNBvkIvqYPWDACjTwFAvTHPISV+FHv/H
- dc8=
+Authentication-Results: esa4.microchip.iphmx.com; dkim=none (message not signed) header.i=none; spf=Pass smtp.mailfrom=Claudiu.Beznea@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
+IronPort-SDR: tEBIP2AD+c8PXWrQNHC3xz5eOwxGV2ntnn+eZrs3NjPB1XjDv4+GS8qp0ji3bWdSpDPSWOxesK
+ rL204wPb2jZQLFNJIR3cH405BIWbxyvG8c+W9H9P4KTmTQrXfbUICNvZbggYLUI6Q5zbQiSql4
+ G0j4AVuz8J7Jt8Gutx39eml+g10/fKnXihl3aTSvxwuNArxDt9NnPUQrvLAEBAi/ZBFeLLLAgh
+ j2JL2DJ7lR5YuvABUWbOFL7TzKB3VMDOuQehWbhyv98CyeaCI6oD3TJlLqMFZfH+NhaQ5orUIy
+ uKY=
 X-IronPort-AV: E=Sophos;i="5.69,410,1571727600"; 
-   d="scan'208";a="62569376"
+   d="scan'208";a="60517613"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Jan 2020 05:57:51 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Jan 2020 05:57:21 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 8 Jan 2020 05:57:51 -0700
+ 15.1.1713.5; Wed, 8 Jan 2020 05:57:11 -0700
 Received: from m18063-ThinkPad-T460p.microchip.com (10.10.85.251) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.1713.5 via Frontend Transport; Wed, 8 Jan 2020 05:57:44 -0700
+ 15.1.1713.5 via Frontend Transport; Wed, 8 Jan 2020 05:57:04 -0700
 From:   Claudiu Beznea <claudiu.beznea@microchip.com>
 To:     <robh+dt@kernel.org>, <mark.rutland@arm.com>,
         <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
@@ -72,9 +72,9 @@ CC:     <devicetree@vger.kernel.org>,
         <linux-can@vger.kernel.org>, <netdev@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>,
         Claudiu Beznea <claudiu.beznea@microchip.com>
-Subject: [PATCH 14/16] dt-bindings: arm: add sam9x60-ek board
-Date:   Wed, 8 Jan 2020 14:55:21 +0200
-Message-ID: <1578488123-26127-15-git-send-email-claudiu.beznea@microchip.com>
+Subject: [PATCH 09/16] dt-bindings: atmel-smc: add microchip,sam9x60-smc
+Date:   Wed, 8 Jan 2020 14:55:16 +0200
+Message-ID: <1578488123-26127-10-git-send-email-claudiu.beznea@microchip.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1578488123-26127-1-git-send-email-claudiu.beznea@microchip.com>
 References: <1578488123-26127-1-git-send-email-claudiu.beznea@microchip.com>
@@ -85,30 +85,25 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add documentation for SAM9X60-EK board.
+Add microchip,sam9x60-smc to DT bindings documentation.
 
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 ---
- Documentation/devicetree/bindings/arm/atmel-at91.yaml | 6 ++++++
- 1 file changed, 6 insertions(+)
+ Documentation/devicetree/bindings/mfd/atmel-smc.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/arm/atmel-at91.yaml b/Documentation/devicetree/bindings/arm/atmel-at91.yaml
-index 6dd8be401673..bdf22891a768 100644
---- a/Documentation/devicetree/bindings/arm/atmel-at91.yaml
-+++ b/Documentation/devicetree/bindings/arm/atmel-at91.yaml
-@@ -57,6 +57,12 @@ properties:
-           - const: atmel,sama5d2
-           - const: atmel,sama5
+diff --git a/Documentation/devicetree/bindings/mfd/atmel-smc.txt b/Documentation/devicetree/bindings/mfd/atmel-smc.txt
+index 1103ce2030fb..5696d9fcb5dc 100644
+--- a/Documentation/devicetree/bindings/mfd/atmel-smc.txt
++++ b/Documentation/devicetree/bindings/mfd/atmel-smc.txt
+@@ -9,6 +9,7 @@ Required properties:
+ 			"atmel,at91sam9260-smc", "syscon"
+ 			"atmel,sama5d3-smc", "syscon"
+ 			"atmel,sama5d2-smc", "syscon"
++			"microchip,sam9x60-smc", "syscon"
+ - reg:			Contains offset/length value of the SMC memory
+ 			region.
  
-+      - description: SAM9X60-EK board
-+        items:
-+          - const: microchip,sam9x60ek
-+          - const: microchip,sam9x60
-+          - const: atmel,at91sam9
-+
-       - description: Nattis v2 board with Natte v2 power board
-         items:
-           - const: axentia,nattis-2
 -- 
 2.7.4
 
