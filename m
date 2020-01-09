@@ -1,87 +1,220 @@
-Return-Path: <SRS0=LHgn=25=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=0Ous=26=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5357C282DD
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 19:40:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 357AEC32771
+	for <linux-rtc@archiver.kernel.org>; Thu,  9 Jan 2020 10:36:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 845ED20678
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jan 2020 19:40:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12D2F20678
+	for <linux-rtc@archiver.kernel.org>; Thu,  9 Jan 2020 10:36:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgAHTkP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 8 Jan 2020 14:40:15 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:51414 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727247AbgAHTkO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jan 2020 14:40:14 -0500
-Received: from p5b06da22.dip0.t-ipconnect.de ([91.6.218.34] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1ipHBU-0002tj-8s; Wed, 08 Jan 2020 20:40:04 +0100
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 92D781060B2; Wed,  8 Jan 2020 20:40:03 +0100 (CET)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-Cc:     linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, kernel@gpiccoli.net
-Subject: Re: [PATCH] rtc: cmos: Don't enable shared interrupts if using HPET-based IRQ handler
-In-Reply-To: <20200108174111.GD32742@smile.fi.intel.com>
-References: <20200103140240.6507-1-gpiccoli@canonical.com> <20200108174111.GD32742@smile.fi.intel.com>
-Date:   Wed, 08 Jan 2020 20:40:03 +0100
-Message-ID: <87h815ybxo.fsf@nanos.tec.linutronix.de>
+        id S1729389AbgAIKgE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 9 Jan 2020 05:36:04 -0500
+Received: from mx2.suse.de ([195.135.220.15]:55512 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729165AbgAIKgE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 9 Jan 2020 05:36:04 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 07B266A05A;
+        Thu,  9 Jan 2020 10:34:45 +0000 (UTC)
+From:   Thomas Bogendoerfer <tbogendoerfer@suse.de>
+To:     Paul Burton <paulburton@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH v12 2/3] MIPS: SGI-IP27: fix readb/writeb addressing
+Date:   Thu,  9 Jan 2020 11:34:28 +0100
+Message-Id: <20200109103430.12057-3-tbogendoerfer@suse.de>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200109103430.12057-1-tbogendoerfer@suse.de>
+References: <20200109103430.12057-1-tbogendoerfer@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com> writes:
-> On Fri, Jan 03, 2020 at 11:02:40AM -0300, Guilherme G. Piccoli wrote:
+Our chosen byte swapping, which is what firmware already uses, is to
+do readl/writel by normal lw/sw intructions (data invariance). This
+also means we need to mangle addresses for u8 and u16 accesses. The
+mangling for 16bit has been done aready, but 8bit one was missing.
+Correcting this causes different addresses for accesses to the
+SuperIO and local bus of the IOC3 chip. This is fixed by changing
+byte order in ioc3 and m48rtc_rtc structs.
+
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ arch/mips/include/asm/mach-ip27/mangle-port.h |  4 +-
+ arch/mips/include/asm/sn/ioc3.h               | 38 +++++++++----------
+ drivers/net/ethernet/sgi/ioc3-eth.c           | 12 ++++++
+ drivers/rtc/rtc-m48t35.c                      | 11 ++++++
+ 4 files changed, 44 insertions(+), 21 deletions(-)
+
+diff --git a/arch/mips/include/asm/mach-ip27/mangle-port.h b/arch/mips/include/asm/mach-ip27/mangle-port.h
+index f6e4912ea062..27c56efa519f 100644
+--- a/arch/mips/include/asm/mach-ip27/mangle-port.h
++++ b/arch/mips/include/asm/mach-ip27/mangle-port.h
+@@ -8,7 +8,7 @@
+ #ifndef __ASM_MACH_IP27_MANGLE_PORT_H
+ #define __ASM_MACH_IP27_MANGLE_PORT_H
  
->> This patch changes this behavior by preventing shared interrupts if the
->> HPET-based IRQ handler is used instead of the regular cmos_interrupt()
->> one. Although "irqpoll" is not a default kernel option, it's used in
->> some contexts, one being the kdump kernel (which is an already "impaired"
->> kernel usually running with 1 CPU available), so the performance burden
->> could be considerable. Also, the same issue would happen (in a shorter
->> extent though) when using "irqfixup" kernel option.
-...
->> Hi all, thanks for reading/reviewing this patch! One of the
->> alternatives I considered in case sharing interrupts are really
->> desirable is a new kernel parameter to rtc-cmos to allow
->> sharing interrupts, and default the IRQ setup to non-shared.
->> 
->> We could also disable sharing if "irqpoll" or "irqfixup" is set,
->> but this would somewhat "bypass" IRQ code API which I think would
->> be a bit ugly.
->> 
->> Please let me know your thoughts, and thanks in advance.
->
-> I think you may ask for Thomas' opinion (Cc'ed now).
-
-I'm a bit wary with binding this to the fact that the HPET is
-involved.
-
-Especially I don't know whether the Surface3 which is Intel based
-exposes the HPET via ACPI which would pretty much revert the effect of
-the mentioned commit which introduced the IRQF_SHARED magic especially
-for Surface3.
-
-As this is a Surface3 specific misfeature, it might be trivial enough to
-set IRQF_SHARED based on a DMI quirk for the Surface3.
-
-Thanks,
-
-        tglx
-
+-#define __swizzle_addr_b(port)	(port)
++#define __swizzle_addr_b(port)	((port) ^ 3)
+ #define __swizzle_addr_w(port)	((port) ^ 2)
+ #define __swizzle_addr_l(port)	(port)
+ #define __swizzle_addr_q(port)	(port)
+@@ -20,6 +20,6 @@
+ # define ioswabl(a, x)		(x)
+ # define __mem_ioswabl(a, x)	cpu_to_le32(x)
+ # define ioswabq(a, x)		(x)
+-# define __mem_ioswabq(a, x)	cpu_to_le32(x)
++# define __mem_ioswabq(a, x)	cpu_to_le64(x)
+ 
+ #endif /* __ASM_MACH_IP27_MANGLE_PORT_H */
+diff --git a/arch/mips/include/asm/sn/ioc3.h b/arch/mips/include/asm/sn/ioc3.h
+index 78ef760ddde4..3865d3225780 100644
+--- a/arch/mips/include/asm/sn/ioc3.h
++++ b/arch/mips/include/asm/sn/ioc3.h
+@@ -21,50 +21,50 @@ struct ioc3_serialregs {
+ 
+ /* SUPERIO uart register map */
+ struct ioc3_uartregs {
++	u8	iu_lcr;
+ 	union {
+-		u8	iu_rbr;	/* read only, DLAB == 0 */
+-		u8	iu_thr;	/* write only, DLAB == 0 */
+-		u8	iu_dll;	/* DLAB == 1 */
++		u8	iu_iir;	/* read only */
++		u8	iu_fcr;	/* write only */
+ 	};
+ 	union {
+ 		u8	iu_ier;	/* DLAB == 0 */
+ 		u8	iu_dlm;	/* DLAB == 1 */
+ 	};
+ 	union {
+-		u8	iu_iir;	/* read only */
+-		u8	iu_fcr;	/* write only */
++		u8	iu_rbr;	/* read only, DLAB == 0 */
++		u8	iu_thr;	/* write only, DLAB == 0 */
++		u8	iu_dll;	/* DLAB == 1 */
+ 	};
+-	u8	iu_lcr;
+-	u8	iu_mcr;
+-	u8	iu_lsr;
+-	u8	iu_msr;
+ 	u8	iu_scr;
++	u8	iu_msr;
++	u8	iu_lsr;
++	u8	iu_mcr;
+ };
+ 
+ struct ioc3_sioregs {
+ 	u8	fill[0x141];	/* starts at 0x141 */
+ 
+-	u8	uartc;
+ 	u8	kbdcg;
++	u8	uartc;
+ 
+-	u8	fill0[0x150 - 0x142 - 1];
++	u8	fill0[0x151 - 0x142 - 1];
+ 
+-	u8	pp_data;
+-	u8	pp_dsr;
+ 	u8	pp_dcr;
++	u8	pp_dsr;
++	u8	pp_data;
+ 
+-	u8	fill1[0x158 - 0x152 - 1];
++	u8	fill1[0x159 - 0x153 - 1];
+ 
+-	u8	pp_fifa;
+-	u8	pp_cfgb;
+ 	u8	pp_ecr;
++	u8	pp_cfgb;
++	u8	pp_fifa;
+ 
+-	u8	fill2[0x168 - 0x15a - 1];
++	u8	fill2[0x16a - 0x15b - 1];
+ 
+-	u8	rtcad;
+ 	u8	rtcdat;
++	u8	rtcad;
+ 
+-	u8	fill3[0x170 - 0x169 - 1];
++	u8	fill3[0x170 - 0x16b - 1];
+ 
+ 	struct ioc3_uartregs	uartb;	/* 0x20170  */
+ 	struct ioc3_uartregs	uarta;	/* 0x20178  */
+diff --git a/drivers/net/ethernet/sgi/ioc3-eth.c b/drivers/net/ethernet/sgi/ioc3-eth.c
+index d242906ae233..4ebb58b8572e 100644
+--- a/drivers/net/ethernet/sgi/ioc3-eth.c
++++ b/drivers/net/ethernet/sgi/ioc3-eth.c
+@@ -1079,6 +1079,16 @@ static int ioc3_is_menet(struct pci_dev *pdev)
+  * Can't use UPF_IOREMAP as the whole of IOC3 resources have already been
+  * registered.
+  */
++static unsigned int ioc3_serial_in(struct uart_port *p, int offset)
++{
++	return readb(p->membase + (offset ^ 3));
++}
++
++static void ioc3_serial_out(struct uart_port *p, int offset, int value)
++{
++	writeb(value, p->membase + (offset ^ 3));
++}
++
+ static void ioc3_8250_register(struct ioc3_uartregs __iomem *uart)
+ {
+ #define COSMISC_CONSTANT 6
+@@ -1093,6 +1103,8 @@ static void ioc3_8250_register(struct ioc3_uartregs __iomem *uart)
+ 
+ 			.membase	= (unsigned char __iomem *)uart,
+ 			.mapbase	= (unsigned long)uart,
++			.serial_in	= ioc3_serial_in,
++			.serial_out	= ioc3_serial_out,
+ 		}
+ 	};
+ 	unsigned char lcr;
+diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+index d3a75d447fce..e8194f1f01a8 100644
+--- a/drivers/rtc/rtc-m48t35.c
++++ b/drivers/rtc/rtc-m48t35.c
+@@ -20,6 +20,16 @@
+ 
+ struct m48t35_rtc {
+ 	u8	pad[0x7ff8];    /* starts at 0x7ff8 */
++#ifdef CONFIG_SGI_IP27
++	u8	hour;
++	u8	min;
++	u8	sec;
++	u8	control;
++	u8	year;
++	u8	month;
++	u8	date;
++	u8	day;
++#else
+ 	u8	control;
+ 	u8	sec;
+ 	u8	min;
+@@ -28,6 +38,7 @@ struct m48t35_rtc {
+ 	u8	date;
+ 	u8	month;
+ 	u8	year;
++#endif
+ };
+ 
+ #define M48T35_RTC_SET		0x80
+-- 
+2.24.1
 
