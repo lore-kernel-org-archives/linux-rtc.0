@@ -1,119 +1,125 @@
-Return-Path: <SRS0=0Ous=26=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=SppJ=27=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76957C33CA4
-	for <linux-rtc@archiver.kernel.org>; Thu,  9 Jan 2020 21:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 855CBC33C99
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Jan 2020 07:08:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4D5B52067D
-	for <linux-rtc@archiver.kernel.org>; Thu,  9 Jan 2020 21:31:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1578605473;
-	bh=4EMl2lbsCT786Q4E/I2hFEzGFcdCtyZCHhd/Zegwdtw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:List-ID:From;
-	b=zAkwz+b+XTFkKeVIrb8TYUWT8tYSUt2TbWdIRSXfMdcsf8y4L9dfXbq4wii9uZujf
-	 L24hZklooEqZ8Q6+sqMPSXw9NevpjeaE0HJi+iijgRb2mBggTzPxAvhVGCPSPCPntR
-	 sbcIz9rpkbMVEwaQsf1WLvknwV6L3NX+wNIA+5hQ=
+	by mail.kernel.org (Postfix) with ESMTP id 3B93E2080D
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Jan 2020 07:08:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="n72BZQ67"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbgAIVbI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 9 Jan 2020 16:31:08 -0500
-Received: from foss.arm.com ([217.140.110.172]:37060 "EHLO foss.arm.com"
+        id S1726319AbgAJHIj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 10 Jan 2020 02:08:39 -0500
+Received: from mail.andi.de1.cc ([85.214.55.253]:45218 "EHLO mail.andi.de1.cc"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725763AbgAIVbI (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 9 Jan 2020 16:31:08 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 59B6931B;
-        Thu,  9 Jan 2020 13:31:07 -0800 (PST)
-Received: from localhost (unknown [10.37.6.21])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BB1DB3F534;
-        Thu,  9 Jan 2020 13:31:06 -0800 (PST)
-Date:   Thu, 09 Jan 2020 21:31:05 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
-        broonie@kernel.org, devicetree@vger.kernel.org,
-        dmaengine@vger.kernel.org, eugen.hristev@microchip.com,
-        jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de,
-        lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org,
-        linux-can@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-rtc@vger.kernel.org,
-        linux-spi@vger.kernel.org, ludovic.desroches@microchip.com,
-        Mark Brown <broonie@kernel.org>, mark.rutland@arm.com,
-        mchehab@kernel.org, miquel.raynal@bootlin.com, mkl@pengutronix.de,
-        netdev@vger.kernel.org, nicolas.ferre@microchip.com,
-        pmeerw@pmeerw.net, radu_nicolae.pirea@upb.ro,
-        richard.genoud@gmail.com, richard@nod.at, robh+dt@kernel.org,
-        tudor.ambarus@microchip.com, vigneshr@ti.com, vkoul@kernel.org,
-        wg@grandegger.com
-Subject: Applied "dt-bindings: spi_atmel: add microchip,sam9x60-spi" to the spi tree
-In-Reply-To: <1578488123-26127-13-git-send-email-claudiu.beznea@microchip.com>
-Message-Id: <applied-1578488123-26127-13-git-send-email-claudiu.beznea@microchip.com>
-X-Patchwork-Hint: ignore
+        id S1726186AbgAJHIj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 10 Jan 2020 02:08:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:Content-Type:
+        MIME-Version:References:In-Reply-To:Message-ID:Subject:To:From:Date:Sender:
+        Reply-To:Cc:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=449GfKH7sH7qx3uVz7I+DZvudTQJS9ufr7oEB5vY7Bc=; b=n72BZQ67zmmXppM/xkdr0487Kv
+        veCzIUlqMEvfTPlQiEU+MY2d7q6mdgXHkJh42V45xkQ1in2Lg/wZMkoG5SEFnA4GA/VyhufBrk4cW
+        DK3rVmmk87TlII2wB9F/360lSMWaegs2aBeQKC6gzLzmZFywL4JzudH+wEEccF709Zt4=;
+Received: from [2a02:790:ff:1019:7ee9:d3ff:fe1f:a246] (helo=localhost)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1ipoPD-0003jT-04; Fri, 10 Jan 2020 08:08:27 +0100
+Received: from localhost.lan ([::1] helo=localhost)
+        by localhost with esmtp (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1ipoPA-0001VA-Rz; Fri, 10 Jan 2020 08:08:24 +0100
+Date:   Fri, 10 Jan 2020 08:08:24 +0100
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
+        phh@phh.me, letux-kernel@openphoenux.org
+Subject: Re: [PATCH v5 0/5] Add rtc support for rn5t618 mfd
+Message-ID: <20200110080824.727a612d@kemnade.info>
+In-Reply-To: <20191220122416.31881-1-andreas@kemnade.info>
+References: <20191220122416.31881-1-andreas@kemnade.info>
+X-Mailer: Claws Mail 3.14.1 (GTK+ 2.24.31; i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The patch
+Hi,
 
-   dt-bindings: spi_atmel: add microchip,sam9x60-spi
+I hope everyone went well into new year, are there any open
+issues left here preveting applying these patches?
 
-has been applied to the spi tree at
+On Fri, 20 Dec 2019 13:24:11 +0100
+Andreas Kemnade <andreas@kemnade.info> wrote:
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.6
+> In the variant RC5T619 the mfd has an RTC. This patchset adds
+> support for it. To do so it adds the missing register defines in 
+> rn5t618.h and general irq handling for that.
+> It seems that the irq definitions are the same except missing RTC
+missing words ... for the rn5t618 ...
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
-From 0a1eb761ff30cdc089bcc94e1bd540b6956487c5 Mon Sep 17 00:00:00 2001
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
-Date: Wed, 8 Jan 2020 14:55:19 +0200
-Subject: [PATCH] dt-bindings: spi_atmel: add microchip,sam9x60-spi
-
-Add microchip,sam9x60-spi to DT bindings documentation.
-
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/1578488123-26127-13-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- Documentation/devicetree/bindings/spi/spi_atmel.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/spi/spi_atmel.txt b/Documentation/devicetree/bindings/spi/spi_atmel.txt
-index f99c733d75c1..5bb4a8f1df7a 100644
---- a/Documentation/devicetree/bindings/spi/spi_atmel.txt
-+++ b/Documentation/devicetree/bindings/spi/spi_atmel.txt
-@@ -1,7 +1,7 @@
- Atmel SPI device
- 
- Required properties:
--- compatible : should be "atmel,at91rm9200-spi".
-+- compatible : should be "atmel,at91rm9200-spi" or "microchip,sam9x60-spi".
- - reg: Address and length of the register set for the device
- - interrupts: Should contain spi interrupt
- - cs-gpios: chipselects (optional for SPI controller version >= 2 with the
--- 
-2.20.1
-
+> but due to missing ability to test that I do not add them here.
+> 
+> The rtc driver itself is based on 
+> https://github.com/kobolabs/Kobo-Reader/blob/master/hw/imx6sll-clara/kernel.tar.bz2
+> but heavily reworked.
+> 
+> It was tested on the Kobo Clara HD.
+> 
+> For cleaning up there is a separate off-topic patch:
+> mfd: rn5t618: cleanup i2c_device_id
+> 
+> Changes in v5:
+> - static rn5t618_irq_init
+> - PLATFORM_DEVID_NONE
+> - added some Acked-Bys
+> 
+> Changes in v4:
+> - use macros for IRQ definitions
+> - merge rn5t618-core.c and rn5t618-irq.c
+> 
+> Changes in v3:
+> - alignment cleanup
+> - output cleanup, remove useless toggling of alarm flag in rtc probe
+> - updated bindings description, so patch 1/5 becomes 2/6 and so on
+> 
+> Changes in v2:
+> - no dead code in irq code
+> - various improvements and cleanups in rtc driver itself
+> 
+> Andreas Kemnade (5):
+>   dt-bindings: mfd: rn5t618: Document optional property interrupts
+>   mfd: rn5t618: add IRQ support
+>   mfd: rn5t618: add RTC related registers
+>   mfd: rn5t618: add more subdevices
+>   rtc: rc5t619: add ricoh rc5t619 RTC driver
+> 
+>  Documentation/devicetree/bindings/mfd/rn5t618.txt |   4 +
+>  drivers/mfd/Kconfig                               |   1 +
+>  drivers/mfd/rn5t618.c                             | 109 +++++-
+>  drivers/rtc/Kconfig                               |  10 +
+>  drivers/rtc/Makefile                              |   1 +
+>  drivers/rtc/rtc-rc5t619.c                         | 444 ++++++++++++++++++++++
+>  include/linux/mfd/rn5t618.h                       |  26 ++
+>  7 files changed, 593 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/rtc/rtc-rc5t619.c
+> 
+> -- 
+> 2.11.0
+> 
+> 
