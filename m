@@ -6,18 +6,18 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B61F2C4741C
-	for <linux-rtc@archiver.kernel.org>; Tue, 14 Jan 2020 10:24:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE2F7C33CB6
+	for <linux-rtc@archiver.kernel.org>; Tue, 14 Jan 2020 10:24:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9701A207FF
-	for <linux-rtc@archiver.kernel.org>; Tue, 14 Jan 2020 10:24:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A020524679
+	for <linux-rtc@archiver.kernel.org>; Tue, 14 Jan 2020 10:24:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbgANKXo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 14 Jan 2020 05:23:44 -0500
+        id S1729551AbgANKXi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 14 Jan 2020 05:23:38 -0500
 Received: from esa5.microchip.iphmx.com ([216.71.150.166]:50521 "EHLO
         esa5.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729638AbgANKXm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Jan 2020 05:23:42 -0500
+        with ESMTP id S1729332AbgANKXi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 14 Jan 2020 05:23:38 -0500
 Received-SPF: Pass (esa5.microchip.iphmx.com: domain of
   Claudiu.Beznea@microchip.com designates 198.175.253.82 as
   permitted sender) identity=mailfrom;
@@ -37,22 +37,22 @@ Received-SPF: None (esa5.microchip.iphmx.com: no sender
   x-sender="postmaster@email.microchip.com";
   x-conformance=spf_only
 Authentication-Results: esa5.microchip.iphmx.com; dkim=none (message not signed) header.i=none; spf=Pass smtp.mailfrom=Claudiu.Beznea@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dmarc=pass (p=none dis=none) d=microchip.com
-IronPort-SDR: UPBRsxwdg7cVboIF7Xz5TfzLjGwahOYqBxXCYicHf/tctOE84wQwVAe/7pUQOKCxh1krbuEtXi
- l43ufSX010+iVkt8/hlTu0QUrf8X6gfnGVbZ06iFzL1gIzFpbTTvNxV5M8CNa/Mjo4PeHEDqNv
- ZJVHQ7yTqxe1paB2i6RvQxs+Cna1kn8VNMtdhD59g0J/cH0jDtgjCGijzwaPcWOzjISCdsih2X
- kTuQoeZMjCX/7PLmk0Q9DdY19xUExdgDr5jNu6jfuF1Xh7YsAv90g+epKBDP5tqibQGxabXJNp
- T44=
+IronPort-SDR: taTAT14FQfDwP/6OHU6jkpvYy4c2V+rnFU21nD2MW2MsyrypWTLZvkJ9F1wG5EDxBT4Wp5Z4Yd
+ tThj9DyqO6ml7L2ZVaHBBVYJbOY9RXVlu+sew5Y6/fVPqobia2DGX86OtXOU2cVE5WJSNUoVKx
+ 6BZtAbmsYkIIZxkTJ9HljlmAaaz8Wzq+BSGDJoTNSMTmQ7bNbU7C654iD3rtkMDxZA/D5n27tQ
+ Uo+fLAWUFlrGiatYG8JCG9EU8b+dfRPza72ok8S8KHDKe2MgUInXxaTlJ6lmHiZ3iSmv69M6oF
+ M+E=
 X-IronPort-AV: E=Sophos;i="5.69,432,1571727600"; 
-   d="scan'208";a="61849239"
+   d="scan'208";a="61849231"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 14 Jan 2020 03:23:42 -0700
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 14 Jan 2020 03:23:38 -0700
 Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Tue, 14 Jan 2020 03:23:41 -0700
+ 15.1.1713.5; Tue, 14 Jan 2020 03:23:37 -0700
 Received: from m18063-ThinkPad-T460p.mchp-main.com (10.10.85.251) by
  chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
- 15.1.1713.5 via Frontend Transport; Tue, 14 Jan 2020 03:23:37 -0700
+ 15.1.1713.5 via Frontend Transport; Tue, 14 Jan 2020 03:23:32 -0700
 From:   Claudiu Beznea <claudiu.beznea@microchip.com>
 To:     <robh+dt@kernel.org>, <lee.jones@linaro.org>,
         <mark.rutland@arm.com>, <nicolas.ferre@microchip.com>,
@@ -64,9 +64,9 @@ CC:     <devicetree@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <linux-spi@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>,
         Claudiu Beznea <claudiu.beznea@microchip.com>
-Subject: [PATCH v3 3/7] dt-bindings: atmel,at91rm9200-rtc: add microchip,sam9x60-rtc
-Date:   Tue, 14 Jan 2020 12:23:13 +0200
-Message-ID: <1578997397-23165-4-git-send-email-claudiu.beznea@microchip.com>
+Subject: [PATCH v3 2/7] dt-bindings: atmel-tcb: add microchip,sam9x60-tcb
+Date:   Tue, 14 Jan 2020 12:23:12 +0200
+Message-ID: <1578997397-23165-3-git-send-email-claudiu.beznea@microchip.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1578997397-23165-1-git-send-email-claudiu.beznea@microchip.com>
 References: <1578997397-23165-1-git-send-email-claudiu.beznea@microchip.com>
@@ -77,39 +77,25 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add microchip,sam9x60-rtc to DT bindings documentation.
+Add microchip,sam9x60-tcb to DT bindings documentation.
 
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
+ Documentation/devicetree/bindings/mfd/atmel-tcb.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-Hi Alexandre,
-
-I kept this patch as in v1 (same for patch
-"dt-bindings: atmel-tcb: add microchip,sam9x60-tcb").
-I'm waiting your response to this version and take an action aftewards.
-
-Thank you,
-Claudiu Beznea
-
- Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
-index 5d3791e789c6..35eab9138d0b 100644
---- a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.txt
-@@ -1,7 +1,8 @@
- Atmel AT91RM9200 Real Time Clock
- 
- Required properties:
--- compatible: should be: "atmel,at91rm9200-rtc" or "atmel,at91sam9x5-rtc"
-+- compatible: should be: "atmel,at91rm9200-rtc", "atmel,at91sam9x5-rtc" or
-+  "microchip,sam9x60-rtc"
- - reg: physical base address of the controller and length of memory mapped
-   region.
- - interrupts: rtc alarm/event interrupt
+diff --git a/Documentation/devicetree/bindings/mfd/atmel-tcb.txt b/Documentation/devicetree/bindings/mfd/atmel-tcb.txt
+index 8b197db8a3c3..5c78f46ff204 100644
+--- a/Documentation/devicetree/bindings/mfd/atmel-tcb.txt
++++ b/Documentation/devicetree/bindings/mfd/atmel-tcb.txt
+@@ -2,6 +2,7 @@
+ - compatible: Should be one of the following:
+ 	- "atmel,at91rm9200-tcb"
+ 	- "atmel,at91sam9x5-tcb"
++	- "microchip,sam9x60-tcb"
+   followed by: "simple-mfd", "syscon"
+ - reg: Should contain registers location and length
+ - #address-cells: has to be 1
 -- 
 2.7.4
 
