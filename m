@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 300A8C33CB3
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:37:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA529C33CB6
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:45:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F0F10246B7
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:37:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BBE924771
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579196234;
-	bh=OTfyqL13mP7+4AKTzIHZPyB8/MGAlw88DMRmtis+I9c=;
+	s=default; t=1579196719;
+	bh=k6NqwYjkAzGyZhuFx7sYDANLh/1m695dI/1xf+8H3Ic=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=rOFYWlemYG/6zxiHtTqE55O+zWzS7fN/2GiQVVwl8MdrF5AV4IxXeXiE02FW/zGXM
-	 ezrgqYh+In/KvMvWuR4EniJtXvEtzPQhOf7ni3d+LMT0Bztb4erawZNtowLB5lZ0tj
-	 OjSytu7PbEi64xTJoFKosfw2me0S4iFQO8co0P3s=
+	b=niCzAeXWMyjdQEVxsnRHzMPfQG2cEUDK1xyGl80+3JxL2UaNl43cm5fHtzdaKPk9Q
+	 GwtHjVs44A06QcPB4oi3yQm0lGPToDkwzDW5fwE0Lcmnk7m2K3B1phkaMSWuxhsB4s
+	 YuZWODWcOASMeBBqyWCXMPdYbAkKclKyLHUNVmmw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405326AbgAPRhM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 12:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
+        id S2406161AbgAPRpT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 12:45:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405322AbgAPRhL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:37:11 -0500
+        id S2406150AbgAPRpQ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:45:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0B21246B9;
-        Thu, 16 Jan 2020 17:37:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C40924782;
+        Thu, 16 Jan 2020 17:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196230;
-        bh=OTfyqL13mP7+4AKTzIHZPyB8/MGAlw88DMRmtis+I9c=;
+        s=default; t=1579196716;
+        bh=k6NqwYjkAzGyZhuFx7sYDANLh/1m695dI/1xf+8H3Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvBmPZEEXOD2MfIApSAPka3dt08xR3oclZv7lK10vQ9PN26AmN8lgi6sg5HP4PRno
-         QJausW8mXboMrjINklBzrlA/pEIfYpVETZoZR5IjZHVbt9LhWbMCvumhW0RGC4IqW5
-         mofMLs1N/ZKjvMzaYCf46Em0NbPjmmgplbFB5v4Q=
+        b=qJdxnSDQQFAthtjHm7QdkdWpQkuN4PRfqBu7x2PP/GNIjoSmtDhXnjv+SKvBKC1Y0
+         1cOMrh5Y/bWZ9R2woDx2V9dfdK76oAp7rbPt5dWawsjIRrkEMZfyD459f91POx4kXE
+         vPmGIzaRDPYa2sShoV4aLxti8PuOqARwAuAb02eU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
+Cc:     Chen-Yu Tsai <wens@csie.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 062/251] rtc: pm8xxx: fix unintended sign extension
-Date:   Thu, 16 Jan 2020 12:33:31 -0500
-Message-Id: <20200116173641.22137-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 104/174] rtc: pcf8563: Clear event flags and disable interrupts before requesting irq
+Date:   Thu, 16 Jan 2020 12:41:41 -0500
+Message-Id: <20200116174251.24326-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
-References: <20200116173641.22137-1-sashal@kernel.org>
+In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
+References: <20200116174251.24326-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,51 +58,58 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit e42280886018c6f77f0a90190f7cba344b0df3e0 ]
+[ Upstream commit 3572e8aea3bf925dac1dbf86127657c39fe5c254 ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+Besides the alarm, the PCF8563 also has a timer triggered interrupt.
+In cases where the previous system left the timer and interrupts on,
+or somehow the bits got enabled, the interrupt would keep triggering
+as the kernel doesn't know about it.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
+Clear both the alarm and timer event flags, and disable the interrupts,
+before requesting the interrupt line.
 
-Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
-
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
+Fixes: a45d528aab8b ("rtc: pcf8563: clear expired alarm at boot time")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf8563.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index fac835530671..a1b4b0ed1f19 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -186,7 +186,8 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 		}
+diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
+index 45b5a3d47ccf..1982eec0a3ea 100644
+--- a/drivers/rtc/rtc-pcf8563.c
++++ b/drivers/rtc/rtc-pcf8563.c
+@@ -568,7 +568,6 @@ static int pcf8563_probe(struct i2c_client *client,
+ 	struct pcf8563 *pcf8563;
+ 	int err;
+ 	unsigned char buf;
+-	unsigned char alm_pending;
+ 
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+ 
+@@ -594,13 +593,13 @@ static int pcf8563_probe(struct i2c_client *client,
+ 		return err;
  	}
  
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, tm);
- 
-@@ -267,7 +268,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		return rc;
+-	err = pcf8563_get_alarm_mode(client, NULL, &alm_pending);
+-	if (err) {
+-		dev_err(&client->dev, "%s: read error\n", __func__);
++	/* Clear flags and disable interrupts */
++	buf = 0;
++	err = pcf8563_write_block_data(client, PCF8563_REG_ST2, 1, &buf);
++	if (err < 0) {
++		dev_err(&client->dev, "%s: write error\n", __func__);
+ 		return err;
  	}
+-	if (alm_pending)
+-		pcf8563_set_alarm_mode(client, 0);
  
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
-+	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-+	       ((unsigned long)value[3] << 24);
- 
- 	rtc_time_to_tm(secs, &alarm->time);
- 
+ 	pcf8563->rtc = devm_rtc_device_register(&client->dev,
+ 				pcf8563_driver.driver.name,
 -- 
 2.20.1
 
