@@ -7,51 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED249C33CAF
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:09:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AD26C33CB3
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:09:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BA99D206E6
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:09:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D95A206E6
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579201774;
-	bh=9CmACRvCZ9RqL8YToPIX7SMPU7HhhkHZU9u2iIPl+8w=;
+	s=default; t=1579201787;
+	bh=4KwJYEY4NLAQPKKbonyJb+ZFRqThbJv4RYUN1FP+KZk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=PmVrp3DY5RgOPEQDZ3HbcwR7h2lGhNv0nEXgZfb9kn6k5Jb3jsZdyDAPHEZZ8p841
-	 dmlXWaCZVM9ngq8iLBS6VorDddZTsC8OJfP1iJVVRbnVZY1Zw9Hg19QZK6WcQnbNuL
-	 CYYeAX/Vy00hkUjndCA/mUrb00PdCNV35Qoompxc=
+	b=Qrnq8cxGxEz1GMwABaQEVj0+0Xje6ALomEBZVLmVOxeDuwAOouRQeUkHDnLmncerO
+	 4QzfzucG5D53AQxwm7hUjz/Jj2/KP6A2xtlt4kedqqguct81Kq4bC/0bD0UslZwnZD
+	 OkqBIFdbxPaDpdMsl5pcqXuFnPg+5ySSLCOv2+l8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387892AbgAPRAq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 12:00:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50806 "EHLO mail.kernel.org"
+        id S2387860AbgAPRAk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 12:00:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387888AbgAPRAq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:00:46 -0500
+        id S2387857AbgAPRAj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:00:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A988F2077B;
-        Thu, 16 Jan 2020 17:00:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3816020730;
+        Thu, 16 Jan 2020 17:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194045;
-        bh=9CmACRvCZ9RqL8YToPIX7SMPU7HhhkHZU9u2iIPl+8w=;
+        s=default; t=1579194039;
+        bh=4KwJYEY4NLAQPKKbonyJb+ZFRqThbJv4RYUN1FP+KZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxfPwdKoJGwtVdu/MoBLYjSiFqkPmatBNsb0vDEa7K4ya7cwgFw6RiQwH5ROej28Z
-         uLOGenRcwn62c2Lx4A3LEv3aE6LLhYs9cmc3zZHseyocoieGTHHjrsGcvpJIeDZJ/o
-         fqcj4ARsYhj2fqSKj3gw2D6CPWj5+Kub7aI5XksA=
+        b=NLq8vCNXU3Gya7ugD7dgcICrG2T/NGdNHP+m0SxlO0UUtH+Y+dfHqve+2GAqVw49a
+         X+5qmaE5+jC9tT6L1Ljna5ZXd92E0RT0s6roL+oNtqAXtLxZ79RwpCSbjLTBNasFvl
+         kuhteyGH4wBm1oUzbEB8qUfS6L16ktCsTVihY1Nw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+Cc:     Colin Ian King <colin.king@canonical.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 161/671] rtc: ds1307: rx8130: Fix alarm handling
-Date:   Thu, 16 Jan 2020 11:51:10 -0500
-Message-Id: <20200116165940.10720-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 156/671] rtc: ds1672: fix unintended sign extension
+Date:   Thu, 16 Jan 2020 11:51:05 -0500
+Message-Id: <20200116165940.10720-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116165940.10720-1-sashal@kernel.org>
 References: <20200116165940.10720-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,52 +58,41 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 3f929cad943380370b6db31fcb7a38d898d91089 ]
+[ Upstream commit f0c04c276739ed8acbb41b4868e942a55b128dca ]
 
-When the EXTENSION.WADA bit is set, register 0x19 contains a bitmap of
-week days, not a day of month. As Linux only handles a single alarm
-without repetition using day of month is more flexible, so clear this
-bit. (Otherwise a value depending on time.tm_wday would have to be
-written to register 0x19.)
+Shifting a u8 by 24 will cause the value to be promoted to an integer. If
+the top bit of the u8 is set then the following conversion to an unsigned
+long will sign extend the value causing the upper 32 bits to be set in
+the result.
 
-Also optimize setting the AIE bit to use a single register write instead
-of a bulk write of three registers.
+Fix this by casting the u8 value to an unsigned long before the shift.
 
-Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Detected by CoverityScan, CID#138801 ("Unintended sign extension")
+
+Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1307.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-ds1672.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 71396b62dc52..ebd59e86a567 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -749,8 +749,8 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 9caaccccaa57..b1ebca099b0d 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -58,7 +58,8 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ 		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
+ 		__func__, buf[0], buf[1], buf[2], buf[3]);
  
--	ctl[0] &= ~RX8130_REG_EXTENSION_WADA;
--	ctl[1] |= RX8130_REG_FLAG_AF;
-+	ctl[0] &= RX8130_REG_EXTENSION_WADA;
-+	ctl[1] &= ~RX8130_REG_FLAG_AF;
- 	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
+-	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++	time = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
++	       (buf[1] << 8) | buf[0];
  
- 	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
-@@ -773,8 +773,7 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	rtc_time_to_tm(time, tm);
  
- 	ctl[2] |= RX8130_REG_CONTROL0_AIE;
- 
--	return regmap_bulk_write(ds1307->regmap, RX8130_REG_EXTENSION, ctl,
--				 sizeof(ctl));
-+	return regmap_write(ds1307->regmap, RX8130_REG_CONTROL0, ctl[2]);
- }
- 
- static int rx8130_alarm_irq_enable(struct device *dev, unsigned int enabled)
 -- 
 2.20.1
 
