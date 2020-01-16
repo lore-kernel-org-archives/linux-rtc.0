@@ -4,48 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94F5AC3F68F
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:50:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D78C33CB6
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:02:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 58745206B7
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:50:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 592CF206D7
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579200645;
-	bh=OI/m1Gx2TY/Qme7Qza/LH9tOD5k0vJmo+OSFylDlFdg=;
+	s=default; t=1579201375;
+	bh=Hv37BfS55KKDAbh7Qq/n5MYz80MnjEqtZFsgK6Mdv/o=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=ork/bDQ4mI+Pc6T3hZUtxLFTpTIzrU2ZgtQpfFQY05a5DujBGU/2wnUxW0Io7lBEL
-	 9W3XtXtNJ9Ckwf9sYoP4rG9UdQvrpM6dlDe3vqY0DdFi9NT2N1qxaVHZ37NDAtAtFA
-	 aj/CsgfbeEKo7QayRISCR26zNckIGfy4Lh2V/CfM=
+	b=icCzCe1U2brpaKSryqp0xEz3SzJCSHB4gu2gOFRl9U+Mf5iRIH/3pGk/WodlMyJUu
+	 BYMbtoK3dygspGrzK+NUwLzjicsJIPmK2b6B4vwKURfLZo3Q2vNbBhbGuqNmRXtFi6
+	 bmdG9vq/0HSpatSMkD/lwpCA9JykaMqwdK/ekjss=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389885AbgAPSuo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 13:50:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43864 "EHLO mail.kernel.org"
+        id S2388746AbgAPRFd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 12:05:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389551AbgAPRI7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:08:59 -0500
+        id S2388740AbgAPRFc (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:05:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04B0421D56;
-        Thu, 16 Jan 2020 17:08:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4079A24684;
+        Thu, 16 Jan 2020 17:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579194538;
-        bh=OI/m1Gx2TY/Qme7Qza/LH9tOD5k0vJmo+OSFylDlFdg=;
+        s=default; t=1579194331;
+        bh=Hv37BfS55KKDAbh7Qq/n5MYz80MnjEqtZFsgK6Mdv/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOTzAaYAs3JeVxcLbL5Y7I4eqnY6PCMFxVhEMeulwpSjnSdq1uRvSpjaDeVowsDzn
-         oQhEN+Iyhan9QvtGAgLLWByX+qjLvudSNQj16/NnWQ6K6eCXb86DQ/V+BqaUZr6Ff8
-         /iVaHfyCNyG2JWIbMocUXVWCT/NkF/YIqGb8NAYo=
+        b=AQ/uDMdir2IB3IrBlV2W3YTW8sv0wY7TTiSHV3sflENNBUKSmnS7P1pyACU8+cnJS
+         sUME1CAOQWUPYx/Veep3HNMjzg6eyPrnsBUnKAemLUQ6kh7KnFT0yYKwcQScsVmLC2
+         sm5wloc9N4aqok52LqwZSQWVTYNTj32bMD1aYgMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen-Yu Tsai <wens@csie.org>,
+Cc:     Pi-Hsun Shih <pihsun@chromium.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 425/671] rtc: pcf8563: Fix interrupt trigger method
-Date:   Thu, 16 Jan 2020 12:01:03 -0500
-Message-Id: <20200116170509.12787-162-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 278/671] rtc: mt6397: Don't call irq_dispose_mapping.
+Date:   Thu, 16 Jan 2020 11:58:36 -0500
+Message-Id: <20200116170509.12787-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116170509.12787-1-sashal@kernel.org>
 References: <20200116170509.12787-1-sashal@kernel.org>
@@ -58,36 +60,59 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit 65f662cbf829834fa4d94190eb7691e5a9cb92d8 ]
+[ Upstream commit 24db953e942bd7a983e97892bdaddf69d00b1199 ]
 
-The PCF8563 datasheet says the interrupt line is active low and stays
-active until the events are cleared, i.e. a level trigger interrupt.
+The IRQ mapping was changed to not being created in the rtc-mt6397
+driver, so the irq_dispose_mapping is no longer needed.
+Also the dev_id passed to free_irq should be the same as the last
+argument passed to request_threaded_irq.
+This prevents a "Trying to free already-free IRQ 274" warning when
+unbinding the driver.
 
-Fix the flags used to request the interrupt.
-
-Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Fixes: e695d3a0b3b3 ("mfd: mt6397: Create irq mappings in mfd core driver")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-mt6397.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 3efc86c25d27..e358313466f1 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -605,7 +605,7 @@ static int pcf8563_probe(struct i2c_client *client,
- 	if (client->irq > 0) {
- 		err = devm_request_threaded_irq(&client->dev, client->irq,
- 				NULL, pcf8563_irq,
--				IRQF_SHARED|IRQF_ONESHOT|IRQF_TRIGGER_FALLING,
-+				IRQF_SHARED | IRQF_ONESHOT | IRQF_TRIGGER_LOW,
- 				pcf8563_driver.driver.name, client);
- 		if (err) {
- 			dev_err(&client->dev, "unable to request IRQ %d\n",
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index e9a25ec4d434..c06cf5202e02 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -343,7 +343,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+ 			rtc->irq, ret);
+-		goto out_dispose_irq;
++		return ret;
+ 	}
+ 
+ 	device_init_wakeup(&pdev->dev, 1);
+@@ -359,9 +359,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ out_free_irq:
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-out_dispose_irq:
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 	return ret;
+ }
+ 
+@@ -369,8 +367,7 @@ static int mtk_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
+ 
+-	free_irq(rtc->irq, rtc->rtc_dev);
+-	irq_dispose_mapping(rtc->irq);
++	free_irq(rtc->irq, rtc);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
