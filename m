@@ -7,46 +7,45 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A39C9C33CB6
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:21:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A2A3C33CAF
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:24:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 752DB20661
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:21:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 61A1E207FF
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 19:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579202517;
-	bh=WOatxWdEkr1/WBsWme1t5rvPG8MeDirT7jnJezUPyHY=;
+	s=default; t=1579202645;
+	bh=yu1pKmc/UuygvIf1h74p6ClN+6r0N/CpuaWnqJNI+8s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=kD9T9xMsQ/7zLxjfQHZH/2gbKYb8JCA6/+7gZCi1/V4tyDrxL71/8TaZPN6WME+Sn
-	 Cs8olhpXobSLhLtN5PUpC+IIbZ0fFZmPa2dms1XzmAuDtDDXTqdDZJeMCVBvqM2Bxx
-	 7t2ZazKUVk+B+SqbmQrLvQ7gWJ0YUp2uMWtLd5F4=
+	b=UfH+MVuSGEsoxBi9nPeyKRbYWAkHDABQwDuxEE68QdPVstxnS4HvpcBmvGU0zuHII
+	 kkfBQVe86NunsOtOqP/41njJRhPt5xC0Y7CpQCYcDw1Ce3+cBpEZv5q0m1rXKEEZ28
+	 +b0XleJMfPDmjhxupeKEgRwMYtqMJ9YYghIkAWAg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729147AbgAPQxh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 11:53:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37506 "EHLO mail.kernel.org"
+        id S1730588AbgAPQw6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 11:52:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731064AbgAPQxg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 11:53:36 -0500
+        id S1729610AbgAPQw6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 11:52:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F2202176D;
-        Thu, 16 Jan 2020 16:53:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD1352464B;
+        Thu, 16 Jan 2020 16:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579193616;
-        bh=WOatxWdEkr1/WBsWme1t5rvPG8MeDirT7jnJezUPyHY=;
+        s=default; t=1579193577;
+        bh=yu1pKmc/UuygvIf1h74p6ClN+6r0N/CpuaWnqJNI+8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixjxEeoTNjzdwOnLp0NtEXNn4eNsqpFfBC2R2I5xHzzqN1h3SHj76OT+KIpCv1OEK
-         UQbT602r9jIv8pYqlgVUJVnpAKVt7syDcIK6kRcJPW8uYaJmYrKMOTv+fP1GKW+5rV
-         E3MhhSRNn0rGxy3cArYTv8xWVQ7Ft1vyFlNmr34A=
+        b=zS8X2fd7RoRYvWLaVvVSUHRUiN/D7ljYsFCOGp6KQ5WWj0e6YnGN/RDUnXWROmPeB
+         XTYnL79OYSRA63BvexFCXsWJsLzwN88m5J9MqJBhpEXhw20ESaISQxHxqa6tS6yku8
+         164DM/W4ACkBTqNmc3fvxGEV3ZCdcWjuJArw/rxU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kars de Jong <jongk@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+Cc:     Colin Ian King <colin.king@canonical.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 152/205] rtc: msm6242: Fix reading of 10-hour digit
-Date:   Thu, 16 Jan 2020 11:42:07 -0500
-Message-Id: <20200116164300.6705-152-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 120/205] rtc: bd70528: fix module alias to autoload module
+Date:   Thu, 16 Jan 2020 11:41:35 -0500
+Message-Id: <20200116164300.6705-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116164300.6705-1-sashal@kernel.org>
 References: <20200116164300.6705-1-sashal@kernel.org>
@@ -59,42 +58,31 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Kars de Jong <jongk@linux-m68k.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit e34494c8df0cd96fc432efae121db3212c46ae48 ]
+[ Upstream commit afe19a7ae8b6b6032d04d3895ebd5bbac7fe9f30 ]
 
-The driver was reading the wrong register as the 10-hour digit due to
-a misplaced ')'. It was in fact reading the 1-second digit register due
-to this bug.
+The module alias platform tag contains a spelling mistake. Fix it.
 
-Also remove the use of a magic number for the hour mask and use the define
-for it which was already present.
-
-Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
-Tested-by: Kars de Jong <jongk@linux-m68k.org>
-Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
-Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: f33506abbcdd ("rtc: bd70528: Add MODULE ALIAS to autoload module")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20191106083418.159045-1-colin.king@canonical.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-msm6242.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-bd70528.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-msm6242.c b/drivers/rtc/rtc-msm6242.c
-index 1c2d3c4a4963..b1f2bedee77e 100644
---- a/drivers/rtc/rtc-msm6242.c
-+++ b/drivers/rtc/rtc-msm6242.c
-@@ -133,7 +133,8 @@ static int msm6242_read_time(struct device *dev, struct rtc_time *tm)
- 		      msm6242_read(priv, MSM6242_SECOND1);
- 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
- 		      msm6242_read(priv, MSM6242_MINUTE1);
--	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
-+	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
-+		       MSM6242_HOUR10_HR_MASK) * 10 +
- 		      msm6242_read(priv, MSM6242_HOUR1);
- 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
- 		      msm6242_read(priv, MSM6242_DAY1);
+diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
+index ddfef4d43bab..627037aa66a8 100644
+--- a/drivers/rtc/rtc-bd70528.c
++++ b/drivers/rtc/rtc-bd70528.c
+@@ -491,4 +491,4 @@ module_platform_driver(bd70528_rtc);
+ MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
+ MODULE_DESCRIPTION("BD70528 RTC driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platofrm:bd70528-rtc");
++MODULE_ALIAS("platform:bd70528-rtc");
 -- 
 2.20.1
 
