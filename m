@@ -4,48 +4,48 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A3AC33CB3
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:20:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE68C33CB6
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:34:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CD9B62051A
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:20:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0CE024673
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579198845;
-	bh=ymg0NxErnGtKE2uVNTzOP1nUg39rleRL/N+JyWd4kGw=;
+	s=default; t=1579199642;
+	bh=OTfyqL13mP7+4AKTzIHZPyB8/MGAlw88DMRmtis+I9c=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=i+K83ozB8+Hw1baK9R0s6WXimsLxS8OlM0BFqf4gOKsTrgnDfJ7JYYC7RQdvvLp9P
-	 DqLD//DFN2kOHxw+BA2dEb9w9L9LlQ66MKg4mPnUQN0gSKqTzsojVBEVnJviLm6CQu
-	 eWG4kaIvXNFq8JauuEUzROX0S9LOtsvFGdGn+F5Y=
+	b=1QiN9cpV7DlsBWKdtWW/HETV4zSgJMc1+dxpjXl1le7CS5i4z1/SDkmLceu2nwi2b
+	 +9DsmtOWw5qKszIUJFpPzCG4xXdwatKe0048sZOhShi3PPayyTxZhdeDPz+riDbTyg
+	 QYnCSt3t7NB+y8Hp+ZYJJgRs5kARy+dcXWPq3yDo=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404139AbgAPSUn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 13:20:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38514 "EHLO mail.kernel.org"
+        id S2388291AbgAPSeB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 13:34:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392535AbgAPR17 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:27:59 -0500
+        id S2403793AbgAPRYo (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:24:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82554246E6;
-        Thu, 16 Jan 2020 17:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BF6C2468C;
+        Thu, 16 Jan 2020 17:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579195679;
-        bh=ymg0NxErnGtKE2uVNTzOP1nUg39rleRL/N+JyWd4kGw=;
+        s=default; t=1579195483;
+        bh=OTfyqL13mP7+4AKTzIHZPyB8/MGAlw88DMRmtis+I9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qedmnn0UfE0EppD54rCdV1khCAq9Gdt2APSNAWceEUcq2mcGURI5OAFhwxBKRanwZ
-         ShZH9iZs/uoMs/6ZrW+052aBS0SrKqbQn1G4ONUhsV7H6np6cc0BAb0xXqgz08Afbc
-         /bUQq+uJ3uX+ojHUjTv5L7zbaxXHer3QlfsU673g=
+        b=LxFfS7pDlFy5w39XwvkJ0T7w25YA2VSi6our4s1+8mdPsuhjSMMVl0s/3XDLJmobm
+         4wzsc5Rw6ntoKdu/lzTXtMSIT+wKGe+v8HFlAPUshcj+wDq/M20zE6IsRBtRIpGwfe
+         DCUiVu4gG6l8mnCjFyL+wWUv3PsF5gMzl3X/h7iw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen-Yu Tsai <wens@csie.org>,
+Cc:     Colin Ian King <colin.king@canonical.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 234/371] rtc: pcf8563: Fix interrupt trigger method
-Date:   Thu, 16 Jan 2020 12:21:46 -0500
-Message-Id: <20200116172403.18149-177-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 088/371] rtc: pm8xxx: fix unintended sign extension
+Date:   Thu, 16 Jan 2020 12:19:20 -0500
+Message-Id: <20200116172403.18149-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200116172403.18149-1-sashal@kernel.org>
 References: <20200116172403.18149-1-sashal@kernel.org>
@@ -58,36 +58,51 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 65f662cbf829834fa4d94190eb7691e5a9cb92d8 ]
+[ Upstream commit e42280886018c6f77f0a90190f7cba344b0df3e0 ]
 
-The PCF8563 datasheet says the interrupt line is active low and stays
-active until the events are cleared, i.e. a level trigger interrupt.
+Shifting a u8 by 24 will cause the value to be promoted to an integer. If
+the top bit of the u8 is set then the following conversion to an unsigned
+long will sign extend the value causing the upper 32 bits to be set in
+the result.
 
-Fix the flags used to request the interrupt.
+Fix this by casting the u8 value to an unsigned long before the shift.
 
-Fixes: ede3e9d47cca ("drivers/rtc/rtc-pcf8563.c: add alarm support")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
+
+Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8563.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-pm8xxx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8563.c b/drivers/rtc/rtc-pcf8563.c
-index 8c836c51a508..ef04472dde1d 100644
---- a/drivers/rtc/rtc-pcf8563.c
-+++ b/drivers/rtc/rtc-pcf8563.c
-@@ -605,7 +605,7 @@ static int pcf8563_probe(struct i2c_client *client,
- 	if (client->irq > 0) {
- 		err = devm_request_threaded_irq(&client->dev, client->irq,
- 				NULL, pcf8563_irq,
--				IRQF_SHARED|IRQF_ONESHOT|IRQF_TRIGGER_FALLING,
-+				IRQF_SHARED | IRQF_ONESHOT | IRQF_TRIGGER_LOW,
- 				pcf8563_driver.driver.name, client);
- 		if (err) {
- 			dev_err(&client->dev, "unable to request IRQ %d\n",
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index fac835530671..a1b4b0ed1f19 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -186,7 +186,8 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		}
+ 	}
+ 
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
+ 
+ 	rtc_time_to_tm(secs, tm);
+ 
+@@ -267,7 +268,8 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 		return rc;
+ 	}
+ 
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
+ 
+ 	rtc_time_to_tm(secs, &alarm->time);
+ 
 -- 
 2.20.1
 
