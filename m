@@ -7,48 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA183C33CAF
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:57:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC56C33CAF
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:00:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9CD992073A
-	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 17:57:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A80D0214AF
+	for <linux-rtc@archiver.kernel.org>; Thu, 16 Jan 2020 18:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1579197427;
-	bh=wktD1BteLyPPyytIdN3IcJavNeMlILjGaeCO9Oss1nM=;
+	s=default; t=1579197653;
+	bh=66Uh4hQFwl8UL/i/f+/bSnuAUf2QPxZlPm6iSXIho1Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=I2VszlXQ2QjsTYZPZFzIgeLQpyNESOfJ/GsRAqqPnsGkBZBogNa0tBOCPZT+XOxlW
-	 2+KtkoRGSWcG6ZjouTxsDszlmEopfQdCYWLQHvn39pHBVCVqhWwgySK6wlKPqMhiA7
-	 s4V9Msf7CW0I6tVwOgGNs7jFVd7wFjAKV27RnJOA=
+	b=0YCZWXHz3gOMg15kyHINF96P7MTjBIwVdGAY/i2oDi4F7xVRTBZbs3qF+2dDoC0QZ
+	 uDcYcO1mIKc8NLujZZqhK/YlVG/YsTqp9elWGva7LPfxlRzB1l42kyHCmHJhEKvtCS
+	 W8Yzb/pS/m/KZr7vhGvFPxr1iO73355jq7/LS9wI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394143AbgAPR5G (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 16 Jan 2020 12:57:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33948 "EHLO mail.kernel.org"
+        id S2394675AbgAPSAp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 16 Jan 2020 13:00:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393971AbgAPRnl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 16 Jan 2020 12:43:41 -0500
+        id S2405768AbgAPRll (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 16 Jan 2020 12:41:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5394424748;
-        Thu, 16 Jan 2020 17:43:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A20524695;
+        Thu, 16 Jan 2020 17:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1579196621;
-        bh=wktD1BteLyPPyytIdN3IcJavNeMlILjGaeCO9Oss1nM=;
+        s=default; t=1579196500;
+        bh=66Uh4hQFwl8UL/i/f+/bSnuAUf2QPxZlPm6iSXIho1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/iF/GoXI6Hk2YslHdzWWQCB+52mQ+KzqaTDfiy30km0LAFuqhMImRLlKt0Pf+FzZ
-         NHYV4Z4SywYffFCmHOLKBMAl/8L6fzNz+9eba96UehRNAgNaoH2vvbTZU2hN8z1UB9
-         H4/zBZcTQfhiAPNAcxcQ4NjJtrnNOWHJ/A7D+J+g=
+        b=V97JIN6P8o84+RSqS9SbRQBYtCojBbLueZy2s3wBsZZDpXrBxnO+s0r9rVhikezya
+         ssCDrHLyndQkseZ56bKjo65S6KJI9x8FnZ66ObnjgbZkA8iH6u/UFljqTZUi9w0UNA
+         48TK6lqyDEWKwEz1rIfxbiz7IoQnWNi4KAmevb8I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
+Cc:     Kars de Jong <jongk@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 037/174] rtc: ds1672: fix unintended sign extension
-Date:   Thu, 16 Jan 2020 12:40:34 -0500
-Message-Id: <20200116174251.24326-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 242/251] rtc: msm6242: Fix reading of 10-hour digit
+Date:   Thu, 16 Jan 2020 12:36:31 -0500
+Message-Id: <20200116173641.22137-202-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200116174251.24326-1-sashal@kernel.org>
-References: <20200116174251.24326-1-sashal@kernel.org>
+In-Reply-To: <20200116173641.22137-1-sashal@kernel.org>
+References: <20200116173641.22137-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,41 +59,42 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Kars de Jong <jongk@linux-m68k.org>
 
-[ Upstream commit f0c04c276739ed8acbb41b4868e942a55b128dca ]
+[ Upstream commit e34494c8df0cd96fc432efae121db3212c46ae48 ]
 
-Shifting a u8 by 24 will cause the value to be promoted to an integer. If
-the top bit of the u8 is set then the following conversion to an unsigned
-long will sign extend the value causing the upper 32 bits to be set in
-the result.
+The driver was reading the wrong register as the 10-hour digit due to
+a misplaced ')'. It was in fact reading the 1-second digit register due
+to this bug.
 
-Fix this by casting the u8 value to an unsigned long before the shift.
+Also remove the use of a magic number for the hour mask and use the define
+for it which was already present.
 
-Detected by CoverityScan, CID#138801 ("Unintended sign extension")
-
-Fixes: edf1aaa31fc5 ("[PATCH] RTC subsystem: DS1672 driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 4f9b9bba1dd1 ("rtc: Add an RTC driver for the Oki MSM6242")
+Tested-by: Kars de Jong <jongk@linux-m68k.org>
+Signed-off-by: Kars de Jong <jongk@linux-m68k.org>
+Link: https://lore.kernel.org/r/20191116110548.8562-1-jongk@linux-m68k.org
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1672.c | 3 ++-
+ drivers/rtc/rtc-msm6242.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
-index 92b1cbf2c4a7..2bea733b1589 100644
---- a/drivers/rtc/rtc-ds1672.c
-+++ b/drivers/rtc/rtc-ds1672.c
-@@ -60,7 +60,8 @@ static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
- 		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n",
- 		__func__, buf[0], buf[1], buf[2], buf[3]);
- 
--	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
-+	time = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
-+	       (buf[1] << 8) | buf[0];
- 
- 	rtc_time_to_tm(time, tm);
- 
+diff --git a/drivers/rtc/rtc-msm6242.c b/drivers/rtc/rtc-msm6242.c
+index c1c5c4e3b3b4..c981301efbe5 100644
+--- a/drivers/rtc/rtc-msm6242.c
++++ b/drivers/rtc/rtc-msm6242.c
+@@ -132,7 +132,8 @@ static int msm6242_read_time(struct device *dev, struct rtc_time *tm)
+ 		      msm6242_read(priv, MSM6242_SECOND1);
+ 	tm->tm_min  = msm6242_read(priv, MSM6242_MINUTE10) * 10 +
+ 		      msm6242_read(priv, MSM6242_MINUTE1);
+-	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10 & 3)) * 10 +
++	tm->tm_hour = (msm6242_read(priv, MSM6242_HOUR10) &
++		       MSM6242_HOUR10_HR_MASK) * 10 +
+ 		      msm6242_read(priv, MSM6242_HOUR1);
+ 	tm->tm_mday = msm6242_read(priv, MSM6242_DAY10) * 10 +
+ 		      msm6242_read(priv, MSM6242_DAY1);
 -- 
 2.20.1
 
