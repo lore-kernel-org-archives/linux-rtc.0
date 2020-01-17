@@ -2,79 +2,124 @@ Return-Path: <SRS0=SVzQ=3G=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D7CDC33C9E
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 17:57:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D53FBC33C9E
+	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 17:58:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F8232072B
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 17:57:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9C772072B
+	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 17:58:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbgAQR55 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 17 Jan 2020 12:57:57 -0500
-Received: from mga14.intel.com ([192.55.52.115]:32056 "EHLO mga14.intel.com"
+        id S1726897AbgAQR6h (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 17 Jan 2020 12:58:37 -0500
+Received: from mga09.intel.com ([134.134.136.24]:44893 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726761AbgAQR55 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 17 Jan 2020 12:57:57 -0500
-X-Amp-Result: UNSCANNABLE
+        id S1726761AbgAQR6h (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 17 Jan 2020 12:58:37 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jan 2020 09:57:57 -0800
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jan 2020 09:56:34 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,331,1574150400"; 
-   d="scan'208";a="220115256"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga007.fm.intel.com with ESMTP; 17 Jan 2020 09:57:55 -0800
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1isVsa-0007u2-WB; Fri, 17 Jan 2020 19:57:56 +0200
-Date:   Fri, 17 Jan 2020 19:57:56 +0200
+   d="scan'208";a="426077015"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga006.fm.intel.com with ESMTP; 17 Jan 2020 09:56:31 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 2951634A; Fri, 17 Jan 2020 19:56:27 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Guilherme Piccoli <gpiccoli@canonical.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
-        "Guilherme G. Piccoli" <kernel@gpiccoli.net>
-Subject: Re: [PATCH] rtc: cmos: Don't enable shared interrupts if using
- HPET-based IRQ handler
-Message-ID: <20200117175756.GV32742@smile.fi.intel.com>
-References: <20200103140240.6507-1-gpiccoli@canonical.com>
- <20200108174111.GD32742@smile.fi.intel.com>
- <87h815ybxo.fsf@nanos.tec.linutronix.de>
- <4882eca9-c5dd-a37c-bc13-14108300fd92@canonical.com>
- <9b04b099-0495-d188-7002-cad1147b61d0@canonical.com>
- <20200117144220.GU32742@smile.fi.intel.com>
- <CAHD1Q_y+9fK_CcmE7VF1XrATQA-Ru9O9=9XyGNvzxwu=Z-q9yQ@mail.gmail.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org,
+        "Guilherme G . Piccoli" <gpiccoli@canonical.com>,
+        linux-kernel@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Jie Yang <yang.jie@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH v1 7/8] ASoC: Intel: Switch DMI table match to a test of variable
+Date:   Fri, 17 Jan 2020 19:56:25 +0200
+Message-Id: <20200117175626.56358-7-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200117175626.56358-1-andriy.shevchenko@linux.intel.com>
+References: <20200117175626.56358-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHD1Q_y+9fK_CcmE7VF1XrATQA-Ru9O9=9XyGNvzxwu=Z-q9yQ@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Jan 17, 2020 at 11:57:08AM -0300, Guilherme Piccoli wrote:
-> On Fri, Jan 17, 2020 at 11:42 AM Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> wrote:
-> > Let me come out with something such as Thomas suggested.
-> >
-> 
-> Thank you Andy! In case it's gonna take a while (like more than 1
-> kernel release), could we get this one accepted to mitigate the issue
-> meanwhile?
+Since we have a common x86 quirk that provides an exported variable,
+use it instead of local DMI table match.
 
-I have just sent a series where first patch made to be fix and the rest is
-some clean ups.
+Cc: Cezary Rojewski <cezary.rojewski@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc: Liam Girdwood <liam.r.girdwood@linux.intel.com>
+Cc: Jie Yang <yang.jie@linux.intel.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ .../intel/common/soc-acpi-intel-cht-match.c   | 28 ++-----------------
+ 1 file changed, 3 insertions(+), 25 deletions(-)
 
-It would be nice if you can test first patch and series as a whole and
-give your Tested-by tags.
-
+diff --git a/sound/soc/intel/common/soc-acpi-intel-cht-match.c b/sound/soc/intel/common/soc-acpi-intel-cht-match.c
+index d0fb43c2b9f6..833d2e130e6e 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-cht-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-cht-match.c
+@@ -5,31 +5,11 @@
+  * Copyright (c) 2017, Intel Corporation.
+  */
+ 
+-#include <linux/dmi.h>
++#include <linux/platform_data/x86/machine.h>
++
+ #include <sound/soc-acpi.h>
+ #include <sound/soc-acpi-intel-match.h>
+ 
+-static unsigned long cht_machine_id;
+-
+-#define CHT_SURFACE_MACH 1
+-
+-static int cht_surface_quirk_cb(const struct dmi_system_id *id)
+-{
+-	cht_machine_id = CHT_SURFACE_MACH;
+-	return 1;
+-}
+-
+-static const struct dmi_system_id cht_table[] = {
+-	{
+-		.callback = cht_surface_quirk_cb,
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Surface 3"),
+-		},
+-	},
+-	{ }
+-};
+-
+ static struct snd_soc_acpi_mach cht_surface_mach = {
+ 	.id = "10EC5640",
+ 	.drv_name = "cht-bsw-rt5645",
+@@ -43,9 +23,7 @@ static struct snd_soc_acpi_mach *cht_quirk(void *arg)
+ {
+ 	struct snd_soc_acpi_mach *mach = arg;
+ 
+-	dmi_check_system(cht_table);
+-
+-	if (cht_machine_id == CHT_SURFACE_MACH)
++	if (x86_microsoft_surface_3_machine)
+ 		return &cht_surface_mach;
+ 	else
+ 		return mach;
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.24.1
 
