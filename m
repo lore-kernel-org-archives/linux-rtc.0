@@ -1,120 +1,350 @@
-Return-Path: <SRS0=SVzQ=3G=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Qw0A=3J=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB28C33C9E
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 21:54:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E307CC33CB8
+	for <linux-rtc@archiver.kernel.org>; Mon, 20 Jan 2020 06:33:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2BFA12192A
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Jan 2020 21:54:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B00AA2073A
+	for <linux-rtc@archiver.kernel.org>; Mon, 20 Jan 2020 06:33:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729497AbgAQVys (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 17 Jan 2020 16:54:48 -0500
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:43055 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726587AbgAQVyr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 17 Jan 2020 16:54:47 -0500
-X-Originating-IP: 90.65.92.102
-Received: from localhost (lfbn-lyo-1-1913-102.w90-65.abo.wanadoo.fr [90.65.92.102])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id B79F11BF207;
-        Fri, 17 Jan 2020 21:54:44 +0000 (UTC)
-Date:   Fri, 17 Jan 2020 22:54:44 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Aleksandar Markovic <aleksandar.m.mail@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Laurent Vivier <laurent@vivier.eu>,
-        Filip Bozuta <Filip.Bozuta@rt-rk.com>,
-        Peter Maydell <peter.maydell@linaro.org>,
-        Daniel =?iso-8859-1?Q?P=2E_Berrang=E9?= <berrange@redhat.com>,
-        Richard Henderson <richard.henderson@linaro.org>,
-        "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        "amarkovic@wavecomp.com" <amarkovic@wavecomp.com>,
-        "philmd@redhat.com" <philmd@redhat.com>, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 08/12] linux-user: Add support for setting alsa timer
- enhanced read using ioctl
-Message-ID: <20200117215444.GD3036@piout.net>
-References: <1579103618-20217-9-git-send-email-Filip.Bozuta@rt-rk.com>
- <CAK8P3a187rPhma7Q6o+hCF3h0=5MLZwh49+JqKt6BvVsAB1efQ@mail.gmail.com>
- <ceaf44c0-fd6c-c280-7f95-7bc133553089@vivier.eu>
- <CAK8P3a36KqWD4fKBLDpFhJg079bNdJDSDUAP2Zu_i1+H62Q6ZQ@mail.gmail.com>
- <518d717d-9f1e-e00e-f2a9-df8861241d1c@rt-rk.com>
- <cdcce2a3-00f5-f6d1-3083-dc36892ac5b4@vivier.eu>
- <CAL1e-=i3-nYJMo6ptA7fdcK8r6P4vv20x2+LLV6BA9ELO8H53w@mail.gmail.com>
- <CAL1e-=g8X___59zLPKLRjFNAP9bs3rVWhc8+OhMuF3TriBiynw@mail.gmail.com>
- <CAK8P3a3o1tM__gP0keo0Dg03tiJQt=5hRGhiXWga4B6gjsVbxA@mail.gmail.com>
- <CAL1e-=gv_L0fuq9t8mmOiZ2D-CwpPrZZOjwrDwKwe09jvWJpXQ@mail.gmail.com>
+        id S1726148AbgATGdo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 20 Jan 2020 01:33:44 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:39599 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725788AbgATGdn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Jan 2020 01:33:43 -0500
+Received: by mail-lf1-f66.google.com with SMTP id y1so23082828lfb.6;
+        Sun, 19 Jan 2020 22:33:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=tFgGWNZakGfANkR1ARYjBOxOcWoawQ1Z6a6kdRexlIA=;
+        b=Zs6N0xwlPLVYvj5nbPL1Mp19k1WQVW2qms65lP7tncdl+jUzOKIoJLOYOeSHhsy5KW
+         kTsbo9lFsFTUWe3OD0JNtPC0R2/nX0nInjxk3Rrrp0fjOw5AsZGEBc9zCfVCl7laU6Ih
+         mC1qEgUV3diIJbcMgP0StOTpzX2bS1FGuR+8O9JRZt9T2/2nGygYG3VLwjKjsuNAB1VN
+         ufNMPXL1CZWdLndXPjzzVJPHddxuTQbPHmZ8G2LkmVw8Bss2yWx/vz/lWYVDY/65Od2y
+         FiiGRcr6QzZOSd2lfpZywdFsPhJV2USmqD4lXBEILv3Dyebz8NKTdCFxSkDI/1IkHiwv
+         9kGQ==
+X-Gm-Message-State: APjAAAXiHE9TJj8VSEFWUwIHB4XZHxEyRgiOICNokhyfJ+QT9+GTUChi
+        1awhxmizSaVSQBDyYCn2ARQ=
+X-Google-Smtp-Source: APXvYqyEB1yaF0lVRXlR20IzZ/Gl19W1Jl+hptGnasZW+8wrGmbL/GbleVWbtdKZXS/i3f1tuwqyGw==
+X-Received: by 2002:ac2:5496:: with SMTP id t22mr3158582lfk.85.1579502019372;
+        Sun, 19 Jan 2020 22:33:39 -0800 (PST)
+Received: from localhost.localdomain ([213.255.186.46])
+        by smtp.gmail.com with ESMTPSA id f11sm19174252lfa.9.2020.01.19.22.33.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jan 2020 22:33:38 -0800 (PST)
+Date:   Mon, 20 Jan 2020 08:33:27 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
+Cc:     Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Dan Murphy <dmurphy@ti.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>,
+        linux-leds@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v11 00/13] Support ROHM BD71828 PMIC
+Message-ID: <cover.1579501711.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAL1e-=gv_L0fuq9t8mmOiZ2D-CwpPrZZOjwrDwKwe09jvWJpXQ@mail.gmail.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+Patch series introducing support for ROHM BD71828 PMIC
 
-Quick answers to your very good questions below:
+ROHM BD71828 is a power management IC containing 7 bucks and 7 LDOs. All
+regulators can be controlled individually via I2C. Bucks 1,2,6 and
+7 can also be assigned to a "regulator group" controlled by run-levels.
+Eg. Run level specific voltages and enable/disable statuses for each of
+these bucks can be set via register interface. The buck run-level group
+assignment (selection if buck is to be controlled individually or via
+run-levels) can be changed at run-time via I2C.
 
-On 17/01/2020 21:50:34+0100, Aleksandar Markovic wrote:
-> Alexandre (and Arnd too, or any other person knowledgeable in the area),
-> 
-> I just need to clarify a couple of details with you, please.
-> 
-> Firstly, here is what man page rtc(4) says:
-> 
-> "The /dev/rtc (or /dev/rtc0, /dev/rtc1, etc.) device can be opened
-> only once (until it is closed) and it is read-only. On read(2) and
-> select(2) the calling process is blocked until the next interrupt from
-> that RTC is received. Following the interrupt, the process can read a
-> long integer, of which the least significant byte contains a bit mask
-> encoding the types of interrupt that occurred, while the remaining 3
-> bytes contain the number of interrupts since the last read(2)."
-> 
-> So, it looks read() will always return only 4 bytes of useful info
-> (regardless of host being 32-bit/64-bit).
-> 
-> My questions are:
-> 
-> - Is the description in man page genuinely accurate?
-> 
+This patch series brings only the basic support for controlling
+regulators individually via I2C.
 
-It is accurate. It is a mask of:
+In addition to the bucks and LDOs there are:
 
-#define RTC_IRQF 0x80   /* Any of the following is active */
-#define RTC_PF 0x40     /* Periodic interrupt */
-#define RTC_AF 0x20     /* Alarm interrupt */
-#define RTC_UF 0x10     /* Update interrupt for 1Hz RTC */
+- The usual clk gate
+- 4 IO pins (mostly usable as GPO or tied to specific purpose)
+- power button support
+- RTC
+- two LEDs
+- battery charger
+- HALL sensor input
 
-Which will most likely be RTC_IRQF | RTC_AF.
+This patch series adds support to regulators, clk, RTC, GPIOs and LEDs.
 
-> - To me (but I am really an outsider to using RTC in applications),
-> this feature (blocking read()/select()) even looks very nice and
-> convenient, in all fairness. But I would like to ask you: Is this
-> feature used rarely or frequently by other libraries/tools/etc.? In
-> other words, is the feature "obscure" or "crucial" part of RTC kernel
-> support? Or, something in between?
-> 
+Power-supply driver for charger is not included in this series.
 
-Nobody is actually using the return value.
+The series also adds LED DT-node lookup based on node name or given
+property name/value pair in LED core. It also adds generic default-state
+and default-trigger property handling to LED core. Follow-up patches
+simplifying few other LED drivers should follow.
 
-> - Does MC146818 support this feature?
-> 
+Changelog v11:
+  - converted a macro to enum member as was requested by Lee.
 
-This feature is implemented in the RTC core so it is supported by all
-RTCs that have alarms.
+Changelog v10:
+  - Split RTC patch to a BD70528 fix (which hopefully goes to 5.4) and to
+    BD71828 support
 
-Internally, the value is an unsigned long and it is casted properly by
-put_user in rtc_dev_read:
+Changelog v9: (Changes suggested by Lee)
+  - Added kerneldoc to struct rohm_dvs_config
+  - cleaned few comments
+  - updated copyright date
+  - renamed variable 'mfd' to 'parent'.
 
-https://elixir.bootlin.com/linux/v5.4/source/drivers/rtc/dev.c#L178
+Changelog v8:
+  LEDs:
+    - Fixed bunch of typos.
+    - Corrected the commit message which errorneously contained the
+      'leds-compatible' which I dropped in favour of match_property.
+    - use max_brightness instead of LED_FULL if it is given when
+      handling the default_state, "on".
+    - clean fwnode_owned at the end of unsuccessful registration or
+      at the end of deregistration.
+    - fix the accidental linuxdoc comment.
+    - rename led_find_fwnode to led_get_fwnode as it increases refcount.
+
+Changelog v7:
+  - Rebased on top of v5.5-rc2
+  - Dropped already applied patches
+    - basic regulator support (in regulator tree now)
+    - regulator dt-bindings (in regulator tree now)
+    - gpio devm function documentation (in GPIO tree now)
+  - Dropped new devm-variant of gpio_array getting for MFD sub-devices who
+    have consumer information in parent DT node as gpio consumer was
+    dropped from the series
+  - removed extra line-breaks from MFD driver and Makefile
+  - fixed RTC patch subject line (added missing colon)
+  - included a patch which adds compatible for ROHM BD71850 PMIC
+
+Changelog v6:
+  Rebased on top of v5.5-rc1
+  LED core:
+    - Do new fw-node look-up only if the new match data is given. That
+      way behaviour for existing drivers is not changed
+    - Handle generic LED properties by core only if explisitly requested
+      in init-data. That way behaviour for existing drivers is not changed
+      until they are verified to work.
+  BD71828 LEDs:
+    - Fix module loading by adding "dummy" of_device_id table.
+  DT bindings:
+    All:
+    - Remove regulator run-level properties as run-level support was
+      dropped for now.
+    - Change SPDX to dual lisence
+    LED:
+    - added select: false
+    - replace oneOf + const by enum
+    Regulator:
+    - remove forgotten comments
+    - comment indenting
+    MFD:
+    - remove unnecessary descriptions
+  Regulators:
+    - Dropped patch 12 with run-level controls
+    - Dropped unnecessary ramp_delay_supported() - ram_delay ops were
+      already only filled for DVS bucks.
+  GPIO:
+    - rename internal function.
+  RTC:
+    - Added missing blank line
+  
+Changelog v5:
+  Only LED patch (patch 15) changed, rest as in v4.
+  LED:
+    - Fixed issues reported by Dan Carpenter and kbuild-bot static
+      analysis.
+Changelog v4 (first non RFC):
+  General:
+    - Changed subdevice loading and chip version identification to use
+      platform ID.
+    - License identifiers changed to GPL-2.0-only
+  MFD:
+    - Styling fixes mostly
+  DT-Bindings:
+    - a few more checks as suggested by Rob Herring.
+    - Order of DT patches changed.
+    - me as maintainer
+    - standard units to new properties (microvolts, ohms)
+    - runlevel values in an array
+  LED:
+    - BD71828 driver added (back)
+      - Added DT support
+    - Added LED DT node lookup in led framework when init_data is given
+      with DT node match information.
+    - Added common property parsing for default-state and
+      default-trigger.
+  Regulators:
+    - dropped sysfs interfaces
+    - fixed module unload/reload by binding gpio consumer information to
+      regulator device not to MFD.
+  GPIO:
+    - Added devm_gpiod_get_parent_array
+    - added few missing devm functions to documentation
+
+Changelog v3:
+  DT-Bindings:
+    - yamlify
+    - add LED binding doc
+  CLK:
+    - Move clk register definitions from MFD headers to clk driver
+  GPIO:
+    - Add generic direction define and use it.
+  LED:
+    - Drop LED driver from the series (for now).
+
+Changelog v2: Mainly RTC and GPIO fixes suggested by Alexandre and Bartosz
+  General:
+    -Patch ordering changed to provide dt binding documents right after the
+     MFD core.
+  DT-Bindings for regulators (Patch 3)
+    -Fix typo in PMIC model number
+  RTC (patch 11)
+    -Reverted renaming in order to reduce patch size.
+    -Reworded commit message
+  BD71828 regulator (patch 7)
+    -Add MODULE_ALIAS
+  GPIO (patch 12)
+    -Remove file-name from comment
+    -prefix IN and OUT defines with chip type
+    -improved documentation for the INPUT only pin.
+    -removed empty left-over function
+    -removed unnecessary #ifdef CONFIG_OF_GPIO
+    -removed unnecessary error print
+    -Add MODULE_ALIAS
+
+Patch 1:
+        dt-bindings for LEDs on BD71828 PMIC
+Patch 2:
+	dt-bindings for BD71828 PMIC
+Patch 3:
+	Convert rohm PMICs with common sub-devices to use platform_
+	device_id to match MFD sub-devices
+Patch 4:
+	Add compatible for BD71850
+Patch 5:
+        BD71828 MFD core.
+Patch 6:
+	Power button support using GPIO keys.
+Patch 7:
+        CLK gate support using existing clk-bd718x7
+Patch 8:
+        Split existing bd718x7 regulator driver to generic ROHM dt
+        parsing portion (used by more than one ROHM drivers) and
+        bd718x8 specific parts
+Patch 9:
+        Fix BD70528 RTC HOUR mask
+Patch 10:
+        Support BD71828 RTC block using BD70528 RTC driver
+Patch 11:
+        Allow control of GP(I)O pins on BD71828 via GPIO subsystem
+Patch 12:
+	Add LED node lookup and common LED binding parsing support
+	to LED class/core
+Patch 13:
+        Support toggling the LEDs on BD71828.
+
+---
+
+Matti Vaittinen (13):
+  dt-bindings: leds: ROHM BD71282 PMIC LED driver
+  dt-bindings: mfd: Document ROHM BD71828 bindings
+  mfd: rohm PMICs - use platform_device_id to match MFD sub-devices
+  mfd: bd718x7: Add compatible for BD71850
+  mfd: bd71828: Support ROHM BD71828 PMIC - core
+  mfd: input: bd71828: Add power-key support
+  clk: bd718x7: Support ROHM BD71828 clk block
+  regulator: bd718x7: Split driver to common and bd718x7 specific parts
+  mfd: bd70528: Fix hour register mask
+  rtc: bd70528: add BD71828 support
+  gpio: bd71828: Initial support for ROHM BD71828 PMIC GPIOs
+  leds: Add common LED binding parsing support to LED class/core
+  led: bd71828: Support LED outputs on ROHM BD71828 PMIC
+
+ .../bindings/leds/rohm,bd71828-leds.yaml      |  52 +++
+ .../bindings/mfd/rohm,bd71828-pmic.yaml       | 193 ++++++++
+ drivers/clk/Kconfig                           |   6 +-
+ drivers/clk/clk-bd718x7.c                     |  50 ++-
+ drivers/gpio/Kconfig                          |  12 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-bd71828.c                   | 159 +++++++
+ drivers/leds/Kconfig                          |  10 +
+ drivers/leds/Makefile                         |   1 +
+ drivers/leds/led-class.c                      | 115 ++++-
+ drivers/leds/led-core.c                       | 258 +++++++++--
+ drivers/leds/leds-bd71828.c                   | 118 +++++
+ drivers/mfd/Kconfig                           |  15 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/rohm-bd70528.c                    |   3 +-
+ drivers/mfd/rohm-bd71828.c                    | 344 ++++++++++++++
+ drivers/mfd/rohm-bd718x7.c                    |  43 +-
+ drivers/regulator/Kconfig                     |   4 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/bd718x7-regulator.c         | 200 +++------
+ drivers/regulator/rohm-regulator.c            |  95 ++++
+ drivers/rtc/Kconfig                           |   3 +-
+ drivers/rtc/rtc-bd70528.c                     | 220 +++++++--
+ include/linux/leds.h                          |  94 +++-
+ include/linux/mfd/rohm-bd70528.h              |  19 +-
+ include/linux/mfd/rohm-bd71828.h              | 423 ++++++++++++++++++
+ include/linux/mfd/rohm-bd718x7.h              |   6 -
+ include/linux/mfd/rohm-generic.h              |  70 ++-
+ include/linux/mfd/rohm-shared.h               |  21 +
+ 29 files changed, 2248 insertions(+), 289 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/leds/rohm,bd71828-leds.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
+ create mode 100644 drivers/gpio/gpio-bd71828.c
+ create mode 100644 drivers/leds/leds-bd71828.c
+ create mode 100644 drivers/mfd/rohm-bd71828.c
+ create mode 100644 drivers/regulator/rohm-regulator.c
+ create mode 100644 include/linux/mfd/rohm-bd71828.h
+ create mode 100644 include/linux/mfd/rohm-shared.h
+
+
+base-commit: b3a987b0264d ("Linux 5.5-rc6")
+-- 
+2.21.0
+
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
+Simon says - in Latin please.
+~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
+Thanks to Simon Glass for the translation =] 
