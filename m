@@ -1,126 +1,102 @@
-Return-Path: <SRS0=Nv6Z=3Z=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=QYvQ=33=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA03AC35247
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Feb 2020 20:04:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0FABC352A3
+	for <linux-rtc@archiver.kernel.org>; Fri,  7 Feb 2020 03:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A3ADD2072B
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Feb 2020 20:04:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD5A421D7D
+	for <linux-rtc@archiver.kernel.org>; Fri,  7 Feb 2020 03:18:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="0QpzyzyS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727079AbgBEUEq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Feb 2020 15:04:46 -0500
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:34693 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726208AbgBEUEq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Feb 2020 15:04:46 -0500
-X-Originating-IP: 90.65.92.102
-Received: from localhost (lfbn-lyo-1-1913-102.w90-65.abo.wanadoo.fr [90.65.92.102])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 4427C1C0002;
-        Wed,  5 Feb 2020 20:04:44 +0000 (UTC)
-Date:   Wed, 5 Feb 2020 21:04:44 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Prashant Malani <pmalani@chromium.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH v2 14/17] rtc: cros-ec: Use cros_ec_cmd()
-Message-ID: <20200205200444.GC3290@piout.net>
-References: <20200205190028.183069-1-pmalani@chromium.org>
- <20200205190028.183069-15-pmalani@chromium.org>
+        id S1726628AbgBGDSW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 6 Feb 2020 22:18:22 -0500
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:60211 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727162AbgBGDSV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Feb 2020 22:18:21 -0500
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id DB061886BF;
+        Fri,  7 Feb 2020 16:18:18 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1581045498;
+        bh=oDw3d3jhSHyNwZH0g1A6KGGcClAuStfzBG0X0TU94yk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=0QpzyzySD2NOi3hZoCvYYUQtsC5PaJ1Q98n0D846/7+ti/4ilhKqe8/zisckxVxZ/
+         406l5+JXn0dFVjJDOj/J0N7+6ATQm3Cmgj10DFuXj1xQxVK4wDIaoDFwCP0JVs3eLN
+         0tPgxRVAHld3M7VS4ofM1DowAKzc/lSmh1DVOWk0aJS18089P3OeAHaKI/R5nyVfpz
+         4reluWWsnGI3iplcgivZbKc0jbU4+p978aS8Izvb2rWtd7td3MLfcxQIqppYiGSiFM
+         sh9JAgpdBLgsWrQ+zfHKK8VkLB8kqOcXHKT7OeK+v8CybbdtIaHqUGPkZKspAG8tcH
+         pJilr7GWhyUkw==
+Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5e3cd6fa0001>; Fri, 07 Feb 2020 16:18:18 +1300
+Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
+        by smtp (Postfix) with ESMTP id A006813EEDE;
+        Fri,  7 Feb 2020 16:18:17 +1300 (NZDT)
+Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
+        id BC43B28006E; Fri,  7 Feb 2020 16:18:18 +1300 (NZDT)
+From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v1 1/2] rtc: ds1307: handle oscillator failure flags for ds1388 variant
+Date:   Fri,  7 Feb 2020 16:18:11 +1300
+Message-Id: <20200207031812.14424-2-chris.packham@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200207031812.14424-1-chris.packham@alliedtelesis.co.nz>
+References: <20200207031812.14424-1-chris.packham@alliedtelesis.co.nz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200205190028.183069-15-pmalani@chromium.org>
+Content-Transfer-Encoding: quoted-printable
+x-atlnz-ls: pat
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 05/02/2020 11:00:22-0800, Prashant Malani wrote:
-> Replace cros_ec_cmd_xfer_status() with cros_ec_cmd() which does the
-> message buffer setup and cleanup.
-> 
-> Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+The FLAG register is at a different location to the other supported RTCs
+so this requires an extra case in the existing switch statement.
 
-> ---
-> 
-> Changes in v2:
-> - Updated to use new function name and parameter list.
-> 
->  drivers/rtc/rtc-cros-ec.c | 27 ++++++++-------------------
->  1 file changed, 8 insertions(+), 19 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-> index f7343c289cab73..6886100ad0b8b7 100644
-> --- a/drivers/rtc/rtc-cros-ec.c
-> +++ b/drivers/rtc/rtc-cros-ec.c
-> @@ -33,16 +33,11 @@ static int cros_ec_rtc_get(struct cros_ec_device *cros_ec, u32 command,
->  			   u32 *response)
->  {
->  	int ret;
-> -	struct {
-> -		struct cros_ec_command msg;
-> -		struct ec_response_rtc data;
-> -	} __packed msg;
->  
-> -	memset(&msg, 0, sizeof(msg));
-> -	msg.msg.command = command;
-> -	msg.msg.insize = sizeof(msg.data);
-> +	struct ec_response_rtc data = {0};
->  
-> -	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
-> +	ret = cros_ec_cmd(cros_ec, 0, command, NULL, 0, &data, sizeof(data),
-> +			  NULL);
->  	if (ret < 0) {
->  		dev_err(cros_ec->dev,
->  			"error getting %s from EC: %d\n",
-> @@ -51,7 +46,7 @@ static int cros_ec_rtc_get(struct cros_ec_device *cros_ec, u32 command,
->  		return ret;
->  	}
->  
-> -	*response = msg.data.time;
-> +	*response = data.time;
->  
->  	return 0;
->  }
-> @@ -60,17 +55,11 @@ static int cros_ec_rtc_set(struct cros_ec_device *cros_ec, u32 command,
->  			   u32 param)
->  {
->  	int ret = 0;
-> -	struct {
-> -		struct cros_ec_command msg;
-> -		struct ec_response_rtc data;
-> -	} __packed msg;
-> +	struct ec_response_rtc  data;
->  
-> -	memset(&msg, 0, sizeof(msg));
-> -	msg.msg.command = command;
-> -	msg.msg.outsize = sizeof(msg.data);
-> -	msg.data.time = param;
-> -
-> -	ret = cros_ec_cmd_xfer_status(cros_ec, &msg.msg);
-> +	data.time = param;
-> +	ret = cros_ec_cmd(cros_ec, 0, command, &data, sizeof(data), NULL, 0,
-> +			  NULL);
->  	if (ret < 0) {
->  		dev_err(cros_ec->dev, "error setting %s on EC: %d\n",
->  			command == EC_CMD_RTC_SET_VALUE ? "time" : "alarm",
-> -- 
-> 2.25.0.341.g760bfbb309-goog
-> 
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+ drivers/rtc/rtc-ds1307.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 1f7e8aefc1eb..31a38d468378 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -144,6 +144,8 @@ enum ds_type {
+ #	define M41TXX_BIT_CALIB_SIGN	BIT(5)
+ #	define M41TXX_M_CALIBRATION	GENMASK(4, 0)
+=20
++#define DS1388_REG_FLAG			0x0b
++#	define DS1388_BIT_OSF		BIT(7)
+ /* negative offset step is -2.034ppm */
+ #define M41TXX_NEG_OFFSET_STEP_PPB	2034
+ /* positive offset step is +4.068ppm */
+@@ -252,6 +254,13 @@ static int ds1307_get_time(struct device *dev, struc=
+t rtc_time *t)
+ 		if (tmp & DS1340_BIT_OSF)
+ 			return -EINVAL;
+ 		break;
++	case ds_1388:
++		ret =3D regmap_read(ds1307->regmap, DS1388_REG_FLAG, &tmp);
++		if (ret)
++			return ret;
++		if (tmp & DS1388_BIT_OSF)
++			return -EINVAL;
++		break;
+ 	case mcp794xx:
+ 		if (!(tmp & MCP794XX_BIT_ST))
+ 			return -EINVAL;
+--=20
+2.25.0
+
