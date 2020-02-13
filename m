@@ -1,60 +1,106 @@
-Return-Path: <SRS0=KZh/=4A=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=fZ0z=4B=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24890C2BA83
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Feb 2020 11:24:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42332C352A3
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Feb 2020 21:21:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 02113206D7
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Feb 2020 11:24:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2214720659
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Feb 2020 21:21:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725821AbgBLLYy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 Feb 2020 06:24:54 -0500
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:43021 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725874AbgBLLYy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Feb 2020 06:24:54 -0500
-X-Originating-IP: 90.65.102.129
-Received: from localhost (lfbn-lyo-1-1670-129.w90-65.abo.wanadoo.fr [90.65.102.129])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 36B06E000B;
-        Wed, 12 Feb 2020 11:24:52 +0000 (UTC)
-Date:   Wed, 12 Feb 2020 12:24:51 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Christoph Hellwig <hch@lst.de>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: sh: Restore devm_ioremap() alignment
-Message-ID: <20200212112451.GD3326@piout.net>
-References: <20200212084836.9511-1-geert+renesas@glider.be>
+        id S1727896AbgBMVVJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Feb 2020 16:21:09 -0500
+Received: from mailoutvs57.siol.net ([185.57.226.248]:45633 "EHLO
+        mail.siol.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728359AbgBMVVJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Feb 2020 16:21:09 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.siol.net (Zimbra) with ESMTP id 1F87E524C68;
+        Thu, 13 Feb 2020 22:14:41 +0100 (CET)
+X-Virus-Scanned: amavisd-new at psrvmta12.zcs-production.pri
+Received: from mail.siol.net ([127.0.0.1])
+        by localhost (psrvmta12.zcs-production.pri [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id LntsWh8NYX0C; Thu, 13 Feb 2020 22:14:40 +0100 (CET)
+Received: from mail.siol.net (localhost [127.0.0.1])
+        by mail.siol.net (Zimbra) with ESMTPS id B5382524BFE;
+        Thu, 13 Feb 2020 22:14:40 +0100 (CET)
+Received: from localhost.localdomain (cpe-194-152-20-232.static.triera.net [194.152.20.232])
+        (Authenticated sender: 031275009)
+        by mail.siol.net (Zimbra) with ESMTPSA id B522B522D11;
+        Thu, 13 Feb 2020 22:14:37 +0100 (CET)
+From:   Jernej Skrabec <jernej.skrabec@siol.net>
+To:     mripard@kernel.org, wens@csie.org
+Cc:     robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        jernej.skrabec@siol.net
+Subject: [PATCH 1/2] rtc: sun6i: Make external 32k oscillator optional
+Date:   Thu, 13 Feb 2020 22:14:26 +0100
+Message-Id: <20200213211427.33004-2-jernej.skrabec@siol.net>
+X-Mailer: git-send-email 2.25.0
+In-Reply-To: <20200213211427.33004-1-jernej.skrabec@siol.net>
+References: <20200213211427.33004-1-jernej.skrabec@siol.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200212084836.9511-1-geert+renesas@glider.be>
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 12/02/2020 09:48:36+0100, Geert Uytterhoeven wrote:
-> The alignment of the continuation of the devm_ioremap() call in
-> sh_rtc_probe() was broken.  Join the lines, as all parameters can fit on
-> a single line.
-> 
-> Fixes: 4bdc0d676a643140 ("remove ioremap_nocache and devm_ioremap_nocache")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> ---
->  drivers/rtc/rtc-sh.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-Applied, thanks.
+Some boards, like OrangePi PC2 (H5), OrangePi Plus 2E (H3) and Tanix TX6
+(H6) don't have external 32kHz oscillator. Till H6, it didn't really
+matter if external oscillator was enabled because HW detected error and
+fall back to internal one. H6 has same functionality but it's the first
+SoC which have "auto switch bypass" bit documented and always enabled in
+driver. This prevents RTC to work correctly if external crystal is not
+present on board. There are other side effects - all peripherals which
+depends on this clock also don't work (HDMI CEC for example).
 
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Make clocks property optional. If it is present, select external
+oscillator. If not, stay on internal.
+
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+---
+ drivers/rtc/rtc-sun6i.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 852f5f3b3592..538cf7e19034 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -250,19 +250,17 @@ static void __init sun6i_rtc_clk_init(struct device=
+_node *node,
+ 		writel(reg, rtc->base + SUN6I_LOSC_CTRL);
+ 	}
+=20
+-	/* Switch to the external, more precise, oscillator */
+-	reg |=3D SUN6I_LOSC_CTRL_EXT_OSC;
+-	if (rtc->data->has_losc_en)
+-		reg |=3D SUN6I_LOSC_CTRL_EXT_LOSC_EN;
++	/* Switch to the external, more precise, oscillator, if present */
++	if (of_get_property(node, "clocks", NULL)) {
++		reg |=3D SUN6I_LOSC_CTRL_EXT_OSC;
++		if (rtc->data->has_losc_en)
++			reg |=3D SUN6I_LOSC_CTRL_EXT_LOSC_EN;
++	}
+ 	writel(reg, rtc->base + SUN6I_LOSC_CTRL);
+=20
+ 	/* Yes, I know, this is ugly. */
+ 	sun6i_rtc =3D rtc;
+=20
+-	/* Deal with old DTs */
+-	if (!of_get_property(node, "clocks", NULL))
+-		goto err;
+-
+ 	/* Only read IOSC name from device tree if it is exported */
+ 	if (rtc->data->export_iosc)
+ 		of_property_read_string_index(node, "clock-output-names", 2,
+--=20
+2.25.0
+
