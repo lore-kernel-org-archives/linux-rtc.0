@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE0AC3F68F
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:33:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBD2C2BA83
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:40:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BF8E24696
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:33:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBF422187F
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581698003;
-	bh=1KRN5EPz1xFdEunECOo2lFHV5Qkwf1hIyBBEyNAKpHg=;
+	s=default; t=1581698437;
+	bh=dE5/nvNLJI0zjMewiymZtePjfK0j8kzyC/D2KWwxLCI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=jyktMm34OjcdCya1gzKJ+0YwiuB4McEtxQbx7zdwA5w2wHhHZwODDtVWXMH1de7R8
-	 EwKleb3VT0LDF5Cvi7ph66cchqdcH9CAYC9vMfwC/UAJY4MIW8a2Flpdg/nmlOPm3t
-	 NXjQEC2Mifkbjwuf0rNSXwFMq4egNZkAhVb8+EYU=
+	b=Bnay1ZUWA5wH8XQLE3YHonzO54p4ohM+IE8ecGoIDCHcXDNA5hp8h3rWzwG09sKRE
+	 DQLY4CUJYhB4i5prUJYbmm5NSwQ+eqDcWMGD4HwIQ85Ne9BJ/p99kkosRdQZbiAOD1
+	 FLCMXO+/i2icP+xTD9lorLKXKb6VcGZ8cgu0KoPk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406126AbgBNQZa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:25:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35182 "EHLO mail.kernel.org"
+        id S2393308AbgBNQkc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 14 Feb 2020 11:40:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406121AbgBNQZa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:25:30 -0500
+        id S2393263AbgBNQWx (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:22:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0780124789;
-        Fri, 14 Feb 2020 16:25:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0340D24762;
+        Fri, 14 Feb 2020 16:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581697529;
-        bh=1KRN5EPz1xFdEunECOo2lFHV5Qkwf1hIyBBEyNAKpHg=;
+        s=default; t=1581697372;
+        bh=dE5/nvNLJI0zjMewiymZtePjfK0j8kzyC/D2KWwxLCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXZC/01NfLK81vh+Z9xq67BYqQZja/8qf/D7cNqwjtuHYt3T8XerJu83SHrG2qCYw
-         mV6yC+NMngoH9HMwd5FN8uJ3yxrcCs21WxF5ZEIU7gI6ePXQoVPxFpQJ5e48nMViL6
-         EmHMFGPS4ImibmLC8/bR7L7DTy4MyHY1unQ95MvQ=
+        b=qjCRc6qYUnA+U1NUGnDbkaINSIeWrQzCsmicjFT9SLDaDH/8wDZrEj1+ECi3Loo5K
+         4C7BwkesRCSb91y2JNgY5yqnuZrgL5xS5LdaAu3LIv6M7CGXFYuwwhwRStLeMsuIxL
+         wNnbSEazBYghHqADuwC1nklnbE1N+rzIG6oQuzO4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 052/100] rtc: hym8563: Return -EINVAL if the time is known to be invalid
-Date:   Fri, 14 Feb 2020 11:23:36 -0500
-Message-Id: <20200214162425.21071-52-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 071/141] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+Date:   Fri, 14 Feb 2020 11:20:11 -0500
+Message-Id: <20200214162122.19794-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
-References: <20200214162425.21071-1-sashal@kernel.org>
+In-Reply-To: <20200214162122.19794-1-sashal@kernel.org>
+References: <20200214162122.19794-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,7 +77,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
-index b1b4746a0eab5..dbec596494ebe 100644
+index e5ad527cb75e3..a8c2d38b24112 100644
 --- a/drivers/rtc/rtc-hym8563.c
 +++ b/drivers/rtc/rtc-hym8563.c
 @@ -105,7 +105,7 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
