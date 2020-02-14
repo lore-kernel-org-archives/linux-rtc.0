@@ -4,52 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C7CDC3B1A1
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:04:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EE0AC3F68F
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:33:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 16863217F4
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:04:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BF8E24696
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 16:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581696244;
-	bh=kxpirQj5IrgXL6otZ76CxHFPJdZleVRuEeL9JZvpVKY=;
+	s=default; t=1581698003;
+	bh=1KRN5EPz1xFdEunECOo2lFHV5Qkwf1hIyBBEyNAKpHg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=BpTOBR8GC1cTmc9Ks5/UfDtY6mOOupd6jmxLKy5BBslpOvXyYYsoSJwcA9BaqWnrp
-	 kywMQ6/zwjMDVph7GFFEqujs+M4346e9XOVheT+m/oBnntbJ7ylBD/jDSib/BurYKt
-	 cRS2CI6eNtA0GXQAeECN7Cj4FEE1zz+CabCMUszM=
+	b=jyktMm34OjcdCya1gzKJ+0YwiuB4McEtxQbx7zdwA5w2wHhHZwODDtVWXMH1de7R8
+	 EwKleb3VT0LDF5Cvi7ph66cchqdcH9CAYC9vMfwC/UAJY4MIW8a2Flpdg/nmlOPm3t
+	 NXjQEC2Mifkbjwuf0rNSXwFMq4egNZkAhVb8+EYU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389835AbgBNQED (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:04:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51794 "EHLO mail.kernel.org"
+        id S2406126AbgBNQZa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 14 Feb 2020 11:25:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389830AbgBNQEC (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:04:02 -0500
+        id S2406121AbgBNQZa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 14 Feb 2020 11:25:30 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06B3A2187F;
-        Fri, 14 Feb 2020 16:04:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0780124789;
+        Fri, 14 Feb 2020 16:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696241;
-        bh=kxpirQj5IrgXL6otZ76CxHFPJdZleVRuEeL9JZvpVKY=;
+        s=default; t=1581697529;
+        bh=1KRN5EPz1xFdEunECOo2lFHV5Qkwf1hIyBBEyNAKpHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIQtj4C8Up9oKzBxG8wToXmRNZPMkKdoPgmtNcU2GjoH10wNbkrqnLC4/12Z5uK6r
-         PYXKVitbEuHVFQpRur1shR8zrhfY7NRAZQw3mtQ5t6ZMELlkw94XVdKvqCJvKJT29Q
-         QBema4Z2bnwXI04QsDYFadJ8YeHFAw6biMLoA3M8=
+        b=dXZC/01NfLK81vh+Z9xq67BYqQZja/8qf/D7cNqwjtuHYt3T8XerJu83SHrG2qCYw
+         mV6yC+NMngoH9HMwd5FN8uJ3yxrcCs21WxF5ZEIU7gI6ePXQoVPxFpQJ5e48nMViL6
+         EmHMFGPS4ImibmLC8/bR7L7DTy4MyHY1unQ95MvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        kbuild test robot <lkp@intel.com>,
+Cc:     Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 100/459] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
-Date:   Fri, 14 Feb 2020 10:55:50 -0500
-Message-Id: <20200214160149.11681-100-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 052/100] rtc: hym8563: Return -EINVAL if the time is known to be invalid
+Date:   Fri, 14 Feb 2020 11:23:36 -0500
+Message-Id: <20200214162425.21071-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
-References: <20200214160149.11681-1-sashal@kernel.org>
+In-Reply-To: <20200214162425.21071-1-sashal@kernel.org>
+References: <20200214162425.21071-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,72 +58,37 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 
-[ Upstream commit 34719de919af07682861cb0fa2bcf64da33ecf44 ]
+[ Upstream commit f236a2a2ebabad0848ad0995af7ad1dc7029e895 ]
 
-Merely enabling I2C and RTC selects REGMAP_I2C and REGMAP_SPI, even when
-no driver needs it.  While the former can be moduler, the latter cannot,
-and thus becomes built-in.
+The current code returns -EPERM when the voltage loss bit is set.
+Since the bit indicates that the time value is not valid, return
+-EINVAL instead, which is the appropriate error code for this
+situation.
 
-Fix this by moving the select statements for REGMAP_I2C and REGMAP_SPI
-from the RTC_I2C_AND_SPI helper to the individual drivers that depend on
-it.
-
-Note that the comment for RTC_I2C_AND_SPI refers to SND_SOC_I2C_AND_SPI
-for more information, but the latter does not select REGMAP_{I2C,SPI}
-itself, and defers that to the individual drivers, too.
-
-Fixes: 080481f54ef62121 ("rtc: merge ds3232 and ds3234")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20200112171349.22268-1-geert@linux-m68k.org
+Fixes: dcaf03849352 ("rtc: add hym8563 rtc-driver")
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Link: https://lore.kernel.org/r/20191212153111.966923-1-paul.kocialkowski@bootlin.com
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/Kconfig | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-hym8563.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 1adf9f8156522..5efc6af539c0d 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -859,14 +859,14 @@ config RTC_I2C_AND_SPI
- 	default m if I2C=m
- 	default y if I2C=y
- 	default y if SPI_MASTER=y
--	select REGMAP_I2C if I2C
--	select REGMAP_SPI if SPI_MASTER
+diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
+index b1b4746a0eab5..dbec596494ebe 100644
+--- a/drivers/rtc/rtc-hym8563.c
++++ b/drivers/rtc/rtc-hym8563.c
+@@ -105,7 +105,7 @@ static int hym8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
  
- comment "SPI and I2C RTC drivers"
+ 	if (!hym8563->valid) {
+ 		dev_warn(&client->dev, "no valid clock/calendar values available\n");
+-		return -EPERM;
++		return -EINVAL;
+ 	}
  
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232/DS3234"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS3232 and DS3234 real-time clock chips. If an interrupt is associated
-@@ -886,6 +886,8 @@ config RTC_DRV_DS3232_HWMON
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	select WATCHDOG_CORE if WATCHDOG
- 	help
- 	  If you say yes here you get support for the NXP PCF2127/29 RTC
-@@ -902,6 +904,8 @@ config RTC_DRV_PCF2127
- config RTC_DRV_RV3029C2
- 	tristate "Micro Crystal RV3029/3049"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for the Micro Crystal
- 	  RV3029 and RV3049 RTC chips.
+ 	ret = i2c_smbus_read_i2c_block_data(client, HYM8563_SEC, 7, buf);
 -- 
 2.20.1
 
