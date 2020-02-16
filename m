@@ -1,130 +1,65 @@
-Return-Path: <SRS0=8bDY=4C=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=9gqj=4E=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C57C9C2BA83
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 18:16:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60908C7114E
+	for <linux-rtc@archiver.kernel.org>; Sun, 16 Feb 2020 03:33:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 94F53222C2
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Feb 2020 18:16:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581704207;
-	bh=WqaG5AzvhJERv+jxrahx7FcSznI7YlI6rgAoKinkqlo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=X5zLGclkqxUNGtd9dzJeoUn4oG5JZSrj/VG67n23c1LMKTZpWv8ktvUXhNKPm872F
-	 ygeFGqrXm8cZIAjAp4Lf2pKautDnYHeiyqEZJI+8OrhGBfoWqTUWZL1KcUvMW7AV/h
-	 qIF3YEn8NSnH274YyUye/TKCHfNBWJvpPST/o1ao=
+	by mail.kernel.org (Postfix) with ESMTP id 31A5C2072D
+	for <linux-rtc@archiver.kernel.org>; Sun, 16 Feb 2020 03:33:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404979AbgBNSQq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 14 Feb 2020 13:16:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56352 "EHLO mail.kernel.org"
+        id S1726652AbgBPDd0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 15 Feb 2020 22:33:26 -0500
+Received: from inva021.nxp.com ([92.121.34.21]:34240 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729550AbgBNPv0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:51:26 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC9282467D;
-        Fri, 14 Feb 2020 15:51:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695485;
-        bh=WqaG5AzvhJERv+jxrahx7FcSznI7YlI6rgAoKinkqlo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1dx7Qo4QpXwm969ZwlgFwVmXEpMq9i9WC/lD2GP319beCVFAipZryBeOAf/XDhZd
-         q6qF9Jcm2OCZE01gVqWYgTOm9drnnbfMojdUsCz+CcGYZH9YLa8aOIOEHwJKQt8a6g
-         1R4geA6I+oGYB3hT2v+2f3YC9momSZ9180IhO90c=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        kbuild test robot <lkp@intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 116/542] rtc: i2c/spi: Avoid inclusion of REGMAP support when not needed
-Date:   Fri, 14 Feb 2020 10:41:48 -0500
-Message-Id: <20200214154854.6746-116-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S1726651AbgBPDd0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 15 Feb 2020 22:33:26 -0500
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 3373B201940;
+        Sun, 16 Feb 2020 04:33:24 +0100 (CET)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 37A5E200CC3;
+        Sun, 16 Feb 2020 04:33:21 +0100 (CET)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 3A3104029B;
+        Sun, 16 Feb 2020 11:33:17 +0800 (SGT)
+From:   Anson Huang <Anson.Huang@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Linux-imx@nxp.com
+Subject: [PATCH] rtc: snvs: Remove unused include of of_device.h
+Date:   Sun, 16 Feb 2020 11:27:45 +0800
+Message-Id: <1581823666-16944-1-git-send-email-Anson.Huang@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+There is nothing in use from of_device.h, remove it.
 
-[ Upstream commit 34719de919af07682861cb0fa2bcf64da33ecf44 ]
-
-Merely enabling I2C and RTC selects REGMAP_I2C and REGMAP_SPI, even when
-no driver needs it.  While the former can be moduler, the latter cannot,
-and thus becomes built-in.
-
-Fix this by moving the select statements for REGMAP_I2C and REGMAP_SPI
-from the RTC_I2C_AND_SPI helper to the individual drivers that depend on
-it.
-
-Note that the comment for RTC_I2C_AND_SPI refers to SND_SOC_I2C_AND_SPI
-for more information, but the latter does not select REGMAP_{I2C,SPI}
-itself, and defers that to the individual drivers, too.
-
-Fixes: 080481f54ef62121 ("rtc: merge ds3232 and ds3234")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20200112171349.22268-1-geert@linux-m68k.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
- drivers/rtc/Kconfig | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-snvs.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index d77515d8382c7..738fa07188409 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -848,14 +848,14 @@ config RTC_I2C_AND_SPI
- 	default m if I2C=m
- 	default y if I2C=y
- 	default y if SPI_MASTER=y
--	select REGMAP_I2C if I2C
--	select REGMAP_SPI if SPI_MASTER
- 
- comment "SPI and I2C RTC drivers"
- 
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232/DS3234"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for Dallas Semiconductor
- 	  DS3232 and DS3234 real-time clock chips. If an interrupt is associated
-@@ -875,6 +875,8 @@ config RTC_DRV_DS3232_HWMON
- config RTC_DRV_PCF2127
- 	tristate "NXP PCF2127"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	select WATCHDOG_CORE if WATCHDOG
- 	help
- 	  If you say yes here you get support for the NXP PCF2127/29 RTC
-@@ -891,6 +893,8 @@ config RTC_DRV_PCF2127
- config RTC_DRV_RV3029C2
- 	tristate "Micro Crystal RV3029/3049"
- 	depends on RTC_I2C_AND_SPI
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
- 	help
- 	  If you say yes here you get support for the Micro Crystal
- 	  RV3029 and RV3049 RTC chips.
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 757f4da..7630089 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -7,7 +7,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+-#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_wakeirq.h>
+ #include <linux/rtc.h>
 -- 
-2.20.1
+2.7.4
 
