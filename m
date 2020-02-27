@@ -2,168 +2,389 @@ Return-Path: <SRS0=HDj5=4P=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDB3DC4BA3B
-	for <linux-rtc@archiver.kernel.org>; Thu, 27 Feb 2020 11:45:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8A0BC11D3D
+	for <linux-rtc@archiver.kernel.org>; Thu, 27 Feb 2020 18:31:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9C2D824692
-	for <linux-rtc@archiver.kernel.org>; Thu, 27 Feb 2020 11:45:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB3FF246A6
+	for <linux-rtc@archiver.kernel.org>; Thu, 27 Feb 2020 18:31:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="ZV/HeVWY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728893AbgB0Lp6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 27 Feb 2020 06:45:58 -0500
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:49603 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728888AbgB0Lp6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 27 Feb 2020 06:45:58 -0500
-X-Originating-IP: 86.202.111.97
-Received: from localhost (lfbn-lyo-1-16-97.w86-202.abo.wanadoo.fr [86.202.111.97])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 821602000A;
-        Thu, 27 Feb 2020 11:45:54 +0000 (UTC)
-Date:   Thu, 27 Feb 2020 12:45:54 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Srinivas Neeli <srinivas.neeli@xilinx.com>
-Cc:     a.zummo@towertech.it, michal.simek@xilinx.com, sgoud@xilinx.com,
-        shubhraj@xilinx.com, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        git@xilinx.com, Srinivas Goud <srinivas.goud@xilinx.com>
-Subject: Re: [PATCH] rtc: zynqmp: Add calibration set and get support
-Message-ID: <20200227114554.GA3436@piout.net>
-References: <1582191106-30431-1-git-send-email-srinivas.neeli@xilinx.com>
+        id S1729687AbgB0Sby (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 27 Feb 2020 13:31:54 -0500
+Received: from mail.andi.de1.cc ([85.214.55.253]:51308 "EHLO mail.andi.de1.cc"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729611AbgB0Sbq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 27 Feb 2020 13:31:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=s/jpbJXvX0poWDXg12dxzkxm8UtMRubj6+CdqKO528s=; b=ZV/HeVWYJqBCi8Lff1304rMxmQ
+        rUpDz9AXHgZJKPR92iBI4TvnrXap/tbMCQlbvy8W8Jurjte/ZjNJpkvGzIRq5g4xlsS9jKj4kv3Yv
+        Xah/2QtRKuU5jdntcmb9paQRofXtPzEw2zbkUnQwkrCqn7bnF4kSzXcZtipVgMaeElW8=;
+Received: from p200300ccff13fd00e2cec3fffe93fc31.dip0.t-ipconnect.de ([2003:cc:ff13:fd00:e2ce:c3ff:fe93:fc31] helo=eeepc)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1j7Nwb-0006zK-GL; Thu, 27 Feb 2020 19:31:33 +0100
+Received: from andi by eeepc with local (Exim 4.92)
+        (envelope-from <andreas@kemnade.info>)
+        id 1j7Nwb-0003og-06; Thu, 27 Feb 2020 19:31:33 +0100
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
+        phh@phh.me, letux-kernel@openphoenux.org, knaack.h@gmx.de,
+        lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org,
+        jic23@kernel.org
+Cc:     Andreas Kemnade <andreas@kemnade.info>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v6 6/7] iio: adc: rn5t618: Add ADC driver for RN5T618/RC5T619
+Date:   Thu, 27 Feb 2020 19:31:11 +0100
+Message-Id: <20200227183112.14512-7-andreas@kemnade.info>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200227183112.14512-1-andreas@kemnade.info>
+References: <20200227183112.14512-1-andreas@kemnade.info>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1582191106-30431-1-git-send-email-srinivas.neeli@xilinx.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+Both chips have an A/D converter capable of measuring
+things like VBAT, VUSB and analog inputs.
 
-On 20/02/2020 15:01:46+0530, Srinivas Neeli wrote:
-> diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
-> index 4b1077e2f826..b4118e9e4fcc 100644
-> --- a/drivers/rtc/rtc-zynqmp.c
-> +++ b/drivers/rtc/rtc-zynqmp.c
-> @@ -40,6 +40,12 @@
->  #define RTC_CALIB_MASK		0x1FFFFF
->  #define RTC_ALRM_MASK          BIT(1)
->  #define RTC_MSEC               1000
-> +#define RTC_FR_MASK             0xF0000
-> +#define RTC_SEC_MAX_VAL         0xFFFFFFFF
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+- was in a separate patchset
 
-This value is not used
+Changes in v4:
+- merged ret = and return into one line
+- added Reviewed-by:
 
-> +#define RTC_FR_MAX_TICKS        16
-> +#define RTC_OFFSET_MAX          150000
-> +#define RTC_OFFSET_MIN          -150000
-> +#define RTC_PPB                 1000000000LL
->  
->  struct xlnx_rtc_dev {
->  	struct rtc_device	*rtc;
-> @@ -184,12 +190,84 @@ static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev)
->  	writel(xrtcdev->calibval, (xrtcdev->reg_base + RTC_CALIB_WR));
->  }
->  
-> +static int xlnx_rtc_read_offset(struct device *dev, long *offset)
-> +{
-> +	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
-> +	long offset_val;
-> +	unsigned int reg;
-> +	unsigned int tick_mult = RTC_PPB / xrtcdev->calibval;
-> +
+Changes in v3:
+- output scale instead of processed
+- prefixed symbols with RN5T618
 
-I don't get why you are not simply reusing xrtcdev->calibval. Using
-.set_offset has to take precedence on any value that would have been set
-using DT. Ideally, the DT binding should be removed too.
+Changes in v2:
+- enum for channels
+- bulk read instead of single byte read for conversion
+  result
+- fix get_virq error handling
+- use devm for registering device and requesting IRQ
 
-Currently, the calibration value is overwritten using the DT value
-every time .set_time is called because xrtcdev->calibval is never
-updated.
+ drivers/iio/adc/Kconfig       |  10 ++
+ drivers/iio/adc/Makefile      |   1 +
+ drivers/iio/adc/rn5t618-adc.c | 256 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 267 insertions(+)
+ create mode 100644 drivers/iio/adc/rn5t618-adc.c
 
-> +	reg = readl(xrtcdev->reg_base + RTC_CALIB_RD);
-> +
-> +	/* Offset with seconds ticks */
-> +	offset_val = reg & RTC_TICK_MASK;
-> +	offset_val = offset_val - xrtcdev->calibval;
-> +	offset_val = offset_val * tick_mult;
-> +
-> +	/* Offset with fractional ticks */
-> +	if (reg & RTC_FR_EN)
-> +		offset_val += ((reg & RTC_FR_MASK) >> RTC_FR_DATSHIFT)
-> +			* (tick_mult / RTC_FR_MAX_TICKS);
-> +	*offset = offset_val;
-> +
-> +	return 0;
-> +}
-> +
-> +static int xlnx_rtc_set_offset(struct device *dev, long offset)
-> +{
-> +	struct xlnx_rtc_dev *xrtcdev = dev_get_drvdata(dev);
-> +	short int  max_tick;
-> +	unsigned char fract_tick = 0;
-> +	unsigned int  calibval;
-> +	int fract_offset;
-> +	unsigned int tick_mult = RTC_PPB / xrtcdev->calibval;
-> +
-> +	/* Make sure offset value is within supported range */
-> +	if (offset < RTC_OFFSET_MIN || offset > RTC_OFFSET_MAX)
-> +		return -ERANGE;
-> +
-> +	/* Number ticks for given offset */
-> +	max_tick = div_s64_rem(offset, tick_mult, &fract_offset);
-> +
-> +	/* Number fractional ticks for given offset */
-> +	if (fract_offset) {
-> +		if (fract_offset < 0) {
-> +			fract_offset = fract_offset + tick_mult;
-> +			max_tick--;
-> +		}
-> +		if (fract_offset > (tick_mult / RTC_FR_MAX_TICKS)) {
-> +			for (fract_tick = 1; fract_tick < 16; fract_tick++) {
-> +				if (fract_offset <=
-> +				    (fract_tick *
-> +				     (tick_mult / RTC_FR_MAX_TICKS)))
-> +					break;
-> +			}
-> +		}
-> +	}
-> +
-> +	/* Zynqmp RTC uses second and fractional tick
-> +	 * counters for compensation
-> +	 */
-> +	calibval = max_tick + xrtcdev->calibval;
-> +
-> +	if (fract_tick)
-> +		calibval |= RTC_FR_EN;
-> +
-> +	calibval |= (fract_tick <<  RTC_FR_DATSHIFT);
-> +
-> +	writel(calibval, (xrtcdev->reg_base + RTC_CALIB_WR));
-> +
-> +	return 0;
-> +}
-> +
->  static const struct rtc_class_ops xlnx_rtc_ops = {
->  	.set_time	  = xlnx_rtc_set_time,
->  	.read_time	  = xlnx_rtc_read_time,
->  	.read_alarm	  = xlnx_rtc_read_alarm,
->  	.set_alarm	  = xlnx_rtc_set_alarm,
->  	.alarm_irq_enable = xlnx_rtc_alarm_irq_enable,
-> +	.read_offset    = xlnx_rtc_read_offset,
-> +	.set_offset     = xlnx_rtc_set_offset,
->  };
->  
->  static irqreturn_t xlnx_rtc_interrupt(int irq, void *id)
-> -- 
-> 2.7.4
-> 
-
+diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+index 82e33082958c..300904b93656 100644
+--- a/drivers/iio/adc/Kconfig
++++ b/drivers/iio/adc/Kconfig
+@@ -783,6 +783,16 @@ config RCAR_GYRO_ADC
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rcar-gyroadc.
+ 
++config RN5T618_ADC
++	tristate "ADC for the RN5T618/RC5T619 family of chips"
++	depends on MFD_RN5T618
++	help
++	  Say yes here to build support for the integrated ADC inside the
++	  RN5T618/619 series PMICs:
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rn5t618-adc.
++
+ config ROCKCHIP_SARADC
+ 	tristate "Rockchip SARADC driver"
+ 	depends on ARCH_ROCKCHIP || (ARM && COMPILE_TEST)
+diff --git a/drivers/iio/adc/Makefile b/drivers/iio/adc/Makefile
+index 919228900df9..b182d234f45a 100644
+--- a/drivers/iio/adc/Makefile
++++ b/drivers/iio/adc/Makefile
+@@ -74,6 +74,7 @@ obj-$(CONFIG_QCOM_VADC_COMMON) += qcom-vadc-common.o
+ obj-$(CONFIG_QCOM_SPMI_VADC) += qcom-spmi-vadc.o
+ obj-$(CONFIG_QCOM_PM8XXX_XOADC) += qcom-pm8xxx-xoadc.o
+ obj-$(CONFIG_RCAR_GYRO_ADC) += rcar-gyroadc.o
++obj-$(CONFIG_RN5T618_ADC) += rn5t618-adc.o
+ obj-$(CONFIG_ROCKCHIP_SARADC) += rockchip_saradc.o
+ obj-$(CONFIG_SC27XX_ADC) += sc27xx_adc.o
+ obj-$(CONFIG_SPEAR_ADC) += spear_adc.o
+diff --git a/drivers/iio/adc/rn5t618-adc.c b/drivers/iio/adc/rn5t618-adc.c
+new file mode 100644
+index 000000000000..f21027e4e26a
+--- /dev/null
++++ b/drivers/iio/adc/rn5t618-adc.c
+@@ -0,0 +1,256 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * ADC driver for the RICOH RN5T618 power management chip family
++ *
++ * Copyright (C) 2019 Andreas Kemnade
++ */
++
++#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/errno.h>
++#include <linux/interrupt.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/mfd/rn5t618.h>
++#include <linux/platform_device.h>
++#include <linux/completion.h>
++#include <linux/regmap.h>
++#include <linux/iio/iio.h>
++#include <linux/slab.h>
++
++#define RN5T618_ADC_CONVERSION_TIMEOUT   (msecs_to_jiffies(500))
++#define RN5T618_REFERENCE_VOLT 2500
++
++/* mask for selecting channels for single conversion */
++#define RN5T618_ADCCNT3_CHANNEL_MASK 0x7
++/* average 4-time conversion mode */
++#define RN5T618_ADCCNT3_AVG BIT(3)
++/* set for starting a single conversion, gets cleared by hw when done */
++#define RN5T618_ADCCNT3_GODONE BIT(4)
++/* automatic conversion, period is in ADCCNT2, selected channels are
++ * in ADCCNT1
++ */
++#define RN5T618_ADCCNT3_AUTO BIT(5)
++#define RN5T618_ADCEND_IRQ BIT(0)
++
++struct rn5t618_adc_data {
++	struct device *dev;
++	struct rn5t618 *rn5t618;
++	struct completion conv_completion;
++	int irq;
++};
++
++struct rn5t618_channel_ratios {
++	u16 numerator;
++	u16 denominator;
++};
++
++enum rn5t618_channels {
++	LIMMON = 0,
++	VBAT,
++	VADP,
++	VUSB,
++	VSYS,
++	VTHM,
++	AIN1,
++	AIN0
++};
++
++static const struct rn5t618_channel_ratios rn5t618_ratios[8] = {
++	[LIMMON] = {50, 32}, /* measured across 20mOhm, amplified by 32 */
++	[VBAT] = {2, 1},
++	[VADP] = {3, 1},
++	[VUSB] = {3, 1},
++	[VSYS] = {3, 1},
++	[VTHM] = {1, 1},
++	[AIN1] = {1, 1},
++	[AIN0] = {1, 1},
++};
++
++static int rn5t618_read_adc_reg(struct rn5t618 *rn5t618, int reg, u16 *val)
++{
++	u8 data[2];
++	int ret;
++
++	ret = regmap_bulk_read(rn5t618->regmap, reg, data, sizeof(data));
++	if (ret < 0)
++		return ret;
++
++	*val = (data[0] << 4) | (data[1] & 0xF);
++
++	return 0;
++}
++
++static irqreturn_t rn5t618_adc_irq(int irq, void *data)
++{
++	struct rn5t618_adc_data *adc = data;
++	unsigned int r = 0;
++	int ret;
++
++	/* clear low & high threshold irqs */
++	regmap_write(adc->rn5t618->regmap, RN5T618_IR_ADC1, 0);
++	regmap_write(adc->rn5t618->regmap, RN5T618_IR_ADC2, 0);
++
++	ret = regmap_read(adc->rn5t618->regmap, RN5T618_IR_ADC3, &r);
++	if (ret < 0)
++		dev_err(adc->dev, "failed to read IRQ status: %d\n", ret);
++
++	regmap_write(adc->rn5t618->regmap, RN5T618_IR_ADC3, 0);
++
++	if (r & RN5T618_ADCEND_IRQ)
++		complete(&adc->conv_completion);
++
++	return IRQ_HANDLED;
++}
++
++static int rn5t618_adc_read(struct iio_dev *iio_dev,
++			    const struct iio_chan_spec *chan,
++			    int *val, int *val2, long mask)
++{
++	struct rn5t618_adc_data *adc = iio_priv(iio_dev);
++	u16 raw;
++	int ret;
++
++	if (mask == IIO_CHAN_INFO_SCALE) {
++		*val = RN5T618_REFERENCE_VOLT *
++		       rn5t618_ratios[chan->channel].numerator;
++		*val2 = rn5t618_ratios[chan->channel].denominator * 4095;
++
++		return IIO_VAL_FRACTIONAL;
++	}
++
++	/* select channel */
++	ret = regmap_update_bits(adc->rn5t618->regmap, RN5T618_ADCCNT3,
++				 RN5T618_ADCCNT3_CHANNEL_MASK,
++				 chan->channel);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_write(adc->rn5t618->regmap, RN5T618_EN_ADCIR3,
++			   RN5T618_ADCEND_IRQ);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_update_bits(adc->rn5t618->regmap, RN5T618_ADCCNT3,
++				 RN5T618_ADCCNT3_AVG,
++				 mask == IIO_CHAN_INFO_AVERAGE_RAW ?
++				 RN5T618_ADCCNT3_AVG : 0);
++	if (ret < 0)
++		return ret;
++
++	init_completion(&adc->conv_completion);
++	/* single conversion */
++	ret = regmap_update_bits(adc->rn5t618->regmap, RN5T618_ADCCNT3,
++				 RN5T618_ADCCNT3_GODONE,
++				 RN5T618_ADCCNT3_GODONE);
++	if (ret < 0)
++		return ret;
++
++	ret = wait_for_completion_timeout(&adc->conv_completion,
++					  RN5T618_ADC_CONVERSION_TIMEOUT);
++	if (ret == 0) {
++		dev_warn(adc->dev, "timeout waiting for adc result\n");
++		return -ETIMEDOUT;
++	}
++
++	ret = rn5t618_read_adc_reg(adc->rn5t618,
++				   RN5T618_ILIMDATAH + 2 * chan->channel,
++				   &raw);
++	if (ret < 0)
++		return ret;
++
++	*val = raw;
++
++	return IIO_VAL_INT;
++}
++
++static const struct iio_info rn5t618_adc_iio_info = {
++	.read_raw = &rn5t618_adc_read,
++};
++
++#define RN5T618_ADC_CHANNEL(_channel, _type, _name) { \
++	.type = _type, \
++	.channel = _channel, \
++	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | \
++			      BIT(IIO_CHAN_INFO_AVERAGE_RAW) | \
++			      BIT(IIO_CHAN_INFO_SCALE), \
++	.datasheet_name = _name, \
++	.indexed = 1. \
++}
++
++static const struct iio_chan_spec rn5t618_adc_iio_channels[] = {
++	RN5T618_ADC_CHANNEL(LIMMON, IIO_CURRENT, "LIMMON"),
++	RN5T618_ADC_CHANNEL(VBAT, IIO_VOLTAGE, "VBAT"),
++	RN5T618_ADC_CHANNEL(VADP, IIO_VOLTAGE, "VADP"),
++	RN5T618_ADC_CHANNEL(VUSB, IIO_VOLTAGE, "VUSB"),
++	RN5T618_ADC_CHANNEL(VSYS, IIO_VOLTAGE, "VSYS"),
++	RN5T618_ADC_CHANNEL(VTHM, IIO_VOLTAGE, "VTHM"),
++	RN5T618_ADC_CHANNEL(AIN1, IIO_VOLTAGE, "AIN1"),
++	RN5T618_ADC_CHANNEL(AIN0, IIO_VOLTAGE, "AIN0")
++};
++
++static int rn5t618_adc_probe(struct platform_device *pdev)
++{
++	int ret;
++	struct iio_dev *iio_dev;
++	struct rn5t618_adc_data *adc;
++	struct rn5t618 *rn5t618 = dev_get_drvdata(pdev->dev.parent);
++
++	iio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*adc));
++	if (!iio_dev) {
++		dev_err(&pdev->dev, "failed allocating iio device\n");
++		return -ENOMEM;
++	}
++
++	adc = iio_priv(iio_dev);
++	adc->dev = &pdev->dev;
++	adc->rn5t618 = rn5t618;
++
++	if (rn5t618->irq_data)
++		adc->irq = regmap_irq_get_virq(rn5t618->irq_data,
++					       RN5T618_IRQ_ADC);
++
++	if (adc->irq <= 0) {
++		dev_err(&pdev->dev, "get virq failed\n");
++		return -EINVAL;
++	}
++
++	init_completion(&adc->conv_completion);
++
++	iio_dev->name = dev_name(&pdev->dev);
++	iio_dev->dev.parent = &pdev->dev;
++	iio_dev->info = &rn5t618_adc_iio_info;
++	iio_dev->modes = INDIO_DIRECT_MODE;
++	iio_dev->channels = rn5t618_adc_iio_channels;
++	iio_dev->num_channels = ARRAY_SIZE(rn5t618_adc_iio_channels);
++
++	/* stop any auto-conversion */
++	ret = regmap_write(rn5t618->regmap, RN5T618_ADCCNT3, 0);
++	if (ret < 0)
++		return ret;
++
++	platform_set_drvdata(pdev, iio_dev);
++
++	ret = devm_request_threaded_irq(adc->dev, adc->irq, NULL,
++					rn5t618_adc_irq,
++					IRQF_ONESHOT, dev_name(adc->dev),
++					adc);
++	if (ret < 0) {
++		dev_err(adc->dev, "request irq %d failed: %d\n", adc->irq, ret);
++		return ret;
++	}
++
++	return devm_iio_device_register(adc->dev, iio_dev);
++}
++
++static struct platform_driver rn5t618_adc_driver = {
++	.driver = {
++		.name   = "rn5t618-adc",
++	},
++	.probe = rn5t618_adc_probe,
++};
++
++module_platform_driver(rn5t618_adc_driver);
++MODULE_ALIAS("platform:rn5t618-adc");
++MODULE_DESCRIPTION("RICOH RN5T618 ADC driver");
++MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
