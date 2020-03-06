@@ -2,96 +2,93 @@ Return-Path: <SRS0=g3F2=4X=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 032C6C10F00
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:44:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C3B6C10F00
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:53:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBE93217F4
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:44:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 550802073D
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:53:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="xfpoa28l"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726094AbgCFHoJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 6 Mar 2020 02:44:09 -0500
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:51965 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725853AbgCFHoI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 6 Mar 2020 02:44:08 -0500
-X-Originating-IP: 86.202.105.35
-Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id B89D2E0002;
-        Fri,  6 Mar 2020 07:44:06 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] rtc: mpc5121: convert to devm_rtc_allocate_device
-Date:   Fri,  6 Mar 2020 08:44:01 +0100
-Message-Id: <20200306074404.58909-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200306074404.58909-1-alexandre.belloni@bootlin.com>
-References: <20200306074404.58909-1-alexandre.belloni@bootlin.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-GND-Spam-Score: 400
-X-GND-Status: SPAM
+        id S1725923AbgCFHxK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 6 Mar 2020 02:53:10 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51490 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725908AbgCFHxJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 6 Mar 2020 02:53:09 -0500
+Received: by mail-wm1-f65.google.com with SMTP id a132so1256614wme.1
+        for <linux-rtc@vger.kernel.org>; Thu, 05 Mar 2020 23:53:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=M2N76HSdO2AKrxhSY/D4yXqAwmp+7xWxrk33JmiX+pc=;
+        b=xfpoa28lJrSVhMdRpBko/Y5nceCuKhbj5I/+bAxre7oBTCfeMonRyQv6uvUvhbjEP1
+         FhPNqoKb8pOCbMYux6/Qmed72a3e/UCzQzyAMz1ucd3fcEhlo0A+d3XiKJmBuYDJqM6U
+         hUOJRBs6rchDz5xCdOh5hA6J1i1ThU31flFC/o0vxqXEMJbAxYVQOh6wXfCYROnMbXU7
+         tdsmUtgCvfEjQKLiVLGKBkv52u3f6EjtvJ5tvIqpp0vhd7WS4Y2YtihewAgzn9pm9miL
+         rojEEcCC5ScIjugqoLc3wAemTYA64NlO4NJzyupetKy4ix6mxXBEiH1eBKr1bSwZsiwB
+         3e3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=M2N76HSdO2AKrxhSY/D4yXqAwmp+7xWxrk33JmiX+pc=;
+        b=hzHQebJl+dEJuUoCmnYbuV1/PfiI7/41O5fkfDe9OGwi54PpMgZZksbp/OVwMGztuG
+         QS6MmOH+5JaCcqi2iD4u+fM9eT3hMdoN9irXs8TbqunLoNPaU+1i+R/qvei9oYMUZTxD
+         HVx2mUxoKGa6x0mecyqDpb9ThbMIz0WsC55dxKHDygKcyt1dRQlMYzbIuSjnw4eTSirq
+         6H6L/LbHp7gTob0fnpzzC8xCMb4CpflFBNRsIpLnJut8DQJKb+gwBE3f50lKT6shYoZB
+         wauL5IN4RvkZpAMveYe0G1UEUl802oIlvNCciSSe5874oufue1uSIWGM6u1qgzosgtbo
+         LPDw==
+X-Gm-Message-State: ANhLgQ1sjsWEhxG4jojWWVg5QYMOSrA5On13xFJjyWbyjBJYqdcIelHc
+        Tx/pWIdMCjjea/4QT+omjyTHOQ==
+X-Google-Smtp-Source: ADFU+vthxeXljgB8Lwz7dXuVcROQRPl46OEPlESn2K/Hne5Kko6Kt92tt8v3fQXREFIZb3sinU+X/w==
+X-Received: by 2002:a1c:a908:: with SMTP id s8mr2602908wme.133.1583481188039;
+        Thu, 05 Mar 2020 23:53:08 -0800 (PST)
+Received: from localhost.localdomain ([51.15.160.169])
+        by smtp.googlemail.com with ESMTPSA id f17sm27152245wrm.3.2020.03.05.23.53.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Thu, 05 Mar 2020 23:53:07 -0800 (PST)
+From:   Corentin Labbe <clabbe@baylibre.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        rafael.j.wysocki@intel.com
+Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Corentin Labbe <clabbe@baylibre.com>
+Subject: [PATCH 1/2] PNP: constify driver name
+Date:   Fri,  6 Mar 2020 07:53:00 +0000
+Message-Id: <1583481181-22972-1-git-send-email-clabbe@baylibre.com>
+X-Mailer: git-send-email 2.7.4
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This simplifies the path for the rtc_ops selection.
+struct pnp_driver has name set as char* instead of const char* like platform_driver, pci_driver, usb_driver, etc...
+Let's unify a bit by setting name as const char*.
+Furthermore, all users of this structures set name from already const
+data.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
 ---
- drivers/rtc/rtc-mpc5121.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ include/linux/pnp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mpc5121.c b/drivers/rtc/rtc-mpc5121.c
-index 9e4454d35352..845212fd1e33 100644
---- a/drivers/rtc/rtc-mpc5121.c
-+++ b/drivers/rtc/rtc-mpc5121.c
-@@ -344,6 +344,15 @@ static int mpc5121_rtc_probe(struct platform_device *op)
- 		goto out_dispose2;
- 	}
+diff --git a/include/linux/pnp.h b/include/linux/pnp.h
+index 3b12fd28af78..b18dca67253d 100644
+--- a/include/linux/pnp.h
++++ b/include/linux/pnp.h
+@@ -379,7 +379,7 @@ struct pnp_id {
+ };
  
-+	rtc->rtc = devm_rtc_allocate_device(&op->dev);
-+	if (IS_ERR(rtc->rtc)) {
-+		err = PTR_ERR(rtc->rtc);
-+		goto out_dispose2;
-+	}
-+
-+	rtc->rtc->ops = &mpc5200_rtc_ops;
-+	rtc->rtc->uie_unsupported = 1;
-+
- 	if (of_device_is_compatible(op->dev.of_node, "fsl,mpc5121-rtc")) {
- 		u32 ka;
- 		ka = in_be32(&rtc->regs->keep_alive);
-@@ -352,19 +361,12 @@ static int mpc5121_rtc_probe(struct platform_device *op)
- 				"mpc5121-rtc: Battery or oscillator failure!\n");
- 			out_be32(&rtc->regs->keep_alive, ka);
- 		}
--
--		rtc->rtc = devm_rtc_device_register(&op->dev, "mpc5121-rtc",
--						&mpc5121_rtc_ops, THIS_MODULE);
--	} else {
--		rtc->rtc = devm_rtc_device_register(&op->dev, "mpc5200-rtc",
--						&mpc5200_rtc_ops, THIS_MODULE);
-+		rtc->rtc->ops = &mpc5121_rtc_ops;
- 	}
- 
--	if (IS_ERR(rtc->rtc)) {
--		err = PTR_ERR(rtc->rtc);
-+	err = rtc_register_device(rtc->rtc);
-+	if (err)
- 		goto out_dispose2;
--	}
--	rtc->rtc->uie_unsupported = 1;
- 
- 	return 0;
- 
+ struct pnp_driver {
+-	char *name;
++	const char *name;
+ 	const struct pnp_device_id *id_table;
+ 	unsigned int flags;
+ 	int (*probe) (struct pnp_dev *dev, const struct pnp_device_id *dev_id);
 -- 
 2.24.1
 
