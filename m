@@ -6,30 +6,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25209C10F00
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CFD6C10F26
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:38:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 042C121739
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:38:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D01A21744
+	for <linux-rtc@archiver.kernel.org>; Fri,  6 Mar 2020 07:38:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725923AbgCFHiM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 6 Mar 2020 02:38:12 -0500
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:41323 "EHLO
+        id S1726185AbgCFHiK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 6 Mar 2020 02:38:10 -0500
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:49839 "EHLO
         relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726256AbgCFHiL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 6 Mar 2020 02:38:11 -0500
+        with ESMTP id S1725923AbgCFHiJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 6 Mar 2020 02:38:09 -0500
 X-Originating-IP: 86.202.105.35
 Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 9E29920005;
-        Fri,  6 Mar 2020 07:38:09 +0000 (UTC)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 0B0802000B;
+        Fri,  6 Mar 2020 07:38:07 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] rtc: pm8xxx: stop validating valid alarm time
-Date:   Fri,  6 Mar 2020 08:37:58 +0100
-Message-Id: <20200306073758.58050-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/4] rtc: pm8xxx: set range
+Date:   Fri,  6 Mar 2020 08:37:56 +0100
+Message-Id: <20200306073758.58050-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200306073758.58050-1-alexandre.belloni@bootlin.com>
 References: <20200306073758.58050-1-alexandre.belloni@bootlin.com>
@@ -42,30 +42,25 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-rtc_time64_to_tm never generates an invalid rtc_tm, stop validating it.
+The pm8xxx are 32bit seconds counter.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pm8xxx.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 2da0d80224c3..e3d9abb2134e 100644
+index b97333c95e53..71bd56d32c90 100644
 --- a/drivers/rtc/rtc-pm8xxx.c
 +++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -282,12 +282,6 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+@@ -491,6 +491,7 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(rtc_dd->rtc);
  
- 	rtc_time64_to_tm(secs, &alarm->time);
+ 	rtc_dd->rtc->ops = &pm8xxx_rtc_ops;
++	rtc_dd->rtc->range_max = U32_MAX;
  
--	rc = rtc_valid_tm(&alarm->time);
--	if (rc < 0) {
--		dev_err(dev, "Invalid alarm time read from RTC\n");
--		return rc;
--	}
--
- 	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
- 		&alarm->time, &alarm->time);
- 
+ 	/* Request the alarm IRQ */
+ 	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->rtc_alarm_irq,
 -- 
 2.24.1
 
