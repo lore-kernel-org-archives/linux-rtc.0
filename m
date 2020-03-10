@@ -2,149 +2,235 @@ Return-Path: <SRS0=4vRa=43=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D738C10F27
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Mar 2020 10:11:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 766B7C10DCE
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Mar 2020 20:17:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 280022464B
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Mar 2020 10:11:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="HxyH6sJ6"
+	by mail.kernel.org (Postfix) with ESMTP id 1C3DF21655
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Mar 2020 20:17:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1583871433;
+	bh=9kS4fll6kN31/YdZoAfwvgpKCt0IRqiPyB7uZLKuKj4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=DvOx1qdnycFmfisGRXVmiMLgBoyuWBrrLFGB/CB5oINl75w25QHQO2BwNAABaxtV2
+	 hSFfZS2BYSpOtRQekX2jD2Rm956WexmCcL26rAWg//C0n7EzWnGmMHCTRukpZf3gCf
+	 q6nDQkUFceX5WZbhaB3uepH7A7EDMnZZbof8Ce8w=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbgCJKLR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 Mar 2020 06:11:17 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:39143 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726283AbgCJKKv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Mar 2020 06:10:51 -0400
-X-UUID: bd6bdf8bfad140aba38c3db281612922-20200310
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=vbBy5C/DaSBU2FKJVnVr9W82i4fyWHiz2DGgjDIySMQ=;
-        b=HxyH6sJ6MJwHTr7IWbQa7JTjukwVTZ9gW2tRBne6cYcZZ+dL3AQQk4psNsXXuf5wNhvuMYEbnkI240t+YHMFhyK2xIDew4QMOw+M0OKdRX1Z8iF82j4XbsdzOgLUn9lHcn7XR4XQiGayM0nqX3xfg0yTeqjCjErf5X0A3DdyXCY=;
-X-UUID: bd6bdf8bfad140aba38c3db281612922-20200310
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
-        (envelope-from <hsin-hsiung.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1780487686; Tue, 10 Mar 2020 18:10:45 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Tue, 10 Mar 2020 18:09:17 +0800
-Received: from mtksdaap41.mediatek.inc (172.21.77.4) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Tue, 10 Mar 2020 18:07:58 +0800
-From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        id S1726265AbgCJURK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 10 Mar 2020 16:17:10 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:40370 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726100AbgCJURJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Mar 2020 16:17:09 -0400
+Received: by mail-oi1-f195.google.com with SMTP id y71so9900942oia.7;
+        Tue, 10 Mar 2020 13:17:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TepfMU12ngaZGfWbNFvmwR9hVezQFj2Now5HdZrqyu4=;
+        b=MAlWxbQMNLWWC9P8QMAlwbnTXeUHr+B8wCFlherpg0AzyPeN+KOnhJlFLYMpkDPpOU
+         58T7gWcw9ypogPyHrBYXjZCain/0ZsoVdDVzemMyVMfvNjsoUFdk1ubHFad3oH+9DHyH
+         ahXD5IdaUIPjhGrST2jJMsq0SxbjBE6iibughMY8QBW9fOWvCldrHzReRZB5qypmXwyI
+         MSH14uSKsvs+Qg9s7gZjxfWkrVsQC0S617QkHwP6aRMvw6UxaOZDNwpF3gpD5+RkEKRI
+         d3v47nyrllbqkDHqMBY3V++WclDcrt77o/K/AP4PQ57IvE+GL2aZRRF1MD3mvdNjYnK+
+         wn3A==
+X-Gm-Message-State: ANhLgQ16CTog/bVzNBgs/vhXaMg1iSrYK/BM2Ifqu1c00UJC5nXpq1Sl
+        PyL6TFpezpsZOd0y0PktWw==
+X-Google-Smtp-Source: ADFU+vvZi3Wc3khoMI8YsXkDStp3Ap7La8yZEb6cDvR9LqlLDGYFEkbj63tHb9TF0rmn3zaaorK9tQ==
+X-Received: by 2002:aca:ac46:: with SMTP id v67mr2512370oie.62.1583871428243;
+        Tue, 10 Mar 2020 13:17:08 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id h6sm7762867otq.63.2020.03.10.13.17.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2020 13:17:07 -0700 (PDT)
+Received: (nullmailer pid 30625 invoked by uid 1000);
+        Tue, 10 Mar 2020 20:17:06 -0000
+Date:   Tue, 10 Mar 2020 15:17:06 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Richard Fontana <rfontana@redhat.com>,
-        Josef Friedl <josef.friedl@speed.at>,
-        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        <srv_heupstream@mediatek.com>
-Subject: [PATCH v9 1/5] mfd: mt6397: modify suspend/resume behavior
-Date:   Tue, 10 Mar 2020 18:10:36 +0800
-Message-ID: <1583835040-19157-2-git-send-email-hsin-hsiung.wang@mediatek.com>
-X-Mailer: git-send-email 2.6.4
-In-Reply-To: <1583835040-19157-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1583835040-19157-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+        Mark Rutland <mark.rutland@arm.com>, od@zcrc.me,
+        =?utf-8?B?5ZGo55Cw5p2w?= <zhouyanjie@wanyeetech.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] dt-bindings: rtc: Convert and update jz4740-rtc doc
+ to YAML
+Message-ID: <20200310201706.GA25562@bogus>
+References: <20200302213953.28834-1-paul@crapouillou.net>
+ <20200302213953.28834-3-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200302213953.28834-3-paul@crapouillou.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-U29tZSBwbWljcyBkb24ndCBuZWVkIGJhY2t1cCBpbnRlcnJ1cHQgc2V0dGluZ3MsIHNvIHdlIGNo
-YW5nZSB0byB1c2UNCnBtIG5vdGlmaWVyIGZvciB0aGUgcG1pY3Mgd2hpY2ggYXJlIG5lY2Vzc2Fy
-eSB0byBzdG9yZSBzZXR0aW5ncy4NCg0KU2lnbmVkLW9mZi1ieTogSHNpbi1Ic2l1bmcgV2FuZyA8
-aHNpbi1oc2l1bmcud2FuZ0BtZWRpYXRlay5jb20+DQpBY2tlZC1mb3ItTUZELWJ5OiBMZWUgSm9u
-ZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPg0KLS0tDQogZHJpdmVycy9tZmQvbXQ2Mzk3LWNvcmUu
-YyAgICAgICB8IDMwIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KIGRyaXZlcnMvbWZk
-L210NjM5Ny1pcnEuYyAgICAgICAgfCAzMyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysNCiBpbmNsdWRlL2xpbnV4L21mZC9tdDYzOTcvY29yZS5oIHwgIDIgKysNCiAzIGZpbGVzIGNo
-YW5nZWQsIDM1IGluc2VydGlvbnMoKyksIDMwIGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9tZmQvbXQ2Mzk3LWNvcmUuYyBiL2RyaXZlcnMvbWZkL210NjM5Ny1jb3JlLmMNCmlu
-ZGV4IDA0MzdjODUuLmQyZTcwZDggMTAwNjQ0DQotLS0gYS9kcml2ZXJzL21mZC9tdDYzOTctY29y
-ZS5jDQorKysgYi9kcml2ZXJzL21mZC9tdDYzOTctY29yZS5jDQpAQCAtMTAwLDM1ICsxMDAsNiBA
-QCBzdGF0aWMgY29uc3Qgc3RydWN0IG1mZF9jZWxsIG10NjM5N19kZXZzW10gPSB7DQogCX0NCiB9
-Ow0KIA0KLSNpZmRlZiBDT05GSUdfUE1fU0xFRVANCi1zdGF0aWMgaW50IG10NjM5N19pcnFfc3Vz
-cGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQotew0KLQlzdHJ1Y3QgbXQ2Mzk3X2NoaXAgKmNoaXAg
-PSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCi0NCi0JcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwg
-Y2hpcC0+aW50X2NvblswXSwgY2hpcC0+d2FrZV9tYXNrWzBdKTsNCi0JcmVnbWFwX3dyaXRlKGNo
-aXAtPnJlZ21hcCwgY2hpcC0+aW50X2NvblsxXSwgY2hpcC0+d2FrZV9tYXNrWzFdKTsNCi0NCi0J
-ZW5hYmxlX2lycV93YWtlKGNoaXAtPmlycSk7DQotDQotCXJldHVybiAwOw0KLX0NCi0NCi1zdGF0
-aWMgaW50IG10NjM5N19pcnFfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCi17DQotCXN0cnVj
-dCBtdDYzOTdfY2hpcCAqY2hpcCA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0KLQ0KLQlyZWdtYXBf
-d3JpdGUoY2hpcC0+cmVnbWFwLCBjaGlwLT5pbnRfY29uWzBdLCBjaGlwLT5pcnFfbWFza3NfY3Vy
-WzBdKTsNCi0JcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+aW50X2NvblsxXSwgY2hp
-cC0+aXJxX21hc2tzX2N1clsxXSk7DQotDQotCWRpc2FibGVfaXJxX3dha2UoY2hpcC0+aXJxKTsN
-Ci0NCi0JcmV0dXJuIDA7DQotfQ0KLSNlbmRpZg0KLQ0KLXN0YXRpYyBTSU1QTEVfREVWX1BNX09Q
-UyhtdDYzOTdfcG1fb3BzLCBtdDYzOTdfaXJxX3N1c3BlbmQsDQotCQkJbXQ2Mzk3X2lycV9yZXN1
-bWUpOw0KLQ0KIHN0cnVjdCBjaGlwX2RhdGEgew0KIAl1MzIgY2lkX2FkZHI7DQogCXUzMiBjaWRf
-c2hpZnQ7DQpAQCAtMjM4LDcgKzIwOSw2IEBAIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVy
-IG10NjM5N19kcml2ZXIgPSB7DQogCS5kcml2ZXIgPSB7DQogCQkubmFtZSA9ICJtdDYzOTciLA0K
-IAkJLm9mX21hdGNoX3RhYmxlID0gb2ZfbWF0Y2hfcHRyKG10NjM5N19vZl9tYXRjaCksDQotCQku
-cG0gPSAmbXQ2Mzk3X3BtX29wcywNCiAJfSwNCiAJLmlkX3RhYmxlID0gbXQ2Mzk3X2lkLA0KIH07
-DQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9tZmQvbXQ2Mzk3LWlycS5jIGIvZHJpdmVycy9tZmQvbXQ2
-Mzk3LWlycS5jDQppbmRleCBiMmQzY2UxLi42NjllOTNkIDEwMDY0NA0KLS0tIGEvZHJpdmVycy9t
-ZmQvbXQ2Mzk3LWlycS5jDQorKysgYi9kcml2ZXJzL21mZC9tdDYzOTctaXJxLmMNCkBAIC05LDYg
-KzksNyBAQA0KICNpbmNsdWRlIDxsaW51eC9vZl9pcnEuaD4NCiAjaW5jbHVkZSA8bGludXgvcGxh
-dGZvcm1fZGV2aWNlLmg+DQogI2luY2x1ZGUgPGxpbnV4L3JlZ21hcC5oPg0KKyNpbmNsdWRlIDxs
-aW51eC9zdXNwZW5kLmg+DQogI2luY2x1ZGUgPGxpbnV4L21mZC9tdDYzMjMvY29yZS5oPg0KICNp
-bmNsdWRlIDxsaW51eC9tZmQvbXQ2MzIzL3JlZ2lzdGVycy5oPg0KICNpbmNsdWRlIDxsaW51eC9t
-ZmQvbXQ2Mzk3L2NvcmUuaD4NCkBAIC0xMjgsNiArMTI5LDM2IEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgaXJxX2RvbWFpbl9vcHMgbXQ2Mzk3X2lycV9kb21haW5fb3BzID0gew0KIAkubWFwID0gbXQ2
-Mzk3X2lycV9kb21haW5fbWFwLA0KIH07DQogDQorc3RhdGljIGludCBtdDYzOTdfaXJxX3BtX25v
-dGlmaWVyKHN0cnVjdCBub3RpZmllcl9ibG9jayAqbm90aWZpZXIsDQorCQkJCSAgdW5zaWduZWQg
-bG9uZyBwbV9ldmVudCwgdm9pZCAqdW51c2VkKQ0KK3sNCisJc3RydWN0IG10NjM5N19jaGlwICpj
-aGlwID0NCisJCWNvbnRhaW5lcl9vZihub3RpZmllciwgc3RydWN0IG10NjM5N19jaGlwLCBwbV9u
-Yik7DQorDQorCXN3aXRjaCAocG1fZXZlbnQpIHsNCisJY2FzZSBQTV9TVVNQRU5EX1BSRVBBUkU6
-DQorCQlyZWdtYXBfd3JpdGUoY2hpcC0+cmVnbWFwLA0KKwkJCSAgICAgY2hpcC0+aW50X2Nvblsw
-XSwgY2hpcC0+d2FrZV9tYXNrWzBdKTsNCisJCXJlZ21hcF93cml0ZShjaGlwLT5yZWdtYXAsDQor
-CQkJICAgICBjaGlwLT5pbnRfY29uWzFdLCBjaGlwLT53YWtlX21hc2tbMV0pOw0KKwkJZW5hYmxl
-X2lycV93YWtlKGNoaXAtPmlycSk7DQorCQlicmVhazsNCisNCisJY2FzZSBQTV9QT1NUX1NVU1BF
-TkQ6DQorCQlyZWdtYXBfd3JpdGUoY2hpcC0+cmVnbWFwLA0KKwkJCSAgICAgY2hpcC0+aW50X2Nv
-blswXSwgY2hpcC0+aXJxX21hc2tzX2N1clswXSk7DQorCQlyZWdtYXBfd3JpdGUoY2hpcC0+cmVn
-bWFwLA0KKwkJCSAgICAgY2hpcC0+aW50X2NvblsxXSwgY2hpcC0+aXJxX21hc2tzX2N1clsxXSk7
-DQorCQlkaXNhYmxlX2lycV93YWtlKGNoaXAtPmlycSk7DQorCQlicmVhazsNCisNCisJZGVmYXVs
-dDoNCisJCWJyZWFrOw0KKwl9DQorDQorCXJldHVybiBOT1RJRllfRE9ORTsNCit9DQorDQogaW50
-IG10NjM5N19pcnFfaW5pdChzdHJ1Y3QgbXQ2Mzk3X2NoaXAgKmNoaXApDQogew0KIAlpbnQgcmV0
-Ow0KQEAgLTE1OSw2ICsxOTAsNyBAQCBpbnQgbXQ2Mzk3X2lycV9pbml0KHN0cnVjdCBtdDYzOTdf
-Y2hpcCAqY2hpcCkNCiAJcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+aW50X2Nvblsw
-XSwgMHgwKTsNCiAJcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+aW50X2NvblsxXSwg
-MHgwKTsNCiANCisJY2hpcC0+cG1fbmIubm90aWZpZXJfY2FsbCA9IG10NjM5N19pcnFfcG1fbm90
-aWZpZXI7DQogCWNoaXAtPmlycV9kb21haW4gPSBpcnFfZG9tYWluX2FkZF9saW5lYXIoY2hpcC0+
-ZGV2LT5vZl9ub2RlLA0KIAkJCQkJCSBNVDYzOTdfSVJRX05SLA0KIAkJCQkJCSAmbXQ2Mzk3X2ly
-cV9kb21haW5fb3BzLA0KQEAgLTE3Nyw1ICsyMDksNiBAQCBpbnQgbXQ2Mzk3X2lycV9pbml0KHN0
-cnVjdCBtdDYzOTdfY2hpcCAqY2hpcCkNCiAJCXJldHVybiByZXQ7DQogCX0NCiANCisJcmVnaXN0
-ZXJfcG1fbm90aWZpZXIoJmNoaXAtPnBtX25iKTsNCiAJcmV0dXJuIDA7DQogfQ0KZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvbGludXgvbWZkL210NjM5Ny9jb3JlLmggYi9pbmNsdWRlL2xpbnV4L21mZC9t
-dDYzOTcvY29yZS5oDQppbmRleCBmYzg4ZDMxLi5iODFkMzMzIDEwMDY0NA0KLS0tIGEvaW5jbHVk
-ZS9saW51eC9tZmQvbXQ2Mzk3L2NvcmUuaA0KKysrIGIvaW5jbHVkZS9saW51eC9tZmQvbXQ2Mzk3
-L2NvcmUuaA0KQEAgLTgsNiArOCw3IEBADQogI2RlZmluZSBfX01GRF9NVDYzOTdfQ09SRV9IX18N
-CiANCiAjaW5jbHVkZSA8bGludXgvbXV0ZXguaD4NCisjaW5jbHVkZSA8bGludXgvbm90aWZpZXIu
-aD4NCiANCiBlbnVtIGNoaXBfaWQgew0KIAlNVDYzMjNfQ0hJUF9JRCA9IDB4MjMsDQpAQCAtNTQs
-NiArNTUsNyBAQCBlbnVtIG10NjM5N19pcnFfbnVtYmVycyB7DQogc3RydWN0IG10NjM5N19jaGlw
-IHsNCiAJc3RydWN0IGRldmljZSAqZGV2Ow0KIAlzdHJ1Y3QgcmVnbWFwICpyZWdtYXA7DQorCXN0
-cnVjdCBub3RpZmllcl9ibG9jayBwbV9uYjsNCiAJaW50IGlycTsNCiAJc3RydWN0IGlycV9kb21h
-aW4gKmlycV9kb21haW47DQogCXN0cnVjdCBtdXRleCBpcnFsb2NrOw0KLS0gDQoyLjYuNA0K
+On Mon, Mar 02, 2020 at 06:39:53PM -0300, Paul Cercueil wrote:
+> Convert the jz4740-rtc doc to YAML, and update it to reflect the new
+> changes in the driver:
+> - More compatible strings are specified, with fallbacks if needed,
+> - The vendor-specific properties are now properly prefixed with the
+>   'ingenic,' prefix.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  .../bindings/rtc/ingenic,jz4740-rtc.txt       | 37 --------
+>  .../devicetree/bindings/rtc/ingenic,rtc.yaml  | 87 +++++++++++++++++++
+>  2 files changed, 87 insertions(+), 37 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+>  create mode 100644 Documentation/devicetree/bindings/rtc/ingenic,rtc.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt b/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> deleted file mode 100644
+> index 41c7ae18fd7b..000000000000
+> --- a/Documentation/devicetree/bindings/rtc/ingenic,jz4740-rtc.txt
+> +++ /dev/null
+> @@ -1,37 +0,0 @@
+> -JZ4740 and similar SoCs real-time clock driver
+> -
+> -Required properties:
+> -
+> -- compatible: One of:
+> -  - "ingenic,jz4740-rtc" - for use with the JZ4740 SoC
+> -  - "ingenic,jz4780-rtc" - for use with the JZ4780 SoC
+> -- reg: Address range of rtc register set
+> -- interrupts: IRQ number for the alarm interrupt
+> -- clocks: phandle to the "rtc" clock
+> -- clock-names: must be "rtc"
+> -
+> -Optional properties:
+> -- system-power-controller: To use this component as the
+> -  system power controller
+> -- reset-pin-assert-time-ms: Reset pin low-level assertion
+> -  time after wakeup (default 60ms; range 0-125ms if RTC clock
+> -  at 32 kHz)
+> -- min-wakeup-pin-assert-time-ms: Minimum wakeup pin assertion
+> -  time (default 100ms; range 0-2s if RTC clock at 32 kHz)
+> -
+> -Example:
+> -
+> -rtc@10003000 {
+> -	compatible = "ingenic,jz4740-rtc";
+> -	reg = <0x10003000 0x40>;
+> -
+> -	interrupt-parent = <&intc>;
+> -	interrupts = <32>;
+> -
+> -	clocks = <&rtc_clock>;
+> -	clock-names = "rtc";
+> -
+> -	system-power-controller;
+> -	reset-pin-assert-time-ms = <60>;
+> -	min-wakeup-pin-assert-time-ms = <100>;
+> -};
+> diff --git a/Documentation/devicetree/bindings/rtc/ingenic,rtc.yaml b/Documentation/devicetree/bindings/rtc/ingenic,rtc.yaml
+> new file mode 100644
+> index 000000000000..c18ed8ac263f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/ingenic,rtc.yaml
+> @@ -0,0 +1,87 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/rtc/ingenic,rtc.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Ingenic SoCs Real-Time Clock DT bindings
+> +
+> +maintainers:
+> +  - Paul Cercueil <paul@crapouillou.net>
+> +
+> +allOf:
+> +  - $ref: rtc.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    oneOf:
+> +      - enum:
+> +        - ingenic,jz4740-rtc
+> +        - ingenic,jz4760-rtc
+> +      - items:
+> +        - const: ingenic,jz4725b-rtc
+> +        - const: ingenic,jz4740-rtc
+> +      - items:
+> +        - enum:
+> +          - ingenic,jz4770-rtc
+> +          - ingenic,jz4780-rtc
+> +        - const: ingenic,jz4760-rtc
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  clock-names:
+> +    const: rtc
+> +
+> +  system-power-controller:
+> +    description: |
+> +      Indicates that the RTC is responsible for powering OFF
+> +      the system.
+> +    type: boolean
+> +
+> +  ingenic,reset-pin-assert-time-ms:
+> +    description: |
+> +      Reset pin low-level assertion time after wakeup
+> +      (assuming RTC clock at 32 kHz)
+> +    allOf:
+> +      - $ref: /schemas/types.yaml#/definitions/uint32
 
+You can drop this because standard units have a type already.
+
+> +      - minimum: 0
+> +      - maximum: 125
+> +      - default: 60
+
+And then move all there out of allOf.
+
+> +
+> +  ingenic,min-wakeup-pin-assert-time-ms:
+> +    description: |
+> +      Minimum wakeup pin assertion time
+> +      (assuming RTC clock at 32 kHz)
+> +    allOf:
+> +      - $ref: /schemas/types.yaml#/definitions/uint32
+> +      - minimum: 0
+> +      - maximum: 2000
+> +      - default: 100
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - clocks
+> +  - clock-names
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/clock/jz4740-cgu.h>
+> +    rtc_dev: rtc@10003000 {
+> +      compatible = "ingenic,jz4740-rtc";
+> +      reg = <0x10003000 0x40>;
+> +
+> +      interrupt-parent = <&intc>;
+> +      interrupts = <15>;
+> +
+> +      clocks = <&cgu JZ4740_CLK_RTC>;
+> +      clock-names = "rtc";
+> +    };
+> -- 
+> 2.25.1
+> 
