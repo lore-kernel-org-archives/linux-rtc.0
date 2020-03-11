@@ -4,32 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39066C0044D
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 138C7C2BB1D
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2BC1820739
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0935920746
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729997AbgCKWkA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Mar 2020 18:40:00 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:39881 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729881AbgCKWkA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 18:40:00 -0400
+        id S1731390AbgCKWkE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 11 Mar 2020 18:40:04 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:37801 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731352AbgCKWkE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 18:40:04 -0400
 Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 8A115200004;
-        Wed, 11 Mar 2020 22:39:58 +0000 (UTC)
+        by relay11.mail.gandi.net (Postfix) with ESMTPSA id DF560100003;
+        Wed, 11 Mar 2020 22:40:01 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/6] rtc: 88pm860x: fix possible race condition
-Date:   Wed, 11 Mar 2020 23:39:51 +0100
-Message-Id: <20200311223956.51352-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 5/6] rtc: 88pm860x: stop mangling alarm time
+Date:   Wed, 11 Mar 2020 23:39:55 +0100
+Message-Id: <20200311223956.51352-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200311223956.51352-1-alexandre.belloni@bootlin.com>
+References: <20200311223956.51352-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -37,54 +39,80 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in the IRQ handler.
-
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
-
-Also remove the unnecessary error message as the core already prints the
-info.
+The RTC core always passes a valid alarm time there is no need to modify
+it.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-88pm860x.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-88pm860x.c | 41 +-------------------------------------
+ 1 file changed, 1 insertion(+), 40 deletions(-)
 
 diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 4743b16a8d84..1526402e126b 100644
+index f5933a08454c..e0b18227514b 100644
 --- a/drivers/rtc/rtc-88pm860x.c
 +++ b/drivers/rtc/rtc-88pm860x.c
-@@ -336,6 +336,10 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
- 	info->dev = &pdev->dev;
- 	dev_set_drvdata(&pdev->dev, info);
+@@ -75,33 +75,6 @@ static int pm860x_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 	return 0;
+ }
  
-+	info->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(info->rtc_dev))
-+		return PTR_ERR(info->rtc_dev);
-+
- 	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
- 					rtc_update_handler, IRQF_ONESHOT, "rtc",
- 					info);
-@@ -377,13 +381,11 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "88pm860x-rtc",
--					    &pm860x_rtc_ops, THIS_MODULE);
--	ret = PTR_ERR(info->rtc_dev);
--	if (IS_ERR(info->rtc_dev)) {
--		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
-+	info->rtc_dev->ops = &pm860x_rtc_ops;
-+
-+	ret = rtc_register_device(info->rtc_dev);
-+	if (ret)
- 		return ret;
+-/*
+- * Calculate the next alarm time given the requested alarm time mask
+- * and the current time.
+- */
+-static void rtc_next_alarm_time(struct rtc_time *next, struct rtc_time *now,
+-				struct rtc_time *alrm)
+-{
+-	unsigned long next_time;
+-	unsigned long now_time;
+-
+-	next->tm_year = now->tm_year;
+-	next->tm_mon = now->tm_mon;
+-	next->tm_mday = now->tm_mday;
+-	next->tm_hour = alrm->tm_hour;
+-	next->tm_min = alrm->tm_min;
+-	next->tm_sec = alrm->tm_sec;
+-
+-	rtc_tm_to_time(now, &now_time);
+-	rtc_tm_to_time(next, &next_time);
+-
+-	if (next_time < now_time) {
+-		/* Advance one day */
+-		next_time += 60 * 60 * 24;
+-		rtc_time_to_tm(next_time, next);
 -	}
+-}
+-
+ static int pm860x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct pm860x_rtc_info *info = dev_get_drvdata(dev);
+@@ -187,7 +160,6 @@ static int pm860x_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct pm860x_rtc_info *info = dev_get_drvdata(dev);
+-	struct rtc_time now_tm, alarm_tm;
+ 	unsigned long ticks, base, data;
+ 	unsigned char buf[8];
+ 	int mask;
+@@ -200,18 +172,7 @@ static int pm860x_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	base = ((unsigned long)buf[1] << 24) | (buf[3] << 16) |
+ 		(buf[5] << 8) | buf[7];
  
- 	/*
- 	 * enable internal XO instead of internal 3.25MHz clock since it can
+-	/* load 32-bit read-only counter */
+-	pm860x_bulk_read(info->i2c, PM8607_RTC_COUNTER1, 4, buf);
+-	data = ((unsigned long)buf[3] << 24) | (buf[2] << 16) |
+-		(buf[1] << 8) | buf[0];
+-	ticks = base + data;
+-	dev_dbg(info->dev, "get base:0x%lx, RO count:0x%lx, ticks:0x%lx\n",
+-		base, data, ticks);
+-
+-	rtc_time_to_tm(ticks, &now_tm);
+-	rtc_next_alarm_time(&alarm_tm, &now_tm, &alrm->time);
+-	/* get new ticks for alarm in 24 hours */
+-	rtc_tm_to_time(&alarm_tm, &ticks);
++	rtc_tm_to_time(&alrm->time, &ticks);
+ 	data = ticks - base;
+ 
+ 	buf[0] = data & 0xff;
 -- 
 2.24.1
 
