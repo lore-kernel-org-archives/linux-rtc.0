@@ -2,102 +2,97 @@ Return-Path: <SRS0=9sCh=44=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C79BC2BBDE
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 09:17:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0ED3C4CECE
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 18:23:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 024A221D56
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 09:17:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D42720738
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 18:23:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="M56im9O3"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=crapouillou.net header.i=@crapouillou.net header.b="RHy36I5i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728844AbgCKJRQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Mar 2020 05:17:16 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:58454 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728606AbgCKJRQ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 05:17:16 -0400
-X-UUID: e5f77489817f46938285fbb914e26390-20200311
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=w/OFvaAVqelVRqsmT335UVcjfyRxqRhg1qlxZpxXnpY=;
-        b=M56im9O3gMpK9T2JmCngoiZYscMXlR4BpT6C5tbfeOd32LrLxKi7PInM16+ItyscRh0xCoyMs+p0m3GQbvbL5z4uPiNR+XEWIkVMt6JkeoBlUfWXUJjh/6dVispN67R5AXBlEYcZTHvmoccDAdSD/zWnS2YHhuKC0TVZiEBvO24=;
-X-UUID: e5f77489817f46938285fbb914e26390-20200311
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
-        (envelope-from <hsin-hsiung.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 4283539; Wed, 11 Mar 2020 17:17:12 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Wed, 11 Mar 2020 17:15:37 +0800
-Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Wed, 11 Mar 2020 17:17:12 +0800
-From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        id S1730691AbgCKSXa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 11 Mar 2020 14:23:30 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:51318 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730677AbgCKSXa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 14:23:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1583951008; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=XuegH4/ESXmv9jvimvm+jo54TN7v2f2NupKchkt4G/Q=;
+        b=RHy36I5iuPJ6cjDS84GmovAHo35bj/Bvg40l/1D3tqI4JBajMOtAL+cYajC58JOCoX62Io
+        aNfLcG7d5Io/lHuC/mDcDvMa2q23640p0ZhJ33oMOvALicknhLvlb6ivPK0SaGVmOVawAN
+        DFE5ARZSLsVRCCoTI488mtDM2vkG33k=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-CC:     Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Richard Fontana <rfontana@redhat.com>,
-        Josef Friedl <josef.friedl@speed.at>,
-        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        <srv_heupstream@mediatek.com>
-Subject: [PATCH v10 0/5] Add Support for MediaTek PMIC MT6358
-Date:   Wed, 11 Mar 2020 17:16:58 +0800
-Message-ID: <1583918223-22506-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-X-Mailer: git-send-email 2.6.4
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Cc:     od@zcrc.me, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v2 1/3] rtc: jz4740: Add support for JZ4760 SoC
+Date:   Wed, 11 Mar 2020 19:23:16 +0100
+Message-Id: <20200311182318.22154-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-VGhpcyBwYXRjaHNldCBpbmNsdWRpbmcgbW9kaWZ5aW5nIHN1c3BlbmQvcmVzdW1lIGJlaGF2aW9y
-IGFkZCBzdXBwb3J0IHRvIE1UNjM1OCBQTUlDLg0KTVQ2MzU4IGlzIHRoZSBwcmltYXJ5IFBNSUMg
-Zm9yIE1UODE4MyBwbGF0Zm9ybS4NCg0KY2hhbmdlcyBzaW5jZSB2OToNCi0gcmVtb3ZlIHJlZHVu
-ZGFudCBsb29wIGluIG1mZCBkcml2ZXIuDQotIG1vdmUgbXRrX3J0Y19kYXRhIGZyb20gcnRjLmgg
-dG8gcnRjLW10NjM5Ny5jDQoNCkhzaW4tSHNpdW5nIFdhbmcgKDQpOg0KICBtZmQ6IG10NjM5Nzog
-bW9kaWZ5IHN1c3BlbmQvcmVzdW1lIGJlaGF2aW9yDQogIGR0LWJpbmRpbmdzOiBtZmQ6IEFkZCBj
-b21wYXRpYmxlIGZvciB0aGUgTWVkaWFUZWsgTVQ2MzU4IFBNSUMNCiAgbWZkOiBBZGQgc3VwcG9y
-dCBmb3IgdGhlIE1lZGlhVGVrIE1UNjM1OCBQTUlDDQogIGFybTY0OiBkdHM6IG10NjM1ODogYWRk
-IFBNSUMgTVQ2MzU4IHJlbGF0ZWQgbm9kZXMNCg0KUmFuIEJpICgxKToNCiAgcnRjOiBtdDYzOTc6
-IEFkZCBzdXBwb3J0IGZvciB0aGUgTWVkaWFUZWsgTVQ2MzU4IFJUQw0KDQogRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL21mZC9tdDYzOTcudHh0IHwgIDE0ICstDQogYXJjaC9hcm02
-NC9ib290L2R0cy9tZWRpYXRlay9tdDYzNTguZHRzaSAgICAgICAgIHwgMzU4ICsrKysrKysrKysr
-KysrKysrKysrKysrDQogYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9tdDgxODMtZXZiLmR0
-cyAgICAgIHwgICAxICsNCiBkcml2ZXJzL21mZC9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgfCAgIDIgKy0NCiBkcml2ZXJzL21mZC9tdDYzNTgtaXJxLmMgICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAyMzYgKysrKysrKysrKysrKysrDQogZHJpdmVycy9tZmQvbXQ2Mzk3LWNv
-cmUuYyAgICAgICAgICAgICAgICAgICAgICAgIHwgIDg1ICsrKy0tLQ0KIGRyaXZlcnMvbWZkL210
-NjM5Ny1pcnEuYyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAzMyArKysNCiBkcml2ZXJzL3Bv
-d2VyL3Jlc2V0L210NjMyMy1wb3dlcm9mZi5jICAgICAgICAgICAgfCAgIDIgKy0NCiBkcml2ZXJz
-L3J0Yy9ydGMtbXQ2Mzk3LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMzIgKy0NCiBpbmNs
-dWRlL2xpbnV4L21mZC9tdDYzNTgvY29yZS5oICAgICAgICAgICAgICAgICAgfCAxNTggKysrKysr
-KysrKw0KIGluY2x1ZGUvbGludXgvbWZkL210NjM1OC9yZWdpc3RlcnMuaCAgICAgICAgICAgICB8
-IDI4MiArKysrKysrKysrKysrKysrKysNCiBpbmNsdWRlL2xpbnV4L21mZC9tdDYzOTcvY29yZS5o
-ICAgICAgICAgICAgICAgICAgfCAgIDUgKw0KIGluY2x1ZGUvbGludXgvbWZkL210NjM5Ny9ydGMu
-aCAgICAgICAgICAgICAgICAgICB8ICAgOSArLQ0KIDEzIGZpbGVzIGNoYW5nZWQsIDExNjggaW5z
-ZXJ0aW9ucygrKSwgNDkgZGVsZXRpb25zKC0pDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gvYXJt
-NjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ2MzU4LmR0c2kNCiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJp
-dmVycy9tZmQvbXQ2MzU4LWlycS5jDQogY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1ZGUvbGludXgv
-bWZkL210NjM1OC9jb3JlLmgNCiBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9saW51eC9tZmQv
-bXQ2MzU4L3JlZ2lzdGVycy5oDQoNCi0tIA0KMi42LjQNCg==
+The WENR feature (set a magic value to enable RTC registers read-write)
+first appeared on the JZ4760; the JZ4780 came much later.
+
+Since it would be dangerous to specify a newer SoC's compatible string as
+the fallback of an older SoC's compatible string, we add support for the
+"ingenic,jz4760-rtc" compatible string in the driver.
+
+This will permit to support the JZ4770 by having:
+compatible = "ingenic,jz4770-rtc", "ingenic,jz4760-rtc";
+
+Instead of doing:
+compatible = "ingenic,jz4770-rtc", "ingenic,jz4780-rtc";
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ drivers/rtc/rtc-jz4740.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-jz4740.c b/drivers/rtc/rtc-jz4740.c
+index 18023e472cbc..d764cd525c9a 100644
+--- a/drivers/rtc/rtc-jz4740.c
++++ b/drivers/rtc/rtc-jz4740.c
+@@ -46,6 +46,7 @@
+ 
+ enum jz4740_rtc_type {
+ 	ID_JZ4740,
++	ID_JZ4760,
+ 	ID_JZ4780,
+ };
+ 
+@@ -106,7 +107,7 @@ static inline int jz4740_rtc_reg_write(struct jz4740_rtc *rtc, size_t reg,
+ {
+ 	int ret = 0;
+ 
+-	if (rtc->type >= ID_JZ4780)
++	if (rtc->type >= ID_JZ4760)
+ 		ret = jz4780_rtc_enable_write(rtc);
+ 	if (ret == 0)
+ 		ret = jz4740_rtc_wait_write_ready(rtc);
+@@ -298,6 +299,7 @@ static void jz4740_rtc_power_off(void)
+ 
+ static const struct of_device_id jz4740_rtc_of_match[] = {
+ 	{ .compatible = "ingenic,jz4740-rtc", .data = (void *)ID_JZ4740 },
++	{ .compatible = "ingenic,jz4760-rtc", .data = (void *)ID_JZ4760 },
+ 	{ .compatible = "ingenic,jz4780-rtc", .data = (void *)ID_JZ4780 },
+ 	{},
+ };
+-- 
+2.25.1
 
