@@ -6,29 +6,30 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43C66C2BB1D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE0CEC4CECE
 	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 43E8620746
+	by mail.kernel.org (Postfix) with ESMTP id AF22620746
 	for <linux-rtc@archiver.kernel.org>; Wed, 11 Mar 2020 22:40:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731376AbgCKWkN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Mar 2020 18:40:13 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:52043 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731338AbgCKWkC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 18:40:02 -0400
+        id S1731341AbgCKWkC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 11 Mar 2020 18:40:02 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:36401 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729919AbgCKWkB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Mar 2020 18:40:01 -0400
+X-Originating-IP: 86.202.105.35
 Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 1C3AF200003;
-        Wed, 11 Mar 2020 22:40:00 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 720E8C0003;
+        Wed, 11 Mar 2020 22:39:59 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] rtc: 88pm860x: set range
-Date:   Wed, 11 Mar 2020 23:39:54 +0100
-Message-Id: <20200311223956.51352-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/6] rtc: 88pm860x: stop setting a default time
+Date:   Wed, 11 Mar 2020 23:39:52 +0100
+Message-Id: <20200311223956.51352-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200311223956.51352-1-alexandre.belloni@bootlin.com>
 References: <20200311223956.51352-1-alexandre.belloni@bootlin.com>
@@ -39,25 +40,38 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The 88pm860x RTC is a 32bit read only seconds counter with a 32bit offset.
+It doesn't make sense to set the RTC to a default value at probe time. Let
+the core handle invalid date and time.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-88pm860x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-88pm860x.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
 diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 0abf2b194938..f5933a08454c 100644
+index 1526402e126b..d6aca28905e3 100644
 --- a/drivers/rtc/rtc-88pm860x.c
 +++ b/drivers/rtc/rtc-88pm860x.c
-@@ -353,6 +353,7 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
- 	pm860x_rtc_dt_init(pdev, info);
- 
- 	info->rtc_dev->ops = &pm860x_rtc_ops;
-+	info->rtc_dev->range_max = U32_MAX;
- 
- 	ret = rtc_register_device(info->rtc_dev);
- 	if (ret)
+@@ -360,19 +360,6 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Failed to read initial time.\n");
+ 		return ret;
+ 	}
+-	if ((tm.tm_year < 70) || (tm.tm_year > 138)) {
+-		tm.tm_year = 70;
+-		tm.tm_mon = 0;
+-		tm.tm_mday = 1;
+-		tm.tm_hour = 0;
+-		tm.tm_min = 0;
+-		tm.tm_sec = 0;
+-		ret = pm860x_rtc_set_time(&pdev->dev, &tm);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "Failed to set initial time.\n");
+-			return ret;
+-		}
+-	}
+ 	rtc_tm_to_time(&tm, &ticks);
+ 	if (pm860x_rtc_dt_init(pdev, info)) {
+ 		if (pdata && pdata->sync) {
 -- 
 2.24.1
 
