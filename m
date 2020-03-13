@@ -2,119 +2,172 @@ Return-Path: <SRS0=8K59=46=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D9E0C10DCE
-	for <linux-rtc@archiver.kernel.org>; Fri, 13 Mar 2020 06:46:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86F10C4CECE
+	for <linux-rtc@archiver.kernel.org>; Fri, 13 Mar 2020 07:21:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EB35A2074B
-	for <linux-rtc@archiver.kernel.org>; Fri, 13 Mar 2020 06:46:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5EA762072C
+	for <linux-rtc@archiver.kernel.org>; Fri, 13 Mar 2020 07:21:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="MQ8zVt1j"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="j4zuqFUo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726467AbgCMGqK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 13 Mar 2020 02:46:10 -0400
-Received: from mail.andi.de1.cc ([85.214.55.253]:55942 "EHLO mail.andi.de1.cc"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726216AbgCMGqJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 13 Mar 2020 02:46:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=yQkfOLNuqw0s/C4iIr73jm/g+t03fJKekg1eS9M/yZg=; b=MQ8zVt1jf+3E8VFEr9vHXAwzRP
-        EEpNOjG0j9PXkkpwioOIl1s3ss5UcmCWbUmkf3Lu2/xhN0+0ruZHagfHuVB+NaQVla6w5oLLiutBU
-        QIbBfQv1x+4Q5mzzzwC1GAgSEtF9O3syxxI/jfsgzlEy8/kSht1I7X3a1yCv0EclzO9k=;
-Received: from p200300ccff096400e2cec3fffe93fc31.dip0.t-ipconnect.de ([2003:cc:ff09:6400:e2ce:c3ff:fe93:fc31] helo=eeepc)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1jCe4u-0002p9-GB; Fri, 13 Mar 2020 07:45:52 +0100
-Received: from andi by eeepc with local (Exim 4.92)
-        (envelope-from <andreas@kemnade.info>)
-        id 1jCe4t-0008Cq-SM; Fri, 13 Mar 2020 07:45:51 +0100
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
-        phh@phh.me, letux-kernel@openphoenux.org, knaack.h@gmx.de,
-        lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org,
-        jic23@kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH RESEND v6 0/7] mfd: rn5t618: Add RTC/ADC support
-Date:   Fri, 13 Mar 2020 07:45:27 +0100
-Message-Id: <20200313064535.31503-1-andreas@kemnade.info>
-X-Mailer: git-send-email 2.20.1
+        id S1726483AbgCMHVu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 13 Mar 2020 03:21:50 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:39668 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726390AbgCMHVu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 13 Mar 2020 03:21:50 -0400
+Received: by mail-wr1-f66.google.com with SMTP id r15so10724009wrx.6
+        for <linux-rtc@vger.kernel.org>; Fri, 13 Mar 2020 00:21:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=sQxXi9CRhC6J1JA72O4VCpde45a5cXX2Zji3I69uQo4=;
+        b=j4zuqFUo45Vugz82Ecfgizma7gF6A9D6+QHJCcpEJLOtWyy782IHdt5nRr2S0vYWrl
+         tCd5QlOFhGEqUCOORfc5U40kPbWKiSMoQxTpqONDLpqIHBiQFBGoAmm9Yy+Yr9YgizWJ
+         fsMC4KUgBQqdxCLj4Z7VtqLTVroMe1Q7nKS2ecVcjc0feUY8R8u2yFzWkVY2/uDRJPYG
+         tIyb/7nj1iiVKEq7DzZgN/Z41e/T+oMiwjQ/f+M1WoZ1GeZUZN987rLGKqyhgNeL8GHU
+         9OjOEVZaJ/ulyf98yV3CxVR6qr0lnKhuMOTWpuZKnFxIwNmDDyH5V+SjdJcur7pxXaOf
+         UjHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=sQxXi9CRhC6J1JA72O4VCpde45a5cXX2Zji3I69uQo4=;
+        b=Y62S2gV4vKAjPFyikEwBwRAllfj2yOe2HjaZxUzyykZ8LyCChlEoN18h5etYjDnIFB
+         4CIf+ENrrJMIUhRkoGBUuMwXjaFtzHMmt+msJin0JFTVFHtUetxr96k+aVFj7zb9DOzD
+         6vhTk/smU8N//V6Tze98s/amvnWYEU4KaSeL5vyWQaAvsn3bCfJzFolZDniUybcjOpKm
+         B9UZoXOiFSm8dltwjK+6LAihZvhU9Q4nSyixj0f41WdOUHslTD0nkB1+VvzWz0swStkP
+         XLukE9cao8MqM/zRLE3VIw3sFMLcwtxpiGCWnoSbLvw+ksuVGHUsreJckC16z+C2aPEu
+         MtgA==
+X-Gm-Message-State: ANhLgQ0FdwZM/PUhnNUCYczsRenwMqHBNysEJHmYJpLVcvGBIc+Kd3Vl
+        279eYnIlc/4UuKx1MG9w2PGmKg==
+X-Google-Smtp-Source: ADFU+vuPgfTs8juRvDQP7ie5Jjw78q3AucIP1CU5GMcpnF/BXVNtLxngkCxpmiEz6jntkh7XZvkSTw==
+X-Received: by 2002:a5d:6082:: with SMTP id w2mr16016232wrt.300.1584084108142;
+        Fri, 13 Mar 2020 00:21:48 -0700 (PDT)
+Received: from dell ([2.27.167.19])
+        by smtp.gmail.com with ESMTPSA id x8sm68094533wro.55.2020.03.13.00.21.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Mar 2020 00:21:47 -0700 (PDT)
+Date:   Fri, 13 Mar 2020 07:22:30 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Ran Bi <ran.bi@mediatek.com>
+Cc:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Richard Fontana <rfontana@redhat.com>,
+        Josef Friedl <josef.friedl@speed.at>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Nicolas Boichat <drinkcat@chromium.org>,
+        srv_heupstream@mediatek.com
+Subject: Re: [PATCH v10 4/5] rtc: mt6397: Add support for the MediaTek MT6358
+ RTC
+Message-ID: <20200313072230.GC3142@dell>
+References: <1583918223-22506-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <1583918223-22506-5-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <20200312074407.GA3142@dell>
+ <1584003477.6269.8.camel@mhfsdcap03>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1584003477.6269.8.camel@mhfsdcap03>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In the variant RC5T619 the mfd has an RTC. This patchset adds
-support for it. To do so it adds the missing register defines in 
-rn5t618.h and general irq handling for that.
-It seems that the IRQ definitions are the same except missing RTC
-for the RN5T618 but due to missing ability to test that they are
-not added here.
-It also adds support for the ADC, it is available in both the
-RN5T618 and RC5T619 but due to missing ability to test that,
-the subdevice is only added for the RN5T618.
+On Thu, 12 Mar 2020, Ran Bi wrote:
 
-It was tested on the Kobo Clara HD.
+> On Thu, 2020-03-12 at 07:44 +0000, Lee Jones wrote:
+> > On Wed, 11 Mar 2020, Hsin-Hsiung Wang wrote:
+> > 
+> > > From: Ran Bi <ran.bi@mediatek.com>
+> > > 
+> > > This add support for the MediaTek MT6358 RTC. Driver using
+> > > compatible data to store different RTC_WRTGR address offset.
+> > > This replace RTC_WRTGR to RTC_WRTGR_MT6323 in mt6323-poweroff
+> > > driver which only needed by armv7 CPU without ATF.
+> > > 
+> > > Signed-off-by: Ran Bi <ran.bi@mediatek.com>
+> > > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> > > ---
+> > >  drivers/power/reset/mt6323-poweroff.c |  2 +-
+> > >  drivers/rtc/rtc-mt6397.c              | 32 ++++++++++++++++++++++++--------
+> > >  include/linux/mfd/mt6397/rtc.h        |  9 ++++++++-
+> > >  3 files changed, 33 insertions(+), 10 deletions(-)
+> > > 
+> 
+> <...>
+> 
+> > >  
+> > >  #define RTC_IRQ_STA            0x0002
+> > >  #define RTC_IRQ_STA_AL         BIT(0)
+> > > @@ -65,6 +67,10 @@
+> > >  #define MTK_RTC_POLL_DELAY_US  10
+> > >  #define MTK_RTC_POLL_TIMEOUT   (jiffies_to_usecs(HZ))
+> > >  
+> > > +struct mtk_rtc_data {
+> > > +	u32			wrtgr;
+> > > +};
+> > 
+> > Do you expect to add more properties to this struct?
+> > 
+> > If not, it seems a bit overkill.
+> > 
+> 
+> Yes, we would add more properties here in future patches.
+> 
+> > >  struct mt6397_rtc {
+> > >  	struct device           *dev;
+> > >  	struct rtc_device       *rtc_dev;
+> > > @@ -74,6 +80,7 @@ struct mt6397_rtc {
+> > >  	struct regmap           *regmap;
+> > >  	int                     irq;
+> > >  	u32                     addr_base;
+> > > +	const struct mtk_rtc_data *data;
+> > 
+> > 'data' is a terrible variable name.
+> > 
+> > Why do you need to store this?
+> > 
+> > It's one variable which is used once AFAICT.
+> 
+> I would rename 'data' to 'config'.
+> 
+> This struct will be extended in future patches to achieve more PMIC chip
+> compatibility.
 
-Changes in v6:
-- put together with ADC series
-- also added cleanup i2_device_id patch to avoid merge
-  conflicts
+On closer inspection, it looks like wrtgr (also not a great name for a
+variable by the way) is a register address.  Is that correct?
+Initially I thought it was a model number, which would have been a
+suitable candidate for entry into OF .data.
 
-Changes in v5:
-- static rn5t618_irq_init
-- PLATFORM_DEVID_NONE
-- added some Acked-Bys
+However, describing register addresses in OF .data does not sound like
+good practice.  It is usually used to identify a platform in the cases
+where platforms cannot be otherwise dynamically interrogated for model
+number via a register read.
 
-Changes in v4:
-- use macros for IRQ definitions
-- merge rn5t618-core.c and rn5t618-irq.c
-
-Changes in v3:
-- alignment cleanup
-- output cleanup, remove useless toggling of alarm flag in rtc probe
-- updated bindings description, so patch 1/5 becomes 2/6 and so on
-
-Changes in v2:
-- no dead code in irq code
-- various improvements and cleanups in rtc driver itself
- 
-Andreas Kemnade (7):
-  dt-bindings: mfd: rn5t618: Document optional property interrupts
-  mfd: rn5t618: add IRQ support
-  mfd: rn5t618: add RTC related registers
-  mfd: rn5t618: add more subdevices
-  rtc: rc5t619: add Ricoh RC5T619 RTC driver
-  iio: adc: rn5t618: Add ADC driver for RN5T618/RC5T619
-  mfd: rn5t618: cleanup i2c_device_id
-
- .../devicetree/bindings/mfd/rn5t618.txt       |   4 +
- drivers/iio/adc/Kconfig                       |  10 +
- drivers/iio/adc/Makefile                      |   1 +
- drivers/iio/adc/rn5t618-adc.c                 | 256 ++++++++++
- drivers/mfd/Kconfig                           |   1 +
- drivers/mfd/rn5t618.c                         | 119 ++++-
- drivers/rtc/Kconfig                           |  10 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-rc5t619.c                     | 444 ++++++++++++++++++
- include/linux/mfd/rn5t618.h                   |  26 +
- 10 files changed, 862 insertions(+), 10 deletions(-)
- create mode 100644 drivers/iio/adc/rn5t618-adc.c
- create mode 100644 drivers/rtc/rtc-rc5t619.c
+Describing register maps via 'config' data is a slippery slope.
 
 -- 
-2.20.1
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
