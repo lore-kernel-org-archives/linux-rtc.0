@@ -4,23 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19A5CC2BB1D
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7E8FC2BB1D
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE61E20738
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9046F2073E
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726812AbgCQJkT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 17 Mar 2020 05:40:19 -0400
-Received: from v6.sk ([167.172.42.174]:50228 "EHLO v6.sk"
+        id S1727032AbgCQJkp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 17 Mar 2020 05:40:45 -0400
+Received: from v6.sk ([167.172.42.174]:50518 "EHLO v6.sk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbgCQJkM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 17 Mar 2020 05:40:12 -0400
+        id S1727016AbgCQJkn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 17 Mar 2020 05:40:43 -0400
 Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 50ADC60FFA;
-        Tue, 17 Mar 2020 09:40:09 +0000 (UTC)
+        by v6.sk (Postfix) with ESMTP id 7531A61091;
+        Tue, 17 Mar 2020 09:40:41 +0000 (UTC)
 From:   Lubomir Rintel <lkundrak@v3.sk>
 To:     Rob Herring <robh+dt@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
@@ -47,9 +47,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
         Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 09/28] ARM: dts: mmp3: fix L2 cache controller node name
-Date:   Tue, 17 Mar 2020 10:39:03 +0100
-Message-Id: <20200317093922.20785-10-lkundrak@v3.sk>
+Subject: [PATCH 17/28] dt-bindings: mmc: Fix up clk-phase-sd-hs in an example
+Date:   Tue, 17 Mar 2020 10:39:11 +0100
+Message-Id: <20200317093922.20785-18-lkundrak@v3.sk>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317093922.20785-1-lkundrak@v3.sk>
 References: <20200317093922.20785-1-lkundrak@v3.sk>
@@ -60,30 +60,33 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The current one makes validation unhappy:
+This way the validator can know that the two cells constitute a singlej
+pair of clock phase degrees value, not separate items Otherwise it is
+unhappy:
 
-  mmp3-dell-ariel.dt.yaml: l2-cache-controller@d0020000: $nodename:0:
-      'l2-cache-controller@d0020000' does not match
-      '^(cache-controller|cpu)(@[0-9a-f,]+)*$'
+  mmc-controller.example.dt.yaml: mmc@ab000000: clk-phase-sd-hs:0:
+      [63] is too short
+  mmc-controller.example.dt.yaml: mmc@ab000000: clk-phase-sd-hs:1:
+      [72] is too short
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 ---
- arch/arm/boot/dts/mmp3.dtsi | 2 +-
+ Documentation/devicetree/bindings/mmc/mmc-controller.yaml | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/mmp3.dtsi b/arch/arm/boot/dts/mmp3.dtsi
-index 649aa74851257..eaff9b1bc1d9f 100644
---- a/arch/arm/boot/dts/mmp3.dtsi
-+++ b/arch/arm/boot/dts/mmp3.dtsi
-@@ -523,7 +523,7 @@ ssp4: spi@d4039000 {
- 			};
- 		};
+diff --git a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+index 8fded83c519ad..c9384ed685b8f 100644
+--- a/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
++++ b/Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+@@ -363,7 +363,7 @@ examples:
+         keep-power-in-suspend;
+         wakeup-source;
+         mmc-pwrseq = <&sdhci0_pwrseq>;
+-        clk-phase-sd-hs = <63>, <72>;
++        clk-phase-sd-hs = <63 72>;
+     };
  
--		l2: l2-cache-controller@d0020000 {
-+		l2: cache-controller@d0020000 {
- 			compatible = "marvell,tauros3-cache", "arm,pl310-cache";
- 			reg = <0xd0020000 0x1000>;
- 			cache-unified;
+   - |
 -- 
 2.25.1
 
