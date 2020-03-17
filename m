@@ -4,23 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16D2CC18E5B
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19A5CC2BB1D
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E87EC2071C
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE61E20738
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:40:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726729AbgCQJkF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 17 Mar 2020 05:40:05 -0400
-Received: from v6.sk ([167.172.42.174]:50162 "EHLO v6.sk"
+        id S1726812AbgCQJkT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 17 Mar 2020 05:40:19 -0400
+Received: from v6.sk ([167.172.42.174]:50228 "EHLO v6.sk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726709AbgCQJkE (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 17 Mar 2020 05:40:04 -0400
+        id S1726077AbgCQJkM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 17 Mar 2020 05:40:12 -0400
 Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 538ED60FF8;
-        Tue, 17 Mar 2020 09:40:01 +0000 (UTC)
+        by v6.sk (Postfix) with ESMTP id 50ADC60FFA;
+        Tue, 17 Mar 2020 09:40:09 +0000 (UTC)
 From:   Lubomir Rintel <lkundrak@v3.sk>
 To:     Rob Herring <robh+dt@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
@@ -47,9 +47,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
         Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 07/28] ARM: dts: pxa*: Fix up encoding of the /rtc interrupts property
-Date:   Tue, 17 Mar 2020 10:39:01 +0100
-Message-Id: <20200317093922.20785-8-lkundrak@v3.sk>
+Subject: [PATCH 09/28] ARM: dts: mmp3: fix L2 cache controller node name
+Date:   Tue, 17 Mar 2020 10:39:03 +0100
+Message-Id: <20200317093922.20785-10-lkundrak@v3.sk>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317093922.20785-1-lkundrak@v3.sk>
 References: <20200317093922.20785-1-lkundrak@v3.sk>
@@ -60,44 +60,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This way the device tree validator learns that each cell of the property
-constitutes a separate item. Otherwise it gets unnecessairly upset:
+The current one makes validation unhappy:
 
-  pxa168-aspenite.dt.yaml: rtc@d4010000: interrupts: [[5, 6]] is too short
-  pxa910-dkb.dt.yaml: rtc@d4010000: interrupts: [[5, 6]] is too short
+  mmp3-dell-ariel.dt.yaml: l2-cache-controller@d0020000: $nodename:0:
+      'l2-cache-controller@d0020000' does not match
+      '^(cache-controller|cpu)(@[0-9a-f,]+)*$'
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 ---
- arch/arm/boot/dts/pxa168.dtsi | 2 +-
- arch/arm/boot/dts/pxa910.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/mmp3.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/pxa168.dtsi b/arch/arm/boot/dts/pxa168.dtsi
-index c6ac85e362d8a..ae2221a3f825f 100644
---- a/arch/arm/boot/dts/pxa168.dtsi
-+++ b/arch/arm/boot/dts/pxa168.dtsi
-@@ -140,7 +140,7 @@ twsi2: i2c@d4025000 {
- 			rtc: rtc@d4010000 {
- 				compatible = "mrvl,mmp-rtc";
- 				reg = <0xd4010000 0x1000>;
--				interrupts = <5 6>;
-+				interrupts = <5>, <6>;
- 				interrupt-names = "rtc 1Hz", "rtc alarm";
- 				clocks = <&soc_clocks PXA168_CLK_RTC>;
- 				resets = <&soc_clocks PXA168_CLK_RTC>;
-diff --git a/arch/arm/boot/dts/pxa910.dtsi b/arch/arm/boot/dts/pxa910.dtsi
-index 5f8e208916b31..774e8e9730924 100644
---- a/arch/arm/boot/dts/pxa910.dtsi
-+++ b/arch/arm/boot/dts/pxa910.dtsi
-@@ -152,7 +152,7 @@ twsi2: i2c@d4037000 {
- 			rtc: rtc@d4010000 {
- 				compatible = "mrvl,mmp-rtc";
- 				reg = <0xd4010000 0x1000>;
--				interrupts = <5 6>;
-+				interrupts = <5>, <6>;
- 				interrupt-names = "rtc 1Hz", "rtc alarm";
- 				clocks = <&soc_clocks PXA910_CLK_RTC>;
- 				resets = <&soc_clocks PXA910_CLK_RTC>;
+diff --git a/arch/arm/boot/dts/mmp3.dtsi b/arch/arm/boot/dts/mmp3.dtsi
+index 649aa74851257..eaff9b1bc1d9f 100644
+--- a/arch/arm/boot/dts/mmp3.dtsi
++++ b/arch/arm/boot/dts/mmp3.dtsi
+@@ -523,7 +523,7 @@ ssp4: spi@d4039000 {
+ 			};
+ 		};
+ 
+-		l2: l2-cache-controller@d0020000 {
++		l2: cache-controller@d0020000 {
+ 			compatible = "marvell,tauros3-cache", "arm,pl310-cache";
+ 			reg = <0xd0020000 0x1000>;
+ 			cache-unified;
 -- 
 2.25.1
 
