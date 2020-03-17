@@ -4,23 +4,23 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90D94C2BB1D
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10FD7C3F2CE
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:41:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7093720738
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:41:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E52F320736
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 09:41:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727128AbgCQJk7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 17 Mar 2020 05:40:59 -0400
-Received: from v6.sk ([167.172.42.174]:50636 "EHLO v6.sk"
+        id S1727257AbgCQJlT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 17 Mar 2020 05:41:19 -0400
+Received: from v6.sk ([167.172.42.174]:50830 "EHLO v6.sk"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727092AbgCQJk4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 17 Mar 2020 05:40:56 -0400
+        id S1727229AbgCQJlR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 17 Mar 2020 05:41:17 -0400
 Received: from localhost (v6.sk [IPv6:::1])
-        by v6.sk (Postfix) with ESMTP id 1B63C61095;
-        Tue, 17 Mar 2020 09:40:54 +0000 (UTC)
+        by v6.sk (Postfix) with ESMTP id 129226109D;
+        Tue, 17 Mar 2020 09:41:15 +0000 (UTC)
 From:   Lubomir Rintel <lkundrak@v3.sk>
 To:     Rob Herring <robh+dt@kernel.org>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
@@ -47,9 +47,9 @@ Cc:     Linus Walleij <linus.walleij@linaro.org>,
         linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
         linux-spi@vger.kernel.org, linux-usb@vger.kernel.org,
         Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 20/28] dt-bindings: phy: Convert phy-mmp3-usb to json-schema
-Date:   Tue, 17 Mar 2020 10:39:14 +0100
-Message-Id: <20200317093922.20785-21-lkundrak@v3.sk>
+Subject: [PATCH 25/28] dt-bindings: rtc: Convert sa1100-rtc to json-schema
+Date:   Tue, 17 Mar 2020 10:39:19 +0100
+Message-Id: <20200317093922.20785-26-lkundrak@v3.sk>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200317093922.20785-1-lkundrak@v3.sk>
 References: <20200317093922.20785-1-lkundrak@v3.sk>
@@ -60,82 +60,100 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-A rather straightforward conversion of the phy-mmp3-usb binding to DT
-schema format using json-schema.
+Convert the sa1100-rtc binding to DT schema format using json-schema.
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 ---
- .../bindings/phy/marvell,mmp3-usb-phy.yaml    | 40 +++++++++++++++++++
- .../devicetree/bindings/phy/phy-mmp3-usb.txt  | 13 ------
- 2 files changed, 40 insertions(+), 13 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/phy/marvell,mmp3-usb-phy.yaml
- delete mode 100644 Documentation/devicetree/bindings/phy/phy-mmp3-usb.txt
+ .../devicetree/bindings/rtc/sa1100-rtc.txt    | 17 ------
+ .../devicetree/bindings/rtc/sa1100-rtc.yaml   | 55 +++++++++++++++++++
+ 2 files changed, 55 insertions(+), 17 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
 
-diff --git a/Documentation/devicetree/bindings/phy/marvell,mmp3-usb-phy.yaml b/Documentation/devicetree/bindings/phy/marvell,mmp3-usb-phy.yaml
+diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt b/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
+deleted file mode 100644
+index 968ac820254bb..0000000000000
+--- a/Documentation/devicetree/bindings/rtc/sa1100-rtc.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-* Marvell Real Time Clock controller
+-
+-Required properties:
+-- compatible: should be "mrvl,sa1100-rtc"
+-- reg: physical base address of the controller and length of memory mapped
+-  region.
+-- interrupts: Should be two. The first interrupt number is the rtc alarm
+-  interrupt and the second interrupt number is the rtc hz interrupt.
+-- interrupt-names: Assign name of irq resource.
+-
+-Example:
+-	rtc: rtc@d4010000 {
+-		compatible = "mrvl,mmp-rtc";
+-		reg = <0xd4010000 0x1000>;
+-		interrupts = <5>, <6>;
+-		interrupt-names = "rtc 1Hz", "rtc alarm";
+-	};
+diff --git a/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
 new file mode 100644
-index 0000000000000..1307703d9b627
+index 0000000000000..53a8b72df9f34
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/phy/marvell,mmp3-usb-phy.yaml
-@@ -0,0 +1,40 @@
-+# SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
-+# Copyright 2019,2020 Lubomir Rintel <lkundrak@v3.sk>
++++ b/Documentation/devicetree/bindings/rtc/sa1100-rtc.yaml
+@@ -0,0 +1,55 @@
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/phy/marvell,mmp3-usb-phy.yaml#
++$id: http://devicetree.org/schemas/rtc/sa1100-rtc.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Marvell MMP3 USB PHY bindings
++title: Marvell Real Time Clock controller bindings
++
++allOf:
++  - $ref: rtc.yaml#
 +
 +maintainers:
-+  - Lubomir Rintel <lkundrak@v3.sk>
++  - devicetree@vger.kernel.org
 +
 +properties:
-+  $nodename:
-+    pattern: '^usb-phy@[a-f0-9]+$'
-+
 +  compatible:
-+    const: marvell,mmp3-usb-phy
++    enum:
++      - mrvl,sa1100-rtc
++      - mrvl,mmp-rtc
 +
 +  reg:
 +    maxItems: 1
-+    description: base address of the device
 +
-+  '#phy-cells':
-+    const: 0
++  clocks:
++    maxItems: 1
++
++  resets:
++    maxItems: 1
++
++  interrupts:
++    minItems: 2
++    maxItems: 2
++
++  interrupt-names:
++    items:
++      - const: 'rtc 1Hz'
++      - const: 'rtc alarm'
 +
 +required:
 +  - compatible
 +  - reg
-+  - '#phy-cells'
++  - interrupts
++  - interrupt-names
++
++additionalProperties: false
 +
 +examples:
 +  - |
-+    usb-phy@d4207000 {
-+      compatible = "marvell,mmp3-usb-phy";
-+      reg = <0xd4207000 0x40>;
-+      #phy-cells = <0>;
++    rtc: rtc@d4010000 {
++        compatible = "mrvl,mmp-rtc";
++        reg = <0xd4010000 0x1000>;
++        interrupts = <5>, <6>;
++        interrupt-names = "rtc 1Hz", "rtc alarm";
 +    };
 +
 +...
-diff --git a/Documentation/devicetree/bindings/phy/phy-mmp3-usb.txt b/Documentation/devicetree/bindings/phy/phy-mmp3-usb.txt
-deleted file mode 100644
-index 7183b9102f917..0000000000000
---- a/Documentation/devicetree/bindings/phy/phy-mmp3-usb.txt
-+++ /dev/null
-@@ -1,13 +0,0 @@
--Marvell MMP3 USB PHY
----------------------
--
--Required properties:
--- compatible: must be "marvell,mmp3-usb-phy"
--- #phy-cells: must be 0
--
--Example:
--	usb-phy: usb-phy@d4207000 {
--		compatible = "marvell,mmp3-usb-phy";
--		reg = <0xd4207000 0x40>;
--		#phy-cells = <0>;
--	};
 -- 
 2.25.1
 
