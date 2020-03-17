@@ -6,133 +6,95 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B00DDC10F29
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 11:55:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55A74C18E5B
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 12:30:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8BC1920714
-	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 11:55:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3486B20757
+	for <linux-rtc@archiver.kernel.org>; Tue, 17 Mar 2020 12:30:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726476AbgCQLz0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 17 Mar 2020 07:55:26 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:48139 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725794AbgCQLz0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 17 Mar 2020 07:55:26 -0400
-X-Originating-IP: 86.202.105.35
-Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 3BBF820003;
-        Tue, 17 Mar 2020 11:55:24 +0000 (UTC)
-Date:   Tue, 17 Mar 2020 12:55:23 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     maggarwa@codeaurora.org
-Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc-pm8xxx: Clear Alarm register on resume
-Message-ID: <20200317115523.GB3448@piout.net>
-References: <1584342688-14035-1-git-send-email-maggarwa@codeaurora.org>
- <20200316102905.GN4518@piout.net>
- <000001d5fc17$9c327ee0$d4977ca0$@codeaurora.org>
+        id S1725906AbgCQMaX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 17 Mar 2020 08:30:23 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:44853 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725872AbgCQMaX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 17 Mar 2020 08:30:23 -0400
+Received: by mail-oi1-f196.google.com with SMTP id d62so21417106oia.11;
+        Tue, 17 Mar 2020 05:30:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7bWIGrmJckT1m6t9quae5+JZV9bgbsoWOVuE/IRPIaU=;
+        b=GbK3DPScJAztlhsnTjBPGHhza6bHTGDnv99/0V6wI+g3w1wQV6KUZrDT4ggMpnhFdJ
+         38L9n2iotYDN64hsGap7TdRdixmE5Bm8CIrRVhPPdtCM0H5aoXMptalrV5dgHnovVTRn
+         YsQe5qqEduSFiw2qDc114VTKUUhp4a+6cx1+TYvTSKkqHuzPUbbVlU+aV6xRO5x6foDH
+         JGzygqPRCNPyVAGqAux3yR6qrwVf384cVSne3yZAKz0sHo+J9sjn2vGl1GwwjpsfUaHf
+         ssATK+G/6Xy0XEegiwG+ITC8GuuFnfD2PwB5Xa5To/Vah+ctDUxtB/6M6/u8TLz1Iocx
+         9epQ==
+X-Gm-Message-State: ANhLgQ3oCh7WizCCcM+QcxarEUWhSxx6jLElvLiJzNFZSHzN3N9IW3KD
+        QV4+PeCopOWXli2EBW5YNn3b5+C+EcSPV/d8JiQ=
+X-Google-Smtp-Source: ADFU+vuNAHmuooiafUqKBUMfEczzYmFc/BAx7C+JWZfkPiA2MFSi8dPCdNgJmpF13jUW4ASUOw2odywHhSz6CZpai2U=
+X-Received: by 2002:aca:cdd1:: with SMTP id d200mr3061324oig.153.1584448221150;
+ Tue, 17 Mar 2020 05:30:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000001d5fc17$9c327ee0$d4977ca0$@codeaurora.org>
+References: <20200316104701.209293-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20200316104701.209293-1-alexandre.belloni@bootlin.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Tue, 17 Mar 2020 13:30:10 +0100
+Message-ID: <CAMuHMdVy6J1G5P6BQ14D65=pRu-q=+kcN3RV8mjtaZcwBooZyw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] rtc: mt2712: fix build without PM_SLEEP
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 17/03/2020 10:20:36+0530, maggarwa@codeaurora.org wrote:
-> Hi,
-> 
-> Comments inline.
-> 
-> 
-> Thanks & Regards,
-> Mohit
-> 
-> -----Original Message-----
-> From: Alexandre Belloni <alexandre.belloni@bootlin.com> 
-> Sent: Monday, March 16, 2020 3:59 PM
-> To: Mohit Aggarwal <maggarwa@codeaurora.org>
-> Cc: a.zummo@towertech.it; linux-rtc@vger.kernel.org;
-> linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] rtc-pm8xxx: Clear Alarm register on resume
-> 
-> Hi,
-> 
-> On 16/03/2020 12:41:28+0530, Mohit Aggarwal wrote:
-> > Currently, alarm register is not cleared on resume leading to reboot 
-> > during power off charging mode.
-> > 
-> > Change-Id: Ie2e6bbab8aa46e4e9b9cc984181ffab557cbbdae
-> 
-> No Change-Id upstream please.
-> [Mohit]: Will fix in next patch.
-> 
-> > Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
-> > ---
-> >  drivers/rtc/rtc-pm8xxx.c | 13 ++++++++++++-
-> >  1 file changed, 12 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c index 
-> > bbe013f..96e7985 100644
-> > --- a/drivers/rtc/rtc-pm8xxx.c
-> > +++ b/drivers/rtc/rtc-pm8xxx.c
-> > @@ -1,5 +1,5 @@
-> >  // SPDX-License-Identifier: GPL-2.0-only
-> > -/* Copyright (c) 2010-2011, 2019, The Linux Foundation. All rights 
-> > reserved. */
-> > +/* Copyright (c) 2010-2011, 2019-2020, The Linux Foundation. All 
-> > +rights reserved. */
-> >  
-> >  #include <linux/of.h>
-> >  #include <linux/module.h>
-> > @@ -301,6 +301,7 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device
-> *dev, unsigned int enable)
-> >  	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
-> >  	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-> >  	unsigned int ctrl_reg;
-> > +	u8 value[NUM_8_BIT_RTC_REGS] = {0};
-> >  
-> >  	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-> >  
-> > @@ -319,6 +320,16 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device
-> *dev, unsigned int enable)
-> >  		goto rtc_rw_fail;
-> >  	}
-> >  
-> > +	/* Clear Alarm register */
-> > +	if (!enable) {
-> > +		rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw,
-> value,
-> > +					sizeof(value));
-> 
-> This is not properly aligned.
-> [Mohit]: I don't see any alignment issue at my end. I can see proper tabs
-> are present.
-> 
+Hi Alexandre,
 
-The alignment should match the opening parenthesis.
+On Mon, Mar 16, 2020 at 11:48 AM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+> Move SIMPLE_DEV_PM_OPS out of #ifdef to fix build issues when PM_SLEEP is
+> not selected.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  drivers/rtc/rtc-mt2712.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/rtc/rtc-mt2712.c b/drivers/rtc/rtc-mt2712.c
+> index 432df9b0a3ac..c2709c1602f0 100644
+> --- a/drivers/rtc/rtc-mt2712.c
+> +++ b/drivers/rtc/rtc-mt2712.c
+> @@ -394,10 +394,10 @@ static int mt2712_rtc_resume(struct device *dev)
+>
+>         return 0;
+>  }
+> +#endif
+>
+>  static SIMPLE_DEV_PM_OPS(mt2712_pm_ops, mt2712_rtc_suspend,
+>                          mt2712_rtc_resume);
 
-> > +		if (rc) {
-> > +			dev_err(dev, "Write to RTC ALARM register
-> failed\n");
-> 
-> Is that error message necessary? What would be the user action after seeing
-> that in the logs? Will the logs actually be seen?
-> [Mohit]: In case issue in question reproduces even after this change then
-> for debugging purposes user can look out for this error log in kernel logs
-> which can help to triage the issue.
-> 
+That's 23 more unused pointers in your kernel image.
 
-Who in the field on the final product will see this error message? For
-debugging purposes, regmap already provides plenty of tracing
-facilities.
+> -#endif
+>
+>  static const struct of_device_id mt2712_rtc_of_match[] = {
+>         { .compatible = "mediatek,mt2712-rtc", },
 
+Gr{oetje,eeting}s,
 
+                        Geert
 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
