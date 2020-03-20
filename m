@@ -2,107 +2,94 @@ Return-Path: <SRS0=nupm=5F=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE737C43333
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 09:24:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5803C43332
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 17:59:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF4AA20784
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 09:24:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8873920777
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 17:59:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1584727191;
+	bh=DGeijnOIn12ma/KFVaPMSvVX+s9rvjhEG+Ur0PAtiuI=;
+	h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+	 List-ID:From;
+	b=p63DfJno5OY0h0pe1yxVXhmEU3f43Bx1sz/k6gqQbMIElWco/1d7XyZG5LxScsQCj
+	 qftC1wYYUbKL0HhSWAXkqtRHD32g9TnUfbeeXIrEwkaJ8uVQH9DxoIbD5XNwfMu3UD
+	 O9EpI9NvzHJxPS0Cq6oZ4DNWaHC/wDVoZRAl4+sc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727025AbgCTJY7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 20 Mar 2020 05:24:59 -0400
-Received: from mail.v3.sk ([167.172.186.51]:37792 "EHLO shell.v3.sk"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727000AbgCTJY6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 20 Mar 2020 05:24:58 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id A9501DFC45;
-        Fri, 20 Mar 2020 09:25:15 +0000 (UTC)
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id CB3O09jGeY6v; Fri, 20 Mar 2020 09:25:15 +0000 (UTC)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by zimbra.v3.sk (Postfix) with ESMTP id D57D7E0028;
-        Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at zimbra.v3.sk
-Received: from shell.v3.sk ([127.0.0.1])
-        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id vyhPJH_CqW6F; Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
-Received: from localhost (unknown [109.183.109.54])
-        by zimbra.v3.sk (Postfix) with ESMTPSA id 6BB7CDFC45;
-        Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
-Date:   Fri, 20 Mar 2020 10:24:52 +0100
-From:   Lubomir Rintel <lkundrak@v3.sk>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
-        devicetree@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Linux USB List <linux-usb@vger.kernel.org>
-Subject: Re: [PATCH 13/28] dt-bindings: serial: move Marvell compatible
- string to 8250 binding doc
-Message-ID: <20200320092452.GA24507@furthur.local>
-References: <20200317093922.20785-1-lkundrak@v3.sk>
- <20200317093922.20785-14-lkundrak@v3.sk>
- <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
+        id S1726801AbgCTR7r (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 20 Mar 2020 13:59:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57202 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727303AbgCTR7r (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Mar 2020 13:59:47 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B76420773;
+        Fri, 20 Mar 2020 17:59:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584727186;
+        bh=DGeijnOIn12ma/KFVaPMSvVX+s9rvjhEG+Ur0PAtiuI=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=ONzJ0ZJ6nw3PrFfrdSoYaE8wT4mwKndSAPADBXc+39M1wul0Y2nVV2/xIgfhFkTno
+         Lxu1FQbP2065765hwrMvNfCwQe3JlFIdcnNio/gpTrJ4BJCTS/lL+PP23IN25vwn3W
+         ZcaqvudhiGxL3xUHgjRv3udAl6zCfims03R+UzHg=
+Date:   Fri, 20 Mar 2020 17:59:45 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Corentin Labbe <clabbe@baylibre.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc:     stable <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] rtc: max8907: add missing select REGMAP_IRQ
+In-Reply-To: <1584545209-20433-1-git-send-email-clabbe@baylibre.com>
+References: <1584545209-20433-1-git-send-email-clabbe@baylibre.com>
+Message-Id: <20200320175946.8B76420773@mail.kernel.org>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 10:11:02AM -0600, Rob Herring wrote:
-> On Tue, Mar 17, 2020 at 3:40 AM Lubomir Rintel <lkundrak@v3.sk> wrote:
-> >
-> > These ports are compatible with NS8250 and handled by the same driver.
-> > Get rid of the extra document that fails to document the properties that
-> > are actually supported.
-> >
-> > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> > ---
-> >  Documentation/devicetree/bindings/serial/8250.txt        | 2 ++
-> >  Documentation/devicetree/bindings/serial/mrvl-serial.txt | 4 ----
-> >  2 files changed, 2 insertions(+), 4 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/serial/mrvl-serial.txt
-> 
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> I'd really like to see 8250.txt converted to schema.
+Hi
 
-I'll follow up just with that.
+[This is an automated email]
 
-Thanks quarantine.
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 94c01ab6d754 ("rtc: add MAX8907 RTC driver").
 
-> Rob
+The bot has tested the following trees: v5.5.10, v5.4.26, v4.19.111, v4.14.173, v4.9.216, v4.4.216.
 
-Lubo
+v5.5.10: Build OK!
+v5.4.26: Build OK!
+v4.19.111: Build OK!
+v4.14.173: Build OK!
+v4.9.216: Failed to apply! Possible dependencies:
+    959df7778bbd ("rtc: Enable compile testing for Maxim and Samsung drivers")
+
+v4.4.216: Failed to apply! Possible dependencies:
+    01ea01b35120 ("rtc: max77686: Use a driver data struct instead hard-coded values")
+    0b4f8b085b5d ("rtc: max77686: fix checkpatch error")
+    5981804b8365 ("rtc: max77686: Use usleep_range() instead of msleep()")
+    69be249ab4bc ("rtc: max77686: use rtc regmap to access RTC registers")
+    726fe738bd5c ("rtc: max77686: Add support for MAX20024/MAX77620 RTC IP")
+    862f9453bd14 ("rtc: max77686: Use ARRAY_SIZE() instead of current array length")
+    90a5698a86ba ("rtc: max77686: Add an indirection level to access RTC registers")
+    959df7778bbd ("rtc: Enable compile testing for Maxim and Samsung drivers")
+    bf035f42344a ("rtc: max77686: Cleanup and reduce dmesg output")
+    f3937549a975 ("rtc: max77686: move initialisation of rtc regmap, irq chip locally")
+    f604c48849a5 ("rtc: max77686: avoid reference of parent device info multiple places")
+    f903129b8607 ("rtc: max77686: Add max77802 support")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
