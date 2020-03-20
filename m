@@ -1,105 +1,125 @@
-Return-Path: <SRS0=qmze=5E=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=nupm=5F=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4301DC4332E
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Mar 2020 22:41:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E218C4332D
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 08:11:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14BEB20767
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Mar 2020 22:41:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62CC420739
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 08:11:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="bLPyBAYA"
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="A3NZJngu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727553AbgCSWlW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Mar 2020 18:41:22 -0400
-Received: from mail.andi.de1.cc ([85.214.55.253]:55432 "EHLO mail.andi.de1.cc"
+        id S1726970AbgCTILc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 20 Mar 2020 04:11:32 -0400
+Received: from mail.andi.de1.cc ([85.214.55.253]:51330 "EHLO mail.andi.de1.cc"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727178AbgCSWlV (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 19 Mar 2020 18:41:21 -0400
+        id S1726814AbgCTILa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Mar 2020 04:11:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Content-Type:MIME-Version:References:
-        In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=UxynVAQmB37MrV2BBnLFAl3yAnEIKuq4soEmhRhTUMY=; b=bLPyBAYAEOMNB1jI8DwJ7T0y7
-        ZUDtkFc6/LyuMwPrJ4cDJKsFgBSL8M9ib+hnkTgkjt7y9um5YO/6lnplfyHTRzmuUJ6iHyeQCkCwA
-        9vYzINSz0kf2H0K7s9NbW0+QsjP4ORmiHj8YMyi1xfAuaB1+18Menlst+7erJhI0iHqfw=;
-Received: from p200300ccff0fcb00e2cec3fffe93fc31.dip0.t-ipconnect.de ([2003:cc:ff0f:cb00:e2ce:c3ff:fe93:fc31] helo=eeepc)
+        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+        Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=HmIK2NGFOH4BtXBgdzImt8JfFOfa3vebJbRC3dmAtks=; b=A3NZJngupKcZ0ByfhcyQE/rDVH
+        WU4ufi5tYyA/OzG2rykN8nG9/8eIbg4TBX/tkNcnwmQ8MwroPAAjx3a9rPzBJQHj1qVQZjIAdTN1k
+        Sx6syK14WtaDWlUaZH3Cxx7vCPrsKz9oVak5TzEaZ5+m9Ax/41Ry0nyV9vX0yXqkG9aw=;
+Received: from p200300ccff093a00e2cec3fffe93fc31.dip0.t-ipconnect.de ([2003:cc:ff09:3a00:e2ce:c3ff:fe93:fc31] helo=eeepc)
         by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <andreas@kemnade.info>)
-        id 1jF3qc-0007UW-46; Thu, 19 Mar 2020 23:41:06 +0100
-Received: from [::1] (helo=localhost)
-        by eeepc with esmtp (Exim 4.92)
+        id 1jFCkP-00058j-VB; Fri, 20 Mar 2020 09:11:19 +0100
+Received: from andi by eeepc with local (Exim 4.92)
         (envelope-from <andreas@kemnade.info>)
-        id 1jF3qb-0007PO-3s; Thu, 19 Mar 2020 23:41:05 +0100
-Date:   Thu, 19 Mar 2020 23:40:55 +0100
+        id 1jFCkI-00039Q-7o; Fri, 20 Mar 2020 09:11:10 +0100
 From:   Andreas Kemnade <andreas@kemnade.info>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     robh+dt@kernel.org, mark.rutland@arm.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        stefan@agner.ch, b.galvani@gmail.com, phh@phh.me,
-        letux-kernel@openphoenux.org, knaack.h@gmx.de, lars@metafoo.de,
-        pmeerw@pmeerw.net, linux-iio@vger.kernel.org, jic23@kernel.org
-Subject: Re: [PATCH RESEND v6 2/7] mfd: rn5t618: add IRQ support
-Message-ID: <20200319234055.4caddf44@kemnade.info>
-In-Reply-To: <20200319161149.GB5477@dell>
-References: <20200313064535.31503-1-andreas@kemnade.info>
-        <20200313064535.31503-3-andreas@kemnade.info>
-        <20200319161149.GB5477@dell>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; i686-pc-linux-gnu)
+To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
+        phh@phh.me, letux-kernel@openphoenux.org, knaack.h@gmx.de,
+        lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org,
+        jic23@kernel.org
+Cc:     Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH v7 4/7] mfd: rn5t618: add more subdevices
+Date:   Fri, 20 Mar 2020 09:11:02 +0100
+Message-Id: <20200320081105.12026-5-andreas@kemnade.info>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200320081105.12026-1-andreas@kemnade.info>
+References: <20200320081105.12026-1-andreas@kemnade.info>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_//EX9XsAMI56qY1RDkmzKv0C"; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
---Sig_//EX9XsAMI56qY1RDkmzKv0C
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Since the RC5T619 has a RTC, use a separate subdevice list for that.
+The ADC should be the same as in the RN5T618, according to drivers
+in the wild, but since it is not tested, the ADC is only added for
+the RC5T619.
 
-On Thu, 19 Mar 2020 16:11:49 +0000
-Lee Jones <lee.jones@linaro.org> wrote:
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+Changes in v6:
+- squashed with patch from former ADC patchset
 
-[...]
->=20
-> > +		if (rn5t618_irq_init(priv)) =20
->=20
-> If this returns an error, you should return that error from .probe().
->=20
-Ah, ok, I am returning 0 if there is no irq, so
-forget my previous comment about regressions.
+Changes in v3:
+- alignment cleanup
+ drivers/mfd/rn5t618.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
-Regards,
-Andreas
+diff --git a/drivers/mfd/rn5t618.c b/drivers/mfd/rn5t618.c
+index 7686cc36e8c0..bc117adede4c 100644
+--- a/drivers/mfd/rn5t618.c
++++ b/drivers/mfd/rn5t618.c
+@@ -14,6 +14,7 @@
+ #include <linux/mfd/rn5t618.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/regmap.h>
+ 
+@@ -22,6 +23,13 @@ static const struct mfd_cell rn5t618_cells[] = {
+ 	{ .name = "rn5t618-wdt" },
+ };
+ 
++static const struct mfd_cell rc5t619_cells[] = {
++	{ .name = "rn5t618-adc" },
++	{ .name = "rn5t618-regulator" },
++	{ .name = "rc5t619-rtc" },
++	{ .name = "rn5t618-wdt" },
++};
++
+ static bool rn5t618_volatile_reg(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+@@ -167,8 +175,16 @@ static int rn5t618_i2c_probe(struct i2c_client *i2c,
+ 		return ret;
+ 	}
+ 
+-	ret = devm_mfd_add_devices(&i2c->dev, -1, rn5t618_cells,
+-				   ARRAY_SIZE(rn5t618_cells), NULL, 0, NULL);
++	if (priv->variant == RC5T619)
++		ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_NONE,
++					   rc5t619_cells,
++					   ARRAY_SIZE(rc5t619_cells),
++					   NULL, 0, NULL);
++	else
++		ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_NONE,
++					   rn5t618_cells,
++					   ARRAY_SIZE(rn5t618_cells),
++					   NULL, 0, NULL);
+ 	if (ret) {
+ 		dev_err(&i2c->dev, "failed to add sub-devices: %d\n", ret);
+ 		return ret;
+-- 
+2.20.1
 
---Sig_//EX9XsAMI56qY1RDkmzKv0C
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEPIWxmAFyOaBcwCpFl4jFM1s/ye8FAl5z9PcACgkQl4jFM1s/
-ye+9PBAAkD8XGU0U70Nq6g9WtazIPRJkbU7warY/dnCxjXOwPNdyFK6k548ojrxL
-gnTkd9ernC1OlbMV//88bqZ+bHwRzO+ndeI1EhD9GP88t+YGhVRfzuLq9Qfc65s+
-s6BMzOdzOuIuQkCxRA3ekxourgniXtG60hJVPvn6HXhBbCi7CpXWrUkl1CGwNgsc
-7JkUwWJuAfHq0YoGdh1RU7L/NgBtNz/WZnL5Tdzj/KD/M1USMGDQpu7Amx57fAcR
-Q91Lh3dYnp3fALNCbKLOoFph9o23bmxOAohoZugH9dLlDXH3nAESMs7Bm69C+iew
-B1PY4Tr9hOuDd51HCRJXJv9Hdr3LjRWT+aVrnyq9qI6IT1HUKDoPVkgDJaFk1rtP
-wHkaT72OMC2/pFGAXZQ9xc6GIIVQphE6D6rBO5fjbBroCA191taxvprxW09bxOLi
-MT08eTvxwoIuz2YbI7BjO+ubAyeTZ07UT5rMHCK6cFhKfeav7EHU03uopgitZRb+
-4XBIg+EimxtGk69XUNNRWXUlXuBbxik45b4evoP3vCFzia6nAbYoXerq7efD1uRC
-eRpPst3mQFQCDITCW+WtiM0QlRxMuqbMjo5PtpKctu/R9M/LC0I5CyjpH7eaENln
-6F6cQdPcnrATMf6xNHCvmCYW/G2BWTrI0JlAhiL29gisfQNUUxY=
-=a4gN
------END PGP SIGNATURE-----
-
---Sig_//EX9XsAMI56qY1RDkmzKv0C--
