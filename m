@@ -2,98 +2,107 @@ Return-Path: <SRS0=nupm=5F=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76726C4332B
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 08:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE737C43333
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 09:24:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3EAB720781
-	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 08:12:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="iVugE2E4"
+	by mail.kernel.org (Postfix) with ESMTP id BF4AA20784
+	for <linux-rtc@archiver.kernel.org>; Fri, 20 Mar 2020 09:24:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726851AbgCTILb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 20 Mar 2020 04:11:31 -0400
-Received: from mail.andi.de1.cc ([85.214.55.253]:51328 "EHLO mail.andi.de1.cc"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726820AbgCTILa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 20 Mar 2020 04:11:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=KJSvEB5GYx0NMRbbOsFK/DkUQp3KkBqyuRsPuE4sghw=; b=iVugE2E4+ttkNVH6HGUpu294V3
-        6qb4VJnuUWhi6D332oHfZyHOwwEPHVRGbL1QGSxKJ5u3/ogsVPReoYoBl7qEY0B0+Jr0AprsWYyqM
-        9FMZRM6a3Q6fTNLah6PXKSF8qW0OwsaSNzibEv6IWBeZxpEjhebPinBrXJhTgYYFj278=;
-Received: from p200300ccff093a00e2cec3fffe93fc31.dip0.t-ipconnect.de ([2003:cc:ff09:3a00:e2ce:c3ff:fe93:fc31] helo=eeepc)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1jFCkP-00058U-5Z; Fri, 20 Mar 2020 09:11:17 +0100
-Received: from andi by eeepc with local (Exim 4.92)
-        (envelope-from <andreas@kemnade.info>)
-        id 1jFCkG-00039H-Rm; Fri, 20 Mar 2020 09:11:08 +0100
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, stefan@agner.ch, b.galvani@gmail.com,
-        phh@phh.me, letux-kernel@openphoenux.org, knaack.h@gmx.de,
-        lars@metafoo.de, pmeerw@pmeerw.net, linux-iio@vger.kernel.org,
-        jic23@kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v7 1/7] dt-bindings: mfd: rn5t618: Document optional property interrupts
-Date:   Fri, 20 Mar 2020 09:10:59 +0100
-Message-Id: <20200320081105.12026-2-andreas@kemnade.info>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200320081105.12026-1-andreas@kemnade.info>
-References: <20200320081105.12026-1-andreas@kemnade.info>
+        id S1727025AbgCTJY7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 20 Mar 2020 05:24:59 -0400
+Received: from mail.v3.sk ([167.172.186.51]:37792 "EHLO shell.v3.sk"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727000AbgCTJY6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 20 Mar 2020 05:24:58 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id A9501DFC45;
+        Fri, 20 Mar 2020 09:25:15 +0000 (UTC)
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id CB3O09jGeY6v; Fri, 20 Mar 2020 09:25:15 +0000 (UTC)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zimbra.v3.sk (Postfix) with ESMTP id D57D7E0028;
+        Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at zimbra.v3.sk
+Received: from shell.v3.sk ([127.0.0.1])
+        by localhost (zimbra.v3.sk [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id vyhPJH_CqW6F; Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
+Received: from localhost (unknown [109.183.109.54])
+        by zimbra.v3.sk (Postfix) with ESMTPSA id 6BB7CDFC45;
+        Fri, 20 Mar 2020 09:25:14 +0000 (UTC)
+Date:   Fri, 20 Mar 2020 10:24:52 +0100
+From:   Lubomir Rintel <lkundrak@v3.sk>
+To:     Rob Herring <robh+dt@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mark Brown <broonie@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        Linux USB List <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH 13/28] dt-bindings: serial: move Marvell compatible
+ string to 8250 binding doc
+Message-ID: <20200320092452.GA24507@furthur.local>
+References: <20200317093922.20785-1-lkundrak@v3.sk>
+ <20200317093922.20785-14-lkundrak@v3.sk>
+ <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAL_Jsq+wG+DTZ8Vxcw=NR2isABGrkoDiBt-uG9+NF6qdWuU62Q@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-These chips use interrupts for various things like RTC alarm.
+On Thu, Mar 19, 2020 at 10:11:02AM -0600, Rob Herring wrote:
+> On Tue, Mar 17, 2020 at 3:40 AM Lubomir Rintel <lkundrak@v3.sk> wrote:
+> >
+> > These ports are compatible with NS8250 and handled by the same driver.
+> > Get rid of the extra document that fails to document the properties that
+> > are actually supported.
+> >
+> > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> > ---
+> >  Documentation/devicetree/bindings/serial/8250.txt        | 2 ++
+> >  Documentation/devicetree/bindings/serial/mrvl-serial.txt | 4 ----
+> >  2 files changed, 2 insertions(+), 4 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/serial/mrvl-serial.txt
+> 
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> 
+> I'd really like to see 8250.txt converted to schema.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Rob Herring <robh@kernel.org>
----
-Changes in v4: add refernce to interrupt binding
-documentation
- Documentation/devicetree/bindings/mfd/rn5t618.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+I'll follow up just with that.
 
-diff --git a/Documentation/devicetree/bindings/mfd/rn5t618.txt b/Documentation/devicetree/bindings/mfd/rn5t618.txt
-index b74e5e94d1cb..16778ea00dbc 100644
---- a/Documentation/devicetree/bindings/mfd/rn5t618.txt
-+++ b/Documentation/devicetree/bindings/mfd/rn5t618.txt
-@@ -15,6 +15,8 @@ Required properties:
-  - reg: the I2C slave address of the device
- 
- Optional properties:
-+ - interrupts: interrupt mapping for IRQ
-+   See Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-  - system-power-controller:
-    See Documentation/devicetree/bindings/power/power-controller.txt
- 
-@@ -32,6 +34,8 @@ Example:
- 	pmic@32 {
- 		compatible = "ricoh,rn5t618";
- 		reg = <0x32>;
-+		interrupt-parent = <&gpio5>;
-+		interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
- 		system-power-controller;
- 
- 		regulators {
--- 
-2.20.1
+Thanks quarantine.
 
+> Rob
+
+Lubo
