@@ -2,55 +2,79 @@ Return-Path: <SRS0=+1tx=5O=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18B86C43331
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Mar 2020 20:04:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 632E9C43331
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Mar 2020 22:42:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD17F206E6
-	for <linux-rtc@archiver.kernel.org>; Sun, 29 Mar 2020 20:04:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30D1920735
+	for <linux-rtc@archiver.kernel.org>; Sun, 29 Mar 2020 22:42:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgC2UEk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 29 Mar 2020 16:04:40 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:59787 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728475AbgC2UEk (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 29 Mar 2020 16:04:40 -0400
+        id S1728748AbgC2Wmv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 29 Mar 2020 18:42:51 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:21487 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728473AbgC2Wmv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 29 Mar 2020 18:42:51 -0400
+X-Originating-IP: 86.202.105.35
 Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id E33F5240004;
-        Sun, 29 Mar 2020 20:04:38 +0000 (UTC)
-Date:   Sun, 29 Mar 2020 22:04:38 +0200
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 49110240005;
+        Sun, 29 Mar 2020 22:42:49 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Biwen Li <biwen.li@nxp.com>
-Cc:     leoyang.li@nxp.com, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, jiafei.pan@nxp.com
-Subject: Re: [PATCH] rtc: flextimer: report interrupt state to user mode
-Message-ID: <20200329200438.GA730760@piout.net>
-References: <20200327084457.45161-1-biwen.li@nxp.com>
+To:     Support Opensource <support.opensource@diasemi.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] rtc: da9052: convert to devm_rtc_allocate_device
+Date:   Mon, 30 Mar 2020 00:42:40 +0200
+Message-Id: <20200329224240.776568-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200327084457.45161-1-biwen.li@nxp.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 27/03/2020 16:44:57+0800, Biwen Li wrote:
-> Report interrupt state to user mode
-> 
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
->  drivers/rtc/rtc-fsl-ftm-alarm.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-Applied, thanks. I reworked the commit message because the alarm is not
-necessarily going to userspace.
+This allows further improvement of the driver.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+
+Changes in v2:
+ - avoid reordering rtc registration and irq request.
+
+ drivers/rtc/rtc-da9052.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-da9052.c b/drivers/rtc/rtc-da9052.c
+index 204eb7cf1aa4..e76561b8ad4c 100644
+--- a/drivers/rtc/rtc-da9052.c
++++ b/drivers/rtc/rtc-da9052.c
+@@ -298,12 +298,16 @@ static int da9052_rtc_probe(struct platform_device *pdev)
+ 		rtc_err(rtc, "Failed to disable TICKS: %d\n", ret);
+ 
+ 	device_init_wakeup(&pdev->dev, true);
+-	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-				       &da9052_rtc_ops, THIS_MODULE);
+-
++	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtc))
+ 		return PTR_ERR(rtc->rtc);
+ 
++	rtc->rtc->ops = &da9052_rtc_ops;
++
++	ret = rtc_register_device(rtc->rtc);
++	if (ret)
++		return ret;
++
+ 	ret = da9052_request_irq(rtc->da9052, DA9052_IRQ_ALARM, "ALM",
+ 				da9052_rtc_irq, rtc);
+ 	if (ret != 0) {
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.25.1
+
