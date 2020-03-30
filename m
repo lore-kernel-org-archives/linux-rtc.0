@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CF6FC43331
-	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 298FFC2D0F1
+	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:15:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 122A220784
-	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:12:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09A692078B
+	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:15:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbgC3UMm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 30 Mar 2020 16:12:42 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:21645 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727936AbgC3UMm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 30 Mar 2020 16:12:42 -0400
+        id S1728775AbgC3UPh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 30 Mar 2020 16:15:37 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:55237 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728715AbgC3UPg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 30 Mar 2020 16:15:36 -0400
 X-Originating-IP: 86.202.105.35
 Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 2F36824000A;
-        Mon, 30 Mar 2020 20:12:40 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 19A37FF803;
+        Mon, 30 Mar 2020 20:15:34 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -31,11 +31,11 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
 Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org
 Subject: [PATCH 2/2] rtc: sun6i: switch to rtc_time64_to_tm/rtc_tm_to_time64
-Date:   Mon, 30 Mar 2020 22:12:26 +0200
-Message-Id: <20200330201226.860967-2-alexandre.belloni@bootlin.com>
+Date:   Mon, 30 Mar 2020 22:15:10 +0200
+Message-Id: <20200330201510.861217-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200330201226.860967-1-alexandre.belloni@bootlin.com>
-References: <20200330201226.860967-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20200330201510.861217-1-alexandre.belloni@bootlin.com>
+References: <20200330201510.861217-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
