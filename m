@@ -1,120 +1,146 @@
-Return-Path: <SRS0=wVyS=5P=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=hckA=5Q=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0444CC2D0F0
-	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:19:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65518C43331
+	for <linux-rtc@archiver.kernel.org>; Tue, 31 Mar 2020 04:07:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DCFED2072E
-	for <linux-rtc@archiver.kernel.org>; Mon, 30 Mar 2020 20:19:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 314B320774
+	for <linux-rtc@archiver.kernel.org>; Tue, 31 Mar 2020 04:07:52 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="REPe9Fg/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727437AbgC3UTN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 30 Mar 2020 16:19:13 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:53759 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727170AbgC3UTN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 30 Mar 2020 16:19:13 -0400
-Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id AA2F8240004;
-        Mon, 30 Mar 2020 20:19:10 +0000 (UTC)
-Date:   Mon, 30 Mar 2020 22:19:10 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] rtc: sun6i: let the core handle rtc range
-Message-ID: <20200330201910.GA752154@piout.net>
-References: <20200330201510.861217-1-alexandre.belloni@bootlin.com>
- <20200330201510.861217-2-alexandre.belloni@bootlin.com>
+        id S1726406AbgCaEHs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 31 Mar 2020 00:07:48 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:58280 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725792AbgCaEHr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 31 Mar 2020 00:07:47 -0400
+X-UUID: 628a8654f425445eacba6045dd5d9d9c-20200331
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=U6Q1mnGYOtg9IfYqJ21CXjqAm8LRNeM9DhjP0Pg/xQ0=;
+        b=REPe9Fg/MnD6nr55rTIbHeFZexNFa97hcuRIC7wuyqIps3sVAmJQ0n8VpWDB+vNYnsvHpwpVKvZbpmJqjp7iQqgjGlUPinzbY1czgd5ce0PpPq7zshrsRJeWuiSZEes5FIOXWcUqzgZbV6MPFK+sSHQW1zmaI5U2Lvb3AWru6xg=;
+X-UUID: 628a8654f425445eacba6045dd5d9d9c-20200331
+Received: from mtkcas09.mediatek.inc [(172.21.101.178)] by mailgw01.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 38801241; Tue, 31 Mar 2020 12:07:41 +0800
+Received: from mtkcas09.mediatek.inc (172.21.101.178) by
+ mtkmbs05n1.mediatek.inc (172.21.101.15) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Tue, 31 Mar 2020 12:07:39 +0800
+Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas09.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Tue, 31 Mar 2020 12:07:40 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     Nicolas Boichat <drinkcat@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Richard Fontana <rfontana@redhat.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Josef Friedl <josef.friedl@speed.at>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <srv_heupstream@mediatek.com>
+Subject: [PATCH v11 4/5] rtc: mt6397: Add support for the MediaTek MT6358 RTC
+Date:   Tue, 31 Mar 2020 12:07:36 +0800
+Message-ID: <1585627657-3265-5-git-send-email-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1585627657-3265-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1585627657-3265-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200330201510.861217-2-alexandre.belloni@bootlin.com>
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This was en unattended resend.
+RnJvbTogUmFuIEJpIDxyYW4uYmlAbWVkaWF0ZWsuY29tPg0KDQpUaGlzIGFkZCBzdXBwb3J0IGZv
+ciB0aGUgTWVkaWFUZWsgTVQ2MzU4IFJUQy4gRHJpdmVyIHVzaW5nDQpjb21wYXRpYmxlIGRhdGEg
+dG8gc3RvcmUgZGlmZmVyZW50IFJUQ19XUlRHUiBhZGRyZXNzIG9mZnNldC4NClRoaXMgcmVwbGFj
+ZSBSVENfV1JUR1IgdG8gUlRDX1dSVEdSX01UNjMyMyBpbiBtdDYzMjMtcG93ZXJvZmYNCmRyaXZl
+ciB3aGljaCBvbmx5IG5lZWRlZCBieSBhcm12NyBDUFUgd2l0aG91dCBBVEYuDQoNClNpZ25lZC1v
+ZmYtYnk6IFJhbiBCaSA8cmFuLmJpQG1lZGlhdGVrLmNvbT4NClNpZ25lZC1vZmYtYnk6IEhzaW4t
+SHNpdW5nIFdhbmcgPGhzaW4taHNpdW5nLndhbmdAbWVkaWF0ZWsuY29tPg0KLS0tDQogZHJpdmVy
+cy9wb3dlci9yZXNldC9tdDYzMjMtcG93ZXJvZmYuYyB8ICAyICstDQogZHJpdmVycy9ydGMvcnRj
+LW10NjM5Ny5jICAgICAgICAgICAgICB8IDIzICsrKysrKysrKysrKysrKysrKystLS0tDQogaW5j
+bHVkZS9saW51eC9tZmQvbXQ2Mzk3L3J0Yy5oICAgICAgICB8ICA5ICsrKysrKysrLQ0KIDMgZmls
+ZXMgY2hhbmdlZCwgMjggaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkNCg0KZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvcG93ZXIvcmVzZXQvbXQ2MzIzLXBvd2Vyb2ZmLmMgYi9kcml2ZXJzL3Bvd2Vy
+L3Jlc2V0L210NjMyMy1wb3dlcm9mZi5jDQppbmRleCAxY2FmNDNkLi4wNTMyODAzIDEwMDY0NA0K
+LS0tIGEvZHJpdmVycy9wb3dlci9yZXNldC9tdDYzMjMtcG93ZXJvZmYuYw0KKysrIGIvZHJpdmVy
+cy9wb3dlci9yZXNldC9tdDYzMjMtcG93ZXJvZmYuYw0KQEAgLTMwLDcgKzMwLDcgQEAgc3RhdGlj
+IHZvaWQgbXQ2MzIzX2RvX3B3cm9mZih2b2lkKQ0KIAlpbnQgcmV0Ow0KIA0KIAlyZWdtYXBfd3Jp
+dGUocHdyYy0+cmVnbWFwLCBwd3JjLT5iYXNlICsgUlRDX0JCUFUsIFJUQ19CQlBVX0tFWSk7DQot
+CXJlZ21hcF93cml0ZShwd3JjLT5yZWdtYXAsIHB3cmMtPmJhc2UgKyBSVENfV1JUR1IsIDEpOw0K
+KwlyZWdtYXBfd3JpdGUocHdyYy0+cmVnbWFwLCBwd3JjLT5iYXNlICsgUlRDX1dSVEdSX01UNjMy
+MywgMSk7DQogDQogCXJldCA9IHJlZ21hcF9yZWFkX3BvbGxfdGltZW91dChwd3JjLT5yZWdtYXAs
+DQogCQkJCQlwd3JjLT5iYXNlICsgUlRDX0JCUFUsIHZhbCwNCmRpZmYgLS1naXQgYS9kcml2ZXJz
+L3J0Yy9ydGMtbXQ2Mzk3LmMgYi9kcml2ZXJzL3J0Yy9ydGMtbXQ2Mzk3LmMNCmluZGV4IGNkYTIz
+OGQuLjdmM2RmZDIgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL3J0Yy9ydGMtbXQ2Mzk3LmMNCisrKyBi
+L2RyaXZlcnMvcnRjL3J0Yy1tdDYzOTcuYw0KQEAgLTksNiArOSw3IEBADQogI2luY2x1ZGUgPGxp
+bnV4L21mZC9tdDYzOTcvY29yZS5oPg0KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4NCiAjaW5j
+bHVkZSA8bGludXgvbXV0ZXguaD4NCisjaW5jbHVkZSA8bGludXgvb2ZfZGV2aWNlLmg+DQogI2lu
+Y2x1ZGUgPGxpbnV4L3BsYXRmb3JtX2RldmljZS5oPg0KICNpbmNsdWRlIDxsaW51eC9yZWdtYXAu
+aD4NCiAjaW5jbHVkZSA8bGludXgvcnRjLmg+DQpAQCAtMjAsNyArMjEsNyBAQCBzdGF0aWMgaW50
+IG10a19ydGNfd3JpdGVfdHJpZ2dlcihzdHJ1Y3QgbXQ2Mzk3X3J0YyAqcnRjKQ0KIAlpbnQgcmV0
+Ow0KIAl1MzIgZGF0YTsNCiANCi0JcmV0ID0gcmVnbWFwX3dyaXRlKHJ0Yy0+cmVnbWFwLCBydGMt
+PmFkZHJfYmFzZSArIFJUQ19XUlRHUiwgMSk7DQorCXJldCA9IHJlZ21hcF93cml0ZShydGMtPnJl
+Z21hcCwgcnRjLT5hZGRyX2Jhc2UgKyBydGMtPmRhdGEtPndydGdyLCAxKTsNCiAJaWYgKHJldCA8
+IDApDQogCQlyZXR1cm4gcmV0Ow0KIA0KQEAgLTI2OSw2ICsyNzAsOCBAQCBzdGF0aWMgaW50IG10
+a19ydGNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiAJcmVzID0gcGxhdGZv
+cm1fZ2V0X3Jlc291cmNlKHBkZXYsIElPUkVTT1VSQ0VfTUVNLCAwKTsNCiAJcnRjLT5hZGRyX2Jh
+c2UgPSByZXMtPnN0YXJ0Ow0KIA0KKwlydGMtPmRhdGEgPSBvZl9kZXZpY2VfZ2V0X21hdGNoX2Rh
+dGEoJnBkZXYtPmRldik7DQorDQogCXJ0Yy0+aXJxID0gcGxhdGZvcm1fZ2V0X2lycShwZGV2LCAw
+KTsNCiAJaWYgKHJ0Yy0+aXJxIDwgMCkNCiAJCXJldHVybiBydGMtPmlycTsNCkBAIC0zMjUsMTAg
+KzMyOCwyMiBAQCBzdGF0aWMgaW50IG10NjM5N19ydGNfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRl
+dikNCiBzdGF0aWMgU0lNUExFX0RFVl9QTV9PUFMobXQ2Mzk3X3BtX29wcywgbXQ2Mzk3X3J0Y19z
+dXNwZW5kLA0KIAkJCW10NjM5N19ydGNfcmVzdW1lKTsNCiANCitzdGF0aWMgY29uc3Qgc3RydWN0
+IG10a19ydGNfZGF0YSBtdDYzNThfcnRjX2RhdGEgPSB7DQorCS53cnRnciA9IFJUQ19XUlRHUl9N
+VDYzNTgsDQorfTsNCisNCitzdGF0aWMgY29uc3Qgc3RydWN0IG10a19ydGNfZGF0YSBtdDYzOTdf
+cnRjX2RhdGEgPSB7DQorCS53cnRnciA9IFJUQ19XUlRHUl9NVDYzOTcsDQorfTsNCisNCiBzdGF0
+aWMgY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCBtdDYzOTdfcnRjX29mX21hdGNoW10gPSB7DQot
+CXsgLmNvbXBhdGlibGUgPSAibWVkaWF0ZWssbXQ2MzIzLXJ0YyIsIH0sDQotCXsgLmNvbXBhdGli
+bGUgPSAibWVkaWF0ZWssbXQ2Mzk3LXJ0YyIsIH0sDQotCXsgfQ0KKwl7IC5jb21wYXRpYmxlID0g
+Im1lZGlhdGVrLG10NjMyMy1ydGMiLA0KKwkJLmRhdGEgPSAmbXQ2Mzk3X3J0Y19kYXRhLCB9LA0K
+Kwl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10NjM1OC1ydGMiLA0KKwkJLmRhdGEgPSAmbXQ2
+MzU4X3J0Y19kYXRhLCB9LA0KKwl7IC5jb21wYXRpYmxlID0gIm1lZGlhdGVrLG10NjM5Ny1ydGMi
+LA0KKwkJLmRhdGEgPSAmbXQ2Mzk3X3J0Y19kYXRhLCB9LA0KKwl7fQ0KIH07DQogTU9EVUxFX0RF
+VklDRV9UQUJMRShvZiwgbXQ2Mzk3X3J0Y19vZl9tYXRjaCk7DQogDQpkaWZmIC0tZ2l0IGEvaW5j
+bHVkZS9saW51eC9tZmQvbXQ2Mzk3L3J0Yy5oIGIvaW5jbHVkZS9saW51eC9tZmQvbXQ2Mzk3L3J0
+Yy5oDQppbmRleCA3ZGZiNjNiLi42MjAwZjNiIDEwMDY0NA0KLS0tIGEvaW5jbHVkZS9saW51eC9t
+ZmQvbXQ2Mzk3L3J0Yy5oDQorKysgYi9pbmNsdWRlL2xpbnV4L21mZC9tdDYzOTcvcnRjLmgNCkBA
+IC0xOCw3ICsxOCw5IEBADQogI2RlZmluZSBSVENfQkJQVV9DQlVTWSAgICAgICAgIEJJVCg2KQ0K
+ICNkZWZpbmUgUlRDX0JCUFVfS0VZICAgICAgICAgICAgKDB4NDMgPDwgOCkNCiANCi0jZGVmaW5l
+IFJUQ19XUlRHUiAgICAgICAgICAgICAgMHgwMDNjDQorI2RlZmluZSBSVENfV1JUR1JfTVQ2MzU4
+ICAgICAgIDB4M2ENCisjZGVmaW5lIFJUQ19XUlRHUl9NVDYzOTcgICAgICAgMHgzYw0KKyNkZWZp
+bmUgUlRDX1dSVEdSX01UNjMyMyAgICAgICBSVENfV1JUR1JfTVQ2Mzk3DQogDQogI2RlZmluZSBS
+VENfSVJRX1NUQSAgICAgICAgICAgIDB4MDAwMg0KICNkZWZpbmUgUlRDX0lSUV9TVEFfQUwgICAg
+ICAgICBCSVQoMCkNCkBAIC02NSw2ICs2NywxMCBAQA0KICNkZWZpbmUgTVRLX1JUQ19QT0xMX0RF
+TEFZX1VTICAxMA0KICNkZWZpbmUgTVRLX1JUQ19QT0xMX1RJTUVPVVQgICAoamlmZmllc190b191
+c2VjcyhIWikpDQogDQorc3RydWN0IG10a19ydGNfZGF0YSB7DQorCXUzMiAgICAgICAgICAgICAg
+ICAgICAgIHdydGdyOw0KK307DQorDQogc3RydWN0IG10NjM5N19ydGMgew0KIAlzdHJ1Y3QgZGV2
+aWNlICAgICAgICAgICAqZGV2Ow0KIAlzdHJ1Y3QgcnRjX2RldmljZSAgICAgICAqcnRjX2RldjsN
+CkBAIC03NCw2ICs4MCw3IEBAIHN0cnVjdCBtdDYzOTdfcnRjIHsNCiAJc3RydWN0IHJlZ21hcCAg
+ICAgICAgICAgKnJlZ21hcDsNCiAJaW50ICAgICAgICAgICAgICAgICAgICAgaXJxOw0KIAl1MzIg
+ICAgICAgICAgICAgICAgICAgICBhZGRyX2Jhc2U7DQorCWNvbnN0IHN0cnVjdCBtdGtfcnRjX2Rh
+dGEgKmRhdGE7DQogfTsNCiANCiAjZW5kaWYgLyogX0xJTlVYX01GRF9NVDYzOTdfUlRDX0hfICov
+DQotLSANCjIuNi40DQo=
 
-On 30/03/2020 22:15:09+0200, Alexandre Belloni wrote:
-> Let the rtc core check the date/time against the RTC range.
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  drivers/rtc/rtc-sun6i.c | 25 ++++++++++---------------
->  1 file changed, 10 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-> index 415a20a936e4..446ce38c1592 100644
-> --- a/drivers/rtc/rtc-sun6i.c
-> +++ b/drivers/rtc/rtc-sun6i.c
-> @@ -108,7 +108,6 @@
->   * driver, even though it is somewhat limited.
->   */
->  #define SUN6I_YEAR_MIN				1970
-> -#define SUN6I_YEAR_MAX				2033
->  #define SUN6I_YEAR_OFF				(SUN6I_YEAR_MIN - 1900)
->  
->  /*
-> @@ -569,14 +568,6 @@ static int sun6i_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
->  	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
->  	u32 date = 0;
->  	u32 time = 0;
-> -	int year;
-> -
-> -	year = rtc_tm->tm_year + 1900;
-> -	if (year < SUN6I_YEAR_MIN || year > SUN6I_YEAR_MAX) {
-> -		dev_err(dev, "rtc only supports year in range %d - %d\n",
-> -			SUN6I_YEAR_MIN, SUN6I_YEAR_MAX);
-> -		return -EINVAL;
-> -	}
->  
->  	rtc_tm->tm_year -= SUN6I_YEAR_OFF;
->  	rtc_tm->tm_mon += 1;
-> @@ -585,7 +576,7 @@ static int sun6i_rtc_settime(struct device *dev, struct rtc_time *rtc_tm)
->  		SUN6I_DATE_SET_MON_VALUE(rtc_tm->tm_mon)  |
->  		SUN6I_DATE_SET_YEAR_VALUE(rtc_tm->tm_year);
->  
-> -	if (is_leap_year(year))
-> +	if (is_leap_year(rtc_tm->tm_year + SUN6I_YEAR_MIN))
->  		date |= SUN6I_LEAP_SET_VALUE(1);
->  
->  	time = SUN6I_TIME_SET_SEC_VALUE(rtc_tm->tm_sec)  |
-> @@ -726,12 +717,16 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
->  
->  	device_init_wakeup(&pdev->dev, 1);
->  
-> -	chip->rtc = devm_rtc_device_register(&pdev->dev, "rtc-sun6i",
-> -					     &sun6i_rtc_ops, THIS_MODULE);
-> -	if (IS_ERR(chip->rtc)) {
-> -		dev_err(&pdev->dev, "unable to register device\n");
-> +	chip->rtc = devm_rtc_allocate_device(&pdev->dev);
-> +	if (IS_ERR(chip->rtc))
->  		return PTR_ERR(chip->rtc);
-> -	}
-> +
-> +	chip->rtc->ops = &sun6i_rtc_ops;
-> +	chip->rtc->range_max = 2019686399LL; /* 2033-12-31 23:59:59 */
-> +
-> +	ret = rtc_register_device(chip->rtc);
-> +	if (ret)
-> +		return ret;
->  
->  	dev_info(&pdev->dev, "RTC enabled\n");
->  
-> -- 
-> 2.25.1
-> 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
