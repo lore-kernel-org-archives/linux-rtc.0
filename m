@@ -1,108 +1,155 @@
-Return-Path: <SRS0=IpoB=5X=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=SpCY=5Y=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1320C2BABC
-	for <linux-rtc@archiver.kernel.org>; Tue,  7 Apr 2020 09:31:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5292CC2BB55
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Apr 2020 08:13:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A164720719
-	for <linux-rtc@archiver.kernel.org>; Tue,  7 Apr 2020 09:31:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BCF520771
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Apr 2020 08:13:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="B4AHxfdB"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="qP6e6Bx/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbgDGJb2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 7 Apr 2020 05:31:28 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:51544 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725883AbgDGJb2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 7 Apr 2020 05:31:28 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0379RkfL037022;
-        Tue, 7 Apr 2020 09:31:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=absFtblFlPxOF3hmormLh9Zp7rTAbuEhM/1Okv4DNkc=;
- b=B4AHxfdB4XCwggGOwicCWkDRSpQ/eJmZNEUDVnvi7StE4ML+S9DCig55Hb/DlYHYgNQ4
- KcEe8BDeRFL5z1zX8wp5ki9zujmPhuoGbpI+qcnkiEAfZt5Hfr7jUcnrALrI1U2NuTq+
- wkIOkVdAbNuJxdZDWyZnEkyFQcghyXqyHP0HYDu/IKDBajL2AWFqhIh/mnccNQJPhI0z
- LYqoLf14WM3aPVO8yr1Sey7Mg5rlUpSIExaKT0AXGSuZvpdeb4IZuiU0sHPBrYhVwfXs
- DSZHG71TEY7EaFOGzTy3Y02eK+7+Ak7qZOyv018dklwbMCls9ybtARQEViripbfY2+8C oA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 306j6mbr52-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 07 Apr 2020 09:31:03 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0379Qdqi144575;
-        Tue, 7 Apr 2020 09:29:03 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3030.oracle.com with ESMTP id 3073srqu15-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 07 Apr 2020 09:29:03 +0000
-Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0379SxpX027473;
-        Tue, 7 Apr 2020 09:29:00 GMT
-Received: from mwanda (/41.57.98.10)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 07 Apr 2020 02:28:59 -0700
-Date:   Tue, 7 Apr 2020 12:28:52 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Andreas Kemnade <andreas@kemnade.info>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Lee Jones <lee.jones@linaro.org>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Subject: [PATCH] rtc: rc5t619: Fix an ERR_PTR vs NULL check
-Message-ID: <20200407092852.GI68494@mwanda>
+        id S1727173AbgDHIND (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 8 Apr 2020 04:13:03 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:9335 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726146AbgDHINC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Apr 2020 04:13:02 -0400
+X-UUID: 13fc219e180e47d6beac0a362bd9c807-20200408
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=LCpxPAAAlbCRhNWaPlL/YFI3+ocxOtHpC4ZE4h02Q94=;
+        b=qP6e6Bx/1fpCP//jsDK3xQRw0fSg+WeUNJZW7Ui1WcEZ6S9UQsncL7TKrSHd8VdprJrQyGxE5ZX6nlMN37zy5oEIqjSky1F03cGhKE+jBOo/e9OqzFr3UQ2yrae/T5ArZ1RbS2SWQKFVFnThmrSvYsI/oP+CqiXwsfnq7x9/MUk=;
+X-UUID: 13fc219e180e47d6beac0a362bd9c807-20200408
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1975154832; Wed, 08 Apr 2020 16:12:53 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 8 Apr 2020 16:12:49 +0800
+Received: from mtksdaap41.mediatek.inc (172.21.77.4) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 8 Apr 2020 16:12:49 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     Nicolas Boichat <drinkcat@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Richard Fontana <rfontana@redhat.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Josef Friedl <josef.friedl@speed.at>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <srv_heupstream@mediatek.com>
+Subject: [PATCH v12 1/6] mfd: mt6397: Modify suspend/resume behavior
+Date:   Wed, 8 Apr 2020 16:12:06 +0800
+Message-ID: <1586333531-21641-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1586333531-21641-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1586333531-21641-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9583 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 spamscore=0
- malwarescore=0 suspectscore=0 adultscore=0 bulkscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004070080
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9583 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 mlxlogscore=999 spamscore=0
- priorityscore=1501 suspectscore=0 lowpriorityscore=0 malwarescore=0
- impostorscore=0 mlxscore=0 phishscore=0 adultscore=0 clxscore=1011
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004070080
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The devm_kzalloc() function returns NULL on error, it doesn't return
-error pointers so this check doesn't work.
-
-Fixes: 540d1e15393d ("rtc: rc5t619: Add Ricoh RC5T619 RTC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
- drivers/rtc/rtc-rc5t619.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/rtc/rtc-rc5t619.c b/drivers/rtc/rtc-rc5t619.c
-index 24e386ecbc7e..dd1a20977478 100644
---- a/drivers/rtc/rtc-rc5t619.c
-+++ b/drivers/rtc/rtc-rc5t619.c
-@@ -356,10 +356,8 @@ static int rc5t619_rtc_probe(struct platform_device *pdev)
- 	int err;
- 
- 	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
--	if (IS_ERR(rtc)) {
--		err = PTR_ERR(rtc);
-+	if (!rtc)
- 		return -ENOMEM;
--	}
- 
- 	rtc->rn5t618 = rn5t618;
- 
--- 
-2.25.1
+U29tZSBwbWljcyBkb24ndCBuZWVkIGJhY2t1cCBpbnRlcnJ1cHQgc2V0dGluZ3MsIHNvIHdlIGNo
+YW5nZSB0byB1c2UNCnBtIG5vdGlmaWVyIGZvciB0aGUgcG1pY3Mgd2hpY2ggYXJlIG5lY2Vzc2Fy
+eSB0byBzdG9yZSBzZXR0aW5ncy4NCg0KU2lnbmVkLW9mZi1ieTogSHNpbi1Ic2l1bmcgV2FuZyA8
+aHNpbi1oc2l1bmcud2FuZ0BtZWRpYXRlay5jb20+DQotLS0NCiBkcml2ZXJzL21mZC9tdDYzOTct
+Y29yZS5jICAgICAgIHwgMzAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQogZHJpdmVy
+cy9tZmQvbXQ2Mzk3LWlycS5jICAgICAgICB8IDM1ICsrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKystDQogaW5jbHVkZS9saW51eC9tZmQvbXQ2Mzk3L2NvcmUuaCB8ICAyICsrDQogMyBm
+aWxlcyBjaGFuZ2VkLCAzNiBpbnNlcnRpb25zKCspLCAzMSBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvbWZkL210NjM5Ny1jb3JlLmMgYi9kcml2ZXJzL21mZC9tdDYzOTctY29y
+ZS5jDQppbmRleCAwNDM3Yzg1Li5kMmU3MGQ4IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9tZmQvbXQ2
+Mzk3LWNvcmUuYw0KKysrIGIvZHJpdmVycy9tZmQvbXQ2Mzk3LWNvcmUuYw0KQEAgLTEwMCwzNSAr
+MTAwLDYgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBtZmRfY2VsbCBtdDYzOTdfZGV2c1tdID0gew0K
+IAl9DQogfTsNCiANCi0jaWZkZWYgQ09ORklHX1BNX1NMRUVQDQotc3RhdGljIGludCBtdDYzOTdf
+aXJxX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQ0KLXsNCi0Jc3RydWN0IG10NjM5N19jaGlw
+ICpjaGlwID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQotDQotCXJlZ21hcF93cml0ZShjaGlwLT5y
+ZWdtYXAsIGNoaXAtPmludF9jb25bMF0sIGNoaXAtPndha2VfbWFza1swXSk7DQotCXJlZ21hcF93
+cml0ZShjaGlwLT5yZWdtYXAsIGNoaXAtPmludF9jb25bMV0sIGNoaXAtPndha2VfbWFza1sxXSk7
+DQotDQotCWVuYWJsZV9pcnFfd2FrZShjaGlwLT5pcnEpOw0KLQ0KLQlyZXR1cm4gMDsNCi19DQot
+DQotc3RhdGljIGludCBtdDYzOTdfaXJxX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQotew0K
+LQlzdHJ1Y3QgbXQ2Mzk3X2NoaXAgKmNoaXAgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCi0NCi0J
+cmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+aW50X2NvblswXSwgY2hpcC0+aXJxX21h
+c2tzX2N1clswXSk7DQotCXJlZ21hcF93cml0ZShjaGlwLT5yZWdtYXAsIGNoaXAtPmludF9jb25b
+MV0sIGNoaXAtPmlycV9tYXNrc19jdXJbMV0pOw0KLQ0KLQlkaXNhYmxlX2lycV93YWtlKGNoaXAt
+PmlycSk7DQotDQotCXJldHVybiAwOw0KLX0NCi0jZW5kaWYNCi0NCi1zdGF0aWMgU0lNUExFX0RF
+Vl9QTV9PUFMobXQ2Mzk3X3BtX29wcywgbXQ2Mzk3X2lycV9zdXNwZW5kLA0KLQkJCW10NjM5N19p
+cnFfcmVzdW1lKTsNCi0NCiBzdHJ1Y3QgY2hpcF9kYXRhIHsNCiAJdTMyIGNpZF9hZGRyOw0KIAl1
+MzIgY2lkX3NoaWZ0Ow0KQEAgLTIzOCw3ICsyMDksNiBAQCBzdGF0aWMgc3RydWN0IHBsYXRmb3Jt
+X2RyaXZlciBtdDYzOTdfZHJpdmVyID0gew0KIAkuZHJpdmVyID0gew0KIAkJLm5hbWUgPSAibXQ2
+Mzk3IiwNCiAJCS5vZl9tYXRjaF90YWJsZSA9IG9mX21hdGNoX3B0cihtdDYzOTdfb2ZfbWF0Y2gp
+LA0KLQkJLnBtID0gJm10NjM5N19wbV9vcHMsDQogCX0sDQogCS5pZF90YWJsZSA9IG10NjM5N19p
+ZCwNCiB9Ow0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWZkL210NjM5Ny1pcnEuYyBiL2RyaXZlcnMv
+bWZkL210NjM5Ny1pcnEuYw0KaW5kZXggYjJkM2NlMS4uMjkyNDkxOSAxMDA2NDQNCi0tLSBhL2Ry
+aXZlcnMvbWZkL210NjM5Ny1pcnEuYw0KKysrIGIvZHJpdmVycy9tZmQvbXQ2Mzk3LWlycS5jDQpA
+QCAtOSw2ICs5LDcgQEANCiAjaW5jbHVkZSA8bGludXgvb2ZfaXJxLmg+DQogI2luY2x1ZGUgPGxp
+bnV4L3BsYXRmb3JtX2RldmljZS5oPg0KICNpbmNsdWRlIDxsaW51eC9yZWdtYXAuaD4NCisjaW5j
+bHVkZSA8bGludXgvc3VzcGVuZC5oPg0KICNpbmNsdWRlIDxsaW51eC9tZmQvbXQ2MzIzL2NvcmUu
+aD4NCiAjaW5jbHVkZSA8bGludXgvbWZkL210NjMyMy9yZWdpc3RlcnMuaD4NCiAjaW5jbHVkZSA8
+bGludXgvbWZkL210NjM5Ny9jb3JlLmg+DQpAQCAtODEsNyArODIsNyBAQCBzdGF0aWMgc3RydWN0
+IGlycV9jaGlwIG10NjM5N19pcnFfY2hpcCA9IHsNCiBzdGF0aWMgdm9pZCBtdDYzOTdfaXJxX2hh
+bmRsZV9yZWcoc3RydWN0IG10NjM5N19jaGlwICptdDYzOTcsIGludCByZWcsDQogCQkJCSAgaW50
+IGlycWJhc2UpDQogew0KLQl1bnNpZ25lZCBpbnQgc3RhdHVzOw0KKwl1bnNpZ25lZCBpbnQgc3Rh
+dHVzID0gMDsNCiAJaW50IGksIGlycSwgcmV0Ow0KIA0KIAlyZXQgPSByZWdtYXBfcmVhZChtdDYz
+OTctPnJlZ21hcCwgcmVnLCAmc3RhdHVzKTsNCkBAIC0xMjgsNiArMTI5LDM2IEBAIHN0YXRpYyBj
+b25zdCBzdHJ1Y3QgaXJxX2RvbWFpbl9vcHMgbXQ2Mzk3X2lycV9kb21haW5fb3BzID0gew0KIAku
+bWFwID0gbXQ2Mzk3X2lycV9kb21haW5fbWFwLA0KIH07DQogDQorc3RhdGljIGludCBtdDYzOTdf
+aXJxX3BtX25vdGlmaWVyKHN0cnVjdCBub3RpZmllcl9ibG9jayAqbm90aWZpZXIsDQorCQkJCSAg
+dW5zaWduZWQgbG9uZyBwbV9ldmVudCwgdm9pZCAqdW51c2VkKQ0KK3sNCisJc3RydWN0IG10NjM5
+N19jaGlwICpjaGlwID0NCisJCWNvbnRhaW5lcl9vZihub3RpZmllciwgc3RydWN0IG10NjM5N19j
+aGlwLCBwbV9uYik7DQorDQorCXN3aXRjaCAocG1fZXZlbnQpIHsNCisJY2FzZSBQTV9TVVNQRU5E
+X1BSRVBBUkU6DQorCQlyZWdtYXBfd3JpdGUoY2hpcC0+cmVnbWFwLA0KKwkJCSAgICAgY2hpcC0+
+aW50X2NvblswXSwgY2hpcC0+d2FrZV9tYXNrWzBdKTsNCisJCXJlZ21hcF93cml0ZShjaGlwLT5y
+ZWdtYXAsDQorCQkJICAgICBjaGlwLT5pbnRfY29uWzFdLCBjaGlwLT53YWtlX21hc2tbMV0pOw0K
+KwkJZW5hYmxlX2lycV93YWtlKGNoaXAtPmlycSk7DQorCQlicmVhazsNCisNCisJY2FzZSBQTV9Q
+T1NUX1NVU1BFTkQ6DQorCQlyZWdtYXBfd3JpdGUoY2hpcC0+cmVnbWFwLA0KKwkJCSAgICAgY2hp
+cC0+aW50X2NvblswXSwgY2hpcC0+aXJxX21hc2tzX2N1clswXSk7DQorCQlyZWdtYXBfd3JpdGUo
+Y2hpcC0+cmVnbWFwLA0KKwkJCSAgICAgY2hpcC0+aW50X2NvblsxXSwgY2hpcC0+aXJxX21hc2tz
+X2N1clsxXSk7DQorCQlkaXNhYmxlX2lycV93YWtlKGNoaXAtPmlycSk7DQorCQlicmVhazsNCisN
+CisJZGVmYXVsdDoNCisJCWJyZWFrOw0KKwl9DQorDQorCXJldHVybiBOT1RJRllfRE9ORTsNCit9
+DQorDQogaW50IG10NjM5N19pcnFfaW5pdChzdHJ1Y3QgbXQ2Mzk3X2NoaXAgKmNoaXApDQogew0K
+IAlpbnQgcmV0Ow0KQEAgLTE1OSw2ICsxOTAsNyBAQCBpbnQgbXQ2Mzk3X2lycV9pbml0KHN0cnVj
+dCBtdDYzOTdfY2hpcCAqY2hpcCkNCiAJcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+
+aW50X2NvblswXSwgMHgwKTsNCiAJcmVnbWFwX3dyaXRlKGNoaXAtPnJlZ21hcCwgY2hpcC0+aW50
+X2NvblsxXSwgMHgwKTsNCiANCisJY2hpcC0+cG1fbmIubm90aWZpZXJfY2FsbCA9IG10NjM5N19p
+cnFfcG1fbm90aWZpZXI7DQogCWNoaXAtPmlycV9kb21haW4gPSBpcnFfZG9tYWluX2FkZF9saW5l
+YXIoY2hpcC0+ZGV2LT5vZl9ub2RlLA0KIAkJCQkJCSBNVDYzOTdfSVJRX05SLA0KIAkJCQkJCSAm
+bXQ2Mzk3X2lycV9kb21haW5fb3BzLA0KQEAgLTE3Nyw1ICsyMDksNiBAQCBpbnQgbXQ2Mzk3X2ly
+cV9pbml0KHN0cnVjdCBtdDYzOTdfY2hpcCAqY2hpcCkNCiAJCXJldHVybiByZXQ7DQogCX0NCiAN
+CisJcmVnaXN0ZXJfcG1fbm90aWZpZXIoJmNoaXAtPnBtX25iKTsNCiAJcmV0dXJuIDA7DQogfQ0K
+ZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvbWZkL210NjM5Ny9jb3JlLmggYi9pbmNsdWRlL2xp
+bnV4L21mZC9tdDYzOTcvY29yZS5oDQppbmRleCBmYzg4ZDMxLi5iODFkMzMzIDEwMDY0NA0KLS0t
+IGEvaW5jbHVkZS9saW51eC9tZmQvbXQ2Mzk3L2NvcmUuaA0KKysrIGIvaW5jbHVkZS9saW51eC9t
+ZmQvbXQ2Mzk3L2NvcmUuaA0KQEAgLTgsNiArOCw3IEBADQogI2RlZmluZSBfX01GRF9NVDYzOTdf
+Q09SRV9IX18NCiANCiAjaW5jbHVkZSA8bGludXgvbXV0ZXguaD4NCisjaW5jbHVkZSA8bGludXgv
+bm90aWZpZXIuaD4NCiANCiBlbnVtIGNoaXBfaWQgew0KIAlNVDYzMjNfQ0hJUF9JRCA9IDB4MjMs
+DQpAQCAtNTQsNiArNTUsNyBAQCBlbnVtIG10NjM5N19pcnFfbnVtYmVycyB7DQogc3RydWN0IG10
+NjM5N19jaGlwIHsNCiAJc3RydWN0IGRldmljZSAqZGV2Ow0KIAlzdHJ1Y3QgcmVnbWFwICpyZWdt
+YXA7DQorCXN0cnVjdCBub3RpZmllcl9ibG9jayBwbV9uYjsNCiAJaW50IGlycTsNCiAJc3RydWN0
+IGlycV9kb21haW4gKmlycV9kb21haW47DQogCXN0cnVjdCBtdXRleCBpcnFsb2NrOw0KLS0gDQoy
+LjYuNA0K
 
