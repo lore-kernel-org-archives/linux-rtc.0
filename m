@@ -1,117 +1,96 @@
-Return-Path: <SRS0=SpCY=5Y=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=kb9E=52=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB89CC2BBFD
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Apr 2020 08:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA598C2BA2B
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Apr 2020 16:27:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 920E72075E
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Apr 2020 08:13:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C12E020857
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Apr 2020 16:27:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="H/wN0dz1"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="rrtOUWdz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbgDHIM6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 8 Apr 2020 04:12:58 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:63866 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726642AbgDHIM6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Apr 2020 04:12:58 -0400
-X-UUID: 49c8344e8e514be39abfa3c965f19bb2-20200408
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=fGKVeJMpPPedNFBW5Z89bG65lS398KakOP6xziYFSsc=;
-        b=H/wN0dz1gaqTobfimzYR8IcVbDrcAEc+451udtbn5nGthbYmyHpLBNWt3qwMELR5o4EEPa8qBPxBBSsBHG9eV7lX0FMrMlX0grVeap7U+CFrbUVL1l4UykufPFu+Sd9+/keuGgzBd5wRfQx0QFTrkmYvzVd/4n8na8gTunRcALI=;
-X-UUID: 49c8344e8e514be39abfa3c965f19bb2-20200408
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <hsin-hsiung.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1789487845; Wed, 08 Apr 2020 16:12:53 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 8 Apr 2020 16:12:49 +0800
-Received: from mtksdaap41.mediatek.inc (172.21.77.4) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 8 Apr 2020 16:12:49 +0800
-From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC:     Nicolas Boichat <drinkcat@chromium.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Richard Fontana <rfontana@redhat.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Josef Friedl <josef.friedl@speed.at>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
+        id S1726718AbgDJQ1i (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 10 Apr 2020 12:27:38 -0400
+Received: from esa2.microchip.iphmx.com ([68.232.149.84]:32816 "EHLO
+        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726712AbgDJQ1i (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 10 Apr 2020 12:27:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1586536058; x=1618072058;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version;
+  bh=kx75iRvDXLZZ7RnWClLIBFKi8jslmQjHPxpu6/ocCjE=;
+  b=rrtOUWdzWmwuT1l3fXvpUk9CXwa2b7GnQ6DBXst37rMtSvBOcsdVf9cS
+   J6gJbieEV5p0UVFihI/igiGLrWOfN3h/oQQSuw6pLaNfYi0+9LaSjV2DI
+   c6nm+FW4w8v2spx8oEIKWCfj06aGECnECJ0vsLL2znpu8O3TUJZCFH08r
+   Hbo4rD4IF4QFTt0LC4cYKRBNKZeOYPDqXaRXw4u7+bWopGhx4TPl5/CZw
+   xj/dRSqaW6sWhHZHjFrSiVnm3SuQP0CJtvgnvnKxfemsrhB2alPSVPhMY
+   s99DF84NqRFivgl8Lc8OPjvsiefRtYvF+4g6LQpYbHWm68zjUEH45gZ+f
+   Q==;
+IronPort-SDR: jqiqMXLojVGL5cI4ia8zCf/yYim18pgHzQB/iiiFP2Y5KUHJ84XGClzAUxjq23sTjVdt5UaPxe
+ F4jwGqvsb7njT0873SD0AfZdC/ALOyFB+iQo9XQLmgmbfcFq2aqN3V2x9eQl/fMo17yCN3m4X7
+ SXl8ChBoC9+EObz4hq5cf0igY7Tx9RGp4fivzichSqeCdRhcB7RULRFn25hLDmW+HKOO5y039N
+ EovJV4YYeqM9PlF1cTE6Ft67pQnXf7XyJGvy1bpky1WCrtf/uZi8V37wa9o1tH/Lk476VzgQ2Y
+ 5cM=
+X-IronPort-AV: E=Sophos;i="5.72,367,1580799600"; 
+   d="scan'208";a="71870918"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 10 Apr 2020 09:27:37 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Fri, 10 Apr 2020 09:27:48 -0700
+Received: from m18063-ThinkPad-T460p.microchip.com (10.10.115.15) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
+ 15.1.1713.5 via Frontend Transport; Fri, 10 Apr 2020 09:27:28 -0700
+From:   Claudiu Beznea <claudiu.beznea@microchip.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <robh+dt@kernel.org>, <mark.rutland@arm.com>,
+        <nicolas.ferre@microchip.com>, <ludovic.desroches@microchip.com>,
+        <tglx@linutronix.de>, <jason@lakedaemon.net>, <maz@kernel.org>
+CC:     <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <srv_heupstream@mediatek.com>
-Subject: [PATCH v12 2/6] mfd: mt6397: Trim probe function to support different chips more cleanly
-Date:   Wed, 8 Apr 2020 16:12:07 +0800
-Message-ID: <1586333531-21641-3-git-send-email-hsin-hsiung.wang@mediatek.com>
-X-Mailer: git-send-email 2.6.4
-In-Reply-To: <1586333531-21641-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1586333531-21641-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+        <linux-kernel@vger.kernel.org>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>
+Subject: [PATCH 2/5] rtc: at91sam9: enable driver for sam9x60
+Date:   Fri, 10 Apr 2020 19:26:56 +0300
+Message-ID: <1586536019-12348-3-git-send-email-claudiu.beznea@microchip.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1586536019-12348-1-git-send-email-claudiu.beznea@microchip.com>
+References: <1586536019-12348-1-git-send-email-claudiu.beznea@microchip.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-TM-SNTS-SMTP: FEDB43AB2ACB42064A2DB5C5D7CC07444166C3514C64B30D112F886F1894AF732000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-QWRkIG5ldyBzdHJ1Y3QgbWVtYmVycyBmb3IgbWZkLWNlbGxzIGFuZCBpcnEgaW5pdGlhbCBmdW5j
-dGlvbiwgc28gd2UgY2FuDQpjYWxsIGRldm1fbWZkX2FkZF9kZXZpY2VzKCkgb25seSBvbmNlLg0K
-DQpTaWduZWQtb2ZmLWJ5OiBIc2luLUhzaXVuZyBXYW5nIDxoc2luLWhzaXVuZy53YW5nQG1lZGlh
-dGVrLmNvbT4NCi0tLQ0KIGRyaXZlcnMvbWZkL210NjM5Ny1jb3JlLmMgfCAzNSArKysrKysrKysr
-KysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25z
-KCspLCAyMSBkZWxldGlvbnMoLSkNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWZkL210NjM5Ny1j
-b3JlLmMgYi9kcml2ZXJzL21mZC9tdDYzOTctY29yZS5jDQppbmRleCBkMmU3MGQ4Li5hMzEzYTcy
-IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9tZmQvbXQ2Mzk3LWNvcmUuYw0KKysrIGIvZHJpdmVycy9t
-ZmQvbXQ2Mzk3LWNvcmUuYw0KQEAgLTEwMywyMiArMTAzLDMxIEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgbWZkX2NlbGwgbXQ2Mzk3X2RldnNbXSA9IHsNCiBzdHJ1Y3QgY2hpcF9kYXRhIHsNCiAJdTMy
-IGNpZF9hZGRyOw0KIAl1MzIgY2lkX3NoaWZ0Ow0KKwljb25zdCBzdHJ1Y3QgbWZkX2NlbGwgKmNl
-bGxzOw0KKwlpbnQgY2VsbF9zaXplOw0KKwlpbnQgKCppcnFfaW5pdCkoc3RydWN0IG10NjM5N19j
-aGlwICpjaGlwKTsNCiB9Ow0KIA0KIHN0YXRpYyBjb25zdCBzdHJ1Y3QgY2hpcF9kYXRhIG10NjMy
-M19jb3JlID0gew0KIAkuY2lkX2FkZHIgPSBNVDYzMjNfQ0lELA0KIAkuY2lkX3NoaWZ0ID0gMCwN
-CisJLmNlbGxzID0gbXQ2MzIzX2RldnMsDQorCS5jZWxsX3NpemUgPSBBUlJBWV9TSVpFKG10NjMy
-M19kZXZzKSwNCisJLmlycV9pbml0ID0gbXQ2Mzk3X2lycV9pbml0LA0KIH07DQogDQogc3RhdGlj
-IGNvbnN0IHN0cnVjdCBjaGlwX2RhdGEgbXQ2Mzk3X2NvcmUgPSB7DQogCS5jaWRfYWRkciA9IE1U
-NjM5N19DSUQsDQogCS5jaWRfc2hpZnQgPSAwLA0KKwkuY2VsbHMgPSBtdDYzOTdfZGV2cywNCisJ
-LmNlbGxfc2l6ZSA9IEFSUkFZX1NJWkUobXQ2Mzk3X2RldnMpLA0KKwkuaXJxX2luaXQgPSBtdDYz
-OTdfaXJxX2luaXQsDQogfTsNCiANCiBzdGF0aWMgaW50IG10NjM5N19wcm9iZShzdHJ1Y3QgcGxh
-dGZvcm1fZGV2aWNlICpwZGV2KQ0KIHsNCiAJaW50IHJldDsNCi0JdW5zaWduZWQgaW50IGlkOw0K
-Kwl1bnNpZ25lZCBpbnQgaWQgPSAwOw0KIAlzdHJ1Y3QgbXQ2Mzk3X2NoaXAgKnBtaWM7DQogCWNv
-bnN0IHN0cnVjdCBjaGlwX2RhdGEgKnBtaWNfY29yZTsNCiANCkBAIC0xNTQsMjkgKzE2MywxMyBA
-QCBzdGF0aWMgaW50IG10NjM5N19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0K
-IAlpZiAocG1pYy0+aXJxIDw9IDApDQogCQlyZXR1cm4gcG1pYy0+aXJxOw0KIA0KLQlyZXQgPSBt
-dDYzOTdfaXJxX2luaXQocG1pYyk7DQorCXJldCA9IHBtaWNfY29yZS0+aXJxX2luaXQocG1pYyk7
-DQogCWlmIChyZXQpDQogCQlyZXR1cm4gcmV0Ow0KIA0KLQlzd2l0Y2ggKHBtaWMtPmNoaXBfaWQp
-IHsNCi0JY2FzZSBNVDYzMjNfQ0hJUF9JRDoNCi0JCXJldCA9IGRldm1fbWZkX2FkZF9kZXZpY2Vz
-KCZwZGV2LT5kZXYsIFBMQVRGT1JNX0RFVklEX05PTkUsDQotCQkJCQkgICBtdDYzMjNfZGV2cywg
-QVJSQVlfU0laRShtdDYzMjNfZGV2cyksDQotCQkJCQkgICBOVUxMLCAwLCBwbWljLT5pcnFfZG9t
-YWluKTsNCi0JCWJyZWFrOw0KLQ0KLQljYXNlIE1UNjM5MV9DSElQX0lEOg0KLQljYXNlIE1UNjM5
-N19DSElQX0lEOg0KLQkJcmV0ID0gZGV2bV9tZmRfYWRkX2RldmljZXMoJnBkZXYtPmRldiwgUExB
-VEZPUk1fREVWSURfTk9ORSwNCi0JCQkJCSAgIG10NjM5N19kZXZzLCBBUlJBWV9TSVpFKG10NjM5
-N19kZXZzKSwNCi0JCQkJCSAgIE5VTEwsIDAsIHBtaWMtPmlycV9kb21haW4pOw0KLQkJYnJlYWs7
-DQotDQotCWRlZmF1bHQ6DQotCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJ1bnN1cHBvcnRlZCBjaGlw
-OiAlZFxuIiwgcG1pYy0+Y2hpcF9pZCk7DQotCQlyZXR1cm4gLUVOT0RFVjsNCi0JfQ0KLQ0KKwly
-ZXQgPSBkZXZtX21mZF9hZGRfZGV2aWNlcygmcGRldi0+ZGV2LCBQTEFURk9STV9ERVZJRF9OT05F
-LA0KKwkJCQkgICBwbWljX2NvcmUtPmNlbGxzLCBwbWljX2NvcmUtPmNlbGxfc2l6ZSwNCisJCQkJ
-ICAgTlVMTCwgMCwgcG1pYy0+aXJxX2RvbWFpbik7DQogCWlmIChyZXQpIHsNCiAJCWlycV9kb21h
-aW5fcmVtb3ZlKHBtaWMtPmlycV9kb21haW4pOw0KIAkJZGV2X2VycigmcGRldi0+ZGV2LCAiZmFp
-bGVkIHRvIGFkZCBjaGlsZCBkZXZpY2VzOiAlZFxuIiwgcmV0KTsNCi0tIA0KMi42LjQNCg==
+Enable driver for SAM9X60.
+
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index e39e89867d29..cb0a8f4a73a4 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -525,6 +525,7 @@ static SIMPLE_DEV_PM_OPS(at91_rtc_pm_ops, at91_rtc_suspend, at91_rtc_resume);
+ 
+ static const struct of_device_id at91_rtc_dt_ids[] = {
+ 	{ .compatible = "atmel,at91sam9260-rtt" },
++	{ .compatible = "microchip,sam9x60-rtt" },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, at91_rtc_dt_ids);
+-- 
+2.7.4
 
