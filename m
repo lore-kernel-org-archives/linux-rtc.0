@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92695C2BB86
-	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A39EC2BA19
+	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:33:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6A2D32051A
-	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:26:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71C8C2051A
+	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586647570;
+	s=default; t=1586648027;
 	bh=rjytP4Nsb3o8SYY72ku2H/NNEttzxHpHq53ChREMXFI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=pP6OHdp4kNKeFBsgML24MuEVqxW190P6EOZeAmvKXPm+Y7E1+wqXJXW+li1JS1z0Q
-	 JClRw1s5GOkenQl5tPm9omibFiLYCSeNcxns9FMRSlK3b8KjCv3uqUwTVswhBI1r0W
-	 6JJZK3cBk3eb/hzZ/w4jcGUOqp4FG3qCHHNxvsYc=
+	b=nPMtKVSX2qIvT/hClG7+0G7HcFNakgoop6gktB56TM2soLoUXFp5ElIE2C4nghUk1
+	 jo7ngWdGGF82RJmzS9orywrc1S6QqlTzHz/JF1s3eIs59Mr4OD7q00mLHGysRSt4pL
+	 BBCHfA4105UoSnwGg30enjQFteCggEOIEPZbAKgw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730375AbgDKX0E (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 11 Apr 2020 19:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
+        id S1727664AbgDKXdm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 11 Apr 2020 19:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729962AbgDKXL4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:56 -0400
+        id S1727630AbgDKXJd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CF1C21835;
-        Sat, 11 Apr 2020 23:11:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFE8921D7B;
+        Sat, 11 Apr 2020 23:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646717;
+        s=default; t=1586646573;
         bh=rjytP4Nsb3o8SYY72ku2H/NNEttzxHpHq53ChREMXFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGyMAfESLYeyEWoyA7XoWvGv5OUOCekdres2u8MH7fPX44i3N681Dz1hpTAs7uU/A
-         VXSTqIVeW7tj42spnFqJFjWclHewqFudnV77zUtxHAdL/Xsbr0chxH3XxmoaLotoMc
-         evDOcd6Cotj6ojUfsJFdkcAw5OTvv9E7hoqSaYfU=
+        b=y4rKrrTQAVsSK/7BPz3IjAb9nQJKfsXzFiu71Eh3rQlrmMeILU0FvlZ5TkRetf88M
+         zQJALS9FHJcE6fgP6gyU8D4EaI1vyPCegLYC9yaZbT8ZmRTB/lBdD3Py9X1EwH+kvA
+         ZQZbDZvAhbuCEkog9OW7Cftrr7it6HCRd/hDaC1w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Leonard Crestez <leonard.crestez@nxp.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 107/108] rtc: imx-sc: Align imx sc msg structs to 4
-Date:   Sat, 11 Apr 2020 19:09:42 -0400
-Message-Id: <20200411230943.24951-107-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 120/121] rtc: imx-sc: Align imx sc msg structs to 4
+Date:   Sat, 11 Apr 2020 19:07:05 -0400
+Message-Id: <20200411230706.23855-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
-References: <20200411230943.24951-1-sashal@kernel.org>
+In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
+References: <20200411230706.23855-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
