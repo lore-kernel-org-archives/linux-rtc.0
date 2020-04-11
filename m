@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B002C2BB86
-	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F47CC2BBC7
+	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:22:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D92692173E
-	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:11:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68ECB206E9
+	for <linux-rtc@archiver.kernel.org>; Sat, 11 Apr 2020 23:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1586646710;
-	bh=QlHYEWGn7a3elbcxUrFdddKG91fI9pOgb+Q8z/TN5D8=;
+	s=default; t=1586647366;
+	bh=EWXMfcj2AErFXZpY0Y+BNQHUB3PSxEtKAiTtFrekj4Q=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=y4kiokgigQfhi3/mEySUl5aQcXMjlxFmxYtRRbSpozK9erPiJRHs3pDeKy28Nqr5G
-	 g3rksIbvmsmlyfsEoKM4A6ZFwLN87PJa1dK+1dUuCI8k9Zr0Py0HrWsNGPb4aHfaW2
-	 Qfy1rQfQ81kJJx34MaRTpTayR8tLMLWc0cx+sCDc=
+	b=SPSvwKa/j2vK7aibfGxIJkItSoKDQu8cjYO2Iq58LAdxT6DxS3f8P2vkhzoDCWaQn
+	 wK0o6s05j9t+DGvp/mZHWKgJnfmOyKYd1PbCyZMG2DcOa5sdquHljoqzTSRX9JFp+R
+	 aW7DnonMB6Krn+xjbF9t7IhmzQhWy4sDrl4AIbvQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730008AbgDKXLs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 11 Apr 2020 19:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
+        id S1730389AbgDKXNS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 11 Apr 2020 19:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbgDKXLs (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:48 -0400
+        id S1730054AbgDKXNS (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:13:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D341F2173E;
-        Sat, 11 Apr 2020 23:11:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0B2E20708;
+        Sat, 11 Apr 2020 23:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646707;
-        bh=QlHYEWGn7a3elbcxUrFdddKG91fI9pOgb+Q8z/TN5D8=;
+        s=default; t=1586646798;
+        bh=EWXMfcj2AErFXZpY0Y+BNQHUB3PSxEtKAiTtFrekj4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F41oMMAyhgLyiNPxOMPtFPo4DZ8dujRbgei9zGgdVTMHSrjWj2SSVHJw6P97cDQsz
-         1fu4laxC9RmKWNL9OqyA1pGjf3FrxwiR2csCpf9iR8nNhktqTzADBOLBmnqwS5pwKj
-         GtgBMUxTwHFLH5neoKezlzvvKhruS5/hRB03XJXo=
+        b=tIsQDPutreA5a6DqvHPNnNzjZduQawkgjm6J99dQecOrURiRf8V/1mZHyrCzyrW77
+         J5A3DH1fjSa7hAtk4srpaUdCesdGf/TI4rhBVUrxy0Mhu2+P0bbnIXOwbvYgY+mABf
+         lCsjsTmk/eY8MlN4F1Smf5VUklcA5/Uo1GUH3si8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 099/108] rtc: cmos: Use spin_lock_irqsave() in cmos_interrupt()
-Date:   Sat, 11 Apr 2020 19:09:34 -0400
-Message-Id: <20200411230943.24951-99-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 61/66] rtc: cmos: Use spin_lock_irqsave() in cmos_interrupt()
+Date:   Sat, 11 Apr 2020 19:11:58 -0400
+Message-Id: <20200411231203.25933-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
-References: <20200411230943.24951-1-sashal@kernel.org>
+In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
+References: <20200411231203.25933-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -171,10 +171,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index cb28bbdc9e17f..ecbe89b039ee6 100644
+index 0fa94d9e8d44d..3c3ee2b92b413 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -649,10 +649,11 @@ static struct cmos_rtc	cmos_rtc;
+@@ -653,10 +653,11 @@ static struct cmos_rtc	cmos_rtc;
  
  static irqreturn_t cmos_interrupt(int irq, void *p)
  {
@@ -187,7 +187,7 @@ index cb28bbdc9e17f..ecbe89b039ee6 100644
  
  	/* When the HPET interrupt handler calls us, the interrupt
  	 * status is passed as arg1 instead of the irq number.  But
-@@ -686,7 +687,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
+@@ -690,7 +691,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
  			hpet_mask_rtc_irq_bit(RTC_AIE);
  		CMOS_READ(RTC_INTR_FLAGS);
  	}
