@@ -2,59 +2,115 @@ Return-Path: <SRS0=khO5=57=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D05C2BA19
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 08:00:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44B90C2BA19
+	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 12:07:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B21720771
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 08:00:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F0A5206A2
+	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 12:07:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1586952441;
+	bh=weKFicrvkC2K2sjZLNc8aFh+HzKrDX3YrP6qh3Kb1QI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=gYjmpulTWEp1ZtWHSjRCxgU02qAcP2pczt36cLTruV91XWSLl4ckLLoyETjMglLAm
+	 mJzZRFj88TRvnt46UM76v8e43MJRFJ0xnjgFr2B3fXXr9w1S/hhWbMCFvkEw+dmOIX
+	 zCfNIut5ltC8/xDUUPBIBk74q2rC1uQ1qyMWIutw=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393777AbgDOIAt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 15 Apr 2020 04:00:49 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:39729 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393759AbgDOH73 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Apr 2020 03:59:29 -0400
-X-Originating-IP: 86.202.105.35
-Received: from localhost (lfbn-lyo-1-9-35.w86-202.abo.wanadoo.fr [86.202.105.35])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id D6FB7FF803;
-        Wed, 15 Apr 2020 07:59:23 +0000 (UTC)
-Date:   Wed, 15 Apr 2020 09:59:23 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Lee Jones <lee.jones@linaro.org>, linux-rtc@vger.kernel.org,
-        kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] rtc: rc5t619: Fix an ERR_PTR vs NULL check
-Message-ID: <20200415075923.GN34509@piout.net>
-References: <20200407092852.GI68494@mwanda>
+        id S368466AbgDOMHR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 15 Apr 2020 08:07:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42632 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2897620AbgDOLrU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:20 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C6762137B;
+        Wed, 15 Apr 2020 11:47:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586951237;
+        bh=weKFicrvkC2K2sjZLNc8aFh+HzKrDX3YrP6qh3Kb1QI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CJodTshYh4lLR5z6mk0vfMoobiUEEKwLp6u8TvVJozn3ayx4pRPazWp5kvRbDW1wx
+         Eevg36o4fRPe31yG3SNI2NJplHbqCelloI+hWYsJJjjmqgH3reGMRmp5FfLsKXY6Xe
+         NB2juZaEPu21LLVhcUdt6DjDlnTSFPWF0H+C7iSM=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/30] rtc: 88pm860x: fix possible race condition
+Date:   Wed, 15 Apr 2020 07:46:46 -0400
+Message-Id: <20200415114711.15381-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200415114711.15381-1-sashal@kernel.org>
+References: <20200415114711.15381-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200407092852.GI68494@mwanda>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 07/04/2020 12:28:52+0300, Dan Carpenter wrote:
-> The devm_kzalloc() function returns NULL on error, it doesn't return
-> error pointers so this check doesn't work.
-> 
-> Fixes: 540d1e15393d ("rtc: rc5t619: Add Ricoh RC5T619 RTC driver")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
->  drivers/rtc/rtc-rc5t619.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-Applied, thanks.
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
+[ Upstream commit 9cf4789e6e4673d0b2c96fa6bb0c35e81b43111a ]
+
+The RTC IRQ is requested before the struct rtc_device is allocated,
+this may lead to a NULL pointer dereference in the IRQ handler.
+
+To fix this issue, allocating the rtc_device struct before requesting
+the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
+to register the RTC device.
+
+Also remove the unnecessary error message as the core already prints the
+info.
+
+Link: https://lore.kernel.org/r/20200311223956.51352-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/rtc/rtc-88pm860x.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
+index 7d3e5168fcefc..efbbde7379f13 100644
+--- a/drivers/rtc/rtc-88pm860x.c
++++ b/drivers/rtc/rtc-88pm860x.c
+@@ -341,6 +341,10 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
+ 	info->dev = &pdev->dev;
+ 	dev_set_drvdata(&pdev->dev, info);
+ 
++	info->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(info->rtc_dev))
++		return PTR_ERR(info->rtc_dev);
++
+ 	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
+ 					rtc_update_handler, IRQF_ONESHOT, "rtc",
+ 					info);
+@@ -382,13 +386,11 @@ static int pm860x_rtc_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "88pm860x-rtc",
+-					    &pm860x_rtc_ops, THIS_MODULE);
+-	ret = PTR_ERR(info->rtc_dev);
+-	if (IS_ERR(info->rtc_dev)) {
+-		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
++	info->rtc_dev->ops = &pm860x_rtc_ops;
++
++	ret = rtc_register_device(info->rtc_dev);
++	if (ret)
+ 		return ret;
+-	}
+ 
+ 	/*
+ 	 * enable internal XO instead of internal 3.25MHz clock since it can
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.20.1
+
