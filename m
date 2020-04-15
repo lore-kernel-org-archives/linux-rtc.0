@@ -6,25 +6,25 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6114C3815B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BED56C2BA19
 	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 16:37:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8061206F9
+	by mail.kernel.org (Postfix) with ESMTP id A5CD22064A
 	for <linux-rtc@archiver.kernel.org>; Wed, 15 Apr 2020 16:37:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1416168AbgDOQh3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1416170AbgDOQh3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 15 Apr 2020 12:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58872 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1416090AbgDOQh0 (ORCPT
+        by vger.kernel.org with ESMTP id S1416168AbgDOQh0 (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Apr 2020 12:37:26 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1954C061A0E
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F3FC061A0C
         for <linux-rtc@vger.kernel.org>; Wed, 15 Apr 2020 09:37:25 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <bst@pengutronix.de>)
-        id 1jOl2S-0007eu-DM; Wed, 15 Apr 2020 18:37:24 +0200
+        id 1jOl2S-0007eu-En; Wed, 15 Apr 2020 18:37:24 +0200
 From:   Bastian Krause <bst@pengutronix.de>
 To:     linux-rtc@vger.kernel.org
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
@@ -33,10 +33,12 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Arnaud Ebalard <arno@natisbad.org>,
         Marek Vasut <marex@denx.de>, devicetree@vger.kernel.org,
         kernel@pengutronix.de, Bastian Krause <bst@pengutronix.de>
-Subject: [RESEND PATCH v2 1/3] rtc: ds1307: Enable battery backup on RX8130
-Date:   Wed, 15 Apr 2020 18:36:59 +0200
-Message-Id: <20200415163701.21989-1-bst@pengutronix.de>
+Subject: [PATCH 2/3] dt-bindings: rtc: add chargeable flag for rx8130
+Date:   Wed, 15 Apr 2020 18:37:00 +0200
+Message-Id: <20200415163701.21989-2-bst@pengutronix.de>
 X-Mailer: git-send-email 2.26.0.rc2
+In-Reply-To: <20200415163701.21989-1-bst@pengutronix.de>
+References: <20200415163701.21989-1-bst@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
@@ -48,44 +50,25 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
-
-The battery backup can be disabled on this RTC, e.g. if populated right
-out of production. Force the battery backup bit on to enable it.
-
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Bastian Krause <bst@pengutronix.de>
---
-v2: Drop the custom offset, let regmap handle that
+Signed-off-by: Bastian Krause <bst@pengutronix.de>
 ---
- drivers/rtc/rtc-ds1307.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 49702942bb08..5f0df60a71d1 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -122,6 +122,8 @@ enum ds_type {
- #define RX8130_REG_FLAG_AF		BIT(3)
- #define RX8130_REG_CONTROL0		0x1e
- #define RX8130_REG_CONTROL0_AIE		BIT(3)
-+#define RX8130_REG_CONTROL1		0x1f
-+#define RX8130_REG_CONTROL1_INIEN	BIT(4)
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index 66f0a31ae9ce..987a0c9e0cd7 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -34,6 +34,9 @@ Optional properties:
+ - trickle-diode-disable : ds1339, ds1340 and ds 1388 only
+ 	Do not use internal trickle charger diode
+ 	Should be given if internal trickle charger diode should be disabled
++- aux-voltage-chargeable: rx8130 only
++	Epsons's rx8130 supports a backup battery/supercap.
++	This flag tells	whether the battery/supercap is chargeable or not.
  
- #define MCP794XX_REG_CONTROL		0x07
- #	define MCP794XX_BIT_ALM0_EN	0x10
-@@ -1875,6 +1877,11 @@ static int ds1307_probe(struct i2c_client *client,
- 				     DS1307_REG_HOUR << 4 | 0x08, hour);
- 		}
- 		break;
-+	case rx_8130:
-+		/* make sure that the backup battery is enabled */
-+		regmap_write(ds1307->regmap, RX8130_REG_CONTROL1,
-+			     RX8130_REG_CONTROL1_INIEN);
-+		break;
- 	default:
- 		break;
- 	}
+ Example:
+ 	ds1339: rtc@68 {
 -- 
 2.26.0.rc2
 
