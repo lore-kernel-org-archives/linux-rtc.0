@@ -2,141 +2,160 @@ Return-Path: <SRS0=/10d=6B=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_SANE_2 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E244C352BE
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Apr 2020 08:50:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F05BBC3815B
+	for <linux-rtc@archiver.kernel.org>; Fri, 17 Apr 2020 17:08:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 59B752076D
-	for <linux-rtc@archiver.kernel.org>; Fri, 17 Apr 2020 08:50:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D0EBC20656
+	for <linux-rtc@archiver.kernel.org>; Fri, 17 Apr 2020 17:08:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="dWjdb0Qq"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NXoAHHZi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729954AbgDQIu2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 17 Apr 2020 04:50:28 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:50554 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729930AbgDQIu1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 17 Apr 2020 04:50:27 -0400
-X-UUID: 19c67206a4314b779958374de9d17d4c-20200417
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=CvLwXNbZt4YLZj84U8Z1qWNABI7ku9CPPMrN1RBYWo4=;
-        b=dWjdb0Qq2FqWB9CgJutYv88Jk3cuRB6e7sGPsY1SmMa/L7HZ0B096+OwuUx1o+YirKE6alxIjAWXolVuUSYA3ZQ9EbzTXX5cjHVKXRwehlTq4cIHZTnxIyKBvdN2KghdETXHmmleq3bjuMUY6iPMfYLnbYUrZxvW2pQGWhyNoOU=;
-X-UUID: 19c67206a4314b779958374de9d17d4c-20200417
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
-        (envelope-from <ran.bi@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1460347295; Fri, 17 Apr 2020 16:50:21 +0800
-Received: from MTKCAS36.mediatek.inc (172.27.4.186) by mtkmbs05n1.mediatek.inc
- (172.21.101.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Fri, 17 Apr
- 2020 16:50:19 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS36.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 17 Apr 2020 16:50:16 +0800
-Message-ID: <1587113392.13323.3.camel@mhfsdcap03>
-Subject: Re: [PATCH v12 5/6] rtc: mt6397: Add support for the MediaTek
- MT6358 RTC
-From:   Ran Bi <ran.bi@mediatek.com>
-To:     Lee Jones <lee.jones@linaro.org>
-CC:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Eddie Huang <eddie.huang@mediatek.com>,
+        id S1728760AbgDQRIf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 17 Apr 2020 13:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728556AbgDQRIe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 17 Apr 2020 13:08:34 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B469C061A0C;
+        Fri, 17 Apr 2020 10:08:34 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id k11so3903581wrp.5;
+        Fri, 17 Apr 2020 10:08:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=KvsoRNaIPMpQAi34tFrpdDPuh9TmP9Et+cVWafVFTlM=;
+        b=NXoAHHZivibzY4yLgrYyRGMeRigrfaFJn6RcnnC6TiQoW2w8Zh2nPgZcOyN2RV+XqP
+         Q6ztj+Trlj1Qlk+Qx8ire2OlXys/jqrOdHPzzTML9oWz7pyz667kMojzdH76bq8P05DZ
+         2mxLP6HvQz6Jtn3AaA40ZvVCc0/0SM9NLecxExIsHO8mtHZwwqv0FA2e3lhEh0qOrC1E
+         7BN5vByv9s5bpfg05DqbBqPnuJ8VmlFnepygSgREONlycbbE0ILpAmrE5kCdlOjdALyS
+         TprgrtlXnpWqrg78lYEq/LLBDSmazQX8iLmoCU6radzCKe8E+JBS02hAm5Qwq3p7ro3E
+         0JEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=KvsoRNaIPMpQAi34tFrpdDPuh9TmP9Et+cVWafVFTlM=;
+        b=sF9ch2D8QOVd8mr5k2PX0d0tY9IpBHH7PKbL1yE3r3uXNemrADVYSMpxNRC+9rQZ1a
+         UVV0l6l94SG9YTl6pb3gKl0N61ghLhBRgCM7XfoXiV+5anyM6FlppYDVx091IJxmwk0n
+         kJSyARFt1yJLC+8lIv2Fj39c+GdkAroPlP/8mCMHO0EVGpVgnxFKu/EM8WEei3s5yc1f
+         AImhYehzlgAaaAS6prQhF7W8gnpFaqWaYe/eVs6dKz2qmj3WGT9QjzOA9jrl/5X87Vdm
+         ltlmNnq1HU9X5oYkdUBB7kNFlu3zW64RCHALBEuICHVGJBL5GHDOc8v/wK/Wty32d+Vz
+         rxDQ==
+X-Gm-Message-State: AGi0PuZXkQY0+VKfFLHTTXMyWl4/1Yq19vLi67wbwFgZx6QEzuHFHWrS
+        fi8HzZM3m2Dpmuibxln/rR4=
+X-Google-Smtp-Source: APiQypKgdT2gpDqOCdnzwUylz3VALkrAqFxBj0ZFndhgeiSg4ua55X8ZE1TIMBymhr+yqIxnbACHGQ==
+X-Received: by 2002:a5d:49c3:: with SMTP id t3mr4659554wrs.94.1587143313191;
+        Fri, 17 Apr 2020 10:08:33 -0700 (PDT)
+Received: from localhost (pD9E51D62.dip0.t-ipconnect.de. [217.229.29.98])
+        by smtp.gmail.com with ESMTPSA id a7sm8419517wmj.12.2020.04.17.10.08.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2020 10:08:32 -0700 (PDT)
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        "Kate Stewart" <kstewart@linuxfoundation.org>,
-        Richard Fontana <rfontana@redhat.com>,
-        Frank Wunderlich <frank-w@public-files.de>,
-        "Josef Friedl" <josef.friedl@speed.at>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <srv_heupstream@mediatek.com>
-Date:   Fri, 17 Apr 2020 16:49:52 +0800
-In-Reply-To: <1587112169.12875.2.camel@mhfsdcap03>
-References: <1586333531-21641-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-         <1586333531-21641-6-git-send-email-hsin-hsiung.wang@mediatek.com>
-         <20200416091438.GA2167633@dell> <1587112169.12875.2.camel@mhfsdcap03>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Jon Hunter <jonathanh@nvidia.com>, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] rtc: max77686: Use single-byte writes on MAX77620
+Date:   Fri, 17 Apr 2020 19:08:25 +0200
+Message-Id: <20200417170825.2551367-3-thierry.reding@gmail.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200417170825.2551367-1-thierry.reding@gmail.com>
+References: <20200417170825.2551367-1-thierry.reding@gmail.com>
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-T24gRnJpLCAyMDIwLTA0LTE3IGF0IDE2OjI5ICswODAwLCBSYW4gQmkgd3JvdGU6DQo+IE9uIFRo
-dSwgMjAyMC0wNC0xNiBhdCAxMDoxNCArMDEwMCwgTGVlIEpvbmVzIHdyb3RlOg0KPiA+IE9uIFdl
-ZCwgMDggQXByIDIwMjAsIEhzaW4tSHNpdW5nIFdhbmcgd3JvdGU6DQo+ID4gDQo+ID4gPiBGcm9t
-OiBSYW4gQmkgPHJhbi5iaUBtZWRpYXRlay5jb20+DQo+ID4gPiANCj4gPiA+IFRoaXMgYWRkIHN1
-cHBvcnQgZm9yIHRoZSBNZWRpYVRlayBNVDYzNTggUlRDLiBEcml2ZXIgdXNpbmcNCj4gPiA+IGNv
-bXBhdGlibGUgZGF0YSB0byBzdG9yZSBkaWZmZXJlbnQgUlRDX1dSVEdSIGFkZHJlc3Mgb2Zmc2V0
-Lg0KPiA+ID4gVGhpcyByZXBsYWNlIFJUQ19XUlRHUiB0byBSVENfV1JUR1JfTVQ2MzIzIGluIG10
-NjMyMy1wb3dlcm9mZg0KPiA+ID4gZHJpdmVyIHdoaWNoIG9ubHkgbmVlZGVkIGJ5IGFybXY3IENQ
-VSB3aXRob3V0IEFURi4NCj4gPiA+IA0KPiA+ID4gUmV2aWV3ZWQtYnk6IE5pY29sYXMgQm9pY2hh
-dCA8ZHJpbmtjYXRAY2hyb21pdW0ub3JnPg0KPiA+ID4gUmV2aWV3ZWQtYnk6IFlpbmdqb2UgQ2hl
-biA8eWluZ2pvZS5jaGVuQG1lZGlhdGVrLmNvbT4NCj4gPiA+IEFja2VkLWJ5OiBBbGV4YW5kcmUg
-QmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5jb20+DQo+ID4gPiBBY2tlZC1ieTog
-U2ViYXN0aWFuIFJlaWNoZWwgPHNyZUBrZXJuZWwub3JnPg0KPiA+ID4gU2lnbmVkLW9mZi1ieTog
-UmFuIEJpIDxyYW4uYmlAbWVkaWF0ZWsuY29tPg0KPiA+ID4gU2lnbmVkLW9mZi1ieTogSHNpbi1I
-c2l1bmcgV2FuZyA8aHNpbi1oc2l1bmcud2FuZ0BtZWRpYXRlay5jb20+DQo+ID4gDQo+ID4gUGxl
-YXNlIHBsYWNlIHRoZXNlIGluIGNocm9ub2xvZ2ljYWwgb3JkZXIuICBUaGV5IHNob3VsZCBwcm92
-aWRlIHNvbWUNCj4gPiBoaXN0b3J5LCByYXRoZXIgdGhhbiBhIHVub3JkZXJlZCBzbGFiIGxpc3Qg
-b2YgcmFuZG9tIHNpZ24tb2Zmcy4NCj4gPiANCj4gDQo+IEkgc3VwcG9zZSB0aGF0IHlvdSBtZWFu
-IHRoZSBvcmRlciBzaG91bGQgYmUgbGlrZSBiZWxvdywgcmlnaHQ/DQo+IFJldmlld2VkLWJ5OiBZ
-aW5nam9lIENoZW4gPHlpbmdqb2UuY2hlbkBtZWRpYXRlay5jb20+DQo+IEFja2VkLWJ5OiBTZWJh
-c3RpYW4gUmVpY2hlbCA8c3JlQGtlcm5lbC5vcmc+DQo+IEFja2VkLWJ5OiBBbGV4YW5kcmUgQmVs
-bG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5jb20+DQo+IFJldmlld2VkLWJ5OiBOaWNv
-bGFzIEJvaWNoYXQgPGRyaW5rY2F0QGNocm9taXVtLm9yZz4NCj4gU2lnbmVkLW9mZi1ieTogSHNp
-bi1Ic2l1bmcgV2FuZyA8aHNpbi1oc2l1bmcud2FuZ0BtZWRpYXRlay5jb20+DQo+IFNpZ25lZC1v
-ZmYtYnk6IFJhbiBCaSA8cmFuLmJpQG1lZGlhdGVrLmNvbT4NCj4gDQoNCkNvcnJlY3Rpb24sIEkg
-dGhpbmsgZm9sbG93aW5nIGlzIHRoZSBjb3JyZWN0IGNocm9ub2xvZ2ljYWwgb3JkZXI6DQpTaWdu
-ZWQtb2ZmLWJ5OiBSYW4gQmkgPHJhbi5iaUBtZWRpYXRlay5jb20+DQpTaWduZWQtb2ZmLWJ5OiBI
-c2luLUhzaXVuZyBXYW5nIDxoc2luLWhzaXVuZy53YW5nQG1lZGlhdGVrLmNvbT4NClJldmlld2Vk
-LWJ5OiBOaWNvbGFzIEJvaWNoYXQgPGRyaW5rY2F0QGNocm9taXVtLm9yZz4NCkFja2VkLWJ5OiBB
-bGV4YW5kcmUgQmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5jb20+DQpBY2tlZC1i
-eTogU2ViYXN0aWFuIFJlaWNoZWwgPHNyZUBrZXJuZWwub3JnPg0KUmV2aWV3ZWQtYnk6IFlpbmdq
-b2UgQ2hlbiA8eWluZ2pvZS5jaGVuQG1lZGlhdGVrLmNvbT4NCg0KPiA+ID4gLS0tDQo+ID4gPiAg
-ZHJpdmVycy9wb3dlci9yZXNldC9tdDYzMjMtcG93ZXJvZmYuYyB8ICAyICstDQo+ID4gPiAgZHJp
-dmVycy9ydGMvcnRjLW10NjM5Ny5jICAgICAgICAgICAgICB8IDE4ICsrKysrKysrKysrKysrKy0t
-LQ0KPiA+ID4gIGluY2x1ZGUvbGludXgvbWZkL210NjM5Ny9ydGMuaCAgICAgICAgfCAgOSArKysr
-KysrKy0NCj4gPiA+ICAzIGZpbGVzIGNoYW5nZWQsIDI0IGluc2VydGlvbnMoKyksIDUgZGVsZXRp
-b25zKC0pDQo+ID4gDQo+ID4gWy4uLl0NCj4gPiANCj4gPiA+IGRpZmYgLS1naXQgYS9pbmNsdWRl
-L2xpbnV4L21mZC9tdDYzOTcvcnRjLmggYi9pbmNsdWRlL2xpbnV4L21mZC9tdDYzOTcvcnRjLmgN
-Cj4gPiA+IGluZGV4IDdkZmI2M2IuLjYyMDBmM2IgMTAwNjQ0DQo+ID4gPiAtLS0gYS9pbmNsdWRl
-L2xpbnV4L21mZC9tdDYzOTcvcnRjLmgNCj4gPiA+ICsrKyBiL2luY2x1ZGUvbGludXgvbWZkL210
-NjM5Ny9ydGMuaA0KPiA+ID4gQEAgLTE4LDcgKzE4LDkgQEANCj4gPiA+ICAjZGVmaW5lIFJUQ19C
-QlBVX0NCVVNZICAgICAgICAgQklUKDYpDQo+ID4gPiAgI2RlZmluZSBSVENfQkJQVV9LRVkgICAg
-ICAgICAgICAoMHg0MyA8PCA4KQ0KPiA+ID4gIA0KPiA+ID4gLSNkZWZpbmUgUlRDX1dSVEdSICAg
-ICAgICAgICAgICAweDAwM2MNCj4gPiA+ICsjZGVmaW5lIFJUQ19XUlRHUl9NVDYzNTggICAgICAg
-MHgzYQ0KPiA+ID4gKyNkZWZpbmUgUlRDX1dSVEdSX01UNjM5NyAgICAgICAweDNjDQo+ID4gDQo+
-ID4gV2h5IHJlbW92ZSB0aGUgbGVhZGluZyAwMCdzPw0KPiA+IA0KPiA+IFRoZXNlIGFyZSBub3cg
-ZGlmZmVyZW50IHRvIHRoZSBvdGhlciByZWdzIGRlZmluZWQgaW4gdGhpcyBoZWFkZXIuDQo+ID4g
-DQo+IA0KPiBJIHdpbGwgZml4IHRoaXMgYXQgbmV4dCBwYXRjaC4NCj4gDQo+ID4gPiArI2RlZmlu
-ZSBSVENfV1JUR1JfTVQ2MzIzICAgICAgIFJUQ19XUlRHUl9NVDYzOTcNCj4gPiA+ICANCj4gPiA+
-ICAjZGVmaW5lIFJUQ19JUlFfU1RBICAgICAgICAgICAgMHgwMDAyDQo+ID4gDQo+ID4gTGlrZSBo
-ZXJlIGZvciBpbnN0YW5jZSAgLS1eDQo+ID4gDQo+ID4gPiAgI2RlZmluZSBSVENfSVJRX1NUQV9B
-TCAgICAgICAgIEJJVCgwKQ0KPiA+ID4gQEAgLTY1LDYgKzY3LDEwIEBADQo+ID4gPiAgI2RlZmlu
-ZSBNVEtfUlRDX1BPTExfREVMQVlfVVMgIDEwDQo+ID4gPiAgI2RlZmluZSBNVEtfUlRDX1BPTExf
-VElNRU9VVCAgIChqaWZmaWVzX3RvX3VzZWNzKEhaKSkNCj4gPiA+ICANCj4gPiA+ICtzdHJ1Y3Qg
-bXRrX3J0Y19kYXRhIHsNCj4gPiA+ICsJdTMyICAgICAgICAgICAgICAgICAgICAgd3J0Z3I7DQo+
-ID4gPiArfTsNCj4gPiA+ICsNCj4gPiA+ICBzdHJ1Y3QgbXQ2Mzk3X3J0YyB7DQo+ID4gPiAgCXN0
-cnVjdCBkZXZpY2UgICAgICAgICAgICpkZXY7DQo+ID4gPiAgCXN0cnVjdCBydGNfZGV2aWNlICAg
-ICAgICpydGNfZGV2Ow0KPiA+ID4gQEAgLTc0LDYgKzgwLDcgQEAgc3RydWN0IG10NjM5N19ydGMg
-ew0KPiA+ID4gIAlzdHJ1Y3QgcmVnbWFwICAgICAgICAgICAqcmVnbWFwOw0KPiA+ID4gIAlpbnQg
-ICAgICAgICAgICAgICAgICAgICBpcnE7DQo+ID4gPiAgCXUzMiAgICAgICAgICAgICAgICAgICAg
-IGFkZHJfYmFzZTsNCj4gPiA+ICsJY29uc3Qgc3RydWN0IG10a19ydGNfZGF0YSAqZGF0YTsNCj4g
-PiA+ICB9Ow0KPiA+ID4gIA0KPiA+ID4gICNlbmRpZiAvKiBfTElOVVhfTUZEX01UNjM5N19SVENf
-SF8gKi8NCj4gPiANCj4gDQoNCg==
+From: Thierry Reding <treding@nvidia.com>
+
+The MAX77620 doesn't support bulk writes, so make sure the regmap code
+breaks bulk writes into multiple single-byte writes.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+ drivers/rtc/rtc-max77686.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 35fd74b83626..f53db4d6bead 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -78,6 +78,8 @@ struct max77686_rtc_driver_data {
+ 	int			alarm_pending_status_reg;
+ 	/* RTC IRQ CHIP for regmap */
+ 	const struct regmap_irq_chip *rtc_irq_chip;
++	/* regmap configuration for the chip */
++	const struct regmap_config *regmap_config;
+ };
+ 
+ struct max77686_rtc_info {
+@@ -182,6 +184,11 @@ static const struct regmap_irq_chip max77686_rtc_irq_chip = {
+ 	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs),
+ };
+ 
++static const struct regmap_config max77686_rtc_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++};
++
+ static const struct max77686_rtc_driver_data max77686_drv_data = {
+ 	.delay = 16000,
+ 	.mask  = 0x7f,
+@@ -191,6 +198,13 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
+ 	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
+ 	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
+ 	.rtc_irq_chip = &max77686_rtc_irq_chip,
++	.regmap_config = &max77686_rtc_regmap_config,
++};
++
++static const struct regmap_config max77620_rtc_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.use_single_write = true,
+ };
+ 
+ static const struct max77686_rtc_driver_data max77620_drv_data = {
+@@ -202,6 +216,7 @@ static const struct max77686_rtc_driver_data max77620_drv_data = {
+ 	.alarm_pending_status_reg = MAX77686_INVALID_REG,
+ 	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
+ 	.rtc_irq_chip = &max77686_rtc_irq_chip,
++	.regmap_config = &max77620_rtc_regmap_config,
+ };
+ 
+ static const unsigned int max77802_map[REG_RTC_END] = {
+@@ -658,11 +673,6 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
+ 	return ret;
+ }
+ 
+-static const struct regmap_config max77686_rtc_regmap_config = {
+-	.reg_bits = 8,
+-	.val_bits = 8,
+-};
+-
+ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+ {
+ 	struct device *parent = info->dev->parent;
+@@ -698,7 +708,7 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+ 	}
+ 
+ 	info->rtc_regmap = devm_regmap_init_i2c(info->rtc,
+-						&max77686_rtc_regmap_config);
++						info->drv_data->regmap_config);
+ 	if (IS_ERR(info->rtc_regmap)) {
+ 		ret = PTR_ERR(info->rtc_regmap);
+ 		dev_err(info->dev, "Failed to allocate RTC regmap: %d\n", ret);
+-- 
+2.24.1
 
