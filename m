@@ -1,167 +1,114 @@
-Return-Path: <SRS0=gFAu=6E=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=BIsW=6F=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MIME_BASE64_TEXT,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 345A2C3815B
-	for <linux-rtc@archiver.kernel.org>; Mon, 20 Apr 2020 14:43:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ED9BC38A30
+	for <linux-rtc@archiver.kernel.org>; Tue, 21 Apr 2020 03:00:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12901206B9
-	for <linux-rtc@archiver.kernel.org>; Mon, 20 Apr 2020 14:43:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 268262082E
+	for <linux-rtc@archiver.kernel.org>; Tue, 21 Apr 2020 03:00:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="WUHWcWTI"
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="mahRy4Gz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726141AbgDTOnL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 20 Apr 2020 10:43:11 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:7930 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725971AbgDTOnK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Apr 2020 10:43:10 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e9db4c10000>; Mon, 20 Apr 2020 07:42:09 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Mon, 20 Apr 2020 07:43:10 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Mon, 20 Apr 2020 07:43:10 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 20 Apr
- 2020 14:43:10 +0000
-Received: from [10.26.73.5] (172.20.13.39) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 20 Apr
- 2020 14:43:08 +0000
-Subject: Re: [PATCH 3/3] rtc: max77686: Use single-byte writes on MAX77620
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1725989AbgDUDAT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 20 Apr 2020 23:00:19 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:63718 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726644AbgDUDAS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 20 Apr 2020 23:00:18 -0400
+X-UUID: 280ccff0309840b3861706258c11236f-20200421
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=99oh6N8mdr4ZmH3MgX6Bmt28F3Ip4r6y2UmH1UwY2G4=;
+        b=mahRy4Gz0S1L3iZv8qxHJooFesAqhOcL+L3gSIoHOJLLORwMY5nmjMtSIwotMpH7RPRYYz1t4uHJ2HHGkuHyQ58nDTu9qNyeYkqunWsGlqMIMt7ap23ewW84d19gUVJDIlm7wcvrW5cEYvBKxSxPDE3S1KEgutWXWpukBKKi5HY=;
+X-UUID: 280ccff0309840b3861706258c11236f-20200421
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw02.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 630533692; Tue, 21 Apr 2020 11:00:14 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 21 Apr 2020 11:00:14 +0800
+Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 21 Apr 2020 11:00:12 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC:     <devicetree@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20200417170825.2551367-1-thierry.reding@gmail.com>
- <20200417170825.2551367-3-thierry.reding@gmail.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <6331768f-5d4a-aefb-03f2-5b04d0193440@nvidia.com>
-Date:   Mon, 20 Apr 2020 15:43:06 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+CC:     <drinkcat@chromium.org>, Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Josef Friedl <josef.friedl@speed.at>,
+        Richard Fontana <rfontana@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <srv_heupstream@mediatek.com>
+Subject: [PATCH v13 2/6] mfd: mt6397: Trim probe function to support different chips more cleanly
+Date:   Tue, 21 Apr 2020 11:00:08 +0800
+Message-ID: <1587438012-24832-3-git-send-email-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1587438012-24832-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1587438012-24832-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20200417170825.2551367-3-thierry.reding@gmail.com>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1587393729; bh=rkEWzk13vJOdCYuBxdqwzU8DwSEAOs3BX62D8zlHGDc=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=WUHWcWTIwQ0h2TZPImSD6rnmHrAejDzENhytJdfrzOhwlVCEkhzQY8wnP4mTAm+Qv
-         iUXc7fAOb+n/GGM3uSpgMF45tWMeOUMDJMlg2HCg+t4Pa1b7jTtdaxjVQ5UGD6Fq37
-         g39DY1u44FytXyhJnwjov9iWgJmQCoA5MyqfQ/j7T21ZWjhqREEc/2zhl5ahDkG3Tg
-         CuSNyHqJGHZvQurmbK2tWSkLDKpiHq7BcPmqJ4RIzXDKgcCdJ316A5I40oAjhmkKbJ
-         gwBFD8hQfOc1g1kGsN0/IO24Q1TMA1uneKiiMM1ApFIx98bWLaCPWl72I3ok/dr0n+
-         aRPcgzB6f7XSQ==
+Content-Type: text/plain
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+QWRkIG5ldyBzdHJ1Y3QgbWVtYmVycyBmb3IgbWZkLWNlbGxzIGFuZCBpcnEgaW5pdGlhbCBmdW5j
+dGlvbiwgc28gd2UgY2FuDQpjYWxsIGRldm1fbWZkX2FkZF9kZXZpY2VzKCkgb25seSBvbmNlLg0K
+DQpTaWduZWQtb2ZmLWJ5OiBIc2luLUhzaXVuZyBXYW5nIDxoc2luLWhzaXVuZy53YW5nQG1lZGlh
+dGVrLmNvbT4NCkFja2VkLWZvci1NRkQtYnk6IExlZSBKb25lcyA8bGVlLmpvbmVzQGxpbmFyby5v
+cmc+DQotLS0NCiBkcml2ZXJzL21mZC9tdDYzOTctY29yZS5jIHwgMzUgKysrKysrKysrKysrKyst
+LS0tLS0tLS0tLS0tLS0tLS0tLS0NCiAxIGZpbGUgY2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKSwg
+MjEgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL21mZC9tdDYzOTctY29yZS5j
+IGIvZHJpdmVycy9tZmQvbXQ2Mzk3LWNvcmUuYw0KaW5kZXggZDJlNzBkOC4uYTMxM2E3MiAxMDA2
+NDQNCi0tLSBhL2RyaXZlcnMvbWZkL210NjM5Ny1jb3JlLmMNCisrKyBiL2RyaXZlcnMvbWZkL210
+NjM5Ny1jb3JlLmMNCkBAIC0xMDMsMjIgKzEwMywzMSBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IG1m
+ZF9jZWxsIG10NjM5N19kZXZzW10gPSB7DQogc3RydWN0IGNoaXBfZGF0YSB7DQogCXUzMiBjaWRf
+YWRkcjsNCiAJdTMyIGNpZF9zaGlmdDsNCisJY29uc3Qgc3RydWN0IG1mZF9jZWxsICpjZWxsczsN
+CisJaW50IGNlbGxfc2l6ZTsNCisJaW50ICgqaXJxX2luaXQpKHN0cnVjdCBtdDYzOTdfY2hpcCAq
+Y2hpcCk7DQogfTsNCiANCiBzdGF0aWMgY29uc3Qgc3RydWN0IGNoaXBfZGF0YSBtdDYzMjNfY29y
+ZSA9IHsNCiAJLmNpZF9hZGRyID0gTVQ2MzIzX0NJRCwNCiAJLmNpZF9zaGlmdCA9IDAsDQorCS5j
+ZWxscyA9IG10NjMyM19kZXZzLA0KKwkuY2VsbF9zaXplID0gQVJSQVlfU0laRShtdDYzMjNfZGV2
+cyksDQorCS5pcnFfaW5pdCA9IG10NjM5N19pcnFfaW5pdCwNCiB9Ow0KIA0KIHN0YXRpYyBjb25z
+dCBzdHJ1Y3QgY2hpcF9kYXRhIG10NjM5N19jb3JlID0gew0KIAkuY2lkX2FkZHIgPSBNVDYzOTdf
+Q0lELA0KIAkuY2lkX3NoaWZ0ID0gMCwNCisJLmNlbGxzID0gbXQ2Mzk3X2RldnMsDQorCS5jZWxs
+X3NpemUgPSBBUlJBWV9TSVpFKG10NjM5N19kZXZzKSwNCisJLmlycV9pbml0ID0gbXQ2Mzk3X2ly
+cV9pbml0LA0KIH07DQogDQogc3RhdGljIGludCBtdDYzOTdfcHJvYmUoc3RydWN0IHBsYXRmb3Jt
+X2RldmljZSAqcGRldikNCiB7DQogCWludCByZXQ7DQotCXVuc2lnbmVkIGludCBpZDsNCisJdW5z
+aWduZWQgaW50IGlkID0gMDsNCiAJc3RydWN0IG10NjM5N19jaGlwICpwbWljOw0KIAljb25zdCBz
+dHJ1Y3QgY2hpcF9kYXRhICpwbWljX2NvcmU7DQogDQpAQCAtMTU0LDI5ICsxNjMsMTMgQEAgc3Rh
+dGljIGludCBtdDYzOTdfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCiAJaWYg
+KHBtaWMtPmlycSA8PSAwKQ0KIAkJcmV0dXJuIHBtaWMtPmlycTsNCiANCi0JcmV0ID0gbXQ2Mzk3
+X2lycV9pbml0KHBtaWMpOw0KKwlyZXQgPSBwbWljX2NvcmUtPmlycV9pbml0KHBtaWMpOw0KIAlp
+ZiAocmV0KQ0KIAkJcmV0dXJuIHJldDsNCiANCi0Jc3dpdGNoIChwbWljLT5jaGlwX2lkKSB7DQot
+CWNhc2UgTVQ2MzIzX0NISVBfSUQ6DQotCQlyZXQgPSBkZXZtX21mZF9hZGRfZGV2aWNlcygmcGRl
+di0+ZGV2LCBQTEFURk9STV9ERVZJRF9OT05FLA0KLQkJCQkJICAgbXQ2MzIzX2RldnMsIEFSUkFZ
+X1NJWkUobXQ2MzIzX2RldnMpLA0KLQkJCQkJICAgTlVMTCwgMCwgcG1pYy0+aXJxX2RvbWFpbik7
+DQotCQlicmVhazsNCi0NCi0JY2FzZSBNVDYzOTFfQ0hJUF9JRDoNCi0JY2FzZSBNVDYzOTdfQ0hJ
+UF9JRDoNCi0JCXJldCA9IGRldm1fbWZkX2FkZF9kZXZpY2VzKCZwZGV2LT5kZXYsIFBMQVRGT1JN
+X0RFVklEX05PTkUsDQotCQkJCQkgICBtdDYzOTdfZGV2cywgQVJSQVlfU0laRShtdDYzOTdfZGV2
+cyksDQotCQkJCQkgICBOVUxMLCAwLCBwbWljLT5pcnFfZG9tYWluKTsNCi0JCWJyZWFrOw0KLQ0K
+LQlkZWZhdWx0Og0KLQkJZGV2X2VycigmcGRldi0+ZGV2LCAidW5zdXBwb3J0ZWQgY2hpcDogJWRc
+biIsIHBtaWMtPmNoaXBfaWQpOw0KLQkJcmV0dXJuIC1FTk9ERVY7DQotCX0NCi0NCisJcmV0ID0g
+ZGV2bV9tZmRfYWRkX2RldmljZXMoJnBkZXYtPmRldiwgUExBVEZPUk1fREVWSURfTk9ORSwNCisJ
+CQkJICAgcG1pY19jb3JlLT5jZWxscywgcG1pY19jb3JlLT5jZWxsX3NpemUsDQorCQkJCSAgIE5V
+TEwsIDAsIHBtaWMtPmlycV9kb21haW4pOw0KIAlpZiAocmV0KSB7DQogCQlpcnFfZG9tYWluX3Jl
+bW92ZShwbWljLT5pcnFfZG9tYWluKTsNCiAJCWRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0
+byBhZGQgY2hpbGQgZGV2aWNlczogJWRcbiIsIHJldCk7DQotLSANCjIuNi40DQo=
 
-On 17/04/2020 18:08, Thierry Reding wrote:
-> From: Thierry Reding <treding@nvidia.com>
-> 
-> The MAX77620 doesn't support bulk writes, so make sure the regmap code
-> breaks bulk writes into multiple single-byte writes.
-> 
-> Signed-off-by: Thierry Reding <treding@nvidia.com>
-> ---
->  drivers/rtc/rtc-max77686.c | 22 ++++++++++++++++------
->  1 file changed, 16 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-> index 35fd74b83626..f53db4d6bead 100644
-> --- a/drivers/rtc/rtc-max77686.c
-> +++ b/drivers/rtc/rtc-max77686.c
-> @@ -78,6 +78,8 @@ struct max77686_rtc_driver_data {
->  	int			alarm_pending_status_reg;
->  	/* RTC IRQ CHIP for regmap */
->  	const struct regmap_irq_chip *rtc_irq_chip;
-> +	/* regmap configuration for the chip */
-> +	const struct regmap_config *regmap_config;
->  };
->  
->  struct max77686_rtc_info {
-> @@ -182,6 +184,11 @@ static const struct regmap_irq_chip max77686_rtc_irq_chip = {
->  	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs),
->  };
->  
-> +static const struct regmap_config max77686_rtc_regmap_config = {
-> +	.reg_bits = 8,
-> +	.val_bits = 8,
-> +};
-> +
->  static const struct max77686_rtc_driver_data max77686_drv_data = {
->  	.delay = 16000,
->  	.mask  = 0x7f,
-> @@ -191,6 +198,13 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
->  	.alarm_pending_status_reg = MAX77686_REG_STATUS2,
->  	.rtc_i2c_addr = MAX77686_I2C_ADDR_RTC,
->  	.rtc_irq_chip = &max77686_rtc_irq_chip,
-> +	.regmap_config = &max77686_rtc_regmap_config,
-> +};
-> +
-> +static const struct regmap_config max77620_rtc_regmap_config = {
-> +	.reg_bits = 8,
-> +	.val_bits = 8,
-> +	.use_single_write = true,
->  };
->  
->  static const struct max77686_rtc_driver_data max77620_drv_data = {
-> @@ -202,6 +216,7 @@ static const struct max77686_rtc_driver_data max77620_drv_data = {
->  	.alarm_pending_status_reg = MAX77686_INVALID_REG,
->  	.rtc_i2c_addr = MAX77620_I2C_ADDR_RTC,
->  	.rtc_irq_chip = &max77686_rtc_irq_chip,
-> +	.regmap_config = &max77620_rtc_regmap_config,
->  };
->  
->  static const unsigned int max77802_map[REG_RTC_END] = {
-> @@ -658,11 +673,6 @@ static int max77686_rtc_init_reg(struct max77686_rtc_info *info)
->  	return ret;
->  }
->  
-> -static const struct regmap_config max77686_rtc_regmap_config = {
-> -	.reg_bits = 8,
-> -	.val_bits = 8,
-> -};
-> -
->  static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
->  {
->  	struct device *parent = info->dev->parent;
-> @@ -698,7 +708,7 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
->  	}
->  
->  	info->rtc_regmap = devm_regmap_init_i2c(info->rtc,
-> -						&max77686_rtc_regmap_config);
-> +						info->drv_data->regmap_config);
->  	if (IS_ERR(info->rtc_regmap)) {
->  		ret = PTR_ERR(info->rtc_regmap);
->  		dev_err(info->dev, "Failed to allocate RTC regmap: %d\n", ret);
-> 
-
-
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Cheers
-Jon
-
--- 
-nvpublic
