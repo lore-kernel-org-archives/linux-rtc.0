@@ -6,33 +6,30 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D800C38A2A
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D12AC54E49
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 808532145D
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 528D52076D
+	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730225AbgEFVlr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 May 2020 17:41:47 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:33976 "EHLO
+        id S1730032AbgEFVln (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 May 2020 17:41:43 -0400
+Received: from mail.baikalelectronics.com ([87.245.175.226]:33898 "EHLO
         mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729477AbgEFVlp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 May 2020 17:41:45 -0400
+        with ESMTP id S1729600AbgEFVln (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 May 2020 17:41:43 -0400
 Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 4F7E9803078D;
-        Wed,  6 May 2020 21:41:42 +0000 (UTC)
+        by mail.baikalelectronics.ru (Postfix) with ESMTP id 55CAB80307C1;
+        Wed,  6 May 2020 21:41:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at baikalelectronics.ru
 Received: from mail.baikalelectronics.ru ([127.0.0.1])
         by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id fFE4eFzSqDrg; Thu,  7 May 2020 00:41:41 +0300 (MSK)
+        with ESMTP id 3IoMDQqzjnSb; Thu,  7 May 2020 00:41:35 +0300 (MSK)
 From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Rob Herring <rob.herring@calxeda.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Dinh Nguyen <dinguyen@altera.com>,
-        Arnd Bergmann <arnd@arndb.de>, Jamie Iles <jamie@jamieiles.com>
+        Jason Cooper <jason@lakedaemon.net>,
+        Marc Zyngier <maz@kernel.org>, Rob Herring <robh+dt@kernel.org>
 CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Serge Semin <fancer.lancer@gmail.com>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
@@ -40,15 +37,13 @@ CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
         Ralf Baechle <ralf@linux-mips.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Allison Randal <allison@lohutok.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v3 5/7] clocksource: dw_apb_timer_of: Fix missing clockevent timers
-Date:   Thu, 7 May 2020 00:41:05 +0300
-Message-ID: <20200506214107.25956-6-Sergey.Semin@baikalelectronics.ru>
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, <linux-mips@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <devicetree@vger.kernel.org>
+Subject: [PATCH v3 3/7] dt-bindings: interrupt-controller: Convert mti,gic to DT schema
+Date:   Thu, 7 May 2020 00:41:03 +0300
+Message-ID: <20200506214107.25956-4-Sergey.Semin@baikalelectronics.ru>
 In-Reply-To: <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
 References: <20200324174325.14213-1-Sergey.Semin@baikalelectronics.ru>
  <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
@@ -61,25 +56,21 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Commit 100214889973 ("clocksource: dw_apb_timer_of: use
-clocksource_of_init") replaced a publicly available driver
-initialization method with one called by the timer_probe() method
-available after CLKSRC_OF. In current implementation it traverses
-all the timers available in the system and calls their initialization
-methods if corresponding devices were either in dtb or in acpi. But
-if before the commit any number of available timers would be installed
-as clockevent and clocksource devices, after that there would be at most
-two. The rest are just ignored since default case branch doesn't do
-anything. I don't see a reason of such behaviour, neither the commit
-message explains it. Moreover this might be wrong if on some platforms
-these timers might be used for different purpose, as virtually CPU-local
-clockevent timers and as an independent broadcast timer. So in order
-to keep the compatibility with the platforms where the order of the
-timers detection has some meaning, lets add the secondly discovered
-timer to be of clocksource/sched_clock type, while the very first and
-the others would provide the clockevents service.
+Modern device tree bindings are supposed to be created as YAML-files
+in accordance with DT schema. This commit replaces MIPS GIC legacy bare
+text binding with YAML file. As before the binding file states that the
+corresponding dts node is supposed to be compatible with MIPS Global
+Interrupt Controller indicated by the "mti,gic" compatible string and
+to provide a mandatory interrupt-controller and '#interrupt-cells'
+properties. There might be optional registers memory range,
+"mti,reserved-cpu-vectors" and "mti,reserved-ipi-vectors" properties
+specified.
 
-Fixes: 100214889973 ("clocksource: dw_apb_timer_of: use clocksource_of_init")
+MIPS GIC also includes a free-running global timer, per-CPU count/compare
+timers, and a watchdog. Since currently the GIC Timer is only supported the
+DT schema expects an IRQ and clock-phandler charged timer sub-node with
+"mti,mips-gic-timer" compatible string.
+
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
@@ -87,39 +78,258 @@ Cc: Paul Burton <paulburton@kernel.org>
 Cc: Ralf Baechle <ralf@linux-mips.org>
 Cc: Alessandro Zummo <a.zummo@towertech.it>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
 Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
----
- drivers/clocksource/dw_apb_timer_of.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 0a2505b323d7..0b61b90a525e 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -146,10 +146,6 @@ static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
- 	switch (num_called) {
--	case 0:
--		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
--		break;
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
- 		add_clocksource(timer);
-@@ -160,6 +156,8 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- #endif
- 		break;
- 	default:
-+		pr_debug("%s: found clockevent timer\n", __func__);
-+		add_clockevent(timer);
- 		break;
- 	}
- 
+---
+
+I don't really know who is the corresponding driver maintainer, so I
+added Paul to the maintainers property since he used to be looking for the
+MIPS arch and Thomas looking after it now. Any idea what email should be
+specified there instead?
+
+Changelog v3:
+- Since timer sub-node has no unit-address, the node shouldn't be named
+  with one. So alter the MIPS GIC bindings to have a pure "timer"
+  sub-node.
+- Discard allOf: [ $ref: /schemas/interrupt-controller.yaml# ].
+- Since it's a conversion patch use GPL-2.0-only SPDX header.
+---
+ .../interrupt-controller/mips-gic.txt         |  67 --------
+ .../interrupt-controller/mti,gic.yaml         | 148 ++++++++++++++++++
+ 2 files changed, 148 insertions(+), 67 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
+
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt b/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
+deleted file mode 100644
+index 173595305e26..000000000000
+--- a/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
++++ /dev/null
+@@ -1,67 +0,0 @@
+-MIPS Global Interrupt Controller (GIC)
+-
+-The MIPS GIC routes external interrupts to individual VPEs and IRQ pins.
+-It also supports local (per-processor) interrupts and software-generated
+-interrupts which can be used as IPIs.  The GIC also includes a free-running
+-global timer, per-CPU count/compare timers, and a watchdog.
+-
+-Required properties:
+-- compatible : Should be "mti,gic".
+-- interrupt-controller : Identifies the node as an interrupt controller
+-- #interrupt-cells : Specifies the number of cells needed to encode an
+-  interrupt specifier.  Should be 3.
+-  - The first cell is the type of interrupt, local or shared.
+-    See <include/dt-bindings/interrupt-controller/mips-gic.h>.
+-  - The second cell is the GIC interrupt number.
+-  - The third cell encodes the interrupt flags.
+-    See <include/dt-bindings/interrupt-controller/irq.h> for a list of valid
+-    flags.
+-
+-Optional properties:
+-- reg : Base address and length of the GIC registers.  If not present,
+-  the base address reported by the hardware GCR_GIC_BASE will be used.
+-- mti,reserved-cpu-vectors : Specifies the list of CPU interrupt vectors
+-  to which the GIC may not route interrupts.  Valid values are 2 - 7.
+-  This property is ignored if the CPU is started in EIC mode.
+-- mti,reserved-ipi-vectors : Specifies the range of GIC interrupts that are
+-  reserved for IPIs.
+-  It accepts 2 values, the 1st is the starting interrupt and the 2nd is the size
+-  of the reserved range.
+-  If not specified, the driver will allocate the last 2 * number of VPEs in the
+-  system.
+-
+-Required properties for timer sub-node:
+-- compatible : Should be "mti,gic-timer".
+-- interrupts : Interrupt for the GIC local timer.
+-
+-Optional properties for timer sub-node:
+-- clocks : GIC timer operating clock.
+-- clock-frequency : Clock frequency at which the GIC timers operate.
+-
+-Note that one of clocks or clock-frequency must be specified.
+-
+-Example:
+-
+-	gic: interrupt-controller@1bdc0000 {
+-		compatible = "mti,gic";
+-		reg = <0x1bdc0000 0x20000>;
+-
+-		interrupt-controller;
+-		#interrupt-cells = <3>;
+-
+-		mti,reserved-cpu-vectors = <7>;
+-		mti,reserved-ipi-vectors = <40 8>;
+-
+-		timer {
+-			compatible = "mti,gic-timer";
+-			interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
+-			clock-frequency = <50000000>;
+-		};
+-	};
+-
+-	uart@18101400 {
+-		...
+-		interrupt-parent = <&gic>;
+-		interrupts = <GIC_SHARED 24 IRQ_TYPE_LEVEL_HIGH>;
+-		...
+-	};
+diff --git a/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml b/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
+new file mode 100644
+index 000000000000..9f0eb3addac4
+--- /dev/null
++++ b/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
+@@ -0,0 +1,148 @@
++# SPDX-License-Identifier: GPL-2.0-only
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/interrupt-controller/mti,gic.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MIPS Global Interrupt Controller
++
++maintainers:
++  - Paul Burton <paulburton@kernel.org>
++  - Thomas Bogendoerfer <tsbogend@alpha.franken.de>
++
++description: |
++  The MIPS GIC routes external interrupts to individual VPEs and IRQ pins.
++  It also supports local (per-processor) interrupts and software-generated
++  interrupts which can be used as IPIs. The GIC also includes a free-running
++  global timer, per-CPU count/compare timers, and a watchdog.
++
++properties:
++  compatible:
++    const: mti,gic
++
++  "#interrupt-cells":
++    const: 3
++    description: |
++      The 1st cell is the type of interrupt: local or shared defined in the
++      file 'dt-bindings/interrupt-controller/mips-gic.h'. The 2nd cell is the
++      GIC interrupt number. The 3d cell encodes the interrupt flags setting up
++      the IRQ trigger modes, which are defined in the file
++      'dt-bindings/interrupt-controller/irq.h'.
++
++  reg:
++    description: |
++      Base address and length of the GIC registers space. If not present,
++      the base address reported by the hardware GCR_GIC_BASE will be used.
++    maxItems: 1
++
++  interrupt-controller: true
++
++  mti,reserved-cpu-vectors:
++    description: |
++      Specifies the list of CPU interrupt vectors to which the GIC may not
++      route interrupts. This property is ignored if the CPU is started in EIC
++      mode.
++    allOf:
++      - $ref: /schemas/types.yaml#definitions/uint32-array
++      - minItems: 1
++        maxItems: 6
++        uniqueItems: true
++        items:
++          minimum: 2
++          maximum: 7
++
++  mti,reserved-ipi-vectors:
++    description: |
++      Specifies the range of GIC interrupts that are reserved for IPIs.
++      It accepts two values: the 1st is the starting interrupt and the 2nd is
++      the size of the reserved range. If not specified, the driver will
++      allocate the last (2 * number of VPEs in the system).
++    allOf:
++      - $ref: /schemas/types.yaml#definitions/uint32-array
++      - items:
++          - minimum: 0
++            maximum: 254
++          - minimum: 2
++            maximum: 254
++
++  timer:
++    type: object
++    description: |
++      MIPS GIC includes a free-running global timer, per-CPU count/compare
++      timers, and a watchdog. Currently only the GIC Timer is supported.
++    properties:
++      compatible:
++        const: mti,gic-timer
++
++      interrupts:
++        description: |
++          Interrupt for the GIC local timer, so normally it's suppose to be of
++          <GIC_LOCAL X IRQ_TYPE_NONE> format.
++        maxItems: 1
++
++      clocks:
++        maxItems: 1
++
++      clock-frequency: true
++
++    required:
++      - compatible
++      - interrupts
++
++    oneOf:
++      - required:
++          - clocks
++      - required:
++          - clock-frequency
++
++    additionalProperties: false
++
++unevaluatedProperties: false
++
++required:
++  - compatible
++  - "#interrupt-cells"
++  - interrupt-controller
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/mips-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    interrupt-controller@1bdc0000 {
++      compatible = "mti,gic";
++      reg = <0x1bdc0000 0x20000>;
++      interrupt-controller;
++      #interrupt-cells = <3>;
++      mti,reserved-cpu-vectors = <7>;
++      mti,reserved-ipi-vectors = <40 8>;
++
++      timer {
++        compatible = "mti,gic-timer";
++        interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
++        clock-frequency = <50000000>;
++      };
++    };
++  - |
++    #include <dt-bindings/interrupt-controller/mips-gic.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    interrupt-controller@1bdc0000 {
++      compatible = "mti,gic";
++      reg = <0x1bdc0000 0x20000>;
++      interrupt-controller;
++      #interrupt-cells = <3>;
++
++      timer {
++        compatible = "mti,gic-timer";
++        interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
++        clocks = <&cpu_pll>;
++      };
++    };
++  - |
++    interrupt-controller {
++      compatible = "mti,gic";
++      interrupt-controller;
++      #interrupt-cells = <3>;
++    };
++...
 -- 
 2.25.1
 
