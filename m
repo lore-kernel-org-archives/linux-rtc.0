@@ -1,335 +1,169 @@
-Return-Path: <SRS0=ra+O=6U=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Ow50=6V=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D12AC54E49
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55EECC47257
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 May 2020 08:06:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 528D52076D
-	for <linux-rtc@archiver.kernel.org>; Wed,  6 May 2020 21:42:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2829120753
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 May 2020 08:06:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i0Tqevem"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730032AbgEFVln (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 May 2020 17:41:43 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:33898 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729600AbgEFVln (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 May 2020 17:41:43 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 55CAB80307C1;
-        Wed,  6 May 2020 21:41:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 3IoMDQqzjnSb; Thu,  7 May 2020 00:41:35 +0300 (MSK)
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>, Rob Herring <robh+dt@kernel.org>
-CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, <linux-mips@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-Subject: [PATCH v3 3/7] dt-bindings: interrupt-controller: Convert mti,gic to DT schema
-Date:   Thu, 7 May 2020 00:41:03 +0300
-Message-ID: <20200506214107.25956-4-Sergey.Semin@baikalelectronics.ru>
-In-Reply-To: <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
-References: <20200324174325.14213-1-Sergey.Semin@baikalelectronics.ru>
- <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
+        id S1726572AbgEGIGm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 7 May 2020 04:06:42 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:29870 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725923AbgEGIGl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 May 2020 04:06:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588838799;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0pq3sPmnPLWktWKmL9trmUErhIVrOceVLU8JpOR9zNw=;
+        b=i0TqevemABguKj7CoD8P8XJQXhcj8xtB+utITI/TUwNkrHwM6qJoh+hPCbjATON/dL09+H
+        ohCefUnWZd3Dsw9Aif8XT0UTTpwLrpgOTaAZhc3Inrey6jWeUS9Bd4Dka7dtt9Zo0qi6PH
+        8OcR0X6IPhA3mklXlrMETjcknpGkUyQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-202-zfNgLzaTMruc6IiFlrlqpA-1; Thu, 07 May 2020 04:06:34 -0400
+X-MC-Unique: zfNgLzaTMruc6IiFlrlqpA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 696E21005510;
+        Thu,  7 May 2020 08:06:32 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2FFB55D9C5;
+        Thu,  7 May 2020 08:06:32 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 04786VCA005131;
+        Thu, 7 May 2020 04:06:31 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 04786Vmt005127;
+        Thu, 7 May 2020 04:06:31 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Thu, 7 May 2020 04:06:31 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Arnd Bergmann <arnd@arndb.de>
+cc:     Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        Sinan Kaya <okaya@codeaurora.org>,
+        linux-serial@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 1/2 v3] alpha: add a delay to inb_p, inb_w and inb_l
+In-Reply-To: <alpine.LRH.2.02.2005061308220.18599@file01.intranet.prod.int.rdu2.redhat.com>
+Message-ID: <alpine.LRH.2.02.2005070404420.5006@file01.intranet.prod.int.rdu2.redhat.com>
+References: <alpine.LRH.2.02.2005060713390.25338@file01.intranet.prod.int.rdu2.redhat.com> <CAK8P3a2W=foRQ1mX8Gds1GCo+qTRqATV59LyDG5_bNyEKjZybA@mail.gmail.com> <alpine.LRH.2.02.2005061308220.18599@file01.intranet.prod.int.rdu2.redhat.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Modern device tree bindings are supposed to be created as YAML-files
-in accordance with DT schema. This commit replaces MIPS GIC legacy bare
-text binding with YAML file. As before the binding file states that the
-corresponding dts node is supposed to be compatible with MIPS Global
-Interrupt Controller indicated by the "mti,gic" compatible string and
-to provide a mandatory interrupt-controller and '#interrupt-cells'
-properties. There might be optional registers memory range,
-"mti,reserved-cpu-vectors" and "mti,reserved-ipi-vectors" properties
-specified.
 
-MIPS GIC also includes a free-running global timer, per-CPU count/compare
-timers, and a watchdog. Since currently the GIC Timer is only supported the
-DT schema expects an IRQ and clock-phandler charged timer sub-node with
-"mti,mips-gic-timer" compatible string.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
+On Wed, 6 May 2020, Mikulas Patocka wrote:
+
+> 
+> 
+> On Wed, 6 May 2020, Arnd Bergmann wrote:
+> 
+> > On Wed, May 6, 2020 at 1:21 PM Mikulas Patocka <mpatocka@redhat.com> wrote:
+> > 
+> > >  /*
+> > >   * The yet supported machines all access the RTC index register via
+> > >   * an ISA port access but the way to access the date register differs ...
+> > > + *
+> > > + * The ISA bus on Alpha Avanti doesn't like back-to-back accesses,
+> > > + * we need to add a small delay.
+> > >   */
+> > >  #define CMOS_READ(addr) ({ \
+> > >  outb_p((addr),RTC_PORT(0)); \
+> > > +udelay(2); \
+> > >  inb_p(RTC_PORT(1)); \
+> > 
+> > 
+> > The inb_p() / outb_p() functions are meant to already have a delay in them,
+> > maybe we should just add it there for alpha?
+> > 
+> >      Arnd
+> 
+> Yes, that is possible too - it fixes the real time clock hang for me.
+> 
+> 
+> -#define inb_p		inb
+> -#define inw_p		inw
+> -#define inl_p		inl
+> +#define inb_p(x)	(ndelay(300), inb(x))
+> +#define inw_p(x)	(ndelay(300), inw(x))
+> +#define inl_p(x)	(ndelay(300), inl(x))
+>  #define outb_p		outb
+>  #define outw_p		outw
+>  #define outl_p		outl
+
+300ns was too low. We need at least 1400ns to fix the hang reliably.
+
+Mikulas
+
+
+From: Mikulas Patocka <mpatocka@redhat.com>
+
+The patch 92d7223a74235054f2aa7227d207d9c57f84dca0 ("alpha: io: reorder
+barriers to guarantee writeX() and iowriteX() ordering #2") broke boot on
+the Alpha Avanti platform.
+
+The patch changes timing between accesses to the ISA bus, in particular,
+it reduces the time between "write" access and a subsequent "read" access.
+
+This causes lock-up when accessing the real time clock and serial ports.
+
+This patch fixes the real time clock by adding a small delay to the inb_p,
+inw_p and inl_p macros.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: 92d7223a7423 ("alpha: io: reorder barriers to guarantee writeX() and iowriteX() ordering #2")
+Cc: stable@vger.kernel.org	# v4.17+
 
 ---
+ arch/alpha/include/asm/io.h |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-I don't really know who is the corresponding driver maintainer, so I
-added Paul to the maintainers property since he used to be looking for the
-MIPS arch and Thomas looking after it now. Any idea what email should be
-specified there instead?
-
-Changelog v3:
-- Since timer sub-node has no unit-address, the node shouldn't be named
-  with one. So alter the MIPS GIC bindings to have a pure "timer"
-  sub-node.
-- Discard allOf: [ $ref: /schemas/interrupt-controller.yaml# ].
-- Since it's a conversion patch use GPL-2.0-only SPDX header.
----
- .../interrupt-controller/mips-gic.txt         |  67 --------
- .../interrupt-controller/mti,gic.yaml         | 148 ++++++++++++++++++
- 2 files changed, 148 insertions(+), 67 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
-
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt b/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
-deleted file mode 100644
-index 173595305e26..000000000000
---- a/Documentation/devicetree/bindings/interrupt-controller/mips-gic.txt
-+++ /dev/null
-@@ -1,67 +0,0 @@
--MIPS Global Interrupt Controller (GIC)
--
--The MIPS GIC routes external interrupts to individual VPEs and IRQ pins.
--It also supports local (per-processor) interrupts and software-generated
--interrupts which can be used as IPIs.  The GIC also includes a free-running
--global timer, per-CPU count/compare timers, and a watchdog.
--
--Required properties:
--- compatible : Should be "mti,gic".
--- interrupt-controller : Identifies the node as an interrupt controller
--- #interrupt-cells : Specifies the number of cells needed to encode an
--  interrupt specifier.  Should be 3.
--  - The first cell is the type of interrupt, local or shared.
--    See <include/dt-bindings/interrupt-controller/mips-gic.h>.
--  - The second cell is the GIC interrupt number.
--  - The third cell encodes the interrupt flags.
--    See <include/dt-bindings/interrupt-controller/irq.h> for a list of valid
--    flags.
--
--Optional properties:
--- reg : Base address and length of the GIC registers.  If not present,
--  the base address reported by the hardware GCR_GIC_BASE will be used.
--- mti,reserved-cpu-vectors : Specifies the list of CPU interrupt vectors
--  to which the GIC may not route interrupts.  Valid values are 2 - 7.
--  This property is ignored if the CPU is started in EIC mode.
--- mti,reserved-ipi-vectors : Specifies the range of GIC interrupts that are
--  reserved for IPIs.
--  It accepts 2 values, the 1st is the starting interrupt and the 2nd is the size
--  of the reserved range.
--  If not specified, the driver will allocate the last 2 * number of VPEs in the
--  system.
--
--Required properties for timer sub-node:
--- compatible : Should be "mti,gic-timer".
--- interrupts : Interrupt for the GIC local timer.
--
--Optional properties for timer sub-node:
--- clocks : GIC timer operating clock.
--- clock-frequency : Clock frequency at which the GIC timers operate.
--
--Note that one of clocks or clock-frequency must be specified.
--
--Example:
--
--	gic: interrupt-controller@1bdc0000 {
--		compatible = "mti,gic";
--		reg = <0x1bdc0000 0x20000>;
--
--		interrupt-controller;
--		#interrupt-cells = <3>;
--
--		mti,reserved-cpu-vectors = <7>;
--		mti,reserved-ipi-vectors = <40 8>;
--
--		timer {
--			compatible = "mti,gic-timer";
--			interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
--			clock-frequency = <50000000>;
--		};
--	};
--
--	uart@18101400 {
--		...
--		interrupt-parent = <&gic>;
--		interrupts = <GIC_SHARED 24 IRQ_TYPE_LEVEL_HIGH>;
--		...
--	};
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml b/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
-new file mode 100644
-index 000000000000..9f0eb3addac4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/interrupt-controller/mti,gic.yaml
-@@ -0,0 +1,148 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/interrupt-controller/mti,gic.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: MIPS Global Interrupt Controller
-+
-+maintainers:
-+  - Paul Burton <paulburton@kernel.org>
-+  - Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-+
-+description: |
-+  The MIPS GIC routes external interrupts to individual VPEs and IRQ pins.
-+  It also supports local (per-processor) interrupts and software-generated
-+  interrupts which can be used as IPIs. The GIC also includes a free-running
-+  global timer, per-CPU count/compare timers, and a watchdog.
-+
-+properties:
-+  compatible:
-+    const: mti,gic
-+
-+  "#interrupt-cells":
-+    const: 3
-+    description: |
-+      The 1st cell is the type of interrupt: local or shared defined in the
-+      file 'dt-bindings/interrupt-controller/mips-gic.h'. The 2nd cell is the
-+      GIC interrupt number. The 3d cell encodes the interrupt flags setting up
-+      the IRQ trigger modes, which are defined in the file
-+      'dt-bindings/interrupt-controller/irq.h'.
-+
-+  reg:
-+    description: |
-+      Base address and length of the GIC registers space. If not present,
-+      the base address reported by the hardware GCR_GIC_BASE will be used.
-+    maxItems: 1
-+
-+  interrupt-controller: true
-+
-+  mti,reserved-cpu-vectors:
-+    description: |
-+      Specifies the list of CPU interrupt vectors to which the GIC may not
-+      route interrupts. This property is ignored if the CPU is started in EIC
-+      mode.
-+    allOf:
-+      - $ref: /schemas/types.yaml#definitions/uint32-array
-+      - minItems: 1
-+        maxItems: 6
-+        uniqueItems: true
-+        items:
-+          minimum: 2
-+          maximum: 7
-+
-+  mti,reserved-ipi-vectors:
-+    description: |
-+      Specifies the range of GIC interrupts that are reserved for IPIs.
-+      It accepts two values: the 1st is the starting interrupt and the 2nd is
-+      the size of the reserved range. If not specified, the driver will
-+      allocate the last (2 * number of VPEs in the system).
-+    allOf:
-+      - $ref: /schemas/types.yaml#definitions/uint32-array
-+      - items:
-+          - minimum: 0
-+            maximum: 254
-+          - minimum: 2
-+            maximum: 254
-+
-+  timer:
-+    type: object
-+    description: |
-+      MIPS GIC includes a free-running global timer, per-CPU count/compare
-+      timers, and a watchdog. Currently only the GIC Timer is supported.
-+    properties:
-+      compatible:
-+        const: mti,gic-timer
-+
-+      interrupts:
-+        description: |
-+          Interrupt for the GIC local timer, so normally it's suppose to be of
-+          <GIC_LOCAL X IRQ_TYPE_NONE> format.
-+        maxItems: 1
-+
-+      clocks:
-+        maxItems: 1
-+
-+      clock-frequency: true
-+
-+    required:
-+      - compatible
-+      - interrupts
-+
-+    oneOf:
-+      - required:
-+          - clocks
-+      - required:
-+          - clock-frequency
-+
-+    additionalProperties: false
-+
-+unevaluatedProperties: false
-+
-+required:
-+  - compatible
-+  - "#interrupt-cells"
-+  - interrupt-controller
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/mips-gic.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    interrupt-controller@1bdc0000 {
-+      compatible = "mti,gic";
-+      reg = <0x1bdc0000 0x20000>;
-+      interrupt-controller;
-+      #interrupt-cells = <3>;
-+      mti,reserved-cpu-vectors = <7>;
-+      mti,reserved-ipi-vectors = <40 8>;
-+
-+      timer {
-+        compatible = "mti,gic-timer";
-+        interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
-+        clock-frequency = <50000000>;
-+      };
-+    };
-+  - |
-+    #include <dt-bindings/interrupt-controller/mips-gic.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    interrupt-controller@1bdc0000 {
-+      compatible = "mti,gic";
-+      reg = <0x1bdc0000 0x20000>;
-+      interrupt-controller;
-+      #interrupt-cells = <3>;
-+
-+      timer {
-+        compatible = "mti,gic-timer";
-+        interrupts = <GIC_LOCAL 1 IRQ_TYPE_NONE>;
-+        clocks = <&cpu_pll>;
-+      };
-+    };
-+  - |
-+    interrupt-controller {
-+      compatible = "mti,gic";
-+      interrupt-controller;
-+      #interrupt-cells = <3>;
-+    };
-+...
--- 
-2.25.1
+Index: linux-stable/arch/alpha/include/asm/io.h
+===================================================================
+--- linux-stable.orig/arch/alpha/include/asm/io.h	2020-05-07 09:54:52.000000000 +0200
++++ linux-stable/arch/alpha/include/asm/io.h	2020-05-07 09:54:52.000000000 +0200
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
++#include <linux/delay.h>
+ #include <asm/compiler.h>
+ #include <asm/pgtable.h>
+ #include <asm/machvec.h>
+@@ -481,9 +482,9 @@ extern inline void writeq(u64 b, volatil
+ #define iowrite16be(v,p) iowrite16(cpu_to_be16(v), (p))
+ #define iowrite32be(v,p) iowrite32(cpu_to_be32(v), (p))
+ 
+-#define inb_p		inb
+-#define inw_p		inw
+-#define inl_p		inl
++#define inb_p(x)	(ndelay(1400), inb(x))
++#define inw_p(x)	(ndelay(1400), inw(x))
++#define inl_p(x)	(ndelay(1400), inl(x))
+ #define outb_p		outb
+ #define outw_p		outw
+ #define outl_p		outl
 
