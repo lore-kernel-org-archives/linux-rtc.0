@@ -2,155 +2,103 @@ Return-Path: <SRS0=NhJe=64=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4153C433E2
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 May 2020 06:23:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74A99C433E0
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 May 2020 19:04:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2CC0206C0
-	for <linux-rtc@archiver.kernel.org>; Thu, 14 May 2020 06:23:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F89A20675
+	for <linux-rtc@archiver.kernel.org>; Thu, 14 May 2020 19:04:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589483083;
+	bh=8+f9J7HLotnPg1ibsPMFa6TOOwtvz30IPYIYAtWGcgs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=KhnRcv6niYTa4TYVZfg1qZvQUlPYyqvAtL94G789ywc2EuQ3AugFrkeK97erWZevP
+	 NNgQbxCLwEm4vNDJSs5a3z9HR5XTLlJ02svbPUWpZCno27AX9fcuy17x9zKlOgMJXs
+	 RHK89Z5uJ4CcjfOu7xLMdq48kf4wxQfqSTDaZaw4=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726102AbgENGW7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 14 May 2020 02:22:59 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:36898 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726067AbgENGW6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 14 May 2020 02:22:58 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 4BB03201556;
-        Thu, 14 May 2020 08:22:56 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 7A5C92014EC;
-        Thu, 14 May 2020 08:22:52 +0200 (CEST)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 1A7EE40245;
-        Thu, 14 May 2020 14:22:47 +0800 (SGT)
-From:   Anson Huang <Anson.Huang@nxp.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        robh+dt@kernel.org, tremyfr@gmail.com, p.bruenn@beckhoff.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Linux-imx@nxp.com
-Subject: [PATCH 1/2] dt-bindings: rtc: Convert MXC RTC to json-schema
-Date:   Thu, 14 May 2020 14:13:24 +0800
-Message-Id: <1589436805-22923-1-git-send-email-Anson.Huang@nxp.com>
-X-Mailer: git-send-email 2.7.4
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1729056AbgENTEf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 14 May 2020 15:04:35 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:34641 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728890AbgENTEe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 14 May 2020 15:04:34 -0400
+Received: by mail-oi1-f193.google.com with SMTP id c12so16157oic.1;
+        Thu, 14 May 2020 12:04:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=2wP+XM3Aov1bJkyBy7HnnvUXG3tbJVLAv2ge5XF7T+c=;
+        b=faxcvlgwUQibnpoL+dKLuipk6cSDryXN6AkmbgdEmusYId3gGpEVX5Q+PaU4Ih12x0
+         Ls1k8w6t8hLH6CkiE0ZtwwFYQ0RHLK8n0bZ0DuI5zQ0La7a8udDCpGtK+EujcJci0ElL
+         5mYztB9RE5mGApFWiVl8M4PmLF9onJuaE2oKSIh/NXQdrvxq8AQx/kPgbWCRhSZv47kW
+         XLgD8hH8bJ6Be2uADBKaLL6oAhUjdV0ytM3UeBd8zGnxMk9/BzUjv2L0B8NViykP6MyI
+         G2raD1UYA/x8DFGS//OVCXKoPX92mntBfdnXmYQEcRBXVB6Ec7CJ/fHkOxlJy/Tno4do
+         ZP+g==
+X-Gm-Message-State: AOAM533yi00qD80ClJlgykchHgeyndAcSDX53Y263tQgTJf6aRGgVWNs
+        V74OJ+TDmLHrmKAUslFlZw==
+X-Google-Smtp-Source: ABdhPJzg7GDOldcvgZzJQS6ZeGgBC1ebIOzmAOdEuhqsKev8xcTta1lwZc2MiilTX0y99+1J1dhElw==
+X-Received: by 2002:aca:ebc5:: with SMTP id j188mr2653350oih.70.1589483073243;
+        Thu, 14 May 2020 12:04:33 -0700 (PDT)
+Received: from rob-hp-laptop (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id n2sm6881235oie.46.2020.05.14.12.04.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2020 12:04:32 -0700 (PDT)
+Received: (nullmailer pid 7214 invoked by uid 1000);
+        Thu, 14 May 2020 19:04:31 -0000
+Date:   Thu, 14 May 2020 14:04:31 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        linux-mips@vger.kernel.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        linux-kernel@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-rtc@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH v3 2/7] dt-bindings: timer: Move snps,dw-apb-timer DT
+ schema from rtc
+Message-ID: <20200514190431.GA7149@bogus>
+References: <20200324174325.14213-1-Sergey.Semin@baikalelectronics.ru>
+ <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
+ <20200506214107.25956-3-Sergey.Semin@baikalelectronics.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200506214107.25956-3-Sergey.Semin@baikalelectronics.ru>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the MXC RTC binding to DT schema format using json-schema.
+On Thu, 7 May 2020 00:41:02 +0300, Serge Semin wrote:
+> This binding file doesn't belong to the rtc seeing it's a pure timer
+> with no rtc facilities like days/months/years counting and alarms.
+> So move the YAML-file to the Documentation/devicetree/bindings/timer/
+> directory.
+> 
+> Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+> Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Paul Burton <paulburton@kernel.org>
+> Cc: Ralf Baechle <ralf@linux-mips.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: linux-mips@vger.kernel.org
+> ---
+>  .../devicetree/bindings/{rtc => timer}/snps,dw-apb-timer.yaml   | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>  rename Documentation/devicetree/bindings/{rtc => timer}/snps,dw-apb-timer.yaml (96%)
+> 
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
- Documentation/devicetree/bindings/rtc/rtc-mxc.txt  | 26 ----------
- Documentation/devicetree/bindings/rtc/rtc-mxc.yaml | 59 ++++++++++++++++++++++
- 2 files changed, 59 insertions(+), 26 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/rtc-mxc.yaml
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt b/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-deleted file mode 100644
-index 5bcd31d..0000000
---- a/Documentation/devicetree/bindings/rtc/rtc-mxc.txt
-+++ /dev/null
-@@ -1,26 +0,0 @@
--* Real Time Clock of the i.MX SoCs
--
--RTC controller for the i.MX SoCs
--
--Required properties:
--- compatible: Should be "fsl,imx1-rtc" or "fsl,imx21-rtc".
--- reg: physical base address of the controller and length of memory mapped
--  region.
--- interrupts: IRQ line for the RTC.
--- clocks: should contain two entries:
--  * one for the input reference
--  * one for the the SoC RTC
--- clock-names: should contain:
--  * "ref" for the input reference clock
--  * "ipg" for the SoC RTC clock
--
--Example:
--
--rtc@10007000 {
--	compatible = "fsl,imx21-rtc";
--	reg = <0x10007000 0x1000>;
--	interrupts = <22>;
--	clocks = <&clks IMX27_CLK_CKIL>,
--		 <&clks IMX27_CLK_RTC_IPG_GATE>;
--	clock-names = "ref", "ipg";
--};
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mxc.yaml b/Documentation/devicetree/bindings/rtc/rtc-mxc.yaml
-new file mode 100644
-index 0000000..d5c5ccd
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/rtc-mxc.yaml
-@@ -0,0 +1,59 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/rtc-mxc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Real Time Clock of the i.MX SoCs
-+
-+allOf:
-+  - $ref: "rtc.yaml#"
-+
-+maintainers:
-+  - Philippe Reynes <tremyfr@gmail.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - fsl,imx1-rtc
-+      - fsl,imx21-rtc
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: input reference
-+      - description: the SoC RTC clock
-+    maxItems: 2
-+
-+  clock-names:
-+    items:
-+      - const: ref
-+      - const: ipg
-+    maxItems: 2
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - clock-names
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/imx27-clock.h>
-+
-+    rtc@10007000 {
-+        compatible = "fsl,imx21-rtc";
-+        reg = <0x10007000 0x1000>;
-+        interrupts = <22>;
-+        clocks = <&clks IMX27_CLK_CKIL>,
-+                 <&clks IMX27_CLK_RTC_IPG_GATE>;
-+        clock-names = "ref", "ipg";
-+    };
--- 
-2.7.4
-
+Acked-by: Rob Herring <robh@kernel.org>
