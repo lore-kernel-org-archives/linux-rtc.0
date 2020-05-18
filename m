@@ -2,107 +2,150 @@ Return-Path: <SRS0=7X81=7A=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFADDC433DF
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 May 2020 08:23:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F8E6C433DF
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 May 2020 13:59:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8726C20674
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 May 2020 08:23:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4627C20674
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 May 2020 13:59:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=nxp.com header.i=@nxp.com header.b="ITPUUWy1"
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Qjxhrtzg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbgERIXK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 18 May 2020 04:23:10 -0400
-Received: from mail-eopbgr60059.outbound.protection.outlook.com ([40.107.6.59]:31462
-        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726053AbgERIXK (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 18 May 2020 04:23:10 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kYul8KkOaV5+rQYNeVhZMNJOp7gwSbl5x2R8ddnSm44y1l60yZvhc6/olRgskfudINIbkcJ9+W5njtiVk3j5+8x7KsmgWLTi7xfPI7DhFOimUgTsPlcxxx0f19f8MiGdzSxg9ncTtZDPfCsMwDOJDD/TSrKKktM84Ccrfl4U622sNHaPGDw7hC8zsMgmuZlRQjtgqRlVIRrasXPNquXaEJ4Q15sxR9k4EoN/HteNIPjeYzqVTmNuUL3r3x5RKDmzILE2RbP7zVkmzg2WZn1jbibjn638/R1QPndVr4fUzoU8C4F2i2cEpdzbMZRHn3guHKW1BZiorHly7eF4R93tWQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=64JYowUwd/A5KUmz5cNjCaTYiWkFTBF/uBX/C2NIYjs=;
- b=cmuDpPe0lbYU8FHOKq3qGfDyyw1HepfHKLIzWO1IOYx1g9ZbZqiWhc/K4nb0nOoh9lnqM+Pr7hIjL0RDIHaCmKheVfEJFW/YZpA3w5yXHRNpMTMfQXgzp3HD3Bv/wFUUtZiNH7HupuRafGXDV/s82E3YjcNOx+NKsikvuAvP7OuKGtDOpAn6sfmeQLDzvU/TLIkynZoFomUifpJQJsZCMAKSfHdYIKMIVCsb5C3U+iENZ6tImz/JIed/Q3/MixNiKYahGf/pLi7rGUY43B8dtT620xX9Yn0x4YWh4wPPLi/t5wS4H0t0sWJPrri97Jweh4LKlpq0qPJTQtDwOD2cTA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=64JYowUwd/A5KUmz5cNjCaTYiWkFTBF/uBX/C2NIYjs=;
- b=ITPUUWy1dnQwHF2qK/s3y/KrdTF4PZzrxTRPsx7OlJnqer70dFyNooTO4tUxYk+1AyiQsHilOK3h7xS5UatPkCSuDq+CutemXQBWkoyjlglndbhbWli6Jf4GOkXogwDVPxHh52zNmfeLo0gw8jP6PQux4FE5fHTHilZLbUYKDoY=
-Received: from AM6PR04MB4966.eurprd04.prod.outlook.com (2603:10a6:20b:2::14)
- by AM6PR04MB5062.eurprd04.prod.outlook.com (2603:10a6:20b:11::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3000.24; Mon, 18 May
- 2020 08:23:06 +0000
-Received: from AM6PR04MB4966.eurprd04.prod.outlook.com
- ([fe80::3c6c:a0e9:9a4e:c51d]) by AM6PR04MB4966.eurprd04.prod.outlook.com
- ([fe80::3c6c:a0e9:9a4e:c51d%7]) with mapi id 15.20.3000.033; Mon, 18 May 2020
- 08:23:06 +0000
-From:   Aisheng Dong <aisheng.dong@nxp.com>
-To:     Anson Huang <anson.huang@nxp.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "tremyfr@gmail.com" <tremyfr@gmail.com>,
-        "p.bruenn@beckhoff.com" <p.bruenn@beckhoff.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     dl-linux-imx <linux-imx@nxp.com>
-Subject: RE: [PATCH 2/2] dt-bindings: rtc: Convert MXC RTC V2 to json-schema
-Thread-Topic: [PATCH 2/2] dt-bindings: rtc: Convert MXC RTC V2 to json-schema
-Thread-Index: AQHWKbgdOQb+NRe5ikO0cYaurWM5Xqith2WA
-Date:   Mon, 18 May 2020 08:23:06 +0000
-Message-ID: <AM6PR04MB4966F61A94DE5C392DA0B23A80B80@AM6PR04MB4966.eurprd04.prod.outlook.com>
-References: <1589436805-22923-1-git-send-email-Anson.Huang@nxp.com>
- <1589436805-22923-2-git-send-email-Anson.Huang@nxp.com>
-In-Reply-To: <1589436805-22923-2-git-send-email-Anson.Huang@nxp.com>
-Accept-Language: zh-CN, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: nxp.com; dkim=none (message not signed)
- header.d=none;nxp.com; dmarc=none action=none header.from=nxp.com;
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 20e94edf-95bb-4179-3068-08d7fb04b11b
-x-ms-traffictypediagnostic: AM6PR04MB5062:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <AM6PR04MB5062CE121BD24B46EA183B9680B80@AM6PR04MB5062.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:949;
-x-forefront-prvs: 04073E895A
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: OaWy+ituiZzcE/Y/c7QqaxaG9g1j+tXLcg5ZnO1vQ6r7O5vOAC05iWXM3Hb6X98bfuQ2KfjUU8ybOE01IIbtwD7pBbUwIU4mCpc/8N6x3aQYTtCAos14ETtj9GnkSpHupkgAIGn/kkfhjLIXMDYhHwsacI+rEiQ/nRQE/88W+UC8DwxeK1dKcVv5FBQRV725ElATrlIx+GVdhMJSVXcFGyIjsdGfiMC+jiv9OoS8JUXRo6npEIj1x0Y+mxBaYDzalgyV5MzSuohctYFKxTJps2nJGdConYvC0XB90+IilLObeyeqs/aunPcl4KyLTdC3aFSrIVqhP/BWrOrpH6Tl7cGRyJhicHOXYjWMeZGoybqJFkt9U4+mMlStiTHasmQKooBQooTQLltsLpF1HSVYidn6C1YTNfGrza8zCNnFmx0NZlnhSU0JNZSYm7Fkdrve
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR04MB4966.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(136003)(346002)(376002)(39860400002)(366004)(44832011)(8676002)(64756008)(66446008)(66476007)(8936002)(66946007)(86362001)(52536014)(66556008)(316002)(478600001)(110136005)(186003)(26005)(4326008)(2906002)(71200400001)(76116006)(9686003)(558084003)(33656002)(55016002)(6506007)(7696005)(5660300002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: 2wSF44wMnSuerzUCjQB9/wtagq5Zo5/sufhtVCycOdkJD731btCINxQhF17W6t14dpPcIuTEC7L2x3iQ27yWQrv4p8ZHm6Gm8xj3kQ3NcACdqAanpJFsJ2nwWXRvHnTOtTkQgyJMaqhFBaBQYhV9pWSCw26HsCC45sveA9afLsmcvWuoVj807rjb6kEJZIZsGVJkuMG4yg+khMDeBAuz48P1mO9TlCPHcAdIVyzFgOV5xQyhx1dw4ziENAHlUcowgLRWs+7wf1e+tLLHsDZr1U+POxfaVXe7aoXIKKq+91wrew/rJhwyIxQShgorv38qgEXW3nIAhDgaEt6m4VLqiy/Qt4HslP/eXo300hKW7HQhYEs45nJ8EUfHcNNlcQQG/dnP4PZbkZikd4j69iF96W7Bm8JspCAtYQ5/Hzex+wP0uouJOmdDNCJDPdLeafm5h2sxqu03Z0SLUWvNdzTE7wZq2UFWeWvxHjsIGhuFLX1bptR0l1oppdWHil4xQp5U
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1727034AbgERN7V (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 18 May 2020 09:59:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726800AbgERN7U (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 May 2020 09:59:20 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 756C3C05BD09
+        for <linux-rtc@vger.kernel.org>; Mon, 18 May 2020 06:59:20 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id e16so11986220wra.7
+        for <linux-rtc@vger.kernel.org>; Mon, 18 May 2020 06:59:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Qp3KMqm4FQRyseSw00gSsB5YgPJWvTQnwqqnC4fzNYk=;
+        b=QjxhrtzgoF4UOeAXmKcLvcQXo3nn09VjgwT3pzwmtMt4UHCM4eXIyEKiKQGvfl5PYd
+         5ar6mXkoazv5YLYLkuuFoqM7DPXWgD7ewwKfXdzkrxtG05ZLxLdzDKiUxTAigwZxaN6W
+         DCxDQ7qCjJMugmdWYRpb/+ZQU15iI+b20wQTP/582ApRzoBNgp7xJgDuueFczjwl/B5S
+         +lXXf0JtBQxyRcf4B9w6JvcBfeyoANEdWihQWeYg83qiDyAGSY6akppZPl435dwpHUTG
+         qP5b7zXt1QKCU8HTi0cCR6OrHAFRhKpCb+eBTnR9gr0ARNNFX8JuN7Q9bLHW3k/YYzNF
+         XcuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Qp3KMqm4FQRyseSw00gSsB5YgPJWvTQnwqqnC4fzNYk=;
+        b=DArQe/6gV7fzaB3mpyNAkg9u6sSF3QGO+wt6nL0LUNr/KVjw2sqNbQEXi9imEGK+VY
+         Eqn33rxmNaiPdQLuyCauvUKd71+ac6afD6TgH35EnYR+eDG1Els8MoQCxRz/uYrdbuhx
+         SCudAJrThmOHakSuj2gY0EAzFObBXHfKUSWfM8/2s8+Az+n6Ln275zI8KJEgsvZ5RR3k
+         rEj4ocvG62k92oCN1UeKfx3l5lA8ElqX3ol9/vDRqz5rwU6jz9k9PolW5U4fWahMgnXx
+         Ok35znjHWxfBMdvnpxSpnhXx7UP7UdwhDAnnw40ZoAOFIwmKZ6+/Mmn9n6K31LzQW5/d
+         6/VQ==
+X-Gm-Message-State: AOAM532wunL2W33klAHOuywSZm+/w27+Sr//j2CC56pI5c2xCdY4EMkc
+        S9bVhSYxWUxjJOTtDC2jjUzeow==
+X-Google-Smtp-Source: ABdhPJy7x6BVz0Xb+O2uc1Xy1BGI6onEzzHz8JHpWyLqk248mRHXNwXCml8Ac0UNNl6/MtBOQHjuxg==
+X-Received: by 2002:adf:e80e:: with SMTP id o14mr17715940wrm.307.1589810358929;
+        Mon, 18 May 2020 06:59:18 -0700 (PDT)
+Received: from ?IPv6:2a01:e34:ed2f:f020:9e7:3ac5:a930:2cd8? ([2a01:e34:ed2f:f020:9e7:3ac5:a930:2cd8])
+        by smtp.googlemail.com with ESMTPSA id 5sm17082716wmd.19.2020.05.18.06.59.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 May 2020 06:59:18 -0700 (PDT)
+Subject: Re: [PATCH v3 7/7] clocksource: mips-gic-timer: Set limitations on
+ clocksource/sched-clocks usage
+To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc:     Serge Semin <fancer.lancer@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        linux-kernel@vger.kernel.org
+References: <20200324174325.14213-1-Sergey.Semin@baikalelectronics.ru>
+ <20200506214107.25956-1-Sergey.Semin@baikalelectronics.ru>
+ <20200506214107.25956-8-Sergey.Semin@baikalelectronics.ru>
+ <20200515171004.GA760381@linaro.org>
+ <20200516121647.g6jua35kkihmw5r6@mobilestation>
+From:   Daniel Lezcano <daniel.lezcano@linaro.org>
+Message-ID: <4c723219-62f8-be6a-47ea-a586859d832d@linaro.org>
+Date:   Mon, 18 May 2020 15:59:16 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 20e94edf-95bb-4179-3068-08d7fb04b11b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 May 2020 08:23:06.5614
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: VBZxiIakuTNf2J/bzllc5RP4CRSkRa1BMGFYGlnbg/a7XJRi4+kG/72cY2Qr+w2G9M3RJiu9H8Sz4L/Mj6xKGg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR04MB5062
+In-Reply-To: <20200516121647.g6jua35kkihmw5r6@mobilestation>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-PiBGcm9tOiBBbnNvbiBIdWFuZyA8QW5zb24uSHVhbmdAbnhwLmNvbT4NCj4gU2VudDogVGh1cnNk
-YXksIE1heSAxNCwgMjAyMCAyOjEzIFBNDQo+IA0KPiBDb252ZXJ0IHRoZSBNWEMgUlRDIFYyIGJp
-bmRpbmcgdG8gRFQgc2NoZW1hIGZvcm1hdCB1c2luZyBqc29uLXNjaGVtYS4NCj4gDQo+IFNpZ25l
-ZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxBbnNvbi5IdWFuZ0BueHAuY29tPg0KDQpSZXZpZXdlZC1i
-eTogRG9uZyBBaXNoZW5nIDxhaXNoZW5nLmRvbmdAbnhwLmNvbT4NCg0KUmVnYXJkcw0KQWlzaGVu
-Zw0K
+On 16/05/2020 14:16, Serge Semin wrote:
+> Hello Daniel,
+> 
+> Thanks for your comment. My response is below.
+> 
+> On Fri, May 15, 2020 at 07:10:04PM +0200, Daniel Lezcano wrote:
+>> On Thu, May 07, 2020 at 12:41:07AM +0300, Serge Semin wrote:
+>>> Currently neither clocksource nor scheduler clock kernel framework
+>>> support the clocks with variable frequency. Needless to say how many
+>>> problems may cause the sudden base clocks frequency change. In a
+>>> simplest case the system time will either slow down or speed up.
+>>> Since on CM2.5 and earlier MIPS GIC timer is synchronously clocked
+>>> with CPU we must set some limitations on using it for these frameworks
+>>> if CPU frequency may change. First of all it's not safe to have the
+>>> MIPS GIC used for scheduler timings. So we shouldn't proceed with
+>>> the clocks registration in the sched-subsystem. Secondly we must
+>>> significantly decrease the MIPS GIC clocksource rating. This will let
+>>> the system to use it only as a last resort.
+>>>
+>>> Note CM3.x-based systems may also experience the problems with MIPS GIC
+>>> if the CPU-frequency change is activated for the whole CPU cluster
+>>> instead of using the individual CPC core clocks divider.
+>>
+>> May be there is no alternative but the code looks a bit hacksih. Isn't possible
+>> to do something with the sched_mark_unstable?
+>>
+>> Or just not use the timer at all ?
+> 
+> Not using the timer might be better, but not that good alternative either
+> especially in our case due to very slow external timer. Me and Thomas
+> Bogendoerfer discussed the similar commit I've provided to the csrc-r4k driver
+> available on MIPS:
+> https://lkml.org/lkml/2020/5/11/576
+> 
+> To cut it short, you are right. The solution with using clocksource_mark_unstable()
+> is better alternative spied up in x86 tsc implementation. I'll use a similar
+> approach here and submit the updated patch in v3.
+> 
+> Could you please proceed with the rest of the series review? I'd like to send
+> the next version with as many comments taken into account as possible. The
+> patchset has been submitted a while ago, but except Rob noone have had any
+> comments.(
+
+For me other patches are ok.
+
+I can apply patches 1, 2, 4, 5, 6
+
+Will remain patches 3 et 7
+
+
+-- 
+<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+
+Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
+<http://twitter.com/#!/linaroorg> Twitter |
+<http://www.linaro.org/linaro-blog/> Blog
