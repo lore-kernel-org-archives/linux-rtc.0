@@ -2,212 +2,127 @@ Return-Path: <SRS0=2Ujj=7D=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 841A0C433E1
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 00:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE576C433E0
+	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 07:47:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6843020756
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 00:54:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9ECBA2070A
+	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 07:47:23 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="vqpwnjz8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726993AbgEUAyK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 May 2020 20:54:10 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:33508 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727068AbgEUAyK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 May 2020 20:54:10 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id E8E258030791;
-        Thu, 21 May 2020 00:54:04 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id pX3vNVgKudjp; Thu, 21 May 2020 03:54:04 +0300 (MSK)
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1728478AbgEUHrX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 21 May 2020 03:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48756 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728463AbgEUHrW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 May 2020 03:47:22 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 833E3C061A0F
+        for <linux-rtc@vger.kernel.org>; Thu, 21 May 2020 00:47:22 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id l17so5698766wrr.4
+        for <linux-rtc@vger.kernel.org>; Thu, 21 May 2020 00:47:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=scVYFjBGBAzKQ/hMy8PhK3pElGqsrP2y83QVfuiAxH4=;
+        b=vqpwnjz86M45u3Gnp4IxKufT5KEo7fxf+vl36qzM3nHslyhDCEJIEgQAXKyrOkPOzr
+         sxkJdaadCkojgsCryJFV/NsqAGAwrjmBPRNvm9KBnA7Rh2O1j/zY5DwTpPhcFG/rXfkM
+         6S23fM0SLLJ7TiHNbL0XWiLK7+upJ5+t62Ye2cO2Wkc0mHW9D9DAJ/WC/rz68M4FmrLX
+         k27QqVbp3qP4CmlFWSn5xCNh4GWwvUfMdUElIrpD+rHd5Pa/4AMCOHm/zmAtjuENvG0C
+         TUv6XE2S4gfjQ9slqcNHl1ztwdytcQWprTsMRJNpfjLkzetO4LLbY5K/5RpxkGAy8lfS
+         nK7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=scVYFjBGBAzKQ/hMy8PhK3pElGqsrP2y83QVfuiAxH4=;
+        b=SuWcGA0B1wedHuwQrAEvYmMF/xgXkGOeesNO7HvNdwCpjMIa2kkoJN0ndzpyYN2hdc
+         xVHnhFJOa+tLETzLK2qk4eijuFEHSnaZ7oQaBFyIPS4EfE+JhQTPlM/XfjhcgKhnYbnH
+         yXamnyWaQj6Ov4Ab8QWORF2zQ32Abe6rnm/Yn10eXSNnkww2F/v+LrWlv3V70j4hTYi1
+         jHljv7qrE3kO9N3ysZM9QGSb4Mb64y3Mj3ra1A0u1Z2wY5lMhPsK9OaFMX6ZSJj/mFzl
+         kMywN52fuf/0s5c9Kx57DelcVEdW3PmiI/+XnB9BabBM6V9ufECz/PkEr4gnjnaTTM1K
+         zAsg==
+X-Gm-Message-State: AOAM531Y2fR6cox5ZgRcFHjOEOV+dYfJ6bxfyAYfU/2a2EPSodfg6NMN
+        xUl6LjkEkv+31lzzkx81Bzm8Fw==
+X-Google-Smtp-Source: ABdhPJxcZ6ZWteBLNFuVjrXs9CMtGph22AZeEwlyAM3AdFye7vHS83vjlNDUgEYM0NT1woW4CXf4Zg==
+X-Received: by 2002:adf:9010:: with SMTP id h16mr7329094wrh.412.1590047241123;
+        Thu, 21 May 2020 00:47:21 -0700 (PDT)
+Received: from dell ([95.149.164.102])
+        by smtp.gmail.com with ESMTPSA id h20sm5542798wma.6.2020.05.21.00.47.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 May 2020 00:47:20 -0700 (PDT)
+Date:   Thu, 21 May 2020 08:47:18 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Allison Randal <allison@lohutok.net>,
-        afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Enrico Weigelt <info@metux.net>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v4 4/7] clocksource: dw_apb_timer: Set clockevent any-possible-CPU mask
-Date:   Thu, 21 May 2020 03:53:17 +0300
-Message-ID: <20200521005321.12129-5-Sergey.Semin@baikalelectronics.ru>
-In-Reply-To: <20200521005321.12129-1-Sergey.Semin@baikalelectronics.ru>
-References: <20200521005321.12129-1-Sergey.Semin@baikalelectronics.ru>
+        drinkcat@chromium.org, Sean Wang <sean.wang@mediatek.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Josef Friedl <josef.friedl@speed.at>,
+        Richard Fontana <rfontana@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ran Bi <ran.bi@mediatek.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        srv_heupstream@mediatek.com
+Subject: Re: [PATCH v13 5/6] rtc: mt6397: Add support for the MediaTek MT6358
+ RTC
+Message-ID: <20200521074718.GN271301@dell>
+References: <1587438012-24832-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <1587438012-24832-6-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <27c107b3-6ea8-e6f9-697c-7c3c4479008c@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <27c107b3-6ea8-e6f9-697c-7c3c4479008c@gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Currently the DW APB Timer driver binds all clockevent timers to
-CPU #0. This isn't good for multiple reasons. First of all seeing
-the device is placed on APB bus (which makes it accessible from any
-CPU core), accessible over MMIO and having the DYNIRQ flag set we
-can be sure that manually binding the timer to any CPU just isn't
-correct. By doing so we just set an extra limitation on device usage.
-This also doesn't reflect the device actual capability, since by
-setting the IRQ affinity we can make it virtually local to any CPU.
-Secondly imagine if you had a real CPU-local timer with the same
-rating and the same CPU-affinity. In this case if DW APB timer was
-registered first, then due to the clockevent framework tick-timer
-selection procedure we'll end up with the real CPU-local timer being
-left unselected for clock-events tracking. But on most of the platforms
-(MIPS/ARM/etc) such timers are normally embedded into the CPU core and
-are accessible with much better performance then devices placed on APB.
-For instance in MIPS architectures there is r4k-timer, which is
-CPU-local, assigned with the same rating, and normally its
-clockevent device is registered after the platform-specific one.
+On Sat, 16 May 2020, Matthias Brugger wrote:
 
-So in order to fix all of these issues lets set the DW APB clockevent
-timer cpumask to be 'cpu_possible_mask'. By doing so the clockevent
-framework would prefer to select the real CPU-local timer instead
-of DW APB one. Otherwise if there is no other than DW APB device for
-clockevents tracking then it will be selected.
+> Hi Lee,
+> 
+> On 21/04/2020 05:00, Hsin-Hsiung Wang wrote:
+> > From: Ran Bi <ran.bi@mediatek.com>
+> > 
+> > This add support for the MediaTek MT6358 RTC. Driver using
+> > compatible data to store different RTC_WRTGR address offset.
+> > This replace RTC_WRTGR to RTC_WRTGR_MT6323 in mt6323-poweroff
+> > driver which only needed by armv7 CPU without ATF.
+> > 
+> > Signed-off-by: Ran Bi <ran.bi@mediatek.com>
+> > Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> > Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
+> > Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> > Acked-by: Sebastian Reichel <sre@kernel.org>
+> > Reviewed-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+> 
+> We have Acked-by from rtc and reset drivers maintainers. Are you OK to take them
+> through your mfd branch?
+> 
+> Are you planning to queue them for v5.8?
+> 
+> Just asking because if so I'd queue patch 6 through my tree.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
----
- drivers/clocksource/dw_apb_timer.c    | 18 +++++++-----------
- drivers/clocksource/dw_apb_timer_of.c |  3 +--
- include/linux/dw_apb_timer.h          |  2 +-
- 3 files changed, 9 insertions(+), 14 deletions(-)
+Yes, please take patch 6.
 
-diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
-index b207a77b0831..8ebb43916423 100644
---- a/drivers/clocksource/dw_apb_timer.c
-+++ b/drivers/clocksource/dw_apb_timer.c
-@@ -106,6 +106,7 @@ static irqreturn_t dw_apb_clockevent_irq(int irq, void *data)
- 		dw_ced->eoi(&dw_ced->timer);
- 
- 	evt->event_handler(evt);
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -123,8 +124,7 @@ static int apbt_shutdown(struct clock_event_device *evt)
- 	struct dw_apb_clock_event_device *dw_ced = ced_to_dw_apb_ced(evt);
- 	u32 ctrl;
- 
--	pr_debug("%s CPU %d state=shutdown\n", __func__,
--		 cpumask_first(evt->cpumask));
-+	pr_debug("%s state=shutdown\n", __func__);
- 
- 	ctrl = apbt_readl(&dw_ced->timer, APBTMR_N_CONTROL);
- 	ctrl &= ~APBTMR_CONTROL_ENABLE;
-@@ -137,8 +137,7 @@ static int apbt_set_oneshot(struct clock_event_device *evt)
- 	struct dw_apb_clock_event_device *dw_ced = ced_to_dw_apb_ced(evt);
- 	u32 ctrl;
- 
--	pr_debug("%s CPU %d state=oneshot\n", __func__,
--		 cpumask_first(evt->cpumask));
-+	pr_debug("%s state=oneshot\n", __func__);
- 
- 	ctrl = apbt_readl(&dw_ced->timer, APBTMR_N_CONTROL);
- 	/*
-@@ -170,8 +169,7 @@ static int apbt_set_periodic(struct clock_event_device *evt)
- 	unsigned long period = DIV_ROUND_UP(dw_ced->timer.freq, HZ);
- 	u32 ctrl;
- 
--	pr_debug("%s CPU %d state=periodic\n", __func__,
--		 cpumask_first(evt->cpumask));
-+	pr_debug("%s state=periodic\n", __func__);
- 
- 	ctrl = apbt_readl(&dw_ced->timer, APBTMR_N_CONTROL);
- 	ctrl |= APBTMR_CONTROL_MODE_PERIODIC;
-@@ -194,8 +192,7 @@ static int apbt_resume(struct clock_event_device *evt)
- {
- 	struct dw_apb_clock_event_device *dw_ced = ced_to_dw_apb_ced(evt);
- 
--	pr_debug("%s CPU %d state=resume\n", __func__,
--		 cpumask_first(evt->cpumask));
-+	pr_debug("%s state=resume\n", __func__);
- 
- 	apbt_enable_int(&dw_ced->timer);
- 	return 0;
-@@ -222,7 +219,6 @@ static int apbt_next_event(unsigned long delta,
- /**
-  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
-  *
-- * @cpu:	The CPU the events will be targeted at.
-  * @name:	The name used for the timer and the IRQ for it.
-  * @rating:	The rating to give the timer.
-  * @base:	I/O base for the timer registers.
-@@ -237,7 +233,7 @@ static int apbt_next_event(unsigned long delta,
-  * releasing the IRQ.
-  */
- struct dw_apb_clock_event_device *
--dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
-+dw_apb_clockevent_init(const char *name, unsigned int rating,
- 		       void __iomem *base, int irq, unsigned long freq)
- {
- 	struct dw_apb_clock_event_device *dw_ced =
-@@ -257,7 +253,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
- 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
- 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
- 	dw_ced->ced.min_delta_ticks = 5000;
--	dw_ced->ced.cpumask = cpumask_of(cpu);
-+	dw_ced->ced.cpumask = cpu_possible_mask;
- 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
- 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
- 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 8c28b127759f..0a2505b323d7 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -73,8 +73,7 @@ static void __init add_clockevent(struct device_node *event_timer)
- 
- 	timer_get_base_and_rate(event_timer, &iobase, &rate);
- 
--	ced = dw_apb_clockevent_init(0, event_timer->name, 300, iobase, irq,
--				     rate);
-+	ced = dw_apb_clockevent_init(event_timer->name, 300, iobase, irq, rate);
- 	if (!ced)
- 		panic("Unable to initialise clockevent device");
- 
-diff --git a/include/linux/dw_apb_timer.h b/include/linux/dw_apb_timer.h
-index 82ebf9223948..689022bc8d17 100644
---- a/include/linux/dw_apb_timer.h
-+++ b/include/linux/dw_apb_timer.h
-@@ -39,7 +39,7 @@ void dw_apb_clockevent_resume(struct dw_apb_clock_event_device *dw_ced);
- void dw_apb_clockevent_stop(struct dw_apb_clock_event_device *dw_ced);
- 
- struct dw_apb_clock_event_device *
--dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
-+dw_apb_clockevent_init(const char *name, unsigned int rating,
- 		       void __iomem *base, int irq, unsigned long freq);
- struct dw_apb_clocksource *
- dw_apb_clocksource_init(unsigned rating, const char *name, void __iomem *base,
 -- 
-2.25.1
-
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
