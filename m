@@ -1,133 +1,80 @@
-Return-Path: <SRS0=2Ujj=7D=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=KmcA=7E=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66A62C433E9
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 20:49:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81E94C433DF
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 May 2020 02:29:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 457DE208A7
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 May 2020 20:49:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53FE82078B
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 May 2020 02:29:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730274AbgEUUtN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 21 May 2020 16:49:13 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:40492 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730104AbgEUUtM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 May 2020 16:49:12 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 97C218029EB7;
-        Thu, 21 May 2020 20:49:06 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id eqm94qBrncaw; Thu, 21 May 2020 23:49:05 +0300 (MSK)
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-CC:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, <linux-mips@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH v5 4/8] clocksource: dw_apb_timer: Make CPU-affiliation being optional
-Date:   Thu, 21 May 2020 23:48:13 +0300
-Message-ID: <20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru>
-In-Reply-To: <20200521204818.25436-1-Sergey.Semin@baikalelectronics.ru>
-References: <20200521204818.25436-1-Sergey.Semin@baikalelectronics.ru>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+        id S1726988AbgEVC3s (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 21 May 2020 22:29:48 -0400
+Received: from inva020.nxp.com ([92.121.34.13]:59230 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726886AbgEVC3s (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 21 May 2020 22:29:48 -0400
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C74BD1A090D;
+        Fri, 22 May 2020 04:29:46 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 662951A08FB;
+        Fri, 22 May 2020 04:29:44 +0200 (CEST)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 0E0CF402AD;
+        Fri, 22 May 2020 10:29:40 +0800 (SGT)
+From:   Anson Huang <Anson.Huang@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Linux-imx@nxp.com
+Subject: [PATCH 1/2] rtc: snvs: Make SNVS clock always prepared
+Date:   Fri, 22 May 2020 10:19:55 +0800
+Message-Id: <1590113996-31845-1-git-send-email-Anson.Huang@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Currently the DW APB Timer driver binds each clockevent timers to a
-particular CPU. This isn't good for multiple reasons. First of all seeing
-the device is placed on APB bus (which makes it accessible from any CPU
-core), accessible over MMIO and having the DYNIRQ flag set we can be sure
-that manually binding the timer to any CPU just isn't correct. By doing
-so we just set an extra limitation on device usage. This also doesn't
-reflect the device actual capability, since by setting the IRQ affinity
-we can make it virtually local to any CPU. Secondly imagine if you had a
-real CPU-local timer with the same rating and the same CPU-affinity.
-In this case if DW APB timer was registered first, then due to the
-clockevent framework tick-timer selection procedure we'll end up with the
-real CPU-local timer being left unselected for clock-events tracking. But
-on most of the platforms (MIPS/ARM/etc) such timers are normally embedded
-into the CPU core and are accessible with much better performance then
-devices placed on APB. For instance in MIPS architectures there is
-r4k-timer, which is CPU-local, assigned with the same rating, and normally
-its clockevent device is registered after the platform-specific one.
+In IRQ handler, ONLY clock enable/disable is called due to
+clock prepare can NOT be called in interrupt context, but
+clock enable/disable will return failure if prepare count
+is 0, to fix this issue, just make SNVS clock always prepared
+there, the SNVS clock has no prepare function implemented,
+so it won't impact anything.
 
-So in order to fix all of these issues let's make the DW APB Timer CPU
-affinity being optional and deactivated by passing a negative CPU id,
-which will effectively set the DW APB clockevent timer cpumask to
-'cpu_possible_mask'.
-
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
+ drivers/rtc/rtc-snvs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Changelog v5:
-- Don't discard CPU affiliation functionality, but allow it being optional.
-  If CPU id passed to the clockevent registration method is negative, then
-  don't assign the timer events to any particular CPU.
-- Discard the OF-based DW APB Timer CPU-affiliation setting change. It'll
-  be moved to a dedicated patch.
----
- drivers/clocksource/dw_apb_timer.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
-index b207a77b0831..f5f24a95ee82 100644
---- a/drivers/clocksource/dw_apb_timer.c
-+++ b/drivers/clocksource/dw_apb_timer.c
-@@ -222,7 +222,8 @@ static int apbt_next_event(unsigned long delta,
- /**
-  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
-  *
-- * @cpu:	The CPU the events will be targeted at.
-+ * @cpu:	The CPU the events will be targeted at or -1 if CPU affiliation
-+ *		isn't required.
-  * @name:	The name used for the timer and the IRQ for it.
-  * @rating:	The rating to give the timer.
-  * @base:	I/O base for the timer registers.
-@@ -257,7 +258,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
- 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
- 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
- 	dw_ced->ced.min_delta_ticks = 5000;
--	dw_ced->ced.cpumask = cpumask_of(cpu);
-+	dw_ced->ced.cpumask = cpu < 0 ? cpu_possible_mask : cpumask_of(cpu);
- 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
- 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
- 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 35ee08a..b9371f4 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -362,7 +362,7 @@ static int __maybe_unused snvs_rtc_suspend_noirq(struct device *dev)
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+ 
+ 	if (data->clk)
+-		clk_disable_unprepare(data->clk);
++		clk_disable(data->clk);
+ 
+ 	return 0;
+ }
+@@ -372,7 +372,7 @@ static int __maybe_unused snvs_rtc_resume_noirq(struct device *dev)
+ 	struct snvs_rtc_data *data = dev_get_drvdata(dev);
+ 
+ 	if (data->clk)
+-		return clk_prepare_enable(data->clk);
++		return clk_enable(data->clk);
+ 
+ 	return 0;
+ }
 -- 
-2.25.1
+2.7.4
 
