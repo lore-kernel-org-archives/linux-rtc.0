@@ -2,91 +2,141 @@ Return-Path: <SRS0=BfVC=7O=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70823C433DF
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 07:24:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73770C433E1
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 13:13:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 534A2206C3
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 07:24:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BAB32074B
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 13:13:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728012AbgFAHYn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Jun 2020 03:24:43 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:34320 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725283AbgFAHYm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 1 Jun 2020 03:24:42 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 8017C1A0677;
-        Mon,  1 Jun 2020 09:24:40 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id C0BCE1A0655;
-        Mon,  1 Jun 2020 09:24:37 +0200 (CEST)
-Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 630EA40280;
-        Mon,  1 Jun 2020 15:24:34 +0800 (SGT)
-From:   Ran Wang <ran.wang_1@nxp.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        id S1727084AbgFANLo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Jun 2020 09:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48204 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726322AbgFANLm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jun 2020 09:11:42 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A3CC08C5C0;
+        Mon,  1 Jun 2020 06:11:42 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jfkE6-000719-E3; Mon, 01 Jun 2020 15:11:38 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 0BA921C0244;
+        Mon,  1 Jun 2020 15:11:38 +0200 (CEST)
+Date:   Mon, 01 Jun 2020 13:11:37 -0000
+From:   "tip-bot2 for Serge Semin" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/core] clocksource: dw_apb_timer: Make CPU-affiliation
+ being optional
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Li Biwen <biwen.li@nxp.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ran Wang <ran.wang_1@nxp.com>
-Subject: [PATCH v2] rtc: fsl-ftm-alarm: fix freeze(s2idle) failed to wake
-Date:   Mon,  1 Jun 2020 15:19:14 +0800
-Message-Id: <20200601071914.36444-1-ran.wang_1@nxp.com>
-X-Mailer: git-send-email 2.17.1
-X-Virus-Scanned: ClamAV using ClamSMTP
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru>
+References: <20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru>
+MIME-Version: 1.0
+Message-ID: <159101709789.17951.16751811441888475534.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Use dev_pm_set_wake_irq() instead of flag IRQF_NO_SUSPEND to enable
-wakeup system feature for both freeze(s2idle) and mem(deep).
+The following commit has been merged into the timers/core branch of tip:
 
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Commit-ID:     cee43dbf2ee3f430434e2b66994eff8a1aeda889
+Gitweb:        https://git.kernel.org/tip/cee43dbf2ee3f430434e2b66994eff8a1aeda889
+Author:        Serge Semin <Sergey.Semin@baikalelectronics.ru>
+AuthorDate:    Thu, 21 May 2020 23:48:13 +03:00
+Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
+CommitterDate: Sat, 23 May 2020 00:02:41 +02:00
+
+clocksource: dw_apb_timer: Make CPU-affiliation being optional
+
+Currently the DW APB Timer driver binds each clockevent timers to a
+particular CPU. This isn't good for multiple reasons. First of all seeing
+the device is placed on APB bus (which makes it accessible from any CPU
+core), accessible over MMIO and having the DYNIRQ flag set we can be sure
+that manually binding the timer to any CPU just isn't correct. By doing
+so we just set an extra limitation on device usage. This also doesn't
+reflect the device actual capability, since by setting the IRQ affinity
+we can make it virtually local to any CPU. Secondly imagine if you had a
+real CPU-local timer with the same rating and the same CPU-affinity.
+In this case if DW APB timer was registered first, then due to the
+clockevent framework tick-timer selection procedure we'll end up with the
+real CPU-local timer being left unselected for clock-events tracking. But
+on most of the platforms (MIPS/ARM/etc) such timers are normally embedded
+into the CPU core and are accessible with much better performance then
+devices placed on APB. For instance in MIPS architectures there is
+r4k-timer, which is CPU-local, assigned with the same rating, and normally
+its clockevent device is registered after the platform-specific one.
+
+So in order to fix all of these issues let's make the DW APB Timer CPU
+affinity being optional and deactivated by passing a negative CPU id,
+which will effectively set the DW APB clockevent timer cpumask to
+'cpu_possible_mask'.
+
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru
 ---
-Change in v2:
- - Remove wakeup-source control since the irq should be able to wakeup.
-   And this is not the case that RTC interrupt line is not connected
-   directly to SoC.
+ drivers/clocksource/dw_apb_timer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
- drivers/rtc/rtc-fsl-ftm-alarm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
-index 756af62..6775205 100644
---- a/drivers/rtc/rtc-fsl-ftm-alarm.c
-+++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
-@@ -21,6 +21,7 @@
- #include <linux/rtc.h>
- #include <linux/time.h>
- #include <linux/acpi.h>
-+#include <linux/pm_wakeirq.h>
- 
- #define FTM_SC_CLK(c)		((c) << FTM_SC_CLK_MASK_SHIFT)
- 
-@@ -274,7 +275,7 @@ static int ftm_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, irq, ftm_rtc_alarm_interrupt,
--			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), rtc);
-+			       0, dev_name(&pdev->dev), rtc);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to request irq\n");
- 		return ret;
-@@ -287,6 +288,9 @@ static int ftm_rtc_probe(struct platform_device *pdev)
- 	rtc->rtc_dev->ops = &ftm_rtc_ops;
- 
- 	device_init_wakeup(&pdev->dev, true);
-+	ret = dev_pm_set_wake_irq(&pdev->dev, irq);
-+	if (ret)
-+		dev_err(&pdev->dev, "failed to enable irq wake\n");
- 
- 	ret = rtc_register_device(rtc->rtc_dev);
- 	if (ret) {
--- 
-2.7.4
-
+diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
+index b207a77..f5f24a9 100644
+--- a/drivers/clocksource/dw_apb_timer.c
++++ b/drivers/clocksource/dw_apb_timer.c
+@@ -222,7 +222,8 @@ static int apbt_next_event(unsigned long delta,
+ /**
+  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
+  *
+- * @cpu:	The CPU the events will be targeted at.
++ * @cpu:	The CPU the events will be targeted at or -1 if CPU affiliation
++ *		isn't required.
+  * @name:	The name used for the timer and the IRQ for it.
+  * @rating:	The rating to give the timer.
+  * @base:	I/O base for the timer registers.
+@@ -257,7 +258,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
+ 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
+ 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
+ 	dw_ced->ced.min_delta_ticks = 5000;
+-	dw_ced->ced.cpumask = cpumask_of(cpu);
++	dw_ced->ced.cpumask = cpu < 0 ? cpu_possible_mask : cpumask_of(cpu);
+ 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
+ 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
+ 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
