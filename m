@@ -1,171 +1,134 @@
-Return-Path: <SRS0=BfVC=7O=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=Zl2g=7Q=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01ECBC433E1
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 13:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDC9FC433DF
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jun 2020 11:59:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E110F2074B
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Jun 2020 13:13:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9DC520738
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Jun 2020 11:59:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728386AbgFANNb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Jun 2020 09:13:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48196 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726201AbgFANLl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Jun 2020 09:11:41 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFF8C08C5C0;
-        Mon,  1 Jun 2020 06:11:41 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jfkE4-0006yq-FJ; Mon, 01 Jun 2020 15:11:36 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 0BA3F1C0244;
-        Mon,  1 Jun 2020 15:11:36 +0200 (CEST)
-Date:   Mon, 01 Jun 2020 13:11:35 -0000
-From:   "tip-bot2 for Serge Semin" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/core] clocksource: mips-gic-timer: Mark GIC timer as
- unstable if ref clock changes
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        id S1725890AbgFCL7R (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Jun 2020 07:59:17 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:56518 "EHLO inva021.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725833AbgFCL7R (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 3 Jun 2020 07:59:17 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id D46FD200E3C;
+        Wed,  3 Jun 2020 13:59:15 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 9969D200E30;
+        Wed,  3 Jun 2020 13:59:10 +0200 (CEST)
+Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 4045540299;
+        Wed,  3 Jun 2020 19:59:04 +0800 (SGT)
+From:   Anson Huang <Anson.Huang@nxp.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        robh+dt@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, festevam@gmail.com, stigge@antcom.de,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200521204818.25436-9-Sergey.Semin@baikalelectronics.ru>
-References: <20200521204818.25436-9-Sergey.Semin@baikalelectronics.ru>
-MIME-Version: 1.0
-Message-ID: <159101709590.17951.10382391604771292137.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     Linux-imx@nxp.com
+Subject: [PATCH] dt-bindings: rtc: Convert imxdi rtc to json-schema
+Date:   Wed,  3 Jun 2020 19:48:45 +0800
+Message-Id: <1591184925-13055-1-git-send-email-Anson.Huang@nxp.com>
+X-Mailer: git-send-email 2.7.4
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The following commit has been merged into the timers/core branch of tip:
+Convert the i.MXDI RTC binding to DT schema format using json-schema
 
-Commit-ID:     7d7de1a65349811b24971c5e8e040e6aac192dd4
-Gitweb:        https://git.kernel.org/tip/7d7de1a65349811b24971c5e8e040e6aac192dd4
-Author:        Serge Semin <Sergey.Semin@baikalelectronics.ru>
-AuthorDate:    Thu, 21 May 2020 23:48:17 +03:00
-Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
-CommitterDate: Sat, 23 May 2020 00:03:16 +02:00
-
-clocksource: mips-gic-timer: Mark GIC timer as unstable if ref clock changes
-
-Currently clocksource framework doesn't support the clocks with variable
-frequency. Since MIPS GIC timer ticks rate might be unstable on some
-platforms, we must make sure that it justifies the clocksource
-requirements. MIPS GIC timer is incremented with the CPU cluster reference
-clocks rate. So in case if CPU frequency changes, the MIPS GIC tick rate
-changes synchronously. Due to this the clocksource subsystem can't rely on
-the timer to measure system clocks anymore. This commit marks the MIPS GIC
-based clocksource as unstable if reference clock (normally it's a CPU
-reference clocks) rate changes. The clocksource will execute a watchdog
-thread, which lowers the MIPS GIC timer rating to zero and fallbacks to a
-new stable one.
-
-Note we don't need to set the CLOCK_SOURCE_MUST_VERIFY flag to the MIPS
-GIC clocksource since normally the timer is stable. The only reason why
-it gets unstable is due to the ref clock rate change, which event we
-detect here in the driver by means of the clocks event notifier.
-
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-9-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 ---
- drivers/clocksource/Kconfig          |  1 +
- drivers/clocksource/mips-gic-timer.c | 19 ++++++++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/rtc/imxdi-rtc.txt          | 20 -----------
+ .../devicetree/bindings/rtc/imxdi-rtc.yaml         | 42 ++++++++++++++++++++++
+ 2 files changed, 42 insertions(+), 20 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/imxdi-rtc.yaml
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index c824002..9141838 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -570,6 +570,7 @@ config CLKSRC_VERSATILE
- config CLKSRC_MIPS_GIC
- 	bool
- 	depends on MIPS_GIC
-+	select CLOCKSOURCE_WATCHDOG
- 	select TIMER_OF
- 
- config CLKSRC_TANGO_XTAL
-diff --git a/drivers/clocksource/mips-gic-timer.c b/drivers/clocksource/mips-gic-timer.c
-index ef12c12..be4175f 100644
---- a/drivers/clocksource/mips-gic-timer.c
-+++ b/drivers/clocksource/mips-gic-timer.c
-@@ -24,6 +24,9 @@
- static DEFINE_PER_CPU(struct clock_event_device, gic_clockevent_device);
- static int gic_timer_irq;
- static unsigned int gic_frequency;
-+static bool __read_mostly gic_clock_unstable;
+diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt b/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
+deleted file mode 100644
+index c797bc9..0000000
+--- a/Documentation/devicetree/bindings/rtc/imxdi-rtc.txt
++++ /dev/null
+@@ -1,20 +0,0 @@
+-* i.MX25 Real Time Clock controller
+-
+-Required properties:
+-- compatible: should be: "fsl,imx25-rtc"
+-- reg: physical base address of the controller and length of memory mapped
+-  region.
+-- clocks: should contain the phandle for the rtc clock
+-- interrupts: rtc alarm interrupt
+-
+-Optional properties:
+-- interrupts: dryice security violation interrupt (second entry)
+-
+-Example:
+-
+-rtc@53ffc000 {
+-	compatible = "fsl,imx25-rtc";
+-	reg = <0x53ffc000 0x4000>;
+-	clocks = <&clks 81>;
+-	interrupts = <25 56>;
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/imxdi-rtc.yaml b/Documentation/devicetree/bindings/rtc/imxdi-rtc.yaml
+new file mode 100644
+index 0000000..6e43926
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/imxdi-rtc.yaml
+@@ -0,0 +1,42 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/imxdi-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+static void gic_clocksource_unstable(char *reason);
- 
- static u64 notrace gic_read_count_2x32(void)
- {
-@@ -125,8 +128,10 @@ static int gic_clk_notifier(struct notifier_block *nb, unsigned long action,
- {
- 	struct clk_notifier_data *cnd = data;
- 
--	if (action == POST_RATE_CHANGE)
-+	if (action == POST_RATE_CHANGE) {
-+		gic_clocksource_unstable("ref clock rate change");
- 		on_each_cpu(gic_update_frequency, (void *)cnd->new_rate, 1);
-+	}
- 
- 	return NOTIFY_OK;
- }
-@@ -172,6 +177,18 @@ static struct clocksource gic_clocksource = {
- 	.vdso_clock_mode	= VDSO_CLOCKMODE_GIC,
- };
- 
-+static void gic_clocksource_unstable(char *reason)
-+{
-+	if (gic_clock_unstable)
-+		return;
++title: i.MX25 Real Time Clock controller
 +
-+	gic_clock_unstable = true;
++maintainers:
++  - Roland Stigge <stigge@antcom.de>
 +
-+	pr_info("GIC timer is unstable due to %s\n", reason);
++properties:
++  compatible:
++    const: fsl,imx25-rtc
 +
-+	clocksource_mark_unstable(&gic_clocksource);
-+}
++  reg:
++    maxItems: 1
 +
- static int __init __gic_clocksource_init(void)
- {
- 	unsigned int count_width;
++  interrupts:
++    items:
++      - description: rtc alarm interrupt
++      - description: dryice security violation interrupt
++    minItems: 1
++    maxItems: 2
++
++  clocks:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++examples:
++  - |
++    rtc@53ffc000 {
++        compatible = "fsl,imx25-rtc";
++        reg = <0x53ffc000 0x4000>;
++        clocks = <&clks 81>;
++        interrupts = <25>, <56>;
++    };
+-- 
+2.7.4
+
