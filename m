@@ -2,137 +2,94 @@ Return-Path: <SRS0=3QCK=7V=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E86C433E0
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Jun 2020 23:44:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B2FC433E0
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Jun 2020 23:50:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D84B120842
-	for <linux-rtc@archiver.kernel.org>; Mon,  8 Jun 2020 23:44:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591659869;
-	bh=f1V455MIpPmgMu8VkJ6CW9z6ZykWPwkYorbzYRpxZvE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Az4kR9F/n4lIteAFp+0pFyTzDmDMqn/VvXR5Kj0AfFQYlX6cd4lAC4piJMIPooxV5
-	 YrtRtYffPgxFYwSPihIsZD4ih85BO6COaa8pXEfhA0HJJGTa46t3AcUW21rJOFDzSE
-	 5k+rMbDb6boo2qc1Aco38fKMRlX5EQv18rrA3zzo=
+	by mail.kernel.org (Postfix) with ESMTP id 6C35F204EF
+	for <linux-rtc@archiver.kernel.org>; Mon,  8 Jun 2020 23:50:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MWtK/hHZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731273AbgFHXo2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Jun 2020 19:44:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgFHX0y (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:26:54 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA6A20801;
-        Mon,  8 Jun 2020 23:26:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658814;
-        bh=f1V455MIpPmgMu8VkJ6CW9z6ZykWPwkYorbzYRpxZvE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gfuf/6CDdnX1OcH5bEelNRwGjVEuDLvYBcVIAeviTK/ph8UdLz2eGdenWG8YjnEU
-         uV3pyGHQKK3RvDKfl46Ew36anzbGQ53ziNQ/BfMj6ES4QAJIv3YFpDPfElejkgti/n
-         vXtCS7Ap9b5Z+5u1ADnsAxe99fa2BqHIRYFdZ8xs=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/50] clocksource: dw_apb_timer_of: Fix missing clockevent timers
-Date:   Mon,  8 Jun 2020 19:26:00 -0400
-Message-Id: <20200608232640.3370262-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608232640.3370262-1-sashal@kernel.org>
-References: <20200608232640.3370262-1-sashal@kernel.org>
+        id S1730922AbgFHXtm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 8 Jun 2020 19:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44124 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731815AbgFHXtk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Jun 2020 19:49:40 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2E8C08C5C2;
+        Mon,  8 Jun 2020 16:49:36 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id y13so20314819eju.2;
+        Mon, 08 Jun 2020 16:49:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uBzs8KmsEdBvGAcXk3Vb8AURrpvHv861x7OOzwsbqVc=;
+        b=MWtK/hHZaJhvWGA/KGnL6we8nFDF9ORpa5xmtB0dqPXfcrF7VmYOyyCxwnI02wRjgQ
+         Y6jC3kPvPiO4UWPRrhjC2a68YdRNU4jWHLBk1zfKLL1K+VGcoMnwOCAWLLKyeW+498AP
+         49aX5edGyWoqieus3bGndrhnFWvX1uZDQOxrJNNN6P4cYKJqYWHWSvYqt/Zw8Qniy3Jc
+         9CLiWZpdSxBv39fdRS4S4VcLWnWqGpcWKRnOKBhvgvcZMIADzy4B7JwlrWKIPfMiS8Xa
+         8F/kq4ci9tLnHW86+bqL1zUPQO4IQvRfCKAdDLy0F2fsugrRxTJp5WvQ3fjEX9TkZCLV
+         LIxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uBzs8KmsEdBvGAcXk3Vb8AURrpvHv861x7OOzwsbqVc=;
+        b=b3kKZrQfCeSVPgLd1iT+L3LfMM6O6JRv6+iK+Z2Se6viFu4/UdvEN41uEOyKAPLMcf
+         3Cl2tjjd0eLsaiFDoLjHufOGdYXvF4Kv4OFQF3ztvB8hX3IptDwEubzTxyQEC5VBdBv0
+         zMzb2FOr7PXwtKpq6aP/fw/bW40//BX3fRV3Vcyze5ag/M/4qFySkPFDY9XwfUMNXxi2
+         DnemHzPa+8z6r6jsOKzcrHFe8Ckyul5GZRT9aIjIfuswKDw0eCsHi7+QBq9WFDruVOBk
+         /1w/voecdwtslZ8yq5FpNgv5pIIPafPYHSoEn8EE2V4NfosFZJgmv7La9BkKg/HZmBTz
+         pdfA==
+X-Gm-Message-State: AOAM532I3tE4JYO2zgFKYuGfyljpqfKuyDDZA59qPl20P/jjlwBsEOpr
+        BgtR6BXW14oDbJ8VnNoz4ZOUopXpayxTuiM/6ug=
+X-Google-Smtp-Source: ABdhPJz/x7AFZlVQBJzN5QMIPCadQrzApEhoeEDla+NqJE/YhJwNxPC+WSVQZkpGuTDHFF60S5m6BLI7I9L5hyfYi74=
+X-Received: by 2002:a17:906:6403:: with SMTP id d3mr22550773ejm.386.1591660174835;
+ Mon, 08 Jun 2020 16:49:34 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <CAK8P3a1qN-cpzkcdtNhtMfSwWwxqcOYg9x6DEzt7PWazwr8V=Q@mail.gmail.com>
+ <20200513144128.GA16995@mail.rc.ru> <alpine.LRH.2.02.2005220920020.20970@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LRH.2.02.2005221344530.11126@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LRH.2.02.2005230623410.22664@file01.intranet.prod.int.rdu2.redhat.com>
+ <20200523151027.GA10128@mail.rc.ru> <alpine.LRH.2.02.2005231131480.10727@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LRH.2.02.2005231134590.10727@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LFD.2.21.2005241500230.21168@redsun52.ssa.fujisawa.hgst.com>
+ <alpine.LRH.2.02.2005250944210.26265@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LFD.2.21.2005251500420.21168@redsun52.ssa.fujisawa.hgst.com>
+ <alpine.LRH.2.02.2005251151550.4135@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.LRH.2.02.2005261046340.29117@file01.intranet.prod.int.rdu2.redhat.com>
+ <alpine.DEB.2.20.2005270114380.1027@tpp.orcam.me.uk> <alpine.LRH.2.02.2006080256360.15393@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <alpine.LRH.2.02.2006080256360.15393@file01.intranet.prod.int.rdu2.redhat.com>
+From:   Matt Turner <mattst88@gmail.com>
+Date:   Mon, 8 Jun 2020 16:49:23 -0700
+Message-ID: <CAEdQ38HcqZWrVEHoPcngd_PnNQsf+OxFob1upAwx6TL-=_Uopg@mail.gmail.com>
+Subject: Re: [PATCH v7] alpha: fix memory barriers so that they conform to the specification
+To:     Mikulas Patocka <mpatocka@redhat.com>
+Cc:     "Maciej W. Rozycki" <macro@wdc.com>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        "Maciej W. Rozycki" <macro@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Richard Henderson <rth@twiddle.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        alpha <linux-alpha@vger.kernel.org>,
+        "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+On Sun, Jun 7, 2020 at 11:58 PM Mikulas Patocka <mpatocka@redhat.com> wrote:
+> Will you submit the patch to Linus' tree in this merge window?
+>
+> Mikulas
 
-[ Upstream commit 6d2e16a3181bafb77b535095c39ad1c8b9558c8c ]
-
-Commit 100214889973 ("clocksource: dw_apb_timer_of: use
-clocksource_of_init") replaced a publicly available driver
-initialization method with one called by the timer_probe() method
-available after CLKSRC_OF. In current implementation it traverses
-all the timers available in the system and calls their initialization
-methods if corresponding devices were either in dtb or in acpi. But
-if before the commit any number of available timers would be installed
-as clockevent and clocksource devices, after that there would be at most
-two. The rest are just ignored since default case branch doesn't do
-anything. I don't see a reason of such behaviour, neither the commit
-message explains it. Moreover this might be wrong if on some platforms
-these timers might be used for different purpose, as virtually CPU-local
-clockevent timers and as an independent broadcast timer. So in order
-to keep the compatibility with the platforms where the order of the
-timers detection has some meaning, lets add the secondly discovered
-timer to be of clocksource/sched_clock type, while the very first and
-the others would provide the clockevents service.
-
-Fixes: 100214889973 ("clocksource: dw_apb_timer_of: use clocksource_of_init")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-7-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/clocksource/dw_apb_timer_of.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index aee6c0d39a7c..024e6cc5025b 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -146,10 +146,6 @@ static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
- 	switch (num_called) {
--	case 0:
--		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
--		break;
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
- 		add_clocksource(timer);
-@@ -160,6 +156,8 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- #endif
- 		break;
- 	default:
-+		pr_debug("%s: found clockevent timer\n", __func__);
-+		add_clockevent(timer);
- 		break;
- 	}
- 
--- 
-2.25.1
-
+I will do it. Thank you, Mikulas!
