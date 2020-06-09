@@ -2,140 +2,300 @@ Return-Path: <SRS0=OuU7=7W=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE48C433DF
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Jun 2020 01:04:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C28C433E0
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Jun 2020 20:43:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87A1220737
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Jun 2020 01:04:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1591664654;
-	bh=Kjt7P2a4tbw5TuKZhyerlZXQZ4Y6YzQHMoiX4ctDvCg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=CDxLTlXJAfv+gf+MJUM9VxfmztL9VQmqHo8HWIgID70G7CpND7BqaXp2k2nSVtHpS
-	 RVQyuUcNzcT1jmZGHufkU389MPD9l8chdv8sZnbkZ5weFWh47rVcpKQnuBUunIhKiD
-	 pbEijdnAoZaZBoqwThVxdLJ5lP968YTJA4+gS+k8=
+	by mail.kernel.org (Postfix) with ESMTP id 02835207C3
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Jun 2020 20:43:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e764SDjZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728513AbgFIBEL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Jun 2020 21:04:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51802 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727119AbgFHXHb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:31 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F7AB20842;
-        Mon,  8 Jun 2020 23:07:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657650;
-        bh=Kjt7P2a4tbw5TuKZhyerlZXQZ4Y6YzQHMoiX4ctDvCg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njYHY3EIiURi4PbA97BlH/BC27GKJPQVQxo8/UaLPpv9vk2+PkJQyCaLnlrn67Gq3
-         JG3kaA0DW2EPXaVKLbQG+loEe0JAR3vOW/sxWMKYvGw8BHaUlm/QZ8Iu02TzSJZJBa
-         faZBSTTAYcFMlk7XO++ATU3O72eaQIEPWH4i291Q=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 064/274] clocksource: dw_apb_timer: Make CPU-affiliation being optional
-Date:   Mon,  8 Jun 2020 19:02:37 -0400
-Message-Id: <20200608230607.3361041-64-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+        id S1727783AbgFIUnE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 9 Jun 2020 16:43:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40042 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727098AbgFIUnD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Jun 2020 16:43:03 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DECC05BD1E
+        for <linux-rtc@vger.kernel.org>; Tue,  9 Jun 2020 13:43:03 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id e12so17459299eds.2
+        for <linux-rtc@vger.kernel.org>; Tue, 09 Jun 2020 13:43:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=hKWEVk/WuU/tbRHHak5m28tcFjIGT0aeOA2jf5Uqkh8=;
+        b=e764SDjZgCCGz3jOlMZvXcx/oLlOJxzvrDdSZdEWUFsavEUr+40thztpjiVlZE34ID
+         eN2aZbzxg+I5PwMM2ZnTgS96crHN0E9r/mPRIvjjncPhkRaMAnABaPlgJWg0kqX/W/36
+         BsI/VvnfLt9wmtxQb3IKp5XsK/kohm4KJPzSai0BsMCRMt14FWY/dIEvlsPrmaUuFq56
+         jndjXieBwmHAZClRp05wy+aU/nN+pbWZddOSDOjqHg0mBjA3XXEajUCM7X/haHX96lAG
+         U9/bnLIxMkzqof3dLsbcS7aotFOy2BjmnKIdtCYowrIKopTtxaFP0fDITseYQezHhdvr
+         rG2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=hKWEVk/WuU/tbRHHak5m28tcFjIGT0aeOA2jf5Uqkh8=;
+        b=q0qIkQEWU2wIdQ/nBLH9cDyEcqHQygYeTDYdnWVHW4QqFyEymaodOR3PYpWmrn+ogH
+         Bh56sZ5dUXeCPzoKJiNrJ505ByzEleAPWJUABXVLUvxN82Z20Fnw5PW1scTVejv1Bngy
+         TUJzS1gxs1q/1o/UfE4+i8Id4/66BGH1f0cdKcgNt6QBTcgxKwHpwhTvlofywHIbZEvN
+         1CSy10e1VFV3Y8FN/7GIoFHphTriz0ItjC2zW0JzdV3JUKNvZe2Hy7nmI0A/y4aNdUCR
+         e5m+vz8MUjUzBTV4/05mwZNWHclsFq3J9R1acau/TqzSV+9RqJkW1La24ksYV+lacUNp
+         nlow==
+X-Gm-Message-State: AOAM5307SzNAJgghD+tSG/G5yzc5wn9vb7bJ/JWG9BCWP4hwaa+w/GhB
+        ZmfgyT/sF/YkJhwWLfEsbBV+Zxg5R6HRE5sbF4Q=
+X-Google-Smtp-Source: ABdhPJw2wYX9RMvXVIgQWtJSzI7Lqjm6s+NspYXmkSAQAlbo4C6cj5n93ItWVWvCWpmxTCQIGhald99+5bN6zTBHsCg=
+X-Received: by 2002:a50:9dc4:: with SMTP id l4mr29393117edk.52.1591735381977;
+ Tue, 09 Jun 2020 13:43:01 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200607170610.24534-1-liambeguin@gmail.com> <20200607170610.24534-3-liambeguin@gmail.com>
+In-Reply-To: <20200607170610.24534-3-liambeguin@gmail.com>
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+Date:   Tue, 9 Jun 2020 22:42:45 +0200
+Message-ID: <CAH+2xPD=MgEC-WZQYK8gFbT40jzqxjNDR2Xc2WyC9okVswC6Yg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] rtc: pcf2127: add alarm support
+To:     liambeguin@gmail.com
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Hi Liam,
 
-[ Upstream commit cee43dbf2ee3f430434e2b66994eff8a1aeda889 ]
+See comments below.
 
-Currently the DW APB Timer driver binds each clockevent timers to a
-particular CPU. This isn't good for multiple reasons. First of all seeing
-the device is placed on APB bus (which makes it accessible from any CPU
-core), accessible over MMIO and having the DYNIRQ flag set we can be sure
-that manually binding the timer to any CPU just isn't correct. By doing
-so we just set an extra limitation on device usage. This also doesn't
-reflect the device actual capability, since by setting the IRQ affinity
-we can make it virtually local to any CPU. Secondly imagine if you had a
-real CPU-local timer with the same rating and the same CPU-affinity.
-In this case if DW APB timer was registered first, then due to the
-clockevent framework tick-timer selection procedure we'll end up with the
-real CPU-local timer being left unselected for clock-events tracking. But
-on most of the platforms (MIPS/ARM/etc) such timers are normally embedded
-into the CPU core and are accessible with much better performance then
-devices placed on APB. For instance in MIPS architectures there is
-r4k-timer, which is CPU-local, assigned with the same rating, and normally
-its clockevent device is registered after the platform-specific one.
+Den s=C3=B8n. 7. jun. 2020 kl. 19.06 skrev <liambeguin@gmail.com>:
+>
+> From: Liam Beguin <lvb@xiphos.com>
+>
+> From: Liam Beguin <lvb@xiphos.com>
+>
+> Add alarm support for the pcf2127 RTC chip family.
+> Tested on pca2129.
+>
+> Signed-off-by: Liam Beguin <lvb@xiphos.com>
+> ---
+>  drivers/rtc/rtc-pcf2127.c | 120 +++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 117 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> index 396a1144a213..3eeb085a7c72 100644
+> --- a/drivers/rtc/rtc-pcf2127.c
+> +++ b/drivers/rtc/rtc-pcf2127.c
+> @@ -28,7 +28,9 @@
+>  #define PCF2127_BIT_CTRL1_TSF1                 BIT(4)
+>  /* Control register 2 */
+>  #define PCF2127_REG_CTRL2              0x01
+> +#define PCF2127_BIT_CTRL2_AIE                  BIT(1)
+>  #define PCF2127_BIT_CTRL2_TSIE                 BIT(2)
+> +#define PCF2127_BIT_CTRL2_AF                   BIT(4)
+>  #define PCF2127_BIT_CTRL2_TSF2                 BIT(5)
+>  /* Control register 3 */
+>  #define PCF2127_REG_CTRL3              0x02
+> @@ -46,6 +48,12 @@
+>  #define PCF2127_REG_DW                 0x07
+>  #define PCF2127_REG_MO                 0x08
+>  #define PCF2127_REG_YR                 0x09
+> +/* Alarm registers */
+> +#define PCF2127_REG_ALARM_SC           0x0A
+> +#define PCF2127_REG_ALARM_MN           0x0B
+> +#define PCF2127_REG_ALARM_HR           0x0C
+> +#define PCF2127_REG_ALARM_DM           0x0D
+> +#define PCF2127_REG_ALARM_DW           0x0E
+>  /* Watchdog registers */
+>  #define PCF2127_REG_WD_CTL             0x10
+>  #define PCF2127_BIT_WD_CTL_TF0                 BIT(0)
+> @@ -185,6 +193,107 @@ static int pcf2127_rtc_set_time(struct device *dev,=
+ struct rtc_time *tm)
+>         return 0;
+>  }
+>
+> +static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm =
+*alrm)
+> +{
+> +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> +       unsigned int buf[5], ctrl2;
+> +       int ret;
+> +
+> +       ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+> +       if (ret) {
+> +               dev_err(dev, "%s: ctrl2 read error\n", __func__);
+> +               return ret;
+> +       }
 
-So in order to fix all of these issues let's make the DW APB Timer CPU
-affinity being optional and deactivated by passing a negative CPU id,
-which will effectively set the DW APB clockevent timer cpumask to
-'cpu_possible_mask'.
+Reading CTRL2 register causes watchdog to stop.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/clocksource/dw_apb_timer.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Aways call pcf2127_wdt_active_ping() after CTRL2 access to ensure the watch=
+dog
+is running if enabled.
 
-diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
-index b207a77b0831..f5f24a95ee82 100644
---- a/drivers/clocksource/dw_apb_timer.c
-+++ b/drivers/clocksource/dw_apb_timer.c
-@@ -222,7 +222,8 @@ static int apbt_next_event(unsigned long delta,
- /**
-  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
-  *
-- * @cpu:	The CPU the events will be targeted at.
-+ * @cpu:	The CPU the events will be targeted at or -1 if CPU affiliation
-+ *		isn't required.
-  * @name:	The name used for the timer and the IRQ for it.
-  * @rating:	The rating to give the timer.
-  * @base:	I/O base for the timer registers.
-@@ -257,7 +258,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
- 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
- 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
- 	dw_ced->ced.min_delta_ticks = 5000;
--	dw_ced->ced.cpumask = cpumask_of(cpu);
-+	dw_ced->ced.cpumask = cpu < 0 ? cpu_possible_mask : cpumask_of(cpu);
- 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
- 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
- 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
--- 
-2.25.1
+> +       ret =3D regmap_bulk_read(pcf2127->regmap, PCF2127_REG_ALARM_SC, b=
+uf, 5);
 
+Replace 5 with sizeof(buf).
+
+> +       if (ret) {
+> +               dev_err(dev, "%s: alarm read error\n", __func__);
+> +               return ret;
+> +       }
+> +
+> +       alrm->enabled =3D ctrl2 & PCF2127_BIT_CTRL2_AIE;
+> +       alrm->pending =3D ctrl2 & PCF2127_BIT_CTRL2_AF;
+> +
+> +       alrm->time.tm_sec =3D bcd2bin(buf[0] & 0x7F);
+> +       alrm->time.tm_min =3D bcd2bin(buf[1] & 0x7F);
+> +       alrm->time.tm_hour =3D bcd2bin(buf[2] & 0x3F);
+> +       alrm->time.tm_mday =3D bcd2bin(buf[3] & 0x3F);
+> +       alrm->time.tm_wday =3D buf[4] & 0x07;
+> +
+> +       dev_dbg(dev, "%s: alarm is %d:%d:%d, mday=3D%d, wday=3D%d\n", __f=
+unc__,
+> +               alrm->time.tm_hour, alrm->time.tm_min, alrm->time.tm_sec,
+> +               alrm->time.tm_mday, alrm->time.tm_wday);
+> +
+> +       return 0;
+> +}
+> +
+> +static int pcf2127_rtc_alarm_irq_enable(struct device *dev, u32 enable)
+> +{
+> +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> +       unsigned int ctrl2;
+> +       int ret;
+> +
+> +       dev_dbg(dev, "%s: %s\n", __func__, enable ? "enable" : "disable")=
+;
+
+Delete debug trace.
+
+> +
+> +       ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+> +       if (ret) {
+> +               dev_err(dev, "%s: ctrl2 read error\n", __func__);
+> +               return ret;
+> +       }
+> +
+> +       if (enable)
+> +               ret =3D regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+> +                                  ctrl2 | PCF2127_BIT_CTRL2_AIE);
+> +       else
+> +               ret =3D regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+> +                                  ctrl2 & ~PCF2127_BIT_CTRL2_AIE);
+> +
+> +       if (ret) {
+> +               dev_err(dev, "%s: failed to enable alarm (%d)\n", __func_=
+_,
+> +                       ret);
+> +               return ret;
+> +       }
+
+Replace regmap_read() and regmap_write() with a regmap_update_bits().
+
+So something like:
+
+ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+                                          enabled ? PCF2127_REG_CTRL2 : 0);
+
+And remember to call pcf2127_wdt_active_ping().
+
+> +
+> +       return 0;
+> +}
+> +
+> +static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *=
+alrm)
+> +{
+> +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> +       unsigned int ctrl2;
+> +       uint8_t buf[5];
+> +       int ret;
+> +
+> +       ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+> +                                PCF2127_BIT_CTRL2_AF,
+> +                                (unsigned int)~PCF2127_BIT_CTRL2_AF);
+
+If you just want to clear the AF bit in CTRL2, just do:
+
+ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+                                           PCF2127_BIT_CTRL2_AF, 0);
+
+> +       if (ret) {
+> +               dev_err(dev, "%s: failed to clear alarm interrupt flag (%=
+d)",
+> +                       __func__, ret);
+> +               return ret;
+> +       }
+> +
+> +       buf[0] =3D bin2bcd(alrm->time.tm_sec);
+> +       buf[1] =3D bin2bcd(alrm->time.tm_min);
+> +       buf[2] =3D bin2bcd(alrm->time.tm_hour);
+> +       buf[3] =3D bin2bcd(alrm->time.tm_mday);
+> +       buf[4] =3D (alrm->time.tm_wday & 0x07);
+> +
+> +       dev_dbg(dev, "%s: alarm set for: %d:%d:%d, mday=3D%d, wday=3D%d\n=
+",
+> +               __func__, alrm->time.tm_hour, alrm->time.tm_min,
+> +               alrm->time.tm_sec, alrm->time.tm_mday, alrm->time.tm_wday=
+);
+> +
+> +       ret =3D regmap_bulk_write(pcf2127->regmap, PCF2127_REG_ALARM_SC, =
+buf, 5);
+
+Replace 5 with sizeof(buf).
+
+/Bruno
+
+> +       if (ret) {
+> +               dev_err(dev, "%s: failed to write alarm registers (%d)",
+> +                       __func__, ret);
+> +               return ret;
+> +       }
+> +
+> +       pcf2127_rtc_alarm_irq_enable(dev, alrm->enabled);
+> +
+> +       return 0;
+> +}
+> +
+>  #ifdef CONFIG_RTC_INTF_DEV
+>  static int pcf2127_rtc_ioctl(struct device *dev,
+>                                 unsigned int cmd, unsigned long arg)
+> @@ -211,9 +320,12 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+>  #endif
+>
+>  static const struct rtc_class_ops pcf2127_rtc_ops =3D {
+> -       .ioctl          =3D pcf2127_rtc_ioctl,
+> -       .read_time      =3D pcf2127_rtc_read_time,
+> -       .set_time       =3D pcf2127_rtc_set_time,
+> +       .ioctl            =3D pcf2127_rtc_ioctl,
+> +       .read_time        =3D pcf2127_rtc_read_time,
+> +       .set_time         =3D pcf2127_rtc_set_time,
+> +       .read_alarm       =3D pcf2127_rtc_read_alarm,
+> +       .set_alarm        =3D pcf2127_rtc_set_alarm,
+> +       .alarm_irq_enable =3D pcf2127_rtc_alarm_irq_enable,
+>  };
+>
+>  static int pcf2127_nvmem_read(void *priv, unsigned int offset,
+> @@ -434,6 +546,8 @@ static int pcf2127_probe(struct device *dev, struct r=
+egmap *regmap,
+>
+>         pcf2127->rtc->ops =3D &pcf2127_rtc_ops;
+>
+> +       device_init_wakeup(dev, true);
+> +
+>         pcf2127->wdd.parent =3D dev;
+>         pcf2127->wdd.info =3D &pcf2127_wdt_info;
+>         pcf2127->wdd.ops =3D &pcf2127_watchdog_ops;
+> --
+> 2.27.0
+>
