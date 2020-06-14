@@ -2,68 +2,71 @@ Return-Path: <SRS0=/fwm=73=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E538C433E1
-	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 827E1C433DF
+	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BAAD20747
-	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D30C20747
+	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uh8naTYu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AuHBOb3q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725385AbgFNEEZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 14 Jun 2020 00:04:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60948 "EHLO
+        id S1725550AbgFNEE2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 14 Jun 2020 00:04:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725267AbgFNEEY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 14 Jun 2020 00:04:24 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92633C03E96F
-        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:24 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id w9so10189485qtv.3
-        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:24 -0700 (PDT)
+        with ESMTP id S1725379AbgFNEE1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 14 Jun 2020 00:04:27 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DA37C03E96F
+        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:26 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id g18so10162493qtu.13
+        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=iBF4SRmiBweG+X+Pe5LiUxcDozMQKtnkd1Q9aEDUm4E=;
-        b=uh8naTYulZjI4f+EGO8U9+fHi4tj8sDMZh9imghR+VA3GjHxA0jKwu1GYvJwYpxiXC
-         O1kr8NHLHtyAUObSpAVOR4bxm/SbbRjOSoNQEauuY9mJcQlotdg0Ey/Ai3/2YagfYjui
-         iNHUmEvH7b/8rS9mjNBfuUVP3FvZCEYO5k+/AdV0+ch4Om7f/dQIOqzl62B/dHK02fYg
-         kVoJCtApxaXMPOgmcKcV6NQm/uO3P8nF1eSYbz14HfjxzhkH+BSr+FBZBKZFL3uBR2JU
-         I5QVCtaWLiiAvL6fyDW0+lgJFi0tQNe90ufsItyqOvU9FXuZYMO3pfmm+NmHPLh7XkVr
-         iZ7A==
+        bh=tNbrvB7mQFTp1GhX1d/dEE8Q3PD5xMvyT3fecyE3zr8=;
+        b=AuHBOb3qguZqLnjI7JQNH+EqMCfZlhbrOhgQxg6eBJUKqQ8oQrEp3geKS+JalcmL7G
+         JXJiErziCiJQ9RxyyM39bL0+dY9z6GL6JFAVwJyG2weP7E8/optZJCGp4stcWVN8AGYr
+         KzyaZEuy2V4Ao/M3zXIJBGfisDtEvDUwHY0Hik2MkFQK+TrKIDJIn46Q1NFeXGGpTBRP
+         kfgrxctIeiFMXi0zRkr/tZpyI4VbyTXhDH2X/DcHGGsaVOzayt6flwPQlVeT4lPMyd6u
+         BzyPKCTci7ZR8BMYTI8nR0KZ0QGJjUX3BPihIAjSS8tA4TwA9ycCdrp/3OyUQ3pLJ24D
+         WfRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iBF4SRmiBweG+X+Pe5LiUxcDozMQKtnkd1Q9aEDUm4E=;
-        b=t6Wef0731DKrAIUOXiYjo9sBb6hUNfmU/FSB3eXdmO4tPwOf1HSfUhGRqlT7Q0OhB6
-         VnxIeQIbmy7X8F39uzoCjzKHomM45Um+e3ndmimkvSKSdB91mNdDdjsL/t3DPemkfDwB
-         TYgYz9urHzgKNmXMV5rZld6RfpCjAevcquQ7O9UxeG5YSC6tXPoZyUAmj8yVRzYa/HVV
-         A9MX6fG54O733QocNcso/gmcOw68O5GLjBn6LQ92h6PvZVw4psejPQkXsWFcyUyDLsK+
-         ZaEzetEcmbre6FYYPgOmrHaGL2EJDbJLdcaAQ/LayCENZQSJf3n4HS+5RQj6m7LzVhgC
-         +hmQ==
-X-Gm-Message-State: AOAM531dddLKROvacqnhWPRhN1pVxfHrrm2ouLijy6JQJtWRkrkaUXRF
-        BcCMyHwGw42uj/lXbeMwfySomEiG
-X-Google-Smtp-Source: ABdhPJxWQt4f8ebvtWi1WNRFx34kuXNJDneiq5gUys9KAyc/Tx3dSRcqaEKL0ol1Onwq6SqTZ6zxJA==
-X-Received: by 2002:ac8:339c:: with SMTP id c28mr10594148qtb.9.1592107463473;
-        Sat, 13 Jun 2020 21:04:23 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tNbrvB7mQFTp1GhX1d/dEE8Q3PD5xMvyT3fecyE3zr8=;
+        b=QzfAamwmbHV4A+zvRbNA14byqqKAvzI5O0zmzVbqmwNKlVwhtuZOZEK9Xg7Y1+MR33
+         NHjWh91VpKBkjA/L8gUlZUm1n9f1toR0bqE9maw6BKD4H7PPa1f1UTfubUZrH3GK2QNL
+         hAYtldv0D3houAVAx/+5Vsj5Yq2oYztgmUmBqFwsItW0IFqvPqKB1VNk2S4MgkgvagZL
+         srikoXfluX0ohXJX3NQGFBh1XbS5ZEwsF6zIvM7r4MbfGAXOCy97KRlGF4JC3jXXgD+q
+         kHO81j3UcHuRumyaHVU+6kycf4ArL/vSCF1xTLn3OeM0WOI9KxJ4RSvRf6gIK9yK4j10
+         e1ag==
+X-Gm-Message-State: AOAM532qg3/7vha7Oqe/jKBVfwXKP+CJ2ABIF1NWOwK5zTs2CviyqL35
+        0a70aHRB34/9h0jQ2PhD3WE=
+X-Google-Smtp-Source: ABdhPJyNT3r8uY9B77XX22Q4G7vvuxw6yIJwRwTYjnLgsmVEalZLZFBjE5D+gTJr22U7Z7UXAYKbNA==
+X-Received: by 2002:aed:3f25:: with SMTP id p34mr9890239qtf.92.1592107465777;
+        Sat, 13 Jun 2020 21:04:25 -0700 (PDT)
 Received: from atris.xiphos.ca (198-48-202-89.cpe.pppoe.ca. [198.48.202.89])
-        by smtp.gmail.com with ESMTPSA id a1sm8094870qkn.87.2020.06.13.21.04.22
+        by smtp.gmail.com with ESMTPSA id a1sm8094870qkn.87.2020.06.13.21.04.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Jun 2020 21:04:22 -0700 (PDT)
+        Sat, 13 Jun 2020 21:04:25 -0700 (PDT)
 From:   Liam Beguin <liambeguin@gmail.com>
 To:     bruno.thomsen@gmail.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 0/2] rtc: pcf2127: add alarm support
-Date:   Sun, 14 Jun 2020 00:04:07 -0400
-Message-Id: <20200614040409.30302-1-liambeguin@gmail.com>
+Subject: [PATCH v2 2/2] rtc: pcf2127: add alarm support
+Date:   Sun, 14 Jun 2020 00:04:09 -0400
+Message-Id: <20200614040409.30302-3-liambeguin@gmail.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200614040409.30302-1-liambeguin@gmail.com>
+References: <20200614040409.30302-1-liambeguin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -71,51 +74,25 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The board used to test this series has the interrupt line of the RTC
-connected to a circuit controlling the power of the board.
-An event on the interrupt line while the board is off will power it on.
-Because of these hardware limitations, the irq handler added in this
-patch wasn't fully tested.
+From: Liam Beguin <lvb@xiphos.com>
 
-The alarm fuctionality was tested on a PCA2129, with:
+Add alarm support for the pcf2127 RTC chip family.
+Tested on pca2129.
 
-	$ date "2010-10-10 10:10"
-	Sun Oct 10 10:10:00 UTC 2010
-	$ /usr/sbin/rtcwake -u -d /dev/rtc0  -s10 --mode off
-	[ ... ]
-	$ # power on after 10 seconds
-
+Signed-off-by: Liam Beguin <lvb@xiphos.com>
+---
 Changes since v1:
-- Document new compatible string for the pca2129
 - Add calls to pcf2127_wdt_active_ping after accessing CTRL2
-- Use sizeof(buf) instead of hadcoding value
+- Cleanup calls to regmap_{read,write,update_bits}
 - Cleanup debug trace
-- Add interrupt handler and wakeup-source devicetree option
+- Add interrupt handler, untested because of hardware limitations
+- Add wakeup-source devicetree option
 
-Liam Beguin (2):
-  rtc: pcf2127: add pca2129 device id
-  rtc: pcf2127: add alarm support
+ drivers/rtc/rtc-pcf2127.c | 169 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 166 insertions(+), 3 deletions(-)
 
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |   2 +
- drivers/rtc/rtc-pcf2127.c                     | 172 +++++++++++++++++-
- 2 files changed, 171 insertions(+), 3 deletions(-)
-
-Interdiff against v1:
-diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-index 18cb456752f6..c7d14de214c4 100644
---- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-@@ -52,6 +52,8 @@ properties:
-       - nxp,pcf2127
-       # Real-time clock
-       - nxp,pcf2129
-+      # Real-time clock
-+      - nxp,pca2129
-       # Real-time Clock Module
-       - pericom,pt7c4338
-       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index f004a4030970..87ecb29247c6 100644
+index 396a1144a213..87ecb29247c6 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
 @@ -20,6 +20,7 @@
@@ -126,7 +103,30 @@ index f004a4030970..87ecb29247c6 100644
  #include <linux/regmap.h>
  #include <linux/watchdog.h>
  
-@@ -87,6 +88,8 @@
+@@ -28,7 +29,9 @@
+ #define PCF2127_BIT_CTRL1_TSF1			BIT(4)
+ /* Control register 2 */
+ #define PCF2127_REG_CTRL2		0x01
++#define PCF2127_BIT_CTRL2_AIE			BIT(1)
+ #define PCF2127_BIT_CTRL2_TSIE			BIT(2)
++#define PCF2127_BIT_CTRL2_AF			BIT(4)
+ #define PCF2127_BIT_CTRL2_TSF2			BIT(5)
+ /* Control register 3 */
+ #define PCF2127_REG_CTRL3		0x02
+@@ -46,6 +49,12 @@
+ #define PCF2127_REG_DW			0x07
+ #define PCF2127_REG_MO			0x08
+ #define PCF2127_REG_YR			0x09
++/* Alarm registers */
++#define PCF2127_REG_ALARM_SC		0x0A
++#define PCF2127_REG_ALARM_MN		0x0B
++#define PCF2127_REG_ALARM_HR		0x0C
++#define PCF2127_REG_ALARM_DM		0x0D
++#define PCF2127_REG_ALARM_DW		0x0E
+ /* Watchdog registers */
+ #define PCF2127_REG_WD_CTL		0x10
+ #define PCF2127_BIT_WD_CTL_TF0			BIT(0)
+@@ -79,6 +88,8 @@
  #define PCF2127_WD_VAL_MAX		255
  #define PCF2127_WD_VAL_DEFAULT		60
  
@@ -135,11 +135,21 @@ index f004a4030970..87ecb29247c6 100644
  struct pcf2127 {
  	struct rtc_device *rtc;
  	struct watchdog_device wdd;
-@@ -204,7 +207,13 @@ static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		dev_err(dev, "%s: ctrl2 read error\n", __func__);
- 		return ret;
- 	}
--	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf, 5);
+@@ -185,6 +196,140 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
++static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
++	unsigned int buf[5], ctrl2;
++	int ret;
++
++	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
++	if (ret) {
++		dev_err(dev, "%s: ctrl2 read error\n", __func__);
++		return ret;
++	}
 +
 +	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
 +	if (ret)
@@ -147,86 +157,90 @@ index f004a4030970..87ecb29247c6 100644
 +
 +	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf,
 +			       sizeof(buf));
- 	if (ret) {
- 		dev_err(dev, "%s: alarm read error\n", __func__);
- 		return ret;
-@@ -229,29 +238,21 @@ static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- static int pcf2127_rtc_alarm_irq_enable(struct device *dev, u32 enable)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int ctrl2;
- 	int ret;
- 
--	dev_dbg(dev, "%s: %s\n", __func__, enable ? "enable" : "disable");
--
--	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
++	if (ret) {
++		dev_err(dev, "%s: alarm read error\n", __func__);
++		return ret;
++	}
++
++	alrm->enabled = ctrl2 & PCF2127_BIT_CTRL2_AIE;
++	alrm->pending = ctrl2 & PCF2127_BIT_CTRL2_AF;
++
++	alrm->time.tm_sec = bcd2bin(buf[0] & 0x7F);
++	alrm->time.tm_min = bcd2bin(buf[1] & 0x7F);
++	alrm->time.tm_hour = bcd2bin(buf[2] & 0x3F);
++	alrm->time.tm_mday = bcd2bin(buf[3] & 0x3F);
++	alrm->time.tm_wday = buf[4] & 0x07;
++
++	dev_dbg(dev, "%s: alarm is %d:%d:%d, mday=%d, wday=%d\n", __func__,
++		alrm->time.tm_hour, alrm->time.tm_min, alrm->time.tm_sec,
++		alrm->time.tm_mday, alrm->time.tm_wday);
++
++	return 0;
++}
++
++static int pcf2127_rtc_alarm_irq_enable(struct device *dev, u32 enable)
++{
++	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
++	int ret;
++
 +	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
 +				 PCF2127_BIT_CTRL2_AIE,
 +				 enable ? PCF2127_BIT_CTRL2_AIE : 0);
- 	if (ret) {
--		dev_err(dev, "%s: ctrl2 read error\n", __func__);
++	if (ret) {
 +		dev_err(dev, "%s: failed to %s alarm (%d)\n", __func__,
 +			enable ? "enable" : "disable",
 +			ret);
- 		return ret;
- 	}
- 
--	if (enable)
--		ret = regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
--				   ctrl2 | PCF2127_BIT_CTRL2_AIE);
--	else
--		ret = regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
--				   ctrl2 & ~PCF2127_BIT_CTRL2_AIE);
--
--	if (ret) {
--		dev_err(dev, "%s: failed to enable alarm (%d)\n", __func__,
--			ret);
-+	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
-+	if (ret)
- 		return ret;
--	}
- 
- 	return 0;
- }
-@@ -259,19 +260,21 @@ static int pcf2127_rtc_alarm_irq_enable(struct device *dev, u32 enable)
- static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int ctrl2;
- 	uint8_t buf[5];
- 	int ret;
- 
- 	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
--				 PCF2127_BIT_CTRL2_AF,
--				 (unsigned int)~PCF2127_BIT_CTRL2_AF);
-+				 PCF2127_BIT_CTRL2_AF, 0);
- 	if (ret) {
- 		dev_err(dev, "%s: failed to clear alarm interrupt flag (%d)",
- 			__func__, ret);
- 		return ret;
- 	}
- 
++		return ret;
++	}
++
 +	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
 +	if (ret)
 +		return ret;
 +
- 	buf[0] = bin2bcd(alrm->time.tm_sec);
- 	buf[1] = bin2bcd(alrm->time.tm_min);
- 	buf[2] = bin2bcd(alrm->time.tm_hour);
-@@ -282,7 +285,8 @@ static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 		__func__, alrm->time.tm_hour, alrm->time.tm_min,
- 		alrm->time.tm_sec, alrm->time.tm_mday, alrm->time.tm_wday);
- 
--	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf, 5);
++	return 0;
++}
++
++static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
++	uint8_t buf[5];
++	int ret;
++
++	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
++				 PCF2127_BIT_CTRL2_AF, 0);
++	if (ret) {
++		dev_err(dev, "%s: failed to clear alarm interrupt flag (%d)",
++			__func__, ret);
++		return ret;
++	}
++
++	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
++	if (ret)
++		return ret;
++
++	buf[0] = bin2bcd(alrm->time.tm_sec);
++	buf[1] = bin2bcd(alrm->time.tm_min);
++	buf[2] = bin2bcd(alrm->time.tm_hour);
++	buf[3] = bin2bcd(alrm->time.tm_mday);
++	buf[4] = (alrm->time.tm_wday & 0x07);
++
++	dev_dbg(dev, "%s: alarm set for: %d:%d:%d, mday=%d, wday=%d\n",
++		__func__, alrm->time.tm_hour, alrm->time.tm_min,
++		alrm->time.tm_sec, alrm->time.tm_mday, alrm->time.tm_wday);
++
 +	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf,
 +				sizeof(buf));
- 	if (ret) {
- 		dev_err(dev, "%s: failed to write alarm registers (%d)",
- 			__func__, ret);
-@@ -294,6 +298,38 @@ static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return 0;
- }
- 
++	if (ret) {
++		dev_err(dev, "%s: failed to write alarm registers (%d)",
++			__func__, ret);
++		return ret;
++	}
++
++	pcf2127_rtc_alarm_irq_enable(dev, alrm->enabled);
++
++	return 0;
++}
++
 +static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
 +{
 +	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
@@ -262,7 +276,23 @@ index f004a4030970..87ecb29247c6 100644
  #ifdef CONFIG_RTC_INTF_DEV
  static int pcf2127_rtc_ioctl(struct device *dev,
  				unsigned int cmd, unsigned long arg)
-@@ -527,6 +563,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+@@ -211,9 +356,12 @@ static int pcf2127_rtc_ioctl(struct device *dev,
+ #endif
+ 
+ static const struct rtc_class_ops pcf2127_rtc_ops = {
+-	.ioctl		= pcf2127_rtc_ioctl,
+-	.read_time	= pcf2127_rtc_read_time,
+-	.set_time	= pcf2127_rtc_set_time,
++	.ioctl            = pcf2127_rtc_ioctl,
++	.read_time        = pcf2127_rtc_read_time,
++	.set_time         = pcf2127_rtc_set_time,
++	.read_alarm       = pcf2127_rtc_read_alarm,
++	.set_alarm        = pcf2127_rtc_set_alarm,
++	.alarm_irq_enable = pcf2127_rtc_alarm_irq_enable,
+ };
+ 
+ static int pcf2127_nvmem_read(void *priv, unsigned int offset,
+@@ -415,6 +563,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
  			const char *name, bool has_nvmem)
  {
  	struct pcf2127 *pcf2127;
@@ -270,16 +300,10 @@ index f004a4030970..87ecb29247c6 100644
  	u32 wdd_timeout;
  	int ret = 0;
  
-@@ -546,15 +583,19 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+@@ -434,6 +583,20 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
  
  	pcf2127->rtc->ops = &pcf2127_rtc_ops;
  
--	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
--				 PCF2127_BIT_CTRL2_AIE, 0);
--	if (ret) {
--		dev_err(dev, "%s: failed to clear interrupt enable bit (%d)",
--			__func__, ret);
--		return ret;
 +	alarm_irq = of_irq_get_byname(dev->of_node, "alarm");
 +	if (alarm_irq >= 0) {
 +		ret = devm_request_irq(dev, alarm_irq, pcf2127_rtc_irq,
@@ -289,16 +313,14 @@ index f004a4030970..87ecb29247c6 100644
 +			dev_err(dev, "failed to request alarm irq\n");
 +			return ret;
 +		}
- 	}
- 
--	device_init_wakeup(dev, true);
++	}
++
 +	if (alarm_irq >= 0 || device_property_read_bool(dev, "wakeup-source"))
 +		device_init_wakeup(dev, true);
- 
++
  	pcf2127->wdd.parent = dev;
  	pcf2127->wdd.info = &pcf2127_wdt_info;
-
-base-commit: aaa2faab4ed8e5fe0111e04d6e168c028fe2987f
+ 	pcf2127->wdd.ops = &pcf2127_watchdog_ops;
 -- 
 2.27.0
 
