@@ -1,42 +1,72 @@
-Return-Path: <SRS0=pfzn=7Z=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=/fwm=73=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FFD1C433E0
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Jun 2020 22:37:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C90EC433DF
+	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 21EBD206DC
-	for <linux-rtc@archiver.kernel.org>; Fri, 12 Jun 2020 22:37:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4042520772
+	for <linux-rtc@archiver.kernel.org>; Sun, 14 Jun 2020 04:04:26 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hCGjnEy9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgFLWhd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 12 Jun 2020 18:37:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46456 "EHLO
+        id S1725267AbgFNEEZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 14 Jun 2020 00:04:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726268AbgFLWhd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 12 Jun 2020 18:37:33 -0400
-Received: from mail.net18.km6g.us (mail.net18.km6g.us [IPv6:2607:5300:203:24b0:3::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08E2C03E96F;
-        Fri, 12 Jun 2020 15:37:33 -0700 (PDT)
-Received: from [2001:470:8afe:60:716b:c9b9:d55a:f6f1] (helo=balrog20.km6g.us)
-        by mail.net18.km6g.us with esmtp (Exim 4.93.0.4 (FreeBSD))
-        (envelope-from <kevin+linux@km6g.us>)
-        id 1jjsIm-0006C6-Oh; Fri, 12 Jun 2020 18:37:32 -0400
-From:   "Kevin P. Fleming" <kevin+linux@km6g.us>
-To:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-Cc:     "Kevin P. Fleming" <kevin+linux@km6g.us>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: [PATCH 3/3 v2] rtc: abx80x: Add support for autocalibration filter capacitor
-Date:   Fri, 12 Jun 2020 18:35:52 -0400
-Message-Id: <20200612223551.282113-3-kevin+linux@km6g.us>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200612223551.282113-1-kevin+linux@km6g.us>
-References: <20200612223551.282113-1-kevin+linux@km6g.us>
+        with ESMTP id S1725379AbgFNEEZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 14 Jun 2020 00:04:25 -0400
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF17C08C5C2
+        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:25 -0700 (PDT)
+Received: by mail-qt1-x844.google.com with SMTP id u17so10218775qtq.1
+        for <linux-rtc@vger.kernel.org>; Sat, 13 Jun 2020 21:04:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=bCgUa/CKad1+hwecpT7BSTJ3Ng4aQ8lS5YKt0H7/VhE=;
+        b=hCGjnEy9inw8B9m/p9op0VEBKNjDocy1RUxo7oekD3Ewbo34U7HWgtglqW7z8uIIUc
+         s+J9fGbFWItyyPOgSFMEv6JqsCChajgdLo1MwNDxAZQbX1vckapoGrcwZKBnekjeuasC
+         PvI0kr9eua4HBTOmpvxUWcaekQfQV0FO0+fCecFqvGXWiNEWAAchnugRgPkUWyy/rS/C
+         1tLTZ8Ze9r/48o4SepF0XXDgxkg8TkZBU3EHVWXKcVjNHQx5HCVMc9sE9AbvFBLZR0kV
+         mpDXzRe8xCrlBQKUislH8xvjPQo6fDUIPKxZdFXyAfot2V1qsjSn+vTVhijFqo7lt0Xr
+         Q2GA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=bCgUa/CKad1+hwecpT7BSTJ3Ng4aQ8lS5YKt0H7/VhE=;
+        b=f6hpEvmWVWGvMau7NenjU1IAvx4P4/EJe/623zYBSS/n/xqBQnMrF+O/HaYa+eAmjS
+         mLRps00erZaY+J0x9qeLAiA3Etlzg/X9jh1kODnOqFZADa7qktSdnZ6Xn/Zo6gx4LHTm
+         ZLK5lr2CMRWvXYzvUyDV68jspW8L7kBnZ3wpgfa45DgShpOycc+tzKKVFw1a4IDakukY
+         9XbSq0Ho/fJbV4KYbWEo+TiJARdIErZVYxxwNEFbttzGMSUWGYGIJcsBqWKiJIGIDvxW
+         wpdqXYsx5lKLl+/iJNJaN9nNudaxwVz2+dDCcu+1o73tccrd2TLCD5OmLJ3noFvFINKY
+         gNgw==
+X-Gm-Message-State: AOAM533cQ245esjOsrl0n97e5kw4lrQ9xJobFaPELJm7YcZzyQnFsj1C
+        4EiTaxEKPtI7qMyjePUOvwM8gt2V
+X-Google-Smtp-Source: ABdhPJyz7Q9tRQ5U75dPmxgC2cY/6msuMNz6Iz5s6COakJH42G+sFAhLpb6tp+FnKpntrVaE0A0KqA==
+X-Received: by 2002:ac8:7252:: with SMTP id l18mr9993796qtp.71.1592107464568;
+        Sat, 13 Jun 2020 21:04:24 -0700 (PDT)
+Received: from atris.xiphos.ca (198-48-202-89.cpe.pppoe.ca. [198.48.202.89])
+        by smtp.gmail.com with ESMTPSA id a1sm8094870qkn.87.2020.06.13.21.04.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Jun 2020 21:04:23 -0700 (PDT)
+From:   Liam Beguin <liambeguin@gmail.com>
+To:     bruno.thomsen@gmail.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org
+Subject: [PATCH v2 1/2] rtc: pcf2127: add pca2129 device id
+Date:   Sun, 14 Jun 2020 00:04:08 -0400
+Message-Id: <20200614040409.30302-2-liambeguin@gmail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200614040409.30302-1-liambeguin@gmail.com>
+References: <20200614040409.30302-1-liambeguin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
@@ -44,90 +74,61 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-All of the parts supported by this driver can make use of a
-small capacitor to improve the accuracy of the autocalibration
-process for their RC oscillators. If a capacitor is connected,
-a configuration register must be set to enable its use, so a
-new Device Tree property has been added for that purpose.
+From: Liam Beguin <lvb@xiphos.com>
 
-Signed-off-by: Kevin P. Fleming <kevin+linux@km6g.us>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-To: linux-rtc@vger.kernel.org
-To: devicetree@vger.kernel.org
+The PCA2129 is the automotive grade version of the PCF2129.
+add it to the list of compatibles.
+
+Signed-off-by: Liam Beguin <lvb@xiphos.com>
 ---
-v2: Change property to an integer value to allow user to enable or disable
- drivers/rtc/rtc-abx80x.c | 35 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+Changes since v1:
+- Document new compatible string for the pca2129
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index daa6f27040e61..8edfcefbd9058 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -77,6 +77,10 @@
- #define ABX8XX_CFG_KEY_OSC	0xa1
- #define ABX8XX_CFG_KEY_MISC	0x9d
- 
-+#define ABX8XX_REG_AFCTRL	0x26
-+#define ABX8XX_AUTOCAL_FILTER_DISABLE	0x00
-+#define ABX8XX_AUTOCAL_FILTER_ENABLE	0xa0
-+
- #define ABX8XX_REG_ID0		0x28
- 
- #define ABX8XX_REG_OUT_CTRL	0x30
-@@ -141,6 +145,26 @@ static int abx80x_is_rc_mode(struct i2c_client *client)
- 	return (flags & ABX8XX_OSS_OMODE) ? 1 : 0;
- }
- 
-+static int abx80x_set_autocal_filter(struct i2c_client *client, u8 filter_cfg)
-+{
-+	int err;
-+
-+	/*
-+	 * Write the configuration key register to enable access to the AFCTRL
-+	 * register
-+	 */
-+	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_MISC) < 0)
-+		return -EIO;
-+
-+	err = i2c_smbus_write_byte_data(client, ABX8XX_REG_AFCTRL, filter_cfg);
-+	if (err < 0) {
-+		dev_warn(&client->dev, "Unable to write autocal filter register\n");
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
- static int abx80x_enable_trickle_charger(struct i2c_client *client,
- 					 u8 trickle_cfg)
- {
-@@ -678,7 +702,7 @@ static int abx80x_probe(struct i2c_client *client,
- {
- 	struct device_node *np = client->dev.of_node;
- 	struct abx80x_priv *priv;
--	int i, data, err, trickle_cfg = -EINVAL;
-+	int i, data, err, trickle_cfg, filter_cfg = -EINVAL;
- 	char buf[7];
- 	unsigned int part = id->driver_data;
- 	unsigned int partnumber;
-@@ -824,6 +848,15 @@ static int abx80x_probe(struct i2c_client *client,
- 			return err;
- 	}
- 
-+	if (of_property_read_u32(np, "abracon,autocal_filter", &filter_cfg) == 0) {
-+		err = abx80x_set_autocal_filter(client,
-+						filter_cfg ?
-+						ABX8XX_AUTOCAL_FILTER_ENABLE :
-+						ABX8XX_AUTOCAL_FILTER_DISABLE);
-+		if (err)
-+			return err;
-+	}
-+
- 	if (client->irq > 0) {
- 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
- 		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+ Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 2 ++
+ drivers/rtc/rtc-pcf2127.c                              | 3 +++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index 18cb456752f6..c7d14de214c4 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -52,6 +52,8 @@ properties:
+       - nxp,pcf2127
+       # Real-time clock
+       - nxp,pcf2129
++      # Real-time clock
++      - nxp,pca2129
+       # Real-time Clock Module
+       - pericom,pt7c4338
+       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 4e50d6768f13..396a1144a213 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -546,6 +546,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ static const struct of_device_id pcf2127_of_match[] = {
+ 	{ .compatible = "nxp,pcf2127" },
+ 	{ .compatible = "nxp,pcf2129" },
++	{ .compatible = "nxp,pca2129" },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pcf2127_of_match);
+@@ -656,6 +657,7 @@ static int pcf2127_i2c_probe(struct i2c_client *client,
+ static const struct i2c_device_id pcf2127_i2c_id[] = {
+ 	{ "pcf2127", 1 },
+ 	{ "pcf2129", 0 },
++	{ "pca2129", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pcf2127_i2c_id);
+@@ -720,6 +722,7 @@ static int pcf2127_spi_probe(struct spi_device *spi)
+ static const struct spi_device_id pcf2127_spi_id[] = {
+ 	{ "pcf2127", 1 },
+ 	{ "pcf2129", 0 },
++	{ "pca2129", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
 -- 
-2.26.2
+2.27.0
 
