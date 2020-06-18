@@ -4,52 +4,53 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 974E9C433E0
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:33:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BB79C433DF
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:51:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 731332089D
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:33:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 093C92083B
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592447611;
-	bh=fi+m/bnr5keFuFBgdxP/afZxdbREdMtNlTV0G1uL0gs=;
+	s=default; t=1592448713;
+	bh=cuJrbmG3TmaVXuupUw8nPnl9fKIu2qpNoPb6EAre7wY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=qgVhtc1NG6exbQgYKZh4pDT20ZjAr7WCrBwPY9L91QQ6a0k9y5/jwbLIOrsjtqh2H
-	 tDr1Hx6JJ2tqtP+lrGrP+fBjscj1KMbYZpPn/bSe28E9im6AzmpIydUykhDzg+o53y
-	 6jfaEb/P1jfdmqEjzGpGW7lIeowxBRsKXdhFp3Bg=
+	b=bFf36MjL/4YMe/hR+31SzNZ/ftV6O0D+0Ifqga0S0wltqrSpSUw7FYxWqvYknzr9a
+	 Hm0E/o7uqhk28ZOC9SuIagIgJywgFrwXXwcmvcsezlEoQSOW7PwHUTiYiskgYazESs
+	 oEWxCzusEVdarAOPDL2OWJhykHDLs8ton6R2wHLY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729364AbgFRBOs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 17 Jun 2020 21:14:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44536 "EHLO mail.kernel.org"
+        id S1728200AbgFRCvw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 17 Jun 2020 22:51:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbgFRBOq (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:14:46 -0400
+        id S1727931AbgFRBIu (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49A1621D7B;
-        Thu, 18 Jun 2020 01:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DD9B2193E;
+        Thu, 18 Jun 2020 01:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442886;
-        bh=fi+m/bnr5keFuFBgdxP/afZxdbREdMtNlTV0G1uL0gs=;
+        s=default; t=1592442530;
+        bh=cuJrbmG3TmaVXuupUw8nPnl9fKIu2qpNoPb6EAre7wY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdJnBGeIV6zNiMYPEsXNmEgEOVMFz1IB7a2pbNdM8N02xXWKTReZL+ySoKyNfsgGj
-         4ZzTgILu44UL0iVSnJpM4Gq2lQ9pO0srSkAhhzSKyABUcGoKHlcdKe2pl4+KyDDDy8
-         +SvTM0Hf/CatipcqG2MOdgPHWjxtaVwtD4JgwPz8=
+        b=kqzskD90jYAIk7ndPRK5zUtMnByL2NytNBP0qQeiCgATasuD2X2OUCdYq/k/ausgg
+         BXGQsFUpR5T8gFlIK4lFzUbNZ630vJ0FcWjmI4QS5kkdB918t0S+dyCHBTzEQtwJPE
+         g998y8EQFN+PaHKvhmGi4+XkkC3LG6epNYUkXQ0A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
+Cc:     Qiushi Wu <wu000273@umn.edu>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 309/388] rtc: rv3028: Add missed check for devm_regmap_init_i2c()
-Date:   Wed, 17 Jun 2020 21:06:46 -0400
-Message-Id: <20200618010805.600873-309-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 033/388] rtc: mc13xxx: fix a double-unlock issue
+Date:   Wed, 17 Jun 2020 21:02:10 -0400
+Message-Id: <20200618010805.600873-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,34 +59,41 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit c3b29bf6f166f6ed5f04f9c125477358e0e25df8 ]
+[ Upstream commit 8816cd726a4fee197af2d851cbe25991ae19ea14 ]
 
-rv3028_probe() misses a check for devm_regmap_init_i2c().
-Add the missed check to fix it.
+In function mc13xxx_rtc_probe, the mc13xxx_unlock() is called
+before rtc_register_device(). But in the error path of
+rtc_register_device(), the mc13xxx_unlock() is called again,
+which causes a double-unlock problem. Thus add a call of the
+function “mc13xxx_lock” in an if branch for the completion
+of the exception handling.
 
-Fixes: e6e7376cfd7b ("rtc: rv3028: add new driver")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Fixes: e4ae7023e182a ("rtc: mc13xxx: set range")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200503182235.1652-1-wu000273@umn.edu
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200528103950.912353-1-hslester96@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-rv3028.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-mc13xxx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index a0ddc86c975a..ec84db0b3d7a 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -755,6 +755,8 @@ static int rv3028_probe(struct i2c_client *client)
- 		return -ENOMEM;
+diff --git a/drivers/rtc/rtc-mc13xxx.c b/drivers/rtc/rtc-mc13xxx.c
+index afce2c0b4bd6..d6802e6191cb 100644
+--- a/drivers/rtc/rtc-mc13xxx.c
++++ b/drivers/rtc/rtc-mc13xxx.c
+@@ -308,8 +308,10 @@ static int __init mc13xxx_rtc_probe(struct platform_device *pdev)
+ 	mc13xxx_unlock(mc13xxx);
  
- 	rv3028->regmap = devm_regmap_init_i2c(client, &regmap_config);
-+	if (IS_ERR(rv3028->regmap))
-+		return PTR_ERR(rv3028->regmap);
+ 	ret = rtc_register_device(priv->rtc);
+-	if (ret)
++	if (ret) {
++		mc13xxx_lock(mc13xxx);
+ 		goto err_irq_request;
++	}
  
- 	i2c_set_clientdata(client, rv3028);
+ 	return 0;
  
 -- 
 2.25.1
