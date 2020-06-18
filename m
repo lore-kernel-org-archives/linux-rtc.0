@@ -1,83 +1,92 @@
-Return-Path: <SRS0=RBPv=76=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=1/6C=77=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB9F9C433DF
-	for <linux-rtc@archiver.kernel.org>; Wed, 17 Jun 2020 22:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDEAC433E2
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:13:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E6A12083B
-	for <linux-rtc@archiver.kernel.org>; Wed, 17 Jun 2020 22:22:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1CB620884
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592432574;
-	bh=TOUdlwiuSWOEfadPXcx+Kwk5gfa8Nks7tFZharF2H8M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=R0GCPwoPHg6gGdCLr8rEiPWr77k75x1C2xpVKZtAsrkAJqEDQu1iNONdrsx/fKYjA
-	 Y0GgvDxJvzTCT4GmqAab/ffLlKpXM7N4wYqrVgUcTShNIvookBseF/2TwXPAGJ5okt
-	 45bhMJWQJUc30almqX4XoPRVu2qqaR3zfW28i5oc=
+	s=default; t=1592446405;
+	bh=V1BId12uSoolr+WcFpAa8OHqviwoXkyblC6LBzMULIU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=CITjaRCW9sEFVqzFhdwELFgq6KiSfC4BSYN+BDRuzqbLNUM1JGaberj6pxvcEq6eQ
+	 ikdA57Pp+0l4X5wHvY5KRPLbzs7W9G/WY3g3ci5tHcrePpVYrvbgygCBq3LlH+VQ1Y
+	 xCCEynbKq3Y7n1FUw33+FOd3fSgJHpBH8lthxots=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726909AbgFQWWy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 17 Jun 2020 18:22:54 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:36200 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726864AbgFQWWx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 17 Jun 2020 18:22:53 -0400
-Received: by mail-io1-f66.google.com with SMTP id r77so4845765ior.3;
-        Wed, 17 Jun 2020 15:22:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=cZs4DMmV9+4KYcd4h6vQwLKgeDMHogArG6hcyQ007uM=;
-        b=gVpbsZdEhDysjWmMMcZ4tiUNZtAM3zl10CcYwhLlqY5hGMcf2B6+s0hGcjlelrYQCZ
-         YO8jpRlpvN5ABhgYIW0AUo4rhIT6wqSxZYKPXUrcpUbBXDCZIeVjM7Umw9LsYkujXRu+
-         4R/SzzQ7Dvd5MP5smw8JbwOywzng5X7EAhJVV6Jb61Ojsv//cGMdPHjAJZ5+DKihlQtH
-         ukV8h3eM/PdZD/GORy7dCUmFpmzQAuSQsa+2bLG4BNEa35q9bqb98jCNXyXR7ztC70pW
-         HXzDT/5HisCyfdLT9o+N25AQfpRGnFbgpyVZdMGfC2yEFAdg7pWykaW/5zX3aTrFTft0
-         X19A==
-X-Gm-Message-State: AOAM530Vw36zdgWdGqHhW7pb8tQ+X1NylqBkMXSKgo182Rtelffe8BIx
-        i7cf7hAIbceK4fnWQ+eTEg==
-X-Google-Smtp-Source: ABdhPJwVLzRisP+uIxnL1NbxlXTfqVaPm1HmkXIu0ChWO56rldgx6wkKleV2KmMwEts15aMvaS5Bcw==
-X-Received: by 2002:a6b:8d44:: with SMTP id p65mr1805887iod.24.1592432571789;
-        Wed, 17 Jun 2020 15:22:51 -0700 (PDT)
-Received: from xps15 ([64.188.179.253])
-        by smtp.gmail.com with ESMTPSA id p25sm630019iog.47.2020.06.17.15.22.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2020 15:22:51 -0700 (PDT)
-Received: (nullmailer pid 2941342 invoked by uid 1000);
-        Wed, 17 Jun 2020 22:22:48 -0000
-Date:   Wed, 17 Jun 2020 16:22:48 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Claudiu Beznea <claudiu.beznea@microchip.com>
-Cc:     linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
-        ludovic.desroches@microchip.com, maz@kernel.org,
-        jason@lakedaemon.net, nicolas.ferre@microchip.com,
-        linux-rtc@vger.kernel.org, tglx@linutronix.de,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] dt-bindings: rtc: add microchip,sam9x60-rtt
-Message-ID: <20200617222248.GA2941290@bogus>
-References: <1591779936-18577-1-git-send-email-claudiu.beznea@microchip.com>
- <1591779936-18577-3-git-send-email-claudiu.beznea@microchip.com>
+        id S1729902AbgFRCNT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 17 Jun 2020 22:13:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53506 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730444AbgFRBVF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:21:05 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CECF221E8;
+        Thu, 18 Jun 2020 01:21:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592443264;
+        bh=V1BId12uSoolr+WcFpAa8OHqviwoXkyblC6LBzMULIU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=u3EDawFqcqLP09465HqCcdCqm7JixB220Hi1k8oxscQskUiOqw9WkPAGxaQmQbJty
+         GtEsvafEZkdikGoWXGbyT/fDM0QnPUXuFbp6kHmmHIXhHjM2BEWrKpbtEQ8bsuYDET
+         GcwLQon/Df2EALWngtdgwCCUIr8HelPSW0qlJnpk=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 211/266] rtc: rv3028: Add missed check for devm_regmap_init_i2c()
+Date:   Wed, 17 Jun 2020 21:15:36 -0400
+Message-Id: <20200618011631.604574-211-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
+References: <20200618011631.604574-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1591779936-18577-3-git-send-email-claudiu.beznea@microchip.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 10 Jun 2020 12:05:35 +0300, Claudiu Beznea wrote:
-> Add microchip,sam9x60-rtt to compatible list.
-> 
-> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-> ---
->  Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
+From: Chuhong Yuan <hslester96@gmail.com>
 
-Acked-by: Rob Herring <robh@kernel.org>
+[ Upstream commit c3b29bf6f166f6ed5f04f9c125477358e0e25df8 ]
+
+rv3028_probe() misses a check for devm_regmap_init_i2c().
+Add the missed check to fix it.
+
+Fixes: e6e7376cfd7b ("rtc: rv3028: add new driver")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20200528103950.912353-1-hslester96@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/rtc/rtc-rv3028.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index 2b316661a578..bbdfebd70644 100644
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -625,6 +625,8 @@ static int rv3028_probe(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	rv3028->regmap = devm_regmap_init_i2c(client, &regmap_config);
++	if (IS_ERR(rv3028->regmap))
++		return PTR_ERR(rv3028->regmap);
+ 
+ 	i2c_set_clientdata(client, rv3028);
+ 
+-- 
+2.25.1
+
