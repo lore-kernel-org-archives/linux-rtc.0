@@ -2,94 +2,163 @@ Return-Path: <SRS0=1/6C=77=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0932C433E3
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4520C433E0
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 07:33:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1DA120899
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 02:53:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592448805;
-	bh=pvXFFlikRX1sr0H7u04Pi2QjezLjA5EYEWdtSY9EDks=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=TMMiOf5Hl6b035WH4pXPXj6izoiuVM2YXjBYy9VHQKFBQQZ0teHB4gk4iicYzuu6d
-	 HSqlXdoGXeiTNnrwT2ypDH3ZHdu1a/mEKbrxnBsjUsneSvvUwhpnincoJsxfRQRXUv
-	 wIOrwNhEBo+9LVjAfJ+bSCV2gsi7Dm0tqQRD3QEQ=
+	by mail.kernel.org (Postfix) with ESMTP id AE996212CC
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 Jun 2020 07:33:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726906AbgFRBIN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 17 Jun 2020 21:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726986AbgFRBIM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:12 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD35621D7B;
-        Thu, 18 Jun 2020 01:08:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442492;
-        bh=pvXFFlikRX1sr0H7u04Pi2QjezLjA5EYEWdtSY9EDks=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnJTmIZWeMZk1tYbtjRiCc4iC1FDfRsOyhoZn4OJXKgcI7D8fZ91lC901QYWE/My+
-         saGoRCFV3hcNy53YpPjC4IALdZUnMypHmqgby+Le/waop6xm4KZV0Nzm+XohFL8Ehu
-         ToX5dZcFOrQu6taC2zAg1vGtKR7XXEKEKputDraY=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        id S1728072AbgFRHdp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 Jun 2020 03:33:45 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:47028 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727010AbgFRHdo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 Jun 2020 03:33:44 -0400
+Received: by mail-lf1-f65.google.com with SMTP id m26so2848295lfo.13;
+        Thu, 18 Jun 2020 00:33:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=V2LuQUDFIIF5jl6wVGVy4hB7QYtw6Q/zQUKKaqApImE=;
+        b=l7AhaIAlb31RPWcK/9tcQ8cCMaCr/3LP5PBkT5uoCdpwUGNXsYGHLxL4V6kjtlFius
+         BegrRLPAGfK0LQqFWGIc6j3/lk4xbJ/hSiTlKHQzbCQ3uX+Og3+YdiQpVMj7yUoHm6ob
+         05L6JFD9YMCv7k2G7WUBZ3T6aDDSwL1nbPitw3U8Qu9ff3fQZv69b/XFBzNZPUGtBkfD
+         c7ERRjAioiCDwkX0xiWAUZ81dCkVkJchWHTbPAgjiigx5Qjqh8AXme+0i1BVQzP8Coep
+         pYS6ij0tOC9yYH9EK+QLm9gcO5LjaypngiAid4BG4+Cq5i47t7x2YVVrDDywJI/Vf/gF
+         CL4Q==
+X-Gm-Message-State: AOAM530oghh3svvxFpJTtD1uVs01DzPJpq1+o2zNOcy79Hi+nTQnB3tB
+        mDzGqnLj8gVIfBjdKVzzc1M=
+X-Google-Smtp-Source: ABdhPJzhQPwQhZT7ChJeJQe7xVV2nqchjeSaUQ5xsLwlnbL7h83g4iEGu5DcJ3yDKPIb2+wZBqaZmw==
+X-Received: by 2002:a19:8252:: with SMTP id e79mr1610797lfd.103.1592465621241;
+        Thu, 18 Jun 2020 00:33:41 -0700 (PDT)
+Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
+        by smtp.gmail.com with ESMTPSA id u13sm453118ljo.75.2020.06.18.00.33.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2020 00:33:40 -0700 (PDT)
+Date:   Thu, 18 Jun 2020 10:33:31 +0300
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
+Cc:     Sebastian Reichel <sre@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Lee Jones <lee.jones@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 005/388] rtc: rc5t619: Fix an ERR_PTR vs NULL check
-Date:   Wed, 17 Jun 2020 21:01:42 -0400
-Message-Id: <20200618010805.600873-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
+        linux-power@fi.rohmeurope.com, linux-kernel@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v2] MAINTAINERS: Add entry for ROHM power management ICs
+Message-ID: <20200618073331.GA9403@localhost.localdomain>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+Add entry for maintaining power management IC drivers for ROHM
+BD71837, BD71847, BD71850, BD71828, BD71878, BD70528 and BD99954.
 
-[ Upstream commit 11ddbdfb68e4f9791e4bd4f8d7c87d3f19670967 ]
-
-The devm_kzalloc() function returns NULL on error, it doesn't return
-error pointers so this check doesn't work.
-
-Fixes: 540d1e15393d ("rtc: rc5t619: Add Ricoh RC5T619 RTC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200407092852.GI68494@mwanda
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Acked-by: Sebastian Reichel <sre@kernel.org>
 ---
- drivers/rtc/rtc-rc5t619.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Morning Lee - could you take this in MFD? This is scattered all around
+different subsystems anyways... I guess crafting bunch of patches to
+each individual subsystems would just end up with lots of merge
+conflicts.
 
-diff --git a/drivers/rtc/rtc-rc5t619.c b/drivers/rtc/rtc-rc5t619.c
-index 24e386ecbc7e..dd1a20977478 100644
---- a/drivers/rtc/rtc-rc5t619.c
-+++ b/drivers/rtc/rtc-rc5t619.c
-@@ -356,10 +356,8 @@ static int rc5t619_rtc_probe(struct platform_device *pdev)
- 	int err;
+Changes from v1:
+- Dropped patch 2/2 (linear-ranges maintainer) which was already applied by Mark
+- Added shiny new ROHM linux-power list so that I am no longer the lonely
+  poor sod watching these at ROHM side :)
+- sort few files to alphabethical order as checkpatch now nagged about
+  that.
+
+v1 was here:
+https://lore.kernel.org/lkml/e11366fd280736844ae63791b6193bb84d6205bf.1589866138.git.matti.vaittinen@fi.rohmeurope.com/
+
+
+ MAINTAINERS | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 68f21d46614c..ce08617f63f5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14704,6 +14704,13 @@ L:	linux-serial@vger.kernel.org
+ S:	Odd Fixes
+ F:	drivers/tty/serial/rp2.*
  
- 	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
--	if (IS_ERR(rtc)) {
--		err = PTR_ERR(rtc);
-+	if (!rtc)
- 		return -ENOMEM;
--	}
++ROHM BD99954 CHARGER IC
++R:	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
++L:	linux-power@fi.rohmeurope.com
++S:	Supported
++F:	drivers/power/supply/bd99954-charger.c
++F:	drivers/power/supply/bd99954-charger.h
++
+ ROHM BH1750 AMBIENT LIGHT SENSOR DRIVER
+ M:	Tomasz Duszynski <tduszyns@gmail.com>
+ S:	Maintained
+@@ -14721,6 +14728,31 @@ F:	drivers/mfd/bd9571mwv.c
+ F:	drivers/regulator/bd9571mwv-regulator.c
+ F:	include/linux/mfd/bd9571mwv.h
  
- 	rtc->rn5t618 = rn5t618;
- 
++ROHM POWER MANAGEMENT IC DEVICE DRIVERS
++R:	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
++L:	linux-power@fi.rohmeurope.com
++S:	Supported
++F:	Documentation/devicetree/bindings/mfd/rohm,bd70528-pmic.txt
++F:	Documentation/devicetree/bindings/regulator/rohm,bd70528-regulator.txt
++F:	drivers/clk/clk-bd718x7.c
++F:	drivers/gpio/gpio-bd70528.c
++F:	drivers/gpio/gpio-bd71828.c
++F:	drivers/mfd/rohm-bd70528.c
++F:	drivers/mfd/rohm-bd71828.c
++F:	drivers/mfd/rohm-bd718x7.c
++F:	drivers/power/supply/bd70528-charger.c
++F:	drivers/regulator/bd70528-regulator.c
++F:	drivers/regulator/bd71828-regulator.c
++F:	drivers/regulator/bd718x7-regulator.c
++F:	drivers/regulator/rohm-regulator.c
++F:	drivers/rtc/rtc-bd70528.c
++F:	drivers/watchdog/bd70528_wdt.c
++F:	include/linux/mfd/rohm-bd70528.h
++F:	include/linux/mfd/rohm-bd71828.h
++F:	include/linux/mfd/rohm-bd718x7.h
++F:	include/linux/mfd/rohm-generic.h
++F:	include/linux/mfd/rohm-shared.h
++
+ ROSE NETWORK LAYER
+ M:	Ralf Baechle <ralf@linux-mips.org>
+ L:	linux-hams@vger.kernel.org
+
+base-commit: b3a9e3b9622ae10064826dccb4f7a52bd88c7407
 -- 
-2.25.1
+2.21.0
 
+
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
+
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
+Simon says - in Latin please.
+~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
+Thanks to Simon Glass for the translation =] 
