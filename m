@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43441C433E1
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Jun 2020 16:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7713EC433E1
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Jun 2020 16:44:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24574217A0
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Jun 2020 16:37:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58DE321527
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Jun 2020 16:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1592584652;
-	bh=ve5sv8gFv7HyvXD4yB6SaZpZw1HlQaywAYRES+51m3s=;
+	s=default; t=1592585072;
+	bh=f1V455MIpPmgMu8VkJ6CW9z6ZykWPwkYorbzYRpxZvE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=BMmWutD0sAosuQo+rgYQHteL9Ov/YWHphsTHJ9GmepG4tA8xYhqCfM49B9qeCVhJr
-	 HKpp93tjktrhQmrFpVu6Rxc4ZP3kSsW6jF1j5uGuv4CbCUYeWPgX2BpsQxu7QlGC8s
-	 DPsnCwqc7mlG5rrRP++2dKkmQhGgf3Ja6WrwKIHU=
+	b=pFNKhBGvplH7Ino02i3iRD0vVocDWaRDHPxdrqkL9vh9KXe/k3crDBQAhFUlBsr9e
+	 viVg2jOsD1cm00FE90ZhqANwsVL4oowT8EaLYXItu5JwZYb8qQSBaewUaVKtYCP9nh
+	 PW5bxjhCBrSMjjBaodm5u694cxMvBQOjwSjaH2lA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395171AbgFSQhU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Jun 2020 12:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
+        id S2395448AbgFSQo1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Jun 2020 12:44:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389114AbgFSOsl (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:48:41 -0400
+        id S2388446AbgFSOnN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DD9320DD4;
-        Fri, 19 Jun 2020 14:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4814C2166E;
+        Fri, 19 Jun 2020 14:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578121;
-        bh=ve5sv8gFv7HyvXD4yB6SaZpZw1HlQaywAYRES+51m3s=;
+        s=default; t=1592577792;
+        bh=f1V455MIpPmgMu8VkJ6CW9z6ZykWPwkYorbzYRpxZvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uasq3+i10zLuwbruq54uDa7MlQR45RsLcu0xPnaCDbJtneAg/76y7kfK3RTpV2hYw
-         WLSBdpN1Dgf2DEe1ucNiD7E2R8NTG9xTktYPqtY2lFGrheh5F8Nxt8fDDvzNtkSJLY
-         JF2ankGp7G8gsNiCw4dziYOvhSsWZVTqzN8ZszK0=
+        b=1D8NxPH4k7GqzRZxb8VbpiIcyPsYSVb2K77lTQrnu6JwVf05oSpvAhnRP8KYJlQ32
+         nx81RWc225zUSbdlMiVIqE80xVjlW6QHQWzMIptOnLubbfN0m8cd75ZBqAawK9vyR4
+         IGP7RHPsRqbSz7XhtwcmBYYvpwAz0jIG1J4wmiVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -54,12 +54,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 089/190] clocksource: dw_apb_timer_of: Fix missing clockevent timers
-Date:   Fri, 19 Jun 2020 16:32:14 +0200
-Message-Id: <20200619141638.035550445@linuxfoundation.org>
+Subject: [PATCH 4.9 062/128] clocksource: dw_apb_timer_of: Fix missing clockevent timers
+Date:   Fri, 19 Jun 2020 16:32:36 +0200
+Message-Id: <20200619141623.495923419@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -112,7 +112,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 69866cd8f4bb..3e4d0e5733d3 100644
+index aee6c0d39a7c..024e6cc5025b 100644
 --- a/drivers/clocksource/dw_apb_timer_of.c
 +++ b/drivers/clocksource/dw_apb_timer_of.c
 @@ -146,10 +146,6 @@ static int num_called;
