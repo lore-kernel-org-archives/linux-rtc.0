@@ -8,31 +8,31 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D809C433DF
-	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E981BC433DF
+	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:44:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F016924728
-	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6B5924732
+	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:44:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="FvOk5311"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="CFnOTQM3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728803AbgFTWnd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 20 Jun 2020 18:43:33 -0400
-Received: from mout.gmx.net ([212.227.17.22]:43239 "EHLO mout.gmx.net"
+        id S1729071AbgFTWoE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 20 Jun 2020 18:44:04 -0400
+Received: from mout.gmx.net ([212.227.17.20]:60347 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728708AbgFTWna (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 20 Jun 2020 18:43:30 -0400
+        id S1728547AbgFTWoD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 20 Jun 2020 18:44:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1592692949;
-        bh=fz9iJvS+IQADqhRoQ/zH92wyy5n1baG4XghBRzehFfE=;
+        s=badeba3b8450; t=1592693004;
+        bh=VyVCIBxPFyt78YSnxS+0Id2tmE8pzSJjUVG0PtP0FGo=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=FvOk5311cG2uyND48G8BKzya2u9fpnzaHK8YmvdJKt7M50kVWwih9sHWwaiS8M3sP
-         BtgpHe3JYcdxUgJFJre3O6v7nIwP2dOB7jUccvNBJwfy5UfqbDmKfa04CvoyXDhH6P
-         7zDO9qrru+atBrEKXrG6QomzjJG03XZj3te4JOE4=
+        b=CFnOTQM3hDO8qn9SOfaIxccrUDsONIICDvI+jIsmU+SlgaKoyLBeI2FNpplaFvAWy
+         6vY1mnLluuZd7IZt/swaQFqEX18Q7jG2KaUvebExAJHnaAawbBx2eqD9VRW6+OUS7b
+         rt5yw5PsHF5ZMIRapjiBMysuRzC8UMFUS1FKtUgw=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
 Received: from longitude ([5.146.194.186]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MIx3C-1jSVUF2jyU-00KNXT; Sun, 21
- Jun 2020 00:42:29 +0200
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MkYbu-1j0qH413NO-00m7VT; Sun, 21
+ Jun 2020 00:43:24 +0200
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,123 +60,106 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Josua Mayer <josua.mayer@jm0.eu>,
         Andreas Kemnade <andreas@kemnade.info>
-Subject: [RFC PATCH 03/10] dt-bindings: mfd: Add binding for Netronix's embedded controller
-Date:   Sun, 21 Jun 2020 00:42:14 +0200
-Message-Id: <20200620224222.1312520-2-j.neuschaefer@gmx.net>
+Subject: [RFC PATCH 10/10] ARM: dts: imx50-kobo-aura: Add Netronix embedded controller
+Date:   Sun, 21 Jun 2020 00:42:21 +0200
+Message-Id: <20200620224222.1312520-9-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200620224222.1312520-1-j.neuschaefer@gmx.net>
 References: <20200620224222.1312520-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:QskTcHILhGvocIQPvfd8FUOVQFGG/i9pz7IBgR13JIg2w4J5Spj
- zrU3wG1ZFT6FxWvc0CbTK0QAWqyc7FSbsTspi1g6jgJSJXPbILQ+pCY46jXupZggraGL8iV
- Rk7sUAPsGFeqgYHzkkEhQlrzu2z2aTn9MM+dYYhYIcaanJTQ/BG4Q71Nqo5cuZYC6A17THV
- I1j1Nb56pjLV5QKAV6+gQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:QtZPHCNxCyc=:IUkoyC/pOkJHsLV5zwhJyy
- +cWf4MfNeJK2AUnWJzPpNA2DY+10efIyXrp7CC3rd3nu54sRs2pfKTwbamsgIEq9+TRMVL505
- RieT9GtFm7qKvtkBGFp1k4OYAI7MUZkclyHw+ko7h1RyrqtBGUTlOCKzTxjI0zRgfbS1mQort
- W1ik/LnXWBkbcb/GYtZ82IguXGVLJZHweOs+zcNeDfxf3bb4urQC57MVO7Is4amG/CaoMvrH8
- c4aOHxNg8kra24qicrEmtWbreY492foqYxkqq3zsKErPtcilZVRjzyvbezT+6xhTRpoT6l8+W
- YfttDhcNAnRPG/XRNbun1iiKd8s7tqa3Ha01yPr90vryIUFgHxMhEBBCsjSvWj9xh5UgHvlZX
- Np4vfDVa2DKXYxnhKy0LSD7qjCrkxooEdfpg1ho0wpu1rq7XDwgWnKPaJjUo43jQMR9Q8VgjS
- 0wGvS+XvOzSHlWBu7LcJIm3dQbRZiCbFkLOD5AIYCoMo+pAdq7K302CEDJXRCeMUO3gymlNkO
- hm9JHIZFR4rs0gH2Yo1GD+uSb+09JnMt3ktmjCRpLcpxtFyB4xRgIlE8cBzOAnvcKD7/FLUAP
- x9BB4uH1F80Tib2N78Aq9cNhkRgVLydhT+qY37+KjO2dSbeWgvNQW2JzknBQEoSazqg7FGveP
- dqxxQrV0U3nTUYwUVMEGz/Lo/UldmmI/zXYNhpslQVGpHA5xjoSW360NeR5yrB9wSuHC3D7gX
- aMg0/Ik4N7hmp2ZPdPIAmXpbgUbjRQYL9yQvgmJ3Hzdj3lHvoq2YuGZKhMrMpJnr9XWnzWRax
- n0ng6pQdSlDxF//bvdwQSaiS5HWvhUHf8/J4kYQytqAWGTkGfJNusJdOyX++E7xaq+C+e6Tys
- kK7JYM/Jh+m4n9WJVo7gqAgWaX1AdIKOJa05nfaXoC9dqI8khc1PbKgCL2Lt/lhenqU0sNapX
- WeNEYn2wpOn3KrmevFcSPnTHF7mW9HV/VQQ+uhEOHckdMehtskSlHFV1EQmnl9iBLF5jCUBYf
- TXeqkYX9X6r/XWOgRxIOwRfJVFqINXgnqymozObNFFFQ5yUnhiiyhdwNU/F4opc9lxxPt1q5Z
- nxDuMP6e6qRkjU2QwdI9fNmhkVxeGu5bF9yxrfuvYMJkt4wQHbm+nuvCjAYG92JC86F8bwH3C
- v6A4EaLyXoaBXo+1ES5jqSJeiPZQ3kZ9tU1qIHkY9njfZcN1oWzyf6+h3rAjfKigCjNyxDWLN
- 7x7HZkTLOWToUzmip
+X-Provags-ID: V03:K1:4FNCq66znOgeVyoZjrNrgMQNLnnTq7LrgHosR3ZKBWDuWQR51Y9
+ hYPhfmsJMKVLhNUIXKWpXJ8DaN+Mi7bhYl3wdJNS0UubbVPRgXNfjSkkZ5Sakhi9Sdwyrqb
+ n/bhq7zcYZO6wnOqrkTvllNX/Rorn0iDQKN/y2kqkLi3twA6ydDRZZjvdVGpX8tOPT+hgXi
+ qyEaws9q/M2HxQVCbgODg==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:UY/7ZGF2UsM=:2TV1b5ihDM1IbSjjYU1cq1
+ RurzmoY+h7ogNf0pk+B8diNEMciUuUtbF+eEBnMAlAYZQAeyf7ODTcGaAYuxubkKzrw6pRrKJ
+ u7YKup/L3RbNQoPDjcWXk4fy6YId5jZy64LSPR1WidU++P1QdFUMTRGMWdhQZRHO2wIaO1BZn
+ pHCfee3VGUHyqGqVCsLTVs+nflPhgABgpwXuXsfcI7/8A6YfGAsPsMbNIyWSZ9tHEGmFYIrXV
+ 9sw+s9jn3cymB1+YgQBkvFyB3pz5SCd4jYb11PbjEXKNeBh8PslQ240dM4MRaMPBzmpsfqKzd
+ KqKZ9BV56kgqBZ0rqvOt+lJiaiIHTK5vvbTwOq4x5h0CL1x2Y7X2N8h2G0eGp8UFoJKBezwZ/
+ bptNe9he5o2CR60qp6N7yD0sKvcY0Zven21jgG1dd8+DHfVHZ1rN2XY2vM5U/W0niVLm/JVfB
+ gZ33qS2Thm0GwLuVsIxhLIKT0ZlBEUFS4VhQNhi98hXbiiZYHHR53hFQzWiP1sKO3z4Our42E
+ 0IVOARxJspuAOEqe+aXN1hCpwcfpDg+BWJ7dgKhX4N+Fnp9gHg+7KNHXbkzcIqP3V92O0rPba
+ M9ftV0TJkC6NfKOo/SJasHwCVxlJFzkbHcbK57O4PNMZ3cxmyVNamvu46vkMKdKRcqk/EJAQq
+ 5gia4k5YBdK+aeFaDR09cV714TJyM6Dd7A/B79plDwQs/lzQiRlQLF0dmiJwtLG7fo6xX5evk
+ 7RPAZWCIjix7UrczoIc39V/7i7ymswXVcynXVEd0ujyQOmWG1o3RzWj450uvLgZToixsKuuUq
+ KGZmeDaq8Or82WumlQWOQrcyRQs8dI/KM0xj/TwIUJXahH4mAfR10uTlxIFg0sLxYZognpgVP
+ qDruGDJNBKefU/b+VzCyuE+Mda+XtDSapia4GD9fseEy/7U2DRmZ36JKDE63uKdgfZtlFXuv4
+ A1cEFebGf3D/i8AJaFUFevkThCFTLPmDye9CabeWM486RdZriVTukJ920ITC2cAWzpAvJV93p
+ XAsaI1gazr2r4BfRSecIP0hsrjuO7zsDsCAWskQTzEQ4rXEshJ1HGGFJuiIEeT9lcxPRspQmB
+ O5GzmmA+VzRqk1K63LwvFdcz0X6nWMfZjvFiFUlHSpceygtOdqA11RG8sx5tyYrT4n1tlI7Xc
+ ijf+a/KpCxLlVe1eTikWgm3UKYCPw6bjRo7MVI9Euzi3A+UP97FKrDiq8RN+x9J1Z4DzjO667
+ BmUzrKMJbsAVFhh5M
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This EC is found in e-book readers of multiple brands (e.g. Kobo,
-Tolino), and is typically implemented as a TI MSP430 microcontroller.
+Enable the Netronix EC on the Kobo Aura ebook reader.
 
-It controls different functions of the system, such as power on/off,
-RTC, PWM for the backlight. The exact functionality provided can vary
-between boards.
+Several features are still missing:
+ - Frontlight/backlight. The vendor kernel drives the frontlight LED
+   using the PWM output of the EC and an additional boost pin that
+   increases the brightness.
+ - Battery monitoring
+ - Interrupts for RTC alarm and low-battery events
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 =2D--
- .../bindings/mfd/netronix,ntxec.yaml          | 57 +++++++++++++++++++
- 1 file changed, 57 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/netronix,ntxec.y=
-aml
+ arch/arm/boot/dts/imx50-kobo-aura.dts | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml b/D=
-ocumentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-new file mode 100644
-index 0000000000000..596df460f98eb
-=2D-- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-@@ -0,0 +1,57 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/netronix,ntxec.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/arch/arm/boot/dts/imx50-kobo-aura.dts b/arch/arm/boot/dts/imx=
+50-kobo-aura.dts
+index a0eaf869b9135..003a7d894902c 100644
+=2D-- a/arch/arm/boot/dts/imx50-kobo-aura.dts
++++ b/arch/arm/boot/dts/imx50-kobo-aura.dts
+@@ -6,6 +6,7 @@
+ /dts-v1/;
+ #include "imx50.dtsi"
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+
+ / {
+ 	model =3D "Kobo Aura (N514)";
+@@ -135,10 +136,34 @@ &i2c3 {
+ 	pinctrl-0 =3D <&pinctrl_i2c3>;
+ 	status =3D "okay";
+
+-	/* TODO: embedded controller at 0x43 */
++	embedded-controller@43 {
++		pinctrl-names =3D "default";
++		pinctrl-0 =3D <&pinctrl_ec>;
++		compatible =3D "netronix,ntxec";
++		reg =3D <0x43>;
++		system-power-controller;
++		interrupts-extended =3D <&gpio4 11 IRQ_TYPE_EDGE_FALLING>;
++		interrupt-controller;
++		#interrupt-cells =3D <1>;
 +
-+title: Netronix Embedded Controller
++		ec_pwm: pwm {
++			compatible =3D "netronix,ntxec-pwm";
++			#pwm-cells =3D <2>;
++		};
 +
-+maintainers:
-+  - Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
++		rtc {
++			compatible =3D "netronix,ntxec-rtc";
++		};
++	};
+ };
+
+ &iomuxc {
++	pinctrl_ec: ec {
++		fsl,pins =3D <
++			MX50_PAD_CSPI_SS0__GPIO4_11		0x0	/* INT */
++		>;
++	};
 +
-+description: |
-+  This EC is found in e-book readers of multiple brands (e.g. Kobo, Tolin=
-o), and
-+  is typically implemented as a TI MSP430 microcontroller.
-+
-+
-+properties:
-+  compatible:
-+    const: netronix,ntxec
-+
-+  reg:
-+    items:
-+      - description: The I2C address of the EC
-+
-+  system-power-controller:
-+    type: boolean
-+    description: See Documentation/devicetree/bindings/power/power-contro=
-ller.txt
-+
-+  interrupts:
-+    minItems: 1
-+    description:
-+      The EC can signal interrupts via a GPIO line
-+
-+required:
-+  - compatible
-+  - reg
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
-+
-+            ec: embedded-controller@43 {
-+                    pinctrl-names =3D "default";
-+                    pinctrl-0 =3D <&pinctrl_ntxec>;
-+
-+                    compatible =3D "netronix,ntxec";
-+                    reg =3D <0x43>;
-+                    system-power-controller;
-+                    interrupt-parent =3D <&gpio4>;
-+                    interrupts =3D <11 IRQ_TYPE_EDGE_FALLING>;
-+                    interrupt-controller;
-+                    #interrupt-cells =3D <1>;
-+            };
-+    };
+ 	pinctrl_gpiokeys: gpiokeys {
+ 		fsl,pins =3D <
+ 			MX50_PAD_CSPI_MISO__GPIO4_10		0x0
 =2D-
 2.27.0
 
