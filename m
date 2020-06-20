@@ -5,34 +5,34 @@ X-Spam-Level:
 X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B8B3C433E1
-	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB5DDC433E1
+	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 591692473D
-	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C436824728
+	for <linux-rtc@archiver.kernel.org>; Sat, 20 Jun 2020 22:43:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="JJlLzu+E"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="jXPADqgs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728433AbgFTWnj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 20 Jun 2020 18:43:39 -0400
-Received: from mout.gmx.net ([212.227.17.21]:45831 "EHLO mout.gmx.net"
+        id S1729108AbgFTWns (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 20 Jun 2020 18:43:48 -0400
+Received: from mout.gmx.net ([212.227.17.20]:40865 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728955AbgFTWng (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 20 Jun 2020 18:43:36 -0400
+        id S1728401AbgFTWne (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 20 Jun 2020 18:43:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1592692947;
-        bh=OudamScKxsSwesQWI5fhg8i4uztyIzbbtXHCU+btXqg=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=JJlLzu+EP2kHN1UTDpUwB6LsqYgcAztufiCAgWCcxVFKraKCiYMrmS+mXlItATNNc
-         Ar2ZNr4QuMEd1/btmPM4zx9DQe1/1C/Ki4Grla16r4HglxaDLrhr3slsSc2iXWxzcg
-         iPLI2pWnBBJ38Vv5EeauBsNsISVxdiCIdDGhLFy8=
+        s=badeba3b8450; t=1592692960;
+        bh=quWpSURYzI37HAY+ZRXyoXMx0x6xymIR9XadTNWbOm0=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=jXPADqgsQRfGRq3jn39dE8CWtm9UG80OHy4kt1PrelCzVkXkybJYMQphTkqHVBJPP
+         YLLnHZSdABYy1qBb26AMLiEERbuGCVV7DGKhldESZJ8O/um3jRfTMWYVgUr0dpqXBl
+         H2aQzH9d7skrZZ34gaihGa/eIu/8MAeG72wXESfI=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([5.146.194.186]) by mail.gmx.com (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1M4s51-1jlPPh33Ch-0022vZ; Sun, 21
- Jun 2020 00:42:26 +0200
+Received: from longitude ([5.146.194.186]) by mail.gmx.com (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MybGX-1ixHWs3fLx-00yvXe; Sun, 21
+ Jun 2020 00:42:40 +0200
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,66 +60,121 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Josua Mayer <josua.mayer@jm0.eu>,
         Andreas Kemnade <andreas@kemnade.info>
-Subject: [RFC PATCH 02/10] dt-bindings: Add vendor prefix for Netronix, Inc.
-Date:   Sun, 21 Jun 2020 00:42:13 +0200
-Message-Id: <20200620224222.1312520-1-j.neuschaefer@gmx.net>
+Subject: [RFC PATCH 07/10] dt-bindings: rtc: Add bindings for Netronix embedded controller RTC
+Date:   Sun, 21 Jun 2020 00:42:18 +0200
+Message-Id: <20200620224222.1312520-6-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200620224222.1312520-1-j.neuschaefer@gmx.net>
+References: <20200620224222.1312520-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:yZqldghSPumPDLmSQbkIreQsfprG56cHRfGVJLO/YVdhlg8pdjP
- qZiYkkWMBRqMgwiDDZxJ/FCfw8bxfnQru0qx9L7azU4/GJDQAEj3hBxzxC5XMdXgaq80k6Y
- SHT+PXTXWZyf8p9LmwX14SH2+bFjtxTBBb9kbDuWJfCuNiZWshywX2QCJaoqMczHJC6Q/50
- JgFxTAZrllSeaBrtPHSFQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:do6d/UNjmsA=:R9Ie587I12yWywA8J5SpSB
- BLF9Oth0uc8kZzgmzZ4+u54wt5yGQoaFfnpyHNx4l7IyNaDg6+/+R/f1hgPMu85eYY5HE09ge
- bFeuKAfPblPLjhk0gxae1vikVfpqrY6RpY8N5eF3Xa9+zkrpqK4Y89pTbt/tflnz2axOUyiu0
- BvAA44P73R7IBIZ8spCb0xBlEBH3SzTHQ8G/xDG7QHTuO8Nu/6jGu0nDuRW58tKjlP8wVDFTf
- ZzI9LiHs6GpZ78j9HiXl6PekpypY+lpzMEUnH27lemTM4RJsYLGbIwfBZL+heIywhQX97MHAb
- 5SL6uP52Mi69J2ULGvkXFHkJzx/Fs7i7I7IYxkPKL/ymU8MFvMKscDgY+G5K3Ck09weMxr7gP
- Jy0jIGL22XQFWJqcl0V2qb9wGpXdofOxE7C5RVcPq0cDuRJmOmj5VIulyg5E06RTTPEFlHBND
- k2o+uWYiXoSgdVdqipbTMtaXSI4e4JI8U0fmy06dtPFWD0sn9phBsvgv/n7NEdnRGrzFLNBke
- oij8xPQsuUXQy9zd+A47jW3jBXI+kBB2ef23e0Newv7WVZ67d12hN8ctUwrRFROZYR7JC2OoH
- W5o6AdCPx+LdxxuKcq9SOT7R2f8YmacLH2k4LXIPVzqTbtjmiPsxpyyJNLNSZH+o34UgQDOat
- Ai/Np7TPrDTSBHyAzDYL2vxL0w33qfURn5JvzZgROmpDVmJKA5zqCnHexmYh9brcPIHBbyJnx
- IF5z7a8gKg+OEQpH3svSXi2q2BccfSlCEGZoAX+9ymRTM9U5nxCsb6viJpR5q+XHUyZbSvgHy
- GTpx4KurBhFmMCbBR77FoeEz47J77XtYMhtMI2TPgRWWCDE6+vaGYROumvr7Fo6EwYLlAyXwk
- ugZd6n5oTK6CzP5bkqC3e7G0qbXlzqHF3hOA6xh1/YtSo8243CecXf7SF0XM2hYffsQlOS+ph
- qT94vPkRWA1tbFbEFuiGCoBPnwL4igL1WDeXeBw93/uNzFEGV3wZ7m/RwjtjoR9zZUQFnZUYA
- US1nlqIwAY5Dq6mZcFv0w8eFA6mBmnO1qA/pSzihnRaemJPqBZccuknxaQJ8IaAwL3mEDR3GH
- vMpRDMTFujK3T8upXyiZVDnqBlgx21pKIOvv8txYkHugk9kedVQGtxKT98Wz5r0fqkz+cIwDb
- KXYWUc+ZoCBB5uWY1GKLQiYDQzU8VrTak0TZMvQxC2K+njpePApu/khJrp/lKWlzKaPzWZ/Ih
- jixY0YPWy90Yjy2NK
+X-Provags-ID: V03:K1:kINr04vGH8PFK0WI4mNxqdxrk/BTSB+q42S51+k3h8qzZN+MKBg
+ 39ozPRxm1iOnsGPo7aKAazPj9u1koqGdtnXsm0yBV2EzCMz/snPFdqb96BNKl5DiZ3SZSWJ
+ 3jTi+1yoxznDEVo2nCsnqKjZJ5DlIrdVICxcD6GJxhXyxEKFNkXUFUVbcUNMK2GZCU0rg3t
+ 5RQbWuraPRT5G7Q6GQWaA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:l5Qjo2w9OhQ=:WCuhRPDe5N3Khy2z5xz9L/
+ rb0zLra1fWmgwAE5b/+YqxhmK/yGKgtg3IY3h5PLyFF7zFqLgdNUnnx9pLBByPyyoIlQ8gC8r
+ Z4zw3VuQ0ogI07MvbGLQZKYcxvwsXoUqUQ9FBQsuRgv3zURDWxpDnlNBCDgMq7jdyM4wEuBEH
+ NqJsSx/0rNq1lpV1LGrkaOrukiDghyQeDWJnXQxfaPbEglxcvj1EYTt7hVDH1R159ON7C0UZV
+ ZBfs8HE/KhSFrY1hJZRfjhJpLigZBGWslMko5jP/3lmVwjP5clf5t3mZ2gT7nY0M0A+tzuSiJ
+ RBajDzAVfUhP6ccgLptPSeM1KZImK/4X74SSSqSzyOI7r6y9lsvgP8AOa2KQoH6oB2fgwFdVW
+ foL+K1a9DZ9lP+pRQ/rWH5kfMa2J8fC4cVNiC9BmWP8K1sOXTAn/ge2mmubaCHwfmDf/vsy46
+ JEyOsAPT/vttnayLGhMGPptu9LqbzTae6H4cnDcCtv/Y4SMYyZLcOeCynP/B4I0Iduysl0DK6
+ du7lISZkqDGKtViqJOJgJRUHgLCHhT8P5PHhn2tn7e1eS9UTxVwR3LdkduObqwt78objrvyK4
+ K+qTMfG3AAebRFORWVrRaOkaF1WEfYlxHNk40k68P58qX7pPweH5Ih3IYrYzSTkeaE5JpblLO
+ VRdtn83Kx/eRKIXcYV216AEQLh7kfGzDlvHj4JTbqcg0Db+RNBJLTW3s7BehJF5VVBQc37TIp
+ m7SSMZnLXXnVAa+0rGwRd7+8OqpeUg2PKViDWJpo22mt0fIXjgNwpu8oH8cwPWJg2t8iii9jv
+ WVMw0tgfK00/RwA42SUEZGmay+gZw4/CgkSjttfjvgzZyT2T35bQAFFScpjE7n5FWn6Jr8aNP
+ e5CUOCuH9ccb2VF3wuRXDA+9ifLavvO1I95VLxybYSxaVQRwaxykN1Q7m+BdQMYDMR5J3Rn+r
+ g6b2pQA4ozXIa7tGrJXzcIdLFApeYA5h0SpHETeMHznHyf3lBug26ikiIK9SK8UINPXY9/WdD
+ WEt/jx1rTFj0Dldgk1uWPcevCtU3UelskVKKc0pzRDK9Q39xZd5CjZzFDNqBtKDYUC6w8PwlZ
+ qkIrrp4Jc/NstteeqCcs4awLU2EZ672W7G1LV8+9vJYa2s2JM/kpCX0DAD71Lxpp96gIEPpfD
+ pU/2wcDHBPnAISBOBHp6Ufn9BUzpo3Q9Hxp2YrvQ/KK+f2VauYs9yfaxcpTFj3rbhZytMLMS3
+ 4kXQD+CJkowm3JN8x
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Netronix, Inc. (http://www.netronixinc.com/) makes ebook reader board
-designs, which are for example used in Kobo and Tolino devices.
+The Netronix EC implements an RTC with the following functionality:
 
-An alternative prefix for Netronix would be "ntx", which is already used
-in code released by Netronix. It is shorter, but perhaps less clear.
+- Calendar-based time keeping with single-second resolution
+- Automatic power-on with single-minute resolution
+- Alarm at single-second resolution
+
+This binding only supports timekeeping for now.
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 =2D--
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../bindings/mfd/netronix,ntxec.yaml          |  7 +++++
+ .../bindings/rtc/netronix,ntxec-rtc.yaml      | 27 +++++++++++++++++++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/netronix,ntxec-r=
+tc.yaml
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docu=
-mentation/devicetree/bindings/vendor-prefixes.yaml
-index 9aeab66be85fc..516c6b6668fba 100644
-=2D-- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -704,6 +704,8 @@ patternProperties:
-     description: Broadcom Corporation (formerly NetLogic Microsystems)
-   "^netron-dy,.*":
-     description: Netron DY
-+  "^netronix,.*":
-+    description: Netronix, Inc.
-   "^netxeon,.*":
-     description: Shenzhen Netxeon Technology CO., LTD
-   "^neweast,.*":
+diff --git a/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml b/D=
+ocumentation/devicetree/bindings/mfd/netronix,ntxec.yaml
+index 6562c41c5a9a9..f6a32f46f47bb 100644
+=2D-- a/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
++++ b/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
+@@ -34,6 +34,9 @@ properties:
+   pwm:
+     $ref: ../pwm/netronix,ntxec-pwm.yaml
+
++  rtc:
++    $ref: ../rtc/netronix,ntxec-rtc.yaml
++
+ required:
+   - compatible
+   - reg
+@@ -61,6 +64,10 @@ examples:
+                             compatible =3D "netronix,ntxec-pwm";
+                             #pwm-cells =3D <1>;
+                     };
++
++                    rtc {
++                            compatible =3D "netronix,ntxec-rtc";
++                    };
+             };
+     };
+
+diff --git a/Documentation/devicetree/bindings/rtc/netronix,ntxec-rtc.yaml=
+ b/Documentation/devicetree/bindings/rtc/netronix,ntxec-rtc.yaml
+new file mode 100644
+index 0000000000000..4b301ef7319c8
+=2D-- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/netronix,ntxec-rtc.yaml
+@@ -0,0 +1,27 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/netronix,ntxec-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: RTC functionality in Netronix embedded controller
++
++maintainers:
++  - Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
++
++description: |
++  See also Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
++
++  The Netronix EC contains an RTC, which can be used for time-keeping, al=
+arm,
++  and automatic power-on. Note that not all of this functionality is curr=
+ently
++  supported in this binding.
++
++allOf:
++  - $ref: "rtc.yaml#"
++
++properties:
++  compatible:
++    const: netronix,ntxec-rtc
++
++required:
++  - compatible
 =2D-
 2.27.0
 
