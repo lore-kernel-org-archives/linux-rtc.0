@@ -2,81 +2,80 @@ Return-Path: <SRS0=Y42H=AK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1876CC433E0
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 20:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FE60C433E0
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 21:54:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EED1E20663
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 20:42:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F30D6206A5
+	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 21:54:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389500AbgF2Umb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 29 Jun 2020 16:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43382 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731649AbgF2TOE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jun 2020 15:14:04 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC09AC0068C6;
-        Mon, 29 Jun 2020 04:41:30 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id 3B2052A22FB
-Received: by jupiter.universe (Postfix, from userid 1000)
-        id F3F54480103; Mon, 29 Jun 2020 13:41:26 +0200 (CEST)
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Sebastian Reichel <sre@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Dev Null <devnull@uvos.xyz>
-Cc:     Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-rtc@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        "Sicelo A . Mhlongo" <absicsz@gmail.com>
-Subject: [PATCH] rtc: cpcap: fix range
-Date:   Mon, 29 Jun 2020 13:41:23 +0200
-Message-Id: <20200629114123.27956-1-sebastian.reichel@collabora.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200629002917.0a2045380a0fe022f852e067@uvos.xyz>
-References: <20200629002917.0a2045380a0fe022f852e067@uvos.xyz>
+        id S2404387AbgF2Vyu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 29 Jun 2020 17:54:50 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:37673 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728939AbgF2Vye (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jun 2020 17:54:34 -0400
+X-Originating-IP: 86.202.110.81
+Received: from localhost (lfbn-lyo-1-15-81.w86-202.abo.wanadoo.fr [86.202.110.81])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id DFCF220002;
+        Mon, 29 Jun 2020 21:54:31 +0000 (UTC)
+Date:   Mon, 29 Jun 2020 23:54:31 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Martin =?iso-8859-1?Q?Hundeb=F8ll?= <martin@geanix.com>
+Cc:     linux-rtc@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Sean =?iso-8859-1?Q?Nyekj=E6r?= <sean@geanix.com>
+Subject: Re: [RFC] rtc: class: register for late suspend / early resume
+Message-ID: <20200629215431.GA3800@piout.net>
+References: <20200610132403.2539519-1-martin@geanix.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200610132403.2539519-1-martin@geanix.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Unbreak CPCAP driver, which has one more bit in the day counter
-increasing the max. range from 2014 to 2058. The original commit
-introducing the range limit was obviously wrong, since the driver
-has only been written in 2017 (3 years after 14 bits would have
-run out).
+Hi,
 
-Reported-by: Sicelo A. Mhlongo <absicsz@gmail.com>
-Reported-by: Dev Null <devnull@uvos.xyz>
-Fixes: d2377f8cc5a7 ("rtc: cpcap: set range")
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
----
- drivers/rtc/rtc-cpcap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 10/06/2020 15:24:03+0200, Martin Hundebøll wrote:
+> When running on hardware with no persistent clock, and no non-stop
+> clocksource, the timekeeping resume code relies on the rtc class to
+> inject the suspend time.
+> 
+> Other drivers might call into the timekeeping code to sync time in their
+> devices. If such devices are resumed before the rtc class (and rtc is
+> the only time source running in suspend) they currently get the
+> pre-suspend time.
+> 
+> Move the rtc class suspend/resume functions to be called late/early in
+> the cycle to make sure timekeeping is synchronised when other devices
+> are resumed.
+> 
+> This works in our case on an i.MX6, where the rtc driver only has
+> _suspend_noirq()/_resume_noirq(). I imagine it fails with drivers that
+> has regular _suspend()/_resume() functions. Any hints are welcome.
+> 
 
-diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
-index a603f1f21125..800667d73a6f 100644
---- a/drivers/rtc/rtc-cpcap.c
-+++ b/drivers/rtc/rtc-cpcap.c
-@@ -261,7 +261,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
- 		return PTR_ERR(rtc->rtc_dev);
- 
- 	rtc->rtc_dev->ops = &cpcap_rtc_ops;
--	rtc->rtc_dev->range_max = (1 << 14) * SECS_PER_DAY - 1;
-+	rtc->rtc_dev->range_max = (timeu64_t) (DAY_MASK + 1) * SECS_PER_DAY - 1;
- 
- 	err = cpcap_get_vendor(dev, rtc->regmap, &rtc->vendor);
- 	if (err)
+Just to let you know that I've seen the previous thread and also this
+patch. I'm not sure about the patch, especially regarding RTCs on an i2c
+or SPI bus were wee need the bus to be suspended after the RTC and
+resumed before the RTC. The order is properly handled when using
+but I need to check whether it is correct when using _late. I remember
+having issues with that with regulators.
+
+I must admit my time is a bit scarce right now. Maybe you can get input
+from the PM guys?
+
+Regards,
+
 -- 
-2.27.0
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
