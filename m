@@ -1,143 +1,326 @@
-Return-Path: <SRS0=Y42H=AK=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=40C0=AL=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F340C433DF
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 23:04:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3F2BC433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Jun 2020 02:15:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14E32206C3
-	for <linux-rtc@archiver.kernel.org>; Mon, 29 Jun 2020 23:04:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78CD82078A
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Jun 2020 02:15:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=wizzup.org header.i=@wizzup.org header.b="cm1hnmf8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QEJVaITk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728567AbgF2XD7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 29 Jun 2020 19:03:59 -0400
-Received: from a80-127-99-228.adsl.xs4all.nl ([80.127.99.228]:55494 "EHLO
-        hetgrotebos.org" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728318AbgF2XD7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jun 2020 19:03:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=wizzup.org;
-         s=mail; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:
-        Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=SE9zB6pigyIUcMFEDRhGqQ2LKODweAry7KNzefAkRW4=; b=cm1hnmf83CKe2Y+SMSqHm9F+kh
-        otp/+gY6yV8bMBSuC6ImREgm4fKX8PWkyz4/OGgorgPsSXD90Ucaab5TGkwCHtoGOudCz4nWnNk+A
-        UXNgRJwGy/fmhaa0UQVxuavdaPRwco5fvq5W9pbx5W+WWlReYbudE4Z/ENVvFcnN1+wsaFgqzrisp
-        zrI4Mbr2wpsGUTHiE+N9gvqWb7V/Aq1Mdqq4rrHCYLZvoaKl4P/Dj2LdaKXKOzX3PVSr8T1YlSTJJ
-        oAxD4D37vw138B712UUJ9PGYNHvqS50CRpMnh3N1HKF1JCuzMAiaMVpGKku+zDWCUlbfVSQ9CFk0B
-        nTB7Z+OQ==;
-Received: from deepwater.fritz.box ([192.168.178.25] helo=[0.0.0.0])
-        by hetgrotebos.org with esmtpsa  (TLS1.3) tls TLS_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <merlijn@wizzup.org>)
-        id 1jpxUa-0001G1-Et; Mon, 29 Jun 2020 17:22:52 +0000
-Subject: Re: [PATCH] rtc: cpcap: fix range
-To:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Dev Null <devnull@uvos.xyz>
-Cc:     Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
-        linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        linux-rtc@vger.kernel.org, "Sicelo A . Mhlongo" <absicsz@gmail.com>
-References: <20200629002917.0a2045380a0fe022f852e067@uvos.xyz>
- <20200629114123.27956-1-sebastian.reichel@collabora.com>
-From:   Merlijn Wajer <merlijn@wizzup.org>
-Autocrypt: addr=merlijn@wizzup.org; prefer-encrypt=mutual; keydata=
- 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
- /XslHw==
-Message-ID: <9e3215d6-d103-7ed0-c65a-e5483d11f3ae@wizzup.org>
-Date:   Mon, 29 Jun 2020 19:25:20 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
-MIME-Version: 1.0
-In-Reply-To: <20200629114123.27956-1-sebastian.reichel@collabora.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+        id S1726877AbgF3CPR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 29 Jun 2020 22:15:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53462 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726813AbgF3CPR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Jun 2020 22:15:17 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DFAC061755
+        for <linux-rtc@vger.kernel.org>; Mon, 29 Jun 2020 19:15:17 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id u8so8604970qvj.12
+        for <linux-rtc@vger.kernel.org>; Mon, 29 Jun 2020 19:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=content-transfer-encoding:in-reply-to:date:cc:subject:from:to
+         :message-id;
+        bh=d2igEZv1NSNJTDRHt2TSuS3TyFGS0rPHG/K448k+v5I=;
+        b=QEJVaITkkDyzWvLSznDPp5FBdpQxEAGBygzUQHpxhujLajghp+6KuGwnoljHy8c0sz
+         yW8reP9Ykj1pJ7oDGXw86y+r3SCbo5lItRDZaAa2axDNY0UrpHTVJ4zlaOzXJnB74xoA
+         JIZtuvdNYpz/CkHgybdNeqUYYzejGwMTHTHDOqMUlQolbu7vlYYcFgEcZFKQvfJwDT3L
+         7HqSXXnJXgGQoBi1z0SgoIv0Gr1fvpQYel6bqcBwMybCcdpodY1PFo0hN45KME3ZYtV5
+         6ZDCxP0GsafIa0YIc/D6+qTDiq4VHRzAGje+kWl9K7w9tIvsSHzYlg8vXhWZFdNEzL5v
+         Fy/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:in-reply-to:date:cc
+         :subject:from:to:message-id;
+        bh=d2igEZv1NSNJTDRHt2TSuS3TyFGS0rPHG/K448k+v5I=;
+        b=Iu8SdIMt5o1h9xZlzOeO5F0oGsnXLikTIdQXcNZ6nxu+knM4/lqrM1PPyni4MH5spi
+         7cRtWy8bE079m99NMaRsBRWe2EGc+B+tWKkftwbrx1atmVp51OoGltG7pZm2Ft9/cQXG
+         zI98jZpVXAIN83TH+CqrrdwLw6+h5abxsgV/9a3dkqbvASc9q0mTZOCN8IPElAbhjhK2
+         SmeBjkeIr/0d0at2OGhlJSAhkFPmDRX/DorQKo+4G3MiqC4LLj4iYh3Uluzgy6hl4wTN
+         nMhtFRNF7b+JybGMuT/r0iTOHExYrkPBbrAi1HN6xh1JvhoLet/rGqJKh++9NE9mUyF6
+         ZJag==
+X-Gm-Message-State: AOAM531+nikig5rGUGo+5Jfxw4USvSphAc/4/9DUdxTXLjax7Mk7YHMZ
+        bVufIRwHgOL/YzClQR5EBZ4=
+X-Google-Smtp-Source: ABdhPJxgfJfioicMZODlQ13Aib8G6ka6HDX8pbXQ0ubtmFA5r20dPrZxbhGADRBlcyxSVcYQ1Y+KPA==
+X-Received: by 2002:a0c:f548:: with SMTP id p8mr18069389qvm.149.1593483316266;
+        Mon, 29 Jun 2020 19:15:16 -0700 (PDT)
+Received: from localhost (198-48-202-89.cpe.pppoe.ca. [198.48.202.89])
+        by smtp.gmail.com with ESMTPSA id p3sm1723891qtl.21.2020.06.29.19.15.14
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 29 Jun 2020 19:15:15 -0700 (PDT)
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAH+2xPA2_gUMV_+BoDx9_9Z_kqH+b5V-arKSYFoVBJS5TVGsmw@mail.gmail.com>
+Date:   Mon, 29 Jun 2020 22:15:14 -0400
+Cc:     "Alessandro Zummo" <a.zummo@towertech.it>,
+        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+        <linux-rtc@vger.kernel.org>
+Subject: Re: [PATCH v3 2/2] rtc: pcf2127: add alarm support
+From:   "Liam Beguin" <liambeguin@gmail.com>
+To:     "Bruno Thomsen" <bruno.thomsen@gmail.com>
+Message-Id: <C3U2OWM4LKMC.28K4KYY4UYW6G@atris>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+On Sat Jun 27, 2020 at 2:32 PM Bruno Thomsen wrote:
+> Den fre. 19. jun. 2020 kl. 06.12 skrev Liam Beguin <liambeguin@gmail.com>=
+:
+> >
+> > From: Liam Beguin <lvb@xiphos.com>
+> >
+> > Add alarm support for the pcf2127 RTC chip family.
+> > Tested on pca2129.
+> >
+> > Signed-off-by: Liam Beguin <lvb@xiphos.com>
+> > ---
+> > Changes since v1:
+> > - Add calls to pcf2127_wdt_active_ping after accessing CTRL2
+> > - Cleanup calls to regmap_{read,write,update_bits}
+> > - Cleanup debug trace
+> > - Add interrupt handler, untested because of hardware limitations
+> > - Add wakeup-source devicetree option
+> >
+> > Changes since v2:
+> > - Avoid forward declaration of pcf2127_wdt_active_ping
+> > - Remove dev_err strings
+> > - Remove dev_dbg traces since they are now part of the core
+> > - Remove redundant if in pcf2127_rtc_alarm_irq_enable
+> > - Remove duplicate watchdog ping in pcf2127_rtc_irq
+> > - Avoid unnecessary read in pcf2127_rtc_irq with regmap_write
+> > - Add extra rtc_class_ops struct with alarm functions
+> >
+> >  drivers/rtc/rtc-pcf2127.c | 136 ++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 136 insertions(+)
+> >
+> > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> > index 4accee09bfad..df09d3c6c5c3 100644
+> > --- a/drivers/rtc/rtc-pcf2127.c
+> > +++ b/drivers/rtc/rtc-pcf2127.c
+> > @@ -20,6 +20,7 @@
+> >  #include <linux/slab.h>
+> >  #include <linux/module.h>
+> >  #include <linux/of.h>
+> > +#include <linux/of_irq.h>
+> >  #include <linux/regmap.h>
+> >  #include <linux/watchdog.h>
+> >
+> > @@ -28,7 +29,9 @@
+> >  #define PCF2127_BIT_CTRL1_TSF1                 BIT(4)
+> >  /* Control register 2 */
+> >  #define PCF2127_REG_CTRL2              0x01
+> > +#define PCF2127_BIT_CTRL2_AIE                  BIT(1)
+> >  #define PCF2127_BIT_CTRL2_TSIE                 BIT(2)
+> > +#define PCF2127_BIT_CTRL2_AF                   BIT(4)
+> >  #define PCF2127_BIT_CTRL2_TSF2                 BIT(5)
+> >  /* Control register 3 */
+> >  #define PCF2127_REG_CTRL3              0x02
+> > @@ -46,6 +49,12 @@
+> >  #define PCF2127_REG_DW                 0x07
+> >  #define PCF2127_REG_MO                 0x08
+> >  #define PCF2127_REG_YR                 0x09
+> > +/* Alarm registers */
+> > +#define PCF2127_REG_ALARM_SC           0x0A
+> > +#define PCF2127_REG_ALARM_MN           0x0B
+> > +#define PCF2127_REG_ALARM_HR           0x0C
+> > +#define PCF2127_REG_ALARM_DM           0x0D
+> > +#define PCF2127_REG_ALARM_DW           0x0E
+> >  /* Watchdog registers */
+> >  #define PCF2127_REG_WD_CTL             0x10
+> >  #define PCF2127_BIT_WD_CTL_TF0                 BIT(0)
+> > @@ -324,6 +333,116 @@ static const struct watchdog_ops pcf2127_watchdog=
+_ops =3D {
+> >         .set_timeout =3D pcf2127_wdt_set_timeout,
+> >  };
+> >
+> > +/* Alarm */
+> > +static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalr=
+m *alrm)
+> > +{
+> > +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> > +       unsigned int buf[5], ctrl2;
+> > +       int ret;
+> > +
+> > +       ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2)=
+;
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       ret =3D pcf2127_wdt_active_ping(&pcf2127->wdd);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       ret =3D regmap_bulk_read(pcf2127->regmap, PCF2127_REG_ALARM_SC,=
+ buf,
+> > +                              sizeof(buf));
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       alrm->enabled =3D ctrl2 & PCF2127_BIT_CTRL2_AIE;
+> > +       alrm->pending =3D ctrl2 & PCF2127_BIT_CTRL2_AF;
+> > +
+> > +       alrm->time.tm_sec =3D bcd2bin(buf[0] & 0x7F);
+> > +       alrm->time.tm_min =3D bcd2bin(buf[1] & 0x7F);
+> > +       alrm->time.tm_hour =3D bcd2bin(buf[2] & 0x3F);
+> > +       alrm->time.tm_mday =3D bcd2bin(buf[3] & 0x3F);
+> > +       alrm->time.tm_wday =3D buf[4] & 0x07;
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static int pcf2127_rtc_alarm_irq_enable(struct device *dev, u32 enable=
+)
+> > +{
+> > +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> > +       int ret;
+> > +
+> > +       ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+> > +                                PCF2127_BIT_CTRL2_AIE,
+> > +                                enable ? PCF2127_BIT_CTRL2_AIE : 0);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       return pcf2127_wdt_active_ping(&pcf2127->wdd);
+> > +}
+> > +
+> > +static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm=
+ *alrm)
+> > +{
+> > +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> > +       uint8_t buf[5];
+> > +       int ret;
+> > +
+> > +       ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+> > +                                PCF2127_BIT_CTRL2_AF, 0);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       ret =3D pcf2127_wdt_active_ping(&pcf2127->wdd);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       buf[0] =3D bin2bcd(alrm->time.tm_sec);
+> > +       buf[1] =3D bin2bcd(alrm->time.tm_min);
+> > +       buf[2] =3D bin2bcd(alrm->time.tm_hour);
+> > +       buf[3] =3D bin2bcd(alrm->time.tm_mday);
+> > +       buf[4] =3D (alrm->time.tm_wday & 0x07);
+> > +
+> > +       ret =3D regmap_bulk_write(pcf2127->regmap, PCF2127_REG_ALARM_SC=
+, buf,
+> > +                               sizeof(buf));
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       return pcf2127_rtc_alarm_irq_enable(dev, alrm->enabled);
+> > +}
+> > +
+> > +static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
+> > +{
+> > +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> > +       unsigned int ctrl2 =3D 0;
+> > +       int ret =3D 0;
+> > +
+> > +       ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2)=
+;
+> > +       if (ret)
+> > +               goto irq_err;
+> > +
+> > +       if (ctrl2 & PCF2127_BIT_CTRL2_AF) {
+> > +               regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+> > +                            ctrl2 & ~PCF2127_BIT_CTRL2_AF);
+> > +
+> > +               rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
+> > +       }
+> > +
+> > +       ret =3D pcf2127_wdt_active_ping(&pcf2127->wdd);
+> > +       if (ret)
+> > +               goto irq_err;
+> > +
+> > +       return IRQ_HANDLED;
+> > +irq_err:
+> > +       return IRQ_NONE;
 
-On 29/06/2020 13:41, Sebastian Reichel wrote:
-> Unbreak CPCAP driver, which has one more bit in the day counter
-> increasing the max. range from 2014 to 2058. The original commit
-> introducing the range limit was obviously wrong, since the driver
-> has only been written in 2017 (3 years after 14 bits would have
-> run out).
+Hi Bruno,
 
-This seems to work for me, thanks.
+>=20
+> It's not really needed to use "goto irq_err;" syntax as there is no
+> common error cleanup
+> path and can simply be replaced by "return IRQ_NONE;".
+>=20
+> Overall this feature looks good to me.
+>=20
+> Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+>=20
+> /Bruno
+>=20
 
-Please add as you deem appropriate:
+I'll send another revision getting rid of the goto. I'll also add your
+Reviewed-by on both patches.
 
-Tested-by: Merlijn Wajer <merlijn@wizzup.org>
-Acked-by: Merlijn Wajer <merlijn@wizzup.org>
+Thanks again for reviewing this,
+Liam
 
-Cheers,
-Merlijn
+> > +}
+> > +
+> > +static const struct rtc_class_ops pcf2127_rtc_alrm_ops =3D {
+> > +       .ioctl            =3D pcf2127_rtc_ioctl,
+> > +       .read_time        =3D pcf2127_rtc_read_time,
+> > +       .set_time         =3D pcf2127_rtc_set_time,
+> > +       .read_alarm       =3D pcf2127_rtc_read_alarm,
+> > +       .set_alarm        =3D pcf2127_rtc_set_alarm,
+> > +       .alarm_irq_enable =3D pcf2127_rtc_alarm_irq_enable,
+> > +};
+> > +
+> >  /* sysfs interface */
+> >
+> >  static ssize_t timestamp0_store(struct device *dev,
+> > @@ -419,6 +538,7 @@ static int pcf2127_probe(struct device *dev, struct=
+ regmap *regmap,
+> >                         const char *name, bool has_nvmem)
+> >  {
+> >         struct pcf2127 *pcf2127;
+> > +       int alarm_irq =3D 0;
+> >         u32 wdd_timeout;
+> >         int ret =3D 0;
+> >
+> > @@ -441,6 +561,22 @@ static int pcf2127_probe(struct device *dev, struc=
+t regmap *regmap,
+> >         pcf2127->rtc->range_max =3D RTC_TIMESTAMP_END_2099;
+> >         pcf2127->rtc->set_start_time =3D true; /* Sets actual start to =
+1970 */
+> >
+> > +       alarm_irq =3D of_irq_get_byname(dev->of_node, "alarm");
+> > +       if (alarm_irq >=3D 0) {
+> > +               ret =3D devm_request_irq(dev, alarm_irq, pcf2127_rtc_ir=
+q,
+> > +                                      IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> > +                                      dev_name(dev), dev);
+> > +               if (ret) {
+> > +                       dev_err(dev, "failed to request alarm irq\n");
+> > +                       return ret;
+> > +               }
+> > +       }
+> > +
+> > +       if (alarm_irq >=3D 0 || device_property_read_bool(dev, "wakeup-=
+source")) {
+> > +               device_init_wakeup(dev, true);
+> > +               pcf2127->rtc->ops =3D &pcf2127_rtc_alrm_ops;
+> > +       }
+> > +
+> >         pcf2127->wdd.parent =3D dev;
+> >         pcf2127->wdd.info =3D &pcf2127_wdt_info;
+> >         pcf2127->wdd.ops =3D &pcf2127_watchdog_ops;
+> > --
+> > 2.27.0
+> >
