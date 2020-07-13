@@ -2,106 +2,104 @@ Return-Path: <SRS0=+XiK=AY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 474E1C433DF
-	for <linux-rtc@archiver.kernel.org>; Mon, 13 Jul 2020 18:39:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1D51C433EA
+	for <linux-rtc@archiver.kernel.org>; Mon, 13 Jul 2020 18:49:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24C392076D
-	for <linux-rtc@archiver.kernel.org>; Mon, 13 Jul 2020 18:39:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95E8E206F0
+	for <linux-rtc@archiver.kernel.org>; Mon, 13 Jul 2020 18:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1594665549;
-	bh=2V+K5Ip+bvgfdO71tkeKPCXoQ6//2UAR53X8aEX4BLg=;
+	s=default; t=1594666172;
+	bh=OoRstIGJrGJH71aHCI8iStVFUjFNJjNcBIjEV1mNCSo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=WIrLNaYXll0y7/Ov8b2UuLer4TmRi6MdoTSEO1PfCg0fwqBfZXFZ8i0GOeLfRRCyZ
-	 75iu1X/fuGJkTwNkH8HWzTyZBOI6mVD058BuIH3r91tsi2yxSU6QRof3q3fdrGHoMm
-	 Aw0CaHtPc/MBHMND3wB1bNJhIUfEyP7a8ZuYppAo=
+	b=j8HEQOYl7FTAyTk11ajXEzVDlXacgVhuqKZmMKn24+uOwz8VOGFcV8NeccG+ZXVc1
+	 nYfRsM4bfHlN3BAPSVQvb3daPzCAhGf9I4KDD2PRy96twE2uzOTLznmu/vV4YvGI9W
+	 r4NOphIrwn9eB23KVHkQ1ZudbIVX5CcnvQQlfPjM=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726461AbgGMSjI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 13 Jul 2020 14:39:08 -0400
-Received: from mail-il1-f193.google.com ([209.85.166.193]:40830 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726356AbgGMSjI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 13 Jul 2020 14:39:08 -0400
-Received: by mail-il1-f193.google.com with SMTP id e18so12059314ilr.7;
-        Mon, 13 Jul 2020 11:39:08 -0700 (PDT)
+        id S1726609AbgGMSt2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 13 Jul 2020 14:49:28 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:40982 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726318AbgGMSt2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 13 Jul 2020 14:49:28 -0400
+Received: by mail-io1-f66.google.com with SMTP id p205so6079588iod.8;
+        Mon, 13 Jul 2020 11:49:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=HECe1h1n7zCzWXoAPAxcEQontYG7a6arSr+VtGEDhIA=;
-        b=a6Z7fYQEgbQ09Ada+OAWb4IJhXnelxj4MQryuA3z38RobU9B3ajTI/9JhJxVQ5NVFd
-         VN5w8FY4YR4rFPtzFRXmHgZd2+QNnQNxXVlsvfxOYam34KfF3fTWDVtl3Io8s89krDG/
-         0SWCOvNybt2XtFPkopKlh+QTRiLfH12VQoj1tsKM+CQNa+BrU6azmzyzdzsXEXpgYacS
-         Xq+y2+fO5UDzTLhi78+Bpgi1SihgZtDpkE241Zj0HW8b8IHgrzP6LBQW9PFb4+/O5j3s
-         BhI4wcsdUOY3KzbforkxyRhVenK7YPQGi7zZP5NBrRNJEz/WerBCCKtsY4xbbePQFoQV
-         1uNg==
-X-Gm-Message-State: AOAM533G/6pkSsDNdxmAAKDx5JunBZGcAcXKY5K/3l12I1hs1gp9vgGn
-        xTjZNjtkKxeevujGZ9cAcw==
-X-Google-Smtp-Source: ABdhPJwa/uHXheEjPWsBJE2QhRQmFJm7iLz+2dsaMss3v9YJlHcm5TOrp6VlkJ75kLISEcWPHqkWfA==
-X-Received: by 2002:a92:dac8:: with SMTP id o8mr1124996ilq.152.1594665547620;
-        Mon, 13 Jul 2020 11:39:07 -0700 (PDT)
+        bh=WpeYQUMwj5FW9OutksMiaaeD0G6oI/PxDGyWumbAV1c=;
+        b=tr2Lec6/dgWr1TMP15bC7fAJ1kJFCvbHzRR1n18WgheTTYoJENd3HAD5Zd7fJ1nOGH
+         R9slY+EmOwgDKYvPBICTgUrn797RWFuB8yJIZHJUba/btmFsWZ8fyYA/TE8gxyXK503y
+         VlrY6AWHXpQhohI6SFfvNl13vm8+IewfO+s8QXt+yYZVgUM0Y8iK2cRdPC0NNoUmXN2a
+         3/8Krt3mn3y96pqovyEa0yHXsWXVsjsjjE1Ga4ia+JZ85DPoGT+jdMPD1V6udbR9PWBm
+         xhswhXHL56INGneZySGDlwHi43oBYKfmM0VkOzND4HDN9/hp0+rVjrdY+IiUdlKnB/Wf
+         9YGA==
+X-Gm-Message-State: AOAM532heks1dxsqtNKj3sQgJveW6Dhk1ycxULfGZkYxPHhtF64cvEyh
+        wPqv6QemAbsRYP3x3Ueb8g==
+X-Google-Smtp-Source: ABdhPJxu+gqvcd5wPFL85eaNribV65nExAy/TIGBAyqM6m6EAXlxGwJo/s3aFQZfYPFh7kq4YvPoMA==
+X-Received: by 2002:a02:cd91:: with SMTP id l17mr1633141jap.88.1594666167050;
+        Mon, 13 Jul 2020 11:49:27 -0700 (PDT)
 Received: from xps15 ([64.188.179.252])
-        by smtp.gmail.com with ESMTPSA id e21sm8137455ioe.11.2020.07.13.11.39.06
+        by smtp.gmail.com with ESMTPSA id t11sm8648543ils.3.2020.07.13.11.49.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jul 2020 11:39:07 -0700 (PDT)
-Received: (nullmailer pid 513927 invoked by uid 1000);
-        Mon, 13 Jul 2020 18:39:06 -0000
-Date:   Mon, 13 Jul 2020 12:39:06 -0600
+        Mon, 13 Jul 2020 11:49:26 -0700 (PDT)
+Received: (nullmailer pid 528372 invoked by uid 1000);
+        Mon, 13 Jul 2020 18:49:25 -0000
+Date:   Mon, 13 Jul 2020 12:49:25 -0600
 From:   Rob Herring <robh@kernel.org>
-To:     "Kevin P. Fleming" <kevin+linux@km6g.us>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+To:     Lubomir Rintel <lkundrak@v3.sk>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-rtc@vger.kernel.org,
+        linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH 1/3 v3] dt-bindings: abx80x: Add autocal-filter property
-Message-ID: <20200713183906.GA510880@bogus>
-References: <20200615105113.57770-1-kevin+linux@km6g.us>
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/5] dt-bindings: i2c: Convert i2c-pxa to json-schema
+Message-ID: <20200713184925.GA528293@bogus>
+References: <20200616223353.993567-1-lkundrak@v3.sk>
+ <20200616223353.993567-3-lkundrak@v3.sk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200615105113.57770-1-kevin+linux@km6g.us>
+In-Reply-To: <20200616223353.993567-3-lkundrak@v3.sk>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 06:51:11AM -0400, Kevin P. Fleming wrote:
-> Add a property to allow control of the autocalibration filter
-> capacitor.
+On Wed, 17 Jun 2020 00:33:50 +0200, Lubomir Rintel wrote:
+> A conversion of the i2c-pxa binding to DT schema format using json-schema.
 > 
-> Signed-off-by: Kevin P. Fleming <kevin+linux@km6g.us>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> To: linux-rtc@vger.kernel.org
-> To: devicetree@vger.kernel.org
+> This also cleans ups some errors in the binding: The compatible string
+> description suggested that "mmp" in "mrvl,mmp-twsi" is to be substituted
+> with a processor model, which wouldn't be a right thing to do and indeed
+> nobody seems to have been doing that. There also was "Recommended
+> properties" section that included optional as well as mandatory
+> properties. Missing mandatory properties were added to the example.
+> 
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> 
 > ---
-> v3: corrected whitespace
->  Documentation/devicetree/bindings/rtc/abracon,abx80x.txt | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> Changes since v2:
+> - Add unevaluatedProperties: false
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> index 2405e35a1bc0f..1b606e33d1a83 100644
-> --- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
-> @@ -29,3 +29,11 @@ and valid to enable charging:
->   - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
->   - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
->                            resistor, the other values are in kOhm.
-> +
-> +All of the devices can have a 47pf capacitor attached to increase the
-> +autocalibration accuracy of their RC oscillators. To enable or disable usage
-> +of the capacitor the following property can be defined:
-> +
-> + - "abracon,autocal-filter": should be <0> or <1>. 0 indicates that there
-> +                             is no capacitor attached, 1 indicates that there
-> +                             is a capacitor attached.
+> Changes since v1:
+> - Add default GPL-2.0-only license tag
+> - Fill in maintainers from MAINTAINERS file
+> 
+>  .../devicetree/bindings/i2c/i2c-pxa.txt       | 31 --------
+>  .../devicetree/bindings/i2c/i2c-pxa.yaml      | 74 +++++++++++++++++++
+>  2 files changed, 74 insertions(+), 31 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-pxa.txt
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-pxa.yaml
+> 
 
-What does not present mean? If you don't have a defined meaning (such 
-as maintain the default/bootloader initialized setting), then make this 
-boolean.
-
-Rob
+Applied, thanks!
