@@ -1,71 +1,50 @@
-Return-Path: <SRS0=HhOs=BR=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=5gj1=BS=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=0.1 required=3.0 tests=BAYES_50,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,
+	HEADER_FROM_DIFFERENT_DOMAINS,LOTS_OF_MONEY,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93A16C433E1
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Aug 2020 21:30:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E495C433DF
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Aug 2020 07:29:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F1A52086A
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Aug 2020 21:30:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EF6AD20855
+	for <linux-rtc@archiver.kernel.org>; Sat,  8 Aug 2020 07:29:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727896AbgHGVaM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 7 Aug 2020 17:30:12 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:41991 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727890AbgHGVaK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Aug 2020 17:30:10 -0400
-X-Originating-IP: 90.66.108.79
-Received: from localhost (lfbn-lyo-1-1932-79.w90-66.abo.wanadoo.fr [90.66.108.79])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id EEE70E0005;
-        Fri,  7 Aug 2020 21:30:05 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: max77686: Fix wake-ups for max77620
-Date:   Fri,  7 Aug 2020 23:30:05 +0200
-Message-Id: <159683578749.18787.912305362655306164.b4-ty@bootlin.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200806125431.699339-1-jonathanh@nvidia.com>
-References: <20200806125431.699339-1-jonathanh@nvidia.com>
+        id S1725853AbgHHH3z convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 8 Aug 2020 03:29:55 -0400
+Received: from [125.140.134.231] ([125.140.134.231]:58336 "EHLO
+        WIN-DAONO245HJF" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725764AbgHHH3z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 8 Aug 2020 03:29:55 -0400
+Received: from [185.191.231.247] ([185.191.231.247]) by WIN-DAONO245HJF with Microsoft SMTPSVC(8.5.9600.16384);
+         Sat, 8 Aug 2020 16:29:44 +0900
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: INVESTMENT
+To:     linux-rtc@vger.kernel.org
+From:   campbellclark016@gmail.com
+Date:   Sat, 08 Aug 2020 00:29:50 -0700
+Reply-To: campbell.clark24@yahoo.com
+Message-ID: <WIN-DAONO245HJFK5Ph00af18f5@WIN-DAONO245HJF>
+X-OriginalArrivalTime: 08 Aug 2020 07:29:44.0945 (UTC) FILETIME=[B02DD610:01D66D55]
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 6 Aug 2020 13:54:31 +0100, Jon Hunter wrote:
-> Following commit d8f090dbeafd ("rtc: max77686: Do not allow interrupt to
-> fire before system resume"), RTC wake-ups stopped working on Jetson TX2
-> and Jetson Xavier platforms. The Jetson TX2 uses the max77620 PMIC and
-> the Jetson Xavier uses max20024 PMIC. Both of these PMICs have the same
-> max77620 RTC controller.
-> 
-> For the max77620 RTC, the variable 'rtc_irq_from_platform' is defined as
-> true in the max77686 driver and because of this the IRQ passed to the
-> max77686 driver for RTC is the PMIC IRQ and not the parent. Hence,
-> following commit d8f090dbeafd ("rtc: max77686: Do not allow interrupt to
-> fire before system resume"), for the max77620 the RTC IRQ within the
-> PMIC is now getting disabled on entry to suspend and unable to wake the
-> system up. Fix this by only disabling interrupts on entry to suspend
-> in the max77686 RTC driver, if the interrupt is the parent interrupt.
 
-Applied, thanks!
+Good day,
 
-[1/1] rtc: max77686: Fix wake-ups for max77620
-      commit: 16c24801122e2961c588562f04707b98f9c84bbb
+ You were recommended by a mutual associate. I write you regarding an investment of bearer bonds I made on behalf of a client. The investment was made in 2009 and has been under my management. The said investor is deceased. The window is now available to assign these bonds to any name or company of my choice. I have all the necessary information to achieve this within 10 banking days. The total value of the bond is 100 million pounds sterling, in a million pound denominations. If you can handle this, do contact me at your earliest convenience via my email campbell.clark24@yahoo.com So we can discuss the finer details
 
-Best regards,
--- 
-Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+Thank you
+
+
+Mr Campbell Clark
