@@ -2,125 +2,96 @@ Return-Path: <SRS0=Sgz1=BW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5390FC433E0
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Aug 2020 21:36:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8749C433E5
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 Aug 2020 22:38:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3789720781
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Aug 2020 21:36:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 990682087C
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 Aug 2020 22:38:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgHLVg6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 Aug 2020 17:36:58 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:57795 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726490AbgHLVg5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Aug 2020 17:36:57 -0400
-X-Originating-IP: 90.66.108.79
-Received: from localhost (lfbn-lyo-1-1932-79.w90-66.abo.wanadoo.fr [90.66.108.79])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id E597120007;
-        Wed, 12 Aug 2020 21:36:55 +0000 (UTC)
-Date:   Wed, 12 Aug 2020 23:36:55 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC for 5.9
-Message-ID: <20200812213655.GA81005@piout.net>
+        id S1726518AbgHLWic (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 12 Aug 2020 18:38:32 -0400
+Received: from smtprelay0014.hostedemail.com ([216.40.44.14]:41580 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726456AbgHLWic (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Aug 2020 18:38:32 -0400
+X-Greylist: delayed 354 seconds by postgrey-1.27 at vger.kernel.org; Wed, 12 Aug 2020 18:38:31 EDT
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave03.hostedemail.com (Postfix) with ESMTP id 6409E181CBC1C;
+        Wed, 12 Aug 2020 22:32:39 +0000 (UTC)
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay01.hostedemail.com (Postfix) with ESMTP id C315D100E7B65;
+        Wed, 12 Aug 2020 22:32:36 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-HE-Tag: board29_4d052b526fef
+X-Filterd-Recvd-Size: 2655
+Received: from XPS-9350.home (unknown [47.151.133.149])
+        (Authenticated sender: joe@perches.com)
+        by omf16.hostedemail.com (Postfix) with ESMTPA;
+        Wed, 12 Aug 2020 22:32:33 +0000 (UTC)
+Message-ID: <f5dedf2d8d8057de3eaa2f9126f44cebb0653b09.camel@perches.com>
+Subject: Re: [PATCH] dt-bindings: Whitespace clean-ups in schema files
+From:   Joe Perches <joe@perches.com>
+To:     Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-remoteproc@vger.kernel.org, linux-hwmon@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-pm@vger.kernel.org, linux-media@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, netdev@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Date:   Wed, 12 Aug 2020 15:32:32 -0700
+In-Reply-To: <20200812203618.2656699-1-robh@kernel.org>
+References: <20200812203618.2656699-1-robh@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.36.4-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello Linus,
+On Wed, 2020-08-12 at 14:36 -0600, Rob Herring wrote:
+> Clean-up incorrect indentation, extra spaces, long lines, and missing
+> EOF newline in schema files. Most of the clean-ups are for list
+> indentation which should always be 2 spaces more than the preceding
+                                     ^
+> keyword.
+[]
+> diff --git a/Documentation/devicetree/bindings/arm/arm,integrator.yaml b/Documentation/devicetree/bindings/arm/arm,integrator.yaml
+> index 192ded470e32..f0daf990e077 100644
+> --- a/Documentation/devicetree/bindings/arm/arm,integrator.yaml
+> +++ b/Documentation/devicetree/bindings/arm/arm,integrator.yaml
+> @@ -67,9 +67,9 @@ patternProperties:
+>        compatible:
+>          items:
+>            - enum:
+> -            - arm,integrator-ap-syscon
+> -            - arm,integrator-cp-syscon
+> -            - arm,integrator-sp-syscon
+> +              - arm,integrator-ap-syscon
+> +              - arm,integrator-cp-syscon
+> +              - arm,integrator-sp-syscon
 
-I'm sorry for the very late pull request. There is not much this cycle
-anyway, mostly non urgent fixes.
+Confused a bit here.
+          - enum:
+	10 spaces to dash
+old line:
+            - arm,integrator-ap-syscon
+	12 spaces to dash
+new line:
+              - arm,integrator-ap-syscon
+	14 spaces to dash
 
-The following changes since commit b3a9e3b9622ae10064826dccb4f7a52bd88c7407:
+Is it supposed to be 2 spaces more than the preceding line
+or 4 more?
 
-  Linux 5.8-rc1 (2020-06-14 12:45:04 -0700)
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-5.9
-
-for you to fetch changes up to 27006416be16b7887fb94b3b445f32453defb3f1:
-
-  rtc: pcf2127: fix alarm handling (2020-08-12 11:48:29 +0200)
-
-----------------------------------------------------------------
-RTC for 5.9
-
-Drivers:
- - ds1374: use watchdog core
- - pcf2127: add alarm and pcf2129 support
-
-----------------------------------------------------------------
-Alexander A. Klimov (1):
-      rtc: Replace HTTP links with HTTPS ones
-
-Alexandre Belloni (3):
-      rtc: ds1374: fix RTC_DRV_DS1374_WDT dependencies
-      rtc: ds1374: remove unused define
-      rtc: pcf2127: fix alarm handling
-
-Chris Packham (1):
-      rtc: ds1307: provide an indication that the watchdog has fired
-
-Huacai Chen (1):
-      rtc: goldfish: Enable interrupt in set_alarm() when necessary
-
-Johnson CH Chen (陳昭勳) (1):
-      rtc: ds1374: wdt: Use watchdog core for watchdog part
-
-Jon Hunter (1):
-      rtc: max77686: Fix wake-ups for max77620
-
-Krzysztof Kozlowski (1):
-      rtc: max77686: Do not allow interrupt to fire before system resume
-
-Liam Beguin (2):
-      rtc: pcf2127: add pca2129 device id
-      rtc: pcf2127: add alarm support
-
-Misono Tomohiro (1):
-      rtc: cleanup obsolete comment about struct rtc_class_ops
-
-Sebastian Reichel (1):
-      rtc: cpcap: fix range
-
-Sudeep Holla (1):
-      rtc: pl031: fix set_alarm by adding back call to alarm_irq_enable
-
-Tales L. da Aparecida (1):
-      rtc: imxdi: fix trivial typos
-
- .../devicetree/bindings/rtc/trivial-rtc.yaml       |   2 +
- drivers/rtc/Kconfig                                |   3 +-
- drivers/rtc/rtc-ab-b5ze-s3.c                       |   2 +-
- drivers/rtc/rtc-bq32k.c                            |   2 +-
- drivers/rtc/rtc-cpcap.c                            |   2 +-
- drivers/rtc/rtc-ds1307.c                           |   6 +
- drivers/rtc/rtc-ds1374.c                           | 262 +++++----------------
- drivers/rtc/rtc-goldfish.c                         |   1 +
- drivers/rtc/rtc-imxdi.c                            |   4 +-
- drivers/rtc/rtc-max77686.c                         |  23 +-
- drivers/rtc/rtc-mcp795.c                           |   2 +-
- drivers/rtc/rtc-pcf2127.c                          | 144 ++++++++++-
- drivers/rtc/rtc-pcf85063.c                         |   4 +-
- drivers/rtc/rtc-pl031.c                            |   1 +
- include/linux/rtc.h                                |   4 -
- 15 files changed, 244 insertions(+), 218 deletions(-)
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
