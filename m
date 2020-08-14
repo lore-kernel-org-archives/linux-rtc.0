@@ -2,83 +2,158 @@ Return-Path: <SRS0=fIVO=BY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66C23C433E1
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Aug 2020 11:12:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D200C433E1
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Aug 2020 14:51:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4ABBD20716
-	for <linux-rtc@archiver.kernel.org>; Fri, 14 Aug 2020 11:12:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D61E20855
+	for <linux-rtc@archiver.kernel.org>; Fri, 14 Aug 2020 14:51:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1597416708;
+	bh=2azDCJAW0WmwzjFoNP1+Xf1baXp64Ykp/VUpBlKju0s=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=HnqFihNcGptP5HgIGhEZKoqjRoCGP9jAnKWlYjv7ff3brgbCifMcdEOGeV29WrS8a
+	 Eybq5WqaF6hH86HIl83kGWD3oo+vTAlqMPvsQzPNkrcpdnRtSXrwWlPNcqihAAjdWp
+	 eQLVMFlz1i0nmH9m7Z4c6ZwhmTzUgXMWcs1I/ngc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbgHNLMk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 14 Aug 2020 07:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35498 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbgHNLMj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 14 Aug 2020 07:12:39 -0400
-X-Greylist: delayed 301 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 14 Aug 2020 04:12:39 PDT
-Received: from laurent.telenet-ops.be (laurent.telenet-ops.be [IPv6:2a02:1800:110:4::f00:19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FBD0C061384
-        for <linux-rtc@vger.kernel.org>; Fri, 14 Aug 2020 04:12:39 -0700 (PDT)
-Received: from ramsan ([84.195.186.194])
-        by laurent.telenet-ops.be with bizsmtp
-        id FP7Y230064C55Sk01P7YZ9; Fri, 14 Aug 2020 13:07:33 +0200
-Received: from rox.of.borg ([192.168.97.57])
-        by ramsan with esmtp (Exim 4.90_1)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1k6XYa-0003r6-Bz; Fri, 14 Aug 2020 13:07:32 +0200
-Received: from geert by rox.of.borg with local (Exim 4.90_1)
-        (envelope-from <geert@linux-m68k.org>)
-        id 1k6XYa-0007Z2-Ag; Fri, 14 Aug 2020 13:07:32 +0200
-From:   Geert Uytterhoeven <geert+renesas@glider.be>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        kogiidena <kogiidena@eggplant.ddo.jp>,
-        Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        linux-rtc@vger.kernel.org, linux-sh@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 1/3] rtc: rtc-rs5c313: Drop obsolete platform_set_drvdata() call
-Date:   Fri, 14 Aug 2020 13:07:29 +0200
-Message-Id: <20200814110731.29029-2-geert+renesas@glider.be>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200814110731.29029-1-geert+renesas@glider.be>
-References: <20200814110731.29029-1-geert+renesas@glider.be>
+        id S1728347AbgHNOvl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 14 Aug 2020 10:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726193AbgHNOvi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 14 Aug 2020 10:51:38 -0400
+Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2C6E208B3;
+        Fri, 14 Aug 2020 14:51:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597416697;
+        bh=2azDCJAW0WmwzjFoNP1+Xf1baXp64Ykp/VUpBlKju0s=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bjfRL+mBKQdeXNIPuXX+sib3fYs2/XZWJHPOjPd4x196xwXtWkEnxkwGCGKCP+vXy
+         CxGeqKP68MgYI300g+hNTJd4uQCvZb/zOsnBdJ/cEKlyynKbLGyhuMbkA+R9Y9MLDY
+         rajai6Sqx8HGb8L035zTD4t0BSpxCLooD+BQeHTA=
+Received: by mail-ot1-f54.google.com with SMTP id t7so7776444otp.0;
+        Fri, 14 Aug 2020 07:51:36 -0700 (PDT)
+X-Gm-Message-State: AOAM531YqcS4MUxvcGOYChGHRoRMcVsEFsDHYR5LbkHA90TiOSl6Dmh8
+        R/b9TCtT0vzAo6TEwQr7L0CGI1coatN8YZannA==
+X-Google-Smtp-Source: ABdhPJzAQOVgwIRLTeJz+4kS8jI7uSM4yy2bV/QUkiEz2152JH8sgfiQxJMSY+wk4abg95jsoFr6h5Ymz6ZJoeFhB2g=
+X-Received: by 2002:a05:6830:1b79:: with SMTP id d25mr1995774ote.107.1597416696235;
+ Fri, 14 Aug 2020 07:51:36 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200812203618.2656699-1-robh@kernel.org> <d5808e9c-07fe-1c28-b9a6-a16abe9df458@lucaceresoli.net>
+In-Reply-To: <d5808e9c-07fe-1c28-b9a6-a16abe9df458@lucaceresoli.net>
+From:   Rob Herring <robh@kernel.org>
+Date:   Fri, 14 Aug 2020 08:51:24 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqKekx0VO4NROwLrgrU8+L584HaLHM9i3kCZvU+g5myeGw@mail.gmail.com>
+Message-ID: <CAL_JsqKekx0VO4NROwLrgrU8+L584HaLHM9i3kCZvU+g5myeGw@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: Whitespace clean-ups in schema files
+To:     Luca Ceresoli <luca@lucaceresoli.net>
+Cc:     devicetree@vger.kernel.org,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        linux-clk <linux-clk@vger.kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:REMOTE PROCESSOR (REMOTEPROC) SUBSYSTEM" 
+        <linux-remoteproc@vger.kernel.org>,
+        Linux HWMON List <linux-hwmon@vger.kernel.org>,
+        Linux I2C <linux-i2c@vger.kernel.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>,
+        Linux Input <linux-input@vger.kernel.org>,
+        "open list:THERMAL" <linux-pm@vger.kernel.org>,
+        Linux Media Mailing List <linux-media@vger.kernel.org>,
+        Linux-ALSA <alsa-devel@alsa-project.org>,
+        linux-mmc <linux-mmc@vger.kernel.org>,
+        MTD Maling List <linux-mtd@lists.infradead.org>,
+        netdev <netdev@vger.kernel.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        Linux USB List <linux-usb@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Commit 284e2fa1da00a998 ("rtc: rtc-rs5c313: use
-devm_rtc_device_register()"), removed the last user of the
-driver-specific data.  Hence there is no longer a need to set it.
+On Thu, Aug 13, 2020 at 4:31 AM Luca Ceresoli <luca@lucaceresoli.net> wrote:
+>
+> Hi Rob,
+>
+> On 12/08/20 22:36, Rob Herring wrote:
+> > Clean-up incorrect indentation, extra spaces, long lines, and missing
+> > EOF newline in schema files. Most of the clean-ups are for list
+> > indentation which should always be 2 spaces more than the preceding
+> > keyword.
+> >
+> > Found with yamllint (which I plan to integrate into the checks).
+>
+> [...]
+>
+> > diff --git a/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml b/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
+> > index 3d4e1685cc55..28c6461b9a9a 100644
+> > --- a/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
+> > +++ b/Documentation/devicetree/bindings/clock/idt,versaclock5.yaml
+> > @@ -95,10 +95,10 @@ allOf:
+> >        # Devices without builtin crystal
+> >        properties:
+> >          clock-names:
+> > -            minItems: 1
+> > -            maxItems: 2
+> > -            items:
+> > -              enum: [ xin, clkin ]
+> > +          minItems: 1
+> > +          maxItems: 2
+> > +          items:
+> > +            enum: [ xin, clkin ]
+> >          clocks:
+> >            minItems: 1
+> >            maxItems: 2
+>
+> Thanks for noticing, LGTM.
+>
+> [...]
+>
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> > index d7dac16a3960..36dc7b56a453 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> > @@ -33,8 +33,8 @@ properties:
+> >      $ref: /schemas/types.yaml#/definitions/uint32
+> >
+> >    touchscreen-min-pressure:
+> > -    description: minimum pressure on the touchscreen to be achieved in order for the
+> > -                 touchscreen driver to report a touch event.
+> > +    description: minimum pressure on the touchscreen to be achieved in order
+> > +      for the touchscreen driver to report a touch event.
+>
+> Out of personal taste, I find the original layout more pleasant and
+> readable. This third option is also good, especially for long descriptions:
+>
+>   description:
+>     minimum pressure on the touchscreen to be achieved in order for the
+>     touchscreen driver to report a touch event.
+>
+> At first glance yamllint seems to support exactly these two by default:
+>
+> > With indentation: {spaces: 4, check-multi-line-strings: true}
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
- drivers/rtc/rtc-rs5c313.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+Turning on check-multi-line-strings results in 10K+ warnings, so no.
 
-diff --git a/drivers/rtc/rtc-rs5c313.c b/drivers/rtc/rtc-rs5c313.c
-index 89f38e3e917d3d11..00b5ef753935ec8a 100644
---- a/drivers/rtc/rtc-rs5c313.c
-+++ b/drivers/rtc/rtc-rs5c313.c
-@@ -369,12 +369,7 @@ static int rs5c313_rtc_probe(struct platform_device *pdev)
- 	struct rtc_device *rtc = devm_rtc_device_register(&pdev->dev, "rs5c313",
- 				&rs5c313_rtc_ops, THIS_MODULE);
- 
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
--
--	platform_set_drvdata(pdev, rtc);
--
--	return 0;
-+	return PTR_ERR_OR_ZERO(rtc);
- }
- 
- static struct platform_driver rs5c313_rtc_platform_driver = {
--- 
-2.17.1
+The other issue is the style ruamel.yaml wants to write out is as the
+patch does above. This matters when doing some scripted
+transformations where we read in the files and write them back out. I
+can somewhat work around that by first doing a pass with no changes
+and then another pass with the actual changes, but that's completely
+scriptable. Hopefully, ruamel learns to preserve the style better.
 
+Rob
