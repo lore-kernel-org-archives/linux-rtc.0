@@ -2,258 +2,104 @@ Return-Path: <SRS0=6LMo=B2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6569CC433E5
-	for <linux-rtc@archiver.kernel.org>; Sun, 16 Aug 2020 08:44:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 027C9C433E1
+	for <linux-rtc@archiver.kernel.org>; Sun, 16 Aug 2020 23:57:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 41C112067C
-	for <linux-rtc@archiver.kernel.org>; Sun, 16 Aug 2020 08:44:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1597567479;
-	bh=T6UwMy4v18bgR1RYSk8bKZfCqTMnyUP8XZKnI31+u3w=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:List-ID:From;
-	b=H0S6ja7i8eoqRr6xa3kTaTNjxSC6tdcFiDDPaIQfE71HuCeT1i9FSuoR1rDgsvt6q
-	 Vh5Jb1n7sIY5nzaYWWKbx/MTrQNF2+8dkAPyztSM9FdWBEA2mQ+XFbBLETHXuwSQaa
-	 WbEGRIW9UAVmiMdLGtJqs2iHUkd1+ThvHGcyBDSM=
+	by mail.kernel.org (Postfix) with ESMTP id CE2C620739
+	for <linux-rtc@archiver.kernel.org>; Sun, 16 Aug 2020 23:57:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="ZTmL/jg0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728992AbgHPIod (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 16 Aug 2020 04:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725966AbgHPIo0 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 16 Aug 2020 04:44:26 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        id S1726417AbgHPX5k (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 16 Aug 2020 19:57:40 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:47188 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726151AbgHPX5j (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 16 Aug 2020 19:57:39 -0400
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032672067C;
-        Sun, 16 Aug 2020 08:44:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597567464;
-        bh=T6UwMy4v18bgR1RYSk8bKZfCqTMnyUP8XZKnI31+u3w=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=drEoeXpHv0E0mUqTh6XgOtxm5HjQ3BZXo/2Vyh0E5JgpqmZ5oJHeFCZAHCZB9rAXm
-         AbIb6f0WWGOxG4kSm3h11hWn0MA48MyZ6oiLma2mj2RujKNmxiI3bNdIjGxh0rdsDK
-         bybFa1BfDVi2cbQ+dCfDbBrEzAgdhLg63i6r2Z2c=
-Date:   Sun, 16 Aug 2020 09:44:18 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Sam Ravnborg <sam@ravnborg.org>
-Cc:     Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-pm@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-spi@vger.kernel.org,
-        linux-gpio@vger.kernel.org, netdev@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-media@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Whitespace clean-ups in schema files
-Message-ID: <20200816094418.5bd08f5f@archlinux>
-In-Reply-To: <20200812213453.GA690477@ravnborg.org>
-References: <20200812203618.2656699-1-robh@kernel.org>
-        <20200812213453.GA690477@ravnborg.org>
-X-Mailer: Claws Mail 3.17.6 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 2D25F806B6;
+        Mon, 17 Aug 2020 11:57:34 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1597622254;
+        bh=JhXIFBqKeT7URz6eflkuIZsdIt3uBksb0ispn1x1xTk=;
+        h=From:To:Cc:Subject:Date;
+        b=ZTmL/jg0TgMZmwa2D+p6g4e6h/9m7a7rOGt0jct1upuAZyQURrFJgRiPyyo1+gkR2
+         swwr67p3h6sPYiKKxzdYccDtFw6QRWxe6scq2YDg0gfHvqMEo4QKvK8mCJ0+FzPMpM
+         r4Xl5CgQtIr83Hu2/4eHLTBtZzO29/dfm3sPKRzWHqcbE0QBh7bD18GuW88O+kZVqO
+         pajI+oy0cJvjkbBAW/8CyNBV3ctIKAKqHa0jO8c3AssVwuR03f3PhaMnrQCGXZKqfI
+         IUgndDi7x0goUm8ybo6tbmeL0D6D3+zMYTLV/j4OYU90UmPt9DHubeQfyVTM1wgBDN
+         1SDBODP89HZ6Q==
+Received: from smtp (Not Verified[10.32.16.33]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5f39c7ee0000>; Mon, 17 Aug 2020 11:57:34 +1200
+Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.20])
+        by smtp (Postfix) with ESMTP id 6959113ED33;
+        Mon, 17 Aug 2020 11:57:33 +1200 (NZST)
+Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
+        id F365A28005D; Mon, 17 Aug 2020 11:57:33 +1200 (NZST)
+From:   Chris Packham <chris.packham@alliedtelesis.co.nz>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH] rtc: ds1307: Ensure oscillator is enabled for DS1388
+Date:   Mon, 17 Aug 2020 11:57:31 +1200
+Message-Id: <20200816235731.21071-1-chris.packham@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+x-atlnz-ls: pat
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 12 Aug 2020 23:34:53 +0200
-Sam Ravnborg <sam@ravnborg.org> wrote:
+Similar to the other variants the DS1388 has a bit to stop the
+oscillator to reduce the power consumption from VBAT. Ensure that the
+oscillator is enabled when the system is up.
 
-> Hi Rob.
-> 
-> On Wed, Aug 12, 2020 at 02:36:18PM -0600, Rob Herring wrote:
-> > Clean-up incorrect indentation, extra spaces, long lines, and missing
-> > EOF newline in schema files. Most of the clean-ups are for list
-> > indentation which should always be 2 spaces more than the preceding
-> > keyword.
-> > 
-> > Found with yamllint (which I plan to integrate into the checks).  
-> 
-> I have browsed through the patch - and there was only a few things
-> that jumped at me.
-> 
-> With these points considered:
-> Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+---
+ drivers/rtc/rtc-ds1307.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-Replying here as the patch doesn't seem to have made it to linux-iio
-at least. I'm not sure why...
-
-Anyhow, found it in an lkml archive so for the iio changes
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-> 
-> I expect only some (few) of my points to actually results in any updates.
-> 
-> I look forward to have the lint functionality as part of the built-in
-> tools so we catch these things early.
-> 
-> 	Sam
-> 
-> > diff --git a/Documentation/devicetree/bindings/arm/fsl.yaml b/Documentation/devicetree/bindings/arm/fsl.yaml
-> > index f63895c8ce2d..88814a2a14a5 100644
-> > --- a/Documentation/devicetree/bindings/arm/fsl.yaml
-> > +++ b/Documentation/devicetree/bindings/arm/fsl.yaml
-> > @@ -273,8 +273,8 @@ properties:
-> >                - fsl,imx6ull-14x14-evk     # i.MX6 UltraLiteLite 14x14 EVK Board
-> >                - kontron,imx6ull-n6411-som # Kontron N6411 SOM
-> >                - myir,imx6ull-mys-6ulx-eval # MYiR Tech iMX6ULL Evaluation Board
-> > -              - toradex,colibri-imx6ull-eval            # Colibri iMX6ULL Module on Colibri Evaluation Board
-> > -              - toradex,colibri-imx6ull-wifi-eval       # Colibri iMX6ULL Wi-Fi / Bluetooth Module on Colibri Evaluation Board
-> > +              - toradex,colibri-imx6ull-eval      # Colibri iMX6ULL Module on Colibri Eval Board
-> > +              - toradex,colibri-imx6ull-wifi-eval # Colibri iMX6ULL Wi-Fi / BT Module on Colibri Eval Board
-> >            - const: fsl,imx6ull  
-> 
-> This change looks bad as it drops the alignment with the comments below.
-> See following patch chunck:
-> 
-> >
-> >        - description: Kontron N6411 S Board
-> > @@ -312,9 +312,12 @@ properties:
-> >                - toradex,colibri-imx7d                   # Colibri iMX7 Dual Module
-> >                - toradex,colibri-imx7d-aster             # Colibri iMX7 Dual Module on Aster Carrier Board
-> >                - toradex,colibri-imx7d-emmc              # Colibri iMX7 Dual 1GB (eMMC) Module
-> > -              - toradex,colibri-imx7d-emmc-aster        # Colibri iMX7 Dual 1GB (eMMC) Module on Aster Carrier Board
-> > -              - toradex,colibri-imx7d-emmc-eval-v3      # Colibri iMX7 Dual 1GB (eMMC) Module on Colibri Evaluation Board V3
-> > -              - toradex,colibri-imx7d-eval-v3           # Colibri iMX7 Dual Module on Colibri Evaluation Board V3
-> > +              - toradex,colibri-imx7d-emmc-aster        # Colibri iMX7 Dual 1GB (eMMC) Module on
-> > +                                                        #  Aster Carrier Board  
-> 
-> 
-> 
-> > diff --git a/Documentation/devicetree/bindings/display/panel/ilitek,ili9322.yaml b/Documentation/devicetree/bindings/display/panel/ilitek,ili9322.yaml
-> > index 177d48c5bd97..e89c1ea62ffa 100644
-> > --- a/Documentation/devicetree/bindings/display/panel/ilitek,ili9322.yaml
-> > +++ b/Documentation/devicetree/bindings/display/panel/ilitek,ili9322.yaml
-> > @@ -25,8 +25,7 @@ properties:
-> >    compatible:
-> >      items:
-> >        - enum:
-> > -        - dlink,dir-685-panel
-> > -
-> > +          - dlink,dir-685-panel
-> >        - const: ilitek,ili9322
-> >
-> >    reset-gpios: true
-> > diff --git a/Documentation/devicetree/bindings/display/panel/ilitek,ili9881c.yaml b/Documentation/devicetree/bindings/display/panel/ilitek,ili9881c.yaml
-> > index a39332276bab..76a9068a85dd 100644
-> > --- a/Documentation/devicetree/bindings/display/panel/ilitek,ili9881c.yaml
-> > +++ b/Documentation/devicetree/bindings/display/panel/ilitek,ili9881c.yaml
-> > @@ -13,8 +13,7 @@ properties:
-> >    compatible:
-> >      items:
-> >        - enum:
-> > -        - bananapi,lhr050h41
-> > -
-> > +          - bananapi,lhr050h41
-> >        - const: ilitek,ili9881c
-> >  
-> 
-> The extra lines is a simple way to indicate that here shall be added
-> more in the future. So I like the empty line.
-> 
-> 
-> > diff --git a/Documentation/devicetree/bindings/leds/backlight/qcom-wled.yaml b/Documentation/devicetree/bindings/leds/backlight/qcom-wled.yaml
-> > index 32e0896c6bc1..47938e372987 100644
-> > --- a/Documentation/devicetree/bindings/leds/backlight/qcom-wled.yaml
-> > +++ b/Documentation/devicetree/bindings/leds/backlight/qcom-wled.yaml
-> > @@ -79,7 +79,8 @@ properties:
-> >      description: |
-> >        kHz; switching frequency.
-> >      $ref: /schemas/types.yaml#/definitions/uint32
-> > -    enum: [ 600, 640, 685, 738, 800, 872, 960, 1066, 1200, 1371, 1600, 1920, 2400, 3200, 4800, 9600 ]
-> > +    enum: [ 600, 640, 685, 738, 800, 872, 960, 1066, 1200, 1371, 1600, 1920,
-> > +            2400, 3200, 4800, 9600 ]
-> >
-> >    qcom,ovp:
-> >      description: |  
-> 
-> In the modern world we are living in now line length of 100 chars are
-> OK. checkpatch and coding_style is updated to reflected this.
-> 
-> > diff --git a/Documentation/devicetree/bindings/spi/mikrotik,rb4xx-spi.yaml b/Documentation/devicetree/bindings/spi/mikrotik,rb4xx-spi.yaml
-> > index 4ddb42a4ae05..9102feae90a2 100644
-> > --- a/Documentation/devicetree/bindings/spi/mikrotik,rb4xx-spi.yaml
-> > +++ b/Documentation/devicetree/bindings/spi/mikrotik,rb4xx-spi.yaml
-> > @@ -33,4 +33,5 @@ examples:
-> >          reg = <0x1f000000 0x10>;
-> >      };
-> >
-> > -...
-> > \ No newline at end of file
-> > +...
-> > +  
-> 
-> Added one line too much?
-> 
->  diff --git a/Documentation/devicetree/bindings/spi/spi-mux.yaml b/Documentation/devicetree/bindings/spi/spi-mux.yaml
-> > index 0ae692dc28b5..3d3fed63409b 100644
-> > --- a/Documentation/devicetree/bindings/spi/spi-mux.yaml
-> > +++ b/Documentation/devicetree/bindings/spi/spi-mux.yaml
-> > @@ -43,47 +43,47 @@ properties:
-> >      maxItems: 1
-> >
-> >  required:
-> > -   - compatible
-> > -   - reg
-> > -   - spi-max-frequency
-> > -   - mux-controls
-> > +  - compatible
-> > +  - reg
-> > +  - spi-max-frequency
-> > +  - mux-controls
-> >
-> >  examples:
-> > -   - |
-> > -     #include <dt-bindings/gpio/gpio.h>
-> > -     mux: mux-controller {
-> > -       compatible = "gpio-mux";
-> > -       #mux-control-cells = <0>;
-> > +  - |
-> > +    #include <dt-bindings/gpio/gpio.h>
-> > +    mux: mux-controller {
-> > +        compatible = "gpio-mux";
-> > +        #mux-control-cells = <0>;
-> >
-> > -       mux-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
-> > -     };
-> > +        mux-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
-> > +    };  
-> 
-> Example is updated to use 4-space indent. I like.
-> 
-> But many other examples are left untouched.
-> 
-> So I wonder if updating all examples to the same indent should
-> be left for another mega-patch?
-> 
-> > diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > index f3d847832fdc..2baee2c817c1 100644
-> > --- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > +++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-> > @@ -993,7 +993,8 @@ patternProperties:
-> >    "^sst,.*":
-> >      description: Silicon Storage Technology, Inc.
-> >    "^sstar,.*":
-> > -    description: Xiamen Xingchen(SigmaStar) Technology Co., Ltd. (formerly part of MStar Semiconductor, Inc.)
-> > +    description: Xiamen Xingchen(SigmaStar) Technology Co., Ltd.
-> > +      (formerly part of MStar Semiconductor, Inc.)
-> >    "^st,.*":
-> >      description: STMicroelectronics
-> >    "^starry,.*":  
-> 
-> Did you check that they are all in alphabetical order?
-> I would be suprised if this is the only issue in this file.
-> 
-> 
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 54c85cdd019d..2182f4e97c0a 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -153,6 +153,7 @@ enum ds_type {
+ #define DS1388_REG_CONTROL		0x0c
+ #	define DS1388_BIT_RST		BIT(0)
+ #	define DS1388_BIT_WDE		BIT(1)
++#	define DS1388_BIT_nEOSC		BIT(7)
+=20
+ /* negative offset step is -2.034ppm */
+ #define M41TXX_NEG_OFFSET_STEP_PPB	2034
+@@ -1881,6 +1882,19 @@ static int ds1307_probe(struct i2c_client *client,
+ 				     DS1307_REG_HOUR << 4 | 0x08, hour);
+ 		}
+ 		break;
++	case ds_1388:
++		err =3D regmap_read(ds1307->regmap, DS1388_REG_CONTROL, &tmp);
++		if (err) {
++			dev_dbg(ds1307->dev, "read error %d\n", err);
++			goto exit;
++		}
++
++		/* oscillator off?  turn it on, so clock can tick. */
++		if (tmp & DS1388_BIT_nEOSC) {
++			tmp &=3D ~DS1388_BIT_nEOSC;
++			regmap_write(ds1307->regmap, DS1388_REG_CONTROL, tmp);
++		}
++		break;
+ 	default:
+ 		break;
+ 	}
+--=20
+2.28.0
 
