@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81EE8C433E1
-	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:09:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31D7BC433E1
+	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:12:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5728E208C7
-	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:09:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0252F20FC3
+	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1597882187;
-	bh=0szdI8OWm1HrgtMt26yi8UvMYrZFo16gefVobvO4NGI=;
+	s=default; t=1597882320;
+	bh=2OGik1si2CQz73pb1R1EN1XL5l9NZWL7GYoRLCxjPrY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=uHDvZt9oFXVJZxi5fbwhi3x3qbQIJn77PuxC7rOr8s/j58XWA2w4QFTfez60KTMlk
-	 jYjAh1Ii6MRDNu5aMY006zKYy39sDKNVHG4bUjKnA6Q0erYcrUq9r3mCeVIO/JYwkH
-	 zZUfbrkpu6Pb5FfASdr7ijQkeAR8xUlEEjSEJWHY=
+	b=Uys1HH6yRLPEfZ9PI8fF7vNstnX39Q0I3dGBAXBWRWbLQPlLJ8x6kn7l2mIskaLwj
+	 7Oe2CosE8mFTmZ1VhCKzbdlUtZdgJr0Pf0jEUGkF8DpjPbj4RiO8jkFhd+3trMZz9y
+	 wGEaiF44f54U0/wygKOQXmR7D2lJp5k8rbxDSUas=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbgHTACl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 19 Aug 2020 20:02:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59582 "EHLO mail.kernel.org"
+        id S1727772AbgHTACF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 19 Aug 2020 20:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728046AbgHTACg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 19 Aug 2020 20:02:36 -0400
+        id S1727125AbgHTACD (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:02:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9456C207FB;
-        Thu, 20 Aug 2020 00:02:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61070207FB;
+        Thu, 20 Aug 2020 00:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1597881756;
-        bh=0szdI8OWm1HrgtMt26yi8UvMYrZFo16gefVobvO4NGI=;
+        s=default; t=1597881723;
+        bh=2OGik1si2CQz73pb1R1EN1XL5l9NZWL7GYoRLCxjPrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvdiWf43UJEhScMakEX3ZSa9HbGKHceBE9o8tj1LWOTS0z02y7tj4XvzBBhII+cyj
-         nHivGGHdhaSSUPlGHAgIAUtzTMhngpPenYqVs84e7c1OjkI7v55/HVYaBdZSVKINPw
-         hsh7OJ/QvHzak9qomzy5PLl02d5RByhqW3u6z2M0=
+        b=P0jd1aZ3ABMFlW1eOThTfdZhxvfRCQauZTIGAx4Y1SjgdW/YQKd00iYBZ0xvsdjZ+
+         LEy0GVp1dpV39+yaDGfCjBmvCVYBFIhoVw53TEnERBwHZPF3djENWKQxN7zumuC9Xl
+         FIG7Ro4BoWNvKEO9DNASCT4PjJhNN2B9jgKBlM/I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Huacai Chen <chenhc@lemote.com>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 04/22] rtc: goldfish: Enable interrupt in set_alarm() when necessary
-Date:   Wed, 19 Aug 2020 20:02:11 -0400
-Message-Id: <20200820000229.215333-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 05/24] rtc: goldfish: Enable interrupt in set_alarm() when necessary
+Date:   Wed, 19 Aug 2020 20:01:36 -0400
+Message-Id: <20200820000155.215089-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200820000229.215333-1-sashal@kernel.org>
-References: <20200820000229.215333-1-sashal@kernel.org>
+In-Reply-To: <20200820000155.215089-1-sashal@kernel.org>
+References: <20200820000155.215089-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -79,7 +79,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
-index 1a3420ee6a4d9..d5083b013fbce 100644
+index cb6b0ad7ec3f2..5dd92147f1680 100644
 --- a/drivers/rtc/rtc-goldfish.c
 +++ b/drivers/rtc/rtc-goldfish.c
 @@ -73,6 +73,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
