@@ -1,80 +1,95 @@
-Return-Path: <SRS0=MDmh=B4=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=3uDJ=B6=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10C53C433DF
-	for <linux-rtc@archiver.kernel.org>; Tue, 18 Aug 2020 06:43:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E760DC433E3
+	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:07:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8B65204FD
-	for <linux-rtc@archiver.kernel.org>; Tue, 18 Aug 2020 06:43:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB7C8207FB
+	for <linux-rtc@archiver.kernel.org>; Thu, 20 Aug 2020 00:07:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1597882027;
+	bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
+	b=BJkvzAfy9P60YpVK5CPNNJOOOec2mONBXdwxApV5vfBjOx2G71bRabTsdME/Tjqlc
+	 uHuVrkGqmEky4hydyh6zNtNFkHMLGzXfo2UGooPERBpGDCjGuJ0lxXnW3E88Z4bZL5
+	 pqgKqeexfa35vbhWPkbPDaiWWvQu3R1v/eiETd1U=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726535AbgHRGnk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 18 Aug 2020 02:43:40 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:40264 "EHLO inva020.nxp.com"
+        id S1728373AbgHTAGv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 19 Aug 2020 20:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726365AbgHRGnj (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 18 Aug 2020 02:43:39 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id DFCE61A00E8;
-        Tue, 18 Aug 2020 08:43:37 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 363781A1047;
-        Tue, 18 Aug 2020 08:43:35 +0200 (CEST)
-Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 7AC41402AD;
-        Tue, 18 Aug 2020 08:43:31 +0200 (CEST)
-From:   Ran Wang <ran.wang_1@nxp.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Peng Ma <peng.ma@nxp.com>, Ran Wang <ran.wang_1@nxp.com>
-Subject: [PATCH] rtc: fsl-ftm-alarm: update acpi device id
-Date:   Tue, 18 Aug 2020 14:36:09 +0800
-Message-Id: <20200818063609.39859-1-ran.wang_1@nxp.com>
-X-Mailer: git-send-email 2.17.1
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1728305AbgHTADd (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 19 Aug 2020 20:03:33 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7A4A208E4;
+        Thu, 20 Aug 2020 00:03:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597881813;
+        bh=nG/68UkyJbPFo39KSSnnMAkMSDLG37DYiU7yZfHaGPg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=U2iM8d9Y9A+wstXm/GmFjc0gaKS6CA1ESYamAzGzVSsUff52U5tM3fl72TZHDMDIE
+         T76uEaDXBTsD+FORIXOvP/hZgqvlQFir/ndF06T1rMgDLTfi+7SmFVmI/ZIDZOYT9U
+         bIdXrwvVDndTXtBYVo3mpvV1b+6Ee+Hdf8EKtWbU=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/13] rtc: goldfish: Enable interrupt in set_alarm() when necessary
+Date:   Wed, 19 Aug 2020 20:03:18 -0400
+Message-Id: <20200820000328.215755-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200820000328.215755-1-sashal@kernel.org>
+References: <20200820000328.215755-1-sashal@kernel.org>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Peng Ma <peng.ma@nxp.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-Original device id would conflict with crypto driver, change it.
+[ Upstream commit 22f8d5a1bf230cf8567a4121fc3789babb46336d ]
 
-Signed-off-by: Peng Ma <peng.ma@nxp.com>
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+When use goldfish rtc, the "hwclock" command fails with "select() to
+/dev/rtc to wait for clock tick timed out". This is because "hwclock"
+need the set_alarm() hook to enable interrupt when alrm->enabled is
+true. This operation is missing in goldfish rtc (but other rtc drivers,
+such as cmos rtc, enable interrupt here), so add it.
+
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1592654683-31314-1-git-send-email-chenhc@lemote.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-fsl-ftm-alarm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-goldfish.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
-index 68f0a18..48d3b38 100644
---- a/drivers/rtc/rtc-fsl-ftm-alarm.c
-+++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
-@@ -3,7 +3,7 @@
-  * Freescale FlexTimer Module (FTM) alarm device driver.
-  *
-  * Copyright 2014 Freescale Semiconductor, Inc.
-- * Copyright 2019 NXP
-+ * Copyright 2019-2020 NXP
-  *
-  */
- 
-@@ -312,7 +312,7 @@ static const struct of_device_id ftm_rtc_match[] = {
- };
- 
- static const struct acpi_device_id ftm_imx_acpi_ids[] = {
--	{"NXP0011",},
-+	{"NXP0014",},
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, ftm_imx_acpi_ids);
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index a1c44d0c85578..30cbe22c57a8e 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -87,6 +87,7 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 		rtc_alarm64 = rtc_alarm * NSEC_PER_SEC;
+ 		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+ 		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
++		writel(1, base + TIMER_IRQ_ENABLED);
+ 	} else {
+ 		/*
+ 		 * if this function was called with enabled=0
 -- 
-2.7.4
+2.25.1
 
