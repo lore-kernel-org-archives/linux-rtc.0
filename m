@@ -1,85 +1,85 @@
-Return-Path: <SRS0=i9IR=CF=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=nhmW=CI=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69B40C433DF
-	for <linux-rtc@archiver.kernel.org>; Thu, 27 Aug 2020 09:23:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEBA0C433E6
+	for <linux-rtc@archiver.kernel.org>; Sun, 30 Aug 2020 08:10:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4803B2177B
-	for <linux-rtc@archiver.kernel.org>; Thu, 27 Aug 2020 09:23:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88D59208CA
+	for <linux-rtc@archiver.kernel.org>; Sun, 30 Aug 2020 08:10:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1598775042;
+	bh=UHrlQ3jb0To1Qcfdx1uid0gHlvTRA2SrFLLJNnU3YHg=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=UPSG4yMHXsGZPpRhJPaMiyMOuDLj1hFjBtum6vCA6fP51+MovLqz3EUgg9/F9MRhx
+	 bKW2GVTpYFixo0uegZyTvUHZ3CPDwJbnAlbA64RrKlz/gtzpRCtz680oC7Uzb0MOax
+	 dGE5eBuOD0g8fDZVgqAb63Nge/56dafcfaV3mGRQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728292AbgH0JWj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 27 Aug 2020 05:22:39 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:42160 "EHLO inva021.nxp.com"
+        id S1725934AbgH3IKj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 30 Aug 2020 04:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgH0JWi (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 27 Aug 2020 05:22:38 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 2A6E7200AF0;
-        Thu, 27 Aug 2020 11:22:36 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 032DF20004A;
-        Thu, 27 Aug 2020 11:22:33 +0200 (CEST)
-Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id C27D5402A7;
-        Thu, 27 Aug 2020 11:22:28 +0200 (CEST)
-From:   Qiang Zhao <qiang.zhao@nxp.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        robh+dt@kernel.org
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Zhao Qiang <qiang.zhao@nxp.com>
-Subject: [PATCH 2/3] rtc: pcf2127: add "no-watchdog" property
-Date:   Thu, 27 Aug 2020 17:14:40 +0800
-Message-Id: <20200827091441.12972-2-qiang.zhao@nxp.com>
+        id S1727855AbgH3IJn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 30 Aug 2020 04:09:43 -0400
+Received: from localhost.localdomain (unknown [194.230.155.216])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F2620714;
+        Sun, 30 Aug 2020 08:09:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598774982;
+        bh=UHrlQ3jb0To1Qcfdx1uid0gHlvTRA2SrFLLJNnU3YHg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OlkPhXmtxIm25KwszEbSZVLc0+Hx2wObPtXFQBxan067WH5HuM6BTXsKszrD7Jsev
+         Kdd1bzxImfgZf90dYSbseFET9yxx9TApEEdoOzGeVxIz3N3rVCaJyKTlHI+lrQz2ik
+         ZmeYnojRo3xAVYJq/e5Fb4dVJMDQi13nVlLPBiJE=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH] rtc: s3c: Simplify with dev_err_probe()
+Date:   Sun, 30 Aug 2020 10:09:37 +0200
+Message-Id: <20200830080937.14367-1-krzk@kernel.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200827091441.12972-1-qiang.zhao@nxp.com>
-References: <20200827091441.12972-1-qiang.zhao@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Zhao Qiang <qiang.zhao@nxp.com>
+Common pattern of handling deferred probe can be simplified with
+dev_err_probe().  Less code and the error value gets printed.
 
-Commit 0e735eaae165 ("rtc: pcf2127: add watchdog feature support")
-adds watchdog feature for pcf2127, then it will be registered as
-a watchdog device even though it is not used as watchdog.
-Pcf2127 always be registered as watchdog0(default watchdog device),
-even though it is not used as watchdog, meanwhile there is another
-real watchdog device registered as watchdog1.
-So add "no-watchdog" property, if the node has this property,
-driver will not register it as a watchdog device
-
-Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/rtc/rtc-pcf2127.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-s3c.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 02b069c..38d30e2 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -476,9 +476,11 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 	}
- 
- #ifdef CONFIG_WATCHDOG
--	ret = devm_watchdog_register_device(dev, &pcf2127->wdd);
--	if (ret)
--		return ret;
-+	if (!of_property_read_bool(dev->of_node, "no-watchdog")) {
-+		ret = devm_watchdog_register_device(dev, &pcf2127->wdd);
-+		if (ret)
-+			return ret;
-+	}
- #endif /* CONFIG_WATCHDOG */
- 
- 	/*
+diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+index e1b50e682fc4..24a41909f049 100644
+--- a/drivers/rtc/rtc-s3c.c
++++ b/drivers/rtc/rtc-s3c.c
+@@ -494,13 +494,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+ 	if (info->data->needs_src_clk) {
+ 		info->rtc_src_clk = devm_clk_get(&pdev->dev, "rtc_src");
+ 		if (IS_ERR(info->rtc_src_clk)) {
+-			ret = PTR_ERR(info->rtc_src_clk);
+-			if (ret != -EPROBE_DEFER)
+-				dev_err(&pdev->dev,
+-					"failed to find rtc source clock\n");
+-			else
+-				dev_dbg(&pdev->dev,
+-					"probe deferred due to missing rtc src clk\n");
++			ret = dev_err_probe(&pdev->dev, PTR_ERR(info->rtc_src_clk),
++					    "failed to find rtc source clock\n");
+ 			goto err_src_clk;
+ 		}
+ 		ret = clk_prepare_enable(info->rtc_src_clk);
 -- 
-2.7.4
+2.17.1
 
