@@ -1,88 +1,103 @@
-Return-Path: <SRS0=JzzY=CL=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=noNC=CN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FB45C433E2
-	for <linux-rtc@archiver.kernel.org>; Wed,  2 Sep 2020 19:18:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D88BC433E2
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:21:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33C92207EA
-	for <linux-rtc@archiver.kernel.org>; Wed,  2 Sep 2020 19:18:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA1C42074D
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:21:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="MfZkEE7G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbgIBTSl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 2 Sep 2020 15:18:41 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:45801 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726567AbgIBTSj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Sep 2020 15:18:39 -0400
-X-Originating-IP: 90.66.108.79
-Received: from localhost (lfbn-lyo-1-1932-79.w90-66.abo.wanadoo.fr [90.66.108.79])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 187FA1C0002;
-        Wed,  2 Sep 2020 19:18:36 +0000 (UTC)
-Date:   Wed, 2 Sep 2020 21:18:36 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Bastian Krause <bst@pengutronix.de>
-Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Marek Vasut <marex@denx.de>, devicetree@vger.kernel.org,
-        Arnaud Ebalard <arno@natisbad.org>,
-        Rob Herring <robh+dt@kernel.org>, kernel@pengutronix.de
-Subject: Re: [PATCH 2/3] dt-bindings: rtc: add chargeable flag for rx8130
-Message-ID: <20200902191836.GP3204668@piout.net>
-References: <20200415163701.21989-1-bst@pengutronix.de>
- <20200415163701.21989-2-bst@pengutronix.de>
- <20200415185609.GP34509@piout.net>
- <3d1ecd35-fe37-02e7-74d8-3f37c2197173@pengutronix.de>
- <a492b6a0-b41c-a088-3ba1-f1448a074b34@pengutronix.de>
- <20200825153248.GH2389103@piout.net>
- <98fa7181-3ebe-d7c3-cfac-fee841c81e15@pengutronix.de>
+        id S1730237AbgIDPVo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Sep 2020 11:21:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730781AbgIDPVa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Sep 2020 11:21:30 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAAA4C061246
+        for <linux-rtc@vger.kernel.org>; Fri,  4 Sep 2020 08:21:29 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id e17so6434555wme.0
+        for <linux-rtc@vger.kernel.org>; Fri, 04 Sep 2020 08:21:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=UTzOsHSC+gZF9PSWWpuSmxUozEdf7QQLb/WCmyturHc=;
+        b=MfZkEE7Gfj0EtpOJBT7E7Tf2l0qG42PZBryzfeuryiCZ74FGcKYrek3oeHE6kk7niZ
+         d95jS1ajKAMD3cSEE3LnGLsKhc/+uB2M3h/3qc8fJx82Vc9qJf7rtt5ICZ/EpHdIyJ/p
+         gobCsWFnQc2hRa7E+c90WvWV62/pGlk09hWK1IIPvZus1bT4XkoLrx7mL/9hHlA/qzhj
+         qTkQxQQ4mIsiqIOH3waewQkRPI+GEs/8kcwYCMSdi/5Az7ISYmcKvymWygDvTvrgoGYW
+         cuG+NX1fx9ZTnVdkkZkw20h0bv4odID5CMSRzGhs1+niyMAZ0/TjBWzjxOFYIT0S1rTb
+         r0yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=UTzOsHSC+gZF9PSWWpuSmxUozEdf7QQLb/WCmyturHc=;
+        b=egRMXMTwMWuyo2CQHEZ46DasaCuJ1nTJlWurrwghQBVYVjtAk4Wt4zVLWmP+R9wWS4
+         fC2LJzgj75Zq722YQfA839I7MKzD91XvdaqWtOpMT/uoKN0MgjcTFLNI9quoVHf/5RQ+
+         oJ9FuWVC08Ep63v9PhqohMlsbF3JZQwGbKfMeYl9fWelbwmUqIhyoBZmDCpeZ2kegIXY
+         FJ6GwQttM1YAhC/PoKWSyYd7kFtgvQv1+6AVrdMKRL5kpBJDhqG807cg2BuZKGa8MNo7
+         MmJhi2Hx8t0sPGrkNXW+tfiuFluR2xzfLK5yo+SQgWTGEvNbxVB9wWxTupA2Q9Eds3Pi
+         q3Tg==
+X-Gm-Message-State: AOAM530pCi6fbQQV9boDHmpNJFGSn2swdCeN/SGjVinfBrCW+eD77xr0
+        73urE3w64cwfawgvuXt3uiU+yw==
+X-Google-Smtp-Source: ABdhPJz85fPQMFzckhhoTot2QaK8gl2HFrn/KMmGkiQzh+8CaGPlQpEFpsbRrgx1VteJY1b1GXeTvA==
+X-Received: by 2002:a1c:e108:: with SMTP id y8mr5770367wmg.179.1599232888476;
+        Fri, 04 Sep 2020 08:21:28 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id a11sm7789534wmm.18.2020.09.04.08.21.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2020 08:21:28 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 6/8] rtc: rx8010: drop unnecessary initialization
+Date:   Fri,  4 Sep 2020 17:21:14 +0200
+Message-Id: <20200904152116.2157-7-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <20200904152116.2157-1-brgl@bgdev.pl>
+References: <20200904152116.2157-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98fa7181-3ebe-d7c3-cfac-fee841c81e15@pengutronix.de>
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 26/08/2020 10:13:04+0200, Bastian Krause wrote:
-> >> Are you okay with that?
-> >>
-> > 
-> > I agree boolean should be avoided in RTC drivers because we need a way
-> > to express "don't change this value".
-> 
-> Alright.
-> 
-> >> Some more context:
-> >>
-> >> I originally tried to add a chargeable flag for rx8130. Prior to this
-> >> patch, there was no need to set "trickle-diode-disable" for this,
-> >> because the driver did not pass the chargeable flag to the RTC. With the
-> >> patch the default would have been to charge as long as
-> >> "trickle-diode-disable" is not there. So there's a change in behavior.
-> >>
-> > 
-> > Yes, IIRC, my point was simply to move the documentation for
-> > aux-voltage-chargeable to the generice rtc binding documentation,
-> > Documentation/devicetree/bindings/rtc/rtc.yaml
-> > 
-> > For now, you sould keep support for trickle-diode-disable but it has to be
-> > superseded by aux-voltage-chargeable if present. Is that more clear?
-> 
-> Yes, thanks for the clarification.
-> 
-> Should I set the deprecated flag for trickle-diode-disable in the
-> dt-binding yaml?
-> 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-That's a good idea, yes.
+The 'err' local variable in rx8010_init_client() doesn't need to be
+initialized.
 
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/rtc/rtc-rx8010.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index f3bed7be2533..181fc21cefa8 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -196,7 +196,7 @@ static int rx8010_init_client(struct i2c_client *client)
+ {
+ 	struct rx8010_data *rx8010 = i2c_get_clientdata(client);
+ 	u8 ctrl[2];
+-	int need_clear = 0, err = 0;
++	int need_clear = 0, err;
+ 
+ 	/* Initialize reserved registers as specified in datasheet */
+ 	err = i2c_smbus_write_byte_data(client, RX8010_RESV17, 0xD8);
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.26.1
+
