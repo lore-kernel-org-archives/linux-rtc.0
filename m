@@ -2,154 +2,100 @@ Return-Path: <SRS0=noNC=CN=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84B34C433E2
-	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:22:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B64BC2BB84
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:32:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5907E2074D
-	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:22:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="hG22uCLi"
+	by mail.kernel.org (Postfix) with ESMTP id 567F520772
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Sep 2020 15:32:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730898AbgIDPWg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 4 Sep 2020 11:22:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730301AbgIDPV0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Sep 2020 11:21:26 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2053EC061249
-        for <linux-rtc@vger.kernel.org>; Fri,  4 Sep 2020 08:21:25 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id z9so6452273wmk.1
-        for <linux-rtc@vger.kernel.org>; Fri, 04 Sep 2020 08:21:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4PF6iUUI6SI+SJ6z3aC7j/JhZxFAycexdCgWf22To5o=;
-        b=hG22uCLiFR7asAwpfTFSwQU1iT/gHSJGscx3xXml/kyxE1JnDfx2MImY/2H1R8hLKJ
-         KfCjg6MZKknAkIKZotyKG6V6+B4nonb97c3ZWtPawkNO8Jkk2A4zk1b4rjfuNlZFAIMP
-         7Nengc5DlafgZ1S+i4Vx+EqWWER+cB9wNIsVMWDs8lbGwmw97s+ZL173l3s2Obdzotar
-         ayKP7cRX4JqUx2ALb/DjcNiWn377sT5SR3DGB9Laa8iyUktr0lOizPQHLFHIvu6DI1kx
-         i/crp9Xnio/Y+MqlzSjqheLANh0YjRxvrEgBrOsSZkzu7pWuJiKCVnHyQ9qzaIcp66vt
-         JHtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4PF6iUUI6SI+SJ6z3aC7j/JhZxFAycexdCgWf22To5o=;
-        b=eMLSaUZB4DuhTxfvbjk8hHLBoruMdZwNKPJf375fAyWGg0hre4SRuntsiqv6oBph9M
-         q5rZOMh0WMmjWZCu7Eqas6sfzlsycFKTQ+eOCt1vgZt/BTyyR7fpAGoJZhOfVedi6891
-         EJvEt1ATI13rzjoHC/dPoMpHs8Ol7GvGpMLCu1gRv7V8Reo2aJWAHbBZCOovS2wpYJzI
-         Zq+sRDR8yw6zauau2HnFlhRnFCt4NG8XIrkupACj1H2Dac+DixMH/rEKjdpIwKoqGI12
-         uIscGZx9sCbpNbdDOqz1ENLEymWUuHVll1EO6J6fj1bo73ZVct0OrIJ0hLd1sR974jMt
-         2YhQ==
-X-Gm-Message-State: AOAM533RoufCw5TQck6zEhZ+mh5Z4e0fVLhnlt4Si4yOSjgAFgv3L5Tk
-        HAbBu+/sps1hUX+gcGu4nSGoYQ==
-X-Google-Smtp-Source: ABdhPJzwZNrCv4oELX+wCyr/BptjE1Vzk+IEHthZyONGkq5f0OG68w9UJLc9TtP8XmHM+y68jgRZMQ==
-X-Received: by 2002:a1c:7d4d:: with SMTP id y74mr8082237wmc.73.1599232883838;
-        Fri, 04 Sep 2020 08:21:23 -0700 (PDT)
-Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
-        by smtp.gmail.com with ESMTPSA id a11sm7789534wmm.18.2020.09.04.08.21.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2020 08:21:23 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1726537AbgIDPcd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Sep 2020 11:32:33 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:39809 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726445AbgIDPcb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Sep 2020 11:32:31 -0400
+X-Originating-IP: 90.66.108.79
+Received: from localhost (lfbn-lyo-1-1932-79.w90-66.abo.wanadoo.fr [90.66.108.79])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 741A91BF20C;
+        Fri,  4 Sep 2020 15:32:29 +0000 (UTC)
+Date:   Fri, 4 Sep 2020 17:32:29 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 2/8] rtc: rx8010: consolidate local variables of the same type
-Date:   Fri,  4 Sep 2020 17:21:10 +0200
-Message-Id: <20200904152116.2157-3-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200904152116.2157-1-brgl@bgdev.pl>
+Subject: Re: [PATCH 1/8] rtc: rx8010: remove unnecessary parentheses
+Message-ID: <20200904153229.GJ230586@piout.net>
 References: <20200904152116.2157-1-brgl@bgdev.pl>
+ <20200904152116.2157-2-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200904152116.2157-2-brgl@bgdev.pl>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On 04/09/2020 17:21:09+0200, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Remove parentheses whenever they guard a single line.
 
-Move local variables of the same type into a single line for better
-readability.
+Those would be braces or curly brackets, not parentheses ;)
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/rtc/rtc-rx8010.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  drivers/rtc/rtc-rx8010.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+> index fe010151ec8f..2faf5357a3a5 100644
+> --- a/drivers/rtc/rtc-rx8010.c
+> +++ b/drivers/rtc/rtc-rx8010.c
+> @@ -181,9 +181,8 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+>  		return ret;
+>  
+>  	flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
+> -	if (flagreg < 0) {
+> +	if (flagreg < 0)
+>  		return flagreg;
+> -	}
+>  
+>  	if (flagreg & RX8010_FLAG_VLF)
+>  		ret = i2c_smbus_write_byte_data(rx8010->client, RX8010_FLAG,
+> @@ -284,17 +283,15 @@ static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+>  	int err;
+>  
+>  	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
+> -	if (flagreg < 0) {
+> +	if (flagreg < 0)
+>  		return flagreg;
+> -	}
+>  
+>  	if (rx8010->ctrlreg & (RX8010_CTRL_AIE | RX8010_CTRL_UIE)) {
+>  		rx8010->ctrlreg &= ~(RX8010_CTRL_AIE | RX8010_CTRL_UIE);
+>  		err = i2c_smbus_write_byte_data(rx8010->client, RX8010_CTRL,
+>  						rx8010->ctrlreg);
+> -		if (err < 0) {
+> +		if (err < 0)
+>  			return err;
+> -		}
+>  	}
+>  
+>  	flagreg &= ~RX8010_FLAG_AF;
+> -- 
+> 2.26.1
+> 
 
-diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-index 2faf5357a3a5..4c790d33f589 100644
---- a/drivers/rtc/rtc-rx8010.c
-+++ b/drivers/rtc/rtc-rx8010.c
-@@ -109,8 +109,7 @@ static int rx8010_get_time(struct device *dev, struct rtc_time *dt)
- {
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
- 	u8 date[7];
--	int flagreg;
--	int err;
-+	int flagreg, err;
- 
- 	flagreg = i2c_smbus_read_byte_data(rx8010->client, RX8010_FLAG);
- 	if (flagreg < 0)
-@@ -141,8 +140,7 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
- {
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
- 	u8 date[7];
--	int ctrl, flagreg;
--	int ret;
-+	int ctrl, flagreg, ret;
- 
- 	if ((dt->tm_year < 100) || (dt->tm_year > 199))
- 		return -EINVAL;
-@@ -250,8 +248,7 @@ static int rx8010_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
- 	struct i2c_client *client = rx8010->client;
- 	u8 alarmvals[3];
--	int flagreg;
--	int err;
-+	int flagreg, err;
- 
- 	err = i2c_smbus_read_i2c_block_data(client, RX8010_ALMIN, 3, alarmvals);
- 	if (err != 3)
-@@ -279,8 +276,7 @@ static int rx8010_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
- 	u8 alarmvals[3];
--	int extreg, flagreg;
--	int err;
-+	int extreg, flagreg, err;
- 
- 	flagreg = i2c_smbus_read_byte_data(client, RX8010_FLAG);
- 	if (flagreg < 0)
-@@ -346,9 +342,8 @@ static int rx8010_alarm_irq_enable(struct device *dev,
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
--	int flagreg;
-+	int flagreg, err;
- 	u8 ctrl;
--	int err;
- 
- 	ctrl = rx8010->ctrlreg;
- 
-@@ -387,8 +382,7 @@ static int rx8010_alarm_irq_enable(struct device *dev,
- static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- {
- 	struct rx8010_data *rx8010 = dev_get_drvdata(dev);
--	int tmp;
--	int flagreg;
-+	int tmp, flagreg;
- 
- 	switch (cmd) {
- 	case RTC_VL_READ:
 -- 
-2.26.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
