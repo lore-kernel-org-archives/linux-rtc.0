@@ -5,34 +5,34 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60DE4C2BBD0
-	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FCEC43461
+	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:54:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A3442086A
-	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:53:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 957CF2078E
+	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:54:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="QE1RAvNc"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="HciZmbaG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbgIENxh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 5 Sep 2020 09:53:37 -0400
-Received: from mout.gmx.net ([212.227.17.20]:44717 "EHLO mout.gmx.net"
+        id S1728486AbgIENem (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 5 Sep 2020 09:34:42 -0400
+Received: from mout.gmx.net ([212.227.15.15]:35183 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbgIENgZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 5 Sep 2020 09:36:25 -0400
+        id S1728371AbgIENe2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 5 Sep 2020 09:34:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1599312926;
-        bh=5W5bgNq9LYqoutaDK2rdA3mh9k/FJm8P+tiRpaZx/oU=;
+        s=badeba3b8450; t=1599312808;
+        bh=rvCCbE4pID8W9dS94D/nwDcZnqQFH63RXYcvweJTvUY=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=QE1RAvNcsKuOzWHvtSCwY8f+5D7QfHAziYrgkJQoekPhVEFjQDihltHUXpSnjw5nM
-         tZVqTltohz0fuTEHEuaFTDRDd7SwJLI+tz6f0wOCBwNJg63/ARJuX9WDDAeSNh4zfC
-         EbWa0/1oJLt/Hyvzn5xbJIjNappCqbZDLyFrbfMw=
+        b=HciZmbaGZOejIIDSC1Bk5MATvt9k/YY5/oVSWFWNE9F3eKSSIsdWWA/zdhht7GehX
+         QXkVBUB1fhW9hexr79f+Ggoh6PUxG4+zd5cyVLY9Skpe2x8nGvhhQs8Rwwt23kl7z3
+         74IjlW7pyP9nVhC5XPzt9xcPTS9JAEyXZHBWkR3I=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([5.146.195.151]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MgesG-1kmV7K1v7E-00h63K; Sat, 05
- Sep 2020 15:35:26 +0200
+Received: from longitude ([5.146.195.151]) by mail.gmx.com (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MLi8g-1jx1T61wDw-00HiaX; Sat, 05
+ Sep 2020 15:33:28 +0200
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,68 +60,74 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Josua Mayer <josua.mayer@jm0.eu>,
         Andreas Kemnade <andreas@kemnade.info>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>
-Subject: [PATCH v2 07/10] rtc: Introduce RTC_TIMESTAMP_END_2255
-Date:   Sat,  5 Sep 2020 15:32:27 +0200
-Message-Id: <20200905133230.1014581-8-j.neuschaefer@gmx.net>
+        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 01/10] dt-bindings: Add vendor prefix for Netronix, Inc.
+Date:   Sat,  5 Sep 2020 15:32:21 +0200
+Message-Id: <20200905133230.1014581-2-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
 References: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:gdbZilmswnyaFo9HLwRIhQfH6ZnJNWEaZw34e8xYCo5CcoTu6Vj
- f4r7gD746AQYDN3lxm1zljlQC1wQzBfzwb31hL0i8/XNRcXOX+1dLuuh2TAmZYO7Qkh1245
- 8iXnpFze3eZKkxM4Qvekt7VthPmkb5HFVShC3zPEHqKTebboy8NyKLexLtjw/h6PYd66bWq
- y7rTxCB8v+jALVbVAUY3A==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:z9SeE1U8x8Q=:TvnLuwG5M3R4SehEmJ79gq
- MLS1kXDrpEa7OI5/hCdMRBzmpZOzktum0GSMQjgXpzhNLGEO7JHVu/i9PVWvAJu4K7T3wzetI
- 2Bd8wVPlgSnqXgnZgtj6scpIIee35IBd6n7n2LNIKUuYTzC6xq+EsZoMweRnoI5SuKRG0bVc7
- GmMlBRqkFGSZBoRUPZX0v4G8XNi8RGuZoGQ/fYdK/V9T/EexxXJRQX58qJ+c0smribAr6yfqy
- MrTNNIWVF2OUwJGFfHBaDS7PDmRYIhoJPXDUQG2jauijomVVqs1jQfrafIW5sXzhIQjuDu1QQ
- p9fpKhIjWl31FrA6no0UqmCOPjQX6ZeFirQdw2ADmKnQzYtVtCcmcb+Buo1ha4P/LB9hfriGF
- kfaih2s6AV9hc2hipPnuY1Oi3t324vCWASwY1wzUttx4WietR+fodWoqSl/UC6/XIfV3j2lSG
- SrPp8COmooDcZsZExP0zWMMGXyVRE7wZUcli+R+PproKwSZDUz2uVYNxPsAC93AeyrU95eaj/
- Ev/z6afzlqpSdn6EdCwj25+zrcMwyjVk00Wrcs7tdZnlb2BVuoxLekSjiIH+yCsmz+insZz58
- nYgYdFbYslffgecFRzfEAFlMgNlBg0NrzRRckr7RIHmYONfUsRAhHcQN92rAj/tyLPQAwjMk+
- bJrgFZIkoMB0fpPLVd5VnYYefb8KFFZX6+pT/BxH/MC90kC94/SV94nqV+B/PenJ03iSrs9aZ
- 9ySr6SZhQh9boXOg3p6PP+hf/hc+j/TUl+NwSN9TXoqwAqkPBUxiGoj9Hxq0fqwq16wQ6hH6c
- FKuAoG1J1EKc8+o2HLuH2WzIUhQQAJvUmdmrbZWyk7eqHV72hw7VLfwkYtQziMJzPdYLJHM7W
- 1kTvmaLL3AXRL13M+LP7rzIOD76bY+h11DMIaIZjkO7WL5ZTnQaX0H6LumQ4tnYS+hPuBVtfk
- clDU3xrzpxDoNjq076e33DcSqfgKDlosBSieWiAs/xWu87w9HKOMqteqhTJE4xH3XLUTvL8mU
- E2FTGqK7bzbevSD/+rm+nMOFGKgS6sEBvpXQrIrCaL1hx4EmU0je6dfjoVOn3Cs0BtKxITiHY
- fb9sTGbWlreupiGybAVeE7CRfr/NJrDtUw5KVYv+VThHePt4Bqankm8UYvzpUZ+/sL+gVgmo9
- gD//aqkpcS4zYljM0auiePsqYBTIcnu/LxAaY/J3dE8U7SH3BjJGELqJrcriO8KmE20PkQQSZ
- xCcnWx7Ab9DuNLppmxShuYb3rHkUta3tggBSIkA==
+X-Provags-ID: V03:K1:L1lxZBEqC4oQRcYC8Ye2ZaSaJiFuYq/v3pYJeYuD9nVH2S8v6fg
+ TKjEkhmqkWVW3IoB9WuytdxC+R6Zp5uPAxzEe4NoNkOsvQ6Vz7hexOC5DSlCVrsNs6obqZQ
+ DBiudNkvyYo8GNx85RyEMBgfdK2AnCMR6k3W+dq4O33c8SGRdBNomwa99tVFh2rASqwpLGL
+ H5AXaJdvAXEAtos+UDa7Q==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:zv2w5A5nZ7k=:LFdqtJL5il7MuSKPb3xe+q
+ navuPcaouVZmBBpxFabdwAIzjmgwNZhXCi97UgpqrUcBuwEReQO9xVcmN2c6yiYR7oUqqU/OT
+ QHrvUdbePo5tZi3MSy3uDq/ntER0xBXAkVLIAug7GM3e+YIOnZoMldMHb6QVRN95kH9kctPCr
+ BYnpQ4PDFL3FxLKf9pulZIlrSqkOazyPtiNXk389ikM9tSurjXIqnpH3t9rNWD8bfjtdO0HyX
+ zN8svXK4ROy1mzLI2YEHI9sZ3IZTlxFbnPppZTIddd0y0TXg8MJyrqn4zFiTRBT7+j6RVdDqo
+ 0goP/U9mCRQuAq1dI5pW7r4+HKcZ9Cgb+Kzv0x2CqJIywWiSV+YX6/Kx/wWtqCMqQUPfGwxMS
+ 2+EG6fgluljbVRAOt4kZ4yyCFBLVWZmdpfejL265SnxyB2GufbB+PXs1Ory9zuPvpsSue2N3G
+ Zk7/bdukRVX+z1Rh8KsfMQdzxib9OI9V3k76LaNF3Jx860iNuK0zfElF51bKWq4Ybt98r1Am1
+ mxulXua1iL15+kQAhISj5JwJHk2kRofGw9y5Y13mzZpNevN4rPAy4wlreBGaZwrXOPIZmhykK
+ laD9Hy/qN0tV52xMzyoD4+SFtjPUActonqCm5zf5nc6nq8P79HSphCE223iZs+kEvYnTTshp4
+ na7EeybCf6dNZcEXI1HYnhPgKpY6osmNEs6cbBd4o6yxOBx7cXuAKP46xcxuEytpsSso9/mjm
+ 8yu7AQAjqIMx7H3TPOIt+7l6PQ+ZPlvX1d53SwfLACpoTV8Wq21WQVmteBz5qjkXDGVRcePpG
+ 9YCX7HC3UpLUOgX+bIE935X28PSgLAyvFE1YxPkG/vSWh+Mo+CnRYfQgcLbkHIx6O787c37Md
+ HFkH3djG0oPC9yiJ2Qg90JtblEOWSzX7vQNhUxwoKz7N0/k8AZXVvLBm26Wn5ZyMS93mBXZtM
+ 4mpZo9lIDU7X/05fldaVRo4uzGqVSnMAVrgT5gLuySW8YXwXeMgGao4Ib9V+Q4wBOJTZuWeEb
+ 0NWdI6tUPCoigcI2mP5AsdTPZJ+w/tgloJtjxdT2K2q+POpw0juHpNTXkp2LvGf5LOojY0eD1
+ ggk65v89rtgiJ4j0cfrlyvleKIKKoDBq5hfU6D8uIqQQgxRjMZ7BfBHysYSkhsBoa7zcKsmmO
+ JK/Hw5nZ0Lsv/+nmjvuLjEDeQpXD62/Ursp8CeY22tjOwHGifHucP+cY1zlPIcMs4rbZPx1mu
+ lUHWn6CPXDEac3Yc2YvKRaTauw/ChZyGNEq0bYw==
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some RTCs store the year as an 8-bit number relative to the year 2000.
-This results in a maximum timestamp of 2255-12-31 23:59:59.
+Netronix, Inc. (http://www.netronixinc.com/) makes ebook reader board
+designs, which are for example used in Kobo and Tolino devices.
+
+An alternative prefix for Netronix would be "ntx", which is already used
+in code released by Netronix. It is shorter, but perhaps less clear.
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 =2D--
-
 v2:
-- New patch
+- No changes
 =2D--
- include/linux/rtc.h | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 22d1575e4991b..fcc086084a603 100644
-=2D-- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -154,6 +154,7 @@ struct rtc_device {
- #define RTC_TIMESTAMP_END_2079		3471292799LL /* 2079-12-31 23:59:59 */
- #define RTC_TIMESTAMP_END_2099		4102444799LL /* 2099-12-31 23:59:59 */
- #define RTC_TIMESTAMP_END_2199		7258118399LL /* 2199-12-31 23:59:59 */
-+#define RTC_TIMESTAMP_END_2255		9025257599LL /* 2255-12-31 23:59:59 */
- #define RTC_TIMESTAMP_END_9999		253402300799LL /* 9999-12-31 23:59:59 */
-
- extern struct rtc_device *devm_rtc_device_register(struct device *dev,
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docu=
+mentation/devicetree/bindings/vendor-prefixes.yaml
+index 63996ab035217..fa173802000a0 100644
+=2D-- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
+@@ -712,6 +712,8 @@ patternProperties:
+     description: Broadcom Corporation (formerly NetLogic Microsystems)
+   "^netron-dy,.*":
+     description: Netron DY
++  "^netronix,.*":
++    description: Netronix, Inc.
+   "^netxeon,.*":
+     description: Shenzhen Netxeon Technology CO., LTD
+   "^neweast,.*":
 =2D-
 2.28.0
 
