@@ -5,34 +5,34 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FCEC43461
-	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:54:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E58AC43461
+	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 14:47:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 957CF2078E
-	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 13:54:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DEB5C20760
+	for <linux-rtc@archiver.kernel.org>; Sat,  5 Sep 2020 14:47:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="HciZmbaG"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="Pbx0pRWt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728486AbgIENem (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 5 Sep 2020 09:34:42 -0400
-Received: from mout.gmx.net ([212.227.15.15]:35183 "EHLO mout.gmx.net"
+        id S1728264AbgIEOql (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 5 Sep 2020 10:46:41 -0400
+Received: from mout.gmx.net ([212.227.15.18]:42295 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728371AbgIENe2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 5 Sep 2020 09:34:28 -0400
+        id S1728608AbgIEOqh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 5 Sep 2020 10:46:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1599312808;
-        bh=rvCCbE4pID8W9dS94D/nwDcZnqQFH63RXYcvweJTvUY=;
+        s=badeba3b8450; t=1599317136;
+        bh=AmcVqt376Z16SI/dPXXTlsZxd3ygG5eId5RZWTXwmYU=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=HciZmbaGZOejIIDSC1Bk5MATvt9k/YY5/oVSWFWNE9F3eKSSIsdWWA/zdhht7GehX
-         QXkVBUB1fhW9hexr79f+Ggoh6PUxG4+zd5cyVLY9Skpe2x8nGvhhQs8Rwwt23kl7z3
-         74IjlW7pyP9nVhC5XPzt9xcPTS9JAEyXZHBWkR3I=
+        b=Pbx0pRWtk8XingUiEX6KIelSHcvwYiaIsVxK00GRHfug1crcMICpmL2tilK+lLT+u
+         UKKGGoBybLtbZUFeg2oTCOlgeqCpSipSVkRDfbiYRndJeILfHt8vjbDaImxKE8abnP
+         jNrK1bnpdZOrORTHoLU18pOn6ZIBBCH/TbfDeSS8=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([5.146.195.151]) by mail.gmx.com (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MLi8g-1jx1T61wDw-00HiaX; Sat, 05
- Sep 2020 15:33:28 +0200
+Received: from longitude ([5.146.195.151]) by mail.gmx.com (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MTiPv-1k8pu63Yvl-00TzFu; Sat, 05
+ Sep 2020 16:45:36 +0200
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,74 +60,244 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Heiko Stuebner <heiko@sntech.de>,
         Josua Mayer <josua.mayer@jm0.eu>,
         Andreas Kemnade <andreas@kemnade.info>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2 01/10] dt-bindings: Add vendor prefix for Netronix, Inc.
-Date:   Sat,  5 Sep 2020 15:32:21 +0200
-Message-Id: <20200905133230.1014581-2-j.neuschaefer@gmx.net>
+        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>
+Subject: [PATCH v2 08/10] rtc: New driver for RTC in Netronix embedded controller
+Date:   Sat,  5 Sep 2020 16:45:00 +0200
+Message-Id: <20200905144503.1067124-1-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
 References: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:L1lxZBEqC4oQRcYC8Ye2ZaSaJiFuYq/v3pYJeYuD9nVH2S8v6fg
- TKjEkhmqkWVW3IoB9WuytdxC+R6Zp5uPAxzEe4NoNkOsvQ6Vz7hexOC5DSlCVrsNs6obqZQ
- DBiudNkvyYo8GNx85RyEMBgfdK2AnCMR6k3W+dq4O33c8SGRdBNomwa99tVFh2rASqwpLGL
- H5AXaJdvAXEAtos+UDa7Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:zv2w5A5nZ7k=:LFdqtJL5il7MuSKPb3xe+q
- navuPcaouVZmBBpxFabdwAIzjmgwNZhXCi97UgpqrUcBuwEReQO9xVcmN2c6yiYR7oUqqU/OT
- QHrvUdbePo5tZi3MSy3uDq/ntER0xBXAkVLIAug7GM3e+YIOnZoMldMHb6QVRN95kH9kctPCr
- BYnpQ4PDFL3FxLKf9pulZIlrSqkOazyPtiNXk389ikM9tSurjXIqnpH3t9rNWD8bfjtdO0HyX
- zN8svXK4ROy1mzLI2YEHI9sZ3IZTlxFbnPppZTIddd0y0TXg8MJyrqn4zFiTRBT7+j6RVdDqo
- 0goP/U9mCRQuAq1dI5pW7r4+HKcZ9Cgb+Kzv0x2CqJIywWiSV+YX6/Kx/wWtqCMqQUPfGwxMS
- 2+EG6fgluljbVRAOt4kZ4yyCFBLVWZmdpfejL265SnxyB2GufbB+PXs1Ory9zuPvpsSue2N3G
- Zk7/bdukRVX+z1Rh8KsfMQdzxib9OI9V3k76LaNF3Jx860iNuK0zfElF51bKWq4Ybt98r1Am1
- mxulXua1iL15+kQAhISj5JwJHk2kRofGw9y5Y13mzZpNevN4rPAy4wlreBGaZwrXOPIZmhykK
- laD9Hy/qN0tV52xMzyoD4+SFtjPUActonqCm5zf5nc6nq8P79HSphCE223iZs+kEvYnTTshp4
- na7EeybCf6dNZcEXI1HYnhPgKpY6osmNEs6cbBd4o6yxOBx7cXuAKP46xcxuEytpsSso9/mjm
- 8yu7AQAjqIMx7H3TPOIt+7l6PQ+ZPlvX1d53SwfLACpoTV8Wq21WQVmteBz5qjkXDGVRcePpG
- 9YCX7HC3UpLUOgX+bIE935X28PSgLAyvFE1YxPkG/vSWh+Mo+CnRYfQgcLbkHIx6O787c37Md
- HFkH3djG0oPC9yiJ2Qg90JtblEOWSzX7vQNhUxwoKz7N0/k8AZXVvLBm26Wn5ZyMS93mBXZtM
- 4mpZo9lIDU7X/05fldaVRo4uzGqVSnMAVrgT5gLuySW8YXwXeMgGao4Ib9V+Q4wBOJTZuWeEb
- 0NWdI6tUPCoigcI2mP5AsdTPZJ+w/tgloJtjxdT2K2q+POpw0juHpNTXkp2LvGf5LOojY0eD1
- ggk65v89rtgiJ4j0cfrlyvleKIKKoDBq5hfU6D8uIqQQgxRjMZ7BfBHysYSkhsBoa7zcKsmmO
- JK/Hw5nZ0Lsv/+nmjvuLjEDeQpXD62/Ursp8CeY22tjOwHGifHucP+cY1zlPIcMs4rbZPx1mu
- lUHWn6CPXDEac3Yc2YvKRaTauw/ChZyGNEq0bYw==
+X-Provags-ID: V03:K1:s1Iuy0DqF3nvuCeJDEoK6kI2mBJxXiedCE/mjpNaXYYDwjmv37D
+ RxR6zMa9OiHI6c3hAO40fXIgiLrCbUToOLmrQxoNxuNVYu5CsOSFv5sh2yR5c8DpscEysJC
+ /nYdzmBrKo0DxrcxUpjxHo8yn5AvKv2KxrZCg4floK3I5QMI8c2XBgs4igC0T5OCv0/Kof+
+ mUzjOZUPeEP+5QnC6jNGA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:k5hvmOJhwyI=:+r46tjXRikSm3I6GUWoewQ
+ 0xhx3X2K36hhfQnPz71Z/cx53Z17X9b5AIYFDN4ai2RgLbSzimptqBd+v/ro8zGLXc8sWWWPQ
+ OZJ4YfNeh84CpARM7b5CIiHGhEhKJ6QtVcUD2gKetkLx1UEH3oMAUYTyjt1vt/70LYjr2eUtk
+ 67I9hIO6G3H5kWqODDkiW9GvZaKzHkevT6sSiO++02ZN/5s23BQSZuW6bwoTcXgZ93X1eM00w
+ ClpRercLip5iO+8UJM6D1P8bqCPLTPCNLN6Ik1nlPOLpuruUt3NjKcalUqFs81C8M5BeEZHYa
+ Osi8W9cPGZ9DnFXRGF2QaN9utrWbOF00PPUToyxKlETZNmxkmn8c8Q8yHxmYkRXZ3AtxJ/Xgd
+ gV+V0yxXPVTFCRmPHmLjth73+gC9IehlN5+cNyslShObYTOU7A39Qprf2QNiy6A9gFHKtrwhk
+ 0L/LIVg8ae5dTQU805D4Favkh+jVJIaqb764EMay/vIyD3P8CcbsNZvxitpaFGa21B/E+U8of
+ 4kkzJkpt8XsZA8rVIO2J5fH070NKke7hyqNBdZEjg2/xzPQyGDcPUt1sLMgV3HR3bSlCdTT2H
+ UHZ1HhVJC/bPOAmDOdbRofVBCVcT2ZPLXwcXGWeqW0F42Dg+TUGiMsIoULl4ZDidt6nt4udU5
+ pCY3pWbqENKj74sUK5R7HkMARTTISkDBN7qDimdtoovBh856oWYN/zZKPEtuXXsuw/1kdGe86
+ nPLwb+U3IvZOxqLReCOacATYSuOvtr5+KdLK6qoEuPXiQGkVs2IFClj44RItrWSfkLmFB6nbb
+ yq9fUdCqPT+6bzjLNCrJXDL0CZ6ZKx+Cq0h76zW+DGDkVR5IKHyH8RBFNltwC4zkD/b2JpDSh
+ U+ups9mUU6Bk9OT4CcH4TCBoaPoGiba5wUMlY0GqIkqitYQF8YCGuewkyfsr2NSRbiY9Qf1HD
+ A3rMqqSo0A94NbRZdAanCgrFmJFFkdB7FB+eXH9ksw/ZV7IpWrluOFSpM8QOQkpyIO0jcee4q
+ MekOd+1QmYzQhOTxD7BRtS5oBk20lCm9PtgABToJvtOGInxw3kUHgQv0+mtZgOeXj4ZY2FiUP
+ 6EArs2u68+CFKxjQfOwIUAc0EdjBkXTcANodNpVjLy/RwLslcR2FCdg0r1xHbWLdP3X3BWnPU
+ 0w51GeZHxGcO0T3F3UUTLFbjMKTCFV85NA/E4Pgi1tAjYRlvgQX029LGUpDijsugojzUaG5tY
+ QewQHgmGV5mr3Vrle4C3sXQoLicks2tBz4KtDow==
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Netronix, Inc. (http://www.netronixinc.com/) makes ebook reader board
-designs, which are for example used in Kobo and Tolino devices.
+With this driver, mainline Linux can keep its time and date in sync with
+the vendor kernel.
 
-An alternative prefix for Netronix would be "ntx", which is already used
-in code released by Netronix. It is shorter, but perhaps less clear.
+Advanced functionality like alarm and automatic power-on is not yet
+supported.
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 =2D--
-v2:
-- No changes
-=2D--
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docu=
-mentation/devicetree/bindings/vendor-prefixes.yaml
-index 63996ab035217..fa173802000a0 100644
-=2D-- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -712,6 +712,8 @@ patternProperties:
-     description: Broadcom Corporation (formerly NetLogic Microsystems)
-   "^netron-dy,.*":
-     description: Netron DY
-+  "^netronix,.*":
-+    description: Netronix, Inc.
-   "^netxeon,.*":
-     description: Shenzhen Netxeon Technology CO., LTD
-   "^neweast,.*":
+v2:
+- Rework top-of-file comment [Lee Jones]
+- Sort the #include lines [Alexandre Belloni]
+- don't align =3D signs in struct initializers [Uwe Kleine-K=C3=B6nig]
+- Switch to regmap
+- Fix register number used to read minutes and seconds
+- Prefix registers with NTXEC_REG_
+- Add help text to the Kconfig option
+- Use devm_rtc_allocate_device and rtc_register_device, set ->range_min an=
+d ->range_max
+=2D--
+ drivers/rtc/Kconfig     |   8 +++
+ drivers/rtc/Makefile    |   1 +
+ drivers/rtc/rtc-ntxec.c | 130 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 139 insertions(+)
+ create mode 100644 drivers/rtc/rtc-ntxec.c
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 48c536acd777f..ae8f3dc36c9a3 100644
+=2D-- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1301,6 +1301,14 @@ config RTC_DRV_CROS_EC
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-cros-ec.
+
++config RTC_DRV_NTXEC
++	tristate "Netronix embedded controller RTC driver"
++	depends on MFD_NTXEC
++	help
++	  Say yes here if you want to support the RTC functionality of the
++	  embedded controller found in certain e-book readers designed by the
++	  ODM Netronix.
++
+ comment "on-CPU RTC drivers"
+
+ config RTC_DRV_ASM9260
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 880e08a409c3d..733479db18896 100644
+=2D-- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -111,6 +111,7 @@ obj-$(CONFIG_RTC_DRV_MT7622)	+=3D rtc-mt7622.o
+ obj-$(CONFIG_RTC_DRV_MV)	+=3D rtc-mv.o
+ obj-$(CONFIG_RTC_DRV_MXC)	+=3D rtc-mxc.o
+ obj-$(CONFIG_RTC_DRV_MXC_V2)	+=3D rtc-mxc_v2.o
++obj-$(CONFIG_RTC_DRV_NTXEC)	+=3D rtc-ntxec.o
+ obj-$(CONFIG_RTC_DRV_OMAP)	+=3D rtc-omap.o
+ obj-$(CONFIG_RTC_DRV_OPAL)	+=3D rtc-opal.o
+ obj-$(CONFIG_RTC_DRV_PALMAS)	+=3D rtc-palmas.o
+diff --git a/drivers/rtc/rtc-ntxec.c b/drivers/rtc/rtc-ntxec.c
+new file mode 100644
+index 0000000000000..82eb6352353cd
+=2D-- /dev/null
++++ b/drivers/rtc/rtc-ntxec.c
+@@ -0,0 +1,130 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * The Netronix embedded controller is a microcontroller found in some
++ * e-book readers designed by the ODM Netronix, Inc. It contains RTC,
++ * battery monitoring, system power management, and PWM functionality.
++ *
++ * This driver implements access to the RTC time and date.
++ *
++ * Copyright 2020 Jonathan Neusch=C3=A4fer
++ */
++
++#include <linux/mfd/ntxec.h>
++#include <linux/module.h>
++#include <linux/of_device.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/rtc.h>
++#include <linux/types.h>
++
++struct ntxec_rtc {
++	struct device *dev;
++	struct ntxec *ec;
++};
++
++#define NTXEC_REG_WRITE_YEAR	0x10
++#define NTXEC_REG_WRITE_MONTH	0x11
++#define NTXEC_REG_WRITE_DAY	0x12
++#define NTXEC_REG_WRITE_HOUR	0x13
++#define NTXEC_REG_WRITE_MINUTE	0x14
++#define NTXEC_REG_WRITE_SECOND	0x15
++
++/* Convert an 8-bit value into the correct format for writing into a regi=
+ster */
++#define u8_to_reg(x) (((x) & 0xff) << 8)
++
++#define NTXEC_REG_READ_YM	0x20
++#define NTXEC_REG_READ_DH	0x21
++#define NTXEC_REG_READ_MS	0x23
++
++static int ntxec_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct ntxec_rtc *rtc =3D dev_get_drvdata(dev);
++	unsigned int value;
++	int res;
++
++	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_YM, &value);
++	if (res < 0)
++		return res;
++
++	tm->tm_year =3D (value >> 8) + 100;
++	tm->tm_mon =3D (value & 0xff) - 1;
++
++	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_DH, &value);
++	if (res < 0)
++		return res;
++
++	tm->tm_mday =3D value >> 8;
++	tm->tm_hour =3D value & 0xff;
++
++	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_MS, &value);
++	if (res < 0)
++		return res;
++
++	tm->tm_min =3D value >> 8;
++	tm->tm_sec =3D value & 0xff;
++
++	return 0;
++}
++
++static int ntxec_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct ntxec_rtc *rtc =3D dev_get_drvdata(dev);
++	int res =3D 0;
++
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_YEAR, u8_to_reg(t=
+m->tm_year - 100));
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_MONTH, u8_to_reg(=
+tm->tm_mon + 1));
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_DAY, u8_to_reg(tm=
+->tm_mday));
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_HOUR, u8_to_reg(t=
+m->tm_hour));
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_MINUTE, u8_to_reg=
+(tm->tm_min));
++	res |=3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_SECOND, u8_to_reg=
+(tm->tm_sec));
++
++	return (res < 0) ? -EIO : 0;
++}
++
++static const struct rtc_class_ops ntxec_rtc_ops =3D {
++	.read_time =3D ntxec_read_time,
++	.set_time =3D ntxec_set_time,
++};
++
++static int ntxec_rtc_probe(struct platform_device *pdev)
++{
++	struct rtc_device *dev;
++	struct ntxec_rtc *rtc;
++
++	rtc =3D devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	rtc->dev =3D &pdev->dev;
++	rtc->ec =3D dev_get_drvdata(pdev->dev.parent);
++	platform_set_drvdata(pdev, rtc);
++
++	dev =3D devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(dev))
++		return PTR_ERR(dev);
++
++	dev->ops =3D &ntxec_rtc_ops;
++	dev->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
++	dev->range_max =3D RTC_TIMESTAMP_END_2255;
++
++	return rtc_register_device(dev);
++}
++
++static const struct of_device_id ntxec_rtc_of_match[] =3D {
++	{ .compatible =3D "netronix,ntxec-rtc" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ntxec_rtc_of_match);
++
++static struct platform_driver ntxec_rtc_driver =3D {
++	.driver =3D {
++		.name =3D "ntxec-rtc",
++		.of_match_table =3D ntxec_rtc_of_match,
++	},
++	.probe =3D ntxec_rtc_probe,
++};
++module_platform_driver(ntxec_rtc_driver);
++
++MODULE_AUTHOR("Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>");
++MODULE_DESCRIPTION("RTC driver for Netronix EC");
++MODULE_LICENSE("GPL");
 =2D-
 2.28.0
 
