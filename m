@@ -4,28 +4,28 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24F49C43461
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 16:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D830C2BB84
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 16:30:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E99DC207DE
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 16:29:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E839207DE
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 16:30:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729886AbgIGQ34 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Sep 2020 12:29:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
+        id S1729876AbgIGQ36 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Sep 2020 12:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729849AbgIGO2k (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Sep 2020 10:28:40 -0400
+        with ESMTP id S1729871AbgIGO2h (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Sep 2020 10:28:37 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F42C0617A5
-        for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2020 07:27:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42194C061797
+        for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2020 07:27:45 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <bst@pengutronix.de>)
-        id 1kFI7U-0003nx-8Y; Mon, 07 Sep 2020 16:27:44 +0200
+        id 1kFI7T-0003nx-VS; Mon, 07 Sep 2020 16:27:44 +0200
 From:   Bastian Krause <bst@pengutronix.de>
 To:     linux-rtc@vger.kernel.org
 Cc:     devicetree@vger.kernel.org,
@@ -35,9 +35,9 @@ Cc:     devicetree@vger.kernel.org,
         Arnaud Ebalard <arno@natisbad.org>,
         Marek Vasut <marex@denx.de>, kernel@pengutronix.de,
         Bastian Krause <bst@pengutronix.de>
-Subject: [PATCH 8/8] rtc: ds1307: enable rx8130's backup battery, make it chargeable optionally
-Date:   Mon,  7 Sep 2020 16:27:27 +0200
-Message-Id: <20200907142727.26472-9-bst@pengutronix.de>
+Subject: [PATCH 1/8] dt-bindings: rtc: let aux-voltage-chargeable supersede trickle-diode-disable
+Date:   Mon,  7 Sep 2020 16:27:20 +0200
+Message-Id: <20200907142727.26472-2-bst@pengutronix.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907142727.26472-1-bst@pengutronix.de>
 References: <20200907142727.26472-1-bst@pengutronix.de>
@@ -52,71 +52,62 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The ds1307 charger infrastructure now allows to add a rx8130 charger
-setup that..
+Some RTCs can be equipped with a chargeable battery or supercap.
+Every RTC allowing this whose driver's implement it are charged by
+default. To disable this the trickle-diode-disable flag exists.
 
-- does not depend on trickle-resistor-ohms
-- does not use DS13XX_TRICKLE_CHARGER_MAGIC trickle-charge select (TCS)
-  bits
-- keeps previous no-charge behavior for device trees without
-  aux-voltage-chargeable
+If a driver did not support charging and some time later one wants to
+add that feature, there is currently no way to do it without breaking
+dt backwards compatibility. RTCs on boards without the
+trickle-diode-disable flag in their device tree would suddenly charge
+their battery/supercap which is a change in behavior.
 
-Make that happen.
+Change that by introducing aux-voltage-chargeable, not as a flag but as
+a uint32 enum allowing to set "do not charge" (0) or "charge" (1). This
+dt property is optional, so we can now distinguish these cases.
 
+Care must be taken to support the old behavior for device trees without
+aux-voltage-chargeable nonetheless to stay compatible.
+
+Suggested-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Bastian Krause <bst@pengutronix.de>
 ---
-Based on:
-- https://lore.kernel.org/linux-rtc/20200415163701.21989-1-bst@pengutronix.de/
-- https://lore.kernel.org/linux-rtc/20200415163701.21989-3-bst@pengutronix.de/
-
-Changes since then:
-- use chager_reg (called trickle_charger_reg before patch 4/8)
-- use charger setup function to set backup battery enable bit, charge
-  bit optionally (introduced by patch 5/8)
+In a previous series aux-voltage-chargeable was added as a ds1307 dt
+property. Discussions lead to turning that into a generic rtc dt
+property:
+https://lore.kernel.org/linux-rtc/98fa7181-3ebe-d7c3-cfac-fee841c81e15@pengutronix.de/T/
 ---
- drivers/rtc/rtc-ds1307.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ Documentation/devicetree/bindings/rtc/rtc.yaml | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 9bf1822a989f..1fe0c2df2578 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -122,6 +122,9 @@ enum ds_type {
- #define RX8130_REG_FLAG_AF		BIT(3)
- #define RX8130_REG_CONTROL0		0x1e
- #define RX8130_REG_CONTROL0_AIE		BIT(3)
-+#define RX8130_REG_CONTROL1		0x1f
-+#define RX8130_REG_CONTROL1_INIEN	BIT(4)
-+#define RX8130_REG_CONTROL1_CHGEN	BIT(5)
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+index ee237b2ed66a..e895c772ce99 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+@@ -17,6 +17,15 @@ properties:
+   $nodename:
+     pattern: "^rtc(@.*|-[0-9a-f])*$"
  
- #define MCP794XX_REG_CONTROL		0x07
- #	define MCP794XX_BIT_ALM0_EN	0x10
-@@ -536,6 +539,16 @@ static u8 do_trickle_setup_ds1339(struct ds1307 *ds1307, u32 ohms, bool diode)
- 	return setup;
- }
++  aux-voltage-chargeable:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    enum: [0, 1]
++    description:
++      Tells whether the battery/supercap of the RTC (if any) is
++      chargeable or not:
++      0: not chargeable
++      1: chargeable
++
+   quartz-load-femtofarads:
+     $ref: /schemas/types.yaml#/definitions/uint32
+     description:
+@@ -35,6 +44,7 @@ properties:
+     description:
+       Do not use internal trickle charger diode. Should be given if
+       internal trickle charger diode should be disabled.
++    deprecated: true
  
-+static u8 do_trickle_setup_rx8130(struct ds1307 *ds1307, u32 ohms, bool diode)
-+{
-+	/* make sure that the backup battery is enabled */
-+	u8 setup = RX8130_REG_CONTROL1_INIEN;
-+	if (diode)
-+		setup |= RX8130_REG_CONTROL1_CHGEN;
-+
-+	return setup;
-+}
-+
- static irqreturn_t rx8130_irq(int irq, void *dev_id)
- {
- 	struct ds1307           *ds1307 = dev_id;
-@@ -1024,6 +1037,8 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.offset		= 0x10,
- 		.irq_handler = rx8130_irq,
- 		.rtc_ops = &rx8130_rtc_ops,
-+		.trickle_charger_reg = RX8130_REG_CONTROL1,
-+		.do_trickle_setup = &do_trickle_setup_rx8130,
- 	},
- 	[m41t0] = {
- 		.rtc_ops	= &m41txx_rtc_ops,
+   trickle-resistor-ohms:
+     $ref: /schemas/types.yaml#/definitions/uint32
 -- 
 2.28.0
 
