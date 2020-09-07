@@ -2,126 +2,89 @@ Return-Path: <SRS0=uQpp=CQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF696C433E2
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 09:35:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 268D8C43461
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 14:29:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9185E2075A
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 09:35:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20150623.gappssmtp.com header.i=@baylibre-com.20150623.gappssmtp.com header.b="M3VlSuGC"
+	by mail.kernel.org (Postfix) with ESMTP id EB8FD20768
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Sep 2020 14:29:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728243AbgIGJfN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Sep 2020 05:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54008 "EHLO
+        id S1729880AbgIGO3T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Sep 2020 10:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728217AbgIGJfM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Sep 2020 05:35:12 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3E4C061574
-        for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2020 02:35:11 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id lo4so17354776ejb.8
-        for <linux-rtc@vger.kernel.org>; Mon, 07 Sep 2020 02:35:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zWiBkyNR4NmqF6Xi+QYxcrwWHaTtKTEGdcAvhHWhr24=;
-        b=M3VlSuGCT37L6/cEDxf/7m3TmmdEvvMXM4a1lpqs0rwejcga965t8vdzNH14IDItqh
-         Ir7QEpJVci43ovtMBpX3ZXM6m7UVmyZd/v80fFkFTbgAIrn/YagNY+pEtY+PWC2rZNfo
-         2kqc8y5qSRjdmcKl0aP1NU4rBTNy7ls3n+oqwuiSbjx1i8KLyRnwo4GesrFoQfwJCGad
-         1XN2MSLE7ETYfqeHGyJFHbSrKlJho9ay+kMalDSPl2qdFM6kDhl9Ja4+tw37SiZyMA0Y
-         OxTuOKLkz5DNaCsk36KqoxqONHJ8ebHSd3ii1c130bTueA03IJ4VXtUkR7saklfQFa/G
-         n/Gw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zWiBkyNR4NmqF6Xi+QYxcrwWHaTtKTEGdcAvhHWhr24=;
-        b=pmeEme50SEs1oYpMFYwdf1ERG3/3XC44dHGLbgEHRbLlP7JKqSjQ9voEPEMJ3JOR9S
-         HlDuMVPYgxb8bfolIVEFpRWG/H5GOn+ZHPkySa4d06i3znDlHc8v7yJcNuyNHk8y06uu
-         j0XxIkGxfaLKUA0JVK5njB3ctv1fz+y3B1AAmatf6MRzUlEqjkmVU7YNskn8cxVWmnSh
-         3wTocQ9WZaGcv4obpl7LiVX0VcFuQkbuZi/OXUn8xWPVn9Tge8MkfC5J/D8rGDkhHeD+
-         br3kLcC1rHHAVb0Wfev4Jxv5ECMotzXfpoQYyvn5wm7nknWc+RQOB9bcvE5V3GOTLu/p
-         kAow==
-X-Gm-Message-State: AOAM531CbiHpScaujNi6KkFd7IUeo4E0AtG/AdKp4wPxmqQWnAXpncLE
-        COHTc+SPKFGqAoarTvi4ISmt0zJU3CVH5E54C3nUzQ==
-X-Google-Smtp-Source: ABdhPJxC+wnC4RcIh0+9NGS3tVoJg77zPEi+RwFplg2OzDxLBNbLBDbGW/xRDfjZzqMO3gnCI2ZQzzPWhHuWCNVU0K0=
-X-Received: by 2002:a17:907:20d9:: with SMTP id qq25mr15641325ejb.382.1599471309917;
- Mon, 07 Sep 2020 02:35:09 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200904152116.2157-1-brgl@bgdev.pl> <20200904152116.2157-8-brgl@bgdev.pl>
- <20200904154144.GL230586@piout.net>
-In-Reply-To: <20200904154144.GL230586@piout.net>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Mon, 7 Sep 2020 11:34:59 +0200
-Message-ID: <CAMpxmJWwNfLvpuB_1ba037UzVX9UEz7SzDEJuft0jv3txGRJQg@mail.gmail.com>
-Subject: Re: [PATCH 7/8] rtc: rx8010: fix indentation in probe()
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        with ESMTP id S1729865AbgIGO2b (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Sep 2020 10:28:31 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEF94C061795
+        for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2020 07:27:45 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <bst@pengutronix.de>)
+        id 1kFI7U-0003nx-1v; Mon, 07 Sep 2020 16:27:44 +0200
+From:   Bastian Krause <bst@pengutronix.de>
+To:     linux-rtc@vger.kernel.org
+Cc:     devicetree@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Arnaud Ebalard <arno@natisbad.org>,
+        Marek Vasut <marex@denx.de>, kernel@pengutronix.de,
+        Bastian Krause <bst@pengutronix.de>
+Subject: [PATCH 2/8] dt-bindings: rtc: ds1307: let aux-voltage-chargeable supersede trickle-diode-disable
+Date:   Mon,  7 Sep 2020 16:27:21 +0200
+Message-Id: <20200907142727.26472-3-bst@pengutronix.de>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200907142727.26472-1-bst@pengutronix.de>
+References: <20200907142727.26472-1-bst@pengutronix.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: bst@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Sep 4, 2020 at 5:41 PM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
->
-> On 04/09/2020 17:21:15+0200, Bartosz Golaszewski wrote:
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Align the arguments passed to devm_rtc_device_register() with the upper
-> > line.
-> >
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > ---
-> >  drivers/rtc/rtc-rx8010.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-> > index 181fc21cefa8..ed8ba38b4991 100644
-> > --- a/drivers/rtc/rtc-rx8010.c
-> > +++ b/drivers/rtc/rtc-rx8010.c
-> > @@ -450,7 +450,7 @@ static int rx8010_probe(struct i2c_client *client,
-> >       }
-> >
-> >       rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
-> > -             &rx8010_rtc_ops, THIS_MODULE);
-> > +                                            &rx8010_rtc_ops, THIS_MODULE);
-> >
->
-> You have bonus points if you replace that patch by switching from
-> devm_rtc_device_register to devm_rtc_allocate_device and
-> rtc_register_device.
->
-> More bonus points if you also set range_min and range_max and then get
-> rid of the range checking in set_time.
->
+trickle-diode-disable is deprecated, so reflect that in the driver's
+binding and add the new aux-voltage-chargeable.
 
-Hi Alexandre!
+Signed-off-by: Bastian Krause <bst@pengutronix.de>
+---
+Previous version:
+https://lore.kernel.org/linux-rtc/20200415163701.21989-2-bst@pengutronix.de/
+---
+ Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-I've just looked at the code and wondered why there's no devm
-counterpart for rtc_register_device(). Then I noticed that the release
-callback for devm_rtc_allocate_device() takes care of unregistering
-the device. This looks like serious devres abuse to me. In general the
-idea is for the release callback to only undo whatever the devres
-function did and this should be opaque to the concerned resources.
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index 66f0a31ae9ce..08ea9734da80 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -31,9 +31,16 @@ Optional properties:
+ 	Selected resistor for trickle charger
+ 	Possible values are 250, 2000, 4000
+ 	Should be given if trickle charger should be enabled
+-- trickle-diode-disable : ds1339, ds1340 and ds 1388 only
++- aux-voltage-chargeable: ds1339, ds1340 and ds1388 only
++	Tells whether the battery/supercap of the RTC (if any) is
++	chargeable or not.
++	Possible values are 0 (not chargeable), 1 (chargeable)
++
++Deprecated properties:
++- trickle-diode-disable : ds1339, ds1340 and ds1388 only
+ 	Do not use internal trickle charger diode
+ 	Should be given if internal trickle charger diode should be disabled
++	(superseded by aux-voltage-chargeable)
+ 
+ Example:
+ 	ds1339: rtc@68 {
+-- 
+2.28.0
 
-In this case I believe there's no need for the 'registered' field in
-struct rtc_device - this structure should *not* care about this - and
-there should be devm_rtc_register_device() whose release callback
-would take care of the unregistering. Since this function would be
-called after devm_rtc_allocate_device(), it would be released before
-so the ordering should be fine.
-
-Let me know your thoughts.
-
-Best regards,
-Bartosz Golaszewski
