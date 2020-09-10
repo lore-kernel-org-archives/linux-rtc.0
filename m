@@ -2,119 +2,112 @@ Return-Path: <SRS0=6Xf7=CT=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A52B4C2D0A7
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Sep 2020 21:25:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DBB7C43461
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Sep 2020 21:39:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6C2E721D92
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Sep 2020 21:25:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 323B6208E4
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Sep 2020 21:39:59 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="YoliJ6Je"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbgIJVYj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Sep 2020 17:24:39 -0400
-Received: from foss.arm.com ([217.140.110.172]:37282 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgIJOXM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 10 Sep 2020 10:23:12 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E3BEB11B3;
-        Thu, 10 Sep 2020 07:21:17 -0700 (PDT)
-Received: from [10.57.40.122] (unknown [10.57.40.122])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1B4783F66E;
-        Thu, 10 Sep 2020 07:21:08 -0700 (PDT)
-Subject: Re: [trivial PATCH] treewide: Convert switch/case fallthrough; to
- break;
-To:     Joe Perches <joe@perches.com>, LKML <linux-kernel@vger.kernel.org>,
-        Jiri Kosina <trivial@kernel.org>
-Cc:     linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        oss-drivers@netronome.com, nouveau@lists.freedesktop.org,
-        alsa-devel <alsa-devel@alsa-project.org>,
-        dri-devel@lists.freedesktop.org, linux-ide@vger.kernel.org,
-        dm-devel@redhat.com, linux-mtd@lists.infradead.org,
-        linux-i2c@vger.kernel.org, sparclinux@vger.kernel.org,
-        kvmarm@lists.cs.columbia.edu, linux-rtc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-        dccp@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-atm-general@lists.sourceforge.net,
-        linux-afs@lists.infradead.org, coreteam@netfilter.org,
-        intel-wired-lan@lists.osuosl.org, linux-serial@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
-        Kees Cook <kees.cook@canonical.com>,
-        linux-media@vger.kernel.org, linux-pm@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, linux-sctp@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org,
-        storagedev@microchip.com, ceph-devel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-nfs@vger.kernel.org,
-        linux-parisc@vger.kernel.org, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        linux-mips@vger.kernel.org, iommu@lists.linux-foundation.org,
-        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Will Deacon <will@kernel.org>
-References: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <9372456a-8dcf-2735-57a4-e126aa5df3a6@arm.com>
-Date:   Thu, 10 Sep 2020 15:21:05 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        id S1728082AbgIJVj5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 10 Sep 2020 17:39:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730381AbgIJNHI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Sep 2020 09:07:08 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3E1C0617B9
+        for <linux-rtc@vger.kernel.org>; Thu, 10 Sep 2020 06:05:11 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id e16so6654700wrm.2
+        for <linux-rtc@vger.kernel.org>; Thu, 10 Sep 2020 06:05:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=IaFL4VbleH+05IhE/GIVwUyyev+mD5pCupMa3HimnAo=;
+        b=YoliJ6JeT2neyUocbOYQQihpuvFv4h8l53gM/tq0UflJbtP6YafXg0NGQ7bfgUSJI3
+         SdzIP9QQ3KkUryWMROvFYJ+1qTi4fKcfk2awLiC49Ee0rmvAEbKURBmsvOKEfWriVVrg
+         TxyqLKiW86HzWh9/AOEbTWByvs9sLGpEzzyFnqNHFDb8Wu9MVvl/GqyJ4udi03Ivsspk
+         2UeKt7RYbDNGOxtBLiOigz3NIDU9VCghlf0PGRHBgmqDFmEkuBgf864tYZF37xLC1Ay/
+         1vin1mlRzHtlTgEOHrbV52a+Y4zwMHJgjO2V7B/gkUPIL7t+IwjCjMf74/O7eRGkUDTz
+         F1oQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=IaFL4VbleH+05IhE/GIVwUyyev+mD5pCupMa3HimnAo=;
+        b=Ndj5xz9yaqEC8KPNpeLuHLXSzJ4XqHoakIKtCEas3V2kbx0b5ypYytUWFHHZD1kXMH
+         qQAucdVtrqhYlakgFNP7jO8LS3IR6/+DgwnOktVgVa2jL8lxELWwnOpSZ4VmTn0qa1Kt
+         XyP+t3/OxD/LbX44tN3V5eUypg9H3urk4hfEqGQUIIqgU/uSDrYNVizyVmHTxrRHBTDY
+         +xoA70hzGbC4oMRaIt81F3bjIogX+3jtBkWTo1Q3cv0f1Zib3GdiL68vAGMrtJxNv3PO
+         KeZAZouSitkxu39em9F1uZj49J9xsBX/wzNM6DaJDlJ+yRTQlDONnAXWKCSf8djFrjFc
+         feGw==
+X-Gm-Message-State: AOAM530hyfY7ULpdJv+/PkliCznL6sjra3OUKtQnX2swlBTst3EslkqH
+        jrjocWm2xn/IuHfB6GBKB1E+RQ==
+X-Google-Smtp-Source: ABdhPJxBNAf5uTgzeBjmrtbqSIw0BM3oe+/GacCg08mmFuQ5ITOtCe4FBYRkVweYGuig/JUs6vtymg==
+X-Received: by 2002:adf:fa0c:: with SMTP id m12mr8678090wrr.406.1599743110489;
+        Thu, 10 Sep 2020 06:05:10 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id p16sm9321988wro.71.2020.09.10.06.05.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2020 06:05:09 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH v2 11/11] rtc: rx8010: use range checking provided by core RTC code
+Date:   Thu, 10 Sep 2020 15:04:46 +0200
+Message-Id: <20200910130446.5689-12-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <20200910130446.5689-1-brgl@bgdev.pl>
+References: <20200910130446.5689-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-In-Reply-To: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 2020-09-09 21:06, Joe Perches wrote:
-> fallthrough to a separate case/default label break; isn't very readable.
-> 
-> Convert pseudo-keyword fallthrough; statements to a simple break; when
-> the next label is case or default and the only statement in the next
-> label block is break;
-> 
-> Found using:
-> 
-> $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
-> 
-> Miscellanea:
-> 
-> o Move or coalesce a couple label blocks above a default: block.
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> 
-> Compiled allyesconfig x86-64 only.
-> A few files for other arches were not compiled.
-> 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-[...]
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> index c192544e874b..743db1abec40 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
-> @@ -3777,7 +3777,7 @@ static int arm_smmu_device_hw_probe(struct arm_smmu_device *smmu)
->   	switch (FIELD_GET(IDR0_TTF, reg)) {
->   	case IDR0_TTF_AARCH32_64:
->   		smmu->ias = 40;
-> -		fallthrough;
-> +		break;
->   	case IDR0_TTF_AARCH64:
->   		break;
->   	default:
+We don't need to check the time range manually in set_time(), we can
+use range_min and range_max exposed by struct rtc_device.
 
-I have to say I don't really agree with the readability argument for 
-this one - a fallthrough is semantically correct here, since the first 
-case is a superset of the second. It just happens that anything we would 
-do for the common subset is implicitly assumed (there are other 
-potential cases we simply haven't added support for at the moment), thus 
-the second case is currently empty.
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/rtc/rtc-rx8010.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-This change actively obfuscates that distinction.
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index 636e0de02d9b..e78f0808bdff 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -140,9 +140,6 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+ 	u8 date[RX8010_YEAR - RX8010_SEC + 1];
+ 	int err;
+ 
+-	if ((dt->tm_year < 100) || (dt->tm_year > 199))
+-		return -EINVAL;
+-
+ 	/* set STOP bit before changing clock/calendar */
+ 	err = regmap_set_bits(rx8010->regs, RX8010_CTRL, RX8010_CTRL_STOP);
+ 	if (err)
+@@ -415,6 +412,8 @@ static int rx8010_probe(struct i2c_client *client,
+ 
+ 	rx8010->rtc->ops = &rx8010_rtc_ops;
+ 	rx8010->rtc->max_user_freq = 1;
++	rx8010->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rx8010->rtc->range_max = RTC_TIMESTAMP_END_2099;
+ 
+ 	err = rtc_register_device(rx8010->rtc);
+ 	if (err) {
+-- 
+2.26.1
 
-Robin.
