@@ -2,103 +2,75 @@ Return-Path: <SRS0=PWyj=CU=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5F34C43461
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Sep 2020 16:21:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C09AC43461
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Sep 2020 17:40:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 804BD208FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Sep 2020 16:21:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1599841294;
-	bh=FVUBrBUew4OrNTC+wXrBugVz5+Ee1tqB5139mrISZUs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=uC/t14NE8IXsNxkkz4GU6nEGLDTGUQiqmePcz7vNGy1VZSSGBtuQRttdbZrMU9Ivh
-	 rHrrZccJAvZw2N7LGJ1Az9oD8W0/vZtOfbfG2dg+kHzwVYRAqWGXr39qz7ByoXMPVk
-	 drkq5monbaB74rbC1bhlyIzbd/JX9aDDoEkmPkvw=
+	by mail.kernel.org (Postfix) with ESMTP id F0D36221E7
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Sep 2020 17:40:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726547AbgIKQVI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Sep 2020 12:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58830 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726518AbgIKPaa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:30:30 -0400
-Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D6E321D7E;
-        Fri, 11 Sep 2020 14:03:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599833002;
-        bh=FVUBrBUew4OrNTC+wXrBugVz5+Ee1tqB5139mrISZUs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ZP4GPYsL0ABFoO/JQ1fpmbTARh9KmtMzHIuPGGVVrz7JTuRAdD95eeTqVsQ1OqEoA
-         wr70uCma1J+ZPVrGIxnMulGcN82OdAB+Gck3toLSpKZIoZFTJgJRbtVLsHRjCzGlVk
-         1bGvfXw76IYgyJzOsEqq656cqaM9N+d0eT1Xfko4=
-Received: by mail-oo1-f41.google.com with SMTP id g26so2298414ooa.9;
-        Fri, 11 Sep 2020 07:03:22 -0700 (PDT)
-X-Gm-Message-State: AOAM5327qMydCgKVIL1kap2fymFutjb1K49lJrZodsK76SjkFDe0fKMT
-        Knd4h7/jjVerV/rqWL6zEGRxFsGxWG4QutTAmA==
-X-Google-Smtp-Source: ABdhPJxTuUQpAZ7VBRAgyuwv+5Jv+wLNqLOBvyESpzDLE3KgVTieiFkjstfCsDTOYHpY06twVE/mYAqaxnPss6ZklvY=
-X-Received: by 2002:a4a:9d48:: with SMTP id f8mr1722615ook.50.1599833001875;
- Fri, 11 Sep 2020 07:03:21 -0700 (PDT)
+        id S1725963AbgIKRkQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Sep 2020 13:40:16 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:35725 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbgIKMpc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Sep 2020 08:45:32 -0400
+X-Originating-IP: 90.65.88.165
+Received: from localhost (lfbn-lyo-1-1908-165.w90-65.abo.wanadoo.fr [90.65.88.165])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id A36C960007;
+        Fri, 11 Sep 2020 12:44:12 +0000 (UTC)
+Date:   Fri, 11 Sep 2020 14:44:12 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] rtc: rx8010: fix indentation in probe()
+Message-ID: <20200911124412.GE230586@piout.net>
+References: <20200904152116.2157-1-brgl@bgdev.pl>
+ <20200904152116.2157-8-brgl@bgdev.pl>
+ <20200904154144.GL230586@piout.net>
+ <CAMpxmJWwNfLvpuB_1ba037UzVX9UEz7SzDEJuft0jv3txGRJQg@mail.gmail.com>
+ <20200911122837.GC230586@piout.net>
+ <CAMRc=MfzGgNR_vOqgDvQGCTQMiVbbiV_OKCOg61z-8B-mEuFyQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200827091441.12972-1-qiang.zhao@nxp.com> <20200909202456.GA3019412@bogus>
- <VE1PR04MB676899EEA79D59061FE91BF691270@VE1PR04MB6768.eurprd04.prod.outlook.com>
-In-Reply-To: <VE1PR04MB676899EEA79D59061FE91BF691270@VE1PR04MB6768.eurprd04.prod.outlook.com>
-From:   Rob Herring <robh@kernel.org>
-Date:   Fri, 11 Sep 2020 08:03:10 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJx=7npNYNe4MybNvdNRxBj_XjvEOJsSm+gNGEkvbh2VA@mail.gmail.com>
-Message-ID: <CAL_JsqJx=7npNYNe4MybNvdNRxBj_XjvEOJsSm+gNGEkvbh2VA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] dt-bindings: rtc-2127: Add bindings for nxp,rtc-2127.txt
-To:     Qiang Zhao <qiang.zhao@nxp.com>
-Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MfzGgNR_vOqgDvQGCTQMiVbbiV_OKCOg61z-8B-mEuFyQ@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Sep 9, 2020 at 9:16 PM Qiang Zhao <qiang.zhao@nxp.com> wrote:
->
-> On Thu, Sep 10, 2020 at 04:25AM, Rob Herring <robh@kernel.org> wrote:
-> > -----Original Message-----
-> > From: Rob Herring <robh@kernel.org>
-> > Sent: 2020=E5=B9=B49=E6=9C=8810=E6=97=A5 4:25
-> > To: Qiang Zhao <qiang.zhao@nxp.com>
-> > Cc: a.zummo@towertech.it; alexandre.belloni@bootlin.com;
-> > linux-rtc@vger.kernel.org; devicetree@vger.kernel.org;
-> > linux-kernel@vger.kernel.org
-> > Subject: Re: [PATCH 1/3] dt-bindings: rtc-2127: Add bindings for
-> > nxp,rtc-2127.txt
+On 11/09/2020 14:33:46+0200, Bartosz Golaszewski wrote:
+> I'm seeing this pattern elsewhere in the kernel too and I just
+> recently fixed this for MDIO. I think it's just a matter of people
+> copy-pasting a bad implementation.
+> 
+> > was an actual reason this was done this way and it was the ordering of
+> > the rtc_nvmem_register/rtc_nvmem_unregister with rtc_device_unregister.
+> > I'm not sure this is still necessary though.
 > >
-> > On Thu, Aug 27, 2020 at 05:14:39PM +0800, Qiang Zhao wrote:
-> > > From: Zhao Qiang <qiang.zhao@nxp.com>
-> > >
-> > > Add bindings for nxp,rtc-2127
-> > >
-> > > Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
-> > > ---
-> > >  Documentation/devicetree/bindings/rtc/nxp,rtc-2127.txt | 18
-> > ++++++++++++++++++
-> > >  1 file changed, 18 insertions(+)
-> > >  create mode 100644
-> > Documentation/devicetree/bindings/rtc/nxp,rtc-2127.txt
-> >
-> > Bindings should be in DT schema format now.
->
-> Is there any doc description for DT schema format or example
-> So that I can take as a reference. Thank you!
+> 
+> To me - each of these should have their own 'unregister' function and
+> appropriate devres helpers *OR* RTC-related nvmem structures could be
+> set up and assigned to struct rtc_device after
+> devm_rtc_allocate_device() and picked up by the registration function
+> (and also undone by rtc_unregister_device()).
+> 
+> I'll try to allocate some time to look into this but it's not like
+> it's urgent or anything - it's just a potential improvement.
+> 
 
-Documentation/devicetree/writing-schema.rst and about 1000 examples in
-the kernel tree.
+Well, this could simply be done by adding a devres_add in
+__rtc_register_device. I'm planning to remove rtc_nvmem_unregister after
+the next LTS which will make that even easier.
 
-Rob
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
