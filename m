@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAE5FC43461
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E44E7C43461
+	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 16:00:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BA6320756
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:59:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CC572054F
+	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 16:00:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="jk2QemzA"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="t4cFpNz+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726424AbgINP7m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1726310AbgINP7m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 14 Sep 2020 11:59:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49922 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726535AbgINPqe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 11:46:34 -0400
+        with ESMTP id S1726542AbgINPqg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 11:46:36 -0400
 Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73222C061223
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:14 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id z1so199437wrt.3
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D8DDC0611C2
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:17 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id g4so181430wrs.5
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/bIA2YmUmXjfEQqSveKUMWzIp1Qh5l6kP8KUqfJvUYc=;
-        b=jk2QemzAep7aiq8P/HwiXdSGtnzJ++v1QrzrmmVtaYBOt+Y3E0hlOPxJcExY1QsCDp
-         p+895PsxdfOOnMMDJLCPMo0KMJG8Jcvx89sLickgyle/2OJcZa5/4aNP02q496RmW3hb
-         dW9Z+F1PY83kT1w1nNellUjpmzAh7syuPOM4/Ji+nSJAL6H5o0d85VrTciXtIUIqV2IE
-         JP1y9WE10lHZhd05Ueb+eJJsCnSSgs7dF0aU3er2QR3AXoGm9OmH2yF69rUDaN+vcSxl
-         4+7izozlmkKqDr2K7gU4wLcMkI7/5osBI4VQBSZRDZUnzDBXQETHA/N6WFQcUAb2p09h
-         Z3Yw==
+        bh=G+PK0Uhaf2LS2ruchACkgtdnjPe7y7uer6E3uH7d0+Y=;
+        b=t4cFpNz+H2NjrPfThiGTG61J9s44bQIxzMJdnJMezCdAkv1s7OOyd5tY6sepLIaNdi
+         dfjJsqMhGK074fz1kgG+Mgr6PGMzO7suAL6hS7MvM53FydeEnQifXai3sOViHVTahz7f
+         XWvE2YmXf/f1333uZDRE0MVwvSIuPLy/OXZlvFTlJYhLUsoVX/JYoSc3jnA1cK60FNMA
+         iCEb9VUSjQBeO72Vmpwhe9muvJmBSuudgZQ+fx+UriOr9APuvUPpKHl+7y3SttgisKhH
+         BRsvuHwt/iRp6+5nO7+shHKpxYajkhw+JIUlDnJ1qQHZ93WLrSxmq1Da38oXxr/RFVAS
+         FCDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/bIA2YmUmXjfEQqSveKUMWzIp1Qh5l6kP8KUqfJvUYc=;
-        b=skBV+4QOSzAcbe9u8np85iKwmQizdnqtwqPoSUTxTeW0sTskQW7qpvfaoR56TuOrC5
-         9CfrV12bPF4zrLFy+AtTaOu6B016xUWwQ8eCoyxl1oy4Phsb7nPXi7PzvOBHrS7r8kNL
-         qiAbED+kHZDu18uV5lYs/ZX1/vvNlmM0rpIDyKhUSrBMQ11BromCgozTNW18d/AYrS7i
-         p6MzjE2MieFdUi78gnBIz1WgeJEuMN7ie2LrSKdRIQM2zS3EiAxRsqkDIuW8F/a2i7MW
-         p2S0MGFOxA2kIa5x7WH9H/hG7N7Ps9JULJit4POeN2oQjAWDGGyl6o0Mvz95dKFHhnlF
-         2KqQ==
-X-Gm-Message-State: AOAM532FmktIYbX7u05rpt3GHfKYnMCvMIcCqK8iSDbM55nZIK9DMCgu
-        +48JtO+da/u48sGWdv5zDYSUwG9UdtjlZg==
-X-Google-Smtp-Source: ABdhPJzNyScHgNXmICEfdwO3M4sHDrQlUGaTo060vEI/UTF5d/kYM1HJMQwFiyn2Jh+pBIsNPvPnpA==
-X-Received: by 2002:a5d:4104:: with SMTP id l4mr16512968wrp.396.1600098373177;
-        Mon, 14 Sep 2020 08:46:13 -0700 (PDT)
+        bh=G+PK0Uhaf2LS2ruchACkgtdnjPe7y7uer6E3uH7d0+Y=;
+        b=NAgApI+DDJ0NXlprMkN/c9frO06KMVjLYzmomCufuklb6WSSYUf+L6c6k48nNVTxZS
+         ELDHQd6WiC0On6N7H622S+zaJuoUMjevyN3FNy7BVaXPFmXAVu5ITACagevb6GWVGfJc
+         Zx8l6/DtOrzdjljfLaP3HWAUvBWzsNnxoZGAxV8542qynYAZqwprlb5DqMrECfB/t0zl
+         YXsxubw55r0cvCOiVIF8PYX0smPPPlPvFeifnH2LT0P4Ym8+/+SdjXIXzSbPex397YC4
+         aGxyMtG5qM2V54U5B/0JZ0PdzSYWJOcTABqc8lRYf8fKsOlw8YqoL+A7696uJLPLP6Ib
+         g9Sg==
+X-Gm-Message-State: AOAM5308VXqr+b1avEM2Y/K791H2s2+VwvaSv8SFutEwd+S46jU7kb1a
+        8X0pANOeT6YlcOkiaM9JFNMiQA==
+X-Google-Smtp-Source: ABdhPJxuT5RmVfGhcx94jC0I6FRj4mMhN3y7neth8DrHKaxEQk826vLobniOPVdXIdTvm3jVaMqBOA==
+X-Received: by 2002:adf:ce8e:: with SMTP id r14mr16409919wrn.257.1600098376153;
+        Mon, 14 Sep 2020 08:46:16 -0700 (PDT)
 Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
-        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.12
+        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 08:46:12 -0700 (PDT)
+        Mon, 14 Sep 2020 08:46:15 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v3 09/14] rtc: rx8010: use a helper variable for client->dev in probe()
-Date:   Mon, 14 Sep 2020 17:45:56 +0200
-Message-Id: <20200914154601.32245-10-brgl@bgdev.pl>
+Subject: [PATCH v3 12/14] rtc: rx8010: switch to using the preferred i2c API
+Date:   Mon, 14 Sep 2020 17:45:59 +0200
+Message-Id: <20200914154601.32245-13-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200914154601.32245-1-brgl@bgdev.pl>
 References: <20200914154601.32245-1-brgl@bgdev.pl>
@@ -77,66 +77,36 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Simple 'dev' looks better then repeated &client->dev and has the added
-benefit of avoiding unnecessary line breaks.
+We should generally use probe_new instead of probe when registering i2c
+drivers. Convert rx8010 to using it.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-rx8010.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-rx8010.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-index 64a9964eb5e0..dba7c3f87d9e 100644
+index 6aeed3802670..3c82f7d48a65 100644
 --- a/drivers/rtc/rtc-rx8010.c
 +++ b/drivers/rtc/rtc-rx8010.c
-@@ -419,6 +419,7 @@ static int rx8010_probe(struct i2c_client *client,
+@@ -414,8 +414,7 @@ static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
+ 	.alarm_irq_enable = rx8010_alarm_irq_enable,
+ };
+ 
+-static int rx8010_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int rx8010_probe(struct i2c_client *client)
  {
  	struct i2c_adapter *adapter = client->adapter;
- 	const struct rtc_class_ops *rtc_ops;
-+	struct device *dev = &client->dev;
- 	struct rx8010_data *rx8010;
- 	int err = 0;
- 
-@@ -428,8 +429,7 @@ static int rx8010_probe(struct i2c_client *client,
- 		return -EIO;
- 	}
- 
--	rx8010 = devm_kzalloc(&client->dev, sizeof(struct rx8010_data),
--			      GFP_KERNEL);
-+	rx8010 = devm_kzalloc(dev, sizeof(struct rx8010_data), GFP_KERNEL);
- 	if (!rx8010)
- 		return -ENOMEM;
- 
-@@ -441,13 +441,13 @@ static int rx8010_probe(struct i2c_client *client,
- 		return err;
- 
- 	if (client->irq > 0) {
--		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
--		err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-+		dev_info(dev, "IRQ %d supplied\n", client->irq);
-+		err = devm_request_threaded_irq(dev, client->irq, NULL,
- 						rx8010_irq_1_handler,
- 						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
- 						"rx8010", client);
- 		if (err) {
--			dev_err(&client->dev, "unable to request IRQ\n");
-+			dev_err(dev, "unable to request IRQ\n");
- 			return err;
- 		}
- 
-@@ -456,11 +456,10 @@ static int rx8010_probe(struct i2c_client *client,
- 		rtc_ops = &rx8010_rtc_ops_default;
- 	}
- 
--	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
-+	rx8010->rtc = devm_rtc_device_register(dev, client->name,
- 					       rtc_ops, THIS_MODULE);
--
- 	if (IS_ERR(rx8010->rtc)) {
--		dev_err(&client->dev, "unable to register the class device\n");
-+		dev_err(dev, "unable to register the class device\n");
- 		return PTR_ERR(rx8010->rtc);
- 	}
+ 	struct device *dev = &client->dev;
+@@ -469,7 +468,7 @@ static struct i2c_driver rx8010_driver = {
+ 		.name = "rtc-rx8010",
+ 		.of_match_table = of_match_ptr(rx8010_of_match),
+ 	},
+-	.probe		= rx8010_probe,
++	.probe_new	= rx8010_probe,
+ 	.id_table	= rx8010_id,
+ };
  
 -- 
 2.26.1
