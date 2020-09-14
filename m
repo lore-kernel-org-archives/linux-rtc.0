@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BA50C43461
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:47:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EC01C43461
+	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:58:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EFC71208DB
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:47:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E246F2074B
+	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 15:58:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="Az3F1nlA"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="GdVwKgSs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726481AbgINPrP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 14 Sep 2020 11:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
+        id S1726061AbgINP6t (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 14 Sep 2020 11:58:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726538AbgINPqf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 11:46:35 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A16EC061225
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:15 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id y15so565143wmi.0
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:15 -0700 (PDT)
+        with ESMTP id S1726546AbgINPql (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 11:46:41 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9138EC0611BE
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:19 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id k18so529415wmj.5
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ZEV41DUq4hDo9kX8U4tlHDYu2D0bOWfkfHs9aykeSRY=;
-        b=Az3F1nlAe83fNePJ2s+NbIHrFXMuKbqDZ3xUKNKgg/U+sx6cssF12dPi+scUgEojyH
-         /436BeRU2pd4LIP4bQItOUWN1LH09OGMaWmlkNtBcp7WxXGnoqviDrYWMQ7oNIRN9eZM
-         suIYND/LIYAQMfaZCLtFbQFq4mWAD3nejN7No/yMkyMz8ov/i4I/e9YSWKFhMgekz+rb
-         J1B9MzfEFMPJsodPV5gJ5eP8dKGoE3/bLpC0V6ev26q7pK9qSHvcX5EBeyRIRfpWNgZE
-         itVpUomd3P+/xiKS4pxZQaKBIt6LR3Iyla9TCGngYkUD6Sx4rAxVqOUPgaM58AIj16V4
-         qwBg==
+        bh=XJ05GIM5VsS2yiXaAJqmcLCOwDz0VZkcOpGm3rJm6lA=;
+        b=GdVwKgSs+W+8Lgf7KkHcvg9GafNOENKBc2QdAPDfVpxuCfSnD626g1Gha1BudiWIX4
+         naUI3Ud4QH/njSuDHXC0ruyzdcx4Lwo9EMo56ivCyNCWtXTuEXXyeFkLDH+I7BRJQ/hy
+         VtufdtVilPrRLN9bEXo/lU27WyPvyEhwvajQnf+9qD7nnfzj2Iag5MhwpckwNTg9W6VM
+         0PEjJRlZ4GIyS5A7LrsC2WDINvM1T8O9Y87M2bFebq9w9Jr8FxnytrQASAnQIOluIoKz
+         FeYqVj1dkRGCdpENGHdZM+R2wXqSiegcDsmNS42PoOlDIG/qfbgKf2CorEG9E3d6mh8k
+         85TQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZEV41DUq4hDo9kX8U4tlHDYu2D0bOWfkfHs9aykeSRY=;
-        b=CgnUmmCuizG1EPcnVTb4iumJLvG9uBg+0mnS4XGkAgMIpAPBhoHagQ98jWyRWQuMo5
-         HPYrPtimghIbQjqV4aeRyPuqxd7f4pdRvyR1aqZmROcyF+ozjRlXuLRy36g9qhlAAzEk
-         BK1oFzPXt2ztG0H9Q7wPrtFCMXEONj0asTsEd//ruGbrgm67TP9eMBmesRUL23ZRxsJ0
-         8wLq+zJWRblvN1sm2Svs3OaDnidSidlSG/8MfDjnaJ4V5aXImaLnA3rG1Vyvupb9HTNT
-         TLKI6Wts+PpkARwj+JEkZ1NCfeBUo3z5jBZdcZMa7kWCwz85NhH5V5kX+UynEV8YXloJ
-         5FZw==
-X-Gm-Message-State: AOAM533cIjGaZrKRgyZ0SN2pUxrWu3e/6sGmdGlLay5VW5xqvfYYBY7v
-        TxCHZ1LCxRRqbUU5xOJeT2RS8w==
-X-Google-Smtp-Source: ABdhPJwFuDev5spRwtlUmLIoM8tFRiwMtQscTE6sB+Fnu9QqYcucjXQOatNfrRrq/Tqg0Bw/PBxKTQ==
-X-Received: by 2002:a1c:2dcc:: with SMTP id t195mr20845wmt.166.1600098374174;
-        Mon, 14 Sep 2020 08:46:14 -0700 (PDT)
+        bh=XJ05GIM5VsS2yiXaAJqmcLCOwDz0VZkcOpGm3rJm6lA=;
+        b=FWzs8er2OAAtY4boWs0MySUvstBUDK8PRmD+s+EftjjO2wEwnhI/Y1ne5JKdzXm7vC
+         Cfyim5KHoK4UF4aBFFmAJ5O4nAhL8DeIaxRmuvZtHzLwBS/upyJF2re/N33QggM0cByY
+         OxiL1WBZ3dklULuQ7Wsk0g4yrDals1gsYKOEFiOmfVOydOL7PvTgWJG1/f4D2i/a3OGn
+         LmBDsaaqKuATwncFh25f+A4rPGhhHEDbFwauiZixGHD1TjLeyer1YvyBofdwY6NABGza
+         imc40pFb6tO3bDvjzuEbrRk6CHwcR7kEA7FjtVQHMCTF1+ga6/HUAKJAliEclHFTgQgo
+         WRvg==
+X-Gm-Message-State: AOAM532WxmKVeb+BiMK1DenZejoescMUOOLPKkLG2z0/eP0EgHHG1Hu2
+        vHvdeUH8Y39CBZM3vwNbB4M9Wo2hJV0vlg==
+X-Google-Smtp-Source: ABdhPJzoNU6DBG61ZYnZYLOEF4Qk5ctIwlgijgjPwzfzHfVo98LPePhCVsBKavSNPAg/TQsllDUeog==
+X-Received: by 2002:a1c:7911:: with SMTP id l17mr15408214wme.179.1600098378278;
+        Mon, 14 Sep 2020 08:46:18 -0700 (PDT)
 Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
-        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.13
+        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 08:46:13 -0700 (PDT)
+        Mon, 14 Sep 2020 08:46:17 -0700 (PDT)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v3 10/14] rtc: rx8010: prefer sizeof(*val) over sizeof(struct type_of_val)
-Date:   Mon, 14 Sep 2020 17:45:57 +0200
-Message-Id: <20200914154601.32245-11-brgl@bgdev.pl>
+Subject: [PATCH v3 14/14] rtc: rx8010: use range checking provided by core RTC code
+Date:   Mon, 14 Sep 2020 17:46:01 +0200
+Message-Id: <20200914154601.32245-15-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200914154601.32245-1-brgl@bgdev.pl>
 References: <20200914154601.32245-1-brgl@bgdev.pl>
@@ -77,28 +77,37 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Using the size of the variable is preferred over using the size of its
-type when allocating memory. Convert the call to devm_kzalloc() in
-probe().
+We don't need to check the time range manually in set_time(), we can
+use range_min and range_max exposed by struct rtc_device.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-rx8010.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rx8010.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
-index dba7c3f87d9e..aa357f800ad4 100644
+index b8aa98fb62de..01e9017d4025 100644
 --- a/drivers/rtc/rtc-rx8010.c
 +++ b/drivers/rtc/rtc-rx8010.c
-@@ -429,7 +429,7 @@ static int rx8010_probe(struct i2c_client *client,
- 		return -EIO;
+@@ -140,9 +140,6 @@ static int rx8010_set_time(struct device *dev, struct rtc_time *dt)
+ 	u8 date[RX8010_YEAR - RX8010_SEC + 1];
+ 	int err;
+ 
+-	if ((dt->tm_year < 100) || (dt->tm_year > 199))
+-		return -EINVAL;
+-
+ 	/* set STOP bit before changing clock/calendar */
+ 	err = regmap_set_bits(rx8010->regs, RX8010_CTRL, RX8010_CTRL_STOP);
+ 	if (err)
+@@ -419,6 +416,8 @@ static int rx8010_probe(struct i2c_client *client)
  	}
  
--	rx8010 = devm_kzalloc(dev, sizeof(struct rx8010_data), GFP_KERNEL);
-+	rx8010 = devm_kzalloc(dev, sizeof(*rx8010), GFP_KERNEL);
- 	if (!rx8010)
- 		return -ENOMEM;
+ 	rx8010->rtc->max_user_freq = 1;
++	rx8010->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rx8010->rtc->range_max = RTC_TIMESTAMP_END_2099;
  
+ 	return rtc_register_device(rx8010->rtc);
+ }
 -- 
 2.26.1
 
