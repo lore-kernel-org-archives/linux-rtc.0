@@ -4,39 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1102C31E40
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFEADC2D0E0
 	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 07:41:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BBCE421D41
+	by mail.kernel.org (Postfix) with ESMTP id 8223B21D1B
 	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 07:41:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726205AbgIOHlR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Sep 2020 03:41:17 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:46968 "EHLO inva021.nxp.com"
+        id S1726200AbgIOHlL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 15 Sep 2020 03:41:11 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:47004 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726171AbgIOHk7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        id S1726174AbgIOHk7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
         Tue, 15 Sep 2020 03:40:59 -0400
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 8E91D2006FE;
-        Tue, 15 Sep 2020 09:40:53 +0200 (CEST)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 9F317200513;
+        Tue, 15 Sep 2020 09:40:54 +0200 (CEST)
 Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 7AD2A2006E5;
-        Tue, 15 Sep 2020 09:40:49 +0200 (CEST)
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 8B7D5200705;
+        Tue, 15 Sep 2020 09:40:50 +0200 (CEST)
 Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 084B6402E3;
-        Tue, 15 Sep 2020 09:40:43 +0200 (CEST)
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 1CC034029A;
+        Tue, 15 Sep 2020 09:40:45 +0200 (CEST)
 From:   Biwen Li <biwen.li@oss.nxp.com>
 To:     alexandre.belloni@bootlin.com, leoyang.li@nxp.com,
         shawnguo@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com
 Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         jiafei.pan@nxp.com, linux-rtc@vger.kernel.org,
         Biwen Li <biwen.li@nxp.com>
-Subject: [PATCH 3/5] arm64: dts: ls1088a-rdb: remove useless property of rtc
-Date:   Tue, 15 Sep 2020 15:32:11 +0800
-Message-Id: <20200915073213.12779-3-biwen.li@oss.nxp.com>
+Subject: [PATCH 4/5] arm64: dts : ls1088a-qds: remove useless property of rtc
+Date:   Tue, 15 Sep 2020 15:32:12 +0800
+Message-Id: <20200915073213.12779-4-biwen.li@oss.nxp.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200915073213.12779-1-biwen.li@oss.nxp.com>
 References: <20200915073213.12779-1-biwen.li@oss.nxp.com>
@@ -52,22 +52,22 @@ Remove useless property interrupts of rtc
 
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts | 2 --
+ arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts | 2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-index f651f4a5a54b..b543389155b0 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-@@ -51,8 +51,6 @@
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
+index 5b2699fe4e5d..329a9428ae8b 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
+@@ -90,8 +90,6 @@
  			rtc@51 {
  				compatible = "nxp,pcf2129";
  				reg = <0x51>;
 -				/* IRQ10_B */
 -				interrupts = <0 150 IRQ_TYPE_LEVEL_HIGH>;
  			};
- 		};
- 	};
+ 
+ 			eeprom@56 {
 -- 
 2.17.1
 
