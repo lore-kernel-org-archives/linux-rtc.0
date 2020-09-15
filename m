@@ -2,88 +2,96 @@ Return-Path: <SRS0=5D1E=CY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0D1EC433E2
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 22:21:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58CE5C2D0E3
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 22:31:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 68E6D20809
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 22:21:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600208469;
-	bh=e3rjuyr3tmVeZP9XbEIBcX85iSilo/v5/HnnbdJXwbM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=C9gRSpr36+wnY7ztsP5ki5WdX3GzctjuRyU8iFRCilGoWDPMb45+fgr6FmnwcOdw+
-	 SrABVQUYASytv3lVWHikpLmMBmRIK/5yHuV+zwFPzpUFLLbTAozCX5RR6lZ0xjeiyP
-	 5PEUemmshLGYYvVl0vP4cuMhIo757NoZ0prYXrX0=
+	by mail.kernel.org (Postfix) with ESMTP id 2B9B8208E4
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 22:31:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbgIOQ2J (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Sep 2020 12:28:09 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:46141 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727654AbgIOQ10 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Sep 2020 12:27:26 -0400
-Received: by mail-pf1-f193.google.com with SMTP id b124so2207777pfg.13;
-        Tue, 15 Sep 2020 09:27:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=SsVoyaohphvNmpQfLIGvw8atCfZJJYkBmuyLFwxaxxU=;
-        b=NJp9hZd3YCnoybrYWHU8x3pwmvcVGFn57lpzadtIY60Ket/IqbYbDScBlZacYAtMx0
-         oDJBikgrnMbi4R25bbsc+K3lE5xBEEgsu0maeN5ytIAfO6zamDoaq5ymGpfvzG28comf
-         qOt49wXW0QwKYuqq9LMkKeN4tFx6hWb6FI6IDG4DHUDZSBgVAzFp8df5zNVlZLL/0s1g
-         2B8Kp6BxoU8TZ8tZ5dI92o+sjmm7WmEkmdk8DUggjz/L49dgcJO42YKmtX74eYLZPQ4/
-         jj8E9CUCuuZYdhL8QmXFr6AznSiNsqDdZRULIbSMSHzImYQ2tgsdGjnHJmOfE2SXHhha
-         2clg==
-X-Gm-Message-State: AOAM531W6298QVL3E2nTycoNiqzQrzUlr0+x9xYBNjYIRvFoLbaVa/oy
-        XY+W5WkV1ra4p0gOfeQAZL3WF2OcmK9aEqU=
-X-Google-Smtp-Source: ABdhPJw1S9izW5NuOehAS0M2hJEo32O1xoYyF7kK+wWcApEGAPOkeIQBfam1oa9JFXb7qyeJiJLU0g==
-X-Received: by 2002:a92:8517:: with SMTP id f23mr17420789ilh.45.1600185630800;
-        Tue, 15 Sep 2020 09:00:30 -0700 (PDT)
-Received: from xps15 ([64.188.179.253])
-        by smtp.gmail.com with ESMTPSA id l10sm2784821ilm.75.2020.09.15.09.00.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2020 09:00:30 -0700 (PDT)
-Received: (nullmailer pid 2028536 invoked by uid 1000);
-        Tue, 15 Sep 2020 16:00:27 -0000
-Date:   Tue, 15 Sep 2020 10:00:27 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Bastian Krause <bst@pengutronix.de>
-Cc:     Arnaud Ebalard <arno@natisbad.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Marek Vasut <marex@denx.de>, kernel@pengutronix.de,
-        devicetree@vger.kernel.org
-Subject: Re: [PATCH 2/8] dt-bindings: rtc: ds1307: let aux-voltage-chargeable
- supersede trickle-diode-disable
-Message-ID: <20200915160027.GA2028477@bogus>
-References: <20200907142727.26472-1-bst@pengutronix.de>
- <20200907142727.26472-3-bst@pengutronix.de>
+        id S1727593AbgIOWbq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 15 Sep 2020 18:31:46 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:48507 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727618AbgIOQRS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Sep 2020 12:17:18 -0400
+X-Originating-IP: 90.65.88.165
+Received: from localhost (lfbn-lyo-1-1908-165.w90-65.abo.wanadoo.fr [90.65.88.165])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 876D8FF80D;
+        Tue, 15 Sep 2020 16:16:26 +0000 (UTC)
+Date:   Tue, 15 Sep 2020 18:16:26 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     "Kevin P. Fleming" <kevin+linux@km6g.us>
+Cc:     Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH 1/3 v3] dt-bindings: abx80x: Add autocal-filter property
+Message-ID: <20200915161626.GF9675@piout.net>
+References: <20200615105113.57770-1-kevin+linux@km6g.us>
+ <20200713183906.GA510880@bogus>
+ <CAE+UdorYGJrxjcBY8KtoUtpsEmWFkv4DsWtcdhCt9dcfDyCVHg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200907142727.26472-3-bst@pengutronix.de>
+In-Reply-To: <CAE+UdorYGJrxjcBY8KtoUtpsEmWFkv4DsWtcdhCt9dcfDyCVHg@mail.gmail.com>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 07 Sep 2020 16:27:21 +0200, Bastian Krause wrote:
-> trickle-diode-disable is deprecated, so reflect that in the driver's
-> binding and add the new aux-voltage-chargeable.
-> 
-> Signed-off-by: Bastian Krause <bst@pengutronix.de>
-> ---
-> Previous version:
-> https://lore.kernel.org/linux-rtc/20200415163701.21989-2-bst@pengutronix.de/
-> ---
->  Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
+Hi Kevin,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+nitpick, the subject prefix should be dt-bindings: prefix: abx80x:
+
+On 13/07/2020 18:05:34-0400, Kevin P. Fleming wrote:
+> On Mon, Jul 13, 2020 at 2:39 PM Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Mon, Jun 15, 2020 at 06:51:11AM -0400, Kevin P. Fleming wrote:
+> > > Add a property to allow control of the autocalibration filter
+> > > capacitor.
+> > >
+> > > Signed-off-by: Kevin P. Fleming <kevin+linux@km6g.us>
+> > > Cc: Alessandro Zummo <a.zummo@towertech.it>
+> > > Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> > > Cc: Rob Herring <robh+dt@kernel.org>
+> > > To: linux-rtc@vger.kernel.org
+> > > To: devicetree@vger.kernel.org
+> > > ---
+> > > v3: corrected whitespace
+> > >  Documentation/devicetree/bindings/rtc/abracon,abx80x.txt | 8 ++++++++
+> > >  1 file changed, 8 insertions(+)
+> > >
+> > > diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+> > > index 2405e35a1bc0f..1b606e33d1a83 100644
+> > > --- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+> > > +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.txt
+> > > @@ -29,3 +29,11 @@ and valid to enable charging:
+> > >   - "abracon,tc-diode": should be "standard" (0.6V) or "schottky" (0.3V)
+> > >   - "abracon,tc-resistor": should be <0>, <3>, <6> or <11>. 0 disables the output
+> > >                            resistor, the other values are in kOhm.
+> > > +
+> > > +All of the devices can have a 47pf capacitor attached to increase the
+> > > +autocalibration accuracy of their RC oscillators. To enable or disable usage
+> > > +of the capacitor the following property can be defined:
+> > > +
+> > > + - "abracon,autocal-filter": should be <0> or <1>. 0 indicates that there
+> > > +                             is no capacitor attached, 1 indicates that there
+> > > +                             is a capacitor attached.
+> >
+> > What does not present mean? If you don't have a defined meaning (such
+> > as maintain the default/bootloader initialized setting), then make this
+> > boolean.
+> 
+> That is the intended meaning (leave the current setting unmodified). I
+> can add that to the documentation so it is clear.
+
+Can you do that and send v4 please?
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
