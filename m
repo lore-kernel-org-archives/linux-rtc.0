@@ -1,131 +1,118 @@
-Return-Path: <SRS0=d3tw=CX=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=5D1E=CY=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-8.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 538E9C2BC11
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 16:33:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2419C433E2
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 00:43:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C11A214F1
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Sep 2020 16:33:37 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="UjEICQBL"
+	by mail.kernel.org (Postfix) with ESMTP id BF6A421655
+	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 00:43:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600130631;
+	bh=SzjD8Un0I+1KG8NymmOpJhzg1WWfdVMrrJq7cC33cD8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=yZKr9781mmBPkuJbfomdeGoPkLVivL5gprIjmUJlYRTANw6mnOfe+qeTyb1X0XzCJ
+	 N+IZt0uGwGXehdKGG0Zu+ajOamJgx+KWoMWZmIh7xWgbQDyZj0KeCqNwm05Vph5SYQ
+	 wBhngnwVYCx4M4GtsiByLCTtnu/eB/YrMlcbD2H8=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725978AbgINQd0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 14 Sep 2020 12:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49850 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726379AbgINPqK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 11:46:10 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0485FC061788
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:05 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id x14so122496wrl.12
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2020 08:46:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sm9pgyVCjKyBV5Er2a0jzjZ0ZMas7emW/sq9mlAQQgY=;
-        b=UjEICQBL9kukz5pRQFxfaxT47KM/RFb3jOFeEAb16y2GJQDTKa5rV4uNF1vqOkXWgS
-         Q7Redj0Permpm1GcK5bbOmbm037wUyaQUTG4d2cNigYPgUqV8Ys/Z4U3yILWEbPPP3Hp
-         qhPbd5wPrxHvDr/8Z/mEj08CeQ3tgzMs3sfQumt8A18pYiNNI0dDgJgW0ZPA3nWWkOCD
-         cAqgzr1mm5VgnfDRhOdSu/DoFJNMNVlUxkZotipbQ6IL96FrWnYCV3C95sLPtDMlC5tj
-         vvZGZvGiOpAHF8pAJM3D0tyBeYupmuY+/kHwDUzrHzkFfYvjNaGOSal8PzT63XxT3TX6
-         MXJQ==
+        id S1726093AbgIOAnr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 14 Sep 2020 20:43:47 -0400
+Received: from mail-il1-f195.google.com ([209.85.166.195]:34782 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726019AbgIOAnq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Sep 2020 20:43:46 -0400
+Received: by mail-il1-f195.google.com with SMTP id a8so1422032ilk.1;
+        Mon, 14 Sep 2020 17:43:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sm9pgyVCjKyBV5Er2a0jzjZ0ZMas7emW/sq9mlAQQgY=;
-        b=Y1BOTN3NfY4wvospAYARsUndO++lSi7KxzJv3nboy2X22VY10De7SUeqgxxUPKqp+F
-         rq3DT39lLMXcfmVyref1mcTtGdvKG/eaRVnq8I4CcKZ+QdrWZ9P1S/l91MC1oOMQhsEU
-         E2bXXGyqWt0uXpE30cMhOhyfiyTTwJ6wJvOIN8F+y/2MxQpQMqhrBGHgnHTsKEssi7Ak
-         5wXlweoIc67CEpQT3Pezk/C6PnRJ5xAS9vlOCjwUlxuQiZtiA44axwSGbdAcRmNXTSK1
-         K2fiGLiRQTBYuhCjjgDQgKzh6LDg1b8ss2pys8SgZEALDOXkb+yA7e/gwlaRNyOnjwKT
-         5xIw==
-X-Gm-Message-State: AOAM531baEfF79VBi88i8zf7EoR3ZJdpoSZpRN5zr/hFqjLxlomE8b8o
-        oAZ4bw9R9AfKyVq64fKx+HYURaww+jAvkA==
-X-Google-Smtp-Source: ABdhPJzHu7RPuzJxmb64QTz5Xq34eRNRLo36+mpPi9E5WfOAtnL3Y6jvTGHjS5aTJdiXhiWujX2Q2g==
-X-Received: by 2002:a5d:60d0:: with SMTP id x16mr16456632wrt.196.1600098363695;
-        Mon, 14 Sep 2020 08:46:03 -0700 (PDT)
-Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
-        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.02
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=UNo7mnvbrxfEkc0MpSN1laoGb3kvFf+1FihcAh2kuwA=;
+        b=czHw3kjO2bsqlXToKgdCZvxcClIlBc6OUWDEi/UCyq4pbqUmdjD0BwQ/SdAO8lk/8R
+         PGS6kcvPPooj8p+IUJrFMYR7SQr4MH0DXPQ8SjzEXnLPnFB9o6KbrfoT8Za4utaHqg4C
+         NpQnG7qBINZrX3sGvIJ5cwIVGIac9Folk1aUpHmolmZg1n3SFwpd28ESvYpdmkRrxq7+
+         i4vIAtm/mMCVGB+EgCWnkx7P5yvcZroDnKlfYhbAsgN9lK/dw1tbjQhKiZdC4r0e+r4P
+         m7Oxa1FBj9Z8zbhzvmgd7RjEsfSLjgK7ypY+clhMHHkcxwlC1YbTWVgd0q+eC5899OEp
+         JrqQ==
+X-Gm-Message-State: AOAM53386ZvXI1MEIRx86j21TyvWdJRzWZQC+C/YT7NImr1LRuFxnZmR
+        /9fFji/5/3epQFESbG76HMkRHkI+KIRE
+X-Google-Smtp-Source: ABdhPJxzFLfpkXRw4xeAxrjp/JRY1XR9O5cts0wBuIhefTxqHs0fAUX8/qOZkEySJsYxiU3gLAuz7g==
+X-Received: by 2002:a92:7711:: with SMTP id s17mr6292866ilc.236.1600130625930;
+        Mon, 14 Sep 2020 17:43:45 -0700 (PDT)
+Received: from xps15 ([64.188.179.253])
+        by smtp.gmail.com with ESMTPSA id w15sm7796085ilq.46.2020.09.14.17.43.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 08:46:03 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH v3 00/14] rtc: rx8010: use regmap instead of i2c smbus API
-Date:   Mon, 14 Sep 2020 17:45:47 +0200
-Message-Id: <20200914154601.32245-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.26.1
+        Mon, 14 Sep 2020 17:43:45 -0700 (PDT)
+Received: (nullmailer pid 593532 invoked by uid 1000);
+        Tue, 15 Sep 2020 00:43:40 -0000
+Date:   Mon, 14 Sep 2020 18:43:40 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>
+Cc:     linux-rtc@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Daniel Palmer <daniel@0x0f.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, allen <allen.chen@ite.com.tw>,
+        Rob Herring <robh+dt@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mark Brown <broonie@kernel.org>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-arm-kernel@lists.infradead.org,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        linux-pwm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Josua Mayer <josua.mayer@jm0.eu>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v2 01/10] dt-bindings: Add vendor prefix for Netronix,
+ Inc.
+Message-ID: <20200915004340.GA593474@bogus>
+References: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
+ <20200905133230.1014581-2-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200905133230.1014581-2-j.neuschaefer@gmx.net>
 Sender: linux-rtc-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Sat, 05 Sep 2020 15:32:21 +0200, Jonathan Neuschäfer wrote:
+> Netronix, Inc. (http://www.netronixinc.com/) makes ebook reader board
+> designs, which are for example used in Kobo and Tolino devices.
+> 
+> An alternative prefix for Netronix would be "ntx", which is already used
+> in code released by Netronix. It is shorter, but perhaps less clear.
+> 
+> Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+> ---
+> v2:
+> - No changes
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
 
-This series gets bigger and bigger but I noticed a problem with this
-driver that looks like stable material so I fixed it as the first patch
-in the series to make backporting easy.
-
-Other than that, there are new refactoring patches and I removed the
-unnecessary error messages.
-
---
-
-I want to use this driver on a platform where the i2c controller doesn't
-speak SMBUS. This series converts the driver to i2c regmap which can
-figure out the correct protocol to use.
-
-The actual conversion happens in patch 13. The rest are bugfixes and
-refactoring.
-
-v1 -> v2:
-- s/parentheses/brackets/g
-- add a patch switching the driver to using the preferred RTC API
-- rework the patch removing magic values
-- use range_max and range_min instead of manual range checks
-- add a patch adding a helper variable in probe() for client->dev
-- add a patch using sizeof(*rx8010) instead of sizeof(struct rx8010_data)
-
-v2 -> v3:
-- remove unnecessary error messages when registering the RTC device
-- add a patch switching to using the preferred probe_new callback in
-  the I2C driver
-- add a patch fixing an issue where the global rtc operations struct
-  is modified depending on the presence of the interrupt
-- add a patch removing a stray newline
-
-Bartosz Golaszewski (14):
-  rtc: rx8010: don't modify the global rtc ops
-  rtc: rx8010: remove a stray newline
-  rtc: rx8010: remove unnecessary brackets
-  rtc: rx8010: consolidate local variables of the same type
-  rtc: rx8010: use tabs instead of spaces for code formatting
-  rtc: rx8010: rename ret to err in rx8010_set_time()
-  rtc: rx8010: don't use magic values for time buffer length
-  rtc: rx8010: drop unnecessary initialization
-  rtc: rx8010: use a helper variable for client->dev in probe()
-  rtc: rx8010: prefer sizeof(*val) over sizeof(struct type_of_val)
-  rtc: rx8010: switch to using the preferred RTC API
-  rtc: rx8010: switch to using the preferred i2c API
-  rtc: rx8010: convert to using regmap
-  rtc: rx8010: use range checking provided by core RTC code
-
- drivers/rtc/rtc-rx8010.c | 332 +++++++++++++++++----------------------
- 1 file changed, 143 insertions(+), 189 deletions(-)
-
--- 
-2.26.1
-
+Acked-by: Rob Herring <robh@kernel.org>
