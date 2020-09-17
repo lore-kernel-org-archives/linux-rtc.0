@@ -2,114 +2,85 @@ Return-Path: <SRS0=2Wj4=C2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50984C2BBD1
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EF72C35263
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:54:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 032BC221F1
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BDCFC2087D
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:54:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1600368878;
+	bh=DJoY4SjCm0Aq9Cv3Amd8XdYF2qxkng+cNtLI1j/5DaE=;
+	h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+	 List-ID:From;
+	b=Lzy2wflbbCCtl5VFCRH0biedYYbylhBysrtXGsknP1pmAZPvec4j2U5UilEnRILv9
+	 BcWPJF1tRT/V0AZVDuDLTYaFHjNS2w3kUrpiWlehXKDBq4wfkI702soW+6MKRBWFVK
+	 grjnYmcQ055ow/50Ur63q9jfmZBnpZ9krOD3pFhU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726335AbgIQSez (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 17 Sep 2020 14:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726514AbgIQSc5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Sep 2020 14:32:57 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DDCC06178A
-        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2020 11:32:56 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <bst@pengutronix.de>)
-        id 1kIyiE-0004GR-Ng; Thu, 17 Sep 2020 20:32:54 +0200
-From:   Bastian Krause <bst@pengutronix.de>
-To:     linux-rtc@vger.kernel.org
-Cc:     devicetree@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Arnaud Ebalard <arno@natisbad.org>,
-        Marek Vasut <marex@denx.de>, kernel@pengutronix.de,
-        Bastian Krause <bst@pengutronix.de>
-Subject: [PATCH v2 1/8] dt-bindings: rtc: let aux-voltage-chargeable supersede trickle-diode-disable
-Date:   Thu, 17 Sep 2020 20:32:39 +0200
-Message-Id: <20200917183246.19446-2-bst@pengutronix.de>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200917183246.19446-1-bst@pengutronix.de>
-References: <20200917183246.19446-1-bst@pengutronix.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: bst@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
+        id S1726350AbgIQSyh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 17 Sep 2020 14:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728428AbgIQQU3 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 17 Sep 2020 12:20:29 -0400
+Received: from localhost (unknown [70.37.104.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23ECD221E3;
+        Thu, 17 Sep 2020 15:53:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600358016;
+        bh=DJoY4SjCm0Aq9Cv3Amd8XdYF2qxkng+cNtLI1j/5DaE=;
+        h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=XM/wX/1lFyQ5ceU5E5oLA5UfhCfGPVZm/15Ci0O+oyUl/yBmYnTJP6/1Gqpc9lsBz
+         KGkNbYMbDK/v4zbKw3s0l1BJtByZyg00MIlhjW+lJAJJH96Pbj6OBa3j0/uNlegCjc
+         4HlA3IDOkkWVbmCqzHABbWVDZu+dFSoqOGukoNXY=
+Date:   Thu, 17 Sep 2020 15:53:35 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v3 01/14] rtc: rx8010: don't modify the global rtc ops
+In-Reply-To: <20200914154601.32245-2-brgl@bgdev.pl>
+References: <20200914154601.32245-2-brgl@bgdev.pl>
+Message-Id: <20200917155336.23ECD221E3@mail.kernel.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some RTCs can be equipped with a chargeable battery or supercap.
-Every RTC allowing this whose driver's implement it are charged by
-default. To disable this the trickle-diode-disable flag exists.
+Hi
 
-If a driver did not support charging and some time later one wants to
-add that feature, there is currently no way to do it without breaking
-dt backwards compatibility. RTCs on boards without the
-trickle-diode-disable flag in their device tree would suddenly charge
-their battery/supercap which is a change in behavior.
+[This is an automated email]
 
-Change that by introducing aux-voltage-chargeable, not as a flag but as
-a uint32 enum allowing to set "do not charge" (0) or "charge" (1). This
-dt property is optional, so we can now distinguish these cases.
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver").
 
-Care must be taken to support the old behavior for device trees without
-aux-voltage-chargeable nonetheless to stay compatible.
+The bot has tested the following trees: v5.8.9, v5.4.65, v4.19.145, v4.14.198, v4.9.236.
 
-Signed-off-by: Bastian Krause <bst@pengutronix.de>
----
-Changes since v1:
-- fixed dt_binding_check error by adding " |" after "description:"
+v5.8.9: Build OK!
+v5.4.65: Build OK!
+v4.19.145: Failed to apply! Possible dependencies:
+    9d085c54202d ("rtc: rx8010: simplify getting the adapter of a client")
 
-v1 notes:
-In a previous series aux-voltage-chargeable was added as a ds1307 dt
-property. Discussions lead to turning that into a generic rtc dt
-property:
-https://lore.kernel.org/linux-rtc/98fa7181-3ebe-d7c3-cfac-fee841c81e15@pengutronix.de/T/
----
- Documentation/devicetree/bindings/rtc/rtc.yaml | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+v4.14.198: Failed to apply! Possible dependencies:
+    9d085c54202d ("rtc: rx8010: simplify getting the adapter of a client")
 
-diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
-index ee237b2ed66a..6b8a11325691 100644
---- a/Documentation/devicetree/bindings/rtc/rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
-@@ -17,6 +17,15 @@ properties:
-   $nodename:
-     pattern: "^rtc(@.*|-[0-9a-f])*$"
- 
-+  aux-voltage-chargeable:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum: [0, 1]
-+    description: |
-+      Tells whether the battery/supercap of the RTC (if any) is
-+      chargeable or not:
-+      0: not chargeable
-+      1: chargeable
-+
-   quartz-load-femtofarads:
-     $ref: /schemas/types.yaml#/definitions/uint32
-     description:
-@@ -35,6 +44,7 @@ properties:
-     description:
-       Do not use internal trickle charger diode. Should be given if
-       internal trickle charger diode should be disabled.
-+    deprecated: true
- 
-   trickle-resistor-ohms:
-     $ref: /schemas/types.yaml#/definitions/uint32
+v4.9.236: Failed to apply! Possible dependencies:
+    9d085c54202d ("rtc: rx8010: simplify getting the adapter of a client")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
 -- 
-2.28.0
-
+Thanks
+Sasha
