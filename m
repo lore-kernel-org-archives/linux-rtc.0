@@ -1,246 +1,138 @@
-Return-Path: <SRS0=5D1E=CY=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=2Wj4=C2=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFD72C433E2
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 23:07:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12C86C43461
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 08:11:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79C39208E4
-	for <linux-rtc@archiver.kernel.org>; Tue, 15 Sep 2020 23:07:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1600211240;
-	bh=utJVhgwJTrunVJwtarb0ds5g2F08QaKajk/8z09HS/I=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=Xntu/ET7i6nQ2kTQkQLeZ5PM+OeB0+XVX+niBClR1U/mm0KIgOXe7HYAj14PRcwK6
-	 aX17KxvX4s0MdyHOvznU2cOgsx6lU+FqZn2mBcKcyc7GiTVw2Ec6gF/Jqkr8EoZIJD
-	 tF9nKuuOwVZHBwTzB0eZP+UxmaIwB4BzcTbwRY/0=
+	by mail.kernel.org (Postfix) with ESMTP id D0A792075B
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 08:11:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=netronome-com.20150623.gappssmtp.com header.i=@netronome-com.20150623.gappssmtp.com header.b="Xm9muXpL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727376AbgIOXHQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Sep 2020 19:07:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48810 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727278AbgIOOlk (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:41:40 -0400
-Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23F7922265;
-        Tue, 15 Sep 2020 14:32:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180327;
-        bh=utJVhgwJTrunVJwtarb0ds5g2F08QaKajk/8z09HS/I=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=TFk0KmOgqkxPnPhwCUKPEH/u1GObeQ1s3DyU/vyGg9+rqkrmmgXCM3vQPAlVv4IwE
-         N5R1qn5EJsfYcQSTp9mJ2R9ouUzUzDtnj4xZzOJjrAcbaMdhsCpd+crPPqi8zQ+DIG
-         dari9jShrtKauwrggJ+jY94Hw+p1UL8pw3YCmTGQ=
-Received: by mail-ot1-f47.google.com with SMTP id o8so3440225otl.4;
-        Tue, 15 Sep 2020 07:32:07 -0700 (PDT)
-X-Gm-Message-State: AOAM530xGpfA2Y6dQwR6fFQ9riHJ3Om6cS6iW9j3uKlJknlZofW5VRFI
-        aAJlTzcW9FF34f/MA0B8/OWbAA6LzlkoYzn2Cw==
-X-Google-Smtp-Source: ABdhPJxotHRWZRWMUoSLoNeE7xePoRIjifT/7QqjsQ5ljfN00watvkgScFQsGBTpsE8eUJBLvPaa5rChQkwszRGChsw=
-X-Received: by 2002:a9d:411:: with SMTP id 17mr13481301otc.192.1600180326428;
- Tue, 15 Sep 2020 07:32:06 -0700 (PDT)
+        id S1726411AbgIQIKv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 17 Sep 2020 04:10:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbgIQIFJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Sep 2020 04:05:09 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45925C061220
+        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2020 01:03:40 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id k18so1037649wmj.5
+        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2020 01:03:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=netronome-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TUShtxADeMIRUv08jDyFnIdO2h4AVdi1g89uLOtrWXw=;
+        b=Xm9muXpLMfdw+3JTaQ5+6nxJDSneO0K8th2wgQ0VLh2VI2BmK+XWoQ9cDtIn8+KaRJ
+         B45Xbntr5JjNU8mF7nIZd8VP+CTHviEtF1Um5VazOhr6GEQCgh9bbRNIM6C+XWioNjmk
+         ImuOo8Gi8eD0FtSQ7hHZ1yPAo82BLFHJwGGg0UxKCYs0oMSSpMWIe45dJUN+DzUELaKQ
+         JzvvcS8KVPQMZJTfgm/lLBewbBl9UGKGHM3XV6hYGQwunOqgCSfJKO8sQaLl1M6X9BRD
+         K+XM2hJttDJQqNZl5Xftk9yd2fnhmTZR2ol6vfSH0itoQkT2+o/FcX7saxpuLl0f47l5
+         EzpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TUShtxADeMIRUv08jDyFnIdO2h4AVdi1g89uLOtrWXw=;
+        b=pouOoTvw87aY0+4SZFEWTPIEuNg5rHMPugdRErSLGN86fs1afOsBlpkiiC5B0/vvRz
+         uI+eouIDrKAZiU0fR24aHGPXp3JRX7fElv5+1lpqmX5v8gum5kqBZmHPfs43o4IZWLS1
+         am0qM5odWAmQrZX5zLwe8yCJygfSh34ChW+O3Rs1VLtRwfpArPZUVIM/ikFDS7rT94Bu
+         Z5SZtOMKwOPV6Rin3uA0Z1tG3bXwaP1NH9scrpmYZdTWtdsHC8EoRTmzZJ/8NlSr9wR5
+         sL3xecJgiOj6/D2jkkwgZiR2y6WrBqL7x+zDAKuZ2B8hI7F70BCJumrx+7cn2ValR945
+         TNvA==
+X-Gm-Message-State: AOAM533sVZHOP5JG6VJOk1ao+nZuEzlywokqQ4JkWk+wOqVTN7Hzc7VS
+        9iLYVBlt8iFhxuZv9qVb5lTwLw==
+X-Google-Smtp-Source: ABdhPJzTwzfeJOnCQh65prZummqH9JR09Yxja+zvv2OTSAZpPcom4k7xuvXSyH3Yv50qn/8+2aIWyQ==
+X-Received: by 2002:a1c:e256:: with SMTP id z83mr8793930wmg.33.1600329817598;
+        Thu, 17 Sep 2020 01:03:37 -0700 (PDT)
+Received: from netronome.com ([2001:982:756:703:d63d:7eff:fe99:ac9d])
+        by smtp.gmail.com with ESMTPSA id a13sm9836030wme.26.2020.09.17.01.03.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 01:03:36 -0700 (PDT)
+Date:   Thu, 17 Sep 2020 10:03:35 +0200
+From:   Simon Horman <simon.horman@netronome.com>
+To:     Joe Perches <joe@perches.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Jiri Kosina <trivial@kernel.org>,
+        Kees Cook <kees.cook@canonical.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        linux-mips@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org, linux-input@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org,
+        iommu@lists.linux-foundation.org, dm-devel@redhat.com,
+        linux-media@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, intel-wired-lan@lists.osuosl.org,
+        oss-drivers@netronome.com, linux-usb@vger.kernel.org,
+        linux-wireless@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-nvme@lists.infradead.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-scsi@vger.kernel.org,
+        storagedev@microchip.com, sparclinux@vger.kernel.org,
+        linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-parisc@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-afs@lists.infradead.org, ceph-devel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, bpf@vger.kernel.org,
+        dccp@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+        alsa-devel <alsa-devel@alsa-project.org>
+Subject: Re: [oss-drivers] [trivial PATCH] treewide: Convert switch/case
+ fallthrough; to break;
+Message-ID: <20200917080334.GB5769@netronome.com>
+References: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
 MIME-Version: 1.0
-References: <20200905133230.1014581-1-j.neuschaefer@gmx.net>
- <20200905133230.1014581-5-j.neuschaefer@gmx.net> <20200915005443.GA604385@bogus>
- <20200915082348.2f6fff7a@aktux>
-In-Reply-To: <20200915082348.2f6fff7a@aktux>
-From:   Rob Herring <robh@kernel.org>
-Date:   Tue, 15 Sep 2020 08:31:55 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqL=gQxiU5uK-AEJtG3daOy83aS_D6G2Jo8_-dzKH70NkQ@mail.gmail.com>
-Message-ID: <CAL_JsqL=gQxiU5uK-AEJtG3daOy83aS_D6G2Jo8_-dzKH70NkQ@mail.gmail.com>
-Subject: Re: [PATCH v2 04/10] dt-bindings: pwm: Add bindings for PWM function
- in Netronix EC
-To:     Andreas Kemnade <andreas@kemnade.info>
-Cc:     =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org,
-        Linux PWM List <linux-pwm@vger.kernel.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Josua Mayer <josua.mayer@jm0.eu>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-rtc-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 12:24 AM Andreas Kemnade <andreas@kemnade.info> wro=
-te:
->
-> Hi,
->
-> On Mon, 14 Sep 2020 18:54:43 -0600
-> Rob Herring <robh@kernel.org> wrote:
->
-> > On Sat, Sep 05, 2020 at 03:32:24PM +0200, Jonathan Neusch=C3=A4fer wrot=
-e:
-> > > The Netronix embedded controller as found in Kobo Aura and Tolino Shi=
-ne
-> > > supports one PWM channel, which is used to control the frontlight
-> > > brightness on these devices.
-> > >
-> > > Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-> > > ---
-> > >
-> > > v2:
-> > > - Add plaintext binding to patch description, for comparison
-> > > - Fix pwm-cells property (should be 2, not 1)
-> > > - Add dummy regulator to example, because the pwm-backlight binding r=
-equires a
-> > >   power supply
-> > >
-> > >
-> > > For reference, here is the binding in text form:
-> > >
-> > >
-> > >   PWM functionality in Netronix Embedded Controller
-> > >
-> > >   Required properties:
-> > >   - compatible: should be "netronix,ntxec-pwm"
-> > >   - #pwm-cells: should be 2.
-> > >
-> > >   Available PWM channels:
-> > >   - 0: The PWM channel controlled by registers 0xa1-0xa7
-> > >
-> > >   Example:
-> > >
-> > >     embedded-controller@43 {
-> > >             compatible =3D "netronix,ntxec";
-> > >             ...
-> > >
-> > >             ec_pwm: pwm {
-> > >                     compatible =3D "netronix,ntxec-pwm";
-> > >                     #pwm-cells =3D <1>;
-> > >             };
-> > >     };
-> > >
-> > >     ...
-> > >
-> > >     backlight {
-> > >             compatible =3D "pwm-backlight";
-> > >             pwms =3D <&ec_pwm 0 50000>;
-> > >     };
-> > > ---
-> > >  .../bindings/mfd/netronix,ntxec.yaml          | 19 +++++++++++
-> > >  .../bindings/pwm/netronix,ntxec-pwm.yaml      | 33 +++++++++++++++++=
-++
-> > >  2 files changed, 52 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/pwm/netronix,nt=
-xec-pwm.yaml
-> > >
-> > > diff --git a/Documentation/devicetree/bindings/mfd/netronix,ntxec.yam=
-l b/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-> > > index 596df460f98eb..73c873dda3e70 100644
-> > > --- a/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-> > > +++ b/Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-> > > @@ -31,6 +31,9 @@ properties:
-> > >      description:
-> > >        The EC can signal interrupts via a GPIO line
-> > >
-> > > +  pwm:
-> > > +    $ref: ../pwm/netronix,ntxec-pwm.yaml
-> > > +
-> > >  required:
-> > >    - compatible
-> > >    - reg
-> > > @@ -53,5 +56,21 @@ examples:
-> > >                      interrupts =3D <11 IRQ_TYPE_EDGE_FALLING>;
-> > >                      interrupt-controller;
-> > >                      #interrupt-cells =3D <1>;
-> > > +
-> > > +                    ec_pwm: pwm {
-> > > +                            compatible =3D "netronix,ntxec-pwm";
-> > > +                            #pwm-cells =3D <2>;
-> > > +                    };
-> > >              };
-> > >      };
-> > > +
-> > > +    backlight {
-> > > +            compatible =3D "pwm-backlight";
-> > > +            pwms =3D <&ec_pwm 0 50000>;
-> > > +            power-supply =3D <&backlight_regulator>;
-> > > +    };
-> > > +
-> > > +    backlight_regulator: regulator-dummy {
-> > > +            compatible =3D "regulator-fixed";
-> > > +            regulator-name =3D "backlight";
-> > > +    };
-> > > diff --git a/Documentation/devicetree/bindings/pwm/netronix,ntxec-pwm=
-.yaml b/Documentation/devicetree/bindings/pwm/netronix,ntxec-pwm.yaml
-> > > new file mode 100644
-> > > index 0000000000000..0c9d2801b8de1
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/pwm/netronix,ntxec-pwm.yaml
-> > > @@ -0,0 +1,33 @@
-> > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/pwm/netronix,ntxec-pwm.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: PWM functionality in Netronix embedded controller
-> > > +
-> > > +maintainers:
-> > > +  - Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-> > > +
-> > > +description: |
-> > > +  See also Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-> > > +
-> > > +  The Netronix EC contains PWM functionality, which is usually used =
-to drive
-> > > +  the backlight LED.
-> > > +
-> > > +  The following PWM channels are supported:
-> > > +    - 0: The PWM channel controlled by registers 0xa1-0xa7
-> > > +
-> > > +allOf:
-> > > +  - $ref: pwm.yaml#
-> > > +
-> > > +properties:
-> > > +  compatible:
-> > > +    const: netronix,ntxec-pwm
-> > > +
-> > > +  "#pwm-cells":
-> > > +    const: 2
-> >
-> > Just move this to the parent and make the parent a pwm provider. There'=
-s
-> > no need for child nodes for this or the rtc.
-> >
-> hmm, there are apparently devices without rtc. If there is a child node
-> for the rtc, the corresponding devicetrees could disable rtc by not
-> having that node.
-> But maybe using the controller version is also feasible for that task.
+On Wed, Sep 09, 2020 at 01:06:39PM -0700, Joe Perches wrote:
+> fallthrough to a separate case/default label break; isn't very readable.
+> 
+> Convert pseudo-keyword fallthrough; statements to a simple break; when
+> the next label is case or default and the only statement in the next
+> label block is break;
+> 
+> Found using:
+> 
+> $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
+> 
+> Miscellanea:
+> 
+> o Move or coalesce a couple label blocks above a default: block.
+> 
+> Signed-off-by: Joe Perches <joe@perches.com>
 
-If not probeable, then the compatible string should distinguish that.
+...
 
-Rob
+> diff --git a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> index 252fe06f58aa..1d5b87079104 100644
+> --- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> +++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp6000_pcie.c
+> @@ -345,7 +345,7 @@ static int matching_bar(struct nfp_bar *bar, u32 tgt, u32 act, u32 tok,
+>  		baract = NFP_CPP_ACTION_RW;
+>  		if (act == 0)
+>  			act = NFP_CPP_ACTION_RW;
+> -		fallthrough;
+> +		break;
+>  	case NFP_PCIE_BAR_PCIE2CPP_MapType_FIXED:
+>  		break;
+>  	default:
+
+This is a cascading fall-through handling all map types.
+I don't think this change improves readability.
+
+...
