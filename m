@@ -7,25 +7,25 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1FFDC2D0E3
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 463C9C433E2
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A1F33206CA
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E8D25206B6
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Sep 2020 18:34:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbgIQSen (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 17 Sep 2020 14:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40648 "EHLO
+        id S1726390AbgIQSes (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 17 Sep 2020 14:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726549AbgIQSde (ORCPT
+        with ESMTP id S1726472AbgIQSde (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Sep 2020 14:33:34 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA004C061354
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE03C061797
         for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2020 11:32:56 -0700 (PDT)
 Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7] helo=dude.pengutronix.de.)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <bst@pengutronix.de>)
-        id 1kIyiE-0004GR-SH; Thu, 17 Sep 2020 20:32:54 +0200
+        id 1kIyiE-0004GR-Q8; Thu, 17 Sep 2020 20:32:54 +0200
 From:   Bastian Krause <bst@pengutronix.de>
 To:     linux-rtc@vger.kernel.org
 Cc:     devicetree@vger.kernel.org,
@@ -34,10 +34,11 @@ Cc:     devicetree@vger.kernel.org,
         Rob Herring <robh+dt@kernel.org>,
         Arnaud Ebalard <arno@natisbad.org>,
         Marek Vasut <marex@denx.de>, kernel@pengutronix.de,
-        Bastian Krause <bst@pengutronix.de>
-Subject: [PATCH v2 5/8] rtc: ds1307: introduce requires_trickle_resistor per chip
-Date:   Thu, 17 Sep 2020 20:32:43 +0200
-Message-Id: <20200917183246.19446-6-bst@pengutronix.de>
+        Bastian Krause <bst@pengutronix.de>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v2 3/8] dt-bindings: rtc: ds1307: add rx8130 aux-voltage-chargeable support
+Date:   Thu, 17 Sep 2020 20:32:41 +0200
+Message-Id: <20200917183246.19446-4-bst@pengutronix.de>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200917183246.19446-1-bst@pengutronix.de>
 References: <20200917183246.19446-1-bst@pengutronix.de>
@@ -51,61 +52,35 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Make trickle-resistor-ohms optional for charging setups that do not
-require specifying ROUT bits (specifying the resistor value between Vcc
-and Vbackup). In order to allow specifying that, introduce
-requires_trickle_resistor per chip.
+Epson's RX8130 was not charged before. A related patch will allow
+optional charging.
 
 Signed-off-by: Bastian Krause <bst@pengutronix.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
-No changes since v1.
+Changes since v1:
+- added Rob Herring's Reviewed-by
 
 v1 notes:
-No previous version.
+Previous version:
+https://lore.kernel.org/linux-rtc/20200415163701.21989-2-bst@pengutronix.de/
 ---
- drivers/rtc/rtc-ds1307.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/rtc/rtc-ds1307.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index ff5242d10b21..7983438b677a 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -190,6 +190,10 @@ struct chip_desc {
- 	u16			trickle_charger_reg;
- 	u8			(*do_trickle_setup)(struct ds1307 *, u32,
- 						    bool);
-+	/* Does the RTC require trickle-resistor-ohms to select the value of
-+	 * the resistor between Vcc and Vbackup?
-+	 */
-+	bool			requires_trickle_resistor;
- };
- 
- static const struct chip_desc chips[last_ds_type];
-@@ -981,6 +985,7 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.bbsqi_bit	= DS1339_BIT_BBSQI,
- 		.trickle_charger_reg = 0x10,
- 		.do_trickle_setup = &do_trickle_setup_ds1339,
-+		.requires_trickle_resistor = true,
- 	},
- 	[ds_1340] = {
- 		.century_reg	= DS1307_REG_HOUR,
-@@ -988,6 +993,7 @@ static const struct chip_desc chips[last_ds_type] = {
- 		.century_bit	= DS1340_BIT_CENTURY,
- 		.do_trickle_setup = &do_trickle_setup_ds1339,
- 		.trickle_charger_reg = 0x08,
-+		.requires_trickle_resistor = true,
- 	},
- 	[ds_1341] = {
- 		.century_reg	= DS1307_REG_MONTH,
-@@ -1302,7 +1308,7 @@ static u8 ds1307_trickle_init(struct ds1307 *ds1307,
- 		return 0;
- 
- 	if (device_property_read_u32(ds1307->dev, "trickle-resistor-ohms",
--				     &ohms))
-+				     &ohms) && chip->requires_trickle_resistor)
- 		return 0;
- 
- 	if (device_property_read_bool(ds1307->dev, "trickle-diode-disable"))
+diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+index 08ea9734da80..36f610bb051e 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
++++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.txt
+@@ -31,7 +31,7 @@ Optional properties:
+ 	Selected resistor for trickle charger
+ 	Possible values are 250, 2000, 4000
+ 	Should be given if trickle charger should be enabled
+-- aux-voltage-chargeable: ds1339, ds1340 and ds1388 only
++- aux-voltage-chargeable: ds1339, ds1340, ds1388 and rx8130 only
+ 	Tells whether the battery/supercap of the RTC (if any) is
+ 	chargeable or not.
+ 	Possible values are 0 (not chargeable), 1 (chargeable)
 -- 
 2.28.0
 
