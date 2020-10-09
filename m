@@ -2,92 +2,82 @@ Return-Path: <SRS0=KPnY=DQ=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 128C7C4363D
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Oct 2020 15:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A828C43457
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Oct 2020 20:57:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE73D222C2
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Oct 2020 15:31:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC5EC22259
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Oct 2020 20:57:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389352AbgJIPbK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 9 Oct 2020 11:31:10 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:39501 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389144AbgJIPbJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Oct 2020 11:31:09 -0400
+        id S2390951AbgJIU5t (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 9 Oct 2020 16:57:49 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:49063 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389072AbgJIU5t (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Oct 2020 16:57:49 -0400
 X-Originating-IP: 90.65.88.165
 Received: from localhost (lfbn-lyo-1-1908-165.w90-65.abo.wanadoo.fr [90.65.88.165])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 164D51BF208;
-        Fri,  9 Oct 2020 15:31:06 +0000 (UTC)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id D28B460004;
+        Fri,  9 Oct 2020 20:57:44 +0000 (UTC)
+Date:   Fri, 9 Oct 2020 22:57:44 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] rtc: rv3028: fix clock output support
-Date:   Fri,  9 Oct 2020 17:30:58 +0200
-Message-Id: <20201009153101.721149-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.26.2
+To:     dinghao.liu@zju.edu.cn
+Cc:     Chen-Yu Tsai <wens@csie.org>, Kangjie Lu <kjlu@umn.edu>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Subject: Re: Re: [PATCH] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+Message-ID: <20201009205744.GA849573@piout.net>
+References: <20200823075815.23457-1-dinghao.liu@zju.edu.cn>
+ <CAGb2v640zTha1tzjOo3L+=T=N3hDRG+8qf2xu+bD8BMUnkhORQ@mail.gmail.com>
+ <6de4a430.8e03.17429fa786d.Coremail.dinghao.liu@zju.edu.cn>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6de4a430.8e03.17429fa786d.Coremail.dinghao.liu@zju.edu.cn>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-rv3028_clkout_set_rate unconditionally sets RV3028_CLKOUT_CLKOE but
-clk_set_rate may be called with the clock disabled. Ensure the clock is
-kept disabled if it was not yet enabled.
+On 26/08/2020 16:55:14+0800, dinghao.liu@zju.edu.cn wrote:
+> > On Sun, Aug 23, 2020 at 3:59 PM Dinghao Liu <dinghao.liu@zju.edu.cn> wrote:
+> > >
+> > > When clk_hw_register_fixed_rate_with_accuracy() fails,
+> > > clk_data should be freed. It's the same for the subsequent
+> > > error paths.
+> > 
+> > I suppose you should also unregister the already registered clocks
+> > in the latter two error paths?
+> > 
+> 
+> Sounds reasonable. But I find that the existing kernel code takes different
+> strategies for this case. of_sama5d4_sckc_setup() uses clk_hw_unregister() 
+> after clk_hw_register_fixed_rate_with_accuracy(), while _of_fixed_clk_setup()
+> uses clk_hw_unregister_fixed_rate(). But at91sam926x_pmc_setup() just does
+> nothing in this case.
 
-Also, the actual rate was overwritten when enabling the clock, properly
-write to the register only once.
+I guess you should use clk_hw_unregister_fixed_rate after
+clk_hw_register_fixed_rate_with_accuracy. clk_hw_unregister will leak
+the struct clk_fixed_rate. It doesn't matter too much for
+of_sama5d4_sckc_setup and at91sam926x_pmc_setup because if th clock
+can't be registered, the platform will not boot.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-rv3028.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+> 
+> Also, tcon_ch1_setup() uses clk_unregister() after clk_register(), while
+> clk_register_vco_pll() just does nothing. 
+> 
+> So I'm not sure if we should register here and which unregister function to 
+> use. Would you please give me more specific advice about this problem?
+> 
+> Regards,
+> Dinghao
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index ec84db0b3d7a..fcc21b1b07b4 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -619,24 +619,23 @@ static int rv3028_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
- 				  unsigned long parent_rate)
- {
- 	int i, ret;
-+	u32 enabled;
- 	struct rv3028_data *rv3028 = clkout_hw_to_rv3028(hw);
- 
-+	ret = regmap_read(rv3028->regmap, RV3028_CLKOUT, &enabled);
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = regmap_write(rv3028->regmap, RV3028_CLKOUT, 0x0);
- 	if (ret < 0)
- 		return ret;
- 
--	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++) {
--		if (clkout_rates[i] == rate) {
--			ret = regmap_update_bits(rv3028->regmap,
--						 RV3028_CLKOUT,
--						 RV3028_CLKOUT_FD_MASK, i);
--			if (ret < 0)
--				return ret;
-+	enabled &= RV3028_CLKOUT_CLKOE;
- 
-+	for (i = 0; i < ARRAY_SIZE(clkout_rates); i++)
-+		if (clkout_rates[i] == rate)
- 			return regmap_write(rv3028->regmap, RV3028_CLKOUT,
--				RV3028_CLKOUT_CLKSY | RV3028_CLKOUT_CLKOE);
--		}
--	}
-+					    RV3028_CLKOUT_CLKSY | enabled | i);
- 
- 	return -EINVAL;
- }
 -- 
-2.26.2
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
