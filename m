@@ -2,63 +2,85 @@ Return-Path: <SRS0=Mu8h=DW=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C715FC433E7
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 10:01:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37D5BC433E7
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 17:38:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7836A20776
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 10:01:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CFCF32225E
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 17:38:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730971AbgJOKBm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Oct 2020 06:01:42 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:55011 "EHLO
+        id S1731290AbgJORil (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Oct 2020 13:38:41 -0400
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:49005 "EHLO
         relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726157AbgJOKBl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Oct 2020 06:01:41 -0400
+        with ESMTP id S1731233AbgJORil (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Oct 2020 13:38:41 -0400
 X-Originating-IP: 90.65.88.165
 Received: from localhost (lfbn-lyo-1-1908-165.w90-65.abo.wanadoo.fr [90.65.88.165])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id EC0091BF21A;
-        Thu, 15 Oct 2020 10:01:38 +0000 (UTC)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 0DB4A1BF20A;
+        Thu, 15 Oct 2020 17:38:38 +0000 (UTC)
+Date:   Thu, 15 Oct 2020 19:38:38 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Eddie Huang <eddie.huang@mediatek.com>,
-        Fei Shao <fshao@chromium.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, Ran Bi <ran.bi@mediatek.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Josef Friedl <josef.friedl@speed.at>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sean Wang <sean.wang@mediatek.com>,
-        linux-mediatek@lists.infradead.org,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Subject: Re: [PATCH] rtc: mt6397: Remove unused member dev
-Date:   Thu, 15 Oct 2020 12:01:38 +0200
-Message-Id: <160275608927.396360.10273105815365770898.b4-ty@bootlin.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201008093414.1911699-1-fshao@chromium.org>
-References: <20201008093414.1911699-1-fshao@chromium.org>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org
+Subject: Re: [bug report] [PATCH] RTC subsystem: class
+Message-ID: <20201015173838.GF134622@piout.net>
+References: <20201015095851.GA3042688@mwanda>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201015095851.GA3042688@mwanda>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 8 Oct 2020 17:34:14 +0800, Fei Shao wrote:
-> Removing the struct member "dev" in mt6397 RTC driver because it's not
-> initialized and the only usage is for one debugging message.
+On 15/10/2020 12:58:51+0300, Dan Carpenter wrote:
+> Hello Alessandro Zummo,
 > 
-> Also fixed a typo in the error message.
+> The patch 0c86edc0d497: "[PATCH] RTC subsystem: class" from Mar 27,
+> 2006, leads to the following static checker warning:
+> 
 
-Applied, thanks!
+Wow, 14 years ago :)
 
-[1/1] rtc: mt6397: Remove unused member dev
-      commit: 770c03e6dabacd5b9f57bba93c4311d32b618640
+> 	drivers/rtc/rtc-r9701.c:109 r9701_set_datetime()
+> 	error: undefined (user controlled) shift '1 << dt->tm_wday'
+> 
+> drivers/rtc/rtc-r9701.c
+>     95  static int r9701_set_datetime(struct device *dev, struct rtc_time *dt)
+>     96  {
+>     97          int ret, year;
+>     98  
+>     99          year = dt->tm_year + 1900;
+>    100          if (year >= 2100 || year < 2000)
+>    101                  return -EINVAL;
+>    102  
+>    103          ret = write_reg(dev, RHRCNT, bin2bcd(dt->tm_hour));
+>    104          ret = ret ? ret : write_reg(dev, RMINCNT, bin2bcd(dt->tm_min));
+>    105          ret = ret ? ret : write_reg(dev, RSECCNT, bin2bcd(dt->tm_sec));
+>    106          ret = ret ? ret : write_reg(dev, RDAYCNT, bin2bcd(dt->tm_mday));
+>    107          ret = ret ? ret : write_reg(dev, RMONCNT, bin2bcd(dt->tm_mon + 1));
+>    108          ret = ret ? ret : write_reg(dev, RYRCNT, bin2bcd(dt->tm_year - 100));
+>    109          ret = ret ? ret : write_reg(dev, RWKCNT, 1 << dt->tm_wday);
+> 
+> I would have expected that rtc_valid_tm() would check that dt->tm_wday
+> as valid but it doesn't.  As far as I can see dt->tm_wday can be set to
+> any int value in the rtc_dev_ioctl(). 
+> 
 
-Best regards,
+Nobody cares about tm_wday and userspace usually passes 0. For now, it
+is left to individual rtc drivers to check and correct tm_wday when they
+care in order to avoid having more calculations is the path for all the
+other RTCs that don't care.
+
+Honestly, for this RTC, this doesn't matter much because the value
+isn't even read back.
+
 -- 
-Alexandre Belloni <alexandre.belloni@bootlin.com>
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
