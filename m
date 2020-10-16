@@ -1,72 +1,85 @@
-Return-Path: <SRS0=Mu8h=DW=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=dH/0=DX=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFCBCC433DF
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 19:12:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0B7BC433DF
+	for <linux-rtc@archiver.kernel.org>; Fri, 16 Oct 2020 17:23:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 936D5221FE
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Oct 2020 19:12:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8000D20789
+	for <linux-rtc@archiver.kernel.org>; Fri, 16 Oct 2020 17:23:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1602869001;
+	bh=MS8cYJluofkjSQYwf8vNsvQY4zpcUj1+KjW39P8FoUE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=IGYWdiTreLZOjoTC4rFzdk5pyyIGrND0Mv9t4P10IYBnjj3LWl2lVLnyxkN/H5hXQ
+	 4Q/qe9TQDX8uluCl+H3Cjs4dLfS2b4yzG5p/1nGYFMf6p3K4Pd/uFYTbSECELkAQIV
+	 zB5PjdYxXdqKruhO4sqKPf9FGkgyDiHGRFStgpOg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388874AbgJOTLv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Oct 2020 15:11:51 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:46579 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388410AbgJOTLq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Oct 2020 15:11:46 -0400
-X-Originating-IP: 90.65.88.165
-Received: from localhost (lfbn-lyo-1-1908-165.w90-65.abo.wanadoo.fr [90.65.88.165])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 9DF5740008;
-        Thu, 15 Oct 2020 19:11:43 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] rtc: r9701: stop setting RWKCNT
-Date:   Thu, 15 Oct 2020 21:11:33 +0200
-Message-Id: <20201015191135.471249-4-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201015191135.471249-1-alexandre.belloni@bootlin.com>
-References: <20201015191135.471249-1-alexandre.belloni@bootlin.com>
+        id S2391539AbgJPRXV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 16 Oct 2020 13:23:21 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:35714 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391280AbgJPRXV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 16 Oct 2020 13:23:21 -0400
+Received: by mail-oi1-f194.google.com with SMTP id w141so3251130oia.2;
+        Fri, 16 Oct 2020 10:23:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=vR3ghSOELOYTJTOfaVyDLWbF1zqc1bqRhAnEnKY/Ykw=;
+        b=r3teT3OZCgaPKtCj00Iq6mMdF1N5xU5Q4FaTWF9f3JAr1fqAuq1ou50cP1vROuGW84
+         hLL1o+iEjSiTz/NVv1rhDq9tulZocqzan9oprCIng52Q7jr5U341JT8eC9FgiwHibFCG
+         iRHrkfNnJGVjWdHcbs+SI8V1ZsNpGGODwOWv2pTd+rvoUSO2abwujcQqV2jTV5EqWLNy
+         0fNfzdl1XqL8LWzjDFZRfjNrbMl4bVkZjcIbzOhv86NNaO+8uIxvy87xwTxg8p8ldfdb
+         qivzK/8Xjvnpg1npuyGRHDNnYbKG2dXDGgz0kWF+Np5VakXfapxB4qiu8p8Yw7JWXW9U
+         yx2w==
+X-Gm-Message-State: AOAM530YihofuKmiZrxj0MQ+KmDLMSny5w5SjkpA11dYAoSS9s86A8Ko
+        f9MJowmsUR8VwFGOMGPeGQ==
+X-Google-Smtp-Source: ABdhPJyA1guI+ypVqv9vrMlMKT8av3CawqFG7YW8V/YF29snJA01/0AARn84sJVwRsiBnBakduyPUQ==
+X-Received: by 2002:aca:fc89:: with SMTP id a131mr3199481oii.163.1602868998945;
+        Fri, 16 Oct 2020 10:23:18 -0700 (PDT)
+Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id t65sm1202250oib.50.2020.10.16.10.23.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2020 10:23:18 -0700 (PDT)
+Received: (nullmailer pid 1605378 invoked by uid 1000);
+        Fri, 16 Oct 2020 17:23:17 -0000
+Date:   Fri, 16 Oct 2020 12:23:17 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] dt-bindings: rtc: add trickle-voltage-millivolt
+Message-ID: <20201016172317.GA1605329@bogus>
+References: <20201013144110.1942218-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201013144110.1942218-1-alexandre.belloni@bootlin.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-tm_wday is never checked for validity and it is not read back in
-r9701_get_datetime. Avoid setting it to stop tripping static checkers:
+On Tue, 13 Oct 2020 16:41:08 +0200, Alexandre Belloni wrote:
+> Some RTCs have a trickle charge that is able to output different voltages
+> depending on the type of the connected auxiliary power (battery, supercap,
+> ...). Add a property allowing to specify the necessary voltage.
+> 
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+> 
+> changes in v3:
+>  - actually use -millivolt instead of -mV
+> 
+>  Documentation/devicetree/bindings/rtc/rtc.yaml | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
 
-        drivers/rtc/rtc-r9701.c:109 r9701_set_datetime()
-        error: undefined (user controlled) shift '1 << dt->tm_wday'
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-
- drivers/rtc/rtc-r9701.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-r9701.c b/drivers/rtc/rtc-r9701.c
-index 4b688e9c4192..183c5a0fe78c 100644
---- a/drivers/rtc/rtc-r9701.c
-+++ b/drivers/rtc/rtc-r9701.c
-@@ -100,7 +100,6 @@ static int r9701_set_datetime(struct device *dev, struct rtc_time *dt)
- 	ret = ret ? ret : write_reg(dev, RDAYCNT, bin2bcd(dt->tm_mday));
- 	ret = ret ? ret : write_reg(dev, RMONCNT, bin2bcd(dt->tm_mon + 1));
- 	ret = ret ? ret : write_reg(dev, RYRCNT, bin2bcd(dt->tm_year - 100));
--	ret = ret ? ret : write_reg(dev, RWKCNT, 1 << dt->tm_wday);
- 
- 	return ret;
- }
--- 
-2.26.2
-
+Reviewed-by: Rob Herring <robh@kernel.org>
