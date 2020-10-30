@@ -1,95 +1,127 @@
-Return-Path: <SRS0=JUHX=EE=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=WJAA=EF=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94629C5517A
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Oct 2020 02:01:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB0BC4742C
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Oct 2020 23:25:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F9CE20791
-	for <linux-rtc@archiver.kernel.org>; Thu, 29 Oct 2020 02:01:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3393520709
+	for <linux-rtc@archiver.kernel.org>; Fri, 30 Oct 2020 23:25:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="n4BaFFoQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728082AbgJ2CBD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Oct 2020 22:01:03 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46717 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728079AbgJ1Vuv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Oct 2020 17:50:51 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 701635C0032;
-        Wed, 28 Oct 2020 13:44:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 28 Oct 2020 13:44:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=2
-        8qnJnc+eeyqFQKlSstideW9an1PTHl7M5jm4rsFseA=; b=E9jefSgp0MClmUmr5
-        Yl6QMykUxKlcVWlnSQehrxapW8kDS8aFIR+6hZpVq04YpruAaGepEfCbjkzEbvA0
-        wlSN9EcRlWHNANE+z7zIOrRtH84oynrjvJhjwXRzIA7leqfHM9A6qN8KyGC/MvbZ
-        6cRNSdpR7/PbDDkvmvWHt3jB+g8giSfi4aGVX30MAEn/JZIIswaQiy/z6mixjewC
-        CRyqBbM04zKzorDOBdowpzOAjWpkn2CK4Z1r8ssBGlg/iL7fY3mDdipXC2ZB934G
-        TvLlYTqJEegG390ZjeNF7+J/wjGUDoo3A8xhb5uLQqVKFenK4d4ORDJiSmXt6dCy
-        +6GXQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=28qnJnc+eeyqFQKlSstideW9an1PTHl7M5jm4rsFs
-        eA=; b=Od+1R2MoOVG5QLp0r/NWqcHrzHxBu4zWHtrVYrWD+TpNWzTxQveoxFl/S
-        86l3bsueu4RC/RjOoq+nuwuk2UdTlExl1wL9x1vflKrPXk0+5N3NPeFZqIVELjuV
-        PzK9VnTRZBQX+EMMd+DLRKO+i0fKDukX5YocjJ2ojRKtaDSI9dqum5DSg6WGs1MO
-        cv6jVWL1yIQ4ZiPPn9mCMl/sAgh3Ax1ghZjv2vKAG8McknLHj7aKrOkob88SLGpk
-        B4xyZuypxT9J4IzYo8YFrWqrlB9cDRJ+MyODyn0L4kJftFS2mJ53jp6OtuP6gj6j
-        drIHmMB52lhz1os0XQuzfL4XTLHDg==
-X-ME-Sender: <xms:Bq6ZX4V-UhstxWAd6oTRrB-caqJwOlUjK0J4hpdd321n7BB_Zs6t9w>
-    <xme:Bq6ZX8l4XQAbxblCuTWb43UrD7rRhEX6h3-uQbxaeGNmUdmGqpWz2YhY5TMD-DzoV
-    aZJ4iwOR6othtB3ID0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrledugddutddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthhqredttddtvdenucfhrhhomhepofgrgihi
-    mhgvucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrg
-    htthgvrhhnpefgjeettdejgffgffdvteeutdehtdehgeehueetkeefgefhtdetjeekledu
-    gedvudenucfkphepledtrdekledrieekrdejieenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehmrgigihhmvgestggvrhhnohdrthgvtghh
-X-ME-Proxy: <xmx:Bq6ZX8Zb_cAB1Px_Tak1URXQaq602uAKywnNI_fSqptXce2rMTEj6w>
-    <xmx:Bq6ZX3Vjv19lHAusEVKBDfEDx_1-Jg0ITC8MEU2HtbP3hY3x97yAVQ>
-    <xmx:Bq6ZXyk7-BlYmu9JIwgfC7B2xHV9344BtVdfKujjuEQRFjLOYPZviA>
-    <xmx:Ca6ZX5uKoCdCJJsbUUQ8bVKoGaAiWonyJ1qEr720Bnhzm9YiDhLGvQ>
-Received: from localhost (lfbn-tou-1-1502-76.w90-89.abo.wanadoo.fr [90.89.68.76])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E00C13280074;
-        Wed, 28 Oct 2020 13:44:36 -0400 (EDT)
-Date:   Wed, 28 Oct 2020 18:44:35 +0100
-From:   Maxime Ripard <maxime@cerno.tech>
-To:     Dinghao Liu <dinghao.liu@zju.edu.cn>
-Cc:     kjlu@umn.edu, Alessandro Zummo <a.zummo@towertech.it>,
+        id S1725933AbgJ3XZ0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 30 Oct 2020 19:25:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725841AbgJ3XZ0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Oct 2020 19:25:26 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010B3C0613D7
+        for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id y14so6604115pfp.13
+        for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yjeVmLTkqXf7MYuqaimKsn2xYixi+z/wiQhveY1XA3k=;
+        b=n4BaFFoQfUBTngee/lv/kx6xG0deSPWxRXzBrw7dk/vp1ugf8rw4Qbn4geQHQ0k4xr
+         K6BQkOBWfS59FIygXhrLdgLPd8trbw+shFZag8g7wOBzVJOVSJ2qriL5RNEY5pEyMghs
+         C+2DJhYvuCw1StCS9iN8X2KaaTQJROqCrip84=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yjeVmLTkqXf7MYuqaimKsn2xYixi+z/wiQhveY1XA3k=;
+        b=C8QLgpymTv3LIQMi/ULpg7OAt5cibbSU1UP2PLaP9r4zN+1yUm+sDXMRW/88srTdyo
+         W3DujSbkshdgv/magL5dPSwYrgYoG681gVLY3Iz1gOVHa4R6hPJseGfhHQqjB108vNPv
+         00emG9tcqrjxlsUvcU4gvi0tie1SBIXBCdZIoDA9Y679gxaduNmx2W6jrSbd1hwSzZCj
+         udG41yXLv9oZPfN6veVkUyPkqEh0b8VpoDH2SUPePPOEmPi/H8S2Y0Fic3/WfxpCghlz
+         cLpOdpvI8khw0tuSS5LKBPrEXXpE/2LZOdz7gmLpOzcBLrquVEWdT4mxZp8uhqg4hibU
+         mnzw==
+X-Gm-Message-State: AOAM5300FgTf6gOJIzf/jKeZODOeBbQ0kFsswtyWCPv6aNZWwXijKRas
+        8T7ak4ZMb6UgF7FHVPx10XtkWzQEpokDKw==
+X-Google-Smtp-Source: ABdhPJwlWPAZ/R/eEPth4rGkW4O3U7aSkpILyeC/FCsvN9oBuHawsqshEw9Vbrj9yrtxRsgr3DkfWQ==
+X-Received: by 2002:aa7:96b9:0:b029:155:6332:e1c7 with SMTP id g25-20020aa796b90000b02901556332e1c7mr11680612pfk.35.1604100325414;
+        Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
+Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
+        by smtp.gmail.com with ESMTPSA id y10sm5764000pjr.2.2020.10.30.16.25.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2020 16:25:24 -0700 (PDT)
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     Benson Leung <bleung@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <groeck@chromium.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [v3] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
-Message-ID: <20201028174435.dksz6b7jwabzloxt@gilmour.lan>
-References: <20201020061226.6572-1-dinghao.liu@zju.edu.cn>
+        linux-rtc@vger.kernel.org
+Subject: [PATCH] platform/chrome: Don't treat RTC events as wakeup sources
+Date:   Fri, 30 Oct 2020 16:25:23 -0700
+Message-Id: <20201030232523.2654478-1-swboyd@chromium.org>
+X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20201020061226.6572-1-dinghao.liu@zju.edu.cn>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Oct 20, 2020 at 02:12:26PM +0800, Dinghao Liu wrote:
-> When clk_hw_register_fixed_rate_with_accuracy() fails,
-> clk_data should be freed. It's the same for the subsequent
-> two error paths, but we should also unregister the already
-> registered clocks in them.
->=20
-> Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+The EC sends an RTC host event when the RTC fires, but we don't need to
+treat that as a wakeup event here. The RTC class already properly
+handles activating and deactivating a wakeup source in rtc_update_irq()
+by calling pm_stay_awake() at the start of processing and pm_relax()
+once all expired RTC timers have been processed. This reduces one wakeup
+increment but not much else. I noticed this while debugging RTC wakeups
+and how they always incremented the wakeup count by two instead of one
+because this is duplicated.
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: <linux-rtc@vger.kernel.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+---
 
-Maxime
+I wonder if it makes more sense to look for certain events and treat
+them as wakeup sources? It may be that most of the time an EC event
+can be pm_relax()ed too and only need to be held active until the
+processing is over? I haven't looked beyond this situation.
+
+ drivers/platform/chrome/cros_ec_proto.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index 0ecee8b8773d..7c92a6e22d75 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -742,12 +742,16 @@ int cros_ec_get_next_event(struct cros_ec_device *ec_dev,
+ 		 * Sensor events need to be parsed by the sensor sub-device.
+ 		 * Defer them, and don't report the wakeup here.
+ 		 */
+-		if (event_type == EC_MKBP_EVENT_SENSOR_FIFO)
+-			*wake_event = false;
+-		/* Masked host-events should not count as wake events. */
+-		else if (host_event &&
+-			 !(host_event & ec_dev->host_event_wake_mask))
++		if (event_type == EC_MKBP_EVENT_SENSOR_FIFO) {
+ 			*wake_event = false;
++		} else if (host_event) {
++			/* rtc_update_irq() already handles wakeup events. */
++			if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_RTC))
++				*wake_event = false;
++			/* Masked host-events should not count as wake events. */
++			if (!(host_event & ec_dev->host_event_wake_mask))
++				*wake_event = false;
++		}
+ 	}
+ 
+ 	return ret;
+-- 
+Sent by a computer, using git, on the internet
+
