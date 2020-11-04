@@ -1,127 +1,108 @@
-Return-Path: <SRS0=WJAA=EF=vger.kernel.org=linux-rtc-owner@kernel.org>
+Return-Path: <SRS0=LWsn=EK=vger.kernel.org=linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB0BC4742C
-	for <linux-rtc@archiver.kernel.org>; Fri, 30 Oct 2020 23:25:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76481C2D0A3
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 Nov 2020 10:28:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3393520709
-	for <linux-rtc@archiver.kernel.org>; Fri, 30 Oct 2020 23:25:29 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="n4BaFFoQ"
+	by mail.kernel.org (Postfix) with ESMTP id 1FDD0206C1
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 Nov 2020 10:28:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725933AbgJ3XZ0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 30 Oct 2020 19:25:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725841AbgJ3XZ0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 30 Oct 2020 19:25:26 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 010B3C0613D7
-        for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id y14so6604115pfp.13
-        for <linux-rtc@vger.kernel.org>; Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=yjeVmLTkqXf7MYuqaimKsn2xYixi+z/wiQhveY1XA3k=;
-        b=n4BaFFoQfUBTngee/lv/kx6xG0deSPWxRXzBrw7dk/vp1ugf8rw4Qbn4geQHQ0k4xr
-         K6BQkOBWfS59FIygXhrLdgLPd8trbw+shFZag8g7wOBzVJOVSJ2qriL5RNEY5pEyMghs
-         C+2DJhYvuCw1StCS9iN8X2KaaTQJROqCrip84=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=yjeVmLTkqXf7MYuqaimKsn2xYixi+z/wiQhveY1XA3k=;
-        b=C8QLgpymTv3LIQMi/ULpg7OAt5cibbSU1UP2PLaP9r4zN+1yUm+sDXMRW/88srTdyo
-         W3DujSbkshdgv/magL5dPSwYrgYoG681gVLY3Iz1gOVHa4R6hPJseGfhHQqjB108vNPv
-         00emG9tcqrjxlsUvcU4gvi0tie1SBIXBCdZIoDA9Y679gxaduNmx2W6jrSbd1hwSzZCj
-         udG41yXLv9oZPfN6veVkUyPkqEh0b8VpoDH2SUPePPOEmPi/H8S2Y0Fic3/WfxpCghlz
-         cLpOdpvI8khw0tuSS5LKBPrEXXpE/2LZOdz7gmLpOzcBLrquVEWdT4mxZp8uhqg4hibU
-         mnzw==
-X-Gm-Message-State: AOAM5300FgTf6gOJIzf/jKeZODOeBbQ0kFsswtyWCPv6aNZWwXijKRas
-        8T7ak4ZMb6UgF7FHVPx10XtkWzQEpokDKw==
-X-Google-Smtp-Source: ABdhPJwlWPAZ/R/eEPth4rGkW4O3U7aSkpILyeC/FCsvN9oBuHawsqshEw9Vbrj9yrtxRsgr3DkfWQ==
-X-Received: by 2002:aa7:96b9:0:b029:155:6332:e1c7 with SMTP id g25-20020aa796b90000b02901556332e1c7mr11680612pfk.35.1604100325414;
-        Fri, 30 Oct 2020 16:25:25 -0700 (PDT)
-Received: from smtp.gmail.com ([2620:15c:202:201:3e52:82ff:fe6c:83ab])
-        by smtp.gmail.com with ESMTPSA id y10sm5764000pjr.2.2020.10.30.16.25.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2020 16:25:24 -0700 (PDT)
-From:   Stephen Boyd <swboyd@chromium.org>
-To:     Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <groeck@chromium.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        id S1728029AbgKDK2J (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 4 Nov 2020 05:28:09 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:35578 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729355AbgKDK1M (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Nov 2020 05:27:12 -0500
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 4CR2rt1vTJz1qsbH;
+        Wed,  4 Nov 2020 11:27:10 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 4CR2rt1ZYsz1qql3;
+        Wed,  4 Nov 2020 11:27:10 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id mcAhrJmBi-zI; Wed,  4 Nov 2020 11:27:09 +0100 (CET)
+X-Auth-Info: D2vvoz9vVkfffy9KUCy26P96tW4BgJZlOXPCIBtSv7A=
+Received: from localhost (dslb-088-074-220-167.088.074.pools.vodafone-ip.de [88.74.220.167])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Wed,  4 Nov 2020 11:27:09 +0100 (CET)
+From:   Claudius Heine <ch@denx.de>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH] platform/chrome: Don't treat RTC events as wakeup sources
-Date:   Fri, 30 Oct 2020 16:25:23 -0700
-Message-Id: <20201030232523.2654478-1-swboyd@chromium.org>
-X-Mailer: git-send-email 2.29.1.341.ge80a0c044ae-goog
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Henning Schild <henning.schild@siemens.com>,
+        Johannes Hahn <johannes-hahn@siemens.com>,
+        Claudius Heine <ch@denx.de>
+Subject: [PATCH 2/2] rtc: rx6110: add ACPI bindings to I2C
+Date:   Wed,  4 Nov 2020 11:26:29 +0100
+Message-Id: <20201104102629.3422048-3-ch@denx.de>
+X-Mailer: git-send-email 2.29.1
+In-Reply-To: <20201104102629.3422048-1-ch@denx.de>
+References: <20201104102629.3422048-1-ch@denx.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The EC sends an RTC host event when the RTC fires, but we don't need to
-treat that as a wakeup event here. The RTC class already properly
-handles activating and deactivating a wakeup source in rtc_update_irq()
-by calling pm_stay_awake() at the start of processing and pm_relax()
-once all expired RTC timers have been processed. This reduces one wakeup
-increment but not much else. I noticed this while debugging RTC wakeups
-and how they always incremented the wakeup count by two instead of one
-because this is duplicated.
+From: Johannes Hahn <johannes-hahn@siemens.com>
 
-Cc: Guenter Roeck <groeck@chromium.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: <linux-rtc@vger.kernel.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+This allows the RX6110 driver to be automatically assigned to the right
+device on the I2C bus.
+
+Signed-off-by: Johannes Hahn <johannes-hahn@siemens.com>
+Signed-off-by: Claudius Heine <ch@denx.de>
+Signed-off-by: Henning Schild <henning.schild@siemens.com>
 ---
+ drivers/rtc/rtc-rx6110.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-I wonder if it makes more sense to look for certain events and treat
-them as wakeup sources? It may be that most of the time an EC event
-can be pm_relax()ed too and only need to be held active until the
-processing is over? I haven't looked beyond this situation.
-
- drivers/platform/chrome/cros_ec_proto.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
-index 0ecee8b8773d..7c92a6e22d75 100644
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -742,12 +742,16 @@ int cros_ec_get_next_event(struct cros_ec_device *ec_dev,
- 		 * Sensor events need to be parsed by the sensor sub-device.
- 		 * Defer them, and don't report the wakeup here.
- 		 */
--		if (event_type == EC_MKBP_EVENT_SENSOR_FIFO)
--			*wake_event = false;
--		/* Masked host-events should not count as wake events. */
--		else if (host_event &&
--			 !(host_event & ec_dev->host_event_wake_mask))
-+		if (event_type == EC_MKBP_EVENT_SENSOR_FIFO) {
- 			*wake_event = false;
-+		} else if (host_event) {
-+			/* rtc_update_irq() already handles wakeup events. */
-+			if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_RTC))
-+				*wake_event = false;
-+			/* Masked host-events should not count as wake events. */
-+			if (!(host_event & ec_dev->host_event_wake_mask))
-+				*wake_event = false;
-+		}
- 	}
+diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+index ca9f486236d4..6c0c7e5a7065 100644
+--- a/drivers/rtc/rtc-rx6110.c
++++ b/drivers/rtc/rtc-rx6110.c
+@@ -13,6 +13,7 @@
+ #include <linux/of_gpio.h>
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
++#include <linux/acpi.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/spi/spi.h>
+@@ -455,6 +456,14 @@ static int rx6110_i2c_probe(struct i2c_client *client,
+ 	return 0;
+ }
  
- 	return ret;
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id rx6110_i2c_acpi_match[] = {
++	{ "RX6110SA", },
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, rx6110_i2c_acpi_match);
++#endif
++
+ static const struct i2c_device_id rx6110_i2c_id[] = {
+ 	{ "rx6110", 0 },
+ 	{ }
+@@ -464,6 +473,9 @@ MODULE_DEVICE_TABLE(i2c, rx6110_i2c_id);
+ static struct i2c_driver rx6110_i2c_driver = {
+ 	.driver = {
+ 		.name = RX6110_DRIVER_NAME,
++#ifdef CONFIG_ACPI
++		.acpi_match_table = ACPI_PTR(rx6110_i2c_acpi_match),
++#endif
+ 	},
+ 	.probe		= rx6110_i2c_probe,
+ 	.id_table	= rx6110_i2c_id,
 -- 
-Sent by a computer, using git, on the internet
+2.20.1
 
