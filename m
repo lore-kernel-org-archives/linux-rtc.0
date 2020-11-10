@@ -2,112 +2,91 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F6E5C5517A
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Nov 2020 16:34:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0026EC5517A
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Nov 2020 03:00:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8BE62074F
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Nov 2020 16:34:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="f18F3y4Z"
+	by mail.kernel.org (Postfix) with ESMTP id 9DFF1207D3
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Nov 2020 03:00:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730354AbgKIQeY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 9 Nov 2020 11:34:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730283AbgKIQeY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Nov 2020 11:34:24 -0500
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805BAC0613D4
-        for <linux-rtc@vger.kernel.org>; Mon,  9 Nov 2020 08:34:22 -0800 (PST)
-Received: by mail-wm1-x344.google.com with SMTP id v5so8549104wmh.1
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Nov 2020 08:34:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=sCBx5P4x9rsdjCTStj4VjxS9NnyX/fUaX55XeqTCsr4=;
-        b=f18F3y4ZFd7a+kbC/pvw/iBUO+dmjgbMu/qKbKXUMKIebhsTGRS/ueSZlhhyzceKze
-         j6qU+r12PzDSaShQty0j52ufhh0srRNyjnVKG01K6iyOIX9MyZyaMv+DuPYdNtPomJT9
-         7xnw/lwPLG3X9ktt1D8vul00D/nZRfJ2xgXjZGmgPlB7AF7/GAKAbVE/BEhVgKSYZuKA
-         t67t2bx0cXevHHyWL/NdMGVjXhIeRJqtTx7U1QmlS0eEEe+xtw4F+dRLPdMg3wFmd+rv
-         OGjElzArFX6bL/w2qTOjMoALgm2lU0OsCkctm80wpsHJ96WdHdcK8M722n3nEZPxY9w1
-         gS1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=sCBx5P4x9rsdjCTStj4VjxS9NnyX/fUaX55XeqTCsr4=;
-        b=L0MtM+UOQFR7r9LSDGX2HJBYDXJ1bl0jMX9Dkevj+YQXR2tn+KHQO655CRzQWNlaIZ
-         F17AP7MKkXkN7CHpHfdd8oivfe+X70LiCPNsbex2DCEgGn5S6OTTiS2Es2y2IueDZgqq
-         HbUnDg1S21mlUXE+GFV0WQd3h41vqWnCYrARHvu3ftP0IezkTRd+jksajdkgyfZoYf5D
-         CGlhNTsEh6wT56oro6aPPTN31OxYOs0q3Xk2WtQ6mips+ntN3qQ4g1kOMc+whFzNUvju
-         hlVFqIv07qPEcPw4XHpZMkrLgfY9xLSyKr8BNBYL8b668nv86BwXFoLs9cd60LbrkRrB
-         mEKg==
-X-Gm-Message-State: AOAM530rPaI2rJezibwWFxQooUI/0uIzpdAZAubnaJ3CTEn4Ew7o6rkA
-        +2dFWDpAz9s9LPCP6uZ9tZbJMQ==
-X-Google-Smtp-Source: ABdhPJw/x1QKb7u9D6gvYCwuy76XWLtlh/IAaghGLlqtPSbueAbbPw4ze7FRUXBH+iDRqYmsoZnpIA==
-X-Received: by 2002:a1c:9d94:: with SMTP id g142mr9064wme.66.1604939661316;
-        Mon, 09 Nov 2020 08:34:21 -0800 (PST)
-Received: from debian-brgl.home (amarseille-656-1-4-167.w90-8.abo.wanadoo.fr. [90.8.158.167])
-        by smtp.gmail.com with ESMTPSA id 89sm15072542wrp.58.2020.11.09.08.34.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Nov 2020 08:34:20 -0800 (PST)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 2/8] Revert "rtc: sc27xx: Always read normal alarm when registering RTC device"
-Date:   Mon,  9 Nov 2020 17:34:03 +0100
-Message-Id: <20201109163409.24301-3-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201109163409.24301-1-brgl@bgdev.pl>
-References: <20201109163409.24301-1-brgl@bgdev.pl>
+        id S1729706AbgKJDAw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 9 Nov 2020 22:00:52 -0500
+Received: from smtprelay0240.hostedemail.com ([216.40.44.240]:39336 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729243AbgKJDAv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Nov 2020 22:00:51 -0500
+X-Greylist: delayed 517 seconds by postgrey-1.27 at vger.kernel.org; Mon, 09 Nov 2020 22:00:51 EST
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave06.hostedemail.com (Postfix) with ESMTP id E3D6C812416B;
+        Tue, 10 Nov 2020 02:52:18 +0000 (UTC)
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay02.hostedemail.com (Postfix) with ESMTP id F008012CB;
+        Tue, 10 Nov 2020 02:52:13 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-HE-Tag: ink22_1714ef1272f1
+X-Filterd-Recvd-Size: 2439
+Received: from [192.168.0.160] (cpe-72-134-80-165.natsow.res.rr.com [72.134.80.165])
+        (Authenticated sender: joe@perches.com)
+        by omf07.hostedemail.com (Postfix) with ESMTPA;
+        Tue, 10 Nov 2020 02:52:09 +0000 (UTC)
+Message-ID: <3c39c363690d0b46069afddc3ad09213011e5cd4.camel@perches.com>
+Subject: Re: Subject: [RFC] clang tooling cleanups
+From:   Joe Perches <joe@perches.com>
+To:     trix@redhat.com, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com, cocci <cocci@systeme.lip6.fr>
+Cc:     linux-pm@vger.kernel.org, linux-crypto@vger.kernel.org,
+        qat-linux@intel.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, linux-iio@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-mmc@vger.kernel.org,
+        netdev@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        linux-amlogic@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-rtc@vger.kernel.org, linux-scsi@vger.kernel.org,
+        linux-aspeed@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-nfs@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net, alsa-devel@alsa-project.org,
+        linux-rpi-kernel@lists.infradead.org, linux-tegra@vger.kernel.org
+Date:   Mon, 09 Nov 2020 18:52:08 -0800
+In-Reply-To: <20201027164255.1573301-1-trix@redhat.com>
+References: <20201027164255.1573301-1-trix@redhat.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.38.1-1 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Tue, 2020-10-27 at 09:42 -0700, trix@redhat.com wrote:
+> This rfc will describe
+> An upcoming treewide cleanup.
+> How clang tooling was used to programatically do the clean up.
+> Solicit opinions on how to generally use clang tooling.
+> 
+> The clang warning -Wextra-semi-stmt produces about 10k warnings.
+> Reviewing these, a subset of semicolon after a switch looks safe to
+> fix all the time.  An example problem
+> 
+> void foo(int a) {
+>      switch(a) {
+>      	       case 1:
+> 	       ...
+>      }; <--- extra semicolon
+> }
+> 
+> Treewide, there are about 100 problems in 50 files for x86_64 allyesconfig.
+> These fixes will be the upcoming cleanup.
 
-This reverts commit 3822d1bb0df18aa28930f19bc46e0704aea1be0f.
+coccinelle already does some of these.
 
-The registered field in struct rtc_device is not supposed to be used by
-drivers and is going to be removed soon. In this function it will be
-always 0 so the check is useless anyway.
+For instance: scripts/coccinelle/misc/semicolon.cocci
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/rtc/rtc-sc27xx.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Perhaps some tool coordination can be done here as
+coccinelle/checkpatch/clang/Lindent call all be used
+to do some facet or another of these cleanup issues.
 
-diff --git a/drivers/rtc/rtc-sc27xx.c b/drivers/rtc/rtc-sc27xx.c
-index 36810dd40cd3..8e3d6be990c5 100644
---- a/drivers/rtc/rtc-sc27xx.c
-+++ b/drivers/rtc/rtc-sc27xx.c
-@@ -415,14 +415,10 @@ static int sprd_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	u32 val;
- 
- 	/*
--	 * Before RTC device is registered, it will check to see if there is an
--	 * alarm already set in RTC hardware, and we always read the normal
--	 * alarm at this time.
--	 *
--	 * Or if aie_timer is enabled, we should get the normal alarm time.
-+	 * If aie_timer is enabled, we should get the normal alarm time.
- 	 * Otherwise we should get auxiliary alarm time.
- 	 */
--	if (rtc->rtc && rtc->rtc->registered && rtc->rtc->aie_timer.enabled == 0)
-+	if (rtc->rtc && rtc->rtc->aie_timer.enabled == 0)
- 		return sprd_rtc_read_aux_alarm(dev, alrm);
- 
- 	ret = sprd_rtc_get_secs(rtc, SPRD_RTC_ALARM, &secs);
--- 
-2.29.1
+
 
