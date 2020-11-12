@@ -2,57 +2,73 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=0.6 required=3.0 tests=BAYES_50,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,FREEMAIL_REPLYTO_END_DIGIT,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A1C0C388F9
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Nov 2020 07:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79188C2D0A3
+	for <linux-rtc@archiver.kernel.org>; Thu, 12 Nov 2020 08:34:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 033F520825
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Nov 2020 07:25:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14E522100A
+	for <linux-rtc@archiver.kernel.org>; Thu, 12 Nov 2020 08:34:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726091AbgKKHZB convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Nov 2020 02:25:01 -0500
-Received: from sw73-70-41.adsl.seed.net.tw ([203.73.70.41]:45263 "EHLO
-        oa.trendtek.com.tw" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1726664AbgKKHZA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Nov 2020 02:25:00 -0500
-X-Greylist: delayed 68755 seconds by postgrey-1.27 at vger.kernel.org; Wed, 11 Nov 2020 02:24:51 EST
-Received: from [156.96.44.214] ([156.96.44.214])
-        (authenticated bits=0)
-        by oa.trendtek.com.tw (8.13.8/8.13.1) with ESMTP id 0AB7O3v9024809
-        for <linux-rtc@vger.kernel.org>; Wed, 11 Nov 2020 15:24:49 +0800
-Message-Id: <202011110724.0AB7O3v9024809@oa.trendtek.com.tw>
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1725966AbgKLIeH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 12 Nov 2020 03:34:07 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:8071 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725941AbgKLIeH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 12 Nov 2020 03:34:07 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4CWvyQ5yndzLxkj;
+        Thu, 12 Nov 2020 16:33:50 +0800 (CST)
+Received: from huawei.com (10.175.101.6) by DGGEMS401-HUB.china.huawei.com
+ (10.3.19.201) with Microsoft SMTP Server id 14.3.487.0; Thu, 12 Nov 2020
+ 16:33:57 +0800
+From:   Zheng Liang <zhengliang6@huawei.com>
+To:     <linus.walleij@linaro.org>
+CC:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-rtc@vger.kernel.org>, <wangli74@huawei.com>,
+        <fangwei1@huawei.com>, <zhengliang6@huawei.com>
+Subject: [PATCH] rtc: pl031: fix resource leak in pl031_probe
+Date:   Thu, 12 Nov 2020 17:31:39 +0800
+Message-ID: <20201112093139.32566-1-zhengliang6@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Corporate and Personal Loan *
-To:     linux-rtc@vger.kernel.org
-From:   "Investment  Corporate" <financialcapability6@gmail.com>
-Date:   Wed, 11 Nov 2020 00:31:57 -0800
-Reply-To: hmurrah39@gmail.com
+Content-Type: text/plain
+X-Originating-IP: [10.175.101.6]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello linux-rtc@vger.kernel.org
+When devm_rtc_allocate_device is failed in pl031_probe, it should release
+mem regions with device.
 
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
+---
+ drivers/rtc/rtc-pl031.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-We are Base Investment Company offering Corporate and Personal Loan at 3% Interest Rate for a duration of 10Years.
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index c6b89273feba..d4b2ab786126 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -361,8 +361,10 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 
+ 	device_init_wakeup(&adev->dev, true);
+ 	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
+-	if (IS_ERR(ldata->rtc))
+-		return PTR_ERR(ldata->rtc);
++	if (IS_ERR(ldata->rtc)) {
++		ret = PTR_ERR(ldata->rtc);
++		goto out;
++	}
+ 
+ 	ldata->rtc->ops = ops;
+ 	ldata->rtc->range_min = vendor->range_min;
+-- 
+2.17.1
 
-
-We also pay 1% commission to brokers, who introduce project owners for finance or other opportunities.
-
-
-Please get back to me if you are interested for more
-
-details.
-
-
-Yours faithfully,
-
-Hashim Murrah
