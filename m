@@ -2,106 +2,80 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C61AAC5519F
-	for <linux-rtc@archiver.kernel.org>; Sat, 14 Nov 2020 04:18:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B215DC5519F
+	for <linux-rtc@archiver.kernel.org>; Sat, 14 Nov 2020 13:16:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 82A5F22268
-	for <linux-rtc@archiver.kernel.org>; Sat, 14 Nov 2020 04:18:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52B5320782
+	for <linux-rtc@archiver.kernel.org>; Sat, 14 Nov 2020 13:16:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=flygoat.com header.i=@flygoat.com header.b="hYLAsYvw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726411AbgKNESe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 13 Nov 2020 23:18:34 -0500
-Received: from mail.loongson.cn ([114.242.206.163]:37982 "EHLO loongson.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726228AbgKNESe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 13 Nov 2020 23:18:34 -0500
-Received: from bogon.localdomain (unknown [113.200.148.30])
-        by mail.loongson.cn (Coremail) with SMTP id AQAAf9AxKtCOWq9fbCEOAA--.21682S2;
-        Sat, 14 Nov 2020 12:18:22 +0800 (CST)
-From:   Youling Tang <tangyouling@loongson.cn>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S1726834AbgKNNQn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 14 Nov 2020 08:16:43 -0500
+Received: from vultr.net.flygoat.com ([149.28.68.211]:49248 "EHLO
+        vultr.net.flygoat.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726791AbgKNNQm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 14 Nov 2020 08:16:42 -0500
+Received: from localhost.localdomain (unknown [IPv6:2001:da8:20f:4430:250:56ff:fe9a:7470])
+        by vultr.net.flygoat.com (Postfix) with ESMTPSA id 79E461FEB5;
+        Sat, 14 Nov 2020 13:09:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=flygoat.com; s=vultr;
+        t=1605359381; bh=kOdxqmTeFNrIu40ucROytLRPFSIT56o9VQ3JPCTlUeU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hYLAsYvwOQlPdCFH8kdxJ8TIwTI5SlK1PshKwQpI9AZ9Izn5bC4en/GmeSM531N4x
+         rm9/pxZTaXIMJgPNk+SSySNAXzyIertzGuVc9cSen0P9Z3lcMWxRb6WxiXeGwKfZLB
+         +XVrlrCsJoZCH2Z0EM2Q9v3V2X4Ooc/RBkp47Zg4eIaNRCM/aM42GgfKY/ywr1brei
+         npYih3I025r9GaiR2R/qz7rwBYFBOPZQyZkFtYgmN+cPOir9rcFV0xinKMFQdsECEx
+         F00ijTlRR+2Csjdrls34QUw86eVBpr/MTwUwQ3Z1m15Q6PlDrqouAQlv16wjJa+ccC
+         Y84E8ItfUyYZQ==
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+To:     linux-mips@vger.kernel.org
+Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Miodrag Dinic <Miodrag.Dinic@syrmia.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: Fix memleak in sun6i_rtc_clk_init
-Date:   Sat, 14 Nov 2020 12:18:21 +0800
-Message-Id: <1605327501-15110-1-git-send-email-tangyouling@loongson.cn>
-X-Mailer: git-send-email 2.1.0
-X-CM-TRANSID: AQAAf9AxKtCOWq9fbCEOAA--.21682S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7CF4rCr1rGr4fCr4fuF17ZFb_yoW8XrW8p3
-        yrZrWYkrs7Ka1Fg34ktFyUAF15K3Z7GFyI9r15C3Z5WrnavFykGF42ka40kFy5ArWfX3y5
-        ZF4jyry5uF4UCaUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUk2b7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I2
-        0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
-        A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xII
-        jxv20xvEc7CjxVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I
-        8E87Iv6xkF7I0E14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
-        0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_Jr0_Gr
-        1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkIecxEwVAFwVW8XwCF04k2
-        0xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI
-        8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41l
-        IxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIx
-        AIcVCF04k26cxKx2IYs7xG6Fyj6rWUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E
-        87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU4SfOUUUUU
-X-CM-SenderInfo: 5wdqw5prxox03j6o00pqjv00gofq/
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH 2/2] MAINTAINERS: Set myself as Goldfish RTC maintainer
+Date:   Sat, 14 Nov 2020 21:09:21 +0800
+Message-Id: <20201114130921.651882-3-jiaxun.yang@flygoat.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201114130921.651882-1-jiaxun.yang@flygoat.com>
+References: <20201114130921.651882-1-jiaxun.yang@flygoat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When rtc->base or rtc->int_osc or rtc->losc or rtc->ext_losc is NULL,
-we should free clk_data and rtc before the function returns to prevent
-memleak.
+While Gildfish platform is dusted, the RTC driver remains
+valuable for us.
 
-Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+I'm volunteering to maintain goldfish RTC driver onward.
+
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Miodrag Dinic <Miodrag.Dinic@syrmia.com>
 ---
- drivers/rtc/rtc-sun6i.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index e2b8b15..84ff1e6 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -272,7 +272,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 								300000000);
- 	if (IS_ERR(rtc->int_osc)) {
- 		pr_crit("Couldn't register the internal oscillator\n");
--		return;
-+		goto err;
- 	}
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e73636b75f29..b576544264e6 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1168,7 +1168,7 @@ F:	Documentation/devicetree/bindings/interrupt-controller/google,goldfish-pic.tx
+ F:	drivers/irqchip/irq-goldfish-pic.c
  
- 	parents[0] = clk_hw_get_name(rtc->int_osc);
-@@ -290,7 +290,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 	rtc->losc = clk_register(NULL, &rtc->hw);
- 	if (IS_ERR(rtc->losc)) {
- 		pr_crit("Couldn't register the LOSC clock\n");
--		return;
-+		goto err;
- 	}
- 
- 	of_property_read_string_index(node, "clock-output-names", 1,
-@@ -301,7 +301,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 					  &rtc->lock);
- 	if (IS_ERR(rtc->ext_losc)) {
- 		pr_crit("Couldn't register the LOSC external gate\n");
--		return;
-+		goto err;
- 	}
- 
- 	clk_data->num = 2;
-@@ -316,6 +316,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
- 
- err:
- 	kfree(clk_data);
-+	kfree(rtc);
- }
- 
- static const struct sun6i_rtc_clk_data sun6i_a31_rtc_data = {
+ ANDROID GOLDFISH RTC DRIVER
+-M:	Miodrag Dinic <miodrag.dinic@mips.com>
++M:	Jiaxun Yang <jiaxun.yang@flygoat.com>
+ S:	Supported
+ F:	Documentation/devicetree/bindings/rtc/google,goldfish-rtc.txt
+ F:	drivers/rtc/rtc-goldfish.c
 -- 
-2.1.0
+2.29.2
 
