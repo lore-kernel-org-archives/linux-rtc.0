@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41B90C64E75
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 651AFC6379F
 	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:46:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D157E2224E
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:46:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A9BC246F1
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:46:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="XAQ1Vw2R"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="tTUdt8EF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727789AbgKSLqJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:46:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38016 "EHLO
+        id S1727122AbgKSLqT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:46:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727283AbgKSLmf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:35 -0500
+        with ESMTP id S1727269AbgKSLmd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:33 -0500
 Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E805C061A54
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:35 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id u12so6157130wrt.0
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09CD2C061A51
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:33 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id d12so6025993wrr.13
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LmdiGYWwSYXjsc+ZWeNt5koQ7cYqCpQf1IPaNGZ1VTI=;
-        b=XAQ1Vw2Rve7mUsE1TMh/AB8znkvTYDB7MBAYeG+RvrruUCcOTSgEwNINk4nkQha/og
-         qqyJIKCEPsNyzJhJNXG0qY9Cd0xfeNmkBT3PeXsKRZxjb85JaocBNLLQj+JpDywZ0upp
-         6Ndi9cb5ARgd6bMTe5nOuR4BHEp1T5uJrHzkiWniQAqy0GhfmFQzQ094F/ppTrLyeV5V
-         Gfs10+5LCrA/VFD2W65oQFTjyicYTbQNQNGPJ1E+Zr/Zrm/MdsZ3gQP+7qAoLXCixCcw
-         2xV0rOek7x1lfzVL77ge1NAAZGSB7+KWThqvtx11qsGmePMHml/G3nSRw4IsUCtAPj13
-         SgXw==
+        bh=oOdMgmRPW212YndSnPHiJLqW5WhErPY60YEPYmAU1R8=;
+        b=tTUdt8EFr9An4ob7ERIoDtjN5Al+81KQZR1em0r2duWW83htffHiamhPXrr4SNtw0e
+         gyz2G/ZOvDRF5Ae3xt7pvDCiCc+i1WQUxegf+2cQWBn1CU28D/whpu2QtwQrnkkq7+J5
+         Wpsep/E/t80Ua1cqxB+S0G+B7SXKJJ1srCNlOcrDeoOfaCGdA8OUH33MixbAcqtl3fQ0
+         Fod1RJOKpk1wYhp+kwt7X5h/l1QWZipbO0oy/YxxiB58K0+utw/kpr31cPccWXH9dcU2
+         V2YtK6b5CIT9koJpOQg/RI5sZadM39PSMTtHpZDl+lTAm9VwFJUhjRpIp7UeeXbKYr8X
+         i9kA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LmdiGYWwSYXjsc+ZWeNt5koQ7cYqCpQf1IPaNGZ1VTI=;
-        b=sIAViYcDas3bBQzbWoldBwyDwbeFra52YJQqAErm/hTwVidstYTxZAfgXWo4vF7ILE
-         JuckTMoZiMmUfsYgFO2R1J8L8Etj4psv8uzYetmjmISGTCUw9l582D3DH6W48jiTgxwG
-         nqKlDuBTaO2LiTjscdHzOx1bIHRWf1/CfiEG/7mRz/7FWz4bTz5FO0icx/qmWeIh9Y/S
-         ZDfFTBriHgrsiAZdrFnELGq6oryOptMlWTcC4G84tLDyHRy5IICeYJfmvDt7Axke6rxM
-         zqNycJWtJDxrxaceCxayQxb1aJOyJsLSMJd+Q0aaNTiSj2KI6/OTzzyJXk3J2fhofJ6V
-         whUw==
-X-Gm-Message-State: AOAM5313sluJPg8G0YyaI/jGDNveoJ/YNbuVFN1VYPZThir7qufbkNgN
-        /r9EnnOdqSNnPzDfeYEU1l78jQ==
-X-Google-Smtp-Source: ABdhPJy+58/Zp4C0RJeffwe4/AH5O4hz3YOj+Quit22j8AHKDuI9Lv3n/3w57ICMAySe0wqJN1Qfdg==
-X-Received: by 2002:adf:bb92:: with SMTP id q18mr9497926wrg.315.1605786153991;
-        Thu, 19 Nov 2020 03:42:33 -0800 (PST)
+        bh=oOdMgmRPW212YndSnPHiJLqW5WhErPY60YEPYmAU1R8=;
+        b=XsdU0duYUl8T051OFdxVYHu6rL9bcpnaioxZDaVbI9TOo73O7vKt+KQFT64oHZ3pTH
+         0VR6MLMn3nzxpNbZzmo82Af3aYr//d/73+NalrIfJPWZI8/tjVctfLxGELvNuA/1b7/1
+         mkC6cmJWrEmi+gUeeyGfZr1Zev80X9qUPFYtXXmZ9Eu/W5U3hNSMJ49HlfZPRaZ8dpop
+         7B6hyBCQ/TAvECGSMKPXLwKts09HNdC9OlJriMQd8N5x5CYYygAj3qyNAVls3fUYlAeW
+         ViEkH2U2xaPoizO4IjYy4q3GWA26h14Md819Y8hnpPpoUZ31KESbFAeJ3rJzo8P6MsMY
+         b59g==
+X-Gm-Message-State: AOAM5301pLTzJ/FgTZ0cN3m8a/uneQwikmTWDWcc9Hmp4mBjuIYv4KyH
+        /VR5cAPREYKlRzazp/v7U8u89Q==
+X-Google-Smtp-Source: ABdhPJxYBxFqvHwIGZioiB4EDGQhqYkun71ps5kot9PHtNbUwzmar4rJEiMG3gxAWQmY7ZpjylwYUg==
+X-Received: by 2002:adf:8169:: with SMTP id 96mr9535932wrm.418.1605786151735;
+        Thu, 19 Nov 2020 03:42:31 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.33
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:33 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:31 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 28/59] rtc: ds1286: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:18 +0100
-Message-Id: <20201119114149.4117-29-brgl@bgdev.pl>
+Subject: [PATCH 26/59] rtc: spear: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:16 +0100
+Message-Id: <20201119114149.4117-27-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,42 +81,37 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-ds1286.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-spear.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1286.c b/drivers/rtc/rtc-ds1286.c
-index 7acf849d4902..0886ac9890c3 100644
---- a/drivers/rtc/rtc-ds1286.c
-+++ b/drivers/rtc/rtc-ds1286.c
-@@ -322,7 +322,6 @@ static const struct rtc_class_ops ds1286_ops = {
+diff --git a/drivers/rtc/rtc-spear.c b/drivers/rtc/rtc-spear.c
+index 833daeb7b60e..acdb37b98cc5 100644
+--- a/drivers/rtc/rtc-spear.c
++++ b/drivers/rtc/rtc-spear.c
+@@ -383,17 +383,19 @@ static int spear_rtc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&config->lock);
+ 	platform_set_drvdata(pdev, config);
  
- static int ds1286_probe(struct platform_device *pdev)
- {
--	struct rtc_device *rtc;
- 	struct ds1286_priv *priv;
+-	config->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					&spear_rtc_ops, THIS_MODULE);
++	config->rtc = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(config->rtc)) {
+-		dev_err(&pdev->dev, "can't register RTC device, err %ld\n",
+-				PTR_ERR(config->rtc));
+ 		status = PTR_ERR(config->rtc);
+ 		goto err_disable_clock;
+ 	}
  
- 	priv = devm_kzalloc(&pdev->dev, sizeof(struct ds1286_priv), GFP_KERNEL);
-@@ -335,12 +334,14 @@ static int ds1286_probe(struct platform_device *pdev)
++	config->rtc->ops = &spear_rtc_ops;
+ 	config->rtc->uie_unsupported = 1;
  
- 	spin_lock_init(&priv->lock);
- 	platform_set_drvdata(pdev, priv);
--	rtc = devm_rtc_device_register(&pdev->dev, "ds1286", &ds1286_ops,
--					THIS_MODULE);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
--	priv->rtc = rtc;
--	return 0;
++	status = devm_rtc_register_device(config->rtc);
++	if (status)
++		goto err_disable_clock;
 +
-+	priv->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(priv->rtc))
-+		return PTR_ERR(priv->rtc);
-+
-+	priv->rtc->ops = &ds1286_ops;
-+
-+	return devm_rtc_register_device(priv->rtc);
- }
+ 	if (!device_can_wakeup(&pdev->dev))
+ 		device_init_wakeup(&pdev->dev, 1);
  
- static struct platform_driver ds1286_platform_driver = {
 -- 
 2.29.1
 
