@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA6CAC6369E
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EBFEC6379F
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 788B2246F0
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 408692224E
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="dGKC6zvT"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="YDheFUB0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727266AbgKSLp3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
+        id S1727297AbgKSLpc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:45:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727307AbgKSLmm (ORCPT
+        with ESMTP id S1727309AbgKSLmm (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:42 -0500
 Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 837A8C061A48
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:41 -0800 (PST)
-Received: by mail-wm1-x342.google.com with SMTP id s13so6451506wmh.4
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AC5AC08E864
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:39 -0800 (PST)
+Received: by mail-wm1-x342.google.com with SMTP id h21so6461331wmb.2
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=vI2JrcKgFTn0iKJdVDHi03drXi2TcqJyERbRZaifsU8=;
-        b=dGKC6zvTc7FcB95UQX+uLV0Rf01hI32cRkRdIoQdk2wOJfkEem3vaDAOZp+cYxHzvJ
-         rj0qEkrG/9mGqdWR8C0A9EKv9FulhZZnCeHsg925vl10QchpcLTAl7mzbg1jJsnb2ucl
-         QaCW7H7uXYMPUp1LT5tKtGs/V1Fata5mD4qgm33lPyLXujuNROkwfoWRl5bXycjTTgAb
-         WfRas+qFfoPcflfceFUr+iO/BrYiI+snYiob4ntT38NwsHGUQtjIMO5cSNiXEQlmE+vg
-         Fef3wzNrU2/h5xjBgDE3Vo6mP8SWFfwjm4Sijc7+sWSS2VhVM1WswZZgd22TyBe6H4NS
-         oaHA==
+        bh=nzpt/3C2u54NJOPgM91KKx41jbIAT3QBxrJcpNFJB4U=;
+        b=YDheFUB06ICpzLjFDUgS8h8lv2VtbWzpvW5kH/+0xL0GJeF1wZGBT7UzTBnUv8LfDE
+         C3g2CVQPqepO2FDuTNSHlU/ckvl7yqRNCzktzo3jHc8VjlmGrWgT7uBCjF9fBAxFUnce
+         IcBAAPtuUJHlNMLg4f0ruhALEBrUTyn7zAz4axT1Q9ddxGSdDOSizkdZQ1OHBIZpSqLW
+         8inVfY1uIMXHVQRWO+T6xz/VJ528+BhqYcCDLhMPDwV6aj7gmROBLfa/xqQxLSL5VGby
+         iFN0Gvjy8YPWj8WWg6qQOIkm8eyTO11Tmv4lH65yMiOKvvX94PiijLxE7Sjce/FdOdyv
+         7Qcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=vI2JrcKgFTn0iKJdVDHi03drXi2TcqJyERbRZaifsU8=;
-        b=BHddUhuoDy8jM0RqSZN/CbmxAUxvW0JlavP+M6bD1vtGGcT62jh+8ELfXXFSqvIkUT
-         vs8TcHSzwMtnphuE03OmvG0auNOTeSYx3+Ih2brzQnSc5OzxGdeFNPYT+XLUltdSjhOD
-         GMCEB4wqaks3aVCRSafAp3oZSQTnFRIaKsA/ZgWt8Q+lhYdeVLTA+bNIv896s6eOgEHg
-         O8vBs1+2+0lS4BNMO/AXfv5h1J4yXVwRm3QIIFiXsyWbsHq5lRxZwBa4erTeM8JqATBx
-         hG+wSa8jDy+M+Lc3ugquyANSJHTi3uhv9No7gdosr6j8VjAL6ooVi0GCtPQGz9GvD+bg
-         exSQ==
-X-Gm-Message-State: AOAM533yV2GNjwP33EypRWgC0TjJXqkwLRZ8lx8YQK/MWQdYrV10n6OB
-        nuat+jWt44d7trz2R6rdX6zkDA==
-X-Google-Smtp-Source: ABdhPJxZS4HSClTug++tlF9uML8NOkvt/AOXR0qLP0qJj75THEuKDXvYja/sHAaVGcGsezisp5yTXA==
-X-Received: by 2002:a7b:c11a:: with SMTP id w26mr4302326wmi.78.1605786160286;
-        Thu, 19 Nov 2020 03:42:40 -0800 (PST)
+        bh=nzpt/3C2u54NJOPgM91KKx41jbIAT3QBxrJcpNFJB4U=;
+        b=o+Yr+oH34xN96NQBHtNJWkscLT3umOaRQ3IKAsXCvvJx6HEKPuyyPmZZ4iM8+FspcN
+         ZGgFd+BQomwJGUtvewDj0ZDFKpc3nQcY+/GprJCPWlQ4vUmA2HudQOa8W5OWaz309XBh
+         m5qRD0FxMfbw6zm0hUU4MR88zdT4DMpYQDwmKI0Jnsw3HvmaW9RTbGUKeF235aAJKbce
+         SKHN96kIrUkSvC20/Pqmm61o7vsDgn/pSdhBK7jsLDdxwWskc06T5u5oDkhuIkOzbk67
+         ccZP6GU5Gy8+fAbKkSitto3bGEI6cytk61Qu9q93Z7KaWJHI3O6JuF0kxOFnYIPI/4L2
+         JnRQ==
+X-Gm-Message-State: AOAM531WVHr2rKEsndPhn3EvFEJHasGCO/jrywV2p2+xO+QvV1+hl0u+
+        fWoYcf4cAov4VpZ1XE40AuTl4Q==
+X-Google-Smtp-Source: ABdhPJxWQtwL2lslwtUoA1aoUevbvdlKgH6aQSU0bHgk4TV3fQPLEwAHaUoL5iVvFqvYHxeN83pE2w==
+X-Received: by 2002:a1c:ed06:: with SMTP id l6mr4010316wmh.67.1605786157987;
+        Thu, 19 Nov 2020 03:42:37 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.39
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:39 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:37 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 34/59] rtc: max6900: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:24 +0100
-Message-Id: <20201119114149.4117-35-brgl@bgdev.pl>
+Subject: [PATCH 32/59] rtc: x1205: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:22 +0100
+Message-Id: <20201119114149.4117-33-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,31 +81,37 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-max6900.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-x1205.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-max6900.c b/drivers/rtc/rtc-max6900.c
-index ab60f13fa3ef..a3b0ed26a8c7 100644
---- a/drivers/rtc/rtc-max6900.c
-+++ b/drivers/rtc/rtc-max6900.c
-@@ -207,14 +207,14 @@ max6900_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+diff --git a/drivers/rtc/rtc-x1205.c b/drivers/rtc/rtc-x1205.c
+index d1d5a44d9122..b1232ebf3ee9 100644
+--- a/drivers/rtc/rtc-x1205.c
++++ b/drivers/rtc/rtc-x1205.c
+@@ -629,12 +629,11 @@ static int x1205_probe(struct i2c_client *client,
+ 	if (x1205_validate_client(client) < 0)
  		return -ENODEV;
  
--	rtc = devm_rtc_device_register(&client->dev, max6900_driver.driver.name,
--					&max6900_rtc_ops, THIS_MODULE);
+-	rtc = devm_rtc_device_register(&client->dev, x1205_driver.driver.name,
+-					&x1205_rtc_ops, THIS_MODULE);
+-
 +	rtc = devm_rtc_allocate_device(&client->dev);
  	if (IS_ERR(rtc))
  		return PTR_ERR(rtc);
  
-+	rtc->ops = &max6900_rtc_ops;
++	rtc->ops = &x1205_rtc_ops;
  	i2c_set_clientdata(client, rtc);
+ 
+ 	/* Check for power failures and eventually enable the osc */
+@@ -655,7 +654,7 @@ static int x1205_probe(struct i2c_client *client,
+ 	if (err)
+ 		dev_err(&client->dev, "Unable to create sysfs entries\n");
  
 -	return 0;
 +	return devm_rtc_register_device(rtc);
  }
  
- static const struct i2c_device_id max6900_id[] = {
+ static int x1205_remove(struct i2c_client *client)
 -- 
 2.29.1
 
