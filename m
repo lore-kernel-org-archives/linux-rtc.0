@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9F03C6379F
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4298DC64E7C
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 85447246F0
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C811D246F0
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="kW3SSru3"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="cKKwxIc/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727331AbgKSLoi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:44:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
+        id S1727189AbgKSLpG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:45:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727350AbgKSLmt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:49 -0500
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8967C061A54
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:48 -0800 (PST)
-Received: by mail-wr1-x442.google.com with SMTP id p1so6040049wrf.12
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:48 -0800 (PST)
+        with ESMTP id S1727343AbgKSLmr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:47 -0500
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA03C061A4F
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:46 -0800 (PST)
+Received: by mail-wr1-x444.google.com with SMTP id o15so6110022wru.6
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=0V8zdOUzgRXHvASfvihATg+tUUFn50H95AhpKfaGf7I=;
-        b=kW3SSru3FZjdXWya2l2GyIRBdiLdKWQkwv/qduousK2jcP+3SL5HQ0/80xE8XpY87w
-         TDd6ulxaTRPWh7/1RliWsB+lbwV/P4caaUQUzbpHdJffizO4Foi/kvqms3G7p+koywLP
-         t5rIUmElOLPMXDI+JXxTynzy5OEFCfAidl+0uJoE/K0YiZsasWQaPd2nHAqyjthFPXtT
-         /K6FextgWAbJkA/XLXdhwaSMOWyYEXEBpsVS+DOnELGbNp3QvkXAw5C/yhXvUu1QmytI
-         6/YKFhyA1aK9KBjMTd0lTAGvxe0PSBGhBFDCSPH4HS5whNahFC6nzHSM3L2ZQOIeeref
-         3dbg==
+        bh=LUz4VOPtCQ6MofHdGqqmUJWFE2OL4Z8r4lVtOSIvBIY=;
+        b=cKKwxIc/ulcFNHzwHV96lh8zjQJ9fG6tRReWRE/sRareusRGjRNtFQSUGSzhkYaGC9
+         KEVjmDalYMVM9b6SHhlT6FmZ8t709qH+aNASbpM08D9ToTZSAGeZDFqGDFUeWfnlnyN0
+         py30BJ9yqnz5Aa9xU16iD2Ft30YT70Mv6rYpLoaNJ5/c4TpSZO/bq8SKrOB4iT3YwC5b
+         I4NTGaR+1qX0QtQHbxA3qURHPs8EyCZjLvLJo+6fUepyXZuuTGInlGoaLB6u/6OPrBQo
+         v9ALga+6aV9B4T1pgqbRx7Kv0pDjFiM0rz2mSRtyumyNoEdYnKJlXul9yM4rRlVtgIMR
+         qIoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=0V8zdOUzgRXHvASfvihATg+tUUFn50H95AhpKfaGf7I=;
-        b=bUIRbZoL2Gi2a50Q3xHVDtEYd2Y2gg1q5JdW3cQTy0fWTfgPnCP/j/3llGjGPfoxo+
-         h54buhdWYO/eVU4SPYqA5lXSRpcykgaF+Q5Pfs8PrLQ+o1xtoq9v5N+9OeXdDhU+e/F3
-         DDiyS8WygllYO80yEgMd+MNo5z9EtPpGzmXfQt1fHMYURinjaQiayoIutfHYG5t4ogtH
-         sNN80JlDOTm/aDXmcda/kldJw9PzMGSaaCLxDgkb0Lsdtb/ZNPvRRjOmAG4ZtVbl/2vI
-         L2p9l97KaUXo6j4jDfC3C9mcuHfJ/5ytKAPLGALkX+lDXk8U+ezN+7cJCUWEHBYvUEO1
-         zl4A==
-X-Gm-Message-State: AOAM530zKK0J6p4FrmOGRg6cWTgBfWQuwcV9HK1PcmMJwFrr1zLz05cQ
-        eMwyF9kSuD1TkG30MF5OpYew2A==
-X-Google-Smtp-Source: ABdhPJxKARpUzAB27tutCMMVtNm4X4zd70ozNUS1e+i/8im6DVuGGgEEo3acDUIYuLtCVd2EjaV5bg==
-X-Received: by 2002:adf:9d84:: with SMTP id p4mr9776730wre.370.1605786167686;
-        Thu, 19 Nov 2020 03:42:47 -0800 (PST)
+        bh=LUz4VOPtCQ6MofHdGqqmUJWFE2OL4Z8r4lVtOSIvBIY=;
+        b=BXdlcEFiBdnqmBG32MaKrOc95RTWR+o4N4TzQCtnW6uwg2vPsFIJPasdwGuF0Qo1hK
+         S16KKzoSCNx7N+6zN01jO9ktnPnTOFG1dRKYsJNizmYjJ+Bbh48ZSOQ/x1RBCff8S98N
+         v5xD3BdA4XGjRl1DYbFfb0IvxY2F9D7RqnsWgRWn/27l9pjeko+7Vxk+1oNZ5PGP14vT
+         /4SkbC/FWae84vnAhNJYRgLjK8sUuYp9telZMX0IKIqItn1hZ2IeWuLGxuMaQomQpUBG
+         RhU15tBLknaZ5g8kasL50X43fz4Y09ZQlbDnqxLI0IuYWtkU1ojDRBk5iB8ARaW7zcGP
+         WaUg==
+X-Gm-Message-State: AOAM533dCnRfU+bD0m0YPmiwwZAX619EzyzUUPvCCJowdrLG72GZ4y+S
+        Sn4+zDPpzBIb113D7dO2+sXZsg==
+X-Google-Smtp-Source: ABdhPJwZ8AQRAieNo8lotHexkwASuvzYY/5oQ/DCdwd8jIGE/+6rl6f6ykuNrGHAAB4nY81zFwCB+g==
+X-Received: by 2002:adf:de85:: with SMTP id w5mr10120007wrl.90.1605786165516;
+        Thu, 19 Nov 2020 03:42:45 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.46
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:46 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:45 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 41/59] rtc: max8997: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:31 +0100
-Message-Id: <20201119114149.4117-42-brgl@bgdev.pl>
+Subject: [PATCH 39/59] rtc: wm8350: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:29 +0100
+Message-Id: <20201119114149.4117-40-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,55 +81,41 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-max8997.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ drivers/rtc/rtc-wm8350.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-max8997.c b/drivers/rtc/rtc-max8997.c
-index 20e50d9fdf88..d4d40851aecd 100644
---- a/drivers/rtc/rtc-max8997.c
-+++ b/drivers/rtc/rtc-max8997.c
-@@ -475,32 +475,29 @@ static int max8997_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
+index 2018614f258f..140efe601c88 100644
+--- a/drivers/rtc/rtc-wm8350.c
++++ b/drivers/rtc/rtc-wm8350.c
+@@ -424,13 +424,11 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
  
  	device_init_wakeup(&pdev->dev, 1);
  
--	info->rtc_dev = devm_rtc_device_register(&pdev->dev, "max8997-rtc",
--					&max8997_rtc_ops, THIS_MODULE);
-+	info->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(info->rtc_dev))
-+		return PTR_ERR(info->rtc_dev);
- 
--	if (IS_ERR(info->rtc_dev)) {
--		ret = PTR_ERR(info->rtc_dev);
--		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+-	wm_rtc->rtc = devm_rtc_device_register(&pdev->dev, "wm8350",
+-					&wm8350_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(wm_rtc->rtc)) {
+-		ret = PTR_ERR(wm_rtc->rtc);
+-		dev_err(&pdev->dev, "failed to register RTC: %d\n", ret);
 -		return ret;
 -	}
-+	info->rtc_dev->ops = &max8997_rtc_ops;
++	wm_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(wm_rtc->rtc))
++		return PTR_ERR(wm_rtc->rtc);
++
++	wm_rtc->rtc->ops = &wm8350_rtc_ops;
  
- 	virq = irq_create_mapping(max8997->irq_domain, MAX8997_PMICIRQ_RTCA1);
- 	if (!virq) {
- 		dev_err(&pdev->dev, "Failed to create mapping alarm IRQ\n");
--		ret = -ENXIO;
--		goto err_out;
-+		return -ENXIO;
- 	}
- 	info->virq = virq;
+ 	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
+ 			    wm8350_rtc_update_handler, 0,
+@@ -441,7 +439,7 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
+ 			    wm8350_rtc_alarm_handler, 0,
+ 			    "RTC Alarm", wm8350);
  
- 	ret = devm_request_threaded_irq(&pdev->dev, virq, NULL,
- 				max8997_rtc_alarm_irq, 0,
- 				"rtc-alarm0", info);
--	if (ret < 0)
-+	if (ret < 0) {
- 		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
- 			info->virq, ret);
-+		return ret;
-+	}
- 
--err_out:
--	return ret;
-+	return devm_rtc_register_device(info->rtc_dev);
+-	return 0;
++	return devm_rtc_register_device(wm_rtc->rtc);
  }
  
- static void max8997_rtc_shutdown(struct platform_device *pdev)
+ static int wm8350_rtc_remove(struct platform_device *pdev)
 -- 
 2.29.1
 
