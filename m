@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D383C2D0E4
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA99C388F9
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9634E2224E
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 675F2246F0
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="kA7xpXCD"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="vB8nvmjR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727645AbgKSLoL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:44:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38016 "EHLO
+        id S1727652AbgKSLoe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:44:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727379AbgKSLm4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:56 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8744AC08E860
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:54 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id p22so6876527wmg.3
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:54 -0800 (PST)
+        with ESMTP id S1727367AbgKSLmy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:54 -0500
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70F72C061A49
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:52 -0800 (PST)
+Received: by mail-wm1-x341.google.com with SMTP id x13so648145wmj.1
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=aByO6DL0wDbk3HzAdUJqboBaZ/3ycC97lV3fXAcuoGo=;
-        b=kA7xpXCDXZYVoAxd0XJCrnub7/jXthSa+Gcmk/WkV+lGTKwn0DfH/5hIb/MOqis4UI
-         D2aOsQ3mmJfs1YDW2JlaHBrwGLdVXcEaR8QvASSMz0Oaw29XRowmp/GeM+6p2G49hymT
-         X1du/RbUHqZQhtyuPeTDKIOQyJRtywvJhyhTEzYNIGrdAzMQ4zD4oozFeesctFK2bUWH
-         z194HeYPJ9oSQdbd1PkNHRM3MioRqzBfSiw6vDn0dT/n1V4mRVcSuN1TDKnkc9q6nr9t
-         w1tGOzJv445cvPOYfee9dW8DLmk+Vkoz6MiwOsx2rwaursxzKTmnykx5gzM5wJRvY5f/
-         ycZQ==
+        bh=XuIXtdxd3Hddpp/ixWUSaS27DBd0cPn1IjxNjFRiAV0=;
+        b=vB8nvmjRCcQrUikYnCQaGuFsd7lmVYIq1H5Q/LZby4l/i+jrOgB4wketqh9n3MbOUd
+         KNR5E1xDc03lTwlGTk59UHekb60iP3zBW9p5i7xWa88IvmRtiQ4d+wS+mEv/5MJDfXz5
+         wk4ZrKi6L21mD7qc5z8Ia1LvHA0yhbD6ejg5c8pStC7PjwD7HrX3CzdrCBArhFQGc+Os
+         ycRq5mDP83YGeJ0kfqfdVn3V+yRe6cHGtDWBZzst+mIjG0LnduAPZSg3yZc0K2fKWtIv
+         CoTZqPhuIWtE+yRh3TfPdkeNeofg6/v0Ay7RHngADs1NxIJ6ViJuB5GwHHJnRyG+U/hU
+         05fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=aByO6DL0wDbk3HzAdUJqboBaZ/3ycC97lV3fXAcuoGo=;
-        b=XJYAGaWvI5suZ4lmdprFXaoYVRlwpOmh3IZWZ8rLbL/wxN5bkC2BDo/SKq1IMWK/G7
-         PT2o8NDFdf57be5C5Ck4N/L9bl6KwIQaTiXZ1IEU0tMbqJGGdFSkKp8KFuQ9u8L5GtjB
-         AuXR3Epnp1YzRik5jCGY3zom8dnTbIBbnv8wWzjkB2elt1aIqpKkiwARYfnfZbJB4JIw
-         UU9MZ84qlgv9WQ0yIPsmajP3mRj/ZgOFhI6Aju7U4C2DhBk9U8EQBrMFxf0JnnQb0kWG
-         ViWrtlRlV9+1b+q7cQUiVP2Fsw0Vf7QISx1PbpRxAIE9netA2QRhfcwmKia+3vUIVZwV
-         Rs7g==
-X-Gm-Message-State: AOAM5328oXdC14DKiU2R0O8ZHjlizz7KPNoIJYEN8w1cPk8meI7uyI+d
-        NtPCjmUX5MSDHbfM113byNzLAg==
-X-Google-Smtp-Source: ABdhPJzfsFltulwuVxtTrXN/FY8DRhyita06PJ+1IMjX4Zz4f47M9h/+9TwNjllbAMKDJGMp5gORaw==
-X-Received: by 2002:a05:600c:4101:: with SMTP id j1mr4019457wmi.35.1605786173320;
-        Thu, 19 Nov 2020 03:42:53 -0800 (PST)
+        bh=XuIXtdxd3Hddpp/ixWUSaS27DBd0cPn1IjxNjFRiAV0=;
+        b=RbYK8t26LAg3Qtv+TILnTIEHnDDW6GYXRulY1oBQk0aXH3Yog5WyJao646qid7o/sm
+         IQyGq5+rKTkpvrn/JnKtipZIetuLGxY1Y7OvDnHRwGHEcXpm134AXbcjZf8uybGqBMHw
+         xQPVv4uFfKd2jF4pBK63RYFP0Ku8YOLTentAnEz7lB1V7MG5qW1zB5/JvRqLbCSuiene
+         gF70fQKK+4TzKqgQaJM/fAjv+w1+Mq+qhzUatD3dwXgGBRFmwjgHyMwWYpeXwImNKaR4
+         SXnaDB87TiKJEYVq9SoH6fVqXTW6eCFUbpnT+DB2WDCAWzeQTSmZtOk77/WcqmQDA0pf
+         NZTQ==
+X-Gm-Message-State: AOAM533pBPiVN3jmNMb2EymyzuUGZLKbgROHCNZ9AjzxbDcUmOD179cD
+        dRk8enMwEc/2Lyev6AcwwfHMvA==
+X-Google-Smtp-Source: ABdhPJxjzYf1ITUKPYLCjY1Crmxzmqzynygw6D87W1I31043pE02Led1mw6OYZ5JD8FKxURFINdJZQ==
+X-Received: by 2002:a7b:c0c2:: with SMTP id s2mr3973223wmh.78.1605786171191;
+        Thu, 19 Nov 2020 03:42:51 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.52
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:52 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:50 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 46/59] rtc: ds1302: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:36 +0100
-Message-Id: <20201119114149.4117-47-brgl@bgdev.pl>
+Subject: [PATCH 44/59] rtc: rs5c372: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:34 +0100
+Message-Id: <20201119114149.4117-45-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -79,37 +79,98 @@ From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 devm_rtc_device_register() is deprecated. Use devm_rtc_allocate_device()
 and devm_rtc_register_device() pair instead.
 
+While at it: remove unnecessary label.
+
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-ds1302.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-rs5c372.c | 36 +++++++++++++-----------------------
+ 1 file changed, 13 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
-index b3de6d2e680a..2ab0d6ea3a1c 100644
---- a/drivers/rtc/rtc-ds1302.c
-+++ b/drivers/rtc/rtc-ds1302.c
-@@ -174,15 +174,13 @@ static int ds1302_probe(struct spi_device *spi)
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 3bd6eaa0dcf6..d554c891706b 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -631,19 +631,15 @@ static int rs5c372_probe(struct i2c_client *client,
+ 				I2C_FUNC_SMBUS_BYTE_DATA |
+ 				I2C_FUNC_SMBUS_I2C_BLOCK))
+ 			smbus_mode = 1;
+-		else {
++		else
+ 			/* Still no good, give up */
+-			err = -ENODEV;
+-			goto exit;
+-		}
++			return -ENODEV;
+ 	}
  
- 	spi_set_drvdata(spi, spi);
- 
--	rtc = devm_rtc_device_register(&spi->dev, "ds1302",
--			&ds1302_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc)) {
--		status = PTR_ERR(rtc);
--		dev_err(&spi->dev, "error %d registering rtc\n", status);
--		return status;
+ 	rs5c372 = devm_kzalloc(&client->dev, sizeof(struct rs5c372),
+ 				GFP_KERNEL);
+-	if (!rs5c372) {
+-		err = -ENOMEM;
+-		goto exit;
 -	}
-+	rtc = devm_rtc_allocate_device(&spi->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
++	if (!rs5c372)
++		return -ENOMEM;
  
+ 	rs5c372->client = client;
+ 	i2c_set_clientdata(client, rs5c372);
+@@ -659,7 +655,7 @@ static int rs5c372_probe(struct i2c_client *client,
+ 
+ 	err = rs5c_get_regs(rs5c372);
+ 	if (err < 0)
+-		goto exit;
++		return err;
+ 
+ 	/* clock may be set for am/pm or 24 hr time */
+ 	switch (rs5c372->type) {
+@@ -683,7 +679,7 @@ static int rs5c372_probe(struct i2c_client *client,
+ 		break;
+ 	default:
+ 		dev_err(&client->dev, "unknown RTC type\n");
+-		goto exit;
++		return err;
+ 	}
+ 
+ 	/* if the oscillator lost power and no other software (like
+@@ -695,7 +691,7 @@ static int rs5c372_probe(struct i2c_client *client,
+ 	err = rs5c_oscillator_setup(rs5c372);
+ 	if (unlikely(err < 0)) {
+ 		dev_err(&client->dev, "setup error\n");
+-		goto exit;
++		return err;
+ 	}
+ 
+ 	dev_info(&client->dev, "%s found, %s\n",
+@@ -712,23 +708,17 @@ static int rs5c372_probe(struct i2c_client *client,
+ 			);
+ 
+ 	/* REVISIT use client->irq to register alarm irq ... */
+-	rs5c372->rtc = devm_rtc_device_register(&client->dev,
+-					rs5c372_driver.driver.name,
+-					&rs5c372_rtc_ops, THIS_MODULE);
++	rs5c372->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(rs5c372->rtc))
++		return PTR_ERR(rs5c372->rtc);
+ 
+-	if (IS_ERR(rs5c372->rtc)) {
+-		err = PTR_ERR(rs5c372->rtc);
+-		goto exit;
+-	}
++	rs5c372->rtc->ops = &rs5c372_rtc_ops;
+ 
+ 	err = rs5c_sysfs_register(&client->dev);
+ 	if (err)
+-		goto exit;
+-
 -	return 0;
-+	rtc->ops = &ds1302_rtc_ops;
-+
-+	return devm_rtc_register_device(rtc);
++		return err;
+ 
+-exit:
+-	return err;
++	return devm_rtc_register_device(rs5c372->rtc);
  }
  
- static int ds1302_remove(struct spi_device *spi)
+ static int rs5c372_remove(struct i2c_client *client)
 -- 
 2.29.1
 
