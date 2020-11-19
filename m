@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4298DC64E7C
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52750C64EBC
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C811D246F0
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DFE10246F0
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:45:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="cKKwxIc/"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="0LBtnzcj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbgKSLpG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:45:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37946 "EHLO
+        id S1727336AbgKSLpN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:45:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727343AbgKSLmr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:47 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA03C061A4F
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:46 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id o15so6110022wru.6
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:46 -0800 (PST)
+        with ESMTP id S1727321AbgKSLmm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:42 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 768F0C061A49
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:42 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id d12so6026514wrr.13
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LUz4VOPtCQ6MofHdGqqmUJWFE2OL4Z8r4lVtOSIvBIY=;
-        b=cKKwxIc/ulcFNHzwHV96lh8zjQJ9fG6tRReWRE/sRareusRGjRNtFQSUGSzhkYaGC9
-         KEVjmDalYMVM9b6SHhlT6FmZ8t709qH+aNASbpM08D9ToTZSAGeZDFqGDFUeWfnlnyN0
-         py30BJ9yqnz5Aa9xU16iD2Ft30YT70Mv6rYpLoaNJ5/c4TpSZO/bq8SKrOB4iT3YwC5b
-         I4NTGaR+1qX0QtQHbxA3qURHPs8EyCZjLvLJo+6fUepyXZuuTGInlGoaLB6u/6OPrBQo
-         v9ALga+6aV9B4T1pgqbRx7Kv0pDjFiM0rz2mSRtyumyNoEdYnKJlXul9yM4rRlVtgIMR
-         qIoA==
+        bh=at6RnRS2binr6/2DoZInS71m49aG42bZbjqPJx56QTI=;
+        b=0LBtnzcjXnRGSdCTdytvwtVLfskXVbMAqdcH53p5UWq4+CK2rBI8eirA5qDjXCD419
+         9+wFzkaSmkG2PyY0FEsJiPDuqj0Tr+g03E7X2t3jPlah9VzPOo50QYwMZKxOeholeKAE
+         ZGvcjUgv3L0PXToKgPZB2f7wh1HnzQvONHWIbckm6vLY8lUfdZ36JBIskFGFVxsZWqqQ
+         9ArpmUPmvEfuTr+f8N/ITJRK9vUEzA1Z8jsV6C7O/9uyh0fBZrCfkCX4x4mJzF4TB5vy
+         b9TIVTOL6qlkP3dqgBCU0pWgLvnInrVF3DR6rN5+k77d29XMxmWCgNkBuT+zW5XjyMbL
+         cuYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LUz4VOPtCQ6MofHdGqqmUJWFE2OL4Z8r4lVtOSIvBIY=;
-        b=BXdlcEFiBdnqmBG32MaKrOc95RTWR+o4N4TzQCtnW6uwg2vPsFIJPasdwGuF0Qo1hK
-         S16KKzoSCNx7N+6zN01jO9ktnPnTOFG1dRKYsJNizmYjJ+Bbh48ZSOQ/x1RBCff8S98N
-         v5xD3BdA4XGjRl1DYbFfb0IvxY2F9D7RqnsWgRWn/27l9pjeko+7Vxk+1oNZ5PGP14vT
-         /4SkbC/FWae84vnAhNJYRgLjK8sUuYp9telZMX0IKIqItn1hZ2IeWuLGxuMaQomQpUBG
-         RhU15tBLknaZ5g8kasL50X43fz4Y09ZQlbDnqxLI0IuYWtkU1ojDRBk5iB8ARaW7zcGP
-         WaUg==
-X-Gm-Message-State: AOAM533dCnRfU+bD0m0YPmiwwZAX619EzyzUUPvCCJowdrLG72GZ4y+S
-        Sn4+zDPpzBIb113D7dO2+sXZsg==
-X-Google-Smtp-Source: ABdhPJwZ8AQRAieNo8lotHexkwASuvzYY/5oQ/DCdwd8jIGE/+6rl6f6ykuNrGHAAB4nY81zFwCB+g==
-X-Received: by 2002:adf:de85:: with SMTP id w5mr10120007wrl.90.1605786165516;
-        Thu, 19 Nov 2020 03:42:45 -0800 (PST)
+        bh=at6RnRS2binr6/2DoZInS71m49aG42bZbjqPJx56QTI=;
+        b=g007Y6cNx7Nc1XAqzeEe/cHSOAi99Uuu1P8PskgKHyqmv/uCgYJBWdv7RpeO49MdZa
+         8Kp8f6ikWTA6Zw0kbCgQMczjvW+hTPNVjW9/F5tYlaFMi/5KgVrrfMKd8BT7Ljmuvi9g
+         94Wcf6fhKC3nJc7y9wSLC3cbJsYd2//e8xK4mCSKVMHq29dXTwGFD7DUviTICR5YkF78
+         Z2HVc4hvyyrkRx7mg4Fa+UlbD7+pRWfyZTlzNXAHncv6doSPRSTlZbelkQVBoxRjOQNT
+         iZITozrLDBUfmtqypNPMWOPC8irfSA9gb7f2ssXzvxYD0nqq6IYmqy28osK0yVFLBegE
+         grsw==
+X-Gm-Message-State: AOAM533VIYX1H/3rBysEHkxzN6TtXBf5nOvVHGDjVShKMBlSV3BujAcl
+        jwmVIeKDM0FWQp39Etr0/KnHWhoc8Hdwww==
+X-Google-Smtp-Source: ABdhPJztj8RdV8cAzQVm5qxyk8qTvD3pVn25y+QaZS7WF8vCP/yJAjNcq8tKhcJu0Atp9DQv0CCIXw==
+X-Received: by 2002:adf:b78b:: with SMTP id s11mr9646394wre.42.1605786161290;
+        Thu, 19 Nov 2020 03:42:41 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.44
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:45 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:40 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 39/59] rtc: wm8350: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:29 +0100
-Message-Id: <20201119114149.4117-40-brgl@bgdev.pl>
+Subject: [PATCH 35/59] rtc: rx8025: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:25 +0100
+Message-Id: <20201119114149.4117-36-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,41 +81,45 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-wm8350.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-rx8025.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
-index 2018614f258f..140efe601c88 100644
---- a/drivers/rtc/rtc-wm8350.c
-+++ b/drivers/rtc/rtc-wm8350.c
-@@ -424,13 +424,11 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
+index a24f85893f90..3c08cfa779d7 100644
+--- a/drivers/rtc/rtc-rx8025.c
++++ b/drivers/rtc/rtc-rx8025.c
+@@ -524,12 +524,9 @@ static int rx8025_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
  
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	wm_rtc->rtc = devm_rtc_device_register(&pdev->dev, "wm8350",
--					&wm8350_rtc_ops, THIS_MODULE);
--	if (IS_ERR(wm_rtc->rtc)) {
--		ret = PTR_ERR(wm_rtc->rtc);
--		dev_err(&pdev->dev, "failed to register RTC: %d\n", ret);
--		return ret;
+-	rx8025->rtc = devm_rtc_device_register(&client->dev, client->name,
+-					  &rx8025_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rx8025->rtc)) {
+-		dev_err(&client->dev, "unable to register the class device\n");
++	rx8025->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(rx8025->rtc))
+ 		return PTR_ERR(rx8025->rtc);
 -	}
-+	wm_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(wm_rtc->rtc))
-+		return PTR_ERR(wm_rtc->rtc);
+ 
+ 	if (client->irq > 0) {
+ 		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
+@@ -543,13 +540,15 @@ static int rx8025_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
++	rx8025->rtc->ops = &rx8025_rtc_ops;
+ 	rx8025->rtc->max_user_freq = 1;
+ 
+ 	/* the rx8025 alarm only supports a minute accuracy */
+ 	rx8025->rtc->uie_unsupported = 1;
+ 
+ 	err = rx8025_sysfs_register(&client->dev);
+-	return err;
 +
-+	wm_rtc->rtc->ops = &wm8350_rtc_ops;
- 
- 	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
- 			    wm8350_rtc_update_handler, 0,
-@@ -441,7 +439,7 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
- 			    wm8350_rtc_alarm_handler, 0,
- 			    "RTC Alarm", wm8350);
- 
--	return 0;
-+	return devm_rtc_register_device(wm_rtc->rtc);
++	return devm_rtc_register_device(rx8025->rtc);
  }
  
- static int wm8350_rtc_remove(struct platform_device *pdev)
+ static int rx8025_remove(struct i2c_client *client)
 -- 
 2.29.1
 
