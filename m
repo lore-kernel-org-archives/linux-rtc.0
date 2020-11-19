@@ -2,134 +2,187 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2DF6C388F9
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB9DC2D0E4
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8F95B2220B
+	by mail.kernel.org (Postfix) with ESMTP id CF0222224E
 	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="LoMb7eav"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbgKSLsS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726958AbgKSLmI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:08 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82CEC061A04
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:06 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id c198so4988086wmd.0
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=YJtitRrXPURViKmXuOqUqNwaFj+aVwR4/EGVd8AQJAU=;
-        b=LoMb7eavoqcUgWNxPcl7qQSUaa0vFFc1inctzI5QzHJg0fW4e0yhmS6z1sS+M30I7B
-         FC3ooMqh+PmvSRkhlR+PQilkG2ocetLEPglFS0bzrQwshyWS/IbzhOGrm9RbNWj01xFL
-         mx/lFGTZ/lZJ1Gk6jQirN9ygMyunvEfrmXKOSdQjpxO6bVAk1lmfyP2oE/N3qML2tBl6
-         F9vobBDDN9tc4zHCylOYnMPRvjb6eRJb7IJBENFxG23+vSigkJlV1QLhm+qbChLxRU04
-         bo/GAhUIM810aaCg/9WrfkeeqfJL4PjxsTuYdD13arrh8n1xMNRp9N11T0821bmTBOAV
-         1o6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YJtitRrXPURViKmXuOqUqNwaFj+aVwR4/EGVd8AQJAU=;
-        b=pK9xutqtZHBNRLO1Ur7Kd+AW1UKesMNHil/g+xeCRGL2Uo1S17K+VVtGeYUX9P4jgi
-         BXYCEtBQQccQzlE9g6PWrZLdRre/RB4FJu7dl7NuDbD+nq4a9PpgH/cNrC2UAn+/g4Qx
-         VjY0VozpQ9f7Yq8w7MsGvcTzTMCfRVUOwPeyKTy+uoFu7qWc+OsOE1dSgpri5E60jval
-         Up4gR52/JHNYcS6c0DkN5MoRXRXcOCczki9NJ4Y4g5LlVo9HOO8BP9wWBJiI1jzdy78B
-         nIzE331QZQcMeD02WuxYpZzTDnazqb1mwMH9bBpY3R09vfJmK/rpmAqHIgj7LyhI6KCp
-         F5Eg==
-X-Gm-Message-State: AOAM532qXoE/lLbKenK+/9gO9sRhEYKJg9AhX3uQ6IBX8OR+Flb6kCdf
-        Uz3YooDRE1Phi1CPeX1cTdFw5A==
-X-Google-Smtp-Source: ABdhPJzlVNsSAjY+fYoHyO0BbG9qGbpJHfifjp9TJOJTz+yoyovXxGhP/qFpSlQW1mnaIWJIdF8mFg==
-X-Received: by 2002:a7b:cc13:: with SMTP id f19mr3992487wmh.44.1605786125584;
-        Thu, 19 Nov 2020 03:42:05 -0800 (PST)
-Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:05 -0800 (PST)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S1726787AbgKSLsT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:48:19 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:56757 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727442AbgKSLsS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:48:18 -0500
+X-Originating-IP: 86.194.74.19
+Received: from localhost (lfbn-lyo-1-997-19.w86-194.abo.wanadoo.fr [86.194.74.19])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id D9DEB2403CD;
+        Thu, 19 Nov 2020 11:48:14 +0000 (UTC)
+Date:   Thu, 19 Nov 2020 12:48:14 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 01/59] rtc: da9055: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:40:51 +0100
-Message-Id: <20201119114149.4117-2-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.29.1
-In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
+Subject: Re: [PATCH 00/59] rtc: remove all uses of devm_rtc_device_register()
+Message-ID: <20201119114814.GA165507@piout.net>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On 19/11/2020 12:40:50+0100, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> So we now have two functions whose names are easy to confuse. I spent some
+> time and simply converted all RTC drivers to using the preferred interface.
+> 
+> Obviously these have only been compile-tested. I hope I didn't broke too
+> many drivers in the process. Most of the conversions was easy, sometime
+> it required removing unnecessary goto labels. There's also one patch
+> using a different devres helpers in here.
+> 
 
-devm_rtc_device_register() is deprecated. Use devm_rtc_allocate_device()
-and devm_rtc_register_device() pair instead.
+I'm not going to apply this series as this is not how I wanted to
+proceed (else this would have been done a while ago).
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/rtc/rtc-da9055.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+> Bartosz Golaszewski (59):
+>   rtc: da9055: stop using deprecated RTC API
+>   rtc: m41t94: stop using deprecated RTC API
+>   rtc: ds1390: stop using deprecated RTC API
+>   rtc: ds3232: stop using deprecated RTC API
+>   rtc: rx6110: stop using deprecated RTC API
+>   rtc: palmas: stop using deprecated RTC API
+>   rtc: bq32k: stop using deprecated RTC API
+>   rtc: m48t35: stop using deprecated RTC API
+>   rtc: pcf50633: stop using deprecated RTC API
+>   rtc: pcf8583: stop using deprecated RTC API
+>   rtc: efi: stop using deprecated RTC API
+>   rtc: pcf8523: stop using deprecated RTC API
+>   rtc: stm32: stop using deprecated RTC API
+>   rtc: max8925: stop using deprecated RTC API
+>   rtc: max8907: stop using deprecated RTC API
+>   rtc: pxa: stop using deprecated RTC API
+>   rtc: hym8563: stop using deprecated RTC API
+>   rtc: max6916: stop using deprecated RTC API
+>   rtc: max8998: stop using deprecated RTC API
+>   rtc: s5m: use devm_i2c_new_dummy_device()
+>   rtc: s5m: stop using deprecated RTC API
+>   rtc: moxart: stop using deprecated RTC API
+>   rtc: hid: stop using deprecated RTC API
+>   rtc: generic: stop using deprecated RTC API
+>   rtc: lpc24xx: stop using deprecated RTC API
+>   rtc: spear: stop using deprecated RTC API
+>   rtc: max77686: stop using deprecated RTC API
+>   rtc: ds1286: stop using deprecated RTC API
+>   rtc: twl: stop using deprecated RTC API
+>   rtc: s3c: stop using deprecated RTC API
+>   rtc: mcp795: stop using deprecated RTC API
+>   rtc: x1205: stop using deprecated RTC API
+>   rtc: max6902: stop using deprecated RTC API
+>   rtc: max6900: stop using deprecated RTC API
+>   rtc: rx8025: stop using deprecated RTC API
+>   rtc: asm9260: stop using deprecated RTC API
+>   rtc: opal: stop using deprecated RTC API
+>   rtc: rc5t583: stop using deprecated RTC API
+>   rtc: wm8350: stop using deprecated RTC API
+>   rtc: r7301: stop using deprecated RTC API
+>   rtc: max8997: stop using deprecated RTC API
+>   rtc: isl12022: stop using deprecated RTC API
+>   rtc: tps80031: stop using deprecated RTC API
+>   rtc: rs5c372: stop using deprecated RTC API
+>   rtc: mt7622: stop using deprecated RTC API
+>   rtc: ds1302: stop using deprecated RTC API
+>   rtc: bq4802: stop using deprecated RTC API
+>   rtc: rs5c313: stop using deprecated RTC API
+>   rtc: em3027: stop using deprecated RTC API
+>   rtc: v3020: stop using deprecated RTC API
+>   rtc: ds1216: stop using deprecated RTC API
+>   rtc: rx4581: stop using deprecated RTC API
+>   rtc: m41t93: stop using deprecated RTC API
+>   rtc: fm3130: stop using deprecated RTC API
+>   rtc: rtd119x: stop using deprecated RTC API
+>   rtc: msm6242: stop using deprecated RTC API
+>   rtc: as3722: stop using deprecated RTC API
+>   rtc: lp8788: stop using deprecated RTC API
+>   rtc: remove devm_rtc_device_register()
+> 
+>  .../driver-api/driver-model/devres.rst        |  1 -
+>  drivers/rtc/class.c                           | 36 -------------
+>  drivers/rtc/rtc-as3722.c                      | 14 +++---
+>  drivers/rtc/rtc-asm9260.c                     | 10 ++--
+>  drivers/rtc/rtc-bq32k.c                       |  8 +--
+>  drivers/rtc/rtc-bq4802.c                      | 30 +++++------
+>  drivers/rtc/rtc-da9055.c                      | 19 +++----
+>  drivers/rtc/rtc-ds1216.c                      |  8 +--
+>  drivers/rtc/rtc-ds1286.c                      | 15 +++---
+>  drivers/rtc/rtc-ds1302.c                      | 14 +++---
+>  drivers/rtc/rtc-ds1390.c                      | 13 +++--
+>  drivers/rtc/rtc-ds3232.c                      |  7 +--
+>  drivers/rtc/rtc-efi.c                         |  6 +--
+>  drivers/rtc/rtc-em3027.c                      |  6 +--
+>  drivers/rtc/rtc-fm3130.c                      | 22 +++-----
+>  drivers/rtc/rtc-generic.c                     |  6 +--
+>  drivers/rtc/rtc-hid-sensor-time.c             | 21 ++++----
+>  drivers/rtc/rtc-hym8563.c                     |  6 +--
+>  drivers/rtc/rtc-isl12022.c                    | 11 ++--
+>  drivers/rtc/rtc-lp8788.c                      | 11 ++--
+>  drivers/rtc/rtc-lpc24xx.c                     | 10 ++--
+>  drivers/rtc/rtc-m41t93.c                      |  6 +--
+>  drivers/rtc/rtc-m41t94.c                      |  8 +--
+>  drivers/rtc/rtc-m48t35.c                      | 10 ++--
+>  drivers/rtc/rtc-max6900.c                     |  6 +--
+>  drivers/rtc/rtc-max6902.c                     |  7 +--
+>  drivers/rtc/rtc-max6916.c                     |  6 +--
+>  drivers/rtc/rtc-max77686.c                    | 13 ++---
+>  drivers/rtc/rtc-max8907.c                     | 14 +++---
+>  drivers/rtc/rtc-max8925.c                     | 14 +++---
+>  drivers/rtc/rtc-max8997.c                     | 21 ++++----
+>  drivers/rtc/rtc-max8998.c                     | 13 ++---
+>  drivers/rtc/rtc-mcp795.c                      |  7 +--
+>  drivers/rtc/rtc-moxart.c                      | 12 ++---
+>  drivers/rtc/rtc-msm6242.c                     |  7 +--
+>  drivers/rtc/rtc-mt7622.c                      | 10 ++--
+>  drivers/rtc/rtc-opal.c                        |  6 +--
+>  drivers/rtc/rtc-palmas.c                      | 15 +++---
+>  drivers/rtc/rtc-pcf50633.c                    |  8 +--
+>  drivers/rtc/rtc-pcf8523.c                     |  7 +--
+>  drivers/rtc/rtc-pcf8583.c                     | 10 ++--
+>  drivers/rtc/rtc-pxa.c                         | 13 ++---
+>  drivers/rtc/rtc-r7301.c                       |  7 +--
+>  drivers/rtc/rtc-rc5t583.c                     | 14 +++---
+>  drivers/rtc/rtc-rs5c313.c                     |  9 ++--
+>  drivers/rtc/rtc-rs5c372.c                     | 36 +++++--------
+>  drivers/rtc/rtc-rtd119x.c                     | 13 +++--
+>  drivers/rtc/rtc-rx4581.c                      |  7 +--
+>  drivers/rtc/rtc-rx6110.c                      | 12 ++---
+>  drivers/rtc/rtc-rx8025.c                      | 11 ++--
+>  drivers/rtc/rtc-s3c.c                         | 10 ++--
+>  drivers/rtc/rtc-s5m.c                         | 50 ++++++++-----------
+>  drivers/rtc/rtc-spear.c                       | 10 ++--
+>  drivers/rtc/rtc-stm32.c                       | 18 ++++---
+>  drivers/rtc/rtc-tps80031.c                    | 15 +++---
+>  drivers/rtc/rtc-twl.c                         | 12 ++---
+>  drivers/rtc/rtc-v3020.c                       |  9 +++-
+>  drivers/rtc/rtc-wm8350.c                      | 14 +++---
+>  drivers/rtc/rtc-x1205.c                       |  7 ++-
+>  include/linux/rtc.h                           |  4 --
+>  60 files changed, 346 insertions(+), 399 deletions(-)
+> 
+> -- 
+> 2.29.1
+> 
 
-diff --git a/drivers/rtc/rtc-da9055.c b/drivers/rtc/rtc-da9055.c
-index 844168fcae1e..1e76042c2ed7 100644
---- a/drivers/rtc/rtc-da9055.c
-+++ b/drivers/rtc/rtc-da9055.c
-@@ -279,23 +279,22 @@ static int da9055_rtc_probe(struct platform_device *pdev)
- 
- 	ret = da9055_rtc_device_init(rtc->da9055, pdata);
- 	if (ret < 0)
--		goto err_rtc;
-+		return ret;
- 
- 	ret = da9055_reg_read(rtc->da9055, DA9055_REG_ALARM_Y);
- 	if (ret < 0)
--		goto err_rtc;
-+		return ret;
- 
- 	if (ret & DA9055_RTC_ALM_EN)
- 		rtc->alarm_enable = 1;
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&da9055_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc)) {
--		ret = PTR_ERR(rtc->rtc);
--		goto err_rtc;
--	}
-+	rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc->rtc))
-+		return PTR_ERR(rtc->rtc);
-+
-+	rtc->rtc->ops = &da9055_rtc_ops;
- 
- 	alm_irq = platform_get_irq_byname(pdev, "ALM");
- 	if (alm_irq < 0)
-@@ -308,9 +307,7 @@ static int da9055_rtc_probe(struct platform_device *pdev)
- 	if (ret != 0)
- 		dev_err(rtc->da9055->dev, "irq registration failed: %d\n", ret);
- 
--err_rtc:
--	return ret;
--
-+	return devm_rtc_register_device(rtc->rtc);
- }
- 
- #ifdef CONFIG_PM
 -- 
-2.29.1
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
