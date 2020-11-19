@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54C76C64E75
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E860BC64E7B
 	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:47:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1346F2224E
+	by mail.kernel.org (Postfix) with ESMTP id 8E7B42224E
 	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:47:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="swOB5hKc"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="XZsj9d31"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727210AbgKSLmZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:42:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37936 "EHLO
+        id S1727208AbgKSLr1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:47:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727161AbgKSLmO (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:14 -0500
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AA1C0613CF
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:14 -0800 (PST)
-Received: by mail-wm1-x341.google.com with SMTP id h21so6460208wmb.2
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:14 -0800 (PST)
+        with ESMTP id S1726644AbgKSLmX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:23 -0500
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EA8C061A54
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:21 -0800 (PST)
+Received: by mail-wm1-x343.google.com with SMTP id a186so4088933wme.1
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=DovsDkO+V3xiJOyc8HtCKGDT2NBthj/53O/8I5sHshs=;
-        b=swOB5hKc2ZKXgS6vofyOwszzlQLTvuDbsEuuT0JImSKst2Nk5IKEByW3ObfNP7MLlZ
-         qM7gNWRGXJ6ratNMrzo2g/YhvAEp5Ira9Lm0CHbn/8KvaeB2ZUc23ES/ry0+5Em+EgKf
-         w5kLF7htE5xOsI0xqyfdMSOtlr055laT050g3anAq5nBxy/CwgPwxugAdqA2VeY3EdKh
-         JW3CzhnZz9rl5yZvCnlEuJ/Bu3pdQIhglS7k3aswTYbstRFBbWWlcaFNHLbS9Yv45gbs
-         SeWSVPUcnDy4CCSWHku8Bo7QEw90FTPnoPsVaxmeK9xc+bhsCebuh/KuE9TMWQYap+jV
-         oOcw==
+        bh=pdeHaCdQSZfXoslP2kqPKAedembllLxxJeYfDx6HMQA=;
+        b=XZsj9d31BrH46wRzBxS2Ng1vOUP0coHfF4PXQEMbQ9eABosjIvc4RudoDprS3tRGqL
+         CQY+JY5AGvOVRaeSt4kdBEPwv5pS87WL5bTLfPhAgjzfQ/DShZtKVVLWYO5Cgnpqg27n
+         3WTjFuklHfR0ty1c4ybIbXC6qygRLYx5GWPcb1C6bMI1DUijCsutMSB428AX1tgAOsu+
+         4gLC8W7Fc0bznKzgM28k+LDrDiCAGqDzBSIc5+j8Nh0PVcJURqKEFsCB5Y17vdCus6jL
+         n4/vgEMpn7VqQLv+fF2YRzr3unPJV1Zpfk9bG8SeU9FXAIl5dhtuWcr41qdu2etoyn51
+         cV+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=DovsDkO+V3xiJOyc8HtCKGDT2NBthj/53O/8I5sHshs=;
-        b=tA5/e0coYIq5XcmSEa7sXfYFd+3GogOQ6L5cEVUdpwCgOiKpe1gx2WI4z53UEgu6v5
-         0iNULy1yqCsfdbk05cpMEYtZSQQnrfUY4UWQnDfr20QgVHWPzLc1L3f3d0tN7IBtVF8i
-         dzysnL93ec2Ic+ulXx7r0DKlulyMxjp7FbH9hll04E+DmTJ7VDI7IM9N3Og3vbxqdrMj
-         hSuwThRlaZZVYQ/fHXenhJvmZHQYIJayEEh+z2J4AAvLBy+O/KmPqYUHjLHlOZ5Z+oC0
-         4t+TDAr1QzL9Z9UrQEurSyXqC/7tyWnWIZn0PJuKPO6j2tys4EXA7eslzIoepkd+Kf1l
-         /8gQ==
-X-Gm-Message-State: AOAM533fWlXTKnjvSFcMOrXyaDE8hjulzCsdH8myOb3T+t+kLjG8Knoy
-        kdSoeTg66ryE/xuUgT4YN/Hp2A==
-X-Google-Smtp-Source: ABdhPJzhiggh6BkaEYWK0n/c0S7WrLywBlv1t8Z1PYlGc2u0xdO0zKYRzu+vRe5nS//hu7Zx+0jjuQ==
-X-Received: by 2002:a7b:c77a:: with SMTP id x26mr4078409wmk.63.1605786133203;
-        Thu, 19 Nov 2020 03:42:13 -0800 (PST)
+        bh=pdeHaCdQSZfXoslP2kqPKAedembllLxxJeYfDx6HMQA=;
+        b=DGGrM96nAQsr2GNroNRKbd2dj0u/7TRLRU0i4/+awDHRUijg+vomWUjlEHYFjlcUWz
+         ReTBEYQLeNvKY+lyK9xRFavxsKmEdVpn7YHbkPfCpgwmJRhBQP7VbpCy+tOOhnbhSO8k
+         V65QW4CqkrOs0Uv5w87gxpEM29FWVXEzX9cTRe7I+YeS/cFYidJe62Syj+Gc/r4Bu+6j
+         wh07LAWZJHDGHGlGakStWHPobLwzsYVGUkVCTMTapMuEux7PHUuTtEI31qndAjCUZp/n
+         smcSq0KSLZHuRuUIiOxpi0/VsshWTPvmFBSloUnmWHe3k4jDLa2/J9FHHxYczZBFchjx
+         E4NQ==
+X-Gm-Message-State: AOAM531dhMz/IqI8IQz7EEYzOGKr6SxSaXZX8Uo7f2qefrCuir7VSUCb
+        KFfkq8WG3NrzrHl5wSr7uE83Yg==
+X-Google-Smtp-Source: ABdhPJx0jXljEmr8Y7rG+45wv+DrjZdLaqsrrD1fNRufpNOM9U/5pPOS1AM+vJiWbv8ZBsNcsNIdjA==
+X-Received: by 2002:a1c:27c2:: with SMTP id n185mr4160721wmn.102.1605786140321;
+        Thu, 19 Nov 2020 03:42:20 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.12
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:12 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:19 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 08/59] rtc: m48t35: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:40:58 +0100
-Message-Id: <20201119114149.4117-9-brgl@bgdev.pl>
+Subject: [PATCH 15/59] rtc: max8907: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:05 +0100
+Message-Id: <20201119114149.4117-16-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,30 +81,41 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-m48t35.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-max8907.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
-index 92f19bf997b2..0f4a3cb1e1f0 100644
---- a/drivers/rtc/rtc-m48t35.c
-+++ b/drivers/rtc/rtc-m48t35.c
-@@ -173,9 +173,13 @@ static int m48t35_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-max8907.c b/drivers/rtc/rtc-max8907.c
+index db3495d10274..7987f7f99bcc 100644
+--- a/drivers/rtc/rtc-max8907.c
++++ b/drivers/rtc/rtc-max8907.c
+@@ -186,13 +186,11 @@ static int max8907_rtc_probe(struct platform_device *pdev)
+ 	rtc->max8907 = max8907;
+ 	rtc->regmap = max8907->regmap_rtc;
  
- 	platform_set_drvdata(pdev, priv);
+-	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, "max8907-rtc",
+-					&max8907_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
+-		ret = PTR_ERR(rtc->rtc_dev);
+-		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+-		return ret;
+-	}
++	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
++	rtc->rtc_dev->ops = &max8907_rtc_ops;
  
--	priv->rtc = devm_rtc_device_register(&pdev->dev, "m48t35",
--				  &m48t35_ops, THIS_MODULE);
--	return PTR_ERR_OR_ZERO(priv->rtc);
-+	priv->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(priv->rtc))
-+		return PTR_ERR(priv->rtc);
-+
-+	priv->rtc->ops = &m48t35_ops;
-+
-+	return devm_rtc_register_device(priv->rtc);
+ 	rtc->irq = regmap_irq_get_virq(max8907->irqc_rtc,
+ 				       MAX8907_IRQ_RTC_ALARM0);
+@@ -206,7 +204,7 @@ static int max8907_rtc_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Failed to request IRQ%d: %d\n",
+ 			rtc->irq, ret);
+ 
+-	return ret;
++	return devm_rtc_register_device(rtc->rtc_dev);
  }
  
- static struct platform_driver m48t35_platform_driver = {
+ static struct platform_driver max8907_rtc_driver = {
 -- 
 2.29.1
 
