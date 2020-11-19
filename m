@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90BBDC64E7C
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FD32C64E8A
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4DC972220B
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 153AA2220B
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:48:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="J0vxQQUk"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="HJqFuHnf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727179AbgKSLsG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:48:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
+        id S1727126AbgKSLsR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:48:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727175AbgKSLmR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:17 -0500
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C84C061A4C
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:16 -0800 (PST)
-Received: by mail-wm1-x343.google.com with SMTP id d142so6877747wmd.4
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:16 -0800 (PST)
+        with ESMTP id S1727121AbgKSLmK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:42:10 -0500
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0479C061A4A
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:09 -0800 (PST)
+Received: by mail-wr1-x441.google.com with SMTP id m6so6074030wrg.7
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:42:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=bImbyYB8qzW4p1cID+RGGk1MVuQVt4Z7IhIhWf50lvw=;
-        b=J0vxQQUkQUOcCl8t2M9frs0x7hg4WjvKPBU/f3GfAMfOMRbyVaZeIfx0vxcybs5dgx
-         dxi5qm2zOmAx0z6V/XHSnKsMT5bDQvJo7YlBCf89aBgZV8xms3JhcX65ivL48Fjg53Ao
-         pFYq4d2KeACz5YpSeUNVxrtGhg2IrdyVrAfL+zlC68hjuEwMbxALlM1xnHbqgMofKUvS
-         aOS53Mk8zbO2EWuMEQwms/nR2dqIxI1VMNQy/2ToIBXFTODnHCDra5O5oFC/aAVK0PmH
-         zpkaZJJbTeHs6bRGCkSnju3fMcE5QdSpA9nsRtDHQy/6D2IKuVbnPjbtEWJkwyKfT4Q8
-         S01g==
+        bh=GazQIUndeAhUaUaPVzqbitjCpnQhgHDbDOIMvuZ7/dg=;
+        b=HJqFuHnfZNLwtbjcrJLibxdUKYcFe5gW9NAISh7RDG+fUEeSS5RtTmCyz+PZ31auD6
+         3CJUcd3iMpguilHFyovHkr0Fqj8hardctTBZSfZ8BuZl3cXbRniF6yP22a8wZboAeLfj
+         mnvpDWAmcOBMU+cBwPlJJp1nY7s2nDxvetCYiYkYqyJ7FLVKS7D9/VxcodOVJnyY6Igq
+         lBg3XoQTqDz4AnUOXN9QB7qavvGSBvuJcXey66phbXg0GBIWkiruxXTCnFGj9BouY0NT
+         ZcKSfnWjj8LjGaPxx0SnuGLVMOZQpX9EGueFQmXIp6tAXPPysIL/trjKnTHa1SXlLiLt
+         cdyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=bImbyYB8qzW4p1cID+RGGk1MVuQVt4Z7IhIhWf50lvw=;
-        b=b5xxhqw3iz3xKH6rfMmV/U/Us04UUTlS7IGagK8HCn0rVT6hgnaVqxOON75BkNo3RL
-         5XW2ekEmDGmY5dzpLV7JQutbZEeAKM1SUos1y1GxiGsoj31whDLKuN4tVrivZMuVld4p
-         r+t25CaFGRH/oHnEfEYiQ15gQZuHVrTnMSV2ImEQefHB1YMQSXsmfMImWtf+X3KYPEtS
-         7iH3bMa1vFXgf7Jj66zdNJysrRDg4tBeqzdDRq4QKd0oGn6/DOZWbJyp0bgBvzzs4+ax
-         7IO8u62IqrAGGPSsP91gmXeVu/3ZYUWly0qPBhD+ooDFrmXZS1tmD33vis0qyzFEuyvA
-         Nf2g==
-X-Gm-Message-State: AOAM533wJiN0KmOt+mN6m4j/TNhUq6DueMnEwEiU+szCuuVhwP7x+IbQ
-        z0P44CgKuE5BKFU3l+cTbwrlZg==
-X-Google-Smtp-Source: ABdhPJzmu0z7oXSpqtPwa+cn9pwXnOilsl0dGRJGoktC+LJ47TfUQZ/lZhbP+J5QMSUFdzvfvZLg8w==
-X-Received: by 2002:a1c:5f08:: with SMTP id t8mr4032646wmb.84.1605786135357;
-        Thu, 19 Nov 2020 03:42:15 -0800 (PST)
+        bh=GazQIUndeAhUaUaPVzqbitjCpnQhgHDbDOIMvuZ7/dg=;
+        b=Fe0svK5N4VrIomVjzbYvwSU6v3EotxAf7RgfvWrJLcevGI/npRvx/ZdhIEl+fY23I4
+         su+Ky5w3nBiCkZAAYY7vfia5rIa0nlujfSfptkOh7wM1it1LlAovg+Igj+5c+22xUls2
+         hD8riPg4maC53asR5wpU6RETh7s4AtPe9EpbD9i1xfiKmAanTtn7TkHzU7vWJqn5qK27
+         w1dhvQY2iZrtObZ06d0fwB1D9QpydUsR+y6fhKnbsMuaKqDO1pTbYfl4ehViHdu+/cUv
+         cG+W4csFUMDIZpLb3gFCebjndqL9gzgCrXvqYOvq8LF9n9w0v8wDEHSdatiKyRmEeYbd
+         wTDw==
+X-Gm-Message-State: AOAM531h1C4xGKZOy+wRR3NEp+90rOz6tu9l8h9I45bC6sR3rlsiwGJC
+        u4sxYUuccHe5ymmQtBvloxjkxQ==
+X-Google-Smtp-Source: ABdhPJxVz+TRvhg5xtkc3UdZALf2Y9Ni9Iw7mTCkIUdgSYi8tPd7iddoFgI/rE21vcjnuQbXk5cH5w==
+X-Received: by 2002:a05:6000:182:: with SMTP id p2mr10428540wrx.116.1605786128588;
+        Thu, 19 Nov 2020 03:42:08 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.14
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.42.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:42:14 -0800 (PST)
+        Thu, 19 Nov 2020 03:42:08 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 10/59] rtc: pcf8583: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:00 +0100
-Message-Id: <20201119114149.4117-11-brgl@bgdev.pl>
+Subject: [PATCH 04/59] rtc: ds3232: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:40:54 +0100
+Message-Id: <20201119114149.4117-5-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,31 +81,37 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-pcf8583.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-ds3232.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf8583.c b/drivers/rtc/rtc-pcf8583.c
-index c80ca20e5d8d..93c7bb52bb78 100644
---- a/drivers/rtc/rtc-pcf8583.c
-+++ b/drivers/rtc/rtc-pcf8583.c
-@@ -290,11 +290,13 @@ static int pcf8583_probe(struct i2c_client *client,
+diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
+index 16b89035d135..962f84b1ba66 100644
+--- a/drivers/rtc/rtc-ds3232.c
++++ b/drivers/rtc/rtc-ds3232.c
+@@ -513,11 +513,12 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
  
- 	i2c_set_clientdata(client, pcf8583);
+ 	ds3232_hwmon_register(dev, name);
  
--	pcf8583->rtc = devm_rtc_device_register(&client->dev,
--				pcf8583_driver.driver.name,
--				&pcf8583_rtc_ops, THIS_MODULE);
-+	pcf8583->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(pcf8583->rtc))
-+		return PTR_ERR(pcf8583->rtc);
+-	ds3232->rtc = devm_rtc_device_register(dev, name, &ds3232_rtc_ops,
+-						THIS_MODULE);
++	ds3232->rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(ds3232->rtc))
+ 		return PTR_ERR(ds3232->rtc);
  
--	return PTR_ERR_OR_ZERO(pcf8583->rtc);
-+	pcf8583->rtc->ops = &pcf8583_rtc_ops;
++	ds3232->rtc->ops = &ds3232_rtc_ops;
 +
-+	return devm_rtc_register_device(pcf8583->rtc);
+ 	ret = devm_rtc_nvmem_register(ds3232->rtc, &nvmem_cfg);
+ 	if(ret)
+ 		return ret;
+@@ -534,7 +535,7 @@ static int ds3232_probe(struct device *dev, struct regmap *regmap, int irq,
+ 		}
+ 	}
+ 
+-	return 0;
++	return devm_rtc_register_device(ds3232->rtc);
  }
  
- static const struct i2c_device_id pcf8583_id[] = {
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.29.1
 
