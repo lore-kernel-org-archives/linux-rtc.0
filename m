@@ -5,66 +5,66 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44646C6379D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA251C64E75
 	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:44:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF149246F0
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:44:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A78AA246F1
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Nov 2020 11:44:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="1afVP7tK"
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20150623.gappssmtp.com header.i=@bgdev-pl.20150623.gappssmtp.com header.b="nq65fEuU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727566AbgKSLny (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Nov 2020 06:43:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38044 "EHLO
+        id S1727412AbgKSLn7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Nov 2020 06:43:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbgKSLnG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:43:06 -0500
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49C38C08C5F2
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:43:06 -0800 (PST)
-Received: by mail-wm1-x342.google.com with SMTP id x13so648622wmj.1
-        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:43:06 -0800 (PST)
+        with ESMTP id S1727408AbgKSLnE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Nov 2020 06:43:04 -0500
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2CFAC061A51
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:43:02 -0800 (PST)
+Received: by mail-wr1-x442.google.com with SMTP id m6so6076932wrg.7
+        for <linux-rtc@vger.kernel.org>; Thu, 19 Nov 2020 03:43:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=apiQTlE/nQ6vGfvEi/I7tsjxSIcMbp1twFG9p/luK2k=;
-        b=1afVP7tKUbv2dklGMJFaViXca5xz8iWEj0rParlDkrSNicm5jd94KiDoXM2btU40JP
-         oByz1D7w5d29n8R60p3mVtuuEpDXcHugNKnz/H/gFCHU6KXIqqxjJJqT+si7zN6wv5md
-         JRIe2OTKHNP0+miQHsD+K5sJReNn6GWzCfmEjk51X8hNGaAd3GWsDux1rKZzRD09Xtfs
-         0HzgsUV9mR/q2KPzsknFA3YV2zPx3rnRBHt/SmYNBuMlOWYyo14pF/056TVPSsMUu1hu
-         20N6tT4TaTVvKHdKodNKuS344VU8iMOrXdNFusjQaEkOS6ZBpd7Vf1RgwIo65eH9/T40
-         bLHQ==
+        bh=fh0/ML4VFEC9H+vJV6RWtrAyOJTOn4EWW2FuW2aJX+M=;
+        b=nq65fEuUWFAN2kxughIowzyAZ/KF07TGDU25+nWq5Ozvi3zX/4NET3JTnu5AY2jinR
+         sO8BV3xKwShEab9KXxfgzdqgH2yDwwnAxZDC6lxPnwkgVNLO0PdaUxdifqrE/VdgBfYL
+         YV6RMEDfUIO7DIHIKUMXzStk8zE4O77ONRqv820PEe1TdcVg4ws7a5xe3k3E0O86q9fl
+         N87P2pVpYmnb96oy8tdIo90aQ4jToQkVyPD3vCa2AxvaeExsgC1W3+QSRWsDvMUoz981
+         KriMbNJa3OTiqcFM8u4nozwrAcd1xQUl0Rk4V64FLZLIJKEZqteE3TxtMvDeiDDjfTMi
+         UHLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=apiQTlE/nQ6vGfvEi/I7tsjxSIcMbp1twFG9p/luK2k=;
-        b=ZjxymftB0CtL9b0y/W+kCwiEVxdNhDq+qne7KE8eIDOOE6Qs9zX0/hajt1Lv2soRdv
-         Cn/2kfI+p/w1wkdD/Qf8EP3cMnHFxSV9qN8QQLEy+zAMPMIUP18tku4ROX9aNIE8d3qC
-         2ktXr/7tpTeRTvQTPzVAX3AmiSyek2AS7U1pyDsR0/alMSh0/QrmL9KepaDXAEObgK4y
-         gtIjZPT8E9R4bQJ1Ey0Y7+sxgJPK7w5yddDG1cyt0uXbFyWIczWchjUiSAUjAuCKzCyp
-         9Ab3z2qbu9pnO4irdQZxnUQbeK5ZJ9d9FHChEO9XO2tH+35O+5vjD5Ryp456k+c6u9z8
-         UvPw==
-X-Gm-Message-State: AOAM531VMohif6oN1wwfGSo0JPVcf1irBoj1L9D7CfKg4FzQTZ+WgDHz
-        78aHkkpsvSseJcJ3wr9z2ZwGJQ==
-X-Google-Smtp-Source: ABdhPJxTP3tGPNfscEpaeN4iTtEmTTcAMr21XxGLG4/bW4ptMB/xyBLpxxBns58GS0SQBBO3DHS2sA==
-X-Received: by 2002:a1c:4055:: with SMTP id n82mr4441264wma.68.1605786185104;
-        Thu, 19 Nov 2020 03:43:05 -0800 (PST)
+        bh=fh0/ML4VFEC9H+vJV6RWtrAyOJTOn4EWW2FuW2aJX+M=;
+        b=eJwS/ebiRmXKWyCCHvzctUsAsmuFXQ8pOTFFZp5f88FBNqHy9/CA5BuCk9++T0Pw9n
+         Oej2v8NYoD++UdJYph0ef7zcM9ZUOTLNz0IK4i4yU6eS/kpiCpLEIfpF/egVS6YyYvI4
+         SZwWhpW155yOonW9ZGrwKbLknf71vva9QhjHzYDVyZOD3TxdQeUA4JdP9xX6zORv+86Q
+         0T1bulm+Q5NCwm5cpWQQntrQk7bGCE9r6viLiRhfFXNK2dr065lxvlQvT9mki9VGbpQT
+         jfSR1w1IAcHJUXYLn9kIwgfJjkifjinMDE1h+U7J/BunT+TDqsWj71OSu9IKCtKUi7DC
+         MKQA==
+X-Gm-Message-State: AOAM533D8fx6YYFoci//SZMclcVHqj2ricC07dnMzrZaacdGOTOY0j7O
+        nmtbh/zCduaef+1S2XSrmQQElA==
+X-Google-Smtp-Source: ABdhPJw5aOIENoQLUC/qJB8iVUJ1V/qfxtDoSsIzTGV/yXFjyqiqquHGS1w4nkL0SnTdS4d0nct+BA==
+X-Received: by 2002:adf:bb92:: with SMTP id q18mr9500032wrg.315.1605786181762;
+        Thu, 19 Nov 2020 03:43:01 -0800 (PST)
 Received: from localhost.localdomain (lfbn-nic-1-190-206.w2-15.abo.wanadoo.fr. [2.15.39.206])
-        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.43.03
+        by smtp.gmail.com with ESMTPSA id u23sm9745178wmc.32.2020.11.19.03.43.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Nov 2020 03:43:04 -0800 (PST)
+        Thu, 19 Nov 2020 03:43:00 -0800 (PST)
 From:   Bartosz Golaszewski <brgl@bgdev.pl>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 56/59] rtc: msm6242: stop using deprecated RTC API
-Date:   Thu, 19 Nov 2020 12:41:46 +0100
-Message-Id: <20201119114149.4117-57-brgl@bgdev.pl>
+Subject: [PATCH 53/59] rtc: m41t93: stop using deprecated RTC API
+Date:   Thu, 19 Nov 2020 12:41:43 +0100
+Message-Id: <20201119114149.4117-54-brgl@bgdev.pl>
 X-Mailer: git-send-email 2.29.1
 In-Reply-To: <20201119114149.4117-1-brgl@bgdev.pl>
 References: <20201119114149.4117-1-brgl@bgdev.pl>
@@ -81,31 +81,31 @@ and devm_rtc_register_device() pair instead.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/rtc/rtc-msm6242.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-m41t93.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-msm6242.c b/drivers/rtc/rtc-msm6242.c
-index 80e364baac53..b194f8bff403 100644
---- a/drivers/rtc/rtc-msm6242.c
-+++ b/drivers/rtc/rtc-msm6242.c
-@@ -205,13 +205,14 @@ static int __init msm6242_rtc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	platform_set_drvdata(pdev, priv);
+diff --git a/drivers/rtc/rtc-m41t93.c b/drivers/rtc/rtc-m41t93.c
+index 9444cb5f5190..7faa8a4f0032 100644
+--- a/drivers/rtc/rtc-m41t93.c
++++ b/drivers/rtc/rtc-m41t93.c
+@@ -181,14 +181,14 @@ static int m41t93_probe(struct spi_device *spi)
+ 		return -ENODEV;
+ 	}
  
--	rtc = devm_rtc_device_register(&pdev->dev, "rtc-msm6242",
--				&msm6242_rtc_ops, THIS_MODULE);
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
+-	rtc = devm_rtc_device_register(&spi->dev, m41t93_driver.driver.name,
+-					&m41t93_rtc_ops, THIS_MODULE);
++	rtc = devm_rtc_allocate_device(&spi->dev);
  	if (IS_ERR(rtc))
  		return PTR_ERR(rtc);
  
-+	rtc->ops = &msm6242_rtc_ops;
- 	priv->rtc = rtc;
++	rtc->ops = &m41t93_rtc_ops;
+ 	spi_set_drvdata(spi, rtc);
+ 
 -	return 0;
-+
 +	return devm_rtc_register_device(rtc);
  }
  
- static struct platform_driver msm6242_rtc_driver = {
+ static struct spi_driver m41t93_driver = {
 -- 
 2.29.1
 
