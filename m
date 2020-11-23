@@ -2,156 +2,146 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B107C56202
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 00:10:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52898C63798
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 10:40:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 25E7220789
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 00:10:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE71120773
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 10:40:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="V6QOdxEi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IvH8i6ZK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726779AbgKWAKL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 22 Nov 2020 19:10:11 -0500
-Received: from mout.gmx.net ([212.227.15.19]:34297 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726287AbgKWAKL (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 22 Nov 2020 19:10:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1606090163;
-        bh=TIuVy2yYea4meeUQk6HAaV69tfQRHqFlxaHQ7pmQGAQ=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=V6QOdxEioDA9smqYYMyBF3ctrQLuW/uTbMCOmVy/PMdsblquhHN4odXn4czaZna7F
-         x4rm+hKLDy2cwHEXKQzaJryHm2dJ9mHRwAAJ0nCzUTAG/2iyWrEqmbf9Ma7zzjVans
-         TUnE8sW4ZOgnDI0k7VxIl9Ir12i9wYRrvBPDsFAE=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([37.201.214.162]) by mail.gmx.com (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1Mplc7-1jtZ2F4AJR-00q8Xg; Mon, 23
- Nov 2020 01:09:23 +0100
-From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
-To:     linux-kernel@vger.kernel.org
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Heiko Stuebner <heiko@sntech.de>,
-        Josua Mayer <josua.mayer@jm0.eu>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v4 7/7] ARM: dts: imx50-kobo-aura: Add Netronix embedded controller
-Date:   Mon, 23 Nov 2020 01:09:13 +0100
-Message-Id: <20201123000913.1506944-1-j.neuschaefer@gmx.net>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201122222739.1455132-1-j.neuschaefer@gmx.net>
-References: <20201122222739.1455132-1-j.neuschaefer@gmx.net>
+        id S1727106AbgKWKkd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Nov 2020 05:40:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726416AbgKWKkc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Nov 2020 05:40:32 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 890C2C0613CF
+        for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2020 02:40:32 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id s8so18045602wrw.10
+        for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2020 02:40:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=40LRMRXJpEquK55kz/fbNP/yDC1JkUoQT5oyO3TBh40=;
+        b=IvH8i6ZK3cJCXanvHd/DqIMjcGe6c1hl2d9PJgluF5mmYrBnbbpuPCGj2zRod2tWS/
+         OniWrdOrWuyW8H4sPqb0UApBsSHahlz0Sbx9fRVPUy8HbbEPw1wLSiAmZYEt/0pA6R8/
+         6hn++nYnARQEk9yDOzpUtWDBQLDIjxbudoXV0EyJJg7sDxstC1wghQhXs4R5umqwwp9z
+         mPcgj4O3f9aBNjN27mMzJslaKHe+nr7BepcCznrBil2xPxGqZLhD/8gxDGsgbC2ROR91
+         NqGl3iA9rE+lYpIn/IIUpa4v8L/HNex5D5GKlIFVt0/UdaLB4GHP65e5RpTS5QSfsClf
+         LhHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=40LRMRXJpEquK55kz/fbNP/yDC1JkUoQT5oyO3TBh40=;
+        b=mmaRoni4abHDCOKisYZKhSSWUqsnbLs8jUuizAJROWLBrS0yOG8yWPThAzsYklkjNg
+         uuipCxj1GO9WLiWUmAuymrharA7xj8rcA0js1nEmiBTt4kCKy4xcpMeRyCslnCIpZxbg
+         roZwlUe5TuIwTTHiGeO0dQHdqRt6oYlkkjdEuy/xdiVrEtsecNJuFJqi5F0ftcfPNNw0
+         0JygEQ/1PifgPqnnuazu/BxIOFbWEQMn4iQMc+Rz5MrSIc+Gabn8QIJor6sa6j5Nu8ux
+         Mr+HrW3xQ/ZMjvu26KWdctgHwAVrAvwQtVAsrudMnCrSo6LXe6XXSWVK7hywzzdQmzjG
+         Y/KQ==
+X-Gm-Message-State: AOAM531rzaFv8CKHMEhe17zWK9lqWEs0g0s5Nt4hvne/tWfNUU+WNS/2
+        EKK/r4OCOAkugfg+T0YW0po=
+X-Google-Smtp-Source: ABdhPJz7EdgST/jnBnTEcCJwHo7zBiKcQvX7N47IL2SNMWyf8KDUHZBekd/rti3T7W8NQikR5ICLCg==
+X-Received: by 2002:adf:9043:: with SMTP id h61mr30944271wrh.237.1606128031350;
+        Mon, 23 Nov 2020 02:40:31 -0800 (PST)
+Received: from tool.localnet ([213.177.199.100])
+        by smtp.gmail.com with ESMTPSA id l3sm17589521wmf.0.2020.11.23.02.40.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Nov 2020 02:40:30 -0800 (PST)
+From:   Daniel =?ISO-8859-1?Q?Gonz=E1lez?= Cabanelas <dgcbueu@gmail.com>
+To:     a.zummo@towertech.it
+Cc:     alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org
+Subject: [PATCH 2/2] rtc: rs5c372: let the alarm to be used as wakeup source
+Date:   Mon, 23 Nov 2020 11:38:48 +0100
+Message-ID: <2324307.0LpMOBvr9T@tool>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:uLvaOtwI9plaURv1O6GufQthB1uZzTJiP2EgUwf1AYpCa+pmgnb
- zzyFdg8ayPJrfMmtGlXjR9sNu2TWGnE8ZbHGG0tuhGtbWUiz+0aO+XnPw4Kiw6gO7Hiy4ea
- Lf6Fk6wYSok+Dyl+GWKTgdjJlUjmK0aZSvuQI/qNkQgy1WprFT99pQqk6pxRyy3fzpWSmKo
- 1bbqjlOZbLD67lpSLjn1A==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:abVzIFyQpNU=:QxZxYx4estxtNikpjhXwTf
- Ig1RjLRQThLpRFES6t+D5aZFvysbUZCfNpwLGHa3sDV6+Utd0OdN1JuiaAiryCSsrhIoJjDed
- rGJOeqZawRCxpngYSc4rXQ4d9vdG69cEoiTMOYB42X4wvR9Ll2bsNCKUsvzQSmjXvimF/90nG
- T3Lb50DzmVrIPN4Y3gkA6+9FRrEBjTVP8vRr3yQqE3Ann6aKxPV7zwoWBBW1fDecqJ6XC5OyR
- 1Pp+c/JBKP0TcTf3s+tsnU9pQvCQvPGKFvF2gmsxQ0ZfUrlxIZosca651b7Ac1XBgJaBuLW0b
- TPQZfFVAe2UxHouIlBW5WWAB03hEp5VnG+/PzPqgZ2VoxQ24HHY4zKJSYqOAEoW2IreQnT3Cv
- wlIcYG8zCPnLkkvQ5uRyceuboo9aJcjQX49o7B3Bp78QtzjhSHA3L7BcppHFBZ+rkBBHrhl91
- yUv5Ig43se2VJIcNzU9S9CPHO3MVjrAPgjUOzVmcR0QFyaon9QQr066Be0d5Le7TWYzKA/khm
- ZlNBQvDUvQOY/CDnFLSvM+QOpltpYV+5wG7hSOIhLWMy8tSr2Mqn7jNEzG1263WOWd1EkC3+1
- RHCtnW3rN2B2rdb9qkk0BGAzJ7THJXbqvOmb00edrokVZwtZrWrZMxCbqiHfR7FFNxccfcWwl
- tdeKuBOSHeDeUuyABibHbIHauMUEDqkhyANfJtLRM5IFD3VOMDm3gmlYxU+Ii3uZDOVnsub7h
- IM3ebfybW9lLG8ylYpyvLLASeUD9pCgrpT/CcPT93N8g5aRZaQ3LGhE482Dh47kx8a6Jr2t/9
- ZYyvlOVrVTsIV2CrunTFY00kn7QIQICWCZc4QpwVWSv4Cg7Rz6H3O5/Ib43wgzm/TeM90bqOR
- IutSw/tRhbIlt5dclFnw==
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Enable the Netronix EC on the Kobo Aura ebook reader.
+Currently there is no use for the interrupts on the rs5c372 RTC and the
+wakealarm isn't enabled. There are some devices like NAS which use this
+RTC to wake up from the power off state when the INTR pin is activated by
+the alarm clock.
 
-Several features are still missing:
- - Frontlight/backlight. The vendor kernel drives the frontlight LED
-   using the PWM output of the EC and an additional boost pin that
-   increases the brightness.
- - Battery monitoring
- - Interrupts for RTC alarm and low-battery events
+Enable the alarm and let to be used as a wakeup source. Tested on a Buffalo
+LS421DE NAS.
 
-Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+Signed-off-by: Daniel Gonz=C3=A1lez Cabanelas <dgcbueu@gmail.com>
 =2D--
-v4:
-- Add 'grp' suffix to pinctrl node
+ drivers/rtc/rtc-rs5c372.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-v3:
-- https://lore.kernel.org/lkml/20200925050818.2512375-1-j.neuschaefer@gmx.=
-net/
-- Remove interrupt-controller property from embedded-controller node
-- subnodes of embedded-controller node in to the main node
-
-v2:
-- https://lore.kernel.org/lkml/20200905144503.1067124-3-j.neuschaefer@gmx.=
-net/
-- Fix pwm-cells property (should be 2, not 1)
-=2D--
- arch/arm/boot/dts/imx50-kobo-aura.dts | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/imx50-kobo-aura.dts b/arch/arm/boot/dts/imx=
-50-kobo-aura.dts
-index 97cfd970fe742..82ce8c43be867 100644
-=2D-- a/arch/arm/boot/dts/imx50-kobo-aura.dts
-+++ b/arch/arm/boot/dts/imx50-kobo-aura.dts
-@@ -143,10 +143,24 @@ &i2c3 {
- 	pinctrl-0 =3D <&pinctrl_i2c3>;
- 	status =3D "okay";
-
--	/* TODO: embedded controller at 0x43 */
-+	embedded-controller@43 {
-+		pinctrl-names =3D "default";
-+		pinctrl-0 =3D <&pinctrl_ec>;
-+		compatible =3D "netronix,ntxec";
-+		reg =3D <0x43>;
-+		system-power-controller;
-+		interrupts-extended =3D <&gpio4 11 IRQ_TYPE_EDGE_FALLING>;
-+		#pwm-cells =3D <2>;
-+	};
- };
-
- &iomuxc {
-+	pinctrl_ec: ecgrp {
-+		fsl,pins =3D <
-+			MX50_PAD_CSPI_SS0__GPIO4_11		0x0	/* INT */
-+		>;
-+	};
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 94b778c6e..76775d66e 100644
+=2D-- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -654,6 +654,7 @@ static int rs5c372_probe(struct i2c_client *client,
+ 	int err =3D 0;
+ 	int smbus_mode =3D 0;
+ 	struct rs5c372 *rs5c372;
++	bool rs5c372_can_wakeup_device =3D false;
+=20
+ 	dev_dbg(&client->dev, "%s\n", __func__);
+=20
+@@ -689,6 +690,12 @@ static int rs5c372_probe(struct i2c_client *client,
+ 	else
+ 		rs5c372->type =3D id->driver_data;
+=20
++#ifdef CONFIG_OF
++	if(of_property_read_bool(client->dev.of_node,
++					      "wakeup-source"))
++		rs5c372_can_wakeup_device =3D true;
++#endif
 +
- 	pinctrl_gpiokeys: gpiokeysgrp {
- 		fsl,pins =3D <
- 			MX50_PAD_CSPI_MISO__GPIO4_10		0x0
-=2D-
+ 	/* we read registers 0x0f then 0x00-0x0f; skip the first one */
+ 	rs5c372->regs =3D &rs5c372->buf[1];
+ 	rs5c372->smbus =3D smbus_mode;
+@@ -722,6 +729,8 @@ static int rs5c372_probe(struct i2c_client *client,
+ 		goto exit;
+ 	}
+=20
++	rs5c372->has_irq =3D 1;
++
+ 	/* if the oscillator lost power and no other software (like
+ 	 * the bootloader) set it up, do it here.
+ 	 *
+@@ -748,6 +757,10 @@ static int rs5c372_probe(struct i2c_client *client,
+ 			);
+=20
+ 	/* REVISIT use client->irq to register alarm irq ... */
++	if (rs5c372_can_wakeup_device) {
++		device_init_wakeup(&client->dev, true);
++	}
++
+ 	rs5c372->rtc =3D devm_rtc_device_register(&client->dev,
+ 					rs5c372_driver.driver.name,
+ 					&rs5c372_rtc_ops, THIS_MODULE);
+@@ -761,6 +774,9 @@ static int rs5c372_probe(struct i2c_client *client,
+ 	if (err)
+ 		goto exit;
+=20
++	/* the rs5c372 alarm only supports a minute accuracy */
++	rs5c372->rtc->uie_unsupported =3D 1;
++
+ 	return 0;
+=20
+ exit:
+=2D-=20
 2.29.2
+
+
+
 
