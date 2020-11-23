@@ -2,175 +2,204 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73BBEC2D0E4
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 10:40:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8829AC63697
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 21:32:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B2BB2078E
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 10:40:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 195E4206FB
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Nov 2020 21:32:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qYswqWJq"
+	dkim=pass (1024-bit key) header.d=gmx.net header.i=@gmx.net header.b="SXALL6dk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbgKWKkg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Nov 2020 05:40:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38824 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726416AbgKWKkf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Nov 2020 05:40:35 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D300C0613CF
-        for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2020 02:40:35 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id m6so18065240wrg.7
-        for <linux-rtc@vger.kernel.org>; Mon, 23 Nov 2020 02:40:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RergrObuZ7nJbj82NXrvmDmOiyMDnI5ohePqhGaidew=;
-        b=qYswqWJqMPRsxXaW6Plzhdij7IeMXZHKJndVV/0Ub4DQkp/K1Vkml+EGj7LHtFKnrT
-         1x1KfhcLtPr9p67u+cRqkNQSdJZ4Ej6YA1vUHSQcZfk/f3PtzaF9qijF9o92luPVK1J1
-         lqAvla7xfUIAVMjSYZ4yT9SKfWs0odfIhAWu4KINwYTx+bKek3n28Y8NkOrwIJKc7+8Y
-         Tbf1BY23jkoqtAaWMkXK2HtTLBbXPBTkZY1rjPfU+fgDhmC3j44F8baOKQoGhchsIHM5
-         XR8xavClUPsgJPMuQOhsJWBpzIw/KHEzgNsLS4+Q5WUpF3c1mo2rFlKhZk0wj4Zq7IIx
-         /I6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RergrObuZ7nJbj82NXrvmDmOiyMDnI5ohePqhGaidew=;
-        b=ECiL+Y7wyNtlwAU+H+HyWvjOJM5dsqO5Yq7r6jpiV4ehrsYJEGqWeEtguU89ZqN1ve
-         yFCVmrSa/JkhxwPMLUutTQRozyO6mBdHAaCMEW9CzGiBt+iF9YaDTLkgNUt42aLysTOq
-         tKodkcKfb479qZQc5bXIskE4pmdrX5SRCv2TNgd1i3un9gJHNvOQxBvoVCAn9V1zFI3K
-         amsLyWTZtcyUM3RnJr3XM/vLBWnXsPRXYzYrDADB7YjSw3zWCUDrgIL9/w/Ku7TtgdpW
-         Bq1ktquCuNgnOw/vXVyJwBcpNZP6l7Vk+uq00xOskbpMgZLzIXzt0dRAZuqDygvsT6L3
-         mHsA==
-X-Gm-Message-State: AOAM532o1UEB/bUaK8O06rvURA97C61qH/4RUg2Mp95HLhjY1+0489sT
-        RJHMK7EX4DgsGckeaGifYu/vqNjOX+0HJw==
-X-Google-Smtp-Source: ABdhPJz9hjQBfqKXrt5xoSemDCe1JRxiD6cLeYcGku5fIU/F12YML4nxCDUAwNkJaU9Wfo7n2yVO3g==
-X-Received: by 2002:a5d:414e:: with SMTP id c14mr30019992wrq.256.1606128033873;
-        Mon, 23 Nov 2020 02:40:33 -0800 (PST)
-Received: from tool.localnet ([213.177.199.100])
-        by smtp.gmail.com with ESMTPSA id j4sm17718376wrn.83.2020.11.23.02.40.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2020 02:40:33 -0800 (PST)
-From:   Daniel =?ISO-8859-1?Q?Gonz=E1lez?= Cabanelas <dgcbueu@gmail.com>
-To:     a.zummo@towertech.it
-Cc:     alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org
-Subject: [PATCH 1/2] rtc: rs5c372: support alarms up to 1 week
-Date:   Mon, 23 Nov 2020 11:38:44 +0100
-Message-ID: <2876529.n6mMd1HPca@tool>
+        id S1730713AbgKWVcC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Nov 2020 16:32:02 -0500
+Received: from mout.gmx.net ([212.227.15.18]:35725 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729668AbgKWVcB (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 23 Nov 2020 16:32:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1606167075;
+        bh=sCkDsbnNYQ6Pz3/oXpsDLnfnKp/ckhQ+TZMQxjRgd3A=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=SXALL6dkqlmI+G8wKpUobuPezQXOviKE/83S7qWtriuewgq+ufJ+kxT9ve4fjInvI
+         GonNpTmd89Qvh1smmkHwXVIBRZtkr2pVH0IszY8YubSYztbvlkUdp6xgijeNdOk6YZ
+         IFsEsSyuAPGAWEM8oG9sRS+qhDd6RwHi6DqjJnFA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from longitude ([37.201.214.162]) by mail.gmx.com (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1M26vL-1kfNcZ33P7-002WX6; Mon, 23
+ Nov 2020 22:31:14 +0100
+Date:   Mon, 23 Nov 2020 22:31:05 +0100
+From:   Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        devicetree@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Heiko Stuebner <heiko@sntech.de>,
+        Josua Mayer <josua.mayer@jm0.eu>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4 5/7] rtc: New driver for RTC in Netronix embedded
+ controller
+Message-ID: <20201123213105.GC456020@latitude>
+References: <20201122222739.1455132-1-j.neuschaefer@gmx.net>
+ <20201122222739.1455132-6-j.neuschaefer@gmx.net>
+ <20201122231054.GH348979@piout.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
+Content-Disposition: inline
+In-Reply-To: <20201122231054.GH348979@piout.net>
+X-Provags-ID: V03:K1:no2Gna2hTxM9N5hL6CMDIOPd7xqpgCHA1PYx+QzCYCYXmJO39aV
+ eh7+fejXcNZipfhKMG4JqyZ/n52hEDbvWcp8GOh9WWLAVTxcSPWaY0uyyTIfkOYzsEBa2fN
+ vzGT4ccpUzfKb1AZcm6jP/+dmiEo9t1b3E/6l2mASZjnAsCaN0oePm15gRfFyHzFc6bCzGX
+ PzaZLnarMAtk6ofOIYwLw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:xtB5ZZleEYM=:6oYlbp6ZnPxYRMENT5U0SS
+ 4J2O/eVE4/KL5m+Cda1SDfZXXmisRKcJs0HHlkREUhR5df04phBeO/+BG8Yybesk8i/uWEw0k
+ l+HWrSz8OyE3/OvkUkzP3C///oqqX0ucMc3DR0b6g48fEwiL6HPDyLQ8i6XpBCqI8BQ98MsgT
+ lB74HdiSpOWvj3EzDPNBxFbkpW2mKLxt39ZU77oMiPIOWkDpPhCcPkl1/aH8EtDCzWaZBCnmE
+ QpYh0A79fNO5zf9Uf6wJppJMj2Jyht1lCtEZens4jfP5cJVkGZJLcZM48H4i6lAOP4G15rzJz
+ +v+muE10se/Pz8Z7d5E0DS0NUoLrUQXKQjZIrbZI3R/5ln8xp7gnbLOnlWmF5ora4KYrq/7ZR
+ iyMQN0VF+IOwGbo/CQdJRbGmWBt5bEonEL4aZPB6MXCNrYh4BrYCk+0FV5tTqba3wJr4SgreY
+ OSClmWSsmL4B+kldZm9ZctIkhw7mtXR+vWuthkhv25BwObusoB4FbQjQnn4cLu+7edjtzMB6S
+ 2jEhEk72s7zQBVnXa9fX/gX8xGIx60uJ2YMFqVHd8n6jdiYrdn6nM8buTpZsuFJLRb9CuloWm
+ 3mS9CtS+czTdRcIosoFzZ3Zd/rlKn+dRTx3RhoyZj3HweS1xQ3SP7EoRURuJRIjbYuLzqPSn7
+ e10uYatI6jjmSX8OvWyCV/vZfuLm9yuxyNH/rSdit0YL0bbcfXdM2RM1MjFjI00Clg2xNT9kX
+ 4p0RDASSbP6uEiDcQ4v+LYMkJ2Y8YiOn6KKcqGg3QF0KcKxi2Y4EkGd6vevxAo6aHfgxUKtml
+ 7f8PaEBwMg/VNOovqidzcbBofYpATnBsJgAMT6wd71BVTj2aqrmdP6aVctHUMGT15O67o4hCG
+ c6ACLePStWn6+FJHfcXw==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Ricoh R2221x, R2223x, RS5C372, RV5C387A chips can handle 1 week
-alarms.
 
-Read the "wday" alarm register and convert it to a date to support up 1
-week in our driver.
+--hHWLQfXTYDoKhP50
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Daniel Gonz=C3=A1lez Cabanelas <dgcbueu@gmail.com>
-=2D--
- drivers/rtc/rtc-rs5c372.c | 48 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 42 insertions(+), 6 deletions(-)
+On Mon, Nov 23, 2020 at 12:10:54AM +0100, Alexandre Belloni wrote:
+> Hi,
+>=20
+> On 22/11/2020 23:27:37+0100, Jonathan Neusch=C3=A4fer wrote:
+> > With this driver, mainline Linux can keep its time and date in sync with
+> > the vendor kernel.
+> >=20
+> > Advanced functionality like alarm and automatic power-on is not yet
+> > supported.
+> >=20
+> > Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+>=20
+> However, two comments below:
+>=20
+> > +static int ntxec_set_time(struct device *dev, struct rtc_time *tm)
+> > +{
+> > +	struct ntxec_rtc *rtc =3D dev_get_drvdata(dev);
+> > +	int res =3D 0;
+> > +
+> > +	/*
+> > +	 * To avoid time overflows while we're writing the full date/time,
+> > +	 * set the seconds field to zero before doing anything else. For the
+> > +	 * next 59 seconds (plus however long it takes until the RTC's next
+> > +	 * update of the second field), the seconds field will not overflow
+> > +	 * into the other fields.
+> > +	 */
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_SECOND, ntxec_r=
+eg8(0));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_YEAR, ntxec_reg=
+8(tm->tm_year - 100));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_MONTH, ntxec_re=
+g8(tm->tm_mon + 1));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_DAY, ntxec_reg8=
+(tm->tm_mday));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_HOUR, ntxec_reg=
+8(tm->tm_hour));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	res =3D regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_MINUTE, ntxec_r=
+eg8(tm->tm_min));
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	return regmap_write(rtc->ec->regmap, NTXEC_REG_WRITE_SECOND, ntxec_re=
+g8(tm->tm_sec));
+>=20
+> Couldn't you do a regmap_block_write or a regmap_multi_reg_write which
+> would be more efficient as they would be locking the regmap only once.
 
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index 3bd6eaa0d..94b778c6e 100644
-=2D-- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -393,7 +393,9 @@ static int rs5c_read_alarm(struct device *dev, struct r=
-tc_wkalrm *t)
- {
- 	struct i2c_client	*client =3D to_i2c_client(dev);
- 	struct rs5c372		*rs5c =3D i2c_get_clientdata(client);
-=2D	int			status;
-+	int			status, wday_offs;
-+	struct rtc_time 	rtc;
-+	unsigned long 		alarm_secs;
-=20
- 	status =3D rs5c_get_regs(rs5c);
- 	if (status < 0)
-@@ -403,6 +405,30 @@ static int rs5c_read_alarm(struct device *dev, struct =
-rtc_wkalrm *t)
- 	t->time.tm_sec =3D 0;
- 	t->time.tm_min =3D bcd2bin(rs5c->regs[RS5C_REG_ALARM_A_MIN] & 0x7f);
- 	t->time.tm_hour =3D rs5c_reg2hr(rs5c, rs5c->regs[RS5C_REG_ALARM_A_HOURS]);
-+	t->time.tm_wday =3D ffs(rs5c->regs[RS5C_REG_ALARM_A_WDAY] & 0x7f) - 1;
-+
-+	/* determine the day, month and year based on alarm wday, taking as a
-+	 * reference the current time from the rtc
-+	 */
-+	status =3D rs5c372_rtc_read_time(dev, &rtc);
-+	if (status < 0)
-+		return status;
-+
-+	wday_offs =3D t->time.tm_wday - rtc.tm_wday;
-+	alarm_secs =3D mktime64(rtc.tm_year + 1900,
-+			      rtc.tm_mon + 1,
-+			      rtc.tm_mday + wday_offs,
-+			      t->time.tm_hour,
-+			      t->time.tm_min,
-+			      t->time.tm_sec);
-+
-+	if (wday_offs < 0 || (wday_offs =3D=3D 0 &&
-+			      (t->time.tm_hour < rtc.tm_hour ||
-+			       (t->time.tm_hour =3D=3D rtc.tm_hour &&
-+				t->time.tm_min <=3D rtc.tm_min))))
-+		alarm_secs +=3D 7 * 86400;
-+
-+	rtc_time64_to_tm(alarm_secs, &t->time);
-=20
- 	/* ... and status */
- 	t->enabled =3D !!(rs5c->regs[RS5C_REG_CTRL1] & RS5C_CTRL1_AALE);
-@@ -417,12 +443,20 @@ static int rs5c_set_alarm(struct device *dev, struct =
-rtc_wkalrm *t)
- 	struct rs5c372		*rs5c =3D i2c_get_clientdata(client);
- 	int			status, addr, i;
- 	unsigned char		buf[3];
-+	struct rtc_time 	rtc_tm;
-+	unsigned long 		rtc_secs, alarm_secs;
-=20
-=2D	/* only handle up to 24 hours in the future, like RTC_ALM_SET */
-=2D	if (t->time.tm_mday !=3D -1
-=2D			|| t->time.tm_mon !=3D -1
-=2D			|| t->time.tm_year !=3D -1)
-+	/* chip only can handle alarms up to one week in the future*/
-+	status =3D rs5c372_rtc_read_time(dev, &rtc_tm);
-+	if (status)
-+		return status;
-+	rtc_secs =3D rtc_tm_to_time64(&rtc_tm);
-+	alarm_secs =3D rtc_tm_to_time64(&t->time);
-+	if (alarm_secs >=3D rtc_secs + 7 * 86400) {
-+		dev_err(dev, "%s: alarm maximum is one week in the future (%d)\n",
-+			__func__, status);
- 		return -EINVAL;
-+	}
-=20
- 	/* REVISIT: round up tm_sec */
-=20
-@@ -443,7 +477,9 @@ static int rs5c_set_alarm(struct device *dev, struct rt=
-c_wkalrm *t)
- 	/* set alarm */
- 	buf[0] =3D bin2bcd(t->time.tm_min);
- 	buf[1] =3D rs5c_hr2reg(rs5c, t->time.tm_hour);
-=2D	buf[2] =3D 0x7f;	/* any/all days */
-+	/* each bit is the day of the week, 0x7f means all days */
-+	buf[2] =3D (t->time.tm_wday >=3D 0 && t->time.tm_wday < 7) ?
-+		  BIT(t->time.tm_wday) : 0x7f;
-=20
- 	for (i =3D 0; i < sizeof(buf); i++) {
- 		addr =3D RS5C_ADDR(RS5C_REG_ALARM_A_MIN + i);
-=2D-=20
-2.29.2
+I can't find regmap_block_write anywhere, but regmap_multi_reg_write
+looks like a good approach to simplify the code here.
 
 
+[...]
+> Note that this won't compile after
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit=
+/?id=3Dfdcfd854333be5b30377dc5daa9cd0fa1643a979
+>=20
+> We can solve that with immutable branches though.
+
+Thanks for the heads-up. Please let me know if/when there is any action
+that I need to take here.
 
 
+Jonathan
+
+--hHWLQfXTYDoKhP50
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEvHAHGBBjQPVy+qvDCDBEmo7zX9sFAl+8KggACgkQCDBEmo7z
+X9v/Ew//VyQzd+IM6WSdNJfdqhDWx4zMzJPjvhGl5YZsqC82CgOowqAy6GWPkRvN
+4xkwP5r4kH5Do6rN92mpKEGzG9HyDOzS/162ZMCIF9KXUOdpHb7viqRB5+Jq9Tod
+2mFgQT9/foVbge9Muad0H4u59kmRbxp52mbRjF2XohPmD/rPVF8r1VrDaHOSSkx/
+GbBVkLz0YIE6T0Wz4umG6d0+TTlelOuz72zqHy6zE2DHwHR/8vyRKPbdsft6w6f4
+DRjjQrEKwj2LT1yx48PIXu9bDI6g+0syC9bwbf2dc3Nvl/nQpxrxrbrnt0H5+h9R
+OyoSTQunwN/s8ppkdopfcQJVf1H4NAMCxoUXSnIX7zkKoPAeckXqQhsWXoJid2rF
+tVt3HG2ddEvV3xW5fMftLXQWeegx7Wy5wqpQvpQPBJx3hrxC2mv0lIYbVMPPGKyM
++vF6atGRir3Jv/AYEeVEojBFrM9dG1xQTIvJz3fVRlM0fLqbj73kMFN+eHNmO3gA
+o4H9WZ76TeaGyGoAMZ7KBJbypFfy27GlzHaChw7yqpYKPsi57dy8zLB57PRATAJy
+/0q6gnpkrSNlaTYKwO/TDgR9E7NY0h9ALE34bqalDR5wNy7ec6Fa7iAouAm5lZcX
+HEcbLvr0895GsbLNX8Ep5zg4V4TrCevq0c3x0ur1ZS8LL7n988Q=
+=BhsG
+-----END PGP SIGNATURE-----
+
+--hHWLQfXTYDoKhP50--
