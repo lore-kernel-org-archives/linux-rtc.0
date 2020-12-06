@@ -7,42 +7,39 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD36C4167B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E97A6C19425
 	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F772221EC
+	by mail.kernel.org (Postfix) with ESMTP id BB5B3221EC
 	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbgLFWH1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 6 Dec 2020 17:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728171AbgLFWHW (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:22 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F136DC0613D0;
-        Sun,  6 Dec 2020 14:06:41 -0800 (PST)
-Message-Id: <20201206220541.594826678@linutronix.de>
+        id S1728414AbgLFWHg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 6 Dec 2020 17:07:36 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:60608 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728197AbgLFWHa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:30 -0500
+Message-Id: <20201206220542.263204937@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607292399;
+        s=2020; t=1607292407;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=R/bjYkcLspMjW0iC0mlOkpDDBoyCshFoNiMGqMW8C7w=;
-        b=LjtFUzFX4X9rokhXbb2MZiC5o7yRK7Xv62JFzky2PF2jwLXbY2VyQaeIK8EEEJOgNKHv8P
-        EIo8JHS72XshKK2PehKgJBKD3GivW1v+lxjTuysc5ir/BWMzjMx6AEovZxSd48ArD3+CXN
-        3uOuUdk6c+CpppPRGYvEzrPv0RWCfxPAp5VWQQntfiG8Rif8K7WztBZ3L3t1PaH5keOtZn
-        Thm+eRTNNkDWcRPuvSHOfeRpvMx1pIQIniosYBOGmgGQe+0mZSlHRfMqn5Zc6zzeTjgJY3
-        siaVXaqwBxsJIsoAUeRARexgb7p9lGUEklsiUwPfcplUqdmwgxp1cOCJ6rzNeA==
+        bh=2uBnGfAlt7QrCy4v93o4MwUfHhZf1J5jMzkF06z4aWc=;
+        b=iCo2RHwjJgAdAZALxbhkuvatONG/hbtld4wzMxeE7duuo8OtVo0hZ3pIfWLJ+Xq0prIWTP
+        QTP+4YNxsHEHtRon/EWEptkTngB9McCBypNEJXDt+Tcbd3k+O2I1HLSAvt0DQUE4JtCAHP
+        DHAtNpF3yhCq9StUFmrwtciPHxoDYrsdeckKiPqm83iThhJgTMypE7WOLtZJaJRJFWGyBK
+        Ko/2T8M0L3B5TK+lST7SVm+Imli1MEEvpQvhm/knNM0yWIC0bzw2+5P0PB7+Qs3gZgxxjP
+        bwkOk2RDF0EEThVtdzVJTSSzZlyJYA6CiMunFd2JHLP4HQux9idT64nMZYZ11A==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607292399;
+        s=2020e; t=1607292407;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=R/bjYkcLspMjW0iC0mlOkpDDBoyCshFoNiMGqMW8C7w=;
-        b=9uXKF0eAsdA+DP61j4BK9KHXRJiS4e1z4nRkIMx5sUT76BUM6gbvDO1f2v+cXgY7UuQ6iL
-        6DCdXs8TICmBWCAg==
-Date:   Sun, 06 Dec 2020 22:46:14 +0100
+        bh=2uBnGfAlt7QrCy4v93o4MwUfHhZf1J5jMzkF06z4aWc=;
+        b=eu4QLrHwB3P7lYnON/qF+qGfLrlNMKAL6lIEVRr+rcF6gyN3phc9DdIA382JDfX1vzFTwB
+        MBLKKcsHTLX1cDBA==
+Date:   Sun, 06 Dec 2020 22:46:20 +0100
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -52,7 +49,7 @@ Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Prarit Bhargava <prarit@redhat.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-Subject: [patch 1/8] rtc: mc146818: Prevent reading garbage
+Subject: [patch 7/8] ntp: Make the RTC sync offset less obscure
 References: <20201206214613.444124194@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,151 +58,208 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The MC146818 driver is prone to read garbage from the RTC. There are
-several issues all related to the update cycle of the MC146818. The chip
-increments seconds obviously once per second and indicates that by a bit in
-a register. The bit goes high 244us before the actual update starts. During
-the update the readout of the time values is undefined.
+The current RTC set_offset_nsec value is not really intuitive to
+understand. 
 
-The code just checks whether the update in progress bit (UIP) is set before
-reading the clock. If it's set it waits arbitrary 20ms before retrying,
-which is ample because the maximum update time is ~2ms.
+  tsched       twrite(t2.tv_sec - 1) 	 t2 (seconds increment)
 
-But this check does not guarantee that the UIP bit goes high and the actual
-update happens during the readout. So the following can happen
+The offset is calculated from twrite based on the assumption that t2 -
+twrite == 1s. That means for the MC146818 RTC the offset needs to be
+negative so that the write happens 500ms before t2.
 
- 0.997 	       UIP = False
-   -> Interrupt/NMI/preemption
- 0.998	       UIP -> True
- 0.999	       Readout	<- Undefined
+It's easier to understand when the whole calculation is based on t2. That
+avoids negative offsets and the meaning is obvious:
 
-To prevent this rework the code so it checks UIP before and after the
-readout and if set after the readout try again.
+ t2 - twrite:     The time defined by the chip when seconds increment
+      		  after the write.
 
-But that's not enough to cover the following:
+ twrite - tsched: The time for the transport to the point where the chip
+ 	  	  is updated. 
 
- 0.997 	       UIP = False
- 	       Readout seconds
-   -> NMI (or vCPU scheduled out)
- 0.998	       UIP -> True
- 	       update completes
-	       UIP -> False
- 1.000	       Readout	minutes,....
- 	       UIP check succeeds
+==> set_offset_nsec =  t2 - tsched
+    ttransport      =  twrite - tsched
+    tRTCinc         =  t2 - twrite
+==> set_offset_nsec =  ttransport + tRTCinc
 
-That can make the readout wrong up to 59 seconds.
+tRTCinc is a chip property and can be obtained from the data sheet.
 
-To prevent this, read the seconds value before the first UIP check,
-validate it after checking UIP and after reading out the rest.
+ttransport depends on how the RTC is connected. It is close to 0 for
+directly accessible RTCs. For RTCs behind a slow bus, e.g. i2c, it's the
+time required to send the update over the bus. This can be estimated or
+even calibrated, but that's a different problem.
 
-It's amazing that the original i386 code had this actually correct and
-the generic implementation of the MC146818 driver got it wrong in 2002 and
-it stayed that way until today.
+Adjust the implementation and update comments accordingly.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- drivers/rtc/rtc-mc146818-lib.c |   64 ++++++++++++++++++++++++-----------------
- 1 file changed, 39 insertions(+), 25 deletions(-)
+ drivers/rtc/class.c    |    9 +++++++--
+ drivers/rtc/rtc-cmos.c |    2 +-
+ include/linux/rtc.h    |   35 +++++++++++++++++++++++++++++------
+ kernel/time/ntp.c      |   49 +++++++++++++++++++++++++------------------------
+ 4 files changed, 62 insertions(+), 33 deletions(-)
 
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -8,41 +8,41 @@
- #include <linux/acpi.h>
- #endif
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -200,8 +200,13 @@ static struct rtc_device *rtc_allocate_d
  
--/*
-- * Returns true if a clock update is in progress
-- */
--static inline unsigned char mc146818_is_updating(void)
--{
--	unsigned char uip;
--	unsigned long flags;
--
--	spin_lock_irqsave(&rtc_lock, flags);
--	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
--	spin_unlock_irqrestore(&rtc_lock, flags);
--	return uip;
--}
--
- unsigned int mc146818_get_time(struct rtc_time *time)
- {
- 	unsigned char ctrl;
- 	unsigned long flags;
- 	unsigned char century = 0;
-+	bool retry;
+ 	device_initialize(&rtc->dev);
  
- #ifdef CONFIG_MACH_DECSTATION
- 	unsigned int real_year;
- #endif
+-	/* Drivers can revise this default after allocating the device. */
+-	rtc->set_offset_nsec =  10 * NSEC_PER_MSEC;
++	/*
++	 * Drivers can revise this default after allocating the device.
++	 * The default is what most RTCs do: Increment seconds exactly one
++	 * second after the write happened. This adds a default transport
++	 * time of 10ms which is at least halfways close to reality.
++	 */
++	rtc->set_offset_nsec = NSEC_PER_SEC + 10 * NSEC_PER_MSEC;
  
-+again:
-+	spin_lock_irqsave(&rtc_lock, flags);
- 	/*
--	 * read RTC once any update in progress is done. The update
--	 * can take just over 2ms. We wait 20ms. There is no need to
--	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
--	 * If you need to know *exactly* when a second has started, enable
--	 * periodic update complete interrupts, (via ioctl) and then
--	 * immediately read /dev/rtc which will block until you get the IRQ.
--	 * Once the read clears, read the RTC time (again via ioctl). Easy.
-+	 * Check whether there is an update in progress during which the
-+	 * readout is unspecified. The maximum update time is ~2ms. Poll
-+	 * every msec for completion.
+ 	rtc->irq_freq = 1;
+ 	rtc->max_user_freq = 64;
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -869,7 +869,7 @@ cmos_do_probe(struct device *dev, struct
+ 		goto cleanup2;
+ 
+ 	/* Set the sync offset for the periodic 11min update correct */
+-	cmos_rtc.rtc->set_offset_nsec = -(NSEC_PER_SEC / 2);
++	cmos_rtc.rtc->set_offset_nsec = NSEC_PER_SEC / 2;
+ 
+ 	/* export at least the first block of NVRAM */
+ 	nvmem_cfg.size = address_space - NVRAM_OFFSET;
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -110,13 +110,36 @@ struct rtc_device {
+ 	/* Some hardware can't support UIE mode */
+ 	int uie_unsupported;
+ 
+-	/* Number of nsec it takes to set the RTC clock. This influences when
+-	 * the set ops are called. An offset:
+-	 *   - of 0.5 s will call RTC set for wall clock time 10.0 s at 9.5 s
+-	 *   - of 1.5 s will call RTC set for wall clock time 10.0 s at 8.5 s
+-	 *   - of -0.5 s will call RTC set for wall clock time 10.0 s at 10.5 s
++	/*
++	 * This offset specifies the update timing of the RTC.
 +	 *
-+	 * Store the second value before checking UIP so a long lasting NMI
-+	 * which happens to hit after the UIP check cannot make an update
-+	 * cycle invisible.
++	 * tsched     t1 write(t2.tv_sec - 1sec))  t2 RTC increments seconds
++	 *
++	 * The offset defines how tsched is computed so that the write to
++	 * the RTC (t2.tv_sec - 1sec) is correct versus the time required
++	 * for the transport of the write and the time which the RTC needs
++	 * to increment seconds the first time after the write (t2).
++	 *
++	 * For direct accessible RTCs tsched ~= t1 because the write time
++	 * is negligible. For RTCs behind slow busses the transport time is
++	 * significant and has to be taken into account.
++	 *
++	 * The time between the write (t1) and the first increment after
++	 * the write (t2) is RTC specific. For a MC146818 RTC it's 500ms,
++	 * for many others it's exactly 1 second. Consult the datasheet.
++	 *
++	 * The value of this offset is also used to calculate the to be
++	 * written value (t2.tv_sec - 1sec) at tsched.
++	 *
++	 * The default value for this is NSEC_PER_SEC + 10 msec default
++	 * transport time. The offset can be adjusted by drivers so the
++	 * calculation for the to be written value at tsched becomes
++	 * correct:
++	 *
++	 *	newval = tsched + set_offset_nsec - NSEC_PER_SEC
++	 * and  (tsched + set_offset_nsec) % NSEC_PER_SEC == 0
  	 */
--	if (mc146818_is_updating())
--		mdelay(20);
-+	time->tm_sec = CMOS_READ(RTC_SECONDS);
-+
-+	if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
-+		spin_unlock_irqrestore(&rtc_lock, flags);
-+		mdelay(1);
-+		goto again;
-+	}
-+
-+	/* Revalidate the above readout */
-+	if (time->tm_sec != CMOS_READ(RTC_SECONDS)) {
-+		spin_unlock_irqrestore(&rtc_lock, flags);
-+		goto again;
-+	}
+-	long set_offset_nsec;
++	unsigned long set_offset_nsec;
  
- 	/*
- 	 * Only the values that we read from the RTC are set. We leave
-@@ -50,8 +50,6 @@ unsigned int mc146818_get_time(struct rt
- 	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
- 	 * by the RTC when initially set to a non-zero value.
+ 	bool registered;
+ 
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -520,22 +520,33 @@ static void sched_sync_hw_clock(unsigned
+ }
+ 
+ /*
+- * Determine if we can call to driver to set the time. Drivers can only be
+- * called to set a second aligned time value, and the field set_offset_nsec
+- * specifies how far away from the second aligned time to call the driver.
+- *
+- * This also computes 'to_set' which is the time we are trying to set, and has
+- * a zero in tv_nsecs, such that:
+- *    to_set - set_delay_nsec == now +/- FUZZ
++ * Check whether @now is correct versus the required time to update the RTC
++ * and calculate the value which needs to be written to the RTC so that the
++ * next seconds increment of the RTC after the write is aligned with the next
++ * seconds increment of clock REALTIME.
+  *
++ * tsched     t1 write(t2.tv_sec - 1sec))	t2 RTC increments seconds
++ *
++ * t2.tv_nsec == 0
++ * tsched = t2 - set_offset_nsec
++ * newval = t2 - NSEC_PER_SEC
++ *
++ * ==> neval = tsched + set_offset_nsec - NSEC_PER_SEC
++ *
++ * As the execution of this code is not guaranteed to happen exactly at
++ * tsched this allows it to happen within a fuzzy region:
++ *
++ *	abs(now - tsched) < FUZZ
++ *
++ * If @now is not inside the allowed window the function returns false.
+  */
+-static inline bool rtc_tv_nsec_ok(long set_offset_nsec,
++static inline bool rtc_tv_nsec_ok(unsigned long set_offset_nsec,
+ 				  struct timespec64 *to_set,
+ 				  const struct timespec64 *now)
+ {
+ 	/* Allowed error in tv_nsec, arbitarily set to 5 jiffies in ns. */
+ 	const unsigned long TIME_SET_NSEC_FUZZ = TICK_NSEC * 5;
+-	struct timespec64 delay = {.tv_sec = 0,
++	struct timespec64 delay = {.tv_sec = -1,
+ 				   .tv_nsec = set_offset_nsec};
+ 
+ 	*to_set = timespec64_add(*now, delay);
+@@ -557,11 +568,11 @@ static inline bool rtc_tv_nsec_ok(long s
+ /*
+  * rtc_set_ntp_time - Save NTP synchronized time to the RTC
+  */
+-static int rtc_set_ntp_time(struct timespec64 now, unsigned long *target_nsec)
++static int rtc_set_ntp_time(struct timespec64 now, unsigned long *offset_nsec)
+ {
++	struct timespec64 to_set;
+ 	struct rtc_device *rtc;
+ 	struct rtc_time tm;
+-	struct timespec64 to_set;
+ 	int err = -ENODEV;
+ 	bool ok;
+ 
+@@ -572,19 +583,9 @@ static int rtc_set_ntp_time(struct times
+ 	if (!rtc->ops || !rtc->ops->set_time)
+ 		goto out_close;
+ 
+-	/*
+-	 * Compute the value of tv_nsec we require the caller to supply in
+-	 * now.tv_nsec.  This is the value such that (now +
+-	 * set_offset_nsec).tv_nsec == 0.
+-	 */
+-	set_normalized_timespec64(&to_set, 0, -rtc->set_offset_nsec);
+-	*target_nsec = to_set.tv_nsec;
++	/* Store the update offset for this RTC */
++	*offset_nsec = rtc->set_offset_nsec;
+ 
+-	/*
+-	 * The ntp code must call this with the correct value in tv_nsec, if
+-	 * it does not we update target_nsec and return EPROTO to make the ntp
+-	 * code try again later.
+-	 */
+ 	ok = rtc_tv_nsec_ok(rtc->set_offset_nsec, &to_set, &now);
+ 	if (!ok) {
+ 		err = -EPROTO;
+@@ -657,7 +658,7 @@ static bool sync_cmos_clock(void)
+ 	 * implement this legacy API.
  	 */
--	spin_lock_irqsave(&rtc_lock, flags);
--	time->tm_sec = CMOS_READ(RTC_SECONDS);
- 	time->tm_min = CMOS_READ(RTC_MINUTES);
- 	time->tm_hour = CMOS_READ(RTC_HOURS);
- 	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
-@@ -66,8 +64,24 @@ unsigned int mc146818_get_time(struct rt
- 		century = CMOS_READ(acpi_gbl_FADT.century);
- #endif
- 	ctrl = CMOS_READ(RTC_CONTROL);
-+	/*
-+	 * Check for the UIP bit again. If it is set now then
-+	 * the above values may contain garbage.
-+	 */
-+	retry = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
-+	/*
-+	 * A NMI might have interrupted the above sequence so check whether
-+	 * the seconds value has changed which indicates that the NMI took
-+	 * longer than the UIP bit was set. Unlikely, but possible and
-+	 * there is also virt...
-+	 */
-+	retry |= time->tm_sec != CMOS_READ(RTC_SECONDS);
-+
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 
-+	if (retry)
-+		goto again;
-+
- 	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
- 	{
- 		time->tm_sec = bcd2bin(time->tm_sec);
+ 	ktime_get_real_ts64(&now);
+-	if (rtc_tv_nsec_ok(-1 * target_nsec, &adjust, &now)) {
++	if (rtc_tv_nsec_ok(target_nsec, &adjust, &now)) {
+ 		if (persistent_clock_is_local)
+ 			adjust.tv_sec -= (sys_tz.tz_minuteswest * 60);
+ 		rc = update_persistent_clock64(adjust);
 
