@@ -7,39 +7,42 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A770C1B0D9
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABD36C4167B
+	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3EAF523101
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F772221EC
+	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728477AbgLFWHc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 6 Dec 2020 17:07:32 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:60618 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728414AbgLFWHb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:31 -0500
-Message-Id: <20201206220542.355743355@linutronix.de>
+        id S1728338AbgLFWH1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 6 Dec 2020 17:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728171AbgLFWHW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:22 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F136DC0613D0;
+        Sun,  6 Dec 2020 14:06:41 -0800 (PST)
+Message-Id: <20201206220541.594826678@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607292408;
+        s=2020; t=1607292399;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=jPH7U/dzdZgP54tZ6wlYfZRlWG4B4sNUOGlevlVQmtA=;
-        b=UBvcf62BRD35OWHLa54kyyI9s7ilzjY5Kq593ibc+9ybpAvDFRrIOdQZnEYMZh9xMS51z/
-        KtW1LCO28LZE0vt5Cp9EXPIUCn8o5OQLCjhbwlsCHnHyVzBv3t41qjqG7Go3lfDsCPqe50
-        MG8UWNI8JN1HdVTegccoQP4fRbVh/MBJDDqhiacfgixh59HMvbM+vKAJZfzwtJEdPjwY1D
-        L8PXhz4b1r6IgZvCeDaxqbfNbNbvRp5mGCtM7SGROYJZrDdQshGZ3GASAi5omj5nyp29nr
-        Pzfv4wVFQe3VMbwyL/5V/VILwPTUXcut9CiRXV7s0aKiSwIAyKDQNSEt9BF8oA==
+        bh=R/bjYkcLspMjW0iC0mlOkpDDBoyCshFoNiMGqMW8C7w=;
+        b=LjtFUzFX4X9rokhXbb2MZiC5o7yRK7Xv62JFzky2PF2jwLXbY2VyQaeIK8EEEJOgNKHv8P
+        EIo8JHS72XshKK2PehKgJBKD3GivW1v+lxjTuysc5ir/BWMzjMx6AEovZxSd48ArD3+CXN
+        3uOuUdk6c+CpppPRGYvEzrPv0RWCfxPAp5VWQQntfiG8Rif8K7WztBZ3L3t1PaH5keOtZn
+        Thm+eRTNNkDWcRPuvSHOfeRpvMx1pIQIniosYBOGmgGQe+0mZSlHRfMqn5Zc6zzeTjgJY3
+        siaVXaqwBxsJIsoAUeRARexgb7p9lGUEklsiUwPfcplUqdmwgxp1cOCJ6rzNeA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607292408;
+        s=2020e; t=1607292399;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=jPH7U/dzdZgP54tZ6wlYfZRlWG4B4sNUOGlevlVQmtA=;
-        b=RQLtnr7SLLRfUAd9UjGyyZ5omd2rlIOVHOkRnkqtimn9o+NIwwKNInHqlELH4Y+kJK2hQT
-        JMK+3/bsTLk5kXDQ==
-Date:   Sun, 06 Dec 2020 22:46:21 +0100
+        bh=R/bjYkcLspMjW0iC0mlOkpDDBoyCshFoNiMGqMW8C7w=;
+        b=9uXKF0eAsdA+DP61j4BK9KHXRJiS4e1z4nRkIMx5sUT76BUM6gbvDO1f2v+cXgY7UuQ6iL
+        6DCdXs8TICmBWCAg==
+Date:   Sun, 06 Dec 2020 22:46:14 +0100
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -49,7 +52,7 @@ Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Prarit Bhargava <prarit@redhat.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-Subject: [patch 8/8] ntp: Consolidate the RTC update implementation
+Subject: [patch 1/8] rtc: mc146818: Prevent reading garbage
 References: <20201206214613.444124194@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,206 +61,151 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The code for the legacy RTC and the RTC class based update are pretty much
-the same. Consolidate the common parts into one function and just invoke
-the actual setter functions.
+The MC146818 driver is prone to read garbage from the RTC. There are
+several issues all related to the update cycle of the MC146818. The chip
+increments seconds obviously once per second and indicates that by a bit in
+a register. The bit goes high 244us before the actual update starts. During
+the update the readout of the time values is undefined.
 
-For RTC class based devices the update code checks whether the offset is
-valid for the device, which is usually not the case for the first
-invocation. If it's not the same it stores the correct offset and lets the
-caller try again. That's not much different from the previous approach
-where the first invocation had a pretty low probability to actually hit the
-allowed window.
+The code just checks whether the update in progress bit (UIP) is set before
+reading the clock. If it's set it waits arbitrary 20ms before retrying,
+which is ample because the maximum update time is ~2ms.
+
+But this check does not guarantee that the UIP bit goes high and the actual
+update happens during the readout. So the following can happen
+
+ 0.997 	       UIP = False
+   -> Interrupt/NMI/preemption
+ 0.998	       UIP -> True
+ 0.999	       Readout	<- Undefined
+
+To prevent this rework the code so it checks UIP before and after the
+readout and if set after the readout try again.
+
+But that's not enough to cover the following:
+
+ 0.997 	       UIP = False
+ 	       Readout seconds
+   -> NMI (or vCPU scheduled out)
+ 0.998	       UIP -> True
+ 	       update completes
+	       UIP -> False
+ 1.000	       Readout	minutes,....
+ 	       UIP check succeeds
+
+That can make the readout wrong up to 59 seconds.
+
+To prevent this, read the seconds value before the first UIP check,
+validate it after checking UIP and after reading out the rest.
+
+It's amazing that the original i386 code had this actually correct and
+the generic implementation of the MC146818 driver got it wrong in 2002 and
+it stayed that way until today.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- kernel/time/ntp.c |  139 ++++++++++++++++++------------------------------------
- 1 file changed, 47 insertions(+), 92 deletions(-)
+ drivers/rtc/rtc-mc146818-lib.c |   64 ++++++++++++++++++++++++-----------------
+ 1 file changed, 39 insertions(+), 25 deletions(-)
 
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -564,118 +564,53 @@ static inline bool rtc_tv_nsec_ok(unsign
- 	return false;
- }
- 
-+#ifdef CONFIG_GENERIC_CMOS_UPDATE
-+int __weak update_persistent_clock64(struct timespec64 now64)
-+{
-+	return -ENODEV;
-+}
-+#else
-+static inline int update_persistent_clock64(struct timespec64 now64)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
- #ifdef CONFIG_RTC_SYSTOHC
--/*
-- * rtc_set_ntp_time - Save NTP synchronized time to the RTC
-- */
--static int rtc_set_ntp_time(struct timespec64 now, unsigned long *offset_nsec)
-+/* Save NTP synchronized time to the RTC */
-+static int update_rtc(struct timespec64 *to_set, unsigned long *offset_nsec)
- {
--	struct timespec64 to_set;
- 	struct rtc_device *rtc;
- 	struct rtc_time tm;
- 	int err = -ENODEV;
--	bool ok;
- 
- 	rtc = rtc_class_open(CONFIG_RTC_SYSTOHC_DEVICE);
- 	if (!rtc)
--		goto out_err;
-+		return -ENODEV;
- 
- 	if (!rtc->ops || !rtc->ops->set_time)
- 		goto out_close;
- 
--	/* Store the update offset for this RTC */
--	*offset_nsec = rtc->set_offset_nsec;
--
--	ok = rtc_tv_nsec_ok(rtc->set_offset_nsec, &to_set, &now);
--	if (!ok) {
--		err = -EPROTO;
--		goto out_close;
-+	/* First call might not have the correct offset */
-+	if (*offset_nsec == rtc->set_offset_nsec) {
-+		rtc_time64_to_tm(to_set->tv_sec, &tm);
-+		err = rtc_set_time(rtc, &tm);
-+	} else {
-+		/* Store the update offset and let the caller try again */
-+		*offset_nsec = rtc->set_offset_nsec;
-+		err = -EAGAIN;
- 	}
--
--	rtc_time64_to_tm(to_set.tv_sec, &tm);
--
--	err = rtc_set_time(rtc, &tm);
--
- out_close:
- 	rtc_class_close(rtc);
--out_err:
- 	return err;
- }
--
--static void sync_rtc_clock(void)
--{
--	unsigned long offset_nsec;
--	struct timespec64 adjust;
--	int rc;
--
--	ktime_get_real_ts64(&adjust);
--
--	if (persistent_clock_is_local)
--		adjust.tv_sec -= (sys_tz.tz_minuteswest * 60);
--
--	/*
--	 * The current RTC in use will provide the nanoseconds offset prior
--	 * to a full second it wants to be called at, and invokes
--	 * rtc_tv_nsec_ok() internally.
--	 */
--	rc = rtc_set_ntp_time(adjust, &offset_nsec);
--	if (rc == -ENODEV)
--		return;
--
--	sched_sync_hw_clock(offset_nsec, rc != 0);
--}
- #else
--static inline void sync_rtc_clock(void) { }
--#endif
--
--#ifdef CONFIG_GENERIC_CMOS_UPDATE
--int __weak update_persistent_clock64(struct timespec64 now64)
-+static inline int update_rtc(struct timespec64 *to_set, unsigned long *offset_nsec)
- {
- 	return -ENODEV;
- }
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -8,41 +8,41 @@
+ #include <linux/acpi.h>
  #endif
  
--static bool sync_cmos_clock(void)
+-/*
+- * Returns true if a clock update is in progress
+- */
+-static inline unsigned char mc146818_is_updating(void)
 -{
--	static bool no_cmos;
--	struct timespec64 now;
--	struct timespec64 adjust;
--	int rc = -EPROTO;
--	long target_nsec = NSEC_PER_SEC / 2;
+-	unsigned char uip;
+-	unsigned long flags;
 -
--	if (!IS_ENABLED(CONFIG_GENERIC_CMOS_UPDATE))
--		return false;
--
--	if (no_cmos)
--		return false;
--
--	/*
--	 * Historically update_persistent_clock64() has followed x86
--	 * semantics, which match the MC146818A/etc RTC. This RTC will store
--	 * 'adjust' and then in .5s it will advance once second.
--	 *
--	 * Architectures are strongly encouraged to use rtclib and not
--	 * implement this legacy API.
--	 */
--	ktime_get_real_ts64(&now);
--	if (rtc_tv_nsec_ok(target_nsec, &adjust, &now)) {
--		if (persistent_clock_is_local)
--			adjust.tv_sec -= (sys_tz.tz_minuteswest * 60);
--		rc = update_persistent_clock64(adjust);
--		/*
--		 * The machine does not support update_persistent_clock64 even
--		 * though it defines CONFIG_GENERIC_CMOS_UPDATE.
--		 */
--		if (rc == -ENODEV) {
--			no_cmos = true;
--			return false;
--		}
--	}
--
--	sched_sync_hw_clock(target_nsec, rc != 0);
--	return true;
+-	spin_lock_irqsave(&rtc_lock, flags);
+-	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
+-	spin_unlock_irqrestore(&rtc_lock, flags);
+-	return uip;
 -}
 -
- /*
-  * If we have an externally synchronized Linux clock, then update RTC clock
-  * accordingly every ~11 minutes. Generally RTCs can only store second
-@@ -686,6 +621,10 @@ static bool sync_cmos_clock(void)
-  */
- static void sync_hw_clock(struct work_struct *work)
+ unsigned int mc146818_get_time(struct rtc_time *time)
  {
-+	static unsigned long offset_nsec = NSEC_PER_SEC / 2;
-+	struct timespec64 now, to_set;
-+	int res = -EAGAIN;
-+
+ 	unsigned char ctrl;
+ 	unsigned long flags;
+ 	unsigned char century = 0;
++	bool retry;
+ 
+ #ifdef CONFIG_MACH_DECSTATION
+ 	unsigned int real_year;
+ #endif
+ 
++again:
++	spin_lock_irqsave(&rtc_lock, flags);
  	/*
- 	 * Don't update if STA_UNSYNC is set and if ntp_notify_cmos_timer()
- 	 * managed to schedule the work between the timer firing and the
-@@ -694,10 +633,26 @@ static void sync_hw_clock(struct work_st
- 	if (!ntp_synced() || hrtimer_is_queued(&sync_hrtimer))
- 		return;
- 
--	if (sync_cmos_clock())
--		return;
-+	ktime_get_real_ts64(&now);
-+	/* If @now is not in the allowed window, try again */
-+	if (!rtc_tv_nsec_ok(offset_nsec, &to_set, &now))
-+		goto rearm;
- 
--	sync_rtc_clock();
-+	/* Take timezone adjusted RTCs into account */
-+	if (persistent_clock_is_local)
-+		to_set.tv_sec -= (sys_tz.tz_minuteswest * 60);
+-	 * read RTC once any update in progress is done. The update
+-	 * can take just over 2ms. We wait 20ms. There is no need to
+-	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
+-	 * If you need to know *exactly* when a second has started, enable
+-	 * periodic update complete interrupts, (via ioctl) and then
+-	 * immediately read /dev/rtc which will block until you get the IRQ.
+-	 * Once the read clears, read the RTC time (again via ioctl). Easy.
++	 * Check whether there is an update in progress during which the
++	 * readout is unspecified. The maximum update time is ~2ms. Poll
++	 * every msec for completion.
++	 *
++	 * Store the second value before checking UIP so a long lasting NMI
++	 * which happens to hit after the UIP check cannot make an update
++	 * cycle invisible.
+ 	 */
+-	if (mc146818_is_updating())
+-		mdelay(20);
++	time->tm_sec = CMOS_READ(RTC_SECONDS);
 +
-+	/* Try the legacy RTC first */
-+	res = update_persistent_clock64(to_set);
-+	if (res != -ENODEV)
-+		goto rearm;
++	if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
++		spin_unlock_irqrestore(&rtc_lock, flags);
++		mdelay(1);
++		goto again;
++	}
 +
-+	/* Try the RTC class */
-+	res = update_rtc(&to_set, &offset_nsec);
-+	if (res == -ENODEV)
-+		return;
-+rearm:
-+	sched_sync_hw_clock(offset_nsec, res != 0);
- }
++	/* Revalidate the above readout */
++	if (time->tm_sec != CMOS_READ(RTC_SECONDS)) {
++		spin_unlock_irqrestore(&rtc_lock, flags);
++		goto again;
++	}
  
- void ntp_notify_cmos_timer(void)
+ 	/*
+ 	 * Only the values that we read from the RTC are set. We leave
+@@ -50,8 +50,6 @@ unsigned int mc146818_get_time(struct rt
+ 	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
+ 	 * by the RTC when initially set to a non-zero value.
+ 	 */
+-	spin_lock_irqsave(&rtc_lock, flags);
+-	time->tm_sec = CMOS_READ(RTC_SECONDS);
+ 	time->tm_min = CMOS_READ(RTC_MINUTES);
+ 	time->tm_hour = CMOS_READ(RTC_HOURS);
+ 	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
+@@ -66,8 +64,24 @@ unsigned int mc146818_get_time(struct rt
+ 		century = CMOS_READ(acpi_gbl_FADT.century);
+ #endif
+ 	ctrl = CMOS_READ(RTC_CONTROL);
++	/*
++	 * Check for the UIP bit again. If it is set now then
++	 * the above values may contain garbage.
++	 */
++	retry = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
++	/*
++	 * A NMI might have interrupted the above sequence so check whether
++	 * the seconds value has changed which indicates that the NMI took
++	 * longer than the UIP bit was set. Unlikely, but possible and
++	 * there is also virt...
++	 */
++	retry |= time->tm_sec != CMOS_READ(RTC_SECONDS);
++
+ 	spin_unlock_irqrestore(&rtc_lock, flags);
+ 
++	if (retry)
++		goto again;
++
+ 	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+ 	{
+ 		time->tm_sec = bcd2bin(time->tm_sec);
 
