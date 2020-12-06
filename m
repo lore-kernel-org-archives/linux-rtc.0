@@ -4,42 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA083C47434
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B253C1B0D9
+	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:08:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3BC8230FD
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:07:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43B4B23101
+	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:08:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728236AbgLFWHk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 6 Dec 2020 17:07:40 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:60572 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728220AbgLFWH2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:28 -0500
-Message-Id: <20201206220542.062910520@linutronix.de>
+        id S1728304AbgLFWH1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 6 Dec 2020 17:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58372 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728197AbgLFWHX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:23 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D8FC0613D1;
+        Sun,  6 Dec 2020 14:06:43 -0800 (PST)
+Message-Id: <20201206220541.830517160@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607292404;
+        s=2020; t=1607292402;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=SOcKp1QN64CETieCyXt4dAPLg5lKlvhk0cMXEo1MelY=;
-        b=WAFpgp0FiYhucNKoDFCNJPanys62G6xYvNv96oX0GlT/oYBpZijtqY10cvXN8dXLoAyvPC
-        srDgIT/BWJIVU5BcgzzJ2fvWT81KBARoZinc0510nqvtLdhm9PQvMZU0e1Wl6EtCC2nh6S
-        RcNG3xX2R0fIp4wxtWUcpM07DADnF8ML6ne3ToIiL4cBCthb1vN/r5UzNvtwnx/0qtRogN
-        cs90z86i92rZT+VKO5oA/j/xgvku/Wgv0HJ89aQ2uwKUl3L3ufBVQ5LHEZwHOcWouSkfgq
-        mucfsB3detX3izI5c0NCSXd3cgZ5Sq+mvaO7TMDHE5hL979UGd6ugPUzbjCeEQ==
+        bh=BKqxCc7kzHbPvjkWc7nKoPIYT1FCRMaFMNj8o1hyTrA=;
+        b=3Xb+WywDt7YEYMMjBsUTjLB5ac1avsoPiRBYjeBBKcR/p0wuAfo+ZiuDzN6Dp5AjpyuNCI
+        MhLbVmbe1paE8tYiOp2cdicrVyS1FEPaizNSmrLieMDotqI7q+yR/Kf7/fURkEZ1X/DZld
+        nlPeU+HKZ86E43HYk1Iz5nS06JA0bWFsgJjmqn6uv5rccSg/51obmJd9CcHh+7b8dGXmPZ
+        WYngej5hzSOd+eh9b5kGKHe6VIGRL9VJ3OdZQynfqV+WNDzcdsJpBCfCUqRZIX0abi0/uI
+        IXYBr3snXcmXP5PIww+Mc6H5NJA/x6SnMtNjUP5cRpSIYDKO4uRzcVOr8JxXjw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607292404;
+        s=2020e; t=1607292402;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=SOcKp1QN64CETieCyXt4dAPLg5lKlvhk0cMXEo1MelY=;
-        b=khwXDleWHjwMw6Qfj82Ok999WIQYEzoK3dD/EUqCHWdBchCzCtsM7Wmonfmb/wUCHfJwFL
-        U2ZAK8hsEg5ZZTBA==
-Date:   Sun, 06 Dec 2020 22:46:18 +0100
+        bh=BKqxCc7kzHbPvjkWc7nKoPIYT1FCRMaFMNj8o1hyTrA=;
+        b=fW6B4lJv5AFcURSIMK7AvvtENbCR5W5XIWwUHeHepu+dsZcvJQgGDYHXjPoI0CTZdl40Q4
+        mFItOkt0wl2ziqCA==
+Date:   Sun, 06 Dec 2020 22:46:16 +0100
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -49,7 +52,7 @@ Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Prarit Bhargava <prarit@redhat.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-Subject: [patch 5/8] ntp: Make the RTC synchronization more reliable
+Subject: [patch 3/8] rtc: cmos: Make rtc_cmos sync offset correct
 References: <20201206214613.444124194@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,256 +61,40 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Miroslav reported that the periodic RTC synchronization in the NTP code
-fails more often than not to hit the specified update window.
+The offset for rtc_cmos must be -500ms to work correctly with the current
+implementation of rtc_set_ntp_time() due to the following:
 
-The reason is that the code uses delayed_work to schedule the update which
-needs to be in thread context as the underlying RTC might be connected via
-a slow bus, e.g. I2C. In the update function it verifies whether the
-current time is correct vs. the requirements of the underlying RTC.
+  tsched       twrite(t2.tv_sec - 1) 	 t2 (seconds increment)
 
-But delayed_work is using the timer wheel for scheduling which is
-inaccurate by design. Depending on the distance to the expiry the wheel
-gets less granular to allow batching and to avoid the cascading of the
-original timer wheel. See 500462a9de65 ("timers: Switch to a non-cascading
-wheel") and the code for further details.
+twrite - tsched is the transport time for the write to hit the device,
+which is negligible for this chip because it's accessed directly.
 
-The code already deals with this by splitting the 660 seconds period into a
-long 659 seconds timer and then retrying with a smaller delta.
+t2 - twrite = 500ms according to the datasheet.
 
-But looking at the actual granularities of the timer wheel (which depend on
-the HZ configuration) the 659 seconds timer ends up in an outer wheel level
-and is affected by a worst case granularity of:
+But rtc_set_ntp_time() calculation of tsched is:
 
-HZ          Granularity
-1000        32s
- 250        16s
- 100        40s
+    tsched = t2 - 1sec - (t2 - twrite)
 
-So the initial timer can be already off by max 12.5% which is not a big
-issue as the period of the sync is defined as ~11 minutes.
+The default for the sync offset is 500ms which means that the write happens
+at t2 - 1.5 seconds which is obviously off by a second for this device.
 
-The fine grained second attempt schedules to the desired update point with
-a timer expiring less than a second from now. Depending on the actual delta
-and the HZ setting even the second attempt can end up in outer wheel levels
-which have a large enough granularity to make the correctness check fail.
+Make the offset -500ms so it works correct.
 
-As this is a fundamental property of the timer wheel there is no way to
-make this more accurate short of iterating in one jiffies steps towards the
-update point.
-
-Switch it to an hrtimer instead which schedules the actual update work. The
-hrtimer will expire precisely (max 1 jiffie delay when high resolution
-timers are not available). The actual scheduling delay of the work is the
-same as before.
-
-The update is triggered from do_adjtimex() which is a bit racy but not much
-more racy than it was before:
-
-     if (ntp_synced())
-     	queue_delayed_work(system_power_efficient_wq, &sync_work, 0);
-
-which is racy when the work is currently executed and has not managed to
-reschedule itself.
-
-This becomes now:
-
-     if (ntp_synced() && !hrtimer_is_queued(&sync_hrtimer))
-     	queue_work(system_power_efficient_wq, &sync_work, 0);
-
-which is racy when the hrtimer has expired and the work is currently
-executed and has not yet managed to rearm the hrtimer.
-
-Not a big problem as it just schedules work for nothing.
-
-The new implementation has a safe guard in place to catch the case where
-the hrtimer is queued on entry to the work function and avoids an extra
-update attempt of the RTC that way.
-
-Reported-by: Miroslav Lichvar <mlichvar@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
 ---
- include/linux/timex.h      |    1 
- kernel/time/ntp.c          |   90 ++++++++++++++++++++++++---------------------
- kernel/time/ntp_internal.h |    7 +++
- 3 files changed, 55 insertions(+), 43 deletions(-)
+ drivers/rtc/rtc-cmos.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -157,7 +157,6 @@ extern int do_clock_adjtime(const clocki
- extern void hardpps(const struct timespec64 *, const struct timespec64 *);
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -868,6 +868,9 @@ cmos_do_probe(struct device *dev, struct
+ 	if (retval)
+ 		goto cleanup2;
  
- int read_current_timer(unsigned long *timer_val);
--void ntp_notify_cmos_timer(void);
- 
- /* The clock frequency of the i8253/i8254 PIT */
- #define PIT_TICK_RATE 1193182ul
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -494,65 +494,55 @@ int second_overflow(time64_t secs)
- 	return leap;
- }
- 
-+#if defined(CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC)
- static void sync_hw_clock(struct work_struct *work);
--static DECLARE_DELAYED_WORK(sync_work, sync_hw_clock);
--
--static void sched_sync_hw_clock(struct timespec64 now,
--				unsigned long target_nsec, bool fail)
-+static DECLARE_WORK(sync_work, sync_hw_clock);
-+static struct hrtimer sync_hrtimer;
-+#define SYNC_PERIOD_NS (11UL * 60 * NSEC_PER_SEC)
- 
-+static enum hrtimer_restart sync_timer_callback(struct hrtimer *timer)
- {
--	struct timespec64 next;
-+	queue_work(system_power_efficient_wq, &sync_work);
- 
--	ktime_get_real_ts64(&next);
--	if (!fail)
--		next.tv_sec = 659;
--	else {
--		/*
--		 * Try again as soon as possible. Delaying long periods
--		 * decreases the accuracy of the work queue timer. Due to this
--		 * the algorithm is very likely to require a short-sleep retry
--		 * after the above long sleep to synchronize ts_nsec.
--		 */
--		next.tv_sec = 0;
--	}
-+	return HRTIMER_NORESTART;
-+}
- 
--	/* Compute the needed delay that will get to tv_nsec == target_nsec */
--	next.tv_nsec = target_nsec - next.tv_nsec;
--	if (next.tv_nsec <= 0)
--		next.tv_nsec += NSEC_PER_SEC;
--	if (next.tv_nsec >= NSEC_PER_SEC) {
--		next.tv_sec++;
--		next.tv_nsec -= NSEC_PER_SEC;
--	}
-+static void sched_sync_hw_clock(unsigned long offset_nsec, bool retry)
-+{
-+	ktime_t exp = ktime_set(ktime_get_real_seconds(), 0);
- 
--	queue_delayed_work(system_power_efficient_wq, &sync_work,
--			   timespec64_to_jiffies(&next));
-+	if (retry)
-+		exp = ktime_add_ns(exp, 2 * NSEC_PER_SEC - offset_nsec);
-+	else
-+		exp = ktime_add_ns(exp, SYNC_PERIOD_NS - offset_nsec);
++	/* Set the sync offset for the periodic 11min update correct */
++	cmos_rtc.rtc->set_offset_nsec = -(NSEC_PER_SEC / 2);
 +
-+	hrtimer_start(&sync_hrtimer, exp, HRTIMER_MODE_ABS);
- }
- 
- static void sync_rtc_clock(void)
- {
--	unsigned long target_nsec;
--	struct timespec64 adjust, now;
-+	unsigned long offset_nsec;
-+	struct timespec64 adjust;
- 	int rc;
- 
- 	if (!IS_ENABLED(CONFIG_RTC_SYSTOHC))
- 		return;
- 
--	ktime_get_real_ts64(&now);
-+	ktime_get_real_ts64(&adjust);
- 
--	adjust = now;
- 	if (persistent_clock_is_local)
- 		adjust.tv_sec -= (sys_tz.tz_minuteswest * 60);
- 
- 	/*
--	 * The current RTC in use will provide the target_nsec it wants to be
--	 * called at, and does rtc_tv_nsec_ok internally.
-+	 * The current RTC in use will provide the nanoseconds offset prior
-+	 * to a full second it wants to be called at, and invokes
-+	 * rtc_tv_nsec_ok() internally.
- 	 */
--	rc = rtc_set_ntp_time(adjust, &target_nsec);
-+	rc = rtc_set_ntp_time(adjust, &offset_nsec);
- 	if (rc == -ENODEV)
- 		return;
- 
--	sched_sync_hw_clock(now, target_nsec, rc);
-+	sched_sync_hw_clock(offset_nsec, rc != 0);
- }
- 
- #ifdef CONFIG_GENERIC_CMOS_UPDATE
-@@ -599,7 +589,7 @@ static bool sync_cmos_clock(void)
- 		}
- 	}
- 
--	sched_sync_hw_clock(now, target_nsec, rc);
-+	sched_sync_hw_clock(target_nsec, rc != 0);
- 	return true;
- }
- 
-@@ -613,7 +603,12 @@ static bool sync_cmos_clock(void)
-  */
- static void sync_hw_clock(struct work_struct *work)
- {
--	if (!ntp_synced())
-+	/*
-+	 * Don't update if STA_UNSYNC is set and if ntp_notify_cmos_timer()
-+	 * managed to schedule the work between the timer firing and the
-+	 * work being able to rearm the timer. Wait for the timer to expire.
-+	 */
-+	if (!ntp_synced() || hrtimer_is_queued(&sync_hrtimer))
- 		return;
- 
- 	if (sync_cmos_clock())
-@@ -624,13 +619,23 @@ static void sync_hw_clock(struct work_st
- 
- void ntp_notify_cmos_timer(void)
- {
--	if (!ntp_synced())
--		return;
-+	/*
-+	 * When the work is currently executed but has not yet the timer
-+	 * rearmed this queues the work immediately again. No big issue,
-+	 * just a pointless work scheduled.
-+	 */
-+	if (ntp_synced() && !hrtimer_is_queued(&sync_hrtimer))
-+		queue_work(system_power_efficient_wq, &sync_work);
-+}
- 
--	if (IS_ENABLED(CONFIG_GENERIC_CMOS_UPDATE) ||
--	    IS_ENABLED(CONFIG_RTC_SYSTOHC))
--		queue_delayed_work(system_power_efficient_wq, &sync_work, 0);
-+static void __init ntp_init_cmos_sync(void)
-+{
-+	hrtimer_init(&sync_hrtimer, CLOCK_REALTIME, HRTIMER_MODE_ABS);
-+	sync_hrtimer.function = sync_timer_callback;
- }
-+#else /* CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC) */
-+static inline void __init ntp_init_cmos_sync(void) { }
-+#endif /* !CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC) */
- 
- /*
-  * Propagate a new txc->status value into the NTP state:
-@@ -1044,4 +1049,5 @@ static int __init ntp_tick_adj_setup(cha
- void __init ntp_init(void)
- {
- 	ntp_clear();
-+	ntp_init_cmos_sync();
- }
---- a/kernel/time/ntp_internal.h
-+++ b/kernel/time/ntp_internal.h
-@@ -12,4 +12,11 @@ extern int __do_adjtimex(struct __kernel
- 			 const struct timespec64 *ts,
- 			 s32 *time_tai, struct audit_ntp_data *ad);
- extern void __hardpps(const struct timespec64 *phase_ts, const struct timespec64 *raw_ts);
-+
-+#if defined(CONFIG_GENERIC_CMOS_UPDATE) || defined(CONFIG_RTC_SYSTOHC)
-+extern void ntp_notify_cmos_timer(void);
-+#else
-+static inline void ntp_notify_cmos_timer(void) { }
-+#endif
-+
- #endif /* _LINUX_NTP_INTERNAL_H */
+ 	/* export at least the first block of NVRAM */
+ 	nvmem_cfg.size = address_space - NVRAM_OFFSET;
+ 	if (rtc_nvmem_register(cmos_rtc.rtc, &nvmem_cfg))
 
