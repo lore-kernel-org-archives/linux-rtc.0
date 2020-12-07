@@ -2,102 +2,99 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 724EFC2BB3F
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:08:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07189C4361B
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Dec 2020 09:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 585A7221EC
-	for <linux-rtc@archiver.kernel.org>; Sun,  6 Dec 2020 22:08:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D0F1522BE8
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Dec 2020 09:52:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728259AbgLFWH1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 6 Dec 2020 17:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58378 "EHLO
+        id S1725948AbgLGJwN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Dec 2020 04:52:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728209AbgLFWHZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 6 Dec 2020 17:07:25 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C801CC0613D2;
-        Sun,  6 Dec 2020 14:06:44 -0800 (PST)
-Message-Id: <20201206220541.960333166@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1607292403;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=JG5dX8xGxOTL3ExdOYCuqriVX+SU7EFieMrumJ4D7go=;
-        b=1yt0rAw5r4jAAAYP4JglAWnUu37bvxnZ5aUsA6KyotcDIZV/kNt0+KPyKgHun7XAkDfDBE
-        mmTUXRqtgKhgwcX31IWEcf0ZKGHBBw9WyLBCWw6HGXcwMGULSlrzM/SldiAgSHkGdUbFeb
-        eBSe7Sa7U7MvADVMIfMJnyWoQIpNk8H2UQfiJhCS8gF6sjDkC++8lOi67hryAf7FUBsmbF
-        OeRsjXKwcr9hwauBX5kWKC+A0wF9z0hH+aXofSC+Ddv09M22Nfvb92q58HncqBWHlNFiOC
-        udJSJK9584QGotK7IdsOwLbe87fCv0KB+MCR/mm0MpY6LtWuifmqhApH3tcrbw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1607292403;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=JG5dX8xGxOTL3ExdOYCuqriVX+SU7EFieMrumJ4D7go=;
-        b=O8Ls+T1XzeCgds43cTiuPgtdPmCnJJ70CjCo9tGpddV+rIt/5DtEP9XK5/MWJyR0Yrexbm
-        bhPK4du1wm6u8SCg==
-Date:   Sun, 06 Dec 2020 22:46:17 +0100
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-Subject: [patch 4/8] rtc: core: Make the sync offset default more realistic
-References: <20201206214613.444124194@linutronix.de>
+        with ESMTP id S1725774AbgLGJwM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Dec 2020 04:52:12 -0500
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A778C0613D0
+        for <linux-rtc@vger.kernel.org>; Mon,  7 Dec 2020 01:51:32 -0800 (PST)
+Received: by mail-ej1-x642.google.com with SMTP id jx16so18545628ejb.10
+        for <linux-rtc@vger.kernel.org>; Mon, 07 Dec 2020 01:51:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=aDproOdcsujjsvAHCgcoIw5qD1NH0yafrww5RZ0rAYo=;
+        b=v/lPNlrI+spy8ENH+siV8TRv9D/gzdb+wn2WpEVq6QujJsT6lP3ViRFQCgOYnAyaVP
+         ouWFjVkBONwwhwcCZGEdxrTB9FPe4ts2NOCY1MuH6bM0Q/ujet6Rf0hJJDbuJDXBqRCA
+         K1dXDnGLuoEsGh2mZq9xWwR1hQTcnlM/s6YDFRPJxbInvrXgi5WaKnwOi1MVind3zo3R
+         AOaDclMHK91OSLU/fNgjh3Tni2jA8UJ91hmcRsC4JfprD4Kd1b6pSOqSXDr0UxMSqolC
+         Jn3BPaYleMhQmUfQ0afwo9/u53/EzPZnq96+BoUThWLAVE8Oz6Eoc5vVFWvyAwWm//0K
+         UvGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=aDproOdcsujjsvAHCgcoIw5qD1NH0yafrww5RZ0rAYo=;
+        b=W+XvrDkQA7nz1Z/kiX/MPrKokqaZFdGGNHqsk2JHDeaQQ9ze6NZBjaEUtBsh2+Pquw
+         cfD5IXKEY2VMGAYsz5z6JdRemq1A0Z/CfGAW+YVuzSoMAYN/15Lszx5r0K6efA8Lb/KJ
+         dz/ePQAtnrNL7iLIQ8G71u4zpVeSk+87aC+6nM46w9D7qc5y55GsZNncFwj60tDXtI0J
+         WPlH01Jato0+y57TBif/KDLfyCtwVfSQCZnZbDwe1Pgb2Lry8EKmkPSfn3X89pdl3iKu
+         RpKn4tffahdZE7hXK9WjdgfPCfZW/Q/OIxj4UREIZ8rY+IxVN6c7k04zwxZfdBPVo/cU
+         N0Rg==
+X-Gm-Message-State: AOAM533dtcufs4arkeKw6oYbXeWCyzsSV6dEqciM4DbzehRPwkM6/yxt
+        kWTq+GX5Z+qVyMCPCG7zQc5tHsfXq4qJOCGsnHGp9Q==
+X-Google-Smtp-Source: ABdhPJypxapTmTppqyHWf55vXCBIa6VWMormBWGK9JMx9Vm58ZVC0/zo0o12BxOItlzJ1ETzsPcPHwClAB/hOa8qJCg=
+X-Received: by 2002:a17:907:2179:: with SMTP id rl25mr17804481ejb.470.1607334691230;
+ Mon, 07 Dec 2020 01:51:31 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+References: <20201205231449.610980-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20201205231449.610980-1-alexandre.belloni@bootlin.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Mon, 7 Dec 2020 10:51:20 +0100
+Message-ID: <CAMpxmJVd7NrCQMq99iGLj7BsKooK0B5qNz3iEE=sPri90zdEAw@mail.gmail.com>
+Subject: Re: [PATCH] rtc: fix RTC removal
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The offset which is used to steer the start of an RTC synchronization
-update via rtc_set_ntp_time() is huge. The math behind this is:
+On Sun, Dec 6, 2020 at 12:14 AM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> Since the rtc_register_device, removing an RTC device will end with a
+> refcount_t: underflow; use-after-free warning since put_device is called
+> twice in the device tear down path.
+>
+> Fixes: fdcfd854333b ("rtc: rework rtc_register_device() resource management")
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  drivers/rtc/class.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+> index e6b44b7c4ad3..5c6748dfa55d 100644
+> --- a/drivers/rtc/class.c
+> +++ b/drivers/rtc/class.c
+> @@ -335,7 +335,6 @@ static void devm_rtc_unregister_device(void *data)
+>         cdev_device_del(&rtc->char_dev, &rtc->dev);
+>         rtc->ops = NULL;
+>         mutex_unlock(&rtc->ops_lock);
+> -       put_device(&rtc->dev);
+>  }
+>
+>  static void devm_rtc_release_device(void *res)
+> --
+> 2.28.0
+>
 
-  tsched       twrite(t2.tv_sec - 1) 	 t2 (seconds increment)
+Eek! Thanks for fixing that.
 
-twrite - tsched is the transport time for the write to hit the device.
-
-t2 - twrite depends on the chip and is for most chips one second.
-
-The rtc_set_ntp_time() calculation of tsched is:
-
-    tsched = t2 - 1sec - (t2 - twrite)
-
-The default for the sync offset is 500ms which means that twrite - tsched
-is 500ms assumed that t2 - twrite is one second.
-
-This is 0.5 seconds off for RTCs which are directly accessible by IO writes
-and probably for the majority of i2C/SPI based RTC off by an order of
-magnitude. Set it to 10ms which should bring it closer to reality.
-
-The default can be adjusted by drivers (rtc_cmos does so) and could be
-adjusted further by a calibration method which is an orthogonal problem.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- drivers/rtc/class.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -201,7 +201,7 @@ static struct rtc_device *rtc_allocate_d
- 	device_initialize(&rtc->dev);
- 
- 	/* Drivers can revise this default after allocating the device. */
--	rtc->set_offset_nsec =  NSEC_PER_SEC / 2;
-+	rtc->set_offset_nsec =  10 * NSEC_PER_MSEC;
- 
- 	rtc->irq_freq = 1;
- 	rtc->max_user_freq = 64;
-
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
