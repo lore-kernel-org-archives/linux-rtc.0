@@ -3,102 +3,181 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1A8DC4361B
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Dec 2020 21:06:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD7F7C4361B
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Dec 2020 01:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E455238EC
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Dec 2020 21:06:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9914923A40
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Dec 2020 01:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726718AbgLGVFy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Dec 2020 16:05:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgLGVFy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Dec 2020 16:05:54 -0500
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0588C061794
-        for <linux-rtc@vger.kernel.org>; Mon,  7 Dec 2020 13:05:07 -0800 (PST)
-Received: by mail-qt1-x82a.google.com with SMTP id a6so8091315qtw.6
-        for <linux-rtc@vger.kernel.org>; Mon, 07 Dec 2020 13:05:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=nKAI0S93ME7i51hseZ6+wmpHBdg0HI9aWCiEZunfjik=;
-        b=Soxx/3N87PGx3mb5h4nU9Y/1F8HFpxwJU3/MJ0CuDY+YN8OP9ACnbLtyxJ8Tb1X8IU
-         iQYU8f8pjcrD6PDHJKHkthDsupHcCsffWRG14SORf3yzaND07VUUJCr8elCDRf+RQh3K
-         FIei72MzqrbuDO0n+BkP/5R2H64pPI3IwWV9r0/XFeEIkJwupKsKnrxBVgedybjx92vk
-         ROyk2ju1mOewZF/mB/98rKMHu2KDDNnD4PbvV4RZQTfTopE/Jf7GEDq0l8ii8wFssBR7
-         XfSXbdl1azrnUgwDW4U43iXyGjoeYbnD7ymnTH4Oo27RxG0DE0MO1nWLfQdtpTSeCn/J
-         x5nw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=nKAI0S93ME7i51hseZ6+wmpHBdg0HI9aWCiEZunfjik=;
-        b=Q29o/oyhI9MM3s9slNrWyzZvY5PZLml4tIZEcpIK8S0jj+dQWNA+qlrbLv8vIbV7kG
-         NCrL1K2B5Z8wKjti117xAf0R3ItK2yG8jst+DOTRLXYHnMPEKdeKMD0UZpx78T+Y8knl
-         cLXEp2OW7eHjpCn7jwxDj8WWfvXIbLt9VzQIHyigRyTB15fA3OATu/veO11m4VGzPbwx
-         NRkGV5DmShi3QhWILGX2CUa3Alq6D1olNDpCBgIv96Pb//aK/jpQ/IWJveTKciTYoPae
-         BnhFlRbcaekc6DLeTG2EwIKJQosJiOa8QmSvOncWNH78IlkLQTynyYABjQkibULMBrOX
-         rBMw==
-X-Gm-Message-State: AOAM530maYPN+jakET4ZOCzvu7QJzW5GmRZ4iqwnJRa9VcbxF9+lHEPu
-        aXVsoFCGiwuDsa7dRz2XiK5ZOQ==
-X-Google-Smtp-Source: ABdhPJxj04RcFkKycBCmmM8xlj5X137EFzrpVhlQXfFhcfVDinY9DvcLduWOoOwwCNTtmiIK5wSaAw==
-X-Received: by 2002:ac8:5450:: with SMTP id d16mr25669307qtq.33.1607375107115;
-        Mon, 07 Dec 2020 13:05:07 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
-        by smtp.gmail.com with ESMTPSA id h16sm13760997qko.135.2020.12.07.13.05.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Dec 2020 13:05:06 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1kmNgv-007fdg-Qh; Mon, 07 Dec 2020 17:05:05 -0400
-Date:   Mon, 7 Dec 2020 17:05:05 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
+        id S1726299AbgLHBM6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Dec 2020 20:12:58 -0500
+Received: from mout.gmx.net ([212.227.15.18]:55055 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726264AbgLHBM6 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Mon, 7 Dec 2020 20:12:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1607389833;
+        bh=c2lCCBVoa7NqW2IXm0ep6Gr7hxzbV7nLmo8Osur1zL8=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=HaXbRuvjOW0L6G8c17mgTHyugFAiyKMteYoXCU7xVLNEbTfrLlIMw1Ex1DZ4YH9yr
+         pG3H4ZnAF/U2ZZYt/Jo6g7C2XfvBXK/+PMo7NbcY+1zI8u3fNb3RWl/HQbWTr3e0hJ
+         C+bmRWU+ERWjAKzWJTmV7uzFptLyPdvh6piP1rNo=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from longitude ([37.201.214.162]) by mail.gmx.com (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MRmjw-1karlC3K94-00TE92; Tue, 08
+ Dec 2020 02:10:32 +0100
+From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+To:     linux-kernel@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [patch 8/8] ntp: Consolidate the RTC update implementation
-Message-ID: <20201207210505.GM5487@ziepe.ca>
-References: <20201206214613.444124194@linutronix.de>
- <20201206220542.355743355@linutronix.de>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        devicetree@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Heiko Stuebner <heiko@sntech.de>,
+        Josua Mayer <josua.mayer@jm0.eu>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH v6 0/7] Netronix embedded controller driver for Kobo and Tolino ebook readers
+Date:   Tue,  8 Dec 2020 02:09:53 +0100
+Message-Id: <20201208011000.3060239-1-j.neuschaefer@gmx.net>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201206220542.355743355@linutronix.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:ENIIn/3dWWFC0mU8QABx04IqRQNtlQplYarvQi2oFDUQAt2m2ut
+ BJGgQaypc6cxCjKxNuwva0m90bI6EZAvWEn0p4LkHYlTjEUEah60A/UlKndmgs/NIgtPNMg
+ 0vVEbVt7wOHQ5Z3IS2UNoDCFTGbRc1zM/TT/0eYLCUir7UlL+Upmzu9f7McK8Tx7X1uo99r
+ A8TceVMKBDLGVPsW+KhaA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:sNemWzqW2uc=:Su5D5oQVYl1XOWjq4lg79i
+ JRvqY/9eBBz6VaKAj5XhhOb/hjNgfuSPJm0iM9/fULHe5iZO1D3oC3He/95RhSR7CCgrZgx/s
+ JiP6wNXHZ/yGWBKC1Fe4Mh4L0PRM/WO6Ev7+PfFjzdWR5PkaST+ioJAq8BdL5UasoOh60c64Z
+ MKtOi7IiMwR0UrK1A+3oOkZNbXEYhZR5uWwtD9do6+3Z1uD/fTjWDKvYGuxgGxQb6aNhKx1a3
+ Od9ZuN+LWWiz0ZAurkxl9lOjEka8bAQR9ejXkQcNrtVkwF1XmEDnTDZSiafTOWGWuYGGYMQJM
+ 9c+aZq2TtTOZwHGn/1bO84LjNryA/xWiSfI2bTkDYeDzG078Q6BhQdvsdHtG5CUBfcfhCoNL2
+ xOgObxJR/fjXPNt88JdBnaoS2iw1g+Im0BLOyaihw+koTjIaDedBFzorC0+zEcKxl7KqUaFtM
+ 5izSk1Y5n+dasZ9s27FFSBuxo8MfOrElYrkKEIRkgfm2hZYrfaL3LIFrSB94uJ5CHxeMGpgg0
+ EcfM9FOXB/852eew3IsAM2xJCHF/6egla00scF5qTMqyHT8pe6mRQjLp32t7UBT+g+zuFyOti
+ MwQggpF+iJ6+cLQuBchQwgL1R50bEkzhZ3oQNHaRznDbnksqkdhDu96RFh0Dfq2doS+Zn36hh
+ CNXHLUfvJuINuVOn0FCvLmAyK71rdU8wZTs/QdcoU3M4WAEYf9Pj+4fiM59LT882/PL/MlsO2
+ W544ZtmqqgGkbxzz8N4JXshfNe8YBtrfCdseHYAeaPZWNcDjpHqc2z/jJZLRQHnLGDLU5wcJ+
+ EI7Shf32413Bd9tLUjnWeTlnAkS+szoyy/ALrbcyq5XuTSKAdnWGypl6c9Lf4+0FenAAucfCw
+ MCLehzvyJ9rWmsOHa5jg==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sun, Dec 06, 2020 at 10:46:21PM +0100, Thomas Gleixner wrote:
->  /*
->   * If we have an externally synchronized Linux clock, then update RTC clock
->   * accordingly every ~11 minutes. Generally RTCs can only store second
-> @@ -686,6 +621,10 @@ static bool sync_cmos_clock(void)
->   */
->  static void sync_hw_clock(struct work_struct *work)
->  {
-> +	static unsigned long offset_nsec = NSEC_PER_SEC / 2;
+This patchset adds basic support for the embedded controller found on
+older ebook reader boards designed by/with the ODM Netronix Inc.[1] and
+sold by Kobo or Tolino, for example the Kobo Aura and the Tolino Shine.
+These drivers are based on information contained in the vendor kernel
+sources, but in order to all information in a single place, I documented
+the register interface of the EC on GitHub[2].
 
-A comment here explaining this is the default: because the platform is
-assumed to use CMOS, and by the way, this whole thing is obsolete
-don't use it, seems appropriate..
+[1]: http://www.netronixinc.com/products.aspx?ID=3D1
+[2]: https://github.com/neuschaefer/linux/wiki/Netronix-MSP430-embedded-co=
+ntroller
 
-The time split is clearer if you think of it from a bus/datasheet
-perspective, less clear if you try to measure the system directly, eg
-from an alarm. But, I think this  has a better chance of some rtclib
-driver authors to fill in the datasheet value at least.
+v6:
+- Additional cleanups in the PWM driver
+- Added Lee Jones' ACK to the MFD driver patch
 
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+v5:
+- https://lore.kernel.org/lkml/20201201011513.1627028-1-j.neuschaefer@gmx.=
+net/
+- Avoid truncation of PWM period and duty cycle to 32 bits
+- A few cleanups and additional comments in the PWM driver
+- Use regmap_multi_reg_write
 
-Jason
+v4:
+- https://lore.kernel.org/lkml/20201122222739.1455132-1-j.neuschaefer@gmx.=
+net/
+- Spell out ODM (original design manufacturer)
+- Solve corner cases in the RTC driver
+- Clean up use of log levels vs. error codes
+- Add more comments explaining some peculiarities
+- Add missing MODULE_ALIAS lines
+- Various other cleanups
+
+
+v3:
+- https://lore.kernel.org/lkml/20200924192455.2484005-1-j.neuschaefer@gmx.=
+net/
+- A few code cleanups
+- A few devicetree related cleanups
+- PWM and RTC functionality were moved from subnodes in the devicetree to
+  the main node. This also means that the subdrivers no longer need DT
+  compatible strings, but are instead loaded via the mfd_cell mechanism.
+- The drivers are now published under GPLv2-or-later rather than GPLv2-onl=
+y.
+
+
+v2:
+- https://lore.kernel.org/lkml/20200905133230.1014581-1-j.neuschaefer@gmx.=
+net/
+- Moved txt DT bindings to patch descriptions and removed patch 1/10
+  "DT bindings in plain text format"
+- New patch 7/10 "rtc: Introduce RTC_TIMESTAMP_END_2255"
+- Rebased on 5.9-rc3
+- Various other changes which are documented in each patch
+
+v1:
+- https://lore.kernel.org/lkml/20200620223915.1311485-1-j.neuschaefer@gmx.=
+net/
+
+Jonathan Neusch=C3=A4fer (7):
+  dt-bindings: Add vendor prefix for Netronix, Inc.
+  dt-bindings: mfd: Add binding for Netronix embedded controller
+  mfd: Add base driver for Netronix embedded controller
+  pwm: ntxec: Add driver for PWM function in Netronix EC
+  rtc: New driver for RTC in Netronix embedded controller
+  MAINTAINERS: Add entry for Netronix embedded controller
+  ARM: dts: imx50-kobo-aura: Add Netronix embedded controller
+
+ .../bindings/mfd/netronix,ntxec.yaml          |  76 ++++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ MAINTAINERS                                   |   9 +
+ arch/arm/boot/dts/imx50-kobo-aura.dts         |  16 +-
+ drivers/mfd/Kconfig                           |  11 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/ntxec.c                           | 216 ++++++++++++++++++
+ drivers/pwm/Kconfig                           |   8 +
+ drivers/pwm/Makefile                          |   1 +
+ drivers/pwm/pwm-ntxec.c                       | 182 +++++++++++++++
+ drivers/rtc/Kconfig                           |   8 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-ntxec.c                       | 143 ++++++++++++
+ include/linux/mfd/ntxec.h                     |  34 +++
+ 14 files changed, 707 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/netronix,ntxec.y=
+aml
+ create mode 100644 drivers/mfd/ntxec.c
+ create mode 100644 drivers/pwm/pwm-ntxec.c
+ create mode 100644 drivers/rtc/rtc-ntxec.c
+ create mode 100644 include/linux/mfd/ntxec.h
+
+=2D-
+2.29.2
+
