@@ -2,136 +2,115 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EBC9C2BBCF
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Dec 2020 02:13:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DECE9C4361B
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Dec 2020 00:33:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3CD0323A57
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Dec 2020 02:13:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 969B8233A2
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Dec 2020 00:33:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgLHCNO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Dec 2020 21:13:14 -0500
-Received: from mout.gmx.net ([212.227.17.21]:60517 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726830AbgLHCNN (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Mon, 7 Dec 2020 21:13:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1607393458;
-        bh=WBl3UrUkR8LNzp1EKh9L7GsYc+XMH2QlTuD5DMeOSsI=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=c/gMM1JwkqA70r2eT8hu0Vm9AHadbAa4uktdnkzeVYuQeEOnSrXJgD+mxvVojzpEY
-         SNf2B3GhVvtGK+ouAFOcWXGWrSz6Sp+UevQ+HU9swhV4Z3Zcr7+fQGXNx1He21DmLX
-         GBblwFY7zGouMnTCnrJ9agL3m1r3GI+KIEm24/kQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([37.201.214.162]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MybGX-1jwrRn2A7J-00yuzK; Tue, 08
- Dec 2020 03:10:58 +0100
-From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
-To:     linux-kernel@vger.kernel.org
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        id S1730815AbgLIAdv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Dec 2020 19:33:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49140 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730759AbgLIAdv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Dec 2020 19:33:51 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0369C0613CF;
+        Tue,  8 Dec 2020 16:33:10 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1607473988;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hgQpIUc63mDLW0den1AS8FxhMR0Jrh1CG+uMhsbuxUI=;
+        b=KLnSRU8ddKIlu8HHC+KCk5y2Gb3j6DjqbEpNIjpb3BiZn5Af8I3A/0HAvHsHwUv9M3Jj3K
+        RGV/f2d1qdsVoxZ01lgQQnqV51LVD4xfCrRcc3lTPZ4MAhkRQE+2/dB014b2k45m2cN32j
+        ZMnjEWa2x7WbqjwQdI3OAqF8JdH/ZuZGFnib7dluHeHyl4iuTTaNnNEZd4+MDvSUthq2el
+        0ETLqzPYPb017Lrb1Z4RiVCM1jFahrIH2SR93dv5XWBx34xPx1L8Lw3Ww1AsLAAOj8Hdi5
+        51G2I3lqslnHjMmVz//Bnc7jJHwjOQE4VZl0KifOqBWr7Xs9jYhbEh7w7DnbZQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1607473988;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=hgQpIUc63mDLW0den1AS8FxhMR0Jrh1CG+uMhsbuxUI=;
+        b=Bt6VK/OQlIx814XTZLYEm4kp1BRbJLhVsNbwnDY0mJb1AyJITSa4AUHXQUtTgREXHEPhop
+        jHee7DbttqqFYmDQ==
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Prarit Bhargava <prarit@redhat.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Heiko Stuebner <heiko@sntech.de>,
-        Josua Mayer <josua.mayer@jm0.eu>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v6 6/7] MAINTAINERS: Add entry for Netronix embedded controller
-Date:   Tue,  8 Dec 2020 02:09:59 +0100
-Message-Id: <20201208011000.3060239-7-j.neuschaefer@gmx.net>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20201208011000.3060239-1-j.neuschaefer@gmx.net>
-References: <20201208011000.3060239-1-j.neuschaefer@gmx.net>
+        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [patch 0/8] ntp/rtc: Fixes and cleanups
+In-Reply-To: <20201206214613.444124194@linutronix.de>
+References: <20201206214613.444124194@linutronix.de>
+Date:   Wed, 09 Dec 2020 01:33:08 +0100
+Message-ID: <87sg8f24zf.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:KrRMGiDmIbt0sBNUbCS4VOY+FTc3iGce8A+/3NciAwGds7DAC4A
- HU5zyIPz1YAcGXB0yBjRqBhxui/w+mWKbFBZ7CkITOfBJrecikXxPJmbwLqtlZ+kPkvfXHC
- n5pKbaGyqjDghlbbuyP7lQSmHJ51Ni6/TDLtwizyQ5OUwiV93GAUZm2nntPH50tKinpixa/
- oV4nXdDhbB9trdckJz6Ag==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:M7CN/MeYUhE=:ZVQHiMlpAZY9664thIOZ+3
- rVdlAFm00hd2Gt1Mo2SY1wLXnT3zjJH41VEZdt1hNbza93CIp6FKN+5eXOuc0qYYDke48jJmn
- P4ubYkj2I61CTn5W8yR6YUxQWOfPJbE1vunUwh6IZ8nYvybNmcY1KvtFan9OsAGfLjEX6kWSr
- vh+FnG57ORB4N5PlUM3ZQ//qylnd6puXa+rh6qZ4KDpuzvA3X26sNENoKeDYxoluwZokPd1l0
- vTMFTvEOGRTlA9+y46bO5VhdH7DVqOb1I1j3FdW+IxiAVLf7zp287FQSD3Po4a6kYOPJzzFuU
- rJfqDGgIHbe0MdYUN2MPBSBYM2sKEuJ2mFQ8CIlqisMSfwYm+2vyFQA+DoWNc4/zHrMj+EOIy
- vzls3j1qvSWNH+U6tHRpuvx8jE6B+aROuoxEghc5gnzaGuj4iicblAL4Dxul10YNr7dMZbb+r
- RQqSyI3s4u2f5mkiBZg07T2I/9DGERGuIGlPNJGRClSOU2r3RQFPeB7CLtv+/85G9ZHkczSJP
- gI+j0eeJSPkLFrk76Wt2xU7lFStoe1QdBdOKzYioFFpGa3iU4eBcScFT/Rsplcv7lSynf3k2a
- uq8zNmOgoaet9+5NjOBT2hA9v/CQvSDZWV+HsyocU+6P6sDEXOH0FSJMEo/ZL94CFHT6/Wr87
- MWoDOErflRMXAiAxcEVc9VGURa6c0/eZ7Cc98WiyuDhbN/71bRUnpSTuwPv9kpKCsmih93Fz9
- ylBOFrsBSfJmzp7eYqI2ewl18ys9Dnd4AvMGNTlpuDl9+iTvibxscBJJaKOAyKopBoc+yiZoy
- GcrpMaVFcjoUtWgOpQ0HaTt/1LscM3ErYJyN5SFDGRZGzOVzhlUvMH5vVfJdBNHB0chSkinfa
- vH1/JmlYgqeehdJ90Xgw==
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Let's make sure I'll notice when there are patches for the NTXEC
-drivers.
+Alexandre,
 
-Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-=2D--
-v4-v6:
-- no changes
+On Sun, Dec 06 2020 at 22:46, Thomas Gleixner wrote:
+> Miroslav ran into a situation where the periodic RTC synchronization almost
+> never was able to hit the time window for the update. That happens due the
+> usage of delayed_work and the properties of the timer wheel.
+>
+> While that particular problem is halfways simple to fix this started to
+> unearth other problems with that code particularly with rtc_set_npt_time()
+> but expanded into other things as well.
+>
+>   1) The update offset for rtc-cmos is off by a full second
+>
+>   2) The readout of MC146818 (rtc-cmos and arch code) is broken and can
+>      return garbage.
+>
+>   2) Alexandre questioned the approach in general and wants to get rid of
+>      it. Of course there are better methods to do that and it can be
+>      completely done in user space.
+>
+>      Unfortunately it's not that simple as this would be a user visible
+>      change, so making it at least halfways correct.
+>
+>   3) Alexandre requested to move that code into the NTP code as this is not
+>      really RTC functionality and just usage of the RTC API.
+>
+>   4) The update offset itself was questioned, but the time between the
+>      write and the next seconds increment in the RTC is fundamentaly a
+>      hardware property. The transport time, which is pretty irrelevant for
+>      direct accessible RTCs (rtc-cmos), but relevant for RTC behind i2c/SPI
+>      needs to be added on top.
+>
+>      It's undebated that this transport time cannot be correctly estimated,
+>      but right now it's 500ms which is far off. The correct transport time
+>      can be calibrated, a halfways correct value supplied via DT, but
+>      that's an orthogonal problem.
+>
+> The following series addresses the above:
+>
+>     1) Fix the readout function of MC146818
+>     2) Fix the rtc-cmos offset
+>     3) Reduce the default transport time
+>
+>     4) Switch the NTP periodic sync code to a hrtimer/work combo
+>
+>     5) Move rtc_set_npt_time() to the ntp code
+>     6) Make the update offset more intuitive
+>     7) Simplify the whole machinery
 
-v3:
-- https://lore.kernel.org/lkml/20200924192455.2484005-7-j.neuschaefer@gmx.=
-net/
-- Remove pwm and rtc bindings
+any opinion on this?
 
-v2:
-- https://lore.kernel.org/lkml/20200905144503.1067124-2-j.neuschaefer@gmx.=
-net/
-- No changes
-=2D--
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Thanks,
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2daa6ee673f7f..9eedf3c1e1e09 100644
-=2D-- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12087,6 +12087,15 @@ F:	include/net/netrom.h
- F:	include/uapi/linux/netrom.h
- F:	net/netrom/
-
-+NETRONIX EMBEDDED CONTROLLER
-+M:	Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-+F:	drivers/mfd/ntxec.c
-+F:	drivers/pwm/pwm-ntxec.c
-+F:	drivers/rtc/rtc-ntxec.c
-+F:	include/linux/mfd/ntxec.h
-+
- NETRONOME ETHERNET DRIVERS
- M:	Simon Horman <simon.horman@netronome.com>
- R:	Jakub Kicinski <kuba@kernel.org>
-=2D-
-2.29.2
-
+        tglx
