@@ -6,18 +6,18 @@ X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01C57C2D0E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E574C3526C
 	for <linux-rtc@archiver.kernel.org>; Thu, 10 Dec 2020 21:45:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C675A23E23
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Dec 2020 21:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30DF623DE3
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Dec 2020 21:45:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404866AbgLJV0r (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Dec 2020 16:26:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
+        id S2404823AbgLJV0l (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 10 Dec 2020 16:26:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404754AbgLJV0g (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 10 Dec 2020 16:26:36 -0500
+        id S2390128AbgLJV01 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 10 Dec 2020 16:26:27 -0500
 From:   Krzysztof Kozlowski <krzk@kernel.org>
 Authentication-Results: mail.kernel.org; dkim=permerror (bad message/signature format)
 To:     Chanwoo Choi <cw00.choi@samsung.com>,
@@ -44,12 +44,10 @@ Cc:     Iskren Chernev <iskren.chernev@gmail.com>,
         Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
         Angus Ainslie <angus@akkea.ca>,
         Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 03/18] ARM: dts: exynos: correct fuel gauge interrupt trigger level on Midas family
-Date:   Thu, 10 Dec 2020 22:25:19 +0100
-Message-Id: <20201210212534.216197-3-krzk@kernel.org>
+Subject: [PATCH 01/18] ARM: dts: exynos: correct fuel gauge interrupt trigger level on GT-I9100
+Date:   Thu, 10 Dec 2020 22:25:17 +0100
+Message-Id: <20201210212534.216197-1-krzk@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201210212534.216197-1-krzk@kernel.org>
-References: <20201210212534.216197-1-krzk@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -60,25 +58,25 @@ The Maxim fuel gauge datasheets describe the interrupt line as active
 low with a requirement of acknowledge from the CPU.  The falling edge
 interrupt will mostly work but it's not correct.
 
-Fixes: e8614292cd41 ("ARM: dts: Add Maxim 77693 fuel gauge node for exynos4412-trats2")
+Fixes: 8620cc2f99b7 ("ARM: dts: exynos: Add devicetree file for the Galaxy S2")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- arch/arm/boot/dts/exynos4412-midas.dtsi | 2 +-
+ arch/arm/boot/dts/exynos4210-i9100.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos4412-midas.dtsi b/arch/arm/boot/dts/exynos4412-midas.dtsi
-index 111c32bae02c..b8b75dc81aa1 100644
---- a/arch/arm/boot/dts/exynos4412-midas.dtsi
-+++ b/arch/arm/boot/dts/exynos4412-midas.dtsi
-@@ -221,7 +221,7 @@ i2c_max77693_fuel: i2c-gpio-3 {
- 		fuel-gauge@36 {
- 			compatible = "maxim,max17047";
+diff --git a/arch/arm/boot/dts/exynos4210-i9100.dts b/arch/arm/boot/dts/exynos4210-i9100.dts
+index a0c3bab382ae..e56b64e237d3 100644
+--- a/arch/arm/boot/dts/exynos4210-i9100.dts
++++ b/arch/arm/boot/dts/exynos4210-i9100.dts
+@@ -136,7 +136,7 @@ battery@36 {
+ 			compatible = "maxim,max17042";
+ 
  			interrupt-parent = <&gpx2>;
 -			interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
 +			interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+ 
+ 			pinctrl-0 = <&max17042_fuel_irq>;
  			pinctrl-names = "default";
- 			pinctrl-0 = <&max77693_fuel_irq>;
- 			reg = <0x36>;
 -- 
 2.25.1
 
