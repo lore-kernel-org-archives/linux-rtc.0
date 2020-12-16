@@ -2,94 +2,99 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2ED4C2BB40
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Dec 2020 22:57:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 409D7C2BBCA
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Dec 2020 07:48:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7C54E22512
-	for <linux-rtc@archiver.kernel.org>; Mon, 14 Dec 2020 22:57:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D40F5233A0
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Dec 2020 07:48:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441324AbgLNW5C (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 14 Dec 2020 17:57:02 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:34485 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2441315AbgLNW44 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Dec 2020 17:56:56 -0500
-Received: by mail-ot1-f65.google.com with SMTP id a109so17486403otc.1;
-        Mon, 14 Dec 2020 14:56:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=6eV+/H1+wuql5Xj175B7CxNiRq52AmncCnPannTivxU=;
-        b=n3W4VjXTlZqubB9cX6CaLRjRvKNvwDkeqODi6O2W5sgAyiunW5ufkPn2UNhK1B6vB+
-         uzRrh2Y44HMqPdKkzPaaXVVms8nLXjsvyhxgJ2hpYH1Bj/1wCg/9f5L6r4/iMEDU9NH3
-         9MXZ/W18UXJG4MImvnqHGXgbm7Uqw0+h3j2N8gJptb+EvSVd+1QszMFrcfjPHnDWUTl4
-         A0m96F3SboloSzencuzWvF858q4y/jyNSymlvWQdljC9IvPJt/xOqVVoYuN/8wkyxWOL
-         SIQnp7irm44iosmy2wFjIebeTNu7PIUCfTdJh5qGzqTvwy7SPLL7mQPHHKI4zPbZ+Zov
-         nXtQ==
-X-Gm-Message-State: AOAM533qpBFBQe+443otamBeX+Cqs3NabILLTvTzkUzD+zB0199bWgO3
-        +FwRDyWSGnHxQkAgZY6nDA==
-X-Google-Smtp-Source: ABdhPJwDM6U4udpEYiXAy2gSlbztGdngQOcnWX4uPjrYbFwopnc0V36ZUTQRqWQ5M1hiz15LkX+/Lw==
-X-Received: by 2002:a05:6830:4b9:: with SMTP id l25mr20777707otd.218.1607986575094;
-        Mon, 14 Dec 2020 14:56:15 -0800 (PST)
-Received: from xps15 (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id a18sm4611657oia.29.2020.12.14.14.56.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Dec 2020 14:56:14 -0800 (PST)
-Received: (nullmailer pid 2536446 invoked by uid 1000);
-        Mon, 14 Dec 2020 22:56:12 -0000
-Date:   Mon, 14 Dec 2020 16:56:12 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Andre Przywara <andre.przywara@arm.com>
-Cc:     linux-media@vger.kernel.org, linux-rtc@vger.kernel.org,
-        =?iso-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-sunxi@googlegroups.com, Chen-Yu Tsai <wens@csie.org>,
-        Icenowy Zheng <icenowy@aosc.xyz>, linux-i2c@vger.kernel.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Shuosheng Huang <huangshuosheng@allwinnertech.com>,
-        Yangtao Li <tiny.windzz@gmail.com>,
+        id S1725846AbgLPHs0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 16 Dec 2020 02:48:26 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:43834 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725385AbgLPHs0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Dec 2020 02:48:26 -0500
+X-UUID: 8f496473fcfb4a46855828b2273cab7a-20201216
+X-UUID: 8f496473fcfb4a46855828b2273cab7a-20201216
+Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1904067015; Wed, 16 Dec 2020 15:47:41 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 16 Dec 2020 15:47:41 +0800
+Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Wed, 16 Dec 2020 15:47:40 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Fei Shao <fshao@chromium.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-arm-kernel@lists.infradead.org,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        linux-spi@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v2 18/21] dt-bindings: allwinner: Add H616 compatible
- strings
-Message-ID: <20201214225612.GA2536414@robh.at.kernel.org>
-References: <20201211011934.6171-1-andre.przywara@arm.com>
- <20201211011934.6171-19-andre.przywara@arm.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+CC:     Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Yuchen Huang <yuchen.huang@mediatek.com>,
+        Ran Bi <ran.bi@mediatek.com>, <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <srv_heupstream@mediatek.com>,
+        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v4 2/9] rtc: mt6397: refine RTC_TC_MTH
+Date:   Wed, 16 Dec 2020 15:47:00 +0800
+Message-ID: <1608104827-7937-3-git-send-email-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1608104827-7937-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1608104827-7937-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201211011934.6171-19-andre.przywara@arm.com>
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 11 Dec 2020 01:19:31 +0000, Andre Przywara wrote:
-> Add simple "allwinner,sun50i-h616-xxx" compatible names to existing
-> bindings, and pair them with an existing fallback compatible string,
-> as the devices are compatible.
-> This covers I2C, infrared, RTC and SPI.
-> 
-> Use enums to group all compatible devices together.
-> 
-> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-> ---
->  .../bindings/i2c/marvell,mv64xxx-i2c.yaml     | 21 +++++++------------
->  .../media/allwinner,sun4i-a10-ir.yaml         | 16 ++++++--------
->  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml |  3 +++
->  .../bindings/spi/allwinner,sun6i-a31-spi.yaml |  1 +
->  4 files changed, 17 insertions(+), 24 deletions(-)
-> 
+This patch adds RTC_TC_MTH_MASK to support new chips.
 
-Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Yuchen Huang <yuchen.huang@mediatek.com>
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+---
+ drivers/rtc/rtc-mt6397.c       | 2 +-
+ include/linux/mfd/mt6397/rtc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 1894aded4c85..ea6da7476a5e 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -75,7 +75,7 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
+ 	tm->tm_min = data[RTC_OFFSET_MIN];
+ 	tm->tm_hour = data[RTC_OFFSET_HOUR];
+ 	tm->tm_mday = data[RTC_OFFSET_DOM];
+-	tm->tm_mon = data[RTC_OFFSET_MTH];
++	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_TC_MTH_MASK;
+ 	tm->tm_year = data[RTC_OFFSET_YEAR];
+ 
+ 	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
+diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc.h
+index c3748b53bf7d..068ae1c0f0e8 100644
+--- a/include/linux/mfd/mt6397/rtc.h
++++ b/include/linux/mfd/mt6397/rtc.h
+@@ -36,6 +36,7 @@
+ #define RTC_AL_MASK_DOW                BIT(4)
+ 
+ #define RTC_TC_SEC             0x000a
++#define RTC_TC_MTH_MASK        0x000f
+ /* Min, Hour, Dom... register offset to RTC_TC_SEC */
+ #define RTC_OFFSET_SEC         0
+ #define RTC_OFFSET_MIN         1
+-- 
+2.18.0
+
