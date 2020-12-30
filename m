@@ -4,89 +4,88 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 098E1C433E0
-	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:10:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF8EFC433DB
+	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 15:00:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDA2F221FA
-	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:10:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B05EF21973
+	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 15:00:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727494AbgL3NKT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 30 Dec 2020 08:10:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
+        id S1726333AbgL3PAX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 30 Dec 2020 10:00:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727223AbgL3NE5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:04:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 938EB224D3;
-        Wed, 30 Dec 2020 13:04:04 +0000 (UTC)
+        id S1726462AbgL3PAX (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 30 Dec 2020 10:00:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45FC321973;
+        Wed, 30 Dec 2020 14:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333445;
-        bh=V2Imo5LZn+YxBF+aA2Bqs5WS4RaXje0uYI8KxcWqzjM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fM5Z9jO2E0ANrEVy0Z/6KFPFb+AHa/kXzbHkIxcIkFTxm4HaEW4/1vcrcwq98no68
-         Z0UVxRD7TeAHmIoqfbLkX7KbUg2FJZx+0bCHdL+W84eGEz6yLjFFV5j9Lgo0xgnZJV
-         yV3lKNcwb56gMXbBEdxNx7wmmALYdgk9ea9D6cbtaLE0E5OxZPsnPE7FB32X7fnr4P
-         iE8MVpe7edPUcQx5o17mVA8mSSIo1phOYUrBkuvkn1DuEKr1oVKxGERRMWDTj4NgH2
-         mm1Zz/iIjsubi+zJs05HzYkCocLv6LLuw8U4ugLDoW+OMb8ISys7SlLTD37hcd+MP6
-         ztGTLx/9bMA8g==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Liang <zhengliang6@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
+        s=k20201202; t=1609340382;
+        bh=8Tm4+r/3ULTX6/AYNnKQLnmE6Ug4OE8sLY/1YXNk9Fo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=r1eaIpye85I9oYl9j4jcg5w1PG2Pq5vaLmQWyP76febiteJEr/N8UDXZk42xQlk0/
+         fba+VfZ07fQQdPLuupJeCkuguA7LfpXzunIsozVhemt2GhrbIn8QR5KSVc1fYx+PnV
+         irZCc1VTA8kTGfFSWh3eydpVCb4hXuInETjWvUCDOLksW6kGYVT5t4yleJDwH9HmyG
+         OBjueBpEAHnlAkCoV7IUU+27u+omtHzDIdjrrzXIW5XT9OsOoKMmAFFYDhkpKZKsX5
+         LZJQPTbgA7X8M7WmK7P9mgzR6xI0bFzKjrUEZrVXZTDpftLVMYGC0V7TwcobKI/wnd
+         hmbbGRElHGLZw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 05/17] rtc: pl031: fix resource leak in pl031_probe
-Date:   Wed, 30 Dec 2020 08:03:45 -0500
-Message-Id: <20201230130357.3637261-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
-References: <20201230130357.3637261-1-sashal@kernel.org>
+        Henning Schild <henning.schild@siemens.com>,
+        Claudius Heine <ch@denx.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: rx6110: fix build against modular I2C
+Date:   Wed, 30 Dec 2020 15:59:11 +0100
+Message-Id: <20201230145938.3254459-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Zheng Liang <zhengliang6@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 1eab0fea2514b269e384c117f5b5772b882761f0 ]
+With CONFIG_I2C=m, the #ifdef section is disabled, as shown
+by this warning:
 
-When devm_rtc_allocate_device is failed in pl031_probe, it should release
-mem regions with device.
+drivers/rtc/rtc-rx6110.c:314:12: error: unused function 'rx6110_probe' [-Werror,-Wunused-function]
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20201112093139.32566-1-zhengliang6@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Change the driver to use IS_ENABLED() instead, which works
+for both module and built-in subsystems.
+
+Fixes: afa819c2c6bf ("rtc: rx6110: add i2c support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/rtc/rtc-pl031.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-rx6110.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 180caebbd3552..9566958476dfc 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -379,8 +379,10 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
+index a7b671a21022..79161d4c6ce4 100644
+--- a/drivers/rtc/rtc-rx6110.c
++++ b/drivers/rtc/rtc-rx6110.c
+@@ -331,7 +331,7 @@ static int rx6110_probe(struct rx6110_data *rx6110, struct device *dev)
+ 	return 0;
+ }
  
- 	device_init_wakeup(&adev->dev, true);
- 	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
--	if (IS_ERR(ldata->rtc))
--		return PTR_ERR(ldata->rtc);
-+	if (IS_ERR(ldata->rtc)) {
-+		ret = PTR_ERR(ldata->rtc);
-+		goto out;
-+	}
+-#ifdef CONFIG_SPI_MASTER
++#if IS_ENABLED(CONFIG_SPI_MASTER)
+ static struct regmap_config regmap_spi_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -411,7 +411,7 @@ static void rx6110_spi_unregister(void)
+ }
+ #endif /* CONFIG_SPI_MASTER */
  
- 	ldata->rtc->ops = ops;
- 
+-#ifdef CONFIG_I2C
++#if IS_ENABLED(CONFIG_I2C)
+ static struct regmap_config regmap_i2c_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
 -- 
-2.27.0
+2.29.2
 
