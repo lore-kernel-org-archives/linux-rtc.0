@@ -4,45 +4,45 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B443C433E6
-	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:04:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11B9DC43332
+	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:04:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44C8522B2A
-	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:04:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DFDBA22BE9
+	for <linux-rtc@archiver.kernel.org>; Wed, 30 Dec 2020 13:04:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbgL3NEA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 30 Dec 2020 08:04:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        id S1727230AbgL3NE6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 30 Dec 2020 08:04:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726594AbgL3ND7 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 30 Dec 2020 08:03:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7464A22242;
-        Wed, 30 Dec 2020 13:03:17 +0000 (UTC)
+        id S1727219AbgL3NE5 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 30 Dec 2020 08:04:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1793922510;
+        Wed, 30 Dec 2020 13:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1609333398;
-        bh=qxrP4zc/ImSoS5qSPaJn5wozIced+jjFdbENYDbKl/w=;
+        s=k20201202; t=1609333441;
+        bh=QMig4D2jPBkUluzd4M+6Fs134IaQzEEL6Jg+SoE6CxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRHlX3jml+NCLqmbEPkXoySqmqxwxfyFS1E7vLEHxZI/RAKyxjARzTVQ4if4xaLpg
-         ZvFQ846ojFvxDcpWI7R9ZLXPwR1J6MRFxIZ6ur3q1d7Vc6nTW4JqIxpxmLZiSvbmGg
-         TpHZ1chCdgdZdBV9jDs0Pa7pXMayOnfGzzgIbVqlx6gYsLrnIaAV9UGGKwC+RNdRoc
-         VuDmKAS+Qo4c1XbhzJS27G0+QlXTb746ek5lEp05J+LeO8U799zoTbUa3dvUO8o2Tv
-         l6p+qndzN+AoCczLDOFM3iKQ2j/JSorBxYUiLIhvWpq/XpoSJLgoWg8HvrE0UQIyRw
-         QDJklGlbkpbZg==
+        b=SdHE8yyFlBzyLblMUHcEp+DTf57aVFnC9FDtyGs0aaVsfjuQkt0fVML0qn5/4QNas
+         1eq/8RSMVqheLXdfCs0DXd+V9hls6dWEzOwF8krx7AtjZeRbDr/v1jIHA360TiMyMc
+         QxgZWrKeClpVAQxVtmLOAIIL7XF/p5aIw8y0UWU7ojwbpZiPnrWAK1hrjAWMkwmaCz
+         PVBWrXiVsv4o3togth9EdZEVO7TDBWgZk1VNZjYmb+Y7M8DbT3EmCu6G3JZzbIEEvu
+         IWqcfuL+gAv4P6AI671aYfrK97utpC9ih7UARFgq2GoXkc7sfI1E21Gqzh8mayDFrP
+         eXN6K1gJynBfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 02/31] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
-Date:   Wed, 30 Dec 2020 08:02:44 -0500
-Message-Id: <20201230130314.3636961-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/17] rtc: sun6i: Fix memleak in sun6i_rtc_clk_init
+Date:   Wed, 30 Dec 2020 08:03:42 -0500
+Message-Id: <20201230130357.3637261-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
-References: <20201230130314.3636961-1-sashal@kernel.org>
+In-Reply-To: <20201230130357.3637261-1-sashal@kernel.org>
+References: <20201230130357.3637261-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index e2b8b150bcb44..f2818cdd11d82 100644
+index fc32be687606c..c41bc8084d7cc 100644
 --- a/drivers/rtc/rtc-sun6i.c
 +++ b/drivers/rtc/rtc-sun6i.c
-@@ -272,7 +272,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+@@ -276,7 +276,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
  								300000000);
  	if (IS_ERR(rtc->int_osc)) {
  		pr_crit("Couldn't register the internal oscillator\n");
@@ -81,7 +81,7 @@ index e2b8b150bcb44..f2818cdd11d82 100644
  	}
  
  	parents[0] = clk_hw_get_name(rtc->int_osc);
-@@ -290,7 +290,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+@@ -292,7 +292,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
  	rtc->losc = clk_register(NULL, &rtc->hw);
  	if (IS_ERR(rtc->losc)) {
  		pr_crit("Couldn't register the LOSC clock\n");
@@ -90,7 +90,7 @@ index e2b8b150bcb44..f2818cdd11d82 100644
  	}
  
  	of_property_read_string_index(node, "clock-output-names", 1,
-@@ -301,7 +301,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+@@ -303,7 +303,7 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
  					  &rtc->lock);
  	if (IS_ERR(rtc->ext_losc)) {
  		pr_crit("Couldn't register the LOSC external gate\n");
@@ -99,7 +99,7 @@ index e2b8b150bcb44..f2818cdd11d82 100644
  	}
  
  	clk_data->num = 2;
-@@ -314,6 +314,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
+@@ -316,6 +316,8 @@ static void __init sun6i_rtc_clk_init(struct device_node *node,
  	of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
  	return;
  
