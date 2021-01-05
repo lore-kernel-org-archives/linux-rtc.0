@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC482C433E6
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Jan 2021 14:05:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 752A9C43331
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Jan 2021 14:06:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A5A0D22AAB
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Jan 2021 14:05:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 46ECA22AAB
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Jan 2021 14:06:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730613AbhAEOFW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Jan 2021 09:05:22 -0500
-Received: from mx2.suse.de ([195.135.220.15]:57718 "EHLO mx2.suse.de"
+        id S1730577AbhAEOFL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Jan 2021 09:05:11 -0500
+Received: from mx2.suse.de ([195.135.220.15]:57720 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729093AbhAEOFM (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 5 Jan 2021 09:05:12 -0500
+        id S1729090AbhAEOFJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 5 Jan 2021 09:05:09 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 16936AEE0;
-        Tue,  5 Jan 2021 14:03:44 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 6582BAF0D;
+        Tue,  5 Jan 2021 14:03:46 +0000 (UTC)
 From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 To:     Matt Mackall <mpm@selenic.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
@@ -46,9 +46,9 @@ To:     Matt Mackall <mpm@selenic.com>,
         linux-mtd@lists.infradead.org, netdev@vger.kernel.org,
         linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
         linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH 06/10] mtd: Remove drivers used by TX49xx
-Date:   Tue,  5 Jan 2021 15:02:51 +0100
-Message-Id: <20210105140305.141401-7-tsbogend@alpha.franken.de>
+Subject: [PATCH 09/10] ide: tx4938ide: Remove driver
+Date:   Tue,  5 Jan 2021 15:02:54 +0100
+Message-Id: <20210105140305.141401-10-tsbogend@alpha.franken.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210105140305.141401-1-tsbogend@alpha.franken.de>
 References: <20210105140305.141401-1-tsbogend@alpha.franken.de>
@@ -58,682 +58,899 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-CPU support for TX49xx is getting removed, so remove MTD support for it.
+CPU support for TX49xx is getting removed, so remove IDE support for it.
 
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 ---
- drivers/mtd/maps/Kconfig                 |   6 -
- drivers/mtd/maps/Makefile                |   1 -
- drivers/mtd/maps/rbtx4939-flash.c        | 133 -------
- drivers/mtd/nand/raw/Kconfig             |   7 -
- drivers/mtd/nand/raw/Makefile            |   1 -
- drivers/mtd/nand/raw/txx9ndfmc.c         | 423 -----------------------
- include/linux/platform_data/txx9/ndfmc.h |  28 --
- 7 files changed, 599 deletions(-)
- delete mode 100644 drivers/mtd/maps/rbtx4939-flash.c
- delete mode 100644 drivers/mtd/nand/raw/txx9ndfmc.c
- delete mode 100644 include/linux/platform_data/txx9/ndfmc.h
+ drivers/ide/Kconfig     |  10 -
+ drivers/ide/Makefile    |   3 -
+ drivers/ide/tx4938ide.c | 209 -------------
+ drivers/ide/tx4939ide.c | 628 ----------------------------------------
+ 4 files changed, 850 deletions(-)
+ delete mode 100644 drivers/ide/tx4938ide.c
+ delete mode 100644 drivers/ide/tx4939ide.c
 
-diff --git a/drivers/mtd/maps/Kconfig b/drivers/mtd/maps/Kconfig
-index 6650acbc961e..17579ce04922 100644
---- a/drivers/mtd/maps/Kconfig
-+++ b/drivers/mtd/maps/Kconfig
-@@ -380,12 +380,6 @@ config MTD_INTEL_VR_NOR
- 	  Map driver for a NOR flash bank located on the Expansion Bus of the
- 	  Intel Vermilion Range chipset.
+diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+index 19abf11c84c8..03303af8c96f 100644
+--- a/drivers/ide/Kconfig
++++ b/drivers/ide/Kconfig
+@@ -662,16 +662,6 @@ config BLK_DEV_IDE_PMAC_ATA100FIRST
+ 	  CD-ROM on hda. This option changes this to more natural hda for
+ 	  hard disk and hdc for CD-ROM.
  
--config MTD_RBTX4939
--	tristate "Map driver for RBTX4939 board"
--	depends on TOSHIBA_RBTX4939 && MTD_CFI && MTD_COMPLEX_MAPPINGS
--	help
--	  Map driver for NOR flash chips on RBTX4939 board.
+-config BLK_DEV_IDE_TX4938
+-	tristate "TX4938 internal IDE support"
+-	depends on SOC_TX4938
+-	select IDE_TIMINGS
 -
- config MTD_PLATRAM
- 	tristate "Map driver for platform device RAM (mtd-ram)"
- 	select MTD_RAM
-diff --git a/drivers/mtd/maps/Makefile b/drivers/mtd/maps/Makefile
-index 79f018cf412f..408a2217b0f2 100644
---- a/drivers/mtd/maps/Makefile
-+++ b/drivers/mtd/maps/Makefile
-@@ -43,6 +43,5 @@ obj-$(CONFIG_MTD_SCB2_FLASH)	+= scb2_flash.o
- obj-$(CONFIG_MTD_IXP4XX)	+= ixp4xx.o
- obj-$(CONFIG_MTD_PLATRAM)	+= plat-ram.o
- obj-$(CONFIG_MTD_INTEL_VR_NOR)	+= intel_vr_nor.o
--obj-$(CONFIG_MTD_RBTX4939)	+= rbtx4939-flash.o
- obj-$(CONFIG_MTD_VMU)		+= vmu-flash.o
- obj-$(CONFIG_MTD_LANTIQ)	+= lantiq-flash.o
-diff --git a/drivers/mtd/maps/rbtx4939-flash.c b/drivers/mtd/maps/rbtx4939-flash.c
+-config BLK_DEV_IDE_TX4939
+-	tristate "TX4939 internal IDE support"
+-	depends on SOC_TX4939
+-	select BLK_DEV_IDEDMA_SFF
+-
+ config BLK_DEV_IDE_ICSIDE
+ 	tristate "ICS IDE interface support"
+ 	depends on ARM && ARCH_ACORN
+diff --git a/drivers/ide/Makefile b/drivers/ide/Makefile
+index 2605b3cdaf47..4d6655160a4a 100644
+--- a/drivers/ide/Makefile
++++ b/drivers/ide/Makefile
+@@ -106,6 +106,3 @@ obj-$(CONFIG_BLK_DEV_PLATFORM)		+= ide_platform.o
+ obj-$(CONFIG_BLK_DEV_IDE_ICSIDE)	+= icside.o
+ obj-$(CONFIG_BLK_DEV_IDE_RAPIDE)	+= rapide.o
+ obj-$(CONFIG_BLK_DEV_PALMCHIP_BK3710)	+= palm_bk3710.o
+-
+-obj-$(CONFIG_BLK_DEV_IDE_TX4938)	+= tx4938ide.o
+-obj-$(CONFIG_BLK_DEV_IDE_TX4939)	+= tx4939ide.o
+diff --git a/drivers/ide/tx4938ide.c b/drivers/ide/tx4938ide.c
 deleted file mode 100644
-index 39c86c0b0ec1..000000000000
---- a/drivers/mtd/maps/rbtx4939-flash.c
+index 962eb92501b5..000000000000
+--- a/drivers/ide/tx4938ide.c
 +++ /dev/null
-@@ -1,133 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
+@@ -1,209 +0,0 @@
 -/*
-- * rbtx4939-flash (based on physmap.c)
+- * TX4938 internal IDE driver
+- * Based on tx4939ide.c.
 - *
-- * This is a simplified physmap driver with map_init callback function.
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
 - *
-- * Copyright (C) 2009 Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+- * (C) Copyright TOSHIBA CORPORATION 2005-2007
 - */
 -
 -#include <linux/module.h>
 -#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/slab.h>
--#include <linux/device.h>
+-#include <linux/ide.h>
+-#include <linux/init.h>
 -#include <linux/platform_device.h>
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/map.h>
--#include <linux/mtd/partitions.h>
--#include <asm/txx9/rbtx4939.h>
+-#include <linux/io.h>
 -
--struct rbtx4939_flash_info {
--	struct mtd_info *mtd;
--	struct map_info map;
--};
+-#include <asm/ide.h>
+-#include <asm/txx9/tx4938.h>
 -
--static int rbtx4939_flash_remove(struct platform_device *dev)
+-static void tx4938ide_tune_ebusc(unsigned int ebus_ch,
+-				 unsigned int gbus_clock,
+-				 u8 pio)
 -{
--	struct rbtx4939_flash_info *info;
+-	struct ide_timing *t = ide_timing_find_mode(XFER_PIO_0 + pio);
+-	u64 cr = __raw_readq(&tx4938_ebuscptr->cr[ebus_ch]);
+-	unsigned int sp = (cr >> 4) & 3;
+-	unsigned int clock = gbus_clock / (4 - sp);
+-	unsigned int cycle = 1000000000 / clock;
+-	unsigned int shwt;
+-	int wt;
 -
--	info = platform_get_drvdata(dev);
--	if (!info)
--		return 0;
+-	/* Minimum DIOx- active time */
+-	wt = DIV_ROUND_UP(t->act8b, cycle) - 2;
+-	/* IORDY setup time: 35ns */
+-	wt = max_t(int, wt, DIV_ROUND_UP(35, cycle));
+-	/* actual wait-cycle is max(wt & ~1, 1) */
+-	if (wt > 2 && (wt & 1))
+-		wt++;
+-	wt &= ~1;
+-	/* Address-valid to DIOR/DIOW setup */
+-	shwt = DIV_ROUND_UP(t->setup, cycle);
 -
--	if (info->mtd) {
--		mtd_device_unregister(info->mtd);
--		map_destroy(info->mtd);
+-	/* -DIOx recovery time (SHWT * 4) and cycle time requirement */
+-	while ((shwt * 4 + wt + (wt ? 2 : 3)) * cycle < t->cycle)
+-		shwt++;
+-	if (shwt > 7) {
+-		pr_warn("tx4938ide: SHWT violation (%d)\n", shwt);
+-		shwt = 7;
 -	}
--	return 0;
+-	pr_debug("tx4938ide: ebus %d, bus cycle %dns, WT %d, SHWT %d\n",
+-		 ebus_ch, cycle, wt, shwt);
+-
+-	__raw_writeq((cr & ~0x3f007ull) | (wt << 12) | shwt,
+-		     &tx4938_ebuscptr->cr[ebus_ch]);
 -}
 -
--static const char * const rom_probe_types[] = {
--	"cfi_probe", "jedec_probe", NULL };
--
--static int rbtx4939_flash_probe(struct platform_device *dev)
+-static void tx4938ide_set_pio_mode(ide_hwif_t *hwif, ide_drive_t *drive)
 -{
--	struct rbtx4939_flash_data *pdata;
--	struct rbtx4939_flash_info *info;
+-	struct tx4938ide_platform_info *pdata = dev_get_platdata(hwif->dev);
+-	u8 safe = drive->pio_mode - XFER_PIO_0;
+-	ide_drive_t *pair;
+-
+-	pair = ide_get_pair_dev(drive);
+-	if (pair)
+-		safe = min_t(u8, safe, pair->pio_mode - XFER_PIO_0);
+-	tx4938ide_tune_ebusc(pdata->ebus_ch, pdata->gbus_clock, safe);
+-}
+-
+-#ifdef __BIG_ENDIAN
+-
+-/* custom iops (independent from SWAP_IO_SPACE) */
+-static void tx4938ide_input_data_swap(ide_drive_t *drive, struct ide_cmd *cmd,
+-				void *buf, unsigned int len)
+-{
+-	unsigned long port = drive->hwif->io_ports.data_addr;
+-	unsigned short *ptr = buf;
+-	unsigned int count = (len + 1) / 2;
+-
+-	while (count--)
+-		*ptr++ = cpu_to_le16(__raw_readw((void __iomem *)port));
+-	__ide_flush_dcache_range((unsigned long)buf, roundup(len, 2));
+-}
+-
+-static void tx4938ide_output_data_swap(ide_drive_t *drive, struct ide_cmd *cmd,
+-				void *buf, unsigned int len)
+-{
+-	unsigned long port = drive->hwif->io_ports.data_addr;
+-	unsigned short *ptr = buf;
+-	unsigned int count = (len + 1) / 2;
+-
+-	while (count--) {
+-		__raw_writew(le16_to_cpu(*ptr), (void __iomem *)port);
+-		ptr++;
+-	}
+-	__ide_flush_dcache_range((unsigned long)buf, roundup(len, 2));
+-}
+-
+-static const struct ide_tp_ops tx4938ide_tp_ops = {
+-	.exec_command		= ide_exec_command,
+-	.read_status		= ide_read_status,
+-	.read_altstatus		= ide_read_altstatus,
+-	.write_devctl		= ide_write_devctl,
+-
+-	.dev_select		= ide_dev_select,
+-	.tf_load		= ide_tf_load,
+-	.tf_read		= ide_tf_read,
+-
+-	.input_data		= tx4938ide_input_data_swap,
+-	.output_data		= tx4938ide_output_data_swap,
+-};
+-
+-#endif	/* __BIG_ENDIAN */
+-
+-static const struct ide_port_ops tx4938ide_port_ops = {
+-	.set_pio_mode		= tx4938ide_set_pio_mode,
+-};
+-
+-static const struct ide_port_info tx4938ide_port_info __initconst = {
+-	.port_ops		= &tx4938ide_port_ops,
+-#ifdef __BIG_ENDIAN
+-	.tp_ops			= &tx4938ide_tp_ops,
+-#endif
+-	.host_flags		= IDE_HFLAG_MMIO | IDE_HFLAG_NO_DMA,
+-	.pio_mask		= ATA_PIO5,
+-	.chipset		= ide_generic,
+-};
+-
+-static int __init tx4938ide_probe(struct platform_device *pdev)
+-{
+-	struct ide_hw hw, *hws[] = { &hw };
+-	struct ide_host *host;
 -	struct resource *res;
--	const char * const *probe_type;
--	int err = 0;
--	unsigned long size;
+-	struct tx4938ide_platform_info *pdata = dev_get_platdata(&pdev->dev);
+-	int irq, ret, i;
+-	unsigned long mapbase, mapctl;
+-	struct ide_port_info d = tx4938ide_port_info;
 -
--	pdata = dev_get_platdata(&dev->dev);
--	if (!pdata)
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
 -		return -ENODEV;
--
--	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -	if (!res)
 -		return -ENODEV;
--	info = devm_kzalloc(&dev->dev, sizeof(struct rbtx4939_flash_info),
--			    GFP_KERNEL);
--	if (!info)
--		return -ENOMEM;
 -
--	platform_set_drvdata(dev, info);
--
--	size = resource_size(res);
--	pr_notice("rbtx4939 platform flash device: %pR\n", res);
--
--	if (!devm_request_mem_region(&dev->dev, res->start, size,
--				     dev_name(&dev->dev)))
+-	if (!devm_request_mem_region(&pdev->dev, res->start,
+-				     resource_size(res), "tx4938ide"))
+-		return -EBUSY;
+-	mapbase = (unsigned long)devm_ioremap(&pdev->dev, res->start,
+-					      8 << pdata->ioport_shift);
+-	mapctl = (unsigned long)devm_ioremap(&pdev->dev,
+-					     res->start + 0x10000 +
+-					     (6 << pdata->ioport_shift),
+-					     1 << pdata->ioport_shift);
+-	if (!mapbase || !mapctl)
 -		return -EBUSY;
 -
--	info->map.name = dev_name(&dev->dev);
--	info->map.phys = res->start;
--	info->map.size = size;
--	info->map.bankwidth = pdata->width;
+-	memset(&hw, 0, sizeof(hw));
+-	if (pdata->ioport_shift) {
+-		unsigned long port = mapbase;
+-		unsigned long ctl = mapctl;
 -
--	info->map.virt = devm_ioremap(&dev->dev, info->map.phys, size);
--	if (!info->map.virt)
--		return -EBUSY;
--
--	if (pdata->map_init)
--		(*pdata->map_init)(&info->map);
--	else
--		simple_map_init(&info->map);
--
--	probe_type = rom_probe_types;
--	for (; !info->mtd && *probe_type; probe_type++)
--		info->mtd = do_map_probe(*probe_type, &info->map);
--	if (!info->mtd) {
--		dev_err(&dev->dev, "map_probe failed\n");
--		err = -ENXIO;
--		goto err_out;
--	}
--	info->mtd->dev.parent = &dev->dev;
--	err = mtd_device_register(info->mtd, pdata->parts, pdata->nr_parts);
--
--	if (err)
--		goto err_out;
--	return 0;
--
--err_out:
--	rbtx4939_flash_remove(dev);
--	return err;
--}
--
--#ifdef CONFIG_PM
--static void rbtx4939_flash_shutdown(struct platform_device *dev)
--{
--	struct rbtx4939_flash_info *info = platform_get_drvdata(dev);
--
--	if (mtd_suspend(info->mtd) == 0)
--		mtd_resume(info->mtd);
--}
--#else
--#define rbtx4939_flash_shutdown NULL
+-		hw.io_ports_array[0] = port;
+-#ifdef __BIG_ENDIAN
+-		port++;
+-		ctl++;
 -#endif
+-		for (i = 1; i <= 7; i++)
+-			hw.io_ports_array[i] =
+-				port + (i << pdata->ioport_shift);
+-		hw.io_ports.ctl_addr = ctl;
+-	} else
+-		ide_std_init_ports(&hw, mapbase, mapctl);
+-	hw.irq = irq;
+-	hw.dev = &pdev->dev;
 -
--static struct platform_driver rbtx4939_flash_driver = {
--	.probe		= rbtx4939_flash_probe,
--	.remove		= rbtx4939_flash_remove,
--	.shutdown	= rbtx4939_flash_shutdown,
+-	pr_info("TX4938 IDE interface (base %#lx, ctl %#lx, irq %d)\n",
+-		mapbase, mapctl, hw.irq);
+-	if (pdata->gbus_clock)
+-		tx4938ide_tune_ebusc(pdata->ebus_ch, pdata->gbus_clock, 0);
+-	else
+-		d.port_ops = NULL;
+-	ret = ide_host_add(&d, hws, 1, &host);
+-	if (!ret)
+-		platform_set_drvdata(pdev, host);
+-	return ret;
+-}
+-
+-static int __exit tx4938ide_remove(struct platform_device *pdev)
+-{
+-	struct ide_host *host = platform_get_drvdata(pdev);
+-
+-	ide_host_remove(host);
+-	return 0;
+-}
+-
+-static struct platform_driver tx4938ide_driver = {
 -	.driver		= {
--		.name	= "rbtx4939-flash",
+-		.name	= "tx4938ide",
 -	},
+-	.remove = __exit_p(tx4938ide_remove),
 -};
 -
--module_platform_driver(rbtx4939_flash_driver);
+-module_platform_driver_probe(tx4938ide_driver, tx4938ide_probe);
 -
+-MODULE_DESCRIPTION("TX4938 internal IDE driver");
 -MODULE_LICENSE("GPL");
--MODULE_DESCRIPTION("RBTX4939 MTD map driver");
--MODULE_ALIAS("platform:rbtx4939-flash");
-diff --git a/drivers/mtd/nand/raw/Kconfig b/drivers/mtd/nand/raw/Kconfig
-index 442a039b92f3..9e74a63b18a4 100644
---- a/drivers/mtd/nand/raw/Kconfig
-+++ b/drivers/mtd/nand/raw/Kconfig
-@@ -313,13 +313,6 @@ config MTD_NAND_DAVINCI
- 	  Enable the driver for NAND flash chips on Texas Instruments
- 	  DaVinci/Keystone processors.
- 
--config MTD_NAND_TXX9NDFMC
--	tristate "TXx9 NAND controller"
--	depends on SOC_TX4938 || SOC_TX4939 || COMPILE_TEST
--	depends on HAS_IOMEM
--	help
--	  This enables the NAND flash controller on the TXx9 SoCs.
--
- config MTD_NAND_SOCRATES
- 	tristate "Socrates NAND controller"
- 	depends on SOCRATES
-diff --git a/drivers/mtd/nand/raw/Makefile b/drivers/mtd/nand/raw/Makefile
-index 32475a28d8f8..07cb86321403 100644
---- a/drivers/mtd/nand/raw/Makefile
-+++ b/drivers/mtd/nand/raw/Makefile
-@@ -37,7 +37,6 @@ obj-$(CONFIG_MTD_NAND_MLC_LPC32XX)      += lpc32xx_mlc.o
- obj-$(CONFIG_MTD_NAND_SH_FLCTL)		+= sh_flctl.o
- obj-$(CONFIG_MTD_NAND_MXC)		+= mxc_nand.o
- obj-$(CONFIG_MTD_NAND_SOCRATES)		+= socrates_nand.o
--obj-$(CONFIG_MTD_NAND_TXX9NDFMC)	+= txx9ndfmc.o
- obj-$(CONFIG_MTD_NAND_MPC5121_NFC)	+= mpc5121_nfc.o
- obj-$(CONFIG_MTD_NAND_VF610_NFC)	+= vf610_nfc.o
- obj-$(CONFIG_MTD_NAND_RICOH)		+= r852.o
-diff --git a/drivers/mtd/nand/raw/txx9ndfmc.c b/drivers/mtd/nand/raw/txx9ndfmc.c
+-MODULE_ALIAS("platform:tx4938ide");
+diff --git a/drivers/ide/tx4939ide.c b/drivers/ide/tx4939ide.c
 deleted file mode 100644
-index 1a9449e53bf9..000000000000
---- a/drivers/mtd/nand/raw/txx9ndfmc.c
+index b1bbf807bb3d..000000000000
+--- a/drivers/ide/tx4939ide.c
 +++ /dev/null
-@@ -1,423 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
+@@ -1,628 +0,0 @@
 -/*
-- * TXx9 NAND flash memory controller driver
+- * TX4939 internal IDE driver
 - * Based on RBTX49xx patch from CELF patch archive.
 - *
-- * (C) Copyright TOSHIBA CORPORATION 2004-2007
-- * All Rights Reserved.
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * (C) Copyright TOSHIBA CORPORATION 2005-2007
 - */
--#include <linux/err.h>
--#include <linux/init.h>
--#include <linux/slab.h>
+-
 -#include <linux/module.h>
--#include <linux/platform_device.h>
+-#include <linux/types.h>
+-#include <linux/ide.h>
+-#include <linux/init.h>
 -#include <linux/delay.h>
--#include <linux/mtd/mtd.h>
--#include <linux/mtd/rawnand.h>
--#include <linux/mtd/partitions.h>
+-#include <linux/platform_device.h>
 -#include <linux/io.h>
--#include <linux/platform_data/txx9/ndfmc.h>
+-#include <linux/scatterlist.h>
 -
--/* TXX9 NDFMC Registers */
--#define TXX9_NDFDTR	0x00
--#define TXX9_NDFMCR	0x04
--#define TXX9_NDFSR	0x08
--#define TXX9_NDFISR	0x0c
--#define TXX9_NDFIMR	0x10
--#define TXX9_NDFSPR	0x14
--#define TXX9_NDFRSTR	0x18	/* not TX4939 */
+-#include <asm/ide.h>
 -
--/* NDFMCR : NDFMC Mode Control */
--#define TXX9_NDFMCR_WE	0x80
--#define TXX9_NDFMCR_ECC_ALL	0x60
--#define TXX9_NDFMCR_ECC_RESET	0x60
--#define TXX9_NDFMCR_ECC_READ	0x40
--#define TXX9_NDFMCR_ECC_ON	0x20
--#define TXX9_NDFMCR_ECC_OFF	0x00
--#define TXX9_NDFMCR_CE	0x10
--#define TXX9_NDFMCR_BSPRT	0x04	/* TX4925/TX4926 only */
--#define TXX9_NDFMCR_ALE	0x02
--#define TXX9_NDFMCR_CLE	0x01
--/* TX4939 only */
--#define TXX9_NDFMCR_X16	0x0400
--#define TXX9_NDFMCR_DMAREQ_MASK	0x0300
--#define TXX9_NDFMCR_DMAREQ_NODMA	0x0000
--#define TXX9_NDFMCR_DMAREQ_128	0x0100
--#define TXX9_NDFMCR_DMAREQ_256	0x0200
--#define TXX9_NDFMCR_DMAREQ_512	0x0300
--#define TXX9_NDFMCR_CS_MASK	0x0c
--#define TXX9_NDFMCR_CS(ch)	((ch) << 2)
+-#define MODNAME	"tx4939ide"
 -
--/* NDFMCR : NDFMC Status */
--#define TXX9_NDFSR_BUSY	0x80
--/* TX4939 only */
--#define TXX9_NDFSR_DMARUN	0x40
+-/* ATA Shadow Registers (8-bit except for Data which is 16-bit) */
+-#define TX4939IDE_Data			0x000
+-#define TX4939IDE_Error_Feature		0x001
+-#define TX4939IDE_Sec			0x002
+-#define TX4939IDE_LBA0			0x003
+-#define TX4939IDE_LBA1			0x004
+-#define TX4939IDE_LBA2			0x005
+-#define TX4939IDE_DevHead		0x006
+-#define TX4939IDE_Stat_Cmd		0x007
+-#define TX4939IDE_AltStat_DevCtl	0x402
+-/* H/W DMA Registers  */
+-#define TX4939IDE_DMA_Cmd	0x800	/* 8-bit */
+-#define TX4939IDE_DMA_Stat	0x802	/* 8-bit */
+-#define TX4939IDE_PRD_Ptr	0x804	/* 32-bit */
+-/* ATA100 CORE Registers (16-bit) */
+-#define TX4939IDE_Sys_Ctl	0xc00
+-#define TX4939IDE_Xfer_Cnt_1	0xc08
+-#define TX4939IDE_Xfer_Cnt_2	0xc0a
+-#define TX4939IDE_Sec_Cnt	0xc10
+-#define TX4939IDE_Start_Lo_Addr	0xc18
+-#define TX4939IDE_Start_Up_Addr	0xc20
+-#define TX4939IDE_Add_Ctl	0xc28
+-#define TX4939IDE_Lo_Burst_Cnt	0xc30
+-#define TX4939IDE_Up_Burst_Cnt	0xc38
+-#define TX4939IDE_PIO_Addr	0xc88
+-#define TX4939IDE_H_Rst_Tim	0xc90
+-#define TX4939IDE_Int_Ctl	0xc98
+-#define TX4939IDE_Pkt_Cmd	0xcb8
+-#define TX4939IDE_Bxfer_Cnt_Hi	0xcc0
+-#define TX4939IDE_Bxfer_Cnt_Lo	0xcc8
+-#define TX4939IDE_Dev_TErr	0xcd0
+-#define TX4939IDE_Pkt_Xfer_Ctl	0xcd8
+-#define TX4939IDE_Start_TAddr	0xce0
 -
--/* NDFMCR : NDFMC Reset */
--#define TXX9_NDFRSTR_RST	0x01
+-/* bits for Int_Ctl */
+-#define TX4939IDE_INT_ADDRERR	0x80
+-#define TX4939IDE_INT_REACHMUL	0x40
+-#define TX4939IDE_INT_DEVTIMING	0x20
+-#define TX4939IDE_INT_UDMATERM	0x10
+-#define TX4939IDE_INT_TIMER	0x08
+-#define TX4939IDE_INT_BUSERR	0x04
+-#define TX4939IDE_INT_XFEREND	0x02
+-#define TX4939IDE_INT_HOST	0x01
 -
--struct txx9ndfmc_priv {
--	struct platform_device *dev;
--	struct nand_chip chip;
--	int cs;
--	const char *mtdname;
--};
+-#define TX4939IDE_IGNORE_INTS	\
+-	(TX4939IDE_INT_ADDRERR | TX4939IDE_INT_REACHMUL | \
+-	 TX4939IDE_INT_DEVTIMING | TX4939IDE_INT_UDMATERM | \
+-	 TX4939IDE_INT_TIMER | TX4939IDE_INT_XFEREND)
 -
--#define MAX_TXX9NDFMC_DEV	4
--struct txx9ndfmc_drvdata {
--	struct mtd_info *mtds[MAX_TXX9NDFMC_DEV];
--	void __iomem *base;
--	unsigned char hold;	/* in gbusclock */
--	unsigned char spw;	/* in gbusclock */
--	struct nand_controller controller;
--};
+-#ifdef __BIG_ENDIAN
+-#define tx4939ide_swizzlel(a)	((a) ^ 4)
+-#define tx4939ide_swizzlew(a)	((a) ^ 6)
+-#define tx4939ide_swizzleb(a)	((a) ^ 7)
+-#else
+-#define tx4939ide_swizzlel(a)	(a)
+-#define tx4939ide_swizzlew(a)	(a)
+-#define tx4939ide_swizzleb(a)	(a)
+-#endif
 -
--static struct platform_device *mtd_to_platdev(struct mtd_info *mtd)
+-static u16 tx4939ide_readw(void __iomem *base, u32 reg)
 -{
--	struct nand_chip *chip = mtd_to_nand(mtd);
--	struct txx9ndfmc_priv *txx9_priv = nand_get_controller_data(chip);
--	return txx9_priv->dev;
+-	return __raw_readw(base + tx4939ide_swizzlew(reg));
+-}
+-static u8 tx4939ide_readb(void __iomem *base, u32 reg)
+-{
+-	return __raw_readb(base + tx4939ide_swizzleb(reg));
+-}
+-static void tx4939ide_writel(u32 val, void __iomem *base, u32 reg)
+-{
+-	__raw_writel(val, base + tx4939ide_swizzlel(reg));
+-}
+-static void tx4939ide_writew(u16 val, void __iomem *base, u32 reg)
+-{
+-	__raw_writew(val, base + tx4939ide_swizzlew(reg));
+-}
+-static void tx4939ide_writeb(u8 val, void __iomem *base, u32 reg)
+-{
+-	__raw_writeb(val, base + tx4939ide_swizzleb(reg));
 -}
 -
--static void __iomem *ndregaddr(struct platform_device *dev, unsigned int reg)
--{
--	struct txx9ndfmc_drvdata *drvdata = platform_get_drvdata(dev);
--	struct txx9ndfmc_platform_data *plat = dev_get_platdata(&dev->dev);
+-#define TX4939IDE_BASE(hwif)	((void __iomem *)(hwif)->extra_base)
 -
--	return drvdata->base + (reg << plat->shift);
+-static void tx4939ide_set_pio_mode(ide_hwif_t *hwif, ide_drive_t *drive)
+-{
+-	int is_slave = drive->dn;
+-	u32 mask, val;
+-	const u8 pio = drive->pio_mode - XFER_PIO_0;
+-	u8 safe = pio;
+-	ide_drive_t *pair;
+-
+-	pair = ide_get_pair_dev(drive);
+-	if (pair)
+-		safe = min_t(u8, safe, pair->pio_mode - XFER_PIO_0);
+-	/*
+-	 * Update Command Transfer Mode for master/slave and Data
+-	 * Transfer Mode for this drive.
+-	 */
+-	mask = is_slave ? 0x07f00000 : 0x000007f0;
+-	val = ((safe << 8) | (pio << 4)) << (is_slave ? 16 : 0);
+-	hwif->select_data = (hwif->select_data & ~mask) | val;
+-	/* tx4939ide_tf_load_fixup() will set the Sys_Ctl register */
 -}
 -
--static u32 txx9ndfmc_read(struct platform_device *dev, unsigned int reg)
+-static void tx4939ide_set_dma_mode(ide_hwif_t *hwif, ide_drive_t *drive)
 -{
--	return __raw_readl(ndregaddr(dev, reg));
--}
+-	u32 mask, val;
+-	const u8 mode = drive->dma_mode;
 -
--static void txx9ndfmc_write(struct platform_device *dev,
--			    u32 val, unsigned int reg)
--{
--	__raw_writel(val, ndregaddr(dev, reg));
--}
--
--static uint8_t txx9ndfmc_read_byte(struct nand_chip *chip)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--
--	return txx9ndfmc_read(dev, TXX9_NDFDTR);
--}
--
--static void txx9ndfmc_write_buf(struct nand_chip *chip, const uint8_t *buf,
--				int len)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--	void __iomem *ndfdtr = ndregaddr(dev, TXX9_NDFDTR);
--	u32 mcr = txx9ndfmc_read(dev, TXX9_NDFMCR);
--
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_WE, TXX9_NDFMCR);
--	while (len--)
--		__raw_writel(*buf++, ndfdtr);
--	txx9ndfmc_write(dev, mcr, TXX9_NDFMCR);
--}
--
--static void txx9ndfmc_read_buf(struct nand_chip *chip, uint8_t *buf, int len)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--	void __iomem *ndfdtr = ndregaddr(dev, TXX9_NDFDTR);
--
--	while (len--)
--		*buf++ = __raw_readl(ndfdtr);
--}
--
--static void txx9ndfmc_cmd_ctrl(struct nand_chip *chip, int cmd,
--			       unsigned int ctrl)
--{
--	struct txx9ndfmc_priv *txx9_priv = nand_get_controller_data(chip);
--	struct platform_device *dev = txx9_priv->dev;
--	struct txx9ndfmc_platform_data *plat = dev_get_platdata(&dev->dev);
--
--	if (ctrl & NAND_CTRL_CHANGE) {
--		u32 mcr = txx9ndfmc_read(dev, TXX9_NDFMCR);
--
--		mcr &= ~(TXX9_NDFMCR_CLE | TXX9_NDFMCR_ALE | TXX9_NDFMCR_CE);
--		mcr |= ctrl & NAND_CLE ? TXX9_NDFMCR_CLE : 0;
--		mcr |= ctrl & NAND_ALE ? TXX9_NDFMCR_ALE : 0;
--		/* TXX9_NDFMCR_CE bit is 0:high 1:low */
--		mcr |= ctrl & NAND_NCE ? TXX9_NDFMCR_CE : 0;
--		if (txx9_priv->cs >= 0 && (ctrl & NAND_NCE)) {
--			mcr &= ~TXX9_NDFMCR_CS_MASK;
--			mcr |= TXX9_NDFMCR_CS(txx9_priv->cs);
--		}
--		txx9ndfmc_write(dev, mcr, TXX9_NDFMCR);
--	}
--	if (cmd != NAND_CMD_NONE)
--		txx9ndfmc_write(dev, cmd & 0xff, TXX9_NDFDTR);
--	if (plat->flags & NDFMC_PLAT_FLAG_DUMMYWRITE) {
--		/* dummy write to update external latch */
--		if ((ctrl & NAND_CTRL_CHANGE) && cmd == NAND_CMD_NONE)
--			txx9ndfmc_write(dev, 0, TXX9_NDFDTR);
--	}
--}
--
--static int txx9ndfmc_dev_ready(struct nand_chip *chip)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--
--	return !(txx9ndfmc_read(dev, TXX9_NDFSR) & TXX9_NDFSR_BUSY);
--}
--
--static int txx9ndfmc_calculate_ecc(struct nand_chip *chip, const uint8_t *dat,
--				   uint8_t *ecc_code)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--	int eccbytes;
--	u32 mcr = txx9ndfmc_read(dev, TXX9_NDFMCR);
--
--	mcr &= ~TXX9_NDFMCR_ECC_ALL;
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_OFF, TXX9_NDFMCR);
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_READ, TXX9_NDFMCR);
--	for (eccbytes = chip->ecc.bytes; eccbytes > 0; eccbytes -= 3) {
--		ecc_code[1] = txx9ndfmc_read(dev, TXX9_NDFDTR);
--		ecc_code[0] = txx9ndfmc_read(dev, TXX9_NDFDTR);
--		ecc_code[2] = txx9ndfmc_read(dev, TXX9_NDFDTR);
--		ecc_code += 3;
--	}
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_OFF, TXX9_NDFMCR);
--	return 0;
--}
--
--static int txx9ndfmc_correct_data(struct nand_chip *chip, unsigned char *buf,
--				  unsigned char *read_ecc,
--				  unsigned char *calc_ecc)
--{
--	int eccsize;
--	int corrected = 0;
--	int stat;
--
--	for (eccsize = chip->ecc.size; eccsize > 0; eccsize -= 256) {
--		stat = rawnand_sw_hamming_correct(chip, buf, read_ecc,
--						  calc_ecc);
--		if (stat < 0)
--			return stat;
--		corrected += stat;
--		buf += 256;
--		read_ecc += 3;
--		calc_ecc += 3;
--	}
--	return corrected;
--}
--
--static void txx9ndfmc_enable_hwecc(struct nand_chip *chip, int mode)
--{
--	struct platform_device *dev = mtd_to_platdev(nand_to_mtd(chip));
--	u32 mcr = txx9ndfmc_read(dev, TXX9_NDFMCR);
--
--	mcr &= ~TXX9_NDFMCR_ECC_ALL;
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_RESET, TXX9_NDFMCR);
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_OFF, TXX9_NDFMCR);
--	txx9ndfmc_write(dev, mcr | TXX9_NDFMCR_ECC_ON, TXX9_NDFMCR);
--}
--
--static void txx9ndfmc_initialize(struct platform_device *dev)
--{
--	struct txx9ndfmc_platform_data *plat = dev_get_platdata(&dev->dev);
--	struct txx9ndfmc_drvdata *drvdata = platform_get_drvdata(dev);
--	int tmout = 100;
--
--	if (plat->flags & NDFMC_PLAT_FLAG_NO_RSTR)
--		; /* no NDFRSTR.  Write to NDFSPR resets the NDFMC. */
--	else {
--		/* reset NDFMC */
--		txx9ndfmc_write(dev,
--				txx9ndfmc_read(dev, TXX9_NDFRSTR) |
--				TXX9_NDFRSTR_RST,
--				TXX9_NDFRSTR);
--		while (txx9ndfmc_read(dev, TXX9_NDFRSTR) & TXX9_NDFRSTR_RST) {
--			if (--tmout == 0) {
--				dev_err(&dev->dev, "reset failed.\n");
--				break;
--			}
--			udelay(1);
--		}
--	}
--	/* setup Hold Time, Strobe Pulse Width */
--	txx9ndfmc_write(dev, (drvdata->hold << 4) | drvdata->spw, TXX9_NDFSPR);
--	txx9ndfmc_write(dev,
--			(plat->flags & NDFMC_PLAT_FLAG_USE_BSPRT) ?
--			TXX9_NDFMCR_BSPRT : 0, TXX9_NDFMCR);
--}
--
--#define TXX9NDFMC_NS_TO_CYC(gbusclk, ns) \
--	DIV_ROUND_UP((ns) * DIV_ROUND_UP(gbusclk, 1000), 1000000)
--
--static int txx9ndfmc_attach_chip(struct nand_chip *chip)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--
--	if (chip->ecc.engine_type != NAND_ECC_ENGINE_TYPE_ON_HOST)
--		return 0;
--
--	chip->ecc.strength = 1;
--
--	if (mtd->writesize >= 512) {
--		chip->ecc.size = 512;
--		chip->ecc.bytes = 6;
+-	/* Update Data Transfer Mode for this drive. */
+-	if (mode >= XFER_UDMA_0)
+-		val = mode - XFER_UDMA_0 + 8;
+-	else
+-		val = mode - XFER_MW_DMA_0 + 5;
+-	if (drive->dn) {
+-		mask = 0x00f00000;
+-		val <<= 20;
 -	} else {
--		chip->ecc.size = 256;
--		chip->ecc.bytes = 3;
+-		mask = 0x000000f0;
+-		val <<= 4;
+-	}
+-	hwif->select_data = (hwif->select_data & ~mask) | val;
+-	/* tx4939ide_tf_load_fixup() will set the Sys_Ctl register */
+-}
+-
+-static u16 tx4939ide_check_error_ints(ide_hwif_t *hwif)
+-{
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u16 ctl = tx4939ide_readw(base, TX4939IDE_Int_Ctl);
+-
+-	if (ctl & TX4939IDE_INT_BUSERR) {
+-		/* reset FIFO */
+-		u16 sysctl = tx4939ide_readw(base, TX4939IDE_Sys_Ctl);
+-
+-		tx4939ide_writew(sysctl | 0x4000, base, TX4939IDE_Sys_Ctl);
+-		/* wait 12GBUSCLK (typ. 60ns @ GBUS200MHz, max 270ns) */
+-		ndelay(270);
+-		tx4939ide_writew(sysctl, base, TX4939IDE_Sys_Ctl);
+-	}
+-	if (ctl & (TX4939IDE_INT_ADDRERR |
+-		   TX4939IDE_INT_DEVTIMING | TX4939IDE_INT_BUSERR))
+-		pr_err("%s: Error interrupt %#x (%s%s%s )\n",
+-		       hwif->name, ctl,
+-		       ctl & TX4939IDE_INT_ADDRERR ? " Address-Error" : "",
+-		       ctl & TX4939IDE_INT_DEVTIMING ? " DEV-Timing" : "",
+-		       ctl & TX4939IDE_INT_BUSERR ? " Bus-Error" : "");
+-	return ctl;
+-}
+-
+-static void tx4939ide_clear_irq(ide_drive_t *drive)
+-{
+-	ide_hwif_t *hwif;
+-	void __iomem *base;
+-	u16 ctl;
+-
+-	/*
+-	 * tx4939ide_dma_test_irq() and tx4939ide_dma_end() do all job
+-	 * for DMA case.
+-	 */
+-	if (drive->waiting_for_dma)
+-		return;
+-	hwif = drive->hwif;
+-	base = TX4939IDE_BASE(hwif);
+-	ctl = tx4939ide_check_error_ints(hwif);
+-	tx4939ide_writew(ctl, base, TX4939IDE_Int_Ctl);
+-}
+-
+-static u8 tx4939ide_cable_detect(ide_hwif_t *hwif)
+-{
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-
+-	return tx4939ide_readw(base, TX4939IDE_Sys_Ctl) & 0x2000 ?
+-		ATA_CBL_PATA40 : ATA_CBL_PATA80;
+-}
+-
+-#ifdef __BIG_ENDIAN
+-static void tx4939ide_dma_host_set(ide_drive_t *drive, int on)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	u8 unit = drive->dn;
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u8 dma_stat = tx4939ide_readb(base, TX4939IDE_DMA_Stat);
+-
+-	if (on)
+-		dma_stat |= (1 << (5 + unit));
+-	else
+-		dma_stat &= ~(1 << (5 + unit));
+-
+-	tx4939ide_writeb(dma_stat, base, TX4939IDE_DMA_Stat);
+-}
+-#else
+-#define tx4939ide_dma_host_set	ide_dma_host_set
+-#endif
+-
+-static u8 tx4939ide_clear_dma_status(void __iomem *base)
+-{
+-	u8 dma_stat;
+-
+-	/* read DMA status for INTR & ERROR flags */
+-	dma_stat = tx4939ide_readb(base, TX4939IDE_DMA_Stat);
+-	/* clear INTR & ERROR flags */
+-	tx4939ide_writeb(dma_stat | ATA_DMA_INTR | ATA_DMA_ERR, base,
+-			 TX4939IDE_DMA_Stat);
+-	/* recover intmask cleared by writing to bit2 of DMA_Stat */
+-	tx4939ide_writew(TX4939IDE_IGNORE_INTS << 8, base, TX4939IDE_Int_Ctl);
+-	return dma_stat;
+-}
+-
+-#ifdef __BIG_ENDIAN
+-/* custom ide_build_dmatable to handle swapped layout */
+-static int tx4939ide_build_dmatable(ide_drive_t *drive, struct ide_cmd *cmd)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	u32 *table = (u32 *)hwif->dmatable_cpu;
+-	unsigned int count = 0;
+-	int i;
+-	struct scatterlist *sg;
+-
+-	for_each_sg(hwif->sg_table, sg, cmd->sg_nents, i) {
+-		u32 cur_addr, cur_len, bcount;
+-
+-		cur_addr = sg_dma_address(sg);
+-		cur_len = sg_dma_len(sg);
+-
+-		/*
+-		 * Fill in the DMA table, without crossing any 64kB boundaries.
+-		 */
+-
+-		while (cur_len) {
+-			if (count++ >= PRD_ENTRIES)
+-				goto use_pio_instead;
+-
+-			bcount = 0x10000 - (cur_addr & 0xffff);
+-			if (bcount > cur_len)
+-				bcount = cur_len;
+-			/*
+-			 * This workaround for zero count seems required.
+-			 * (standard ide_build_dmatable does it too)
+-			 */
+-			if (bcount == 0x10000)
+-				bcount = 0x8000;
+-			*table++ = bcount & 0xffff;
+-			*table++ = cur_addr;
+-			cur_addr += bcount;
+-			cur_len -= bcount;
+-		}
 -	}
 -
--	chip->ecc.calculate = txx9ndfmc_calculate_ecc;
--	chip->ecc.correct = txx9ndfmc_correct_data;
--	chip->ecc.hwctl = txx9ndfmc_enable_hwecc;
+-	if (count) {
+-		*(table - 2) |= 0x80000000;
+-		return count;
+-	}
+-
+-use_pio_instead:
+-	printk(KERN_ERR "%s: %s\n", drive->name,
+-		count ? "DMA table too small" : "empty DMA table?");
+-
+-	return 0; /* revert to PIO for this request */
+-}
+-#else
+-#define tx4939ide_build_dmatable	ide_build_dmatable
+-#endif
+-
+-static int tx4939ide_dma_setup(ide_drive_t *drive, struct ide_cmd *cmd)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u8 rw = (cmd->tf_flags & IDE_TFLAG_WRITE) ? 0 : ATA_DMA_WR;
+-
+-	/* fall back to PIO! */
+-	if (tx4939ide_build_dmatable(drive, cmd) == 0)
+-		return 1;
+-
+-	/* PRD table */
+-	tx4939ide_writel(hwif->dmatable_dma, base, TX4939IDE_PRD_Ptr);
+-
+-	/* specify r/w */
+-	tx4939ide_writeb(rw, base, TX4939IDE_DMA_Cmd);
+-
+-	/* clear INTR & ERROR flags */
+-	tx4939ide_clear_dma_status(base);
+-
+-	tx4939ide_writew(SECTOR_SIZE / 2, base, drive->dn ?
+-			 TX4939IDE_Xfer_Cnt_2 : TX4939IDE_Xfer_Cnt_1);
+-
+-	tx4939ide_writew(blk_rq_sectors(cmd->rq), base, TX4939IDE_Sec_Cnt);
 -
 -	return 0;
 -}
 -
--static const struct nand_controller_ops txx9ndfmc_controller_ops = {
--	.attach_chip = txx9ndfmc_attach_chip,
+-static int tx4939ide_dma_end(ide_drive_t *drive)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	u8 dma_stat, dma_cmd;
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u16 ctl = tx4939ide_readw(base, TX4939IDE_Int_Ctl);
+-
+-	/* get DMA command mode */
+-	dma_cmd = tx4939ide_readb(base, TX4939IDE_DMA_Cmd);
+-	/* stop DMA */
+-	tx4939ide_writeb(dma_cmd & ~ATA_DMA_START, base, TX4939IDE_DMA_Cmd);
+-
+-	/* read and clear the INTR & ERROR bits */
+-	dma_stat = tx4939ide_clear_dma_status(base);
+-
+-#define CHECK_DMA_MASK (ATA_DMA_ACTIVE | ATA_DMA_ERR | ATA_DMA_INTR)
+-
+-	/* verify good DMA status */
+-	if ((dma_stat & CHECK_DMA_MASK) == 0 &&
+-	    (ctl & (TX4939IDE_INT_XFEREND | TX4939IDE_INT_HOST)) ==
+-	    (TX4939IDE_INT_XFEREND | TX4939IDE_INT_HOST))
+-		/* INT_IDE lost... bug? */
+-		return 0;
+-	return ((dma_stat & CHECK_DMA_MASK) !=
+-		ATA_DMA_INTR) ? 0x10 | dma_stat : 0;
+-}
+-
+-/* returns 1 if DMA IRQ issued, 0 otherwise */
+-static int tx4939ide_dma_test_irq(ide_drive_t *drive)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u16 ctl, ide_int;
+-	u8 dma_stat, stat;
+-	int found = 0;
+-
+-	ctl = tx4939ide_check_error_ints(hwif);
+-	ide_int = ctl & (TX4939IDE_INT_XFEREND | TX4939IDE_INT_HOST);
+-	switch (ide_int) {
+-	case TX4939IDE_INT_HOST:
+-		/* On error, XFEREND might not be asserted. */
+-		stat = tx4939ide_readb(base, TX4939IDE_AltStat_DevCtl);
+-		if ((stat & (ATA_BUSY | ATA_DRQ | ATA_ERR)) == ATA_ERR)
+-			found = 1;
+-		else
+-			/* Wait for XFEREND (Mask HOST and unmask XFEREND) */
+-			ctl &= ~TX4939IDE_INT_XFEREND << 8;
+-		ctl |= ide_int << 8;
+-		break;
+-	case TX4939IDE_INT_HOST | TX4939IDE_INT_XFEREND:
+-		dma_stat = tx4939ide_readb(base, TX4939IDE_DMA_Stat);
+-		if (!(dma_stat & ATA_DMA_INTR))
+-			pr_warn("%s: weird interrupt status. "
+-				"DMA_Stat %#02x int_ctl %#04x\n",
+-				hwif->name, dma_stat, ctl);
+-		found = 1;
+-		break;
+-	}
+-	/*
+-	 * Do not clear XFEREND, HOST now.  They will be cleared by
+-	 * clearing bit2 of DMA_Stat.
+-	 */
+-	ctl &= ~ide_int;
+-	tx4939ide_writew(ctl, base, TX4939IDE_Int_Ctl);
+-	return found;
+-}
+-
+-#ifdef __BIG_ENDIAN
+-static u8 tx4939ide_dma_sff_read_status(ide_hwif_t *hwif)
+-{
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-
+-	return tx4939ide_readb(base, TX4939IDE_DMA_Stat);
+-}
+-#else
+-#define tx4939ide_dma_sff_read_status ide_dma_sff_read_status
+-#endif
+-
+-static void tx4939ide_init_hwif(ide_hwif_t *hwif)
+-{
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-
+-	/* Soft Reset */
+-	tx4939ide_writew(0x8000, base, TX4939IDE_Sys_Ctl);
+-	/* at least 20 GBUSCLK (typ. 100ns @ GBUS200MHz, max 450ns) */
+-	ndelay(450);
+-	tx4939ide_writew(0x0000, base, TX4939IDE_Sys_Ctl);
+-	/* mask some interrupts and clear all interrupts */
+-	tx4939ide_writew((TX4939IDE_IGNORE_INTS << 8) | 0xff, base,
+-			 TX4939IDE_Int_Ctl);
+-
+-	tx4939ide_writew(0x0008, base, TX4939IDE_Lo_Burst_Cnt);
+-	tx4939ide_writew(0, base, TX4939IDE_Up_Burst_Cnt);
+-}
+-
+-static int tx4939ide_init_dma(ide_hwif_t *hwif, const struct ide_port_info *d)
+-{
+-	hwif->dma_base =
+-		hwif->extra_base + tx4939ide_swizzleb(TX4939IDE_DMA_Cmd);
+-	/*
+-	 * Note that we cannot use ATA_DMA_TABLE_OFS, ATA_DMA_STATUS
+-	 * for big endian.
+-	 */
+-	return ide_allocate_dma_engine(hwif);
+-}
+-
+-static void tx4939ide_tf_load_fixup(ide_drive_t *drive)
+-{
+-	ide_hwif_t *hwif = drive->hwif;
+-	void __iomem *base = TX4939IDE_BASE(hwif);
+-	u16 sysctl = hwif->select_data >> (drive->dn ? 16 : 0);
+-
+-	/*
+-	 * Fix ATA100 CORE System Control Register. (The write to the
+-	 * Device/Head register may write wrong data to the System
+-	 * Control Register)
+-	 * While Sys_Ctl is written here, dev_select() is not needed.
+-	 */
+-	tx4939ide_writew(sysctl, base, TX4939IDE_Sys_Ctl);
+-}
+-
+-static void tx4939ide_tf_load(ide_drive_t *drive, struct ide_taskfile *tf,
+-			      u8 valid)
+-{
+-	ide_tf_load(drive, tf, valid);
+-
+-	if (valid & IDE_VALID_DEVICE)
+-		tx4939ide_tf_load_fixup(drive);
+-}
+-
+-#ifdef __BIG_ENDIAN
+-
+-/* custom iops (independent from SWAP_IO_SPACE) */
+-static void tx4939ide_input_data_swap(ide_drive_t *drive, struct ide_cmd *cmd,
+-				void *buf, unsigned int len)
+-{
+-	unsigned long port = drive->hwif->io_ports.data_addr;
+-	unsigned short *ptr = buf;
+-	unsigned int count = (len + 1) / 2;
+-
+-	while (count--)
+-		*ptr++ = cpu_to_le16(__raw_readw((void __iomem *)port));
+-	__ide_flush_dcache_range((unsigned long)buf, roundup(len, 2));
+-}
+-
+-static void tx4939ide_output_data_swap(ide_drive_t *drive, struct ide_cmd *cmd,
+-				void *buf, unsigned int len)
+-{
+-	unsigned long port = drive->hwif->io_ports.data_addr;
+-	unsigned short *ptr = buf;
+-	unsigned int count = (len + 1) / 2;
+-
+-	while (count--) {
+-		__raw_writew(le16_to_cpu(*ptr), (void __iomem *)port);
+-		ptr++;
+-	}
+-	__ide_flush_dcache_range((unsigned long)buf, roundup(len, 2));
+-}
+-
+-static const struct ide_tp_ops tx4939ide_tp_ops = {
+-	.exec_command		= ide_exec_command,
+-	.read_status		= ide_read_status,
+-	.read_altstatus		= ide_read_altstatus,
+-	.write_devctl		= ide_write_devctl,
+-
+-	.dev_select		= ide_dev_select,
+-	.tf_load		= tx4939ide_tf_load,
+-	.tf_read		= ide_tf_read,
+-
+-	.input_data		= tx4939ide_input_data_swap,
+-	.output_data		= tx4939ide_output_data_swap,
 -};
 -
--static int __init txx9ndfmc_probe(struct platform_device *dev)
+-#else	/* __LITTLE_ENDIAN */
+-
+-static const struct ide_tp_ops tx4939ide_tp_ops = {
+-	.exec_command		= ide_exec_command,
+-	.read_status		= ide_read_status,
+-	.read_altstatus		= ide_read_altstatus,
+-	.write_devctl		= ide_write_devctl,
+-
+-	.dev_select		= ide_dev_select,
+-	.tf_load		= tx4939ide_tf_load,
+-	.tf_read		= ide_tf_read,
+-
+-	.input_data		= ide_input_data,
+-	.output_data		= ide_output_data,
+-};
+-
+-#endif	/* __LITTLE_ENDIAN */
+-
+-static const struct ide_port_ops tx4939ide_port_ops = {
+-	.set_pio_mode		= tx4939ide_set_pio_mode,
+-	.set_dma_mode		= tx4939ide_set_dma_mode,
+-	.clear_irq		= tx4939ide_clear_irq,
+-	.cable_detect		= tx4939ide_cable_detect,
+-};
+-
+-static const struct ide_dma_ops tx4939ide_dma_ops = {
+-	.dma_host_set		= tx4939ide_dma_host_set,
+-	.dma_setup		= tx4939ide_dma_setup,
+-	.dma_start		= ide_dma_start,
+-	.dma_end		= tx4939ide_dma_end,
+-	.dma_test_irq		= tx4939ide_dma_test_irq,
+-	.dma_lost_irq		= ide_dma_lost_irq,
+-	.dma_timer_expiry	= ide_dma_sff_timer_expiry,
+-	.dma_sff_read_status	= tx4939ide_dma_sff_read_status,
+-};
+-
+-static const struct ide_port_info tx4939ide_port_info __initconst = {
+-	.init_hwif		= tx4939ide_init_hwif,
+-	.init_dma		= tx4939ide_init_dma,
+-	.port_ops		= &tx4939ide_port_ops,
+-	.dma_ops		= &tx4939ide_dma_ops,
+-	.tp_ops			= &tx4939ide_tp_ops,
+-	.host_flags		= IDE_HFLAG_MMIO,
+-	.pio_mask		= ATA_PIO4,
+-	.mwdma_mask		= ATA_MWDMA2,
+-	.udma_mask		= ATA_UDMA5,
+-	.chipset		= ide_generic,
+-};
+-
+-static int __init tx4939ide_probe(struct platform_device *pdev)
 -{
--	struct txx9ndfmc_platform_data *plat = dev_get_platdata(&dev->dev);
--	int hold, spw;
--	int i;
--	struct txx9ndfmc_drvdata *drvdata;
--	unsigned long gbusclk = plat->gbus_clock;
+-	struct ide_hw hw, *hws[] = { &hw };
+-	struct ide_host *host;
 -	struct resource *res;
+-	int irq, ret;
+-	unsigned long mapbase;
 -
--	drvdata = devm_kzalloc(&dev->dev, sizeof(*drvdata), GFP_KERNEL);
--	if (!drvdata)
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return -ENODEV;
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENODEV;
+-
+-	if (!devm_request_mem_region(&pdev->dev, res->start,
+-				     resource_size(res), MODNAME))
+-		return -EBUSY;
+-	mapbase = (unsigned long)devm_ioremap(&pdev->dev, res->start,
+-					      resource_size(res));
+-	if (!mapbase)
+-		return -EBUSY;
+-	memset(&hw, 0, sizeof(hw));
+-	hw.io_ports.data_addr =
+-		mapbase + tx4939ide_swizzlew(TX4939IDE_Data);
+-	hw.io_ports.error_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_Error_Feature);
+-	hw.io_ports.nsect_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_Sec);
+-	hw.io_ports.lbal_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_LBA0);
+-	hw.io_ports.lbam_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_LBA1);
+-	hw.io_ports.lbah_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_LBA2);
+-	hw.io_ports.device_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_DevHead);
+-	hw.io_ports.command_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_Stat_Cmd);
+-	hw.io_ports.ctl_addr =
+-		mapbase + tx4939ide_swizzleb(TX4939IDE_AltStat_DevCtl);
+-	hw.irq = irq;
+-	hw.dev = &pdev->dev;
+-
+-	pr_info("TX4939 IDE interface (base %#lx, irq %d)\n", mapbase, irq);
+-	host = ide_host_alloc(&tx4939ide_port_info, hws, 1);
+-	if (!host)
 -		return -ENOMEM;
--	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
--	drvdata->base = devm_ioremap_resource(&dev->dev, res);
--	if (IS_ERR(drvdata->base))
--		return PTR_ERR(drvdata->base);
--
--	hold = plat->hold ?: 20; /* tDH */
--	spw = plat->spw ?: 90; /* max(tREADID, tWP, tRP) */
--
--	hold = TXX9NDFMC_NS_TO_CYC(gbusclk, hold);
--	spw = TXX9NDFMC_NS_TO_CYC(gbusclk, spw);
--	if (plat->flags & NDFMC_PLAT_FLAG_HOLDADD)
--		hold -= 2;	/* actual hold time : (HOLD + 2) BUSCLK */
--	spw -= 1;	/* actual wait time : (SPW + 1) BUSCLK */
--	hold = clamp(hold, 1, 15);
--	drvdata->hold = hold;
--	spw = clamp(spw, 1, 15);
--	drvdata->spw = spw;
--	dev_info(&dev->dev, "CLK:%ldMHz HOLD:%d SPW:%d\n",
--		 (gbusclk + 500000) / 1000000, hold, spw);
--
--	nand_controller_init(&drvdata->controller);
--	drvdata->controller.ops = &txx9ndfmc_controller_ops;
--
--	platform_set_drvdata(dev, drvdata);
--	txx9ndfmc_initialize(dev);
--
--	for (i = 0; i < MAX_TXX9NDFMC_DEV; i++) {
--		struct txx9ndfmc_priv *txx9_priv;
--		struct nand_chip *chip;
--		struct mtd_info *mtd;
--
--		if (!(plat->ch_mask & (1 << i)))
--			continue;
--		txx9_priv = kzalloc(sizeof(struct txx9ndfmc_priv),
--				    GFP_KERNEL);
--		if (!txx9_priv)
--			continue;
--		chip = &txx9_priv->chip;
--		mtd = nand_to_mtd(chip);
--		mtd->dev.parent = &dev->dev;
--
--		chip->legacy.read_byte = txx9ndfmc_read_byte;
--		chip->legacy.read_buf = txx9ndfmc_read_buf;
--		chip->legacy.write_buf = txx9ndfmc_write_buf;
--		chip->legacy.cmd_ctrl = txx9ndfmc_cmd_ctrl;
--		chip->legacy.dev_ready = txx9ndfmc_dev_ready;
--		chip->legacy.chip_delay = 100;
--		chip->controller = &drvdata->controller;
--
--		nand_set_controller_data(chip, txx9_priv);
--		txx9_priv->dev = dev;
--
--		if (plat->ch_mask != 1) {
--			txx9_priv->cs = i;
--			txx9_priv->mtdname = kasprintf(GFP_KERNEL, "%s.%u",
--						       dev_name(&dev->dev), i);
--		} else {
--			txx9_priv->cs = -1;
--			txx9_priv->mtdname = kstrdup(dev_name(&dev->dev),
--						     GFP_KERNEL);
--		}
--		if (!txx9_priv->mtdname) {
--			kfree(txx9_priv);
--			dev_err(&dev->dev, "Unable to allocate MTD name.\n");
--			continue;
--		}
--		if (plat->wide_mask & (1 << i))
--			chip->options |= NAND_BUSWIDTH_16;
--
--		if (nand_scan(chip, 1)) {
--			kfree(txx9_priv->mtdname);
--			kfree(txx9_priv);
--			continue;
--		}
--		mtd->name = txx9_priv->mtdname;
--
--		mtd_device_register(mtd, NULL, 0);
--		drvdata->mtds[i] = mtd;
+-	/* use extra_base for base address of the all registers */
+-	host->ports[0]->extra_base = mapbase;
+-	ret = ide_host_register(host, &tx4939ide_port_info, hws);
+-	if (ret) {
+-		ide_host_free(host);
+-		return ret;
 -	}
--
+-	platform_set_drvdata(pdev, host);
 -	return 0;
 -}
 -
--static int __exit txx9ndfmc_remove(struct platform_device *dev)
+-static int __exit tx4939ide_remove(struct platform_device *pdev)
 -{
--	struct txx9ndfmc_drvdata *drvdata = platform_get_drvdata(dev);
--	int ret, i;
+-	struct ide_host *host = platform_get_drvdata(pdev);
 -
--	if (!drvdata)
--		return 0;
--	for (i = 0; i < MAX_TXX9NDFMC_DEV; i++) {
--		struct mtd_info *mtd = drvdata->mtds[i];
--		struct nand_chip *chip;
--		struct txx9ndfmc_priv *txx9_priv;
--
--		if (!mtd)
--			continue;
--		chip = mtd_to_nand(mtd);
--		txx9_priv = nand_get_controller_data(chip);
--
--		ret = mtd_device_unregister(nand_to_mtd(chip));
--		WARN_ON(ret);
--		nand_cleanup(chip);
--		kfree(txx9_priv->mtdname);
--		kfree(txx9_priv);
--	}
+-	ide_host_remove(host);
 -	return 0;
 -}
 -
 -#ifdef CONFIG_PM
--static int txx9ndfmc_resume(struct platform_device *dev)
+-static int tx4939ide_resume(struct platform_device *dev)
 -{
--	if (platform_get_drvdata(dev))
--		txx9ndfmc_initialize(dev);
+-	struct ide_host *host = platform_get_drvdata(dev);
+-	ide_hwif_t *hwif = host->ports[0];
+-
+-	tx4939ide_init_hwif(hwif);
 -	return 0;
 -}
 -#else
--#define txx9ndfmc_resume NULL
+-#define tx4939ide_resume	NULL
 -#endif
 -
--static struct platform_driver txx9ndfmc_driver = {
--	.remove		= __exit_p(txx9ndfmc_remove),
--	.resume		= txx9ndfmc_resume,
--	.driver		= {
--		.name	= "txx9ndfmc",
+-static struct platform_driver tx4939ide_driver = {
+-	.driver = {
+-		.name = MODNAME,
 -	},
+-	.remove = __exit_p(tx4939ide_remove),
+-	.resume = tx4939ide_resume,
 -};
 -
--module_platform_driver_probe(txx9ndfmc_driver, txx9ndfmc_probe);
+-module_platform_driver_probe(tx4939ide_driver, tx4939ide_probe);
 -
+-MODULE_DESCRIPTION("TX4939 internal IDE driver");
 -MODULE_LICENSE("GPL");
--MODULE_DESCRIPTION("TXx9 SoC NAND flash controller driver");
--MODULE_ALIAS("platform:txx9ndfmc");
-diff --git a/include/linux/platform_data/txx9/ndfmc.h b/include/linux/platform_data/txx9/ndfmc.h
-deleted file mode 100644
-index 7aaa4cd34d31..000000000000
---- a/include/linux/platform_data/txx9/ndfmc.h
-+++ /dev/null
-@@ -1,28 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- *
-- * (C) Copyright TOSHIBA CORPORATION 2007
-- */
--#ifndef __TXX9_NDFMC_H
--#define __TXX9_NDFMC_H
--
--#define NDFMC_PLAT_FLAG_USE_BSPRT	0x01
--#define NDFMC_PLAT_FLAG_NO_RSTR		0x02
--#define NDFMC_PLAT_FLAG_HOLDADD		0x04
--#define NDFMC_PLAT_FLAG_DUMMYWRITE	0x08
--
--struct txx9ndfmc_platform_data {
--	unsigned int shift;
--	unsigned int gbus_clock;
--	unsigned int hold;		/* hold time in nanosecond */
--	unsigned int spw;		/* strobe pulse width in nanosecond */
--	unsigned int flags;
--	unsigned char ch_mask;		/* available channel bitmask */
--	unsigned char wp_mask;		/* write-protect bitmask */
--	unsigned char wide_mask;	/* 16bit-nand bitmask */
--};
--
--void txx9_ndfmc_init(unsigned long baseaddr,
--		     const struct txx9ndfmc_platform_data *plat_data);
--
--#endif /* __TXX9_NDFMC_H */
+-MODULE_ALIAS("platform:tx4939ide");
 -- 
 2.29.2
 
