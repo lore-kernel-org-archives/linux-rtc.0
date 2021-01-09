@@ -5,32 +5,32 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59BDDC4332E
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B2A3C433E6
+	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:08:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 41303239D1
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E899239A4
+	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:08:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726427AbhAITHn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 9 Jan 2021 14:07:43 -0500
-Received: from mout.gmx.net ([212.227.17.22]:47245 "EHLO mout.gmx.net"
+        id S1726267AbhAITHf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 9 Jan 2021 14:07:35 -0500
+Received: from mout.gmx.net ([212.227.15.19]:52635 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbhAITHm (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 9 Jan 2021 14:07:42 -0500
+        id S1726251AbhAITHe (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 9 Jan 2021 14:07:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1610219120;
-        bh=z4JXsPGpBtiItD5DSjIUAVtxqz+CJxpHzrhtiUm6REI=;
+        s=badeba3b8450; t=1610219126;
+        bh=beDFWMFQH5cVEblcA3Gd98HHThRVyNU/HW/JMjwDv+E=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=Tcc5q3w17FVSfwbY/QgmptZU7qGAMMBc0265NBKl3by+ROcvv7qyUnkcUldhFEalj
-         7VJnrbIg0w1dAYSbsBn3ACOFFIJXtRa1tM/ut54E11Sho/v5FUwGyvyHbbHOnDNzWd
-         VN9foPW/Q6G/NtySaf+3QTRtmiuuGFzmStfk5vPw=
+        b=GVrMersmNZOPW3JOV9lRKY4Mf0rbxmgsdavGx7fcZxnOTDIpu9wmgncZMOacZKMrD
+         /Oix2U8C5r+AzDeOcKMtGBsxCs8YilxRHThui6aYOWm3+3FDlXbJiBhxi1I31UjPDn
+         Rk+/Hb2Tkthe2zvkD509S54sQjCvfEOXsG7k3bvA=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([37.201.215.57]) by mail.gmx.com (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MIdif-1klswk3WWD-00EeQX; Sat, 09
- Jan 2021 20:05:20 +0100
+Received: from longitude ([37.201.215.57]) by mail.gmx.com (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MEUzA-1kjP2K2Uqw-00G036; Sat, 09
+ Jan 2021 20:05:26 +0100
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,282 +60,101 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Andreas Kemnade <andreas@kemnade.info>,
         Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v7 5/7] rtc: New driver for RTC in Netronix embedded controller
-Date:   Sat,  9 Jan 2021 19:02:18 +0100
-Message-Id: <20210109180220.121511-6-j.neuschaefer@gmx.net>
+Subject: [PATCH v7 7/7] ARM: dts: imx50-kobo-aura: Add Netronix embedded controller
+Date:   Sat,  9 Jan 2021 19:02:20 +0100
+Message-Id: <20210109180220.121511-8-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210109180220.121511-1-j.neuschaefer@gmx.net>
 References: <20210109180220.121511-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:uZP9hf1aS3usw+/nYC0lrmHsNRp228AfYNgr3WydDpFImCEpBkk
- MnBVfgO17Z8uyGA8e7LxavLi414bUL0LTLFQa5QyWugX2XE4OgNNMjM5dZXVEZx1I+SIGN8
- DApIa2fEx8PeaOZx/mDhmbDsdqN+uXovIanL+ibipU51qXPhii0oN2kUW3hTGtojvCbHD5S
- Cm5XVdFo0EAYVbAUNS2eA==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:EYrpvAOSfd0=:7B24LpOnbiA8yFU1TbabCM
- nlW02BFpaymxews572XPp689VcVj35qTa/g79V0ItUPWe/Zhz0RkQdTgVniKadL5s1xqU3lWX
- zFCIK2bjlQYZoqLbg9utONjjNLwEC6biKTa26jwqDsFeNCOqSVTYUbtjqvlkziT7HCOYG2HgW
- pcVLqNdr6ec67LlRzD9V5dIOcLmYPxVls+HsVUr9MSz9MU2MC7or8WWbw5VbAWMMpGTDon1yj
- 5Mna3sxWGye7RaqvsKh8fiC996dW+4ULbq8h37Q/5XKnj4cNB3JiX6logEgknBvOe9UtBe7Oj
- U/C9XTeRoxon+5WvAo2vedhvr5+CqLMCaYuf2OJVD+NZ8uFkYIWlteZD+9m9HDtsay35H2dRD
- opLBXIRVylZ9iQOgpUFFVGoEgsKEfUV5/ZaQeC4Ig7MhyQO8kYzhWH4K/8tOoS1dR9wL979C7
- yzaE06xbYaQCYSbwpCGIPi3XUI3XFUWGVBWnbjzva76jqp79ESxtNkVB8SLRSyuB+5mXqw8SJ
- U/UU4IIUgV/soEaw+aMiNQaZ+tVuB/vwUEuLbMbHAQcm6aC1F9JI1uW8+g8aVxbG8j0mXfteH
- Pw6Et5nwhIceVu29DwfVEhv+/aO4JsW7gU1/7RyCBjKjGLhfs9Hy3hr5GjOrHxt4pBbJTkfbN
- RmsHKQWMQmMICiVhnqTkmauWtttmym9qA3q9K1wM9uKXUYJrgmcNDkuKuUlGbYPxGj1jL4+WT
- MkyrPaizxcL7gs+upgVnAuQaQGgdC9rqOrO22OzrI6kxa+KRuKPW9TUeP1PyA/x9GIwwkhBSu
- nUP4lzMkGT8KkUxKisHvYS3NlDy4vEBPjOwJhWekzmeuQkYCwOTlJEJQVzuDZqq5rMEwOxriW
- SiCjw3SYTSrxRbeqA+xA==
+X-Provags-ID: V03:K1:HOscdZhtcppg+O3FCnk9a2KxpaGEBDszhkK1cm9MYgZycE754P1
+ pf3Dc1S8tipzSe8hh2qchdOFrj+1GporoDZ6wJAIFJEysWL/9ZhShhc93QRVkhgvt+MQcNu
+ VBypSFDmK1n6VJzhK75zALkB2DN7lwnQit1E32fSUddaLekOdhtWEATpKAK3FRUA2luVzcQ
+ Fz3FXszv+SrcpUWBQLaIA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:y+0rmWr9ruU=:5wKkfmM9TRYM4p1/NxSKzY
+ LtiJdANiuIem7DV3QI8QmK5ysefqJdmPuilmM13PlPOOiPibZ23zE+/sbqLHaa8V36SlJlH6Q
+ rO63muOUa+laFA1DOMw7lIYW3juLbNTPyyd7K6FHlDATGZGna6OfDIfQ3fgSc+CvoCZoqEPbb
+ JvHPDP9Jnpi3GgfwsKwzqmwXXDObX1oc6rnr9awhGJeX26ynQ1yP75anhNPkz20OlgU5klw0A
+ x4zPmPJ/ZPzon2+VPc59vGxVEiaUx7O5BobNBbixT3kvhfatEiBy0a8dv6OWtfa1T5uQkA4zI
+ 2SGhvcQl25aME1j75JX9pmCLnKjE7Hdm1YHzkhntV3F4M9rCjoek81qQ4Hl8RR6peu9YWnRqs
+ J5c9Zhxnl4IFB2jFQGYSrfLWNidNEOfzJaLtfCDifGGKf/YoSLD/PDhA4r2SDeYNdHBwZs5go
+ u2pr46lHmpYnhDU+dvXaqYCOnIGCZH+VDBZWg23laDXyXEjADbPzQjBxLv4+vsYCNea66DUlZ
+ L8PJOvamjiGSlCAlKeAMwSRut55t3V2rMhJXkuOXU0cXUo61bnI9+YqdlJuhyidSWnWLpBvpO
+ UlI9Y6ivRv1Y/kpWQNOFYJlvUgOydTe86j3fTw+T5yWYOcDoAWqCjiuL7NpojIP3Vq0DoQjPl
+ bEg5by99YVevegZM1jLPJJpk2kdEFcL5UXXRwTzgTmWYceI3dAZ2FVnBuyJej6SRopftT4rPq
+ 91SV1l0IrS0r56js19XMOV1GKnvGZGQw/vvHl7vVNLvFEG/HEN0HIV1arCB7v4B6RKKyuWYNh
+ iGdkrfvUsVuZ24qC55oEo22MA+CHtw1E7NqZ97bxEWflXwkatdX22piJPP/9EzSkqMECONw73
+ GoOz6yZ5b2cmg5Ye1zPQ==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-With this driver, mainline Linux can keep its time and date in sync with
-the vendor kernel.
+Enable the Netronix EC on the Kobo Aura ebook reader.
 
-Advanced functionality like alarm and automatic power-on is not yet
-supported.
+Several features are still missing:
+ - Frontlight/backlight. The vendor kernel drives the frontlight LED
+   using the PWM output of the EC and an additional boost pin that
+   increases the brightness.
+ - Battery monitoring
+ - Interrupts for RTC alarm and low-battery events
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 =2D--
-v7:
-- Adjust to recent RTC API change (rtc_register_device -> devm_rtc_registe=
-r_device)
-
-v6:
+v5-v7:
 - no changes
 
-v5:
-- https://lore.kernel.org/lkml/20201201011513.1627028-6-j.neuschaefer@gmx.=
-net/
-- Add Alexandre Belloni's A-b
-- Use regmap_multi_reg_write
-
 v4:
-- https://lore.kernel.org/lkml/20201122222739.1455132-6-j.neuschaefer@gmx.=
+- https://lore.kernel.org/lkml/20201123000913.1506944-1-j.neuschaefer@gmx.=
 net/
-- Remove "driver" from Kconfig entry for consistency with most other entri=
-es
-- Add missing MODULE_ALIAS line
-- Give NTXEC_REG_READ_ macros longer names
-- Solve the read tearing issue using Alexandre Belloni's algorithm
-- Solve the write tearing issue using Uwe Kleine-K=C3=B6nig's algorithm
-- Spell out ODM
+- Add 'grp' suffix to pinctrl node
 
 v3:
-- https://lore.kernel.org/lkml/20200924192455.2484005-6-j.neuschaefer@gmx.=
+- https://lore.kernel.org/lkml/20200925050818.2512375-1-j.neuschaefer@gmx.=
 net/
-- Add email address to copyright line
-- Remove OF compatible string and don't include linux/of_device.h
-- Don't use a comma after sentinels
-- Avoid ret |=3D ... pattern
-- Move 8-bit register conversion to ntxec.h
-- Relicense as GPLv2 or later
+- Remove interrupt-controller property from embedded-controller node
+- subnodes of embedded-controller node in to the main node
 
 v2:
-- https://lore.kernel.org/lkml/20200905133230.1014581-7-j.neuschaefer@gmx.=
+- https://lore.kernel.org/lkml/20200905144503.1067124-3-j.neuschaefer@gmx.=
 net/
-- Rework top-of-file comment [Lee Jones]
-- Sort the #include lines [Alexandre Belloni]
-- don't align =3D signs in struct initializers [Uwe Kleine-K=C3=B6nig]
-- Switch to regmap
-- Fix register number used to read minutes and seconds
-- Prefix registers with NTXEC_REG_
-- Add help text to the Kconfig option
-- Use devm_rtc_allocate_device and rtc_register_device, set ->range_min an=
-d ->range_max
+- Fix pwm-cells property (should be 2, not 1)
 =2D--
- drivers/rtc/Kconfig     |   8 +++
- drivers/rtc/Makefile    |   1 +
- drivers/rtc/rtc-ntxec.c | 143 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 152 insertions(+)
- create mode 100644 drivers/rtc/rtc-ntxec.c
+ arch/arm/boot/dts/imx50-kobo-aura.dts | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 6123f9f4fbc90..d49cf387add14 100644
-=2D-- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1315,6 +1315,14 @@ config RTC_DRV_CROS_EC
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-cros-ec.
+diff --git a/arch/arm/boot/dts/imx50-kobo-aura.dts b/arch/arm/boot/dts/imx=
+50-kobo-aura.dts
+index 97cfd970fe742..82ce8c43be867 100644
+=2D-- a/arch/arm/boot/dts/imx50-kobo-aura.dts
++++ b/arch/arm/boot/dts/imx50-kobo-aura.dts
+@@ -143,10 +143,24 @@ &i2c3 {
+ 	pinctrl-0 =3D <&pinctrl_i2c3>;
+ 	status =3D "okay";
 
-+config RTC_DRV_NTXEC
-+	tristate "Netronix embedded controller RTC"
-+	depends on MFD_NTXEC
-+	help
-+	  Say yes here if you want to support the RTC functionality of the
-+	  embedded controller found in certain e-book readers designed by the
-+	  original design manufacturer Netronix.
-+
- comment "on-CPU RTC drivers"
+-	/* TODO: embedded controller at 0x43 */
++	embedded-controller@43 {
++		pinctrl-names =3D "default";
++		pinctrl-0 =3D <&pinctrl_ec>;
++		compatible =3D "netronix,ntxec";
++		reg =3D <0x43>;
++		system-power-controller;
++		interrupts-extended =3D <&gpio4 11 IRQ_TYPE_EDGE_FALLING>;
++		#pwm-cells =3D <2>;
++	};
+ };
 
- config RTC_DRV_ASM9260
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index bb8f319b09fbf..92c26eafe70ce 100644
-=2D-- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -110,6 +110,7 @@ obj-$(CONFIG_RTC_DRV_MT7622)	+=3D rtc-mt7622.o
- obj-$(CONFIG_RTC_DRV_MV)	+=3D rtc-mv.o
- obj-$(CONFIG_RTC_DRV_MXC)	+=3D rtc-mxc.o
- obj-$(CONFIG_RTC_DRV_MXC_V2)	+=3D rtc-mxc_v2.o
-+obj-$(CONFIG_RTC_DRV_NTXEC)	+=3D rtc-ntxec.o
- obj-$(CONFIG_RTC_DRV_OMAP)	+=3D rtc-omap.o
- obj-$(CONFIG_RTC_DRV_OPAL)	+=3D rtc-opal.o
- obj-$(CONFIG_RTC_DRV_PALMAS)	+=3D rtc-palmas.o
-diff --git a/drivers/rtc/rtc-ntxec.c b/drivers/rtc/rtc-ntxec.c
-new file mode 100644
-index 0000000000000..09cdbcab8eff9
-=2D-- /dev/null
-+++ b/drivers/rtc/rtc-ntxec.c
-@@ -0,0 +1,143 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * The Netronix embedded controller is a microcontroller found in some
-+ * e-book readers designed by the original design manufacturer Netronix, =
-Inc.
-+ * It contains RTC, battery monitoring, system power management, and PWM
-+ * functionality.
-+ *
-+ * This driver implements access to the RTC time and date.
-+ *
-+ * Copyright 2020 Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-+ */
-+
-+#include <linux/mfd/ntxec.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/rtc.h>
-+#include <linux/types.h>
-+
-+struct ntxec_rtc {
-+	struct device *dev;
-+	struct ntxec *ec;
-+};
-+
-+#define NTXEC_REG_WRITE_YEAR	0x10
-+#define NTXEC_REG_WRITE_MONTH	0x11
-+#define NTXEC_REG_WRITE_DAY	0x12
-+#define NTXEC_REG_WRITE_HOUR	0x13
-+#define NTXEC_REG_WRITE_MINUTE	0x14
-+#define NTXEC_REG_WRITE_SECOND	0x15
-+
-+#define NTXEC_REG_READ_YEAR_MONTH	0x20
-+#define NTXEC_REG_READ_MDAY_HOUR	0x21
-+#define NTXEC_REG_READ_MINUTE_SECOND	0x23
-+
-+static int ntxec_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct ntxec_rtc *rtc =3D dev_get_drvdata(dev);
-+	unsigned int value;
-+	int res;
-+
-+retry:
-+	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_MINUTE_SECOND, &valu=
-e);
-+	if (res < 0)
-+		return res;
-+
-+	tm->tm_min =3D value >> 8;
-+	tm->tm_sec =3D value & 0xff;
-+
-+	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_MDAY_HOUR, &value);
-+	if (res < 0)
-+		return res;
-+
-+	tm->tm_mday =3D value >> 8;
-+	tm->tm_hour =3D value & 0xff;
-+
-+	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_YEAR_MONTH, &value);
-+	if (res < 0)
-+		return res;
-+
-+	tm->tm_year =3D (value >> 8) + 100;
-+	tm->tm_mon =3D (value & 0xff) - 1;
-+
-+	/*
-+	 * Read the minutes/seconds field again. If it changed since the first
-+	 * read, we can't assume that the values read so far are consistent,
-+	 * and should start from the beginning.
-+	 */
-+	res =3D regmap_read(rtc->ec->regmap, NTXEC_REG_READ_MINUTE_SECOND, &valu=
-e);
-+	if (res < 0)
-+		return res;
-+
-+	if (tm->tm_min !=3D value >> 8 || tm->tm_sec !=3D (value & 0xff))
-+		goto retry;
-+
-+	return 0;
-+}
-+
-+static int ntxec_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct ntxec_rtc *rtc =3D dev_get_drvdata(dev);
-+
-+	/*
-+	 * To avoid time overflows while we're writing the full date/time,
-+	 * set the seconds field to zero before doing anything else. For the
-+	 * next 59 seconds (plus however long it takes until the RTC's next
-+	 * update of the second field), the seconds field will not overflow
-+	 * into the other fields.
-+	 */
-+	struct reg_sequence regs[] =3D {
-+		{ NTXEC_REG_WRITE_SECOND, ntxec_reg8(0) },
-+		{ NTXEC_REG_WRITE_YEAR, ntxec_reg8(tm->tm_year - 100) },
-+		{ NTXEC_REG_WRITE_MONTH, ntxec_reg8(tm->tm_mon + 1) },
-+		{ NTXEC_REG_WRITE_DAY, ntxec_reg8(tm->tm_mday) },
-+		{ NTXEC_REG_WRITE_HOUR, ntxec_reg8(tm->tm_hour) },
-+		{ NTXEC_REG_WRITE_MINUTE, ntxec_reg8(tm->tm_min) },
-+		{ NTXEC_REG_WRITE_SECOND, ntxec_reg8(tm->tm_sec) },
+ &iomuxc {
++	pinctrl_ec: ecgrp {
++		fsl,pins =3D <
++			MX50_PAD_CSPI_SS0__GPIO4_11		0x0	/* INT */
++		>;
 +	};
 +
-+	return regmap_multi_reg_write(rtc->ec->regmap, regs, ARRAY_SIZE(regs));
-+}
-+
-+static const struct rtc_class_ops ntxec_rtc_ops =3D {
-+	.read_time =3D ntxec_read_time,
-+	.set_time =3D ntxec_set_time,
-+};
-+
-+static int ntxec_rtc_probe(struct platform_device *pdev)
-+{
-+	struct rtc_device *dev;
-+	struct ntxec_rtc *rtc;
-+
-+	rtc =3D devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
-+	if (!rtc)
-+		return -ENOMEM;
-+
-+	rtc->dev =3D &pdev->dev;
-+	rtc->ec =3D dev_get_drvdata(pdev->dev.parent);
-+	platform_set_drvdata(pdev, rtc);
-+
-+	dev =3D devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(dev))
-+		return PTR_ERR(dev);
-+
-+	dev->ops =3D &ntxec_rtc_ops;
-+	dev->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
-+	dev->range_max =3D 9025257599LL; /* 2255-12-31 23:59:59 */
-+
-+	return devm_rtc_register_device(dev);
-+}
-+
-+static struct platform_driver ntxec_rtc_driver =3D {
-+	.driver =3D {
-+		.name =3D "ntxec-rtc",
-+	},
-+	.probe =3D ntxec_rtc_probe,
-+};
-+module_platform_driver(ntxec_rtc_driver);
-+
-+MODULE_AUTHOR("Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>");
-+MODULE_DESCRIPTION("RTC driver for Netronix EC");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:ntxec-rtc");
+ 	pinctrl_gpiokeys: gpiokeysgrp {
+ 		fsl,pins =3D <
+ 			MX50_PAD_CSPI_MISO__GPIO4_10		0x0
 =2D-
 2.29.2
 
