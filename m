@@ -5,32 +5,32 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4028AC433DB
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AACEC43381
+	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F2D692399A
-	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDB252399A
+	for <linux-rtc@archiver.kernel.org>; Sat,  9 Jan 2021 19:07:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726005AbhAITHa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 9 Jan 2021 14:07:30 -0500
-Received: from mout.gmx.net ([212.227.15.18]:47167 "EHLO mout.gmx.net"
+        id S1726370AbhAITHj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 9 Jan 2021 14:07:39 -0500
+Received: from mout.gmx.net ([212.227.17.20]:50531 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbhAITHa (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 9 Jan 2021 14:07:30 -0500
+        id S1725978AbhAITHf (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 9 Jan 2021 14:07:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1610219124;
-        bh=bdGrd1dHjfVfOxioH7vVPzF5jNF+vaOKNr4aewtxsNQ=;
+        s=badeba3b8450; t=1610219113;
+        bh=ZyHPtKQoclIWrb+YTNneFagtFQpMpOBW3jmSX5TNKH0=;
         h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=PRxo9KgPYNYPVY37ejEOnQwj9mKGW1Ke6JKuzn673MRVdHhwTsr6i+82aVL4D+Oh1
-         KU9jki6e+8jV+8TrvTf0yAENKSWg9ocXYzBQvpJZEN9wATsB2n2yN+os5b6UzPFNlk
-         5NIJpEHWv/a+jJsKROlFV5Yv910yDQHdp05BI9NM=
+        b=h0KMI+yGZiFLzWJSnt04xNRVblEb2qvG7fNJyT2EkBWVTuVdCz8bkTktHG8xAej14
+         WSMJeuZgQ18uMAbPBb/rusj7XWkTxk9Tl/wl8lFiQ6ZQOw7f+CsCW3Q9xDCLfmKRMq
+         Bno1luRhcnq6GCd5Uv+3oo/jge2aevO6AKLizZoc=
 X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from longitude ([37.201.215.57]) by mail.gmx.com (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MXXyP-1kSYZf1kml-00Z3Il; Sat, 09
- Jan 2021 20:05:24 +0100
+Received: from longitude ([37.201.215.57]) by mail.gmx.com (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MgesG-1kJRxN03hc-00h3SJ; Sat, 09
+ Jan 2021 20:05:13 +0100
 From:   =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
 To:     linux-kernel@vger.kernel.org
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -60,78 +60,343 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Andreas Kemnade <andreas@kemnade.info>,
         Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v7 6/7] MAINTAINERS: Add entry for Netronix embedded controller
-Date:   Sat,  9 Jan 2021 19:02:19 +0100
-Message-Id: <20210109180220.121511-7-j.neuschaefer@gmx.net>
+Subject: [PATCH v7 4/7] pwm: ntxec: Add driver for PWM function in Netronix EC
+Date:   Sat,  9 Jan 2021 19:02:17 +0100
+Message-Id: <20210109180220.121511-5-j.neuschaefer@gmx.net>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210109180220.121511-1-j.neuschaefer@gmx.net>
 References: <20210109180220.121511-1-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:KmkJFeZTX6fxl/vvb7KaCz13YKnxpIFBgwuleEreUkdEXRjQaJN
- ym9OQH1YStZ+nh0+myxdLQHqwLV1JQrY7ULIq/ur3Ag09ibEyw+Z9hnHInUzePHDcho3T3p
- ByNgxs+rHFHHCr0eALxGEKTG8rfegqPycbJoK9YPySSnzOxzrgvCREoV8lJQvu3C7NaEaln
- tyPamt820YYZC9nJ0G/BQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:q0O+ZaAEP6c=:wlHAQkxk9oGVy/frDBGgad
- SlUNt5ULoStHGVvZTg8vr0U+P7rwFOdX1k6rbL/HQw+YdKqxqH7jKi+lwBq/Zu5vhza9QTqdB
- pdYN1CPmif2BpxAgfbEK3vQ6XK6Tz4PgdKo1c5wbrzALIBfV2U8yDhZC59jndD7DpGq6blXfn
- taF14Ad76CppjWbQE2RQd0pL//Q+4hsaCuv5fh6p+5TXTX3tLuJb4Zbn/nyyAXXSSMrANurcp
- Lej8yIKSaD5p0UZVPMWR3nBiwVlcKZqBf6u3khEYDNfFT+Z0EFJdRsuWqL7OUW/wvO59ykVdc
- hQcXOLNdXiKxVrS8NDTm/0ADb2wZBDyJnP8OrMwAym8qKO5fPUMW2NmJun0w9tav7x0+pGtSC
- NNEVpzWzpDdlzIdh5Dvg3mv1WFDQITwtXT52MAp6tmIoX+GtV08btX4xE8ev0k41smkkW1BHr
- FpnDYYjq/vIbvkaohuP8P3ulBwUEga2ycVB7JVZA/rSoXz2+WCVb5VLKtkaFI+vm7Yv/21ftZ
- 2ad0BgJx+1KeEbf2hHT+y8R5d51+ZCERVySPxY6bREw9k4Q/pAo4Ow6S3e9aSHcarZbU0HbZ1
- I+s+mJWkk+4+J3SlNBHc72194aQwmO+hBs1+0OYHLeaeBtuxhbfBeH+0oMMm9BYVkkqg3cmU7
- aBaOXK14Io4svXDu3bspVCBt2SvTH+xf4YLFB0vwzF/Mc/590cZdLH2tAbXtgaebERcWwdhzj
- PmDnihh/qAtfV6ufszjCxowkDRx8Y5nl6q9uk9SL32kONsCdVJxn3nTzip6obtkJduXfrPBsU
- fQehbVj6UXLmiGrmmogOTxQmmZSrnljq6xOEtYm77OaICseOM5HnFlPyl4qSpujtNt3sBh4Xb
- T+GRoY/Pz70bdTw5U1/w==
+X-Provags-ID: V03:K1:uRF6kg1X+imf5yBjkZrubEY4MShVtOgdXFaGtwDqAfIe9wgqa+k
+ yXcPnVHiBA78wNQs4lqZk5gHjUE16TLGZTYdosaB3+2n2IsjyxNXdR9kL22s7obZJL+l5Es
+ x37iv28M8qx3Ycr8xpvHZazlXA8VISQHA3WCcCTw3AXvfu+0NsiDcaD5G292XswZutRUqpF
+ fmKFzNy5xCuqoHRI5MKag==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:LamIT2k+pfY=:ti9UM5LEnNFB9WjtXsmArT
+ KYkUb4V+D94Mm/yX56lRY0UsYcCYrLJdv6jsdbltfJy+6XWVwZ9pWOrKeAirzpeUuPOczi3lS
+ fxDb2JsOhEg3rUHorCpXxRX7yhLHFhgVaxhzGBA53Wa9zDo89VItcE3QRhkmGux8CtYM+2Kbw
+ yGZltWSWKezMk+URt/70Aqa9a+x53T/YiUuUk6k6xT1c9mAT4ZHafGvxtAcMWOgSpUFLOGXAP
+ fkxCIJCRTaisMCrENQHiQov7VEFibl2S5Cfw9eJ7NuOB7BK8N/AngycZtQXmXa9mhLr6QgkMs
+ 384M84GM2Rmlj1e2AcQltDtLhX9kE9+eojodvpe+tR4J4sUvrRD3tIHPz2mcP3ShvUSmnQldJ
+ EumLhV2dj+3m+eaZHWuzmWq92hRSuP9IaUB3OXYszrFgwqQpifffhdLMOPJyaFeI4aTSkEkB9
+ bpNlxLag0I9MPeUlNiDN3o1OoeK55MycxGwgJpfioatitp8KMJzXzwC7fh0ByleYMew2R8ZD4
+ v9nVF3UF88tTPdABA5dRu6uv8k8/VZGjxFV1XUnD4uQfy+QnMmxrfhQBRKrPUeqmy1qO7yrqn
+ DKSLv/XCSUXAh/84x6dujmLG9eTy1hFavBofZXcsPGaqgECRVkZ7WCoifh5pSdtSH/NxJ4fRf
+ 6HYfrVYa7RZHA6DYdfq2x6Auk/v23Da1WyigoknfwHzXYQ2zVp8mgVq+iKazkXRGeSz8PmWDI
+ 3nrcCO5llnoFqqq2lB/B7+R2zux7T/C8CdcBNSY3H5iVgLxfg0ysxI6dlGgijxtt705uMalcs
+ 2d4Es/tzlzz18OhfFWNi2PlCd4Vd+Kkepns1Kv7aQvbSABfZ9Io990X0JNxD8PpVKkH9cZhDe
+ 8OWh4UcVF/RmdRVhZTBQ==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Let's make sure I'll notice when there are patches for the NTXEC
-drivers.
+The Netronix EC provides a PWM output which is used for the backlight
+on some ebook readers. This patches adds a driver for the PWM output.
+
+The .get_state callback is not implemented, because the PWM state can't
+be read back from the hardware.
 
 Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 =2D--
-v4-v7:
+v7:
 - no changes
 
-v3:
-- https://lore.kernel.org/lkml/20200924192455.2484005-7-j.neuschaefer@gmx.=
+v6:
+- https://lore.kernel.org/lkml/20201208011000.3060239-5-j.neuschaefer@gmx.=
 net/
-- Remove pwm and rtc bindings
+- Move period / duty cycle setting code to a function
+- Rename pwmchip_to_priv to ntxec_pwm_from_chip
+- Set period and duty cycle only before enabling the output
+- Mention that duty=3D0, enable=3D1 is assumed not to happen
+- Interleave writes to the period and duty cycle registers, to minimize th=
+e
+  window of time that an inconsistent state is configured
+
+v5:
+- https://lore.kernel.org/lkml/20201201011513.1627028-5-j.neuschaefer@gmx.=
+net/
+- Avoid truncation of period and duty cycle to 32 bits
+- Make ntxec_pwm_ops const
+- Use regmap_multi_reg_write
+- Add comment about get_state to ntxec_pwm_ops
+- Add comments about non-atomicity of (period, duty cycle) update
+
+v4:
+- https://lore.kernel.org/lkml/20201122222739.1455132-5-j.neuschaefer@gmx.=
+net/
+- Document hardware/driver limitations
+- Only accept normal polarity
+- Fix a typo ("zone" -> "zero")
+- change MAX_PERIOD_NS to 0xffff * 125
+- Clamp period to the maximum rather than returning an error
+- Rename private struct pointer to priv
+- Rearrage control flow in _probe to save a few lines and a temporary vari=
+able
+- Add missing MODULE_ALIAS line
+- Spell out ODM
+
+v3:
+- https://lore.kernel.org/lkml/20200924192455.2484005-5-j.neuschaefer@gmx.=
+net/
+- Relicense as GPLv2 or later
+- Add email address to copyright line
+- Remove OF compatible string and don't include linux/of_device.h
+- Fix bogus ?: in return line
+- Don't use a comma after sentinels
+- Avoid ret |=3D ... pattern
+- Move 8-bit register conversion to ntxec.h
 
 v2:
-- https://lore.kernel.org/lkml/20200905144503.1067124-2-j.neuschaefer@gmx.=
+- https://lore.kernel.org/lkml/20200905133230.1014581-6-j.neuschaefer@gmx.=
 net/
-- No changes
+- Various grammar and style improvements, as suggested by Uwe Kleine-K=C3=
+=B6nig,
+  Lee Jones, and Alexandre Belloni
+- Switch to regmap
+- Prefix registers with NTXEC_REG_
+- Add help text to the Kconfig option
+- Use the .apply callback instead of the old API
+- Add a #define for the time base (125ns)
+- Don't change device state in .probe; this avoids multiple problems
+- Rework division and overflow check logic to perform divisions in 32 bits
+- Avoid setting duty cycle to zero, to work around a hardware quirk
 =2D--
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pwm/Kconfig     |   8 ++
+ drivers/pwm/Makefile    |   1 +
+ drivers/pwm/pwm-ntxec.c | 182 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 191 insertions(+)
+ create mode 100644 drivers/pwm/pwm-ntxec.c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 546aa66428c9f..0c6e739e3afb7 100644
-=2D-- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12298,6 +12298,15 @@ F:	include/net/netrom.h
- F:	include/uapi/linux/netrom.h
- F:	net/netrom/
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 0937e1c047acb..a2830b8832b97 100644
+=2D-- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -393,6 +393,14 @@ config PWM_MXS
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called pwm-mxs.
 
-+NETRONIX EMBEDDED CONTROLLER
-+M:	Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/mfd/netronix,ntxec.yaml
-+F:	drivers/mfd/ntxec.c
-+F:	drivers/pwm/pwm-ntxec.c
-+F:	drivers/rtc/rtc-ntxec.c
-+F:	include/linux/mfd/ntxec.h
++config PWM_NTXEC
++	tristate "Netronix embedded controller PWM support"
++	depends on MFD_NTXEC
++	help
++	  Say yes here if you want to support the PWM output of the embedded
++	  controller found in certain e-book readers designed by the original
++	  design manufacturer Netronix.
 +
- NETRONOME ETHERNET DRIVERS
- M:	Simon Horman <simon.horman@netronome.com>
- R:	Jakub Kicinski <kuba@kernel.org>
+ config PWM_OMAP_DMTIMER
+ 	tristate "OMAP Dual-Mode Timer PWM support"
+ 	depends on OF
+diff --git a/drivers/pwm/Makefile b/drivers/pwm/Makefile
+index 18b89d7fd092a..7d97eb595bbef 100644
+=2D-- a/drivers/pwm/Makefile
++++ b/drivers/pwm/Makefile
+@@ -35,6 +35,7 @@ obj-$(CONFIG_PWM_MESON)		+=3D pwm-meson.o
+ obj-$(CONFIG_PWM_MEDIATEK)	+=3D pwm-mediatek.o
+ obj-$(CONFIG_PWM_MTK_DISP)	+=3D pwm-mtk-disp.o
+ obj-$(CONFIG_PWM_MXS)		+=3D pwm-mxs.o
++obj-$(CONFIG_PWM_NTXEC)		+=3D pwm-ntxec.o
+ obj-$(CONFIG_PWM_OMAP_DMTIMER)	+=3D pwm-omap-dmtimer.o
+ obj-$(CONFIG_PWM_PCA9685)	+=3D pwm-pca9685.o
+ obj-$(CONFIG_PWM_PXA)		+=3D pwm-pxa.o
+diff --git a/drivers/pwm/pwm-ntxec.c b/drivers/pwm/pwm-ntxec.c
+new file mode 100644
+index 0000000000000..1db30a6caa3ad
+=2D-- /dev/null
++++ b/drivers/pwm/pwm-ntxec.c
+@@ -0,0 +1,182 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * The Netronix embedded controller is a microcontroller found in some
++ * e-book readers designed by the original design manufacturer Netronix, =
+Inc.
++ * It contains RTC, battery monitoring, system power management, and PWM
++ * functionality.
++ *
++ * This driver implements PWM output.
++ *
++ * Copyright 2020 Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
++ *
++ * Limitations:
++ * - The get_state callback is not implemented, because the current state=
+ of
++ *   the PWM output can't be read back from the hardware.
++ * - The hardware can only generate normal polarity output.
++ * - The period and duty cycle can't be changed together in one atomic ac=
+tion.
++ */
++
++#include <linux/mfd/ntxec.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/pwm.h>
++#include <linux/regmap.h>
++#include <linux/types.h>
++
++struct ntxec_pwm {
++	struct device *dev;
++	struct ntxec *ec;
++	struct pwm_chip chip;
++};
++
++static struct ntxec_pwm *ntxec_pwm_from_chip(struct pwm_chip *chip)
++{
++	return container_of(chip, struct ntxec_pwm, chip);
++}
++
++#define NTXEC_REG_AUTO_OFF_HI	0xa1
++#define NTXEC_REG_AUTO_OFF_LO	0xa2
++#define NTXEC_REG_ENABLE	0xa3
++#define NTXEC_REG_PERIOD_LOW	0xa4
++#define NTXEC_REG_PERIOD_HIGH	0xa5
++#define NTXEC_REG_DUTY_LOW	0xa6
++#define NTXEC_REG_DUTY_HIGH	0xa7
++
++/*
++ * The time base used in the EC is 8MHz, or 125ns. Period and duty cycle =
+are
++ * measured in this unit.
++ */
++#define TIME_BASE_NS 125
++
++/*
++ * The maximum input value (in nanoseconds) is determined by the time bas=
+e and
++ * the range of the hardware registers that hold the converted value.
++ * It fits into 32 bits, so we can do our calculations in 32 bits as well=
+.
++ */
++#define MAX_PERIOD_NS (TIME_BASE_NS * 0xffff)
++
++static int ntxec_pwm_set_raw_period_and_duty_cycle(struct pwm_chip *chip,
++						   int period, int duty)
++{
++	struct ntxec_pwm *priv =3D ntxec_pwm_from_chip(chip);
++
++	/*
++	 * Changes to the period and duty cycle take effect as soon as the
++	 * corresponding low byte is written, so the hardware may be configured
++	 * to an inconsistent state after the period is written and before the
++	 * duty cycle is fully written. If, in such a case, the old duty cycle
++	 * is longer than the new period, the EC may output 100% for a moment.
++	 *
++	 * To minimize the time between the changes to period and duty cycle
++	 * taking effect, the writes are interleaved.
++	 */
++
++	struct reg_sequence regs[] =3D {
++		{ NTXEC_REG_PERIOD_HIGH, ntxec_reg8(period >> 8) },
++		{ NTXEC_REG_DUTY_HIGH, ntxec_reg8(duty >> 8) },
++		{ NTXEC_REG_PERIOD_LOW, ntxec_reg8(period) },
++		{ NTXEC_REG_DUTY_LOW, ntxec_reg8(duty) },
++	};
++
++	return regmap_multi_reg_write(priv->ec->regmap, regs, ARRAY_SIZE(regs));
++}
++
++static int ntxec_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm_=
+dev,
++			   const struct pwm_state *state)
++{
++	struct ntxec_pwm *priv =3D ntxec_pwm_from_chip(chip);
++	unsigned int period, duty;
++	int res;
++
++	if (state->polarity !=3D PWM_POLARITY_NORMAL)
++		return -EINVAL;
++
++	period =3D min_t(u64, state->period, MAX_PERIOD_NS);
++	duty   =3D min_t(u64, state->duty_cycle, period);
++
++	period /=3D TIME_BASE_NS;
++	duty   /=3D TIME_BASE_NS;
++
++	/*
++	 * Writing a duty cycle of zero puts the device into a state where
++	 * writing a higher duty cycle doesn't result in the brightness that it
++	 * usually results in. This can be fixed by cycling the ENABLE register.
++	 *
++	 * As a workaround, write ENABLE=3D0 when the duty cycle is zero.
++	 * The case that something has previously set the duty cycle to zero
++	 * but ENABLE=3D1, is not handled.
++	 */
++	if (state->enabled && duty !=3D 0) {
++		res =3D ntxec_pwm_set_raw_period_and_duty_cycle(chip, period, duty);
++		if (res)
++			return res;
++
++		res =3D regmap_write(priv->ec->regmap, NTXEC_REG_ENABLE, ntxec_reg8(1))=
+;
++		if (res)
++			return res;
++
++		/* Disable the auto-off timer */
++		res =3D regmap_write(priv->ec->regmap, NTXEC_REG_AUTO_OFF_HI, ntxec_reg=
+8(0xff));
++		if (res)
++			return res;
++
++		return regmap_write(priv->ec->regmap, NTXEC_REG_AUTO_OFF_LO, ntxec_reg8=
+(0xff));
++	} else {
++		return regmap_write(priv->ec->regmap, NTXEC_REG_ENABLE, ntxec_reg8(0));
++	}
++}
++
++static const struct pwm_ops ntxec_pwm_ops =3D {
++	.owner =3D THIS_MODULE,
++	.apply =3D ntxec_pwm_apply,
++	/*
++	 * No .get_state callback, because the current state cannot be read
++	 * back from the hardware.
++	 */
++};
++
++static int ntxec_pwm_probe(struct platform_device *pdev)
++{
++	struct ntxec *ec =3D dev_get_drvdata(pdev->dev.parent);
++	struct ntxec_pwm *priv;
++	struct pwm_chip *chip;
++
++	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->ec =3D ec;
++	priv->dev =3D &pdev->dev;
++
++	platform_set_drvdata(pdev, priv);
++
++	chip =3D &priv->chip;
++	chip->dev =3D &pdev->dev;
++	chip->ops =3D &ntxec_pwm_ops;
++	chip->base =3D -1;
++	chip->npwm =3D 1;
++
++	return pwmchip_add(chip);
++}
++
++static int ntxec_pwm_remove(struct platform_device *pdev)
++{
++	struct ntxec_pwm *priv =3D platform_get_drvdata(pdev);
++	struct pwm_chip *chip =3D &priv->chip;
++
++	return pwmchip_remove(chip);
++}
++
++static struct platform_driver ntxec_pwm_driver =3D {
++	.driver =3D {
++		.name =3D "ntxec-pwm",
++	},
++	.probe =3D ntxec_pwm_probe,
++	.remove =3D ntxec_pwm_remove,
++};
++module_platform_driver(ntxec_pwm_driver);
++
++MODULE_AUTHOR("Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>");
++MODULE_DESCRIPTION("PWM driver for Netronix EC");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:ntxec-pwm");
 =2D-
 2.29.2
 
