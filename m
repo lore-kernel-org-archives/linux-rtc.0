@@ -4,34 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DF25C4332E
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D02DEC433E6
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B9C122AB0
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 964D422AAA
+	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727098AbhAJXS4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Jan 2021 18:18:56 -0500
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:36935 "EHLO
+        id S1727230AbhAJXTD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 10 Jan 2021 18:19:03 -0500
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:41127 "EHLO
         relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726908AbhAJXS4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:18:56 -0500
+        with ESMTP id S1727190AbhAJXTC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:19:02 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 1F4F0FF804;
-        Sun, 10 Jan 2021 23:18:11 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 47308FF80B;
+        Sun, 10 Jan 2021 23:18:20 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 04/17] rtc: cmos: remove cmos_rtc_ops_no_alarm
-Date:   Mon, 11 Jan 2021 00:17:39 +0100
-Message-Id: <20210110231752.1418816-5-alexandre.belloni@bootlin.com>
+Subject: [PATCH 09/17] rtc: rx8010: drop a struct rtc_class_ops
+Date:   Mon, 11 Jan 2021 00:17:44 +0100
+Message-Id: <20210110231752.1418816-10-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
 References: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
@@ -41,47 +41,48 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Clear RTC_FEATURE_ALARM to signal that alarms are not available instead of
-having a supplementary struct rtc_class_ops with a NULL .set_alarm.
+Merge both struct rtc_class_ops in a single one and use RTC_FEATURE_ALARM
+to signal to the core whether alarms are available.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-cmos.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-rx8010.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 51e80bc70d42..c3746e249f5a 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -574,12 +574,6 @@ static const struct rtc_class_ops cmos_rtc_ops = {
- 	.alarm_irq_enable	= cmos_alarm_irq_enable,
- };
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index 8340ab47a059..1a05e4654290 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -354,13 +354,7 @@ static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 	}
+ }
  
--static const struct rtc_class_ops cmos_rtc_ops_no_alarm = {
--	.read_time		= cmos_read_time,
--	.set_time		= cmos_set_time,
--	.proc			= cmos_procfs,
+-static const struct rtc_class_ops rx8010_rtc_ops_default = {
+-	.read_time = rx8010_get_time,
+-	.set_time = rx8010_set_time,
+-	.ioctl = rx8010_ioctl,
 -};
 -
- /*----------------------------------------------------------------*/
- 
- /*
-@@ -857,12 +851,12 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
- 			goto cleanup1;
+-static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
++static const struct rtc_class_ops rx8010_rtc_ops = {
+ 	.read_time = rx8010_get_time,
+ 	.set_time = rx8010_set_time,
+ 	.ioctl = rx8010_ioctl,
+@@ -409,12 +403,11 @@ static int rx8010_probe(struct i2c_client *client)
+ 			dev_err(dev, "unable to request IRQ\n");
+ 			return err;
  		}
 -
--		cmos_rtc.rtc->ops = &cmos_rtc_ops;
+-		rx8010->rtc->ops = &rx8010_rtc_ops_alarm;
  	} else {
--		cmos_rtc.rtc->ops = &cmos_rtc_ops_no_alarm;
-+		clear_bit(RTC_FEATURE_ALARM, cmos_rtc.rtc->features);
+-		rx8010->rtc->ops = &rx8010_rtc_ops_default;
++		clear_bit(RTC_FEATURE_ALARM, rx8010->rtc->features);
  	}
  
-+	cmos_rtc.rtc->ops = &cmos_rtc_ops;
-+
- 	retval = devm_rtc_register_device(cmos_rtc.rtc);
- 	if (retval)
- 		goto cleanup2;
++	rx8010->rtc->ops = &rx8010_rtc_ops;
+ 	rx8010->rtc->max_user_freq = 1;
+ 	rx8010->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	rx8010->rtc->range_max = RTC_TIMESTAMP_END_2099;
 -- 
 2.29.2
 
