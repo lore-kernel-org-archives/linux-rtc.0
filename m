@@ -4,36 +4,34 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50854C43331
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DF25C4332E
 	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F3E422AAE
+	by mail.kernel.org (Postfix) with ESMTP id 4B9C122AB0
 	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727008AbhAJXSu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Jan 2021 18:18:50 -0500
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:64899 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726908AbhAJXSs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:18:48 -0500
+        id S1727098AbhAJXS4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 10 Jan 2021 18:18:56 -0500
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:36935 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726908AbhAJXS4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:18:56 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 3FDA640005;
-        Sun, 10 Jan 2021 23:18:05 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 1F4F0FF804;
+        Sun, 10 Jan 2021 23:18:11 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 02/17] rtc: pl031: use RTC_FEATURE_ALARM
-Date:   Mon, 11 Jan 2021 00:17:37 +0100
-Message-Id: <20210110231752.1418816-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH 04/17] rtc: cmos: remove cmos_rtc_ops_no_alarm
+Date:   Mon, 11 Jan 2021 00:17:39 +0100
+Message-Id: <20210110231752.1418816-5-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
 References: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
@@ -43,33 +41,47 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Clear RTC_FEATURE_ALARM instead of setting set_alarm, read_alarm and
-alarm_irq_enable to NULL.
+Clear RTC_FEATURE_ALARM to signal that alarms are not available instead of
+having a supplementary struct rtc_class_ops with a NULL .set_alarm.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pl031.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-cmos.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index 224bbf096262..7c3967df4f9a 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -352,12 +352,8 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 51e80bc70d42..c3746e249f5a 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -574,12 +574,6 @@ static const struct rtc_class_ops cmos_rtc_ops = {
+ 	.alarm_irq_enable	= cmos_alarm_irq_enable,
+ };
+ 
+-static const struct rtc_class_ops cmos_rtc_ops_no_alarm = {
+-	.read_time		= cmos_read_time,
+-	.set_time		= cmos_set_time,
+-	.proc			= cmos_procfs,
+-};
+-
+ /*----------------------------------------------------------------*/
+ 
+ /*
+@@ -857,12 +851,12 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
+ 			goto cleanup1;
  		}
+-
+-		cmos_rtc.rtc->ops = &cmos_rtc_ops;
+ 	} else {
+-		cmos_rtc.rtc->ops = &cmos_rtc_ops_no_alarm;
++		clear_bit(RTC_FEATURE_ALARM, cmos_rtc.rtc->features);
  	}
  
--	if (!adev->irq[0]) {
--		/* When there's no interrupt, no point in exposing the alarm */
--		ops->read_alarm = NULL;
--		ops->set_alarm = NULL;
--		ops->alarm_irq_enable = NULL;
--	}
-+	if (!adev->irq[0])
-+		clear_bit(RTC_FEATURE_ALARM, ldata->rtc->features);
- 
- 	device_init_wakeup(&adev->dev, true);
- 	ldata->rtc = devm_rtc_allocate_device(&adev->dev);
++	cmos_rtc.rtc->ops = &cmos_rtc_ops;
++
+ 	retval = devm_rtc_register_device(cmos_rtc.rtc);
+ 	if (retval)
+ 		goto cleanup2;
 -- 
 2.29.2
 
