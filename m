@@ -7,31 +7,31 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31704C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9877FC433E9
 	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07F33225AB
+	by mail.kernel.org (Postfix) with ESMTP id 6349A22A85
 	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:19:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727334AbhAJXTK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Jan 2021 18:19:10 -0500
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:52181 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727316AbhAJXTJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:19:09 -0500
+        id S1727311AbhAJXTI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 10 Jan 2021 18:19:08 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:59805 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727302AbhAJXTI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:19:08 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id E43EC6000B;
-        Sun, 10 Jan 2021 23:18:27 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id A9EAE240003;
+        Sun, 10 Jan 2021 23:18:25 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 15/17] rtc: rv3032: constify rv3032_rtc_ops
-Date:   Mon, 11 Jan 2021 00:17:50 +0100
-Message-Id: <20210110231752.1418816-16-alexandre.belloni@bootlin.com>
+Subject: [PATCH 13/17] rtc: rv3028: constify rv3028_rtc_ops
+Date:   Mon, 11 Jan 2021 00:17:48 +0100
+Message-Id: <20210110231752.1418816-14-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
 References: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
@@ -47,45 +47,42 @@ const.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv3032.c | 11 ++++++-----
+ drivers/rtc/rtc-rv3028.c | 11 ++++++-----
  1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rv3032.c b/drivers/rtc/rtc-rv3032.c
-index c9bcea727757..5161016bce00 100644
---- a/drivers/rtc/rtc-rv3032.c
-+++ b/drivers/rtc/rtc-rv3032.c
-@@ -804,12 +804,15 @@ static void rv3032_hwmon_register(struct device *dev)
- 	devm_hwmon_device_register_with_info(dev, "rv3032", rv3032, &rv3032_hwmon_chip_info, NULL);
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index 979407a51c7a..2004f8c5397f 100644
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -770,9 +770,12 @@ static int rv3028_clkout_register_clk(struct rv3028_data *rv3028,
  }
+ #endif
  
--static struct rtc_class_ops rv3032_rtc_ops = {
-+static const struct rtc_class_ops rv3032_rtc_ops = {
- 	.read_time = rv3032_get_time,
- 	.set_time = rv3032_set_time,
- 	.read_offset = rv3032_read_offset,
- 	.set_offset = rv3032_set_offset,
- 	.ioctl = rv3032_ioctl,
-+	.read_alarm = rv3032_get_alarm,
-+	.set_alarm = rv3032_set_alarm,
-+	.alarm_irq_enable = rv3032_alarm_irq_enable,
- };
- 
- static const struct regmap_config regmap_config = {
-@@ -868,12 +871,10 @@ static int rv3032_probe(struct i2c_client *client)
+-static struct rtc_class_ops rv3028_rtc_ops = {
++static const struct rtc_class_ops rv3028_rtc_ops = {
+ 	.read_time = rv3028_get_time,
+ 	.set_time = rv3028_set_time,
++	.read_alarm = rv3028_get_alarm,
++	.set_alarm = rv3028_set_alarm,
++	.alarm_irq_enable = rv3028_alarm_irq_enable,
+ 	.read_offset = rv3028_read_offset,
+ 	.set_offset = rv3028_set_offset,
+ 	.ioctl = rv3028_ioctl,
+@@ -841,12 +844,10 @@ static int rv3028_probe(struct i2c_client *client)
  		if (ret) {
  			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
  			client->irq = 0;
 -		} else {
--			rv3032_rtc_ops.read_alarm = rv3032_get_alarm;
--			rv3032_rtc_ops.set_alarm = rv3032_set_alarm;
--			rv3032_rtc_ops.alarm_irq_enable = rv3032_alarm_irq_enable;
+-			rv3028_rtc_ops.read_alarm = rv3028_get_alarm;
+-			rv3028_rtc_ops.set_alarm = rv3028_set_alarm;
+-			rv3028_rtc_ops.alarm_irq_enable = rv3028_alarm_irq_enable;
  		}
  	}
 +	if (!client->irq)
-+		clear_bit(RTC_FEATURE_ALARM, rv3032->rtc->features);
++		clear_bit(RTC_FEATURE_ALARM, rv3028->rtc->features);
  
- 	ret = regmap_update_bits(rv3032->regmap, RV3032_CTRL1,
- 				 RV3032_CTRL1_WADA, RV3032_CTRL1_WADA);
+ 	ret = regmap_update_bits(rv3028->regmap, RV3028_CTRL1,
+ 				 RV3028_CTRL1_WADA, RV3028_CTRL1_WADA);
 -- 
 2.29.2
 
