@@ -2,97 +2,122 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB2BFC433E9
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:20:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20246C433E6
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Jan 2021 09:14:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83A83227C3
-	for <linux-rtc@archiver.kernel.org>; Sun, 10 Jan 2021 23:20:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D28D9229C7
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Jan 2021 09:14:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727127AbhAJXTB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 10 Jan 2021 18:19:01 -0500
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:40851 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727137AbhAJXTA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 10 Jan 2021 18:19:00 -0500
-X-Originating-IP: 86.202.109.140
-Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 79E4F20003;
-        Sun, 10 Jan 2021 23:18:18 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 07/17] rtc: pcf2127: remove pcf2127_rtc_alrm_ops
-Date:   Mon, 11 Jan 2021 00:17:42 +0100
-Message-Id: <20210110231752.1418816-8-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
-References: <20210110231752.1418816-1-alexandre.belloni@bootlin.com>
+        id S1728299AbhAKJON (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Jan 2021 04:14:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54528 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728315AbhAKJON (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Jan 2021 04:14:13 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E26C061795
+        for <linux-rtc@vger.kernel.org>; Mon, 11 Jan 2021 01:13:32 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1kytGM-00014x-H7; Mon, 11 Jan 2021 10:13:22 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1kytGC-00032c-GA; Mon, 11 Jan 2021 10:13:12 +0100
+Date:   Mon, 11 Jan 2021 10:13:10 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+Cc:     linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Heiko Stuebner <heiko@sntech.de>, linux-pwm@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>, linux-rtc@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Daniel Palmer <daniel@0x0f.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        devicetree@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        allen <allen.chen@ite.com.tw>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Rob Herring <robh+dt@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Brown <broonie@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
+        Josua Mayer <josua.mayer@jm0.eu>,
+        Shawn Guo <shawnguo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v7 4/7] pwm: ntxec: Add driver for PWM function in
+ Netronix EC
+Message-ID: <20210111091310.ok47s7yvk5ngs4q7@pengutronix.de>
+References: <20210109180220.121511-1-j.neuschaefer@gmx.net>
+ <20210109180220.121511-5-j.neuschaefer@gmx.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yaagkpiwccmvofgv"
+Content-Disposition: inline
+In-Reply-To: <20210109180220.121511-5-j.neuschaefer@gmx.net>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Move the alarm callbacks in pcf2127_rtc_ops and use RTC_FEATURE_ALARM to
-signal to the core whether alarms are available instead of having a
-supplementary struct rtc_class_ops without alarm callbacks.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-pcf2127.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+--yaagkpiwccmvofgv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 39a7b5116aa4..68160d857ac1 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -225,12 +225,6 @@ static int pcf2127_rtc_ioctl(struct device *dev,
- 	}
- }
- 
--static const struct rtc_class_ops pcf2127_rtc_ops = {
--	.ioctl		= pcf2127_rtc_ioctl,
--	.read_time	= pcf2127_rtc_read_time,
--	.set_time	= pcf2127_rtc_set_time,
--};
--
- static int pcf2127_nvmem_read(void *priv, unsigned int offset,
- 			      void *val, size_t bytes)
- {
-@@ -459,7 +453,7 @@ static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
- 	return IRQ_HANDLED;
- }
- 
--static const struct rtc_class_ops pcf2127_rtc_alrm_ops = {
-+static const struct rtc_class_ops pcf2127_rtc_ops = {
- 	.ioctl            = pcf2127_rtc_ioctl,
- 	.read_time        = pcf2127_rtc_read_time,
- 	.set_time         = pcf2127_rtc_set_time,
-@@ -584,6 +578,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 	pcf2127->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 	pcf2127->rtc->set_start_time = true; /* Sets actual start to 1970 */
- 	pcf2127->rtc->uie_unsupported = 1;
-+	clear_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
- 
- 	if (alarm_irq > 0) {
- 		ret = devm_request_threaded_irq(dev, alarm_irq, NULL,
-@@ -598,7 +593,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 
- 	if (alarm_irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
- 		device_init_wakeup(dev, true);
--		pcf2127->rtc->ops = &pcf2127_rtc_alrm_ops;
-+		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
- 	}
- 
- 	if (has_nvmem) {
--- 
-2.29.2
+Hello,
 
+On Sat, Jan 09, 2021 at 07:02:17PM +0100, Jonathan Neusch=E4fer wrote:
+> The Netronix EC provides a PWM output which is used for the backlight
+> on some ebook readers. This patches adds a driver for the PWM output.
+>=20
+> The .get_state callback is not implemented, because the PWM state can't
+> be read back from the hardware.
+
+There is only very little I would have done differently (only indention
+which is too minor to make a fuss), so:
+
+Reviewed-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+=20
+Thanks for your work
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--yaagkpiwccmvofgv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl/8FqQACgkQwfwUeK3K
+7AkfOgf+Im2rZmWnsNL7mT4lJlbUjot+WGBgUG+cZ7HYEr0wbqbO82FpAgY+K/6D
+cW6W1txTfWkr/4LbJW0rBQUkXkbeUa9hIpSMoOjpFnhmI/exEixKaY5FRnoueCb6
+vKOwoH66j+vYuzTIm1oDLEUHFCNqk34FaHj8g+VpvtDxVwdnQq7DrRkVVmrzYv5I
+QHdXsj4T4Bi/NKvGhepJI3k8t5tZWPMp81Lw61lqKJe63t2GAC+1TGH6YXxD4B+D
+pQe0gvV0MTJVRC5JC6umyF3EUPPRMyR6krgEQeE7YSpvredGWssJ24wGxuB+ZAMS
+XtLVJujpqo9QJtzrId8kXSBRR1L5wg==
+=H+zc
+-----END PGP SIGNATURE-----
+
+--yaagkpiwccmvofgv--
