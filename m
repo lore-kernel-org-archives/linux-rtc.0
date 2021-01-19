@@ -2,94 +2,158 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9661FC433DB
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Jan 2021 20:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B263BC43331
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:16:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69A2922D6F
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Jan 2021 20:08:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C3F923132
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:16:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388022AbhARKpU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 18 Jan 2021 05:45:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388295AbhARJ2L (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Jan 2021 04:28:11 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B9B5C061575
-        for <linux-rtc@vger.kernel.org>; Mon, 18 Jan 2021 01:27:26 -0800 (PST)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l1QoY-0001wO-QU; Mon, 18 Jan 2021 10:27:10 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l1QoX-0003Ay-0P; Mon, 18 Jan 2021 10:27:09 +0100
-Date:   Mon, 18 Jan 2021 10:27:08 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Philipp Rosenberger <p.rosenberger@kunbus.com>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        dan.carpenter@oracle.com, biwen.li@nxp.com, lvb@xiphos.com,
-        bruno.thomsen@gmail.com, l.sanfilippo@kunbus.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] rtc: pcf2127: Disable Power-On Reset Override
-Message-ID: <20210118092708.gphy6jtlldp3il25@pengutronix.de>
-References: <20210118085752.5759-1-p.rosenberger@kunbus.com>
- <20210118085752.5759-2-p.rosenberger@kunbus.com>
+        id S1725983AbhASHQe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Jan 2021 02:16:34 -0500
+Received: from mail-lj1-f175.google.com ([209.85.208.175]:35573 "EHLO
+        mail-lj1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727013AbhASHPH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 02:15:07 -0500
+Received: by mail-lj1-f175.google.com with SMTP id p13so20794503ljg.2;
+        Mon, 18 Jan 2021 23:14:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=HcEq01wGvES8F7d5s4ArfJgTmyrtGVfxLQPWHyjZtEY=;
+        b=Th1uNnpfOaiDv7vMu8ojKSjzzvfiWoGNueiWObO6hpxGxgaGIpcILTqUoRugh9hcf0
+         vaxndQMTaM3bBe72Sp6iZpCFldnipnw/5vMGcO1mY+bElJ3osV81h+kUcUlfO889XMuU
+         lPZdfVaJaqsmRuvlKUiDnwsZ0QveNdPbxeqIsLGl5cAW/SgLMhqG5jXLRNNNhun0gcA4
+         YfuU30T9UyhExqgSUJe4XfVEJx91UsR1S2qSb0lRd7YTD9oHR0yV1EDx/It6J5S0j0zS
+         399QayqqQ2tpOY1e9mDPLUR75U+eYKcYIwB7ZBr7t7Jb/LQnolgrt60qMS9aI0b+S9C3
+         R8RA==
+X-Gm-Message-State: AOAM531h6p9Jy1ym8jAbBrzvcHmBI8kws4sGDVbV/P/GO3JlBbgmBU4g
+        QDHvn90od5aGMV4Rb+HbYfg=
+X-Google-Smtp-Source: ABdhPJzhUbkMrUIhKnjfnBqJmD4OkwBeet6fZd7QQxvgDFhpJT1vw0rSg761pxbrtWfuyPStPmzyIg==
+X-Received: by 2002:a2e:6a11:: with SMTP id f17mr1352418ljc.202.1611040464754;
+        Mon, 18 Jan 2021 23:14:24 -0800 (PST)
+Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
+        by smtp.gmail.com with ESMTPSA id u15sm53637lfl.170.2021.01.18.23.14.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Jan 2021 23:14:24 -0800 (PST)
+Date:   Tue, 19 Jan 2021 09:14:16 +0200
+From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-power@fi.rohmeurope.com, linux-clk@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH v2 01/17] regulator: bd718x7, bd71828, Fix dvs voltage levels
+Message-ID: <7b7a9111e02e06574849bacd5703e6c5cdcd2206.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="hhph5dpzwlj3fiam"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210118085752.5759-2-p.rosenberger@kunbus.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
+In-Reply-To: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+The ROHM BD718x7 and BD71828 drivers support setting HW state
+specific voltages from device-tree. This is used also by various
+in-tree DTS files.
 
---hhph5dpzwlj3fiam
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+These drivers do incorrectly try to compose bit-map using enum
+values. By a chance this works for first two valid levels having
+values 1 and 2 - but setting values for the rest of the levels
+do indicate capbility of setting values for first levels as
+well. Luckily the regulators which support settin values for
+SUSPEND/LPSR do usually also support setting values for RUN
+and IDLE too - thus this has not been such a fatal issue.
 
-Hello Philipp,
+Fix this by defining the old enum values as bits and using
+new enum in parsing code. This allows keeping existing IC
+specific drivers intact and only adding the defines and
+slightly changing the rohm-regulator.c
 
-On Mon, Jan 18, 2021 at 09:57:51AM +0100, Philipp Rosenberger wrote:
-> From what I've seen on the PCF2127 and PCF2129 there is not
-> interrupted gernerated at the interrupt pin (INT), as long the PORO bit
+Fixes: 21b72156ede8b ("regulator: bd718x7: Split driver to common and bd718x7 specific parts")
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+---
 
-Apart from s/not interrupted gernerated/no event generated/ this looks
-good now.
+Please note that this same change has been sent individually:
+https://lore.kernel.org/lkml/20210118075851.GA1016281@localhost.localdomain/
+It is present in this series only because some patches depend on it.
 
-> is set. This behavior is not documented in the manual.
+ drivers/regulator/rohm-regulator.c |  9 ++++++---
+ include/linux/mfd/rohm-generic.h   | 14 ++++++--------
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-Best regards
-Uwe
+diff --git a/drivers/regulator/rohm-regulator.c b/drivers/regulator/rohm-regulator.c
+index 399002383b28..5c558b153d55 100644
+--- a/drivers/regulator/rohm-regulator.c
++++ b/drivers/regulator/rohm-regulator.c
+@@ -52,9 +52,12 @@ int rohm_regulator_set_dvs_levels(const struct rohm_dvs_config *dvs,
+ 	char *prop;
+ 	unsigned int reg, mask, omask, oreg = desc->enable_reg;
+ 
+-	for (i = 0; i < ROHM_DVS_LEVEL_MAX && !ret; i++) {
+-		if (dvs->level_map & (1 << i)) {
+-			switch (i + 1) {
++	for (i = 0; i < ROHM_DVS_LEVEL_VALID_AMOUNT && !ret; i++) {
++		int bit;
++
++		bit = BIT(i);
++		if (dvs->level_map & bit) {
++			switch (bit) {
+ 			case ROHM_DVS_LEVEL_RUN:
+ 				prop = "rohm,dvs-run-voltage";
+ 				reg = dvs->run_reg;
+diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-generic.h
+index 4283b5b33e04..2b85b9deb03a 100644
+--- a/include/linux/mfd/rohm-generic.h
++++ b/include/linux/mfd/rohm-generic.h
+@@ -20,14 +20,12 @@ struct rohm_regmap_dev {
+ 	struct regmap *regmap;
+ };
+ 
+-enum {
+-	ROHM_DVS_LEVEL_UNKNOWN,
+-	ROHM_DVS_LEVEL_RUN,
+-	ROHM_DVS_LEVEL_IDLE,
+-	ROHM_DVS_LEVEL_SUSPEND,
+-	ROHM_DVS_LEVEL_LPSR,
+-	ROHM_DVS_LEVEL_MAX = ROHM_DVS_LEVEL_LPSR,
+-};
++#define ROHM_DVS_LEVEL_RUN		BIT(0)
++#define ROHM_DVS_LEVEL_IDLE		BIT(1)
++#define ROHM_DVS_LEVEL_SUSPEND		BIT(2)
++#define ROHM_DVS_LEVEL_LPSR		BIT(3)
++#define ROHM_DVS_LEVEL_VALID_AMOUNT	4
++#define ROHM_DVS_LEVEL_UNKNOWN		0
+ 
+ /**
+  * struct rohm_dvs_config - dynamic voltage scaling register descriptions
+-- 
+2.25.4
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
 
---hhph5dpzwlj3fiam
-Content-Type: application/pgp-signature; name="signature.asc"
+-- 
+Matti Vaittinen, Linux device drivers
+ROHM Semiconductors, Finland SWDC
+Kiviharjunlenkki 1E
+90220 OULU
+FINLAND
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmAFVGkACgkQwfwUeK3K
-7Ak1yQgAkBAWwmfASiKHUo6Cx3U02EVUkYp58VGmTNi9W2sCKGXcRxviQmmLVbcb
-PyecxvLdmbYpwrOkP1ZszgcG8GsQCzrv1889ugVFE9oODLSuKjEO2w3wg3YVbbhL
-5vIkT3CGEtPgYQ1FxJQ3f6Y4h+TISc1E31vQJgJXdhFw6a87SC+KEQVi/h4zG7GC
-oS/vKgj0IfNdxx2yyPYiba7HQXmbq8EfOfJ/zZHJr9R6x/6o1+b0rwCYQzU7T6b5
-eCCr0Wskx1Y0ihSCVen0OJwqWSBXqZCT7GDEDhL1CGNyh2Uwlp/iyaviLmDAy+eC
-Nsg22zIWCcwci4wj1QPC4VvM72K79Q==
-=mR4+
------END PGP SIGNATURE-----
-
---hhph5dpzwlj3fiam--
+~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
+Simon says - in Latin please.
+~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
+Thanks to Simon Glass for the translation =] 
