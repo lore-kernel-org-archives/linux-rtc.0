@@ -4,61 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE443C433DB
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:25:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 979E9C433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:32:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB7F923133
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:25:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41E8F22241
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:32:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729991AbhASHY4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Jan 2021 02:24:56 -0500
-Received: from mail-lj1-f178.google.com ([209.85.208.178]:35575 "EHLO
-        mail-lj1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726601AbhASHX6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 02:23:58 -0500
-Received: by mail-lj1-f178.google.com with SMTP id p13so20816443ljg.2;
-        Mon, 18 Jan 2021 23:23:41 -0800 (PST)
+        id S1725983AbhASHcg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Jan 2021 02:32:36 -0500
+Received: from mail-lj1-f179.google.com ([209.85.208.179]:37473 "EHLO
+        mail-lj1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726134AbhASHc1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 02:32:27 -0500
+Received: by mail-lj1-f179.google.com with SMTP id 3so594185ljc.4;
+        Mon, 18 Jan 2021 23:32:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=ShiG8ncvQqYw1SDkHGr+rcvPNVAuPLpZAxLBK/z6p+4=;
-        b=jKuaIvvhF7F5Id7Fbm/tDF9tu4FrJsYJK2lzzL6UyjRwRDRSNHvLIurIjHSLcfkzG5
-         9i/u+4nova0v9ysjS1hUAXIEJaFZZ3ctv+V610ojfTyAbp++YSEMnA2q44y4KZ8VcGMB
-         eWQ43XtjJOBAkH/xb2mAVhpWxReyVYdZ4EKIwuEkHkvrejVkKfheQvcBF7jFHQsmrE7g
-         NvCRYrdeuOQlUk8GSJ04LkRd1BzUbB8BHan4QJQriZctN44ze5QIRsFZZM0LOyAX6Qp3
-         wfNNq0YrPj3bJ95SIopUAELXWnacwabz44Nw2uUKAHOr5rMyBFwEd/k0I161xvxFJs+N
-         EfWg==
-X-Gm-Message-State: AOAM530PGn+5ZKpolUfRozquXSa/0ayk/9gZQgAPOVhm7fjCj90aaFWI
-        FAPGF8SiKhdPHLVZPEMVpaQ=
-X-Google-Smtp-Source: ABdhPJxNf1kTyWJ8dhSflagljSf/R6XPWSMvBRrv9RBYDoQNkJiMXeqPUYkQA5PELCyIFPhs1KW1Mg==
-X-Received: by 2002:a05:651c:1356:: with SMTP id j22mr1351691ljb.237.1611040995391;
-        Mon, 18 Jan 2021 23:23:15 -0800 (PST)
+        bh=B9vutluOsSaMSuMzne2uyF2R7I89oSuj6O6DZ914Uf0=;
+        b=ebBHjnADG8UNxfY8tgvfWc3gbKsMQAVr8ZuHJpxrmAbUne4RzCAD8VsnbcYMeTh+A9
+         nXCO3NuyXaA/1UHujuB73U/dkg+S9hj34fL4U8zhFFzdZ7yyw2b9MipAl8qBkUZNKr+S
+         OhS+v5qXf4wGWnBaJSSAJ/T6KGcpwRZ2w8Ci4kQCFDcA/GzUw7i2LWt6tFaDHv69WDa9
+         yEX2NOR6RLh0758en2eqtxHk5QBIHhwhm6o5tKpu7uvcVYRnqvvL3Id7D/ysb3BYKy7S
+         NXANxnn+rjo9HpsFzdn0qA50B3ns6gMz9bXezaq/U/JsJuiDZWKFXmdVvY8T6mHEHxm0
+         07Aw==
+X-Gm-Message-State: AOAM531ZehuJXOaCN82mUh+ea+GhL6ZA5vv2NBbmr8D43uqDSllw/rqE
+        9P5Jbg8aZwc/SidUrxEExSE=
+X-Google-Smtp-Source: ABdhPJz3cl1HWkCcoY8J/T7kR9RbSAay/Q092nTZbrf7yp1pFBF2a4O2Vl8MUIz5VbqbQvRSllss+w==
+X-Received: by 2002:a2e:9812:: with SMTP id a18mr1296886ljj.73.1611041502509;
+        Mon, 18 Jan 2021 23:31:42 -0800 (PST)
 Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id d6sm2187479lfl.175.2021.01.18.23.23.14
+        by smtp.gmail.com with ESMTPSA id d10sm2194900lfj.281.2021.01.18.23.31.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Jan 2021 23:23:14 -0800 (PST)
-Date:   Tue, 19 Jan 2021 09:23:08 +0200
+        Mon, 18 Jan 2021 23:31:41 -0800 (PST)
+Date:   Tue, 19 Jan 2021 09:31:36 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
-Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Lee Jones <lee.jones@linaro.org>,
         Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-power@fi.rohmeurope.com, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 10/17] gpio: support ROHM BD71815 GPOs
-Message-ID: <50f72f1f7f28e969a1e0353712fcc530bce9dd06.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH v2 16/17] rtc: bd70528: Support RTC on ROHM BD71815
+Message-ID: <948164eb1c3053c3dc31c9b46de92b1c9b7224ae.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -68,238 +61,151 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Support GPO(s) found from ROHM BD71815 power management IC. The IC has two
-GPO pins but only one is properly documented in data-sheet. The driver
-exposes by default only the documented GPO. The second GPO is connected to
-E5 pin and is marked as GND in data-sheet. Control for this undocumented
-pin can be enabled using a special DT property.
-
-This driver is derived from work by Peter Yang <yanglsh@embest-tech.com>
-although not so much of original is left.
+BD71815 contains similar RTC block as BD71828. Only the address offsets
+seem different. Support also BD71815 RTC using rtc-bd70528.
 
 Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 ---
-Changes since v1:
-  - removed unneeded headers
-  - clarified dev/parent->dev usage
-  - removed forgotten #define DEBUG
+No changes since v1
 
- drivers/gpio/Kconfig        |  10 +++
- drivers/gpio/Makefile       |   1 +
- drivers/gpio/gpio-bd71815.c | 171 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 182 insertions(+)
- create mode 100644 drivers/gpio/gpio-bd71815.c
+ drivers/rtc/Kconfig       |  6 +++---
+ drivers/rtc/rtc-bd70528.c | 45 ++++++++++++++++++++++++++++++++-------
+ 2 files changed, 40 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index c70f46e80a3b..fd7283af858d 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1096,6 +1096,16 @@ config GPIO_BD70528
- 	  This driver can also be built as a module. If so, the module
- 	  will be called gpio-bd70528.
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6123f9f4fbc9..1e48424a4729 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -501,11 +501,11 @@ config RTC_DRV_M41T80_WDT
+ 	  watchdog timer in the ST M41T60 and M41T80 RTC chips series.
  
-+config GPIO_BD71815
-+	tristate "ROHM BD71815 PMIC GPIO support"
-+	depends on MFD_ROHM_BD71828
-+	help
-+	  Support for GPO(s) on ROHM BD71815 PMIC. There are two GPOs
-+	  available on the ROHM PMIC.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called gpio-bd71815.
-+
- config GPIO_BD71828
- 	tristate "ROHM BD71828 GPIO support"
- 	depends on MFD_ROHM_BD71828
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 35e3b6026665..86bb680522a6 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -39,6 +39,7 @@ obj-$(CONFIG_GPIO_ATH79)		+= gpio-ath79.o
- obj-$(CONFIG_GPIO_BCM_KONA)		+= gpio-bcm-kona.o
- obj-$(CONFIG_GPIO_BCM_XGS_IPROC)	+= gpio-xgs-iproc.o
- obj-$(CONFIG_GPIO_BD70528)		+= gpio-bd70528.o
-+obj-$(CONFIG_GPIO_BD71815)		+= gpio-bd71815.o
- obj-$(CONFIG_GPIO_BD71828)		+= gpio-bd71828.o
- obj-$(CONFIG_GPIO_BD9571MWV)		+= gpio-bd9571mwv.o
- obj-$(CONFIG_GPIO_BRCMSTB)		+= gpio-brcmstb.o
-diff --git a/drivers/gpio/gpio-bd71815.c b/drivers/gpio/gpio-bd71815.c
-new file mode 100644
-index 000000000000..664de5f69bf1
---- /dev/null
-+++ b/drivers/gpio/gpio-bd71815.c
-@@ -0,0 +1,171 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Support to GPOs on ROHM BD71815
-+ */
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/platform_device.h>
-+#include <linux/of.h>
-+/* For the BD71815 register definitions */
+ config RTC_DRV_BD70528
+-	tristate "ROHM BD70528 PMIC RTC"
+-	depends on MFD_ROHM_BD70528 && (BD70528_WATCHDOG || !BD70528_WATCHDOG)
++	tristate "ROHM BD70528, BD71815 and BD71828 PMIC RTC"
++	depends on MFD_ROHM_BD71828 || MFD_ROHM_BD70528 && (BD70528_WATCHDOG || !BD70528_WATCHDOG)
+ 	help
+ 	  If you say Y here you will get support for the RTC
+-	  block on ROHM BD70528 and BD71828 Power Management IC.
++	  block on ROHM BD70528, BD71815 and BD71828 Power Management IC.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-bd70528.
+diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
+index fb4476bb5ab6..6454afca02a6 100644
+--- a/drivers/rtc/rtc-bd70528.c
++++ b/drivers/rtc/rtc-bd70528.c
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/bcd.h>
+ #include <linux/mfd/rohm-bd70528.h>
 +#include <linux/mfd/rohm-bd71815.h>
+ #include <linux/mfd/rohm-bd71828.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -13,6 +14,12 @@
+ #include <linux/regmap.h>
+ #include <linux/rtc.h>
+ 
++/*
++ * On BD71828 and BD71815 the ALM0 MASK is 14 bytes after the ALM0
++ * block start
++ */
++#define BD718XX_ALM_EN_OFFSET 14
 +
-+struct bd71815_gpio {
-+	struct gpio_chip chip;
-+	struct device *dev;
-+	struct regmap *regmap;
-+	/*
-+	 * Sigh. The BD71815 and BD71817 were originally designed to support two
-+	 * GPO pins. At some point it was noticed the second GPO pin which is
-+	 * the E5 pin located at the center of IC is hard to use on PCB (due to
-+	 * the location). It was decided to not promote this second GPO and pin
-+	 * is marked as GND on the data-sheet. The functionality is still there
-+	 * though! I guess driving GPO connected to ground is a bad idea. Thus
-+	 * we do not support it by default. OTOH - the original driver written
-+	 * by colleagues at Embest did support controlling this second GPO. It
-+	 * is thus possible this is used in some of the products.
-+	 *
-+	 * This driver does not by default support configuring this second GPO
-+	 * but allows using it by providing the DT property
-+	 * "rohm,enable-hidden-gpo".
-+	 */
-+	bool e5_pin_is_gpo;
-+};
+ /*
+  * We read regs RTC_SEC => RTC_YEAR
+  * this struct is ordered according to chip registers.
+@@ -55,6 +62,7 @@ struct bd70528_rtc {
+ 	struct regmap *regmap;
+ 	struct device *dev;
+ 	u8 reg_time_start;
++	u8 bd718xx_alm_block_start;
+ 	bool has_rtc_timers;
+ };
+ 
+@@ -236,8 +244,8 @@ static int bd71828_set_alarm(struct device *dev, struct rtc_wkalrm *a)
+ 	struct bd71828_rtc_alm alm;
+ 	struct bd70528_rtc *r = dev_get_drvdata(dev);
+ 
+-	ret = regmap_bulk_read(r->regmap, BD71828_REG_RTC_ALM_START,
+-			       &alm, sizeof(alm));
++	ret = regmap_bulk_read(r->regmap, r->bd718xx_alm_block_start, &alm,
++			       sizeof(alm));
+ 	if (ret) {
+ 		dev_err(dev, "Failed to read alarm regs\n");
+ 		return ret;
+@@ -250,8 +258,8 @@ static int bd71828_set_alarm(struct device *dev, struct rtc_wkalrm *a)
+ 	else
+ 		alm.alm_mask |= BD70528_MASK_ALM_EN;
+ 
+-	ret = regmap_bulk_write(r->regmap, BD71828_REG_RTC_ALM_START,
+-				&alm, sizeof(alm));
++	ret = regmap_bulk_write(r->regmap, r->bd718xx_alm_block_start, &alm,
++				sizeof(alm));
+ 	if (ret)
+ 		dev_err(dev, "Failed to set alarm time\n");
+ 
+@@ -311,8 +319,8 @@ static int bd71828_read_alarm(struct device *dev, struct rtc_wkalrm *a)
+ 	struct bd71828_rtc_alm alm;
+ 	struct bd70528_rtc *r = dev_get_drvdata(dev);
+ 
+-	ret = regmap_bulk_read(r->regmap, BD71828_REG_RTC_ALM_START,
+-			       &alm, sizeof(alm));
++	ret = regmap_bulk_read(r->regmap, r->bd718xx_alm_block_start, &alm,
++			       sizeof(alm));
+ 	if (ret) {
+ 		dev_err(dev, "Failed to read alarm regs\n");
+ 		return ret;
+@@ -453,8 +461,9 @@ static int bd71828_alm_enable(struct device *dev, unsigned int enabled)
+ 	if (!enabled)
+ 		enableval = 0;
+ 
+-	ret = regmap_update_bits(r->regmap, BD71828_REG_RTC_ALM0_MASK,
+-				 BD70528_MASK_ALM_EN, enableval);
++	ret = regmap_update_bits(r->regmap, r->bd718xx_alm_block_start +
++				 BD718XX_ALM_EN_OFFSET, BD70528_MASK_ALM_EN,
++				 enableval);
+ 	if (ret)
+ 		dev_err(dev, "Failed to change alarm state\n");
+ 
+@@ -524,9 +533,28 @@ static int bd70528_probe(struct platform_device *pdev)
+ 		enable_main_irq = true;
+ 		rtc_ops = &bd70528_rtc_ops;
+ 		break;
++	case ROHM_CHIP_TYPE_BD71815:
++		irq_name = "bd71815-rtc-alm-0";
++		bd_rtc->reg_time_start = BD71815_REG_RTC_START;
 +
-+static int bd71815gpo_get(struct gpio_chip *chip, unsigned int offset)
-+{
-+	struct bd71815_gpio *bd71815 = gpiochip_get_data(chip);
-+	int ret = 0;
-+	int val;
-+
-+	ret = regmap_read(bd71815->regmap, BD71815_REG_GPO, &val);
-+	if (ret)
-+		return ret;
-+
-+	return (val >> offset) & 1;
-+}
-+
-+static void bd71815gpo_set(struct gpio_chip *chip, unsigned int offset,
-+			   int value)
-+{
-+	struct bd71815_gpio *bd71815 = gpiochip_get_data(chip);
-+	int ret, val, mask;
-+
-+	if (!bd71815->e5_pin_is_gpo && offset)
-+		return;
-+
-+	mask = BIT(offset);
-+	val = value ? mask : 0;
-+	ret = regmap_update_bits(bd71815->regmap, BD71815_REG_GPO, mask, val);
-+	if (ret)
-+		dev_warn(bd71815->dev, "failed to toggle GPO\n");
-+}
-+
-+static int bd71815_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
-+				   unsigned long config)
-+{
-+	struct bd71815_gpio *bdgpio = gpiochip_get_data(chip);
-+
-+	if (!bdgpio->e5_pin_is_gpo && offset)
-+		return -EOPNOTSUPP;
-+
-+	switch (pinconf_to_config_param(config)) {
-+	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-+		return regmap_update_bits(bdgpio->regmap,
-+					  BD71815_REG_GPO,
-+					  BD71815_GPIO_DRIVE_MASK << offset,
-+					  BD71815_GPIO_OPEN_DRAIN << offset);
-+	case PIN_CONFIG_DRIVE_PUSH_PULL:
-+		return regmap_update_bits(bdgpio->regmap,
-+					  BD71815_REG_GPO,
-+					  BD71815_GPIO_DRIVE_MASK << offset,
-+					  BD71815_GPIO_CMOS << offset);
-+	default:
++		/*
++		 * See also BD718XX_ALM_EN_OFFSET:
++		 * This works for BD71828 and BD71815 as they have same offset
++		 * between ALM0 start and ALM0_MASK. If new ICs are to be
++		 * added this requires proper check as ALM0_MASK is not located
++		 * at the end of ALM0 block - but after all ALM blocks so if
++		 * amount of ALMs differ the offset to enable/disable is likely
++		 * to be incorrect and enable/disable must be given as own
++		 * reg address here.
++		 */
++		bd_rtc->bd718xx_alm_block_start = BD71815_REG_RTC_ALM_START;
++		hour_reg = BD71815_REG_HOUR;
++		rtc_ops = &bd71828_rtc_ops;
 +		break;
-+	}
-+	return -EOPNOTSUPP;
-+}
-+
-+/* BD71815 GPIO is actually GPO */
-+static int bd71815gpo_direction_get(struct gpio_chip *gc, unsigned int offset)
-+{
-+	return GPIO_LINE_DIRECTION_OUT;
-+}
-+
-+/* Template for GPIO chip */
-+static struct gpio_chip bd71815gpo_chip = {
-+	.label			= "bd71815",
-+	.owner			= THIS_MODULE,
-+	.get			= bd71815gpo_get,
-+	.get_direction		= bd71815gpo_direction_get,
-+	.set			= bd71815gpo_set,
-+	.set_config		= bd71815_gpio_set_config,
-+	.can_sleep		= 1,
-+};
-+
-+static int gpo_bd71815_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+	struct bd71815_gpio *g;
-+	struct device *dev;
-+	struct device *parent;
-+
-+	/*
-+	 * Bind devm lifetime to this platform device => use dev for devm.
-+	 * also the prints should originate from this device.
-+	 */
-+	dev = &pdev->dev;
-+	/* The device-tree and regmap come from MFD => use parent for that */
-+	parent = dev->parent;
-+
-+	g = devm_kzalloc(dev, sizeof(*g), GFP_KERNEL);
-+	if (!g)
-+		return -ENOMEM;
-+
-+	g->e5_pin_is_gpo = of_property_read_bool(parent->of_node,
-+						 "rohm,enable-hidden-gpo");
-+	g->chip = bd71815gpo_chip;
-+	g->chip.base = -1;
-+
-+	if (g->e5_pin_is_gpo)
-+		g->chip.ngpio = 2;
-+	else
-+		g->chip.ngpio = 1;
-+
-+	g->chip.parent = parent;
-+	g->chip.of_node = parent->of_node;
-+	g->regmap = dev_get_regmap(parent, NULL);
-+	g->dev = dev;
-+
-+	ret = devm_gpiochip_add_data(dev, &g->chip, g);
-+	if (ret < 0) {
-+		dev_err(dev, "could not register gpiochip, %d\n", ret);
-+		return ret;
-+	}
-+
-+	return ret;
-+}
-+static const struct platform_device_id bd7181x_gpo_id[] = {
-+	{ "bd71815-gpo" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(platform, bd7181x_gpo_id);
-+
-+static struct platform_driver gpo_bd71815_driver = {
-+	.driver = {
-+		.name	= "bd71815-gpo",
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= gpo_bd71815_probe,
-+	.id_table	= bd7181x_gpo_id,
-+};
-+
-+module_platform_driver(gpo_bd71815_driver);
-+
-+/* Note:  this hardware lives inside an I2C-based multi-function device. */
-+MODULE_ALIAS("platform:bd71815-gpo");
-+
-+MODULE_AUTHOR("Peter Yang <yanglsh@embest-tech.com>");
-+MODULE_DESCRIPTION("GPO interface for BD71815");
-+MODULE_LICENSE("GPL");
+ 	case ROHM_CHIP_TYPE_BD71828:
+ 		irq_name = "bd71828-rtc-alm-0";
+ 		bd_rtc->reg_time_start = BD71828_REG_RTC_START;
++		bd_rtc->bd718xx_alm_block_start = BD71828_REG_RTC_ALM_START;
+ 		hour_reg = BD71828_REG_RTC_HOUR;
+ 		rtc_ops = &bd71828_rtc_ops;
+ 		break;
+@@ -605,6 +633,7 @@ static int bd70528_probe(struct platform_device *pdev)
+ static const struct platform_device_id bd718x7_rtc_id[] = {
+ 	{ "bd70528-rtc", ROHM_CHIP_TYPE_BD70528 },
+ 	{ "bd71828-rtc", ROHM_CHIP_TYPE_BD71828 },
++	{ "bd71815-rtc", ROHM_CHIP_TYPE_BD71815 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, bd718x7_rtc_id);
 -- 
 2.25.4
 
