@@ -4,44 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7679BC433DB
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:19:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 574EAC433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:19:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 434A12312D
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:19:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1494C23133
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 07:19:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728629AbhASHTS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Jan 2021 02:19:18 -0500
-Received: from mail-lj1-f169.google.com ([209.85.208.169]:35814 "EHLO
-        mail-lj1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727013AbhASHSp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 02:18:45 -0500
-Received: by mail-lj1-f169.google.com with SMTP id p13so20799454ljg.2;
-        Mon, 18 Jan 2021 23:16:57 -0800 (PST)
+        id S1728289AbhASHTQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Jan 2021 02:19:16 -0500
+Received: from mail-lj1-f180.google.com ([209.85.208.180]:37596 "EHLO
+        mail-lj1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730654AbhASHSq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 02:18:46 -0500
+Received: by mail-lj1-f180.google.com with SMTP id 3so552915ljc.4;
+        Mon, 18 Jan 2021 23:15:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=njM+r5739maNvAMaKSZAfi4YYRGmoIe8sXQDSd2vGS4=;
-        b=uKga2ZXxqkalWeNW4vbpGBGz75EaZrsj9aMHOCIVmLivGzeIGAMtIE95nGKuk3QVJV
-         4YjBohuyBNxNX9KGoqkA19AEeT0Ghza4ZFJVFrvv2dcNP0Q7n5lV4skLMwM8er2Qmt/1
-         bI+90KLeveUc50BoLnPjjYMvhS7mT8IRoYGcby9POGPzTu7YQjaW/T8lYNXtqi2ACtzg
-         JVciD9IUs+KlTf/McKa8LwtZUJq8YJ32ddGntZLvkHNm41HiQaJ8cWQGdutD5tpgHxaK
-         qpN94Wac2vZk2eJHD/6CfBwK8DuUfCJBhzxvEcEUdY8cY8hy7kPqwm2jdgzPRv1LvJV6
-         nWXg==
-X-Gm-Message-State: AOAM530e3ESplm8UYEjiBAZVLUbyxkPwbIoV0T6nVgKVF3DvllGM352T
-        aD3NNwoLMnmlxTeBol2+a1AAvh7PCDRZcA==
-X-Google-Smtp-Source: ABdhPJy6dq3rM1KjpzibXsd4DeX1TwQyRyHiDjzLDbSr+zMoko/U/s74yXSrbXaNAeNc12+r18vy5g==
-X-Received: by 2002:a2e:9f52:: with SMTP id v18mr1344525ljk.510.1611040591332;
-        Mon, 18 Jan 2021 23:16:31 -0800 (PST)
+        bh=W4lO/s0iMGk19qMdPoDZMWO0rMg1GjXtK6eR1C/M5p4=;
+        b=KHwzAQuBv+t/I9tPHnlPbswlu/QYd3bElfHe2JeoL2rl5gldY8HuI8bkMq59Kqcsqw
+         Z37tElogP7QS6SC+Y8FqaISD0VoYVawjMGX4CSvWV1jDvX7NfZZeU8XTdZB7llTQRIwS
+         YTr0jFaAG+X1KKqunh5yZy5Sarb1wzNvCaBGHdqTqS0rEqhvrJYS76+8yFaVof31aZMu
+         AosQus3YOlRJFJdsKF0xgklnfrXjFtNQEKMCHs2owYmV2cjCOf4inNlph5eCd7mfPRzI
+         0Mib0pj9uEAEwiPQPcTkTG92qMpKbgImSQvg7qV7jV4WDuxDwIpr+Up6mWUgbC5UlW81
+         XJFQ==
+X-Gm-Message-State: AOAM530t22DFh8GTlJYc3g1AvWee03F2mGUen2y7lr+Qkn0kpmzfokS9
+        5nzrIvJ1+k1nEgR/Qhzk2p8=
+X-Google-Smtp-Source: ABdhPJyLpgE/ALX+EKI3BWiDJyqR7ao9BgTLuUUwiFd6rzyZ+m4LXd/ylEWcJpRwjYs52hGudIroHA==
+X-Received: by 2002:a2e:a58c:: with SMTP id m12mr1361909ljp.444.1611040527628;
+        Mon, 18 Jan 2021 23:15:27 -0800 (PST)
 Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id s20sm2193138lfc.26.2021.01.18.23.16.29
+        by smtp.gmail.com with ESMTPSA id w13sm1644155lfu.299.2021.01.18.23.15.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Jan 2021 23:16:30 -0800 (PST)
-Date:   Tue, 19 Jan 2021 09:16:23 +0200
+        Mon, 18 Jan 2021 23:15:27 -0800 (PST)
+Date:   Tue, 19 Jan 2021 09:15:17 +0200
 From:   Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 To:     matti.vaittinen@fi.rohmeurope.com, mazziesaccount@gmail.com
 Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
@@ -57,8 +57,8 @@ Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-power@fi.rohmeurope.com, linux-clk@vger.kernel.org,
         linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH v2 05/17] dt_bindings: bd71828: Add clock output mode
-Message-ID: <1b6077ad08f7eacdac6604439d0921778d6046db.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: [PATCH v2 03/17] clk: BD718x7: Do not depend on parent driver data
+Message-ID: <bfe41e384fba1cc340ac0d9c8a033d3f91776ed8.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -68,36 +68,75 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The BD71828 allows configuring the clk32kout pin mode to CMOS or
-open-drain. Add device-tree property for specifying the preferred mode.
+The bd718x7 only needs a regmap from parent device. This can be
+obtained by call to dev_get_regmap. Do not require parent to
+populate the driver data for this.
 
 Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 ---
 
-Changes from v1:
-switched clk-mode property from string type to tristated one as
-suggested by Rob.
+Please note that this same change has been sent individually:
+https://lore.kernel.org/lkml/20210105123028.GA3409663@localhost.localdomain/
+It is present in this series only because some patches depend on it.
 
- .../devicetree/bindings/mfd/rohm,bd71828-pmic.yaml          | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/clk/clk-bd718x7.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml b/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-index 3a6a1a26e2b3..8380166d176c 100644
---- a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-@@ -44,6 +44,12 @@ properties:
-   clock-output-names:
-     const: bd71828-32k-out
+diff --git a/drivers/clk/clk-bd718x7.c b/drivers/clk/clk-bd718x7.c
+index b52e8d6f660c..17d90e09f1c0 100644
+--- a/drivers/clk/clk-bd718x7.c
++++ b/drivers/clk/clk-bd718x7.c
+@@ -31,12 +31,12 @@ struct bd718xx_clk {
+ 	u8 reg;
+ 	u8 mask;
+ 	struct platform_device *pdev;
+-	struct rohm_regmap_dev *mfd;
++	struct regmap *regmap;
+ };
  
-+  rohm,clkout-open-drain:
-+    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
-+    $ref: "/schemas/types.yaml#/definitions/uint32"
-+    minimum: 0
-+    maximum: 1
+ static int bd71837_clk_set(struct bd718xx_clk *c, unsigned int status)
+ {
+-	return regmap_update_bits(c->mfd->regmap, c->reg, c->mask, status);
++	return regmap_update_bits(c->regmap, c->reg, c->mask, status);
+ }
+ 
+ static void bd71837_clk_disable(struct clk_hw *hw)
+@@ -62,7 +62,7 @@ static int bd71837_clk_is_enabled(struct clk_hw *hw)
+ 	int rval;
+ 	struct bd718xx_clk *c = container_of(hw, struct bd718xx_clk, hw);
+ 
+-	rval = regmap_read(c->mfd->regmap, c->reg, &enabled);
++	rval = regmap_read(c->regmap, c->reg, &enabled);
+ 
+ 	if (rval)
+ 		return rval;
+@@ -82,7 +82,6 @@ static int bd71837_clk_probe(struct platform_device *pdev)
+ 	int rval = -ENOMEM;
+ 	const char *parent_clk;
+ 	struct device *parent = pdev->dev.parent;
+-	struct rohm_regmap_dev *mfd = dev_get_drvdata(parent);
+ 	struct clk_init_data init = {
+ 		.name = "bd718xx-32k-out",
+ 		.ops = &bd71837_clk_ops,
+@@ -93,6 +92,10 @@ static int bd71837_clk_probe(struct platform_device *pdev)
+ 	if (!c)
+ 		return -ENOMEM;
+ 
++	c->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!c->regmap)
++		return -ENODEV;
 +
-   rohm,charger-sense-resistor-ohms:
-     minimum: 10000000
-     maximum: 50000000
+ 	init.num_parents = 1;
+ 	parent_clk = of_clk_get_parent_name(parent->of_node, 0);
+ 
+@@ -119,7 +122,6 @@ static int bd71837_clk_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Unknown clk chip\n");
+ 		return -EINVAL;
+ 	}
+-	c->mfd = mfd;
+ 	c->pdev = pdev;
+ 	c->hw.init = &init;
+ 
 -- 
 2.25.4
 
