@@ -2,212 +2,74 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A86C433DB
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 21:11:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D41DBC433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 22:08:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AADC122D08
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 21:11:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C050230FE
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Jan 2021 22:08:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388263AbhASVLx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Jan 2021 16:11:53 -0500
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:50365 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729476AbhASVLs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 16:11:48 -0500
+        id S1729417AbhASWIL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Jan 2021 17:08:11 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:60909 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729161AbhASWIH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Jan 2021 17:08:07 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id AE848C0008;
-        Tue, 19 Jan 2021 21:10:41 +0000 (UTC)
-Date:   Tue, 19 Jan 2021 22:10:41 +0100
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 26E811BF20A;
+        Tue, 19 Jan 2021 22:06:57 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Lee Jones <lee.jones@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 16/17] rtc: bd70528: Support RTC on ROHM BD71815
-Message-ID: <20210119211041.GS3666@piout.net>
-References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
- <948164eb1c3053c3dc31c9b46de92b1c9b7224ae.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 02/14] rtc: asm9260: use rtc_lock/rtc_unlock
+Date:   Tue, 19 Jan 2021 23:06:40 +0100
+Message-Id: <20210119220653.677750-2-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210119220653.677750-1-alexandre.belloni@bootlin.com>
+References: <20210119220653.677750-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <948164eb1c3053c3dc31c9b46de92b1c9b7224ae.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 19/01/2021 09:31:36+0200, Matti Vaittinen wrote:
-> BD71815 contains similar RTC block as BD71828. Only the address offsets
-> seem different. Support also BD71815 RTC using rtc-bd70528.
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Avoid accessing directly rtc->ops_lock and use the RTC core helpers.
 
-> ---
-> No changes since v1
-> 
->  drivers/rtc/Kconfig       |  6 +++---
->  drivers/rtc/rtc-bd70528.c | 45 ++++++++++++++++++++++++++++++++-------
->  2 files changed, 40 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 6123f9f4fbc9..1e48424a4729 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -501,11 +501,11 @@ config RTC_DRV_M41T80_WDT
->  	  watchdog timer in the ST M41T60 and M41T80 RTC chips series.
->  
->  config RTC_DRV_BD70528
-> -	tristate "ROHM BD70528 PMIC RTC"
-> -	depends on MFD_ROHM_BD70528 && (BD70528_WATCHDOG || !BD70528_WATCHDOG)
-> +	tristate "ROHM BD70528, BD71815 and BD71828 PMIC RTC"
-> +	depends on MFD_ROHM_BD71828 || MFD_ROHM_BD70528 && (BD70528_WATCHDOG || !BD70528_WATCHDOG)
->  	help
->  	  If you say Y here you will get support for the RTC
-> -	  block on ROHM BD70528 and BD71828 Power Management IC.
-> +	  block on ROHM BD70528, BD71815 and BD71828 Power Management IC.
->  
->  	  This driver can also be built as a module. If so, the module
->  	  will be called rtc-bd70528.
-> diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
-> index fb4476bb5ab6..6454afca02a6 100644
-> --- a/drivers/rtc/rtc-bd70528.c
-> +++ b/drivers/rtc/rtc-bd70528.c
-> @@ -6,6 +6,7 @@
->  
->  #include <linux/bcd.h>
->  #include <linux/mfd/rohm-bd70528.h>
-> +#include <linux/mfd/rohm-bd71815.h>
->  #include <linux/mfd/rohm-bd71828.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
-> @@ -13,6 +14,12 @@
->  #include <linux/regmap.h>
->  #include <linux/rtc.h>
->  
-> +/*
-> + * On BD71828 and BD71815 the ALM0 MASK is 14 bytes after the ALM0
-> + * block start
-> + */
-> +#define BD718XX_ALM_EN_OFFSET 14
-> +
->  /*
->   * We read regs RTC_SEC => RTC_YEAR
->   * this struct is ordered according to chip registers.
-> @@ -55,6 +62,7 @@ struct bd70528_rtc {
->  	struct regmap *regmap;
->  	struct device *dev;
->  	u8 reg_time_start;
-> +	u8 bd718xx_alm_block_start;
->  	bool has_rtc_timers;
->  };
->  
-> @@ -236,8 +244,8 @@ static int bd71828_set_alarm(struct device *dev, struct rtc_wkalrm *a)
->  	struct bd71828_rtc_alm alm;
->  	struct bd70528_rtc *r = dev_get_drvdata(dev);
->  
-> -	ret = regmap_bulk_read(r->regmap, BD71828_REG_RTC_ALM_START,
-> -			       &alm, sizeof(alm));
-> +	ret = regmap_bulk_read(r->regmap, r->bd718xx_alm_block_start, &alm,
-> +			       sizeof(alm));
->  	if (ret) {
->  		dev_err(dev, "Failed to read alarm regs\n");
->  		return ret;
-> @@ -250,8 +258,8 @@ static int bd71828_set_alarm(struct device *dev, struct rtc_wkalrm *a)
->  	else
->  		alm.alm_mask |= BD70528_MASK_ALM_EN;
->  
-> -	ret = regmap_bulk_write(r->regmap, BD71828_REG_RTC_ALM_START,
-> -				&alm, sizeof(alm));
-> +	ret = regmap_bulk_write(r->regmap, r->bd718xx_alm_block_start, &alm,
-> +				sizeof(alm));
->  	if (ret)
->  		dev_err(dev, "Failed to set alarm time\n");
->  
-> @@ -311,8 +319,8 @@ static int bd71828_read_alarm(struct device *dev, struct rtc_wkalrm *a)
->  	struct bd71828_rtc_alm alm;
->  	struct bd70528_rtc *r = dev_get_drvdata(dev);
->  
-> -	ret = regmap_bulk_read(r->regmap, BD71828_REG_RTC_ALM_START,
-> -			       &alm, sizeof(alm));
-> +	ret = regmap_bulk_read(r->regmap, r->bd718xx_alm_block_start, &alm,
-> +			       sizeof(alm));
->  	if (ret) {
->  		dev_err(dev, "Failed to read alarm regs\n");
->  		return ret;
-> @@ -453,8 +461,9 @@ static int bd71828_alm_enable(struct device *dev, unsigned int enabled)
->  	if (!enabled)
->  		enableval = 0;
->  
-> -	ret = regmap_update_bits(r->regmap, BD71828_REG_RTC_ALM0_MASK,
-> -				 BD70528_MASK_ALM_EN, enableval);
-> +	ret = regmap_update_bits(r->regmap, r->bd718xx_alm_block_start +
-> +				 BD718XX_ALM_EN_OFFSET, BD70528_MASK_ALM_EN,
-> +				 enableval);
->  	if (ret)
->  		dev_err(dev, "Failed to change alarm state\n");
->  
-> @@ -524,9 +533,28 @@ static int bd70528_probe(struct platform_device *pdev)
->  		enable_main_irq = true;
->  		rtc_ops = &bd70528_rtc_ops;
->  		break;
-> +	case ROHM_CHIP_TYPE_BD71815:
-> +		irq_name = "bd71815-rtc-alm-0";
-> +		bd_rtc->reg_time_start = BD71815_REG_RTC_START;
-> +
-> +		/*
-> +		 * See also BD718XX_ALM_EN_OFFSET:
-> +		 * This works for BD71828 and BD71815 as they have same offset
-> +		 * between ALM0 start and ALM0_MASK. If new ICs are to be
-> +		 * added this requires proper check as ALM0_MASK is not located
-> +		 * at the end of ALM0 block - but after all ALM blocks so if
-> +		 * amount of ALMs differ the offset to enable/disable is likely
-> +		 * to be incorrect and enable/disable must be given as own
-> +		 * reg address here.
-> +		 */
-> +		bd_rtc->bd718xx_alm_block_start = BD71815_REG_RTC_ALM_START;
-> +		hour_reg = BD71815_REG_HOUR;
-> +		rtc_ops = &bd71828_rtc_ops;
-> +		break;
->  	case ROHM_CHIP_TYPE_BD71828:
->  		irq_name = "bd71828-rtc-alm-0";
->  		bd_rtc->reg_time_start = BD71828_REG_RTC_START;
-> +		bd_rtc->bd718xx_alm_block_start = BD71828_REG_RTC_ALM_START;
->  		hour_reg = BD71828_REG_RTC_HOUR;
->  		rtc_ops = &bd71828_rtc_ops;
->  		break;
-> @@ -605,6 +633,7 @@ static int bd70528_probe(struct platform_device *pdev)
->  static const struct platform_device_id bd718x7_rtc_id[] = {
->  	{ "bd70528-rtc", ROHM_CHIP_TYPE_BD70528 },
->  	{ "bd71828-rtc", ROHM_CHIP_TYPE_BD71828 },
-> +	{ "bd71815-rtc", ROHM_CHIP_TYPE_BD71815 },
->  	{ },
->  };
->  MODULE_DEVICE_TABLE(platform, bd718x7_rtc_id);
-> -- 
-> 2.25.4
-> 
-> 
-> -- 
-> Matti Vaittinen, Linux device drivers
-> ROHM Semiconductors, Finland SWDC
-> Kiviharjunlenkki 1E
-> 90220 OULU
-> FINLAND
-> 
-> ~~~ "I don't think so," said Rene Descartes. Just then he vanished ~~~
-> Simon says - in Latin please.
-> ~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
-> Thanks to Simon Glass for the translation =] 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-asm9260.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/rtc/rtc-asm9260.c b/drivers/rtc/rtc-asm9260.c
+index 3ab81cdec00b..de795e489f71 100644
+--- a/drivers/rtc/rtc-asm9260.c
++++ b/drivers/rtc/rtc-asm9260.c
+@@ -116,15 +116,15 @@ static irqreturn_t asm9260_rtc_irq(int irq, void *dev_id)
+ 	u32 isr;
+ 	unsigned long events = 0;
+ 
+-	mutex_lock(&priv->rtc->ops_lock);
++	rtc_lock(priv->rtc);
+ 	isr = ioread32(priv->iobase + HW_CIIR);
+ 	if (!isr) {
+-		mutex_unlock(&priv->rtc->ops_lock);
++		rtc_unlock(priv->rtc);
+ 		return IRQ_NONE;
+ 	}
+ 
+ 	iowrite32(0, priv->iobase + HW_CIIR);
+-	mutex_unlock(&priv->rtc->ops_lock);
++	rtc_unlock(priv->rtc);
+ 
+ 	events |= RTC_AF | RTC_IRQF;
+ 
 -- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.29.2
+
