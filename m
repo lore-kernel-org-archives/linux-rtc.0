@@ -2,155 +2,359 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0712AC433DB
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Jan 2021 06:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DC4FC433E0
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Jan 2021 15:45:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FB4C2313B
-	for <linux-rtc@archiver.kernel.org>; Wed, 20 Jan 2021 06:42:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA42F23340
+	for <linux-rtc@archiver.kernel.org>; Wed, 20 Jan 2021 15:45:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbhATGk4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 20 Jan 2021 01:40:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36536 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726700AbhATGiY (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 20 Jan 2021 01:38:24 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E8C7C061575;
-        Tue, 19 Jan 2021 22:37:43 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id o13so32696684lfr.3;
-        Tue, 19 Jan 2021 22:37:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=lg9KNdx/DheREqatTUggClFpgYqzUQB6QxoMiw5d4bE=;
-        b=Q54gqpBT5WdTPa0dw/VQJndPZ+pzowMMLlzsQYUdqhuEmOCf2ml+cRPifoIM5RCuq8
-         F7rxnVAGym6RMUlHKoIT+0J6TjFCYvTutaw6CXulFaotUBBPVLMwmpR70WgODKoIGz5M
-         AsgJMroNtw/oec62z7uqUVB22w68RHiVSU6rMamfEDq6a1gFLvyGvDuYkGB8gKYMnGwK
-         CDiZM1iWhae2kZjc/+hx7WjMBGowRWxTGQcSzmsXsukL39FESxah5RRdPmROkK24XTPg
-         0GSjiUYZ8xSr1nlFKW3e+sg6sIVktik2muRKdIXPv15mK5KjRE8k48a7z1rB7YfaxCZo
-         A2Ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=lg9KNdx/DheREqatTUggClFpgYqzUQB6QxoMiw5d4bE=;
-        b=IUXS2LQ/z2lrwNc9FGgyy7oFXP72HWBVMwnhrMQyqPHnIK62HQt3HWq5DK2de5gmCL
-         gDiJCvE3m7KtUZfGKgq/8dAOfnZLShXbPnTaNfboMdBuIZvZOY4piua/rq0rpOaMvyMY
-         Z9IofZA0IxeIBfCq11s+DluEf+MpuP0/8gu6cV+OWP5teGuTTz6hzrYt9DAzWTzysOAV
-         yzCzxQj7QCu1y9hCsrM67FaSPgNJpfoCQStQeXdTLyEy0iKINGO9EvLPgjrj/xLgNnsj
-         oVR+ALwIna2rRYVq8sLRLgOSVvSyuxkms7WdfRU8m76Vb6RLFMqIYXNI77dY2P2jnZ4t
-         lMRA==
-X-Gm-Message-State: AOAM532HshYWnofqKsHNZbvCk56whynlsIlfnv4fgy+a0H8EnfLaIeB7
-        wp/qBnI1Pm8nQAOxV8FfArY=
-X-Google-Smtp-Source: ABdhPJz5iO2kZWyhMQZ/AwhYN2IrRxZKMZiC+Z5C06ZPcSYhw4h+h1DbYiMruVZU7Kzt9ooIIGPurw==
-X-Received: by 2002:a19:810:: with SMTP id 16mr3554731lfi.233.1611124661811;
-        Tue, 19 Jan 2021 22:37:41 -0800 (PST)
-Received: from localhost.localdomain (62-78-225-252.bb.dnainternet.fi. [62.78.225.252])
-        by smtp.gmail.com with ESMTPSA id y9sm99951ljm.94.2021.01.19.22.37.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jan 2021 22:37:41 -0800 (PST)
-Message-ID: <b82285438b7332a4aba5e0e73a07b2b79b45447b.camel@gmail.com>
-Subject: Re: [PATCH v2 02/17] rtc: bd70528: Do not require parent data
-From:   Matti Vaittinen <mazziesaccount@gmail.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Lee Jones <lee.jones@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-power@fi.rohmeurope.com,
-        linux-rtc@vger.kernel.org, Simon Glass <sjg@chromium.org>
-Date:   Wed, 20 Jan 2021 08:37:40 +0200
-In-Reply-To: <20210119210920.GR3666@piout.net>
-References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
-         <e113a308ee6e9d22ca7fae066119def1793068d9.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
-         <20210119210920.GR3666@piout.net>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S1729111AbhATPpE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 20 Jan 2021 10:45:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733093AbhATPmw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 20 Jan 2021 10:42:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5106B23381;
+        Wed, 20 Jan 2021 15:42:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1611157331;
+        bh=9S8vgYWiSKG9ifXODcOOQ3l8wTWBhuN2g84JbrEqlp8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MIFtIN5s2WyZ26ER2qx0zrFYKjyqz3CAi1LBTwe1Tb0Yapeai7Ng4tWCMZQ7qGmBl
+         h+u9wYNQckmZWoUEa0sTHdZvbRFhobNMVN2nP99qxYnApGqHsXgxIiYbZPmh+vgLEY
+         KDSNs2JdorgvVaVG+UIp/SjsoJ2Eg+G5vjJCIiYDLVWzw8XHmcYrMh6NJHXfXD43mW
+         Qrrf+eUuDS7mFM0qig1nbjpYJTjXnBmhXS/s7BuM3gCbkh9kENZAVgZumPNMxkfC1k
+         XBSlW2So+41fGvHEmOq2ZI7O0X35XtB7/gWnFFvCAXIBLleZHY6AzEEX5wW0ccEL53
+         HLrRmsggg742g==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 3/3] rtc: remove ste ab3100 driver
+Date:   Wed, 20 Jan 2021 16:41:58 +0100
+Message-Id: <20210120154158.1860736-4-arnd@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210120154158.1860736-1-arnd@kernel.org>
+References: <20210120154158.1860736-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+From: Arnd Bergmann <arnd@arndb.de>
 
-On Tue, 2021-01-19 at 22:09 +0100, Alexandre Belloni wrote:
-> On 19/01/2021 09:14:45+0200, Matti Vaittinen wrote:
-> > The ROHM BD71828 and BD71815 RTC drivers only need the regmap
-> > pointer from parent. Regmap can be obtained via dev_get_regmap()
-> > so do not require parent to populate driver data for that.
-> > 
-> > BD70528 on the other hand requires parent data to access the
-> > watchdog so leave the parent data for BD70528 here for now.
-> > 
-> > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> 
-> > ---
-> > 
-> > Please note that this same change has been sent individually:
-> > https://lore.kernel.org/lkml/20210105152350.GA3714833@localhost.localdomain/
-> > It is present in this series only because some patches depend on
-> > it.
-> > 
-> 
-> Then I think it is best to have it as part of this series.
+The ST-Ericsson U300 platform is getting removed, so this driver is no
+longer needed.
 
-Thanks for taking a look at this Alexandre! I'll keep the patch in the
-series and remove this comment from cover-letter and the patch. (I
-guess you have now dropped the previously sent patch).
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/Kconfig      |   8 --
+ drivers/rtc/Makefile     |   1 -
+ drivers/rtc/rtc-ab3100.c | 254 ---------------------------------------
+ 3 files changed, 263 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-ab3100.c
 
-> 
-> > ~~~ "I don't think so," said Rene Descartes. Just then he vanished
-> > ~~~
-> 
-> I've alway wanted to comment on that, should he have to say "I don't
-> think" to vanish ? Because saying "I don't think so," means that he
-> thinks this is not so.
-
-My interpretation is he really was disagreeing and intended to say "he
-doesn't think so". It was just the saying which made him to disappear.
-This is what may happen when you have strong principles ^_^; What is
-interesting to me is that he was able to add the "so" before vanishing.
-This makes me believe it was required the information about him saying
-this must've reached someone before the action was taken. If we make
-some assumptions and a rough estimates we can compute the maximum
-distance for this "something" that must've received the information
-about the event.
-
-I now assume that saying "so" can't really take longer than 10ms. I
-also take into account the current state of physics - which means that
-maximum speed for delivering the information is the speed of light, C.
-
-I further guess that first the information about the event must've
-reached this "something" - and then this "something" must've sent some
-'make him vanish' event back. Again we take the speed-of-light as a
-restriction.
-
-So, poor Rene was no further than 0.01 * C/2 km away from the
-"something" - when C is the speed of light using km/s as unit. 
-
-I think it is safe to say that when you say "you're not thinking" you
-should ensure you're further than 150 000 km away from "something"
-which can make you to vanish.
-
-> 
-> > Simon says - in Latin please.
-> > ~~~ "non cogito me" dixit Rene Descarte, deinde evanescavit ~~~
-> 
-> And I guess this should be simply "non cogito" ;)
-
-I think we should definitely discuss this with Simon Glass if we ever
-happen to be in a same location :] After all, he did the Latin
-translation for me. I can't really speak Latin - but I can always lead
-the discussion to some side-tracks XD
-
-
-Best Regards
-	Matti Vaittinen
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index ff583d6a2870..a608a8ef78fd 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1270,14 +1270,6 @@ config RTC_DRV_PCF50633
+ 	  If you say yes here you get support for the RTC subsystem of the
+ 	  NXP PCF50633 used in embedded systems.
+ 
+-config RTC_DRV_AB3100
+-	tristate "ST-Ericsson AB3100 RTC"
+-	depends on AB3100_CORE
+-	default y if AB3100_CORE
+-	help
+-	  Select this to enable the ST-Ericsson AB3100 Mixed Signal IC RTC
+-	  support. This chip contains a battery- and capacitor-backed RTC.
+-
+ config RTC_DRV_AB8500
+ 	tristate "ST-Ericsson AB8500 RTC"
+ 	depends on AB8500_CORE
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 8585cd159979..55f8a2a5b89d 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -19,7 +19,6 @@ rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= sysfs.o
+ 
+ obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
+ obj-$(CONFIG_RTC_DRV_88PM860X)	+= rtc-88pm860x.o
+-obj-$(CONFIG_RTC_DRV_AB3100)	+= rtc-ab3100.o
+ obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
+ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
+ obj-$(CONFIG_RTC_DRV_ABEOZ9)	+= rtc-ab-eoz9.o
+diff --git a/drivers/rtc/rtc-ab3100.c b/drivers/rtc/rtc-ab3100.c
+deleted file mode 100644
+index e4fd961e8bf6..000000000000
+--- a/drivers/rtc/rtc-ab3100.c
++++ /dev/null
+@@ -1,254 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * Copyright (C) 2007-2009 ST-Ericsson AB
+- * RTC clock driver for the AB3100 Analog Baseband Chip
+- * Author: Linus Walleij <linus.walleij@stericsson.com>
+- */
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+-#include <linux/rtc.h>
+-#include <linux/mfd/abx500.h>
+-
+-/* Clock rate in Hz */
+-#define AB3100_RTC_CLOCK_RATE	32768
+-
+-/*
+- * The AB3100 RTC registers. These are the same for
+- * AB3000 and AB3100.
+- * Control register:
+- * Bit 0: RTC Monitor cleared=0, active=1, if you set it
+- *        to 1 it remains active until RTC power is lost.
+- * Bit 1: 32 kHz Oscillator, 0 = on, 1 = bypass
+- * Bit 2: Alarm on, 0 = off, 1 = on
+- * Bit 3: 32 kHz buffer disabling, 0 = enabled, 1 = disabled
+- */
+-#define AB3100_RTC		0x53
+-/* default setting, buffer disabled, alarm on */
+-#define RTC_SETTING		0x30
+-/* Alarm when AL0-AL3 == TI0-TI3  */
+-#define AB3100_AL0		0x56
+-#define AB3100_AL1		0x57
+-#define AB3100_AL2		0x58
+-#define AB3100_AL3		0x59
+-/* This 48-bit register that counts up at 32768 Hz */
+-#define AB3100_TI0		0x5a
+-#define AB3100_TI1		0x5b
+-#define AB3100_TI2		0x5c
+-#define AB3100_TI3		0x5d
+-#define AB3100_TI4		0x5e
+-#define AB3100_TI5		0x5f
+-
+-/*
+- * RTC clock functions and device struct declaration
+- */
+-static int ab3100_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-{
+-	u8 regs[] = {AB3100_TI0, AB3100_TI1, AB3100_TI2,
+-		     AB3100_TI3, AB3100_TI4, AB3100_TI5};
+-	unsigned char buf[6];
+-	u64 hw_counter = rtc_tm_to_time64(tm) * AB3100_RTC_CLOCK_RATE * 2;
+-	int err = 0;
+-	int i;
+-
+-	buf[0] = (hw_counter) & 0xFF;
+-	buf[1] = (hw_counter >> 8) & 0xFF;
+-	buf[2] = (hw_counter >> 16) & 0xFF;
+-	buf[3] = (hw_counter >> 24) & 0xFF;
+-	buf[4] = (hw_counter >> 32) & 0xFF;
+-	buf[5] = (hw_counter >> 40) & 0xFF;
+-
+-	for (i = 0; i < 6; i++) {
+-		err = abx500_set_register_interruptible(dev, 0,
+-							regs[i], buf[i]);
+-		if (err)
+-			return err;
+-	}
+-
+-	/* Set the flag to mark that the clock is now set */
+-	return abx500_mask_and_set_register_interruptible(dev, 0,
+-							  AB3100_RTC,
+-							  0x01, 0x01);
+-
+-}
+-
+-static int ab3100_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-{
+-	time64_t time;
+-	u8 rtcval;
+-	int err;
+-
+-	err = abx500_get_register_interruptible(dev, 0,
+-						AB3100_RTC, &rtcval);
+-	if (err)
+-		return err;
+-
+-	if (!(rtcval & 0x01)) {
+-		dev_info(dev, "clock not set (lost power)");
+-		return -EINVAL;
+-	} else {
+-		u64 hw_counter;
+-		u8 buf[6];
+-
+-		/* Read out time registers */
+-		err = abx500_get_register_page_interruptible(dev, 0,
+-							     AB3100_TI0,
+-							     buf, 6);
+-		if (err != 0)
+-			return err;
+-
+-		hw_counter = ((u64) buf[5] << 40) | ((u64) buf[4] << 32) |
+-			((u64) buf[3] << 24) | ((u64) buf[2] << 16) |
+-			((u64) buf[1] << 8) | (u64) buf[0];
+-		time = hw_counter / (u64) (AB3100_RTC_CLOCK_RATE * 2);
+-	}
+-
+-	rtc_time64_to_tm(time, tm);
+-
+-	return 0;
+-}
+-
+-static int ab3100_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+-{
+-	time64_t time;
+-	u64 hw_counter;
+-	u8 buf[6];
+-	u8 rtcval;
+-	int err;
+-
+-	/* Figure out if alarm is enabled or not */
+-	err = abx500_get_register_interruptible(dev, 0,
+-						AB3100_RTC, &rtcval);
+-	if (err)
+-		return err;
+-	if (rtcval & 0x04)
+-		alarm->enabled = 1;
+-	else
+-		alarm->enabled = 0;
+-	/* No idea how this could be represented */
+-	alarm->pending = 0;
+-	/* Read out alarm registers, only 4 bytes */
+-	err = abx500_get_register_page_interruptible(dev, 0,
+-						     AB3100_AL0, buf, 4);
+-	if (err)
+-		return err;
+-	hw_counter = ((u64) buf[3] << 40) | ((u64) buf[2] << 32) |
+-		((u64) buf[1] << 24) | ((u64) buf[0] << 16);
+-	time = hw_counter / (u64) (AB3100_RTC_CLOCK_RATE * 2);
+-
+-	rtc_time64_to_tm(time, &alarm->time);
+-
+-	return rtc_valid_tm(&alarm->time);
+-}
+-
+-static int ab3100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+-{
+-	u8 regs[] = {AB3100_AL0, AB3100_AL1, AB3100_AL2, AB3100_AL3};
+-	unsigned char buf[4];
+-	time64_t secs;
+-	u64 hw_counter;
+-	int err;
+-	int i;
+-
+-	secs = rtc_tm_to_time64(&alarm->time);
+-	hw_counter = secs * AB3100_RTC_CLOCK_RATE * 2;
+-	buf[0] = (hw_counter >> 16) & 0xFF;
+-	buf[1] = (hw_counter >> 24) & 0xFF;
+-	buf[2] = (hw_counter >> 32) & 0xFF;
+-	buf[3] = (hw_counter >> 40) & 0xFF;
+-
+-	/* Set the alarm */
+-	for (i = 0; i < 4; i++) {
+-		err = abx500_set_register_interruptible(dev, 0,
+-							regs[i], buf[i]);
+-		if (err)
+-			return err;
+-	}
+-	/* Then enable the alarm */
+-	return abx500_mask_and_set_register_interruptible(dev, 0,
+-							  AB3100_RTC, (1 << 2),
+-							  alarm->enabled << 2);
+-}
+-
+-static int ab3100_rtc_irq_enable(struct device *dev, unsigned int enabled)
+-{
+-	/*
+-	 * It's not possible to enable/disable the alarm IRQ for this RTC.
+-	 * It does not actually trigger any IRQ: instead its only function is
+-	 * to power up the system, if it wasn't on. This will manifest as
+-	 * a "power up cause" in the AB3100 power driver (battery charging etc)
+-	 * and need to be handled there instead.
+-	 */
+-	if (enabled)
+-		return abx500_mask_and_set_register_interruptible(dev, 0,
+-						    AB3100_RTC, (1 << 2),
+-						    1 << 2);
+-	else
+-		return abx500_mask_and_set_register_interruptible(dev, 0,
+-						    AB3100_RTC, (1 << 2),
+-						    0);
+-}
+-
+-static const struct rtc_class_ops ab3100_rtc_ops = {
+-	.read_time	= ab3100_rtc_read_time,
+-	.set_time	= ab3100_rtc_set_time,
+-	.read_alarm	= ab3100_rtc_read_alarm,
+-	.set_alarm	= ab3100_rtc_set_alarm,
+-	.alarm_irq_enable = ab3100_rtc_irq_enable,
+-};
+-
+-static int __init ab3100_rtc_probe(struct platform_device *pdev)
+-{
+-	int err;
+-	u8 regval;
+-	struct rtc_device *rtc;
+-
+-	/* The first RTC register needs special treatment */
+-	err = abx500_get_register_interruptible(&pdev->dev, 0,
+-						AB3100_RTC, &regval);
+-	if (err) {
+-		dev_err(&pdev->dev, "unable to read RTC register\n");
+-		return -ENODEV;
+-	}
+-
+-	if ((regval & 0xFE) != RTC_SETTING) {
+-		dev_warn(&pdev->dev, "not default value in RTC reg 0x%x\n",
+-			 regval);
+-	}
+-
+-	if ((regval & 1) == 0) {
+-		/*
+-		 * Set bit to detect power loss.
+-		 * This bit remains until RTC power is lost.
+-		 */
+-		regval = 1 | RTC_SETTING;
+-		err = abx500_set_register_interruptible(&pdev->dev, 0,
+-							AB3100_RTC, regval);
+-		/* Ignore any error on this write */
+-	}
+-
+-	rtc = devm_rtc_allocate_device(&pdev->dev);
+-	if (IS_ERR(rtc))
+-		return PTR_ERR(rtc);
+-
+-	rtc->ops = &ab3100_rtc_ops;
+-	/* 48bit counter at (AB3100_RTC_CLOCK_RATE * 2) */
+-	rtc->range_max = U32_MAX;
+-
+-	platform_set_drvdata(pdev, rtc);
+-
+-	return devm_rtc_register_device(rtc);
+-}
+-
+-static struct platform_driver ab3100_rtc_driver = {
+-	.driver = {
+-		.name = "ab3100-rtc",
+-	},
+-};
+-
+-module_platform_driver_probe(ab3100_rtc_driver, ab3100_rtc_probe);
+-
+-MODULE_AUTHOR("Linus Walleij <linus.walleij@stericsson.com>");
+-MODULE_DESCRIPTION("AB3100 RTC Driver");
+-MODULE_LICENSE("GPL");
+-- 
+2.29.2
 
