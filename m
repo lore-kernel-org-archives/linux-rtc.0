@@ -7,26 +7,26 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A21D7C433E0
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77968C433E6
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66E9B22DBF
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44DE6235E4
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbhAVLYu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Jan 2021 06:24:50 -0500
+        id S1727767AbhAVLYl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Jan 2021 06:24:41 -0500
 Received: from mailgw01.mediatek.com ([210.61.82.183]:35103 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728129AbhAVLWF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Jan 2021 06:22:05 -0500
-X-UUID: b87dfd09f18d4d7ab444a6d8a1d058d7-20210122
-X-UUID: b87dfd09f18d4d7ab444a6d8a1d058d7-20210122
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
+        with ESMTP id S1728268AbhAVLYG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Jan 2021 06:24:06 -0500
+X-UUID: fe811c0e40b6453497b76bd4b2f51ae3-20210122
+X-UUID: fe811c0e40b6453497b76bd4b2f51ae3-20210122
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1078234472; Fri, 22 Jan 2021 19:19:44 +0800
+        with ESMTP id 1220637426; Fri, 22 Jan 2021 19:19:58 +0800
 Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs06n2.mediatek.inc (172.21.101.130) with Microsoft SMTP Server (TLS) id
+ mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
  15.0.1497.2; Fri, 22 Jan 2021 19:19:43 +0800
 Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
@@ -52,15 +52,14 @@ CC:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
         <srv_heupstream@mediatek.com>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>,
         Wen Su <wen.su@mediatek.com>
-Subject: [PATCH v5 6/8] regulator: mt6359: Add support for MT6359 regulator
-Date:   Fri, 22 Jan 2021 19:19:39 +0800
-Message-ID: <1611314381-19517-7-git-send-email-hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v5 8/8] arm64: dts: mt6359: add PMIC MT6359 related nodes
+Date:   Fri, 22 Jan 2021 19:19:41 +0800
+Message-ID: <1611314381-19517-9-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 2.6.4
 In-Reply-To: <1611314381-19517-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 References: <1611314381-19517-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-TM-SNTS-SMTP: 3C64A90294BD7B841E30C907AF595F4FE9A543C7F594A087CF3B8508080904972000:8
 X-MTK:  N
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -68,826 +67,335 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Wen Su <wen.su@mediatek.com>
 
-The MT6359 is a regulator found on boards based on MediaTek MT6779 and
-probably other SoCs. It is a so called pmic and connects as a slave to
-SoC using SPI, wrapped inside the pmic-wrapper.
+add PMIC MT6359 related nodes which is for MT6779 platform
 
 Signed-off-by: Wen Su <wen.su@mediatek.com>
 Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 ---
 changes since v4:
-- add enable time of ldo.
-- use the device of mfd driver for the regulator_config.
-- add the regulators_node support.
+- add pmic MT6359 support in the MT8192 evb dts.
 ---
- drivers/regulator/Kconfig                  |   9 +
- drivers/regulator/Makefile                 |   1 +
- drivers/regulator/mt6359-regulator.c       | 669 +++++++++++++++++++++
- include/linux/regulator/mt6359-regulator.h |  58 ++
- 4 files changed, 737 insertions(+)
- create mode 100644 drivers/regulator/mt6359-regulator.c
- create mode 100644 include/linux/regulator/mt6359-regulator.h
+ arch/arm64/boot/dts/mediatek/mt6359.dtsi    | 298 ++++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8192-evb.dts |   1 +
+ 2 files changed, 299 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6359.dtsi
 
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 53fa84f4d1e1..3de7bb5be8ac 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -750,6 +750,15 @@ config REGULATOR_MT6358
- 	  This driver supports the control of different power rails of device
- 	  through regulator interface.
- 
-+config REGULATOR_MT6359
-+	tristate "MediaTek MT6359 PMIC"
-+	depends on MFD_MT6397
-+	help
-+	  Say y here to select this option to enable the power regulator of
-+	  MediaTek MT6359 PMIC.
-+	  This driver supports the control of different power rails of device
-+	  through regulator interface.
-+
- config REGULATOR_MT6360
- 	tristate "MT6360 SubPMIC Regulator"
- 	depends on MFD_MT6360
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 680e539f6579..4f65eaead82d 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -91,6 +91,7 @@ obj-$(CONFIG_REGULATOR_MPQ7920) += mpq7920.o
- obj-$(CONFIG_REGULATOR_MT6311) += mt6311-regulator.o
- obj-$(CONFIG_REGULATOR_MT6323)	+= mt6323-regulator.o
- obj-$(CONFIG_REGULATOR_MT6358)	+= mt6358-regulator.o
-+obj-$(CONFIG_REGULATOR_MT6359)	+= mt6359-regulator.o
- obj-$(CONFIG_REGULATOR_MT6360) += mt6360-regulator.o
- obj-$(CONFIG_REGULATOR_MT6380)	+= mt6380-regulator.o
- obj-$(CONFIG_REGULATOR_MT6397)	+= mt6397-regulator.o
-diff --git a/drivers/regulator/mt6359-regulator.c b/drivers/regulator/mt6359-regulator.c
+diff --git a/arch/arm64/boot/dts/mediatek/mt6359.dtsi b/arch/arm64/boot/dts/mediatek/mt6359.dtsi
 new file mode 100644
-index 000000000000..fabc3f57f334
+index 000000000000..4bd85e33a4c9
 --- /dev/null
-+++ b/drivers/regulator/mt6359-regulator.c
-@@ -0,0 +1,669 @@
++++ b/arch/arm64/boot/dts/mediatek/mt6359.dtsi
+@@ -0,0 +1,298 @@
 +// SPDX-License-Identifier: GPL-2.0
-+//
-+// Copyright (c) 2020 MediaTek Inc.
-+
-+#include <linux/platform_device.h>
-+#include <linux/mfd/mt6359/registers.h>
-+#include <linux/mfd/mt6397/core.h>
-+#include <linux/module.h>
-+#include <linux/of_device.h>
-+#include <linux/regmap.h>
-+#include <linux/regulator/driver.h>
-+#include <linux/regulator/machine.h>
-+#include <linux/regulator/mt6359-regulator.h>
-+#include <linux/regulator/of_regulator.h>
-+
-+#define MT6359_BUCK_MODE_AUTO		0
-+#define MT6359_BUCK_MODE_FORCE_PWM	1
-+#define MT6359_BUCK_MODE_NORMAL		0
-+#define MT6359_BUCK_MODE_LP		2
-+
-+/*
-+ * MT6359 regulators' information
-+ *
-+ * @desc: standard fields of regulator description.
-+ * @status_reg: for query status of regulators.
-+ * @qi: Mask for query enable signal status of regulators.
-+ * @modeset_reg: for operating AUTO/PWM mode register.
-+ * @modeset_mask: MASK for operating modeset register.
-+ * @modeset_shift: SHIFT for operating modeset register.
-+ */
-+struct mt6359_regulator_info {
-+	struct regulator_desc desc;
-+	u32 status_reg;
-+	u32 qi;
-+	u32 modeset_reg;
-+	u32 modeset_mask;
-+	u32 modeset_shift;
-+	u32 lp_mode_reg;
-+	u32 lp_mode_mask;
-+	u32 lp_mode_shift;
-+};
-+
-+#define MT6359_BUCK(match, _name, min, max, step, min_sel,	\
-+	volt_ranges, _enable_reg, _status_reg,			\
-+	_vsel_reg, _vsel_mask,					\
-+	_lp_mode_reg, _lp_mode_shift,				\
-+	_modeset_reg, _modeset_shift)				\
-+[MT6359_ID_##_name] = {						\
-+	.desc = {						\
-+		.name = #_name,					\
-+		.of_match = of_match_ptr(match),		\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.ops = &mt6359_volt_range_ops,			\
-+		.type = REGULATOR_VOLTAGE,			\
-+		.id = MT6359_ID_##_name,			\
-+		.owner = THIS_MODULE,				\
-+		.uV_step = (step),				\
-+		.linear_min_sel = (min_sel),			\
-+		.linear_min_sel = (min_sel),			\
-+		.n_voltages = ((max) - (min)) / (step) + 1,	\
-+		.linear_min_sel = (min_sel),			\
-+		.n_voltages = ((max) - (min)) / (step) + 1,	\
-+		.min_uV = (min),				\
-+		.linear_ranges = volt_ranges,			\
-+		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
-+		.vsel_reg = _vsel_reg,				\
-+		.vsel_mask = _vsel_mask,			\
-+		.enable_reg = _enable_reg,			\
-+		.enable_mask = BIT(0),				\
-+		.of_map_mode = mt6359_map_mode,			\
-+		.of_map_mode = mt6359_map_mode,			\
-+	},							\
-+	.status_reg = _status_reg,				\
-+	.qi = BIT(0),						\
-+	.lp_mode_reg = _lp_mode_reg,				\
-+	.lp_mode_reg = _lp_mode_reg,				\
-+	.lp_mode_mask = BIT(_lp_mode_shift),			\
-+	.lp_mode_reg = _lp_mode_reg,				\
-+	.lp_mode_mask = BIT(_lp_mode_shift),			\
-+	.lp_mode_shift = _lp_mode_shift,			\
-+	.modeset_reg = _modeset_reg,				\
-+	.modeset_mask = BIT(_modeset_shift),			\
-+	.modeset_shift = _modeset_shift				\
-+}
-+
-+#define MT6359_LDO_LINEAR(match, _name, min, max, step, min_sel,\
-+#define MT6359_LDO_LINEAR(match, _name, min, max, step, min_sel,\
-+	volt_ranges, _enable_reg, _status_reg,			\
-+	_vsel_reg, _vsel_mask)					\
-+	_vsel_reg, _vsel_mask)					\
-+[MT6359_ID_##_name] = {						\
-+	.desc = {						\
-+	.desc = {						\
-+		.name = #_name,					\
-+		.of_match = of_match_ptr(match),		\
-+		.of_match = of_match_ptr(match),		\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.ops = &mt6359_volt_range_ops,			\
-+		.type = REGULATOR_VOLTAGE,			\
-+		.id = MT6359_ID_##_name,			\
-+		.owner = THIS_MODULE,				\
-+		.owner = THIS_MODULE,				\
-+		.uV_step = (step),				\
-+		.linear_min_sel = (min_sel),			\
-+		.n_voltages = ((max) - (min)) / (step) + 1,	\
-+		.min_uV = (min),				\
-+		.linear_ranges = volt_ranges,			\
-+		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
-+		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
-+		.vsel_reg = _vsel_reg,				\
-+		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
-+		.vsel_reg = _vsel_reg,				\
-+		.vsel_mask = _vsel_mask,			\
-+		.enable_reg = _enable_reg,			\
-+		.enable_mask = BIT(0),				\
-+	},							\
-+	.status_reg = _status_reg,				\
-+	.status_reg = _status_reg,				\
-+	.qi = BIT(0),						\
-+	.status_reg = _status_reg,				\
-+	.qi = BIT(0),						\
-+}
-+
-+#define MT6359_LDO(match, _name, _volt_table,			\
-+	_enable_reg, _enable_mask, _status_reg,			\
-+	_vsel_reg, _vsel_mask, _en_delay)			\
-+[MT6359_ID_##_name] = {						\
-+[MT6359_ID_##_name] = {						\
-+	.desc = {						\
-+		.name = #_name,					\
-+		.of_match = of_match_ptr(match),		\
-+		.of_match = of_match_ptr(match),		\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.ops = &mt6359_volt_table_ops,			\
-+		.type = REGULATOR_VOLTAGE,			\
-+		.id = MT6359_ID_##_name,			\
-+		.owner = THIS_MODULE,				\
-+		.n_voltages = ARRAY_SIZE(_volt_table),		\
-+		.n_voltages = ARRAY_SIZE(_volt_table),		\
-+		.volt_table = _volt_table,			\
-+		.n_voltages = ARRAY_SIZE(_volt_table),		\
-+		.volt_table = _volt_table,			\
-+		.vsel_reg = _vsel_reg,				\
-+		.vsel_mask = _vsel_mask,			\
-+		.enable_reg = _enable_reg,			\
-+		.enable_mask = BIT(_enable_mask),		\
-+		.enable_time = _en_delay,			\
-+	},							\
-+	.status_reg = _status_reg,				\
-+	.qi = BIT(0),						\
-+}
-+
-+#define MT6359_REG_FIXED(match, _name, _enable_reg,	\
-+	_status_reg, _fixed_volt)			\
-+[MT6359_ID_##_name] = {					\
-+[MT6359_ID_##_name] = {					\
-+	.desc = {					\
-+		.name = #_name,				\
-+		.name = #_name,				\
-+		.of_match = of_match_ptr(match),	\
-+		.regulators_node = of_match_ptr("regulators"),	\
-+		.ops = &mt6359_volt_fixed_ops,		\
-+		.type = REGULATOR_VOLTAGE,		\
-+		.id = MT6359_ID_##_name,		\
-+		.id = MT6359_ID_##_name,		\
-+		.owner = THIS_MODULE,			\
-+		.n_voltages = 1,			\
-+		.enable_reg = _enable_reg,		\
-+		.enable_mask = BIT(0),			\
-+		.fixed_uV = (_fixed_volt),		\
-+	},						\
-+	.status_reg = _status_reg,			\
-+	.status_reg = _status_reg,			\
-+	.qi = BIT(0),					\
-+}
-+
-+static const struct linear_range mt_volt_range1[] = {
-+	REGULATOR_LINEAR_RANGE(800000, 0, 0x70, 12500),
-+};
-+};
-+
-+static const struct linear_range mt_volt_range2[] = {
-+	REGULATOR_LINEAR_RANGE(400000, 0, 0x7f, 6250),
-+};
-+
-+static const struct linear_range mt_volt_range3[] = {
-+	REGULATOR_LINEAR_RANGE(400000, 0, 0x70, 6250),
-+};
-+
-+static const struct linear_range mt_volt_range4[] = {
-+	REGULATOR_LINEAR_RANGE(800000, 0, 0x40, 12500),
-+};
-+
-+static const struct linear_range mt_volt_range5[] = {
-+static const struct linear_range mt_volt_range5[] = {
-+	REGULATOR_LINEAR_RANGE(500000, 0, 0x3F, 50000),
-+};
-+
-+static const struct linear_range mt_volt_range6[] = {
-+	REGULATOR_LINEAR_RANGE(500000, 0, 0x7f, 6250),
-+};
-+
-+static const struct linear_range mt_volt_range7[] = {
-+	REGULATOR_LINEAR_RANGE(500000, 0, 0x7f, 6250),
-+};
-+
-+static const u32 vsim1_voltages[] = {
-+	0, 0, 0, 1700000, 1800000, 0, 0, 0, 2700000, 0, 0, 3000000, 3100000,
-+};
-+
-+static const u32 vibr_voltages[] = {
-+	1200000, 1300000, 1500000, 0, 1800000, 2000000, 0, 0, 2700000, 2800000,
-+	0, 3000000, 0, 3300000,
-+};
-+
-+static const u32 vrf12_voltages[] = {
-+	0, 0, 1100000, 1200000,	1300000,
-+};
-+
-+static const u32 volt18_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1700000, 1800000, 1900000,
-+};
-+
-+static const u32 vcn13_voltages[] = {
-+	900000, 1000000, 0, 1200000, 1300000,
-+};
-+
-+static const u32 vcn33_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 2800000, 0, 0, 0, 3300000, 3400000, 3500000,
-+};
-+
-+static const u32 vefuse_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1700000, 1800000, 1900000, 2000000,
-+};
-+
-+static const u32 vxo22_voltages[] = {
-+	1800000, 0, 0, 0, 2200000,
-+};
-+
-+static const u32 vrfck_voltages[] = {
-+	0, 0, 1500000, 0, 0, 0, 0, 1600000, 0, 0, 0, 0, 1700000,
-+};
-+
-+static const u32 vio28_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 2800000, 2900000, 3000000, 3100000, 3300000,
-+};
-+
-+static const u32 vemc_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2900000, 3000000, 0, 3300000,
-+};
-+
-+static const u32 va12_voltages[] = {
-+	0, 0, 0, 0, 0, 0, 1200000, 1300000,
-+};
-+
-+static const u32 va09_voltages[] = {
-+	0, 0, 800000, 900000, 0, 0, 1200000,
-+};
-+
-+static const u32 vrf18_voltages[] = {
-+	0, 0, 0, 0, 0, 1700000, 1800000, 1810000,
-+};
-+
-+static const u32 vbbck_voltages[] = {
-+	0, 0, 0, 0, 1100000, 0, 0, 0, 1150000, 0, 0, 0, 1200000,
-+};
-+
-+static const u32 vsim2_voltages[] = {
-+	0, 0, 0, 1700000, 1800000, 0, 0, 0, 2700000, 0, 0, 3000000, 3100000,
-+};
-+
-+static inline unsigned int mt6359_map_mode(unsigned int mode)
-+{
-+	switch (mode) {
-+	case MT6359_BUCK_MODE_NORMAL:
-+		return REGULATOR_MODE_NORMAL;
-+	case MT6359_BUCK_MODE_FORCE_PWM:
-+		return REGULATOR_MODE_FAST;
-+	case MT6359_BUCK_MODE_LP:
-+		return REGULATOR_MODE_IDLE;
-+	default:
-+		return REGULATOR_MODE_INVALID;
-+	}
-+}
-+
-+static int mt6359_get_status(struct regulator_dev *rdev)
-+{
-+	int ret;
-+	u32 regval;
-+	struct mt6359_regulator_info *info = rdev_get_drvdata(rdev);
-+
-+	ret = regmap_read(rdev->regmap, info->status_reg, &regval);
-+	if (ret != 0) {
-+		dev_err(&rdev->dev, "Failed to get enable reg: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (regval & info->qi)
-+		return REGULATOR_STATUS_ON;
-+	else
-+		return REGULATOR_STATUS_OFF;
-+}
-+
-+static unsigned int mt6359_regulator_get_mode(struct regulator_dev *rdev)
-+{
-+	struct mt6359_regulator_info *info = rdev_get_drvdata(rdev);
-+	int ret, regval;
-+
-+	ret = regmap_read(rdev->regmap, info->modeset_reg, &regval);
-+	if (ret != 0) {
-+		dev_err(&rdev->dev,
-+			"Failed to get mt6359 buck mode: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if ((regval & info->modeset_mask) >> info->modeset_shift ==
-+		MT6359_BUCK_MODE_FORCE_PWM)
-+		return REGULATOR_MODE_FAST;
-+
-+	ret = regmap_read(rdev->regmap, info->lp_mode_reg, &regval);
-+	if (ret != 0) {
-+		dev_err(&rdev->dev,
-+			"Failed to get mt6359 buck lp mode: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (regval & info->lp_mode_mask)
-+		return REGULATOR_MODE_IDLE;
-+	else
-+		return REGULATOR_MODE_NORMAL;
-+}
-+
-+static int mt6359_regulator_set_mode(struct regulator_dev *rdev,
-+				     unsigned int mode)
-+{
-+	struct mt6359_regulator_info *info = rdev_get_drvdata(rdev);
-+	int ret = 0, val;
-+	int curr_mode;
-+
-+	curr_mode = mt6359_regulator_get_mode(rdev);
-+	switch (mode) {
-+	case REGULATOR_MODE_FAST:
-+		val = MT6359_BUCK_MODE_FORCE_PWM;
-+		val <<= info->modeset_shift;
-+		ret = regmap_update_bits(rdev->regmap,
-+					 info->modeset_reg,
-+					 info->modeset_mask,
-+					 val);
-+		break;
-+	case REGULATOR_MODE_NORMAL:
-+		if (curr_mode == REGULATOR_MODE_FAST) {
-+			val = MT6359_BUCK_MODE_AUTO;
-+			val <<= info->modeset_shift;
-+			ret = regmap_update_bits(rdev->regmap,
-+						 info->modeset_reg,
-+						 info->modeset_mask,
-+						 val);
-+		} else if (curr_mode == REGULATOR_MODE_IDLE) {
-+			val = MT6359_BUCK_MODE_NORMAL;
-+			val <<= info->lp_mode_shift;
-+			ret = regmap_update_bits(rdev->regmap,
-+						 info->lp_mode_reg,
-+						 info->lp_mode_mask,
-+						 val);
-+			udelay(100);
-+		}
-+		break;
-+	case REGULATOR_MODE_IDLE:
-+		val = MT6359_BUCK_MODE_LP >> 1;
-+		val <<= info->lp_mode_shift;
-+		ret = regmap_update_bits(rdev->regmap,
-+					 info->lp_mode_reg,
-+					 info->lp_mode_mask,
-+					 val);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (ret != 0) {
-+		dev_err(&rdev->dev,
-+			"Failed to set mt6359 buck mode: %d\n", ret);
-+	}
-+
-+	return ret;
-+}
-+
-+static const struct regulator_ops mt6359_volt_range_ops = {
-+	.list_voltage = regulator_list_voltage_linear_range,
-+	.map_voltage = regulator_map_voltage_linear_range,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.get_status = mt6359_get_status,
-+	.set_mode = mt6359_regulator_set_mode,
-+	.get_mode = mt6359_regulator_get_mode,
-+};
-+
-+static const struct regulator_ops mt6359_volt_table_ops = {
-+	.list_voltage = regulator_list_voltage_table,
-+	.map_voltage = regulator_map_voltage_iterate,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.get_status = mt6359_get_status,
-+};
-+
-+static const struct regulator_ops mt6359_volt_fixed_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.get_status = mt6359_get_status,
-+};
-+
-+/* The array is indexed by id(MT6359_ID_XXX) */
-+static struct mt6359_regulator_info mt6359_regulators[] = {
-+	MT6359_BUCK("buck_vs1", VS1, 800000, 2200000, 12500, 0,
-+		    mt_volt_range1, MT6359_RG_BUCK_VS1_EN_ADDR,
-+		    MT6359_DA_VS1_EN_ADDR, MT6359_RG_BUCK_VS1_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VS1_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VS1_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VS1_LP_ADDR, MT6359_RG_BUCK_VS1_LP_SHIFT,
-+		    MT6359_RG_VS1_FPWM_ADDR, MT6359_RG_VS1_FPWM_SHIFT),
-+	MT6359_BUCK("buck_vgpu11", VGPU11, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VGPU11_EN_ADDR,
-+		    MT6359_DA_VGPU11_EN_ADDR, MT6359_RG_BUCK_VGPU11_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VGPU11_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VGPU11_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VGPU11_LP_ADDR,
-+		    MT6359_RG_BUCK_VGPU11_LP_SHIFT,
-+		    MT6359_RG_VGPU11_FCCM_ADDR, MT6359_RG_VGPU11_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vmodem", VMODEM, 400000, 1100000, 6250, 0,
-+		    mt_volt_range3, MT6359_RG_BUCK_VMODEM_EN_ADDR,
-+		    MT6359_DA_VMODEM_EN_ADDR, MT6359_RG_BUCK_VMODEM_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VMODEM_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VMODEM_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VMODEM_LP_ADDR,
-+		    MT6359_RG_BUCK_VMODEM_LP_SHIFT,
-+		    MT6359_RG_VMODEM_FCCM_ADDR, MT6359_RG_VMODEM_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vpu", VPU, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VPU_EN_ADDR,
-+		    MT6359_DA_VPU_EN_ADDR, MT6359_RG_BUCK_VPU_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VPU_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VPU_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VPU_LP_ADDR, MT6359_RG_BUCK_VPU_LP_SHIFT,
-+		    MT6359_RG_VPU_FCCM_ADDR, MT6359_RG_VPU_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vcore", VCORE, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VCORE_EN_ADDR,
-+		    MT6359_DA_VCORE_EN_ADDR, MT6359_RG_BUCK_VCORE_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VCORE_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VCORE_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VCORE_LP_ADDR, MT6359_RG_BUCK_VCORE_LP_SHIFT,
-+		    MT6359_RG_VCORE_FCCM_ADDR, MT6359_RG_VCORE_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vs2", VS2, 800000, 1600000, 12500, 0,
-+		    mt_volt_range4, MT6359_RG_BUCK_VS2_EN_ADDR,
-+		    MT6359_DA_VS2_EN_ADDR, MT6359_RG_BUCK_VS2_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VS2_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VS2_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VS2_LP_ADDR, MT6359_RG_BUCK_VS2_LP_SHIFT,
-+		    MT6359_RG_VS2_FPWM_ADDR, MT6359_RG_VS2_FPWM_SHIFT),
-+	MT6359_BUCK("buck_vpa", VPA, 500000, 3650000, 50000, 0,
-+		    mt_volt_range5, MT6359_RG_BUCK_VPA_EN_ADDR,
-+		    MT6359_DA_VPA_EN_ADDR, MT6359_RG_BUCK_VPA_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VPA_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VPA_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VPA_LP_ADDR, MT6359_RG_BUCK_VPA_LP_SHIFT,
-+		    MT6359_RG_VPA_MODESET_ADDR, MT6359_RG_VPA_MODESET_SHIFT),
-+	MT6359_BUCK("buck_vproc2", VPROC2, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VPROC2_EN_ADDR,
-+		    MT6359_DA_VPROC2_EN_ADDR, MT6359_RG_BUCK_VPROC2_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VPROC2_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VPROC2_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VPROC2_LP_ADDR,
-+		    MT6359_RG_BUCK_VPROC2_LP_SHIFT,
-+		    MT6359_RG_VPROC2_FCCM_ADDR, MT6359_RG_VPROC2_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vproc1", VPROC1, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VPROC1_EN_ADDR,
-+		    MT6359_DA_VPROC1_EN_ADDR, MT6359_RG_BUCK_VPROC1_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VPROC1_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VPROC1_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VPROC1_LP_ADDR,
-+		    MT6359_RG_BUCK_VPROC1_LP_SHIFT,
-+		    MT6359_RG_VPROC1_FCCM_ADDR, MT6359_RG_VPROC1_FCCM_SHIFT),
-+	MT6359_BUCK("buck_vcore_sshub", VCORE_SSHUB, 400000, 1193750, 6250, 0,
-+		    mt_volt_range2, MT6359_RG_BUCK_VCORE_SSHUB_EN_ADDR,
-+		    MT6359_DA_VCORE_EN_ADDR,
-+		    MT6359_RG_BUCK_VCORE_SSHUB_VOSEL_ADDR,
-+		    MT6359_RG_BUCK_VCORE_SSHUB_VOSEL_MASK <<
-+		    MT6359_RG_BUCK_VCORE_SSHUB_VOSEL_SHIFT,
-+		    MT6359_RG_BUCK_VCORE_LP_ADDR, MT6359_RG_BUCK_VCORE_LP_SHIFT,
-+		    MT6359_RG_VCORE_FCCM_ADDR, MT6359_RG_VCORE_FCCM_SHIFT),
-+	MT6359_REG_FIXED("ldo_vaud18", VAUD18, MT6359_RG_LDO_VAUD18_EN_ADDR,
-+			 MT6359_DA_VAUD18_B_EN_ADDR, 1800000),
-+	MT6359_LDO("ldo_vsim1", VSIM1, vsim1_voltages,
-+		   MT6359_RG_LDO_VSIM1_EN_ADDR, MT6359_RG_LDO_VSIM1_EN_SHIFT,
-+		   MT6359_DA_VSIM1_B_EN_ADDR, MT6359_RG_VSIM1_VOSEL_ADDR,
-+		   MT6359_RG_VSIM1_VOSEL_MASK << MT6359_RG_VSIM1_VOSEL_SHIFT,
-+		   480),
-+	MT6359_LDO("ldo_vibr", VIBR, vibr_voltages,
-+		   MT6359_RG_LDO_VIBR_EN_ADDR, MT6359_RG_LDO_VIBR_EN_SHIFT,
-+		   MT6359_DA_VIBR_B_EN_ADDR, MT6359_RG_VIBR_VOSEL_ADDR,
-+		   MT6359_RG_VIBR_VOSEL_MASK << MT6359_RG_VIBR_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vrf12", VRF12, vrf12_voltages,
-+		   MT6359_RG_LDO_VRF12_EN_ADDR, MT6359_RG_LDO_VRF12_EN_SHIFT,
-+		   MT6359_DA_VRF12_B_EN_ADDR, MT6359_RG_VRF12_VOSEL_ADDR,
-+		   MT6359_RG_VRF12_VOSEL_MASK << MT6359_RG_VRF12_VOSEL_SHIFT,
-+		   120),
-+	MT6359_REG_FIXED("ldo_vusb", VUSB, MT6359_RG_LDO_VUSB_EN_0_ADDR,
-+			 MT6359_DA_VUSB_B_EN_ADDR, 3000000),
-+	MT6359_LDO_LINEAR("ldo_vsram_proc2", VSRAM_PROC2, 500000, 1293750, 6250,
-+			  0, mt_volt_range6, MT6359_RG_LDO_VSRAM_PROC2_EN_ADDR,
-+			  MT6359_DA_VSRAM_PROC2_B_EN_ADDR,
-+			  MT6359_RG_LDO_VSRAM_PROC2_VOSEL_ADDR,
-+			  MT6359_RG_LDO_VSRAM_PROC2_VOSEL_MASK <<
-+			  MT6359_RG_LDO_VSRAM_PROC2_VOSEL_SHIFT),
-+	MT6359_LDO("ldo_vio18", VIO18, volt18_voltages,
-+		   MT6359_RG_LDO_VIO18_EN_ADDR, MT6359_RG_LDO_VIO18_EN_SHIFT,
-+		   MT6359_DA_VIO18_B_EN_ADDR, MT6359_RG_VIO18_VOSEL_ADDR,
-+		   MT6359_RG_VIO18_VOSEL_MASK << MT6359_RG_VIO18_VOSEL_SHIFT,
-+		   960),
-+	MT6359_LDO("ldo_vcamio", VCAMIO, volt18_voltages,
-+		   MT6359_RG_LDO_VCAMIO_EN_ADDR, MT6359_RG_LDO_VCAMIO_EN_SHIFT,
-+		   MT6359_DA_VCAMIO_B_EN_ADDR, MT6359_RG_VCAMIO_VOSEL_ADDR,
-+		   MT6359_RG_VCAMIO_VOSEL_MASK << MT6359_RG_VCAMIO_VOSEL_SHIFT,
-+		   1290),
-+	MT6359_REG_FIXED("ldo_vcn18", VCN18, MT6359_RG_LDO_VCN18_EN_ADDR,
-+			 MT6359_DA_VCN18_B_EN_ADDR, 1800000),
-+	MT6359_REG_FIXED("ldo_vfe28", VFE28, MT6359_RG_LDO_VFE28_EN_ADDR,
-+			 MT6359_DA_VFE28_B_EN_ADDR, 2800000),
-+	MT6359_LDO("ldo_vcn13", VCN13, vcn13_voltages,
-+		   MT6359_RG_LDO_VCN13_EN_ADDR, MT6359_RG_LDO_VCN13_EN_SHIFT,
-+		   MT6359_DA_VCN13_B_EN_ADDR, MT6359_RG_VCN13_VOSEL_ADDR,
-+		   MT6359_RG_VCN13_VOSEL_MASK << MT6359_RG_VCN13_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vcn33_1_bt", VCN33_1_BT, vcn33_voltages,
-+		   MT6359_RG_LDO_VCN33_1_EN_0_ADDR,
-+		   MT6359_RG_LDO_VCN33_1_EN_0_SHIFT,
-+		   MT6359_DA_VCN33_1_B_EN_ADDR, MT6359_RG_VCN33_1_VOSEL_ADDR,
-+		   MT6359_RG_VCN33_1_VOSEL_MASK <<
-+		   MT6359_RG_VCN33_1_VOSEL_SHIFT, 240),
-+	MT6359_LDO("ldo_vcn33_1_wifi", VCN33_1_WIFI, vcn33_voltages,
-+		   MT6359_RG_LDO_VCN33_1_EN_1_ADDR,
-+		   MT6359_RG_LDO_VCN33_1_EN_1_SHIFT,
-+		   MT6359_DA_VCN33_1_B_EN_ADDR, MT6359_RG_VCN33_1_VOSEL_ADDR,
-+		   MT6359_RG_VCN33_1_VOSEL_MASK <<
-+		   MT6359_RG_VCN33_1_VOSEL_SHIFT, 240),
-+	MT6359_REG_FIXED("ldo_vaux18", VAUX18, MT6359_RG_LDO_VAUX18_EN_ADDR,
-+			 MT6359_DA_VAUX18_B_EN_ADDR, 1800000),
-+	MT6359_LDO_LINEAR("ldo_vsram_others", VSRAM_OTHERS, 500000, 1293750,
-+			  6250, 0, mt_volt_range6,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_EN_ADDR,
-+			  MT6359_DA_VSRAM_OTHERS_B_EN_ADDR,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_VOSEL_ADDR,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_VOSEL_MASK <<
-+			  MT6359_RG_LDO_VSRAM_OTHERS_VOSEL_SHIFT),
-+	MT6359_LDO("ldo_vefuse", VEFUSE, vefuse_voltages,
-+		   MT6359_RG_LDO_VEFUSE_EN_ADDR, MT6359_RG_LDO_VEFUSE_EN_SHIFT,
-+		   MT6359_DA_VEFUSE_B_EN_ADDR, MT6359_RG_VEFUSE_VOSEL_ADDR,
-+		   MT6359_RG_VEFUSE_VOSEL_MASK << MT6359_RG_VEFUSE_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vxo22", VXO22, vxo22_voltages,
-+		   MT6359_RG_LDO_VXO22_EN_ADDR, MT6359_RG_LDO_VXO22_EN_SHIFT,
-+		   MT6359_DA_VXO22_B_EN_ADDR, MT6359_RG_VXO22_VOSEL_ADDR,
-+		   MT6359_RG_VXO22_VOSEL_MASK << MT6359_RG_VXO22_VOSEL_SHIFT,
-+		   120),
-+	MT6359_LDO("ldo_vrfck", VRFCK, vrfck_voltages,
-+		   MT6359_RG_LDO_VRFCK_EN_ADDR, MT6359_RG_LDO_VRFCK_EN_SHIFT,
-+		   MT6359_DA_VRFCK_B_EN_ADDR, MT6359_RG_VRFCK_VOSEL_ADDR,
-+		   MT6359_RG_VRFCK_VOSEL_MASK << MT6359_RG_VRFCK_VOSEL_SHIFT,
-+		   480),
-+	MT6359_REG_FIXED("ldo_vbif28", VBIF28, MT6359_RG_LDO_VBIF28_EN_ADDR,
-+			 MT6359_DA_VBIF28_B_EN_ADDR, 2800000),
-+	MT6359_LDO("ldo_vio28", VIO28, vio28_voltages,
-+		   MT6359_RG_LDO_VIO28_EN_ADDR, MT6359_RG_LDO_VIO28_EN_SHIFT,
-+		   MT6359_DA_VIO28_B_EN_ADDR, MT6359_RG_VIO28_VOSEL_ADDR,
-+		   MT6359_RG_VIO28_VOSEL_MASK << MT6359_RG_VIO28_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vemc", VEMC, vemc_voltages,
-+		   MT6359_RG_LDO_VEMC_EN_ADDR, MT6359_RG_LDO_VEMC_EN_SHIFT,
-+		   MT6359_DA_VEMC_B_EN_ADDR, MT6359_RG_VEMC_VOSEL_ADDR,
-+		   MT6359_RG_VEMC_VOSEL_MASK << MT6359_RG_VEMC_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vcn33_2_bt", VCN33_2_BT, vcn33_voltages,
-+		   MT6359_RG_LDO_VCN33_2_EN_0_ADDR,
-+		   MT6359_RG_LDO_VCN33_2_EN_0_SHIFT,
-+		   MT6359_DA_VCN33_2_B_EN_ADDR, MT6359_RG_VCN33_2_VOSEL_ADDR,
-+		   MT6359_RG_VCN33_2_VOSEL_MASK <<
-+		   MT6359_RG_VCN33_2_VOSEL_SHIFT, 240),
-+	MT6359_LDO("ldo_vcn33_2_wifi", VCN33_2_WIFI, vcn33_voltages,
-+		   MT6359_RG_LDO_VCN33_2_EN_1_ADDR,
-+		   MT6359_RG_LDO_VCN33_2_EN_1_SHIFT,
-+		   MT6359_DA_VCN33_2_B_EN_ADDR, MT6359_RG_VCN33_2_VOSEL_ADDR,
-+		   MT6359_RG_VCN33_2_VOSEL_MASK <<
-+		   MT6359_RG_VCN33_2_VOSEL_SHIFT, 240),
-+	MT6359_LDO("ldo_va12", VA12, va12_voltages,
-+		   MT6359_RG_LDO_VA12_EN_ADDR, MT6359_RG_LDO_VA12_EN_SHIFT,
-+		   MT6359_DA_VA12_B_EN_ADDR, MT6359_RG_VA12_VOSEL_ADDR,
-+		   MT6359_RG_VA12_VOSEL_MASK << MT6359_RG_VA12_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_va09", VA09, va09_voltages,
-+		   MT6359_RG_LDO_VA09_EN_ADDR, MT6359_RG_LDO_VA09_EN_SHIFT,
-+		   MT6359_DA_VA09_B_EN_ADDR, MT6359_RG_VA09_VOSEL_ADDR,
-+		   MT6359_RG_VA09_VOSEL_MASK << MT6359_RG_VA09_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO("ldo_vrf18", VRF18, vrf18_voltages,
-+		   MT6359_RG_LDO_VRF18_EN_ADDR, MT6359_RG_LDO_VRF18_EN_SHIFT,
-+		   MT6359_DA_VRF18_B_EN_ADDR, MT6359_RG_VRF18_VOSEL_ADDR,
-+		   MT6359_RG_VRF18_VOSEL_MASK << MT6359_RG_VRF18_VOSEL_SHIFT,
-+		   120),
-+	MT6359_LDO_LINEAR("ldo_vsram_md", VSRAM_MD, 500000, 1100000, 6250,
-+			  0, mt_volt_range7, MT6359_RG_LDO_VSRAM_MD_EN_ADDR,
-+			  MT6359_DA_VSRAM_MD_B_EN_ADDR,
-+			  MT6359_RG_LDO_VSRAM_MD_VOSEL_ADDR,
-+			  MT6359_RG_LDO_VSRAM_MD_VOSEL_MASK <<
-+			  MT6359_RG_LDO_VSRAM_MD_VOSEL_SHIFT),
-+	MT6359_LDO("ldo_vufs", VUFS, volt18_voltages,
-+		   MT6359_RG_LDO_VUFS_EN_ADDR, MT6359_RG_LDO_VUFS_EN_SHIFT,
-+		   MT6359_DA_VUFS_B_EN_ADDR, MT6359_RG_VUFS_VOSEL_ADDR,
-+		   MT6359_RG_VUFS_VOSEL_MASK << MT6359_RG_VUFS_VOSEL_SHIFT,
-+		   1920),
-+	MT6359_LDO("ldo_vm18", VM18, volt18_voltages,
-+		   MT6359_RG_LDO_VM18_EN_ADDR, MT6359_RG_LDO_VM18_EN_SHIFT,
-+		   MT6359_DA_VM18_B_EN_ADDR, MT6359_RG_VM18_VOSEL_ADDR,
-+		   MT6359_RG_VM18_VOSEL_MASK << MT6359_RG_VM18_VOSEL_SHIFT,
-+		   1920),
-+	MT6359_LDO("ldo_vbbck", VBBCK, vbbck_voltages,
-+		   MT6359_RG_LDO_VBBCK_EN_ADDR, MT6359_RG_LDO_VBBCK_EN_SHIFT,
-+		   MT6359_DA_VBBCK_B_EN_ADDR, MT6359_RG_VBBCK_VOSEL_ADDR,
-+		   MT6359_RG_VBBCK_VOSEL_MASK << MT6359_RG_VBBCK_VOSEL_SHIFT,
-+		   240),
-+	MT6359_LDO_LINEAR("ldo_vsram_proc1", VSRAM_PROC1, 500000, 1293750, 6250,
-+			  0, mt_volt_range6, MT6359_RG_LDO_VSRAM_PROC1_EN_ADDR,
-+			  MT6359_DA_VSRAM_PROC1_B_EN_ADDR,
-+			  MT6359_RG_LDO_VSRAM_PROC1_VOSEL_ADDR,
-+			  MT6359_RG_LDO_VSRAM_PROC1_VOSEL_MASK <<
-+			  MT6359_RG_LDO_VSRAM_PROC1_VOSEL_SHIFT),
-+	MT6359_LDO("ldo_vsim2", VSIM2, vsim2_voltages,
-+		   MT6359_RG_LDO_VSIM2_EN_ADDR, MT6359_RG_LDO_VSIM2_EN_SHIFT,
-+		   MT6359_DA_VSIM2_B_EN_ADDR, MT6359_RG_VSIM2_VOSEL_ADDR,
-+		   MT6359_RG_VSIM2_VOSEL_MASK << MT6359_RG_VSIM2_VOSEL_SHIFT,
-+		   480),
-+	MT6359_LDO_LINEAR("ldo_vsram_others_sshub", VSRAM_OTHERS_SSHUB,
-+			  500000, 1293750, 6250, 0, mt_volt_range6,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_SSHUB_EN_ADDR,
-+			  MT6359_DA_VSRAM_OTHERS_B_EN_ADDR,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_SSHUB_VOSEL_ADDR,
-+			  MT6359_RG_LDO_VSRAM_OTHERS_SSHUB_VOSEL_MASK <<
-+			  MT6359_RG_LDO_VSRAM_OTHERS_SSHUB_VOSEL_SHIFT),
-+};
-+
-+static int mt6359_regulator_probe(struct platform_device *pdev)
-+{
-+	struct mt6397_chip *mt6397 = dev_get_drvdata(pdev->dev.parent);
-+	struct regulator_config config = {};
-+	struct regulator_dev *rdev;
-+	int i;
-+
-+	config.dev = mt6397->dev;
-+	config.regmap = mt6397->regmap;
-+	for (i = 0; i < MT6359_MAX_REGULATOR; i++) {
-+		config.driver_data = &mt6359_regulators[i];
-+		rdev = devm_regulator_register(&pdev->dev, &mt6359_regulators[i].desc, &config);
-+		if (IS_ERR(rdev)) {
-+			dev_err(&pdev->dev, "failed to register %s\n",
-+				mt6359_regulators[i].desc.name);
-+			return PTR_ERR(rdev);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct platform_device_id mt6359_platform_ids[] = {
-+	{"mt6359-regulator", 0},
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(platform, mt6359_platform_ids);
-+
-+static struct platform_driver mt6359_regulator_driver = {
-+	.driver = {
-+		.name = "mt6359-regulator",
-+	},
-+	.probe = mt6359_regulator_probe,
-+	.id_table = mt6359_platform_ids,
-+};
-+
-+module_platform_driver(mt6359_regulator_driver);
-+
-+MODULE_AUTHOR("Wen Su <wen.su@mediatek.com>");
-+MODULE_DESCRIPTION("Regulator Driver for MediaTek MT6359 PMIC");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/regulator/mt6359-regulator.h b/include/linux/regulator/mt6359-regulator.h
-new file mode 100644
-index 000000000000..0abe378e13d5
---- /dev/null
-+++ b/include/linux/regulator/mt6359-regulator.h
-@@ -0,0 +1,58 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * Copyright (c) 2020 MediaTek Inc.
 + */
 +
-+#ifndef __LINUX_REGULATOR_MT6359_H
-+#define __LINUX_REGULATOR_MT6359_H
++&pwrap {
++	pmic: pmic {
++		compatible = "mediatek,mt6359";
++		interrupt-controller;
++		#interrupt-cells = <2>;
 +
-+enum {
-+	MT6359_ID_VS1 = 0,
-+	MT6359_ID_VGPU11,
-+	MT6359_ID_VMODEM,
-+	MT6359_ID_VPU,
-+	MT6359_ID_VCORE,
-+	MT6359_ID_VS2,
-+	MT6359_ID_VPA,
-+	MT6359_ID_VPROC2,
-+	MT6359_ID_VPROC1,
-+	MT6359_ID_VCORE_SSHUB,
-+	MT6359_ID_VAUD18 = 10,
-+	MT6359_ID_VSIM1,
-+	MT6359_ID_VIBR,
-+	MT6359_ID_VRF12,
-+	MT6359_ID_VUSB,
-+	MT6359_ID_VSRAM_PROC2,
-+	MT6359_ID_VIO18,
-+	MT6359_ID_VCAMIO,
-+	MT6359_ID_VCN18,
-+	MT6359_ID_VFE28,
-+	MT6359_ID_VCN13,
-+	MT6359_ID_VCN33_1_BT,
-+	MT6359_ID_VCN33_1_WIFI,
-+	MT6359_ID_VAUX18,
-+	MT6359_ID_VSRAM_OTHERS,
-+	MT6359_ID_VEFUSE,
-+	MT6359_ID_VXO22,
-+	MT6359_ID_VRFCK,
-+	MT6359_ID_VBIF28,
-+	MT6359_ID_VIO28,
-+	MT6359_ID_VEMC,
-+	MT6359_ID_VCN33_2_BT,
-+	MT6359_ID_VCN33_2_WIFI,
-+	MT6359_ID_VA12,
-+	MT6359_ID_VA09,
-+	MT6359_ID_VRF18,
-+	MT6359_ID_VSRAM_MD,
-+	MT6359_ID_VUFS,
-+	MT6359_ID_VM18,
-+	MT6359_ID_VBBCK,
-+	MT6359_ID_VSRAM_PROC1,
-+	MT6359_ID_VSIM2,
-+	MT6359_ID_VSRAM_OTHERS_SSHUB,
-+	MT6359_ID_RG_MAX,
++		mt6359codec: mt6359codec {
++		};
++
++		mt6359regulator: regulators {
++			mt6359_vs1_buck_reg: buck_vs1 {
++				regulator-name = "vs1";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <2200000>;
++				regulator-enable-ramp-delay = <0>;
++				regulator-always-on;
++			};
++			mt6359_vgpu11_buck_reg: buck_vgpu11 {
++				regulator-name = "vgpu11";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vmodem_buck_reg: buck_vmodem {
++				regulator-name = "vmodem";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1100000>;
++				regulator-ramp-delay = <10760>;
++				regulator-enable-ramp-delay = <200>;
++			};
++			mt6359_vpu_buck_reg: buck_vpu {
++				regulator-name = "vpu";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vcore_buck_reg: buck_vcore {
++				regulator-name = "vcore";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1300000>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vs2_buck_reg: buck_vs2 {
++				regulator-name = "vs2";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1600000>;
++				regulator-enable-ramp-delay = <0>;
++				regulator-always-on;
++			};
++			mt6359_vpa_buck_reg: buck_vpa {
++				regulator-name = "vpa";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <3650000>;
++				regulator-enable-ramp-delay = <300>;
++			};
++			mt6359_vproc2_buck_reg: buck_vproc2 {
++				regulator-name = "vproc2";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vproc1_buck_reg: buck_vproc1 {
++				regulator-name = "vproc1";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vcore_sshub_buck_reg: buck_vcore_sshub {
++				regulator-name = "vcore_sshub";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++			};
++			mt6359_vgpu11_sshub_buck_reg: buck_vgpu11_sshub {
++				regulator-name = "vgpu11_sshub";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++			};
++			mt6359_vaud18_ldo_reg: ldo_vaud18 {
++				regulator-name = "vaud18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vsim1_ldo_reg: ldo_vsim1 {
++				regulator-name = "vsim1";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <3100000>;
++			};
++			mt6359_vibr_ldo_reg: ldo_vibr {
++				regulator-name = "vibr";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vrf12_ldo_reg: ldo_vrf12 {
++				regulator-name = "vrf12";
++				regulator-min-microvolt = <1100000>;
++				regulator-max-microvolt = <1300000>;
++			};
++			mt6359_vusb_ldo_reg: ldo_vusb {
++				regulator-name = "vusb";
++				regulator-min-microvolt = <3000000>;
++				regulator-max-microvolt = <3000000>;
++				regulator-enable-ramp-delay = <960>;
++				regulator-always-on;
++			};
++			mt6359_vsram_proc2_ldo_reg: ldo_vsram_proc2 {
++				regulator-name = "vsram_proc2";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vio18_ldo_reg: ldo_vio18 {
++				regulator-name = "vio18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++				regulator-enable-ramp-delay = <960>;
++				regulator-always-on;
++			};
++			mt6359_vcamio_ldo_reg: ldo_vcamio {
++				regulator-name = "vcamio";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++			};
++			mt6359_vcn18_ldo_reg: ldo_vcn18 {
++				regulator-name = "vcn18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vfe28_ldo_reg: ldo_vfe28 {
++				regulator-name = "vfe28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <2800000>;
++				regulator-enable-ramp-delay = <120>;
++			};
++			mt6359_vcn13_ldo_reg: ldo_vcn13 {
++				regulator-name = "vcn13";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <1300000>;
++			};
++			mt6359_vcn33_1_bt_ldo_reg: ldo_vcn33_1_bt {
++				regulator-name = "vcn33_1_bt";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vcn33_1_wifi_ldo_reg: ldo_vcn33_1_wifi {
++				regulator-name = "vcn33_1_wifi";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vaux18_ldo_reg: ldo_vaux18 {
++				regulator-name = "vaux18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vsram_others_ldo_reg: ldo_vsram_others {
++				regulator-name = "vsram_others";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vefuse_ldo_reg: ldo_vefuse {
++				regulator-name = "vefuse";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <2000000>;
++			};
++			mt6359_vxo22_ldo_reg: ldo_vxo22 {
++				regulator-name = "vxo22";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <2200000>;
++				regulator-always-on;
++			};
++			mt6359_vrfck_ldo_reg: ldo_vrfck {
++				regulator-name = "vrfck";
++				regulator-min-microvolt = <1500000>;
++				regulator-max-microvolt = <1700000>;
++			};
++			mt6359_vrfck_1_ldo_reg: ldo_vrfck_1 {
++				regulator-name = "vrfck";
++				regulator-min-microvolt = <1240000>;
++				regulator-max-microvolt = <1600000>;
++			};
++			mt6359_vbif28_ldo_reg: ldo_vbif28 {
++				regulator-name = "vbif28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <2800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vio28_ldo_reg: ldo_vio28 {
++				regulator-name = "vio28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++			};
++			mt6359_vemc_ldo_reg: ldo_vemc {
++				regulator-name = "vemc";
++				regulator-min-microvolt = <2900000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vemc_1_ldo_reg: ldo_vemc_1 {
++				regulator-name = "vemc";
++				regulator-min-microvolt = <2500000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vcn33_2_bt_ldo_reg: ldo_vcn33_2_bt {
++				regulator-name = "vcn33_2_bt";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vcn33_2_wifi_ldo_reg: ldo_vcn33_2_wifi {
++				regulator-name = "vcn33_2_wifi";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_va12_ldo_reg: ldo_va12 {
++				regulator-name = "va12";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <1300000>;
++				regulator-always-on;
++			};
++			mt6359_va09_ldo_reg: ldo_va09 {
++				regulator-name = "va09";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1200000>;
++			};
++			mt6359_vrf18_ldo_reg: ldo_vrf18 {
++				regulator-name = "vrf18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1810000>;
++			};
++			mt6359_vsram_md_ldo_reg: ldo_vsram_md {
++				regulator-name = "vsram_md";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <10760>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vufs_ldo_reg: ldo_vufs {
++				regulator-name = "vufs";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++			};
++			mt6359_vm18_ldo_reg: ldo_vm18 {
++				regulator-name = "vm18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++				regulator-always-on;
++			};
++			mt6359_vbbck_ldo_reg: ldo_vbbck {
++				regulator-name = "vbbck";
++				regulator-min-microvolt = <1100000>;
++				regulator-max-microvolt = <1200000>;
++			};
++			mt6359_vsram_proc1_ldo_reg: ldo_vsram_proc1 {
++				regulator-name = "vsram_proc1";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vsim2_ldo_reg: ldo_vsim2 {
++				regulator-name = "vsim2";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <3100000>;
++			};
++			mt6359_vsram_others_sshub_ldo: ldo_vsram_others_sshub {
++				regulator-name = "vsram_others_sshub";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++			};
++		};
++
++		mt6359rtc: mt6359rtc {
++			compatible = "mediatek,mt6358-rtc";
++		};
++	};
 +};
-+
-+#define MT6359_MAX_REGULATOR	MT6359_ID_RG_MAX
-+
-+#endif /* __LINUX_REGULATOR_MT6359_H */
+diff --git a/arch/arm64/boot/dts/mediatek/mt8192-evb.dts b/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
+index 0205837fa698..808be492e970 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
+@@ -5,6 +5,7 @@
+  */
+ /dts-v1/;
+ #include "mt8192.dtsi"
++#include "mt6359.dtsi"
+ 
+ / {
+ 	model = "MediaTek MT8192 evaluation board";
 -- 
 2.18.0
 
