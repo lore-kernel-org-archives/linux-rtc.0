@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1782FC433DB
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9910C433E6
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:27:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC20322DBF
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:25:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A343422DCC
+	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jan 2021 11:27:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727423AbhAVLYj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Jan 2021 06:24:39 -0500
+        id S1728072AbhAVL1C (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 22 Jan 2021 06:27:02 -0500
 Received: from mailgw01.mediatek.com ([210.61.82.183]:35117 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727920AbhAVLUv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Jan 2021 06:20:51 -0500
-X-UUID: aa4ebf9b9ece4fe8845cc543b6db2a51-20210122
-X-UUID: aa4ebf9b9ece4fe8845cc543b6db2a51-20210122
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        with ESMTP id S1728048AbhAVLV5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Jan 2021 06:21:57 -0500
+X-UUID: a03df52d909c42729b107e477ea4e8ba-20210122
+X-UUID: a03df52d909c42729b107e477ea4e8ba-20210122
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 2025212296; Fri, 22 Jan 2021 19:19:44 +0800
+        with ESMTP id 1913097264; Fri, 22 Jan 2021 19:19:44 +0800
 Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
  15.0.1497.2; Fri, 22 Jan 2021 19:19:42 +0800
 Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
@@ -51,41 +51,71 @@ CC:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
         <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <srv_heupstream@mediatek.com>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>
-Subject: [PATCH v5 3/8] dt-bindings: mfd: Add compatible for the MediaTek MT6359 PMIC
-Date:   Fri, 22 Jan 2021 19:19:36 +0800
-Message-ID: <1611314381-19517-4-git-send-email-hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v5 0/8] Add Support for MediaTek PMIC MT6359
+Date:   Fri, 22 Jan 2021 19:19:33 +0800
+Message-ID: <1611314381-19517-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 2.6.4
-In-Reply-To: <1611314381-19517-1-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1611314381-19517-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
+X-TM-SNTS-SMTP: 9B3B14E8725B026A335FF13643ED848CFCC793FF1CA556C859B7CBF5EB4720E62000:8
 X-MTK:  N
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This adds compatible for the MediaTek MT6359 PMIC.
+This patchset includes refactoring interrupt and adding support to MT6359 PMIC.
+MT6359 is the primary PMIC for MT6779 and probably other SOCs.
+The series[1] sent by Wen will continue to upstream in this patchset afterwards.
 
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
----
+[1] https://patchwork.kernel.org/project/linux-mediatek/list/?series=306579
+
 changes since v4:
-- remove unused compatible name.
----
- Documentation/devicetree/bindings/mfd/mt6397.txt | 1 +
- 1 file changed, 1 insertion(+)
+- fix yamllint errors in dt-binding document.
+- remove unused compatible name of mt6359-regulator in mfd driver.
+- update the name of regulator node in the dts.
+- merge the patch about enable time of ldo into the mt6359 regulator patch.
+- use the device of mfd driver for the regulator_config.
+- add the regulators_node support.
+- add pmic MT6359 support in the MT8192 evb dts.
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 2661775a3825..99a84b69a29f 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -21,6 +21,7 @@ Required properties:
- compatible:
- 	"mediatek,mt6323" for PMIC MT6323
- 	"mediatek,mt6358" for PMIC MT6358
-+	"mediatek,mt6359" for PMIC MT6359
- 	"mediatek,mt6397" for PMIC MT6397
- 
- Optional subnodes:
+Hsin-Hsiung Wang (6):
+  mfd: mt6358: refine interrupt code
+  rtc: mt6397: refine RTC_TC_MTH
+  dt-bindings: mfd: Add compatible for the MediaTek MT6359 PMIC
+  dt-bindings: regulator: Add document for MT6359 regulator
+  mfd: Add support for the MediaTek MT6359 PMIC
+  regulator: mt6359: Add support for MT6359P regulator
+
+Wen Su (2):
+  regulator: mt6359: Add support for MT6359 regulator
+  arm64: dts: mt6359: add PMIC MT6359 related nodes
+
+ .../devicetree/bindings/mfd/mt6397.txt        |    1 +
+ .../bindings/regulator/mt6359-regulator.yaml  |  169 +++
+ arch/arm64/boot/dts/mediatek/mt6359.dtsi      |  298 +++++
+ arch/arm64/boot/dts/mediatek/mt8192-evb.dts   |    1 +
+ drivers/mfd/mt6358-irq.c                      |   89 +-
+ drivers/mfd/mt6397-core.c                     |   26 +
+ drivers/regulator/Kconfig                     |    9 +
+ drivers/regulator/Makefile                    |    1 +
+ drivers/regulator/mt6359-regulator.c          | 1036 +++++++++++++++++
+ drivers/rtc/rtc-mt6397.c                      |    2 +-
+ include/linux/mfd/mt6358/core.h               |    8 +-
+ include/linux/mfd/mt6359/core.h               |  133 +++
+ include/linux/mfd/mt6359/registers.h          |  529 +++++++++
+ include/linux/mfd/mt6359p/registers.h         |  249 ++++
+ include/linux/mfd/mt6397/core.h               |    1 +
+ include/linux/mfd/mt6397/rtc.h                |    1 +
+ include/linux/regulator/mt6359-regulator.h    |   59 +
+ 17 files changed, 2579 insertions(+), 33 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6359.dtsi
+ create mode 100644 drivers/regulator/mt6359-regulator.c
+ create mode 100644 include/linux/mfd/mt6359/core.h
+ create mode 100644 include/linux/mfd/mt6359/registers.h
+ create mode 100644 include/linux/mfd/mt6359p/registers.h
+ create mode 100644 include/linux/regulator/mt6359-regulator.h
+
 -- 
 2.18.0
 
