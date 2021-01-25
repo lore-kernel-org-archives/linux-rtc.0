@@ -2,229 +2,125 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05A23C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 146F3C4332E
 	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 21:28:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BAB402053B
+	by mail.kernel.org (Postfix) with ESMTP id DCE812054F
 	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 21:28:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727420AbhAZEqc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 25 Jan 2021 23:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
+        id S1727353AbhAZEqa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 25 Jan 2021 23:46:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731183AbhAYSwy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 25 Jan 2021 13:52:54 -0500
-X-Greylist: delayed 691 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 25 Jan 2021 10:52:07 PST
-Received: from smtp-42a8.mail.infomaniak.ch (smtp-42a8.mail.infomaniak.ch [IPv6:2001:1600:4:17::42a8])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97588C061573
-        for <linux-rtc@vger.kernel.org>; Mon, 25 Jan 2021 10:52:07 -0800 (PST)
-Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4DPdwJ6l5dzMq1qY;
-        Mon, 25 Jan 2021 19:40:32 +0100 (CET)
-Received: from ns3096276.ip-94-23-54.eu (unknown [23.97.221.149])
-        by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4DPdwJ0g8hzlppyn;
-        Mon, 25 Jan 2021 19:40:31 +0100 (CET)
-Subject: Re: [patch 1/8] rtc: mc146818: Prevent reading garbage - bug
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        LKML <linux-kernel@vger.kernel.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
+        with ESMTP id S1730157AbhAYPkh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 25 Jan 2021 10:40:37 -0500
+X-Greylist: delayed 1769 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 25 Jan 2021 07:28:54 PST
+Received: from newton.telenet-ops.be (newton.telenet-ops.be [IPv6:2a02:1800:120:4::f00:d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98343C0611BD
+        for <linux-rtc@vger.kernel.org>; Mon, 25 Jan 2021 07:28:54 -0800 (PST)
+Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [IPv6:2a02:1800:120:4::f00:14])
+        by newton.telenet-ops.be (Postfix) with ESMTPS id 4DPXPS014XzMsW92
+        for <linux-rtc@vger.kernel.org>; Mon, 25 Jan 2021 15:31:56 +0100 (CET)
+Received: from ramsan.of.borg ([84.195.186.194])
+        by xavier.telenet-ops.be with bizsmtp
+        id M2Wi240034C55Sk012WiV4; Mon, 25 Jan 2021 15:30:54 +0100
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1l42t7-000emF-Gs; Mon, 25 Jan 2021 15:30:41 +0100
+Received: from geert by rox.of.borg with local (Exim 4.93)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1l42t6-004PfB-P9; Mon, 25 Jan 2021 15:30:40 +0100
+From:   Geert Uytterhoeven <geert+renesas@glider.be>
+To:     John Stultz <john.stultz@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Stephen Boyd <sboyd@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Viresh Kumar <vireshk@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
-References: <20201206214613.444124194@linutronix.de>
- <20201206220541.594826678@linutronix.de>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <19a7753c-c492-42e4-241a-8a052b32bb63@digikod.net>
-Date:   Mon, 25 Jan 2021 19:40:31 +0100
-User-Agent: 
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] ntp: Use freezable workqueue for RTC synchronization
+Date:   Mon, 25 Jan 2021 15:30:39 +0100
+Message-Id: <20210125143039.1051912-1-geert+renesas@glider.be>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20201206220541.594826678@linutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+The bug fixed by commit e3fab2f3de081e98 ("ntp: Fix RTC synchronization
+on 32-bit platforms") revealed an underlying issue: RTC synchronization
+may happen anytime, even while the system is partially suspended.
 
-After some bisecting, I found that commit 05a0302c3548 ("rtc: mc146818:
-Prevent reading garbage", this patch, introduced since v5.11-rc1) makes
-my VM hang at boot. Before this commit, I got this (and didn't notice)
-at every boot:
-rtc_cmos rtc_cmos: registered as rtc0
-rtc_cmos rtc_cmos: hctosys: unable to read the hardware clock
-rtc_cmos rtc_cmos: alarms up to one day, 114 bytes nvram
+On systems where the RTC is connected to an I2C bus, the I2C bus
+controller may already or still be suspended, triggering a WARNING
+during suspend or resume from s2ram:
 
-I notice that this patch creates infinite loops, which my VM falls into
-(cf. below).
+    WARNING: CPU: 0 PID: 124 at drivers/i2c/i2c-core.h:54 __i2c_transfer+0x634/0x680
+    i2c i2c-6: Transfer while suspended
+    [...]
+    Workqueue: events_power_efficient sync_hw_clock
+    [...]
+    [<c0738e08>] (__i2c_transfer) from [<c0738eac>] (i2c_transfer+0x58/0xf8)
+    [<c0738eac>] (i2c_transfer) from [<c065202c>] (regmap_i2c_read+0x58/0x94)
+    [<c065202c>] (regmap_i2c_read) from [<c064de40>] (_regmap_raw_read+0x19c/0x2f4)
+    [<c064de40>] (_regmap_raw_read) from [<c064dfdc>] (_regmap_bus_read+0x44/0x68)
+    [<c064dfdc>] (_regmap_bus_read) from [<c064ccb4>] (_regmap_read+0x84/0x1a4)
+    [<c064ccb4>] (_regmap_read) from [<c064d334>] (_regmap_update_bits+0xa8/0xf4)
+    [<c064d334>] (_regmap_update_bits) from [<c064d464>] (_regmap_select_page+0xe4/0x100)
+    [<c064d464>] (_regmap_select_page) from [<c064d554>] (_regmap_raw_write_impl+0xd4/0x6c4)
+    [<c064d554>] (_regmap_raw_write_impl) from [<c064ec10>] (_regmap_raw_write+0xd8/0x114)
+    [<c064ec10>] (_regmap_raw_write) from [<c064eca4>] (regmap_raw_write+0x58/0x7c)
+    [<c064eca4>] (regmap_raw_write) from [<c064ede0>] (regmap_bulk_write+0x118/0x13c)
+    [<c064ede0>] (regmap_bulk_write) from [<c073660c>] (da9063_rtc_set_time+0x44/0x8c)
+    [<c073660c>] (da9063_rtc_set_time) from [<c0734164>] (rtc_set_time+0xc8/0x228)
+    [<c0734164>] (rtc_set_time) from [<c02abe78>] (sync_hw_clock+0x128/0x1fc)
+    [<c02abe78>] (sync_hw_clock) from [<c023e6a0>] (process_one_work+0x330/0x550)
+    [<c023e6a0>] (process_one_work) from [<c023f0a8>] (worker_thread+0x22c/0x2ec)
 
-I didn't succeed to properly fix this without a revert. I tried to set a
-maximum number of jumps, but I got pvqspinlock warnings.
+Fix this race condition by using the freezable instead of the normal
+power-efficient workqueue.
 
-Regards,
- Mickaël
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ kernel/time/ntp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index 54d52fab201d283e..6310328fe398406a 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -502,7 +502,7 @@ static struct hrtimer sync_hrtimer;
+ 
+ static enum hrtimer_restart sync_timer_callback(struct hrtimer *timer)
+ {
+-	queue_work(system_power_efficient_wq, &sync_work);
++	queue_work(system_freezable_power_efficient_wq, &sync_work);
+ 
+ 	return HRTIMER_NORESTART;
+ }
+@@ -668,7 +668,7 @@ void ntp_notify_cmos_timer(void)
+ 	 * just a pointless work scheduled.
+ 	 */
+ 	if (ntp_synced() && !hrtimer_is_queued(&sync_hrtimer))
+-		queue_work(system_power_efficient_wq, &sync_work);
++		queue_work(system_freezable_power_efficient_wq, &sync_work);
+ }
+ 
+ static void __init ntp_init_cmos_sync(void)
+-- 
+2.25.1
 
-On 06/12/2020 22:46, Thomas Gleixner wrote:
-> The MC146818 driver is prone to read garbage from the RTC. There are
-> several issues all related to the update cycle of the MC146818. The chip
-> increments seconds obviously once per second and indicates that by a bit in
-> a register. The bit goes high 244us before the actual update starts. During
-> the update the readout of the time values is undefined.
-> 
-> The code just checks whether the update in progress bit (UIP) is set before
-> reading the clock. If it's set it waits arbitrary 20ms before retrying,
-> which is ample because the maximum update time is ~2ms.
-> 
-> But this check does not guarantee that the UIP bit goes high and the actual
-> update happens during the readout. So the following can happen
-> 
->  0.997 	       UIP = False
->    -> Interrupt/NMI/preemption
->  0.998	       UIP -> True
->  0.999	       Readout	<- Undefined
-> 
-> To prevent this rework the code so it checks UIP before and after the
-> readout and if set after the readout try again.
-> 
-> But that's not enough to cover the following:
-> 
->  0.997 	       UIP = False
->  	       Readout seconds
->    -> NMI (or vCPU scheduled out)
->  0.998	       UIP -> True
->  	       update completes
-> 	       UIP -> False
->  1.000	       Readout	minutes,....
->  	       UIP check succeeds
-> 
-> That can make the readout wrong up to 59 seconds.
-> 
-> To prevent this, read the seconds value before the first UIP check,
-> validate it after checking UIP and after reading out the rest.
-> 
-> It's amazing that the original i386 code had this actually correct and
-> the generic implementation of the MC146818 driver got it wrong in 2002 and
-> it stayed that way until today.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> ---
->  drivers/rtc/rtc-mc146818-lib.c |   64 ++++++++++++++++++++++++-----------------
->  1 file changed, 39 insertions(+), 25 deletions(-)
-> 
-> --- a/drivers/rtc/rtc-mc146818-lib.c
-> +++ b/drivers/rtc/rtc-mc146818-lib.c
-> @@ -8,41 +8,41 @@
->  #include <linux/acpi.h>
->  #endif
->  
-> -/*
-> - * Returns true if a clock update is in progress
-> - */
-> -static inline unsigned char mc146818_is_updating(void)
-> -{
-> -	unsigned char uip;
-> -	unsigned long flags;
-> -
-> -	spin_lock_irqsave(&rtc_lock, flags);
-> -	uip = (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP);
-> -	spin_unlock_irqrestore(&rtc_lock, flags);
-> -	return uip;
-> -}
-> -
->  unsigned int mc146818_get_time(struct rtc_time *time)
->  {
->  	unsigned char ctrl;
->  	unsigned long flags;
->  	unsigned char century = 0;
-> +	bool retry;
->  
->  #ifdef CONFIG_MACH_DECSTATION
->  	unsigned int real_year;
->  #endif
->  
-> +again:
-> +	spin_lock_irqsave(&rtc_lock, flags);
->  	/*
-> -	 * read RTC once any update in progress is done. The update
-> -	 * can take just over 2ms. We wait 20ms. There is no need to
-> -	 * to poll-wait (up to 1s - eeccch) for the falling edge of RTC_UIP.
-> -	 * If you need to know *exactly* when a second has started, enable
-> -	 * periodic update complete interrupts, (via ioctl) and then
-> -	 * immediately read /dev/rtc which will block until you get the IRQ.
-> -	 * Once the read clears, read the RTC time (again via ioctl). Easy.
-> +	 * Check whether there is an update in progress during which the
-> +	 * readout is unspecified. The maximum update time is ~2ms. Poll
-> +	 * every msec for completion.
-> +	 *
-> +	 * Store the second value before checking UIP so a long lasting NMI
-> +	 * which happens to hit after the UIP check cannot make an update
-> +	 * cycle invisible.
->  	 */
-> -	if (mc146818_is_updating())
-> -		mdelay(20);
-> +	time->tm_sec = CMOS_READ(RTC_SECONDS);
-> +
-> +	if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
-> +		spin_unlock_irqrestore(&rtc_lock, flags);
-> +		mdelay(1);
-
-My VM loops here.
-time->tm_sec is always 255.
-
-> +		goto again;
-> +	}
-> +
-> +	/* Revalidate the above readout */
-> +	if (time->tm_sec != CMOS_READ(RTC_SECONDS)) {
-> +		spin_unlock_irqrestore(&rtc_lock, flags);
-> +		goto again;
-> +	}
->  
->  	/*
->  	 * Only the values that we read from the RTC are set. We leave
-> @@ -50,8 +50,6 @@ unsigned int mc146818_get_time(struct rt
->  	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
->  	 * by the RTC when initially set to a non-zero value.
->  	 */
-> -	spin_lock_irqsave(&rtc_lock, flags);
-> -	time->tm_sec = CMOS_READ(RTC_SECONDS);
->  	time->tm_min = CMOS_READ(RTC_MINUTES);
->  	time->tm_hour = CMOS_READ(RTC_HOURS);
->  	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
-> @@ -66,8 +64,24 @@ unsigned int mc146818_get_time(struct rt
->  		century = CMOS_READ(acpi_gbl_FADT.century);
->  #endif
->  	ctrl = CMOS_READ(RTC_CONTROL);
-> +	/*
-> +	 * Check for the UIP bit again. If it is set now then
-> +	 * the above values may contain garbage.
-> +	 */
-> +	retry = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
-> +	/*
-> +	 * A NMI might have interrupted the above sequence so check whether
-> +	 * the seconds value has changed which indicates that the NMI took
-> +	 * longer than the UIP bit was set. Unlikely, but possible and
-> +	 * there is also virt...
-> +	 */
-> +	retry |= time->tm_sec != CMOS_READ(RTC_SECONDS);
-> +
->  	spin_unlock_irqrestore(&rtc_lock, flags);
->  
-> +	if (retry)
-> +		goto again;
-> +
->  	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
->  	{
->  		time->tm_sec = bcd2bin(time->tm_sec);
-> 
-> 
