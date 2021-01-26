@@ -7,58 +7,59 @@ X-Spam-Status: No, score=-2.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84950C433E9
-	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 15:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67A8FC433DB
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 18:38:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4303C2229C
-	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 15:52:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 34F6D22472
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 18:38:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392793AbhAZPv5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 26 Jan 2021 10:51:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35200 "EHLO
+        id S2389790AbhAZRWa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Jan 2021 12:22:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392031AbhAZPvn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jan 2021 10:51:43 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCB4DC061D73;
-        Tue, 26 Jan 2021 07:51:02 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id j21so5383821pls.7;
-        Tue, 26 Jan 2021 07:51:02 -0800 (PST)
+        with ESMTP id S1731101AbhAZQ4k (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jan 2021 11:56:40 -0500
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3880EC061D7D;
+        Tue, 26 Jan 2021 08:56:00 -0800 (PST)
+Received: by mail-lf1-x135.google.com with SMTP id b26so23618682lff.9;
+        Tue, 26 Jan 2021 08:56:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=e1wIxfZ2pa94U6ERVc2TBu1sPL7/ZYPSJAmu9tbJ7iw=;
-        b=fInUUBW/u2yZkKQ9i4u1tJ4c+stOkTJCJtSFcDLZ7m/xs9cZT542Eb2J5XlAOl8xPv
-         DtHadV5tMMfxNK6aBMVjHNggIwvNKjBxXQJORTHKRarKVjBMRj4aZ2ZFbdCSu6m/QBiJ
-         8WEOou3Sj7ixxzifYtQN/LX5gb98Of28SIfvk8keig14TyEK02m0ZM9sX5KjF+raFYRX
-         i9zNWhK5pY/8Qa/Ywd0D5gQzpd6FaQMM6bM69oPwHXiDxOmf7yaNaO9ibFdCQIUWeb70
-         PLaqHLpZ9cFYa9GvvdBBgHTZw2e6bySE0pNTApwJTaDkDEd/egu/gBGsb12p/44eYqRY
-         gXxg==
+        bh=IUDDZRZxdmyV3zHbIgFV/f+pJvlpZPQNewiwbQaO6tE=;
+        b=lW8J7gdCPRMweOQw8pwNhFi4aRG/l+tBBUD0aanYKeGqx5yQ1nLZ7amwTrNZHy6vU2
+         V9wwSXUgUvgm4WHsgQysRp7Qdnkj7lv13RJkpJmXiHgv2vptiA6hb/h3zaYrFtGVwNnB
+         wp0favvJMQzNKEyLe/ecQt4MU1Y4BDQ3+CCBSvfEouaXwPVNEjIMQaAm/INI0V4d4EYR
+         Euctr81IITXkASr5McZpLWSUZxaj+GPouo/1cYqAlGbcxNNFf46cYkjGnSmBVeBb3I4t
+         CHAgzgNNdr4nM29pWXKyRFzV2kGPi9FpD5hWu07RxVRd70ZvB5sgyWWcNPRMllyENxG9
+         800Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=e1wIxfZ2pa94U6ERVc2TBu1sPL7/ZYPSJAmu9tbJ7iw=;
-        b=aSwpLjMzOaZSydQoU2DoupjjU74RYSVy1ktDdvMSO1Sfs1NI/X1Z3TFIg9Erx24gm7
-         zdbtfXkgSBvn3I3lKzhnzEyjPkVj52y3byefejl7966VcU4vc+QXeqdH+hi6fZQNr7fK
-         nXwfRfYSFsejYhBMcnuVLQpi/L66W2iRlr5mKnOeTgeGFbPcxgVO4pcWP9euL1xC6kRt
-         GOT1SAIwTuAcwB+G1njOvgIKmkGty2wOHJFlyZcD8YnhUw4kpfEc+9eE0zVZ6ECqXKHY
-         3hDjArDs2EWPUmpdjdSEk97mwyH3QGIjfKc6ZH/F3oAPcFKeZ/u8t6CIWX380J0CDy8e
-         K4Lw==
-X-Gm-Message-State: AOAM5301zX7du/pS4/x3rKYYBd38IsiR+09z88mJoG9zQdXLIXymw84A
-        D4ANM0429pG6NS33Rh+iL+pvTae+vb9tPKDZyyg=
-X-Google-Smtp-Source: ABdhPJx5glss0sqleRtDBlXmNqPnxXWh5zBE4ZdTKEjL+tUMNHRV8Ts7oKcmyySbHPNP8WfNZVvgavGou2cpAroNDx4=
-X-Received: by 2002:a17:90a:c84:: with SMTP id v4mr423673pja.228.1611676262312;
- Tue, 26 Jan 2021 07:51:02 -0800 (PST)
+        bh=IUDDZRZxdmyV3zHbIgFV/f+pJvlpZPQNewiwbQaO6tE=;
+        b=O+IzDx/R5ply9lEv35ei1unhLF3QYjDeuIYvzGQfiWiF87wsenSAkYO6FpwABMX3Ru
+         0xp7N1Jo6dYj3eKAgqzIC+1xMACy3ys0W1AGWW0q3bUIkKevD0Och9oOM/coUU5bLfRX
+         /nH4voJzJoN1keIo0BNnCR9KhWMcofF87SJ8vpMQh6n4cSw/ACRwdWhZanCa8r1M+C1Y
+         IalR1nxjWJtqffvvxVAXPs8t3drkFN+BM62ZPfFX8sAZc1FXIV/ZSGmDSw+tkpf+9ds7
+         XhCyV3lquhdNHdXV8IhPaQYW1xz68OseUUxbRGg511FN5k7W/ECDkIfWk9qYGXBU9V6O
+         deVw==
+X-Gm-Message-State: AOAM530JYyAGWFrUSOZ09yN0WvOX+hCGP/wRgXULqPxylsy5Evy+bCxd
+        daJeIpWfsX0lR+mFEEGDMRecAPW04mHGqFgJx68=
+X-Google-Smtp-Source: ABdhPJy9dl1Tk9pVWPFcSjiX8vKJgMaCDnwogfliEKqUrmBFXH5j360/BhKOOcxo7U7KWVqbda7Zg9HYVSXc7AKyd7I=
+X-Received: by 2002:ac2:515b:: with SMTP id q27mr2948208lfd.516.1611680158749;
+ Tue, 26 Jan 2021 08:55:58 -0800 (PST)
 MIME-Version: 1.0
 References: <YBANNJ8XtoRf7SuW@smile.fi.intel.com> <CAMeQTsbGBrTvfkz6BStwL240Kz-dbrQVKtXbYkRtbD3OoUKCcg@mail.gmail.com>
-In-Reply-To: <CAMeQTsbGBrTvfkz6BStwL240Kz-dbrQVKtXbYkRtbD3OoUKCcg@mail.gmail.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Tue, 26 Jan 2021 17:51:51 +0200
-Message-ID: <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
+ <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
+In-Reply-To: <CAHp75Vc9RAHvTDAw1ryHq_CPRMtjqkzg9081nw0+RPY_yWPJgA@mail.gmail.com>
+From:   Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Date:   Tue, 26 Jan 2021 17:55:47 +0100
+Message-ID: <CAMeQTsY6k64LUg3DYbi67W6-Gx6znOeJbDfKUhzGt-BxF2BgKA@mail.gmail.com>
 Subject: Re: [GIT PULL] ib-drm-gpio-pdx86-rtc-wdt-v5.12-1
-To:     Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Platform Driver <platform-driver-x86@vger.kernel.org>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -78,31 +79,38 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Jan 26, 2021 at 5:25 PM Patrik Jakobsson
-<patrik.r.jakobsson@gmail.com> wrote:
-> On Tue, Jan 26, 2021 at 1:37 PM Andy Shevchenko
-> <andriy.shevchenko@linux.intel.com> wrote:
-> >
-> > Hi guys,
-> >
-> > This is first part of Intel MID outdated platforms removal. It's collected into
-> > immutable branch with a given tag, please pull to yours subsystems.
+On Tue, Jan 26, 2021 at 4:51 PM Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
 >
-> Hi Andy,
-> Do you plan on eventually removing X86_INTEL_MID completely? If so,
-> then I should probably start looking at removing the corresponding
-> parts in GMA500.
+> On Tue, Jan 26, 2021 at 5:25 PM Patrik Jakobsson
+> <patrik.r.jakobsson@gmail.com> wrote:
+> > On Tue, Jan 26, 2021 at 1:37 PM Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com> wrote:
+> > >
+> > > Hi guys,
+> > >
+> > > This is first part of Intel MID outdated platforms removal. It's collected into
+> > > immutable branch with a given tag, please pull to yours subsystems.
+> >
+> > Hi Andy,
+> > Do you plan on eventually removing X86_INTEL_MID completely? If so,
+> > then I should probably start looking at removing the corresponding
+> > parts in GMA500.
+>
+> Nope. It is related to only Medfield / Clovertrail platforms.
+>
+> There are other (MID) platforms that may / might utilize this driver
+> in the future.
 
-Nope. It is related to only Medfield / Clovertrail platforms.
+Right, there's still Oaktrail / Moorestown with hardware in the wild.
 
-There are other (MID) platforms that may / might utilize this driver
-in the future.
+>
+> I.o.w. we probably can remove the oldest stuff in the driver WRT above
+> mentioned platforms, but leave the driver for the rest.
+> I wouldn't be in a hurry with this though, display drivers are easy to
+> remove, but really hard to get back on velocity after that.
 
-I.o.w. we probably can remove the oldest stuff in the driver WRT above
-mentioned platforms, but leave the driver for the rest.
-I wouldn't be in a hurry with this though, display drivers are easy to
-remove, but really hard to get back on velocity after that.
+Ok, I'll have a look at removing Medfield. That code should have been
+removed a long time ago.
 
--- 
-With Best Regards,
-Andy Shevchenko
+-Patrik
