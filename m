@@ -2,114 +2,113 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07F81C41518
-	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 21:28:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DF36C433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 22:39:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D686B20575
-	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 21:28:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58FC8204EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 22:39:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbhAZEpk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 25 Jan 2021 23:45:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37934 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729163AbhAYN56 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 25 Jan 2021 08:57:58 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC211C06174A
-        for <linux-rtc@vger.kernel.org>; Mon, 25 Jan 2021 05:57:02 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id d16so11955971wro.11
-        for <linux-rtc@vger.kernel.org>; Mon, 25 Jan 2021 05:57:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=gp+PA16ZKrofmtCmx5UhAkgHt0xYogsEGnsOJd6xTQE=;
-        b=NjF0v5DM0oqi8sw3YmeQQIJUkZfUfqK64M3Yi82RuNzJls6JgVdgIjkxiXnZzo1qq0
-         J73iuRwsB90hlBOt6ILA7lZO3U5d7AapAQma5JRNgDM8EMSIjVP9rWbNn1tb3nUOEdxn
-         dOPMPvOvwB21iTmclhTVfRRuZ3KYA/35xII87arNPAgi6hbrLv497OF/u8J3D00h7l6O
-         XqsRq5GS9r2gc55GcpiZmh6y0YlK61v4fUlHIMek2mus/+iIZKMSFZJmbeE55HFXASgn
-         WSzP8e7ahIXJpxohMkbLFi5NXVd/CucpXHP0tpaDaRuTOTEAO9BALNx7wmkQTqy567+n
-         Jp0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=gp+PA16ZKrofmtCmx5UhAkgHt0xYogsEGnsOJd6xTQE=;
-        b=cVX4x3n1CuJiJPGZayOOvQxQ9xXBocT3ul+oBaE6Rl8BWyY+xntHLLZkwsm2q7kFpW
-         4xo2RICIvHHQc2cadkzGUNutKmxVBVqYTe8MvxG4lf1vd+ukP8+F3+h2XJovSfXIN+xR
-         5ObK+g0I29InfhkVCjYPkPkEsoU+eDtgc6hiaujLTKVhcuvCdBbmUEZ+xZoJPJW/Zu0x
-         LrgVl6e/L3mdbLbB7dATFyy9XMeQ47vZECWgnd8STDa3YDVQ7wpNDSuqOsk/ystF5L6L
-         zERYDN52PVD/iUV1Y3Ztwto3JzeiJOm7OwLUcN+z6X1oClWsRlz5UVOuS2K/cZY7ZeVd
-         nQ2w==
-X-Gm-Message-State: AOAM531ESS4bN6tP16otXIRWI3Lpf7QjpsUyqwRsT3M54ITAwCY+NxLj
-        BN/lkxxoi/5D4ou5VjhYLy5gwQ==
-X-Google-Smtp-Source: ABdhPJyi2GzmE6f+sfhyMtpP1PlJIpmf78IeJrAWHg2Oa08dZ6qBFoHoZBQqh2g2gbVG82raB5QfKA==
-X-Received: by 2002:adf:eed0:: with SMTP id a16mr1085622wrp.107.1611583021391;
-        Mon, 25 Jan 2021 05:57:01 -0800 (PST)
-Received: from dell ([91.110.221.194])
-        by smtp.gmail.com with ESMTPSA id g1sm22627542wrq.30.2021.01.25.05.57.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Jan 2021 05:57:00 -0800 (PST)
-Date:   Mon, 25 Jan 2021 13:56:58 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc:     mazziesaccount@gmail.com, Rob Herring <robh+dt@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        id S1726736AbhAZWjQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Jan 2021 17:39:16 -0500
+Received: from foss.arm.com ([217.140.110.172]:48778 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729902AbhAZRL2 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 26 Jan 2021 12:11:28 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 843DFD6E;
+        Tue, 26 Jan 2021 09:08:55 -0800 (PST)
+Received: from [10.57.40.145] (unknown [10.57.40.145])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 099A63F66E;
+        Tue, 26 Jan 2021 09:08:45 -0800 (PST)
+Subject: Re: [PATCH v3 4/5] amba: Make the remove callback return void
+To:     =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Matt Mackall <mpm@selenic.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Vinod Koul <vkoul@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-power@fi.rohmeurope.com, linux-clk@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 04/17] mfd: bd718x7: simplify by cleaning unnecessary
- device data
-Message-ID: <20210125135658.GX4903@dell>
-References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
- <b722c33ef2e499da3860b442f263e1c7bfe13e51.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
+        Mark Brown <broonie@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Cc:     linux-kernel@vger.kernel.org, kernel@pengutronix.de,
+        Mike Leach <mike.leach@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, coresight@lists.linaro.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
+        kvm@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
+References: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
+ <20210126165835.687514-5-u.kleine-koenig@pengutronix.de>
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+Message-ID: <3e42b2ea-c713-31b2-9c86-c49a70d8e1f4@arm.com>
+Date:   Tue, 26 Jan 2021 17:08:40 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+In-Reply-To: <20210126165835.687514-5-u.kleine-koenig@pengutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b722c33ef2e499da3860b442f263e1c7bfe13e51.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 19 Jan 2021, Matti Vaittinen wrote:
+Hi
 
-> Most ROHM PMIC sub-devices only use the regmap pointer from
-> parent device. They can obtain this by dev_get_regamap so in
-> most cases the MFD device does not need to allocate and populate
-> the driver data. Simplify drivers by removing this.
+On 1/26/21 4:58 PM, Uwe Kleine-König wrote:
+> All amba drivers return 0 in their remove callback. Together with the
+> driver core ignoring the return value anyhow, it doesn't make sense to
+> return a value here.
 > 
-> The BD70528 still needs the access to watchdog mutex so keep
-> rohm_regmap_dev in use on BD70528 RTC and WDG drivers for now.
+> Change the remove prototype to return void, which makes it explicit that
+> returning an error value doesn't work as expected. This simplifies changing
+> the core remove callback to return void, too.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
-> 
-> No changes since v1
-> 
->  drivers/mfd/rohm-bd718x7.c       | 43 ++++++++++++--------------------
->  include/linux/mfd/rohm-bd718x7.h | 13 ----------
->  2 files changed, 16 insertions(+), 40 deletions(-)
+> Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Acked-by: Krzysztof Kozlowski <krzk@kernel.org> # for drivers/memory
+> Acked-by: Mark Brown <broonie@kernel.org>
+  > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-For my own reference (apply this as-is to your sign-off block):
 
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+>   drivers/hwtracing/coresight/coresight-etm4x-core.c | 4 +---
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+You are most likely to have a conflict for the above file, with what is
+in coresight/next. It should be easy to resolve.
+
+Otherwise, the changes look good for the drivers/hwtracing/coresight/*
+
+Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
