@@ -2,160 +2,117 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EC21C433DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4BA6C433E9
 	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 22:41:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 203D3204EF
+	by mail.kernel.org (Postfix) with ESMTP id 7F1AD2054F
 	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jan 2021 22:41:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729574AbhAZWkM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 26 Jan 2021 17:40:12 -0500
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:59423 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391742AbhAZRcj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jan 2021 12:32:39 -0500
-X-Greylist: delayed 1581 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 Jan 2021 12:32:37 EST
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l4RgD-00045p-EA; Tue, 26 Jan 2021 17:59:01 +0100
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1l4Rg3-0003hY-Ft; Tue, 26 Jan 2021 17:58:51 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Russell King <linux@armlinux.org.uk>,
-        Matt Mackall <mpm@selenic.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Vinod Koul <vkoul@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        id S1729614AbhAZWkp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Jan 2021 17:40:45 -0500
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:57345 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393913AbhAZSBw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jan 2021 13:01:52 -0500
+X-Originating-IP: 86.202.109.140
+Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 22EDEE001A;
+        Tue, 26 Jan 2021 18:00:42 +0000 (UTC)
+Date:   Tue, 26 Jan 2021 19:00:42 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Prarit Bhargava <prarit@redhat.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Cc:     linux-kernel@vger.kernel.org, kernel@pengutronix.de,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig.org@pengutronix.de>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, coresight@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
-        kvm@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH v3 0/5] amba: minor fix and various cleanups
-Date:   Tue, 26 Jan 2021 17:58:30 +0100
-Message-Id: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.29.2
+        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH V2] rtc: mc146818: Detect and handle broken RTCs
+Message-ID: <20210126180042.GC1196852@piout.net>
+References: <20201206214613.444124194@linutronix.de>
+ <20201206220541.594826678@linutronix.de>
+ <19a7753c-c492-42e4-241a-8a052b32bb63@digikod.net>
+ <871re7hlsg.fsf@nanos.tec.linutronix.de>
+ <98cb59e8-ecb4-e29d-0b8f-73683ef2bee7@digikod.net>
+ <87y2gfg18p.fsf@nanos.tec.linutronix.de>
+ <87tur3fx7w.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
+In-Reply-To: <87tur3fx7w.fsf@nanos.tec.linutronix.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Uwe Kleine-KÃ¶nig <u.kleine-koenig.org@pengutronix.de
+On 26/01/2021 18:02:11+0100, Thomas Gleixner wrote:
+> The recent fix for handling the UIP bit unearthed another issue in the RTC
+> code. If the RTC is advertised but the readout is straight 0xFF because
+> it's not available, the old code just proceeded with crappy values, but the
+> new code hangs because it waits for the UIP bit to become low.
+> 
+> Add a sanity check in the RTC CMOS probe function which reads the RTC_VALID
+> register (Register D) which should have bit 0-6 cleared. If that's not the
+> case then fail to register the CMOS.
+> 
+> Add the same check to mc146818_get_time(), warn once when the condition
+> is true and invalidate the rtc_time data.
+> 
+> Reported-by: Mickaël Salaün <mic@digikod.net>
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Tested-by: Mickaël Salaün <mic@linux.microsoft.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Hello,
+> ---
+> V2: Fixed the sizeof() as spotted by Mickaël
+> ---
+>  drivers/rtc/rtc-cmos.c         |    8 ++++++++
+>  drivers/rtc/rtc-mc146818-lib.c |    7 +++++++
+>  2 files changed, 15 insertions(+)
+> 
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -805,6 +805,14 @@ cmos_do_probe(struct device *dev, struct
+>  
+>  	spin_lock_irq(&rtc_lock);
+>  
+> +	/* Ensure that the RTC is accessible. Bit 0-6 must be 0! */
+> +	if ((CMOS_READ(RTC_VALID) & 0x7f) != 0) {
+> +		spin_unlock_irq(&rtc_lock);
+> +		dev_warn(dev, "not accessible\n");
+> +		retval = -ENXIO;
+> +		goto cleanup1;
+> +	}
+> +
+>  	if (!(flags & CMOS_RTC_FLAGS_NOFREQ)) {
+>  		/* force periodic irq to CMOS reset default of 1024Hz;
+>  		 *
+> --- a/drivers/rtc/rtc-mc146818-lib.c
+> +++ b/drivers/rtc/rtc-mc146818-lib.c
+> @@ -21,6 +21,13 @@ unsigned int mc146818_get_time(struct rt
+>  
+>  again:
+>  	spin_lock_irqsave(&rtc_lock, flags);
+> +	/* Ensure that the RTC is accessible. Bit 0-6 must be 0! */
+> +	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x7f) != 0)) {
+> +		spin_unlock_irqrestore(&rtc_lock, flags);
+> +		memset(time, 0xff, sizeof(*time));
+> +		return 0;
+> +	}
+> +
+>  	/*
+>  	 * Check whether there is an update in progress during which the
+>  	 * readout is unspecified. The maximum update time is ~2ms. Poll
 
-Changes since v2 sent with Message-Id:
-20201124133139.3072124-1-uwe@kleine-koenig.org:
-
- - Rebase to v5.11-rc1 (which resulted in a few conflicts in
-   drivers/hwtracing).
- - Add various Acks.
- - Send to more maintainers directly (which I think is one of the
-   reasons why there are so few Acks).
-
-For my taste patch 4 needs some more acks (drivers/char/hw_random,
-drivers/dma, drivers/gpu/drm/pl111, drivers/i2c, drivers/mmc,
-drivers/vfio, drivers/watchdog and sound/arm have no maintainer feedback
-yet).
-
-My suggestion is to let this series go in via Russell King (who cares
-for amba). Once enough Acks are there I can also provide a tag for
-merging into different trees. Just tell me if you prefer this solution.
-
-Would be great if this could make it for v5.12, but I'm aware it's
-already late in the v5.11 cycle so it might have to wait for v5.13.
-
-Best regards
-Uwe
-
-Uwe Kleine-KÃ¶nig (5):
-  amba: Fix resource leak for drivers without .remove
-  amba: reorder functions
-  vfio: platform: simplify device removal
-  amba: Make the remove callback return void
-  amba: Make use of bus_type functions
-
- drivers/amba/bus.c                            | 234 +++++++++---------
- drivers/char/hw_random/nomadik-rng.c          |   3 +-
- drivers/dma/pl330.c                           |   3 +-
- drivers/gpu/drm/pl111/pl111_drv.c             |   4 +-
- drivers/hwtracing/coresight/coresight-catu.c  |   3 +-
- .../hwtracing/coresight/coresight-cpu-debug.c |   4 +-
- .../hwtracing/coresight/coresight-cti-core.c  |   4 +-
- drivers/hwtracing/coresight/coresight-etb10.c |   4 +-
- .../coresight/coresight-etm3x-core.c          |   4 +-
- .../coresight/coresight-etm4x-core.c          |   4 +-
- .../hwtracing/coresight/coresight-funnel.c    |   4 +-
- .../coresight/coresight-replicator.c          |   4 +-
- drivers/hwtracing/coresight/coresight-stm.c   |   4 +-
- .../hwtracing/coresight/coresight-tmc-core.c  |   4 +-
- drivers/hwtracing/coresight/coresight-tpiu.c  |   4 +-
- drivers/i2c/busses/i2c-nomadik.c              |   4 +-
- drivers/input/serio/ambakmi.c                 |   3 +-
- drivers/memory/pl172.c                        |   4 +-
- drivers/memory/pl353-smc.c                    |   4 +-
- drivers/mmc/host/mmci.c                       |   4 +-
- drivers/rtc/rtc-pl030.c                       |   4 +-
- drivers/rtc/rtc-pl031.c                       |   4 +-
- drivers/spi/spi-pl022.c                       |   5 +-
- drivers/tty/serial/amba-pl010.c               |   4 +-
- drivers/tty/serial/amba-pl011.c               |   3 +-
- drivers/vfio/platform/vfio_amba.c             |  15 +-
- drivers/video/fbdev/amba-clcd.c               |   4 +-
- drivers/watchdog/sp805_wdt.c                  |   4 +-
- include/linux/amba/bus.h                      |   2 +-
- sound/arm/aaci.c                              |   4 +-
- 30 files changed, 157 insertions(+), 198 deletions(-)
-
-
-base-commit: 5c8fe583cce542aa0b84adc939ce85293de36e5e
 -- 
-2.29.2
-
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
