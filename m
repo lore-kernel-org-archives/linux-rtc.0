@@ -2,109 +2,105 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D7AC43381
-	for <linux-rtc@archiver.kernel.org>; Sat, 30 Jan 2021 17:24:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48349C433DB
+	for <linux-rtc@archiver.kernel.org>; Sun, 31 Jan 2021 15:28:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5DE1564E0F
-	for <linux-rtc@archiver.kernel.org>; Sat, 30 Jan 2021 17:24:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D1FC60234
+	for <linux-rtc@archiver.kernel.org>; Sun, 31 Jan 2021 15:28:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbhA3RYj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 30 Jan 2021 12:24:39 -0500
-Received: from mail-ot1-f44.google.com ([209.85.210.44]:34218 "EHLO
-        mail-ot1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231701AbhA3RYa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 30 Jan 2021 12:24:30 -0500
-Received: by mail-ot1-f44.google.com with SMTP id a109so11968043otc.1;
-        Sat, 30 Jan 2021 09:24:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
-         :message-id;
-        bh=9UU0fPRjeLPZnus41uS3atTuyIZgZVJ3nKD7dA4ziy8=;
-        b=OastlA+1DEOnePnRuPZb14q19Ym+QMqcLlv7hBPBSeb0+K4zGIQyrf0cH6XRZtw7hv
-         V3nnL8+q28+dga+UqDa42adRxJkhVvdz28ZovM4wce01jpuHsy5+ga7RIzPy901qZfVV
-         84f6/+5wweQ0HPT2odTTBKmM0k7v0V8nDOhQJpef4/yADH0WXnIUoKZWXiIvF+gmD78F
-         Nfg+Rw3ENXEoRCWpSKyumo13bTGR0d/9cmCSdjAqk9rDyE1alMy0pycVYBZseKj11nIj
-         AqW63jgHHZ07P5pckI+Ky3xqp4Ri7zm3KwMl23Aphnj2Cd7csqfd21rg5MbpUpVmZt1V
-         rNHQ==
-X-Gm-Message-State: AOAM530mzneI0D3HC81WokjqKCtadoUgOiTN0djZw2p+XY5YPMiKFRNa
-        ypQGpAAbgeoe7sWa6/S8gA==
-X-Google-Smtp-Source: ABdhPJz9x2jS85HnLhL4DpdmLb2GJWo4CXvMaGkSiz0AtOqPIs9vaKayPjx3qX3R0yiVO24Y+b/j9w==
-X-Received: by 2002:a9d:5909:: with SMTP id t9mr6041294oth.263.1612027429775;
-        Sat, 30 Jan 2021 09:23:49 -0800 (PST)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id j1sm3167340oiw.50.2021.01.30.09.23.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Jan 2021 09:23:48 -0800 (PST)
-Received: (nullmailer pid 1419428 invoked by uid 1000);
-        Sat, 30 Jan 2021 17:23:40 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Cc:     Eddie Huang <eddie.huang@mediatek.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        devicetree@vger.kernel.org,
-        Project_Global_Chrome_Upstream_Group@mediatek.com,
+        id S231364AbhAaP1V (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 31 Jan 2021 10:27:21 -0500
+Received: from mailoutvs3.siol.net ([185.57.226.194]:41849 "EHLO mail.siol.net"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232766AbhAaNzb (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 31 Jan 2021 08:55:31 -0500
+X-Greylist: delayed 566 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 Jan 2021 08:55:31 EST
+Received: from localhost (localhost [127.0.0.1])
+        by mail.siol.net (Postfix) with ESMTP id 0427552187D;
+        Sun, 31 Jan 2021 14:44:43 +0100 (CET)
+X-Virus-Scanned: amavisd-new at psrvmta10.zcs-production.pri
+Received: from mail.siol.net ([127.0.0.1])
+        by localhost (psrvmta10.zcs-production.pri [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 2UVdYFwNwfuR; Sun, 31 Jan 2021 14:44:42 +0100 (CET)
+Received: from mail.siol.net (localhost [127.0.0.1])
+        by mail.siol.net (Postfix) with ESMTPS id A8106521892;
+        Sun, 31 Jan 2021 14:44:42 +0100 (CET)
+Received: from kista.localnet (cpe-86-58-58-53.static.triera.net [86.58.58.53])
+        (Authenticated sender: jernej.skrabec@siol.net)
+        by mail.siol.net (Postfix) with ESMTPA id D547952187D;
+        Sun, 31 Jan 2021 14:44:40 +0100 (CET)
+From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@siol.net>
+To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Andre Przywara <andre.przywara@arm.com>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        Icenowy Zheng <icenowy@aosc.io>, Rob Herring <robh@kernel.org>,
+        =?ISO-8859-1?Q?Cl=E9ment_P=E9ron?= <peron.clem@gmail.com>,
+        Shuosheng Huang <huangshuosheng@allwinnertech.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-sunxi@googlegroups.com,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org,
-        Yuchen Huang <yuchen.huang@mediatek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        srv_heupstream@mediatek.com, Sean Wang <sean.wang@mediatek.com>,
-        linux-rtc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Fei Shao <fshao@chromium.org>,
-        linux-mediatek@lists.infradead.org, Ran Bi <ran.bi@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-In-Reply-To: <1611913781-23460-5-git-send-email-hsin-hsiung.wang@mediatek.com>
-References: <1611913781-23460-1-git-send-email-hsin-hsiung.wang@mediatek.com> <1611913781-23460-5-git-send-email-hsin-hsiung.wang@mediatek.com>
-Subject: Re: [PATCH RESEND v5 4/8] dt-bindings: regulator: Add document for MT6359 regulator
-Date:   Sat, 30 Jan 2021 11:23:40 -0600
-Message-Id: <1612027420.840636.1419427.nullmailer@robh.at.kernel.org>
+        devicetree@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v5 12/20] dt-bindings: rtc: sun6i: Add H616 compatible string
+Date:   Sun, 31 Jan 2021 14:44:40 +0100
+Message-ID: <1675074.8rG671tKPg@kista>
+In-Reply-To: <20210127172500.13356-13-andre.przywara@arm.com>
+References: <20210127172500.13356-1-andre.przywara@arm.com> <20210127172500.13356-13-andre.przywara@arm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 29 Jan 2021 17:49:37 +0800, Hsin-Hsiung Wang wrote:
-> add dt-binding document for MediaTek MT6359 PMIC
+Hi!
+
+Dne sreda, 27. januar 2021 ob 18:24:52 CET je Andre Przywara napisal(a):
+> Add the obvious compatible name to the existing RTC binding, and pair
+> it with the existing H6 fallback compatible string, as the devices are
+> compatible.
+
+After close lookup I would disagree with this observation. Major difference is 
+that H616 doesn't support usage of external 32768 Hz oscillator. It uses 24 
+MHz oscillator with divider for that case. Due to that change, whole logic for 
+external oscillator should go out. Additionally, this logic overwrites default 
+value in LOSC_CTRL register, which is not nice (there is no documentation for 
+those bits). 
+
+Best regards,
+Jernej
+
 > 
-> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 > ---
-> changes since v4: fix yamllint errors in dt-binding document.
-> ---
->  .../bindings/regulator/mt6359-regulator.yaml  | 169 ++++++++++++++++++
->  1 file changed, 169 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
+>  .../devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml       | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-
+rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> index b1b0ee769b71..4193e5813344 100644
+> --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> @@ -26,6 +26,9 @@ properties:
+>            - const: allwinner,sun50i-a64-rtc
+>            - const: allwinner,sun8i-h3-rtc
+>        - const: allwinner,sun50i-h6-rtc
+> +      - items:
+> +          - const: allwinner,sun50i-h616-rtc
+> +          - const: allwinner,sun50i-h6-rtc
+>  
+>    reg:
+>      maxItems: 1
+> -- 
+> 2.17.5
+> 
 > 
 
-My bot found errors running 'make dt_binding_check' on your patch:
-
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/adc/ti,palmas-gpadc.example.dt.yaml: pmic: 'adc', 'compatible' do not match any of the regexes: 'pinctrl-[0-9]+'
-	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
-/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/adc/motorola,cpcap-adc.example.dt.yaml: pmic: '#address-cells', '#size-cells', 'adc' do not match any of the regexes: 'pinctrl-[0-9]+'
-	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
-/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/adc/sprd,sc2720-adc.example.dt.yaml: pmic: '#address-cells', '#size-cells', 'adc@480' do not match any of the regexes: 'pinctrl-[0-9]+'
-	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
-/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/adc/qcom,pm8018-adc.example.dt.yaml: pmic: '#address-cells', '#size-cells', 'adc@197' do not match any of the regexes: 'pinctrl-[0-9]+'
-	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
-
-See https://patchwork.ozlabs.org/patch/1433233
-
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
 
