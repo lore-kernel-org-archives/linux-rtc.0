@@ -2,73 +2,162 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 484E9C433DB
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 12:07:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17572C433DB
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 14:20:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 04BB164F5E
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 12:07:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D523764DDA
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 14:20:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230312AbhBBMHd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Feb 2021 07:07:33 -0500
-Received: from mail-ed1-f46.google.com ([209.85.208.46]:35049 "EHLO
-        mail-ed1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230377AbhBBMHa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 07:07:30 -0500
-Received: by mail-ed1-f46.google.com with SMTP id g10so4331571eds.2;
-        Tue, 02 Feb 2021 04:07:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=6abidnGHa15Gx8W1zIwgQF+KmfT0LbfR/yfssT4cxWE=;
-        b=NGf1hp6ucqaSt5ECYJn2R6cxSNC5tZfHBByfxPfUkYJlFCcWRcBRkw2gVzNwEv0/pN
-         8gSNtPqIdvVGPmCLMiXQlOOi/brAACbkQ7i7SrZ6ExLHoR+hvdDGSTsLLkUITWmrwMAu
-         Sf4fOqi9yvrI5unfDXrZlQPQ1LohcdzO8GLzMkgZRm9SFECHl11CPjXjX+iwm66yl/Ex
-         b2+0T7LZa88FVscnZa0W4pjfJ6JmPUs7mwqPBBxiL5AfHJydgLE+hARcxL9gZiDYHtOI
-         bJKqdLBYrivZ01qv4Zsc9ZUiq8YYV0wrEUab9BGvkJTxpvTStm+Jr9eGDwVqyi9sUNbx
-         OIkQ==
-X-Gm-Message-State: AOAM533YAeXNTISAP8f+J2trqMiPlCkdUxFBasJ3OmsGSYL67Olv6W7c
-        Zq66ZK1RkbZfPWuRjlSA/t8=
-X-Google-Smtp-Source: ABdhPJx9A0SsibYdZdG1ZhPfG9XOPzZNowtWMTPTptLNvfi1m/j7ob0OgHD8Qrho1IZ8oVC/y8ha2A==
-X-Received: by 2002:aa7:d8c9:: with SMTP id k9mr7089489eds.366.1612267608773;
-        Tue, 02 Feb 2021 04:06:48 -0800 (PST)
-Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.googlemail.com with ESMTPSA id w24sm3303274ejn.36.2021.02.02.04.06.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Feb 2021 04:06:47 -0800 (PST)
-Date:   Tue, 2 Feb 2021 13:06:45 +0100
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
+        id S234211AbhBBOUJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Feb 2021 09:20:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51458 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231624AbhBBORv (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 2 Feb 2021 09:17:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2821F64DD5;
+        Tue,  2 Feb 2021 14:06:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1612274769;
+        bh=ucOE/Mmv9i2CWEnQ7wz77HidV63/GBxg2zd12rEmpdc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mtk8Q3WRW8e4rAGIMqVSBpBvOYwFo0HFhgAeLGXuNjXjEG35zPmakj7dmP3Hp3Xxb
+         nLQvz66M8T/SeJkpoklGcHv/kplvfAQlGnleUXc+nPaJbcAYzR2bE146XmrkoL8bC8
+         WACPjj7XeQXWdVU5Y4Gh/La16odwgfVrinCkNWdA=
+Date:   Tue, 2 Feb 2021 15:06:05 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Russell King <linux+pull@armlinux.org.uk>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        linux-fbdev@vger.kernel.org, kvm@vger.kernel.org,
+        alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig.org@pengutronix.de>, linux-i2c@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-input@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
+        linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        coresight@lists.linaro.org, linux-arm-kernel@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kernel@pengutronix.de, Leo Yan <leo.yan@linaro.org>,
+        dmaengine@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Vinod Koul <vkoul@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Eric Anholt <eric@anholt.net>, David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] rtc: s3c: quiet maybe-unused variable warning
-Message-ID: <20210202120645.2ycd3txtgmknavuw@kozik-lap>
-References: <20210202112934.3612726-1-alexandre.belloni@bootlin.com>
- <20210202112934.3612726-2-alexandre.belloni@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Subject: Re: [GIT PULL] immutable branch for amba changes targeting v5.12-rc1
+Message-ID: <YBlcTXlxemmC2lgr@kroah.com>
+References: <20210126165835.687514-1-u.kleine-koenig@pengutronix.de>
+ <20210202135350.36nj3dmcoq3t7gcf@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20210202112934.3612726-2-alexandre.belloni@bootlin.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210202135350.36nj3dmcoq3t7gcf@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Feb 02, 2021 at 12:29:34PM +0100, Alexandre Belloni wrote:
-> When CONFIG_OF is disabled then the matching table is not referenced.
+On Tue, Feb 02, 2021 at 02:53:50PM +0100, Uwe Kleine-König wrote:
+> Hello,
 > 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  drivers/rtc/rtc-s3c.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> the following changes since commit 5c8fe583cce542aa0b84adc939ce85293de36e5e:
+> 
+>   Linux 5.11-rc1 (2020-12-27 15:30:22 -0800)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.pengutronix.de/git/ukl/linux tags/amba-make-remove-return-void
+> 
+> for you to fetch changes up to f170b59fedd733b92f58c4d7c8357fbf7601d623:
+> 
+>   amba: Make use of bus_type functions (2021-02-02 14:26:02 +0100)
+> 
+> I expect this tag to be merged by Russell King as amba maintainer and by
+> Mathieu Poirier (or Greg Kroah-Hartman?) for coresight as there are some
+> pending conflicting changes. These are not hard to resolve but also
+> non-trivial. Tell me if you need assistance for resolving, also if it's only a
+> second pair of eyes to judge your resolution.
+> 
+> Best regards,
+> Uwe
+> 
+> ----------------------------------------------------------------
+> Tag for adaptions to struct amba_driver::remove changing prototype
+> 
+> ----------------------------------------------------------------
+> Uwe Kleine-König (5):
+>       amba: Fix resource leak for drivers without .remove
+>       amba: reorder functions
+>       vfio: platform: simplify device removal
+>       amba: Make the remove callback return void
+>       amba: Make use of bus_type functions
+> 
+>  drivers/amba/bus.c                                 | 234 +++++++++++++++++++++++++++++++++------------------------------
+>  drivers/char/hw_random/nomadik-rng.c               |   3 +-
+>  drivers/dma/pl330.c                                |   3 +-
+>  drivers/gpu/drm/pl111/pl111_drv.c                  |   4 +-
+>  drivers/hwtracing/coresight/coresight-catu.c       |   3 +-
+>  drivers/hwtracing/coresight/coresight-cpu-debug.c  |   4 +-
+>  drivers/hwtracing/coresight/coresight-cti-core.c   |   4 +-
+>  drivers/hwtracing/coresight/coresight-etb10.c      |   4 +-
+>  drivers/hwtracing/coresight/coresight-etm3x-core.c |   4 +-
+>  drivers/hwtracing/coresight/coresight-etm4x-core.c |   4 +-
+>  drivers/hwtracing/coresight/coresight-funnel.c     |   4 +-
+>  drivers/hwtracing/coresight/coresight-replicator.c |   4 +-
+>  drivers/hwtracing/coresight/coresight-stm.c        |   4 +-
+>  drivers/hwtracing/coresight/coresight-tmc-core.c   |   4 +-
+>  drivers/hwtracing/coresight/coresight-tpiu.c       |   4 +-
+>  drivers/i2c/busses/i2c-nomadik.c                   |   4 +-
+>  drivers/input/serio/ambakmi.c                      |   3 +-
+>  drivers/memory/pl172.c                             |   4 +-
+>  drivers/memory/pl353-smc.c                         |   4 +-
+>  drivers/mmc/host/mmci.c                            |   4 +-
+>  drivers/rtc/rtc-pl030.c                            |   4 +-
+>  drivers/rtc/rtc-pl031.c                            |   4 +-
+>  drivers/spi/spi-pl022.c                            |   5 +-
+>  drivers/tty/serial/amba-pl010.c                    |   4 +-
+>  drivers/tty/serial/amba-pl011.c                    |   3 +-
+>  drivers/vfio/platform/vfio_amba.c                  |  15 ++--
+>  drivers/video/fbdev/amba-clcd.c                    |   4 +-
+>  drivers/watchdog/sp805_wdt.c                       |   4 +-
+>  include/linux/amba/bus.h                           |   2 +-
+>  sound/arm/aaci.c                                   |   4 +-
+>  30 files changed, 157 insertions(+), 198 deletions(-)
+> 
 > 
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-Best regards,
-Krzysztof
+I'm glad to take this through my char/misc tree, as that's where the
+other coresight changes flow through.  So if no one else objects, I will
+do so...
+
+thanks,
+
+greg k-h
