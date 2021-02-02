@@ -7,59 +7,83 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F40C433E0
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0134CC433E6
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9C17E64E7B
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B235364EC1
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbhBBL1E (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Feb 2021 06:27:04 -0500
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:57747 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230165AbhBBLXT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:23:19 -0500
+        id S231416AbhBBL1P (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Feb 2021 06:27:15 -0500
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:38039 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230518AbhBBL0x (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:26:53 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 20AC4FF80B;
-        Tue,  2 Feb 2021 11:22:32 +0000 (UTC)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id B7FD82000C;
+        Tue,  2 Feb 2021 11:26:01 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org
-Subject: [PATCH 07/21] rtc: ds3232: quiet maybe-unused variable warning
-Date:   Tue,  2 Feb 2021 12:22:04 +0100
-Message-Id: <20210202112219.3610853-8-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/2] rtc: rv3028: remove useless warning messages
+Date:   Tue,  2 Feb 2021 12:25:55 +0100
+Message-Id: <20210202112555.3611729-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
-References: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20210202112555.3611729-1-alexandre.belloni@bootlin.com>
+References: <20210202112555.3611729-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When CONFIG_OF is disabled then the matching table is not referenced.
+Remove voltage low messages as userspace has a proper way to get the
+information and react on it.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ds3232.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rv3028.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds3232.c b/drivers/rtc/rtc-ds3232.c
-index 535e4a88fbb6..168bc27f1f5a 100644
---- a/drivers/rtc/rtc-ds3232.c
-+++ b/drivers/rtc/rtc-ds3232.c
-@@ -592,7 +592,7 @@ static const struct i2c_device_id ds3232_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, ds3232_id);
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index 6d07f8261c69..0c48d980d06a 100644
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -265,9 +265,6 @@ static irqreturn_t rv3028_handle_irq(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 	}
  
--static const struct of_device_id ds3232_of_match[] = {
-+static const  __maybe_unused struct of_device_id ds3232_of_match[] = {
- 	{ .compatible = "dallas,ds3232" },
- 	{ }
- };
+-	if (status & RV3028_STATUS_PORF)
+-		dev_warn(&rv3028->rtc->dev, "Voltage low, data loss detected.\n");
+-
+ 	status &= ~RV3028_STATUS_PORF;
+ 
+ 	if (status & RV3028_STATUS_TF) {
+@@ -313,10 +310,8 @@ static int rv3028_get_time(struct device *dev, struct rtc_time *tm)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (status & RV3028_STATUS_PORF) {
+-		dev_warn(dev, "Voltage low, data is invalid.\n");
++	if (status & RV3028_STATUS_PORF)
+ 		return -EINVAL;
+-	}
+ 
+ 	ret = regmap_bulk_read(rv3028->regmap, RV3028_SEC, date, sizeof(date));
+ 	if (ret)
+@@ -828,9 +823,6 @@ static int rv3028_probe(struct i2c_client *client)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (status & RV3028_STATUS_PORF)
+-		dev_warn(&client->dev, "Voltage low, data loss detected.\n");
+-
+ 	if (status & RV3028_STATUS_AF)
+ 		dev_warn(&client->dev, "An alarm may have been missed.\n");
+ 
 -- 
 2.29.2
 
