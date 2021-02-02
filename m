@@ -2,119 +2,132 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD10C433E0
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Feb 2021 20:30:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93224C433E0
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 00:07:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C05564EC5
-	for <linux-rtc@archiver.kernel.org>; Mon,  1 Feb 2021 20:30:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A6C164ED0
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 00:07:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbhBAUaz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 1 Feb 2021 15:30:55 -0500
-Received: from services.gouders.net ([141.101.32.176]:48616 "EHLO
-        services.gouders.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229996AbhBAUaq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Feb 2021 15:30:46 -0500
-Received: from localhost (ltea-047-066-000-239.pools.arcor-ip.net [47.66.0.239])
-        (authenticated bits=0)
-        by services.gouders.net (8.14.8/8.14.8) with ESMTP id 111KGcRB016228
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 1 Feb 2021 21:16:38 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gouders.net; s=gnet;
-        t=1612210599; bh=OL61rVU+tFkKTJhOobzoZ+qk74fBZ06cF5QzMmY0Iu4=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date;
-        b=UNQeYSyg3XKkVQt6ENhYCB2/yddwGIeCkFgZLSxzlGpcDEBthzEyCzqL0RHDo2OQ6
-         JjhjZvCUekLogkZSoLGsWsC5AIS9DMZf8ug+B1BRHiTtilpdj/uULG9ObWsDNnYY4N
-         Yp9cYltCViB+amJhnQ3kTCSJVMbgtjpgIC/kmAPc=
-From:   Dirk Gouders <dirk@gouders.net>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Serge Belyshev <belyshev@depni.sinp.msu.ru>,
-        =?utf-8?Q?Micka=C3=ABl?= =?utf-8?Q?_Sala=C3=BCn?= 
-        <mic@digikod.net>, LKML <linux-kernel@vger.kernel.org>,
+        id S231301AbhBBAH0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Feb 2021 19:07:26 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:44713 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230517AbhBBAHY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Feb 2021 19:07:24 -0500
+X-Originating-IP: 86.202.109.140
+Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 0D3E21BF206;
+        Tue,  2 Feb 2021 00:06:36 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH V2] rtc: mc146818: Dont test for bit 0-5 in Register D
-In-Reply-To: <87zh0nbnha.fsf@nanos.tec.linutronix.de> (Thomas Gleixner's
-        message of "Mon, 01 Feb 2021 20:24:17 +0100")
-References: <20201206214613.444124194@linutronix.de>
-        <20201206220541.594826678@linutronix.de>
-        <19a7753c-c492-42e4-241a-8a052b32bb63@digikod.net>
-        <871re7hlsg.fsf@nanos.tec.linutronix.de>
-        <98cb59e8-ecb4-e29d-0b8f-73683ef2bee7@digikod.net>
-        <87y2gfg18p.fsf@nanos.tec.linutronix.de>
-        <87tur3fx7w.fsf@nanos.tec.linutronix.de> <ghft2hwevu.fsf@gouders.net>
-        <877dnrc2sv.fsf@depni.sinp.msu.ru>
-        <8735yfd2q4.fsf@nanos.tec.linutronix.de>
-        <87zh0nbnha.fsf@nanos.tec.linutronix.de>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
-Date:   Mon, 01 Feb 2021 21:15:01 +0100
-Message-ID: <gh7dnro88q.fsf@gouders.net>
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] dt-bindings: rtc: pcf2127: update bindings
+Date:   Tue,  2 Feb 2021 01:06:34 +0100
+Message-Id: <20210202000634.3438575-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.29.2
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Thomas Gleixner <tglx@linutronix.de> writes:
+The NXP pcf2127 supports reset-source.
 
-> The recent change to validate the RTC turned out to be overly tight.
->
-> While it cures the problem on the reporters machine it breaks machines
-> with Intel chipsets which use bit 0-5 of the D register. So check only
-> for bit 6 being 0 which is the case on these Intel machines as well.
->
-> Fixes: 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
-> Reported-by: Serge Belyshev <belyshev@depni.sinp.msu.ru>
-> Reported-by: Dirk Gouders <dirk@gouders.net>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> ---
-> V2: Provide the actual delta patch. Should have stayed away from
->     computers today....
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
 
-I tested V2 and it eliminates the warning, here.
+Changes in v2:
+ - remove pcf219 and pca2129
 
-Thank you,
+ .../devicetree/bindings/rtc/nxp,pcf2127.yaml  | 51 +++++++++++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  |  6 +--
+ 2 files changed, 52 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
 
-Dirk
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
+new file mode 100644
+index 000000000000..cde7b1675ead
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
+@@ -0,0 +1,51 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf2127.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF2127 Real Time Clock
++
++allOf:
++  - $ref: "rtc.yaml#"
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++
++properties:
++  compatible:
++    const: nxp,pcf2127
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  start-year: true
++
++  reset-source: true
++
++required:
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@51 {
++            compatible = "nxp,pcf2127";
++            reg = <0x51>;
++            pinctrl-0 = <&rtc_nint_pins>;
++            interrupts-extended = <&gpio1 16 IRQ_TYPE_LEVEL_HIGH>;
++            reset-source;
++        };
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index c7d14de214c4..7548d8714871 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -48,12 +48,8 @@ properties:
+       - microcrystal,rv3029
+       # Real Time Clock
+       - microcrystal,rv8523
+-      # Real-time clock
+-      - nxp,pcf2127
+-      # Real-time clock
+-      - nxp,pcf2129
+-      # Real-time clock
+       - nxp,pca2129
++      - nxp,pcf2129
+       # Real-time Clock Module
+       - pericom,pt7c4338
+       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+-- 
+2.29.2
 
-> ---
->  drivers/rtc/rtc-cmos.c         |    4 ++--
->  drivers/rtc/rtc-mc146818-lib.c |    4 ++--
->  2 files changed, 4 insertions(+), 4 deletions(-)
->
-> --- a/drivers/rtc/rtc-cmos.c
-> +++ b/drivers/rtc/rtc-cmos.c
-> @@ -805,8 +805,8 @@ cmos_do_probe(struct device *dev, struct
->  
->  	spin_lock_irq(&rtc_lock);
->  
-> -	/* Ensure that the RTC is accessible. Bit 0-6 must be 0! */
-> -	if ((CMOS_READ(RTC_VALID) & 0x7f) != 0) {
-> +	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
-> +	if ((CMOS_READ(RTC_VALID) & 0x40) != 0) {
->  		spin_unlock_irq(&rtc_lock);
->  		dev_warn(dev, "not accessible\n");
->  		retval = -ENXIO;
-> --- a/drivers/rtc/rtc-mc146818-lib.c
-> +++ b/drivers/rtc/rtc-mc146818-lib.c
-> @@ -21,8 +21,8 @@ unsigned int mc146818_get_time(struct rt
->  
->  again:
->  	spin_lock_irqsave(&rtc_lock, flags);
-> -	/* Ensure that the RTC is accessible. Bit 0-6 must be 0! */
-> -	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x7f) != 0)) {
-> +	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
-> +	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x40) != 0)) {
->  		spin_unlock_irqrestore(&rtc_lock, flags);
->  		memset(time, 0xff, sizeof(*time));
->  		return 0;
