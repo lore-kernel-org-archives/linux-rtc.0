@@ -2,88 +2,78 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD856C433E0
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:34:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5946AC433E0
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:34:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 867D864DD9
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:34:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C56664EC1
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:34:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231394AbhBBLeA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Feb 2021 06:34:00 -0500
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:60985 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230033AbhBBLad (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:30:33 -0500
-X-Originating-IP: 86.202.109.140
-Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 4857A60008;
-        Tue,  2 Feb 2021 11:29:46 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     linux-rtc@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-kernel@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 1/2] rtc: s3c: stop setting bogus time
-Date:   Tue,  2 Feb 2021 12:29:33 +0100
-Message-Id: <20210202112934.3612726-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.29.2
+        id S231196AbhBBLex (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Feb 2021 06:34:53 -0500
+Received: from guitar.tcltek.co.il ([192.115.133.116]:34438 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231336AbhBBLcw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 2 Feb 2021 06:32:52 -0500
+Received: from tarshish (unknown [10.0.8.3])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx.tkos.co.il (Postfix) with ESMTPS id 9820D440DBB;
+        Tue,  2 Feb 2021 13:32:04 +0200 (IST)
+References: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
+ <20210202112219.3610853-6-alexandre.belloni@bootlin.com>
+User-agent: mu4e 1.4.15; emacs 27.1
+From:   Baruch Siach <baruch@tkos.co.il>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 05/21] rtc: digicolor: quiet maybe-unused variable warning
+In-reply-to: <20210202112219.3610853-6-alexandre.belloni@bootlin.com>
+Date:   Tue, 02 Feb 2021 13:32:01 +0200
+Message-ID: <874kiuemdq.fsf@tarshish>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-It doesn't make sense to set the RTC to a default value at probe time. Let
-the core handle invalid date and time.
+Hi Alex,
 
-Also, this is basically dead code since commit 22652ba72453 ("rtc: stop
-validating rtc_time in .read_time")
+On Tue, Feb 02 2021, Alexandre Belloni wrote:
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-s3c.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+> When CONFIG_OF is disabled then the matching table is not referenced.
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index fab326ba9cec..f07b0c43aafe 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -382,7 +382,6 @@ static int s3c_rtc_remove(struct platform_device *pdev)
- static int s3c_rtc_probe(struct platform_device *pdev)
- {
- 	struct s3c_rtc *info = NULL;
--	struct rtc_time rtc_tm;
- 	int ret;
- 
- 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
-@@ -448,20 +447,6 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	/* Check RTC Time */
--	if (s3c_rtc_gettime(&pdev->dev, &rtc_tm)) {
--		rtc_tm.tm_year	= 100;
--		rtc_tm.tm_mon	= 0;
--		rtc_tm.tm_mday	= 1;
--		rtc_tm.tm_hour	= 0;
--		rtc_tm.tm_min	= 0;
--		rtc_tm.tm_sec	= 0;
--
--		s3c_rtc_settime(&pdev->dev, &rtc_tm);
--
--		dev_warn(&pdev->dev, "warning: invalid RTC value so initializing it\n");
--	}
--
- 	/* register RTC and exit */
- 	info->rtc = devm_rtc_device_register(&pdev->dev, "s3c", &s3c_rtcops,
- 					     THIS_MODULE);
+Acked-by: Baruch Siach <baruch@tkos.co.il>
+
+Thanks,
+baruch
+
+> ---
+>  drivers/rtc/rtc-digicolor.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/rtc/rtc-digicolor.c b/drivers/rtc/rtc-digicolor.c
+> index 4fdfa5b6feb2..218a6de19247 100644
+> --- a/drivers/rtc/rtc-digicolor.c
+> +++ b/drivers/rtc/rtc-digicolor.c
+> @@ -205,7 +205,7 @@ static int __init dc_rtc_probe(struct platform_device *pdev)
+>  	return devm_rtc_register_device(rtc->rtc_dev);
+>  }
+>  
+> -static const struct of_device_id dc_dt_ids[] = {
+> +static const __maybe_unused struct of_device_id dc_dt_ids[] = {
+>  	{ .compatible = "cnxt,cx92755-rtc" },
+>  	{ /* sentinel */ }
+>  };
+
+
 -- 
-2.29.2
-
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
