@@ -5,61 +5,64 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00E60C433E0
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B25A3C433DB
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:32:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B165064E9B
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:27:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C23964DD9
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:32:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231422AbhBBL1Z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Feb 2021 06:27:25 -0500
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:44985 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230386AbhBBL0x (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:26:53 -0500
+        id S229849AbhBBLXI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Feb 2021 06:23:08 -0500
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:52041 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229823AbhBBLXH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:23:07 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id DBD5240006;
-        Tue,  2 Feb 2021 11:26:00 +0000 (UTC)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id B4E146000F;
+        Tue,  2 Feb 2021 11:22:24 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] rtc: rv3028: fix PORF handling
-Date:   Tue,  2 Feb 2021 12:25:54 +0100
-Message-Id: <20210202112555.3611729-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH 02/21] rtc: armada38x: depend on OF
+Date:   Tue,  2 Feb 2021 12:21:59 +0100
+Message-Id: <20210202112219.3610853-3-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
+References: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The PORF bit is cleared on interrupts which prevents the driver to know
-when the time and date are invalid. Stop clearing PORF in the interrupt
-handler.
+The driver will compile with warning without OF because armada38x_data and
+armada8k_data will be defined but not used. It would be possible to move
+then in the #ifdef CONFIG_OF section but then their members will be defined
+but not used. Instead of moving most of the driver in the #ifdef, simply
+depend on OF.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rv3028.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index f68baa055a0b..6d07f8261c69 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -268,6 +268,8 @@ static irqreturn_t rv3028_handle_irq(int irq, void *dev_id)
- 	if (status & RV3028_STATUS_PORF)
- 		dev_warn(&rv3028->rtc->dev, "Voltage low, data loss detected.\n");
- 
-+	status &= ~RV3028_STATUS_PORF;
-+
- 	if (status & RV3028_STATUS_TF) {
- 		status |= RV3028_STATUS_TF;
- 		ctrl |= RV3028_CTRL2_TIE;
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e1576754a50f..68ae202e0716 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1594,6 +1594,7 @@ config RTC_DRV_MV
+ config RTC_DRV_ARMADA38X
+ 	tristate "Armada 38x Marvell SoC RTC"
+ 	depends on ARCH_MVEBU || COMPILE_TEST
++	depends on OF
+ 	help
+ 	  If you say yes here you will get support for the in-chip RTC
+ 	  that can be found in the Armada 38x Marvell's SoC device
 -- 
 2.29.2
 
