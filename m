@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3E95C433DB
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:25:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A1CC433E0
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:25:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DD4364E2E
-	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:25:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C240364F4F
+	for <linux-rtc@archiver.kernel.org>; Tue,  2 Feb 2021 11:25:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231312AbhBBLZN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 2 Feb 2021 06:25:13 -0500
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:59605 "EHLO
-        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229823AbhBBLXX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:23:23 -0500
+        id S231315AbhBBLZP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 2 Feb 2021 06:25:15 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:40613 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230174AbhBBLXU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 2 Feb 2021 06:23:20 -0500
 X-Originating-IP: 86.202.109.140
 Received: from localhost (lfbn-lyo-1-13-140.w86-202.abo.wanadoo.fr [86.202.109.140])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id CBE1EFF80C;
-        Tue,  2 Feb 2021 11:22:32 +0000 (UTC)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 5E4AE1BF204;
+        Tue,  2 Feb 2021 11:22:31 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-kernel@vger.kernel.org
-Subject: [PATCH 08/21] rtc: isl1208: quiet maybe-unused variable warning
-Date:   Tue,  2 Feb 2021 12:22:05 +0100
-Message-Id: <20210202112219.3610853-9-alexandre.belloni@bootlin.com>
+Subject: [PATCH 06/21] rtc: ds1672: quiet maybe-unused variable warning
+Date:   Tue,  2 Feb 2021 12:22:03 +0100
+Message-Id: <20210202112219.3610853-7-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
 References: <20210202112219.3610853-1-alexandre.belloni@bootlin.com>
@@ -44,22 +44,22 @@ When CONFIG_OF is disabled then the matching table is not referenced.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-isl1208.c | 2 +-
+ drivers/rtc/rtc-ds1672.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index 563a6d9c9fcf..182dfa605515 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -99,7 +99,7 @@ static const struct i2c_device_id isl1208_id[] = {
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 630493759d15..4cd8efbef6cf 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -139,7 +139,7 @@ static const struct i2c_device_id ds1672_id[] = {
  };
- MODULE_DEVICE_TABLE(i2c, isl1208_id);
+ MODULE_DEVICE_TABLE(i2c, ds1672_id);
  
--static const struct of_device_id isl1208_of_match[] = {
-+static const __maybe_unused struct of_device_id isl1208_of_match[] = {
- 	{ .compatible = "isil,isl1208", .data = &isl1208_configs[TYPE_ISL1208] },
- 	{ .compatible = "isil,isl1209", .data = &isl1208_configs[TYPE_ISL1209] },
- 	{ .compatible = "isil,isl1218", .data = &isl1208_configs[TYPE_ISL1218] },
+-static const struct of_device_id ds1672_of_match[] = {
++static const __maybe_unused struct of_device_id ds1672_of_match[] = {
+ 	{ .compatible = "dallas,ds1672" },
+ 	{ }
+ };
 -- 
 2.29.2
 
