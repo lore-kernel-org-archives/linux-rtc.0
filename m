@@ -2,87 +2,98 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1AB0C433DB
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Feb 2021 03:37:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0DE5C433E6
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Feb 2021 16:40:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9466864DFA
-	for <linux-rtc@archiver.kernel.org>; Sat,  6 Feb 2021 03:37:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A416364E80
+	for <linux-rtc@archiver.kernel.org>; Sat,  6 Feb 2021 16:40:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbhBFDhP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 5 Feb 2021 22:37:15 -0500
-Received: from mail-oi1-f176.google.com ([209.85.167.176]:35350 "EHLO
-        mail-oi1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231387AbhBFDfJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 Feb 2021 22:35:09 -0500
-Received: by mail-oi1-f176.google.com with SMTP id w8so9720974oie.2;
-        Fri, 05 Feb 2021 19:34:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=oYX3STVGOutn/ODTJ1Chx6wd1ikGLIpdQAWlo27fcnA=;
-        b=P/tmvMNJuCuqeky6J0kl0Kj1FLXJrI6DbCiAoZ274C7A4WTyk2uLzxl+LKN7kDMYzp
-         fQdHe4ZHjIp/K4xG0g45oblqhLfZL9P/oQ9fnjDp4a02Y/5VnowiUiL18s/AAubCOZBP
-         QLj2aKwmq+meqg60tlD+/PajmOFUlN3Ns38A+WnIdQAJ5BRI0VMW0aTvpriLtUSEMZLj
-         o/kSf2iyTANckXVa15Z8WULqesTu2yQdTO3BSbVUuixzohYwxH76z5SHz4sWQMxupss0
-         9ArTEOdoSaTROnG9MNc2u3RxTryhDJWvB+WijT33vgP6z1mDiCQKFENC/naBSgeCOlAm
-         p49w==
-X-Gm-Message-State: AOAM530erH1pbtNZAgpnrFXgHOyb+/S0D9/b/X7SKVpNqimfbrrN3urP
-        BuczDvVF1VijgIm/jXqOMF9iuUWJWA==
-X-Google-Smtp-Source: ABdhPJx7yvm1O6oqJ0lLXbtfmYGfoeVWzvCVL9cCxLieYLbGmE6b1ddW84xEXKVGBDviVnEhIIsV6Q==
-X-Received: by 2002:a05:6808:918:: with SMTP id w24mr4534554oih.20.1612562677933;
-        Fri, 05 Feb 2021 14:04:37 -0800 (PST)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id u15sm1970378oiu.28.2021.02.05.14.04.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Feb 2021 14:04:36 -0800 (PST)
-Received: (nullmailer pid 3833547 invoked by uid 1000);
-        Fri, 05 Feb 2021 22:04:34 -0000
-Date:   Fri, 5 Feb 2021 16:04:34 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Cc:     linux-kernel@vger.kernel.org, Ran Bi <ran.bi@mediatek.com>,
-        Mark Brown <broonie@kernel.org>, devicetree@vger.kernel.org,
-        srv_heupstream@mediatek.com, Liam Girdwood <lgirdwood@gmail.com>,
+        id S229806AbhBFQkF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 6 Feb 2021 11:40:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229788AbhBFQkF (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 6 Feb 2021 11:40:05 -0500
+Received: from archlinux (cpc108967-cmbg20-2-0-cust86.5-4.cable.virginm.net [81.101.6.87])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA97364E41;
+        Sat,  6 Feb 2021 16:39:22 +0000 (UTC)
+Date:   Sat, 6 Feb 2021 16:39:19 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Ye Xiang <xiang.ye@intel.com>
+Cc:     jikos@kernel.org, srinivas.pandruvada@linux.intel.com,
+        linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Fei Shao <fshao@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Eddie Huang <eddie.huang@mediatek.com>,
-        linux-mediatek@lists.infradead.org,
-        Lee Jones <lee.jones@linaro.org>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Yuchen Huang <yuchen.huang@mediatek.com>,
-        Project_Global_Chrome_Upstream_Group@mediatek.com
-Subject: Re: [PATCH RESEND v5 3/8] dt-bindings: mfd: Add compatible for the
- MediaTek MT6359 PMIC
-Message-ID: <20210205220434.GA3833495@robh.at.kernel.org>
-References: <1611913781-23460-1-git-send-email-hsin-hsiung.wang@mediatek.com>
- <1611913781-23460-4-git-send-email-hsin-hsiung.wang@mediatek.com>
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 0/2] resolve read hystersis return invalid argument
+ issue for hid sensors
+Message-ID: <20210206163919.7993d392@archlinux>
+In-Reply-To: <20210201054921.18214-1-xiang.ye@intel.com>
+References: <20210201054921.18214-1-xiang.ye@intel.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1611913781-23460-4-git-send-email-hsin-hsiung.wang@mediatek.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 29 Jan 2021 17:49:36 +0800, Hsin-Hsiung Wang wrote:
-> This adds compatible for the MediaTek MT6359 PMIC.
+On Mon,  1 Feb 2021 13:49:19 +0800
+Ye Xiang <xiang.ye@intel.com> wrote:
+
+> This patch series move get sensitivity attribute to common layer and
+> resolve read hystersis return invalid argument issue for hid sensors als,
+> incli-3d, rotation, and press on intel ISH Platform.
+Hi Ye Xiang
+
+
+Series looks good to me.
+
+Now this series touches a few bits of code outside of IIO so ideally
+I'm looking for acks from:
+@ Jiri for the header
+@ Alessandro / Alexandre (+CC) for RTC
+
+Both changes are trivial but might cause them some noise in other work
+going on in their subsystems.
+
+For reference:
+https://lore.kernel.org/linux-iio/20210201054921.18214-2-xiang.ye@intel.com/
+
+Thanks,
+
+Jonathan
+
 > 
-> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 > ---
-> changes since v4:
-> - remove unused compatible name.
-> ---
->  Documentation/devicetree/bindings/mfd/mt6397.txt | 1 +
->  1 file changed, 1 insertion(+)
+> v2:
+>   - separate the add relative sensitivity patch to the next patch series.
+> 
+> Ye Xiang (2):
+>   iio: hid-sensors: Move get sensitivity attribute to hid-sensor-common
+>   hid-sensors: Add more data fields for sensitivity checking
+> 
+>  drivers/iio/accel/hid-sensor-accel-3d.c       | 23 ++++++-------
+>  .../hid-sensors/hid-sensor-attributes.c       | 17 +++++++++-
+>  drivers/iio/gyro/hid-sensor-gyro-3d.c         | 19 ++++-------
+>  drivers/iio/humidity/hid-sensor-humidity.c    | 16 ++++------
+>  drivers/iio/light/hid-sensor-als.c            | 20 +++++-------
+>  drivers/iio/light/hid-sensor-prox.c           | 27 +++++-----------
+>  drivers/iio/magnetometer/hid-sensor-magn-3d.c | 32 ++++++-------------
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  | 20 +++++-------
+>  drivers/iio/orientation/hid-sensor-rotation.c | 24 ++++++--------
+>  .../position/hid-sensor-custom-intel-hinge.c  | 20 ++++--------
+>  drivers/iio/pressure/hid-sensor-press.c       | 20 +++++-------
+>  .../iio/temperature/hid-sensor-temperature.c  | 16 ++++------
+>  drivers/rtc/rtc-hid-sensor-time.c             |  4 ++-
+>  include/linux/hid-sensor-hub.h                |  4 ++-
+>  14 files changed, 111 insertions(+), 151 deletions(-)
 > 
 
-Acked-by: Rob Herring <robh@kernel.org>
