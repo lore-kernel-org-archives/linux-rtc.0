@@ -2,109 +2,115 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DA87C433E0
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Feb 2021 08:09:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B12C433E9
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Mar 2021 10:23:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6684D64E46
-	for <linux-rtc@archiver.kernel.org>; Sat, 27 Feb 2021 08:09:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D90664E54
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Mar 2021 10:23:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229946AbhB0IJI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 27 Feb 2021 03:09:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51706 "EHLO
+        id S233525AbhCAKXQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 1 Mar 2021 05:23:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229751AbhB0IJG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 27 Feb 2021 03:09:06 -0500
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2A3C06174A;
-        Sat, 27 Feb 2021 00:08:22 -0800 (PST)
-Received: by mail-lj1-x229.google.com with SMTP id k12so4281983ljg.9;
-        Sat, 27 Feb 2021 00:08:22 -0800 (PST)
+        with ESMTP id S234186AbhCAKXA (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 1 Mar 2021 05:23:00 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140DBC061756
+        for <linux-rtc@vger.kernel.org>; Mon,  1 Mar 2021 02:22:00 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id e10so15266924wro.12
+        for <linux-rtc@vger.kernel.org>; Mon, 01 Mar 2021 02:22:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ml3mDD0xY/VjmOnKUym0KmbG6rdyhQ3p6qFu1Ts6+ss=;
-        b=kzVxjYPsxjFuHzRp7sCPtajEW8sPI6n46NLkyHoCEm6qA6lfO6w5Y+Ql7x/fcFZ5Vp
-         A9E82/aQxKz+Na17wdrVxUo1+IGCU3AFe1npmcTa5/yxHq5acaqit8fq4MKh2rtonmJl
-         NzBCF6lufw3SXvfHOefyaUCBpJcpbOIvhbnrpJwINPT3oBoZrKi2XnuAtFpeSSjf19cf
-         OjDof4HC63HCXoqyVeuLOw507kGLKanCS5PzwPtilEvzWn08n3KvUSrMuRicMiL0unVl
-         ihxhclsw7r/fM0o6O/JbYphB+VsOnv/95I66z8tFoVTHIoq4mBc//YfZpQSlZlLPO2U9
-         dW0w==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=fO30ApwIwTZ6ViBN1Ge+IoLrpzbpt+XR3EbBXQz0Ao4=;
+        b=OCOdfFrla8ehIgwoRPFmxKWVA5obG0UC2lRwXNbMWzvuKfpxOkp5Bro5tWT0cE/w9w
+         x+bA+Czlt57JU6a42SkfptvC3JuGPA6StIHjWCY+RTvYQTW026gTUD5O4rbJHxolcIvX
+         6oZ09xRd0HxZxSSov7dwBlVVhAQExMpyZNo1z/MlMXkzP1CodP7I6cY+mJeBwcH/Aw89
+         6BG7KC7nt66322RaxL+SjLPIeBY8BWEPKjxGKwxkSugDprrUBSDKLLls5QlL9n84JSga
+         6PvlPLDGTxOh21g88Zkz772Y4umW317CuFDEnDR9obAYTK2Mcgbf9/9ACljkOOJc9MRf
+         iXMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ml3mDD0xY/VjmOnKUym0KmbG6rdyhQ3p6qFu1Ts6+ss=;
-        b=POOPlQrhQ3OSqFROKZxN2Yo5Bf03pcOpxT4jn4res09RvMgjyu4JwI5698DtSI6oWY
-         bsHocbATHINYoz4edkiGagtt38IuJ6vEMVeraaeqXLh54vfHZuDLcD2FfZ76YpfQ6O5J
-         q0SGd+oW56yXICafyf7kk2mEWrGMHuhOVtlCqFROhmnAHVTEW5m70LsY5bWVB6M/OdyC
-         PmwVmghdfepg+6yP3/2FYCb+Kob4auG9xIzUN+oCGNzwkawOxSErzesDD6jh3XeLxEBL
-         KXOVa/K7FkQwD9LDnRVqpoqfzvwJkUB7kyUkqo5PY5nyem0fTRtytn8c6UwiQcCn2lWD
-         8IqQ==
-X-Gm-Message-State: AOAM533DCaYcnnOTrLimZQduwpHok5ogoGtD4NXGUAskiag2MizkS2jV
-        rQOHAF99DjV44tVkXYtRfsHBuTor+Pk=
-X-Google-Smtp-Source: ABdhPJzSWD9ri8pIU3PeN1AuuFpUfz2deqxrZ1wUhr+g4qJEQTcZa7SGuXcmTsUfK4gUmnI6z2hBQw==
-X-Received: by 2002:a2e:8157:: with SMTP id t23mr3780650ljg.214.1614413297661;
-        Sat, 27 Feb 2021 00:08:17 -0800 (PST)
-Received: from [192.168.2.145] (109-252-193-52.dynamic.spd-mgts.ru. [109.252.193.52])
-        by smtp.googlemail.com with ESMTPSA id d1sm1626499lfq.156.2021.02.27.00.08.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 27 Feb 2021 00:08:17 -0800 (PST)
-Subject: Re: [PATCH] rtc: tps65910: include linux/property.h
-To:     Arnd Bergmann <arnd@kernel.org>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=fO30ApwIwTZ6ViBN1Ge+IoLrpzbpt+XR3EbBXQz0Ao4=;
+        b=HOai6SKym1GHj6VDfC3UJdcOqZb04RZuvXRkBgKN+546u2gvQ+YplXaXqHHTHgeXdm
+         aUEbHgbm1HiUh/In8IoF8L2WZE8R4KSC9KfcR5d9i/pajVXMBHzNFxpDxjqjAcNDNt7T
+         PoypzpHMXz9NZTp6NR8UFQvsr1D/vUPBdRbLbrvCCnE+LWLFf96pC+8G++HOPSR5ktxm
+         MLEG6y2xzxuFPzI8YbIzzuZweXrkqMa0Gfgz61Rdp0iKoMrv8hKuwZJuuOUWuM2uBTGC
+         XRkmo2bZv73Ecfybj4mQZki4rrkvz/8hCEKWGCTopfcgOiesEKo9MiPI/dZv2gxXzBWz
+         RaBg==
+X-Gm-Message-State: AOAM530Fog3xVSpFEWMSVFf25P+ce0U93FINPUgHe8nVFwDrXz51NoNd
+        npDHiWwnbKPT2Ps8B3IBmz1nNA==
+X-Google-Smtp-Source: ABdhPJxAXiZUsHcR0Rc2xEpcKrMkbJ4gJn1n7JbYEm1p5PO/WxOTQnHJpHjB0WesA4oRThRvN58PLw==
+X-Received: by 2002:adf:d217:: with SMTP id j23mr2045527wrh.113.1614594118833;
+        Mon, 01 Mar 2021 02:21:58 -0800 (PST)
+Received: from dell ([91.110.221.155])
+        by smtp.gmail.com with ESMTPSA id m3sm7999205wmc.48.2021.03.01.02.21.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Mar 2021 02:21:58 -0800 (PST)
+Date:   Mon, 1 Mar 2021 10:21:56 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210225134215.2263694-1-arnd@kernel.org>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <b267c5da-a6ea-7d18-265c-7f63ed7e60f9@gmail.com>
-Date:   Sat, 27 Feb 2021 11:08:16 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.2
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Fei Shao <fshao@chromium.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Yuchen Huang <yuchen.huang@mediatek.com>,
+        Ran Bi <ran.bi@mediatek.com>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, srv_heupstream@mediatek.com,
+        Project_Global_Chrome_Upstream_Group@mediatek.com
+Subject: Re: [PATCH RESEND v5 7/8] regulator: mt6359: Add support for MT6359P
+ regulator
+Message-ID: <20210301102156.GJ641347@dell>
+References: <1611913781-23460-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+ <1611913781-23460-8-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-In-Reply-To: <20210225134215.2263694-1-arnd@kernel.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1611913781-23460-8-git-send-email-hsin-hsiung.wang@mediatek.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-25.02.2021 16:42, Arnd Bergmann пишет:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The added device_property_present() call causes a build
-> failure in some configurations because of the missing header:
-> 
-> drivers/rtc/rtc-tps65910.c:422:7: error: implicit declaration of function 'device_property_present' [-Werror,-Wimplicit-function-declaration]
-> 
-> Fixes: 454ba154a62c ("rtc: tps65910: Support wakeup-source property")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/rtc/rtc-tps65910.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
-> index 288abb1abdb8..bc89c62ccb9b 100644
-> --- a/drivers/rtc/rtc-tps65910.c
-> +++ b/drivers/rtc/rtc-tps65910.c
-> @@ -18,6 +18,7 @@
->  #include <linux/rtc.h>
->  #include <linux/bcd.h>
->  #include <linux/math64.h>
-> +#include <linux/property.h>
->  #include <linux/platform_device.h>
->  #include <linux/interrupt.h>
->  #include <linux/mfd/tps65910.h>
-> 
+On Fri, 29 Jan 2021, Hsin-Hsiung Wang wrote:
 
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+> The MT6359P is a eco version for MT6359 regulator.
+> We add support based on MT6359 regulator driver.
+> 
+> Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+> ---
+> changes since v4:
+> - add the regulators_node support.
+> ---
+>  drivers/regulator/mt6359-regulator.c       | 379 ++++++++++++++++++++-
+
+>  include/linux/mfd/mt6359p/registers.h      | 249 ++++++++++++++
+
+Although the code is fine, just be aware that Linus can get grumpy
+having 100s and 100s of unused register defines in the kernel.
+
+>  include/linux/regulator/mt6359-regulator.h |   1 +
+>  3 files changed, 623 insertions(+), 6 deletions(-)
+>  create mode 100644 include/linux/mfd/mt6359p/registers.h
+
+-- 
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
