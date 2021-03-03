@@ -2,89 +2,94 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F57C433E0
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Mar 2021 23:05:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D0AFC433DB
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Mar 2021 23:06:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D5C864F10
-	for <linux-rtc@archiver.kernel.org>; Wed,  3 Mar 2021 23:05:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52AD064F0D
+	for <linux-rtc@archiver.kernel.org>; Wed,  3 Mar 2021 23:06:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235533AbhCCWyR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 3 Mar 2021 17:54:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1582388AbhCCICw (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 3 Mar 2021 03:02:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BAAD64EAE;
-        Wed,  3 Mar 2021 07:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614758358;
-        bh=JjnnxrV4J+6mEkOXKozS9ispJERNvaiOE044Pm3tY1I=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OjSg/6HUPLnBmGdLAPNLFWk2dv8fx//IhKHY1qgtQvREnxAbbaJc5eBznrQxGzJl7
-         Q/rnIcMPPZoHcCWqt2RwNus+/idQDB/L5niWmLZ5KBiIL9nBKog6Ilo7wiKXOyafos
-         Crm4mGV2hrYJcVq8TTVpVpDiC/4eb0AtoO3dxOadkZ3G/uUEe51k5Pj8ryMu7p5yPx
-         ZzM7DswLHqzxdEJGeXe6Cuqy1VXT4hmtxbh8nU734Xw2EHYSNiG8sqfZdtfN6VquVW
-         swMjEE274n3KfE8FaKJiwH540tOljGFm9d9yvYD5vQlUEbn/s5UnPl4sJPkn2lHyVO
-         K2AXG7r2bpTgQ==
-Date:   Wed, 3 Mar 2021 15:59:08 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>
-Cc:     linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        id S240444AbhCCWzH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 3 Mar 2021 17:55:07 -0500
+Received: from mail-ed1-f42.google.com ([209.85.208.42]:33531 "EHLO
+        mail-ed1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244018AbhCCSmb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 3 Mar 2021 13:42:31 -0500
+Received: by mail-ed1-f42.google.com with SMTP id c6so31446669ede.0;
+        Wed, 03 Mar 2021 10:41:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=i+wsmGB3nPUNErG75HhRRgO2R+I8z7au1VtRNGbI3kU=;
+        b=USTmclFUCtO+GoKg8ArxNL9oWlx7aRioRC08snJnSxPNBZqPhGsyaFh1iSPCry7Fi7
+         0vOKdY/jK6CYzS9xj9d1PFkaNoJh9fYBcqWvQka0+BcgcS1pfj4mnTevIwoGWT9zzheu
+         YGQWdXy3bvvkQsPJNEOBRIZ5P5xzHgp+mTbuss+WlBX9Xhk1ATXZxby71E+G9aoF2NhQ
+         XHXjXrhZBgrRi2PdeHgnmjuCVuzW2WmoQXH5ubR6/G+UraDr/YaErGLj6kbJQTK5/5Cr
+         VvMF87ZEeAmLek1cEAux26YYSxNtoGSWPinIWFI+ei88vDBMWEr/jgWcM88pZ3n5+2mo
+         bzUg==
+X-Gm-Message-State: AOAM532HsOujRyieeXaH9xP4Z3LWfCO5ko90HSgFiMJnSqtuKxWxqU9w
+        n0EFDX8c2ZS/yFHyEnLH+l/D6NMWzCs=
+X-Google-Smtp-Source: ABdhPJzXlIPSof8TuEU/xmd9uwKvcnqjSaqVZ9KBEX0z0xFsdcZ3JuEcemsbVzh06mpoU6nkjncGFQ==
+X-Received: by 2002:adf:c40b:: with SMTP id v11mr28144512wrf.320.1614795584154;
+        Wed, 03 Mar 2021 10:19:44 -0800 (PST)
+Received: from kozik-lap (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
+        by smtp.googlemail.com with ESMTPSA id m14sm6511797wmi.27.2021.03.03.10.19.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Mar 2021 10:19:43 -0800 (PST)
+Date:   Wed, 3 Mar 2021 19:19:41 +0100
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Chanwoo Choi <cw00.choi@samsung.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko.stuebner@theobroma-systems.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Mark Brown <broonie@kernel.org>, allen <allen.chen@ite.com.tw>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        devicetree@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Heiko Stuebner <heiko@sntech.de>,
-        Josua Mayer <josua.mayer@jm0.eu>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v9 7/7] ARM: dts: imx50-kobo-aura: Add Netronix embedded
- controller
-Message-ID: <20210303075907.GB15865@dragon>
-References: <20210124214127.3631530-1-j.neuschaefer@gmx.net>
- <20210124214127.3631530-8-j.neuschaefer@gmx.net>
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-rtc@vger.kernel.org
+Cc:     Iskren Chernev <iskren.chernev@gmail.com>,
+        Matheus Castello <matheus@castello.eng.br>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Angus Ainslie <angus@akkea.ca>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 01/18] ARM: dts: exynos: correct fuel gauge interrupt
+ trigger level on GT-I9100
+Message-ID: <20210303181941.yercebdxswdetf3q@kozik-lap>
+References: <20201210212534.216197-1-krzk@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210124214127.3631530-8-j.neuschaefer@gmx.net>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20201210212534.216197-1-krzk@kernel.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sun, Jan 24, 2021 at 10:41:27PM +0100, Jonathan Neuschäfer wrote:
-> Enable the Netronix EC on the Kobo Aura ebook reader.
+On Thu, Dec 10, 2020 at 10:25:17PM +0100, Krzysztof Kozlowski wrote:
+> The Maxim fuel gauge datasheets describe the interrupt line as active
+> low with a requirement of acknowledge from the CPU.  The falling edge
+> interrupt will mostly work but it's not correct.
 > 
-> Several features are still missing:
->  - Frontlight/backlight. The vendor kernel drives the frontlight LED
->    using the PWM output of the EC and an additional boost pin that
->    increases the brightness.
->  - Battery monitoring
->  - Interrupts for RTC alarm and low-battery events
+> Fixes: 8620cc2f99b7 ("ARM: dts: exynos: Add devicetree file for the Galaxy S2")
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  arch/arm/boot/dts/exynos4210-i9100.dts | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-Applied, thanks.
+Applied 1-10 (Exynos and S5P dts patches).
+
+Best regards,
+Krzysztof
