@@ -2,90 +2,96 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD465C43333
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Mar 2021 07:31:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13773C433DB
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Mar 2021 08:58:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3BE864FD0
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 Mar 2021 07:31:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C4D5264FAF
+	for <linux-rtc@archiver.kernel.org>; Thu, 11 Mar 2021 08:58:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbhCKHax (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 11 Mar 2021 02:30:53 -0500
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:57693 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231773AbhCKHaj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Mar 2021 02:30:39 -0500
-Received: from ironmsg-lv-alpha.qualcomm.com ([10.47.202.13])
-  by alexa-out.qualcomm.com with ESMTP; 10 Mar 2021 23:30:39 -0800
-X-QCInternal: smtphost
-Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
-  by ironmsg-lv-alpha.qualcomm.com with ESMTP/TLS/AES256-SHA; 10 Mar 2021 23:30:36 -0800
-X-QCInternal: smtphost
-Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
-  by ironmsg02-blr.qualcomm.com with ESMTP; 11 Mar 2021 13:00:08 +0530
-Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
-        id 25DDC4107; Thu, 11 Mar 2021 13:00:07 +0530 (IST)
-From:   satya priya <skakit@codeaurora.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     Lee Jones <lee.jones@linaro.org>, linux-rtc@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, kgunda@codeaurora.org,
-        satya priya <skakit@codeaurora.org>
-Subject: [PATCH 1/3] rtc: pm8xxx: Add RTC support for PMIC PMK8350
-Date:   Thu, 11 Mar 2021 12:59:56 +0530
-Message-Id: <1615447798-6959-2-git-send-email-skakit@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1615447798-6959-1-git-send-email-skakit@codeaurora.org>
-References: <1615447798-6959-1-git-send-email-skakit@codeaurora.org>
+        id S231147AbhCKI6T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 11 Mar 2021 03:58:19 -0500
+Received: from relay8-d.mail.gandi.net ([217.70.183.201]:44041 "EHLO
+        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230290AbhCKI57 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 Mar 2021 03:57:59 -0500
+X-Originating-IP: 90.65.108.55
+Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 552F91BF21D;
+        Thu, 11 Mar 2021 08:57:57 +0000 (UTC)
+Date:   Thu, 11 Mar 2021 09:57:57 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Corentin Labbe <clabbe.montjoie@gmail.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: rtc: rtc-m48t59: rtc-m48t59.0: IRQ index 0 not found
+Message-ID: <YEnblWV1VWJJHtyv@piout.net>
+References: <YEiXHjIrXfjkrv5U@Red>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YEiXHjIrXfjkrv5U@Red>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add the comaptible string for PMIC PMK8350.
+Hello,
 
-Signed-off-by: satya priya <skakit@codeaurora.org>
+On 10/03/2021 10:53:34+0100, Corentin Labbe wrote:
+> Hello
+> 
+> On my SPARC sunblade 100, I got this:
+> [   13.613727] rtc-m48t59 rtc-m48t59.0: IRQ index 0 not found
+> [   13.805777] rtc-m48t59 rtc-m48t59.0: registered as rtc0
+> [   14.385092] rtc-m48t59 rtc-m48t59.0: setting system clock to 2021-03-01T05:34:33 UTC (1614576873)
+> 
+> The IRQ index 0 message is found after 5.5
+> 
+> Testing rtc via hwclock give:
+> hwclock: ioctl(3, RTC_UIE_ON, 0) to /dev/rtc0 failed: Input/output error
+> But this hwclock behavior is present also on earlier kernel (tested 4.9.260, 4.19.179 and 4.14.224).
+> 
+> Does this Input/output error is normal ? (I think no)
+
+This is due to 7723f4c5ecdb8d832f049f8483beb0d1081cedf6
+
+Can you try that?
+
+From 55cc33fab5ac9f7e2a97aa7c564e8b35355886d5 Mon Sep 17 00:00:00 2001
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Thu, 11 Mar 2021 09:48:09 +0100
+Subject: [PATCH] rtc: m48t59: use platform_get_irq_optional
+
+The IRQ is optional, avoid the error message by using
+platform_get_irq_optional.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pm8xxx.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/rtc/rtc-m48t59.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index eb20659..29a1c65 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -445,6 +445,16 @@ static const struct pm8xxx_rtc_regs pm8941_regs = {
- 	.alarm_en	= BIT(7),
- };
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index 1d2e99a70fce..f0f6b9b6daec 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -421,7 +421,7 @@ static int m48t59_rtc_probe(struct platform_device *pdev)
+ 	/* Try to get irq number. We also can work in
+ 	 * the mode without IRQ.
+ 	 */
+-	m48t59->irq = platform_get_irq(pdev, 0);
++	m48t59->irq = platform_get_irq_optional(pdev, 0);
+ 	if (m48t59->irq <= 0)
+ 		m48t59->irq = NO_IRQ;
  
-+static const struct pm8xxx_rtc_regs pmk8350_regs = {
-+	.ctrl		= 0x6146,
-+	.write		= 0x6140,
-+	.read		= 0x6148,
-+	.alarm_rw	= 0x6240,
-+	.alarm_ctrl	= 0x6246,
-+	.alarm_ctrl2	= 0x6248,
-+	.alarm_en	= BIT(7),
-+};
-+
- /*
-  * Hardcoded RTC bases until IORESOURCE_REG mapping is figured out
-  */
-@@ -453,6 +463,7 @@ static const struct of_device_id pm8xxx_id_table[] = {
- 	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
- 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
- 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
-+	{ .compatible = "qcom,pmk8350-rtc", .data = &pmk8350_regs },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, pm8xxx_id_table);
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
-of Code Aurora Forum, hosted by The Linux Foundation
+2.29.2
 
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
