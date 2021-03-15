@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD8A7C43332
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A9C8C43333
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EE8B64F06
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59AEF64F5F
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236872AbhCORhQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 15 Mar 2021 13:37:16 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:55662 "EHLO
+        id S236895AbhCORhR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 15 Mar 2021 13:37:17 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:55653 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S236592AbhCORgv (ORCPT
+        with ESMTP id S236594AbhCORgv (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Mon, 15 Mar 2021 13:36:51 -0400
-X-UUID: 0ed98affa11d46a2966fa5275e872677-20210316
-X-UUID: 0ed98affa11d46a2966fa5275e872677-20210316
+X-UUID: b12378430d5c4268b99e57a0ac26963d-20210316
+X-UUID: b12378430d5c4268b99e57a0ac26963d-20210316
 Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1902592022; Tue, 16 Mar 2021 01:36:46 +0800
+        with ESMTP id 463535517; Tue, 16 Mar 2021 01:36:47 +0800
 Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
  15.0.1497.2; Tue, 16 Mar 2021 01:36:45 +0800
 Received: from mtksdaap41.mediatek.inc (172.21.77.4) by MTKCAS06.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
@@ -50,10 +50,12 @@ CC:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
         <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <srv_heupstream@mediatek.com>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>
-Subject: [PATCH v6 0/8] Add Support for MediaTek PMIC MT6359
-Date:   Tue, 16 Mar 2021 01:35:49 +0800
-Message-ID: <1615829757-3223-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v6 4/8] dt-bindings: regulator: Add document for MT6359 regulator
+Date:   Tue, 16 Mar 2021 01:35:53 +0800
+Message-ID: <1615829757-3223-5-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1615829757-3223-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1615829757-3223-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MTK:  N
@@ -61,55 +63,192 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patchset includes refactoring interrupt and adding support to MT6359 PMIC.
-MT6359 is the primary PMIC for MT6779 and probably other SOCs.
-The series[1] sent by Wen will continue to upstream in this patchset afterwards.
+add dt-binding document for MediaTek MT6359 PMIC
 
-[1] https://patchwork.kernel.org/project/linux-mediatek/list/?series=306579
-
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+---
 changes since v5:
-- rebase to Linux 5.12.
-- refine the code structure.
-- update the file date.
-
-Hsin-Hsiung Wang (6):
-  mfd: mt6358: refine interrupt code
-  rtc: mt6397: refine RTC_TC_MTH
-  dt-bindings: mfd: Add compatible for the MediaTek MT6359 PMIC
-  dt-bindings: regulator: Add document for MT6359 regulator
-  mfd: Add support for the MediaTek MT6359 PMIC
-  regulator: mt6359: Add support for MT6359P regulator
-
-Wen Su (2):
-  regulator: mt6359: Add support for MT6359 regulator
-  arm64: dts: mt6359: add PMIC MT6359 related nodes
-
- .../devicetree/bindings/mfd/mt6397.txt        |    1 +
- .../bindings/regulator/mt6359-regulator.yaml  |  169 +++
- arch/arm64/boot/dts/mediatek/mt6359.dtsi      |  298 +++++
- arch/arm64/boot/dts/mediatek/mt8192-evb.dts   |    1 +
- drivers/mfd/mt6358-irq.c                      |   89 +-
- drivers/mfd/mt6397-core.c                     |   24 +
- drivers/regulator/Kconfig                     |    9 +
- drivers/regulator/Makefile                    |    1 +
- drivers/regulator/mt6359-regulator.c          | 1036 +++++++++++++++++
- drivers/rtc/rtc-mt6397.c                      |    2 +-
- include/linux/mfd/mt6358/core.h               |    8 +-
- include/linux/mfd/mt6359/core.h               |  133 +++
- include/linux/mfd/mt6359/registers.h          |  529 +++++++++
- include/linux/mfd/mt6359p/registers.h         |  249 ++++
- include/linux/mfd/mt6397/core.h               |    1 +
- include/linux/mfd/mt6397/rtc.h                |    1 +
- include/linux/regulator/mt6359-regulator.h    |   59 +
- 17 files changed, 2577 insertions(+), 33 deletions(-)
+- no change.
+---
+ .../bindings/regulator/mt6359-regulator.yaml  | 169 ++++++++++++++++++
+ 1 file changed, 169 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
- create mode 100644 arch/arm64/boot/dts/mediatek/mt6359.dtsi
- create mode 100644 drivers/regulator/mt6359-regulator.c
- create mode 100644 include/linux/mfd/mt6359/core.h
- create mode 100644 include/linux/mfd/mt6359/registers.h
- create mode 100644 include/linux/mfd/mt6359p/registers.h
- create mode 100644 include/linux/regulator/mt6359-regulator.h
 
+diff --git a/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
+new file mode 100644
+index 000000000000..62ff93eefd39
+--- /dev/null
++++ b/Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
+@@ -0,0 +1,169 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/regulator/mt6359-regulator.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: MT6359 Regulator from MediaTek Integrated
++
++maintainers:
++  - Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
++
++description: |
++  List of regulators provided by this controller. It is named
++  according to its regulator type, buck_<name> and ldo_<name>.
++  MT6359 regulators node should be sub node of the MT6397 MFD node.
++
++properties:
++  $nodename:
++    pattern: "^pmic$"
++
++  mt6359regulator:
++    type: object
++    description:
++      list of regulators provided by this controller.
++
++    patternProperties:
++      "^buck_v(s1|gpu11|modem|pu|core|s2|pa|proc2|proc1|core_sshub)$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^v(s1|gpu11|modem|pu|core|s2|pa|proc2|proc1|core_sshub)$"
++
++        unevaluatedProperties: false
++
++      "^ldo_v(ibr|rf12|usb|camio|efuse|xo22)$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^v(ibr|rf12|usb|camio|efuse|xo22)$"
++
++        unevaluatedProperties: false
++
++      "^ldo_v(rfck|emc|a12|a09|ufs|bbck)$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^v(rfck|emc|a12|a09|ufs|bbck)$"
++
++        unevaluatedProperties: false
++
++      "^ldo_vcn(18|13|33_1_bt|13_1_wifi|33_2_bt|33_2_wifi)$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^vcn(18|13|33_1_bt|13_1_wifi|33_2_bt|33_2_wifi)$"
++
++        unevaluatedProperties: false
++
++      "^ldo_vsram_(proc2|others|md|proc1|others_sshub)$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^vsram_(proc2|others|md|proc1|others_sshub)$"
++
++        unevaluatedProperties: false
++
++      "^ldo_v(fe|bif|io)28$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^v(fe|bif|io)28$"
++
++        unevaluatedProperties: false
++
++      "^ldo_v(aud|io|aux|rf|m)18$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^v(aud|io|aux|rf|m)18$"
++
++        unevaluatedProperties: false
++
++      "^ldo_vsim[12]$":
++        type: object
++        $ref: "regulator.yaml#"
++
++        properties:
++          regulator-name:
++            pattern: "^vsim[12]$"
++
++        required:
++          - regulator-name
++
++        unevaluatedProperties: false
++
++additionalProperties: false
++
++examples:
++  - |
++    pmic {
++      mt6359regulator {
++        mt6359_vgpu11_buck_reg: buck_vgpu11 {
++          regulator-name = "vgpu11";
++          regulator-min-microvolt = <400000>;
++          regulator-max-microvolt = <1193750>;
++          regulator-enable-ramp-delay = <200>;
++          regulator-always-on;
++          regulator-allowed-modes = <0 1 2>;
++        };
++
++        mt6359_vcamio_ldo_reg: ldo_vcamio {
++          regulator-name = "vcamio";
++          regulator-min-microvolt = <1700000>;
++          regulator-max-microvolt = <1900000>;
++        };
++
++        mt6359_vcn18_ldo_reg: ldo_vcn18 {
++          regulator-name = "vcn18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <240>;
++        };
++
++        mt6359_vsram_proc2_ldo_reg: ldo_vsram_proc2 {
++          regulator-name = "vsram_proc2";
++          regulator-min-microvolt = <500000>;
++          regulator-max-microvolt = <1293750>;
++          regulator-ramp-delay = <7500>;
++          regulator-enable-ramp-delay = <240>;
++          regulator-always-on;
++        };
++
++        mt6359_vfe28_ldo_reg: ldo_vfe28 {
++          regulator-name = "vfe28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <120>;
++        };
++
++        mt6359_vaud18_ldo_reg: ldo_vaud18 {
++          regulator-name = "vaud18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <240>;
++        };
++
++        mt6359_vsim1_ldo_reg: ldo_vsim1 {
++          regulator-name = "vsim1";
++          regulator-min-microvolt = <1700000>;
++          regulator-max-microvolt = <3100000>;
++          regulator-enable-ramp-delay = <480>;
++        };
++      };
++    };
++...
 -- 
 2.18.0
 
