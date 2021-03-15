@@ -2,119 +2,106 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A71C6C433E0
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9727C433E6
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 717EE61494
-	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:21:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2A3A264E07
+	for <linux-rtc@archiver.kernel.org>; Mon, 15 Mar 2021 17:37:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234943AbhCORVG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 15 Mar 2021 13:21:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231305AbhCORUv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 15 Mar 2021 13:20:51 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDAE8C06174A
-        for <linux-rtc@vger.kernel.org>; Mon, 15 Mar 2021 10:20:50 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id x9so9662768qto.8
-        for <linux-rtc@vger.kernel.org>; Mon, 15 Mar 2021 10:20:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=opzNvVk1fZu0iACyJglvyvM4tM0KWtqsWh2sQlAnjHs=;
-        b=lmpGzK6Q5727Uy3XdKhwieDMq6HPMNoboikVwe5RI/U8zW73HuD75DLd9aibkNxWdX
-         fa47f6X2PlBmlWcigmkdKb8ddXOVtQvQWrVBGwuuYIu9KmK0A1qaPgthsxa45wAzLpjU
-         evwgUftdy9MVuVVV5v5nfDimKIPER6IoCg1NLHz8X/jDBQ4cIDy1iQClmdcpsrTK4jva
-         Ci3FpDuglYNCV6+vcZ8rk84mnnbjSaZLF6t1ypM4se661ptrLGYIMksbdB69lcaGjLjq
-         XwWIjv7prupA3aDGPsbORjIs4jSfza07brbOzvnQ4Mhzs5QeE8D6YJhmRoZo91AJI60j
-         cg8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=opzNvVk1fZu0iACyJglvyvM4tM0KWtqsWh2sQlAnjHs=;
-        b=KDiZfdDBHVvHccKxKtubNJbfhFmEmQ0u2EEH7C4mVs12jhJyPSa8SdpIfCeB8lWbr5
-         v/bNLbN3qI8MvNXhwzlyqPEGdqEKBOAKT87LXgdhzbcC8aTt1t5jvUzm6iskeuCQYPrC
-         n+PjF/OD0V2SzKOIop4SCNw3agB702raqivVxZYTbkjed9eF0M5eOD7oBUHzKe2c9A/J
-         K5wmItebxcapZhCxW1Nwx/BbFbsWGr7DcGcBlxGyRB4+5lpUhH6anDZHngo2bcmq2+xE
-         gi/t3dWNGXO7YRYWEu2Ul0IwbxKxkEA/oVN2WpzJaBpeHN3IJOwQYLRWfmwTV35UGGQl
-         yTFw==
-X-Gm-Message-State: AOAM5308AQBTQH78Bkr1PjGl3vAEv+FkyCu0J8fcF7qyxDm+ENqx5JzQ
-        B2oNW3tCbhHEJV/VNdbtQAwVxK/vjpsLCw==
-X-Google-Smtp-Source: ABdhPJwpNnqCnVEz7iTq5KREbl1yOUvC4oAtCBFk3JBeoWLfgzL063PwtCYu0P/lOYlDuM/iMOm9NQ==
-X-Received: by 2002:ac8:538f:: with SMTP id x15mr23383464qtp.47.1615828850037;
-        Mon, 15 Mar 2021 10:20:50 -0700 (PDT)
-Received: from localhost.localdomain ([2804:14c:482:919::1000])
-        by smtp.gmail.com with ESMTPSA id z24sm12588158qkz.65.2021.03.15.10.20.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Mar 2021 10:20:49 -0700 (PDT)
-From:   Fabio Estevam <festevam@gmail.com>
-To:     alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH] rtc: imxdi: Convert to a DT-only driver
-Date:   Mon, 15 Mar 2021 14:20:29 -0300
-Message-Id: <20210315172029.173250-1-festevam@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S236285AbhCORhP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 15 Mar 2021 13:37:15 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:47730 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S236562AbhCORgu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 15 Mar 2021 13:36:50 -0400
+X-UUID: 8a549619aca244bcae45afd3c2116b21-20210316
+X-UUID: 8a549619aca244bcae45afd3c2116b21-20210316
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
+        (envelope-from <hsin-hsiung.wang@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 81898855; Tue, 16 Mar 2021 01:36:47 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 16 Mar 2021 01:36:45 +0800
+Received: from mtksdaap41.mediatek.inc (172.21.77.4) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 16 Mar 2021 01:36:45 +0800
+From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Boichat <drinkcat@chromium.org>
+CC:     Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        Fei Shao <fshao@chromium.org>, Ran Bi <ran.bi@mediatek.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <srv_heupstream@mediatek.com>,
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
+        Yuchen Huang <yuchen.huang@mediatek.com>
+Subject: [PATCH v6 2/8] rtc: mt6397: refine RTC_TC_MTH
+Date:   Tue, 16 Mar 2021 01:35:51 +0800
+Message-ID: <1615829757-3223-3-git-send-email-hsin-hsiung.wang@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1615829757-3223-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1615829757-3223-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-i.MX has been converted to a DT-only platform, so make the driver
-depend on OF, remove the CONFIG_OF ifdefery and remove of_match_ptr().
+This patch adds RTC_TC_MTH_MASK to support new chips.
 
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Yuchen Huang <yuchen.huang@mediatek.com>
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/Kconfig     | 1 +
- drivers/rtc/rtc-imxdi.c | 4 +---
- 2 files changed, 2 insertions(+), 3 deletions(-)
+changes since v5:
+- no change.
+---
+ drivers/rtc/rtc-mt6397.c       | 2 +-
+ include/linux/mfd/mt6397/rtc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e6205f7a7d59..d6a502c5c973 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1339,6 +1339,7 @@ config RTC_DRV_DIGICOLOR
- config RTC_DRV_IMXDI
- 	tristate "Freescale IMX DryIce Real Time Clock"
- 	depends on ARCH_MXC
-+	depends on OF
- 	help
- 	   Support for Freescale IMX DryIce RTC
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 6655035e5164..80dc479a6ff0 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -75,7 +75,7 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
+ 	tm->tm_min = data[RTC_OFFSET_MIN];
+ 	tm->tm_hour = data[RTC_OFFSET_HOUR];
+ 	tm->tm_mday = data[RTC_OFFSET_DOM];
+-	tm->tm_mon = data[RTC_OFFSET_MTH];
++	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_TC_MTH_MASK;
+ 	tm->tm_year = data[RTC_OFFSET_YEAR];
  
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index c2692da74e09..c1806f4d68e7 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -840,19 +840,17 @@ static int __exit dryice_rtc_remove(struct platform_device *pdev)
- 	return 0;
- }
+ 	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
+diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc.h
+index c3748b53bf7d..068ae1c0f0e8 100644
+--- a/include/linux/mfd/mt6397/rtc.h
++++ b/include/linux/mfd/mt6397/rtc.h
+@@ -36,6 +36,7 @@
+ #define RTC_AL_MASK_DOW                BIT(4)
  
--#ifdef CONFIG_OF
- static const struct of_device_id dryice_dt_ids[] = {
- 	{ .compatible = "fsl,imx25-rtc" },
- 	{ /* sentinel */ }
- };
- 
- MODULE_DEVICE_TABLE(of, dryice_dt_ids);
--#endif
- 
- static struct platform_driver dryice_rtc_driver = {
- 	.driver = {
- 		   .name = "imxdi_rtc",
--		   .of_match_table = of_match_ptr(dryice_dt_ids),
-+		   .of_match_table = dryice_dt_ids,
- 		   },
- 	.remove = __exit_p(dryice_rtc_remove),
- };
+ #define RTC_TC_SEC             0x000a
++#define RTC_TC_MTH_MASK        0x000f
+ /* Min, Hour, Dom... register offset to RTC_TC_SEC */
+ #define RTC_OFFSET_SEC         0
+ #define RTC_OFFSET_MIN         1
 -- 
-2.25.1
+2.18.0
 
