@@ -2,139 +2,175 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC202C433E0
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Mar 2021 12:13:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1F89C433E0
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Mar 2021 12:33:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A406064EED
-	for <linux-rtc@archiver.kernel.org>; Tue, 16 Mar 2021 12:13:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF47665075
+	for <linux-rtc@archiver.kernel.org>; Tue, 16 Mar 2021 12:33:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230219AbhCPMNA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 16 Mar 2021 08:13:00 -0400
-Received: from gecko.sbs.de ([194.138.37.40]:35590 "EHLO gecko.sbs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229524AbhCPMM1 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 16 Mar 2021 08:12:27 -0400
-X-Greylist: delayed 552 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Mar 2021 08:12:27 EDT
-Received: from mail2.sbs.de (mail2.sbs.de [192.129.41.66])
-        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id 12GC2r5I026410
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 16 Mar 2021 13:02:53 +0100
-Received: from md1za8fc.ad001.siemens.net ([139.25.68.191])
-        by mail2.sbs.de (8.15.2/8.15.2) with ESMTP id 12GBqqrv026921;
-        Tue, 16 Mar 2021 12:52:52 +0100
-Date:   Tue, 16 Mar 2021 12:52:51 +0100
-From:   Henning Schild <henning.schild@siemens.com>
-To:     Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc:     Claudius Heine <ch@denx.de>,
-        johannes hahn <johannes-hahn@siemens.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        werner zeh <werner.zeh@siemens.com>,
-        "martin mantel" <martin.mantel@siemens.com>,
-        val krutov <val.krutov@erd.epson.com>
-Subject: Re: [PATCH v3 1/1] rtc: rx6110: add ACPI bindings to I2C
-Message-ID: <20210316125251.64484b3a@md1za8fc.ad001.siemens.net>
-In-Reply-To: <YFCW3Kx9MPm0MT8H@smile.fi.intel.com>
-References: <AM0PR10MB25801B7DCB6C1856B5D4F2C09FE10@AM0PR10MB2580.EURPRD10.PROD.OUTLOOK.COM>
-        <20210316100805.2630481-2-ch@denx.de>
-        <YFCW3Kx9MPm0MT8H@smile.fi.intel.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S231854AbhCPMcu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 16 Mar 2021 08:32:50 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:57769 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231802AbhCPMc2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 16 Mar 2021 08:32:28 -0400
+X-Originating-IP: 90.65.108.55
+Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id B317EFF80A;
+        Tue, 16 Mar 2021 12:32:20 +0000 (UTC)
+Date:   Tue, 16 Mar 2021 13:32:20 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Lukasz Stelmach <l.stelmach@samsung.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        =?utf-8?Q?Bart=C5=82omiej_=C5=BBolnierkiewicz?= 
+        <b.zolnierkie@samsung.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds1307: set uie_unsupported if no interrupt is
+ available
+Message-ID: <YFClVBShBuy9/VPY@piout.net>
+References: <YE/ZLtdK0ZlVFOhp@piout.net>
+ <20210305174411.9657-1-l.stelmach@samsung.com>
+ <CGME20210316121218eucas1p1f74d6e6cec7fc897051902a7da478fd0@eucas1p1.samsung.com>
+ <dleftj1rcfe1rb.fsf%l.stelmach@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <dleftj1rcfe1rb.fsf%l.stelmach@samsung.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Am Tue, 16 Mar 2021 13:30:36 +0200
-schrieb Andy Shevchenko <andriy.shevchenko@intel.com>:
-
-> On Tue, Mar 16, 2021 at 11:08:05AM +0100, Claudius Heine wrote:
-> > From: Johannes Hahn <johannes-hahn@siemens.com>
-> > 
-> > This allows the RX6110 driver to be automatically assigned to the
-> > right device on the I2C bus.  
+On 16/03/2021 13:12:08+0100, Lukasz Stelmach wrote:
+> It was <2021-03-15 pon 23:01>, when Alexandre Belloni wrote:
+> > Hello,
+> >
+> > On 05/03/2021 18:44:11+0100, Łukasz Stelmach wrote:
+> >> For an RTC without an IRQ assigned rtc_update_irq_enable() should
+> >> return -EINVAL.  It will, when uie_unsupported is set.
+> >> 
+> >
+> > I'm surprised this is an issue because the current code seems to cover
+> > all cases:
+> >
+> >  - no irq and not wakeup-source => set_alarm should fail
+> >  - no irq and wakeup-source => uie_unsupported is set
+> >  - irq => UIE should work
+> >
+> > Can you elaborate on your failing use case?
 > 
-> Thanks for all effort!
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> after addressing the below comments.
+> I've got ds3231 which supports alarms[1] but is not connected to any
+> interrupt line. Hence, client->irq is 0 as well as want_irq[2]. There
+> is also no other indirect connection, so I don't set wakeup-source
+> property and ds1307_can_wakeup_device remains[3] false. Under these
+> conditions
 > 
-> > Signed-off-by: Johannes Hahn <johannes-hahn@siemens.com>
-> > Signed-off-by: Claudius Heine <ch@denx.de>  
+>     want_irq = 0
+>     ds1307_can_wakeup_device = false
 > 
-> > Signed-off-by: Henning Schild <henning.schild@siemens.com>  
-
-Claudius, just remove that. I guess just add yours and mention authors
-in the code if they should receive some recognition.
-
-Henning
-
-> I think this is somehow confusing. Either you need to add
-> Co-developed-by of the corresponding people, or remove SoB (because
-> of From line), i.o.w seems like Co-dB tag is needed for Johannes or
-> you and something should be done with Henning's SoB.
+> uie_unsupported remains[4] false. And this is the problem.
 > 
-> > ---
-> >  drivers/rtc/rtc-rx6110.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> > 
-> > diff --git a/drivers/rtc/rtc-rx6110.c b/drivers/rtc/rtc-rx6110.c
-> > index 79161d4c6ce4..29bd697f82cb 100644
-> > --- a/drivers/rtc/rtc-rx6110.c
-> > +++ b/drivers/rtc/rtc-rx6110.c
-> > @@ -13,6 +13,7 @@
-> >  #include <linux/of_gpio.h>
-> >  #include <linux/regmap.h>
-> >  #include <linux/rtc.h>  
+> hwclock(8) when setting system clock from rtc (--hctosys) calls
+> synchronize_to_clock_tick_rtc()[5]. There goes
 > 
-> > +#include <linux/acpi.h>  
+>     ioctl(rtc_fd, RTC_UIE_ON, 0);
 > 
-> Usually it's not needed if you leave IDs always to be compiled.
-> Instead mod_devicetable.h is used. But it's all up to you and
-> maintainer.
+> which leads us to
 > 
-> >  #include <linux/of.h>
-> >  #include <linux/of_device.h>
-> >  #include <linux/spi/spi.h>
-> > @@ -447,6 +448,14 @@ static int rx6110_i2c_probe(struct i2c_client
-> > *client, return rx6110_probe(rx6110, &client->dev);
-> >  }
-> >  
-> > +#ifdef CONFIG_ACPI
-> > +static const struct acpi_device_id rx6110_i2c_acpi_match[] = {
-> > +	{ "SECC6110", },
-> > +	{ },
-> > +};
-> > +MODULE_DEVICE_TABLE(acpi, rx6110_i2c_acpi_match);
-> > +#endif
-> > +
-> >  static const struct i2c_device_id rx6110_i2c_id[] = {
-> >  	{ "rx6110", 0 },
-> >  	{ }
-> > @@ -456,6 +465,9 @@ MODULE_DEVICE_TABLE(i2c, rx6110_i2c_id);
-> >  static struct i2c_driver rx6110_i2c_driver = {
-> >  	.driver = {
-> >  		.name = RX6110_DRIVER_NAME,
-> > +#ifdef CONFIG_ACPI  
+>     rtc_update_irq_enable(rtc, 1);
 > 
-> This is implied by the stub ACPI_PTR() macro for ACPI=n case.
-> I.o.w drop this ugly and redundant ifdeffery.
+> and finally here [6]
 > 
-> > +		.acpi_match_table =
-> > ACPI_PTR(rx6110_i2c_acpi_match), +#endif
-> >  	},
-> >  	.probe		= rx6110_i2c_probe,
-> >  	.id_table	= rx6110_i2c_id,
-> > -- 
-> > 2.30.1
-> >   
+>     if (rtc->uie_unsupported) {
+>         err = -EINVAL;
+>         goto out;
+>     }
+> 
+> and we keep going (uie_unsupported = 0). All the following operations
+> succeed because chip supports alarms.
 > 
 
+But then, HAS_ALARM is not set and ds1337_set_alarm should fail which
+makes rtc_timer_enqueue return an error. I admit this whole part is a
+mess, I'm just trying to understand how you can hit that.
+
+> We go back to hwclock(8) and we start waiting[7] for the update from
+> interrupt which never arrives instead of calling
+> busywiat_for_rtc_clock_tick()[8] (mind the invalid indentation) because
+> of EINVAL returned from ioctl() (conf. [6])
+> 
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-ds1307.c?h=v5.11#n1032
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-ds1307.c?h=v5.11#n1779
+> [3] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-ds1307.c?h=v5.11#n1802
+> [4] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-ds1307.c?h=v5.11#n1977
+> [5] https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/sys-utils/hwclock-rtc.c?h=v2.36.2#n252
+> [6] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/interface.c?h=v5.11#n564
+> [7] https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/sys-utils/hwclock-rtc.c?h=v2.36.2#n283
+> [8] https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/tree/sys-utils/hwclock-rtc.c?h=v2.36.2#n297
+> 
+> >> Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+> >> ---
+> >>  drivers/rtc/rtc-ds1307.c | 14 +++++++-------
+> >>  1 file changed, 7 insertions(+), 7 deletions(-)
+> >> 
+> >> diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+> >> index cd8e438bc9c4..b08a9736fa77 100644
+> >> --- a/drivers/rtc/rtc-ds1307.c
+> >> +++ b/drivers/rtc/rtc-ds1307.c
+> >> @@ -1973,13 +1973,6 @@ static int ds1307_probe(struct i2c_client *client,
+> >>  	if (IS_ERR(ds1307->rtc))
+> >>  		return PTR_ERR(ds1307->rtc);
+> >>  
+> >> -	if (ds1307_can_wakeup_device && !want_irq) {
+> >> -		dev_info(ds1307->dev,
+> >> -			 "'wakeup-source' is set, request for an IRQ is disabled!\n");
+> >> -		/* We cannot support UIE mode if we do not have an IRQ line */
+> >> -		ds1307->rtc->uie_unsupported = 1;
+> >> -	}
+> >> -
+> >>  	if (want_irq) {
+> >>  		err = devm_request_threaded_irq(ds1307->dev, client->irq, NULL,
+> >>  						chip->irq_handler ?: ds1307_irq,
+> >> @@ -1993,6 +1986,13 @@ static int ds1307_probe(struct i2c_client *client,
+> >>  		} else {
+> >>  			dev_dbg(ds1307->dev, "got IRQ %d\n", client->irq);
+> >>  		}
+> >> +	} else {
+> >> +		if (ds1307_can_wakeup_device)
+> >> +			dev_info(ds1307->dev,
+> >> +				 "'wakeup-source' is set, request for an IRQ is disabled!\n");
+> >> +
+> >
+> > Honestly, just drop this message, it should have been removed by 82e2d43f6315
+> >
+> >
+> 
+> Done.
+> 
+> >> +		/* We cannot support UIE mode if we do not have an IRQ line */
+> >> +		ds1307->rtc->uie_unsupported = 1;
+> >>  	}
+> >>  
+> >>  	ds1307->rtc->ops = chip->rtc_ops ?: &ds13xx_rtc_ops;
+> >> -- 
+> >> 2.26.2
+> >> 
+> 
+> -- 
+> Łukasz Stelmach
+> Samsung R&D Institute Poland
+> Samsung Electronics
+
+
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
