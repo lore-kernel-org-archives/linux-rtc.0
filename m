@@ -2,89 +2,79 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E782C433DB
-	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 21:31:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D088C433E1
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 22:16:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DAF4619CB
-	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 21:31:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DEACE619D2
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 22:16:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbhCWVa2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 23 Mar 2021 17:30:28 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:58597 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233564AbhCWVaA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Mar 2021 17:30:00 -0400
-X-Originating-IP: 90.65.108.55
-Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 68732E0002;
-        Tue, 23 Mar 2021 21:29:58 +0000 (UTC)
-Date:   Tue, 23 Mar 2021 22:29:58 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Claudius Heine <ch@denx.de>
-Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        johannes hahn <johannes-hahn@siemens.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        werner zeh <werner.zeh@siemens.com>,
-        henning schild <henning.schild@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        martin mantel <martin.mantel@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v5] rtc: rx6110: add ACPI bindings to I2C
-Message-ID: <YFpd1hkyJcDZ9jVb@piout.net>
-References: <20210317075228.683184-1-ch@denx.de>
- <CAHp75VdRFqK6Tp+dFCHb_6ZBR32mNRLgyRKaMky43aoj1MOjcw@mail.gmail.com>
- <3215fc7e-ae1d-4e51-51d0-24ff386419bd@denx.de>
+        id S233749AbhCWWPa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 23 Mar 2021 18:15:30 -0400
+Received: from mout.kundenserver.de ([212.227.126.130]:33489 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233881AbhCWWOx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Mar 2021 18:14:53 -0400
+Received: from localhost.localdomain ([82.142.25.162]) by
+ mrelayeu.kundenserver.de (mreue010 [212.227.15.167]) with ESMTPSA (Nemesis)
+ id 1MysiI-1lbZ1c1mny-00vzCx; Tue, 23 Mar 2021 23:14:34 +0100
+From:   Laurent Vivier <laurent@vivier.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-m68k@lists.linux-m68k.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Laurent Vivier <laurent@vivier.eu>
+Subject: [PATCH 1/2] rtc: goldfish: remove dependency to OF
+Date:   Tue, 23 Mar 2021 23:14:29 +0100
+Message-Id: <20210323221430.3735147-2-laurent@vivier.eu>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210323221430.3735147-1-laurent@vivier.eu>
+References: <20210323221430.3735147-1-laurent@vivier.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3215fc7e-ae1d-4e51-51d0-24ff386419bd@denx.de>
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:muYh0q93WOCKkWLsm0sUezRNH9I0M/PIEsaJJ36tIf8ry26GiPD
+ JqQYw7lR/Wll0SeRdy+DwzRVc7Zrw/yUPSin6WlncsW2QMXsn8DAv7LRRJYv4ZEVLDaKgJm
+ 87M+Uff//RE8ExB5TWaPeqUjQvubscdsj2GtrnhPrEg2sYpCUOy8FGiAhKKSBQ6aHL61Xso
+ TeQFJ5Q2Yddho+HRwiUyA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:r/xfUei7NFU=:V0VEqZr/7wMHGdImg69EUJ
+ TbSkvwDE+STB+6Z/ZnZQ5viggs8v8/HtbLvvpHN3EWYOLGJD2RHtXfxu5zVUkxsduhndCfaS5
+ OzdccFrH/OP81NpUwY8hqpUYtwZoehxguoc7YyDsjFlEg3N090hBRfkK3ixW/gETVs2Z0cHYa
+ mrttkxyiFs5GgCWAqd+a27Sm7ld26g8tWr2Jf4JFTDgxBeyjJjZt9obxTK3zZ5knDZwtpTiJC
+ xmubcE38BQcZ1KgAwVTAA1AzZVMUDE6PrY6bz4IPOSpWwAGF+5Nxl4q0zmmGePrR4sI2qTQK8
+ QzbXSOarO8StGu1Dc27XR4fg/JgKNRy2FxMft+NrNnpLDgNgxL3Ukh2sYlHnvtYrHiYIR+/La
+ zE2Zl692V6aD3fLmRNJyVf0niuJuBVarls69vvGHTWnJrS4Ix2GWUHtmdW3PDve8QH+czgZ/I
+ G881YzCmSA==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 17/03/2021 10:32:39+0100, Claudius Heine wrote:
-> Hi Andy,
-> 
-> On 2021-03-17 10:28, Andy Shevchenko wrote:
-> > On Wed, Mar 17, 2021 at 9:56 AM Claudius Heine <ch@denx.de> wrote:
-> > > 
-> > > From: Johannes Hahn <johannes-hahn@siemens.com>
-> > > 
-> > > This allows the RX6110 driver to be automatically assigned to the right
-> > > device on the I2C bus.
-> > 
-> > Thanks for an update!
-> > 
-> > > Signed-off-by: Johannes Hahn <johannes-hahn@siemens.com>
-> > > Co-developed-by: Claudius Heine <ch@denx.de>
-> > > Signed-off-by: Claudius Heine <ch@denx.de>
-> > > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > 
-> > > Reported-by: kernel test robot <lkp@intel.com>
-> > 
-> > This is usually for patches that do fix found problems, here it's a
-> > completely new item and the report was done in the middle of the
-> > development. That said, you may give credit to LKP by just mentioning
-> > it in the comments section (after the cutter '---' line). I'll leave
-> > this to Alexandre and Alessandro to decide if you need a resend or
-> > they may remove it when applying. (In my opinion resend is not needed
-> > right now)
-> Ok. Thanks a lot for your reviews and patience!
-> 
+We want to use the goldfish RTC on a machine without OF.
+As there is no real dependency on it, remove the OF dependency from the
+goldfish entry in Kconfig
 
-I removed it when applying. Thanks for the work and the reviews!
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
+ drivers/rtc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index ce723dc54aa4..5a35ddddd8c6 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1898,7 +1898,7 @@ config RTC_DRV_HID_SENSOR_TIME
+ 
+ config RTC_DRV_GOLDFISH
+ 	tristate "Goldfish Real Time Clock"
+-	depends on OF && HAS_IOMEM
++	depends on HAS_IOMEM
+ 	help
+ 	  Say yes to enable RTC driver for the Goldfish based virtual platform.
+ 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.30.2
+
