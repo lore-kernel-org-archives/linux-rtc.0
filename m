@@ -2,97 +2,219 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD7DFC433DB
-	for <linux-rtc@archiver.kernel.org>; Wed, 17 Mar 2021 09:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C20C8C433C1
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 09:14:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7234064F42
-	for <linux-rtc@archiver.kernel.org>; Wed, 17 Mar 2021 09:33:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82C4C619B8
+	for <linux-rtc@archiver.kernel.org>; Tue, 23 Mar 2021 09:14:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229586AbhCQJcr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 17 Mar 2021 05:32:47 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:41352 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229584AbhCQJcn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 17 Mar 2021 05:32:43 -0400
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 4F0lLd61srz1qs3H;
-        Wed, 17 Mar 2021 10:32:41 +0100 (CET)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 4F0lLd4X2xz1r1MT;
-        Wed, 17 Mar 2021 10:32:41 +0100 (CET)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id OUpL12vtdwYq; Wed, 17 Mar 2021 10:32:40 +0100 (CET)
-X-Auth-Info: LYzhXtsDzwoP8l6wMTCp3dtKemNxNs492NXkKUWXCRo=
-Received: from [10.88.0.186] (dslb-084-056-254-233.084.056.pools.vodafone-ip.de [84.56.254.233])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Wed, 17 Mar 2021 10:32:40 +0100 (CET)
-Subject: Re: [PATCH v5] rtc: rx6110: add ACPI bindings to I2C
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     johannes hahn <johannes-hahn@siemens.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        werner zeh <werner.zeh@siemens.com>,
-        henning schild <henning.schild@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@intel.com>,
-        martin mantel <martin.mantel@siemens.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        kernel test robot <lkp@intel.com>
-References: <20210317075228.683184-1-ch@denx.de>
- <CAHp75VdRFqK6Tp+dFCHb_6ZBR32mNRLgyRKaMky43aoj1MOjcw@mail.gmail.com>
-From:   Claudius Heine <ch@denx.de>
-Organization: Denx Software Engineering
-Message-ID: <3215fc7e-ae1d-4e51-51d0-24ff386419bd@denx.de>
-Date:   Wed, 17 Mar 2021 10:32:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        id S229493AbhCWJNd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 23 Mar 2021 05:13:33 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:14125 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229590AbhCWJNR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 Mar 2021 05:13:17 -0400
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F4Qb801Lxz19HM5;
+        Tue, 23 Mar 2021 17:11:16 +0800 (CST)
+Received: from huawei.com (10.67.174.47) by DGGEMS404-HUB.china.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server id 14.3.498.0; Tue, 23 Mar 2021
+ 17:13:03 +0800
+From:   He Ying <heying24@huawei.com>
+To:     <mpe@ellerman.id.au>, <benh@kernel.crashing.org>,
+        <paulus@samba.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <christophe.leroy@csgroup.eu>,
+        <npiggin@gmail.com>, <msuchanek@suse.de>, <heying24@huawei.com>,
+        <tglx@linutronix.de>, <peterz@infradead.org>,
+        <geert+renesas@glider.be>, <kernelfans@gmail.com>,
+        <frederic@kernel.org>
+CC:     <linuxppc-dev@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>
+Subject: [PATCH v2 -next] powerpc: kernel/time.c - cleanup warnings
+Date:   Tue, 23 Mar 2021 05:12:57 -0400
+Message-ID: <20210323091257.90054-1-heying24@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VdRFqK6Tp+dFCHb_6ZBR32mNRLgyRKaMky43aoj1MOjcw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.47]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Andy,
+We found these warnings in arch/powerpc/kernel/time.c as follows:
+warning: symbol 'decrementer_max' was not declared. Should it be static?
+warning: symbol 'rtc_lock' was not declared. Should it be static?
+warning: symbol 'dtl_consumer' was not declared. Should it be static?
 
-On 2021-03-17 10:28, Andy Shevchenko wrote:
-> On Wed, Mar 17, 2021 at 9:56 AM Claudius Heine <ch@denx.de> wrote:
->>
->> From: Johannes Hahn <johannes-hahn@siemens.com>
->>
->> This allows the RX6110 driver to be automatically assigned to the right
->> device on the I2C bus.
-> 
-> Thanks for an update!
-> 
->> Signed-off-by: Johannes Hahn <johannes-hahn@siemens.com>
->> Co-developed-by: Claudius Heine <ch@denx.de>
->> Signed-off-by: Claudius Heine <ch@denx.de>
->> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
->> Reported-by: kernel test robot <lkp@intel.com>
-> 
-> This is usually for patches that do fix found problems, here it's a
-> completely new item and the report was done in the middle of the
-> development. That said, you may give credit to LKP by just mentioning
-> it in the comments section (after the cutter '---' line). I'll leave
-> this to Alexandre and Alessandro to decide if you need a resend or
-> they may remove it when applying. (In my opinion resend is not needed
-> right now)
-Ok. Thanks a lot for your reviews and patience!
+Declare 'decrementer_max' and 'rtc_lock' in powerpc asm/time.h.
+Rename 'rtc_lock' in drviers/rtc/rtc-vr41xx.c to 'vr41xx_rtc_lock' to
+avoid the conflict with the variable in powerpc asm/time.h.
+Move 'dtl_consumer' definition behind "include <asm/dtl.h>" because it
+is declared there.
 
-regards,
-Claudius
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: He Ying <heying24@huawei.com>
+---
+v2:
+- Instead of including linux/mc146818rtc.h in powerpc kernel/time.c, declare
+  rtc_lock in powerpc asm/time.h.
+
+ arch/powerpc/include/asm/time.h |  3 +++
+ arch/powerpc/kernel/time.c      |  6 ++----
+ drivers/rtc/rtc-vr41xx.c        | 22 +++++++++++-----------
+ 3 files changed, 16 insertions(+), 15 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/time.h b/arch/powerpc/include/asm/time.h
+index 8dd3cdb25338..64a3ef0b4270 100644
+--- a/arch/powerpc/include/asm/time.h
++++ b/arch/powerpc/include/asm/time.h
+@@ -12,6 +12,7 @@
+ #ifdef __KERNEL__
+ #include <linux/types.h>
+ #include <linux/percpu.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/processor.h>
+ #include <asm/cpu_has_feature.h>
+@@ -22,6 +23,8 @@ extern unsigned long tb_ticks_per_jiffy;
+ extern unsigned long tb_ticks_per_usec;
+ extern unsigned long tb_ticks_per_sec;
+ extern struct clock_event_device decrementer_clockevent;
++extern u64 decrementer_max;
++extern spinlock_t rtc_lock;
+ 
+ 
+ extern void generic_calibrate_decr(void);
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index b67d93a609a2..60b6ac7d3685 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -150,10 +150,6 @@ bool tb_invalid;
+ u64 __cputime_usec_factor;
+ EXPORT_SYMBOL(__cputime_usec_factor);
+ 
+-#ifdef CONFIG_PPC_SPLPAR
+-void (*dtl_consumer)(struct dtl_entry *, u64);
+-#endif
+-
+ static void calc_cputime_factors(void)
+ {
+ 	struct div_result res;
+@@ -179,6 +175,8 @@ static inline unsigned long read_spurr(unsigned long tb)
+ 
+ #include <asm/dtl.h>
+ 
++void (*dtl_consumer)(struct dtl_entry *, u64);
++
+ /*
+  * Scan the dispatch trace log and count up the stolen time.
+  * Should be called with interrupts disabled.
+diff --git a/drivers/rtc/rtc-vr41xx.c b/drivers/rtc/rtc-vr41xx.c
+index 5a9f9ad86d32..cc31db058197 100644
+--- a/drivers/rtc/rtc-vr41xx.c
++++ b/drivers/rtc/rtc-vr41xx.c
+@@ -72,7 +72,7 @@ static void __iomem *rtc2_base;
+ 
+ static unsigned long epoch = 1970;	/* Jan 1 1970 00:00:00 */
+ 
+-static DEFINE_SPINLOCK(rtc_lock);
++static DEFINE_SPINLOCK(vr41xx_rtc_lock);
+ static char rtc_name[] = "RTC";
+ static unsigned long periodic_count;
+ static unsigned int alarm_enabled;
+@@ -101,13 +101,13 @@ static inline time64_t read_elapsed_second(void)
+ 
+ static inline void write_elapsed_second(time64_t sec)
+ {
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irq(&vr41xx_rtc_lock);
+ 
+ 	rtc1_write(ETIMELREG, (uint16_t)(sec << 15));
+ 	rtc1_write(ETIMEMREG, (uint16_t)(sec >> 1));
+ 	rtc1_write(ETIMEHREG, (uint16_t)(sec >> 17));
+ 
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irq(&vr41xx_rtc_lock);
+ }
+ 
+ static int vr41xx_rtc_read_time(struct device *dev, struct rtc_time *time)
+@@ -139,14 +139,14 @@ static int vr41xx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	unsigned long low, mid, high;
+ 	struct rtc_time *time = &wkalrm->time;
+ 
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irq(&vr41xx_rtc_lock);
+ 
+ 	low = rtc1_read(ECMPLREG);
+ 	mid = rtc1_read(ECMPMREG);
+ 	high = rtc1_read(ECMPHREG);
+ 	wkalrm->enabled = alarm_enabled;
+ 
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irq(&vr41xx_rtc_lock);
+ 
+ 	rtc_time64_to_tm((high << 17) | (mid << 1) | (low >> 15), time);
+ 
+@@ -159,7 +159,7 @@ static int vr41xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 
+ 	alarm_sec = rtc_tm_to_time64(&wkalrm->time);
+ 
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irq(&vr41xx_rtc_lock);
+ 
+ 	if (alarm_enabled)
+ 		disable_irq(aie_irq);
+@@ -173,7 +173,7 @@ static int vr41xx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 
+ 	alarm_enabled = wkalrm->enabled;
+ 
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irq(&vr41xx_rtc_lock);
+ 
+ 	return 0;
+ }
+@@ -202,7 +202,7 @@ static int vr41xx_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long
+ 
+ static int vr41xx_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irq(&vr41xx_rtc_lock);
+ 	if (enabled) {
+ 		if (!alarm_enabled) {
+ 			enable_irq(aie_irq);
+@@ -214,7 +214,7 @@ static int vr41xx_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ 			alarm_enabled = 0;
+ 		}
+ 	}
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irq(&vr41xx_rtc_lock);
+ 	return 0;
+ }
+ 
+@@ -296,7 +296,7 @@ static int rtc_probe(struct platform_device *pdev)
+ 	rtc->range_max = (1ULL << 33) - 1;
+ 	rtc->max_user_freq = MAX_PERIODIC_RATE;
+ 
+-	spin_lock_irq(&rtc_lock);
++	spin_lock_irq(&vr41xx_rtc_lock);
+ 
+ 	rtc1_write(ECMPLREG, 0);
+ 	rtc1_write(ECMPMREG, 0);
+@@ -304,7 +304,7 @@ static int rtc_probe(struct platform_device *pdev)
+ 	rtc1_write(RTCL1LREG, 0);
+ 	rtc1_write(RTCL1HREG, 0);
+ 
+-	spin_unlock_irq(&rtc_lock);
++	spin_unlock_irq(&vr41xx_rtc_lock);
+ 
+ 	aie_irq = platform_get_irq(pdev, 0);
+ 	if (aie_irq <= 0) {
+-- 
+2.17.1
+
