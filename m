@@ -2,121 +2,70 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D976C433C1
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Mar 2021 14:45:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CBA6C433E0
+	for <linux-rtc@archiver.kernel.org>; Sun, 28 Mar 2021 21:15:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6577761A2A
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Mar 2021 14:45:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 694636195D
+	for <linux-rtc@archiver.kernel.org>; Sun, 28 Mar 2021 21:15:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhCZOo4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 26 Mar 2021 10:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54796 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbhCZOou (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Mar 2021 10:44:50 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE76C0613B1
-        for <linux-rtc@vger.kernel.org>; Fri, 26 Mar 2021 07:44:49 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id x21so6607966eds.4
-        for <linux-rtc@vger.kernel.org>; Fri, 26 Mar 2021 07:44:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rIvv+tA1LMtQGGiDuq1c1q8EFA36Pgjy5WH53f7HNx4=;
-        b=iYunu1vYc+nYwytgwT0664RyXaLgIIwSfKZuAagqasIYu9jy9foMpyWg8GYSfAPoSl
-         7gXmommvATo5YilSMCWKppg6LleO/43CCNHA5B/ru6Jk9NMhwzLrSDFzr+PaGarm07W7
-         mBEkYdqmxjgNwwSk3y9oMCN94y3a4cOYuEb01nuzMH/0mqtLNYzzrVRIT/+ZbQBty8W9
-         DoeDDyGU2UhxKa2OOCRbp8rXwfrOEd5I+reszDYXU/CDUOhm55Da+3J7D9UXrfsMjDCR
-         LtmDAYZ2TfiSrOTrb9+jife+nA0bQs7GxtgJWytM/0bTimRuWkn57mcH3yp8a70YHvQP
-         WdBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rIvv+tA1LMtQGGiDuq1c1q8EFA36Pgjy5WH53f7HNx4=;
-        b=SVM8QgDKUdkvVL9PMK9u8Rch16ekef/psoPK5iUB8vO5N5aJ80sbFx4denykDOl3hP
-         ENyo80I1XnnedM6q8qhCT3T+Ww6Yh90FHRL9gwieQkgdYBVlMxL9O+M6TrScT5llEq1a
-         aecE19sugGb18M12PRP+nNbBJFoizFByuyI2sa03KftlS+ioB2GmLxG+D97M7v1A+NSz
-         UjCpMhys4AJbjBaOVaoRLxmesrch6xm/7SYfi/ZhKo03YdaZK7kUlWvn241wZeS+xUS2
-         w3qNLlejx7c/6+Vu8thkotaD3ykp1QklZQWE/HvPGg/1Xse9DStxFpBJYxwJ7yWtl1Cw
-         +gWA==
-X-Gm-Message-State: AOAM531S7pWUpWLIg747j6WwMi5jxdIyGFlD20MdtkrkESkyNckup2Vx
-        PzG0iN6PMOBNniOP3kN8txhsYDYZJ2xX2zghDK5fsg==
-X-Google-Smtp-Source: ABdhPJyu4ZYMKthWiIfIsLH5cJYN/YmYPXtv3Hl6Hl6YxrLqty3+4cM/fQnPI6E5xbB/otdrwsE35jlQjEFjqhXSpzo=
-X-Received: by 2002:a05:6402:17d6:: with SMTP id s22mr15385463edy.232.1616769888652;
- Fri, 26 Mar 2021 07:44:48 -0700 (PDT)
+        id S231142AbhC1VOZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 28 Mar 2021 17:14:25 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:39981 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229656AbhC1VOI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 28 Mar 2021 17:14:08 -0400
+X-Originating-IP: 90.65.108.55
+Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
+        (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 5A85E20002;
+        Sun, 28 Mar 2021 21:14:04 +0000 (UTC)
+Date:   Sun, 28 Mar 2021 23:14:03 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Kirill Kapranov <kirill.kapranov@compulab.co.il>
+Cc:     a.zummo@towertech.it, phdm@macqel.be, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] rtc:abx80x: Enable distributed digital calibration
+Message-ID: <YGDxm/zJSETUMY4B@piout.net>
+References: <20210328210232.10395-1-kirill.kapranov@compulab.co.il>
 MIME-Version: 1.0
-References: <cover.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
- <50f72f1f7f28e969a1e0353712fcc530bce9dd06.1611037866.git.matti.vaittinen@fi.rohmeurope.com>
- <CAMpxmJVjnAMig16qWkjpaHwQ+4Ld9yEc-gg-CGv28QQYBB6gNg@mail.gmail.com> <afaff71f75cd476c828671779acd1a3f8b66b62c.camel@fi.rohmeurope.com>
-In-Reply-To: <afaff71f75cd476c828671779acd1a3f8b66b62c.camel@fi.rohmeurope.com>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Fri, 26 Mar 2021 15:44:38 +0100
-Message-ID: <CAMpxmJXe9EVaDooPYphRV_500Dd9fU7WQHAFFL_-2-usxZG9kA@mail.gmail.com>
-Subject: Re: [PATCH v2 10/17] gpio: support ROHM BD71815 GPOs
-To:     "Vaittinen, Matti" <Matti.Vaittinen@fi.rohmeurope.com>
-Cc:     "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "lee.jones@linaro.org" <lee.jones@linaro.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        linux-power <linux-power@fi.rohmeurope.com>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210328210232.10395-1-kirill.kapranov@compulab.co.il>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Mar 23, 2021 at 10:57 AM Vaittinen, Matti
-<Matti.Vaittinen@fi.rohmeurope.com> wrote:
->
->
-> On Tue, 2021-01-19 at 12:07 +0100, Bartosz Golaszewski wrote:
-> > On Tue, Jan 19, 2021 at 8:23 AM Matti Vaittinen
-> > <matti.vaittinen@fi.rohmeurope.com> wrote:
-> > > Support GPO(s) found from ROHM BD71815 power management IC. The IC
-> > > has two
-> > > GPO pins but only one is properly documented in data-sheet. The
-> > > driver
-> > > exposes by default only the documented GPO. The second GPO is
-> > > connected to
-> > > E5 pin and is marked as GND in data-sheet. Control for this
-> > > undocumented
-> > > pin can be enabled using a special DT property.
-> > >
-> > > This driver is derived from work by Peter Yang <
-> > > yanglsh@embest-tech.com>
-> > > although not so much of original is left.
-> > >
-> > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> >
-> > Hi Matti,
-> >
-> > looks great, just a couple nits.
->
-> Hello Bartosz,
->
-> I think fixed all the nits to v3. Can I translate this to an ack? (I
-> will respin the series as I guess the regulator part may have fallen
-> through the cracks so I'd like to add the relevant acks :] )
->
-> Best Regards
->         Matti Vaittinen
+Hello,
 
-Yes:
+Thank you for working on that!
 
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On 29/03/2021 00:02:28+0300, Kirill Kapranov wrote:
+> This patch series enables a Distributed Digital Calibration function for
+> the RTC of the family. This feature allows to improve the RTC accuracy by
+> means of compensation an XT oscillator drift. To learn more, see:
+> AB08XX Series Ultra Low Power RTC IC User's Guide
+> https://abracon.com/realtimeclock/AB08XX-Application-Manual.pdf
+> 
+> The patches 1 and 2 enable SQW output, that is necessary for subsequent
+> measurement and computation. However, this feature may be enabled and used
+> independently, as is.
+> 
+
+Please use the common clock framework for this part. You will need a
+dummy userspace user for this to work but I know Stephen is open to that
+as we discussed that use case multiple times already.
+
+> The patches 3 and 4 enable the XT calibration feature per se. The SQW
+> output must be enabled for usage of this feature.
+
+Please use the .set_offset and .get_offset rtc_ops for this part.
+
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
