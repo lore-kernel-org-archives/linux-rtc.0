@@ -2,157 +2,137 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DD8FC433C1
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 15:29:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 367CFC433E4
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 18:19:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 270BC619BA
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 15:29:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DDCBA61999
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 18:19:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232321AbhC3P3B (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 30 Mar 2021 11:29:01 -0400
-Received: from clab.compulab.co.il ([66.147.238.35]:50950 "EHLO
-        clab.compulab.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231782AbhC3P2k (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Mar 2021 11:28:40 -0400
-Received: from [37.142.126.90] (port=42044 helo=zimbra01.compulab.co.il)
-        by clab.compulab.co.il with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94)
-        (envelope-from <kirill.kapranov@compulab.co.il>)
-        id 1lRGIH-0067zr-Ca; Tue, 30 Mar 2021 11:28:37 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra01.compulab.co.il (Postfix) with ESMTP id AF338E81CB001;
-        Tue, 30 Mar 2021 18:28:34 +0300 (IDT)
-Received: from zimbra01.compulab.co.il ([127.0.0.1])
-        by localhost (zimbra01.compulab.co.il [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id sLEAGLXwZurp; Tue, 30 Mar 2021 18:28:33 +0300 (IDT)
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra01.compulab.co.il (Postfix) with ESMTP id 83C39E81CB018;
-        Tue, 30 Mar 2021 18:28:33 +0300 (IDT)
-X-Virus-Scanned: amavisd-new at zimbra01.compulab.co.il
-Received: from zimbra01.compulab.co.il ([127.0.0.1])
-        by localhost (zimbra01.compulab.co.il [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id j4DfoEnIk4zg; Tue, 30 Mar 2021 18:28:33 +0300 (IDT)
-Received: from [192.168.11.10] (lifshitz-linux.compulab.local [192.168.11.10])
-        by zimbra01.compulab.co.il (Postfix) with ESMTPSA id 57F7AE81CB001;
-        Tue, 30 Mar 2021 18:28:33 +0300 (IDT)
-Subject: Re: [PATCH 2/4] rtc: abx80x: Enable SQW output
-To:     Dan Carpenter <dan.carpenter@oracle.com>, kbuild@lists.01.org,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        phdm@macqel.be, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     lkp@intel.com, kbuild-all@lists.01.org
-References: <20210329061956.GJ1717@kadam>
-From:   Kirill Kapranov <kirill.kapranov@compulab.co.il>
-Organization: CompuLab Ltd.
-Message-ID: <050f0a83-2f67-ecf2-338b-1f2501d84e14@compulab.co.il>
-Date:   Tue, 30 Mar 2021 18:28:32 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        id S232507AbhC3SSd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 30 Mar 2021 14:18:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232773AbhC3SST (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Mar 2021 14:18:19 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19EF2C061574
+        for <linux-rtc@vger.kernel.org>; Tue, 30 Mar 2021 11:18:19 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lRIwK-0007hx-St; Tue, 30 Mar 2021 20:18:08 +0200
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lRIwI-0000Dz-PK; Tue, 30 Mar 2021 20:18:06 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc:     linux-clk@vger.kernel.org, kernel@pengutronix.de,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v4 4/6] rtc: at91sma9: Simplify using devm_clk_get_enabled()
+Date:   Tue, 30 Mar 2021 20:17:53 +0200
+Message-Id: <20210330181755.204339-5-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210330181755.204339-1-u.kleine-koenig@pengutronix.de>
+References: <20210330181755.204339-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20210329061956.GJ1717@kadam>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - clab.compulab.co.il
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - compulab.co.il
-X-Get-Message-Sender-Via: clab.compulab.co.il: mailgid no entry from get_recent_authed_mail_ips_entry
-X-Authenticated-Sender: clab.compulab.co.il: 
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Dan,
+devm_clk_get_enabled() returns the clk already (prepared and) enabled
+and the automatically called cleanup cares for disabling (and
+unpreparing). So simplify .probe() and .remove() accordingly.
 
-Thank you very much for pointing out the issues.
-However, I'm not sure that the code, you have analyzed, will be a part 
-of final patch set. I intend to redesign all the code deeply, as 
-Alexandre Belloni suggested [1].
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-at91sam9.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
 
-Thank you again!
-
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 2216be429ab7..b52e7bd26303 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -374,21 +374,14 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
++	rtc->sclk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(rtc->sclk))
+ 		return PTR_ERR(rtc->sclk);
+ 
+-	ret = clk_prepare_enable(rtc->sclk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not enable slow clock\n");
+-		return ret;
+-	}
+-
+ 	sclk_rate = clk_get_rate(rtc->sclk);
+ 	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
+ 		dev_err(&pdev->dev, "Invalid slow clock rate\n");
+-		ret = -EINVAL;
+-		goto err_clk;
++		return -EINVAL;
+ 	}
+ 
+ 	mr = rtt_readl(rtc, MR);
+@@ -406,7 +399,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtcdev = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtcdev)) {
+ 		ret = PTR_ERR(rtc->rtcdev);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	rtc->rtcdev->ops = &at91_rtc_ops;
+@@ -418,7 +411,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			       dev_name(&rtc->rtcdev->dev), rtc);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+@@ -432,11 +425,6 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			 dev_name(&rtc->rtcdev->dev));
+ 
+ 	return devm_rtc_register_device(rtc->rtcdev);
+-
+-err_clk:
+-	clk_disable_unprepare(rtc->sclk);
+-
+-	return ret;
+ }
+ 
+ /*
+@@ -450,8 +438,6 @@ static int at91_rtc_remove(struct platform_device *pdev)
+ 	/* disable all interrupts */
+ 	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+ 
+-	clk_disable_unprepare(rtc->sclk);
+-
+ 	return 0;
+ }
+ 
 -- 
-Best Regards,
-Kirill Kapranov
-Software Engineer
-CompuLab Ltd.
-[1] https://marc.info/?l=linux-rtc&m=161696606727215&w=2
+2.30.2
 
-On 3/29/21 9:19 AM, Dan Carpenter wrote:
-> Hi Kirill,
-> 
-> url:    https://github.com/0day-ci/linux/commits/Kirill-Kapranov/rtc-abx80x-Enable-distributed-digital-calibration/20210329-053233
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-> config: i386-randconfig-m021-20210328 (attached as .config)
-> compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
-> 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> smatch warnings:
-> drivers/rtc/rtc-abx80x.c:561 sqw_set() error: uninitialized symbol 'retval'.
-> 
-> vim +/retval +561 drivers/rtc/rtc-abx80x.c
-> 
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  527  static int sqw_set(struct i2c_client *client, const char *buf)
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  528  {
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  529  	union abx8xx_reg_sqw reg_sqw;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  530  	int retval;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  531
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  532  	reg_sqw.val = i2c_smbus_read_byte_data(client, ABX8XX_REG_SQW);
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  533  	if (reg_sqw.val < 0)
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  534  		goto err;
-> 
-> "retval" not set.  Forgetting to set the error code is the canonical
-> bug for do nothing gotos like this.
-> 
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  535
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  536  	if (sysfs_streq(buf, "none")) {
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  537  		reg_sqw.sqwe = 0;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  538  		dev_info(&client->dev, "sqw output disabled\n");
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  539  	} else {
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  540  		int idx = __sysfs_match_string(sqfs, SQFS_COUNT, buf);
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  541
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  542  		if (idx < 0)
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  543  			return idx;
->                                                                          ^^^^^^^^^^^
-> These are direct returns.  Just do direct returns everywhere (more
-> readably, fewer bugs).
-> 
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  544
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  545  		if (abx80x_is_rc_mode(client) && !valid_for_rc_mode[idx])
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  546  			dev_warn(&client->dev, "sqw frequency %s valid only in xt mode\n",
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  547  				sqfs[idx]);
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  548
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  549  		dev_info(&client->dev, "sqw output enabled @ %s\n", sqfs[idx]);
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  550  		reg_sqw.sqwe = 1;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  551  		reg_sqw.sqws = idx;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  552  	}
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  553
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  554  	retval = i2c_smbus_write_byte_data(client, ABX8XX_REG_SQW, reg_sqw.val);
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  555  	if (retval < 0)
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  556  		goto err;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  557
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  558  	return 0;
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  559  err:
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  560  	dev_err(&client->dev, "Failed to set SQW\n");
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29 @561  	return retval;
->                                                          ^^^^^^^^^^^^^
-> 
-> 3f6d456de4f347 Kirill Kapranov 2021-03-29  562
-> 
-> ---
-> 0-DAY CI Kernel Test Service, Intel Corporation
-> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
-> 
