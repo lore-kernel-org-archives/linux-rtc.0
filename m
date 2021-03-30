@@ -2,87 +2,69 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD990C433C1
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 00:03:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 847CAC433E1
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 00:04:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FFE461990
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 00:03:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51A70619B4
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Mar 2021 00:04:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbhC3AC3 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 29 Mar 2021 20:02:29 -0400
-Received: from relay11.mail.gandi.net ([217.70.178.231]:38497 "EHLO
-        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbhC3ACH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Mar 2021 20:02:07 -0400
+        id S230089AbhC3AEG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 29 Mar 2021 20:04:06 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:53627 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230212AbhC3AD7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 29 Mar 2021 20:03:59 -0400
+X-Originating-IP: 90.65.108.55
 Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay11.mail.gandi.net (Postfix) with ESMTPSA id EBE6F100002;
-        Tue, 30 Mar 2021 00:02:05 +0000 (UTC)
-Date:   Tue, 30 Mar 2021 02:02:05 +0200
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id A7DD9FF803;
+        Tue, 30 Mar 2021 00:03:57 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Lukasz Stelmach <l.stelmach@samsung.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        =?utf-8?Q?Bart=C5=82omiej_=C5=BBolnierkiewicz?= 
+Cc:     linux-rtc@vger.kernel.org,
+        =?UTF-8?q?Bart=C5=82omiej=20=C5=BBolnierkiewicz?= 
         <b.zolnierkie@samsung.com>,
         Marek Szyprowski <m.szyprowski@samsung.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1307: set uie_unsupported if no interrupt is
- available
-Message-ID: <YGJqfVFVb7Z1LBTu@piout.net>
-References: <YFClVBShBuy9/VPY@piout.net>
- <CGME20210316180430eucas1p1a3cb26f40772b0af75782ff84908d731@eucas1p1.samsung.com>
- <dleftjblbjc6w1.fsf%l.stelmach@samsung.com>
+        linux-kernel@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/3] rtc: ds1307: remove flags
+Date:   Tue, 30 Mar 2021 02:03:42 +0200
+Message-Id: <20210330000343.801566-2-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210330000343.801566-1-alexandre.belloni@bootlin.com>
+References: <YGJqfVFVb7Z1LBTu@piout.net>
+ <20210330000343.801566-1-alexandre.belloni@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <dleftjblbjc6w1.fsf%l.stelmach@samsung.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 16/03/2021 19:04:14+0100, Lukasz Stelmach wrote:
-> OK, you are right. The problem seems to be elsewhere.
-> 
-> How about this scnario? We call rtc_update_irq_enable(). We read rtc
-> with __rtc_read_time() and calculate the alarm time. We get through
-> rtc_timer_enqueue() and down to __rtc_set_alarm(). We loose the race
-> condition (I can do it, I've got really slow connection to DS3231) and
-> we return -ETIME from __rtc_set_alarm()
-> 
->     if (scheduled <= now)
->         return -ETIME;
-> 
-> and 0 from rtc_timer_enqueue() and the very same zero from
-> rtc_update_irq_enable(). The caller of ioctl() thinks they can expect
-> interrupts when, in fact, they won't receive any.
-> 
-> The really weird stuff happens in rtc_timer_do_work(). For the timer to
-> be dequeued __rtc_set_alarm() needs to return EINVAL three times in a
-> row. In my setup this doesn't happen and the code keeps running loops
-> around "reporogram" and "again" labels.
-> 
-> With my patch we never risk the above race condition between
-> __rtc_read_time() in rtc_update_irq_enable() and the one in
-> __rtc_set_alarm(), because we know rtc doesn't support alarms before we
-> start the race. In fact there is another race between __rtc_read_time()
-> and actually setting the alarm in the chip.
-> 
-> IMHO the solution is to introduce RTC_HAS_ALARM flag for struct
-> rtc_device and check it at the very beginning of __rtc_set_alarm() the
-> same way it is being done in ds1337_set_alarm(). What are your thoughts?
-> 
+flags is now unused, drop it.
 
-I did introduce RTC_FEATURE_ALARM for that in v5.12. I'm sending patches
-that are not well tested but should solve your issue.
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ds1307.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 76d67c419f7d..089509d0a3a0 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -169,8 +169,6 @@ enum ds_type {
+ 
+ struct ds1307 {
+ 	enum ds_type		type;
+-	unsigned long		flags;
+-#define HAS_NVRAM	0		/* bit 0 == sysfs file active */
+ 	struct device		*dev;
+ 	struct regmap		*regmap;
+ 	const char		*name;
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.30.2
+
