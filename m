@@ -7,30 +7,30 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AE97C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F140C433E8
 	for <linux-rtc@archiver.kernel.org>; Wed, 31 Mar 2021 11:03:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E9A94619A6
-	for <linux-rtc@archiver.kernel.org>; Wed, 31 Mar 2021 11:03:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F11C619A7
+	for <linux-rtc@archiver.kernel.org>; Wed, 31 Mar 2021 11:03:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235408AbhCaLCu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 31 Mar 2021 07:02:50 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:52114 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S235477AbhCaLC0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 31 Mar 2021 07:02:26 -0400
-X-UUID: 7dd0e9d406b9407782cd923822a5c78a-20210331
-X-UUID: 7dd0e9d406b9407782cd923822a5c78a-20210331
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
+        id S235162AbhCaLCw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 31 Mar 2021 07:02:52 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:33477 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S235328AbhCaLC1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 31 Mar 2021 07:02:27 -0400
+X-UUID: 6e864c4f972c4955a0196ceed23ead68-20210331
+X-UUID: 6e864c4f972c4955a0196ceed23ead68-20210331
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 367814857; Wed, 31 Mar 2021 19:02:20 +0800
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 609616156; Wed, 31 Mar 2021 19:02:22 +0800
 Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 31 Mar 2021 19:02:18 +0800
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 31 Mar 2021 19:02:19 +0800
 Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 31 Mar 2021 19:02:18 +0800
+ Transport; Wed, 31 Mar 2021 19:02:19 +0800
 From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -50,212 +50,353 @@ CC:     Eddie Huang <eddie.huang@mediatek.com>,
         <linux-mediatek@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <srv_heupstream@mediatek.com>,
-        <Project_Global_Chrome_Upstream_Group@mediatek.com>
-Subject: [PATCH v7 1/8] mfd: mt6358: refine interrupt code
-Date:   Wed, 31 Mar 2021 19:02:00 +0800
-Message-ID: <1617188527-3392-2-git-send-email-hsin-hsiung.wang@mediatek.com>
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
+        Wen Su <wen.su@mediatek.com>
+Subject: [PATCH v7 8/8] arm64: dts: mt6359: add PMIC MT6359 related nodes
+Date:   Wed, 31 Mar 2021 19:02:07 +0800
+Message-ID: <1617188527-3392-9-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 2.6.4
 In-Reply-To: <1617188527-3392-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 References: <1617188527-3392-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
+X-TM-SNTS-SMTP: 90F6410DAB878DBB3F453681DC3BDC6ECC1F1C9BE4FE4CAFBAA306415CE71AB92000:8
 X-MTK:  N
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patch refines the interrupt related code to support new chips.
+From: Wen Su <wen.su@mediatek.com>
 
+add PMIC MT6359 related nodes which is for MT6779 platform
+
+Signed-off-by: Wen Su <wen.su@mediatek.com>
 Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
 changes since v6:
-- no change.
+- update the regulator node.
 ---
- drivers/mfd/mt6358-irq.c        | 65 +++++++++++++++++++--------------
- include/linux/mfd/mt6358/core.h |  8 ++--
- 2 files changed, 41 insertions(+), 32 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt6359.dtsi    | 298 ++++++++++++++++++++
+ arch/arm64/boot/dts/mediatek/mt8192-evb.dts |   1 +
+ 2 files changed, 299 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6359.dtsi
 
-diff --git a/drivers/mfd/mt6358-irq.c b/drivers/mfd/mt6358-irq.c
-index db734f2831ff..4b094e5e51cc 100644
---- a/drivers/mfd/mt6358-irq.c
-+++ b/drivers/mfd/mt6358-irq.c
-@@ -13,7 +13,9 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
- 
--static struct irq_top_t mt6358_ints[] = {
-+#define MTK_PMIC_REG_WIDTH 16
+diff --git a/arch/arm64/boot/dts/mediatek/mt6359.dtsi b/arch/arm64/boot/dts/mediatek/mt6359.dtsi
+new file mode 100644
+index 000000000000..18c0d5325c22
+--- /dev/null
++++ b/arch/arm64/boot/dts/mediatek/mt6359.dtsi
+@@ -0,0 +1,298 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2021 MediaTek Inc.
++ */
 +
-+static const struct irq_top_t mt6358_ints[] = {
- 	MT6358_TOP_GEN(BUCK),
- 	MT6358_TOP_GEN(LDO),
- 	MT6358_TOP_GEN(PSC),
-@@ -24,6 +26,13 @@ static struct irq_top_t mt6358_ints[] = {
- 	MT6358_TOP_GEN(MISC),
- };
- 
-+static struct pmic_irq_data mt6358_irqd = {
-+	.num_top = ARRAY_SIZE(mt6358_ints),
-+	.num_pmic_irqs = MT6358_IRQ_NR,
-+	.top_int_status_reg = MT6358_TOP_INT_STATUS0,
-+	.pmic_ints = mt6358_ints,
++&pwrap {
++	pmic: pmic {
++		compatible = "mediatek,mt6359";
++		interrupt-controller;
++		#interrupt-cells = <2>;
++
++		mt6359codec: mt6359codec {
++		};
++
++		regulators {
++			mt6359_vs1_buck_reg: buck_vs1 {
++				regulator-name = "vs1";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <2200000>;
++				regulator-enable-ramp-delay = <0>;
++				regulator-always-on;
++			};
++			mt6359_vgpu11_buck_reg: buck_vgpu11 {
++				regulator-name = "vgpu11";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vmodem_buck_reg: buck_vmodem {
++				regulator-name = "vmodem";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1100000>;
++				regulator-ramp-delay = <10760>;
++				regulator-enable-ramp-delay = <200>;
++			};
++			mt6359_vpu_buck_reg: buck_vpu {
++				regulator-name = "vpu";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vcore_buck_reg: buck_vcore {
++				regulator-name = "vcore";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1300000>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vs2_buck_reg: buck_vs2 {
++				regulator-name = "vs2";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1600000>;
++				regulator-enable-ramp-delay = <0>;
++				regulator-always-on;
++			};
++			mt6359_vpa_buck_reg: buck_vpa {
++				regulator-name = "vpa";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <3650000>;
++				regulator-enable-ramp-delay = <300>;
++			};
++			mt6359_vproc2_buck_reg: buck_vproc2 {
++				regulator-name = "vproc2";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vproc1_buck_reg: buck_vproc1 {
++				regulator-name = "vproc1";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <200>;
++				regulator-allowed-modes = <0 1 2>;
++			};
++			mt6359_vcore_sshub_buck_reg: buck_vcore_sshub {
++				regulator-name = "vcore_sshub";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++			};
++			mt6359_vgpu11_sshub_buck_reg: buck_vgpu11_sshub {
++				regulator-name = "vgpu11_sshub";
++				regulator-min-microvolt = <400000>;
++				regulator-max-microvolt = <1193750>;
++			};
++			mt6359_vaud18_ldo_reg: ldo_vaud18 {
++				regulator-name = "vaud18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vsim1_ldo_reg: ldo_vsim1 {
++				regulator-name = "vsim1";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <3100000>;
++			};
++			mt6359_vibr_ldo_reg: ldo_vibr {
++				regulator-name = "vibr";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vrf12_ldo_reg: ldo_vrf12 {
++				regulator-name = "vrf12";
++				regulator-min-microvolt = <1100000>;
++				regulator-max-microvolt = <1300000>;
++			};
++			mt6359_vusb_ldo_reg: ldo_vusb {
++				regulator-name = "vusb";
++				regulator-min-microvolt = <3000000>;
++				regulator-max-microvolt = <3000000>;
++				regulator-enable-ramp-delay = <960>;
++				regulator-always-on;
++			};
++			mt6359_vsram_proc2_ldo_reg: ldo_vsram_proc2 {
++				regulator-name = "vsram_proc2";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vio18_ldo_reg: ldo_vio18 {
++				regulator-name = "vio18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++				regulator-enable-ramp-delay = <960>;
++				regulator-always-on;
++			};
++			mt6359_vcamio_ldo_reg: ldo_vcamio {
++				regulator-name = "vcamio";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++			};
++			mt6359_vcn18_ldo_reg: ldo_vcn18 {
++				regulator-name = "vcn18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vfe28_ldo_reg: ldo_vfe28 {
++				regulator-name = "vfe28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <2800000>;
++				regulator-enable-ramp-delay = <120>;
++			};
++			mt6359_vcn13_ldo_reg: ldo_vcn13 {
++				regulator-name = "vcn13";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <1300000>;
++			};
++			mt6359_vcn33_1_bt_ldo_reg: ldo_vcn33_1_bt {
++				regulator-name = "vcn33_1_bt";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vcn33_1_wifi_ldo_reg: ldo_vcn33_1_wifi {
++				regulator-name = "vcn33_1_wifi";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vaux18_ldo_reg: ldo_vaux18 {
++				regulator-name = "vaux18";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vsram_others_ldo_reg: ldo_vsram_others {
++				regulator-name = "vsram_others";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <5000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vefuse_ldo_reg: ldo_vefuse {
++				regulator-name = "vefuse";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <2000000>;
++			};
++			mt6359_vxo22_ldo_reg: ldo_vxo22 {
++				regulator-name = "vxo22";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <2200000>;
++				regulator-always-on;
++			};
++			mt6359_vrfck_ldo_reg: ldo_vrfck {
++				regulator-name = "vrfck";
++				regulator-min-microvolt = <1500000>;
++				regulator-max-microvolt = <1700000>;
++			};
++			mt6359_vrfck_1_ldo_reg: ldo_vrfck_1 {
++				regulator-name = "vrfck";
++				regulator-min-microvolt = <1240000>;
++				regulator-max-microvolt = <1600000>;
++			};
++			mt6359_vbif28_ldo_reg: ldo_vbif28 {
++				regulator-name = "vbif28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <2800000>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vio28_ldo_reg: ldo_vio28 {
++				regulator-name = "vio28";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-always-on;
++			};
++			mt6359_vemc_ldo_reg: ldo_vemc {
++				regulator-name = "vemc";
++				regulator-min-microvolt = <2900000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vemc_1_ldo_reg: ldo_vemc_1 {
++				regulator-name = "vemc";
++				regulator-min-microvolt = <2500000>;
++				regulator-max-microvolt = <3300000>;
++			};
++			mt6359_vcn33_2_bt_ldo_reg: ldo_vcn33_2_bt {
++				regulator-name = "vcn33_2_bt";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_vcn33_2_wifi_ldo_reg: ldo_vcn33_2_wifi {
++				regulator-name = "vcn33_2_wifi";
++				regulator-min-microvolt = <2800000>;
++				regulator-max-microvolt = <3500000>;
++			};
++			mt6359_va12_ldo_reg: ldo_va12 {
++				regulator-name = "va12";
++				regulator-min-microvolt = <1200000>;
++				regulator-max-microvolt = <1300000>;
++				regulator-always-on;
++			};
++			mt6359_va09_ldo_reg: ldo_va09 {
++				regulator-name = "va09";
++				regulator-min-microvolt = <800000>;
++				regulator-max-microvolt = <1200000>;
++			};
++			mt6359_vrf18_ldo_reg: ldo_vrf18 {
++				regulator-name = "vrf18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1810000>;
++			};
++			mt6359_vsram_md_ldo_reg: ldo_vsram_md {
++				regulator-name = "vsram_md";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <10760>;
++				regulator-enable-ramp-delay = <240>;
++			};
++			mt6359_vufs_ldo_reg: ldo_vufs {
++				regulator-name = "vufs";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++			};
++			mt6359_vm18_ldo_reg: ldo_vm18 {
++				regulator-name = "vm18";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <1900000>;
++				regulator-always-on;
++			};
++			mt6359_vbbck_ldo_reg: ldo_vbbck {
++				regulator-name = "vbbck";
++				regulator-min-microvolt = <1100000>;
++				regulator-max-microvolt = <1200000>;
++			};
++			mt6359_vsram_proc1_ldo_reg: ldo_vsram_proc1 {
++				regulator-name = "vsram_proc1";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++				regulator-ramp-delay = <7500>;
++				regulator-enable-ramp-delay = <240>;
++				regulator-always-on;
++			};
++			mt6359_vsim2_ldo_reg: ldo_vsim2 {
++				regulator-name = "vsim2";
++				regulator-min-microvolt = <1700000>;
++				regulator-max-microvolt = <3100000>;
++			};
++			mt6359_vsram_others_sshub_ldo: ldo_vsram_others_sshub {
++				regulator-name = "vsram_others_sshub";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1293750>;
++			};
++		};
++
++		mt6359rtc: mt6359rtc {
++			compatible = "mediatek,mt6358-rtc";
++		};
++	};
 +};
-+
- static void pmic_irq_enable(struct irq_data *data)
- {
- 	unsigned int hwirq = irqd_to_hwirq(data);
-@@ -62,15 +71,15 @@ static void pmic_irq_sync_unlock(struct irq_data *data)
- 		/* Find out the IRQ group */
- 		top_gp = 0;
- 		while ((top_gp + 1) < irqd->num_top &&
--		       i >= mt6358_ints[top_gp + 1].hwirq_base)
-+		       i >= irqd->pmic_ints[top_gp + 1].hwirq_base)
- 			top_gp++;
+diff --git a/arch/arm64/boot/dts/mediatek/mt8192-evb.dts b/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
+index 0205837fa698..808be492e970 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
++++ b/arch/arm64/boot/dts/mediatek/mt8192-evb.dts
+@@ -5,6 +5,7 @@
+  */
+ /dts-v1/;
+ #include "mt8192.dtsi"
++#include "mt6359.dtsi"
  
- 		/* Find the IRQ registers */
--		gp_offset = i - mt6358_ints[top_gp].hwirq_base;
--		int_regs = gp_offset / MT6358_REG_WIDTH;
--		shift = gp_offset % MT6358_REG_WIDTH;
--		en_reg = mt6358_ints[top_gp].en_reg +
--			 (mt6358_ints[top_gp].en_reg_shift * int_regs);
-+		gp_offset = i - irqd->pmic_ints[top_gp].hwirq_base;
-+		int_regs = gp_offset / MTK_PMIC_REG_WIDTH;
-+		shift = gp_offset % MTK_PMIC_REG_WIDTH;
-+		en_reg = irqd->pmic_ints[top_gp].en_reg +
-+			 (irqd->pmic_ints[top_gp].en_reg_shift * int_regs);
- 
- 		regmap_update_bits(chip->regmap, en_reg, BIT(shift),
- 				   irqd->enable_hwirq[i] << shift);
-@@ -95,10 +104,11 @@ static void mt6358_irq_sp_handler(struct mt6397_chip *chip,
- 	unsigned int irq_status, sta_reg, status;
- 	unsigned int hwirq, virq;
- 	int i, j, ret;
-+	struct pmic_irq_data *irqd = chip->irq_data;
- 
--	for (i = 0; i < mt6358_ints[top_gp].num_int_regs; i++) {
--		sta_reg = mt6358_ints[top_gp].sta_reg +
--			mt6358_ints[top_gp].sta_reg_shift * i;
-+	for (i = 0; i < irqd->pmic_ints[top_gp].num_int_regs; i++) {
-+		sta_reg = irqd->pmic_ints[top_gp].sta_reg +
-+			irqd->pmic_ints[top_gp].sta_reg_shift * i;
- 
- 		ret = regmap_read(chip->regmap, sta_reg, &irq_status);
- 		if (ret) {
-@@ -114,8 +124,8 @@ static void mt6358_irq_sp_handler(struct mt6397_chip *chip,
- 		do {
- 			j = __ffs(status);
- 
--			hwirq = mt6358_ints[top_gp].hwirq_base +
--				MT6358_REG_WIDTH * i + j;
-+			hwirq = irqd->pmic_ints[top_gp].hwirq_base +
-+				MTK_PMIC_REG_WIDTH * i + j;
- 
- 			virq = irq_find_mapping(chip->irq_domain, hwirq);
- 			if (virq)
-@@ -131,12 +141,12 @@ static void mt6358_irq_sp_handler(struct mt6397_chip *chip,
- static irqreturn_t mt6358_irq_handler(int irq, void *data)
- {
- 	struct mt6397_chip *chip = data;
--	struct pmic_irq_data *mt6358_irq_data = chip->irq_data;
-+	struct pmic_irq_data *irqd = chip->irq_data;
- 	unsigned int bit, i, top_irq_status = 0;
- 	int ret;
- 
- 	ret = regmap_read(chip->regmap,
--			  mt6358_irq_data->top_int_status_reg,
-+			  irqd->top_int_status_reg,
- 			  &top_irq_status);
- 	if (ret) {
- 		dev_err(chip->dev,
-@@ -144,8 +154,8 @@ static irqreturn_t mt6358_irq_handler(int irq, void *data)
- 		return IRQ_NONE;
- 	}
- 
--	for (i = 0; i < mt6358_irq_data->num_top; i++) {
--		bit = BIT(mt6358_ints[i].top_offset);
-+	for (i = 0; i < irqd->num_top; i++) {
-+		bit = BIT(irqd->pmic_ints[i].top_offset);
- 		if (top_irq_status & bit) {
- 			mt6358_irq_sp_handler(chip, i);
- 			top_irq_status &= ~bit;
-@@ -180,17 +190,18 @@ int mt6358_irq_init(struct mt6397_chip *chip)
- 	int i, j, ret;
- 	struct pmic_irq_data *irqd;
- 
--	irqd = devm_kzalloc(chip->dev, sizeof(*irqd), GFP_KERNEL);
--	if (!irqd)
--		return -ENOMEM;
-+	switch (chip->chip_id) {
-+	case MT6358_CHIP_ID:
-+		chip->irq_data = &mt6358_irqd;
-+		break;
- 
--	chip->irq_data = irqd;
-+	default:
-+		dev_err(chip->dev, "unsupported chip: 0x%x\n", chip->chip_id);
-+		return -ENODEV;
-+	}
- 
- 	mutex_init(&chip->irqlock);
--	irqd->top_int_status_reg = MT6358_TOP_INT_STATUS0;
--	irqd->num_pmic_irqs = MT6358_IRQ_NR;
--	irqd->num_top = ARRAY_SIZE(mt6358_ints);
--
-+	irqd = chip->irq_data;
- 	irqd->enable_hwirq = devm_kcalloc(chip->dev,
- 					  irqd->num_pmic_irqs,
- 					  sizeof(*irqd->enable_hwirq),
-@@ -207,10 +218,10 @@ int mt6358_irq_init(struct mt6397_chip *chip)
- 
- 	/* Disable all interrupts for initializing */
- 	for (i = 0; i < irqd->num_top; i++) {
--		for (j = 0; j < mt6358_ints[i].num_int_regs; j++)
-+		for (j = 0; j < irqd->pmic_ints[i].num_int_regs; j++)
- 			regmap_write(chip->regmap,
--				     mt6358_ints[i].en_reg +
--				     mt6358_ints[i].en_reg_shift * j, 0);
-+				     irqd->pmic_ints[i].en_reg +
-+				     irqd->pmic_ints[i].en_reg_shift * j, 0);
- 	}
- 
- 	chip->irq_domain = irq_domain_add_linear(chip->dev->of_node,
-diff --git a/include/linux/mfd/mt6358/core.h b/include/linux/mfd/mt6358/core.h
-index c5a11b7458d4..68578e2019b0 100644
---- a/include/linux/mfd/mt6358/core.h
-+++ b/include/linux/mfd/mt6358/core.h
-@@ -6,12 +6,9 @@
- #ifndef __MFD_MT6358_CORE_H__
- #define __MFD_MT6358_CORE_H__
- 
--#define MT6358_REG_WIDTH 16
--
- struct irq_top_t {
- 	int hwirq_base;
- 	unsigned int num_int_regs;
--	unsigned int num_int_bits;
- 	unsigned int en_reg;
- 	unsigned int en_reg_shift;
- 	unsigned int sta_reg;
-@@ -25,6 +22,7 @@ struct pmic_irq_data {
- 	unsigned short top_int_status_reg;
- 	bool *enable_hwirq;
- 	bool *cache_hwirq;
-+	const struct irq_top_t *pmic_ints;
- };
- 
- enum mt6358_irq_top_status_shift {
-@@ -146,8 +144,8 @@ enum mt6358_irq_numbers {
- {	\
- 	.hwirq_base = MT6358_IRQ_##sp##_BASE,	\
- 	.num_int_regs =	\
--		((MT6358_IRQ_##sp##_BITS - 1) / MT6358_REG_WIDTH) + 1,	\
--	.num_int_bits = MT6358_IRQ_##sp##_BITS, \
-+		((MT6358_IRQ_##sp##_BITS - 1) /	\
-+		MTK_PMIC_REG_WIDTH) + 1,	\
- 	.en_reg = MT6358_##sp##_TOP_INT_CON0,	\
- 	.en_reg_shift = 0x6,	\
- 	.sta_reg = MT6358_##sp##_TOP_INT_STATUS0,	\
+ / {
+ 	model = "MediaTek MT8192 evaluation board";
 -- 
 2.18.0
 
