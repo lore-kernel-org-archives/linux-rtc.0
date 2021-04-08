@@ -2,67 +2,70 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ACE2C433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABC8DC433ED
 	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 02:40:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A170611C2
+	by mail.kernel.org (Postfix) with ESMTP id 7EF64611C9
 	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 02:40:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbhDHCkw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Apr 2021 22:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        id S229510AbhDHCkx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Apr 2021 22:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbhDHCku (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Apr 2021 22:40:50 -0400
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771E5C061760
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Apr 2021 19:40:38 -0700 (PDT)
-Received: by mail-qt1-x82a.google.com with SMTP id h7so372756qtx.3
-        for <linux-rtc@vger.kernel.org>; Wed, 07 Apr 2021 19:40:38 -0700 (PDT)
+        with ESMTP id S229514AbhDHCkv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Apr 2021 22:40:51 -0400
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3385BC061761
+        for <linux-rtc@vger.kernel.org>; Wed,  7 Apr 2021 19:40:40 -0700 (PDT)
+Received: by mail-qt1-x830.google.com with SMTP id x9so353604qto.8
+        for <linux-rtc@vger.kernel.org>; Wed, 07 Apr 2021 19:40:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aBIAuIQ8pqqfSBLDil/Yx/aWCENej9k7uffDLC1s2rI=;
-        b=GvYeJCG5LSOd5lga78nibrE1GHuvIFse7pvOdGnDWhc91PNNDl9H+/qRe4KRjMXn61
-         YkypmAlPcCmKbNADYbIWkpXh6z6W7qPb9tldlbEslFrURXPxFKHPWyiOhWI2IS2M3o1/
-         sF9pGT2hYT8hzjStlgKPQJ0cqwWbjRGWamX6HCpkt1Q8ougN2bzqE80Mgewdng19SCtr
-         mOpfTvMeHSBxvvcWpI2GW9APYe/7l0odsPNh3b3xVZ3U+lX28NvxalXaPRAPOEbKl0Mt
-         zNqpTu4vTRc379u4MTYCz5PqarlF5diGqBjHDKd7ZF8FL6Z3toWUI48rAM2S3goOA1ul
-         pcyQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=a8H2er2hoE6OOaPTRGgvr+9HfPOXdtcl19DMyXTtMiw=;
+        b=jNUL3xCu1si/pCkWllw/O4OEC4fb3IKNGXmt1stE40JTuFEyrwTNy+oKe6o/68Htph
+         sBgprbD8q+ZQJboBM33k1ISvYnlagdBDyPjmRabb2ti3qZZW6KsBIqSJTmGvC+Kv6Vmg
+         PTALBnhMzbQzQ2mW3WAaOBey86t099DqmekJ2hYlcy5HsQ8VV94Jjs8T45hfO813FucR
+         5p2Ehob360L9SE3aDgaCHYPKVLZF8TfRbPTZt4qAhxC+PYolWpnF4cZEa+qSSRxex/uN
+         CIXIq//LQIxdMqQnI3ZliLMwA236HmHR/GMrqQbUHH3jldQAMAk+w0BbJGJbwfiWztC3
+         NTcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aBIAuIQ8pqqfSBLDil/Yx/aWCENej9k7uffDLC1s2rI=;
-        b=AJ6PFTxq/2duAduuoe8thh8yNePrAD9WLN3Iju44m76FTO7Tkugw2bzW+uBV9bkEzv
-         YBLoXPlqSZLrA0dh6UaCR/dX8c8ZqsXOVjej19wjW8fTly/aICRXFKLl+OqwCGSJPp72
-         EbCbmyXVpqh0Jl6nqmtIke62lgJMyxD86hqe6JdPy0fpJFJKFw3ysQ5IpIzx8OgiY1F2
-         WmBvjR41iAOk6aPYEUK7Tl9iOq7F12b9xSWRBs76PTWsq5nmN0E0DWy/ImiBXhJqfi5W
-         49oarOx5fBdlxVeXwMk57ls42OHJyb+zs2GHLzDNzKjqiBOnMIyJyDZyPQXAAUSK3AFj
-         fJxA==
-X-Gm-Message-State: AOAM5322lSkAYloNSK7fMLoQZIGtdoUBXGbETr8tguTw8CgH4THn37S2
-        1QUkOmITzMgnshIDkQ6YEvcAGsqhsImKaW9j
-X-Google-Smtp-Source: ABdhPJxq6ujq3pKCmoOtkzyCryblSKQ5g2qwMuo8yUss6IqHJkRMKgAI/ZAklYbr73vZz5C9nTw8Aw==
-X-Received: by 2002:a05:622a:1744:: with SMTP id l4mr5574004qtk.75.1617849637744;
-        Wed, 07 Apr 2021 19:40:37 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=a8H2er2hoE6OOaPTRGgvr+9HfPOXdtcl19DMyXTtMiw=;
+        b=kyxTNxBjywftlzyhFnjyABeSIr8SqD5U76M/bT4AQT/SI5sEjm2bgJoL7xW+VTL2O8
+         sjnEzJ3gsXSQ2jRtbuaKsk+iLmnvkgGdYEVp8IScOJ3kmSe4ZLbUwhQRyQO3LsGsyFnQ
+         DSuzibIhJYqN4miHwHNIzIFx079cnC5jUXiLALKg+Vbk4gQ9vU4PQIYORr+LlZnEU6ex
+         fto2XuLbw0YqHNlYbmRPEVjUg4oOPheoUKyWgeDzR58xlGensb7CUBlyHX2O5kyDBrih
+         RtdBr3fMSj13Z1nnIg2nxlT5B1LWChVUt0wsIhfNtM7UbghPzbhG33c6L1OhmDK75NgR
+         6Ksw==
+X-Gm-Message-State: AOAM533MUYhpbV2HIUg5xcDwNp/JB0Q2P9OfKHcBdIrycJxLJ3z3ZFnn
+        fgXnCuYIzr8BvyFBWnHJZeM=
+X-Google-Smtp-Source: ABdhPJwNPiYXP0IIvydV7SUpsXoBUdauTqwyX8gS4J1YFnm5pWEA3SM5239n3dGiUB4NGOHNkbWEwg==
+X-Received: by 2002:ac8:5cd2:: with SMTP id s18mr5616668qta.202.1617849639482;
+        Wed, 07 Apr 2021 19:40:39 -0700 (PDT)
 Received: from shaak.xiphos.ca (198-48-202-89.cpe.pppoe.ca. [198.48.202.89])
-        by smtp.gmail.com with ESMTPSA id v128sm20102383qkc.127.2021.04.07.19.40.36
+        by smtp.gmail.com with ESMTPSA id v128sm20102383qkc.127.2021.04.07.19.40.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Apr 2021 19:40:37 -0700 (PDT)
+        Wed, 07 Apr 2021 19:40:39 -0700 (PDT)
 From:   Liam Beguin <liambeguin@gmail.com>
 To:     liambeguin@gmail.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com, panfilov.artyom@gmail.com
 Cc:     linux-rtc@vger.kernel.org
-Subject: [PATCH v2 0/3] add alarm support for the rtc-ab-eoz9
-Date:   Wed,  7 Apr 2021 22:40:25 -0400
-Message-Id: <20210408024028.3526564-1-liambeguin@gmail.com>
+Subject: [PATCH v2 2/3] rtc: ab-eoz9: add alarm support
+Date:   Wed,  7 Apr 2021 22:40:27 -0400
+Message-Id: <20210408024028.3526564-3-liambeguin@gmail.com>
 X-Mailer: git-send-email 2.30.1.489.g328c10930387
+In-Reply-To: <20210408024028.3526564-1-liambeguin@gmail.com>
+References: <20210408024028.3526564-1-liambeguin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -73,53 +76,186 @@ From: Liam Beguin <lvb@xiphos.com>
 
 Add alarm support for the rtc-ab-eoz9.
 
-The board used to test this series has the interrupt line of the RTC
-connected to a circuit controlling the power of the board.
+Signed-off-by: Liam Beguin <lvb@xiphos.com>
+---
+ drivers/rtc/rtc-ab-eoz9.c | 136 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 136 insertions(+)
 
-An event on the interrupt line while the board is off will power it on.
-Because of these hardware limitations, the irq handler added in this
-patch wasn't fully tested.
-
-The alarm functionality was tested, with:
-
-	$ date "2010-10-10 10:10"
-	Sun Oct 10 10:10:00 UTC 2010
-	$ /usr/sbin/rtcwake -u -d /dev/rtc0  -s20 --mode off
-	[ ... ]
-	$ # power on after 20 seconds
-
-Changes since v1:
-- drop abeoz9_reset_validity in abeoz9_rtc_set_alarm since we don't know
-  for sure the time is set properly at that time.
-- keep the RTC_FEATURE_ALARM change in a separate patch for easy
-  backport
-
-Liam Beguin (3):
-  rtc: ab-eoz9: set regmap max_register
-  rtc: ab-eoz9: add alarm support
-  rtc: ab-eoz9: make use of RTC_FEATURE_ALARM
-
- drivers/rtc/rtc-ab-eoz9.c | 135 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 134 insertions(+), 1 deletion(-)
-
-Range-diff against v1:
-1:  7809a783807d < -:  ------------ rtc: ab-eoz9: make use of regmap local variable
-2:  3b5d3fa74715 = 1:  d2c1ffa4007b rtc: ab-eoz9: set regmap max_register
-3:  0a19ed90d4cc ! 2:  ac36be1f5f61 rtc: ab-eoz9: add alarm support
-    @@ drivers/rtc/rtc-ab-eoz9.c: static int abeoz9_rtc_set_time(struct device *dev, st
-     +	if (ret)
-     +		return ret;
-     +
-    -+	ret = abeoz9_reset_validity(data->regmap);
-    -+	if (ret)
-    -+		return ret;
-    -+
-     +	return abeoz9_rtc_alarm_irq_enable(dev, alarm->enabled);
-     +}
-     +
-4:  7004d40f2f36 = 3:  1987bef12ee8 rtc: ab-eoz9: make use of RTC_FEATURE_ALARM
-
-base-commit: e49d033bddf5b565044e2abe4241353959bc9120
+diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
+index dee17a76a72b..7dc96fabc76f 100644
+--- a/drivers/rtc/rtc-ab-eoz9.c
++++ b/drivers/rtc/rtc-ab-eoz9.c
+@@ -11,6 +11,7 @@
+ #include <linux/bcd.h>
+ #include <linux/of.h>
+ #include <linux/regmap.h>
++#include <linux/bitfield.h>
+ #include <linux/hwmon.h>
+ #include <linux/hwmon-sysfs.h>
+ 
+@@ -57,6 +58,24 @@
+ 
+ #define ABEOZ9_SEC_LEN			7
+ 
++#define ABEOZ9_REG_ALARM_SEC		0x10
++#define ABEOZ9_BIT_ALARM_SEC		GENMASK(6, 0)
++#define ABEOZ9_REG_ALARM_MIN		0x11
++#define ABEOZ9_BIT_ALARM_MIN		GENMASK(6, 0)
++#define ABEOZ9_REG_ALARM_HOURS		0x12
++#define ABEOZ9_BIT_ALARM_HOURS_PM	BIT(5)
++#define ABEOZ9_BIT_ALARM_HOURS		GENMASK(4, 0)
++#define ABEOZ9_REG_ALARM_DAYS		0x13
++#define ABEOZ9_BIT_ALARM_DAYS		GENMASK(5, 0)
++#define ABEOZ9_REG_ALARM_WEEKDAYS	0x14
++#define ABEOZ9_BIT_ALARM_WEEKDAYS	GENMASK(2, 0)
++#define ABEOZ9_REG_ALARM_MONTHS		0x15
++#define ABEOZ9_BIT_ALARM_MONTHS		GENMASK(4, 0)
++#define ABEOZ9_REG_ALARM_YEARS		0x16
++
++#define ABEOZ9_ALARM_LEN		7
++#define ABEOZ9_BIT_ALARM_AE		BIT(7)
++
+ #define ABEOZ9_REG_REG_TEMP		0x20
+ #define ABEOZ953_TEMP_MAX		120
+ #define ABEOZ953_TEMP_MIN		-60
+@@ -186,6 +205,98 @@ static int abeoz9_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	return abeoz9_reset_validity(regmap);
+ }
+ 
++static int abeoz9_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	struct abeoz9_rtc_data *data = dev_get_drvdata(dev);
++	struct regmap *regmap = data->regmap;
++	u8 regs[ABEOZ9_ALARM_LEN];
++	u8 val[2];
++	int ret;
++
++	ret = abeoz9_check_validity(dev);
++	if (ret)
++		return ret;
++
++	ret = regmap_bulk_read(regmap, ABEOZ9_REG_CTRL_INT, val, sizeof(val));
++	if (ret)
++		return ret;
++
++	alarm->enabled = val[0] & ABEOZ9_REG_CTRL_INT_AIE;
++	alarm->pending = val[1] & ABEOZ9_REG_CTRL_INT_FLAG_AF;
++
++	ret = regmap_bulk_read(regmap, ABEOZ9_REG_ALARM_SEC, regs, sizeof(regs));
++	if (ret)
++		return ret;
++
++	alarm->time.tm_sec = bcd2bin(FIELD_GET(ABEOZ9_BIT_ALARM_SEC, regs[0]));
++	alarm->time.tm_min = bcd2bin(FIELD_GET(ABEOZ9_BIT_ALARM_MIN, regs[1]));
++	alarm->time.tm_hour = bcd2bin(FIELD_GET(ABEOZ9_BIT_ALARM_HOURS, regs[2]));
++	if (FIELD_GET(ABEOZ9_BIT_ALARM_HOURS_PM, regs[2]))
++		alarm->time.tm_hour += 12;
++
++	alarm->time.tm_mday = bcd2bin(FIELD_GET(ABEOZ9_BIT_ALARM_DAYS, regs[3]));
++
++	return 0;
++}
++
++static int abeoz9_rtc_alarm_irq_enable(struct device *dev, u32 enable)
++{
++	struct abeoz9_rtc_data *data = dev_get_drvdata(dev);
++
++	return regmap_update_bits(data->regmap, ABEOZ9_REG_CTRL_INT,
++				  ABEOZ9_REG_CTRL_INT_AIE,
++				  FIELD_PREP(ABEOZ9_REG_CTRL_INT_AIE, enable));
++}
++
++static int abeoz9_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
++{
++	struct abeoz9_rtc_data *data = dev_get_drvdata(dev);
++	u8 regs[ABEOZ9_ALARM_LEN] = {0};
++	int ret;
++
++	ret = regmap_update_bits(data->regmap, ABEOZ9_REG_CTRL_INT_FLAG,
++				 ABEOZ9_REG_CTRL_INT_FLAG_AF, 0);
++	if (ret)
++		return ret;
++
++	regs[0] = ABEOZ9_BIT_ALARM_AE | FIELD_PREP(ABEOZ9_BIT_ALARM_SEC,
++						   bin2bcd(alarm->time.tm_sec));
++	regs[1] = ABEOZ9_BIT_ALARM_AE | FIELD_PREP(ABEOZ9_BIT_ALARM_MIN,
++						   bin2bcd(alarm->time.tm_min));
++	regs[2] = ABEOZ9_BIT_ALARM_AE | FIELD_PREP(ABEOZ9_BIT_ALARM_HOURS,
++						   bin2bcd(alarm->time.tm_hour));
++	regs[3] = ABEOZ9_BIT_ALARM_AE | FIELD_PREP(ABEOZ9_BIT_ALARM_DAYS,
++						   bin2bcd(alarm->time.tm_mday));
++
++	ret = regmap_bulk_write(data->regmap, ABEOZ9_REG_ALARM_SEC, regs,
++				sizeof(regs));
++	if (ret)
++		return ret;
++
++	return abeoz9_rtc_alarm_irq_enable(dev, alarm->enabled);
++}
++
++static irqreturn_t abeoz9_rtc_irq(int irq, void *dev)
++{
++	struct abeoz9_rtc_data *data = dev_get_drvdata(dev);
++	unsigned int val;
++	int ret;
++
++	ret = regmap_read(data->regmap, ABEOZ9_REG_CTRL_INT_FLAG, &val);
++	if (ret)
++		return IRQ_NONE;
++
++	if (!FIELD_GET(ABEOZ9_REG_CTRL_INT_FLAG_AF, val))
++		return IRQ_NONE;
++
++	regmap_update_bits(data->regmap, ABEOZ9_REG_CTRL_INT_FLAG,
++			   ABEOZ9_REG_CTRL_INT_FLAG_AF, 0);
++
++	rtc_update_irq(data->rtc, 1, RTC_IRQF | RTC_AF);
++
++	return IRQ_HANDLED;
++}
++
+ static int abeoz9_trickle_parse_dt(struct device_node *node)
+ {
+ 	u32 ohms = 0;
+@@ -261,6 +372,14 @@ static const struct rtc_class_ops rtc_ops = {
+ 	.set_time  = abeoz9_rtc_set_time,
+ };
+ 
++static const struct rtc_class_ops rtc_alarm_ops = {
++	.read_time = abeoz9_rtc_get_time,
++	.set_time = abeoz9_rtc_set_time,
++	.read_alarm = abeoz9_rtc_read_alarm,
++	.set_alarm = abeoz9_rtc_set_alarm,
++	.alarm_irq_enable = abeoz9_rtc_alarm_irq_enable,
++};
++
+ static const struct regmap_config abeoz9_rtc_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -420,6 +539,23 @@ static int abeoz9_probe(struct i2c_client *client,
+ 	data->rtc->ops = &rtc_ops;
+ 	data->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	data->rtc->range_max = RTC_TIMESTAMP_END_2099;
++	data->rtc->uie_unsupported = 1;
++
++	if (client->irq > 0) {
++		ret = devm_request_threaded_irq(dev, client->irq, NULL,
++						abeoz9_rtc_irq,
++						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++						dev_name(dev), dev);
++		if (ret) {
++			dev_err(dev, "failed to request alarm irq\n");
++			return ret;
++		}
++	}
++
++	if (client->irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
++		ret = device_init_wakeup(dev, true);
++		data->rtc->ops = &rtc_alarm_ops;
++	}
+ 
+ 	ret = devm_rtc_register_device(data->rtc);
+ 	if (ret)
 -- 
 2.30.1.489.g328c10930387
 
