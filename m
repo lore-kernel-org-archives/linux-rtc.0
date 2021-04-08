@@ -2,98 +2,113 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEC2DC43460
-	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 02:40:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F97EC433B4
+	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 08:04:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C32D0611AB
-	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 02:40:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE96161165
+	for <linux-rtc@archiver.kernel.org>; Thu,  8 Apr 2021 08:04:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229514AbhDHCky (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Apr 2021 22:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbhDHCkv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Apr 2021 22:40:51 -0400
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4671EC061762
-        for <linux-rtc@vger.kernel.org>; Wed,  7 Apr 2021 19:40:40 -0700 (PDT)
-Received: by mail-qk1-x72e.google.com with SMTP id g20so823715qkk.1
-        for <linux-rtc@vger.kernel.org>; Wed, 07 Apr 2021 19:40:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=kaqo7uOnV2YyBNUijp7UcFWN/avBdDP9EEhdzkkl5WE=;
-        b=JB26clC6ULXtWG80k48Zh7UWjUPR9nqP7NqGXkoLlF2gJe5dhr9Ad0v2HYReSSxf60
-         JaitaBkorL8BryI85xwUJEd+4cYVlP6at+ZqWRfxyxKCYMz0yk0Lbst/E9JfwC+4X3N5
-         8Sk18NJuHMV33ZMFq1an6JlebOdoLC8q2/y83mCGMNqsmHCAIibEIjTc2s6HHvW2Fvj/
-         Bqjk6nwv5DWN6lWMbTogkfOJvxIojigrDNJXCuzTMxHqKhZ65WworVGty5+8MoowmKn3
-         9r4CfGmpCAIDAZmM1bMTuIiKp0Vw4cyk3LvTYnC9CK4iXCHwI/GZF+0Ix3DTGtsVDfwh
-         sBoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=kaqo7uOnV2YyBNUijp7UcFWN/avBdDP9EEhdzkkl5WE=;
-        b=QiIAENe9hf0nZ9zC+uyQfR7z3ubweI4+8CXs95SejKbKVB3OPCNdbdEwkGe18I5W04
-         y74co1VP1MeCq7fGAsG63ujfyWe7RRpPdBvt4utSjeBCQC/3rsG174cAeZbxo4QNL30U
-         /dNAt1lkaEgevee9N1AsFKh4/mT7B/92WqAgSXH8XirTUuFRpBtm/hw1lD7b5hwNS0eD
-         3o/eUUhcUqw5ydbZWJvj6u+dKGMb6X5ec0rSi4wEcta7GKjxRGbrbFESBfU5AMUa7hs8
-         5WFEOT5AzveTG6nPBUaZDzBj7HXFqn7MxBHbmxa/IXEUOd4GinfKDObvms86EdZyfZpD
-         58xQ==
-X-Gm-Message-State: AOAM531GbdoC0KNdURrSPHC23axYQYXwq6s9s+04LZU19rqe+BHPhNYS
-        vfiYrQpUbZ1hl2J56+CMoFupuPO2aQoMuJyt
-X-Google-Smtp-Source: ABdhPJy/+ZflvwL02/Qw/Nxh3DNwtQtDjDgMtWXu1oGRWjyqG0rKlFBt3KhlA2iQNJgt1bDTaN7WPg==
-X-Received: by 2002:a05:620a:1502:: with SMTP id i2mr6474066qkk.373.1617849638643;
-        Wed, 07 Apr 2021 19:40:38 -0700 (PDT)
-Received: from shaak.xiphos.ca (198-48-202-89.cpe.pppoe.ca. [198.48.202.89])
-        by smtp.gmail.com with ESMTPSA id v128sm20102383qkc.127.2021.04.07.19.40.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Apr 2021 19:40:38 -0700 (PDT)
-From:   Liam Beguin <liambeguin@gmail.com>
-To:     liambeguin@gmail.com, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, panfilov.artyom@gmail.com
-Cc:     linux-rtc@vger.kernel.org
-Subject: [PATCH v2 1/3] rtc: ab-eoz9: set regmap max_register
-Date:   Wed,  7 Apr 2021 22:40:26 -0400
-Message-Id: <20210408024028.3526564-2-liambeguin@gmail.com>
-X-Mailer: git-send-email 2.30.1.489.g328c10930387
-In-Reply-To: <20210408024028.3526564-1-liambeguin@gmail.com>
-References: <20210408024028.3526564-1-liambeguin@gmail.com>
+        id S229725AbhDHIEh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 8 Apr 2021 04:04:37 -0400
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:2626 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229623AbhDHIEh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Apr 2021 04:04:37 -0400
+Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 13883Rlt004817;
+        Thu, 8 Apr 2021 10:04:08 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=selector1;
+ bh=3lmdHjpmGNyJcNcVl8lJSCC55iHfVRZvzlEF1Bg4cnw=;
+ b=2UFIR761HcviA0h1m1wF6CP8Fyxvv2OAUNnRUTcmCFaG9dagZfqv+NEun9l/rtHG35ij
+ 3wwD/sX0v46/11obeFbjXHP60z7LGQIxu9/PvlErFM54pPy2nU8j210tnXljUwb7mmvB
+ z2en35ZpLsVSkf/eJEYJDzM6jlWQdDFhaTImExEvLUuY0u3SaT9xU+vjRoTuJ7BsDjp1
+ 4KIDOSR2wl0XxNzExuWkCGw+Q0EhDbNnBzSfWzq3MOTKlxau93Pt+PFwIENp5GleWx7H
+ KdGYIgD4IaCqXHnb1X45fNEgwuKYAQb0hbmCQ2PHqfRXZw03ob6v8Rft/GL8CDSGNy1l DQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 37ssm3ha47-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 08 Apr 2021 10:04:08 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 5975A10002A;
+        Thu,  8 Apr 2021 10:04:06 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node3.st.com [10.75.127.6])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 2E42A21B2D9;
+        Thu,  8 Apr 2021 10:04:06 +0200 (CEST)
+Received: from lmecxl0573.lme.st.com (10.75.127.47) by SFHDAG2NODE3.st.com
+ (10.75.127.6) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 8 Apr
+ 2021 10:04:05 +0200
+Subject: Re: [PATCH] rtc: st-lpc: move to use request_irq by IRQF_NO_AUTOEN
+ flag
+To:     Tian Tao <tiantao6@hisilicon.com>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>
+CC:     <linux-arm-kernel@lists.infradead.org>, <linux-rtc@vger.kernel.org>
+References: <1617761937-58318-1-git-send-email-tiantao6@hisilicon.com>
+From:   Patrice CHOTARD <patrice.chotard@foss.st.com>
+Message-ID: <1df61277-23b0-0351-7373-2e1e5c9f6651@foss.st.com>
+Date:   Thu, 8 Apr 2021 10:04:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1617761937-58318-1-git-send-email-tiantao6@hisilicon.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.75.127.47]
+X-ClientProxiedBy: SFHDAG3NODE1.st.com (10.75.127.7) To SFHDAG2NODE3.st.com
+ (10.75.127.6)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-04-08_02:2021-04-08,2021-04-08 signatures=0
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Liam Beguin <lvb@xiphos.com>
+Hi Tian
 
-Set regmap's max_register property to allow users to dump registers
-using debufgs.
+On 4/7/21 4:18 AM, Tian Tao wrote:
+> disable_irq() after request_irq() still has a time gap in which
+> interrupts can come. request_irq() with IRQF_NO_AUTOEN flag will
+> disable IRQ auto-enable because of requesting.
+> 
+> this patch is made base on "add IRQF_NO_AUTOEN for request_irq" which
+> is being merged: https://lore.kernel.org/patchwork/patch/1388765/
+> 
+> Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+> ---
+>  drivers/rtc/rtc-st-lpc.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+> index bdb20f6..2df2179 100644
+> --- a/drivers/rtc/rtc-st-lpc.c
+> +++ b/drivers/rtc/rtc-st-lpc.c
+> @@ -218,15 +218,14 @@ static int st_rtc_probe(struct platform_device *pdev)
+>  		return -EINVAL;
+>  	}
+>  
+> -	ret = devm_request_irq(&pdev->dev, rtc->irq, st_rtc_handler, 0,
+> -			       pdev->name, rtc);
+> +	ret = devm_request_irq(&pdev->dev, rtc->irq, st_rtc_handler,
+> +			       IRQF_NO_AUTOEN, pdev->name, rtc);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "Failed to request irq %i\n", rtc->irq);
+>  		return ret;
+>  	}
+>  
+>  	enable_irq_wake(rtc->irq);
+> -	disable_irq(rtc->irq);
+>  
+>  	rtc->clk = clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(rtc->clk)) {
+> 
 
-Signed-off-by: Liam Beguin <lvb@xiphos.com>
----
- drivers/rtc/rtc-ab-eoz9.c | 1 +
- 1 file changed, 1 insertion(+)
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
 
-diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
-index b20d8f26dcdb..dee17a76a72b 100644
---- a/drivers/rtc/rtc-ab-eoz9.c
-+++ b/drivers/rtc/rtc-ab-eoz9.c
-@@ -264,6 +264,7 @@ static const struct rtc_class_ops rtc_ops = {
- static const struct regmap_config abeoz9_rtc_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-+	.max_register = 0x3f,
- };
- 
- #if IS_REACHABLE(CONFIG_HWMON)
--- 
-2.30.1.489.g328c10930387
-
+Thanks
+Patrice
