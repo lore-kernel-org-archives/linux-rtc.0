@@ -2,101 +2,133 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17008C433B4
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Apr 2021 10:46:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82A4CC433B4
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Apr 2021 14:00:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D61B860230
-	for <linux-rtc@archiver.kernel.org>; Fri,  9 Apr 2021 10:46:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D3C761105
+	for <linux-rtc@archiver.kernel.org>; Fri,  9 Apr 2021 14:00:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231611AbhDIKqe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 9 Apr 2021 06:46:34 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:43236 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231127AbhDIKqd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Apr 2021 06:46:33 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 231C01C0B77; Fri,  9 Apr 2021 12:46:19 +0200 (CEST)
-Date:   Fri, 9 Apr 2021 12:46:17 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Kirill Kapranov <kirill.kapranov@compulab.co.il>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        phdm@macqel.be, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/4] rtc:abx80x: Enable xt digital calibration
-Message-ID: <20210409104617.GB10988@amd>
-References: <20210328210232.10395-1-kirill.kapranov@compulab.co.il>
- <20210328210232.10395-5-kirill.kapranov@compulab.co.il>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="PmA2V3Z32TCmWXqI"
-Content-Disposition: inline
-In-Reply-To: <20210328210232.10395-5-kirill.kapranov@compulab.co.il>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S233693AbhDIOAa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 9 Apr 2021 10:00:30 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:52694 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233577AbhDIOA3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 9 Apr 2021 10:00:29 -0400
+Received: from ironmsg08-lv.qualcomm.com ([10.47.202.152])
+  by alexa-out.qualcomm.com with ESMTP; 09 Apr 2021 07:00:12 -0700
+X-QCInternal: smtphost
+Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
+  by ironmsg08-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 09 Apr 2021 07:00:09 -0700
+X-QCInternal: smtphost
+Received: from c-skakit-linux.ap.qualcomm.com (HELO c-skakit-linux.qualcomm.com) ([10.242.51.242])
+  by ironmsg01-blr.qualcomm.com with ESMTP; 09 Apr 2021 19:29:40 +0530
+Received: by c-skakit-linux.qualcomm.com (Postfix, from userid 2344709)
+        id D92404EFA; Fri,  9 Apr 2021 19:29:39 +0530 (IST)
+From:   satya priya <skakit@codeaurora.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Lee Jones <lee.jones@linaro.org>, linux-rtc@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, kgunda@codeaurora.org,
+        satya priya <skakit@codeaurora.org>
+Subject: [PATCH V2 4/4] dt-bindings: rtc: qcom-pm8xxx-rtc: Add qcom pm8xxx rtc bindings
+Date:   Fri,  9 Apr 2021 19:29:26 +0530
+Message-Id: <1617976766-7852-5-git-send-email-skakit@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1617976766-7852-1-git-send-email-skakit@codeaurora.org>
+References: <1617976766-7852-1-git-send-email-skakit@codeaurora.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Add binding doc for qcom pm8xxx rtc device.
 
---PmA2V3Z32TCmWXqI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: satya priya <skakit@codeaurora.org>
+---
+Changes in V2:
+ - Added this in V2 to have separate binding for rtc node.
 
-Hi!
+ .../devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml   | 62 ++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
 
-> The XT digital calibration feature allows to improve the RTC accuracy,
-> using a Distributed Digital Calibration function.
-> See ch. 5.9.1 of AB08XX Series Ultra Low Power RTC IC User's Guide
-> https://abracon.com/realtimeclock/AB08XX-Application-Manual.pdf
->=20
-> Signed-off-by: Kirill Kapranov <kirill.kapranov@compulab.co.il>
-> ---
->  drivers/rtc/rtc-abx80x.c | 145 +++++++++++++++++++++++++++++++++++++++++=
-++++++
->  1 file changed, 145 insertions(+)
+diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+new file mode 100644
+index 0000000..4fba6db
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/qcom-pm8xxx-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Qualcomm PM8xxx PMIC RTC device
++
++maintainers:
++  - Satya Priya <skakit@codeaurora.org>
++
++properties:
++  compatible:
++    enum:
++      - qcom,pm8058-rtc
++      - qcom,pm8921-rtc
++      - qcom,pm8941-rtc
++      - qcom,pm8018-rtc
++      - qcom,pmk8350-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  allow-set-time:
++    $ref: /schemas/types.yaml#/definitions/flag
++    description:
++      Indicates that the setting of RTC time is allowed by the host CPU.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/spmi/spmi.h>
++    spmi_bus: spmi@c440000 {
++      reg = <0x0c440000 0x1100>;
++      #address-cells = <2>;
++      #size-cells = <0>;
++      pmicintc: pmic@0 {
++        reg = <0x0 SPMI_USID>;
++        compatible = "qcom,pm8921";
++        interrupts = <104 8>;
++        #interrupt-cells = <2>;
++        interrupt-controller;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        pm8921_rtc: rtc@11d {
++          compatible = "qcom,pm8921-rtc";
++          reg = <0x11d>;
++          interrupts = <0x27 0>;
++        };
++      };
++    };
++...
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member 
+of Code Aurora Forum, hosted by The Linux Foundation
 
-
-> =20
-> +static const int xt_freq_nom =3D 32768000; //Nominal XT frequency 32 kHz=
- in mHz
-
-C-style comment?
-
-is it 32 kHz or 32.768 kHz?
-
-> +{
-> +	int retval;
-> +	long Adj;
-
-Adj -> adj.
-
-> +
-> +static DEVICE_ATTR_WO(xt_frequency);
-
-You are adding new user interface, you sould add documentation.
-
-Best regards,
-								Pavel
-							=09
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---PmA2V3Z32TCmWXqI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBwMHkACgkQMOfwapXb+vIZCQCgpLHySKQSuRHiyPEiKl+9062O
-rlAAnA86MaZPa0g8CeIxTSVd9Uu19NbW
-=P1AG
------END PGP SIGNATURE-----
-
---PmA2V3Z32TCmWXqI--
