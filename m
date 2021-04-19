@@ -2,303 +2,164 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2340C43461
-	for <linux-rtc@archiver.kernel.org>; Sun, 18 Apr 2021 00:20:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E38C433B4
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Apr 2021 01:45:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CD1D6113D
-	for <linux-rtc@archiver.kernel.org>; Sun, 18 Apr 2021 00:20:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D02486109F
+	for <linux-rtc@archiver.kernel.org>; Mon, 19 Apr 2021 01:45:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236554AbhDRAU4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 17 Apr 2021 20:20:56 -0400
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:55287 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234904AbhDRAU4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 17 Apr 2021 20:20:56 -0400
-X-Originating-IP: 90.65.108.55
-Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 2C6B9C0002;
-        Sun, 18 Apr 2021 00:20:27 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+        id S232958AbhDSBqY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 18 Apr 2021 21:46:24 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:50115 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232013AbhDSBqX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 18 Apr 2021 21:46:23 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 183381FC1;
+        Sun, 18 Apr 2021 21:45:54 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 18 Apr 2021 21:45:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm2; bh=44Z8MZBw8oX4GuSEIzaWdEz1Gd
+        RB6L8qCHH2tRotiss=; b=l37Xf5O7wSoCNna0+jXpSVdSjSsApRLpUDWP85azvr
+        f0D6MUUku18wBB2X681KydbNyre1ZWA+L5hSHw65FrP0hq4d0TT/Chr7qF9CjXYE
+        AMT3KuCTCerCl9ELKMPWqJ9LMfSG9QaBAMg3dO/YmCm3rqo88mUFb2+ZruT5j47j
+        t8ra4Im7cFMDEKNrntP99BLvmGapnwEfiS8spVRMuTJrVMeqcXsnec5tNFNut6Ah
+        whAO4sIpJRoNcAyF6xmj2UweD0Bpb1ZRY3uA0lnmro5BUklyV8OrXhQi89WgVB5I
+        ybbT5oNLKYSkko9e4h134r6iL+1D6EgExY3n5eut3naw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=44Z8MZBw8oX4GuSEI
+        zaWdEz1GdRB6L8qCHH2tRotiss=; b=JVC+uIlJ9ADTCsozCJCAJTyuUivKUnSb+
+        MvSpZJm6oP//XZ8ScNSiic5Jm45/DvWvnDvC1ShVG2X7a5GjhP8Dj7JIVXSEfTdf
+        lDypsF2npJfuOQYC/mDqA5hpoij+nSIVq0zq/YBfKX2owzbkzSWCVZqX18xY+rq/
+        FWaIqdd/dVr/VQDLU3YptF+LBkMDtJOFpprIpkcIn6gwsVUz1s0L2NtypHl++ZEY
+        EUzgs0p1tr9/Eg8PZrYgG3m414d+is5a+kCUYfvE92XysufNmjcXdrN1Ojz9WvYn
+        iNkwWtbPDj79aiQ7fCnkCEOzmZmXpGOA0KJAA4FWDhmeCQEP+4K5Q==
+X-ME-Sender: <xms:z-B8YMUV7VISxZFLRY0xYrrvtgb42-9cv8deFATGRAO50EhZjAN1XQ>
+    <xme:z-B8YAlfE4CJYhrTuaLGyD0T-EghI_3-saZ3w7Q87F8ozCwNHbwQ-02GT9U65FHc-
+    8UAjljX8WXX3NlB0w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvddtvddgkeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgvlhcu
+    jfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtffrrg
+    htthgvrhhnpeeiteekhfehuddugfeltddufeejjeefgeevheekueffhffhjeekheeiffdt
+    vedtveenucfkphepjedtrddufeehrddugeekrdduhedunecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghnugdr
+    ohhrgh
+X-ME-Proxy: <xmx:z-B8YAblTVFrcRlwHkUmH_K4JW_stNwC8MaW5wqNkX1WhZ81JrCUaA>
+    <xmx:z-B8YLVTWTRqPIDQboaTR5PyEGfsH-qCcNGG5rT-iYyOJAElcxFzrA>
+    <xmx:z-B8YGkGXeg2CeD547OhKjqOhF6aBwiPczyhXGgkDz3jHrYCZOlvZw>
+    <xmx:0eB8YIW9Jg71gq2Ood13y6Wsr1BMDWxnPe3OWnKor9Y29SxTmlmaWw>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 96F78240054;
+        Sun, 18 Apr 2021 21:45:50 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] rtc: pcf8523: add alarm support
-Date:   Sun, 18 Apr 2021 02:20:22 +0200
-Message-Id: <20210418002023.1000265-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210418002023.1000265-1-alexandre.belloni@bootlin.com>
-References: <20210418002023.1000265-1-alexandre.belloni@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>
+Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Samuel Holland <samuel@sholland.org>
+Subject: [PATCH] rtc: sun6i: Add NVMEM provider
+Date:   Sun, 18 Apr 2021 20:45:49 -0500
+Message-Id: <20210419014549.26900-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Alarm support requires unconditionally disabling clock out because it is
-using the int1 pin.
+The sun6i RTC provides 32 bytes of general-purpose data registers.
+They can be used to save data in the always-on RTC power domain.
+The registers are writable via 32-bit MMIO accesses only.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Expose the region as a NVMEM provider so it can be used by userspace and
+other drivers.
+
+Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- drivers/rtc/rtc-pcf8523.c | 181 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 180 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 42 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-index fe3ab41d8326..feadab8e3bd3 100644
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -8,10 +8,15 @@
- #include <linux/module.h>
- #include <linux/rtc.h>
- #include <linux/of.h>
-+#include <linux/pm_wakeirq.h>
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index e75020ab8024..f4a5e7465148 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -69,6 +69,10 @@
+ #define SUN6I_LOSC_OUT_GATING			0x0060
+ #define SUN6I_LOSC_OUT_GATING_EN_OFFSET		0
  
- #define REG_CONTROL1 0x00
- #define REG_CONTROL1_CAP_SEL BIT(7)
- #define REG_CONTROL1_STOP    BIT(5)
-+#define REG_CONTROL1_AIE    BIT(1)
++/* General-purpose data */
++#define SUN6I_GP_DATA				0x0100
++#define SUN6I_GP_DATA_SIZE			0x20
 +
-+#define REG_CONTROL2 0x01
-+#define REG_CONTROL2_AF BIT(3)
+ /*
+  * Get date values
+  */
+@@ -641,6 +645,39 @@ static const struct rtc_class_ops sun6i_rtc_ops = {
+ 	.alarm_irq_enable	= sun6i_rtc_alarm_irq_enable
+ };
  
- #define REG_CONTROL3 0x02
- #define REG_CONTROL3_PM_BLD BIT(7) /* battery low detection disabled */
-@@ -30,9 +35,22 @@
- #define REG_MONTHS   0x08
- #define REG_YEARS    0x09
- 
-+#define REG_MINUTE_ALARM	0x0a
-+#define REG_HOUR_ALARM		0x0b
-+#define REG_DAY_ALARM		0x0c
-+#define REG_WEEKDAY_ALARM	0x0d
-+#define ALARM_DIS BIT(7)
++static int sun6i_rtc_nvmem_read(void *priv, unsigned int offset, void *_val, size_t bytes)
++{
++	struct sun6i_rtc_dev *chip = priv;
++	u32 *val = _val;
++	int i;
 +
- #define REG_OFFSET   0x0e
- #define REG_OFFSET_MODE BIT(7)
- 
-+#define REG_TMR_CLKOUT_CTRL 0x0f
++	for (i = 0; i < bytes / 4; ++i)
++		val[i] = readl(chip->base + SUN6I_GP_DATA + offset + 4 * i);
 +
-+struct pcf8523 {
-+	struct rtc_device *rtc;
-+	struct i2c_client *client;
++	return 0;
++}
++
++static int sun6i_rtc_nvmem_write(void *priv, unsigned int offset, void *_val, size_t bytes)
++{
++	struct sun6i_rtc_dev *chip = priv;
++	u32 *val = _val;
++	int i;
++
++	for (i = 0; i < bytes / 4; ++i)
++		writel(val[i], chip->base + SUN6I_GP_DATA + offset + 4 * i);
++
++	return 0;
++}
++
++static struct nvmem_config sun6i_rtc_nvmem_cfg = {
++	.type		= NVMEM_TYPE_BATTERY_BACKED,
++	.reg_read	= sun6i_rtc_nvmem_read,
++	.reg_write	= sun6i_rtc_nvmem_write,
++	.size		= SUN6I_GP_DATA_SIZE,
++	.word_size	= 4,
++	.stride		= 4,
 +};
 +
- static int pcf8523_read(struct i2c_client *client, u8 reg, u8 *valuep)
+ /* Enable IRQ wake on suspend, to wake up from RTC. */
+ static int sun6i_rtc_suspend(struct device *dev)
  {
- 	struct i2c_msg msgs[2];
-@@ -138,6 +156,27 @@ static int pcf8523_set_pm(struct i2c_client *client, u8 pm)
+@@ -728,6 +765,11 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	sun6i_rtc_nvmem_cfg.priv = chip;
++	ret = devm_rtc_nvmem_register(chip->rtc, &sun6i_rtc_nvmem_cfg);
++	if (ret)
++		return ret;
++
+ 	dev_info(&pdev->dev, "RTC enabled\n");
+ 
  	return 0;
- }
- 
-+static irqreturn_t pcf8523_irq(int irq, void *dev_id)
-+{
-+	struct pcf8523 *pcf8523 = i2c_get_clientdata(dev_id);
-+	u8 value;
-+	int err;
-+
-+	err = pcf8523_read(pcf8523->client, REG_CONTROL2, &value);
-+	if (err < 0)
-+		return IRQ_HANDLED;
-+
-+	if (value & REG_CONTROL2_AF) {
-+		value &= ~REG_CONTROL2_AF;
-+		pcf8523_write(pcf8523->client, REG_CONTROL2, value);
-+		rtc_update_irq(pcf8523->rtc, 1, RTC_IRQF | RTC_AF);
-+
-+		return IRQ_HANDLED;
-+	}
-+
-+	return IRQ_NONE;
-+}
-+
- static int pcf8523_stop_rtc(struct i2c_client *client)
- {
- 	u8 value;
-@@ -257,6 +296,111 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	return pcf8523_start_rtc(client);
- }
- 
-+static int pcf8523_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *tm)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	u8 start = REG_MINUTE_ALARM, regs[4];
-+	struct i2c_msg msgs[2];
-+	u8 value;
-+	int err;
-+
-+	msgs[0].addr = client->addr;
-+	msgs[0].flags = 0;
-+	msgs[0].len = 1;
-+	msgs[0].buf = &start;
-+
-+	msgs[1].addr = client->addr;
-+	msgs[1].flags = I2C_M_RD;
-+	msgs[1].len = sizeof(regs);
-+	msgs[1].buf = regs;
-+
-+	err = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-+	if (err < 0)
-+		return err;
-+
-+	tm->time.tm_sec = 0;
-+	tm->time.tm_min = bcd2bin(regs[0] & 0x7F);
-+	tm->time.tm_hour = bcd2bin(regs[1] & 0x3F);
-+	tm->time.tm_mday = bcd2bin(regs[2] & 0x3F);
-+	tm->time.tm_wday = bcd2bin(regs[3] & 0x7);
-+
-+	err = pcf8523_read(client, REG_CONTROL1, &value);
-+	if (err < 0)
-+		return err;
-+	tm->enabled = !!(value & REG_CONTROL1_AIE);
-+
-+	err = pcf8523_read(client, REG_CONTROL2, &value);
-+	if (err < 0)
-+		return err;
-+	tm->pending = !!(value & REG_CONTROL2_AF);
-+
-+	return 0;
-+}
-+
-+static int pcf8523_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	u8 value;
-+	int err;
-+
-+	err = pcf8523_read(client, REG_CONTROL1, &value);
-+	if (err < 0)
-+		return err;
-+
-+	value &= REG_CONTROL1_AIE;
-+
-+	if (enabled)
-+		value |= REG_CONTROL1_AIE;
-+
-+	err = pcf8523_write(client, REG_CONTROL1, value);
-+	if (err < 0)
-+		return err;
-+
-+	return 0;
-+}
-+
-+static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct i2c_msg msg;
-+	u8 regs[5];
-+	int err;
-+
-+	err = pcf8523_irq_enable(dev, 0);
-+	if (err)
-+		return err;
-+
-+	err = pcf8523_write(client, REG_CONTROL2, 0);
-+	if (err < 0)
-+		return err;
-+
-+	/* The alarm has no seconds, round up to nearest minute */
-+	if (tm->time.tm_sec) {
-+		time64_t alarm_time = rtc_tm_to_time64(&tm->time);
-+
-+		alarm_time += 60 - tm->time.tm_sec;
-+		rtc_time64_to_tm(alarm_time, &tm->time);
-+	}
-+
-+	regs[0] = REG_MINUTE_ALARM;
-+	regs[1] = bin2bcd(tm->time.tm_min);
-+	regs[2] = bin2bcd(tm->time.tm_hour);
-+	regs[3] = bin2bcd(tm->time.tm_mday);
-+	regs[4] = ALARM_DIS;
-+	msg.addr = client->addr;
-+	msg.flags = 0;
-+	msg.len = sizeof(regs);
-+	msg.buf = regs;
-+	err = i2c_transfer(client->adapter, &msg, 1);
-+	if (err < 0)
-+		return err;
-+
-+	if (tm->enabled)
-+		return pcf8523_irq_enable(dev, tm->enabled);
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_RTC_INTF_DEV
- static int pcf8523_rtc_ioctl(struct device *dev, unsigned int cmd,
- 			     unsigned long arg)
-@@ -320,6 +464,9 @@ static int pcf8523_rtc_set_offset(struct device *dev, long offset)
- static const struct rtc_class_ops pcf8523_rtc_ops = {
- 	.read_time = pcf8523_rtc_read_time,
- 	.set_time = pcf8523_rtc_set_time,
-+	.read_alarm = pcf8523_rtc_read_alarm,
-+	.set_alarm = pcf8523_rtc_set_alarm,
-+	.alarm_irq_enable = pcf8523_irq_enable,
- 	.ioctl = pcf8523_rtc_ioctl,
- 	.read_offset = pcf8523_rtc_read_offset,
- 	.set_offset = pcf8523_rtc_set_offset,
-@@ -328,12 +475,21 @@ static const struct rtc_class_ops pcf8523_rtc_ops = {
- static int pcf8523_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
-+	struct pcf8523 *pcf8523;
- 	struct rtc_device *rtc;
-+	bool wakeup_source = false;
- 	int err;
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
- 		return -ENODEV;
- 
-+	pcf8523 = devm_kzalloc(&client->dev, sizeof(struct pcf8523), GFP_KERNEL);
-+	if (!pcf8523)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, pcf8523);
-+	pcf8523->client = client;
-+
- 	err = pcf8523_load_capacitance(client);
- 	if (err < 0)
- 		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
-@@ -347,11 +503,34 @@ static int pcf8523_probe(struct i2c_client *client,
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
- 
-+	pcf8523->rtc = rtc;
- 	rtc->ops = &pcf8523_rtc_ops;
- 	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	rtc->uie_unsupported = 1;
-+
-+	if (client->irq > 0) {
-+		err = pcf8523_write(client, REG_TMR_CLKOUT_CTRL, 0x38);
-+		if (err < 0)
-+			return err;
-+
-+		err = devm_request_threaded_irq(&client->dev, client->irq,
-+						NULL, pcf8523_irq,
-+						IRQF_SHARED | IRQF_ONESHOT | IRQF_TRIGGER_LOW,
-+						dev_name(&rtc->dev), client);
-+		if (err)
-+			return err;
-+
-+		dev_pm_set_wake_irq(&client->dev, client->irq);
-+	}
-+
-+#ifdef CONFIG_OF
-+	wakeup_source = of_property_read_bool(client->dev.of_node, "wakeup-source");
-+#endif
-+	if (client->irq > 0 || wakeup_source)
-+		device_init_wakeup(&client->dev, true);
- 
--	return devm_rtc_register_device(rtc);
-+	return rtc_register_device(rtc);
- }
- 
- static const struct i2c_device_id pcf8523_id[] = {
 -- 
-2.30.2
+2.26.3
 
