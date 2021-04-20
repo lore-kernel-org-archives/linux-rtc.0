@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26B62C43460
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:01:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACBD7C43460
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:01:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3F0D613D1
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:01:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EC9A613B2
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:01:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233212AbhDTRCH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 20 Apr 2021 13:02:07 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:50067 "EHLO
+        id S233267AbhDTRCI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 20 Apr 2021 13:02:08 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:50094 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232901AbhDTRCE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Apr 2021 13:02:04 -0400
-Received: from mail-ej1-f69.google.com ([209.85.218.69])
+        with ESMTP id S233245AbhDTRCH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Apr 2021 13:02:07 -0400
+Received: from mail-ed1-f70.google.com ([209.85.208.70])
         by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1lYtki-0004Sd-2X
-        for linux-rtc@vger.kernel.org; Tue, 20 Apr 2021 17:01:32 +0000
-Received: by mail-ej1-f69.google.com with SMTP id p25-20020a1709061419b0290378364a6464so5028421ejc.15
-        for <linux-rtc@vger.kernel.org>; Tue, 20 Apr 2021 10:01:32 -0700 (PDT)
+        id 1lYtkk-0004UP-Od
+        for linux-rtc@vger.kernel.org; Tue, 20 Apr 2021 17:01:34 +0000
+Received: by mail-ed1-f70.google.com with SMTP id m18-20020a0564025112b0290378d2a266ebso13455943edd.15
+        for <linux-rtc@vger.kernel.org>; Tue, 20 Apr 2021 10:01:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=G40+ggJ5/BUsbwdccSqO8JqtdoxRrS30UvEQCJ2OFE4=;
-        b=FvciXQPmZ5rhedAydVjBAKktN9anwh+RZ98mNzP8A8CruILw51gE0RXmYkwh1lkLW2
-         fY9s927wJXQOCEGvBHPfc6jL9tIbm6pn+ba4Z3kxrNx6MRL16psbfCvKoAzRmictKGko
-         fzZ+3bXsXDNXvCUuX1z8sD1X0mM3A8CfBKorrta1huRa38qqJBv672gw8arFU2BPF6V+
-         C900ECrdDM4P13m0O7xPKpOsNqb+T1z2J6cRNixGtv8Lm7+pLk+c+O8m4OmM/erWCdXw
-         rmbMU2IJzTWkzFAWF+D8eWRwFJrHauNpk3T2VJL0tUX69n6D8VLElXChwMwo05FdFbPt
-         ZdOQ==
-X-Gm-Message-State: AOAM533IiDtTilaz/v0u2UHizV+FSGsinIf6jQZ/TfkzfEU8yeVETWX5
-        H9JVLjoLKrwP8RUtHQZFNBfDMBPM8R5LAjKZLw7IyzaukPXaFioZD5PHG44TBh0eHWMAiVzEFNF
-        BN5MfklojY9sleVYHWC/ebdlSC+hIiNaNfiJa4w==
-X-Received: by 2002:a17:906:7c4a:: with SMTP id g10mr29295867ejp.325.1618938091679;
-        Tue, 20 Apr 2021 10:01:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx5/RbdFmHFfQlMnizEq9tbD/ZtDoZ+o42mxE6WfppD7PT3wIgD8ZYXTuliN8iYgnsedYkV4Q==
-X-Received: by 2002:a17:906:7c4a:: with SMTP id g10mr29295835ejp.325.1618938091392;
-        Tue, 20 Apr 2021 10:01:31 -0700 (PDT)
+        bh=3HCzipZq3msLcuy2WkjGbMNJtslSk5WuayCRwwGv1I8=;
+        b=bn2Nm6D6WZXznHFOloLS5/4HmXCqzbTHuPr371OAHZC0DulOGf1iHplT1wcO7soTKF
+         +p11arcFZav/wNT9v9K2ePlVZDGVOVSxHUg5vd4E0XvTtN7uyCfxM11iRtoZEgomvIxw
+         sR2UxVi1DcPqeirujSxxTrFx/VOpGIiNa85RUfRoB2rQtmj7YYYrHJ1b9ocNuemGO1/M
+         PYJwCIoB4mgA50JnA1KQOqm3K0En2/NCXBX5AMrWpRJyuA8qCSfbyogKs8/YCvKB3HAA
+         7dXqTEAVonoKvcveu5Jyt/w8tp2rkBCLZXVPyL4j3IGfyQcKpRxUI4aA9X5+MxrM6bKe
+         GJ1Q==
+X-Gm-Message-State: AOAM5317TxqB6HcBMgbx029nWmXpxtEVsALvpFiOLCFc62Krey/UbgEI
+        ZPcVj/PAMlNcUTSOo/ycJDhVJYBS7gAdVV1X9sLQjdG2FraX6ZRHhtd8It+Anmjad8WMPWIaHNF
+        2jY3nzwjalnTAp8pAA4pxwvHax7+jsPUJJvNJpw==
+X-Received: by 2002:a05:6402:485:: with SMTP id k5mr33466126edv.211.1618938094310;
+        Tue, 20 Apr 2021 10:01:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxELCUSPyZrAOwt3tM3D+dUCVIuCF50hufvL6zlHUtYRnZrR2c+i038ZRqkVsJ8Am5+aEE28g==
+X-Received: by 2002:a05:6402:485:: with SMTP id k5mr33466108edv.211.1618938094155;
+        Tue, 20 Apr 2021 10:01:34 -0700 (PDT)
 Received: from localhost.localdomain (xdsl-188-155-180-75.adslplus.ch. [188.155.180.75])
-        by smtp.gmail.com with ESMTPSA id x7sm16334441eds.67.2021.04.20.10.01.30
+        by smtp.gmail.com with ESMTPSA id x7sm16334441eds.67.2021.04.20.10.01.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Apr 2021 10:01:31 -0700 (PDT)
+        Tue, 20 Apr 2021 10:01:33 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 To:     Lee Jones <lee.jones@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
@@ -62,9 +62,9 @@ To:     Lee Jones <lee.jones@linaro.org>,
         linux-rtc@vger.kernel.org
 Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
         Sylwester Nawrocki <snawrocki@kernel.org>
-Subject: [PATCH 1/9] mfd: sec: Drop support for board files and require devicetree
-Date:   Tue, 20 Apr 2021 19:01:10 +0200
-Message-Id: <20210420170118.12788-2-krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 3/9] mfd: sec: Remove unused device_type in platform data
+Date:   Tue, 20 Apr 2021 19:01:12 +0200
+Message-Id: <20210420170118.12788-4-krzysztof.kozlowski@canonical.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210420170118.12788-1-krzysztof.kozlowski@canonical.com>
 References: <20210420170118.12788-1-krzysztof.kozlowski@canonical.com>
@@ -74,155 +74,57 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Samsung PMIC drivers since long time are used only on devicetree
-platforms (Samsung Exynos) and there are no users with board files.
+The 'device_type' field of platform data structure is not used and can
+be safely dropped.
 
-Drop the support for board files entirely and depend on OF for matching.
-
-Suggested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 ---
- drivers/mfd/Kconfig    |  1 +
- drivers/mfd/sec-core.c | 59 +++++++++++-------------------------------
- 2 files changed, 16 insertions(+), 44 deletions(-)
+ drivers/mfd/sec-core.c           | 5 +----
+ include/linux/mfd/samsung/core.h | 1 -
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 5c7f2b100191..93a1610128c8 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1133,6 +1133,7 @@ config MFD_RN5T618
- config MFD_SEC_CORE
- 	tristate "Samsung Electronics PMIC Series Support"
- 	depends on I2C=y
-+	depends on OF || COMPILE_TEST
- 	select MFD_CORE
- 	select REGMAP_I2C
- 	select REGMAP_IRQ
 diff --git a/drivers/mfd/sec-core.c b/drivers/mfd/sec-core.c
-index 15dd4c579937..c61c1fc62165 100644
+index 653d02b98d53..4c4db3171ce6 100644
 --- a/drivers/mfd/sec-core.c
 +++ b/drivers/mfd/sec-core.c
-@@ -94,7 +94,6 @@ static const struct mfd_cell s2mpu02_devs[] = {
- 	{ .name = "s2mpu02-regulator", },
- };
- 
--#ifdef CONFIG_OF
- static const struct of_device_id sec_dt_match[] = {
- 	{
- 		.compatible = "samsung,s5m8767-pmic",
-@@ -122,7 +121,6 @@ static const struct of_device_id sec_dt_match[] = {
- 	},
- };
- MODULE_DEVICE_TABLE(of, sec_dt_match);
--#endif
- 
- static bool s2mpa01_volatile(struct device *dev, unsigned int reg)
- {
-@@ -282,7 +280,6 @@ static void sec_pmic_configure(struct sec_pmic_dev *sec_pmic)
- 	}
- }
- 
--#ifdef CONFIG_OF
- /*
-  * Only the common platform data elements for s5m8767 are parsed here from the
-  * device tree. Other sub-modules of s5m8767 such as pmic, rtc , charger and
-@@ -313,28 +310,12 @@ sec_pmic_i2c_parse_dt_pdata(struct device *dev)
- 						"samsung,s2mps11-wrstbi-ground");
- 	return pd;
- }
--#else
--static struct sec_platform_data *
--sec_pmic_i2c_parse_dt_pdata(struct device *dev)
--{
--	return NULL;
--}
--#endif
--
--static inline unsigned long sec_i2c_get_driver_data(struct i2c_client *i2c,
--						const struct i2c_device_id *id)
--{
--	if (i2c->dev.of_node)
--		return (unsigned long)of_device_get_match_data(&i2c->dev);
--
--	return id->driver_data;
--}
- 
- static int sec_pmic_probe(struct i2c_client *i2c,
- 			    const struct i2c_device_id *id)
- {
--	struct sec_platform_data *pdata = dev_get_platdata(&i2c->dev);
- 	const struct regmap_config *regmap;
-+	struct sec_platform_data *pdata;
+@@ -318,7 +318,6 @@ static int sec_pmic_probe(struct i2c_client *i2c,
+ 	struct sec_platform_data *pdata;
  	const struct mfd_cell *sec_devs;
  	struct sec_pmic_dev *sec_pmic;
- 	unsigned long device_type;
-@@ -349,22 +330,19 @@ static int sec_pmic_probe(struct i2c_client *i2c,
+-	unsigned long device_type;
+ 	int ret, num_sec_devs;
+ 
+ 	sec_pmic = devm_kzalloc(&i2c->dev, sizeof(struct sec_pmic_dev),
+@@ -330,16 +329,14 @@ static int sec_pmic_probe(struct i2c_client *i2c,
  	sec_pmic->dev = &i2c->dev;
  	sec_pmic->i2c = i2c;
  	sec_pmic->irq = i2c->irq;
--	device_type = sec_i2c_get_driver_data(i2c, id);
--
--	if (sec_pmic->dev->of_node) {
--		pdata = sec_pmic_i2c_parse_dt_pdata(sec_pmic->dev);
--		if (IS_ERR(pdata)) {
--			ret = PTR_ERR(pdata);
--			return ret;
--		}
--		pdata->device_type = device_type;
--	}
--	if (pdata) {
--		sec_pmic->device_type = pdata->device_type;
--		sec_pmic->irq_base = pdata->irq_base;
--		sec_pmic->wakeup = pdata->wakeup;
--		sec_pmic->pdata = pdata;
-+	device_type = (unsigned long)of_device_get_match_data(sec_pmic->dev);
-+
-+	pdata = sec_pmic_i2c_parse_dt_pdata(sec_pmic->dev);
-+	if (IS_ERR(pdata)) {
-+		ret = PTR_ERR(pdata);
-+		return ret;
- 	}
-+	pdata->device_type = device_type;
-+
-+	sec_pmic->device_type = pdata->device_type;
-+	sec_pmic->irq_base = pdata->irq_base;
-+	sec_pmic->wakeup = pdata->wakeup;
-+	sec_pmic->pdata = pdata;
+-	device_type = (unsigned long)of_device_get_match_data(sec_pmic->dev);
  
- 	switch (sec_pmic->device_type) {
- 	case S2MPA01:
-@@ -404,7 +382,7 @@ static int sec_pmic_probe(struct i2c_client *i2c,
+ 	pdata = sec_pmic_i2c_parse_dt_pdata(sec_pmic->dev);
+ 	if (IS_ERR(pdata)) {
+ 		ret = PTR_ERR(pdata);
  		return ret;
  	}
+-	pdata->device_type = device_type;
  
--	if (pdata && pdata->cfg_pmic_irq)
-+	if (pdata->cfg_pmic_irq)
- 		pdata->cfg_pmic_irq();
+-	sec_pmic->device_type = pdata->device_type;
++	sec_pmic->device_type = (unsigned long)of_device_get_match_data(sec_pmic->dev);
+ 	sec_pmic->irq_base = pdata->irq_base;
+ 	sec_pmic->wakeup = pdata->wakeup;
+ 	sec_pmic->pdata = pdata;
+diff --git a/include/linux/mfd/samsung/core.h b/include/linux/mfd/samsung/core.h
+index 68afc2b97a41..bfde1b7c6303 100644
+--- a/include/linux/mfd/samsung/core.h
++++ b/include/linux/mfd/samsung/core.h
+@@ -81,7 +81,6 @@ int sec_irq_resume(struct sec_pmic_dev *sec_pmic);
+ struct sec_platform_data {
+ 	struct sec_regulator_data	*regulators;
+ 	struct sec_opmode_data		*opmode;
+-	int				device_type;
+ 	int				num_regulators;
  
- 	sec_irq_init(sec_pmic);
-@@ -529,21 +507,14 @@ static int sec_pmic_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(sec_pmic_pm_ops, sec_pmic_suspend, sec_pmic_resume);
- 
--static const struct i2c_device_id sec_pmic_id[] = {
--	{ "sec_pmic", 0 },
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, sec_pmic_id);
--
- static struct i2c_driver sec_pmic_driver = {
- 	.driver = {
- 		   .name = "sec_pmic",
- 		   .pm = &sec_pmic_pm_ops,
--		   .of_match_table = of_match_ptr(sec_dt_match),
-+		   .of_match_table = sec_dt_match,
- 	},
- 	.probe = sec_pmic_probe,
- 	.shutdown = sec_pmic_shutdown,
--	.id_table = sec_pmic_id,
- };
- module_i2c_driver(sec_pmic_driver);
- 
+ 	int				irq_base;
 -- 
 2.25.1
 
