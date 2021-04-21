@@ -2,109 +2,96 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4016C43460
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:02:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3CB2C43460
+	for <linux-rtc@archiver.kernel.org>; Wed, 21 Apr 2021 19:04:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 762D66100A
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Apr 2021 17:02:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B7BAB6147D
+	for <linux-rtc@archiver.kernel.org>; Wed, 21 Apr 2021 19:04:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233398AbhDTRD0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 20 Apr 2021 13:03:26 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:50166 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233385AbhDTRDZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Apr 2021 13:03:25 -0400
-Received: from mail-ed1-f72.google.com ([209.85.208.72])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1lYtm1-0004de-1J
-        for linux-rtc@vger.kernel.org; Tue, 20 Apr 2021 17:02:53 +0000
-Received: by mail-ed1-f72.google.com with SMTP id n18-20020a0564020612b02903853320059eso4441546edv.0
-        for <linux-rtc@vger.kernel.org>; Tue, 20 Apr 2021 10:02:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=uHDtfujd3OPxNtMM86LnHidWuIbqjKYUJi1OA9n+rmQ=;
-        b=tBuGN8Xl4PSaHdE0RLal+hXL3F8qeEQfMVIiuE5ZhkrH8n1vbloLkF3XBieqund61x
-         4uN2sw0qE8Agn3MzUuIoWC7SIYB3qqfSErE2zbTtZaoEGzRZg7RV0e+pB5g+E+pxzDWA
-         sL+Geri+rqNLemyX3hmYKFTCCuyvWjcT0r86NNhwFO8bou54KH8MXHujw7rzH3rSF2Uc
-         V9LE+bFfM1i+gddIWpZnlXG0sG6tZPRNUnBBY/E/Pok0oP9OUVrT9M6y70AFkTqnbpUS
-         yAgZ6IEuWV0zp8+Sgt1ZSLzIYGZapSTxm+EjDaKo6QJDrFkt3hKRfXqkElYns7bGaeDz
-         yXSQ==
-X-Gm-Message-State: AOAM531TsxrJ9207CpgunATAoGItDzMCbSldlvKynK+u7DsmxBI0H3Cq
-        4oxHGau9MaSBvrpswrAl9Sw9mqDcx4RfADL1Id/EsAyKblI3BAtwSFtolLNzCwonWKb0Ox8fDjh
-        p1+9YVUifoZpgUUQtiJdEZ7noV6sty4kaCP7hiw==
-X-Received: by 2002:a05:6402:26ca:: with SMTP id x10mr19010615edd.386.1618938172774;
-        Tue, 20 Apr 2021 10:02:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy/sePBPRPQUTmx8fDkJ2+CsjWnEpj49FgojrQhVJZqntZu2qHLjMn0Vt3q4U7LC4bOpSKRAQ==
-X-Received: by 2002:a05:6402:26ca:: with SMTP id x10mr19010591edd.386.1618938172615;
-        Tue, 20 Apr 2021 10:02:52 -0700 (PDT)
-Received: from localhost.localdomain (xdsl-188-155-180-75.adslplus.ch. [188.155.180.75])
-        by smtp.gmail.com with ESMTPSA id s20sm16590714edu.93.2021.04.20.10.02.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Apr 2021 10:02:52 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Lee Jones <lee.jones@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        id S245405AbhDUTFG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 21 Apr 2021 15:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35698 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S245410AbhDUTE4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 21 Apr 2021 15:04:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2797061453;
+        Wed, 21 Apr 2021 19:04:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1619031862;
+        bh=SWgXMApMR68Fclqu0OruhI1qHub4rgqG9GwJHk4QtdI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=V0QwZOn0w9ANYMCAQFlzqUvbYJvsfPsTnwoDJR7byvvRWCv+fm1JAb2NXfMPoc82U
+         TNGEZ/Tac217tTZBW+JC1gvb95y6BxP6pEM/3biGRtZ5TXtZzarDuAbCP6OMjFJHY4
+         myqMOaryWsoerKTuIv3ezXGPdEzyUSOnUP0dcF7/8+C42PEBOUJDsbdfVqqjFCJgE4
+         yKCIoMaX4do9LxMqgCsRj0Q8rjAUR4bOzBFLVnlh9gWyyXXGNrVpiI5SpbVoZxVj1g
+         prPXGk/tNM+YmWlO1fIPAQd4L3K4TahK6fgKOvU8SCDu1yolF9mj6v2k9EApp5g6Sk
+         HyAeBGk7vgGkw==
+From:   Mark Brown <broonie@kernel.org>
+To:     linux-rtc@vger.kernel.org,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        linux-samsung-soc@vger.kernel.org,
         Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
         Sylwester Nawrocki <snawrocki@kernel.org>
-Subject: [PATCH 8/9] regulator: s2mpa01: Drop initialization via platform data
-Date:   Tue, 20 Apr 2021 19:02:43 +0200
-Message-Id: <20210420170244.13467-4-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210420170244.13467-1-krzysztof.kozlowski@canonical.com>
+Subject: Re: (subset) [PATCH 0/9] mfd/rtc/regulator: Drop board file support for Samsung PMIC
+Date:   Wed, 21 Apr 2021 20:03:30 +0100
+Message-Id: <161903035951.13561.16176843830665401857.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210420170118.12788-1-krzysztof.kozlowski@canonical.com>
 References: <20210420170118.12788-1-krzysztof.kozlowski@canonical.com>
- <20210420170244.13467-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-None of the platforms with S2MPA01 use board files, so any
-initialization via platform data can be safely removed.
+On Tue, 20 Apr 2021 19:01:09 +0200, Krzysztof Kozlowski wrote:
+> The Samsung PMIC drivers since long time are used only on devicetree
+> platforms (Samsung Exynos) and there are no users with board files.
+> 
+> Drop the support for board files entirely and depend on OF for matching.
+> 
+> This makes the code smaller and simpler.
+> 
+> [...]
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
----
- drivers/regulator/s2mpa01.c | 4 ----
- 1 file changed, 4 deletions(-)
+Applied to
 
-diff --git a/drivers/regulator/s2mpa01.c b/drivers/regulator/s2mpa01.c
-index 115f59530852..28b424fe7bea 100644
---- a/drivers/regulator/s2mpa01.c
-+++ b/drivers/regulator/s2mpa01.c
-@@ -340,7 +340,6 @@ static const struct regulator_desc regulators[] = {
- static int s2mpa01_pmic_probe(struct platform_device *pdev)
- {
- 	struct sec_pmic_dev *iodev = dev_get_drvdata(pdev->dev.parent);
--	struct sec_platform_data *pdata = dev_get_platdata(iodev->dev);
- 	struct regulator_config config = { };
- 	struct s2mpa01_info *s2mpa01;
- 	int i;
-@@ -356,9 +355,6 @@ static int s2mpa01_pmic_probe(struct platform_device *pdev)
- 	for (i = 0; i < S2MPA01_REGULATOR_MAX; i++) {
- 		struct regulator_dev *rdev;
- 
--		if (pdata)
--			config.init_data = pdata->regulators[i].initdata;
--
- 		rdev = devm_regulator_register(&pdev->dev,
- 						&regulators[i], &config);
- 		if (IS_ERR(rdev)) {
--- 
-2.25.1
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
 
+Thanks!
+
+[8/9] regulator: s2mpa01: Drop initialization via platform data
+      commit: 378b40ae1a8639f03192711573e478a367ccb6e1
+[9/9] regulator: s2mps11: Drop initialization via platform data
+      commit: beeab9bc8e85de6cacbbb2124a464166f2f5043d
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
