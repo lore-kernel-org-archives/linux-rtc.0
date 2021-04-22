@@ -2,53 +2,50 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13C60C43470
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Apr 2021 06:57:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9259AC4360C
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Apr 2021 06:57:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF74760BD3
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Apr 2021 06:57:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 720EC60BD3
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Apr 2021 06:57:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234935AbhDVG6S (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Apr 2021 02:58:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49138 "EHLO
+        id S234965AbhDVG6U (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Apr 2021 02:58:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234925AbhDVG6S (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Apr 2021 02:58:18 -0400
+        with ESMTP id S234925AbhDVG6T (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Apr 2021 02:58:19 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D795C06174A
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Apr 2021 23:57:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672C9C06174A
+        for <linux-rtc@vger.kernel.org>; Wed, 21 Apr 2021 23:57:45 -0700 (PDT)
 Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1lZTHJ-0006TZ-VO; Thu, 22 Apr 2021 08:57:33 +0200
+        id 1lZTHJ-0006Td-VU; Thu, 22 Apr 2021 08:57:33 +0200
 Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1lZTHI-0003O5-Cd; Thu, 22 Apr 2021 08:57:32 +0200
+        id 1lZTHJ-0003OH-9w; Thu, 22 Apr 2021 08:57:33 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Cc:     linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        kernel@pengutronix.de,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-pwm@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        linux-spi@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v5 0/6] clk: provide new devm helpers for prepared and enabled clocks
-Date:   Thu, 22 Apr 2021 08:57:20 +0200
-Message-Id: <20210422065726.1646742-1-u.kleine-koenig@pengutronix.de>
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc:     linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        kernel@pengutronix.de, linux-rtc@vger.kernel.org
+Subject: [PATCH v5 4/6] rtc: at91sma9: Simplify using devm_clk_get_enabled()
+Date:   Thu, 22 Apr 2021 08:57:24 +0200
+Message-Id: <20210422065726.1646742-5-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210422065726.1646742-1-u.kleine-koenig@pengutronix.de>
+References: <20210422065726.1646742-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,39 +57,83 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
+devm_clk_get_enabled() returns the clk already (prepared and) enabled
+and the automatically called cleanup cares for disabling (and
+unpreparing). So simplify .probe() and .remove() accordingly.
 
-the only change since v5 is that the fixed i2c patch is now properly
-part of this series.
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-at91sam9.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
 
-Can I please get a feedback by the clock maintainers? The series got
-positive feedback by several people now and is still unreplied by by the
-clk maintainers since October. Should I resend regularly, say once per
-two weeks? How many digits do I have to consider for the resend counter?
-At what point can I ask the maintainers further up in the chain to merge
-my series? Does a pull request help?
-
-Best regards
-Uwe
-
-Uwe Kleine-König (6):
-  clk: generalize devm_clk_get() a bit
-  clk: Provide new devm_clk_helpers for prepared and enabled clocks
-  pwm: atmel: Simplify using devm_clk_get_prepared()
-  rtc: at91sma9: Simplify using devm_clk_get_enabled()
-  i2c: imx: Simplify using devm_clk_get_enableded()
-  spi: davinci: Simplify using devm_clk_get_enabled()
-
- drivers/clk/clk-devres.c     | 96 ++++++++++++++++++++++++++++++------
- drivers/i2c/busses/i2c-imx.c | 12 +----
- drivers/pwm/pwm-atmel.c      | 15 +-----
- drivers/rtc/rtc-at91sam9.c   | 22 ++-------
- drivers/spi/spi-davinci.c    | 11 +----
- include/linux/clk.h          | 87 +++++++++++++++++++++++++++++++-
- 6 files changed, 176 insertions(+), 67 deletions(-)
-
-
-base-commit: a38fd8748464831584a19438cbb3082b5a2dab15
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 2216be429ab7..b52e7bd26303 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -374,21 +374,14 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
++	rtc->sclk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(rtc->sclk))
+ 		return PTR_ERR(rtc->sclk);
+ 
+-	ret = clk_prepare_enable(rtc->sclk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not enable slow clock\n");
+-		return ret;
+-	}
+-
+ 	sclk_rate = clk_get_rate(rtc->sclk);
+ 	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
+ 		dev_err(&pdev->dev, "Invalid slow clock rate\n");
+-		ret = -EINVAL;
+-		goto err_clk;
++		return -EINVAL;
+ 	}
+ 
+ 	mr = rtt_readl(rtc, MR);
+@@ -406,7 +399,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtcdev = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtcdev)) {
+ 		ret = PTR_ERR(rtc->rtcdev);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	rtc->rtcdev->ops = &at91_rtc_ops;
+@@ -418,7 +411,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			       dev_name(&rtc->rtcdev->dev), rtc);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+@@ -432,11 +425,6 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			 dev_name(&rtc->rtcdev->dev));
+ 
+ 	return devm_rtc_register_device(rtc->rtcdev);
+-
+-err_clk:
+-	clk_disable_unprepare(rtc->sclk);
+-
+-	return ret;
+ }
+ 
+ /*
+@@ -450,8 +438,6 @@ static int at91_rtc_remove(struct platform_device *pdev)
+ 	/* disable all interrupts */
+ 	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+ 
+-	clk_disable_unprepare(rtc->sclk);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
