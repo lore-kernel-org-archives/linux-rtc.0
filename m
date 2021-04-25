@@ -2,395 +2,96 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7625C433ED
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Apr 2021 20:34:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 143E5C433B4
+	for <linux-rtc@archiver.kernel.org>; Sun, 25 Apr 2021 15:07:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D254613D8
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Apr 2021 20:34:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D58136127C
+	for <linux-rtc@archiver.kernel.org>; Sun, 25 Apr 2021 15:07:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbhDWUfD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 23 Apr 2021 16:35:03 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:45103 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232689AbhDWUfA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Apr 2021 16:35:00 -0400
-X-Originating-IP: 176.182.47.85
-Received: from localhost (static-176-182-47-85.ncc.abo.bbox.fr [176.182.47.85])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 58AC760005;
-        Fri, 23 Apr 2021 20:34:18 +0000 (UTC)
-Date:   Fri, 23 Apr 2021 22:34:17 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Dianlong Li <long17.cool@aliyun.com>
-Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: sd3078: add alarm support
-Message-ID: <YIMvSVoaOxu/kjun@piout.net>
-References: <20201230130615.6417-1-long17.cool@aliyun.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201230130615.6417-1-long17.cool@aliyun.com>
+        id S230288AbhDYPIV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 25 Apr 2021 11:08:21 -0400
+Received: from smtp-35-i2.italiaonline.it ([213.209.12.35]:43393 "EHLO
+        libero.it" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230244AbhDYPIU (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sun, 25 Apr 2021 11:08:20 -0400
+X-Greylist: delayed 489 seconds by postgrey-1.27 at vger.kernel.org; Sun, 25 Apr 2021 11:08:20 EDT
+Received: from passgat-Modern-14-A10M.homenet.telecomitalia.it
+ ([95.244.94.151])
+        by smtp-35.iol.local with ESMTPA
+        id agEHlY8ippK9wagELlbBD1; Sun, 25 Apr 2021 16:59:29 +0200
+x-libjamoibt: 1601
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
+        t=1619362769; bh=IebJ39rC3YsAS5xcTpDkg4gCO5NahbB0WbaWRAFj/w4=;
+        h=From;
+        b=oI/jhgzhNFHHxfSRzm4moPnc+TMttR9dCsrmmz1prn9aelKJ2ywgpN4BgAR6/+CST
+         /KpJfRuEAkVaZk1cctJ5ToVEOyK4h4u2+BQRfd5fOy5NT+VVZ+0h/dt7dX05AOISJp
+         rPyP/pRb7W1cBYecT7CXKBWX8uKAEhCaNF1YBC5BgKs9g3tO5m5hDwdXLPip0qTKw1
+         TPQjFnXbxuhZk7QzPW062V9AOINBEobnO6onv5JGsR7YJvbV90CAe6shJjeA0x+aNK
+         z+2YjHg+/qfbcyLV+AkE25Mae4ksKaYHBnq5CaovdKveEbu+z0o9nqosVQrTX5nnrZ
+         FKRsYXFqTwg7A==
+X-CNFS-Analysis: v=2.4 cv=A9ipg4aG c=1 sm=1 tr=0 ts=608583d1 cx=a_exe
+ a=ugxisoNCKEotYwafST++Mw==:117 a=ugxisoNCKEotYwafST++Mw==:17
+ a=VTExqAix1d_2lDZdMv4A:9
+From:   Dario Binacchi <dariobin@libero.it>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dario Binacchi <dariobin@libero.it>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Subject: [PATCH] rtc: omap: use rtc_write to access OMAP_RTC_OSC_REG
+Date:   Sun, 25 Apr 2021 16:59:23 +0200
+Message-Id: <20210425145924.23353-1-dariobin@libero.it>
+X-Mailer: git-send-email 2.17.1
+X-CMAE-Envelope: MS4xfCmwAtpzgqSBvqvD0wrg6fFGgfB/GIyon6Zwfi9hzuSo4XorEh2Uu0oeSMcmQzSO6erot9c9HHPVfjNd8K+YZ0/MugbNYBEyVPGAWiq+D9bD/krMBwAu
+ IVXsOnUFy3cuUZFGjDUpguLDPWX9FQ1eDcf7ipCQoeBTMU5G4qOMwZTpPb7mRduhUQcCKnlZZZUX2+2G6vtiG4T3jQxQn2hIVgCldyST7rgnkZpKs0UAJK5j
+ IRfRrdP1+TS/CeFLRf0aqV7KDqdY7JvBKSXAiPmsLfb3H94e1bVo4jq+RfKiK2UjoDNr2iT1qQvioijKzCg99nogPNWdpjFsWmpRV+u25Pf5BLY5r5QIvc8/
+ TYJEPwUbnZRooJbVhijvejWl0YTBe3AqsIIcE2W3IdaLLkywc5A=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
+The RTC_OSC_REG register is 32-bit, but the useful information is found
+in the 7 least significant bits (bits 7-31 are reserved). And in fact,
+as you can see from the code, all read accesses are 8-bit, as well as
+some writes. Let's make sure all writes are 8-bit. Moreover, in contexts
+where consecutive reads / writes after the busy check must take place
+within 15 us, it is better not to waste time on useless accesses.
 
-Sorry for the late review, I was note sure how it was related to the
-previous one as it was not labelled v2.
+Signed-off-by: Dario Binacchi <dariobin@libero.it>
+---
 
-On 30/12/2020 13:06:15+0000, Dianlong Li wrote:
-> Add alarm support for the sd3078.
-> 
-> Signed-off-by: Dianlong Li <long17.cool@aliyun.com>
-> ---
->  drivers/rtc/rtc-sd3078.c | 235 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 235 insertions(+)
-> 
-> diff --git a/drivers/rtc/rtc-sd3078.c b/drivers/rtc/rtc-sd3078.c
-> index a7aa943c1183..d80e7033e005 100644
-> --- a/drivers/rtc/rtc-sd3078.c
-> +++ b/drivers/rtc/rtc-sd3078.c
-> @@ -27,6 +27,31 @@
->  #define KEY_WRITE2		0x04
->  #define KEY_WRITE3		0x80
->  
-> +#define SD3078_ALARM_SC			0x07
-> +#define SD3078_ALARM_MN			0x08
-> +#define SD3078_ALARM_HR			0x09
-> +#define SD3078_ALARM_DW			0x0A
-> +#define SD3078_ALARM_DM			0x0B
-> +#define SD3078_ALARM_MO			0x0C
-> +#define SD3078_ALARM_YR			0x0D
-> +#define SD3078_ALARM_EN			0x0E
-> +
-> +#define BIT_IM					0x40
-> +#define BIT_INTS1				0x20
-> +#define BIT_INTS0				0x10
-> +#define BIT_INTDE				0x04
-> +#define BIT_INTAE				0x02
-> +#define BIT_INTFE				0x01
-> +#define BIT_INTAF				0x20
-> +
-> +#define BIT_EN_EAD				0x10
-> +#define BIT_EN_EAH				0x04
-> +#define BIT_EN_EAMN				0x02
-> +#define BIT_EN_EAS				0x01
-> +
+ drivers/rtc/rtc-omap.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-
-Please use BIT() for all of those defines
-
-> +#define INT_BITS	(BIT_IM | BIT_INTS1 | BIT_INTS0 | \
-> +			BIT_INTDE | BIT_INTAE | BIT_INTFE)
-> +
-
-You can use GENMASK and the name should probably be INT_MSK.
-
->  #define NUM_TIME_REGS   (SD3078_REG_YR - SD3078_REG_SC + 1)
->  
->  /*
-> @@ -39,6 +64,8 @@
->  struct sd3078 {
->  	struct rtc_device	*rtc;
->  	struct regmap		*regmap;
-> +	bool			suspended;
-
-Is this variable really useful?
-
-> +	struct i2c_client	*client;
->  };
->  
->  /*
-> @@ -152,9 +179,156 @@ static int sd3078_rtc_set_time(struct device *dev, struct rtc_time *tm)
->  	return 0;
->  }
->  
-> +static int sd3078_alarm_irq_enable(struct device *dev, unsigned int enabled)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct sd3078 *sd3078 = i2c_get_clientdata(client);
-> +
-> +	if (client->irq <= 0)
-> +		return -EINVAL;
-> +
-
-This check is unnecessary
-
-> +	if (enabled) {
-> +		/*
-> +		 * CTRL2
-> +		 * :IM(bit6)
-> +		 *    0 : single event alarm
-> +		 *        Output low level until INTAF bit is cleared.
-> +		 *    1 : periodic alarm
-> +		 *        Output low-level active pulses with 250ms width
-> +		 *        until the interrupt enable bit is cleared
-> +		 *
-> +		 * :INTS1(bit5) :INTS0(bit4)
-> +		 *       0          0     : battery alarm
-> +		 *       0          1     : alarm interrupt output
-> +		 *       1          0     : frequency interrupt output
-> +		 *       1          1     : countdown interrupt output
-> +		 *
-> +		 * :INTDE(bit2)
-> +		 *       0/1 : enable/disable countdown interrupt
-> +		 *
-> +		 * :INTFE(bit1)
-> +		 *       0/1 : enable/disable frequency interrupt
-> +		 *
-> +		 * :INTAE(bit0)
-> +		 *       0/1 : enable/disable alarm interrupt
-> +		 */
-> +
-> +		regmap_update_bits(sd3078->regmap, SD3078_REG_CTRL2,
-> +				   INT_BITS, BIT_INTS0 | BIT_INTAE);
-> +		enable_irq(client->irq);
-
-You should not have to enable and disable irqs.
-
-> +	} else {
-> +		regmap_update_bits(sd3078->regmap, SD3078_REG_CTRL2,
-> +				   INT_BITS, 0);
-> +		disable_irq(client->irq);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int sd3078_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-> +{
-> +	unsigned char hour;
-> +	int value;
-> +	unsigned char alarm_data[NUM_TIME_REGS] = {0};
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct sd3078 *sd3078 = i2c_get_clientdata(client);
-> +	int ret;
-> +
-> +	ret = regmap_bulk_read(sd3078->regmap, SD3078_ALARM_SC, alarm_data,
-> +			       NUM_TIME_REGS);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	alarm->time.tm_sec = bcd2bin(alarm_data[SD3078_ALARM_SC - SD3078_ALARM_SC] & 0x7F);
-> +	alarm->time.tm_min = bcd2bin(alarm_data[SD3078_ALARM_MN - SD3078_ALARM_SC] & 0x7F);
-> +
-> +	/*
-> +	 * The sd3078 supports 12/24 hour mode.
-> +	 * When getting time,
-> +	 * we need to convert the 12 hour mode to the 24 hour mode.
-> +	 */
-> +	hour = alarm_data[SD3078_ALARM_HR - SD3078_ALARM_SC];
-> +	if (hour & 0x80) /* 24H MODE */
-> +		alarm->time.tm_hour = bcd2bin(hour & 0x3F);
-> +	else if (hour & 0x20) /* 12H MODE PM */
-> +		alarm->time.tm_hour = bcd2bin(hour & 0x1F) + 12;
-> +	else /* 12H MODE AM */
-> +		alarm->time.tm_hour = bcd2bin(hour & 0x1F);
-> +
-> +	alarm->time.tm_mday = bcd2bin(alarm_data[SD3078_ALARM_DM - SD3078_ALARM_SC] & 0x3F);
-> +	alarm->time.tm_wday = alarm_data[SD3078_ALARM_DW - SD3078_ALARM_SC] & 0x07;
-> +	alarm->time.tm_mon  = bcd2bin(alarm_data[SD3078_ALARM_MO - SD3078_ALARM_SC] & 0x1F) - 1;
-> +	alarm->time.tm_year = bcd2bin(alarm_data[SD3078_ALARM_YR - SD3078_ALARM_SC]) + 100;
-> +
-> +	ret = regmap_read(sd3078->regmap, SD3078_REG_CTRL2, &value);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if ((value & (INT_BITS)) == (BIT_INTS0 | BIT_INTAE))
-> +		alarm->enabled = 1;
-> +	else
-> +		alarm->enabled = 0;
-> +
-> +	ret = regmap_read(sd3078->regmap, SD3078_REG_CTRL1, &value);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if ((value & (BIT_INTAF)) == BIT_INTAF)
-> +		alarm->pending = 1;
-> +	else
-> +		alarm->pending = 0;
-> +
-> +	return 0;
-> +}
-> +
-> +static int sd3078_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-> +{
-> +	unsigned char alarm_data[NUM_TIME_REGS];
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct sd3078 *sd3078 = i2c_get_clientdata(client);
-> +	int ret;
-> +
-> +	alarm_data[SD3078_ALARM_SC - SD3078_ALARM_SC] = bin2bcd(alarm->time.tm_sec);
-> +	alarm_data[SD3078_ALARM_MN - SD3078_ALARM_SC] = bin2bcd(alarm->time.tm_min);
-> +	alarm_data[SD3078_ALARM_HR - SD3078_ALARM_SC] = bin2bcd(alarm->time.tm_hour) | 0x80;
-> +	alarm_data[SD3078_ALARM_DM - SD3078_ALARM_SC] = bin2bcd(alarm->time.tm_mday);
-> +
-> +#if WRITE_PROTECT_EN
-> +	sd3078_enable_reg_write(sd3078);
-> +#endif
-> +
-> +	ret = regmap_bulk_write(sd3078->regmap, SD3078_ALARM_SC, alarm_data,
-> +				SD3078_ALARM_DM - SD3078_ALARM_SC + 1);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/*
-> +	 * set the day, hour, minute and second alarm enable
-> +	 * this operation will clear the alarm interrupt flag
-> +	 */
-> +	ret = regmap_update_bits(sd3078->regmap, SD3078_ALARM_EN,
-> +				 BIT_EN_EAD | BIT_EN_EAH | BIT_EN_EAMN | BIT_EN_EAS,
-> +				 BIT_EN_EAD | BIT_EN_EAH | BIT_EN_EAMN | BIT_EN_EAS);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	ret = sd3078_alarm_irq_enable(dev, alarm->enabled);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +#if WRITE_PROTECT_EN
-> +	sd3078_disable_reg_write(sd3078);
-> +#endif
-> +
-> +	return 0;
-> +}
-> +
->  static const struct rtc_class_ops sd3078_rtc_ops = {
->  	.read_time	= sd3078_rtc_read_time,
->  	.set_time	= sd3078_rtc_set_time,
-> +	.read_alarm	= sd3078_rtc_read_alarm,
-> +	.set_alarm	= sd3078_rtc_set_alarm,
-> +	.alarm_irq_enable = sd3078_alarm_irq_enable,
->  };
->  
->  static const struct regmap_config regmap_config = {
-> @@ -163,6 +337,19 @@ static const struct regmap_config regmap_config = {
->  	.max_register = 0x11,
->  };
->  
-> +static irqreturn_t sd3078_threaded_irq(int irq, void *dev_id)
-> +{
-> +	struct i2c_client *client = dev_id;
-> +	struct sd3078 *sd3078 = i2c_get_clientdata(client);
-> +
-> +	/* clean interrupt flag */
-> +	regmap_update_bits(sd3078->regmap, SD3078_REG_CTRL1,
-> +			   BIT_INTAF, 0);
-
-You should probably check whether the interrupt really happened, that
-would allow to share the interrupt line.
-
-> +
-> +	rtc_update_irq(sd3078->rtc, 1, RTC_AF | RTC_IRQF);
-> +	return IRQ_HANDLED;
-> +}
-> +
->  static int sd3078_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id)
->  {
-> @@ -176,6 +363,8 @@ static int sd3078_probe(struct i2c_client *client,
->  	if (!sd3078)
->  		return -ENOMEM;
->  
-> +	sd3078->client = client;
-> +
->  	sd3078->regmap = devm_regmap_init_i2c(client, &regmap_config);
->  	if (IS_ERR(sd3078->regmap)) {
->  		dev_err(&client->dev, "regmap allocation failed\n");
-> @@ -183,6 +372,7 @@ static int sd3078_probe(struct i2c_client *client,
->  	}
->  
->  	i2c_set_clientdata(client, sd3078);
-> +	dev_set_drvdata(&client->dev, sd3078);
->  
->  	sd3078->rtc = devm_rtc_allocate_device(&client->dev);
->  	if (IS_ERR(sd3078->rtc))
-> @@ -196,11 +386,55 @@ static int sd3078_probe(struct i2c_client *client,
->  	if (ret)
->  		return ret;
->  
-> +	if (client->irq) {
-> +		ret = devm_request_threaded_irq(&client->dev, client->irq,
-> +						NULL, sd3078_threaded_irq,
-> +						IRQF_ONESHOT | IRQF_TRIGGER_FALLING,
-
-I don't have the datasheet but are you sure this shouldn't be
-IRQF_TRIGGER_LOW.
-
-> +						client->name, client);
-> +		if (ret)
-> +			dev_err(&client->dev, "unable to request IRQ\n");
-> +	}
-> +
-> +	if (!device_can_wakeup(&client->dev))
-> +		device_init_wakeup(&client->dev, 1);
-
-You should call that only if the irq is present and has been requested
-
-You should also
-clear_bit(RTC_FEATURE_ALARM, sd3078->rtc->features) when there is no
-alarm.
-
-> +
->  	sd3078_enable_reg_write(sd3078);
->  
->  	return 0;
->  }
->  
-> +#if CONFIG_PM_SLEEP
-> +static int sd3078_suspend(struct device *dev)
-> +{
-> +	struct sd3078 *sd3078 = dev_get_drvdata(dev);
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +
-> +	if (client->irq >= 0 && device_may_wakeup(dev)) {
-> +		sd3078->suspended = true;
-> +		enable_irq_wake(client->irq);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int sd3078_resume(struct device *dev)
-> +{
-> +	struct sd3078 *sd3078 = dev_get_drvdata(dev);
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +
-> +	if (client->irq >= 0 && device_may_wakeup(dev)) {
-> +		sd3078->suspended = false;
-> +		disable_irq_wake(client->irq);
-> +	}
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static const struct dev_pm_ops sd3078_pm_ops = {
-> +	SET_SYSTEM_SLEEP_PM_OPS(sd3078_suspend, sd3078_resume)
-> +};
-> +
->  static const struct i2c_device_id sd3078_id[] = {
->  	{"sd3078", 0},
->  	{ }
-> @@ -217,6 +451,7 @@ static struct i2c_driver sd3078_driver = {
->  	.driver     = {
->  		.name   = "sd3078",
->  		.of_match_table = of_match_ptr(rtc_dt_match),
-> +		.pm = &sd3078_pm_ops,
->  	},
->  	.probe      = sd3078_probe,
->  	.id_table   = sd3078_id,
-> -- 
-> 2.17.1
-> 
-
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index dc7db2477f88..d46e0f0cc502 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -786,8 +786,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 	/* enable RTC functional clock */
+ 	if (rtc->type->has_32kclk_en) {
+ 		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+-		rtc_writel(rtc, OMAP_RTC_OSC_REG,
+-				reg | OMAP_RTC_OSC_32KCLK_EN);
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg | OMAP_RTC_OSC_32KCLK_EN);
+ 	}
+ 
+ 	/* clear old status */
+@@ -845,7 +844,7 @@ static int omap_rtc_probe(struct platform_device *pdev)
+ 		reg = rtc_read(rtc, OMAP_RTC_OSC_REG);
+ 		reg &= ~OMAP_RTC_OSC_OSC32K_GZ_DISABLE;
+ 		reg |= OMAP_RTC_OSC_32KCLK_EN | OMAP_RTC_OSC_SEL_32KCLK_SRC;
+-		rtc_writel(rtc, OMAP_RTC_OSC_REG, reg);
++		rtc_write(rtc, OMAP_RTC_OSC_REG, reg);
+ 	}
+ 
+ 	rtc->type->lock(rtc);
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.17.1
+
