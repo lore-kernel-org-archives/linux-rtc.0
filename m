@@ -2,249 +2,104 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3259C433B4
-	for <linux-rtc@archiver.kernel.org>; Mon, 26 Apr 2021 14:17:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8BC6C433ED
+	for <linux-rtc@archiver.kernel.org>; Tue, 27 Apr 2021 17:20:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B02516135B
-	for <linux-rtc@archiver.kernel.org>; Mon, 26 Apr 2021 14:17:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73C2160FF3
+	for <linux-rtc@archiver.kernel.org>; Tue, 27 Apr 2021 17:20:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233799AbhDZOSf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 26 Apr 2021 10:18:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44094 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233735AbhDZOSe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Apr 2021 10:18:34 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62583C061574
-        for <linux-rtc@vger.kernel.org>; Mon, 26 Apr 2021 07:17:52 -0700 (PDT)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1lb23K-0002KD-IX; Mon, 26 Apr 2021 16:17:34 +0200
-Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1lb23J-0005na-Gf; Mon, 26 Apr 2021 16:17:33 +0200
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Cc:     linux-clk@vger.kernel.org, kernel@pengutronix.de,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-pwm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        linux-spi@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v6 2/6] clk: Provide new devm_clk_helpers for prepared and enabled clocks
-Date:   Mon, 26 Apr 2021 16:17:26 +0200
-Message-Id: <20210426141730.2826832-3-u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210426141730.2826832-1-u.kleine-koenig@pengutronix.de>
-References: <20210426141730.2826832-1-u.kleine-koenig@pengutronix.de>
+        id S236713AbhD0RU4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 27 Apr 2021 13:20:56 -0400
+Received: from mout.kundenserver.de ([217.72.192.74]:45815 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236019AbhD0RUy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 27 Apr 2021 13:20:54 -0400
+Received: from [192.168.100.1] ([82.142.25.254]) by mrelayeu.kundenserver.de
+ (mreue107 [213.165.67.119]) with ESMTPSA (Nemesis) id
+ 1M734j-1lfaFZ2MSF-008WxH; Tue, 27 Apr 2021 19:20:02 +0200
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-m68k@lists.linux-m68k.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+References: <20210323221430.3735147-1-laurent@vivier.eu>
+ <20210323221430.3735147-3-laurent@vivier.eu>
+From:   Laurent Vivier <laurent@vivier.eu>
+Subject: Re: [PATCH 2/2] m68k: introduce a virtual m68k machine
+Message-ID: <a9c75ae7-6023-6b6c-260f-a0d6841ea4fa@vivier.eu>
+Date:   Tue, 27 Apr 2021 19:20:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20210323221430.3735147-3-laurent@vivier.eu>
+Content-Type: text/plain; charset=utf-8
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
+X-Provags-ID: V03:K1:sX/rtXIi5HFyO2slzgGBdwOV7llxl+jRhOcOSfVR/K7V+VwTuh2
+ LA58ztWttzkC7r2JvDXEVGtGXL1ohfdKM60o8U8qodVdzvPyxw8zOc3V3CZgCbTRVGPH6D9
+ hFGX1RQ+o9dMEUaoyzUNqHRsjQPE41l91WR57IIjQekH+RI6S/6ODdhzfNYiHIa36wWczkf
+ SCzPppAA/Yh+EGOlceaSQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:yUxnXIozo6I=:p0EVhQjNOZDnM482R7yLcD
+ bXyTB6w1Ic4udfkVni3NQhO96qucqDWGHT65AEKlHS8digfPxaNTI1PXjQ7sXvovydXz/zgZF
+ 72VuT8Xd6MQid4LcImTWG28Po73Z/mjFaS9EowGp2l9pzdXMqJJR9Gh9oX1cxPtaw4KLSq2ra
+ Zjf7lRWoe9zG02Enopq6yARGC1yJ2V9XtOw2T1bMEukgwwxBCIjFwGJ42UIrmChGL/ZqMzOVI
+ D+ejKvU7ICKBCtkri4OHu9s5GNN9iG9jE30xQJSiUC65EADzc65nxmAnbir5FSMidvPBxkplZ
+ 1I9a0+/6pkV3npxBNcVOkIS8VElEDXKUBWUwlMIdaE6LvsWcP91C4hALWeJxhtzVnYUX42JYl
+ Q7oRI1BNPPh2JguG1hRwFih3F9zY5kEJbZia0Lu/k+ivcJf+wM9HPI6tm1Rk7uKfBP2NDW1xy
+ lPTI5REihWKrFRzUOR4uCM1jzNcLjGg6lEKyeqt09jBrLikeTVTK8oW2vqoVfbiU6Z0VrUaZz
+ sUrxvmbAKFBu6nrOdQqKF8=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-When a driver keeps a clock prepared (or enabled) during the whole
-lifetime of the driver, these helpers allow to simplify the drivers.
+Hi,
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/clk/clk-devres.c | 31 ++++++++++++++
- include/linux/clk.h      | 87 +++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 117 insertions(+), 1 deletion(-)
+Le 23/03/2021 à 23:14, Laurent Vivier a écrit :
+> This machine allows to have up to 3.2 GiB and 128 Virtio devices.
+> 
+> It is based on android goldfish devices.
+> 
+> Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+> ---
+>  arch/m68k/Kbuild                           |   1 +
+>  arch/m68k/Kconfig.machine                  |  17 +++
+>  arch/m68k/configs/virt_defconfig           |  93 ++++++++++++++++
+>  arch/m68k/include/asm/irq.h                |   3 +-
+>  arch/m68k/include/asm/pgtable_mm.h         |   7 ++
+>  arch/m68k/include/asm/setup.h              |  44 ++++++--
+>  arch/m68k/include/asm/virt.h               |  26 +++++
+>  arch/m68k/include/uapi/asm/bootinfo-virt.h |  18 ++++
+>  arch/m68k/include/uapi/asm/bootinfo.h      |   1 +
+>  arch/m68k/kernel/Makefile                  |   1 +
+>  arch/m68k/kernel/head.S                    |  30 ++++++
+>  arch/m68k/kernel/setup_mm.c                |   9 ++
+>  arch/m68k/mm/kmap.c                        |  20 ++--
+>  arch/m68k/virt/Makefile                    |   6 ++
+>  arch/m68k/virt/config.c                    | 118 +++++++++++++++++++++
+>  arch/m68k/virt/ints.c                      | 110 +++++++++++++++++++
+>  arch/m68k/virt/platform.c                  |  80 ++++++++++++++
+>  arch/m68k/virt/timer.c                     |  91 ++++++++++++++++
+>  18 files changed, 658 insertions(+), 17 deletions(-)
+>  create mode 100644 arch/m68k/configs/virt_defconfig
+>  create mode 100644 arch/m68k/include/asm/virt.h
+>  create mode 100644 arch/m68k/include/uapi/asm/bootinfo-virt.h
+>  create mode 100644 arch/m68k/virt/Makefile
+>  create mode 100644 arch/m68k/virt/config.c
+>  create mode 100644 arch/m68k/virt/ints.c
+>  create mode 100644 arch/m68k/virt/platform.c
+>  create mode 100644 arch/m68k/virt/timer.c
+> 
 
-diff --git a/drivers/clk/clk-devres.c b/drivers/clk/clk-devres.c
-index 91c995815b57..b54f7f0f2a35 100644
---- a/drivers/clk/clk-devres.c
-+++ b/drivers/clk/clk-devres.c
-@@ -67,12 +67,43 @@ struct clk *devm_clk_get(struct device *dev, const char *id)
- }
- EXPORT_SYMBOL(devm_clk_get);
- 
-+struct clk *devm_clk_get_prepared(struct device *dev, const char *id)
-+{
-+	return __devm_clk_get(dev, id, clk_get, clk_prepare, clk_unprepare);
-+
-+}
-+EXPORT_SYMBOL(devm_clk_get_prepared);
-+
-+struct clk *devm_clk_get_enabled(struct device *dev, const char *id)
-+{
-+	return __devm_clk_get(dev, id, clk_get,
-+			      clk_prepare_enable, clk_disable_unprepare);
-+
-+}
-+EXPORT_SYMBOL(devm_clk_get_enabled);
-+
- struct clk *devm_clk_get_optional(struct device *dev, const char *id)
- {
- 	return __devm_clk_get(dev, id, clk_get_optional, NULL, NULL);
- }
- EXPORT_SYMBOL(devm_clk_get_optional);
- 
-+struct clk *devm_clk_get_optional_prepared(struct device *dev, const char *id)
-+{
-+	return __devm_clk_get(dev, id, clk_get_optional,
-+			      clk_prepare, clk_unprepare);
-+
-+}
-+EXPORT_SYMBOL(devm_clk_get_optional_prepared);
-+
-+struct clk *devm_clk_get_optional_enabled(struct device *dev, const char *id)
-+{
-+	return __devm_clk_get(dev, id, clk_get_optional,
-+			      clk_prepare_enable, clk_disable_unprepare);
-+
-+}
-+EXPORT_SYMBOL(devm_clk_get_optional_enabled);
-+
- struct clk_bulk_devres {
- 	struct clk_bulk_data *clks;
- 	int num_clks;
-diff --git a/include/linux/clk.h b/include/linux/clk.h
-index 266e8de3cb51..b3c5da388b08 100644
---- a/include/linux/clk.h
-+++ b/include/linux/clk.h
-@@ -449,7 +449,7 @@ int __must_check devm_clk_bulk_get_all(struct device *dev,
-  * the clock producer.  (IOW, @id may be identical strings, but
-  * clk_get may return different clock producers depending on @dev.)
-  *
-- * Drivers must assume that the clock source is not enabled.
-+ * Drivers must assume that the clock source is neither prepared nor enabled.
-  *
-  * devm_clk_get should not be called from within interrupt context.
-  *
-@@ -458,6 +458,47 @@ int __must_check devm_clk_bulk_get_all(struct device *dev,
-  */
- struct clk *devm_clk_get(struct device *dev, const char *id);
- 
-+/**
-+ * devm_clk_get_prepared - devm_clk_get() + clk_prepare()
-+ * @dev: device for clock "consumer"
-+ * @id: clock consumer ID
-+ *
-+ * Returns a struct clk corresponding to the clock producer, or
-+ * valid IS_ERR() condition containing errno.  The implementation
-+ * uses @dev and @id to determine the clock consumer, and thereby
-+ * the clock producer.  (IOW, @id may be identical strings, but
-+ * clk_get may return different clock producers depending on @dev.)
-+ *
-+ * The returned clk (if valid) is prepared. Drivers must however assume that the
-+ * clock is not enabled.
-+ *
-+ * devm_clk_get_prepared should not be called from within interrupt context.
-+ *
-+ * The clock will automatically be unprepared and freed when the
-+ * device is unbound from the bus.
-+ */
-+struct clk *devm_clk_get_prepared(struct device *dev, const char *id);
-+
-+/**
-+ * devm_clk_get_enabled - devm_clk_get() + clk_prepare_enable()
-+ * @dev: device for clock "consumer"
-+ * @id: clock consumer ID
-+ *
-+ * Returns a struct clk corresponding to the clock producer, or
-+ * valid IS_ERR() condition containing errno.  The implementation
-+ * uses @dev and @id to determine the clock consumer, and thereby
-+ * the clock producer.  (IOW, @id may be identical strings, but
-+ * clk_get may return different clock producers depending on @dev.)
-+ *
-+ * The returned clk (if valid) is prepared and enabled.
-+ *
-+ * devm_clk_get_prepared should not be called from within interrupt context.
-+ *
-+ * The clock will automatically be disabled, unprepared and freed when the
-+ * device is unbound from the bus.
-+ */
-+struct clk *devm_clk_get_enabled(struct device *dev, const char *id);
-+
- /**
-  * devm_clk_get_optional - lookup and obtain a managed reference to an optional
-  *			   clock producer.
-@@ -469,6 +510,26 @@ struct clk *devm_clk_get(struct device *dev, const char *id);
-  */
- struct clk *devm_clk_get_optional(struct device *dev, const char *id);
- 
-+/**
-+ * devm_clk_get_optional_prepared - devm_clk_get_optional() + clk_prepare()
-+ * @dev: device for clock "consumer"
-+ * @id: clock consumer ID
-+ *
-+ * Behaves the same as devm_clk_get_prepared() except where there is no clock producer.
-+ * In this case, instead of returning -ENOENT, the function returns NULL.
-+ */
-+struct clk *devm_clk_get_optional_prepared(struct device *dev, const char *id);
-+
-+/**
-+ * devm_clk_get_optional_enabled - devm_clk_get_optional() + clk_prepare_enable()
-+ * @dev: device for clock "consumer"
-+ * @id: clock consumer ID
-+ *
-+ * Behaves the same as devm_clk_get_enabled() except where there is no clock producer.
-+ * In this case, instead of returning -ENOENT, the function returns NULL.
-+ */
-+struct clk *devm_clk_get_optional_enabled(struct device *dev, const char *id);
-+
- /**
-  * devm_get_clk_from_child - lookup and obtain a managed reference to a
-  *			     clock producer from child node.
-@@ -813,12 +874,36 @@ static inline struct clk *devm_clk_get(struct device *dev, const char *id)
- 	return NULL;
- }
- 
-+static inline struct clk *devm_clk_get_prepared(struct device *dev,
-+						const char *id)
-+{
-+	return NULL;
-+}
-+
-+static inline struct clk *devm_clk_get_enabled(struct device *dev,
-+					       const char *id)
-+{
-+	return NULL;
-+}
-+
- static inline struct clk *devm_clk_get_optional(struct device *dev,
- 						const char *id)
- {
- 	return NULL;
- }
- 
-+static inline struct clk *devm_clk_get_optional_prepared(struct device *dev,
-+							 const char *id)
-+{
-+	return NULL;
-+}
-+
-+static inline struct clk *devm_clk_get_optional_enabled(struct device *dev,
-+							const char *id)
-+{
-+	return NULL;
-+}
-+
- static inline int __must_check devm_clk_bulk_get(struct device *dev, int num_clks,
- 						 struct clk_bulk_data *clks)
- {
--- 
-2.30.2
+As 5.12 has been released, is this possible to consider having this new machine in the next release?
 
+All changes are contained under arch/m68k and protected by the CONFIG_VIRT flag. This should not
+have any impact on the other m68k machines. In any case, I'll be able to maintain the machine and
+fix any problem.
+
+Thanks,
+Laurent
