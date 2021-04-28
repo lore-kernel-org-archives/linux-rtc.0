@@ -2,96 +2,249 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1129DC433ED
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Apr 2021 21:07:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1308AC433ED
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Apr 2021 22:29:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB93C61423
-	for <linux-rtc@archiver.kernel.org>; Wed, 28 Apr 2021 21:07:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B866E61453
+	for <linux-rtc@archiver.kernel.org>; Wed, 28 Apr 2021 22:29:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231315AbhD1VI2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 28 Apr 2021 17:08:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbhD1VI1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Apr 2021 17:08:27 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38FA6C06138A;
-        Wed, 28 Apr 2021 14:07:41 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id z7so12193434oix.9;
-        Wed, 28 Apr 2021 14:07:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:in-reply-to:references:from:date:message-id:subject:to
-         :cc;
-        bh=afGdW1IegFhA3S/ZCkNtm7XrIKzqvmxIjHYY2ZANXy8=;
-        b=j9k8nqkBdnuGNgOj+Rh3eCch737NivoSBjCBKqwSjeKk35/Iab5yY6IULHN7fin/DF
-         q0HClLqrQFlegmr0lbsMQyLcbn/hDM3SbyLkv4PohpL1LZf6CfaNM4XUGGEGjvqtsdSx
-         bg0pjSaS63r7Jj87jHvHreCTBlwwWqMpcW7XTX2zoAns70/hU0vPw8Dy+l6/L0lAeUzj
-         IiQZX7bQaP0qeRM7l35eX2fB2wNkmjCH+tSMG3F3JXJqjQG6zwQ5kmPrZ4zkL2L+YyFO
-         OyR5GvEdAptwUdxZe8OeohXHe23YEeMMoxlt81fIlckuPyXnrdrX7pZijaE8YccYTK+E
-         0gHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from:date
-         :message-id:subject:to:cc;
-        bh=afGdW1IegFhA3S/ZCkNtm7XrIKzqvmxIjHYY2ZANXy8=;
-        b=sxLbstzb2jYdJKvu9p/uOC6xC5YF4KYeZU9o+Xrp8u67PkOTn8i36FCOOcPrE3RzxJ
-         ky51HOB3eaV80+VplZ1VU6dnGjgdEe/Ag/v/8EAdMnsCEgUQrtbyXqPMSGMKdYB5QDyk
-         j1pBBTJ6KEOFGC0KRZX8LvfCn+wiVHe9hCU9upfVEwO1cc20lOPVqYN895hnStTOFpZZ
-         JrUOUaZfsi80tGNsZaUqLK3ga14S0ujFPfTN3TjFIqRNAltQ5F/ILebWB2E2sNO/oHgK
-         W3/04CFEMO4eSdpvbtqAH1JmloRY8XHvU50TpR8cEAb6Cp4os4F37hyzqGj5TZA+Ah3C
-         2fag==
-X-Gm-Message-State: AOAM531Bil/zSZ5wRHEBTOjEMzLvFR8XHMQN1TRcLom3TZ+jc5MBlrgt
-        c5J7+0uf/cQoNyT730aYhYp8A151XzB5NCfirCQ=
-X-Google-Smtp-Source: ABdhPJz3hDhinOWSyOY7CmIXZ4pP5mqTg5SpsT+T8+gCAX93KMLvIxceeL73x9ixEeHY5VlbMG/zE9bVlBaMUBjNIls=
-X-Received: by 2002:aca:3e05:: with SMTP id l5mr2353627oia.39.1619644060566;
- Wed, 28 Apr 2021 14:07:40 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:6830:2103:0:0:0:0 with HTTP; Wed, 28 Apr 2021 14:07:39
- -0700 (PDT)
-In-Reply-To: <YInDdgd2r1SDdv4k@piout.net>
-References: <20210110231752.1418816-5-alexandre.belloni@bootlin.com>
- <20210428184946.23999-1-youling257@gmail.com> <YInDdgd2r1SDdv4k@piout.net>
-From:   youling 257 <youling257@gmail.com>
-Date:   Thu, 29 Apr 2021 05:07:39 +0800
-Message-ID: <CAOzgRdbWKDxAHjUZLemsNBZsctYssyEdfMiF5YpC=nTbjsoSLg@mail.gmail.com>
-Subject: Re: [PATCH 04/17] rtc: cmos: remove cmos_rtc_ops_no_alarm
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     hdegoede@redhat.com, a.zummo@towertech.it,
+        id S236582AbhD1Wam (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 28 Apr 2021 18:30:42 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:51352 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235158AbhD1Wam (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 28 Apr 2021 18:30:42 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: sre)
+        with ESMTPSA id A881D1F42CA4
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id ABF604800C6; Thu, 29 Apr 2021 00:29:53 +0200 (CEST)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Saravana Kannan <saravanak@google.com>,
+        devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Content-Type: text/plain; charset="UTF-8"
+        linux-rtc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        kernel@collabora.com,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Subject: [PATCHv2 2/5] drm/imx: Add 8 pixel alignment fix
+Date:   Thu, 29 Apr 2021 00:29:50 +0200
+Message-Id: <20210428222953.235280-3-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210428222953.235280-1-sebastian.reichel@collabora.com>
+References: <20210428222953.235280-1-sebastian.reichel@collabora.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-test this patch can fix my problem.
+Some standard resolutions like 1366x768 do not work properly with
+i.MX6 SoCs, since the horizontal resolution needs to be aligned
+to 8 pixels (so 1360x768 or 1368x768 would work).
 
-2021-04-29 4:20 GMT+08:00, Alexandre Belloni <alexandre.belloni@bootlin.com>:
-> Hello,
->
-> On 29/04/2021 02:49:46+0800, youling257 wrote:
->> this patch cause suspend failed on my Bay trail z3735f tablet.
->>
->> [  162.038713] PM: dpm_run_callback(): platform_pm_suspend+0x0/0x40
->> returns -22
->> [  162.038760] alarmtimer alarmtimer.0.auto: PM: failed to suspend: error
->> -22
->
-> I think I know what is happening, there is one patch I wanted to send
-> this cycle but didn't, can you test it?
->
-> https://github.com/alexandrebelloni/linux/commit/50641a5a19cedf7561410d7db614da46c228bacc
->
-> Thanks for the report!
->
-> --
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
->
+This patch allocates framebuffers allocated to 8 pixels. The extra
+time required to send the extra pixels are removed from the blank
+time. In order to expose the correct display size to userspace,
+the stride is increased without increasing the width.
+
+Without this patch systems with this display resolution hang
+indefinitely during boot up.
+
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+---
+ drivers/gpu/drm/imx/imx-drm-core.c | 19 ++++++++++++++++++-
+ drivers/gpu/drm/imx/imx-ldb.c      |  5 +++++
+ drivers/gpu/drm/imx/ipuv3-crtc.c   | 11 ++++++++++-
+ drivers/gpu/drm/imx/ipuv3-plane.c  | 19 +++++++++++++++----
+ drivers/gpu/ipu-v3/ipu-dc.c        |  5 +++++
+ drivers/gpu/ipu-v3/ipu-di.c        |  7 +++++++
+ 6 files changed, 60 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
+index e6a88c8cbd69..8457b9788cda 100644
+--- a/drivers/gpu/drm/imx/imx-drm-core.c
++++ b/drivers/gpu/drm/imx/imx-drm-core.c
+@@ -145,9 +145,26 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
+ 	/* none so far */
+ };
+ 
++static int imx_drm_dumb_create(struct drm_file *file_priv,
++			       struct drm_device *drm,
++			       struct drm_mode_create_dumb *args)
++{
++	u32 width = args->width;
++	int ret;
++
++	args->width = ALIGN(width, 8);
++
++	ret = drm_gem_cma_dumb_create(file_priv, drm, args);
++	if (ret)
++		return ret;
++
++	args->width = width;
++	return ret;
++}
++
+ static const struct drm_driver imx_drm_driver = {
+ 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+-	DRM_GEM_CMA_DRIVER_OPS,
++	DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE(imx_drm_dumb_create),
+ 	.ioctls			= imx_drm_ioctls,
+ 	.num_ioctls		= ARRAY_SIZE(imx_drm_ioctls),
+ 	.fops			= &imx_drm_driver_fops,
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index ffdc492c5bc5..53132ddf9587 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -274,6 +274,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 			 "%s: mode exceeds 85 MHz pixel clock\n", __func__);
+ 	}
+ 
++	if (!IS_ALIGNED(mode->hdisplay, 8)) {
++		dev_warn(ldb->dev,
++			 "%s: hdisplay does not align to 8 byte\n", __func__);
++	}
++
+ 	if (dual) {
+ 		serial_clk = 3500UL * mode->clock;
+ 		imx_ldb_set_clock(ldb, mux, 0, serial_clk, di_clk);
+diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
+index e6431a227feb..9c8829f945b2 100644
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -305,10 +305,19 @@ static void ipu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ 	sig_cfg.vsync_pin = imx_crtc_state->di_vsync_pin;
+ 
+ 	drm_display_mode_to_videomode(mode, &sig_cfg.mode);
++	if (!IS_ALIGNED(sig_cfg.mode.hactive, 8)) {
++		unsigned int new_hactive = ALIGN(sig_cfg.mode.hactive, 8);
++
++		dev_warn(ipu_crtc->dev, "8-pixel align hactive %d -> %d\n",
++			 sig_cfg.mode.hactive, new_hactive);
++
++		sig_cfg.mode.hfront_porch = new_hactive - sig_cfg.mode.hactive;
++		sig_cfg.mode.hactive = new_hactive;
++	}
+ 
+ 	ipu_dc_init_sync(ipu_crtc->dc, ipu_crtc->di,
+ 			 mode->flags & DRM_MODE_FLAG_INTERLACE,
+-			 imx_crtc_state->bus_format, mode->hdisplay);
++			 imx_crtc_state->bus_format, sig_cfg.mode.hactive);
+ 	ipu_di_init_sync_panel(ipu_crtc->di, &sig_cfg);
+ }
+ 
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index fa5009705365..06ad6dece61f 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -30,6 +30,11 @@ to_ipu_plane_state(struct drm_plane_state *p)
+ 	return container_of(p, struct ipu_plane_state, base);
+ }
+ 
++static unsigned int ipu_src_rect_width(const struct drm_plane_state *state)
++{
++	return ALIGN(drm_rect_width(&state->src) >> 16, 8);
++}
++
+ static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
+ {
+ 	return container_of(p, struct ipu_plane, base);
+@@ -415,6 +420,12 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
+ 	if (old_fb && fb->pitches[0] != old_fb->pitches[0])
+ 		crtc_state->mode_changed = true;
+ 
++	if (ALIGN(fb->width, 8) * fb->format->cpp[0] >
++	    fb->pitches[0] + fb->offsets[0]) {
++		dev_warn(dev, "pitch is not big enough for 8 pixels alignment");
++		return -EINVAL;
++	}
++
+ 	switch (fb->format->format) {
+ 	case DRM_FORMAT_YUV420:
+ 	case DRM_FORMAT_YVU420:
+@@ -590,7 +601,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 	if (ipu_state->use_pre) {
+ 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
+ 		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
+-					  drm_rect_width(&new_state->src) >> 16,
++					  ipu_src_rect_width(new_state),
+ 					  drm_rect_height(&new_state->src) >> 16,
+ 					  fb->pitches[0], fb->format->format,
+ 					  fb->modifier, &eba);
+@@ -623,9 +634,9 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
+ 
+-	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, drm_rect_width(dst));
++	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
+ 
+-	width = drm_rect_width(&new_state->src) >> 16;
++	width = ipu_src_rect_width(new_state);
+ 	height = drm_rect_height(&new_state->src) >> 16;
+ 	info = drm_format_info(fb->format->format);
+ 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
+@@ -690,7 +701,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 
+ 		ipu_cpmem_zero(ipu_plane->alpha_ch);
+ 		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
+-					 drm_rect_width(&new_state->src) >> 16,
++					 ipu_src_rect_width(new_state),
+ 					 drm_rect_height(&new_state->src) >> 16);
+ 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
+ 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
+diff --git a/drivers/gpu/ipu-v3/ipu-dc.c b/drivers/gpu/ipu-v3/ipu-dc.c
+index 34b4075a6a8e..ca96b235491a 100644
+--- a/drivers/gpu/ipu-v3/ipu-dc.c
++++ b/drivers/gpu/ipu-v3/ipu-dc.c
+@@ -167,6 +167,11 @@ int ipu_dc_init_sync(struct ipu_dc *dc, struct ipu_di *di, bool interlaced,
+ 
+ 	dc->di = ipu_di_get_num(di);
+ 
++	if (!IS_ALIGNED(width, 8)) {
++		dev_warn(priv->dev,
++			 "%s: hactive does not align to 8 byte\n", __func__);
++	}
++
+ 	map = ipu_bus_format_to_map(bus_format);
+ 
+ 	/*
+diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
+index e617f60afeea..666223c6bec4 100644
+--- a/drivers/gpu/ipu-v3/ipu-di.c
++++ b/drivers/gpu/ipu-v3/ipu-di.c
+@@ -506,6 +506,13 @@ int ipu_di_adjust_videomode(struct ipu_di *di, struct videomode *mode)
+ {
+ 	u32 diff;
+ 
++	if (!IS_ALIGNED(mode->hactive, 8) &&
++	    mode->hfront_porch < ALIGN(mode->hactive, 8) - mode->hactive) {
++		dev_err(di->ipu->dev, "hactive %d is not aligned to 8 and front porch is too small to compensate\n",
++			mode->hactive);
++		return -EINVAL;
++	}
++
+ 	if (mode->vfront_porch >= 2)
+ 		return 0;
+ 
+-- 
+2.30.2
+
