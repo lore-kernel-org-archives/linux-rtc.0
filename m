@@ -2,182 +2,149 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0B67C433B4
-	for <linux-rtc@archiver.kernel.org>; Sat,  1 May 2021 10:05:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0782C433ED
+	for <linux-rtc@archiver.kernel.org>; Sun,  2 May 2021 22:02:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B54E861362
-	for <linux-rtc@archiver.kernel.org>; Sat,  1 May 2021 10:05:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98A5661182
+	for <linux-rtc@archiver.kernel.org>; Sun,  2 May 2021 22:02:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231686AbhEAKGp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 1 May 2021 06:06:45 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:53007 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231252AbhEAKGp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 1 May 2021 06:06:45 -0400
-X-Originating-IP: 90.65.108.55
+        id S230206AbhEBWDo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 2 May 2021 18:03:44 -0400
+Received: from relay10.mail.gandi.net ([217.70.178.230]:59509 "EHLO
+        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230036AbhEBWDn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 2 May 2021 18:03:43 -0400
 Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
         (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 56A7340007;
-        Sat,  1 May 2021 10:05:51 +0000 (UTC)
-Date:   Sat, 1 May 2021 12:05:51 +0200
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 01A8A240002;
+        Sun,  2 May 2021 22:02:49 +0000 (UTC)
+Date:   Mon, 3 May 2021 00:02:49 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Martin Kaiser <martin@kaiser.cx>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: imxdi: add wakeup support
-Message-ID: <YI0n/7M3Ke4DAwG2@piout.net>
-References: <20210430093210.7034-1-martin@kaiser.cx>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] RTC for 5.13
+Message-ID: <YI8hiepfYO8Pwhlu@piout.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210430093210.7034-1-martin@kaiser.cx>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
+Hello Linus,
 
-On 30/04/2021 11:32:10+0200, Martin Kaiser wrote:
-> The DryIce-based RTC supports alarms that trigger an interrupt.
-> 
-> Add an option to configure this interrupt as a wakeup source that wakes
-> the system up from standby mode.
-> 
-> Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-> ---
-> 
-> simple test
-> 
->    [root@board ]# echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
->    [root@board ]# rtcwake -s 3 -m mem
->    wakeup from "mem" at Fri Apr 30 09:23:52 2021
->    ...
->    [root@board ]#
-> 
->  drivers/rtc/rtc-imxdi.c | 39 ++++++++++++++++++++++++++++++++++-----
->  1 file changed, 34 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-> index c1806f4d68e7..63957be25759 100644
-> --- a/drivers/rtc/rtc-imxdi.c
-> +++ b/drivers/rtc/rtc-imxdi.c
-> @@ -98,6 +98,7 @@
->   * @pdev: pointer to platform dev
->   * @rtc: pointer to rtc struct
->   * @ioaddr: IO registers pointer
-> + * @norm_irq: irq number of the "normal" irq
->   * @clk: input reference clock
->   * @dsr: copy of the DSR register
->   * @irq_lock: interrupt enable register (DIER) lock
-> @@ -109,6 +110,7 @@ struct imxdi_dev {
->  	struct platform_device *pdev;
->  	struct rtc_device *rtc;
->  	void __iomem *ioaddr;
-> +	int norm_irq;
->  	struct clk *clk;
->  	u32 dsr;
->  	spinlock_t irq_lock;
-> @@ -741,7 +743,7 @@ static void dryice_work(struct work_struct *work)
->  static int __init dryice_rtc_probe(struct platform_device *pdev)
->  {
->  	struct imxdi_dev *imxdi;
-> -	int norm_irq, sec_irq;
-> +	int sec_irq;
->  	int rc;
->  
->  	imxdi = devm_kzalloc(&pdev->dev, sizeof(*imxdi), GFP_KERNEL);
-> @@ -756,9 +758,9 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
->  
->  	spin_lock_init(&imxdi->irq_lock);
->  
-> -	norm_irq = platform_get_irq(pdev, 0);
-> -	if (norm_irq < 0)
-> -		return norm_irq;
-> +	imxdi->norm_irq = platform_get_irq(pdev, 0);
-> +	if (imxdi->norm_irq < 0)
-> +		return imxdi->norm_irq;
->  
->  	/* the 2nd irq is the security violation irq
->  	 * make this optional, don't break the device tree ABI
-> @@ -795,7 +797,7 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
->  	if (rc != 0)
->  		goto err;
->  
-> -	rc = devm_request_irq(&pdev->dev, norm_irq, dryice_irq,
-> +	rc = devm_request_irq(&pdev->dev, imxdi->norm_irq, dryice_irq,
->  			      IRQF_SHARED, pdev->name, imxdi);
->  	if (rc) {
->  		dev_warn(&pdev->dev, "interrupt not available.\n");
-> @@ -811,6 +813,8 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, imxdi);
->  
-> +	device_set_wakeup_capable(&pdev->dev, true);
+Here is the RTC subsystem pull request for v5.13. Mostly small fixes and
+two drivers gaining alarm support.
 
-Maybe it makes sense to simply use device_init_wakeup here.
+The following changes since commit a38fd8748464831584a19438cbb3082b5a2dab15:
 
-> +
->  	imxdi->rtc->ops = &dryice_rtc_ops;
->  	imxdi->rtc->range_max = U32_MAX;
->  
-> @@ -830,6 +834,8 @@ static int __exit dryice_rtc_remove(struct platform_device *pdev)
->  {
->  	struct imxdi_dev *imxdi = platform_get_drvdata(pdev);
->  
-> +	device_set_wakeup_capable(&pdev->dev, false);
-> +
->  	flush_work(&imxdi->work);
->  
->  	/* mask all interrupts */
-> @@ -847,10 +853,33 @@ static const struct of_device_id dryice_dt_ids[] = {
->  
->  MODULE_DEVICE_TABLE(of, dryice_dt_ids);
->  
-> +#ifdef CONFIG_PM_SLEEP
-> +static int dryice_suspend(struct device *dev)
-> +{
-> +	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(imxdi->norm_irq);
-> +	return 0;
-> +}
-> +
-> +static int dryice_resume(struct device *dev)
-> +{
-> +	struct imxdi_dev *imxdi = dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(imxdi->norm_irq);
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static SIMPLE_DEV_PM_OPS(dryice_pm, dryice_suspend, dryice_resume);
-> +
+  Linux 5.12-rc2 (2021-03-05 17:33:41 -0800)
 
-I'm wondering, can't you use dev_pm_set_wake_irq to avoid having to
-keep the changes to a minimum?
+are available in the Git repository at:
 
->  static struct platform_driver dryice_rtc_driver = {
->  	.driver = {
->  		   .name = "imxdi_rtc",
->  		   .of_match_table = dryice_dt_ids,
-> +		   .pm = &dryice_pm,
->  		   },
->  	.remove = __exit_p(dryice_rtc_remove),
->  };
-> -- 
-> 2.20.1
-> 
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-5.13
+
+for you to fetch changes up to 4d0185e67806a233c423c1668e87e137fbda192c:
+
+  rtc: sysfs: check features instead of ops (2021-04-29 23:51:18 +0200)
+
+----------------------------------------------------------------
+RTC for 5.13
+
+Subsystem:
+ - UIE emulation has been reworked to avoid calling drivers callbacks when it is
+   known it will not work
+
+Drivers:
+ - ab-eoz9: add alarm support
+ - pcf8523: add alarm support
+
+----------------------------------------------------------------
+Alexandre Belloni (9):
+      rtc: m48t59: use platform_get_irq_optional
+      rtc: imx-sc: remove .read_alarm
+      rtc: ds1307: replace HAS_ALARM by RTC_FEATURE_ALARM
+      rtc: ds1307: remove flags
+      rtc: rtc_update_irq_enable: rework UIE emulation
+      rtc: pcf8523: remove useless define
+      rtc: pcf8523: add alarm support
+      rtc: pcf8523: report oscillator failures
+      rtc: sysfs: check features instead of ops
+
+Arnd Bergmann (1):
+      rtc: tps65910: include linux/property.h
+
+Dario Binacchi (1):
+      rtc: omap: use rtc_write to access OMAP_RTC_OSC_REG
+
+Fabio Estevam (2):
+      rtc: imxdi: Convert to a DT-only driver
+      rtc: mxc: Remove unneeded of_match_ptr()
+
+Francois Gervais (1):
+      rtc: pcf85063: fallback to parent of_node
+
+Heiko Schocher (1):
+      rtc: rv3028: correct weekday register usage
+
+Jiapeng Chong (1):
+      rtc: ds1511: remove unused function
+
+Johannes Hahn (1):
+      rtc: rx6110: add ACPI bindings to I2C
+
+Krzysztof Kozlowski (1):
+      rtc: s5m: Remove reference to parent's device pdata
+
+Laurent Vivier (1):
+      rtc: goldfish: remove dependency to OF
+
+Liam Beguin (3):
+      rtc: ab-eoz9: set regmap max_register
+      rtc: ab-eoz9: add alarm support
+      rtc: ab-eoz9: make use of RTC_FEATURE_ALARM
+
+Michael Walle (1):
+      rtc: fsl-ftm-alarm: add MODULE_TABLE()
+
+Nobuhiro Iwamatsu (1):
+      rtc: ds1307: Fix wday settings for rx8130
+
+Tian Tao (1):
+      rtc: rtc-spear: replace spin_lock_irqsave by spin_lock in hard IRQ
+
+satya priya (2):
+      rtc: pm8xxx: Add RTC support for PMIC PMK8350
+      dt-bindings: rtc: qcom-pm8xxx-rtc: Add qcom pm8xxx rtc bindings
+
+ .../devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml   |  62 +++++++
+ drivers/rtc/Kconfig                                |   3 +-
+ drivers/rtc/interface.c                            |  34 ++--
+ drivers/rtc/rtc-ab-eoz9.c                          | 135 +++++++++++++-
+ drivers/rtc/rtc-ds1307.c                           |  56 ++----
+ drivers/rtc/rtc-ds1511.c                           |   6 -
+ drivers/rtc/rtc-fsl-ftm-alarm.c                    |   1 +
+ drivers/rtc/rtc-imx-sc.c                           |  11 --
+ drivers/rtc/rtc-imxdi.c                            |   4 +-
+ drivers/rtc/rtc-m48t59.c                           |   2 +-
+ drivers/rtc/rtc-mxc.c                              |   2 +-
+ drivers/rtc/rtc-omap.c                             |   5 +-
+ drivers/rtc/rtc-pcf85063.c                         |   7 +-
+ drivers/rtc/rtc-pcf8523.c                          | 196 ++++++++++++++++++++-
+ drivers/rtc/rtc-pm8xxx.c                           |  11 ++
+ drivers/rtc/rtc-rv3028.c                           |   4 +-
+ drivers/rtc/rtc-rx6110.c                           |   7 +
+ drivers/rtc/rtc-s5m.c                              |   6 -
+ drivers/rtc/rtc-spear.c                            |   6 +-
+ drivers/rtc/rtc-tps65910.c                         |   1 +
+ drivers/rtc/sysfs.c                                |   2 +-
+ 21 files changed, 450 insertions(+), 111 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
