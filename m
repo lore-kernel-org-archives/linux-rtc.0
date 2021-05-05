@@ -2,94 +2,79 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 396CFC433B4
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 May 2021 16:30:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65F34C4360C
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 May 2021 16:50:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E3A9610A1
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 May 2021 16:30:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4597C61625
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 May 2021 16:50:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbhEEQba (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 May 2021 12:31:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234063AbhEEQb3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 May 2021 12:31:29 -0400
-Received: from viti.kaiser.cx (viti.kaiser.cx [IPv6:2a01:238:43fe:e600:cd0c:bd4a:7a3:8e9f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B75C061574;
-        Wed,  5 May 2021 09:30:32 -0700 (PDT)
-Received: from dslb-188-104-057-152.188.104.pools.vodafone-ip.de ([188.104.57.152] helo=martin-debian-2.paytec.ch)
-        by viti.kaiser.cx with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.89)
-        (envelope-from <martin@kaiser.cx>)
-        id 1leKPr-0001PJ-Rh; Wed, 05 May 2021 18:30:27 +0200
-From:   Martin Kaiser <martin@kaiser.cx>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Martin Kaiser <martin@kaiser.cx>
-Subject: [PATCH v2] rtc: imxdi: add wakeup support
-Date:   Wed,  5 May 2021 18:30:09 +0200
-Message-Id: <20210505163009.14252-1-martin@kaiser.cx>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210430093210.7034-1-martin@kaiser.cx>
-References: <20210430093210.7034-1-martin@kaiser.cx>
+        id S235036AbhEEQvc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 May 2021 12:51:32 -0400
+Received: from [115.28.160.31] ([115.28.160.31]:46570 "EHLO
+        mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S236091AbhEEQrl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 May 2021 12:47:41 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Wed, 05 May 2021 12:47:31 EDT
+Received: from ld50.lan (unknown [101.224.80.218])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 18EEE63573;
+        Thu,  6 May 2021 00:39:50 +0800 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
+        t=1620232790; bh=qNMkh41741Clhd1cGymIjFugtw5DUUNvwDVm0UsONMQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cxGar7PRQWVVBN1Qq/veSroQqe/JctA5smZ77V5FU+apBGDTcVYmf+/ueuJtwzw0b
+         Pe57ErHtn3jl1k3MIlWE0MHCNy5DXHf7895JuuSTrXNm6XUzMfHssNAb4G9/3Emd35
+         HGfxzrzxq3QwfeoS4Hd9RFmh77OUR9Ie1rmwrUaM=
+From:   WANG Xuerui <git@xen0n.name>
+To:     linux-rtc@vger.kernel.org
+Cc:     WANG Xuerui <git@xen0n.name>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
+Subject: [PATCH v2 5/6] MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
+Date:   Thu,  6 May 2021 00:39:04 +0800
+Message-Id: <20210505163905.1199923-6-git@xen0n.name>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210505163905.1199923-1-git@xen0n.name>
+References: <20210505163905.1199923-1-git@xen0n.name>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The DryIce-based RTC supports alarms that trigger an interrupt.
+The Loongson-2K RTC module is now supported, enable it.
 
-Add an option to configure this interrupt as a wakeup source that wakes the
-system up from standby mode.
+The MMIO address is unclear from the Loongson 2K1000 user manual, I took
+it from Loongson's out-of-tree fork of Linux 4.19.
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: WANG Xuerui <git@xen0n.name>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
 ---
-v2:
- - unconditionally declare rtc-imxdi as wakeup source
- - use dev_pm_set_wake_irq instead of manually coding suspend and resume
+ arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-simple test (no need to configure the wakeup source via sysfs any more)
-
-   [root@board ]# rtcwake -s 3 -m mem
-   wakeup from "mem" at Fri Apr 30 09:23:52 2021
-   ...
-   [root@board ]#
-
- drivers/rtc/rtc-imxdi.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index c1806f4d68e7..4b712e5ab08a 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -24,6 +24,7 @@
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/rtc.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
-@@ -811,6 +812,9 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
+diff --git a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+index 569e814def83..0f00080f77b9 100644
+--- a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
++++ b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+@@ -52,6 +52,11 @@ package0: bus@10000000 {
+ 			0 0x40000000 0 0x40000000 0 0x40000000
+ 			0xfe 0x00000000 0xfe 0x00000000 0 0x40000000>;
  
- 	platform_set_drvdata(pdev, imxdi);
- 
-+	device_init_wakeup(&pdev->dev, true);
-+	dev_pm_set_wake_irq(&pdev->dev, norm_irq);
++		rtc0: rtc@1fe07800 {
++			compatible = "loongson,ls2x-rtc";
++			reg = <0 0x1fe07800 0 0x78>;
++		};
 +
- 	imxdi->rtc->ops = &dryice_rtc_ops;
- 	imxdi->rtc->range_max = U32_MAX;
- 
+ 		liointc0: interrupt-controller@1fe11400 {
+ 			compatible = "loongson,liointc-2.0";
+ 			reg = <0 0x1fe11400 0 0x40>,
 -- 
-2.20.1
+2.30.1
 
