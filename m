@@ -2,42 +2,41 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52891C43603
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E898AC43617
 	for <linux-rtc@archiver.kernel.org>; Thu,  6 May 2021 01:04:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3198761168
+	by mail.kernel.org (Postfix) with ESMTP id BCF7461168
 	for <linux-rtc@archiver.kernel.org>; Thu,  6 May 2021 01:04:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230134AbhEFBFp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 May 2021 21:05:45 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:51064 "EHLO
+        id S230144AbhEFBFq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 May 2021 21:05:46 -0400
+Received: from [115.28.160.31] ([115.28.160.31]:51070 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S230102AbhEFBFp (ORCPT
+        by vger.kernel.org with ESMTP id S229687AbhEFBFp (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 May 2021 21:05:45 -0400
 Received: from ld50.lan (unknown [101.224.80.218])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 0A9BD63570;
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id DD37D600BB;
         Thu,  6 May 2021 09:04:45 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1620263085; bh=KyFmzNY9iME7gAnoVZLtCu1aHJKWM5wIRQgf7jjbe/k=;
+        t=1620263086; bh=K0ehAmtye6+D5vkhbi8tBXlfgGVPJ3u4uj/lFn6bk2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toByllR8FbZE23iby3g19Vy7ZJ4MjpDhEKqCCJzUL2MR0Jf3jhmfFG+fbKj3W61dZ
-         1syURJc48Pl9wXwC7RQ3+XOZgwBcHNmp9jV5xqyb3ipo/sMbUa1TYKIALtj5iY1AoZ
-         gy7LC1o7mjuKGsB+MsQ5STWSx7VSFfuaDp3rqvAw=
+        b=YkWWtizo6+qtJqdR2OFvbJdAXcCI3xq26MIU5SMhG1vhOznPuwG4S9k6yqP25TnyJ
+         POZcdA0b+pJReuyGD8NAfZkIvloS9rkxxhGEC6gaI5Gw6DU57UGWyVkNVDB2sbKD2L
+         aLHP725S0xvoDrRA4ly/XVpnlMQQj0aOOIxnKzU4=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
 Cc:     WANG Xuerui <git@xen0n.name>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>
-Subject: [PATCH v3 2/6] dt-bindings: rtc: Add bindings for LS2X RTC
-Date:   Thu,  6 May 2021 09:04:31 +0800
-Message-Id: <20210506010435.1333647-3-git@xen0n.name>
+        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
+Subject: [PATCH v3 3/6] MIPS: Loongson64: DTS: Add RTC support to LS7A
+Date:   Thu,  6 May 2021 09:04:32 +0800
+Message-Id: <20210506010435.1333647-4-git@xen0n.name>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210506010435.1333647-1-git@xen0n.name>
 References: <20210506010435.1333647-1-git@xen0n.name>
@@ -47,30 +46,31 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Document the binding for the LS2X RTC block found on the Loongson-2K SoC
-and the LS7A bridge, originally appearing on the Loongson-2H.
+The LS7A RTC module is now supported, enable it.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
-Acked-by: Rob Herring <robh@kernel.org>
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: devicetree@vger.kernel.org
 ---
- Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/boot/dts/loongson/ls7a-pch.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-index 7548d8714871..568aa89989fe 100644
---- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-@@ -42,6 +42,8 @@ properties:
-       - isil,isl1218
-       # Intersil ISL12022 Real-time Clock
-       - isil,isl12022
-+      # Loongson LS2X RTC
-+      - loongson,ls2x-rtc
-       # Real Time Clock Module with I2C-Bus
-       - microcrystal,rv3028
-       # Real Time Clock Module with I2C-Bus
+diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+index f99a7a11fded..39808e97e6e1 100644
+--- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
++++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
+@@ -19,6 +19,11 @@ pic: interrupt-controller@10000000 {
+ 			#interrupt-cells = <2>;
+ 		};
+ 
++		rtc0: rtc@100d0100 {
++			compatible = "loongson,ls2x-rtc";
++			reg = <0 0x100d0100 0 0x78>;
++		};
++
+ 		ls7a_uart0: serial@10080000 {
+ 			compatible = "ns16550a";
+ 			reg = <0 0x10080000 0 0x100>;
 -- 
 2.30.1
 
