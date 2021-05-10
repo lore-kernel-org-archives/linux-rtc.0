@@ -2,61 +2,57 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5F26C433ED
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 17:27:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9BF9C433ED
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 17:42:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8F75F61481
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 17:27:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 801C560249
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 17:42:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbhEJR2T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 10 May 2021 13:28:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47534 "EHLO
+        id S231591AbhEJRnF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 10 May 2021 13:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231270AbhEJR2R (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 May 2021 13:28:17 -0400
+        with ESMTP id S231631AbhEJRnE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 May 2021 13:43:04 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DF47C061574
-        for <linux-rtc@vger.kernel.org>; Mon, 10 May 2021 10:27:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F766C061574
+        for <linux-rtc@vger.kernel.org>; Mon, 10 May 2021 10:41:59 -0700 (PDT)
 Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1lg9gS-0002jf-3l; Mon, 10 May 2021 19:27:08 +0200
+        id 1lg9ug-0005HL-FS; Mon, 10 May 2021 19:41:50 +0200
 Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1lg9gQ-00063v-JJ; Mon, 10 May 2021 19:27:06 +0200
-Date:   Mon, 10 May 2021 19:27:06 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        id 1lg9ug-0006ac-0x; Mon, 10 May 2021 19:41:50 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-pwm@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org, linux-spi@vger.kernel.org,
-        Wolfram Sang <wsa@kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        kernel@pengutronix.de, Andrew Morton <akpm@linux-foundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc:     linux-clk@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@Huawei.com>,
+        Alexandru Ardelean <aardelean@deviqon.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        kernel@pengutronix.de, linux-rtc@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v6 RESEND 1/6] clk: generalize devm_clk_get() a bit
-Message-ID: <20210510172706.lfafdkfevya7ycqq@pengutronix.de>
-References: <20210510061724.940447-1-u.kleine-koenig@pengutronix.de>
- <20210510061724.940447-2-u.kleine-koenig@pengutronix.de>
- <20210510180205.000004dd@Huawei.com>
+Subject: [PATCH v7 4/6] rtc: at91sam9: Simplify using devm_clk_get_enabled()
+Date:   Mon, 10 May 2021 19:41:40 +0200
+Message-Id: <20210510174142.986250-5-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210510174142.986250-1-u.kleine-koenig@pengutronix.de>
+References: <20210510174142.986250-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="la5yu5g5mopezfed"
-Content-Disposition: inline
-In-Reply-To: <20210510180205.000004dd@Huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
 X-SA-Exim-Mail-From: ukl@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
@@ -65,81 +61,83 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+devm_clk_get_enabled() returns the clk already (prepared and) enabled
+and the automatically called cleanup cares for disabling (and
+unpreparing). So simplify .probe() and .remove() accordingly.
 
---la5yu5g5mopezfed
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-at91sam9.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
 
-On Mon, May 10, 2021 at 06:02:05PM +0100, Jonathan Cameron wrote:
-> On Mon, 10 May 2021 08:17:19 +0200
-> Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de> wrote:
->=20
-> > Allow to add an exit hook to devm managed clocks. Also use
-> > clk_get_optional() in devm_clk_get_optional instead of open coding it.
-> > The generalisation will be used in the next commit to add some more
-> > devm_clk helpers.
-> >=20
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
->=20
-> If feels marginally odd to register cleanup that we know won't do anything
-> for the optional case, but it works as far as I can tell and it would be
-> a little fiddly to special case it.
-
-It took a moment for me to understand your concern. Yes, I register a
-cleanup even if (*init) happens to be clk_get_optional() and it returned
-NULL. It's not hard to optimize that:
-
-diff --git a/drivers/clk/clk-devres.c b/drivers/clk/clk-devres.c
-index b54f7f0f2a35..2420d6ae7b33 100644
---- a/drivers/clk/clk-devres.c
-+++ b/drivers/clk/clk-devres.c
-@@ -38,14 +38,17 @@ static struct clk *__devm_clk_get(struct device *dev, c=
-onst char *id,
- 		goto err_clk_get;
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 2216be429ab7..b52e7bd26303 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -374,21 +374,14 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  	}
-=20
--	if (init) {
--		ret =3D init(clk);
--		if (ret)
--			goto err_clk_init;
-+	/* short-cut the case where clk_get_optional returned NULL */
-+	if (clk) {
-+		if (init) {
-+			ret =3D init(clk);
-+			if (ret)
-+				goto err_clk_init;
-+		}
-+		state->exit =3D exit;
+ 
+-	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
++	rtc->sclk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(rtc->sclk))
+ 		return PTR_ERR(rtc->sclk);
+ 
+-	ret = clk_prepare_enable(rtc->sclk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not enable slow clock\n");
+-		return ret;
+-	}
+-
+ 	sclk_rate = clk_get_rate(rtc->sclk);
+ 	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
+ 		dev_err(&pdev->dev, "Invalid slow clock rate\n");
+-		ret = -EINVAL;
+-		goto err_clk;
++		return -EINVAL;
  	}
-=20
- 	state->clk =3D clk;
--	state->exit =3D exit;
-=20
- 	devres_add(dev, state);
+ 
+ 	mr = rtt_readl(rtc, MR);
+@@ -406,7 +399,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtcdev = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtcdev)) {
+ 		ret = PTR_ERR(rtc->rtcdev);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	rtc->rtcdev->ops = &at91_rtc_ops;
+@@ -418,7 +411,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			       dev_name(&rtc->rtcdev->dev), rtc);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+@@ -432,11 +425,6 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			 dev_name(&rtc->rtcdev->dev));
+ 
+ 	return devm_rtc_register_device(rtc->rtcdev);
+-
+-err_clk:
+-	clk_disable_unprepare(rtc->sclk);
+-
+-	return ret;
+ }
+ 
+ /*
+@@ -450,8 +438,6 @@ static int at91_rtc_remove(struct platform_device *pdev)
+ 	/* disable all interrupts */
+ 	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+ 
+-	clk_disable_unprepare(rtc->sclk);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
 
-But I'd value simplicity over micro-optimizing and keep the code as is.
-=20
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---la5yu5g5mopezfed
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmCZbOcACgkQwfwUeK3K
-7AmXIQf/c3HuQfNTch4Xl+/TfVW1wBEkH4bhu2025v3mpSfZGRNTmKlBBMjvoJaQ
-ZaaoVaze/k9HY4AZPbYTsofDgDsRK2qFUDeKG4QF+kSxQ1YRsi3nDqwApmEtzbS2
-ANIm9kR97cOBMb3fxo7FZpCifLB/4fWyScYFksgu8INDv8qK+/U5NZvBgUzVZ29o
-K7va7sm/jadYgihQ/f4aJnNhCsGxMNxIP3SrMZM04AsY9J+smEdwYX/na6Px54Sj
-RqIK1fK7Ewiq2Be7fPuARD4JVRXWrxbpQ4wY8bkG5ZtqnxPz/dTQRcCYZDwSBozv
-v3RANwxRr6pdDrO/ECcd3myx7Mc33Q==
-=oeyl
------END PGP SIGNATURE-----
-
---la5yu5g5mopezfed--
