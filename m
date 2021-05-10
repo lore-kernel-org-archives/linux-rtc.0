@@ -2,85 +2,100 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLACK autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D0BAC433B4
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 08:00:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87262C433B4
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 13:32:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D87F0613B6
-	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 08:00:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 504A461400
+	for <linux-rtc@archiver.kernel.org>; Mon, 10 May 2021 13:32:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbhEJIB6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 10 May 2021 04:01:58 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:55257 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230153AbhEJIBz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 May 2021 04:01:55 -0400
-X-Originating-IP: 90.65.108.55
-Received: from localhost (lfbn-lyo-1-1676-55.w90-65.abo.wanadoo.fr [90.65.108.55])
-        (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 3890C240006;
-        Mon, 10 May 2021 08:00:46 +0000 (UTC)
-Date:   Mon, 10 May 2021 10:00:46 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Samuel Holland <samuel@sholland.org>
-Cc:     Maxime Ripard <maxime@cerno.tech>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: sun6i: Add NVMEM provider
-Message-ID: <YJjoLuwTSbZlNCPa@piout.net>
-References: <20210419014549.26900-1-samuel@sholland.org>
- <20210430090206.lybmygrt636nysoc@gilmour>
- <a3b03a06-c8fc-7dbe-7c0b-ffd1f194ecbc@sholland.org>
+        id S232349AbhEJNdU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 10 May 2021 09:33:20 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:43290 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244269AbhEJMT5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 10 May 2021 08:19:57 -0400
+Received: from mail-qv1-f69.google.com ([209.85.219.69])
+        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <krzysztof.kozlowski@canonical.com>)
+        id 1lg4s8-00039M-1P
+        for linux-rtc@vger.kernel.org; Mon, 10 May 2021 12:18:52 +0000
+Received: by mail-qv1-f69.google.com with SMTP id g26-20020a0caada0000b02901b93eb92373so12417627qvb.3
+        for <linux-rtc@vger.kernel.org>; Mon, 10 May 2021 05:18:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qw2xIhE1YQPqR0OG1inwWyXnTht9gARQqIiYkO8Zeek=;
+        b=P4L3UyOFcxX1hqc+isk9NBzjNC8nnVpd8m01oWffzl6ytutwqwuv+IaXIZ7HrnSwQq
+         5bif3bc+h+ytmZ414SdUuVP1jQSuI3qPlyjdDTAb8jJUA/YaNEnqmMOaEvA0yGR092QF
+         I/L0MpUQxc1N3O/pYicdYaqNG5XPKx+wa6tMUVkaIf+rmBbFT6PhwHG4VLb9DM4O6sBY
+         A2NWlA/NrxksxI/SyyEuGKROrl6OGrmJE/XLyOe6wQwXnXchlDHL4qZXGgbLPz/folZj
+         2lUMF8naShlLzFKub++TRwq/TEvTTPpW1Tz2Mvsb6u/ZlQ5PyF8Qt6zQPK4iAqpptEmx
+         K44A==
+X-Gm-Message-State: AOAM5328Hcnw/rgSr8EpZW9ochxXqN1rgsI1X+nSZ6lxFH86MYYmz66l
+        wvTWi+e5QDwi5oz2UQgHKST3VXqhPce0sjea1jgwY3Pi4JuBk1s84zHe6BsNy2SOLichmVIFuDb
+        aQ6QDDGQ7aTkxakMS8ROjO7Fg4CZHZw/ONPNzFg==
+X-Received: by 2002:a37:61cd:: with SMTP id v196mr19056892qkb.454.1620649131210;
+        Mon, 10 May 2021 05:18:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyunxzu4B8x+Dts17JtJ41BIvhjuofWIqji9fp6Sm5lxjBnUuVITR4zQbsN+I/u5NwXYtqC6Q==
+X-Received: by 2002:a37:61cd:: with SMTP id v196mr19056870qkb.454.1620649131056;
+        Mon, 10 May 2021 05:18:51 -0700 (PDT)
+Received: from [192.168.1.4] ([45.237.49.2])
+        by smtp.gmail.com with ESMTPSA id m205sm4051312qke.2.2021.05.10.05.18.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 May 2021 05:18:50 -0700 (PDT)
+Subject: Re: [PATCH] rtc: max77686: Remove some dead code
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        cw00.choi@samsung.com, b.zolnierkie@samsung.com,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+References: <a6b23ee8d3ea78f62d3fda0b53aa273718f14c6d.1620452523.git.christophe.jaillet@wanadoo.fr>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Message-ID: <d5250408-b899-ab1a-c86c-0366b6b286c3@canonical.com>
+Date:   Mon, 10 May 2021 08:18:48 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a3b03a06-c8fc-7dbe-7c0b-ffd1f194ecbc@sholland.org>
+In-Reply-To: <a6b23ee8d3ea78f62d3fda0b53aa273718f14c6d.1620452523.git.christophe.jaillet@wanadoo.fr>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 09/05/2021 22:39:30-0500, Samuel Holland wrote:
-> On 4/30/21 4:02 AM, Maxime Ripard wrote:
-> > Hi,
-> > 
-> > On Sun, Apr 18, 2021 at 08:45:49PM -0500, Samuel Holland wrote:
-> >> The sun6i RTC provides 32 bytes of general-purpose data registers.
-> >> They can be used to save data in the always-on RTC power domain.
-> >> The registers are writable via 32-bit MMIO accesses only.
-> >>
-> >> Expose the region as a NVMEM provider so it can be used by userspace and
-> >> other drivers.
-> >>
-> >> Signed-off-by: Samuel Holland <samuel@sholland.org>
-> > 
-> > As far as I understood, you want to use those registers to implement
-> > super-standby? If so, while it makes sense for the kernel to be able to
-> > be able to write to those registers, I guess it would be a bit unwise to
-> > allow the userspace to access it?
+On 08/05/2021 01:43, Christophe JAILLET wrote:
+> 'ret' is known to be an error pointer here, so it can't be 0.
+> Remove this dead code.
 > 
-> I want the user to be able to pass information to the bootloader (to
-> select a boot device, e.g. reboot to FEL). I also want the user to be
-> able to read data stored to these registers by system firmware (e.g.
-> crust writes exception information there). It's not really related to
-> standby.
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> ---
+>  drivers/rtc/rtc-max77686.c | 2 --
+>  1 file changed, 2 deletions(-)
 > 
-> I would want to stack a nvmem-reboot-mode on top to give friendlier
-> names to some of the numbers, but I don't see a problem with root having
-> direct access to the registers. It's no different from /dev/nvram
-> providing access to the PC CMOS RAM.
-> 
-
-(which is deprecated in favor of nvmem)
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index d51cc12114cb..ce089ed934ad 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -764,8 +764,6 @@ static int max77686_rtc_probe(struct platform_device *pdev)
+>  	if (IS_ERR(info->rtc_dev)) {
+>  		ret = PTR_ERR(info->rtc_dev);
+>  		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+> -		if (ret == 0)
+> -			ret = -EINVAL;
+>  		goto err_rtc;
 
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+
+
+Best regards,
+Krzysztof
