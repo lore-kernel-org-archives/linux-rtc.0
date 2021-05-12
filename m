@@ -2,90 +2,97 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 024C8C433B4
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 May 2021 16:14:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FCCC433B4
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 May 2021 11:11:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BA94E613C3
-	for <linux-rtc@archiver.kernel.org>; Tue, 11 May 2021 16:14:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DD6C611F1
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 May 2021 11:11:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbhEKQPS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 11 May 2021 12:15:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44460 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231512AbhEKQPR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 11 May 2021 12:15:17 -0400
-Received: from viti.kaiser.cx (viti.kaiser.cx [IPv6:2a01:238:43fe:e600:cd0c:bd4a:7a3:8e9f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF85CC061574;
-        Tue, 11 May 2021 09:14:09 -0700 (PDT)
-Received: from dslb-094-219-032-254.094.219.pools.vodafone-ip.de ([94.219.32.254] helo=martin-debian-2.paytec.ch)
-        by viti.kaiser.cx with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.89)
-        (envelope-from <martin@kaiser.cx>)
-        id 1lgV1B-0002rQ-EN; Tue, 11 May 2021 18:13:57 +0200
-From:   Martin Kaiser <martin@kaiser.cx>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Martin Kaiser <martin@kaiser.cx>
-Subject: [PATCH v3] rtc: imxdi: add wakeup support
-Date:   Tue, 11 May 2021 18:12:44 +0200
-Message-Id: <20210511161244.16111-1-martin@kaiser.cx>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20210430093210.7034-1-martin@kaiser.cx>
-References: <20210430093210.7034-1-martin@kaiser.cx>
+        id S230129AbhELLMu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 12 May 2021 07:12:50 -0400
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:62181 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230035AbhELLMu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 May 2021 07:12:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1620817903; x=1652353903;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=2mMEcWBlHlrWU8bjPsSiCJZUDcBVw7uO2Zc306a3VIU=;
+  b=Yr1v7uI7rHLkTng0mtBgJQC7E9yREXBMUU/ILq3Y1gfJnuBdjKvNF6Td
+   SB6ujnml18VU4RuldXIgnDjgs6EriDT8Z7Vgq6OJo4BzdQa9NJ72245c8
+   GgURB6Vg14eg+Vl225wtyPuFqAKFf8L/iH4z001ebGcJ1r9rmFyPqL7HI
+   AqulnLzsUC4cE/2tN618mEoAww/8mfWE4+PU2eLOVB34m1whEulHsCyPp
+   t+EQPO9mYBWoo4u91qptKCgiyOnFgW+SdqOG/xTclZj3iQGBfU5j1tC1z
+   wxtAp2FoR8/djAAe6Cm6gajHNEAiBh/5EQ6dI6sWGHFcpEoow03wM+RVT
+   A==;
+IronPort-SDR: gBNIov3OB2gCbdDZx//iotF284mdkQs9qhbkZ4Bq99UfzRjQLSd6Mzsb0qw5hVXkF92MFhjzb6
+ HvSMPeYAA5kQS3WZpoU3MED6DGBtAd+QzaTW9J/cBaJ0ewHBAyWC/GYXakwT5LnEy+n6oc2oqx
+ d457Y2i7Xq/785fzPZoZtNL8E/EtGUZgrOQ2cUcxYIELnul61mMLka/UlESI7HOamSt36sFlJq
+ QFtTsTZT7Es7HzgT7BVYLkgq7jt6ddZwYp/tpm9aPYoxMEFON2DcTtE4qiSoY+EIVHwIvW+sHU
+ ywk=
+X-IronPort-AV: E=Sophos;i="5.82,293,1613458800"; 
+   d="scan'208";a="120801165"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 12 May 2021 04:11:43 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.87.72) by
+ chn-vm-ex02.mchp-main.com (10.10.87.72) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Wed, 12 May 2021 04:11:41 -0700
+Received: from daire-ubuntu.school.villiers.net (10.10.115.15) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
+ 15.1.2176.2 via Frontend Transport; Wed, 12 May 2021 04:11:38 -0700
+From:   <daire.mcnamara@microchip.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <linux-rtc@vger.kernel.org>, <robh+dt@kernel.org>,
+        <devicetree@vger.kernel.org>
+CC:     <palmer@dabbelt.com>, <cyril.jean@microchip.com>,
+        <padmarao.begari@microchip.com>, <lewis.hanly@microchip.com>,
+        <conor.dooley@microchip.com>, <david.abdurachmanov@gmail.com>,
+        Daire McNamara <daire.mcnamara@microchip.com>
+Subject: [PATCH v1 0/2] rtc: microchip: Add driver for PolarFire SoC
+Date:   Wed, 12 May 2021 12:11:31 +0100
+Message-ID: <20210512111133.1650740-1-daire.mcnamara@microchip.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The DryIce-based RTC supports alarms that trigger an interrupt.
+From: Daire McNamara <daire.mcnamara@microchip.com>
 
-Configure this interrupt as a wakeup source that wakes the system up
-from standby mode.
+This patchset adds support for the Microchip PolarFire SoC RTC
+hardware block.
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
----
-v3:
- - fix the commit message, the interrupt is always a wakeup source
+Daire McNamara (2):
+  dt-bindings: rtc: microchip: Add Microchip PolarFire host binding
+  rtc: microchip: Add driver for Microchip PolarFire SoC
 
-v2:
- - unconditionally declare rtc-imxdi as wakeup source
- - use dev_pm_set_wake_irq instead of manually coding suspend and resume
+ .../bindings/rtc/microchip,mfps-rtc.yaml      |  61 +++
+ drivers/rtc/Kconfig                           |   7 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-mpfs.c                        | 449 ++++++++++++++++++
+ 4 files changed, 518 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-mpfs.c
 
- drivers/rtc/rtc-imxdi.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/rtc/rtc-imxdi.c b/drivers/rtc/rtc-imxdi.c
-index c1806f4d68e7..4b712e5ab08a 100644
---- a/drivers/rtc/rtc-imxdi.c
-+++ b/drivers/rtc/rtc-imxdi.c
-@@ -24,6 +24,7 @@
- #include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/rtc.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
-@@ -811,6 +812,9 @@ static int __init dryice_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, imxdi);
- 
-+	device_init_wakeup(&pdev->dev, true);
-+	dev_pm_set_wake_irq(&pdev->dev, norm_irq);
-+
- 	imxdi->rtc->ops = &dryice_rtc_ops;
- 	imxdi->rtc->range_max = U32_MAX;
- 
+base-commit: acd3d28594536e9096c1ea76c5867d8a68babef6
+prerequisite-patch-id: 6f7f70120adfa8e938b97517f0c664e43e8745a0
+prerequisite-patch-id: 4ea37008d23838aa2e0658811fe15462f6cdbd87
+prerequisite-patch-id: 378c9d7495e56454b7bffbdbc430185dc4e36b90
+prerequisite-patch-id: b547bbdf0a800c652cdd1a542b8ce725dfd6fcc9
+prerequisite-patch-id: 98fc35868a9b0e284ba666422770fb3a4fe27ed9
+prerequisite-patch-id: 28006f331625d755e92cc87ae194e05138f26909
+prerequisite-patch-id: 26afc006e51cf743902bf609b537e1558e70f69c
 -- 
-2.20.1
+2.25.1
 
