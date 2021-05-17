@@ -2,155 +2,84 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C901C433ED
-	for <linux-rtc@archiver.kernel.org>; Thu, 13 May 2021 02:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7990C433ED
+	for <linux-rtc@archiver.kernel.org>; Mon, 17 May 2021 04:56:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3091361417
-	for <linux-rtc@archiver.kernel.org>; Thu, 13 May 2021 02:22:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A89466113C
+	for <linux-rtc@archiver.kernel.org>; Mon, 17 May 2021 04:56:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229630AbhEMCYC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 12 May 2021 22:24:02 -0400
-Received: from mail-oo1-f43.google.com ([209.85.161.43]:41941 "EHLO
-        mail-oo1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230037AbhEMCYB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 May 2021 22:24:01 -0400
-Received: by mail-oo1-f43.google.com with SMTP id e7-20020a4ad2470000b02902088d0512ceso2546502oos.8;
-        Wed, 12 May 2021 19:22:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=bjbsKbExJtqqkUx1FT2hl9g6O34xQvhxKjFsG5FoPFQ=;
-        b=kUiXU/GWinaocDjZ645EhMqEVVn58BxOQos1qz/PmfWj80H1SJGNK4VnmCNeRrPvuU
-         U7LSa5WsFLsfxmSNmvXhv/KjUBI9UoYeTP2z2CsgG+GDF0hs6okBIQUURI7RJAC+UnJf
-         oVKoYrhWjO3f9sK+lgbVY/veXSrSUUtsE+1z0fZMaLSmJOqkB0Uwf6ozt2ZGQ/ulfXDw
-         zpq9CGjbDEuuxxW6siYpLpclkLb1vM98URoX9UNQ1MlfUWhDc5cAQaAgTDQHuVWyqbYh
-         xoWRn8CRMI55uvfwT4WazcBTC7daOHBFVAkuavlLjK6qBUfSKofF+Ph+M8t3X8AcYkzH
-         D2mg==
-X-Gm-Message-State: AOAM531FrX3VK91B0V55JPuu8/UNtQ7ebGK9eDzxyPKOZztzNEnwvoDP
-        XelllSx4MwhD3Yr2096MJJFff638Pg==
-X-Google-Smtp-Source: ABdhPJwXoMiahwvEN4+Fn78L/YNhAbFffO00UELQ9/ukJIag3rZoN0sWlcAkCjNiqZ/tH5uZycETDg==
-X-Received: by 2002:a4a:5242:: with SMTP id d63mr30053006oob.93.1620872571068;
-        Wed, 12 May 2021 19:22:51 -0700 (PDT)
-Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
-        by smtp.gmail.com with ESMTPSA id y6sm378806otk.42.2021.05.12.19.22.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 May 2021 19:22:50 -0700 (PDT)
-Received: (nullmailer pid 898636 invoked by uid 1000);
-        Thu, 13 May 2021 02:22:49 -0000
-Date:   Wed, 12 May 2021 21:22:49 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     daire.mcnamara@microchip.com
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        palmer@dabbelt.com, cyril.jean@microchip.com,
-        padmarao.begari@microchip.com, lewis.hanly@microchip.com,
-        conor.dooley@microchip.com, david.abdurachmanov@gmail.com
-Subject: Re: [PATCH v1 1/2] dt-bindings: rtc: microchip: Add Microchip
- PolarFire host binding
-Message-ID: <20210513022249.GA896078@robh.at.kernel.org>
-References: <20210512111133.1650740-1-daire.mcnamara@microchip.com>
- <20210512111133.1650740-2-daire.mcnamara@microchip.com>
+        id S229787AbhEQE5f (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 17 May 2021 00:57:35 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:3704 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229625AbhEQE5d (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 May 2021 00:57:33 -0400
+Received: from dggems701-chm.china.huawei.com (unknown [172.30.72.60])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4Fk6GK5bXbz16QrV;
+        Mon, 17 May 2021 12:53:29 +0800 (CST)
+Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
+ dggems701-chm.china.huawei.com (10.3.19.178) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 17 May 2021 12:56:13 +0800
+Received: from huawei.com (10.175.103.91) by dggpeml500017.china.huawei.com
+ (7.185.36.243) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Mon, 17 May
+ 2021 12:56:13 +0800
+From:   Yang Yingliang <yangyingliang@huawei.com>
+To:     <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+CC:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
+Subject: [PATCH -next] rtc: m41t80: correct function names in rtc-m41t80.c
+Date:   Mon, 17 May 2021 12:58:31 +0800
+Message-ID: <20210517045831.3461507-1-yangyingliang@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210512111133.1650740-2-daire.mcnamara@microchip.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.103.91]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500017.china.huawei.com (7.185.36.243)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, May 12, 2021 at 12:11:32PM +0100, daire.mcnamara@microchip.com wrote:
-> From: Daire McNamara <daire.mcnamara@microchip.com>
-> 
-> Add device tree bindings for the Microchip PolarFire real-time
-> clock controller
-> 
-> Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
-> ---
->  .../bindings/rtc/microchip,mfps-rtc.yaml      | 61 +++++++++++++++++++
->  1 file changed, 61 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
-> new file mode 100644
-> index 000000000000..c82b3e7351e0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
-> @@ -0,0 +1,61 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/rtc/microchip,mfps-rtc.yaml#
-> +
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Microchip PolarFire Soc (MPFS) RTC Device Tree Bindings
-> +
-> +allOf:
-> +  - $ref: "rtc.yaml#"
-> +
-> +maintainers:
-> +  - Daire McNamara <daire.mcnamara@microchip.com>
-> +  - Lewis Hanly <lewis.hanly@microchip.com>
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - microchip,mpfs-rtc
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  prescaler:
-> +    maxItems: 1
+Fix the following make W=1 kernel build warnings:
 
-An array?
+  drivers/rtc/rtc-m41t80.c:811: warning: expecting prototype for wdt_close(). Prototype was for wdt_release() instead
+  drivers/rtc/rtc-m41t80.c:830: warning: expecting prototype for notify_sys(). Prototype was for wdt_notify_sys() instead
 
-Needs a type, constraints, and vendor prefix.
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+---
+ drivers/rtc/rtc-m41t80.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  clock-names:
-> +    items:
-> +      - const: rtc
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 89128fc29ccc..79512d1c828e 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -802,7 +802,7 @@ static int wdt_open(struct inode *inode, struct file *file)
+ }
+ 
+ /**
+- *	wdt_close:
++ *	wdt_release:
+  *	@inode: inode to board
+  *	@file: file handle to board
+  *
+@@ -815,7 +815,7 @@ static int wdt_release(struct inode *inode, struct file *file)
+ }
+ 
+ /**
+- *	notify_sys:
++ *	wdt_notify_sys:
+  *	@this: our notifier block
+  *	@code: the event being reported
+  *	@unused: unused
+-- 
+2.25.1
 
-Kind of a pointless name. You don't need *-names when there is only 1.
-
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - clocks
-> +  - clock-names
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/clock/microchip,mpfs-clock.h>
-> +    soc {
-> +        #address-cells = <2>;
-> +        #size-cells = <2>;
-> +        rtc@20124000 {
-> +            compatible = "microchip,mpfs-rtc";
-> +            reg = <0 0x20124000 0 0x1000>;
-> +            clocks = <&clkcfg CLK_RTC>;
-> +            clock-names = "rtc";
-> +            interrupts = <80>;
-> +        };
-> +    };
-> +...
-> -- 
-> 2.25.1
-> 
