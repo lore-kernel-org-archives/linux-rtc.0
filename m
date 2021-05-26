@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D27D0C4708B
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 May 2021 06:52:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72B11C47088
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 May 2021 06:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B4C3461408
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 May 2021 06:52:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5993D613F6
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 May 2021 06:52:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232916AbhEZGxt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S232919AbhEZGxt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 26 May 2021 02:53:49 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:40870 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232850AbhEZGxs (ORCPT
+Received: from mailgw01.mediatek.com ([210.61.82.183]:37230 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S232869AbhEZGxs (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 May 2021 02:53:48 -0400
-X-UUID: de3cbdd2a4f3418eba2329d6ee8cbd53-20210526
-X-UUID: de3cbdd2a4f3418eba2329d6ee8cbd53-20210526
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
+X-UUID: bbcbee18ddf841739a1cc09ddd5a1bd2-20210526
+X-UUID: bbcbee18ddf841739a1cc09ddd5a1bd2-20210526
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
         (envelope-from <hsin-hsiung.wang@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 327790574; Wed, 26 May 2021 14:52:13 +0800
+        with ESMTP id 941265013; Wed, 26 May 2021 14:52:13 +0800
 Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs05n2.mediatek.inc (172.21.101.140) with Microsoft SMTP Server (TLS) id
+ mtkmbs05n1.mediatek.inc (172.21.101.15) with Microsoft SMTP Server (TLS) id
  15.0.1497.2; Wed, 26 May 2021 14:52:12 +0800
 Received: from mtksdaap41.mediatek.inc (172.21.77.4) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 26 May 2021 14:52:11 +0800
+ Transport; Wed, 26 May 2021 14:52:12 +0800
 From:   Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
 To:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Matthias Brugger <matthias.bgg@gmail.com>,
@@ -49,10 +49,12 @@ CC:     Sean Wang <sean.wang@mediatek.com>,
         <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <srv_heupstream@mediatek.com>,
         <Project_Global_Chrome_Upstream_Group@mediatek.com>
-Subject: [PATCH v8 0/8] Add Support for MediaTek PMIC MT6359
-Date:   Wed, 26 May 2021 14:51:59 +0800
-Message-ID: <1622011927-359-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+Subject: [PATCH v8 2/8] rtc: mt6397: refine RTC_TC_MTH
+Date:   Wed, 26 May 2021 14:52:01 +0800
+Message-ID: <1622011927-359-3-git-send-email-hsin-hsiung.wang@mediatek.com>
 X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1622011927-359-1-git-send-email-hsin-hsiung.wang@mediatek.com>
+References: <1622011927-359-1-git-send-email-hsin-hsiung.wang@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MTK:  N
@@ -60,55 +62,44 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patchset includes refactoring interrupt and adding support to MT6359 PMIC.
-MT6359 is the primary PMIC for MT6779 and probably other SOCs.
-The series[1] sent by Wen will continue to upstream in this patchset afterwards.
-This patchset is based on the pmic wrapper patchset[2].
+This patch adds RTC_TC_MTH_MASK to support new chips.
 
-[1] https://patchwork.kernel.org/project/linux-mediatek/list/?series=306579
-[2] https://patchwork.kernel.org/project/linux-mediatek/list/?series=447127
-
+Signed-off-by: Yuchen Huang <yuchen.huang@mediatek.com>
+Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
 changes since v7:
-- rebase to Linux 5.13.
+- no change.
+---
+ drivers/rtc/rtc-mt6397.c       | 2 +-
+ include/linux/mfd/mt6397/rtc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-Hsin-Hsiung Wang (6):
-  mfd: mt6358: refine interrupt code
-  rtc: mt6397: refine RTC_TC_MTH
-  dt-bindings: mfd: Add compatible for the MediaTek MT6359 PMIC
-  dt-bindings: regulator: Add document for MT6359 regulator
-  mfd: Add support for the MediaTek MT6359 PMIC
-  regulator: mt6359: Add support for MT6359P regulator
-
-Wen Su (2):
-  regulator: mt6359: Add support for MT6359 regulator
-  arm64: dts: mt6359: add PMIC MT6359 related nodes
-
- Documentation/devicetree/bindings/mfd/mt6397.txt   |    1 +
- .../bindings/regulator/mt6359-regulator.yaml       |  385 ++++++++
- arch/arm64/boot/dts/mediatek/mt6359.dtsi           |  298 ++++++
- arch/arm64/boot/dts/mediatek/mt8192-evb.dts        |    1 +
- drivers/mfd/mt6358-irq.c                           |   89 +-
- drivers/mfd/mt6397-core.c                          |   24 +
- drivers/regulator/Kconfig                          |    9 +
- drivers/regulator/Makefile                         |    1 +
- drivers/regulator/mt6359-regulator.c               | 1036 ++++++++++++++++++++
- drivers/rtc/rtc-mt6397.c                           |    2 +-
- include/linux/mfd/mt6358/core.h                    |    8 +-
- include/linux/mfd/mt6359/core.h                    |  133 +++
- include/linux/mfd/mt6359/registers.h               |  529 ++++++++++
- include/linux/mfd/mt6359p/registers.h              |  249 +++++
- include/linux/mfd/mt6397/core.h                    |    1 +
- include/linux/mfd/mt6397/rtc.h                     |    1 +
- include/linux/regulator/mt6359-regulator.h         |   59 ++
- 17 files changed, 2793 insertions(+), 33 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/regulator/mt6359-regulator.yaml
- create mode 100644 arch/arm64/boot/dts/mediatek/mt6359.dtsi
- create mode 100644 drivers/regulator/mt6359-regulator.c
- create mode 100644 include/linux/mfd/mt6359/core.h
- create mode 100644 include/linux/mfd/mt6359/registers.h
- create mode 100644 include/linux/mfd/mt6359p/registers.h
- create mode 100644 include/linux/regulator/mt6359-regulator.h
-
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 6655035..80dc479 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -75,7 +75,7 @@ static int __mtk_rtc_read_time(struct mt6397_rtc *rtc,
+ 	tm->tm_min = data[RTC_OFFSET_MIN];
+ 	tm->tm_hour = data[RTC_OFFSET_HOUR];
+ 	tm->tm_mday = data[RTC_OFFSET_DOM];
+-	tm->tm_mon = data[RTC_OFFSET_MTH];
++	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_TC_MTH_MASK;
+ 	tm->tm_year = data[RTC_OFFSET_YEAR];
+ 
+ 	ret = regmap_read(rtc->regmap, rtc->addr_base + RTC_TC_SEC, sec);
+diff --git a/include/linux/mfd/mt6397/rtc.h b/include/linux/mfd/mt6397/rtc.h
+index c3748b5..068ae1c 100644
+--- a/include/linux/mfd/mt6397/rtc.h
++++ b/include/linux/mfd/mt6397/rtc.h
+@@ -36,6 +36,7 @@
+ #define RTC_AL_MASK_DOW                BIT(4)
+ 
+ #define RTC_TC_SEC             0x000a
++#define RTC_TC_MTH_MASK        0x000f
+ /* Min, Hour, Dom... register offset to RTC_TC_SEC */
+ #define RTC_OFFSET_SEC         0
+ #define RTC_OFFSET_MIN         1
 -- 
 2.6.4
 
