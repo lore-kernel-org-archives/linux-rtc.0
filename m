@@ -2,114 +2,53 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95320C2B9F4
-	for <linux-rtc@archiver.kernel.org>; Sun, 20 Jun 2021 00:42:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 033D7C49EA2
+	for <linux-rtc@archiver.kernel.org>; Sun, 20 Jun 2021 20:20:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6393A6108D
-	for <linux-rtc@archiver.kernel.org>; Sun, 20 Jun 2021 00:42:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE2DB61007
+	for <linux-rtc@archiver.kernel.org>; Sun, 20 Jun 2021 20:20:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229673AbhFTAox (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 19 Jun 2021 20:44:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229591AbhFTAow (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 19 Jun 2021 20:44:52 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AB5C061574
-        for <linux-rtc@vger.kernel.org>; Sat, 19 Jun 2021 17:42:41 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1624149759;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=xK+DmaXnoyosriDPMF/7746cVAw94Vag+mYBs6UPJGo=;
-        b=4FR15Q4/JQeepp9r2nY+XdAnjiQnjTT+B2pPEn/fXAkwgmbwVglJeTiIWSa4p3p3xMYAwE
-        FPnsipcJVxHeKubHxxaCc9OzKlOQ9ZYTxs0vSWd/1HRzNQvyISfPdoqj1ciYRtr635DNRM
-        rXVH4i85Yok6vQlHDhVqb3khnlreFrqMyrW8t6NNK2zvReCJ9Mn8XRXOLPU/DEP9qO/iyv
-        rJTxbfg8pxFxIRaxDymcw9j0TL9RQDv2Hzh9sEGKjF+1HHeEUybMhoAJI5IO4fcpeBKlJ4
-        nq9hFYQpuY4RoZGdaokRwIUsYu3b8unGFUyGoWGEzHUSjZo5Vmu8XpobzW/zDg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1624149759;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=xK+DmaXnoyosriDPMF/7746cVAw94Vag+mYBs6UPJGo=;
-        b=j+xeBocKCsRLfHfdR93MsIyYMQ3bverm5Qyzs2HJajTMFCjnI4dD3Spvo33VGRSTwv1Roc
-        W2No9q7fStWhPbDQ==
-To:     linux-rtc@vger.kernel.org
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: rtc: pcf8523: Rename REG_OFFSET
-Date:   Sun, 20 Jun 2021 02:42:39 +0200
-Message-ID: <8735tdgydc.ffs@nanos.tec.linutronix.de>
+        id S230031AbhFTUWw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 20 Jun 2021 16:22:52 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:60885 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229897AbhFTUWv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Jun 2021 16:22:51 -0400
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 833E720005;
+        Sun, 20 Jun 2021 20:20:36 +0000 (UTC)
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Yang Yingliang <yangyingliang@huawei.com>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        a.zummo@towertech.it
+Subject: Re: [PATCH -next] rtc: sysfs: Correct function name hctosys_show()
+Date:   Sun, 20 Jun 2021 22:20:34 +0200
+Message-Id: <162422042125.1087482.12186269568617545106.b4-ty@bootlin.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210517045901.3461800-1-yangyingliang@huawei.com>
+References: <20210517045901.3461800-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Moving ARM to the generic irqstat infrastructure caused
-arch/arm/mach-ixp4xx/include/mach/platform.h to be included indirectly in
-interrupt related headers, which results in a build failure:
+On Mon, 17 May 2021 12:59:01 +0800, Yang Yingliang wrote:
+> Fix the following make W=1 kernel build warning:
+> 
+>   drivers/rtc/sysfs.c:115: warning: expecting prototype for rtc_sysfs_show_hctosys(). Prototype was for hctosys_show() instead
 
->> drivers/rtc/rtc-pcf8523.c:35: warning: "REG_OFFSET" redefined                                                                                                                                                                                                                
-      35 | #define REG_OFFSET   0x0e                                                                                                                                                                                                                                           
+Applied, thanks!
 
-Rename it to PCF_REG_OFFSET and for consistency the mode define to
-PCF_REG_OFFSET_MODE.
+[1/1] rtc: sysfs: Correct function name hctosys_show()
+      commit: a8fdbefd75f660b471112d7d0bf583adf78f5c34
 
-Fixes: 7fd70c65faac ("ARM: irqstat: Get rid of duplicated declaration")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org
----
- drivers/rtc/rtc-pcf8523.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -41,8 +41,8 @@
- #define REG_WEEKDAY_ALARM	0x0d
- #define ALARM_DIS BIT(7)
- 
--#define REG_OFFSET   0x0e
--#define REG_OFFSET_MODE BIT(7)
-+#define PCF_REG_OFFSET		0x0e
-+#define PCF_REG_OFFSET_MODE	BIT(7)
- 
- #define REG_TMR_CLKOUT_CTRL 0x0f
- 
-@@ -442,13 +442,13 @@ static int pcf8523_rtc_read_offset(struc
- 	u8 value;
- 	s8 val;
- 
--	err = pcf8523_read(client, REG_OFFSET, &value);
-+	err = pcf8523_read(client, PCF_REG_OFFSET, &value);
- 	if (err < 0)
- 		return err;
- 
- 	/* sign extend the 7-bit offset value */
- 	val = value << 1;
--	*offset = (value & REG_OFFSET_MODE ? 4069 : 4340) * (val >> 1);
-+	*offset = (value & PCF_REG_OFFSET_MODE ? 4069 : 4340) * (val >> 1);
- 
- 	return 0;
- }
-@@ -465,9 +465,9 @@ static int pcf8523_rtc_set_offset(struct
- 	if (abs(reg_m0 * 4340 - offset) < abs(reg_m1 * 4069 - offset))
- 		value = reg_m0 & 0x7f;
- 	else
--		value = (reg_m1 & 0x7f) | REG_OFFSET_MODE;
-+		value = (reg_m1 & 0x7f) | PCF_REG_OFFSET_MODE;
- 
--	return pcf8523_write(client, REG_OFFSET, value);
-+	return pcf8523_write(client, PCF_REG_OFFSET, value);
- }
- 
- static const struct rtc_class_ops pcf8523_rtc_ops = {
+Best regards,
+-- 
+Alexandre Belloni <alexandre.belloni@bootlin.com>
