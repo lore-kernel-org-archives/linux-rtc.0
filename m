@@ -2,336 +2,401 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3B63C49EA5
-	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 15:22:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88163C49EA5
+	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 20:14:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADCCE613DA
-	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 15:22:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F72C613A9
+	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 20:14:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbhFXPZO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 24 Jun 2021 11:25:14 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:54868 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232227AbhFXPZM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Jun 2021 11:25:12 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 3336121A70;
-        Thu, 24 Jun 2021 15:22:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1624548172; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=zVVyBH4K0z3T5g6w7kw8qpunXOqk93L2d0Rd9B2wSwM=;
-        b=Yy0ppKMclBj9Nt+arDh4ff0gXE4UF+qzaI2cRs+E5JvZa0itVW40dGguEk2EDcHMhaXUUc
-        M17j0CCH9kgzv99M/yHC43WgJ6QD5NfnHLsEccYxTGURE1V1I/LxUEkHLWWPFO3rYOy2GY
-        5RWmU7IyokxHkFHlUoa/+vBuzMjvnpQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1624548172;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=zVVyBH4K0z3T5g6w7kw8qpunXOqk93L2d0Rd9B2wSwM=;
-        b=Jsb5OE9JgH+gpF/MVkswbWb7VlZbtwQjuS8534M3gvSsXa0xlKOcP7gAyRT6xuJPca3o64
-        mvnB6sDBCiZGSUAg==
-Received: from un68u.suse.de (unknown [10.163.42.126])
-        by relay2.suse.de (Postfix) with ESMTP id E779EA3BC5;
-        Thu, 24 Jun 2021 15:22:51 +0000 (UTC)
-From:   Mian Yousaf Kaukab <ykaukab@suse.de>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        bruno.thomsen@gmail.com
+        id S232638AbhFXUQf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 24 Jun 2021 16:16:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232565AbhFXUQf (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Jun 2021 16:16:35 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B05C061574;
+        Thu, 24 Jun 2021 13:14:15 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id w13so4815200wmc.3;
+        Thu, 24 Jun 2021 13:14:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JpVn6RjHhBseo2RngxWRtIwo5/l3JsKu6wOong2ADk8=;
+        b=DrLY8RXhwM3sU1/Jikkw5/qVSKbME/15hEyLzn6h2S0zLmDNbqbMckP7mKvaQowNOx
+         BGcqW17Uy5X3/lijEGl3lITq120fo2Gzjxf1d7ySO0KMi15zfKWQuvdUKNoMA67UpRt8
+         1qYgdSKG3fgYdJFFLeSnKYCBkPZaUMZJUrqjFTAvQXJmOxORVKVqor+WEJsFr30Sa0Tq
+         fgOWI1KGxwx2ju4wZfClfZdvGPe0Z3hOOf8g9TTjEygYcejyL8iVqI3CcvsAHZ9hQeGo
+         OWCneWnBXSqFtLLoZmH3pe6sjf4CsChgkaC/MNS3kcRVTQuhVtou+0PL5Bmoym7iihd4
+         B7EA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JpVn6RjHhBseo2RngxWRtIwo5/l3JsKu6wOong2ADk8=;
+        b=mDV6y5qEM7DwLzkubOWwjb8iaD/jRhDG/WCcrZOX6DHgghQ68H129NbyjOBjOGqyhI
+         /58135LYcjTI9sdpxyRERW6iab2Q4SEgQ6vLPSFuvcfZ/IAdDvuk4FBjnzkgLU0gKaGf
+         IXdcjdCAb41LHLt+41VlTkWuo+xrZiFzTziJmCAfHGKswNR6Nl4R+Ip1J7+lptKJW2lw
+         S2O98bYf9kMrzDehPECOtYAQSRS/EZ41h1dGpmfS8aUt44BO8C1a5x7tWOeWZ0ye36IK
+         27cxyW29rrCtC5+81f5v39C0QlAMvpstavVGMlMePR/q0Hs4k+01Em4rEBfvSfZhOfmN
+         SsEg==
+X-Gm-Message-State: AOAM532lsrNNFY6x1DgOR/N0mw5KlkOPgh/3md1J3Iq0UqdFyuWV+D/U
+        3aB/JcbT8DAvtQyEnTgb6vM=
+X-Google-Smtp-Source: ABdhPJwVFPt/Sl/l1qLRuDKHHEIZAxTZsCaRyFG0sQytxZ8H6NRGwS1TmnpgaywYYg98tib4uolyvg==
+X-Received: by 2002:a7b:c44d:: with SMTP id l13mr6335479wmi.69.1624565653911;
+        Thu, 24 Jun 2021 13:14:13 -0700 (PDT)
+Received: from othello.cust.communityfibre.co.uk ([2a02:6b64:80a9:0:1be:22d4:3c1d:bcad])
+        by smtp.gmail.com with ESMTPSA id x1sm4085514wrv.49.2021.06.24.13.14.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Jun 2021 13:14:13 -0700 (PDT)
+From:   Cassio Neri <cassio.neri@gmail.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        biwen.li@nxp.com, Mian Yousaf Kaukab <ykaukab@suse.de>
-Subject: [PATCH v5] rtc: pcf2127: handle timestamp interrupts
-Date:   Thu, 24 Jun 2021 17:22:41 +0200
-Message-Id: <20210624152241.4476-1-ykaukab@suse.de>
-X-Mailer: git-send-email 2.26.2
+        Cassio Neri <cassio.neri@gmail.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH v5] rtc: Improve performance of rtc_time64_to_tm(). Add tests.
+Date:   Thu, 24 Jun 2021 21:13:43 +0100
+Message-Id: <20210624201343.85441-1-cassio.neri@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-commit 03623b4b041c ("rtc: pcf2127: add tamper detection support")
-added support for timestamp interrupts. However they are not being
-handled in the irq handler. If a timestamp interrupt occurs it
-results in kernel disabling the interrupt and displaying the call
-trace:
+From: Cassio Neri <cassio.neri@gmail.com>
 
-[  121.145580] irq 78: nobody cared (try booting with the "irqpoll" option)
-...
-[  121.238087] [<00000000c4d69393>] irq_default_primary_handler threaded [<000000000a90d25b>] pcf2127_rtc_irq [rtc_pcf2127]
-[  121.248971] Disabling IRQ #78
+The current implementation of rtc_time64_to_tm() contains unnecessary
+loops, branches and look-up tables. The new one uses an arithmetic-based
+algorithm appeared in [1] and is approximately 4.3 times faster (YMMV).
 
-Handle timestamp interrupts in pcf2127_rtc_irq(). Save time stamp
-before clearing TSF1 and TSF2 flags so that it can't be overwritten.
-Set a flag to mark if the timestamp is valid and only report to sysfs
-if the flag is set. To mimic the hardware behavior, don’t save
-another timestamp until the first one has been read by the userspace.
+The drawback is that the new code isn't intuitive and contains many 'magic
+numbers' (not unusual for this type of algorithm). However, [1] justifies
+all those numbers and, given this function's history, the code is unlikely
+to need much maintenance, if any at all.
 
-However, if the alarm irq is not configured, keep the old way of
-handling timestamp interrupt in the timestamp0 sysfs calls.
+Add a KUnit test case that checks every day in a 160,000 years interval
+starting on 1970-01-01 against the expected result. Add a new config
+RTC_LIB_KUNIT_TEST symbol to give the option to run this test suite.
 
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+[1] Neri, Schneider, "Euclidean Affine Functions and Applications to
+Calendar Algorithms". https://arxiv.org/abs/2102.06959
+
+Signed-off-by: Cassio Neri <cassio.neri@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+
 ---
-*Only compile tested due to lack of hardware availability*
 
-history:
-v5: -Add irq_enabled flag to keep track of alarm irq. Revert
-     to current way of handling timestamp interrupt in sysfs callsbacks
-     if alarm irq is not configured
-v4: -Save timestamp before clearing TSF1 and TSF2 flags
-    -Rename timstamp_valid flag to ts_valid
-v3: -Restore call to pcf2127_wdt_active_ping() in timestamp0_store().
-     It was removed by mistake.
-v2: -Add a flag to mark the occurrence of timestamp interrupt
-    -Add Biwen Li in Cc
+* Disclaimer: I'm an author of [1].
 
- drivers/rtc/rtc-pcf2127.c | 172 +++++++++++++++++++++++++++-----------
- 1 file changed, 121 insertions(+), 51 deletions(-)
+* Test evidence: Same test implemented by lib_test.c, compiler switches
+are close to kernel's and it's possible to run this test on 32 and 64 bits:
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 48ce1e85deb1..5a7e673349ed 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -94,10 +94,20 @@
- #define PCF2127_WD_VAL_MAX		255
- #define PCF2127_WD_VAL_DEFAULT		60
+    https://godbolt.org/z/azoPon87s
+
+* Benchmarks: Measures the time taken by each implementation to process
+65,536 pseudo-random numbers (time64_t) drawn under the uniform
+distribution on the interval corresponding to dates spanning 800 years
+starting at 1970-01-01.
+
+    https://quick-bench.com/q/4sEYBU2y3iZiQE-2qKK1BQCsj-Y
+
+(Apologies that the benchmark is in C++ but results in C should be close.
+Results need to be taken with a pinch of salt since compiler switches are
+not the same as the kernel's.)
+
+* Disasembly: Compiler switches are close to kernel's and shows, in
+particular, reduction in code size:
+
+    https://godbolt.org/z/bsE6ebq3v
+
+* History:
+
+v5 Address comments by reviewers of a similar patch sent to the TIMEKEEPING
+   subsystem. (FWIW: The patch was accepted. https://tinyurl.com/2emaebs3)
+v4 Improve clarity and removed call to is_leap(year) since it's possible to
+  figure it out from century and year of century.
+v3 Squash previous patches/commits into a single one.
+v2 Fix link issue on 32 bit platforms reported by the test robot.
+v1 Original patch.
+
+* Thanks to Thomas Gleixner and Joe Perches.
+
+---
+ drivers/rtc/Kconfig    |  10 ++++
+ drivers/rtc/Makefile   |   1 +
+ drivers/rtc/lib.c      | 107 ++++++++++++++++++++++++++++++-----------
+ drivers/rtc/lib_test.c |  79 ++++++++++++++++++++++++++++++
+ 4 files changed, 170 insertions(+), 27 deletions(-)
+ create mode 100644 drivers/rtc/lib_test.c
+
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 914497abeef9..af65f5007f78 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -10,6 +10,16 @@ config RTC_MC146818_LIB
+ 	bool
+ 	select RTC_LIB
  
-+/* Mask for currently enabled interrupts */
-+#define PCF2127_CTRL1_IRQ_MASK (PCF2127_BIT_CTRL1_TSF1)
-+#define PCF2127_CTRL2_IRQ_MASK ( \
-+		PCF2127_BIT_CTRL2_AF | \
-+		PCF2127_BIT_CTRL2_WDTF | \
-+		PCF2127_BIT_CTRL2_TSF2)
++config RTC_LIB_KUNIT_TEST
++	tristate "KUnit test for RTC lib functions" if !KUNIT_ALL_TESTS
++	depends on KUNIT
++	default KUNIT_ALL_TESTS
++	select RTC_LIB
++	help
++	  Enable this option to test RTC library functions.
 +
- struct pcf2127 {
- 	struct rtc_device *rtc;
- 	struct watchdog_device wdd;
- 	struct regmap *regmap;
-+	time64_t ts;
-+	bool ts_valid;
-+	bool irq_enabled;
++	  If unsure, say N.
++
+ menuconfig RTC_CLASS
+ 	bool "Real Time Clock"
+ 	default n
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 2dd0dd956b0e..763d3628c603 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -178,3 +178,4 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
+ obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
++obj-$(CONFIG_RTC_LIB_KUNIT_TEST)	+= lib_test.o
+diff --git a/drivers/rtc/lib.c b/drivers/rtc/lib.c
+index 23284580df97..fe361652727a 100644
+--- a/drivers/rtc/lib.c
++++ b/drivers/rtc/lib.c
+@@ -6,6 +6,8 @@
+  * Author: Alessandro Zummo <a.zummo@towertech.it>
+  *
+  * based on arch/arm/common/rtctime.c and other bits
++ *
++ * Author: Cassio Neri <cassio.neri@gmail.com> (rtc_time64_to_tm)
+  */
+ 
+ #include <linux/export.h>
+@@ -22,8 +24,6 @@ static const unsigned short rtc_ydays[2][13] = {
+ 	{ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
  };
  
+-#define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
+-
  /*
-@@ -434,23 +444,92 @@ static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return pcf2127_rtc_alarm_irq_enable(dev, alrm->enabled);
+  * The number of days in the month.
+  */
+@@ -42,42 +42,95 @@ int rtc_year_days(unsigned int day, unsigned int month, unsigned int year)
  }
+ EXPORT_SYMBOL(rtc_year_days);
  
-+static int pcf2127_rtc_ts_read(struct device *dev, time64_t *ts)
+-/*
+- * rtc_time64_to_tm - Converts time64_t to rtc_time.
+- * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++/**
++ * rtc_time64_to_tm - converts time64_t to rtc_time.
++ *
++ * @time:	The number of seconds since 01-01-1970 00:00:00.
++ *		(Must be positive.)
++ * @tm:		Pointer to the struct rtc_time.
+  */
+ void rtc_time64_to_tm(time64_t time, struct rtc_time *tm)
+ {
+-	unsigned int month, year, secs;
++	unsigned int secs;
+ 	int days;
+ 
++	u64 u64tmp;
++	u32 u32tmp, udays, century, day_of_century, year_of_century, year,
++		day_of_year, month, day;
++	bool is_Jan_or_Feb, is_leap_year;
++
+ 	/* time must be positive */
+ 	days = div_s64_rem(time, 86400, &secs);
+ 
+ 	/* day of the week, 1970-01-01 was a Thursday */
+ 	tm->tm_wday = (days + 4) % 7;
+ 
+-	year = 1970 + days / 365;
+-	days -= (year - 1970) * 365
+-		+ LEAPS_THRU_END_OF(year - 1)
+-		- LEAPS_THRU_END_OF(1970 - 1);
+-	while (days < 0) {
+-		year -= 1;
+-		days += 365 + is_leap_year(year);
+-	}
+-	tm->tm_year = year - 1900;
+-	tm->tm_yday = days + 1;
+-
+-	for (month = 0; month < 11; month++) {
+-		int newdays;
+-
+-		newdays = days - rtc_month_days(month, year);
+-		if (newdays < 0)
+-			break;
+-		days = newdays;
+-	}
+-	tm->tm_mon = month;
+-	tm->tm_mday = days + 1;
++	/*
++	 * The following algorithm is, basically, Proposition 6.3 of Neri
++	 * and Schneider [1]. In a few words: it works on the computational
++	 * (fictitious) calendar where the year starts in March, month = 2
++	 * (*), and finishes in February, month = 13. This calendar is
++	 * mathematically convenient because the day of the year does not
++	 * depend on whether the year is leap or not. For instance:
++	 *
++	 * March 1st		0-th day of the year;
++	 * ...
++	 * April 1st		31-st day of the year;
++	 * ...
++	 * January 1st		306-th day of the year; (Important!)
++	 * ...
++	 * February 28th	364-th day of the year;
++	 * February 29th	365-th day of the year (if it exists).
++	 *
++	 * After having worked out the date in the computational calendar
++	 * (using just arithmetics) it's easy to convert it to the
++	 * corresponding date in the Gregorian calendar.
++	 *
++	 * [1] "Euclidean Affine Functions and Applications to Calendar
++	 * Algorithms". https://arxiv.org/abs/2102.06959
++	 *
++	 * (*) The numbering of months follows rtc_time more closely and
++	 * thus, is slightly different from [1].
++	 */
++
++	udays		= ((u32) days) + 719468;
++
++	u32tmp		= 4 * udays + 3;
++	century		= u32tmp / 146097;
++	day_of_century	= u32tmp % 146097 / 4;
++
++	u32tmp		= 4 * day_of_century + 3;
++	u64tmp		= 2939745ULL * u32tmp;
++	year_of_century	= upper_32_bits(u64tmp);
++	day_of_year	= lower_32_bits(u64tmp) / 2939745 / 4;
++
++	year		= 100 * century + year_of_century;
++	is_leap_year	= year_of_century != 0 ?
++		year_of_century % 4 == 0 : century % 4 == 0;
++
++	u32tmp		= 2141 * day_of_year + 132377;
++	month		= u32tmp >> 16;
++	day		= ((u16) u32tmp) / 2141;
++
++	/*
++	 * Recall that January 01 is the 306-th day of the year in the
++	 * computational (not Gregorian) calendar.
++	 */
++	is_Jan_or_Feb	= day_of_year >= 306;
++
++	/* Converts to the Gregorian calendar. */
++	year		= year + is_Jan_or_Feb;
++	month		= is_Jan_or_Feb ? month - 12 : month;
++	day		= day + 1;
++
++	day_of_year	= is_Jan_or_Feb ?
++		day_of_year - 306 : day_of_year + 31 + 28 + is_leap_year;
++
++	/* Converts to rtc_time's format. */
++	tm->tm_year	= (int) (year - 1900);
++	tm->tm_mon	= (int) month;
++	tm->tm_mday	= (int) day;
++	tm->tm_yday	= (int) day_of_year + 1;
+ 
+ 	tm->tm_hour = secs / 3600;
+ 	secs -= tm->tm_hour * 3600;
+diff --git a/drivers/rtc/lib_test.c b/drivers/rtc/lib_test.c
+new file mode 100644
+index 000000000000..2124b67a2f43
+--- /dev/null
++++ b/drivers/rtc/lib_test.c
+@@ -0,0 +1,79 @@
++// SPDX-License-Identifier: LGPL-2.1+
++
++#include <kunit/test.h>
++#include <linux/rtc.h>
++
++/*
++ * Advance a date by one day.
++ */
++static void advance_date(int *year, int *month, int *mday, int *yday)
 +{
-+	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
-+	struct rtc_time tm;
-+	int ret;
-+	unsigned char data[25];
-+
-+	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, data,
-+			       sizeof(data));
-+	if (ret) {
-+		dev_err(dev, "%s: read error ret=%d\n", __func__, ret);
-+		return ret;
-+	}
-+
-+	dev_dbg(dev,
-+		"%s: raw data is cr1=%02x, cr2=%02x, cr3=%02x, ts_sc=%02x, ts_mn=%02x, ts_hr=%02x, ts_dm=%02x, ts_mo=%02x, ts_yr=%02x\n",
-+		__func__, data[PCF2127_REG_CTRL1], data[PCF2127_REG_CTRL2],
-+		data[PCF2127_REG_CTRL3], data[PCF2127_REG_TS_SC],
-+		data[PCF2127_REG_TS_MN], data[PCF2127_REG_TS_HR],
-+		data[PCF2127_REG_TS_DM], data[PCF2127_REG_TS_MO],
-+		data[PCF2127_REG_TS_YR]);
-+
-+	tm.tm_sec = bcd2bin(data[PCF2127_REG_TS_SC] & 0x7F);
-+	tm.tm_min = bcd2bin(data[PCF2127_REG_TS_MN] & 0x7F);
-+	tm.tm_hour = bcd2bin(data[PCF2127_REG_TS_HR] & 0x3F);
-+	tm.tm_mday = bcd2bin(data[PCF2127_REG_TS_DM] & 0x3F);
-+	/* TS_MO register (month) value range: 1-12 */
-+	tm.tm_mon = bcd2bin(data[PCF2127_REG_TS_MO] & 0x1F) - 1;
-+	tm.tm_year = bcd2bin(data[PCF2127_REG_TS_YR]);
-+	if (tm.tm_year < 70)
-+		tm.tm_year += 100; /* assume we are in 1970...2069 */
-+
-+	ret = rtc_valid_tm(&tm);
-+	if (ret) {
-+		dev_err(dev, "Invalid timestamp. ret=%d\n", ret);
-+		return ret;
-+	}
-+
-+	*ts = rtc_tm_to_time64(&tm);
-+	return 0;
-+};
-+
-+static void pcf2127_rtc_ts_snapshot(struct device *dev)
-+{
-+	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/* Let userspace read the first timestamp */
-+	if (pcf2127->ts_valid)
++	if (*mday != rtc_month_days(*month - 1, *year)) {
++		++*mday;
++		++*yday;
 +		return;
++	}
 +
-+	ret = pcf2127_rtc_ts_read(dev, &pcf2127->ts);
-+	if (!ret)
-+		pcf2127->ts_valid = true;
++	*mday = 1;
++	if (*month != 12) {
++		++*month;
++		++*yday;
++		return;
++	}
++
++	*month = 1;
++	*yday  = 1;
++	++*year;
 +}
 +
- static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int ctrl2 = 0;
-+	unsigned int ctrl1, ctrl2;
- 	int ret = 0;
- 
-+	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1, &ctrl1);
-+	if (ret)
-+		return IRQ_NONE;
++/*
++ * Checks every day in a 160000 years interval starting on 1970-01-01
++ * against the expected result.
++ */
++static void rtc_time64_to_tm_test_date_range(struct kunit *test)
++{
++	/*
++	 * 160000 years	= (160000 / 400) * 400 years
++	 *		= (160000 / 400) * 146097 days
++	 *		= (160000 / 400) * 146097 * 86400 seconds
++	 */
++	time64_t total_secs = ((time64_t) 160000) / 400 * 146097 * 86400;
 +
- 	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
- 	if (ret)
- 		return IRQ_NONE;
- 
--	if (!(ctrl2 & PCF2127_BIT_CTRL2_AF))
-+	if (!(ctrl1 & PCF2127_CTRL1_IRQ_MASK || ctrl2 & PCF2127_CTRL2_IRQ_MASK))
- 		return IRQ_NONE;
- 
--	regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
--		     ctrl2 & ~(PCF2127_BIT_CTRL2_AF | PCF2127_BIT_CTRL2_WDTF));
-+	if (ctrl1 & PCF2127_BIT_CTRL1_TSF1 || ctrl2 & PCF2127_BIT_CTRL2_TSF2)
-+		pcf2127_rtc_ts_snapshot(dev);
++	int year	= 1970;
++	int month	= 1;
++	int mday	= 1;
++	int yday	= 1;
 +
-+	if (ctrl1 & PCF2127_CTRL1_IRQ_MASK)
-+		regmap_write(pcf2127->regmap, PCF2127_REG_CTRL1,
-+			ctrl1 & ~PCF2127_CTRL1_IRQ_MASK);
++	struct rtc_time result;
++	time64_t secs;
++	s64 days;
 +
-+	if (ctrl2 & PCF2127_CTRL2_IRQ_MASK)
-+		regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
-+			ctrl2 & ~PCF2127_CTRL2_IRQ_MASK);
- 
--	rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
-+	if (ctrl2 & PCF2127_BIT_CTRL2_AF)
-+		rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
- 
- 	pcf2127_wdt_active_ping(&pcf2127->wdd);
- 
-@@ -475,18 +554,22 @@ static ssize_t timestamp0_store(struct device *dev,
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev->parent);
- 	int ret;
- 
--	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
--				 PCF2127_BIT_CTRL1_TSF1, 0);
--	if (ret) {
--		dev_err(dev, "%s: update ctrl1 ret=%d\n", __func__, ret);
--		return ret;
--	}
-+	if (pcf2127->irq_enabled) {
-+		pcf2127->ts_valid = false;
-+	} else {
-+		ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-+			PCF2127_BIT_CTRL1_TSF1, 0);
-+		if (ret) {
-+			dev_err(dev, "%s: update ctrl1 ret=%d\n", __func__, ret);
-+			return ret;
-+		}
- 
--	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
--				 PCF2127_BIT_CTRL2_TSF2, 0);
--	if (ret) {
--		dev_err(dev, "%s: update ctrl2 ret=%d\n", __func__, ret);
--		return ret;
-+		ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
-+			PCF2127_BIT_CTRL2_TSF2, 0);
-+		if (ret) {
-+			dev_err(dev, "%s: update ctrl2 ret=%d\n", __func__, ret);
-+			return ret;
-+		}
- 	}
- 
- 	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
-@@ -500,50 +583,36 @@ static ssize_t timestamp0_show(struct device *dev,
- 			       struct device_attribute *attr, char *buf)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev->parent);
--	struct rtc_time tm;
-+	unsigned int ctrl1, ctrl2;
- 	int ret;
--	unsigned char data[25];
--
--	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, data,
--			       sizeof(data));
--	if (ret) {
--		dev_err(dev, "%s: read error ret=%d\n", __func__, ret);
--		return ret;
--	}
--
--	dev_dbg(dev,
--		"%s: raw data is cr1=%02x, cr2=%02x, cr3=%02x, ts_sc=%02x, "
--		"ts_mn=%02x, ts_hr=%02x, ts_dm=%02x, ts_mo=%02x, ts_yr=%02x\n",
--		__func__, data[PCF2127_REG_CTRL1], data[PCF2127_REG_CTRL2],
--		data[PCF2127_REG_CTRL3], data[PCF2127_REG_TS_SC],
--		data[PCF2127_REG_TS_MN], data[PCF2127_REG_TS_HR],
--		data[PCF2127_REG_TS_DM], data[PCF2127_REG_TS_MO],
--		data[PCF2127_REG_TS_YR]);
-+	time64_t ts;
- 
- 	ret = pcf2127_wdt_active_ping(&pcf2127->wdd);
- 	if (ret)
- 		return ret;
- 
--	if (!(data[PCF2127_REG_CTRL1] & PCF2127_BIT_CTRL1_TSF1) &&
--	    !(data[PCF2127_REG_CTRL2] & PCF2127_BIT_CTRL2_TSF2))
--		return 0;
-+	if (pcf2127->irq_enabled) {
-+		if (!pcf2127->ts_valid)
-+			return 0;
-+		ts = pcf2127->ts;
-+	} else {
-+		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1, &ctrl1);
-+		if (ret)
-+			return 0;
- 
--	tm.tm_sec = bcd2bin(data[PCF2127_REG_TS_SC] & 0x7F);
--	tm.tm_min = bcd2bin(data[PCF2127_REG_TS_MN] & 0x7F);
--	tm.tm_hour = bcd2bin(data[PCF2127_REG_TS_HR] & 0x3F);
--	tm.tm_mday = bcd2bin(data[PCF2127_REG_TS_DM] & 0x3F);
--	/* TS_MO register (month) value range: 1-12 */
--	tm.tm_mon = bcd2bin(data[PCF2127_REG_TS_MO] & 0x1F) - 1;
--	tm.tm_year = bcd2bin(data[PCF2127_REG_TS_YR]);
--	if (tm.tm_year < 70)
--		tm.tm_year += 100; /* assume we are in 1970...2069 */
-+		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
-+		if (ret)
-+			return 0;
- 
--	ret = rtc_valid_tm(&tm);
--	if (ret)
--		return ret;
-+		if (!(ctrl1 & PCF2127_BIT_CTRL1_TSF1) &&
-+		    !(ctrl2 & PCF2127_BIT_CTRL2_TSF2))
-+			return 0;
- 
--	return sprintf(buf, "%llu\n",
--		       (unsigned long long)rtc_tm_to_time64(&tm));
-+		ret = pcf2127_rtc_ts_read(dev, &ts);
-+		if (ret)
-+			return 0;
++	for (secs = 0; secs <= total_secs; secs += 86400) {
++
++		rtc_time64_to_tm(secs, &result);
++
++		days = div_s64(secs, 86400);
++
++		#define FAIL_MSG "%d/%02d/%02d (%2d) : %ld", \
++			year, month, mday, yday, days
++
++		KUNIT_ASSERT_EQ_MSG(test, year - 1900, result.tm_year, FAIL_MSG);
++		KUNIT_ASSERT_EQ_MSG(test, month - 1, result.tm_mon, FAIL_MSG);
++		KUNIT_ASSERT_EQ_MSG(test, mday, result.tm_mday, FAIL_MSG);
++		KUNIT_ASSERT_EQ_MSG(test, yday, result.tm_yday, FAIL_MSG);
++
++		advance_date(&year, &month, &mday, &yday);
 +	}
-+	return sprintf(buf, "%llu\n", (unsigned long long)ts);
- };
- 
- static DEVICE_ATTR_RW(timestamp0);
-@@ -594,6 +663,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 			dev_err(dev, "failed to request alarm irq\n");
- 			return ret;
- 		}
-+		pcf2127->irq_enabled = true;
- 	}
- 
- 	if (alarm_irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
++}
++
++static struct kunit_case rtc_lib_test_cases[] = {
++	KUNIT_CASE(rtc_time64_to_tm_test_date_range),
++	{}
++};
++
++static struct kunit_suite rtc_lib_test_suite = {
++	.name = "rtc_lib_test_cases",
++	.test_cases = rtc_lib_test_cases,
++};
++
++kunit_test_suite(rtc_lib_test_suite);
+
+base-commit: bcae59d0d45b866d5b9525ea8ece6d671e6767c8
 -- 
-2.26.2
+2.32.0
 
