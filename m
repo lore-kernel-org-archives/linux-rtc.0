@@ -2,183 +2,332 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.2 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7143C49EBA
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jun 2021 13:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 487C7C48BDF
+	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 06:31:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9DF7661289
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Jun 2021 13:43:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22385613B9
+	for <linux-rtc@archiver.kernel.org>; Thu, 24 Jun 2021 06:31:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbhFVNqM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Jun 2021 09:46:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37118 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229988AbhFVNqJ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Tue, 22 Jun 2021 09:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC2F861353;
-        Tue, 22 Jun 2021 13:43:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1624369432;
-        bh=NqFXh1RzaIB7T3yUivBhV+3jLDLAyj/zzCtWY0JA0SQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=n2C4l95B/w+7fm3Hy/W1ls3BjWTgUnPkeMWPcJwuHNhjALViq36NSNRvf1J+UxXwT
-         W1of8Zg2OiipKGz+JaQJVEN0Rymz9BqpYAiOBzmrtdT5/mgiDbEVBsHlr3gDk+TOBO
-         Fe7qpiKq+UgUir5JlR9fsJDRZtySIEJhB36NWX9yf5t0mO64+Z1mYCq7ew8ZAwg0KI
-         F5hwQr8sPPDgEGs9UTcylTzkdsRMaQyTccf/acpKJhxDJxKtULLFNQYEsUOGj4MJxK
-         B3a0hJqzs9FjH4X1uUrkMDUidT5NSByby5xfUTkfYV6nW2261SSjbz6fXsdgEAv5QU
-         qCbHec6qB4IfA==
-Received: by mail-ed1-f48.google.com with SMTP id t3so23726766edc.7;
-        Tue, 22 Jun 2021 06:43:52 -0700 (PDT)
-X-Gm-Message-State: AOAM530naL8j0CKzvJfrllBmASUFsX2bsI1GjGzC0mAXDpPnd7e/OVpX
-        4EDZT2wnXe4JGzDS7JIUEAN3Ta5uIGiYDz5J5Q==
-X-Google-Smtp-Source: ABdhPJzR0Ub3ZgSNkr3MEhjSHq6x9DynzmvMX7quMzOS1boijoDJs7nsAsYPAJuJ3rupM/aSXMVZuLXS4ayPZR+vCGA=
-X-Received: by 2002:a05:6402:ca2:: with SMTP id cn2mr2897976edb.62.1624369431373;
- Tue, 22 Jun 2021 06:43:51 -0700 (PDT)
+        id S231186AbhFXGdj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 24 Jun 2021 02:33:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48310 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231132AbhFXGdh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 24 Jun 2021 02:33:37 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A81C061574;
+        Wed, 23 Jun 2021 23:31:18 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id hq39so7720958ejc.5;
+        Wed, 23 Jun 2021 23:31:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=H2iJrlJtPXN3NwQz35MWvG+TuEFicHcxNbxI08ENTP0=;
+        b=h8qNMuto94b1n8f5xkYxILSAQOSHre2jeYS8RN7mDpP8nSfpbkjFhPthF2ZyK3DfSg
+         HNDuG6QQt9pezlgepuG/2zp2gbMP2wVs+k1IBFtelP2cOAI+byCYF7G0wCwu9fwltCPU
+         OEUHBQteh+zzjjSv76MpVMeDwS9QKnHq1Vcrvt2QvUrMFPMAKScO+/ovBL/qWL9uze/b
+         eagYCevsgt7l88XqdMppNFZAFc+UZ4qv+o1EqZsQHBcdMUycY1q7gdDm6rfyt6mpy3Ek
+         Ao74DobH1L8NIAby+Mi2pZS3PtKG5YmVZEKr6gT/jyyh44bIc1qvUoORE+86H7vf2/rc
+         qqQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=H2iJrlJtPXN3NwQz35MWvG+TuEFicHcxNbxI08ENTP0=;
+        b=n3Q6u6reKUS2YiRsYymWL7OwMGJBUlqxP0Yw5Kx8Xp9F9oa3+v/RMUseJA/xauzVY+
+         Twk4q5dJq5Mc4O+yS5bZL6mXMb6L6rq8vPlwqZ5xy08f0Ko6oNJYeZaEzPYY1BFuEQdU
+         Mc9DRmua3TsL6o8tgBRvwErhVl4Gcx2sujCCgIWiLO98F8fJ89MLWTa4f1TL9fo3IVgK
+         LM7L+rgTjWhqFHp7RnBPWIPl3rbWExTuNGGyXcXc3O8Jj6YFCimVe1UNHbAXxm23QVJa
+         4WaHezIiSuvMuxI6doCbOIIgy57BO6TTsClBTIqrW1QWJ/prwgXrl5vlcT0wSKzUTah9
+         6hmA==
+X-Gm-Message-State: AOAM5309efNyHO4mSQgVNKrpoHr9u7V9emcIhayUGWXrqTyP+GwoTtGa
+        maxK3bq3g0aoPzdBP7aiybHukSr7uLhftb1ITOY=
+X-Google-Smtp-Source: ABdhPJw/OkzSfnDm4gl4Yz261edN1Y3jTnJEvkh2YGv2M9kTLt4lEORrFswa117RZ2ioRuwYOU4XPkvbOJlWZqUIrEk=
+X-Received: by 2002:a17:906:28d5:: with SMTP id p21mr3676919ejd.358.1624516276800;
+ Wed, 23 Jun 2021 23:31:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210615191543.1043414-1-robh@kernel.org> <CAMuHMdUGXu8yj3JWKwM8mt7axkrzGMiowC1t0PHrbpxRCBME3w@mail.gmail.com>
-In-Reply-To: <CAMuHMdUGXu8yj3JWKwM8mt7axkrzGMiowC1t0PHrbpxRCBME3w@mail.gmail.com>
-From:   Rob Herring <robh@kernel.org>
-Date:   Tue, 22 Jun 2021 07:43:37 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJ8jjkufTAmoFHuqpWB0bMUfCCkUR-pFFa2MoyeGzgBvA@mail.gmail.com>
-Message-ID: <CAL_JsqJ8jjkufTAmoFHuqpWB0bMUfCCkUR-pFFa2MoyeGzgBvA@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: Drop redundant minItems/maxItems
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
-        <linux-ide@vger.kernel.org>, linux-clk <linux-clk@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        dmaengine <dmaengine@vger.kernel.org>,
-        Linux I2C <linux-i2c@vger.kernel.org>,
-        "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>,
-        Linux IOMMU <iommu@lists.linux-foundation.org>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        Linux MMC List <linux-mmc@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>, linux-can@vger.kernel.org,
-        linux-pci <linux-pci@vger.kernel.org>,
-        linux-phy@lists.infradead.org,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux PWM List <linux-pwm@vger.kernel.org>,
-        "open list:REMOTE PROCESSOR (REMOTEPROC) SUBSYSTEM" 
-        <linux-remoteproc@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        USB list <linux-usb@vger.kernel.org>,
-        Linux Watchdog Mailing List <linux-watchdog@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Stephen Boyd <sboyd@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, Vinod Koul <vkoul@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-        Jassi Brar <jassisinghbrar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
-        Ohad Ben-Cohen <ohad@wizery.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+References: <20210602104956.806-1-ykaukab@suse.de>
+In-Reply-To: <20210602104956.806-1-ykaukab@suse.de>
+From:   Bruno Thomsen <bruno.thomsen@gmail.com>
+Date:   Thu, 24 Jun 2021 08:31:00 +0200
+Message-ID: <CAH+2xPAL0w4Urjpxopu8g-kGveTxLXAm8EVUc8s8xpX=fb7NeQ@mail.gmail.com>
+Subject: Re: [PATCH RESEND v4] rtc: pcf2127: handle timestamp interrupts
+To:     Mian Yousaf Kaukab <ykaukab@suse.de>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        linux-rtc@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>, biwen.li@nxp.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Jun 22, 2021 at 2:17 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> Hi Rob,
->
-> On Tue, Jun 15, 2021 at 9:16 PM Rob Herring <robh@kernel.org> wrote:
-> > If a property has an 'items' list, then a 'minItems' or 'maxItems' with the
-> > same size as the list is redundant and can be dropped. Note that is DT
-> > schema specific behavior and not standard json-schema behavior. The tooling
-> > will fixup the final schema adding any unspecified minItems/maxItems.
-> >
-> > This condition is partially checked with the meta-schema already, but
-> > only if both 'minItems' and 'maxItems' are equal to the 'items' length.
-> > An improved meta-schema is pending.
->
-> > Signed-off-by: Rob Herring <robh@kernel.org>
->
-> > --- a/Documentation/devicetree/bindings/net/stm32-dwmac.yaml
-> > +++ b/Documentation/devicetree/bindings/net/stm32-dwmac.yaml
-> > @@ -46,7 +46,6 @@ properties:
-> >
-> >    clocks:
-> >      minItems: 3
-> > -    maxItems: 5
-> >      items:
-> >        - description: GMAC main clock
-> >        - description: MAC TX clock
->
-> While resolving the conflict with commit fea99822914039c6
-> ("dt-bindings: net: document ptp_ref clk in dwmac") in soc/for-next,
-> I noticed the following construct for clock-names:
->
->   clock-names:
->     minItems: 3
->     maxItems: 6
->     contains:
->       enum:
->         - stmmaceth
->         - mac-clk-tx
->         - mac-clk-rx
->         - ethstp
->         - eth-ck
->         - ptp_ref
->
-> Should this use items instead of enum, and drop maxItems, or is this
-> a valid construct to support specifying the clocks in random order?
-> If the latter, it does mean that the order of clock-names may not
-> match the order of the clock descriptions.
+Hi Mian,
 
-'contains' is true if one or more entries match the strings. So it is
-really saying one of these is required. That's not really much of a
-constraint. There's 'minContains' and 'maxContains' in newer
-json-schema versions (not yet supported) that could add some
-constraints if there has to be at least N entries from contains. An
-'items' schema (as opposed to a list) would say all items have to
-match one of the strings. I'm sure that's too strict.
+Den ons. 2. jun. 2021 kl. 17.19 skrev Mian Yousaf Kaukab <ykaukab@suse.de>:
+>
+> commit 03623b4b041c ("rtc: pcf2127: add tamper detection support")
+> added support for timestamp interrupts. However they are not being
+> handled in the irq handler. If a timestamp interrupt occurs it
+> results in kernel disabling the interrupt and displaying the call
+> trace:
+>
+> [  121.145580] irq 78: nobody cared (try booting with the "irqpoll" optio=
+n)
+> ...
+> [  121.238087] [<00000000c4d69393>] irq_default_primary_handler threaded =
+[<000000000a90d25b>] pcf2127_rtc_irq [rtc_pcf2127]
+> [  121.248971] Disabling IRQ #78
 
-TLDR: clocks for this binding are a mess and the above is probably all
-we can do here.
+This must have been introduced when alarm IRQ was added, as
+I always thought that tamper IRQ should be handled in user space
+with gpiomon. I can see that it looks like I only added a cover letter
+to the first 2 versions of patch series[1] and not the 3rd that got applied=
+[2].
+It contains a link to how the tamper timestamp feature was tested[3].
+The script is a simple version of what is running in the product, but
+missing D-Bus call with busctl and hardware init when booted for the
+first time.
 
-Rob
+I have just tested your patch with an upstream device tree[4] that uses
+the tamper feature, and that does not work. Probably caused by the
+fact that it does not use RTC alarm IRQ.
+
+What device tree did you see the error on? If it's not upstream can you
+share how you configured the pcf2127 chip?
+
+I am not against changing how the tamper feature works, but I would like
+to see the upstream device tree[4] work before merging this patch.
+
+/Bruno
+
+[1] https://patchwork.ozlabs.org/project/rtc-linux/cover/20190813153600.124=
+06-1-bruno.thomsen@gmail.com/
+[2] https://patchwork.ozlabs.org/project/rtc-linux/patch/20190822131936.187=
+72-5-bruno.thomsen@gmail.com/
+[3] https://github.com/baxeno/linux-emc-test/blob/master/tamper/tamper.sh
+[4] https://elixir.bootlin.com/linux/latest/source/arch/arm/boot/dts/imx7d-=
+flex-concentrator.dts
+
+> Handle timestamp interrupts in pcf2127_rtc_irq(). Save time stamp
+> before clearing TSF1 and TSF2 flags so that it can't be overwritten.
+> Set a flag to mark if the timestamp is valid and only report to sysfs
+> if the flag is set. To mimic the hardware behavior, don=E2=80=99t save
+> another timestamp until the first one has been read by the userspace.
+>
+> Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+> ---
+>  drivers/rtc/rtc-pcf2127.c | 130 ++++++++++++++++++++++----------------
+>  1 file changed, 76 insertions(+), 54 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> index d13c20a2adf7..7d55f737f38e 100644
+> --- a/drivers/rtc/rtc-pcf2127.c
+> +++ b/drivers/rtc/rtc-pcf2127.c
+> @@ -94,10 +94,19 @@
+>  #define PCF2127_WD_VAL_MAX             255
+>  #define PCF2127_WD_VAL_DEFAULT         60
+>
+> +/* Mask for currently enabled interrupts */
+> +#define PCF2127_CTRL1_IRQ_MASK (PCF2127_BIT_CTRL1_TSF1)
+> +#define PCF2127_CTRL2_IRQ_MASK ( \
+> +               PCF2127_BIT_CTRL2_AF | \
+> +               PCF2127_BIT_CTRL2_WDTF | \
+> +               PCF2127_BIT_CTRL2_TSF2)
+> +
+>  struct pcf2127 {
+>         struct rtc_device *rtc;
+>         struct watchdog_device wdd;
+>         struct regmap *regmap;
+> +       time64_t ts;
+> +       bool ts_valid;
+>  };
+>
+>  /*
+> @@ -434,23 +443,82 @@ static int pcf2127_rtc_set_alarm(struct device *dev=
+, struct rtc_wkalrm *alrm)
+>         return pcf2127_rtc_alarm_irq_enable(dev, alrm->enabled);
+>  }
+>
+> +static void pcf2127_rtc_ts_snapshot(struct device *dev)
+> +{
+> +       struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> +       struct rtc_time tm;
+> +       int ret;
+> +       unsigned char data[25];
+> +
+> +       /* Let userspace read the first timestamp */
+> +       if (pcf2127->ts_valid)
+> +               return;
+> +
+> +       ret =3D regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, data=
+,
+> +                              sizeof(data));
+> +       if (ret) {
+> +               dev_err(dev, "%s: read error ret=3D%d\n", __func__, ret);
+> +               return;
+> +       }
+> +
+> +       dev_dbg(dev,
+> +               "%s: raw data is cr1=3D%02x, cr2=3D%02x, cr3=3D%02x, ts_s=
+c=3D%02x, ts_mn=3D%02x, ts_hr=3D%02x, ts_dm=3D%02x, ts_mo=3D%02x, ts_yr=3D%=
+02x\n",
+> +               __func__, data[PCF2127_REG_CTRL1], data[PCF2127_REG_CTRL2=
+],
+> +               data[PCF2127_REG_CTRL3], data[PCF2127_REG_TS_SC],
+> +               data[PCF2127_REG_TS_MN], data[PCF2127_REG_TS_HR],
+> +               data[PCF2127_REG_TS_DM], data[PCF2127_REG_TS_MO],
+> +               data[PCF2127_REG_TS_YR]);
+> +
+> +       tm.tm_sec =3D bcd2bin(data[PCF2127_REG_TS_SC] & 0x7F);
+> +       tm.tm_min =3D bcd2bin(data[PCF2127_REG_TS_MN] & 0x7F);
+> +       tm.tm_hour =3D bcd2bin(data[PCF2127_REG_TS_HR] & 0x3F);
+> +       tm.tm_mday =3D bcd2bin(data[PCF2127_REG_TS_DM] & 0x3F);
+> +       /* TS_MO register (month) value range: 1-12 */
+> +       tm.tm_mon =3D bcd2bin(data[PCF2127_REG_TS_MO] & 0x1F) - 1;
+> +       tm.tm_year =3D bcd2bin(data[PCF2127_REG_TS_YR]);
+> +       if (tm.tm_year < 70)
+> +               tm.tm_year +=3D 100; /* assume we are in 1970...2069 */
+> +
+> +       ret =3D rtc_valid_tm(&tm);
+> +       if (ret) {
+> +               dev_err(dev, "Invalid timestamp. ret=3D%d\n", ret);
+> +               return;
+> +       }
+> +
+> +       pcf2127->ts =3D rtc_tm_to_time64(&tm);
+> +       pcf2127->ts_valid =3D true;
+> +};
+> +
+>  static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
+>  {
+>         struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev);
+> -       unsigned int ctrl2 =3D 0;
+> +       unsigned int ctrl1, ctrl2;
+>         int ret =3D 0;
+>
+> +       ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1, &ctrl1);
+> +       if (ret)
+> +               return IRQ_NONE;
+> +
+>         ret =3D regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+>         if (ret)
+>                 return IRQ_NONE;
+>
+> -       if (!(ctrl2 & PCF2127_BIT_CTRL2_AF))
+> +       if (!(ctrl1 & PCF2127_CTRL1_IRQ_MASK || ctrl2 & PCF2127_CTRL2_IRQ=
+_MASK))
+>                 return IRQ_NONE;
+>
+> -       regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+> -                    ctrl2 & ~(PCF2127_BIT_CTRL2_AF | PCF2127_BIT_CTRL2_W=
+DTF));
+> +       if (ctrl1 & PCF2127_BIT_CTRL1_TSF1 || ctrl2 & PCF2127_BIT_CTRL2_T=
+SF2)
+> +               pcf2127_rtc_ts_snapshot(dev);
+>
+> -       rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
+> +       if (ctrl1 & PCF2127_CTRL1_IRQ_MASK)
+> +               regmap_write(pcf2127->regmap, PCF2127_REG_CTRL1,
+> +                       ctrl1 & ~PCF2127_CTRL1_IRQ_MASK);
+> +
+> +       if (ctrl2 & PCF2127_CTRL2_IRQ_MASK)
+> +               regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+> +                       ctrl2 & ~PCF2127_CTRL2_IRQ_MASK);
+> +
+> +       if (ctrl2 & PCF2127_BIT_CTRL2_AF)
+> +               rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
+>
+>         pcf2127_wdt_active_ping(&pcf2127->wdd);
+>
+> @@ -475,19 +543,7 @@ static ssize_t timestamp0_store(struct device *dev,
+>         struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev->parent);
+>         int ret;
+>
+> -       ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
+> -                                PCF2127_BIT_CTRL1_TSF1, 0);
+> -       if (ret) {
+> -               dev_err(dev, "%s: update ctrl1 ret=3D%d\n", __func__, ret=
+);
+> -               return ret;
+> -       }
+> -
+> -       ret =3D regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL2,
+> -                                PCF2127_BIT_CTRL2_TSF2, 0);
+> -       if (ret) {
+> -               dev_err(dev, "%s: update ctrl2 ret=3D%d\n", __func__, ret=
+);
+> -               return ret;
+> -       }
+> +       pcf2127->ts_valid =3D false;
+>
+>         ret =3D pcf2127_wdt_active_ping(&pcf2127->wdd);
+>         if (ret)
+> @@ -500,50 +556,16 @@ static ssize_t timestamp0_show(struct device *dev,
+>                                struct device_attribute *attr, char *buf)
+>  {
+>         struct pcf2127 *pcf2127 =3D dev_get_drvdata(dev->parent);
+> -       struct rtc_time tm;
+>         int ret;
+> -       unsigned char data[25];
+> -
+> -       ret =3D regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, data=
+,
+> -                              sizeof(data));
+> -       if (ret) {
+> -               dev_err(dev, "%s: read error ret=3D%d\n", __func__, ret);
+> -               return ret;
+> -       }
+> -
+> -       dev_dbg(dev,
+> -               "%s: raw data is cr1=3D%02x, cr2=3D%02x, cr3=3D%02x, ts_s=
+c=3D%02x, "
+> -               "ts_mn=3D%02x, ts_hr=3D%02x, ts_dm=3D%02x, ts_mo=3D%02x, =
+ts_yr=3D%02x\n",
+> -               __func__, data[PCF2127_REG_CTRL1], data[PCF2127_REG_CTRL2=
+],
+> -               data[PCF2127_REG_CTRL3], data[PCF2127_REG_TS_SC],
+> -               data[PCF2127_REG_TS_MN], data[PCF2127_REG_TS_HR],
+> -               data[PCF2127_REG_TS_DM], data[PCF2127_REG_TS_MO],
+> -               data[PCF2127_REG_TS_YR]);
+>
+>         ret =3D pcf2127_wdt_active_ping(&pcf2127->wdd);
+>         if (ret)
+>                 return ret;
+>
+> -       if (!(data[PCF2127_REG_CTRL1] & PCF2127_BIT_CTRL1_TSF1) &&
+> -           !(data[PCF2127_REG_CTRL2] & PCF2127_BIT_CTRL2_TSF2))
+> +       if (!pcf2127->ts_valid)
+>                 return 0;
+>
+> -       tm.tm_sec =3D bcd2bin(data[PCF2127_REG_TS_SC] & 0x7F);
+> -       tm.tm_min =3D bcd2bin(data[PCF2127_REG_TS_MN] & 0x7F);
+> -       tm.tm_hour =3D bcd2bin(data[PCF2127_REG_TS_HR] & 0x3F);
+> -       tm.tm_mday =3D bcd2bin(data[PCF2127_REG_TS_DM] & 0x3F);
+> -       /* TS_MO register (month) value range: 1-12 */
+> -       tm.tm_mon =3D bcd2bin(data[PCF2127_REG_TS_MO] & 0x1F) - 1;
+> -       tm.tm_year =3D bcd2bin(data[PCF2127_REG_TS_YR]);
+> -       if (tm.tm_year < 70)
+> -               tm.tm_year +=3D 100; /* assume we are in 1970...2069 */
+> -
+> -       ret =3D rtc_valid_tm(&tm);
+> -       if (ret)
+> -               return ret;
+> -
+> -       return sprintf(buf, "%llu\n",
+> -                      (unsigned long long)rtc_tm_to_time64(&tm));
+> +       return sprintf(buf, "%llu\n", (unsigned long long)pcf2127->ts);
+>  };
+>
+>  static DEVICE_ATTR_RW(timestamp0);
+> --
+> 2.26.2
+>
