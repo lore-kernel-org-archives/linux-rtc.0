@@ -2,43 +2,43 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 362DEC11F6D
-	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 368D5C11F70
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A0C861156
-	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20FA261410
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbhGBG5z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S230227AbhGBG5z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Fri, 2 Jul 2021 02:57:55 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:41730 "EHLO
+Received: from [115.28.160.31] ([115.28.160.31]:41740 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S230041AbhGBG5y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jul 2021 02:57:54 -0400
+        by vger.kernel.org with ESMTP id S230101AbhGBG5z (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jul 2021 02:57:55 -0400
 Received: from ld50.lan (unknown [101.224.80.218])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 2CF946010F;
-        Fri,  2 Jul 2021 14:55:20 +0800 (CST)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id CE5E860110;
+        Fri,  2 Jul 2021 14:55:21 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1625208920; bh=wr8pdF/uLgE9SxIbFtGDiRnQR9+Ym3MJC/X+Rba44QM=;
+        t=1625208922; bh=1D8le36pNvIZZEOHon55LA/UfimI8BBPaGuhrlNC+m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIYTXgYmmIaHubRfism6W9MfxuxPyR7kP68RFbZP+GUkv8tfPn5s+BGrVKA8/jizk
-         SvhLkRSiwS1Hk6gJLc8slu0hGJatrGYB4obfEw4s0NmBPB5VwV2zfvnkH8eavDssXk
-         nol9oifLGIuET1pe+mLBsuL8nm/FogWVTVII+SPQ=
+        b=d+4KzXFqvJHIUZj/FNrN/h6McaJMfj/iz1jdmsWRNstwpJhTalklR/XNRCPGXBM5/
+         q9XoKJF2KsAwd2bhxucQIVPepCc1nthAlmbnZKVKPhUzaQug7ViwB+VIGNFqtjJj5C
+         a5s6FHQ6b9sAlIFcFm8a+I0hj0zrIu2M0ZU8lRSE=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
 Cc:     WANG Xuerui <git@xen0n.name>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
         linux-mips@vger.kernel.org
-Subject: [PATCH v5 3/6] MIPS: Loongson64: DTS: Add RTC support to LS7A
-Date:   Fri,  2 Jul 2021 14:54:48 +0800
-Message-Id: <20210702065451.1175356-4-git@xen0n.name>
+Subject: [PATCH v5 5/6] MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
+Date:   Fri,  2 Jul 2021 14:54:50 +0800
+Message-Id: <20210702065451.1175356-6-git@xen0n.name>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210702065451.1175356-1-git@xen0n.name>
 References: <20210702065451.1175356-1-git@xen0n.name>
@@ -48,33 +48,36 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The LS7A RTC module is now supported, enable it.
+The Loongson-2K RTC module is now supported, enable it.
+
+The MMIO address is unclear from the Loongson 2K1000 user manual, I took
+it from Loongson's out-of-tree fork of Linux 4.19.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
-Acked-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com> # loongson2k
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: devicetree@vger.kernel.org
 Cc: linux-mips@vger.kernel.org
 ---
- arch/mips/boot/dts/loongson/ls7a-pch.dtsi | 5 +++++
+ arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-index 2f45fce2cdc4..82035de4774f 100644
---- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-+++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-@@ -19,6 +19,11 @@ pic: interrupt-controller@10000000 {
- 			#interrupt-cells = <2>;
- 		};
+diff --git a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+index bfc3d3243ee7..4a04e1dc5fda 100644
+--- a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
++++ b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+@@ -52,6 +52,11 @@ package0: bus@10000000 {
+ 			0 0x40000000 0 0x40000000 0 0x40000000
+ 			0xfe 0x00000000 0xfe 0x00000000 0 0x40000000>;
  
-+		rtc0: rtc@100d0100 {
++		rtc0: rtc@1fe07800 {
 +			compatible = "loongson,ls2x-rtc";
-+			reg = <0 0x100d0100 0 0x78>;
++			reg = <0 0x1fe07800 0 0x78>;
 +		};
 +
- 		ls7a_uart0: serial@10080000 {
- 			compatible = "ns16550a";
- 			reg = <0 0x10080000 0 0x100>;
+ 		liointc0: interrupt-controller@1fe11400 {
+ 			compatible = "loongson,liointc-2.0";
+ 			reg = <0 0x1fe11400 0 0x40>,
 -- 
 2.30.1
 
