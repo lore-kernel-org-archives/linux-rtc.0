@@ -7,35 +7,36 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E837CC11F6A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC4D6C11F68
 	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5DAF61156
+	by mail.kernel.org (Postfix) with ESMTP id B835161156
 	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jul 2021 06:55:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbhGBG5z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 2 Jul 2021 02:57:55 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:41736 "EHLO
+        id S230189AbhGBG5y (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 2 Jul 2021 02:57:54 -0400
+Received: from [115.28.160.31] ([115.28.160.31]:41726 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S230170AbhGBG5y (ORCPT
+        by vger.kernel.org with ESMTP id S230048AbhGBG5y (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jul 2021 02:57:54 -0400
 Received: from ld50.lan (unknown [101.224.80.218])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 07DE360105;
-        Fri,  2 Jul 2021 14:55:21 +0800 (CST)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 7732D6010D;
+        Fri,  2 Jul 2021 14:55:18 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1625208921; bh=DRjzne0ItLzPQT3F0soM35/vWix/rlub43mj4Mg5ZO0=;
+        t=1625208918; bh=KyFmzNY9iME7gAnoVZLtCu1aHJKWM5wIRQgf7jjbe/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeQS+3Oh9bJ4xAMt1tHPyM+HBgHyENS/XT4rHy12Yvjl5vhXMxOBUg4FJ3Luvo7B4
-         +1WDCnQtIPIUcgC5IRTfkMyJEqbS4xzZnpBgE/g+XtQVhgyxKkXOsywdKhHRAZUcbr
-         ZiSF/6ZOF8GChze+xluyQ/8XgGfq6u0RIrfjTuP8=
+        b=f5HDQBKw9sXJKohsG6OT7RGFgAgwJhtk1sfOImcC2NFQV7WuJlsmSmBrWQ7QlLOxp
+         yNYCiP20e1gVNVt1sODuD27phUihz7cF06vV1ZUdi4oIvT4aF5gDYwBDK8WYqKwS0E
+         k2blY3+kwnZ3Q0U7xIQSxSpAkP67gLz+wpUNaF4w=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
-Cc:     WANG Xuerui <git@xen0n.name>, linux-mips@vger.kernel.org
-Subject: [PATCH v5 4/6] MIPS: Loongson: Enable LS2X RTC in loongson3_defconfig
-Date:   Fri,  2 Jul 2021 14:54:49 +0800
-Message-Id: <20210702065451.1175356-5-git@xen0n.name>
+Cc:     WANG Xuerui <git@xen0n.name>, Rob Herring <robh@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH v5 2/6] dt-bindings: rtc: Add bindings for LS2X RTC
+Date:   Fri,  2 Jul 2021 14:54:47 +0800
+Message-Id: <20210702065451.1175356-3-git@xen0n.name>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210702065451.1175356-1-git@xen0n.name>
 References: <20210702065451.1175356-1-git@xen0n.name>
@@ -45,27 +46,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This is now supported, enable for Loongson-3 systems.
-Other systems are unaffected.
+Document the binding for the LS2X RTC block found on the Loongson-2K SoC
+and the LS7A bridge, originally appearing on the Loongson-2H.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
-Cc: linux-mips@vger.kernel.org
+Acked-by: Rob Herring <robh@kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
 ---
- arch/mips/configs/loongson3_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
-index f02101ff04b3..fccb6906d4b4 100644
---- a/arch/mips/configs/loongson3_defconfig
-+++ b/arch/mips/configs/loongson3_defconfig
-@@ -320,6 +320,7 @@ CONFIG_USB_SERIAL_OPTION=m
- CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_CMOS=y
- CONFIG_RTC_DRV_GOLDFISH=y
-+CONFIG_RTC_DRV_LS2X=y
- CONFIG_DMADEVICES=y
- CONFIG_VIRTIO_PCI=y
- CONFIG_VIRTIO_BALLOON=m
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index 7548d8714871..568aa89989fe 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -42,6 +42,8 @@ properties:
+       - isil,isl1218
+       # Intersil ISL12022 Real-time Clock
+       - isil,isl12022
++      # Loongson LS2X RTC
++      - loongson,ls2x-rtc
+       # Real Time Clock Module with I2C-Bus
+       - microcrystal,rv3028
+       # Real Time Clock Module with I2C-Bus
 -- 
 2.30.1
 
