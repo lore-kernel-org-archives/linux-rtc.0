@@ -2,37 +2,34 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82069C07E95
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Jul 2021 09:58:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC5B5C07E95
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Jul 2021 21:14:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 507FC6135C
-	for <linux-rtc@archiver.kernel.org>; Sat, 10 Jul 2021 09:58:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA8CC611ED
+	for <linux-rtc@archiver.kernel.org>; Sat, 10 Jul 2021 21:14:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbhGJKA7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 10 Jul 2021 06:00:59 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:46899 "EHLO
-        relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230134AbhGJKA7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 10 Jul 2021 06:00:59 -0400
+        id S229640AbhGJVR1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 10 Jul 2021 17:17:27 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:43385 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229515AbhGJVR1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 10 Jul 2021 17:17:27 -0400
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 65F7F240003;
-        Sat, 10 Jul 2021 09:58:12 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id F3975FF802;
+        Sat, 10 Jul 2021 21:14:39 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+To:     Alessandro Zummo <a.zummo@towertech.it>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Frederic Weisbecker <frederic@kernel.org>
-Cc:     kernel test robot <lkp@intel.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: pcf8523: rename register and bit defines
-Date:   Sat, 10 Jul 2021 11:58:05 +0200
-Message-Id: <20210710095805.1289560-1-alexandre.belloni@bootlin.com>
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH v2] rtc: pcf8523: rename register and bit defines
+Date:   Sat, 10 Jul 2021 23:14:31 +0200
+Message-Id: <20210710211431.1393589-1-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -46,23 +43,20 @@ specific to the driver.
 
 Fixes: 7fd70c65faac ("ARM: irqstat: Get rid of duplicated declaration")
 Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
 
-Hello Thomas,
+Changes in v2:
+ - rebased on rtc-next
 
-I'm going to rename all the register/bit deifinitions to align with the other
-PCF drivers.
-
- drivers/rtc/rtc-pcf8523.c | 148 +++++++++++++++++++-------------------
- 1 file changed, 74 insertions(+), 74 deletions(-)
+ drivers/rtc/rtc-pcf8523.c | 146 +++++++++++++++++++-------------------
+ 1 file changed, 73 insertions(+), 73 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-index f720bcdb901d..09110b3ae25f 100644
+index 740e2136ca98..8b6fb20774bf 100644
 --- a/drivers/rtc/rtc-pcf8523.c
 +++ b/drivers/rtc/rtc-pcf8523.c
-@@ -10,42 +10,42 @@
+@@ -10,41 +10,41 @@
  #include <linux/of.h>
  #include <linux/pm_wakeirq.h>
  
@@ -80,7 +74,6 @@ index f720bcdb901d..09110b3ae25f 100644
 -#define REG_CONTROL3_PM_DSM BIT(5) /* direct switching mode */
 -#define REG_CONTROL3_PM_MASK 0xe0
 -#define REG_CONTROL3_BLF BIT(2) /* battery low bit, read-only */
--#define REG_CONTROL3_BSF BIT(3)
 -
 -#define REG_SECONDS  0x03
 -#define REG_SECONDS_OS BIT(7)
@@ -110,7 +103,6 @@ index f720bcdb901d..09110b3ae25f 100644
 +#define PCF8523_CONTROL3_PM_DSM BIT(5) /* direct switching mode */
 +#define PCF8523_CONTROL3_PM_MASK 0xe0
 +#define PCF8523_CONTROL3_BLF BIT(2) /* battery low bit, read-only */
-+#define PCF8523_CONTROL3_BSF BIT(3)
 +
 +#define PCF8523_REG_SECONDS  0x03
 +#define PCF8523_SECONDS_OS BIT(7)
@@ -138,7 +130,21 @@ index f720bcdb901d..09110b3ae25f 100644
  
  struct pcf8523 {
  	struct rtc_device *rtc;
-@@ -101,7 +101,7 @@ static int pcf8523_load_capacitance(struct i2c_client *client)
+@@ -99,11 +99,11 @@ static int pcf8523_voltage_low(struct i2c_client *client)
+ 	u8 value;
+ 	int err;
+ 
+-	err = pcf8523_read(client, REG_CONTROL3, &value);
++	err = pcf8523_read(client, PCF8523_REG_CONTROL3, &value);
+ 	if (err < 0)
+ 		return err;
+ 
+-	return !!(value & REG_CONTROL3_BLF);
++	return !!(value & PCF8523_CONTROL3_BLF);
+ }
+ 
+ static int pcf8523_load_capacitance(struct i2c_client *client)
+@@ -112,7 +112,7 @@ static int pcf8523_load_capacitance(struct i2c_client *client)
  	u8 value;
  	int err;
  
@@ -147,7 +153,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -115,14 +115,14 @@ static int pcf8523_load_capacitance(struct i2c_client *client)
+@@ -126,14 +126,14 @@ static int pcf8523_load_capacitance(struct i2c_client *client)
  			 load);
  		fallthrough;
  	case 12500:
@@ -165,7 +171,7 @@ index f720bcdb901d..09110b3ae25f 100644
  
  	return err;
  }
-@@ -132,13 +132,13 @@ static int pcf8523_set_pm(struct i2c_client *client, u8 pm)
+@@ -143,13 +143,13 @@ static int pcf8523_set_pm(struct i2c_client *client, u8 pm)
  	u8 value;
  	int err;
  
@@ -182,7 +188,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -151,13 +151,13 @@ static irqreturn_t pcf8523_irq(int irq, void *dev_id)
+@@ -162,13 +162,13 @@ static irqreturn_t pcf8523_irq(int irq, void *dev_id)
  	u8 value;
  	int err;
  
@@ -200,7 +206,7 @@ index f720bcdb901d..09110b3ae25f 100644
  		rtc_update_irq(pcf8523->rtc, 1, RTC_IRQF | RTC_AF);
  
  		return IRQ_HANDLED;
-@@ -171,13 +171,13 @@ static int pcf8523_stop_rtc(struct i2c_client *client)
+@@ -182,13 +182,13 @@ static int pcf8523_stop_rtc(struct i2c_client *client)
  	u8 value;
  	int err;
  
@@ -217,7 +223,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -189,13 +189,13 @@ static int pcf8523_start_rtc(struct i2c_client *client)
+@@ -200,13 +200,13 @@ static int pcf8523_start_rtc(struct i2c_client *client)
  	u8 value;
  	int err;
  
@@ -234,7 +240,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -205,7 +205,7 @@ static int pcf8523_start_rtc(struct i2c_client *client)
+@@ -216,7 +216,7 @@ static int pcf8523_start_rtc(struct i2c_client *client)
  static int pcf8523_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
  	struct i2c_client *client = to_i2c_client(dev);
@@ -243,7 +249,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	struct i2c_msg msgs[2];
  	int err;
  
-@@ -223,7 +223,7 @@ static int pcf8523_rtc_read_time(struct device *dev, struct rtc_time *tm)
+@@ -242,7 +242,7 @@ static int pcf8523_rtc_read_time(struct device *dev, struct rtc_time *tm)
  	if (err < 0)
  		return err;
  
@@ -252,7 +258,7 @@ index f720bcdb901d..09110b3ae25f 100644
  		return -EINVAL;
  
  	tm->tm_sec = bcd2bin(regs[0] & 0x7f);
-@@ -248,8 +248,8 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -267,8 +267,8 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
  	if (err < 0)
  		return err;
  
@@ -263,7 +269,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	regs[1] = bin2bcd(tm->tm_sec);
  	regs[2] = bin2bcd(tm->tm_min);
  	regs[3] = bin2bcd(tm->tm_hour);
-@@ -280,7 +280,7 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -299,7 +299,7 @@ static int pcf8523_rtc_set_time(struct device *dev, struct rtc_time *tm)
  static int pcf8523_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *tm)
  {
  	struct i2c_client *client = to_i2c_client(dev);
@@ -272,7 +278,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	struct i2c_msg msgs[2];
  	u8 value;
  	int err;
-@@ -305,15 +305,15 @@ static int pcf8523_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *tm)
+@@ -324,15 +324,15 @@ static int pcf8523_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *tm)
  	tm->time.tm_mday = bcd2bin(regs[2] & 0x3F);
  	tm->time.tm_wday = bcd2bin(regs[3] & 0x7);
  
@@ -292,7 +298,7 @@ index f720bcdb901d..09110b3ae25f 100644
  
  	return 0;
  }
-@@ -324,16 +324,16 @@ static int pcf8523_irq_enable(struct device *dev, unsigned int enabled)
+@@ -343,16 +343,16 @@ static int pcf8523_irq_enable(struct device *dev, unsigned int enabled)
  	u8 value;
  	int err;
  
@@ -313,7 +319,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -351,7 +351,7 @@ static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+@@ -370,7 +370,7 @@ static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
  	if (err)
  		return err;
  
@@ -322,7 +328,7 @@ index f720bcdb901d..09110b3ae25f 100644
  	if (err < 0)
  		return err;
  
-@@ -363,7 +363,7 @@ static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+@@ -382,7 +382,7 @@ static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
  		rtc_time64_to_tm(alarm_time, &tm->time);
  	}
  
@@ -331,17 +337,8 @@ index f720bcdb901d..09110b3ae25f 100644
  	regs[1] = bin2bcd(tm->time.tm_min);
  	regs[2] = bin2bcd(tm->time.tm_hour);
  	regs[3] = bin2bcd(tm->time.tm_mday);
-@@ -393,18 +393,18 @@ static int pcf8523_rtc_ioctl(struct device *dev, unsigned int cmd,
- 
- 	switch (cmd) {
- 	case RTC_VL_READ:
--		ret = pcf8523_read(client, REG_CONTROL3, &value);
-+		ret = pcf8523_read(client, PCF8523_REG_CONTROL3, &value);
- 		if (ret < 0)
- 			return ret;
- 
--		if (value & REG_CONTROL3_BLF)
-+		if (value & PCF8523_CONTROL3_BLF)
+@@ -418,11 +418,11 @@ static int pcf8523_rtc_ioctl(struct device *dev, unsigned int cmd,
+ 		if (ret)
  			flags |= RTC_VL_BACKUP_LOW;
  
 -		ret = pcf8523_read(client, REG_SECONDS, &value);
@@ -354,7 +351,7 @@ index f720bcdb901d..09110b3ae25f 100644
  			flags |= RTC_VL_DATA_INVALID;
  
  		return put_user(flags, (unsigned int __user *)arg);
-@@ -424,13 +424,13 @@ static int pcf8523_rtc_read_offset(struct device *dev, long *offset)
+@@ -442,13 +442,13 @@ static int pcf8523_rtc_read_offset(struct device *dev, long *offset)
  	u8 value;
  	s8 val;
  
@@ -370,7 +367,7 @@ index f720bcdb901d..09110b3ae25f 100644
  
  	return 0;
  }
-@@ -447,9 +447,9 @@ static int pcf8523_rtc_set_offset(struct device *dev, long offset)
+@@ -465,9 +465,9 @@ static int pcf8523_rtc_set_offset(struct device *dev, long offset)
  	if (abs(reg_m0 * 4340 - offset) < abs(reg_m1 * 4069 - offset))
  		value = reg_m0 & 0x7f;
  	else
@@ -382,7 +379,7 @@ index f720bcdb901d..09110b3ae25f 100644
  }
  
  static const struct rtc_class_ops pcf8523_rtc_ops = {
-@@ -501,7 +501,7 @@ static int pcf8523_probe(struct i2c_client *client,
+@@ -519,7 +519,7 @@ static int pcf8523_probe(struct i2c_client *client,
  	rtc->uie_unsupported = 1;
  
  	if (client->irq > 0) {
