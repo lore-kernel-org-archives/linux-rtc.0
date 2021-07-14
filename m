@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-19.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 077C2C12002
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E37A0C47E4F
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E5ED560240
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC260613C3
+	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 19:54:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240767AbhGNT5d (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Jul 2021 15:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46238 "EHLO mail.kernel.org"
+        id S240805AbhGNT5h (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 14 Jul 2021 15:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240284AbhGNTti (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB3726142B;
-        Wed, 14 Jul 2021 19:44:56 +0000 (UTC)
+        id S240877AbhGNTuK (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE0F66144E;
+        Wed, 14 Jul 2021 19:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291897;
-        bh=E+iOY2yzXNa/d+8Y+LyMMqT6lx3jzGNbC2lLNqo6/cM=;
+        s=k20201202; t=1626291973;
+        bh=zl76rxphEKd8EbLQrAI7fc3bvYaO4H5MF9SMjlIu3Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojrf1vC0Zlf0TSBJQfZYHDtFXaFx/HBVMmdZ75F1JZp9Z3lk5WbpgFoo22Ka6vsyQ
-         jQ7UJvK2AoIK9ROKxeeV/p3zL43Iz07AT25GQQMbdxKFvRMSTO70tysKbw6bSpY+Er
-         vJ5OwcuZtjJye1Jnj1zUc/8mT89+8cxtXDQDnE2fHVNNOWJZpQMgz44UrSuCuep3jf
-         fre42fNgMXCPImQzhWp3AM8eSObVjcCBj/KoVnpRPadps/sOnKAYWQGk1XVl1/hrK+
-         bisUdrY1BKRWTN8wveas+EPmo2QXrZniDADYAh09IxjXOBeZPvkTBfHjvwfSPjzqh5
-         lGmy2SySYBuAw==
+        b=d3O4N0KKquy4tGtFK29LFRZj7EtyTUUmmzugRyc7EgTNmV1Vc+ffyJbh/6AktM57q
+         THdV/yZhPJOJtuFVY7UunjuT8WWpyDNrLYy0B4pok9XhxLxuuTf2ukP9Tpqa+uY3hx
+         JNauyzPUPr19Pw79KoL2qpqer+t6PmpaRIpOUU87tgqRwrSrBdCLo5a8xEtqJn+/ZJ
+         eniUbvZ7W52nA4vrRpZZVrrXbiuLUWAiqG/ly8V+/UMGLw1ItyGg9xAIdjFuRYnGFm
+         CMXNK0JLs6UVFtibnZZxJBYsCCKsoiqGZtFzfOtwGrl64FN9pNm9Ff2YdT5D86wmk9
+         LLMLtdweibhEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 77/88] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
-Date:   Wed, 14 Jul 2021 15:42:52 -0400
-Message-Id: <20210714194303.54028-77-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 43/51] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
+Date:   Wed, 14 Jul 2021 15:45:05 -0400
+Message-Id: <20210714194513.54827-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
-References: <20210714194303.54028-1-sashal@kernel.org>
+In-Reply-To: <20210714194513.54827-1-sashal@kernel.org>
+References: <20210714194513.54827-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index d51cc12114cb..eae7cb9faf1e 100644
+index d5a0e27dd0a0..9e27f5a01197 100644
 --- a/drivers/rtc/rtc-max77686.c
 +++ b/drivers/rtc/rtc-max77686.c
-@@ -717,8 +717,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+@@ -707,8 +707,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
  
  add_rtc_irq:
  	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
