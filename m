@@ -2,73 +2,96 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88266C47E48
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 23:15:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C86BDC12002
+	for <linux-rtc@archiver.kernel.org>; Fri, 16 Jul 2021 21:05:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 65DA8613CA
-	for <linux-rtc@archiver.kernel.org>; Wed, 14 Jul 2021 23:15:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B0553613F2
+	for <linux-rtc@archiver.kernel.org>; Fri, 16 Jul 2021 21:05:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231301AbhGNXSo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 14 Jul 2021 19:18:44 -0400
-Received: from mail-il1-f178.google.com ([209.85.166.178]:42741 "EHLO
-        mail-il1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230478AbhGNXSn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 14 Jul 2021 19:18:43 -0400
-Received: by mail-il1-f178.google.com with SMTP id h3so3239596ilc.9;
-        Wed, 14 Jul 2021 16:15:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=BYSXQ7n1DwSUA9CRKZRWNODD9r+oXjD7cGdzNttzqVY=;
-        b=nIAm+sZaK+GBzbLWgtJRdvFsdnnviexQTonsvh7HYU3Hu2wGH495QO40V9/zJ6vpWd
-         5S/B92ld/UVxSJlLJ4S48pQWs26JtvWRTYiEcdM1W6KoANvFX1/l39Tx76uebce+lLTf
-         LdJxQSd2iat2GuYt8eU0SDMovZHqM2/6Fjf+yiJmv7dr4d/A8a/ETbroyeZXScYSmso9
-         iTPtptHgxi8itm3AUPZ3cn+wMwX65VAcP00KF7e0rs5ykQIxdGgryFnO8/lIlLCrFM+d
-         p1VzEBRPkqNoddlHEMg4HP62owGPw6/qakaRDLlRvdfly+MAnFk5P8ed7rRM0pXJkClM
-         oM6w==
-X-Gm-Message-State: AOAM532VEcSIMpzIUL89LAiXAAFX5m7F/GslTGJ2Wtfomkyn4rmNJvod
-        gv2e8IW0xaVV8kQ2396yNw==
-X-Google-Smtp-Source: ABdhPJx6n1nDiSad8U3YCLxAlY/YvVr/2Z7+rB7oSFNpxeQts/I2soiVH8fs9zFpcSBH994TpPr/tQ==
-X-Received: by 2002:a92:b50d:: with SMTP id f13mr120590ile.253.1626304551426;
-        Wed, 14 Jul 2021 16:15:51 -0700 (PDT)
-Received: from robh.at.kernel.org ([64.188.179.248])
-        by smtp.gmail.com with ESMTPSA id q186sm2153093ioq.1.2021.07.14.16.15.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jul 2021 16:15:50 -0700 (PDT)
-Received: (nullmailer pid 3723139 invoked by uid 1000);
-        Wed, 14 Jul 2021 23:15:48 -0000
-Date:   Wed, 14 Jul 2021 17:15:48 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Mathew McBride <matt@traverse.com.au>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
+        id S234698AbhGPVID (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 16 Jul 2021 17:08:03 -0400
+Received: from mx-out.tlen.pl ([193.222.135.145]:17649 "EHLO mx-out.tlen.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232896AbhGPVID (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 16 Jul 2021 17:08:03 -0400
+Received: (wp-smtpd smtp.tlen.pl 11191 invoked from network); 16 Jul 2021 23:05:02 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1626469503; bh=78D/XVBXBKYEstCIhkP3KuOQ9/83xoUC4l8G6kPPPbg=;
+          h=From:To:Cc:Subject;
+          b=uB9PBYVmtZTC8+SB6ZbTkbwVZjmu5cbHBhFSA/lkoUjFYPU0pQy5TZfrgnQIP87Gd
+           58qYQ/0cyE2NAK7W+x/n8FbJfJq6eSdiJdw+xFZ8j/ee6LMNiLXIBXwl8SHvDb6KUR
+           +lmGtkDxosU7zpTjH0G8rUBJqYU0FF5CABGAufEs=
+Received: from aaey41.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.128.41])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with SMTP
+          for <linux-rtc@vger.kernel.org>; 16 Jul 2021 23:05:02 +0200
+From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+To:     linux-rtc@vger.kernel.org
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] dt-bindings: rtc: add Epson RX-8025 and RX-8035
-Message-ID: <20210714231548.GA3723080@robh.at.kernel.org>
-References: <20210709044518.28769-1-matt@traverse.com.au>
- <20210709044518.28769-3-matt@traverse.com.au>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH] rtc-cmos: remove stale REVISIT comments
+Date:   Fri, 16 Jul 2021 23:04:37 +0200
+Message-Id: <20210716210437.29622-1-mat.jonczyk@o2.pl>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210709044518.28769-3-matt@traverse.com.au>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-WP-MailID: cce730fc3bc9d7cf797e29ca7373e195
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 000000A [8bMk]                               
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 09 Jul 2021 04:45:18 +0000, Mathew McBride wrote:
-> These are supported by the rtc-rx8025 module. RX-8025
-> also has support in ds1307 due to compatible time registers.
-> 
-> Signed-off-by: Mathew McBride <matt@traverse.com.au>
-> ---
->  Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 3 +++
->  1 file changed, 3 insertions(+)
-> 
+It appears mc146818_get_time() and mc146818_set_time() now correctly
+use the century register as specified in the ACPI FADT table. It is not
+clear what else could be done here.
 
-Acked-by: Rob Herring <robh@kernel.org>
+These comments were introduced by
+        commit 7be2c7c96aff ("[PATCH] RTC framework driver for CMOS RTCs")
+in 2007, which originally referenced function get_rtc_time() in
+include/asm-generic/rtc.h .
+
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
+---
+ drivers/rtc/rtc-cmos.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 670fd8a2970e..eb15067a605e 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -229,19 +229,13 @@ static int cmos_read_time(struct device *dev, struct rtc_time *t)
+ 	if (!pm_trace_rtc_valid())
+ 		return -EIO;
+ 
+-	/* REVISIT:  if the clock has a "century" register, use
+-	 * that instead of the heuristic in mc146818_get_time().
+-	 * That'll make Y3K compatility (year > 2070) easy!
+-	 */
+ 	mc146818_get_time(t);
+ 	return 0;
+ }
+ 
+ static int cmos_set_time(struct device *dev, struct rtc_time *t)
+ {
+-	/* REVISIT:  set the "century" register if available
+-	 *
+-	 * NOTE: this ignores the issue whereby updating the seconds
++	/* NOTE: this ignores the issue whereby updating the seconds
+ 	 * takes effect exactly 500ms after we write the register.
+ 	 * (Also queueing and other delays before we get this far.)
+ 	 */
+-- 
+2.25.1
+
