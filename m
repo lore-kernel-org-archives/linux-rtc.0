@@ -2,140 +2,130 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0BF8C07E95
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBAE8C07E95
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:50:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 76C5C6023D
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:24:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BF60560E0B
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:50:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232233AbhGTQnQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 20 Jul 2021 12:43:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54050 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbhGTQmq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Jul 2021 12:42:46 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F750C0613E0;
-        Tue, 20 Jul 2021 10:23:12 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id u1so26890990wrs.1;
-        Tue, 20 Jul 2021 10:23:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=zhLiMJZRNY6qUDk4IIbiRtvY/5CeP3owVFf8Rh0foos=;
-        b=c7ZsQEReXTuJMEibJsFZnTOqVmK4iaqbAXocjphBZKhR4EIAWSr8lK1YMZtsLvOlFf
-         9EaJ2bRTt+9ZN56hL7nEyi1Xwse4BhfWzioHmeY7NE272x0c23LvSuhepcYRVP4v3/f5
-         T+MaRN5VHFzyyVhn2muBzl/FQCvLRGfHfH7CrezRhY+qGFFPxfteT4F+BplHVQ64VrCh
-         YdLqoEK73t2pwye9yR7eNPFZB1mppp7zXDkfLUEvDlPYzNj+QS6XLg3EJxNOcSE9gsVv
-         vsUZSIHPRE+gw6LUF7fhuZvfokWOu6OGkgbNosDtwtIiNsnFBCE7LIqqKCn+or5df1Ob
-         dcaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=zhLiMJZRNY6qUDk4IIbiRtvY/5CeP3owVFf8Rh0foos=;
-        b=EhH+JYbiTBKGou23En6AQzHyaoVnIIdcKdOXbfovp99WpMXFtNDqvSEe/gs5LNeHaE
-         /eDreybUL+9SkdLhe6KlDSWSM/HbEAtcpolVe5m5/LY8clS1d9QA/CPHKxCHg2ZEFqjG
-         b99tfpnub5X2sfb1vW5PROtbKBeDnEHBnNkdHGNPz5ezAVIrLlFHw27Ah2snx2+X0GaP
-         RW4VgLlZUJTrdgji+FB5fc6wR0RIH97iHRq0Aq/zJx1h4hXdIuonOdyRQ1Ka0QO+Kz5w
-         fvP91jhHF66RDwFa91eLcFLlp9hwsg+h+FSLPBh2U62vktbN6pjxo6L4lhGvrj0o45Le
-         6dXw==
-X-Gm-Message-State: AOAM533dGqkBBeFkMKL0qPw1uCfuchctREdcYXtyfO+ms8S5C6SYbggQ
-        RC5ZZG95tZ/pxEOCcCnys9zIJmY0Mxk=
-X-Google-Smtp-Source: ABdhPJwkskpxG+Uu6ZM1dtd9EQWOfgynMHFAOU3QVeTkNsxtOPoX2tS4zH7DbxsanYPBBRIK6gUVDQ==
-X-Received: by 2002:a05:6000:18ae:: with SMTP id b14mr36272495wri.427.1626801790789;
-        Tue, 20 Jul 2021 10:23:10 -0700 (PDT)
-Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id d29sm29755232wrb.63.2021.07.20.10.23.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 10:23:10 -0700 (PDT)
-From:   Romain Perier <romain.perier@gmail.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        id S232292AbhGTRJg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 20 Jul 2021 13:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36658 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229536AbhGTRIt (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Tue, 20 Jul 2021 13:08:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C8361004;
+        Tue, 20 Jul 2021 17:49:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626803367;
+        bh=rr5DyOF74U0H7iKb0m9zjXCsuqsP8q1pI+d5NX2axk8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=VEsgFDZvIXjcoaGpPEoA0Lu9YRxM0Dj90aWqsnbErQ2UUMNfFjiL3KKy2ihSuQKA8
+         DpJfkpmYcVJtchYg4JZ0xVl4g2Mg2o7fCdXq98nn/PAwMTFoWJ250/salXXOhJJg55
+         abW/iC3f5GUZpAEMSlUl/XMmPNxf0dbMFp9c17FIFUFh6aPXTQv17aO0FFf2m4m8ho
+         FzpeQH9QYcsgshAwYqEOKnzQKiefkbesH4vObWgtP6wKthPFfdBb/jqahxbI+okmue
+         fOLCT92FxMSaj5N+ZOIj1PAxbFu2Oagsxe6Rc6uhcjBjL97r/vUbkyUju8PW712k3f
+         K0QVogmSx6JEw==
+Date:   Tue, 20 Jul 2021 19:49:17 +0200
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To:     Rob Herring <robh@kernel.org>
+Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Robert Marko <robert.marko@sartura.hr>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Palmer <daniel@0x0f.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 1/3] dt-bindings: rtc: Add Mstar MSC313e RTC devicetree bindings documentation
-Date:   Tue, 20 Jul 2021 19:22:49 +0200
-Message-Id: <20210720172251.4504-2-romain.perier@gmail.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210720172251.4504-1-romain.perier@gmail.com>
-References: <20210720172251.4504-1-romain.perier@gmail.com>
+        Ramesh Shanmugasundaram <rashanmu@gmail.com>,
+        "G. Jaya Kumaran" <vineetha.g.jaya.kumaran@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Wei Xu <xuwei5@hisilicon.com>,
+        Dilip Kota <eswara.kota@linux.intel.com>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Mateusz Holenko <mholenko@antmicro.com>,
+        Olivier Moysan <olivier.moysan@st.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+        netdev@vger.kernel.org, linux-rtc@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH] dt-bindings: Remove "status" from schema examples
+Message-ID: <20210720194917.576b7d70@coco.lan>
+In-Reply-To: <20210720172025.363238-1-robh@kernel.org>
+References: <20210720172025.363238-1-robh@kernel.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This adds the documentation for the devicetree bindings of the Mstar
-MSC313e RTC driver, found from MSC313e SoCs and newer.
+Em Tue, 20 Jul 2021 11:20:25 -0600
+Rob Herring <robh@kernel.org> escreveu:
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
----
- .../bindings/rtc/mstar,msc313-rtc.yaml        | 46 +++++++++++++++++++
- 1 file changed, 46 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
+> There's no reason to have "status" properties in examples. "okay" is the
+> default, and "disabled" turns off some schema checks ('required'
+> specifically).
+> 
+> Enabling qca,ar71xx causes a warning, so let's fix the node names:
+> 
+> Documentation/devicetree/bindings/net/qca,ar71xx.example.dt.yaml: phy@3: '#phy-cells' is a required property
+>         From schema: schemas/phy/phy-provider.yaml
+> 
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Cc: Chen-Yu Tsai <wens@csie.org>
+> Cc: Thierry Reding <thierry.reding@gmail.com>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Rui Miguel Silva <rmfrfs@gmail.com>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Robert Marko <robert.marko@sartura.hr>
+> Cc: Philipp Zabel <p.zabel@pengutronix.de>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Ramesh Shanmugasundaram <rashanmu@gmail.com>
+> Cc: "G. Jaya Kumaran" <vineetha.g.jaya.kumaran@intel.com>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
+> Cc: Oleksij Rempel <o.rempel@pengutronix.de>
+> Cc: ChiYuan Huang <cy_huang@richtek.com>
+> Cc: Wei Xu <xuwei5@hisilicon.com>
+> Cc: Dilip Kota <eswara.kota@linux.intel.com>
+> Cc: Karol Gugala <kgugala@antmicro.com>
+> Cc: Mateusz Holenko <mholenko@antmicro.com>
+> Cc: Olivier Moysan <olivier.moysan@st.com>
+> Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: linux-media@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-rtc@vger.kernel.org
+> Cc: alsa-devel@alsa-project.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>  .../display/allwinner,sun8i-a83t-dw-hdmi.yaml |  2 --
+>  .../display/panel/boe,tv101wum-nl6.yaml       |  1 -
 
-diff --git a/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
-new file mode 100644
-index 000000000000..978c28bc3da5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
-@@ -0,0 +1,46 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/mstar,msc313-rtc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Mstar MSC313e RTC Device Tree Bindings
-+
-+allOf:
-+  - $ref: "rtc.yaml#"
-+
-+maintainers:
-+  - Daniel Palmer <daniel@0x0f.com>
-+  - Romain Perier <romain.perier@gmail.com>
-+
-+properties:
-+  compatible:
-+    enum:
-+      - mstar,msc313-rtc
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    rtc@2400 {
-+        compatible = "mstar,msc313-rtc";
-+        reg = <0x2400 0x40>;
-+        clocks = <&xtal_div2>;
-+        interrupts-extended = <&intc_irq GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
-+    };
-+...
--- 
-2.30.2
+>  .../bindings/media/nxp,imx7-mipi-csi2.yaml    |  2 --
+>  .../bindings/media/renesas,drif.yaml          |  1 -
 
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org> # For media
+
+
+Thanks,
+Mauro
