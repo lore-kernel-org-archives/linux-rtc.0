@@ -2,60 +2,59 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0867EC636C8
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451D8C07E95
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:24:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DFB4461003
-	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:23:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28045610D2
+	for <linux-rtc@archiver.kernel.org>; Tue, 20 Jul 2021 17:24:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbhGTQnK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 20 Jul 2021 12:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54058 "EHLO
+        id S232099AbhGTQnO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 20 Jul 2021 12:43:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229921AbhGTQms (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Jul 2021 12:42:48 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09E85C0613E2;
-        Tue, 20 Jul 2021 10:23:15 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id m2so26869719wrq.2;
-        Tue, 20 Jul 2021 10:23:14 -0700 (PDT)
+        with ESMTP id S232328AbhGTQmq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 20 Jul 2021 12:42:46 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8D9C0613DF;
+        Tue, 20 Jul 2021 10:23:10 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id g8-20020a1c9d080000b02901f13dd1672aso1931197wme.0;
+        Tue, 20 Jul 2021 10:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=Irrd4jtOn6498HfdXqzrUQsx/bjOrWlV0M76X3ljkdk=;
-        b=D33o0g2qylPxHB47L2iv+w0ysH8u0oV58QeQwMHn2/cJTtBCBqLondU6e4pixdyoFh
-         33Or13AQG6UDV/Wyu0Mn4tPp2pLh4UvJ4hbCaLnyiTfcNfwHJvk0MqKSlEqamVYIVeNZ
-         RlkkH8GGKFqzcnKJRRjtvrIBalJgmmkZrUB76Okhe5SnwbYCd3FHf+deqGBx1vDuIFxO
-         /mTTFtDqHG/1/GzNC0eFWcpyeGD9wsMGaqPUfeepwzXjRlT+Wxve4M/YTv6AUrx/cAM4
-         ht+QgV65sOXjgu4PFMJ8F9Bn16Oxj/SopcNUJvvR/bhBVjdeJz9bri9asDaND9wtkhVg
-         7HVg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TPW95lb64Ytz4tlki+ReqrdJoY3TpXfPxzeB+jbcK4Y=;
+        b=h1Y58ykjJ3F4+1DP/PAnlI8gWSVOl7yqP+Zjdu+Eq+6VfN+V/iLgcCoKMicevOkFN4
+         K+KUS4uHakF0Mzf+otsFGbWWKb8+GcG3dvK4p01DwcxujstXxgwr7XWdD03t2X7KJvjw
+         uEC4ONZ8+atnXbIWSOqv/04HxrE1GE4P5m3nt6lPW6fkq8EUvED232cK/OdjZHlMHTHo
+         jrEz3UPr+H7zAJOl7z7mKUYfICSfHslwPwRNS/GphybWh0QnZEz3dve9DMJTmZ8TiWTz
+         cPT1JV+qpyGxhnQvU7gB6I6kHPshk69vyyKd9GH7u20/4o9ux0Q+djiUrF85w6ZEta/l
+         Q9sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Irrd4jtOn6498HfdXqzrUQsx/bjOrWlV0M76X3ljkdk=;
-        b=oxbWbv5C53V7sPtIxxU1DGxuy1Ci40znD4A6+gLru8U8eEgf6owahUJwFFdimLt28w
-         g2ilvqX+bpq6nAym12EQPMU8Mcr/Qv0FRONbDn35L5gJkHW8HEb9P8wX38yBXYKQK531
-         E23CJtrx6tFTGwM1NmI4Rs60llI6lu6tVt1kNNI5mulH1ohV9/EtGqbbK1go1GqGXeSb
-         yYor7R1nRe4bAkuEr2+hjBw5AIuJIsddIRlwRShFOXHOhxSlchmFN0FwBsoR8LP2zc5a
-         oT4Iktzn18Z+3503QjFbpo70nYybJRVSDhwW9cKnPbgxUVDYSEm43didRDyEH9NzfEWU
-         jvtg==
-X-Gm-Message-State: AOAM531TojI/UAtidRnR1yDegiO/jT1n1//kdNeOUvyqXHaHUr8/7iTY
-        oY0xuXQHh0qqLHc/e55NpXk=
-X-Google-Smtp-Source: ABdhPJyrV+RcBAPf8vQpCa1Q1/zmv44/OHcaeK45lwFAPyy6HcdPLZqpRZHO37iwQ1EF5NKvPkOA+Q==
-X-Received: by 2002:adf:dfc9:: with SMTP id q9mr36749999wrn.117.1626801793589;
-        Tue, 20 Jul 2021 10:23:13 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TPW95lb64Ytz4tlki+ReqrdJoY3TpXfPxzeB+jbcK4Y=;
+        b=AvsWEl5IawqD2gpqbOsz2OwzAXtINuPyT19mplKpfKlCA3iKAzqQ4VUNNuxmp3Gy0j
+         6+wPcAXAAduxzP/ylDjGVtYzSeQngYbP9p8Yzortll0TC1TvGqktQ4edf64vaoPWWWnM
+         2R0OJKDfW3BvXVtePeEjTj8+p0TirgDqndANwXGSa+qg3+d2qSPuL0ZAYpas/WS0Xfry
+         h4LzCqtWvvGCTLiibQaGwmqzhf2MmK92+ne1x6pl1fVQkE0zNEikdCws4a/J8N3NF7V3
+         PxN01eh42l+SFvm70Z5I5QPId0rT0/gP489+DPCXprbPlBmSxWdNg5nBryJaRGLH2afK
+         +m2w==
+X-Gm-Message-State: AOAM5318CkQizUmhkHeauYZYGHh/WcxJPOnpUu6AeILMG0VHoxB6YKRr
+        BT2EJd/nC9CQMcVLmYFLv28=
+X-Google-Smtp-Source: ABdhPJwjwPsBB+KxDoJoSPw9XBAyqXkyAd6N2QJC6zYOSs8VWb7t51bwWsBuGRMGyAoVQa8PpLbOOg==
+X-Received: by 2002:a05:600c:21d7:: with SMTP id x23mr32552240wmj.98.1626801789183;
+        Tue, 20 Jul 2021 10:23:09 -0700 (PDT)
 Received: from debby (176-141-241-253.abo.bbox.fr. [176.141.241.253])
-        by smtp.gmail.com with ESMTPSA id a7sm13899964wru.67.2021.07.20.10.23.12
+        by smtp.gmail.com with ESMTPSA id y12sm8132439wmc.12.2021.07.20.10.23.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 10:23:13 -0700 (PDT)
+        Tue, 20 Jul 2021 10:23:08 -0700 (PDT)
 From:   Romain Perier <romain.perier@gmail.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -63,45 +62,38 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 3/3] ARM: dts: mstar: Add rtc device node
-Date:   Tue, 20 Jul 2021 19:22:51 +0200
-Message-Id: <20210720172251.4504-4-romain.perier@gmail.com>
+Subject: [PATCH 0/3] Add RTC for MStar SoCs
+Date:   Tue, 20 Jul 2021 19:22:48 +0200
+Message-Id: <20210720172251.4504-1-romain.perier@gmail.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210720172251.4504-1-romain.perier@gmail.com>
-References: <20210720172251.4504-1-romain.perier@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This adds the definition of the rtc device node. The RTC being able to
-work with the oscillator at 12Mhz for now, it shares the same xtal than
-the watchdog.
+This patches series adds a new driver for the RTC found in the Mstar
+MSC313e SoCs and newer. It adds a basic rtc driver, the corresponding
+devicetree bindings and its documentation.
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
----
- arch/arm/boot/dts/mstar-v7.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+Daniel Palmer (1):
+  rtc: Add support for the MSTAR MSC313 RTC
 
-diff --git a/arch/arm/boot/dts/mstar-v7.dtsi b/arch/arm/boot/dts/mstar-v7.dtsi
-index 982dba9d28eb..1d4419aee67d 100644
---- a/arch/arm/boot/dts/mstar-v7.dtsi
-+++ b/arch/arm/boot/dts/mstar-v7.dtsi
-@@ -116,6 +116,13 @@ watchdog@6000 {
- 				clocks = <&xtal_div2>;
- 			};
- 
-+			rtc@2400 {
-+				compatible = "mstar,msc313-rtc";
-+				reg = <0x2400 0x40>;
-+				clocks = <&xtal_div2>;
-+				interrupts-extended = <&intc_irq GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
-+			};
-+
- 			intc_fiq: interrupt-controller@201310 {
- 				compatible = "mstar,mst-intc";
- 				reg = <0x201310 0x40>;
+Romain Perier (2):
+  dt-bindings: rtc: Add Mstar MSC313e RTC devicetree bindings
+    documentation
+  ARM: dts: mstar: Add rtc device node
+
+ .../bindings/rtc/mstar,msc313-rtc.yaml        |  46 ++++
+ MAINTAINERS                                   |   1 +
+ arch/arm/boot/dts/mstar-v7.dtsi               |   7 +
+ drivers/rtc/Kconfig                           |  10 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-msc313.c                      | 246 ++++++++++++++++++
+ 6 files changed, 311 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-msc313.c
+
 -- 
 2.30.2
 
