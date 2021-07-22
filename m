@@ -2,127 +2,123 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEC42C63793
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jul 2021 12:07:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08FB1C4338F
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jul 2021 23:18:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C896161358
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jul 2021 12:07:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D552060E8F
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jul 2021 23:18:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbhGVL0s (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Jul 2021 07:26:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51756 "EHLO mail.kernel.org"
+        id S232425AbhGVWhZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Jul 2021 18:37:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:35088 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231712AbhGVL0m (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Thu, 22 Jul 2021 07:26:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A82961351;
-        Thu, 22 Jul 2021 12:07:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626955637;
-        bh=gbtgRtJwBuii+M7tkqsl84TqgCIZq8mhcmte2Lzn+MU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ddt3vm77y1mLIvPkDSMVMzHyNoET2snL4RU4Xto4FuWRjolDWsCffbkdPaix+t87x
-         VrBh0KcRxla7FaXm83dqk7zUmfbENHuAlalGxA4vy9G9YDNwFOJCRK8DZ3l8lh2nZM
-         EBSbiHSvZ9qVwsegoGfKYFxtJvOrILOfdvMkUvlLQB1Y+vYP+Zqa4A+6w9dtYMT9TJ
-         Xt10Af4cb7dIQGTNzpEAEG1RfrgdueAJGQ2BzsLqn5/EfSzGUwjGKY5Ezi6pswSHbj
-         8uKg4F0zihD6S+NknM29cXmlN53cVl2Vm+QDSB4jsDuRQCwhKeiswcmqIFNywTqKCm
-         h3Uo0EbuQfJ5w==
-Date:   Thu, 22 Jul 2021 14:07:13 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc:     Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
-        linux-pwm@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        id S232024AbhGVWhZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Thu, 22 Jul 2021 18:37:25 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4E767106F;
+        Thu, 22 Jul 2021 16:17:59 -0700 (PDT)
+Received: from slackpad.fritz.box (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5BC713F694;
+        Thu, 22 Jul 2021 16:17:57 -0700 (PDT)
+Date:   Fri, 23 Jul 2021 00:17:21 +0100
+From:   Andre Przywara <andre.przywara@arm.com>
+To:     Maxime Ripard <maxime@cerno.tech>
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Rob Herring <robh@kernel.org>, Icenowy Zheng <icenowy@aosc.io>,
+        Samuel Holland <samuel@sholland.org>,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
+        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Ondrej Jirman <megous@megous.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-spi@vger.kernel.org,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        kernel@pengutronix.de,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PULL] Add variants of devm_clk_get for prepared and enabled
- clocks enabled clocks
-Message-ID: <YPlfcbkxiBmB+vw1@kunai>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
-        linux-pwm@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        linux-spi@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>, kernel@pengutronix.de,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20210510174142.986250-1-u.kleine-koenig@pengutronix.de>
- <20210609202123.u5rmw7al4x3rrvun@pengutronix.de>
- <20210625171434.3xusxpxjprcdqa47@pengutronix.de>
- <20210705080144.zfbzkm7l3gmnh6st@pengutronix.de>
- <20210722060654.nudpdtemosi64nlb@pengutronix.de>
- <YPkg0wtYIoHKpTUW@kunai>
- <20210722081817.2tsjzof4gvldq6ka@pengutronix.de>
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v7 06/19] rtc: sun6i: Add support for RTCs without
+ external LOSCs
+Message-ID: <20210723001721.0bb02cf2@slackpad.fritz.box>
+In-Reply-To: <20210616091431.6tm3zdf77p2x3upc@gilmour>
+References: <20210615110636.23403-1-andre.przywara@arm.com>
+        <20210615110636.23403-7-andre.przywara@arm.com>
+        <20210616091431.6tm3zdf77p2x3upc@gilmour>
+Organization: Arm Ltd.
+X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-slackware-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HJmKiO7YWMeyy5Jn"
-Content-Disposition: inline
-In-Reply-To: <20210722081817.2tsjzof4gvldq6ka@pengutronix.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On Wed, 16 Jun 2021 11:14:31 +0200
+Maxime Ripard <maxime@cerno.tech> wrote:
 
---HJmKiO7YWMeyy5Jn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Maxime,
 
+> On Tue, Jun 15, 2021 at 12:06:23PM +0100, Andre Przywara wrote:
+> > Some newer Allwinner RTCs (for instance the one in the H616 SoC) lack
+> > a pin for an external 32768 Hz oscillator. As a consequence, this LOSC
+> > can't be selected as the RTC clock source, and we must rely on the
+> > internal RC oscillator.
+> > To allow additions of clocks to the RTC node, add a feature bit to ignore
+> > any provided clocks for now (the current code would think this is the
+> > external LOSC). Later DTs and code can then for instance add the PLL
+> > based clock input, and older kernel won't get confused.
+> > 
+> > Signed-off-by: Andre Przywara <andre.przywara@arm.com>  
+> 
+> Honestly, I don't really know if it's worth it at this point.
+> 
+> If we sums this up:
+> 
+>  - The RTC has 2 features that we use, mostly centered around 2
+>    registers set plus a global one
+> 
+>  - Those 2 features are programmed in a completely different way
+> 
+>  - Even the common part is different, given the discussion around the
+>    clocks that we have.
+> 
+> What is there to share in that driver aside from the probe, and maybe
+> the interrupt handling? Instead of complicating this further with more
+> special case that you were (rightfully) complaining about, shouldn't we
+> just acknowledge the fact that it's a completely separate design and
+> should be treated as such, with a completely separate driver?
 
-> > What about adding gkh to the list explaining the situation to him?
->=20
-> Greg doesn't like devm_ stuff.
->=20
-> I already asked Arnd who doesn't want to interfere and akpm who didn't
-> react either up to now.
+So I had a look, and I don't think it justifies a separate driver:
+- Indeed it looks like the core functionality is different, but there
+  are a lot of commonalities, with all the RTC and driver boilerplate,
+  register offsets, and also the special access pattern (rtc_wait and
+  rtc_setaie).
+- The actual difference is really in the way the *date* is stored
+  (the time is still in 24h H/M/S format), and the missing LOSC input
+  clock - which is already optional for existing devices. The two
+  patches just make this obvious, by using if() statements at the parts
+  where they differ.
 
-Wow, okay, that is frustrating.
+So we would end up with possibly some shared .c file, and two driver
+front-end files, which I am not sure is really worth it.
 
+Next I thought about providing separate rtc_class_ops, but even they
+share a lot of code, so they would be possibly be calling a shared
+function each. I don't think that is really better.
 
---HJmKiO7YWMeyy5Jn
-Content-Type: application/pgp-signature; name="signature.asc"
+If you dislike the rather large if/else branches in the previous two
+patches, I could move that out into separate functions, but I feel this
+is more code, for no real benefit.
 
------BEGIN PGP SIGNATURE-----
+So for now I am tempted to keep it shared. I think Samuel had ideas for
+bigger changes in the clock part, at which point we could revisit this
+decision - for instance keep the RTC part (still quite similar) mostly
+in a shared file, while modelling the clocks in separate files - in a
+more "common clock" style for the new SoCs.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmD5X20ACgkQFA3kzBSg
-KbZ9fg/+IRGhv497cb9AjUOAaqwkvEXqBc1EjRWR9pNzZOWyt7pj/mR/lEHb0xW7
-EVNmU6w1ZFv4l3zRKsIYlEXggrIk/vuFsMvYpARpFRFY8v7tU4pwCBDjTFe4aSTH
-lTWbeySPepEbAFfkX0V05vlCFyl/5yXMoP5y5qmuQrRrsJ9Usu6wr00YtcA0ImSh
-lkqxiOudsmiEF8l3UbxyX10o6CYYGZnKpuADEl9SMj9dRF7GHicNHKsW9jQklRig
-b9cjnZJH2SNzM6wzP2IK2OplmLoP7KFCPbkfPfC6jvCDVZ97/9FMu78y4IN2B1bx
-mWXSY6VWPNmV3yl7Xl1SwbyL7StWZleneeQcsQkX9V80g3b//eqkqDziz/Db8MPf
-hIqkvbj5OAX9jWb8DQBNTE12bvHKXiq5L377FdD4WPgt2xj8zDHwBM7t9HQyIUUZ
-jzDgNDGRye3H+FGr4rfmjUU4y5U+pN3f0hgWshTc6Hk4pmf7fGek03/W/bSlo3e2
-c4VcVDDs90DZN6guC6fZKWoPSl1AMTTsRavsU3V2IxykCUFSPJzfxlJZ3xOkjPhX
-ajN8x4uy3fZj8EsITgszI08QhCavDH4XHvouiBhQKzHmT4iDsQRgeGuHaVRyzCr/
-DOf97Ewe7ukTIHFB7uRSaPua/Y0nPXpeNyqWeR/cJZA4PmFDUaY=
-=qGuf
------END PGP SIGNATURE-----
+Feel free to disagree, but when I tried to actually separate the drivers
+it just felt wrong.
 
---HJmKiO7YWMeyy5Jn--
+Cheers,
+Andre
