@@ -5,23 +5,23 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36A34C4338F
-	for <linux-rtc@archiver.kernel.org>; Wed,  4 Aug 2021 10:42:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB7C5C4320E
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 Aug 2021 10:42:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12AAF60FC3
-	for <linux-rtc@archiver.kernel.org>; Wed,  4 Aug 2021 10:42:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0BC460FC3
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 Aug 2021 10:42:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237558AbhHDKmz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 4 Aug 2021 06:42:55 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:35531 "EHLO
+        id S237358AbhHDKmm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 4 Aug 2021 06:42:42 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:32915 "EHLO
         relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237402AbhHDKmh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Aug 2021 06:42:37 -0400
+        with ESMTP id S237506AbhHDKme (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 Aug 2021 06:42:34 -0400
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id B1223FF807;
-        Wed,  4 Aug 2021 10:42:20 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 462AAFF803;
+        Wed,  4 Aug 2021 10:41:59 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
@@ -29,9 +29,9 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-samsung-soc@vger.kernel.org
-Subject: [PATCH 4/4] rtc: s5m: set range
-Date:   Wed,  4 Aug 2021 12:41:32 +0200
-Message-Id: <20210804104133.5158-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/4] rtc: s5m: signal the core when alarm are not available
+Date:   Wed,  4 Aug 2021 12:41:30 +0200
+Message-Id: <20210804104133.5158-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210804104133.5158-1-alexandre.belloni@bootlin.com>
 References: <20210804104133.5158-1-alexandre.belloni@bootlin.com>
@@ -41,52 +41,56 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The S5M8763X type seems to handles dates from year 0000 to 9999, there is
-no info on leap year handling after 2099. The other models handles dates
-from 2000 to 2099.
+Clear the RTC_FEATURE_ALARM bit to signal to the core when alarms are not
+available to ensure the alarm callbacks are never called and userspace is
+aware alarms are not supported.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-s5m.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/rtc/rtc-s5m.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index 87df797758fc..fb9c6b709e13 100644
+index 4c1596c55de8..ee195697e6c6 100644
 --- a/drivers/rtc/rtc-s5m.c
 +++ b/drivers/rtc/rtc-s5m.c
-@@ -204,15 +204,9 @@ static int s5m8767_tm_to_data(struct rtc_time *tm, u8 *data)
- 	data[RTC_WEEKDAY] = 1 << tm->tm_wday;
- 	data[RTC_DATE] = tm->tm_mday;
- 	data[RTC_MONTH] = tm->tm_mon + 1;
--	data[RTC_YEAR1] = tm->tm_year > 100 ? (tm->tm_year - 100) : 0;
-+	data[RTC_YEAR1] = tm->tm_year - 100;
- 
--	if (tm->tm_year < 100) {
--		pr_err("RTC cannot handle the year %d\n",
--		       1900 + tm->tm_year);
--		return -EINVAL;
--	} else {
--		return 0;
--	}
-+	return 0;
- }
- 
- /*
-@@ -792,6 +786,14 @@ static int s5m_rtc_probe(struct platform_device *pdev)
+@@ -794,25 +794,20 @@ static int s5m_rtc_probe(struct platform_device *pdev)
  
  	info->rtc_dev->ops = &s5m_rtc_ops;
  
-+	if (info->device_type == S5M8763X) {
-+		info->rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_0000;
-+		info->rtc_dev->range_max = RTC_TIMESTAMP_END_9999;
-+	} else {
-+		info->rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+		info->rtc_dev->range_max = RTC_TIMESTAMP_END_2099;
-+	}
-+
+-	err = devm_rtc_register_device(info->rtc_dev);
+-	if (err)
+-		return err;
+-
  	if (!info->irq) {
- 		clear_bit(RTC_FEATURE_ALARM, info->rtc_dev->features);
- 	} else {
+-		dev_info(&pdev->dev, "Alarm IRQ not available\n");
+-		return 0;
+-	}
+-
+-	ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
+-					s5m_rtc_alarm_irq, 0, "rtc-alarm0",
+-					info);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
+-			info->irq, ret);
+-		return ret;
++		clear_bit(RTC_FEATURE_ALARM, info->rtc_dev->features);
++	} else {
++		ret = devm_request_threaded_irq(&pdev->dev, info->irq, NULL,
++						s5m_rtc_alarm_irq, 0, "rtc-alarm0",
++						info);
++		if (ret < 0) {
++			dev_err(&pdev->dev, "Failed to request alarm IRQ: %d: %d\n",
++				info->irq, ret);
++			return ret;
++		}
+ 	}
+ 
+-	return 0;
++	return devm_rtc_register_device(info->rtc_dev);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.31.1
 
