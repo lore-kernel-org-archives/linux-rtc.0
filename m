@@ -2,136 +2,99 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 043EEC4338F
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Aug 2021 21:37:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5167AC4338F
+	for <linux-rtc@archiver.kernel.org>; Sun,  8 Aug 2021 16:01:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4E01610FD
-	for <linux-rtc@archiver.kernel.org>; Fri,  6 Aug 2021 21:37:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B5FF60EE9
+	for <linux-rtc@archiver.kernel.org>; Sun,  8 Aug 2021 16:01:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241063AbhHFVhc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 6 Aug 2021 17:37:32 -0400
-Received: from mail-io1-f44.google.com ([209.85.166.44]:37861 "EHLO
-        mail-io1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240808AbhHFVhb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 6 Aug 2021 17:37:31 -0400
-Received: by mail-io1-f44.google.com with SMTP id l20so11987443iom.4;
-        Fri, 06 Aug 2021 14:37:15 -0700 (PDT)
+        id S230049AbhHHQBg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 8 Aug 2021 12:01:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229608AbhHHQBg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 8 Aug 2021 12:01:36 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBBB0C061760;
+        Sun,  8 Aug 2021 09:01:15 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id a7so19868416ljq.11;
+        Sun, 08 Aug 2021 09:01:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=89d9PFSl6f0XdrabkTEFUnWMev9/DYMfhxE7Q7oaJJk=;
+        b=MniDHjSS9B5A9nu73tOEWjAgw/CPBPDM90KA23b1+Ar51O7svKroSrQmrDwERmHpQQ
+         tvE9Ac/q87TQoMWGWyEe57iuME0Z3zVnLY3uMC0TrUorPRkGZOF9DOKIyQVGIKy+8t4o
+         HXjNf/Xg4t2ZMDt6kDV/TZx3qXiCaYVGbVZggYOxc81XfupVkMXmz6sjjruWEykJacbp
+         i7Gj1qazp1iFm9wo6/vdun0Ux304bPgLMbPSUwxeZxOWkzcruLukO+0kj8vf7AAgGb3M
+         lYg2yxui49sr2l0fxOLwmXFSEs4NQ278T6RAG3vXJxvem0ExFLGXqLXOZwYMr7zbqBel
+         0RPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=O/ZVuXX1p8CqDOt58VogWKvsIhRU1cmOHYxxfCm/Ft4=;
-        b=VF2SHMH10iIa9g6vqDjroLOHNrHohpCG4Svkwn3HnaLQZCBocKf3NJZbSy0MLJygoN
-         qWbJyDe0E0bc0dwsXE9P7l7lBpoXzBk5zCpWasOqSfLuBlpuDk+xu54omoI3+uwvJRzy
-         eRy6pZMVKpwCArB6z57siDn41lPRUUWtnQd98HlY7MVpGLmji7ij5E5J02PxPHZrKhLm
-         RKCUTQupf7E1Y/JmJDOIpSem8ztQsGpZHUYjGtJUy+6RbgZOKpMTllubWlTD79qyMnwW
-         R8T4E+Dlipx3BZm3iqDlimpE/rAExF3E2Mj92HQDekeZKFxWSZAda+12oh1Z71ff6eOz
-         Atqw==
-X-Gm-Message-State: AOAM532adoBARD+oNN/wKBbaFOyy6FEwzeP+07ruAYgsT//vcKv1Ro43
-        8dP0G3lE4+kHZVtL4GtZXg==
-X-Google-Smtp-Source: ABdhPJwc6r7sl/xJRV/BUpj6QYZkJef2zlWA1o733Pbor7wK9pSThcU+QzmCWAl1PKdug0lGD4SmYQ==
-X-Received: by 2002:a92:4b0a:: with SMTP id m10mr29839ilg.163.1628285835172;
-        Fri, 06 Aug 2021 14:37:15 -0700 (PDT)
-Received: from robh.at.kernel.org ([64.188.179.248])
-        by smtp.gmail.com with ESMTPSA id d20sm5033656iow.33.2021.08.06.14.37.13
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=89d9PFSl6f0XdrabkTEFUnWMev9/DYMfhxE7Q7oaJJk=;
+        b=FXzHD9ZZhBbLLkPr+TxJms55ep1dRcO2uHEJONQDDTu4yhssBVzoPl0XzbEp+rzCqK
+         Er4uaBDjfm7IKaoLasIZfjM8eQxUGzRv1sjnZC2eHFjuWkhlAOU4nMry0QwsaNuOR4pQ
+         l2CAT0UAAp7Fcyj48g5G+s3dNr1qaJpq8ZBmSJgZHy4KOxyaevLC/YcWyqMmtt4kGvar
+         EukYnYeKADRBnnLYPj/HN4y5O3AB2aCKsMU0HVx90soROQ/Yu8Mzl4615oy8ejFow0tW
+         mY7z45ixundP7CRTAm/M8STukcRMbW/JfYkdFhdttGRXYw2aKTlCvWgx1AyRCrJxXgEr
+         q6Ug==
+X-Gm-Message-State: AOAM5338XZSKlbaGFKll0RzRPUacrNdMK0tlmlwJCqg3Obcg4wSeGYwx
+        6BVquBpEURtWc+xc3btr9JM=
+X-Google-Smtp-Source: ABdhPJw58mlPpK1UuFuNfJjAbFpIieik88LlavD9zcXG2sAS1tM95cpjks5gi3c8HsTz6o8cwoqX9g==
+X-Received: by 2002:a2e:84c7:: with SMTP id q7mr12554184ljh.61.1628438474302;
+        Sun, 08 Aug 2021 09:01:14 -0700 (PDT)
+Received: from localhost.localdomain (46-138-117-53.dynamic.spd-mgts.ru. [46.138.117.53])
+        by smtp.gmail.com with ESMTPSA id a6sm1589014lfs.160.2021.08.08.09.01.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Aug 2021 14:37:14 -0700 (PDT)
-Received: (nullmailer pid 1845465 invoked by uid 1000);
-        Fri, 06 Aug 2021 21:37:13 -0000
-Date:   Fri, 6 Aug 2021 15:37:13 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Romain Perier <romain.perier@gmail.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Sun, 08 Aug 2021 09:01:13 -0700 (PDT)
+From:   Dmitry Osipenko <digetx@gmail.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Palmer <daniel@0x0f.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2 1/3] dt-bindings: rtc: Add Mstar MSC313e RTC
- devicetree bindings documentation
-Message-ID: <YQ2riRW1hZmn6x4B@robh.at.kernel.org>
-References: <20210801160921.233081-1-romain.perier@gmail.com>
- <20210801160921.233081-2-romain.perier@gmail.com>
+        Anton Bambura <jenneron@protonmail.com>
+Cc:     linux-rtc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1] rtc: tps65910: Correct driver module alias
+Date:   Sun,  8 Aug 2021 19:00:30 +0300
+Message-Id: <20210808160030.8556-1-digetx@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210801160921.233081-2-romain.perier@gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sun, Aug 01, 2021 at 06:09:19PM +0200, Romain Perier wrote:
-> This adds the documentation for the devicetree bindings of the Mstar
-> MSC313e RTC driver, found from MSC313e SoCs and newer.
-> 
-> Signed-off-by: Romain Perier <romain.perier@gmail.com>
-> ---
->  .../bindings/rtc/mstar,msc313-rtc.yaml        | 49 +++++++++++++++++++
->  1 file changed, 49 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
-> new file mode 100644
-> index 000000000000..62bc12b1feb6
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
-> @@ -0,0 +1,49 @@
-> +# SPDX-License-Identifier: GPL-2.0
+The TPS65910 RTC driver module doesn't auto-load because of the wrong
+module alias that doesn't match the device name, fix it.
 
-As checkpatch.pl will tell you, should be dual licensed.
+Cc: stable@vger.kernel.org
+Reported-by: Anton Bambura <jenneron@protonmail.com>
+Tested-by: Anton Bambura <jenneron@protonmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/rtc/rtc-tps65910.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/rtc/mstar,msc313-rtc.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Mstar MSC313e RTC Device Tree Bindings
-> +
-> +allOf:
-> +  - $ref: "rtc.yaml#"
-> +
-> +maintainers:
-> +  - Daniel Palmer <daniel@0x0f.com>
-> +  - Romain Perier <romain.perier@gmail.com>
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - mstar,msc313-rtc
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  start-year: true
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - clocks
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-> +    rtc@2400 {
-> +        compatible = "mstar,msc313-rtc";
-> +        reg = <0x2400 0x40>;
-> +        clocks = <&xtal_div2>;
-> +        interrupts-extended = <&intc_irq GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
-> +    };
-> +...
-> -- 
-> 2.30.2
-> 
-> 
+diff --git a/drivers/rtc/rtc-tps65910.c b/drivers/rtc/rtc-tps65910.c
+index bc89c62ccb9b..75e4c2d777b9 100644
+--- a/drivers/rtc/rtc-tps65910.c
++++ b/drivers/rtc/rtc-tps65910.c
+@@ -467,6 +467,6 @@ static struct platform_driver tps65910_rtc_driver = {
+ };
+ 
+ module_platform_driver(tps65910_rtc_driver);
+-MODULE_ALIAS("platform:rtc-tps65910");
++MODULE_ALIAS("platform:tps65910-rtc");
+ MODULE_AUTHOR("Venu Byravarasu <vbyravarasu@nvidia.com>");
+ MODULE_LICENSE("GPL");
+-- 
+2.32.0
+
