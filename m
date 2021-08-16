@@ -2,106 +2,103 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,
+	DATE_IN_FUTURE_06_12,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55586C432BE
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Aug 2021 21:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92E12C4338F
+	for <linux-rtc@archiver.kernel.org>; Mon, 16 Aug 2021 06:02:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 333BD60F55
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Aug 2021 21:20:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77472617E6
+	for <linux-rtc@archiver.kernel.org>; Mon, 16 Aug 2021 06:02:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234310AbhHJVU5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 Aug 2021 17:20:57 -0400
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:59233 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233887AbhHJVUz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Aug 2021 17:20:55 -0400
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay5-d.mail.gandi.net (Postfix) with ESMTPSA id 20F8D1C0003;
-        Tue, 10 Aug 2021 21:20:30 +0000 (UTC)
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] rtc: move RTC_LIB_KUNIT_TEST to proper location
-Date:   Tue, 10 Aug 2021 23:20:07 +0200
-Message-Id: <20210810212008.631359-2-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210810212008.631359-1-alexandre.belloni@bootlin.com>
-References: <20210810212008.631359-1-alexandre.belloni@bootlin.com>
+        id S233100AbhHPGDB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 16 Aug 2021 02:03:01 -0400
+Received: from ZXSHCAS2.zhaoxin.com ([203.148.12.82]:39644 "EHLO
+        ZXSHCAS2.zhaoxin.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232381AbhHPGC7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 16 Aug 2021 02:02:59 -0400
+X-Greylist: delayed 904 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Aug 2021 02:02:59 EDT
+Received: from zxbjmbx1.zhaoxin.com (10.29.252.163) by ZXSHCAS2.zhaoxin.com
+ (10.28.252.162) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Mon, 16 Aug
+ 2021 13:47:21 +0800
+Received: from tony-HX002EA.zhaoxin.com (10.32.56.37) by zxbjmbx1.zhaoxin.com
+ (10.29.252.163) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.14; Mon, 16 Aug
+ 2021 13:47:19 +0800
+From:   Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <TimGuo-oc@zhaoxin.com>, <CooperYan@zhaoxin.com>,
+        <QiyuanWang@zhaoxin.com>, <HerryYang@zhaoxin.com>,
+        <CobeChen@zhaoxin.com>, <YanchenSun@zhaoxin.com>
+Subject: [PATCH] rtc: Fix set RTC time delay 500ms on some Zhaoxin SOCs
+Date:   Mon, 16 Aug 2021 21:47:18 +0800
+Message-ID: <1629121638-3246-1-git-send-email-TonyWWang-oc@zhaoxin.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.32.56.37]
+X-ClientProxiedBy: ZXSHCAS2.zhaoxin.com (10.28.252.162) To
+ zxbjmbx1.zhaoxin.com (10.29.252.163)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Move RTC_LIB_KUNIT_TEST under RTC_LIB so it is clear in the menu this is
-part of the RTC subsystem.
+When the RTC divider is changed from reset to an operating time base,
+the first update cycle should be 500ms later. But on some Zhaoxin SOCs,
+this first update cycle is one second later.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+So set RTC time on these Zhaoxin SOCs will causing 500ms delay.
+
+Skip setup RTC divider on these SOCs in mc146818_set_time to fix it.
+
+Signed-off-by: Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
 ---
- drivers/rtc/Kconfig  | 19 +++++++++----------
- drivers/rtc/Makefile |  3 ++-
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/rtc/rtc-mc146818-lib.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b3cf3a274c05..daff06707455 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -10,16 +10,6 @@ config RTC_MC146818_LIB
- 	bool
- 	select RTC_LIB
- 
--config RTC_LIB_KUNIT_TEST
--	tristate "KUnit test for RTC lib functions" if !KUNIT_ALL_TESTS
--	depends on KUNIT
--	default KUNIT_ALL_TESTS
--	select RTC_LIB
--	help
--	  Enable this option to test RTC library functions.
--
--	  If unsure, say N.
--
- menuconfig RTC_CLASS
- 	bool "Real Time Clock"
- 	default n
-@@ -85,6 +75,15 @@ config RTC_DEBUG
- 	  Say yes here to enable debugging support in the RTC framework
- 	  and individual RTC drivers.
- 
-+config RTC_LIB_KUNIT_TEST
-+	tristate "KUnit test for RTC lib functions" if !KUNIT_ALL_TESTS
-+	depends on KUNIT
-+	default KUNIT_ALL_TESTS
-+	help
-+	  Enable this option to test RTC library functions.
+diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+index dcfaf09..322f94b 100644
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -190,8 +190,18 @@ int mc146818_set_time(struct rtc_time *time)
+ 	spin_lock_irqsave(&rtc_lock, flags);
+ 	save_control = CMOS_READ(RTC_CONTROL);
+ 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
 +
-+	  If unsure, say N.
-+
- config RTC_NVMEM
- 	bool "RTC non volatile storage support"
- 	select NVMEM
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 763d3628c603..5ceeafe4d5b2 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -15,6 +15,8 @@ rtc-core-$(CONFIG_RTC_INTF_DEV)		+= dev.o
- rtc-core-$(CONFIG_RTC_INTF_PROC)	+= proc.o
- rtc-core-$(CONFIG_RTC_INTF_SYSFS)	+= sysfs.o
++#ifdef CONFIG_X86
++	if (!((boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR ||
++		boot_cpu_data.x86_vendor == X86_VENDOR_ZHAOXIN) &&
++		(boot_cpu_data.x86 <= 7 && boot_cpu_data.x86_model <= 59))) {
++		save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
++		CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
++	}
++#else
+ 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
+ 	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
++#endif
  
-+obj-$(CONFIG_RTC_LIB_KUNIT_TEST)	+= lib_test.o
-+
- # Keep the list ordered.
+ #ifdef CONFIG_MACH_DECSTATION
+ 	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
+@@ -209,7 +219,15 @@ int mc146818_set_time(struct rtc_time *time)
+ #endif
  
- obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
-@@ -178,4 +180,3 @@ obj-$(CONFIG_RTC_DRV_WM8350)	+= rtc-wm8350.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_XGENE)	+= rtc-xgene.o
- obj-$(CONFIG_RTC_DRV_ZYNQMP)	+= rtc-zynqmp.o
--obj-$(CONFIG_RTC_LIB_KUNIT_TEST)	+= lib_test.o
+ 	CMOS_WRITE(save_control, RTC_CONTROL);
++
++#ifdef CONFIG_X86
++	if (!((boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR ||
++		boot_cpu_data.x86_vendor == X86_VENDOR_ZHAOXIN) &&
++		(boot_cpu_data.x86 <= 7 && boot_cpu_data.x86_model <= 59)))
++		CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++#else
+ 	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++#endif
+ 
+ 	spin_unlock_irqrestore(&rtc_lock, flags);
+ 
 -- 
-2.31.1
+2.7.4
 
