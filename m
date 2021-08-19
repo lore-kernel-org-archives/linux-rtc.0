@@ -2,171 +2,143 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 285A2C4338F
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Aug 2021 16:55:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7A81C4320A
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Aug 2021 17:03:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07F02610CE
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 Aug 2021 16:55:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9DF7D6101A
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 Aug 2021 17:03:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229548AbhHSQ4M (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 Aug 2021 12:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49892 "EHLO
+        id S230506AbhHSRDr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 Aug 2021 13:03:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229465AbhHSQ4M (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Aug 2021 12:56:12 -0400
-Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A033C061575;
-        Thu, 19 Aug 2021 09:55:36 -0700 (PDT)
-Received: by mail-vs1-xe2d.google.com with SMTP id j186so4412417vsc.10;
-        Thu, 19 Aug 2021 09:55:36 -0700 (PDT)
+        with ESMTP id S230475AbhHSRDo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 Aug 2021 13:03:44 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2070C061756;
+        Thu, 19 Aug 2021 10:03:07 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id l11so10140355wrx.4;
+        Thu, 19 Aug 2021 10:03:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=sH8eWequPHDWgDssOzyKI1BjAJXBRn3U8UTRbb2OxeA=;
-        b=isIMmXKXhlbg9KCfgacH/IeQnaRJHDNTP8PwE7sAxFrwQQiL+x8bcsJQfZpYSwAHCX
-         /iKpfW5xkVPhDJ3cSkSHdTOAKPZDfaYDRvoC4D7kbQM4uplQxBYzWWr4tL2gksFOtHKc
-         nHCyz6wJbc6Ftf88HqQt6ZQqjlqyELHKsDwI1+QHJSvy+BLcaF0YlgjyPZVGYwHPTJqV
-         t16DJstAMrBvpr1CSLvObzAe1thRMcC20HyXAPnP0tATuOKyPfJwp6IeswZKnBAgji52
-         w28OTwIyGulUIIm68m0l2YVwJpxKfjeTyS7A9rrnejKmt8pr5H6GDcG6FOahzt+Phgco
-         yfVA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=3ZGaaM2GSAFsysJeyN/26wnpCp1EgFQ7NteQr3i/NpY=;
+        b=DtspEGW+nuBNf5cUEs5GTYtjS4GSRKl0rrvHkjCxMnNmUDSUNwwfKpsUAKhYL4aih+
+         DdB1PoUVmW/tQtEnnzUwMM1qPdzXeF7yJ40NejDF27cjjNz0Dz8U4EMVtOebI3Eui5WC
+         A5/1KBB9Nhll3zBip40nlLGb3tBjkzRfXDejwSYbwYk84T7Mb3QDb23BUcGWVQhH6U2M
+         frdYoofBVpgWWpTCDZfJ8AnlnuW+VWxvLDJoPmZpe1BmfWPhF6hcE8j6wsmkqFV7D4Ru
+         XcunVzzrqvh2qb3bMhJYgxXMKjfw0JD1k0WWulJPoV64aj1xZq+pkK6OdiPfQWJO4ycS
+         9+9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=sH8eWequPHDWgDssOzyKI1BjAJXBRn3U8UTRbb2OxeA=;
-        b=B/mbSJxpb2cmOIApLiEEW7BzZNZh4nv5wqauKStBREkV+oy9sujrZWTuoGONA4CyoM
-         +OBmuik1xiyOM/ILhxDANxPqb2ldTfeEOaKPVqdEIOye7V4Yy4ywGjb8xMHEbOOwaF7i
-         hO4wW8YPyTjq6z7TVd7UDyXff+5QjwDOKZrtq5pWHs8iXaPNHDUyRjjJg4iZ6nUGG4j6
-         rTC6+ZEQjmQ0HK9Pu+WP0C5v45VA1tPntU/V2nLfQkrdPmF3qN9tJ0ltj+hvFgjt9S1u
-         SoWRIJ0u26KKW4OSGWEDn3Vb2pskSrNZdo8HZgaf9//J2eKfSygOUT8kh0W3qOqRKQ8r
-         CBFQ==
-X-Gm-Message-State: AOAM533a5Qc1WtOlLv/GmNFzEauAmgqh49n1O3UKbD4ijT58Ep4bwBXG
-        KOGfnazGZ2mZZVN58V1RX/J3AHoam9Z6kus66Ek=
-X-Google-Smtp-Source: ABdhPJxbJWiDarEkH1g0STsXWOZfjOOH2SuXX0PhD8lcQpwI3W2zoiPJvcDBXD9KnylYa93O21UL63bSv/uU7Dph0W8=
-X-Received: by 2002:a05:6102:3181:: with SMTP id c1mr13191231vsh.45.1629392135269;
- Thu, 19 Aug 2021 09:55:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210801160921.233081-1-romain.perier@gmail.com>
- <20210801160921.233081-3-romain.perier@gmail.com> <YQ2Pm7nrEFmdS6Ky@piout.net>
-In-Reply-To: <YQ2Pm7nrEFmdS6Ky@piout.net>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=3ZGaaM2GSAFsysJeyN/26wnpCp1EgFQ7NteQr3i/NpY=;
+        b=csfG//hZWVLqzrG8Ek1pGVS2o7LVtbAPO+OAL7uSL9jh0oUUn+XLQYfYbu1MtXHA+w
+         Bsj3PnHNksTprrxFyTY45MNul7dcrxELSxEeh8yJvA2qI1G6KRlVum8g5Rc2PBscNns9
+         v/DeW2kMNKqKmJyh0o7rkRMIufWhtmym/2jL60y/mTZIYiOyQGp6ibaWTsrp7aVRtXeQ
+         iyLgbi/aS2IoD0486jD/3tDA8xNZzbW8qYhvP9G6OWuYKJhJgxTB+bBzqJJ0g75ZJoHJ
+         sKDcR1xi5cYHFdH9KyJGvyov1jmdUqnDym4cXQ8B/9xMJYgUljlbSTdfLMPSYQAn6gBq
+         pKEg==
+X-Gm-Message-State: AOAM531lyCVijQOdZTgl5/xuGjDd5zdXiVxZbcQ79DGhJ3LnB86Oueor
+        ScFQDirZwm0cXxPdC1FwMNA=
+X-Google-Smtp-Source: ABdhPJwOdfw2qQVbBbAtSlGea8G1nJjsS4qdVFZwX8CgJdLFVafTxxXhMHvUACrSTaR4rDZTHacUVA==
+X-Received: by 2002:a5d:45c2:: with SMTP id b2mr4993624wrs.188.1629392586507;
+        Thu, 19 Aug 2021 10:03:06 -0700 (PDT)
+Received: from debby ([2a01:cb19:13:7900:ae2b:c45b:3c7c:7e51])
+        by smtp.gmail.com with ESMTPSA id i9sm4250784wre.36.2021.08.19.10.03.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 Aug 2021 10:03:05 -0700 (PDT)
 From:   Romain Perier <romain.perier@gmail.com>
-Date:   Thu, 19 Aug 2021 18:55:22 +0200
-Message-ID: <CABgxDo+deU3J1JCCSFTscQP8sm=XeXKJ=cPf4u78o37f3XBqwA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] rtc: Add support for the MSTAR MSC313 RTC
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Daniel Palmer <daniel@0x0f.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-rtc@vger.kernel.org,
-        devicetree <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v3 1/3] dt-bindings: rtc: Add Mstar MSC313e RTC devicetree bindings documentation
+Date:   Thu, 19 Aug 2021 19:02:59 +0200
+Message-Id: <20210819170301.10520-2-romain.perier@gmail.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210819170301.10520-1-romain.perier@gmail.com>
+References: <20210819170301.10520-1-romain.perier@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
+This adds the documentation for the devicetree bindings of the Mstar
+MSC313e RTC driver, found from MSC313e SoCs and newer.
 
-Le ven. 6 ao=C3=BBt 2021 =C3=A0 21:38, Alexandre Belloni
-<alexandre.belloni@bootlin.com> a =C3=A9crit :
->
-> Hello,
->
-> On 01/08/2021 18:09:20+0200, Romain Perier wrote:
-> > +static int msc313_rtc_probe(struct platform_device *pdev)
-> > +{
-> > +     struct device *dev =3D &pdev->dev;
-> > +     struct msc313_rtc *priv;
-> > +     int ret;
-> > +     int irq;
-> > +     unsigned long rate;
-> > +     u16 reg;
-> > +
-> > +     priv =3D devm_kzalloc(&pdev->dev, sizeof(struct msc313_rtc), GFP_=
-KERNEL);
-> > +     if (!priv)
-> > +             return -ENOMEM;
-> > +
-> > +     priv->rtc_base =3D devm_platform_ioremap_resource(pdev, 0);
-> > +     if (IS_ERR(priv->rtc_base))
-> > +             return PTR_ERR(priv->rtc_base);
-> > +
-> > +     irq =3D platform_get_irq(pdev, 0);
-> > +     if (irq < 0)
-> > +             return -EINVAL;
-> > +
-> > +     priv->rtc_dev =3D devm_rtc_allocate_device(dev);
-> > +     if (IS_ERR(priv->rtc_dev))
-> > +             return PTR_ERR(priv->rtc_dev);
-> > +
-> > +     priv->rtc_dev->ops =3D &msc313_rtc_ops;
-> > +     priv->rtc_dev->range_min =3D RTC_TIMESTAMP_BEGIN_0000;
->
-> I'm pretty sure this doesn't fit in this RTC registers, you should
-> probably leave range_min to 0 (i.e. not set it at all).
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+---
+ .../bindings/rtc/mstar,msc313-rtc.yaml        | 49 +++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
 
-ack
+diff --git a/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
+new file mode 100644
+index 000000000000..114199cf4d28
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/mstar,msc313-rtc.yaml
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/mstar,msc313-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Mstar MSC313e RTC Device Tree Bindings
++
++allOf:
++  - $ref: "rtc.yaml#"
++
++maintainers:
++  - Daniel Palmer <daniel@0x0f.com>
++  - Romain Perier <romain.perier@gmail.com>
++
++properties:
++  compatible:
++    enum:
++      - mstar,msc313-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  start-year: true
++
++  clocks:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    rtc@2400 {
++        compatible = "mstar,msc313-rtc";
++        reg = <0x2400 0x40>;
++        clocks = <&xtal_div2>;
++        interrupts-extended = <&intc_irq GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
++    };
++...
+-- 
+2.30.2
 
->
-> > +     priv->rtc_dev->range_max =3D U32_MAX - 1; /* 2106-02-07 06:28:14 =
-*/
->
-> I guess this one should be U32_MAX
-
-ack
-
-> > +
-> > +     ret =3D devm_request_irq(dev, irq, msc313_rtc_interrupt, IRQF_SHA=
-RED,
-> > +                            dev_name(&pdev->dev), &pdev->dev);
-> > +     if (ret) {
-> > +             dev_err(dev, "Could not request IRQ\n");
-> > +             return ret;
-> > +     }
-> > +
-> > +     priv->clk =3D devm_clk_get(dev, NULL);
-> > +     if (IS_ERR(priv->clk)) {
-> > +             dev_err(dev, "No input reference clock\n");
-> > +             return PTR_ERR(priv->clk);
-> > +     }
-> > +
-> > +     ret =3D clk_prepare_enable(priv->clk);
-> > +     if (ret) {
-> > +             dev_err(dev, "Failed to enable the reference clock, %d\n"=
-, ret);
-> > +             return ret;
-> > +     }
-> > +
-> > +     ret =3D devm_add_action_or_reset(dev, (void (*) (void *))clk_disa=
-ble_unprepare, priv->clk);
-> > +     if (ret)
-> > +             return ret;
-> > +
-> > +     rate =3D clk_get_rate(priv->clk);
-> > +     writew(rate & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_L);
-> > +     writew((rate >> 16) & 0xFFFF, priv->rtc_base + REG_RTC_FREQ_CW_H)=
-;
-> > +
-> > +     reg =3D readw(priv->rtc_base + REG_RTC_CTRL);
-> > +     reg |=3D CNT_EN_BIT;
-> > +     writew(reg, priv->rtc_base + REG_RTC_CTRL);
-> > +
->
-> If on POR, CNT_EN_BIT is not set, then it would be nice to use that to
-> know whether the RTC is properly set. You can then check CNT_EN_BIT in
-> .read_time and return -EINVAL if it is not set. Then you can set the bit
-> in .set_time. It is anyway useless to let the RTC running if it is not
-> set.
-
-Yeah, this is to be sure that the RTC is alive with a valid value
-(which makes sense).
-Ok I will fix everything in v3, then.
-
-Romain
