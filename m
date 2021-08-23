@@ -2,48 +2,44 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F1DCC43214
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A09C00143
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 783C460F21
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B64A613CD
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230162AbhHWQjr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Aug 2021 12:39:47 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:50508 "EHLO
+        id S230264AbhHWQjt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Aug 2021 12:39:49 -0400
+Received: from [115.28.160.31] ([115.28.160.31]:50526 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S229962AbhHWQjq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Aug 2021 12:39:46 -0400
-X-Greylist: delayed 434 seconds by postgrey-1.27 at vger.kernel.org; Mon, 23 Aug 2021 12:39:45 EDT
+        by vger.kernel.org with ESMTP id S230149AbhHWQjr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Aug 2021 12:39:47 -0400
 Received: from ld50.lan (unknown [101.88.30.186])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id ED36160124;
-        Tue, 24 Aug 2021 00:31:50 +0800 (CST)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 8B9F260131;
+        Tue, 24 Aug 2021 00:31:53 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1629736311; bh=n/bXyaMwH2pU8NoCSXDTclq26ik/VpjG92P83AgT0Xs=;
+        t=1629736313; bh=csEujhwkRZrzuHB76h5qRwQuonezZFuzfVCaeB8i0fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Id9CuyR6GjcFppv5eONuPeslFYpuNXrAkZYVqnxM0ly+5MjlBl6LLIPqM4OtdrBld
-         rlvG/meXtv0J9piIAt6XZyxurvSPIaaIB+t6o94CEZXu9P25dQmXSY2GDAUZcttaE5
-         /NaoHZrMt7CmYDOsUeLvskACuUFkDZ5xrSPxP4Sc=
+        b=WRDDKPVX4VaooJF+xtozec/6aygbCutaxVCmHNIjMnh6qeUWFlXqE4f+sBFqmjm1B
+         8XZaNhInzziMcYeS7v8aDjSbWoBwJ3epYtRCAmm0o2C8olxnpZmYeSxhObr1bt/rRl
+         F0i50Q6dYUpwj6eOQkhF9qEKvVxE3XBRyBKkJ1xw=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
 Cc:     WANG Xuerui <git@xen0n.name>,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Qing Zhang <zhangqing@loongson.cn>,
+        Huacai Chen <chenhuacai@kernel.org>,
         Tiezhu Yang <yangtiezhu@loongson.cn>,
-        zhaoxiao <zhaoxiao@uniontech.com>, devicetree@vger.kernel.org,
-        linux-mips@vger.kernel.org
-Subject: [PATCH RESEND v5 3/6] MIPS: Loongson64: DTS: Add RTC support to LS7A
-Date:   Tue, 24 Aug 2021 00:31:39 +0800
-Message-Id: <20210823163142.586529-4-git@xen0n.name>
+        Qing Zhang <zhangqing@loongson.cn>, linux-mips@vger.kernel.org
+Subject: [PATCH RESEND v5 6/6] MIPS: Loongson: Enable LS2X RTC in loongson2k_defconfig
+Date:   Tue, 24 Aug 2021 00:31:42 +0800
+Message-Id: <20210823163142.586529-7-git@xen0n.name>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210823163142.586529-1-git@xen0n.name>
 References: <20210823163142.586529-1-git@xen0n.name>
@@ -53,37 +49,31 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The LS7A RTC module is now supported, enable it.
+This is now supported, enable for Loongson-2K systems.
+Other systems are unaffected.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
-Acked-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Qing Zhang <zhangqing@loongson.cn>
+Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com> # loongson2k
+Cc: Huacai Chen <chenhuacai@kernel.org>
 Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: zhaoxiao <zhaoxiao@uniontech.com>
-Cc: devicetree@vger.kernel.org
+Cc: Qing Zhang <zhangqing@loongson.cn>
 Cc: linux-mips@vger.kernel.org
 ---
- arch/mips/boot/dts/loongson/ls7a-pch.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/mips/configs/loongson2k_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-index 2f45fce2cdc4..82035de4774f 100644
---- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-+++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-@@ -19,6 +19,11 @@ pic: interrupt-controller@10000000 {
- 			#interrupt-cells = <2>;
- 		};
- 
-+		rtc0: rtc@100d0100 {
-+			compatible = "loongson,ls2x-rtc";
-+			reg = <0 0x100d0100 0 0x78>;
-+		};
-+
- 		ls7a_uart0: serial@10080000 {
- 			compatible = "ns16550a";
- 			reg = <0 0x10080000 0 0x100>;
+diff --git a/arch/mips/configs/loongson2k_defconfig b/arch/mips/configs/loongson2k_defconfig
+index e948ca487e2d..e15f34857956 100644
+--- a/arch/mips/configs/loongson2k_defconfig
++++ b/arch/mips/configs/loongson2k_defconfig
+@@ -280,6 +280,7 @@ CONFIG_USB_SERIAL=m
+ CONFIG_USB_SERIAL_OPTION=m
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_CMOS=y
++CONFIG_RTC_DRV_LS2X=y
+ CONFIG_DMADEVICES=y
+ # CONFIG_CPU_HWMON is not set
+ CONFIG_PM_DEVFREQ=y
 -- 
 2.33.0
 
