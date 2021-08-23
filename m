@@ -2,119 +2,80 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81223C41537
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69ABBC43216
 	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6A21F61371
+	by mail.kernel.org (Postfix) with ESMTP id 4ACDE60F21
 	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230281AbhHWQjx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S229454AbhHWQjx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 23 Aug 2021 12:39:53 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:50534 "EHLO
+Received: from [115.28.160.31] ([115.28.160.31]:50522 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S230226AbhHWQju (ORCPT
+        by vger.kernel.org with ESMTP id S230174AbhHWQju (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Aug 2021 12:39:50 -0400
 Received: from ld50.lan (unknown [101.88.30.186])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id D897A60091;
-        Tue, 24 Aug 2021 00:31:46 +0800 (CST)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id C35096012C;
+        Tue, 24 Aug 2021 00:31:51 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1629736307; bh=V6RSRR90Ws4Iuhqs3uHJEng/UiOCuLvgTuY18AE6/2U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aJpnNDCZiSmdCnYl4YO84XMFJJKaEDihBxaiw+jneGZMwPyoGvvnz38lrB0JjH2/s
-         K086/cVTJh5dVDI/FzbaCi+1Y23b0+DhuKtB60PNwxQEjyg1TZfIoeyVT8SUKgZbEQ
-         COPLpT+T14V2w5zDs54oTlEQ5Y8HRoiCyNwQJQPI=
+        t=1629736312; bh=qpAnScgPwqn8ve3G4zCzZbEzb9Q72hJJphj8MfLBmek=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YeBFDY03/ICFADd+o4dE2+nFOSerho30dWwKRM5hRSmDlCh09Ow0mDuGwIxl0L8Su
+         7kPgj00xCuhl5bV8nbdfDExAba3NyGS2J5iKf+Hu4mP8QBvMCvmYlzJoWc5fuEgXR2
+         FP7vDjQ4VrQfWY57dG/OZ/1s0cSAPXvBxMX02pEY=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
 Cc:     WANG Xuerui <git@xen0n.name>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-mips@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH RESEND v5 0/6] rtc: ls2x: Add support for the Loongson-2K/LS7A RTC
-Date:   Tue, 24 Aug 2021 00:31:36 +0800
-Message-Id: <20210823163142.586529-1-git@xen0n.name>
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Youling Tang <tangyouling@loongson.cn>,
+        Qing Zhang <zhangqing@loongson.cn>, linux-mips@vger.kernel.org
+Subject: [PATCH RESEND v5 4/6] MIPS: Loongson: Enable LS2X RTC in loongson3_defconfig
+Date:   Tue, 24 Aug 2021 00:31:40 +0800
+Message-Id: <20210823163142.586529-5-git@xen0n.name>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210823163142.586529-1-git@xen0n.name>
+References: <20210823163142.586529-1-git@xen0n.name>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I'm resending the series after waiting for seven rc's without any response;
-did I overlook any submission procedure? Rebased against current rtc-next
-and tweaked Cc's for this submission, though.
+This is now supported, enable for Loongson-3 systems.
+Other systems are unaffected.
 
-This is all compiled and tested on a 3A4000 box, as usual. 3A3000+7A and
-2K systems are tested previously, and these should not be affected. (To
-Loongson employees reading this: please test on your rigs and give
-feedback, for getting this done before the next merge window!)
+Signed-off-by: WANG Xuerui <git@xen0n.name>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Youling Tang <tangyouling@loongson.cn>
+Cc: Qing Zhang <zhangqing@loongson.cn>
+Cc: linux-mips@vger.kernel.org
+---
+ arch/mips/configs/loongson3_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-While we're at it, I'd like to know which tree should this series go in via;
-is it rtc-next or mips-next? I'd prefer mips-next, since the last 4 patches
-all deal with MIPS things.
-
-
-Original cover letter:
-
-This patch series adds support for the RTC module found on various
-Loongson systems with the Loongson-2K SoC or the LS7A bridge chip.
-The driver is rewritten from an out-of-tree version to meet mainline
-standards. I write kernel code as a hobby, though, so there might still
-be overlooked issues. Any suggestions are welcome.
-
-v5:
-- Minor changes per Nobuhiro-san's review
-  - Simplified one register-write-and-return
-  - Explicitly depend on OF, remove of_match_ptr usage for now
-- Tested on Loongson-3A4000; 2K should work too because there's no
-  functional change either
-
-v4:
-- Rebased on top of next-20210628
-- Added Jiaxun's Tested-by tag for Loongson-2K; no functional changes
-- Addressed all review comments from v3
-  - Rewritten field operations with FIELD_GET/FIELD_PREP
-  - Removed all error logs
-  - Removed unnecessary spinlocking (RTC core already protects against
-    concurrent device file operations)
-
-v3:
-- Fixed compile error not discovered after rebase (blame sleep
-  deprivation)
-- Tested on Loongson-3A4000 and Loongson-2K
-
-v2:
-- Rebased on top of latest linux-next
-- Updated Huacai's e-mail address to the kernel.org one
-- Added collected tags
-- Added adaptation for newly upstreamed Loongson-2K platforms
-
-WANG Xuerui (6):
-  rtc: ls2x: Add support for the Loongson-2K/LS7A RTC
-  dt-bindings: rtc: Add bindings for LS2X RTC
-  MIPS: Loongson64: DTS: Add RTC support to LS7A
-  MIPS: Loongson: Enable LS2X RTC in loongson3_defconfig
-  MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
-  MIPS: Loongson: Enable LS2X RTC in loongson2k_defconfig
-
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |   2 +
- .../boot/dts/loongson/loongson64-2k1000.dtsi  |   5 +
- arch/mips/boot/dts/loongson/ls7a-pch.dtsi     |   5 +
- arch/mips/configs/loongson2k_defconfig        |   1 +
- arch/mips/configs/loongson3_defconfig         |   1 +
- drivers/rtc/Kconfig                           |  11 ++
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-ls2x.c                        | 180 ++++++++++++++++++
- 8 files changed, 206 insertions(+)
- create mode 100644 drivers/rtc/rtc-ls2x.c
-
-
-base-commit: 8158da6a33f2656c2a98c30eb9185a44e215a6b6
+diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
+index f02101ff04b3..fccb6906d4b4 100644
+--- a/arch/mips/configs/loongson3_defconfig
++++ b/arch/mips/configs/loongson3_defconfig
+@@ -320,6 +320,7 @@ CONFIG_USB_SERIAL_OPTION=m
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_CMOS=y
+ CONFIG_RTC_DRV_GOLDFISH=y
++CONFIG_RTC_DRV_LS2X=y
+ CONFIG_DMADEVICES=y
+ CONFIG_VIRTIO_PCI=y
+ CONFIG_VIRTIO_BALLOON=m
 -- 
 2.33.0
 
