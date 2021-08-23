@@ -7,39 +7,38 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A09C00143
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A85BC19F38
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B64A613CD
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 072AA60F21
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Aug 2021 16:39:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbhHWQjt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S230192AbhHWQjt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 23 Aug 2021 12:39:49 -0400
-Received: from [115.28.160.31] ([115.28.160.31]:50526 "EHLO
+Received: from [115.28.160.31] ([115.28.160.31]:50524 "EHLO
         mailbox.box.xen0n.name" rhost-flags-FAIL-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S230149AbhHWQjr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Aug 2021 12:39:47 -0400
+        by vger.kernel.org with ESMTP id S229454AbhHWQjs (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Aug 2021 12:39:48 -0400
 Received: from ld50.lan (unknown [101.88.30.186])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 8B9F260131;
-        Tue, 24 Aug 2021 00:31:53 +0800 (CST)
+        by mailbox.box.xen0n.name (Postfix) with ESMTPSA id 05C4160117;
+        Tue, 24 Aug 2021 00:31:50 +0800 (CST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=xen0n.name; s=mail;
-        t=1629736313; bh=csEujhwkRZrzuHB76h5qRwQuonezZFuzfVCaeB8i0fE=;
+        t=1629736310; bh=x9STX1vhrJZqW92RYjIG3Cv6d/K5dCeqO4cHgVrF4kw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRDDKPVX4VaooJF+xtozec/6aygbCutaxVCmHNIjMnh6qeUWFlXqE4f+sBFqmjm1B
-         8XZaNhInzziMcYeS7v8aDjSbWoBwJ3epYtRCAmm0o2C8olxnpZmYeSxhObr1bt/rRl
-         F0i50Q6dYUpwj6eOQkhF9qEKvVxE3XBRyBKkJ1xw=
+        b=rHbRd+o+ZCBbthfKm8x8e0E4cN9cnbFsJJot8IVHM6F7bqaCjpDBJFIHcj5UNkQ/o
+         wu206LoZr0qIE3zJTyn68xDo15TrFTLa9VtgVCGtVW2G6HdU5EvTlWr0MLD0+h/moD
+         Pt53ZfK+7kMVfgBUA95lnK8IBCy8h/9cz9qEmTxs=
 From:   WANG Xuerui <git@xen0n.name>
 To:     linux-rtc@vger.kernel.org
-Cc:     WANG Xuerui <git@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+Cc:     WANG Xuerui <git@xen0n.name>, Rob Herring <robh@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
         Huacai Chen <chenhuacai@kernel.org>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Qing Zhang <zhangqing@loongson.cn>, linux-mips@vger.kernel.org
-Subject: [PATCH RESEND v5 6/6] MIPS: Loongson: Enable LS2X RTC in loongson2k_defconfig
-Date:   Tue, 24 Aug 2021 00:31:42 +0800
-Message-Id: <20210823163142.586529-7-git@xen0n.name>
+        devicetree@vger.kernel.org, linux-mips@vger.kernel.org
+Subject: [PATCH RESEND v5 2/6] dt-bindings: rtc: Add bindings for LS2X RTC
+Date:   Tue, 24 Aug 2021 00:31:38 +0800
+Message-Id: <20210823163142.586529-3-git@xen0n.name>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210823163142.586529-1-git@xen0n.name>
 References: <20210823163142.586529-1-git@xen0n.name>
@@ -49,31 +48,32 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This is now supported, enable for Loongson-2K systems.
-Other systems are unaffected.
+Document the binding for the LS2X RTC block found on the Loongson-2K SoC
+and the LS7A bridge, originally appearing on the Loongson-2H.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
-Tested-by: Jiaxun Yang <jiaxun.yang@flygoat.com> # loongson2k
+Acked-by: Rob Herring <robh@kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Huacai Chen <chenhuacai@kernel.org>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Qing Zhang <zhangqing@loongson.cn>
+Cc: devicetree@vger.kernel.org
 Cc: linux-mips@vger.kernel.org
 ---
- arch/mips/configs/loongson2k_defconfig | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/configs/loongson2k_defconfig b/arch/mips/configs/loongson2k_defconfig
-index e948ca487e2d..e15f34857956 100644
---- a/arch/mips/configs/loongson2k_defconfig
-+++ b/arch/mips/configs/loongson2k_defconfig
-@@ -280,6 +280,7 @@ CONFIG_USB_SERIAL=m
- CONFIG_USB_SERIAL_OPTION=m
- CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_CMOS=y
-+CONFIG_RTC_DRV_LS2X=y
- CONFIG_DMADEVICES=y
- # CONFIG_CPU_HWMON is not set
- CONFIG_PM_DEVFREQ=y
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index 13925bb78ec7..64f7e81e7043 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -45,6 +45,8 @@ properties:
+       - isil,isl1218
+       # Intersil ISL12022 Real-time Clock
+       - isil,isl12022
++      # Loongson LS2X RTC
++      - loongson,ls2x-rtc
+       # Real Time Clock Module with I2C-Bus
+       - microcrystal,rv3028
+       # Real Time Clock Module with I2C-Bus
 -- 
 2.33.0
 
