@@ -2,250 +2,113 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DF9EC432BE
-	for <linux-rtc@archiver.kernel.org>; Wed,  1 Sep 2021 07:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F917C433FE
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Sep 2021 00:45:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 744F660E98
-	for <linux-rtc@archiver.kernel.org>; Wed,  1 Sep 2021 07:21:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E69561179
+	for <linux-rtc@archiver.kernel.org>; Fri, 10 Sep 2021 00:45:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242576AbhIAHWa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 1 Sep 2021 03:22:30 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:40623 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242572AbhIAHW1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Sep 2021 03:22:27 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 48546580727;
-        Wed,  1 Sep 2021 03:21:28 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 01 Sep 2021 03:21:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=zMYrNt50zg0sXSYvGdt7SlhrCQS
-        UOKJddsQ6H2t32ts=; b=HKf3lzcL8BB1ZnQtI4KTLccSAjmG/eQAY1XTz/7UNWn
-        3Z+FaYF2i+b4z27XNvOSmFRotl2X5AyFkLVDCFDkhUR5Uzg0ZLXP658dsBNSoAz8
-        xWon6W4Z7W7mYFFJxs9WH2fY9sTutEhpWlrJWX6NXIY2GyOfmu0d0q3C/J0RKseS
-        tVrto/uwOZ6KDID1Steb6b29glTIfzvJ3JnVYJGCvpPIUP6jaBC4XBcl24gN6LMR
-        YIc66vkB0IRpvwOMPSyGc3zo2CspROJZtQNFZJizSEtomF3Vf37nBhiHa72E99Qp
-        ym9zznrR/xDyLs7Hrz4vIx7fu7YQ5hfByFOX3QqLuFg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=zMYrNt
-        50zg0sXSYvGdt7SlhrCQSUOKJddsQ6H2t32ts=; b=XZg4vAau/WT2bEN6ypK9Af
-        gzL2VDRuImjgOTq1ERgD2I5E8DAESqlgYoNYH1dUPCOb/isTM5MVrMS95pkbl9qu
-        uadYEuYAl0tMREQmM4AjTR/xjhhkjMVg20li6AvANgMPPvD9rYKvOwvpc6qT5jAE
-        HiLQzqllRaOeZP2tLT1x+amjwVDVIoc8qsoUqFm5w3sWYIZhA3fouzFMGO//aGLG
-        DtYugwcveznEUqChZM4bNfrW+5EMxbI99BtWrtsere5H9reTVq7noaf8q+gPaH/T
-        3FYwA9rb5FKE6omoZYq6UUDrxVqAS/Q5t87j2/SAoySCwN9/twfFpbrNLdfgwMag
-        ==
-X-ME-Sender: <xms:9ikvYYfzxvLSQ30b8gD94QZ7MqdeTfESMfmbGdk2CQPUDUM_JlWZ6Q>
-    <xme:9ikvYaMW6_cdlWYxCy0IZUhRcaGASOiktzMbFmGCOYpUJciEy-LJA9XygMP73D0YX
-    RCNv_vRGRBidtQ01OY>
-X-ME-Received: <xmr:9ikvYZhtE_XAP2dRpf76wFVZzdIyGif9znVCIDKBc1QpUmuenvodd89M-cFc05Y2TxzaqRiR1Nl_5b_Jml4rNrW9VqcLrPikM2G2>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddvvddguddukecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesghdtreertddtvdenucfhrhhomhepofgrgihi
-    mhgvucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrg
-    htthgvrhhnpeelkeeghefhuddtleejgfeljeffheffgfeijefhgfeufefhtdevteegheei
-    heegudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hmrgigihhmvgestggvrhhnohdrthgvtghh
-X-ME-Proxy: <xmx:9ikvYd-lv-o57J9pidUNBz-vpwE8uQOaevJX9h8utaOAK6mO3NsQXw>
-    <xmx:9ikvYUu-d6oq6GcXaIc9MzC_IcAZXZTYGzVaxaPC2rYNpeiLuEMchw>
-    <xmx:9ikvYUEE_iGXiilRPUj7OJrFwFiz7CJ2gHeesIciqiFYSML7tYqEWg>
-    <xmx:-CkvYRPWy_cTQp3I98g1djSMZO_OLXFkqSFlOdGNvaFk2Giv59By3w>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 1 Sep 2021 03:21:26 -0400 (EDT)
-Date:   Wed, 1 Sep 2021 09:21:23 +0200
-From:   Maxime Ripard <maxime@cerno.tech>
-To:     Andre Przywara <andre.przywara@arm.com>
-Cc:     Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Rob Herring <robh@kernel.org>, Icenowy Zheng <icenowy@aosc.io>,
-        Samuel Holland <samuel@sholland.org>,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@googlegroups.com,
-        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Ondrej Jirman <megous@megous.com>, devicetree@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v8 02/11] dt-bindings: rtc: sun6i: Add H616 compatible
- string
-Message-ID: <20210901072123.gqfua52rupsrmtks@gilmour>
-References: <20210723153838.6785-1-andre.przywara@arm.com>
- <20210723153838.6785-3-andre.przywara@arm.com>
- <20210726144137.6dauuxdssu7yszox@gilmour>
- <20210802013938.29fa18ed@slackpad.fritz.box>
- <20210817073810.7stuzrppyjf4spab@gilmour>
- <20210818100407.7cf7cfb7@slackpad.fritz.box>
+        id S242462AbhIJArB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 9 Sep 2021 20:47:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240197AbhIJAmC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Sep 2021 20:42:02 -0400
+Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com [IPv6:2607:f8b0:4864:20::e35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28A1C061574
+        for <linux-rtc@vger.kernel.org>; Thu,  9 Sep 2021 17:40:52 -0700 (PDT)
+Received: by mail-vs1-xe35.google.com with SMTP id s15so106734vst.13
+        for <linux-rtc@vger.kernel.org>; Thu, 09 Sep 2021 17:40:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nigauri-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=u99A3nTsEcjLLtFLYfw0zQdAAXoFdW/AuvMLvdfo3s4=;
+        b=TW7VBVq6dK6hsRFpDVJJBgboDluU3a+UwpCW4hBgVvH8sOBE5QfR/PI5spsa0KR+tR
+         xRsSXywROggbTW7FX9pv8vo6R/cO5JMcm5lJp3ZriRuTnOwD85QLKGbxFvYSu+EqDRAp
+         cg7sGGMsrbZI6VyOKbIgE7SSi2A5ArNHO9bfoWx4bU0+bknhS4FitHbJlyABXOxKDuTD
+         LoObBJ0IdP+DiLyAdmvGEH5BjnzH44OtT6fjZUOFs8uAXjp0DfGktG0bWwOGobDzUozz
+         /boUVhlxqmxwen9I0ktEp1cZvN6szGSfSjrO71UHDMT0fZU798j5PqCjg8QxnpTLU2zn
+         rVBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=u99A3nTsEcjLLtFLYfw0zQdAAXoFdW/AuvMLvdfo3s4=;
+        b=mSSd6/Nkoczp4pGejIuEJ+4JCO86pREgNi7LULrbCs/cgJhpFtNp4LiaLQ2B3xPoLw
+         2AiGKigyJHz8BuIfSrVX6cGP7VGYL4S7OeJbIOMSkL7+WLy5EMp5IRXnMcmBesS5ZaJE
+         S8JPQL3X6oH9zkxIuwsW3gIt3KH9/yfsvbQMA0h9rkW4YVxXpyAzugvJejMpxaQhafdu
+         xztBcNGJ6l87qjl+/AbkdwoIeLd4bSTqxgYlt19SE+vg/ytJpH3zwfAYfxRu1jW6rrZr
+         adCvC+FTZbWw63fNjESR8Zk7hIRhIAM4kOWo/7KYGqqpxxE3OwrWsuAyQHwMJhiSrHuP
+         CkEw==
+X-Gm-Message-State: AOAM530Pf08kp2jogENjWu24fpiaXROCSuA5dLGRHUv5klqY125TTHnh
+        STXP3gzeD+0klRWfWCLR9/ne6mtIFwCNCja70+ryej+t2ek79t0=
+X-Google-Smtp-Source: ABdhPJwkaBrAuiHABMu8IcTdvxJeg1KK4aP27a3qLiVaj8iQxGCaBhVotOsv0c4stecCCk4+BPxRMpAgcT494uzIS7o=
+X-Received: by 2002:a67:6245:: with SMTP id w66mr4292730vsb.34.1631234451815;
+ Thu, 09 Sep 2021 17:40:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rjkq6bidgpvhb43g"
-Content-Disposition: inline
-In-Reply-To: <20210818100407.7cf7cfb7@slackpad.fritz.box>
+References: <f58c6a58-86a6-1b37-7cec-6a9d801189ed@gmail.com>
+In-Reply-To: <f58c6a58-86a6-1b37-7cec-6a9d801189ed@gmail.com>
+From:   Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:   Fri, 10 Sep 2021 09:40:25 +0900
+Message-ID: <CABMQnVJ8z6Tcbee6rv2vCR48ZDesC9f_ZnH6gx7rFONYT8iTpg@mail.gmail.com>
+Subject: Re: [PATCH] rtc: rx8010: select REGMAP_I2C
+To:     Yu-Tung Chang <mtwget@gmail.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+Hi,
 
---rjkq6bidgpvhb43g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2021=E5=B9=B48=E6=9C=8830=E6=97=A5(=E6=9C=88) 12:56 Yu-Tung Chang <mtwget@g=
+mail.com>:
+>
+> From 45801967ad80578161485937a0833b27b90210f9 Mon Sep 17 00:00:00 2001
+> From: Yu-Tung Chang <mtwget@gmail.com>
+> Date: Mon, 30 Aug 2021 10:59:17 +0800
+> Subject: [PATCH] rtc: rx8010: select REGMAP_I2C
+>
+> The rtc-rx8010 uses the I2C regmap but doesn't select it in Kconfig so
+> depending on the configuration the build may fail. Fix it.
+>
+> Signed-off-by: Yu-Tung Chang <mtwget@gmail.com>
+> ---
+>  drivers/rtc/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-On Wed, Aug 18, 2021 at 10:04:07AM +0100, Andre Przywara wrote:
-> On Tue, 17 Aug 2021 09:38:10 +0200
-> Maxime Ripard <maxime@cerno.tech> wrote:
->=20
-> Hi Maxime,
->=20
-> > On Mon, Aug 02, 2021 at 01:39:38AM +0100, Andre Przywara wrote:
-> > > On Mon, 26 Jul 2021 16:41:37 +0200
-> > > Maxime Ripard <maxime@cerno.tech> wrote:
-> > >  =20
-> > > > Hi,
-> > > >=20
-> > > > On Fri, Jul 23, 2021 at 04:38:29PM +0100, Andre Przywara wrote: =20
-> > > > > Add the obvious compatible name to the existing RTC binding.
-> > > > > The actual RTC part of the device uses a different day/month/year
-> > > > > storage scheme, so it's not compatible with the previous devices.
-> > > > > Also the clock part is quite different, as there is no external 3=
-2K LOSC
-> > > > > oscillator input.
-> > > > >=20
-> > > > > Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-> > > > >
-> > > > > ---
-> > > > >  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml      | 14 ++++++++=
-++++++
-> > > > >  1 file changed, 14 insertions(+)
-> > > > >=20
-> > > > > diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6=
-i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-=
-rtc.yaml
-> > > > > index beeb90e55727..d8a6500e5840 100644
-> > > > > --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-r=
-tc.yaml
-> > > > > +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-r=
-tc.yaml
-> > > > > @@ -26,6 +26,7 @@ properties:
-> > > > >            - const: allwinner,sun50i-a64-rtc
-> > > > >            - const: allwinner,sun8i-h3-rtc
-> > > > >        - const: allwinner,sun50i-h6-rtc
-> > > > > +      - const: allwinner,sun50i-h616-rtc
-> > > > > =20
-> > > > >    reg:
-> > > > >      maxItems: 1
-> > > > > @@ -104,6 +105,19 @@ allOf:
-> > > > >            minItems: 3
-> > > > >            maxItems: 3
-> > > > > =20
-> > > > > +  - if:
-> > > > > +      properties:
-> > > > > +        compatible:
-> > > > > +          contains:
-> > > > > +            const: allwinner,sun50i-h616-rtc
-> > > > > +
-> > > > > +    then:
-> > > > > +      properties:
-> > > > > +        clock-output-names:
-> > > > > +          minItems: 3
-> > > > > +          maxItems: 3   =20
-> > > >=20
-> > > > You don't need both of them when they are equal
-> > > >  =20
-> > > > > +        clocks: false
-> > > > > +   =20
-> > > >=20
-> > > > It's not entirely clear to me what those clocks are about though. I=
-f we
-> > > > look at the clock output in the user manual, it looks like there's =
-only
-> > > > two clocks that are actually being output: the 32k "fanout" clock a=
-nd
-> > > > the losc. What are the 3 you're talking about?] =20
-> > >=20
-> > > I see three: the raw SYSTEM "CLK32K_LOSC", the RTC input + debounce
-> > > clock (/32), and the multiplexed PAD. =20
-> >=20
-> > But the input and debounce clock is only for the RTC itself right? So it
-> > should be local to the driver and doesn't need to be made available to
-> > the other drivers
->=20
-> I understood "debounce" as being the clock used for the pinctrl
-> debouncer. What would it debounce otherwise? Do you think that this
-> "debounce circuit" is something internal to the RTC and is totally
-> irrelevant for us?
+Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 
-I don't think that's it.
+>
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 12153d5801ce..f7bf87097a9f 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -624,6 +624,7 @@ config RTC_DRV_FM3130
+>
+>  config RTC_DRV_RX8010
+>         tristate "Epson RX8010SJ"
+> +       select REGMAP_I2C
+>         help
+>           If you say yes here you get support for the Epson RX8010SJ RTC
+>           chip.
+> --
+> 2.33.0
 
-The Debounce circuit is after the 32 divider, so we have a clock rate of
-1kHz (Figure 3-35, page 275)
+Best regards,
+  Nobuhiro
 
-The PIO Interrupt debouncing can use either a 32kHz or 24MHz clock, so
-the rates don't match, and given the naming would rather be clocked from
-CLK32K_LOSC.
-
-The DCXO_CTRL_REG (Section 3.13.6.13) hints at something different
-though, it says:
-
-"
-CLK16M_RC_EN
-1: Enable
-0: Disable
-The related register configuration is necessary to ensure the reset debounce
-circuit has a stable clock source.
-The first time SoC starts up, by default, the reset debounce circuit of SoC
-uses 32K divided by RC16M. In power-off, software reads the related bit to
-ensure whether EXT32K is working normally, if it is normal, first switch the
-clock source of debounce circuit to EXT32K, then close RC16M.
-Without EXT32K scenario or external RTC scenario, software confirms firstly
-whether EXT32K is working normally before switching, or software does not
-close RC16M.
-"
-
-I'm not sure why it would be useful for though
-
-> But in general I looked at how many *different* clocks this diagram
-> describes, and I count: one unaltered ("SYSTEM"), one "div by
-> 32" (RTC/debounce), and one multiplexed. My aim was to avoid
-> DT binding changes when we later discover we do need one of them for
-> something (as happened in the past). So three seemed to be the safe
-> choice here, to avoid surprises. In the worst case we just will never
-> reference one of them.
-
-My concern is the pretty much the opposite: if we ever need to remove it
-for whatever reason, if it's in the DT, we can't. While we can totally
-add it if we need it.
-
-> > Either way, what this list is must be documented.
->=20
-> You mean to overwrite the "description" stanza for clock-output-names?
-
-Yes
-
-> And can this be done in the per-SoC parts in the later part of the
-> binding, keeping the existing description?
-
-Sure
-
-Maxime
-
---rjkq6bidgpvhb43g
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCYS8p8wAKCRDj7w1vZxhR
-xRE2AQDYlqDEaHf5/1IED5BleAAc0RHp5WOyINtMRFzdAjEIzAEApmTJW3tJsci4
-DiJ796ury4C9KXYVjkGtfFmLnozADQ0=
-=3GAS
------END PGP SIGNATURE-----
-
---rjkq6bidgpvhb43g--
+--=20
+Nobuhiro Iwamatsu
+   iwamatsu at {nigauri.org / debian.org / kernel.org}
+   GPG ID: 40AD1FA6
