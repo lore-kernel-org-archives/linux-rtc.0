@@ -2,187 +2,125 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 734ADC433FE
-	for <linux-rtc@archiver.kernel.org>; Tue, 21 Sep 2021 08:41:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37662C433EF
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 Sep 2021 07:18:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5BCEC61215
-	for <linux-rtc@archiver.kernel.org>; Tue, 21 Sep 2021 08:41:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17CC2610A0
+	for <linux-rtc@archiver.kernel.org>; Thu, 23 Sep 2021 07:18:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbhIUIme (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 21 Sep 2021 04:42:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41284 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231268AbhIUImd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 21 Sep 2021 04:42:33 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B50C061757
-        for <linux-rtc@vger.kernel.org>; Tue, 21 Sep 2021 01:41:05 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id q26so36783868wrc.7
-        for <linux-rtc@vger.kernel.org>; Tue, 21 Sep 2021 01:41:05 -0700 (PDT)
+        id S237762AbhIWHTc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 23 Sep 2021 03:19:32 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:47520 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235477AbhIWHTc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 23 Sep 2021 03:19:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=Jpo5hVx8FocmwTc1vBarjOAvcclKIu4PIomViQO7n7o=;
-        b=sXGd/CWVpW8T0oDZMr7aFCXoqz8iL5jce66I3q3miAC0b3bP2wp9kbmEO0y+bNhIhM
-         eJbm7KcynwZQ4Ncg6SOVssxvJOMntvanrOGx7BLr+OS2gtjCXhIzgL8pPRxXgUufNEpO
-         SfUv8Cwj91XCM1jMIrtjcJvbqmybo9mVbR1LBtZLwomkFTJCUPY51CzHLrCAdjpo2rRx
-         Yz8kkMt/4/JdBlYt26/EI79Kf2xP6gbcRu1gRZZyTb6vCK5QyJ0P//dCYv+6Av0Ko5vv
-         8BjOZ5SxtwRzhZkBo8/ySVYiluiK85TWRTXut+FwhGPMASjaojRaacV90LRCtxecb1my
-         eCZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=Jpo5hVx8FocmwTc1vBarjOAvcclKIu4PIomViQO7n7o=;
-        b=ZmGtneWp3/dswO2/nFk8bWb9D/yXs/M9aWADjdSw6on+phQEFJ61f09K/mwieAGmcP
-         O5T/H6Hq7MNkuIrghWNDY0DPurziWUGJUmqEZ3C6gdMs3Z4VA/RfOAOxPqFVaIx197bp
-         huiOlONVjc2Z+DDqfmB6EcapEQCOvNEwrmzebEv6l7O/g2YM86W+0e4jD4uDAtbwdnTH
-         2U6I1v8qLXiF8pGH7KmW69mqM2TvWp1oIVUDsZ4naOgvZXyU/hWGCWqpS+h9tcELox81
-         2aIpkeqyl94/Twf8EOdPs0dhEwy1nmQN5hgvBGSEBSM3ZQhlYYe25sH/EbGIT9hAmsMK
-         nGag==
-X-Gm-Message-State: AOAM531mZcPT0LeSQqXv288MVcay3DcncIObOHPGh1q15Q2owdeQair9
-        saxHCQGSJbmFCyddLlr4sVHNnA==
-X-Google-Smtp-Source: ABdhPJyVa4q4Tr9xInJmFQ4KLGfuU0f32NWO99Wuwos1Hr/1lN0IZskRsr47p4hltHVfBz5jFqK1zw==
-X-Received: by 2002:a5d:4e90:: with SMTP id e16mr33059922wru.243.1632213663872;
-        Tue, 21 Sep 2021 01:41:03 -0700 (PDT)
-Received: from google.com ([95.148.6.233])
-        by smtp.gmail.com with ESMTPSA id y197sm2403557wmc.18.2021.09.21.01.41.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Sep 2021 01:41:03 -0700 (PDT)
-Date:   Tue, 21 Sep 2021 09:41:01 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Will McVicker <willmcvicker@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        kernel-team@android.com, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v1 0/4] arm64: Kconfig: Update ARCH_EXYNOS select configs
-Message-ID: <YUmanemsBKt4sK2f@google.com>
-References: <20210920190350.3860821-1-willmcvicker@google.com>
- <7735b09c-cf1c-5e37-a737-9a330fbacf1e@canonical.com>
- <YUmTwZPqrCfRMekd@google.com>
- <d6212801-f2a0-a6a7-6154-0f99b57f1c4d@canonical.com>
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1632381481; x=1663917481;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=ZJHCPlUenoX0Vg51QRhzULd4haGISa9pFqNwx4FuZN0=;
+  b=SHWCtpId35kiZRARgHBe21PDtSjWFRCna6lLB86Ks6GEQ1V5cjUAnU7y
+   wmR8oNx/k9B9Gd+Dm/C8+xFsjmmtlkUmcaJoneL+n95TLaW+t8UNS2yWZ
+   iuo0at6FLCOzERFy1b5uN5a2u2X2GbI9t+6RrcJd6o/f44rVtyPaWZmZo
+   Y=;
+Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
+  by alexa-out.qualcomm.com with ESMTP; 23 Sep 2021 00:18:00 -0700
+X-QCInternal: smtphost
+Received: from nalasex01b.na.qualcomm.com ([10.47.209.197])
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2021 00:18:00 -0700
+Received: from jianbinz-gv.qualcomm.com (10.80.80.8) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7;
+ Thu, 23 Sep 2021 00:17:58 -0700
+From:   jianbinz <quic_jianbinz@quicinc.com>
+To:     <alexandre.belloni@bootlin.com>, <a.zummo@towertech.it>
+CC:     jianbinz <quic_jianbinz@quicinc.com>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: [PATCH] rtc: Disable alarm irq if alarm time is less than rtc time and irq is enabled
+Date:   Thu, 23 Sep 2021 15:17:34 +0800
+Message-ID: <20210923071734.25545-1-quic_jianbinz@quicinc.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <d6212801-f2a0-a6a7-6154-0f99b57f1c4d@canonical.com>
+Content-Type: text/plain
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 21 Sep 2021, Krzysztof Kozlowski wrote:
+If device is boot up by rtc alarm, the alarm irq will still be enabled and the alarm time is smaller than current rtc time before any alarm is set or canceled.
+If the device is shutdown this time, the device will reboot automatically.
 
-> On 21/09/2021 10:11, Lee Jones wrote:
-> > On Tue, 21 Sep 2021, Krzysztof Kozlowski wrote:
-> > 
-> >> On 20/09/2021 21:03, Will McVicker wrote:
-> >>> This patch series tries to address the issue of ARCH_EXYNOS force selecting
-> >>> a handful of drivers without allowing the vendor to override any of the
-> >>> default configs. This takes away from the flexibilty of compiling a generic
-> >>> kernel with exynos kernel modules. For example, it doesn't allow vendors to
-> >>> modularize these drivers out of the core kernel in order to share a generic
-> >>> kernel image across multiple devices that require device-specific kernel
-> >>> modules.
-> >>
-> >> You do not address the issue in these patches. The problem you describe
-> >> is that drivers are not modules and you are not changing them into modules.
-> > 
-> > The wording is unfortunate.  The reason for this change doesn't have
-> > much to do with kernel modules.
-> > 
-> > Let's go back in time 18 months or so when Greg KH submitted this [0]
-> > patch, which you Acked.  Greg was trying to solve the problem of not
-> > having to enable ARCH_EXYNOS on kernels which are designed to be
-> > platform agnostic (sometimes called Generic Kernels).  For some reason
-> > SERIAL_SAMSUNG is the only symbol with these dependencies, so the
-> > solution seemed simple and straight forward at the time.
-> > 
-> > However, For sound reasons Geert NACKed the patch.
-> > 
-> > Quoting from [1] he says:
-> > 
-> >   "A generic kernel will include Samsung SoC support, hence
-> >   PLAT_SAMSUNG or ARCH_EXYNOS will be enabled."
-> 
-> Yes, it's correct reasoning. There is also one more use-case -
-> non-upstreamed (out of tree) platform which wants to use Exynos-specific
-> drivers. Something like was happening with Apple M1 except that it got
-> upstreamed and we do not care much about out-of-tree.
-> 
-> > However, since the entry for ARCH_EXYNOS *insists* on building-in a
-> > bunch of other symbols (via 'select') which will be unused in most
-> > cases, this is not a currently acceptable approach for many Generic
-> > Kernels due to size constraints.
-> 
-> In the mainline kernel there is no such use case. If you want to have
-> Exynos-whatever-driver (e.g. SERIAL_SAMSUNG or S3C RTC), you should
-> select ARCH_EXYNOS because otherwise it does not make any sense. Zero
-> sense. Such kernel won't work.
-> 
-> It makes sense only if there is some other work, hidden here, where
-> someone might want to have SERIAL_SAMSUNG or S3C RTC without
-> ARCH_EXYNOS. Although GKI is not that work because GKI kernel will
-> select ARCH_EXYNOS. It must select ARCH_EXYNOS if it wants to support
-> Exynos platforms.
-> 
-> Therefore I expect first to bring this "some other work, hidden here" to
-> broader audience, so we can review its use case.
+So disable irq if alarm time is less than rtc time and irq is enabled.
 
-AFAIA, there really isn't any GKI specific code.  Everything that can
-be upstreamed, is upstreamed.  The delta consists of some vendor
-over-rides (implemented using trace events/hooks spread out over the
-code-base), lots of function exports (non-upstreamable due to no
-upstream user) and some defconfig/fragments.  There really is nothing
-else to share/upstream/unhide.
+Signed-off-by: jianbin zhang <quic_jianbinz@quicinc.com>
+---
+ drivers/rtc/rtc-pm8xxx.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-The only thing GKI needs is a little Kconfig flexibility above what is
-currently offered.
-
-> > What this patch does is migrates those symbols from being 'select'ed
-> > (always built-in with no recourse) to 'default y'.  Where the former
-> > cannot be over-ridden, but the latter can be via a vendor's
-> > defconfig/fragment.
-> 
-> It cannot be overridden by vendor fragment because options are not
-> visible. You cannot change them.
-> 
-> The patch does nothing in this regard (making them selectable/possible
-> to disable), which is why I complained.
-
-100% agree.  As I commented in the other patch, this was a good point
-that should be addressed 
-
-> > I doubt many (any?) of these symbols can be converted to kernel
-> > modules anyway, as they are required very early on in the boot
-> > sequence.
-> 
-> True, some could, some not. Also some platforms are set up via
-> bootloader, so actually could "survive" till module is loaded from some
-> initrd.
-
-If these could be turned into modules, that would be even better!
-
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 29a1c65661e9..c8a75d3e9c43 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -267,16 +267,19 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+ 	int rc;
+ 	unsigned int ctrl_reg;
++	unsigned long irq_flags;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+ 	unsigned long secs;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 
++	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
++
+ 	rc = regmap_bulk_read(rtc_dd->regmap, regs->alarm_rw, value,
+ 			      sizeof(value));
+ 	if (rc) {
+ 		dev_err(dev, "RTC alarm time read failed\n");
+-		return rc;
++		goto rtc_rw_fail;
+ 	}
+ 
+ 	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
+@@ -287,14 +290,30 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
+ 	if (rc) {
+ 		dev_err(dev, "Read from RTC alarm control register failed\n");
+-		return rc;
++		goto rtc_rw_fail;
++	}
++
++	if (ctrl_reg && (rtc_tm_to_ktime(alarm->time) >=
++				rtc_dd->rtc->aie_timer.node.expires)) {
++		ctrl_reg &= ~regs->alarm_en;
++		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
++		if (rc) {
++			dev_err(dev, "Update RTC control register failed \n");
++			goto rtc_rw_fail;
++		}
+ 	}
+ 	alarm->enabled = !!(ctrl_reg & PM8xxx_RTC_ALARM_ENABLE);
+ 
++	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
++
+ 	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
+ 		&alarm->time, &alarm->time);
+ 
+ 	return 0;
++
++rtc_rw_fail:
++	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
++	return rc;
+ }
+ 
+ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1
+
