@@ -2,61 +2,60 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2299BC433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 28 Sep 2021 08:04:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70C5CC43219
+	for <linux-rtc@archiver.kernel.org>; Tue, 28 Sep 2021 08:04:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 078EE60F9B
-	for <linux-rtc@archiver.kernel.org>; Tue, 28 Sep 2021 08:04:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B3B860F9B
+	for <linux-rtc@archiver.kernel.org>; Tue, 28 Sep 2021 08:04:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239462AbhI1IF5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 28 Sep 2021 04:05:57 -0400
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:36803 "EHLO
+        id S239482AbhI1IF7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 28 Sep 2021 04:05:59 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:57467 "EHLO
         wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239313AbhI1IF3 (ORCPT
+        by vger.kernel.org with ESMTP id S239321AbhI1IF3 (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Tue, 28 Sep 2021 04:05:29 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.west.internal (Postfix) with ESMTP id 3E71D2B01482;
-        Tue, 28 Sep 2021 04:03:46 -0400 (EDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailnew.west.internal (Postfix) with ESMTP id 356ED2B01458;
+        Tue, 28 Sep 2021 04:03:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 28 Sep 2021 04:03:47 -0400
+  by compute2.internal (MEProxy); Tue, 28 Sep 2021 04:03:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm3; bh=l6+f8N/o4CzHv
-        n8mnmbz2zIJFwh4u7TbPKw9aQRkUvM=; b=n5eU77gF7m3rbPoQ6DuuZfycVPMtJ
-        UY7eLzE/Q2nQkcEUTOu7BmHb3OoBdTNkngxNZKfgzMsi9jDIGYau4+3lgwQlcMeu
-        L6/rz/tV8DNj4i8p4LIDk1gdaKbsx4rRkIIKkLaUdyMspICIfKzB2Wbn1+N6IDxi
-        PwqxbheWhGsHj4JkkjlVcrWa7LwpLV/BYUEYOGHooGGbppTssw/OIB2ok8k1w2e6
-        8v8+IFqJ9qEC7B5FoRN4wMElUNJ7TobnnHsYqw4JKTYMrLgt54j6Fi3pMeWNTQQa
-        Wy4MLIYuE2qQaDGN9K8LoKv3pSeI80Orvr/d70g9VVhD0SL1xK61Rr/5A==
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=0ug29t+efHhaBUw2Dp50mQebuU
+        OvAPftYFzNvqEV2qY=; b=QVNNBVh9PXfkYoaPdq9UUH7QOZikJTT0VB7bfUzlVN
+        5kcwLcrWCHGHWmxvu3e9it/qR3/pSzem2vNQeVVD0P9glN/50Lxt6SIZpAlt4DtF
+        Mruxk+kZlcpWlEnFM+G1E+iY0+8ZvD+H8l9reXpYbco0nKnG/WVn7j2V+ungOGVS
+        Ei3DduyUQ5pWdm9fxrL5ifmMH4kB5pVRvA2QxVceQ/FSNW6X6R0rFD7gruy6sK5o
+        XkENSberJhGMlDczdaGmjuYYTdmEUKhx45gmvfbPnFfKVpotRvZHkgVTs4sK3YtY
+        OBu0x5VBCMVzuuhPJJkOjHIT2rho/Iyy9G46t/Dcdj+A==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=l6+f8N/o4CzHvn8mnmbz2zIJFwh4u7TbPKw9aQRkUvM=; b=kWc/DHWt
-        bsK7M+veN52q/bybsVtsKK3EcGgSJ65PgKTUaNfb3777IiiGm/oeKSKSsGWicHCO
-        /uA6fCfst491/f6m7RYffh1gFJee9uWxZ7es15CdbW646l+CBuEqIjw8euPzhGBV
-        j1h3fxrrYhfUuughYVnuq5h6mL7RcJ/h34vksmnQPjYqVuy7aQ1cScHccESFDH8j
-        CLHCJcOGtWeepUVhSMQP5A4qVgqW6bdZxYkp+cu4zriPhAisR9OOs9wh2OQNi3KF
-        OW5ZJetVAiVo6adOS7M8wn4QQmpoZyMKJhXxDOfZINcRpfWbmgiZq9nEb2f8y5PY
-        ocq0E1jhYB/lzw==
-X-ME-Sender: <xms:YcxSYedCYdJmgmupv0ygmKVwxto49-tPUe9UCAgKkoe2KzGW42t9TA>
-    <xme:YcxSYYMibzyzQMn8YF3Tbdr-U-C97_zsI6jB23DKiLMXDxFUB85oy575JcSVGqSlh
-    a76GXsF5DOw8CMmvQ>
-X-ME-Received: <xmr:YcxSYfi7d_bVuJM3dWgwj5YcjZU1DzL0G_6Bgg2-jPiHE9ZO-fwLnFHhQzg-dZpxBCpWsZjrYvD2pRTNS7rEpW0WXyubzGz1FL6JzdqV99bP3z5wOFGsy6V9Orx4AVu6MNkxow>
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0ug29t+efHhaBUw2D
+        p50mQebuUOvAPftYFzNvqEV2qY=; b=JX4ZcJtpfl6gTkwFqylB5d2NbjKwNa2It
+        jJ9LgcUH8reebwd3/pllIGuRI7GTwz3ojhvnjOUWBZm3bLbX4xgbPsyHl+TDeIWr
+        wSjymAzhwnXKf3TTj/cvTqSkWVBrRCJfEzNbxQP1nF/+T/aSsZZrBOHQFm34aSsv
+        Hs+ts+4kdkH8VpegsfyooIsl5KuCFKVp+jGjIrLbuaBgpG35R3KNTjskAWgx1/k6
+        GgqgJ2rKhZ73MPRUD1gTqGUXt642SvLiClrtTsF1k3gdboARhgTOeT7OPxSSt0gQ
+        n8JddxFhJzGoKJgDmuuZuLQQ/gqsaf3xuhOv/qDJY2ItVnGX6t+2A==
+X-ME-Sender: <xms:WMxSYT6ar2jXCSH9m5EN3hgx9CR1mIZYJImga9SwWvhaJh1N87bWOQ>
+    <xme:WMxSYY58dpSujoIicoyNo1EDj09DMvUXh6pV2egWzPPPDUM0GTNd2iX0OXBhT7q2-
+    Pld_GxloL_neckM7Q>
+X-ME-Received: <xmr:WMxSYaf0opjKVon3ama2KnshCSIfM5ztrFhPRWrBDheYKGg0LXax_C_0BRUmA3ooLabsbWxhR3Q0EEUnK68Y0ObFR7mssLM9T40h1446wQ38mdR7zifmuMFSurS3ueXfXHEz_g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudejledguddvfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhu
-    vghlucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecugg
-    ftrfgrthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheej
-    vdfgjeehueeinecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrh
-    homhepshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:YcxSYb9EXyGj3qpGOS_4BYS3lMBStzSJJgPyUoYTeFS0PJMQ_OKcug>
-    <xmx:YcxSYaujqwu-rBo8tkUX0TqgKLby1euQ5ApG9-s8cpLhqvbsY6N4Zw>
-    <xmx:YcxSYSHuqtm05NAUJj7uZYCVHu2j30DSTN9IWcPsehs7_KqnZrnH_g>
-    <xmx:YcxSYfN6X3kpCCCIbqKRgjtLB9pQLBYn2s3Za0_VJrkqNB744sjUhVzpgTs>
+    enucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
+    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
+    grthhtvghrnhepieetkefhheduudfgledtudefjeejfeegveehkeeufffhhfejkeehieff
+    tdevtdevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:WMxSYUKhBwbhTYkNP9kb18soWuUFS_NWqwbMlATvyyIzomGHPG4nqQ>
+    <xmx:WMxSYXK5PI0U8huuhXGA4arvriLF-dorPeCT8dACRhJwOQKHIJVxgQ>
+    <xmx:WMxSYdz9dQP9FSowHY6Z5yuRR31gZPKpDmBa16jnSZnCsoH32x6hGg>
+    <xmx:WMxSYWYPtiL_bp4mTAtSUHmF-FVnWt06seTvfdkFKt2_wdSAcKzxKaBNJzc>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 28 Sep 2021 04:03:45 -0400 (EDT)
+ 28 Sep 2021 04:03:36 -0400 (EDT)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
@@ -69,56 +68,70 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
         Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v2 4/9] clk: sunxi-ng: mux: Add macro using CLK_HW_INIT_PARENTS_DATA
-Date:   Tue, 28 Sep 2021 03:03:30 -0500
-Message-Id: <20210928080335.36706-5-samuel@sholland.org>
+Subject: [PATCH v2 0/9] clk: sunxi-ng: Add a RTC CCU driver
+Date:   Tue, 28 Sep 2021 03:03:26 -0500
+Message-Id: <20210928080335.36706-1-samuel@sholland.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210928080335.36706-1-samuel@sholland.org>
-References: <20210928080335.36706-1-samuel@sholland.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some muxes need the flexibility to specify a combination of internal
-parents (using .hw) and external parents (using .fw_name). Support
-this with a version of the SUNXI_CCU_MUX_WITH_GATE macro that uses
-CLK_HW_INIT_PARENTS_DATA to provide the parent information.
+This patch series adds a CCU driver for the RTC in the H616, R329 and
+D1. The extra patches at the end of this series show how it would be
+explanded to additional hardware variants.
 
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
+The driver is intended to support the existing binding used for the H6,
+but also an updated binding which includes all RTC input clocks.
+
+A future patch series could add functionality to the driver to manage
+IOSC calibration at boot and during suspend/resume.
+
+It may be possible to support all of these hardware variants in the
+existing RTC clock driver and avoid some duplicate code, but I'm
+concerned about the complexity there, without any of the CCU
+abstraction.
+
+This series is currently based on top of the other series I just sent
+("[PATCH v2 0/4] clk: sunxi-ng: Module support"), but I can rebase it
+elsewhere.
+
 Changes since v1:
-  - None.
+  - Rebase on v2 of the module support series.
+  - Combine "const"s to "enum" in the DT binding compatible property.
+  - Properly update the DT binding clocks and clock-names properties.
+  - Load the CCU driver from the RTC driver, not as an OF provider.
 
- drivers/clk/sunxi-ng/ccu_mux.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+Samuel Holland (9):
+  dt-bindings: rtc: sun6i: Clean up repetition
+  dt-bindings: rtc: sun6i: Add H616, R329, and D1 support
+  clk: sunxi-ng: div: Add macro using CLK_HW_INIT_FW_NAME
+  clk: sunxi-ng: mux: Add macro using CLK_HW_INIT_PARENTS_DATA
+  clk: sunxi-ng: mux: Allow muxes to have keys
+  rtc: sun6i: Allow probing without an early clock provider
+  clk: sunxi-ng: Add support for the sun6i RTC clocks
+  [DO NOT MERGE] clk: sunxi-ng: sun6i-rtc: Add support for H6
+  [DO NOT MERGE] clk: sunxi-ng: sun6i-rtc: Add support for T5
 
-diff --git a/drivers/clk/sunxi-ng/ccu_mux.h b/drivers/clk/sunxi-ng/ccu_mux.h
-index e31efc509b3d..f0e3094f29e4 100644
---- a/drivers/clk/sunxi-ng/ccu_mux.h
-+++ b/drivers/clk/sunxi-ng/ccu_mux.h
-@@ -72,6 +72,20 @@ struct ccu_mux {
- 	SUNXI_CCU_MUX_TABLE_WITH_GATE(_struct, _name, _parents, NULL,	\
- 				      _reg, _shift, _width, 0, _flags)
- 
-+#define SUNXI_CCU_MUX_DATA_WITH_GATE(_struct, _name, _parents, _reg,	\
-+				     _shift, _width, _gate, _flags)	\
-+	struct ccu_mux _struct = {					\
-+		.enable	= _gate,					\
-+		.mux	= _SUNXI_CCU_MUX(_shift, _width),		\
-+		.common	= {						\
-+			.reg		= _reg,				\
-+			.hw.init	= CLK_HW_INIT_PARENTS_DATA(_name, \
-+								   _parents, \
-+								   &ccu_mux_ops, \
-+								   _flags), \
-+		}							\
-+	}
-+
- static inline struct ccu_mux *hw_to_ccu_mux(struct clk_hw *hw)
- {
- 	struct ccu_common *common = hw_to_ccu_common(hw);
+ .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml |  84 +++-
+ drivers/clk/sunxi-ng/Kconfig                  |   5 +
+ drivers/clk/sunxi-ng/Makefile                 |   2 +
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.c          | 467 ++++++++++++++++++
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.h          |  16 +
+ drivers/clk/sunxi-ng/ccu_common.h             |   1 +
+ drivers/clk/sunxi-ng/ccu_div.h                |  14 +
+ drivers/clk/sunxi-ng/ccu_gate.c               |   3 +
+ drivers/clk/sunxi-ng/ccu_mux.c                |   7 +
+ drivers/clk/sunxi-ng/ccu_mux.h                |  28 ++
+ drivers/rtc/rtc-sun6i.c                       |  35 +-
+ include/dt-bindings/clock/sun6i-rtc.h         |  10 +
+ include/linux/clk/sunxi-ng.h                  |   9 +
+ 13 files changed, 648 insertions(+), 33 deletions(-)
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
+ create mode 100644 drivers/clk/sunxi-ng/ccu-sun6i-rtc.h
+ create mode 100644 include/dt-bindings/clock/sun6i-rtc.h
+
 -- 
 2.31.1
 
