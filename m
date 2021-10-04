@@ -2,193 +2,80 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53AD5C4332F
-	for <linux-rtc@archiver.kernel.org>; Sat,  2 Oct 2021 21:03:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0EBC433F5
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Oct 2021 18:26:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38A6E61B46
-	for <linux-rtc@archiver.kernel.org>; Sat,  2 Oct 2021 21:03:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D266613B5
+	for <linux-rtc@archiver.kernel.org>; Mon,  4 Oct 2021 18:26:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234038AbhJBVE7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 2 Oct 2021 17:04:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234032AbhJBVE7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 2 Oct 2021 17:04:59 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2655C0613F0
-        for <linux-rtc@vger.kernel.org>; Sat,  2 Oct 2021 14:03:12 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id 75so12779573pga.3
-        for <linux-rtc@vger.kernel.org>; Sat, 02 Oct 2021 14:03:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=lixom-net.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=f7kGYU9i8iehxQ7ed0jxcX484pBLuV+nP2UpT0YHga0=;
-        b=KCFo1XEywDIaVfsHl65LLQZLhInq0HBpq3+oWSErEM00ItsX5IHl+xXjsw30f5qNfY
-         GcJPfDhslBinoV++447QA+WNp9oVKL7+UjxlR2Pj+mPLnS+/l/jt+r0XEpvWam0MWV7b
-         K+enVYzKefruDJIA3vIq2R5OCTWMbBL9aX626+JXAQ9ZrL4vl2/Lagt2QU5iaWlkxM08
-         xcuyL7xPiIxL74Mvp36cToiPtTIQgfPY7bGXJeo1oziAMObwXHIyYZy06bFc/T2TFmrH
-         Fyrl4AkwSpuPBIAzGiwICybIH/KuXgmFZfW4DOWGun16Bjb6knwM/KAf5cpdvnXXzL8u
-         cbCQ==
+        id S238063AbhJDS17 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 4 Oct 2021 14:27:59 -0400
+Received: from mail-ot1-f54.google.com ([209.85.210.54]:46954 "EHLO
+        mail-ot1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234497AbhJDS17 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Oct 2021 14:27:59 -0400
+Received: by mail-ot1-f54.google.com with SMTP id o59-20020a9d2241000000b0054745f28c69so22710794ota.13;
+        Mon, 04 Oct 2021 11:26:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=f7kGYU9i8iehxQ7ed0jxcX484pBLuV+nP2UpT0YHga0=;
-        b=2u0OtxlO7bQMu+/z/QMIeOfYBsd4zDNqXvvQ+iNkOKc69vPgBPuOV4neufWHUgaZG/
-         aRFR2BC/hRVykfgxY9En2pmROnwgEjyvwGXrFHQYQoki8kSwJCxHhJBdhm1hPoIsMJfF
-         NEXpGg5WGslUhAUmhPPoiJGgva2QqhREfa96ltGiae8KtKvgKLSU47AHMCvDKCUvl39m
-         6N2QVTRvgB5TNKl5TCk5xTKX1vOL6iBJ+og32MB2N8hS/VEhP0Cgc9hCrpPZxFbSOzx9
-         TLcOy8wYIuUciAa6OtiH2OmrdWQBsvbc3vZ06ljjIC8nD/PQanQo3Tc5EBRshvGiVsRQ
-         a/Pw==
-X-Gm-Message-State: AOAM533STtdpEsN60RP4gZPSCypeQ4tOj6Ed3Z7yjJjWifWEorZoWGxW
-        0pxQZ6LRoJYvhOU4X2aljyWPnGEnCI07BlqgDF/Nng==
-X-Google-Smtp-Source: ABdhPJzhI8aTPmQj2TCDJhpk71KTGItBNrMGOeuXQgD40I3hEWBhRl+v6gpth7rPwL1yQxOj5GJoI1Mw+eknEQj7Zp0=
-X-Received: by 2002:aa7:959a:0:b0:43b:adeb:ef58 with SMTP id
- z26-20020aa7959a000000b0043badebef58mr16909160pfj.19.1633208592223; Sat, 02
- Oct 2021 14:03:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210928235635.1348330-1-willmcvicker@google.com>
- <7766faf8-2dd1-6525-3b9a-8ba790c29cff@canonical.com> <CABYd82YodFDwBxexCv+0hpYrdYEX1Z1CvnRkmnBPkEJNJ4bssQ@mail.gmail.com>
- <CAOesGMgSt_mYvRzF0rC=fnjMYGO9EX0_Ow2cD1d8XKLD5pHsZA@mail.gmail.com>
- <CAGETcx-b0ea-rqH+fj37sq9SLWY=+ePK94Y6rnLPuNbqFVBWmw@mail.gmail.com>
- <CAMuHMdWhCB_zg6TwjYfz+=vc+_Wd5yzuAAzk=2ToZOQSAyaiJA@mail.gmail.com>
- <CAK8P3a10R-Q8hB-piH_QT0hzkaAZTczLbM=6WmgoMHYL8EhZ4g@mail.gmail.com>
- <CAOesGMhHK7Z8Ki+UFRi24dXTdk4=YC6ExneOnfkVmG2HFiVMKw@mail.gmail.com> <CAGETcx_UFLCwmqs_d5c8JY8Je9r=jy=KnELz1h91Qbrw9z+kaw@mail.gmail.com>
-In-Reply-To: <CAGETcx_UFLCwmqs_d5c8JY8Je9r=jy=KnELz1h91Qbrw9z+kaw@mail.gmail.com>
-From:   Olof Johansson <olof@lixom.net>
-Date:   Sat, 2 Oct 2021 14:03:00 -0700
-Message-ID: <CAOesGMjn-RKqRBL_A2bYjOb4jVhMbjvJs4JGtrQzX-WVSvJ6dQ@mail.gmail.com>
-Subject: Re: [PATCH v2 00/12] arm64: Kconfig: Update ARCH_EXYNOS select configs
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Will McVicker <willmcvicker@google.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=o8bwhkN79EalIrTbnnOWRqEA3DSi10UHvsR2eJcQa94=;
+        b=VX2GazQ7k2Feaf7Yd9RSRX0VUasnGDpItuUIKSofp9cNqs88YA6MzlaKq19hoq0oso
+         faOpDuRAu3cHWXElrisTuOZTViDXYfzdiZWAP9cbRinnzueKbaibz5JoGgvo6V/OMGBR
+         Wn+5SJGTAm1787SAX4Q/7ag7zk3561LRQjS0+LKOH8A7+OMEnbGL9ghbE4Fer6KagZVs
+         hUzjIfFxQzlbRAKbTfEoX2ftQ7zBOj2O0emvu6lgWWuS9XXMZBEawm0CjkFjNLqCVZgc
+         HuTXdhi7UMf59Ni1pxKvivUQ6XLflfr/ay6w05nNEIPSukpHM3c2142kVM7GiDuTeWQN
+         jsuA==
+X-Gm-Message-State: AOAM533anNfDOkN5dGGVHuD+e5l2pIPa+LvLHfbi40ByIMRmCj4q5c/v
+        RHDI3o4KWNhU4G2Ronzyhg==
+X-Google-Smtp-Source: ABdhPJz2K7KCGZfqZNBbWPfWIgbCS+HZoWQP3+s7HnKACw+3nQsHcrlj9kQ5sRUN6acBuzNlHkKtng==
+X-Received: by 2002:a05:6830:1616:: with SMTP id g22mr10744306otr.79.1633371969600;
+        Mon, 04 Oct 2021 11:26:09 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id j24sm2186115otq.72.2021.10.04.11.26.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Oct 2021 11:26:09 -0700 (PDT)
+Received: (nullmailer pid 1608195 invoked by uid 1000);
+        Mon, 04 Oct 2021 18:26:08 -0000
+Date:   Mon, 4 Oct 2021 13:26:08 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        "Cc: Android Kernel" <kernel-team@android.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        devicetree@vger.kernel.org,
+        Michael Turquette <mturquette@baylibre.com>,
+        linux-kernel@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Ripard <mripard@kernel.org>, linux-rtc@vger.kernel.org,
+        linux-sunxi@lists.linux.dev, Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, linux-clk@vger.kernel.org,
+        Chen-Yu Tsai <wens@csie.org>
+Subject: Re: [PATCH v2 1/9] dt-bindings: rtc: sun6i: Clean up repetition
+Message-ID: <YVtHQMMzPn00tLDw@robh.at.kernel.org>
+References: <20210928080335.36706-1-samuel@sholland.org>
+ <20210928080335.36706-2-samuel@sholland.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210928080335.36706-2-samuel@sholland.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Oct 1, 2021 at 12:26 PM Saravana Kannan <saravanak@google.com> wrote:
->
-> On Fri, Oct 1, 2021 at 8:27 AM Olof Johansson <olof@lixom.net> wrote:
-> >
-> > On Fri, Oct 1, 2021 at 2:01 AM Arnd Bergmann <arnd@arndb.de> wrote:
-> > >
-> > > On Fri, Oct 1, 2021 at 10:19 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > > > On Fri, Oct 1, 2021 at 7:24 AM Saravana Kannan <saravanak@google.com> wrote:
-> > > > > GIC and arch timer. Basically the minimal kernel would need a timer
-> > > > > for the scheduler tick and IRQ controller to get the timer IRQ and the
-> > > > > fixed clock driver if the archtimer uses one to get its frequency and
-> > > > > the early UART console is pointless as a module (so build it in to
-> > > > > allow debugging/development).
-> > > > >
-> > > > > And then all new drivers, we should make sure are implemented as
-> > > > > tristate drivers. And we can go back and slowly work on converting
-> > > > > existing drivers to modules (community effort -- not one person or
-> > > > > entity) -- at least the ones where the author has hardware or ones
-> > > > > where the change is very likely to be correct and someone else is
-> > > > > willing to test it. We'll never be able to support some/all ARM32 (do
-> > > > > they even have a GIC/arch timer standard?), but at least for ARM64,
-> > > > > this seems like a viable goal.
-> > > >
-> > > > Cortex-A7/A15 and later have GIC and architectured timer, so it should
-> > > > work for contemporary systems.
-> > > > Cortex-A9 systems may have GIC, and TWD and/or Global Timer (but I've
-> > > > seen SoCs where the interrupt for the latter was not wired :-(.
-> > >
-> > > There are a number of well-known examples even with 64-bit chips or
-> > > Cortex-A7/A15 based SoCs that can't use the architected timer,
-> > > irqchip or iommu.
-> > >
-> > > Apple M1, Broadcom BCM283x, Samsung Exynos5 and
-> > > some Hisilicon server parts come to mind, I'm sure there
-> > > are more.
-> >
-> > There's also more and more movement towards having coprocessors with
-> > standardized interfaces dealing with this functionality. We're
-> > currently at the point where they have coprocessors with
-> > non-standardized interfaces, and it's useful to keep encouraging
-> > convergence in this area to everybody's benefit. I don't find it
-> > particularly useful to make life easier for the custom solutions at
-> > the expense of others like this patchset does, when that's (just
-> > beyond? on?) the horizon.
-> >
-> > > > What are the plans for other architectures?
-> > > > I've seen similar patches being applied for e.g. MIPS.
-> > >
-> > > There is some work in the more actively maintained MIPS
-> > > platforms to make those behave more like Arm/powerpc/riscv/m68k
-> > > platforms, using a single image and moving drivers into modules.
-> > > Most MIPS platforms seem unlikely to get updated to this,
-> > > and will continue to require a SoC specific kernel binary forever,
-> > > similar to the renesas superh platforms. Most of the less
-> > > common architectures (arc, csky, hexagon, nios2, xtensa,
-> > > microblaze, nds32, openrisc, sparc/leon) are way behind that
-> > > though, and generally don't work at all without out-of-tree
-> > > code.
-> >
-> > One of the arguments for needing some of these core drivers in-kernel
-> > is that some platforms boot at very conservative DVFS operating
-> > points, to a degree that you really want to turn up the CPU clocks
-> > fairly early during boot.
-> >
-> > If you don't have the drivers built-in, you can't do that and/or you
-> > create possible fragile or awkward inter-module dependencies with
-> > deferred probing, etc. We do care about boot time enough to prefer to
-> > just build them in for this reason.
->
-> Go look at a Pixel 5, we got this working just fine with all these
-> drivers as modules and we definitely care about boot time. You just
-> need to load your CPU freq driver and the other ones it needs early
-> on. And with fw_devlink=on (default in upstream), there's hardly any
-> deferred probing.
+On Tue, 28 Sep 2021 03:03:27 -0500, Samuel Holland wrote:
+> - Use "enum" for compatibles instead of several "const" alternatives.
+> - Merge the H6 clock-output-names minItems/maxItems constraint into the
+>   identical block above.
+> 
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
+> ---
+> Changes since v1:
+>   - New patch.
+> 
+>  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 28 ++++++-------------
+>  1 file changed, 9 insertions(+), 19 deletions(-)
+> 
 
-Unfortunately these problems are usually easier to fix on new
-platforms, especially during new product development. The hard part is
-making sure you haven't regressed any of the legacy platforms when
-you're changing the implementation for them as well.
-
-
-> > If vmlinux binary size is a concern, maybe it's time to consider
-> > splitting the drivers into a bare-minimum piece that's not a module
-> > for early setup, and the rest that can be loaded post-boot.
->
-> Isn't this literally what I was suggesting with my
-> ARM64_MINIMAL_GENERIC_KERNEL suggestion? Build in all the bare minimum
-> drivers that are needed before module loading can happen? You'd just
-> select them all under that config. And any existing platform that
-> wants to use it would break up their drivers into modules and switch
-> to it.
-
-Do you understand the implications of your proposal on the complexity
-for those who care about making sure different config combinations
-keep building and working, i.e. both the minimal-generic-kernel and
-the regular generic version? You've doubled the testing workload for
-all of those folks. It's a different mindset from when you mostly need
-to care about your one config and platform.
-
-
--Olof
+Reviewed-by: Rob Herring <robh@kernel.org>
