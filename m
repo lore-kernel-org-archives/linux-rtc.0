@@ -2,114 +2,166 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A6B1C433EF
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Oct 2021 13:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 779FFC433F5
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E2C6860F23
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Oct 2021 13:13:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4EFCB60EBB
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Oct 2021 16:12:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235534AbhJKNP3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Oct 2021 09:15:29 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:13719 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231538AbhJKNP1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Oct 2021 09:15:27 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HSfMV6DbvzWZ7G;
-        Mon, 11 Oct 2021 21:11:50 +0800 (CST)
-Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Mon, 11 Oct 2021 21:13:25 +0800
-Received: from huawei.com (10.175.103.91) by dggpeml500017.china.huawei.com
- (7.185.36.243) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Mon, 11 Oct
- 2021 21:13:25 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-CC:     <alexandre.belloni@bootlin.com>, <a.zummo@towertech.it>
-Subject: [PATCH] rtc: class: don't call cdev_device_del() when cdev_device_add() failed
-Date:   Mon, 11 Oct 2021 21:21:14 +0800
-Message-ID: <20211011132114.3663509-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S230141AbhJKQOZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Oct 2021 12:14:25 -0400
+Received: from hostingweb31-40.netsons.net ([89.40.174.40]:47316 "EHLO
+        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229544AbhJKQOW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Oct 2021 12:14:22 -0400
+X-Greylist: delayed 949 seconds by postgrey-1.27 at vger.kernel.org; Mon, 11 Oct 2021 12:14:21 EDT
+Received: from [77.244.183.192] (port=65428 helo=[192.168.178.41])
+        by hostingweb31.netsons.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.94.2)
+        (envelope-from <luca@lucaceresoli.net>)
+        id 1mZxuV-00DfCf-MU; Mon, 11 Oct 2021 18:12:19 +0200
+Subject: Re: [PATCH 8/8] rtc: max77686: add MAX77714 support
+To:     linux-kernel@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Chiwoong Byun <woong.byun@samsung.com>,
+        Laxman Dewangan <ldewangan@nvidia.com>
+References: <20211011155615.257529-1-luca@lucaceresoli.net>
+ <20211011155615.257529-9-luca@lucaceresoli.net>
+From:   Luca Ceresoli <luca@lucaceresoli.net>
+Message-ID: <6d7fd095-948a-c5a7-e53a-422fe33fec57@lucaceresoli.net>
+Date:   Mon, 11 Oct 2021 18:12:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500017.china.huawei.com (7.185.36.243)
-X-CFilter-Loop: Reflected
+In-Reply-To: <20211011155615.257529-9-luca@lucaceresoli.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lucaceresoli.net
+X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca@lucaceresoli.net
+X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I got a null-ptr-deref report when doing fault injection test:
+Hi,
 
-general protection fault, probably for non-canonical address 0xdffffc0000000022: 0000 [#1] SMP KASAN PTI
-KASAN: null-ptr-deref in range [0x0000000000000110-0x0000000000000117]
-RIP: 0010:device_del+0x132/0xdc0
-Call Trace:
- cdev_device_del+0x1a/0x80
- devm_rtc_unregister_device+0x37/0x80
- release_nodes+0xc3/0x3b0
+see below for the issues with interrupt implementation that I mentioned
+in the cover letter.
 
-If cdev_device_add() fails, 'dev->p' is not set, it causes
-null-ptr-deref when calling cdev_device_del(). Registering
-character device is optional, we don't return error code
-here, so introduce a new flag 'RTC_NO_CDEV' to indicate
-if it has character device, cdev_device_del() is called
-when this bit is not set.
+On 11/10/21 17:56, Luca Ceresoli wrote:
+> The RTC included in the MAX77714 PMIC is very similar to the one in the
+> MAX77686. Reuse the rtc-max77686.c driver with the minimum required changes
+> for the MAX77714 RTC.
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> ---
+>  drivers/rtc/Kconfig        |  2 +-
+>  drivers/rtc/rtc-max77686.c | 24 ++++++++++++++++++++++++
+>  2 files changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index e1bc5214494e..a73591ad292b 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -375,7 +375,7 @@ config RTC_DRV_MAX8997
+>  
+>  config RTC_DRV_MAX77686
+>  	tristate "Maxim MAX77686"
+> -	depends on MFD_MAX77686 || MFD_MAX77620 || COMPILE_TEST
+> +	depends on MFD_MAX77686 || MFD_MAX77620 || MFD_MAX77714 || COMPILE_TEST
+>  	help
+>  	  If you say yes here you will get support for the
+>  	  RTC of Maxim MAX77686/MAX77620/MAX77802 PMIC.
+> diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+> index 9901c596998a..e6564bc2171e 100644
+> --- a/drivers/rtc/rtc-max77686.c
+> +++ b/drivers/rtc/rtc-max77686.c
+> @@ -19,6 +19,7 @@
+>  
+>  #define MAX77686_I2C_ADDR_RTC		(0x0C >> 1)
+>  #define MAX77620_I2C_ADDR_RTC		0x68
+> +#define MAX77714_I2C_ADDR_RTC		0x48
+>  #define MAX77686_INVALID_I2C_ADDR	(-1)
+>  
+>  /* Define non existing register */
+> @@ -203,6 +204,28 @@ static const struct max77686_rtc_driver_data max77686_drv_data = {
+>  	.regmap_config = &max77686_rtc_regmap_config,
+>  };
+>  
+> +static const struct regmap_irq_chip max77714_rtc_irq_chip = {
+> +	.name		= "max77714-rtc",
+> +	.status_base	= MAX77686_RTC_INT,
+> +	.mask_base	= MAX77686_RTC_INTM,
+> +	.num_regs	= 1,
+> +	.irqs		= max77686_rtc_irqs,
+> +	.num_irqs	= ARRAY_SIZE(max77686_rtc_irqs) - 1, /* no WTSR on 77714 */
+> +};
+> +
+> +static const struct max77686_rtc_driver_data max77714_drv_data = {
+> +	.delay = 16000,
+> +	.mask  = 0x7f,
+> +	.map   = max77686_map,
+> +	.alarm_enable_reg = false,
+> +	.rtc_irq_from_platform = false,
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
----
- drivers/rtc/class.c | 9 ++++++---
- include/linux/rtc.h | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
+As far as I could understand, rtc_irq_from_platform should be 'true'.
+This would trigger the 'if' branch in function
+max77686_init_rtc_regmap() [0]:
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 1f18c39a4b82..dbccd71589b9 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -334,7 +334,8 @@ static void devm_rtc_unregister_device(void *data)
- 	 * letting any rtc_class_open() users access it again
- 	 */
- 	rtc_proc_del_device(rtc);
--	cdev_device_del(&rtc->char_dev, &rtc->dev);
-+	if (!test_bit(RTC_NO_CDEV, &rtc->flags))
-+		cdev_device_del(&rtc->char_dev, &rtc->dev);
- 	rtc->ops = NULL;
- 	mutex_unlock(&rtc->ops_lock);
- }
-@@ -399,12 +400,14 @@ int __devm_rtc_register_device(struct module *owner, struct rtc_device *rtc)
- 	rtc_dev_prepare(rtc);
- 
- 	err = cdev_device_add(&rtc->char_dev, &rtc->dev);
--	if (err)
-+	if (err) {
-+		set_bit(RTC_NO_CDEV, &rtc->flags);
- 		dev_warn(rtc->dev.parent, "failed to add char device %d:%d\n",
- 			 MAJOR(rtc->dev.devt), rtc->id);
--	else
-+	} else {
- 		dev_dbg(rtc->dev.parent, "char device (%d:%d)\n",
- 			MAJOR(rtc->dev.devt), rtc->id);
-+	}
- 
- 	rtc_proc_add_device(rtc);
- 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index bd611e26291d..354e0843ab17 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -80,6 +80,7 @@ struct rtc_timer {
- 
- /* flags */
- #define RTC_DEV_BUSY 0
-+#define RTC_NO_CDEV  1
- 
- struct rtc_device {
- 	struct device dev;
+  if (info->drv_data->rtc_irq_from_platform) {
+	struct platform_device *pdev = to_platform_device(info->dev);
+
+	info->rtc_irq = platform_get_irq(pdev, 0);
+	if (info->rtc_irq < 0)
+		return info->rtc_irq;
+  } else {
+	info->rtc_irq =  parent_i2c->irq;
+  }
+
+Calling platform_get_irq() seems correct for the MAX77714, which can
+generate various IRQ events, collecting them in a register, and raise a
+single IRQ to the CPU via a physical pin.
+
+However, if I set rtc_irq_from_platform = true, platform_get_irq()
+returns IRQ number '1', which ends up in:
+
+  dummy 0-0048: Failed to request IRQ 1 for max77714-rtc: -22
+  max77686-rtc max77714-rtc: Failed to add RTC irq chip: -22
+  max77686-rtc: probe of max77714-rtc failed with error -22
+
+I compared my code with other MFD drivers and their cell drivers (but
+their datasheets is not available so I had to add some guesswork), and
+couldn't find out where my code is wrong.
+
+Unfortunately I have no IRQ access on my board (and I don't need them
+for my use case). For this reason I initially thought of disabling all
+the IRQ code in rtc-max77686.c via a new flag, but it would be quite
+invasive and I wouldn't even be able to test that existing hardware
+still works. Implementing a new RTC driver for the MAX77714 does not
+seem to be a sane option as the hardware is really 99% equal to the
+MAX77686 RTC.
+
+Any suggestions on how to move on? -- Thanks!
+
+[0]
+https://elixir.bootlin.com/linux/latest/source/drivers/rtc/rtc-max77686.c#L676
+
+Regards,
 -- 
-2.25.1
-
+Luca
