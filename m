@@ -2,32 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67F68C433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0184DC433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:14:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5573F60E0C
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3ECB60F11
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:14:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242616AbhJOTOf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 15 Oct 2021 15:14:35 -0400
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:43041 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234151AbhJOTOf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Oct 2021 15:14:35 -0400
+        id S242671AbhJOTRE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 15 Oct 2021 15:17:04 -0400
+Received: from mslow1.mail.gandi.net ([217.70.178.240]:43377 "EHLO
+        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233027AbhJOTRE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Oct 2021 15:17:04 -0400
+Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 3EB48CC6A9;
+        Fri, 15 Oct 2021 19:12:46 +0000 (UTC)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id EE94DE0007;
-        Fri, 15 Oct 2021 19:12:26 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 85580FF804;
+        Fri, 15 Oct 2021 19:12:24 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Yang Yingliang <yangyingliang@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Dan Carpenter <dan.carpenter@oracle.com>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        a.zummo@towertech.it
-Subject: Re: [PATCH v2] rtc: class: check return value when calling dev_set_name()
-Date:   Fri, 15 Oct 2021 21:12:22 +0200
-Message-Id: <163432513382.815620.12291665932227521048.b4-ty@bootlin.com>
+        linux-rtc@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH v2] rtc: rv3032: fix error handling in rv3032_clkout_set_rate()
+Date:   Fri, 15 Oct 2021 21:12:19 +0200
+Message-Id: <163432513382.815620.16082619578546658825.b4-ty@bootlin.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211012041629.2504158-1-yangyingliang@huawei.com>
-References: <20211012041629.2504158-1-yangyingliang@huawei.com>
+In-Reply-To: <20211012101028.GT2083@kadam>
+References: <20211012101028.GT2083@kadam>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -35,24 +38,16 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 12 Oct 2021 12:16:29 +0800, Yang Yingliang wrote:
-> I got a null-ptr-deref report when doing fault injection test:
+On Tue, 12 Oct 2021 13:10:28 +0300, Dan Carpenter wrote:
+> Do not call rv3032_exit_eerd() if the enter function fails but don't
+> forget to call the exit when the enter succeeds.
 > 
-> BUG: kernel NULL pointer dereference, address: 0000000000000000
-> RIP: 0010:strcmp+0xc/0x20
-> Call Trace:
->  __devm_rtc_register_device.cold.7+0x16a/0x2df
->  rv3029_probe+0x4b1/0x770 [rtc_rv3029c2]
->  rv3029_i2c_probe+0x141/0x180 [rtc_rv3029c2]
->  i2c_device_probe+0xa07/0xbb0
->  really_probe+0x285/0xc30
 > 
-> [...]
 
 Applied, thanks!
 
-[1/1] rtc: class: check return value when calling dev_set_name()
-      commit: 24d23181e43d72ca692a479e70dfe5b0b5dd33f1
+[1/1] rtc: rv3032: fix error handling in rv3032_clkout_set_rate()
+      commit: c3336b8ac6091df60a5c1049a8c685d0b947cc61
 
 Best regards,
 -- 
