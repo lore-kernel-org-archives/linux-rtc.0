@@ -2,33 +2,31 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04840C433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F21AC433EF
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C60FE60F9D
-	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F357360F9D
+	for <linux-rtc@archiver.kernel.org>; Fri, 15 Oct 2021 19:12:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242568AbhJOTOb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 15 Oct 2021 15:14:31 -0400
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:43755 "EHLO
+        id S242586AbhJOTOd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 15 Oct 2021 15:14:33 -0400
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:57597 "EHLO
         relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234151AbhJOTOb (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Oct 2021 15:14:31 -0400
+        with ESMTP id S234151AbhJOTOc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 15 Oct 2021 15:14:32 -0400
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 4211660002;
-        Fri, 15 Oct 2021 19:12:23 +0000 (UTC)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id 19E7A60009;
+        Fri, 15 Oct 2021 19:12:25 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/1] rtc: pcf85063: add support for fixed clock
-Date:   Fri, 15 Oct 2021 21:12:18 +0200
-Message-Id: <163432513382.815620.2802314523596838985.b4-ty@bootlin.com>
+        Phil Elwell <phil@raspberrypi.com>, linux-rtc@vger.kernel.org
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH] rtc: pcf85063: Always clear EXT_TEST from set_time
+Date:   Fri, 15 Oct 2021 21:12:20 +0200
+Message-Id: <163432513382.815620.1409724606768389621.b4-ty@bootlin.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211013074954.997445-1-alexander.stein@ew.tq-group.com>
-References: <20211013074954.997445-1-alexander.stein@ew.tq-group.com>
+In-Reply-To: <20211015111208.1757110-1-phil@raspberrypi.com>
+References: <20211015111208.1757110-1-phil@raspberrypi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -36,25 +34,21 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 13 Oct 2021 09:49:54 +0200, Alexander Stein wrote:
-> TQ-Systems' TQMa8Mx module (SoM) uses a pcf85063 as RTC. The default output
-> is 32768Hz. This is to provide the i.MX8M CKIL clock. Once the RTC driver
-> is probed, the clock is disabled and all i.MX8M functionality depending on
-> the 32 KHz clock will halt. In our case the whole system halts and a power
-> cycle is required.
+On Fri, 15 Oct 2021 12:12:08 +0100, Phil Elwell wrote:
+> Power-on reset after the insertion of a battery does not always complete
+> successfully, leading to corrupted register content. The EXT_TEST bit
+> will stop the clock from running, but currently the driver will never
+> recover.
 > 
-> Referencing the pcf85063 directly results in a deadlock. The kernel
-> will see, that i.MX8M system clock needs the RTC clock and do probe
-> deferral. But the i.MX8M I2C module never becomes usable without the
-> i.MX8M CKIL clock and thus the RTC's clock will not be probed. So
-> from the kernel's perspective this is a chicken-and-egg problem.
+> Safely handle the erroneous state by clearing EXT_TEST as part of the
+> usual set_time method.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/1] rtc: pcf85063: add support for fixed clock
-      commit: 4c8a7b80d5f3c924fbe08b24634fb67a97f96465
+[1/1] rtc: pcf85063: Always clear EXT_TEST from set_time
+      commit: 9f08c9ed580a287de6546044e28f15bb183d00ff
 
 Best regards,
 -- 
