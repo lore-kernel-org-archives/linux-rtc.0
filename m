@@ -2,28 +2,28 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66F68C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27368C433F5
 	for <linux-rtc@archiver.kernel.org>; Mon, 18 Oct 2021 15:37:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D53C6103D
-	for <linux-rtc@archiver.kernel.org>; Mon, 18 Oct 2021 15:37:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00AA56103D
+	for <linux-rtc@archiver.kernel.org>; Mon, 18 Oct 2021 15:37:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232523AbhJRPjN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S231915AbhJRPjN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 18 Oct 2021 11:39:13 -0400
-Received: from relay10.mail.gandi.net ([217.70.178.230]:37651 "EHLO
+Received: from relay10.mail.gandi.net ([217.70.178.230]:57371 "EHLO
         relay10.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231946AbhJRPjM (ORCPT
+        with ESMTP id S231741AbhJRPjM (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Mon, 18 Oct 2021 11:39:12 -0400
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay10.mail.gandi.net (Postfix) with ESMTPSA id EB9D7240010;
-        Mon, 18 Oct 2021 15:36:56 +0000 (UTC)
+        by relay10.mail.gandi.net (Postfix) with ESMTPSA id 5459D24000B;
+        Mon, 18 Oct 2021 15:36:55 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] rtc: pcf8523: allow usage on ACPI platforms
-Date:   Mon, 18 Oct 2021 17:36:49 +0200
-Message-Id: <20211018153651.82069-4-alexandre.belloni@bootlin.com>
+Subject: [PATCH 2/5] rtc: pcf8523: always compile pcf8523_rtc_ioctl
+Date:   Mon, 18 Oct 2021 17:36:47 +0200
+Message-Id: <20211018153651.82069-2-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211018153651.82069-1-alexandre.belloni@bootlin.com>
 References: <20211018153651.82069-1-alexandre.belloni@bootlin.com>
@@ -33,39 +33,37 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Always provide an OF table to ensure ACPI platforms can also use this
-driver.
+Compiling out pcf8523_rtc_ioctl saves about 5% of the generated machine
+code. However, it certainly never happens as the RTC character device
+interface is the most useful one and is probably always compiled in.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pcf8523.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/rtc/rtc-pcf8523.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-index 79a571db803b..181c3425d6c7 100644
+index c5d31c525997..103557f48409 100644
 --- a/drivers/rtc/rtc-pcf8523.c
 +++ b/drivers/rtc/rtc-pcf8523.c
-@@ -389,19 +389,17 @@ static const struct i2c_device_id pcf8523_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, pcf8523_id);
+@@ -237,7 +237,6 @@ static int pcf8523_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *tm)
+ 	return 0;
+ }
  
--#ifdef CONFIG_OF
- static const struct of_device_id pcf8523_of_match[] = {
- 	{ .compatible = "nxp,pcf8523" },
- 	{ .compatible = "microcrystal,rv8523" },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, pcf8523_of_match);
+-#ifdef CONFIG_RTC_INTF_DEV
+ static int pcf8523_rtc_ioctl(struct device *dev, unsigned int cmd,
+ 			     unsigned long arg)
+ {
+@@ -268,9 +267,6 @@ static int pcf8523_rtc_ioctl(struct device *dev, unsigned int cmd,
+ 		return -ENOIOCTLCMD;
+ 	}
+ }
+-#else
+-#define pcf8523_rtc_ioctl NULL
 -#endif
  
- static struct i2c_driver pcf8523_driver = {
- 	.driver = {
- 		.name = "rtc-pcf8523",
--		.of_match_table = of_match_ptr(pcf8523_of_match),
-+		.of_match_table = pcf8523_of_match,
- 	},
- 	.probe = pcf8523_probe,
- 	.id_table = pcf8523_id,
+ static int pcf8523_rtc_read_offset(struct device *dev, long *offset)
+ {
 -- 
 2.31.1
 
