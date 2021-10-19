@@ -2,230 +2,90 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 576B0C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB5D4C433FE
 	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:17:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 40F2760F8F
+	by mail.kernel.org (Postfix) with ESMTP id 915AB610E7
 	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:17:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235839AbhJSNT4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S235754AbhJSNT4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Tue, 19 Oct 2021 09:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235825AbhJSNTw (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Oct 2021 09:19:52 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81149C061746
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:39 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id r18so12951209edv.12
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:39 -0700 (PDT)
+        with ESMTP id S230267AbhJSNTx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Oct 2021 09:19:53 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A57FC061749
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:40 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id g10so12717529edj.1
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=5YnSV2WmSpYW3PQc/jQwM9rWHR/XNd6B5D4ZvC4oHuY=;
-        b=rNAcoTay7AsnMHiPkpaF40XiXzzMBw2UKeG92UNqJV9iv99TRyiiGVGejWyrLeM9xP
-         KvUINaMYNxMJcrpA2AtQ3nE7JuVfpSVIvy3zxKvV04AG4bU8QUEpXdS5e9uOr9Fsg9Qu
-         tQeymZ0sroVPHIoLucrfkVgS77cawo7aGWXj6hvlx6SxqjWQXP/+AzKtQ381eOCOSxLk
-         NEV57dz+pfpjojXeUvGZnkQpqJYir03EIVkG1eTInT036JmcIxdMV6ShfMfun9D33jCU
-         yH2V6R1JzilLNuh/2PA9ZfQIYF9Unltcesv3S3QefDDnY8L2dZcskXf/dUHuRXDgg+HE
-         m08w==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CLwoj+6JAPRwJLN1t16G8nJ5cVwOPwSD+DoR9oMRdGo=;
+        b=Ce0pB2XnJ+pcLL2gsKKvP2WllA50+0p0z3nSPDgL9rRvVDr8GuCEUScOxoISc0JDtD
+         JUH39WNcf1/ctHX4+13bPoaRYo/g4I9asCanwyGT6LQ9b/qSX2VupzM0frUUGpsF2id+
+         QjU0BPt1HYGVOlWpRkUn88bxkitUEmJcgOH2r3Ih41zGKXsNRf1R7FVn3qAJ0m9Zy14n
+         HM7RF1ItY3IA6dLByqKKm9B0sHIxxaIoLCW6lxpIKPbSsV/a1LWO2Jak0F0zYksHBKC8
+         uRpQDUabBmOpgeybcjgNQgCmd+Vg+JxsxshiulhhxU8NDb38LC685Do9unfetNZCr3nn
+         6JFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=5YnSV2WmSpYW3PQc/jQwM9rWHR/XNd6B5D4ZvC4oHuY=;
-        b=nBlx7LWetlrPzpVj5NkLIeT3VYMUB7qO6kaqT196sGb9O/QruZdBSK2W/2LM3+t5WS
-         LZlQzVrqGBI82pSMvrEA18fi6sPdnnNksYosm2my6qkdlsNbRmqwZ5Aq4WwveXVvdmqz
-         eJY0/eBiV7eQOszGGwNvj3we5G4Wq0aLQSJJr1FpAcg+8WV3ScpbUG1y5nmb3OXf95LK
-         Iw2hc1OT7W5moazpPK8zQAyqJstpiolEu95xKkEl0FC7WA9qcPT5D9BUbfFoY1DeE53r
-         gXZBVurDWYxE5I9loS8Yur56lj31amWkO2w9hLL1l5czooWcY6ZyLY+vxIFxBUpUvLJM
-         aGLA==
-X-Gm-Message-State: AOAM530M7ZxEcK88oIRcVKLE5EokntjL1Di+1+0dUQ1zlW5BeyIpQUni
-        4iW7f40nUA8NZ/GNonhHYvjq+Q==
-X-Google-Smtp-Source: ABdhPJyBARKHQoOqkXzfsy2YP5Fvk8FuxRLrNXgccGNZtj9uAo035bbgTDknejv/E9Dh0IJD3ju9PA==
-X-Received: by 2002:a17:906:4fd6:: with SMTP id i22mr37353674ejw.92.1634649451800;
-        Tue, 19 Oct 2021 06:17:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CLwoj+6JAPRwJLN1t16G8nJ5cVwOPwSD+DoR9oMRdGo=;
+        b=cNxLQIycUQTnRTm01yxDR1J9qPyOfQS2aqECWU1h4hy3wcT6PHdZXTaPb956KIFyLg
+         ztYhPHxkh2PfORBgQMg9t2/s39aEhbT9rboLwvYfQO0AYbLZOjIKBLc/h0uFGBcKf3Sy
+         pBAUwe8owXIkZhxTTwaaF2jb99J277hhuO65Yxjv9RXF1Sie5r7f83wNl1WLX/S1TF4k
+         3xfc5lEYSshTUmr+rUPMv/OQznF0TPIjVsp+CYAsbPWpKGj7cmNGG5GgpgmlBfTxHrFI
+         tc5/yLea7q0T5fzacic2khVRbl1Hs25co1uip2MQB0+dILd8C+dGxqOhV2bSfR5n+vx+
+         NB2Q==
+X-Gm-Message-State: AOAM530kxLACXW4mr2V7LUbMf5KvuG3nLw/dc4wU+ME9gPZwQFxq5+Ua
+        jmGIRGrsZgY72+XPEg7/tQzAsg==
+X-Google-Smtp-Source: ABdhPJz6hO1n6bf4YP3H5z8nwduKJpChBhWhubdocyUag2dkgE+qTnSevm5Ng34/Uat60/YIGTgWQg==
+X-Received: by 2002:a05:6402:cb2:: with SMTP id cn18mr51008114edb.249.1634649446707;
+        Tue, 19 Oct 2021 06:17:26 -0700 (PDT)
 Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id o25sm11271775edq.40.2021.10.19.06.17.31
+        by smtp.gmail.com with ESMTPSA id d22sm10490086ejj.47.2021.10.19.06.17.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 06:17:31 -0700 (PDT)
+        Tue, 19 Oct 2021 06:17:26 -0700 (PDT)
 From:   Sam Protsenko <semen.protsenko@linaro.org>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Cc:     linux-rtc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 3/4] rtc: s3c: Extract read/write IO into separate functions
-Date:   Tue, 19 Oct 2021 16:17:23 +0300
-Message-Id: <20211019131724.3109-4-semen.protsenko@linaro.org>
+Subject: [PATCH 0/4] rtc: s3c: S3C driver improvements
+Date:   Tue, 19 Oct 2021 16:17:20 +0300
+Message-Id: <20211019131724.3109-1-semen.protsenko@linaro.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211019131724.3109-1-semen.protsenko@linaro.org>
-References: <20211019131724.3109-1-semen.protsenko@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Create dedicated functions for I/O operations and BCD conversion. It can
-be useful to separete those from representation conversion and other
-stuff found in RTC callbacks, e.g. for initializing RTC registers.
+While working on Exynos850 support (where this driver works fine in its
+current state), I've stumbled upon some minor issue. This is the effort
+to fix those. [PATCH 1/4] was already sent as a separate submission, but
+Alexandre Belloni asked me to set time range while at it. This is done
+in this series, in [PATCH 2/4]. So first two patches are basically
+moving S3C RTC driver to newer API usage. And last two patches fixing
+some error message which I noticed when doing the very first boot of my
+board (when RTC registers are not initialized with S3C driver yet).
+Patches 1/4 and 3/4 don't introduce any functional changes, only doing
+some refactoring and cleaning up.
 
-This patch does not introduce any functional changes, it's merely
-refactoring change.
+Sam Protsenko (4):
+  rtc: s3c: Remove usage of devm_rtc_device_register()
+  rtc: s3c: Add time range
+  rtc: s3c: Extract read/write IO into separate functions
+  rtc: s3c: Fix RTC read on first boot
 
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
----
- drivers/rtc/rtc-s3c.c | 98 +++++++++++++++++++++++++++----------------
- 1 file changed, 61 insertions(+), 37 deletions(-)
+ drivers/rtc/rtc-s3c.c | 137 +++++++++++++++++++++++++++++-------------
+ 1 file changed, 96 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index d9994efd70ef..238928e29fbc 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -127,10 +127,9 @@ static int s3c_rtc_setaie(struct device *dev, unsigned int enabled)
- 	return ret;
- }
- 
--/* Time read/write */
--static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
-+/* Read time from RTC and convert it from BCD */
-+static int s3c_rtc_read_time(struct s3c_rtc *info, struct rtc_time *tm)
- {
--	struct s3c_rtc *info = dev_get_drvdata(dev);
- 	unsigned int have_retried = 0;
- 	int ret;
- 
-@@ -139,54 +138,40 @@ static int s3c_rtc_gettime(struct device *dev, struct rtc_time *rtc_tm)
- 		return ret;
- 
- retry_get_time:
--	rtc_tm->tm_min  = readb(info->base + S3C2410_RTCMIN);
--	rtc_tm->tm_hour = readb(info->base + S3C2410_RTCHOUR);
--	rtc_tm->tm_mday = readb(info->base + S3C2410_RTCDATE);
--	rtc_tm->tm_mon  = readb(info->base + S3C2410_RTCMON);
--	rtc_tm->tm_year = readb(info->base + S3C2410_RTCYEAR);
--	rtc_tm->tm_sec  = readb(info->base + S3C2410_RTCSEC);
--
--	/* the only way to work out whether the system was mid-update
-+	tm->tm_min  = readb(info->base + S3C2410_RTCMIN);
-+	tm->tm_hour = readb(info->base + S3C2410_RTCHOUR);
-+	tm->tm_mday = readb(info->base + S3C2410_RTCDATE);
-+	tm->tm_mon  = readb(info->base + S3C2410_RTCMON);
-+	tm->tm_year = readb(info->base + S3C2410_RTCYEAR);
-+	tm->tm_sec  = readb(info->base + S3C2410_RTCSEC);
-+
-+	/*
-+	 * The only way to work out whether the system was mid-update
- 	 * when we read it is to check the second counter, and if it
- 	 * is zero, then we re-try the entire read
- 	 */
--
--	if (rtc_tm->tm_sec == 0 && !have_retried) {
-+	if (tm->tm_sec == 0 && !have_retried) {
- 		have_retried = 1;
- 		goto retry_get_time;
- 	}
- 
--	rtc_tm->tm_sec = bcd2bin(rtc_tm->tm_sec);
--	rtc_tm->tm_min = bcd2bin(rtc_tm->tm_min);
--	rtc_tm->tm_hour = bcd2bin(rtc_tm->tm_hour);
--	rtc_tm->tm_mday = bcd2bin(rtc_tm->tm_mday);
--	rtc_tm->tm_mon = bcd2bin(rtc_tm->tm_mon);
--	rtc_tm->tm_year = bcd2bin(rtc_tm->tm_year);
--
- 	s3c_rtc_disable_clk(info);
- 
--	rtc_tm->tm_year += 100;
--	rtc_tm->tm_mon -= 1;
-+	tm->tm_sec  = bcd2bin(tm->tm_sec);
-+	tm->tm_min  = bcd2bin(tm->tm_min);
-+	tm->tm_hour = bcd2bin(tm->tm_hour);
-+	tm->tm_mday = bcd2bin(tm->tm_mday);
-+	tm->tm_mon  = bcd2bin(tm->tm_mon);
-+	tm->tm_year = bcd2bin(tm->tm_year);
- 
--	dev_dbg(dev, "read time %ptR\n", rtc_tm);
- 	return 0;
- }
- 
--static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
-+/* Convert time to BCD and write it to RTC */
-+static int s3c_rtc_write_time(struct s3c_rtc *info, const struct rtc_time *tm)
- {
--	struct s3c_rtc *info = dev_get_drvdata(dev);
--	int year = tm->tm_year - 100;
- 	int ret;
- 
--	dev_dbg(dev, "set time %ptR\n", tm);
--
--	/* we get around y2k by simply not supporting it */
--
--	if (year < 0 || year >= 100) {
--		dev_err(dev, "rtc only supports 100 years\n");
--		return -EINVAL;
--	}
--
- 	ret = s3c_rtc_enable_clk(info);
- 	if (ret)
- 		return ret;
-@@ -195,14 +180,53 @@ static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
- 	writeb(bin2bcd(tm->tm_min),  info->base + S3C2410_RTCMIN);
- 	writeb(bin2bcd(tm->tm_hour), info->base + S3C2410_RTCHOUR);
- 	writeb(bin2bcd(tm->tm_mday), info->base + S3C2410_RTCDATE);
--	writeb(bin2bcd(tm->tm_mon + 1), info->base + S3C2410_RTCMON);
--	writeb(bin2bcd(year), info->base + S3C2410_RTCYEAR);
-+	writeb(bin2bcd(tm->tm_mon),  info->base + S3C2410_RTCMON);
-+	writeb(bin2bcd(tm->tm_year), info->base + S3C2410_RTCYEAR);
- 
- 	s3c_rtc_disable_clk(info);
- 
- 	return 0;
- }
- 
-+static int s3c_rtc_gettime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct s3c_rtc *info = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = s3c_rtc_read_time(info, tm);
-+	if (ret)
-+		return ret;
-+
-+	/* Convert internal representation to actual date/time */
-+	tm->tm_year += 100;
-+	tm->tm_mon -= 1;
-+
-+	dev_dbg(dev, "read time %ptR\n", tm);
-+	return 0;
-+}
-+
-+static int s3c_rtc_settime(struct device *dev, struct rtc_time *tm)
-+{
-+	struct s3c_rtc *info = dev_get_drvdata(dev);
-+	struct rtc_time rtc_tm = *tm;
-+
-+	dev_dbg(dev, "set time %ptR\n", tm);
-+
-+	/*
-+	 * Convert actual date/time to internal representation.
-+	 * We get around Y2K by simply not supporting it.
-+	 */
-+	rtc_tm.tm_year -= 100;
-+	rtc_tm.tm_mon += 1;
-+
-+	if (rtc_tm.tm_year < 0 || rtc_tm.tm_year >= 100) {
-+		dev_err(dev, "rtc only supports 100 years\n");
-+		return -EINVAL;
-+	}
-+
-+	return s3c_rtc_write_time(info, &rtc_tm);
-+}
-+
- static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct s3c_rtc *info = dev_get_drvdata(dev);
 -- 
 2.30.2
 
