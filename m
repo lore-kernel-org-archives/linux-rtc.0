@@ -2,94 +2,122 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 966D1C433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:17:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DDCDC433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:20:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79D5060F8F
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:17:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4CF53610E7
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Oct 2021 13:20:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235839AbhJSNUG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Oct 2021 09:20:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S235861AbhJSNXK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Oct 2021 09:23:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235741AbhJSNUF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Oct 2021 09:20:05 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B1FC06161C
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:52 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id y30so11625544edi.0
-        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:17:52 -0700 (PDT)
+        with ESMTP id S235857AbhJSNXJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Oct 2021 09:23:09 -0400
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F02EC06161C
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:20:57 -0700 (PDT)
+Received: by mail-ua1-x935.google.com with SMTP id f4so3328650uad.4
+        for <linux-rtc@vger.kernel.org>; Tue, 19 Oct 2021 06:20:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=fVwmCQe1Imk01zVn1XGf4Bgbl7TXtX3AHgpVKUdqV64=;
-        b=ST3pve/0QlrMuEbgKABJjXfLo42Qd+a53fnDzzVj9AE/zpYv88IEh4W3G8YvTWuPt/
-         3XSHXX/cJ+JxhCNsWHRxUF5BIUhjNJ+TH+LC1Bvx/ibreBorIJfps+YwXCmkCRnicSjv
-         yC5q1h6iihDGhhV6lFELl1TMNcu4UpUqhcrIqx7hytZ2Rk7rq8uI5tT1PXGqBNj6xYPk
-         iNhLImzJ5XKfhW0qEgy4aFXSQLL8DEtrVxRqMfpi4BLzj1KprDkhBmFHCI3sRvVkSbb+
-         lNHCHP5ZKcpe1MI5kpwFWO/6fVybZl9G4g3lRDswu0iikoM2M7yPVtouvHwXnS0KHchG
-         1oKQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yakjl3k2K+eVxhNNWDfRDoKIqXUztjprPOzVgOncdWQ=;
+        b=zkN1LOShPIaJLCCuJKUVdZXh8rfBKPDQq7AQULRZLfLQfG4UW0nnf6Ly3xtLBJlTU9
+         iM0ceOmIGLZcBdyt0cQqrkWmdpgUFVAyoXrHS6zozluOWh62tgUkpmh54su7Ck8U2oIt
+         wOU+c/ISp3063otRZJKkJ7nxC0rw+SFfhkvNR6HJgwFFJV7/N6sfQFp2Xp4+oVq/9ZPV
+         Mu3EkqEprpIVcuQsE9XjwHNsidgTeLs5AaXMdyzWtlqjVG8zebe/Jg/iCMRxOlWKFU7Q
+         Pv5TTAI3NG7mqhEwNocdQOC0Ziw0xP3r98/0TwFWpsWeH5Fbko1Bk4Rz76jhito2YnEX
+         DbEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=fVwmCQe1Imk01zVn1XGf4Bgbl7TXtX3AHgpVKUdqV64=;
-        b=B4RTkmL7/lKanMYDDQQ+/rgMJJHBFZuekb3E4MJTTgKb8i6826wroUTNle9Cw1r/VT
-         T8U6vglgOT8jOBHUYBnh9rrmCIm4y336Xz2CjQkjLIyhgjR359pYGT3/kIrWLa6RZd6d
-         OY8AR/KsPqAA0axyU+mFyf1xNVEj88yABNg8RxkQYt2oEU9MQ9sCVpVWukPvLpYrzODt
-         nFcKgNc91zQ/BT4t8wkeqPMm8HURKz+N6EzmY2C04bU7imtMZ9NoAVqMO6SjUZf7EM+8
-         qxzdYHw4eZq33jsaqwOpWB9ab+ANkPEB5rI84VYVox4rJpuA2CzpJHgaNznR/gEXDAWp
-         L7zw==
-X-Gm-Message-State: AOAM531nMOYavYV2C7BnpYcsBhBaA+wVhRmfgVybmAtp5V1MOEi7lH/G
-        gzyKA0fNsdEWBOBLe0DoUN9zPJoJHLgCU4PX
-X-Google-Smtp-Source: ABdhPJxHpjVbKzi+3gjGSMjnf9tMaqp16jK7/fWlsQgqmLcR5Yz8Wq3iH0ERFpFpw5GAOvuk5ox58Q==
-X-Received: by 2002:a17:907:d1e:: with SMTP id gn30mr37726126ejc.272.1634649450063;
-        Tue, 19 Oct 2021 06:17:30 -0700 (PDT)
-Received: from localhost ([31.134.121.151])
-        by smtp.gmail.com with ESMTPSA id e22sm12192568edu.35.2021.10.19.06.17.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 06:17:29 -0700 (PDT)
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     linux-rtc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] rtc: s3c: Add time range
-Date:   Tue, 19 Oct 2021 16:17:22 +0300
-Message-Id: <20211019131724.3109-3-semen.protsenko@linaro.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211019131724.3109-1-semen.protsenko@linaro.org>
-References: <20211019131724.3109-1-semen.protsenko@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yakjl3k2K+eVxhNNWDfRDoKIqXUztjprPOzVgOncdWQ=;
+        b=Is+vT/eOIkNgXltJPm5cfOTtLoRjW1eDVWWsHzwzqOQDiJvbjFj8n+lY/n3SitUKTP
+         p7WcvphIL83GK0MxhddBe2rqD+fmdSAH940hSU63S4VzEOmfygj1jhclMM+0lpa33uFZ
+         jmeEexF7re2a5XPiUtzcLQ82EakX6PGSWcu3slPW8pB4p5k2pPZ9JKA4o+NBUBbXANex
+         pP2fNcEwxiQCcgMWcWTzlddP5dIGIEI5rUCvCAB5cCV8L6i9Mw3hefCCR77pi8KMzdw4
+         al5LFPG/rsg0yMF7HAzFByvBrK7JZOVrMfHPU3qXvB3Fm7wB75elpAwktHZvSZI41+WY
+         3gcg==
+X-Gm-Message-State: AOAM53234+sozp/53ls2kyGBAlSbuVN9Sih5fVc+9cJZWQu3psK76Y9F
+        WUnYV4oStBwmir8RQMGSUCyrNEBEzMvgRODvvPruUA==
+X-Google-Smtp-Source: ABdhPJzEXTNc1bgO5xY3Fz7Wp7BiIO+u3gIQlsaK3t6XTvo2QR/edpc1j0onYDbLRZc+kiVFbJ88kbsY/xppDBq4YeE=
+X-Received: by 2002:a67:1781:: with SMTP id 123mr35032706vsx.1.1634649656361;
+ Tue, 19 Oct 2021 06:20:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20211018173201.2166-1-semen.protsenko@linaro.org> <YW3DjEuszEZ1Uw6/@piout.net>
+In-Reply-To: <YW3DjEuszEZ1Uw6/@piout.net>
+From:   Sam Protsenko <semen.protsenko@linaro.org>
+Date:   Tue, 19 Oct 2021 16:20:45 +0300
+Message-ID: <CAPLW+4mLdu-QGhhpFMsMK-GCS9vY9r-L0NnjyijtohfeRSiC3g@mail.gmail.com>
+Subject: Re: [PATCH] rtc: s3c: Remove usage of devm_rtc_device_register()
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        linux-rtc@vger.kernel.org,
+        Linux Samsung SOC <linux-samsung-soc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This RTC driver only accepts dates from 2000 to 2099 year. It starts
-counting from 2000 to avoid Y2K problem, and S3C RTC only supports 100
-years range. Provide this info to RTC framework.
+On Mon, 18 Oct 2021 at 21:57, Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> On 18/10/2021 20:32:01+0300, Sam Protsenko wrote:
+> > devm_rtc_device_register() is deprecated. Use devm_rtc_allocate_device()
+> > and devm_rtc_register_device() API instead.
+> >
+>
+> If you do that, please also set the range properly, either in the same
+> patch or as a follow-up.
+>
 
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
----
- drivers/rtc/rtc-s3c.c | 2 ++
- 1 file changed, 2 insertions(+)
+No problem. Just sent patch series [1], which supersedes this one.
+Time range setting is present there in [PATCH 2/4].
 
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 10e591794276..d9994efd70ef 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -454,6 +454,8 @@ static int s3c_rtc_probe(struct platform_device *pdev)
- 	}
- 
- 	info->rtc->ops = &s3c_rtcops;
-+	info->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	info->rtc->range_max = RTC_TIMESTAMP_END_2099;
- 
- 	ret = devm_rtc_register_device(info->rtc);
- 	if (ret)
--- 
-2.30.2
+[1] https://lkml.org/lkml/2021/10/19/632
 
+> > Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+> > ---
+> >  drivers/rtc/rtc-s3c.c | 11 +++++++----
+> >  1 file changed, 7 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
+> > index e57d3ca70a78..10e591794276 100644
+> > --- a/drivers/rtc/rtc-s3c.c
+> > +++ b/drivers/rtc/rtc-s3c.c
+> > @@ -447,15 +447,18 @@ static int s3c_rtc_probe(struct platform_device *pdev)
+> >
+> >       device_init_wakeup(&pdev->dev, 1);
+> >
+> > -     /* register RTC and exit */
+> > -     info->rtc = devm_rtc_device_register(&pdev->dev, "s3c", &s3c_rtcops,
+> > -                                          THIS_MODULE);
+> > +     info->rtc = devm_rtc_allocate_device(&pdev->dev);
+> >       if (IS_ERR(info->rtc)) {
+> > -             dev_err(&pdev->dev, "cannot attach rtc\n");
+> >               ret = PTR_ERR(info->rtc);
+> >               goto err_nortc;
+> >       }
+> >
+> > +     info->rtc->ops = &s3c_rtcops;
+> > +
+> > +     ret = devm_rtc_register_device(info->rtc);
+> > +     if (ret)
+> > +             goto err_nortc;
+> > +
+> >       ret = devm_request_irq(&pdev->dev, info->irq_alarm, s3c_rtc_alarmirq,
+> >                              0, "s3c2410-rtc alarm", info);
+> >       if (ret) {
+> > --
+> > 2.30.2
+> >
+>
+> --
+> Alexandre Belloni, co-owner and COO, Bootlin
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
