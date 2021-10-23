@@ -2,39 +2,36 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E1E4C433F5
-	for <linux-rtc@archiver.kernel.org>; Sat, 23 Oct 2021 21:50:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A913BC433F5
+	for <linux-rtc@archiver.kernel.org>; Sat, 23 Oct 2021 21:55:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DAA2E60F57
-	for <linux-rtc@archiver.kernel.org>; Sat, 23 Oct 2021 21:50:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 862C660F5D
+	for <linux-rtc@archiver.kernel.org>; Sat, 23 Oct 2021 21:55:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbhJWVxO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 23 Oct 2021 17:53:14 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:59467 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230507AbhJWVxN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 23 Oct 2021 17:53:13 -0400
+        id S231186AbhJWV5q (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 23 Oct 2021 17:57:46 -0400
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:48745 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230463AbhJWV5p (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 23 Oct 2021 17:57:45 -0400
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 708BA1BF207;
-        Sat, 23 Oct 2021 21:50:49 +0000 (UTC)
+        by relay6-d.mail.gandi.net (Postfix) with ESMTPSA id 2DA44C0005;
+        Sat, 23 Oct 2021 21:55:24 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
+To:     Liam Girdwood <lgirdwood@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Laxman Dewangan <ldewangan@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Mark Brown <broonie@kernel.org>
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
-        Stephen Boyd <sboyd@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-sunxi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-clk@vger.kernel.org
-Subject: Re: (subset) [PATCH v2 6/9] rtc: sun6i: Allow probing without an early clock provider
-Date:   Sat, 23 Oct 2021 23:50:48 +0200
-Message-Id: <163502583211.396329.16763679649213996205.b4-ty@bootlin.com>
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: (subset) [PATCH v1 1/3] rtc: tps80031: Remove driver
+Date:   Sat, 23 Oct 2021 23:55:23 +0200
+Message-Id: <163502611461.410492.13519754361719482334.b4-ty@bootlin.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210928080335.36706-7-samuel@sholland.org>
-References: <20210928080335.36706-1-samuel@sholland.org> <20210928080335.36706-7-samuel@sholland.org>
+In-Reply-To: <20211021192258.21968-2-digetx@gmail.com>
+References: <20211021192258.21968-1-digetx@gmail.com> <20211021192258.21968-2-digetx@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -42,20 +39,15 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 28 Sep 2021 03:03:32 -0500, Samuel Holland wrote:
-> Some SoCs have an RTC supported by this RTC driver, but do not have an
-> early clock provider declared here. Currently, this prevents the RTC
-> driver from probing, because it expects a global struct to already be
-> allocated. Fix probing the driver by copying the missing pieces from the
-> clock provider setup function, replacing them with the devm variants.
+On Thu, 21 Oct 2021 22:22:56 +0300, Dmitry Osipenko wrote:
+> Driver was upstreamed in 2013 and never got a user, remove it.
 > 
 > 
-> [...]
 
 Applied, thanks!
 
-[6/9] rtc: sun6i: Allow probing without an early clock provider
-      commit: 814691c7f7d1f958ac30c3dca5070a95c1f658dd
+[1/3] rtc: tps80031: Remove driver
+      commit: 005870f46cf6f98417ec48d129721e945dfb3a43
 
 Best regards,
 -- 
