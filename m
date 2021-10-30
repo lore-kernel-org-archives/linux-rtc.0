@@ -2,211 +2,69 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20CFAC433FE
-	for <linux-rtc@archiver.kernel.org>; Sat, 30 Oct 2021 21:47:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8B30C433EF
+	for <linux-rtc@archiver.kernel.org>; Sat, 30 Oct 2021 22:51:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07F4960E90
-	for <linux-rtc@archiver.kernel.org>; Sat, 30 Oct 2021 21:47:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8DE860ED5
+	for <linux-rtc@archiver.kernel.org>; Sat, 30 Oct 2021 22:51:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbhJ3VuY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 30 Oct 2021 17:50:24 -0400
-Received: from mx-out.tlen.pl ([193.222.135.142]:15120 "EHLO mx-out.tlen.pl"
+        id S231459AbhJ3Wxh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 30 Oct 2021 18:53:37 -0400
+Received: from smtp2.axis.com ([195.60.68.18]:25911 "EHLO smtp2.axis.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhJ3VuR (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sat, 30 Oct 2021 17:50:17 -0400
-Received: (wp-smtpd smtp.tlen.pl 26339 invoked from network); 30 Oct 2021 23:47:42 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1635630462; bh=IiNlBYkDnR36ib1JK88p2ItCAvyOlEF11DbUtE/R2wY=;
-          h=From:To:Cc:Subject;
-          b=dPcuRjUDBbVJZG5cuSJ7Z7pLof+3oTqFWqglWfl4/YNbx/56OoXMnMIi9MtovWWt1
-           LQcuO2d2+9M6Or5zh+IgLluaeAzsCaRY3UGQ9O0Hmu29ThoJEbi8CuG7yRsEAZW9F6
-           UqEO/Nl3yS8Y57u77zXFkGEwdnyhEfemLAl8fpxg=
-Received: from ablz112.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.7.219.112])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-rtc@vger.kernel.org>; 30 Oct 2021 23:47:42 +0200
-From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 7/7] rtc-cmos: avoid UIP when writing alarm time
-Date:   Sat, 30 Oct 2021 23:46:35 +0200
-Message-Id: <20211030214636.49602-8-mat.jonczyk@o2.pl>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211030214636.49602-1-mat.jonczyk@o2.pl>
-References: <20211030214636.49602-1-mat.jonczyk@o2.pl>
+        id S230338AbhJ3Wxg (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Sat, 30 Oct 2021 18:53:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1635634266;
+  x=1667170266;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=42j68thEGgiIFDyh9NmT0O7JIbX2KjBzsYow1sqNjm4=;
+  b=kN4cPQPTHW3xSgOtO+Jktn8q2BHeOzZNgyDetI8trkxfft2NlLhht0Xt
+   iS98yoC2qbz7huWOG47MfG2C+nMwBUqzoxuRGoYtp4MnRK28p28/MkUse
+   ERgoh2oU74O1IiMdg44wZHOXKbf8zqTsuR62Ad2dVQssXnxexoAF1NYsS
+   5xb1hcSGouZBPX65TpAuLS1axvf2CSM7J7bBZuz4WWt8PxJjd4M/bhPNw
+   pDjobv+a+Ckw63yXBk+1W1armpxMyoGIxrtMIazd/rE4lkT9uAVqulacn
+   RGdf6Y0rNwL9oKbVvI2XXYhaBzEH8OJozACs6Dd+rSIhm7ThhSbjVb8LY
+   Q==;
+From:   Pavel Modilaynen <pavel.modilaynen@axis.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <robh+dt@kernel.org>
+CC:     <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <lkml@axis.com>, <kernel@axis.com>,
+        "Pavel Modilaynen" <pavelmn@axis.com>
+Subject: [PATCH 0/2] *** Ricoh RS5C372: add support for Xtal trimming configuration ***
+Date:   Sun, 31 Oct 2021 00:50:52 +0200
+Message-ID: <20211030225054.32114-1-pavel.modilaynen@axis.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-WP-MailID: 741571f4e22b8dd52dc380a525b2820d
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [wVP0]                               
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some Intel chipsets disconnect the time and date RTC registers when the
-clock update is in progress: during this time reads may return bogus
-values and writes fail silently. This includes the RTC alarm registers.
-[1]
+From: Pavel Modilaynen <pavelmn@axis.com>
 
-cmos_set_alarm() did not take account for that, fix it.
+*** BLURB HERE ***
 
-[1] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...]
-Datasheet, Volume 1 of 2 (Intel's Document Number: 334658-006)
-Page 208
-https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
-        "If a RAM read from the ten time and date bytes is attempted
-        during an update cycle, the value read do not necessarily
-        represent the true contents of those locations. Any RAM writes
-        under the same conditions are ignored."
+Add support for Xtal trimming configuration with new DT property: ricoh,trim.
+This uint8 property is to contain raw value to setup Oscillation Adjustment
+register (0x7) of Ricoh RS5C372 and similar RTC controllers.
+This raw value has device model specific format and is used to adjust
+(subtract or add) time counts per second (normally 32768) on regular
+intervals (e.g. every 20th second).
 
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-cmos.c | 108 +++++++++++++++++++++++++----------------
- 1 file changed, 67 insertions(+), 41 deletions(-)
+Pavel Modilaynen (2):
+  rtc: rs5c372: Add support for trim configuration
+  dt-bindings: rtc: Add bindings for Ricoh rs5c372
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 2def331e88b6..b6d7dd3cf066 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -463,10 +463,58 @@ static int cmos_validate_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	return 0;
- }
- 
-+struct cmos_set_alarm_callback_param {
-+	struct cmos_rtc *cmos;
-+	unsigned char mon, mday, hrs, min, sec;
-+	struct rtc_wkalrm *t;
-+};
-+
-+/* Note: this function may be executed by mc146818_do_avoiding_UIP() more then
-+ *	 once
-+ */
-+static void cmos_set_alarm_callback(unsigned char __always_unused seconds,
-+		void *param_in)
-+{
-+	struct cmos_set_alarm_callback_param *p =
-+		(struct cmos_set_alarm_callback_param *) param_in;
-+
-+	/* next rtc irq must not be from previous alarm setting */
-+	cmos_irq_disable(p->cmos, RTC_AIE);
-+
-+	/* update alarm */
-+	CMOS_WRITE(p->hrs, RTC_HOURS_ALARM);
-+	CMOS_WRITE(p->min, RTC_MINUTES_ALARM);
-+	CMOS_WRITE(p->sec, RTC_SECONDS_ALARM);
-+
-+	/* the system may support an "enhanced" alarm */
-+	if (p->cmos->day_alrm) {
-+		CMOS_WRITE(p->mday, p->cmos->day_alrm);
-+		if (p->cmos->mon_alrm)
-+			CMOS_WRITE(p->mon, p->cmos->mon_alrm);
-+	}
-+
-+	if (use_hpet_alarm()) {
-+		/*
-+		 * FIXME the HPET alarm glue currently ignores day_alrm
-+		 * and mon_alrm ...
-+		 */
-+		hpet_set_alarm_time(p->t->time.tm_hour, p->t->time.tm_min,
-+				    p->t->time.tm_sec);
-+	}
-+
-+	if (p->t->enabled)
-+		cmos_irq_enable(p->cmos, RTC_AIE);
-+
-+}
-+
- static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
--	unsigned char mon, mday, hrs, min, sec, rtc_control;
-+	struct cmos_set_alarm_callback_param p = {
-+		.cmos = cmos,
-+		.t = t
-+	};
-+	unsigned char rtc_control;
- 	int ret;
- 
- 	/* This not only a rtc_op, but also called directly */
-@@ -477,11 +525,11 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	if (ret < 0)
- 		return ret;
- 
--	mon = t->time.tm_mon + 1;
--	mday = t->time.tm_mday;
--	hrs = t->time.tm_hour;
--	min = t->time.tm_min;
--	sec = t->time.tm_sec;
-+	p.mon = t->time.tm_mon + 1;
-+	p.mday = t->time.tm_mday;
-+	p.hrs = t->time.tm_hour;
-+	p.min = t->time.tm_min;
-+	p.sec = t->time.tm_sec;
- 
- 	spin_lock_irq(&rtc_lock);
- 	rtc_control = CMOS_READ(RTC_CONTROL);
-@@ -489,43 +537,21 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 
- 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		/* Writing 0xff means "don't care" or "match all".  */
--		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
--		mday = (mday >= 1 && mday <= 31) ? bin2bcd(mday) : 0xff;
--		hrs = (hrs < 24) ? bin2bcd(hrs) : 0xff;
--		min = (min < 60) ? bin2bcd(min) : 0xff;
--		sec = (sec < 60) ? bin2bcd(sec) : 0xff;
-+		p.mon = (p.mon <= 12) ? bin2bcd(p.mon) : 0xff;
-+		p.mday = (p.mday >= 1 && p.mday <= 31) ? bin2bcd(p.mday) : 0xff;
-+		p.hrs = (p.hrs < 24) ? bin2bcd(p.hrs) : 0xff;
-+		p.min = (p.min < 60) ? bin2bcd(p.min) : 0xff;
-+		p.sec = (p.sec < 60) ? bin2bcd(p.sec) : 0xff;
- 	}
- 
--	spin_lock_irq(&rtc_lock);
--
--	/* next rtc irq must not be from previous alarm setting */
--	cmos_irq_disable(cmos, RTC_AIE);
--
--	/* update alarm */
--	CMOS_WRITE(hrs, RTC_HOURS_ALARM);
--	CMOS_WRITE(min, RTC_MINUTES_ALARM);
--	CMOS_WRITE(sec, RTC_SECONDS_ALARM);
--
--	/* the system may support an "enhanced" alarm */
--	if (cmos->day_alrm) {
--		CMOS_WRITE(mday, cmos->day_alrm);
--		if (cmos->mon_alrm)
--			CMOS_WRITE(mon, cmos->mon_alrm);
--	}
--
--	if (use_hpet_alarm()) {
--		/*
--		 * FIXME the HPET alarm glue currently ignores day_alrm
--		 * and mon_alrm ...
--		 */
--		hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min,
--				    t->time.tm_sec);
--	}
--
--	if (t->enabled)
--		cmos_irq_enable(cmos, RTC_AIE);
--
--	spin_unlock_irq(&rtc_lock);
-+	/*
-+	 * Some Intel chipsets disconnect the alarm registers when the clock
-+	 * update is in progress - during this time writes fail silently.
-+	 *
-+	 * Use mc146818_do_avoiding_UIP() to avoid this.
-+	 */
-+	if (!mc146818_do_avoiding_UIP(cmos_set_alarm_callback, &p))
-+		return -EIO;
- 
- 	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
- 
+ .../bindings/rtc/ricoh,rs5c372.yaml           | 58 +++++++++++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  | 12 ----
+ drivers/rtc/rtc-rs5c372.c                     | 18 +++++-
+ 3 files changed, 75 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/ricoh,rs5c372.yaml
+
 -- 
-2.25.1
+2.20.1
 
