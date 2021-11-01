@@ -2,148 +2,97 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D630AC433FE
-	for <linux-rtc@archiver.kernel.org>; Sun, 31 Oct 2021 10:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71BA2C433EF
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Nov 2021 01:40:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC14360F55
-	for <linux-rtc@archiver.kernel.org>; Sun, 31 Oct 2021 10:29:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4513F60FD9
+	for <linux-rtc@archiver.kernel.org>; Mon,  1 Nov 2021 01:40:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229798AbhJaKbp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 31 Oct 2021 06:31:45 -0400
-Received: from smtp2.axis.com ([195.60.68.18]:62804 "EHLO smtp2.axis.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229638AbhJaKbp (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Sun, 31 Oct 2021 06:31:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1635676154;
-  x=1667212154;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=jsBsR890SDq8iXow8DAd3AfZ518QJ0LNOOKg1GmL9mk=;
-  b=T7MOJhwnQs9r6XKRfwTxS5lYsbxWhz3urBCPue8FPtTNlwX6o8PGaNWL
-   C+9ggesCx8vofqAUFNA0lnvZ42MPA8nA42r8dMDeehbNTZgFq2K7YAEF8
-   3UMPmNXzGDwB1igsvHJ+YBKf6vdceLN+IVOBPiOzoqCn5DQKvPZwQOGWf
-   Oqf8htWR1ggYV15+KlEa3z7dulqxZkWeVOBqNz98h5taMSU5vcLIxYk8H
-   YKwGUEaJC8VQuvsWdwSBGaPKIuAUTjo4OOpvwkeOBD2Q8q8w0k9NpZFNl
-   +BJClsg5HmtzrIit6jBGukHpq7CQv6mJJh7vqsrHnGGefhFPUM2lBA71d
-   A==;
-Subject: Re: [PATCH 1/2] rtc: rs5c372: Add support for trim configuration
+        id S230237AbhKABm5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 31 Oct 2021 21:42:57 -0400
+Received: from gw2.atmark-techno.com ([35.74.137.57]:34678 "EHLO
+        gw2.atmark-techno.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230133AbhKABm4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 31 Oct 2021 21:42:56 -0400
+X-Greylist: delayed 346 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 Oct 2021 21:42:56 EDT
+Received: from gw2.atmark-techno.com (localhost [127.0.0.1])
+        by gw2.atmark-techno.com (Postfix) with ESMTP id 67EF720D28
+        for <linux-rtc@vger.kernel.org>; Mon,  1 Nov 2021 10:34:35 +0900 (JST)
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
+        by gw2.atmark-techno.com (Postfix) with ESMTPS id ABE5820D20
+        for <linux-rtc@vger.kernel.org>; Mon,  1 Nov 2021 10:34:33 +0900 (JST)
+Received: by mail-pf1-f198.google.com with SMTP id a26-20020aa795ba000000b0048102d73f10so1082546pfk.6
+        for <linux-rtc@vger.kernel.org>; Sun, 31 Oct 2021 18:34:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=60F+RMsAw9COGf+/l5AyJtjgtbtNUZqZuiPyUl8gYl8=;
+        b=Bz7jRehB5jKkffWzwOHWVUVixgO/5T7wwjhNKipOd6NaIvu2jOYSc2PQPtDm8+2hvY
+         f9AdOWO14f/JvSbjdrZcIozv0pGiDjoAdqjSSdXJvD5QIXqwoKdhH4b94pA4Sqi4byfv
+         slEPIXK5+ueMDw2piNQO8kLjP0xc3ek+qIGujn+rkfUjZRxRGVz2aYvi3pHO01CSX8ry
+         Q+3cEhM9bgmzL/VrSMv5HhcfB1HISEhUW09lEQw9KCPPTNNj0YT7k4Z8RGBnz+RgG29Z
+         2lokYUXOCibGJsUY/OTRvuS2gIrRCRNCvzLgEYLbY/50mPs2nUbzj+Ew1ZuMg9kffmM2
+         MdAg==
+X-Gm-Message-State: AOAM530TxoJs2PcfeAZBvlt//IFxxCz+66WNNIvJyrLg6Gseqf7UYA4K
+        sI3tGjB0KUW/6Ph0KFq8i/o3UmhkWENhZG2fvrkFGaPc8829RuXGWd8m8vbhL1Oe+ww925keRKF
+        S0qcBqz3aJ1ar0BNj6JYKaA==
+X-Received: by 2002:a63:af44:: with SMTP id s4mr19659754pgo.219.1635730472757;
+        Sun, 31 Oct 2021 18:34:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwyE5voRFvM8wBnDZDL1+6yQOn2/MgNjPMCFqhzxw/t3k39ybQZGDGSD/jk7EGBQnBrdvwLMA==
+X-Received: by 2002:a63:af44:: with SMTP id s4mr19659748pgo.219.1635730472578;
+        Sun, 31 Oct 2021 18:34:32 -0700 (PDT)
+Received: from pc-0115 (162.198.187.35.bc.googleusercontent.com. [35.187.198.162])
+        by smtp.gmail.com with ESMTPSA id t4sm13461411pfj.166.2021.10.31.18.34.32
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 31 Oct 2021 18:34:32 -0700 (PDT)
+Received: from martinet by pc-0115 with local (Exim 4.94.2)
+        (envelope-from <martinet@pc-0115>)
+        id 1mhMDW-001Mmc-Pl; Mon, 01 Nov 2021 10:34:30 +0900
+From:   Dominique Martinet <dominique.martinet@atmark-techno.com>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Pavel Modilaynen <Pavel.Modilaynen@axis.com>
-CC:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "lkml@axis.com" <lkml@axis.com>, kernel <kernel@axis.com>
-References: <20211030225054.32114-1-pavel.modilaynen@axis.com>
- <20211030225054.32114-2-pavel.modilaynen@axis.com>
- <YX3N9b6P4w1kSGfp@piout.net>
-From:   Pavel Modilaynen <pavelmn@axis.com>
-Message-ID: <6cc22970-fa11-ccb4-c155-62396a7e3890@axis.com>
-Date:   Sun, 31 Oct 2021 11:29:12 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        Alessandro Zummo <a.zummo@towertech.it>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Marek Vasut <marex@denx.de>, Rob Herring <robh+dt@kernel.org>,
+        Dominique Martinet <dominique.martinet@atmark-techno.com>
+Subject: [PATCH 1/2] rtc-rv8803: fix writing back ctrl in flag register
+Date:   Mon,  1 Nov 2021 10:33:59 +0900
+Message-Id: <20211101013400.325855-1-dominique.martinet@atmark-techno.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <YX3N9b6P4w1kSGfp@piout.net>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.0.5.60]
-X-ClientProxiedBy: se-mail04w.axis.com (10.20.40.10) To se-mail05w.axis.com
- (10.20.40.11)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Alexandre,
+ctrl is set from read_regs(..FLAG, 2, ctrl), so ctrl[0] is FLAG
+and ctrl[1] is the CTRL register.
+Use ctrl[0] to write back to the FLAG register as appropriate.
 
+Signed-off-by: Dominique Martinet <dominique.martinet@atmark-techno.com>
+---
 
-On 10/31/21 12:57 AM, Alexandre Belloni wrote:
-> Hello,
-> 
-> Please use the proper RTC interface by implementing .set_offset and
-> .read_offset.
+This probably works in practice because the two registers are pretty close,
+but might as well fix it and use the correct register.
 
-I am not sure about .set/read_offset. It looks as runtime adjustment 
-interface,
-however this Xtal trimming parameter is based on schematics and Xtal 
-capacitance (datasheet parameter).
-It is found by calibration procedure based on RTC clock output (the 
-procedure and calculation of trimming parameter is described in datasheets).
-So, I would like to say that this parameter is functionally close to
-"quartz-load-femtofarads" for rtc-pcf8523/pcf85063.
+ drivers/rtc/rtc-rv8803.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> 
-> On 31/10/2021 00:50:53+0200, Pavel Modilaynen wrote:
->> From: Pavel Modilaynen <pavelmn@axis.com>
->> 
->> Add support for oscillation adjustment register RS5C372_REG_TRIM
->> setting that is needed to accommodate for effective crystal
->> capacitance.
->> 
->> Use optional property ricoh,trim that should contain
->> raw value to setup this register. According to
->> datasheets for RS5C372, R2025S/D, RV5C38[67] and R222[13]
->> the value will be converted to a number of ticks that
->> is to be subtracted or added when the second digits read
->> 00, 20 or 40 seconds.
->> 
->> Signed-off-by: Pavel Modilaynen <pavelmn@axis.com>
->> ---
->>  drivers/rtc/rtc-rs5c372.c | 18 +++++++++++++++++-
->>  1 file changed, 17 insertions(+), 1 deletion(-)
->> 
->> diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
->> index 80980414890c..3a2db0326669 100644
->> --- a/drivers/rtc/rtc-rs5c372.c
->> +++ b/drivers/rtc/rtc-rs5c372.c
->> @@ -13,6 +13,7 @@
->>  #include <linux/slab.h>
->>  #include <linux/module.h>
->>  #include <linux/of_device.h>
->> +#include <linux/of.h>
->>  
->>  /*
->>   * Ricoh has a family of I2C based RTCs, which differ only slightly from
->> @@ -560,6 +561,8 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
->>  {
->>        unsigned char buf[2];
->>        int addr, i, ret = 0;
->> +     struct i2c_client *client = rs5c372->client;
->> +     u8 trim = 0;
->>  
->>        addr   = RS5C_ADDR(RS5C_REG_CTRL1);
->>        buf[0] = rs5c372->regs[RS5C_REG_CTRL1];
->> @@ -599,9 +602,22 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
->>                break;
->>        }
->>  
->> +     /* optional setup of xtal trimming */
->> +     if (!of_property_read_u8(client->dev.of_node, "ricoh,trim", &trim)) {
->> +             if (rs5c372->type != rtc_r2221tl && (trim & ~RS5C372_TRIM_MASK)) {
->> +                     dev_warn(&client->dev, "Erroneous setting for ricoh,trim in devicetree\n");
->> +             } else {
->> +                     int addr = RS5C_ADDR(RS5C372_REG_TRIM);
->> +                     int ret = i2c_smbus_write_byte_data(client, addr, trim);
->> +
->> +                     if (unlikely(ret < 0))
->> +                             return ret;
->> +             }
->> +     }
->> +
->>        for (i = 0; i < sizeof(buf); i++) {
->>                addr = RS5C_ADDR(RS5C_REG_CTRL1 + i);
->> -             ret = i2c_smbus_write_byte_data(rs5c372->client, addr, buf[i]);
->> +             ret = i2c_smbus_write_byte_data(client, addr, buf[i]);
->>                if (unlikely(ret < 0))
->>                        return ret;
->>        }
->> -- 
->> 2.20.1
->> 
-> 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com <https://bootlin.com>
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 72adef5a5ebe..0d5ed38bf60c 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -340,8 +340,8 @@ static int rv8803_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		}
+ 	}
+ 
+-	ctrl[1] &= ~RV8803_FLAG_AF;
+-	err = rv8803_write_reg(rv8803->client, RV8803_FLAG, ctrl[1]);
++	ctrl[0] &= ~RV8803_FLAG_AF;
++	err = rv8803_write_reg(rv8803->client, RV8803_FLAG, ctrl[0]);
+ 	mutex_unlock(&rv8803->flags_lock);
+ 	if (err)
+ 		return err;
+-- 
+2.30.2
+
