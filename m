@@ -2,28 +2,28 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DCBDC433EF
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Nov 2021 22:55:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6323EC433EF
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Nov 2021 22:56:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 76E686139E
-	for <linux-rtc@archiver.kernel.org>; Sun,  7 Nov 2021 22:55:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D6A2613A8
+	for <linux-rtc@archiver.kernel.org>; Sun,  7 Nov 2021 22:56:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236782AbhKGW57 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 7 Nov 2021 17:57:59 -0500
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:52021 "EHLO
+        id S236739AbhKGW54 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 7 Nov 2021 17:57:56 -0500
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:41627 "EHLO
         relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236731AbhKGW54 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Nov 2021 17:57:56 -0500
+        with ESMTP id S236728AbhKGW5x (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 7 Nov 2021 17:57:53 -0500
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id F013C240009;
-        Sun,  7 Nov 2021 22:55:11 +0000 (UTC)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 5EAE0240006;
+        Sun,  7 Nov 2021 22:55:08 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 12/12] rtc: rx8025: use .set_offset/.read_offset
-Date:   Sun,  7 Nov 2021 23:54:57 +0100
-Message-Id: <20211107225458.111068-12-alexandre.belloni@bootlin.com>
+Subject: [PATCH 08/12] rtc: rx8025: let the core handle the alarm resolution
+Date:   Sun,  7 Nov 2021 23:54:53 +0100
+Message-Id: <20211107225458.111068-8-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211107225458.111068-1-alexandre.belloni@bootlin.com>
 References: <20211107225458.111068-1-alexandre.belloni@bootlin.com>
@@ -33,149 +33,47 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The driver has its own sysfs file to adjust the clock. Fortunately, it is
-already in pbb, however, the sign it expects is the opposite of what the
-RTC core does (which actually aligns with the RTC).
+Tell the RTC core UIE are not supported because the resolution of the alarm
+is a minute.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-rx8025.c | 73 ++++++++++++++++++++--------------------
- 1 file changed, 36 insertions(+), 37 deletions(-)
+ drivers/rtc/rtc-rx8025.c | 15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index c5b3814f8c8e..5bfdd34a72ff 100644
+index 617b044c66f0..6941e0518290 100644
 --- a/drivers/rtc/rtc-rx8025.c
 +++ b/drivers/rtc/rtc-rx8025.c
-@@ -403,17 +403,7 @@ static int rx8025_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	return 0;
- }
- 
--static const struct rtc_class_ops rx8025_rtc_ops = {
--	.read_time = rx8025_get_time,
--	.set_time = rx8025_set_time,
--	.read_alarm = rx8025_read_alarm,
--	.set_alarm = rx8025_set_alarm,
--	.alarm_irq_enable = rx8025_alarm_irq_enable,
--};
--
- /*
-- * Clock precision adjustment support
-- *
-  * According to the RX8025 SA/NB application manual the frequency and
-  * temperature characteristics can be approximated using the following
-  * equation:
-@@ -424,11 +414,8 @@ static const struct rtc_class_ops rx8025_rtc_ops = {
-  *   a : Coefficient = (-35 +-5) * 10**-9
-  *   ut: Ultimate temperature in degree = +25 +-5 degree
-  *   t : Any temperature in degree
-- *
-- * Note that the clock adjustment in ppb must be entered (which is
-- * the negative value of the deviation).
-  */
--static int rx8025_get_clock_adjust(struct device *dev, int *adj)
-+static int rx8025_read_offset(struct device *dev, long *offset)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	int digoff;
-@@ -437,63 +424,75 @@ static int rx8025_get_clock_adjust(struct device *dev, int *adj)
- 	if (digoff < 0)
- 		return digoff;
- 
--	*adj = digoff >= 64 ? digoff - 128 : digoff;
--	if (*adj > 0)
--		(*adj)--;
--	*adj *= -RX8025_ADJ_RESOLUTION;
-+	*offset = digoff >= 64 ? digoff - 128 : digoff;
-+	if (*offset > 0)
-+		(*offset)--;
-+	*offset *= RX8025_ADJ_RESOLUTION;
- 
- 	return 0;
- }
- 
--static int rx8025_set_clock_adjust(struct device *dev, int adj)
-+static int rx8025_set_offset(struct device *dev, long offset)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	u8 digoff;
- 	int err;
- 
--	adj /= -RX8025_ADJ_RESOLUTION;
--	if (adj > RX8025_ADJ_DATA_MAX)
--		adj = RX8025_ADJ_DATA_MAX;
--	else if (adj < RX8025_ADJ_DATA_MIN)
--		adj = RX8025_ADJ_DATA_MIN;
--	else if (adj > 0)
--		adj++;
--	else if (adj < 0)
--		adj += 128;
--	digoff = adj;
-+	offset /= RX8025_ADJ_RESOLUTION;
-+	if (offset > RX8025_ADJ_DATA_MAX)
-+		offset = RX8025_ADJ_DATA_MAX;
-+	else if (offset < RX8025_ADJ_DATA_MIN)
-+		offset = RX8025_ADJ_DATA_MIN;
-+	else if (offset > 0)
-+		offset++;
-+	else if (offset < 0)
-+		offset += 128;
-+	digoff = offset;
- 
- 	err = rx8025_write_reg(client, RX8025_REG_DIGOFF, digoff);
- 	if (err)
- 		return err;
- 
--	dev_dbg(dev, "%s: write 0x%02x\n", __func__, digoff);
--
- 	return 0;
- }
- 
-+static const struct rtc_class_ops rx8025_rtc_ops = {
-+	.read_time = rx8025_get_time,
-+	.set_time = rx8025_set_time,
-+	.read_alarm = rx8025_read_alarm,
-+	.set_alarm = rx8025_set_alarm,
-+	.alarm_irq_enable = rx8025_alarm_irq_enable,
-+	.read_offset = rx8025_read_offset,
-+	.set_offset = rx8025_set_offset,
-+};
-+
- static ssize_t rx8025_sysfs_show_clock_adjust(struct device *dev,
- 					      struct device_attribute *attr,
- 					      char *buf)
- {
--	int err, adj;
-+	long adj;
-+	int err;
- 
--	err = rx8025_get_clock_adjust(dev, &adj);
-+	dev_warn_once(dev, "clock_adjust_ppb is deprecated, use offset\n");
-+	err = rx8025_read_offset(dev, &adj);
- 	if (err)
- 		return err;
- 
--	return sprintf(buf, "%d\n", adj);
-+	return sprintf(buf, "%ld\n", -adj);
- }
- 
- static ssize_t rx8025_sysfs_store_clock_adjust(struct device *dev,
- 					       struct device_attribute *attr,
- 					       const char *buf, size_t count)
- {
--	int adj, err;
-+	long adj;
-+	int err;
- 
--	if (sscanf(buf, "%i", &adj) != 1)
-+	dev_warn_once(dev, "clock_adjust_ppb is deprecated, use offset\n");
-+	if (kstrtol(buf, 10, &adj) != 0)
+@@ -358,17 +358,6 @@ static int rx8025_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	if (client->irq <= 0)
  		return -EINVAL;
  
--	err = rx8025_set_clock_adjust(dev, adj);
-+	err = rx8025_set_offset(dev, -adj);
+-	/*
+-	 * Hardware alarm precision is 1 minute!
+-	 * round up to nearest minute
+-	 */
+-	if (t->time.tm_sec) {
+-		time64_t alarm_time = rtc_tm_to_time64(&t->time);
+-
+-		alarm_time += 60 - t->time.tm_sec;
+-		rtc_time64_to_tm(alarm_time, &t->time);
+-	}
+-
+ 	ald[0] = bin2bcd(t->time.tm_min);
+ 	if (rx8025->ctrl1 & RX8025_BIT_CTRL1_1224)
+ 		ald[1] = bin2bcd(t->time.tm_hour);
+@@ -579,8 +568,8 @@ static int rx8025_probe(struct i2c_client *client,
  
- 	return err ? err : count;
- }
+ 	rx8025->rtc->max_user_freq = 1;
+ 
+-	/* the rx8025 alarm only supports a minute accuracy */
+-	rx8025->rtc->uie_unsupported = 1;
++	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rx8025->rtc->features);
++	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rx8025->rtc->features);
+ 
+ 	err = devm_rtc_register_device(rx8025->rtc);
+ 	if (err)
 -- 
 2.31.1
 
