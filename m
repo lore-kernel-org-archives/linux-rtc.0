@@ -2,105 +2,91 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8299CC43217
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Nov 2021 04:06:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5A18C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Nov 2021 06:38:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D40A61215
-	for <linux-rtc@archiver.kernel.org>; Tue,  9 Nov 2021 04:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 955F560F6E
+	for <linux-rtc@archiver.kernel.org>; Tue,  9 Nov 2021 06:38:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242664AbhKIEJg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 8 Nov 2021 23:09:36 -0500
-Received: from mail-ot1-f47.google.com ([209.85.210.47]:42969 "EHLO
-        mail-ot1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242562AbhKIEJ1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 8 Nov 2021 23:09:27 -0500
-Received: by mail-ot1-f47.google.com with SMTP id g91-20020a9d12e4000000b0055ae68cfc3dso26239904otg.9;
-        Mon, 08 Nov 2021 20:06:42 -0800 (PST)
+        id S243220AbhKIGlL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 9 Nov 2021 01:41:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34114 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230055AbhKIGlL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 9 Nov 2021 01:41:11 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CF23C061764;
+        Mon,  8 Nov 2021 22:38:25 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id q17so7055851plr.11;
+        Mon, 08 Nov 2021 22:38:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=YXrLP/6w0RPBXSzKwulXWqp10SzvQvnKnc1yXHAk4Tw=;
+        b=P29Nsp+qcRAs+O6ZhboLiCkOkyogcYbvCxZdTTgiFho2vL3lrGeNbor5q3/V4UDnLZ
+         NeJGNt49CtZAbjl4xsIlmHJEdwMKDTjmDWv4NxP1bJw5tnZhaRcj+qhKISrAsQyk6IO/
+         N8Ela4GBPY9d3YWtL+nWyiAEBpauBd9hPJKyGvBj0wcXXI4zxF20DBD0riTyeDy6tkx0
+         aKMkoaYxtRMY1dXWpPRQu904c1a4jGl4r8fERoM0GWmBbrkcAPlj+1Pnqxp8omdQ15G0
+         9AouRNhMmazsO12JBfF+gMwkbeC7bJZfLzwVSy8u5mUJSGbvk7cHHN8lu3QjzYZY2khx
+         eCEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
-         :message-id;
-        bh=VnK4CqjrP/tqSC7BA9VprQcCacLXAGRlUC8b9O7Uy4M=;
-        b=45u4iAaqBpGU5eRpql0MwyRnAlIw3AYOWG9F3hZvyTqTvPgh/+EKDS3J406lFesMUu
-         XNbGZH3VDFAUl00efDX81XTf7Y1aEp2J0mr3d+5HRRcNWihLM2KqYobBB8cn5NudocwN
-         K7PxQ1eLu3V2n2Xgi9WgkVgUHswfxXen2HKNIEP+h613X9OPcoPTC15p6TB1zebPRSgj
-         8D7HTBKGzjQJmaffHrm+Ddkmee905jsHiUR+5TIHzkSHRk3qkmnNEBycdnfWxPNtvG1U
-         NoSMhh4xyPAOse9a9DgFwr0Y2kKBuyrajj3E7Rf6Fh9UN2HKNQhl2f1unGOihwgh0p9y
-         PwQw==
-X-Gm-Message-State: AOAM530kPR52JYL0yywzSeqXav39K8ttp7grEAxwMuLJLuzI7D3j1wTA
-        mHyCBrLjviOeMiigIvtvcQ==
-X-Google-Smtp-Source: ABdhPJwqFn7rKwZp6OnGXpSvQFrbwKnzY5Gjt/HWja7Pt9VDcz04tYmsi6lM2d+x4u61UsKiO9386w==
-X-Received: by 2002:a9d:8f2:: with SMTP id 105mr3483960otf.95.1636430801719;
-        Mon, 08 Nov 2021 20:06:41 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id m12sm3606861ots.59.2021.11.08.20.06.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Nov 2021 20:06:41 -0800 (PST)
-Received: (nullmailer pid 743043 invoked by uid 1000);
-        Tue, 09 Nov 2021 04:06:29 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     conor.dooley@microchip.com
-Cc:     robh+dt@kernel.org, gregkh@linuxfoundation.org,
-        linus.walleij@linaro.org, linux-riscv@lists.infradead.org,
-        aou@eecs.berkeley.edu, paul.walmsley@sifive.com,
-        linux-usb@vger.kernel.org, daire.mcnamara@microchip.com,
-        linux-spi@vger.kernel.org, geert@linux-m68k.org,
-        devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-gpio@vger.kernel.org, broonie@kernel.org, palmer@dabbelt.com,
-        bgolaszewski@baylibre.com, jassisinghbrar@gmail.com,
-        linux-crypto@vger.kernel.org, ivan.griffin@microchip.com,
-        atish.patra@wdc.com, lewis.hanly@microchip.com,
-        bin.meng@windriver.com, alexandre.belloni@bootlin.com,
-        krzysztof.kozlowski@canonical.com, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, a.zummo@towertech.it
-In-Reply-To: <20211108150554.4457-11-conor.dooley@microchip.com>
-References: <20211108150554.4457-1-conor.dooley@microchip.com> <20211108150554.4457-11-conor.dooley@microchip.com>
-Subject: Re: [PATCH 10/13] dt-bindings: spi: add bindings for microchip mpfs spi
-Date:   Mon, 08 Nov 2021 22:06:29 -0600
-Message-Id: <1636430789.935637.743042.nullmailer@robh.at.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=YXrLP/6w0RPBXSzKwulXWqp10SzvQvnKnc1yXHAk4Tw=;
+        b=5gUSQV2BQzMgKdO89yhF4ZeZZJff4cILi6VOXuX5QsH+7qM1jP9wpeuyocKF3r/+4K
+         wOO17Z+fLXfR39x4mCCDlANtDf9la8yZaF+85GxwlpcaMmunmNVB7nhCoNI+nr65hs4W
+         PT/dAvid6HYbX/e9URn6IBfdTbK4RgkdIDqYPEx0TgDWWs/NcuyYvvit7kjv5asHL13l
+         JB/+Dq5Assfo15MrO3AGHgjBpNKOdKE2YRivm+nRxly9u0I1QEBYr0tze5UlvhLwPG4A
+         vQe5K185AkTdwWmiV2pXPAEfEasVAirplHtPub5IQLOL81EEmNGOfKOegApmUTNdvvD4
+         qrUA==
+X-Gm-Message-State: AOAM533kx5qUW8x9Uz7sVYlz7P5II6jWz9VtPgZL6s2nBjqxFzo3mPM5
+        mhebEizZOprCsvgS7Q8HePI=
+X-Google-Smtp-Source: ABdhPJxImBMzajXwqpFPjTT32OCGCFa21KgttTLnepIV1uorWAx1Evem+sVAIZ1bcTD+MDrdRgmtrA==
+X-Received: by 2002:a17:90a:191c:: with SMTP id 28mr4681654pjg.121.1636439904585;
+        Mon, 08 Nov 2021 22:38:24 -0800 (PST)
+Received: from scdiu3.sunplus.com ([113.196.136.192])
+        by smtp.googlemail.com with ESMTPSA id k22sm17466833pfi.149.2021.11.08.22.38.21
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Nov 2021 22:38:23 -0800 (PST)
+From:   Vincent Shih <vincent.sunplus@gmail.com>
+X-Google-Original-From: Vincent Shih <vincent.shih@sunplus.com>
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        p.zabel@pengutronix.de, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, wells.lu@sunplus.com,
+        in-reply-to=1635834123-24668-1-git-send-email-vincent.shih@sunplus.com
+Cc:     Vincent Shih <vincent.shih@sunplus.com>
+Subject: [PATCH v2 0/2] Add RTC driver for Sunplus SP7021 SoC
+Date:   Tue,  9 Nov 2021 14:38:16 +0800
+Message-Id: <1636439898-7358-1-git-send-email-vincent.shih@sunplus.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 08 Nov 2021 15:05:51 +0000, conor.dooley@microchip.com wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Add device tree bindings for the {q,}spi controller on
-> the Microchip PolarFire SoC.
-> 
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
->  .../bindings/spi/microchip,mpfs-spi.yaml      | 72 +++++++++++++++++++
->  1 file changed, 72 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/spi/microchip,mpfs-spi.yaml
-> 
+This is a patch series for RTC driver for Sunplus SP7021 SoC.
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+Sunplus SP7021 is an ARM Cortex A7 (4 cores) based SoC. It integrates
+many peripherals (ex: UART, I2C, SPI, SDIO, eMMC, USB, SD Card and
+etc.) into a single chip. It is designed for industrial control.
 
-yamllint warnings/errors:
+Refer to:
+https://sunplus-tibbo.atlassian.net/wiki/spaces/doc/overview
+https://tibbo.com/store/plus1.html
 
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/spi/microchip,mpfs-spi.example.dts:19:18: fatal error: dt-bindings/clock/microchip,mpfs-clock.h: No such file or directory
-   19 |         #include "dt-bindings/clock/microchip,mpfs-clock.h"
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[1]: *** [scripts/Makefile.lib:385: Documentation/devicetree/bindings/spi/microchip,mpfs-spi.example.dt.yaml] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [Makefile:1441: dt_binding_check] Error 2
+Vincent Shih (2):
+  rtc: Add driver for Sunplus SP7021
+  dt-bindings: rtc: Convert Sunplus RTC to json-schema
 
-doc reference errors (make refcheckdocs):
+ .../bindings/rtc/sunplus,sp7021-rtc.yaml           |  56 ++++
+ MAINTAINERS                                        |   7 +
+ drivers/rtc/Kconfig                                |  11 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-sunplus.c                          | 370 +++++++++++++++++++++
+ 5 files changed, 445 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/sunplus,sp7021-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-sunplus.c
 
-See https://patchwork.ozlabs.org/patch/1552385
-
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
+-- 
+2.7.4
 
