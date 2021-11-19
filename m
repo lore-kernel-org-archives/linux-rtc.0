@@ -4,177 +4,157 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC17EC433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:44:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0709C433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:46:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C36206120D
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:44:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7C296112E
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236274AbhKSUrE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Nov 2021 15:47:04 -0500
-Received: from mx-out.tlen.pl ([193.222.135.142]:14313 "EHLO mx-out.tlen.pl"
+        id S232664AbhKSUtZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Nov 2021 15:49:25 -0500
+Received: from mx-out.tlen.pl ([193.222.135.145]:58391 "EHLO mx-out.tlen.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235536AbhKSUqn (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 19 Nov 2021 15:46:43 -0500
-Received: (wp-smtpd smtp.tlen.pl 11173 invoked from network); 19 Nov 2021 21:43:21 +0100
+        id S231740AbhKSUtZ (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 19 Nov 2021 15:49:25 -0500
+Received: (wp-smtpd smtp.tlen.pl 7752 invoked from network); 19 Nov 2021 21:46:20 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1637354601; bh=fWSvZPsYQGIvl5BRWlQe1qsp5xZpPSssvqFJkDb/Ulk=;
+          t=1637354781; bh=6EV3+Db16M1TTmcxm0Ltf+cHXWaK6K5VL+dcc/n0F48=;
           h=From:To:Cc:Subject;
-          b=aBW8oqObhhqyDXPRlHnmZkihxDisJecILjstvxSdDjwnKrLQG4dtHKa3Lcrj17VKX
-           UGYnN5mw/D2B2lG9iOntY5YAatBQ1/+Ojtq+IubBrh96JoGKzQzWCR4R6TxJww7u2s
-           9dSuXGwBaQx+AzELrDPWtH6/Zn0c9B/AIex/TxMk=
+          b=Laf/BzswxC6MHKw0zFSksRhd074FBk4i40+vK15ajW/GrFtwhlvJPYE5q/yi+2bei
+           HLfqRlKnvfiOBJhmA5WbH5U8V9Uj7si7vWsCKZWMJ3QXfc1kt+DlB+upbUmKPNeRib
+           j4xxJRKS21moFzzGo2TelLeSbQWcPHUIsh/ljXl0=
 Received: from aaen55.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.117.55])
           (envelope-sender <mat.jonczyk@o2.pl>)
           by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-kernel@vger.kernel.org>; 19 Nov 2021 21:43:21 +0100
+          for <linux-kernel@vger.kernel.org>; 19 Nov 2021 21:46:20 +0100
 From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
 To:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH RESEND v3 6/7] rtc-cmos: avoid UIP when reading alarm time
-Date:   Fri, 19 Nov 2021 21:42:20 +0100
-Message-Id: <20211119204221.66918-7-mat.jonczyk@o2.pl>
+Subject: [DEBUG PATCH v3] rtc-cmos: cmos_read_alarm bug demonstration
+Date:   Fri, 19 Nov 2021 21:46:14 +0100
+Message-Id: <20211119204614.78957-1-mat.jonczyk@o2.pl>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211119204221.66918-1-mat.jonczyk@o2.pl>
-References: <20211119204221.66918-1-mat.jonczyk@o2.pl>
+In-Reply-To: <20211119204221.66918-7-mat.jonczyk@o2.pl>
+References: <20211119204221.66918-7-mat.jonczyk@o2.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-WP-MailID: b0cde7d76f08f37b97c5d09e102fa6a7
+X-WP-MailID: bf10f80be682a12b9e1aeec956af1763
 X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [cRPk]                               
+X-WP-SPAM: NO 0000000 [QdOU]                               
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some Intel chipsets disconnect the time and date RTC registers when the
-clock update is in progress: during this time reads may return bogus
-values and writes fail silently. This includes the RTC alarm registers.
-[1]
+Before my commit "rtc-cmos: avoid UIP when reading alarm time",
+applying this patch and reading the CMOS time like so:
 
-cmos_read_alarm() did not take account for that, which caused alarm time
-reads to sometimes return bogus values. This can be shown with a test
-patch that I am attaching to this patch series.
+        while true; do cat /sys/class/rtc/rtc0/time ; sleep 0.5; done
 
-[1] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...]
-Datasheet, Volume 1 of 2 (Intel's Document Number: 334658-006)
-Page 208
-https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
-        "If a RAM read from the ten time and date bytes is attempted
-        during an update cycle, the value read do not necessarily
-        represent the true contents of those locations. Any RAM writes
-        under the same conditions are ignored."
+produces errors in dmesg on my Intel Kaby Lake laptop.
 
 Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
 Cc: Alessandro Zummo <a.zummo@towertech.it>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
 ---
- drivers/rtc/rtc-cmos.c | 72 ++++++++++++++++++++++++++++--------------
- 1 file changed, 49 insertions(+), 23 deletions(-)
+ drivers/rtc/rtc-cmos.c | 61 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
 
 diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 9404f58ee01d..2def331e88b6 100644
+index b6d7dd3cf066..3de049930745 100644
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -242,10 +242,46 @@ static int cmos_set_time(struct device *dev, struct rtc_time *t)
- 	return mc146818_set_time(t);
+@@ -43,6 +43,9 @@
+ #include <linux/dmi.h>
+ #endif
+ 
++#include <linux/ktime.h>
++#include <linux/timekeeping.h>
++
+ /* this is for "generic access to PC-style RTC" using CMOS_READ/CMOS_WRITE */
+ #include <linux/mc146818rtc.h>
+ 
+@@ -220,6 +223,8 @@ static inline void cmos_write_bank2(unsigned char val, unsigned char addr)
+ 
+ /*----------------------------------------------------------------*/
+ 
++static void cmos_read_alarm_uip_debugging(struct device *dev);
++
+ static int cmos_read_time(struct device *dev, struct rtc_time *t)
+ {
+ 	/*
+@@ -230,6 +235,8 @@ static int cmos_read_time(struct device *dev, struct rtc_time *t)
+ 		return -EIO;
+ 
+ 	mc146818_get_time(t);
++
++	cmos_read_alarm_uip_debugging(dev);
+ 	return 0;
  }
  
-+struct cmos_read_alarm_callback_param {
-+	struct cmos_rtc *cmos;
-+	struct rtc_time *time;
-+	unsigned char	rtc_control;
-+};
-+
-+static void cmos_read_alarm_callback(unsigned char __always_unused seconds,
-+		void *param_in)
+@@ -338,6 +345,60 @@ static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	return 0;
+ }
+ 
++static void cmos_read_alarm_uip_debugging(struct device *dev)
 +{
-+	struct cmos_read_alarm_callback_param *p =
-+		(struct cmos_read_alarm_callback_param *) param_in;
-+	struct rtc_time *time = p->time;
++	unsigned long	flags;
++	unsigned char	rtc_uip_baseline, rtc_uip;
++	struct rtc_wkalrm t_baseline, t;
++	ktime_t time_start, time_end;
++	int i;
 +
-+	time->tm_sec = CMOS_READ(RTC_SECONDS_ALARM);
-+	time->tm_min = CMOS_READ(RTC_MINUTES_ALARM);
-+	time->tm_hour = CMOS_READ(RTC_HOURS_ALARM);
++	spin_lock_irqsave(&rtc_lock, flags);
++	rtc_uip_baseline = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
++	spin_unlock_irqrestore(&rtc_lock, flags);
 +
-+	if (p->cmos->day_alrm) {
-+		/* ignore upper bits on readback per ACPI spec */
-+		time->tm_mday = CMOS_READ(p->cmos->day_alrm) & 0x3f;
-+		if (!time->tm_mday)
-+			time->tm_mday = -1;
++	cmos_read_alarm(dev, &t_baseline);
 +
-+		if (p->cmos->mon_alrm) {
-+			time->tm_mon = CMOS_READ(p->cmos->mon_alrm);
-+			if (!time->tm_mon)
-+				time->tm_mon = -1;
++	time_start = ktime_get();
++
++	for (i = 0; i < 2000; i++) {
++		spin_lock_irqsave(&rtc_lock, flags);
++		rtc_uip = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
++		spin_unlock_irqrestore(&rtc_lock, flags);
++
++		cmos_read_alarm(dev, &t);
++
++		if (t_baseline.time.tm_sec != t.time.tm_sec) {
++			dev_err(dev,
++				"Inconsistent alarm tm_sec value: %d != %d (RTC_UIP = %d; %d)\n",
++				t_baseline.time.tm_sec,
++				t.time.tm_sec,
++				rtc_uip_baseline, rtc_uip);
 +		}
++		if (t_baseline.time.tm_min != t.time.tm_min) {
++			dev_err(dev,
++				"Inconsistent alarm tm_min value: %d != %d (RTC_UIP = %d; %d)\n",
++				t_baseline.time.tm_min,
++				t.time.tm_min,
++				rtc_uip_baseline, rtc_uip);
++		}
++		if (t_baseline.time.tm_hour != t.time.tm_hour) {
++			dev_err(dev,
++				"Inconsistent alarm tm_hour value: %d != %d (RTC_UIP = %d; %d)\n",
++				t_baseline.time.tm_hour,
++				t.time.tm_hour,
++				rtc_uip_baseline, rtc_uip);
++		}
++
 +	}
 +
-+	p->rtc_control = CMOS_READ(RTC_CONTROL);
++	time_end = ktime_get();
++
++	pr_info_ratelimited("%s: loop executed in %lld ns\n",
++			__func__, ktime_to_ns(ktime_sub(time_end, time_start)));
 +}
 +
- static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
++
+ static void cmos_checkintr(struct cmos_rtc *cmos, unsigned char rtc_control)
  {
- 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
--	unsigned char	rtc_control;
-+	struct cmos_read_alarm_callback_param p = {
-+		.cmos = cmos,
-+		.time = &(t->time)
-+	};
- 
- 	/* This not only a rtc_op, but also called directly */
- 	if (!is_valid_irq(cmos->irq))
-@@ -256,28 +292,18 @@ static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	 * the future.
- 	 */
- 
--	spin_lock_irq(&rtc_lock);
--	t->time.tm_sec = CMOS_READ(RTC_SECONDS_ALARM);
--	t->time.tm_min = CMOS_READ(RTC_MINUTES_ALARM);
--	t->time.tm_hour = CMOS_READ(RTC_HOURS_ALARM);
--
--	if (cmos->day_alrm) {
--		/* ignore upper bits on readback per ACPI spec */
--		t->time.tm_mday = CMOS_READ(cmos->day_alrm) & 0x3f;
--		if (!t->time.tm_mday)
--			t->time.tm_mday = -1;
--
--		if (cmos->mon_alrm) {
--			t->time.tm_mon = CMOS_READ(cmos->mon_alrm);
--			if (!t->time.tm_mon)
--				t->time.tm_mon = -1;
--		}
--	}
--
--	rtc_control = CMOS_READ(RTC_CONTROL);
--	spin_unlock_irq(&rtc_lock);
-+	/* Some Intel chipsets disconnect the alarm registers when the clock
-+	 * update is in progress - during this time reads return bogus values
-+	 * and writes may fail silently. See for example "7th Generation Intel®
-+	 * Processor Family I/O for U/Y Platforms [...] Datasheet", section
-+	 * 27.7.1
-+	 *
-+	 * Use the mc146818_do_avoiding_UIP() function to avoid this.
-+	 */
-+	if (!mc146818_do_avoiding_UIP(cmos_read_alarm_callback, &p))
-+		return -EIO;
- 
--	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
-+	if (!(p.rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		if (((unsigned)t->time.tm_sec) < 0x60)
- 			t->time.tm_sec = bcd2bin(t->time.tm_sec);
- 		else
-@@ -306,7 +332,7 @@ static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 		}
- 	}
- 
--	t->enabled = !!(rtc_control & RTC_AIE);
-+	t->enabled = !!(p.rtc_control & RTC_AIE);
- 	t->pending = 0;
- 
- 	return 0;
+ 	unsigned char	rtc_intr;
 -- 
 2.25.1
 
