@@ -4,218 +4,211 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86F04C433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:43:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF46C433FE
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:44:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A5836112E
-	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:43:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B83D6112E
+	for <linux-rtc@archiver.kernel.org>; Fri, 19 Nov 2021 20:44:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235880AbhKSUq6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 19 Nov 2021 15:46:58 -0500
-Received: from mx-out.tlen.pl ([193.222.135.142]:41987 "EHLO mx-out.tlen.pl"
+        id S235678AbhKSUrB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 19 Nov 2021 15:47:01 -0500
+Received: from mx-out.tlen.pl ([193.222.135.142]:35872 "EHLO mx-out.tlen.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235772AbhKSUqh (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
-        Fri, 19 Nov 2021 15:46:37 -0500
-Received: (wp-smtpd smtp.tlen.pl 6618 invoked from network); 19 Nov 2021 21:43:16 +0100
+        id S235691AbhKSUq4 (ORCPT <rfc822;linux-rtc@vger.kernel.org>);
+        Fri, 19 Nov 2021 15:46:56 -0500
+Received: (wp-smtpd smtp.tlen.pl 13482 invoked from network); 19 Nov 2021 21:43:23 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1637354596; bh=jyzrZun6Bm9YFesenswa3bIWF/XjgnTi47Cpu50tTcM=;
+          t=1637354603; bh=IiNlBYkDnR36ib1JK88p2ItCAvyOlEF11DbUtE/R2wY=;
           h=From:To:Cc:Subject;
-          b=TcXBE929Zspjj7RN7XJDMYBvFvKb4MFMGWsm/Kq5hybj/UgDdJpXAHpfSw2CSAYYJ
-           VRrB1hieT7zr/haKruda8JKcXDOJitSosja7kbrvBcR7nDSQXlzX60y0n3wGdQUPAe
-           VCL38GS9iF8NT1Tj3AHjpRgH7rRUCdPzzVi7k55E=
+          b=SFhshkkXveWDHm1uNXovDQ82D/del2c5b551ZmeDDgvGMuLg8xZPUrmZzQqIJjPDl
+           Z/Y5C3TwqrCs/f2H5t72nY+KrmKVSP5Vw5+HBrjzyxZr+xUknG3SQRFWM70RINwAjC
+           gGsyH8uONZolCsE8btwbOIWi8siu2go1KOLVVo5Q=
 Received: from aaen55.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.117.55])
           (envelope-sender <mat.jonczyk@o2.pl>)
           by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-kernel@vger.kernel.org>; 19 Nov 2021 21:43:16 +0100
+          for <linux-kernel@vger.kernel.org>; 19 Nov 2021 21:43:23 +0100
 From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
 To:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH RESEND v3 4/7] rtc-mc146818-lib: refactor mc146818_get_time
-Date:   Fri, 19 Nov 2021 21:42:18 +0100
-Message-Id: <20211119204221.66918-5-mat.jonczyk@o2.pl>
+Subject: [PATCH RESEND v3 7/7] rtc-cmos: avoid UIP when writing alarm time
+Date:   Fri, 19 Nov 2021 21:42:21 +0100
+Message-Id: <20211119204221.66918-8-mat.jonczyk@o2.pl>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211119204221.66918-1-mat.jonczyk@o2.pl>
 References: <20211119204221.66918-1-mat.jonczyk@o2.pl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-WP-MailID: 9fcb7671d09d999c27181226d87f1139
+X-WP-MailID: 9ca56256bbbd52ba37b55d883a6d9f50
 X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0000000 [cdO0]                               
+X-WP-SPAM: NO 0000000 [4UM0]                               
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Refactor mc146818_get_time() to make use of mc146818_do_avoiding_UIP().
+Some Intel chipsets disconnect the time and date RTC registers when the
+clock update is in progress: during this time reads may return bogus
+values and writes fail silently. This includes the RTC alarm registers.
+[1]
+
+cmos_set_alarm() did not take account for that, fix it.
+
+[1] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...]
+Datasheet, Volume 1 of 2 (Intel's Document Number: 334658-006)
+Page 208
+https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
+        "If a RAM read from the ten time and date bytes is attempted
+        during an update cycle, the value read do not necessarily
+        represent the true contents of those locations. Any RAM writes
+        under the same conditions are ignored."
 
 Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
 Cc: Alessandro Zummo <a.zummo@towertech.it>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
 ---
+ drivers/rtc/rtc-cmos.c | 108 +++++++++++++++++++++++++----------------
+ 1 file changed, 67 insertions(+), 41 deletions(-)
 
- drivers/rtc/rtc-mc146818-lib.c | 111 +++++++++++++--------------------
- 1 file changed, 43 insertions(+), 68 deletions(-)
-
-I'm sorry that the diff is quite difficult to read, but I was unable to
-fix this easily.
-
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 946ad43a512c..f3178244db37 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -102,50 +102,20 @@ bool mc146818_does_rtc_work(void)
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index 2def331e88b6..b6d7dd3cf066 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -463,10 +463,58 @@ static int cmos_validate_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
  
--unsigned int mc146818_get_time(struct rtc_time *time)
--{
-+struct mc146818_get_time_callback_param {
-+	struct rtc_time *time;
- 	unsigned char ctrl;
--	unsigned long flags;
--	unsigned int iter_count = 0;
--	unsigned char century = 0;
--	bool retry;
--
-+#ifdef CONFIG_ACPI
-+	unsigned char century;
-+#endif
- #ifdef CONFIG_MACH_DECSTATION
- 	unsigned int real_year;
- #endif
++struct cmos_set_alarm_callback_param {
++	struct cmos_rtc *cmos;
++	unsigned char mon, mday, hrs, min, sec;
++	struct rtc_wkalrm *t;
 +};
- 
--again:
--	if (iter_count > 10) {
--		pr_err_ratelimited("Unable to read current time from RTC\n");
--		memset(time, 0xff, sizeof(*time));
--		return 0;
--	}
--	iter_count++;
--
--	spin_lock_irqsave(&rtc_lock, flags);
--
--	/*
--	 * Check whether there is an update in progress during which the
--	 * readout is unspecified. The maximum update time is ~2ms. Poll
--	 * every msec for completion.
--	 *
--	 * Store the second value before checking UIP so a long lasting NMI
--	 * which happens to hit after the UIP check cannot make an update
--	 * cycle invisible.
--	 */
--	time->tm_sec = CMOS_READ(RTC_SECONDS);
--
--	if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
--		spin_unlock_irqrestore(&rtc_lock, flags);
--		mdelay(1);
--		goto again;
--	}
--
--	/* Revalidate the above readout */
--	if (time->tm_sec != CMOS_READ(RTC_SECONDS)) {
--		spin_unlock_irqrestore(&rtc_lock, flags);
--		goto again;
--	}
-+static void mc146818_get_time_callback(unsigned char seconds, void *param_in)
++
++/* Note: this function may be executed by mc146818_do_avoiding_UIP() more then
++ *	 once
++ */
++static void cmos_set_alarm_callback(unsigned char __always_unused seconds,
++		void *param_in)
 +{
-+	struct mc146818_get_time_callback_param *p = param_in;
- 
- 	/*
- 	 * Only the values that we read from the RTC are set. We leave
-@@ -153,39 +123,40 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- 	 * RTC has RTC_DAY_OF_WEEK, we ignore it, as it is only updated
- 	 * by the RTC when initially set to a non-zero value.
- 	 */
--	time->tm_min = CMOS_READ(RTC_MINUTES);
--	time->tm_hour = CMOS_READ(RTC_HOURS);
--	time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
--	time->tm_mon = CMOS_READ(RTC_MONTH);
--	time->tm_year = CMOS_READ(RTC_YEAR);
-+	p->time->tm_sec = seconds;
-+	p->time->tm_min = CMOS_READ(RTC_MINUTES);
-+	p->time->tm_hour = CMOS_READ(RTC_HOURS);
-+	p->time->tm_mday = CMOS_READ(RTC_DAY_OF_MONTH);
-+	p->time->tm_mon = CMOS_READ(RTC_MONTH);
-+	p->time->tm_year = CMOS_READ(RTC_YEAR);
- #ifdef CONFIG_MACH_DECSTATION
--	real_year = CMOS_READ(RTC_DEC_YEAR);
-+	p->real_year = CMOS_READ(RTC_DEC_YEAR);
- #endif
- #ifdef CONFIG_ACPI
- 	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
--	    acpi_gbl_FADT.century)
--		century = CMOS_READ(acpi_gbl_FADT.century);
-+	    acpi_gbl_FADT.century) {
-+		p->century = CMOS_READ(acpi_gbl_FADT.century);
-+	} else {
-+		p->century = 0;
-+	}
- #endif
--	ctrl = CMOS_READ(RTC_CONTROL);
--	/*
--	 * Check for the UIP bit again. If it is set now then
--	 * the above values may contain garbage.
--	 */
--	retry = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
--	/*
--	 * A NMI might have interrupted the above sequence so check whether
--	 * the seconds value has changed which indicates that the NMI took
--	 * longer than the UIP bit was set. Unlikely, but possible and
--	 * there is also virt...
--	 */
--	retry |= time->tm_sec != CMOS_READ(RTC_SECONDS);
- 
--	spin_unlock_irqrestore(&rtc_lock, flags);
-+	p->ctrl = CMOS_READ(RTC_CONTROL);
-+}
- 
--	if (retry)
--		goto again;
-+unsigned int mc146818_get_time(struct rtc_time *time)
-+{
-+	struct mc146818_get_time_callback_param p = {
-+		.time = time
-+	};
- 
--	if (!(ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+	if (!mc146818_do_avoiding_UIP(mc146818_get_time_callback, &p)) {
-+		pr_err_ratelimited("Unable to read current time from RTC\n");
-+		memset(time, 0xff, sizeof(*time));
-+		return 0;
++	struct cmos_set_alarm_callback_param *p =
++		(struct cmos_set_alarm_callback_param *) param_in;
++
++	/* next rtc irq must not be from previous alarm setting */
++	cmos_irq_disable(p->cmos, RTC_AIE);
++
++	/* update alarm */
++	CMOS_WRITE(p->hrs, RTC_HOURS_ALARM);
++	CMOS_WRITE(p->min, RTC_MINUTES_ALARM);
++	CMOS_WRITE(p->sec, RTC_SECONDS_ALARM);
++
++	/* the system may support an "enhanced" alarm */
++	if (p->cmos->day_alrm) {
++		CMOS_WRITE(p->mday, p->cmos->day_alrm);
++		if (p->cmos->mon_alrm)
++			CMOS_WRITE(p->mon, p->cmos->mon_alrm);
 +	}
 +
-+	if (!(p.ctrl & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
- 	{
- 		time->tm_sec = bcd2bin(time->tm_sec);
- 		time->tm_min = bcd2bin(time->tm_min);
-@@ -193,15 +164,19 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- 		time->tm_mday = bcd2bin(time->tm_mday);
- 		time->tm_mon = bcd2bin(time->tm_mon);
- 		time->tm_year = bcd2bin(time->tm_year);
--		century = bcd2bin(century);
-+#ifdef CONFIG_ACPI
-+		p.century = bcd2bin(p.century);
-+#endif
++	if (use_hpet_alarm()) {
++		/*
++		 * FIXME the HPET alarm glue currently ignores day_alrm
++		 * and mon_alrm ...
++		 */
++		hpet_set_alarm_time(p->t->time.tm_hour, p->t->time.tm_min,
++				    p->t->time.tm_sec);
++	}
++
++	if (p->t->enabled)
++		cmos_irq_enable(p->cmos, RTC_AIE);
++
++}
++
+ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ {
+ 	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
+-	unsigned char mon, mday, hrs, min, sec, rtc_control;
++	struct cmos_set_alarm_callback_param p = {
++		.cmos = cmos,
++		.t = t
++	};
++	unsigned char rtc_control;
+ 	int ret;
+ 
+ 	/* This not only a rtc_op, but also called directly */
+@@ -477,11 +525,11 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	mon = t->time.tm_mon + 1;
+-	mday = t->time.tm_mday;
+-	hrs = t->time.tm_hour;
+-	min = t->time.tm_min;
+-	sec = t->time.tm_sec;
++	p.mon = t->time.tm_mon + 1;
++	p.mday = t->time.tm_mday;
++	p.hrs = t->time.tm_hour;
++	p.min = t->time.tm_min;
++	p.sec = t->time.tm_sec;
+ 
+ 	spin_lock_irq(&rtc_lock);
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
+@@ -489,43 +537,21 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 
+ 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		/* Writing 0xff means "don't care" or "match all".  */
+-		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
+-		mday = (mday >= 1 && mday <= 31) ? bin2bcd(mday) : 0xff;
+-		hrs = (hrs < 24) ? bin2bcd(hrs) : 0xff;
+-		min = (min < 60) ? bin2bcd(min) : 0xff;
+-		sec = (sec < 60) ? bin2bcd(sec) : 0xff;
++		p.mon = (p.mon <= 12) ? bin2bcd(p.mon) : 0xff;
++		p.mday = (p.mday >= 1 && p.mday <= 31) ? bin2bcd(p.mday) : 0xff;
++		p.hrs = (p.hrs < 24) ? bin2bcd(p.hrs) : 0xff;
++		p.min = (p.min < 60) ? bin2bcd(p.min) : 0xff;
++		p.sec = (p.sec < 60) ? bin2bcd(p.sec) : 0xff;
  	}
  
- #ifdef CONFIG_MACH_DECSTATION
--	time->tm_year += real_year - 72;
-+	time->tm_year += p.real_year - 72;
- #endif
+-	spin_lock_irq(&rtc_lock);
+-
+-	/* next rtc irq must not be from previous alarm setting */
+-	cmos_irq_disable(cmos, RTC_AIE);
+-
+-	/* update alarm */
+-	CMOS_WRITE(hrs, RTC_HOURS_ALARM);
+-	CMOS_WRITE(min, RTC_MINUTES_ALARM);
+-	CMOS_WRITE(sec, RTC_SECONDS_ALARM);
+-
+-	/* the system may support an "enhanced" alarm */
+-	if (cmos->day_alrm) {
+-		CMOS_WRITE(mday, cmos->day_alrm);
+-		if (cmos->mon_alrm)
+-			CMOS_WRITE(mon, cmos->mon_alrm);
+-	}
+-
+-	if (use_hpet_alarm()) {
+-		/*
+-		 * FIXME the HPET alarm glue currently ignores day_alrm
+-		 * and mon_alrm ...
+-		 */
+-		hpet_set_alarm_time(t->time.tm_hour, t->time.tm_min,
+-				    t->time.tm_sec);
+-	}
+-
+-	if (t->enabled)
+-		cmos_irq_enable(cmos, RTC_AIE);
+-
+-	spin_unlock_irq(&rtc_lock);
++	/*
++	 * Some Intel chipsets disconnect the alarm registers when the clock
++	 * update is in progress - during this time writes fail silently.
++	 *
++	 * Use mc146818_do_avoiding_UIP() to avoid this.
++	 */
++	if (!mc146818_do_avoiding_UIP(cmos_set_alarm_callback, &p))
++		return -EIO;
  
--	if (century > 20)
--		time->tm_year += (century - 19) * 100;
-+#ifdef CONFIG_ACPI
-+	if (p.century > 20)
-+		time->tm_year += (p.century - 19) * 100;
-+#endif
+ 	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
  
- 	/*
- 	 * Account for differences between how the RTC uses the values
 -- 
 2.25.1
 
