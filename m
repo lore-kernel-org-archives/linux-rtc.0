@@ -2,26 +2,68 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A309C433F5
-	for <linux-rtc@archiver.kernel.org>; Sat, 20 Nov 2021 16:06:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 321B5C433F5
+	for <linux-rtc@archiver.kernel.org>; Sun, 21 Nov 2021 16:48:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237698AbhKTQJj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 20 Nov 2021 11:09:39 -0500
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:38965 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231523AbhKTQJi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 20 Nov 2021 11:09:38 -0500
-Received: from [77.244.183.192] (port=64374 helo=melee.fritz.box)
-        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1moSlC-000Dxh-In; Sat, 20 Nov 2021 16:58:38 +0100
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-To:     linux-kernel@vger.kernel.org
-Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
+        id S229641AbhKUQve (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 21 Nov 2021 11:51:34 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:60978
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237304AbhKUQvd (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 21 Nov 2021 11:51:33 -0500
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com [209.85.167.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 78C663F338
+        for <linux-rtc@vger.kernel.org>; Sun, 21 Nov 2021 16:48:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1637513307;
+        bh=K8WNLh2BhNltzeUMzWCHhBj0rP6siNBgFRXvuYUpglA=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=XS0scDyAfhoejAEElxhW8ih9X6w/Li/cXcwoVbVgEbJr6Rv8ebxnu7X+mJBvFpRQq
+         H7u/1N4HxJvU77HdnhRwijtd9vRpnHWhCnFUZoiGCP/zt+FBiecqcTeObbKeEYpK1t
+         WnxT+W4M8fHCXZoAYOp0vldU32/gtS5LHVmDt13NApO1TFvvFMV7WfkDOd7jXYrBhR
+         tZDeB3ScYK7oulc8dpw+Qh5PyGIQa2mNpWz9qFrR8+hgxmi+2l/ZPFQVuJWCfQ/8jg
+         vmI28leUo3Ftzvlh+5R4jaZSoySykHyswxa14xG77baqVQyImTSayayAmrhyEEFoy6
+         urb3VZTxIp3Rw==
+Received: by mail-lf1-f69.google.com with SMTP id z12-20020a0565120c0c00b004037427efb7so10262356lfu.1
+        for <linux-rtc@vger.kernel.org>; Sun, 21 Nov 2021 08:48:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=K8WNLh2BhNltzeUMzWCHhBj0rP6siNBgFRXvuYUpglA=;
+        b=P1sXxrid2BhN/oDLnJ4KsVFiz/n1QJI8fEBNQYurrDhbiUBvvy19+5UUakYRNF6JUy
+         c5uVJxPOEzDcf9QgCW/xiBGHcnmGw2+JcwfWTqM155bHOU2B5VGOFW/dtEpaYqL2b0w2
+         ty1QbvfXtD0+kuozP1ogzR6gJpPo4ZpWjw4dZLkDpj/Uj7sxVcWHeZlAc2mOvrprIKJz
+         r8NiW+6ZHDNTvZH7iwrtRfTZnjAx38u8UWXOssYMwCQvZlBrQmvaAGtgGqG+TWeuQk2+
+         5EUWvOu3UbvIOmRlOOIkxhOg/TrBZc7Z9bNWx7Qu0736ZTTA4WGUi2/CULnR6LrFiJ0Q
+         SNcA==
+X-Gm-Message-State: AOAM531fJ2Eue0/KhFzUDnrW+jBdr7gIMOkbk445wNrzAgq40RpAbj6S
+        HPd2NtLhYZ+OzIz/zMokpUgAA5/+FlXRN5mcxTxieAocjvxOOaiTkVoWMnHBeKriVrB8IV0gX8l
+        /uAmVsDqaEVQSifF5DXn9VghIyb4kqGPkns4BzA==
+X-Received: by 2002:a2e:141e:: with SMTP id u30mr44782273ljd.434.1637513306839;
+        Sun, 21 Nov 2021 08:48:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzivQ+d3pUhfOFGcDUzWT7iqm/ykn54rpcjdMc9CACB6IBgMojuJVrO+qMAr6C3C6u/fB2log==
+X-Received: by 2002:a2e:141e:: with SMTP id u30mr44782237ljd.434.1637513306650;
+        Sun, 21 Nov 2021 08:48:26 -0800 (PST)
+Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id bp41sm692511lfb.129.2021.11.21.08.48.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 21 Nov 2021 08:48:26 -0800 (PST)
+Message-ID: <5e5bc9ca-b648-e465-1638-adb0a26500de@canonical.com>
+Date:   Sun, 21 Nov 2021 17:48:24 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH v4 4/9] dt-bindings: mfd: add Maxim MAX77714 PMIC
+Content-Language: en-US
+To:     Luca Ceresoli <luca@lucaceresoli.net>, linux-kernel@vger.kernel.org
+Cc:     Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>,
         Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -30,135 +72,42 @@ Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
         linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
         Chiwoong Byun <woong.byun@samsung.com>,
         Laxman Dewangan <ldewangan@nvidia.com>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH v4 6/9] watchdog: Kconfig: fix help text indentation
-Date:   Sat, 20 Nov 2021 16:57:04 +0100
-Message-Id: <20211120155707.4019487-7-luca@lucaceresoli.net>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211120155707.4019487-1-luca@lucaceresoli.net>
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rob Herring <robh@kernel.org>
 References: <20211120155707.4019487-1-luca@lucaceresoli.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+ <20211120155707.4019487-5-luca@lucaceresoli.net>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20211120155707.4019487-5-luca@lucaceresoli.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some entries indent their help text with 1 tab + 1 space or 1 tab only
-instead of 1 tab + 2 spaces. Add the missing spaces.
+On 20/11/2021 16:57, Luca Ceresoli wrote:
+> Add bindings for the MAX77714 PMIC with GPIO, RTC and watchdog.
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> 
+> ---
+> 
+> Changes in v4: none
+> 
+> Changes in v3:
+>  - add 'regulators' node (Krzysztof Kozlowski, Rob Herring)
+> 
+> Changes in v2: none
+> ---
+>  .../bindings/mfd/maxim,max77714.yaml          | 68 +++++++++++++++++++
+>  MAINTAINERS                                   |  5 ++
+>  2 files changed, 73 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/maxim,max77714.yaml
+> 
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
----
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-Changes in v4: none
 
-Changes in v3: none
----
- drivers/watchdog/Kconfig | 48 ++++++++++++++++++++--------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 9d222ba17ec6..a6d97f30325a 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -680,10 +680,10 @@ config MAX77620_WATCHDOG
- 	depends on MFD_MAX77620 || COMPILE_TEST
- 	select WATCHDOG_CORE
- 	help
--	 This is the driver for the Max77620 watchdog timer.
--	 Say 'Y' here to enable the watchdog timer support for
--	 MAX77620 chips. To compile this driver as a module,
--	 choose M here: the module will be called max77620_wdt.
-+	  This is the driver for the Max77620 watchdog timer.
-+	  Say 'Y' here to enable the watchdog timer support for
-+	  MAX77620 chips. To compile this driver as a module,
-+	  choose M here: the module will be called max77620_wdt.
- 
- config IMX2_WDT
- 	tristate "IMX2+ Watchdog"
-@@ -1440,26 +1440,26 @@ config TQMX86_WDT
- 	depends on X86
- 	select WATCHDOG_CORE
- 	help
--	This is the driver for the hardware watchdog timer in the TQMX86 IO
--	controller found on some of their ComExpress Modules.
-+	  This is the driver for the hardware watchdog timer in the TQMX86 IO
-+	  controller found on some of their ComExpress Modules.
- 
--	To compile this driver as a module, choose M here; the module
--	will be called tqmx86_wdt.
-+	  To compile this driver as a module, choose M here; the module
-+	  will be called tqmx86_wdt.
- 
--	Most people will say N.
-+	  Most people will say N.
- 
- config VIA_WDT
- 	tristate "VIA Watchdog Timer"
- 	depends on X86 && PCI
- 	select WATCHDOG_CORE
- 	help
--	This is the driver for the hardware watchdog timer on VIA
--	southbridge chipset CX700, VX800/VX820 or VX855/VX875.
-+	  This is the driver for the hardware watchdog timer on VIA
-+	  southbridge chipset CX700, VX800/VX820 or VX855/VX875.
- 
--	To compile this driver as a module, choose M here; the module
--	will be called via_wdt.
-+	  To compile this driver as a module, choose M here; the module
-+	  will be called via_wdt.
- 
--	Most people will say N.
-+	  Most people will say N.
- 
- config W83627HF_WDT
- 	tristate "Watchdog timer for W83627HF/W83627DHG and compatibles"
-@@ -1745,10 +1745,10 @@ config BCM7038_WDT
- 	depends on HAS_IOMEM
- 	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
- 	help
--	 Watchdog driver for the built-in hardware in Broadcom 7038 and
--	 later SoCs used in set-top boxes.  BCM7038 was made public
--	 during the 2004 CES, and since then, many Broadcom chips use this
--	 watchdog block, including some cable modem chips.
-+	  Watchdog driver for the built-in hardware in Broadcom 7038 and
-+	  later SoCs used in set-top boxes.  BCM7038 was made public
-+	  during the 2004 CES, and since then, many Broadcom chips use this
-+	  watchdog block, including some cable modem chips.
- 
- config IMGPDC_WDT
- 	tristate "Imagination Technologies PDC Watchdog Timer"
-@@ -2109,12 +2109,12 @@ config KEEMBAY_WATCHDOG
- 	depends on ARCH_KEEMBAY || (ARM64 && COMPILE_TEST)
- 	select WATCHDOG_CORE
- 	help
--	 This option enable support for an In-secure watchdog timer driver for
--	 Intel Keem Bay SoC. This WDT has a 32 bit timer and decrements in every
--	 count unit. An interrupt will be triggered, when the count crosses
--	 the threshold configured in the register.
-+	  This option enable support for an In-secure watchdog timer driver for
-+	  Intel Keem Bay SoC. This WDT has a 32 bit timer and decrements in every
-+	  count unit. An interrupt will be triggered, when the count crosses
-+	  the threshold configured in the register.
- 
--	 To compile this driver as a module, choose M here: the
--	 module will be called keembay_wdt.
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called keembay_wdt.
- 
- endif # WATCHDOG
--- 
-2.25.1
-
+Best regards,
+Krzysztof
