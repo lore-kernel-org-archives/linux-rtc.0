@@ -2,125 +2,148 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F982C433F5
-	for <linux-rtc@archiver.kernel.org>; Fri, 26 Nov 2021 07:57:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8581C433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 26 Nov 2021 09:25:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245205AbhKZIAb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 26 Nov 2021 03:00:31 -0500
-Received: from alexa-out-tai-02.qualcomm.com ([103.229.16.227]:25248 "EHLO
-        alexa-out-tai-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1345072AbhKZH6b (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Nov 2021 02:58:31 -0500
-X-Greylist: delayed 380 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 02:58:30 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1637913319; x=1669449319;
-  h=from:to:cc:subject:date:message-id;
-  bh=NJ5svLlAZ6xiVU1WgloAaItcZWYgqCd5TquR5rLHZc4=;
-  b=BS53quzcX5xP3GCVe1g6NslXw67Mw5nva8WzNH5oJ0mi92lbNXe1aWHb
-   b1XyVEsNNdv2KfaokqkQnWXYMcfNVa3Iz4K17WxbePM6wMBv6xTbYS9D4
-   hDhaUjSC9tuMXUDzbr9gxhEAZQunQjoChyePr/21u172RG+6BVINayc2C
-   E=;
-Received: from ironmsg01-tai.qualcomm.com ([10.249.140.6])
-  by alexa-out-tai-02.qualcomm.com with ESMTP; 26 Nov 2021 15:48:57 +0800
-X-QCInternal: smtphost
-Received: from jianbinz-gv.ap.qualcomm.com ([10.238.176.241])
-  by ironmsg01-tai.qualcomm.com with ESMTP; 26 Nov 2021 15:48:53 +0800
-Received: by jianbinz-gv.ap.qualcomm.com (Postfix, from userid 3963613)
-        id 9BAAC1F00C19; Fri, 26 Nov 2021 15:48:51 +0800 (CST)
-From:   jianbin zhang <quic_jianbinz@quicinc.com>
-To:     alexandre.belloni@bootlin.com, a.zummo@towertech.it
-Cc:     jianbinz <quic_jianbinz@quicinc.com>, linux-kernel@vger.kernel.org,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH] rtc: pm8xxx: Disable alarm irq if alarm time is less than rtc time and alarm irq is enabled
-Date:   Fri, 26 Nov 2021 15:48:45 +0800
-Message-Id: <20211126074845.9160-1-quic_jianbinz@quicinc.com>
-X-Mailer: git-send-email 2.17.1
+        id S1376398AbhKZJ2O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 26 Nov 2021 04:28:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53914 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376333AbhKZJ0I (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 26 Nov 2021 04:26:08 -0500
+X-Greylist: delayed 373 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 26 Nov 2021 01:15:55 PST
+Received: from forward108p.mail.yandex.net (forward108p.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:116])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98D8BC061379
+        for <linux-rtc@vger.kernel.org>; Fri, 26 Nov 2021 01:15:55 -0800 (PST)
+Received: from postback1j.mail.yandex.net (postback1j.mail.yandex.net [IPv6:2a02:6b8:c04:242:0:640:5c69:b0ec])
+        by forward108p.mail.yandex.net (Yandex) with ESMTP id 462562676D52;
+        Fri, 26 Nov 2021 12:09:37 +0300 (MSK)
+Received: from forward500j.mail.yandex.net (forward500j.mail.yandex.net [IPv6:2a02:6b8:0:801:2::110])
+        by postback1j.mail.yandex.net (Yandex) with ESMTP id 391875169C58;
+        Fri, 26 Nov 2021 12:09:37 +0300 (MSK)
+Received: from iva4-d8b0e1d849e5.qloud-c.yandex.net (iva4-d8b0e1d849e5.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:825:0:640:d8b0:e1d8])
+        by forward500j.mail.yandex.net (Yandex) with ESMTP id 360186CB640B;
+        Fri, 26 Nov 2021 12:09:37 +0300 (MSK)
+Received: from iva4-b3ebd202b141.qloud-c.yandex.net (iva4-b3ebd202b141.qloud-c.yandex.net [2a02:6b8:c0c:4e8e:0:640:b3eb:d202])
+        by iva4-d8b0e1d849e5.qloud-c.yandex.net (mxback/Yandex) with ESMTP id qjXZFRsKQo-9aCajNSr;
+        Fri, 26 Nov 2021 12:09:37 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1637917777;
+        bh=oePM+HLWUxBfG3jAEg8TG/YPC4fVuNglt4wj6gC6RWI=;
+        h=In-Reply-To:Subject:To:From:References:Date:Message-ID:Cc;
+        b=M++atBQImzoRB0MFLGleAfttBhwtRlEzNhjkJ0kzp3dXEjXgIIgWv4X6eJYKLKR17
+         FyKQ0Dv2zrhOUHbYEKX2YjamK5fgMin3DsZxTRuy1/TQ3SNybGNojBAfGg0wGwsjtR
+         O8zZ/DTQevASNCZURSI4L51HUuHWYGnL0/MS9cYs=
+Authentication-Results: iva4-d8b0e1d849e5.qloud-c.yandex.net; dkim=pass header.i=@maquefel.me
+Received: by iva4-b3ebd202b141.qloud-c.yandex.net (smtp/Yandex) with ESMTPSA id uftgvbgBst-9aw0stCG;
+        Fri, 26 Nov 2021 12:09:36 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+X-Yandex-Fwd: 2
+Date:   Fri, 26 Nov 2021 12:09:35 +0300
+From:   Nikita Shubin <nikita.shubin@maquefel.me>
+To:     Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Cc:     David Abdurachmanov <david.abdurachmanov@sifive.com>,
+        Support Opensource <Support.Opensource@diasemi.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] rtc: da9063: add as wakeup source
+Message-ID: <20211126120935.188e672a@redslave.neermore.group>
+In-Reply-To: <DB9PR10MB465224854946DABA0F75515980609@DB9PR10MB4652.EURPRD10.PROD.OUTLOOK.COM>
+References: <20211123140604.21655-1-nikita.shubin@maquefel.me>
+        <DB9PR10MB465224854946DABA0F75515980609@DB9PR10MB4652.EURPRD10.PROD.OUTLOOK.COM>
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: jianbinz <quic_jianbinz@quicinc.com>
+Hello Adam!
 
-If device is boot up by rtc alarm, the alarm irq will still be enabled and
-the alarm time is smaller than current rtc time before any alarm is set or canceled.
+On Tue, 23 Nov 2021 14:37:42 +0000
+Adam Thomson <Adam.Thomson.Opensource@diasemi.com> wrote:
 
-If the device is shutdown this time, the device will reboot automatically.
+> On 23 November 2021 14:06, Nikita Shubin wrote:
+> 
+> > As da9063 driver refuses to load without irq, we simply add it as a
+> > wakeup source before registering rtc device.  
+> 
+> Can you please make the commit message more detailed, explaining why
+> you're making this change; what it adds/fixes/removes/etc.? Right now
+> just reading this I'm unclear as to why you're adding a call to
+> device_init_wakeup() here. The generic I2C client code will mark the
+> parent MFD device as a wake source, if the relevant boolean 'wakeup'
+> is defined in DT, so what does this add?
 
-So disable irq if alarm time is less than rtc time and irq is enabled.
+Sorry for long response had to double check setting wakeup-source in
+case i have missed something.
 
-Reproduced steps:
-1/ set the alarm
-2/ shutdown
-3/ alarm happens, the device boots
-4/ shutdown
-5/ alarm irq is still set, device boots again
+I2C_CLIENT_WAKE is set in of_i2c_get_board_info - the place da9063 rtc
+would never get to.
 
-The plan to solve the issue is to acknowledge and clear the irq at step
-3 in pm8xxx driver.
+Setting "wakeup-source" for pmic indeed marks it as wakeup source, but
+that's not exactly we want.
 
-Signed-off-by: jianbin zhang <quic_jianbinz@quicinc.com>
----
- drivers/rtc/rtc-pm8xxx.c | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+What we want is "wakealarm" in RTC sysfs directory, to be able to set
+alarm so we can wake up from SHUTDOWN/DELIVERY/RTC mode of da9063.
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 29a1c65661e9..c8a75d3e9c43 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -267,16 +267,19 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	int rc;
- 	unsigned int ctrl_reg;
-+	unsigned long irq_flags;
- 	u8 value[NUM_8_BIT_RTC_REGS];
- 	unsigned long secs;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
- 	rc = regmap_bulk_read(rtc_dd->regmap, regs->alarm_rw, value,
- 			      sizeof(value));
- 	if (rc) {
- 		dev_err(dev, "RTC alarm time read failed\n");
--		return rc;
-+		goto rtc_rw_fail;
- 	}
- 
- 	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
-@@ -287,14 +290,30 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
- 	if (rc) {
- 		dev_err(dev, "Read from RTC alarm control register failed\n");
--		return rc;
-+		goto rtc_rw_fail;
-+	}
-+
-+	if (ctrl_reg && (rtc_tm_to_ktime(alarm->time) >=
-+				rtc_dd->rtc->aie_timer.node.expires)) {
-+		ctrl_reg &= ~regs->alarm_en;
-+		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+		if (rc) {
-+			dev_err(dev, "Update RTC control register failed \n");
-+			goto rtc_rw_fail;
-+		}
- 	}
- 	alarm->enabled = !!(ctrl_reg & PM8xxx_RTC_ALARM_ENABLE);
- 
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
- 	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
- 		&alarm->time, &alarm->time);
- 
- 	return 0;
-+
-+rtc_rw_fail:
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+	return rc;
- }
- 
- static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
--- 
-2.17.1
+We do have /sys/class/rtc/rtc0/wakealarm if marking da9063-rtc as
+device_init_wakeup.
+
+Unfortunately marking pmic or rtc as wakeup-source in device tree gives
+us nothing.
+
+ls /proc/device-tree/soc/i2c\@10030000/pmic\@58/
+compatible            interrupt-parent  name  regulators  wakeup-source
+interrupt-controller  interrupts        reg   rtc         wdt
+
+ls /proc/device-tree/soc/i2c\@10030000/pmic\@58/rtc/
+compatible  name  wakeup-source
+
+ls /sys/class/rtc/rtc0/wakealarm
+ls: cannot access '/sys/class/rtc/rtc0/wakealarm': No such file or
+directory
+
+So i currently see that either da9063 RTC should be marked as wakeup
+source, or the da9063 MFD should somehow set that for RTC.
+
+And we want this even if CONFIG_PM is off.
+
+Mentioning "/sys/class/rtc/rtc0/wakealarm" in commit message would be
+enough ?
+
+> 
+> > 
+> > Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+> > ---
+> > v1->v2:
+> > Alexandre Belloni:
+> > 
+> > Dropped everything except device_init_wakeup, as driver refuses to
+> > load without irq specified, we can always set it as a wakeup
+> > source, before calling devm_rtc_register_device.
+> > ---
+> >  drivers/rtc/rtc-da9063.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/rtc/rtc-da9063.c b/drivers/rtc/rtc-da9063.c
+> > index d4b72a9fa2ba..b9a73356bace 100644
+> > --- a/drivers/rtc/rtc-da9063.c
+> > +++ b/drivers/rtc/rtc-da9063.c
+> > @@ -494,6 +494,8 @@ static int da9063_rtc_probe(struct
+> > platform_device *pdev)
+> >  		dev_err(&pdev->dev, "Failed to request ALARM IRQ
+> > %d: %d\n", irq_alarm, ret);
+> > 
+> > +	device_init_wakeup(&pdev->dev, true);
+> > +
+> >  	return devm_rtc_register_device(rtc->rtc_dev);
+> >  }
+> > 
+> > --
+> > 2.31.1  
+> 
 
