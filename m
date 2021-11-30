@@ -2,30 +2,29 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A864C433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 30 Nov 2021 23:06:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 201E3C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 30 Nov 2021 23:08:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344981AbhK3XJl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 30 Nov 2021 18:09:41 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:43205 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235547AbhK3XJl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Nov 2021 18:09:41 -0500
+        id S1345072AbhK3XLT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 30 Nov 2021 18:11:19 -0500
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:39827 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344850AbhK3XLM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 30 Nov 2021 18:11:12 -0500
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 7CE52200004;
-        Tue, 30 Nov 2021 23:06:19 +0000 (UTC)
+        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 1C69D40008;
+        Tue, 30 Nov 2021 23:07:49 +0000 (UTC)
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Camel Guo <camel.guo@axis.com>
+To:     ferlandm@amotus.ca, a.zummo@towertech.it
 Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@axis.com, Camel Guo <camelg@axis.com>
-Subject: Re: [PATCH v3] rtc: rs5c372: Add RTC_VL_READ, RTC_VL_CLR ioctls
-Date:   Wed,  1 Dec 2021 00:06:18 +0100
-Message-Id: <163831354984.80026.71132451941412651.b4-ty@bootlin.com>
+        kernel test robot <lkp@intel.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2] rtc: pcf85063: add i2c_device_id name matching support
+Date:   Wed,  1 Dec 2021 00:07:49 +0100
+Message-Id: <163831366173.80369.17100409949013853477.b4-ty@bootlin.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211111083625.10216-1-camel.guo@axis.com>
-References: <20211111083625.10216-1-camel.guo@axis.com>
+In-Reply-To: <20211116164733.17149-1-ferlandm@amotus.ca>
+References: <202111051119.UeuF3GiJ-lkp@intel.com> <20211116164733.17149-1-ferlandm@amotus.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -33,18 +32,22 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 11 Nov 2021 09:36:25 +0100, Camel Guo wrote:
-> From: Camel Guo <camelg@axis.com>
+On Tue, 16 Nov 2021 11:47:33 -0500, ferlandm@amotus.ca wrote:
+> From: Marc Ferland <ferlandm@amotus.ca>
 > 
-> In order to make it possible to get battery voltage status, this commit
-> adds RTC_VL_READ, RTC_VL_CLR ioctl commands to rtc-rs5c372.
+> The pcf85063 driver regsitration currently supports the "compatible"
+> property type of matching (for DT).
 > 
+> This patch adds "matching by name" support to the driver by defining
+> an i2c_device_id table and setting the id_table parameter in the
+> i2c_driver struct.
 > 
+> [...]
 
 Applied, thanks!
 
-[1/1] rtc: rs5c372: Add RTC_VL_READ, RTC_VL_CLR ioctls
-      commit: f601aa7930669439623dd266fc9e90b0218b42c1
+[1/1] rtc: pcf85063: add i2c_device_id name matching support
+      commit: 1c1b3098ae1e0d9725d0d4d49986e0edebba443a
 
 Best regards,
 -- 
