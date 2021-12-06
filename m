@@ -2,51 +2,51 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AB72C433F5
-	for <linux-rtc@archiver.kernel.org>; Mon,  6 Dec 2021 18:28:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F489C433FE
+	for <linux-rtc@archiver.kernel.org>; Mon,  6 Dec 2021 18:28:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347996AbhLFSbZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 6 Dec 2021 13:31:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47386 "EHLO
+        id S1347896AbhLFSbT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 6 Dec 2021 13:31:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347322AbhLFSaI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Dec 2021 13:30:08 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B7B6C061746;
-        Mon,  6 Dec 2021 10:26:39 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id b13so7644447plg.2;
-        Mon, 06 Dec 2021 10:26:39 -0800 (PST)
+        with ESMTP id S1347123AbhLFS35 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Dec 2021 13:29:57 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2A9C061359;
+        Mon,  6 Dec 2021 10:26:28 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id x5so11014783pfr.0;
+        Mon, 06 Dec 2021 10:26:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=tMguhbDPLlBsGaFyDhaEHdw9cD0LjPHChE0ShcCNQmo=;
-        b=WcX1YxeUHujtnpmhknxX67pqcGzfnhE7LaqRGQ3kJpJVmmabBDfKBdzu44SrvPUXzz
-         l8Br3qGV0XAs9fe/EJUUsxba8Im+TviK22yqgpi7SpAy9Ug35WA4H3YocHaqiG5ZpNsa
-         cJAEsTBhrZYgvc6bzLOrijfZByDJbPontK7bY8zEUqJ0ICylDFwWNcFcs4yiMFVU6U+Z
-         fL8SHUYfLM56ajViNOfuOmzPQUq+B7RevQjXnOhBYE3hP7Kqz7LxYfxjkyWHejMNkXkt
-         yDVOmkOWbbpFCdJ8L8CR5e6NpcUXB4JkMrhh4joatJ1/iMiXhZmG+woxEG3DTx5eiZm+
-         Ydkw==
+        bh=v2A5xiMCMD01rja8VsVDsIJrjuLJ0aPnQc2VQht4HL0=;
+        b=c9Jsl2hZOfK0CYPT8V2GSfwPGDLRR5wg6YINAn5nKczCXrlhzTlNGzRFKGGjPeJe1L
+         xcEGaTzkkHOWgB9L45gGuzZZUG7Ut9ZJ7dKufiNqNv1bxgPX2p9fOzRu2CdoFh8uLNIz
+         UZ96AUHAk8flm4/uhavpoF/IGLg+6oXhr+LFejLHPxlYlOl95pYWUlchHyru6lKDooL2
+         bmBWmr8VG66nkD9Z1SLxuF/OrdgqSiIXCu3L06erm//1JT1V+I262+CW1FwnnMMrEHh9
+         iQfgmdmLTa0b75zTtlRhkGKuczBcUiODdXe4wElcxw2vuKw3drCoMsgT4g6gb+BerwVs
+         44Qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=tMguhbDPLlBsGaFyDhaEHdw9cD0LjPHChE0ShcCNQmo=;
-        b=8ArBakeJEAaQtDor+epahBpXcWZ2oI1AMXt7SUIbZjUt3+2gAdtRhQeSW6RxzQ56tg
-         sutHFdIMEY38X2zS1ciyNdK4bjzUB9mFz7bQ7EQm7OPFpJWEF19F9ToZ58hFRVZ/UZIl
-         6D52AkLQydN5y0d3tgTs1F0qOvyN4hWhck3J74LI5695zgCKNjQiVHMKkW1nhQEMQp1l
-         laVM0375q2NMRbpuGxBGD/eIKieJ/1ZGthhkfa9tQ7dQghEhbaBiUX64jkcKn6+d69fm
-         wqTsly2gA3tU0hN96sxe91WtKrrbNcAkE1yl7Rs/A/2n5aXCNSOmGlzl+vB7ZA2DLudw
-         9wzw==
-X-Gm-Message-State: AOAM531/UXp1rI8ZOXdBmZvPfQY/+1ib0TjQuZO59h9DwSjmo/pbpS7T
-        OYi/nDxxXGtVP9bCRgx48kT+rAau1fg=
-X-Google-Smtp-Source: ABdhPJxBx2i6aQwCIbyyW0LzmXHbVJnh2s06Ie4/DP5Sgcd3MoKZcjoZNl4BIR7/42LS2VQsV/ND/A==
-X-Received: by 2002:a17:902:d4d0:b0:141:c13d:6c20 with SMTP id o16-20020a170902d4d000b00141c13d6c20mr46404783plg.44.1638815198589;
-        Mon, 06 Dec 2021 10:26:38 -0800 (PST)
+        bh=v2A5xiMCMD01rja8VsVDsIJrjuLJ0aPnQc2VQht4HL0=;
+        b=XEZkXgWiOFsG3a9iz5m8Tjk0DL2yHSFHMcUnD2C+3+Ex+hbDPGq1wW8LDNo3mEnb2P
+         ak2t+UZJ6eV3WBhYpmNCQGRSKI8sv+FnpZiSEd+cdrh2pX9xDeWI5kM1GLe5+sK0En5N
+         uISCT1bXDkD1sX1iUE5KDAuJbvMlGDTT8LjLUJDEmAbZZnCyOxmLZIsmMXYvgJTSektl
+         e1GBiEuf7gSci2sOB65sx9GRYyVrb/yDth3i+ZduGFqtTAWibDb5NdwRmqMstBp8x5w7
+         +FvTcmER5MRWxi7p3lQE3YSJfzmoPFE96upZzgJeYX8kTsL4ThXBvTnETH2NuVInq9V1
+         tzCQ==
+X-Gm-Message-State: AOAM531MfoOqs/FPZF5FkMtQ0nTt3JciOMX6IxJCruQ6R5ainqwkUeye
+        NiFmyFnSt7HHWtuuQz7LBR6gmQY3AOw=
+X-Google-Smtp-Source: ABdhPJwRnUOiI2e1NM8GsgG18O/2CJ88XFMg7KlTym3Di4SpobO10rebateGY5tG5eLZs3t3nGd7yQ==
+X-Received: by 2002:a63:4c58:: with SMTP id m24mr19807730pgl.597.1638815188066;
+        Mon, 06 Dec 2021 10:26:28 -0800 (PST)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id a22sm12773097pfh.111.2021.12.06.10.26.36
+        by smtp.gmail.com with ESMTPSA id a22sm12773097pfh.111.2021.12.06.10.26.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Dec 2021 10:26:38 -0800 (PST)
+        Mon, 06 Dec 2021 10:26:27 -0800 (PST)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     devicetree@vger.kernel.org
 Cc:     Florian Fainelli <f.fainelli@gmail.com>,
@@ -89,9 +89,9 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
         linux-pm@vger.kernel.org (open list:THERMAL),
         linux-usb@vger.kernel.org (open list:USB SUBSYSTEM)
-Subject: [PATCH v2 09/14] dt-bindings: interrupt-controller: Convert Broadcom STB L2 to YAML
-Date:   Mon,  6 Dec 2021 10:26:11 -0800
-Message-Id: <20211206182616.2089677-10-f.fainelli@gmail.com>
+Subject: [PATCH v2 04/14] dt-bindings: rtc: Convert Broadcom STB waketimer to YAML
+Date:   Mon,  6 Dec 2021 10:26:06 -0800
+Message-Id: <20211206182616.2089677-5-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211206182616.2089677-1-f.fainelli@gmail.com>
 References: <20211206182616.2089677-1-f.fainelli@gmail.com>
@@ -101,123 +101,92 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the Broadcom STB L2 generic Level 2 interrupt controller Device
-Tree binding to YAML to help with validation.
+Convert the Broadcom STB waketimer Device Tree binding to YAML to help
+with validation.
 
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- .../interrupt-controller/brcm,l2-intc.txt     | 31 ---------
- .../interrupt-controller/brcm,l2-intc.yaml    | 64 +++++++++++++++++++
- 2 files changed, 64 insertions(+), 31 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt
- create mode 100644 Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml
+ .../bindings/rtc/brcm,brcmstb-waketimer.txt   | 20 ---------
+ .../bindings/rtc/brcm,brcmstb-waketimer.yaml  | 44 +++++++++++++++++++
+ 2 files changed, 44 insertions(+), 20 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
 
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt b/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt
+diff --git a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
 deleted file mode 100644
-index 021cf822395c..000000000000
---- a/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.txt
+index d946f28502b3..000000000000
+--- a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
 +++ /dev/null
-@@ -1,31 +0,0 @@
--Broadcom Generic Level 2 Interrupt Controller
+@@ -1,20 +0,0 @@
+-Broadcom STB wake-up Timer
+-
+-The Broadcom STB wake-up timer provides a 27Mhz resolution timer, with the
+-ability to wake up the system from low-power suspend/standby modes.
 -
 -Required properties:
--
--- compatible: should be one of:
--	      "brcm,hif-spi-l2-intc" or
--	      "brcm,upg-aux-aon-l2-intc" or
--	      "brcm,l2-intc" for latched interrupt controllers
--              should be "brcm,bcm7271-l2-intc" for level interrupt controllers
--- reg: specifies the base physical address and size of the registers
--- interrupt-controller: identifies the node as an interrupt controller
--- #interrupt-cells: specifies the number of cells needed to encode an
--  interrupt source. Should be 1.
--- interrupts: specifies the interrupt line in the interrupt-parent irq space
--  to be used for cascading
--
--Optional properties:
--
--- brcm,irq-can-wake: If present, this means the L2 controller can be used as a
--  wakeup source for system suspend/resume.
+-- compatible     : should contain "brcm,brcmstb-waketimer"
+-- reg            : the register start and length for the WKTMR block
+-- interrupts     : The TIMER interrupt
+-- clocks	 : The phandle to the UPG fixed clock (27Mhz domain)
 -
 -Example:
 -
--hif_intr2_intc: interrupt-controller@f0441000 {
--	compatible = "brcm,l2-intc";
--	reg = <0xf0441000 0x30>;
--	interrupt-controller;
--	#interrupt-cells = <1>;
--	interrupt-parent = <&intc>;
--	interrupts = <0x0 0x20 0x0>;
+-waketimer@f0411580 {
+-	compatible = "brcm,brcmstb-waketimer";
+-	reg = <0xf0411580 0x14>;
+-	interrupts = <0x3>;
+-	interrupt-parent = <&aon_pm_l2_intc>;
+-	clocks = <&upg_fixed>;
 -};
-diff --git a/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml b/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml
+diff --git a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
 new file mode 100644
-index 000000000000..b1e812e7c714
+index 000000000000..9fe079917a98
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/interrupt-controller/brcm,l2-intc.yaml
-@@ -0,0 +1,64 @@
++++ b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
+@@ -0,0 +1,44 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/interrupt-controller/brcm,l2-intc.yaml#
++$id: http://devicetree.org/schemas/rtc/brcm,brcmstb-waketimer.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Broadcom Generic Level 2 Interrupt Controller
++title: Broadcom STB wake-up Timer
 +
 +maintainers:
 +  - Florian Fainelli <f.fainelli@gmail.com>
 +
++description:
++  The Broadcom STB wake-up timer provides a 27Mhz resolution timer, with the
++  ability to wake up the system from low-power suspend/standby modes.
++
 +allOf:
-+  - $ref: /schemas/interrupt-controller.yaml#
++  - $ref: "rtc.yaml#"
 +
 +properties:
 +  compatible:
-+    oneOf:
-+      - items:
-+          - enum:
-+              - brcm,hif-spi-l2-intc
-+              - brcm,upg-aux-aon-l2-intc
-+          - const: brcm,l2-intc
-+      - items:
-+          - const: brcm,bcm7271-l2-intc
-+      - items:
-+          - const: brcm,l2-intc
++    const: brcm,brcmstb-waketimer
 +
 +  reg:
 +    maxItems: 1
-+    description: >
-+      Specifies the base physical address and size of the registers
 +
-+  interrupt-controller: true
++  interrupts:
++    description: the TIMER interrupt
++    maxItems: 1
 +
-+  "#interrupt-cells":
-+    const: 1
-+
-+  interrupts: true
-+
-+  brcm,irq-can-wake:
-+    type: boolean
-+    description: >
-+      If present, this means the L2 controller can be used as a wakeup source
-+      for system suspend/resume.
++  clocks:
++    description: clock reference in the 27MHz domain
++    maxItems: 1
 +
 +additionalProperties: false
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupt-controller
-+  - "#interrupt-cells"
-+  - interrupts
-+
 +examples:
 +  - |
-+    hif_intr2_intc: interrupt-controller@f0441000 {
-+      compatible = "brcm,l2-intc";
-+      reg = <0xf0441000 0x30>;
-+      interrupt-controller;
-+      #interrupt-cells = <1>;
-+      interrupt-parent = <&intc>;
-+      interrupts = <0x0 0x20 0x0>;
++    rtc@f0411580 {
++        compatible = "brcm,brcmstb-waketimer";
++        reg = <0xf0411580 0x14>;
++        interrupts = <0x3>;
++        interrupt-parent = <&aon_pm_l2_intc>;
++        clocks = <&upg_fixed>;
 +    };
 -- 
 2.25.1
