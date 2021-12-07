@@ -2,65 +2,67 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F489C433FE
-	for <linux-rtc@archiver.kernel.org>; Mon,  6 Dec 2021 18:28:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4F46C4321E
+	for <linux-rtc@archiver.kernel.org>; Tue,  7 Dec 2021 03:42:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347896AbhLFSbT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 6 Dec 2021 13:31:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47388 "EHLO
+        id S234377AbhLGDp3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 6 Dec 2021 22:45:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347123AbhLFS35 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Dec 2021 13:29:57 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE2A9C061359;
-        Mon,  6 Dec 2021 10:26:28 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id x5so11014783pfr.0;
-        Mon, 06 Dec 2021 10:26:28 -0800 (PST)
+        with ESMTP id S234282AbhLGDp0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Dec 2021 22:45:26 -0500
+Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4279BC061746;
+        Mon,  6 Dec 2021 19:41:57 -0800 (PST)
+Received: by mail-ua1-x92e.google.com with SMTP id l24so23994291uak.2;
+        Mon, 06 Dec 2021 19:41:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=v2A5xiMCMD01rja8VsVDsIJrjuLJ0aPnQc2VQht4HL0=;
-        b=c9Jsl2hZOfK0CYPT8V2GSfwPGDLRR5wg6YINAn5nKczCXrlhzTlNGzRFKGGjPeJe1L
-         xcEGaTzkkHOWgB9L45gGuzZZUG7Ut9ZJ7dKufiNqNv1bxgPX2p9fOzRu2CdoFh8uLNIz
-         UZ96AUHAk8flm4/uhavpoF/IGLg+6oXhr+LFejLHPxlYlOl95pYWUlchHyru6lKDooL2
-         bmBWmr8VG66nkD9Z1SLxuF/OrdgqSiIXCu3L06erm//1JT1V+I262+CW1FwnnMMrEHh9
-         iQfgmdmLTa0b75zTtlRhkGKuczBcUiODdXe4wElcxw2vuKw3drCoMsgT4g6gb+BerwVs
-         44Qw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+WjCLq5iyPbhZoOVbo+nvWb9Wp/JdlLnIPR31C337C8=;
+        b=mZiJ1JWBFc1OWU2CphwdToWib2Fs7VeoMvRyd6OGAUdTYE7JuVX3y18pFnbL9d0SYR
+         qnkGAcFy4HWByFCmfen3y9B+gsUBd2Z4vpiAY8cExnT/X6456PRBzYpHz5lzE8xWOBLE
+         /Opn0hwl+/WEjMpD3cFa2zhWfG+2VM8IZAoAwDwKw4uis+328EKo2LCeWhkZKeKEAT9k
+         n3UXrAemi7nOM0I+lBZxbPlnpXZXWks7fOWw21TwqOUg6+DtBOdhLAZp7S1avVtceNWO
+         6hIZiEiJ4irNSwTkZ0WAOuxz06b1U7vebIqVBU87ZImLwZxD31NuI/0Q7jK48HpCxsG6
+         jbJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=v2A5xiMCMD01rja8VsVDsIJrjuLJ0aPnQc2VQht4HL0=;
-        b=XEZkXgWiOFsG3a9iz5m8Tjk0DL2yHSFHMcUnD2C+3+Ex+hbDPGq1wW8LDNo3mEnb2P
-         ak2t+UZJ6eV3WBhYpmNCQGRSKI8sv+FnpZiSEd+cdrh2pX9xDeWI5kM1GLe5+sK0En5N
-         uISCT1bXDkD1sX1iUE5KDAuJbvMlGDTT8LjLUJDEmAbZZnCyOxmLZIsmMXYvgJTSektl
-         e1GBiEuf7gSci2sOB65sx9GRYyVrb/yDth3i+ZduGFqtTAWibDb5NdwRmqMstBp8x5w7
-         +FvTcmER5MRWxi7p3lQE3YSJfzmoPFE96upZzgJeYX8kTsL4ThXBvTnETH2NuVInq9V1
-         tzCQ==
-X-Gm-Message-State: AOAM531MfoOqs/FPZF5FkMtQ0nTt3JciOMX6IxJCruQ6R5ainqwkUeye
-        NiFmyFnSt7HHWtuuQz7LBR6gmQY3AOw=
-X-Google-Smtp-Source: ABdhPJwRnUOiI2e1NM8GsgG18O/2CJ88XFMg7KlTym3Di4SpobO10rebateGY5tG5eLZs3t3nGd7yQ==
-X-Received: by 2002:a63:4c58:: with SMTP id m24mr19807730pgl.597.1638815188066;
-        Mon, 06 Dec 2021 10:26:28 -0800 (PST)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id a22sm12773097pfh.111.2021.12.06.10.26.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Dec 2021 10:26:27 -0800 (PST)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     devicetree@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+WjCLq5iyPbhZoOVbo+nvWb9Wp/JdlLnIPR31C337C8=;
+        b=5b7/eFbJEOeL9ZNIuyZyAlpO52UWbGZLaf1bg2jfeQ4GVl9evTE4oJzyD9m1cSI9P/
+         DVPyXnB3/68ID+cisJSTq0toGmcK37hgecZUF+s5nTmSNshi7xyjIvERRCANsf5p2Cef
+         yJcC3400mMfT63OzCTqBEdCLqzU8xaCSeUwhc4bGPHFTFKW2b3+ptNWmWBzWiIc0kMa9
+         vZG8GfYGc42M+t896RoqpVEKnJpiKiqgug+D23TQaG32kECWATHpfW8SP/GLfqEUa5hf
+         WwNhY9eNgtRg13me9cjXzUQuEuMd15/WNRvBlpPMtNKPGOv6A2JBl3sGakYnONJo0rIu
+         Ki8w==
+X-Gm-Message-State: AOAM532t6a257QWxIXJkyZ7p6GAsPVSWe/vD+jR6CfEsncfkwhk3ZcV8
+        X+LhJLOcsUU2w0747qhtduReT7g/GebIhBzAkg0d1blr0+c=
+X-Google-Smtp-Source: ABdhPJx6RQZ3n6olyV3sCz9AbKmYBKhNAk0yZ773fOAPjf8R3q9XrHTi0PcC2P6/Zcqz0XN+NMNLS7cMSGYejK/S3F0=
+X-Received: by 2002:ab0:6813:: with SMTP id z19mr46872879uar.28.1638848516162;
+ Mon, 06 Dec 2021 19:41:56 -0800 (PST)
+MIME-Version: 1.0
+References: <20211206182616.2089677-1-f.fainelli@gmail.com> <20211206182616.2089677-6-f.fainelli@gmail.com>
+In-Reply-To: <20211206182616.2089677-6-f.fainelli@gmail.com>
+From:   Gregory Fong <gregory.0xf0@gmail.com>
+Date:   Mon, 6 Dec 2021 19:41:29 -0800
+Message-ID: <CADtm3G5Sh5sFhq7ye=aJbzd0v_FiqOPt_RAE3v_qWFQ+jH5bEQ@mail.gmail.com>
+Subject: Re: [PATCH v2 05/14] dt-bindings: gpio: Convert Broadcom STB GPIO to YAML
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     devicetree@vger.kernel.org,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Rob Herring <robh+dt@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
-        bcm-kernel-feedback-list@broadcom.com (maintainer:BROADCOM BCM7XXX ARM
-        ARCHITECTURE), Gregory Fong <gregory.0xf0@gmail.com>,
+        "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" 
+        <bcm-kernel-feedback-list@broadcom.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Marc Zyngier <maz@kernel.org>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, Lee Jones <lee.jones@linaro.org>,
         Philipp Zabel <p.zabel@pengutronix.de>,
         Herbert Xu <herbert@gondor.apana.org.au>,
@@ -76,118 +78,31 @@ Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Al Cooper <alcooperx@gmail.com>,
         Doug Berger <opendmb@gmail.com>,
-        linux-ide@vger.kernel.org (open list:LIBATA SUBSYSTEM (Serial and
-        Parallel ATA drivers)), linux-kernel@vger.kernel.org (open list),
-        linux-gpio@vger.kernel.org (open list:GPIO SUBSYSTEM),
-        linux-arm-kernel@lists.infradead.org (moderated list:BROADCOM BCM7XXX
-        ARM ARCHITECTURE),
-        linux-mmc@vger.kernel.org (open list:MULTIMEDIA CARD (MMC), SECURE
-        DIGITAL (SD) AND...),
-        linux-pwm@vger.kernel.org (open list:PWM SUBSYSTEM),
-        linux-crypto@vger.kernel.org (open list:HARDWARE RANDOM NUMBER
-        GENERATOR CORE),
-        linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-        linux-pm@vger.kernel.org (open list:THERMAL),
-        linux-usb@vger.kernel.org (open list:USB SUBSYSTEM)
-Subject: [PATCH v2 04/14] dt-bindings: rtc: Convert Broadcom STB waketimer to YAML
-Date:   Mon,  6 Dec 2021 10:26:06 -0800
-Message-Id: <20211206182616.2089677-5-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211206182616.2089677-1-f.fainelli@gmail.com>
-References: <20211206182616.2089677-1-f.fainelli@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
+        <linux-ide@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "moderated list:BROADCOM BCM7XXX ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:MULTIMEDIA CARD (MMC), SECURE DIGITAL (SD) AND..." 
+        <linux-mmc@vger.kernel.org>,
+        "open list:PWM SUBSYSTEM" <linux-pwm@vger.kernel.org>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        "open list:THERMAL" <linux-pm@vger.kernel.org>,
+        "open list:USB SUBSYSTEM" <linux-usb@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the Broadcom STB waketimer Device Tree binding to YAML to help
-with validation.
+On Mon, Dec 6, 2021 at 10:26 AM Florian Fainelli <f.fainelli@gmail.com> wrote:
+>
+> Convert the Broadcom STB GPIO Device Tree binding to YAML to help with
+> validation.
+>
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- .../bindings/rtc/brcm,brcmstb-waketimer.txt   | 20 ---------
- .../bindings/rtc/brcm,brcmstb-waketimer.yaml  | 44 +++++++++++++++++++
- 2 files changed, 44 insertions(+), 20 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
-
-diff --git a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
-deleted file mode 100644
-index d946f28502b3..000000000000
---- a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.txt
-+++ /dev/null
-@@ -1,20 +0,0 @@
--Broadcom STB wake-up Timer
--
--The Broadcom STB wake-up timer provides a 27Mhz resolution timer, with the
--ability to wake up the system from low-power suspend/standby modes.
--
--Required properties:
--- compatible     : should contain "brcm,brcmstb-waketimer"
--- reg            : the register start and length for the WKTMR block
--- interrupts     : The TIMER interrupt
--- clocks	 : The phandle to the UPG fixed clock (27Mhz domain)
--
--Example:
--
--waketimer@f0411580 {
--	compatible = "brcm,brcmstb-waketimer";
--	reg = <0xf0411580 0x14>;
--	interrupts = <0x3>;
--	interrupt-parent = <&aon_pm_l2_intc>;
--	clocks = <&upg_fixed>;
--};
-diff --git a/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
-new file mode 100644
-index 000000000000..9fe079917a98
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/brcm,brcmstb-waketimer.yaml
-@@ -0,0 +1,44 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/brcm,brcmstb-waketimer.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Broadcom STB wake-up Timer
-+
-+maintainers:
-+  - Florian Fainelli <f.fainelli@gmail.com>
-+
-+description:
-+  The Broadcom STB wake-up timer provides a 27Mhz resolution timer, with the
-+  ability to wake up the system from low-power suspend/standby modes.
-+
-+allOf:
-+  - $ref: "rtc.yaml#"
-+
-+properties:
-+  compatible:
-+    const: brcm,brcmstb-waketimer
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    description: the TIMER interrupt
-+    maxItems: 1
-+
-+  clocks:
-+    description: clock reference in the 27MHz domain
-+    maxItems: 1
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    rtc@f0411580 {
-+        compatible = "brcm,brcmstb-waketimer";
-+        reg = <0xf0411580 0x14>;
-+        interrupts = <0x3>;
-+        interrupt-parent = <&aon_pm_l2_intc>;
-+        clocks = <&upg_fixed>;
-+    };
--- 
-2.25.1
-
+Acked-by: Gregory Fong <gregory.0xf0@gmail.com>
