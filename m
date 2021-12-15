@@ -2,18 +2,17 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D363C433EF
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 Dec 2021 18:02:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B95A1C4332F
+	for <linux-rtc@archiver.kernel.org>; Wed, 15 Dec 2021 18:02:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245497AbhLOSCQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S245513AbhLOSCQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 15 Dec 2021 13:02:16 -0500
-Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:58934 "EHLO
+Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:58940 "EHLO
         luna.linkmauve.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230374AbhLOSCP (ORCPT
+        with ESMTP id S245258AbhLOSCP (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Dec 2021 13:02:15 -0500
-X-Greylist: delayed 593 seconds by postgrey-1.27 at vger.kernel.org; Wed, 15 Dec 2021 13:02:13 EST
 Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-        id 4713DF40EA6; Wed, 15 Dec 2021 18:55:06 +0100 (CET)
+        id 957D3F40EAF; Wed, 15 Dec 2021 18:55:07 +0100 (CET)
 From:   Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>
@@ -27,80 +26,40 @@ Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
         Paul Mackerras <paulus@samba.org>,
         linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, devicetree@vger.kernel.org
-Subject: [PATCH v3 2/5] rtc: gamecube: Report low battery as invalid data
-Date:   Wed, 15 Dec 2021 18:54:58 +0100
-Message-Id: <20211215175501.6761-3-linkmauve@linkmauve.fr>
+Subject: [PATCH v3 4/5] powerpc: gamecube_defconfig: Enable the RTC driver
+Date:   Wed, 15 Dec 2021 18:55:00 +0100
+Message-Id: <20211215175501.6761-5-linkmauve@linkmauve.fr>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215175501.6761-1-linkmauve@linkmauve.fr>
 References: <20211027223516.2031-1-linkmauve@linkmauve.fr>
  <20211215175501.6761-1-linkmauve@linkmauve.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-I haven’t been able to test this patch as all of my consoles have a
-working RTC battery, but according to the documentation it should work
-like that.
+This selects the rtc-gamecube driver, which provides a real-time clock
+on this platform.
 
 Signed-off-by: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
 ---
- drivers/rtc/rtc-gamecube.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ arch/powerpc/configs/gamecube_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-gamecube.c b/drivers/rtc/rtc-gamecube.c
-index e8260c82c07d..98128746171e 100644
---- a/drivers/rtc/rtc-gamecube.c
-+++ b/drivers/rtc/rtc-gamecube.c
-@@ -83,6 +83,10 @@
- #define RTC_CONTROL0	0x21000c
- #define RTC_CONTROL1	0x21000d
- 
-+/* RTC flags */
-+#define RTC_CONTROL0_UNSTABLE_POWER	0x00000800
-+#define RTC_CONTROL0_LOW_BATTERY	0x00000200
-+
- struct priv {
- 	struct regmap *regmap;
- 	void __iomem *iob;
-@@ -182,9 +186,35 @@ static int gamecube_rtc_set_time(struct device *dev, struct rtc_time *t)
- 	return regmap_write(d->regmap, RTC_COUNTER, timestamp - d->rtc_bias);
- }
- 
-+static int gamecube_rtc_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
-+{
-+	struct priv *d = dev_get_drvdata(dev);
-+	int value;
-+	int control0;
-+	int ret;
-+
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		ret = regmap_read(d->regmap, RTC_CONTROL0, &control0);
-+		if (ret)
-+			return ret;
-+
-+		value = 0;
-+		if (control0 & RTC_CONTROL0_UNSTABLE_POWER)
-+			value |= RTC_VL_DATA_INVALID;
-+		if (control0 & RTC_CONTROL0_LOW_BATTERY)
-+			value |= RTC_VL_BACKUP_LOW;
-+		return put_user(value, (unsigned int __user *)arg);
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+}
-+
- static const struct rtc_class_ops gamecube_rtc_ops = {
- 	.read_time	= gamecube_rtc_read_time,
- 	.set_time	= gamecube_rtc_set_time,
-+	.ioctl		= gamecube_rtc_ioctl,
- };
- 
- static int gamecube_rtc_read_offset_from_sram(struct priv *d)
+diff --git a/arch/powerpc/configs/gamecube_defconfig b/arch/powerpc/configs/gamecube_defconfig
+index 24c0e0ea5aeb..91a1b99f4e8f 100644
+--- a/arch/powerpc/configs/gamecube_defconfig
++++ b/arch/powerpc/configs/gamecube_defconfig
+@@ -68,7 +68,7 @@ CONFIG_SND_SEQUENCER=y
+ CONFIG_SND_SEQUENCER_OSS=y
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_RTC_CLASS=y
+-CONFIG_RTC_DRV_GENERIC=y
++CONFIG_RTC_DRV_GAMECUBE=y
+ CONFIG_EXT2_FS=y
+ CONFIG_EXT4_FS=y
+ CONFIG_ISO9660_FS=y
 -- 
 2.34.1
 
