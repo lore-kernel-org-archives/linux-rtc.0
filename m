@@ -2,71 +2,112 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CB21C43219
-	for <linux-rtc@archiver.kernel.org>; Wed, 15 Dec 2021 18:02:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E490EC433F5
+	for <linux-rtc@archiver.kernel.org>; Wed, 15 Dec 2021 20:23:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245670AbhLOSCk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 15 Dec 2021 13:02:40 -0500
-Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:58976 "EHLO
-        luna.linkmauve.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245518AbhLOSCS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Dec 2021 13:02:18 -0500
-Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-        id DF294F40EAD; Wed, 15 Dec 2021 18:55:06 +0100 (CET)
-From:   Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
-        rw-r-r-0644 <r.r.qwertyuiop.r.r@gmail.com>,
-        Ash Logan <ash@heyquark.com>,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.ne@posteo.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, devicetree@vger.kernel.org
-Subject: [PATCH v3 3/5] powerpc: wii.dts: Expose HW_SRNPROT on this platform
-Date:   Wed, 15 Dec 2021 18:54:59 +0100
-Message-Id: <20211215175501.6761-4-linkmauve@linkmauve.fr>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215175501.6761-1-linkmauve@linkmauve.fr>
-References: <20211027223516.2031-1-linkmauve@linkmauve.fr>
- <20211215175501.6761-1-linkmauve@linkmauve.fr>
+        id S235734AbhLOUX4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 15 Dec 2021 15:23:56 -0500
+Received: from mail-ot1-f41.google.com ([209.85.210.41]:34731 "EHLO
+        mail-ot1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234075AbhLOUX4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 15 Dec 2021 15:23:56 -0500
+Received: by mail-ot1-f41.google.com with SMTP id x19-20020a9d7053000000b0055c8b39420bso26361375otj.1;
+        Wed, 15 Dec 2021 12:23:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rDc/m0z81usLrHmVxQTbPcJpFGLlwccuEGUofI1rnCY=;
+        b=bauiFRNf87k9FXx7JUwt1/rv/jjFMHZnGHcRUpDgSeQA4ovjkk0dimXbBDYKhJQXtW
+         K7KlCB9tdpCv/7lshj7tlogGAIJ7bsYAhsroIYhDBmr6WiHDEbJxRNr0uqV8DvuCmi3w
+         r9XJidB9hA7k8NJW8MmHbFof4oTTcxqQRUNeBAmah9jJ9sRme4MJqQ6eXtWmSAZBZEIf
+         cpY4LC45iCfZ1Jb2OMaoiIvJFY9i1psIXMuhajqMhS+2CReiecrwxFkaymReDKorL4IU
+         ipDVWVJUdtI1RQCal6ym3UuiaDwj85EaNx9F0s9pjcw+UE6XGtk+33N5SsP6rr1ceFO7
+         lJSw==
+X-Gm-Message-State: AOAM530vmvA1Y0K++boRArU4SIx7pvaS0QiNBWoGoN/+kl7/8Qscj0hM
+        yYkZ4NBQqCO3iUbcZRxO4g==
+X-Google-Smtp-Source: ABdhPJx2REterkzgVl+l3L2vynJmWoml8AEBu3SIbeJvyBZUECUO9F4YSXSi72K4S6J35Z5cPCOHaA==
+X-Received: by 2002:a9d:6058:: with SMTP id v24mr10028046otj.296.1639599835370;
+        Wed, 15 Dec 2021 12:23:55 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id d6sm620937otb.4.2021.12.15.12.23.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Dec 2021 12:23:54 -0800 (PST)
+Received: (nullmailer pid 1776034 invoked by uid 1000);
+        Wed, 15 Dec 2021 20:23:53 -0000
+Date:   Wed, 15 Dec 2021 14:23:53 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     David Heidelberg <david@ixit.cz>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Caleb Connolly <caleb@connolly.tech>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Satya Priya <skakit@codeaurora.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-rtc@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx-rtc: update register
+ numbers
+Message-ID: <YbpO2ckB14wZ7p0l@robh.at.kernel.org>
+References: <20211213192946.111320-1-david@ixit.cz>
+ <1639437829.348405.1773613.nullmailer@robh.at.kernel.org>
+ <7I544R.923UO8WZHK48@ixit.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7I544R.923UO8WZHK48@ixit.cz>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This Hollywood register isn’t properly understood, but can allow or
-reject access to the SRAM, which we need to set for RTC usage if it
-isn’t previously set correctly beforehand.
+On Tue, Dec 14, 2021 at 05:22:55PM +0100, David Heidelberg wrote:
+> 
+> 
+> 
+> On Mon, Dec 13 2021 at 17:23:49 -0600, Rob Herring <robh@kernel.org> wrote:
+> > On Mon, 13 Dec 2021 20:29:45 +0100, David Heidelberg wrote:
+> > >  Extend registers up to 2, also document their names.
+> > > 
+> > >  Also fixes warnings generated by `make
+> > > qcom/sdm845-oneplus-fajita.dtb`:
+> > >  arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: rtc@6000:
+> > > reg: [[24576], [24832]] is too long
+> > >          From schema:
+> > > Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+> > >  arch/arm64/boot/dts/qcom/sdm845-oneplus-fajita.dt.yaml: rtc@6000:
+> > > 'reg-names' does not match any of the regexes: 'pinctrl-[0-9]+'
+> > >          From schema:
+> > > Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+> > > 
+> > >  Signed-off-by: David Heidelberg <david@ixit.cz>
+> > >  ---
+> > >   .../devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml         | 9
+> > > ++++++++-
+> > >   1 file changed, 8 insertions(+), 1 deletion(-)
+> > > 
+> > 
+> > Running 'make dtbs_check' with the schema in this patch gives the
+> > following warnings. Consider if they are expected or the schema is
+> > incorrect. These may not be new warnings.
+> > 
+> > Note that it is not yet a requirement to have 0 warnings for dtbs_check.
+> > This will change in the future.
+> > 
+> > Full log is available here: https://patchwork.ozlabs.org/patch/1567467
+> > 
+> > 
+> > rtc@11d: compatible: Additional items are not allowed ('qcom,pm8921-rtc'
+> > was unexpected)
+> > 	arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dt.yaml
+> > 
+> > rtc@11d: compatible: ['qcom,pm8018-rtc', 'qcom,pm8921-rtc'] is too long
+> > 	arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dt.yaml
+> 
+> 
+> Would you consider safe, if I sent patch to remove redundant
+> `qcom,pm8921-rtc` from arch/arm/boot/dts/qcom-mdm9615.dtsi?
 
-See https://wiibrew.org/wiki/Hardware/Hollywood_Registers#HW_SRNPROT
+I don't know. Depends if anything uses that and doesn't know about 
+'qcom,pm8018-rtc'.
 
-Signed-off-by: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
----
- arch/powerpc/boot/dts/wii.dts | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/arch/powerpc/boot/dts/wii.dts b/arch/powerpc/boot/dts/wii.dts
-index c5720fdd0686..34d9732d5910 100644
---- a/arch/powerpc/boot/dts/wii.dts
-+++ b/arch/powerpc/boot/dts/wii.dts
-@@ -175,6 +175,11 @@ PIC1: pic1@d800030 {
- 			interrupts = <14>;
- 		};
- 
-+		srnprot@d800060 {
-+			compatible = "nintendo,hollywood-srnprot";
-+			reg = <0x0d800060 0x4>;
-+		};
-+
- 		GPIO: gpio@d8000c0 {
- 			#gpio-cells = <2>;
- 			compatible = "nintendo,hollywood-gpio";
--- 
-2.34.1
-
+Rob
