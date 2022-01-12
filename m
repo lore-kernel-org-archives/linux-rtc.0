@@ -2,176 +2,261 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4935DC433EF
-	for <linux-rtc@archiver.kernel.org>; Wed, 12 Jan 2022 21:39:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA7FFC43217
+	for <linux-rtc@archiver.kernel.org>; Wed, 12 Jan 2022 21:39:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbiALVjU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S233313AbiALVjU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 12 Jan 2022 16:39:20 -0500
-Received: from mout.kundenserver.de ([212.227.126.187]:54981 "EHLO
+Received: from mout.kundenserver.de ([212.227.126.135]:45007 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233174AbiALVjS (ORCPT
+        with ESMTP id S233172AbiALVjS (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 12 Jan 2022 16:39:18 -0500
 Received: from quad ([82.142.23.158]) by mrelayeu.kundenserver.de (mreue010
- [212.227.15.167]) with ESMTPSA (Nemesis) id 1MFbBO-1n8MDM0glq-00HAXY; Wed, 12
- Jan 2022 22:39:06 +0100
+ [212.227.15.167]) with ESMTPSA (Nemesis) id 1N2Unv-1mLjqJ15rD-013tPl; Wed, 12
+ Jan 2022 22:39:04 +0100
 From:   Laurent Vivier <laurent@vivier.eu>
 To:     linux-kernel@vger.kernel.org
 Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
         linux-m68k@lists.linux-m68k.org,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, Laurent Vivier <laurent@vivier.eu>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v4 3/3] m68k: virt: Remove LEGACY_TIMER_TICK
-Date:   Wed, 12 Jan 2022 22:39:01 +0100
-Message-Id: <20220112213901.2178667-4-laurent@vivier.eu>
+        linux-rtc@vger.kernel.org, Laurent Vivier <laurent@vivier.eu>
+Subject: [PATCH v4 1/3] m68k: add asm/config.h
+Date:   Wed, 12 Jan 2022 22:38:59 +0100
+Message-Id: <20220112213901.2178667-2-laurent@vivier.eu>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220112213901.2178667-1-laurent@vivier.eu>
 References: <20220112213901.2178667-1-laurent@vivier.eu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:YXtM90aHK1d0OvIhVyXWSgykMR28ld+QZcz3xqT1FE55S6fbL2g
- 2XLUVIPCPCcc0cITaHfkR1/1JTWpVqsYttX+FHiZRPHn2vs0OV9m58vIHvifcb2xlccHjJF
- uV+hlJsEhHvz49jJPR2hBLTxk5WijKSYPi5+MW7Jj/R2qqrpkRRICvmY/PlCCjqkGrX6zzz
- KHhzN6PcXqAoqXeeNri9Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:teksdMZ8okw=:Pa5JvdQsPVOSQbzhA3t5YU
- DrZAO9tmjLOIk4lQu9+dmMsozylLLm7DOgX//1UuZ+rK3Xf+k9SxT4bFl4casS7YjZ5Kjl9Mg
- IGmrkBrvoLoEHTTsn5OYOaWZQ6Oqpz1rI8HkDQPYyZ4PSj7biLYYKKfAEz+Wi4RYeZUCjp+AB
- PJIp4NBLOeM84gCMWzk+5w317SVi3wSvu8Sb5Q7cmdM0jTcUl+qCzdfAt5EWcJATVsoKoW7qS
- ArAQ6Ok3V8qem4ciBZJG5/TEKnrGab70jLSLornk0PL1A2N4JEn/NTrWu11ibuDULtPAtrykE
- D1jXl1X2SFSbwg4x4IY44++in2YL3SxdRga08++OWXBl4UTwGhJ7jL0Hy8GHEWnWEPMCQW9iJ
- B52gVwburOrCGBE2WOMLRFov/hCpxSnbfaaz30Eza7jnIlQaFgv3ltepOoqC+A+G2g2VuG1AW
- Mq0tlaXO+smcmyEo2koNcFGyhPZXDBLmJCqaOt9mCeBI1cRjQlYDxRp0YYyzJI8hdgrxXn7OH
- lMm1HcSs8Xpe7Eoe8+4YUHvY8HEWI2OPz85FWQ4YiLE0EJO+Abog3FJEyh8ecuUn2hAPYnB46
- xceey3lE4QNAtRQqyvGYt/BySyXMxgVe8CQD+NXCeg0AP9qSiEsVu7Tk5mwC8PKN4hylfyQdu
- lQculNAc23dZeJtbqjBNTIeRIG4RUGR1e+CZ1Q+wsUS6LtmedKeEO7fxbFwkbRARnfCE=
+X-Provags-ID: V03:K1:FWFH2vlO6ubonKRzbAlRpjK6hALl3ebhACmvPwTmU1WxcuSOxPl
+ oUhET47roBrIkf4FKcage4yQ5m9d0JoAhyyiiHKb+b/r4mSNTRvRjM0m2ZaAb8wK7ZsvonG
+ jdR8LTAvgImfJ5Bn7yMZadJuO6bKea6THGVDdU9eq5n7x7C8CKflAHGUOFyPBsLBX0ySw/T
+ zbLCj/UGic1jWkxEJwAKw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:/A1vrSlgx+s=:oRKMq/X7BYWQpNtlBNZSkY
+ 1xYngG8kBrkTWG4k4N+SktVEhtO5Gn/lwJoQvYjFaLn38e1QgEhyiZH3PBPH4wQelMZF/vDVn
+ ejBJCApa9HUQgmTEWP/puc2Dmu1cSZRfXPyvOZTU19urVGWcXuzCQKvImDrpluIz7tkFCmzDh
+ SIdZxm4V/rlzvOxNIBQ9/3+PmSP8WQU3TT/UpTnwgzkrnOVZwKDKOuc832vdw5eoaTqSifdKj
+ 0ixWhLcNLquwBHZcHPqDI0/GA4P7F2GzC+69cINyNpYQfZNQbtRoEvn63Gv1hGoecgLgsDrHj
+ c3L/eE+bs0f7fhfnHT92Vjk/n6q0IvH+H7fVMGDV4V45OQ1BN121VdC2+uRDR8TJRt2XO8sqH
+ JpGuzed8ATs8fswYT3Eo0+1U6VYlG2deNv3cV+wDZHrYXJKg/wjVutB9x5ryvHBPYXxjQGXCg
+ ULfH9qE7eSfBjWs9Cnut3C8DTyCdZAeU4/9vsVfBdakbNdO83H6pPVhpfY9LvIBzYqK68N91h
+ JEk+ciD9ddlm0+MUX52hSi114ubIPFsh9WT1R88ZRJu4yqdSc4fZRN1EuqQRan3JlGgXyBROg
+ 67UFQUbRV48jsZZCNyY0i5P4/Pv3DQqfRFDF0Yl7Ysy83isxY8jyru4MRRapuZ0hixZNMpTxK
+ tQDMA9vmdCzvnRBgdfawFKBZkA5gfSICBuvpAZofKtF8LucUipr71Q2UFFp9PCqL+Z/0=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Move virt machine to generic clockevents.
+To avoid 'warning: no previous prototype for' error, declare all
+the parse_bootinfo and config functions prototypes into asm/config.h
+and include it in arch/m68k/kernel/setup_mm.c and arch/m68k/*/config.c
 
-cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
- arch/m68k/Kconfig.machine |  1 -
- arch/m68k/virt/timer.c    | 56 ++++++++++++++++++++++++++++++---------
- 2 files changed, 43 insertions(+), 14 deletions(-)
+ arch/m68k/amiga/config.c       |  1 +
+ arch/m68k/apollo/config.c      |  1 +
+ arch/m68k/atari/config.c       |  1 +
+ arch/m68k/bvme6000/config.c    |  1 +
+ arch/m68k/hp300/config.c       |  1 +
+ arch/m68k/include/asm/config.h | 33 +++++++++++++++++++++++++++++++++
+ arch/m68k/kernel/setup_mm.c    | 23 +----------------------
+ arch/m68k/mac/config.c         |  1 +
+ arch/m68k/mvme147/config.c     |  1 +
+ arch/m68k/mvme16x/config.c     |  1 +
+ arch/m68k/q40/config.c         |  1 +
+ 11 files changed, 43 insertions(+), 22 deletions(-)
+ create mode 100644 arch/m68k/include/asm/config.h
 
-diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
-index 769c5b38fe16..74a2354bc226 100644
---- a/arch/m68k/Kconfig.machine
-+++ b/arch/m68k/Kconfig.machine
-@@ -152,7 +152,6 @@ config SUN3
- config VIRT
- 	bool "Virtual M68k Machine support"
- 	depends on MMU
--	select LEGACY_TIMER_TICK
- 	select M68040
- 	select MMU_MOTOROLA if MMU
- 	select GOLDFISH
-diff --git a/arch/m68k/virt/timer.c b/arch/m68k/virt/timer.c
-index 843bf6ed7e1a..767b01f75abb 100644
---- a/arch/m68k/virt/timer.c
-+++ b/arch/m68k/virt/timer.c
-@@ -3,6 +3,7 @@
- #include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/clocksource.h>
-+#include <linux/clockchips.h>
- #include <asm/virt.h>
+diff --git a/arch/m68k/amiga/config.c b/arch/m68k/amiga/config.c
+index be2dfab48fd4..3137b45750df 100644
+--- a/arch/m68k/amiga/config.c
++++ b/arch/m68k/amiga/config.c
+@@ -37,6 +37,7 @@
+ #include <asm/irq.h>
+ #include <asm/machdep.h>
+ #include <asm/io.h>
++#include <asm/config.h>
  
- struct goldfish_timer {
-@@ -41,7 +42,25 @@ static struct clocksource goldfish_timer = {
- 	.max_idle_ns	= LONG_MAX,
- };
+ static unsigned long amiga_model;
  
--static irqreturn_t golfish_timer_handler(int irq, void *dev_id)
-+static int goldfish_timer_set_oneshot(struct clock_event_device *evt)
-+{
-+	gf_timer->alarm_high = 0;
-+	gf_timer->alarm_low = 0;
+diff --git a/arch/m68k/apollo/config.c b/arch/m68k/apollo/config.c
+index 581a5f68d102..42a8b8e2b664 100644
+--- a/arch/m68k/apollo/config.c
++++ b/arch/m68k/apollo/config.c
+@@ -16,6 +16,7 @@
+ #include <asm/apollohw.h>
+ #include <asm/irq.h>
+ #include <asm/machdep.h>
++#include <asm/config.h>
+ 
+ u_long sio01_physaddr;
+ u_long sio23_physaddr;
+diff --git a/arch/m68k/atari/config.c b/arch/m68k/atari/config.c
+index 261a0f57cc9a..38a7c0578105 100644
+--- a/arch/m68k/atari/config.c
++++ b/arch/m68k/atari/config.c
+@@ -46,6 +46,7 @@
+ #include <asm/machdep.h>
+ #include <asm/hwtest.h>
+ #include <asm/io.h>
++#include <asm/config.h>
+ 
+ u_long atari_mch_cookie;
+ EXPORT_SYMBOL(atari_mch_cookie);
+diff --git a/arch/m68k/bvme6000/config.c b/arch/m68k/bvme6000/config.c
+index 0c6feafbbd11..9b060d466e03 100644
+--- a/arch/m68k/bvme6000/config.c
++++ b/arch/m68k/bvme6000/config.c
+@@ -36,6 +36,7 @@
+ #include <asm/traps.h>
+ #include <asm/machdep.h>
+ #include <asm/bvme6000hw.h>
++#include <asm/config.h>
+ 
+ static void bvme6000_get_model(char *model);
+ extern void bvme6000_sched_init(void);
+diff --git a/arch/m68k/hp300/config.c b/arch/m68k/hp300/config.c
+index ce1eb3d3d55d..2c92843397c3 100644
+--- a/arch/m68k/hp300/config.c
++++ b/arch/m68k/hp300/config.c
+@@ -22,6 +22,7 @@
+ #include <asm/blinken.h>
+ #include <asm/io.h>                               /* readb() and writeb() */
+ #include <asm/hp300hw.h>
++#include <asm/config.h>
+ 
+ #include "time.h"
+ 
+diff --git a/arch/m68k/include/asm/config.h b/arch/m68k/include/asm/config.h
+new file mode 100644
+index 000000000000..aae61070628b
+--- /dev/null
++++ b/arch/m68k/include/asm/config.h
+@@ -0,0 +1,33 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +
-+	gf_timer->irq_enabled = 1;
++/*
++ * This file contains prototypes provided by each m68k machine
++ * to parse bootinfo data structures and to configure the machine
++ */
 +
-+	return 0;
-+}
++#ifndef _M68K_CONFIG_H
++#define _M68K_CONFIG_H
 +
-+static int goldfish_timer_shutdown(struct clock_event_device *evt)
-+{
-+	gf_timer->irq_enabled = 0;
++extern int amiga_parse_bootinfo(const struct bi_record *record);
++extern int atari_parse_bootinfo(const struct bi_record *record);
++extern int mac_parse_bootinfo(const struct bi_record *record);
++extern int q40_parse_bootinfo(const struct bi_record *record);
++extern int bvme6000_parse_bootinfo(const struct bi_record *record);
++extern int mvme16x_parse_bootinfo(const struct bi_record *record);
++extern int mvme147_parse_bootinfo(const struct bi_record *record);
++extern int hp300_parse_bootinfo(const struct bi_record *record);
++extern int apollo_parse_bootinfo(const struct bi_record *record);
 +
-+	return 0;
-+}
++extern void config_amiga(void);
++extern void config_atari(void);
++extern void config_mac(void);
++extern void config_sun3(void);
++extern void config_apollo(void);
++extern void config_mvme147(void);
++extern void config_mvme16x(void);
++extern void config_bvme6000(void);
++extern void config_hp300(void);
++extern void config_q40(void);
++extern void config_sun3x(void);
 +
-+static int goldfish_timer_next_event(unsigned long delta,
-+				     struct clock_event_device *evt)
- {
- 	u64 now;
++#endif /* _M68K_CONFIG_H */
+diff --git a/arch/m68k/kernel/setup_mm.c b/arch/m68k/kernel/setup_mm.c
+index 4b51bfd38e5f..226dc3750397 100644
+--- a/arch/m68k/kernel/setup_mm.c
++++ b/arch/m68k/kernel/setup_mm.c
+@@ -47,6 +47,7 @@
+ #endif
+ #include <asm/macintosh.h>
+ #include <asm/natfeat.h>
++#include <asm/config.h>
  
-@@ -49,19 +68,35 @@ static irqreturn_t golfish_timer_handler(int irq, void *dev_id)
+ #if !FPSTATESIZE || !NR_IRQS
+ #warning No CPU/platform type selected, your kernel will not work!
+@@ -113,28 +114,6 @@ EXPORT_SYMBOL(isa_type);
+ EXPORT_SYMBOL(isa_sex);
+ #endif
  
- 	now = goldfish_timer_read(NULL);
- 
--	legacy_timer_tick(1);
-+	now += delta;
- 
--	now += NSEC_PER_SEC / HZ;
- 	gf_timer->alarm_high = upper_32_bits(now);
- 	gf_timer->alarm_low = lower_32_bits(now);
- 
-+	return 0;
-+}
-+
-+struct clock_event_device goldfish_timer_clockevent = {
-+	.name			= "goldfish_timer",
-+	.features		= CLOCK_EVT_FEAT_ONESHOT,
-+	.set_state_shutdown	= goldfish_timer_shutdown,
-+	.set_state_oneshot      = goldfish_timer_set_oneshot,
-+	.set_next_event		= goldfish_timer_next_event,
-+	.shift			= 32,
-+};
-+
-+static irqreturn_t golfish_timer_tick(int irq, void *dev_id)
-+{
-+	struct clock_event_device *evt = &goldfish_timer_clockevent;
-+
-+	evt->event_handler(evt);
-+
- 	return IRQ_HANDLED;
- }
- 
- void __init virt_sched_init(void)
- {
- 	static struct resource sched_res;
--	u64 now;
- 
- 	sched_res.name  = "goldfish_timer";
- 	sched_res.start = virt_bi_data.rtc.mmio;
-@@ -72,19 +107,14 @@ void __init virt_sched_init(void)
- 		return;
- 	}
- 
--	if (request_irq(virt_bi_data.rtc.irq, golfish_timer_handler, IRQF_TIMER,
-+	clockevents_config_and_register(&goldfish_timer_clockevent, NSEC_PER_SEC,
-+					1, 0xffffffff);
-+
-+	if (request_irq(virt_bi_data.rtc.irq, golfish_timer_tick, IRQF_TIMER,
- 			"timer", NULL)) {
- 		pr_err("Couldn't register timer interrupt\n");
- 		return;
- 	}
- 
--	now = goldfish_timer_read(NULL);
--	now += NSEC_PER_SEC / HZ;
+-extern int amiga_parse_bootinfo(const struct bi_record *);
+-extern int atari_parse_bootinfo(const struct bi_record *);
+-extern int mac_parse_bootinfo(const struct bi_record *);
+-extern int q40_parse_bootinfo(const struct bi_record *);
+-extern int bvme6000_parse_bootinfo(const struct bi_record *);
+-extern int mvme16x_parse_bootinfo(const struct bi_record *);
+-extern int mvme147_parse_bootinfo(const struct bi_record *);
+-extern int hp300_parse_bootinfo(const struct bi_record *);
+-extern int apollo_parse_bootinfo(const struct bi_record *);
 -
--	gf_timer->clear_interrupt = 1;
--	gf_timer->alarm_high = upper_32_bits(now);
--	gf_timer->alarm_low = lower_32_bits(now);
--	gf_timer->irq_enabled = 1;
+-extern void config_amiga(void);
+-extern void config_atari(void);
+-extern void config_mac(void);
+-extern void config_sun3(void);
+-extern void config_apollo(void);
+-extern void config_mvme147(void);
+-extern void config_mvme16x(void);
+-extern void config_bvme6000(void);
+-extern void config_hp300(void);
+-extern void config_q40(void);
+-extern void config_sun3x(void);
 -
- 	clocksource_register_hz(&goldfish_timer, NSEC_PER_SEC);
- }
+ #define MASK_256K 0xfffc0000
+ 
+ extern void paging_init(void);
+diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
+index 5d16f9b47aa9..65d124ec80bb 100644
+--- a/arch/m68k/mac/config.c
++++ b/arch/m68k/mac/config.c
+@@ -47,6 +47,7 @@
+ #include <asm/mac_via.h>
+ #include <asm/mac_oss.h>
+ #include <asm/mac_psc.h>
++#include <asm/config.h>
+ 
+ /* Mac bootinfo struct */
+ struct mac_booter_data mac_bi_data;
+diff --git a/arch/m68k/mvme147/config.c b/arch/m68k/mvme147/config.c
+index dfd6202fd403..b96ea7c76a19 100644
+--- a/arch/m68k/mvme147/config.c
++++ b/arch/m68k/mvme147/config.c
+@@ -34,6 +34,7 @@
+ #include <asm/traps.h>
+ #include <asm/machdep.h>
+ #include <asm/mvme147hw.h>
++#include <asm/config.h>
+ 
+ 
+ static void mvme147_get_model(char *model);
+diff --git a/arch/m68k/mvme16x/config.c b/arch/m68k/mvme16x/config.c
+index b4422c2dfbbf..88cbdc10925b 100644
+--- a/arch/m68k/mvme16x/config.c
++++ b/arch/m68k/mvme16x/config.c
+@@ -37,6 +37,7 @@
+ #include <asm/traps.h>
+ #include <asm/machdep.h>
+ #include <asm/mvme16xhw.h>
++#include <asm/config.h>
+ 
+ extern t_bdid mvme_bdid;
+ 
+diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+index 5caf1e5be1c2..9237243077ce 100644
+--- a/arch/m68k/q40/config.c
++++ b/arch/m68k/q40/config.c
+@@ -34,6 +34,7 @@
+ #include <asm/traps.h>
+ #include <asm/machdep.h>
+ #include <asm/q40_master.h>
++#include <asm/config.h>
+ 
+ extern void q40_init_IRQ(void);
+ static void q40_get_model(char *model);
 -- 
 2.34.1
 
