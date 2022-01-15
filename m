@@ -2,105 +2,256 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D6CDC433FE
-	for <linux-rtc@archiver.kernel.org>; Sat, 15 Jan 2022 17:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA2BC433EF
+	for <linux-rtc@archiver.kernel.org>; Sat, 15 Jan 2022 19:33:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbiAORXH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 15 Jan 2022 12:23:07 -0500
-Received: from mail-oi1-f181.google.com ([209.85.167.181]:45848 "EHLO
-        mail-oi1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233380AbiAORWv (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 15 Jan 2022 12:22:51 -0500
-Received: by mail-oi1-f181.google.com with SMTP id t9so16985486oie.12;
-        Sat, 15 Jan 2022 09:22:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
-         :message-id;
-        bh=/ryk+C/4VJdMzNIa1mhcDuVOv8zspRXPYMFSmvgLva4=;
-        b=dbo91IH1WOdoQRW4fMEg0oaOHonxPXwHE6RfWw3F3udvjzvslHT3HYZ9xYnevsIJ8T
-         iN/t8LZIAGD7ocsSWgpMnSHezn8vrd1ITZSSbBYATVaNrfryq6RvtnvJvib4t58NgEYz
-         3PUsTRcNptIwoAHd16fPEHjhQiZawVPlxmqXRx+UeTQf08l7GjT2ZO7zgduZICuux++9
-         nSuPIr9cTm0bqrgczhFrTpQrX3ldT2O1YpOXZNeEe1LYoftzrQe53Y67x0lLVQYzNw+N
-         i83wMC9zVAt1uoLgOopEaCISgY53qWtP/8GApMYHwM8nGYlWN1D+qaFWLCD+9E5GRplZ
-         2imQ==
-X-Gm-Message-State: AOAM530UF3Xyeerso0QM9mEwQzIP22rIRRdFlcuvIXhqL/B+yz1JWJxF
-        l2HmKcE9C5wjL08NNfmdNg==
-X-Google-Smtp-Source: ABdhPJy2cNm09rGkY81u/PixZAjMtw93C3BlQ4fLCmC6PwHgFMweTgS3Mvu40uVZQJK9kRcq6lbzCQ==
-X-Received: by 2002:a05:6808:11c8:: with SMTP id p8mr16749283oiv.72.1642267370379;
-        Sat, 15 Jan 2022 09:22:50 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id e69sm3266969ote.1.2022.01.15.09.22.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Jan 2022 09:22:49 -0800 (PST)
-Received: (nullmailer pid 119882 invoked by uid 1000);
-        Sat, 15 Jan 2022 17:22:30 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     conor.dooley@microchip.com
-Cc:     atishp@rivosinc.com, bgolaszewski@baylibre.com, palmer@dabbelt.com,
-        linux-rtc@vger.kernel.org, linux-crypto@vger.kernel.org,
-        thierry.reding@gmail.com, heiko@sntech.de, lee.jones@linaro.org,
-        paul.walmsley@sifive.com, broonie@kernel.org,
-        gregkh@linuxfoundation.org, geert@linux-m68k.org,
-        devicetree@vger.kernel.org, linus.walleij@linaro.org,
-        ivan.griffin@microchip.com, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-spi@vger.kernel.org, u.kleine-koenig@pengutronix.de,
-        jassisinghbrar@gmail.com, aou@eecs.berkeley.edu,
-        alexandre.belloni@bootlin.com, linux-gpio@vger.kernel.org,
-        a.zummo@towertech.it, krzysztof.kozlowski@canonical.com,
-        daire.mcnamara@microchip.com, lewis.hanly@microchip.com,
-        bin.meng@windriver.com, robh+dt@kernel.org,
-        linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org
-In-Reply-To: <20220114151727.2319915-5-conor.dooley@microchip.com>
-References: <20220114151727.2319915-1-conor.dooley@microchip.com> <20220114151727.2319915-5-conor.dooley@microchip.com>
-Subject: Re: [PATCH v3 04/15] dt-bindings: i2c: add bindings for microchip mpfs i2c
-Date:   Sat, 15 Jan 2022 11:22:30 -0600
-Message-Id: <1642267350.899241.119881.nullmailer@robh.at.kernel.org>
+        id S233584AbiAOTdP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 15 Jan 2022 14:33:15 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:49587 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230216AbiAOTdP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 15 Jan 2022 14:33:15 -0500
+Received: from quad ([82.142.13.186]) by mrelayeu.kundenserver.de (mreue011
+ [212.227.15.167]) with ESMTPSA (Nemesis) id 1M8yU2-1nDn8v1qgY-0064Eo; Sat, 15
+ Jan 2022 20:32:51 +0100
+From:   Laurent Vivier <laurent@vivier.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     John Stultz <john.stultz@linaro.org>, linux-rtc@vger.kernel.org,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-m68k@lists.linux-m68k.org,
+        Laurent Vivier <laurent@vivier.eu>
+Subject: [PATCH v8 3/4] clocksource/drivers: Add a goldfish-timer clocksource
+Date:   Sat, 15 Jan 2022 20:32:44 +0100
+Message-Id: <20220115193245.3777833-4-laurent@vivier.eu>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220115193245.3777833-1-laurent@vivier.eu>
+References: <20220115193245.3777833-1-laurent@vivier.eu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:zoqsBoCh8ZlMtPVaWutscqm+5PpM4Llwm15xPA1RwGoqxZbIJxy
+ 1FiIPKzBS6cO5DP90DGC7mnuBMarkuSKfcrIzfZAQa2sW5KJQjZKEnUhunnDrCovaMhkjir
+ wkk/uqSjEhgia9CmwkmDFPm87eXtVvvvwBN/gdB+S0CBvVi4uC+zZmb1rQbABuyzEdv5t9g
+ poxDL3JcmkSlvJwjRWacQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:YcMs1PesKa8=:QxAKRxUrWQc/sXzXrt5fpZ
+ qwzEjAFzziC5PjxMwdPZnqNII6+klv2PIlxTnD8Nyp0X+2iyoRK9AWD3bOCieXDXHiihdzxaM
+ mzoHDPWpiYyGcv46zlB6bzx685ASJtfHaiQtcXQwKxKdeU2pvDktsZ75wbPMOIIjMXnkk3ZWr
+ hPb13JE/pGNf4i4Uld6X4r4Di08GWNr18HBVdQHpKYTh6GyJExN1cMUczyLu50nDPPGbe4C1B
+ u5ii2TjjZ2W7uezyalrNNO6VeMSX1CT81YxV4WN+wZZansvMe3sDlQA1mCZh+AKZc1jjpW9YZ
+ 0Kw1REK3DSvIFQ5gJMt67W7f2N5TxiqANBGHmn/d2c/EvBwq443KTiojNbCtjAF8jr4hG/YhQ
+ W07/9XSAn5rZheX49+KV4+IBkOqAsRCrw1qYyaourCWkGxUTeFN2LY77NH5ElgQkNMGg3JR8B
+ DNu3OmY0rmAYB62oDOMo5iWV2/LmZjWPD1fklxvA01lE+YsE45l2y1slqI1ulwTkrkY0MkwFe
+ cS7a2z3g+A6h3euABvkGduQ1rVpqa+WQt6l+yP8Zxwyqvm+ZxOQRbKb9KSNW72/e1Yjg0Gphh
+ RJQclA2XIhdhSuuZwm38ChNw3Q5WfxsixqY1fTRQrEohkp0qYkOC+LycBvDH2677qcx41dE44
+ DblsenN9QsS8M5AGIJ2qfyB+c5xLy25PhNvj2B3Gj8WGeOcuw4OU7Mbe+moiNSFxIwzw=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 14 Jan 2022 15:17:16 +0000, conor.dooley@microchip.com wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Add device tree bindings for the i2c controller on
-> the Microchip PolarFire SoC.
-> 
-> Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
->  .../bindings/i2c/microchip,mpfs-i2c.yaml      | 55 +++++++++++++++++++
->  1 file changed, 55 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.yaml
-> 
+Add a clocksource based on the goldfish-rtc device.
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
+ drivers/clocksource/Kconfig          |   7 ++
+ drivers/clocksource/Makefile         |   1 +
+ drivers/clocksource/timer-goldfish.c | 139 +++++++++++++++++++++++++++
+ include/clocksource/timer-goldfish.h |  11 +++
+ 4 files changed, 158 insertions(+)
+ create mode 100644 drivers/clocksource/timer-goldfish.c
+ create mode 100644 include/clocksource/timer-goldfish.h
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.example.dts:19:18: fatal error: dt-bindings/clock/microchip,mpfs-clock.h: No such file or directory
-   19 |         #include <dt-bindings/clock/microchip,mpfs-clock.h>
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[1]: *** [scripts/Makefile.lib:373: Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.example.dt.yaml] Error 1
-make[1]: *** Waiting for unfinished jobs....
-make: *** [Makefile:1413: dt_binding_check] Error 2
-
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.ozlabs.org/patch/1580106
-
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index f65e31bab9ae..fa66fb7156da 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -711,4 +711,11 @@ config MICROCHIP_PIT64B
+ 	  modes and high resolution. It is used as a clocksource
+ 	  and a clockevent.
+ 
++config GOLDFISH_TIMER
++	bool "Clocksource using goldfish-rtc"
++	depends on M68K || COMPILE_TEST
++	depends on RTC_DRV_GOLDFISH
++	help
++	  Support for the timer/counter of goldfish-rtc
++
+ endmenu
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index c17ee32a7151..e624a1a27027 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -88,3 +88,4 @@ obj-$(CONFIG_CSKY_MP_TIMER)		+= timer-mp-csky.o
+ obj-$(CONFIG_GX6605S_TIMER)		+= timer-gx6605s.o
+ obj-$(CONFIG_HYPERV_TIMER)		+= hyperv_timer.o
+ obj-$(CONFIG_MICROCHIP_PIT64B)		+= timer-microchip-pit64b.o
++obj-$(CONFIG_GOLDFISH_TIMER)		+= timer-goldfish.o
+diff --git a/drivers/clocksource/timer-goldfish.c b/drivers/clocksource/timer-goldfish.c
+new file mode 100644
+index 000000000000..9bf9ac8c4f5c
+--- /dev/null
++++ b/drivers/clocksource/timer-goldfish.c
+@@ -0,0 +1,139 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/interrupt.h>
++#include <linux/ioport.h>
++#include <linux/clocksource.h>
++#include <linux/clockchips.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <clocksource/timer-goldfish.h>
++
++#define TIMER_TIME_LOW		0x00	/* get low bits of current time  */
++					/*   and update TIMER_TIME_HIGH  */
++#define TIMER_TIME_HIGH		0x04	/* get high bits of time at last */
++					/*   TIMER_TIME_LOW read         */
++#define TIMER_ALARM_LOW		0x08	/* set low bits of alarm and     */
++					/*   activate it                 */
++#define TIMER_ALARM_HIGH	0x0c	/* set high bits of next alarm   */
++#define TIMER_IRQ_ENABLED	0x10
++#define TIMER_CLEAR_ALARM	0x14
++#define TIMER_ALARM_STATUS	0x18
++#define TIMER_CLEAR_INTERRUPT	0x1c
++
++/* goldfish endianness depends on CPU endianness */
++#ifdef CONFIG_CPU_BIG_ENDIAN
++#define goldfish_ioread32 ioread32be
++#define goldfish_iowrite32 iowrite32be
++#else
++#define goldfish_ioread32 ioread32
++#define goldfish_iowrite32 iowrite32
++#endif
++
++struct goldfish_timer {
++	struct clock_event_device ced;
++	struct resource res;
++	void __iomem *base;
++	int irq;
++};
++
++static struct goldfish_timer *ced_to_gf(struct clock_event_device *ced)
++{
++	return container_of(ced, struct goldfish_timer, ced);
++}
++
++static int goldfish_timer_set_oneshot(struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++
++	goldfish_iowrite32(0, base + TIMER_ALARM_HIGH);
++	goldfish_iowrite32(0, base + TIMER_ALARM_LOW);
++	goldfish_iowrite32(1, base + TIMER_IRQ_ENABLED);
++
++	return 0;
++}
++
++static int goldfish_timer_shutdown(struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++
++	goldfish_iowrite32(0, base + TIMER_IRQ_ENABLED);
++
++	return 0;
++}
++
++static int goldfish_timer_next_event(unsigned long delta,
++				     struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++	u64 now;
++
++	goldfish_iowrite32(1, base + TIMER_CLEAR_INTERRUPT);
++
++	/*
++	 * time_low: get low bits of current time and update time_high
++	 * time_high: get high bits of time at last time_low read
++	 */
++	now = goldfish_ioread32(base + TIMER_TIME_LOW);
++	now += (u64)goldfish_ioread32(base + TIMER_TIME_HIGH) << 32;
++
++	now += delta;
++
++	goldfish_iowrite32(upper_32_bits(now), base + TIMER_ALARM_HIGH);
++	goldfish_iowrite32(lower_32_bits(now), base + TIMER_ALARM_LOW);
++
++	return 0;
++}
++
++static irqreturn_t golfish_timer_tick(int irq, void *dev_id)
++{
++	struct clock_event_device *evt = dev_id;
++
++	evt->event_handler(evt);
++
++	return IRQ_HANDLED;
++}
++
++void __init goldfish_timer_init(int irq, void __iomem *base)
++{
++	struct goldfish_timer *timerdrv;
++	int ret;
++
++	timerdrv = kzalloc(sizeof(*timerdrv), GFP_KERNEL);
++	if (!timerdrv)
++		return;
++
++	timerdrv->base = base;
++	timerdrv->irq = irq;
++
++	timerdrv->ced = (struct clock_event_device){
++		.name			= "goldfish_timer",
++		.features		= CLOCK_EVT_FEAT_ONESHOT,
++		.set_state_shutdown	= goldfish_timer_shutdown,
++		.set_state_oneshot      = goldfish_timer_set_oneshot,
++		.set_next_event		= goldfish_timer_next_event,
++		.shift			= 32,
++	};
++	timerdrv->res = (struct resource){
++		.name  = "goldfish_timer",
++		.start = (unsigned long)base,
++		.end   = (unsigned long)base + 0xfff,
++	};
++
++	if (request_resource(&iomem_resource, &timerdrv->res)) {
++		pr_err("Cannot allocate goldfish-timer resource\n");
++		return;
++	}
++
++	ret = request_irq(timerdrv->irq, golfish_timer_tick, IRQF_TIMER,
++			  "goldfish_timer", &timerdrv->ced);
++	if (ret) {
++		pr_err("Couldn't register goldfish-timer interrupt\n");
++		return;
++	}
++
++	clockevents_config_and_register(&timerdrv->ced, NSEC_PER_SEC,
++					1, 0xffffffff);
++}
+diff --git a/include/clocksource/timer-goldfish.h b/include/clocksource/timer-goldfish.h
+new file mode 100644
+index 000000000000..b237267844f1
+--- /dev/null
++++ b/include/clocksource/timer-goldfish.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * goldfish-timer clocksource
++ */
++
++#ifndef _CLOCKSOURCE_GOLDFISH_TIMER_H
++#define _CLOCKSOURCE_GOLDFISH_TIMER_H
++
++extern void goldfish_timer_init(int irq, void __iomem *base);
++
++#endif /* _CLOCKSOURCE_GOLDFISH_TIMER_H */
+-- 
+2.34.1
 
