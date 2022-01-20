@@ -2,19 +2,18 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91F3CC433EF
-	for <linux-rtc@archiver.kernel.org>; Thu, 20 Jan 2022 08:04:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CABBBC43217
+	for <linux-rtc@archiver.kernel.org>; Thu, 20 Jan 2022 08:04:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358195AbiATIEN convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 20 Jan 2022 03:04:13 -0500
-Received: from mout.kundenserver.de ([212.227.17.24]:41359 "EHLO
+        id S1357555AbiATIEO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 20 Jan 2022 03:04:14 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:48149 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240049AbiATIEM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jan 2022 03:04:12 -0500
+        with ESMTP id S1345111AbiATIEN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 20 Jan 2022 03:04:13 -0500
 Received: from quad ([82.142.13.186]) by mrelayeu.kundenserver.de (mreue107
- [212.227.15.183]) with ESMTPSA (Nemesis) id 1N4h7p-1mCTAl0WxT-011jH5; Thu, 20
- Jan 2022 09:03:52 +0100
+ [212.227.15.183]) with ESMTPSA (Nemesis) id 1MadGG-1mZkpC28pW-00c8Ru; Thu, 20
+ Jan 2022 09:03:56 +0100
 From:   Laurent Vivier <laurent@vivier.eu>
 To:     linux-kernel@vger.kernel.org
 Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
@@ -28,214 +27,255 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
         Stephen Boyd <sboyd@kernel.org>,
         Geert Uytterhoeven <geert@linux-m68k.org>,
         Laurent Vivier <laurent@vivier.eu>
-Subject: [PATCH v11 0/5] m68k: Add Virtual M68k Machine
-Date:   Thu, 20 Jan 2022 09:03:42 +0100
-Message-Id: <20220120080347.1595379-1-laurent@vivier.eu>
+Subject: [PATCH v11 4/5] clocksource/drivers: Add a goldfish-timer clocksource
+Date:   Thu, 20 Jan 2022 09:03:46 +0100
+Message-Id: <20220120080347.1595379-5-laurent@vivier.eu>
 X-Mailer: git-send-email 2.34.1
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20220120080347.1595379-1-laurent@vivier.eu>
+References: <20220120080347.1595379-1-laurent@vivier.eu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: V03:K1:mPStHtRaRfDEdBa75XeuQppZv7fubnm+AbaZjJo+Eohwlp0pFzl
- cGIpLXDun3FQTGu0ZdgMi492iHFmXusfoU9a+Smn6YueFxu0rumVg5Gvh+8KvyHn3eB+WYk
- W+BnML7xwSzXGj06opQajm4tcjmJ7ZZcPEIoBQZyD/uQIZ65VaDQeWMk+XXzmtJGSIMUG3g
- St0YDn/fd8ttVkcATku1Q==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:T60si9ksIP4=:4jz4EywuAeAGsuNWAfOQ2B
- EnFmfr2pK1Pg3+TV6rqRuOGlgOPKzBfJjYy/9cvtZIauSHWbC8JWnCZ6Dm3qDGvMV0MIIG/Vq
- prIcXBCz4YBTTjJZRrYBkKOXYarKy/kyjXKvaCK/DGiKTigokjuVtXHKdoJDiPzGGy85qw4PX
- epEkTJ+mBIAmOGWRj3TDOk+ffbRmASMN7BO4W4o0Gwbs1t1kjHUxISAfW4J5TAQS9fVQDof1k
- /Z8Lt3vqxEvH9y/7rUfy+WkNNNnEudfDXQu0k4QNCfcChqEuXeZWG8FIszxsqNqA0h8yJDA81
- du/u+il7bl2Wv21vIP1RGWmCotdQbaBM+F5BMzngTFq7JrPocalM90S92pUzP0Pf5zWUbFqcc
- hVb3Sjd4rGQudNcfUwEF7end0Oq7//ytrOHm+qDAtfrO6kxpgDJLetiilgZwY4C4bOk2iHTXi
- e6gf3nx1g5QWrZjLBLrpD5mjR7jdQd2E1Er+vSdRqNC0SJfs2MuDFytDQikbGNA8C4Oo1SpKq
- JngrZM0DDsRE1R1oWZQyjUr5JOf0nno5lgAKHoGhzVzwzPxstuhUFnNMIPeHv24VuqnzbIk+h
- 6juUDoy3iOQy0K3EBBbpnAPMY8+g1C/1S3xaxNe27gfPryLnBSWArUprctxrZ9n0pa0WtKeds
- j2QEnvShjo1w+5H5XV47n6VBX/YDGvloxca/i4ixh3/towN4DqU0OGKRZWN1O6DrvL1U=
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:tX47dR4GqPQ8lZzM2rFQxq26QCNH2k5h57dbhZSG8C93GSEZ2Uf
+ zZYOBta1y/88sp2igVRuY9DD/r/vM/7C7wUqHGFQhHS8bzULEvwlh2i4Pxc2tI0uzMuZZQZ
+ Wly+XED10CXFiTZGITHjRYUHHtWvGPhAFoMlbVzPYpyghOr0m1dOOZ8ie5Z2eYEydT1/jeD
+ 5Ll864bqeox2nEBeeBA6A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:fYpxx3P4xJ0=:9pPsDHnzdt9nYu8bTgUcAD
+ ZpEd0q0d327UP1Iy6tvrMKDAvsLpMpabnCClqBpL+nRE8NGOmJ8IG5SLH9zkcriIxe1E1qkeC
+ 04ZHSJU7K4uLWgtADnwzY/ZtRcidSFQ8SKAvhjYenzHuFFFiCx1kVAqOQct7ctHh6aE4eVJBi
+ nyIG44pQ8WH7qUlgfwAhGcevoddztKLmxgvbTxENTNq8VYZrZqa4RuujTpLiWAXx2y9/JgHFW
+ 8e5oQjmV5Aiv1tGyZZcrp2heiS1ImHeBbjiujW/uhek+rrgplzi30RygsNI3W1Nsk9c9xTgXa
+ Wul2eta1eUYnBoOY9ypNo7oPDWm/2xPLE/Sa/KHug/LrrF1xa6ZxpwUrrtBWcYJgb4NJfgRvT
+ 4gLa0ZUw03GMvzdVM6t43Mg4z5TjzQ6va8KmawWzfdHyBKMcxXYnqgE11qKRV1hR1QqNNOljR
+ Dd90qX6v8ft2SRKWLR7Rt19yu5Y+o28W7Myi4OKCqmf+Z4/0psG+Gl7+bMYeJHkehpdn9Jg+k
+ 3bClq578ePTzxdX9PAhIK6MEjadHLhSXj3XyQUn2dUDdAIpral0UubesDcGYcFJdIfN7eddCi
+ 6obxR6+RDo0p7GLArEkuF9JGpWnHrWN+XXRWf8lzma/UnXYQwYK1SEim51+ytuGn+ppAHVkF1
+ b35QrEflhH2I8HDRLbUKJGyAiaFdCffnun+2tbj/NV5El3VWzBYicEr9uaIELX++MHz0=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The most powerful m68k machine emulated by QEMU is a Quadra 800,
-but this machine is very limited: only 1 GiB of memory and only some
-specific interfaces, with no DMA.
+Add a clocksource based on the goldfish-rtc device.
 
-The Virtual M68k Machine is based on Goldfish interfaces defined by Google
-for Android simulator. It uses Goldfish-rtc (timer and RTC),
-Goldfish-pic (PIC) and Goldfish-tty (for early tty).
-
-The machine is created with 128 virtio-mmio buses, and they can
-be used to add serial console, GPU, disk, NIC, HID, hwrng, 9PFS...
-
-The virtual m68k machine has been merged in QEMU and will be available
-with the release 6.0.
-
-This series introduces the support of this new machine in the linux kernel.
-
-If you want to try:
-
-- Configure and build latest QEMU with (or download qemu 6.0 binary):
-
-  .../configure --target-list=m68k-softmmu --enable-virglrenderer
-  make
-
-- Configure and build linux with:
-
-  make virt_defconfig
-  make vmlinux
-
-A pre-installed qcow2 disk image is available at:
-
-http://vivier.eu/debian-10.0.qcow2
-
-You can run the machine with something like:
-
-qemu-system-m68k -M virt \
-  -m 3G \
-  -chardev stdio,signal=off,mux=on,id=char0 \
-  -mon chardev=char0,mode=readline \
-  -kernel vmlinux \
-  -append "console=hvc0 root=/dev/vda2" \
-  -blockdev node-name=system,driver=file,filename=debian-10.0.qcow2 \
-  -blockdev node-name=drive0,driver=qcow2,file=system \
-  -device virtio-blk-device,drive=drive0 \
-  -serial chardev:char0 \
-  -device virtio-net-device,netdev=hostnet0 \
-  -netdev bridge,id=hostnet0,br=virbr0,helper=/usr/libexec/qemu-bridge-helper \
-  -device virtio-serial-device \
-  -device virtio-gpu-device \
-  -device virtconsole,chardev=char0 \
-  -device virtio-keyboard-device \
-  -device virtio-mouse-device
-
-You can watch a presentation about the machine on the Planet m68k channel:
-
-    https://youtu.be/s_ve0bCC9q4
-    [Demo at 38:00]
-
-v11:
-- rename goldfish_ioread32()/goldfish_iowrite32() to gf_ioread32()/gfiowrite32()
-- move them to linux/goldfish.h and m68k/asm/io.h
-- change patches order (tty first to revert my previous work)
-- fix clocksource by clearing interrupt on tick not on next_event()
-  and clearing shift
-- add missing clocksource_register_hz()
-- rebase
-
-v10:
-- move goldfish_ioread32()/goldfish_iowrite32() to io.h
-- also update goldfish-tty
-- use READ_ONCE()/WRITE_ONCE() for in_nmi
-
-v9:
-- include <linux/memblock.h> to declare min_low_pfn
-- goldfish accessors: s/CONFIG_CPU_BIG_ENDIAN/CONFIG_M68K/
-
-v8:
-- GF_PUT_CHAR is a 32bit register (in arch/m68k/kernel/head.S)
-- rework goldfish-pic and virt_ctrl
-
-v7:
-- add "#include <linux/slab.h>" in timer-goldfish.c for kzalloc()
-- update timer-goldfish Kconfig
-- remove EXPORT_SYMBOL()
-- introduce goldfish_ioread32()/goldfish_iowrite32()
-
-v6:
-- fix goldfish-rtc endianness
-- move goldfish-timer code to drivers/clocksource
-- remove LEGACY_TIMER_TICK and use directly goldfish-timer
-
-v5:
-- add GENERIC_CLOCKEVENTS in Kconfig.machine
-
-v4:
-- update PATCH 1: comments and parameter names
-- add a patch to move to generic clockevents
-  (I prefer to have a separate patch as it can be used as an example to
-   move from legacy timer tick to generic clockevents)
-
-v3:
-- introduce config.h to export prototypes to arch/m68k/kernel/setup_mm.c
-- define virt_nmi_handler as static
-
-v2:
-- Remove VIRTO_MENU set y
-- sort the selects
-- add CONFIG_LOCALVERSION="-virt"
-- generate virt_defconfig using "make savedefconfig"
-- rename MACH_VIRTONLY to MACH_VIRT_ONLY
-- add a test_notvirt label in head.S
-- rework iounmap() to use two separate #ifdefs
-- use %u in virt_get_model()
-- drop show_registers() in config.c
-- drop pr_err() from config_virt()
-- sort includes in ints.c
-- call virt_irq_enable() in virt_irq_startup()
-- drop virt_irq_shutdown() and use virt_irq_disable()
-- move in_nmi into virt_nmi_handler()
-- use pr_warn() in virt_nmi_handler()
-- rework goldfish_pic_irq() IRQ scan
-- copy goldfish-pic IRQs related information from QEMU hw/m68k/virt
-- add a comment to "min_low_pfn = 0"
-- use platform_device_register_simple()
-- use goldfish_timer_read(), upper_32_bits() and lower_32_bits()
-
-Thanks,
-Laurent
-
-Laurent Vivier (5):
-  m68k: add asm/config.h
-  tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
-  rtc: goldfish: use gf_ioread32()/gf_iowrite32()
-  clocksource/drivers: Add a goldfish-timer clocksource
-  m68k: introduce a virtual m68k machine
-
- arch/m68k/Kbuild                           |   1 +
- arch/m68k/Kconfig.machine                  |  17 +++
- arch/m68k/amiga/config.c                   |   1 +
- arch/m68k/apollo/config.c                  |   1 +
- arch/m68k/atari/config.c                   |   1 +
- arch/m68k/bvme6000/config.c                |   1 +
- arch/m68k/configs/virt_defconfig           |  65 +++++++++
- arch/m68k/hp300/config.c                   |   1 +
- arch/m68k/include/asm/config.h             |  35 +++++
- arch/m68k/include/asm/io.h                 |   3 +
- arch/m68k/include/asm/irq.h                |   3 +-
- arch/m68k/include/asm/pgtable_mm.h         |   7 +
- arch/m68k/include/asm/setup.h              |  44 ++++--
- arch/m68k/include/asm/virt.h               |  25 ++++
- arch/m68k/include/uapi/asm/bootinfo-virt.h |  18 +++
- arch/m68k/include/uapi/asm/bootinfo.h      |   1 +
- arch/m68k/kernel/Makefile                  |   1 +
- arch/m68k/kernel/head.S                    |  31 ++++
- arch/m68k/kernel/setup_mm.c                |  30 +---
- arch/m68k/mac/config.c                     |   1 +
- arch/m68k/mm/kmap.c                        |  23 ++-
- arch/m68k/mvme147/config.c                 |   1 +
- arch/m68k/mvme16x/config.c                 |   1 +
- arch/m68k/q40/config.c                     |   1 +
- arch/m68k/virt/Makefile                    |   6 +
- arch/m68k/virt/config.c                    | 119 +++++++++++++++
- arch/m68k/virt/ints.c                      | 133 +++++++++++++++++
- arch/m68k/virt/platform.c                  |  72 +++++++++
- drivers/clocksource/Kconfig                |   7 +
- drivers/clocksource/Makefile               |   1 +
- drivers/clocksource/timer-goldfish.c       | 162 +++++++++++++++++++++
- drivers/rtc/rtc-goldfish.c                 |  30 ++--
- drivers/tty/goldfish.c                     |  20 +--
- include/clocksource/timer-goldfish.h       |  11 ++
- include/linux/goldfish.h                   |  15 +-
- 35 files changed, 820 insertions(+), 69 deletions(-)
- create mode 100644 arch/m68k/configs/virt_defconfig
- create mode 100644 arch/m68k/include/asm/config.h
- create mode 100644 arch/m68k/include/asm/virt.h
- create mode 100644 arch/m68k/include/uapi/asm/bootinfo-virt.h
- create mode 100644 arch/m68k/virt/Makefile
- create mode 100644 arch/m68k/virt/config.c
- create mode 100644 arch/m68k/virt/ints.c
- create mode 100644 arch/m68k/virt/platform.c
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
+ drivers/clocksource/Kconfig          |   7 ++
+ drivers/clocksource/Makefile         |   1 +
+ drivers/clocksource/timer-goldfish.c | 162 +++++++++++++++++++++++++++
+ include/clocksource/timer-goldfish.h |  11 ++
+ 4 files changed, 181 insertions(+)
  create mode 100644 drivers/clocksource/timer-goldfish.c
  create mode 100644 include/clocksource/timer-goldfish.h
 
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index cfb8ea0df3b1..94f00374cebb 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -721,4 +721,11 @@ config MICROCHIP_PIT64B
+ 	  modes and high resolution. It is used as a clocksource
+ 	  and a clockevent.
+ 
++config GOLDFISH_TIMER
++	bool "Clocksource using goldfish-rtc"
++	depends on M68K || COMPILE_TEST
++	depends on RTC_DRV_GOLDFISH
++	help
++	  Support for the timer/counter of goldfish-rtc
++
+ endmenu
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+index fa5f624eadb6..12f5d7e8cc2d 100644
+--- a/drivers/clocksource/Makefile
++++ b/drivers/clocksource/Makefile
+@@ -89,3 +89,4 @@ obj-$(CONFIG_GX6605S_TIMER)		+= timer-gx6605s.o
+ obj-$(CONFIG_HYPERV_TIMER)		+= hyperv_timer.o
+ obj-$(CONFIG_MICROCHIP_PIT64B)		+= timer-microchip-pit64b.o
+ obj-$(CONFIG_MSC313E_TIMER)		+= timer-msc313e.o
++obj-$(CONFIG_GOLDFISH_TIMER)		+= timer-goldfish.o
+diff --git a/drivers/clocksource/timer-goldfish.c b/drivers/clocksource/timer-goldfish.c
+new file mode 100644
+index 000000000000..b57c964b3dda
+--- /dev/null
++++ b/drivers/clocksource/timer-goldfish.c
+@@ -0,0 +1,162 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/interrupt.h>
++#include <linux/ioport.h>
++#include <linux/clocksource.h>
++#include <linux/clockchips.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <clocksource/timer-goldfish.h>
++
++#define TIMER_TIME_LOW		0x00	/* get low bits of current time  */
++					/*   and update TIMER_TIME_HIGH  */
++#define TIMER_TIME_HIGH		0x04	/* get high bits of time at last */
++					/*   TIMER_TIME_LOW read         */
++#define TIMER_ALARM_LOW		0x08	/* set low bits of alarm and     */
++					/*   activate it                 */
++#define TIMER_ALARM_HIGH	0x0c	/* set high bits of next alarm   */
++#define TIMER_IRQ_ENABLED	0x10
++#define TIMER_CLEAR_ALARM	0x14
++#define TIMER_ALARM_STATUS	0x18
++#define TIMER_CLEAR_INTERRUPT	0x1c
++
++struct goldfish_timer {
++	struct clocksource cs;
++	struct clock_event_device ced;
++	struct resource res;
++	void __iomem *base;
++	int irq;
++};
++
++static struct goldfish_timer *ced_to_gf(struct clock_event_device *ced)
++{
++	return container_of(ced, struct goldfish_timer, ced);
++}
++
++static struct goldfish_timer *cs_to_gf(struct clocksource *cs)
++{
++	return container_of(cs, struct goldfish_timer, cs);
++}
++
++static u64 goldfish_timer_read(struct clocksource *cs)
++{
++	struct goldfish_timer *timerdrv = cs_to_gf(cs);
++	void __iomem *base = timerdrv->base;
++	u32 time_low, time_high;
++	u64 ticks;
++
++	/*
++	 * time_low: get low bits of current time and update time_high
++	 * time_high: get high bits of time at last time_low read
++	 */
++	time_low = gf_ioread32(base + TIMER_TIME_LOW);
++	time_high = gf_ioread32(base + TIMER_TIME_HIGH);
++
++	ticks = ((u64)time_high << 32) | time_low;
++
++	return ticks;
++}
++
++static int goldfish_timer_set_oneshot(struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++
++	gf_iowrite32(0, base + TIMER_ALARM_HIGH);
++	gf_iowrite32(0, base + TIMER_ALARM_LOW);
++	gf_iowrite32(1, base + TIMER_IRQ_ENABLED);
++
++	return 0;
++}
++
++static int goldfish_timer_shutdown(struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++
++	gf_iowrite32(0, base + TIMER_IRQ_ENABLED);
++
++	return 0;
++}
++
++static int goldfish_timer_next_event(unsigned long delta,
++				     struct clock_event_device *evt)
++{
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++	u64 now;
++
++	now = goldfish_timer_read(&timerdrv->cs);
++
++	now += delta;
++
++	gf_iowrite32(upper_32_bits(now), base + TIMER_ALARM_HIGH);
++	gf_iowrite32(lower_32_bits(now), base + TIMER_ALARM_LOW);
++
++	return 0;
++}
++
++static irqreturn_t golfish_timer_tick(int irq, void *dev_id)
++{
++	struct clock_event_device *evt = dev_id;
++	struct goldfish_timer *timerdrv = ced_to_gf(evt);
++	void __iomem *base = timerdrv->base;
++
++	gf_iowrite32(1, base + TIMER_CLEAR_INTERRUPT);
++
++	evt->event_handler(evt);
++
++	return IRQ_HANDLED;
++}
++
++void __init goldfish_timer_init(int irq, void __iomem *base)
++{
++	struct goldfish_timer *timerdrv;
++	int ret;
++
++	timerdrv = kzalloc(sizeof(*timerdrv), GFP_KERNEL);
++	if (!timerdrv)
++		return;
++
++	timerdrv->base = base;
++	timerdrv->irq = irq;
++
++	timerdrv->ced = (struct clock_event_device){
++		.name			= "goldfish_timer",
++		.features		= CLOCK_EVT_FEAT_ONESHOT,
++		.set_state_shutdown	= goldfish_timer_shutdown,
++		.set_state_oneshot      = goldfish_timer_set_oneshot,
++		.set_next_event		= goldfish_timer_next_event,
++	};
++	timerdrv->res = (struct resource){
++		.name  = "goldfish_timer",
++		.start = (unsigned long)base,
++		.end   = (unsigned long)base + 0xfff,
++	};
++
++	if (request_resource(&iomem_resource, &timerdrv->res)) {
++		pr_err("Cannot allocate goldfish-timer resource\n");
++		return;
++	}
++
++	timerdrv->cs = (struct clocksource){
++		.name		= "goldfish_timer",
++		.rating		= 400,
++		.read		= goldfish_timer_read,
++		.mask		= CLOCKSOURCE_MASK(64),
++		.flags		= 0,
++		.max_idle_ns	= LONG_MAX,
++	};
++
++	clocksource_register_hz(&timerdrv->cs, NSEC_PER_SEC);
++
++	ret = request_irq(timerdrv->irq, golfish_timer_tick, IRQF_TIMER,
++			  "goldfish_timer", &timerdrv->ced);
++	if (ret) {
++		pr_err("Couldn't register goldfish-timer interrupt\n");
++		return;
++	}
++
++	clockevents_config_and_register(&timerdrv->ced, NSEC_PER_SEC,
++					1, 0xffffffff);
++}
+diff --git a/include/clocksource/timer-goldfish.h b/include/clocksource/timer-goldfish.h
+new file mode 100644
+index 000000000000..b237267844f1
+--- /dev/null
++++ b/include/clocksource/timer-goldfish.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * goldfish-timer clocksource
++ */
++
++#ifndef _CLOCKSOURCE_GOLDFISH_TIMER_H
++#define _CLOCKSOURCE_GOLDFISH_TIMER_H
++
++extern void goldfish_timer_init(int irq, void __iomem *base);
++
++#endif /* _CLOCKSOURCE_GOLDFISH_TIMER_H */
 -- 
 2.34.1
 
