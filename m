@@ -2,90 +2,164 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E349CC433F5
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Jan 2022 17:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3728C433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Jan 2022 20:08:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343527AbiAURGe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 21 Jan 2022 12:06:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52350 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232557AbiAURGd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Jan 2022 12:06:33 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78440C06173B;
-        Fri, 21 Jan 2022 09:06:32 -0800 (PST)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id A92FA20005;
-        Fri, 21 Jan 2022 17:06:29 +0000 (UTC)
-Date:   Fri, 21 Jan 2022 18:06:29 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Hugo Villeneuve <hugo@hugovil.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Hugo Villeneuve <hvilleneuve@dimonoff.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: pcf2127: add error message if writing to CLKOUT
- register fails
-Message-ID: <YeroFQVgqrvlczrR@piout.net>
-References: <20220119172740.1856302-1-hugo@hugovil.com>
- <YehMZC4vduvSH5HA@piout.net>
- <20220119130845.6de245b8b217e659cd319328@hugovil.com>
- <YehiHJXP23TSREbE@piout.net>
- <20220120183548.e6a8f46ede2a636a8eaf11c1@hugovil.com>
+        id S229912AbiAUUIJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 21 Jan 2022 15:08:09 -0500
+Received: from mout.kundenserver.de ([212.227.126.134]:58049 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229474AbiAUUIJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Jan 2022 15:08:09 -0500
+Received: from quad ([82.142.13.186]) by mrelayeu.kundenserver.de (mreue009
+ [212.227.15.167]) with ESMTPSA (Nemesis) id 1Mw9Lw-1mLW2S12Rw-00s5pz; Fri, 21
+ Jan 2022 21:07:48 +0100
+From:   Laurent Vivier <laurent@vivier.eu>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Laurent Vivier <laurent@vivier.eu>
+Subject: [PATCH v12 3/5] rtc: goldfish: use gf_ioread32()/gf_iowrite32()
+Date:   Fri, 21 Jan 2022 21:07:36 +0100
+Message-Id: <20220121200738.2577697-4-laurent@vivier.eu>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220121200738.2577697-1-laurent@vivier.eu>
+References: <20220121200738.2577697-1-laurent@vivier.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220120183548.e6a8f46ede2a636a8eaf11c1@hugovil.com>
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:wMc9aE7SFhI7ob7vc3dfBy3RQ4C731TguCOa+Fbg8SfX8eSNBwH
+ WyCC1Z2nARQd/EkrKPQO49x4Gwdz73YUsShXk+pNkAu5w36sSzKx+YlgHTSZQF5+X331XQ3
+ oMMKs8SG9uDrvuDp4q44xnK/zQqQPEEOT13m/n6SrPD69SIKm2MQ2eE0a41L7E73g5yd+Lh
+ fqbPmwobKkCiHkjyYZ0oQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:dXI6QUoe4hs=:jubA7W0XAkAQpKv/ggIbaU
+ aoYyBvb+WURmh9pkbCsEznOaIhQZzRh9zyFfnHNQJCNrdMqiGcOHSpKdf4fe5Ka5huKFg2FXB
+ GkbVC9MLlPnGGR9lbS4295pKX3ADX+rEfsfL/U2NHKVzuTEgxojR9wSWMvIFdK/yVC7ZWKli9
+ de6CrLLx0Blk66qe9P0MfM+0Pn9HsvowTQwf9qne9GQLbg3EjMMp0IEJZqPXSFql8A0gGquLu
+ ZxjlVMIU4LjuWMB4qlxlUjnC/gB5dTmTW5az4yee8qv0mPG6DeYTtfFfOROQL2TrRsiWfTVWT
+ 4Qe2IxMOuyavIOyEHAh5+wB6rkXsRgP0fmQ5zl5fzYrqn2+J8H4yc9n8PMLzLQ8TrvD9n6SXT
+ BdPAyCv3stv0Q1xvEVHxi9pHKelK9aPyJzpXzcNVvTtTAkOpJo4DwkyJNWz42AQNqZU2oWnAc
+ hfb/5oxdd2CgUCMxQEOeWU9ag6/nz0NsvbBa8/kshQAmba2XKoOU/yq6PxJ+ALF4A5K5HCwXJ
+ NiPutnJ11jh4CHc2qvYTi6lNlj4HXYzTBeoSH4gXAvRJ0D9kvLcjej1qYSDwME7YklmbVPmaY
+ JWqFxE8WL8HtsS9YDwR61vC12Q7//M2vrHBMsmkgQfnykEJqUMVzTEijH6W9N9/8oZN/k+Mql
+ 2mcJvK37ACOAShH4MlHQwcsPoEXRI1w0B6I5aaRuw0zGsMOHTNluBcGHYYCTwC3HUbyQ=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 20/01/2022 18:35:48-0500, Hugo Villeneuve wrote:
-> On Wed, 19 Jan 2022 20:10:20 +0100
-> Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> 
-> > On 19/01/2022 13:08:45-0500, Hugo Villeneuve wrote:
-> > > On Wed, 19 Jan 2022 18:37:40 +0100
-> > > Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> > > 
-> > > > On 19/01/2022 12:27:39-0500, Hugo Villeneuve wrote:
-> > > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > > 
-> > > > > If writing to CLKOUT register fails, the probe operation will be aborted
-> > > > > without a meaningful error message.
-> > > > > 
-> > > > 
-> > > > The current trend is to remove debug messages, please do not add more :)
-> > > 
-> > > Hi,
-> > > If the read operation fails, the probe function will exit silently, and our RTC chip will not work. In that case, if we parse the dmesg logs, I think we  should have an indication that something went wrong.
-> > > 
-> > 
-> > This is not true, it doesn't fail silently, you'd get:
-> > rtc-pcf2127: probe of 1-0051 failed with error -121
-> 
-> Well this is certainly true for me because I am not seing the same error message as you :)
-> 
-> Just for context, I have defined a dummy pcf2127 on I2C bus 0 in my device tree (no actual hardware is present). I also added some debug messages to investigate (rtc-pcf2127.c and dd.c files), and here is the dmesg log after issuing "modprobe rtc-pcf2127":
-> 
-> [Thu Jan 20 23:22:20 2022] rtc-pcf2127-i2c 0-0051: pcf2127_i2c_probe
-> [Thu Jan 20 23:22:20 2022] rtc-pcf2127-i2c 0-0051: pcf2127_probe
-> [Thu Jan 20 23:22:20 2022] rtc-pcf2127-i2c 0-0051: PORO disabling failed with error -6
-> [Thu Jan 20 23:22:20 2022] rtc-pcf2127-i2c 0-0051: call_driver_probe probe error: -6
-> 
-> Error code -6 is -ENXIO, and looking at the call_driver_probe() function in dd.c, I now understand why I didn't see the error message (line 531):
-> 
-> 	case -ENXIO:
-> 		pr_debug("%s: probe of %s rejects match %d\n",
-> 			 drv->name, dev_name(dev), ret);
-> 
-> So it seems that the return code is different than what you got?
-> 
+replace readl()/writel() by gf_ioread32()/gf_iowrite32()
+as done for goldfish-tty.
 
-Probably because we don't have the same i2c controller and the driver
-for mine is returning -EREMOTEIO when the device is not present.
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+---
+ drivers/rtc/rtc-goldfish.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-goldfish.c b/drivers/rtc/rtc-goldfish.c
+index 7ab95d052644..eb1929b0cbb6 100644
+--- a/drivers/rtc/rtc-goldfish.c
++++ b/drivers/rtc/rtc-goldfish.c
+@@ -10,6 +10,7 @@
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/rtc.h>
++#include <linux/goldfish.h>
+ 
+ #define TIMER_TIME_LOW		0x00	/* get low bits of current time  */
+ 					/*   and update TIMER_TIME_HIGH  */
+@@ -41,8 +42,8 @@ static int goldfish_rtc_read_alarm(struct device *dev,
+ 	rtcdrv = dev_get_drvdata(dev);
+ 	base = rtcdrv->base;
+ 
+-	rtc_alarm_low = readl(base + TIMER_ALARM_LOW);
+-	rtc_alarm_high = readl(base + TIMER_ALARM_HIGH);
++	rtc_alarm_low = gf_ioread32(base + TIMER_ALARM_LOW);
++	rtc_alarm_high = gf_ioread32(base + TIMER_ALARM_HIGH);
+ 	rtc_alarm = (rtc_alarm_high << 32) | rtc_alarm_low;
+ 
+ 	do_div(rtc_alarm, NSEC_PER_SEC);
+@@ -50,7 +51,7 @@ static int goldfish_rtc_read_alarm(struct device *dev,
+ 
+ 	rtc_time64_to_tm(rtc_alarm, &alrm->time);
+ 
+-	if (readl(base + TIMER_ALARM_STATUS))
++	if (gf_ioread32(base + TIMER_ALARM_STATUS))
+ 		alrm->enabled = 1;
+ 	else
+ 		alrm->enabled = 0;
+@@ -71,18 +72,18 @@ static int goldfish_rtc_set_alarm(struct device *dev,
+ 
+ 	if (alrm->enabled) {
+ 		rtc_alarm64 = rtc_tm_to_time64(&alrm->time) * NSEC_PER_SEC;
+-		writel((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
+-		writel(rtc_alarm64, base + TIMER_ALARM_LOW);
+-		writel(1, base + TIMER_IRQ_ENABLED);
++		gf_iowrite32((rtc_alarm64 >> 32), base + TIMER_ALARM_HIGH);
++		gf_iowrite32(rtc_alarm64, base + TIMER_ALARM_LOW);
++		gf_iowrite32(1, base + TIMER_IRQ_ENABLED);
+ 	} else {
+ 		/*
+ 		 * if this function was called with enabled=0
+ 		 * then it could mean that the application is
+ 		 * trying to cancel an ongoing alarm
+ 		 */
+-		rtc_status_reg = readl(base + TIMER_ALARM_STATUS);
++		rtc_status_reg = gf_ioread32(base + TIMER_ALARM_STATUS);
+ 		if (rtc_status_reg)
+-			writel(1, base + TIMER_CLEAR_ALARM);
++			gf_iowrite32(1, base + TIMER_CLEAR_ALARM);
+ 	}
+ 
+ 	return 0;
+@@ -98,9 +99,9 @@ static int goldfish_rtc_alarm_irq_enable(struct device *dev,
+ 	base = rtcdrv->base;
+ 
+ 	if (enabled)
+-		writel(1, base + TIMER_IRQ_ENABLED);
++		gf_iowrite32(1, base + TIMER_IRQ_ENABLED);
+ 	else
+-		writel(0, base + TIMER_IRQ_ENABLED);
++		gf_iowrite32(0, base + TIMER_IRQ_ENABLED);
+ 
+ 	return 0;
+ }
+@@ -110,7 +111,7 @@ static irqreturn_t goldfish_rtc_interrupt(int irq, void *dev_id)
+ 	struct goldfish_rtc *rtcdrv = dev_id;
+ 	void __iomem *base = rtcdrv->base;
+ 
+-	writel(1, base + TIMER_CLEAR_INTERRUPT);
++	gf_iowrite32(1, base + TIMER_CLEAR_INTERRUPT);
+ 
+ 	rtc_update_irq(rtcdrv->rtc, 1, RTC_IRQF | RTC_AF);
+ 
+@@ -128,8 +129,8 @@ static int goldfish_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	rtcdrv = dev_get_drvdata(dev);
+ 	base = rtcdrv->base;
+ 
+-	time_low = readl(base + TIMER_TIME_LOW);
+-	time_high = readl(base + TIMER_TIME_HIGH);
++	time_low = gf_ioread32(base + TIMER_TIME_LOW);
++	time_high = gf_ioread32(base + TIMER_TIME_HIGH);
+ 	time = (time_high << 32) | time_low;
+ 
+ 	do_div(time, NSEC_PER_SEC);
+@@ -149,8 +150,8 @@ static int goldfish_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	base = rtcdrv->base;
+ 
+ 	now64 = rtc_tm_to_time64(tm) * NSEC_PER_SEC;
+-	writel((now64 >> 32), base + TIMER_TIME_HIGH);
+-	writel(now64, base + TIMER_TIME_LOW);
++	gf_iowrite32((now64 >> 32), base + TIMER_TIME_HIGH);
++	gf_iowrite32(now64, base + TIMER_TIME_LOW);
+ 
+ 	return 0;
+ }
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.34.1
+
