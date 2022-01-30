@@ -2,125 +2,98 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC797C433F5
-	for <linux-rtc@archiver.kernel.org>; Sun, 30 Jan 2022 01:48:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C77CFC433EF
+	for <linux-rtc@archiver.kernel.org>; Sun, 30 Jan 2022 08:20:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353712AbiA3Bsf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 29 Jan 2022 20:48:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234657AbiA3Bsf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 29 Jan 2022 20:48:35 -0500
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2EE4C061714;
-        Sat, 29 Jan 2022 17:48:34 -0800 (PST)
-Received: by mail-oi1-x230.google.com with SMTP id x193so20035394oix.0;
-        Sat, 29 Jan 2022 17:48:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:content-language:to
-         :cc:references:from:subject:in-reply-to:content-transfer-encoding;
-        bh=/L0FNx4UsqPubIwQoXCoP3dkYUjpOsRjmwoMAj/0oVQ=;
-        b=TeO/0Djj1MiURLdudclnNcIDd4sp8JhYEePGMRJA80EycbR0S0zAnVokBQv7Obhy5Q
-         77Z/99boaW6PtSZvQi8+Te+fxKTtzu9v1jw1j0h31Iem1ywepIBy0XH8LXSTrtOZg5BW
-         dvIlv6YADM9HJ/w5hpyil581RjXVUjcoY+yUqA2fNVQq9iP9yGYrbgUd+Og0m/YTo3ca
-         cwLJyN+dRlRCrmWNubOtFXjqzZ0SXoi0+KdescioEE4Qa3ZYQMKmvbs9fv2tGw6oe4rr
-         70rGvgkogftvVlG+QC1BfvHgpzwEcET2Xf0sb6q+ifrdhnvPxjOvMQ2loMxPoX6BeSrE
-         cdNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=/L0FNx4UsqPubIwQoXCoP3dkYUjpOsRjmwoMAj/0oVQ=;
-        b=KBFJLVDmNFDUWmaMf58T0jOoA8lsCw8jOc2chlXXYcGQz0jdBIFhYHXQzMbEkOOGSL
-         XG8NPCXjTmAzhkGh0/eRvpYYnLO6JE82WSjozHEChsCjME0mP5JGFopSSU4ne9komxCT
-         hio49VvAW7Cp+xWZHYJ/vm3cXipvjGLKbUtqA8njSAGDFAHPlFxD91Fpde2BPjZiHfwg
-         DoxcMYPOPVp8xaB5XWdMHf3JLawKPYQgLNli3wqIfpAu+uc6K4JO9iW95bVztQ9f8yAC
-         r4kWoUafQUKNKPClLEcZKXtw7YwLN0eEfRkzBr9U87eDTwEfC0qn0HF78AX+S5KRED43
-         Cglw==
-X-Gm-Message-State: AOAM530wMqaf7Rn3QyKJixj+jI03/pSHm+VzW8J23IlzXlL0yo2LatvX
-        uJGp1f4qpaGI1dTk2vi/3KQ=
-X-Google-Smtp-Source: ABdhPJzdJS0j54VjAAmKP7KS5tN2aolqa8PTxjekXuya3QrLVyS9pVV9FlDW6P1WW2jPvIDdHti6ww==
-X-Received: by 2002:a05:6808:210f:: with SMTP id r15mr4322693oiw.113.1643507314224;
-        Sat, 29 Jan 2022 17:48:34 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a10sm9053589otq.64.2022.01.29.17.48.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 29 Jan 2022 17:48:33 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <900e896a-f1c3-aafa-2ed4-a23104d65b74@roeck-us.net>
-Date:   Sat, 29 Jan 2022 17:48:30 -0800
+        id S1354389AbiA3IUy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 30 Jan 2022 03:20:54 -0500
+Received: from mailgw01.mediatek.com ([60.244.123.138]:43768 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1354377AbiA3IUx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 30 Jan 2022 03:20:53 -0500
+X-UUID: 32d543e1b7354728a085bcc67f6cef15-20220130
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:References:CC:To:From:Subject; bh=5dfX0uT7YajxHZZ5mnr7QgVoobwwPPVsKoXZSANCdOM=;
+        b=JnIh5X/PQowhf3y9hYkzTPIaiD4QNRWSpYt4A3+v7KO/XEhHVgNDu42WluVh7GXj4/qLUBn8BRBe8hU15kC5/3cSw2gOLjOcJeeXhbM6bGOsLHHQw7RItKnzwlcH90UVEmSENF+7s2H24SfmGGXv4qju2N+dgw4HP2S2Ben1glw=;
+X-UUID: 32d543e1b7354728a085bcc67f6cef15-20220130
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 731501614; Sun, 30 Jan 2022 16:20:48 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Sun, 30 Jan 2022 16:20:46 +0800
+Received: from [172.21.84.99] (172.21.84.99) by mtkcas11.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Sun, 30 Jan 2022 16:20:46 +0800
+Subject: Re: [PATCH 0/2] Add pwrap node for MediaTek MT8192 SoC and mt6359
+ node for MediaTek PMIC MT6359
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Hui-Liu Liu <hui.liu@mediatek.com>, <lee.jones@linaro.org>,
+        <robh+dt@kernel.org>, <matthias.bgg@gmail.com>,
+        <lgirdwood@gmail.com>, <broonie@kernel.org>,
+        <eddie.huang@mediatek.com>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <fshao@chromium.org>
+CC:     <srv_heupstream@mediatek.com>, <zhiyong.tao@mediatek.com>,
+        <hsin-hsiung.wang@mediatek.com>, <sean.wang@mediatek.com>,
+        <yuchen.huang@mediatek.com>, <wen.su@mediatek.com>,
+        <devicetree@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        Macpaul Lin <macpaul@gmail.com>,
+        Wens Tsai <wenst@chromium.org>,
+        Pablo Sun <pablo.sun@mediatek.com>
+References: <20220127063145.13413-1-hui.liu@mediatek.com>
+ <aeb9bc06-c6e3-810b-7ec5-6e0038d32c88@mediatek.com>
+Message-ID: <88435da5-b3d7-8cdb-908f-aae5d96a98dd@mediatek.com>
+Date:   Sun, 30 Jan 2022 16:20:46 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
+In-Reply-To: <aeb9bc06-c6e3-810b-7ec5-6e0038d32c88@mediatek.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
-To:     Luca Ceresoli <luca@lucaceresoli.net>,
-        Lee Jones <lee.jones@linaro.org>
-Cc:     linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Chiwoong Byun <woong.byun@samsung.com>,
-        Laxman Dewangan <ldewangan@nvidia.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-kernel@vger.kernel.org
-References: <20211211175951.30763-1-luca@lucaceresoli.net>
- <d8aacb8a-5e41-fd96-daac-e9257358ca71@lucaceresoli.net>
- <4532b372-f16a-7658-623d-71af93306e44@lucaceresoli.net>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v5 0/9] Add MAX77714 PMIC minimal driver (RTC and watchdog
- only)
-In-Reply-To: <4532b372-f16a-7658-623d-71af93306e44@lucaceresoli.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 1/29/22 00:40, Luca Ceresoli wrote:
-> Hi Lee, all,
-> 
-> On 11/01/22 11:10, Luca Ceresoli wrote:
->> Hi All,
->>
->> On 11/12/21 18:59, Luca Ceresoli wrote:
->>> Hi,
->>>
->>> this series adds minimal drivers for the Maxim Semiconductor MAX77714
->>> (https://www.maximintegrated.com/en/products/power/power-management-ics/MAX77714.html).
->>> Only RTC and watchdog are implemented by these patches.
->>>
->>> All implemented functionality is tested and working: RTC read/write,
->>> watchdog start/stop/ping/set_timeout.
->>>
->>> Patches 1-3 + 6 are trivial cleanups to the max77686 drivers and Kconfig
->>> indentation and can probably be applied easily.
->>>
->>> Patches 4, 5, 7, 8 and 9 add: dt bindings, mfd driver, watchdog driver and
->>> rtc driver.
->>
->> A gentle ping about this series. It's at v5, all patches have at least
->> one ack/review tag and most patches are unchanged since ~v2. It applies
->> cleanly on current master.
->>
->> Is there anything I should do to help making progress?
-> 
-> Apologies for pinging again... but as I got no further comments about
-> these patches I guess I can really do nothing at the moment.
-> 
-> Lee, is this series completely in charge to you or should it be applied
-> by the respective subsystem maintainers?
-> 
+DQpPbiAxLzI3LzIyIDU6MzYgUE0sIE1hY3BhdWwgTGluIHdyb3RlOg0KPiANCj4gT24gMS8yNy8y
+MiAyOjMxIFBNLCBIdWktTGl1IExpdSB3cm90ZToNCj4+IFRoaXMgcGF0aHNldCBhZGQgcHdyYXAg
+bm9kZSB0byBTb0MgTVQ4MTkyLCBhbmQgYWRkIFBNSUMgTVQ2MzU5IHJlbGF0ZWQgDQo+PiBub2Rl
+cy4NCj4+IE1UNjM1OSBpcyB0aGUgcHJpbWFyeSBQTUlDIGZvciBNVDgxOTIgYW5kIHByb2JhYmx5
+IG90aGVyIFNvQ3MuDQo+Pg0KPj4gVGhlIHNlcmllc1sxXSBhbmQgc2VyaWVzWzJdIHNlbmQgYnkg
+SHNpbi1Ic2l1bmcgd2lsbCBjb250aW51ZSB0byANCj4+IHVwc3RyZWFtIGluIHRoaXMgcGF0aHNl
+dCBhZnRlcndhcmRzLg0KPj4NCj4+IFsxXSANCj4+IGh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5v
+cmcvcHJvamVjdC9saW51eC1tZWRpYXRlay9wYXRjaC8xNjE1NTYzMjg2LTIyMTI2LTYtZ2l0LXNl
+bmQtZW1haWwtaHNpbi1oc2l1bmcud2FuZ0BtZWRpYXRlay5jb20vIA0KPj4NCj4+IFsyXSANCj4+
+IGh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcHJvamVjdC9saW51eC1tZWRpYXRlay9wYXRj
+aC8xNjIyMDExOTI3LTM1OS05LWdpdC1zZW5kLWVtYWlsLWhzaW4taHNpdW5nLndhbmdAbWVkaWF0
+ZWsuY29tLyANCj4+DQo+Pg0KPj4gSHVpIExpdSAoMik6DQo+PiDCoMKgIGFybTY0OiBkdHM6IG10
+ODE5MjogYWRkIFBXUkFQIG5vZGUNCj4+IMKgwqAgYXJtNjQ6IGR0czogbXQ2MzU5OiBhZGQgUE1J
+QyBNVDYzNTkgcmVsYXRlZCBub2Rlcw0KPj4NCj4+IMKgIGFyY2gvYXJtNjQvYm9vdC9kdHMvbWVk
+aWF0ZWsvbXQ2MzU5LmR0c2nCoMKgwqAgfCAyOTggKysrKysrKysrKysrKysrKysrKysNCj4+IMKg
+IGFyY2gvYXJtNjQvYm9vdC9kdHMvbWVkaWF0ZWsvbXQ4MTkyLWV2Yi5kdHMgfMKgwqAgMSArDQo+
+PiDCoCBhcmNoL2FybTY0L2Jvb3QvZHRzL21lZGlhdGVrL210ODE5Mi5kdHNpwqDCoMKgIHzCoCAx
+MiArDQo+PiDCoCAzIGZpbGVzIGNoYW5nZWQsIDMxMSBpbnNlcnRpb25zKCspDQo+PiDCoCBjcmVh
+dGUgbW9kZSAxMDA2NDQgYXJjaC9hcm02NC9ib290L2R0cy9tZWRpYXRlay9tdDYzNTkuZHRzaQ0K
+Pj4NCj4+IC0tIA0KPj4gMi4yNS4xDQo+Pg0KPj4NCj4gDQo+IFRoaXMgcGF0Y2hzZXQgaXMgYmFz
+ZWQgb24gWzFdDQo+IA0KPiBbMV0gYXJtNjQ6IGR0czogQWRkIG1lZGlhdGVrIFNvQyBtdDgxOTUg
+YW5kIGV2YWx1YXRpb24gYm9hcmQNCj4gLSANCj4gaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9y
+Zy9wcm9qZWN0L2xpbnV4LW1lZGlhdGVrL3BhdGNoLzIwMjIwMTEyMTE0NzI0LjE5NTMtNC10aW5n
+aGFuLnNoZW5AbWVkaWF0ZWsuY29tLyANCj4gDQo+IA0KPiBJJ3ZlIHRlc3RlZCB0aGlzIHBhdGNo
+IHNldCBidWlsZCBwYXNzIHdpdGggWzFdIGZvciBib3RoIG10ODE5MiBhbmQgDQo+IG10ODE5NSBw
+bGF0Zm9ybSBvbiBsaW51eC01LjE3LXJjMS4NCj4gDQo+IFJldmlld2VkLWJ5OiBNYWNwYXVsIExp
+biA8bWFjcGF1bC5saW5AbWVkaWF0ZWsuY29tPg0KPiANCj4gUmVnYXJkcywNCj4gTWFjcGF1bCBM
+aW4NCg0KVXBkYXRlZDogVGhpcyBwYXRjaHNldCBwYXNzZXMgYnVpbGQgdGVzdCBiYXNlZCBvbiBu
+ZXcgcGF0Y2hzZXQgdjEwIG9mIA0KWzFdLCB3aGVyZSB0aGUgbmV3IHBhdGNoc2V0IGlzIFsyXSBv
+biA1LjE3LXJjMS4NCg0KWzJdIHYxMCwgYXJtNjQ6IGR0czogQWRkIG1lZGlhdGVrIFNvQyBtdDgx
+OTUgYW5kIGV2YWx1YXRpb24gYm9hcmQNCg0KaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGludXgt
+YXJtLWtlcm5lbC8yMDIyMDEzMDAyMzIwOS4xNjI3NS0zLXRpbmdoYW4uc2hlbkBtZWRpYXRlay5j
+b20vVC8NCg0KUmVnYXJkcywNCk1hY3BhdWwgTGluDQphcm02NDogZHRzOiBBZGQgbWVkaWF0ZWsg
+U29DIG10ODE5NSBhbmQgZXZhbHVhdGlvbiBib2FyZA==
 
-I hesitated to take the watchdog patches because an earlier patch of the series
-introduces MFD_MAX77714 and the watchdog Kconfig entry lists it as dependency.
-I now added patch 7/9 and 8/9 to my watchdog-next tree anyway. If the mfd part
-doesn't make it we can still decide to take it out at some point.
-
-Note that patch 6/9 has already been applied.
-
-Guenter
