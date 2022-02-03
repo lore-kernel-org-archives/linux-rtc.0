@@ -2,46 +2,46 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B26FC433F5
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Feb 2022 02:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB3F6C433EF
+	for <linux-rtc@archiver.kernel.org>; Thu,  3 Feb 2022 02:17:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239177AbiBCCRp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 2 Feb 2022 21:17:45 -0500
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:37141 "EHLO
+        id S1348952AbiBCCRw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 2 Feb 2022 21:17:52 -0500
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:48245 "EHLO
         wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348936AbiBCCRo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Feb 2022 21:17:44 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 126642B0019D;
-        Wed,  2 Feb 2022 21:17:42 -0500 (EST)
+        by vger.kernel.org with ESMTP id S1348962AbiBCCRv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Feb 2022 21:17:51 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.west.internal (Postfix) with ESMTP id 465C12B001A5;
+        Wed,  2 Feb 2022 21:17:50 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Wed, 02 Feb 2022 21:17:44 -0500
+  by compute3.internal (MEProxy); Wed, 02 Feb 2022 21:17:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
         :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; bh=KO87UqUSigoil934L0EoAdrUFJ7VlH
-        5xtIF2E/OB148=; b=MnwJmJjyn47P3vu2/r/1oSKlXJXnIUQELqN/8jnPSqBurw
-        DBQm9pS3bECeAGXEbDwN61RA19s3DiF3ropO7MdR1ue/EIfV2zUOG4T/YzsESO+D
-        rXP7+xGIAgDjNjX1XwkYWm1nfBRnpXFX8fCP/TUP+NBT/4lvtY9Z7nxtGt47amPk
-        dmnfpxEOfPMIwu+6iMpGMNktKkLnMnA4zVHhcoWHTQ7ZUHsQfi8BnjFx5tHvrBez
-        fV/5PxE0aa+pxHMj19tdeW5J8XiR003vEN/ilRx4Q8xgd7K0PF3iTW2WVc9o3Jqw
-        UucXBeWCHFtNrK9lHZxpGwwVQRuf2qocrSGBrqTw==
+        :subject:subject:to:to; s=fm1; bh=TGiBQ7VmjM7mVAr+H+Xl3LR9ImpLbL
+        k7tYOeYCfQiH4=; b=Yc0/g9AyUyVuRW3P3ICmzCgxGWL2k2t9skVOT+zcHXLPp7
+        Pm16SN4hRAs6qbP9/vMdnFluf9mavhfiriqX+ueZ9VrFy51m14SbMS/yefkDcbpD
+        kIw+Xzg9fxJHxYaZacmXFyc1qiUteWh4OdbVFl/5v4fs2gGOkEWUcsbeTHvgQtBp
+        EguMAogX6FHSg3ezktIxTOacwp0oiuQlXRdHqzjBtSSPmItYbMa+nLDQvFWsH5qA
+        s+7yrPeZxxZOQFFeF4PfwmrpWRlifW/di3/Tv73JP2ya+Y86bvkQ6IYMeEKuXNP9
+        i+lzfpOLy2f8ytR+ro3q7KLmQRKbjL/7Id798Dgw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KO87Uq
-        USigoil934L0EoAdrUFJ7VlH5xtIF2E/OB148=; b=TbZEFaaDKs6jY+mA44vpHI
-        Zy6vR4dcCdAwBI1Fg7S2yGQOR4xUrM5WZQXGCWyIwwMKs+QKezjHpjWgXZx2Y9Ie
-        zcjc+auPz1uEeuanSnEmXOJbR3sksvdhnchdNBT1eX6dkN+UwQe3VILrKiJhpz00
-        YkIrjNt51dORcZTSoMOpDKMTlvxdF9bCejl15AzOzMb2gv83Okpm/DiU7UHcHSNT
-        YY0ll23F9D0kupAQS9FmtBXkX0KtwDZs2KQDx+zveNaPhCjrMBxjyICBmXhuJGUn
-        lO7t6/yttkt9qZwbJOR0IOQmxUUSze0TEPrzu3PHGzXIUzm0KuXUEZTkVU2pCJ6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TGiBQ7
+        VmjM7mVAr+H+Xl3LR9ImpLbLk7tYOeYCfQiH4=; b=kFhwLSp/Pjl5lmAa8lxl64
+        u8xxaq4wu4pNr4/G6AOlazYIkv00xlBjeW5TnP3Xo37TWN/MqcC/x0OoFIkNLw/W
+        nd/oOjVTezajRbtLdr7tgj23l230v8BEaQcygKn+AwVgczZSbuOQmJ/Vg1ge/HFI
+        tNJHfnAyEWxxw3Pr/18C6pBtqUutN5H0r78Y5r8OO2nHIKruzCpT72grGPgbyspL
+        4KcTxLZ3JcE0y8mff6tHg/98kpF01wv50+11xUIcWIhkaVKKRLeoA2DPw7NnVcXe
+        kbpL7he8SJ+35Q4pcwa1jlZLj20xkDra9vKldSo9eA/TDeojnBxKZNvBibUibNsg
         ==
-X-ME-Sender: <xms:Rjv7YfMiKVKWIcJ2AmdWvtiv2lpi5Xc1Yj-wd0ORNmA26dqaC-7cSg>
-    <xme:Rjv7YZ9P5CreDgpylmUQ34fkKajK1Ofou3qu0yonBRHi9tU8qSKO9MYdNXAdgC6b-
-    3X3w58NObPWr8Pi3g>
-X-ME-Received: <xmr:Rjv7YeQYs6J9Zy8t6PmHImcoZGbQ2logKoOv2n7uVnQ74q33cbeZV5YtCtPkQXrPrEPRRsk0qSB6TFdi4PEUELJ56itLKJjFKKMw9hdpgmUrMNslI_wMdVinkNR4Wu7cT0b9vw>
+X-ME-Sender: <xms:TTv7YSwdqCUygbdkmSL_23cEO4oTiD1RtvIlHclZubPuYx_vbDk8Ow>
+    <xme:TTv7YeQPUGd2rwTnyQlaFfWmBM4FQlX1RmwXkSjf19RkTSbD3MebEm2yz-277eWDA
+    PkVcWS5eg5az4zIXQ>
+X-ME-Received: <xmr:TTv7YUX07UCnXhwbpjzblVs9XGmi1nB9G-gvKshVERiBtvnitm2g3e4eOIQ8qDRzeh1kJkliJKLmshFbiwOZbaJK9FqfY64WLgva5wSOpzjq66MfQhv802BO2e9cRfoYfTxDUg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeigdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
@@ -50,12 +50,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeigdeggecutefuodetggdote
     grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
     jeehueeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
     epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:Rjv7YTvdsR3pw1zS7LjY2sq-o_LaQBBO9ZdYzhcHZ5n3Zt3AOKmK6A>
-    <xmx:Rjv7YXf4Jcozm8rMGdmTdfz7oQmJBVdNfLurauvBU9WpnnSEmeXfpw>
-    <xmx:Rjv7Yf1QAPAzRLxNrgndee4SRV3Z1q0BoRv_cnKdCnjKSAxESdODpA>
-    <xmx:Rjv7YS39SkGSbEXrkmEqp_7ouI-clj-g36yLKy0-gwNslGtn1-6A2848CVY>
+X-ME-Proxy: <xmx:TTv7YYhrRrnAXW5u001kpoyhVgAjVzmWNWqKnhbN3vKXpsdD04vjfQ>
+    <xmx:TTv7YUC9O3WHwYiDhFWsQxlBuQMXoRTPxW_OSOgcPk1ZSEag1OQMIQ>
+    <xmx:TTv7YZKwXQ7NLWleFampTEj6PP3FypGmyA3kcNh56MbDGFIfoa-mTg>
+    <xmx:TTv7YYzt3Ge5KaPGzfOYhCrh49MYeLWlyX6tPG5oqEaYdE0hzbt4TaN4-S4>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 2 Feb 2022 21:17:41 -0500 (EST)
+ 2 Feb 2022 21:17:48 -0500 (EST)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
@@ -67,11 +67,10 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
         linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Samuel Holland <samuel@sholland.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v3 1/6] dt-bindings: rtc: sun6i: Clean up repetition
-Date:   Wed,  2 Feb 2022 20:17:31 -0600
-Message-Id: <20220203021736.13434-2-samuel@sholland.org>
+        Samuel Holland <samuel@sholland.org>
+Subject: [PATCH v3 3/6] rtc: sun6i: Enable the bus clock when provided
+Date:   Wed,  2 Feb 2022 20:17:33 -0600
+Message-Id: <20220203021736.13434-4-samuel@sholland.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20220203021736.13434-1-samuel@sholland.org>
 References: <20220203021736.13434-1-samuel@sholland.org>
@@ -81,71 +80,64 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-- Use "enum" for compatibles instead of several "const" alternatives.
-- Merge the H6 clock-output-names minItems/maxItems constraint into the
-  identical block above.
+H6 and newer variants of the RTC hardware have a bus clock gate in the
+PRCM CCU. This was not known at the time H6 support was added, so it was
+not included in the H6 RTC binding, nor in the H6 PRCM CCU driver. Now
+that this clock gate is documented, it is included in the A100 and D1
+PRCM CCU drivers. Therefore, the RTC driver needs to have a consumer for
+the clock gate to prevent Linux from disabling it.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Patch-changes: 3
+ - New patch for compatibility with new CCU drivers
+
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
 
-(no changes since v2)
+(no changes since v1)
 
-Changes in v2:
- - Combine "const"s to "enum" in the DT binding compatible property.
+ drivers/rtc/rtc-sun6i.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 28 ++++++-------------
- 1 file changed, 9 insertions(+), 19 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-index beeb90e55727..a88d46ffb457 100644
---- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-@@ -16,16 +16,17 @@ properties:
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 711832c758ae..d5a86cbb2e94 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -668,11 +668,35 @@ static int sun6i_rtc_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(sun6i_rtc_pm_ops,
+ 	sun6i_rtc_suspend, sun6i_rtc_resume);
  
-   compatible:
-     oneOf:
--      - const: allwinner,sun6i-a31-rtc
--      - const: allwinner,sun8i-a23-rtc
--      - const: allwinner,sun8i-h3-rtc
--      - const: allwinner,sun8i-r40-rtc
--      - const: allwinner,sun8i-v3-rtc
--      - const: allwinner,sun50i-h5-rtc
-+      - enum:
-+          - allwinner,sun6i-a31-rtc
-+          - allwinner,sun8i-a23-rtc
-+          - allwinner,sun8i-h3-rtc
-+          - allwinner,sun8i-r40-rtc
-+          - allwinner,sun8i-v3-rtc
-+          - allwinner,sun50i-h5-rtc
-+          - allwinner,sun50i-h6-rtc
-       - items:
-           - const: allwinner,sun50i-a64-rtc
-           - const: allwinner,sun8i-h3-rtc
--      - const: allwinner,sun50i-h6-rtc
++static void sun6i_rtc_bus_clk_cleanup(void *data)
++{
++	struct clk *bus_clk = data;
++
++	clk_disable_unprepare(bus_clk);
++}
++
+ static int sun6i_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct sun6i_rtc_dev *chip = sun6i_rtc;
++	struct device *dev = &pdev->dev;
++	struct clk *bus_clk;
+ 	int ret;
  
-   reg:
-     maxItems: 1
-@@ -85,18 +86,7 @@ allOf:
-             enum:
-               - allwinner,sun8i-h3-rtc
-               - allwinner,sun50i-h5-rtc
--
--    then:
--      properties:
--        clock-output-names:
--          minItems: 3
--          maxItems: 3
--
--  - if:
--      properties:
--        compatible:
--          contains:
--            const: allwinner,sun50i-h6-rtc
-+              - allwinner,sun50i-h6-rtc
- 
-     then:
-       properties:
++	bus_clk = devm_clk_get_optional(dev, "bus");
++	if (IS_ERR(bus_clk))
++		return PTR_ERR(bus_clk);
++
++	if (bus_clk) {
++		ret = clk_prepare_enable(bus_clk);
++		if (ret)
++			return ret;
++
++		ret = devm_add_action_or_reset(dev, sun6i_rtc_bus_clk_cleanup,
++					       bus_clk);
++		if (ret)
++			return ret;
++	}
++
+ 	if (!chip) {
+ 		chip = devm_kzalloc(&pdev->dev, sizeof(*chip), GFP_KERNEL);
+ 		if (!chip)
 -- 
 2.33.1
 
