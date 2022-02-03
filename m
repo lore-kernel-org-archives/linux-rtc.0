@@ -2,46 +2,46 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47055C43217
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Feb 2022 02:17:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29DB6C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu,  3 Feb 2022 02:17:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348967AbiBCCRx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 2 Feb 2022 21:17:53 -0500
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:35819 "EHLO
+        id S1348982AbiBCCRz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 2 Feb 2022 21:17:55 -0500
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:59207 "EHLO
         wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1348959AbiBCCRs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Feb 2022 21:17:48 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.west.internal (Postfix) with ESMTP id AD76F2B0019B;
-        Wed,  2 Feb 2022 21:17:46 -0500 (EST)
+        by vger.kernel.org with ESMTP id S1348961AbiBCCRz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Feb 2022 21:17:55 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.west.internal (Postfix) with ESMTP id AAF1F2B001B1;
+        Wed,  2 Feb 2022 21:17:53 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Wed, 02 Feb 2022 21:17:47 -0500
+  by compute1.internal (MEProxy); Wed, 02 Feb 2022 21:17:54 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
         :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; bh=gNf3/vlWylyrdfT/3jLa7uO+I61X7m
-        5VTn6xdD42vs4=; b=kQpu+NYSJHyubmEszRsxMHgq7XiYzEJQkxuSgqgFOTe3bI
-        HMYa9QTY5Rl9u7ebwLAMUP0tktkQz/DF95TmBLbSsZVj/DWfP8kba88OVL3vcEyE
-        WJFELDzJXxUHJZ1EMu03FWX0qPq02/3Hxcv4Y0v23GtyeCmd6hmKwj9CGsZUZtlc
-        w7RRB+HNEdVRsQnk+F+CWB6X8Iq4/pf/uI8OWLh4ytiqkK5QNXNMgUGjjDjhXCKm
-        CWqo9W5dpwVQgwoswpV1TTOfKVba2bXPQKWYByAz9xCWFQ2ie8u+JtCyd3D2zXaE
-        Pw0o9vmIK7lSZPzySO7xAdIt6h1ikAWJMlbPzOYQ==
+        :subject:subject:to:to; s=fm1; bh=bQzz0YJg4cl1SXyRkVE6RCatDPM1bV
+        hWbX8cgs4xCtk=; b=gHew6L0ZosFtcXtsY0jYitfuVA2WaRrSDcR5yuix5avHbE
+        /scXuMRoMVgcUmI2xl+ivS3OWZOh2qjGYwuc7gV1DBxNItm6olTdAHfwW4Q8Yobm
+        62N+otLbmilTgvSzGxr7BcKId471q0l/9zrsVQ9GX9X1g3iqzzyq8QPWOZYOSbz2
+        cainy6yV72W3hpbPiGhh6Sx/b30Cx8hngYYFyngcPmNDfle4qZzW9M6q2BwddcF7
+        qMwmo7K2jTnAoKVK6QM99MAt16J8SJywdG1wNC3ajXoEJW2EW3P1mXNEBanjbwpx
+        K6tVJ8V4ox+wewk3cKUXVrDSir+OaJMs/1DNP2jA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gNf3/v
-        lWylyrdfT/3jLa7uO+I61X7m5VTn6xdD42vs4=; b=fIrHf7sPrRleras+bUD6oj
-        +NfQBkoENB4kMSqcuXLwjbG5VoqxownYWSZ3u0e8nV0srDPw220X134A06i7Ijss
-        OM1WhuKwhTyiXhMm2UnqEvo6QcHhfru7PpWiIY/2bM9GNFQQkE9c/B0Uo2kv3Bgb
-        t2kdeoiJgWCRobwOPJqdBb+cLLPnEDgnZVPQr5tNiL5xAFrRDITmBa2qbH4Ma+l2
-        dw3OLVkx9JS8w6U/rciWtYZpq5SH4wnHxYnS2xjI4AijK1HxGHI04Uw+sJe+QJMQ
-        w4f81fX4V2/kYV+HAMTGlbFlZXCb/PYTtDTw82osp+Pdo8A0sGctPLsz1yrOA0hw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=bQzz0Y
+        Jg4cl1SXyRkVE6RCatDPM1bVhWbX8cgs4xCtk=; b=TXWm+UCasrUBwjxoT4RkwB
+        XuckYJSMt/jl7HbhMMUVkltejxCqrcTFBTh591zDKtRzzlyAEvhcdzGhmZwVnkt4
+        LHbgoUss0o0XBP4VCv+30J6i9zQPwqJO5aIHzA5IBI+PoRZHsCMmNX3xVO2kF2c/
+        TfQHdCyEw23Fhb8Gvqkzs398QfbpXoutu0zFsV83J7kHAocXs4Tp0gf1nrSs1jI6
+        ZSTyyGvV2LL5lgC2OW8rQnm0XcGg+IfmzyUq0Kh4dNx1b1DFUIXd6T5MBPz1NMGH
+        cV/vectphS7nSWgESO43kKe2X4kc59cxssnhPNwTGshP6cKOIaC68D44UhuVay8Q
         ==
-X-ME-Sender: <xms:Sjv7YVIY8uu5Zhz9z5UfCPoVhgtILQByx9tgzIjy1308fF1xGlHqGQ>
-    <xme:Sjv7YRIjfMfFzGrDl9jTya2lYpOD3FB-LqN5ejmIbUbnBMciILYS6u8oDE0ngEDhz
-    p4jtuOz_xhLCxtZdg>
-X-ME-Received: <xmr:Sjv7YdtyVV9x6xnug5l5ZgnMgdGJyBfNHv_GI9Vy8NW7cjD9QYS70nJDYWDSRxNcMolfG89X_KRoV96xDba4zDJAAx2wgXbq0ZmCZNIY-RUTjNYd-fdmylYNLbnNlAN0_90scQ>
+X-ME-Sender: <xms:UTv7YZkntX7KzYrQxk9XdlpCxp8w2JejyXYik0VvSl_ijk0wMmUSYA>
+    <xme:UTv7YU1utyugHVImGeOjERUICO_ebt-eUehv4j40GvGR0NBdGq9NEATshDAPM8ZKP
+    iFzD08D6TotUhPnQA>
+X-ME-Received: <xmr:UTv7Yfp8j9ZQG9h3vNt9Jqq1oCDXf6y0h9vJ_sVkJzdzDmvAAGqH8BfPw9KblRM5z1q-tCppmBx9FwJO9D3kar0lSCE4Wxxsx6bJPrdxaqYojQycR-0dmgsjGRyfdg4MC5b1SA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeigdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
@@ -50,12 +50,12 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeigdeggecutefuodetggdote
     grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
     jeehueeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
     epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:Sjv7YWYVWm0TsWKSN9mITK_qTxhVqNQXevgnwapEiD6GSpfL6Ti38A>
-    <xmx:Sjv7YcaE4OjdAcfITKlAcPU9XNAVmsv3AvrmdFq3neOnB0eUV5sb_w>
-    <xmx:Sjv7YaAIUXq3l0Sn9MY03726CGmiy50T02NAXlhgaxCRhobld5IYww>
-    <xmx:Sjv7YcqCspaosfgZ62aak7hux8M9Be4ISPdif81ba6i-NrXsWmICFtKbJMc>
+X-ME-Proxy: <xmx:UTv7YZk-vIwvbxIToYMla7xxOmty55nB5aMSY1SaV9WTrCictdmILA>
+    <xmx:UTv7YX3hs6tJzsQUitD4cOho4qKoCmSXoyVRyBp4XLg3GPF2p8Y5Ew>
+    <xmx:UTv7YYvsT37Ib49vVRC9s5QJ1ocsowAsSQcwTBVWFTJXrvSEaHFJnw>
+    <xmx:UTv7Ye1KHg6gwgcLF7zmnDkbkzvry9cwQbx1cog0TbnloT7yg7neEM5nX-A>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 2 Feb 2022 21:17:45 -0500 (EST)
+ 2 Feb 2022 21:17:52 -0500 (EST)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
@@ -68,9 +68,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
         Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v3 2/6] dt-bindings: rtc: sun6i: Add H616, R329, and D1 support
-Date:   Wed,  2 Feb 2022 20:17:32 -0600
-Message-Id: <20220203021736.13434-3-samuel@sholland.org>
+Subject: [PATCH v3 4/6] clk: sunxi-ng: mux: Allow muxes to have keys
+Date:   Wed,  2 Feb 2022 20:17:34 -0600
+Message-Id: <20220203021736.13434-5-samuel@sholland.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20220203021736.13434-1-samuel@sholland.org>
 References: <20220203021736.13434-1-samuel@sholland.org>
@@ -80,157 +80,59 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-These new RTC variants all have a single alarm, like the R40 variant.
+The muxes in the RTC can only be updated when setting a key field to a
+specific value. Add a feature flag to denote muxes with this property.
 
-For the new SoCs, start requiring a complete list of input clocks. The
-H616 has three required clocks. The R329 also has three required clocks
-(but one is different), plus an optional crystal oscillator input. The
-D1 RTC is identical to the one in the R329.
-
-And since these new SoCs will have a well-defined output clock order as
-well, they do not need the clock-output-names property.
+Since so far the key value is always the same, it does not need to be
+provided separately for each mux.
 
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
 
 Changes in v3:
- - Add/fix several maxItems attributes for clocks and clock-items
+ - Drop the SUNXI_CCU_MUX_HW_WITH_KEY macro, since it is no longer used.
 
-Changes in v2:
- - Properly update the DT binding clocks and clock-names properties.
+ drivers/clk/sunxi-ng/ccu_common.h | 1 +
+ drivers/clk/sunxi-ng/ccu_mux.c    | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 76 ++++++++++++++++++-
- include/dt-bindings/clock/sun6i-rtc.h         | 10 +++
- 2 files changed, 83 insertions(+), 3 deletions(-)
- create mode 100644 include/dt-bindings/clock/sun6i-rtc.h
-
-diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-index a88d46ffb457..0b767fec39d8 100644
---- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-@@ -24,9 +24,14 @@ properties:
-           - allwinner,sun8i-v3-rtc
-           - allwinner,sun50i-h5-rtc
-           - allwinner,sun50i-h6-rtc
-+          - allwinner,sun50i-h616-rtc
-+          - allwinner,sun50i-r329-rtc
-       - items:
-           - const: allwinner,sun50i-a64-rtc
-           - const: allwinner,sun8i-h3-rtc
-+      - items:
-+          - const: allwinner,sun20i-d1-rtc
-+          - const: allwinner,sun50i-r329-rtc
+diff --git a/drivers/clk/sunxi-ng/ccu_common.h b/drivers/clk/sunxi-ng/ccu_common.h
+index 98a1834b58bb..fbf16c6b896d 100644
+--- a/drivers/clk/sunxi-ng/ccu_common.h
++++ b/drivers/clk/sunxi-ng/ccu_common.h
+@@ -17,6 +17,7 @@
+ #define CCU_FEATURE_LOCK_REG		BIT(5)
+ #define CCU_FEATURE_MMC_TIMING_SWITCH	BIT(6)
+ #define CCU_FEATURE_SIGMA_DELTA_MOD	BIT(7)
++#define CCU_FEATURE_KEY_FIELD		BIT(8)
  
-   reg:
-     maxItems: 1
-@@ -38,7 +43,12 @@ properties:
-       - description: RTC Alarm 1
+ /* MMC timing mode switch bit */
+ #define CCU_MMC_NEW_TIMING_MODE		BIT(30)
+diff --git a/drivers/clk/sunxi-ng/ccu_mux.c b/drivers/clk/sunxi-ng/ccu_mux.c
+index 2306a1cd83e4..1d557e323169 100644
+--- a/drivers/clk/sunxi-ng/ccu_mux.c
++++ b/drivers/clk/sunxi-ng/ccu_mux.c
+@@ -12,6 +12,8 @@
+ #include "ccu_gate.h"
+ #include "ccu_mux.h"
  
-   clocks:
--    maxItems: 1
-+    minItems: 1
-+    maxItems: 4
++#define CCU_MUX_KEY_VALUE		0x16aa0000
 +
-+  clock-names:
-+    minItems: 1
-+    maxItems: 4
+ static u16 ccu_mux_get_prediv(struct ccu_common *common,
+ 			      struct ccu_mux_internal *cm,
+ 			      int parent_index)
+@@ -191,6 +193,11 @@ int ccu_mux_helper_set_parent(struct ccu_common *common,
+ 	spin_lock_irqsave(common->lock, flags);
  
-   clock-output-names:
-     minItems: 1
-@@ -98,7 +108,68 @@ allOf:
-       properties:
-         compatible:
-           contains:
--            const: allwinner,sun8i-r40-rtc
-+            const: allwinner,sun50i-h616-rtc
+ 	reg = readl(common->base + common->reg);
 +
-+    then:
-+      properties:
-+        clocks:
-+          minItems: 3
-+          maxItems: 3
-+          items:
-+            - description: Bus clock for register access
-+            - description: 24 MHz oscillator
-+            - description: 32 kHz clock from the CCU
++	/* The key field always reads as zero. */
++	if (common->features & CCU_FEATURE_KEY_FIELD)
++		reg |= CCU_MUX_KEY_VALUE;
 +
-+        clock-names:
-+          minItems: 3
-+          maxItems: 3
-+          items:
-+            - const: bus
-+            - const: hosc
-+            - const: pll-32k
-+
-+      required:
-+        - clocks
-+        - clock-names
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: allwinner,sun50i-r329-rtc
-+
-+    then:
-+      properties:
-+        clocks:
-+          minItems: 3
-+          maxItems: 4
-+          items:
-+            - description: Bus clock for register access
-+            - description: 24 MHz oscillator
-+            - description: AHB parent for internal SPI clock
-+            - description: External 32768 Hz oscillator
-+
-+        clock-names:
-+          minItems: 3
-+          maxItems: 4
-+          items:
-+            - const: bus
-+            - const: hosc
-+            - const: ahb
-+            - const: ext-osc32k
-+
-+      required:
-+        - clocks
-+        - clock-names
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - allwinner,sun8i-r40-rtc
-+              - allwinner,sun50i-h616-rtc
-+              - allwinner,sun50i-r329-rtc
+ 	reg &= ~GENMASK(cm->width + cm->shift - 1, cm->shift);
+ 	writel(reg | (index << cm->shift), common->base + common->reg);
  
-     then:
-       properties:
-@@ -117,7 +188,6 @@ required:
-   - compatible
-   - reg
-   - interrupts
--  - clock-output-names
- 
- additionalProperties: false
- 
-diff --git a/include/dt-bindings/clock/sun6i-rtc.h b/include/dt-bindings/clock/sun6i-rtc.h
-new file mode 100644
-index 000000000000..c845493e4d37
---- /dev/null
-+++ b/include/dt-bindings/clock/sun6i-rtc.h
-@@ -0,0 +1,10 @@
-+/* SPDX-License-Identifier: (GPL-2.0+ or MIT) */
-+
-+#ifndef _DT_BINDINGS_CLK_SUN6I_RTC_H_
-+#define _DT_BINDINGS_CLK_SUN6I_RTC_H_
-+
-+#define CLK_OSC32K		0
-+#define CLK_OSC32K_FANOUT	1
-+#define CLK_IOSC		2
-+
-+#endif /* _DT_BINDINGS_CLK_SUN6I_RTC_H_ */
 -- 
 2.33.1
 
