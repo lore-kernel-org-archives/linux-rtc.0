@@ -2,168 +2,171 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 606A2C433F5
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Feb 2022 02:18:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83CE0C433EF
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Feb 2022 18:09:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349010AbiBCCSH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 2 Feb 2022 21:18:07 -0500
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:43337 "EHLO
-        wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349021AbiBCCSD (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Feb 2022 21:18:03 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 8BFB72B001C0;
-        Wed,  2 Feb 2022 21:18:01 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Wed, 02 Feb 2022 21:18:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; bh=maCEeMW114688LGhZUXh1aNyGAyiVI
-        HXt4rdxe/VoDw=; b=F+f5FK5qTyyMNgna3BSpVupfP0HYFclzdKXQKrMVVA+a4P
-        j6+Vg/yo/jrfjO+uaIOrzkaGOx3vTCpe3Kk/BlY1oK/hQr6coWQc5jijJAS//vQ7
-        BnsBfCeSUeY6Le8JvQX7oh4hn2AbjqKO6x9nDInlVmxXYygCQHVglsQ9H/7whKDl
-        v3D0zfgAp4KH4UC5IjqAkjrWngLFe4lz/k6bPRyhdkOm09wB3F/1IGVpEGMwXiOV
-        Cn8kSXMVetdrrKA5Y4XyKuBrJSoV8mjTZnOkSQzycZ9/pb7IpeFt+nJyZGY4nWE7
-        QgQ527H6S46yNgE+9aQtb0GlUDpGfWyYOu8ZZ8JA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=maCEeM
-        W114688LGhZUXh1aNyGAyiVIHXt4rdxe/VoDw=; b=YVZe1VLXX/Fug6Q6vVzQdl
-        2R13W8v2rmw24HtGJjF9i0R7rNXlkjU+4MpRaD05ffvyyyrIAQ7lhiqioGZ+xFk1
-        B3KgN8j0p+Ho6Yijv2OEUbP4uDZQmB0XV86o4mN7hhrkdlcWSGlvWjtz5wCtxWDu
-        9xXaQDZkTXjVBXUh99UlE0VGeRiPzVyA1oWsDFFcb/HKm3cTwnHkjpy534nnYpTT
-        Kj0ehBpfGnWMLNJmkK5eTcyNDKwHd8Xi5fgbTCUJADNM48FfrT0eag0rerYZdLbT
-        xMeO0z5wTKffC1JBcXT/idK8QFl60sWC56zOnV4DIDVxKc1mwosGvXbeO4rWk9Yw
-        ==
-X-ME-Sender: <xms:WDv7YYKL2jNz8tJ2C_1X-hpsf2Y7kEYwzuT3MtX5TneCnmGrc4xyDQ>
-    <xme:WDv7YYJOMg0YzG1e_zXzW60gl1Xt3XklaAWVg7aDqpZVAk3qcaPeFkZuvHO7W1Zrl
-    YfnMETI0UY8A3DHkQ>
-X-ME-Received: <xmr:WDv7YYuRLOTEAv-8HCQ-0qrP0FMfhNHdubhkojehTEX-K9_x-j8k28DREsFq5dh2J-sFiIOOmHnayS1VjB6s8CEVoUgbwWiQOz0JjOPDcT8Oj3QgS-7KFWPbYPxnTuIU1zNzhw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrgeeigdeggecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
-    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
-    grthhtvghrnhepudfhjeefvdfhgfefheetgffhieeigfefhefgvddvveefgeejheejvdfg
-    jeehueeinecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgrmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:WTv7YVZGxCxTxui2FqdkoinOZUFanasEzrdy-eKTu1nXMdOsr6ISPQ>
-    <xmx:WTv7Yfb6Tg5a-pyKqGiDdUdS25Mw7I_yo2PWhQd1bDVh9o5uGQKqFw>
-    <xmx:WTv7YRB7yDxskKrWEkHIdWuGnC-jiz_fqBpkfl_fdiTS7oQE34SOng>
-    <xmx:WTv7YbquHLHHS8c6QCMF8feKGk63iSBQM8Q37KsDElQRENH0vBrzS0uQDJU>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 2 Feb 2022 21:18:00 -0500 (EST)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        linux-sunxi@lists.linux.dev
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v3 6/6] [DO NOT MERGE] clk: sunxi-ng: sun6i-rtc: Add support for H6
-Date:   Wed,  2 Feb 2022 20:17:36 -0600
-Message-Id: <20220203021736.13434-7-samuel@sholland.org>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20220203021736.13434-1-samuel@sholland.org>
-References: <20220203021736.13434-1-samuel@sholland.org>
-MIME-Version: 1.0
+        id S1377384AbiBDSJt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Feb 2022 13:09:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41750 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377381AbiBDSJt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Feb 2022 13:09:49 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43306C061401
+        for <linux-rtc@vger.kernel.org>; Fri,  4 Feb 2022 10:09:49 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id d5so6319235pjk.5
+        for <linux-rtc@vger.kernel.org>; Fri, 04 Feb 2022 10:09:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5GJVqdK9AZJLVzh5THjIdv7Tb4wUElki413J5iZNmTM=;
+        b=HX/d5JdjvzattE8CDmmyZ7MPKQWBzw6CS4rweJoHjNvR26Mi/E3AeSnf2Qdi4PBkxe
+         F/YpYZWCkAbovrkgsEghglG/A9KpdOiXRXrJwHsc1oR+R8IwHBCzYBjdQIW2lsDwugye
+         /cpAQ3UJxW5aNIBFAVcbCmefpO4ofSixhKAFBt6jl/bOsRo5XW+bD8R/ML814CRWS+Jk
+         IAn4IkIOCEImsV64jEiMr2DLsIsWasuZMKldqSrEEwT1eI9PsHmu9+C96nMPh9/3aiXZ
+         4vJ88Mo3+fxokgxrL8bm/VaUuu3z3qC8MaDGS0p577cBt809JXVnwQDVslOiXlSLHOvu
+         y5iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=5GJVqdK9AZJLVzh5THjIdv7Tb4wUElki413J5iZNmTM=;
+        b=7sVmYyVHlQrQed0A/0ZDKXu3/pNnbFoBivn98Ut3mOXrKMPk90rMG1OBX8Fo7y4zXU
+         o5PqvaS7Kw5pSuzvF7IuABMwqJ7sTP7OlZdm8KiqxzbEyrJynjYx889ElY5oqvFxBekT
+         LNZ9c3U2atuxcbWVK6ewzAEAL3t8SIuJTWt2InCpNPMn5DKv2Vi3tgThSfwOQNeWX9OR
+         Lnei4koEB6bDXeVZxfua55Fi/jteUooxuyREhHWR/kxPrtwa3pmLRMJVY4MUquJzAYVi
+         nwpMoyXtz9q/CTk1SWedxUWmHfhyiGp0nJ08aNVAoxUj3wxktdlfu7T4G/acDLLPMR4b
+         zVuA==
+X-Gm-Message-State: AOAM531Q6xbqAe3MYFxsEoLAc2QzuxVblI4OhwLi6EQPGtSzqY8ipRoL
+        ZgfPkofkYJOARSQ2CFw1rhBERQ==
+X-Google-Smtp-Source: ABdhPJwq5eAXGJ3elIXn36dtCEJkNMZyb4zlD13QPFCAjEzIcC3itN/YiwwtnCDGtGpB44AxXeb1hw==
+X-Received: by 2002:a17:902:8c84:: with SMTP id t4mr4327588plo.78.1643998188528;
+        Fri, 04 Feb 2022 10:09:48 -0800 (PST)
+Received: from localhost ([12.3.194.138])
+        by smtp.gmail.com with ESMTPSA id kx11sm2720754pjb.1.2022.02.04.10.09.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Feb 2022 10:09:47 -0800 (PST)
+Date:   Fri, 04 Feb 2022 10:09:47 -0800 (PST)
+X-Google-Original-Date: Fri, 04 Feb 2022 10:09:09 PST (-0800)
+Subject:     Re: [PATCH v5 00/12] Update the Icicle Kit device tree
+In-Reply-To: <20220131114726.973690-1-conor.dooley@microchip.com>
+CC:     linus.walleij@linaro.org, brgl@bgdev.pl, robh+dt@kernel.org,
+        jassisinghbrar@gmail.com, thierry.reding@gmail.com,
+        u.kleine-koenig@pengutronix.de, lee.jones@linaro.org,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, geert@linux-m68k.org,
+        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-riscv@lists.infradead.org, krzysztof.kozlowski@canonical.com,
+        bin.meng@windriver.com, heiko@sntech.de, lewis.hanly@microchip.com,
+        conor.dooley@microchip.com, daire.mcnamara@microchip.com,
+        ivan.griffin@microchip.com, Atish Patra <atishp@rivosinc.com>
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     conor.dooley@microchip.com
+Message-ID: <mhng-2b6f8784-4c0c-432f-a6e7-97052ab900e7@palmer-ri-x1c9>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-H6 supports IOSC calibration and an ext-osc32k input. Unlike newer SoCs,
-it has a single parent for its fanout clock.
+On Mon, 31 Jan 2022 03:47:15 PST (-0800), conor.dooley@microchip.com wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
+>
+> This series updates the Microchip Icicle Kit device tree by adding a
+> host of peripherals, and some updates to the memory map. In addition,
+> the device tree has been split into a third part, which contains "soft"
+> peripherals that are in the fpga fabric.
+>
+> Several of the entries are for peripherals that have not get had their
+> drivers upstreamed, so in those cases the dt bindings are included where
+> appropriate in order to avoid the many "DT compatible string <x> appears
+> un-documented" errors.
+>
+> Depends on mpfs clock driver binding (on clk/next) to provide
+> dt-bindings/clock/microchip,mpfs-clock.h
+> and on the other changes to the icicle/mpfs device tree from geert
+> that are already in linux/riscv/for-next.
+>
+> Additionally, the interrupt-extended warnings on the plic/clint are
+> cleared by [1] & [2].
+>
+> [1] https://lore.kernel.org/linux-riscv/cover.1639744468.git.geert@linux-m68k.org/
+> [2] https://lore.kernel.org/linux-riscv/cover.1639744106.git.geert@linux-m68k.org/
+>
+> Changes from v4:
+> - dont include icicle_kit_defconfig, accidentally added in v3
+> - drop prescaler from mpfs-rtc & calculate the value instead
+> - use corei2c as a fallback device for mpfs-i2c
+> - drop spi dt-binding (on spi-next)
+>   commit 2da187304e556ac59cf2dacb323cc78ded988169
+> - drop usb dt-binding (on usb-next)
+>
+> Changes from v3:
+> - drop "mailbox: change mailbox-mpfs compatible string", already upstream:
+>   commit f10b1fc0161cd99e ("mailbox: change mailbox-mpfs compatible string")
+> - fix copy paste error in microchip,mpfs-mailbox dt-binding
+> - remove whitespace in syscontroller dt entry
+>
+> Changes from v2:
+> - dropped plic int header & corresponding defines in dts{,i}
+> - use $ref to drmode in mpfs-musb binding
+> - split changes to dts{,i} again: functional changes to existing
+>   elements now are in a new patch
+> - drop num-cs property in mpfs-spi binding
+> - dont make the system controller a simple-mfd
+> - move the separate bindings for rng/generic system services into the
+>   system controller binding
+> - added an instance corei2c as i2c2 in the fabric dtsi
+> - add version numbering to corepwm and corei2c compat string (-rtl-vN)
+>
+> Conor Dooley (12):
+>   dt-bindings: soc/microchip: update syscontroller compatibles
+>   dt-bindings: soc/microchip: add services as children of sys ctrlr
+>   dt-bindings: i2c: add bindings for microchip mpfs i2c
+>   dt-bindings: rtc: add bindings for microchip mpfs rtc
+>   dt-bindings: gpio: add bindings for microchip mpfs gpio
+>   dt-bindings: pwm: add microchip corepwm binding
+>   riscv: dts: microchip: use clk defines for icicle kit
+>   riscv: dts: microchip: add fpga fabric section to icicle kit
+>   riscv: dts: microchip: refactor icicle kit device tree
+>   riscv: dts: microchip: update peripherals in icicle kit device tree
+>   riscv: dts: microchip: add new peripherals to icicle kit device tree
+>   MAINTAINERS: update riscv/microchip entry
+>
+>  .../bindings/gpio/microchip,mpfs-gpio.yaml    |  80 ++++++
+>  .../bindings/i2c/microchip,mpfs-i2c.yaml      |  57 ++++
+>  ...ilbox.yaml => microchip,mpfs-mailbox.yaml} |   6 +-
+>  .../bindings/pwm/microchip,corepwm.yaml       |  75 +++++
+>  .../bindings/rtc/microchip,mfps-rtc.yaml      |  58 ++++
+>  .../microchip,mpfs-sys-controller.yaml        |  72 +++++
+>  ...icrochip,polarfire-soc-sys-controller.yaml |  35 ---
+>  MAINTAINERS                                   |   2 +
+>  .../dts/microchip/microchip-mpfs-fabric.dtsi  |  25 ++
+>  .../microchip/microchip-mpfs-icicle-kit.dts   | 115 ++++++--
+>  .../boot/dts/microchip/microchip-mpfs.dtsi    | 262 +++++++++++++++---
+>  11 files changed, 683 insertions(+), 104 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
+>  create mode 100644 Documentation/devicetree/bindings/i2c/microchip,mpfs-i2c.yaml
+>  rename Documentation/devicetree/bindings/mailbox/{microchip,polarfire-soc-mailbox.yaml => microchip,mpfs-mailbox.yaml} (82%)
+>  create mode 100644 Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
+>  create mode 100644 Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+>  create mode 100644 Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/soc/microchip/microchip,polarfire-soc-sys-controller.yaml
+>  create mode 100644 arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi
 
-Add support for H6 in the CCU driver, replacing the support in the
-existing early OF clock provider.
+Looks like Rob still has some feedback that still needs to be addressed.  
+I'm happy to take these via the RISC-V tree when the bindings are set 
+(assuming the DTs match whatever gets agreed upons), but also fine if 
+someone else wants to take it so
 
-Signed-off-by: Samuel Holland <samuel@sholland.org>
----
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-Changes in v3:
- - Rebase example on top of driver changes, and drop the second example.
+Either way, I'm going to drop this (and the v4, which was at the top of 
+my inbox) as it looks like there'll be at least a v6.
 
- drivers/clk/sunxi-ng/ccu-sun6i-rtc.c | 15 +++++++++++++++
- drivers/rtc/rtc-sun6i.c              | 17 -----------------
- 2 files changed, 15 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-index a39670a7c446..712fda22efd5 100644
---- a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-@@ -295,6 +295,10 @@ static const struct sunxi_ccu_desc sun6i_rtc_ccu_desc = {
- 	.hw_clks	= &sun6i_rtc_ccu_hw_clks,
- };
- 
-+static const struct clk_parent_data sun50i_h6_osc32k_fanout_parents[] = {
-+	{ .hw = &osc32k_clk.common.hw },
-+};
-+
- static const struct clk_parent_data sun50i_h616_osc32k_fanout_parents[] = {
- 	{ .hw = &osc32k_clk.common.hw },
- 	{ .fw_name = "pll-32k" },
-@@ -307,6 +311,13 @@ static const struct clk_parent_data sun50i_r329_osc32k_fanout_parents[] = {
- 	{ .hw = &osc24M_32k_clk.common.hw }
- };
- 
-+static const struct sun6i_rtc_match_data sun50i_h6_rtc_ccu_data = {
-+	.have_ext_osc32k	= true,
-+	.have_iosc_calibration	= true,
-+	.osc32k_fanout_parents	= sun50i_h6_osc32k_fanout_parents,
-+	.osc32k_fanout_nparents	= ARRAY_SIZE(sun50i_h6_osc32k_fanout_parents),
-+};
-+
- static const struct sun6i_rtc_match_data sun50i_h616_rtc_ccu_data = {
- 	.have_iosc_calibration	= true,
- 	.rtc_32k_single_parent	= true,
-@@ -321,6 +332,10 @@ static const struct sun6i_rtc_match_data sun50i_r329_rtc_ccu_data = {
- };
- 
- static const struct of_device_id sun6i_rtc_ccu_match[] = {
-+	{
-+		.compatible	= "allwinner,sun50i-h6-rtc",
-+		.data		= &sun50i_h6_rtc_ccu_data,
-+	},
- 	{
- 		.compatible	= "allwinner,sun50i-h616-rtc",
- 		.data		= &sun50i_h616_rtc_ccu_data,
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 35b34d14a1db..1a875a32357d 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -364,23 +364,6 @@ CLK_OF_DECLARE_DRIVER(sun8i_h3_rtc_clk, "allwinner,sun8i-h3-rtc",
- CLK_OF_DECLARE_DRIVER(sun50i_h5_rtc_clk, "allwinner,sun50i-h5-rtc",
- 		      sun8i_h3_rtc_clk_init);
- 
--static const struct sun6i_rtc_clk_data sun50i_h6_rtc_data = {
--	.rc_osc_rate = 16000000,
--	.fixed_prescaler = 32,
--	.has_prescaler = 1,
--	.has_out_clk = 1,
--	.export_iosc = 1,
--	.has_losc_en = 1,
--	.has_auto_swt = 1,
--};
--
--static void __init sun50i_h6_rtc_clk_init(struct device_node *node)
--{
--	sun6i_rtc_clk_init(node, &sun50i_h6_rtc_data);
--}
--CLK_OF_DECLARE_DRIVER(sun50i_h6_rtc_clk, "allwinner,sun50i-h6-rtc",
--		      sun50i_h6_rtc_clk_init);
--
- /*
-  * The R40 user manual is self-conflicting on whether the prescaler is
-  * fixed or configurable. The clock diagram shows it as fixed, but there
--- 
-2.33.1
-
+Thanks!
