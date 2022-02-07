@@ -2,47 +2,47 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBBFBC4332F
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 16:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36B5CC4321E
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 16:41:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352758AbiBGQiZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1352768AbiBGQiZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 7 Feb 2022 11:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381748AbiBGQZX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:23 -0500
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7B0C0401CE;
-        Mon,  7 Feb 2022 08:25:22 -0800 (PST)
+        with ESMTP id S1377039AbiBGQZK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:10 -0500
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757CFC0401CF;
+        Mon,  7 Feb 2022 08:25:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1644251122; x=1675787122;
+  t=1644251109; x=1675787109;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Rxh3lnlcB1zCcRgGY291RlhwNrjqpS946Rqo4347BqM=;
-  b=NdcS57RyJVrFxCPkuzNjJgPKObvYIR5ocN26ZgPU1YltJEoy+XP5MfAf
-   BaACUv0ej/zfk4oof39Koe0pYbV4fIhMscOVnum3mqOxT2ktNM0kuVVQc
-   EfYGTncma6cydBO1/rcG7vcQhDog01IBQHY4zRpLAUFOuWSnD0URCMOlq
-   weTzO+Dsd/I1COsB76HXW7TKx+BKZHGZAIrBLg7bbPRWBz934lZofYPhW
-   uWofHtM1um1uFqIGVGlgatfGUSj6l4APttQfsjmSJ3flp8vYRJyNoXO4G
-   wmsSSkcgZHYLv92ocdaB/aemJ8jZWrd/ZXGNVDwunmDF3+O5B+5Rz7RwO
-   g==;
-IronPort-SDR: GNuxJEJcHOzFX3vNKpSQIqOtj6boPfa+hCd9WcCCWCjWYvOWumIH96G/fFHxL8SWXpOhrZ/VhL
- H2aTJSqvc+L+sbJsrBnsU6x+kZKUf1elQNnIsLBG0gO6m2IAkFIxMYhUVsO2e1Z6XXEHUEx7Ps
- t6HZhTyxoqg/N9Y5wl6mfP3XR3q75kFTFMD1h2yQW0fKfH3o11Hc/xRt1B8uR1/tp7zfyDvPy4
- ZKrcglqJjuFGbwKpJ37PPj+DdhvsKjGYE7A9H0tfiJuusx8Sj1TnNessC1fycn2HSKVVpfa9lM
- zF20h9WUMygOZksu3itVeILu
+  bh=y9H0vm0uB6r2xnaMXtBb2QcKJondv9+jMqua1OTgIMc=;
+  b=kbBWeUZk2MTVavKRAX5xcqs++U+cPenLfGBRwTnawiG5TK49bugkl8xf
+   WtImQqIOOkqVeAlXriixOQ5gYrGobqtOSX7ld3xhKdM0+vkfwYWJJCoBq
+   sQebUeSV39k51JxkSlHpUQjHL+KRWlpc3x9cty9+WMxaP5R/X7uBRZ0Fv
+   bTXIoFOhKZgbtQqxrQF3w9SzO+3zk4TGOBXVsoofbJzlSCRpY9tsBxBL5
+   +cBPZif1gAz5PLffs4rT0zSLBi/k0C5sH73PJXWPFA49b9Q0HBMmX7aX3
+   U5Iq1QC3QHudiZiOIBkzwmdw9mVN/CnX9r4RxuOm9LZ2CML09htJ1zbjw
+   A==;
+IronPort-SDR: 0P9xUk3U37cIxnXZPYqVfBjCJJBnnCcC9sCjfJ9EYGuImDXvIo5QsG+jsjfj15o3benLoO+ySm
+ dRrH+tS8PIY6UcLqksz0qJlHYioSrFTu3Mxh9tcQbxQwvjbpPOTn6EOQQEbydwuBMG6P9mDhpL
+ 9XFTJhfO0yn8O9fZbDdeQ3s8pfhVM4cP/fA/7qISDsAgytegXikVG8dtj5JmWzK9dUVwbAPJUM
+ V4xAG63ElgBWU+70kbphe/cmgo4S2UuHq3ZIIf1GJWH3lgD0M9ohEH1hpsTe82XlbD9TkYfryi
+ IRDm5EPH/LuPY41lk/KuqqGL
 X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
-   d="scan'208";a="145139993"
+   d="scan'208";a="152730203"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:17 -0700
+  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:06 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 7 Feb 2022 09:24:17 -0700
+ 15.1.2375.17; Mon, 7 Feb 2022 09:24:06 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 7 Feb 2022 09:24:12 -0700
+ Transport; Mon, 7 Feb 2022 09:24:01 -0700
 From:   <conor.dooley@microchip.com>
 To:     <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <robh+dt@kernel.org>,
         <jassisinghbrar@gmail.com>, <thierry.reding@gmail.com>,
@@ -59,9 +59,9 @@ CC:     <bin.meng@windriver.com>, <heiko@sntech.de>,
         <daire.mcnamara@microchip.com>, <ivan.griffin@microchip.com>,
         <atishp@rivosinc.com>, Rob Herring <robh@kernel.org>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH v6 05/12] dt-bindings: gpio: add bindings for microchip mpfs gpio
-Date:   Mon, 7 Feb 2022 16:26:31 +0000
-Message-ID: <20220207162637.1658677-6-conor.dooley@microchip.com>
+Subject: [PATCH v6 03/12] dt-bindings: i2c: add bindings for microchip mpfs i2c
+Date:   Mon, 7 Feb 2022 16:26:29 +0000
+Message-ID: <20220207162637.1658677-4-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207162637.1658677-1-conor.dooley@microchip.com>
 References: <20220207162637.1658677-1-conor.dooley@microchip.com>
@@ -74,100 +74,78 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Conor Dooley <conor.dooley@microchip.com>
 
-Add device tree bindings for the gpio controller on
+Add device tree bindings for the i2c controller on
 the Microchip PolarFire SoC.
 
+Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- .../bindings/gpio/microchip,mpfs-gpio.yaml    | 79 +++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
+ .../bindings/i2c/microchip,corei2c.yaml       | 56 +++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
 
-diff --git a/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml b/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
+diff --git a/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
 new file mode 100644
-index 000000000000..110651eafa70
+index 000000000000..c8e605fbb8a6
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
-@@ -0,0 +1,79 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++++ b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/gpio/microchip,mpfs-gpio.yaml#
++$id: http://devicetree.org/schemas/i2c/microchip,corei2c.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Microchip MPFS GPIO Controller Device Tree Bindings
++title: Microchip MPFS I2C Controller Device Tree Bindings
 +
 +maintainers:
-+  - Conor Dooley <conor.dooley@microchip.com>
++  - Daire McNamara <daire.mcnamara@microchip.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
 +
 +properties:
 +  compatible:
-+    items:
-+      - enum:
-+          - microchip,mpfs-gpio
++    oneOf:
++      - items:
++        - const: microchip,mpfs-i2c # Microchip PolarFire SoC compatible SoCs
++        - const: microchip,corei2c-rtl-v7 # Microchip Fabric based i2c IP core
++      - const: microchip,corei2c-rtl-v7 # Microchip Fabric based i2c IP core
 +
 +  reg:
 +    maxItems: 1
 +
 +  interrupts:
-+    description:
-+      Interrupt mapping, one per GPIO. Maximum 32 GPIOs.
-+    minItems: 1
-+    maxItems: 32
-+
-+  interrupt-controller: true
++    maxItems: 1
 +
 +  clocks:
 +    maxItems: 1
 +
-+  "#gpio-cells":
-+    const: 2
-+
-+  "#interrupt-cells":
-+    const: 1
-+
-+  ngpios:
-+    description:
-+      The number of GPIOs available.
-+    minimum: 1
-+    maximum: 32
-+    default: 32
-+
-+  gpio-controller: true
++  clock-frequency:
++    description: |
++      Desired I2C bus clock frequency in Hz. As only Standard and Fast
++      modes are supported, possible values are 100000 and 400000.
++    enum: [100000, 400000]
 +
 +required:
 +  - compatible
 +  - reg
 +  - interrupts
-+  - "#interrupt-cells"
-+  - interrupt-controller
-+  - "#gpio-cells"
-+  - gpio-controller
 +  - clocks
 +
-+additionalProperties: false
++unevaluatedProperties: false
 +
 +examples:
 +  - |
-+    gpio@20122000 {
-+        compatible = "microchip,mpfs-gpio";
-+        reg = <0x20122000 0x1000>;
-+        clocks = <&clkcfg 25>;
-+        interrupt-parent = <&plic>;
-+        gpio-controller;
-+        #gpio-cells = <2>;
-+        interrupt-controller;
-+        #interrupt-cells = <1>;
-+        interrupts = <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>,
-+                     <53>, <53>, <53>, <53>;
++    i2c@2010a000 {
++      compatible = "microchip,mpfs-i2c", "microchip,corei2c-rtl-v7";
++      reg = <0x2010a000 0x1000>;
++      clocks = <&clkcfg 15>;
++      interrupt-parent = <&plic>;
++      interrupts = <58>;
++      clock-frequency = <100000>;
 +    };
 +...
 -- 
