@@ -2,99 +2,122 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D04EC43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E1DCC4332F
 	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 09:04:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242700AbiBGJEB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Feb 2022 04:04:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44816 "EHLO
+        id S242097AbiBGJEA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Feb 2022 04:04:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349688AbiBGJAt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 04:00:49 -0500
+        with ESMTP id S1349283AbiBGIzb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 03:55:31 -0500
+X-Greylist: delayed 542 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 00:55:28 PST
 Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5AFC043181;
-        Mon,  7 Feb 2022 01:00:48 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 2345F58017F;
-        Mon,  7 Feb 2022 04:00:48 -0500 (EST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742F2C043181;
+        Mon,  7 Feb 2022 00:55:28 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.nyi.internal (Postfix) with ESMTP id CA33458018B;
+        Mon,  7 Feb 2022 03:55:27 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 07 Feb 2022 04:00:48 -0500
+  by compute3.internal (MEProxy); Mon, 07 Feb 2022 03:55:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
-        :cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm2; bh=2BOoXvMYl2mcjW
-        EBrIXuByf9re5XSaROTg95FlpiOQ8=; b=Gq442Dy4ZCrXH4pLR4bqGY1rjHoufE
-        GWOBeQVEelHllCsCrtri8zHZL3z8VLZYSjkAurnz4GowNWL8Y5ytyp7Ap2HdY3Dc
-        ib/k2qKgGnp4tT5b61qUXRryje4bCjN9/TxlwUT7lv2yN7EABNc7djZsa0SIupoW
-        mPMvAvABMEw5LVMhDu2AgMMV9IAlnU+6eLtxa9Bhf41/k0hXXunr8twzLxaR4N82
-        gXGHP1Z1k3FDTYPWcoUZj/XYMspPix7KXdHmjbCyZ5Xz1v6sVxMAM2aZMXSBUct5
-        YLlwmHvW4k2q1xEBdBU93bMAjLZuEcH+pFVp+m3NwU9CHybNhPezq7RQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:from:from:in-reply-to:in-reply-to
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=2BOoXvMYl2mcjWEBrIXuByf9re5XSaROTg95FlpiO
-        Q8=; b=SEWlVmdvPJAek5xcE3kDbci+n8EiVm/6fJNQWJdz8xVkeqmSfwDjQdnM5
-        vP8jyyZ8css3TqTD0Qez2B+HKghTzRl+6sjBclfQcfG1bpdXCVDZytHtcScTo4cz
-        2DayqRstnKHndUaozzgsY28S6t+Mv2UlF9x2oc1ESq3EaKNjSqDk5EIbDednU2XP
-        7M8TsqywEDvg10tRRKu4Kotv7m55wTrQ1PTcT/NtKHYKGJgpSne9mcv7W61D4QVa
-        OYkUyLXsytrwvrXqFjMcz7SupBMKh4G3wDtPZsCNuRIptpIx2gp6eeQuvk/iZYu0
-        fLyjtGhb/SLJaSn+Yi8dvGrMWvHNg==
-X-ME-Sender: <xms:v98AYhviMxEfoLy6EepMCrjRfDz30xPGI1Gae1V_zVWmiAmDVJq5Iw>
-    <xme:v98AYqejFROSkMQpyczIhnjungeMZtuf77P92LiJdGXFHcARUCJUZ4FDm_sijUPED
-    PNL3pfhTZAuhkn6EvE>
-X-ME-Received: <xmr:v98AYkwQkzgSMCkPluTkVImKK22RMyOjbCIZ34rE1vg2DJi4CgNrO02Q51yZFe6Rs20BM14hYbpAJx-FsFokViQ38QSl-_jVeFkUSeY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeggdduvddvucetufdoteggodetrfdotf
+        :subject:to:to; s=fm2; bh=iY/XWrOv5z+3ui6SOcBcF8zRTUJJdfQQ/DmZSz
+        cWgDQ=; b=tmAloTuurUn7U+BsgBpI54lAsHq8irV/mMs5UuUc1nJip6ZWkiDp+L
+        T/u3M2117jpcSQEcvfjjkne0dhg6ac8klXXP5IL6+mgMJLux6K5ToB1ZhYwvmifO
+        hv5Q72yvoWzZ8+Lri4VNoMRqgOleVY5ScyBt1fg2r6FeTBbaowm4GcMgoApItIhe
+        PuhAy82LJ/l2utVvk8M9i4Iu51RFwP/GOCr/Z4M16GXadaUDg4KiG+1Vqr9CmXlm
+        ZXlLGuYf13q2Lay0MnuFfarJQd2k2DJNn66VrRJqf+XQJNjtDPWI5CzAAmMBQc5o
+        APuJVuw0ULJP6Dp+Nm8I2tOIv85i+qlw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iY/XWrOv5z+3ui6SO
+        cBcF8zRTUJJdfQQ/DmZSzcWgDQ=; b=mcAE9m3LQgQ/Mnz8l2c8I+uhsaUdOFV9A
+        F2I6r+8TLk7Xbc/rgLk5T4myhRqrQuQPHIi29ycXFZpJ2c17gU/+3FHlz64wqvsW
+        +8dNlATUQDWN/jspHrgAYImJtgREJ//9Oj//tpTW/i1OUOQgQXQYKCsRngU3MWFF
+        SJ5vTqN8JY+vfN35mRV05zsQ6zX6riTzKdf5EpDiYDzhSLBADqhji4LJspl0n6xU
+        jlWrbZ7fHT0zLCqx5YZiPnMDjqbb+PYbFbbigJWs/zEGBamJPCstId3Ue9u8HdXj
+        sDRvZKNwqvH4R3O7XrVfleBiu82m3vclvCcG89kR/CsTjY7qTwMlA==
+X-ME-Sender: <xms:f94AYqEMI9Cp1F63PJcg-q8TS4n8umV8WxW7o-tSXHHGudBRj42uEA>
+    <xme:f94AYrUip6bl_HB9jHcptnOM8gqXJZuNX64xccRa-xYzfA63_BFuBM7humSS3j7Nw
+    IA77nFXWAjpC4gSkvg>
+X-ME-Received: <xmr:f94AYkK9lAr_BiL4xNLJri_D3Uv-e2DSFCyqnXFtOUvUOMuBy17pSOEBs7UnDWXJWkd6U2zxT0fGIkh6NMKXq3qJGxLr8DwqCKfX1_M>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeggdduvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomhepofgrgihi
-    mhgvucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrg
-    htthgvrhhnpeejuefggeekfffgueevtddvudffhfejffejjedvvdduudethefhfefhfeeg
-    ieekkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hmrgigihhmvgestggvrhhnohdrthgvtghh
-X-ME-Proxy: <xmx:v98AYoOkNWqjDW_OXKbytvj1uUvqYre-ZSGnUmd9H9zujt0HnBPwOA>
-    <xmx:v98AYh-CrOni91c3oapjGZoJL01Tyer2TlvzJPltxGeJvLqjSzi_iQ>
-    <xmx:v98AYoXd1dL0MRtWf1YKD6ZxM6zt9-XpkIICq1NhWeCtI1I5dQjEXw>
-    <xmx:wN8AYlXTZosoGIHfTB1HZyrsO8QCavcdZU3rb-YCqfNVZdKFp-e6GA>
+    cujfgurhepfffhvffukfhfgggtuggjsehgtderredttddvnecuhfhrohhmpeforgigihhm
+    vgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrfgrth
+    htvghrnhepleekgeehhfdutdeljefgleejffehfffgieejhffgueefhfdtveetgeehieeh
+    gedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepmh
+    grgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:f94AYkFNGR2CITYSmmXT_WfAa3LYpLu1pNC9XvuBLo8cX9Uta0xGGQ>
+    <xmx:f94AYgUPXvEMcdh6qIH9lRyraTuIW3WcZkoGOPlSsFvFUwXz_AEX8Q>
+    <xmx:f94AYnN_DfYQzRMjD5tto5wZ5f_vzAtX8gN_NtnP8fahgpyzQ7z9Hg>
+    <xmx:f94AYhsBC3c2yhahIurEvvnv87_-GJrnwUqsDdNXOk06ZlDC-Wg_hA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 7 Feb 2022 04:00:47 -0500 (EST)
+ 7 Feb 2022 03:55:27 -0500 (EST)
+Date:   Mon, 7 Feb 2022 09:55:24 +0100
 From:   Maxime Ripard <maxime@cerno.tech>
-To:     Chen-Yu Tsai <wens@csie.org>, linux-sunxi@lists.linux.dev,
-        Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc:     Maxime Ripard <maxime@cerno.tech>, Stephen Boyd <sboyd@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        linux-sunxi@lists.linux.dev,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Michael Turquette <mturquette@baylibre.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org,
         Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: (subset) [PATCH v3 4/6] clk: sunxi-ng: mux: Allow muxes to have keys
-Date:   Mon,  7 Feb 2022 10:00:44 +0100
-Message-Id: <164422443570.21572.2174959931752418423.b4-ty@cerno.tech>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220203021736.13434-5-samuel@sholland.org>
-References: <20220203021736.13434-1-samuel@sholland.org> <20220203021736.13434-5-samuel@sholland.org>
+        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH v3 2/6] dt-bindings: rtc: sun6i: Add H616, R329, and D1
+ support
+Message-ID: <20220207085524.rmt6fwku5mdvgvx6@houat>
+References: <20220203021736.13434-1-samuel@sholland.org>
+ <20220203021736.13434-3-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="qkbg3fjun5hhqpuu"
+Content-Disposition: inline
+In-Reply-To: <20220203021736.13434-3-samuel@sholland.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 2 Feb 2022 20:17:34 -0600, Samuel Holland wrote:
-> The muxes in the RTC can only be updated when setting a key field to a
-> specific value. Add a feature flag to denote muxes with this property.
-> 
-> Since so far the key value is always the same, it does not need to be
-> provided separately for each mux.
-> 
-> 
-> [...]
 
-Applied to local tree (sunxi/clk-for-5.18).
+--qkbg3fjun5hhqpuu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks!
+On Wed, Feb 02, 2022 at 08:17:32PM -0600, Samuel Holland wrote:
+> These new RTC variants all have a single alarm, like the R40 variant.
+>=20
+> For the new SoCs, start requiring a complete list of input clocks. The
+> H616 has three required clocks. The R329 also has three required clocks
+> (but one is different), plus an optional crystal oscillator input. The
+> D1 RTC is identical to the one in the R329.
+>=20
+> And since these new SoCs will have a well-defined output clock order as
+> well, they do not need the clock-output-names property.
+>=20
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
+
+Reviewed-by: Maxime Ripard <maxime@cerno.tech>
+
 Maxime
+
+--qkbg3fjun5hhqpuu
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCYgDefAAKCRDj7w1vZxhR
+xanbAQCV3IfYrd8wt+3Bv8a73mndzneaP7kXmLPtVzeaBn9tSgEA0xja/ekjRcsL
+rmx3XMyAvoiTBrDJEYr2r1elL9YxQQk=
+=vfa3
+-----END PGP SIGNATURE-----
+
+--qkbg3fjun5hhqpuu--
