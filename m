@@ -2,200 +2,149 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 026FDC35273
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 16:41:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F962C433EF
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 20:11:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355420AbiBGQi1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Feb 2022 11:38:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60366 "EHLO
+        id S242222AbiBGUKs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Feb 2022 15:10:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344397AbiBGQY4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:24:56 -0500
-X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 08:24:55 PST
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D540C0401CE;
-        Mon,  7 Feb 2022 08:24:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1644251096; x=1675787096;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=yKN3bDJdSLql1NsGHOBK3P94QqFRIN+6Az1x7qpydu0=;
-  b=e+LsfclYT9BrrkSMv5Mk9eCMWfZwhFIYaw84n0SYnhGGhZn1uGxYB6Q7
-   RZkw1oQnX0UFx07jJ8VEK7GXT4ibjmQOPhFhcI1bZMo06mClFhsQt3cqB
-   JN7UBgeNHfyEnKloUmqlBQ7hpDN3/BtHzgHZ8jXBufRxPGs8Jj7de+/l6
-   enbb0GEt8qnpdmoCV5gul5rjQfqtmoqZR6KSkbclU6S9Uh5EVWFJBSKKD
-   zmRIn4Wt4Dd78J3GUnN/LhUwdyOqboQLhI6gjcLMhbWjhij+256keKTZ9
-   6RxlGMfVy7DLdmx3xFx6T6TiwVi2NZ8VZ8R7JDUVUwiuWPCHQz1TuoJBp
-   w==;
-IronPort-SDR: 1jAKaI32FdujLWlExQMeqgMdBetq7OqTei7eWrvwIoelAUQcoaGGAGaPIPiFY+Lq2EIKyaYsyz
- HnWITML8pCcxK4P4o1YOdOccuR74OStw6HRtzyK4xuv78qsmZT7ehckKkfbaKIaLDd6qoBzEKj
- CAd7lONsNpZvwm71YZ0kNeYgNl2pwTdm3as33RuKgVooeVJn5Vb7DdpFNjaJqhF79WOzjn3LTx
- UDqremQElQ3jyWCnBrOuKg+NfRRzmDKVoO4qGQUj+HbUSwxVlHRm7HPfffXh8a3IIzgcO8vZmX
- Mw825+eQ8ar0nKWFcVhmUGKe
-X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
-   d="scan'208";a="152200222"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:55 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 7 Feb 2022 09:24:43 -0700
-Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
- (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 7 Feb 2022 09:24:38 -0700
-From:   <conor.dooley@microchip.com>
-To:     <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <robh+dt@kernel.org>,
-        <jassisinghbrar@gmail.com>, <thierry.reding@gmail.com>,
-        <u.kleine-koenig@pengutronix.de>, <lee.jones@linaro.org>,
-        <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <paul.walmsley@sifive.com>, <palmer@dabbelt.com>,
-        <aou@eecs.berkeley.edu>, <geert@linux-m68k.org>,
-        <krzysztof.kozlowski@canonical.com>, <linux-gpio@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
-        <linux-rtc@vger.kernel.org>, <linux-riscv@lists.infradead.org>
-CC:     <bin.meng@windriver.com>, <heiko@sntech.de>,
-        <lewis.hanly@microchip.com>, <conor.dooley@microchip.com>,
-        <daire.mcnamara@microchip.com>, <ivan.griffin@microchip.com>,
-        <atishp@rivosinc.com>, Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH v6 10/12] riscv: dts: microchip: update peripherals in icicle kit device tree
-Date:   Mon, 7 Feb 2022 16:26:36 +0000
-Message-ID: <20220207162637.1658677-11-conor.dooley@microchip.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220207162637.1658677-1-conor.dooley@microchip.com>
+        with ESMTP id S240553AbiBGUH6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 15:07:58 -0500
+Received: from mail-oo1-f45.google.com (mail-oo1-f45.google.com [209.85.161.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5205BC0401DA;
+        Mon,  7 Feb 2022 12:07:58 -0800 (PST)
+Received: by mail-oo1-f45.google.com with SMTP id o192-20020a4a2cc9000000b00300af40d795so15026052ooo.13;
+        Mon, 07 Feb 2022 12:07:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=HsXp1ktRNXXH1ZuQq9T7gkz8YQLCBAGSvs9f6otXSEc=;
+        b=kTD45pxxBRaJAEMawetNv/mQtrIxcK7j9j96hqdJhE0EnE3hbxqzAAWvJkgsX6Hqmt
+         mtmQtr+s/xZaYEoUNxF2jNgxZSVpz0b9llomZuCjyuXdaErEY0WGor6HESxgOruB89Ih
+         qg3DRl8mRLQWfwz7VRRIQppC+WBoPV36HByI7tDF68hOOVyzFmSMArnkSQCvBtfrkoBh
+         j1nTw4rgQ4+G4CA1K5SCWUYt0/DQ6lN9T+RutjVQbJshkBfZdhQIuDuDRUKlI71wSEZK
+         PtRmznH5Dgz0grw6afPCD5C/gBQbnwUWKN04r7Y4joDBBkShbai4oi39rkBObJrGXxkm
+         FoOQ==
+X-Gm-Message-State: AOAM532L3nl4BQkAt8fLUsskaeHHqrZpisclhHZo5v6wfBKVwZx8B52m
+        dXx/1ullVMeZMr5AO4Td8A==
+X-Google-Smtp-Source: ABdhPJwZ69i+KxDCJdLyXXbkdUnY+k1QIC0WKQTQTKD8UaxeMwXblmqX/F1sU7XCejibDstsOhUa7A==
+X-Received: by 2002:a4a:d051:: with SMTP id x17mr562987oor.60.1644264477617;
+        Mon, 07 Feb 2022 12:07:57 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id ep17sm4757304oab.21.2022.02.07.12.07.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Feb 2022 12:07:56 -0800 (PST)
+Received: (nullmailer pid 820845 invoked by uid 1000);
+        Mon, 07 Feb 2022 20:07:55 -0000
+Date:   Mon, 7 Feb 2022 14:07:55 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     conor.dooley@microchip.com
+Cc:     linus.walleij@linaro.org, brgl@bgdev.pl, jassisinghbrar@gmail.com,
+        thierry.reding@gmail.com, u.kleine-koenig@pengutronix.de,
+        lee.jones@linaro.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu, geert@linux-m68k.org,
+        krzysztof.kozlowski@canonical.com, linux-gpio@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-riscv@lists.infradead.org,
+        bin.meng@windriver.com, heiko@sntech.de, lewis.hanly@microchip.com,
+        daire.mcnamara@microchip.com, ivan.griffin@microchip.com,
+        atishp@rivosinc.com, Palmer Dabbelt <palmer@rivosinc.com>
+Subject: Re: [PATCH v6 02/12] dt-bindings: soc/microchip: add services as sub
+ devs of sys ctrlr
+Message-ID: <YgF8G/Eed03xn9iI@robh.at.kernel.org>
 References: <20220207162637.1658677-1-conor.dooley@microchip.com>
+ <20220207162637.1658677-3-conor.dooley@microchip.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220207162637.1658677-3-conor.dooley@microchip.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+On Mon, Feb 07, 2022 at 04:26:28PM +0000, conor.dooley@microchip.com wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
+> 
+> Document mpfs-rng and mpfs-generic-service as subdevices of the system
+> controller.
+> 
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+> ---
+>  .../microchip,mpfs-sys-controller.yaml        | 35 +++++++++++++++++--
+>  1 file changed, 33 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
+> index f699772fedf3..b02c8bd72605 100644
+> --- a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
+> +++ b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
+> @@ -13,7 +13,6 @@ description: |
+>    The PolarFire SoC system controller is communicated with via a mailbox.
+>    This document describes the bindings for the client portion of that mailbox.
+>  
+> -
+>  properties:
+>    mboxes:
+>      maxItems: 1
+> @@ -21,6 +20,38 @@ properties:
+>    compatible:
+>      const: microchip,mpfs-sys-controller
+>  
+> +  rng:
+> +    type: object
+> +
+> +    description: |
+> +      The hardware random number generator on the Polarfire SoC is
+> +      accessed via the mailbox interface provided by the system controller
+> +
+> +    properties:
+> +      compatible:
+> +        const: microchip,mpfs-rng
+> +
+> +    required:
+> +      - compatible
+> +
+> +  sysserv:
+> +    type: object
+> +
+> +    description: |
+> +      The PolarFire SoC system controller is communicated with via a mailbox.
+> +      This binding represents several of the functions provided by the system
+> +      controller which do not belong in a specific subsystem, such as reading
+> +      the fpga device certificate, all of which follow the same format:
+> +        - a command + optional payload sent to the sys controller
+> +        - a status + a payload returned to Linux
+> +
+> +    properties:
+> +      compatible:
+> +        const: microchip,mpfs-generic-service
+> +
+> +    required:
+> +      - compatible
+> +
+>  required:
+>    - compatible
+>    - mboxes
+> @@ -29,7 +60,7 @@ additionalProperties: false
+>  
+>  examples:
+>    - |
+> -    syscontroller: syscontroller {
+> +    syscontroller {
+>        compatible = "microchip,mpfs-sys-controller";
+>        mboxes = <&mbox 0>;
 
-Assorted minor changes to the MPFS/Icicle kit device tree:
+Removing the child nodes in the example doesn't address my comment. You 
+still have them in the schema. IOW, this patch should be dropped unless 
+you have reasons for child nodes other than I want to partition the OS 
+drivers a certain way and creating DT nodes instantiates them for me.
 
-- enable mmuart4 instead of mmuart0
-- remove sifive pdma
-- split memory node to match updated fpga design
-- move stdout path to serial1 to avoid collision with
-        bootloader running on the e51
-
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
----
- .../microchip/microchip-mpfs-icicle-kit.dts   | 23 +++++++++++++------
- .../boot/dts/microchip/microchip-mpfs.dtsi    | 23 +++++++++++--------
- 2 files changed, 29 insertions(+), 17 deletions(-)
-
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-index c51bd7cf500f..dc5f351b10c4 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
-@@ -18,20 +18,29 @@ aliases {
- 		serial1 = &mmuart1;
- 		serial2 = &mmuart2;
- 		serial3 = &mmuart3;
-+		serial4 = &mmuart4;
- 	};
- 
- 	chosen {
--		stdout-path = "serial0:115200n8";
-+		stdout-path = "serial1:115200n8";
- 	};
- 
- 	cpus {
- 		timebase-frequency = <RTCCLK_FREQ>;
- 	};
- 
--	memory@80000000 {
-+	ddrc_cache_lo: memory@80000000 {
- 		device_type = "memory";
--		reg = <0x0 0x80000000 0x0 0x40000000>;
-+		reg = <0x0 0x80000000 0x0 0x2e000000>;
- 		clocks = <&clkcfg CLK_DDRC>;
-+		status = "okay";
-+	};
-+
-+	ddrc_cache_hi: memory@1000000000 {
-+		device_type = "memory";
-+		reg = <0x10 0x0 0x0 0x40000000>;
-+		clocks = <&clkcfg CLK_DDRC>;
-+		status = "okay";
- 	};
- };
- 
-@@ -39,10 +48,6 @@ &refclk {
- 	clock-frequency = <600000000>;
- };
- 
--&mmuart0 {
--	status = "okay";
--};
--
- &mmuart1 {
- 	status = "okay";
- };
-@@ -55,6 +60,10 @@ &mmuart3 {
- 	status = "okay";
- };
- 
-+&mmuart4 {
-+	status = "okay";
-+};
-+
- &mmc {
- 	status = "okay";
- 
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-index 62bd00092bcc..5e7aaaf42cde 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-@@ -174,15 +174,6 @@ clint: clint@2000000 {
- 					      <&cpu4_intc 3>, <&cpu4_intc 7>;
- 		};
- 
--		dma@3000000 {
--			compatible = "sifive,fu540-c000-pdma";
--			reg = <0x0 0x3000000 0x0 0x8000>;
--			interrupt-parent = <&plic>;
--			interrupts = <23>, <24>, <25>, <26>, <27>, <28>, <29>,
--				     <30>;
--			#dma-cells = <1>;
--		};
--
- 		plic: interrupt-controller@c000000 {
- 			compatible = "sifive,fu540-c000-plic", "sifive,plic-1.0.0";
- 			reg = <0x0 0xc000000 0x0 0x4000000>;
-@@ -213,7 +204,7 @@ mmuart0: serial@20000000 {
- 			interrupts = <90>;
- 			current-speed = <115200>;
- 			clocks = <&clkcfg CLK_MMUART0>;
--			status = "disabled";
-+			status = "disabled"; /* Reserved for the HSS */
- 		};
- 
- 		mmuart1: serial@20100000 {
-@@ -252,6 +243,18 @@ mmuart3: serial@20104000 {
- 			status = "disabled";
- 		};
- 
-+		mmuart4: serial@20106000 {
-+			compatible = "ns16550a";
-+			reg = <0x0 0x20106000 0x0 0x400>;
-+			reg-io-width = <4>;
-+			reg-shift = <2>;
-+			interrupt-parent = <&plic>;
-+			interrupts = <94>;
-+			clocks = <&clkcfg CLK_MMUART4>;
-+			current-speed = <115200>;
-+			status = "disabled";
-+		};
-+
- 		/* Common node entry for emmc/sd */
- 		mmc: mmc@20008000 {
- 			compatible = "microchip,mpfs-sd4hc", "cdns,sd4hc";
--- 
-2.35.1
-
+>      };
+> -- 
+> 2.35.1
+> 
+> 
