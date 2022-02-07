@@ -2,98 +2,104 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97A53C433FE
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 09:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FEA0C433F5
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 09:04:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230017AbiBGJCy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Feb 2022 04:02:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
+        id S239146AbiBGJEA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Feb 2022 04:04:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351276AbiBGI4B (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 03:56:01 -0500
+        with ESMTP id S1349805AbiBGJAw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 04:00:52 -0500
 Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E88C2C043187;
-        Mon,  7 Feb 2022 00:56:00 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 6CA2E580161;
-        Mon,  7 Feb 2022 03:46:24 -0500 (EST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E4CC043181;
+        Mon,  7 Feb 2022 01:00:50 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 31E9E58018B;
+        Mon,  7 Feb 2022 04:00:50 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 07 Feb 2022 03:46:24 -0500
+  by compute1.internal (MEProxy); Mon, 07 Feb 2022 04:00:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
         :cc:content-transfer-encoding:content-type:date:date:from:from
         :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm2; bh=06iDWhIMWF+GL+
-        4tV1ry3WHLDvx8sEGX8SCia4bLUlo=; b=SzyNoAzmVIrpysc1eyqHTcsbRZ33lG
-        kZioZV9XgeEStB5uEDLvkVS+XJNc18BEIMh3xfV5UCIlw5NUT1gIH6OTM8OT6t63
-        efaz9q0t4r3rUsAQFySCwe4JDTukdE39OxTMFAkNYebPDKWZZZuCPukDXOfVWXW3
-        voc7zDtotovPQHB6OeTtvT9sNavWKnsZAmeaJc5GHJxgY1CLrLj8u+8twZxo6skE
-        ncIOkGAHt5iAOq5SFszdPkWlHTOS54aNrdp0QWMvOfGkugfPHqFbrCKtFDuq03zp
-        uwoKSnF22vUn2lMMswRKNIhqzF1D8Vgc/+tg4ra2jv2rIw6+cz/S9S5g==
+        :reply-to:sender:subject:subject:to:to; s=fm2; bh=LlmYXeK2fC2UdJ
+        0/MsJYEQrTJxKAOlqRD+axqJoLm3I=; b=fm5k1dGy1PeO02r1/TlAHJNiPhTGWE
+        5Iz8JgwP01EUiauX3iYERT0YPoAlmiNhvh3zHn48pU5ZR7i50wdIqMi2TqDT6zwS
+        hSIARHAQBic+WMq594pw+r1hdkJH4foiJ/v+za5CYtlxOHDk/rYnjJ62V9U2/ukk
+        R3ewIPTVnznf+fpkdJ/DJZMLouLKFrfDOanqmzwMjhr8CK/tWD65z3sO/CnpyEKO
+        fldsssTSz1jV+UAAVeaAblRuLVmN8hZUZ0VnWsFFq27v9+RX3ZCcaLoT52X32/KW
+        UatXs76ZJTfxBlcK/Hc3RYGiYWUjHrc7YN7Ksm1/YyQZN9WQa13550lw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding
         :content-type:date:date:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
         :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=06iDWhIMWF+GL+4tV1ry3WHLDvx8sEGX8SCia4bLU
-        lo=; b=Gdy+GNNvCJjjAF8MZ/+bNLQL4iSm/u2ss9Lf0HTkZ1lGBEETWFMTR+KBo
-        JbEFEdbPEoKYhU6zhp6hPgA6NkHVRWSGhNbASWKiAAgqRj3JnjtpFGxR6CgerOZ5
-        2ppQ6LGU7HXcUDCmY8MJ1EFSl8+tn1hyhZGo6q7giSGUEbGDs4tjtnHDpwVZqPjc
-        n3F07jWlqbwXhrY2Cm++fh6dgWhHcbAGxRjPJ4zR8Jably9LaSORMWGcSImuNh7S
-        Y3FK/D6psNQu3j8koi5dsDjphpzqGvPFuDgsCO+l2BNzKxs1ei/c0S5SYYe7ya3/
-        m5C/1A2IDiFa1BgR13kqpf5XD46yg==
-X-ME-Sender: <xms:X9wAYnyoadC6crowfp6rSS1g_dZJJyZj0HJbNH4Fsz_YHqCWaT9u0g>
-    <xme:X9wAYvRAosyTp15LWmaagYVihilD-ACCq49PDWHSfE8Hj5ISZKeCtnWns09h_Ep-j
-    ca5e0qtAIxgWuubaJ0>
-X-ME-Received: <xmr:X9wAYhU4wVdLfn71BD3noSDT2ROADAh_MlBDHFABwQLaQ0RmWAD3_ORgTpeEekafKSObjUHVfrTrCLt60aT7W5cbkSVXpKuNxSocEng>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeggdduudelucetufdoteggodetrfdotf
+        :x-sasl-enc; s=fm2; bh=LlmYXeK2fC2UdJ0/MsJYEQrTJxKAOlqRD+axqJoLm
+        3I=; b=adMfYwoaQ/+F0Adw54uNBbogBqWCNOpwNoQ9vM7kPwDVtliGcE/0sJW5T
+        GSkPw8fKguIjcu3WS6SwiePhrbtPoapSJKd278hw9l2tAE/4SvgN9Kgdr6/zer0p
+        A6PTNSUunpLYmjfPgmCuXdOvtVnzckBrHJs1f6PbP1WMrBR2ZJGyNx4VBsi4cBzm
+        eWcn6BqdpcHjNov6rWoYYhZfXlzkoFhtDP7lZuQR/ySkBo6afBQJYlWgJOg6lPma
+        VaQ5opIv7rqfHGUpqYb3c0/pWUsLWRQ8cZf27BEA9hvk78RevuqoSUyunTfG2SVC
+        7fHlzXXpXiu1lF9InYRRu7WoiVb8A==
+X-ME-Sender: <xms:wt8AYvpYzksObIQVOstgSzXW_j7vTFG4na98z1tyat7OAlBQVMWVAg>
+    <xme:wt8AYpqaOsWE4i3N_9ZNkIZLPgSfeoklFLKzjhLbeUSB542-49RtnhvuFn84nDMCD
+    K-d_uqCQ0a0HTq-2Mw>
+X-ME-Received: <xmr:wt8AYsOHMqrHXEo3mqTx-DPOHWLrrIzBhHpR67W2xZSY-b0oBFO7OgzQ1heB2KGO1LjxAipzrsiiEftZuklxmByAIK4CMiZ884aFoCw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrheeggdduvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthhqredttddtvdenucfhrhhomhepofgrgihi
+    cujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomhepofgrgihi
     mhgvucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrg
-    htthgvrhhnpefgjeettdejgffgffdvteeutdehtdehgeehueetkeefgefhtdetjeekledu
-    gedvudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    htthgvrhhnpeejuefggeekfffgueevtddvudffhfejffejjedvvdduudethefhfefhfeeg
+    ieekkeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hmrgigihhmvgestggvrhhnohdrthgvtghh
-X-ME-Proxy: <xmx:X9wAYhgr5yOXQMtplYYtze_ycHouRGRlqOM4hfQ7uT8buKsx3m3DVw>
-    <xmx:X9wAYpCtiMCGwFyE1NbyckGN18_nYOxMh0h9jllqSWSAisFh_WD41w>
-    <xmx:X9wAYqLixyckvrMMMAQ-PW9eACQAlrL-zrMFV9unpPM-g_XE05EIaA>
-    <xmx:YNwAYhxau4hnrYfLueK715S0kZ6KONWoSIyJmS1PYmeypzX5iZv_7A>
+X-ME-Proxy: <xmx:wt8AYi5sJGTaHdSyOFBTpB5GBdyKWj7W4q2Qx6G4ow6j7a3Ngk9u8w>
+    <xmx:wt8AYu4nXzcilGfFlbSU8FeohOslwB1MibQ6UJwKse6CAHxnRQI0MA>
+    <xmx:wt8AYqhwssUi8JB6SACMjFKALBnoIooSAjNSWdHq-vI-PfVYgLIm0Q>
+    <xmx:wt8AYtQUyHpHBiDSq0K7o6o4idoY_DwsL7FYrbumcamqnkqPLVPQxg>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 7 Feb 2022 03:46:23 -0500 (EST)
-Date:   Mon, 7 Feb 2022 09:46:20 +0100
+ 7 Feb 2022 04:00:49 -0500 (EST)
 From:   Maxime Ripard <maxime@cerno.tech>
-To:     Samuel Holland <samuel@sholland.org>
-Cc:     Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        linux-sunxi@lists.linux.dev,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Michael Turquette <mturquette@baylibre.com>,
+To:     Chen-Yu Tsai <wens@csie.org>, linux-sunxi@lists.linux.dev,
+        Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc:     Maxime Ripard <maxime@cerno.tech>, Stephen Boyd <sboyd@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Michael Turquette <mturquette@baylibre.com>,
         Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/6] dt-bindings: rtc: sun6i: Clean up repetition
-Message-ID: <20220207084620.xajb5wx6bbgg4ugh@houat>
-References: <20220203021736.13434-1-samuel@sholland.org>
- <20220203021736.13434-2-samuel@sholland.org>
+        Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: (subset) [PATCH v3 5/6] clk: sunxi-ng: Add support for the sun6i RTC clocks
+Date:   Mon,  7 Feb 2022 10:00:45 +0100
+Message-Id: <164422443570.21572.13511859513410998733.b4-ty@cerno.tech>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220203021736.13434-6-samuel@sholland.org>
+References: <20220203021736.13434-1-samuel@sholland.org> <20220203021736.13434-6-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20220203021736.13434-2-samuel@sholland.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Feb 02, 2022 at 08:17:31PM -0600, Samuel Holland wrote:
-> - Use "enum" for compatibles instead of several "const" alternatives.
-> - Merge the H6 clock-output-names minItems/maxItems constraint into the
->   identical block above.
->=20
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Samuel Holland <samuel@sholland.org>
+On Wed, 2 Feb 2022 20:17:35 -0600, Samuel Holland wrote:
+> The RTC power domain in sun6i and newer SoCs manages the 16 MHz RC
+> oscillator (called "IOSC" or "osc16M") and the optional 32 kHz crystal
+> oscillator (called "LOSC" or "osc32k"). Starting with the H6, this power
+> domain also handles the 24 MHz DCXO (called variously "HOSC", "dcxo24M",
+> or "osc24M") as well. The H6 also adds a calibration circuit for IOSC.
+> 
+> Later SoCs introduce further variations on the design:
+>  - H616 adds an additional mux for the 32 kHz fanout source.
+>  - R329 adds an additional mux for the RTC timekeeping clock, a clock
+>    for the SPI bus between power domains inside the RTC, and removes the
+>    IOSC calibration functionality.
+> 
+> [...]
 
-Reviewed-by: Maxime Ripard <maxime@cerno.tech>
+Applied to local tree (sunxi/clk-for-5.18).
 
+Thanks!
 Maxime
