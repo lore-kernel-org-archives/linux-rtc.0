@@ -2,47 +2,47 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36B5CC4321E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6466BC4167B
 	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 16:41:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352768AbiBGQiZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Feb 2022 11:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
+        id S1353158AbiBGQi0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Feb 2022 11:38:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377039AbiBGQZK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:10 -0500
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757CFC0401CF;
-        Mon,  7 Feb 2022 08:25:09 -0800 (PST)
+        with ESMTP id S1381968AbiBGQZe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:34 -0500
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3775BC0401CE;
+        Mon,  7 Feb 2022 08:25:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1644251109; x=1675787109;
+  t=1644251133; x=1675787133;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=y9H0vm0uB6r2xnaMXtBb2QcKJondv9+jMqua1OTgIMc=;
-  b=kbBWeUZk2MTVavKRAX5xcqs++U+cPenLfGBRwTnawiG5TK49bugkl8xf
-   WtImQqIOOkqVeAlXriixOQ5gYrGobqtOSX7ld3xhKdM0+vkfwYWJJCoBq
-   sQebUeSV39k51JxkSlHpUQjHL+KRWlpc3x9cty9+WMxaP5R/X7uBRZ0Fv
-   bTXIoFOhKZgbtQqxrQF3w9SzO+3zk4TGOBXVsoofbJzlSCRpY9tsBxBL5
-   +cBPZif1gAz5PLffs4rT0zSLBi/k0C5sH73PJXWPFA49b9Q0HBMmX7aX3
-   U5Iq1QC3QHudiZiOIBkzwmdw9mVN/CnX9r4RxuOm9LZ2CML09htJ1zbjw
-   A==;
-IronPort-SDR: 0P9xUk3U37cIxnXZPYqVfBjCJJBnnCcC9sCjfJ9EYGuImDXvIo5QsG+jsjfj15o3benLoO+ySm
- dRrH+tS8PIY6UcLqksz0qJlHYioSrFTu3Mxh9tcQbxQwvjbpPOTn6EOQQEbydwuBMG6P9mDhpL
- 9XFTJhfO0yn8O9fZbDdeQ3s8pfhVM4cP/fA/7qISDsAgytegXikVG8dtj5JmWzK9dUVwbAPJUM
- V4xAG63ElgBWU+70kbphe/cmgo4S2UuHq3ZIIf1GJWH3lgD0M9ohEH1hpsTe82XlbD9TkYfryi
- IRDm5EPH/LuPY41lk/KuqqGL
+  bh=UgAsg9TlIrDzEqjVIYSY7g9vpEQeRY9RvW+oM1/ooF0=;
+  b=Li8lWxKOgYsYSr/18YuGQ02YKB7FQPWGJ7sPSo/5Uk0R9g2T0ezaXu1+
+   9/jLoTxOQbGob6SMr3pjMt8Y3rF1Ea0+K4/bue/vIYsEQGiEKeM188TnS
+   lo8lGvphP48gbty+idDAqSO6VHsoKgjxxahQmuYZ8cyiwkOl3RVGAeQHc
+   giL1EYbga6PUMMICUKzsI9rtEBiaXsBxBAgXJ9cyZXadBYVUoYs8EfZEQ
+   i0SRvbylx7kMnrsZual9BD4U+yTZ+95wqRxxNy9BJ1KFROBSoFpLeYcQ+
+   0SsQlN22A4evncYp504TtzHOYNmuMcHN7nQ64WuLXTWaZQuda8P3vcjoz
+   g==;
+IronPort-SDR: a5kwyl98BaeJDDdVDl5yUbw7rcuwyz/E9FtbOJijPgB9dt43zfaMptiY3NIHux370393lzmFLU
+ lzWz2ZEqSQH/HZ1VfAY8nqH5lXPP3+LCjLuzIWQQUnOq+LbNCiLbIAbjkkHMrJqOt9joT9Unk7
+ YJ/bfwhQjZXo5sAEDz5hJSqdcwZCClNOiHqx0yaQMyGtVaVpTfLWLhw8eh0GvO+h5Qu/4xJCB/
+ I5TYpZlnOnLtZf15L/GmvsWalzfssFDfTE3+P7MBfH0yoj71s2cawwSQ6ZpxD+DOhQDRcD07g/
+ MR2ujyQQJQOB9peCG1uyptaR
 X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
-   d="scan'208";a="152730203"
+   d="scan'208";a="145140011"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:06 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:30 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 7 Feb 2022 09:24:06 -0700
+ 15.1.2375.17; Mon, 7 Feb 2022 09:24:22 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 7 Feb 2022 09:24:01 -0700
+ Transport; Mon, 7 Feb 2022 09:24:17 -0700
 From:   <conor.dooley@microchip.com>
 To:     <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <robh+dt@kernel.org>,
         <jassisinghbrar@gmail.com>, <thierry.reding@gmail.com>,
@@ -59,9 +59,9 @@ CC:     <bin.meng@windriver.com>, <heiko@sntech.de>,
         <daire.mcnamara@microchip.com>, <ivan.griffin@microchip.com>,
         <atishp@rivosinc.com>, Rob Herring <robh@kernel.org>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH v6 03/12] dt-bindings: i2c: add bindings for microchip mpfs i2c
-Date:   Mon, 7 Feb 2022 16:26:29 +0000
-Message-ID: <20220207162637.1658677-4-conor.dooley@microchip.com>
+Subject: [PATCH v6 06/12] dt-bindings: pwm: add microchip corepwm binding
+Date:   Mon, 7 Feb 2022 16:26:32 +0000
+Message-ID: <20220207162637.1658677-7-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207162637.1658677-1-conor.dooley@microchip.com>
 References: <20220207162637.1658677-1-conor.dooley@microchip.com>
@@ -74,80 +74,102 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Conor Dooley <conor.dooley@microchip.com>
 
-Add device tree bindings for the i2c controller on
-the Microchip PolarFire SoC.
+Add device tree bindings for the Microchip fpga fabric based "core" PWM
+controller.
 
-Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- .../bindings/i2c/microchip,corei2c.yaml       | 56 +++++++++++++++++++
- 1 file changed, 56 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
+ .../bindings/pwm/microchip,corepwm.yaml       | 79 +++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
 
-diff --git a/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
+diff --git a/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml b/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
 new file mode 100644
-index 000000000000..c8e605fbb8a6
+index 000000000000..30ec70ac5c44
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
-@@ -0,0 +1,56 @@
++++ b/Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
+@@ -0,0 +1,79 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/i2c/microchip,corei2c.yaml#
++$id: http://devicetree.org/schemas/pwm/microchip,corepwm.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Microchip MPFS I2C Controller Device Tree Bindings
++title: Microchip IP corePWM controller bindings
 +
 +maintainers:
-+  - Daire McNamara <daire.mcnamara@microchip.com>
++  - Conor Dooley <conor.dooley@microchip.com>
 +
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
++description: |
++  corePWM is an 16 channel pulse width modulator FPGA IP
++
++  https://www.microsemi.com/existing-parts/parts/152118
 +
 +properties:
 +  compatible:
-+    oneOf:
-+      - items:
-+        - const: microchip,mpfs-i2c # Microchip PolarFire SoC compatible SoCs
-+        - const: microchip,corei2c-rtl-v7 # Microchip Fabric based i2c IP core
-+      - const: microchip,corei2c-rtl-v7 # Microchip Fabric based i2c IP core
++    items:
++      - const: microchip,corepwm-rtl-v4
 +
 +  reg:
-+    maxItems: 1
-+
-+  interrupts:
 +    maxItems: 1
 +
 +  clocks:
 +    maxItems: 1
 +
-+  clock-frequency:
++  "#pwm-cells":
++    const: 2
++
++  microchip,sync-update-mask:
 +    description: |
-+      Desired I2C bus clock frequency in Hz. As only Standard and Fast
-+      modes are supported, possible values are 100000 and 400000.
-+    enum: [100000, 400000]
++      Depending on how the IP is instantiated, there are two modes of operation.
++      In synchronous mode, all channels are updated at the beginning of the PWM period,
++      and in asynchronous mode updates happen as the control registers are written.
++      A 16 bit wide "SHADOW_REG_EN" parameter of the IP core controls whether synchronous
++      mode is possible for each channel, and is set by the bitstream programmed to the
++      FPGA. If the IP core is instantiated with SHADOW_REG_ENx=1, both registers that
++      control the duty cycle for channel x have a second "shadow"/buffer reg synthesised.
++      At runtime a bit wide register exposed to APB can be used to toggle on/off
++      synchronised mode for all channels it has been synthesised for.
++      Each bit of "microchip,sync-update-mask" corresponds to a PWM channel & represents
++      whether synchronous mode is possible for the PWM channel.
++
++    $ref: /schemas/types.yaml#/definitions/uint32
++    default: 0
++
++  microchip,dac-mode-mask:
++    description: |
++      Optional, per-channel Low Ripple DAC mode is possible on this IP core. It creates
++      a minimum period pulse train whose High/Low average is that of the chosen duty
++      cycle. This "DAC" will have far better bandwidth and ripple performance than the
++      standard PWM algorithm can achieve. A 16 bit DAC_MODE module parameter of the IP
++      core, set at instantiation and by the bitstream programmed to the FPGA, determines
++      whether a given channel operates in regular PWM or DAC mode.
++      Each bit corresponds to a PWM channel & represents whether DAC mode is enabled
++      for that channel.
++
++    $ref: /schemas/types.yaml#/definitions/uint32
++    default: 0
 +
 +required:
 +  - compatible
 +  - reg
-+  - interrupts
 +  - clocks
++  - "#pwm-cells"
 +
-+unevaluatedProperties: false
++additionalProperties: false
 +
 +examples:
 +  - |
-+    i2c@2010a000 {
-+      compatible = "microchip,mpfs-i2c", "microchip,corei2c-rtl-v7";
-+      reg = <0x2010a000 0x1000>;
-+      clocks = <&clkcfg 15>;
-+      interrupt-parent = <&plic>;
-+      interrupts = <58>;
-+      clock-frequency = <100000>;
++    pwm@41000000 {
++      compatible = "microchip,corepwm-rtl-v4";
++      microchip,sync-update-mask = /bits/ 32 <0>;
++      clocks = <&clkcfg 30>;
++      reg = <0x41000000 0xF0>;
++      #pwm-cells = <2>;
 +    };
-+...
 -- 
 2.35.1
 
