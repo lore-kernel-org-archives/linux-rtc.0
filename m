@@ -2,48 +2,47 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCDE0C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBBFBC4332F
 	for <linux-rtc@archiver.kernel.org>; Mon,  7 Feb 2022 16:41:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352099AbiBGQiY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Feb 2022 11:38:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60470 "EHLO
+        id S1352758AbiBGQiZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Feb 2022 11:38:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352714AbiBGQZH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:07 -0500
-X-Greylist: delayed 63 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Feb 2022 08:25:06 PST
+        with ESMTP id S1381748AbiBGQZX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Feb 2022 11:25:23 -0500
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB6AC0401CF;
-        Mon,  7 Feb 2022 08:25:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7B0C0401CE;
+        Mon,  7 Feb 2022 08:25:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1644251106; x=1675787106;
+  t=1644251122; x=1675787122;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=a6FIsAxlS8CipozOrCRtXjkQdiL4ZSwawArQFXpf6H0=;
-  b=k6m2QYdM5MuslAJuYBw2S2MK9CjWO74xO30UbUFNi/pgHvo4VTQ94e/o
-   CqQwmT+3nMACHkHTwO6nY7mp2dr//eHM6zSiqf+i45rU36be3adIagfih
-   OQ7XjxRo6R84Jxv2diXSSKVUYpQQMT0R1I2szt3X6ySmfqxSsdsquLfwq
-   Ujfb6527zvDaybAk/TUz9XkZKl9AIPmIxotzt83xzCGolVueenCIuvewN
-   wV5GN7VgsUxrnCvAeCEbsgpma8oEmMcfiQcFQP7IdRrk/R+xlMknelRYI
-   piSJKSvf8NeNEbJ+1kxpXtlyWj85y2vGr9xvmYeszNJOetswZDHl987uI
-   Q==;
-IronPort-SDR: olD1nXIeV6qYui820sqHCq6LXGhzzDFLcA3zFhI0a2QMW+hz3g32tD6oF1MCz3bb06LdU7/KX6
- R6/kmpyiF8Dv9HrR9UFo9Gfrm6so3M1KG3lphrAP+J5+KrO98GBQh/P9JOMj+hGDAtR0Q5Cybh
- O9Inum9/3imfhb9KIOvaGJjhEj/eODimVqMoyiEYlr+vrZ5t+FWmqAXeoNsaHRGCRe1uEQCoBQ
- uDkM0MkfdrDqEfgD0SqRO9rpUl4niYDaQyx38XpGESDSK79jIKPSSMNJuh3DFuN/COxTgXpco/
- Eea5hWLFPkMtjV5GFEgKTGX7
+  bh=Rxh3lnlcB1zCcRgGY291RlhwNrjqpS946Rqo4347BqM=;
+  b=NdcS57RyJVrFxCPkuzNjJgPKObvYIR5ocN26ZgPU1YltJEoy+XP5MfAf
+   BaACUv0ej/zfk4oof39Koe0pYbV4fIhMscOVnum3mqOxT2ktNM0kuVVQc
+   EfYGTncma6cydBO1/rcG7vcQhDog01IBQHY4zRpLAUFOuWSnD0URCMOlq
+   weTzO+Dsd/I1COsB76HXW7TKx+BKZHGZAIrBLg7bbPRWBz934lZofYPhW
+   uWofHtM1um1uFqIGVGlgatfGUSj6l4APttQfsjmSJ3flp8vYRJyNoXO4G
+   wmsSSkcgZHYLv92ocdaB/aemJ8jZWrd/ZXGNVDwunmDF3+O5B+5Rz7RwO
+   g==;
+IronPort-SDR: GNuxJEJcHOzFX3vNKpSQIqOtj6boPfa+hCd9WcCCWCjWYvOWumIH96G/fFHxL8SWXpOhrZ/VhL
+ H2aTJSqvc+L+sbJsrBnsU6x+kZKUf1elQNnIsLBG0gO6m2IAkFIxMYhUVsO2e1Z6XXEHUEx7Ps
+ t6HZhTyxoqg/N9Y5wl6mfP3XR3q75kFTFMD1h2yQW0fKfH3o11Hc/xRt1B8uR1/tp7zfyDvPy4
+ ZKrcglqJjuFGbwKpJ37PPj+DdhvsKjGYE7A9H0tfiJuusx8Sj1TnNessC1fycn2HSKVVpfa9lM
+ zF20h9WUMygOZksu3itVeILu
 X-IronPort-AV: E=Sophos;i="5.88,350,1635231600"; 
-   d="scan'208";a="145139958"
+   d="scan'208";a="145139993"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:01 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Feb 2022 09:24:17 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 7 Feb 2022 09:24:01 -0700
+ 15.1.2375.17; Mon, 7 Feb 2022 09:24:17 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 7 Feb 2022 09:23:56 -0700
+ Transport; Mon, 7 Feb 2022 09:24:12 -0700
 From:   <conor.dooley@microchip.com>
 To:     <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <robh+dt@kernel.org>,
         <jassisinghbrar@gmail.com>, <thierry.reding@gmail.com>,
@@ -58,10 +57,11 @@ To:     <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <robh+dt@kernel.org>,
 CC:     <bin.meng@windriver.com>, <heiko@sntech.de>,
         <lewis.hanly@microchip.com>, <conor.dooley@microchip.com>,
         <daire.mcnamara@microchip.com>, <ivan.griffin@microchip.com>,
-        <atishp@rivosinc.com>, Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH v6 02/12] dt-bindings: soc/microchip: add services as sub devs of sys ctrlr
-Date:   Mon, 7 Feb 2022 16:26:28 +0000
-Message-ID: <20220207162637.1658677-3-conor.dooley@microchip.com>
+        <atishp@rivosinc.com>, Rob Herring <robh@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH v6 05/12] dt-bindings: gpio: add bindings for microchip mpfs gpio
+Date:   Mon, 7 Feb 2022 16:26:31 +0000
+Message-ID: <20220207162637.1658677-6-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220207162637.1658677-1-conor.dooley@microchip.com>
 References: <20220207162637.1658677-1-conor.dooley@microchip.com>
@@ -74,75 +74,102 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Conor Dooley <conor.dooley@microchip.com>
 
-Document mpfs-rng and mpfs-generic-service as subdevices of the system
-controller.
+Add device tree bindings for the gpio controller on
+the Microchip PolarFire SoC.
 
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
 ---
- .../microchip,mpfs-sys-controller.yaml        | 35 +++++++++++++++++--
- 1 file changed, 33 insertions(+), 2 deletions(-)
+ .../bindings/gpio/microchip,mpfs-gpio.yaml    | 79 +++++++++++++++++++
+ 1 file changed, 79 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
 
-diff --git a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-index f699772fedf3..b02c8bd72605 100644
---- a/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-+++ b/Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-@@ -13,7 +13,6 @@ description: |
-   The PolarFire SoC system controller is communicated with via a mailbox.
-   This document describes the bindings for the client portion of that mailbox.
- 
--
- properties:
-   mboxes:
-     maxItems: 1
-@@ -21,6 +20,38 @@ properties:
-   compatible:
-     const: microchip,mpfs-sys-controller
- 
-+  rng:
-+    type: object
+diff --git a/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml b/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
+new file mode 100644
+index 000000000000..110651eafa70
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
+@@ -0,0 +1,79 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/gpio/microchip,mpfs-gpio.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+    description: |
-+      The hardware random number generator on the Polarfire SoC is
-+      accessed via the mailbox interface provided by the system controller
++title: Microchip MPFS GPIO Controller Device Tree Bindings
 +
-+    properties:
-+      compatible:
-+        const: microchip,mpfs-rng
++maintainers:
++  - Conor Dooley <conor.dooley@microchip.com>
 +
-+    required:
-+      - compatible
++properties:
++  compatible:
++    items:
++      - enum:
++          - microchip,mpfs-gpio
 +
-+  sysserv:
-+    type: object
++  reg:
++    maxItems: 1
 +
-+    description: |
-+      The PolarFire SoC system controller is communicated with via a mailbox.
-+      This binding represents several of the functions provided by the system
-+      controller which do not belong in a specific subsystem, such as reading
-+      the fpga device certificate, all of which follow the same format:
-+        - a command + optional payload sent to the sys controller
-+        - a status + a payload returned to Linux
++  interrupts:
++    description:
++      Interrupt mapping, one per GPIO. Maximum 32 GPIOs.
++    minItems: 1
++    maxItems: 32
 +
-+    properties:
-+      compatible:
-+        const: microchip,mpfs-generic-service
++  interrupt-controller: true
 +
-+    required:
-+      - compatible
++  clocks:
++    maxItems: 1
 +
- required:
-   - compatible
-   - mboxes
-@@ -29,7 +60,7 @@ additionalProperties: false
- 
- examples:
-   - |
--    syscontroller: syscontroller {
-+    syscontroller {
-       compatible = "microchip,mpfs-sys-controller";
-       mboxes = <&mbox 0>;
-     };
++  "#gpio-cells":
++    const: 2
++
++  "#interrupt-cells":
++    const: 1
++
++  ngpios:
++    description:
++      The number of GPIOs available.
++    minimum: 1
++    maximum: 32
++    default: 32
++
++  gpio-controller: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - "#interrupt-cells"
++  - interrupt-controller
++  - "#gpio-cells"
++  - gpio-controller
++  - clocks
++
++additionalProperties: false
++
++examples:
++  - |
++    gpio@20122000 {
++        compatible = "microchip,mpfs-gpio";
++        reg = <0x20122000 0x1000>;
++        clocks = <&clkcfg 25>;
++        interrupt-parent = <&plic>;
++        gpio-controller;
++        #gpio-cells = <2>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++        interrupts = <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>,
++                     <53>, <53>, <53>, <53>;
++    };
++...
 -- 
 2.35.1
 
