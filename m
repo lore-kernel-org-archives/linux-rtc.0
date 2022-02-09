@@ -2,132 +2,70 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0133C433F5
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Feb 2022 23:11:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E89FDC433F5
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Feb 2022 04:07:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235499AbiBHXLV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Feb 2022 18:11:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36270 "EHLO
+        id S1345125AbiBIEHn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Feb 2022 23:07:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235480AbiBHXLU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Feb 2022 18:11:20 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E10C061578;
-        Tue,  8 Feb 2022 15:11:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1644361879; x=1675897879;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=SX+Ukr/Axms+ZkUXzepwxZRP4Htag+UHnjtIv0GwVmA=;
-  b=hWCe9Itvwu1RBY9Jn7f6102d5Nl5M9vVEGwI5MqFTrocFV+6yvBZp6mP
-   N2tvd628//4qpBpZaSlZ8raWlGxhVv5QURGydlTgW61x8olkRWzEGXdgH
-   GiN72/CH3Nc2KAMxUm3KZv76Xckxc6DPGh37Iw7LVBblmmHj8ctiieOZH
-   V6nuho2VTnCAXpOK9qHQGKhDZ190L0j16LB2NVOm/RXAEIqq1ycOf1yat
-   5aznqYnxtuWBaHDslZgIH5qxYJD2t5cRDkgqtbnFQ9acD4f+j8ooCjfFk
-   HRwpglN1olDePWVJ3ZLSUttEPyy7vrtcl4OfOtnM/wVWXONEsTg1e9m5B
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10252"; a="236480229"
-X-IronPort-AV: E=Sophos;i="5.88,354,1635231600"; 
-   d="scan'208";a="236480229"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2022 15:11:19 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,354,1635231600"; 
-   d="scan'208";a="771145853"
-Received: from lkp-server01.sh.intel.com (HELO d95dc2dabeb1) ([10.239.97.150])
-  by fmsmga006.fm.intel.com with ESMTP; 08 Feb 2022 15:11:14 -0800
-Received: from kbuild by d95dc2dabeb1 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nHZdh-0000uZ-QM; Tue, 08 Feb 2022 23:11:13 +0000
-Date:   Wed, 9 Feb 2022 07:10:39 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Carlos Bilbao <carlos.bilbao@amd.com>, john.stultz@linaro.org,
-        tglx@linutronix.de, sboyd@kernel.org,
-        alexandre.belloni@bootlin.com, gregkh@linuxfoundation.org
-Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
-        bilbao@vt.edu, geert@linux-m68k.org,
-        linux-arm-kernel@lists.infradead.org, rostedt@goodmis.org,
-        boon.leong.ong@intel.com, mhiramat@kernel.org,
-        linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-        linux-rtc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        linux-stm32@st-md-mailman.stormreply.com, jgross@suse.com,
-        Carlos Bilbao <carlos.bilbao@amd.com>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v2] include: linux: Reorganize timekeeping and ktime
- headers
-Message-ID: <202202090656.Bx5FpSa7-lkp@intel.com>
-References: <20220208161049.865402-1-carlos.bilbao@amd.com>
+        with ESMTP id S1346244AbiBIDXK (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Feb 2022 22:23:10 -0500
+Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E92C06174F;
+        Tue,  8 Feb 2022 19:23:10 -0800 (PST)
+Received: by mail-oi1-f176.google.com with SMTP id 4so1177269oil.11;
+        Tue, 08 Feb 2022 19:23:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=f92doyI4WS5GEh1VL10C5XTr+YtncMIasI2cH1jtcsQ=;
+        b=49QR7AGlvAMSjIGZcgi6j3+qpzjVKk+0kiyFD+bmlnERhVh6S0rqhPWwLPTRE+2QG7
+         oqiAdTKaJ4TdHpRuDR3cigEROvE0F/NhjozTgzSDurHJ02WQJ158GPmMIswn4mgY3mRF
+         c1dHNO/JnK8d5H+wj/C4YLhFzmGi9sQOxWlvHiBwC5FEKCsK/OPjZ8eQ++qaNXFRHAmE
+         0YLMj4HeI8Bx8nX1GuX20Qa7jax5qMfT0r0BcSCug0lUDsSySFnhZr1m0ZSE3fuIPwKu
+         Q93GValt35mP7qY5hrTbTk93HzShwPn83z5EDxUnln+iRxoX/1IOcUJJU+w1zBrZY6qd
+         e62Q==
+X-Gm-Message-State: AOAM53258IkIX6Hkl+2c7b2/0Bn6obFS2Xesr1hXeNbtwAXmq4iTClzk
+        EcnC+lzDbSmUxP2I4Z704XSCskX5Ag==
+X-Google-Smtp-Source: ABdhPJwujgQMIdsO85K6t/UdNoSz/OAClluGz42Rzt3bWWIapEt9ZM75U0CNFs9qXWJJN06apjKJyw==
+X-Received: by 2002:a05:6808:693:: with SMTP id k19mr110030oig.165.1644376989580;
+        Tue, 08 Feb 2022 19:23:09 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id s11sm5881208otq.69.2022.02.08.19.23.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Feb 2022 19:23:08 -0800 (PST)
+Received: (nullmailer pid 3571792 invoked by uid 1000);
+        Wed, 09 Feb 2022 03:23:07 -0000
+Date:   Tue, 8 Feb 2022 21:23:07 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Hugo Villeneuve <hugo@hugovil.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Hugo Villeneuve <hvilleneuve@dimonoff.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 09/10] dt-bindings: rtc: pcf2127: add PCF2131
+Message-ID: <YgMzmzMemyUGHLON@robh.at.kernel.org>
+References: <20220125200009.900660-1-hugo@hugovil.com>
+ <20220125200009.900660-10-hugo@hugovil.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220208161049.865402-1-carlos.bilbao@amd.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20220125200009.900660-10-hugo@hugovil.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Carlos,
+On Tue, Jan 25, 2022 at 03:00:08PM -0500, Hugo Villeneuve wrote:
+> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> 
+> Add support for new NXP RTC PCF2131.
+> 
+> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> ---
+>  .../devicetree/bindings/rtc/nxp,pcf2127.yaml  | 19 ++++++++++++++++++-
+>  1 file changed, 18 insertions(+), 1 deletion(-)
 
-Thank you for the patch! Yet something to improve:
-
-[auto build test ERROR on geert-m68k/for-next]
-[also build test ERROR on tip/timers/core tip/x86/core linus/master v5.17-rc3]
-[cannot apply to next-20220208]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/0day-ci/linux/commits/Carlos-Bilbao/include-linux-Reorganize-timekeeping-and-ktime-headers/20220209-001309
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/geert/linux-m68k.git for-next
-config: alpha-randconfig-r001-20220208 (https://download.01.org/0day-ci/archive/20220209/202202090656.Bx5FpSa7-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/0day-ci/linux/commit/5ed7d76f2d6aabedc437bc0b99020dc655ab5719
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Carlos-Bilbao/include-linux-Reorganize-timekeeping-and-ktime-headers/20220209-001309
-        git checkout 5ed7d76f2d6aabedc437bc0b99020dc655ab5719
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=alpha SHELL=/bin/bash arch/alpha/kernel/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All errors (new ones prefixed by >>):
-
-   arch/alpha/kernel/osf_sys.c: In function '__do_sys_osf_settimeofday':
->> arch/alpha/kernel/osf_sys.c:1013:16: error: implicit declaration of function 'do_sys_settimeofday64'; did you mean 'sys_settimeofday'? [-Werror=implicit-function-declaration]
-    1013 |         return do_sys_settimeofday64(tv ? &kts : NULL, tz ? &ktz : NULL);
-         |                ^~~~~~~~~~~~~~~~~~~~~
-         |                sys_settimeofday
-   cc1: some warnings being treated as errors
-
-
-vim +1013 arch/alpha/kernel/osf_sys.c
-
-^1da177e4c3f415 Linus Torvalds  2005-04-16   997  
-e5d9a90c36e05dd Ivan Kokshaysky 2009-01-29   998  SYSCALL_DEFINE2(osf_settimeofday, struct timeval32 __user *, tv,
-e5d9a90c36e05dd Ivan Kokshaysky 2009-01-29   999  		struct timezone __user *, tz)
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1000  {
-ce4c253573ad184 Arnd Bergmann   2017-11-08  1001  	struct timespec64 kts;
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1002  	struct timezone ktz;
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1003  
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1004   	if (tv) {
-ce4c253573ad184 Arnd Bergmann   2017-11-08  1005  		if (get_tv32(&kts, tv))
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1006  			return -EFAULT;
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1007  	}
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1008  	if (tz) {
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1009  		if (copy_from_user(&ktz, tz, sizeof(*tz)))
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1010  			return -EFAULT;
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1011  	}
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1012  
-ce4c253573ad184 Arnd Bergmann   2017-11-08 @1013  	return do_sys_settimeofday64(tv ? &kts : NULL, tz ? &ktz : NULL);
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1014  }
-^1da177e4c3f415 Linus Torvalds  2005-04-16  1015  
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Reviewed-by: Rob Herring <robh@kernel.org>
