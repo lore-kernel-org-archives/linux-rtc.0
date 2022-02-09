@@ -2,131 +2,97 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB549C43217
-	for <linux-rtc@archiver.kernel.org>; Wed,  9 Feb 2022 04:07:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89E7AC433F5
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Feb 2022 18:34:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345311AbiBIEHo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Feb 2022 23:07:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
+        id S239401AbiBISeA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Feb 2022 13:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344316AbiBIDUc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Feb 2022 22:20:32 -0500
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40690C0613CC;
-        Tue,  8 Feb 2022 19:20:31 -0800 (PST)
-Received: by mail-ot1-f42.google.com with SMTP id x52-20020a05683040b400b0059ea92202daso644240ott.7;
-        Tue, 08 Feb 2022 19:20:31 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=kdQVNApM57taqQgD/NZRSOMXZsBoQXgaGeZXyEv+t4I=;
-        b=QqombAXYQZa/PGhtpCItQ0hJV38gvViubn757gp/sUNAz73mIIevOVxYiaJUOkLdxZ
-         V4HiEFJ0WhPornk6A1tPq0uf9VvJHoPnF7fGyResrnDI/djQbvKcf7nG+Qb75fP/jNoz
-         58Aq+9AofZzvtzWI3ONKkWkgVy/Qt/rTQOGIort4FITJw8mQhFnvPEnyCrMYHDmXRqTL
-         fERsvCx4Drix16ecYrA5LlVp/aOwjCHRq4JixMTcFsD0C2imEa9bfmXqb/gMmzKQYd6k
-         CPXGd3AShUWMbO0OOcSXtZEfIpsa88BNjAbrUxtLf3wHVZGH9pC5iaK8/GV4u6KcSC5T
-         T37w==
-X-Gm-Message-State: AOAM5338TvqpHkUdQTd0lzm8x46zYx2xGZuXn0V+3xokGOnBeAqZQDT9
-        5hoYOcQDORnlm37/5S4agQahj819Fg==
-X-Google-Smtp-Source: ABdhPJyDXby0X48vpe/WjclBIIse+1y7tQFhP5v+u0kUS+sXrbfyjK6JDuWFThkBPr1v+Zg0wgZ9zg==
-X-Received: by 2002:a05:6830:2466:: with SMTP id x38mr162568otr.33.1644376830320;
-        Tue, 08 Feb 2022 19:20:30 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id t2sm6190687ooo.24.2022.02.08.19.20.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Feb 2022 19:20:29 -0800 (PST)
-Received: (nullmailer pid 3567489 invoked by uid 1000);
-        Wed, 09 Feb 2022 03:20:28 -0000
-Date:   Tue, 8 Feb 2022 21:20:28 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Hugo Villeneuve <hugo@hugovil.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S239356AbiBISdy (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Feb 2022 13:33:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC95FC05CB8A;
+        Wed,  9 Feb 2022 10:33:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BBE9B82385;
+        Wed,  9 Feb 2022 18:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33228C36AE7;
+        Wed,  9 Feb 2022 18:33:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1644431634;
+        bh=Kp3T8Uq/wmdAQIvGZCoRhZ+9BMeChwVbO3ac4eqCP1g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pjjAyhzjTWSwZC3vK0eV84Ki9kvilUF4oOtZECaOD81W7TiKy7v/teBMCJQZKhT0j
+         kDqIV4QEUYf+czHKzQPLGhrmhwLjhPy5z40QPdp2kxt+WQIGCNOLlE9SgahG6Cui92
+         xfxsLTxRkcOc0sOl2iccKAuDsquUAtnqxUO+tNIzbxZVjNxDXGlU1GoN5WfpIXBOPW
+         EDWAp1QV7K2cnED1fLPc3G7Wjc9VTZjcaALGJAhjtbPKQhmXf6sbtDlkR6rWi0fFUW
+         mOpNS8fZGwlRoHZyFxVOqArjO6AoRZTpE5hHYuj3MObor6FTn9epYKSCyep6o51zXL
+         k6btDoXljieMg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     =?UTF-8?q?N=C3=ADcolas=20F=2E=20R=2E=20A=2E=20Prado?= 
+        <nfraprado@collabora.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Hugo Villeneuve <hvilleneuve@dimonoff.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/10] dt-bindings: rtc: pcf2127: add PCF2131 INT_A and
- INT_B support
-Message-ID: <YgMy/CYL8lmf6Y+J@robh.at.kernel.org>
-References: <20220125200009.900660-1-hugo@hugovil.com>
- <20220125200009.900660-11-hugo@hugovil.com>
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
+        shuah@kernel.org, linux-rtc@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 06/42] selftests: rtc: Increase test timeout so that all tests run
+Date:   Wed,  9 Feb 2022 13:32:38 -0500
+Message-Id: <20220209183335.46545-6-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220209183335.46545-1-sashal@kernel.org>
+References: <20220209183335.46545-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220125200009.900660-11-hugo@hugovil.com>
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 03:00:09PM -0500, Hugo Villeneuve wrote:
-> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> 
-> The PCF2131 has two output interrupt pins, named INT_A and INT_B.
-> 
-> Add properties to identify onto which pin we want the alarm interrupt
-> to be routed. It can be either one, or both.
-> 
-> These properties are automatically set to false for variants other
-> than PCF2131 (ex: PCF2127).
-> 
-> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> ---
->  .../devicetree/bindings/rtc/nxp,pcf2127.yaml  | 23 +++++++++++++++++++
->  1 file changed, 23 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
-> index 57eb0a58afa3..83656dd2f97f 100644
-> --- a/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf2127.yaml
-> @@ -24,6 +24,16 @@ properties:
->    interrupts:
->      maxItems: 1
->  
-> +  alarm-output-a:
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-nxp,alarm-output-a
+[ Upstream commit f034cc1301e7d83d4ec428dd6b8ffb57ca446efb ]
 
-> +    $ref: /schemas/types.yaml#/definitions/flag
-> +    description:
-> +      Enable alarm interrupt on INT_A output pin.
-> +
-> +  alarm-output-b:
-> +    $ref: /schemas/types.yaml#/definitions/flag
-> +    description:
-> +      Enable alarm interrupt on INT_B output pin.
-> +
->    start-year: true
->  
->    reset-source: true
-> @@ -32,6 +42,18 @@ required:
->    - compatible
->    - reg
->  
-> +if:
-> +  not:
-> +    properties:
-> +      compatible:
-> +        contains:
-> +          enum:
-> +            - nxp,pcf2131
-> +then:
-> +  properties:
-> +    alarm-output-a: false
-> +    alarm-output-b: false
-> +
->  additionalProperties: false
->  
->  examples:
-> @@ -62,6 +84,7 @@ examples:
->              pinctrl-0 = <&rtc_nint_pins>;
->              interrupts-extended = <&gpio1 16 IRQ_TYPE_LEVEL_HIGH>;
->              reset-source;
-> +            alarm-output-b;
->          };
->      };
->  
-> -- 
-> 2.30.2
-> 
-> 
+The timeout setting for the rtc kselftest is currently 90 seconds. This
+setting is used by the kselftest runner to stop running a test if it
+takes longer than the assigned value.
+
+However, two of the test cases inside rtc set alarms. These alarms are
+set to the next beginning of the minute, so each of these test cases may
+take up to, in the worst case, 60 seconds.
+
+In order to allow for all test cases in rtc to run, even in the worst
+case, when using the kselftest runner, the timeout value should be
+increased to at least 120. Set it to 180, so there's some additional
+slack.
+
+Correct operation can be tested by running the following command right
+after the start of a minute (low second count), and checking that all
+test cases run:
+
+	./run_kselftest.sh -c rtc
+
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ tools/testing/selftests/rtc/settings | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/rtc/settings b/tools/testing/selftests/rtc/settings
+index ba4d85f74cd6b..a953c96aa16e1 100644
+--- a/tools/testing/selftests/rtc/settings
++++ b/tools/testing/selftests/rtc/settings
+@@ -1 +1 @@
+-timeout=90
++timeout=180
+-- 
+2.34.1
+
