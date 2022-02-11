@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC8ABC43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5F4FC4332F
 	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:36:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353301AbiBKUgG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Feb 2022 15:36:06 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35432 "EHLO
+        id S1353296AbiBKUgF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Feb 2022 15:36:05 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353284AbiBKUgC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:36:02 -0500
+        with ESMTP id S235821AbiBKUf7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:35:59 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A66ACFC;
-        Fri, 11 Feb 2022 12:36:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795C5CF1;
+        Fri, 11 Feb 2022 12:35:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=FocTTLbGGS2pUrmG79NzHvWl04JBNMr4U1VpELUhKqg=; b=hnnc0LD5De+QNhrnJeq1MPZGcZ
-        dvrLE4ZVrhDbWpaIVlqpzyuQfnm11abBK/Td0EtEUYpAo9LGackl9VFrmdepfQWVoiwpSrLSxtjRN
-        dWr7pEZzGEtQvBmuv6e189SCIhj/TbFa0kwGzONn5P278GKhpZBrLNKRiiDboFbLvYPY=;
+        bh=Wv4FHJN/eexiTb373COf63qSzuJufwmU8rnNAU+bfGY=; b=DYsvLqIW9WnTWiLsN4RYb+3lrG
+        0ic3hMxOF8TbBt2GP5HkK1eDVcITCd11wOxWBW8udJiXQn6KS6EXziZg7L6usUaUbtigH8MZRRFev
+        jLcs4Ah7NCwo5hffzWLUI3L+qBBTFBnMScHzetKOqYrLJnnRMlK2BvhrJbC4niebA+cQ=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:55274 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1nIce5-0005vF-CS; Fri, 11 Feb 2022 15:35:58 -0500
+        id 1nIce2-0005vF-8H; Fri, 11 Feb 2022 15:35:54 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     hvilleneuve@dimonoff.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com
 Cc:     hugo@hugovil.com, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 11 Feb 2022 15:35:17 -0500
-Message-Id: <20220211203520.3902374-12-hugo@hugovil.com>
+Date:   Fri, 11 Feb 2022 15:35:14 -0500
+Message-Id: <20220211203520.3902374-9-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220211203520.3902374-1-hugo@hugovil.com>
 References: <20220211203520.3902374-1-hugo@hugovil.com>
@@ -41,7 +41,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH 11/14] rtc: pcf2127: adapt time/date registers write sequence for PCF2131
+Subject: [PATCH 08/14] rtc: pcf2127: add support for PCF2131 interrupts on output INT_A
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,91 +50,101 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-The sequence for updating the time/date registers is slightly
-different between PCF2127/29 and PCF2131.
+The PCF2127 and PCF2129 have one output interrupt pin. The PCF2131 has
+two, named INT_A and INT_B. The hardware support that any interrupt
+source can be routed to either one or both of them.
 
-For PCF2127/29, during write operations, the time counting
-circuits (memory locations 03h through 09h) are automatically blocked.
+Force all interrupt sources to go to the INT A pin.
 
-For PCF2131, time/date registers write access requires setting the
-STOP bit and sending the clear prescaler instruction (CPR). STOP then
-needs to be released once write operation is completed.
+Support to route any interrupt source to INT A/B pins is not supported
+by this driver at the moment.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf2127.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 8f3b34efff7f..84ec7d5fda59 100644
+index a52af7465d69..ee1e9d8285bb 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -39,6 +39,7 @@
- #define PCF2127_REG_CTRL1		0x00
- #define PCF2127_BIT_CTRL1_POR_OVRD		BIT(3)
- #define PCF2127_BIT_CTRL1_TSF1			BIT(4)
-+#define PCF2127_BIT_CTRL1_STOP			BIT(5)
- /* Control register 2 */
- #define PCF2127_REG_CTRL2		0x01
- #define PCF2127_BIT_CTRL2_AIE			BIT(1)
-@@ -70,6 +71,7 @@
- #define PCF2131_REG_SR_RESET		0x05
- #define PCF2131_SR_RESET_READ_PATTERN	0b00100100 /* Fixed pattern. */
- #define PCF2131_SR_RESET_RESET_CMD	0x2C /* SR is bit 3. */
-+#define PCF2131_SR_RESET_CPR_CMD	0xA4 /* CPR is bit 7. */
- /* Time and date registers */
- #define PCF2127_REG_TIME_DATE_BASE	0x03
- #define PCF2131_REG_TIME_DATE_BASE	0x07 /* Register 0x06 is 100th seconds,
-@@ -307,7 +309,31 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	/* year */
- 	buf[i++] = bin2bcd(tm->tm_year - 100);
- 
--	/* write register's data */
-+	/* Write access to time registers:
-+	 * PCF2127/29: no special action required.
-+	 * PCF2131:    requires setting the STOP bit. STOP bit needs to
-+	 *             be cleared after time registers are updated.
-+	 *             It is also recommended to set CPR bit, although
-+	 *             write access will work without it.
-+	 */
-+	if (pcf2127->cfg->has_reset_reg) {
-+		err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-+					 PCF2127_BIT_CTRL1_STOP,
-+					 PCF2127_BIT_CTRL1_STOP);
-+		if (err) {
-+			dev_err(dev, "setting STOP bit failed\n");
-+			return err;
-+		}
-+
-+		err = regmap_write(pcf2127->regmap, pcf2127->cfg->reg_reset,
-+				   PCF2131_SR_RESET_CPR_CMD);
-+		if (err) {
-+			dev_err(dev, "sending CPR cmd failed\n");
-+			return err;
-+		}
-+	}
-+
-+	/* write time register's data */
- 	err = regmap_bulk_write(pcf2127->regmap, pcf2127->cfg->regs_td_base, buf, i);
- 	if (err) {
- 		dev_err(dev,
-@@ -315,6 +341,16 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		return err;
- 	}
- 
-+	if (pcf2127->cfg->has_reset_reg) {
-+		/* Clear STOP bit (PCF2131 only) after write is completed. */
-+		err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-+					 PCF2127_BIT_CTRL1_STOP, 0);
-+		if (err) {
-+			dev_err(dev, "clearing STOP bit failed\n");
-+			return err;
-+		}
-+	}
-+
- 	return 0;
+@@ -191,6 +191,7 @@ struct pcf21xx_config {
+ 	int max_register;
+ 	unsigned int has_nvmem:1;
+ 	unsigned int has_bit_wd_ctl_cd0:1;
++	unsigned int has_int_a_b:1; /* PCF2131 supports two interrupt outputs. */
+ 	u8 regs_td_base; /* Time/data base registers. */
+ 	u8 regs_alarm_base; /* Alarm function base registers. */
+ 	u8 reg_wd_ctl; /* Watchdog control register. */
+@@ -879,6 +880,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x1d,
+ 		.has_nvmem = 1,
+ 		.has_bit_wd_ctl_cd0 = 1,
++		.has_int_a_b = 0,
+ 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+@@ -902,6 +904,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x19,
+ 		.has_nvmem = 0,
+ 		.has_bit_wd_ctl_cd0 = 0,
++		.has_int_a_b = 0,
+ 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+@@ -925,6 +928,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x36,
+ 		.has_nvmem = 0,
+ 		.has_bit_wd_ctl_cd0 = 0,
++		.has_int_a_b = 1,
+ 		.regs_td_base = PCF2131_REG_TIME_DATE_BASE,
+ 		.regs_alarm_base = PCF2131_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2131_REG_WD_CTL,
+@@ -1017,6 +1021,28 @@ static int pcf2127_enable_ts(struct device *dev, int ts_id)
+ 	return ret;
  }
  
++/* Route all interrupt sources to INT A pin. */
++static int pcf2127_configure_interrupt_pins(struct device *dev)
++{
++	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
++	int ret;
++
++	/* Mask bits need to be cleared to enable corresponding
++	 * interrupt source.
++	 */
++	ret = regmap_write(pcf2127->regmap,
++			   PCF2131_REG_INT_A_MASK1, 0);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(pcf2127->regmap,
++			   PCF2131_REG_INT_A_MASK2, 0);
++	if (ret)
++		return ret;
++
++	return ret;
++}
++
+ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 			 int alarm_irq, const char *name, const struct pcf21xx_config *config)
+ {
+@@ -1075,6 +1101,15 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
+ 	}
+ 
++	if (pcf2127->cfg->has_int_a_b) {
++		/* Configure int A/B pins, independently of alarm_irq. */
++		ret = pcf2127_configure_interrupt_pins(dev);
++		if (ret) {
++			dev_err(dev, "failed to configure interrupt pins\n");
++			return ret;
++		}
++	}
++
+ 	if (pcf2127->cfg->has_nvmem) {
+ 		struct nvmem_config nvmem_cfg = {
+ 			.priv = pcf2127,
 -- 
 2.30.2
 
