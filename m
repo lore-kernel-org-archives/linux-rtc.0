@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5F4FC4332F
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:36:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E86C43217
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:36:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353296AbiBKUgF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Feb 2022 15:36:05 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35386 "EHLO
+        id S244892AbiBKUgG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Feb 2022 15:36:06 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235821AbiBKUf7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:35:59 -0500
+        with ESMTP id S1353287AbiBKUgC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:36:02 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795C5CF1;
-        Fri, 11 Feb 2022 12:35:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7A9CF9;
+        Fri, 11 Feb 2022 12:35:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Wv4FHJN/eexiTb373COf63qSzuJufwmU8rnNAU+bfGY=; b=DYsvLqIW9WnTWiLsN4RYb+3lrG
-        0ic3hMxOF8TbBt2GP5HkK1eDVcITCd11wOxWBW8udJiXQn6KS6EXziZg7L6usUaUbtigH8MZRRFev
-        jLcs4Ah7NCwo5hffzWLUI3L+qBBTFBnMScHzetKOqYrLJnnRMlK2BvhrJbC4niebA+cQ=;
+        bh=szliCvhlN5Z9BaTB8NpXRzmfXL5JLtC0U/5WIBQHRGk=; b=BRh/uUiG+rFL3jtQbFPIQZUU10
+        yz+IIB9g6/hXPIKNCwTpENbTnXs+wpPYfXOtMG2wd4YxGvZfbwBPxqvU0vpXLiyRGIU1EnDWrYZEV
+        MepC/oalOwvQ1qOlR8/AKbF5DR1Oi/Ucd09un7NXJai8hY1dF7CTswvPKkl+E9WSulM4=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:55274 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1nIce2-0005vF-8H; Fri, 11 Feb 2022 15:35:54 -0500
+        id 1nIce4-0005vF-A3; Fri, 11 Feb 2022 15:35:56 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     hvilleneuve@dimonoff.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com
 Cc:     hugo@hugovil.com, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 11 Feb 2022 15:35:14 -0500
-Message-Id: <20220211203520.3902374-9-hugo@hugovil.com>
+Date:   Fri, 11 Feb 2022 15:35:16 -0500
+Message-Id: <20220211203520.3902374-11-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220211203520.3902374-1-hugo@hugovil.com>
 References: <20220211203520.3902374-1-hugo@hugovil.com>
@@ -41,7 +41,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH 08/14] rtc: pcf2127: add support for PCF2131 interrupts on output INT_A
+Subject: [PATCH 10/14] rtc: pcf2127: read and validate PCF2131 device signature
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,101 +50,83 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-The PCF2127 and PCF2129 have one output interrupt pin. The PCF2131 has
-two, named INT_A and INT_B. The hardware support that any interrupt
-source can be routed to either one or both of them.
-
-Force all interrupt sources to go to the INT A pin.
-
-Support to route any interrupt source to INT A/B pins is not supported
-by this driver at the moment.
+Make sure the device we are probing is really the device we are
+interested in.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/rtc/rtc-pcf2127.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index a52af7465d69..ee1e9d8285bb 100644
+index 09b3d0ef4eff..8f3b34efff7f 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -191,6 +191,7 @@ struct pcf21xx_config {
- 	int max_register;
+@@ -193,11 +193,13 @@ struct pcf21xx_config {
  	unsigned int has_nvmem:1;
  	unsigned int has_bit_wd_ctl_cd0:1;
-+	unsigned int has_int_a_b:1; /* PCF2131 supports two interrupt outputs. */
+ 	unsigned int has_int_a_b:1; /* PCF2131 supports two interrupt outputs. */
++	unsigned int has_reset_reg:1; /* If variant has a reset register. */
  	u8 regs_td_base; /* Time/data base registers. */
  	u8 regs_alarm_base; /* Alarm function base registers. */
  	u8 reg_wd_ctl; /* Watchdog control register. */
-@@ -879,6 +880,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.max_register = 0x1d,
+ 	u8 reg_wd_val; /* Watchdog value register. */
+ 	u8 reg_clkout; /* Clkout register. */
++	u8 reg_reset;  /* Reset register if available. */
+ 	unsigned int ts_count;
+ 	struct pcf21xx_ts_config ts[4];
+ 	struct attribute_group attribute_group;
+@@ -882,6 +884,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
  		.has_nvmem = 1,
  		.has_bit_wd_ctl_cd0 = 1,
-+		.has_int_a_b = 0,
+ 		.has_int_a_b = 0,
++		.has_reset_reg = 0,
  		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
  		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
  		.reg_wd_ctl = PCF2127_REG_WD_CTL,
-@@ -902,6 +904,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.max_register = 0x19,
+@@ -906,6 +909,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
  		.has_nvmem = 0,
  		.has_bit_wd_ctl_cd0 = 0,
-+		.has_int_a_b = 0,
+ 		.has_int_a_b = 0,
++		.has_reset_reg = 0,
  		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
  		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
  		.reg_wd_ctl = PCF2127_REG_WD_CTL,
-@@ -925,6 +928,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.max_register = 0x36,
+@@ -930,11 +934,13 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
  		.has_nvmem = 0,
  		.has_bit_wd_ctl_cd0 = 0,
-+		.has_int_a_b = 1,
+ 		.has_int_a_b = 1,
++		.has_reset_reg = 1,
  		.regs_td_base = PCF2131_REG_TIME_DATE_BASE,
  		.regs_alarm_base = PCF2131_REG_ALARM_BASE,
  		.reg_wd_ctl = PCF2131_REG_WD_CTL,
-@@ -1017,6 +1021,28 @@ static int pcf2127_enable_ts(struct device *dev, int ts_id)
- 	return ret;
- }
+ 		.reg_wd_val = PCF2131_REG_WD_VAL,
+ 		.reg_clkout = PCF2131_REG_CLKOUT,
++		.reg_reset  = PCF2131_REG_SR_RESET,
+ 		.ts_count = 4,
+ 		.ts[0] = {
+ 			.regs_base = PCF2131_REG_TS1_BASE,
+@@ -1074,6 +1080,20 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 	pcf2127->rtc->uie_unsupported = 1;
+ 	clear_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
  
-+/* Route all interrupt sources to INT A pin. */
-+static int pcf2127_configure_interrupt_pins(struct device *dev)
-+{
-+	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/* Mask bits need to be cleared to enable corresponding
-+	 * interrupt source.
-+	 */
-+	ret = regmap_write(pcf2127->regmap,
-+			   PCF2131_REG_INT_A_MASK1, 0);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(pcf2127->regmap,
-+			   PCF2131_REG_INT_A_MASK2, 0);
-+	if (ret)
-+		return ret;
-+
-+	return ret;
-+}
-+
- static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 			 int alarm_irq, const char *name, const struct pcf21xx_config *config)
- {
-@@ -1075,6 +1101,15 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
- 		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
- 	}
- 
-+	if (pcf2127->cfg->has_int_a_b) {
-+		/* Configure int A/B pins, independently of alarm_irq. */
-+		ret = pcf2127_configure_interrupt_pins(dev);
-+		if (ret) {
-+			dev_err(dev, "failed to configure interrupt pins\n");
++	/* Read device signature if available. */
++	if (pcf2127->cfg->has_reset_reg) {
++		ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_reset, &val);
++		if (ret < 0) {
++			dev_err(dev, "reading RESET register failed\n");
 +			return ret;
++		}
++
++		if (val != PCF2131_SR_RESET_READ_PATTERN) {
++			dev_err(dev, "invalid device signature: $%02X\n", (u8)val);
++			return -ENODEV;
 +		}
 +	}
 +
- 	if (pcf2127->cfg->has_nvmem) {
- 		struct nvmem_config nvmem_cfg = {
- 			.priv = pcf2127,
+ 	if (alarm_irq > 0) {
+ 		unsigned long flags;
+ 
 -- 
 2.30.2
 
