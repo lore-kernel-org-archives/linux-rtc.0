@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5618EC43219
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:51:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E339C433FE
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:51:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353478AbiBKUvT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Feb 2022 15:51:19 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45418 "EHLO
+        id S1346131AbiBKUvU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Feb 2022 15:51:20 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353529AbiBKUvP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:51:15 -0500
+        with ESMTP id S1353489AbiBKUvO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:51:14 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D24D98;
-        Fri, 11 Feb 2022 12:51:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B7E5D47;
+        Fri, 11 Feb 2022 12:51:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=K2AaiHeuAPOhUIx+banJClIWKx7DCqmxRbmOpC7PYoY=; b=AdkkNlLnGpF96EFRIU/3tdeQFS
-        ITPHTAksVBNQhSzw3c5YrPJY/2cuEj+8Ga0ggADELbUbpU4DGuYgQ/stNP2bkYNRn5da81oh2GILK
-        MLtjyn+9BC1XfJqWsg2WlZFgS1oLb+0GmExxmvYMIXzzgzUcqq2OwjN7iFB/VhFfL+JA=;
+        bh=LDgI3NKyR0PW8j6XTLsS22/qvHpHAXh0SRJ/GdUUxNk=; b=jFY+FWwvZq2QZMpkScuWODlrxu
+        V8Vd1AjqRDiLQL0O3wCCd5mJlo0hjiu4YnCAXHtacgCjBOA7z6/LTNdgQvL7kTcwbNF2vcx/l8JKg
+        UW6GNCospB7VRtP9Xqdd5KTNVHAj+VjhE69RAk9vOYkP/GfyP+DQiXg9C7ElZdEOpCX8=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:55280 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1nIcsg-00067w-LQ; Fri, 11 Feb 2022 15:51:03 -0500
+        id 1nIcsZ-00067w-Jb; Fri, 11 Feb 2022 15:50:57 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     hvilleneuve@dimonoff.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com
 Cc:     hugo@hugovil.com, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 11 Feb 2022 15:50:27 -0500
-Message-Id: <20220211205029.3940756-13-hugo@hugovil.com>
+Date:   Fri, 11 Feb 2022 15:50:22 -0500
+Message-Id: <20220211205029.3940756-8-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220211205029.3940756-1-hugo@hugovil.com>
 References: <20220211205029.3940756-1-hugo@hugovil.com>
@@ -41,7 +41,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v2 12/14] rtc: pcf2127: support generic watchdog timing configuration
+Subject: [PATCH v2 07/14] rtc: pcf2127: add support for PCF2131 RTC
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,137 +50,432 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Introduce in the configuration structure two new values to hold the
-watchdog clock source and the min_hw_heartbeat_ms value.
+This RTC is very similar in functionality to the PCF2127/29.
 
-The minimum and maximum timeout values are automatically computed from
-the watchdog clock source value for each variant.
+Basically it:
+  -supports two new control registers at offsets 4 and 5
+  -supports a new reset register (not implemented in this driver)
+  -supports 4 tamper detection functions instead of 1
+  -has no nvmem (like the PCF2129)
+  -has two output interrupt pins
 
-The PCF2131 has no 1Hz watchdog clock source, as is the case for
-PCF2127/29.
-
-The next best choice is using a 1/4Hz clock, giving a watchdog timeout
-range between 4 and 1016s. By using the same register configuration as
-for the PCF2127/29, the 1/4Hz clock source is selected.
-
-Note: the PCF2127 datasheet gives a min/max range between 1 and 255s,
-but it should be between 2 and 254s, because the watchdog is triggered
-when the timer value reaches 1, not 0.
+Because of that, most of the register addresses are very different,
+although they still follow the same layout. For example, the tamper
+registers have a different base address, but the offsets are all the same.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 56 +++++++++++++++++++++++++++++++++------
- 1 file changed, 48 insertions(+), 8 deletions(-)
+ drivers/rtc/Kconfig       |   4 +-
+ drivers/rtc/rtc-pcf2127.c | 234 ++++++++++++++++++++++++++++++++++----
+ 2 files changed, 215 insertions(+), 23 deletions(-)
 
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index d85a3c31347c..9b083ca6b4c4 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -899,9 +899,9 @@ config RTC_DRV_PCF2127
+ 	select REGMAP_SPI if SPI_MASTER
+ 	select WATCHDOG_CORE if WATCHDOG
+ 	help
+-	  If you say yes here you get support for the NXP PCF2127/29 RTC
++	  If you say yes here you get support for the NXP PCF2127/29/31 RTC
+ 	  chips with integrated quartz crystal for industrial applications.
+-	  Both chips also have watchdog timer and tamper switch detection
++	  These chips also have watchdog timer and tamper switch detection
+ 	  features.
+ 
+ 	  PCF2127 has an additional feature of 512 bytes battery backed
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 84ec7d5fda59..7733122ac971 100644
+index 841b928e1415..a52af7465d69 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -157,9 +157,29 @@
+@@ -1,16 +1,26 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * An I2C and SPI driver for the NXP PCF2127/29 RTC
++ * An I2C and SPI driver for the NXP PCF2127/29/31 RTC
+  * Copyright 2013 Til-Technologies
++ * Copyright 2021 DimOnOff
+  *
+  * Author: Renaud Cerrato <r.cerrato@til-technologies.fr>
+  *
+  * Watchdog and tamper functions
+  * Author: Bruno Thomsen <bruno.thomsen@gmail.com>
+  *
++ * PCF2131 support
++ * Author: Hugo Villeneuve <hvilleneuve@dimonoff.com>
++ *
+  * based on the other drivers in this same directory.
+  *
+- * Datasheet: https://www.nxp.com/docs/en/data-sheet/PCF2127.pdf
++ * Datasheets: https://www.nxp.com/docs/en/data-sheet/PCF2127.pdf
++ *             https://www.nxp.com/docs/en/data-sheet/PCF2131DS.pdf
++ */
++
++/*
++ * The following features are not yet implemented for the PCF2131:
++ *   - support for 1/100th seconds
+  */
+ 
+ #include <linux/i2c.h>
+@@ -43,8 +53,30 @@
+ #define PCF2127_BIT_CTRL3_BLF			BIT(2)
+ #define PCF2127_BIT_CTRL3_BF			BIT(3)
+ #define PCF2127_BIT_CTRL3_BTSE			BIT(4)
++/* Control register 4 */
++#define PCF2131_REG_CTRL4		0x03
++#define PCF2131_BIT_CTRL4_TSF4			BIT(4)
++#define PCF2131_BIT_CTRL4_TSF3			BIT(5)
++#define PCF2131_BIT_CTRL4_TSF2			BIT(6)
++#define PCF2131_BIT_CTRL4_TSF1			BIT(7)
++/* Control register 5 */
++#define PCF2131_REG_CTRL5		0x04
++#define PCF2131_BIT_CTRL5_TSIE4			BIT(4)
++#define PCF2131_BIT_CTRL5_TSIE3			BIT(5)
++#define PCF2131_BIT_CTRL5_TSIE2			BIT(6)
++#define PCF2131_BIT_CTRL5_TSIE1			BIT(7)
++/* Software reset register */
++#define PCF2131_REG_SR_RESET		0x05
++#define PCF2131_SR_RESET_READ_PATTERN	0b00100100 /* Fixed pattern. */
++#define PCF2131_SR_RESET_RESET_CMD	0x2C /* SR is bit 3. */
+ /* Time and date registers */
+ #define PCF2127_REG_TIME_DATE_BASE	0x03
++#define PCF2131_REG_TIME_DATE_BASE	0x07 /* Register 0x06 is 100th seconds,
++					      * but we do not support it. By
++					      * using offset 0x07, we can be
++					      * compatible with existing
++					      * time/date functions.
++					      */
+ /* Time and date registers offsets (starting from base register) */
+ #define PCF2127_OFFSET_TD_SC		0
+ #define PCF2127_OFFSET_TD_MN		1
+@@ -57,6 +89,7 @@
+ #define PCF2127_BIT_SC_OSF			BIT(7)
+ /* Alarm registers */
+ #define PCF2127_REG_ALARM_BASE		0x0A
++#define PCF2131_REG_ALARM_BASE		0x0E
+ /* Alarm registers offsets (starting from base register) */
+ #define PCF2127_OFFSET_ALARM_SC		0
+ #define PCF2127_OFFSET_ALARM_MN		1
+@@ -67,16 +100,26 @@
+ #define PCF2127_BIT_ALARM_AE			BIT(7)
+ /* CLKOUT control register */
+ #define PCF2127_REG_CLKOUT		0x0f
++#define PCF2131_REG_CLKOUT		0x13
+ #define PCF2127_BIT_CLKOUT_OTPR			BIT(5)
+ /* Watchdog registers */
+ #define PCF2127_REG_WD_CTL		0x10
++#define PCF2131_REG_WD_CTL		0x35
+ #define PCF2127_BIT_WD_CTL_TF0			BIT(0)
+ #define PCF2127_BIT_WD_CTL_TF1			BIT(1)
+ #define PCF2127_BIT_WD_CTL_CD0			BIT(6)
+ #define PCF2127_BIT_WD_CTL_CD1			BIT(7)
+ #define PCF2127_REG_WD_VAL		0x11
++#define PCF2131_REG_WD_VAL		0x36
+ /* Tamper timestamp1 registers */
+ #define PCF2127_REG_TS1_BASE		0x12
++#define PCF2131_REG_TS1_BASE		0x14
++/* Tamper timestamp2 registers */
++#define PCF2131_REG_TS2_BASE		0x1B
++/* Tamper timestamp3 registers */
++#define PCF2131_REG_TS3_BASE		0x22
++/* Tamper timestamp4 registers */
++#define PCF2131_REG_TS4_BASE		0x29
+ /* Tamper timestamp registers common offsets (starting from base register) */
+ #define PCF2127_OFFSET_TS_CTL		0
+ #define PCF2127_OFFSET_TS_SC		1
+@@ -92,11 +135,22 @@
+  * RAM registers
+  * PCF2127 has 512 bytes general-purpose static RAM (SRAM) that is
+  * battery backed and can survive a power outage.
+- * PCF2129 doesn't have this feature.
++ * PCF2129/31 doesn't have this feature.
+  */
+ #define PCF2127_REG_RAM_ADDR_MSB	0x1A
+ #define PCF2127_REG_RAM_WRT_CMD		0x1C
+ #define PCF2127_REG_RAM_RD_CMD		0x1D
++/* Interrupt mask registers */
++#define PCF2131_REG_INT_A_MASK1		0x31
++#define PCF2131_REG_INT_A_MASK2		0x32
++#define PCF2131_REG_INT_B_MASK1		0x33
++#define PCF2131_REG_INT_B_MASK2		0x34
++#define PCF2131_BIT_INT_BLIE		BIT(0)
++#define PCF2131_BIT_INT_BIE		BIT(1)
++#define PCF2131_BIT_INT_AIE		BIT(2)
++#define PCF2131_BIT_INT_WD_CD		BIT(3)
++#define PCF2131_BIT_INT_SI		BIT(4)
++#define PCF2131_BIT_INT_MI		BIT(5)
  
  /* Watchdog timer value constants */
  #define PCF2127_WD_VAL_STOP		0
--#define PCF2127_WD_VAL_MIN		2
--#define PCF2127_WD_VAL_MAX		255
--#define PCF2127_WD_VAL_DEFAULT		60
-+#define PCF2127_WD_VAL_DEFAULT		60 /* In seconds. */
-+/* PCF2127/29 watchdog timer value constants */
-+#define PCF2127_WD_CLOCK_HZ_X1000	1000 /* 1Hz */
-+#define PCF2127_WD_MIN_HW_HEARTBEAT_MS	500
-+/* PCF2131 watchdog timer value constants */
-+#define PCF2131_WD_CLOCK_HZ_X1000	250  /* 1/4Hz */
-+#define PCF2131_WD_MIN_HW_HEARTBEAT_MS	4000
-+/*
-+ * Compute watchdog period, t, in seconds, from the WATCHDG_TIM_VAL register
-+ * value, n, and the clock frequency, f, in Hz.
-+ *
-+ * The PCF2127/29 datasheet gives t as:
-+ *   t = n / f
-+ * The PCF2131 datasheet gives t as:
-+ *   t = (n - 1) / f
-+ * For both variants, the watchdog is triggered when the WATCHDG_TIM_VAL reaches
-+ * the value 1, and not zero. Consequently, the equation from the PCF2131
-+ * datasheet seems to be the correct one for both variants.
-+ */
-+#define WD_PERIOD_S(_n_, _f1000_) ((1000 * ((_n_) - 1)) / (_f1000_))
-+
-+/* Compute value of WATCHDG_TIM_VAL to obtain period t, in seconds. */
-+#define WD_COUNTER(_t_, _f1000_) ((((_t_) * (_f1000_)) / 1000) + 1)
+@@ -110,6 +164,14 @@
+ 		PCF2127_BIT_CTRL2_AF | \
+ 		PCF2127_BIT_CTRL2_WDTF | \
+ 		PCF2127_BIT_CTRL2_TSF2)
++#define PCF2131_CTRL2_IRQ_MASK ( \
++		PCF2127_BIT_CTRL2_AF | \
++		PCF2127_BIT_CTRL2_WDTF)
++#define PCF2131_CTRL4_IRQ_MASK ( \
++		PCF2131_BIT_CTRL4_TSF4 | \
++		PCF2131_BIT_CTRL4_TSF3 | \
++		PCF2131_BIT_CTRL4_TSF2 | \
++		PCF2131_BIT_CTRL4_TSF1)
  
- /* Mask for currently enabled interrupts */
- #define PCF2127_CTRL1_IRQ_MASK (PCF2127_BIT_CTRL1_TSF1)
-@@ -202,6 +222,11 @@ struct pcf21xx_config {
- 	u8 reg_wd_val; /* Watchdog value register. */
- 	u8 reg_clkout; /* Clkout register. */
- 	u8 reg_reset;  /* Reset register if available. */
-+
-+	/* Watchdog configuration. */
-+	int wdd_clock_hz_x1000; /* Value in Hz multiplicated by 1000 */
-+	int wdd_min_hw_heartbeat_ms;
-+
- 	unsigned int ts_count;
- 	struct pcf21xx_ts_config ts[4];
- 	struct attribute_group attribute_group;
-@@ -496,10 +521,19 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
- 	pcf2127->wdd.parent = dev;
- 	pcf2127->wdd.info = &pcf2127_wdt_info;
- 	pcf2127->wdd.ops = &pcf2127_watchdog_ops;
--	pcf2127->wdd.min_timeout = PCF2127_WD_VAL_MIN;
--	pcf2127->wdd.max_timeout = PCF2127_WD_VAL_MAX;
--	pcf2127->wdd.timeout = PCF2127_WD_VAL_DEFAULT;
--	pcf2127->wdd.min_hw_heartbeat_ms = 500;
-+
-+	pcf2127->wdd.min_timeout =
-+		WD_PERIOD_S(2, pcf2127->cfg->wdd_clock_hz_x1000);
-+	pcf2127->wdd.max_timeout =
-+		WD_PERIOD_S(255, pcf2127->cfg->wdd_clock_hz_x1000);
-+	pcf2127->wdd.timeout = WD_COUNTER(PCF2127_WD_VAL_DEFAULT,
-+					  pcf2127->cfg->wdd_clock_hz_x1000);
-+
-+	dev_dbg(dev, "%s min = %ds\n", __func__, pcf2127->wdd.min_timeout);
-+	dev_dbg(dev, "%s max = %ds\n", __func__, pcf2127->wdd.max_timeout);
-+	dev_dbg(dev, "%s def = %d\n", __func__, pcf2127->wdd.timeout);
-+
-+	pcf2127->wdd.min_hw_heartbeat_ms = pcf2127->cfg->wdd_min_hw_heartbeat_ms;
- 	pcf2127->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
+ struct pcf21xx_ts_config {
+ 	u8 regs_base; /* Base register to read timestamp values. */
+@@ -370,7 +432,7 @@ static int pcf2127_wdt_set_timeout(struct watchdog_device *wdd,
+ }
  
- 	watchdog_set_drvdata(&pcf2127->wdd, pcf2127);
-@@ -926,6 +960,8 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
- 		.reg_wd_val = PCF2127_REG_WD_VAL,
- 		.reg_clkout = PCF2127_REG_CLKOUT,
-+		.wdd_clock_hz_x1000 = PCF2127_WD_CLOCK_HZ_X1000,
-+		.wdd_min_hw_heartbeat_ms = PCF2127_WD_MIN_HW_HEARTBEAT_MS,
- 		.ts_count = 1,
- 		.ts[0] = {
- 			.regs_base = PCF2127_REG_TS1_BASE,
-@@ -951,6 +987,8 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
- 		.reg_wd_val = PCF2127_REG_WD_VAL,
- 		.reg_clkout = PCF2127_REG_CLKOUT,
-+		.wdd_clock_hz_x1000 = PCF2127_WD_CLOCK_HZ_X1000,
-+		.wdd_min_hw_heartbeat_ms = PCF2127_WD_MIN_HW_HEARTBEAT_MS,
- 		.ts_count = 1,
- 		.ts[0] = {
- 			.regs_base = PCF2127_REG_TS1_BASE,
-@@ -977,6 +1015,8 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.reg_wd_val = PCF2131_REG_WD_VAL,
- 		.reg_clkout = PCF2131_REG_CLKOUT,
- 		.reg_reset  = PCF2131_REG_SR_RESET,
-+		.wdd_clock_hz_x1000 = PCF2131_WD_CLOCK_HZ_X1000,
-+		.wdd_min_hw_heartbeat_ms = PCF2131_WD_MIN_HW_HEARTBEAT_MS,
- 		.ts_count = 4,
- 		.ts[0] = {
- 			.regs_base = PCF2131_REG_TS1_BASE,
-@@ -1214,7 +1254,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ static const struct watchdog_info pcf2127_wdt_info = {
+-	.identity = "NXP PCF2127/PCF2129 Watchdog",
++	.identity = "NXP PCF2127/29/31 Watchdog",
+ 	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
+ };
  
- 	/*
+@@ -555,30 +617,64 @@ static void pcf2127_rtc_ts_snapshot(struct device *dev, int ts_id)
+ static irqreturn_t pcf2127_rtc_irq(int irq, void *dev)
+ {
+ 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+-	unsigned int ctrl1, ctrl2;
++	unsigned int ctrl2;
+ 	int ret = 0;
+ 
+-	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1, &ctrl1);
+-	if (ret)
+-		return IRQ_NONE;
+-
+ 	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+ 	if (ret)
+ 		return IRQ_NONE;
+ 
+-	if (!(ctrl1 & PCF2127_CTRL1_IRQ_MASK || ctrl2 & PCF2127_CTRL2_IRQ_MASK))
+-		return IRQ_NONE;
++	if (pcf2127->cfg->ts_count == 1) {
++		/* PCF2127/29 */
++		unsigned int ctrl1;
++
++		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL1, &ctrl1);
++		if (ret)
++			return IRQ_NONE;
++
++		if (!(ctrl1 & PCF2127_CTRL1_IRQ_MASK || ctrl2 & PCF2127_CTRL2_IRQ_MASK))
++			return IRQ_NONE;
+ 
+-	if (ctrl1 & PCF2127_BIT_CTRL1_TSF1 || ctrl2 & PCF2127_BIT_CTRL2_TSF2)
+-		pcf2127_rtc_ts_snapshot(dev, 0);
++		if (ctrl1 & PCF2127_BIT_CTRL1_TSF1 || ctrl2 & PCF2127_BIT_CTRL2_TSF2)
++			pcf2127_rtc_ts_snapshot(dev, 0);
+ 
+-	if (ctrl1 & PCF2127_CTRL1_IRQ_MASK)
+-		regmap_write(pcf2127->regmap, PCF2127_REG_CTRL1,
+-			ctrl1 & ~PCF2127_CTRL1_IRQ_MASK);
++		if (ctrl1 & PCF2127_CTRL1_IRQ_MASK)
++			regmap_write(pcf2127->regmap, PCF2127_REG_CTRL1,
++				     ctrl1 & ~PCF2127_CTRL1_IRQ_MASK);
++
++		if (ctrl2 & PCF2127_CTRL2_IRQ_MASK)
++			regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
++				     ctrl2 & ~PCF2127_CTRL2_IRQ_MASK);
++	} else {
++		/* PCF2131. */
++		unsigned int ctrl4;
++
++		ret = regmap_read(pcf2127->regmap, PCF2131_REG_CTRL4, &ctrl4);
++		if (ret)
++			return IRQ_NONE;
+ 
+-	if (ctrl2 & PCF2127_CTRL2_IRQ_MASK)
+-		regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
+-			ctrl2 & ~PCF2127_CTRL2_IRQ_MASK);
++		if (!(ctrl4 & PCF2131_CTRL4_IRQ_MASK || ctrl2 & PCF2131_CTRL2_IRQ_MASK))
++			return IRQ_NONE;
++
++		if (ctrl4 & PCF2131_CTRL4_IRQ_MASK) {
++			int i;
++			int tsf_bit = PCF2131_BIT_CTRL4_TSF1; /* Start at bit 7. */
++
++			for (i = 0; i < pcf2127->cfg->ts_count; i++) {
++				if (ctrl4 & tsf_bit)
++					pcf2127_rtc_ts_snapshot(dev, i);
++
++				tsf_bit = tsf_bit >> 1;
++			}
++
++			regmap_write(pcf2127->regmap, PCF2131_REG_CTRL4,
++				     ctrl4 & ~PCF2131_CTRL4_IRQ_MASK);
++		}
++
++		if (ctrl2 & PCF2131_CTRL2_IRQ_MASK)
++			regmap_write(pcf2127->regmap, PCF2127_REG_CTRL2,
++				     ctrl2 & ~PCF2131_CTRL2_IRQ_MASK);
++	}
+ 
+ 	if (ctrl2 & PCF2127_BIT_CTRL2_AF)
+ 		rtc_update_irq(pcf2127->rtc, 1, RTC_IRQF | RTC_AF);
+@@ -650,6 +746,27 @@ static ssize_t timestamp0_store(struct device *dev,
+ 	return timestamp_store(dev, attr, buf, count, 0);
+ };
+ 
++static ssize_t timestamp1_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	return timestamp_store(dev, attr, buf, count, 1);
++};
++
++static ssize_t timestamp2_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	return timestamp_store(dev, attr, buf, count, 2);
++};
++
++static ssize_t timestamp3_store(struct device *dev,
++				struct device_attribute *attr,
++				const char *buf, size_t count)
++{
++	return timestamp_store(dev, attr, buf, count, 3);
++};
++
+ static ssize_t timestamp_show(struct device *dev,
+ 			      struct device_attribute *attr, char *buf,
+ 			      int ts_id)
+@@ -714,16 +831,46 @@ static ssize_t timestamp0_show(struct device *dev,
+ 	return timestamp_show(dev, attr, buf, 0);
+ };
+ 
++static ssize_t timestamp1_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return timestamp_show(dev, attr, buf, 1);
++};
++
++static ssize_t timestamp2_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return timestamp_show(dev, attr, buf, 2);
++};
++
++static ssize_t timestamp3_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return timestamp_show(dev, attr, buf, 3);
++};
++
+ static DEVICE_ATTR_RW(timestamp0);
++static DEVICE_ATTR_RW(timestamp1);
++static DEVICE_ATTR_RW(timestamp2);
++static DEVICE_ATTR_RW(timestamp3);
+ 
+ static struct attribute *pcf2127_attrs[] = {
+ 	&dev_attr_timestamp0.attr,
+ 	NULL
+ };
+ 
++static struct attribute *pcf2131_attrs[] = {
++	&dev_attr_timestamp0.attr,
++	&dev_attr_timestamp1.attr,
++	&dev_attr_timestamp2.attr,
++	&dev_attr_timestamp3.attr,
++	NULL
++};
++
+ enum pcf21xx_type {
+ 	PCF2127,
+ 	PCF2129,
++	PCF2131,
+ 	PCF21XX_LAST_ID
+ };
+ 
+@@ -774,6 +921,48 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 			.attrs	= pcf2127_attrs,
+ 		},
+ 	},
++	[PCF2131] = {
++		.max_register = 0x36,
++		.has_nvmem = 0,
++		.has_bit_wd_ctl_cd0 = 0,
++		.regs_td_base = PCF2131_REG_TIME_DATE_BASE,
++		.regs_alarm_base = PCF2131_REG_ALARM_BASE,
++		.reg_wd_ctl = PCF2131_REG_WD_CTL,
++		.reg_wd_val = PCF2131_REG_WD_VAL,
++		.reg_clkout = PCF2131_REG_CLKOUT,
++		.ts_count = 4,
++		.ts[0] = {
++			.regs_base = PCF2131_REG_TS1_BASE,
++			.low_reg   = PCF2131_REG_CTRL4,
++			.low_bit   = PCF2131_BIT_CTRL4_TSF1,
++			.ie_reg    = PCF2131_REG_CTRL5,
++			.ie_bit    = PCF2131_BIT_CTRL5_TSIE1,
++		},
++		.ts[1] = {
++			.regs_base = PCF2131_REG_TS2_BASE,
++			.low_reg   = PCF2131_REG_CTRL4,
++			.low_bit   = PCF2131_BIT_CTRL4_TSF2,
++			.ie_reg    = PCF2131_REG_CTRL5,
++			.ie_bit    = PCF2131_BIT_CTRL5_TSIE2,
++		},
++		.ts[2] = {
++			.regs_base = PCF2131_REG_TS3_BASE,
++			.low_reg   = PCF2131_REG_CTRL4,
++			.low_bit   = PCF2131_BIT_CTRL4_TSF3,
++			.ie_reg    = PCF2131_REG_CTRL5,
++			.ie_bit    = PCF2131_BIT_CTRL5_TSIE3,
++		},
++		.ts[3] = {
++			.regs_base = PCF2131_REG_TS4_BASE,
++			.low_reg   = PCF2131_REG_CTRL4,
++			.low_bit   = PCF2131_BIT_CTRL4_TSF4,
++			.ie_reg    = PCF2131_REG_CTRL5,
++			.ie_bit    = PCF2131_BIT_CTRL5_TSIE4,
++		},
++		.attribute_group = {
++			.attrs	= pcf2131_attrs,
++		},
++	},
+ };
+ 
+ /*
+@@ -921,7 +1110,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
  	 * Watchdog timer enabled and reset pin /RST activated when timed out.
--	 * Select 1Hz clock source for watchdog timer.
-+	 * Select 1Hz clock source for watchdog timer (1/4Hz for PCF2131).
+ 	 * Select 1Hz clock source for watchdog timer.
  	 * Note: Countdown timer disabled and not available.
- 	 * For pca2129, pcf2129 and pcf2131, only bit[7] is for Symbol WD_CD
+-	 * For pca2129, pcf2129, only bit[7] is for Symbol WD_CD
++	 * For pca2129, pcf2129 and pcf2131, only bit[7] is for Symbol WD_CD
  	 * of register watchdg_tim_ctl. The bit[6] is labeled
+ 	 * as T. Bits labeled as T must always be written with
+ 	 * logic 0.
+@@ -981,6 +1170,7 @@ static const struct of_device_id pcf2127_of_match[] = {
+ 	{ .compatible = "nxp,pcf2127", .data = &pcf21xx_cfg[PCF2127] },
+ 	{ .compatible = "nxp,pcf2129", .data = &pcf21xx_cfg[PCF2129] },
+ 	{ .compatible = "nxp,pca2129", .data = &pcf21xx_cfg[PCF2129] },
++	{ .compatible = "nxp,pcf2131", .data = &pcf21xx_cfg[PCF2131] },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, pcf2127_of_match);
+@@ -1110,6 +1300,7 @@ static const struct i2c_device_id pcf2127_i2c_id[] = {
+ 	{ "pcf2127", PCF2127 },
+ 	{ "pcf2129", PCF2129 },
+ 	{ "pca2129", PCF2129 },
++	{ "pcf2131", PCF2131 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pcf2127_i2c_id);
+@@ -1192,6 +1383,7 @@ static const struct spi_device_id pcf2127_spi_id[] = {
+ 	{ "pcf2127", PCF2127 },
+ 	{ "pcf2129", PCF2129 },
+ 	{ "pca2129", PCF2129 },
++	{ "pcf2131", PCF2131 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(spi, pcf2127_spi_id);
+@@ -1256,5 +1448,5 @@ static void __exit pcf2127_exit(void)
+ module_exit(pcf2127_exit)
+ 
+ MODULE_AUTHOR("Renaud Cerrato <r.cerrato@til-technologies.fr>");
+-MODULE_DESCRIPTION("NXP PCF2127/29 RTC driver");
++MODULE_DESCRIPTION("NXP PCF2127/29/31 RTC driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.30.2
 
