@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F909C43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F81C433F5
 	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:51:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353458AbiBKUvS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1353490AbiBKUvS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Fri, 11 Feb 2022 15:51:18 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45032 "EHLO
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:45118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353510AbiBKUvP (ORCPT
+        with ESMTP id S1353528AbiBKUvP (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:51:15 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E695FD88;
-        Fri, 11 Feb 2022 12:51:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A65CFE;
+        Fri, 11 Feb 2022 12:51:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=FocTTLbGGS2pUrmG79NzHvWl04JBNMr4U1VpELUhKqg=; b=V4zb2Yk+27bWFd+hh6cAAqVSxx
-        9Kf5V5Jf7Lmh22hNtTY3siDvwy7cCQ3lHZ623SmbpuGqCPc2Aw9cV0iPfqsZP1EZLvWwbR6YT5nts
-        BpjROucPPsAap3hVc577g2Pw5FYXCIkxPrRX3e/XJue9vcuPmsWoYDLvpKNMadGePQP4=;
+        bh=bXIdQJ/4ESH6YhgujxY4yyNTtX8QtVpyBZQqoqBhJLo=; b=EP/AwTVRkHmcR90zR+btbCsSbF
+        3vkLeb7/d0pHeDHWhKJqzQDUqPfw0htFnBj7ORSmcVaNI/IFzPj80JdLJjh25nDDkOUL12gnjnwSO
+        N4Zz3hbT4KxdA2QC/V/lc2i8a5h/DT4AVx2D5TPaSV7t34hWyXgptwXiS5RQbVw5rl1I=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:55280 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1nIcsf-00067w-8u; Fri, 11 Feb 2022 15:51:02 -0500
+        id 1nIcsi-00067w-7T; Fri, 11 Feb 2022 15:51:04 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     hvilleneuve@dimonoff.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com
 Cc:     hugo@hugovil.com, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 11 Feb 2022 15:50:26 -0500
-Message-Id: <20220211205029.3940756-12-hugo@hugovil.com>
+Date:   Fri, 11 Feb 2022 15:50:28 -0500
+Message-Id: <20220211205029.3940756-14-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220211205029.3940756-1-hugo@hugovil.com>
 References: <20220211205029.3940756-1-hugo@hugovil.com>
@@ -41,7 +41,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v2 11/14] rtc: pcf2127: adapt time/date registers write sequence for PCF2131
+Subject: [PATCH v2 13/14] rtc: pcf2127: add flag for watchdog register value read support
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,91 +50,85 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-The sequence for updating the time/date registers is slightly
-different between PCF2127/29 and PCF2131.
+The watchdog value register cannot be read on the PCF2131 after being
+set.
 
-For PCF2127/29, during write operations, the time counting
-circuits (memory locations 03h through 09h) are automatically blocked.
-
-For PCF2131, time/date registers write access requires setting the
-STOP bit and sending the clear prescaler instruction (CPR). STOP then
-needs to be released once write operation is completed.
+Add a new flag to identify which variant has read access to this
+register, and use this flag to selectively test if watchdog timer was
+started by bootloader.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf2127.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 8f3b34efff7f..84ec7d5fda59 100644
+index 7733122ac971..8accdece7d51 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -39,6 +39,7 @@
- #define PCF2127_REG_CTRL1		0x00
- #define PCF2127_BIT_CTRL1_POR_OVRD		BIT(3)
- #define PCF2127_BIT_CTRL1_TSF1			BIT(4)
-+#define PCF2127_BIT_CTRL1_STOP			BIT(5)
- /* Control register 2 */
- #define PCF2127_REG_CTRL2		0x01
- #define PCF2127_BIT_CTRL2_AIE			BIT(1)
-@@ -70,6 +71,7 @@
- #define PCF2131_REG_SR_RESET		0x05
- #define PCF2131_SR_RESET_READ_PATTERN	0b00100100 /* Fixed pattern. */
- #define PCF2131_SR_RESET_RESET_CMD	0x2C /* SR is bit 3. */
-+#define PCF2131_SR_RESET_CPR_CMD	0xA4 /* CPR is bit 7. */
- /* Time and date registers */
- #define PCF2127_REG_TIME_DATE_BASE	0x03
- #define PCF2131_REG_TIME_DATE_BASE	0x07 /* Register 0x06 is 100th seconds,
-@@ -307,7 +309,31 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	/* year */
- 	buf[i++] = bin2bcd(tm->tm_year - 100);
+@@ -214,6 +214,7 @@ struct pcf21xx_config {
+ 	int max_register;
+ 	unsigned int has_nvmem:1;
+ 	unsigned int has_bit_wd_ctl_cd0:1;
++	unsigned int wd_val_reg_readable:1; /* If watchdog value register can be read. */
+ 	unsigned int has_int_a_b:1; /* PCF2131 supports two interrupt outputs. */
+ 	unsigned int has_reset_reg:1; /* If variant has a reset register. */
+ 	u8 regs_td_base; /* Time/data base registers. */
+@@ -511,7 +512,6 @@ static const struct watchdog_ops pcf2127_watchdog_ops = {
  
--	/* write register's data */
-+	/* Write access to time registers:
-+	 * PCF2127/29: no special action required.
-+	 * PCF2131:    requires setting the STOP bit. STOP bit needs to
-+	 *             be cleared after time registers are updated.
-+	 *             It is also recommended to set CPR bit, although
-+	 *             write access will work without it.
-+	 */
-+	if (pcf2127->cfg->has_reset_reg) {
-+		err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-+					 PCF2127_BIT_CTRL1_STOP,
-+					 PCF2127_BIT_CTRL1_STOP);
-+		if (err) {
-+			dev_err(dev, "setting STOP bit failed\n");
-+			return err;
-+		}
-+
-+		err = regmap_write(pcf2127->regmap, pcf2127->cfg->reg_reset,
-+				   PCF2131_SR_RESET_CPR_CMD);
-+		if (err) {
-+			dev_err(dev, "sending CPR cmd failed\n");
-+			return err;
-+		}
-+	}
-+
-+	/* write time register's data */
- 	err = regmap_bulk_write(pcf2127->regmap, pcf2127->cfg->regs_td_base, buf, i);
- 	if (err) {
- 		dev_err(dev,
-@@ -315,6 +341,16 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		return err;
- 	}
+ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
+ {
+-	u32 wdd_timeout;
+ 	int ret;
  
-+	if (pcf2127->cfg->has_reset_reg) {
-+		/* Clear STOP bit (PCF2131 only) after write is completed. */
-+		err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-+					 PCF2127_BIT_CTRL1_STOP, 0);
-+		if (err) {
-+			dev_err(dev, "clearing STOP bit failed\n");
-+			return err;
-+		}
-+	}
+ 	if (!IS_ENABLED(CONFIG_WATCHDOG) ||
+@@ -539,12 +539,17 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
+ 	watchdog_set_drvdata(&pcf2127->wdd, pcf2127);
+ 
+ 	/* Test if watchdog timer is started by bootloader */
+-	ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_wd_val, &wdd_timeout);
+-	if (ret)
+-		return ret;
++	if (pcf2127->cfg->wd_val_reg_readable) {
++		u32 wdd_timeout;
 +
- 	return 0;
++		ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_wd_val,
++				  &wdd_timeout);
++		if (ret)
++			return ret;
+ 
+-	if (wdd_timeout)
+-		set_bit(WDOG_HW_RUNNING, &pcf2127->wdd.status);
++		if (wdd_timeout)
++			set_bit(WDOG_HW_RUNNING, &pcf2127->wdd.status);
++	}
+ 
+ 	return devm_watchdog_register_device(dev, &pcf2127->wdd);
  }
- 
+@@ -953,6 +958,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x1d,
+ 		.has_nvmem = 1,
+ 		.has_bit_wd_ctl_cd0 = 1,
++		.wd_val_reg_readable = 1,
+ 		.has_int_a_b = 0,
+ 		.has_reset_reg = 0,
+ 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
+@@ -980,6 +986,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x19,
+ 		.has_nvmem = 0,
+ 		.has_bit_wd_ctl_cd0 = 0,
++		.wd_val_reg_readable = 1,
+ 		.has_int_a_b = 0,
+ 		.has_reset_reg = 0,
+ 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
+@@ -1007,6 +1014,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x36,
+ 		.has_nvmem = 0,
+ 		.has_bit_wd_ctl_cd0 = 0,
++		.wd_val_reg_readable = 0,
+ 		.has_int_a_b = 1,
+ 		.has_reset_reg = 1,
+ 		.regs_td_base = PCF2131_REG_TIME_DATE_BASE,
 -- 
 2.30.2
 
