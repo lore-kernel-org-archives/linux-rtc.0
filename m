@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D46AC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5D79C433F5
 	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 20:35:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353255AbiBKUfz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1353253AbiBKUfz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Fri, 11 Feb 2022 15:35:55 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35290 "EHLO
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:35320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239913AbiBKUfu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:35:50 -0500
+        with ESMTP id S244770AbiBKUfw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 15:35:52 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC7ACE7;
-        Fri, 11 Feb 2022 12:35:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C33DCEF;
+        Fri, 11 Feb 2022 12:35:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=SlZVZNfID4SmiU/kFH3QpzW+/WWEj5iMn2pgnUjkjTU=; b=dVSnimAM0gwtxXx9fSkTkeYj+d
-        kmGii3aggDJwaR4QIxlpf0TsILvhYE8fltwFaM83CUzicRgHT1e/FvV2XG8lbvzKFs0skrDx/cjY2
-        1q1iWoAsL+56aNc9MaVais4w+Fstg27LTHiaUlMb4uxZ/3ecDgeB9LGCe6C67tr+lhXY=;
+        bh=8CdyIHSXKPv3TDN98TzS/C5SoJwYhyk3U3q/EcXPZ/Q=; b=t/T8IqZmu3OgriJx2oM4MrnQ9u
+        pv6O69qn19RdcXn7Qw36dlgh55ib3fxehz5YcEhek+A/hnNnX61eNHA3HWc/r8gGRRnan3v6Ct56L
+        M81T+j/EwHZgyBipn9Tuz90V03vB24wYRhfl5qqQEGKehRDloeCA6jVAlcFF7j8fF7fo=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:55274 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1nIcdu-0005vF-3o; Fri, 11 Feb 2022 15:35:46 -0500
+        id 1nIcdw-0005vF-C0; Fri, 11 Feb 2022 15:35:48 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     hvilleneuve@dimonoff.com, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com
 Cc:     hugo@hugovil.com, linux-rtc@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 11 Feb 2022 15:35:09 -0500
-Message-Id: <20220211203520.3902374-4-hugo@hugovil.com>
+Date:   Fri, 11 Feb 2022 15:35:11 -0500
+Message-Id: <20220211203520.3902374-6-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220211203520.3902374-1-hugo@hugovil.com>
 References: <20220211203520.3902374-1-hugo@hugovil.com>
@@ -41,7 +41,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH 03/14] rtc: pcf2127: adapt for alarm registers at any offset
+Subject: [PATCH 05/14] rtc: pcf2127: adapt for CLKOUT register at any offset
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -54,103 +54,52 @@ This will simplify the implementation of new variants into this driver.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 42 ++++++++++++++++++++++-----------------
- 1 file changed, 24 insertions(+), 18 deletions(-)
+ drivers/rtc/rtc-pcf2127.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index dcc0f22586fc..d89bcb17e12a 100644
+index 2c5cda04e21b..c73574b59c9d 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -56,11 +56,14 @@
- /* Time and date registers bits */
- #define PCF2127_BIT_SC_OSF			BIT(7)
- /* Alarm registers */
--#define PCF2127_REG_ALARM_SC		0x0A
--#define PCF2127_REG_ALARM_MN		0x0B
--#define PCF2127_REG_ALARM_HR		0x0C
--#define PCF2127_REG_ALARM_DM		0x0D
--#define PCF2127_REG_ALARM_DW		0x0E
-+#define PCF2127_REG_ALARM_BASE		0x0A
-+/* Alarm registers offsets (starting from base register) */
-+#define PCF2127_OFFSET_ALARM_SC		0
-+#define PCF2127_OFFSET_ALARM_MN		1
-+#define PCF2127_OFFSET_ALARM_HR		2
-+#define PCF2127_OFFSET_ALARM_DM		3
-+#define PCF2127_OFFSET_ALARM_DW		4
-+/* Alarm bits */
- #define PCF2127_BIT_ALARM_AE			BIT(7)
- /* CLKOUT control register */
- #define PCF2127_REG_CLKOUT		0x0f
-@@ -110,6 +113,7 @@ struct pcf21xx_config {
- 	unsigned int has_nvmem:1;
- 	unsigned int has_bit_wd_ctl_cd0:1;
- 	u8 regs_td_base; /* Time/data base registers. */
-+	u8 regs_alarm_base; /* Alarm function base registers. */
+@@ -116,6 +116,7 @@ struct pcf21xx_config {
+ 	u8 regs_alarm_base; /* Alarm function base registers. */
+ 	u8 reg_wd_ctl; /* Watchdog control register. */
+ 	u8 reg_wd_val; /* Watchdog value register. */
++	u8 reg_clkout; /* Clkout register. */
  };
  
  struct pcf2127 {
-@@ -402,18 +406,18 @@ static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (ret)
- 		return ret;
- 
--	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf,
--			       sizeof(buf));
-+	ret = regmap_bulk_read(pcf2127->regmap, pcf2127->cfg->regs_alarm_base,
-+			       buf, sizeof(buf));
- 	if (ret)
- 		return ret;
- 
- 	alrm->enabled = ctrl2 & PCF2127_BIT_CTRL2_AIE;
- 	alrm->pending = ctrl2 & PCF2127_BIT_CTRL2_AF;
- 
--	alrm->time.tm_sec = bcd2bin(buf[0] & 0x7F);
--	alrm->time.tm_min = bcd2bin(buf[1] & 0x7F);
--	alrm->time.tm_hour = bcd2bin(buf[2] & 0x3F);
--	alrm->time.tm_mday = bcd2bin(buf[3] & 0x3F);
-+	alrm->time.tm_sec = bcd2bin(buf[PCF2127_OFFSET_ALARM_SC] & 0x7F);
-+	alrm->time.tm_min = bcd2bin(buf[PCF2127_OFFSET_ALARM_MN] & 0x7F);
-+	alrm->time.tm_hour = bcd2bin(buf[PCF2127_OFFSET_ALARM_HR] & 0x3F);
-+	alrm->time.tm_mday = bcd2bin(buf[PCF2127_OFFSET_ALARM_DM] & 0x3F);
- 
- 	return 0;
- }
-@@ -447,14 +451,14 @@ static int pcf2127_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	if (ret)
- 		return ret;
- 
--	buf[0] = bin2bcd(alrm->time.tm_sec);
--	buf[1] = bin2bcd(alrm->time.tm_min);
--	buf[2] = bin2bcd(alrm->time.tm_hour);
--	buf[3] = bin2bcd(alrm->time.tm_mday);
--	buf[4] = PCF2127_BIT_ALARM_AE; /* Do not match on week day */
-+	buf[PCF2127_OFFSET_ALARM_SC] = bin2bcd(alrm->time.tm_sec);
-+	buf[PCF2127_OFFSET_ALARM_MN] = bin2bcd(alrm->time.tm_min);
-+	buf[PCF2127_OFFSET_ALARM_HR] = bin2bcd(alrm->time.tm_hour);
-+	buf[PCF2127_OFFSET_ALARM_DM] = bin2bcd(alrm->time.tm_mday);
-+	buf[PCF2127_OFFSET_ALARM_DW] = PCF2127_BIT_ALARM_AE; /* Do not match on week day */
- 
--	ret = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_ALARM_SC, buf,
--				sizeof(buf));
-+	ret = regmap_bulk_write(pcf2127->regmap, pcf2127->cfg->regs_alarm_base,
-+				buf, sizeof(buf));
- 	if (ret)
- 		return ret;
- 
-@@ -659,12 +663,14 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
- 		.has_nvmem = 1,
- 		.has_bit_wd_ctl_cd0 = 1,
- 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
-+		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+@@ -668,6 +669,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+ 		.reg_wd_val = PCF2127_REG_WD_VAL,
++		.reg_clkout = PCF2127_REG_CLKOUT,
  	},
  	[PCF2129] = {
  		.max_register = 0x19,
- 		.has_nvmem = 0,
- 		.has_bit_wd_ctl_cd0 = 0,
- 		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
-+		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+@@ -677,6 +679,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+ 		.reg_wd_val = PCF2127_REG_WD_VAL,
++		.reg_clkout = PCF2127_REG_CLKOUT,
  	},
  };
  
+@@ -755,12 +758,12 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 	regmap_clear_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
+ 				PCF2127_BIT_CTRL1_POR_OVRD);
+ 
+-	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CLKOUT, &val);
++	ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_clkout, &val);
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	if (!(val & PCF2127_BIT_CLKOUT_OTPR)) {
+-		ret = regmap_set_bits(pcf2127->regmap, PCF2127_REG_CLKOUT,
++		ret = regmap_set_bits(pcf2127->regmap, pcf2127->cfg->reg_clkout,
+ 				      PCF2127_BIT_CLKOUT_OTPR);
+ 		if (ret < 0)
+ 			return ret;
 -- 
 2.30.2
 
