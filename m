@@ -2,84 +2,86 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E59C433F5
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Feb 2022 23:48:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE65DC433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Feb 2022 08:37:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243829AbiBJXsr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Feb 2022 18:48:47 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:52064 "EHLO
+        id S239104AbiBKIhk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Feb 2022 03:37:40 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:60594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242399AbiBJXsr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Feb 2022 18:48:47 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2ED5F7F
-        for <linux-rtc@vger.kernel.org>; Thu, 10 Feb 2022 15:48:46 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id v5-20020a17090a4ec500b001b8b702df57so10249841pjl.2
-        for <linux-rtc@vger.kernel.org>; Thu, 10 Feb 2022 15:48:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=+VigcQLytz0iuHCE+k+y78JnvvZ09aQp4DOS6f0o7TM=;
-        b=dAh1C5a34PseGXHmaQZfM4wxYL4wwblUd5jDt5LLve2vU6jWUhtwN8MKnJNOf2qufB
-         lLDHDA3elq1Y16fxoyykEwvdijWHwc7OFoKWI14jMZpOT3WpuvHCKRIZu2l8t+rAqmsE
-         SJZTBCTMhb6eQRwZsHqdo4hY7alEqRycNqGHo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=+VigcQLytz0iuHCE+k+y78JnvvZ09aQp4DOS6f0o7TM=;
-        b=k9fbwmYsm531uGPQbkSDgJSzWJ2CQ3HGwh4D2veeIRbfwtGSLDpkQW4omUaByDg5tk
-         C7qEtZSHH9sKT0knpgfsxL5I7YLKH7Yh+DVnrnFc5PLpu5vkfa4TdsiaWRmpyG3WcZ50
-         wBnA1r+/smern+sKeGxG+lMbjUwkcFYVIb1ZKPn3PP/1uGUJOYHuXduuRfnVQJyAyxJi
-         U1Myg7CeJU3D+ZsPh4T7VhmWvKqbPU+csUbRA6abZay36ArefnpM4Qyl8rewK7/D+XjW
-         eWXnWygD/YC22sd09nCtOfOFXDeKfe0gGTnB3LFcYPGg9OS8JdPZecSi5lyEUfNSLzAl
-         948A==
-X-Gm-Message-State: AOAM532huGsa8yvymJM07kPbSaj6SrEhrwpgKiWxVE5M1hVJbBtwGoRa
-        8X6tKvHumLFpb3PUjCZi9wPKDcfMA9q/aA==
-X-Google-Smtp-Source: ABdhPJw7Z7RtNFIjE/eg4qhNf5ROtPlhZI8Yn8t9OlJNY4TOQUQQi24WczGyaruM7kFjyOrv2RoZFw==
-X-Received: by 2002:a17:902:ef49:: with SMTP id e9mr9590070plx.56.1644536926217;
-        Thu, 10 Feb 2022 15:48:46 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j3sm18279269pgs.0.2022.02.10.15.48.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Feb 2022 15:48:45 -0800 (PST)
-Date:   Thu, 10 Feb 2022 15:48:44 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     Victor Erminpour <victor.erminpour@oracle.com>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        trivial@kernel.org
-Subject: Re: [PATCH] rtc: pcf8523: Fix GCC 12 warning
-Message-ID: <202202101548.D2CF8DAC@keescook>
-References: <1644453027-886-1-git-send-email-victor.erminpour@oracle.com>
+        with ESMTP id S230106AbiBKIhk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Feb 2022 03:37:40 -0500
+X-Greylist: delayed 68 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 11 Feb 2022 00:37:38 PST
+Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA15EE59;
+        Fri, 11 Feb 2022 00:37:38 -0800 (PST)
+Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
+          by outpost.zedat.fu-berlin.de (Exim 4.94)
+          with esmtps (TLS1.2)
+          tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+          (envelope-from <glaubitz@zedat.fu-berlin.de>)
+          id 1nIRQv-001oqN-BL; Fri, 11 Feb 2022 09:37:37 +0100
+Received: from p5b13a545.dip0.t-ipconnect.de ([91.19.165.69] helo=[192.168.178.81])
+          by inpost2.zedat.fu-berlin.de (Exim 4.94)
+          with esmtpsa (TLS1.2)
+          tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          (envelope-from <glaubitz@physik.fu-berlin.de>)
+          id 1nIRQv-000jOQ-3s; Fri, 11 Feb 2022 09:37:37 +0100
+Message-ID: <4592b3f4-5213-72e7-e135-7e43c04fedc7@physik.fu-berlin.de>
+Date:   Fri, 11 Feb 2022 09:37:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1644453027-886-1-git-send-email-victor.erminpour@oracle.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.1
+Subject: Re: [PATCH v14 4/5] clocksource/drivers: Add a goldfish-timer
+ clocksource
+Content-Language: en-US
+To:     Laurent Vivier <laurent@vivier.eu>, linux-kernel@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+References: <20220130143333.552646-1-laurent@vivier.eu>
+ <20220130143333.552646-5-laurent@vivier.eu>
+From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+In-Reply-To: <20220130143333.552646-5-laurent@vivier.eu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Original-Sender: glaubitz@physik.fu-berlin.de
+X-Originating-IP: 91.19.165.69
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Feb 09, 2022 at 04:30:27PM -0800, Victor Erminpour wrote:
-> When building with automatic stack variable initialization, GCC 12
-> complains about variables defined outside of switch case statements.
-> Move variables outside the switch, which silences warnings:
-> 
-> ./drivers/rtc/rtc-pcf8523.c:284:20: error: statement will never be executed [-Werror=switch-unreachable]
->   284 |                 u8 mode;
->       |
-> 
-> ./drivers/rtc/rtc-pcf8523.c:245:21: error: statement will never be executed [-Werror=switch-unreachable]
->   245 |                 u32 value;
->       |                     ^~~~~
-> 
-> Signed-off-by: Victor Erminpour <victor.erminpour@oracle.com>
+Hi!
 
-Thanks for finding these! I haven't done any cross compiles with GCC 12
-yet. :)
+On 1/30/22 15:33, Laurent Vivier wrote:
+> Add a clocksource based on the goldfish-rtc device.
+> 
+> Move the timer register definition to <clocksource/timer-goldfish.h>
+> 
+> This kernel implementation is based on the QEMU upstream implementation:
+> 
+>    https://git.qemu.org/?p=qemu.git;a=blob_plain;f=hw/rtc/goldfish_rtc.c
+> 
+> Details related to Goldfish devices can be found in:
+> 
+>   https://android.googlesource.com/platform/external/qemu/+/master/docs/GOLDFISH-VIRTUAL-HARDWARE.TXT
+> 
+> Signed-off-by: Laurent Vivier <laurent@vivier.eu>
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+It looks like this is the only patch in the series which has not been approved yet.
+
+Adrian
 
 -- 
-Kees Cook
+ .''`.  John Paul Adrian Glaubitz
+: :' :  Debian Developer - glaubitz@debian.org
+`. `'   Freie Universitaet Berlin - glaubitz@physik.fu-berlin.de
+  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+
