@@ -2,133 +2,83 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F8DBC433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Feb 2022 10:58:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE19BC433FE
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Feb 2022 21:39:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbiBVK66 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Feb 2022 05:58:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59108 "EHLO
+        id S235809AbiBVVkN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 22 Feb 2022 16:40:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231583AbiBVK6z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Feb 2022 05:58:55 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B3DB9B10A7;
-        Tue, 22 Feb 2022 02:58:28 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7A1C4106F;
-        Tue, 22 Feb 2022 02:58:28 -0800 (PST)
-Received: from donnerap.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C17833F70D;
-        Tue, 22 Feb 2022 02:58:26 -0800 (PST)
-Date:   Tue, 22 Feb 2022 10:58:23 +0000
-From:   Andre Przywara <andre.przywara@arm.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Ondrej Jirman <megous@megous.com>,
-        Icenowy Zheng <icenowy@aosc.io>,
-        Samuel Holland <samuel@sholland.org>,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v10 03/18] rtc: sun6i: Fix time overflow handling
-Message-ID: <20220222105823.0cf9b008@donnerap.cambridge.arm.com>
-In-Reply-To: <20220211122643.1343315-4-andre.przywara@arm.com>
-References: <20220211122643.1343315-1-andre.przywara@arm.com>
-        <20220211122643.1343315-4-andre.przywara@arm.com>
-Organization: ARM
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; aarch64-unknown-linux-gnu)
+        with ESMTP id S235766AbiBVVkM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Feb 2022 16:40:12 -0500
+Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677DB139106;
+        Tue, 22 Feb 2022 13:39:46 -0800 (PST)
+Received: by mail-oi1-f176.google.com with SMTP id q5so16107767oij.6;
+        Tue, 22 Feb 2022 13:39:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=e2psfHnwZs5xWnyvc67xSSoWa8E4e5UoRm7fPOvRG2k=;
+        b=J5LoT6ypVfOemIi4NpchuGpJjYJB1piKyMQZsit8PbdadJFbRNMLVdgn5JaBZRKhNJ
+         yL+32IwQD9iNaa6ta3hxZoBm90J227tNBrB/4lOh+Kl2Gh5g7FjzYDjEdFhk3a1xe2SR
+         Ijn+QHCDbZoFTfeD6tCF/b/u0swpNWONMKWCt6LaWCgk4dPZ2RW9TdTdkon3v592aqnY
+         JOV7ty/KlMPFE21iuQNtCeTLTlXeEcT1TPGNS5qjwBPEB9CnruQiPKZaCCrz8bZsBHG7
+         8DqjLoiU0WRMWOgLhRBjT7itpkX1bXchaJ8yE3oJ3E37E7L0L4UEDvU6h/Xd85/pCu8z
+         QkRg==
+X-Gm-Message-State: AOAM533qpZ8qsq0loBdYlIE5PjofVC9f9weUFKJAVjF5MVyRRiYUFraH
+        gsHTNdcZcN8Hl49cNJHaoQ==
+X-Google-Smtp-Source: ABdhPJzrwJuwkbQEPG+nVIKFTN4wDkORO0vQxGqMkcJcmKTnAAfMQGUYwq+TDGVA6kTamSiXcfTrIw==
+X-Received: by 2002:a05:6808:202a:b0:2d4:df36:68a4 with SMTP id q42-20020a056808202a00b002d4df3668a4mr2997913oiw.16.1645565985765;
+        Tue, 22 Feb 2022 13:39:45 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id r36sm9663847oiw.40.2022.02.22.13.39.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Feb 2022 13:39:44 -0800 (PST)
+Received: (nullmailer pid 3634892 invoked by uid 1000);
+        Tue, 22 Feb 2022 21:39:43 -0000
+Date:   Tue, 22 Feb 2022 15:39:43 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     conor.dooley@microchip.com
+Cc:     linux-gpio@vger.kernel.org, atishp@rivosinc.com,
+        a.zummo@towertech.it, devicetree@vger.kernel.org,
+        robh+dt@kernel.org, paul.walmsley@sifive.com, lee.jones@linaro.org,
+        u.kleine-koenig@pengutronix.de, linux-pwm@vger.kernel.org,
+        ivan.griffin@microchip.com, linus.walleij@linaro.org,
+        brgl@bgdev.pl, daire.mcnamara@microchip.com,
+        jassisinghbrar@gmail.com, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org,
+        aou@eecs.berkeley.edu, krzysztof.kozlowski@canonical.com,
+        palmer@dabbelt.com, geert@linux-m68k.org,
+        lewis.hanly@microchip.com, thierry.reding@gmail.com,
+        alexandre.belloni@bootlin.com
+Subject: Re: [PATCH v7 02/11] dt-bindings: soc/microchip: add info about
+ services to mpfs sysctrl
+Message-ID: <YhVYH6vf+b9jKeB3@robh.at.kernel.org>
+References: <20220214135840.168236-1-conor.dooley@microchip.com>
+ <20220214135840.168236-3-conor.dooley@microchip.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220214135840.168236-3-conor.dooley@microchip.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 11 Feb 2022 12:26:28 +0000
-Andre Przywara <andre.przywara@arm.com> wrote:
-
-Hi Alessandro, Alexandre,
-
-I was wondering if you would consider taking this (as a fix)?
-This (time_gap > U32_MAX) comparison looks flawed by design, and we should
-use time_t these days anyway.
-
-Also, do you have an opinion on the other RTC patches? The linear day
-patch (v10 04/18)[1] and the broken-down alarm registers (v10 05/18)[2]
-were on the list for a while now and are needed by other SoCs as well
-(R329[3] and the RISC-V D1).
-
-Cheers,
-Andre
-[1] https://lore.kernel.org/linux-arm-kernel/20220211122643.1343315-5-andre.przywara@arm.com/
-[2] https://lore.kernel.org/linux-arm-kernel/20220211122643.1343315-6-andre.przywara@arm.com/
-[3] https://lore.kernel.org/linux-arm-kernel/20210802062212.73220-3-icenowy@sipeed.com/
-
-> Using "unsigned long" for UNIX timestamps is never a good idea, and
-> comparing the value of such a variable against U32_MAX does not do
-> anything useful on 32-bit systems.
+On Mon, 14 Feb 2022 13:58:32 +0000, conor.dooley@microchip.com wrote:
+> From: Conor Dooley <conor.dooley@microchip.com>
 > 
-> Use the proper time64_t type when dealing with timestamps, and avoid
-> cutting down the time range unnecessarily. This also fixes the flawed
-> check for the alarm time being too far into the future.
+> The services actually provided by the system controller are not
+> documented so add some words about what the system controller can
+> actually do. Add a link to the oneline documentation with the specific
+> details of each individual service.
+> Also, drop the unneeded label from the example.
 > 
-> The check for this condition is actually somewhat theoretical, as the
-> RTC counts till 2033 only anyways, and 2^32 seconds from now is not
-> before the year 2157 - at which point I hope nobody will be using this
-> hardware anymore.
-> 
-> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-> Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 > ---
->  drivers/rtc/rtc-sun6i.c | 14 +++++---------
->  1 file changed, 5 insertions(+), 9 deletions(-)
+>  .../soc/microchip/microchip,mpfs-sys-controller.yaml  | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-> index 35b34d14a1db..dc3ae851841c 100644
-> --- a/drivers/rtc/rtc-sun6i.c
-> +++ b/drivers/rtc/rtc-sun6i.c
-> @@ -139,7 +139,7 @@ struct sun6i_rtc_dev {
->  	const struct sun6i_rtc_clk_data *data;
->  	void __iomem *base;
->  	int irq;
-> -	unsigned long alarm;
-> +	time64_t alarm;
->  
->  	struct clk_hw hw;
->  	struct clk_hw *int_osc;
-> @@ -511,10 +511,8 @@ static int sun6i_rtc_setalarm(struct device *dev,
-> struct rtc_wkalrm *wkalrm) struct sun6i_rtc_dev *chip =
-> dev_get_drvdata(dev); struct rtc_time *alrm_tm = &wkalrm->time;
->  	struct rtc_time tm_now;
-> -	unsigned long time_now = 0;
-> -	unsigned long time_set = 0;
-> -	unsigned long time_gap = 0;
-> -	int ret = 0;
-> +	time64_t time_now, time_set;
-> +	int ret;
->  
->  	ret = sun6i_rtc_gettime(dev, &tm_now);
->  	if (ret < 0) {
-> @@ -529,9 +527,7 @@ static int sun6i_rtc_setalarm(struct device *dev,
-> struct rtc_wkalrm *wkalrm) return -EINVAL;
->  	}
->  
-> -	time_gap = time_set - time_now;
-> -
-> -	if (time_gap > U32_MAX) {
-> +	if ((time_set - time_now) > U32_MAX) {
->  		dev_err(dev, "Date too far in the future\n");
->  		return -EINVAL;
->  	}
-> @@ -540,7 +536,7 @@ static int sun6i_rtc_setalarm(struct device *dev,
-> struct rtc_wkalrm *wkalrm) writel(0, chip->base + SUN6I_ALRM_COUNTER);
->  	usleep_range(100, 300);
->  
-> -	writel(time_gap, chip->base + SUN6I_ALRM_COUNTER);
-> +	writel(time_set - time_now, chip->base + SUN6I_ALRM_COUNTER);
->  	chip->alarm = time_set;
->  
->  	sun6i_rtc_setaie(wkalrm->enabled, chip);
 
+Reviewed-by: Rob Herring <robh@kernel.org>
