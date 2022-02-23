@@ -2,186 +2,180 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02864C433F5
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Feb 2022 19:09:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5578C433FE
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Feb 2022 20:21:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244157AbiBWTKP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 23 Feb 2022 14:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
+        id S234587AbiBWUVd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Feb 2022 15:21:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiBWTKP (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Feb 2022 14:10:15 -0500
-Received: from hostingweb31-40.netsons.net (hostingweb31-40.netsons.net [89.40.174.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196413BA6A;
-        Wed, 23 Feb 2022 11:09:47 -0800 (PST)
-Received: from [77.244.183.192] (port=62116 helo=melee.fritz.box)
-        by hostingweb31.netsons.net with esmtpa (Exim 4.94.2)
-        (envelope-from <luca@lucaceresoli.net>)
-        id 1nMvv8-00039p-1V; Wed, 23 Feb 2022 18:59:22 +0100
-From:   Luca Ceresoli <luca@lucaceresoli.net>
-To:     linux-kernel@vger.kernel.org
-Cc:     Luca Ceresoli <luca@lucaceresoli.net>,
-        Lee Jones <lee.jones@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org
-Subject: [PATCH v6 2/8] rtc: max77686: rename day-of-month defines
-Date:   Wed, 23 Feb 2022 18:59:02 +0100
-Message-Id: <20220223175908.191618-3-luca@lucaceresoli.net>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220223175908.191618-1-luca@lucaceresoli.net>
-References: <20220223175908.191618-1-luca@lucaceresoli.net>
+        with ESMTP id S232105AbiBWUVc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Feb 2022 15:21:32 -0500
+X-Greylist: delayed 18142 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 23 Feb 2022 12:21:00 PST
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB6094D24F;
+        Wed, 23 Feb 2022 12:21:00 -0800 (PST)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 25761FF806;
+        Wed, 23 Feb 2022 20:20:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1645647659;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Kppx7Y3HjhzvN/0jitv+VoeGh8Sofe2wA4Rh6vVi4nc=;
+        b=i/1fOodDKjajA7oMrrhNGuIu5sn0knGb8CS5vjJRRF7pgR6lo5Ax8zNhM85PKuJUiuuMMJ
+        F0ge0zIXNiPi+gichbf04LURreif0+ASM4CWWywE/KCI6lilVoJDvfZMYiuii5a4mRbP4Y
+        AUv8ltZiNhwC1Ql3jZABl97QRZdG2LeBIC7pGp17YhCDjdnwi+MxSbUwKYL84UFDGbQIgx
+        cscriGuvt8D1yBksk8WwgtAfGxiTH/2OeFLQtKidR0tQoG6rQw94NpHYVw/pgoiQ8+W72f
+        qmrsyQSEpelVR7uovNn5/lleH0xAvDpEEZO2utZV2oJeePAOqWCmWRRSuV7qVg==
+Date:   Wed, 23 Feb 2022 21:20:54 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Conor.Dooley@microchip.com
+Cc:     a.zummo@towertech.it, Lewis.Hanly@microchip.com,
+        Daire.McNamara@microchip.com, Ivan.Griffin@microchip.com,
+        atishp@rivosinc.com, palmer@rivosinc.com, robh@kernel.org,
+        linus.walleij@linaro.org, brgl@bgdev.pl, robh+dt@kernel.org,
+        jassisinghbrar@gmail.com, thierry.reding@gmail.com,
+        u.kleine-koenig@pengutronix.de, lee.jones@linaro.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, geert@linux-m68k.org,
+        krzysztof.kozlowski@canonical.com, linux-gpio@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: Re: [PATCH v7 03/11] dt-bindings: rtc: add bindings for microchip
+ mpfs rtc
+Message-ID: <YhaXJofTTTgaoEsn@piout.net>
+References: <20220214135840.168236-1-conor.dooley@microchip.com>
+ <20220214135840.168236-4-conor.dooley@microchip.com>
+ <5b0681a0-ff46-7eb4-3644-0d1173c1f0d4@microchip.com>
+ <YhZQRqHib2+GR7Ma@piout.net>
+ <3483b6c4-67a7-5ed5-2953-728ea8ba5874@microchip.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hostingweb31.netsons.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - lucaceresoli.net
-X-Get-Message-Sender-Via: hostingweb31.netsons.net: authenticated_id: luca+lucaceresoli.net/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: hostingweb31.netsons.net: luca@lucaceresoli.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3483b6c4-67a7-5ed5-2953-728ea8ba5874@microchip.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-RTC_DATE and REG_RTC_DATE are used for the registers holding the day of
-month. Rename these constants to mean what they mean.
+On 23/02/2022 15:25:00+0000, Conor.Dooley@microchip.com wrote:
+> On 23/02/2022 15:18, Alexandre Belloni wrote:
+> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+> > 
+> > On 23/02/2022 07:41:27+0000, Conor.Dooley@microchip.com wrote:
+> >> Hi Alessandro, Alexandre,
+> >> If one of you could take a look at this, that'd be great.
+> > 
+> > I actually expected someone else to apply this, what is your plan?
+> 
+> I was going to ask Palmer to take the series via riscv. Since I have
+> Rob's R-b, I was just looking for a subsystem maintainer ack/R-b before
+> actually asking him.
+> 
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Rob's review is enough for a DT binding, no need to wait for me. but
+FWIW:
+
 Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
 
-Changes in v6: none
 
-Changes in v5: none
+> Thanks,
+> Conor.
+> 
+> > 
+> >> Thanks,
+> >> Conor.
+> >>
+> >> On 14/02/2022 13:58, conor.dooley@microchip.com wrote:
+> >>> From: Conor Dooley <conor.dooley@microchip.com>
+> >>>
+> >>> Add device tree bindings for the real time clock on
+> >>> the Microchip PolarFire SoC.
+> >>>
+> >>> Signed-off-by: Daire McNamara <daire.mcnamara@microchip.com>
+> >>> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+> >>> Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+> >>> Reviewed-by: Rob Herring <robh@kernel.org>
+> >>> ---
+> >>>    .../bindings/rtc/microchip,mfps-rtc.yaml      | 58 +++++++++++++++++++
+> >>>    1 file changed, 58 insertions(+)
+> >>>    create mode 100644 Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+> >>>
+> >>> diff --git a/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+> >>> new file mode 100644
+> >>> index 000000000000..a2e984ea3553
+> >>> --- /dev/null
+> >>> +++ b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+> >>> @@ -0,0 +1,58 @@
+> >>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> >>> +%YAML 1.2
+> >>> +---
+> >>> +$id: http://devicetree.org/schemas/rtc/microchip,mfps-rtc.yaml#
+> >>> +
+> >>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> >>> +
+> >>> +title: Microchip PolarFire Soc (MPFS) RTC Device Tree Bindings
+> >>> +
+> >>> +allOf:
+> >>> +  - $ref: rtc.yaml#
+> >>> +
+> >>> +maintainers:
+> >>> +  - Daire McNamara <daire.mcnamara@microchip.com>
+> >>> +  - Lewis Hanly <lewis.hanly@microchip.com>
+> >>> +
+> >>> +properties:
+> >>> +  compatible:
+> >>> +    enum:
+> >>> +      - microchip,mpfs-rtc
+> >>> +
+> >>> +  reg:
+> >>> +    maxItems: 1
+> >>> +
+> >>> +  interrupts:
+> >>> +    items:
+> >>> +      - description: |
+> >>> +          RTC_WAKEUP interrupt
+> >>> +      - description: |
+> >>> +          RTC_MATCH, asserted when the content of the Alarm register is equal
+> >>> +          to that of the RTC's count register.
+> >>> +
+> >>> +  clocks:
+> >>> +    maxItems: 1
+> >>> +
+> >>> +  clock-names:
+> >>> +    items:
+> >>> +      - const: rtc
+> >>> +
+> >>> +required:
+> >>> +  - compatible
+> >>> +  - reg
+> >>> +  - interrupts
+> >>> +  - clocks
+> >>> +  - clock-names
+> >>> +
+> >>> +additionalProperties: false
+> >>> +
+> >>> +examples:
+> >>> +  - |
+> >>> +    rtc@20124000 {
+> >>> +        compatible = "microchip,mpfs-rtc";
+> >>> +        reg = <0x20124000 0x1000>;
+> >>> +        clocks = <&clkcfg 21>;
+> >>> +        clock-names = "rtc";
+> >>> +        interrupts = <80>, <81>;
+> >>> +    };
+> >>> +...
+> >>
+> > 
+> > --
+> > Alexandre Belloni, co-owner and COO, Bootlin
+> > Embedded Linux and Kernel engineering
+> > https://bootlin.com
+> 
 
-Changes in v4: none
-
-Changes in v3: none
-
-Changes in v2:
- - fix drivers/mfd/max77686.c build failure due to missing rename
-   (Reported-by: kernel test robot <lkp@intel.com>)
----
- drivers/mfd/max77686.c               |  2 +-
- drivers/rtc/rtc-max77686.c           | 16 ++++++++--------
- include/linux/mfd/max77686-private.h |  4 ++--
- 3 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/mfd/max77686.c b/drivers/mfd/max77686.c
-index f9e12ab2bc75..2ac64277fb84 100644
---- a/drivers/mfd/max77686.c
-+++ b/drivers/mfd/max77686.c
-@@ -87,7 +87,7 @@ static bool max77802_rtc_is_volatile_reg(struct device *dev, unsigned int reg)
- 		reg == MAX77802_RTC_WEEKDAY ||
- 		reg == MAX77802_RTC_MONTH ||
- 		reg == MAX77802_RTC_YEAR ||
--		reg == MAX77802_RTC_DATE);
-+		reg == MAX77802_RTC_MONTHDAY);
- }
- 
- static bool max77802_is_volatile_reg(struct device *dev, unsigned int reg)
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index bac52cdea97d..7e765207f28e 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -57,7 +57,7 @@ enum {
- 	RTC_WEEKDAY,
- 	RTC_MONTH,
- 	RTC_YEAR,
--	RTC_DATE,
-+	RTC_MONTHDAY,
- 	RTC_NR_TIME
- };
- 
-@@ -119,7 +119,7 @@ enum max77686_rtc_reg_offset {
- 	REG_RTC_WEEKDAY,
- 	REG_RTC_MONTH,
- 	REG_RTC_YEAR,
--	REG_RTC_DATE,
-+	REG_RTC_MONTHDAY,
- 	REG_ALARM1_SEC,
- 	REG_ALARM1_MIN,
- 	REG_ALARM1_HOUR,
-@@ -150,7 +150,7 @@ static const unsigned int max77686_map[REG_RTC_END] = {
- 	[REG_RTC_WEEKDAY]    = MAX77686_RTC_WEEKDAY,
- 	[REG_RTC_MONTH]      = MAX77686_RTC_MONTH,
- 	[REG_RTC_YEAR]       = MAX77686_RTC_YEAR,
--	[REG_RTC_DATE]       = MAX77686_RTC_DATE,
-+	[REG_RTC_MONTHDAY]   = MAX77686_RTC_MONTHDAY,
- 	[REG_ALARM1_SEC]     = MAX77686_ALARM1_SEC,
- 	[REG_ALARM1_MIN]     = MAX77686_ALARM1_MIN,
- 	[REG_ALARM1_HOUR]    = MAX77686_ALARM1_HOUR,
-@@ -233,7 +233,7 @@ static const unsigned int max77802_map[REG_RTC_END] = {
- 	[REG_RTC_WEEKDAY]    = MAX77802_RTC_WEEKDAY,
- 	[REG_RTC_MONTH]      = MAX77802_RTC_MONTH,
- 	[REG_RTC_YEAR]       = MAX77802_RTC_YEAR,
--	[REG_RTC_DATE]       = MAX77802_RTC_DATE,
-+	[REG_RTC_MONTHDAY]   = MAX77802_RTC_MONTHDAY,
- 	[REG_ALARM1_SEC]     = MAX77802_ALARM1_SEC,
- 	[REG_ALARM1_MIN]     = MAX77802_ALARM1_MIN,
- 	[REG_ALARM1_HOUR]    = MAX77802_ALARM1_HOUR,
-@@ -288,7 +288,7 @@ static void max77686_rtc_data_to_tm(u8 *data, struct rtc_time *tm,
- 
- 	/* Only a single bit is set in data[], so fls() would be equivalent */
- 	tm->tm_wday = ffs(data[RTC_WEEKDAY] & mask) - 1;
--	tm->tm_mday = data[RTC_DATE] & 0x1f;
-+	tm->tm_mday = data[RTC_MONTHDAY] & 0x1f;
- 	tm->tm_mon = (data[RTC_MONTH] & 0x0f) - 1;
- 	tm->tm_year = data[RTC_YEAR] & mask;
- 	tm->tm_yday = 0;
-@@ -309,7 +309,7 @@ static int max77686_rtc_tm_to_data(struct rtc_time *tm, u8 *data,
- 	data[RTC_MIN] = tm->tm_min;
- 	data[RTC_HOUR] = tm->tm_hour;
- 	data[RTC_WEEKDAY] = 1 << tm->tm_wday;
--	data[RTC_DATE] = tm->tm_mday;
-+	data[RTC_MONTHDAY] = tm->tm_mday;
- 	data[RTC_MONTH] = tm->tm_mon + 1;
- 
- 	if (info->drv_data->alarm_enable_reg) {
-@@ -565,8 +565,8 @@ static int max77686_rtc_start_alarm(struct max77686_rtc_info *info)
- 			data[RTC_MONTH] |= (1 << ALARM_ENABLE_SHIFT);
- 		if (data[RTC_YEAR] & info->drv_data->mask)
- 			data[RTC_YEAR] |= (1 << ALARM_ENABLE_SHIFT);
--		if (data[RTC_DATE] & 0x1f)
--			data[RTC_DATE] |= (1 << ALARM_ENABLE_SHIFT);
-+		if (data[RTC_MONTHDAY] & 0x1f)
-+			data[RTC_MONTHDAY] |= (1 << ALARM_ENABLE_SHIFT);
- 
- 		ret = regmap_bulk_write(info->rtc_regmap, map[REG_ALARM1_SEC],
- 					data, ARRAY_SIZE(data));
-diff --git a/include/linux/mfd/max77686-private.h b/include/linux/mfd/max77686-private.h
-index b1482b3cf353..3acceeedbaba 100644
---- a/include/linux/mfd/max77686-private.h
-+++ b/include/linux/mfd/max77686-private.h
-@@ -152,7 +152,7 @@ enum max77686_rtc_reg {
- 	MAX77686_RTC_WEEKDAY		= 0x0A,
- 	MAX77686_RTC_MONTH		= 0x0B,
- 	MAX77686_RTC_YEAR		= 0x0C,
--	MAX77686_RTC_DATE		= 0x0D,
-+	MAX77686_RTC_MONTHDAY		= 0x0D,
- 	MAX77686_ALARM1_SEC		= 0x0E,
- 	MAX77686_ALARM1_MIN		= 0x0F,
- 	MAX77686_ALARM1_HOUR		= 0x10,
-@@ -352,7 +352,7 @@ enum max77802_rtc_reg {
- 	MAX77802_RTC_WEEKDAY		= 0xCA,
- 	MAX77802_RTC_MONTH		= 0xCB,
- 	MAX77802_RTC_YEAR		= 0xCC,
--	MAX77802_RTC_DATE		= 0xCD,
-+	MAX77802_RTC_MONTHDAY		= 0xCD,
- 	MAX77802_RTC_AE1		= 0xCE,
- 	MAX77802_ALARM1_SEC		= 0xCF,
- 	MAX77802_ALARM1_MIN		= 0xD0,
 -- 
-2.25.1
-
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
