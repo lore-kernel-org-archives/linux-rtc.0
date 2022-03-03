@@ -2,42 +2,42 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F40FC433FE
-	for <linux-rtc@archiver.kernel.org>; Thu,  3 Mar 2022 14:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85280C433EF
+	for <linux-rtc@archiver.kernel.org>; Thu,  3 Mar 2022 14:12:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233960AbiCCON2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 3 Mar 2022 09:13:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53916 "EHLO
+        id S233978AbiCCONm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 3 Mar 2022 09:13:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233955AbiCCON0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 3 Mar 2022 09:13:26 -0500
+        with ESMTP id S233979AbiCCONk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 3 Mar 2022 09:13:40 -0500
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43AD3CFDE;
-        Thu,  3 Mar 2022 06:12:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60F7F18CC1F;
+        Thu,  3 Mar 2022 06:12:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1646316760; x=1677852760;
+  t=1646316774; x=1677852774;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=WIKT5jfoAPP6qi8Q03VSCyqWe/v8lRvCpzkdyDNOaB0=;
-  b=0UWAgAGSOb3I5+gKl7SHNyWU1AgtV6Fhsm4Ya23NDzjjLHayOHJDozQV
-   DEbIjkC2nlxha9wDWq7cizy888C5LLc9gZQkoZkbqAiIbkjgNTKF7WsF+
-   RAvr4DWw8b205vpuP0Dg1HVPziXG8E8gTOG2tBSibKlA/j5+NpJ2g5ZjX
-   kr6ZWUaTMguQZCnXD2FufbsztyMaTHMaS6AKlCH+k5Y6TpaG2KPF7CWkE
-   HJud4qJZzSAFHKrqIzQH599kyID5olyaXmdcX1sQ9zCc0NyhPRp8Kl99z
-   k3STvoGyoPoMWQe1NGxac2idzzawfIOEA+qO4q2+GNMnbkcTvPc8xI/mb
-   Q==;
+  bh=Ii1IDpzBCywstrqs0ihtCZsjxQTenixL/7CD9yqjDzk=;
+  b=jslexHGVQ6j680Jwo5BJhkpCCBZ8Rzs1jJ5slBHeARBZI4JrBcPZt0zz
+   kSKEzuLHOSOzO4ZfYO31sStdzVS1o8w59SnyvJrz45JJhJoE41L0oN9JK
+   dobVvcbtXFi9qwDO+TG/mfdkB4dvSeswhom3c5JDh9Wem3qzJbhAPoFjE
+   Zp7PD/8poyWXvFB6/yYLGtbRBbz6y4cdvNn0cA6D9gWqKIDo0+blEuOvq
+   chs4CDeU6hMwHyM4W888AAq3Ruuh/nyEuZO16lYJ1he50GILHDcfLkDQy
+   0W7urTgspPhePo4AsMBQOoEboGSGnyX6fr2IU5nSzqfkVhiPVpAPXurE+
+   w==;
 X-IronPort-AV: E=Sophos;i="5.90,151,1643698800"; 
-   d="scan'208";a="155582398"
+   d="scan'208";a="155125685"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 03 Mar 2022 07:12:39 -0700
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 03 Mar 2022 07:12:53 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Thu, 3 Mar 2022 07:12:38 -0700
+ 15.1.2375.17; Thu, 3 Mar 2022 07:12:52 -0700
 Received: from ROB-ULT-M68701.amer.actel.com (10.10.115.15) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.2375.17 via Frontend Transport; Thu, 3 Mar 2022 07:12:33 -0700
+ 15.1.2375.17 via Frontend Transport; Thu, 3 Mar 2022 07:12:46 -0700
 From:   Sergiu Moga <sergiu.moga@microchip.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
         <robh+dt@kernel.org>, <krzysztof.kozlowski@canonical.com>,
@@ -46,9 +46,9 @@ CC:     <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         Sergiu Moga <sergiu.moga@microchip.com>
-Subject: [PATCH v2 2/5] ARM: dts: at91: Add the required `atmel,rtt-rtc-time-reg` property
-Date:   Thu, 3 Mar 2022 16:06:23 +0200
-Message-ID: <20220303140626.38129-3-sergiu.moga@microchip.com>
+Subject: [PATCH v2 4/5] dt-bindings: rtc: convert at91sam9 bindings to json-schema
+Date:   Thu, 3 Mar 2022 16:06:25 +0200
+Message-ID: <20220303140626.38129-5-sergiu.moga@microchip.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220303140626.38129-1-sergiu.moga@microchip.com>
 References: <20220303140626.38129-1-sergiu.moga@microchip.com>
@@ -59,60 +59,115 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add the required `atmel,rtt-rtc-time-reg` property to the `rtt` nodes
-of the RTT IPs.
+Convert RTC binding for Atmel/Microchip SoCs to Device Tree Schema
+format.
 
 Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
 ---
- arch/arm/boot/dts/at91sam9261.dtsi | 1 +
- arch/arm/boot/dts/at91sam9263.dtsi | 2 ++
- arch/arm/boot/dts/at91sam9rl.dtsi  | 1 +
- 3 files changed, 4 insertions(+)
+ .../bindings/rtc/atmel,at91sam9-rtc.txt       | 25 --------
+ .../bindings/rtc/atmel,at91sam9-rtc.yaml      | 61 +++++++++++++++++++
+ 2 files changed, 61 insertions(+), 25 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
 
-diff --git a/arch/arm/boot/dts/at91sam9261.dtsi b/arch/arm/boot/dts/at91sam9261.dtsi
-index 7adc36ca8a46..ac50b164138a 100644
---- a/arch/arm/boot/dts/at91sam9261.dtsi
-+++ b/arch/arm/boot/dts/at91sam9261.dtsi
-@@ -627,6 +627,7 @@ rtc@fffffd20 {
- 				reg = <0xfffffd20 0x10>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 				clocks = <&slow_xtal>;
-+				atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
- 				status = "disabled";
- 			};
- 
-diff --git a/arch/arm/boot/dts/at91sam9263.dtsi b/arch/arm/boot/dts/at91sam9263.dtsi
-index fe45d96239c9..6be91df2a8b1 100644
---- a/arch/arm/boot/dts/at91sam9263.dtsi
-+++ b/arch/arm/boot/dts/at91sam9263.dtsi
-@@ -734,6 +734,7 @@ rtc@fffffd20 {
- 				reg = <0xfffffd20 0x10>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 				clocks = <&slow_xtal>;
-+				atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
- 				status = "disabled";
- 			};
- 
-@@ -742,6 +743,7 @@ rtc@fffffd50 {
- 				reg = <0xfffffd50 0x10>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 				clocks = <&slow_xtal>;
-+				atmel,rtt-rtc-time-reg = <&gpbr 0x4>;
- 				status = "disabled";
- 			};
- 
-diff --git a/arch/arm/boot/dts/at91sam9rl.dtsi b/arch/arm/boot/dts/at91sam9rl.dtsi
-index 730d1182c73e..80e41f115216 100644
---- a/arch/arm/boot/dts/at91sam9rl.dtsi
-+++ b/arch/arm/boot/dts/at91sam9rl.dtsi
-@@ -805,6 +805,7 @@ rtc@fffffd20 {
- 				reg = <0xfffffd20 0x10>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 				clocks = <&clk32k>;
-+				atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
- 				status = "disabled";
- 			};
- 
+diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+deleted file mode 100644
+index 3f0e2a5950eb..000000000000
+--- a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
++++ /dev/null
+@@ -1,25 +0,0 @@
+-Atmel AT91SAM9260 Real Time Timer
+-
+-Required properties:
+-- compatible: should be one of the following:
+-	- "atmel,at91sam9260-rtt"
+-	- "microchip,sam9x60-rtt", "atmel,at91sam9260-rtt"
+-- reg: should encode the memory region of the RTT controller
+-- interrupts: rtt alarm/event interrupt
+-- clocks: should contain the 32 KHz slow clk that will drive the RTT block.
+-- atmel,rtt-rtc-time-reg: should encode the GPBR register used to store
+-	the time base when the RTT is used as an RTC.
+-	The first cell should point to the GPBR node and the second one
+-	encode the offset within the GPBR block (or in other words, the
+-	GPBR register used to store the time base).
+-
+-
+-Example:
+-
+-rtt@fffffd20 {
+-	compatible = "atmel,at91sam9260-rtt";
+-	reg = <0xfffffd20 0x10>;
+-	interrupts = <1 4 7>;
+-	clocks = <&clk32k>;
+-	atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
+new file mode 100644
+index 000000000000..5a639c0ec2c0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
+@@ -0,0 +1,61 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright (C) 2022 Microchip Technology, Inc. and its subsidiaries
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/atmel,at91sam9-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Atmel AT91 RTT Device Tree Bindings
++
++allOf:
++  - $ref: "rtc.yaml#"
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - const: atmel,at91sam9260-rtt
++      - items:
++          - const: microchip,sam9x60-rtt
++          - const: atmel,at91sam9260-rtt
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  atmel,rtt-rtc-time-reg:
++    $ref: /schemas/types.yaml#/definitions/phandle-array
++    description: |
++      Should encode the GPBR register used to store the time base when the
++      RTT is used as an RTC. The first cell should point to the GPBR node
++      and the second one encodes the offset within the GPBR block (or in
++      other words, the GPBR register used to store the time base).
++
++  start-year: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - atmel,rtt-rtc-time-reg
++
++additionalProperties: false
++
++examples:
++  - |
++    rtc@fffffd20 {
++        compatible = "atmel,at91sam9260-rtt";
++        reg = <0xfffffd20 0x10>;
++        interrupts = <1 4 7>;
++        clocks = <&clk32k>;
++        atmel,rtt-rtc-time-reg = <&gpbr 0x0>;
++    };
 -- 
 2.25.1
 
