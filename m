@@ -2,42 +2,42 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1406C433F5
-	for <linux-rtc@archiver.kernel.org>; Fri,  4 Mar 2022 16:12:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A912C433F5
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Mar 2022 16:13:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240637AbiCDQNc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 4 Mar 2022 11:13:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
+        id S239171AbiCDQNs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Mar 2022 11:13:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240652AbiCDQN3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Mar 2022 11:13:29 -0500
+        with ESMTP id S240704AbiCDQM7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Mar 2022 11:12:59 -0500
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B321959DF;
-        Fri,  4 Mar 2022 08:12:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24261C944C;
+        Fri,  4 Mar 2022 08:12:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1646410361; x=1677946361;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ItwHa2LGg6vVjt4JwnVSxcBCS+3q6NmheNIr1H3INP4=;
-  b=FqyacSBVeBCvFvgc1Cp6wOlWBZmgZgt6A06qLnjHDhlnC+Iv9Y8MbM2w
-   YxpJEqq7St03un4dGKKALp4/dhgyyc6uGno0HPFRfx+aYO0X+2OAyVydl
-   cOk3GAB30X20Vug4XfkLskgdcilBHMGCbn4bDVKbn/JosFD89IAeTXoLF
-   CrY/mZ0laRRoBZkOghBjPImLd+bnxZeQXtuzvOIlZ5t000/Cpy1dlNbjE
-   bh9mb6aWPe/of574qKCwgaD9uS2BiWkfAEuvJiN/IUoJMLDMS7YToQZbK
-   pvbxWKGs1gf1b0HEFUYmXzVX0OJ7jbQy7PSZrHxl0dFHrHshzA4aGwuWe
+  t=1646410332; x=1677946332;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=ov1LE0FbKUUWwG2ayc5X90cLOPMgm/y4g1mec+lzQCU=;
+  b=dmhzkt4b59d8e9GrG2tsXJxKirNM48hxj9joU7AK5ekMnNNqSSUBQ93o
+   jH45dc4S9RK9Pja+ZWCZvQv28fvVt6RMWNQRKrYHULIEcyd2CR0oRXT2s
+   48NTabX3W/0pBi0H4FKyxebSLC09RgE1VfkJVScWLSCk87utn6V2Pp/I5
+   nyNEALsCUc1qhUlOwMimm/QktG6d505s1ONRjebaZD9eqaNXppzv+SEvG
+   9sJNLfqEZeEan2OmUG8jjf4jED+oYzeFa7AX6nK/VbVok+rjwoJZ8MCxZ
+   PNOSz5PlcasgutLwaqyA1zjVqf4iouk9vNCflCW7wQ4GeGLekUs5SXbIa
    g==;
 X-IronPort-AV: E=Sophos;i="5.90,155,1643698800"; 
-   d="scan'208";a="150883336"
+   d="scan'208";a="87851530"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 04 Mar 2022 09:12:37 -0700
+  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 04 Mar 2022 09:12:10 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Fri, 4 Mar 2022 09:12:36 -0700
+ 15.1.2375.17; Fri, 4 Mar 2022 09:12:09 -0700
 Received: from ROB-ULT-M68701.amer.actel.com (10.10.115.15) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.2375.17 via Frontend Transport; Fri, 4 Mar 2022 09:12:32 -0700
+ 15.1.2375.17 via Frontend Transport; Fri, 4 Mar 2022 09:12:05 -0700
 From:   Sergiu Moga <sergiu.moga@microchip.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
         <robh+dt@kernel.org>, <krzysztof.kozlowski@canonical.com>,
@@ -46,12 +46,10 @@ CC:     <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         Sergiu Moga <sergiu.moga@microchip.com>
-Subject: [PATCH v4 4/4] dt-bindings: rtc: at91: Add SAMA7G5 compatible strings list
-Date:   Fri, 4 Mar 2022 18:11:59 +0200
-Message-ID: <20220304161159.147784-5-sergiu.moga@microchip.com>
+Subject: [PATCH v4 0/4] dt-bindings: rtc: convert at91sam9 bindings to
+Date:   Fri, 4 Mar 2022 18:11:55 +0200
+Message-ID: <20220304161159.147784-1-sergiu.moga@microchip.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220304161159.147784-1-sergiu.moga@microchip.com>
-References: <20220304161159.147784-1-sergiu.moga@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -59,29 +57,36 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add compatible strings list for SAMA7G5.
+This patch series addresses the conversion of the RTC binding for
+Atmel/Microchip SoCs to Device Tree Schema format. It also changes
+the node names from some of the "dtsi" files from "rtt" to the more
+generic "rtc", while adding the `atmel,rtt-rtc-time-reg` required
+property to the board files that were missing it.
 
-Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
----
- Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+Changes since v3:
+- Removed unnecessary additional `rtc` node from
+  `arch/arm/boot/dts/at91sam9263ek.dts`.
+- Squashed commit related to the conversion of the binding to
+  json-schema with the commit related to the usage of macros
+  for the IRQ type of the binding's example.
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
-index d2452067bfe4..e5c3c384e172 100644
---- a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
-@@ -21,6 +21,10 @@ properties:
-       - items:
-           - const: microchip,sam9x60-rtt
-           - const: atmel,at91sam9260-rtt
-+      - items:
-+          - const: microchip,sama7g5-rtt
-+          - const: microchip,sam9x60-rtt
-+          - const: atmel,at91sam9260-rtt
- 
-   reg:
-     maxItems: 1
+Sergiu Moga (4):
+  ARM: dts: at91: Add the required `atmel,rtt-rtc-time-reg` property
+  ARM: dts: at91: Use the generic "rtc" node name for the rtt IPs
+  dt-bindings: rtc: convert at91sam9 bindings to json-schema
+  dt-bindings: rtc: at91: Add SAMA7G5 compatible strings list
+
+ .../bindings/rtc/atmel,at91sam9-rtc.txt       | 25 -------
+ .../bindings/rtc/atmel,at91sam9-rtc.yaml      | 69 +++++++++++++++++++
+ arch/arm/boot/dts/at91sam9261ek.dts           |  4 ++
+ arch/arm/boot/dts/at91sam9263ek.dts           |  4 ++
+ arch/arm/boot/dts/at91sam9rlek.dts            |  4 ++
+ arch/arm/boot/dts/sam9x60.dtsi                |  2 +-
+ arch/arm/boot/dts/sama7g5.dtsi                |  2 +-
+ 7 files changed, 83 insertions(+), 27 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
+
 -- 
 2.25.1
 
