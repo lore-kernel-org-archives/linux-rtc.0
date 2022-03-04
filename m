@@ -2,91 +2,73 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A912C433F5
-	for <linux-rtc@archiver.kernel.org>; Fri,  4 Mar 2022 16:13:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 331B3C433EF
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Mar 2022 22:14:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239171AbiCDQNs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 4 Mar 2022 11:13:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42032 "EHLO
+        id S229475AbiCDWPp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Mar 2022 17:15:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240704AbiCDQM7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Mar 2022 11:12:59 -0500
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24261C944C;
-        Fri,  4 Mar 2022 08:12:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1646410332; x=1677946332;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=ov1LE0FbKUUWwG2ayc5X90cLOPMgm/y4g1mec+lzQCU=;
-  b=dmhzkt4b59d8e9GrG2tsXJxKirNM48hxj9joU7AK5ekMnNNqSSUBQ93o
-   jH45dc4S9RK9Pja+ZWCZvQv28fvVt6RMWNQRKrYHULIEcyd2CR0oRXT2s
-   48NTabX3W/0pBi0H4FKyxebSLC09RgE1VfkJVScWLSCk87utn6V2Pp/I5
-   nyNEALsCUc1qhUlOwMimm/QktG6d505s1ONRjebaZD9eqaNXppzv+SEvG
-   9sJNLfqEZeEan2OmUG8jjf4jED+oYzeFa7AX6nK/VbVok+rjwoJZ8MCxZ
-   PNOSz5PlcasgutLwaqyA1zjVqf4iouk9vNCflCW7wQ4GeGLekUs5SXbIa
-   g==;
-X-IronPort-AV: E=Sophos;i="5.90,155,1643698800"; 
-   d="scan'208";a="87851530"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 04 Mar 2022 09:12:10 -0700
-Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Fri, 4 Mar 2022 09:12:09 -0700
-Received: from ROB-ULT-M68701.amer.actel.com (10.10.115.15) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server id
- 15.1.2375.17 via Frontend Transport; Fri, 4 Mar 2022 09:12:05 -0700
-From:   Sergiu Moga <sergiu.moga@microchip.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <robh+dt@kernel.org>, <krzysztof.kozlowski@canonical.com>,
-        <nicolas.ferre@microchip.com>, <claudiu.beznea@microchip.com>
-CC:     <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Sergiu Moga <sergiu.moga@microchip.com>
-Subject: [PATCH v4 0/4] dt-bindings: rtc: convert at91sam9 bindings to
-Date:   Fri, 4 Mar 2022 18:11:55 +0200
-Message-ID: <20220304161159.147784-1-sergiu.moga@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229468AbiCDWPo (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Mar 2022 17:15:44 -0500
+Received: from mail-oi1-f172.google.com (mail-oi1-f172.google.com [209.85.167.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87D15E61F3;
+        Fri,  4 Mar 2022 14:14:56 -0800 (PST)
+Received: by mail-oi1-f172.google.com with SMTP id ay7so9248368oib.8;
+        Fri, 04 Mar 2022 14:14:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=IF4uwZ2Wt/aHg+83dvg/o/2ECkCwnq/lAioga7Vlr3w=;
+        b=jmGy4loJFjJqCySbOrbXHLgeRkc1wy84w0tWi/ucvgIASmpgLsLLAE7FMXHoJwKhW5
+         fi7YKhOTXH1fBAeCzN6SMVLwEmCVoKSUMC5WBosD3MDef49CfWnd7U8E1NXGZHMppE/Z
+         2zu/YNOw+JV3bg4rorCWuMv04AVqocNSpoL1m5Yu6mlhXwa403utyGRiXy4Nrzqnm9Jc
+         yrxp3qRB2Lk998IhK7FFruY/4YhhQClFXFO6OXWnF3lUiPDEkYuKdbpOPlLzYKO35OkO
+         9z1UVWqCXjhCFE+d9LR+76az4+0XkQDbfNwFcigtnaSMtAF6Rn4usqm1Bj9vMMWK+1a+
+         6Y/w==
+X-Gm-Message-State: AOAM533PRIIxvYpOGr4YqlnV7E9W4FN/TGXs32Rxg87KjQV7pkZXC37s
+        /1PWr0M8iOLLpRCsGKIGzQ==
+X-Google-Smtp-Source: ABdhPJwSeDbwhQKWruWDXmLve/lD7Xfuz2Qycvq28+Vh7DfyWCbdXrBzsKFGnQtDK72Tbr4dmFQDGA==
+X-Received: by 2002:a05:6808:14ca:b0:2d9:a01a:48b5 with SMTP id f10-20020a05680814ca00b002d9a01a48b5mr813325oiw.256.1646432095905;
+        Fri, 04 Mar 2022 14:14:55 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id bq3-20020a05680823c300b002d4f8fe4881sm3240213oib.39.2022.03.04.14.14.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Mar 2022 14:14:55 -0800 (PST)
+Received: (nullmailer pid 527296 invoked by uid 1000);
+        Fri, 04 Mar 2022 22:14:54 -0000
+Date:   Fri, 4 Mar 2022 16:14:54 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Sergiu Moga <sergiu.moga@microchip.com>
+Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        krzysztof.kozlowski@canonical.com, nicolas.ferre@microchip.com,
+        claudiu.beznea@microchip.com, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 3/4] dt-bindings: rtc: convert at91sam9 bindings to
+ json-schema
+Message-ID: <YiKPXmf4L6aLGM5a@robh.at.kernel.org>
+References: <20220304161159.147784-1-sergiu.moga@microchip.com>
+ <20220304161159.147784-4-sergiu.moga@microchip.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220304161159.147784-4-sergiu.moga@microchip.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patch series addresses the conversion of the RTC binding for
-Atmel/Microchip SoCs to Device Tree Schema format. It also changes
-the node names from some of the "dtsi" files from "rtt" to the more
-generic "rtc", while adding the `atmel,rtt-rtc-time-reg` required
-property to the board files that were missing it.
+On Fri, Mar 04, 2022 at 06:11:58PM +0200, Sergiu Moga wrote:
+> Convert RTC binding for Atmel/Microchip SoCs to Device Tree Schema
+> format.
+> 
+> Signed-off-by: Sergiu Moga <sergiu.moga@microchip.com>
+> ---
+>  .../bindings/rtc/atmel,at91sam9-rtc.txt       | 25 -------
+>  .../bindings/rtc/atmel,at91sam9-rtc.yaml      | 65 +++++++++++++++++++
+>  2 files changed, 65 insertions(+), 25 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
+>  create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
 
-Changes since v3:
-- Removed unnecessary additional `rtc` node from
-  `arch/arm/boot/dts/at91sam9263ek.dts`.
-- Squashed commit related to the conversion of the binding to
-  json-schema with the commit related to the usage of macros
-  for the IRQ type of the binding's example.
-
-Sergiu Moga (4):
-  ARM: dts: at91: Add the required `atmel,rtt-rtc-time-reg` property
-  ARM: dts: at91: Use the generic "rtc" node name for the rtt IPs
-  dt-bindings: rtc: convert at91sam9 bindings to json-schema
-  dt-bindings: rtc: at91: Add SAMA7G5 compatible strings list
-
- .../bindings/rtc/atmel,at91sam9-rtc.txt       | 25 -------
- .../bindings/rtc/atmel,at91sam9-rtc.yaml      | 69 +++++++++++++++++++
- arch/arm/boot/dts/at91sam9261ek.dts           |  4 ++
- arch/arm/boot/dts/at91sam9263ek.dts           |  4 ++
- arch/arm/boot/dts/at91sam9rlek.dts            |  4 ++
- arch/arm/boot/dts/sam9x60.dtsi                |  2 +-
- arch/arm/boot/dts/sama7g5.dtsi                |  2 +-
- 7 files changed, 83 insertions(+), 27 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
-
--- 
-2.25.1
-
+Reviewed-by: Rob Herring <robh@kernel.org>
