@@ -2,40 +2,40 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 704B0C433EF
-	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 16:35:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FDDCC433EF
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 16:36:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236582AbiCIQgK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 9 Mar 2022 11:36:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44928 "EHLO
+        id S235532AbiCIQh1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Mar 2022 11:37:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236987AbiCIQaa (ORCPT
+        with ESMTP id S237011AbiCIQaa (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Mar 2022 11:30:30 -0500
 Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2CB9FBA40;
-        Wed,  9 Mar 2022 08:23:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26D4150400;
+        Wed,  9 Mar 2022 08:23:57 -0800 (PST)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id C08F11BF205;
-        Wed,  9 Mar 2022 16:23:37 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 790731BF20A;
+        Wed,  9 Mar 2022 16:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1646843018;
+        t=1646843019;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=jD5tZeMJyZNMNUWfLN3vw5FbsgGz51lMl3mCcg3MPjE=;
-        b=BMC5w2NzXVe7zRADn1A6UdYADpO486ZK6WcQC2IMUvL4EAugjInUOP0LipITC/2nqKRUBr
-        eNMR26Ia3MTXYuI8hYA3QqkQTSrLZEn3IYP7Bz0+VVCONcj75KrKFKXLbho+83Vur5HuxP
-        XrwcP8d1Jy6/r1vrj4i77l5SonEABuYed8q08lFC5YIDooFHS7+5+cJ7SElo0+wF0PSidG
-        Yo0MFfxbwwtXfIk9C9Ujy4cUJqXj2Fq2evz+APy9Gh7u7vu+MPvouN2J8bzLS8zucraA9J
-        O8i8k3UeMozPMHheJyRwb4zB4RhGDzTirEf1kqyBZUSv/hvz+3Wtg1bdiqUQHw==
+        bh=3C6FB6jhgDsl5acxT2klDaDicyoea6PWDZxx1o8S4oU=;
+        b=cwbnSDJenHY3cCJNJzpk4h5KZESvbQZkXsQo1tjsM4mUFX0U2NfPC0C6uV8LC113OBFjMI
+        nHAfpMIXLR+vj4H0PH5SP2EU3/2ue6/QWM8VZbg0G9pVqcKAw/UCsb4Mmh0i3b+enaLbxm
+        IGjPzYFNvKW498S+6JS+Dyj+gGaJ84ZssFXF5BevLeak/ye2FYkgcohuFpqWRZ09dZwlkL
+        h5UxBGq8C5puxCf7hyZqhX3M5dUpE5sXdCE7LXqVkF0yAP+iq+sdv65GrHC1eoVWSFxoKQ
+        sBzMN+Y3RkqBqSe/dmtParmCYfZfcKjqZv0RU3aWmMge9H4NNJdkCmolMTTVcw==
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 27/29] rtc: hym8563: switch to RTC_FEATURE_UPDATE_INTERRUPT
-Date:   Wed,  9 Mar 2022 17:22:58 +0100
-Message-Id: <20220309162301.61679-27-alexandre.belloni@bootlin.com>
+Subject: [PATCH 29/29] rtc: remove uie_unsupported
+Date:   Wed,  9 Mar 2022 17:23:00 +0100
+Message-Id: <20220309162301.61679-29-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
 References: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
@@ -45,27 +45,41 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Stop using uie_unsupported and clear RTC_FEATURE_UPDATE_INTERRUPT instead.
+uie_unsupported is not used by any drivers anymore, remove it.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-hym8563.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/rtc/class.c | 3 ---
+ include/linux/rtc.h | 2 --
+ 2 files changed, 5 deletions(-)
 
-diff --git a/drivers/rtc/rtc-hym8563.c b/drivers/rtc/rtc-hym8563.c
-index 78f21f623d89..90e602e99d03 100644
---- a/drivers/rtc/rtc-hym8563.c
-+++ b/drivers/rtc/rtc-hym8563.c
-@@ -545,8 +545,7 @@ static int hym8563_probe(struct i2c_client *client,
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 40d504dac1a9..3c8eec2218df 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -399,9 +399,6 @@ int __devm_rtc_register_device(struct module *owner, struct rtc_device *rtc)
+ 	if (!rtc->ops->set_alarm)
+ 		clear_bit(RTC_FEATURE_ALARM, rtc->features);
  
- 	hym8563->rtc->ops = &hym8563_rtc_ops;
- 	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, hym8563->rtc->features);
--	/* the hym8563 alarm only supports a minute accuracy */
--	hym8563->rtc->uie_unsupported = 1;
-+	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, hym8563->rtc->features);
+-	if (rtc->uie_unsupported)
+-		clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
+-
+ 	if (rtc->ops->set_offset)
+ 		set_bit(RTC_FEATURE_CORRECTION, rtc->features);
  
- #ifdef CONFIG_COMMON_CLK
- 	hym8563_clkout_register_clk(hym8563);
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 47fd1c2d3a57..1fd9c6a21ebe 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -110,8 +110,6 @@ struct rtc_device {
+ 	struct hrtimer pie_timer; /* sub second exp, so needs hrtimer */
+ 	int pie_enabled;
+ 	struct work_struct irqwork;
+-	/* Some hardware can't support UIE mode */
+-	int uie_unsupported;
+ 
+ 	/*
+ 	 * This offset specifies the update timing of the RTC.
 -- 
 2.35.1
 
