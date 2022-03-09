@@ -2,69 +2,85 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18743C433EF
-	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 16:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F359FC433F5
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 21:06:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233789AbiCIQhe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 9 Mar 2022 11:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45182 "EHLO
+        id S238329AbiCIVHI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Mar 2022 16:07:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236889AbiCIQaZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Mar 2022 11:30:25 -0500
-Received: from relay10.mail.gandi.net (relay10.mail.gandi.net [IPv6:2001:4b98:dc4:8::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EED9E38BF;
-        Wed,  9 Mar 2022 08:23:44 -0800 (PST)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 8BB61240007;
-        Wed,  9 Mar 2022 16:23:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1646843018;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=M0HituYqQRivyyV2wX1PQGqGHVagZ4qG+Bl9gSVspFQ=;
-        b=ph9Ui+x8HEmsL9yXEIba7dKLGPopB+ptKLifoC/4urYDK5p0JaoLxPZhGEjJ09Ap56k5wv
-        qcjD8wZIiFQkffiQPvzFxNX7dAexNKX882CHQyKJOYCZjQpQeq7JzYCloOy9z7vgt29UnP
-        0LGq5FekMLH84furiFu721gK8cykAS8yuXo1eQ035QVkkEqkr75z9sv4HFSQM2WyupBJWE
-        SUQtXKivU5X0xHLBcgfRLuuyi1WnozXoyoytizkRK5fPekXtnNIgYRUb10TsomGKtMqOH3
-        gTDLw+Z0gsBVUMfqnEAk7TgZQAG1eaWZOFdZgluD0pXv/xj/IEI72gz04Ktw8g==
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 28/29] rtc: xgene: stop using uie_unsupported
-Date:   Wed,  9 Mar 2022 17:22:59 +0100
-Message-Id: <20220309162301.61679-28-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
-References: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
+        with ESMTP id S231917AbiCIVHH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Mar 2022 16:07:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF89A10C50F;
+        Wed,  9 Mar 2022 13:06:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78CDF61AB8;
+        Wed,  9 Mar 2022 21:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D548EC36AE7;
+        Wed,  9 Mar 2022 21:06:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646859966;
+        bh=FeLtBU7QMp6iEJHccU5vuRdG5htlOJfIhhIpS6r7AhM=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Z9Ot8vd0SD9n+maWBFR9fCvdLyFrzkzJZ0clgv0hHJ1OYP0+Ol+cZju3OiiDm/yiL
+         Ma5epBS1vFTVXJvScrqEz3sqDgwZZRa9WZQ/N50WIqeqLnS5haqiPMeYb5BejHUGL9
+         gkkFjOLgV8TSt50cYWcDK+LaTTuSxuz8GymRKPkPuDG5hmOZ8p0Ht1ZGHkyCkNTPL/
+         DDCV4RKt0kOAYVylpiJXblzinr/DN5/tGcfvawWu0Ai9ypNTelwyoytBHwt5kDezU1
+         NN0DAiyCI1mY5mAYJwmq6IsD3tUrRYgfz9cKL6IvIqRry19yENUBPAomSN5yUxxWGJ
+         ZzyIfvzhlIOvQ==
+Received: by mail-ej1-f48.google.com with SMTP id qa43so7725407ejc.12;
+        Wed, 09 Mar 2022 13:06:06 -0800 (PST)
+X-Gm-Message-State: AOAM531dwVIA9D83R8yyQox/mSMMg5ZP+c0MrBiTv6zw9XmG325M6DGK
+        pIMvmI6f9QMs22fSrv/UcGC0aNjhdUf6TJT+JA==
+X-Google-Smtp-Source: ABdhPJxP4r5jkW2XGKLwSeYb+P3R9mLVmIuw9bFE1hEmABTru6Z5W8ocg6Km8rnC2ammFaLr1fc9kholLHA72ed6cTo=
+X-Received: by 2002:a17:906:a38e:b0:6da:a1f9:f9ee with SMTP id
+ k14-20020a170906a38e00b006daa1f9f9eemr1449135ejz.27.1646859965060; Wed, 09
+ Mar 2022 13:06:05 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220308155735.54146-1-alexandre.belloni@bootlin.com>
+In-Reply-To: <20220308155735.54146-1-alexandre.belloni@bootlin.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Wed, 9 Mar 2022 15:05:53 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJXz01F_+-xg8VfAOQ=-C96NVa1KO+nRbXf9mq289kmYQ@mail.gmail.com>
+Message-ID: <CAL_JsqJXz01F_+-xg8VfAOQ=-C96NVa1KO+nRbXf9mq289kmYQ@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: rtc: at91: rename rtt bindings file
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        devicetree@vger.kernel.org,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Remove bogus use of uie_unsupported.
+On Tue, Mar 8, 2022 at 9:57 AM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> atmel,at91sam9-rtc is a confuing name for this file as it is documenting
+> the RTT used as an RTC and not the other regular RTC (atmel,at91rm9200-rtc
+> and atmel,at91sam9x5-rtc)
+>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  .../rtc/{atmel,at91sam9-rtc.yaml => atmel,at91sam9260-rtt.yaml}   | 0
+>  1 file changed, 0 insertions(+), 0 deletions(-)
+>  rename Documentation/devicetree/bindings/rtc/{atmel,at91sam9-rtc.yaml => atmel,at91sam9260-rtt.yaml} (100%)
+>
+> diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml b/Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml
+> similarity index 100%
+> rename from Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
+> rename to Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/rtc/rtc-xgene.c | 2 --
- 1 file changed, 2 deletions(-)
+Now failing in -next:
 
-diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
-index cf68a9b1c9eb..d3d0054e21fd 100644
---- a/drivers/rtc/rtc-xgene.c
-+++ b/drivers/rtc/rtc-xgene.c
-@@ -180,8 +180,6 @@ static int xgene_rtc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	/* HW does not support update faster than 1 seconds */
--	pdata->rtc->uie_unsupported = 1;
- 	pdata->rtc->ops = &xgene_rtc_ops;
- 	pdata->rtc->range_max = U32_MAX;
- 
--- 
-2.35.1
-
+./Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml:
+$id: relative path/filename doesn't match actual path or filename
+  expected: http://devicetree.org/schemas/rtc/atmel,at91sam9260-rtt.yaml#
