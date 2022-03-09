@@ -2,86 +2,69 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1496FC433F5
-	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 09:22:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F64AC43217
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Mar 2022 16:34:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231897AbiCIJXa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 9 Mar 2022 04:23:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35672 "EHLO
+        id S235481AbiCIQfV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Mar 2022 11:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231792AbiCIJX3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Mar 2022 04:23:29 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5820C2DF9;
-        Wed,  9 Mar 2022 01:22:31 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id m22so1838635pja.0;
-        Wed, 09 Mar 2022 01:22:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id;
-        bh=kBC32u2ogQlH4HEXRWs9S+Rg6olRvmlFhO2KCjmnIcg=;
-        b=RrtidET1m5TLgd0yHXsgj6NxmHQvuSQHbhT729edKluDynumIV4TuE7jEh84pismxv
-         6UIh5/uY+u8MKLJSIDrunE0DxnowSTPj9T2GX+QQGMCGxbqVsw0uy1iu+8/qSSbFJ53D
-         pbVkIFzCYXKo9eNC+XT5Z+9SHhQysu2bIhjD5JhwkoG9qkD+BOUieeiBD+e8k1WtWNW7
-         DEUR6zqLpX6U1upYKNriDW5zCjoaU9g0tR5wSsHTLhRa87avElWzjE9PE/G8+mm2qI/Z
-         cCoX61Wu3gZ0KXZB8lhMr19QPojuV2G/ppNlfD22dFv2x038V6ge35jkTEGEKWuSSFuo
-         SNtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=kBC32u2ogQlH4HEXRWs9S+Rg6olRvmlFhO2KCjmnIcg=;
-        b=FhtVhvxGGtHNgalgLZArm5TPiY3brghWeLKoAxqsTYz3zrvw2rYCGpULUIcMFwSJXj
-         jGNfjNY6P6P45MjBNTBMuKbw2y2CoYpHXyQVk1lnAZhV6fNGv7IYcOxej5zpiStHs1wP
-         82Gyjns5VYHjLZvrR/5UzQZu1UDuaY2S5nKkqfEPFS/g7v4GiQ4U7T5Repc/uTHMX2Wn
-         EqqfnzJYpT0yAFzQcbJebv0n3VhO3l5e6x60RvJKdwl1wSHW8iOmzSSXHVIGKt56Fi8e
-         8I68wTH/1AAfojZVXz3qKZj6bk4gdeRZk2FFaHDG0JItXpD0VQAXMf+WSSUDiTYWBTD/
-         1dDg==
-X-Gm-Message-State: AOAM5337XhXIAiKh5ZNY+N8x292WWazd1VU31fCdXYl6n3FdJdTq/PXX
-        oECWIJ9beqIaANayd4MW3sNgxhjKfme8LV12bAN0Mg==
-X-Google-Smtp-Source: ABdhPJyieel0AiUVEPltiT/fQejzCzNmgj7kH0pTVTYL/XXGSm7DXmoFDD3auujWgDGUtF2WD8QyfQ==
-X-Received: by 2002:a17:90b:314:b0:1be:dc22:62f2 with SMTP id ay20-20020a17090b031400b001bedc2262f2mr9347868pjb.102.1646817750778;
-        Wed, 09 Mar 2022 01:22:30 -0800 (PST)
-Received: from localhost.localdomain ([159.226.95.43])
-        by smtp.googlemail.com with ESMTPSA id d4-20020aa78e44000000b004f6aaa184c9sm2003574pfr.71.2022.03.09.01.22.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Mar 2022 01:22:30 -0800 (PST)
-From:   Miaoqian Lin <linmq006@gmail.com>
+        with ESMTP id S236747AbiCIQaL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Mar 2022 11:30:11 -0500
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDC6B716D;
+        Wed,  9 Mar 2022 08:23:31 -0800 (PST)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id E0B98240009;
+        Wed,  9 Mar 2022 16:23:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1646843007;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=coI9dHiEDla2UWdQmgJo3RqzSn/x2jsOBDPcmLF0OMA=;
+        b=lPfBLiFyojVXU6VpeZdM6VZbM+NGcwhS7FhZ3kcucl/s9JxBXpEXRi76iyRh9wz7HaeSxf
+        JkcIz5JNR/YMHJszjiWmKkn5fpP6iGyThNkYaoMspqk1hV3cW6OcnxGlu+3v3je6IEQFnL
+        QguVi3vPpdfmultBnEGMOmuQimg9fwZV/wFBkoam0wgzR9+pOkuY8LasXfqAvkOUxZ6qNp
+        9frx+ucWHVUHCTN2zYN+skYfXIQ9oXfBMHht6bFIhFqmQgkW8HbFuAbv1KV26jZZfykJPM
+        oWg9K+u2+mEDnzuKCTX0TY7A23P4MHoncsck2qUUsTLykfsUN6BOz+mo+YSXMg==
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     linmq006@gmail.com
-Subject: [PATCH] rtc: gamecube: Fix refcount leak in gamecube_rtc_read_offset_from_sram
-Date:   Wed,  9 Mar 2022 09:22:25 +0000
-Message-Id: <20220309092225.6930-1-linmq006@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 14/29] rtc: pcf8523: switch to RTC_FEATURE_UPDATE_INTERRUPT
+Date:   Wed,  9 Mar 2022 17:22:45 +0100
+Message-Id: <20220309162301.61679-14-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
+References: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+Stop using uie_unsupported and clear RTC_FEATURE_UPDATE_INTERRUPT instead.
 
-Fixes: 86559400b3ef ("rtc: gamecube: Add a RTC driver for the GameCube, Wii and Wii U")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-gamecube.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-pcf8523.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-gamecube.c b/drivers/rtc/rtc-gamecube.c
-index f717b36f4738..18ca3b38b2d0 100644
---- a/drivers/rtc/rtc-gamecube.c
-+++ b/drivers/rtc/rtc-gamecube.c
-@@ -235,6 +235,7 @@ static int gamecube_rtc_read_offset_from_sram(struct priv *d)
- 	}
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index baa89f431ebd..cd55fdfe1d39 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -450,7 +450,7 @@ static int pcf8523_probe(struct i2c_client *client,
+ 	rtc->ops = &pcf8523_rtc_ops;
+ 	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	rtc->range_max = RTC_TIMESTAMP_END_2099;
+-	rtc->uie_unsupported = 1;
++	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
  
- 	ret = of_address_to_resource(np, 0, &res);
-+	of_node_put(np);
- 	if (ret) {
- 		pr_err("no io memory range found\n");
- 		return -1;
+ 	if (client->irq > 0) {
+ 		err = regmap_write(pcf8523->regmap, PCF8523_TMR_CLKOUT_CTRL, 0x38);
 -- 
-2.17.1
+2.35.1
 
