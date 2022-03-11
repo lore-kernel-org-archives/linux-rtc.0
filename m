@@ -2,242 +2,958 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6900AC433EF
-	for <linux-rtc@archiver.kernel.org>; Fri, 11 Mar 2022 08:00:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70A2DC4321E
+	for <linux-rtc@archiver.kernel.org>; Fri, 11 Mar 2022 16:25:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244263AbiCKIBG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 11 Mar 2022 03:01:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
+        id S1350242AbiCKQ0i (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 11 Mar 2022 11:26:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbiCKIBF (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Mar 2022 03:01:05 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02641B757A
-        for <linux-rtc@vger.kernel.org>; Fri, 11 Mar 2022 00:00:01 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id z26so11009349lji.8
-        for <linux-rtc@vger.kernel.org>; Fri, 11 Mar 2022 00:00:01 -0800 (PST)
+        with ESMTP id S1350313AbiCKQ0d (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 11 Mar 2022 11:26:33 -0500
+Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61940117C9E;
+        Fri, 11 Mar 2022 08:24:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=H61304/5/aT6zo++RCxPy8xIpo0rtqBkReH7sc0wAzE=;
-        b=h5dAHKLnDA5s5TgYxQRR61i78Pt7G77hFIU5nu1TkkshOv5UTcUu5pHiA97t0OMmM/
-         KFOYCMSzYWh9PmKC0MtlXy1dAWxlPC5ypG+zrJTrBI7tbLTGshzjvOqf18FB+xLXEs6K
-         3LWNqZnuDRDE5FxInfTGzLOO6NCMnF8YolVleJDRAt6wM4i6UYXxiE+7hLDcUSkWur/q
-         Y7zIgZVaEa9s96eguO71Q6zZZ5CZ8EF2bpGi78b8f6plkWBLJkt/9z0eScly552vQvHQ
-         1HelRv2TDnxxfblGdhEw6hDP8Yeim147XA+5GEE/KKzgZSggKwiUs4UI8cHOi1un1+8v
-         5P6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=H61304/5/aT6zo++RCxPy8xIpo0rtqBkReH7sc0wAzE=;
-        b=Qf1Y8fMim0wwfcHNczDl13QOn53nbaWjmicFYB8vW/y7XULasCHcUnkzSIpIckSr4G
-         Rb/Doc2wWmr9cC6pr9xS/l+mavpX4M2QSQEcMOMEI725u94cCijhdeFLR4E1mFVk/lWp
-         lzwkay3HAWKZr35C7OriQOvDybVnpJ2ewNHY2OCtRAX35x/XN0JMO/hGQNDfyNQ2dzNc
-         QkHW0UfXQy0y75yR+0ed2y69Wf1opuV0GH/0C7+9sqCGRGenpMuGY9oDiXq6B6PsNU9q
-         d4THBJOWniakBdBOh9tO28LlKaiylw9Y1otYeHf318nG8ostoBiYQjggREwGm3js4zjw
-         nMjQ==
-X-Gm-Message-State: AOAM531/CDyIxFab2OqnHeEDvY2UeYRPtzS354pAY2GI8GBq2D2OaSxP
-        HZe4G6RM76bCJDkkAsFwwVjpV7Hc/TpiYs/y01itgw==
-X-Google-Smtp-Source: ABdhPJxcwCfZeFWYSZ32b2nQjvwKVc2ZY4EDXoS35U8GTSd1gnKcH9gkwSMudZGRcPEkXsc1kxUSFuwWP8v7nXAC1rw=
-X-Received: by 2002:a05:651c:552:b0:249:1a87:a4a6 with SMTP id
- q18-20020a05651c055200b002491a87a4a6mr1967934ljp.516.1646985600099; Fri, 11
- Mar 2022 00:00:00 -0800 (PST)
+  d=axis.com; q=dns/txt; s=axis-central1; t=1647015895;
+  x=1678551895;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=rpTqoknbDOn72Q+UH1BdHCLF3yJZId72jHd8FypIw5U=;
+  b=KcTKg2XaTrn9jOPkhoLZo2g8hqlxgAXxCaFNkEUNe/XZTLF/5fsg9L3y
+   OdLoqHasFsEuGvrL3LfvL090oX71yeOWW3ecNOCg5CRf+I4/teuL4zz8q
+   zMRpnGKbSJm78pKxDDIf8lPxKmJ7h5A7ZoY7fCl1J8428NVg2XHRtx3IP
+   HamRXuPpMPfjpfU5el/1ezL+8usJUFiYcUOUkQq50sZPpsE5RhVzmuCtb
+   GlPBe3U083ksEsKd3lktBBvV7a22ilYu8l3sbdXHFS1b3dVyUgpK1PX/f
+   P6feCGwcFEvaubxiuyGKtPJibVVktt5rCamgOBh80lBzcGZwrjj9VfM5S
+   Q==;
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <kernel@axis.com>,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        <devicetree@vger.kernel.org>, <linux-um@lists.infradead.org>,
+        <shuah@kernel.org>, <brendanhiggins@google.com>,
+        <linux-kselftest@vger.kernel.org>, <jic23@kernel.org>,
+        <linux-iio@vger.kernel.org>, <lgirdwood@gmail.com>,
+        <broonie@kernel.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <linux-rtc@vger.kernel.org>,
+        <corbet@lwn.net>, <linux-doc@vger.kernel.org>
+Subject: [RFC v1 02/10] roadtest: add C backend
+Date:   Fri, 11 Mar 2022 17:24:37 +0100
+Message-ID: <20220311162445.346685-3-vincent.whitchurch@axis.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220311162445.346685-1-vincent.whitchurch@axis.com>
+References: <20220311162445.346685-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
-References: <mhng-bb42ad9f-5772-4749-97e1-9f6c511654f6@palmer-mbp2014> <e9287c9b-6ac7-dcb3-3b03-98bc83bbf119@microchip.com>
-In-Reply-To: <e9287c9b-6ac7-dcb3-3b03-98bc83bbf119@microchip.com>
-From:   Zong Li <zong.li@sifive.com>
-Date:   Fri, 11 Mar 2022 15:59:49 +0800
-Message-ID: <CANXhq0rPVKSF64Hwd9+jD3ut0y7VCE940V5do0Hn8=mnoX97yw@mail.gmail.com>
-Subject: Re: [PATCH v7 00/11] Update the Icicle Kit device tree
-To:     Conor Dooley <Conor.Dooley@microchip.com>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Stephen Boyd <sboyd@kernel.org>, Lewis.Hanly@microchip.com,
-        Daire.McNamara@microchip.com, Ivan.Griffin@microchip.com,
-        atishp@rivosinc.com, linus.walleij@linaro.org, brgl@bgdev.pl,
-        Rob Herring <robh+dt@kernel.org>, jassisinghbrar@gmail.com,
-        thierry.reding@gmail.com, u.kleine-koenig@pengutronix.de,
-        Lee Jones <lee.jones@linaro.org>, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        linux-gpio@vger.kernel.org,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
-        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-riscv <linux-riscv@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Mar 10, 2022 at 3:35 PM <Conor.Dooley@microchip.com> wrote:
->
-> On 10/03/2022 07:07, Palmer Dabbelt wrote:
-> > EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
-> >
-> > On Wed, 23 Feb 2022 12:48:16 PST (-0800), mail@conchuod.ie wrote:
-> >> On 14/02/2022 13:58, conor.dooley@microchip.com wrote:
-> >>> From: Conor Dooley <conor.dooley@microchip.com>
-> >>>
-> >>> This series updates the Microchip Icicle Kit device tree by adding a
-> >>> host of peripherals, and some updates to the memory map. In addition,
-> >>> the device tree has been split into a third part, which contains "soft"
-> >>> peripherals that are in the fpga fabric.
-> >>>
-> >>> Several of the entries are for peripherals that have not get had their
-> >>> drivers upstreamed, so in those cases the dt bindings are included where
-> >>> appropriate in order to avoid the many "DT compatible string <x> appears
-> >>> un-documented" errors.
-> >>>
-> >>> Depends on mpfs clock driver binding (on clk/next) to provide
-> >>> dt-bindings/clock/microchip,mpfs-clock.h for the device tree
-> >>> and on the other changes to the icicle/mpfs device tree from geert
-> >>> that are already in linux/riscv/for-next.
-> >
-> > So that's causing this to not build, as I can't build without the
-> > header.  I went ahead and put these on top of that patch, resulting in
-> >
-> >     * 48e8641c2bf0 - (HEAD -> riscv-microchip, palmer/riscv-microchip) MAINTAINERS: update riscv/microchip entry (2 minutes ago) <Conor Dooley>
-> >     * 528a5b1f2556 - riscv: dts: microchip: add new peripherals to icicle kit device tree (2 minutes ago) <Conor Dooley>
-> >     * 5b28df37d311 - riscv: dts: microchip: update peripherals in icicle kit device tree (2 minutes ago) <Conor Dooley>
-> >     * c5094f371008 - riscv: dts: microchip: refactor icicle kit device tree (2 minutes ago) <Conor Dooley>
-> >     * 72560c6559b8 - riscv: dts: microchip: add fpga fabric section to icicle kit (2 minutes ago) <Conor Dooley>
-> >     * 6546f920868e - riscv: dts: microchip: use clk defines for icicle kit (2 minutes ago) <Conor Dooley>
-> >     * df77f7735786 - dt-bindings: pwm: add microchip corepwm binding (2 minutes ago) <Conor Dooley>
-> >     * 735806d8a68e - dt-bindings: gpio: add bindings for microchip mpfs gpio (2 minutes ago) <Conor Dooley>
-> >     * 4cbcc0d7b397 - dt-bindings: rtc: add bindings for microchip mpfs rtc (2 minutes ago) <Conor Dooley>
-> >     * b435a1728c9f - dt-bindings: soc/microchip: add info about services to mpfs sysctrl (2 minutes ago) <Conor Dooley>
-> >     * 213556235526 - dt-bindings: soc/microchip: update syscontroller compatibles (2 minutes ago) <Conor Dooley>
-> >     * 2145bb687e3f - (clk/clk-microchip) dt-bindings: clk: microchip: Add Microchip PolarFire host binding (6 weeks ago) <Daire McNamara>
-> >     * e783362eb54c - (tag: v5.17-rc1) Linux 5.17-rc1 (7 weeks ago) <Linus Torvalds>
-> >
-> > sboyd: IIRC it's OK to consider clk-microchip as a stable branch?  If
-> > not I can just wait until you send your PR to Linus and send this later
-> > in the merge window, no big deal on my end.
-> >
-> > I've put this on for-next.  If that's a problem let me know and I'll
-> > delay it.
-> Great, thanks! Probably worth mentioning that I've deleted the dma node
-> that Zong Li is modifying in his pdma patchset.
->
+Add the C parts of the roadtest framework.  This uses QEMU's
+libvhost-user to implement the device side of virtio-user and
+virtio-gpio and bridge them to the Python portions of the backend.
 
-I guess I could re-sent the next version based on top of for-next, or
-delay my patch set until the next tag. What is your perspective?
+The C backend is also responsible for starting UML after the virtio
+device implementations are initialized.
 
-> >
-> > Thanks!
-> >
-> >>>
-> >>> Additionally, the interrupt-extended warnings on the plic/clint are
-> >>> cleared by [1] & [2].
-> >>>
-> >>> [1] https://lore.kernel.org/linux-riscv/cover.1639744468.git.geert@linux-m68k.org/
-> >>> [2] https://lore.kernel.org/linux-riscv/cover.1639744106.git.geert@linux-m68k.org/
-> >>
-> >> Hey Palmer,
-> >>
-> >> dt-bindings should be set now, so if you're still happy to take the
-> >> series via riscv, that'd be great. i2c, spi & usb patches ended going
-> >> via the sub-system trees (and have been dropped from the series), in
-> >> case those generate warnings for you.
-> >
-> > Something went off the rails in email land and #0 and #2 didn't end up
-> > in my patch queue but the rest did.  Luckily enough made it through that
-> > it didn't get lost, and lore's pretty great so this sort of thing isn't
-> > that big of a deal these days.  That said, email is a bit of a black box
-> > so figured I'd give you a heads up.
->
-> Huh, interesting. I do check after sending that I can see the mails in my
-> other email's inbox & they're there. Guess good thing that I sent the follow up.
-> Thanks,
-> Conor.
->
-> >
-> >>
-> >> Thanks,
-> >> Conor.
-> >>>
-> >>> Changes from v6:
-> >>> - Dropped i2c patch, as its in i2c-next
-> >>> - Added ack on gpio, reviewed-by on rtc
-> >>> - Dropped child nodes from sysctrl binding entirely, added a link to
-> >>>    the online documenation for the services the system controller can
-> >>>    provide
-> >>> - Dropped the #pwm-cells and replaced with a ref, a la Krzysztof's
-> >>>    series
-> >>>
-> >>> Changes from v5:
-> >>> - reworded the descriptions in the pwm binding to (hopefully) add
-> >>>    clarity
-> >>> - added -mask to the custom properties and made them 32 bit
-> >>> - renamed the i2c binding to corei2c, since it is not mpfs specific
-> >>> - removed the child nodes of the system controller in example/dts &
-> >>>    will create them in the driver.
-> >>>    @Rob, I assume keeping them documented is the correct thing to do?
-> >>> - removed the dependancy on the clock binding from the examples
-> >>> - reformatted rtc interrupts as per Rob's suggestion
-> >>>
-> >>> Changes from v4:
-> >>> - dont include icicle_kit_defconfig, accidentally added in v3
-> >>> - drop prescaler from mpfs-rtc & calculate the value instead
-> >>> - use corei2c as a fallback device for mpfs-i2c
-> >>> - drop spi dt-binding (on spi-next)
-> >>>    commit 2da187304e556ac59cf2dacb323cc78ded988169
-> >>> - drop usb dt-binding (on usb-next)
-> >>>
-> >>> Changes from v3:
-> >>> - drop "mailbox: change mailbox-mpfs compatible string", already upstream:
-> >>>    commit f10b1fc0161cd99e ("mailbox: change mailbox-mpfs compatible string")
-> >>> - fix copy paste error in microchip,mpfs-mailbox dt-binding
-> >>> - remove whitespace in syscontroller dt entry
-> >>>
-> >>> Changes from v2:
-> >>> - dropped plic int header & corresponding defines in dts{,i}
-> >>> - use $ref to drmode in mpfs-musb binding
-> >>> - split changes to dts{,i} again: functional changes to existing
-> >>>    elements now are in a new patch
-> >>> - drop num-cs property in mpfs-spi binding
-> >>> - dont make the system controller a simple-mfd
-> >>> - move the separate bindings for rng/generic system services into the
-> >>>    system controller binding
-> >>> - added an instance corei2c as i2c2 in the fabric dtsi
-> >>> - add version numbering to corepwm and corei2c compat string (-rtl-vN)
-> >>>
-> >>> Conor Dooley (11):
-> >>>    dt-bindings: soc/microchip: update syscontroller compatibles
-> >>>    dt-bindings: soc/microchip: add info about services to mpfs sysctrl
-> >>>    dt-bindings: rtc: add bindings for microchip mpfs rtc
-> >>>    dt-bindings: gpio: add bindings for microchip mpfs gpio
-> >>>    dt-bindings: pwm: add microchip corepwm binding
-> >>>    riscv: dts: microchip: use clk defines for icicle kit
-> >>>    riscv: dts: microchip: add fpga fabric section to icicle kit
-> >>>    riscv: dts: microchip: refactor icicle kit device tree
-> >>>    riscv: dts: microchip: update peripherals in icicle kit device tree
-> >>>    riscv: dts: microchip: add new peripherals to icicle kit device tree
-> >>>    MAINTAINERS: update riscv/microchip entry
-> >>>
-> >>>   .../bindings/gpio/microchip,mpfs-gpio.yaml    |  79 ++++++
-> >>>   ...ilbox.yaml => microchip,mpfs-mailbox.yaml} |   6 +-
-> >>>   .../bindings/pwm/microchip,corepwm.yaml       |  81 ++++++
-> >>>   .../bindings/rtc/microchip,mfps-rtc.yaml      |  58 ++++
-> >>>   .../microchip,mpfs-sys-controller.yaml        |  40 +++
-> >>>   ...icrochip,polarfire-soc-sys-controller.yaml |  35 ---
-> >>>   MAINTAINERS                                   |   2 +
-> >>>   .../dts/microchip/microchip-mpfs-fabric.dtsi  |  25 ++
-> >>>   .../microchip/microchip-mpfs-icicle-kit.dts   | 115 ++++++--
-> >>>   .../boot/dts/microchip/microchip-mpfs.dtsi    | 254 ++++++++++++++----
-> >>>   10 files changed, 591 insertions(+), 104 deletions(-)
-> >>>   create mode 100644 Documentation/devicetree/bindings/gpio/microchip,mpfs-gpio.yaml
-> >>>   rename Documentation/devicetree/bindings/mailbox/{microchip,polarfire-soc-mailbox.yaml => microchip,mpfs-mailbox.yaml} (82%)
-> >>>   create mode 100644 Documentation/devicetree/bindings/pwm/microchip,corepwm.yaml
-> >>>   create mode 100644 Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
-> >>>   create mode 100644 Documentation/devicetree/bindings/soc/microchip/microchip,mpfs-sys-controller.yaml
-> >>>   delete mode 100644 Documentation/devicetree/bindings/soc/microchip/microchip,polarfire-soc-sys-controller.yaml
-> >>>   create mode 100644 arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi
-> >>>
->
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+---
+ tools/testing/roadtest/src/backend.c | 884 +++++++++++++++++++++++++++
+ 1 file changed, 884 insertions(+)
+ create mode 100644 tools/testing/roadtest/src/backend.c
+
+diff --git a/tools/testing/roadtest/src/backend.c b/tools/testing/roadtest/src/backend.c
+new file mode 100644
+index 000000000000..d5ac08b20fd9
+--- /dev/null
++++ b/tools/testing/roadtest/src/backend.c
+@@ -0,0 +1,884 @@
++// SPDX-License-Identifier: GPL-2.0-only
++// Copyright Axis Communications AB
++
++#define PY_SSIZE_T_CLEAN
++#include <Python.h>
++
++#include <err.h>
++#include <getopt.h>
++#include <stdlib.h>
++#include <sys/epoll.h>
++#include <sys/socket.h>
++#include <sys/types.h>
++#include <sys/uio.h>
++#include <sys/un.h>
++#include <unistd.h>
++#include <stdio.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <linux/virtio_gpio.h>
++#include <linux/virtio_i2c.h>
++#include <linux/kernel.h>
++#include <linux/list.h>
++
++#include "libvhost-user.h"
++
++enum watch_type {
++	LISTEN,
++	SOCKET_WATCH,
++	VU_WATCH,
++};
++
++struct watch {
++	VuDev *dev;
++	enum watch_type type;
++	int fd;
++	void *func;
++	void *data;
++	struct list_head list;
++};
++
++struct vhost_user_i2c {
++	VuDev dev;
++	FILE *control;
++};
++
++struct vhost_user_gpio {
++	VuDev dev;
++	FILE *control;
++	VuVirtqElement *irq_elements[64];
++};
++
++#define dbg(...)                                                               \
++	do {                                                                   \
++		if (0) {                                                       \
++			fprintf(stderr, __VA_ARGS__);                          \
++		}                                                              \
++	} while (0)
++
++static LIST_HEAD(watches);
++
++static int epfd;
++
++static PyObject *py_i2c_read, *py_i2c_write, *py_process_control;
++static PyObject *py_gpio_set_irq_type, *py_gpio_unmask;
++
++static const char *opt_main_script;
++static char *opt_gpio_socket;
++static char *opt_i2c_socket;
++
++static struct vhost_user_gpio gpio;
++static struct vhost_user_i2c i2c;
++
++static void dump_iov(const char *what, struct iovec *iovec, unsigned int count)
++{
++	int i;
++
++	dbg("dumping %s with count %u\n", what, count);
++
++	for (i = 0; i < count; i++) {
++		struct iovec *iov = &iovec[0];
++
++		dbg("i %d base %p len %zu\n", i, iov->iov_base, iov->iov_len);
++	}
++}
++
++static bool i2c_read(struct vhost_user_i2c *vi, uint16_t addr, void *data,
++		     size_t len)
++{
++	PyObject *pArgs, *pValue;
++
++	dbg("i2c read addr %#x len %zu\n", addr, len);
++
++	pArgs = PyTuple_New(1);
++	pValue = PyLong_FromLong(len);
++	PyTuple_SetItem(pArgs, 0, pValue);
++
++	pValue = PyObject_CallObject(py_i2c_read, pArgs);
++	Py_DECREF(pArgs);
++	if (!pValue) {
++		PyErr_Print();
++		return false;
++	}
++
++	unsigned char *buffer;
++	Py_ssize_t length;
++
++	if (PyBytes_AsStringAndSize(pValue, (char **)&buffer, &length) < 0) {
++		PyErr_Print();
++		errx(1, "invalid result from i2c.read()");
++	}
++	if (length != len) {
++		errx(1,
++		     "unexpected length from i2c.read(), expected %zu, got %zu",
++		     len, length);
++	}
++
++	memcpy(data, buffer, len);
++
++	return true;
++}
++
++static bool i2c_write(struct vhost_user_i2c *vi, uint16_t addr,
++		      const void *data, size_t len)
++{
++	PyObject *pArgs, *pValue;
++
++	dbg("i2c write addr %#x len %zu\n", addr, len);
++
++	pArgs = PyTuple_New(1);
++	pValue = PyBytes_FromStringAndSize(data, len);
++	PyTuple_SetItem(pArgs, 0, pValue);
++
++	pValue = PyObject_CallObject(py_i2c_write, pArgs);
++	Py_DECREF(pArgs);
++	if (!pValue) {
++		PyErr_Print();
++		return false;
++	}
++
++	return true;
++}
++
++static void gpio_send_irq_response(struct vhost_user_gpio *gpio,
++				   unsigned int pin, unsigned int status);
++
++static PyObject *cbackend_trigger_gpio_irq(PyObject *self, PyObject *args)
++{
++	unsigned int pin;
++
++	if (!PyArg_ParseTuple(args, "I", &pin))
++		return NULL;
++
++	dbg("trigger gpio %u irq\n", pin);
++
++	gpio_send_irq_response(&gpio, pin, VIRTIO_GPIO_IRQ_STATUS_VALID);
++
++	Py_RETURN_NONE;
++}
++
++static PyMethodDef EmbMethods[] = {
++	{ "trigger_gpio_irq", cbackend_trigger_gpio_irq, METH_VARARGS,
++	  "Return the number of arguments received by the process." },
++	{ NULL, NULL, 0, NULL }
++};
++
++static PyModuleDef EmbModule = { PyModuleDef_HEAD_INIT,
++				 "cbackend",
++				 NULL,
++				 -1,
++				 EmbMethods,
++				 NULL,
++				 NULL,
++				 NULL,
++				 NULL };
++
++static PyObject *PyInit_cbackend(void)
++{
++	return PyModule_Create(&EmbModule);
++}
++
++static void init_python_i2c(PyObject *backend)
++{
++	PyObject *i2c = PyObject_GetAttrString(backend, "i2c");
++
++	if (!i2c) {
++		PyErr_Print();
++		errx(1, "Error getting backend.i2c");
++	}
++
++	py_i2c_read = PyObject_GetAttrString(i2c, "read");
++	if (!py_i2c_read) {
++		PyErr_Print();
++		errx(1, "Error getting i2c.read");
++	}
++
++	py_i2c_write = PyObject_GetAttrString(i2c, "write");
++	if (!py_i2c_write) {
++		PyErr_Print();
++		errx(1, "Error getting i2c.write");
++	}
++}
++
++static void init_python_gpio(PyObject *backend)
++{
++	PyObject *gpio = PyObject_GetAttrString(backend, "gpio");
++
++	if (!gpio) {
++		PyErr_Print();
++		errx(1, "error getting backend.gpio");
++	}
++
++	py_gpio_set_irq_type = PyObject_GetAttrString(gpio, "set_irq_type");
++	if (!py_gpio_set_irq_type) {
++		PyErr_Print();
++		errx(1, "error getting gpio.set_irq_type");
++	}
++
++	py_gpio_unmask = PyObject_GetAttrString(gpio, "unmask");
++	if (!py_gpio_unmask) {
++		PyErr_Print();
++		errx(1, "error getting gpio.unmask");
++	}
++}
++
++static void init_python(void)
++{
++	PyObject *mainmod, *backend;
++	FILE *file;
++
++	PyImport_AppendInittab("cbackend", &PyInit_cbackend);
++
++	Py_Initialize();
++
++	file = fopen(opt_main_script, "r");
++	if (!file)
++		err(1, "open %s", opt_main_script);
++
++	if (PyRun_SimpleFile(file, "main.py") < 0) {
++		PyErr_Print();
++		errx(1, "error running %s", opt_main_script);
++	}
++	fclose(file);
++
++	mainmod = PyImport_AddModule("__main__");
++	if (!mainmod) {
++		PyErr_Print();
++		errx(1, "error getting __main__");
++	}
++
++	backend = PyObject_GetAttrString(mainmod, "backend");
++	if (!backend) {
++		PyErr_Print();
++		errx(1, "error getting backend");
++	}
++
++	py_process_control = PyObject_GetAttrString(backend, "process_control");
++	if (!py_process_control) {
++		PyErr_Print();
++		errx(1, "error getting backend.process_control");
++	}
++
++	init_python_i2c(backend);
++	init_python_gpio(backend);
++}
++
++static void i2c_handle_cmdq(VuDev *dev, int qidx)
++{
++	struct vhost_user_i2c *vi =
++		container_of(dev, struct vhost_user_i2c, dev);
++	VuVirtq *vq = vu_get_queue(dev, qidx);
++	VuVirtqElement *elem;
++
++	for (;;) {
++		struct virtio_i2c_out_hdr *hdr;
++		struct iovec *resultv;
++		size_t used = 0;
++		bool ok = true;
++
++		elem = vu_queue_pop(dev, vq, sizeof(VuVirtqElement));
++		if (!elem)
++			break;
++
++		dbg("elem %p index %u out_num %u in_num %u\n", elem,
++		    elem->index, elem->out_num, elem->in_num);
++		dump_iov("out", elem->out_sg, elem->out_num);
++		dump_iov("in", elem->in_sg, elem->in_num);
++
++		assert(elem->out_sg[0].iov_len == sizeof(*hdr));
++		hdr = elem->out_sg[0].iov_base;
++
++		if (elem->out_num == 2 && elem->in_num == 1) {
++			struct iovec *data = &elem->out_sg[1];
++
++			ok = i2c_write(vi, hdr->addr, data->iov_base,
++				       data->iov_len);
++			resultv = &elem->in_sg[0];
++		} else if (elem->out_num == 1 && elem->in_num == 2) {
++			struct iovec *data = &elem->in_sg[0];
++
++			ok = i2c_read(vi, hdr->addr, data->iov_base,
++				      data->iov_len);
++			resultv = &elem->in_sg[1];
++			used += data->iov_len;
++		} else {
++			assert(false);
++		}
++
++		struct virtio_i2c_in_hdr *inhdr = resultv->iov_base;
++
++		inhdr->status = ok ? VIRTIO_I2C_MSG_OK : VIRTIO_I2C_MSG_ERR;
++
++		used += sizeof(*inhdr);
++		vu_queue_push(dev, vq, elem, used);
++		free(elem);
++	}
++
++	vu_queue_notify(&vi->dev, vq);
++}
++
++static void i2c_queue_set_started(VuDev *dev, int qidx, bool started)
++{
++	VuVirtq *vq = vu_get_queue(dev, qidx);
++
++	dbg("queue started %d:%d\n", qidx, started);
++
++	vu_set_queue_handler(dev, vq, started ? i2c_handle_cmdq : NULL);
++}
++
++static bool i2cquit;
++static bool gpioquit;
++
++static void remove_watch(VuDev *dev, int fd);
++
++static int i2c_process_msg(VuDev *dev, VhostUserMsg *vmsg, int *do_reply)
++{
++	if (vmsg->request == VHOST_USER_NONE) {
++		dbg("i2c disconnect");
++		remove_watch(dev, -1);
++		i2cquit = true;
++		return true;
++	}
++	return false;
++}
++static int gpio_process_msg(VuDev *dev, VhostUserMsg *vmsg, int *do_reply)
++{
++	if (vmsg->request == VHOST_USER_NONE) {
++		dbg("gpio disconnect");
++		remove_watch(dev, -1);
++		gpioquit = true;
++		return true;
++	}
++	return false;
++}
++
++static uint64_t i2c_get_features(VuDev *dev)
++{
++	return 1ull << VIRTIO_I2C_F_ZERO_LENGTH_REQUEST;
++}
++
++static const VuDevIface i2c_iface = {
++	.get_features = i2c_get_features,
++	.queue_set_started = i2c_queue_set_started,
++	.process_msg = i2c_process_msg,
++};
++
++static void gpio_send_irq_response(struct vhost_user_gpio *gpio,
++				   unsigned int pin, unsigned int status)
++{
++	assert(pin < ARRAY_SIZE(gpio->irq_elements));
++
++	VuVirtqElement *elem = gpio->irq_elements[pin];
++	VuVirtq *vq = vu_get_queue(&gpio->dev, 1);
++
++	if (!elem) {
++		dbg("no irq buf for pin %d\n", pin);
++		assert(status != VIRTIO_GPIO_IRQ_STATUS_VALID);
++		return;
++	}
++
++	struct virtio_gpio_irq_response *resp;
++
++	assert(elem->out_num == 1);
++	assert(elem->in_sg[0].iov_len == sizeof(*resp));
++
++	resp = elem->in_sg[0].iov_base;
++	resp->status = status;
++
++	vu_queue_push(&gpio->dev, vq, elem, sizeof(*resp));
++	gpio->irq_elements[pin] = NULL;
++	free(elem);
++
++	vu_queue_notify(&gpio->dev, vq);
++}
++
++static void gpio_set_irq_type(struct vhost_user_gpio *gpio, unsigned int pin,
++			      unsigned int type)
++{
++	PyObject *pArgs, *pValue;
++
++	pArgs = PyTuple_New(2);
++	pValue = PyLong_FromLong(pin);
++	PyTuple_SetItem(pArgs, 0, pValue);
++
++	pValue = PyLong_FromLong(type);
++	PyTuple_SetItem(pArgs, 1, pValue);
++
++	pValue = PyObject_CallObject(py_gpio_set_irq_type, pArgs);
++	if (!pValue) {
++		PyErr_Print();
++		errx(1, "error from gpio.set_irq_type()");
++	}
++	Py_DECREF(pArgs);
++
++	if (type == VIRTIO_GPIO_IRQ_TYPE_NONE) {
++		gpio_send_irq_response(gpio, pin,
++				       VIRTIO_GPIO_IRQ_STATUS_INVALID);
++	}
++}
++
++static void gpio_unmask(struct vhost_user_gpio *vi, unsigned int gpio)
++{
++	PyObject *pArgs, *pValue;
++
++	pArgs = PyTuple_New(1);
++	pValue = PyLong_FromLong(gpio);
++	PyTuple_SetItem(pArgs, 0, pValue);
++
++	pValue = PyObject_CallObject(py_gpio_unmask, pArgs);
++	if (!pValue) {
++		PyErr_Print();
++		errx(1, "error from gpio.unmask()");
++	}
++	Py_DECREF(pArgs);
++}
++
++static void gpio_handle_cmdq(VuDev *dev, int qidx)
++{
++	struct vhost_user_gpio *vi =
++		container_of(dev, struct vhost_user_gpio, dev);
++	VuVirtq *vq = vu_get_queue(dev, qidx);
++	VuVirtqElement *elem;
++
++	while (1) {
++		struct virtio_gpio_request *req;
++		struct virtio_gpio_response *resp;
++
++		elem = vu_queue_pop(dev, vq, sizeof(VuVirtqElement));
++		if (!elem)
++			break;
++
++		dbg("elem %p index %u out_num %u in_num %u\n", elem,
++		    elem->index, elem->out_num, elem->in_num);
++
++		dump_iov("out", elem->out_sg, elem->out_num);
++		dump_iov("in", elem->in_sg, elem->in_num);
++
++		assert(elem->out_num == 1);
++		assert(elem->in_num == 1);
++
++		assert(elem->out_sg[0].iov_len == sizeof(*req));
++		assert(elem->in_sg[0].iov_len == sizeof(*resp));
++
++		req = elem->out_sg[0].iov_base;
++		resp = elem->in_sg[0].iov_base;
++
++		dbg("req type %#x gpio %#x value %#x\n", req->type, req->gpio,
++		    req->value);
++
++		switch (req->type) {
++		case VIRTIO_GPIO_MSG_IRQ_TYPE:
++			gpio_set_irq_type(vi, req->gpio, req->value);
++			break;
++		default:
++			/*
++			 * The other types couldhooked up to Python later for
++			 * testing of drivers' control of GPIOs.
++			 */
++			break;
++		}
++
++		resp->status = VIRTIO_GPIO_STATUS_OK;
++		resp->value = 0;
++
++		vu_queue_push(dev, vq, elem, sizeof(*resp));
++		free(elem);
++	}
++
++	vu_queue_notify(&vi->dev, vq);
++}
++
++static void gpio_handle_eventq(VuDev *dev, int qidx)
++{
++	struct vhost_user_gpio *vi =
++		container_of(dev, struct vhost_user_gpio, dev);
++	VuVirtq *vq = vu_get_queue(dev, qidx);
++	VuVirtqElement *elem;
++
++	for (;;) {
++		struct virtio_gpio_irq_request *req;
++		struct virtio_gpio_irq_response *resp;
++
++		elem = vu_queue_pop(dev, vq, sizeof(VuVirtqElement));
++		if (!elem)
++			break;
++
++		dbg("elem %p index %u out_num %u in_num %u\n", elem,
++		    elem->index, elem->out_num, elem->in_num);
++
++		dump_iov("out", elem->out_sg, elem->out_num);
++		dump_iov("in", elem->in_sg, elem->in_num);
++
++		assert(elem->out_num == 1);
++		assert(elem->in_num == 1);
++
++		assert(elem->out_sg[0].iov_len == sizeof(*req));
++		assert(elem->in_sg[0].iov_len == sizeof(*resp));
++
++		req = elem->out_sg[0].iov_base;
++		resp = elem->in_sg[0].iov_base;
++
++		dbg("irq req gpio %#x\n", req->gpio);
++
++		assert(req->gpio < ARRAY_SIZE(vi->irq_elements));
++		assert(vi->irq_elements[req->gpio] == NULL);
++
++		vi->irq_elements[req->gpio] = elem;
++
++		gpio_unmask(vi, req->gpio);
++	}
++}
++
++static void gpio_queue_set_started(VuDev *dev, int qidx, bool started)
++{
++	VuVirtq *vq = vu_get_queue(dev, qidx);
++
++	dbg("%s %d:%d\n", __func__, qidx, started);
++
++	if (qidx == 0)
++		vu_set_queue_handler(dev, vq,
++				     started ? gpio_handle_cmdq : NULL);
++	if (qidx == 1)
++		vu_set_queue_handler(dev, vq,
++				     started ? gpio_handle_eventq : NULL);
++}
++
++static int gpio_get_config(VuDev *dev, uint8_t *config, uint32_t len)
++{
++	struct vhost_user_gpio *gpio =
++		container_of(dev, struct vhost_user_gpio, dev);
++	static struct virtio_gpio_config gpioconfig = {
++		.ngpio = ARRAY_SIZE(gpio->irq_elements),
++	};
++
++	dbg("%s: len %u\n", __func__, len);
++
++	if (len > sizeof(struct virtio_gpio_config))
++		return -1;
++
++	memcpy(config, &gpioconfig, len);
++
++	return 0;
++}
++
++static uint64_t gpio_get_protocol_features(VuDev *dev)
++{
++	return 1ull << VHOST_USER_PROTOCOL_F_CONFIG;
++}
++
++static uint64_t gpio_get_features(VuDev *dev)
++{
++	return 1ull << VIRTIO_GPIO_F_IRQ;
++}
++
++static const VuDevIface gpio_vuiface = {
++	.get_features = gpio_get_features,
++	.queue_set_started = gpio_queue_set_started,
++	.process_msg = gpio_process_msg,
++	.get_config = gpio_get_config,
++	.get_protocol_features = gpio_get_protocol_features,
++};
++
++static void panic(VuDev *dev, const char *err)
++{
++	fprintf(stderr, "panicking!");
++	abort();
++}
++
++static struct watch *new_watch(struct VuDev *dev, int fd, enum watch_type type,
++			       void *func, void *data)
++{
++	struct watch *watch = malloc(sizeof(*watch));
++
++	assert(watch);
++
++	watch->dev = dev;
++	watch->fd = fd;
++	watch->func = func;
++	watch->data = data;
++	watch->type = type;
++
++	list_add(&watch->list, &watches);
++
++	return watch;
++}
++
++static void set_watch(VuDev *dev, int fd, int condition, vu_watch_cb cb,
++		      void *data)
++{
++	struct watch *watch = new_watch(dev, fd, VU_WATCH, cb, data);
++	int ret;
++
++	struct epoll_event ev = {
++		.events = EPOLLIN,
++		.data.ptr = watch,
++	};
++
++	dbg("set watch epfd %d fd %d condition %d cb %p\n", epfd, fd, condition,
++	    cb);
++
++	epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
++
++	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
++	if (ret < 0)
++		err(1, "epoll_ctl");
++}
++
++static void remove_watch(VuDev *dev, int fd)
++{
++	struct watch *watch, *tmp;
++
++	list_for_each_entry_safe(watch, tmp, &watches, list) {
++		if (watch->dev != dev)
++			continue;
++		if (fd >= 0 && watch->fd != fd)
++			continue;
++
++		epoll_ctl(epfd, EPOLL_CTL_DEL, watch->fd, NULL);
++
++		list_del(&watch->list);
++		free(watch);
++	}
++}
++
++static int unix_listen(const char *path)
++{
++	struct sockaddr_un un = {
++		.sun_family = AF_UNIX,
++	};
++	int sock;
++	int ret;
++
++	unlink(path);
++
++	sock = socket(PF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
++	if (sock < 0)
++		err(1, "socket");
++
++	memcpy(&un.sun_path, path, strlen(path));
++
++	ret = bind(sock, (struct sockaddr *)&un, sizeof(un));
++	if (ret < 0)
++		err(1, "bind");
++
++	ret = listen(sock, 1);
++	if (ret < 0)
++		err(1, "listen");
++
++	return sock;
++}
++
++static void dev_add_watch(int epfd, struct watch *watch)
++{
++	struct epoll_event event = {
++		.events = EPOLLIN | EPOLLONESHOT,
++		.data.ptr = watch,
++	};
++	int ret;
++
++	ret = epoll_ctl(epfd, EPOLL_CTL_ADD, watch->fd, &event);
++	if (ret < 0)
++		err(1, "EPOLL_CTL_ADD");
++}
++
++static VuDev *gpio_init(int epfd, const char *path)
++{
++	struct watch *watch;
++	VuDev *dev;
++	int lsock;
++	bool rc;
++
++	lsock = unix_listen(path);
++	if (lsock < 0)
++		err(1, "listen %s", path);
++
++	rc = vu_init(&gpio.dev, 2, lsock, panic, NULL, set_watch,
++		     remove_watch, &gpio_vuiface);
++	assert(rc == true);
++
++	dev = &gpio.dev;
++	watch = new_watch(dev, lsock, LISTEN, vu_dispatch, dev);
++
++	dev_add_watch(epfd, watch);
++
++	return dev;
++}
++
++static VuDev *i2c_init(int epfd, const char *path)
++{
++	static struct vhost_user_i2c i2c = {};
++	VuDev *dev = &i2c.dev;
++	struct watch *watch;
++	int lsock;
++	bool rc;
++
++	lsock = unix_listen(path);
++	if (lsock < 0)
++		err(1, "listen %s", path);
++
++	rc = vu_init(dev, 1, lsock, panic, NULL, set_watch,
++		     remove_watch, &i2c_iface);
++	assert(rc == true);
++
++	watch = new_watch(dev, lsock, LISTEN, vu_dispatch, dev);
++
++	dev_add_watch(epfd, watch);
++
++	return dev;
++}
++
++static pid_t run_uml(char **argv)
++{
++	int log, null, ret;
++	pid_t pid;
++
++	pid = fork();
++	if (pid < 0)
++		err(1, "fork");
++	if (pid > 0)
++		return pid;
++
++	chdir(getenv("ROADTEST_WORK_DIR"));
++
++	log = open("uml.txt", O_WRONLY | O_TRUNC | O_APPEND | O_CREAT, 0600);
++	if (log < 0)
++		err(1, "open uml.txt");
++
++	null = open("/dev/null", O_RDONLY);
++	if (null < 0)
++		err(1, "open null");
++
++	ret = dup2(null, 0);
++	if (ret < 0)
++		err(1, "dup2");
++
++	ret = dup2(log, 1);
++	if (ret < 0)
++		err(1, "dup2");
++
++	ret = dup2(log, 2);
++	if (ret < 0)
++		err(1, "dup2");
++
++	execvpe(argv[0], argv, environ);
++	err(1, "execve");
++
++	return -1;
++}
++
++int main(int argc, char *argv[])
++{
++	static struct option long_option[] = {
++		{ "main-script", required_argument, 0, 'm' },
++		{ "gpio-socket", required_argument, 0, 'g' },
++		{ "i2c-socket", required_argument, 0, 'i' },
++	};
++
++	while (1) {
++		int c = getopt_long(argc, argv, "", long_option, NULL);
++
++		if (c == -1)
++			break;
++
++		switch (c) {
++		case 'm':
++			opt_main_script = optarg;
++			break;
++
++		case 'g':
++			opt_gpio_socket = optarg;
++			break;
++
++		case 'i':
++			opt_i2c_socket = optarg;
++			break;
++
++		default:
++			errx(1, "getopt");
++		}
++	}
++
++	if (!opt_main_script || !opt_gpio_socket || !opt_i2c_socket)
++		errx(1, "Invalid arguments");
++
++	epfd = epoll_create1(EPOLL_CLOEXEC);
++	if (epfd < 0)
++		err(1, "epoll_create1");
++
++	init_python();
++
++	gpio_init(epfd, opt_gpio_socket);
++	i2c_init(epfd, opt_i2c_socket);
++
++	run_uml(&argv[optind]);
++
++	while (1) {
++		struct epoll_event events[10];
++		int nfds;
++		int i;
++
++		nfds = epoll_wait(epfd, events, ARRAY_SIZE(events), -1);
++		if (nfds < 0) {
++			if (errno == EINTR) {
++				continue;
++
++				err(1, "epoll_wait");
++			}
++		}
++
++		if (!PyObject_CallObject(py_process_control, NULL)) {
++			PyErr_Print();
++			errx(1, "error from backend.process_control");
++		}
++
++		for (i = 0; i < nfds; i++) {
++			struct epoll_event *event = &events[i];
++			struct watch *watch = event->data.ptr;
++			int fd;
++
++			switch (watch->type) {
++			case LISTEN:
++				fd = accept(watch->fd, NULL, NULL);
++				close(watch->fd);
++				if (fd == -1)
++					err(1, "accept");
++
++				watch->dev->sock = fd;
++				watch->fd = fd;
++				watch->type = SOCKET_WATCH;
++
++				struct epoll_event event = {
++					.events = EPOLLIN,
++					.data.ptr = watch,
++				};
++
++				int ret = epoll_ctl(epfd, EPOLL_CTL_ADD, fd,
++						    &event);
++				if (ret < 0)
++					err(1, "epoll_ctl");
++
++				break;
++			case SOCKET_WATCH:
++				vu_dispatch(watch->dev);
++				break;
++			case VU_WATCH:
++				((vu_watch_cb)(watch->func))(watch->dev, POLLIN,
++							     watch->data);
++				break;
++			default:
++				fprintf(stderr, "abort!");
++				abort();
++			}
++		}
++
++		if (i2cquit && gpioquit)
++			break;
++	}
++
++	vu_deinit(&i2c.dev);
++	vu_deinit(&gpio.dev);
++
++	Py_Finalize();
++
++	return 0;
++}
+-- 
+2.34.1
+
