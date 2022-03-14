@@ -2,83 +2,139 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79295C433F5
-	for <linux-rtc@archiver.kernel.org>; Sat, 12 Mar 2022 11:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2D4DC433EF
+	for <linux-rtc@archiver.kernel.org>; Mon, 14 Mar 2022 14:17:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231178AbiCLLaT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 12 Mar 2022 06:30:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35870 "EHLO
+        id S233448AbiCNOSY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 14 Mar 2022 10:18:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230228AbiCLLaS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 12 Mar 2022 06:30:18 -0500
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C10C35;
-        Sat, 12 Mar 2022 03:29:09 -0800 (PST)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id C3BDD240006;
-        Sat, 12 Mar 2022 11:29:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647084548;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=jOH08bKV9K2o0RK2gMfpuKKcHc4JTuayEfTcXVSyoKg=;
-        b=SoqJe68LgVq4CRgKPCCveLY+ejVgYCvL/1qfwaBt5hGH0BPknjJBopP4JIp6xYiQQwyVla
-        RvQUc2jDlwa0548Y5tV4gOvIWASgxS3dUJEYSJ6E0oTUtTlpw0qO+Xx9putEeqr3oNgpFU
-        D4O+5sF3hDydCnEqR9tpM2RY9SbnsL8taQVzwxMmeEFDqFtPvgyFsGxW7EPaCfp4wgD0a+
-        p44rqi3d7vJiQs2CZjhc+Ewj80jlPXDPLNxXKMPbcdaKiavaysDalf4c2VzGLNNXZ85rET
-        ThhkrG9VhzsMGyIPf55tjdihiPTxn5KyIOoPtctgGk8UpirGVca1xxQPtArF7w==
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Maxime Ripard <mripard@kernel.org>, linux-sunxi@lists.linux.dev,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
+        with ESMTP id S233443AbiCNOSW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 14 Mar 2022 10:18:22 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D872E19C31
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Mar 2022 07:17:12 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nTlVN-00051C-73; Mon, 14 Mar 2022 15:17:01 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nTlVN-000f3T-JU; Mon, 14 Mar 2022 15:17:00 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1nTlVL-0097bL-Jv; Mon, 14 Mar 2022 15:16:59 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>
-Subject: Re: [PATCH v3 0/6] clk: sunxi-ng: Add a RTC CCU driver
-Date:   Sat, 12 Mar 2022 12:29:04 +0100
-Message-Id: <164708452927.194759.8728581507803680066.b4-ty@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc:     linux-clk@vger.kernel.org, kernel@pengutronix.de,
+        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Alexandru Ardelean <aardelean@deviqon.com>
+Subject: [PATCH v8 13/16] rtc: at91sam9: Simplify using devm_clk_get_enabled()
+Date:   Mon, 14 Mar 2022 15:16:40 +0100
+Message-Id: <20220314141643.22184-14-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220203021736.13434-1-samuel@sholland.org>
-References: <20220203021736.13434-1-samuel@sholland.org>
+In-Reply-To: <20220314141643.22184-1-u.kleine-koenig@pengutronix.de>
+References: <20220314141643.22184-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2398; i=uwe@kleine-koenig.org; h=from:subject; bh=B46sFCPHlcrcaPsavyXMd4P0PfwkNsS4guEpBZ8cN4Y=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBiL04VXyfINyi5TQGccw4ZBV+b44hcbVF4eex82mu2 wFwWV0OJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCYi9OFQAKCRDB/BR4rcrsCZI2B/ 4rREB2v9oI2LNjgrdooT1QZDfkJTLHqnWlnj0U7F3roPGmJNf9o2inI5OZ+YKu3PzeiAOHaWxcN5K6 ilaeNUOTVVa1okyFfTlQZ3qYWvWo96oapuJBTvdQc+o54fpwK07ZxHz6vRDQjTpGUDBwSU1kQmt5lc KSW6EZ4Ug1sLQOXJC8ig8Po3JsAcZSyGYyOxl8Ay9lLYoz1KvUmd3dQf8WA+brtk1n2Cg0UoTUfL6H G0vdL+/BURCGxjN4mfawiu9SDXEfB0w41Tc6n+n99l0bVdOWBkKQh+LKVR4vtpqzc0xHg2nssSYev7 J2DgT63/KX00Fl28bk/KRYN1loDSAG
+X-Developer-Key: i=uwe@kleine-koenig.org; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 2 Feb 2022 20:17:30 -0600, Samuel Holland wrote:
-> This patch series adds a CCU driver for the RTC in the H616, R329 and
-> D1. The extra patch at the end of this series shows how it would be
-> explanded to additional hardware variants.
-> 
-> The driver is intended to support the existing binding used for the H6,
-> but also an updated binding which includes all RTC input clocks.
-> 
-> [...]
+devm_clk_get_enabled() returns the clk already (prepared and) enabled
+and the automatically called cleanup cares for disabling (and
+unpreparing). So simplify .probe() and .remove() accordingly.
 
-Applied, thanks!
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Reviewed-by: Alexandru Ardelean <aardelean@deviqon.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-at91sam9.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
 
-[1/6] dt-bindings: rtc: sun6i: Clean up repetition
-      (no commit info)
-[2/6] dt-bindings: rtc: sun6i: Add H616, R329, and D1 support
-      (no commit info)
-[3/6] rtc: sun6i: Enable the bus clock when provided
-      (no commit info)
-[4/6] clk: sunxi-ng: mux: Allow muxes to have keys
-      commit: b6e649834afa1fc6fd856b287e808cebe2c6fb8e
-[5/6] clk: sunxi-ng: Add support for the sun6i RTC clocks
-      commit: df8925adc02f1cb2c87582d688dd8991aaabf8b2
-[6/6] clk: sunxi-ng: sun6i-rtc: Add support for H6
-      commit: dc1d63a697304fbd246e24901e0635885856ef63
-
-Best regards,
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index b7b5ea1a4e67..d54127aba1e9 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -374,21 +374,14 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	rtc->sclk = devm_clk_get(&pdev->dev, NULL);
++	rtc->sclk = devm_clk_get_enabled(&pdev->dev, NULL);
+ 	if (IS_ERR(rtc->sclk))
+ 		return PTR_ERR(rtc->sclk);
+ 
+-	ret = clk_prepare_enable(rtc->sclk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not enable slow clock\n");
+-		return ret;
+-	}
+-
+ 	sclk_rate = clk_get_rate(rtc->sclk);
+ 	if (!sclk_rate || sclk_rate > AT91_RTT_RTPRES) {
+ 		dev_err(&pdev->dev, "Invalid slow clock rate\n");
+-		ret = -EINVAL;
+-		goto err_clk;
++		return -EINVAL;
+ 	}
+ 
+ 	mr = rtt_readl(rtc, MR);
+@@ -406,7 +399,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtcdev = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtcdev)) {
+ 		ret = PTR_ERR(rtc->rtcdev);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	rtc->rtcdev->ops = &at91_rtc_ops;
+@@ -418,7 +411,7 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			       dev_name(&rtc->rtcdev->dev), rtc);
+ 	if (ret) {
+ 		dev_dbg(&pdev->dev, "can't share IRQ %d?\n", rtc->irq);
+-		goto err_clk;
++		return ret;
+ 	}
+ 
+ 	/* NOTE:  sam9260 rev A silicon has a ROM bug which resets the
+@@ -432,11 +425,6 @@ static int at91_rtc_probe(struct platform_device *pdev)
+ 			 dev_name(&rtc->rtcdev->dev));
+ 
+ 	return devm_rtc_register_device(rtc->rtcdev);
+-
+-err_clk:
+-	clk_disable_unprepare(rtc->sclk);
+-
+-	return ret;
+ }
+ 
+ /*
+@@ -450,8 +438,6 @@ static int at91_rtc_remove(struct platform_device *pdev)
+ 	/* disable all interrupts */
+ 	rtt_writel(rtc, MR, mr & ~(AT91_RTT_ALMIEN | AT91_RTT_RTTINCIEN));
+ 
+-	clk_disable_unprepare(rtc->sclk);
+-
+ 	return 0;
+ }
+ 
 -- 
-Alexandre Belloni <alexandre.belloni@bootlin.com>
+2.35.1
+
