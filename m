@@ -2,274 +2,98 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24626C433EF
-	for <linux-rtc@archiver.kernel.org>; Mon, 21 Mar 2022 09:05:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10799C433F5
+	for <linux-rtc@archiver.kernel.org>; Sun, 20 Mar 2022 21:30:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345508AbiCUJG7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 21 Mar 2022 05:06:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55336 "EHLO
+        id S1343749AbiCTVcK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 20 Mar 2022 17:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235161AbiCUJG7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 21 Mar 2022 05:06:59 -0400
-Received: from alexa-out.qualcomm.com (alexa-out.qualcomm.com [129.46.98.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30EBF32995;
-        Mon, 21 Mar 2022 02:05:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1647853534; x=1679389534;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=SWm2rZMQQWr7/N6IuT3e00JWHrd5mZhind7/8gMs0ck=;
-  b=goBg0urROb8Rxiw+X17RhYoC/q+3EUAXVz+FAd1EoKwBGmgQN80fv0zU
-   T45kE9BOwuiWXxjXh2IrCoJqyzIrITb9KxB0sZsVfUeyiev7E1O3e03g5
-   rXPtxNW/9RZlZsf+FjdbPIfSr9eXRmUE32G4pgJvQ+UjlOTzGqAkJV+Xj
-   A=;
-Received: from ironmsg07-lv.qualcomm.com ([10.47.202.151])
-  by alexa-out.qualcomm.com with ESMTP; 21 Mar 2022 02:05:34 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg07-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Mar 2022 02:05:33 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 21 Mar 2022 02:05:33 -0700
-Received: from jianbinz-gv.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 21 Mar 2022 02:05:30 -0700
-From:   jianbinz <quic_jianbinz@quicinc.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
-CC:     jianbinz <quic_jianbinz@quicinc.com>, <quic_subbaram@quicinc.com>,
-        <quic_collinsd@quicinc.com>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <quic_fenglinw@quicinc.com>
-Subject: [PATCH] rtc: rtc-pm8xxx: Retrigger RTC alarm if it's fired before the driver probed
-Date:   Mon, 21 Mar 2022 17:05:14 +0800
-Message-ID: <20220321090514.4523-1-quic_jianbinz@quicinc.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S236574AbiCTVcJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Mar 2022 17:32:09 -0400
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C53338793
+        for <linux-rtc@vger.kernel.org>; Sun, 20 Mar 2022 14:30:45 -0700 (PDT)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 6E0B140003
+        for <linux-rtc@vger.kernel.org>; Sun, 20 Mar 2022 21:30:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1647811843;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:resent-to:
+         resent-from:resent-message-id; bh=eoUvjXcWxsCS2k8VppywzQry5S7nHcH0mW8C42GzOcs=;
+        b=nNFCoSv6PBLlSoD3OwQGU9LiQd+mUe+qNno4K5wAeGVLhE4jocrdkI22KOtiS0o3fB4THW
+        8AaeJvlNuB5ngO33Hsd8vBCZFI3TS3/G1Hx1VvliundDtg+oZz1auTaNOg1UkldDFs6cxK
+        aXYooT/bIqbezNrMbm24iCcMPabQDDtLG5KamGgkQoD/nRRja698Rk1atUH/NtTUphb+p/
+        JKs1t8JBGOl/eoV9XzqsjhEea4Lc/PWU4/MycW6RMtFpII9p+f9SelvaTw4TlN21g74g3c
+        MGPxkXuAoTSaw8ZPwOqa/ECtbBUFe6POheyG9whCn7l27dBlEv4xUY/O2c8qGA==
+Received: by spool.mail.gandi.net (Postfix) with ESMTPS id 5C9F27803EA
+        for <alexandre.belloni@bootlin.com>; Sun, 20 Mar 2022 21:09:09 +0000 (UTC)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id CB401240005;
+        Sun, 20 Mar 2022 21:09:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1647810549;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=eoUvjXcWxsCS2k8VppywzQry5S7nHcH0mW8C42GzOcs=;
+        b=Kv7mnn6+qhPoe4nYAA3HU8KH96O+5yNpew8NlJqW72ofsz2ognKKCzpo6Ro6Qmuh0o6/Aj
+        H4MDHrQTsDpJkXRpoVCIk2lp8hdLr9hgtulZKUNXmaZSGN69vlAfQNW1YX3dp4XAcHNNDa
+        RxiykDC3B/+fAfxAf2cA3R3rB8nJDSKPFHKjlVaX80wJOW9I6LPmhdiWYncCdRD9bLhw67
+        nnnWmK0oE9guT/rcqjPVCAA8uH0k9ULd+eYSJkTPPKOUFcY0eSQnRwAFDNPtwvm0wJrl4n
+        axkoZzjlqM+jistlPqfPumFuC+R63Dc1qnYE6ztCeP6BqNFYwqqFl53dFD2xYA==
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        kernel test robot <lkp@intel.com>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] clk: sunxi-ng: sun6i-rtc: include clk/sunxi-ng.h
+Date:   Sun, 20 Mar 2022 22:09:04 +0100
+Message-Id: <20220320210905.6606-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+Content-Transfer-Encoding: 8bit
+Received-SPF: pass (spool4: domain of bootlin.com designates 217.70.178.230 as permitted sender) client-ip=217.70.178.230; envelope-from=alexandre.belloni@bootlin.com; helo=relay10.mail.gandi.net;
+Authentication-Results: spool.mail.gandi.net;
+        dkim=pass header.d=bootlin.com header.s=gm1 header.b=Kv7mnn6+;
+        spf=pass (spool.mail.gandi.net: domain of alexandre.belloni@bootlin.com designates 217.70.178.230 as permitted sender) smtp.mailfrom=alexandre.belloni@bootlin.com;
+        dmarc=pass (policy=reject) header.from=bootlin.com
+X-TUID: 5m1n1pcO+G80
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-If the alarm is triggered before the driver gets probed, the alarm
-interrupt will be missed and it won't be detected, and the stale
-alarm settings will be still retained because of not being cleared.
-Check this condition during driver probe, retrigger the alarm and
-clear the settings manually if it's such case.
+This solves:
+>> drivers/clk/sunxi-ng/ccu-sun6i-rtc.c:334:5: warning: no previous prototype for 'sun6i_rtc_ccu_probe' [-Wmissing-prototypes]
+     334 | int sun6i_rtc_ccu_probe(struct device *dev, void __iomem *reg)
+         |     ^~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: jianbinz <quic_jianbinz@quicinc.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-pm8xxx.c | 148 ++++++++++++++++++++++++++++++---------
- 1 file changed, 113 insertions(+), 35 deletions(-)
- mode change 100644 => 100755 drivers/rtc/rtc-pm8xxx.c
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-old mode 100644
-new mode 100755
-index 29a1c65661e9..f213702a513c
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -64,6 +64,62 @@ struct pm8xxx_rtc {
- 	spinlock_t ctrl_reg_lock;
- };
+diff --git a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
+index 712fda22efd5..8a10bade7e0d 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
++++ b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
+@@ -9,6 +9,8 @@
+ #include <linux/module.h>
+ #include <linux/of_device.h>
  
-+static int pm8xxx_rtc_read_rtc_data(struct pm8xxx_rtc *rtc_dd, unsigned long *rtc_data)
-+{
-+	int rc;
-+	u8 value[NUM_8_BIT_RTC_REGS];
-+	unsigned int reg;
-+	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
++#include <linux/clk/sunxi-ng.h>
 +
-+	rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value, sizeof(value));
-+	if (rc) {
-+		dev_err(rtc_dd->rtc_dev, "RTC read rtc data register failed\n");
-+		return rc;
-+	}
-+
-+	/*
-+	 * Read the LSB again and check if there has been a carry over.
-+	 * If there is, redo the read operation.
-+	 */
-+	rc = regmap_read(rtc_dd->regmap, regs->read, &reg);
-+	if (rc < 0) {
-+		dev_err(rtc_dd->rtc_dev, "RTC read rtc data register failed\n");
-+		return rc;
-+	}
-+
-+	if (unlikely(reg < value[0])) {
-+		rc = regmap_bulk_read(rtc_dd->regmap, regs->read,
-+				      value, sizeof(value));
-+		if (rc) {
-+			dev_err(rtc_dd->rtc_dev, "RTC read rtc data register failed\n");
-+			return rc;
-+		}
-+	}
-+
-+	*rtc_data = value[0] | (value[1] << 8) | (value[2] << 16) |
-+			((unsigned long)value[3] << 24);
-+
-+	return 0;
-+}
-+
-+static int pm8xxx_rtc_read_alarm_data(struct pm8xxx_rtc *rtc_dd, unsigned long *alarm_data)
-+{
-+	int rc;
-+	u8 value[NUM_8_BIT_RTC_REGS];
-+
-+	rc = regmap_bulk_read(rtc_dd->regmap, rtc_dd->regs->alarm_rw, value,
-+			      sizeof(value));
-+	if (rc) {
-+		dev_err(rtc_dd->rtc_dev, "RTC read alarm data failed\n");
-+		return rc;
-+	}
-+
-+	*alarm_data = value[0] | (value[1] << 8) | (value[2] << 16) |
-+			((unsigned long)value[3] << 24);
-+
-+	return 0;
-+}
-+
- /*
-  * Steps to write the RTC registers.
-  * 1. Disable alarm if enabled.
-@@ -175,40 +231,15 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	int rc;
--	u8 value[NUM_8_BIT_RTC_REGS];
- 	unsigned long secs;
--	unsigned int reg;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
--	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ #include "ccu_common.h"
  
--	rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value, sizeof(value));
-+	rc = pm8xxx_rtc_read_rtc_data(rtc_dd, &secs);
- 	if (rc) {
--		dev_err(dev, "RTC read data register failed\n");
--		return rc;
--	}
--
--	/*
--	 * Read the LSB again and check if there has been a carry over.
--	 * If there is, redo the read operation.
--	 */
--	rc = regmap_read(rtc_dd->regmap, regs->read, &reg);
--	if (rc < 0) {
--		dev_err(dev, "RTC read data register failed\n");
-+		dev_err(dev, "RTC read time failed\n");
- 		return rc;
- 	}
- 
--	if (unlikely(reg < value[0])) {
--		rc = regmap_bulk_read(rtc_dd->regmap, regs->read,
--				      value, sizeof(value));
--		if (rc) {
--			dev_err(dev, "RTC read data register failed\n");
--			return rc;
--		}
--	}
--
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
--	       ((unsigned long)value[3] << 24);
--
- 	rtc_time64_to_tm(secs, tm);
- 
- 	dev_dbg(dev, "secs = %lu, h:m:s == %ptRt, y-m-d = %ptRdr\n", secs, tm, tm);
-@@ -267,21 +298,16 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	int rc;
- 	unsigned int ctrl_reg;
--	u8 value[NUM_8_BIT_RTC_REGS];
- 	unsigned long secs;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 
--	rc = regmap_bulk_read(rtc_dd->regmap, regs->alarm_rw, value,
--			      sizeof(value));
-+	rc = pm8xxx_rtc_read_alarm_data(rtc_dd, &secs);
- 	if (rc) {
--		dev_err(dev, "RTC alarm time read failed\n");
-+		dev_err(dev, "RTC alarm data read failed\n");
- 		return rc;
- 	}
- 
--	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
--	       ((unsigned long)value[3] << 24);
--
- 	rtc_time64_to_tm(secs, &alarm->time);
- 
- 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
-@@ -394,6 +420,52 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+/*
-+ * Trigger the alarm event and clear the alarm settings
-+ * if the alarm data has been behind the RTC data which
-+ * means the alarm has been triggered before the driver
-+ * is probed.
-+ */
-+static int pm8xxx_rtc_init_alarm(struct pm8xxx_rtc *rtc_dd)
-+{
-+	int rc;
-+	unsigned long rtc_data, alarm_data, irq_flags;
-+	unsigned int ctrl_reg, alarm_en;
-+	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+
-+	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	rc = pm8xxx_rtc_read_rtc_data(rtc_dd, &rtc_data);
-+	if (rc) {
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+		dev_err(rtc_dd->rtc_dev, "rtc read rtc data failed\n");
-+		return rc;
-+	}
-+
-+	rc = pm8xxx_rtc_read_alarm_data(rtc_dd, &alarm_data);
-+	if (rc) {
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+		dev_err(rtc_dd->rtc_dev, "rtc read alarm data failed\n");
-+		return rc;
-+	}
-+
-+	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
-+	if (rc) {
-+		spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+		dev_err(rtc_dd->rtc_dev, "Read from RTC alarm control register failed\n");
-+		return rc;
-+	}
-+
-+	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
-+
-+	alarm_en = !!(ctrl_reg & PM8xxx_RTC_ALARM_ENABLE);
-+
-+	if (alarm_en && rtc_data >= alarm_data)
-+		pm8xxx_alarm_trigger(0, rtc_dd);
-+
-+	return 0;
-+}
-+
- static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
- {
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -527,7 +599,13 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 		return rc;
- 	}
- 
--	return devm_rtc_register_device(rtc_dd->rtc);
-+	rc =  devm_rtc_register_device(rtc_dd->rtc);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "Register RTC device failed\n");
-+		return rc;
-+	}
-+
-+	return pm8xxx_rtc_init_alarm(rtc_dd);
- }
- 
- #ifdef CONFIG_PM_SLEEP
+ #include "ccu_div.h"
 -- 
-2.17.1
+2.35.1
 
