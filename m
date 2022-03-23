@@ -2,98 +2,91 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10799C433F5
-	for <linux-rtc@archiver.kernel.org>; Sun, 20 Mar 2022 21:30:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7781AC433F5
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Mar 2022 14:39:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343749AbiCTVcK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 20 Mar 2022 17:32:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
+        id S244858AbiCWOkx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Mar 2022 10:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236574AbiCTVcJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Mar 2022 17:32:09 -0400
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C53338793
-        for <linux-rtc@vger.kernel.org>; Sun, 20 Mar 2022 14:30:45 -0700 (PDT)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 6E0B140003
-        for <linux-rtc@vger.kernel.org>; Sun, 20 Mar 2022 21:30:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647811843;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:resent-to:
-         resent-from:resent-message-id; bh=eoUvjXcWxsCS2k8VppywzQry5S7nHcH0mW8C42GzOcs=;
-        b=nNFCoSv6PBLlSoD3OwQGU9LiQd+mUe+qNno4K5wAeGVLhE4jocrdkI22KOtiS0o3fB4THW
-        8AaeJvlNuB5ngO33Hsd8vBCZFI3TS3/G1Hx1VvliundDtg+oZz1auTaNOg1UkldDFs6cxK
-        aXYooT/bIqbezNrMbm24iCcMPabQDDtLG5KamGgkQoD/nRRja698Rk1atUH/NtTUphb+p/
-        JKs1t8JBGOl/eoV9XzqsjhEea4Lc/PWU4/MycW6RMtFpII9p+f9SelvaTw4TlN21g74g3c
-        MGPxkXuAoTSaw8ZPwOqa/ECtbBUFe6POheyG9whCn7l27dBlEv4xUY/O2c8qGA==
-Received: by spool.mail.gandi.net (Postfix) with ESMTPS id 5C9F27803EA
-        for <alexandre.belloni@bootlin.com>; Sun, 20 Mar 2022 21:09:09 +0000 (UTC)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id CB401240005;
-        Sun, 20 Mar 2022 21:09:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1647810549;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=eoUvjXcWxsCS2k8VppywzQry5S7nHcH0mW8C42GzOcs=;
-        b=Kv7mnn6+qhPoe4nYAA3HU8KH96O+5yNpew8NlJqW72ofsz2ognKKCzpo6Ro6Qmuh0o6/Aj
-        H4MDHrQTsDpJkXRpoVCIk2lp8hdLr9hgtulZKUNXmaZSGN69vlAfQNW1YX3dp4XAcHNNDa
-        RxiykDC3B/+fAfxAf2cA3R3rB8nJDSKPFHKjlVaX80wJOW9I6LPmhdiWYncCdRD9bLhw67
-        nnnWmK0oE9guT/rcqjPVCAA8uH0k9ULd+eYSJkTPPKOUFcY0eSQnRwAFDNPtwvm0wJrl4n
-        axkoZzjlqM+jistlPqfPumFuC+R63Dc1qnYE6ztCeP6BqNFYwqqFl53dFD2xYA==
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        kernel test robot <lkp@intel.com>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] clk: sunxi-ng: sun6i-rtc: include clk/sunxi-ng.h
-Date:   Sun, 20 Mar 2022 22:09:04 +0100
-Message-Id: <20220320210905.6606-1-alexandre.belloni@bootlin.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S240637AbiCWOkw (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Mar 2022 10:40:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427F77CDF8;
+        Wed, 23 Mar 2022 07:39:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0CABB81F54;
+        Wed, 23 Mar 2022 14:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF31CC36AE7;
+        Wed, 23 Mar 2022 14:39:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1648046360;
+        bh=7hScU2wmlNgM/yQ8a4259GS5BdEa/xV6MFfLX6ni2K0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=rGUjVHiwFih154F83bEJSn4pAvwlxs0HZ959xjNYb1dfz66dbs52/zIKe9ZkvOxSL
+         ABB1VbMccyZ3DNukWHfVl31bXum+b650tADAiJowQ3l0/vjr9pf/pLhKQa2g938vc4
+         p6CJJr3LXDozl2Irqa02DW/bNdcWFdV2HG1yxoizOE0PtjldMlylhiePt3eohsMH1A
+         4RszRhFsCEfqHkaid7K8oVvNhMZLEAtd0I0OcezIbcbtTubaUK5XWnMYWvJeZWKVNH
+         4BbdlWIS12j7Lq4Mspq/RZyPXVSo/LZEgOIgDl1ojcM0kBtE70nVBXY2kPJLOqyqtW
+         7672ie+TjiiKA==
+Received: by mail-ej1-f51.google.com with SMTP id p15so3257740ejc.7;
+        Wed, 23 Mar 2022 07:39:20 -0700 (PDT)
+X-Gm-Message-State: AOAM533iNqFw/QhkVTFWvSi+IjjSF/HDex3qd3NR8/lwO76A0YTpjjrQ
+        aSugkG1dmsWWHof6bpMmqppiU/QUf6qjEmWeTA==
+X-Google-Smtp-Source: ABdhPJw2vEInYJhzD6Sf81xfPAK8TCv4R6vkavYp+uogbKSt/3KF5JGasr6aiXQ1YYxZKamMelaTIzKIIlvJ+HwzOfc=
+X-Received: by 2002:a17:906:58ce:b0:6da:b548:1bbb with SMTP id
+ e14-20020a17090658ce00b006dab5481bbbmr307806ejs.14.1648046359044; Wed, 23 Mar
+ 2022 07:39:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Received-SPF: pass (spool4: domain of bootlin.com designates 217.70.178.230 as permitted sender) client-ip=217.70.178.230; envelope-from=alexandre.belloni@bootlin.com; helo=relay10.mail.gandi.net;
-Authentication-Results: spool.mail.gandi.net;
-        dkim=pass header.d=bootlin.com header.s=gm1 header.b=Kv7mnn6+;
-        spf=pass (spool.mail.gandi.net: domain of alexandre.belloni@bootlin.com designates 217.70.178.230 as permitted sender) smtp.mailfrom=alexandre.belloni@bootlin.com;
-        dmarc=pass (policy=reject) header.from=bootlin.com
-X-TUID: 5m1n1pcO+G80
+References: <20220308155735.54146-1-alexandre.belloni@bootlin.com> <CAL_JsqJXz01F_+-xg8VfAOQ=-C96NVa1KO+nRbXf9mq289kmYQ@mail.gmail.com>
+In-Reply-To: <CAL_JsqJXz01F_+-xg8VfAOQ=-C96NVa1KO+nRbXf9mq289kmYQ@mail.gmail.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Wed, 23 Mar 2022 09:39:07 -0500
+X-Gmail-Original-Message-ID: <CAL_Jsq++eqGS6xJ6EgwXe2RpZYgbB30kfTvZQx=sGmb-LgVWXg@mail.gmail.com>
+Message-ID: <CAL_Jsq++eqGS6xJ6EgwXe2RpZYgbB30kfTvZQx=sGmb-LgVWXg@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: rtc: at91: rename rtt bindings file
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
+        <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        devicetree@vger.kernel.org,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This solves:
->> drivers/clk/sunxi-ng/ccu-sun6i-rtc.c:334:5: warning: no previous prototype for 'sun6i_rtc_ccu_probe' [-Wmissing-prototypes]
-     334 | int sun6i_rtc_ccu_probe(struct device *dev, void __iomem *reg)
-         |     ^~~~~~~~~~~~~~~~~~~
+On Wed, Mar 9, 2022 at 3:05 PM Rob Herring <robh+dt@kernel.org> wrote:
+>
+> On Tue, Mar 8, 2022 at 9:57 AM Alexandre Belloni
+> <alexandre.belloni@bootlin.com> wrote:
+> >
+> > atmel,at91sam9-rtc is a confuing name for this file as it is documenting
+> > the RTT used as an RTC and not the other regular RTC (atmel,at91rm9200-rtc
+> > and atmel,at91sam9x5-rtc)
+> >
+> > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> > ---
+> >  .../rtc/{atmel,at91sam9-rtc.yaml => atmel,at91sam9260-rtt.yaml}   | 0
+> >  1 file changed, 0 insertions(+), 0 deletions(-)
+> >  rename Documentation/devicetree/bindings/rtc/{atmel,at91sam9-rtc.yaml => atmel,at91sam9260-rtt.yaml} (100%)
+> >
+> > diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml b/Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml
+> > similarity index 100%
+> > rename from Documentation/devicetree/bindings/rtc/atmel,at91sam9-rtc.yaml
+> > rename to Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml
+>
+> Now failing in -next:
+>
+> ./Documentation/devicetree/bindings/rtc/atmel,at91sam9260-rtt.yaml:
+> $id: relative path/filename doesn't match actual path or filename
+>   expected: http://devicetree.org/schemas/rtc/atmel,at91sam9260-rtt.yaml#
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- drivers/clk/sunxi-ng/ccu-sun6i-rtc.c | 2 ++
- 1 file changed, 2 insertions(+)
+Still failing...
 
-diff --git a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-index 712fda22efd5..8a10bade7e0d 100644
---- a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-+++ b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
-@@ -9,6 +9,8 @@
- #include <linux/module.h>
- #include <linux/of_device.h>
- 
-+#include <linux/clk/sunxi-ng.h>
-+
- #include "ccu_common.h"
- 
- #include "ccu_div.h"
--- 
-2.35.1
-
+Rob
