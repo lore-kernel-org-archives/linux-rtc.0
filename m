@@ -2,96 +2,184 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63326C433EF
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Mar 2022 20:41:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD217C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu, 31 Mar 2022 19:06:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231495AbiC2Une (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 29 Mar 2022 16:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34728 "EHLO
+        id S231293AbiCaTIj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 31 Mar 2022 15:08:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231802AbiC2Und (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Mar 2022 16:43:33 -0400
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::223])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3F4AA997B
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Mar 2022 13:41:48 -0700 (PDT)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 4AEAC60003;
-        Tue, 29 Mar 2022 20:41:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1648586507;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=BIraxn/PsxY3LCl6D++cDaOvkHcn080D46JZ8iFG7Xw=;
-        b=h/24q65+tK/lChBRPfqke4ij1tVOtjix1vXpLy71ksKyhdTbt+oF6awO9wHN+mRub4OZ5V
-        kSHD0S0qgUMhmHJ4RNikd7a1P/v7bBpfysS4puoaENpdWy8/84gAOVBqM0PLeiRsMG/H+Q
-        6GfallPLJJp/gWanW1PM0qJ0ZNYcjdNPCdlehkpOKahEZ0fJN7n11O2NnmjcNgeJ5EmDUt
-        bIbxnSGQzHZq6fAvy+mHGlqi7JWVwfOJCG9H1wkF1LnmQ/jn+k/JTM9fXE4AvMOmnSkg5j
-        1Zd7opV8YVm63NlBtbtWLjLzEk0Gk1aRzcaN7Wx6FgFU4uXzhFQzy+29FLfH+g==
-Date:   Tue, 29 Mar 2022 22:41:44 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" 
-        <linux-rtc@vger.kernel.org>, Jinke Fan <fanjinke@hygon.cn>,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>
-Subject: Re: [PATCH] rtc: Fix the AltCentury for AMD platforms
-Message-ID: <YkNvCH6NhJjoso88@piout.net>
-References: <20220111225750.1699-1-mario.limonciello@amd.com>
- <dd1b3f97-316e-09ac-05de-43fb1320c5b0@amd.com>
- <YemwVn65H2yotmfd@piout.net>
- <DM4PR12MB5168A637030600A2B8B712D6E21E9@DM4PR12MB5168.namprd12.prod.outlook.com>
+        with ESMTP id S240454AbiCaTIW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 31 Mar 2022 15:08:22 -0400
+Received: from mx-out.tlen.pl (mx-out.tlen.pl [193.222.135.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B6421DF18
+        for <linux-rtc@vger.kernel.org>; Thu, 31 Mar 2022 12:06:33 -0700 (PDT)
+Received: (wp-smtpd smtp.tlen.pl 14437 invoked from network); 31 Mar 2022 21:06:30 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1648753590; bh=8gd/34zfJ5U82zEaxAl8m9q+P0p7nBbi0dKh2gtx344=;
+          h=From:To:Cc:Subject;
+          b=fXgSZIqaSNsYEzNdIwhYkWtbjnDzH/vS2JWvQoeJ+23gGBc/2ffwo9YdlpU3zXpVB
+           VFLzFDD5+g02xbGlF8+jv/vh/Yb2TnRea30ssykBkKoGsw2JtXkwtOswF9B7uWJT4u
+           EFKmc6I5Q3YDenVuyEoSaHu3WVlvglPMOSJ0V/kk=
+Received: from aaew62.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.126.62])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with SMTP
+          for <linux-kernel@vger.kernel.org>; 31 Mar 2022 21:06:30 +0200
+From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+To:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Shuah Khan <shuah@kernel.org>
+Subject: [PATCH 2/2] [RFC] selftests/rtc: read RTC alarm time many times in a row
+Date:   Thu, 31 Mar 2022 21:06:12 +0200
+Message-Id: <20220331190612.22162-2-mat.jonczyk@o2.pl>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220331190612.22162-1-mat.jonczyk@o2.pl>
+References: <20220331190612.22162-1-mat.jonczyk@o2.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DM4PR12MB5168A637030600A2B8B712D6E21E9@DM4PR12MB5168.namprd12.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-WP-MailID: f8495556d919ce4d1335d5cdb7666e94
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 0000000 [QcO0]                               
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 29/03/2022 20:36:46+0000, Limonciello, Mario wrote:
-> HI Alexandre,
-> 
-> I checked and didn't see this come into master as most of the 5.18 trees came in.
-> Did this get forgotten?
-> 
+This is the userspace part of the test unit.
 
-Not really, this was in my back log and actually the first one I wanted
-to apply right now.
+This patch depends on
+commit 2aaa36e95ea5 ("selftests/rtc: continuously read RTC in a loop for 30s")
 
-> Thanks,
-> 
-> > 
-> > > Also if it wasn't made clear in my commit message or by analyzing this code
-> > > change, I do believe that at least part of the reason for the previous
-> > > regression was because of mucking with reserved bits.  This patch is much
-> > > more conservative.
-> > >
-> > > In my testing I found similar behaviors from the old regression on a more
-> > > modern platform when those bits were being touched.
-> > >
-> > > Mikhail,
-> > >
-> > > As you flagged the previous regression, would appreciate if you're able to
-> > > test the new patch (although of course many things in your situation have
-> > > changed now).
-> > >
-> > > Thanks.
-> > >
-> > 
-> > --
-> > Alexandre Belloni, co-owner and COO, Bootlin
-> > Embedded Linux and Kernel engineering
-> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fboot
-> > lin.com%2F&amp;data=04%7C01%7Cmario.limonciello%40amd.com%7C3357
-> > df64bb864b6ef63e08d9dc468eae%7C3dd8961fe4884e608e11a82d994e183d%
-> > 7C0%7C0%7C637783018746468575%7CUnknown%7CTWFpbGZsb3d8eyJWIjoi
-> > MC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C300
-> > 0&amp;sdata=gvm24hJhVEsXrRQT6c1GtkMhi3q77Df1Biowb6gVdS8%3D&am
-> > p;reserved=0
+Existing code casts "struct rtc_time *" to "struct tm *", like so:
 
+	gmtime_r(&secs, (struct tm *)&tm);
+
+This is incorrect, because sizeof(struct tm) > sizeof(struct rtc_time)
+(on Ubuntu 20.04 at least) and gmtime_r overwrites part of the stack.
+I'll submit a fix for this in mainline soon, but for now I'm defining
+timestamp_to_rtc_time() here.
+
+TODO:
+- some logic improvements, without much impact on the core algorithm.
+
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Shuah Khan <shuah@kernel.org>
+---
+ tools/testing/selftests/rtc/rtctest.c | 81 ++++++++++++++++++++++++++-
+ tools/testing/selftests/rtc/settings  |  2 +-
+ 2 files changed, 81 insertions(+), 2 deletions(-)
+
+diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+index 2b9d929a24ed..7e5f2f1c00ef 100644
+--- a/tools/testing/selftests/rtc/rtctest.c
++++ b/tools/testing/selftests/rtc/rtctest.c
+@@ -62,7 +62,21 @@ static time_t rtc_time_to_timestamp(struct rtc_time *rtc_time)
+ 	       .tm_year = rtc_time->tm_year,
+ 	};
+ 
+-	return mktime(&tm_time);
++	return timegm(&tm_time);
++}
++
++static void timestamp_to_rtc_time(time_t timestamp, struct rtc_time *rtc_time)
++{
++	struct tm tm_time;
++
++	gmtime_r(&timestamp, &tm_time);
++
++	rtc_time->tm_sec = tm_time.tm_sec;
++	rtc_time->tm_min = tm_time.tm_min;
++	rtc_time->tm_hour = tm_time.tm_hour;
++	rtc_time->tm_mday = tm_time.tm_mday;
++	rtc_time->tm_mon = tm_time.tm_mon;
++	rtc_time->tm_year = tm_time.tm_year;
+ }
+ 
+ static void nanosleep_with_retries(long ns)
+@@ -228,6 +242,71 @@ TEST_F(rtc, alarm_alm_set) {
+ 	ASSERT_EQ(new, secs);
+ }
+ 
++TEST_F_TIMEOUT(rtc, alarm_read_loop, READ_LOOP_DURATION_SEC + 2) {
++	int rc;
++	long iter_count = 0;
++	struct rtc_time tm;
++	struct timeval start, curr;
++	time_t secs;
++
++	rc = ioctl(self->fd, RTC_RD_TIME, &tm);
++	ASSERT_NE(-1, rc);
++
++	// 60s is for clocks that only support minute resolution of RTC alarm
++	secs = rtc_time_to_timestamp(&tm) + READ_LOOP_DURATION_SEC + 60 + 2;
++	timestamp_to_rtc_time(secs, &tm);
++
++	rc = ioctl(self->fd, RTC_ALM_SET, &tm);
++	if (rc == -1) {
++		ASSERT_EQ(EINVAL, errno);
++		TH_LOG("skip alarms are not supported.");
++		return;
++	}
++
++	rc = ioctl(self->fd, RTC_AIE_ON, NULL);
++	ASSERT_NE(-1, rc);
++
++	TH_LOG("Continuously reading RTC alarm time for %ds (with %dms breaks after every read).",
++	       READ_LOOP_DURATION_SEC, READ_LOOP_SLEEP_MS);
++
++	gettimeofday(&start, NULL);
++
++	secs = 0;
++
++	do {
++		// TODO: use appropriate directory
++		// TODO: fail gracefully if the kernel support does not exist
++		FILE *wkalarm_file = fopen("/sys/kernel/debug/rtc/rtc0/wakealarm_raw", "r");
++		long long wkalarm_time;
++
++		ASSERT_NE(wkalarm_file, NULL);
++
++		rc = fscanf(wkalarm_file, "%lld", &wkalarm_time);
++		fclose(wkalarm_file);
++
++		ASSERT_EQ(rc, 1);
++		ASSERT_NE(secs, -1);
++		// TODO: use another value as placeholder,
++		// TODO: check if wkalarm_time matches alarm time we set
++		// previously
++		if (secs == 0)
++			secs = wkalarm_time;
++
++		ASSERT_EQ(wkalarm_time, secs);
++
++		// Sleep 11ms to avoid killing / overheating the RTC
++		nanosleep_with_retries(READ_LOOP_SLEEP_MS * 1000000);
++
++		gettimeofday(&curr, NULL);
++		iter_count++;
++	} while (curr.tv_sec <= start.tv_sec + READ_LOOP_DURATION_SEC);
++
++	TH_LOG("Performed %ld RTC alarm time reads.", iter_count);
++
++	rc = ioctl(self->fd, RTC_AIE_OFF, NULL);
++	ASSERT_NE(-1, rc);
++}
++
+ TEST_F(rtc, alarm_wkalm_set) {
+ 	struct timeval tv = { .tv_sec = ALARM_DELTA + 2 };
+ 	struct rtc_wkalrm alarm = { 0 };
+diff --git a/tools/testing/selftests/rtc/settings b/tools/testing/selftests/rtc/settings
+index 0c1a2075d5f3..b478e684846a 100644
+--- a/tools/testing/selftests/rtc/settings
++++ b/tools/testing/selftests/rtc/settings
+@@ -1 +1 @@
+-timeout=210
++timeout=240
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.25.1
+
