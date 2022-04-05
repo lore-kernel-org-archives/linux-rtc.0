@@ -2,85 +2,65 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA679C4167E
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52CB7C4707F
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236352AbiDEVlM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
+        id S1358212AbiDEVkk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:40:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443055AbiDEPix (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 11:38:53 -0400
-Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F8F143C7C;
-        Tue,  5 Apr 2022 06:54:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1649166856;
-  x=1680702856;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=WhCHZK9GJJLMq21n9Wjs02V4Hy6iol3pV60QmFhYnXI=;
-  b=jOu26AEgH52kLCEHGCDNClrCiuGQsqC0mMbV00LsCQ6D7yvqs5Dp0cZy
-   optIlXUGOYK/V04EhtXgmp6AGk/51aFLQeuyzPywOKdv2JKXA+l+F6zE7
-   jxHOIV1w+04HJPidE7bujX1V1JGCLkwHL1iXL+GF9c51ejPvh7kJHrDJF
-   sWsJXpEG7H3IcBsiHwqDNa1ca2VTQ5eAIIHcwcVTTvxCwHveoCzsrgoBD
-   Qg4rKYHk/O7G0KuyvCJLe6mEPgEtYSv+lMmSdwpvvs1oz0dylwi73F+Ak
-   1fDOQjfbIzc4yDvOAyiXUKMXCl58iv6V6IbDYllLso+PQ6F552TycWKbq
-   w==;
-Date:   Tue, 5 Apr 2022 15:54:12 +0200
-From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
-To:     Johannes Berg <johannes@sipsolutions.net>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        kernel <kernel@axis.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "brendanhiggins@google.com" <brendanhiggins@google.com>,
-        "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-        "jic23@kernel.org" <jic23@kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "corbet@lwn.net" <corbet@lwn.net>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
-Subject: Re: [RFC v1 01/10] roadtest: import libvhost-user from QEMU
-Message-ID: <20220405135412.GB28574@axis.com>
-References: <20220311162445.346685-1-vincent.whitchurch@axis.com>
- <20220311162445.346685-2-vincent.whitchurch@axis.com>
- <7f405d8d09a83954aa3411eff8b71ee687c7ec33.camel@sipsolutions.net>
+        with ESMTP id S1383922AbiDEPOu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 11:14:50 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4C9176D2B;
+        Tue,  5 Apr 2022 06:28:10 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: kholk11)
+        with ESMTPSA id 5C7E11F45039
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1649165288;
+        bh=Z7ly7VhlEOXC12e1olu1To154Rm7ZW9SK4TYqH7rDZo=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=YHL0QdBT1QmRtgT1WU9noVhfECYnV9pv95Lc/V6R++QnDzUSC2k02WMDvZxPYIqfC
+         gLEPY9mGBOB3Ne3oJ9Fvio2HgVmNjVcTPPJywzKLqnLMgSHzyyxNm2VU+OKPP7xUgS
+         NxHwaXlNkMsQ/0RoyXHb0SeMz7dJ9xRxhR6tUCYcwGWgKSpCG91s4GtEhC5WjcfAQ8
+         fdMxOZq/UtoMGw2siwvAgd0HgX4GvVXbRt1i/W+IOsTvRtIQZFxYAEieFZrDEHzDRx
+         TsPLd3kKeLSeWHpX3guu/wf6Vy4idnvwHtLUOAFiBAH4HGkH1w0w6y+HElgwdZltN7
+         8yKI1tAXvkkaw==
+Message-ID: <4bf0e4e0-6b87-5de3-22ff-b1f6b4cde0b4@collabora.com>
+Date:   Tue, 5 Apr 2022 15:28:05 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <7f405d8d09a83954aa3411eff8b71ee687c7ec33.camel@sipsolutions.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] rtc: mt6397: Fix potential NULL dereference in
+ mtk_rtc_probe
+Content-Language: en-US
+To:     Miaoqian Lin <linmq006@gmail.com>,
+        Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220404132553.28064-1-linmq006@gmail.com>
+From:   AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+In-Reply-To: <20220404132553.28064-1-linmq006@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Mar 24, 2022 at 02:00:10PM +0100, Johannes Berg wrote:
-> On Fri, 2022-03-11 at 17:24 +0100, Vincent Whitchurch wrote:
-> > Import the libvhost-user from QEMU for use in the implementation of the
-> > virtio devices in the roadtest backend.
+Il 04/04/22 15:25, Miaoqian Lin ha scritto:
+> platform_get_resource() may return NULL, add proper check to
+> avoid potential NULL dereferencing.
 > 
-> So hm, I wonder if this is the sensible thing to do?
-> 
-> Not that I mind importing qemu code, but:
-> 
->  1) the implementation is rather complex in some places, and has support
->     for a LOT of virtio/vhost-user features that are really not needed
->     in these cases, for performance etc. It's also close to 4k LOC.
+> Fixes: fc2979118f3f ("rtc: mediatek: Add MT6397 RTC driver")
+> Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
 
-Is this really a problem given that the code is imported as-is?  The
-intention is not to have to make a lot of local modifications to it in
-the kernel tree.  The code is stable and presumably well-tested
-upstream, and upstream maintains it as a separate library (in the QEMU
-source tree though) to encourage reuse.
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
->  2) the implementation doesn't support time-travel mode which might come
->     in handy
-
-True, but I don't see the external time-travel controller stuff being
-too useful for the kinds of tests this framework is targeting.
