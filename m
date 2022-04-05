@@ -2,84 +2,153 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B840BC433F5
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 378AFC433FE
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232449AbiDEVkp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
+        id S232260AbiDEVkZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443917AbiDEPk2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 11:40:28 -0400
-Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3ED14DFE5;
-        Tue,  5 Apr 2022 07:02:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1649167344;
-  x=1680703344;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Quhq+ANDcyqCuN52eIRgLzLh2IoR3G+Ogb7BY7KkCbE=;
-  b=JfWw2js+sHio6dbd67N4f+BKvGcgXqC+jL6zGIBTKIXzryvcIE7qzxyL
-   fAQhMiRTFUrAJ9Wa9Uqfp6pjIffGUKwtBeQ6kq96gPt0Rcx4I/SQa6+tq
-   /4wesHmr64EULkm16LIV+z66YSSuwmFC/PzXL8EuTqLIbViL5BoPaBUqM
-   MtOqJqtCNazap6UZeRrAMa2IfhYQDY98cmlHqo9nrqZ99WVlsnTUi5tsv
-   ZAz3dFApD9DyI+D9oPjtyKzsvhacBT2JvmJ8EVp/x4TIpKfI2wC/zqp6Y
-   037kX7KxN0Pk+KkpeKGXDQrZUbxYVdVVHYyPgtan+kxbYXgNOylSg7HWN
-   g==;
-Date:   Tue, 5 Apr 2022 16:02:21 +0200
-From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
-To:     Mark Brown <broonie@kernel.org>
-CC:     <linux-kernel@vger.kernel.org>, <kernel@axis.com>,
-        <devicetree@vger.kernel.org>, <linux-um@lists.infradead.org>,
-        <shuah@kernel.org>, <brendanhiggins@google.com>,
-        <linux-kselftest@vger.kernel.org>, <jic23@kernel.org>,
-        <linux-iio@vger.kernel.org>, <lgirdwood@gmail.com>,
-        <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <linux-rtc@vger.kernel.org>, <corbet@lwn.net>,
-        <linux-doc@vger.kernel.org>
-Subject: Re: [RFC v1 09/10] regulator: tps62864: add roadtest
-Message-ID: <20220405140221.GC28574@axis.com>
-References: <20220311162445.346685-1-vincent.whitchurch@axis.com>
- <20220311162445.346685-10-vincent.whitchurch@axis.com>
- <YiuPvkQroV/WdFpx@sirena.org.uk>
- <20220317151326.GA7832@axis.com>
- <YjN1ksNGujV611Ka@sirena.org.uk>
+        with ESMTP id S1573373AbiDES7u (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 14:59:50 -0400
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036B6CD33C
+        for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 11:57:49 -0700 (PDT)
+Received: from relay12.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::232])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 3B9F7CAA93
+        for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 18:47:31 +0000 (UTC)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id EE4CF200007;
+        Tue,  5 Apr 2022 18:47:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1649184441;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=H31g2lSzg7n7VxTobwZqrUHtLT3mR7JfXrSowetcS0w=;
+        b=EQxDMFEwl4Uxy8D2SwWeQ8tAQ+2j2I/zKbmGibaOzOVWJoZmunWjeF3lcUcR8DeYJkhEvY
+        abGqGR71XtqDseu8jLNaClkZZpO7sYWiO78kDpbCrS8+QboA2xSH91qLv5HdyFNhMwbUH9
+        pWuhCApaCc/SLHyplkTin48tYeGFe0powHkt/6UCZu8CabRQA1C5C56W3m/fco8oDb+XZR
+        bRxW/LLJctxd4MRQWOai45lQVw5DyIMYzHftJAV6/9I0ufMBgw+///8Hy1cWBEGWnjevXb
+        Invmw8YRhSNc35i5XHPgZUx0wrQ2HMhuDCUKxspmm599ZMXc5xVuX9T1W84tYQ==
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        linux-renesas-soc@vger.kernel.org,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Gareth Williams <gareth.williams.jx@renesas.com>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        linux-clk@vger.kernel.org,
+        Milan Stevanovic <milan.stevanovic@se.com>,
+        Jimmy Lalande <jimmy.lalande@se.com>,
+        Pascal Eberhard <pascal.eberhard@se.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Herve Codina <herve.codina@bootlin.com>,
+        Clement Leger <clement.leger@bootlin.com>,
+        linux-rtc@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 1/7] dt-bindings: rtc: rzn1: Describe the RZN1 RTC
+Date:   Tue,  5 Apr 2022 20:47:10 +0200
+Message-Id: <20220405184716.1578385-2-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220405184716.1578385-1-miquel.raynal@bootlin.com>
+References: <20220405184716.1578385-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <YjN1ksNGujV611Ka@sirena.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 05:53:22PM +0000, Mark Brown wrote:
-> On Thu, Mar 17, 2022 at 04:13:26PM +0100, Vincent Whitchurch wrote:
-> > On Fri, Mar 11, 2022 at 06:06:54PM +0000, Mark Brown wrote:
-> 
-> > > > +    @classmethod
-> > > > +    def setUpClass(cls) -> None:
-> > > > +        insmod("tps6286x-regulator")
-> 
-> > > Shouldn't this get figured out when the device gets created in DT (if it
-> > > doesn't I guess the tests found a bug...)?
-> 
-> > The system isn't set up to load modules automatically.  The reason for
-> > this is to give the test cases full control of when the module is loaded
-> > and unload, since the tests could want to load the module with specific
-> > options.
-> 
-> That seems like the uncommon case which could remove the module if it
-> explicitly needed it.
+Add new binding file for this RTC.
 
-Another reason was to get the tests to test module unloading since I've
-seen a lot of especially new driver writers forget to test that, but I
-realise that for most normal drivers that should be mostly covered by
-the fact that we test device unbinding.
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+---
+ .../bindings/rtc/renesas,rzn1-rtc.yaml        | 69 +++++++++++++++++++
+ 1 file changed, 69 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
 
-So I went ahead and implemented this and it seems to work.  As you
-hinted earlier, this also means that the modalias stuff gets tested, and
-as we know that's been broken in the recent past for a bunch of drivers,
-so that's another advantage to automatic module loading, besides the
-boilerplate reduction in the tests.
+diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+new file mode 100644
+index 000000000000..903f0cd361fa
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+@@ -0,0 +1,69 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/renesas,rzn1-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Renesas RZ/N1 SoCs Real-Time Clock DT bindings
++
++maintainers:
++  - Miquel Raynal <miquel.raynal@bootlin.com>
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - renesas,r9a06g032-rtc
++          - const: renesas,rzn1-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    minItems: 3
++    maxItems: 3
++
++  interrupt-names:
++    items:
++      - const: alarm
++      - const: timer
++      - const: pps
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    const: hclk
++
++  start-year: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-names
++  - clocks
++  - clock-names
++  - start-year
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/clock/r9a06g032-sysctrl.h>
++    rtc@40006000 {
++       compatible = "renesas,r9a06g032-rtc", "renesas,rzn1-rtc";
++       reg = <0x40006000 0x1000>;
++       interrupts = <GIC_SPI 66 IRQ_TYPE_EDGE_RISING>,
++                    <GIC_SPI 67 IRQ_TYPE_EDGE_RISING>,
++                    <GIC_SPI 68 IRQ_TYPE_EDGE_RISING>;
++       interrupt-names = "alarm", "timer", "pps";
++       clocks = <&sysctrl R9A06G032_HCLK_RTC>;
++       clock-names = "hclk";
++       start-year = <2000>;
++     };
+-- 
+2.27.0
+
