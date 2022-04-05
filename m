@@ -2,62 +2,108 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7CA2C433F5
-	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 08:03:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E63DEC433F5
+	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:38:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbiDEIFd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Apr 2022 04:05:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48166 "EHLO
+        id S231841AbiDEVjo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234109AbiDEH6A (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 03:58:00 -0400
-X-Greylist: delayed 590 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 05 Apr 2022 00:51:57 PDT
-Received: from mail.bizcall.pl (mail.bizcall.pl [192.71.213.112])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC7C698F4D
-        for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 00:51:56 -0700 (PDT)
-Received: by mail.bizcall.pl (Postfix, from userid 1001)
-        id 2D4D94117D; Tue,  5 Apr 2022 09:40:54 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bizcall.pl; s=mail;
-        t=1649144518; bh=L7rZPDqncV/PGNK3vBL4eFyhOA8rMHMu3jCfxnl4mEc=;
-        h=Date:From:To:Subject:From;
-        b=mfh/a15DziJHU4EqqjCojBRhclVfaKZE9cajnzYIg2kNmpSqccet9uALJg1pxwlsI
-         bbEwu0suEKG4VZDn2B8NTEvwc6kAeo9nMwdGCIAdZpHOGasglGW4soxGZof4QCue5/
-         WAFL6sdTAc4r/qPPeKGR4tKQMQQ9QPpPhcxkKqg7hRhFJZ4vQusYqEAlL0rdWo7Qlg
-         jxlop5u29mnqXqsvORo0vDyLIU9ECq2uqXaM9/Q5gqYFgTPP1AYf2VIBvnTniENHDZ
-         rbAha8SqK8lcMbSaQlID+jArkjUYdue11iBk0a3PLLFKWwMrtyoh2q0kqjjwviNKxe
-         fNGKnye/5vMMw==
-Received: by mail.bizcall.pl for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 07:38:54 GMT
-Message-ID: <20220405084501-0.1.1v.5h2m.0.0l20u7wj1r@bizcall.pl>
-Date:   Tue,  5 Apr 2022 07:38:54 GMT
-From:   "Marek Onufrowicz" <marek.onufrowicz@bizcall.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: Prezentacja
-X-Mailer: mail.bizcall.pl
+        with ESMTP id S1392189AbiDEPft (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 11:35:49 -0400
+Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518DA12D;
+        Tue,  5 Apr 2022 06:48:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1649166488;
+  x=1680702488;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=79rrKpJvSV/IyMMLjk1fyhAdjuzODykc4KbTAF2mUFs=;
+  b=FiOVSqtEplqlpGbV24QKDAr+i8WFGbW038mF84zzzjMGLHloCAF5NPgY
+   spNiGw/JW64vBk2PDKMYeRrzNnvvX9UHBY/B/HepKgx6Ad8lZokZPYdBy
+   7OpaZ9BsvHs1aZCwW+kuNlJhW2Z2+5tJgZDQoPpNYBx3HZTZqRoW8yTb2
+   L/kbhgJPZ67FRSZN5VimMCXaFg5e7MBpW2w5kOfvVuD4jRmwgAUY0TEzv
+   O9FAaZn51Fi/MSdDTB4FNunqqBA9Ty8O7mk1/2xsvz1tde3N99GsfhgrV
+   4GYLxtosbMlYV/YxgZvfwIh/MPM7kvdpyaf1CLkQR25ioPVRlRFcC7BrW
+   w==;
+Date:   Tue, 5 Apr 2022 15:48:05 +0200
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     Jonathan Cameron <jic23@kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        kernel <kernel@axis.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "brendanhiggins@google.com" <brendanhiggins@google.com>,
+        "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [RFC v1 08/10] iio: light: vcnl4000: add roadtest
+Message-ID: <20220405134805.GA28574@axis.com>
+References: <20220311162445.346685-1-vincent.whitchurch@axis.com>
+ <20220311162445.346685-9-vincent.whitchurch@axis.com>
+ <20220320170253.5b946c84@jic23-huawei>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20220320170253.5b946c84@jic23-huawei>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry!
+On Sun, Mar 20, 2022 at 06:02:53PM +0100, Jonathan Cameron wrote:
+> Very interesting bit of work. My current approach for similar testing
+> is to write a qemu model for the hardware, but that currently
+> requires carefully crafted tests. Most of the time I'm only doing
+> that to verify refactoring of existing drivers. 
 
-Czy m=C3=B3g=C5=82bym przedstawi=C4=87 rozwi=C4=85zanie, kt=C3=B3re umo=C5=
-=BCliwia monitoring ka=C5=BCdego auta w czasie rzeczywistym w tym jego po=
-zycj=C4=99, zu=C5=BCycie paliwa i przebieg?
+Thank you for taking a look!
 
-Dodatkowo nasze narz=C4=99dzie minimalizuje koszty utrzymania samochod=C3=
-=B3w, skraca czas przejazd=C3=B3w, a tak=C5=BCe tworzenie planu tras czy =
-dostaw.
+> One thing that makes me nervous here is the python element though
+> as I've not written significant python in about 20 years.
+> That is going to be a burden for kernel developers and maintainers...
+> Nothing quite like badly written tests to make for a mess in the long run
+> and I suspect my python for example would be very very badly written :)
 
-Z naszej wiedzy i do=C5=9Bwiadczenia korzysta ju=C5=BC ponad 49 tys. Klie=
-nt=C3=B3w. Monitorujemy 809 000 pojazd=C3=B3w na ca=C5=82ym =C5=9Bwiecie,=
- co jest nasz=C4=85 najlepsz=C4=85 wizyt=C3=B3wk=C4=85.
+There's a bunch of static checkers to ensure that the code follows some
+basic guidelines, and CI can check that the tests work consistently, and
+also calculate metrics such as test execution time and code coverage, so
+even non-idiomatic Python in the tests wouldn't be entirely broken.
 
-Bardzo prosz=C4=99 o e-maila zwrotnego, je=C5=9Bli mogliby=C5=9Bmy wsp=C3=
-=B3lnie om=C3=B3wi=C4=87 potencja=C5=82 wykorzystania takiego rozwi=C4=85=
-zania w Pa=C5=84stwa firmie.
+And unlike driver code, if the tests for a particular driver later do
+turn out to be bad (in what way?), we could just throw those particular
+tests out without breaking anybody's system.
 
+> Cut and paste will of course get us a long way...
 
-Pozdrawiam,
-Marek Onufrowicz
+Isn't some amount of copy/paste followed by modification to be expected
+even if the framework is written in say C (just as there's already
+copy/paste + modification involved when writing drivers)?
+
+As for the core logic of individual driver tests excluding the framework
+bits, I have a hard time imagining what Python syntax looks like to
+someone with no knowledge of Python, so yes, I guess it's going to be
+harder to review.
+
+> I dream of a world where every driver is testable by people with out hardware
+> but I fear it may be a while yet.  Hopefully this will get us a little
+> closer!
+> 
+> I more or less follow what is going on here (good docs btw in the earlier
+> patch definitely helped).
+> 
+> So far I'm thoroughly in favour of road test subject to actually being
+> able to review the tests or getting sufficient support to do so.
+> It's a 'how to scale it' question really...
+
+Would rewriting the framework in C and forcing tests to be written in
+that language mean that maintainers would be able to review tests
+without external support?
