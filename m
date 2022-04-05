@@ -2,175 +2,85 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5675C41535
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA679C4167E
 	for <linux-rtc@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231735AbiDEVlS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:41:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33376 "EHLO
+        id S236352AbiDEVlM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573380AbiDES7w (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 14:59:52 -0400
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C1DCD33C
-        for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 11:57:53 -0700 (PDT)
-Received: from relay12.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::232])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 9407DCB34D
-        for <linux-rtc@vger.kernel.org>; Tue,  5 Apr 2022 18:47:38 +0000 (UTC)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 850E1200004;
-        Tue,  5 Apr 2022 18:47:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1649184450;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=HU1wc5MsgG96qTLzOLNsJmhZ3anFEAxSiwSuwGVQASk=;
-        b=oGRU0W1seWtDq+NuHL5v458Z8ppx4eB/GvwGMk94NwbLYPLTa+oQV3iXVRI1CtwSKT2s32
-        XMm89XB/msM2DghJkfJYN1ge8GgQB6YdO8smFdVqya8rd0Yp0tiLgz9Pvn+HlF058B3zF2
-        mVinZFnos1y3nMQwEvxgvhZBIb8nm3LQM0mAmGcs/5kPeEDZXNSJwJttqYB504XM3Eu6M3
-        Nn+4EW4t3BsWnFXH4F3K5Ui+k2KesIBNJcYImUSPKLgtkQ0w6A+U50asPIsctoSoxhpkkQ
-        mHWw/VsB1hImdExNqjjXhb06KMyMSy/RwIWzsxzbxOwndxo34mr6AosZoNORCw==
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        linux-renesas-soc@vger.kernel.org,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        linux-clk@vger.kernel.org,
-        Milan Stevanovic <milan.stevanovic@se.com>,
-        Jimmy Lalande <jimmy.lalande@se.com>,
-        Pascal Eberhard <pascal.eberhard@se.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Herve Codina <herve.codina@bootlin.com>,
-        Clement Leger <clement.leger@bootlin.com>,
-        linux-rtc@vger.kernel.org,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5/7] rtc: rzn1: Add oscillator offset support
-Date:   Tue,  5 Apr 2022 20:47:14 +0200
-Message-Id: <20220405184716.1578385-6-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220405184716.1578385-1-miquel.raynal@bootlin.com>
-References: <20220405184716.1578385-1-miquel.raynal@bootlin.com>
+        with ESMTP id S1443055AbiDEPix (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 5 Apr 2022 11:38:53 -0400
+Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7F8F143C7C;
+        Tue,  5 Apr 2022 06:54:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1649166856;
+  x=1680702856;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=WhCHZK9GJJLMq21n9Wjs02V4Hy6iol3pV60QmFhYnXI=;
+  b=jOu26AEgH52kLCEHGCDNClrCiuGQsqC0mMbV00LsCQ6D7yvqs5Dp0cZy
+   optIlXUGOYK/V04EhtXgmp6AGk/51aFLQeuyzPywOKdv2JKXA+l+F6zE7
+   jxHOIV1w+04HJPidE7bujX1V1JGCLkwHL1iXL+GF9c51ejPvh7kJHrDJF
+   sWsJXpEG7H3IcBsiHwqDNa1ca2VTQ5eAIIHcwcVTTvxCwHveoCzsrgoBD
+   Qg4rKYHk/O7G0KuyvCJLe6mEPgEtYSv+lMmSdwpvvs1oz0dylwi73F+Ak
+   1fDOQjfbIzc4yDvOAyiXUKMXCl58iv6V6IbDYllLso+PQ6F552TycWKbq
+   w==;
+Date:   Tue, 5 Apr 2022 15:54:12 +0200
+From:   Vincent Whitchurch <vincent.whitchurch@axis.com>
+To:     Johannes Berg <johannes@sipsolutions.net>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        kernel <kernel@axis.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-um@lists.infradead.org" <linux-um@lists.infradead.org>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "brendanhiggins@google.com" <brendanhiggins@google.com>,
+        "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+        "jic23@kernel.org" <jic23@kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "lgirdwood@gmail.com" <lgirdwood@gmail.com>,
+        "broonie@kernel.org" <broonie@kernel.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "corbet@lwn.net" <corbet@lwn.net>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: Re: [RFC v1 01/10] roadtest: import libvhost-user from QEMU
+Message-ID: <20220405135412.GB28574@axis.com>
+References: <20220311162445.346685-1-vincent.whitchurch@axis.com>
+ <20220311162445.346685-2-vincent.whitchurch@axis.com>
+ <7f405d8d09a83954aa3411eff8b71ee687c7ec33.camel@sipsolutions.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <7f405d8d09a83954aa3411eff8b71ee687c7ec33.camel@sipsolutions.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The RZN1 RTC can compensate the imprecision of the oscillator up to
-approximately 190ppm.
+On Thu, Mar 24, 2022 at 02:00:10PM +0100, Johannes Berg wrote:
+> On Fri, 2022-03-11 at 17:24 +0100, Vincent Whitchurch wrote:
+> > Import the libvhost-user from QEMU for use in the implementation of the
+> > virtio devices in the roadtest backend.
+> 
+> So hm, I wonder if this is the sensible thing to do?
+> 
+> Not that I mind importing qemu code, but:
+> 
+>  1) the implementation is rather complex in some places, and has support
+>     for a LOT of virtio/vhost-user features that are really not needed
+>     in these cases, for performance etc. It's also close to 4k LOC.
 
-Seconds can last slightly shorter or longer depending on the
-configuration.
+Is this really a problem given that the code is imported as-is?  The
+intention is not to have to make a lot of local modifications to it in
+the kernel tree.  The code is stable and presumably well-tested
+upstream, and upstream maintains it as a separate library (in the QEMU
+source tree though) to encourage reuse.
 
-Below ~65ppm of correction, we can change the time spent in a second
-every minute, which is the most accurate compensation that the RTC can
-offer. Above, the compensation will be active every 20s.
+>  2) the implementation doesn't support time-travel mode which might come
+>     in handy
 
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
----
- drivers/rtc/rtc-rzn1.c | 73 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 73 insertions(+)
-
-diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-index 85c5a68944a0..64eb1ff20a24 100644
---- a/drivers/rtc/rtc-rzn1.c
-+++ b/drivers/rtc/rtc-rzn1.c
-@@ -246,12 +246,85 @@ static int rzn1_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return 0;
- }
- 
-+static int rzn1_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
-+	unsigned int ppb_per_step;
-+	bool subtract;
-+	u32 val;
-+
-+	val = readl(rtc->base + RZN1_RTC_SUBU);
-+	ppb_per_step = val & RZN1_RTC_SUBU_DEV ? 1017 : 3051;
-+	subtract = val & RZN1_RTC_SUBU_DECR;
-+	val &= 0x3F;
-+
-+	if (!val)
-+		*offset = 0;
-+	else if (subtract)
-+		*offset = -(((~val) & 0x3F) + 1) * ppb_per_step;
-+	else
-+		*offset = (val - 1) * ppb_per_step;
-+
-+	return 0;
-+}
-+
-+static int rzn1_rtc_set_offset(struct device *dev, long offset)
-+{
-+	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
-+	unsigned int steps, ppb_per_step;
-+	int stepsh, stepsl;
-+	u32 val;
-+	int ret;
-+
-+	/*
-+	 * Check which resolution mode (every 20 or 60s) can be used.
-+	 * Between 2 and 124 clock pulses can be added or substracted.
-+	 *
-+	 * In 20s mode, the minimum resolution is 2 / (32768 * 20) which is
-+	 * close to 3051 ppb. In 60s mode, the resolution is closer to 1017.
-+	 */
-+	stepsh = DIV_ROUND_CLOSEST(offset, 1017);
-+	stepsl = DIV_ROUND_CLOSEST(offset, 3051);
-+
-+	if (stepsh >= -0x3E && stepsh <= 0x3E) {
-+		ppb_per_step = 1017;
-+		steps = stepsh;
-+		val |= RZN1_RTC_SUBU_DEV;
-+	} else if (stepsl >= -0x3E && stepsl <= 0x3E) {
-+		ppb_per_step = 3051;
-+		steps = stepsl;
-+	} else {
-+		return -ERANGE;
-+	}
-+
-+	if (!steps)
-+		return 0;
-+
-+	if (steps > 0) {
-+		val |= steps + 1;
-+	} else {
-+		val |= RZN1_RTC_SUBU_DECR;
-+		val |= (~(-steps - 1)) & 0x3F;
-+	}
-+
-+	ret = readl_poll_timeout(rtc->base + RZN1_RTC_CTL2, val,
-+				 !(val & RZN1_RTC_CTL2_WUST), 100, 2000000);
-+	if (ret)
-+		return ret;
-+
-+	writel(val, rtc->base + RZN1_RTC_SUBU);
-+
-+	return 0;
-+}
-+
- static const struct rtc_class_ops rzn1_rtc_ops = {
- 	.read_time = rzn1_rtc_read_time,
- 	.set_time = rzn1_rtc_set_time,
- 	.read_alarm = rzn1_rtc_read_alarm,
- 	.set_alarm = rzn1_rtc_set_alarm,
- 	.alarm_irq_enable = rzn1_rtc_alarm_irq_enable,
-+	.read_offset = rzn1_rtc_read_offset,
-+	.set_offset = rzn1_rtc_set_offset,
- };
- 
- static int rzn1_rtc_probe(struct platform_device *pdev)
--- 
-2.27.0
-
+True, but I don't see the external time-travel controller stuff being
+too useful for the kinds of tests this framework is targeting.
