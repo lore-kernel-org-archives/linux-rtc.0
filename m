@@ -2,47 +2,49 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CC05C433F5
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC5B9C43219
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237735AbiDGBV1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:21:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32860 "EHLO
+        id S238435AbiDGBV3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Apr 2022 21:21:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239312AbiDGBTI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:08 -0400
+        with ESMTP id S238670AbiDGBS1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:18:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D02F190B4A;
-        Wed,  6 Apr 2022 18:14:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE2F199E07;
+        Wed,  6 Apr 2022 18:13:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDE8161DCE;
-        Thu,  7 Apr 2022 01:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3B7C385A1;
-        Thu,  7 Apr 2022 01:14:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3888961DA8;
+        Thu,  7 Apr 2022 01:13:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 495A1C385A3;
+        Thu,  7 Apr 2022 01:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294059;
-        bh=J0gKT3Ofnrpn5xAm/AA3kEx/902/31ohvQqjk4KtKTY=;
+        s=k20201202; t=1649294001;
+        bh=o4q0gVs0gfviaTGGB5AnUBByDUtGawb79C5sVvmKWRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ym4YEKPUVV3Ly/bzs8llzGWtOnQnlSYHpjkFygX5NctxWstEYT/gAJ+CbtiHj5rAO
-         zD14WF6AJnuNOJ8MCVCNU1a0ODhn15+TwE58CIMm0zd3e1bSddYGqv6wxt6PHj9tdh
-         q5eA5tvQaUmlhobI8kKmfZBgS9/pvQmt8WsRwRnbUXFY5C2dODMkSB5n4kwxi4Rv7P
-         mjIvOH581apPwiLEDQOKVtrkXGsb7DOW9bgKwySywUTsv67wLorGiUTr6VzPUitJN6
-         CJG3E0a0CCvkjYaH2lSdWAI57NaSFc1ouAuHpUjKTt2GGGduHB96TDRbeai4/XzMqp
-         RLYKH6pGP8vzw==
+        b=K7sFwUUWUqGOFUWPYDrDiw0ylWYeSDTrw3+Q3UnnSJF0SrcnJqeUuHWzLOjh8TP6w
+         4hsMclFU5mhXqjnvg+Gsi6FmeKjHK2NUfOybX+jHLnEA9xr/vYS4e0tvI1ySZdQFmg
+         Ci0vfkxo5WXgrzHnk/n4huRdfJNZCZOTVviZahfYsG27xVrLiXKDdM14CNhRFNaT4r
+         Jc4sisVw5MiF51k/kP73but/CqIKJ47sj/zgcpqSYyNOY2xkvHyYJ8xLTjYqjhlpyP
+         uT7eEAoIK7VyoeUdTD7cmixd5sAnBuvp4ZleVs3mDxLjIs91tcbe9FxW1vvsjRR4In
+         jeJtxPs4v+sAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hugo Villeneuve <hvilleneuve@dimonoff.com>,
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/25] rtc: pcf2127: fix bug when reading alarm registers
-Date:   Wed,  6 Apr 2022 21:13:51 -0400
-Message-Id: <20220407011413.114662-3-sashal@kernel.org>
+        wens@csie.org, samuel@sholland.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 10/27] rtc: sun6i: Fix time overflow handling
+Date:   Wed,  6 Apr 2022 21:12:40 -0400
+Message-Id: <20220407011257.114287-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011413.114662-1-sashal@kernel.org>
-References: <20220407011413.114662-1-sashal@kernel.org>
+In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
+References: <20220407011257.114287-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,43 +53,78 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 73ce05302007eece23a6acb7dc124c92a2209087 ]
+[ Upstream commit 9f6cd82eca7e91a0d0311242a87c6aa3c2737968 ]
 
-The first bug is that reading the 5 alarm registers results in a read
-operation of 20 bytes. The reason is because the destination buffer is
-defined as an array of "unsigned int", and we use the sizeof()
-operator on this array to define the bulk read count.
+Using "unsigned long" for UNIX timestamps is never a good idea, and
+comparing the value of such a variable against U32_MAX does not do
+anything useful on 32-bit systems.
 
-The second bug is that the read value is invalid, because we are
-indexing the destination buffer as integers (4 bytes), instead of
-indexing it as u8.
+Use the proper time64_t type when dealing with timestamps, and avoid
+cutting down the time range unnecessarily. This also fixes the flawed
+check for the alarm time being too far into the future.
 
-Changing the destination buffer type to u8 fixes both problems.
+The check for this condition is actually somewhat theoretical, as the
+RTC counts till 2033 only anyways, and 2^32 seconds from now is not
+before the year 2157 - at which point I hope nobody will be using this
+hardware anymore.
 
-Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220208162908.3182581-1-hugo@hugovil.com
+Link: https://lore.kernel.org/r/20220211122643.1343315-4-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf2127.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-sun6i.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index f0a6861ff3ae..715513311ece 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -366,7 +366,8 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
- static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int buf[5], ctrl2;
-+	u8 buf[5];
-+	unsigned int ctrl2;
- 	int ret;
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index adec1b14a8de..c551ebf0ac00 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -138,7 +138,7 @@ struct sun6i_rtc_dev {
+ 	const struct sun6i_rtc_clk_data *data;
+ 	void __iomem *base;
+ 	int irq;
+-	unsigned long alarm;
++	time64_t alarm;
  
- 	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+@@ -510,10 +510,8 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &wkalrm->time;
+ 	struct rtc_time tm_now;
+-	unsigned long time_now = 0;
+-	unsigned long time_set = 0;
+-	unsigned long time_gap = 0;
+-	int ret = 0;
++	time64_t time_now, time_set;
++	int ret;
+ 
+ 	ret = sun6i_rtc_gettime(dev, &tm_now);
+ 	if (ret < 0) {
+@@ -528,9 +526,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		return -EINVAL;
+ 	}
+ 
+-	time_gap = time_set - time_now;
+-
+-	if (time_gap > U32_MAX) {
++	if ((time_set - time_now) > U32_MAX) {
+ 		dev_err(dev, "Date too far in the future\n");
+ 		return -EINVAL;
+ 	}
+@@ -539,7 +535,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	writel(0, chip->base + SUN6I_ALRM_COUNTER);
+ 	usleep_range(100, 300);
+ 
+-	writel(time_gap, chip->base + SUN6I_ALRM_COUNTER);
++	writel(time_set - time_now, chip->base + SUN6I_ALRM_COUNTER);
+ 	chip->alarm = time_set;
+ 
+ 	sun6i_rtc_setaie(wkalrm->enabled, chip);
 -- 
 2.35.1
 
