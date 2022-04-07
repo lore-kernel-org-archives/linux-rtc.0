@@ -2,44 +2,46 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F75BC43217
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:10:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9917C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:11:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233671AbiDGBMg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S235009AbiDGBNQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Apr 2022 21:13:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233589AbiDGBMg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:12:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D3D36E21;
-        Wed,  6 Apr 2022 18:10:38 -0700 (PDT)
+        with ESMTP id S234613AbiDGBNJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:13:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8FF186D8;
+        Wed,  6 Apr 2022 18:10:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DC58B8248B;
-        Thu,  7 Apr 2022 01:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED462C385A6;
-        Thu,  7 Apr 2022 01:10:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12EF3B82693;
+        Thu,  7 Apr 2022 01:10:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E708C385BC;
+        Thu,  7 Apr 2022 01:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293835;
-        bh=cexE1aFde1gdOEfAfUUm4v7S/Vt5OzCWmuXeGZWXGpA=;
+        s=k20201202; t=1649293854;
+        bh=adLbLelwA0eTEMAxwIejJevJ/N5XHRVQmd9kn8IfuU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZd9dFn4CJR3Ze3p3vn7ou4z51OVa7XtI68vAppuv6Vrx2Sh/iYoMKxS2JFtwS5aE
-         +shSeOoVyqJH5z4YUT5q3w5c07rWFyU/D8PcUFQjjgPl+ERWW9j3cwFZoNUCfWy75l
-         60IZtN6aJI4+3SOajUkU9cJ1U9+2WGURaCU6vv1iqTn/Fe+O47FCGJZfYyUqQ6wiNB
-         jLUAqWK9p00R0CpW1Lp77I4w5BHXt1nfm6EE1kjW5PUeN1/iV054XuxFVmhiqkGkOr
-         AfEJ1xBPE24Z0RMkJe3TXIRIj40vVaZmjBzCQABybWOu02S2UoLawDzNpAMdfQoxY5
-         nIGyZ53Zn2DcQ==
+        b=LUEh62kLR9cvfqWiq+LT6FL9GenB5z53kI3/tKxRHFicUUPT5fGdI6yxO1j+VQXi4
+         hodTsfe5CgNTdSu87Xjr6bMufm/HBOpWtPW+zfG+oZhRyLdeY2sA0c5IAcYS5/7WXm
+         uCOz41I4lyEubGGnfRK1g+4Rwii84YDp3A6j2AZo6A6ZrYaUzG3djtSliscunX+ioS
+         HrWXkmbsN59QHS0Ff9iK5F+GrlMrJ0mrXChZ4bfdySU8Wm7EQhdGW0dRjzcwSoG3SY
+         jhzFjzp2N8suLkUGronHbM5+3ehymYgyxkFotLpmEykibpK8/7ikt91gjW1clA/9AW
+         40yLg+qf3Spog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 04/31] rtc: fix use-after-free on device removal
-Date:   Wed,  6 Apr 2022 21:10:02 -0400
-Message-Id: <20220407011029.113321-4-sashal@kernel.org>
+        wens@csie.org, samuel@sholland.org, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.17 13/31] rtc: sun6i: Fix time overflow handling
+Date:   Wed,  6 Apr 2022 21:10:11 -0400
+Message-Id: <20220407011029.113321-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407011029.113321-1-sashal@kernel.org>
 References: <20220407011029.113321-1-sashal@kernel.org>
@@ -51,78 +53,78 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
+[ Upstream commit 9f6cd82eca7e91a0d0311242a87c6aa3c2737968 ]
 
-If the irqwork is still scheduled or running while the RTC device is
-removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
-timerqueue and ensure the work is stopped to fix this.
+Using "unsigned long" for UNIX timestamps is never a good idea, and
+comparing the value of such a variable against U32_MAX does not do
+anything useful on 32-bit systems.
 
- BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
- Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
+Use the proper time64_t type when dealing with timestamps, and avoid
+cutting down the time range unnecessarily. This also fixes the flawed
+check for the alarm time being too far into the future.
 
- Workqueue: events rtc_timer_do_work
- Call trace:
-  mutex_lock+0x94/0x110
-  rtc_timer_do_work+0xec/0x630
-  process_one_work+0x5fc/0x1344
-  ...
+The check for this condition is actually somewhat theoretical, as the
+RTC counts till 2033 only anyways, and 2^32 seconds from now is not
+before the year 2157 - at which point I hope nobody will be using this
+hardware anymore.
 
- Allocated by task 551:
-  kmem_cache_alloc_trace+0x384/0x6e0
-  devm_rtc_allocate_device+0xf0/0x574
-  devm_rtc_device_register+0x2c/0x12c
-  ...
-
- Freed by task 572:
-  kfree+0x114/0x4d0
-  rtc_device_release+0x64/0x80
-  device_release+0x8c/0x1f4
-  kobject_put+0x1c4/0x4b0
-  put_device+0x20/0x30
-  devm_rtc_release_device+0x1c/0x30
-  devm_action_release+0x54/0x90
-  release_nodes+0x124/0x310
-  devres_release_group+0x170/0x240
-  i2c_device_remove+0xd8/0x314
-  ...
-
- Last potentially related work creation:
-  insert_work+0x5c/0x330
-  queue_work_on+0xcc/0x154
-  rtc_set_time+0x188/0x5bc
-  rtc_dev_ioctl+0x2ac/0xbd0
-  ...
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
+Link: https://lore.kernel.org/r/20220211122643.1343315-4-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/class.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/rtc/rtc-sun6i.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 4b460c61f1d8..40d504dac1a9 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -26,6 +26,15 @@ struct class *rtc_class;
- static void rtc_device_release(struct device *dev)
- {
- 	struct rtc_device *rtc = to_rtc_device(dev);
-+	struct timerqueue_head *head = &rtc->timerqueue;
-+	struct timerqueue_node *node;
-+
-+	mutex_lock(&rtc->ops_lock);
-+	while ((node = timerqueue_getnext(head)))
-+		timerqueue_del(head, node);
-+	mutex_unlock(&rtc->ops_lock);
-+
-+	cancel_work_sync(&rtc->irqwork);
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 711832c758ae..bcc0c2ce4b4e 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -138,7 +138,7 @@ struct sun6i_rtc_dev {
+ 	const struct sun6i_rtc_clk_data *data;
+ 	void __iomem *base;
+ 	int irq;
+-	unsigned long alarm;
++	time64_t alarm;
  
- 	ida_simple_remove(&rtc_ida, rtc->id);
- 	mutex_destroy(&rtc->ops_lock);
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+@@ -510,10 +510,8 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &wkalrm->time;
+ 	struct rtc_time tm_now;
+-	unsigned long time_now = 0;
+-	unsigned long time_set = 0;
+-	unsigned long time_gap = 0;
+-	int ret = 0;
++	time64_t time_now, time_set;
++	int ret;
+ 
+ 	ret = sun6i_rtc_gettime(dev, &tm_now);
+ 	if (ret < 0) {
+@@ -528,9 +526,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		return -EINVAL;
+ 	}
+ 
+-	time_gap = time_set - time_now;
+-
+-	if (time_gap > U32_MAX) {
++	if ((time_set - time_now) > U32_MAX) {
+ 		dev_err(dev, "Date too far in the future\n");
+ 		return -EINVAL;
+ 	}
+@@ -539,7 +535,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	writel(0, chip->base + SUN6I_ALRM_COUNTER);
+ 	usleep_range(100, 300);
+ 
+-	writel(time_gap, chip->base + SUN6I_ALRM_COUNTER);
++	writel(time_set - time_now, chip->base + SUN6I_ALRM_COUNTER);
+ 	chip->alarm = time_set;
+ 
+ 	sun6i_rtc_setaie(wkalrm->enabled, chip);
 -- 
 2.35.1
 
