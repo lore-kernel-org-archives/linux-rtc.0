@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89A8DC43217
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 270B9C4167E
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238579AbiDGBVd (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:21:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60868 "EHLO
+        id S238667AbiDGBVh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Apr 2022 21:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240385AbiDGBT6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084EE182DB5;
-        Wed,  6 Apr 2022 18:15:55 -0700 (PDT)
+        with ESMTP id S239762AbiDGBT3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B24E1AF7FA;
+        Wed,  6 Apr 2022 18:15:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6393B8268C;
-        Thu,  7 Apr 2022 01:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15E1CC385A3;
-        Thu,  7 Apr 2022 01:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19DFC61DB0;
+        Thu,  7 Apr 2022 01:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279CFC385A1;
+        Thu,  7 Apr 2022 01:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294152;
+        s=k20201202; t=1649294099;
         bh=9+gK3EfVe4i70R1qceW78UceKAnxu03KRWGw5bq5nDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zk84X7WTv90DPjwZlOrP+7v6A+IL8QqN6psSPw3BMuewPUFOPiTM3IVXK/WXNJWv7
-         dEfQeap8pB9ZtZ4QZB85tsSTq4oadHcezfG0yAIUPF8ca9XBvaQzVeCsv5oWEgbpbf
-         vFbFei6Fk7LxUabNcTAQ+zfOCbuLiWykuT5NWM+lIICCziambJqTY6qHFgJSBYIfNJ
-         z7TTIy+nKc2kPddRYQHWMe9guGHqH+tOivpToVw7GjQYQo9dPaY/crGYepzMPjLVz/
-         aYVtFbIwCSyQo8NhDSTfRkU+h/JYD2xOT6SBEM4JRSQmlzRpBfyJNWgDFYheNU4rgL
-         Cnj81TuuKE5HA==
+        b=mOqOvjtTRh4z0CLUrbVay4Y8Jp4NWXMWfoS1zOv8gX9gxYePsEw55iTX73/RNFA8B
+         5EgWXXItieippc+YaLgbQymemTViYumCjdv9jPEd1Qy/F3gaa13jEG9Qc0wvy/zEy+
+         BUDnKQW154Rzb5Q+BVrEVIcGUPBTx+w2yDGQYDk4yioBn1LRwfIxR6t7polqha5PyB
+         C1jIKM3ErhTwSs8oR8ZP5+6RFD1bBHXJs1KQD5+I7jXK46rVqV2xBEB+s41o16hRtI
+         syubsw3dglaoBn253b1Wcy4XzGlVYnpAWBVJZcib+bogPZv7BUkq5WoXTuEr2VV82X
+         InS+vhPws09kg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
@@ -41,12 +41,12 @@ Cc:     Mario Limonciello <mario.limonciello@amd.com>,
         Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
         mat.jonczyk@o2.pl, dan.carpenter@oracle.com,
         linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 11/17] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
-Date:   Wed,  6 Apr 2022 21:15:15 -0400
-Message-Id: <20220407011521.115014-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 18/25] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+Date:   Wed,  6 Apr 2022 21:14:06 -0400
+Message-Id: <20220407011413.114662-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
-References: <20220407011521.115014-1-sashal@kernel.org>
+In-Reply-To: <20220407011413.114662-1-sashal@kernel.org>
+References: <20220407011413.114662-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
