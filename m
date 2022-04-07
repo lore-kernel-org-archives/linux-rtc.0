@@ -2,47 +2,47 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9BE7C433F5
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:14:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CC05C433F5
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236147AbiDGBQa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
+        id S237735AbiDGBV1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 6 Apr 2022 21:21:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236563AbiDGBPK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:15:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA3A318CD3A;
-        Wed,  6 Apr 2022 18:11:48 -0700 (PDT)
+        with ESMTP id S239312AbiDGBTI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D02F190B4A;
+        Wed,  6 Apr 2022 18:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAF1361DB3;
-        Thu,  7 Apr 2022 01:11:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB6EC385A6;
-        Thu,  7 Apr 2022 01:11:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDE8161DCE;
+        Thu,  7 Apr 2022 01:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3B7C385A1;
+        Thu,  7 Apr 2022 01:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293908;
-        bh=yC99/wYz6UhC2zfmoGGY9wbZug421pD2Jlmf8Cdzo/U=;
+        s=k20201202; t=1649294059;
+        bh=J0gKT3Ofnrpn5xAm/AA3kEx/902/31ohvQqjk4KtKTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEbt0GvD9dGHwJL9z31tEs7l5DcxyXuRB8LmVZQVRD5h95guMpPh5rJfwXS38yQVl
-         YUg4a8j49DpmsTsmjBzIrXnwj6P3OQRuCYWSiPhvniD/QnTjXt0Lb2QvtwbnEQYzpL
-         o0/+rrU1X/Sd3BcovfCljTuYpCJyFfumQguX8rPrMDCnKdWfuTLDb8gsHsAppLKo1U
-         3T1gltDQNbSgxz1coXgNSEyeHVCagJcfpBCAMHHQ2lGrtvqY7OUq2LgKc8FaoUB5f2
-         qZdRXGbTykzHB8c3BnKptHrOwbIfccnh4LpTvKpt4SJzGu5DnoeVVJVT41aaDr7ygh
-         YOtCKiByB+BUQ==
+        b=Ym4YEKPUVV3Ly/bzs8llzGWtOnQnlSYHpjkFygX5NctxWstEYT/gAJ+CbtiHj5rAO
+         zD14WF6AJnuNOJ8MCVCNU1a0ODhn15+TwE58CIMm0zd3e1bSddYGqv6wxt6PHj9tdh
+         q5eA5tvQaUmlhobI8kKmfZBgS9/pvQmt8WsRwRnbUXFY5C2dODMkSB5n4kwxi4Rv7P
+         mjIvOH581apPwiLEDQOKVtrkXGsb7DOW9bgKwySywUTsv67wLorGiUTr6VzPUitJN6
+         CJG3E0a0CCvkjYaH2lSdWAI57NaSFc1ouAuHpUjKTt2GGGduHB96TDRbeai4/XzMqp
+         RLYKH6pGP8vzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hugo Villeneuve <hvilleneuve@dimonoff.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
         linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 05/30] rtc: pcf2127: fix bug when reading alarm registers
-Date:   Wed,  6 Apr 2022 21:11:15 -0400
-Message-Id: <20220407011140.113856-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 03/25] rtc: pcf2127: fix bug when reading alarm registers
+Date:   Wed,  6 Apr 2022 21:13:51 -0400
+Message-Id: <20220407011413.114662-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011140.113856-1-sashal@kernel.org>
-References: <20220407011140.113856-1-sashal@kernel.org>
+In-Reply-To: <20220407011413.114662-1-sashal@kernel.org>
+References: <20220407011413.114662-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 56c58b055dff..43f801107095 100644
+index f0a6861ff3ae..715513311ece 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -374,7 +374,8 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
+@@ -366,7 +366,8 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
  static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  {
  	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
