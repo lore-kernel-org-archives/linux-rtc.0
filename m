@@ -2,92 +2,80 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40EA2C433FE
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B92AC4332F
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 04:49:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238793AbiDGBVo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
+        id S240809AbiDGEu7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 7 Apr 2022 00:50:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238486AbiDGBSU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:18:20 -0400
+        with ESMTP id S236895AbiDGEu6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 7 Apr 2022 00:50:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82D02182D89;
-        Wed,  6 Apr 2022 18:13:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B16DEA347;
+        Wed,  6 Apr 2022 21:48:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20A2AB81E7F;
-        Thu,  7 Apr 2022 01:13:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1753BC385A3;
-        Thu,  7 Apr 2022 01:13:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293982;
-        bh=yC99/wYz6UhC2zfmoGGY9wbZug421pD2Jlmf8Cdzo/U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QwBMbCN8fuG08UVq/yhmxyRVMtb26djGS8NPn6PRd2ZLAdpgPFaktcZYGCRKKhKW7
-         obYoIvJ9zbPXh8l5Njt7mdkKQX2XDPK3ROMF7AdPci8Mr6poRFVSuA3MD+ARlbtRWF
-         m8e4QzSZV7Q9dwwYDd5qHZeUljc9k2MOJtz9OMHSFTGtbNQ0Y97Vzu/Ns7kGZ1Ub7J
-         VkFZzLMxfvgNutAbWUc0/K3mwXlndEGrtjQ32tMiY8iydGQEvJOWZACCmroXMCP0kU
-         9TaBsgviEjRRkx467SwwxPG3S4lBirSQgiVXsAa4WXmwRrb3c7Mu3/9ZNTx81NTvJj
-         TuoLKoOoqzqGw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hugo Villeneuve <hvilleneuve@dimonoff.com>,
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA36B824DF;
+        Thu,  7 Apr 2022 04:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704D0C385A0;
+        Thu,  7 Apr 2022 04:48:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649306936;
+        bh=CahaGK6EvpjmCGxGUQXvahVErAR/YeJjSXUrcYsvo5g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wU8mvLy4anKEd49yeYvX8FAsdUUnmWc/P/MqKNVSPcHewWAFA+XvVBjAg0p2F4U+J
+         VzkQCCdae/cN6f9e0csZtqqMKygibwp6wpTPCsfZuzZ2djcZEDeULPzmqE9yxO0D8M
+         Ss5FapduXwvGXDC+IyBMDrPaC4Vhz+sB//iOl4BY=
+Date:   Thu, 7 Apr 2022 06:48:52 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Laurent Vivier <laurent@vivier.eu>
+Cc:     linux-kernel@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
-        linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 03/27] rtc: pcf2127: fix bug when reading alarm registers
-Date:   Wed,  6 Apr 2022 21:12:33 -0400
-Message-Id: <20220407011257.114287-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
-References: <20220407011257.114287-1-sashal@kernel.org>
+        linux-m68k@lists.linux-m68k.org,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-rtc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alessandro Zummo <a.zummo@towertech.it>, stable@vger.kernel.org
+Subject: Re: [PATCH v16 1/4] tty: goldfish: introduce
+ gf_ioread32()/gf_iowrite32()
+Message-ID: <Yk5tNOPE4b2QbHLG@kroah.com>
+References: <20220406201523.243733-1-laurent@vivier.eu>
+ <20220406201523.243733-2-laurent@vivier.eu>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220406201523.243733-2-laurent@vivier.eu>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+On Wed, Apr 06, 2022 at 10:15:20PM +0200, Laurent Vivier wrote:
+> Revert
+> commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+> 
+> and define gf_ioread32()/gf_iowrite32() to be able to use accessors
+> defined by the architecture.
+> 
+> Cc: stable@vger.kernel.org # v5.11+
+> Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+> Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> ---
+>  drivers/tty/goldfish.c   | 20 ++++++++++----------
+>  include/linux/goldfish.h | 15 +++++++++++----
+>  2 files changed, 21 insertions(+), 14 deletions(-)
+> 
 
-[ Upstream commit 73ce05302007eece23a6acb7dc124c92a2209087 ]
+Why is this a commit for the stable trees?  What bug does it fix?  You
+did not describe the problem in the changelog text at all, this looks
+like a housekeeping change only.
 
-The first bug is that reading the 5 alarm registers results in a read
-operation of 20 bytes. The reason is because the destination buffer is
-defined as an array of "unsigned int", and we use the sizeof()
-operator on this array to define the bulk read count.
+thanks,
 
-The second bug is that the read value is invalid, because we are
-indexing the destination buffer as integers (4 bytes), instead of
-indexing it as u8.
-
-Changing the destination buffer type to u8 fixes both problems.
-
-Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220208162908.3182581-1-hugo@hugovil.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/rtc/rtc-pcf2127.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 56c58b055dff..43f801107095 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -374,7 +374,8 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
- static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int buf[5], ctrl2;
-+	u8 buf[5];
-+	unsigned int ctrl2;
- 	int ret;
- 
- 	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
--- 
-2.35.1
-
+greg k-h
