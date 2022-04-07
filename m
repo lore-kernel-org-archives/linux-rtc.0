@@ -2,47 +2,47 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F5B0C43217
-	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEABEC43219
+	for <linux-rtc@archiver.kernel.org>; Thu,  7 Apr 2022 01:19:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238548AbiDGBVb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S238518AbiDGBVb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Wed, 6 Apr 2022 21:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32832 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239311AbiDGBTI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718AF190B63;
-        Wed,  6 Apr 2022 18:14:20 -0700 (PDT)
+        with ESMTP id S240196AbiDGBTv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 6 Apr 2022 21:19:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F241193206;
+        Wed,  6 Apr 2022 18:15:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18980B8261D;
-        Thu,  7 Apr 2022 01:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC664C385A7;
-        Thu,  7 Apr 2022 01:14:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5ECCDCE25B2;
+        Thu,  7 Apr 2022 01:15:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F26DC385AF;
+        Thu,  7 Apr 2022 01:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294057;
-        bh=nWUczX5AkbtAlWDQoWKWiwrApqdIJWmsu7IwsxkK100=;
+        s=k20201202; t=1649294125;
+        bh=ASIjV+pChRoTXWfJg0esXtdUYY+xsNmlwSH37KNsLMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWpmSHvfRUfOX9uGjZeeVZ/fmKrUuvZwq654upGFkoBOLZJOepwyFMfqVRFMY6hxK
-         G89/uVyTA98UkoBb4l+qy2VtIfSHiHs2F1sW7XSDQ5gL84Py/N/P+TRzHfwgIEp8cU
-         w8/D/4r+fHAYcBORf4eu+uNWIUfp4TGntgEiMZaMOa46UnFdgzSDl3oIevz5kTLjC7
-         WE7BUbz4+sDpBpFKImDcgXAZy7r+pZENw29HWMbeUclGlFfPwa+HtR1i/5j8xbE8C8
-         SRi9cRJV7FHOYpOauL7rHJ60bLTS5nO3dzeo2gnvzUqCoRuTfN8WrqxArtC9NEBePu
-         0W2Nj32mT+FPQ==
+        b=B8AYelZ7XjnbT/PIdqLH0kyAEkl5ktuoXP6yRrRXsdwkghBLtHWxtcL2R5d2beyRD
+         di8LTkynaNIV8EPEmh4VEc5f4AQsBt3hhmLU+WoCvjGoggqHIgSO/IroX4NsSDsJk9
+         TZmZBkc0H6g0A+gz+0u89EBzTi4r79KVAtuWOX/81an6IcY4R7VMCr23RvbuFjOKg7
+         0Bdotsiq4Z0Hx+R/I7rJnKYP4So7MJG5LsEP89cusVLRCStMEXCTdTUBArnuajZqtp
+         1k7Ciik2Qb85H0lppNM3Pgmm77A15gDNAknzXkO539fm3Zhk9owDYrXmCtcPi2q6uP
+         56kStJnrcVfXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>, a.zummo@towertech.it,
         linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/25] rtc: fix use-after-free on device removal
-Date:   Wed,  6 Apr 2022 21:13:50 -0400
-Message-Id: <20220407011413.114662-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 02/17] rtc: fix use-after-free on device removal
+Date:   Wed,  6 Apr 2022 21:15:06 -0400
+Message-Id: <20220407011521.115014-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011413.114662-1-sashal@kernel.org>
-References: <20220407011413.114662-1-sashal@kernel.org>
+In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
+References: <20220407011521.115014-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -104,7 +104,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+)
 
 diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 7c88d190c51f..625effe6cb65 100644
+index 9458e6d6686a..8b434213bc7a 100644
 --- a/drivers/rtc/class.c
 +++ b/drivers/rtc/class.c
 @@ -26,6 +26,15 @@ struct class *rtc_class;
