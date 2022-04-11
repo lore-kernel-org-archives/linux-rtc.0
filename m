@@ -2,42 +2,42 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D67C433F5
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1261CC35273
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239178AbiDKJCv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1344042AbiDKJCv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Mon, 11 Apr 2022 05:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47322 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344147AbiDKJCr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:47 -0400
+        with ESMTP id S1344076AbiDKJCe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:34 -0400
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D5D3ED25;
-        Mon, 11 Apr 2022 02:00:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C0E27FE9;
+        Mon, 11 Apr 2022 02:00:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1649667633; x=1681203633;
+  t=1649667620; x=1681203620;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Lxe+6YYnQOFRMxYyv3uPO62UdmsWV3nnAQEdb9zRcIU=;
-  b=sgdKZ2n/WiE9tPjtfmYxLpV7KXZY8aty6kEha2ZLZkw+Z8WQdfHfRu6V
-   caBwIdUfD1UmXYnPr4CGmAm+tcctCsH0CCzDf4IUQ/HPTbA4uW+l07pbX
-   MR+BoeDWwD/d7mAElUg1fTejZpdCt+QUeM21dGS5seMRc51EE4RxzprtA
-   4JvfwzbQwH/q1wMLQEJuW4/c6Tl6UrTA5kmnR6DwGpaTGkeefrQBx8xgp
-   NCMd3ITZ9VKpOO0JS/bgUiyqIgU63f2MApwHwtneZz9rCsPNsdzB6zrgm
-   6ZDF+GQ9NGUunvnisONhul41b5Aug3GlE65CyLMhEKsMulCIuFWeL0Ekd
-   w==;
+  bh=ptGLsfDZs/+cC1lSfUbsHlNYhSzYidKWWjp9jDVuh6I=;
+  b=yiLxZQA7LXWPOnhKJeFc1t520Cdl0lNnyTOIzbQlLg6Ds45JHugdQg4B
+   4lSNRaGe6X+pNlAn2fqACARdi+Cdx4sL8QPMFo+tN2Fpw1dFP1nkddXjE
+   jJCJctHzcChs6O6re68wK/pDCl4nM343za09opP3pReyrcEYi21dGx5Ej
+   Ei3KAX+T6Am0UQ8DrALMEdUtkwF94pVfSD3cyAVtjoXoRnh9JdJJ6AlBx
+   Pk/gbuhhRkWa169CfFlj3f/b0vF2CrGz79HFpfK+nqGAmfdE08thznSEt
+   JQc1nLeru1vDN5IXW/E2AmTGkFnL9+Ejlo6KvU4bvJsaSpI/aOqSFmFWY
+   g==;
 X-IronPort-AV: E=Sophos;i="5.90,251,1643698800"; 
-   d="scan'208";a="155112892"
+   d="scan'208";a="155112857"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:32 -0700
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:20 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 11 Apr 2022 02:00:30 -0700
+ 15.1.2375.17; Mon, 11 Apr 2022 02:00:19 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 11 Apr 2022 02:00:27 -0700
+ Transport; Mon, 11 Apr 2022 02:00:16 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <mturquette@baylibre.com>, <sboyd@kernel.org>,
         <aou@eecs.berkeley.edu>, <paul.walmsley@sifive.com>,
@@ -48,9 +48,9 @@ CC:     <daire.mcnamara@microchip.com>, <linux-rtc@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-clk@vger.kernel.org>,
         <linux-riscv@lists.infradead.org>,
         Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v2 4/9] dt-bindings: clk: mpfs document msspll dri registers
-Date:   Mon, 11 Apr 2022 09:59:12 +0100
-Message-ID: <20220411085916.941433-5-conor.dooley@microchip.com>
+Subject: [PATCH v2 1/9] clk: microchip: mpfs: fix parents for FIC clocks
+Date:   Mon, 11 Apr 2022 09:59:09 +0100
+Message-ID: <20220411085916.941433-2-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220411085916.941433-1-conor.dooley@microchip.com>
 References: <20220411085916.941433-1-conor.dooley@microchip.com>
@@ -61,47 +61,37 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-As there are two sections of registers that are responsible for clock
-configuration on the PolarFire SoC: add the dynamic reconfiguration
-interface section to the binding & describe what each of the sections
-are used for.
+The fabric interconnects are on the AXI bus not AHB.
+Update their parent clocks to fix this.
 
-Fixes: 2145bb687e3f ("dt-bindings: clk: microchip: Add Microchip PolarFire host binding")
+Fixes: 635e5e73370e ("clk: microchip: Add driver for Microchip PolarFire SoC")
 Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- .../devicetree/bindings/clock/microchip,mpfs.yaml     | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/clk/microchip/clk-mpfs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/clock/microchip,mpfs.yaml b/Documentation/devicetree/bindings/clock/microchip,mpfs.yaml
-index 0c15afa2214c..42919df322ab 100644
---- a/Documentation/devicetree/bindings/clock/microchip,mpfs.yaml
-+++ b/Documentation/devicetree/bindings/clock/microchip,mpfs.yaml
-@@ -22,7 +22,14 @@ properties:
-     const: microchip,mpfs-clkcfg
+diff --git a/drivers/clk/microchip/clk-mpfs.c b/drivers/clk/microchip/clk-mpfs.c
+index aa1561b773d6..7485a5eeb5c0 100644
+--- a/drivers/clk/microchip/clk-mpfs.c
++++ b/drivers/clk/microchip/clk-mpfs.c
+@@ -277,11 +277,11 @@ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
+ 	CLK_PERIPH(CLK_GPIO1, "clk_periph_gpio1", PARENT_CLK(AHB), 21, 0),
+ 	CLK_PERIPH(CLK_GPIO2, "clk_periph_gpio2", PARENT_CLK(AHB), 22, 0),
+ 	CLK_PERIPH(CLK_DDRC, "clk_periph_ddrc", PARENT_CLK(AHB), 23, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_FIC0, "clk_periph_fic0", PARENT_CLK(AHB), 24, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_FIC1, "clk_periph_fic1", PARENT_CLK(AHB), 25, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_FIC2, "clk_periph_fic2", PARENT_CLK(AHB), 26, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_FIC3, "clk_periph_fic3", PARENT_CLK(AHB), 27, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", PARENT_CLK(AHB), 28, 0),
++	CLK_PERIPH(CLK_FIC0, "clk_periph_fic0", PARENT_CLK(AXI), 24, CLK_IS_CRITICAL),
++	CLK_PERIPH(CLK_FIC1, "clk_periph_fic1", PARENT_CLK(AXI), 25, CLK_IS_CRITICAL),
++	CLK_PERIPH(CLK_FIC2, "clk_periph_fic2", PARENT_CLK(AXI), 26, CLK_IS_CRITICAL),
++	CLK_PERIPH(CLK_FIC3, "clk_periph_fic3", PARENT_CLK(AXI), 27, CLK_IS_CRITICAL),
++	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", PARENT_CLK(AXI), 28, 0),
+ 	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", PARENT_CLK(AHB), 29, 0),
+ };
  
-   reg:
--    maxItems: 1
-+    items:
-+      - description: |
-+          clock config registers:
-+          These registers contain enable, reset & divider tables for the, cpu, axi, ahb and
-+          rtc/mtimer reference clocks as well as enable and reset for the peripheral clocks.
-+      - description: |
-+          mss pll dri registers:
-+          Block of registers responsible for dynamic reconfiguration of the mss pll
- 
-   clocks:
-     maxItems: 1
-@@ -51,7 +58,7 @@ examples:
-             #size-cells = <2>;
-             clkcfg: clock-controller@20002000 {
-                 compatible = "microchip,mpfs-clkcfg";
--                reg = <0x0 0x20002000 0x0 0x1000>;
-+                reg = <0x0 0x20002000 0x0 0x1000>, <0x0 0x3E001000 0x0 0x1000>;
-                 clocks = <&ref>;
-                 #clock-cells = <1>;
-         };
 -- 
 2.35.1
 
