@@ -2,42 +2,42 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E91BC35280
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D65DC4321E
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344059AbiDKJCy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Apr 2022 05:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
+        id S1344066AbiDKJC5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Apr 2022 05:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344126AbiDKJCl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:41 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 565443EB86;
-        Mon, 11 Apr 2022 02:00:28 -0700 (PDT)
+        with ESMTP id S1344071AbiDKJCz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:55 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A2E3ED35;
+        Mon, 11 Apr 2022 02:00:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1649667628; x=1681203628;
+  t=1649667640; x=1681203640;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=WqzRPC7S8FgWbVe1N2Ss8o565KjZHWpG+6XZV54ABig=;
-  b=qOb0ZeGJykFBQWFketJo76vPs95nO7gpCnjxuNVARBAN4o08J1OTA1Fq
-   pWKOmN3MacFfAC0hPWHzsdTtrDDdvxcppbDZ5gzlXC7IiD2HrttuewT4f
-   c4dnqUUlgC0eSy/7H4RR/pFa8ts3qIpMp72xWvWD/c8Uq4znSvahiq1na
-   PH1jStuloAQUwRwblXN9UUeg3JwPwvb/A/eO37MnezRsgL1+velD5z8Lp
-   /ZAUT5aZ6rbJy9jqI5XwaL3FM96Edvge6UEhgaX1pq10qzQPRXPlia1TX
-   Fw3VLJDJWbKeH21e2zfPFvaYl8798tRKy5UCv9DwoIZGtaxAr36e2YeBm
-   A==;
+  bh=jzOIYNYNhAToneZv7qBJuMdldALMuXoxK2qI64H4ScE=;
+  b=RVCaju8Z7V3OrsWwKn6LjStYY0TLa3agAvu9JVLQYuwaTgpSZ0eQ+HoD
+   3IxlUTWq4dwAcXvPvpGAoJhoA3I5+W4Gj7TuVMfdD1mf2vyESP90vOD06
+   1ZXPv0a/ZueBAQePaEEOVFzM8C7JkFHVLydW0A5uN8XbuL+HKzeb1upXD
+   2S3hBKYN/YYz0V2HIvSIS+1llfBem3JYWyFryHMSyMzfowU34r37AUqS1
+   Y/D04OjWTwgcC40Iebbh9Im43EjodA9iWV4/aSkv5vgLvjSh6/+0lHN7t
+   UuodB8oZEp1x1OjKSy1dTr1h6qzsljgIvCm+mPiP1halypRcGHR8Eydno
+   g==;
 X-IronPort-AV: E=Sophos;i="5.90,251,1643698800"; 
-   d="scan'208";a="160047633"
+   d="scan'208";a="155112972"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:27 -0700
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:40 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
  chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 11 Apr 2022 02:00:27 -0700
+ 15.1.2375.17; Mon, 11 Apr 2022 02:00:37 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 11 Apr 2022 02:00:23 -0700
+ Transport; Mon, 11 Apr 2022 02:00:34 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <mturquette@baylibre.com>, <sboyd@kernel.org>,
         <aou@eecs.berkeley.edu>, <paul.walmsley@sifive.com>,
@@ -48,9 +48,9 @@ CC:     <daire.mcnamara@microchip.com>, <linux-rtc@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-clk@vger.kernel.org>,
         <linux-riscv@lists.infradead.org>,
         Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v2 3/9] riscv: dts: microchip: fix usage of fic clocks on mpfs
-Date:   Mon, 11 Apr 2022 09:59:11 +0100
-Message-ID: <20220411085916.941433-4-conor.dooley@microchip.com>
+Subject: [PATCH v2 6/9] dt-bindings: rtc: add refclk to mpfs-rtc
+Date:   Mon, 11 Apr 2022 09:59:14 +0100
+Message-ID: <20220411085916.941433-7-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220411085916.941433-1-conor.dooley@microchip.com>
 References: <20220411085916.941433-1-conor.dooley@microchip.com>
@@ -61,74 +61,56 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The fic clocks passed to the pcie controller and other peripherals in
-the device tree are not the clocks they actually run on. The fics are
-actually clock domain crossers & the clock config blocks output is the
-mss/cpu side input to the interconnect. The peripherals are actually
-clocked by fixed frequency clocks embedded in the fpga fabric.
+The rtc on PolarFire SoC does not use the AHB clock as its reference
+frequency, but rather a 1 MHz refclk that it shares with MTIMER. Add
+this second clock to the binding as a required property.
 
-Fix the device tree so that these peripherals use the correct clocks.
-The fabric side FIC0 & FIC1 inputs both use the same 125 MHz, so only
-one clock is created for them.
-
-Fixes: 528a5b1f2556 ("riscv: dts: microchip: add new peripherals to icicle kit device tree")
+Fixes: 4cbcc0d7b397 ("dt-bindings: rtc: add bindings for microchip mpfs rtc")
 Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- .../dts/microchip/microchip-mpfs-fabric.dtsi     | 16 ++++++++++++++--
- .../riscv/boot/dts/microchip/microchip-mpfs.dtsi |  2 +-
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ .../bindings/rtc/microchip,mfps-rtc.yaml           | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi
-index 854320e17b28..ccaac3371cf9 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs-fabric.dtsi
-@@ -7,7 +7,7 @@ core_pwm0: pwm@41000000 {
- 		reg = <0x0 0x41000000 0x0 0xF0>;
- 		microchip,sync-update-mask = /bits/ 32 <0>;
- 		#pwm-cells = <2>;
--		clocks = <&clkcfg CLK_FIC3>;
-+		clocks = <&fabric_clk3>;
- 		status = "disabled";
- 	};
+diff --git a/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+index a2e984ea3553..1ffd97dbe6b9 100644
+--- a/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/microchip,mfps-rtc.yaml
+@@ -31,11 +31,18 @@ properties:
+           to that of the RTC's count register.
  
-@@ -16,10 +16,22 @@ i2c2: i2c@44000000 {
- 		reg = <0x0 0x44000000 0x0 0x1000>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		clocks = <&clkcfg CLK_FIC3>;
-+		clocks = <&fabric_clk3>;
- 		interrupt-parent = <&plic>;
- 		interrupts = <122>;
- 		clock-frequency = <100000>;
- 		status = "disabled";
- 	};
-+
-+	fabric_clk3: fabric-clk3 {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <62500000>;
-+	};
-+
-+	fabric_clk1: fabric-clk1 {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <125000000>;
-+	};
- };
-diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-index c5c9d1360de0..3b48b7f35410 100644
---- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-+++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
-@@ -424,7 +424,7 @@ pcie: pcie@2000000000 {
- 					<0 0 0 3 &pcie_intc 2>,
- 					<0 0 0 4 &pcie_intc 3>;
- 			interrupt-map-mask = <0 0 0 7>;
--			clocks = <&clkcfg CLK_FIC0>, <&clkcfg CLK_FIC1>, <&clkcfg CLK_FIC3>;
-+			clocks = <&fabric_clk1>, <&fabric_clk1>, <&fabric_clk3>;
- 			clock-names = "fic0", "fic1", "fic3";
- 			ranges = <0x3000000 0x0 0x8000000 0x20 0x8000000 0x0 0x80000000>;
- 			msi-parent = <&pcie>;
+   clocks:
+-    maxItems: 1
++    items:
++      - description: |
++          AHB clock
++      - description: |
++          Reference clock: divided by the prescaler to create a time-based strobe (typically 1 Hz)
++          for the calendar counter. By default, the rtc on the PolarFire SoC shares it's reference
++          with MTIMER so this will be a 1 MHz clock.
+ 
+   clock-names:
+     items:
+       - const: rtc
++      - const: rtcref
+ 
+ required:
+   - compatible
+@@ -48,11 +55,12 @@ additionalProperties: false
+ 
+ examples:
+   - |
++    #include "dt-bindings/clock/microchip,mpfs-clock.h"
+     rtc@20124000 {
+         compatible = "microchip,mpfs-rtc";
+         reg = <0x20124000 0x1000>;
+-        clocks = <&clkcfg 21>;
+-        clock-names = "rtc";
++        clocks = <&clkcfg CLK_RTC>, <&clkcfg CLK_RTCREF>;
++        clock-names = "rtc", "rtcref";
+         interrupts = <80>, <81>;
+     };
+ ...
 -- 
 2.35.1
 
