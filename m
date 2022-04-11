@@ -2,42 +2,42 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A58F1C433FE
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1188AC3527C
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Apr 2022 09:00:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344052AbiDKJCw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Apr 2022 05:02:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47502 "EHLO
+        id S1344058AbiDKJCx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Apr 2022 05:02:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344029AbiDKJCu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:50 -0400
+        with ESMTP id S1344102AbiDKJCi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Apr 2022 05:02:38 -0400
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F38286C8;
-        Mon, 11 Apr 2022 02:00:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0E93ED1C;
+        Mon, 11 Apr 2022 02:00:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1649667636; x=1681203636;
+  t=1649667625; x=1681203625;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=cMUD//YndY/uYZAoKQOOrsgN8z8FUO65LegcEIgqKaU=;
-  b=weg+n1oGSpJIPbnphdRHX0PfiFmghoU6VOQs9Hm0Pvcjy1+3VCzELa8Q
-   8Gqg78gHMM16QB9w0MptEJQHf5Rpc1jWai9K3tP76OvBD3twkLMZYZgCc
-   v1/VFkNkTN/j67+lQgAX5eogTH69zC9L0dkY51zN+cT7hQYeiD9/QpfYo
-   +iHoScLSFINyWraCXtK9pa4NdObwgeOaOXmnXu/rHRiguqbalG52s699G
-   ibeQ3YbANO+xXlx3h9lurH6+5AOcINjeOi8iPfondlU13SnDn56c2ZPHI
-   mamHQNhbA+gbZSvsdvCKw7Kn3sq0yRWyG5eSQJD0ZlIrE/zDSDy1g/4EY
-   A==;
+  bh=EWytXuYekgoEisOZ0234lmOJ3vcDaaP1r/uaU+xZy7s=;
+  b=0bsieISWGoCX9T70oluw8VoPohUBSWIO6wNVcSLNlaOVK5Vxqrh+TSAT
+   HNVHfnQw/6Afdq6oSjFdl51GmAr8lI6WN48qBm2G4cCwsOUwzAX1dFENV
+   AnR0zjnBRoiWvuN2UaEj0HQHL0C2JzxtUUZiRuQvd89erHNV9gwZ99Q3O
+   jsJt4idR91HU2W9pu++CjycsnpS+G43VqDOdye9vhKlcL3GVRXhQfESt0
+   /JDg8HS0tru7s/wLLgJnR6egJWR8QFTbpWpxc9Kz133uTO8s2RbpQ6hQI
+   Is0keRbtd+QcIwry+DRrdz0c/JZfvNI5WGidYgUwfw3f88aHx78Pgae1l
+   g==;
 X-IronPort-AV: E=Sophos;i="5.90,251,1643698800"; 
-   d="scan'208";a="155112938"
+   d="scan'208";a="152206716"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:35 -0700
+  by esa4.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 11 Apr 2022 02:00:24 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Mon, 11 Apr 2022 02:00:34 -0700
+ 15.1.2375.17; Mon, 11 Apr 2022 02:00:23 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Mon, 11 Apr 2022 02:00:30 -0700
+ Transport; Mon, 11 Apr 2022 02:00:19 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <mturquette@baylibre.com>, <sboyd@kernel.org>,
         <aou@eecs.berkeley.edu>, <paul.walmsley@sifive.com>,
@@ -48,9 +48,9 @@ CC:     <daire.mcnamara@microchip.com>, <linux-rtc@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-clk@vger.kernel.org>,
         <linux-riscv@lists.infradead.org>,
         Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v2 5/9] dt-bindings: clk: mpfs: add defines for two new clocks
-Date:   Mon, 11 Apr 2022 09:59:13 +0100
-Message-ID: <20220411085916.941433-6-conor.dooley@microchip.com>
+Subject: [PATCH v2 2/9] clk: microchip: mpfs: mark CLK_ATHENA as critical
+Date:   Mon, 11 Apr 2022 09:59:10 +0100
+Message-ID: <20220411085916.941433-3-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220411085916.941433-1-conor.dooley@microchip.com>
 References: <20220411085916.941433-1-conor.dooley@microchip.com>
@@ -61,40 +61,43 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The RTC reference and MSSPLL were previously not documented or defined,
-as they were unused. Add their defines to the PolarFire SoC header.
+CLK_ATHENA is another fabric interconnect and should be marked as critical
+as with FIC0-3, since disabling it will cause part of the fabric to go
+into reset.
 
-Fixes: 2145bb687e3f ("dt-bindings: clk: microchip: Add Microchip PolarFire host binding")
+Fixes: 635e5e73370e ("clk: microchip: Add driver for Microchip PolarFire SoC")
 Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- include/dt-bindings/clock/microchip,mpfs-clock.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/clk/microchip/clk-mpfs.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/include/dt-bindings/clock/microchip,mpfs-clock.h b/include/dt-bindings/clock/microchip,mpfs-clock.h
-index 73f2a9324857..3cba46b9191f 100644
---- a/include/dt-bindings/clock/microchip,mpfs-clock.h
-+++ b/include/dt-bindings/clock/microchip,mpfs-clock.h
-@@ -1,15 +1,18 @@
- /* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
- /*
-  * Daire McNamara,<daire.mcnamara@microchip.com>
-- * Copyright (C) 2020 Microchip Technology Inc.  All rights reserved.
-+ * Copyright (C) 2020-2022 Microchip Technology Inc.  All rights reserved.
+diff --git a/drivers/clk/microchip/clk-mpfs.c b/drivers/clk/microchip/clk-mpfs.c
+index 7485a5eeb5c0..a361b8743a32 100644
+--- a/drivers/clk/microchip/clk-mpfs.c
++++ b/drivers/clk/microchip/clk-mpfs.c
+@@ -249,8 +249,10 @@ static const struct clk_ops mpfs_periph_clk_ops = {
+  *   trap handler
+  * - CLK_MMUART0: reserved by the hss
+  * - CLK_DDRC: provides clock to the ddr subsystem
+- * - CLK_FICx: these provide clocks for sections of the fpga fabric, disabling them would
+- *   cause the fabric to go into reset
++ * - CLK_FICx: these provide the processor side clocks to the "FIC" (Fabric InterConnect)
++ *   clock domain crossers which provide the interface to the FPGA fabric. Disabling them
++ *   causes the FPGA fabric to go into reset.
++ * - CLK_ATHENA: The athena clock is FIC4, which is reserved for the Athena TeraFire.
   */
  
- #ifndef _DT_BINDINGS_CLK_MICROCHIP_MPFS_H_
- #define _DT_BINDINGS_CLK_MICROCHIP_MPFS_H_
+ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
+@@ -281,7 +283,7 @@ static struct mpfs_periph_hw_clock mpfs_periph_clks[] = {
+ 	CLK_PERIPH(CLK_FIC1, "clk_periph_fic1", PARENT_CLK(AXI), 25, CLK_IS_CRITICAL),
+ 	CLK_PERIPH(CLK_FIC2, "clk_periph_fic2", PARENT_CLK(AXI), 26, CLK_IS_CRITICAL),
+ 	CLK_PERIPH(CLK_FIC3, "clk_periph_fic3", PARENT_CLK(AXI), 27, CLK_IS_CRITICAL),
+-	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", PARENT_CLK(AXI), 28, 0),
++	CLK_PERIPH(CLK_ATHENA, "clk_periph_athena", PARENT_CLK(AXI), 28, CLK_IS_CRITICAL),
+ 	CLK_PERIPH(CLK_CFM, "clk_periph_cfm", PARENT_CLK(AHB), 29, 0),
+ };
  
-+#define CLK_MSSPLL	34
-+
- #define CLK_CPU		0
- #define CLK_AXI		1
- #define CLK_AHB		2
-+#define CLK_RTCREF	33
- 
- #define CLK_ENVM	3
- #define CLK_MAC0	4
 -- 
 2.35.1
 
