@@ -2,57 +2,90 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AC62C433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 12 Apr 2022 10:01:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2ABC0C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 12 Apr 2022 10:01:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353217AbiDLKCQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 12 Apr 2022 06:02:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
+        id S237821AbiDLKCZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 12 Apr 2022 06:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389277AbiDLJXf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Apr 2022 05:23:35 -0400
-X-Greylist: delayed 1202 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 12 Apr 2022 01:32:10 PDT
-Received: from mail.growthmindset24.pl (mail.growthmindset24.pl [212.237.36.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A426753E30
-        for <linux-rtc@vger.kernel.org>; Tue, 12 Apr 2022 01:32:10 -0700 (PDT)
-Received: by mail.growthmindset24.pl (Postfix, from userid 1001)
-        id 87EDB87FA0; Tue, 12 Apr 2022 08:56:25 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=growthmindset24.pl;
-        s=mail; t=1649750211;
-        bh=FDuFY3XQoq0gMX1b2gxgT7Py2p4Sxl0PJZYZ4NVaPho=;
-        h=Date:From:To:Subject:From;
-        b=EfXkGDp6uDI6l9aXPO3tJrg3ZA3n9RMY+0IF1d25lXZ5o6YPo/d/c0+/Gi3yXOscz
-         5WtGaG3rHt7SzBYa446PFMGdUkQBJBMSJq8iLrn35ibwumxaemHrlumGHQU/awBC8R
-         m431ZS6ZuooZVq6fKbDkj/rgzUvYZs/GDAqW5VxwSbDeAAC5nYYZdqXLCfp8RbC5Mm
-         yNNFfiXI4fSi0ecQ93cV/tgfZDNrwAaUFmBhnKzCcMGk3iZ40cvU/bPZHIjzQ+EGsy
-         8Do4xLiiUyowO/Qsa8kcv64kpQtoQ5MzFsQkJiii3agbPtaBTp+ynZgtOCfySOCF3F
-         xy32HbyPuz8/A==
-Received: by mail.growthmindset24.pl for <linux-rtc@vger.kernel.org>; Tue, 12 Apr 2022 07:56:00 GMT
-Message-ID: <20220412073001-0.1.2w.d88z.0.bie4f47ol9@growthmindset24.pl>
-Date:   Tue, 12 Apr 2022 07:56:00 GMT
-From:   =?UTF-8?Q? "Przemys=C5=82aw_Wr=C3=B3blewski" ?= 
-        <przemyslaw.wroblewski@growthmindset24.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: Wycena paneli fotowoltaicznych
-X-Mailer: mail.growthmindset24.pl
+        with ESMTP id S1377937AbiDLHym (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 12 Apr 2022 03:54:42 -0400
+Received: from lelv0143.ext.ti.com (lelv0143.ext.ti.com [198.47.23.248])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724B456215;
+        Tue, 12 Apr 2022 00:32:13 -0700 (PDT)
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 23C7W0sa012289;
+        Tue, 12 Apr 2022 02:32:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1649748720;
+        bh=eW8lzeaakM005YYC3nGUxibHVtMvgv2QH/HoZA6ps4E=;
+        h=From:To:CC:Subject:Date;
+        b=oF19xDgtVjIvwawiV9/9oOl8Z6RHs+gMb4E+lAbens7ksRIfxlDSWugU4rMAqCP+P
+         jljOSKtihdAP76ebpxpNkAGBgkypGW71rMpnqZD/MldHVP3QmF6apqnWx614A99GTN
+         EnqkDnr00Lk5kqxrqPkEmnoBbxPfxfSbHLd9m21c=
+Received: from DLEE103.ent.ti.com (dlee103.ent.ti.com [157.170.170.33])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 23C7W0SZ031891
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 12 Apr 2022 02:32:00 -0500
+Received: from DLEE107.ent.ti.com (157.170.170.37) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Tue, 12
+ Apr 2022 02:31:39 -0500
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE107.ent.ti.com
+ (157.170.170.37) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
+ Frontend Transport; Tue, 12 Apr 2022 02:31:39 -0500
+Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 23C7Vd4X112001;
+        Tue, 12 Apr 2022 02:31:39 -0500
+From:   Nishanth Menon <nm@ti.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Nishanth Menon <nm@ti.com>
+Subject: [PATCH 0/2] rtc: Introduce rtc-ti-k3
+Date:   Tue, 12 Apr 2022 02:31:36 -0500
+Message-ID: <20220412073138.25027-1-nm@ti.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Hi,
 
-dostrzegam mo=C5=BCliwo=C5=9B=C4=87 wsp=C3=B3=C5=82pracy z Pa=C5=84stwa f=
-irm=C4=85.
+This series adds support for TI K3 RTC as instantiated on TI's AM625
+SoC.
 
-=C5=9Awiadczymy kompleksow=C4=85 obs=C5=82ug=C4=99 inwestycji w fotowolta=
-ik=C4=99, kt=C3=B3ra obni=C5=BCa koszty energii elektrycznej nawet o 90%.
+Documentation in the current early release version of Technical
+Reference Manual is incomplete at the moment, but due to be updated
+later this year.
+https://www.ti.com/lit/pdf/spruiv7
 
-Czy s=C4=85 Pa=C5=84stwo zainteresowani weryfikacj=C4=85 wst=C4=99pnych p=
-ropozycji?
+Testing log can be found here (20220411 + additional patch to get mmc
+root fs): https://gist.github.com/nmenon/88c56d63c2e163e7ba1e06f30eee52cc
 
+Nishanth Menon (2):
+  dt-bindings: rtc: Add TI K3 RTC devicetree bindings documentation
+  rtc: Introduce ti-k3-rtc
 
-Pozdrawiam,
-Przemys=C5=82aw Wr=C3=B3blewski
+ .../devicetree/bindings/rtc/ti,k3-rtc.yaml    |  87 +++
+ drivers/rtc/Kconfig                           |  10 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-ti-k3.c                       | 687 ++++++++++++++++++
+ 4 files changed, 785 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/ti,k3-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-ti-k3.c
+
+-- 
+2.31.1
+
