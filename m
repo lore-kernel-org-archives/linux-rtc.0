@@ -2,333 +2,204 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83EA6C4332F
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Apr 2022 08:02:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C4E9C433EF
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Apr 2022 15:23:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233668AbiDMIEu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Apr 2022 04:04:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56318 "EHLO
+        id S234478AbiDMP0B (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 13 Apr 2022 11:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233658AbiDMIEq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Apr 2022 04:04:46 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0073E205F8;
-        Wed, 13 Apr 2022 01:02:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1649836945; x=1681372945;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=GlRkbuC4HSIVZxFZFeb4ziXKHq8FMODrFcy8LktUaN8=;
-  b=HcMUsjxE58agvdF5yD1PTHSut6u5tYTUmKbYnywG2p4cEDkwbfWgX2ak
-   lTGk5gTxJrHqxVg3+kcI94nDUjgit7g1IBpARtdGFBUwHz3dLAszVm3tk
-   Foq4Zr1XGiLCG2p8AZxRv8ZG7RbblObwVXFTG8owvDxZSsfnutTIUXP7l
-   +k/SDOJB5rxo32vSn5qA1HFARX69WQ8T/VLY0Ooy+zIV1mY5EIVZtx3Qw
-   KGPaTqQ9VOs9rQ7qAyYbwE/aaC83ALcMNd+/viZtgRfGj/3MB7GZYjolk
-   JsjQOuQqOIR0HBIBBDPINoh1PLc2Ew99UoCgjHavz4ITBkvh3gzaCo7FN
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,256,1643698800"; 
-   d="scan'208";a="169475455"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 13 Apr 2022 01:02:23 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Wed, 13 Apr 2022 01:02:21 -0700
-Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex02.mchp-main.com
- (10.10.85.144) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Wed, 13 Apr 2022 01:02:18 -0700
-From:   Conor Dooley <conor.dooley@microchip.com>
-To:     <mturquette@baylibre.com>, <sboyd@kernel.org>,
-        <aou@eecs.berkeley.edu>, <paul.walmsley@sifive.com>,
-        <palmer@rivosinc.com>, <a.zummo@towertech.it>,
-        <alexandre.belloni@bootlin.com>, <robh+dt@kernel.org>,
-        <krzk+dt@kernel.org>
-CC:     <daire.mcnamara@microchip.com>, <linux-rtc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-clk@vger.kernel.org>,
-        <linux-riscv@lists.infradead.org>,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v3 7/9] clk: microchip: mpfs: re-parent the configurable clocks
-Date:   Wed, 13 Apr 2022 08:58:34 +0100
-Message-ID: <20220413075835.3354193-8-conor.dooley@microchip.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220413075835.3354193-1-conor.dooley@microchip.com>
-References: <20220413075835.3354193-1-conor.dooley@microchip.com>
+        with ESMTP id S231797AbiDMP0B (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Apr 2022 11:26:01 -0400
+Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE9147566
+        for <linux-rtc@vger.kernel.org>; Wed, 13 Apr 2022 08:23:39 -0700 (PDT)
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 1B091200007;
+        Wed, 13 Apr 2022 15:23:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1649863413;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=W8BfYBj4EiPXDdXWGpBdNp7BTk+bWEhw6PcxdbWPC5U=;
+        b=exBAHR2/Wc4rkJGI565FgelNlGjkvILC/NsKCynnTTFPU14J1dS3KU7xRktK7nQtgTmDUu
+        ja/YRK/kwVKigfDISerrtpiU41fF2vij6sWGwNQZcjkAVg5/MhXOMveWL0I347LVagFawW
+        XJ/5ZMfdlCF4XlEhylUbDVUv/+siycujgmP6qq6485blJRuTrBLzbnFnDwYRHgNSWo5YGV
+        3aVcPMVCWMiV6DTbE9qyi31J0Ss7SAkx1ux/jJ+ckmdEmEDGnW/RLkIDtmqRmfAxnl2jog
+        O/C9ndLSP8sQN2qGMGQW1jfyjK207kNs+pMEZmEZ3UTDV8oMqmcZ5d0bq5ZXIg==
+Date:   Wed, 13 Apr 2022 17:23:27 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        linux-renesas-soc@vger.kernel.org,
+        Magnus Damm <magnus.damm@gmail.com>,
+        Gareth Williams <gareth.williams.jx@renesas.com>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        linux-clk@vger.kernel.org,
+        Milan Stevanovic <milan.stevanovic@se.com>,
+        Jimmy Lalande <jimmy.lalande@se.com>,
+        Pascal Eberhard <pascal.eberhard@se.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Herve Codina <herve.codina@bootlin.com>,
+        Clement Leger <clement.leger@bootlin.com>,
+        linux-rtc@vger.kernel.org,
+        Michel Pollet <michel.pollet@bp.renesas.com>
+Subject: Re: [PATCH 3/7] rtc: rzn1: Add new RTC driver
+Message-ID: <20220413172327.73d1fcc1@xps13>
+In-Reply-To: <Yk1UXjTk32Vc9+/k@mail.local>
+References: <20220405184716.1578385-1-miquel.raynal@bootlin.com>
+        <20220405184716.1578385-4-miquel.raynal@bootlin.com>
+        <Yk1UXjTk32Vc9+/k@mail.local>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Currently the mpfs clock driver uses a reference clock called the
-"msspll", set in the device tree, as the parent for the cpu/axi/ahb
-(config) clocks. The frequency of the msspll is determined by the FPGA
-bitstream & the bootloader configures the clock to match the bitstream.
-The real reference is provided by a 100 or 125 MHz off chip oscillator.
+Hi Alex,
 
-However, the msspll clock is not actually the parent of all clocks on
-the system - the reference clock for the rtc/mtimer actually has the
-off chip oscillator as its parent.
+> > +	tm->tm_sec =3D bcd2bin(tm->tm_sec);
+> > +	tm->tm_min =3D bcd2bin(tm->tm_min);
+> > +	tm->tm_hour =3D bcd2bin(tm->tm_hour);
+> > +	tm->tm_wday =3D bcd2bin(tm->tm_wday);
+> > +	tm->tm_mday =3D bcd2bin(tm->tm_mday);
+> > +	tm->tm_mon =3D bcd2bin(tm->tm_mon);
+> > +	tm->tm_year =3D bcd2bin(tm->tm_year);
+> > +
+> > +	dev_dbg(dev, "%d-%d-%d(%d)T%d:%d:%d\n",
+> > +		tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
+> > +		tm->tm_hour, tm->tm_min, tm->tm_sec);
+> > + =20
+>=20
+> This is not really useful because we have tracepoints in the core.
+> Anyway, please use %ptR.
 
-In order to fix this, add support for reading the configuration of the
-msspll & reparent the "config" clocks so that they are derived from
-this clock rather than the reference in the device tree.
+Nice printk operator :)
 
-Fixes: 635e5e73370e ("clk: microchip: Add driver for Microchip PolarFire SoC")
-Reviewed-by: Daire McNamara <daire.mcnamara@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
----
- drivers/clk/microchip/clk-mpfs.c | 151 +++++++++++++++++++++++++++----
- 1 file changed, 132 insertions(+), 19 deletions(-)
+I've dropped this dev_dbg call, it actually does not serve any useful
+purpose.
 
-diff --git a/drivers/clk/microchip/clk-mpfs.c b/drivers/clk/microchip/clk-mpfs.c
-index a361b8743a32..7c8dd5924c05 100644
---- a/drivers/clk/microchip/clk-mpfs.c
-+++ b/drivers/clk/microchip/clk-mpfs.c
-@@ -11,20 +11,47 @@
- #include <dt-bindings/clock/microchip,mpfs-clock.h>
- 
- /* address offset of control registers */
-+#define REG_MSSPLL_REF_CR	0x08u
-+#define REG_MSSPLL_POSTDIV_CR	0x10u
-+#define REG_MSSPLL_SSCG_2_CR	0x2Cu
- #define REG_CLOCK_CONFIG_CR	0x08u
- #define REG_SUBBLK_CLOCK_CR	0x84u
- #define REG_SUBBLK_RESET_CR	0x88u
- 
-+#define MSSPLL_FBDIV_SHIFT	0x00u
-+#define MSSPLL_FBDIV_WIDTH	0x0Cu
-+#define MSSPLL_REFDIV_SHIFT	0x08u
-+#define MSSPLL_REFDIV_WIDTH	0x06u
-+#define MSSPLL_POSTDIV_SHIFT	0x08u
-+#define MSSPLL_POSTDIV_WIDTH	0x07u
-+#define MSSPLL_FIXED_DIV	4u
-+
- struct mpfs_clock_data {
- 	void __iomem *base;
-+	void __iomem *msspll_base;
- 	struct clk_hw_onecell_data hw_data;
- };
- 
-+struct mpfs_msspll_hw_clock {
-+	void __iomem *base;
-+	unsigned int id;
-+	u32 reg_offset;
-+	u32 shift;
-+	u32 width;
-+	u32 flags;
-+	struct clk_hw hw;
-+	struct clk_init_data init;
-+};
-+
-+#define to_mpfs_msspll_clk(_hw) container_of(_hw, struct mpfs_msspll_hw_clock, hw)
-+
- struct mpfs_cfg_clock {
- 	const struct clk_div_table *table;
- 	unsigned int id;
-+	u32 reg_offset;
- 	u8 shift;
- 	u8 width;
-+	u8 flags;
- };
- 
- struct mpfs_cfg_hw_clock {
-@@ -55,7 +82,7 @@ struct mpfs_periph_hw_clock {
-  */
- static DEFINE_SPINLOCK(mpfs_clk_lock);
- 
--static const struct clk_parent_data mpfs_cfg_parent[] = {
-+static const struct clk_parent_data mpfs_ext_ref[] = {
- 	{ .index = 0 },
- };
- 
-@@ -69,6 +96,75 @@ static const struct clk_div_table mpfs_div_ahb_table[] = {
- 	{ 0, 0 }
- };
- 
-+static unsigned long mpfs_clk_msspll_recalc_rate(struct clk_hw *hw, unsigned long prate)
-+{
-+	struct mpfs_msspll_hw_clock *msspll_hw = to_mpfs_msspll_clk(hw);
-+	void __iomem *mult_addr = msspll_hw->base + msspll_hw->reg_offset;
-+	void __iomem *ref_div_addr = msspll_hw->base + REG_MSSPLL_REF_CR;
-+	void __iomem *postdiv_addr = msspll_hw->base + REG_MSSPLL_POSTDIV_CR;
-+	u32 mult, ref_div, postdiv;
-+
-+	mult = readl_relaxed(mult_addr) >> MSSPLL_FBDIV_SHIFT;
-+	mult &= clk_div_mask(MSSPLL_FBDIV_WIDTH);
-+	ref_div = readl_relaxed(ref_div_addr) >> MSSPLL_REFDIV_SHIFT;
-+	ref_div &= clk_div_mask(MSSPLL_REFDIV_WIDTH);
-+	postdiv = readl_relaxed(postdiv_addr) >> MSSPLL_POSTDIV_SHIFT;
-+	postdiv &= clk_div_mask(MSSPLL_POSTDIV_WIDTH);
-+
-+	return prate * mult / (ref_div * MSSPLL_FIXED_DIV * postdiv);
-+}
-+
-+static const struct clk_ops mpfs_clk_msspll_ops = {
-+	.recalc_rate = mpfs_clk_msspll_recalc_rate,
-+};
-+
-+#define CLK_PLL(_id, _name, _parent, _shift, _width, _flags, _offset) {			\
-+	.id = _id,									\
-+	.shift = _shift,								\
-+	.width = _width,								\
-+	.reg_offset = _offset,								\
-+	.flags = _flags,								\
-+	.hw.init = CLK_HW_INIT_PARENTS_DATA(_name, _parent, &mpfs_clk_msspll_ops, 0),	\
-+}
-+
-+static struct mpfs_msspll_hw_clock mpfs_msspll_clks[] = {
-+	CLK_PLL(CLK_MSSPLL, "clk_msspll", mpfs_ext_ref, MSSPLL_FBDIV_SHIFT,
-+		MSSPLL_FBDIV_WIDTH, 0, REG_MSSPLL_SSCG_2_CR),
-+};
-+
-+static int mpfs_clk_register_msspll(struct device *dev, struct mpfs_msspll_hw_clock *msspll_hw,
-+				    void __iomem *base)
-+{
-+	msspll_hw->base = base;
-+
-+	return devm_clk_hw_register(dev, &msspll_hw->hw);
-+}
-+
-+static int mpfs_clk_register_mssplls(struct device *dev, struct mpfs_msspll_hw_clock *msspll_hws,
-+				     unsigned int num_clks, struct mpfs_clock_data *data)
-+{
-+	void __iomem *base = data->msspll_base;
-+	unsigned int i;
-+	int ret;
-+
-+	for (i = 0; i < num_clks; i++) {
-+		struct mpfs_msspll_hw_clock *msspll_hw = &msspll_hws[i];
-+
-+		ret = mpfs_clk_register_msspll(dev, msspll_hw, base);
-+		if (ret)
-+			return dev_err_probe(dev, ret, "failed to register msspll id: %d\n",
-+					     CLK_MSSPLL);
-+
-+		data->hw_data.hws[msspll_hw->id] = &msspll_hw->hw;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * "CFG" clocks
-+ */
-+
- static unsigned long mpfs_cfg_clk_recalc_rate(struct clk_hw *hw, unsigned long prate)
- {
- 	struct mpfs_cfg_hw_clock *cfg_hw = to_mpfs_cfg_clk(hw);
-@@ -76,10 +172,10 @@ static unsigned long mpfs_cfg_clk_recalc_rate(struct clk_hw *hw, unsigned long p
- 	void __iomem *base_addr = cfg_hw->sys_base;
- 	u32 val;
- 
--	val = readl_relaxed(base_addr + REG_CLOCK_CONFIG_CR) >> cfg->shift;
-+	val = readl_relaxed(base_addr + cfg->reg_offset) >> cfg->shift;
- 	val &= clk_div_mask(cfg->width);
- 
--	return prate / (1u << val);
-+	return divider_recalc_rate(hw, prate, val, cfg->table, cfg->flags, cfg->width);
- }
- 
- static long mpfs_cfg_clk_round_rate(struct clk_hw *hw, unsigned long rate, unsigned long *prate)
-@@ -105,11 +201,10 @@ static int mpfs_cfg_clk_set_rate(struct clk_hw *hw, unsigned long rate, unsigned
- 		return divider_setting;
- 
- 	spin_lock_irqsave(&mpfs_clk_lock, flags);
--
--	val = readl_relaxed(base_addr + REG_CLOCK_CONFIG_CR);
-+	val = readl_relaxed(base_addr + cfg->reg_offset);
- 	val &= ~(clk_div_mask(cfg->width) << cfg_hw->cfg.shift);
- 	val |= divider_setting << cfg->shift;
--	writel_relaxed(val, base_addr + REG_CLOCK_CONFIG_CR);
-+	writel_relaxed(val, base_addr + cfg->reg_offset);
- 
- 	spin_unlock_irqrestore(&mpfs_clk_lock, flags);
- 
-@@ -122,19 +217,23 @@ static const struct clk_ops mpfs_clk_cfg_ops = {
- 	.set_rate = mpfs_cfg_clk_set_rate,
- };
- 
--#define CLK_CFG(_id, _name, _parent, _shift, _width, _table, _flags) {		\
--	.cfg.id = _id,								\
--	.cfg.shift = _shift,							\
--	.cfg.width = _width,							\
--	.cfg.table = _table,							\
--	.hw.init = CLK_HW_INIT_PARENTS_DATA(_name, _parent, &mpfs_clk_cfg_ops,	\
--					    _flags),				\
-+#define CLK_CFG(_id, _name, _parent, _shift, _width, _table, _flags, _offset) {		\
-+	.cfg.id = _id,									\
-+	.cfg.shift = _shift,								\
-+	.cfg.width = _width,								\
-+	.cfg.table = _table,								\
-+	.cfg.reg_offset = _offset,							\
-+	.cfg.flags = _flags,								\
-+	.hw.init = CLK_HW_INIT(_name, _parent, &mpfs_clk_cfg_ops, 0),			\
- }
- 
- static struct mpfs_cfg_hw_clock mpfs_cfg_clks[] = {
--	CLK_CFG(CLK_CPU, "clk_cpu", mpfs_cfg_parent, 0, 2, mpfs_div_cpu_axi_table, 0),
--	CLK_CFG(CLK_AXI, "clk_axi", mpfs_cfg_parent, 2, 2, mpfs_div_cpu_axi_table, 0),
--	CLK_CFG(CLK_AHB, "clk_ahb", mpfs_cfg_parent, 4, 2, mpfs_div_ahb_table, 0),
-+	CLK_CFG(CLK_CPU, "clk_cpu", "clk_msspll", 0, 2, mpfs_div_cpu_axi_table, 0,
-+		REG_CLOCK_CONFIG_CR),
-+	CLK_CFG(CLK_AXI, "clk_axi", "clk_msspll", 2, 2, mpfs_div_cpu_axi_table, 0,
-+		REG_CLOCK_CONFIG_CR),
-+	CLK_CFG(CLK_AHB, "clk_ahb", "clk_msspll", 4, 2, mpfs_div_ahb_table, 0,
-+		REG_CLOCK_CONFIG_CR),
- };
- 
- static int mpfs_clk_register_cfg(struct device *dev, struct mpfs_cfg_hw_clock *cfg_hw,
-@@ -160,13 +259,17 @@ static int mpfs_clk_register_cfgs(struct device *dev, struct mpfs_cfg_hw_clock *
- 			return dev_err_probe(dev, ret, "failed to register clock id: %d\n",
- 					     cfg_hw->cfg.id);
- 
--		id = cfg_hws[i].cfg.id;
-+		id = cfg_hw->cfg.id;
- 		data->hw_data.hws[id] = &cfg_hw->hw;
- 	}
- 
- 	return 0;
- }
- 
-+/*
-+ * peripheral clocks - devices connected to axi or ahb buses.
-+ */
-+
- static int mpfs_periph_clk_enable(struct clk_hw *hw)
- {
- 	struct mpfs_periph_hw_clock *periph_hw = to_mpfs_periph_clk(hw);
-@@ -324,8 +427,9 @@ static int mpfs_clk_probe(struct platform_device *pdev)
- 	unsigned int num_clks;
- 	int ret;
- 
--	/* CLK_RESERVED is not part of cfg_clks nor periph_clks, so add 1 */
--	num_clks = ARRAY_SIZE(mpfs_cfg_clks) + ARRAY_SIZE(mpfs_periph_clks) + 1;
-+	/* CLK_RESERVED is not part of clock arrays, so add 1 */
-+	num_clks = ARRAY_SIZE(mpfs_msspll_clks) + ARRAY_SIZE(mpfs_cfg_clks)
-+		   + ARRAY_SIZE(mpfs_periph_clks) + 1;
- 
- 	clk_data = devm_kzalloc(dev, struct_size(clk_data, hw_data.hws, num_clks), GFP_KERNEL);
- 	if (!clk_data)
-@@ -335,8 +439,17 @@ static int mpfs_clk_probe(struct platform_device *pdev)
- 	if (IS_ERR(clk_data->base))
- 		return PTR_ERR(clk_data->base);
- 
-+	clk_data->msspll_base = devm_platform_ioremap_resource(pdev, 1);
-+	if (IS_ERR(clk_data->msspll_base))
-+		return PTR_ERR(clk_data->msspll_base);
-+
- 	clk_data->hw_data.num = num_clks;
- 
-+	ret = mpfs_clk_register_mssplls(dev, mpfs_msspll_clks, ARRAY_SIZE(mpfs_msspll_clks),
-+					clk_data);
-+	if (ret)
-+		return ret;
-+
- 	ret = mpfs_clk_register_cfgs(dev, mpfs_cfg_clks, ARRAY_SIZE(mpfs_cfg_clks), clk_data);
- 	if (ret)
- 		return ret;
--- 
-2.35.1
 
+[...]
+
+> > +static int rzn1_rtc_probe(struct platform_device *pdev)
+> > +{
+> > +	struct rzn1_rtc *rtc;
+> > +	int ret;
+> > +
+> > +	rtc =3D devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+> > +	if (!rtc)
+> > +		return -ENOMEM;
+> > +
+> > +	platform_set_drvdata(pdev, rtc);
+> > +
+> > +	rtc->clk =3D devm_clk_get(&pdev->dev, "hclk");
+> > +	if (IS_ERR(rtc->clk))
+> > +		return dev_err_probe(&pdev->dev, PTR_ERR(rtc->clk), "Missing hclk\n"=
+);
+> > +
+> > +	rtc->base =3D devm_platform_ioremap_resource(pdev, 0);
+> > +	if (IS_ERR(rtc->base))
+> > +		return dev_err_probe(&pdev->dev, PTR_ERR(rtc->base), "Missing reg\n"=
+);
+> > +
+> > +	rtc->rtcdev =3D devm_rtc_allocate_device(&pdev->dev);
+> > +	if (IS_ERR(rtc->rtcdev))
+> > +		return PTR_ERR(rtc);
+> > +
+> > +	rtc->rtcdev->range_max =3D 3178591199UL; /* 100 years */ =20
+>=20
+> I'm not sure how you came to this value, this is 2070-09-22T05:59:59.
+> I'm pretty sure the RTC will not fail at that time. Also, the comment
+> seems fishy.
+
+The RTC itself as no "starting point", but just a counter that can
+count up to 100. So the max range is start-year + 100 years. But at
+this point I don't yet have access to the start-year value. What's
+your advise?
+
+> > +	rtc->rtcdev->ops =3D &rzn1_rtc_ops;
+> > +
+> > +	ret =3D r9a06g032_sysctrl_enable_rtc(true);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	ret =3D clk_prepare_enable(rtc->clk);
+> > +	if (ret)
+> > +		goto disable_rtc;
+> > +
+> > +	/*
+> > +	 * Ensure the clock counter is enabled.
+> > +	 * Set 24-hour mode and possible oscillator offset compensation in SU=
+BU mode.
+> > +	 */
+> > +	writel(RZN1_RTC_CTL0_CE | RZN1_RTC_CTL0_AMPM | RZN1_RTC_CTL0_SLSB_SUB=
+U,
+> > +	       rtc->base + RZN1_RTC_CTL0);
+> > +
+> > +	/* Disable all interrupts */
+> > +	writel(0, rtc->base + RZN1_RTC_CTL1);
+> > +
+> > +	/* Enable counter operation */
+> > +	writel(0, rtc->base + RZN1_RTC_CTL2);
+> > + =20
+>=20
+> I don't think you should do that unconditionally. The RTC is either
+> not already started (and doesn't carry the proper time/date) or already
+> started. It would be better to start it in .set_time. Maybe you can even
+> use that to detect whether it has already been set once.
+
+Actually there is only one (interesting) writeable bit in this register
+and it defaults to 0 whenever we enable the register interface so we
+don't really need to enable anything.
+
+But I've added the necessary logic to handle the situation where the
+bootloader would disable the rtc (which is the only situation where
+the driver can diagnose an erroneous time/date).
+
+> > +	ret =3D devm_rtc_register_device(rtc->rtcdev);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Failed to register RTC\n"); =20
+>=20
+> No error message is needed here.
+
+Ok.
+
+>=20
+> > +		goto disable_clk;
+> > +	}
+> > +
+> > +	return 0;
+> > +
+> > +disable_clk:
+> > +	clk_disable_unprepare(rtc->clk);
+> > +disable_rtc:
+> > +	r9a06g032_sysctrl_enable_rtc(false);
+> > +
+> > +	return ret;
+> > +}
+> > +
+> > +static int rzn1_rtc_remove(struct platform_device *pdev)
+> > +{
+> > +	struct rzn1_rtc *rtc =3D platform_get_drvdata(pdev);
+> > +
+> > +	clk_disable_unprepare(rtc->clk);
+> > +	r9a06g032_sysctrl_enable_rtc(false); =20
+>=20
+> Does this stop the RTC or just the register interface?
+
+Mmmh actually if I reset the sysctrl bit manually I loose the counter
+entirely, so I'll drop this call.
+
+Thanks,
+Miqu=C3=A8l
