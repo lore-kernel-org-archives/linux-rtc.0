@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70DCAC3527C
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:44:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7ED7C433FE
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:44:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354997AbiDSQqo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54886 "EHLO
+        id S233336AbiDSQqn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344027AbiDSQpX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:45:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2107F36152;
-        Tue, 19 Apr 2022 09:42:40 -0700 (PDT)
+        with ESMTP id S1355085AbiDSQoV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:44:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05AF423BF4;
+        Tue, 19 Apr 2022 09:41:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9E7A6145C;
-        Tue, 19 Apr 2022 16:42:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C57C385AD;
-        Tue, 19 Apr 2022 16:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9650C61821;
+        Tue, 19 Apr 2022 16:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB721C385AC;
+        Tue, 19 Apr 2022 16:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386559;
-        bh=6qz24JeYkT/szoUulUC11ktMbSMxaia2ZM53W0WWa5k=;
+        s=k20201202; t=1650386497;
+        bh=1O9MwmD3q7Efw0mNmt0vC0FIYvsOfssGwGwAEKA5gxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQbcZhU1YyaWiVoymRlCpzVRaDV6+oOUhic1Kg4DXMriEEdQTb3Ol248UgeiguRcV
-         AADXBOzx4zqgQNOk8kqSzTZHT8QIWeMxKyU23zO+RJE2VESVS0XI60vTW/g7muIAwS
-         8PC9xUtDQIiLYabZtjUMpFcY4iEN8SE8ABotebLwqZt2mev8Theryu21oiciT6uNJG
-         jkegeWr772BxLlRDA+zY95CIesNGVFaK7EjAjyLas9VMV8jQ2YcKVPWTYE+Of1svA5
-         xXLxVX0vDq/uA9rastXjDbWACQcopxN6Tk8sAWc6oesLyUD/wEISCwtksws8Opfw6K
-         j1eP3Wy/Abdpw==
+        b=RW3t/f0q/W5/dnzfcrtw0I9fhLVY23FDmAPpcSaaDuKEEcmTyf0OhUuVzov6xRtSg
+         8/90KOb8nyH780wMfnvX+HRQ5KfSJ/tj7EytVv1D4e3RaGfAVpd8MdgrryyRnQz5sl
+         tAEHgpltGQpLFkNQV4TvKayphCQEulsFlQIA0f/Mf+RpqX1pdKuTMDiDkHI/8Hxyi7
+         CH4LD6+/aasnihfkDYTekh2dNU8/QkAcdXp4RO1bzn7uBOscXcQCaZqzuz/GBYaM0s
+         q1fLwEh5+e7KJuaGDQ6KO7+wX/GqQHM1/twbQraNRso9SVmFpc0j+LKZPWKG4wAyPe
+         xamlnDN1RvfFw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,9 +59,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 29/48] Input: wm97xx - switch to using threaded IRQ
-Date:   Tue, 19 Apr 2022 18:37:51 +0200
-Message-Id: <20220419163810.2118169-30-arnd@kernel.org>
+Subject: [PATCH 21/48] ARM: pxa: eseries: use gpio lookup for audio
+Date:   Tue, 19 Apr 2022 18:37:43 +0200
+Message-Id: <20220419163810.2118169-22-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -71,114 +71,378 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-Instead of manually disabling and enabling interrupts and scheduling work
-to access the device, let's use threaded oneshot interrupt handler. It
-simplifies things.
+The three eseries machines have very similar drivers for audio, all
+using the mach/eseries-gpio.h header for finding the gpio numbers.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Change these to use gpio descriptors to avoid the header file
+dependency.
+
+I convert the _OFF gpio numbers into GPIO_ACTIVE_LOW ones for
+consistency here.
+
+Acked-by: Mark Brown <broonie@kernel.org>
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: alsa-devel@alsa-project.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/touchscreen/wm97xx-core.c | 42 +++++--------------------
- include/linux/wm97xx.h                  |  1 -
- 2 files changed, 7 insertions(+), 36 deletions(-)
+ arch/arm/mach-pxa/eseries.c | 32 ++++++++++++++++++++++++++++++++
+ sound/soc/pxa/e740_wm9705.c | 35 ++++++++++++++++++-----------------
+ sound/soc/pxa/e750_wm9705.c | 31 ++++++++++++++-----------------
+ sound/soc/pxa/e800_wm9712.c | 31 ++++++++++++++-----------------
+ 4 files changed, 78 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 1b58611c8084..2757c7768ffe 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -285,11 +285,12 @@ void wm97xx_set_suspend_mode(struct wm97xx *wm, u16 mode)
- EXPORT_SYMBOL_GPL(wm97xx_set_suspend_mode);
+diff --git a/arch/arm/mach-pxa/eseries.c b/arch/arm/mach-pxa/eseries.c
+index a8b6483ff665..2643a2a72408 100644
+--- a/arch/arm/mach-pxa/eseries.c
++++ b/arch/arm/mach-pxa/eseries.c
+@@ -24,6 +24,7 @@
+ #include <linux/mtd/rawnand.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/memblock.h>
++#include <linux/gpio/machine.h>
  
- /*
-- * Handle a pen down interrupt.
-+ * Codec PENDOWN irq handler
-+ *
-  */
--static void wm97xx_pen_irq_worker(struct work_struct *work)
-+static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
+ #include <video/w100fb.h>
+ 
+@@ -520,6 +521,16 @@ static struct platform_device e740_audio_device = {
+ 	.id		= -1,
+ };
+ 
++static struct gpiod_lookup_table e740_audio_gpio_table = {
++	.dev_id = "e740-audio",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E740_WM9705_nAVDD2, "Audio power",  GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E740_AMP_ON, "Output amp",  GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E740_MIC_ON, "Mic amp", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
+ /* ----------------------------------------------------------------------- */
+ 
+ static struct platform_device *e740_devices[] __initdata = {
+@@ -540,6 +551,7 @@ static void __init e740_init(void)
+ 			"UDCCLK", &pxa25x_device_udc.dev),
+ 	eseries_get_tmio_gpios();
+ 	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
++	gpiod_add_lookup_table(&e740_audio_gpio_table);
+ 	platform_add_devices(ARRAY_AND_SIZE(e740_devices));
+ 	pxa_set_ac97_info(NULL);
+ 	pxa_set_ficp_info(&e7xx_ficp_platform_data);
+@@ -716,6 +728,15 @@ static struct platform_device e750_tc6393xb_device = {
+ 	.resource      = eseries_tmio_resources,
+ };
+ 
++static struct gpiod_lookup_table e750_audio_gpio_table = {
++	.dev_id = "e750-audio",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E750_HP_AMP_OFF, "Output amp",  GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E750_SPK_AMP_OFF, "Mic amp", GPIO_ACTIVE_LOW),
++		{ },
++	},
++};
++
+ static struct platform_device e750_audio_device = {
+ 	.name		= "e750-audio",
+ 	.id		= -1,
+@@ -740,6 +761,7 @@ static void __init e750_init(void)
+ 			"GPIO11_CLK", NULL),
+ 	eseries_get_tmio_gpios();
+ 	gpiod_add_lookup_table(&e7xx_gpio_vbus_gpiod_table);
++	gpiod_add_lookup_table(&e750_audio_gpio_table);
+ 	platform_add_devices(ARRAY_AND_SIZE(e750_devices));
+ 	pxa_set_ac97_info(NULL);
+ 	pxa_set_ficp_info(&e7xx_ficp_platform_data);
+@@ -935,6 +957,15 @@ static struct platform_device e800_tc6393xb_device = {
+ 	.resource      = eseries_tmio_resources,
+ };
+ 
++static struct gpiod_lookup_table e800_audio_gpio_table = {
++	.dev_id = "e800-audio",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E800_HP_AMP_OFF, "Output amp",  GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("gpio-pxa",  GPIO_E800_SPK_AMP_ON, "Mic amp", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
+ static struct platform_device e800_audio_device = {
+ 	.name		= "e800-audio",
+ 	.id		= -1,
+@@ -959,6 +990,7 @@ static void __init e800_init(void)
+ 			"GPIO11_CLK", NULL),
+ 	eseries_get_tmio_gpios();
+ 	gpiod_add_lookup_table(&e800_gpio_vbus_gpiod_table);
++	gpiod_add_lookup_table(&e800_audio_gpio_table);
+ 	platform_add_devices(ARRAY_AND_SIZE(e800_devices));
+ 	pxa_set_ac97_info(NULL);
+ }
+diff --git a/sound/soc/pxa/e740_wm9705.c b/sound/soc/pxa/e740_wm9705.c
+index f922be7e0016..4e0e9b778d4c 100644
+--- a/sound/soc/pxa/e740_wm9705.c
++++ b/sound/soc/pxa/e740_wm9705.c
+@@ -7,17 +7,19 @@
+ 
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ 
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/soc.h>
+ 
+ #include <linux/platform_data/asoc-pxa.h>
+-#include <mach/eseries-gpio.h>
+ 
+ #include <asm/mach-types.h>
+ 
++static struct gpio_desc *gpiod_output_amp, *gpiod_input_amp;
++static struct gpio_desc *gpiod_audio_power;
++
+ #define E740_AUDIO_OUT 1
+ #define E740_AUDIO_IN  2
+ 
+@@ -25,9 +27,9 @@ static int e740_audio_power;
+ 
+ static void e740_sync_audio_power(int status)
  {
--	struct wm97xx *wm = container_of(work, struct wm97xx, pen_event_work);
-+	struct wm97xx *wm = dev_id;
- 	int pen_was_down = wm->pen_is_down;
- 
- 	/* do we need to enable the touch panel reader */
-@@ -343,27 +344,6 @@ static void wm97xx_pen_irq_worker(struct work_struct *work)
- 	if (!wm->pen_is_down && wm->mach_ops->acc_enabled)
- 		wm->mach_ops->acc_pen_up(wm);
- 
--	wm->mach_ops->irq_enable(wm, 1);
--}
--
--/*
-- * Codec PENDOWN irq handler
-- *
-- * We have to disable the codec interrupt in the handler because it
-- * can take up to 1ms to clear the interrupt source. We schedule a task
-- * in a work queue to do the actual interaction with the chip.  The
-- * interrupt is then enabled again in the slow handler when the source
-- * has been cleared.
-- */
--static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
--{
--	struct wm97xx *wm = dev_id;
--
--	if (!work_pending(&wm->pen_event_work)) {
--		wm->mach_ops->irq_enable(wm, 0);
--		queue_work(wm->ts_workq, &wm->pen_event_work);
--	}
--
- 	return IRQ_HANDLED;
+-	gpio_set_value(GPIO_E740_WM9705_nAVDD2, !status);
+-	gpio_set_value(GPIO_E740_AMP_ON, (status & E740_AUDIO_OUT) ? 1 : 0);
+-	gpio_set_value(GPIO_E740_MIC_ON, (status & E740_AUDIO_IN) ? 1 : 0);
++	gpiod_set_value(gpiod_audio_power, !status);
++	gpiod_set_value(gpiod_output_amp, (status & E740_AUDIO_OUT) ? 1 : 0);
++	gpiod_set_value(gpiod_input_amp, (status & E740_AUDIO_IN) ? 1 : 0);
  }
  
-@@ -374,12 +354,9 @@ static int wm97xx_init_pen_irq(struct wm97xx *wm)
+ static int e740_mic_amp_event(struct snd_soc_dapm_widget *w,
+@@ -116,36 +118,35 @@ static struct snd_soc_card e740 = {
+ 	.fully_routed = true,
+ };
+ 
+-static struct gpio e740_audio_gpios[] = {
+-	{ GPIO_E740_MIC_ON, GPIOF_OUT_INIT_LOW, "Mic amp" },
+-	{ GPIO_E740_AMP_ON, GPIOF_OUT_INIT_LOW, "Output amp" },
+-	{ GPIO_E740_WM9705_nAVDD2, GPIOF_OUT_INIT_HIGH, "Audio power" },
+-};
+-
+ static int e740_probe(struct platform_device *pdev)
  {
- 	u16 reg;
+ 	struct snd_soc_card *card = &e740;
+ 	int ret;
  
--	/* If an interrupt is supplied an IRQ enable operation must also be
--	 * provided. */
--	BUG_ON(!wm->mach_ops->irq_enable);
+-	ret = gpio_request_array(e740_audio_gpios,
+-				 ARRAY_SIZE(e740_audio_gpios));
++	gpiod_input_amp  = devm_gpiod_get(&pdev->dev, "Mic amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_input_amp);
++	if (ret)
++		return ret;
++	gpiod_output_amp  = devm_gpiod_get(&pdev->dev, "Output amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_output_amp);
++	if (ret)
++		return ret;
++	gpiod_audio_power = devm_gpiod_get(&pdev->dev, "Audio power", GPIOD_OUT_HIGH);
++	ret = PTR_ERR_OR_ZERO(gpiod_audio_power);
+ 	if (ret)
+ 		return ret;
+ 
+ 	card->dev = &pdev->dev;
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+-	if (ret) {
++	if (ret)
+ 		dev_err(&pdev->dev, "snd_soc_register_card() failed: %d\n",
+ 			ret);
+-		gpio_free_array(e740_audio_gpios, ARRAY_SIZE(e740_audio_gpios));
+-	}
+ 	return ret;
+ }
+ 
+ static int e740_remove(struct platform_device *pdev)
+ {
+-	gpio_free_array(e740_audio_gpios, ARRAY_SIZE(e740_audio_gpios));
+ 	return 0;
+ }
+ 
+diff --git a/sound/soc/pxa/e750_wm9705.c b/sound/soc/pxa/e750_wm9705.c
+index 308828cd736b..7a1e0d8bfd11 100644
+--- a/sound/soc/pxa/e750_wm9705.c
++++ b/sound/soc/pxa/e750_wm9705.c
+@@ -7,24 +7,25 @@
+ 
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ 
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/soc.h>
+ 
+ #include <linux/platform_data/asoc-pxa.h>
+-#include <mach/eseries-gpio.h>
+ 
+ #include <asm/mach-types.h>
+ 
++static struct gpio_desc *gpiod_spk_amp, *gpiod_hp_amp;
++
+ static int e750_spk_amp_event(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *kcontrol, int event)
+ {
+ 	if (event & SND_SOC_DAPM_PRE_PMU)
+-		gpio_set_value(GPIO_E750_SPK_AMP_OFF, 0);
++		gpiod_set_value(gpiod_spk_amp, 1);
+ 	else if (event & SND_SOC_DAPM_POST_PMD)
+-		gpio_set_value(GPIO_E750_SPK_AMP_OFF, 1);
++		gpiod_set_value(gpiod_spk_amp, 0);
+ 
+ 	return 0;
+ }
+@@ -33,9 +34,9 @@ static int e750_hp_amp_event(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *kcontrol, int event)
+ {
+ 	if (event & SND_SOC_DAPM_PRE_PMU)
+-		gpio_set_value(GPIO_E750_HP_AMP_OFF, 0);
++		gpiod_set_value(gpiod_hp_amp, 1);
+ 	else if (event & SND_SOC_DAPM_POST_PMD)
+-		gpio_set_value(GPIO_E750_HP_AMP_OFF, 1);
++		gpiod_set_value(gpiod_hp_amp, 0);
+ 
+ 	return 0;
+ }
+@@ -100,35 +101,31 @@ static struct snd_soc_card e750 = {
+ 	.fully_routed = true,
+ };
+ 
+-static struct gpio e750_audio_gpios[] = {
+-	{ GPIO_E750_HP_AMP_OFF, GPIOF_OUT_INIT_HIGH, "Headphone amp" },
+-	{ GPIO_E750_SPK_AMP_OFF, GPIOF_OUT_INIT_HIGH, "Speaker amp" },
+-};
 -
--	if (request_irq(wm->pen_irq, wm97xx_pen_interrupt, IRQF_SHARED,
--			"wm97xx-pen", wm)) {
-+	if (request_threaded_irq(wm->pen_irq, NULL, wm97xx_pen_interrupt,
-+				 IRQF_SHARED | IRQF_ONESHOT,
-+				 "wm97xx-pen", wm)) {
- 		dev_err(wm->dev,
- 			"Failed to register pen down interrupt, polling");
- 		wm->pen_irq = 0;
-@@ -509,7 +486,6 @@ static int wm97xx_ts_input_open(struct input_dev *idev)
- 	wm->codec->dig_enable(wm, 1);
+ static int e750_probe(struct platform_device *pdev)
+ {
+ 	struct snd_soc_card *card = &e750;
+ 	int ret;
  
- 	INIT_DELAYED_WORK(&wm->ts_reader, wm97xx_ts_reader);
--	INIT_WORK(&wm->pen_event_work, wm97xx_pen_irq_worker);
+-	ret = gpio_request_array(e750_audio_gpios,
+-				 ARRAY_SIZE(e750_audio_gpios));
++	gpiod_hp_amp  = devm_gpiod_get(&pdev->dev, "Headphone amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_hp_amp);
++	if (ret)
++		return ret;
++	gpiod_spk_amp  = devm_gpiod_get(&pdev->dev, "Speaker amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_spk_amp);
+ 	if (ret)
+ 		return ret;
  
- 	wm->ts_reader_min_interval = HZ >= 100 ? HZ / 100 : 1;
- 	if (wm->ts_reader_min_interval < 1)
-@@ -560,10 +536,6 @@ static void wm97xx_ts_input_close(struct input_dev *idev)
+ 	card->dev = &pdev->dev;
  
- 	wm->pen_is_down = 0;
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+-	if (ret) {
++	if (ret)
+ 		dev_err(&pdev->dev, "snd_soc_register_card() failed: %d\n",
+ 			ret);
+-		gpio_free_array(e750_audio_gpios, ARRAY_SIZE(e750_audio_gpios));
+-	}
+ 	return ret;
+ }
  
--	/* Balance out interrupt disables/enables */
--	if (cancel_work_sync(&wm->pen_event_work))
--		wm->mach_ops->irq_enable(wm, 1);
+ static int e750_remove(struct platform_device *pdev)
+ {
+-	gpio_free_array(e750_audio_gpios, ARRAY_SIZE(e750_audio_gpios));
+ 	return 0;
+ }
+ 
+diff --git a/sound/soc/pxa/e800_wm9712.c b/sound/soc/pxa/e800_wm9712.c
+index d74fcceef687..a39c494127cf 100644
+--- a/sound/soc/pxa/e800_wm9712.c
++++ b/sound/soc/pxa/e800_wm9712.c
+@@ -7,7 +7,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ 
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+@@ -15,15 +15,16 @@
+ 
+ #include <asm/mach-types.h>
+ #include <linux/platform_data/asoc-pxa.h>
+-#include <mach/eseries-gpio.h>
++
++static struct gpio_desc *gpiod_spk_amp, *gpiod_hp_amp;
+ 
+ static int e800_spk_amp_event(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *kcontrol, int event)
+ {
+ 	if (event & SND_SOC_DAPM_PRE_PMU)
+-		gpio_set_value(GPIO_E800_SPK_AMP_ON, 1);
++		gpiod_set_value(gpiod_spk_amp, 1);
+ 	else if (event & SND_SOC_DAPM_POST_PMD)
+-		gpio_set_value(GPIO_E800_SPK_AMP_ON, 0);
++		gpiod_set_value(gpiod_spk_amp, 0);
+ 
+ 	return 0;
+ }
+@@ -32,9 +33,9 @@ static int e800_hp_amp_event(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *kcontrol, int event)
+ {
+ 	if (event & SND_SOC_DAPM_PRE_PMU)
+-		gpio_set_value(GPIO_E800_HP_AMP_OFF, 0);
++		gpiod_set_value(gpiod_hp_amp, 1);
+ 	else if (event & SND_SOC_DAPM_POST_PMD)
+-		gpio_set_value(GPIO_E800_HP_AMP_OFF, 1);
++		gpiod_set_value(gpiod_hp_amp, 0);
+ 
+ 	return 0;
+ }
+@@ -100,35 +101,31 @@ static struct snd_soc_card e800 = {
+ 	.num_dapm_routes = ARRAY_SIZE(audio_map),
+ };
+ 
+-static struct gpio e800_audio_gpios[] = {
+-	{ GPIO_E800_SPK_AMP_ON, GPIOF_OUT_INIT_HIGH, "Headphone amp" },
+-	{ GPIO_E800_HP_AMP_OFF, GPIOF_OUT_INIT_HIGH, "Speaker amp" },
+-};
 -
- 	/* ts_reader rearms itself so we need to explicitly stop it
- 	 * before we destroy the workqueue.
- 	 */
-diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
-index 462854f4f286..85bd8dd3caea 100644
---- a/include/linux/wm97xx.h
-+++ b/include/linux/wm97xx.h
-@@ -281,7 +281,6 @@ struct wm97xx {
- 	unsigned long ts_reader_min_interval; /* Minimum interval */
- 	unsigned int pen_irq;		/* Pen IRQ number in use */
- 	struct workqueue_struct *ts_workq;
--	struct work_struct pen_event_work;
- 	u16 acc_slot;			/* AC97 slot used for acc touch data */
- 	u16 acc_rate;			/* acc touch data rate */
- 	unsigned pen_is_down:1;		/* Pen is down */
+ static int e800_probe(struct platform_device *pdev)
+ {
+ 	struct snd_soc_card *card = &e800;
+ 	int ret;
+ 
+-	ret = gpio_request_array(e800_audio_gpios,
+-				 ARRAY_SIZE(e800_audio_gpios));
++	gpiod_hp_amp  = devm_gpiod_get(&pdev->dev, "Headphone amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_hp_amp);
++	if (ret)
++		return ret;
++	gpiod_spk_amp  = devm_gpiod_get(&pdev->dev, "Speaker amp", GPIOD_OUT_LOW);
++	ret = PTR_ERR_OR_ZERO(gpiod_spk_amp);
+ 	if (ret)
+ 		return ret;
+ 
+ 	card->dev = &pdev->dev;
+ 
+ 	ret = devm_snd_soc_register_card(&pdev->dev, card);
+-	if (ret) {
++	if (ret)
+ 		dev_err(&pdev->dev, "snd_soc_register_card() failed: %d\n",
+ 			ret);
+-		gpio_free_array(e800_audio_gpios, ARRAY_SIZE(e800_audio_gpios));
+-	}
+ 	return ret;
+ }
+ 
+ static int e800_remove(struct platform_device *pdev)
+ {
+-	gpio_free_array(e800_audio_gpios, ARRAY_SIZE(e800_audio_gpios));
+ 	return 0;
+ }
+ 
 -- 
 2.29.2
 
