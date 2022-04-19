@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FD7BC433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:45:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 039A4C3527E
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:45:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354489AbiDSQr5 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57106 "EHLO
+        id S1355133AbiDSQqo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349580AbiDSQry (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:47:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E967658;
-        Tue, 19 Apr 2022 09:45:09 -0700 (PDT)
+        with ESMTP id S242507AbiDSQnM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:43:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BD617E23;
+        Tue, 19 Apr 2022 09:40:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28068B81BFE;
-        Tue, 19 Apr 2022 16:45:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DAF6C385AD;
-        Tue, 19 Apr 2022 16:44:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4FDB819DE;
+        Tue, 19 Apr 2022 16:40:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD0FC385A5;
+        Tue, 19 Apr 2022 16:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386706;
-        bh=oNd2jzd1ZgiC1U71slXEuF0Jw0poX3XVV+5BeDbbYa8=;
+        s=k20201202; t=1650386426;
+        bh=ptMtOudbQ5loXUIBoTxa9Js2NvWZa4r2mq6O40yUHH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVv/JxXnBMI8H1rNYcDgRe1YKiI3MroWqCXwupYAZyfp6Y8ukHiHF/5kn5Mx/+I5y
-         j/799pOJ+F/pj3wyOtKsICgAU+YeAfXm1ukGhaRazluTHJ4IcIEdlRxQPgmpSCuPm1
-         ogEIbzAt5lZDtm97mHkQdDrFBzdy9VafLDkJLSKgUTURMmhufcftKDQ+baPjnPexl2
-         8jHrEZ02A8VZOBE9lEopc2ie/OYNHyzj/pLzbIv452shuanbP3xk00G5QWu60CjSRY
-         NBgn+0C1lnZL16WegiUAVIjrVxIf8VVvn8wl8O1aHfsK4yRsJmWPebcAU9BlGYxb27
-         ad7YKwZ1K48JQ==
+        b=sn7fnX8rRkBuqtQMfRkdqeTmIHa3aEVyEQqy3ea6Rcph7o5+q2+oJQtgfayzkGgGD
+         pBrobPc0a288Jt5l21HSNaRfaU6aAdkHaECQNojqoW85epuPmw1VvMwvkSO6N07k/3
+         115Wizs7BJeOANhRCBPtn5ETmJ1DN/7eD9VqdGz01zYvnNHqGUiTr7Xr5IQ32fnJKz
+         73a5FySo1/OXZDPRM/Hg6r35U+vs89tmssHNWG7O1Y8buOzXQepqwD84VLvP022GvN
+         c6H9ZVfE372WNIs8vRZiLFyLD+Hr6zPSL7rCagmKzA+O8wvtPs7NCaSk+bRoY9berF
+         uj9Ak7o458yOA==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,9 +59,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 48/48] ARM: pxa: convert to multiplatform
-Date:   Tue, 19 Apr 2022 18:38:10 +0200
-Message-Id: <20220419163810.2118169-49-arnd@kernel.org>
+Subject: [PATCH 12/48] ARM: pxa: make addr-map.h header local
+Date:   Tue, 19 Apr 2022 18:37:34 +0200
+Message-Id: <20220419163810.2118169-13-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -73,456 +73,205 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-PXA is now ready to be built into a single kernel with all the
-other ARMv5 platforms, so change the Kconfig bit to finish it
-off. The mach/uncompress.h support is the last bit that goes away,
-getting replaced with the normal DEBUG_LL based approach.
+Drivers should not rely on the contents of this file, so
+move it into the platform directory directly.
+
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+Cc: Paul Parsons <lost.distance@yahoo.com>
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/lkml/87mudkmx8g.fsf@belgarion.home/
 ---
- arch/arm/Kconfig                            | 17 -----
- arch/arm/configs/am200epdkit_defconfig      |  1 +
- arch/arm/configs/cm_x300_defconfig          |  1 +
- arch/arm/configs/colibri_pxa270_defconfig   |  1 +
- arch/arm/configs/colibri_pxa300_defconfig   |  1 +
- arch/arm/configs/corgi_defconfig            |  1 +
- arch/arm/configs/eseries_pxa_defconfig      |  1 +
- arch/arm/configs/ezx_defconfig              |  1 +
- arch/arm/configs/h5000_defconfig            |  1 +
- arch/arm/configs/imote2_defconfig           |  1 +
- arch/arm/configs/lpd270_defconfig           |  1 +
- arch/arm/configs/lubbock_defconfig          |  1 +
- arch/arm/configs/magician_defconfig         |  1 +
- arch/arm/configs/mainstone_defconfig        |  1 +
- arch/arm/configs/palmz72_defconfig          |  1 +
- arch/arm/configs/pcm027_defconfig           |  1 +
- arch/arm/configs/pxa255-idp_defconfig       |  1 +
- arch/arm/configs/pxa3xx_defconfig           |  1 +
- arch/arm/configs/pxa_defconfig              |  1 +
- arch/arm/configs/spitz_defconfig            |  1 +
- arch/arm/configs/trizeps4_defconfig         |  1 +
- arch/arm/configs/viper_defconfig            |  1 +
- arch/arm/configs/xcep_defconfig             |  1 +
- arch/arm/configs/zeus_defconfig             |  1 +
- arch/arm/mach-pxa/Kconfig                   | 14 +++++
- arch/arm/mach-pxa/Makefile.boot             |  3 -
- arch/arm/mach-pxa/include/mach/uncompress.h | 70 ---------------------
- 27 files changed, 37 insertions(+), 90 deletions(-)
- delete mode 100644 arch/arm/mach-pxa/Makefile.boot
- delete mode 100644 arch/arm/mach-pxa/include/mach/uncompress.h
+ arch/arm/mach-pxa/{include/mach => }/addr-map.h | 0
+ arch/arm/mach-pxa/generic.c                     | 2 +-
+ arch/arm/mach-pxa/hx4700.c                      | 2 +-
+ arch/arm/mach-pxa/lpd270.c                      | 2 +-
+ arch/arm/mach-pxa/magician.c                    | 2 +-
+ arch/arm/mach-pxa/mainstone.c                   | 2 +-
+ arch/arm/mach-pxa/pxa25x.c                      | 2 +-
+ arch/arm/mach-pxa/pxa25x.h                      | 2 +-
+ arch/arm/mach-pxa/pxa27x.c                      | 2 +-
+ arch/arm/mach-pxa/pxa27x.h                      | 2 +-
+ arch/arm/mach-pxa/pxa3xx.c                      | 2 +-
+ arch/arm/mach-pxa/pxa3xx.h                      | 2 +-
+ arch/arm/mach-pxa/trizeps4.h                    | 2 +-
+ arch/arm/mach-pxa/xcep.c                        | 2 +-
+ 14 files changed, 13 insertions(+), 13 deletions(-)
+ rename arch/arm/mach-pxa/{include/mach => }/addr-map.h (100%)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index ace6c08c8ae2..001f77e0058c 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -411,23 +411,6 @@ config ARCH_DOVE
- 	help
- 	  Support for the Marvell Dove SoC 88AP510
+diff --git a/arch/arm/mach-pxa/include/mach/addr-map.h b/arch/arm/mach-pxa/addr-map.h
+similarity index 100%
+rename from arch/arm/mach-pxa/include/mach/addr-map.h
+rename to arch/arm/mach-pxa/addr-map.h
+diff --git a/arch/arm/mach-pxa/generic.c b/arch/arm/mach-pxa/generic.c
+index 3c3cd90bb9b4..f9083c4f0aea 100644
+--- a/arch/arm/mach-pxa/generic.c
++++ b/arch/arm/mach-pxa/generic.c
+@@ -22,7 +22,7 @@
+ #include <asm/mach/map.h>
+ #include <asm/mach-types.h>
  
--config ARCH_PXA
--	bool "PXA2xx/PXA3xx-based"
--	select ARM_CPU_SUSPEND if PM
--	select AUTO_ZRELADDR
--	select COMMON_CLK
--	select CLKSRC_PXA
--	select CLKSRC_MMIO
--	select TIMER_OF
--	select CPU_XSCALE if !CPU_XSC3
--	select GPIO_PXA
--	select GPIOLIB
--	select IRQ_DOMAIN
--	select PLAT_PXA
--	select SPARSE_IRQ
--	help
--	  Support for Intel/Marvell's PXA2xx/PXA3xx processor line.
--
- config ARCH_RPC
- 	bool "RiscPC"
- 	depends on !CC_IS_CLANG && GCC_VERSION < 90100 && GCC_VERSION >= 60000
-diff --git a/arch/arm/configs/am200epdkit_defconfig b/arch/arm/configs/am200epdkit_defconfig
-index 4e49d6cb2f62..9252ce0e722b 100644
---- a/arch/arm/configs/am200epdkit_defconfig
-+++ b/arch/arm/configs/am200epdkit_defconfig
-@@ -10,6 +10,7 @@ CONFIG_SLAB=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_GUMSTIX=y
- CONFIG_PCCARD=y
-diff --git a/arch/arm/configs/cm_x300_defconfig b/arch/arm/configs/cm_x300_defconfig
-index 45769d0ddd4e..bb0fcd82d2a7 100644
---- a/arch/arm/configs/cm_x300_defconfig
-+++ b/arch/arm/configs/cm_x300_defconfig
-@@ -10,6 +10,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_GPIO_PCA953X=y
- CONFIG_MACH_CM_X300=y
-diff --git a/arch/arm/configs/colibri_pxa270_defconfig b/arch/arm/configs/colibri_pxa270_defconfig
-index 52bad9a544a0..b29898fd6a12 100644
---- a/arch/arm/configs/colibri_pxa270_defconfig
-+++ b/arch/arm/configs/colibri_pxa270_defconfig
-@@ -16,6 +16,7 @@ CONFIG_MODULE_FORCE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- CONFIG_MODULE_SRCVERSION_ALL=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_COLIBRI=y
- CONFIG_PREEMPT=y
-diff --git a/arch/arm/configs/colibri_pxa300_defconfig b/arch/arm/configs/colibri_pxa300_defconfig
-index 26e5a67f8e2d..f9d110294644 100644
---- a/arch/arm/configs/colibri_pxa300_defconfig
-+++ b/arch/arm/configs/colibri_pxa300_defconfig
-@@ -1,6 +1,7 @@
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_COLIBRI300=y
- CONFIG_AEABI=y
-diff --git a/arch/arm/configs/corgi_defconfig b/arch/arm/configs/corgi_defconfig
-index 15b749f6996d..96c677c98bc7 100644
---- a/arch/arm/configs/corgi_defconfig
-+++ b/arch/arm/configs/corgi_defconfig
-@@ -9,6 +9,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_PXA_SHARPSL=y
- CONFIG_MACH_POODLE=y
-diff --git a/arch/arm/configs/eseries_pxa_defconfig b/arch/arm/configs/eseries_pxa_defconfig
-index 046f4dc2e18e..2146adc1825e 100644
---- a/arch/arm/configs/eseries_pxa_defconfig
-+++ b/arch/arm/configs/eseries_pxa_defconfig
-@@ -9,6 +9,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_PXA_ESERIES=y
- # CONFIG_ARM_THUMB is not set
-diff --git a/arch/arm/configs/ezx_defconfig b/arch/arm/configs/ezx_defconfig
-index 0788a892e160..5d000c8be44e 100644
---- a/arch/arm/configs/ezx_defconfig
-+++ b/arch/arm/configs/ezx_defconfig
-@@ -14,6 +14,7 @@ CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_PXA_EZX=y
- CONFIG_NO_HZ=y
-diff --git a/arch/arm/configs/h5000_defconfig b/arch/arm/configs/h5000_defconfig
-index f5a338fefda8..a67d6020aee5 100644
---- a/arch/arm/configs/h5000_defconfig
-+++ b/arch/arm/configs/h5000_defconfig
-@@ -10,6 +10,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_H5000=y
- CONFIG_AEABI=y
-diff --git a/arch/arm/configs/imote2_defconfig b/arch/arm/configs/imote2_defconfig
-index 015b7ef237de..c056fe29d300 100644
---- a/arch/arm/configs/imote2_defconfig
-+++ b/arch/arm/configs/imote2_defconfig
-@@ -13,6 +13,7 @@ CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_INTELMOTE2=y
- CONFIG_NO_HZ=y
-diff --git a/arch/arm/configs/lpd270_defconfig b/arch/arm/configs/lpd270_defconfig
-index 3a4d0e64cd6e..5c0a671ed294 100644
---- a/arch/arm/configs/lpd270_defconfig
-+++ b/arch/arm/configs/lpd270_defconfig
-@@ -2,6 +2,7 @@ CONFIG_SYSVIPC=y
- CONFIG_LOG_BUF_SHIFT=14
- CONFIG_SLAB=y
- CONFIG_MODULES=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_LOGICPD_PXA270=y
- # CONFIG_ARM_THUMB is not set
-diff --git a/arch/arm/configs/lubbock_defconfig b/arch/arm/configs/lubbock_defconfig
-index 4ce2da2e76fa..cf49dc1629a7 100644
---- a/arch/arm/configs/lubbock_defconfig
-+++ b/arch/arm/configs/lubbock_defconfig
-@@ -1,6 +1,7 @@
- CONFIG_SYSVIPC=y
- CONFIG_LOG_BUF_SHIFT=14
- CONFIG_MODULES=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_LUBBOCK=y
- # CONFIG_ARM_THUMB is not set
-diff --git a/arch/arm/configs/magician_defconfig b/arch/arm/configs/magician_defconfig
-index abde1fb23b20..13da808ffa13 100644
---- a/arch/arm/configs/magician_defconfig
-+++ b/arch/arm/configs/magician_defconfig
-@@ -9,6 +9,7 @@ CONFIG_SLAB=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_H4700=y
- CONFIG_MACH_MAGICIAN=y
-diff --git a/arch/arm/configs/mainstone_defconfig b/arch/arm/configs/mainstone_defconfig
-index 26499b697f9f..03b4c61bdadd 100644
---- a/arch/arm/configs/mainstone_defconfig
-+++ b/arch/arm/configs/mainstone_defconfig
-@@ -1,6 +1,7 @@
- CONFIG_SYSVIPC=y
- CONFIG_LOG_BUF_SHIFT=14
- CONFIG_MODULES=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_MAINSTONE=y
- # CONFIG_ARM_THUMB is not set
-diff --git a/arch/arm/configs/palmz72_defconfig b/arch/arm/configs/palmz72_defconfig
-index b47c8abe85bc..e6acb1d588e2 100644
---- a/arch/arm/configs/palmz72_defconfig
-+++ b/arch/arm/configs/palmz72_defconfig
-@@ -7,6 +7,7 @@ CONFIG_SLAB=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_PXA_PALM=y
- # CONFIG_MACH_PALMTX is not set
-diff --git a/arch/arm/configs/pcm027_defconfig b/arch/arm/configs/pcm027_defconfig
-index e97a158081fc..106d5bef48e2 100644
---- a/arch/arm/configs/pcm027_defconfig
-+++ b/arch/arm/configs/pcm027_defconfig
-@@ -13,6 +13,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_PCM027=y
- CONFIG_MACH_PCM990_BASEBOARD=y
-diff --git a/arch/arm/configs/pxa255-idp_defconfig b/arch/arm/configs/pxa255-idp_defconfig
-index 4a383afa5e87..5663245e9534 100644
---- a/arch/arm/configs/pxa255-idp_defconfig
-+++ b/arch/arm/configs/pxa255-idp_defconfig
-@@ -1,6 +1,7 @@
- CONFIG_SYSVIPC=y
- CONFIG_LOG_BUF_SHIFT=14
- CONFIG_MODULES=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_PXA_IDP=y
- # CONFIG_ARM_THUMB is not set
-diff --git a/arch/arm/configs/pxa3xx_defconfig b/arch/arm/configs/pxa3xx_defconfig
-index f0c34017f2aa..228d4271748b 100644
---- a/arch/arm/configs/pxa3xx_defconfig
-+++ b/arch/arm/configs/pxa3xx_defconfig
-@@ -6,6 +6,7 @@ CONFIG_KALLSYMS_ALL=y
- CONFIG_SLAB=y
- CONFIG_MODULES=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_LITTLETON=y
- CONFIG_MACH_TAVOREVB=y
-diff --git a/arch/arm/configs/pxa_defconfig b/arch/arm/configs/pxa_defconfig
-index 29b1f192afbb..1db70dfd32d2 100644
---- a/arch/arm/configs/pxa_defconfig
-+++ b/arch/arm/configs/pxa_defconfig
-@@ -23,6 +23,7 @@ CONFIG_MODULE_SRCVERSION_ALL=y
- CONFIG_PARTITION_ADVANCED=y
- CONFIG_LDM_PARTITION=y
- CONFIG_CMDLINE_PARTITION=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_LUBBOCK=y
- CONFIG_MACH_MAINSTONE=y
-diff --git a/arch/arm/configs/spitz_defconfig b/arch/arm/configs/spitz_defconfig
-index f42c7a502b6e..43d079ee342a 100644
---- a/arch/arm/configs/spitz_defconfig
-+++ b/arch/arm/configs/spitz_defconfig
-@@ -9,6 +9,7 @@ CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_PXA_SHARPSL=y
- CONFIG_MACH_AKITA=y
-diff --git a/arch/arm/configs/trizeps4_defconfig b/arch/arm/configs/trizeps4_defconfig
-index d66f0c287d41..baeba4667e9b 100644
---- a/arch/arm/configs/trizeps4_defconfig
-+++ b/arch/arm/configs/trizeps4_defconfig
-@@ -14,6 +14,7 @@ CONFIG_MODULE_UNLOAD=y
- CONFIG_MODULE_FORCE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- CONFIG_MODULE_SRCVERSION_ALL=y
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_TRIZEPS_PXA=y
- CONFIG_MACH_TRIZEPS4=y
-diff --git a/arch/arm/configs/viper_defconfig b/arch/arm/configs/viper_defconfig
-index c28539bfd128..7c1029716ea5 100644
---- a/arch/arm/configs/viper_defconfig
-+++ b/arch/arm/configs/viper_defconfig
-@@ -9,6 +9,7 @@ CONFIG_SLAB=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_ARCH_VIPER=y
- CONFIG_IWMMXT=y
-diff --git a/arch/arm/configs/xcep_defconfig b/arch/arm/configs/xcep_defconfig
-index 4d8e7f2eaef7..3752672f980e 100644
---- a/arch/arm/configs/xcep_defconfig
-+++ b/arch/arm/configs/xcep_defconfig
-@@ -19,6 +19,7 @@ CONFIG_MODULE_UNLOAD=y
- CONFIG_MODVERSIONS=y
- CONFIG_MODULE_SRCVERSION_ALL=y
- # CONFIG_BLOCK is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_XCEP=y
- CONFIG_IWMMXT=y
-diff --git a/arch/arm/configs/zeus_defconfig b/arch/arm/configs/zeus_defconfig
-index 25bb6995f105..03a12fb51259 100644
---- a/arch/arm/configs/zeus_defconfig
-+++ b/arch/arm/configs/zeus_defconfig
-@@ -4,6 +4,7 @@ CONFIG_LOG_BUF_SHIFT=13
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
- # CONFIG_BLK_DEV_BSG is not set
-+# CONFIG_ARCH_MULTI_V7 is not set
- CONFIG_ARCH_PXA=y
- CONFIG_MACH_ARCOM_ZEUS=y
- CONFIG_PCCARD=m
-diff --git a/arch/arm/mach-pxa/Kconfig b/arch/arm/mach-pxa/Kconfig
-index 57f0be4065c1..d2cea239fe13 100644
---- a/arch/arm/mach-pxa/Kconfig
-+++ b/arch/arm/mach-pxa/Kconfig
-@@ -1,4 +1,18 @@
- # SPDX-License-Identifier: GPL-2.0-only
-+menuconfig ARCH_PXA
-+	bool "PXA2xx/PXA3xx-based"
-+	depends on ARCH_MULTI_V5
-+	select ARM_CPU_SUSPEND if PM
-+	select CLKSRC_PXA
-+	select CLKSRC_MMIO
-+	select TIMER_OF
-+	select CPU_XSCALE if !CPU_XSC3
-+	select GPIO_PXA
-+	select GPIOLIB
-+	select PLAT_PXA
-+	help
-+	  Support for Intel/Marvell's PXA2xx/PXA3xx processor line.
-+
- if ARCH_PXA
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/irqs.h>
+ #include <mach/reset.h>
+ #include <mach/smemc.h>
+diff --git a/arch/arm/mach-pxa/hx4700.c b/arch/arm/mach-pxa/hx4700.c
+index 191a6c24fe19..140a44cb2989 100644
+--- a/arch/arm/mach-pxa/hx4700.c
++++ b/arch/arm/mach-pxa/hx4700.c
+@@ -40,7 +40,7 @@
+ #include <asm/mach/arch.h>
  
- menu "Intel PXA2xx/PXA3xx Implementations"
-diff --git a/arch/arm/mach-pxa/Makefile.boot b/arch/arm/mach-pxa/Makefile.boot
-deleted file mode 100644
-index bb6e353ecf06..000000000000
---- a/arch/arm/mach-pxa/Makefile.boot
-+++ /dev/null
-@@ -1,3 +0,0 @@
--# SPDX-License-Identifier: GPL-2.0-only
--   zreladdr-y	+= 0xa0008000
--
-diff --git a/arch/arm/mach-pxa/include/mach/uncompress.h b/arch/arm/mach-pxa/include/mach/uncompress.h
-deleted file mode 100644
-index 1ed629e38ce6..000000000000
---- a/arch/arm/mach-pxa/include/mach/uncompress.h
-+++ /dev/null
-@@ -1,70 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * arch/arm/mach-pxa/include/mach/uncompress.h
-- *
-- * Author:	Nicolas Pitre
-- * Copyright:	(C) 2001 MontaVista Software Inc.
-- */
--
--#include <linux/serial_reg.h>
--#include <asm/mach-types.h>
--
--#define FFUART_BASE	(0x40100000)
--#define BTUART_BASE	(0x40200000)
--#define STUART_BASE	(0x40700000)
--
--unsigned long uart_base;
--unsigned int uart_shift;
--unsigned int uart_is_pxa;
--
--static inline unsigned char uart_read(int offset)
--{
--	return *(volatile unsigned char *)(uart_base + (offset << uart_shift));
--}
--
--static inline void uart_write(unsigned char val, int offset)
--{
--	*(volatile unsigned char *)(uart_base + (offset << uart_shift)) = val;
--}
--
--static inline int uart_is_enabled(void)
--{
--	/* assume enabled by default for non-PXA uarts */
--	return uart_is_pxa ? uart_read(UART_IER) & UART_IER_UUE : 1;
--}
--
--static inline void putc(char c)
--{
--	if (!uart_is_enabled())
--		return;
--
--	while (!(uart_read(UART_LSR) & UART_LSR_THRE))
--		barrier();
--
--	uart_write(c, UART_TX);
--}
--
--/*
-- * This does not append a newline
-- */
--static inline void flush(void)
--{
--}
--
--static inline void arch_decomp_setup(void)
--{
--	/* initialize to default */
--	uart_base = FFUART_BASE;
--	uart_shift = 2;
--	uart_is_pxa = 1;
--
--	if (machine_is_littleton() ||  machine_is_csb726() ||
--	    machine_is_cm_x300() || machine_is_balloon3())
--		uart_base = STUART_BASE;
--
--	if (machine_is_arcom_zeus()) {
--		uart_base = 0x10000000;	/* nCS4 */
--		uart_shift = 1;
--		uart_is_pxa = 0;
--	}
--}
+ #include "pxa27x.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/hx4700.h>
+ #include <linux/platform_data/irda-pxaficp.h>
+ 
+diff --git a/arch/arm/mach-pxa/lpd270.c b/arch/arm/mach-pxa/lpd270.c
+index 7f10b86f85fd..e03436710752 100644
+--- a/arch/arm/mach-pxa/lpd270.c
++++ b/arch/arm/mach-pxa/lpd270.c
+@@ -38,7 +38,7 @@
+ 
+ #include "pxa27x.h"
+ #include "lpd270.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <linux/platform_data/asoc-pxa.h>
+ #include <linux/platform_data/video-pxafb.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
+index 345a44d15a2c..20ca3e28c7fb 100644
+--- a/arch/arm/mach-pxa/magician.c
++++ b/arch/arm/mach-pxa/magician.c
+@@ -34,7 +34,7 @@
+ #include <asm/system_info.h>
+ 
+ #include "pxa27x.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/magician.h>
+ #include <linux/platform_data/video-pxafb.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+diff --git a/arch/arm/mach-pxa/mainstone.c b/arch/arm/mach-pxa/mainstone.c
+index c8200fc2159d..f0072e63b456 100644
+--- a/arch/arm/mach-pxa/mainstone.c
++++ b/arch/arm/mach-pxa/mainstone.c
+@@ -51,7 +51,7 @@
+ #include <linux/platform_data/irda-pxaficp.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include <linux/platform_data/keypad-pxa27x.h>
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa25x.c b/arch/arm/mach-pxa/pxa25x.c
+index dfc90b41fba3..8d21c7eef1d2 100644
+--- a/arch/arm/mach-pxa/pxa25x.c
++++ b/arch/arm/mach-pxa/pxa25x.c
+@@ -34,7 +34,7 @@
+ #include "pxa25x.h"
+ #include <mach/reset.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa25x.h b/arch/arm/mach-pxa/pxa25x.h
+index 403bc16c2ed2..4699ebf7b486 100644
+--- a/arch/arm/mach-pxa/pxa25x.h
++++ b/arch/arm/mach-pxa/pxa25x.h
+@@ -2,7 +2,7 @@
+ #ifndef __MACH_PXA25x_H
+ #define __MACH_PXA25x_H
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa2xx-regs.h>
+ #include "mfp-pxa25x.h"
+ #include <mach/irqs.h>
+diff --git a/arch/arm/mach-pxa/pxa27x.c b/arch/arm/mach-pxa/pxa27x.c
+index 38fdd22c4dc5..c36a9784fab8 100644
+--- a/arch/arm/mach-pxa/pxa27x.c
++++ b/arch/arm/mach-pxa/pxa27x.c
+@@ -33,7 +33,7 @@
+ #include <mach/reset.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa27x.h b/arch/arm/mach-pxa/pxa27x.h
+index 6c99090647d2..bf2755561fe5 100644
+--- a/arch/arm/mach-pxa/pxa27x.h
++++ b/arch/arm/mach-pxa/pxa27x.h
+@@ -3,7 +3,7 @@
+ #define __MACH_PXA27x_H
+ 
+ #include <linux/suspend.h>
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa2xx-regs.h>
+ #include "mfp-pxa27x.h"
+ #include <mach/irqs.h>
+diff --git a/arch/arm/mach-pxa/pxa3xx.c b/arch/arm/mach-pxa/pxa3xx.c
+index 7c569fa2a6da..7881888107c7 100644
+--- a/arch/arm/mach-pxa/pxa3xx.c
++++ b/arch/arm/mach-pxa/pxa3xx.c
+@@ -32,7 +32,7 @@
+ #include <mach/reset.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ #include <mach/irqs.h>
+ 
+diff --git a/arch/arm/mach-pxa/pxa3xx.h b/arch/arm/mach-pxa/pxa3xx.h
+index 22ace053ea25..6b424d328680 100644
+--- a/arch/arm/mach-pxa/pxa3xx.h
++++ b/arch/arm/mach-pxa/pxa3xx.h
+@@ -2,7 +2,7 @@
+ #ifndef __MACH_PXA3XX_H	
+ #define __MACH_PXA3XX_H
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa3xx-regs.h>
+ #include <mach/irqs.h>
+ 
+diff --git a/arch/arm/mach-pxa/trizeps4.h b/arch/arm/mach-pxa/trizeps4.h
+index 7597b9de11e2..e0f37c0ff06f 100644
+--- a/arch/arm/mach-pxa/trizeps4.h
++++ b/arch/arm/mach-pxa/trizeps4.h
+@@ -11,7 +11,7 @@
+ #ifndef _TRIPEPS4_H_
+ #define _TRIPEPS4_H_
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/irqs.h> /* PXA_GPIO_TO_IRQ */
+ 
+ /* physical memory regions */
+diff --git a/arch/arm/mach-pxa/xcep.c b/arch/arm/mach-pxa/xcep.c
+index e6ab428287ae..7389e0199144 100644
+--- a/arch/arm/mach-pxa/xcep.c
++++ b/arch/arm/mach-pxa/xcep.c
+@@ -25,7 +25,7 @@
+ #include <asm/mach/map.h>
+ 
+ #include "pxa25x.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
 -- 
 2.29.2
 
