@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4977EC38161
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89FA2C38162
 	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355165AbiDSQqw (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:46:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55128 "EHLO
+        id S244883AbiDSQrJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:47:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346236AbiDSQpr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:45:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9863339692;
-        Tue, 19 Apr 2022 09:43:03 -0700 (PDT)
+        with ESMTP id S1354973AbiDSQoi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:44:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E8F23BF4;
+        Tue, 19 Apr 2022 09:41:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2247C61853;
-        Tue, 19 Apr 2022 16:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41ECDC385AD;
-        Tue, 19 Apr 2022 16:42:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5D23B81BE5;
+        Tue, 19 Apr 2022 16:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45319C385A7;
+        Tue, 19 Apr 2022 16:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386582;
-        bh=XMfk0O3QBhz94b688wif9fT9MesrG60MJQFx6+JOR7A=;
+        s=k20201202; t=1650386512;
+        bh=QiDjZY966XEBc6DDR2J3pcVF2OHhXSmFgleX733S9R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyQ0i3+beAWzJBfVtjzbEbEG6UQmG0elXn7H/64gtW2jdmo85cTny3DFofm4YWk26
-         resGDEVxeYXDCEBoi+Mx+bHuhMlafP63G9kgkQD0pmbNlpXrgmphdLMFmSTDHKODM1
-         jUS2PLlKyzCtItMP5m8BWr2O7h90mAv4o3gzr2csamszwUDnuuc/49xNa8395GBqWJ
-         9gvv3KVEqBr8Fw340rBJDxyqUfV46LB5NeT2qOAhAiNk4ddchKUbBQTdHYcwd/MEej
-         ov5g41F+UxI/Qn/rxpRwVLD2MlH238KoEwdQas8Sb+V8WiQeUGVN3Vz4ZKQ+DKjHlg
-         vxdDK+bIiTV/Q==
+        b=gAb4FzNkgoM3kCYs/HBpqHCO1xMlxG5aT22Kue78YyBRs5uYsdsLCEDp2uFk/Vpzj
+         hBDEq0hPQ68ZrCETwUOUBIQ2Db2JnIDFmuhgzGViMIGfnVQ2WxWAJUyKuIHYvbfq1m
+         JXSPFaIX/U6ER3sOlUmZBa1lA6lTZ2W4rIZqUFJhqPLVeSnIq0rECTEwLS9CEDhCB8
+         LhU1ezCsE89PPHvmS5iP2R/xWcyyTkdL0NJVZF/DNBTFkKyMS50SZFGSjKPwZ+uEQr
+         hIdROGX5ZctaUoAgIY+3w7w75y6TV79tuXyYb0/fV3nVTh/49O18UBQ5KVVCtSnWp3
+         alA42Hgz/7LBw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,9 +59,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 32/48] ASoC: pxa: ac97: use normal MMIO accessors
-Date:   Tue, 19 Apr 2022 18:37:54 +0200
-Message-Id: <20220419163810.2118169-33-arnd@kernel.org>
+Subject: [PATCH 23/48] ARM: pxa: magician: use platform driver for audio
+Date:   Tue, 19 Apr 2022 18:37:45 +0200
+Message-Id: <20220419163810.2118169-24-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -73,469 +73,300 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-To avoid dereferencing hardwired constant pointers from a global header
-file, change the driver to use devm_platform_ioremap_resource for getting
-an __iomem pointer, and then using readl/writel on that.
+The magician audio driver creates a codec device and gets
+data from a board specific header file, both of which is
+a bit suspicious. Move these into the board file itself,
+using a gpio lookup table.
 
-Each pointer dereference gets changed by a search&replace, which leads
-to a few overlong lines, but seems less risky than trying to clean up
-the code at the same time.
-
-Cc: alsa-devel@alsa-project.org
+Acked-by: Mark Brown <broonie@kernel.org>
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: alsa-devel@alsa-project.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- sound/arm/pxa2xx-ac97-lib.c                   | 124 ++++++++++--------
- .../arm/pxa2xx-ac97-regs.h                    |  42 +++---
- sound/arm/pxa2xx-ac97.c                       |   1 -
- 3 files changed, 92 insertions(+), 75 deletions(-)
- rename arch/arm/mach-pxa/include/mach/regs-ac97.h => sound/arm/pxa2xx-ac97-regs.h (71%)
+ arch/arm/mach-pxa/magician.c |  50 +++++++++++++
+ sound/soc/pxa/magician.c     | 141 +++++++++--------------------------
+ 2 files changed, 87 insertions(+), 104 deletions(-)
 
-diff --git a/sound/arm/pxa2xx-ac97-lib.c b/sound/arm/pxa2xx-ac97-lib.c
-index 572b73d73762..e55c0421718b 100644
---- a/sound/arm/pxa2xx-ac97-lib.c
-+++ b/sound/arm/pxa2xx-ac97-lib.c
-@@ -21,15 +21,17 @@
+diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
+index d105deb1e098..598c977a8ae6 100644
+--- a/arch/arm/mach-pxa/magician.c
++++ b/arch/arm/mach-pxa/magician.c
+@@ -53,6 +53,7 @@
+ #include <linux/spi/spi.h>
+ #include <linux/spi/pxa2xx_spi.h>
+ #include <linux/spi/ads7846.h>
++#include <sound/uda1380.h>
  
- #include <sound/pxa2xx-lib.h>
+ static unsigned long magician_pin_config[] __initdata = {
  
--#include <mach/regs-ac97.h>
- #include <linux/platform_data/asoc-pxa.h>
+@@ -898,6 +899,53 @@ static struct platform_device strataflash = {
+ 	},
+ };
  
-+#include "pxa2xx-ac97-regs.h"
++/*
++ * audio support
++ */
++static struct uda1380_platform_data uda1380_info = {
++	.gpio_power = EGPIO_MAGICIAN_CODEC_POWER,
++	.gpio_reset = EGPIO_MAGICIAN_CODEC_RESET,
++	.dac_clk    = UDA1380_DAC_CLK_WSPLL,
++};
 +
- static DEFINE_MUTEX(car_mutex);
- static DECLARE_WAIT_QUEUE_HEAD(gsr_wq);
- static volatile long gsr_bits;
- static struct clk *ac97_clk;
- static struct clk *ac97conf_clk;
- static int reset_gpio;
-+static void __iomem *ac97_reg_base;
- 
- extern void pxa27x_configure_ac97reset(int reset_gpio, bool to_gpio);
- 
-@@ -46,7 +48,7 @@ extern void pxa27x_configure_ac97reset(int reset_gpio, bool to_gpio);
- int pxa2xx_ac97_read(int slot, unsigned short reg)
- {
- 	int val = -ENODEV;
--	volatile u32 *reg_addr;
-+	u32 __iomem *reg_addr;
- 
- 	if (slot > 0)
- 		return -ENODEV;
-@@ -55,31 +57,33 @@ int pxa2xx_ac97_read(int slot, unsigned short reg)
- 
- 	/* set up primary or secondary codec space */
- 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
--		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
-+		reg_addr = ac97_reg_base +
-+			   (slot ? SMC_REG_BASE : PMC_REG_BASE);
- 	else
--		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
-+		reg_addr = ac97_reg_base +
-+			   (slot ? SAC_REG_BASE : PAC_REG_BASE);
- 	reg_addr += (reg >> 1);
- 
- 	/* start read access across the ac97 link */
--	GSR = GSR_CDONE | GSR_SDONE;
-+	writel(GSR_CDONE | GSR_SDONE, ac97_reg_base + GSR);
- 	gsr_bits = 0;
--	val = (*reg_addr & 0xffff);
-+	val = (readl(reg_addr) & 0xffff);
- 	if (reg == AC97_GPIO_STATUS)
- 		goto out;
--	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1) <= 0 &&
--	    !((GSR | gsr_bits) & GSR_SDONE)) {
-+	if (wait_event_timeout(gsr_wq, (readl(ac97_reg_base + GSR) | gsr_bits) & GSR_SDONE, 1) <= 0 &&
-+	    !((readl(ac97_reg_base + GSR) | gsr_bits) & GSR_SDONE)) {
- 		printk(KERN_ERR "%s: read error (ac97_reg=%d GSR=%#lx)\n",
--				__func__, reg, GSR | gsr_bits);
-+				__func__, reg, readl(ac97_reg_base + GSR) | gsr_bits);
- 		val = -ETIMEDOUT;
- 		goto out;
- 	}
- 
- 	/* valid data now */
--	GSR = GSR_CDONE | GSR_SDONE;
-+	writel(GSR_CDONE | GSR_SDONE, ac97_reg_base + GSR);
- 	gsr_bits = 0;
--	val = (*reg_addr & 0xffff);
-+	val = (readl(reg_addr) & 0xffff);
- 	/* but we've just started another cycle... */
--	wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1);
-+	wait_event_timeout(gsr_wq, (readl(ac97_reg_base + GSR) | gsr_bits) & GSR_SDONE, 1);
- 
- out:	mutex_unlock(&car_mutex);
- 	return val;
-@@ -88,25 +92,27 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_read);
- 
- int pxa2xx_ac97_write(int slot, unsigned short reg, unsigned short val)
- {
--	volatile u32 *reg_addr;
-+	u32 __iomem *reg_addr;
- 	int ret = 0;
- 
- 	mutex_lock(&car_mutex);
- 
- 	/* set up primary or secondary codec space */
- 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
--		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
-+		reg_addr = ac97_reg_base +
-+			   (slot ? SMC_REG_BASE : PMC_REG_BASE);
- 	else
--		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
-+		reg_addr = ac97_reg_base +
-+			   (slot ? SAC_REG_BASE : PAC_REG_BASE);
- 	reg_addr += (reg >> 1);
- 
--	GSR = GSR_CDONE | GSR_SDONE;
-+	writel(GSR_CDONE | GSR_SDONE, ac97_reg_base + GSR);
- 	gsr_bits = 0;
--	*reg_addr = val;
--	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_CDONE, 1) <= 0 &&
--	    !((GSR | gsr_bits) & GSR_CDONE)) {
-+	writel(val, reg_addr);
-+	if (wait_event_timeout(gsr_wq, (readl(ac97_reg_base + GSR) | gsr_bits) & GSR_CDONE, 1) <= 0 &&
-+	    !((readl(ac97_reg_base + GSR) | gsr_bits) & GSR_CDONE)) {
- 		printk(KERN_ERR "%s: write error (ac97_reg=%d GSR=%#lx)\n",
--				__func__, reg, GSR | gsr_bits);
-+				__func__, reg, readl(ac97_reg_base + GSR) | gsr_bits);
- 		ret = -EIO;
- 	}
- 
-@@ -120,17 +126,17 @@ static inline void pxa_ac97_warm_pxa25x(void)
- {
- 	gsr_bits = 0;
- 
--	GCR |= GCR_WARM_RST;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_WARM_RST), ac97_reg_base + GCR);
- }
- 
- static inline void pxa_ac97_cold_pxa25x(void)
- {
--	GCR &=  GCR_COLD_RST;  /* clear everything but nCRST */
--	GCR &= ~GCR_COLD_RST;  /* then assert nCRST */
-+	writel(readl(ac97_reg_base + GCR) & ( GCR_COLD_RST), ac97_reg_base + GCR);  /* clear everything but nCRST */
-+	writel(readl(ac97_reg_base + GCR) & (~GCR_COLD_RST), ac97_reg_base + GCR);  /* then assert nCRST */
- 
- 	gsr_bits = 0;
- 
--	GCR = GCR_COLD_RST;
-+	writel(GCR_COLD_RST, ac97_reg_base + GCR);
- }
- #endif
- 
-@@ -142,15 +148,15 @@ static inline void pxa_ac97_warm_pxa27x(void)
- 	/* warm reset broken on Bulverde, so manually keep AC97 reset high */
- 	pxa27x_configure_ac97reset(reset_gpio, true);
- 	udelay(10);
--	GCR |= GCR_WARM_RST;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_WARM_RST), ac97_reg_base + GCR);
- 	pxa27x_configure_ac97reset(reset_gpio, false);
- 	udelay(500);
- }
- 
- static inline void pxa_ac97_cold_pxa27x(void)
- {
--	GCR &=  GCR_COLD_RST;  /* clear everything but nCRST */
--	GCR &= ~GCR_COLD_RST;  /* then assert nCRST */
-+	writel(readl(ac97_reg_base + GCR) & ( GCR_COLD_RST), ac97_reg_base + GCR);  /* clear everything but nCRST */
-+	writel(readl(ac97_reg_base + GCR) & (~GCR_COLD_RST), ac97_reg_base + GCR);  /* then assert nCRST */
- 
- 	gsr_bits = 0;
- 
-@@ -158,7 +164,7 @@ static inline void pxa_ac97_cold_pxa27x(void)
- 	clk_prepare_enable(ac97conf_clk);
- 	udelay(5);
- 	clk_disable_unprepare(ac97conf_clk);
--	GCR = GCR_COLD_RST | GCR_WARM_RST;
-+	writel(GCR_COLD_RST | GCR_WARM_RST, ac97_reg_base + GCR);
- }
- #endif
- 
-@@ -168,26 +174,26 @@ static inline void pxa_ac97_warm_pxa3xx(void)
- 	gsr_bits = 0;
- 
- 	/* Can't use interrupts */
--	GCR |= GCR_WARM_RST;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_WARM_RST), ac97_reg_base + GCR);
- }
- 
- static inline void pxa_ac97_cold_pxa3xx(void)
- {
- 	/* Hold CLKBPB for 100us */
--	GCR = 0;
--	GCR = GCR_CLKBPB;
-+	writel(0, ac97_reg_base + GCR);
-+	writel(GCR_CLKBPB, ac97_reg_base + GCR);
- 	udelay(100);
--	GCR = 0;
-+	writel(0, ac97_reg_base + GCR);
- 
--	GCR &=  GCR_COLD_RST;  /* clear everything but nCRST */
--	GCR &= ~GCR_COLD_RST;  /* then assert nCRST */
-+	writel(readl(ac97_reg_base + GCR) & ( GCR_COLD_RST), ac97_reg_base + GCR);  /* clear everything but nCRST */
-+	writel(readl(ac97_reg_base + GCR) & (~GCR_COLD_RST), ac97_reg_base + GCR);  /* then assert nCRST */
- 
- 	gsr_bits = 0;
- 
- 	/* Can't use interrupts on PXA3xx */
--	GCR &= ~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN);
-+	writel(readl(ac97_reg_base + GCR) & (~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN)), ac97_reg_base + GCR);
- 
--	GCR = GCR_WARM_RST | GCR_COLD_RST;
-+	writel(GCR_WARM_RST | GCR_COLD_RST, ac97_reg_base + GCR);
- }
- #endif
- 
-@@ -213,10 +219,10 @@ bool pxa2xx_ac97_try_warm_reset(void)
- #endif
- 		snd_BUG();
- 
--	while (!((GSR | gsr_bits) & (GSR_PCR | GSR_SCR)) && timeout--)
-+	while (!((readl(ac97_reg_base + GSR) | gsr_bits) & (GSR_PCR | GSR_SCR)) && timeout--)
- 		mdelay(1);
- 
--	gsr = GSR | gsr_bits;
-+	gsr = readl(ac97_reg_base + GSR) | gsr_bits;
- 	if (!(gsr & (GSR_PCR | GSR_SCR))) {
- 		printk(KERN_INFO "%s: warm reset timeout (GSR=%#lx)\n",
- 				 __func__, gsr);
-@@ -250,10 +256,10 @@ bool pxa2xx_ac97_try_cold_reset(void)
- #endif
- 		snd_BUG();
- 
--	while (!((GSR | gsr_bits) & (GSR_PCR | GSR_SCR)) && timeout--)
-+	while (!((readl(ac97_reg_base + GSR) | gsr_bits) & (GSR_PCR | GSR_SCR)) && timeout--)
- 		mdelay(1);
- 
--	gsr = GSR | gsr_bits;
-+	gsr = readl(ac97_reg_base + GSR) | gsr_bits;
- 	if (!(gsr & (GSR_PCR | GSR_SCR))) {
- 		printk(KERN_INFO "%s: cold reset timeout (GSR=%#lx)\n",
- 				 __func__, gsr);
-@@ -268,8 +274,10 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_cold_reset);
- 
- void pxa2xx_ac97_finish_reset(void)
- {
--	GCR &= ~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN);
--	GCR |= GCR_SDONE_IE|GCR_CDONE_IE;
-+	u32 gcr = readl(ac97_reg_base + GCR);
-+	gcr &= ~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN);
-+	gcr |= GCR_SDONE_IE|GCR_CDONE_IE;
-+	writel(gcr, ac97_reg_base + GCR);
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_finish_reset);
- 
-@@ -277,9 +285,9 @@ static irqreturn_t pxa2xx_ac97_irq(int irq, void *dev_id)
- {
- 	long status;
- 
--	status = GSR;
-+	status = readl(ac97_reg_base + GSR);
- 	if (status) {
--		GSR = status;
-+		writel(status, ac97_reg_base + GSR);
- 		gsr_bits |= status;
- 		wake_up(&gsr_wq);
- 
-@@ -287,9 +295,9 @@ static irqreturn_t pxa2xx_ac97_irq(int irq, void *dev_id)
- 		   since they tend to spuriously trigger when MMC is used
- 		   (hardware bug? go figure)... */
- 		if (cpu_is_pxa27x()) {
--			MISR = MISR_EOC;
--			PISR = PISR_EOC;
--			MCSR = MCSR_EOC;
-+			writel(MISR_EOC, ac97_reg_base + MISR);
-+			writel(PISR_EOC, ac97_reg_base + PISR);
-+			writel(MCSR_EOC, ac97_reg_base + MCSR);
- 		}
- 
- 		return IRQ_HANDLED;
-@@ -301,7 +309,7 @@ static irqreturn_t pxa2xx_ac97_irq(int irq, void *dev_id)
- #ifdef CONFIG_PM
- int pxa2xx_ac97_hw_suspend(void)
- {
--	GCR |= GCR_ACLINK_OFF;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_ACLINK_OFF), ac97_reg_base + GCR);
- 	clk_disable_unprepare(ac97_clk);
- 	return 0;
- }
-@@ -321,6 +329,12 @@ int pxa2xx_ac97_hw_probe(struct platform_device *dev)
- 	int irq;
- 	pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;
- 
-+	ac97_reg_base = devm_platform_ioremap_resource(dev, 0);
-+	if (IS_ERR(ac97_reg_base)) {
-+		dev_err(&dev->dev, "Missing MMIO resource\n");
-+		return PTR_ERR(ac97_reg_base);
-+	}
++static struct i2c_board_info magician_audio_i2c_board_info[] = {
++	{
++		I2C_BOARD_INFO("uda1380", 0x18),
++		.platform_data = &uda1380_info,
++	},
++};
 +
- 	if (pdata) {
- 		switch (pdata->reset_gpio) {
- 		case 95:
-@@ -398,7 +412,7 @@ int pxa2xx_ac97_hw_probe(struct platform_device *dev)
- 	return 0;
- 
- err_irq:
--	GCR |= GCR_ACLINK_OFF;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_ACLINK_OFF), ac97_reg_base + GCR);
- err_clk2:
- 	clk_put(ac97_clk);
- 	ac97_clk = NULL;
-@@ -416,7 +430,7 @@ void pxa2xx_ac97_hw_remove(struct platform_device *dev)
- {
- 	if (cpu_is_pxa27x())
- 		gpio_free(reset_gpio);
--	GCR |= GCR_ACLINK_OFF;
-+	writel(readl(ac97_reg_base + GCR) | (GCR_ACLINK_OFF), ac97_reg_base + GCR);
- 	free_irq(platform_get_irq(dev, 0), NULL);
- 	if (ac97conf_clk) {
- 		clk_put(ac97conf_clk);
-@@ -430,13 +444,19 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_hw_remove);
- 
- u32 pxa2xx_ac97_read_modr(void)
- {
--	return MODR;
-+	if (!ac97_reg_base)
-+		return 0;
++static struct gpiod_lookup_table magician_audio_gpio_table = {
++	.dev_id = "magician-audio",
++	.table = {
++		GPIO_LOOKUP("htc-egpio-0",
++			    EGPIO_MAGICIAN_SPK_POWER - MAGICIAN_EGPIO_BASE,
++			    "SPK_POWER", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("htc-egpio-0",
++			    EGPIO_MAGICIAN_EP_POWER - MAGICIAN_EGPIO_BASE,
++			    "EP_POWER", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("htc-egpio-0",
++			    EGPIO_MAGICIAN_MIC_POWER - MAGICIAN_EGPIO_BASE,
++			    "MIC_POWER", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("htc-egpio-0",
++			    EGPIO_MAGICIAN_IN_SEL0 - MAGICIAN_EGPIO_BASE,
++			    "IN_SEL0", GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP("htc-egpio-0",
++			    EGPIO_MAGICIAN_IN_SEL1 - MAGICIAN_EGPIO_BASE,
++			    "IN_SEL1", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
 +
-+	return readl(ac97_reg_base + MODR);
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_modr);
- 
- u32 pxa2xx_ac97_read_misr(void)
- {
--	return MISR;
-+	if (!ac97_reg_base)
-+		return 0;
++static void magician_audio_init(void)
++{
++	i2c_register_board_info(0,
++		ARRAY_AND_SIZE(magician_audio_i2c_board_info));
 +
-+	return readl(ac97_reg_base + MISR);
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_misr);
- 
-diff --git a/arch/arm/mach-pxa/include/mach/regs-ac97.h b/sound/arm/pxa2xx-ac97-regs.h
-similarity index 71%
-rename from arch/arm/mach-pxa/include/mach/regs-ac97.h
-rename to sound/arm/pxa2xx-ac97-regs.h
-index ec09b9635e25..ae638a1b919b 100644
---- a/arch/arm/mach-pxa/include/mach/regs-ac97.h
-+++ b/sound/arm/pxa2xx-ac97-regs.h
-@@ -2,25 +2,23 @@
- #ifndef __ASM_ARCH_REGS_AC97_H
- #define __ASM_ARCH_REGS_AC97_H
- 
--#include "pxa-regs.h"
--
++	gpiod_add_lookup_table(&magician_audio_gpio_table);
++	platform_device_register_simple("magician-audio", -1, NULL, 0);
++}
++
  /*
-  * AC97 Controller registers
+  * PXA I2C main controller
   */
+@@ -1048,6 +1096,8 @@ static void __init magician_init(void)
+ 	gpiod_add_lookup_table(&bq24022_gpiod_table);
+ 	gpiod_add_lookup_table(&gpio_vbus_gpiod_table);
+ 	platform_add_devices(ARRAY_AND_SIZE(devices));
++
++	magician_audio_init();
+ }
  
--#define POCR		__REG(0x40500000)  /* PCM Out Control Register */
-+#define POCR		(0x0000)  	/* PCM Out Control Register */
- #define POCR_FEIE	(1 << 3)	/* FIFO Error Interrupt Enable */
- #define POCR_FSRIE	(1 << 1)	/* FIFO Service Request Interrupt Enable */
+ MACHINE_START(MAGICIAN, "HTC Magician")
+diff --git a/sound/soc/pxa/magician.c b/sound/soc/pxa/magician.c
+index a5f326c97af2..9433cc927755 100644
+--- a/sound/soc/pxa/magician.c
++++ b/sound/soc/pxa/magician.c
+@@ -14,16 +14,14 @@
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
  
--#define PICR		__REG(0x40500004)  /* PCM In Control Register */
-+#define PICR		(0x0004) 	/* PCM In Control Register */
- #define PICR_FEIE	(1 << 3)	/* FIFO Error Interrupt Enable */
- #define PICR_FSRIE	(1 << 1)	/* FIFO Service Request Interrupt Enable */
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/pcm_params.h>
+ #include <sound/soc.h>
+-#include <sound/uda1380.h>
  
--#define MCCR		__REG(0x40500008)  /* Mic In Control Register */
-+#define MCCR		(0x0008)  	/* Mic In Control Register */
- #define MCCR_FEIE	(1 << 3)	/* FIFO Error Interrupt Enable */
- #define MCCR_FSRIE	(1 << 1)	/* FIFO Service Request Interrupt Enable */
+-#include <mach/magician.h>
+ #include <asm/mach-types.h>
+ #include "../codecs/uda1380.h"
+ #include "pxa2xx-i2s.h"
+@@ -36,6 +34,9 @@ static int magician_hp_switch;
+ static int magician_spk_switch = 1;
+ static int magician_in_sel = MAGICIAN_MIC;
  
--#define GCR		__REG(0x4050000C)  /* Global Control Register */
-+#define GCR		(0x000C) 	 /* Global Control Register */
- #ifdef CONFIG_PXA3xx
- #define GCR_CLKBPB	(1 << 31)	/* Internal clock enable */
- #endif
-@@ -36,21 +34,21 @@
- #define GCR_COLD_RST	(1 << 1)	/* AC'97 Cold Reset (0 = active) */
- #define GCR_GIE		(1 << 0)	/* Codec GPI Interrupt Enable */
++static struct gpio_desc *gpiod_spk_power, *gpiod_ep_power, *gpiod_mic_power;
++static struct gpio_desc *gpiod_in_sel0, *gpiod_in_sel1;
++
+ static void magician_ext_control(struct snd_soc_dapm_context *dapm)
+ {
  
--#define POSR		__REG(0x40500010)  /* PCM Out Status Register */
-+#define POSR		(0x0010)  	/* PCM Out Status Register */
- #define POSR_FIFOE	(1 << 4)	/* FIFO error */
- #define POSR_FSR	(1 << 2)	/* FIFO Service Request */
+@@ -215,10 +216,10 @@ static int magician_set_input(struct snd_kcontrol *kcontrol,
  
--#define PISR		__REG(0x40500014)  /* PCM In Status Register */
-+#define PISR		(0x0014)  	/* PCM In Status Register */
- #define PISR_FIFOE	(1 << 4)	/* FIFO error */
- #define PISR_EOC	(1 << 3)	/* DMA End-of-Chain (exclusive clear) */
- #define PISR_FSR	(1 << 2)	/* FIFO Service Request */
+ 	switch (magician_in_sel) {
+ 	case MAGICIAN_MIC:
+-		gpio_set_value(EGPIO_MAGICIAN_IN_SEL1, 1);
++		gpiod_set_value(gpiod_in_sel1, 1);
+ 		break;
+ 	case MAGICIAN_MIC_EXT:
+-		gpio_set_value(EGPIO_MAGICIAN_IN_SEL1, 0);
++		gpiod_set_value(gpiod_in_sel1, 0);
+ 	}
  
--#define MCSR		__REG(0x40500018)  /* Mic In Status Register */
-+#define MCSR		(0x0018)  	/* Mic In Status Register */
- #define MCSR_FIFOE	(1 << 4)	/* FIFO error */
- #define MCSR_EOC	(1 << 3)	/* DMA End-of-Chain (exclusive clear) */
- #define MCSR_FSR	(1 << 2)	/* FIFO Service Request */
+ 	return 1;
+@@ -227,21 +228,21 @@ static int magician_set_input(struct snd_kcontrol *kcontrol,
+ static int magician_spk_power(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *k, int event)
+ {
+-	gpio_set_value(EGPIO_MAGICIAN_SPK_POWER, SND_SOC_DAPM_EVENT_ON(event));
++	gpiod_set_value(gpiod_spk_power, SND_SOC_DAPM_EVENT_ON(event));
+ 	return 0;
+ }
  
--#define GSR		__REG(0x4050001C)  /* Global Status Register */
-+#define GSR		(0x001C)  	/* Global Status Register */
- #define GSR_CDONE	(1 << 19)	/* Command Done */
- #define GSR_SDONE	(1 << 18)	/* Status Done */
- #define GSR_RDCS	(1 << 15)	/* Read Completion Status */
-@@ -69,34 +67,34 @@
- #define GSR_MIINT	(1 << 1)	/* Modem In Interrupt */
- #define GSR_GSCI	(1 << 0)	/* Codec GPI Status Change Interrupt */
+ static int magician_hp_power(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *k, int event)
+ {
+-	gpio_set_value(EGPIO_MAGICIAN_EP_POWER, SND_SOC_DAPM_EVENT_ON(event));
++	gpiod_set_value(gpiod_ep_power, SND_SOC_DAPM_EVENT_ON(event));
+ 	return 0;
+ }
  
--#define CAR		__REG(0x40500020)  /* CODEC Access Register */
-+#define CAR		(0x0020)  	/* CODEC Access Register */
- #define CAR_CAIP	(1 << 0)	/* Codec Access In Progress */
+ static int magician_mic_bias(struct snd_soc_dapm_widget *w,
+ 				struct snd_kcontrol *k, int event)
+ {
+-	gpio_set_value(EGPIO_MAGICIAN_MIC_POWER, SND_SOC_DAPM_EVENT_ON(event));
++	gpiod_set_value(gpiod_mic_power, SND_SOC_DAPM_EVENT_ON(event));
+ 	return 0;
+ }
  
--#define PCDR		__REG(0x40500040)  /* PCM FIFO Data Register */
--#define MCDR		__REG(0x40500060)  /* Mic-in FIFO Data Register */
-+#define PCDR		(0x0040)  	/* PCM FIFO Data Register */
-+#define MCDR		(0x0060)  	/* Mic-in FIFO Data Register */
+@@ -328,106 +329,38 @@ static struct snd_soc_card snd_soc_card_magician = {
+ 	.fully_routed = true,
+ };
  
--#define MOCR		__REG(0x40500100)  /* Modem Out Control Register */
-+#define MOCR		(0x0100)  	/* Modem Out Control Register */
- #define MOCR_FEIE	(1 << 3)	/* FIFO Error */
- #define MOCR_FSRIE	(1 << 1)	/* FIFO Service Request Interrupt Enable */
+-static struct platform_device *magician_snd_device;
+-
+-/*
+- * FIXME: move into magician board file once merged into the pxa tree
+- */
+-static struct uda1380_platform_data uda1380_info = {
+-	.gpio_power = EGPIO_MAGICIAN_CODEC_POWER,
+-	.gpio_reset = EGPIO_MAGICIAN_CODEC_RESET,
+-	.dac_clk    = UDA1380_DAC_CLK_WSPLL,
+-};
+-
+-static struct i2c_board_info i2c_board_info[] = {
+-	{
+-		I2C_BOARD_INFO("uda1380", 0x18),
+-		.platform_data = &uda1380_info,
+-	},
+-};
+-
+-static int __init magician_init(void)
+-{
+-	int ret;
+-	struct i2c_adapter *adapter;
+-	struct i2c_client *client;
+-
+-	if (!machine_is_magician())
+-		return -ENODEV;
+-
+-	adapter = i2c_get_adapter(0);
+-	if (!adapter)
+-		return -ENODEV;
+-	client = i2c_new_client_device(adapter, i2c_board_info);
+-	i2c_put_adapter(adapter);
+-	if (IS_ERR(client))
+-		return PTR_ERR(client);
+-
+-	ret = gpio_request(EGPIO_MAGICIAN_SPK_POWER, "SPK_POWER");
+-	if (ret)
+-		goto err_request_spk;
+-	ret = gpio_request(EGPIO_MAGICIAN_EP_POWER, "EP_POWER");
+-	if (ret)
+-		goto err_request_ep;
+-	ret = gpio_request(EGPIO_MAGICIAN_MIC_POWER, "MIC_POWER");
+-	if (ret)
+-		goto err_request_mic;
+-	ret = gpio_request(EGPIO_MAGICIAN_IN_SEL0, "IN_SEL0");
+-	if (ret)
+-		goto err_request_in_sel0;
+-	ret = gpio_request(EGPIO_MAGICIAN_IN_SEL1, "IN_SEL1");
+-	if (ret)
+-		goto err_request_in_sel1;
+-
+-	gpio_set_value(EGPIO_MAGICIAN_IN_SEL0, 0);
+-
+-	magician_snd_device = platform_device_alloc("soc-audio", -1);
+-	if (!magician_snd_device) {
+-		ret = -ENOMEM;
+-		goto err_pdev;
+-	}
+-
+-	platform_set_drvdata(magician_snd_device, &snd_soc_card_magician);
+-	ret = platform_device_add(magician_snd_device);
+-	if (ret) {
+-		platform_device_put(magician_snd_device);
+-		goto err_pdev;
+-	}
+-
+-	return 0;
+-
+-err_pdev:
+-	gpio_free(EGPIO_MAGICIAN_IN_SEL1);
+-err_request_in_sel1:
+-	gpio_free(EGPIO_MAGICIAN_IN_SEL0);
+-err_request_in_sel0:
+-	gpio_free(EGPIO_MAGICIAN_MIC_POWER);
+-err_request_mic:
+-	gpio_free(EGPIO_MAGICIAN_EP_POWER);
+-err_request_ep:
+-	gpio_free(EGPIO_MAGICIAN_SPK_POWER);
+-err_request_spk:
+-	return ret;
+-}
+-
+-static void __exit magician_exit(void)
++static int magician_audio_probe(struct platform_device *pdev)
+ {
+-	platform_device_unregister(magician_snd_device);
+-
+-	gpio_set_value(EGPIO_MAGICIAN_SPK_POWER, 0);
+-	gpio_set_value(EGPIO_MAGICIAN_EP_POWER, 0);
+-	gpio_set_value(EGPIO_MAGICIAN_MIC_POWER, 0);
+-
+-	gpio_free(EGPIO_MAGICIAN_IN_SEL1);
+-	gpio_free(EGPIO_MAGICIAN_IN_SEL0);
+-	gpio_free(EGPIO_MAGICIAN_MIC_POWER);
+-	gpio_free(EGPIO_MAGICIAN_EP_POWER);
+-	gpio_free(EGPIO_MAGICIAN_SPK_POWER);
++	struct device *dev = &pdev->dev;
++
++	gpiod_spk_power = devm_gpiod_get(dev, "SPK_POWER", GPIOD_OUT_LOW);
++	if (IS_ERR(gpiod_spk_power))
++		return PTR_ERR(gpiod_spk_power);
++	gpiod_ep_power = devm_gpiod_get(dev, "EP_POWER", GPIOD_OUT_LOW);
++	if (IS_ERR(gpiod_ep_power))
++		return PTR_ERR(gpiod_ep_power);
++	gpiod_mic_power = devm_gpiod_get(dev, "MIC_POWER", GPIOD_OUT_LOW);
++	if (IS_ERR(gpiod_mic_power))
++		return PTR_ERR(gpiod_mic_power);
++	gpiod_in_sel0 = devm_gpiod_get(dev, "IN_SEL0", GPIOD_OUT_HIGH);
++	if (IS_ERR(gpiod_in_sel0))
++		return PTR_ERR(gpiod_in_sel0);
++	gpiod_in_sel1 = devm_gpiod_get(dev, "IN_SEL1", GPIOD_OUT_LOW);
++	if (IS_ERR(gpiod_in_sel1))
++		return PTR_ERR(gpiod_in_sel1);
++
++	snd_soc_card_magician.dev = &pdev->dev;
++	return devm_snd_soc_register_card(&pdev->dev, &snd_soc_card_magician);
+ }
  
--#define MICR		__REG(0x40500108)  /* Modem In Control Register */
-+#define MICR		(0x0108)  	/* Modem In Control Register */
- #define MICR_FEIE	(1 << 3)	/* FIFO Error */
- #define MICR_FSRIE	(1 << 1)	/* FIFO Service Request Interrupt Enable */
+-module_init(magician_init);
+-module_exit(magician_exit);
++static struct platform_driver magician_audio_driver = {
++	.driver.name = "magician-audio",
++	.driver.pm = &snd_soc_pm_ops,
++	.probe = magician_audio_probe,
++};
++module_platform_driver(magician_audio_driver);
  
--#define MOSR		__REG(0x40500110)  /* Modem Out Status Register */
-+#define MOSR		(0x0110)  	/* Modem Out Status Register */
- #define MOSR_FIFOE	(1 << 4)	/* FIFO error */
- #define MOSR_FSR	(1 << 2)	/* FIFO Service Request */
- 
--#define MISR		__REG(0x40500118)  /* Modem In Status Register */
-+#define MISR		(0x0118)  	/* Modem In Status Register */
- #define MISR_FIFOE	(1 << 4)	/* FIFO error */
- #define MISR_EOC	(1 << 3)	/* DMA End-of-Chain (exclusive clear) */
- #define MISR_FSR	(1 << 2)	/* FIFO Service Request */
- 
--#define MODR		__REG(0x40500140)  /* Modem FIFO Data Register */
-+#define MODR		(0x0140)  	/* Modem FIFO Data Register */
- 
--#define PAC_REG_BASE	__REG(0x40500200)  /* Primary Audio Codec */
--#define SAC_REG_BASE	__REG(0x40500300)  /* Secondary Audio Codec */
--#define PMC_REG_BASE	__REG(0x40500400)  /* Primary Modem Codec */
--#define SMC_REG_BASE	__REG(0x40500500)  /* Secondary Modem Codec */
-+#define PAC_REG_BASE	(0x0200)  	/* Primary Audio Codec */
-+#define SAC_REG_BASE	(0x0300)  	/* Secondary Audio Codec */
-+#define PMC_REG_BASE	(0x0400)  	/* Primary Modem Codec */
-+#define SMC_REG_BASE	(0x0500)  	/* Secondary Modem Codec */
- 
- #endif /* __ASM_ARCH_REGS_AC97_H */
-diff --git a/sound/arm/pxa2xx-ac97.c b/sound/arm/pxa2xx-ac97.c
-index 57c3e12e6629..c162086455ad 100644
---- a/sound/arm/pxa2xx-ac97.c
-+++ b/sound/arm/pxa2xx-ac97.c
-@@ -21,7 +21,6 @@
- #include <sound/pxa2xx-lib.h>
- #include <sound/dmaengine_pcm.h>
- 
--#include <mach/regs-ac97.h>
- #include <linux/platform_data/asoc-pxa.h>
- 
- static void pxa2xx_ac97_legacy_reset(struct snd_ac97 *ac97)
+ MODULE_AUTHOR("Philipp Zabel");
+ MODULE_DESCRIPTION("ALSA SoC Magician");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:magician-audio");
 -- 
 2.29.2
 
