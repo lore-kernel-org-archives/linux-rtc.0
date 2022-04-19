@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89FA2C38162
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F20C4C38A02
 	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244883AbiDSQrJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:47:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
+        id S245630AbiDSQrN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:47:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354973AbiDSQoi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:44:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E8F23BF4;
-        Tue, 19 Apr 2022 09:41:55 -0700 (PDT)
+        with ESMTP id S1344193AbiDSQpP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:45:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834293467B;
+        Tue, 19 Apr 2022 09:42:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5D23B81BE5;
-        Tue, 19 Apr 2022 16:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45319C385A7;
-        Tue, 19 Apr 2022 16:41:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDD8E61874;
+        Tue, 19 Apr 2022 16:42:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A777C385AC;
+        Tue, 19 Apr 2022 16:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386512;
-        bh=QiDjZY966XEBc6DDR2J3pcVF2OHhXSmFgleX733S9R8=;
+        s=k20201202; t=1650386551;
+        bh=ZitIFNWOGNclnWEkC5k5wKgP8LZADBB8lqdOWZNB8wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAb4FzNkgoM3kCYs/HBpqHCO1xMlxG5aT22Kue78YyBRs5uYsdsLCEDp2uFk/Vpzj
-         hBDEq0hPQ68ZrCETwUOUBIQ2Db2JnIDFmuhgzGViMIGfnVQ2WxWAJUyKuIHYvbfq1m
-         JXSPFaIX/U6ER3sOlUmZBa1lA6lTZ2W4rIZqUFJhqPLVeSnIq0rECTEwLS9CEDhCB8
-         LhU1ezCsE89PPHvmS5iP2R/xWcyyTkdL0NJVZF/DNBTFkKyMS50SZFGSjKPwZ+uEQr
-         hIdROGX5ZctaUoAgIY+3w7w75y6TV79tuXyYb0/fV3nVTh/49O18UBQ5KVVCtSnWp3
-         alA42Hgz/7LBw==
+        b=M+b/M4GGqpVoZ/vtuDGOrUAXIOp7QmnE+sliunl9FKuasZGbZF8J7WC0f5+dwHIfV
+         QC+dZIBkk7Hf4pg+kZCT8EC/A41AqH2ENGG3vZIkxJLPpRBM+Aex4V3HjClb5ZY2s8
+         QXyUz7wFF1e86cNx2J/LH32cIfYAT9jRVz/3EZvQYWNJDZXGGvuD5wmAvR7FCCQYz2
+         NZPv5X3QIar8bWv9pUOFMdDuQHRolS5csdfPn4P7i2wmWxafJsowCMdw66MeqUo3e4
+         4cfMCEif39tK7z2xRA3fIStlRIiOkBAdJrgnC88utYEWooh/HHVaMdBdkWFUYWuz/m
+         6oQTHQqp34oXw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,9 +59,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 23/48] ARM: pxa: magician: use platform driver for audio
-Date:   Tue, 19 Apr 2022 18:37:45 +0200
-Message-Id: <20220419163810.2118169-24-arnd@kernel.org>
+Subject: [PATCH 28/48] Input: touchscreen: use wrapper for pxa2xx ac97 registers
+Date:   Tue, 19 Apr 2022 18:37:50 +0200
+Message-Id: <20220419163810.2118169-29-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -73,300 +73,176 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The magician audio driver creates a codec device and gets
-data from a board specific header file, both of which is
-a bit suspicious. Move these into the board file itself,
-using a gpio lookup table.
+To avoid a dependency on the pxa platform header files with
+hardcoded registers, change the driver to call a wrapper
+in the pxa2xx-ac97-lib that encapsulates all the other
+ac97 stuff.
 
-Acked-by: Mark Brown <broonie@kernel.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: linux-input@vger.kernel.org
 Cc: alsa-devel@alsa-project.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-pxa/magician.c |  50 +++++++++++++
- sound/soc/pxa/magician.c     | 141 +++++++++--------------------------
- 2 files changed, 87 insertions(+), 104 deletions(-)
+ drivers/input/touchscreen/Kconfig            |  2 ++
+ drivers/input/touchscreen/mainstone-wm97xx.c | 16 ++++++++--------
+ drivers/input/touchscreen/zylonite-wm97xx.c  | 12 ++++++------
+ include/sound/pxa2xx-lib.h                   |  4 ++++
+ sound/arm/pxa2xx-ac97-lib.c                  | 12 ++++++++++++
+ 5 files changed, 32 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
-index d105deb1e098..598c977a8ae6 100644
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -53,6 +53,7 @@
- #include <linux/spi/spi.h>
- #include <linux/spi/pxa2xx_spi.h>
- #include <linux/spi/ads7846.h>
-+#include <sound/uda1380.h>
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 43c7d6e5bdc0..2d70c945b20a 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -902,6 +902,7 @@ config TOUCHSCREEN_WM9713
+ config TOUCHSCREEN_WM97XX_MAINSTONE
+ 	tristate "WM97xx Mainstone/Palm accelerated touch"
+ 	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
++	depends on SND_PXA2XX_LIB_AC97
+ 	help
+ 	  Say Y here for support for streaming mode with WM97xx touchscreens
+ 	  on Mainstone, Palm Tungsten T5, TX and LifeDrive systems.
+@@ -914,6 +915,7 @@ config TOUCHSCREEN_WM97XX_MAINSTONE
+ config TOUCHSCREEN_WM97XX_ZYLONITE
+ 	tristate "Zylonite accelerated touch"
+ 	depends on TOUCHSCREEN_WM97XX && MACH_ZYLONITE
++	depends on SND_PXA2XX_LIB_AC97
+ 	select TOUCHSCREEN_WM9713
+ 	help
+ 	  Say Y here for support for streaming mode with the touchscreen
+diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
+index 940d3c92b1f8..8f6fe68f1f99 100644
+--- a/drivers/input/touchscreen/mainstone-wm97xx.c
++++ b/drivers/input/touchscreen/mainstone-wm97xx.c
+@@ -28,7 +28,7 @@
+ #include <linux/soc/pxa/cpu.h>
+ #include <linux/wm97xx.h>
  
- static unsigned long magician_pin_config[] __initdata = {
+-#include <mach/regs-ac97.h>
++#include <sound/pxa2xx-lib.h>
  
-@@ -898,6 +899,53 @@ static struct platform_device strataflash = {
- 	},
- };
+ #include <asm/mach-types.h>
  
-+/*
-+ * audio support
-+ */
-+static struct uda1380_platform_data uda1380_info = {
-+	.gpio_power = EGPIO_MAGICIAN_CODEC_POWER,
-+	.gpio_reset = EGPIO_MAGICIAN_CODEC_RESET,
-+	.dac_clk    = UDA1380_DAC_CLK_WSPLL,
-+};
-+
-+static struct i2c_board_info magician_audio_i2c_board_info[] = {
-+	{
-+		I2C_BOARD_INFO("uda1380", 0x18),
-+		.platform_data = &uda1380_info,
-+	},
-+};
-+
-+static struct gpiod_lookup_table magician_audio_gpio_table = {
-+	.dev_id = "magician-audio",
-+	.table = {
-+		GPIO_LOOKUP("htc-egpio-0",
-+			    EGPIO_MAGICIAN_SPK_POWER - MAGICIAN_EGPIO_BASE,
-+			    "SPK_POWER", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("htc-egpio-0",
-+			    EGPIO_MAGICIAN_EP_POWER - MAGICIAN_EGPIO_BASE,
-+			    "EP_POWER", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("htc-egpio-0",
-+			    EGPIO_MAGICIAN_MIC_POWER - MAGICIAN_EGPIO_BASE,
-+			    "MIC_POWER", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("htc-egpio-0",
-+			    EGPIO_MAGICIAN_IN_SEL0 - MAGICIAN_EGPIO_BASE,
-+			    "IN_SEL0", GPIO_ACTIVE_HIGH),
-+		GPIO_LOOKUP("htc-egpio-0",
-+			    EGPIO_MAGICIAN_IN_SEL1 - MAGICIAN_EGPIO_BASE,
-+			    "IN_SEL1", GPIO_ACTIVE_HIGH),
-+		{ },
-+	},
-+};
-+
-+static void magician_audio_init(void)
-+{
-+	i2c_register_board_info(0,
-+		ARRAY_AND_SIZE(magician_audio_i2c_board_info));
-+
-+	gpiod_add_lookup_table(&magician_audio_gpio_table);
-+	platform_device_register_simple("magician-audio", -1, NULL, 0);
-+}
-+
- /*
-  * PXA I2C main controller
-  */
-@@ -1048,6 +1096,8 @@ static void __init magician_init(void)
- 	gpiod_add_lookup_table(&bq24022_gpiod_table);
- 	gpiod_add_lookup_table(&gpio_vbus_gpiod_table);
- 	platform_add_devices(ARRAY_AND_SIZE(devices));
-+
-+	magician_audio_init();
+@@ -104,11 +104,11 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
+ 	msleep(1);
+ 
+ 	if (cpu_is_pxa27x()) {
+-		while (MISR & (1 << 2))
+-			MODR;
++		while (pxa2xx_ac97_read_misr() & (1 << 2))
++			pxa2xx_ac97_read_modr();
+ 	} else if (cpu_is_pxa3xx()) {
+ 		for (count = 0; count < 16; count++)
+-			MODR;
++			pxa2xx_ac97_read_modr();
+ 	}
  }
  
- MACHINE_START(MAGICIAN, "HTC Magician")
-diff --git a/sound/soc/pxa/magician.c b/sound/soc/pxa/magician.c
-index a5f326c97af2..9433cc927755 100644
---- a/sound/soc/pxa/magician.c
-+++ b/sound/soc/pxa/magician.c
-@@ -14,16 +14,14 @@
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
- #include <linux/delay.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- 
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/pcm_params.h>
- #include <sound/soc.h>
--#include <sound/uda1380.h>
- 
--#include <mach/magician.h>
- #include <asm/mach-types.h>
- #include "../codecs/uda1380.h"
- #include "pxa2xx-i2s.h"
-@@ -36,6 +34,9 @@ static int magician_hp_switch;
- static int magician_spk_switch = 1;
- static int magician_in_sel = MAGICIAN_MIC;
- 
-+static struct gpio_desc *gpiod_spk_power, *gpiod_ep_power, *gpiod_mic_power;
-+static struct gpio_desc *gpiod_in_sel0, *gpiod_in_sel1;
-+
- static void magician_ext_control(struct snd_soc_dapm_context *dapm)
- {
- 
-@@ -215,10 +216,10 @@ static int magician_set_input(struct snd_kcontrol *kcontrol,
- 
- 	switch (magician_in_sel) {
- 	case MAGICIAN_MIC:
--		gpio_set_value(EGPIO_MAGICIAN_IN_SEL1, 1);
-+		gpiod_set_value(gpiod_in_sel1, 1);
- 		break;
- 	case MAGICIAN_MIC_EXT:
--		gpio_set_value(EGPIO_MAGICIAN_IN_SEL1, 0);
-+		gpiod_set_value(gpiod_in_sel1, 0);
+@@ -130,7 +130,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 		return RC_PENUP;
  	}
  
- 	return 1;
-@@ -227,21 +228,21 @@ static int magician_set_input(struct snd_kcontrol *kcontrol,
- static int magician_spk_power(struct snd_soc_dapm_widget *w,
- 				struct snd_kcontrol *k, int event)
- {
--	gpio_set_value(EGPIO_MAGICIAN_SPK_POWER, SND_SOC_DAPM_EVENT_ON(event));
-+	gpiod_set_value(gpiod_spk_power, SND_SOC_DAPM_EVENT_ON(event));
- 	return 0;
+-	x = MODR;
++	x = pxa2xx_ac97_read_modr();
+ 	if (x == last) {
+ 		tries++;
+ 		return RC_AGAIN;
+@@ -138,10 +138,10 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 	last = x;
+ 	do {
+ 		if (reads)
+-			x = MODR;
+-		y = MODR;
++			x = pxa2xx_ac97_read_modr();
++		y = pxa2xx_ac97_read_modr();
+ 		if (pressure)
+-			p = MODR;
++			p = pxa2xx_ac97_read_modr();
+ 
+ 		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
+ 			x, y, p);
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index cabdd6e3c6f8..ed7eae638713 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -24,7 +24,7 @@
+ #include <linux/soc/pxa/cpu.h>
+ #include <linux/wm97xx.h>
+ 
+-#include <mach/regs-ac97.h>
++#include <sound/pxa2xx-lib.h>
+ 
+ struct continuous {
+ 	u16 id;    /* codec id */
+@@ -79,7 +79,7 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
+ 	msleep(1);
+ 
+ 	for (i = 0; i < 16; i++)
+-		MODR;
++		pxa2xx_ac97_read_modr();
  }
  
- static int magician_hp_power(struct snd_soc_dapm_widget *w,
- 				struct snd_kcontrol *k, int event)
- {
--	gpio_set_value(EGPIO_MAGICIAN_EP_POWER, SND_SOC_DAPM_EVENT_ON(event));
-+	gpiod_set_value(gpiod_ep_power, SND_SOC_DAPM_EVENT_ON(event));
- 	return 0;
- }
+ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+@@ -100,7 +100,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 		return RC_PENUP;
+ 	}
  
- static int magician_mic_bias(struct snd_soc_dapm_widget *w,
- 				struct snd_kcontrol *k, int event)
- {
--	gpio_set_value(EGPIO_MAGICIAN_MIC_POWER, SND_SOC_DAPM_EVENT_ON(event));
-+	gpiod_set_value(gpiod_mic_power, SND_SOC_DAPM_EVENT_ON(event));
- 	return 0;
- }
+-	x = MODR;
++	x = pxa2xx_ac97_read_modr();
+ 	if (x == last) {
+ 		tries++;
+ 		return RC_AGAIN;
+@@ -108,10 +108,10 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 	last = x;
+ 	do {
+ 		if (reads)
+-			x = MODR;
+-		y = MODR;
++			x = pxa2xx_ac97_read_modr();
++		y = pxa2xx_ac97_read_modr();
+ 		if (pressure)
+-			p = MODR;
++			p = pxa2xx_ac97_read_modr();
  
-@@ -328,106 +329,38 @@ static struct snd_soc_card snd_soc_card_magician = {
- 	.fully_routed = true,
- };
+ 		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
+ 			x, y, p);
+diff --git a/include/sound/pxa2xx-lib.h b/include/sound/pxa2xx-lib.h
+index 95100cff25d1..0a6f8dabf8c4 100644
+--- a/include/sound/pxa2xx-lib.h
++++ b/include/sound/pxa2xx-lib.h
+@@ -52,4 +52,8 @@ extern int pxa2xx_ac97_hw_resume(void);
+ extern int pxa2xx_ac97_hw_probe(struct platform_device *dev);
+ extern void pxa2xx_ac97_hw_remove(struct platform_device *dev);
  
--static struct platform_device *magician_snd_device;
--
--/*
-- * FIXME: move into magician board file once merged into the pxa tree
-- */
--static struct uda1380_platform_data uda1380_info = {
--	.gpio_power = EGPIO_MAGICIAN_CODEC_POWER,
--	.gpio_reset = EGPIO_MAGICIAN_CODEC_RESET,
--	.dac_clk    = UDA1380_DAC_CLK_WSPLL,
--};
--
--static struct i2c_board_info i2c_board_info[] = {
--	{
--		I2C_BOARD_INFO("uda1380", 0x18),
--		.platform_data = &uda1380_info,
--	},
--};
--
--static int __init magician_init(void)
--{
--	int ret;
--	struct i2c_adapter *adapter;
--	struct i2c_client *client;
--
--	if (!machine_is_magician())
--		return -ENODEV;
--
--	adapter = i2c_get_adapter(0);
--	if (!adapter)
--		return -ENODEV;
--	client = i2c_new_client_device(adapter, i2c_board_info);
--	i2c_put_adapter(adapter);
--	if (IS_ERR(client))
--		return PTR_ERR(client);
--
--	ret = gpio_request(EGPIO_MAGICIAN_SPK_POWER, "SPK_POWER");
--	if (ret)
--		goto err_request_spk;
--	ret = gpio_request(EGPIO_MAGICIAN_EP_POWER, "EP_POWER");
--	if (ret)
--		goto err_request_ep;
--	ret = gpio_request(EGPIO_MAGICIAN_MIC_POWER, "MIC_POWER");
--	if (ret)
--		goto err_request_mic;
--	ret = gpio_request(EGPIO_MAGICIAN_IN_SEL0, "IN_SEL0");
--	if (ret)
--		goto err_request_in_sel0;
--	ret = gpio_request(EGPIO_MAGICIAN_IN_SEL1, "IN_SEL1");
--	if (ret)
--		goto err_request_in_sel1;
--
--	gpio_set_value(EGPIO_MAGICIAN_IN_SEL0, 0);
--
--	magician_snd_device = platform_device_alloc("soc-audio", -1);
--	if (!magician_snd_device) {
--		ret = -ENOMEM;
--		goto err_pdev;
--	}
--
--	platform_set_drvdata(magician_snd_device, &snd_soc_card_magician);
--	ret = platform_device_add(magician_snd_device);
--	if (ret) {
--		platform_device_put(magician_snd_device);
--		goto err_pdev;
--	}
--
--	return 0;
--
--err_pdev:
--	gpio_free(EGPIO_MAGICIAN_IN_SEL1);
--err_request_in_sel1:
--	gpio_free(EGPIO_MAGICIAN_IN_SEL0);
--err_request_in_sel0:
--	gpio_free(EGPIO_MAGICIAN_MIC_POWER);
--err_request_mic:
--	gpio_free(EGPIO_MAGICIAN_EP_POWER);
--err_request_ep:
--	gpio_free(EGPIO_MAGICIAN_SPK_POWER);
--err_request_spk:
--	return ret;
--}
--
--static void __exit magician_exit(void)
-+static int magician_audio_probe(struct platform_device *pdev)
- {
--	platform_device_unregister(magician_snd_device);
--
--	gpio_set_value(EGPIO_MAGICIAN_SPK_POWER, 0);
--	gpio_set_value(EGPIO_MAGICIAN_EP_POWER, 0);
--	gpio_set_value(EGPIO_MAGICIAN_MIC_POWER, 0);
--
--	gpio_free(EGPIO_MAGICIAN_IN_SEL1);
--	gpio_free(EGPIO_MAGICIAN_IN_SEL0);
--	gpio_free(EGPIO_MAGICIAN_MIC_POWER);
--	gpio_free(EGPIO_MAGICIAN_EP_POWER);
--	gpio_free(EGPIO_MAGICIAN_SPK_POWER);
-+	struct device *dev = &pdev->dev;
++/* modem registers, used by touchscreen driver */
++u32 pxa2xx_ac97_read_modr(void);
++u32 pxa2xx_ac97_read_misr(void);
 +
-+	gpiod_spk_power = devm_gpiod_get(dev, "SPK_POWER", GPIOD_OUT_LOW);
-+	if (IS_ERR(gpiod_spk_power))
-+		return PTR_ERR(gpiod_spk_power);
-+	gpiod_ep_power = devm_gpiod_get(dev, "EP_POWER", GPIOD_OUT_LOW);
-+	if (IS_ERR(gpiod_ep_power))
-+		return PTR_ERR(gpiod_ep_power);
-+	gpiod_mic_power = devm_gpiod_get(dev, "MIC_POWER", GPIOD_OUT_LOW);
-+	if (IS_ERR(gpiod_mic_power))
-+		return PTR_ERR(gpiod_mic_power);
-+	gpiod_in_sel0 = devm_gpiod_get(dev, "IN_SEL0", GPIOD_OUT_HIGH);
-+	if (IS_ERR(gpiod_in_sel0))
-+		return PTR_ERR(gpiod_in_sel0);
-+	gpiod_in_sel1 = devm_gpiod_get(dev, "IN_SEL1", GPIOD_OUT_LOW);
-+	if (IS_ERR(gpiod_in_sel1))
-+		return PTR_ERR(gpiod_in_sel1);
-+
-+	snd_soc_card_magician.dev = &pdev->dev;
-+	return devm_snd_soc_register_card(&pdev->dev, &snd_soc_card_magician);
+ #endif
+diff --git a/sound/arm/pxa2xx-ac97-lib.c b/sound/arm/pxa2xx-ac97-lib.c
+index 8c79d224f03b..572b73d73762 100644
+--- a/sound/arm/pxa2xx-ac97-lib.c
++++ b/sound/arm/pxa2xx-ac97-lib.c
+@@ -428,6 +428,18 @@ void pxa2xx_ac97_hw_remove(struct platform_device *dev)
  }
+ EXPORT_SYMBOL_GPL(pxa2xx_ac97_hw_remove);
  
--module_init(magician_init);
--module_exit(magician_exit);
-+static struct platform_driver magician_audio_driver = {
-+	.driver.name = "magician-audio",
-+	.driver.pm = &snd_soc_pm_ops,
-+	.probe = magician_audio_probe,
-+};
-+module_platform_driver(magician_audio_driver);
- 
- MODULE_AUTHOR("Philipp Zabel");
- MODULE_DESCRIPTION("ALSA SoC Magician");
++u32 pxa2xx_ac97_read_modr(void)
++{
++	return MODR;
++}
++EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_modr);
++
++u32 pxa2xx_ac97_read_misr(void)
++{
++	return MISR;
++}
++EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_misr);
++
+ MODULE_AUTHOR("Nicolas Pitre");
+ MODULE_DESCRIPTION("Intel/Marvell PXA sound library");
  MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:magician-audio");
 -- 
 2.29.2
 
