@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6A12C4332F
-	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:45:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A141C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355144AbiDSQqq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:46:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54166 "EHLO
+        id S1355147AbiDSQqr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:46:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355091AbiDSQoa (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:44:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D1C323BF4;
-        Tue, 19 Apr 2022 09:41:47 -0700 (PDT)
+        with ESMTP id S1355040AbiDSQnS (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 19 Apr 2022 12:43:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FEF228E0E;
+        Tue, 19 Apr 2022 09:40:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DEB5B819DE;
-        Tue, 19 Apr 2022 16:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B048C385A5;
-        Tue, 19 Apr 2022 16:41:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E336E60B34;
+        Tue, 19 Apr 2022 16:40:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E156C385AD;
+        Tue, 19 Apr 2022 16:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386504;
-        bh=F7MBpdNOWf67bimqHOji31bTXpJ1ZCUAsldDqvgUu28=;
+        s=k20201202; t=1650386434;
+        bh=Me5Zax9Cglx1LkHOlA8xV8JEJklryJyWSe6dcCjrrgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9+kiqJIfUhfsFE1H4YAU921VV0VonfY9j1NKObGUwzCjRXR46YiY5Nj5Dl5rsV5L
-         iADk6/ddM85QG95gOh8OUVYyoEgAxa4D3s0bKJkfzDri4GMhVZSzQQuTx0F/9H+wsJ
-         MVlTyeihlRVWFJ5B3aJxEUdAG2tMIaPk7ers3/ONTltRkZsg/z88XIF9SNvMLClZls
-         I6TvEKcDx5DRBX76OZrUNtcSo4m6dLcfqZX2lAkhvSfR9zZVl354Yk7Zy6TbAGL6Ya
-         K7sfhczH1+GW+wFu7/eCNYeSzMXgdYelcxwq9ivucHJV+x+FdLYDsJhrGZDEpOBDtI
-         Wp06/+3vmFtwg==
+        b=sakbeqPI29Om+/FQz0qrFAi7y4JGvalfYfkXPgEmDAHQE5JutGOtnitKMdhD/p0lN
+         DhEAF01KwxuyAz3UGi3jwRt2GxBEtmj4vxHkA3PItSOKP3X54DH90IyriUJPKRYV1X
+         BIAvtuns7tePi7NLdUUzAV57aLC7hbjqxyX7AZDclAvUdWuFIT078ADdlzcICL/9+M
+         wgI5g6kwYoVtQAA0Eymt32oBHJZSCTUcWvhwf1aLMMuBWcXT5wyS3qq8oCJZh/mBF4
+         UDot9x1fEXjfgm7bXqg4vfaXPFcwtqapRVe3zSRHwo/Vvq34alxLUDf9aCVWAxKea7
+         RZ4Ev5Hjil72g==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -58,10 +58,11 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH 22/48] ARM: pxa: z2: use gpio lookup for audio device
-Date:   Tue, 19 Apr 2022 18:37:44 +0200
-Message-Id: <20220419163810.2118169-23-arnd@kernel.org>
+        alsa-devel@alsa-project.org, Jens Axboe <axboe@kernel.dk>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 13/48] ARM: pxa: use pdev resource for palmld mmio
+Date:   Tue, 19 Apr 2022 18:37:35 +0200
+Message-Id: <20220419163810.2118169-14-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -73,87 +74,107 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The audio device is allocated by the audio driver, and it uses a gpio
-number from the mach/z2.h header file.
+The palmld header is almost unused in drivers, the only
+remaining thing now is the PATA device address, which should
+really be passed as a resource.
 
-Change it to use a gpio lookup table for the device allocated by the
-driver to keep the header file local to the machine.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-Cc: alsa-devel@alsa-project.org
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-ide@vger.kernel.org
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-pxa/z2.c | 11 +++++++++++
- sound/soc/pxa/z2.c     |  5 ++---
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ arch/arm/mach-pxa/palmld-pcmcia.c             |  3 ++-
+ arch/arm/mach-pxa/palmld.c                    | 12 +++++++++---
+ arch/arm/mach-pxa/{include/mach => }/palmld.h |  2 +-
+ drivers/ata/pata_palmld.c                     |  3 +--
+ 4 files changed, 13 insertions(+), 7 deletions(-)
+ rename arch/arm/mach-pxa/{include/mach => }/palmld.h (98%)
 
-diff --git a/arch/arm/mach-pxa/z2.c b/arch/arm/mach-pxa/z2.c
-index 7eaeda269927..bb854e903c8f 100644
---- a/arch/arm/mach-pxa/z2.c
-+++ b/arch/arm/mach-pxa/z2.c
-@@ -651,6 +651,15 @@ static void __init z2_spi_init(void)
- static inline void z2_spi_init(void) {}
- #endif
- 
-+static struct gpiod_lookup_table z2_audio_gpio_table = {
-+	.dev_id = "soc-audio",
-+	.table = {
-+		GPIO_LOOKUP("gpio-pxa", GPIO37_ZIPITZ2_HEADSET_DETECT,
-+			    "hsdet-gpio", GPIO_ACTIVE_HIGH),
-+		{ },
-+	},
-+};
-+
- /******************************************************************************
-  * Core power regulator
-  ******************************************************************************/
-@@ -755,6 +764,8 @@ static void __init z2_init(void)
- 	z2_keys_init();
- 	z2_pmic_init();
- 
-+	gpiod_add_lookup_table(&z2_audio_gpio_table);
-+
- 	pm_power_off = z2_power_off;
- }
- 
-diff --git a/sound/soc/pxa/z2.c b/sound/soc/pxa/z2.c
-index dc6c48e4738b..7f1c6bc69510 100644
---- a/sound/soc/pxa/z2.c
-+++ b/sound/soc/pxa/z2.c
-@@ -13,7 +13,7 @@
- #include <linux/timer.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- 
- #include <sound/core.h>
- #include <sound/pcm.h>
-@@ -22,7 +22,6 @@
+diff --git a/arch/arm/mach-pxa/palmld-pcmcia.c b/arch/arm/mach-pxa/palmld-pcmcia.c
+index 07e0f7438db1..720294a50864 100644
+--- a/arch/arm/mach-pxa/palmld-pcmcia.c
++++ b/arch/arm/mach-pxa/palmld-pcmcia.c
+@@ -13,9 +13,10 @@
+ #include <linux/gpio.h>
  
  #include <asm/mach-types.h>
- #include <linux/platform_data/asoc-pxa.h>
--#include <mach/z2.h>
+-#include <mach/palmld.h>
+ #include <pcmcia/soc_common.h>
  
- #include "../codecs/wm8750.h"
- #include "pxa2xx-i2s.h"
-@@ -89,7 +88,6 @@ static struct snd_soc_jack_pin hs_jack_pins[] = {
- /* Headset jack detection gpios */
- static struct snd_soc_jack_gpio hs_jack_gpios[] = {
- 	{
--		.gpio		= GPIO37_ZIPITZ2_HEADSET_DETECT,
- 		.name		= "hsdet-gpio",
- 		.report		= SND_JACK_HEADSET,
- 		.debounce_time	= 200,
-@@ -195,6 +193,7 @@ static int __init z2_init(void)
- 	if (!z2_snd_device)
++#include "palmld.h"
++
+ static struct gpio palmld_pcmcia_gpios[] = {
+ 	{ GPIO_NR_PALMLD_PCMCIA_POWER,	GPIOF_INIT_LOW,	"PCMCIA Power" },
+ 	{ GPIO_NR_PALMLD_PCMCIA_RESET,	GPIOF_INIT_HIGH,"PCMCIA Reset" },
+diff --git a/arch/arm/mach-pxa/palmld.c b/arch/arm/mach-pxa/palmld.c
+index d85146957004..d821606ce0b5 100644
+--- a/arch/arm/mach-pxa/palmld.c
++++ b/arch/arm/mach-pxa/palmld.c
+@@ -29,8 +29,8 @@
+ #include <asm/mach/map.h>
+ 
+ #include "pxa27x.h"
++#include "palmld.h"
+ #include <linux/platform_data/asoc-pxa.h>
+-#include <mach/palmld.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+ #include <linux/platform_data/video-pxafb.h>
+ #include <linux/platform_data/irda-pxaficp.h>
+@@ -279,9 +279,15 @@ static inline void palmld_leds_init(void) {}
+  * HDD
+  ******************************************************************************/
+ #if defined(CONFIG_PATA_PALMLD) || defined(CONFIG_PATA_PALMLD_MODULE)
++static struct resource palmld_ide_resources[] = {
++	DEFINE_RES_MEM(PALMLD_IDE_PHYS, 0x1000),
++};
++
+ static struct platform_device palmld_ide_device = {
+-	.name	= "pata_palmld",
+-	.id	= -1,
++	.name		= "pata_palmld",
++	.id		= -1,
++	.resource	= palmld_ide_resources,
++	.num_resources	= ARRAY_SIZE(palmld_ide_resources),
+ };
+ 
+ static struct gpiod_lookup_table palmld_ide_gpio_table = {
+diff --git a/arch/arm/mach-pxa/include/mach/palmld.h b/arch/arm/mach-pxa/palmld.h
+similarity index 98%
+rename from arch/arm/mach-pxa/include/mach/palmld.h
+rename to arch/arm/mach-pxa/palmld.h
+index 99a6d8b3a1e3..ee3bc15b71a2 100644
+--- a/arch/arm/mach-pxa/include/mach/palmld.h
++++ b/arch/arm/mach-pxa/palmld.h
+@@ -9,7 +9,7 @@
+ #ifndef _INCLUDE_PALMLD_H_
+ #define _INCLUDE_PALMLD_H_
+ 
+-#include "irqs.h" /* PXA_GPIO_TO_IRQ */
++#include <mach/irqs.h> /* PXA_GPIO_TO_IRQ */
+ 
+ /** HERE ARE GPIOs **/
+ 
+diff --git a/drivers/ata/pata_palmld.c b/drivers/ata/pata_palmld.c
+index 2448441571ed..400e65190904 100644
+--- a/drivers/ata/pata_palmld.c
++++ b/drivers/ata/pata_palmld.c
+@@ -25,7 +25,6 @@
+ #include <linux/gpio/consumer.h>
+ 
+ #include <scsi/scsi_host.h>
+-#include <mach/palmld.h>
+ 
+ #define DRV_NAME "pata_palmld"
+ 
+@@ -63,7 +62,7 @@ static int palmld_pata_probe(struct platform_device *pdev)
  		return -ENOMEM;
  
-+	hs_jack_gpios[0].gpiod_dev = &z2_snd_device->dev;
- 	platform_set_drvdata(z2_snd_device, &snd_soc_z2);
- 	ret = platform_device_add(z2_snd_device);
+ 	/* remap drive's physical memory address */
+-	mem = devm_ioremap(dev, PALMLD_IDE_PHYS, 0x1000);
++	mem = devm_platform_ioremap_resource(pdev, 0);
+ 	if (!mem)
+ 		return -ENOMEM;
  
 -- 
 2.29.2
