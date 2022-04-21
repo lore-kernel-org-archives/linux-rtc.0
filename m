@@ -2,33 +2,33 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E402C4332F
-	for <linux-rtc@archiver.kernel.org>; Thu, 21 Apr 2022 09:00:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2BB2C433FE
+	for <linux-rtc@archiver.kernel.org>; Thu, 21 Apr 2022 09:00:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387218AbiDUJDh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 21 Apr 2022 05:03:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41418 "EHLO
+        id S1387176AbiDUJDj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 21 Apr 2022 05:03:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387202AbiDUJD2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Apr 2022 05:03:28 -0400
+        with ESMTP id S1387195AbiDUJDh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 21 Apr 2022 05:03:37 -0400
 Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::223])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA65D1FCFE;
-        Thu, 21 Apr 2022 02:00:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F8CA220D2;
+        Thu, 21 Apr 2022 02:00:36 -0700 (PDT)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id CADB960018;
-        Thu, 21 Apr 2022 09:00:21 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 91F876000F;
+        Thu, 21 Apr 2022 09:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1650531624;
+        t=1650531635;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=aUsdGZfRO+5bLYaoUtrNLisEBZwE4ffYBoGLqWmNaUg=;
-        b=gfCxgv6jtxDMHLIqDZqPcCGBnAE9+uEX9KnzH8R1IEKBRYxckin74SEipkjDBlNrNd4Wso
-        N3ZErOP/KSE2kaeQ0bK4zu4c7lFbgGZflhBwUJ63CFadlhxag2JeplB/BnLhIaX43xsMf4
-        XXCQJ/7spSLGAy3o/L1mz13LnR61w2yXnzH2V+WXehF0oR/QzMYICDJbSmLSO0XAifWRBe
-        Zn33hx3hEwUdgVaUlMYxUygWTPcWj+ivqQ+CrEzuHFm2M5h3v70J+WJTS1SV5qqEJU6nGB
-        aeVqT1XY0FrAEjW+rfPF2ydeplrvFRmGMVvYFrzl8yRy95Bh1KwUqqZ1llXbpw==
+        bh=Xr2CptKodnIQjy/XAQ0+c3A+n7MfFLnK9TlOKc+qB/k=;
+        b=nk6lJLpGZZiLymes7stuaspFJQcX9G9sQtmqvbQMoH+0Knb6WNhK+DwL/Hfy5OaLQPY3QF
+        ILljW6KfU11CGIFrfc5EglY/Gy07X/2IVAktoAFi3//i2zzwSNnravsIz9xlGRb1aXs0KG
+        D7wh0GnuEjeRqUbhA+mPTAMaS3TdmNF6z6Vb/SN1j+ImEeeIuH8JrV6qwC7qD/V0UzKuah
+        MKKKwDc49ZOWGvNWNlIXVNU0ZTok05Exfh4ppGAYnL3MMbRtsXrx6LSg8noBBNEEyOfoGs
+        jJV5mfsRIar7bRJnEqrvYNFM23DkRK+szO3CZED9baXekZO6QvLm/K0o3/DyWQ==
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -48,9 +48,9 @@ Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Herve Codina <herve.codina@bootlin.com>,
         Clement Leger <clement.leger@bootlin.com>
-Subject: [PATCH v2 2/7] soc: renesas: rzn1-sysc: Fix the RTC hclock description
-Date:   Thu, 21 Apr 2022 11:00:11 +0200
-Message-Id: <20220421090016.79517-3-miquel.raynal@bootlin.com>
+Subject: [PATCH v2 4/7] rtc: rzn1: Add alarm support
+Date:   Thu, 21 Apr 2022 11:00:13 +0200
+Message-Id: <20220421090016.79517-5-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20220421090016.79517-1-miquel.raynal@bootlin.com>
 References: <20220421090016.79517-1-miquel.raynal@bootlin.com>
@@ -61,30 +61,162 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-It needs to be un-gated, but also a reset must be released and an idle
-flag should also be disabled.
+The RZN1 RTC can trigger an interrupt when reaching a particular date up
+to 7 days ahead. Bring support for this alarm.
 
-The driver already supports all these operations, so update the
-description of the RTC hclock to fit these requirements.
+One drawback though, the granularity is about a minute.
 
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/clk/renesas/r9a06g032-clocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-rzn1.c | 106 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 105 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/r9a06g032-clocks.c b/drivers/clk/renesas/r9a06g032-clocks.c
-index 1df56d7ab3e1..5bd125552b56 100644
---- a/drivers/clk/renesas/r9a06g032-clocks.c
-+++ b/drivers/clk/renesas/r9a06g032-clocks.c
-@@ -260,7 +260,7 @@ static const struct r9a06g032_clkdesc r9a06g032_clocks[] = {
- 	D_MODULE(HCLK_QSPI0, "hclk_qspi0", CLK_REF_SYNC_D4, 0x2a0, 0x2a1, 0x2a2, 0x2a3, 0x300, 0x301, 0x302),
- 	D_MODULE(HCLK_QSPI1, "hclk_qspi1", CLK_REF_SYNC_D4, 0x480, 0x481, 0x482, 0x483, 0x4c0, 0x4c1, 0x4c2),
- 	D_MODULE(HCLK_ROM, "hclk_rom", CLK_REF_SYNC_D4, 0xaa0, 0xaa1, 0xaa2, 0, 0xb80, 0, 0),
--	D_MODULE(HCLK_RTC, "hclk_rtc", CLK_REF_SYNC_D8, 0xa00, 0, 0, 0, 0, 0, 0),
-+	D_MODULE(HCLK_RTC, "hclk_rtc", CLK_REF_SYNC_D8, 0xa00, 0xa03, 0, 0xa02, 0, 0, 0),
- 	D_MODULE(HCLK_SDIO0, "hclk_sdio0", CLK_REF_SYNC_D4, 0x60, 0x61, 0x62, 0x63, 0x80, 0x81, 0x82),
- 	D_MODULE(HCLK_SDIO1, "hclk_sdio1", CLK_REF_SYNC_D4, 0x640, 0x641, 0x642, 0x643, 0x660, 0x661, 0x662),
- 	D_MODULE(HCLK_SEMAP, "hclk_semap", CLK_REF_SYNC_D4, 0x7a3, 0x7a4, 0x7a5, 0, 0xb21, 0, 0),
+diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
+index a5dfb5bb163c..7a3c95e5edd0 100644
+--- a/drivers/rtc/rtc-rzn1.c
++++ b/drivers/rtc/rtc-rzn1.c
+@@ -158,14 +158,107 @@ static int rzn1_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
+ 
++static irqreturn_t rzn1_rtc_alarm_irq(int irq, void *dev_id)
++{
++	struct rzn1_rtc *rtc = dev_id;
++
++	rtc_update_irq(rtc->rtcdev, 1, RTC_AF | RTC_IRQF);
++
++	return IRQ_HANDLED;
++}
++
++static int rzn1_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
++{
++	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
++	u32 ctl1 = readl(rtc->base + RZN1_RTC_CTL1);
++
++	if (enable)
++		ctl1 |= RZN1_RTC_CTL1_ALME;
++	else
++		ctl1 &= ~RZN1_RTC_CTL1_ALME;
++
++	writel(ctl1, rtc->base + RZN1_RTC_CTL1);
++
++	return 0;
++}
++
++static int rzn1_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
++	struct rtc_time *tm = &alrm->time;
++	unsigned int min, hour, wday, delta_days;
++	time64_t alarm;
++	u32 ctl1;
++	int ret;
++
++	ret = rzn1_rtc_read_time(dev, tm);
++	if (ret)
++		return ret;
++
++	min = readl(rtc->base + RZN1_RTC_ALM);
++	hour = readl(rtc->base + RZN1_RTC_ALH);
++	wday = readl(rtc->base + RZN1_RTC_ALW);
++
++	tm->tm_sec = 0;
++	tm->tm_min = bcd2bin(min);
++	tm->tm_hour = bcd2bin(hour);
++	delta_days = ((fls(wday) - 1) - tm->tm_wday + 7) % 7;
++	tm->tm_wday = fls(wday) - 1;
++
++	if (delta_days) {
++		alarm = rtc_tm_to_time64(tm) + (delta_days * 86400);
++		rtc_time64_to_tm(alarm, tm);
++	}
++
++	ctl1 = readl(rtc->base + RZN1_RTC_CTL1);
++	alrm->enabled = !!(ctl1 & RZN1_RTC_CTL1_ALME);
++
++	return 0;
++}
++
++static int rzn1_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
++	struct rtc_time *tm = &alrm->time, tm_now;
++	unsigned long alarm, farest;
++	unsigned int days_ahead, wday;
++	int ret;
++
++	ret = rzn1_rtc_read_time(dev, &tm_now);
++	if (ret)
++		return ret;
++
++	/* We cannot set alarms more than one week ahead */
++	farest = rtc_tm_to_time64(&tm_now) + (7 * 86400);
++	alarm = rtc_tm_to_time64(tm);
++	if (time_after(alarm, farest))
++		return -ERANGE;
++
++	/* Convert alarm day into week day */
++	days_ahead = tm->tm_mday - tm_now.tm_mday;
++	wday = (tm_now.tm_wday + days_ahead) % 7;
++
++	writel(bin2bcd(tm->tm_min), rtc->base + RZN1_RTC_ALM);
++	writel(bin2bcd(tm->tm_hour), rtc->base + RZN1_RTC_ALH);
++	writel(BIT(wday), rtc->base + RZN1_RTC_ALW);
++
++	rzn1_rtc_alarm_irq_enable(dev, alrm->enabled);
++
++	return 0;
++}
++
+ static const struct rtc_class_ops rzn1_rtc_ops = {
+ 	.read_time = rzn1_rtc_read_time,
+ 	.set_time = rzn1_rtc_set_time,
++	.read_alarm = rzn1_rtc_read_alarm,
++	.set_alarm = rzn1_rtc_set_alarm,
++	.alarm_irq_enable = rzn1_rtc_alarm_irq_enable,
+ };
+ 
+ static int rzn1_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct rzn1_rtc *rtc;
++	int alarm_irq;
+ 	int ret;
+ 
+ 	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
+@@ -182,6 +275,10 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rtc->base))
+ 		return dev_err_probe(&pdev->dev, PTR_ERR(rtc->base), "Missing reg\n");
+ 
++	alarm_irq = platform_get_irq(pdev, 0);
++	if (alarm_irq < 0)
++		return dev_err_probe(&pdev->dev, alarm_irq, "Missing timer IRQ\n");
++
+ 	rtc->rtcdev = devm_rtc_allocate_device(&pdev->dev);
+ 	if (IS_ERR(rtc->rtcdev))
+ 		return PTR_ERR(rtc);
+@@ -189,7 +286,7 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
+ 	rtc->rtcdev->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	rtc->rtcdev->range_max = RTC_TIMESTAMP_END_2099;
+ 	rtc->rtcdev->ops = &rzn1_rtc_ops;
+-	clear_bit(RTC_FEATURE_ALARM, rtc->rtcdev->features);
++	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
+ 	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
+ 
+ 	ret = clk_prepare_enable(rtc->clk);
+@@ -206,6 +303,13 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
+ 	/* Disable all interrupts */
+ 	writel(0, rtc->base + RZN1_RTC_CTL1);
+ 
++	ret = devm_request_irq(&pdev->dev, alarm_irq, rzn1_rtc_alarm_irq, 0,
++			       dev_name(&pdev->dev), rtc);
++	if (ret) {
++		dev_err(&pdev->dev, "RTC timer interrupt not available\n");
++		goto disable_clk;
++	}
++
+ 	ret = devm_rtc_register_device(rtc->rtcdev);
+ 	if (ret)
+ 		goto disable_clk;
 -- 
 2.27.0
 
