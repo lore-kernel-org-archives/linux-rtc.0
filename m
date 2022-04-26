@@ -2,70 +2,63 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3C64C433FE
-	for <linux-rtc@archiver.kernel.org>; Tue, 26 Apr 2022 07:11:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEE37C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Apr 2022 11:09:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbiDZHOb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 26 Apr 2022 03:14:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52332 "EHLO
+        id S243787AbiDZLMb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Apr 2022 07:12:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343752AbiDZHOK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Apr 2022 03:14:10 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0718019C0F
-        for <linux-rtc@vger.kernel.org>; Tue, 26 Apr 2022 00:11:02 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1njFLg-0001g0-G1; Tue, 26 Apr 2022 09:11:00 +0200
-Received: from [2a0a:edc0:0:1101:1d::28] (helo=dude02.red.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1njFLh-005IkU-0J; Tue, 26 Apr 2022 09:10:59 +0200
-Received: from sha by dude02.red.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <sha@pengutronix.de>)
-        id 1njFLe-004zAi-5F; Tue, 26 Apr 2022 09:10:58 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     linux-rtc@vger.kernel.org
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        kernel@pengutronix.de, Sascha Hauer <s.hauer@pengutronix.de>
-Subject: [PATCH 0/5] rtc: rv8803 patches
-Date:   Tue, 26 Apr 2022 09:10:51 +0200
-Message-Id: <20220426071056.1187235-1-s.hauer@pengutronix.de>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S240024AbiDZLM1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Apr 2022 07:12:27 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 368433B3C5;
+        Tue, 26 Apr 2022 04:09:19 -0700 (PDT)
+Received: from dggpeml500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4KnfJx3RflzhYs4;
+        Tue, 26 Apr 2022 19:09:05 +0800 (CST)
+Received: from huawei.com (10.175.112.208) by dggpeml500024.china.huawei.com
+ (7.185.36.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Tue, 26 Apr
+ 2022 19:09:17 +0800
+From:   Yuan Can <yuancan@huawei.com>
+To:     <linux-rtc@vger.kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <yuancan@huawei.com>
+Subject: [PATCH -next] rtc: gamecube: Add missing iounmap in gamecube_rtc_read_offset_from_sram
+Date:   Tue, 26 Apr 2022 11:05:13 +0000
+Message-ID: <20220426110513.49575-1-yuancan@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
+Content-Type: text/plain
+X-Originating-IP: [10.175.112.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500024.china.huawei.com (7.185.36.10)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This series has some patches for the rx8803 RTC handled by the rv8803
-driver. These patches mostly improve the voltage loss handling in the
-rx8803. While the rv8803 resets its registers on voltage loss the rx8803
-leaves registers in an undefined state after voltage loss. The patches
-are used here for a customer for quite a while, it's time to upstream
-them.
+The hw_srnprot needs to be unmapped when gamecube_rtc_read_offset_from_sram returns.
 
-Sascha
+Fixs: 86559400b3ef9d (rtc: gamecube: Add a RTC driver for the GameCube, Wii and Wii U)
+Signed-off-by: Yuan Can <yuancan@huawei.com>
+---
+ drivers/rtc/rtc-gamecube.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Ahmad Fatoum (5):
-  rtc: rv8803: factor out existing register initialization to function
-  rtc: rv8803: initialize registers on post-probe voltage loss
-  rtc: rv8803: re-initialize all Epson RX8803 registers on voltage loss
-  include/linux/bcd.h: provide bcd_is_valid() helper
-  rtc: rv8803: invalidate date/time if alarm time is invalid
-
- drivers/rtc/rtc-rv8803.c | 134 ++++++++++++++++++++++++++++++++-------
- include/linux/bcd.h      |   4 ++
- 2 files changed, 116 insertions(+), 22 deletions(-)
-
+diff --git a/drivers/rtc/rtc-gamecube.c b/drivers/rtc/rtc-gamecube.c
+index 18ca3b38b2d0..c2717bb52b2b 100644
+--- a/drivers/rtc/rtc-gamecube.c
++++ b/drivers/rtc/rtc-gamecube.c
+@@ -267,6 +267,7 @@ static int gamecube_rtc_read_offset_from_sram(struct priv *d)
+ 	ret = regmap_read(d->regmap, RTC_SRAM_BIAS, &d->rtc_bias);
+ 	if (ret) {
+ 		pr_err("failed to get the RTC bias\n");
++		iounmap(hw_srnprot);
+ 		return -1;
+ 	}
+ 
 -- 
-2.30.2
+2.17.1
 
