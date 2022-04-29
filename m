@@ -2,32 +2,33 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBF60C433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 29 Apr 2022 10:48:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EEB3C4332F
+	for <linux-rtc@archiver.kernel.org>; Fri, 29 Apr 2022 10:48:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358274AbiD2KvS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 29 Apr 2022 06:51:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46284 "EHLO
+        id S1358259AbiD2KvX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 29 Apr 2022 06:51:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358223AbiD2KvK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Apr 2022 06:51:10 -0400
+        with ESMTP id S1358168AbiD2KvP (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 29 Apr 2022 06:51:15 -0400
 Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [217.70.178.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A82CAB92;
-        Fri, 29 Apr 2022 03:46:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31312CE110;
+        Fri, 29 Apr 2022 03:46:19 -0700 (PDT)
 Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 62157100006;
-        Fri, 29 Apr 2022 10:46:03 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 72516100003;
+        Fri, 29 Apr 2022 10:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1651229166;
+        t=1651229178;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=0aTis2vj8cHDxxncEci5cPZynR3ae0TK9gLH0DH7XHM=;
-        b=HUOZ0LR+OoA1JsOBfWJDPOOEbOPdO0YpzmbjoiJe1Y7E9nohIUtsAluH5RVmPAR+7LzNbo
-        N3UOmlq36JFZu891QrsGIo8+RGB+c8me7NzwhyFWw3JJmfPefO6jNSQYKlmnudUO4SkKOt
-        cZHz7+mmsBln13uhZvZtJWT6PCRYPR+s/JHgV4fMxDcNfijZMQmaYu18skquYNL3ywtli4
-        DMLwYm96MwiWWNg3An/1m5CP8BKne0ZobzthoziEZfrLj/ZojQ99s/XypEex+PM+OppMKS
-        aBq7asYG6S/JPGVLIyLh1KzsplNBY11rM1QTlYlY502O/pN7m3kDsd3sm+Y3og==
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=AeURFA21azT2WZg6+haUTuGeT1PTBOnmz+vdgDPsEgY=;
+        b=THs6pGk9hEAVBm6P+tE43jALvpBmaX1LO0xVMvtd9Fd/0vOwW0gT7V8vwRDxi9SKlU2tPv
+        ZPHXENArkczXCc/9+Mx4kIAOnBv9AmvLLDd+bfKvjDj7criyLdMAaC4riPZ/66ZCcMcLQ+
+        j8cf+Dqy2dSbvWHI9fauRrqPcOA4xlIcVbupzZ+ZFHOKDNKOy+JWtKy7uek283qF7obPKv
+        IFF72bvbbdPomaMa1RyIk9rY8U66i/TkOEVvFeMCJts8ACCQQiXCNu7XIVqpbpvBkt7DUd
+        00gyLuKvXDo1O5apOkvNGeZHv2LrMAEh4smHlPGN9aeb4SdAij3ZwmEajZr5+w==
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -45,10 +46,12 @@ Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Herve Codina <herve.codina@bootlin.com>,
         Clement Leger <clement.leger@bootlin.com>
-Subject: [PATCH v3 0/6] RZN1 RTC support
-Date:   Fri, 29 Apr 2022 12:45:56 +0200
-Message-Id: <20220429104602.368055-1-miquel.raynal@bootlin.com>
+Subject: [PATCH v3 5/6] MAINTAINERS: Add myself as maintainer of the RZN1 RTC driver
+Date:   Fri, 29 Apr 2022 12:46:01 +0200
+Message-Id: <20220429104602.368055-6-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220429104602.368055-1-miquel.raynal@bootlin.com>
+References: <20220429104602.368055-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -56,69 +59,33 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello,
+After contributing it, I'll volunteer to maintain it.
 
-This small series adds support for the RZN1 RTC.
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Despite its limitations, I found useful to at least have alarm and
-offset support.
-
-The RTC hclk fix has been merged in the renesas-clk-for-v5.19 branch so
-I dropped it from the series.
-
-Cheers,
-Miquèl
-
-Changes in v3:
-* Collected tags.
-* s/soc:/clk:/ in the clock commit title.
-* Dropped the RTC hclk fix which has already been applied.
-* Added the power-domain properties both in the bindings and in the DT.
-* Used runtime PM to enable the clock instead of using the clk API
-  directly. 
-
-Changes in v2:
-* Fixed the error path in the clk driver, where I missed to release a
-  spin_lock.
-* Collected tags.
-* Moved the rtc subnode in the dt to keep the nodes ordered by unit
-  address.
-* Dropped the useless "oneOf" statement in the bindings (compatible
-  property).
-* Dropped the start-year property in the bindings (already defined).
-* Avoided rollover calculations that could be more easily handled (and
-  reviewed) with a time64_t conversion.
-* Returned ERANGE instead of EOPNOTSUPP when the alarm date is not
-  valid.
-* Cleared RTC_FEATURE_UPDATE_INTERRUPT to avoid warning from the tools.
-* Dropped the sysctl patch adding the reset helper, instead fulfilled
-  the description of the RTC clock so that when requesting this clock to
-  be enabled, the idle bit is released.
-* Avoided rollover calculations that could be more easily handled
-  (and reviewed) with a time64_t conversion.
-* Fixed the max_range value, after a rtc-range test and looking at other
-  implementations.
-
-Michel Pollet (1):
-  rtc: rzn1: Add new RTC driver
-
-Miquel Raynal (5):
-  dt-bindings: rtc: rzn1: Describe the RZN1 RTC
-  rtc: rzn1: Add alarm support
-  rtc: rzn1: Add oscillator offset support
-  MAINTAINERS: Add myself as maintainer of the RZN1 RTC driver
-  ARM: dts: r9a06g032: Describe the RTC
-
- .../bindings/rtc/renesas,rzn1-rtc.yaml        |  70 +++
- MAINTAINERS                                   |   8 +
- arch/arm/boot/dts/r9a06g032.dtsi              |  13 +
- drivers/rtc/Kconfig                           |   7 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-rzn1.c                        | 423 ++++++++++++++++++
- 6 files changed, 522 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
- create mode 100644 drivers/rtc/rtc-rzn1.c
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9cf74e4eacce..cc4a3cca022e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16847,6 +16847,14 @@ S:	Supported
+ F:	Documentation/devicetree/bindings/iio/adc/renesas,rzg2l-adc.yaml
+ F:	drivers/iio/adc/rzg2l_adc.c
+ 
++RENESAS RZ/N1 RTC CONTROLLER DRIVER
++M:	Miquel Raynal <miquel.raynal@bootlin.com>
++L:	linux-rtc@vger.kernel.org
++L:	linux-renesas-soc@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
++F:	drivers/rtc/rtc-rzn1.c
++
+ RENESAS R-CAR GEN3 & RZ/N1 NAND CONTROLLER DRIVER
+ M:	Miquel Raynal <miquel.raynal@bootlin.com>
+ L:	linux-mtd@lists.infradead.org
 -- 
 2.27.0
 
