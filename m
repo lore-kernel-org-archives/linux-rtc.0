@@ -2,359 +2,158 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42272C43217
-	for <linux-rtc@archiver.kernel.org>; Wed,  4 May 2022 13:07:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11EA3C433F5
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 May 2022 15:43:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350346AbiEDNLS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 4 May 2022 09:11:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53198 "EHLO
+        id S1352675AbiEDPqj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 4 May 2022 11:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350390AbiEDNKr (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 May 2022 09:10:47 -0400
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4AE2403DA;
-        Wed,  4 May 2022 06:06:53 -0700 (PDT)
-Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 244ALwSj018222;
-        Wed, 4 May 2022 15:06:38 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=selector1;
- bh=xlADDDAYf7bLutWTVCq2qRcVqVGLfJSifwbAguzb0gc=;
- b=HmCIJQCrZDeDppLqlB5AYEhWMgfGoOmSt7ACGIv+gmuJCipK4Ac8ozCcT9SovDNRRENh
- 92UEDE/8m+0Thd6/S5+j0kMDadtE5cUq+GzD04QPYHEZy20U/8eibHFMKP8dSqyxnI29
- MS505Tmn1LyaBw/hYloTU4xOBj0F0LB8gtymgogYfWutfaZNL2j4nuZDfpEdIMXU7fDq
- uv9mnJp1ssWdZ6+Z3NzCSCfcxuqCxZ1qiei93Ci3tFK3BmqU909NXIVqyLaFW1GHu3bc
- gfEmbQCEL+ul7OOWLKVEQfPqiKXbb4UD9cgxOpZHCZldoO2jAOonW4rI3M/3kLfRYNAv oQ== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3frthjvfg3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 04 May 2022 15:06:38 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 0C7DC100034;
-        Wed,  4 May 2022 15:06:38 +0200 (CEST)
-Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 026C321FEAA;
-        Wed,  4 May 2022 15:06:38 +0200 (CEST)
-Received: from localhost (10.75.127.44) by SFHDAG2NODE2.st.com (10.75.127.5)
- with Microsoft SMTP Server (TLS) id 15.0.1497.26; Wed, 4 May 2022 15:06:37
- +0200
-From:   Valentin Caron <valentin.caron@foss.st.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S1352784AbiEDPqc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 May 2022 11:46:32 -0400
+Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409AD46643;
+        Wed,  4 May 2022 08:42:45 -0700 (PDT)
+Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-e2fa360f6dso1569039fac.2;
+        Wed, 04 May 2022 08:42:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tnMRJsbiS8QiP9lDD2I4JzMT/wd9etKoP6P9ura1i48=;
+        b=oCz0VUEXIj3jIuPey1IVqcOAy6vhH24ER0yQnDh7laEqHv0QtcNP23RmSXBJvEMraV
+         0c5UHR+PB+UYkhyXKKFDu8kvG4GraHgY1u7s4CJTP7/x+tHWkDueQ6eVg0G1GQoLBUTt
+         6OCO9zmvTD7Yr6q+XNm5c2k3zJOxm+MQOocnE756wtrCXwphd17dE5wqRsiRWrizf9Os
+         N4TshiCucCCRgotUoINwmoiT81mBiSb/HLFYz3xpvx1ILYqShV0+c38L5rBzjSDOck6I
+         JHpL9SZlPy+sS/knztc/SPwMo7erCd3PTOzsJSqhl0mVsfI+yx9BHu4HRsM5j026OSgY
+         Jqdw==
+X-Gm-Message-State: AOAM5309sUlYqSCAlSEE0zLsHlYgV70CKvJBPg3NZuP9s0I78PZz4jOS
+        IQgNQm7ccjpEc9ZwP2xN+Q==
+X-Google-Smtp-Source: ABdhPJzNz108HgppQ2njmjK7spVH8oSX47FuDf8S/DyT2/BrJzu23fF4n28T9OGduSEoDRg/Cc5k1w==
+X-Received: by 2002:a05:6870:e412:b0:ed:a30a:2248 with SMTP id n18-20020a056870e41200b000eda30a2248mr39162oag.138.1651678964563;
+        Wed, 04 May 2022 08:42:44 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id v4-20020a9d4e84000000b006060322124bsm5279580otk.27.2022.05.04.08.42.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 May 2022 08:42:44 -0700 (PDT)
+Received: (nullmailer pid 1762666 invoked by uid 1000);
+        Wed, 04 May 2022 15:42:40 -0000
+Date:   Wed, 4 May 2022 10:42:40 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Valentin Caron <valentin.caron@foss.st.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-CC:     Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
         Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Valentin Caron <valentin.caron@foss.st.com>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/6] rtc: stm32: add Low Speed Clock Output (LSCO) support
-Date:   Wed, 4 May 2022 15:06:14 +0200
-Message-ID: <20220504130617.331290-2-valentin.caron@foss.st.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220504130233.330983-1-valentin.caron@foss.st.com>
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] dt-bindings: rtc: stm32: add alarm A out property to
+ select output
+Message-ID: <YnKe8K3FjoaUO2ml@robh.at.kernel.org>
 References: <20220504130233.330983-1-valentin.caron@foss.st.com>
+ <20220504130617.331290-1-valentin.caron@foss.st.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.44]
-X-ClientProxiedBy: SFHDAG2NODE2.st.com (10.75.127.5) To SFHDAG2NODE2.st.com
- (10.75.127.5)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-04_04,2022-05-04_01,2022-02-23_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220504130617.331290-1-valentin.caron@foss.st.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+On Wed, May 04, 2022 at 03:06:13PM +0200, Valentin Caron wrote:
+> STM32 RTC can pulse some SOC pins when an alarm of RTC expires.
+> 
+> This patch adds property to activate alarm A output. The pulse can
+> output on three pins RTC_OUT1, RTC_OUT2, RTC_OUT2_RMP
+> (PC13, PB2, PI8 on stm32mp15) (PC13, PB2, PI1 on stm32mp13).
+> 
+> Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+> ---
+>  .../devicetree/bindings/rtc/st,stm32-rtc.yaml | 19 ++++++++++++++++++-
+>  1 file changed, 18 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> index 56d46ea35c5d..71e02604e8de 100644
+> --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> @@ -59,6 +59,13 @@ properties:
+>        Refer to <include/dt-bindings/rtc/rtc-stm32.h> for the supported values.
+>        Pinctrl state named "default" may be defined to reserve pin for RTC output.
+>  
+> +  st,alarm:
+> +    $ref: "/schemas/types.yaml#/definitions/uint32"
+> +    description: |
+> +      To select and enable RTC Alarm A output.
+> +      Refer to <include/dt-bindings/rtc/rtc-stm32.h> for the supported values.
 
-STM32 RTC is now registered as a clock provider.
-It provides rtc_lsco clock, that means RTC_LSCO is output on either
-RTC_OUT1 or RTC_OUT2_RMP, depending on st,lsco DT property
-(PC13 or PI8 on stm32mp15), (PC13 or PI1 on stm32mp13).
+No, sorry, you need to define the allowed values as a schema here.
 
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
----
- drivers/rtc/Kconfig     |   1 +
- drivers/rtc/rtc-stm32.c | 133 ++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 134 insertions(+)
+> +      Pinctrl state named "default" may be defined to reserve pin for RTC output.
+> +
+>  allOf:
+>    - if:
+>        properties:
+> @@ -75,6 +82,9 @@ allOf:
+>          st,lsco:
+>            maxItems: 0
+>  
+> +        st,alarm:
+> +          maxItems: 0
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 41c65b4d2baf..2e8021d7c98a 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -1888,6 +1888,7 @@ config RTC_DRV_R7301
- config RTC_DRV_STM32
- 	tristate "STM32 RTC"
- 	select REGMAP_MMIO
-+	depends on COMMON_CLK
- 	depends on ARCH_STM32 || COMPILE_TEST
- 	help
- 	   If you say yes here you get support for the STM32 On-Chip
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index ac9e228b56d0..ace041eb44b8 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/bcd.h>
- #include <linux/clk.h>
-+#include <linux/clk-provider.h>
- #include <linux/iopoll.h>
- #include <linux/ioport.h>
- #include <linux/mfd/syscon.h>
-@@ -15,6 +16,8 @@
- #include <linux/regmap.h>
- #include <linux/rtc.h>
- 
-+#include <dt-bindings/rtc/rtc-stm32.h>
-+
- #define DRIVER_NAME "stm32_rtc"
- 
- /* STM32_RTC_TR bit fields  */
-@@ -39,6 +42,11 @@
- #define STM32_RTC_CR_FMT		BIT(6)
- #define STM32_RTC_CR_ALRAE		BIT(8)
- #define STM32_RTC_CR_ALRAIE		BIT(12)
-+#define STM32_RTC_CR_COSEL		BIT(19)
-+#define STM32_RTC_CR_OSEL		GENMASK(22, 21)
-+#define STM32_RTC_CR_COE		BIT(23)
-+#define STM32_RTC_CR_TAMPOE		BIT(26)
-+#define STM32_RTC_CR_OUT2EN		BIT(31)
- 
- /* STM32_RTC_ISR/STM32_RTC_ICSR bit fields */
- #define STM32_RTC_ISR_ALRAWF		BIT(0)
-@@ -75,6 +83,12 @@
- /* STM32_RTC_SR/_SCR bit fields */
- #define STM32_RTC_SR_ALRA		BIT(0)
- 
-+/* STM32_RTC_CFGR bit fields */
-+#define STM32_RTC_CFGR_OUT2_RMP		BIT(0)
-+#define STM32_RTC_CFGR_LSCOEN		GENMASK(2, 1)
-+#define STM32_RTC_CFGR_LSCOEN_OUT1	1
-+#define STM32_RTC_CFGR_LSCOEN_OUT2_RMP	2
-+
- /* STM32_RTC_VERR bit fields */
- #define STM32_RTC_VERR_MINREV_SHIFT	0
- #define STM32_RTC_VERR_MINREV		GENMASK(3, 0)
-@@ -89,6 +103,9 @@
- /* Max STM32 RTC register offset is 0x3FC */
- #define UNDEF_REG			0xFFFF
- 
-+/* Frequency of HSE clock (Hz) */
-+#define STM32_RTC_HSE_FREQ 32768
-+
- struct stm32_rtc;
- 
- struct stm32_rtc_registers {
-@@ -101,6 +118,7 @@ struct stm32_rtc_registers {
- 	u16 wpr;
- 	u16 sr;
- 	u16 scr;
-+	u16 cfgr;
- 	u16 verr;
- };
- 
-@@ -115,6 +133,7 @@ struct stm32_rtc_data {
- 	bool has_pclk;
- 	bool need_dbp;
- 	bool has_wakeirq;
-+	bool has_lsco;
- };
- 
- struct stm32_rtc {
-@@ -128,8 +147,88 @@ struct stm32_rtc {
- 	const struct stm32_rtc_data *data;
- 	int irq_alarm;
- 	int wakeirq_alarm;
-+	int lsco;
-+	struct clk *clk_lsco;
- };
- 
-+/*
-+ *  -------------------------------------------------------------------------
-+ * | TAMPOE | OSEL[1:0] | COE | OUT2EN |     RTC_OUT1     |     RTC_OUT2     |
-+ * |	    |           |     |        |                  | or RTC_OUT2_RMP  |
-+ * |-------------------------------------------------------------------------|
-+ * |    0   |     00    |  0  | 0 or 1 |         -        |         -        |
-+ * |--------|-----------|-----|--------|------------------|------------------|
-+ * |    0   |     00    |  1  |    0   |      CALIB       |         -        |
-+ * |--------|-----------|-----|--------|------------------|------------------|
-+ * | 0 or 1 |    !=00   |  0  |    0   |     TAMPALRM     |         -        |
-+ * |--------|-----------|-----|--------|------------------|------------------|
-+ * |    0   |     00    |  1  |    1   |         -        |      CALIB       |
-+ * |--------|-----------|-----|--------|------------------|------------------|
-+ * | 0 or 1 |    !=00   |  0  |    1   |         -        |     TAMPALRM     |
-+ * |--------|-----------|-----|--------|------------------|------------------|
-+ * | 0 or 1 |    !=00   |  1  |    1   |     TAMPALRM     |      CALIB       |
-+ *  -------------------------------------------------------------------------
-+ */
-+static int stm32_rtc_clk_lsco_check_availability(struct stm32_rtc *rtc)
-+{
-+	struct stm32_rtc_registers regs = rtc->data->regs;
-+	unsigned int cr = readl_relaxed(rtc->base + regs.cr);
-+	unsigned int cfgr = readl_relaxed(rtc->base + regs.cfgr);
-+	unsigned int calib = STM32_RTC_CR_COE;
-+	unsigned int tampalrm = STM32_RTC_CR_TAMPOE | STM32_RTC_CR_OSEL;
-+
-+	switch (rtc->lsco) {
-+	case RTC_OUT1:
-+		if ((!(cr & STM32_RTC_CR_OUT2EN) &&
-+		     ((cr & calib) || cr & tampalrm)) ||
-+		     ((cr & calib) && (cr & tampalrm)))
-+			return -EBUSY;
-+		break;
-+	case RTC_OUT2_RMP:
-+		if ((cr & STM32_RTC_CR_OUT2EN) &&
-+		    (cfgr & STM32_RTC_CFGR_OUT2_RMP) &&
-+		    ((cr & calib) || (cr & tampalrm)))
-+			return -EBUSY;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	/* LSCO can only work if RTC clock source is HSE */
-+	if (clk_get_rate(rtc->rtc_ck) != STM32_RTC_HSE_FREQ)
-+		return -ERANGE;
-+
-+	return 0;
-+}
-+
-+static int stm32_rtc_clk_lsco_register(struct platform_device *pdev)
-+{
-+	struct stm32_rtc *rtc = platform_get_drvdata(pdev);
-+	struct stm32_rtc_registers regs = rtc->data->regs;
-+	u8 lscoen;
-+	int ret;
-+
-+	ret = stm32_rtc_clk_lsco_check_availability(rtc);
-+	if (ret)
-+		return ret;
-+
-+	lscoen = (rtc->lsco == RTC_OUT1) ? STM32_RTC_CFGR_LSCOEN_OUT1 :
-+					   STM32_RTC_CFGR_LSCOEN_OUT2_RMP;
-+
-+	rtc->clk_lsco = clk_register_gate(&pdev->dev, "rtc_lsco",
-+					  __clk_get_name(rtc->rtc_ck),
-+					  CLK_IS_CRITICAL,
-+					  rtc->base + regs.cfgr, lscoen,
-+					  0, NULL);
-+	if (IS_ERR(rtc->clk_lsco))
-+		return PTR_ERR(rtc->clk_lsco);
-+
-+	of_clk_add_provider(pdev->dev.of_node,
-+			    of_clk_src_simple_get, rtc->clk_lsco);
-+
-+	return 0;
-+}
-+
- static void stm32_rtc_wpr_unlock(struct stm32_rtc *rtc)
- {
- 	const struct stm32_rtc_registers *regs = &rtc->data->regs;
-@@ -145,6 +244,15 @@ static void stm32_rtc_wpr_lock(struct stm32_rtc *rtc)
- 	writel_relaxed(RTC_WPR_WRONG_KEY, rtc->base + regs->wpr);
- }
- 
-+static void stm32_rtc_clk_lsco_disable(struct platform_device *pdev)
-+{
-+	struct stm32_rtc *rtc = platform_get_drvdata(pdev);
-+	struct stm32_rtc_registers regs = rtc->data->regs;
-+	unsigned int cfgr = readl_relaxed(rtc->base + regs.cfgr);
-+
-+	writel_relaxed(cfgr &= ~STM32_RTC_CFGR_LSCOEN, rtc->base + regs.cfgr);
-+}
-+
- static int stm32_rtc_enter_init_mode(struct stm32_rtc *rtc)
- {
- 	const struct stm32_rtc_registers *regs = &rtc->data->regs;
-@@ -548,6 +656,7 @@ static const struct stm32_rtc_data stm32_rtc_data = {
- 	.has_pclk = false,
- 	.need_dbp = true,
- 	.has_wakeirq = false,
-+	.has_lsco = false,
- 	.regs = {
- 		.tr = 0x00,
- 		.dr = 0x04,
-@@ -558,6 +667,7 @@ static const struct stm32_rtc_data stm32_rtc_data = {
- 		.wpr = 0x24,
- 		.sr = 0x0C, /* set to ISR offset to ease alarm management */
- 		.scr = UNDEF_REG,
-+		.cfgr = UNDEF_REG,
- 		.verr = UNDEF_REG,
- 	},
- 	.events = {
-@@ -570,6 +680,7 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
- 	.has_pclk = true,
- 	.need_dbp = true,
- 	.has_wakeirq = false,
-+	.has_lsco = false,
- 	.regs = {
- 		.tr = 0x00,
- 		.dr = 0x04,
-@@ -580,6 +691,7 @@ static const struct stm32_rtc_data stm32h7_rtc_data = {
- 		.wpr = 0x24,
- 		.sr = 0x0C, /* set to ISR offset to ease alarm management */
- 		.scr = UNDEF_REG,
-+		.cfgr = UNDEF_REG,
- 		.verr = UNDEF_REG,
- 	},
- 	.events = {
-@@ -601,6 +713,7 @@ static const struct stm32_rtc_data stm32mp1_data = {
- 	.has_pclk = true,
- 	.need_dbp = false,
- 	.has_wakeirq = true,
-+	.has_lsco = true,
- 	.regs = {
- 		.tr = 0x00,
- 		.dr = 0x04,
-@@ -611,6 +724,7 @@ static const struct stm32_rtc_data stm32mp1_data = {
- 		.wpr = 0x24,
- 		.sr = 0x50,
- 		.scr = 0x5C,
-+		.cfgr = 0x60,
- 		.verr = 0x3F4,
- 	},
- 	.events = {
-@@ -814,6 +928,22 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 		goto err;
- 	}
- 
-+	if (rtc->data->has_lsco) {
-+		ret = of_property_read_s32(pdev->dev.of_node,
-+					   "st,lsco", &rtc->lsco);
-+		if (!ret) {
-+			ret = stm32_rtc_clk_lsco_register(pdev);
-+			if (ret)
-+				dev_warn(&pdev->dev,
-+					 "LSCO clock registration failed: %d\n",
-+					 ret);
-+		} else {
-+			stm32_rtc_clk_lsco_disable(pdev);
-+			rtc->lsco = ret;
-+			dev_dbg(&pdev->dev, "No LSCO clock: %d\n", ret);
-+		}
-+	}
-+
- 	/*
- 	 * If INITS flag is reset (calendar year field set to 0x00), calendar
- 	 * must be initialized
-@@ -852,6 +982,9 @@ static int stm32_rtc_remove(struct platform_device *pdev)
- 	const struct stm32_rtc_registers *regs = &rtc->data->regs;
- 	unsigned int cr;
- 
-+	if (!IS_ERR_OR_NULL(rtc->clk_lsco))
-+		clk_unregister_gate(rtc->clk_lsco);
-+
- 	/* Disable interrupts */
- 	stm32_rtc_wpr_unlock(rtc);
- 	cr = readl_relaxed(rtc->base + regs->cr);
--- 
-2.25.1
+st,alarm: false
 
+or:
+
+not:
+  required: [ st,alarm ]
+
+is how you disallow a property.
+
+This should cause a warning, but this patch didn't apply for me.
+
+> +
+>          clock-names: false
+>  
+>        required:
+> @@ -95,6 +105,9 @@ allOf:
+>          st,lsco:
+>            maxItems: 0
+>  
+> +        st,alarm:
+> +          maxItems: 0
+> +
+>        required:
+>          - clock-names
+>          - st,syscfg
+> @@ -117,6 +130,9 @@ allOf:
+>          st,lsco:
+>            maxItems: 1
+>  
+> +        st,alarm:
+> +          maxItems: 1
+
+maxItems applies to arrays, but this is a scalar value. I don't think 
+you need this hunk.
+
+> +
+>        required:
+>          - clock-names
+>  
+> @@ -153,8 +169,9 @@ examples:
+>        clocks = <&rcc RTCAPB>, <&rcc RTC>;
+>        clock-names = "pclk", "rtc_ck";
+>        interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
+> +      st,alarm = <RTC_OUT1>;
+>        st,lsco = <RTC_OUT2_RMP>;
+> -      pinctrl-0 = <&rtc_out2_rmp_pins_a>;
+> +      pinctrl-0 = <&rtc_out1_pins_a &rtc_out2_rmp_pins_a>;
+>        pinctrl-names = "default";
+>      };
+>  
+> -- 
+> 2.25.1
+> 
+> 
