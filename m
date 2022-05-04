@@ -2,692 +2,179 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BC61C4167E
-	for <linux-rtc@archiver.kernel.org>; Wed,  4 May 2022 10:16:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AAD0C433EF
+	for <linux-rtc@archiver.kernel.org>; Wed,  4 May 2022 13:03:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347994AbiEDKTl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 4 May 2022 06:19:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33316 "EHLO
+        id S1350152AbiEDNGv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 4 May 2022 09:06:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236531AbiEDKTj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 May 2022 06:19:39 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37DE2714A
-        for <linux-rtc@vger.kernel.org>; Wed,  4 May 2022 03:16:00 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id w19so1485907lfu.11
-        for <linux-rtc@vger.kernel.org>; Wed, 04 May 2022 03:16:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=3V+pN8oMHKUNlKj9u58eTU8o54/yzaIpXU4axegzWU4=;
-        b=O0iyA2N+Xbsgc6hNx0h8KONIoOXh3EB1BRzzTbCSyghyvANKNkvHzkxxkymiwhM5VF
-         gUDqqvD/7ydOmxqIjdBwPIDUsHo8ZEfQ1Ilq50FF2X96yODwRGCQFUaE+MkKRWyhRt0O
-         qb+viMAkkQb9Qar0wdAxdXoTuqYL9iSHiJq4h7vr/iAkRV6VSbOubMB9lIzuCcq/rjep
-         nrqMKnhXHN3LVBKbNsHsRAwn4VdZMqI49bmh5FbiITTNDXYSMmZtY/Wcane2W7qtgcMf
-         U60KO45Ik7ayfJ9d8F0KM5pxTdxzAtIlGdk9NaZh1jCBR9+yiNKWDJnYGj5eA6mHwJ5v
-         DtLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3V+pN8oMHKUNlKj9u58eTU8o54/yzaIpXU4axegzWU4=;
-        b=xRZsfP5AFX63WsYGSlKMbxCUWHrmXQukqgVPrLxLjm3aiRlrUL05G9QWHjBp3b6yoC
-         sNfU9teZfT/RX2XG0J4NXq2jaYrv8qmXOeINV8Xp7b1B+rvWSAHLABptWaZnB7Oyag6L
-         9vgZMF9qlm261xwROBPPIuC3/Z0hQkqo/T6sRxA3nxYFjF20V9iQEQa1c70K+ZHcc4d9
-         wj0rqZhiqE5b1+V4YPZ1ha9WOV8d4IqGIWNPc3QjHRSd6Z7Kc0GrPX0OYNx/aHcHZqP1
-         64Eh4+OrMbOILvLXMS7f8oD/6GTm0e4FvUuwoYx5VKOhTBvHdJAI2zDaoxJGvLA9Ai3i
-         nZVA==
-X-Gm-Message-State: AOAM531yH1HLSutyRk8YBzMMDr9MIcuM6WVKbKkj3P+QmQ+TpQZ2KJPG
-        pzgx/eO15yz3GV3xWv7ylS4HYdVc2Sfa6nIdiRtN8A==
-X-Google-Smtp-Source: ABdhPJwb9h8a4aaMZBfvTpwSIxXOoJs2gIEhvYz0dNyx6gjfx+SYNTm3DbdWkW/qTUpl9FfbJZHecs9EuMupX9D6jWA=
-X-Received: by 2002:ac2:4646:0:b0:472:108e:51af with SMTP id
- s6-20020ac24646000000b00472108e51afmr13850415lfo.184.1651659358722; Wed, 04
- May 2022 03:15:58 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220503162738.3827041-1-robh@kernel.org>
-In-Reply-To: <20220503162738.3827041-1-robh@kernel.org>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Wed, 4 May 2022 12:15:22 +0200
-Message-ID: <CAPDyKFogMS3xfDKW0snsL4S-1xnvAa_0s5U5b25OV1ktX_99QA@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: Drop redundant 'maxItems/minItems' in
- if/then schemas
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Abel Vesa <abel.vesa@nxp.com>, Stephen Boyd <sboyd@kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S232905AbiEDNGq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 4 May 2022 09:06:46 -0400
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84028366AE;
+        Wed,  4 May 2022 06:03:09 -0700 (PDT)
+Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 244ALwRe018222;
+        Wed, 4 May 2022 15:02:41 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=selector1;
+ bh=xzVNZjTzmtBSIdVv6DBe++9eoUDnPj2RYYfZVOlqvaM=;
+ b=samI+CtMvgD52A39gBqPpHXB+YG/3V36i7MpWEKQIKJaGJZooqnayV7FMkCE0zBVttQh
+ OhQToxKdr7bvp2ZT5bgf6vgRueFifaxTTdAd434H4NjD40nPLdDGKqq2F/kFr4X5eSow
+ wFQ7jqF6Sw/cSgsP8rTRKxijqDuiRQVXircx8anMfwkQLDyxULRNmVhwj7BDt+pRSj1d
+ 5yPet6ZLC/WttKulqMbba2ZLGWOJP8iNlSQKMNT+pX3pdG0QDDcN+EVsenFw8I8xnF1S
+ lHe0qDsp2z2MWRkt/22pZGI+LVuaYQweBf2sBEX+UlNdVCXDlmxmzuObprK7Ui89mcjF +A== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3frthjvemr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 04 May 2022 15:02:41 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 12435100034;
+        Wed,  4 May 2022 15:02:41 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 0A43121FE9E;
+        Wed,  4 May 2022 15:02:41 +0200 (CEST)
+Received: from localhost (10.75.127.46) by SFHDAG2NODE2.st.com (10.75.127.5)
+ with Microsoft SMTP Server (TLS) id 15.0.1497.26; Wed, 4 May 2022 15:02:40
+ +0200
+From:   Valentin Caron <valentin.caron@foss.st.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Han Xu <han.xu@nxp.com>, Dario Binacchi <dariobin@libero.it>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-iio@vger.kernel.org, linux-mmc@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+CC:     Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>,
+        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/6] dt-bindings: rtc: stm32: add st,lsco optional property to select output
+Date:   Wed, 4 May 2022 15:02:28 +0200
+Message-ID: <20220504130233.330983-2-valentin.caron@foss.st.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220504130233.330983-1-valentin.caron@foss.st.com>
+References: <20220504130233.330983-1-valentin.caron@foss.st.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.46]
+X-ClientProxiedBy: SFHDAG2NODE2.st.com (10.75.127.5) To SFHDAG2NODE2.st.com
+ (10.75.127.5)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-04_04,2022-05-04_01,2022-02-23_01
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 3 May 2022 at 18:27, Rob Herring <robh@kernel.org> wrote:
->
-> Another round of removing redundant minItems/maxItems when 'items' list i=
-s
-> specified. This time it is in if/then schemas as the meta-schema was
-> failing to check this case.
->
-> If a property has an 'items' list, then a 'minItems' or 'maxItems' with t=
-he
-> same size as the list is redundant and can be dropped. Note that is DT
-> schema specific behavior and not standard json-schema behavior. The tooli=
-ng
-> will fixup the final schema adding any unspecified minItems/maxItems.
->
-> Cc: Abel Vesa <abel.vesa@nxp.com>
-> Cc: Stephen Boyd <sboyd@kernel.org>
-> Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-> Cc: Jonathan Cameron <jic23@kernel.org>
-> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Jonathan Hunter <jonathanh@nvidia.com>
-> Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Vignesh Raghavendra <vigneshr@ti.com>
-> Cc: Wolfgang Grandegger <wg@grandegger.com>
-> Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: Kishon Vijay Abraham I <kishon@ti.com>
-> Cc: Vinod Koul <vkoul@kernel.org>
-> Cc: Alessandro Zummo <a.zummo@towertech.it>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Chen-Yu Tsai <wens@csie.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Cc: Zhang Rui <rui.zhang@intel.com>
-> Cc: "Niklas S=C3=B6derlund" <niklas.soderlund@ragnatech.se>
-> Cc: Anson Huang <Anson.Huang@nxp.com>
-> Cc: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-> Cc: Han Xu <han.xu@nxp.com>
-> Cc: Dario Binacchi <dariobin@libero.it>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Maxime Ripard <mripard@kernel.org>
-> Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> Cc: linux-clk@vger.kernel.org
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: linux-iio@vger.kernel.org
-> Cc: linux-mmc@vger.kernel.org
-> Cc: linux-mtd@lists.infradead.org
-> Cc: linux-can@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: linux-phy@lists.infradead.org
-> Cc: linux-rtc@vger.kernel.org
-> Cc: linux-serial@vger.kernel.org
-> Cc: alsa-devel@alsa-project.org
-> Cc: linux-pm@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-Acked-by: Ulf Hansson <ulf.hansson@linaro.org> # For MMC
+STM32 RTC has three output pins: RTC_OUT1, RTC_OUT2 or RTC_OUT2_RMP.
 
-Kind regards
-Uffe
+RTC Low-Speed Clock Output (LSCO) can be output on RTC_OUT1 or
+RTC_OUT2_RMP.
 
-> ---
->  .../bindings/clock/imx8m-clock.yaml           |  4 ----
->  .../bindings/display/bridge/renesas,lvds.yaml |  4 ----
->  .../bindings/display/renesas,du.yaml          | 23 -------------------
->  .../bindings/iio/adc/st,stm32-adc.yaml        |  2 --
->  .../bindings/mmc/nvidia,tegra20-sdhci.yaml    |  7 +-----
->  .../devicetree/bindings/mtd/gpmi-nand.yaml    |  2 --
->  .../bindings/net/can/bosch,c_can.yaml         |  3 ---
->  .../bindings/phy/brcm,sata-phy.yaml           | 10 ++++----
->  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml | 10 --------
->  .../bindings/serial/samsung_uart.yaml         |  4 ----
->  .../sound/allwinner,sun4i-a10-i2s.yaml        |  1 -
->  .../bindings/sound/ti,j721e-cpb-audio.yaml    |  2 --
->  .../bindings/thermal/rcar-gen3-thermal.yaml   |  1 -
->  13 files changed, 5 insertions(+), 68 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/clock/imx8m-clock.yaml b/D=
-ocumentation/devicetree/bindings/clock/imx8m-clock.yaml
-> index 625f573a7b90..458c7645ee68 100644
-> --- a/Documentation/devicetree/bindings/clock/imx8m-clock.yaml
-> +++ b/Documentation/devicetree/bindings/clock/imx8m-clock.yaml
-> @@ -55,8 +55,6 @@ allOf:
->      then:
->        properties:
->          clocks:
-> -          minItems: 7
-> -          maxItems: 7
->            items:
->              - description: 32k osc
->              - description: 25m osc
-> @@ -66,8 +64,6 @@ allOf:
->              - description: ext3 clock input
->              - description: ext4 clock input
->          clock-names:
-> -          minItems: 7
-> -          maxItems: 7
->            items:
->              - const: ckil
->              - const: osc_25m
-> diff --git a/Documentation/devicetree/bindings/display/bridge/renesas,lvd=
-s.yaml b/Documentation/devicetree/bindings/display/bridge/renesas,lvds.yaml
-> index a51baf8a4c76..bb9dbfb9beaf 100644
-> --- a/Documentation/devicetree/bindings/display/bridge/renesas,lvds.yaml
-> +++ b/Documentation/devicetree/bindings/display/bridge/renesas,lvds.yaml
-> @@ -95,7 +95,6 @@ then:
->    properties:
->      clocks:
->        minItems: 1
-> -      maxItems: 4
->        items:
->          - description: Functional clock
->          - description: EXTAL input clock
-> @@ -104,7 +103,6 @@ then:
->
->      clock-names:
->        minItems: 1
-> -      maxItems: 4
->        items:
->          - const: fck
->          # The LVDS encoder can use the EXTAL or DU_DOTCLKINx clocks.
-> @@ -128,12 +126,10 @@ then:
->  else:
->    properties:
->      clocks:
-> -      maxItems: 1
->        items:
->          - description: Functional clock
->
->      clock-names:
-> -      maxItems: 1
->        items:
->          - const: fck
->
-> diff --git a/Documentation/devicetree/bindings/display/renesas,du.yaml b/=
-Documentation/devicetree/bindings/display/renesas,du.yaml
-> index 56cedcd6d576..b3e588022082 100644
-> --- a/Documentation/devicetree/bindings/display/renesas,du.yaml
-> +++ b/Documentation/devicetree/bindings/display/renesas,du.yaml
-> @@ -109,7 +109,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 1
-> -          maxItems: 3
->            items:
->              - description: Functional clock
->              - description: DU_DOTCLKIN0 input clock
-> @@ -117,7 +116,6 @@ allOf:
->
->          clock-names:
->            minItems: 1
-> -          maxItems: 3
->            items:
->              - const: du.0
->              - pattern: '^dclkin\.[01]$'
-> @@ -159,7 +157,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -168,7 +165,6 @@ allOf:
->
->          clock-names:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -216,7 +212,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -225,7 +220,6 @@ allOf:
->
->          clock-names:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -271,7 +265,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -280,7 +273,6 @@ allOf:
->
->          clock-names:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -327,7 +319,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -336,7 +327,6 @@ allOf:
->
->          clock-names:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -386,7 +376,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -397,7 +386,6 @@ allOf:
->
->          clock-names:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -448,7 +436,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 4
-> -          maxItems: 8
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -461,7 +448,6 @@ allOf:
->
->          clock-names:
->            minItems: 4
-> -          maxItems: 8
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -525,7 +511,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -536,7 +521,6 @@ allOf:
->
->          clock-names:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -596,7 +580,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -607,7 +590,6 @@ allOf:
->
->          clock-names:
->            minItems: 3
-> -          maxItems: 6
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -666,14 +648,12 @@ allOf:
->        properties:
->          clocks:
->            minItems: 1
-> -          maxItems: 2
->            items:
->              - description: Functional clock for DU0
->              - description: DU_DOTCLKIN0 input clock
->
->          clock-names:
->            minItems: 1
-> -          maxItems: 2
->            items:
->              - const: du.0
->              - const: dclkin.0
-> @@ -723,7 +703,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - description: Functional clock for DU0
->              - description: Functional clock for DU1
-> @@ -732,7 +711,6 @@ allOf:
->
->          clock-names:
->            minItems: 2
-> -          maxItems: 4
->            items:
->              - const: du.0
->              - const: du.1
-> @@ -791,7 +769,6 @@ allOf:
->              - description: Functional clock
->
->          clock-names:
-> -          maxItems: 1
->            items:
->              - const: du.0
->
-> diff --git a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml =
-b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
-> index 4d6074518b5c..fa8da42cb1e6 100644
-> --- a/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
-> +++ b/Documentation/devicetree/bindings/iio/adc/st,stm32-adc.yaml
-> @@ -138,7 +138,6 @@ allOf:
->              - const: bus
->              - const: adc
->            minItems: 1
-> -          maxItems: 2
->
->          interrupts:
->            items:
-> @@ -170,7 +169,6 @@ allOf:
->              - const: bus
->              - const: adc
->            minItems: 1
-> -          maxItems: 2
->
->          interrupts:
->            items:
-> diff --git a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.y=
-aml b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.yaml
-> index f3f4d5b02744..fe0270207622 100644
-> --- a/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.yaml
-> +++ b/Documentation/devicetree/bindings/mmc/nvidia,tegra20-sdhci.yaml
-> @@ -202,22 +202,17 @@ allOf:
->          clocks:
->            items:
->              - description: module clock
-> -          minItems: 1
-> -          maxItems: 1
->      else:
->        properties:
->          clocks:
->            items:
->              - description: module clock
->              - description: timeout clock
-> -          minItems: 2
-> -          maxItems: 2
-> +
->          clock-names:
->            items:
->              - const: sdhci
->              - const: tmclk
-> -          minItems: 2
-> -          maxItems: 2
->        required:
->          - clock-names
->
-> diff --git a/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml b/Docum=
-entation/devicetree/bindings/mtd/gpmi-nand.yaml
-> index 9d764e654e1d..849aeae319a9 100644
-> --- a/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
-> +++ b/Documentation/devicetree/bindings/mtd/gpmi-nand.yaml
-> @@ -147,8 +147,6 @@ allOf:
->              - description: SoC gpmi io clock
->              - description: SoC gpmi bch apb clock
->          clock-names:
-> -          minItems: 2
-> -          maxItems: 2
->            items:
->              - const: gpmi_io
->              - const: gpmi_bch_apb
-> diff --git a/Documentation/devicetree/bindings/net/can/bosch,c_can.yaml b=
-/Documentation/devicetree/bindings/net/can/bosch,c_can.yaml
-> index 8bad328b184d..51aa89ac7e85 100644
-> --- a/Documentation/devicetree/bindings/net/can/bosch,c_can.yaml
-> +++ b/Documentation/devicetree/bindings/net/can/bosch,c_can.yaml
-> @@ -80,8 +80,6 @@ if:
->  then:
->    properties:
->      interrupts:
-> -      minItems: 4
-> -      maxItems: 4
->        items:
->          - description: Error and status IRQ
->          - description: Message object IRQ
-> @@ -91,7 +89,6 @@ then:
->  else:
->    properties:
->      interrupts:
-> -      maxItems: 1
->        items:
->          - description: Error and status IRQ
->
-> diff --git a/Documentation/devicetree/bindings/phy/brcm,sata-phy.yaml b/D=
-ocumentation/devicetree/bindings/phy/brcm,sata-phy.yaml
-> index cb1aa325336f..435b971dfd9b 100644
-> --- a/Documentation/devicetree/bindings/phy/brcm,sata-phy.yaml
-> +++ b/Documentation/devicetree/bindings/phy/brcm,sata-phy.yaml
-> @@ -102,19 +102,17 @@ if:
->  then:
->    properties:
->      reg:
-> -      maxItems: 2
-> +      minItems: 2
-> +
->      reg-names:
-> -      items:
-> -        - const: "phy"
-> -        - const: "phy-ctrl"
-> +      minItems: 2
->  else:
->    properties:
->      reg:
->        maxItems: 1
-> +
->      reg-names:
->        maxItems: 1
-> -      items:
-> -        - const: "phy"
->
->  required:
->    - compatible
-> diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rt=
-c.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> index 0b767fec39d8..6b38bd7eb3b4 100644
-> --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> @@ -71,7 +71,6 @@ allOf:
->      then:
->        properties:
->          clock-output-names:
-> -          minItems: 1
->            maxItems: 1
->
->    - if:
-> @@ -102,7 +101,6 @@ allOf:
->        properties:
->          clock-output-names:
->            minItems: 3
-> -          maxItems: 3
->
->    - if:
->        properties:
-> @@ -113,16 +111,12 @@ allOf:
->      then:
->        properties:
->          clocks:
-> -          minItems: 3
-> -          maxItems: 3
->            items:
->              - description: Bus clock for register access
->              - description: 24 MHz oscillator
->              - description: 32 kHz clock from the CCU
->
->          clock-names:
-> -          minItems: 3
-> -          maxItems: 3
->            items:
->              - const: bus
->              - const: hosc
-> @@ -142,7 +136,6 @@ allOf:
->        properties:
->          clocks:
->            minItems: 3
-> -          maxItems: 4
->            items:
->              - description: Bus clock for register access
->              - description: 24 MHz oscillator
-> @@ -151,7 +144,6 @@ allOf:
->
->          clock-names:
->            minItems: 3
-> -          maxItems: 4
->            items:
->              - const: bus
->              - const: hosc
-> @@ -174,14 +166,12 @@ allOf:
->      then:
->        properties:
->          interrupts:
-> -          minItems: 1
->            maxItems: 1
->
->      else:
->        properties:
->          interrupts:
->            minItems: 2
-> -          maxItems: 2
->
->  required:
->    - "#clock-cells"
-> diff --git a/Documentation/devicetree/bindings/serial/samsung_uart.yaml b=
-/Documentation/devicetree/bindings/serial/samsung_uart.yaml
-> index d4688e317fc5..901c1e2cea28 100644
-> --- a/Documentation/devicetree/bindings/serial/samsung_uart.yaml
-> +++ b/Documentation/devicetree/bindings/serial/samsung_uart.yaml
-> @@ -100,7 +100,6 @@ allOf:
->            maxItems: 3
->          clock-names:
->            minItems: 2
-> -          maxItems: 3
->            items:
->              - const: uart
->              - pattern: '^clk_uart_baud[0-1]$'
-> @@ -118,11 +117,8 @@ allOf:
->      then:
->        properties:
->          clocks:
-> -          minItems: 2
->            maxItems: 2
->          clock-names:
-> -          minItems: 2
-> -          maxItems: 2
->            items:
->              - const: uart
->              - const: clk_uart_baud0
-> diff --git a/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-=
-i2s.yaml b/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-i2s.=
-yaml
-> index c21c807b667c..34f6ee9de392 100644
-> --- a/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-i2s.yam=
-l
-> +++ b/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-i2s.yam=
-l
-> @@ -89,7 +89,6 @@ allOf:
->        properties:
->          dmas:
->            minItems: 1
-> -          maxItems: 2
->            items:
->              - description: RX DMA Channel
->              - description: TX DMA Channel
-> diff --git a/Documentation/devicetree/bindings/sound/ti,j721e-cpb-audio.y=
-aml b/Documentation/devicetree/bindings/sound/ti,j721e-cpb-audio.yaml
-> index 6806f53a4aed..20ea5883b7ff 100644
-> --- a/Documentation/devicetree/bindings/sound/ti,j721e-cpb-audio.yaml
-> +++ b/Documentation/devicetree/bindings/sound/ti,j721e-cpb-audio.yaml
-> @@ -80,7 +80,6 @@ allOf:
->      then:
->        properties:
->          clocks:
-> -          minItems: 6
->            items:
->              - description: AUXCLK clock for McASP used by CPB audio
->              - description: Parent for CPB_McASP auxclk (for 48KHz)
-> @@ -107,7 +106,6 @@ allOf:
->      then:
->        properties:
->          clocks:
-> -          maxItems: 4
->            items:
->              - description: AUXCLK clock for McASP used by CPB audio
->              - description: Parent for CPB_McASP auxclk (for 48KHz)
-> diff --git a/Documentation/devicetree/bindings/thermal/rcar-gen3-thermal.=
-yaml b/Documentation/devicetree/bindings/thermal/rcar-gen3-thermal.yaml
-> index f963204e0b16..1368d90da0e8 100644
-> --- a/Documentation/devicetree/bindings/thermal/rcar-gen3-thermal.yaml
-> +++ b/Documentation/devicetree/bindings/thermal/rcar-gen3-thermal.yaml
-> @@ -67,7 +67,6 @@ then:
->    properties:
->      reg:
->        minItems: 2
-> -      maxItems: 3
->        items:
->          - description: TSC1 registers
->          - description: TSC2 registers
-> --
-> 2.34.1
->
+This patch adds constants for RTC output bindings and adds st,lsco
+optional property for stm32 rtc driver, to select and enable LSCO.
+A pinctrl state is also optional to reserve pin for RTC output.
+
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+---
+ .../devicetree/bindings/rtc/st,stm32-rtc.yaml | 20 +++++++++++++++++++
+ include/dt-bindings/rtc/rtc-stm32.h           | 14 +++++++++++++
+ 2 files changed, 34 insertions(+)
+ create mode 100644 include/dt-bindings/rtc/rtc-stm32.h
+
+diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+index 764717ce1873..56d46ea35c5d 100644
+--- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+@@ -52,6 +52,13 @@ properties:
+       override default rtc_ck parent clock phandle of the new parent clock of rtc_ck
+     maxItems: 1
+ 
++  st,lsco:
++    $ref: "/schemas/types.yaml#/definitions/uint32"
++    description: |
++      To select and enable RTC Low Speed Clock Output.
++      Refer to <include/dt-bindings/rtc/rtc-stm32.h> for the supported values.
++      Pinctrl state named "default" may be defined to reserve pin for RTC output.
++
+ allOf:
+   - if:
+       properties:
+@@ -65,6 +72,9 @@ allOf:
+           minItems: 1
+           maxItems: 1
+ 
++        st,lsco:
++          maxItems: 0
++
+         clock-names: false
+ 
+       required:
+@@ -82,6 +92,9 @@ allOf:
+           minItems: 2
+           maxItems: 2
+ 
++        st,lsco:
++          maxItems: 0
++
+       required:
+         - clock-names
+         - st,syscfg
+@@ -101,6 +114,9 @@ allOf:
+         assigned-clocks: false
+         assigned-clock-parents: false
+ 
++        st,lsco:
++          maxItems: 1
++
+       required:
+         - clock-names
+ 
+@@ -130,12 +146,16 @@ examples:
+   - |
+     #include <dt-bindings/interrupt-controller/arm-gic.h>
+     #include <dt-bindings/clock/stm32mp1-clks.h>
++    #include <dt-bindings/rtc/rtc-stm32.h>
+     rtc@5c004000 {
+       compatible = "st,stm32mp1-rtc";
+       reg = <0x5c004000 0x400>;
+       clocks = <&rcc RTCAPB>, <&rcc RTC>;
+       clock-names = "pclk", "rtc_ck";
+       interrupts = <GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>;
++      st,lsco = <RTC_OUT2_RMP>;
++      pinctrl-0 = <&rtc_out2_rmp_pins_a>;
++      pinctrl-names = "default";
+     };
+ 
+ ...
+diff --git a/include/dt-bindings/rtc/rtc-stm32.h b/include/dt-bindings/rtc/rtc-stm32.h
+new file mode 100644
+index 000000000000..2fd78c2e62d4
+--- /dev/null
++++ b/include/dt-bindings/rtc/rtc-stm32.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides constants for STM32_RTC bindings.
++ */
++
++#ifndef _DT_BINDINGS_RTC_RTC_STM32_H
++#define _DT_BINDINGS_RTC_RTC_STM32_H
++
++#define RTC_NO_OUT	0
++#define RTC_OUT1	1
++#define RTC_OUT2	2
++#define RTC_OUT2_RMP	3
++
++#endif
+-- 
+2.25.1
+
