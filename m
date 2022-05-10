@@ -2,51 +2,53 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D46AC433FE
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 May 2022 13:19:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ED55C4321E
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 May 2022 13:19:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236887AbiEJNW6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 May 2022 09:22:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
+        id S242884AbiEJNXF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 10 May 2022 09:23:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242861AbiEJNWj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 May 2022 09:22:39 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609FB185CB2;
-        Tue, 10 May 2022 06:16:54 -0700 (PDT)
+        with ESMTP id S242964AbiEJNWq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 May 2022 09:22:46 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E22171A90DB;
+        Tue, 10 May 2022 06:17:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1652188614; x=1683724614;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=cJFpqELHzhKnktUrPZO/GTJ1OjcJc3cKHEtNthHeXRo=;
-  b=1Gdd+7kBjuhITj+WqxfQ43YeR3xRq7naaIosB45hIHcrXaL5qgElaPTU
-   lCpseJ3PrKfL+XjhwzQnZ/hUd47OoCNuHVipFxLWEkIUf6HkYf6Bn155l
-   ZVYg3D+mw9eF1ojb7G5skKFHvbt3BbMJjQDFVgwZGfKfToey93lOMvwJj
-   wPpdfxvzLaXZYdQP993+PGMeHrKOY/XPa5jflqLBTrPXtl6G2GzGRQ0qe
-   pFTqGByUsNe2apoRUaXecVJKqH9Mcr5G7wJRkja1L0vQqjHpwNfRlY0AJ
-   ewm/vw5dIxBWioUYSHYIvsbl8ScnqOoE6JgPxv5OKuk+MMI+Jyn7U6Oc3
-   A==;
+  t=1652188620; x=1683724620;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=8pp90tvf8kTP0zWhyfPDbb/zxfLJMKZ53ILcrsvHuto=;
+  b=HeP2VqwUlh1WZpJDAKL4lIzcejYDPwSN/ELGD1RwvP/ZAmWTFtUnSmcJ
+   JUjQQSCQ2DlbMCYchglOHqZouX+Vl3GQAilgkYbk8puCVr1XIVdgom4ZJ
+   E8f6jq00I3A8ws8YLKkEUCU4OWEwgE+qzBmbwCRFm6i7fU2ziNc1E8GlO
+   nur7byJkEjt28jcy+8GCiW0H2VpcOURo3xSFCTyhlPc14VfQINrH6W4bL
+   BVw1DlPQaYrenYA0LxyGTLObUO/I3dXK8/yer0Ow3ncL4NgcC42rM9zSk
+   8Xx7RMgr8MxqQz3838czQxyNoNO/3VINDWIpJjn8x5wzbYrHgBeKEJ0eV
+   w==;
 X-IronPort-AV: E=Sophos;i="5.91,214,1647327600"; 
-   d="scan'208";a="158457294"
+   d="scan'208";a="172695912"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 10 May 2022 06:16:41 -0700
+  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 10 May 2022 06:16:45 -0700
 Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Tue, 10 May 2022 06:16:41 -0700
+ 15.1.2375.17; Tue, 10 May 2022 06:16:45 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex04.mchp-main.com
  (10.10.85.152) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Tue, 10 May 2022 06:16:39 -0700
+ Transport; Tue, 10 May 2022 06:16:43 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
 CC:     <daire.mcnamara@microchip.com>, <lewis.hanly@microchip.com>,
         <conor.dooley@microchip.com>, <linux-kernel@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>, <linux-riscv@lists.infradead.org>
-Subject: [PATCH v2 0/2] rtc: microchip: Add driver for PolarFire SoC
-Date:   Tue, 10 May 2022 14:21:15 +0100
-Message-ID: <20220510132116.506572-1-conor.dooley@microchip.com>
+Subject: [PATCH v2 2/2] MAINTAINERS: add PolarFire SoC's RTC
+Date:   Tue, 10 May 2022 14:21:17 +0100
+Message-ID: <20220510132116.506572-3-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220510132116.506572-1-conor.dooley@microchip.com>
+References: <20220510132116.506572-1-conor.dooley@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -54,52 +56,26 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hey all,
-This is technically a v2 of [0], although a fair bit of time has
-passed since then. In the meantime I upstreamed the dt-binding, which
-was in the v1, and this patch depends on the fixes to the dt-binding
-and device tree etc which landed in v5.18-rc5.
+Add an entry for PolarFire SoC's RTC drver to the existing support
+for PolarFire SoC.
 
-The driver is quite substantially rewritten from the v1, as you wanted
-it to be switched to "binary" rather than calendar mode - so hopefully I
-have satisfied your concerns with the original driver. Specifically you
-had an significant issue with the counter being reset on startup & that
-is no longer the case.
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Conor.
-
-Changes from v1:
-- remove duplicate and unused defines
-- remove oneline mpfs_rtc_set_prescaler function
-- dont unconditionally turn off the rtc in the init function
-- dont reset the rtc when init is run.
-- dont disable the alarm when we boot
-- use binary, not calendar mode
-- delete mpfs_rtc_init & set prescale in probe
-- use dev_pm_set_wake_irq rather than writing suspend/resume functions
-- delete calendar mode only register defines
-- since using binary mode, set range min to zero
-- set range max to max alarm value (is this acceptable?)
-- added a MAINTAINERS entry: when v1 was submitted there was nothing to
-  add to, but there is now.
-
-[0] https://lore.kernel.org/linux-rtc/20210512111133.1650740-1-daire.mcnamara@microchip.com/
-
-
-Conor Dooley (2):
-  rtc: Add driver for Microchip PolarFire SoC
-  MAINTAINERS: add PolarFire SoC's RTC
-
- MAINTAINERS            |   1 +
- drivers/rtc/Kconfig    |  10 ++
- drivers/rtc/Makefile   |   1 +
- drivers/rtc/rtc-mpfs.c | 328 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 340 insertions(+)
- create mode 100644 drivers/rtc/rtc-mpfs.c
-
-
-base-commit: c5eb0a61238dd6faf37f58c9ce61c9980aaffd7a
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e8c52d0192a6..625d735f6a24 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16952,6 +16952,7 @@ L:	linux-riscv@lists.infradead.org
+ S:	Supported
+ F:	arch/riscv/boot/dts/microchip/
+ F:	drivers/mailbox/mailbox-mpfs.c
++F:	drivers/rtc/rtc-mpfs.c
+ F:	drivers/soc/microchip/
+ F:	include/soc/microchip/mpfs.h
+ 
 -- 
 2.36.1
 
