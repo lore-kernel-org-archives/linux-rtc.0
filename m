@@ -2,90 +2,153 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E8A2C433FE
-	for <linux-rtc@archiver.kernel.org>; Fri, 13 May 2022 11:03:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43DAAC433F5
+	for <linux-rtc@archiver.kernel.org>; Fri, 13 May 2022 19:45:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379726AbiEMLDv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 13 May 2022 07:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45780 "EHLO
+        id S239109AbiEMTpW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 13 May 2022 15:45:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379722AbiEMLDt (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 13 May 2022 07:03:49 -0400
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39502A28C4
-        for <linux-rtc@vger.kernel.org>; Fri, 13 May 2022 04:03:48 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id A87F220004;
-        Fri, 13 May 2022 11:03:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1652439824;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=AeURFA21azT2WZg6+haUTuGeT1PTBOnmz+vdgDPsEgY=;
-        b=NwvaOyoRICAB1NqY0YApNBA2uzkqhvSv6vhv1maHsDwwdh2zrDwSBXSrEL+sryIzEh87+Q
-        RGZzjPQWjPC4+Gglya8wlp+YeM1gae3ViKp/hqIlofX9e3vpCS1FOX5d4Jzd6R3jaTcM8N
-        q0AwS4GiAs0pvciUVadQErCXVoaVgqBJnhS2x3oz513gvxuLCNgdB5S+RquukfWxdJ8WLE
-        TRh9ufKmyYLVM1QbEH4BEvMs1fuDUN+EF8Uiq1v8T5h+HPjC6Wf/PHCLPWpEXYksqEhJRd
-        TQBIVJxczltYvKh7eqwvX8e3y23KzTtsheyANVEgm6yjiVakzZ27T/Cw4qVdxg==
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        with ESMTP id S231138AbiEMTpV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 13 May 2022 15:45:21 -0400
+Received: from lelv0142.ext.ti.com (lelv0142.ext.ti.com [198.47.23.249])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B188D506E3;
+        Fri, 13 May 2022 12:45:19 -0700 (PDT)
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 24DJiwfh111964;
+        Fri, 13 May 2022 14:44:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1652471098;
+        bh=qMbUUmCdSX2UP9WkDpZKcRdHK4nWn1RFjF/SkedJ/uQ=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References;
+        b=O99B66BW8hhWCQ+yGFQuz+6CKgsXyfwdt/vrKSomPYGXwHcMYws4yPtt2exSwqPdt
+         ThfXPAwT8xAbFzIkK7mpozsWOxjxOobYs1MMBiRHqv4TyWeaI8Y+y9AHtJcBXmwFDh
+         q7q0HUS39Emiv5bJJXu0rghdMsrwsu5u/a4jv124=
+Received: from DFLE113.ent.ti.com (dfle113.ent.ti.com [10.64.6.34])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 24DJiwQD112108
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 13 May 2022 14:44:58 -0500
+Received: from DFLE112.ent.ti.com (10.64.6.33) by DFLE113.ent.ti.com
+ (10.64.6.34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Fri, 13
+ May 2022 14:44:58 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE112.ent.ti.com
+ (10.64.6.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
+ Frontend Transport; Fri, 13 May 2022 14:44:58 -0500
+Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 24DJiwBH067045;
+        Fri, 13 May 2022 14:44:58 -0500
+From:   Nishanth Menon <nm@ti.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Magnus Damm <magnus.damm@gmail.com>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        devicetree@vger.kernel.org,
-        Gareth Williams <gareth.williams.jx@renesas.com>,
-        Milan Stevanovic <milan.stevanovic@se.com>,
-        Jimmy Lalande <jimmy.lalande@se.com>,
-        Pascal Eberhard <pascal.eberhard@se.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Herve Codina <herve.codina@bootlin.com>,
-        Clement Leger <clement.leger@bootlin.com>
-Subject: [PATCH v6 5/5] MAINTAINERS: Add myself as maintainer of the RZN1 RTC driver
-Date:   Fri, 13 May 2022 13:03:27 +0200
-Message-Id: <20220513110327.261652-6-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20220513110327.261652-1-miquel.raynal@bootlin.com>
-References: <20220513110327.261652-1-miquel.raynal@bootlin.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alessandro Zummo <a.zummo@towertech.it>
+CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Andrew Davis <afd@ti.com>, Nishanth Menon <nm@ti.com>
+Subject: [PATCH V3 1/2] dt-bindings: rtc: Add TI K3 RTC description
+Date:   Fri, 13 May 2022 14:44:56 -0500
+Message-ID: <20220513194457.25942-2-nm@ti.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20220513194457.25942-1-nm@ti.com>
+References: <20220513194457.25942-1-nm@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-After contributing it, I'll volunteer to maintain it.
+This adds the documentation for the devicetree bindings of the Texas
+Instruments RTC modules on K3 family of SoCs such as AM62x SoCs or
+newer.
 
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Acked-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Nishanth Menon <nm@ti.com>
 ---
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9cf74e4eacce..cc4a3cca022e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16847,6 +16847,14 @@ S:	Supported
- F:	Documentation/devicetree/bindings/iio/adc/renesas,rzg2l-adc.yaml
- F:	drivers/iio/adc/rzg2l_adc.c
- 
-+RENESAS RZ/N1 RTC CONTROLLER DRIVER
-+M:	Miquel Raynal <miquel.raynal@bootlin.com>
-+L:	linux-rtc@vger.kernel.org
-+L:	linux-renesas-soc@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-+F:	drivers/rtc/rtc-rzn1.c
+Changes since V2:
+* Krzysztof's comments addressed (rtc.yaml, dropped wakeup-source,
+  switched over to unevaluatedProperties)
+
+V2: https://lore.kernel.org/all/20220511002600.27964-2-nm@ti.com/
+V1: https://lore.kernel.org/all/20220412073138.25027-2-nm@ti.com/
+
+ .../devicetree/bindings/rtc/ti,k3-rtc.yaml    | 62 +++++++++++++++++++
+ 1 file changed, 62 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/ti,k3-rtc.yaml
+
+diff --git a/Documentation/devicetree/bindings/rtc/ti,k3-rtc.yaml b/Documentation/devicetree/bindings/rtc/ti,k3-rtc.yaml
+new file mode 100644
+index 000000000000..d995ef04a6eb
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/ti,k3-rtc.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/ti,k3-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- RENESAS R-CAR GEN3 & RZ/N1 NAND CONTROLLER DRIVER
- M:	Miquel Raynal <miquel.raynal@bootlin.com>
- L:	linux-mtd@lists.infradead.org
++title: Texas Instruments K3 Real Time Clock
++
++maintainers:
++  - Nishanth Menon <nm@ti.com>
++
++description: |
++  This RTC appears in the AM62x family of SoCs.
++
++allOf:
++  - $ref: "rtc.yaml#"
++
++properties:
++  compatible:
++    enum:
++      - ti,am62-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: VBUS Interface clock
++      - description: 32k Clock source (external or internal).
++
++  clock-names:
++    items:
++      - const: vbus
++      - const: osc32k
++
++  power-domains:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    rtc@2b1f0000 {
++        compatible = "ti,am62-rtc";
++        reg = <0x2b1f0000 0x100>;
++        interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
++        power-domains = <&bar 0>;
++        clocks = <&foo 0>, <&foo 1>;
++        clock-names = "vbus", "osc32k";
++        wakeup-source;
++    };
 -- 
-2.27.0
+2.31.1
 
