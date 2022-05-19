@@ -2,60 +2,62 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46400C433F5
-	for <linux-rtc@archiver.kernel.org>; Thu, 19 May 2022 09:20:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C92FEC433F5
+	for <linux-rtc@archiver.kernel.org>; Thu, 19 May 2022 10:06:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235966AbiESJUl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 19 May 2022 05:20:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
+        id S232289AbiESKGp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 19 May 2022 06:06:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235938AbiESJUl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 May 2022 05:20:41 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C707A76DD;
-        Thu, 19 May 2022 02:20:39 -0700 (PDT)
+        with ESMTP id S232394AbiESKGm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 19 May 2022 06:06:42 -0400
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738FF3A5D5;
+        Thu, 19 May 2022 03:06:37 -0700 (PDT)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id D1AB8200012;
-        Thu, 19 May 2022 09:20:36 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 2D6621C0008;
+        Thu, 19 May 2022 10:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1652952037;
+        t=1652954796;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=3fF8TXfzuMO2aAQ4ZMYHR9TcyWJ8s6t3LJpHkibRzbo=;
-        b=pMPJsTuEHgPN5iQT99K6z1ZdCIcfwX5MsMSGQwX8O/h0GX+eDDaHKEmZi+ks8VDWONVn5g
-        0Sn1/OrnngudgVnU6ktbTyx7JJD2ZopvUy4J7qVOBZvwrQSkWOsWvHIbFVW8Avjde1p0wm
-        n/2BxOKno8f9sP0vmxsR6ToTWqseLIO0t91qQyYATVAJynCsvaLmuS0XFGyzW5INDEMDXF
-        mPwr44bIdZdFDsk4LJgR0ciB1a4eAy4LdpqaPuDxrxRxLtXcC5/LfclVLfDmdmKUbW+l7I
-        DVk7IvUQ5ZkfKAbZPVj8J9UxyHs6aumOqeLKnxUp6L/PLCXj2q6S1Fm57TtwRw==
-Date:   Thu, 19 May 2022 11:20:36 +0200
+        bh=oDc/l+ZvXyh/h4RLRg/o7k1scruepHlpxflzm71xEPg=;
+        b=hN7i8a5GqerC9XaBkUR4ixwCNgLNDgbfrG0m4QGCyuhvkd3n4ycYZeieFwKMC7Q7wMtMgq
+        8HvbQQbfDjrrgpOc9Xygd004j/QjbLN1OuXzuUqtwpVB6A6CAroYlasTJ2jEyRwVcaQhaU
+        B+k48tIhxQmUIlAscrB3n2HmanJXdnVilPuPFD/pCsZmb0SnvFwlzi5jZ5wuyinxsAlYpW
+        vK/rK5ePfFZfE9glmi1RHwHM8/bos8vmf7/7Ovmkzx7DJ3YkSBmv+KY6hxcj/wSs28Q6Vc
+        3A7vUJrvqExQLEmTAB2yUcrttt1JN5+sSRl7FkVzKDSuBGWLX8HFoSX6Y8qfbg==
+Date:   Thu, 19 May 2022 12:06:35 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Yang Li <yang.lee@linux.alibaba.com>, miquel.raynal@bootlin.com
-Cc:     linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-rtc@vger.kernel.org, a.zummo@towertech.it,
-        Abaci Robot <abaci@linux.alibaba.com>
-Subject: Re: [PATCH -next] rtc: rzn1: fix platform_no_drv_owner.cocci warning
-Message-ID: <165295200014.525355.7168522727059763563.b4-ty@bootlin.com>
-References: <20220518232445.79156-1-yang.lee@linux.alibaba.com>
+To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        Yang Yingliang <yangyingliang@huawei.com>
+Cc:     a.zummo@towertech.it, sean.wang@mediatek.com, lee.jones@linaro.org,
+        eddie.huang@mediatek.com
+Subject: Re: [PATCH] rtc: mt6397: check return value after calling
+ platform_get_resource()
+Message-ID: <165295476623.538132.4203762589258593822.b4-ty@bootlin.com>
+References: <20220505125043.1594771-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220518232445.79156-1-yang.lee@linux.alibaba.com>
+In-Reply-To: <20220505125043.1594771-1-yangyingliang@huawei.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 19 May 2022 07:24:45 +0800, Yang Li wrote:
-> Remove .owner field if calls are used which set it automatically.
-> ./drivers/rtc/rtc-rzn1.c:411:3-8: No need to set .owner here. The core
-> will do it.
+On Thu, 5 May 2022 20:50:43 +0800, Yang Yingliang wrote:
+> It will cause null-ptr-deref if platform_get_resource() returns NULL,
+> we need check the return value.
 > 
 > 
 
 Applied, thanks!
 
-[1/1] rtc: rzn1: fix platform_no_drv_owner.cocci warning
-      commit: e60e8a73235ce5d42a2891c6989e8df1c8888c4a
+[1/1] rtc: mt6397: check return value after calling platform_get_resource()
+      commit: d3b43eb505bffb8e4cdf6800c15660c001553fe6
 
 Best regards,
 
