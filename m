@@ -2,58 +2,160 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 886ECC433F5
-	for <linux-rtc@archiver.kernel.org>; Tue, 24 May 2022 08:28:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74D75C433EF
+	for <linux-rtc@archiver.kernel.org>; Tue, 24 May 2022 12:21:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbiEXI2x (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 24 May 2022 04:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
+        id S237307AbiEXMVJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 24 May 2022 08:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229534AbiEXI2x (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 May 2022 04:28:53 -0400
-X-Greylist: delayed 1171 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 24 May 2022 01:28:52 PDT
-Received: from mail.greatagencyonline.pl (mail.greatagencyonline.pl [89.40.125.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D26D6929D
-        for <linux-rtc@vger.kernel.org>; Tue, 24 May 2022 01:28:52 -0700 (PDT)
-Received: by mail.greatagencyonline.pl (Postfix, from userid 1001)
-        id 80001A7E73; Tue, 24 May 2022 09:01:08 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=greatagencyonline.pl;
-        s=mail; t=1653379279;
-        bh=ksvwLPFdjL017OLwir5xHXy3Vmrj/5fhZ5DwBI62qzc=;
-        h=Date:From:To:Subject:From;
-        b=VoFV1D+auZV0loGk/PJBmdVAbOraqOdkUFQQVluAzQ/lWT7qFyU15XRcrA2K+OzxW
-         7woXfOhHuXgYQnj5YopLB3rKat37f+4Ghcb8Ts1DUOGtqRdlSErU+boNK7rfEOW19M
-         JlKW669NMhBUt13/ZcJQHlnO6i4wr+UK3e3vW2Na0+lfiMgzbJACGVjIDmCfhGFi53
-         CjqurZYrzdjGvEjGiB/N7NM3YWjifJneDYf1FMaSPVAlH4ofyI+v9Lu6NyWfoqudJF
-         8CVC7YRUhckjbcAf+0uJUNIr4wA0z6XQ0hPsHkrTkkSek6Uxct0HKyONNvBFRg36ad
-         E2JkE/I/ufdrQ==
-Received: by mail.greatagencyonline.pl for <linux-rtc@vger.kernel.org>; Tue, 24 May 2022 08:00:54 GMT
-Message-ID: <20220524074502-0.1.43.vxia.0.c4ezod6pyr@greatagencyonline.pl>
-Date:   Tue, 24 May 2022 08:00:54 GMT
-From:   =?UTF-8?Q? "Miko=C5=82aj_Rudzik" ?= 
-        <mikolaj.rudzik@greatagencyonline.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: =?UTF-8?Q?Nap=C5=82yw_Klient=C3=B3w_ze_strony?=
-X-Mailer: mail.greatagencyonline.pl
+        with ESMTP id S237337AbiEXMVF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 24 May 2022 08:21:05 -0400
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2062.outbound.protection.outlook.com [40.107.92.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B484F7C;
+        Tue, 24 May 2022 05:21:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=W7HEhevGy7LYGanmOPB+G3szJ+t815oI/cY0i4rDjZXaew41rOH7T+iy8O2HxviDCDW9YTO0whBfLsBhdPk6uWQ7QlPyxUebTqMMlMS2bQOd+t/gcZ9tJ+p3GZ1E+HSbZbrJeKwXgBuEa2hIVtXN2faVHXimn1bxpjpxBYm7qmStjWwAwFr5VyV0uIp5agu65iYZRvhmDeVMXSgIQR4ggPRl5J8dBEgSjRwAlWMu/4U/0y7YnWaAxg5mZDKzahCk1Y2WTDMKPxkDrSB2aDG4JUZHdNFHk2djY/oixYj4UPHEDzTnZLOa1Js+7Sw6FPOeCT+lODb4tq4XPS1tXhfKpA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=UwAsKsKjSIlW32+M4OZDPCayWEKvwMWrA7D12OaW9Ss=;
+ b=SvTXwbHv2FzFj7pik3qJkojRo8x2sPEo9eFBXJcB8Gg3qDwqjMF3QeD4wcef7BdNB/HuOuHc9lwpvnaePsa8vVVRPWGja9hSanFFrthbDobFXx3xqRpmOf4CLJEsOdlNEc/8KPAg2AtA54hl9wS+8Isue/PwdCH3xn5zzmzLxX3Ia20cEkuyo6jpbEKocVy1X2N/X57sVQPj3gGPnKYuzW+hsIEooCDYk9uDMiZAlhpw89IKkrb+jdF+ILIQVg2USoITr5myTXuA8IPbRhmWLi3H4N2C+ywvUUvV/k8VY3lwfF8o6/Ga7ME6VDw0tH0DCv9jb7Y+UsxRNIP4D0rgdw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 149.199.62.198) smtp.rcpttodomain=towertech.it smtp.mailfrom=xilinx.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=xilinx.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=xilinx.onmicrosoft.com; s=selector2-xilinx-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=UwAsKsKjSIlW32+M4OZDPCayWEKvwMWrA7D12OaW9Ss=;
+ b=X7GYadD/HCVzxwTbwuhofjbRNe5G7bUCsNS/obU6nzNubY8gJKJeXudsrSm8Bjdk1bJrYfz0bF/wA9+WrAgEwhN3NNYW323FIfEgrxcn4A5Fq6UJXSSGFae1nTZEZDxl4Jiq4rlbQQXbL4kzcOSw2Zmzv/WHQ3urQL5rb519jBY=
+Received: from DM5PR07CA0063.namprd07.prod.outlook.com (2603:10b6:4:ad::28) by
+ BYAPR02MB5671.namprd02.prod.outlook.com (2603:10b6:a03:9c::21) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5273.19; Tue, 24 May 2022 12:20:59 +0000
+Received: from DM3NAM02FT052.eop-nam02.prod.protection.outlook.com
+ (2603:10b6:4:ad:cafe::62) by DM5PR07CA0063.outlook.office365.com
+ (2603:10b6:4:ad::28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5293.13 via Frontend
+ Transport; Tue, 24 May 2022 12:20:58 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 149.199.62.198)
+ smtp.mailfrom=xilinx.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=xilinx.com;
+Received-SPF: Pass (protection.outlook.com: domain of xilinx.com designates
+ 149.199.62.198 as permitted sender) receiver=protection.outlook.com;
+ client-ip=149.199.62.198; helo=xsj-pvapexch02.xlnx.xilinx.com; pr=C
+Received: from xsj-pvapexch02.xlnx.xilinx.com (149.199.62.198) by
+ DM3NAM02FT052.mail.protection.outlook.com (10.13.5.134) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5273.14 via Frontend Transport; Tue, 24 May 2022 12:20:58 +0000
+Received: from xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) by
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.14; Tue, 24 May 2022 05:20:57 -0700
+Received: from smtp.xilinx.com (172.19.127.96) by
+ xsj-pvapexch02.xlnx.xilinx.com (172.19.86.41) with Microsoft SMTP Server id
+ 15.1.2176.14 via Frontend Transport; Tue, 24 May 2022 05:20:57 -0700
+Envelope-to: git@xilinx.com,
+ a.zummo@towertech.it,
+ alexandre.belloni@bootlin.com,
+ robh+dt@kernel.org,
+ krzysztof.kozlowski+dt@linaro.org,
+ devicetree@vger.kernel.org,
+ linux-rtc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org
+Received: from [172.23.66.193] (port=41286 helo=xhdsneeli40u.xilinx.com)
+        by smtp.xilinx.com with esmtp (Exim 4.90)
+        (envelope-from <srinivas.neeli@xilinx.com>)
+        id 1ntTWy-000DAp-HF; Tue, 24 May 2022 05:20:56 -0700
+From:   Srinivas Neeli <srinivas.neeli@xilinx.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <robh+dt@kernel.org>, <michal.simek@xilinx.com>,
+        <sgoud@xilinx.com>, <shubhraj@xilinx.com>
+CC:     <krzysztof.kozlowski+dt@linaro.org>, <devicetree@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <git@xilinx.com>,
+        Srinivas Neeli <srinivas.neeli@xilinx.com>
+Subject: [PATCH V4 1/2] dt-bindings: rtc: zynqmp: Add clock information
+Date:   Tue, 24 May 2022 17:50:49 +0530
+Message-ID: <20220524122050.48553-1-srinivas.neeli@xilinx.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3c18fea3-4042-49f1-efef-08da3d7fdbf9
+X-MS-TrafficTypeDiagnostic: BYAPR02MB5671:EE_
+X-Microsoft-Antispam-PRVS: <BYAPR02MB5671739661795A2F34B68E09AFD79@BYAPR02MB5671.namprd02.prod.outlook.com>
+X-Auto-Response-Suppress: DR, RN, NRN, OOF, AutoReply
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QH4wnfoaaospvlzVo+LfJzImUHRUvpG6EndkRc1+GpLG8rWSRQIlnk3Xid689CynyW69H4qY39h8OQneBbW8PnT7vCS2GNGMyaHBINPWpIIUgrMzHB3yIKBFHw08sADNRzg6sFLhU5MR/vBoc74AfEIqFEX9kFYnS5eZpICweiLBeDYPfiyE6qciSkLeELAAWnCaIqwYqf1yIgaDmXXBygA+Rxe01OUm52r2xmx9HTdLuqTxsnLynOw9PrySdFWJNM4EgZBOnGTrYLrzbkK45AaQoDfT0Z2txJvTrtS9Sshf3a+IG8U2ubl8bB/vA3fxmP4gpPWP4B9h+FQDRrQlZslBg2iCXpL+FXdKOpjTMBCq6sem6fQr/4YZ6IHIPn/XL8OZ/UMBEevxY23ymRIx/VGVmtGVb40fYa5gzYaDWl/UrxNHF1fSpijNN5SUMvoD/7QHW9AxvaECwn1EWQv1z77UJEo862Sd+fqIqaxk6mH6FRbnWc7tdeAfO1yfsBq+8+lwXWfHxBAr6Jt1DaU1sySCbMYSrQb1691UlECyQ5swVrI1HCFB7JhaHfBp+nf0JYFjzkLk9D9YUxiGK6PkBA2PjUV4wgSTT+01FywzTZRdzMZwMIqdDcPmb2UhfdDKhReZtDM59Dx1EjpfLIQLJGRbSgr54+5xm619shtpgh/F8BnAFAoEVrrQWLjIu7Cz2Ao1/NDecbaXxpG49fcLYWhpiLL+72lKWEpooN1tDnM=
+X-Forefront-Antispam-Report: CIP:149.199.62.198;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:xsj-pvapexch02.xlnx.xilinx.com;PTR:unknown-62-198.xilinx.com;CAT:NONE;SFS:(13230001)(4636009)(46966006)(36840700001)(40470700004)(110136005)(5660300002)(36756003)(508600001)(2906002)(70206006)(70586007)(82310400005)(4326008)(40460700003)(356005)(6636002)(8676002)(54906003)(26005)(7636003)(9786002)(2616005)(1076003)(426003)(336012)(186003)(44832011)(316002)(47076005)(107886003)(83380400001)(36860700001)(8936002)(7696005)(6666004)(102446001)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: xilinx.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 May 2022 12:20:58.6140
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3c18fea3-4042-49f1-efef-08da3d7fdbf9
+X-MS-Exchange-CrossTenant-Id: 657af505-d5df-48d0-8300-c31994686c5c
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=657af505-d5df-48d0-8300-c31994686c5c;Ip=[149.199.62.198];Helo=[xsj-pvapexch02.xlnx.xilinx.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM3NAM02FT052.eop-nam02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR02MB5671
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Added clock information and deprecated calibration support.
 
-chcia=C5=82bym poinformowa=C4=87 Pa=C5=84stwa o mo=C5=BCliwo=C5=9Bci pozy=
-skania nowych zlece=C5=84 ze strony www.
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+---
+Changes in V4:
+- Deprecated calibrtion support
+Changes in V3:
+- New patch
+---
+ .../devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml      | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Widzimy zainteresowanie potencjalnych Klient=C3=B3w Pa=C5=84stwa firm=C4=85=
-, dlatego ch=C4=99tnie pomo=C5=BCemy Pa=C5=84stwu dotrze=C4=87 z ofert=C4=
-=85 do wi=C4=99kszego grona odbiorc=C3=B3w poprzez efektywne metody pozyc=
-jonowania strony w Google.
+diff --git a/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml b/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
+index bdb72d3ddf2a..de617707854e 100644
+--- a/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
+@@ -23,6 +23,14 @@ properties:
+   reg:
+     maxItems: 1
+ 
++  clocks:
++    items:
++      - description: rtc_clk is the operating frequency of crystal.
++
++  clock-names:
++    items:
++      - const: "rtc_clk"
++
+   interrupts:
+     minItems: 2
+ 
+@@ -39,6 +47,7 @@ properties:
+     minimum: 0x1
+     maximum: 0x1FFFFF
+     default: 0x198233
++    deprecated: true
+ 
+ required:
+   - compatible
+@@ -61,5 +70,7 @@ examples:
+         interrupts = <0 26 4>, <0 27 4>;
+         interrupt-names = "alarm", "sec";
+         calibration = <0x198233>;
++        clock-names = "rtc_clk";
++        clocks = <&rtc_clk>;
+       };
+     };
+-- 
+2.17.1
 
-Czy m=C3=B3g=C5=82bym liczy=C4=87 na kontakt zwrotny?
-
-
-Pozdrawiam,
-Miko=C5=82aj Rudzik
