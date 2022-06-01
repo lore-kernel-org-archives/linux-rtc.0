@@ -2,51 +2,53 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F32A0C433EF
-	for <linux-rtc@archiver.kernel.org>; Wed,  1 Jun 2022 12:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B7D0C433FE
+	for <linux-rtc@archiver.kernel.org>; Wed,  1 Jun 2022 12:35:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245013AbiFAMfI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 1 Jun 2022 08:35:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
+        id S1352061AbiFAMfa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 1 Jun 2022 08:35:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350780AbiFAMfH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Jun 2022 08:35:07 -0400
+        with ESMTP id S1352944AbiFAMf2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Jun 2022 08:35:28 -0400
 Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 693829CC99;
-        Wed,  1 Jun 2022 05:35:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02DC9EB6D;
+        Wed,  1 Jun 2022 05:35:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1654086903; x=1685622903;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=KaYR/blB8zGHDSr0CLcv5ju+jN5gMeOimUNbfTUhUQs=;
-  b=t2K1cmbde8WFTmUjbX5P3kIpIjExv3+73VlfBMTmz9XZMDYmjfA6jbIP
-   bKwXui2aQWbNmkRGPOS+UojGbK/SVuL3d47+4lpDiFqWKp2Ac3p3YYtxG
-   lBBdO+7J23BeKk4Uxkh1BiM/oFEEmmoEN1Ko+RkLJmYAyWFDadc+d/H4V
-   AwC91eK/WpYdNNWXdqzB42iFAYHUF/wMfbZ93Z5Bu5i+TVH+Ezy0jMqYm
-   tn31tGtVKTmwcZHLLzETili86RSVK+74+v8hYGYNHtjXOIwEYg4+vtRKz
-   1cocTeFsOyVeYLLSiNM0EvADLHyriKiASGAasGrLkhzvSu8O7IP2PgyCz
-   w==;
+  t=1654086917; x=1685622917;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=8pp90tvf8kTP0zWhyfPDbb/zxfLJMKZ53ILcrsvHuto=;
+  b=xLDTq4gdmzmdtsGYzxbCzQXZax4y2y1lSkDecXqScysWZIOVipe5hdKy
+   ubxA8L+oTcsFwhuOw+kC+IgplDwGxDUe2CnmW6sGEIfeN+NReT5Q8vE/d
+   1a6eGig0N3WiS5bvR8MDr3Jj+i+zj2ucUO6bAqW4WmYC2+CE+qXMamY88
+   qbAT4Xx+wbVrO9aI0BkyFG6xQ1r/uOHdLMJT/N72OCnakapJCTBV48c5R
+   XySgdDqwIy4kHjXaPLfBLSxExuHF4Is/11r4EXr+ASR3ypH05J98H7G/5
+   cRKbkKdHkmctyv/wzD/FkpWq4ayCCeeIcufPDGoON9BdYjBM9JwekIaS4
+   g==;
 X-IronPort-AV: E=Sophos;i="5.91,268,1647327600"; 
-   d="scan'208";a="176039617"
+   d="scan'208";a="166611118"
 Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 01 Jun 2022 05:35:02 -0700
+  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 01 Jun 2022 05:35:17 -0700
 Received: from chn-vm-ex03.mchp-main.com (10.10.85.151) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Wed, 1 Jun 2022 05:35:02 -0700
+ 15.1.2375.17; Wed, 1 Jun 2022 05:35:17 -0700
 Received: from wendy.microchip.com (10.10.115.15) by chn-vm-ex03.mchp-main.com
  (10.10.85.151) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Wed, 1 Jun 2022 05:35:00 -0700
+ Transport; Wed, 1 Jun 2022 05:35:15 -0700
 From:   Conor Dooley <conor.dooley@microchip.com>
 To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>
 CC:     <daire.mcnamara@microchip.com>, <lewis.hanly@microchip.com>,
         <conor.dooley@microchip.com>, <linux-kernel@vger.kernel.org>,
         <linux-rtc@vger.kernel.org>, <linux-riscv@lists.infradead.org>
-Subject: [PATCH v5 0/2] rtc: microchip: Add driver for PolarFire SoC
-Date:   Wed, 1 Jun 2022 13:33:19 +0100
-Message-ID: <20220601123320.2861043-1-conor.dooley@microchip.com>
+Subject: [PATCH v5 2/2] MAINTAINERS: add PolarFire SoC's RTC
+Date:   Wed, 1 Jun 2022 13:33:21 +0100
+Message-ID: <20220601123320.2861043-3-conor.dooley@microchip.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220601123320.2861043-1-conor.dooley@microchip.com>
+References: <20220601123320.2861043-1-conor.dooley@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -54,69 +56,26 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hey all,
-This is technically a v5 of [0], although a fair bit of time has
-passed since then. In the meantime I upstreamed the dt-binding, which
-was in the v1, and this patch depends on the fixes to the dt-binding
-and device tree etc which landed in v5.18-rc5.
+Add an entry for PolarFire SoC's RTC drver to the existing support
+for PolarFire SoC.
 
-The driver is quite substantially rewritten from the v1, as you wanted
-it to be switched to "binary" rather than calendar mode - so hopefully I
-have satisfied your concerns with the original driver. Specifically you
-had an significant issue with the counter being reset on startup & that
-is no longer the case.
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Conor.
-
-Changes since v4:
-- replace duplicate define of BIT(6) with the missing BIT(7) define
-- remove duplicate read of the mode register in mpfs_rtc_readalarm()
-- simplify if (mode & MODE_WAKE_EN) to an assignment
-- replace (potentially) infinite wait with read_poll_timeout
-
-Changes since v3:
-- invert read order of datetime registers so that they are properly
-  aligned. reads of the upper register are aligned to the last read
-  of the lower register
-- move wakeup_irq out of mpfs_rtc_dev & into probe
-- removed range_min since it is not set & implicity zero anyway
-- rewrote the remove function to not call mpfs_rtc_alarm_irq_enable(,0)
-
-Changes from v2:
-- move prescaler out of mpfs_rtc_dev & into probe
-
-Changes from v1:
-- remove duplicate and unused defines
-- remove oneline mpfs_rtc_set_prescaler function
-- dont unconditionally turn off the rtc in the init function
-- dont reset the rtc when init is run.
-- dont disable the alarm when we boot
-- use binary, not calendar mode
-- delete mpfs_rtc_init & set prescale in probe
-- use dev_pm_set_wake_irq rather than writing suspend/resume functions
-- delete calendar mode only register defines
-- since using binary mode, set range min to zero
-- set range max to max alarm value (is this acceptable?)
-- added a MAINTAINERS entry: when v1 was submitted there was nothing to
-  add to, but there is now.
-
-[0] https://lore.kernel.org/linux-rtc/20210512111133.1650740-1-daire.mcnamara@microchip.com/
-
-
-Conor Dooley (2):
-  rtc: Add driver for Microchip PolarFire SoC
-  MAINTAINERS: add PolarFire SoC's RTC
-
- MAINTAINERS            |   1 +
- drivers/rtc/Kconfig    |  10 ++
- drivers/rtc/Makefile   |   1 +
- drivers/rtc/rtc-mpfs.c | 326 +++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 338 insertions(+)
- create mode 100644 drivers/rtc/rtc-mpfs.c
-
-
-base-commit: c5eb0a61238dd6faf37f58c9ce61c9980aaffd7a
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e8c52d0192a6..625d735f6a24 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16952,6 +16952,7 @@ L:	linux-riscv@lists.infradead.org
+ S:	Supported
+ F:	arch/riscv/boot/dts/microchip/
+ F:	drivers/mailbox/mailbox-mpfs.c
++F:	drivers/rtc/rtc-mpfs.c
+ F:	drivers/soc/microchip/
+ F:	include/soc/microchip/mpfs.h
+ 
 -- 
 2.36.1
 
