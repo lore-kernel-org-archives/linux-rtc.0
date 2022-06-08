@@ -2,35 +2,33 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D788CC43334
-	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jun 2022 16:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 131A0CCA47B
+	for <linux-rtc@archiver.kernel.org>; Wed,  8 Jun 2022 16:20:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245322AbiFHQTM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 8 Jun 2022 12:19:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41700 "EHLO
+        id S245375AbiFHQUa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 8 Jun 2022 12:20:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245309AbiFHQTL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jun 2022 12:19:11 -0400
-X-Greylist: delayed 414 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Jun 2022 09:19:09 PDT
-Received: from mxout2.routing.net (mxout2.routing.net [IPv6:2a03:2900:1:a::b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC126544;
-        Wed,  8 Jun 2022 09:19:08 -0700 (PDT)
+        with ESMTP id S245340AbiFHQU1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 8 Jun 2022 12:20:27 -0400
+Received: from mxout3.routing.net (mxout3.routing.net [IPv6:2a03:2900:1:a::8])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EF23D1D2;
+        Wed,  8 Jun 2022 09:20:25 -0700 (PDT)
 Received: from mxbox2.masterlogin.de (unknown [192.168.10.89])
-        by mxout2.routing.net (Postfix) with ESMTP id D081B615FC;
-        Wed,  8 Jun 2022 16:12:11 +0000 (UTC)
+        by mxout3.routing.net (Postfix) with ESMTP id 3B22C625BA;
+        Wed,  8 Jun 2022 16:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailerdienst.de;
-        s=20200217; t=1654704731;
+        s=20200217; t=1654704730;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qYmY2rTo7o5Beu+qZkDIwFeFpZXzyT2M2MGeMmcfTYw=;
-        b=B3pebneiJU78nIOfVKb8WZ57cQ7wXTtysHkKZL2AS1S0YZ5owgPFErTtG4xKUKK+lnfWy+
-        B/grMRDKiV6Ws7QH9KFA25oaREvWC5rdImSDcpxJU98X1Bs5FrKOdfDDiOMI7OHzSQfJXn
-        NWh1wGMnDfilyRtgxXUgL3pntWqRnD0=
+         content-transfer-encoding:content-transfer-encoding;
+        bh=vcRXrkxmByG59E3QuDmo3RcMks52bHHiQMdDLjicSqU=;
+        b=b0j9rveDPlkXL3I1zkUEsw2Tzqx4iWa9VTtQYFTS1cSlKV4VPHFqbgSLxAn6XxrMEZ+C8r
+        IG/2t4zP85mDpIafl/rgL7WG+A53j1yiFQjCH4yHEgLwD+JyGQIkeZZ5MWJFoXJF1PTxEg
+        Rc53GeUTLS+GPyJLK5fHUuNtKS+QG7E=
 Received: from frank-G5.. (fttx-pool-80.245.76.43.bambit.de [80.245.76.43])
-        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 0A01910021A;
-        Wed,  8 Jun 2022 16:12:11 +0000 (UTC)
+        by mxbox2.masterlogin.de (Postfix) with ESMTPSA id 3E67E10021A;
+        Wed,  8 Jun 2022 16:12:09 +0000 (UTC)
 From:   Frank Wunderlich <linux@fw-web.de>
 To:     linux-rockchip@lists.infradead.org
 Cc:     Frank Wunderlich <frank-w@public-files.de>,
@@ -41,69 +39,32 @@ Cc:     Frank Wunderlich <frank-w@public-files.de>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: [PATCH 2/2] arm64: dts: rockchip: add RTC to BPI-R2 Pro
-Date:   Wed,  8 Jun 2022 18:11:49 +0200
-Message-Id: <20220608161150.58919-3-linux@fw-web.de>
+Subject: [PATCH 0/2] Support RTC on BPI-R2 Pro
+Date:   Wed,  8 Jun 2022 18:11:47 +0200
+Message-Id: <20220608161150.58919-1-linux@fw-web.de>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220608161150.58919-1-linux@fw-web.de>
-References: <20220608161150.58919-1-linux@fw-web.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Mail-ID: 107985d7-91f1-4c4e-83fd-ac336a1c9307
+X-Mail-ID: 22b3b44b-de0c-442e-8bb0-8b92e72ec305
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Frank Wunderlich <frank-w@public-files.de>
 
-Add devicetree node for hym8563 rtc to Bananapi R2 Pro board.
+This series is updating hym8563 rtc driver and add devicetree nodes
+for Bananapi R2 Pro board.
 
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
----
+Frank Wunderlich (1):
+  arm64: dts: rockchip: add RTC to BPI-R2 Pro
+
+Peter Geis (1):
+  rtc: hym8563: try multiple times to init device
+
  .../boot/dts/rockchip/rk3568-bpi-r2-pro.dts   | 23 +++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/rtc/rtc-hym8563.c                     | 11 +++++++--
+ 2 files changed, 32 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3568-bpi-r2-pro.dts b/arch/arm64/boot/dts/rockchip/rk3568-bpi-r2-pro.dts
-index 40cf2236c0b6..7e5b3947e28f 100644
---- a/arch/arm64/boot/dts/rockchip/rk3568-bpi-r2-pro.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3568-bpi-r2-pro.dts
-@@ -389,6 +389,23 @@ regulator-state-mem {
- 	};
- };
- 
-+&i2c3 {
-+	status = "okay";
-+
-+	hym8563: hym8563@51 {
-+		compatible = "haoyu,hym8563";
-+		reg = <0x51>;
-+		#clock-cells = <0>;
-+		clock-frequency = <32768>;
-+		clock-output-names = "rtcic_32kout";
-+		interrupt-parent = <&gpio0>;
-+		interrupts = <RK_PD3 IRQ_TYPE_EDGE_FALLING>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&hym8563_int>;
-+		wakeup-source;
-+	};
-+};
-+
- &i2c5 {
- 	/* pin 3 (SDA) + 4 (SCL) of header con2 */
- 	status = "disabled";
-@@ -411,6 +428,12 @@ green_led_pin: green-led-pin {
- 		};
- 	};
- 
-+	hym8563 {
-+		hym8563_int: hym8563-int {
-+			rockchip,pins = <0 RK_PD3 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
-+
- 	pmic {
- 		pmic_int: pmic_int {
- 			rockchip,pins =
 -- 
 2.34.1
 
