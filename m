@@ -2,69 +2,99 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9155DC43334
-	for <linux-rtc@archiver.kernel.org>; Sat, 11 Jun 2022 15:15:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E815BC433EF
+	for <linux-rtc@archiver.kernel.org>; Sun, 12 Jun 2022 19:33:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238157AbiFKPP6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 11 Jun 2022 11:15:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38564 "EHLO
+        id S231915AbiFLTdQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 12 Jun 2022 15:33:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238009AbiFKPP5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 11 Jun 2022 11:15:57 -0400
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9050146CB9;
-        Sat, 11 Jun 2022 08:15:56 -0700 (PDT)
-Received: from p508fd9f0.dip0.t-ipconnect.de ([80.143.217.240] helo=phil.fritz.box)
-        by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <heiko@sntech.de>)
-        id 1o02q6-0004vU-Go; Sat, 11 Jun 2022 17:15:50 +0200
-From:   Heiko Stuebner <heiko@sntech.de>
-To:     Frank Wunderlich <linux@fw-web.de>,
-        linux-rockchip@lists.infradead.org
-Cc:     Heiko Stuebner <heiko@sntech.de>,
-        linux-arm-kernel@lists.infradead.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        devicetree@vger.kernel.org,
-        Frank Wunderlich <frank-w@public-files.de>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: (subset) [PATCH 0/2] Support RTC on BPI-R2 Pro
-Date:   Sat, 11 Jun 2022 17:15:46 +0200
-Message-Id: <165496044123.1951281.5949478945237694774.b4-ty@sntech.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220608161150.58919-1-linux@fw-web.de>
-References: <20220608161150.58919-1-linux@fw-web.de>
+        with ESMTP id S232011AbiFLTdQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 12 Jun 2022 15:33:16 -0400
+Received: from 10.mo576.mail-out.ovh.net (10.mo576.mail-out.ovh.net [46.105.73.241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B2F403CF
+        for <linux-rtc@vger.kernel.org>; Sun, 12 Jun 2022 12:33:12 -0700 (PDT)
+Received: from player735.ha.ovh.net (unknown [10.110.208.124])
+        by mo576.mail-out.ovh.net (Postfix) with ESMTP id 57CC0225D9
+        for <linux-rtc@vger.kernel.org>; Sun, 12 Jun 2022 19:23:54 +0000 (UTC)
+Received: from RCM-web10.webmail.mail.ovh.net (82-65-25-201.subs.proxad.net [82.65.25.201])
+        (Authenticated sender: steve@sk2.org)
+        by player735.ha.ovh.net (Postfix) with ESMTPSA id 0C6A72B3DD8AF;
+        Sun, 12 Jun 2022 19:23:48 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Date:   Sun, 12 Jun 2022 21:23:47 +0200
+From:   Stephen Kitt <steve@sk2.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Dianlong Li <long17.cool@163.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: use simple i2c probe
+In-Reply-To: <YqSnwf7paZa1+uuh@mail.local>
+References: <20220610162346.4134094-1-steve@sk2.org>
+ <YqSnwf7paZa1+uuh@mail.local>
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <2bd6ab78f649ba282c5369d0e969fea2@sk2.org>
+X-Sender: steve@sk2.org
+X-Originating-IP: 82.65.25.201
+X-Webmail-UserID: steve@sk2.org
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 4416342386368415366
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvfedrudduhedgudeffecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeggfffhvfevufgjfhgfkfigihgtgfesthekjhdttderjeenucfhrhhomhepufhtvghphhgvnhcumfhithhtuceoshhtvghvvgesshhkvddrohhrgheqnecuggftrfgrthhtvghrnhepkeffueehgfegteelveeigffgheegkefhleeukefhfedtiedvvdekgeehfeekffegnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkpheptddrtddrtddrtddpkedvrdeihedrvdehrddvtddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpohhuthdphhgvlhhopehplhgrhigvrhejfeehrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepshhtvghvvgesshhkvddrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhrthgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehjeei
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, 8 Jun 2022 18:11:47 +0200, Frank Wunderlich wrote:
-> This series is updating hym8563 rtc driver and add devicetree nodes
-> for Bananapi R2 Pro board.
+Hi Alexandre,
+
+Le 11/06/2022 16:48, Alexandre Belloni a écrit :
+> On 10/06/2022 18:23:43+0200, Stephen Kitt wrote:
+>> All these drivers have an i2c probe function which doesn't use the
+>> "struct i2c_device_id *id" parameter, so they can trivially be
+>> converted to the "probe_new" style of probe with a single argument.
+>> 
 > 
-> Frank Wunderlich (1):
->   arm64: dts: rockchip: add RTC to BPI-R2 Pro
-> 
-> Peter Geis (1):
->   rtc: hym8563: try multiple times to init device
-> 
-> [...]
+> I think you should explain why you want to do that as the trend is to 
+> do
+> the exact opposite to allow support for those RTCS on x86 systems.
 
-Applied, thanks!
+Indeed, I should have given more context. The idea is to continue the 
+transition started with 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b8a1a4cd5a98a2adf8dfd6902cd98e57d910ee12 
+(in 2016...). I²C drivers using probe() involve a call to i2c_match_id: 
+in drivers/i2c/i2c-core-base.c,
 
-[2/2] arm64: dts: rockchip: add RTC to BPI-R2 Pro
-      commit: efaa0c1378ed800abd1abe0aa51ffd30002efdb4
+         /*
+          * When there are no more users of probe(),
+          * rename probe_new to probe.
+          */
+         if (driver->probe_new)
+                 status = driver->probe_new(client);
+         else if (driver->probe)
+                 status = driver->probe(client,
+                                        i2c_match_id(driver->id_table, 
+client));
+         else
+                 status = -EINVAL;
 
-      I've changed the node name to hym8563: rtc@...
+Many drivers don't actually need the second parameter, so instead of 
+having probe() with both parameters, the goal is to switch to a probe 
+function with only "struct i2c_client *". Probe functions that *do* need 
+the "struct i2c_device_id" can call i2c_match_id themselves (as is done 
+currently with of_match_id).
 
-      The node name should be the class of device i.e. rtc in this case.
+I discussed this briefly with Wolfram beginning of June at Kernel 
+Recipes, and as I understood it the plan was still to continue with this 
+transition (in fact, the plan was for *me* to continue with this 
+transition).
 
-Best regards,
--- 
-Heiko Stuebner <heiko@sntech.de>
+Do you have an example of a change requiring id to support RTCs on x86 
+systems?
+
+Regards,
+
+Stephen
