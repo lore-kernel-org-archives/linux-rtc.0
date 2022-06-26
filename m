@@ -2,139 +2,118 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8C7AC433EF
-	for <linux-rtc@archiver.kernel.org>; Sat, 25 Jun 2022 20:38:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C76FCC43334
+	for <linux-rtc@archiver.kernel.org>; Sun, 26 Jun 2022 04:28:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbiFYUih (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 25 Jun 2022 16:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59536 "EHLO
+        id S229986AbiFZE2I (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 26 Jun 2022 00:28:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233551AbiFYUig (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 25 Jun 2022 16:38:36 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 490D813EAD
-        for <linux-rtc@vger.kernel.org>; Sat, 25 Jun 2022 13:38:35 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id z7so7850728edm.13
-        for <linux-rtc@vger.kernel.org>; Sat, 25 Jun 2022 13:38:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=MfJhDTjDLNxHEOb0O70IYA2LdOjCiYcIoiUYXbrNOZ4=;
-        b=JHokDgSBVB0acKRGJoylSeaZb3PORhzalT1OMuL1Xpx6TTt+EtewQAhP3OdWqg5IoT
-         mRGcmhAzXpOT9HqrUOXV5VB5tEPz0Kb4pwLONY95kGUEIuLePUBinAPKRvVFMFljKxJ3
-         Yp32RJinLVg7pllz/zmVr/+jm6LCOCuvTziT1NXnmqSWZX4ihi8JYglFFSLANHeIW+To
-         /OybiTvi+xfAbtjR32QEHksWECEa9lF4FKIn1FMdgjyAcoaUBEXU9loGUWKkUcF0Gtmg
-         LTYoQoHgyWMHoIXuToyOcEW4XkVe/jFCQ+wrh1oGqiB8uBxPpuGsbJNPxcugasfqWGP+
-         LTCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=MfJhDTjDLNxHEOb0O70IYA2LdOjCiYcIoiUYXbrNOZ4=;
-        b=GIKjAICc5oM1ZaL76UQH5X/2viSGAdoCI5l/dVm0zqEiqW8Xy8rIX16zKJcbRVqIjc
-         jlxjS0ayKrTyIzlQJkGt89+aLO0dCDurAzm8Lq4GaKnPjbugpEYX+M8hAffG3D3rrUiC
-         95fByvgkIc6/25o0qpG+ng6FA0E6h3k2NO5FAc83lsMkoJtiRamdm+wtQKtnfMhbglMb
-         kc9oqcg0fyryaY97zZRth/QqF+yHzB5ZC+I3GLFC+Y2s0111HpJiBrCPGS+llsYIFiM0
-         M9zNMt1h1eB0wecbGkq++0Ms09jBn6VainO6dUrsMzgoSU32q8UF3TrRtZPhpQi4WO2z
-         pypw==
-X-Gm-Message-State: AJIora+6LxCsLpv4hrJBAlsUsfjqaFM58YmBNvv9ZegKJXLYtO2kb7Qf
-        B989QZcHLzrkWUxH38h4wA+tsg==
-X-Google-Smtp-Source: AGRyM1twbLaxDqEWBJhXOCA/HSV54AxQLykkUVdEnBcNoXWXhA0wOnXIAdRMUyLxgzdJFE5KGxAtnQ==
-X-Received: by 2002:a05:6402:1bc1:b0:435:67ef:2f41 with SMTP id ch1-20020a0564021bc100b0043567ef2f41mr6856792edb.85.1656189513876;
-        Sat, 25 Jun 2022 13:38:33 -0700 (PDT)
-Received: from [192.168.0.239] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id x2-20020aa7d382000000b00435640c141esm4572024edq.93.2022.06.25.13.38.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 25 Jun 2022 13:38:33 -0700 (PDT)
-Message-ID: <62719859-bfed-6c85-76c9-ede0b75d492e@linaro.org>
-Date:   Sat, 25 Jun 2022 22:38:32 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH V9 1/3] dt-bindings: rtc: zynqmp: Add clock information
-Content-Language: en-US
-To:     Srinivas Neeli <srinivas.neeli@xilinx.com>, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, robh+dt@kernel.org,
-        srinivas.neeli@amd.com, neelisrinivas18@gmail.com,
-        krzysztof.kozlowski+dt@linaro.org, michal.simek@xilinx.com,
-        sgoud@xilinx.com, shubhraj@xilinx.com
-Cc:     devicetree@vger.kernel.org, linux-rtc@vger.kernel.org,
+        with ESMTP id S231406AbiFZE2H (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 26 Jun 2022 00:28:07 -0400
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02B9DCDC;
+        Sat, 25 Jun 2022 21:28:01 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id 33832320055E;
+        Sun, 26 Jun 2022 00:27:59 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 26 Jun 2022 00:28:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
+        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
+         s=fm3; t=1656217678; x=1656304078; bh=hRF+I95UJxqPYyeXN8EYFMKCR
+        8uRybetp/GgkAZvqNY=; b=UgogN9O6ApCHwdLBnlbf6p3Hbmc+RzKkXeY5330e/
+        H90NJ2BunN2wS20rCEpWwc6a09sIMpP4K9Wm+Y3mBqYUSBNEw6YkzI9U+gvZvwyK
+        IyfZpyvcWH3e8urt2AcPheSzCOKTLh39aOxG2TPGf0kjVZvhl0qyTl0c2krR7GGH
+        hvd1Pq7/iOhKVGwTy9sU9K1xt+hDm8EOvar+DOK2K27fZ+cc7g8q4hR24dlmDF9D
+        QoXEe8747y94drqBur80fu1+LLPVmpM2zmU+eJfzCk/gj3SLHt14IWjwYJW9xkKz
+        fXvuW3SOXNcVHzlSiL9IQataCl7c5gJSZ0X8hG6Fzec7A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+        1656217678; x=1656304078; bh=hRF+I95UJxqPYyeXN8EYFMKCR8uRybetp/G
+        gkAZvqNY=; b=kBb/Ju001J1aZWFImoH0YeKHuscG7ZSv+E4/6OmzsNXYW5yQfIS
+        Ox7KhZYqSykJOM8FZlRBYA+cqtx21i+kceD9bVyXBAuHhcHv1+bThd/nCklXSNlK
+        4IlL6C5icg5E1r9mhEFSl+/5k3FR9Wx3TBksyQXA89uAdyZv6OQ4UIoZ7hw4DIKY
+        omS8QPPM8+6H5/TOSGadZqEOnKFYaM3kApGM//qgzK2VQTdLOjkaqNnYdi9o/khu
+        7evM16ffbL/rYjkuGohx9qUfOx4XUqd25vBzdyNz3ObdnHC8HkxyNvKvw2Vekrov
+        UlbdcoNUQ0pEvle+cLtvV2OzBWJYB4qgnOg==
+X-ME-Sender: <xms:TuC3YkzYKl2txXJXSuQ7EQxDTHioul3hu0RpQ2DGubt9d6edGg0IRg>
+    <xme:TuC3YoR8mL9fNSxtDGLqRPprl8RkRI67So5DPPkyf3mphe9FnCjYARz_OS8dhN2ev
+    5xk68InxEBIqf6lWw>
+X-ME-Received: <xmr:TuC3YmX028yqqFtezCzYY0zdBPpmm0jHYYIiEv3auPmIbVKK94oKOfdSfemTjYvxQgYuNHGjrYWdr87MlhV5ryTUTtQk4or2QaJ6opmHFsWebiyfwliQEul_RoYAK3RmiCGHLA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudegvddgkeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghl
+    ucfjohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrf
+    grthhtvghrnhepkeehffethedtteffgfefteetjedvfeelueevudffgfeutdejvdehledv
+    vdffhfevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsrghmuhgvlhesshhhohhllhgrnhgu
+    rdhorhhg
+X-ME-Proxy: <xmx:TuC3Yig5Of93IMDqqrQwoNSy_IErl1mpNMFWT6ACw0BqLC0XueWSfw>
+    <xmx:TuC3YmAK27EbRL4dkl3e-3FzA_jwa41yvmjBohkzel58afPl6amBdg>
+    <xmx:TuC3YjJH_NZfSEuD2ytiC_Y_lAxFF9uwcR0n4q45G6DnwZyzoFpNjg>
+    <xmx:TuC3Yi3ANJGnY9m4ez287FOmD-y6lCoZxGkq_1Zeq8FysCI7gVdwCQ>
+Feedback-ID: i0ad843c9:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 26 Jun 2022 00:27:57 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Samuel Holland <samuel@sholland.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        git@amd.com, git@xilinx.com, Rob Herring <robh@kernel.org>
-References: <20220624120203.2817457-1-srinivas.neeli@xilinx.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220624120203.2817457-1-srinivas.neeli@xilinx.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev
+Subject: [RESEND PATCH] rtc: sun6i: add support for R329 RTC
+Date:   Sat, 25 Jun 2022 23:27:56 -0500
+Message-Id: <20220626042756.58961-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.35.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 24/06/2022 14:02, Srinivas Neeli wrote:
-> Added clock information and deprecated calibration support.
-> 
-> Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> ---
-> Changes in V9:
-> -Updated clock information in clock-names.
-> Changes in V8:
-> -None
-> Changes in V7:
-> -None
-> Changes in V6:
-> -Removed dtc warnings.
-> Changes in V5:
-> -Removed quotes and _clk suffix from clocknames.
-> Changes in V4:
-> - Deprecated calibrtion support
-> Changes in V3:
-> - New patch
-> ---
->  .../devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml     | 12 +++++++++++-
->  1 file changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml b/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
-> index bdb72d3ddf2a..9dfe2cc5966a 100644
-> --- a/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml
-> @@ -23,8 +23,15 @@ properties:
->    reg:
->      maxItems: 1
->  
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  clock-names:
-> +    items:
-> +      - const: rtc
-> +
->    interrupts:
-> -    minItems: 2
-> +    maxItems: 2
->  
->    interrupt-names:
->      items:
-> @@ -39,6 +46,7 @@ properties:
->      minimum: 0x1
->      maximum: 0x1FFFFF
->      default: 0x198233
-> +    deprecated: true
->  
->  required:
->    - compatible
-> @@ -61,5 +69,7 @@ examples:
->          interrupts = <0 26 4>, <0 27 4>;
->          interrupt-names = "alarm", "sec";
->          calibration = <0x198233>;
-> +        clock-names = "rtc_clk";
-> +        clocks = <&rtc_clk>;
+From: Icenowy Zheng <icenowy@aosc.io>
 
-Please test your bindings with `make dt_binding_check` before sending.
+Allwinner R329 has a RTC with a similar time storage with H616 but a
+slightly different clock part.
 
+As we have already handled the R329 RTC clocks in the CCU driver, add a
+compatible string to RTC driver to allow probing of the RTC.
 
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+Resending this patch separately from Icenowy's R329 series[1] because it
+is also needed for D1 (which has R329 as its fallback compatible[2]), so
+I would like to get it in to 5.20.
 
-Best regards,
-Krzysztof
+[1]: https://lore.kernel.org/lkml/BYAPR20MB2472C608678F3FAEDA7B7541BCF79@BYAPR20MB2472.namprd20.prod.outlook.com/
+[2]: https://lore.kernel.org/lkml/20220203021736.13434-3-samuel@sholland.org/
+
+ drivers/rtc/rtc-sun6i.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 57540727ce1c..ed5516089e9a 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -875,6 +875,8 @@ static const struct of_device_id sun6i_rtc_dt_ids[] = {
+ 	{ .compatible = "allwinner,sun50i-h6-rtc" },
+ 	{ .compatible = "allwinner,sun50i-h616-rtc",
+ 		.data = (void *)RTC_LINEAR_DAY },
++	{ .compatible = "allwinner,sun50i-r329-rtc",
++		.data = (void *)RTC_LINEAR_DAY },
+ 	{ /* sentinel */ },
+ };
+ MODULE_DEVICE_TABLE(of, sun6i_rtc_dt_ids);
+-- 
+2.35.1
+
