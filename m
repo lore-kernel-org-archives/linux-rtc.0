@@ -2,121 +2,357 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5E7BCCA483
-	for <linux-rtc@archiver.kernel.org>; Mon,  4 Jul 2022 08:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90D38CCA48E
+	for <linux-rtc@archiver.kernel.org>; Wed, 29 Jun 2022 07:41:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbiGDIGr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 4 Jul 2022 04:06:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48482 "EHLO
+        id S232291AbiF2Hlz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 29 Jun 2022 03:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbiGDIGp (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 4 Jul 2022 04:06:45 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2BDAE6C
-        for <linux-rtc@vger.kernel.org>; Mon,  4 Jul 2022 01:06:43 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id i17so5322889ljj.12
-        for <linux-rtc@vger.kernel.org>; Mon, 04 Jul 2022 01:06:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=W9vEcsuPOmb6PFD1YP9Cd5t2i8+H7vKDdbGELGM7w6o=;
-        b=qIVH3JbKvPTI90pL62KYY0CE73JeN2SUYSrBybV8uswZCRUzC7TyQR8SVFp8MZtE+n
-         xr7tJOlv3L2n5ZyjubWWSM+HvxpWMMviQPJGc+z61rfEV7BG6cQlF6JShpAp0jtu8vVF
-         ceTB3j2pH2b/Yt1sE4BJDCgHdKQmyfJZMtTr8D5mHqeWpIZvfd9zndu2IJA4nuyF61qJ
-         PLuksfEnXLVGlUXKspIWeM/QLHcLr0LmFBlIvSpGCb9lgFdOCT5hGek9uM/lI/l3D+aq
-         iN+8aCJy4pGjNnJY/joNcWnXboVwrTUBBtxKGrp15wZVhuCWO0JNd1/VK0fRmlhAUyqW
-         ctvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=W9vEcsuPOmb6PFD1YP9Cd5t2i8+H7vKDdbGELGM7w6o=;
-        b=Z7veFlh9A4JBtw3IIWDQRmNwG3bAapn79v2X/gwLO2W4OWd3SmdEiD/lXof0Madwkz
-         4NYp8cTZEzySjvoxz4Khik+6tJVmyCvUk8a9xAZBSMXAPu2AAmOEs0gHl8EL6tHjzcLY
-         4S4pFQPpZlHzBu2lvZoDtpIDLiliZlvSP2Y8RYO1np0OCuK4VlCrP57bVf+hoso5d1Z8
-         ME/azKFalxGaJNrbxET7t7nVqBTd/lEBdkVZh/n99M2mSHPoi4OH2YcywDeExaxIXV49
-         eGUOamtfVW5PxKpsxa4i0J8FpchviOlSP+LN0KwnbJtc0BPcBRnbusE6Wt+alH6d6I1P
-         e8Bg==
-X-Gm-Message-State: AJIora/yS5KPTi3ymKIgGy7jPXr76ZZdRG0vHD9IcFEELg/3/GhHFVO0
-        wD5ohD4lzCO5vpieOnD/yMIbiToU3IokH82Y
-X-Google-Smtp-Source: AGRyM1shyweS5X2mqdSfWYknlmTWWG1DGobjjvfheeS4TSNX76HtThJhWEt1hwbwlkge4YLK4Rb5CA==
-X-Received: by 2002:a2e:9097:0:b0:25a:6e3a:8b21 with SMTP id l23-20020a2e9097000000b0025a6e3a8b21mr15698533ljg.37.1656922001547;
-        Mon, 04 Jul 2022 01:06:41 -0700 (PDT)
-Received: from [192.168.1.52] ([84.20.121.239])
-        by smtp.gmail.com with ESMTPSA id b8-20020a056512218800b0047f7c897b61sm5018145lft.129.2022.07.04.01.06.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Jul 2022 01:06:40 -0700 (PDT)
-Message-ID: <2823c36d-efce-6c02-3b00-df1466c0d2bc@linaro.org>
-Date:   Mon, 4 Jul 2022 10:06:39 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v6 10/14] arm64: dts: freescale: imx8qxp: Remove
- unnecessary clock related entries
-Content-Language: en-US
-To:     Viorel Suman <viorel.suman@oss.nxp.com>
-Cc:     Viorel Suman <viorel.suman@nxp.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        with ESMTP id S229820AbiF2Hlv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 29 Jun 2022 03:41:51 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31F1236B42;
+        Wed, 29 Jun 2022 00:41:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1656488510; x=1688024510;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=hRLWAheTUgpMqJ+CTyhb8q72eqCf5jXCD+qdlPmQdX8=;
+  b=V7EsYYr9EIij1ip70+OQMY/gzrh5wyGiKcYp8AWCHb25bOJrQa8ldVVA
+   WjfiGM9RSi7+O2v6aTzjnGFtciC06e+wwz660J8d1fRqDhDUuFa+GCisT
+   rKUaoFvcqeLu972MEnNCCaodyFq5KFw65hrEObpxXK1USTMOqGTNjghk1
+   M6eAb7r6RhwTd49jKSf+itMDaZ5Gu/jHoVMqNBN++BYhLvCzxTurIoN9M
+   /3H0k+pz3CbrRrMwvdgEhSQ7BUW5H6fpDqV6CtG6BHjQGM7QYyLOK833q
+   sD1PkwJUKQH1n3D/+a5t4ubmQSAULxHZs8gKZv4cjGcBr80q05Z6ghIMA
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10392"; a="307444900"
+X-IronPort-AV: E=Sophos;i="5.92,230,1650956400"; 
+   d="scan'208";a="307444900"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2022 00:41:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,230,1650956400"; 
+   d="scan'208";a="733074160"
+Received: from kuha.fi.intel.com ([10.237.72.185])
+  by fmsmga001.fm.intel.com with SMTP; 29 Jun 2022 00:40:24 -0700
+Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Wed, 29 Jun 2022 10:40:23 +0300
+Date:   Wed, 29 Jun 2022 10:40:23 +0300
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Wolfram Sang <wsa@kernel.org>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
+        Sekhar Nori <nsekhar@ti.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Russell King <linux@armlinux.org.uk>,
+        Scott Wood <oss@buserror.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Robin van der Gracht <robin@protonic.nl>,
+        Miguel Ojeda <ojeda@kernel.org>,
+        Corey Minyard <minyard@acm.org>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
         Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Luca Ceresoli <luca@lucaceresoli.net>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amitk@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Liu Ying <victor.liu@nxp.com>,
-        Mirela Rabulea <mirela.rabulea@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Ming Qian <ming.qian@nxp.com>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20220629164414.301813-1-viorel.suman@oss.nxp.com>
- <20220629164414.301813-11-viorel.suman@oss.nxp.com>
- <483d5115-4027-e811-8bce-15da6c7c660f@linaro.org>
- <20220630083636.2c7mclmbq3tjma2j@fsr-ub1664-116>
- <5d8b2044-5ca6-c90c-57b4-afbb2ae20dde@linaro.org>
- <20220630194804.sa3mvokpv7iksgbx@fsr-ub1664-116>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220630194804.sa3mvokpv7iksgbx@fsr-ub1664-116>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Phong LE <ple@baylibre.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Peter Senna Tschudin <peter.senna@gmail.com>,
+        Martin Donnelly <martin.donnelly@ge.com>,
+        Martyn Welch <martyn.welch@collabora.co.uk>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stefan Mavrodiev <stefan@olimex.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, Broad@vger.kernel.org
+Subject: Re: [PATCH 6/6] i2c: Make remove callback return void
+Message-ID: <YrwB5xPKZmHlXzrC@kuha.fi.intel.com>
+References: <20220628140313.74984-1-u.kleine-koenig@pengutronix.de>
+ <20220628140313.74984-7-u.kleine-koenig@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220628140313.74984-7-u.kleine-koenig@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 30/06/2022 21:48, Viorel Suman wrote:
-> 
-> The question context looks a bit shifted. The "clocks" and "clock-names"
-> attributes are removed from a clock provider device.
-> 
-> The OS clock provider in this case is a client which uses some protocol
-> to communicate with SCU via a messaging unit. There is no
-> access to xtal clocks via the existing OS<->SCU communication protocol.
+On Tue, Jun 28, 2022 at 04:03:12PM +0200, Uwe Kleine-König wrote:
+> diff --git a/drivers/usb/typec/hd3ss3220.c b/drivers/usb/typec/hd3ss3220.c
+> index cd47c3597e19..2a58185fb14c 100644
+> --- a/drivers/usb/typec/hd3ss3220.c
+> +++ b/drivers/usb/typec/hd3ss3220.c
+> @@ -245,14 +245,12 @@ static int hd3ss3220_probe(struct i2c_client *client,
+>  	return ret;
+>  }
+>  
+> -static int hd3ss3220_remove(struct i2c_client *client)
+> +static void hd3ss3220_remove(struct i2c_client *client)
+>  {
+>  	struct hd3ss3220 *hd3ss3220 = i2c_get_clientdata(client);
+>  
+>  	typec_unregister_port(hd3ss3220->port);
+>  	usb_role_switch_put(hd3ss3220->role_sw);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct of_device_id dev_ids[] = {
+> diff --git a/drivers/usb/typec/mux/fsa4480.c b/drivers/usb/typec/mux/fsa4480.c
+> index 6184f5367190..d6495e533e58 100644
+> --- a/drivers/usb/typec/mux/fsa4480.c
+> +++ b/drivers/usb/typec/mux/fsa4480.c
+> @@ -181,14 +181,12 @@ static int fsa4480_probe(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> -static int fsa4480_remove(struct i2c_client *client)
+> +static void fsa4480_remove(struct i2c_client *client)
+>  {
+>  	struct fsa4480 *fsa = i2c_get_clientdata(client);
+>  
+>  	typec_mux_unregister(fsa->mux);
+>  	typec_switch_unregister(fsa->sw);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id fsa4480_table[] = {
+> diff --git a/drivers/usb/typec/mux/pi3usb30532.c b/drivers/usb/typec/mux/pi3usb30532.c
+> index 6ce9f282594e..1cd388b55c30 100644
+> --- a/drivers/usb/typec/mux/pi3usb30532.c
+> +++ b/drivers/usb/typec/mux/pi3usb30532.c
+> @@ -160,13 +160,12 @@ static int pi3usb30532_probe(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> -static int pi3usb30532_remove(struct i2c_client *client)
+> +static void pi3usb30532_remove(struct i2c_client *client)
+>  {
+>  	struct pi3usb30532 *pi = i2c_get_clientdata(client);
+>  
+>  	typec_mux_unregister(pi->mux);
+>  	typec_switch_unregister(pi->sw);
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id pi3usb30532_table[] = {
+> diff --git a/drivers/usb/typec/rt1719.c b/drivers/usb/typec/rt1719.c
+> index f1b698edd7eb..ea8b700b0ceb 100644
+> --- a/drivers/usb/typec/rt1719.c
+> +++ b/drivers/usb/typec/rt1719.c
+> @@ -930,14 +930,12 @@ static int rt1719_probe(struct i2c_client *i2c)
+>  	return ret;
+>  }
+>  
+> -static int rt1719_remove(struct i2c_client *i2c)
+> +static void rt1719_remove(struct i2c_client *i2c)
+>  {
+>  	struct rt1719_data *data = i2c_get_clientdata(i2c);
+>  
+>  	typec_unregister_port(data->port);
+>  	usb_role_switch_put(data->role_sw);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct of_device_id __maybe_unused rt1719_device_table[] = {
+> diff --git a/drivers/usb/typec/stusb160x.c b/drivers/usb/typec/stusb160x.c
+> index e7745d1c2a5c..8638f1d39896 100644
+> --- a/drivers/usb/typec/stusb160x.c
+> +++ b/drivers/usb/typec/stusb160x.c
+> @@ -801,7 +801,7 @@ static int stusb160x_probe(struct i2c_client *client)
+>  	return ret;
+>  }
+>  
+> -static int stusb160x_remove(struct i2c_client *client)
+> +static void stusb160x_remove(struct i2c_client *client)
+>  {
+>  	struct stusb160x *chip = i2c_get_clientdata(client);
+>  
+> @@ -823,8 +823,6 @@ static int stusb160x_remove(struct i2c_client *client)
+>  
+>  	if (chip->main_supply)
+>  		regulator_disable(chip->main_supply);
+> -
+> -	return 0;
+>  }
+>  
+>  static int __maybe_unused stusb160x_suspend(struct device *dev)
+> diff --git a/drivers/usb/typec/tcpm/fusb302.c b/drivers/usb/typec/tcpm/fusb302.c
+> index 96c55eaf3f80..5e9348f28d50 100644
+> --- a/drivers/usb/typec/tcpm/fusb302.c
+> +++ b/drivers/usb/typec/tcpm/fusb302.c
+> @@ -1771,7 +1771,7 @@ static int fusb302_probe(struct i2c_client *client,
+>  	return ret;
+>  }
+>  
+> -static int fusb302_remove(struct i2c_client *client)
+> +static void fusb302_remove(struct i2c_client *client)
+>  {
+>  	struct fusb302_chip *chip = i2c_get_clientdata(client);
+>  
+> @@ -1783,8 +1783,6 @@ static int fusb302_remove(struct i2c_client *client)
+>  	fwnode_handle_put(chip->tcpc_dev.fwnode);
+>  	destroy_workqueue(chip->wq);
+>  	fusb302_debugfs_exit(chip);
+> -
+> -	return 0;
+>  }
+>  
+>  static int fusb302_pm_suspend(struct device *dev)
+> diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
+> index f33e08eb7670..c48fca60bb06 100644
+> --- a/drivers/usb/typec/tcpm/tcpci.c
+> +++ b/drivers/usb/typec/tcpm/tcpci.c
+> @@ -869,7 +869,7 @@ static int tcpci_probe(struct i2c_client *client,
+>  	return 0;
+>  }
+>  
+> -static int tcpci_remove(struct i2c_client *client)
+> +static void tcpci_remove(struct i2c_client *client)
+>  {
+>  	struct tcpci_chip *chip = i2c_get_clientdata(client);
+>  	int err;
+> @@ -880,8 +880,6 @@ static int tcpci_remove(struct i2c_client *client)
+>  		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+>  
+>  	tcpci_unregister_port(chip->tcpci);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id tcpci_id[] = {
+> diff --git a/drivers/usb/typec/tcpm/tcpci_maxim.c b/drivers/usb/typec/tcpm/tcpci_maxim.c
+> index df2505570f07..a11be5754128 100644
+> --- a/drivers/usb/typec/tcpm/tcpci_maxim.c
+> +++ b/drivers/usb/typec/tcpm/tcpci_maxim.c
+> @@ -493,14 +493,12 @@ static int max_tcpci_probe(struct i2c_client *client, const struct i2c_device_id
+>  	return ret;
+>  }
+>  
+> -static int max_tcpci_remove(struct i2c_client *client)
+> +static void max_tcpci_remove(struct i2c_client *client)
+>  {
+>  	struct max_tcpci_chip *chip = i2c_get_clientdata(client);
+>  
+>  	if (!IS_ERR_OR_NULL(chip->tcpci))
+>  		tcpci_unregister_port(chip->tcpci);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id max_tcpci_id[] = {
+> diff --git a/drivers/usb/typec/tcpm/tcpci_rt1711h.c b/drivers/usb/typec/tcpm/tcpci_rt1711h.c
+> index b56a0880a044..9ad4924b4ba7 100644
+> --- a/drivers/usb/typec/tcpm/tcpci_rt1711h.c
+> +++ b/drivers/usb/typec/tcpm/tcpci_rt1711h.c
+> @@ -263,12 +263,11 @@ static int rt1711h_probe(struct i2c_client *client,
+>  	return 0;
+>  }
+>  
+> -static int rt1711h_remove(struct i2c_client *client)
+> +static void rt1711h_remove(struct i2c_client *client)
+>  {
+>  	struct rt1711h_chip *chip = i2c_get_clientdata(client);
+>  
+>  	tcpci_unregister_port(chip->tcpci);
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id rt1711h_id[] = {
+> diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
+> index dfbba5ae9487..b637e8b378b3 100644
+> --- a/drivers/usb/typec/tipd/core.c
+> +++ b/drivers/usb/typec/tipd/core.c
+> @@ -857,15 +857,13 @@ static int tps6598x_probe(struct i2c_client *client)
+>  	return ret;
+>  }
+>  
+> -static int tps6598x_remove(struct i2c_client *client)
+> +static void tps6598x_remove(struct i2c_client *client)
+>  {
+>  	struct tps6598x *tps = i2c_get_clientdata(client);
+>  
+>  	tps6598x_disconnect(tps, 0);
+>  	typec_unregister_port(tps->port);
+>  	usb_role_switch_put(tps->role_sw);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct of_device_id tps6598x_of_match[] = {
+> diff --git a/drivers/usb/typec/ucsi/ucsi_ccg.c b/drivers/usb/typec/ucsi/ucsi_ccg.c
+> index 6db7c8ddd51c..920b7e743f56 100644
+> --- a/drivers/usb/typec/ucsi/ucsi_ccg.c
+> +++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
+> @@ -1398,7 +1398,7 @@ static int ucsi_ccg_probe(struct i2c_client *client,
+>  	return status;
+>  }
+>  
+> -static int ucsi_ccg_remove(struct i2c_client *client)
+> +static void ucsi_ccg_remove(struct i2c_client *client)
+>  {
+>  	struct ucsi_ccg *uc = i2c_get_clientdata(client);
+>  
+> @@ -1408,8 +1408,6 @@ static int ucsi_ccg_remove(struct i2c_client *client)
+>  	ucsi_unregister(uc->ucsi);
+>  	ucsi_destroy(uc->ucsi);
+>  	free_irq(uc->irq, uc);
+> -
+> -	return 0;
+>  }
+>  
+>  static const struct i2c_device_id ucsi_ccg_device_id[] = {
+> diff --git a/drivers/usb/typec/wusb3801.c b/drivers/usb/typec/wusb3801.c
+> index e63509f8b01e..3cc7a15ecbd3 100644
+> --- a/drivers/usb/typec/wusb3801.c
+> +++ b/drivers/usb/typec/wusb3801.c
+> @@ -399,7 +399,7 @@ static int wusb3801_probe(struct i2c_client *client)
+>  	return ret;
+>  }
+>  
+> -static int wusb3801_remove(struct i2c_client *client)
+> +static void wusb3801_remove(struct i2c_client *client)
+>  {
+>  	struct wusb3801 *wusb3801 = i2c_get_clientdata(client);
+>  
+> @@ -411,8 +411,6 @@ static int wusb3801_remove(struct i2c_client *client)
+>  
+>  	if (wusb3801->vbus_on)
+>  		regulator_disable(wusb3801->vbus_supply);
+> -
+> -	return 0;
+>  }
 
-SCU does not need to access them via communication protocol. It's enough
-that they are clock inputs, physical clocks being fed to your hardware
-which you describe in the DTS.
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-
-Best regards,
-Krzysztof
+-- 
+heikki
