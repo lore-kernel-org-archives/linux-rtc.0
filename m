@@ -2,120 +2,249 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74915C433EF
-	for <linux-rtc@archiver.kernel.org>; Fri, 22 Jul 2022 17:25:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFEF5C43334
+	for <linux-rtc@archiver.kernel.org>; Mon, 25 Jul 2022 07:19:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbiGVRZK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 22 Jul 2022 13:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        id S230135AbiGYHTc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 25 Jul 2022 03:19:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230300AbiGVRZI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 22 Jul 2022 13:25:08 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6BED97
-        for <linux-rtc@vger.kernel.org>; Fri, 22 Jul 2022 10:25:06 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id a13so6033629ljr.11
-        for <linux-rtc@vger.kernel.org>; Fri, 22 Jul 2022 10:25:06 -0700 (PDT)
+        with ESMTP id S231594AbiGYHTb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 25 Jul 2022 03:19:31 -0400
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33CE511808;
+        Mon, 25 Jul 2022 00:19:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=KuEpwZJ1uhtFdUF1C/gI9wPx+uXhdTm9dpr0H9Yke6w=;
-        b=egPNOAbAN7Y+qZ60MlIEaORxMlNW33vdbhk/TMQ/ZDFV2yScqD8w0HuBXmVJB23Mgr
-         mJuWq/sryAH4iWp/5UHpI2wskFsbtxE7mUll6tkj0cjp0oEY5R/ZcRCXSo+qH/kk5uIz
-         kHMnq/L9Qt3LQrGEmJuO1QDt2I8sVfV9Hby0UH8vJ6wxfdKNDfOIKuK3qjDPt4vXObaO
-         cmmCNZ1BA6OjXgdOnaLISFsGguwpY4ApUPps3YB59luy7kyLjtd7FJyiYTpYtpBLLnws
-         qG/1qMQpOiWD8AtVLBsmGQctucAgovGC9Ga8TFOFfZRXlOL4oMphLGwTCVTBzFQlpC6F
-         9dRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=KuEpwZJ1uhtFdUF1C/gI9wPx+uXhdTm9dpr0H9Yke6w=;
-        b=wZ6nwqNDyyZa3r1QNGt96s4W6wlBP9dWHi9ifiPzsiGH8jizSjEHD+9Nfl4jT+HJBB
-         5IkkxbHgaqWFKCmqc9HLuQF5P/zvWe/x4y8NTE+O0DgOriP1STugma9foCdAbCbeCFb6
-         FkXfKdgbKQZ5OyoU5C20xHGlZ+s6bayItlOq/6jyhf022Q1/4IqkEljMGRJ5msxYOJTM
-         VRitKukDL5/ubAbIWIwJFeRj7RE0W/xcEKH91V2BznLI3DU1q2qWEgl0bu0s7STPPuRk
-         /VQtWutuHp2f733dxwZJlK/C/UITjDshRK/rrIybe7lePvU+rvWI+SK5w8E4n0B1SmHm
-         pQ+Q==
-X-Gm-Message-State: AJIora8CKb6I1JqO7bvYlcFGX8qn1vrlJCrmTNSzD6r2rLkvuZ7uDaUR
-        4vCbVJyiVQ0bzqtfhwTLPS+Frw==
-X-Google-Smtp-Source: AGRyM1sW6Ujrt3+VsCsQa6hm4P4P+ZVr5SIK9xcNS52rdxS+gihxYH01QZB0l5kXGFj69Tua+Y7gPg==
-X-Received: by 2002:a2e:b013:0:b0:25d:8f3d:7f0 with SMTP id y19-20020a2eb013000000b0025d8f3d07f0mr365855ljk.131.1658510704998;
-        Fri, 22 Jul 2022 10:25:04 -0700 (PDT)
-Received: from [192.168.10.173] (93.81-167-86.customer.lyse.net. [81.167.86.93])
-        by smtp.gmail.com with ESMTPSA id o21-20020ac24c55000000b004891b4a4acfsm1157744lfk.185.2022.07.22.10.25.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Jul 2022 10:25:04 -0700 (PDT)
-Message-ID: <12dd9bff-bce4-7360-4a98-89bf31202571@linaro.org>
-Date:   Fri, 22 Jul 2022 19:25:02 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2 1/1] dt-bindings: rtc: nxp, pcf85063: Convert to DT
- schema
-Content-Language: en-US
-To:     Alexander Stein <alexander.stein@ew.tq-group.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1658733568; x=1690269568;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=yY9osVrW3jft1FmJI3D86D0pf9l/Zf+qM66ctWi5cSk=;
+  b=mCiZ9gNA84H+2bcecp0oebpj9TagGdSgQqeskgGNhqdWJdqdXvQrpMOz
+   ogUfy7t8yHXWh6bSlHO6Wfzr+Bi8cKX++9GsWfdRwp7NNqsjIDE3NEJqP
+   fUxb/7X9z7KN85DCSAhKNpXdRojAkYRGBuCwEFtRO4dz5fXtZen5BDy/D
+   GtT8qD+x/pYCwh9WbCRRvQTY4WYlCKIF0nxTZEQqzK5s2pyyFui1T6tDd
+   NH8rxxKXafiji2qZzH4ZIaFbj57vf2FoAz0XmCfGmRulNMaBbP9J3W1Wd
+   JHBrNdWoxOXUgKN/SwiPAg8a8pPcDabgM7zOQsYiuwbLksSEVOrl+EGkJ
+   A==;
+X-IronPort-AV: E=Sophos;i="5.93,192,1654552800"; 
+   d="scan'208";a="25230758"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 25 Jul 2022 09:19:25 +0200
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Mon, 25 Jul 2022 09:19:25 +0200
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Mon, 25 Jul 2022 09:19:25 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1658733565; x=1690269565;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=yY9osVrW3jft1FmJI3D86D0pf9l/Zf+qM66ctWi5cSk=;
+  b=jlb6C6+EgKtu51cAjL8cWoeJnvhTYMJVFPLMWFrgduTuk54H4mE9MPvU
+   ZTO57Tg5ni5pUglUeRRbnflfLnsJiw79xJTmie1IwhZpqmtWJYV3IcXJz
+   s17lBuqR0phxplJhrz0+Cs55FUjOJr1b/uqsiSVvVCJoLQYFKeeGTgw7f
+   EWNGOzuUZraXoRg8tres929t0dNAlfEqEtOpiQRglJKqYaGWEgssNecGV
+   cmRTb5n1ZoafuErBtEOdNEeMcIvodjfeDFD3eJ8Pn7sIWQiFOuxCoAjUa
+   3eLnASlFCnSmKkGMzqst8uD0H9fbV4Vm8whK/laSA/fsjF00mRgxr/3Hr
+   g==;
+X-IronPort-AV: E=Sophos;i="5.93,192,1654552800"; 
+   d="scan'208";a="25230756"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 25 Jul 2022 09:19:25 +0200
+Received: from steina-w.tq-net.de (unknown [10.123.49.12])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPSA id 52A99280056;
+        Mon, 25 Jul 2022 09:19:25 +0200 (CEST)
+From:   Alexander Stein <alexander.stein@ew.tq-group.com>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-References: <20220721133303.1998356-1-alexander.stein@ew.tq-group.com>
- <5c90ef96-969c-728a-3987-5793956c5224@linaro.org>
- <5761215.mogB4TqSGs@steina-w>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <5761215.mogB4TqSGs@steina-w>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v3 1/1] dt-bindings: rtc: nxp,pcf85063: Convert to DT schema
+Date:   Mon, 25 Jul 2022 09:19:19 +0200
+Message-Id: <20220725071919.25342-1-alexander.stein@ew.tq-group.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 22/07/2022 08:02, Alexander Stein wrote:
-> Hello Krzysztof,
-> 
-> thanks for your feedback.
-> 
-> Am Donnerstag, 21. Juli 2022, 15:43:13 CEST schrieb Krzysztof Kozlowski:
->> On 21/07/2022 15:33, Alexander Stein wrote:
->>> Convert the NXP PCF85063 RTC binding to DT schema format.
->>>
->>> Add 'interrupts' and 'wakeup-source' as this device has an interrupt
->>> which was not documented, but is in use.
->>> 'clock-output-names' and '#clock-cells' are added as well, those were
->>> probably missed when adding clkout support in commit 8c229ab6048b
->>> ("rtc: pcf85063: Add pcf85063 clkout control to common clock framework")
->>
->> Thanks for adding it here, this sounds fine but brought my attention to
->> interrupts and quartz-load. It seems that only rv8263 supports
->> interrupts. In the same time rv8263 work only with 7000
->> quartz-load-femtofarads.
->>
->> If that's correct, you need to put "allOf" after "required" and inside
->> "if:then:" restricting it. For rv8263 interrupts:true and quartz as
->> const 7000, for else: interrupts:false.
-> 
-> It is slightly different. In all the datasheets I found there was an IRQ pin, 
-> so this applies to all models, although only some of them (PCF85063A, 
-> PCF85073A and RV8263) support alarms, which is what Linux cares for right now. 
-> But this is handles in the driver already.
+Convert the NXP PCF85063 RTC binding to DT schema format.
 
-OK, this is fine then.
+Add 'interrupts' and 'wakeup-source' as this device has an interrupt
+which was not documented, but is in use.
+'clock-output-names' and '#clock-cells' are added as well, those were
+probably missed when adding clkout support in commit 8c229ab6048b
+("rtc: pcf85063: Add pcf85063 clkout control to common clock framework")
 
-> quartz-load-femtofarads does not apply to RV8263, because it has no OSCI pins 
-> at all but uses an onboard oscillator. See commit 5b3a3ade0293 ("rtc: 
-> pcf85063: add Micro Crystal RV8263 support") for that. But this also handled 
-> in the driver already.
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+---
+Krzysztof, thanks for your review.
 
-This is what I was based on, so the quartz-load-femtofarads should not
-be even allowed for RV8263.
+Changes in v3:
+* Added constraints for rv8263 & pcf85063 regarding 'quartz-load-femtofarads'
+* Fixed example
 
-> Apart from that apparently only PCF85063 has a fixed quartz-load of 7pF, the 
-> other types supported can have either 7 oder 12.5 pF.
+I have to admit I could not actually verify in the registers that pcf85063 is
+limited to 7pF. I was not able to find any datasheet containg the registers,
+only a product brief [1] indicating this limit.
 
-...and for PCF85063 this should be fixed to 7.
+Changes in v2:
+* Sorted compatible list
+* Mentioned new #clock-cells and clock-output-names properties in commit message
+* Removed 'interrupt-names', not needed/used anyway
+* Fixed quartz-load-femtofarads defintion/description
 
-Best regards,
-Krzysztof
+[1] https://www.mouser.de/pdfDocs/NXP_PCF85063_PB.pdf
+
+ .../devicetree/bindings/rtc/nxp,pcf85063.txt  | 32 -------
+ .../devicetree/bindings/rtc/nxp,pcf85063.yaml | 92 +++++++++++++++++++
+ 2 files changed, 92 insertions(+), 32 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
+
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
+deleted file mode 100644
+index 217b7cd06c11..000000000000
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.txt
++++ /dev/null
+@@ -1,32 +0,0 @@
+-* NXP PCF85063 Real Time Clock
+-
+-Required properties:
+-- compatible: Should one of contain:
+-	"nxp,pca85073a",
+-	"nxp,pcf85063",
+-	"nxp,pcf85063a",
+-	"nxp,pcf85063tp",
+-	"microcrystal,rv8263"
+-- reg: I2C address for chip.
+-
+-Optional property:
+-- quartz-load-femtofarads: The capacitive load of the quartz(x-tal),
+-  expressed in femto Farad (fF). Valid values are 7000 and 12500.
+-  Default value (if no value is specified) is 7000fF.
+-
+-Optional child node:
+-- clock: Provide this if the square wave pin is used as boot-enabled fixed clock.
+-
+-Example:
+-
+-pcf85063: rtc@51 {
+-	compatible = "nxp,pcf85063";
+-	reg = <0x51>;
+-	quartz-load-femtofarads = <12500>;
+-
+-		clock {
+-			compatible = "fixed-clock";
+-			#clock-cells = <0>;
+-			clock-frequency = <32768>;
+-		};
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
+new file mode 100644
+index 000000000000..2f892f8640d1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85063.yaml
+@@ -0,0 +1,92 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf85063.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF85063 Real Time Clock
++
++maintainers:
++  - Alexander Stein <alexander.stein@ew.tq-group.com>
++
++properties:
++  compatible:
++    enum:
++      - microcrystal,rv8263
++      - nxp,pcf85063
++      - nxp,pcf85063a
++      - nxp,pcf85063tp
++      - nxp,pca85073a
++
++  reg:
++    maxItems: 1
++
++  "#clock-cells":
++    const: 0
++
++  clock-output-names:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  quartz-load-femtofarads:
++    description:
++      The capacitive load of the quartz(x-tal).
++    enum: [7000, 12500]
++    default: 7000
++
++  clock:
++    $ref: /schemas/clock/fixed-clock.yaml
++    description:
++      Provide this if the square wave pin is used as boot-enabled
++      fixed clock.
++
++  wakeup-source: true
++
++allOf:
++  - $ref: rtc.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - microcrystal,rv8263
++    then:
++      properties:
++        quartz-load-femtofarads: false
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - nxp,pcf85063
++    then:
++      properties:
++        quartz-load-femtofarads:
++          const: 7000
++
++required:
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@51 {
++          compatible = "nxp,pcf85063a";
++          reg = <0x51>;
++          quartz-load-femtofarads = <12500>;
++
++          clock {
++            compatible = "fixed-clock";
++            #clock-cells = <0>;
++            clock-frequency = <32768>;
++          };
++        };
++      };
+-- 
+2.25.1
+
