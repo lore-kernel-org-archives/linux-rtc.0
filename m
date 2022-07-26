@@ -2,89 +2,68 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD4A3CCA473
-	for <linux-rtc@archiver.kernel.org>; Mon, 25 Jul 2022 16:26:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E877C43334
+	for <linux-rtc@archiver.kernel.org>; Tue, 26 Jul 2022 09:18:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236027AbiGYQ0Q (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 25 Jul 2022 12:26:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55758 "EHLO
+        id S232182AbiGZJSY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 26 Jul 2022 05:18:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235827AbiGYQ0P (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 25 Jul 2022 12:26:15 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774D11C93D
-        for <linux-rtc@vger.kernel.org>; Mon, 25 Jul 2022 09:26:14 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id z25so18926736lfr.2
-        for <linux-rtc@vger.kernel.org>; Mon, 25 Jul 2022 09:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=4T+PbyHM+wfLYl65UslDGXMXntturk9NYcTl2mpNuw4=;
-        b=J1Id9hOvX/4PicOieafgx3YXjugYQ+C1JHlqE7GBdQkHoOv2a0rezvL6Ix8UHLi/kR
-         40qMVOZ2dAAJzvyMFB4ehO3IKUDqedyMAftY4wnPCyogwEnsDbJq1I66QLu7tPlUSfnZ
-         9sEwZY89EcaKnqUBnrXXZ/xIsOnFIvYvFkX+wGFfLe+8rCGobMtAGIjlK4KaP3a/+Vue
-         NruVlosIyI0rGCW/2Oy7BC+nUSSAae8YOseQRzup0U8WFrLS4wLiLASTGNT0KV55d+dU
-         XSLGtRQ0EiWH3FhyXQcs/s5R2+N4zmGpujP2mEhfsQe1dKBDkwWdhl6ZQFjsTEbySQcW
-         F2VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=4T+PbyHM+wfLYl65UslDGXMXntturk9NYcTl2mpNuw4=;
-        b=Fcplen6Zn2c9wnYP6vXcWon+OK0KiO6z1m3Jk9yITiwk0965oYozaA0rAR+fjwsrXR
-         oqOlI8dFa78mOOnGsczl2D69pSWIZ2FNb6alstAIVv0OlPjxp+FWljqpMB19ytVTFAuV
-         Pdu0quGtVi7BJA9842v4CwA5viOL6HCDcrwYwT4PfwRb6dgSIvFBn8vAemHeKKqub32D
-         K47Q8a1/0rMfbQEP+dsPk+h6U1VxUNxCfaa3QudQMGiFZSB7acXQtVS+SKHAQwtFtV16
-         OzJHi1pWYut5/O74mGKFjBuMukc2dsH2hTUt+WWOsj4cXu30quX1ydGF99mDtztq0NHy
-         32gw==
-X-Gm-Message-State: AJIora8ROElLIOhJwybyn7+jGae4QpScXSX5GMcbqP/Fm7IX6ugCJc3G
-        rSP6bZHE6BfzTygpO3W37huk8w==
-X-Google-Smtp-Source: AGRyM1urdUV3F43axjGYiO0+LpThUaQdCfH0uBGEDq3XRS3hIn1yofWjeUrjT/CDPws3EkB/DCAssA==
-X-Received: by 2002:a05:6512:1310:b0:481:6154:c292 with SMTP id x16-20020a056512131000b004816154c292mr4696089lfu.95.1658766372821;
-        Mon, 25 Jul 2022 09:26:12 -0700 (PDT)
-Received: from [192.168.3.197] (78-26-46-173.network.trollfjord.no. [78.26.46.173])
-        by smtp.gmail.com with ESMTPSA id b9-20020a0565120b8900b0048a950050ebsm352917lfv.28.2022.07.25.09.26.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Jul 2022 09:26:12 -0700 (PDT)
-Message-ID: <515453c6-eaa4-d09b-6ce6-3840b350dcbb@linaro.org>
-Date:   Mon, 25 Jul 2022 18:26:10 +0200
+        with ESMTP id S231384AbiGZJSY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 26 Jul 2022 05:18:24 -0400
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::221])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931D72981A;
+        Tue, 26 Jul 2022 02:18:22 -0700 (PDT)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id E3B5E240004;
+        Tue, 26 Jul 2022 09:18:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1658827101;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1eMPxwGGLuK4IaY+cx04zGWguw85HqB8nrDHBjS2bvE=;
+        b=LIXKMkHO0ZoUb78Q5z2bxUyE/iB1Kd5JHG/epodcYEqn/M7hU+N4v+yfwdGHQ1dboD9yYt
+        uAe0YYDTCdLFavOWUo3TmpoAHfhZn0Pt0x+CU66KzadS8G+ngisxlsym9Wf07oCcJxbRlG
+        RgYVUF2OpN4cyCDG7xe6RyvC+StobEQFth/d0HeQao8omhT4sordQeSYXA3TEzvSVq5WKW
+        2OeUayWj05LLtOO+ztCC/uCxevkc8liSOYdSFHOV2kSvXFm9PFRmjPpwF0HDKgkHOb3EPL
+        lMIdKzh3qLzMlX0+nJ1uplyTR8loOcvsybjgEjjSQ23ZPC471FBhI/BujVYByQ==
+Date:   Tue, 26 Jul 2022 11:18:19 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     samuel@sholland.org, a.zummo@towertech.it
+Cc:     jernej.skrabec@gmail.com, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org, icenowy@aosc.io,
+        linux-rtc@vger.kernel.org, wens@csie.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [RESEND PATCH] rtc: sun6i: add support for R329 RTC
+Message-ID: <165882703251.3139893.611019968302494887.b4-ty@bootlin.com>
+References: <20220626042756.58961-1-samuel@sholland.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v3 1/1] dt-bindings: rtc: nxp,pcf85063: Convert to DT
- schema
-Content-Language: en-US
-To:     Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-References: <20220725071919.25342-1-alexander.stein@ew.tq-group.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20220725071919.25342-1-alexander.stein@ew.tq-group.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220626042756.58961-1-samuel@sholland.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 25/07/2022 09:19, Alexander Stein wrote:
-> Convert the NXP PCF85063 RTC binding to DT schema format.
+On Sat, 25 Jun 2022 23:27:56 -0500, Samuel Holland wrote:
+> From: Icenowy Zheng <icenowy@aosc.io>
 > 
-> Add 'interrupts' and 'wakeup-source' as this device has an interrupt
-> which was not documented, but is in use.
-> 'clock-output-names' and '#clock-cells' are added as well, those were
-> probably missed when adding clkout support in commit 8c229ab6048b
-> ("rtc: pcf85063: Add pcf85063 clkout control to common clock framework")
+> Allwinner R329 has a RTC with a similar time storage with H616 but a
+> slightly different clock part.
 > 
-> Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+> As we have already handled the R329 RTC clocks in the CCU driver, add a
+> compatible string to RTC driver to allow probing of the RTC.
+> 
+> [...]
 
+Applied, thanks!
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
+[1/1] rtc: sun6i: add support for R329 RTC
+      commit: b9d982385d0544132bc398b7a7e062d9a554d941
 
 Best regards,
-Krzysztof
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
