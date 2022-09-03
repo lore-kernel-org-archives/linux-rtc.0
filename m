@@ -2,21 +2,21 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 298B3C6FA82
-	for <linux-rtc@archiver.kernel.org>; Sat,  3 Sep 2022 09:36:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACF12C6FA82
+	for <linux-rtc@archiver.kernel.org>; Sat,  3 Sep 2022 09:37:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233249AbiICJga (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 3 Sep 2022 05:36:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33440 "EHLO
+        id S233390AbiICJhG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 3 Sep 2022 05:37:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233556AbiICJgG (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 3 Sep 2022 05:36:06 -0400
+        with ESMTP id S233556AbiICJgp (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 3 Sep 2022 05:36:45 -0400
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 20A5052DC9;
-        Sat,  3 Sep 2022 02:35:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5E61452DC9;
+        Sat,  3 Sep 2022 02:36:42 -0700 (PDT)
 Received: from localhost.localdomain (unknown [112.20.110.237])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8CxkODtHxNjJWgQAA--.4203S6;
-        Sat, 03 Sep 2022 17:35:46 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxXWsgIBNjfGgQAA--.8093S2;
+        Sat, 03 Sep 2022 17:36:32 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org
 Cc:     linux-mips@vger.kernel.org, devicetree@vger.kernel.org,
@@ -26,35 +26,35 @@ Cc:     linux-mips@vger.kernel.org, devicetree@vger.kernel.org,
         Jiaxun Yang <jiaxun.yang@flygoat.com>,
         Rob Herring <robh+dt@kernel.org>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Huacai Chen <chenhuacai@kernel.org>,
         Qing Zhang <zhangqing@loongson.cn>,
         Tiezhu Yang <yangtiezhu@loongson.cn>,
         zhaoxiao <zhaoxiao@uniontech.com>
-Subject: [PATCH 4/7] MIPS: Loongson64: DTS: Add RTC support to LS7A
-Date:   Sat,  3 Sep 2022 17:34:56 +0800
-Message-Id: <85358e3a19601d7d057baabaa1ca9fdc79ca2455.1662190009.git.zhoubinbin@loongson.cn>
+Subject: [PATCH 6/7] MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
+Date:   Sat,  3 Sep 2022 17:35:56 +0800
+Message-Id: <255ac36eed438ca8839a6fb2f4e1a5e8922a4bba.1662190009.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1662190009.git.zhoubinbin@loongson.cn>
 References: <cover.1662190009.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8CxkODtHxNjJWgQAA--.4203S6
-X-Coremail-Antispam: 1UD129KBjvdXoW7GrWDGF17ZrWxtFyUXF4fXwb_yoWkCFbEy3
-        W7Kws3GFWfArnrt34kurykuFy7u34xu3Z5u3ZrXr15X3sIkrnxJFWUA3yDuF13ZrWavrsY
-        ganYqFn3Cr1akjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbkkFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAVCq3wA2048vs2
-        IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28E
-        F7xvwVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr
-        1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVWxJr0_
-        GcWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2I
-        x0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8
-        JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2Y2
-        ka0xkIwI1lc2xSY4AK67AK6r4fMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j
-        6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7
-        AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE
-        2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0x
-        vEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVj
-        vjDU0xZFpf9x0JUfl19UUUUU=
+X-CM-TRANSID: AQAAf8BxXWsgIBNjfGgQAA--.8093S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cw4rGw15GFy5Ww4DCryUWrg_yoW8Gw1kpF
+        nI9a17Kr4fur1xZwn8GryUGry7ZF95ArsFgF47G3srW3sIq3Wqvr1fAFsYqr4UZFyfJay0
+        9r92grWxCFy3CaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUU9j14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26r1I6r4UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+        6r4UJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26F
+        4UJVW0owAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv
+        7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r
+        1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02
+        628vn2kIc2xKxwCY02Avz4vE14v_GFWl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7
+        v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF
+        1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_JFI_Gr1lIx
+        AIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4l
+        IxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvf
+        C2KfnxnUUI43ZEXa7VUbgyCJUUUUU==
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
@@ -62,37 +62,42 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: WANG Xuerui <git@xen0n.name>
 
-The LS7A RTC module is now supported, enable it.
+The Loongson-2K RTC module is now supported, enable it.
+
+The MMIO address is unclear from the Loongson 2K1000 user manual, I took
+it from Loongson's out-of-tree fork of Linux 4.19.
 
 Signed-off-by: WANG Xuerui <git@xen0n.name>
 Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
-Acked-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Huacai Chen <chenhuacai@kernel.org>
 Cc: Qing Zhang <zhangqing@loongson.cn>
 Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
 Cc: zhaoxiao <zhaoxiao@uniontech.com>
+Cc: devicetree@vger.kernel.org
 Cc: linux-mips@vger.kernel.org
 ---
- arch/mips/boot/dts/loongson/ls7a-pch.dtsi | 5 +++++
+ arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-index 2f45fce2cdc4..82035de4774f 100644
---- a/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-+++ b/arch/mips/boot/dts/loongson/ls7a-pch.dtsi
-@@ -19,6 +19,11 @@ pic: interrupt-controller@10000000 {
- 			#interrupt-cells = <2>;
+diff --git a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+index 8143a61111e3..811a5ab753a2 100644
+--- a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
++++ b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+@@ -57,6 +57,11 @@ pm: reset-controller@1fe07000 {
+ 			reg = <0 0x1fe07000 0 0x422>;
  		};
  
-+		rtc0: rtc@100d0100 {
++		rtc0: rtc@1fe07800 {
 +			compatible = "loongson,ls2x-rtc";
-+			reg = <0 0x100d0100 0 0x78>;
++			reg = <0 0x1fe07800 0 0x78>;
 +		};
 +
- 		ls7a_uart0: serial@10080000 {
- 			compatible = "ns16550a";
- 			reg = <0 0x10080000 0 0x100>;
+ 		liointc0: interrupt-controller@1fe11400 {
+ 			compatible = "loongson,liointc-2.0";
+ 			reg = <0 0x1fe11400 0 0x40>,
 -- 
 2.31.1
 
