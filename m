@@ -2,72 +2,150 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D20BC6FA86
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Sep 2022 15:45:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8DF8C38145
+	for <linux-rtc@archiver.kernel.org>; Wed,  7 Sep 2022 19:37:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232757AbiIFPpG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 6 Sep 2022 11:45:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58096 "EHLO
+        id S229774AbiIGTho (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Sep 2022 15:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232864AbiIFPop (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Sep 2022 11:44:45 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3BB7DF47;
-        Tue,  6 Sep 2022 07:55:06 -0700 (PDT)
-Received: from canpemm500005.china.huawei.com (unknown [172.30.72.55])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MMSTd0nGMz1P6lL;
-        Tue,  6 Sep 2022 22:30:13 +0800 (CST)
-Received: from huawei.com (10.67.174.96) by canpemm500005.china.huawei.com
- (7.192.104.229) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Tue, 6 Sep
- 2022 22:34:00 +0800
-From:   Zhang Jianhua <chris.zjh@huawei.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <rasmus.villemoes@prevas.dk>
-CC:     <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH -next] rtc: fsl-ftm-alarm: Use module_platform_driver replace device_initcall
-Date:   Tue, 6 Sep 2022 22:30:37 +0800
-Message-ID: <20220906143037.1455317-1-chris.zjh@huawei.com>
-X-Mailer: git-send-email 2.31.0
+        with ESMTP id S229686AbiIGThn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Sep 2022 15:37:43 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5A4BFEAD;
+        Wed,  7 Sep 2022 12:37:42 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id r17so5340530ejy.9;
+        Wed, 07 Sep 2022 12:37:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=ndKB7Atzyf/w1lXbEwzlKmRZsFo1D+5HTUfHps4mdmQ=;
+        b=QhvIfdWKdAUVOScOUIdGm3776l+VYODIO3d9/C/f8bXO+yDukvWV0FESgq/Wmgyf1o
+         u8V0sJbiU5FPvEPDNGnrCNVL+V1bQYE1bknKnEdJ5lhR4O2GoFiAPTB8lUagGGXCHzXY
+         ZQmbMCUyJGI8q8HxjIGRy+20U4iVzYu+09iX+r4lKAtlyarKrLj04z4EZMKrJo6SX9Db
+         gItCmnWM6t4r50i3pIMpdiiySP2nE/Kd/Mi3fwlLM54xzueNFrRcrDrGA1sAg+89V4iG
+         7CxYDg6Ynb7fpqlIrQvyyTq82yJT+S2oSzpK8qJEqBDvuNZQ0b9+w0BGbl08rAodhBOe
+         qzog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=ndKB7Atzyf/w1lXbEwzlKmRZsFo1D+5HTUfHps4mdmQ=;
+        b=oP4W1IS6ldO7UDAOf9Pir7bGooUIcjeBNalEwzv8gw10Q0JZAq2y8QClUzl9RretkG
+         ol6UdW64M3xgw39CyW7evS0isV4aR05CO1EjEB5zWmHsPuwCI/vQ2NkOD/NtLHd6HZ1n
+         ZUVVWed4FSt+4rVtGpHAYhzz8IqRm3iFh/KEY5EVqZ0i8gk1mvffzAyvOLZT4VOrMwb/
+         CAgMHrpF9PRIu8vmG72VwMVHdxXMnhgp2OI7IqueZgeyC/2KRJIfQs61QnIKv6VptRYt
+         ylfienFolWzQ5272gS8ajj8nr7yg1V8/5K+swNz6Ni2wf4p5jtDkW/cknO1Lt1mAG3ZR
+         u4og==
+X-Gm-Message-State: ACgBeo3l0vZ4CgGbwxbkFDvxqMtskHQKmPsnUtct2eW32dejUHfKtpYL
+        VsTT+MYwUG6g0K/1ngCQMvdhLzjougpPyszQ1ruDWmCpBFs=
+X-Google-Smtp-Source: AA6agR7DwydpRu6XtC/zVNl1McyHODlkL/bYGYJcGJ8lGN8qaCbuq46FsrbNOrc3r4eb/7G1FcBUDYMS83PPWfsBs60=
+X-Received: by 2002:a17:907:31c9:b0:740:ef93:2ffd with SMTP id
+ xf9-20020a17090731c900b00740ef932ffdmr3415828ejb.584.1662579461374; Wed, 07
+ Sep 2022 12:37:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.174.96]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500005.china.huawei.com (7.192.104.229)
-X-CFilter-Loop: Reflected
+References: <20220904044708.7062-1-jagathjog1996@gmail.com>
+ <20220904044708.7062-3-jagathjog1996@gmail.com> <3ad3fb30-d56f-78be-610d-a02c9609ba42@linaro.org>
+In-Reply-To: <3ad3fb30-d56f-78be-610d-a02c9609ba42@linaro.org>
+From:   Jagath Jog J <jagathjog1996@gmail.com>
+Date:   Thu, 8 Sep 2022 01:07:28 +0530
+Message-ID: <CAM+2Eu+xzAPEwCoGsjM5sqKjOiT5J_-dzpeB-r5XP=KoRkSXGg@mail.gmail.com>
+Subject: Re: [PATCH v1 2/2] rtc: maxim: Add Maxim max31329 real time clock.
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     alexandre.belloni@bootlin.com, a.zummo@towertech.it,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The ftm_rtc_driver has been registered while module init, however there
-is not unregister step for module exit, now use the macro
-module_platform_driver replace device_initcall, which can register and
-unregister platform driver automatically.
+Hi Krzysztof.
+Thank you for reviewing.
 
-Signed-off-by: Zhang Jianhua <chris.zjh@huawei.com>
----
- drivers/rtc/rtc-fsl-ftm-alarm.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+On Mon, Sep 5, 2022 at 8:50 PM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+>
+> On 04/09/2022 06:47, Jagath Jog J wrote:
+> > Add real time clock support for Maxim max31329 real time clock.
+> >
+> > Signed-off-by: Jagath Jog J <jagathjog1996@gmail.com>
+>
+> Thank you for your patch. There is something to discuss/improve.
+>
+> > +     max31329->rtc->ops = &max31329_rtc_ops;
+> > +     max31329->irq = client->irq;
+> > +     max31329->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> > +     max31329->rtc->range_max = RTC_TIMESTAMP_END_2199;
+> > +     max31329->dev = &client->dev;
+> > +
+> > +     if (max31329->irq) {
+> > +             ret = devm_request_threaded_irq(&client->dev, max31329->irq,
+> > +                                             NULL, max31329_irq_handler,
+> > +                                             IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+> > +                                             "max31329", &client->dev);
+> > +             if (ret) {
+> > +                     dev_err(&client->dev, "unable to request IRQ\n");
+> > +                     max31329->irq = 0;
+> > +                     return ret;
+> > +             }
+> > +
+> > +             ret = regmap_write(max31329->regmap, MAX31329_RTC_CONFIG2_REG,
+> > +                                MAX31329_RTC_CONFIG2_ENCLKO);
+> > +             if (ret) {
+> > +                     dev_err(&client->dev, "unable to configure INT pin");
+> > +                     max31329->irq = 0;
+> > +                     return ret;
+> > +             }
+> > +
+> > +             device_set_wakeup_capable(&client->dev, true);
+>
+> Probably you should rather respect wakeup-source DT property.
 
-diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
-index c0df49fb978c..3d7c4077fe1c 100644
---- a/drivers/rtc/rtc-fsl-ftm-alarm.c
-+++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
-@@ -327,12 +327,7 @@ static struct platform_driver ftm_rtc_driver = {
- 	},
- };
- 
--static int __init ftm_alarm_init(void)
--{
--	return platform_driver_register(&ftm_rtc_driver);
--}
--
--device_initcall(ftm_alarm_init);
-+module_platform_driver(ftm_rtc_driver);
- 
- MODULE_DESCRIPTION("NXP/Freescale FlexTimer alarm driver");
- MODULE_AUTHOR("Biwen Li <biwen.li@nxp.com>");
--- 
-2.31.0
+Sure, I will configure wakeup based on the value of the wakeup-source
+property from DT.
 
+>
+> > +             set_bit(RTC_FEATURE_ALARM, max31329->rtc->features);
+> > +     }
+> > +
+> > +     ret = devm_rtc_register_device(max31329->rtc);
+> > +     if (ret)
+> > +             return ret;
+> > +
+> > +     max31329_trickle_config(&client->dev);
+> > +
+> > +     nvmem_cfg.priv = max31329->regmap;
+> > +     devm_rtc_nvmem_register(max31329->rtc, &nvmem_cfg);
+> > +
+> > +#ifdef CONFIG_COMMON_CLK
+> > +     max31329_clkout_register_clk(max31329, client);
+> > +#endif
+> > +
+> > +     return 0;
+> > +}
+> > +
+> > +static const struct of_device_id max31329_of_match[] = {
+> > +     { .compatible = "maxim,max31329", },
+> > +     { }
+> > +};
+> > +MODULE_DEVICE_TABLE(of, max31329_of_match);
+> > +
+> > +static struct i2c_driver max31329_driver = {
+> > +     .driver = {
+> > +             .name = "rtc-max31329",
+> > +             .of_match_table = of_match_ptr(max31329_of_match),
+>
+> of_match_ptr without maybe_unused on the table should cause compile test
+> warnings. You need both or none.
+
+I will correct this in the next patch series.
+
+Thank you
+Jagath
+>
+>
+> Best regards,
+> Krzysztof
