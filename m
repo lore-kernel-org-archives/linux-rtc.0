@@ -2,95 +2,63 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 158CEECAAD3
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Sep 2022 06:31:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE1F2ECAAD3
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Sep 2022 06:54:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbiIOGb2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Sep 2022 02:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35904 "EHLO
+        id S229463AbiIOGyn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Sep 2022 02:54:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbiIOGb0 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Sep 2022 02:31:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907C195ADD;
-        Wed, 14 Sep 2022 23:31:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CE7AB8170D;
-        Thu, 15 Sep 2022 06:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B18C433C1;
-        Thu, 15 Sep 2022 06:31:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1663223482;
-        bh=/j3wYkQ53wBqOy1dy0RP/FqvWpaMmnV8jV9KSEsMfb0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=q+g2wvii0/E/Z8cVEDNw6sgIeuruMdFIm883E1cP1WCsrDyMYItGA8qNKop/AUPuu
-         wMyNNgu/YV0JUNQHMGqvgYhgPNkxHD3WvsIcgqfcUL2QA1UNBC7kdwpEe+PEk7e6w0
-         DiP0vYCA249b6Wrrbjymk/ybH1P3mub/01z5lnKVOdeRAmq7s/HNMpim2gi7n9J0F5
-         nW8gWK3MkdZ2waQEVRUM0j000m4/9R9xnSWK+W0GbxbjKCh5b3NU2QvMLEKVjIYm63
-         vE9uJn4I7RBa3jdBgMG893n8+sNNdOkNEdgQwr5fdR8c1j98r7qGuKs/7+w3AZYcUv
-         B+pOvd/TsILAg==
-Date:   Thu, 15 Sep 2022 07:31:15 +0100
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Lin Yujun <linyujun809@huawei.com>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        akpm@linux-foundation.org, wim@iguana.be,
-        linux-rtc@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+        with ESMTP id S229448AbiIOGyn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Sep 2022 02:54:43 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8015DDED1;
+        Wed, 14 Sep 2022 23:54:40 -0700 (PDT)
+Received: from dggpeml500021.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MSnsS0r30zmVNN;
+        Thu, 15 Sep 2022 14:50:52 +0800 (CST)
+Received: from dggpeml500010.china.huawei.com (7.185.36.155) by
+ dggpeml500021.china.huawei.com (7.185.36.21) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 15 Sep 2022 14:54:38 +0800
+Received: from [10.67.111.232] (10.67.111.232) by
+ dggpeml500010.china.huawei.com (7.185.36.155) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Thu, 15 Sep 2022 14:54:38 +0800
+Message-ID: <ae138b14-1479-3988-06f9-b69e4c174a90@huawei.com>
+Date:   Thu, 15 Sep 2022 14:54:38 +0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
 Subject: Re: [PATCH -next v2] rtc: stmp3xxx: Add failure handling for
  stmp3xxx_wdt_register()
-Message-ID: <YyLGsybCM5a5N1Mt@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Lin Yujun <linyujun809@huawei.com>, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@foss.st.com, akpm@linux-foundation.org,
-        wim@iguana.be, linux-rtc@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To:     Wolfram Sang <wsa@kernel.org>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <mcoquelin.stm32@gmail.com>,
+        <alexandre.torgue@foss.st.com>, <akpm@linux-foundation.org>,
+        <wim@iguana.be>, <linux-rtc@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
 References: <20220915013304.213917-1-linyujun809@huawei.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="INGsqzS9vIYhwxhE"
-Content-Disposition: inline
-In-Reply-To: <20220915013304.213917-1-linyujun809@huawei.com>
+ <YyLGsybCM5a5N1Mt@shikoro>
+From:   "linyujun (C)" <linyujun809@huawei.com>
+In-Reply-To: <YyLGsybCM5a5N1Mt@shikoro>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.111.232]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500010.china.huawei.com (7.185.36.155)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+OK, I'll remove the second part of the commit message and send a v3 patch.
 
---INGsqzS9vIYhwxhE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Sep 15, 2022 at 09:33:04AM +0800, Lin Yujun wrote:
-> Use platform_device_put() to free platform device before print
-> error message when platform_device_add() fails to run. Add dev_err()
-> to report error in case of alloc memory to wdt_pdev fail.
-
-The second part of the commit message is now obsolete.
-
-
---INGsqzS9vIYhwxhE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmMixq4ACgkQFA3kzBSg
-Kba06hAAoctutLkOr2jK9CYiGkFPE9BZufQe7ynk9RqKHGrJl8koHbPFix/eJqaj
-7H7R8mleeK4NYpDq1G0YSRqyrYm9rsUrMhMI76cFCZzi8eoQhkEiDPdJY46Oqpc0
-9yKUv4GVQP0wQl1GDPdag8sniYm4zzzfWN+eNYeclBoJ0PvAPaxq3RAppbgxGEkm
-9C1w7xzs3z6cAZGxWS2d56uDYDiFsP+0Prs7O4uM9q1xPi3/83BA8HXKECLv9maJ
-+7EI8jqEIVYrBZedcoj2+ZyG2x0DrBGMoHJ3VnjAAZqr3uUOsKWZvV8bl9S2xBv7
-OYvoR6rWjfteKC+8H1mFFP5xoxpOnYXE7wcE3CmDRZgody6G4rZ9yzTc+KtuN0Hi
-fskF8s4bvjT4H/k5ON8KLVVNoj3nWzwmDn25uZ84cl6dMlgTgaSX21ufIvYd5DvG
-ZHQpHrgJo+PtZTOXg7hVQaF+VurZrigxyo/pxI32C8rmLD0TX79nSZNWfJm8y47f
-LadpP/k77dFMoSFl4sSYpamfnJuBWAsiJBhpARsta6VRdlWubSj+DVUiy3BG1YvK
-/aYMDRjkgc1yGKayHsdZgwkMzAhh2F25nSSj8AN3cpJVXcjG4rNnZ0MtNYHOTAJp
-u227FUBpN67I/Oidhg3QwWZ3YqI3QXSG7b/bEqqsNKUU7gLqPfE=
-=Z8sd
------END PGP SIGNATURE-----
-
---INGsqzS9vIYhwxhE--
+在 2022/9/15 14:31, Wolfram Sang 写道:
+> On Thu, Sep 15, 2022 at 09:33:04AM +0800, Lin Yujun wrote:
+>> Use platform_device_put() to free platform device before print
+>> error message when platform_device_add() fails to run. Add dev_err()
+>> to report error in case of alloc memory to wdt_pdev fail.
+> The second part of the commit message is now obsolete.
+>
