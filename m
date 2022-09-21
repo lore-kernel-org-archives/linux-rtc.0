@@ -2,267 +2,81 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AF76C6FA91
-	for <linux-rtc@archiver.kernel.org>; Wed, 21 Sep 2022 11:47:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70021C32771
+	for <linux-rtc@archiver.kernel.org>; Wed, 21 Sep 2022 13:18:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230307AbiIULrY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 21 Sep 2022 07:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59848 "EHLO
+        id S229968AbiIUNR7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 21 Sep 2022 09:17:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbiIULrK (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Sep 2022 07:47:10 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE98E95AC7
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:43 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id o2so8718626lfc.10
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=LLcoUfGxhi8reQQCpbbwos0jhsx1cQA+/9CD5zQKs0M=;
-        b=ZvYzaoWIkLHxaHgb1owNhrW5mvjGeCP30MWPHhKZencsYNmoiCgM/qIN1b3Sdnav/8
-         /y4mBwi/DT7YQX2WTYe370rl7zqprzYbjwebu7S4GjV2CkSMoFBlXKLm5Mu0WCbBJBVH
-         ZRoRjLqlQrkKzsw4ErQmUUb6WAEuV7msR5NWk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=LLcoUfGxhi8reQQCpbbwos0jhsx1cQA+/9CD5zQKs0M=;
-        b=B2kBiWbv3hYls7PpClCdJcfCqmKWJdQuDFwn4FcGt0w2Q5JSMWylDGGtJaCYYQN8uJ
-         jeXBiHlei0narfxkkAEj6HPn646orOeuEkthAVFpN7D6hy5xiqiK45zMQxiCzghvbmSz
-         WFz0RRl/d0o6XVPc9akbeHsqiW5AziQUALw0eiVNdYo8N+T0skvWDi1X0aLmf+OYvYOV
-         PCvMVRLmlYhgq+D4RNI9SSD+IzNOYG6j59U7KPf3DhW0mlbzMdkdmzchlOoW+x6xv/lp
-         kzHSV/F/s/fQ+5MxxgwuwMste2FfQDd7Y0ZM6B+N86tfk+jQfCeeISYyvNr5nPfyC3G8
-         LznQ==
-X-Gm-Message-State: ACrzQf0xwwFNXdDq+xQzxkzwEQbTjwNJTkrvFRHMkyVa2N9lsQEOWpdv
-        KVpVg+ZXs9ZitHEGm65mQtGUkA==
-X-Google-Smtp-Source: AMsMyM42zVJ/5O/dK+uV1a8A97tuD+lBAW/Jsfjfyc7+cyT/DkNvqZ89pb+KQYVTWfx54lzf7He9+Q==
-X-Received: by 2002:a05:6512:3d2a:b0:49a:92d:cddd with SMTP id d42-20020a0565123d2a00b0049a092dcdddmr10220106lfv.590.1663760801021;
-        Wed, 21 Sep 2022 04:46:41 -0700 (PDT)
-Received: from prevas-ravi.prevas.se ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id g4-20020a056512118400b00494618889c0sm405713lfr.42.2022.09.21.04.46.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 04:46:40 -0700 (PDT)
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 8/9] rtc: isl12022: switch to using regmap API
-Date:   Wed, 21 Sep 2022 13:46:23 +0200
-Message-Id: <20220921114624.3250848-9-linux@rasmusvillemoes.dk>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220921114624.3250848-1-linux@rasmusvillemoes.dk>
-References: <20220830100152.698506-1-linux@rasmusvillemoes.dk>
- <20220921114624.3250848-1-linux@rasmusvillemoes.dk>
+        with ESMTP id S229967AbiIUNR7 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Sep 2022 09:17:59 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3196C89CE4
+        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 06:17:56 -0700 (PDT)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1oazbu-0006DT-J1; Wed, 21 Sep 2022 15:17:54 +0200
+Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1oazbt-0000HF-SL; Wed, 21 Sep 2022 15:17:53 +0200
+Date:   Wed, 21 Sep 2022 15:17:53 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        kernel@pengutronix.de
+Subject: Re: [PATCH v2 0/2] rtc: rv8803 patches
+Message-ID: <20220921131753.GP12909@pengutronix.de>
+References: <20220817085330.1050492-1-s.hauer@pengutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220817085330.1050492-1-s.hauer@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The regmap abstraction allows us to avoid the private i2c transfer
-helpers, and also offers some nice utility functions such as the
-regmap_update_bits family.
+Hi Alexandre,
 
-While at it, simplify the code even more by not keeping track of
-->write_enabled: rtc_set_time is not a hot path, so one extra i2c read
-doesn't hurt (regmap_update_bits elides the write when the bits are
-already as desired).
+Any input to this series?
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
----
- drivers/rtc/Kconfig        |   1 +
- drivers/rtc/rtc-isl12022.c | 110 +++++++++----------------------------
- 2 files changed, 26 insertions(+), 85 deletions(-)
+Sascha
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b8de25118ad0..bb63edb507da 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -423,6 +423,7 @@ config RTC_DRV_ISL1208
- 
- config RTC_DRV_ISL12022
- 	tristate "Intersil ISL12022"
-+	select REGMAP_I2C
- 	help
- 	  If you say yes here you get support for the
- 	  Intersil ISL12022 RTC chip.
-diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index 6fb13a5d17f1..ca677c4265e6 100644
---- a/drivers/rtc/rtc-isl12022.c
-+++ b/drivers/rtc/rtc-isl12022.c
-@@ -16,6 +16,7 @@
- #include <linux/err.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/regmap.h>
- 
- /* ISL register offsets */
- #define ISL12022_REG_SC		0x00
-@@ -42,72 +43,21 @@ static struct i2c_driver isl12022_driver;
- 
- struct isl12022 {
- 	struct rtc_device *rtc;
--
--	bool write_enabled;	/* true if write enable is set */
-+	struct regmap *regmap;
- };
- 
--
--static int isl12022_read_regs(struct i2c_client *client, uint8_t reg,
--			      uint8_t *data, size_t n)
--{
--	struct i2c_msg msgs[] = {
--		{
--			.addr	= client->addr,
--			.flags	= 0,
--			.len	= 1,
--			.buf	= data
--		},		/* setup read ptr */
--		{
--			.addr	= client->addr,
--			.flags	= I2C_M_RD,
--			.len	= n,
--			.buf	= data
--		}
--	};
--
--	int ret;
--
--	data[0] = reg;
--	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
--	if (ret != ARRAY_SIZE(msgs)) {
--		dev_err(&client->dev, "%s: read error, ret=%d\n",
--			__func__, ret);
--		return -EIO;
--	}
--
--	return 0;
--}
--
--
--static int isl12022_write_reg(struct i2c_client *client,
--			      uint8_t reg, uint8_t val)
--{
--	uint8_t data[2] = { reg, val };
--	int err;
--
--	err = i2c_master_send(client, data, sizeof(data));
--	if (err != sizeof(data)) {
--		dev_err(&client->dev,
--			"%s: err=%d addr=%02x, data=%02x\n",
--			__func__, err, data[0], data[1]);
--		return -EIO;
--	}
--
--	return 0;
--}
--
--
- /*
-  * In the routines that deal directly with the isl12022 hardware, we use
-  * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-  */
- static int isl12022_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
-+	struct isl12022 *isl12022 = dev_get_drvdata(dev);
-+	struct regmap *regmap = isl12022->regmap;
- 	uint8_t buf[ISL12022_REG_INT + 1];
- 	int ret;
- 
--	ret = isl12022_read_regs(client, ISL12022_REG_SC, buf, sizeof(buf));
-+	ret = regmap_bulk_read(regmap, ISL12022_REG_SC, buf, sizeof(buf));
- 	if (ret)
- 		return ret;
- 
-@@ -148,33 +98,18 @@ static int isl12022_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- static int isl12022_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
--	struct i2c_client *client = to_i2c_client(dev);
- 	struct isl12022 *isl12022 = dev_get_drvdata(dev);
--	size_t i;
-+	struct regmap *regmap = isl12022->regmap;
- 	int ret;
- 	uint8_t buf[ISL12022_REG_DW + 1];
- 
- 	dev_dbg(dev, "%s: %ptR\n", __func__, tm);
- 
--	if (!isl12022->write_enabled) {
--
--		ret = isl12022_read_regs(client, ISL12022_REG_INT, buf, 1);
--		if (ret)
--			return ret;
--
--		/* Check if WRTC (write rtc enable) is set factory default is
--		 * 0 (not set) */
--		if (!(buf[0] & ISL12022_INT_WRTC)) {
--			/* Set the write enable bit. */
--			ret = isl12022_write_reg(client,
--						 ISL12022_REG_INT,
--						 buf[0] | ISL12022_INT_WRTC);
--			if (ret)
--				return ret;
--		}
--
--		isl12022->write_enabled = true;
--	}
-+	/* Ensure the write enable bit is set. */
-+	ret = regmap_update_bits(regmap, ISL12022_REG_INT,
-+				 ISL12022_INT_WRTC, ISL12022_INT_WRTC);
-+	if (ret)
-+		return ret;
- 
- 	/* hours, minutes and seconds */
- 	buf[ISL12022_REG_SC] = bin2bcd(tm->tm_sec);
-@@ -191,15 +126,8 @@ static int isl12022_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	buf[ISL12022_REG_DW] = tm->tm_wday & 0x07;
- 
--	/* write register's data */
--	for (i = 0; i < ARRAY_SIZE(buf); i++) {
--		ret = isl12022_write_reg(client, ISL12022_REG_SC + i,
--					 buf[ISL12022_REG_SC + i]);
--		if (ret)
--			return -EIO;
--	}
--
--	return 0;
-+	return regmap_bulk_write(isl12022->regmap, ISL12022_REG_SC,
-+				 buf, sizeof(buf));
- }
- 
- static const struct rtc_class_ops isl12022_rtc_ops = {
-@@ -207,6 +135,12 @@ static const struct rtc_class_ops isl12022_rtc_ops = {
- 	.set_time	= isl12022_rtc_set_time,
- };
- 
-+static const struct regmap_config regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.use_single_write = true,
-+};
-+
- static int isl12022_probe(struct i2c_client *client)
- {
- 	struct isl12022 *isl12022;
-@@ -220,6 +154,12 @@ static int isl12022_probe(struct i2c_client *client)
- 		return -ENOMEM;
- 	dev_set_drvdata(&client->dev, isl12022);
- 
-+	isl12022->regmap = devm_regmap_init_i2c(client, &regmap_config);
-+	if (IS_ERR(isl12022->regmap)) {
-+		dev_err(&client->dev, "regmap allocation failed\n");
-+		return PTR_ERR(isl12022->regmap);
-+	}
-+
- 	isl12022->rtc = devm_rtc_allocate_device(&client->dev);
- 	if (IS_ERR(isl12022->rtc))
- 		return PTR_ERR(isl12022->rtc);
+On Wed, Aug 17, 2022 at 10:53:28AM +0200, Sascha Hauer wrote:
+> This series has the remainder of
+> https://lore.kernel.org/all/20220426071056.1187235-1-s.hauer@pengutronix.de/
+> which was partly applied.
+> 
+> Sascha
+> 
+> Ahmad Fatoum (1):
+>   include/linux/bcd.h: provide bcd_is_valid() helper
+> 
+> Sascha Hauer (1):
+>   rtc: rv8803: invalidate date/time if alarm time is invalid
+> 
+>  drivers/rtc/rtc-rv8803.c | 45 +++++++++++++++++++++++++++++++++-------
+>  include/linux/bcd.h      |  4 ++++
+>  2 files changed, 42 insertions(+), 7 deletions(-)
+> 
+> -- 
+> 2.30.2
+> 
+> 
+
 -- 
-2.37.2
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
