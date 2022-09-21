@@ -2,57 +2,57 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DE1BC6FA8E
-	for <linux-rtc@archiver.kernel.org>; Wed, 21 Sep 2022 11:46:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40CF7C32771
+	for <linux-rtc@archiver.kernel.org>; Wed, 21 Sep 2022 11:46:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229940AbiIULqt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 21 Sep 2022 07:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59214 "EHLO
+        id S230062AbiIULqz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 21 Sep 2022 07:46:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbiIULqg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Sep 2022 07:46:36 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C5392F42
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:34 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id b6so6629540ljr.10
-        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:33 -0700 (PDT)
+        with ESMTP id S229976AbiIULqi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 21 Sep 2022 07:46:38 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DE290823
+        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:36 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id s10so6664703ljp.5
+        for <linux-rtc@vger.kernel.org>; Wed, 21 Sep 2022 04:46:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rasmusvillemoes.dk; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=lP4IkEyc6NQgR5/fjvStSKdnasa2RR9aagLo80bh+wQ=;
-        b=MPI/QeQUdshERgTnwLtRSk5quf7LAJzsftQ1mPmIdNedAIcthsmN9PRc5w2X28K42j
-         XGKsYtELeqKNGAZrCb4qsLxkG/i44/u9ZyfllmSj5uW7CFV/MRRrvIbeU9wVJaQi/pYI
-         eKVubX7NU0Vy0rVYbsWOiFEwz2t6GHKvLyJ0c=
+        bh=EAInJKBXs0Zsg9lyW67Me/bO0k2ovFhxbq0RK9ZHPG4=;
+        b=U7k4PDrgtnD9mkByXaU59dw5vZ+z0ZwXtpyveeaxMMTSRSxNMggNXjcm+8Fo1D46Rr
+         fhL8taymIW+fMj/jSCEK3zZL9JHZgVjt5951E8x5y/7bBUddH4DqpA+KDctfv8WI541i
+         CuIR69fv0bHqjnhvbCU4wvRGM+EILuMLjQM6A=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=lP4IkEyc6NQgR5/fjvStSKdnasa2RR9aagLo80bh+wQ=;
-        b=aRCheYsuB4TMT9kf+y0GjT0CMDH0CyH/XJDj5+JaXv1QJG5h9FhjGY1CceOoix0vg5
-         gvvxGVFETY2iRQsx2898M2ej1b7eM7TRuNvA/LjwdFML2zIQTztmdDVQF8H4ta2fuRWl
-         JHHxIGEz+K1GB0QUYY3ry5z94CJ8R3nO7hkEnO+BmJNJoY95o1hx11HnmKnS+sVy7i/G
-         Kn/4PrGHPBmcF8vicn+mYZjc+rSacAhQ8Y3vAHyjCc3kVNV2lF2QYi1cygdwmwivaZJ/
-         mWWqK1J21kYDxxzjL3dW2IqllSP48gSqFx8F1fPEQJDIEm6PlYKfxlX+BLxsmnBTBSJX
-         Iapg==
-X-Gm-Message-State: ACrzQf39Vhxi2Pv+wLdJyToKeSYyK7ifQsENaS0V678Ds9ibuLx/r1eo
-        9NWwB/PBca2x4UdTKqauIHLI4g==
-X-Google-Smtp-Source: AMsMyM732ZUNotQGUDNxF21frMfuDbk4ozqj74BrluY9t9deQILNLqwUs1Z8aYhVn5H+pf9gPFRwtg==
-X-Received: by 2002:a2e:a4d3:0:b0:26a:cc7d:d50b with SMTP id p19-20020a2ea4d3000000b0026acc7dd50bmr9336996ljm.77.1663760792217;
-        Wed, 21 Sep 2022 04:46:32 -0700 (PDT)
+        bh=EAInJKBXs0Zsg9lyW67Me/bO0k2ovFhxbq0RK9ZHPG4=;
+        b=LZY+pwx+3NLDz2HyW5U6gMCEU/TnC9Szr7xYCyZYJq+qMnHVfMndb2+rwNa24kTWCN
+         sO/3okak2e8N9OFWB5QtIpyiYkapRekevdAHwtFN3cPolfY0FeWyYANP0XmuOS+z8PER
+         wPY2Pxt9PL/XgKphodPPcEoE1kG1f4f7zNUuo31DCqA0r+YNROs8FbzOW6x7DS2amBsm
+         RmkVkiRWki9CWMYpBYfQ5y8HWyl4EekCjQ1sbDHKfJquGksNKobHpiwT84KX1sOfGsK8
+         iFG6SdZFr4OTLZfJHPDzbbA2vkbPXvYAh8S4JjUzMHqu8AsG8QGwfox7Doagt32ElXKL
+         k3YA==
+X-Gm-Message-State: ACrzQf1diUWydIMeOohSX1rOwmPEXb+dlHmPE3VrFpc2uGfaer3sxsL5
+        P0Pl/z7z0omnWdY3LpJj7J0CBw==
+X-Google-Smtp-Source: AMsMyM6Gy2DAbTMhuH8lK+D5wVaE/ThDFhiOEHUDKjfxL28TzzZNc0tXIXUK+Qqi7q1y5LWnSEqPSQ==
+X-Received: by 2002:a2e:944a:0:b0:24f:10bd:b7e8 with SMTP id o10-20020a2e944a000000b0024f10bdb7e8mr9295233ljh.238.1663760794828;
+        Wed, 21 Sep 2022 04:46:34 -0700 (PDT)
 Received: from prevas-ravi.prevas.se ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id g4-20020a056512118400b00494618889c0sm405713lfr.42.2022.09.21.04.46.31
+        by smtp.gmail.com with ESMTPSA id g4-20020a056512118400b00494618889c0sm405713lfr.42.2022.09.21.04.46.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 04:46:31 -0700 (PDT)
+        Wed, 21 Sep 2022 04:46:34 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/9] rtc: isl12022: stop using deprecated devm_rtc_device_register()
-Date:   Wed, 21 Sep 2022 13:46:16 +0200
-Message-Id: <20220921114624.3250848-2-linux@rasmusvillemoes.dk>
+Subject: [PATCH v2 3/9] rtc: isl12022: drop a dev_info()
+Date:   Wed, 21 Sep 2022 13:46:18 +0200
+Message-Id: <20220921114624.3250848-4-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220921114624.3250848-1-linux@rasmusvillemoes.dk>
 References: <20220830100152.698506-1-linux@rasmusvillemoes.dk>
@@ -63,37 +63,28 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The comments say that devm_rtc_device_register() is deprecated and
-that one should instead use devm_rtc_allocate_device() and
-[devm_]rtc_register_device. So do that.
+This dev_info() seems to be a debug leftover, and it would only get
+printed once (or, once per battery change).
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 ---
- drivers/rtc/rtc-isl12022.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-isl12022.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index 79461ded1a48..2dc19061cf5f 100644
+index 3bc197f5548f..2fc9fbefc6fc 100644
 --- a/drivers/rtc/rtc-isl12022.c
 +++ b/drivers/rtc/rtc-isl12022.c
-@@ -246,10 +246,13 @@ static int isl12022_probe(struct i2c_client *client)
- 
- 	i2c_set_clientdata(client, isl12022);
- 
--	isl12022->rtc = devm_rtc_device_register(&client->dev,
--					isl12022_driver.driver.name,
--					&isl12022_rtc_ops, THIS_MODULE);
--	return PTR_ERR_OR_ZERO(isl12022->rtc);
-+	isl12022->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(isl12022->rtc))
-+		return PTR_ERR(isl12022->rtc);
-+
-+	isl12022->rtc->ops = &isl12022_rtc_ops;
-+
-+	return devm_rtc_register_device(isl12022->rtc);
- }
- 
- #ifdef CONFIG_OF
+@@ -173,9 +173,6 @@ static int isl12022_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		/* Check if WRTC (write rtc enable) is set factory default is
+ 		 * 0 (not set) */
+ 		if (!(buf[0] & ISL12022_INT_WRTC)) {
+-			dev_info(&client->dev,
+-				 "init write enable and 24 hour format\n");
+-
+ 			/* Set the write enable bit. */
+ 			ret = isl12022_write_reg(client,
+ 						 ISL12022_REG_INT,
 -- 
 2.37.2
 
