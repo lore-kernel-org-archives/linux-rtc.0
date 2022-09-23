@@ -2,62 +2,97 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA976C6FA86
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Sep 2022 07:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E0E6ECAAD8
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Sep 2022 08:40:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbiIWHiN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 23 Sep 2022 03:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50388 "EHLO
+        id S230079AbiIWIkN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 23 Sep 2022 04:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbiIWHiL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Sep 2022 03:38:11 -0400
-Received: from mail.fadrush.pl (mail.fadrush.pl [54.37.225.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAA412849A
-        for <linux-rtc@vger.kernel.org>; Fri, 23 Sep 2022 00:38:11 -0700 (PDT)
-Received: by mail.fadrush.pl (Postfix, from userid 1002)
-        id F2A2F23294; Fri, 23 Sep 2022 07:37:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fadrush.pl; s=mail;
-        t=1663918689; bh=bD6j9gIFU6CLTaCGl0Ow9oeIxtirvTfMeNZSfLEZQ+I=;
-        h=Date:From:To:Subject:From;
-        b=V7+fOEZ5JMzEffNd+aIpGHuR2xIJ8pwEMqE1fcK2lnl+XPTOCoGpagThuZ18lRnRp
-         KpnyMsnc1VHhcW8S+cd83/lfK4nvOJeVm2TL48/FsHYbsWBz3fVL4rnMmflJtV2+fU
-         zcCMLMXXtoN0muRXxvwZwnztYSnZqMKZIHqMkTLaSDiSQruJ4S4IIbQq97Mw83AF5w
-         xrBL7KlLWj4ujD8onRok/iXOQcOwFKqpa/zxOInaYK45oZgPERrEweUcX+HaBNY4TS
-         HA1Na0yEheVL4udN0FtuxUSJkVfxYineea1sHewygRNMcLCS0TBXWLq8IC8QmtgX1J
-         TqCVN918thXyg==
-Received: by mail.fadrush.pl for <linux-rtc@vger.kernel.org>; Fri, 23 Sep 2022 07:36:05 GMT
-Message-ID: <20220923064500-0.1.1t.h8yh.0.jr7ifqhkj8@fadrush.pl>
-Date:   Fri, 23 Sep 2022 07:36:05 GMT
-From:   "Jakub Olejniczak" <jakub.olejniczak@fadrush.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: =?UTF-8?Q?Zwi=C4=99kszenie_p=C5=82ynno=C5=9Bci_finansowej?=
-X-Mailer: mail.fadrush.pl
+        with ESMTP id S230034AbiIWIkM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Sep 2022 04:40:12 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE6D9F1B5
+        for <linux-rtc@vger.kernel.org>; Fri, 23 Sep 2022 01:40:10 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id hy2so22728202ejc.8
+        for <linux-rtc@vger.kernel.org>; Fri, 23 Sep 2022 01:40:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rasmusvillemoes.dk; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=U6zfmLFphAIrgL4F8F09QdcSH0hrlIdwizKDu5PkikA=;
+        b=d5fGo9EJ+mdGp0vheSqN2Hhijx/dKv5fsFV58WjZSVHyiFgAxUovNWHOAE84sPek/Z
+         5vrwsM7X2ikO6yLQfP4W5LTl3MSNXBANu6MDdvVhsZeer+ZR6MwpiwU4FslP/kSWbfGL
+         68pYAHJ7isHIBd0VMrmpD7HUof9OGwyOjHB+E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=U6zfmLFphAIrgL4F8F09QdcSH0hrlIdwizKDu5PkikA=;
+        b=vFFEuaQu/oQUstCukL1rr69I0vUwjkEQgc3S6toP01a7NvRKU/lZonc5+TyeydDoCN
+         laU56/mhFHqLWfRWm7kMMSr5mJAxNpBhxndJgsLxBbUfeNOxsi36+Cu+mzlTSsCThGWR
+         SpdovEAamqDuyU9KQVtTGC/H+K48zdp1qwppSNDcAbFZmJjrD95KjCfQNkJvnZ/Q/qGv
+         l+P1r6fIUiOpb65bFA3tI0WHWr+AyK+xP4IlKq7wrLhIy7V/AQsIrxvE2D851ZGc5bvF
+         X264KP3MYIcvmxr4WU0RVO6yvZgYEkLzW4+KUDlhv/ptU3sGcfEAwAwk2vbv14rRG/T7
+         8vWw==
+X-Gm-Message-State: ACrzQf1ZVBJ/EmT2JsnOLU3qxPooeIMm0XySf04V72NDblvlcaLS+QfC
+        qVr3YeCdN8kyergfJQTR1Q4BOg==
+X-Google-Smtp-Source: AMsMyM5VmiBQlwbjfE5Pt8HN6qE+WeUp2rxUd28OvfdnMRUuZP/ywclLHGwuTVBZUtJyGw4hbhWlmQ==
+X-Received: by 2002:a17:907:7baa:b0:779:a71a:c8cf with SMTP id ne42-20020a1709077baa00b00779a71ac8cfmr6174626ejc.126.1663922408786;
+        Fri, 23 Sep 2022 01:40:08 -0700 (PDT)
+Received: from [172.16.11.74] ([81.216.59.226])
+        by smtp.gmail.com with ESMTPSA id v18-20020a170906293200b007341663d7ddsm3750380ejd.96.2022.09.23.01.40.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 23 Sep 2022 01:40:08 -0700 (PDT)
+Message-ID: <62a262a1-b945-ad4f-fdb8-d05fcba882d3@rasmusvillemoes.dk>
+Date:   Fri, 23 Sep 2022 10:40:06 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2 9/9] rtc: isl12022: add support for temperature sensor
+Content-Language: en-US
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Jean Delvare <jdelvare@suse.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hwmon@vger.kernel.org
+References: <20220830100152.698506-1-linux@rasmusvillemoes.dk>
+ <20220921114624.3250848-1-linux@rasmusvillemoes.dk>
+ <20220921114624.3250848-10-linux@rasmusvillemoes.dk>
+ <8cb2bac1-3a03-09a1-c071-96ca4a95fa44@roeck-us.net>
+From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
+In-Reply-To: <8cb2bac1-3a03-09a1-c071-96ca4a95fa44@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On 21/09/2022 16.13, Guenter Roeck wrote:
+> On 9/21/22 04:46, Rasmus Villemoes wrote:
 
-kontaktuj=C4=99 si=C4=99 z Pa=C5=84stwem, poniewa=C5=BC chcia=C5=82bym za=
-proponowa=C4=87 wygodne rozwi=C4=85zanie, kt=C3=B3re umo=C5=BCliwi Pa=C5=84=
-stwa firmie stabilny rozw=C3=B3j.=20
+>> +static int isl12022_hwmon_read(struct device *dev,
+>> +                   enum hwmon_sensor_types type,
+>> +                   u32 attr, int channel, long *val)
+>> +{
+>> +    if (type == hwmon_chip && attr == hwmon_chip_update_interval) {
+>> +        *val = 60000;
+>> +        return 0;
+>> +    }
+> 
+> It is not the purpose of the update_interval attribute to inform the
+> user what the update interval of this chip happens to be. The purpose
+> of the attribute is to inform the chip what update interval it should use.
 
-Konkurencyjne otoczenie wymaga ci=C4=85g=C5=82ego ulepszania i poszerzeni=
-a oferty, co z kolei wi=C4=85=C5=BCe si=C4=99 z konieczno=C5=9Bci=C4=85 i=
-nwestowania. Brak odpowiedniego kapita=C5=82u powa=C5=BCnie ogranicza tem=
-po rozwoju firmy.
+Well, I think it's a completely natural thing to expose a fixed and
+known update_interval as a 0444 property, and it might even be useful to
+userspace to know that there's no point reading the sensor any more
+often than that. And I didn't come up with this by myself, there's
+already at least a couple of instances of a 0444 update_interval.
 
-Od wielu lat z powodzeniem pomagam firmom w uzyskaniu najlepszej formy fi=
-nansowania z banku oraz UE. Mam sta=C5=82ych Klient=C3=B3w, kt=C3=B3rzy n=
-adal ch=C4=99tnie korzystaj=C4=85 z moich us=C5=82ug, a tak=C5=BCe poleca=
-j=C4=85 je innym.
+I'll leave it to the RTC maintainers to decide, it's easy enough to remove.
 
-Czy chcieliby Pa=C5=84stwo skorzysta=C4=87 z pomocy wykwalifikowanego i d=
-o=C5=9Bwiadczonego doradcy finansowego?
-
-
-Pozdrawiam
-Jakub Olejniczak
+Rasmus
