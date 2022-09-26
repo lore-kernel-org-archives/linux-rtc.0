@@ -2,690 +2,96 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E39AC04A95
-	for <linux-rtc@archiver.kernel.org>; Sun, 25 Sep 2022 20:09:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98E47C07E9D
+	for <linux-rtc@archiver.kernel.org>; Mon, 26 Sep 2022 10:40:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbiIYUJg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 25 Sep 2022 16:09:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
+        id S236171AbiIZKkZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 26 Sep 2022 06:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbiIYUJe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 25 Sep 2022 16:09:34 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4CCCB3C
-        for <linux-rtc@vger.kernel.org>; Sun, 25 Sep 2022 13:09:30 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id sd10so10265474ejc.2
-        for <linux-rtc@vger.kernel.org>; Sun, 25 Sep 2022 13:09:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=timesys-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=BzpcE//npAiSqeDxWkRGvxUt4mbETnkuE+NLapfsvG4=;
-        b=sc+/R9Lz9RVBVJpyG4ldQDVv+JiG4kKivl1VhuEGRQv+rqW/n1zYa5iOEJSr0rPYU6
-         imnwPnse3RfoeoR13zIxG7qb9J+EazVNXmjqqLRp9ccCXLPFxi31kiJv8xnRuwFTktAn
-         3mCCXaVzLn7Nlh7qZ/vmu876tcdHgKEUFgHsyZXXmOvvfPd9CQBCMial7wUCiTZXOyM/
-         LCjZvq8pKzNHKnEuLEkHwr+KBqxG04sItBH+/I3xQjJcOLTZJ+YlaWtFKARVdOCqsFs9
-         saFqvFFjYeDbQ2Nt76oAbqvcaNQelHJmWIOAbPvbAUD7sSfDB4/k4e9uakGofieUPDEE
-         QvFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=BzpcE//npAiSqeDxWkRGvxUt4mbETnkuE+NLapfsvG4=;
-        b=pBTKzAVRRmX8BDn8j+5rIxMTZbT5ErV2yWxWvMdkanvDtIYCo1dm5gAG17ykbBxlKk
-         B3TkvtXdES2eGHKzEp9MrmggnEmFVcjEbfgYxuBpQHUBb6GuqFfCxPPS6dYMIC0b/omm
-         VkijV/b0rXfG4mdlS2hq4u6TT4NUK+v3UpEVu8FjI12XhzkHoAy/K2LMZx9RAoIf4tE4
-         +LjOqmSmdF3e3heQrCTiuGe6gBdWryIgXIDwsKdRidqs8nDg7qzP0jTMFJmeL0zmOZE+
-         onyAVAEdu5yYjA0YhVja8BnCDkjHXGcm+ruu1k42k2SBVrB5lyeLMZk+O0Wuy0YoxhG/
-         VROg==
-X-Gm-Message-State: ACrzQf1NT1kVDKxtAqqy6Xpr36PJSsejJ6TpbnX6YtN3jaWuxAyso1Uf
-        vqHdu/LLJwGY9B2ww67NVuNKXA==
-X-Google-Smtp-Source: AMsMyM68hBB9yQIVHZBbzW2L/+NRHknqZ1TsNlBrRnmFX4K1CmskDnRliuPTibM518o3mOnzFGYNaQ==
-X-Received: by 2002:a17:906:2681:b0:783:6a92:4c38 with SMTP id t1-20020a170906268100b007836a924c38mr2466549ejc.75.1664136569119;
-        Sun, 25 Sep 2022 13:09:29 -0700 (PDT)
-Received: from localhost.localdomain (host-95-248-4-29.retail.telecomitalia.it. [95.248.4.29])
-        by smtp.gmail.com with ESMTPSA id bh6-20020a170906a0c600b0077085fdd613sm7161192ejb.44.2022.09.25.13.09.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Sep 2022 13:09:28 -0700 (PDT)
-From:   Angelo Dureghello <angelo.dureghello@timesys.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org,
-        Angelo Dureghello <angelo.dureghello@timesys.com>
-Subject: [PATCH 1/2] rtc: add NXP PCF2131 support (i2c)
-Date:   Sun, 25 Sep 2022 22:08:02 +0200
-Message-Id: <20220925200803.210480-1-angelo.dureghello@timesys.com>
-X-Mailer: git-send-email 2.37.3
+        with ESMTP id S236590AbiIZKjn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 26 Sep 2022 06:39:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A31754640
+        for <linux-rtc@vger.kernel.org>; Mon, 26 Sep 2022 03:23:46 -0700 (PDT)
+Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=[127.0.0.1])
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <a.fatoum@pengutronix.de>)
+        id 1oclGj-0006PZ-5b; Mon, 26 Sep 2022 12:23:21 +0200
+Message-ID: <952c4575-1acc-4cbd-4d64-1dc58c53ae99@pengutronix.de>
+Date:   Mon, 26 Sep 2022 11:23:13 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
+Subject: Re: [PATCH v2 0/2] rtc: rv8803 patches
+To:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>,
+        kernel@pengutronix.de
+References: <20220817085330.1050492-1-s.hauer@pengutronix.de>
+ <20220921131753.GP12909@pengutronix.de> <YyseEdX9/xuyKGka@mail.local>
+ <20220921143557.GE986@pengutronix.de>
+Content-Language: en-US
+In-Reply-To: <20220921143557.GE986@pengutronix.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:900:1d::77
+X-SA-Exim-Mail-From: a.fatoum@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Started up this driver from similar rtc pcf2127.
-Actually only i2c communication has been tested, spi
-part can be easily added as needed in a later time.
+Hello Alexandre,
+Hello Sascha,
 
-Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
----
- drivers/rtc/Kconfig       |  15 +
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-pcf2131.c | 569 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 585 insertions(+)
- create mode 100644 drivers/rtc/rtc-pcf2131.c
+On 21.09.22 15:35, Sascha Hauer wrote:
+> On Wed, Sep 21, 2022 at 04:22:09PM +0200, Alexandre Belloni wrote:
+>> Hi,
+>>
+>> On 21/09/2022 15:17:53+0200, Sascha Hauer wrote:
+>>> Hi Alexandre,
+>>>
+>>> Any input to this series?
+>>
+>> I'm not convinced this is necessary. Having an invalid alarm doesn't
+>> mean that the time is invalid and that check will only ever happen at
+>> boot time whereas V2F is a reliable indication that the time is invalid.
+>>
+>> Have you really had an RTC with an invalid time that is not caught by
+>> rtc_valid_tm and with V2F not set?
+> 
+> I don't know. I must talk to Ahmad in this regard, he'll be back next
+> week. It could be that we only created this patch to be sure the RTC
+> state is sane.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index b8de25118ad0..81aaa43ac8a0 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -920,6 +920,21 @@ config RTC_DRV_PCF2127
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf2127.
- 
-+config RTC_DRV_PCF2131
-+	tristate "NXP PCF2131"
-+	depends on RTC_I2C
-+	select REGMAP_I2C if I2C
-+	select WATCHDOG_CORE if WATCHDOG
-+	help
-+	  If you say yes here you enable support for the NXP PCF2131 RTC
-+	  chip, a CMOS RTC and calendar with an integrated temperature
-+	  compensated crystal (Xtal) oscillator (TCXO) and a 32.768 kHz
-+	  quartz crystal optimized for very high accuracy and ultra-low
-+	  power consumption.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf2131.
-+
- config RTC_DRV_RV3029C2
- 	tristate "Micro Crystal RV3029/3049"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index aab22bc63432..30b429733c70 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -121,6 +121,7 @@ obj-$(CONFIG_RTC_DRV_PALMAS)	+= rtc-palmas.o
- obj-$(CONFIG_RTC_DRV_PCAP)	+= rtc-pcap.o
- obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
- obj-$(CONFIG_RTC_DRV_PCF2127)	+= rtc-pcf2127.o
-+obj-$(CONFIG_RTC_DRV_PCF2131)   += rtc-pcf2131.o
- obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
- obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
- obj-$(CONFIG_RTC_DRV_PCF8523)	+= rtc-pcf8523.o
-diff --git a/drivers/rtc/rtc-pcf2131.c b/drivers/rtc/rtc-pcf2131.c
-new file mode 100644
-index 000000000000..38fabbc49030
---- /dev/null
-+++ b/drivers/rtc/rtc-pcf2131.c
-@@ -0,0 +1,569 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * An I2C and SPI driver for the NXP PCF2131 RTC
-+ * Copyright 2022 Timesys Corp.
-+ *
-+ * Author: Angelo Dureghello <angelo.dureghello@timesys.com>
-+ *
-+ * Based on the other drivers in this same directory.
-+ *
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/spi/spi.h>
-+#include <linux/bcd.h>
-+#include <linux/rtc.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/regmap.h>
-+#include <linux/watchdog.h>
-+
-+#define PCF2131_REG_CTRL1		0x00
-+#define PCF2131_BIT_CTRL1_STOP		BIT(5)
-+
-+#define PCF2131_REG_CTRL2		0x01
-+
-+/* Control register 3 */
-+#define PCF2131_REG_CTRL3		0x02
-+#define PCF2131_BIT_CTRL3_BLIE		BIT(0)
-+#define PCF2131_BIT_CTRL3_BIE		BIT(1)
-+#define PCF2131_BIT_CTRL3_BLF		BIT(2)
-+#define PCF2131_BIT_CTRL3_BF		BIT(3)
-+#define PCF2131_BIT_CTRL3_BTSE		BIT(4)
-+
-+#define PCF2131_REG_CTRL4		0x03
-+#define PCF2131_BIT_CTRL4_TSF4		BIT(4)
-+#define PCF2131_BIT_CTRL4_TSF3		BIT(5)
-+#define PCF2131_BIT_CTRL4_TSF2		BIT(6)
-+#define PCF2131_BIT_CTRL4_TSF1		BIT(7)
-+
-+#define PCF2131_REG_CTRL5		0x04
-+#define PCF2131_BIT_CTRL5_TSIE4		BIT(4)
-+#define PCF2131_BIT_CTRL5_TSIE3		BIT(5)
-+#define PCF2131_BIT_CTRL5_TSIE2		BIT(6)
-+#define PCF2131_BIT_CTRL5_TSIE1		BIT(7)
-+
-+#define PCF2131_REG_SW_RST		0x05
-+#define PCF2131_BIT_SW_RST_CPR		BIT(7)
-+
-+/* Time and date registers */
-+#define PCF2131_REG_SC			0x07
-+#define PCF2131_BIT_SC_OSF		BIT(7)
-+#define PCF2131_REG_MN			0x08
-+#define PCF2131_REG_HR			0x09
-+#define PCF2131_REG_DM			0x0a
-+#define PCF2131_REG_DW			0x0b
-+#define PCF2131_REG_MO			0x0c
-+#define PCF2131_REG_YR			0x0d
-+
-+/* Timestamps registers */
-+#define PCF2131_TIMESTAMPS		4
-+#define PCF2131_REG_TS_SIZE		7
-+#define PCF2131_REG_TS1_CTRL		0x14
-+#define PCF2131_REG_TS2_CTRL		0x1b
-+#define PCF2131_REG_TS3_CTRL		0x22
-+#define PCF2131_REG_TS4_CTRL		0x29
-+#define PCF2131_BIT_TS_CTRL_TSOFF	BIT(6)
-+#define PCF2131_BIT_TS_CTRL_TSM		BIT(7)
-+
-+/* Watchdog registers */
-+#define PCF2131_REG_WD_CTL		0x35
-+#define PCF2131_BIT_WD_CTL_TF0		BIT(0)
-+#define PCF2131_BIT_WD_CTL_TF1		BIT(1)
-+#define PCF2131_BIT_WD_CTL_TI_TP	BIT(5)
-+#define PCF2131_BIT_WD_CTL_CD		BIT(7)
-+#define PCF2131_REG_WD_VAL		0x36
-+
-+/* Watchdog timer value constants */
-+#define PCF2131_WD_VAL_STOP		0
-+#define PCF2131_WD_VAL_MIN		2
-+#define PCF2131_WD_VAL_MAX		255
-+#define PCF2131_WD_VAL_DEFAULT		60
-+
-+struct pcf2131 {
-+	struct rtc_device *rtc;
-+	struct regmap *regmap;
-+	struct watchdog_device wdd;
-+};
-+
-+static int pcf2131_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pcf2131 *pcf2131 = dev_get_drvdata(dev);
-+	u8 buf[16];
-+	int ret;
-+
-+	ret = regmap_bulk_read(pcf2131->regmap, PCF2131_REG_CTRL1,
-+			       buf, sizeof(buf));
-+	if (ret < 0)
-+		return ret;
-+
-+	if (buf[PCF2131_REG_CTRL3] & PCF2131_BIT_CTRL3_BLF)
-+		dev_info(dev, "low voltage, check/replace RTC battery.\n");
-+
-+	if (buf[PCF2131_REG_SC] & PCF2131_BIT_SC_OSF) {
-+		dev_err(dev, "oscillator stop detected, time not reliable.\n");
-+
-+		return -EINVAL;
-+	}
-+
-+	tm->tm_sec = bcd2bin(buf[PCF2131_REG_SC] & 0x7F);
-+	tm->tm_min = bcd2bin(buf[PCF2131_REG_MN] & 0x7F);
-+	tm->tm_hour = bcd2bin(buf[PCF2131_REG_HR] & 0x3F);
-+	tm->tm_mday = bcd2bin(buf[PCF2131_REG_DM] & 0x3F);
-+	tm->tm_wday = bcd2bin(buf[PCF2131_REG_DW] & 0x07);
-+	tm->tm_mon = bcd2bin(buf[PCF2131_REG_MO] & 0x1F) - 1;
-+	tm->tm_year = bcd2bin(buf[PCF2131_REG_YR]);
-+	if (tm->tm_year < 70)
-+		tm->tm_year += 100;
-+
-+	return 0;
-+}
-+
-+static int pcf2131_rtc_stop(struct regmap *regmap)
-+{
-+	return regmap_update_bits(regmap, PCF2131_REG_CTRL1,
-+					  PCF2131_BIT_CTRL1_STOP,
-+					  PCF2131_BIT_CTRL1_STOP);
-+}
-+
-+static int pcf2131_start_rtc(struct regmap *regmap)
-+{
-+	return regmap_update_bits(regmap, PCF2131_REG_CTRL1,
-+					  PCF2131_BIT_CTRL1_STOP,
-+					  0);
-+}
-+
-+static int pcf2131_rtc_clear_prescaler(struct regmap *regmap)
-+{
-+	return regmap_update_bits(regmap, PCF2131_REG_SW_RST,
-+					  PCF2131_BIT_SW_RST_CPR,
-+					  PCF2131_BIT_SW_RST_CPR);
-+}
-+
-+static int pcf2131_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct pcf2131 *pcf2131 = dev_get_drvdata(dev);
-+	unsigned char buf[7];
-+	int i = 0, err;
-+
-+	if (tm->tm_year < 100 || tm->tm_year >= 200)
-+		return -EINVAL;
-+
-+	err = pcf2131_rtc_stop(pcf2131->regmap);
-+	if (err)
-+		goto ret_err;
-+
-+	err = pcf2131_rtc_clear_prescaler(pcf2131->regmap);
-+	if (err)
-+		goto ret_err;
-+
-+	/* this will also clear OSF flag */
-+	buf[i++] = bin2bcd(tm->tm_sec);
-+	buf[i++] = bin2bcd(tm->tm_min);
-+	buf[i++] = bin2bcd(tm->tm_hour);
-+	buf[i++] = bin2bcd(tm->tm_mday);
-+	buf[i++] = bin2bcd(tm->tm_wday) & 0x07;
-+	buf[i++] = bin2bcd(tm->tm_mon + 1);
-+	buf[i++] = bin2bcd(tm->tm_year % 100);
-+
-+	err = regmap_bulk_write(pcf2131->regmap, PCF2131_REG_SC, buf, i);
-+	if (err < 0) {
-+		pcf2131_start_rtc(pcf2131->regmap);
-+		goto ret_err;
-+	}
-+
-+	if (pcf2131_start_rtc(pcf2131->regmap))
-+		goto ret_err;
-+
-+	return 0;
-+
-+ret_err:
-+	dev_err(dev, "%s: err=%d", __func__, err);
-+
-+	return err;
-+}
-+
-+#ifdef CONFIG_RTC_INTF_DEV
-+static int pcf2131_rtc_ioctl(struct device *dev,
-+				unsigned int cmd, unsigned long arg)
-+{
-+	struct pcf2131 *pcf2131 = dev_get_drvdata(dev);
-+	int ret, touser;
-+
-+	switch (cmd) {
-+	case RTC_VL_READ:
-+		ret = regmap_read(pcf2131->regmap, PCF2131_REG_CTRL3, &touser);
-+		if (ret < 0)
-+			return ret;
-+
-+		touser = touser & PCF2131_BIT_CTRL3_BLF ? 1 : 0;
-+
-+		if (copy_to_user((void __user *)arg, &touser, sizeof(int)))
-+			return -EFAULT;
-+		return 0;
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
-+}
-+#else
-+#define pcf2131_rtc_ioctl NULL
-+#endif
-+
-+static const struct rtc_class_ops pcf2131_rtc_ops = {
-+	.ioctl = pcf2131_rtc_ioctl,
-+	.read_time = pcf2131_rtc_read_time,
-+	.set_time = pcf2131_rtc_set_time,
-+};
-+
-+/* watchdog driver */
-+
-+static int pcf2131_wdt_ping(struct watchdog_device *wdd)
-+{
-+	struct pcf2131 *pcf2131 = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(pcf2131->regmap, PCF2131_REG_WD_VAL, wdd->timeout);
-+}
-+
-+/*
-+ * Restart watchdog timer if feature is active.
-+ *
-+ * Note: Reading CTRL2 register causes watchdog to stop which is unfortunate,
-+ * since register also contain control/status flags for other features.
-+ * Always call this function after reading CTRL2 register.
-+ */
-+static int pcf2131_wdt_active_ping(struct watchdog_device *wdd)
-+{
-+	int ret = 0;
-+
-+	if (watchdog_active(wdd)) {
-+		ret = pcf2131_wdt_ping(wdd);
-+		if (ret)
-+			dev_err(wdd->parent,
-+				"%s: watchdog restart failed, ret=%d\n",
-+				__func__, ret);
-+	}
-+
-+	return ret;
-+}
-+
-+static int pcf2131_wdt_start(struct watchdog_device *wdd)
-+{
-+	return pcf2131_wdt_ping(wdd);
-+}
-+
-+static int pcf2131_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct pcf2131 *pcf2131 = watchdog_get_drvdata(wdd);
-+
-+	return regmap_write(pcf2131->regmap, PCF2131_REG_WD_VAL,
-+					     PCF2131_WD_VAL_STOP);
-+}
-+
-+static int pcf2131_wdt_set_timeout(struct watchdog_device *wdd,
-+				   unsigned int new_timeout)
-+{
-+	dev_dbg(wdd->parent, "new watchdog timeout: %is (old: %is)\n",
-+		new_timeout, wdd->timeout);
-+
-+	wdd->timeout = new_timeout;
-+
-+	return pcf2131_wdt_active_ping(wdd);
-+}
-+
-+static const struct watchdog_info pcf2131_wdt_info = {
-+	.identity = "NXP PCF2131 Watchdog",
-+	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-+};
-+
-+static const struct watchdog_ops pcf2131_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = pcf2131_wdt_start,
-+	.stop = pcf2131_wdt_stop,
-+	.ping = pcf2131_wdt_ping,
-+	.set_timeout = pcf2131_wdt_set_timeout,
-+};
-+
-+/* sysfs interface */
-+
-+static ssize_t __timestamp_store(int idx,
-+				 struct device *dev,
-+				 struct device_attribute *attr,
-+				 const char *buf, size_t count)
-+{
-+	struct pcf2131 *pcf2131 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = regmap_update_bits(pcf2131->regmap,
-+					PCF2131_REG_CTRL4,
-+					PCF2131_BIT_CTRL4_TSF1 >> idx, 0);
-+	if (ret < 0) {
-+		dev_err(dev, "%s: update ctrl1 ret=%d\n", __func__, ret);
-+		return ret;
-+	}
-+
-+	ret = pcf2131_wdt_active_ping(&pcf2131->wdd);
-+	if (ret)
-+		return ret;
-+
-+	return count;
-+}
-+
-+static ssize_t timestamp0_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return __timestamp_store(0, dev, attr, buf, count);
-+}
-+
-+static ssize_t timestamp1_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return __timestamp_store(1, dev, attr, buf, count);
-+}
-+
-+static ssize_t timestamp2_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return __timestamp_store(2, dev, attr, buf, count);
-+}
-+
-+static ssize_t timestamp3_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	return __timestamp_store(3, dev, attr, buf, count);
-+}
-+
-+static ssize_t __timestamp_show(int idx, struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct pcf2131 *pcf2131 = dev_get_drvdata(dev);
-+	struct rtc_time tm;
-+	int ret;
-+	int offs;
-+	unsigned char data[48];
-+
-+	ret = regmap_bulk_read(pcf2131->regmap, PCF2131_REG_CTRL1,
-+			       data, sizeof(data));
-+	if (ret < 0)
-+		return ret;
-+
-+	offs = PCF2131_REG_TS1_CTRL + (idx * PCF2131_REG_TS_SIZE);
-+
-+	ret = pcf2131_wdt_active_ping(&pcf2131->wdd);
-+	if (ret)
-+		return ret;
-+
-+	if (!(data[PCF2131_REG_CTRL4] & (PCF2131_BIT_CTRL4_TSF1 >> idx)))
-+		return 0;
-+
-+	tm.tm_sec = bcd2bin(data[offs + 1] & 0x7F);
-+	tm.tm_min = bcd2bin(data[offs + 2] & 0x7F);
-+	tm.tm_hour = bcd2bin(data[offs + 3] & 0x3F);
-+	tm.tm_mday = bcd2bin(data[offs + 4] & 0x3F);
-+	tm.tm_mon = bcd2bin(data[offs + 5] & 0x1F) - 1;
-+	tm.tm_year = bcd2bin(data[offs + 6]);
-+	if (tm.tm_year < 70)
-+		tm.tm_year += 100;
-+
-+	ret = rtc_valid_tm(&tm);
-+	if (ret)
-+		return ret;
-+
-+	return sprintf(buf, "%llu\n",
-+		       (unsigned long long)rtc_tm_to_time64(&tm));
-+};
-+
-+static ssize_t timestamp0_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return __timestamp_show(0, dev, attr, buf);
-+}
-+
-+static ssize_t timestamp1_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return __timestamp_show(1, dev, attr, buf);
-+}
-+static ssize_t timestamp2_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return __timestamp_show(2, dev, attr, buf);
-+}
-+
-+static ssize_t timestamp3_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return __timestamp_show(3, dev, attr, buf);
-+}
-+
-+static DEVICE_ATTR_RW(timestamp0);
-+static DEVICE_ATTR_RW(timestamp1);
-+static DEVICE_ATTR_RW(timestamp2);
-+static DEVICE_ATTR_RW(timestamp3);
-+
-+static struct attribute *pcf2131_attrs[] = {
-+	&dev_attr_timestamp0.attr,
-+	&dev_attr_timestamp1.attr,
-+	&dev_attr_timestamp2.attr,
-+	&dev_attr_timestamp3.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group pcf2131_attr_group = {
-+	.attrs	= pcf2131_attrs,
-+};
-+
-+/*
-+ * This device does not support bulk transferts.
-+ */
-+static const struct regmap_config regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = 0x36,
-+	.use_single_read = 1,
-+	.use_single_write = 1,
-+};
-+
-+static int pcf2131_rtc_probe(struct i2c_client *client)
-+{
-+	struct pcf2131 *pcf2131;
-+	struct rtc_device *rtc;
-+	int i, ret = 0;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+		return -ENODEV;
-+
-+	pcf2131 = devm_kzalloc(&client->dev,
-+			       sizeof(struct pcf2131), GFP_KERNEL);
-+	if (!pcf2131)
-+		return -ENOMEM;
-+
-+	pcf2131->regmap = devm_regmap_init_i2c(client, &regmap_config);
-+	if (IS_ERR(pcf2131->regmap))
-+		return PTR_ERR(pcf2131->regmap);
-+
-+	i2c_set_clientdata(client, pcf2131);
-+
-+	rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
-+	pcf2131->rtc = rtc;
-+
-+	pcf2131->rtc->ops = &pcf2131_rtc_ops;
-+
-+	pcf2131->wdd.parent = &client->dev;
-+	pcf2131->wdd.info = &pcf2131_wdt_info;
-+	pcf2131->wdd.ops = &pcf2131_watchdog_ops;
-+	pcf2131->wdd.min_timeout = PCF2131_WD_VAL_MIN;
-+	pcf2131->wdd.max_timeout = PCF2131_WD_VAL_MAX;
-+	pcf2131->wdd.timeout = PCF2131_WD_VAL_DEFAULT;
-+	pcf2131->wdd.min_hw_heartbeat_ms = 500;
-+
-+	watchdog_set_drvdata(&pcf2131->wdd, pcf2131);
-+
-+	/*
-+	 * Watchdog timer enabled and int pins /INTA/B activated when timed out.
-+	 * Select 4Hz clock source for watchdog timer.
-+	 * Timer is not started until WD_VAL is loaded with a valid value.
-+	 * Note: countdown timer not available.
-+	 */
-+	ret = regmap_update_bits(pcf2131->regmap, PCF2131_REG_WD_CTL,
-+					PCF2131_BIT_WD_CTL_CD |
-+					PCF2131_BIT_WD_CTL_TI_TP |
-+					PCF2131_BIT_WD_CTL_TF1 |
-+					PCF2131_BIT_WD_CTL_TF0,
-+					PCF2131_BIT_WD_CTL_CD |
-+					PCF2131_BIT_WD_CTL_TF0);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "%s: watchdog config failed, err %d\n",
-+			__func__, ret);
-+		return ret;
-+	}
-+
-+#ifdef CONFIG_WATCHDOG
-+	ret = devm_watchdog_register_device(&client->dev, &pcf2131->wdd);
-+	if (ret)
-+		return ret;
-+#endif /* CONFIG_WATCHDOG */
-+
-+	/*
-+	 * Disable battery low/switch-over timestamp and interrupts.
-+	 * Clear battery interrupt flags which can block new trigger events.
-+	 * Note: This is the default chip behaviour but added to ensure
-+	 * correct tamper timestamp and interrupt function.
-+	 */
-+	ret = regmap_update_bits(pcf2131->regmap, PCF2131_REG_CTRL3,
-+					PCF2131_BIT_CTRL3_BTSE |
-+					PCF2131_BIT_CTRL3_BF |
-+					PCF2131_BIT_CTRL3_BIE |
-+					PCF2131_BIT_CTRL3_BLIE, 0);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "%s: interrupt config (ctrl3) failed\n",
-+			__func__);
-+		return ret;
-+	}
-+
-+	for (i = 0; i < PCF2131_TIMESTAMPS; i++) {
-+		int reg = PCF2131_REG_TS1_CTRL + i * PCF2131_REG_TS_SIZE;
-+
-+		ret = regmap_update_bits(pcf2131->regmap, reg,
-+						PCF2131_BIT_TS_CTRL_TSOFF |
-+						PCF2131_BIT_TS_CTRL_TSM,
-+						PCF2131_BIT_TS_CTRL_TSM);
-+		if (ret < 0) {
-+			dev_err(&client->dev,
-+				"%s: tamper detection %d config failed\n",
-+				__func__, i);
-+			return ret;
-+		}
-+
-+		ret = regmap_update_bits(pcf2131->regmap, PCF2131_REG_CTRL5,
-+						PCF2131_BIT_CTRL5_TSIE1 >> i,
-+						PCF2131_BIT_CTRL5_TSIE1 >> i);
-+		if (ret < 0) {
-+			dev_err(&client->dev,
-+				"%s: tamper interrupt config %d failed\n",
-+				__func__, i);
-+			return ret;
-+		}
-+	}
-+
-+	ret = rtc_add_group(rtc, &pcf2131_attr_group);
-+	if (ret) {
-+		dev_err(&client->dev, "%s: tamper sysfs registering failed\n",
-+			__func__);
-+		return ret;
-+	}
-+
-+	return devm_rtc_register_device(rtc);
-+}
-+
-+static const struct i2c_device_id pcf2131_id[] = {
-+	{ "pcf2131", 0 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(i2c, pcf2131_id);
-+
-+static const struct of_device_id pcf2131_rtc_of_match[] = {
-+	{ .compatible = "nxp,pcf2131" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, pcf2131_rtc_of_match);
-+
-+static struct i2c_driver pcf2131_rtc_driver = {
-+	.driver = {
-+		.name = "rtc-pcf2131-i2c",
-+		.of_match_table = of_match_ptr(pcf2131_rtc_of_match),
-+	},
-+	.probe_new = pcf2131_rtc_probe,
-+	.id_table = pcf2131_id,
-+};
-+module_i2c_driver(pcf2131_rtc_driver);
-+
-+MODULE_AUTHOR("Angelo Dureghello <angelo.dureghello@timesys.com>");
-+MODULE_DESCRIPTION("NXP PCF2131 RTC driver");
-+MODULE_LICENSE("GPL");
+The kernel message
+
+  rtc rtc0: invalid alarm value: 2020-3-27 7:82:0
+
+listed in the commit message is something I actually ran into. There
+was no v2f set then. The customer has also variously observed bit flips
+independently of v2f: During EMC testing, electrostatic discharge at developer
+desks and even in the field: Suspected causes were lightning strikes in the
+vicinity and the switching of larger inductive loads.
+They're very paranoid of logging invalid timestamps, so we'll keep the patch
+anyhow at our side, but I think it is generally useful as well: If we can't
+set an invalid alarm time by normal means, but read back an invalid time,
+something may have corrupted other memory, so treating it as a v2f is sensible.
+
+Thanks,
+Ahmad
+
+> 
+> Sascha
+> 
+> 
+
+
 -- 
-2.37.3
-
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
