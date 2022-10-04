@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D816C4167D
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Oct 2022 08:08:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5917C07E9D
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Oct 2022 08:08:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229884AbiJDIIa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Oct 2022 04:08:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47036 "EHLO
+        id S229726AbiJDIIm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Oct 2022 04:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229684AbiJDII2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Oct 2022 04:08:28 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1642FC2C
-        for <linux-rtc@vger.kernel.org>; Tue,  4 Oct 2022 01:08:26 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id c3-20020a1c3503000000b003bd21e3dd7aso295811wma.1
-        for <linux-rtc@vger.kernel.org>; Tue, 04 Oct 2022 01:08:26 -0700 (PDT)
+        with ESMTP id S229912AbiJDIIc (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Oct 2022 04:08:32 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF1B22FFDF
+        for <linux-rtc@vger.kernel.org>; Tue,  4 Oct 2022 01:08:29 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id a10so7729122wrm.12
+        for <linux-rtc@vger.kernel.org>; Tue, 04 Oct 2022 01:08:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date;
-        bh=svWOEDLHBgaEhOKsLw/bRBJHHJKR+93T7NM/Oxjra+Y=;
-        b=SRGMd7+XNjAIBYf3IzIRL/dRd8rCqcm+LscUB4F49IcyCdF+zA9J+h+sPsCY2lPO0S
-         718sEUlhL1Aw3O5uBhRAdp79/zAni1WnIIDFHPrCDW4brqQRhK5Y+W3+QxoAbozju8kH
-         s/4HA9vXiwfSbdWNB5TqR3WQRPYXtSVCMhoveSOBNPvRcz8DdW5Y8oFrPq4nNm/1p8ZF
-         8CO2m73EXY+XcCwbz60I2wkwxfkmDslhzhYn/1RU+2LgCnz7vICdvmhqcMDQXVHmJ+WC
-         T475sG5PxJqn0nD4cytrOT2hhMRGNmHlCE73SzuLp8LYBlBfU6nwMp/tFi0hrgv+C2os
-         S4PQ==
+        bh=SDeP7eqQdNzc3Gc3v7xkWYwjB0Tw3W04qBb8bNWEu9M=;
+        b=FsUyMwAiibb6YkuXA9FWYJB132KAYY34BaUkTram90h6YqgEZHElJUJ5l8TL9PdjAL
+         O7ioqrZd1p8cBGAlqo7dDML6+0K5Yto2NUbPACXisqeFdcW/tzsM28YsijefA1HBzJ4t
+         Rl9g/drFO+hla8LH0iCzdJQJOFvpxTtaJigZVMkK3NStooyw1ZDRS61mhS4jJcBDOMmB
+         vOMXQ1Bkb0PpnPoRwmUXYcSEW8HD6Z/U/sbgRR9s/tzqwjc+0zvWtsVRPy5S8RJsMtCE
+         O5FNgwJarzvTuxmDG72i3ZIfpYCyoqm8KVBx9CEPPGsJvUS6gCO0MYvsEMqblGBwi7cy
+         pp6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=svWOEDLHBgaEhOKsLw/bRBJHHJKR+93T7NM/Oxjra+Y=;
-        b=jSTUdo8Kq3iUUgB6E0RYclqt+mA4iaJ81Mji+13zJ+NdxXarFoZIzpjvOEN2vOWXYI
-         AS5vYlDtmra7CywVb3eyjnwhd1GeXrIRPZZLAxV1N3ype24wQUG0o2hTXilE47cYb9YY
-         O3h0oGBdSlIFq+NEBVdS4vZ1s1LEBcjFf5FX/LtwTzQ/LK5Tg37zcH4I+Etoi7vNd8kP
-         HTQirLCYkZG20hrbvWgBW2qZWepeRMzlM7HNCyPJskVHW5o6NPRcm5cZPPNY4Fmjlb5Y
-         KNWbfylv4SuXLOQ7d8rKBJmBbwyhDfrnolvaiSJPPZDddflAbGHlD6ULpurv2C9Nw88C
-         FJ9A==
-X-Gm-Message-State: ACrzQf1MM1cWUeIqoktkqgVbANuJfGz7m5U35ULNudBP1CC5IDXuA7I/
-        JnbUOzLHoThZ3lNke9VcvZZZ/A==
-X-Google-Smtp-Source: AMsMyM4LfdwqPm2Uugv5kwaFojI6IJeP/ROmtesDCfJPCYGDOG2/E7L04KBJMHt3sMDHPPWk8y4HHQ==
-X-Received: by 2002:a1c:721a:0:b0:3b4:641c:5d99 with SMTP id n26-20020a1c721a000000b003b4641c5d99mr9552403wmc.71.1664870904931;
-        Tue, 04 Oct 2022 01:08:24 -0700 (PDT)
+        bh=SDeP7eqQdNzc3Gc3v7xkWYwjB0Tw3W04qBb8bNWEu9M=;
+        b=v6+CuNnFEAFESN9jDl754sJDVTtBR6KKGAdOCh/WedaSSIpWwzSRughB8oML0EhiAf
+         NN1wxWZea7OgTH+uIMZEs15GuldyXZeHk+mZk/DFmotACEs/qaazt8HU4b/HG512z/4n
+         l2fzu9c4FUSgtnNuiARrJL8Rzz9Usd9iW7F6xbqVbZV5okHENTIOTcIqmOdHIUiLjEUt
+         cvaECy8N9CDEgWPiqWI8kwO7akwNioMFFd4AHzS3A4425j8cvf8yjyptXIeSFcm2yWhH
+         ZGPhfOX34uDlEe5iB9yOG33zHdXKRfCrDpLrmVJxAWUVz7F+cSZyBuRbGv60TonBGlci
+         7fuQ==
+X-Gm-Message-State: ACrzQf0xTC98futvvwl7qt2UM5o0QxGxDDIdACwdIKudAgTmxCY/rnGL
+        HqJOnzKwfOaq7GRW8Xb0vUye1g==
+X-Google-Smtp-Source: AMsMyM66GLvCAxvCSCYkja17vzGP/C7XGU+HwN5Sj3ivIRxZE4ZpyaWz23jyzXJeRF6uXtir6qkceg==
+X-Received: by 2002:adf:9dcd:0:b0:22e:37cc:421d with SMTP id q13-20020adf9dcd000000b0022e37cc421dmr6558023wre.710.1664870908126;
+        Tue, 04 Oct 2022 01:08:28 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id l2-20020a1c7902000000b003b33943ce5esm20228866wme.32.2022.10.04.01.08.23
+        by smtp.gmail.com with ESMTPSA id l2-20020a1c7902000000b003b33943ce5esm20228866wme.32.2022.10.04.01.08.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Oct 2022 01:08:24 -0700 (PDT)
+        Tue, 04 Oct 2022 01:08:27 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Tue, 04 Oct 2022 08:08:17 +0000
-Subject: [PATCH v2 01/11] dt-bindings: arm: qcom: move swir,mangoh-green-wp8548 board
- documentation to qcom.yaml
+Date:   Tue, 04 Oct 2022 08:08:20 +0000
+Subject: [PATCH v2 04/11] arm: dts: qcom: mdm9615: remove invalid spi-max-frequency
+ gsbi3_spi node
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v2-1-87fbeb4ae053@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v2-4-87fbeb4ae053@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v2-0-87fbeb4ae053@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v2-0-87fbeb4ae053@linaro.org>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -79,45 +79,24 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Document into the main qcom.yaml as conversion from swir.txt to dt-schema.
+The spi-max-frequency property has nothing to do in the controller's node,
+remove it and fix the 'spi-max-frequency' was unexpected dtbs check error.
 
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-diff --git a/Documentation/devicetree/bindings/arm/qcom.yaml b/Documentation/devicetree/bindings/arm/qcom.yaml
-index fb1d00bcc847..e9f38f0cef19 100644
---- a/Documentation/devicetree/bindings/arm/qcom.yaml
-+++ b/Documentation/devicetree/bindings/arm/qcom.yaml
-@@ -262,6 +262,12 @@ properties:
-               - qcom,ipq8074-hk10-c2
-           - const: qcom,ipq8074
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index eaa3236f62db..366241dee522 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -170,7 +170,6 @@ gsbi3_spi: spi@16280000 {
+ 				#size-cells = <0>;
+ 				reg = <0x16280000 0x1000>;
+ 				interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
+-				spi-max-frequency = <24000000>;
  
-+      - description: Sierra Wireless MangOH Green with WP8548 Module
-+        items:
-+          - const: swir,mangoh-green-wp8548
-+          - const: swir,wp8548
-+          - const: qcom,mdm9615
-+
-       - description: Qualcomm Technologies, Inc. SC7180 IDP
-         items:
-           - enum:
-diff --git a/Documentation/devicetree/bindings/arm/swir.txt b/Documentation/devicetree/bindings/arm/swir.txt
-deleted file mode 100644
-index 042be73a95d3..000000000000
---- a/Documentation/devicetree/bindings/arm/swir.txt
-+++ /dev/null
-@@ -1,12 +0,0 @@
--Sierra Wireless Modules device tree bindings
----------------------------------------------
--
--Supported Modules :
-- - WP8548 : Includes MDM9615 and PM8018 in a module
--
--Sierra Wireless modules shall have the following properties :
--  Required root node property
--   - compatible: "swir,wp8548" for the WP8548 CF3 Module
--
--Board compatible values:
--  - "swir,mangoh-green-wp8548" for the mangOH green board with the WP8548 module
+ 				clocks = <&gcc GSBI3_QUP_CLK>, <&gcc GSBI3_H_CLK>;
+ 				clock-names = "core", "iface";
 
 -- 
 b4 0.10.0
