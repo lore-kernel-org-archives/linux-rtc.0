@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCA3EC38A2C
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Oct 2022 08:08:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DB6BC41535
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Oct 2022 08:08:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbiJDIIp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Oct 2022 04:08:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47234 "EHLO
+        id S229959AbiJDIIt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Oct 2022 04:08:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbiJDIIg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Oct 2022 04:08:36 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0DF12F3BB
-        for <linux-rtc@vger.kernel.org>; Tue,  4 Oct 2022 01:08:33 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id c11so20079696wrp.11
-        for <linux-rtc@vger.kernel.org>; Tue, 04 Oct 2022 01:08:33 -0700 (PDT)
+        with ESMTP id S229967AbiJDIIi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Oct 2022 04:08:38 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5DD046616
+        for <linux-rtc@vger.kernel.org>; Tue,  4 Oct 2022 01:08:35 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id e18so8377107wmq.3
+        for <linux-rtc@vger.kernel.org>; Tue, 04 Oct 2022 01:08:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date;
-        bh=rneLB6WK0hb5ckLAowEuNik00c/MBOlbxObt43YiBik=;
-        b=OBgV+joCcJjjl412Nb2zNufQNlOUcvj3WH8jf9uftb33ic8/b2VOiu+XojMIRirUOx
-         g48QZO7A2X+AwHJLF6FswUsdPWQDej/w9jrmpXA8cX8tUb18HCczOYm+MWQpfhX59XoL
-         nWidOrWacdZS1KLHhhbRPnJ/wNtnB0yKgB/RVU7udc93b4RxRzvC/Qealx2sSHmE/Xnp
-         2RuLn2X2rwWyAIZHWwSWrmPJaKUUGBTDbXOPseamjpq6JXjcCsVF3CcltPVGBH/+fwcV
-         brBQEi3b0UiAM4zxQelI9dvjcek5mgamDowy8T37COaC7hGk0x3i75TqXWWoSfpBQN+G
-         fEJg==
+        bh=FGkwToaEY2/oWxxoPFSmgbzFTRsRAd3NEFRgk9zoGZE=;
+        b=APG/eZ6CUVX2MDUjQXHEG18l1HVsNHWeyRsWKHjW4lIGCXsTCw3vj8DW8a70ZAa8qO
+         3ChKndlanZfZtlZ3qA3oOvB0LbhhWfQPDnQlH0UsCE2bLxw76Q1ZQOdC6H3LbWf916en
+         qm/2B5HtKgFXlAIyhwv6ojU7NyRVI2EXppvVWfDy7jJw/d5I5ClvPUzDA1jsvxzrbKj8
+         SZ+KI3nG8sZG2ceDR0vDsUBirlIzz2+VjwdtM+ar2UebOP9iYXSFrHuTmkTnDTErjxUu
+         1JLm0iTKNRY8SMWVnol7S/HrVQYF+ixyDBcNeuvIOX3ayUsB8DNSdOA4e86OjMLhVUge
+         l3KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=rneLB6WK0hb5ckLAowEuNik00c/MBOlbxObt43YiBik=;
-        b=nLWumElzk1uq4pW7KlEl/mDgdQGwiO614COrruV4iqSlcT8UfnfS4eQV5E7A6s8VA/
-         dmbHFIkzbL8nD1aQ+37ev/e5V9k2fVJbNpVldAIOssA7x1VNpOfWn17aymL87Fs6KumR
-         z7endfDROrcDW73vAg29cnbIinkeeQIT3iofEGopK3qXp667BpoxzDFPA9/0lazBkYlD
-         Jv4y0IEUHiU+s97av2MuJHKfXTJ8WZeZMkiNe7ayNO78RAtAOuEiOLeNS0QyaCHg7o9d
-         MfLoD5hbeoZqqsoYGqZxZghM0Ohf2E/mFzE8Erd9s+Lcn7vqbU4z+WNCb/D0xNC30g1D
-         Bqgw==
-X-Gm-Message-State: ACrzQf09NUguo9LXlscK2BBJSOwohPkxOlLbUhObDzgTIM06Tp+pfBRa
-        oBELrpCB1NGCjklZPFqAmZJGug==
-X-Google-Smtp-Source: AMsMyM49JGyy91z19GmF3/f/TMYRUSetR0flmwSyXGb961IJCAykvU54pLhQ5z8Z8Eno57XPz9slvw==
-X-Received: by 2002:a5d:4c8e:0:b0:22e:3979:7dc9 with SMTP id z14-20020a5d4c8e000000b0022e39797dc9mr5835672wrs.41.1664870911723;
-        Tue, 04 Oct 2022 01:08:31 -0700 (PDT)
+        bh=FGkwToaEY2/oWxxoPFSmgbzFTRsRAd3NEFRgk9zoGZE=;
+        b=Qp5a8BynxftP5qJVjJP0mDLHJI8MYTe8Ot1fS+RW9s9kESJ4Rk9Q21gNlkO3PSl20I
+         Aw7xT3X7h1Va92VpltN14ZyXbSNqet7T2H6x8SxdkOTPD4DyW4m5BBQJC+qRQqI+SakT
+         ptzy46u7+qlAYvE0ZJOCk84l6bZS5Qcgmw9Mfbw4uqxdnrczBKizf0JXwpOOelU/j8S2
+         C06wryTy5tGemd5NjvaJHYzToz5KhkSmUuGHOh1l1vW9/SQmItNkVnX70g7scuuSlzkZ
+         yNtfFIFsApynQb/SvY1gpxzfbK9uo/1nPfkkPJvnJWRDLCS2lI76gT0LB5SEyNYIRK3T
+         t0LA==
+X-Gm-Message-State: ACrzQf2SyXAyqS2Hk2zezDfXhEtq+prbIoQ4YSakRYUvDKYdUJzdOD+A
+        yjZc7Xpv+vLQ1K3kYqFh0eW30w==
+X-Google-Smtp-Source: AMsMyM6NRV3/N5v2bN20Kv0/bQJ1IPPY0qQ6BbXOkruyXpdbZKMuMgM2d5S4Hx/sDp/QC0jD542lig==
+X-Received: by 2002:a7b:c389:0:b0:3b4:a67a:2ef7 with SMTP id s9-20020a7bc389000000b003b4a67a2ef7mr9250243wmj.180.1664870915410;
+        Tue, 04 Oct 2022 01:08:35 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id l2-20020a1c7902000000b003b33943ce5esm20228866wme.32.2022.10.04.01.08.30
+        by smtp.gmail.com with ESMTPSA id l2-20020a1c7902000000b003b33943ce5esm20228866wme.32.2022.10.04.01.08.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Oct 2022 01:08:31 -0700 (PDT)
+        Tue, 04 Oct 2022 01:08:34 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Tue, 04 Oct 2022 08:08:23 +0000
-Subject: [PATCH v2 07/11] dt-bindings: rtc: qcom-pm8xxx: document qcom,pm8921-rtc as
- fallback of qcom,pm8018-rtc
+Date:   Tue, 04 Oct 2022 08:08:26 +0000
+Subject: [PATCH v2 10/11] arm: dts: qcom: mdm9615: remove invalid interrupt-names from
+ pl18x mmc nodes
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v2-7-87fbeb4ae053@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v2-10-87fbeb4ae053@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v2-0-87fbeb4ae053@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v2-0-87fbeb4ae053@linaro.org>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -79,37 +79,30 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The PM8018 RTC is used as compatible with PM8921 RTC on the MDM9615, document this situation.
+This solves the 'interrupt-names' was unexpected dtbs check error.
 
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 
-diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-index 23ab5bb4f395..0a7aa29563c1 100644
---- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-@@ -11,12 +11,16 @@ maintainers:
- 
- properties:
-   compatible:
--    enum:
--      - qcom,pm8058-rtc
--      - qcom,pm8921-rtc
--      - qcom,pm8941-rtc
--      - qcom,pm8018-rtc
--      - qcom,pmk8350-rtc
-+    oneOf:
-+      - enum:
-+          - qcom,pm8058-rtc
-+          - qcom,pm8921-rtc
-+          - qcom,pm8941-rtc
-+          - qcom,pmk8350-rtc
-+      - items:
-+          - enum:
-+              - qcom,pm8018-rtc
-+          - const: qcom,pm8921-rtc
- 
-   reg:
-     minItems: 1
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index 366241dee522..9d950f96280d 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -325,7 +325,6 @@ sdcc1: mmc@12180000 {
+ 				arm,primecell-periphid = <0x00051180>;
+ 				reg = <0x12180000 0x2000>;
+ 				interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+-				interrupt-names = "cmd_irq";
+ 				clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
+ 				clock-names = "mclk", "apb_pclk";
+ 				bus-width = <8>;
+@@ -345,7 +344,6 @@ sdcc2: mmc@12140000 {
+ 				status = "disabled";
+ 				reg = <0x12140000 0x2000>;
+ 				interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+-				interrupt-names = "cmd_irq";
+ 				clocks = <&gcc SDC2_CLK>, <&gcc SDC2_H_CLK>;
+ 				clock-names = "mclk", "apb_pclk";
+ 				bus-width = <4>;
 
 -- 
 b4 0.10.0
