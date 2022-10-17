@@ -2,64 +2,36 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C90E5C4167B
-	for <linux-rtc@archiver.kernel.org>; Mon, 17 Oct 2022 09:46:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8504C433FE
+	for <linux-rtc@archiver.kernel.org>; Mon, 17 Oct 2022 13:19:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231492AbiJQJqO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 17 Oct 2022 05:46:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58568 "EHLO
+        id S230107AbiJQNTD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 17 Oct 2022 09:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231461AbiJQJpu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Oct 2022 05:45:50 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C40550716
-        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:44 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id a25so13303255ljk.0
-        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3jGH8ShpSvM4fJPWi2qzTFrUhxPlC/YaNErc3+Gzxss=;
-        b=EfBkee0QDimsvgw7DMMjQyXpOd0fRha+tHTqJPGCjqsPieskI1byVfg3ge1SbbgpnL
-         UNs87T4tD45pUISkngmcHAdiM3jxRXzhVhvd0tOSNIN8c+OclU5TxxnwpNOukYwEIQQP
-         /EXksH127WaFiXTXtgt+pM1YJMQo0t0KiI5Mm7fQ9JQJwU+npGKXqAEshV2FhltfO6nR
-         Tcv3qSFjk5L/sJjt0zIVGjvmd6o20qX8oridtT3nW5HRjVVd0A6WFDr9g2qGE256kTXr
-         fAfUDts9U8RiD3OemeUWbfUxeQF9YT8mxOdoXvRa/5XORRg1SRbEPv1o1Un1958RSVr3
-         ll4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3jGH8ShpSvM4fJPWi2qzTFrUhxPlC/YaNErc3+Gzxss=;
-        b=rmH5gJ1CZjPUOCW5Vm+Y191grnPAcIl7zW13zHj9iD+jMDdT6JO49S2k8WHpeeHEuJ
-         smfEYqfdSNzAOlranXvAY2ji0QIY4Yjcfs3+pLdxzcLLPbYTe5GsOUxHafm7vxvpxq7q
-         AWRX68Hm4obSm1Em2pkPLKZncYK9kEXLI42/60I+J+9Y5PP1HttOTgthyyfcbZWyE157
-         W5yhN0FNUaU6eQoPpRM+wKvcxC/GH3XstrzZy5IKlgYVad9KBrUCvfASVLpdmbhI8I5n
-         sEDdqrIJ8fwR8O87YCeym9CQ5tKS9xY8tk6Ndt/7Ho1Ix96snVVmSVIDlWqJjTvdVbsz
-         AFNg==
-X-Gm-Message-State: ACrzQf0DAOivsFga21h2U+x7cZdz3d4o0UeI/UHREfKt4MEsn1TeK/fu
-        B0xElL0gpAQJJANkntQYhIF9Mndh2A8H8cWK
-X-Google-Smtp-Source: AMsMyM5CFx1RcGraVKc4Ahga0xThPS+MfUBXTDE9i7ioDRW7ZYm2NBwF4nkX3La+d48n2W7VjC9AKg==
-X-Received: by 2002:a05:6000:1ac7:b0:232:8c6c:6c4a with SMTP id i7-20020a0560001ac700b002328c6c6c4amr5674743wry.455.1665999931079;
-        Mon, 17 Oct 2022 02:45:31 -0700 (PDT)
-Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id d12-20020adfa40c000000b0022ca921dc67sm7824305wra.88.2022.10.17.02.45.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 02:45:30 -0700 (PDT)
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 17 Oct 2022 11:45:27 +0200
-Subject: [PATCH v3 02/11] arm: dts: qcom: mdm9615*: add SPDX-License-Identifier
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v3-2-531da552c354@linaro.org>
-References: <20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org>
-In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        with ESMTP id S230147AbiJQNS5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Oct 2022 09:18:57 -0400
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAC9B61D9B;
+        Mon, 17 Oct 2022 06:18:54 -0700 (PDT)
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by mail.gandi.net (Postfix) with ESMTPSA id 584C51C0018;
+        Mon, 17 Oct 2022 13:18:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1666012732;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=AR6gsO3KItGs+h4qoIrNM9fVvOyOHbuFkGe+loBQDqo=;
+        b=HIIwvvT6IvL65SaDL4XZUfSSG0BhY5o4T9I33GNOgwRebSOvDwbgUfICTQLT4iSNd4X1NJ
+        a4u6ypmSh4TRYTykVfoJJ7x9qKK9y3mrM4Zt+uLofma3isuticm0CXdpkPlfVDGNRf9N/1
+        GrvTfpWkQoiAuSjxOFFDUrWaYWV26rkqb+ObpvGeuRIaUrMkw+iXmu/4xFBXefQmhQ1ksa
+        4cmHCKPWdUmQ25nrOwNBRY2GhBIrYP8dcfw79kRfFrCn2N4gFNFf/H1uAGWZRU6crlTwWp
+        EcFcjOvLoYr/LseCzCHL8pVxmdWAgh7Xat0mmgdjYOBpQDbY4mCqDJ84gMI0eQ==
+Date:   Mon, 17 Oct 2022 15:18:51 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Neil Armstrong <neil.armstrong@linaro.org>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Satya Priya <quic_c_skakit@quicinc.com>,
         Lee Jones <lee@kernel.org>,
@@ -67,186 +39,52 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Andy Gross <agross@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>
-Cc:     linux-rtc@vger.kernel.org,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        linux-kernel@vger.kernel.org,
-        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         linux-input@vger.kernel.org
-X-Mailer: b4 0.10.1
+Subject: Re: [PATCH v3 09/11] rtc: pm8xxx: drop unused pm8018 compatible
+Message-ID: <Y01WO7IoSmPLgcfe@mail.local>
+References: <20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org>
+ <20220928-mdm9615-dt-schema-fixes-v3-9-531da552c354@linaro.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v3-9-531da552c354@linaro.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Replace the license blob by a clean SPDX-License-Identifier with GPL2+
-or MIT even if X11 is specified in the original blob since the actual
-license text corresponds to a MIT license.
+On 17/10/2022 11:45:34+0200, Neil Armstrong wrote:
+> The PM8018 compatible is always used with PM8921 fallback, so PM8018
+> compatible can be safely removed from device ID table
+> 
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
----
- .../boot/dts/qcom-mdm9615-wp8548-mangoh-green.dts  | 39 +---------------------
- arch/arm/boot/dts/qcom-mdm9615-wp8548.dtsi         | 39 +---------------------
- arch/arm/boot/dts/qcom-mdm9615.dtsi                | 39 +---------------------
- 3 files changed, 3 insertions(+), 114 deletions(-)
-
-diff --git a/arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dts b/arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dts
-index 0827de5426c1..4e53b3d70195 100644
---- a/arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dts
-+++ b/arch/arm/boot/dts/qcom-mdm9615-wp8548-mangoh-green.dts
-@@ -1,46 +1,9 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR MIT
- /*
-  * Device Tree Source for mangOH Green Board with WP8548 Module
-  *
-  * Copyright (C) 2016 BayLibre, SAS.
-  * Author : Neil Armstrong <narmstrong@baylibre.com>
-- *
-- * This file is dual-licensed: you can use it either under the terms
-- * of the GPL or the X11 license, at your option. Note that this dual
-- * licensing only applies to this file, and not this project as a
-- * whole.
-- *
-- *  a) This file is free software; you can redistribute it and/or
-- *     modify it under the terms of the GNU General Public License as
-- *     published by the Free Software Foundation; either version 2 of the
-- *     License, or (at your option) any later version.
-- *
-- *     This file is distributed in the hope that it will be useful,
-- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *     GNU General Public License for more details.
-- *
-- * Or, alternatively,
-- *
-- *  b) Permission is hereby granted, free of charge, to any person
-- *     obtaining a copy of this software and associated documentation
-- *     files (the "Software"), to deal in the Software without
-- *     restriction, including without limitation the rights to use,
-- *     copy, modify, merge, publish, distribute, sublicense, and/or
-- *     sell copies of the Software, and to permit persons to whom the
-- *     Software is furnished to do so, subject to the following
-- *     conditions:
-- *
-- *     The above copyright notice and this permission notice shall be
-- *     included in all copies or substantial portions of the Software.
-- *
-- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-- *     OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
- #include <dt-bindings/input/input.h>
-diff --git a/arch/arm/boot/dts/qcom-mdm9615-wp8548.dtsi b/arch/arm/boot/dts/qcom-mdm9615-wp8548.dtsi
-index 49de1821ac3a..2fe8693dc3cd 100644
---- a/arch/arm/boot/dts/qcom-mdm9615-wp8548.dtsi
-+++ b/arch/arm/boot/dts/qcom-mdm9615-wp8548.dtsi
-@@ -1,46 +1,9 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR MIT
- /*
-  * Device Tree Source for Sierra Wireless WP8548 Module
-  *
-  * Copyright (C) 2016 BayLibre, SAS.
-  * Author : Neil Armstrong <narmstrong@baylibre.com>
-- *
-- * This file is dual-licensed: you can use it either under the terms
-- * of the GPL or the X11 license, at your option. Note that this dual
-- * licensing only applies to this file, and not this project as a
-- * whole.
-- *
-- *  a) This file is free software; you can redistribute it and/or
-- *     modify it under the terms of the GNU General Public License as
-- *     published by the Free Software Foundation; either version 2 of the
-- *     License, or (at your option) any later version.
-- *
-- *     This file is distributed in the hope that it will be useful,
-- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *     GNU General Public License for more details.
-- *
-- * Or, alternatively,
-- *
-- *  b) Permission is hereby granted, free of charge, to any person
-- *     obtaining a copy of this software and associated documentation
-- *     files (the "Software"), to deal in the Software without
-- *     restriction, including without limitation the rights to use,
-- *     copy, modify, merge, publish, distribute, sublicense, and/or
-- *     sell copies of the Software, and to permit persons to whom the
-- *     Software is furnished to do so, subject to the following
-- *     conditions:
-- *
-- *     The above copyright notice and this permission notice shall be
-- *     included in all copies or substantial portions of the Software.
-- *
-- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-- *     OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
- #include "qcom-mdm9615.dtsi"
-diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-index b47c86412de2..de36e4545e75 100644
---- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
-+++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-@@ -1,46 +1,9 @@
-+// SPDX-License-Identifier: GPL-2.0+ OR MIT
- /*
-  * Device Tree Source for Qualcomm MDM9615 SoC
-  *
-  * Copyright (C) 2016 BayLibre, SAS.
-  * Author : Neil Armstrong <narmstrong@baylibre.com>
-- *
-- * This file is dual-licensed: you can use it either under the terms
-- * of the GPL or the X11 license, at your option. Note that this dual
-- * licensing only applies to this file, and not this project as a
-- * whole.
-- *
-- *  a) This file is free software; you can redistribute it and/or
-- *     modify it under the terms of the GNU General Public License as
-- *     published by the Free Software Foundation; either version 2 of the
-- *     License, or (at your option) any later version.
-- *
-- *     This file is distributed in the hope that it will be useful,
-- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *     GNU General Public License for more details.
-- *
-- * Or, alternatively,
-- *
-- *  b) Permission is hereby granted, free of charge, to any person
-- *     obtaining a copy of this software and associated documentation
-- *     files (the "Software"), to deal in the Software without
-- *     restriction, including without limitation the rights to use,
-- *     copy, modify, merge, publish, distribute, sublicense, and/or
-- *     sell copies of the Software, and to permit persons to whom the
-- *     Software is furnished to do so, subject to the following
-- *     conditions:
-- *
-- *     The above copyright notice and this permission notice shall be
-- *     included in all copies or substantial portions of the Software.
-- *
-- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-- *     OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
- /dts-v1/;
+> ---
+>  drivers/rtc/rtc-pm8xxx.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+> index dc6d1476baa5..716e5d9ad74d 100644
+> --- a/drivers/rtc/rtc-pm8xxx.c
+> +++ b/drivers/rtc/rtc-pm8xxx.c
+> @@ -461,7 +461,6 @@ static const struct pm8xxx_rtc_regs pmk8350_regs = {
+>   */
+>  static const struct of_device_id pm8xxx_id_table[] = {
+>  	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
+> -	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
+>  	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+>  	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+>  	{ .compatible = "qcom,pmk8350-rtc", .data = &pmk8350_regs },
+> 
+> -- 
+> b4 0.10.1
 
 -- 
-b4 0.10.1
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
