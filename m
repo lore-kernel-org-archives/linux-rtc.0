@@ -2,60 +2,61 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84939C4167D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A18C4167B
 	for <linux-rtc@archiver.kernel.org>; Mon, 17 Oct 2022 09:45:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231447AbiJQJpk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 17 Oct 2022 05:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
+        id S231479AbiJQJpp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 17 Oct 2022 05:45:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231422AbiJQJpi (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Oct 2022 05:45:38 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16CC4F3B1
-        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:33 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id j7so17601749wrr.3
-        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:33 -0700 (PDT)
+        with ESMTP id S231443AbiJQJpk (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 17 Oct 2022 05:45:40 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF28399C9
+        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:35 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id az22-20020a05600c601600b003c6b72797fdso9553434wmb.5
+        for <linux-rtc@vger.kernel.org>; Mon, 17 Oct 2022 02:45:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
-        b=kq8m38agAKTiOrrAv1A60RdKemWbGMVzSbD9sYp/CXLOi70iQfAByYso8Y93pbJm7D
-         aVsMg77CWjxvy4wstlOKxTebbNkO7k3URP6smwIqKLZjZs/5dlfTog2L0x7WHkKccaa4
-         LZqhemJQjiwlLZVN0EZcdH3oFjvQifiPiagarZIICt+SII5+EkUX5m/VodrqJiuX4HKM
-         23ZwLS/h/lHUG87vg1ZcbeJ32XH+QXiFyEL7cA0hdDEUC98cKlw8K8ncdneGk+o8MnNN
-         m2+BT+T8n/1qJmndmOrhSFSh4Fcl+oE9UvVFPiuRtO8TrijG3f9Mmx4dI79Mi1mkeUDC
-         A8UA==
+        bh=pk+5cT4R+rjX7Iv2a4OPV6jhHWag3vklZMTyv2veMWU=;
+        b=A+5KCveXazFOFynAbsnosfvrlu0TJMZiNT3cXgUxoI7NgQLaCg/ZSPpOlhROZwUD1w
+         oEPinChptvBL8RhQKQqFVNTrjJgMsfddVZHCQVIpH0ftWxTymJQVSZUZZ+H0u48cRsXV
+         P5T+kcHfTKYDp6fvjdCS+XdcLC18/JFgUiDMma+Mm44YT19RJnDN3rBM5k9LERmGjspr
+         lZj5UyCY81vmFaR8G3HI8Ebosnf+OkTixnKF6QVgeO1vzqDrxrSYXzWisqFmQwzf9i/u
+         pQc83YO5fCkWHw4HWfAh4Q2kDsPtgPA2hQ7i8xnqEe3d6mQ5QbB5lQSRfzMSa+6qt8Bt
+         IYzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
-        b=ok1Bn3iQb7V0toPuUTfI11DacoRfbRkkdCN3pzDbpCI2809YPz1Os2V6Wsv5uqC49d
-         U3mJ2KHW5auS5vvTpFkHe4d3gs+HMUF7Edj/31G+J4V8dW/I/qmAf9HJASw4ulOpQ/Sd
-         xAeehx7yQQnsrLqnv+aE8vu+ijf91BJqIksent77Qe3r5bTysQBsd94PUvtvHJgweVq9
-         1bUmb+wRfL69bnDLgfLBvePvufT0jQnyuFQIcNFyu3ilbmIKVxzGePB7y24lnGywX5fS
-         3WenoJfyqt9rqXpVaskxn7j5x5jjeWZbp/CrRTm4DpLx40EBMbVvOUwWFpujwYwLw9YS
-         GTWQ==
-X-Gm-Message-State: ACrzQf3V2SQfmhNwQ7bNbuKSvJ27TiWT/FA/jBjWj8VOZ7JU64I2Gpn/
-        S9yL7Y10MwhelC8bonf0H4nTZA==
-X-Google-Smtp-Source: AMsMyM5jNoKCMLFTD8/GLtB3kPYanqJ9kzR7MEeIWKrAd/6FK2XLpL++4rmHJTIAW3izaEotDrePrg==
-X-Received: by 2002:a05:6000:1a88:b0:231:bc2a:4f1b with SMTP id f8-20020a0560001a8800b00231bc2a4f1bmr5866194wry.291.1665999932005;
-        Mon, 17 Oct 2022 02:45:32 -0700 (PDT)
+        bh=pk+5cT4R+rjX7Iv2a4OPV6jhHWag3vklZMTyv2veMWU=;
+        b=pPRRgZpFJsGXujT7ryEiEPguiOczb3rb4F2zJOWeLRrrpyo1cS0h8r6V5s0m323/Wu
+         zXiPkjy/IxB4E55W4JKnndqgvh2tEnJCqDrU88O9HBY3/3ghoDPYgtwqaYMiRldIuyBR
+         2svIr69di7xs9iQTkcs8QTw/p1tYqvt2JnHvbODTlrsLfJ1lStGyFLA7tf7k+Ez9nxvP
+         q4HRcLHkLd9qtZYqZ64H0Y4uEF01lxDJYbZ/AAozbd2I45tImhN39QXH0T67zcJ8PYdx
+         882j6MKLc3DUfGdo2Q+RRp9DhYIn/jy8qDDRmS77Zs3rARCHyDWKJVa1QOclfyAjKkq4
+         Cyzw==
+X-Gm-Message-State: ACrzQf0FVVpN0c2AJwP2OZ5MmF4HYJ5nA+YFzBLiliC/pLQPwfsnmQFf
+        yCuzwSxuRMXpFICUX0Fxf+rc1A==
+X-Google-Smtp-Source: AMsMyM6R1N/Xegqz/c30Eq5iOEvB+8cEnG69RI8ffDTMxLlGH2nEii0cdsh2p8d5x1D/H85IkMa2NA==
+X-Received: by 2002:a05:600c:548a:b0:3c6:fb49:4f84 with SMTP id iv10-20020a05600c548a00b003c6fb494f84mr616182wmb.153.1665999933833;
+        Mon, 17 Oct 2022 02:45:33 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id d12-20020adfa40c000000b0022ca921dc67sm7824305wra.88.2022.10.17.02.45.31
+        by smtp.gmail.com with ESMTPSA id d12-20020adfa40c000000b0022ca921dc67sm7824305wra.88.2022.10.17.02.45.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Oct 2022 02:45:31 -0700 (PDT)
+        Mon, 17 Oct 2022 02:45:33 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 17 Oct 2022 11:45:28 +0200
-Subject: [PATCH v3 03/11] arm: dts: qcom: mdm9615: add missing reg in cpu@0 node
+Date:   Mon, 17 Oct 2022 11:45:30 +0200
+Subject: [PATCH v3 05/11] dt-bindings: mfd: qcom-pm8xxx: document qcom,pm8921 as
+ fallback of qcom,pm8018
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v3-3-531da552c354@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v3-5-531da552c354@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
@@ -80,26 +81,63 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Fixes cpu@0: 'reg' is a required property from dtbs check.
+The PM8018 is used as compatible with PM8921 on the MDM9615, document this situation,
+and an example section to validate this change.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/mfd/qcom-pm8xxx.yaml       | 33 ++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-index de36e4545e75..eaa3236f62db 100644
---- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
-+++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-@@ -27,6 +27,7 @@ cpus {
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
+index 61bd0b3ce02f..84b87f01e029 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
+@@ -15,11 +15,15 @@ description: |
  
- 		cpu0: cpu@0 {
- 			compatible = "arm,cortex-a5";
-+			reg = <0>;
- 			device_type = "cpu";
- 			next-level-cache = <&L2>;
- 		};
+ properties:
+   compatible:
+-    enum:
+-      - qcom,pm8018
+-      - qcom,pm8058
+-      - qcom,pm8821
+-      - qcom,pm8921
++    oneOf:
++      - enum:
++          - qcom,pm8058
++          - qcom,pm8821
++          - qcom,pm8921
++      - items:
++          - enum:
++              - qcom,pm8018
++          - const: qcom,pm8921
+ 
+   reg:
+     maxItems: 1
+@@ -52,4 +56,23 @@ required:
+   - interrupt-controller
+ 
+ additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    ssbi {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      pmic@0 {
++        compatible = "qcom,pm8921";
++        reg = <0>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++        interrupt-controller;
++        #interrupt-cells = <2>;
++
++        interrupt-parent = <&tlmm>;
++        interrupts = <32 IRQ_TYPE_EDGE_RISING>;
++      };
++    };
+ ...
 
 -- 
 b4 0.10.1
