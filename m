@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39AB5C4167B
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9CABC4321E
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231124AbiJUJJI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 21 Oct 2022 05:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35586 "EHLO
+        id S231205AbiJUJJW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 21 Oct 2022 05:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231146AbiJUJI7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:08:59 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50FCB1A3E19
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:56 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id u10so3877371wrq.2
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:55 -0700 (PDT)
+        with ESMTP id S230514AbiJUJJE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:09:04 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E78561A3E1A
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:59 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id bp11so3515492wrb.9
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
-        b=p8sK2G9D3ocfVsbCOVy+pUyyryGnPjWOUTja0RQ3u4t+E18YB3GqWBcdGEetM9uIgR
-         jCmBS8IAfwMfHpUylIPDelF0weXl/Km68WCibqLaeZ+CVNVuyIAmRLbtQS4BTwUlD/zR
-         kdBhVEmqc4bTfQF4jdvr30rlsBQ7HaIwMJGmWnbzvtqjfyi+K8KTAvWcn04WcizUFfpe
-         g9OxR2WlB/JYIsAIv+/FRGyfFcxJPXrhzJ+F5eT3C2k1E55dXTV7QeYSZefO7beEm8w5
-         TscpJOmuuLVZI35QJCGCBPM3Sul+R5TC7BZCj702RYsFNdyAKLz0bABIUzPZlteX8zAL
-         KGvg==
+        bh=Z8zoiO3HcCMOhvwnFbJarwF7HI12ZyCQT2wJzcSF7bw=;
+        b=Uz6ED8+AFKkavxx4Z4rUSZ49p6KCGe3ktPcOBHN6WexT7SyHWpM6TnwFv/A3y1Sd5x
+         WE9Nuf4iKsjXPtEkH6zp+umlRZCRh37PLcXAZy6nqmiWmRBE+mTivIKi0MpiGhHSi/pn
+         xNeRFpiKCEDcj38NIp+sNtJSP96sQYyygQH2rMvZ/X4SrKR7vCvSUF/AnE8vqs55l6Od
+         XkeRrMcVjzW95YqcF1/os/jOLZI/6FJdMOKjlDXWCj2FVYV45DwL2DdLgU3tCJohi9sA
+         VUna4rGH+A01zmT9mJtRtT1LuDZbp2Bq8wT5zxMPuIQchB//v9g1u7GiCyMWeeEIsjkt
+         lv5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
-        b=SKSWM+jZICe4yOB9E1J9ehmHuNIXw7QsevgUiQgsK9I2pI1NP96W4/S8iTn2IKPx51
-         SqjsGBR7tJEkonEHNbmZe9+QflJWg+JYJgOSkGd1dbyPhfGINi2wfC9qVKSvsPNFFTmg
-         ldNCDmPSJJghOSg5t2dv/+1Zvqiq2eGNwFr6wD+DZy4IM4BVFCFgEX56Qc/rPBCnEKE+
-         t/9PRq4Ifg63GHlPNmm0XxRUKw4aL/mM14+1mOg406gibmb11EfDlkf+ByMlGyqC2yoS
-         iSirSulLH9AZ6rYn9oEgjAGHAUnfadYxBxuhk9rtMkG2gcM/5BKGhLprlWjxJIZc2R3h
-         wvaQ==
-X-Gm-Message-State: ACrzQf0q043QImpNBg9f59BvMIJSsdAYBE6ydKmsqIUtV/KeOU/kdr1x
-        zIcx0g3xvZGIyfgWuYDw/pwAQA==
-X-Google-Smtp-Source: AMsMyM6t/CCsb0Stm67+bgDD4Gv/5fYYhC5J2XpPUaLomRSmuSCCbQe3bYxY+Ii3rM+5pLRcJ52eCA==
-X-Received: by 2002:adf:fc10:0:b0:22e:55e5:9bb5 with SMTP id i16-20020adffc10000000b0022e55e59bb5mr11487698wrr.112.1666343334296;
-        Fri, 21 Oct 2022 02:08:54 -0700 (PDT)
+        bh=Z8zoiO3HcCMOhvwnFbJarwF7HI12ZyCQT2wJzcSF7bw=;
+        b=mbsQ4alg/fIeoQRnQ3HEYwXl6J3uuhHtHOrp2D2P4pZHua3CNaZ5+gn/KhGuqlnZlP
+         3cAUL8x9YOhYjbHpHbvHPwVpaR03HlgwkWvHkTJmUdrKxRl29gFO2M7XeLGXeMAMzE7k
+         TBBu2Zm1ddU4UFaniQwn7wS64OzQ48StGHnKhMIuJyotTLI8SWf49slmv4s3oSu/qRCe
+         nAzKJ35zyhWj/x+fJGJo1CNgvqyENl32HhHMxsXzo6CpQg4Bm+NBh1wBLXyFrV9fb9ST
+         M56b0m2nNoiR6gagsquVN2JuAPKV/y+UnDY/22XST7OLlb2ZjIrnjZJk56PrjrIHcJ00
+         uTKQ==
+X-Gm-Message-State: ACrzQf0SyVqXrC0YyYUrP9Q3w61ILhAqAXixeQjab9VJPQgFQwFxX+k8
+        dX1rZOsVbdIifnzEWTFQT1L0fw==
+X-Google-Smtp-Source: AMsMyM6jIh9zbKsc1vnvwPsF6zzTaHqTxKuVbiY7pDHJlXhCrSir/VQF9R12RHVdtYEqxXhm2nHf2Q==
+X-Received: by 2002:adf:d0c5:0:b0:22d:e73a:a4c9 with SMTP id z5-20020adfd0c5000000b0022de73aa4c9mr11224682wrh.315.1666343339285;
+        Fri, 21 Oct 2022 02:08:59 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.53
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
+        Fri, 21 Oct 2022 02:08:58 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Fri, 21 Oct 2022 11:06:42 +0200
-Subject: [PATCH v4 06/11] dt-bindings: input: qcom,pm8921-pwrkey: convert to dt-schema
+Date:   Fri, 21 Oct 2022 11:06:47 +0200
+Subject: [PATCH v4 11/11] arm: dts: qcom: mdm9615: remove useless amba subnode
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-6-dac2dfaac703@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-11-dac2dfaac703@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 To:     Bjorn Andersson <andersson@kernel.org>,
@@ -80,150 +80,106 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert input/qcom,pm8xxx-pwrkey.txt to YAML, and take in account that
-the PM8921 pwrkey compatible is used as fallback for the PM8018 pwrkey.
+The separate amba device node doesn't add anything significant to the
+DT. The OF parsing code already creates amba_device or platform_device
+depending on the compatibility lists.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/input/qcom,pm8921-pwrkey.yaml         | 75 ++++++++++++++++++++++
- .../bindings/input/qcom,pm8xxx-pwrkey.txt          | 46 -------------
- 2 files changed, 75 insertions(+), 46 deletions(-)
+ arch/arm/boot/dts/qcom-mdm9615.dtsi | 78 +++++++++++++++++--------------------
+ 1 file changed, 36 insertions(+), 42 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
-new file mode 100644
-index 000000000000..12c74c083258
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
-@@ -0,0 +1,75 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/qcom,pm8921-pwrkey.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Qualcomm PM8921 PMIC Power Key
-+
-+maintainers:
-+  - Bjorn Andersson <andersson@kernel.org>
-+
-+allOf:
-+  - $ref: input.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - enum:
-+          - qcom,pm8921-pwrkey
-+          - qcom,pm8058-pwrkey
-+      - items:
-+          - enum:
-+              - qcom,pm8018-pwrkey
-+          - const: qcom,pm8921-pwrkey
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    items:
-+      - description: key release
-+      - description: key press
-+
-+  debounce:
-+    description:
-+      Time in microseconds that key must be pressed or
-+      released for state change interrupt to trigger.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  pull-up:
-+    description:
-+      Presence of this property indicates that the KPDPWR_N
-+      pin should be configured for pull up.
-+    $ref: /schemas/types.yaml#/definitions/flag
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+   #include <dt-bindings/interrupt-controller/irq.h>
-+   ssbi {
-+     #address-cells = <1>;
-+     #size-cells = <0>;
-+
-+     pmic@0 {
-+       reg = <0x0>;
-+       #address-cells = <1>;
-+       #size-cells = <0>;
-+
-+       pwrkey@1c {
-+         compatible = "qcom,pm8921-pwrkey";
-+         reg = <0x1c>;
-+         interrupt-parent = <&pmicint>;
-+         interrupts = <50 IRQ_TYPE_EDGE_RISING>, <51 IRQ_TYPE_EDGE_RISING>;
-+         debounce = <15625>;
-+         pull-up;
-+       };
-+     };
-+   };
-+...
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-deleted file mode 100644
-index 588536cc96ed..000000000000
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-+++ /dev/null
-@@ -1,46 +0,0 @@
--Qualcomm PM8xxx PMIC Power Key
--
--PROPERTIES
--
--- compatible:
--	Usage: required
--	Value type: <string>
--	Definition: must be one of:
--		    "qcom,pm8058-pwrkey"
--		    "qcom,pm8921-pwrkey"
--
--- reg:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: address of power key control register
--
--- interrupts:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: the first interrupt specifies the key release interrupt
--		    and the second interrupt specifies the key press interrupt.
--		    The format of the specifier is defined by the binding
--		    document describing the node's interrupt parent.
--
--- debounce:
--	Usage: optional
--	Value type: <u32>
--	Definition: time in microseconds that key must be pressed or release
--		    for state change interrupt to trigger.
--
--- pull-up:
--	Usage: optional
--	Value type: <empty>
--	Definition: presence of this property indicates that the KPDPWR_N pin
--		    should be configured for pull up.
--
--EXAMPLE
--
--	pwrkey@1c {
--		compatible = "qcom,pm8921-pwrkey";
--		reg = <0x1c>;
--		interrupt-parent = <&pmicintc>;
--		interrupts = <50 1>, <51 1>;
--		debounce = <15625>;
--		pull-up;
--	};
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index 9d950f96280d..482fd246321c 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -314,49 +314,43 @@ sdcc2bam: dma-controller@12142000{
+ 			qcom,ee = <0>;
+ 		};
+ 
+-		amba {
+-			compatible = "simple-bus";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			ranges;
+-			sdcc1: mmc@12180000 {
+-				status = "disabled";
+-				compatible = "arm,pl18x", "arm,primecell";
+-				arm,primecell-periphid = <0x00051180>;
+-				reg = <0x12180000 0x2000>;
+-				interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+-				clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
+-				clock-names = "mclk", "apb_pclk";
+-				bus-width = <8>;
+-				max-frequency = <48000000>;
+-				cap-sd-highspeed;
+-				cap-mmc-highspeed;
+-				vmmc-supply = <&vsdcc_fixed>;
+-				dmas = <&sdcc1bam 2>, <&sdcc1bam 1>;
+-				dma-names = "tx", "rx";
+-				assigned-clocks = <&gcc SDC1_CLK>;
+-				assigned-clock-rates = <400000>;
+-			};
++		sdcc1: mmc@12180000 {
++			status = "disabled";
++			compatible = "arm,pl18x", "arm,primecell";
++			arm,primecell-periphid = <0x00051180>;
++			reg = <0x12180000 0x2000>;
++			interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
++			clock-names = "mclk", "apb_pclk";
++			bus-width = <8>;
++			max-frequency = <48000000>;
++			cap-sd-highspeed;
++			cap-mmc-highspeed;
++			vmmc-supply = <&vsdcc_fixed>;
++			dmas = <&sdcc1bam 2>, <&sdcc1bam 1>;
++			dma-names = "tx", "rx";
++			assigned-clocks = <&gcc SDC1_CLK>;
++			assigned-clock-rates = <400000>;
++		};
+ 
+-			sdcc2: mmc@12140000 {
+-				compatible = "arm,pl18x", "arm,primecell";
+-				arm,primecell-periphid = <0x00051180>;
+-				status = "disabled";
+-				reg = <0x12140000 0x2000>;
+-				interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+-				clocks = <&gcc SDC2_CLK>, <&gcc SDC2_H_CLK>;
+-				clock-names = "mclk", "apb_pclk";
+-				bus-width = <4>;
+-				cap-sd-highspeed;
+-				cap-mmc-highspeed;
+-				max-frequency = <48000000>;
+-				no-1-8-v;
+-				vmmc-supply = <&vsdcc_fixed>;
+-				dmas = <&sdcc2bam 2>, <&sdcc2bam 1>;
+-				dma-names = "tx", "rx";
+-				assigned-clocks = <&gcc SDC2_CLK>;
+-				assigned-clock-rates = <400000>;
+-			};
++		sdcc2: mmc@12140000 {
++			compatible = "arm,pl18x", "arm,primecell";
++			arm,primecell-periphid = <0x00051180>;
++			status = "disabled";
++			reg = <0x12140000 0x2000>;
++			interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&gcc SDC2_CLK>, <&gcc SDC2_H_CLK>;
++			clock-names = "mclk", "apb_pclk";
++			bus-width = <4>;
++			cap-sd-highspeed;
++			cap-mmc-highspeed;
++			max-frequency = <48000000>;
++			no-1-8-v;
++			vmmc-supply = <&vsdcc_fixed>;
++			dmas = <&sdcc2bam 2>, <&sdcc2bam 1>;
++			dma-names = "tx", "rx";
++			assigned-clocks = <&gcc SDC2_CLK>;
++			assigned-clock-rates = <400000>;
+ 		};
+ 
+ 		tcsr: syscon@1a400000 {
 
 -- 
 b4 0.10.1
