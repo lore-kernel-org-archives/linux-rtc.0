@@ -2,45 +2,45 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDE87C4332F
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 13:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 871CBC43217
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 13:08:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbiJUNIl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S230103AbiJUNIl (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Fri, 21 Oct 2022 09:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230206AbiJUNIg (ORCPT
+        with ESMTP id S230203AbiJUNIg (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 09:08:36 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7545E26C455
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 06:08:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52D526D207
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 06:08:23 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olrk6-0001YG-7N; Fri, 21 Oct 2022 15:07:18 +0200
+        id 1olrk4-0001XV-UJ; Fri, 21 Oct 2022 15:07:16 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olrk3-000Wly-7m; Fri, 21 Oct 2022 15:07:17 +0200
+        id 1olrk1-000Wlb-Vo; Fri, 21 Oct 2022 15:07:16 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1olrk4-009Z8l-NS; Fri, 21 Oct 2022 15:07:16 +0200
+        id 1olrk3-009Z8P-3k; Fri, 21 Oct 2022 15:07:15 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     Wolfram Sang <wsa@kernel.org>, linux-rtc@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 7/9] rtc: rs5c372: Convert to .probe_new()
-Date:   Fri, 21 Oct 2022 15:07:04 +0200
-Message-Id: <20221021130706.178687-8-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 1/9] rtc: abx80x: Convert to .probe_new()
+Date:   Fri, 21 Oct 2022 15:06:58 +0200
+Message-Id: <20221021130706.178687-2-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20221021130706.178687-1-u.kleine-koenig@pengutronix.de>
 References: <20221021130706.178687-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1546; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=xtfzISt2avLjfBIo2PXDizR2simwmqzaBhBzHiDgZto=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUpluH6t4UldZsfDqswAgEzPG2ZCsVK5E34qmE68+ kAVZ5fiJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1KZbgAKCRDB/BR4rcrsCXj7CA CJJPh+W2+5HXA7XFGfDwQi7O6R100wyR2URQy+rr+91ktAs7wVZ2+ckEk+UHgmaZLbkhiqzzezj9hp sqMvxuXBck75MJx/FKGGVqywcfnxSzKZwDGNfiUmB3ZWvqHjyAy0dGofuMSipe7KdNWj+fIwWWJc+1 7bx3dncaUgXdlMGAUjT8j4a94WGH/Tjd2aN5peT6og39NmNY9xWSxSOnbhW7wQMLGnt3+XFpbY4Xbg 8pg+rXl9kQDN5FbCQycFTee5GJaASJ8c4T0FZOfTvUVou9rQe1YLeEk6QZxyT0/ym59bjoqEzSmEcN Jrov0P3+zzxZhiVLVBt3RJvtus2L4o
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2247; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=A3VWPXYlSHRGLgof+3WUwIyWx+668MXopXY4/6egwQM=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBjUplaO5JogVdRYexM6J4vHG9v5rf8ETBK0ObfljKm j/ozgAmJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCY1KZWgAKCRDB/BR4rcrsCeanCA CX8PYQTq3miS4qFPWMWVr0K9LAmk3sIX17AhESzObKFCW39PXaUBYvyGYEP97NzRdREEF3tptSxzXy gDwA09x3jlmVsrsgPq3SH0xy9I/JADDiVS7OvAhElr0Z1BcYSIMRbifFS9wql9zPoPO0gIyX7YyQCF jek7EgTdWS9VQpWyh1MS/eHsAtTFnxHfHlB0CwsTu2RHNrzE4MkPxq1DUfsSN6HTJCGZnkIZg9tHF1 lrEUYBl0WhLNrQ5BsYwcADh3M51Og7P8JFjqEb0yyYER6CFXn/em+7X1r2Aj/mLElwbNdfkvUqCjmZ DO7HR1aBdFFC/3svKyt2He1JRD++2B
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -52,52 +52,80 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 .probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in .probe().
+that explicitly in .probe(). The device_id array has to move up for that
+to work.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-rs5c372.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-abx80x.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index 9562c477e1c9..5047afefcceb 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -791,8 +791,7 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
- 	return 0;
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index 9b0138d07232..e7f325ced940 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -673,13 +673,28 @@ static int abx80x_setup_watchdog(struct abx80x_priv *priv)
+ }
+ #endif
+ 
+-static int abx80x_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static const struct i2c_device_id abx80x_id[] = {
++	{ "abx80x", ABX80X },
++	{ "ab0801", AB0801 },
++	{ "ab0803", AB0803 },
++	{ "ab0804", AB0804 },
++	{ "ab0805", AB0805 },
++	{ "ab1801", AB1801 },
++	{ "ab1803", AB1803 },
++	{ "ab1804", AB1804 },
++	{ "ab1805", AB1805 },
++	{ "rv1805", RV1805 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, abx80x_id);
++
++static int abx80x_probe(struct i2c_client *client)
+ {
+ 	struct device_node *np = client->dev.of_node;
+ 	struct abx80x_priv *priv;
+ 	int i, data, err, trickle_cfg = -EINVAL;
+ 	char buf[7];
++	const struct i2c_device_id *id = i2c_match_id(abx80x_id, client);
+ 	unsigned int part = id->driver_data;
+ 	unsigned int partnumber;
+ 	unsigned int majrev, minrev;
+@@ -847,21 +862,6 @@ static int abx80x_probe(struct i2c_client *client,
+ 	return devm_rtc_register_device(priv->rtc);
  }
  
--static int rs5c372_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int rs5c372_probe(struct i2c_client *client)
- {
- 	int err = 0;
- 	int smbus_mode = 0;
-@@ -826,11 +825,13 @@ static int rs5c372_probe(struct i2c_client *client,
- 
- 	rs5c372->client = client;
- 	i2c_set_clientdata(client, rs5c372);
--	if (client->dev.of_node)
-+	if (client->dev.of_node) {
- 		rs5c372->type = (enum rtc_type)
- 			of_device_get_match_data(&client->dev);
--	else
-+	} else {
-+		const struct i2c_device_id *id = i2c_match_id(rs5c372_id, client);
- 		rs5c372->type = id->driver_data;
-+	}
- 
- 	/* we read registers 0x0f then 0x00-0x0f; skip the first one */
- 	rs5c372->regs = &rs5c372->buf[1];
-@@ -920,7 +921,7 @@ static struct i2c_driver rs5c372_driver = {
- 		.name	= "rtc-rs5c372",
- 		.of_match_table = of_match_ptr(rs5c372_of_match),
+-static const struct i2c_device_id abx80x_id[] = {
+-	{ "abx80x", ABX80X },
+-	{ "ab0801", AB0801 },
+-	{ "ab0803", AB0803 },
+-	{ "ab0804", AB0804 },
+-	{ "ab0805", AB0805 },
+-	{ "ab1801", AB1801 },
+-	{ "ab1803", AB1803 },
+-	{ "ab1804", AB1804 },
+-	{ "ab1805", AB1805 },
+-	{ "rv1805", RV1805 },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(i2c, abx80x_id);
+-
+ #ifdef CONFIG_OF
+ static const struct of_device_id abx80x_of_match[] = {
+ 	{
+@@ -914,7 +914,7 @@ static struct i2c_driver abx80x_driver = {
+ 		.name	= "rtc-abx80x",
+ 		.of_match_table = of_match_ptr(abx80x_of_match),
  	},
--	.probe		= rs5c372_probe,
-+	.probe_new	= rs5c372_probe,
- 	.remove		= rs5c372_remove,
- 	.id_table	= rs5c372_id,
+-	.probe		= abx80x_probe,
++	.probe_new	= abx80x_probe,
+ 	.id_table	= abx80x_id,
  };
+ 
 -- 
 2.37.2
 
