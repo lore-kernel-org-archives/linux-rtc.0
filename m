@@ -2,60 +2,61 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4145DC352A1
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37335C46467
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbiJUJJF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 21 Oct 2022 05:09:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35540 "EHLO
+        id S231161AbiJUJJG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 21 Oct 2022 05:09:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230515AbiJUJIz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:08:55 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D941A3E00
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id m29-20020a05600c3b1d00b003c6bf423c71so4587206wms.0
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
+        with ESMTP id S231131AbiJUJI5 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:08:57 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524D21A3E0E
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:55 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id a3so3977785wrt.0
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:08:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
-        b=SkJyUMFNsDqLAGyKgQ/sjrrSN+HLQd++XI8/ZkHMxItPDlUVR3ajA3bDGOEeBG0To2
-         bV0KHxEzKcpC6gOXrRVW7tDgpBCU0eLP8BKBZoqDI62swfKN8OxClVHRkDdrHmi/fD6U
-         eH5wyzyZDgZFIkAzLABhNvmxYrGJvdcBQjVVs+hnyZfrCN3DuIGY9AzT4qWzv8m/jsDa
-         JeeKsVSYqWUvMBE6FbW4NxfNLFPyCoQArt9YpLX4WfrBNLp47w882R5pQJfLUDE9mVRl
-         CtCxtuYRK+5NAsfJSKDgT2f42xn4cNWAUK3LFd2IJEnJhvPhq8MqITYyWCwQxkWKYX4E
-         Hcfw==
+        bh=ivMBc50CrwMvnmWsDZJ3cyLehbUxsvRfzqxDjLbxT80=;
+        b=no/QzRG5oCHxPbpyAtJdc2hxek8h0kycEwYqm9yysNQ+p56Wzw0mgQQr/txnj0N+8L
+         C77sVn1mCPJ5jDzcyGW5mMQSFLgQp6M52zFTJR6tUrhgutloF0g9sg5JLSGRLh4O2lrg
+         j2xwWrf2Tyj7BS8KTU6TtZ+RwhppBpp2pPUwhgBp/7Ik+FRyZqP+PAz+H/hKlH5+wVzx
+         KoJU+BVwIa3wqh9s3r6HTdV+/DniBGYeioJqg14b5v1m1ExJqm96goz0DLUE0liUPmOD
+         NzqZIDFdL5lWIALUhiNFrN/PU38eR+tTLHSUEP9Wwas7HpWLgyQLb9ocnkZycO5KVAV5
+         W9pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
-        b=VQ9B0UGKS/sy9dqhdN99jZg8IiBploowJwsKZ/8f7zgjxoYV6kvILn2BpK1uJ/takt
-         V8vdCRNaTtcG5xohCJ1mePEKL44oucAU6DHbVRlQ5n7DnoRDi3GTjsRdnoYhr6UnHiwy
-         bIEeRc82T7jSfsM+5okfzHb7l6h6GDlsT/4XhWYSMxRUTOTmpOYA8ebFTF4EgbV/0Ofv
-         4MljOpq5EcnFc1td4jnFPPjzCMFg7EUucrpoVC08xnTZUJNI4SNUqSk+cxtDDp+/WoWl
-         XKaOTNtsBeciOItDRieD4vUHj30jguVLMbceRzNxy6l/qpruJGWVDu2sfYMVZyGLNIqs
-         M95g==
-X-Gm-Message-State: ACrzQf1LEmdy6Md8f3OkP+8ASeAJsB0ebAPVLuaG/v2QcFx76fanimmo
-        UhUgxXXGB66UZs+fXhaPRZs5pQ==
-X-Google-Smtp-Source: AMsMyM6W4Tv1zSV3ApzexTkV6ChDGf/w4gpuwGXWRHVoNE1V5yDCRebZT8BJEY22Jci730jRA/peRw==
-X-Received: by 2002:a05:600c:502c:b0:3c6:f5ff:e089 with SMTP id n44-20020a05600c502c00b003c6f5ffe089mr12156663wmr.108.1666343331390;
-        Fri, 21 Oct 2022 02:08:51 -0700 (PDT)
+        bh=ivMBc50CrwMvnmWsDZJ3cyLehbUxsvRfzqxDjLbxT80=;
+        b=LCpSxNzHxr7Z9v3HsSBbweuWy2t5ws3xj2jImhVDeJf2d2IT3wylp+vjJpsAg9zOoZ
+         Ha39ioO4ou7NX9V3o+gEMYlYD0nwogloOi2ytUyfNxXPKo6fePjygeaZEObkjDJ/9ftW
+         afG+drsGZkhww186R6iKUaQyQWcIMtTh05TaW1mOtSfPr0fy8almZHQ3ubvMopnVW+jV
+         v+Bi/5TiTXg8yxQJSiW6X5IGa7FNMxmbV8FCC505G+c/QKt3ePLH0/nRouBS1xfZvA1t
+         DFS1hmHR/C+rCftQwBeZyk9mjOe85wErd38009fvwaIGeejV0m8+xNegSVEQLwDeLY0I
+         ok1g==
+X-Gm-Message-State: ACrzQf2vW9z4oRrrwx36HBtfkIr7oIhWn6iNEO7pAViuyoRwrvgcHYkl
+        TFmhZTupEoXANzawFEqIdM1+4w==
+X-Google-Smtp-Source: AMsMyM4NVxyxxS10jNKy98DlGvIwDh/+gJTbrGu6SXYNr8gpjKefuBDAB4PLdy3mb441vKkEB1r4LQ==
+X-Received: by 2002:adf:f0c5:0:b0:22f:fef4:7746 with SMTP id x5-20020adff0c5000000b0022ffef47746mr12175627wro.610.1666343333301;
+        Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.50
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Oct 2022 02:08:51 -0700 (PDT)
+        Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Fri, 21 Oct 2022 11:06:39 +0200
-Subject: [PATCH v4 03/11] arm: dts: qcom: mdm9615: add missing reg in cpu@0 node
+Date:   Fri, 21 Oct 2022 11:06:41 +0200
+Subject: [PATCH v4 05/11] dt-bindings: mfd: qcom-pm8xxx: document qcom,pm8921 as
+ fallback of qcom,pm8018
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-3-dac2dfaac703@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-5-dac2dfaac703@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 To:     Bjorn Andersson <andersson@kernel.org>,
@@ -80,26 +81,64 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Fixes cpu@0: 'reg' is a required property from dtbs check.
+The PM8018 is used as compatible with PM8921 on the MDM9615, document this situation,
+and an example section to validate this change.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/mfd/qcom-pm8xxx.yaml       | 33 ++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-index de36e4545e75..eaa3236f62db 100644
---- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
-+++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-@@ -27,6 +27,7 @@ cpus {
+diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
+index 61bd0b3ce02f..84b87f01e029 100644
+--- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
++++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
+@@ -15,11 +15,15 @@ description: |
  
- 		cpu0: cpu@0 {
- 			compatible = "arm,cortex-a5";
-+			reg = <0>;
- 			device_type = "cpu";
- 			next-level-cache = <&L2>;
- 		};
+ properties:
+   compatible:
+-    enum:
+-      - qcom,pm8018
+-      - qcom,pm8058
+-      - qcom,pm8821
+-      - qcom,pm8921
++    oneOf:
++      - enum:
++          - qcom,pm8058
++          - qcom,pm8821
++          - qcom,pm8921
++      - items:
++          - enum:
++              - qcom,pm8018
++          - const: qcom,pm8921
+ 
+   reg:
+     maxItems: 1
+@@ -52,4 +56,23 @@ required:
+   - interrupt-controller
+ 
+ additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    ssbi {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      pmic@0 {
++        compatible = "qcom,pm8921";
++        reg = <0>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++        interrupt-controller;
++        #interrupt-cells = <2>;
++
++        interrupt-parent = <&tlmm>;
++        interrupts = <32 IRQ_TYPE_EDGE_RISING>;
++      };
++    };
+ ...
 
 -- 
 b4 0.10.1
