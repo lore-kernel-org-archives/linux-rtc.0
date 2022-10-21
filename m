@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57D07C43219
-	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:17:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A5BC4332F
+	for <linux-rtc@archiver.kernel.org>; Fri, 21 Oct 2022 09:24:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbiJUJRe (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 21 Oct 2022 05:17:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41132 "EHLO
+        id S229864AbiJUJYO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 21 Oct 2022 05:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbiJUJR3 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:17:29 -0400
-Received: from relay03.th.seeweb.it (relay03.th.seeweb.it [IPv6:2001:4b7a:2000:18::164])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FCD1EF042;
-        Fri, 21 Oct 2022 02:17:04 -0700 (PDT)
+        with ESMTP id S230233AbiJUJYF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 21 Oct 2022 05:24:05 -0400
+Received: from relay02.th.seeweb.it (relay02.th.seeweb.it [5.144.164.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745C8173FD1
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Oct 2022 02:24:04 -0700 (PDT)
 Received: from [192.168.1.101] (95.49.29.134.neoplus.adsl.tpnet.pl [95.49.29.134])
         (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by m-r1.th.seeweb.it (Postfix) with ESMTPSA id 923B31F9B4;
-        Fri, 21 Oct 2022 11:16:32 +0200 (CEST)
-Message-ID: <e5c214fa-2014-553d-4991-77e79011fa23@somainline.org>
-Date:   Fri, 21 Oct 2022 11:16:31 +0200
+        by m-r1.th.seeweb.it (Postfix) with ESMTPSA id C395A1F4B3;
+        Fri, 21 Oct 2022 11:14:10 +0200 (CEST)
+Message-ID: <a991e218-f799-6e09-478a-24115c4135f1@somainline.org>
+Date:   Fri, 21 Oct 2022 11:14:09 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.0
-Subject: Re: [PATCH v4 09/11] rtc: pm8xxx: drop unused pm8018 compatible
-Content-Language: en-US
+Subject: Re: [PATCH v4 03/11] arm: dts: qcom: mdm9615: add missing reg in
+ cpu@0 node
 To:     Neil Armstrong <neil.armstrong@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Satya Priya <quic_c_skakit@quicinc.com>,
@@ -42,9 +42,10 @@ Cc:     linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
- <20220928-mdm9615-dt-schema-fixes-v4-9-dac2dfaac703@linaro.org>
+ <20220928-mdm9615-dt-schema-fixes-v4-3-dac2dfaac703@linaro.org>
+Content-Language: en-US
 From:   Konrad Dybcio <konrad.dybcio@somainline.org>
-In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-9-dac2dfaac703@linaro.org>
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-3-dac2dfaac703@linaro.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -54,29 +55,27 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 
 On 21.10.2022 11:06, Neil Armstrong wrote:
-> The PM8018 compatible is always used with PM8921 fallback, so PM8018
-> compatible can be safely removed from device ID table
+> Fixes cpu@0: 'reg' is a required property from dtbs check.
 > 
 > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 > Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 > ---
 Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
 
 Konrad
->  drivers/rtc/rtc-pm8xxx.c | 1 -
->  1 file changed, 1 deletion(-)
+>  arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-> index dc6d1476baa5..716e5d9ad74d 100644
-> --- a/drivers/rtc/rtc-pm8xxx.c
-> +++ b/drivers/rtc/rtc-pm8xxx.c
-> @@ -461,7 +461,6 @@ static const struct pm8xxx_rtc_regs pmk8350_regs = {
->   */
->  static const struct of_device_id pm8xxx_id_table[] = {
->  	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
-> -	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
->  	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
->  	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
->  	{ .compatible = "qcom,pmk8350-rtc", .data = &pmk8350_regs },
+> diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+> index de36e4545e75..eaa3236f62db 100644
+> --- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
+> +++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+> @@ -27,6 +27,7 @@ cpus {
+>  
+>  		cpu0: cpu@0 {
+>  			compatible = "arm,cortex-a5";
+> +			reg = <0>;
+>  			device_type = "cpu";
+>  			next-level-cache = <&L2>;
+>  		};
 > 
