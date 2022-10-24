@@ -2,173 +2,108 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02FECFA373F
-	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 19:50:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B90AAFA3740
+	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 20:06:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231827AbiJXTuc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 24 Oct 2022 15:50:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40812 "EHLO
+        id S233073AbiJXUGr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 24 Oct 2022 16:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234147AbiJXTtz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 15:49:55 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9CAD168E63;
-        Mon, 24 Oct 2022 11:15:50 -0700 (PDT)
-Received: from jupiter.universe (dyndsl-091-096-059-109.ewe-ip-backbone.de [91.96.59.109])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: sre)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 86827660283F;
-        Mon, 24 Oct 2022 17:55:58 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1666630558;
-        bh=4ZJL66e4uW0ZMfoXxSwlQ168x6AE5qji5g/hEVVVtNI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+ts7lMAMaWbjGgf47Fa/x8M9r74NDlhkJ23lZoQTUPGZwiHwGaAQaybJZy8O2Hur
-         jffcrKCymXnnLhjBFBC9fFbniFal2QGpkWaFogWxTtyPldygP1pM3geMIGwXJGlJLG
-         DlnFI6gUL7q7BF6Mr6b8QiLDTwGB7y7q7mRcASHcmcFlMH7xEwv2+EvE3JA5EMsUFe
-         q/1sD+RcxAV0WnNumJaVxQno+zl6KgZ3outsIoCgoJ5wBFwXOaqGa3yvPC50gMVaKi
-         PLVJs2F35RXXDuDFlNEftBEqtbDJQIJoo1oUFuRhZ+y0/QREx9L/ruy5bTJMDNLBy4
-         Hz07fHHRzs9fg==
-Received: by jupiter.universe (Postfix, from userid 1000)
-        id 099CF480AF2; Mon, 24 Oct 2022 18:55:54 +0200 (CEST)
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        with ESMTP id S232828AbiJXUGI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 16:06:08 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E035295B0B
+        for <linux-rtc@vger.kernel.org>; Mon, 24 Oct 2022 11:26:33 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id b29so5246118pfp.13
+        for <linux-rtc@vger.kernel.org>; Mon, 24 Oct 2022 11:26:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=4oIVzfpMgaAT0HX4FWTthc6xrrun7ylc9/g6rsWhf08=;
+        b=1O1ZHqYiBlXY2fwJNdkh+vQ/VNUVsNL1SE/FLAfOhoxD5MPiaq4El7Qm3wHo+8cgb3
+         gl9aeVRIggYlqbyizkSb3bBtxGG+NDi5jQPFLC5t5vcs2zVF6v3XXS2LwIAxKpdiwggC
+         n0PBC2uHZpCn05uEfUStTvJ1YOjR10a1WhlYwJ1EMZXodMLzQ2LjYg7xigqwXSPkiO03
+         194iUFBYOfLlARIf+xoEZo/W0V34QwVqxfhOTk30UjgjuOg0gjGBGTFOiN2O2yCX/CJd
+         B7mqvd4VripHn5nnSvfz8dNOkV/MSTcHE9+6t9xVPrjJY5DORvB26GRhxou4kxGlK326
+         FM1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4oIVzfpMgaAT0HX4FWTthc6xrrun7ylc9/g6rsWhf08=;
+        b=dJ1ii4zSloNpHd8kpzGTboV4L+CalkOLdAX+/SuocZ7ConMuAOXv9uJpeZGBrUVRkm
+         mrAobWl7xfUveNhKZ5en+MQWtQBwI86NzCSarLvOHpfjPLgJtfIgSplWJ4xJgm7IW1yz
+         5NwW1ox2oOb8KkuVXt4BVhKlINLXcjZNCqMSmpeE5xz+JI0VvFvJorTNiX6dSFV5BV/l
+         WtesamWTL3etvey7Cn3DF9wLmc22RKQA9tjHi1glVh+TtpthqAWbfDx1ckq0uBm7Fyj/
+         uNjN8yx7HBpTvr/agZCQd7Hz2sVh6hdaH9X/eGrIq1o/Jg2AXb2O+kwmHG885ySMI7Ud
+         cbtg==
+X-Gm-Message-State: ACrzQf2HO5qwlCIkRhL6vm11bo2QC3LB6gy9IwQVoOa73l7gh6FYf6lO
+        UqsDyWo9IBt/Yy6Xv1uoWO57yg==
+X-Google-Smtp-Source: AMsMyM5NJO1kEdsQTHB/8tQPhUzIwVroAro5GyKcBeo3+9Tpkq+lfovTaDaocHC24z3Nm955Wr4NWg==
+X-Received: by 2002:aa7:81cc:0:b0:563:4e53:c08b with SMTP id c12-20020aa781cc000000b005634e53c08bmr34743652pfn.19.1666635958991;
+        Mon, 24 Oct 2022 11:25:58 -0700 (PDT)
+Received: from localhost ([75.172.140.17])
+        by smtp.gmail.com with ESMTPSA id z11-20020a170903018b00b00177f4ef7970sm72911plg.11.2022.10.24.11.25.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Oct 2022 11:25:58 -0700 (PDT)
+From:   Kevin Hilman <khilman@baylibre.com>
+To:     Arnd Bergmann <arnd@kernel.org>, Sekhar Nori <nsekhar@ti.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        David Lechner <david@lechnology.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Lee Jones <lee@kernel.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     Neil Armstrong <neil.armstrong@linaro.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        linux-rockchip@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        kernel@collabora.com
-Subject: [PATCHv2 6/6] dt-bindings: rtc: convert hym8563 bindings to json-schema
-Date:   Mon, 24 Oct 2022 18:55:49 +0200
-Message-Id: <20221024165549.74574-7-sebastian.reichel@collabora.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221024165549.74574-1-sebastian.reichel@collabora.com>
-References: <20221024165549.74574-1-sebastian.reichel@collabora.com>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bin Liu <b-liu@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        linux-media@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-usb@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [PATCH 00/14] ARM: remove unused davinci board & drivers
+In-Reply-To: <20221019152947.3857217-1-arnd@kernel.org>
+References: <20221019152947.3857217-1-arnd@kernel.org>
+Date:   Mon, 24 Oct 2022 11:25:57 -0700
+Message-ID: <7h7d0phydm.fsf@baylibre.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert RTC binding for Haoyu Microelectronics HYM8563 to Device Tree
-Schema format.
+Arnd Bergmann <arnd@kernel.org> writes:
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
----
- .../devicetree/bindings/rtc/haoyu,hym8563.txt | 30 ----------
- .../bindings/rtc/haoyu,hym8563.yaml           | 56 +++++++++++++++++++
- 2 files changed, 56 insertions(+), 30 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> As part of removing all board files that were previously marked as unused,
+> I looked through the davinci platform and recursively removed everything
+> that has now become unused.
+>
+> In particular, this is for all dm3xx support, in addition to the dm64xx
+> support removed previously. The remaining support is now for da8xx using
+> devicetree only, which means a lot of the da8xx specific device support
+> can also go away.
 
-diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-deleted file mode 100644
-index a8934fe2ab4c..000000000000
---- a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-+++ /dev/null
-@@ -1,30 +0,0 @@
--Haoyu Microelectronics HYM8563 Real Time Clock
--
--The HYM8563 provides basic rtc and alarm functionality
--as well as a clock output of up to 32kHz.
--
--Required properties:
--- compatible: should be: "haoyu,hym8563"
--- reg: i2c address
--- #clock-cells: the value should be 0
--
--Optional properties:
--- clock-output-names: From common clock binding
--- interrupts: rtc alarm/event interrupt
--
--Example:
--
--hym8563: hym8563@51 {
--	compatible = "haoyu,hym8563";
--	reg = <0x51>;
--
--	interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
--
--	#clock-cells = <0>;
--};
--
--device {
--...
--	clocks = <&hym8563>;
--...
--};
-diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
-new file mode 100644
-index 000000000000..0b9f39ef0edc
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/haoyu,hym8563.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Haoyu Microelectronics HYM8563 RTC
-+
-+maintainers:
-+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
-+
-+properties:
-+  compatible:
-+    const: haoyu,hym8563
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  "#clock-cells":
-+    const: 0
-+
-+  clock-output-names:
-+    description: From common clock binding to override the default output clock name.
-+    maxItems: 1
-+
-+  wakeup-source:
-+    description: Enables wake up of host system on alarm.
-+
-+allOf:
-+  - $ref: rtc.yaml
-+
-+unevaluatedProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - "#clock-cells"
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@51 {
-+            compatible = "haoyu,hym8563";
-+            reg = <0x51>;
-+            interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
-+            #clock-cells = <0>;
-+        };
-+    };
--- 
-2.35.1
+Acked-by: Kevin Hilman <khilman@baylibre.com>
 
+Kevin
