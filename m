@@ -2,166 +2,110 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2EA4FA3746
-	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 20:45:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F5EFFA3741
+	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 21:10:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234901AbiJXUpc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 24 Oct 2022 16:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
+        id S229649AbiJXVK1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 24 Oct 2022 17:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235391AbiJXUom (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 16:44:42 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646EFAEA1D;
-        Mon, 24 Oct 2022 11:52:34 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id j188so11794477oih.4;
-        Mon, 24 Oct 2022 11:52:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BxLrsbh3hBSrr4/Sxj8CZwRvl9/DN20xuRs3+14Wfdc=;
-        b=l65p20+6HfZKS0NufMXHJS6xlBmFSVDhPGaQvFdEj33R0Y0nrMaZqiW8tVj29a9FYI
-         dIuxD+SICiuK/Bd4+EJuS697YdNGYf3jffzuBOh58n08TNtZnBRCcAyDEPWVLOWnQDwt
-         Qh2qkzjkxlcNcHOvp9jAlF7hKEyR3m3goFH9yRoxrLp5sj9vQjQylS2HFViar7wYACQK
-         QO0FVEuIxyC9f45Dt5IJnOR1V19I3mVepo1ns+O4Erc3xML3rtRU8qZ4jD1zfmJU6pUH
-         siwcJnG7vFo/uWBvwCTVEZ+/WjM+DKIStgW53CS0DU56xQFH5oXvgWxme0K9A199WdgS
-         +r7g==
-X-Gm-Message-State: ACrzQf1CBf2Kr2dOSUsz0IjXCPTRJkDgMfCmDMCri0Psj2q3ZmjVidDb
-        HfSuRLM1FtQF48WEdhCWvDbYrb8mmg==
-X-Google-Smtp-Source: AMsMyM7OYpTOLvZhhil0+AbrvroJzFzQW6OgIZeO7JMyBGqL7Dmz7qIyWl/Xo0aFP/idnbp62Yy7Ew==
-X-Received: by 2002:a05:6808:d53:b0:355:4c55:2384 with SMTP id w19-20020a0568080d5300b003554c552384mr18019406oik.190.1666637448253;
-        Mon, 24 Oct 2022 11:50:48 -0700 (PDT)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id h7-20020a056870c18700b00130e66a7644sm327864oad.25.2022.10.24.11.50.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 11:50:47 -0700 (PDT)
-Received: (nullmailer pid 2036884 invoked by uid 1000);
-        Mon, 24 Oct 2022 18:50:49 -0000
-Date:   Mon, 24 Oct 2022 13:50:49 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        with ESMTP id S233248AbiJXVJF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 17:09:05 -0400
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE857DEF10;
+        Mon, 24 Oct 2022 12:15:43 -0700 (PDT)
+Received: from jupiter.universe (dyndsl-091-096-059-109.ewe-ip-backbone.de [91.96.59.109])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (No client certificate requested)
+        (Authenticated sender: sre)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 7C741660283E;
+        Mon, 24 Oct 2022 17:55:58 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1666630558;
+        bh=chfXMCDPsmDqagwc2SR6hcO4fr/H4GKIvfjgdqIxziY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SsYQPD7SBP6A2Kx+ofThUVlNZV4RDtQtLXAv63n605hpL87pXE0d1S9oxDg5G/S8R
+         SXBp1rkBM2CZs/0lZBSzmrMLXCOjjM+XLqD3wqQy/7uOhUaJwaJsBwJn4EcWvtSdyJ
+         L4oMDBclhrOwc+6xj5c92wMHh9vRRPiAru6F8wdUkgWbv0M2DqOpGYK8M6pPSQ685g
+         MX2Gnn9WFBOQFewWQdieYFc5QgLF4Ht79gxxi7Qkq9NSrDYhzRIvzGAcHFaKdSV1f4
+         9UzJqbrLej7FU+HBEhEKHCPhDuo4v4jJRFmdVS3NeobDXg65UxdPOdhfcQWDBruItP
+         ulwfTNosIOp5A==
+Received: by jupiter.universe (Postfix, from userid 1000)
+        id 07982480AF1; Mon, 24 Oct 2022 18:55:54 +0200 (CEST)
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel@collabora.com
-Subject: Re: [PATCH 1/1] dt-bindings: rtc: convert hym8563 bindings to
- json-schema
-Message-ID: <20221024185049.GA2034297-robh@kernel.org>
-References: <20221021170605.85163-1-sebastian.reichel@collabora.com>
- <a5db8a34-acd0-e262-36f0-0b904468bd1f@linaro.org>
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     Neil Armstrong <neil.armstrong@linaro.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        linux-rockchip@lists.infradead.org,
+        linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        kernel@collabora.com
+Subject: [PATCHv2 5/6] arm64: dts: meson: remove clock-frequency from rtc
+Date:   Mon, 24 Oct 2022 18:55:48 +0200
+Message-Id: <20221024165549.74574-6-sebastian.reichel@collabora.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20221024165549.74574-1-sebastian.reichel@collabora.com>
+References: <20221024165549.74574-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a5db8a34-acd0-e262-36f0-0b904468bd1f@linaro.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 07:59:26PM -0400, Krzysztof Kozlowski wrote:
-> On 21/10/2022 13:06, Sebastian Reichel wrote:
-> > Convert RTC binding for Haoyu Microelectronics HYM8563 to Device Tree
-> > Schema format.
-> > 
-> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-> > ---
-> >  .../devicetree/bindings/rtc/haoyu,hym8563.txt | 30 ----------
-> >  .../bindings/rtc/haoyu,hym8563.yaml           | 55 +++++++++++++++++++
-> >  2 files changed, 55 insertions(+), 30 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-> >  create mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
-> > 
-> > diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-> > deleted file mode 100644
-> > index a8934fe2ab4c..000000000000
-> > --- a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
-> > +++ /dev/null
-> > @@ -1,30 +0,0 @@
-> > -Haoyu Microelectronics HYM8563 Real Time Clock
-> > -
-> > -The HYM8563 provides basic rtc and alarm functionality
-> > -as well as a clock output of up to 32kHz.
-> > -
-> > -Required properties:
-> > -- compatible: should be: "haoyu,hym8563"
-> > -- reg: i2c address
-> > -- #clock-cells: the value should be 0
-> > -
-> > -Optional properties:
-> > -- clock-output-names: From common clock binding
-> > -- interrupts: rtc alarm/event interrupt
-> > -
-> > -Example:
-> > -
-> > -hym8563: hym8563@51 {
-> > -	compatible = "haoyu,hym8563";
-> > -	reg = <0x51>;
-> > -
-> > -	interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
-> > -
-> > -	#clock-cells = <0>;
-> > -};
-> > -
-> > -device {
-> > -...
-> > -	clocks = <&hym8563>;
-> > -...
-> > -};
-> > diff --git a/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
-> > new file mode 100644
-> > index 000000000000..b0b6126b12dd
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
-> > @@ -0,0 +1,55 @@
-> > +# SPDX-License-Identifier: GPL-2.0
-> 
-> Dual license please. I don't think you copied any content from original
-> bindings... unless the example?
-> 
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/rtc/haoyu,hym8563.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Haoyu Microelectronics HYM8563 RTC
-> > +
-> > +maintainers:
-> > +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: haoyu,hym8563
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  interrupts:
-> > +    maxItems: 1
-> > +
-> > +  "#clock-cells":
-> > +    const: 0
-> > +
-> > +  clock-output-names:
-> > +    description: From common clock binding to override the default output clock name.
-> 
-> You need maxItems for this.
-> 
-> > +
-> > +  wakeup-source:
-> > +    description: Enables wake up of host system on alarm.
-> > +
-> > +allOf:
-> > +  - $ref: rtc.yaml
-> > +
-> > +unevaluatedProperties: false
-> > +
-> 
-> Would be great if you could also correct DTS using these bindings (see
-> warning from Rob).
+'clock-frequency' is not part of the DT binding and not supported by the
+Linux driver.
 
-It looked to me like 'clock-frequency' should be added to the schema.
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+---
+ arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts | 1 -
+ arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts      | 1 -
+ arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dts    | 1 -
+ 3 files changed, 3 deletions(-)
 
-Rob
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
+index 6ab1cc125b96..202deb4e2d63 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dts
+@@ -140,7 +140,6 @@ rtc: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+-		clock-frequency = <32768>;
+ 		clock-output-names = "xin32k";
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+index f43c45daf7eb..b21172ece1fa 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dts
+@@ -270,7 +270,6 @@ rtc: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+-		clock-frequency = <32768>;
+ 		clock-output-names = "xin32k";
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dts b/arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dts
+index b8ef3bd8b840..1703da3235ea 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dts
+@@ -89,7 +89,6 @@ rtc: rtc@51 {
+ 		compatible = "haoyu,hym8563";
+ 		reg = <0x51>;
+ 		#clock-cells = <0>;
+-		clock-frequency = <32768>;
+ 		clock-output-names = "xin32k";
+ 		wakeup-source;
+ 	};
+-- 
+2.35.1
+
