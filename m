@@ -2,37 +2,37 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4F7EC38A2D
-	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 19:30:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88B32FA3740
+	for <linux-rtc@archiver.kernel.org>; Mon, 24 Oct 2022 19:30:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbiJXTak (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 24 Oct 2022 15:30:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
+        id S230504AbiJXTal (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 24 Oct 2022 15:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233303AbiJXT3F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 15:29:05 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DB25367B6;
-        Mon, 24 Oct 2022 11:00:31 -0700 (PDT)
+        with ESMTP id S233286AbiJXT3D (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Oct 2022 15:29:03 -0400
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63BD4FFF8F;
+        Mon, 24 Oct 2022 11:00:35 -0700 (PDT)
 Received: from jupiter.universe (dyndsl-091-096-059-109.ewe-ip-backbone.de [91.96.59.109])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: sre)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 0A2696602835;
-        Mon, 24 Oct 2022 17:55:56 +0100 (BST)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id DF4716602830;
+        Mon, 24 Oct 2022 17:55:55 +0100 (BST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
         s=mail; t=1666630556;
-        bh=pmExmZ4tXPCYOPfg+XUTrNWwzm99oi9yIk9vszIGxCg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BI6hvnH5S/4WPhsdNb3KU1JA3S4Nz4MQQQfrfEElh3ARdhubA58l6s4oHh7NX+3O/
-         HtUQDYGuWUc5qmO2zboZYuzrhZFrPnKYAvY+w/daxSwbVaWfDk7ZX6MEqTVVOqup07
-         lTcrYyOvfl3VyPXWOkU1V3h2d+xoWYamtSCbJWy6zPcyt115H6K4hweBanllY5Hs/K
-         wtklC+lnjh2n9xV83hMAcgnCtrG9dmqkLDjHIkkZFxO1ZGiVZ7FDR0Kwjr+cjP/MK4
-         OKMi1EsmDjc1gho+Rv20+mzeKcDChgoQifmj7ppnYP0JaRFCXTaxaifYwYlhkLLQDE
-         Ze0c53kUcfTww==
+        bh=7HmGEeUycu9JUOAzQUWsfe2Icu5JIRazyOm+DZSY+30=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jQ9R/puRhj5UJrIR+0rGBUm+ADPfk77O0r9TOrfMOfg+xjwVeaiMA2tf357DsmjVo
+         b0yUD41zMqbrthlg4k/Lm6qrQxhdGxV3B0aHmbYFBCibv+FA/YyVfuq4361pZuSr6m
+         4LYh0FZh+/xnmYmQSJ1OLGPXhM7JoxKpooFZQwrvaSJybjKIW88gHR6/WwgDmpSHBZ
+         oIDeriLZQY6C2gN243+X+tIr8Z2qrjwlNX3JXwQ5I7eAkSravupCKl2/h0fcGSikfD
+         VD7JUwx+wYIEn3oY2p2couV6ch6MRVIVNindJYWRoURfSzailfPhjvxQCcGxh8BzCZ
+         Kagmzz5+sU2GA==
 Received: by jupiter.universe (Postfix, from userid 1000)
-        id 0245E480AEF; Mon, 24 Oct 2022 18:55:54 +0200 (CEST)
+        id EE5C8480AEC; Mon, 24 Oct 2022 18:55:53 +0200 (CEST)
 From:   Sebastian Reichel <sebastian.reichel@collabora.com>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -48,94 +48,58 @@ Cc:     Neil Armstrong <neil.armstrong@linaro.org>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         kernel@collabora.com
-Subject: [PATCHv2 3/6] arm: dts: rockchip: fix node name for hym8563 rtc
-Date:   Mon, 24 Oct 2022 18:55:46 +0200
-Message-Id: <20221024165549.74574-4-sebastian.reichel@collabora.com>
+Subject: [PATCHv2 0/6] Convert HYM8563 RTC binding to YAML
+Date:   Mon, 24 Oct 2022 18:55:43 +0200
+Message-Id: <20221024165549.74574-1-sebastian.reichel@collabora.com>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221024165549.74574-1-sebastian.reichel@collabora.com>
-References: <20221024165549.74574-1-sebastian.reichel@collabora.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Fix the node name for hym8563 in all arm rockchip devicetrees.
+Hi,
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
----
- arch/arm/boot/dts/rk3036-evb.dts          | 2 +-
- arch/arm/boot/dts/rk3288-evb-act8846.dts  | 2 +-
- arch/arm/boot/dts/rk3288-firefly.dtsi     | 2 +-
- arch/arm/boot/dts/rk3288-miqi.dts         | 2 +-
- arch/arm/boot/dts/rk3288-rock2-square.dts | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+This converts HYM8563 binding to YAML and fixes
+the existing DTs.
 
-diff --git a/arch/arm/boot/dts/rk3036-evb.dts b/arch/arm/boot/dts/rk3036-evb.dts
-index 9fd4d9db9f8f..89b0927ce162 100644
---- a/arch/arm/boot/dts/rk3036-evb.dts
-+++ b/arch/arm/boot/dts/rk3036-evb.dts
-@@ -35,7 +35,7 @@ phy0: ethernet-phy@0 {
- &i2c1 {
- 	status = "okay";
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-evb-act8846.dts b/arch/arm/boot/dts/rk3288-evb-act8846.dts
-index be695b8c1f67..8a635c243127 100644
---- a/arch/arm/boot/dts/rk3288-evb-act8846.dts
-+++ b/arch/arm/boot/dts/rk3288-evb-act8846.dts
-@@ -54,7 +54,7 @@ vdd_gpu: syr828@41 {
- 		vin-supply = <&vcc_sys>;
- 	};
- 
--	hym8563@51 {
-+	rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 
-diff --git a/arch/arm/boot/dts/rk3288-firefly.dtsi b/arch/arm/boot/dts/rk3288-firefly.dtsi
-index 052afe5543e2..9267857beccb 100644
---- a/arch/arm/boot/dts/rk3288-firefly.dtsi
-+++ b/arch/arm/boot/dts/rk3288-firefly.dtsi
-@@ -233,7 +233,7 @@ vdd_gpu: syr828@41 {
- 		vin-supply = <&vcc_sys>;
- 	};
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-miqi.dts b/arch/arm/boot/dts/rk3288-miqi.dts
-index 713f55e143c6..e3d5644f2915 100644
---- a/arch/arm/boot/dts/rk3288-miqi.dts
-+++ b/arch/arm/boot/dts/rk3288-miqi.dts
-@@ -162,7 +162,7 @@ vdd_gpu: syr828@41 {
- 		vin-supply = <&vcc_sys>;
- 	};
- 
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
-diff --git a/arch/arm/boot/dts/rk3288-rock2-square.dts b/arch/arm/boot/dts/rk3288-rock2-square.dts
-index 80e0f07c8e87..07a3a52753d2 100644
---- a/arch/arm/boot/dts/rk3288-rock2-square.dts
-+++ b/arch/arm/boot/dts/rk3288-rock2-square.dts
-@@ -165,7 +165,7 @@ &hdmi {
- };
- 
- &i2c0 {
--	hym8563: hym8563@51 {
-+	hym8563: rtc@51 {
- 		compatible = "haoyu,hym8563";
- 		reg = <0x51>;
- 		#clock-cells = <0>;
+Changes since PATCHv1:
+ * https://lore.kernel.org/all/20221021170605.85163-1-sebastian.reichel@collabora.com/
+ * Added patches fixing the existing devicetrees (Rob Herring)
+ * Dual licensed the binding (Krzysztof Kozlowski)
+ * Added maxItems for clock-output-names (Krzysztof Kozlowski)
+
+-- Sebastian
+
+Sebastian Reichel (6):
+  arm64: dts: rockchip: fix node name for hym8563 rtc
+  arm64: dts: rockchip: remove clock-frequency from rtc
+  arm: dts: rockchip: fix node name for hym8563 rtc
+  arm: dts: rockchip: remove clock-frequency from rtc
+  arm64: dts: meson: remove clock-frequency from rtc
+  dt-bindings: rtc: convert hym8563 bindings to json-schema
+
+ .../devicetree/bindings/rtc/haoyu,hym8563.txt | 30 ----------
+ .../bindings/rtc/haoyu,hym8563.yaml           | 56 +++++++++++++++++++
+ arch/arm/boot/dts/rk3036-evb.dts              |  3 +-
+ arch/arm/boot/dts/rk3288-evb-act8846.dts      |  2 +-
+ arch/arm/boot/dts/rk3288-firefly.dtsi         |  3 +-
+ arch/arm/boot/dts/rk3288-miqi.dts             |  3 +-
+ arch/arm/boot/dts/rk3288-rock2-square.dts     |  3 +-
+ arch/arm/boot/dts/rk3288-vmarc-som.dtsi       |  1 -
+ .../amlogic/meson-gxl-s905x-khadas-vim.dts    |  1 -
+ .../dts/amlogic/meson-gxm-khadas-vim2.dts     |  1 -
+ .../dts/amlogic/meson-gxm-minix-neo-u9h.dts   |  1 -
+ .../dts/rockchip/rk3368-orion-r68-meta.dts    |  3 +-
+ arch/arm64/boot/dts/rockchip/rk3368-r88.dts   |  3 +-
+ .../boot/dts/rockchip/rk3399-roc-pc-plus.dts  |  3 +-
+ .../dts/rockchip/rk3399pro-vmarc-som.dtsi     |  3 +-
+ .../boot/dts/rockchip/rk3568-bpi-r2-pro.dts   |  1 -
+ .../boot/dts/rockchip/rk3568-rock-3a.dts      |  1 -
+ 17 files changed, 65 insertions(+), 53 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/haoyu,hym8563.yaml
+
 -- 
 2.35.1
 
