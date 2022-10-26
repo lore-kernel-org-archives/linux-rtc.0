@@ -2,142 +2,237 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD646C38A02
-	for <linux-rtc@archiver.kernel.org>; Wed, 26 Oct 2022 03:35:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58A3DC38A2D
+	for <linux-rtc@archiver.kernel.org>; Wed, 26 Oct 2022 13:12:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232769AbiJZDfJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 25 Oct 2022 23:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54574 "EHLO
+        id S233792AbiJZNMf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 26 Oct 2022 09:12:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232981AbiJZDe6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 25 Oct 2022 23:34:58 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98F8A33E0A;
-        Tue, 25 Oct 2022 20:34:51 -0700 (PDT)
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MxvVN1ckzzpVrr;
-        Wed, 26 Oct 2022 11:31:24 +0800 (CST)
-Received: from dggpeml500003.china.huawei.com (7.185.36.200) by
- dggpeml500020.china.huawei.com (7.185.36.88) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 26 Oct 2022 11:34:49 +0800
-Received: from huawei.com (10.175.103.91) by dggpeml500003.china.huawei.com
- (7.185.36.200) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 26 Oct
- 2022 11:34:49 +0800
-From:   Yu Liao <liaoyu15@huawei.com>
-To:     <alexandre.belloni@bootlin.com>, <a.zummo@towertech.it>
-CC:     <liaoyu15@huawei.com>, <liwei391@huawei.com>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: [RFC PATCH 2/2] rtc: fix race condition in rtc_set_time()
-Date:   Wed, 26 Oct 2022 11:33:48 +0800
-Message-ID: <20221026033348.1660732-3-liaoyu15@huawei.com>
+        with ESMTP id S233506AbiJZNMe (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 26 Oct 2022 09:12:34 -0400
+Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE1B9FB730;
+        Wed, 26 Oct 2022 06:12:33 -0700 (PDT)
+Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
+        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 29QAemMa025728;
+        Wed, 26 Oct 2022 09:12:05 -0400
+Received: from nwd2mta4.analog.com ([137.71.173.58])
+        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3kcac8vfcq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 26 Oct 2022 09:12:04 -0400
+Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
+        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 29QDC3SL001642
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 26 Oct 2022 09:12:03 -0400
+Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Wed, 26 Oct
+ 2022 09:12:02 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Wed, 26 Oct 2022 09:12:02 -0400
+Received: from IST-LT-39247.ad.analog.com (IST-LT-39247.ad.analog.com [10.25.16.24])
+        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 29QDBY6n014246;
+        Wed, 26 Oct 2022 09:11:52 -0400
+From:   Ibrahim Tilki <Ibrahim.Tilki@analog.com>
+To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
+        <jdelvare@suse.com>, <linux@roeck-us.net>, <robh+dt@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>
+CC:     Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
+        <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-hwmon@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>
+Subject: [PATCH v2 2/2] dt-bindings: rtc: add bindings for max313xx RTCs
+Date:   Wed, 26 Oct 2022 16:11:24 +0300
+Message-ID: <20221026131124.289-3-Ibrahim.Tilki@analog.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221026033348.1660732-1-liaoyu15@huawei.com>
-References: <20221026033348.1660732-1-liaoyu15@huawei.com>
+In-Reply-To: <20221026131124.289-1-Ibrahim.Tilki@analog.com>
+References: <20221026131124.289-1-Ibrahim.Tilki@analog.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500003.china.huawei.com (7.185.36.200)
-X-CFilter-Loop: Reflected
+X-ADIRuleOP-NewSCL: Rule Triggered
+X-Proofpoint-ORIG-GUID: Cd9uiJ48XtnCxwht-Nkz_Q8ixsTspG44
+X-Proofpoint-GUID: Cd9uiJ48XtnCxwht-Nkz_Q8ixsTspG44
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-10-26_06,2022-10-26_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ mlxlogscore=999 phishscore=0 malwarescore=0 suspectscore=0 clxscore=1015
+ priorityscore=1501 adultscore=0 mlxscore=0 bulkscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2209130000 definitions=main-2210260074
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Commit 7e7c005b4b1f ("rtc: disable uie before setting time and enable
-after") was introduced to solve problem that rtc_timer_do_work will loop
-for a while, when setting the time in the future with the uie timer
-enabled. But reading uie timer state and setting rtc time are not in
-a critical section, a race condition may occur in rtc_set_time which
-has two issues:
+Devicetree binding documentation for Analog Devices MAX313XX RTCs
 
-1) In the above scenario, rtc_timer_do_work may still loop for a while.
-   For example consider the following sequence:
-
-   CPU0					CPU1
-   ----					----
-   ioctl(RTC_SET_TIME)			ioctl(RTC_UIE_ON)
-   uie = rtc->uie_rtctimer.enabled;
-   [ assume uie is 0 ]
-   if (uie)
-   	rtc_update_irq_enable(rtc, 0);
-
-   					rtc_update_irq_enable(rtc, 1);
-   					[ uie is enabled ]
-   rtc->ops->set_time();
-   [ set rtc time in the future ]
-
-2) A thread try to turn off uie, however rtc_settime called by another
-   thread turns on uie when they run in parallel. Consider the following
-   sequence:
-
-   CPU0					CPU1
-   ----					----
-   ioctl(RTC_SET_TIME)			ioctl(RTC_UIE_OFF)
-   rtc->ops->set_time();
-   					rtc_update_irq_enable(rtc, 0);
-   rtc_update_irq_enable(rtc, 1);
-
-Fix it by guaranteeing that reading uie timer state, setting rtc time
-and enabling uie timer within a critical section.
-
-Fixes: 7e7c005b4b1f ("rtc: disable uie before setting time and enable after")
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Signed-off-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
+Signed-off-by: Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>
 ---
- drivers/rtc/interface.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/rtc/adi,max313xx.yaml | 151 ++++++++++++++++++
+ 1 file changed, 151 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/adi,max313xx.yaml
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index bc55dd31bece..00a6173d8895 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -139,21 +139,21 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- 
- 	rtc_subtract_offset(rtc, tm);
- 
-+	err = mutex_lock_interruptible(&rtc->ops_lock);
-+	if (err)
-+		return err;
+diff --git a/Documentation/devicetree/bindings/rtc/adi,max313xx.yaml b/Documentation/devicetree/bindings/rtc/adi,max313xx.yaml
+new file mode 100644
+index 000000000..7fa28d9d4
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/adi,max313xx.yaml
+@@ -0,0 +1,151 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2022 Analog Devices Inc.
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/adi,max313xx.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
- 	uie = rtc->uie_rtctimer.enabled || rtc->uie_irq_active;
- #else
- 	uie = rtc->uie_rtctimer.enabled;
- #endif
- 	if (uie) {
--		err = rtc_update_irq_enable(rtc, 0);
-+		err = __rtc_update_irq_enable(rtc, 0);
- 		if (err)
- 			return err;
- 	}
- 
--	err = mutex_lock_interruptible(&rtc->ops_lock);
--	if (err)
--		return err;
--
- 	if (!rtc->ops)
- 		err = -ENODEV;
- 	else if (rtc->ops->set_time)
-@@ -162,15 +162,15 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
- 		err = -EINVAL;
- 
- 	pm_stay_awake(rtc->dev.parent);
--	mutex_unlock(&rtc->ops_lock);
- 	/* A timer might have just expired */
- 	schedule_work(&rtc->irqwork);
- 
- 	if (uie) {
--		err = rtc_update_irq_enable(rtc, 1);
-+		err = __rtc_update_irq_enable(rtc, 1);
- 		if (err)
- 			return err;
- 	}
-+	mutex_unlock(&rtc->ops_lock);
- 
- 	trace_rtc_set_time(rtc_tm_to_time64(tm), err);
- 	return err;
++title: Analog Devices MAX313XX series I2C RTCs
++
++maintainers:
++  - Ibrahim Tilki <Ibrahim.Tilki@analog.com>
++  - Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>
++
++description: Analog Devices MAX313XX series I2C RTCs.
++
++properties:
++  compatible:
++    enum:
++      - adi,max31328
++      - adi,max31329
++      - adi,max31331
++      - adi,max31334
++      - adi,max31341
++      - adi,max31342
++      - adi,max31343
++
++  reg:
++    description: I2C address of the RTC
++    items:
++      - enum: [0x68, 0x69]
++
++  interrupts:
++    minItems: 1
++    maxItems: 2
++
++  interrupt-names:
++    description: |
++      Name of the interrupt pin of the RTC used for IRQ. Not required for
++      RTCs that only have single interrupt pin available. Some of the RTCs
++      share interrupt pins with clock input/output pins.
++    minItems: 1
++    items:
++      - enum: [INTA, INTB]
++      - enum: [INTA, INTB]
++
++  "#clock-cells":
++    description: |
++      RTC can be used as a clock source through its clock output pin when
++      supplied.
++    const: 0
++
++  clocks:
++    description: |
++      RTC uses this clock for clock input when supplied. Clock has to provide
++      one of these four frequencies: 1Hz, 50Hz, 60Hz or 32.768kHz.
++    maxItems: 1
++
++  trickle-diode-disable: true
++
++  trickle-resistor-ohms:
++    description: Enables trickle charger with specified resistor value.
++    enum: [3000, 6000, 11000]
++
++  wakeup-source: true
++
++additionalProperties: false
++
++allOf:
++  - $ref: rtc.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - adi,max31328
++              - adi,max31342
++
++    then:
++      properties:
++        trickle-diode-disable: false
++        trickle-resistor-ohms: false
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - adi,max31328
++              - adi,max31331
++              - adi,max31334
++              - adi,max31343
++
++    then:
++      properties:
++        clocks: false
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - adi,max31341
++              - adi,max31342
++
++    then:
++      properties:
++        reg:
++          items:
++            - const: 0x69
++
++    else:
++      properties:
++        reg:
++          items:
++            - const: 0x68
++
++required:
++  - compatible
++  - reg
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@68 {
++            reg = <0x68>;
++            compatible = "adi,max31329";
++            clocks = <&clkin>;
++            interrupt-parent = <&gpio>;
++            interrupts = <26 IRQ_TYPE_EDGE_FALLING>;
++            interrupt-names = "INTB";
++        };
++    };
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@68 {
++            reg = <0x68>;
++            compatible = "adi,max31331";
++            #clock-cells = <0>;
++            interrupt-parent = <&gpio>;
++            interrupts = <25 IRQ_TYPE_EDGE_FALLING>, <26 IRQ_TYPE_EDGE_FALLING>;
++            interrupt-names = "INTA", "INTB";
++        };
++    };
 -- 
 2.25.1
 
