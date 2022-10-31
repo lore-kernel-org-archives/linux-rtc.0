@@ -2,91 +2,77 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36CB1FA3741
-	for <linux-rtc@archiver.kernel.org>; Mon, 31 Oct 2022 15:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4C35ECAAA1
+	for <linux-rtc@archiver.kernel.org>; Mon, 31 Oct 2022 15:31:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231381AbiJaPBy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 31 Oct 2022 11:01:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39288 "EHLO
+        id S231795AbiJaPbu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 31 Oct 2022 11:31:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229988AbiJaPBx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 31 Oct 2022 11:01:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDF71114E;
-        Mon, 31 Oct 2022 08:01:51 -0700 (PDT)
+        with ESMTP id S231500AbiJaPbu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 31 Oct 2022 11:31:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEA2EE0C;
+        Mon, 31 Oct 2022 08:31:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0549B8189D;
-        Mon, 31 Oct 2022 15:01:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 999E4C433C1;
-        Mon, 31 Oct 2022 15:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCD23612CE;
+        Mon, 31 Oct 2022 15:31:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5173EC433D6;
+        Mon, 31 Oct 2022 15:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667228508;
-        bh=rlmhgFAHSlMLUSzmBmDn0F87uYL3lausnNmdgR1mEgw=;
+        s=k20201202; t=1667230308;
+        bh=BMMxQzRtp0/nturtlwUebCCckGXZgOIXStC5INUt4Wc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YaLX1F6In1WLNvfkw4RCcoPe3U3Htzyrfow7AkuFpztOlWgXEoEy6iEg+tSZP/gKF
-         iph7VxOTwVRYohPZTm72WI/9M7pW7PrBMt11us+xSHxNhR5ET3YZr9CYhr5QwmXV2+
-         WvnWmwQOwCchQlkp5QE8fPS9SmF5y8wouMg9vlQBIBLvTFHmT+kB3oG4FdrUjFnJlK
-         /2vBCCnuZr6bua3YIa5ir9tKUWI/Ss0FLqozRg+hRomCUFMgP5PbvrNQD4jnJXFSYz
-         4JugXaZlDCrOPRUhNVGj4+nSq82EqMAcVicUKH0/jp5TkNe/DCL+Zo2VgGirJbIRbv
-         qMuF89Jw7PUSw==
-Date:   Mon, 31 Oct 2022 15:01:42 +0000
+        b=CqHJPzrYFCSFFf/lpPRROOPr4SeOsbXvWbOyJmFGfnDbPDqKNexEufBFRjOlT3/9e
+         Fd7Vmku4erJDalY2VikqCNHLCaYc6VYA6AXktbkZ2abZedDThhD8VBU2sAIAdG4jc+
+         GplHL7IwYP/R1CUCVr78o15wVngFIsAnwdBIouWojayG4e0MLr0mJmorQZhhr8+6EI
+         eNc9Y6aiNWtu9NZ1rAqf4aIlJz7dMUgGceyDNnSvzsrq4V2PE1Csp9J0s/XFskGZvC
+         hmCHbvrBFjaOBRsUrejtKZOGL9rJtf9fk3kSMk5MVYXruHXuZkDJhc25ZNAH+6UIOg
+         80m1XvZeBDYHw==
+Date:   Mon, 31 Oct 2022 15:31:41 +0000
 From:   Lee Jones <lee@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Sekhar Nori <nsekhar@ti.com>, Bartosz Golaszewski <brgl@bgdev.pl>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Kevin Hilman <khilman@baylibre.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+To:     Neil Armstrong <neil.armstrong@linaro.org>
+Cc:     Bjorn Andersson <andersson@kernel.org>,
+        Satya Priya <quic_c_skakit@quicinc.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-input@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 06/14] mfd: remove dm355evm_msp driver
-Message-ID: <Y1/jVgC76ALyb3Ls@google.com>
-References: <20221019152947.3857217-1-arnd@kernel.org>
- <20221019152947.3857217-7-arnd@kernel.org>
- <Y1/jLvg5AYCk1CkD@google.com>
+        Andy Gross <agross@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 05/11] dt-bindings: mfd: qcom-pm8xxx: document
+ qcom,pm8921 as fallback of qcom,pm8018
+Message-ID: <Y1/qXQxVQce246Ct@google.com>
+References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
+ <20220928-mdm9615-dt-schema-fixes-v4-5-dac2dfaac703@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y1/jLvg5AYCk1CkD@google.com>
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-5-dac2dfaac703@linaro.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, 31 Oct 2022, Lee Jones wrote:
+On Fri, 21 Oct 2022, Neil Armstrong wrote:
 
-> On Wed, 19 Oct 2022, Arnd Bergmann wrote:
+> The PM8018 is used as compatible with PM8921 on the MDM9615, document this situation,
+> and an example section to validate this change.
 > 
-> > From: Arnd Bergmann <arnd@arndb.de>
-> > 
-> > The DaVinci DM355EVM platform is gone after the removal of all
-> > unused board files, so the MTD device along with its sub-devices
-> > can be removed as well.
-> > 
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  drivers/input/misc/Kconfig         |  11 -
-> >  drivers/input/misc/Makefile        |   1 -
-> >  drivers/input/misc/dm355evm_keys.c | 238 ---------------
-> >  drivers/mfd/Kconfig                |   8 -
-> >  drivers/mfd/Makefile               |   1 -
-> >  drivers/mfd/dm355evm_msp.c         | 454 -----------------------------
-> >  drivers/rtc/Kconfig                |   6 -
-> >  drivers/rtc/Makefile               |   1 -
-> >  drivers/rtc/rtc-dm355evm.c         | 151 ----------
-> >  include/linux/mfd/dm355evm_msp.h   |  79 -----
-> >  10 files changed, 950 deletions(-)
-> >  delete mode 100644 drivers/input/misc/dm355evm_keys.c
-> >  delete mode 100644 drivers/mfd/dm355evm_msp.c
-> >  delete mode 100644 drivers/rtc/rtc-dm355evm.c
-> >  delete mode 100644 include/linux/mfd/dm355evm_msp.h
-> 
-> Acked-by: Lee Jones <lee@kernel.org>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+> ---
+>  .../devicetree/bindings/mfd/qcom-pm8xxx.yaml       | 33 ++++++++++++++++++----
+>  1 file changed, 28 insertions(+), 5 deletions(-)
 
-Any reason not to do this per-subsystem?
+Applied, thanks.
 
 -- 
 Lee Jones [李琼斯]
