@@ -2,99 +2,100 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B96A5C433FE
-	for <linux-rtc@archiver.kernel.org>; Tue,  1 Nov 2022 09:29:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8CD7C43217
+	for <linux-rtc@archiver.kernel.org>; Tue,  1 Nov 2022 17:34:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230124AbiKAJ3X (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 1 Nov 2022 05:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
+        id S230122AbiKAReG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 1 Nov 2022 13:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbiKAJ3W (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Nov 2022 05:29:22 -0400
-X-Greylist: delayed 1543 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Nov 2022 02:29:20 PDT
-Received: from spamfilter04.delta.nl (spamfilter04.delta.nl [217.102.255.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D932D18E1F;
-        Tue,  1 Nov 2022 02:29:20 -0700 (PDT)
-Received: from host-ubmmyvj.static.zeelandnet.nl ([217.102.255.198] helo=mail.zeelandnet.nl)
-        by spamfilter04.delta.nl with esmtp (Exim 4.92)
-        (envelope-from <glazveze@delta.nl>)
-        id 1opmgD-00068o-Tg; Tue, 01 Nov 2022 09:31:44 +0100
-X-Sender-IP: 204.168.188.16
-Received: from phenom.domain_not_set.invalid (016-188-168-204.dynamic.caiway.nl [204.168.188.16])
-        (Authenticated sender: glasveze@delta.nl)
-        by mail.zeelandnet.nl (Postfix) with ESMTPA;
-        Tue,  1 Nov 2022 09:31:23 +0100 (CET)
-From:   glazveze@delta.nl
-To:     linux-rtc@vger.kernel.org
-Cc:     Mike Looijmans <mike.looijmans@topic.nl>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S230185AbiKARcV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Nov 2022 13:32:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FCD31C416;
+        Tue,  1 Nov 2022 10:32:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41BB0B81EA8;
+        Tue,  1 Nov 2022 17:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF8EC433D6;
+        Tue,  1 Nov 2022 17:32:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667323936;
+        bh=eOjxTt1qzXYpd+vexpbm9/lLy1/vQDQwdcCuCWSj0Kk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=J0HsDOslmUL61WbPEA56amtuHWxp+nZ1i1E6yiLPJeZblYnRKfC0i9ZpOIdmQNtb3
+         jWruSl4BgReiqOHRbzVIk9r3KGePf0Tt/EM6NR6gm++9wTfCr9R8F+SpZUN/VCWmLg
+         o8anPKsN8cf/zQ+hb9VVeTTejuUPXtHqb6N6dQnCUzPzbbuP8TUxMM4rciWWUsQ5gd
+         THyo84rpDPnZZdlXALPdpT7KVi3t8GMW2H6MjxfKDgPAlrgsolxEdgxXBfVZUtj99P
+         zMri+hT6IOAqi2ZKCGBsFnFQ+ZFgGXz6WtHFxvblsBJ8Z0ocNwtviKj+UQrZ4EW6jG
+         kLwxE3lnp+phw==
+Received: by mail-lf1-f50.google.com with SMTP id g12so24448660lfh.3;
+        Tue, 01 Nov 2022 10:32:15 -0700 (PDT)
+X-Gm-Message-State: ACrzQf3rOh6px4PBH6DcenVPghp/rmRNYrGhp0uatEopQyHaf/dfzDbD
+        AwWRY6cCzzRaDFdeodNHHpyrY8GgV4GdgTfNOA==
+X-Google-Smtp-Source: AMsMyM55ZQx6ERNnT2ewevQAIODBodrEpIuNlVPuqGNhSoa1jfV7LFjGf9SbOgrxVTM/C2na9B1/Xga8hv/kvtwUcbk=
+X-Received: by 2002:a05:6512:3e10:b0:4a2:48c1:8794 with SMTP id
+ i16-20020a0565123e1000b004a248c18794mr7390625lfv.17.1667323934009; Tue, 01
+ Nov 2022 10:32:14 -0700 (PDT)
+MIME-Version: 1.0
+References: <20221028225519.89210-1-paul@crapouillou.net> <20221028225519.89210-2-paul@crapouillou.net>
+ <20221031192341.GA3270129-robh@kernel.org> <WNUMKR.BWKAZLU4SGE52@crapouillou.net>
+In-Reply-To: <WNUMKR.BWKAZLU4SGE52@crapouillou.net>
+From:   Rob Herring <robh@kernel.org>
+Date:   Tue, 1 Nov 2022 12:32:05 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLOdnm8XNrEbeVtQeq4qtTyqUs_uGyhwzmUKha43ijTuw@mail.gmail.com>
+Message-ID: <CAL_JsqLOdnm8XNrEbeVtQeq4qtTyqUs_uGyhwzmUKha43ijTuw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: ingenic: Rework compatible
+ strings and add #clock-cells
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] dt-bindings: rtc: ds1307: Add support for Epson RX8111
-Date:   Tue,  1 Nov 2022 09:31:21 +0100
-Message-Id: <20221101083123.11695-1-glazveze@delta.nl>
-X-Mailer: git-send-email 2.17.1
-X-Originating-IP: 217.102.255.198
-X-DELTA-Domain: zeelandnet.nl
-X-DELTA-Username: 217.102.255.198
-Authentication-Results: delta.nl; auth=pass smtp.auth=217.102.255.198@zeelandnet.nl
-X-DELTA-Outgoing-Class: ham
-X-DELTA-Outgoing-Evidence: SB/global_tokens (0.00150102412276)
-X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT+fMveXxnfOZrgwa7/MvQYDPUtbdvnXkggZ
- 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5wqSBOxlRVmV45FJ8CYZCUIt8C9mOBdONdnsxgsk1D2pwpi
- 79/9lCWegUcH0YAeiESZu3hhVxUr+XbzYNuhZTyMN2jRpXv406oGDMCZBpfLj6tXYKbjfBt0vNkw
- cgcqpVi2EeDr8t3Z6zKdUQQxqR+SNjz3rkBrmCeUsHTfzqlbREQW59v6OzLaYvRKiPHtemyFp+Fb
- q4/dza6vunvz714/oUhDTJc8JF+XcA6Coahq6p9OU3mS/dDcjm11n8LBBaHmFYGlZcUx+feeIofU
- vaKO2wvHbfwld3xCwVQvwEuT74WwDyq/Nv4s81lckG+lIDvnx8yeplRO3sLIqUlSH7OGWzZxdxZO
- MNdUoc9FlEr2BnLwENyZMPyeFLnoLT8oU4J5ip9csxSp5vs/cqLV2uCxa1gbjNr6zuq/msj6Lhvp
- vjHGDmddzHap4I7VGqLLvI7oxlm7kP52ZxDqHbw/0OqAoLoOc/cuTx5izBB4vDJo75HWAoddgXQw
- hX0bgQM/NQzAznOAUImGZ//xcQKfbL7egPacf1SEo03G99/UIdTGSFjTsZRW5VqyvaeMWA2+RBXp
- D59QdM/f9KJhSSfjTAUyLIywuTEI0kISK7u1AZUYswOEpwFdG2jGwY6Bm9W/XNNE6vgDovKp0+yN
- qw90aRFIFnjEprciIL+rxAZ0QqLSHV9IlKha13El6tTzAeqsLP7TmwyWkFAKX6230SM4LCMeEY09
- Bx7bp0O2j1hLeSx525zuuPE0M/XzHi7X8V/cu68gr/U0flMcy2Vi/IcBgY4amwfEOQVUNYnWQ300
- Dp6cJDE37L8A/sfCSfmp70N6CAkTDnHxOK4BiYyvkz+/wZwwYqG/vijyG4aOcjbIor8orItFLNlw
- ZrFQlMFer4BtL1PbpJ3Vh8ibsqyxAqJtYGjzP6GMdt/ZiCCGoGagixCwW84NSDNfnkx0FX3OFUNq
- n1MpieaDJmOksitnbpZ9MQYjx/Om5AxPQGNBedVITG8AWxFjzL6tOKgqN6JvQh5n0fI612bG5S+Z
- Kxm29vhtcTbav+nPErDn/9w2ERKKH06cfjA78AQFw9bd8gj3LalWsUOocRk0/bWX1xH6FJm0Q3iP
- CmrxJ2+EokXE5CTwtF1RSNQwFbwWnhEwBi6hI73CcV6EcHXc0Zal25K9MsiopwSawNLQjZK6kKbb
- gNaJlD9A4g+m3nW06IBcbpAk9tBJy3OwmQm7DjpV7Sk6wVAJ6/XOJOG/iKSpBU+r0zgYp1Oa51OE
- Dgse489k7IVPaIjV8ZGYtKORiBOrYEFBQtHrezLP9jihx+Za/cV70jOJzN2r4A==
-X-Report-Abuse-To: spam@spamfilter03.delta.nl
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        od@opendingux.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Mike Looijmans <mike.looijmans@topic.nl>
+On Mon, Oct 31, 2022 at 2:41 PM Paul Cercueil <paul@crapouillou.net> wrote:
+>
+> Hi Rob,
+>
+> Le lun. 31 oct. 2022 =C3=A0 14:23:41 -0500, Rob Herring <robh@kernel.org>=
+ a
+> =C3=A9crit :
+> > On Fri, Oct 28, 2022 at 11:55:16PM +0100, Paul Cercueil wrote:
+> >>  The RTC in the JZ4770 is compatible with the JZ4760, but has an
+> >> extra
+> >>  register that permits to configure the behaviour of the CLK32K pin.
+> >> The
+> >>  same goes for the RTC in the JZ4780.
+> >>
+> >>  Therefore, the ingenic,jz4770-rtc and ingenic,jz4780-rtc strings do
+> >> not
+> >>  fall back anymore to ingenic,jz4760-rtc. The ingenic,jz4780-rtc
+> >> string
+> >>  now falls back to the ingenic,jz4770-rtc string.
+> >
+> > This is a compatibility mess. There is no driver support in v6.1-rc
+> > for
+> > ingenic,jz4770-rtc, so a new DT would not work with existing kernels.
+> > It
+> > sounds like you need 3 compatibles for 4780.
+>
+> Do newer DTs need to work with older kernels? I always assumed the
+> compatibility was only enforced for the other way around.
 
-The rx_8111 is quite similar to the rx_8030. This adds support for this
-chip to the ds1307 driver.
+For a stable platform, yes. Would you want a firmware update carrying
+the DT to break an existing OS install?
 
-This adds the entry to the devicetree bindings.
+Compatibility either way ultimately is up to the platform whether you
+care or not. I just ask that the commit msg spell that out. In this
+case, it is easily avoided.
 
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
-
-(no changes since v1)
-
- Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml b/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-index 98d10e680144..a9590da64b84 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-@@ -30,6 +30,7 @@ properties:
-           - pericom,pt7c4338
-           - epson,rx8025
-           - isil,isl12057
-+          - epson,rx8111
-           - epson,rx8130
- 
-       - items:
--- 
-2.17.1
-
+Rob
