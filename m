@@ -2,169 +2,483 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A946ECAAA1
-	for <linux-rtc@archiver.kernel.org>; Mon, 31 Oct 2022 23:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78899C433FE
+	for <linux-rtc@archiver.kernel.org>; Tue,  1 Nov 2022 09:27:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbiJaXHy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 31 Oct 2022 19:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34074 "EHLO
+        id S230057AbiKAJ1u (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 1 Nov 2022 05:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiJaXHx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 31 Oct 2022 19:07:53 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2415013F20;
-        Mon, 31 Oct 2022 16:07:52 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-13ba9a4430cso15091286fac.11;
-        Mon, 31 Oct 2022 16:07:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iIKNfIS9DJZ+OreDnkhjQEbBfQ5lKHnR+23wu5eNP+4=;
-        b=CFRw2KUOfNI618M5wfGr3VzUsoE6+rWut09ICvW0xZsQBJAlb5iRyuOIVZyW+cxhPN
-         FiLdQd+HvwAGMBpFpKXdwkY3UgbdJU8qQlttbtfn0+pDpMzG4GHywbVRKilsOiPyrXxn
-         jcjICLAvDvkydW2h6PGFJWcSFhkyv2KSUz/YaFzZlaNzZFV56/mIRyP7ZTnwk64y4n9q
-         Lv/zcPwIMiaDw5ylE2aXisFQ4lVq5UAkb7fCyQ0f6vcACiTcAaNvyZCiGr2a/snQEkUu
-         PHpymBsb+z8NIseqAyoBNWRvJ+pKanJFHgU007rivRmdTB0G5MNZ1TIjvu+SQCf5/HGt
-         az/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iIKNfIS9DJZ+OreDnkhjQEbBfQ5lKHnR+23wu5eNP+4=;
-        b=t+qEwnuRrhoym90w4n/gcE5eRuGc8zcLNze4nyfJkLZiYF6Qfsd9sF8kI+oM6ZJBhl
-         12XMqIIS7x+c0lIzyAERBCiMp3lnVQ8WosGHDq459ztqczKyBgmvqj4mek6bf9g6RtJc
-         luhwrbomJRMAIjn6gXTdZQVmQC+afpSEl8TFTTrE4ROZ/8+wFNAIgm6FdyNuwq5AVCVW
-         bgoiqPfY2CvhdFTzBk3yUUT47EFZdoQ5nmIwssuc9PQqVosgohQE40JZLVZlkGd0e/Tg
-         57LGn0B9hB94HtImH/LjrrAnDS/IbMsIGwtVuZUxBrsgFuUHMIqNbIWHvBbxXMKRbyJs
-         J97w==
-X-Gm-Message-State: ACrzQf1XHRYRlm/9U6h27NpCGzUpjZspJ8/3VQ5J4DdfY8l/e8QApfE6
-        L0clN/PjizgiJRvesJXS4Ec=
-X-Google-Smtp-Source: AMsMyM4jMrEtQxRZyChRGb9EEzYfviGe38pgCfAYpjEgP7S2SnvOLdFtOazIJKW1VuMSGW3gIp9RUQ==
-X-Received: by 2002:a05:6870:5894:b0:131:b25b:413e with SMTP id be20-20020a056870589400b00131b25b413emr18653062oab.192.1667257671404;
-        Mon, 31 Oct 2022 16:07:51 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a13-20020a4ad5cd000000b0049427725e62sm2844817oot.19.2022.10.31.16.07.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Oct 2022 16:07:50 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 31 Oct 2022 16:07:49 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>, linux-rtc@vger.kernel.org,
-        chrome-platform@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH] rtc: cros-ec: Limit RTC alarm range if needed
-Message-ID: <20221031230749.GB2082109@roeck-us.net>
-References: <20221029005400.2712577-1-linux@roeck-us.net>
- <Y2ABnbBGSJGM3gSS@mail.local>
- <20221031181913.GA3841664@roeck-us.net>
- <Y2BIv21U7lpN0z23@mail.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2BIv21U7lpN0z23@mail.local>
+        with ESMTP id S230082AbiKAJ1s (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Nov 2022 05:27:48 -0400
+Received: from spamfilter04.delta.nl (spamfilter04.delta.nl [217.102.255.204])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 164C618E1D
+        for <linux-rtc@vger.kernel.org>; Tue,  1 Nov 2022 02:27:44 -0700 (PDT)
+Received: from host-ubmmyvj.static.zeelandnet.nl ([217.102.255.198] helo=mail.zeelandnet.nl)
+        by spamfilter04.delta.nl with esmtp (Exim 4.92)
+        (envelope-from <glazveze@delta.nl>)
+        id 1opmgT-0006Dr-4K; Tue, 01 Nov 2022 09:31:56 +0100
+X-Sender-IP: 204.168.188.16
+Received: from phenom.domain_not_set.invalid (016-188-168-204.dynamic.caiway.nl [204.168.188.16])
+        (Authenticated sender: glasveze@delta.nl)
+        by mail.zeelandnet.nl (Postfix) with ESMTPA;
+        Tue,  1 Nov 2022 09:31:39 +0100 (CET)
+From:   glazveze@delta.nl
+To:     linux-rtc@vger.kernel.org
+Cc:     Mike Looijmans <mike.looijmans@topic.nl>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 2/2] rtc: ds1307: Add support for Epson RX8111
+Date:   Tue,  1 Nov 2022 09:31:22 +0100
+Message-Id: <20221101083123.11695-2-glazveze@delta.nl>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20221101083123.11695-1-glazveze@delta.nl>
+References: <20221101083123.11695-1-glazveze@delta.nl>
+X-Originating-IP: 217.102.255.198
+X-DELTA-Domain: zeelandnet.nl
+X-DELTA-Username: 217.102.255.198
+Authentication-Results: delta.nl; auth=pass smtp.auth=217.102.255.198@zeelandnet.nl
+X-DELTA-Outgoing-Class: ham
+X-DELTA-Outgoing-Evidence: SB/global_tokens (2.89810905447e-05)
+X-Recommended-Action: accept
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT+ZRGfk0At9Ike/xfAhHowcPUtbdvnXkggZ
+ 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5wqSBOxlRVmV45FJ8CYZCUIt8C9mOBdONdnsxgsk1D2pwpi
+ 79/9lCWegUcH0YAeiESZu3hhVxUr+XbzYNuhZTyMN2jRpXv406oGDMCZBpfLj6tXYKbjfBt0vNkw
+ cgcqpVi2EeDr8t3Z6zKdUQQxqR+SarWVngVq5vG8OaFuy65RvR2mlP2W9u+agdcanH6cUDPhtIdB
+ kUNQyNMiiqabnglhcXCN1jpoyjx2M7Im+CZAXFY+5adZvWXoGLcQcb78Eui+mtbuPAbQ+aWD8hhQ
+ CZMTEEe1sLzznCY3CGPOzCfYYPbQTl/SJIDeIbJV6Zcf430jRGDmKiHQCBmbL4/kVA5ilfR3t3lk
+ efZwj1OjoVRNk0OBtfs8eND145V556pRoeWoiZFW8yMEtAB+QqbWN455cayBalMzNiQi+IaP6Ip3
+ l1/Gfk/thginq2iQcOP+mMhCFzRIiEpzynty7G1sAhwpazrLOzVL2cm1v+nUTthXE4PZdr6INmo5
+ IO5sXBWBIKP+Xt1YVt34tXjgAnyScrZDbgZGFmIP8t6jENaJPnk2Q0EqJ2YhaHYKPX4HHcW4fmLf
+ d77XZbPqWAY81T0FayDkAbOrs4FPMK+W+hB4jPTBjMy+REZzZZBkbyPIV/jp5XA84mAL2fYZt/ag
+ 6cJYhE+JR1THjBWZFF00ALVWc/sntqhVr03UHlrscRrHorFm3BMamUdylUIKhf3z2GAHxH7Inwey
+ uebMOAyd9KE1KnR6Q/uNUZtOoISscGZbnZWaYNZOLDTtebGvOVlNWIOgzjpYs6oM5c5v6nO6dxgr
+ nLgL2IFyOv5cAKYGRAn40Vzq1+FjVbTBFy0HmZ7j54j5nbTw0F2VAitLyFstLTVGwdoo+nbOFKKz
+ xACo90vCZrfvMYKWPHYo9X+hHrxPABGbYgYFQMAJdpT8SBGMx9Hio+WRxFDvx3zE1+CEGnCvOf5u
+ H+WNO/AEWyHOtr9hiOqu6Gu3yB2oVjwpD0SDGnhQZ7XpT5syUIQR9jMhtWFgK0+Er7PJLlMHANA1
+ bs2R4iRcH3xv9Puiud/hROIkQBFx9BA5yh8iLgxxK8ttJOgE22ySLDlnuktNvxRB2uyScQ1h73J0
+ jHT9cO2eqPW6UlupkxNosx4GZ3jlszDBLqeHTFooTZCcSBYZDWQs5qlkvd6bQTUH3gkwE9mTsS/2
+ b1BN8Jw1rw==
+X-Report-Abuse-To: spam@spamfilter03.delta.nl
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Oct 31, 2022 at 11:14:23PM +0100, Alexandre Belloni wrote:
-> On 31/10/2022 11:19:13-0700, Guenter Roeck wrote:
-> > On Mon, Oct 31, 2022 at 06:10:53PM +0100, Alexandre Belloni wrote:
-> > > Hello,
-> > > 
-> > > On 28/10/2022 17:54:00-0700, Guenter Roeck wrote:
-> > > > RTC chips on some older Chromebooks can only handle alarms less than 24
-> > > > hours in the future. Attempts to set an alarm beyond that range fails.
-> > > > The most severe impact of this limitation is that suspend requests fail
-> > > > if alarmtimer_suspend() tries to set an alarm for more than 24 hours
-> > > > in the future.
-> > > > 
-> > > > Try to set the real-time alarm to just below 24 hours if setting it to
-> > > > a larger value fails to work around the problem. While not perfect, it
-> > > > is better than just failing the call. A similar workaround is already
-> > > > implemented in the rtc-tps6586x driver.
-> > > 
-> > > I'm not super convinced this is actually better than failing the call
-> > > because your are implementing policy in the driver which is bad from a
-> > > user point of view. It would be way better to return -ERANGE and let
-> > > userspace select a better alarm time.
-> > 
-> > The failing call is from alarmtimer_suspend() which is called during suspend.
-> > It is not from userspace, and userspace has no chance to intervene.
-> > 
-> > It is also not just one userspace application which could request a large
-> > timeout, it is a variety of userspace applications, and not all of them are
-> > written by Google. Some are Android applications. I don't see how it would be
-> > realistic to expect all such applications to fix their code (if that is even
-> > possible - there might be an application which called sleep(100000) or
-> > something equivalent, which works just fine as long as the system is not
-> > suspended.
-> > 
-> > > Do you have to know in advance which are the "older" chromebooks that
-> > > are affected?
-> > 
-> > Not sure I understand the question. Technically we know, but the cros_ec
-> > rtc driver doesn't know because the EC doesn't have an API to report the
-> > maximum timeout to the Linux driver. Even if that existed, it would not
-> > help because the rtc API only supports absolute maximum clock values,
-> > not clock offsets relative to the current time. So ultimately there is no
-> > means for an RTC driver to tell the maximum possible alarm timer offset to 
-> > the RTC subsystem, and there is no means for a user such as
-> > alarmtimer_suspend() to obtain the maximum time offset. Does that answer
-> > your question ?
-> 
-> Yes, my question was missing a few words, sorry I wanted to know if you
-> had *a way* to know.
-> 
+From: Mike Looijmans <mike.looijmans@topic.nl>
 
-See below. It is doable, but there is no real good solution, or at least
-I don't see one right now.
+The rx_8111 is quite similar to the rx_8030. This adds support for this
+chip to the ds1307 driver. Date/time and alarm registers are in the
+usual places. The nvmem is located at 0x40. Time stamping is not
+supported.
 
-> > 
-> > On a side note, I tried an alternate implementation by adding a retry into
-> > alarmtimer_suspend(), where it would request a smaller timeout if the
-> > requested timeout failed. I did not pursue/submit this since it seemed
-> > hacky. To solve that problem, I'd rather discuss extending the RTC API
-> > to provide a maximum offset to its users. Such a solution would probably
-> > be desirable, but that it more longer term and would not solve the
-> > immediate problem.
-> 
-> Yes, this is what I was aiming for. This is something that is indeed
-> missing in the RTC API and that I already thought about. But indeed, it
-> would be great to have a way to set the alarm range separately from the
-> time keeping range. This would indeed have to be a range relative to the
-> current time.
-> 
-> alarmtimer_suspend() can then get the allowed alarm range for the RTC,
-> and set the alarm to max(alarm range, timer value) and loop until the
-> timer has expired. Once we have this API, userspace can do the same.
-> 
-> I guess that ultimately, this doesn't help your driver unless you are
-> wanting to wakeup all the chromebooks at least once a day regardless of
-> their EC.
+Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
 
-That is a no-go. It would reduce battery lifetime on all Chromebooks,
-including those not affected by the problem (that is, almost all of them).
+---
 
-To implement reporting the maximum supported offset, I'd probably either
-try to identify affected Chromebooks using devicetree information,
-or by sending am alarm request > 24h in the future in the probe function
-and setting the maximum offset just below 24h if that request fails.
-We'd have to discuss the best approach internally.
+Changes in v2:
+Add "_REG" in register names
+Add interrupt/alarm handling (different from rx8030)
 
-Either case, that doesn't help with the short term problem that we
-have to solve now and that can be backported to older kernels. It also
-won't help userspace - userspace alarm requests, as Brian has pointed out,
-are separate from limits supported by the RTC hardware. We can not change
-the API for CLOCK_xxx_ALARM to userspace, and doing so would not make
-sense anyway since it works just fine as long as the system isn't
-suspended. Besides, changing alarmtimer_suspend() as you suggest above
-would solve the problem for userspace, so I don't see a need for a
-userspace API/ABI change unless I am missing something.
+ drivers/rtc/rtc-ds1307.c | 308 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 285 insertions(+), 23 deletions(-)
 
-Thanks,
-Guenter
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index d51565bcc189..2c5dff45a246 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -46,6 +46,7 @@ enum ds_type {
+ 	m41t11,
+ 	mcp794xx,
+ 	rx_8025,
++	rx_8111,
+ 	rx_8130,
+ 	last_ds_type /* always last */
+ 	/* rs5c372 too?  different address... */
+@@ -113,6 +114,24 @@ enum ds_type {
+ #	define RX8025_BIT_VDET		0x40
+ #	define RX8025_BIT_XST		0x20
+ 
++#define RX8111_REG_EXTENSION	0x1d
++#	define RX8111_REG_EXTENSION_WADA	BIT(3)
++#define RX8111_REG_FLAG		0x1e
++#	define RX8111_REG_FLAG_VLF	BIT(1)
++#	define RX8111_REG_FLAG_EVF	BIT(2)
++#	define RX8111_REG_FLAG_AF	BIT(3)
++#	define RX8111_REG_FLAG_TF	BIT(4)
++#	define RX8111_REG_FLAG_UF	BIT(5)
++#define RX8111_REG_CONTROL	0x1e
++#	define RX8111_REG_CONTROL_EIE	BIT(2)
++#	define RX8111_REG_CONTROL_AIE	BIT(3)
++#	define RX8111_REG_CONTROL_TIE	BIT(4)
++#	define RX8111_REG_CONTROL_UIE	BIT(5)
++#define RX8111_REG_PWR_SWITCH_CTRL	0x32
++#	define RX8111_PSC_SMP_INIEN	BIT(6)
++#	define RX8111_PSC_SMP_CHGEN	BIT(7)
++#define RX8111_REG_TIME_STAMP_BUF_CTRL	0x34
++
+ #define RX8130_REG_ALARM_MIN		0x17
+ #define RX8130_REG_ALARM_HOUR		0x18
+ #define RX8130_REG_ALARM_WEEK_OR_DAY	0x19
+@@ -205,6 +224,68 @@ struct chip_desc {
+ 
+ static const struct chip_desc chips[last_ds_type];
+ 
++static int ds1307_check_voltage_lost(struct ds1307 *ds1307)
++{
++	int ret;
++	unsigned int reg;
++	unsigned int mask;
++	unsigned int regflag;
++
++	switch (ds1307->type) {
++	case rx_8111:
++		reg = RX8111_REG_FLAG;
++		mask = RX8111_REG_FLAG_VLF;
++		break;
++	case rx_8130:
++		reg = RX8130_REG_FLAG;
++		mask = RX8130_REG_FLAG_VLF;
++		break;
++	default:
++		return 0;
++	}
++
++	ret = regmap_read(ds1307->regmap, reg, &regflag);
++	if (ret) {
++		dev_err(ds1307->dev, "%s error %d\n", "read", ret);
++		return ret;
++	}
++
++	if (regflag & mask) {
++		dev_warn_once(ds1307->dev, "oscillator failed, set time!\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int ds1307_clear_voltage_lost(struct ds1307 *ds1307)
++{
++	int ret;
++	unsigned int reg;
++	unsigned int mask;
++
++	switch (ds1307->type) {
++	case rx_8111:
++		reg = RX8111_REG_FLAG;
++		mask = (unsigned int)~RX8111_REG_FLAG_VLF;
++		break;
++	case rx_8130:
++		reg = RX8130_REG_FLAG;
++		mask = (unsigned int)~RX8130_REG_FLAG_VLF;
++		break;
++	default:
++		return 0;
++	}
++
++	ret = regmap_write(ds1307->regmap, reg, mask);
++	if (ret) {
++		dev_err(ds1307->dev, "%s error %d\n", "write", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
+ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ {
+ 	struct ds1307	*ds1307 = dev_get_drvdata(dev);
+@@ -212,19 +293,9 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	const struct chip_desc *chip = &chips[ds1307->type];
+ 	u8 regs[7];
+ 
+-	if (ds1307->type == rx_8130) {
+-		unsigned int regflag;
+-		ret = regmap_read(ds1307->regmap, RX8130_REG_FLAG, &regflag);
+-		if (ret) {
+-			dev_err(dev, "%s error %d\n", "read", ret);
+-			return ret;
+-		}
+-
+-		if (regflag & RX8130_REG_FLAG_VLF) {
+-			dev_warn_once(dev, "oscillator failed, set time!\n");
+-			return -EINVAL;
+-		}
+-	}
++	ret = ds1307_check_voltage_lost(ds1307);
++	if (ret)
++		return ret;
+ 
+ 	/* read the RTC date and time registers all at once */
+ 	ret = regmap_bulk_read(ds1307->regmap, chip->offset, regs,
+@@ -397,15 +468,9 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 		return result;
+ 	}
+ 
+-	if (ds1307->type == rx_8130) {
+-		/* clear Voltage Loss Flag as data is available now */
+-		result = regmap_write(ds1307->regmap, RX8130_REG_FLAG,
+-				      ~(u8)RX8130_REG_FLAG_VLF);
+-		if (result) {
+-			dev_err(dev, "%s error %d\n", "write", result);
+-			return result;
+-		}
+-	}
++	result =  ds1307_clear_voltage_lost(ds1307);
++	if (result)
++		return result;
+ 
+ 	return 0;
+ }
+@@ -541,6 +606,174 @@ static u8 do_trickle_setup_ds1339(struct ds1307 *ds1307, u32 ohms, bool diode)
+ 	return setup;
+ }
+ 
++static u8 do_trickle_setup_rx8111(struct ds1307 *ds1307, u32 ohms, bool diode)
++{
++	/* make sure that the backup battery is enabled */
++	u8 setup = RX8111_PSC_SMP_INIEN;
++
++	if (diode)
++		setup |= RX8111_PSC_SMP_CHGEN;
++
++	return setup;
++}
++
++static irqreturn_t rx8111_irq(int irq, void *dev_id)
++{
++	struct ds1307 *ds1307 = dev_id;
++	irqreturn_t result = IRQ_NONE;
++	int ret;
++	u8 ctl[2];
++	u8 flags = 0;
++
++	rtc_lock(ds1307->rtc);
++
++	/* Read flag and control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8111_REG_FLAG, ctl,
++			       sizeof(ctl));
++	if (ret < 0)
++		goto out;
++
++	if (ctl[0] & RX8111_REG_FLAG_AF) {
++		result = IRQ_HANDLED;
++		flags |= RTC_AF; /* Alarm */
++		ctl[1] &= ~RX8111_REG_CONTROL_AIE;
++	}
++	/*
++	 * If an interrupt occurred that we cannot process, we'll have to turn
++	 * it off, otherwise we'd be called again and again.
++	 */
++	if (ctl[0] & RX8111_REG_FLAG_UF) {
++		result = IRQ_HANDLED;
++		ctl[1] &= ~RX8111_REG_CONTROL_UIE;
++	}
++	if (ctl[0] & RX8111_REG_FLAG_TF) {
++		result = IRQ_HANDLED;
++		ctl[1] &= ~RX8111_REG_CONTROL_TIE;
++	}
++	if (ctl[0] & RX8111_REG_FLAG_EVF) {
++		result = IRQ_HANDLED;
++		ctl[1] &= ~RX8111_REG_CONTROL_EIE;
++	}
++	/* Clear all flags */
++	ctl[0] &= ~(RX8111_REG_FLAG_UF | RX8111_REG_FLAG_TF |
++		    RX8111_REG_FLAG_AF | RX8111_REG_FLAG_EVF);
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8111_REG_FLAG, ctl,
++				sizeof(ctl));
++	if (ret < 0)
++		goto out;
++
++	rtc_update_irq(ds1307->rtc, 1, flags | RTC_IRQF);
++
++out:
++	rtc_unlock(ds1307->rtc);
++
++	return result;
++}
++
++static int rx8111_read_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	u8 ald[3], ctl[2];
++	int ret;
++
++	/* Read alarm registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8130_REG_ALARM_MIN, ald,
++			       sizeof(ald));
++	if (ret < 0)
++		return ret;
++
++	/* Read flag and control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8111_REG_FLAG, ctl,
++			       sizeof(ctl));
++	if (ret < 0)
++		return ret;
++
++	t->enabled = !!(ctl[1] & RX8111_REG_CONTROL_AIE);
++	t->pending = !!(ctl[0] & RX8111_REG_FLAG_AF);
++
++	/* Report alarm 0 time assuming 24-hour and day-of-month modes. */
++	t->time.tm_sec = -1;
++	t->time.tm_min = bcd2bin(ald[0] & 0x7f);
++	t->time.tm_hour = bcd2bin(ald[1] & 0x7f);
++	t->time.tm_wday = -1;
++	t->time.tm_mday = bcd2bin(ald[2] & 0x7f);
++	t->time.tm_mon = -1;
++	t->time.tm_year = -1;
++	t->time.tm_yday = -1;
++	t->time.tm_isdst = -1;
++
++	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d enabled=%d\n",
++		__func__, t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
++		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon, t->enabled);
++
++	return 0;
++}
++
++static int rx8111_set_alarm(struct device *dev, struct rtc_wkalrm *t)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	u8 ald[3], ctl[3];
++	int ret;
++
++	dev_dbg(dev, "%s, sec=%d min=%d hour=%d wday=%d mday=%d mon=%d "
++		"enabled=%d pending=%d\n", __func__,
++		t->time.tm_sec, t->time.tm_min, t->time.tm_hour,
++		t->time.tm_wday, t->time.tm_mday, t->time.tm_mon,
++		t->enabled, t->pending);
++
++	/* Read control registers. */
++	ret = regmap_bulk_read(ds1307->regmap, RX8111_REG_EXTENSION, ctl,
++			       sizeof(ctl));
++	if (ret < 0)
++		return ret;
++
++	ctl[0] &= RX8111_REG_EXTENSION_WADA;
++	ctl[1] &= ~RX8111_REG_FLAG_AF;
++	ctl[2] &= ~RX8111_REG_CONTROL_AIE;
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8111_REG_EXTENSION, ctl,
++				sizeof(ctl));
++	if (ret < 0)
++		return ret;
++
++	/* Hardware alarm precision is 1 minute! */
++	ald[0] = bin2bcd(t->time.tm_min);
++	ald[1] = bin2bcd(t->time.tm_hour);
++	ald[2] = bin2bcd(t->time.tm_mday);
++
++	ret = regmap_bulk_write(ds1307->regmap, RX8130_REG_ALARM_MIN, ald,
++				sizeof(ald));
++	if (ret < 0)
++		return ret;
++
++	if (!t->enabled)
++		return 0;
++
++	ctl[2] |= RX8111_REG_CONTROL_AIE;
++
++	return regmap_write(ds1307->regmap, RX8111_REG_CONTROL, ctl[2]);
++}
++
++static int rx8111_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct ds1307 *ds1307 = dev_get_drvdata(dev);
++	int ret, reg;
++
++	ret = regmap_read(ds1307->regmap, RX8111_REG_CONTROL, &reg);
++	if (ret < 0)
++		return ret;
++
++	if (enabled)
++		reg |= RX8111_REG_CONTROL_AIE;
++	else
++		reg &= ~RX8111_REG_CONTROL_AIE;
++
++	dev_dbg(dev, "%s, enable=%u, reg=0x%x\n", __func__, enabled, reg);
++
++	return regmap_write(ds1307->regmap, RX8111_REG_CONTROL, reg);
++}
++
+ static u8 do_trickle_setup_rx8130(struct ds1307 *ds1307, u32 ohms, bool diode)
+ {
+ 	/* make sure that the backup battery is enabled */
+@@ -943,6 +1176,14 @@ static const struct rtc_class_ops rx8130_rtc_ops = {
+ 	.alarm_irq_enable = rx8130_alarm_irq_enable,
+ };
+ 
++static const struct rtc_class_ops rx8111_rtc_ops = {
++	.read_time      = ds1307_get_time,
++	.set_time       = ds1307_set_time,
++	.read_alarm     = rx8111_read_alarm,
++	.set_alarm      = rx8111_set_alarm,
++	.alarm_irq_enable = rx8111_alarm_irq_enable,
++};
++
+ static const struct rtc_class_ops mcp794xx_rtc_ops = {
+ 	.read_time      = ds1307_get_time,
+ 	.set_time       = ds1307_set_time,
+@@ -1012,6 +1253,16 @@ static const struct chip_desc chips[last_ds_type] = {
+ 		.century_bit	= DS1337_BIT_CENTURY,
+ 		.bbsqi_bit	= DS3231_BIT_BBSQW,
+ 	},
++	[rx_8111] = {
++		.alarm		= 1,
++		.nvram_offset	= 0x40,
++		.nvram_size	= 0x40,	/* 0x40 .. 0x7F is user RAM */
++		.offset		= 0x10,
++		.irq_handler = rx8111_irq,
++		.rtc_ops = &rx8111_rtc_ops,
++		.trickle_charger_reg = RX8111_REG_PWR_SWITCH_CTRL,
++		.do_trickle_setup = &do_trickle_setup_rx8111,
++	},
+ 	[rx_8130] = {
+ 		.alarm		= 1,
+ 		/* this is battery backed SRAM */
+@@ -1063,6 +1314,7 @@ static const struct i2c_device_id ds1307_id[] = {
+ 	{ "pt7c4338", ds_1307 },
+ 	{ "rx8025", rx_8025 },
+ 	{ "isl12057", ds_1337 },
++	{ "rx8111", rx_8111 },
+ 	{ "rx8130", rx_8130 },
+ 	{ }
+ };
+@@ -1137,6 +1389,10 @@ static const struct of_device_id ds1307_of_match[] = {
+ 		.compatible = "isil,isl12057",
+ 		.data = (void *)ds_1337
+ 	},
++	{
++		.compatible = "epson,rx8111",
++		.data = (void *)rx_8111
++	},
+ 	{
+ 		.compatible = "epson,rx8130",
+ 		.data = (void *)rx_8130
+@@ -1880,6 +2136,12 @@ static int ds1307_probe(struct i2c_client *client,
+ 				     DS1307_REG_HOUR << 4 | 0x08, hour);
+ 		}
+ 		break;
++	case rx_8111:
++		/* Use memory as user RAM */
++		regmap_write(ds1307->regmap, RX8111_REG_TIME_STAMP_BUF_CTRL, 0);
++		/* Disable timer, events, frequency output */
++		regmap_write(ds1307->regmap, RX8111_REG_EXTENSION, 0xc8);
++		break;
+ 	case ds_1388:
+ 		err = regmap_read(ds1307->regmap, DS1388_REG_CONTROL, &tmp);
+ 		if (err) {
+@@ -1955,7 +2217,7 @@ static int ds1307_probe(struct i2c_client *client,
+ 		dev_info(ds1307->dev,
+ 			 "'wakeup-source' is set, request for an IRQ is disabled!\n");
+ 		/* We cannot support UIE mode if we do not have an IRQ line */
+-		clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, ds1307->rtc->features);
++		ds1307->rtc->uie_unsupported = 1;
+ 	}
+ 
+ 	if (want_irq) {
+-- 
+2.17.1
+
