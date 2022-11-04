@@ -2,39 +2,45 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83DB5C43217
-	for <linux-rtc@archiver.kernel.org>; Fri,  4 Nov 2022 16:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC8D6C41535
+	for <linux-rtc@archiver.kernel.org>; Fri,  4 Nov 2022 16:52:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232079AbiKDQAN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 4 Nov 2022 12:00:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36008 "EHLO
+        id S232007AbiKDQwC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 4 Nov 2022 12:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231990AbiKDQAM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Nov 2022 12:00:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7B131230;
-        Fri,  4 Nov 2022 09:00:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B0F262271;
-        Fri,  4 Nov 2022 16:00:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407C5C433C1;
-        Fri,  4 Nov 2022 15:59:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667577610;
-        bh=RnKpU/hTdTSmTNhPFE1pRi4HN2+uJR5IYJ3mHMOQJ94=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cT/Z80DQRnPv/70/29SwYeenhOJLyjbBPUFlgfpd/AZinAJl0ffseRleU9nuJBUko
-         sIKZREqhjpM5ixmbGPtno+npoo5AfZQueFrKX4MHj5HbO6032QcomMPEs11RxlCRCF
-         +npEC1nMjw2yzXE3+8fu/b6DX5Zyh1ekZsGoJSUiBNkV8rAVlWCjALi+TPQALz5yLf
-         8JmAJZSyXbUsqNPG3SJPuUdwaXQ/YK17sNKIv6mAuSRsBddzrpVxhgHxOUN/vVDF21
-         VhZaoe2BNXMOANIoVRwbo95TtqPu/Q5GIO4aUt0cX2VGbao265lJ1lyL1fG/C3KEu+
-         lOiIL5YO6XPRw==
-Date:   Fri, 4 Nov 2022 15:59:53 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Maxime Ripard <maxime@cerno.tech>
-Cc:     Stephen Boyd <sboyd@kernel.org>,
+        with ESMTP id S232093AbiKDQvl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 4 Nov 2022 12:51:41 -0400
+X-Greylist: delayed 248 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 04 Nov 2022 09:49:49 PDT
+Received: from vern.gendns.com (vern.gendns.com [98.142.107.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9374D42F46;
+        Fri,  4 Nov 2022 09:49:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=lechnology.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=/fSoTUtqLSMP2KfCqxLZIKji3GOepn9Xc93RPyjSVkg=; b=S05yN9/OkId9ymzRJ4dCjcPWLQ
+        7kS+7hwLHIGVXlHp7W14BxEpjdI4ntV02EjHSD7RVjfxzjyZZY+kvQZZx58NMhQA3G5XgkIRxucIi
+        1OotghPODhkcufNUd5I3CGkJL57YrmUvR1N06/jUXH2swC2CkuimIhdic8beAfGSReYdk0zY/yiuZ
+        yCoOy4drXYmkZQ1P6bLMxXp+heS5TEP3UnHMbT+naZWwnajVpJ4cAXNOiBZHJHsv1ZCK1dTFhnhcE
+        kQfJJLIU0/MUGSPFRmI/cJ4R007YPo4eHbdvB68luhk9bsDRd+9PwexE0o4g4q5uI6q1mQphZaEQ8
+        PyW6kaVA==;
+Received: from ip98-183-112-30.ok.ok.cox.net ([98.183.112.30]:33812 helo=[192.168.0.134])
+        by vern.gendns.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <david@lechnology.com>)
+        id 1oqzsl-00Ciq9-V8;
+        Fri, 04 Nov 2022 12:49:41 -0400
+Message-ID: <6296d944-e03d-6f2b-48b1-3dad78e3c89d@lechnology.com>
+Date:   Fri, 4 Nov 2022 11:49:34 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH v2 54/65] clk: da8xx: clk48: Switch to determine_rate
+Content-Language: en-US
+To:     Maxime Ripard <maxime@cerno.tech>, Stephen Boyd <sboyd@kernel.org>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         Chen-Yu Tsai <wens@csie.org>, Daniel Vetter <daniel@ffwll.ch>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
@@ -49,7 +55,7 @@ Cc:     Stephen Boyd <sboyd@kernel.org>,
         Paul Cercueil <paul@crapouillou.net>,
         Chunyan Zhang <zhang.lyra@gmail.com>,
         Manivannan Sadhasivam <mani@kernel.org>,
-        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>,
         Jonathan Hunter <jonathanh@nvidia.com>,
         Abel Vesa <abelvesa@kernel.org>,
         Charles Keepax <ckeepax@opensource.cirrus.com>,
@@ -74,11 +80,11 @@ Cc:     Stephen Boyd <sboyd@kernel.org>,
         Jernej Skrabec <jernej.skrabec@gmail.com>,
         Pengutronix Kernel Team <kernel@pengutronix.de>,
         Baolin Wang <baolin.wang@linux.alibaba.com>,
-        David Lechner <david@lechnology.com>,
         Sascha Hauer <s.hauer@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
         Max Filippov <jcmvbkbc@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     linux-stm32@st-md-mailman.stormreply.com,
         alsa-devel@alsa-project.org, linux-mediatek@lists.infradead.org,
         linux-phy@lists.infradead.org, linux-mips@vger.kernel.org,
         linux-renesas-soc@vger.kernel.org,
@@ -89,53 +95,93 @@ Cc:     Stephen Boyd <sboyd@kernel.org>,
         linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
         dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH v2 43/65] ASoC: tlv320aic32x4: Add a determine_rate hook
-Message-ID: <Y2U2+ePwRieYkNjv@sirena.org.uk>
 References: <20221018-clk-range-checks-fixes-v2-0-f6736dec138e@cerno.tech>
- <20221018-clk-range-checks-fixes-v2-43-f6736dec138e@cerno.tech>
- <Y2UzdYyjgahJsbHg@sirena.org.uk>
- <20221104155123.qomguvthehnogkdd@houat>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="UFrR3s30/s3KKRzK"
-Content-Disposition: inline
-In-Reply-To: <20221104155123.qomguvthehnogkdd@houat>
-X-Cookie: Quack!
+ <20221018-clk-range-checks-fixes-v2-54-f6736dec138e@cerno.tech>
+From:   David Lechner <david@lechnology.com>
+In-Reply-To: <20221018-clk-range-checks-fixes-v2-54-f6736dec138e@cerno.tech>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - vern.gendns.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lechnology.com
+X-Get-Message-Sender-Via: vern.gendns.com: authenticated_id: davidmain+lechnology.com/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: vern.gendns.com: davidmain@lechnology.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On 11/4/22 8:18 AM, Maxime Ripard wrote:
+> The TI DA8xx USB0 clk48 clocks implements a mux with a set_parent
+> hook, but doesn't provide a determine_rate implementation.
+> 
+> This is a bit odd, since set_parent() is there to, as its name implies,
+> change the parent of a clock. However, the most likely candidate to
+> trigger that parent change is a call to clk_set_rate(), with
+> determine_rate() figuring out which parent is the best suited for a
+> given rate.
+> 
+> The other trigger would be a call to clk_set_parent(), but it's far less
+> used, and it doesn't look like there's any obvious user for that clock.
+> 
+> So, the set_parent hook is effectively unused, possibly because of an
+> oversight. However, it could also be an explicit decision by the
+> original author to avoid any reparenting but through an explicit call to
+> clk_set_parent().
+> 
+> The driver does implement round_rate() though, which means that we can
+> change the rate of the clock, but we will never get to change the
+> parent.
+> 
+> However, It's hard to tell whether it's been done on purpose or not.
+> 
+> Since we'll start mandating a determine_rate() implementation, let's
+> convert the round_rate() implementation to a determine_rate(), which
+> will also make the current behavior explicit. And if it was an
+> oversight, the clock behaviour can be adjusted later on.
 
---UFrR3s30/s3KKRzK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think this one should be the same as the clk:davinci changes and
+not allow re-parenting. Since this is a USB 48MHz PHY clock, a rate
+change will never be requested.
 
-On Fri, Nov 04, 2022 at 04:51:23PM +0100, Maxime Ripard wrote:
+> 
+> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+> ---
+>   drivers/clk/davinci/da8xx-cfgchip.c | 10 ++++++----
+>   1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/clk/davinci/da8xx-cfgchip.c b/drivers/clk/davinci/da8xx-cfgchip.c
+> index 4c1cc59bba53..f60c97091818 100644
+> --- a/drivers/clk/davinci/da8xx-cfgchip.c
+> +++ b/drivers/clk/davinci/da8xx-cfgchip.c
+> @@ -462,10 +462,12 @@ static unsigned long da8xx_usb0_clk48_recalc_rate(struct clk_hw *hw,
+>   	return 48000000;
+>   }
+>   
+> -static long da8xx_usb0_clk48_round_rate(struct clk_hw *hw, unsigned long rate,
+> -					unsigned long *parent_rate)
+> +static int da8xx_usb0_clk48_determine_rate(struct clk_hw *hw,
+> +					   struct clk_rate_request *req)
+>   {
+> -	return 48000000;
+> +	req->rate = 48000000;
+> +
+> +	return 0;
+>   }
+>   
+>   static int da8xx_usb0_clk48_set_parent(struct clk_hw *hw, u8 index)
+> @@ -494,7 +496,7 @@ static const struct clk_ops da8xx_usb0_clk48_ops = {
+>   	.disable	= da8xx_usb0_clk48_disable,
+>   	.is_enabled	= da8xx_usb0_clk48_is_enabled,
+>   	.recalc_rate	= da8xx_usb0_clk48_recalc_rate,
+> -	.round_rate	= da8xx_usb0_clk48_round_rate,
+> +	.determine_rate	= da8xx_usb0_clk48_determine_rate,
+>   	.set_parent	= da8xx_usb0_clk48_set_parent,
+>   	.get_parent	= da8xx_usb0_clk48_get_parent,
+>   };
+> 
 
-> Just filling determine_rate if it's missing with
-> __clk_mux_determine_rate will possibly pick different parents, and I'm
-> fairly certain that this have never been tested on most platforms, and
-> will be completely broken. And I don't really want to play a game of
-> whack-a-mole adding that flag everywhere it turns out it's broken.
-
-Well, hopefully everyone for whom it's an issue currently will be
-objecting to this version of the change anyway so we'll either know
-where to set the flag or we'll get the whack-a-mole with the series
-being merged?
-
---UFrR3s30/s3KKRzK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmNlNvgACgkQJNaLcl1U
-h9CDMAf+IBF/7wHY1CiObYqxme229wA2t2WnnYY98dUUNS5r9zuNUi7juhvrvn+E
-VFS2XsBkk6YvHvT2mQdVWxnTb3suMHPfHzr2euHUVwNVevnBNKDVYp8nlYmyRSUC
-orLXibEBBMbA69rPzQyaFqZHj17zEyWQvHSrWk44MnQJH2f7JFEmcLPXgug1dpsP
-mmWyfYnKKlRXMqDPkJ3ozY2AaABQkWdk64ke2unO7z9M7ySybhybPHBibISAn/WA
-8mQ7NgbHPzpVnTCfrRwSEd05eCvJaEacBYFByW87lEEEtfxwwJsXSZCJpmc9ZVPm
-WTCliiQC4/Pd0EJKpPQCXYinp/27fw==
-=2DXe
------END PGP SIGNATURE-----
-
---UFrR3s30/s3KKRzK--
