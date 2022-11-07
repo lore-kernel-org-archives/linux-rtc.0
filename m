@@ -2,97 +2,95 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65F2CC433FE
-	for <linux-rtc@archiver.kernel.org>; Mon,  7 Nov 2022 09:14:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7005DC433FE
+	for <linux-rtc@archiver.kernel.org>; Mon,  7 Nov 2022 09:26:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231601AbiKGJOA (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 7 Nov 2022 04:14:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42424 "EHLO
+        id S230426AbiKGJ0m (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 7 Nov 2022 04:26:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231597AbiKGJN7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Nov 2022 04:13:59 -0500
-X-Greylist: delayed 1178 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 07 Nov 2022 01:13:56 PST
-Received: from spamfilter04.delta.nl (spamfilter04.delta.nl [217.102.255.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767E71CC
-        for <linux-rtc@vger.kernel.org>; Mon,  7 Nov 2022 01:13:56 -0800 (PST)
-Received: from host-ubmmyvj.static.zeelandnet.nl ([217.102.255.198] helo=mail.zeelandnet.nl)
-        by spamfilter04.delta.nl with esmtp (Exim 4.92)
-        (envelope-from <mike.looijmans@topic.nl>)
-        id 1orxtj-00016D-V4; Mon, 07 Nov 2022 09:54:33 +0100
-X-Sender-IP: 204.168.188.16
-Received: from phenom.domain_not_set.invalid (016-188-168-204.dynamic.caiway.nl [204.168.188.16])
-        (Authenticated sender: glasveze@delta.nl)
-        by mail.zeelandnet.nl (Postfix) with ESMTPA;
-        Mon,  7 Nov 2022 09:54:08 +0100 (CET)
-From:   Mike Looijmans <mike.looijmans@topic.nl>
-To:     linux-rtc@vger.kernel.org
-Cc:     Mike Looijmans <mike.looijmans@topic.nl>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/2] dt-bindings: rtc: ds1307: Add support for Epson RX8111
-Date:   Mon,  7 Nov 2022 09:54:07 +0100
-Message-Id: <20221107085408.28341-1-mike.looijmans@topic.nl>
-X-Mailer: git-send-email 2.17.1
-X-Originating-IP: 217.102.255.198
-X-DELTA-Domain: zeelandnet.nl
-X-DELTA-Username: 217.102.255.198
-Authentication-Results: delta.nl; auth=pass smtp.auth=217.102.255.198@zeelandnet.nl
-X-DELTA-Outgoing-Class: ham
-X-DELTA-Outgoing-Evidence: SB/global_tokens (0.00272519686927)
-X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT84HAmXDrak62ISD7MDA5A7PUtbdvnXkggZ
- 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5wqSBOxlRVmV45FJ8CYZCUIt8C9mOBdONdnsxgsk1D2pwpi
- 79/9lCWegUcH0YAeiESZu3hhVxUr+XbzYNuhZTyMN2jRpXv406oGDMCZBpfLj6tXYKbjfBt0vNkw
- cgcqpVi2EeDr8t3Z6zKdUQQxqR+SNjz3rkBrmCeUsHTfzqlbREQW59v6OzLaYvRKiPHtemyFp+Fb
- q4/dza6vunvz714/oUhDTJc8JF+XcA6Coahq6p9OU3mS/dDcjm11n8LBBaHmFYGlZcUx+feeIofU
- vaKO2wvHbfwld3xCwVQvwEuT74WwDyq/Nv4s81lckG+lIDvnx8yeplRO3sLIqUlSH7OGQQJWpNFf
- IrI9o3HL432ZkXLwENyZMPyeFLnoLT8oU4J5ip9csxSp5vs/cqLV2uCxa1gbjNr6zuq/msj6Lhvp
- vuDB+q8tdeTHeaut22yP2PJxAZuIytYBPaHe1r36ekBjoLoOc/cuTx5izBB4vDJo75HWAoddgXQw
- hX0bgQM/NQzAznOAUImGZ//xcQKfbL7egPacf1SEo03G99/UIdTGSFjTsZRW5VqyvaeMWA2+RBXp
- D59QdM/f9KJhSSfjTAUyLIywuTEI0kISK7u1AZUYs3NofNjT1oDBvJQtMIHPcVtYe7ERN3HHxFjX
- YLlttEV1+/5W5+zU8lWY6rju5hxPyAc8I07FTFcjpdfX/Jcr87ciF4YonbkVO2PUjQCgejWG/gXy
- CqWmPgffPsl4eG9LUHZn0HrRDnLnZ852fb3E4hoxzFQacs7vQRDI1X8MhtLrVdedPS0ZKWYGDxP4
- bm0tXIBvHwWS2MhtCcgqeX9Zchdoh9VoIekQHpwUfpYnEThmw/mwIQ9kzAAqBOEV406mI5N7efIT
- B+/xrftEfewwGTqvpVFKdMPCmCxgDmATtnDZnWrF+C9myP/AxQ/B0u0sl2oeA9rb47uAGdIJwe/d
- DL921bkn7bebrPKsrBkER41T0z6bhalFEM/pjPCQA+BAlgSU/nzBkyxPcgBtPVrWxiKQanUl0Ewx
- po60Ztqjl+7BLqqughUzQLrV0KR+CasIdaXCBfrmeYK8zgsf5hgnJcP/h8APlf2P6dpQsddkjLHr
- eL7FwJbXl3T/igMoCpp5k+ewp8wxtcXgs9dII53Mh+MSuRiGDjN98X3Nl4UFl9YcoKxhfyAlRS/e
- WdITuOAzdpAv9Li9J+PnOe4auO+Cjkw6V5e2HJtcKidgYBP/KMQZZJx675xB/yl1ErnBxiCZrSRW
- 4RPBB8BFstI1Wbmb/HHdhFxMiLYEP2q9G4ugDu0B5/eYuJyja1pmN+nUwcYeaQ==
-X-Report-Abuse-To: spam@spamfilter03.delta.nl
+        with ESMTP id S231865AbiKGJ0J (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 7 Nov 2022 04:26:09 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B6217884;
+        Mon,  7 Nov 2022 01:26:02 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id y203so10052379pfb.4;
+        Mon, 07 Nov 2022 01:26:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GRMJX6Xs+6P5gT0MFFl6yjITSLjz1MHRoDlRkuQ9VLY=;
+        b=Y4FOXWta3MnzzK0T7UKiHh66WuhZsN/61y79PVRxiNk0Clovk3k9SCy9ykUfCpkbV7
+         tsW8PVWtmz/3BN2qGHaNYKCqPjbaiVjL1hwW0de1pcI/d0q9xWKFjz2chl4rT3dgzPP0
+         nOp7m0yms4k0Yz7cXAkh/Ir8t15hpEpiy4YMmk0ae3/spzMlSjFQZ5ULW3aQGMR6Y7UJ
+         T6ZRlMhMU5uUyYgnXqY1kKX0K/GSJyGQ5QPEZdhBvqLzJVuwXs19MKTxXaGB4cLj5iOh
+         dEWVsrskTc28fdiiFMOahL6m+Ivmda0CYOmJez5nnVNCmQTj7v/VWuO02tAWdlJE6Oum
+         5AWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GRMJX6Xs+6P5gT0MFFl6yjITSLjz1MHRoDlRkuQ9VLY=;
+        b=r6LbxhXmdgZiSh0T5u4sv6VPNvpCbg4M2iECX6FEPoTB9+eekWWHGd/+bAMWhsoTDy
+         fQm9/alqmN5HlHWqgR1aUVzzhstkNhuKm0J5F9M4MuW3LjPslWwiI4ItZBSAPt4K6Wol
+         dnUSisr52P5YceJTHVY+Dm0N8Yzfdzn99Xhu9Ael+3JE1oP3xvcLAv0PHEOl/894XGj7
+         3OAAK154UmikED2dI1vqg0wovJRBt7ituD4Lvrpbb6PZMxe6onvmyW1ggXshMjLUrV7l
+         wPvLGdGRjBmkbPithDFYyPZDQuHBRomrTR79uq0LWKTeeYXgDssPHe2UXr+B9t40gMV/
+         3DYQ==
+X-Gm-Message-State: ACrzQf3SG/nAuMDcaotZU6Fok/YWnMyT6qLuClxrRv+k3GVVMCK688bU
+        3HTy8zl5R3CGO2sZWbt4JH0=
+X-Google-Smtp-Source: AMsMyM7WCvxaYbZZWCIqjl7at01O3XeK9tiFFugFtwBjpyqx7mxgWBqDhmCv5eflpl8jqSEctDxF+g==
+X-Received: by 2002:a63:1303:0:b0:46f:b44b:3519 with SMTP id i3-20020a631303000000b0046fb44b3519mr36221240pgl.278.1667813162096;
+        Mon, 07 Nov 2022 01:26:02 -0800 (PST)
+Received: from localhost.localdomain ([43.132.141.3])
+        by smtp.gmail.com with ESMTPSA id q8-20020a170902a3c800b00186ffe62502sm4474361plb.254.2022.11.07.01.26.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Nov 2022 01:26:01 -0800 (PST)
+From:   zys.zljxml@gmail.com
+To:     miquel.raynal@bootlin.com, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com, michel.pollet@bp.renesas.com
+Cc:     linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yushan Zhou <katrinzhou@tencent.com>
+Subject: [PATCH] rtc: rzn1: Check return value in rzn1_rtc_probe
+Date:   Mon,  7 Nov 2022 17:25:44 +0800
+Message-Id: <20221107092544.3721053-1-zys.zljxml@gmail.com>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The rx_8111 is quite similar to the rx_8030. This adds support for this
-chip to the ds1307 driver.
+From: Yushan Zhou <katrinzhou@tencent.com>
 
-This adds the entry to the devicetree bindings.
+The rzn1_rtc_probe() function utilizes devm_pm_runtime_enable()
+but wasn't checking the return value. Fix it by adding missing
+check.
 
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: deeb4b5393e1 ("rtc: rzn1: Add new RTC driver")
+
+Signed-off-by: Yushan Zhou <katrinzhou@tencent.com>
 ---
+ drivers/rtc/rtc-rzn1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-(no changes since v1)
-
- Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml b/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-index 98d10e680144..a9590da64b84 100644
---- a/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-+++ b/Documentation/devicetree/bindings/rtc/rtc-ds1307.yaml
-@@ -30,6 +30,7 @@ properties:
-           - pericom,pt7c4338
-           - epson,rx8025
-           - isil,isl12057
-+          - epson,rx8111
-           - epson,rx8130
+diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
+index ac788799c8e3..0d36bc50197c 100644
+--- a/drivers/rtc/rtc-rzn1.c
++++ b/drivers/rtc/rtc-rzn1.c
+@@ -355,7 +355,9 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
+ 	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
+ 	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
  
-       - items:
+-	devm_pm_runtime_enable(&pdev->dev);
++	ret = devm_pm_runtime_enable(&pdev->dev);
++	if (ret < 0)
++		return ret;
+ 	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0)
+ 		return ret;
 -- 
-2.17.1
+2.27.0
 
