@@ -2,149 +2,117 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A592C43217
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Nov 2022 10:55:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB00C43219
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Nov 2022 12:03:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233848AbiKHKzn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Nov 2022 05:55:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
+        id S234050AbiKHMDF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Nov 2022 07:03:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233893AbiKHKza (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Nov 2022 05:55:30 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4C7E048776;
-        Tue,  8 Nov 2022 02:55:28 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F078523A;
-        Tue,  8 Nov 2022 02:55:33 -0800 (PST)
-Received: from monolith.localdoman (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 472ED3F534;
-        Tue,  8 Nov 2022 02:55:26 -0800 (PST)
-Date:   Tue, 8 Nov 2022 10:55:15 +0000
-From:   Alexandru Elisei <alexandru.elisei@arm.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ardb@kernel.org, linux-efi@vger.kernel.org,
-        catalin.marinas@arm.com, will@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [BUG] rtc-efi: Error in efi.get_time() spams dmesg with error message
-Message-ID: <Y2o1hdZK9GGDVJsS@monolith.localdoman>
+        with ESMTP id S234028AbiKHMDD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Nov 2022 07:03:03 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96129240A0
+        for <linux-rtc@vger.kernel.org>; Tue,  8 Nov 2022 04:03:00 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id j5-20020a05600c410500b003cfa9c0ea76so3510675wmi.3
+        for <linux-rtc@vger.kernel.org>; Tue, 08 Nov 2022 04:03:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BCCT8tgaqG5OldHtlkklSVmkDx8WUdXNiCaVQRja2yA=;
+        b=U7WGio8V1prSmN3Mln9Ld/PbUtMtK4E3C/I7QfP9z+GltDmjDNFwK6sGRVhnYuN3nE
+         tjsf44EHUhh6ZN8skkDpgWLw6Ombd4+M1+71FpTCp9L/BmJ096VP1RsZVjruvbUJgsaj
+         uZz3X+nnSu7hY658FwKwMmmn+PqNTcu/lCtwD6+QgRYwpBfC8lSDKSdVDxjrK8V9DhQq
+         S63vTnkE0uEI7ii3pM95+VpzrI2S+ltbMLOk4M0Vg01QdiJpmvPU/F+jQNGSrgZVMRPP
+         ST1wRarcRgV0fF4Qf/bTBSctKDh1gO/Y/NZTbCnhYpty7Rei6rihU5MoAC1JLbLgCj/5
+         600A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BCCT8tgaqG5OldHtlkklSVmkDx8WUdXNiCaVQRja2yA=;
+        b=Ogqay4oAUKs5em9CahdJEaO3jLdmxEXkeT+h+htDCA8CNae5ntLKi6yu9fbDGWDloU
+         qV2b/CAojVx1hgKwQGwhFB/tT6D6DJc6aZmoOPPUSAOMpCblE5yokNkWIjnirO6mx8N0
+         cWhhzkXexcXkOuZU6Ax/eW0tYj2Phf5NEIRE2ZcdrGKumeWe9jx8rdExIdPTfNVhAyGj
+         9t4U82M22oyNH8R7x7ccNoGvnYeJeS3ufwlW3FvqdsB1msjrRfV9FdI9+loFzGnU1d6/
+         y/KlwcGutUF2N0qLqky13Mq3Rob/BLnSWY82WhIzYFqL4q55WrhYe8wUr7Ykyp2JcAqP
+         5ATA==
+X-Gm-Message-State: ACrzQf2PyhzIgvDdKd2nCUVPFnKZunW76r4ylRrC2UcM7j8gDpCOBLKf
+        u95zWDb01a/rBR0/dGgxkE/OMlM7V+bi/w==
+X-Google-Smtp-Source: AMsMyM7V66Sx1uuIUNwAZdTcklqiRvYcgNuFIuC0qulmR6/MvfqNgkKfUB/Lx5hjVEJoOBoCq4E6Ug==
+X-Received: by 2002:a7b:c5d6:0:b0:3c6:f970:e755 with SMTP id n22-20020a7bc5d6000000b003c6f970e755mr36584276wmk.132.1667908979158;
+        Tue, 08 Nov 2022 04:02:59 -0800 (PST)
+Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
+        by smtp.gmail.com with ESMTPSA id w2-20020a5d6802000000b0023662245d3csm10056034wru.95.2022.11.08.04.02.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Nov 2022 04:02:58 -0800 (PST)
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Date:   Tue, 08 Nov 2022 13:02:53 +0100
+Subject: [PATCH v5 1/2] dt-bindings: rtc: qcom-pm8xxx: document qcom,pm8921-rtc as
+ fallback of qcom,pm8018-rtc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v5-1-bbb120c6766a@linaro.org>
+References: <20220928-mdm9615-dt-schema-fixes-v5-0-bbb120c6766a@linaro.org>
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v5-0-bbb120c6766a@linaro.org>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Satya Priya <quic_c_skakit@quicinc.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Andy Gross <agross@kernel.org>
+Cc:     Neil Armstrong <neil.armstrong@linaro.org>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-arm-msm@vger.kernel.org
+X-Mailer: b4 0.10.1
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+The PM8018 RTC is used as compatible with PM8921 RTC on the MDM9615,
+document this situation.
 
-Commit d3549a938b73 ("efi/arm64: libstub: avoid SetVirtualAddressMap() when
-possible") exposed a firmware error on an Ampere Altra machine that was
-causing the machine to panic. Then commit 23715a26c8d8 ("arm64: efi:
-Recover from synchronous exceptions occurring in firmware") made the EFI
-exception non-fatal, and disabled runtime services when the exception
-happens. The interaction between those two patches are being discussed in a
-separate thread [1], but that should be orthogonal to this.
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+---
+ .../devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml         | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-Now efi.get_time() fails and each time an error message is printed to
-dmesg, which happens several times a second and clutters dmesg
-unnecessarily, to the point it becomes unusable.
+diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+index 23ab5bb4f395..0a7aa29563c1 100644
+--- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+@@ -11,12 +11,16 @@ maintainers:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - qcom,pm8058-rtc
+-      - qcom,pm8921-rtc
+-      - qcom,pm8941-rtc
+-      - qcom,pm8018-rtc
+-      - qcom,pmk8350-rtc
++    oneOf:
++      - enum:
++          - qcom,pm8058-rtc
++          - qcom,pm8921-rtc
++          - qcom,pm8941-rtc
++          - qcom,pmk8350-rtc
++      - items:
++          - enum:
++              - qcom,pm8018-rtc
++          - const: qcom,pm8921-rtc
+ 
+   reg:
+     minItems: 1
 
-I was wondering if it would be possible to turn dev_err() into a
-dev_WARN_ONCE() or do something to avoid this issue. Tried to replace
-dev_err() with dev_err_ratelimited(), and the error message was displayed
-less often (about once per second), but dmesg was still being cluttered.
-
-Here's a log with what is happening (the boot part of the log has been
-removed for brevity, I've kept the kernel splats for context, can provide
-full logs, kernel config, command line, etc, to reproduce it; goes without
-saying that I am willing to test the fix myself):
-
-[   55.479519] [Firmware Bug]: Unable to handle paging request in EFI runtime service
-[   55.487122] CPU: 62 PID: 9 Comm: kworker/u320:0 Tainted: G          I        6.1.0-rc4 #60
-[   55.487128] Hardware name: WIWYNN Mt.Jade Server System B81.03001.0005/Mt.Jade Motherboard, BIOS 1.08.20220218 (SCP: 1.08.20220218) 2022/02/18
-[   55.487131] Workqueue: efi_rts_wq efi_call_rts
-[   55.487158] Call trace:
-[   55.487161]  dump_backtrace.part.0+0xdc/0xf0
-[   55.487177]  show_stack+0x18/0x40
-[   55.487180]  dump_stack_lvl+0x68/0x84
-[   55.487190]  dump_stack+0x18/0x34
-[   55.487192]  efi_runtime_fixup_exception+0x74/0x88
-[   55.487199]  __do_kernel_fault+0x108/0x1b0
-[   55.487204]  do_page_fault+0xd0/0x400
-[   55.487207]  do_translation_fault+0xac/0xc0
-[   55.487209]  do_mem_abort+0x44/0x94
-[   55.487212]  el1_abort+0x40/0x6c
-[   55.487214]  el1h_64_sync_handler+0xd8/0xe4
-[   55.487218]  el1h_64_sync+0x64/0x68
-[   55.487221]  0xb7eb7ae4
-[   55.487224]  0xb7eb8668
-[   55.487225]  0xb7eb6e08
-[   55.487227]  0xb7eb68ec
-[   55.487228]  0xb7eb3824
-[   55.487230]  0xb7eb05a8
-[   55.487231]  0xb7eb12a0
-[   55.487232]  0xb7e43504
-[   55.487234]  0xb7e43650
-[   55.487235]  0xb7e482d0
-[   55.487237]  0xb7e4907c
-[   55.487238]  0xb7e49ff4
-[   55.487239]  0xb7e40888
-[   55.487241]  0xb7cb3328
-[   55.487242]  0xb7cb0674
-[   55.487243]  __efi_rt_asm_wrapper+0x54/0x70
-[   55.487246]  efi_call_rts+0x28c/0x3d0
-[   55.487249]  process_one_work+0x1d0/0x320
-[   55.487258]  worker_thread+0x14c/0x444
-[   55.487261]  kthread+0x10c/0x110
-[   55.487264]  ret_from_fork+0x10/0x20
-[   55.487268] [Firmware Bug]: Synchronous exception occurred in EFI runtime service set_time()
-[   55.495735] ------------[ cut here ]------------
-[   55.495739] WARNING: CPU: 62 PID: 9 at drivers/firmware/efi/runtime-wrappers.c:111 efi_call_virt_check_flags+0x40/0xac
-[   55.495746] Modules linked in:
-[   55.495749] CPU: 62 PID: 9 Comm: kworker/u320:0 Tainted: G          I        6.1.0-rc4 #60
-[   55.495751] Hardware name: WIWYNN Mt.Jade Server System B81.03001.0005/Mt.Jade Motherboard, BIOS 1.08.20220218 (SCP: 1.08.20220218) 2022/02/18
-[   55.495753] Workqueue: efi_rts_wq efi_call_rts
-[   55.495757] pstate: 004000c9 (nzcv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[   55.495761] pc : efi_call_virt_check_flags+0x40/0xac
-[   55.495764] lr : efi_call_rts+0x29c/0x3d0
-[   55.495767] sp : ffff80000861bd40
-[   55.495768] x29: ffff80000861bd40 x28: 0000000000000000 x27: 0000000000000000
-[   55.495772] x26: ffffb251470e9e68 x25: ffff3fff89714805 x24: 0000000000000000
-[   55.495775] x23: 0000000000000000 x22: 0000000000000000 x21: 00000000000000c0
-[   55.495778] x20: ffffb25146688de0 x19: 0000000000000000 x18: ffffffffffffffff
-[   55.495780] x17: 657320656d69746e x16: 757220494645206e x15: 6920646572727563
-[   55.495784] x14: 636f206e6f697470 x13: ffff403e40540000 x12: 0000000000001c14
-[   55.495787] x11: 000000000000095c x10: ffff403e40800000 x9 : ffff403e40540000
-[   55.495790] x8 : 00000000ffff7fff x7 : ffff403e40800000 x6 : 0000000000000000
-[   55.495792] x5 : ffff083e7fe9aaa0 x4 : 0000000000000000 x3 : 0000000000000000
-[   55.495796] x2 : 0000000000000000 x1 : ffffb25146688de0 x0 : 00000000000000c0
-[   55.495799] Call trace:
-[   55.495800]  efi_call_virt_check_flags+0x40/0xac
-[   55.495802]  efi_call_rts+0x29c/0x3d0
-[   55.495805]  process_one_work+0x1d0/0x320
-[   55.495808]  worker_thread+0x14c/0x444
-[   55.495811]  kthread+0x10c/0x110
-[   55.495814]  ret_from_fork+0x10/0x20
-[   55.495815] ---[ end trace 0000000000000000 ]---
-[   55.495818] Disabling lock debugging due to kernel taint
-[   55.495822] efi: [Firmware Bug]: IRQ flags corrupted (0x00000000=>0x000000c0) by EFI set_time
-[   55.504434] efi: EFI Runtime Services are disabled!
-[   55.504465] rtc-efi rtc-efi.0: can't read time
-[   56.479370] efi: EFI Runtime Services are disabled!
-[   56.479394] rtc-efi rtc-efi.0: can't read time
-[   56.483855] rtc-efi rtc-efi.0: can't read time
-[   56.488306] rtc-efi rtc-efi.0: can't read time
-[   57.479574] rtc-efi rtc-efi.0: can't read time
-[   57.484030] rtc-efi rtc-efi.0: can't read time
-[   57.488474] rtc-efi rtc-efi.0: can't read time
-[   58.479692] rtc-efi rtc-efi.0: can't read time
-[   58.484139] rtc-efi rtc-efi.0: can't read time
-[   58.488582] rtc-efi rtc-efi.0: can't read time
-[   59.479691] rtc-efi rtc-efi.0: can't read time
-... on, and on, on ...
-
-[1] https://lore.kernel.org/linux-arm-kernel/Y2lAB508TrrjpDPi@monolith.localdoman/
-
-Thanks,
-Alex
+-- 
+b4 0.10.1
