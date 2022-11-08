@@ -2,63 +2,62 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73A61C43217
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Nov 2022 12:03:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9091FC4332F
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Nov 2022 12:03:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbiKHMDF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Nov 2022 07:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55866 "EHLO
+        id S234056AbiKHMDG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Nov 2022 07:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233994AbiKHMDB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Nov 2022 07:03:01 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C434B23386
-        for <linux-rtc@vger.kernel.org>; Tue,  8 Nov 2022 04:02:59 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id 5so8677094wmo.1
-        for <linux-rtc@vger.kernel.org>; Tue, 08 Nov 2022 04:02:59 -0800 (PST)
+        with ESMTP id S234049AbiKHMDE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Nov 2022 07:03:04 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D08B2F390
+        for <linux-rtc@vger.kernel.org>; Tue,  8 Nov 2022 04:03:01 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id h9so20671650wrt.0
+        for <linux-rtc@vger.kernel.org>; Tue, 08 Nov 2022 04:03:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:from:to:cc:subject:date:message-id:reply-to;
-        bh=hIvdpOhjCyNiqJSBAwvQQBj8Uqill7WA0zit53y3ii8=;
-        b=KLTeW1vZJd8TnbnX06b9xU8JdQSiRABXLn7DRR6r2chkTI8Qspl6yxcGULvjrycbDj
-         KoMvgeXfTNdukowYA3AaEh9jW0oO6+6zJjlKlTngjvYFYv93shZ9F/iHLpSnHH7bSnPO
-         UCHAha/D2MeRWssidl0tuII2MaEdeXTAY7gdkV6/1ABZdhoKIDLRJQh/DLVCNAoponJP
-         VlWi/aWNX+/SG3ajPFiYzzgNGqG9owQBFRubPQ6bc7cemTRLLuKb7kAyVKgTs2xV84qR
-         2RYCUVZzSkpU/RppH6otY24vHPt3ioI9FeyCOFQ5taXOrPVzZvI+1SyLCvLdQJADO0gD
-         x2Kw==
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=34uELl7iSr0KkNMrPbDK0p3kOxj5Rp7IXkKhGBvUSAg=;
+        b=FCj0qS9DEU91XF9GU6/3CVjhV71oQF+Et5zuA/pS/cIe9ojQbZnfwNRx7EFmp7hBvG
+         TyRCjQNgGqJwe6+L75yUR/xe7XOrPKWiqXjoObsPy8JLGK40qYvnjc1orcH+YMw1nra5
+         VnFujy8cqUXcguo7JfGiJzjvSYCiAYs5auWGzE3DyUmvHeKC/v0PphLW64buuGR7QLjb
+         RZGPBBf3tWMHfKjhHPf+nkYMs7zGB/unm5MGmFBAOv6pYwO8w4b/FEAqntdZD3Lbly0J
+         sOgh7XxzZZtc+dVpWv6jzKoim1uiRNG8BzTvX2WAEZdnO2SeYqIyZI/WjITUZj0i4nC/
+         71Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:message-id:date:from:content-transfer-encoding:mime-version
-         :subject:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hIvdpOhjCyNiqJSBAwvQQBj8Uqill7WA0zit53y3ii8=;
-        b=iZabydBLeJfYSyLkDK3pNv+C22O2PjtzCOwdYaLikOf24jF3nSTp9DAtmh62UJM+kD
-         ZJJ9Ix1c5l58QnURFXm260eSX+FdzpvMju/87IRQpQLveyfia6Gs+MbI0u9nxMfxGOcX
-         dSeXUZd5i40mmMVLihApPGyXtOO3pl/2v4XHm3MvxGTrEBeo/G1NYMedLu3d+wqm4Whp
-         EGaHQHz0F0xJTiCxNEjqK7Ji85P7cKmbtL3gwE5+eAKuaYSaIrvIs+4BTbRXKk4p1wFo
-         CBcpvSUvRtYbhx1MKb0irmAXAhPyfuZcDPOM4r+Fs/bxXf5fW1hAANGCvu40Wa9CU+9D
-         pGNQ==
-X-Gm-Message-State: ACrzQf0uXCU6c61BiDps+rCCvGDajzDN2TaoAlwHaavlZsMHqp5FIvF7
-        qQ7NKwZ405BGA3NtCcvx+MisQg==
-X-Google-Smtp-Source: AMsMyM7UPWEFVXALIjatygYKPCSG4hpLFypCBxStqFtN1IpXPmGg97KLO6VUpK072PDk4houkgRRsw==
-X-Received: by 2002:a05:600c:554b:b0:3cf:84ea:3097 with SMTP id iz11-20020a05600c554b00b003cf84ea3097mr23114193wmb.100.1667908978159;
-        Tue, 08 Nov 2022 04:02:58 -0800 (PST)
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=34uELl7iSr0KkNMrPbDK0p3kOxj5Rp7IXkKhGBvUSAg=;
+        b=POfIAiaGW1+NDh9QclG1nJqA6rA7wA8J04HUoa4OEEfinjBtEiWL3i8Ss49oDLROEA
+         NHDqsCmo680iUZyM2ESashfccWgd1m03rmK2ngCJYS+Hk2dx14JUaQdIw3Af1qgcK9su
+         0cm/Jo5FgyIk6h9cbb/42fIM2cYPpxnGsQt36yFPAoCluLS+VbihpAUFQoMpC1qVtRah
+         iN8JUZJtevqZeNAKm3RQwFmGr8IVqRfzbwERLFegYgfgVBwOhDDl/Gpkb4MfjmZc5VB9
+         gsWMb0xxn4leJAmg+yugGBInDITjsObPf3F7PbmW66gf5R13W6K7V4Yveg80PKh4O81t
+         UBng==
+X-Gm-Message-State: ACrzQf1L4HHlM1EsK0gDxc4eG83XlIVEw6/qXm26dKIUAUrmIrk5ZVy6
+        tb5cPkTbmaWRuA0Nd7GcUcDAMw==
+X-Google-Smtp-Source: AMsMyM7K13gbsFzH2YQDtPN8bvUJhHqreRaknylxG4yXs1QpWmAIghwCjAVDLvh7FGZApvlAxGuW0g==
+X-Received: by 2002:a5d:52d0:0:b0:21e:4923:fa09 with SMTP id r16-20020a5d52d0000000b0021e4923fa09mr35961603wrv.244.1667908980061;
+        Tue, 08 Nov 2022 04:03:00 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id w2-20020a5d6802000000b0023662245d3csm10056034wru.95.2022.11.08.04.02.57
+        by smtp.gmail.com with ESMTPSA id w2-20020a5d6802000000b0023662245d3csm10056034wru.95.2022.11.08.04.02.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Nov 2022 04:02:57 -0800 (PST)
-Subject: [PATCH v5 0/2] arm: qcom: mdm9615: first round of bindings and DT fixes
+        Tue, 08 Nov 2022 04:02:59 -0800 (PST)
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Date:   Tue, 08 Nov 2022 13:02:54 +0100
+Subject: [PATCH v5 2/2] rtc: pm8xxx: drop unused pm8018 compatible
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-b4-tracking: H4sIAGxFamMC/43Oz2rDMAwG8FcpPk/D/532tPcoO8i20hgSB+wudJS8+8Ruo4flJD7B95OeolMr1M
- Xl9BSNttLLWjm4t5NIE9YbQcmchZZay7MeYMnL2SsH+Q49TbQgjOVBHbzPNsuUYkhBcDtiJ4gNa5q4
- X7/mmZdT6fe1ff9e2xSP6//wpkBC9OQNhjwqGj7mUrGt72u7iU9GN30Q0gwNYYwULZJ05gUyByHDkD
- Mqo3M6GWdfIHsQsgxlTDqPiCnIvx/t+/4D6D5GpZ8BAAA=
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Tue, 08 Nov 2022 13:02:52 +0100
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v5-0-bbb120c6766a@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v5-2-bbb120c6766a@linaro.org>
+References: <20220928-mdm9615-dt-schema-fixes-v5-0-bbb120c6766a@linaro.org>
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v5-0-bbb120c6766a@linaro.org>
 To:     Rob Herring <robh+dt@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -77,87 +76,28 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This is a first round of trivial bindings & DT fixes for the MDM9615 platform.
+The PM8018 compatible is always used with PM8921 fallback, so PM8018
+compatible can be safely removed from device ID table
 
-This first round focuses on trivial changes, the remaining work will
-mainly be .txt to .yaml transition of old qcom pmic & co device bindings.
-
-To: Andy Gross <agross@kernel.org>
-To: Bjorn Andersson <andersson@kernel.org>
-To: Konrad Dybcio <konrad.dybcio@somainline.org>
-To: Alessandro Zummo <a.zummo@towertech.it>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Rob Herring <robh+dt@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-To: Satya Priya <quic_c_skakit@quicinc.com>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Dependencies: None
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
-Changes in v5:
-- Removed applied patches
-- Link to v4: https://lore.kernel.org/r/20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org
+ drivers/rtc/rtc-pm8xxx.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Changes in v4:
-- patch 1: None
-- patch 2: None
-- patch 3: None
-- patch 4: None
-- patch 5: Added reviewed-by tag
-- patch 6: Fix descriptions, Added reviewed-by tags
-- patch 7: None
-- patch 8: None
-- patch 9: Added acked-by tag
-- patch 10: None
-- patch 11: None
-- Link to v3: https://lore.kernel.org/r/20220928-mdm9615-dt-schema-fixes-v3-0-531da552c354@linaro.org
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index dc6d1476baa5..716e5d9ad74d 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -461,7 +461,6 @@ static const struct pm8xxx_rtc_regs pmk8350_regs = {
+  */
+ static const struct of_device_id pm8xxx_id_table[] = {
+ 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
+-	{ .compatible = "qcom,pm8018-rtc", .data = &pm8921_regs },
+ 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
+ 	{ .compatible = "qcom,pm8941-rtc", .data = &pm8941_regs },
+ 	{ .compatible = "qcom,pmk8350-rtc", .data = &pmk8350_regs },
 
-Changes in v3:
-- Rebased on v6.1-rc1
-- patch 1: Added reviewed-by tag
-- patch 2: Fixes typo in commit msg and added precision about why MIT was selected
-- patch 3: Added reviewed-by tag
-- patch 4: None
-- patch 5: Drop second example node
-- patch 6: Drop Andy, fix interrupts desc and fix example indentation
-- patch 7: Fix commit msg wrap & add reviewed-by tag
-- patch 8: Reword commit msg & add reviewed-by tag
-- patch 9: Reword commit msg & add reviewed-by tag
-- patch 10: None
-- patch 11: Added reviewed-by tag
-- Link to v2: https://lore.kernel.org/r/20220928-mdm9615-dt-schema-fixes-v2-0-87fbeb4ae053@linaro.org
-
-Changes in v2:
-- patch 1: switch to move from swir.txt to qcom.yaml
-- patch 2: use MIT licence instead of X11 licence
-- patch 3: move reg after compatible
-- patch 4: added Krzysztof's review
-- patch 5: split into 5 changes:
-  - document qcom,pm8921 as fallback of qcom,pm8018
-  - convert qcom,pm8921-pwrkey to dt-schema
-  - document qcom,pm8921-rtc as fallback of qcom,pm8018-rtc
-  - drop unused PM8018 compatible
-  - drop unused pm8018 RTC compatible
-- patch 6: None
-- patch 7: Reworded commit log based on Dmitry's wording on similar patches
-- Link to v1: https://lore.kernel.org/r/20220928-mdm9615-dt-schema-fixes-v1-0-b6e63a7df1e8@linaro.org
-
----
-Neil Armstrong (2):
-      dt-bindings: rtc: qcom-pm8xxx: document qcom,pm8921-rtc as fallback of qcom,pm8018-rtc
-      rtc: pm8xxx: drop unused pm8018 compatible
-
- .../devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml         | 16 ++++++++++------
- drivers/rtc/rtc-pm8xxx.c                                 |  1 -
- 2 files changed, 10 insertions(+), 7 deletions(-)
----
-base-commit: 9abf2313adc1ca1b6180c508c25f22f9395cc780
-change-id: 20220928-mdm9615-dt-schema-fixes-66d4d0ccb7c7
-
-Best regards,
 -- 
-Neil Armstrong <neil.armstrong@linaro.org>
+b4 0.10.1
