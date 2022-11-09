@@ -2,257 +2,116 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE3AAC433FE
-	for <linux-rtc@archiver.kernel.org>; Wed,  9 Nov 2022 11:37:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B025C433FE
+	for <linux-rtc@archiver.kernel.org>; Wed,  9 Nov 2022 12:15:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230002AbiKILhS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 9 Nov 2022 06:37:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53264 "EHLO
+        id S229877AbiKIMPu (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 9 Nov 2022 07:15:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229885AbiKILhJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Nov 2022 06:37:09 -0500
-Received: from aposti.net (aposti.net [89.234.176.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 758A22A716;
-        Wed,  9 Nov 2022 03:37:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1667993821; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3HeCzuAd5DrGQl3yX0PoEWG+18EHx/4Mkssb32++3BI=;
-        b=WwCPTNJPOIDWtdzd5piGmEgZU4J4b1t9NVy+qRbY3+ISBvVQ6apE6t+8jx2p/zEgIxnja5
-        9nWJEIf1duGHYh5JmCtFyh2CbFVaBUveP5Si2RGhwuWsnzKNfsXmdpkN0q+yUABhtgFuRh
-        Y+C1HQZU871ihv7USL4Dk3I6J/l65gU=
-Date:   Wed, 09 Nov 2022 11:36:35 +0000
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH v2 56/65] clk: ingenic: cgu: Switch to determine_rate
-To:     Maxime Ripard <maxime@cerno.tech>
-Cc:     Stephen Boyd <sboyd@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>, Daniel Vetter <daniel@ffwll.ch>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Andreas =?iso-8859-1?q?F=E4rber?= <afaerber@suse.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        with ESMTP id S229509AbiKIMPt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 9 Nov 2022 07:15:49 -0500
+Received: from cloudserver094114.home.pl (cloudserver094114.home.pl [79.96.170.134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D07F13E9E;
+        Wed,  9 Nov 2022 04:15:47 -0800 (PST)
+Received: from localhost (127.0.0.1) (HELO v370.home.net.pl)
+ by /usr/run/smtp (/usr/run/postfix/private/idea_relay_lmtp) via UNIX with SMTP (IdeaSmtpServer 5.0.0)
+ id f64f02712e042cbc; Wed, 9 Nov 2022 13:15:44 +0100
+Received: from kreacher.localnet (unknown [213.134.163.195])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by v370.home.net.pl (Postfix) with ESMTPSA id 0EB3C66EBA7;
+        Wed,  9 Nov 2022 13:15:44 +0100 (CET)
+Authentication-Results: v370.home.net.pl; dmarc=none (p=none dis=none) header.from=rjwysocki.net
+Authentication-Results: v370.home.net.pl; spf=fail smtp.mailfrom=rjwysocki.net
+From:   "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org
+Cc:     Linux ACPI <linux-acpi@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Prashant Gaikwad <pgaikwad@nvidia.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sekhar Nori <nsekhar@ti.com>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Takashi Iwai <tiwai@suse.com>,
-        David Airlie <airlied@gmail.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        David Lechner <david@lechnology.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        alsa-devel@alsa-project.org, linux-mediatek@lists.infradead.org,
-        linux-phy@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org,
-        linux-actions@lists.infradead.org, linux-clk@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        patches@opensource.cirrus.com, linux-tegra@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Message-Id: <Z8W2LR.DTD355V5EAE02@crapouillou.net>
-In-Reply-To: <20221109105301.ueus7o3b75j5yeff@houat>
-References: <20221018-clk-range-checks-fixes-v2-0-f6736dec138e@cerno.tech>
-        <20221018-clk-range-checks-fixes-v2-56-f6736dec138e@cerno.tech>
-        <80VTKR.CE8RVN8M3ZYK3@crapouillou.net>
-        <20221104145946.orsyrhiqvypisl5j@houat>
-        <IOEVKR.TWFKJND2FJ473@crapouillou.net>
-        <20221109105301.ueus7o3b75j5yeff@houat>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Subject: [PATCH v2 5/5] rtc: rtc-cmos: Disable ACPI RTC event on removal
+Date:   Wed, 09 Nov 2022 13:15:36 +0100
+Message-ID: <2224609.iZASKD2KPV@kreacher>
+In-Reply-To: <5640233.DvuYhMxLoT@kreacher>
+References: <5640233.DvuYhMxLoT@kreacher>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+X-CLIENT-IP: 213.134.163.195
+X-CLIENT-HOSTNAME: 213.134.163.195
+X-VADE-SPAMSTATE: clean
+X-VADE-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvgedrfedvgdefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfjqffogffrnfdpggftiffpkfenuceurghilhhouhhtmecuudehtdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkjghfggfgtgesthfuredttddtjeenucfhrhhomhepfdftrghfrggvlhculfdrucghhihsohgtkhhifdcuoehrjhifsehrjhifhihsohgtkhhirdhnvghtqeenucggtffrrghtthgvrhhnpedvffeuiedtgfdvtddugeeujedtffetteegfeekffdvfedttddtuefhgeefvdejhfenucfkphepvddufedrudefgedrudeifedrudelheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvudefrddufeegrdduieefrdduleehpdhhvghlohepkhhrvggrtghhvghrrdhlohgtrghlnhgvthdpmhgrihhlfhhrohhmpedftfgrfhgrvghlucflrdcuhgihshhotghkihdfuceorhhjfiesrhhjfiihshhotghkihdrnhgvtheqpdhnsggprhgtphhtthhopeelpdhrtghpthhtoheprghlvgigrghnughrvgdrsggvlhhlohhnihessghoohhtlhhinhdrtghomhdprhgtphhtthhopehlihhnuhigqdhrthgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqrggtphhisehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghl
+ rdhorhhgpdhrtghpthhtoheplhhinhhugidqphhmsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhhuihdriihhrghnghesihhnthgvlhdrtghomhdprhgtphhtthhopegrrdiiuhhmmhhosehtohifvghrthgvtghhrdhithdprhgtphhtthhopegrnhgurhhihidrshhhvghvtghhvghnkhhosehlihhnuhigrdhinhhtvghlrdgtohhmpdhrtghpthhtohephhgvlhhgrggrsheskhgvrhhnvghlrdhorhhg
+X-DCC--Metrics: v370.home.net.pl 1024; Body=9 Fuz1=9 Fuz2=9
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Maxime,
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Le mer. 9 nov. 2022 =E0 11:53:01 +0100, Maxime Ripard=20
-<maxime@cerno.tech> a =E9crit :
-> Hi Paul,
->=20
-> On Sat, Nov 05, 2022 at 10:33:54AM +0000, Paul Cercueil wrote:
->>  Hi Maxime,
->>=20
->>  Le ven. 4 nov. 2022 =E0 15:59:46 +0100, Maxime Ripard=20
->> <maxime@cerno.tech> a
->>  =E9crit :
->>  > Hi Paul,
->>  >
->>  > On Fri, Nov 04, 2022 at 02:31:20PM +0000, Paul Cercueil wrote:
->>  > >  Le ven. 4 nov. 2022 =E0 14:18:13 +0100, Maxime Ripard
->>  > > <maxime@cerno.tech> a
->>  > >  =E9crit :
->>  > >  > The Ingenic CGU clocks implements a mux with a set_parent=20
->> hook,
->>  > > but
->>  > >  > doesn't provide a determine_rate implementation.
->>  > >  >
->>  > >  > This is a bit odd, since set_parent() is there to, as its=20
->> name
->>  > > implies,
->>  > >  > change the parent of a clock. However, the most likely=20
->> candidate
->>  > > to
->>  > >  > trigger that parent change is a call to clk_set_rate(), with
->>  > >  > determine_rate() figuring out which parent is the best=20
->> suited for
->>  > > a
->>  > >  > given rate.
->>  > >  >
->>  > >  > The other trigger would be a call to clk_set_parent(), but=20
->> it's
->>  > > far less
->>  > >  > used, and it doesn't look like there's any obvious user for=20
->> that
->>  > > clock.
->>  > >  >
->>  > >  > So, the set_parent hook is effectively unused, possibly=20
->> because
->>  > > of an
->>  > >  > oversight. However, it could also be an explicit decision by=20
->> the
->>  > >  > original author to avoid any reparenting but through an=20
->> explicit
->>  > > call to
->>  > >  > clk_set_parent().
->>  > >  >
->>  > >  > The driver does implement round_rate() though, which means=20
->> that
->>  > > we can
->>  > >  > change the rate of the clock, but we will never get to=20
->> change the
->>  > >  > parent.
->>  > >  >
->>  > >  > However, It's hard to tell whether it's been done on purpose=20
->> or
->>  > > not.
->>  > >  >
->>  > >  > Since we'll start mandating a determine_rate()=20
->> implementation,
->>  > > let's
->>  > >  > convert the round_rate() implementation to a=20
->> determine_rate(),
->>  > > which
->>  > >  > will also make the current behavior explicit. And if it was=20
->> an
->>  > >  > oversight, the clock behaviour can be adjusted later on.
->>  > >
->>  > >  So it's partly on purpose, partly because I didn't know about
->>  > >  .determine_rate.
->>  > >
->>  > >  There's nothing odd about having a lonely .set_parent=20
->> callback; in
->>  > > my case
->>  > >  the clocks are parented from the device tree.
->>  > >
->>  > >  Having the clocks driver trigger a parent change when=20
->> requesting a
->>  > > rate
->>  > >  change sounds very dangerous, IMHO. My MMC controller can be
->>  > > parented to the
->>  > >  external 48 MHz oscillator, and if the card requests 50 MHz, it
->>  > > could switch
->>  > >  to one of the PLLs. That works as long as the PLLs don't change
->>  > > rate, but if
->>  > >  one is configured as driving the CPU clock, it becomes messy.
->>  > >  The thing is, the clocks driver has no way to know whether or=20
->> not
->>  > > it is
->>  > >  "safe" to use a designated parent.
->>  > >
->>  > >  For that reason, in practice, I never actually want to have a=20
->> clock
->>  > >  re-parented - it's almost always a bad idea vs. sticking to the
->>  > > parent clock
->>  > >  configured in the DTS.
->>  >
->>  > Yeah, and this is totally fine. But we need to be explicit about=20
->> it. The
->>  > determine_rate implementation I did in all the patches is an exact
->>  > equivalent to the round_rate one if there was one. We will never=20
->> ask to
->>  > change the parent.
->>  >
->>  > Given what you just said, I would suggest to set the
->>  > CLK_SET_RATE_NO_REPARENT flag as well.
->>=20
->>  But that would introduce policy into the driver...
->=20
-> I'm not sure why you're bringing policies into that discussion.=20
-> There's
-> plenty of policy in the driver already, and the current code doesn't=20
-> do
-> something that the old wasn't doing (implicitly).
+Make cmos_do_remove() drop the ACPI RTC fixed event handler so as to
+prevent it from operating on stale data in case the event triggers
+after driver removal.
 
-Yes, I was just talking about the CLK_SET_RATE_NO_REPARENT flag adding=20
-policy. The fact that there's plenty of policy in the driver already is=20
-not an argument for adding some more.
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
 
-> And there's plenty of policies in drivers in general. Whether you=20
-> limit
-> the rate or not, whether you allow reparenting or not, even the
-> CLK_SET_RATE_NO_REPARENT flag mentioned above is a policy decision set
-> by drivers.
+v1 -> v2:
+   * Do not clear the driver data pointer (the driver core does that) (Andy)
+   * Adjust the code pattern in acpi_rtc_event_cleanup() (Andy)
+   * Drop inline from the full definition of acpi_rtc_event_cleanup()
 
-Allowing reparenting and not limiting the rates is not a policy, it's=20
-just following what the hardware allows you to do. The absence of=20
-policy means that the driver allows you to configure the hardware in=20
-any way you might want to.
+---
+ drivers/rtc/rtc-cmos.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-Limiting rates, forbidding reparenting, that's policy, and it doesn't=20
-belong in a driver.
+Index: linux-pm/drivers/rtc/rtc-cmos.c
+===================================================================
+--- linux-pm.orig/drivers/rtc/rtc-cmos.c
++++ linux-pm/drivers/rtc/rtc-cmos.c
+@@ -798,6 +798,14 @@ static void acpi_rtc_event_setup(struct
+ 	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ }
+ 
++static void acpi_rtc_event_cleanup(void)
++{
++	if (acpi_disabled)
++		return;
++
++	acpi_remove_fixed_event_handler(ACPI_EVENT_RTC, rtc_handler);
++}
++
+ static void rtc_wake_on(struct device *dev)
+ {
+ 	acpi_clear_event(ACPI_EVENT_RTC);
+@@ -884,6 +892,10 @@ static inline void acpi_rtc_event_setup(
+ {
+ }
+ 
++static inline void acpi_rtc_event_cleanup(void)
++{
++}
++
+ static inline void acpi_cmos_wake_setup(struct device *dev)
+ {
+ }
+@@ -1138,6 +1150,9 @@ static void cmos_do_remove(struct device
+ 			hpet_unregister_irq_handler(cmos_interrupt);
+ 	}
+ 
++	if (!dev_get_platdata(dev))
++		acpi_rtc_event_cleanup();
++
+ 	cmos->rtc = NULL;
+ 
+ 	ports = cmos->iomem;
 
-You can argue that choosing not to reparent on rate change is a policy,=20
-and it is. That's why we need a way to enforce these policies outside=20
-the driver.
-
->>  The fact that I don't want the MMC parented to the PLLs, doesn't=20
->> mean
->>  that it's an invalid configuration per se.
->=20
-> Sure, and that's another policy :)
-
-A policy that is not enforced by the driver.
-
-Going back to the patch itself... I am fine with the change, although=20
-the patch description should probably be updated. We have .set_parent=20
-callbacks to configure clocks from DT, there's nothing more to it.
-
-Cheers,
--Paul
 
 
