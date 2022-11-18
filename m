@@ -2,232 +2,93 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C79CDC41535
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Nov 2022 18:59:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04D6BC43219
+	for <linux-rtc@archiver.kernel.org>; Fri, 18 Nov 2022 23:38:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242666AbiKRS7A (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 18 Nov 2022 13:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51122 "EHLO
+        id S236090AbiKRXiO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:38:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242685AbiKRSvE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Nov 2022 13:51:04 -0500
-Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23D58FE4C;
-        Fri, 18 Nov 2022 10:51:02 -0800 (PST)
-Received: by mail-oi1-f169.google.com with SMTP id q186so6281450oia.9;
-        Fri, 18 Nov 2022 10:51:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=date:subject:message-id:references:in-reply-to:cc:to:from
-         :mime-version:content-transfer-encoding:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=WzS3WtV19uBm00dgl97OvXjcFQKpmz+VUthp+6QJwgA=;
-        b=sA6Xrc/nUPbbb4Y6RTlAlB2t/bnua05IK2NX+ZU3PeD1hqBc8GVpdwICR40DcaHgEX
-         9gMGv2wFHoAWOV5ff2Mgb/vPwMvzv332wS3rS7IRaRwxLaua1HozyOljY8N34w0REmZf
-         1yAlDFWReA/Z9e9E/Gy6jFqggm48rIrO0pM6MoVDR4e/kMeFE+Z+VFiANVgnf9LUJIgE
-         kI/cU4gE+tjgexHGUhlYwo57U4KKewULYiQoHSY9PHcsIC23Ib/QtJ2A0PQ0syBMUgP4
-         167vLLgntUFoEMMyKoq6nLCxhGlBpXecekrVlC1tKmfilkSph2MqFTbuXNIeRfb8boB6
-         xp0g==
-X-Gm-Message-State: ANoB5pk9YxmaIlAJqGKy2quewWngGgbhgJWIbvVuKG+ULgAiuj8D2kdI
-        ZlWSBoDnblBLriI7RdY9Iw==
-X-Google-Smtp-Source: AA0mqf6ferzv+4GGZPDebben4TW1gUVW8/OSjdRsgVgscJgO6X2ZElGsRFpjyAIn/ZlSGOWa870QDA==
-X-Received: by 2002:aca:2809:0:b0:359:eb40:a3e3 with SMTP id 9-20020aca2809000000b00359eb40a3e3mr4098140oix.199.1668797461734;
-        Fri, 18 Nov 2022 10:51:01 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id m11-20020a056808024b00b0035763a9a36csm1684492oie.44.2022.11.18.10.51.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Nov 2022 10:51:01 -0800 (PST)
-Received: (nullmailer pid 856959 invoked by uid 1000);
-        Fri, 18 Nov 2022 18:50:54 -0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S236637AbiKRXhZ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Nov 2022 18:37:25 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D11A5217C
+        for <linux-rtc@vger.kernel.org>; Fri, 18 Nov 2022 15:22:11 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA9e-0005Ao-U5; Fri, 18 Nov 2022 23:48:14 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA9b-0058qi-Sl; Fri, 18 Nov 2022 23:48:12 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA9c-0000TB-0A; Fri, 18 Nov 2022 23:48:12 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 560/606] rtc: ds1307: Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:44:54 +0100
+Message-Id: <20221118224540.619276-561-uwe@kleine-koenig.org>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-From:   Rob Herring <robh@kernel.org>
-To:     Neil Armstrong <neil.armstrong@linaro.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-arm-kernel@lists.infradead.org, linux-pci@vger.kernel.org,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        linux-rtc@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        devicetree@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        linux-watchdog@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-amlogic@lists.infradead.org, linux-media@vger.kernel.org,
-        netdev@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        linux-mmc@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        linux-phy@lists.infradead.org,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>
-In-Reply-To: <20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org>
-References: <20221117-b4-amlogic-bindings-convert-v1-0-3f025599b968@linaro.org> 
- <20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org>
-Message-Id: <166879731144.850871.8899653807720274409.robh@kernel.org>
-Subject: Re: [PATCH 02/12] dt-bindings: nvmem: convert amlogic-efuse.txt to dt-schema
-Date:   Fri, 18 Nov 2022 12:50:54 -0600
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-On Fri, 18 Nov 2022 15:33:28 +0100, Neil Armstrong wrote:
-> Convert the  Amlogic Meson GX eFuse bindings to dt-schema.
-> 
-> Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-> ---
->  .../bindings/nvmem/amlogic,meson-gxbb-efuse.yaml   | 52 ++++++++++++++++++++++
->  .../devicetree/bindings/nvmem/amlogic-efuse.txt    | 48 --------------------
->  2 files changed, 52 insertions(+), 48 deletions(-)
-> 
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
-Running 'make dtbs_check' with the schema in this patch gives the
-following warnings. Consider if they are expected or the schema is
-incorrect. These may not be new warnings.
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/rtc/rtc-ds1307.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Note that it is not yet a requirement to have 0 warnings for dtbs_check.
-This will change in the future.
-
-Full log is available here: https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20221117-b4-amlogic-bindings-convert-v1-2-3f025599b968@linaro.org
-
-
-efuse: compatible:0: 'amlogic,meson-gxbb-efuse' was expected
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: compatible: ['amlogic,meson-gx-efuse', 'amlogic,meson-gxbb-efuse'] is too long
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: Unevaluated properties are not allowed ('compatible' was unexpected)
-	arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nanopi-k2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-odroidc2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-p201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-meta.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-vega-s95-telos.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-hub.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxbb-wetek-play2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-libretech-ac.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s805x-p241.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-mecool-kii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-phicomm-n1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-sml5442tw.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905d-vero4k-plus.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-tx3-mini.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-hwacom-amazetv.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-khadas-vim.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc-v2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-nexbox-a95x.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-gt1-ultimate.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-khadas-vim2.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-mecool-kiii-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-minix-neo-u9h.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-nexbox-a1.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q200.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-q201.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-rbox-pro.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-s912-libretech-pc.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-vega-s96.dtb
-	arch/arm64/boot/dts/amlogic/meson-gxm-wetek-core2.dtb
-
-efuse: Unevaluated properties are not allowed ('compatible', 'wifi_mac@C' were unexpected)
-	arch/arm64/boot/dts/amlogic/meson-gxl-s905w-jethome-jethub-j80.dtb
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 7c2276cf5514..b49c02fd78f7 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -1713,9 +1713,9 @@ static const struct regmap_config regmap_config = {
+ 	.val_bits = 8,
+ };
+ 
+-static int ds1307_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int ds1307_probe(struct i2c_client *client)
+ {
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct ds1307		*ds1307;
+ 	const void		*match;
+ 	int			err = -ENODEV;
+@@ -2012,7 +2012,7 @@ static struct i2c_driver ds1307_driver = {
+ 		.name	= "rtc-ds1307",
+ 		.of_match_table = ds1307_of_match,
+ 	},
+-	.probe		= ds1307_probe,
++	.probe_new	= ds1307_probe,
+ 	.id_table	= ds1307_id,
+ };
+ 
+-- 
+2.38.1
 
