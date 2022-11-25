@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91DE4C4708D
-	for <linux-rtc@archiver.kernel.org>; Fri, 25 Nov 2022 15:12:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 836DFC636F9
+	for <linux-rtc@archiver.kernel.org>; Fri, 25 Nov 2022 15:12:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbiKYPME (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 25 Nov 2022 10:12:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36618 "EHLO
+        id S230169AbiKYPMF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 25 Nov 2022 10:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230313AbiKYPLx (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Nov 2022 10:11:53 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076EF442C8
-        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:32 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id z4so7203101wrr.3
-        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:32 -0800 (PST)
+        with ESMTP id S229493AbiKYPLu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Nov 2022 10:11:50 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3263FB9B
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:29 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id d1so7166148wrs.12
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GI9uwBLCvWR3OgOlMBN6oypd3UQ7AbJ0Dp0NjT4lxFo=;
-        b=y5RUebrSosy2L8xvLXYFCns40q1ccZYXsrxL96Zdy/w1f8IUjGbcslxtTTAUCw5Zf2
-         r0oEVT+9EOdOxceHOhesQ5oaAKvUqCaLSKQuoGcwH6Jw+EGfV+nGPnSH6xTlC1mWf8gy
-         yDW4WfBJYb96R3/GYtwHKHOXKheyFVLafNQ0NdY+VwVcc1WmHK7770+jN+oTahL5MQ6b
-         tDgh/a/fsFFR+IZpEksOItlBaWIrlzeNyO3t96xVUd+s/r2ytDD7d8KwyM3uehp2Lydj
-         QfVHXhD0SaFet0Uu4Wl5SDa9ZZNd+Y/nT4bx1peIYjIRRYEWUX1RHJ1/K/vhIjO3tyMe
-         yJbw==
+        bh=/WfPFIvXQkUy4+HZsCcjoOy5HXh/OR2xwCOtqD43AE4=;
+        b=w1SA1ZGNoJjU/F7vhzubxvZtSsnxd1ZwkoI7EfV/TKpuOm5638uSKo9CbCktX28O51
+         +wsAkEKOvNcbEzW897EPDQqoFdTCz0saDTVeThjteBmSYXn5MHj8fiWn0e4Q1EZ7LM7x
+         jrkCahK4ICAgxMTRYNXA93+jEQnAv7rHTBpVWYvItytfe7F8C8gLDLOC2FMLK6w6prUj
+         EGw2LBxg8r7DIZVXe8/ajGuhcfyQbFMhUuAbU0XUrNrE0155jxzOcdLJzaH7+BQYoSe+
+         6XEDeyKQ1J3YsAwUkSpdMpAWQZs+TvrLLFtoCugWaahiJYycTptgorVCeYSFOwI7TsFl
+         l+hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GI9uwBLCvWR3OgOlMBN6oypd3UQ7AbJ0Dp0NjT4lxFo=;
-        b=o3U+IgblwjdqTGQkJadv3n3Us61b/v9HHaZt+sqDAnq2MZKJgLAnHBwqbP5sC13pCW
-         9M9u3yLYNlS6SKP8MdJ3MYUYVMW3wbOgX6sBXhrRbrRrWnIuou/m2LolvD83w4naqQxp
-         n8GgN25ryTQPnsYJvHWQfkx40M0eEM1iUWN64g8K5fvfyFaI6BaFYdchyC2NbXC36fqM
-         OLUQsSfyvN3P4oy355fsvuc7yUdg/B6MhnnrdcEM2CK8XPnMDa3Uozy9wMzhi1kYp30F
-         kB3jak0j+OPcfWJQPaAoG74jyiA0dnC7I2SE8CKZeZ0IwliFgCM/Qp5RakhqpXn9nNTx
-         3Wsg==
-X-Gm-Message-State: ANoB5pmmKaEABKdZMJF0jjic/jdb9p86vGRX/hLzwrPl6MDII8GoNnYw
-        SNxCXYrDi2KwKXnhAUV+myyJ5Q==
-X-Google-Smtp-Source: AA0mqf5Sm1CglF3S+zaxYxLdfuEQZuiRkUPKCtH/xR0EmtMQinXAAzyozKSvPKTZfhFOX8ftLYr1qg==
-X-Received: by 2002:a5d:5f04:0:b0:241:e9a6:fb3 with SMTP id cl4-20020a5d5f04000000b00241e9a60fb3mr9087357wrb.462.1669389092434;
-        Fri, 25 Nov 2022 07:11:32 -0800 (PST)
+        bh=/WfPFIvXQkUy4+HZsCcjoOy5HXh/OR2xwCOtqD43AE4=;
+        b=Pt3/NCeXT0LsVrzQgqJjvSjDc22d2Tr+BEQ6k6Gd3tYlk4IATdp9v5MmA0y1A3Gl1C
+         kndKV0PfF3Z+x/kx5AGiiXzaJkGRX+xiLUQOigDk8u2IoVLghUQZxj4Vk0xTDERRzQYg
+         SIelNVru57qk5ONzG393a0ygEDUUbE14WiUW37yA2ceX4m+QRzVORy14ULrAzTD1mjYy
+         bP5fAiq6QYkX1LZsOTNkD+W5wmtlYj8OgCxutfP9rFCjADsC4Hkb8tTfC2Ck7ZIivZnA
+         tP5KhIQRhWk8aM43Jm+3NsnI1fluvUDalQh7u4LNd2f2UQ03+JIzpe7h2qoCGAu2nOXZ
+         oUaA==
+X-Gm-Message-State: ANoB5plxo6v+swiNPZxC8vOp2qAag3WdlzHGPLQ7u8hfGaIh7FuaiQZq
+        KXuCjd+ePRHKRm6G3Y5u2iopdg==
+X-Google-Smtp-Source: AA0mqf4jxSywcBqwD02kLxE1mauRD2tbT4mXFuMK2P6OZ3jYffHhwCnVXNLquJaHNL8fzoH3Foy1fA==
+X-Received: by 2002:a5d:6409:0:b0:241:f7ae:b1dd with SMTP id z9-20020a5d6409000000b00241f7aeb1ddmr7131169wru.138.1669389087744;
+        Fri, 25 Nov 2022 07:11:27 -0800 (PST)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.31
+        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Nov 2022 07:11:32 -0800 (PST)
+        Fri, 25 Nov 2022 07:11:27 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Fri, 25 Nov 2022 16:10:21 +0100
-Subject: [PATCH v6 10/10] Input: mtk-pmic-keys: add MT6357 support
+Date:   Fri, 25 Nov 2022 16:10:17 +0100
+Subject: [PATCH v6 06/10] dt-bindings: mfd: mediatek: Add bindings for MT6357 PMIC
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221005-mt6357-support-v6-10-4f589756befa@baylibre.com>
+Message-Id: <20221005-mt6357-support-v6-6-4f589756befa@baylibre.com>
 References: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 In-Reply-To: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -84,80 +84,151 @@ Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-leds@vger.kernel.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2028; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=K2/LktiwnSqpYUY/NYDB7cyyBwW4Kzl5Gx1VcVhpHIg=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsXQIa1QEIipiruDB9u/aUJuuWuwrFMsam4SPLK
- 94W6b/+JAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFwAKCRArRkmdfjHURavoEA
- CgtRyRJ2qwmMDOSz6ZGwn/ZANcUmntlsG2vnP8PVpIhZSEpmpPaOC9xB/4cyr6clGsvKNMESMH+Fqc
- rJFK0L9bcHTfUlN0fAGTvsyXEReg4k8e93E8QkPUAyLlgxoAM6Qkkxw9GrQyOShb5yXjyq39X1AFKj
- pGHZCnhO7JtRZkzj9ZUpgs+P2tSXss5FUFGbGco/PHUTrLhoIAU5C43uCE/pn3y9m1jGLPjtJuyV9v
- 6oCV70JLBrYCph2BNCrQdzD3vr1CzWBRTY0Z8ttPDnvTRWiZRb9/vWs+vb6raYU22UYt08uN8hidp9
- oWT/CUu9l3hbh3i0E0a6aMXDNS5kIQBnLYZmfl478RtbxlzmhDA/94aFTLVRC1vEtICMvkfCc3P1z/
- wIczGve0zj0fMM2Qh2YFcJmLk+T5N+cBGkAskB57Cct+9R8qKKyIhTeRT2Ljh/yIZsJB3O4Pem8nh8
- gnFZ9WAyhkTJXlxv73g71vUG6uPiSKTmMw4P6ONR/Jq6szyRXT+3xUeoqpHX0dwrtBxn9CTl1M4gdM
- GbjY6xdJlez1nPoAXb8Y2LPaBIFeYsbbVjPpWhwOA/BXsy04UxEibIbNEfnSzwTb05A8O812vSsJaU
- u/j++N0Vyr0mINa1MQDkFOP4gs/9WWeaKwK7Tf96ZFi53RIYBcVW5VvsulZg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3860; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=hsHJv7tXwGtDI1+UamHOo/TefFAouJ5xvx7nyDsqMfU=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsX/pZnd9dSqEQRhOJBuPEJnpnh/RqRO18ivjZi
+ 9fbakmCJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFwAKCRArRkmdfjHURVZQEA
+ DDNYSSMiJ3lzTJ50OXfaQgj/FSv3bSM7tetVpMTLXk4uizebewWfqZ/8gek76u6K6I3kiTea8srWbl
+ 4DaXtUAP7PI9rTS7MhX8PG5FaKbElkLXTL8pCa5KhRlFnB52tpHhMVgh17PsbMkNbL5u2fAqn1WspR
+ qqMIBASLied/bQ9ix5YDJ2Uq28bPqBR7/ooxMb1dXh6wSXvRY6Pea+ZUcCjtLCeVtOZEfCBeAHKJrJ
+ uxafx2C5sHdhlh/4Nqa2iO9uDLD8/OGfJ5LsUQJxyl45C2RxrnQq27GJLWJD+vCdObuJJG7iyGLquZ
+ L73uTAYMtLIbzFPEIe0okMQIrVRlXwcEzsHMW7SyKAzPSNggx49IvO/8g6B6ybz+dYq+/4HVv6gixl
+ 2AxrNBUX9OeceSG4ix2GcKi0AGgo6m4LW3uptSnWWBki9bEoCVqgJ1HjjTgFsKnoczc65JTH6WKPG0
+ gd/x5CoyhwhE0zOTXGGUZNiFDuwLYsXya6y6I660rtlsSG7fOSh4l10A7PWzAHuGL/TfH5+Rj7T7pR
+ IohWUhVIjvcf+qMQFfrLUMHvAu/yUGUlglxftIKaQ1HNo7Q5PGZHekCoYGChCBFqMYxRRedz9st/4p
+ kWfOoNAXjTyLZbrWLC77sffUr9yPxplF4Rk0FgKVFbWBeP65fODCyFAsp0EQ==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+Currently, almost all MT63XX PMIC are documented mfd/mt6397.txt.
+Unfortunately, the PMICs haven't always similar HW sub-features.
+To have a better human readable schema, I chose to make one PMIC schema
+to match the exact HW capabilities instead of convert mt6397.txt to
+mediatek,mt63xx.yaml and put a bunch of properties behind
+"if contain ... then ..."
 
-Add PMIC Keys support on MT6357 SoC.
+- add interrupt property
+- change property refs to match with new yaml documentation
 
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ .../devicetree/bindings/mfd/mediatek,mt6357.yaml   | 105 +++++++++++++++++++++
+ 1 file changed, 105 insertions(+)
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 9b34da0ec260..2a63e0718eb6 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/mfd/mt6323/registers.h>
- #include <linux/mfd/mt6331/registers.h>
-+#include <linux/mfd/mt6357/registers.h>
- #include <linux/mfd/mt6358/registers.h>
- #include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6397/registers.h>
-@@ -90,6 +91,19 @@ static const struct mtk_pmic_regs mt6331_regs = {
- 	.rst_lprst_mask = MTK_PMIC_MT6331_RST_DU_MASK,
- };
- 
-+static const struct mtk_pmic_regs mt6357_regs = {
-+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-+				   0x2, MT6357_PSC_TOP_INT_CON0, 0x5,
-+				   MTK_PMIC_PWRKEY_RST),
-+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-+				   0x8, MT6357_PSC_TOP_INT_CON0, 0xa,
-+				   MTK_PMIC_HOMEKEY_INDEX),
-+	.pmic_rst_reg = MT6357_TOP_RST_MISC,
-+	.rst_lprst_mask = MTK_PMIC_RST_DU_MASK,
-+};
+diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6357.yaml b/Documentation/devicetree/bindings/mfd/mediatek,mt6357.yaml
+new file mode 100644
+index 000000000000..2aa8025d1e24
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6357.yaml
+@@ -0,0 +1,105 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/mediatek,mt6357.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- static const struct mtk_pmic_regs mt6358_regs = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
-@@ -276,6 +290,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
- 	}, {
- 		.compatible = "mediatek,mt6331-keys",
- 		.data = &mt6331_regs,
-+	}, {
-+		.compatible = "mediatek,mt6357-keys",
-+		.data = &mt6357_regs,
- 	}, {
- 		.compatible = "mediatek,mt6358-keys",
- 		.data = &mt6358_regs,
++title: MediaTek MT6357 PMIC
++
++maintainers:
++  - Flora Fu <flora.fu@mediatek.com>
++  - Alexandre Mergnat <amergnat@baylibre.com>
++
++description: |
++  MT6357 is a power management system chip containing 5 buck
++  converters and 29 LDOs. Supported features are audio codec,
++  USB battery charging, fuel gauge, RTC
++
++  This is a multifunction device with the following sub modules:
++  - Regulator
++  - RTC
++  - Keys
++
++  It is interfaced to host controller using SPI interface by a proprietary hardware
++  called PMIC wrapper or pwrap. This MFD is a child device of pwrap.
++  See the following for pwrap node definitions:
++  Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
++
++properties:
++  compatible:
++    const: mediatek,mt6357
++
++  interrupts:
++    maxItems: 1
++
++  interrupt-controller: true
++
++  "#interrupt-cells":
++    const: 2
++
++  regulators:
++    type: object
++    $ref: /schemas/regulator/mediatek,mt6357-regulator.yaml
++    description:
++      List of MT6357 BUCKs and LDOs regulators.
++
++  rtc:
++    type: object
++    $ref: /schemas/rtc/mediatek,mt6397-rtc.yaml
++    description:
++      MT6357 Real Time Clock.
++
++  keys:
++    type: object
++    $ref: /schemas/input/mediatek,pmic-keys.yaml
++    description:
++      MT6357 power and home keys.
++
++required:
++  - compatible
++  - regulators
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    pwrap {
++        pmic {
++            compatible = "mediatek,mt6357";
++
++            interrupt-parent = <&pio>;
++            interrupts = <145 IRQ_TYPE_LEVEL_HIGH>;
++            interrupt-controller;
++            #interrupt-cells = <2>;
++
++            regulators {
++                mt6357_vproc_reg: buck-vproc {
++                    regulator-name = "vproc";
++                    regulator-min-microvolt = <518750>;
++                    regulator-max-microvolt = <1312500>;
++                    regulator-ramp-delay = <6250>;
++                    regulator-enable-ramp-delay = <220>;
++                    regulator-always-on;
++                };
++
++                // ...
++
++                mt6357_vusb33_reg: ldo-vusb33 {
++                    regulator-name = "vusb33";
++                    regulator-min-microvolt = <3000000>;
++                    regulator-max-microvolt = <3100000>;
++                    regulator-enable-ramp-delay = <264>;
++                };
++            };
++
++            rtc {
++                compatible = "mediatek,mt6357-rtc";
++            };
++
++            keys {
++                compatible = "mediatek,mt6357-keys";
++            };
++        };
++    };
 
 -- 
 b4 0.10.1
