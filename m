@@ -2,60 +2,61 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C255C43219
-	for <linux-rtc@archiver.kernel.org>; Fri, 25 Nov 2022 15:11:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D07DEC4167B
+	for <linux-rtc@archiver.kernel.org>; Fri, 25 Nov 2022 15:11:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229878AbiKYPL2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 25 Nov 2022 10:11:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35754 "EHLO
+        id S229898AbiKYPLs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 25 Nov 2022 10:11:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229750AbiKYPLZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Nov 2022 10:11:25 -0500
+        with ESMTP id S229843AbiKYPL3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 25 Nov 2022 10:11:29 -0500
 Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C186031DE7
-        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:24 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id ay14-20020a05600c1e0e00b003cf6ab34b61so6421859wmb.2
-        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0287A31DE7
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:27 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id t1so3673594wmi.4
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Nov 2022 07:11:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=LtaodGVpC5RT6XYiK+eOY0rwcK2uWhEYktwBYDm+D3U=;
-        b=cHgcsWDMIqHdG9vIOjx3pGbnzji09i6C/57tbtdajxuwQin3LJIy/otdn9HakMSAaV
-         BAYil3kI7Zkw5G2sDuV5fky92NeDeMOafch2EtwF0XalxCBbIDTBMslaHe9myzp3z/CM
-         27neY6DmjCGt/vh0gIYAHW84hOO/ut96SIAvr1bLt2Xk76/zN4kUcxt8XUdBq8oB4q/q
-         TRguZd4h84BRFgfBqGed8tubSQjD1Ud4avL0tZ+TJIGkyTWWV77GS+LTimU6OKI+xmON
-         NJhwyJBlKgh7bVhy4kYjPWiCc6GcWkZT1aJExOWuVfQmHiX2NYI5P6JlZgLcaXmF6bIt
-         Bbbw==
+        bh=EaP34wv8cHsMbN5b2lelNoPsr3chehdl/q6+cIBNPQg=;
+        b=a00aeEiqNLdfaP8pJJMTlm1st+CBVpharXXE5efjNd2t+tAUicUKf/ATqv/wQf4KtM
+         5isOcb82wBidTFJ/PIPU1/e6lKXxwVog19esAb8AekyIsE9jXXMMnjT/TBt2tbe/A2Y3
+         ymLxUZHqE83wczl7D157EExhyny7uqe2+9uakjDnwUK0qj6DyVxsf7HrXjvDaLcMWAiQ
+         eo2oIh2nJZeNKGr9m725hWaapJZptybryEs2KFHTdVByGChUXuU3WMhvQ1JzMzmu7mKX
+         5yIMjmdRbC4onl01PEXEyZDl6L6mi1L0Wduyr/WNO88SDp3u8bmLuIpZ4OQhMBk+7f/g
+         NZVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LtaodGVpC5RT6XYiK+eOY0rwcK2uWhEYktwBYDm+D3U=;
-        b=HWhbHMOgCiKx9eBHbhNJqNzscLmoUht08PZnpnqCizd/JoOEHb5YWqeXspsu55RUTf
-         6d3CT2LpCOW3wBjcoTwE7X2G94WAzZqJUak/vntDmTgUyAq8EXS+G/RnnY6s8KGhayuQ
-         FdsYJXl7MIBGB40/HgLXQE/eqt7OHoGUTBGa6SeTDvIHv9EvSdwbEzOd0FmLfI0VRlGC
-         GhM/Fva0QtuFkDsv4HmIk9SeU5Dl53cAK3GxFAKStqMca1uwFBuVz9J+OyzU5ips9dvU
-         7vogZeNsPvnkVZvLTN0XgGYAysfqXjLHDmzl+Bs2JEoyTqf1gIFeWi6kPEbEOCOTLI2N
-         zdpg==
-X-Gm-Message-State: ANoB5pm0GzrC7LlJUP/DxDK6IORcFBmK3/b4Qm7ERqKT2/RkrcvUT15l
-        uvdJ1Pgz9DkleU+FouFQ7MAtqg==
-X-Google-Smtp-Source: AA0mqf7kS6Tz5quZlQxyKibRuFvfNP/J7F+sa3rlIYYznVcbfnJ73G8BTJTH5t51EQwIS0NI1o/fXw==
-X-Received: by 2002:a05:600c:3543:b0:3cf:74bb:feb1 with SMTP id i3-20020a05600c354300b003cf74bbfeb1mr27647631wmq.102.1669389082982;
-        Fri, 25 Nov 2022 07:11:22 -0800 (PST)
+        bh=EaP34wv8cHsMbN5b2lelNoPsr3chehdl/q6+cIBNPQg=;
+        b=iCH9Z5VjJv2XZx4ZnNCzILM8IbBc3mfv9HzcZt6G9Pn2d3FjS3hX4EBb06c67ssCjc
+         PP6gNX9ohupBmH5+nPoj0oDt8PGMj6gG86P28KPfctwl+KhUHbXTIe2vU+s8gXH6s2LD
+         3Lk/qrsUx+ulyjhtH8Mguv3YAqBR9VV93IMgQLDV/2J+90J1P0bfch20/3alM7ypRYYz
+         J1xCBzhD9e4yxEvaRNO3TPx08YDEUD5zMrHpStErW1NL6eE7a+ZQ2JF2dTgIX4qph3N7
+         ri6AXn0n+tK+WqNH51kHmC6xzUp79lQ5h3DdwyOs1kZcnZwsD82UZRwlhR3vJOXCHBeh
+         03pQ==
+X-Gm-Message-State: ANoB5pmfFnUNAnmUHXUwLRkD1tGJyevBudb4jHxZUiKujDpt5sYkFRu3
+        aXmucbfHUg0ZxSbYoTue21Fb4w==
+X-Google-Smtp-Source: AA0mqf7dcJLl74CAaap1sCd5Hcm4X7ZYFAQ7k75impAxJ2nhLCoKmK4mcDwYRq6oPcj/HAQ7JXaQ2g==
+X-Received: by 2002:a05:600c:3d8b:b0:3d0:545:a0 with SMTP id bi11-20020a05600c3d8b00b003d0054500a0mr17157532wmb.123.1669389085313;
+        Fri, 25 Nov 2022 07:11:25 -0800 (PST)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.21
+        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Nov 2022 07:11:22 -0800 (PST)
+        Fri, 25 Nov 2022 07:11:24 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Fri, 25 Nov 2022 16:10:13 +0100
-Subject: [PATCH v6 02/10] dt-bindings: rtc: mediatek: convert MT6397 rtc documentation
+Date:   Fri, 25 Nov 2022 16:10:15 +0100
+Subject: [PATCH v6 04/10] regulator: dt-bindings: Add binding schema for mt6357
+ regulators
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221005-mt6357-support-v6-2-4f589756befa@baylibre.com>
+Message-Id: <20221005-mt6357-support-v6-4-4f589756befa@baylibre.com>
 References: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 In-Reply-To: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -84,127 +85,337 @@ Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-leds@vger.kernel.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3564; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=CtchvNUNYKQ+sRRXF+yBXQCgDbmvYDamNuPU/DlwH4k=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsWBup/boE8Lq7PLq5YmKC0aWKnYNDwZdf/JlDr
- xt36kAKJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFgAKCRArRkmdfjHURddkD/
- 9zvzIvPq1+3Cpu/j5+tk7ih7fpJnVPzD77DkXewOg33pWoCx6R801Pll71H/M4kA4aTOdJTwP3Tf30
- gi1HMRFOWbXgt3b7sKwh20Dxtze5EsaVItBwcintwufuPqBft5aaGTgtYLTEXDYvNZvRJqqBr3NzBv
- oP6DbwOwshLRTnkd7CiHOcldrQHmlKlV0jGijF90IQI+6x9//I3FuNdsPrkp0rh7pIkqhWjWKSMQ2l
- Z3k8Tw8SR2hjnNRdeah4BineZFlFzAU8nPWP/XlmDMf8aWQbQZ3mIvsmFqKzlHGd1kSmvFLjw58F6R
- HAcvn4sEZOukScbDhpYFZMftpXtNT2VIx74E1PtkdglxKtwkDu/D6p6T6tKa/o+ZBMmF4mcXxGc22W
- gI9xc9bGkZEg7kjQHMkA2fuOqecibRV/+PhrxZDa3mt9qr2baES47gbc46qeOqD/7RtASyVgCyMmqP
- TB7wLMkzNAQwv8G5Nnt1pfomjnY+BIeeD2F7w6sK5YH0OwXFSDGmTbimBVkilFTgqZCt9rOuFugP8K
- ToCmVX3L1X1jw17Zar/CPYAP9FtVbLJ/krIpi6Wa+EavsSXap92KI+bcyvT6cHhAC4sFfmP8FQkATJ
- K1eb7AikJbJV6VW5FuwdKgN2Axk5uhQjfawxo6vwERasEbDQt1dqdmZAeqGQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=11440;
+ i=amergnat@baylibre.com; h=from:subject:message-id;
+ bh=y+MiriLy7hAWFi7TI2kfD8KqIfIYGSLRk1pCtSC2vQw=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsX6//zoBpr5oyYTNAos+h38wGLdiC8i63x0Vz4
+ VEYdOJmJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFwAKCRArRkmdfjHURb8VD/
+ 0SsXN0bcyn8GquzvUjms7TA0ZXjPNqCOYo/8CW9hr+Wp6id+9npjhRUc3KcVJTvJWxraUeGicgbpSB
+ gEktBlQKhzFFqqKQ2eoHOWGeK276+q6u5qCKEfcbzmZTIfoU7DsGdyCbvQ3+2NZszHmh4XUDDvyLhf
+ Pbi9S7myzSiuheIqrpvOXIbAnQkLlK7aJept4z5gx87F/NsDyfd3TzMzVkI/b+AVzB3/H08tvwPNzJ
+ IW5Lst1FlMeiC8EvQ1FbUfAn+8cHjSBVAjUO32pnAfNmmg3elkOGSsUXOVyrBUQiZlOpIE4LN4NPbr
+ ttePExE7mKpbACFnaZvLc7iTfl3iRivw08xC9U5xA1RbEmEqhFmaGuvRJUEC4PzLl+6fkg9R+OIHh7
+ K4T2eG0pxrhiBDA+WceZGU+Ng2F/jJWuogNGOViffxHfvDe+w1+HpEn7NoYXroSddylaq1hJxHq/hr
+ FXQRJfpPbi4AmFH5Oe78ZRFcxs530KIGRCC2l3yH2ApqA0gHB/pZrXFIKaO/93ibtmMz7P4L3wAS8B
+ vXy7eDOyX1xcMuiqlvztObihURyskXuxv5cubBJ9NFltiYPr1suKBWzNWkGw0dZuFc4K3h15S0nD7A
+ ma5+uFM9VJo+ULDHEsdGs7DEjHhbhK8IGbB3PQo2aWVVQKq8BUGQShWJ83UQ==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-- Convert rtc/rtc-mt6397.txt to rtc/mt6397-rtc.yaml
-- Add maintainer
-- Remove the .txt binding file
+From: Fabien Parent <fparent@baylibre.com>
 
+Add YAML schema for the MediaTek MT6357 regulators.
+
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt   |  2 +-
- .../bindings/rtc/mediatek,mt6397-rtc.yaml          | 35 ++++++++++++++++++++++
- .../devicetree/bindings/rtc/rtc-mt6397.txt         | 31 -------------------
- 3 files changed, 36 insertions(+), 32 deletions(-)
+ .../regulator/mediatek,mt6357-regulator.yaml       | 294 +++++++++++++++++++++
+ 1 file changed, 294 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 0088442efca1..79aaf21af8e9 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -33,7 +33,7 @@ Optional subnodes:
- 		- compatible: "mediatek,mt6331-rtc"
- 		- compatible: "mediatek,mt6358-rtc"
- 		- compatible: "mediatek,mt6397-rtc"
--	For details, see ../rtc/rtc-mt6397.txt
-+	For details, see ../rtc/mediatek,mt6397-rtc.yaml
- - regulators
- 	Required properties:
- 		- compatible: "mediatek,mt6323-regulator"
-diff --git a/Documentation/devicetree/bindings/rtc/mediatek,mt6397-rtc.yaml b/Documentation/devicetree/bindings/rtc/mediatek,mt6397-rtc.yaml
+diff --git a/Documentation/devicetree/bindings/regulator/mediatek,mt6357-regulator.yaml b/Documentation/devicetree/bindings/regulator/mediatek,mt6357-regulator.yaml
 new file mode 100644
-index 000000000000..97b09c81e548
+index 000000000000..6327bb2f6ee0
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/mediatek,mt6397-rtc.yaml
-@@ -0,0 +1,35 @@
-+ # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++++ b/Documentation/devicetree/bindings/regulator/mediatek,mt6357-regulator.yaml
+@@ -0,0 +1,294 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/rtc/mediatek,mt6397-rtc.yaml#
++$id: http://devicetree.org/schemas/regulator/mediatek,mt6357-regulator.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: MediaTek MT6397/MT6366/MT6358/MT6323 RTC
++title: MediaTek MT6357 Regulators
 +
 +maintainers:
-+  - Tianping Fang <tianping.fang@mediatek.com>
++  - Chen Zhong <chen.zhong@mediatek.com>
++  - Fabien Parent <fabien.parent@linaro.org>
 +  - Alexandre Mergnat <amergnat@baylibre.com>
 +
-+description:
-+  MediaTek PMIC based RTC is an independent function of MediaTek PMIC that works
-+  as a type of multi-function device (MFD). The RTC can be configured and set up
-+  with PMIC wrapper bus which is a common resource shared with the other
-+  functions found on the same PMIC.
++description: |
++  The MT6357 PMIC provides 5 BUCK and 29 LDO.
++  Regulators and nodes are named according to the regulator type:
++  - buck-<name>
++  - ldo-<name>.
++  MT6357 regulators node should be sub node of the MT6397 MFD node.
 +
-+allOf:
-+  - $ref: rtc.yaml#
++patternProperties:
++  "^buck-v(core|modem|pa|proc|s1)$":
++    type: object
++    $ref: regulator.yaml#
++    unevaluatedProperties: false
++    description:
++      Properties for single BUCK regulator.
 +
-+properties:
-+  compatible:
-+    enum:
-+      - mediatek,mt6323-rtc
-+      - mediatek,mt6358-rtc
-+      - mediatek,mt6366-rtc
-+      - mediatek,mt6397-rtc
++    required:
++      - regulator-name
++      - regulator-min-microvolt
++      - regulator-max-microvolt
 +
-+  start-year: true
++  "^ldo-v(camio18|aud28|aux18|io18|io28|rf12|rf18|cn18|cn28|fe28)$":
++    type: object
++    $ref: fixed-regulator.yaml#
++    unevaluatedProperties: false
++    description:
++      Properties for single fixed LDO regulator.
++
++    required:
++      - regulator-name
++      - regulator-min-microvolt
++      - regulator-max-microvolt
++
++  "^ldo-v(efuse|ibr|ldo28|mch|cama|camd|cn33-bt|cn33-wifi)$":
++    type: object
++    $ref: regulator.yaml#
++    unevaluatedProperties: false
++    description:
++      Properties for single LDO regulator.
++
++    required:
++      - regulator-name
++      - regulator-min-microvolt
++      - regulator-max-microvolt
++
++  "^ldo-v(xo22|emc|mc|sim1|sim2|sram-others|sram-proc|dram|usb33)$":
++    type: object
++    $ref: regulator.yaml#
++    unevaluatedProperties: false
++    description:
++      Properties for single LDO regulator.
++
++    required:
++      - regulator-name
++      - regulator-min-microvolt
++      - regulator-max-microvolt
 +
 +additionalProperties: false
 +
-+required:
-+  - compatible
-diff --git a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt b/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-deleted file mode 100644
-index 7212076a8f1b..000000000000
---- a/Documentation/devicetree/bindings/rtc/rtc-mt6397.txt
-+++ /dev/null
-@@ -1,31 +0,0 @@
--Device-Tree bindings for MediaTek PMIC based RTC
--
--MediaTek PMIC based RTC is an independent function of MediaTek PMIC that works
--as a type of multi-function device (MFD). The RTC can be configured and set up
--with PMIC wrapper bus which is a common resource shared with the other
--functions found on the same PMIC.
--
--For MediaTek PMIC MFD bindings, see:
--../mfd/mt6397.txt
--
--For MediaTek PMIC wrapper bus bindings, see:
--../soc/mediatek/pwrap.txt
--
--Required properties:
--- compatible: Should be one of follows
--       "mediatek,mt6323-rtc": for MT6323 PMIC
--       "mediatek,mt6358-rtc": for MT6358 PMIC
--       "mediatek,mt6366-rtc", "mediatek,mt6358-rtc": for MT6366 PMIC
--       "mediatek,mt6397-rtc": for MT6397 PMIC
--
--Example:
--
--       pmic {
--               compatible = "mediatek,mt6323";
--
--               ...
--
--               rtc {
--                       compatible = "mediatek,mt6323-rtc";
--               };
--       };
++examples:
++  - |
++    pmic {
++      regulators {
++        mt6357_vproc_reg: buck-vproc {
++          regulator-name = "vproc";
++          regulator-min-microvolt = <518750>;
++          regulator-max-microvolt = <1312500>;
++          regulator-ramp-delay = <6250>;
++          regulator-enable-ramp-delay = <220>;
++          regulator-always-on;
++        };
++        mt6357_vcore_reg: buck-vcore {
++          regulator-name = "vcore";
++          regulator-min-microvolt = <518750>;
++          regulator-max-microvolt = <1312500>;
++          regulator-ramp-delay = <6250>;
++          regulator-enable-ramp-delay = <220>;
++          regulator-always-on;
++        };
++        mt6357_vmodem_reg: buck-vmodem {
++          regulator-name = "vmodem";
++          regulator-min-microvolt = <500000>;
++          regulator-max-microvolt = <1193750>;
++          regulator-ramp-delay = <6250>;
++          regulator-enable-ramp-delay = <220>;
++        };
++        mt6357_vs1_reg: buck-vs1 {
++          regulator-name = "vs1";
++          regulator-min-microvolt = <1200000>;
++          regulator-max-microvolt = <2200000>;
++          regulator-ramp-delay = <12500>;
++          regulator-enable-ramp-delay = <220>;
++          regulator-always-on;
++        };
++        mt6357_vpa_reg: buck-vpa {
++          regulator-name = "vpa";
++          regulator-min-microvolt = <500000>;
++          regulator-max-microvolt = <3650000>;
++          regulator-ramp-delay = <50000>;
++          regulator-enable-ramp-delay = <220>;
++        };
++        mt6357_vfe28_reg: ldo-vfe28 {
++          compatible = "regulator-fixed";
++          regulator-name = "vfe28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vxo22_reg: ldo-vxo22 {
++          regulator-name = "vxo22";
++          regulator-min-microvolt = <2200000>;
++          regulator-max-microvolt = <2400000>;
++          regulator-enable-ramp-delay = <110>;
++        };
++        mt6357_vrf18_reg: ldo-vrf18 {
++          compatible = "regulator-fixed";
++          regulator-name = "vrf18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <110>;
++        };
++        mt6357_vrf12_reg: ldo-vrf12 {
++          compatible = "regulator-fixed";
++          regulator-name = "vrf12";
++          regulator-min-microvolt = <1200000>;
++          regulator-max-microvolt = <1200000>;
++          regulator-enable-ramp-delay = <110>;
++        };
++        mt6357_vefuse_reg: ldo-vefuse {
++          regulator-name = "vefuse";
++          regulator-min-microvolt = <1200000>;
++          regulator-max-microvolt = <3300000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcn33_bt_reg: ldo-vcn33-bt {
++          regulator-name = "vcn33-bt";
++          regulator-min-microvolt = <3300000>;
++          regulator-max-microvolt = <3500000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcn33_wifi_reg: ldo-vcn33-wifi {
++          regulator-name = "vcn33-wifi";
++          regulator-min-microvolt = <3300000>;
++          regulator-max-microvolt = <3500000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcn28_reg: ldo-vcn28 {
++          compatible = "regulator-fixed";
++          regulator-name = "vcn28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcn18_reg: ldo-vcn18 {
++          compatible = "regulator-fixed";
++          regulator-name = "vcn18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcama_reg: ldo-vcama {
++          regulator-name = "vcama";
++          regulator-min-microvolt = <2500000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcamd_reg: ldo-vcamd {
++          regulator-name = "vcamd";
++          regulator-min-microvolt = <1000000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vcamio_reg: ldo-vcamio18 {
++          compatible = "regulator-fixed";
++          regulator-name = "vcamio";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vldo28_reg: ldo-vldo28 {
++          regulator-name = "vldo28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <3000000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vsram_others_reg: ldo-vsram-others {
++          regulator-name = "vsram-others";
++          regulator-min-microvolt = <518750>;
++          regulator-max-microvolt = <1312500>;
++          regulator-ramp-delay = <6250>;
++          regulator-enable-ramp-delay = <110>;
++          regulator-always-on;
++        };
++        mt6357_vsram_proc_reg: ldo-vsram-proc {
++          regulator-name = "vsram-proc";
++          regulator-min-microvolt = <518750>;
++          regulator-max-microvolt = <1312500>;
++          regulator-ramp-delay = <6250>;
++          regulator-enable-ramp-delay = <110>;
++          regulator-always-on;
++        };
++        mt6357_vaux18_reg: ldo-vaux18 {
++          compatible = "regulator-fixed";
++          regulator-name = "vaux18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vaud28_reg: ldo-vaud28 {
++          compatible = "regulator-fixed";
++          regulator-name = "vaud28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vio28_reg: ldo-vio28 {
++          compatible = "regulator-fixed";
++          regulator-name = "vio28";
++          regulator-min-microvolt = <2800000>;
++          regulator-max-microvolt = <2800000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vio18_reg: ldo-vio18 {
++          compatible = "regulator-fixed";
++          regulator-name = "vio18";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <1800000>;
++          regulator-enable-ramp-delay = <264>;
++          regulator-always-on;
++        };
++        mt6357_vdram_reg: ldo-vdram {
++          regulator-name = "vdram";
++          regulator-min-microvolt = <1100000>;
++          regulator-max-microvolt = <1200000>;
++          regulator-enable-ramp-delay = <3300>;
++        };
++        mt6357_vmc_reg: ldo-vmc {
++          regulator-name = "vmc";
++          regulator-min-microvolt = <1800000>;
++          regulator-max-microvolt = <3300000>;
++          regulator-enable-ramp-delay = <44>;
++        };
++        mt6357_vmch_reg: ldo-vmch {
++          regulator-name = "vmch";
++          regulator-min-microvolt = <2900000>;
++          regulator-max-microvolt = <3300000>;
++          regulator-enable-ramp-delay = <44>;
++        };
++        mt6357_vemc_reg: ldo-vemc {
++          regulator-name = "vemc";
++          regulator-min-microvolt = <2900000>;
++          regulator-max-microvolt = <3300000>;
++          regulator-enable-ramp-delay = <44>;
++          regulator-always-on;
++        };
++        mt6357_vsim1_reg: ldo-vsim1 {
++          regulator-name = "vsim1";
++          regulator-min-microvolt = <1700000>;
++          regulator-max-microvolt = <3100000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vsim2_reg: ldo-vsim2 {
++          regulator-name = "vsim2";
++          regulator-min-microvolt = <1700000>;
++          regulator-max-microvolt = <3100000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++        mt6357_vibr_reg: ldo-vibr {
++          regulator-name = "vibr";
++          regulator-min-microvolt = <1200000>;
++          regulator-max-microvolt = <3300000>;
++          regulator-enable-ramp-delay = <44>;
++        };
++        mt6357_vusb33_reg: ldo-vusb33 {
++          regulator-name = "vusb33";
++          regulator-min-microvolt = <3000000>;
++          regulator-max-microvolt = <3100000>;
++          regulator-enable-ramp-delay = <264>;
++        };
++      };
++    };
++...
 
 -- 
 b4 0.10.1
