@@ -2,77 +2,133 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F08DC47089
-	for <linux-rtc@archiver.kernel.org>; Tue, 29 Nov 2022 14:18:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3205DC4167B
+	for <linux-rtc@archiver.kernel.org>; Tue, 29 Nov 2022 15:57:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235133AbiK2OSJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 29 Nov 2022 09:18:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54954 "EHLO
+        id S235903AbiK2P5M (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 29 Nov 2022 10:57:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235287AbiK2ORf (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Nov 2022 09:17:35 -0500
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD2269301
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Nov 2022 06:15:35 -0800 (PST)
-Received: by mail-lj1-x234.google.com with SMTP id a7so17304639ljq.12
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Nov 2022 06:15:35 -0800 (PST)
+        with ESMTP id S236099AbiK2P5J (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 29 Nov 2022 10:57:09 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9861D4666F
+        for <linux-rtc@vger.kernel.org>; Tue, 29 Nov 2022 07:57:07 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id h11so15516026wrw.13
+        for <linux-rtc@vger.kernel.org>; Tue, 29 Nov 2022 07:57:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BRpdkJK2Wo92ON846N6eHVIM5x8Sd+GDvvbGsGBzl0k=;
-        b=I+R/M8dE9pmPamxZ3RSuWcocOq1rviSIGC0ap0QPJgzV1OFULdizRcDBcRmhvJ3niN
-         UBLin+dkqj5rdvepvMyFLA7YMrqpuTk0W07CFV4CEBZJdEt7RAkSdIJddwMLHap9qo5a
-         UV1W3K+GE2LD68UDPxWMo/GWAPsiZfcnL8/QY=
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vlDqIjsLXTsLOVaB8vd3OkA5S2UoaPdLtsIDpj43x2c=;
+        b=pNIiYVVTkwgqOriKU8BYCl0TpK0cv2SjHLsGdkHKq21/VB+1nWmyglj18IvFnnWgNg
+         w5WZA7aYnWHzUkKlbFCdb8uGwICFWVM9wHiJGZffqIYLpgj2PAXkd/2gaLG7SyRnbldn
+         K12qM3pCgNzfk66RY0/iC1ujwbZSB+eWKdjliMVt1FM7vvfHTa1/6vuQtOw1oHH9KiOn
+         RWA2lIXiT6NEmX9mIZp+ac5PxEhXPaeHPGF7rc5+dBGgwMQ3dKD+xna9eH62EhdobIMR
+         YZqt+WWhgpINTkGwxqPgEn9MjKTV4pYUcALLbWaX4yFxxuXx1g3gEfIYR5rLtDW1rlNo
+         yvLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BRpdkJK2Wo92ON846N6eHVIM5x8Sd+GDvvbGsGBzl0k=;
-        b=IqC08keW1p1sMSyN+gRmr+L2NaeXZ09cPowRRHp+KokXCpTfGqAdJBBhiCclDpsqcU
-         xZy6JAC6DnlK0MkB/LPSTmC0BxNCrT5c8YrYoRnQZ/b0KMx73fagQucl5Q19JG4zpU8H
-         OhdhlHef36NeFVor/h8pJ1bQi/Zv5FtmMvvlF1G/EsV8fdgHsSobPlw7PlsA0qyxRSSU
-         j421FttXdzJ0F79/8DOZFnwnjSojh3R+HOcOW3Axtb230V0b1hj4bCzO/BlIZrvaxbVC
-         KHkMhZho5WTdpCuj/q9/j7MO73asSF+mAlniHDRNfX0tdf353ZAleFd7AJemNgrXjBgW
-         u/GQ==
-X-Gm-Message-State: ANoB5pnSYjyWBz1J3VnPGY9xQH0v3xVtDr5QAEGMZUuUhGidTllPy92j
-        Zh+Is8VfB6yffTJ2kZG+BKvhHg==
-X-Google-Smtp-Source: AA0mqf66BjvHqAMZwEdJBt0dFTt5/SHy1+6HQvcJmTOWZBR9LFU3R1/MSDg9xbs8lvTCdJbqEGsmrQ==
-X-Received: by 2002:a2e:be8b:0:b0:278:ea67:a38c with SMTP id a11-20020a2ebe8b000000b00278ea67a38cmr11889405ljr.63.1669731333470;
-        Tue, 29 Nov 2022 06:15:33 -0800 (PST)
-Received: from [172.21.3.193] ([87.54.42.112])
-        by smtp.gmail.com with ESMTPSA id b16-20020a056512071000b004a8b9c68735sm2071805lfs.102.2022.11.29.06.15.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 29 Nov 2022 06:15:33 -0800 (PST)
-Message-ID: <05782b6b-4e09-2b13-32c4-4984753dcef0@rasmusvillemoes.dk>
-Date:   Tue, 29 Nov 2022 15:15:32 +0100
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vlDqIjsLXTsLOVaB8vd3OkA5S2UoaPdLtsIDpj43x2c=;
+        b=prRXD5die2DAlBF36TXG2CEL+3PMNJt+ZXQhc/kuSNxB0EKfXQM2mQgltUEBJxoxyL
+         AtNjRRqIIBekn+x4ix0LiAv2ool+TY2J5PYSsp3N94gr+furnPQVSJ2V6i6xOGYsuxZA
+         6KF3NiMkCHYs2jFy6FmoktorxJ8mEjV/L5V3wlaiOj7zPMRlxEahcva4Pz7pRdwDu+V1
+         VTjU5/YySXlVsvY4ycmLzWqSr+Rb38edmzykUACVV86HLU27Wv2B82ndheJuwmuK2OU4
+         TI8lHisM02/XfNtXZJelVyt+eD36aBgbaMGRI57EHJgs1g2axdDBTsPOiVRMe4ysqg3t
+         JXGw==
+X-Gm-Message-State: ANoB5plKeaSGLlm1HiJXqGrHu5iNEhz+IHH4sibqm4cxsbW8xVbu2QN/
+        610t6XDDj+YQIoKM7/lE6XTANA==
+X-Google-Smtp-Source: AA0mqf51vBPWy4hgZod60Cj/lrx484/uTfg25oQBq9QbebDIhdhfi/oObCpVFPiTh9h923R96L2wJQ==
+X-Received: by 2002:a05:6000:1e12:b0:242:1522:249b with SMTP id bj18-20020a0560001e1200b002421522249bmr7747931wrb.326.1669737426121;
+        Tue, 29 Nov 2022 07:57:06 -0800 (PST)
+Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
+        by smtp.googlemail.com with ESMTPSA id f2-20020a7bc8c2000000b003cfb7c02542sm2601550wml.11.2022.11.29.07.57.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Nov 2022 07:57:05 -0800 (PST)
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Tue, 29 Nov 2022 16:57:00 +0100
+Subject: [PATCH v7 1/8] dt-bindings: input: mtk-pmic-keys: add binding for MT6357
+ PMIC
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v1 5/5] rtc: isl12022: sort header inclusion
- alphabetically
-Content-Language: en-US, da
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hwmon@vger.kernel.org
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221005-mt6357-support-v7-1-477e60126749@baylibre.com>
+References: <20221005-mt6357-support-v7-0-477e60126749@baylibre.com>
+In-Reply-To: <20221005-mt6357-support-v7-0-477e60126749@baylibre.com>
+To:     Mark Brown <broonie@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jean Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>
-References: <20221126141806.62205-1-andriy.shevchenko@linux.intel.com>
- <20221126141806.62205-5-andriy.shevchenko@linux.intel.com>
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-In-Reply-To: <20221126141806.62205-5-andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Fabien Parent <fabien.parent@linaro.org>,
+        Tianping Fang <tianping.fang@mediatek.com>,
+        Flora Fu <flora.fu@mediatek.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>, Lee Jones <lee@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-mediatek@lists.infradead.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Alexandre Mergnat <amergnat@baylibre.com>,
+        linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        linux-rtc@vger.kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Fabien Parent <fparent@baylibre.com>,
+        linux-leds@vger.kernel.org
+X-Mailer: b4 0.10.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1006; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=acIU37N8P1oQiEeAFVfuuIgjK7XT7A/zFtqy1fGJDhM=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjhivPA5aom0Zeqyux6rOhFeoKTkzE2Oj5kGE7WYXg
+ +gQGHnSJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4YrzwAKCRArRkmdfjHURUE4D/
+ 9BdXsZiju2AGVXgrER3x+Vo78etrdpuEunjrQRsZWcDasGnLOQBbnmPWLYEluoDIs0y4Y9VHJkW6P5
+ eDB5OmuSid2mkwvRdaLRD/AkLQei3V4mk9T9tzW+fogVahDpF+tDzQ9iDGWdiM5sJTmODVzqHpFOgj
+ BONsywJpJRxBw8BI/VwCHg4vfXUmD94hOCz8SdiFEM4OiDIW1bSAnazBUdai5/zq9wEv0l+G9rA6me
+ qOBASTf/8NNBnq7uprjuqGybA89cHeXtQEcWVGNhKH7qEv74NEEp/kk7qvoGhhadY148mwd+9ADliC
+ NciYbR3ZSApmC+f7lLx9FUm++OI/1V77hZ8MezoOyEE+EvJXucx4FHk/AFRZR4aSJXZB46mx45NlkX
+ m6cVrsYcRjjjByvT0St10+yz01XD30iD9zTYz0CmLr1WcfKqeJrsOc1Nbvj98ltL0UkxSfv6Hc4Xz0
+ sMLc658evxboLjfPgiCW4Sg4iU2ATJ1Fas8bmVuFrlEU1j6IeHKYfwqqj1ITrd49UULhf7QBfoWMxb
+ 6ucBbpCCCAt7Fyz2ahzwRsCcxWZg/HQOQG2YHcfmhJtW1+C9KQ3L0zXwEe4GaRDL5yxpcSmHLVgMia
+ BcLWIL0fz0tMH4uaiZevPcqt8HjSM4SZQYfk4rwSV/h5UkJfFsagDaCjsoJQ==
+X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
+ fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 26/11/2022 15.18, Andy Shevchenko wrote:
-> Sort header inclusion alphabetically for better maintenance.
+From: Fabien Parent <fparent@baylibre.com>
 
-Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Add binding documentation for the PMIC keys on MT6357.
 
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+---
+ Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
+index 2f72ec418415..037c3ae9f1c3 100644
+--- a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
++++ b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
+@@ -26,6 +26,7 @@ properties:
+     enum:
+       - mediatek,mt6323-keys
+       - mediatek,mt6331-keys
++      - mediatek,mt6357-keys
+       - mediatek,mt6358-keys
+       - mediatek,mt6397-keys
+ 
+
+-- 
+b4 0.10.1
