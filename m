@@ -2,118 +2,98 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D46A1C4332F
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:13:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02433C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:18:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbiLOPNz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Dec 2022 10:13:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42618 "EHLO
+        id S229460AbiLOPSF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Dec 2022 10:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230141AbiLOPN1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:13:27 -0500
-X-Greylist: delayed 524 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 15 Dec 2022 07:12:44 PST
+        with ESMTP id S229469AbiLOPSE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:18:04 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA4932B8F;
-        Thu, 15 Dec 2022 07:12:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E6C19F;
+        Thu, 15 Dec 2022 07:18:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:Content-Type:Mime-Version:
-        References:In-Reply-To:Message-Id:Cc:To:From:Date:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=3zeWx/VcZJ+nKDoxQSjrPrYjj2F0B/NTv4M2nB0Taxo=; b=XGVRecjPvKN1DiEoK3zrmKwJgf
-        dWEDw4jOTpFgBvU8dBgihUP5XjHpeVRupNcj9IXw94trWULMNnwKW6wd8vZm6vJvGCGOY2VGxY52j
-        vzJ+xy7fEf/F7RUY0ktMDb2XSAVik9jhS46pHut3Gv9K2eA6+iID9ubN+OgosU4QMFZc=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:48106 helo=pettiford)
+        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
+        In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=z+IHwHSu5unAUaaw4EDPAX6GeAr53Ixz/aN3zTKz0e8=; b=Qku3p+XT555mojQSydWem3v8Yu
+        4EdXOoOaYhhR0PqwTE6//CqdXVbuZuAbLuh8SRYy5VeN4VYAgHOZPvqUTP11SIA7rfdhX2b5iH0SU
+        m+KitC3I3DikYQdv+e+pNipccXr3B7J44CYgxgYo7KsucDRgjAERvYj0/NpMlJIsiZQg=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:48102 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1p5puc-0000OA-0h; Thu, 15 Dec 2022 10:12:42 -0500
-Date:   Thu, 15 Dec 2022 10:12:41 -0500
+        id 1p5pmK-0000EC-D5; Thu, 15 Dec 2022 10:04:09 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Message-Id: <20221215101241.993999be8b51f133fb11bfba@hugovil.com>
-In-Reply-To: <Yiplnqlz2DSXCvi8@piout.net>
-References: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
-        <20220309162301.61679-11-alexandre.belloni@bootlin.com>
-        <20220310110918.41a681474f5a0e11abdedc39@hugovil.com>
-        <Yiplnqlz2DSXCvi8@piout.net>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, hugo@hugovil.com,
+        Hugo Villeneuve <hvilleneuve@dimonoff.com>
+Date:   Thu, 15 Dec 2022 10:02:10 -0500
+Message-Id: <20221215150214.1109074-10-hugo@hugovil.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20221215150214.1109074-1-hugo@hugovil.com>
+References: <20221215150214.1109074-1-hugo@hugovil.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: Re: [PATCH 11/29] rtc: pcf2127: set RTC_FEATURE_ALARM_RES_2S
+Subject: [PATCH v3 09/14] rtc: pcf2127: set PWRMNG value for PCF2131
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, 10 Mar 2022 21:58:49 +0100
-Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-> On 10/03/2022 11:09:18-0500, Hugo Villeneuve wrote:
-> > On Wed,  9 Mar 2022 17:22:42 +0100
-> > Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
-> > 
-> > > The PCF2127 doesn't support UIE because setting an alarm to fire every
-> > > second confuses the chip and the fastest we can go is an alarm every 2
-> > > seconds.
-> > 
-> > Hi Alexandre,
-> > can you describe what "confuses the chip" means?
-> > 
-> > In my experimental PCF2131 driver, I activated UIE and it seems to be working fine at 1s intervals, but since it is similar to PCF2127, maybe there is still a problem and I just didn't see it.
-> > 
-> 
-> Did you remove uie_unsupported? Else, you may have been using uie
-> emulation. In my tests last year, the pcf2127 was failing to reassert
-> the interrupt if an alarm was set every second. The same happens on
-> other NXP based RTCs (i.e. including microcrystal ones).
-> 
-> I'm going to test again soon (and also reply to your series).
+Default PWRMNG[2:0] bits are set to 000b for PCF2127/29, but to
+111b for PCF2131.
 
-Hi Alexandre,
-after 9 months, I decided to resend my PCF2131 driver serie (V3), rebased on your latest rtc-next branch. I would appreciate if you or someone could take a look at it and comment.
+Set these bits to 000b to select same mode as PCF2127/29.
 
-Thank you,
-Hugo Villeneuve
+Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+---
+ drivers/rtc/rtc-pcf2127.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-
-> > > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> > > ---
-> > >  drivers/rtc/rtc-pcf2127.c | 1 +
-> > >  1 file changed, 1 insertion(+)
-> > > 
-> > > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> > > index f8469b134411..63b275b014bd 100644
-> > > --- a/drivers/rtc/rtc-pcf2127.c
-> > > +++ b/drivers/rtc/rtc-pcf2127.c
-> > > @@ -656,6 +656,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
-> > >  	pcf2127->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-> > >  	pcf2127->rtc->range_max = RTC_TIMESTAMP_END_2099;
-> > >  	pcf2127->rtc->set_start_time = true; /* Sets actual start to 1970 */
-> > > +	set_bit(RTC_FEATURE_ALARM_RES_2S, pcf2127->rtc->features);
-> > >  	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf2127->rtc->features);
-> > >  	clear_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
-> > >  
-> > > -- 
-> > > 2.35.1
-> > > 
-> > 
-> > 
-> > -- 
-> > Hugo Villeneuve <hugo@hugovil.com>
-> 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-> 
-
-
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 68af4d0438b8..241189ee4a05 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -53,6 +53,7 @@
+ #define PCF2127_BIT_CTRL3_BLF			BIT(2)
+ #define PCF2127_BIT_CTRL3_BF			BIT(3)
+ #define PCF2127_BIT_CTRL3_BTSE			BIT(4)
++#define PCF2127_CTRL3_PWRMNG_MASK		GENMASK(7, 5)
+ /* Control register 4 */
+ #define PCF2131_REG_CTRL4		0x03
+ #define PCF2131_BIT_CTRL4_TSF4			BIT(4)
+@@ -1129,6 +1130,20 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 	regmap_clear_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
+ 				PCF2127_BIT_CTRL1_POR_OVRD);
+ 
++	/* Make sure PWRMNG[2:0] is set to 000b. This is the default for
++	 * PCF2127/29, but not for PCF2131 (default of 111b).
++	 *
++	 * PWRMNG[2:0]  = 000b:
++	 *   battery switch-over function is enabled in standard mode;
++	 *   battery low detection function is enabled
++	 */
++	ret = regmap_clear_bits(pcf2127->regmap, PCF2127_REG_CTRL3,
++				PCF2127_CTRL3_PWRMNG_MASK);
++	if (ret < 0) {
++		dev_err(dev, "PWRMNG config failed\n");
++		return ret;
++	}
++
+ 	ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_clkout, &val);
+ 	if (ret < 0)
+ 		return ret;
 -- 
-Hugo Villeneuve <hugo@hugovil.com>
+2.30.2
+
