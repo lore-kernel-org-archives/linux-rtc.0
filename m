@@ -2,56 +2,118 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 917B2C4332F
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 09:01:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D46A1C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:13:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiLOJBX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Dec 2022 04:01:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47516 "EHLO
+        id S230136AbiLOPNz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Dec 2022 10:13:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbiLOJBV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 04:01:21 -0500
-Received: from mail.lokoho.com (mail.lokoho.com [217.61.105.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AAEBF43
-        for <linux-rtc@vger.kernel.org>; Thu, 15 Dec 2022 01:01:18 -0800 (PST)
-Received: by mail.lokoho.com (Postfix, from userid 1001)
-        id 052E48688D; Thu, 15 Dec 2022 09:01:04 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lokoho.com; s=mail;
-        t=1671094875; bh=Z0N5VlX9/JlryGOL5I747Le9USomZJCRNNGRT3LbbKc=;
-        h=Date:From:To:Subject:From;
-        b=aa4WRg6pifv6Tg3+PfTSLkZZuLouId18swAliLnmi/TqsAUsfOtw0dBnovdE+XS7h
-         LphggZCi/LxH5KNGz6u7oSu6kh5bFYe3bQV/7KvGLiZN31CFgp6Bi0LgmedH8+cxjQ
-         zui2T/ddUaBOxJ5Zkmkt3fcznml20HLuprjq3JrPF5Vg4bSujS6kXnsUHmdlK7s2/N
-         mZIVGnmxcox+wtp4bHoOWeNYici7Dq5WNFZAzulkOzbopGcvaVsX/dPRZv6qhfkjvn
-         UNUOLD5HXSyJ0Rj6GvrngN9fpg8J2BEsrjYndch03E6BRiHB6fgQqNiyRq11fY5mB+
-         h8x9KkFBZqUSg==
-Received: by mail.lokoho.com for <linux-rtc@vger.kernel.org>; Thu, 15 Dec 2022 09:00:28 GMT
-Message-ID: <20221215074501-0.1.2u.ad04.0.p80r7lo9mm@lokoho.com>
-Date:   Thu, 15 Dec 2022 09:00:28 GMT
-From:   "Adam Charachuta" <adam.charachuta@lokoho.com>
-To:     <linux-rtc@vger.kernel.org>
-Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
-X-Mailer: mail.lokoho.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230141AbiLOPN1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:13:27 -0500
+X-Greylist: delayed 524 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 15 Dec 2022 07:12:44 PST
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFA4932B8F;
+        Thu, 15 Dec 2022 07:12:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+        ; s=x; h=Subject:Content-Transfer-Encoding:Content-Type:Mime-Version:
+        References:In-Reply-To:Message-Id:Cc:To:From:Date:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=3zeWx/VcZJ+nKDoxQSjrPrYjj2F0B/NTv4M2nB0Taxo=; b=XGVRecjPvKN1DiEoK3zrmKwJgf
+        dWEDw4jOTpFgBvU8dBgihUP5XjHpeVRupNcj9IXw94trWULMNnwKW6wd8vZm6vJvGCGOY2VGxY52j
+        vzJ+xy7fEf/F7RUY0ktMDb2XSAVik9jhS46pHut3Gv9K2eA6+iID9ubN+OgosU4QMFZc=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:48106 helo=pettiford)
+        by mail.hugovil.com with esmtpa (Exim 4.92)
+        (envelope-from <hugo@hugovil.com>)
+        id 1p5puc-0000OA-0h; Thu, 15 Dec 2022 10:12:42 -0500
+Date:   Thu, 15 Dec 2022 10:12:41 -0500
+From:   Hugo Villeneuve <hugo@hugovil.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Message-Id: <20221215101241.993999be8b51f133fb11bfba@hugovil.com>
+In-Reply-To: <Yiplnqlz2DSXCvi8@piout.net>
+References: <20220309162301.61679-1-alexandre.belloni@bootlin.com>
+        <20220309162301.61679-11-alexandre.belloni@bootlin.com>
+        <20220310110918.41a681474f5a0e11abdedc39@hugovil.com>
+        <Yiplnqlz2DSXCvi8@piout.net>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 70.80.174.168
+X-SA-Exim-Mail-From: hugo@hugovil.com
+Subject: Re: [PATCH 11/29] rtc: pcf2127: set RTC_FEATURE_ALARM_RES_2S
+X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
+X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Thu, 10 Mar 2022 21:58:49 +0100
+Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
 
-zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
-=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
-o dalszych rozm=C3=B3w.=20
+> On 10/03/2022 11:09:18-0500, Hugo Villeneuve wrote:
+> > On Wed,  9 Mar 2022 17:22:42 +0100
+> > Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> > 
+> > > The PCF2127 doesn't support UIE because setting an alarm to fire every
+> > > second confuses the chip and the fastest we can go is an alarm every 2
+> > > seconds.
+> > 
+> > Hi Alexandre,
+> > can you describe what "confuses the chip" means?
+> > 
+> > In my experimental PCF2131 driver, I activated UIE and it seems to be working fine at 1s intervals, but since it is similar to PCF2127, maybe there is still a problem and I just didn't see it.
+> > 
+> 
+> Did you remove uie_unsupported? Else, you may have been using uie
+> emulation. In my tests last year, the pcf2127 was failing to reassert
+> the interrupt if an alarm was set every second. The same happens on
+> other NXP based RTCs (i.e. including microcrystal ones).
+> 
+> I'm going to test again soon (and also reply to your series).
 
-Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
-=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
-=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
-strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
+Hi Alexandre,
+after 9 months, I decided to resend my PCF2131 driver serie (V3), rebased on your latest rtc-next branch. I would appreciate if you or someone could take a look at it and comment.
 
-Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
+Thank you,
+Hugo Villeneuve
 
 
-Pozdrawiam
-Adam Charachuta
+> > > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> > > ---
+> > >  drivers/rtc/rtc-pcf2127.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> > > index f8469b134411..63b275b014bd 100644
+> > > --- a/drivers/rtc/rtc-pcf2127.c
+> > > +++ b/drivers/rtc/rtc-pcf2127.c
+> > > @@ -656,6 +656,7 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+> > >  	pcf2127->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> > >  	pcf2127->rtc->range_max = RTC_TIMESTAMP_END_2099;
+> > >  	pcf2127->rtc->set_start_time = true; /* Sets actual start to 1970 */
+> > > +	set_bit(RTC_FEATURE_ALARM_RES_2S, pcf2127->rtc->features);
+> > >  	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf2127->rtc->features);
+> > >  	clear_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
+> > >  
+> > > -- 
+> > > 2.35.1
+> > > 
+> > 
+> > 
+> > -- 
+> > Hugo Villeneuve <hugo@hugovil.com>
+> 
+> -- 
+> Alexandre Belloni, co-owner and COO, Bootlin
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
+> 
+
+
+-- 
+Hugo Villeneuve <hugo@hugovil.com>
