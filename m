@@ -2,39 +2,39 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02433C4332F
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:18:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83BEFC4332F
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:18:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229460AbiLOPSF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Dec 2022 10:18:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
+        id S229736AbiLOPSI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Dec 2022 10:18:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229469AbiLOPSE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:18:04 -0500
+        with ESMTP id S229554AbiLOPSG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:18:06 -0500
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E6C19F;
-        Thu, 15 Dec 2022 07:18:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D58E0;
+        Thu, 15 Dec 2022 07:18:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=z+IHwHSu5unAUaaw4EDPAX6GeAr53Ixz/aN3zTKz0e8=; b=Qku3p+XT555mojQSydWem3v8Yu
-        4EdXOoOaYhhR0PqwTE6//CqdXVbuZuAbLuh8SRYy5VeN4VYAgHOZPvqUTP11SIA7rfdhX2b5iH0SU
-        m+KitC3I3DikYQdv+e+pNipccXr3B7J44CYgxgYo7KsucDRgjAERvYj0/NpMlJIsiZQg=;
+        bh=S8d6dn8OKytIYHpmifekb67q4TLdM6m9YnqemmeSLaQ=; b=c2sQ5iNVADjuPd8lr3keKGO5j1
+        U9La64lwX/gD0ex83K9JpMYq6+FJfByQkhSoN+6pZLcCrHSUn0ElCMdY7dwU5rpWZ7agLHF1SaYVt
+        nIlDCNnDWSfn3sYLKQc2+ObWLxhjrjRmBsa+qQYzun3CicfFUEW/azP0XEp1ZZpZddWE=;
 Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:48102 helo=pettiford.lan)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1p5pmK-0000EC-D5; Thu, 15 Dec 2022 10:04:09 -0500
+        id 1p5pmC-0000EC-V6; Thu, 15 Dec 2022 10:04:01 -0500
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
         robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, hugo@hugovil.com,
         Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Date:   Thu, 15 Dec 2022 10:02:10 -0500
-Message-Id: <20221215150214.1109074-10-hugo@hugovil.com>
+Date:   Thu, 15 Dec 2022 10:02:06 -0500
+Message-Id: <20221215150214.1109074-6-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20221215150214.1109074-1-hugo@hugovil.com>
 References: <20221215150214.1109074-1-hugo@hugovil.com>
@@ -42,7 +42,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 70.80.174.168
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v3 09/14] rtc: pcf2127: set PWRMNG value for PCF2131
+Subject: [PATCH v3 05/14] rtc: pcf2127: adapt for CLKOUT register at any offset
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -51,49 +51,56 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Default PWRMNG[2:0] bits are set to 000b for PCF2127/29, but to
-111b for PCF2131.
-
-Set these bits to 000b to select same mode as PCF2127/29.
+This will simplify the implementation of new variants into this driver.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/rtc/rtc-pcf2127.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 68af4d0438b8..241189ee4a05 100644
+index 5d8c06e32dce..38816ad065eb 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -53,6 +53,7 @@
- #define PCF2127_BIT_CTRL3_BLF			BIT(2)
- #define PCF2127_BIT_CTRL3_BF			BIT(3)
- #define PCF2127_BIT_CTRL3_BTSE			BIT(4)
-+#define PCF2127_CTRL3_PWRMNG_MASK		GENMASK(7, 5)
- /* Control register 4 */
- #define PCF2131_REG_CTRL4		0x03
- #define PCF2131_BIT_CTRL4_TSF4			BIT(4)
-@@ -1129,6 +1130,20 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+@@ -116,6 +116,7 @@ struct pcf21xx_config {
+ 	u8 regs_alarm_base; /* Alarm function base registers. */
+ 	u8 reg_wd_ctl; /* Watchdog control register. */
+ 	u8 reg_wd_val; /* Watchdog value register. */
++	u8 reg_clkout; /* Clkout register. */
+ };
+ 
+ struct pcf2127 {
+@@ -668,6 +669,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+ 		.reg_wd_val = PCF2127_REG_WD_VAL,
++		.reg_clkout = PCF2127_REG_CLKOUT,
+ 	},
+ 	[PCF2129] = {
+ 		.max_register = 0x19,
+@@ -677,6 +679,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
+ 		.reg_wd_ctl = PCF2127_REG_WD_CTL,
+ 		.reg_wd_val = PCF2127_REG_WD_VAL,
++		.reg_clkout = PCF2127_REG_CLKOUT,
+ 	},
+ };
+ 
+@@ -756,12 +759,12 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
  	regmap_clear_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
  				PCF2127_BIT_CTRL1_POR_OVRD);
  
-+	/* Make sure PWRMNG[2:0] is set to 000b. This is the default for
-+	 * PCF2127/29, but not for PCF2131 (default of 111b).
-+	 *
-+	 * PWRMNG[2:0]  = 000b:
-+	 *   battery switch-over function is enabled in standard mode;
-+	 *   battery low detection function is enabled
-+	 */
-+	ret = regmap_clear_bits(pcf2127->regmap, PCF2127_REG_CTRL3,
-+				PCF2127_CTRL3_PWRMNG_MASK);
-+	if (ret < 0) {
-+		dev_err(dev, "PWRMNG config failed\n");
-+		return ret;
-+	}
-+
- 	ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_clkout, &val);
+-	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CLKOUT, &val);
++	ret = regmap_read(pcf2127->regmap, pcf2127->cfg->reg_clkout, &val);
  	if (ret < 0)
  		return ret;
+ 
+ 	if (!(val & PCF2127_BIT_CLKOUT_OTPR)) {
+-		ret = regmap_set_bits(pcf2127->regmap, PCF2127_REG_CLKOUT,
++		ret = regmap_set_bits(pcf2127->regmap, pcf2127->cfg->reg_clkout,
+ 				      PCF2127_BIT_CLKOUT_OTPR);
+ 		if (ret < 0)
+ 			return ret;
 -- 
 2.30.2
 
