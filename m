@@ -2,156 +2,145 @@ Return-Path: <linux-rtc-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B343BC2D0CC
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 15:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED9E8C4332F
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Dec 2022 18:07:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229821AbiLOPUc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Dec 2022 10:20:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
+        id S229847AbiLOSHH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Dec 2022 13:07:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230062AbiLOPTy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 10:19:54 -0500
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26B032B8B;
-        Thu, 15 Dec 2022 07:18:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Cc:To
-        :From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date
-        :Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
-        List-Owner:List-Archive; bh=USYqznAH4SDqUevncPOHC9VofBQznPJDAAswThOanBE=; b=H
-        LMplgt81ZSsISkJ2Fta+lVkPgewzjrt6F/34vbmwcWgLOk9wRLhytxMBD2tNM4yv15XybMtglwjZx
-        pqI7XYOejDOoYw7yFqLZ7f2OuBK8m8LYXHBqOI/gkTtGKruavQtN+wmICMQhqmDG8xkz5x/ib7+um
-        5gfftwAIZCTiYiB8=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:48102 helo=pettiford.lan)
-        by mail.hugovil.com with esmtpa (Exim 4.92)
-        (envelope-from <hugo@hugovil.com>)
-        id 1p5pm2-0000EC-4n; Thu, 15 Dec 2022 10:03:50 -0500
-From:   Hugo Villeneuve <hugo@hugovil.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, hugo@hugovil.com,
-        Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Date:   Thu, 15 Dec 2022 10:02:01 -0500
-Message-Id: <20221215150214.1109074-1-hugo@hugovil.com>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S229652AbiLOSHG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Dec 2022 13:07:06 -0500
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5606B1837C;
+        Thu, 15 Dec 2022 10:07:04 -0800 (PST)
+Received: from mercury (dyndsl-095-033-168-084.ewe-ip-backbone.de [95.33.168.84])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: sre)
+        by madras.collabora.co.uk (Postfix) with ESMTPSA id 1B46F6602C74;
+        Thu, 15 Dec 2022 18:07:02 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1671127622;
+        bh=dH1RKEdVew6ZLUn/Lg6/y50BwP8UTVQcbVljZOXBe64=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=QlKhDzWdwXtRrPLm9i1lmRVAsKnqCDi+bv+nnY9xWDeQl5d2i8ct3pSnnmYts4sOG
+         V4dyVbJuj9LvkdONDn0iz2yvDCYsQO1COb9NyxfCecSKcMXtVYEmtJqr3rThG4nJ9m
+         juOmV5/XoT0BfjqABlKit5Dlnv1PMuvhTvpk18dsiMWPXMaU7zIgzfJS+L/FZ4ZtpT
+         gQW4AFtS1/8jVu+ti3GSNddrz78IiVz13lxAMyahOrWbN8FgMWS7bOB9Xwo94gUjaF
+         1WvGvWB5lzjGrTcsdCWbZ7HIhL8dzIc8q5Amy3dJqKKf/2MwWJSfwylJKBgZWrbqif
+         i19laCbLgxvcQ==
+Received: by mercury (Postfix, from userid 1000)
+        id 3ACFF1060F45; Thu, 15 Dec 2022 19:06:59 +0100 (CET)
+Date:   Thu, 15 Dec 2022 19:06:59 +0100
+From:   Sebastian Reichel <sebastian.reichel@collabora.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     devicetree@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 2/2] dt-bindings: rtc: m41t80: Mark the clock: subnode
+ as deprecated
+Message-ID: <20221215180659.sa54lkinwxoiz7bb@mercury.elektranox.org>
+References: <20221211205124.23823-1-marex@denx.de>
+ <20221211205124.23823-2-marex@denx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 70.80.174.168
-X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v3 00/14] rtc: pcf2127: add PCF2131 driver
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ulyyuijbxyhtsviv"
+Content-Disposition: inline
+In-Reply-To: <20221211205124.23823-2-marex@denx.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Hello,
-this patch series adds the driver for the PCF2131 real-time clock.
+--ulyyuijbxyhtsviv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This RTC is very similar in functionality to the PCF2127/29 with the
-following differences:
-  -supports two new control registers at offsets 4 and 5
-  -supports a new reset register
-  -supports 4 tamper detection functions instead of 1
-  -has no nvmem (like the PCF2129)
-  -has two output interrupt pins instead of one
-  -has 1/100th seconds capabilities (not supported in this driver)
-  -pcf2127 has watchdog clock sources: 1/60,   1, 64 and 4096Hz
-   pcf2131 has watchdog clock sources: 1/64, 1/4,  4 and   64Hz
-  -watchdog value register cannot be read after being set
+Hi,
 
-Most of the register addresses are very different, although they still
-follow the same layout. For example, the time/date and tamper registers
-have a different base address, but the offsets are all the same.
-Consequently, the source code of the PCF2127 driver can be easily adapted
-to support this new device.
+On Sun, Dec 11, 2022 at 09:51:24PM +0100, Marek Vasut wrote:
+> The clock {} subnode seems like it is describing an always-on clock
+> generated by the PMIC. This should rather be modeled by consumer of
+> the clock taking phandle to the RTC node itself, since it already
+> does have clock-cells and all. Since there are no users of the clock
+> subnode in tree anyway, mark it as deprecated to avoid proliferation
+> of this approach.
+>=20
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> ---
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+> Cc: linux-rtc@vger.kernel.org
+> To: devicetree@vger.kernel.org
+> ---
+> V2: - Add AB from Krzysztof
+> V3: - No change
+> ---
 
-Patches 1 to 6 modify the existing pcf2127 driver to make it more generic
-and able to support multiple variants, like the PCF2131. This is done
-mostly by using offsets instead of absolute hardcoded register addresses.
+I just noticed this by accident. Basically everything in the patch
+description is wrong:
 
-Patch 7 add actual support for the PCF2131.
+1. There is a in-tree user: arch/arm/boot/dts/imx6dl-qmx6.dtsi
+2. The PMIC has nothing to do with this
+3. Directly referencing the RTC does not work, since that introduces
+   an unsolvable dependency loop on QMX6. This was the solution accepted
+   by Rob and Saravana:
 
-Patch 8 configures all interrupt sources to go through the INT A pin.
+[v1] https://lore.kernel.org/lkml/20210222171247.97609-1-sebastian.reichel@=
+collabora.com/
+[v2] https://lore.kernel.org/all/20210428222953.235280-1-sebastian.reichel@=
+collabora.com/
 
-Patch 9 changes the PWRMNG bits to be the same with the PCF2131 as they
-      are with the PCF2127/29 (different default values).
+-- Sebastian
 
-Patch 10 allow to confirm PCF2131 device presence by reading the reset
-      register fixed pattern.
+>  Documentation/devicetree/bindings/rtc/st,m41t80.yaml | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/rtc/st,m41t80.yaml b/Docum=
+entation/devicetree/bindings/rtc/st,m41t80.yaml
+> index fc9c6da6483f5..03ff833f5fe9d 100644
+> --- a/Documentation/devicetree/bindings/rtc/st,m41t80.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/st,m41t80.yaml
+> @@ -40,6 +40,7 @@ properties:
+>    clock:
+>      type: object
+>      $ref: /schemas/clock/fixed-clock.yaml#
+> +    deprecated: true
+>      properties:
+>        clock-frequency:
+>          const: 32768
+> --=20
+> 2.35.1
+>=20
 
-Patch 11 adapt the time/date registers write sequence for PCF2131 (STOP and
-      CPR bits).
+--ulyyuijbxyhtsviv
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Patch 12 add support for generic watchdog timing configuration.
+-----BEGIN PGP SIGNATURE-----
 
-Patch 13 add a new flag to identify if device has read support for reading
-      watchdog register value.
-      Since the watchdog value register cannot be read on the PCF2131 after
-      being set, it seems that we cannot detect if watchdog timer was
-      started by bootloader. I am not sure what is the best way to handle
-      this situation, suggestions are welcomed.
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmObYjoACgkQ2O7X88g7
++ppEEw//VmYXS7L0/Pcf905n7m3B7uPtRM8YGZRwZsgDP1p/1rOHcjOdffGP7TGr
+qr3xZfAEYlDyAF8qmwVYht8Bos8Nq2loREki7pC7OwIwgC38674VwaTcmeCExv+a
+TpQiJiDlcelEU+sp7VuF9YZ904EQ2BlTPJBUlQGECTdgdhp2jTY+1x81xwn9qQFl
+q4Iuv1V8tn157qs6x77J4Ci6OtDIZkJqXtNfe6F2diflXHOD20n/k2FWDph50e9R
+VW6JtmA3X8EowhEg1htD9QZtkD2uIAWmBlTe0dMBESn4WTKRBY3i0icxfLJcKvB0
+XIwAQE13lwv9keZU2QbVE3Qx4c/TXaKah6i9fQU9HEdk+BHk/V83js81hzgvv+7O
+LDPOHfuSOp13Lze0gQ3JG8p5p9mHDn7LCGqe4eukn4HZFEIBfL0VUF6s/J2otQLx
+QJaQqFmtz3jCCh34WUrJy8HM0VQMiNvbWuYd5YpraEFbmw2onH03bdeieo5fI6IC
+V9nq3exVaU5SMKNhE08jHbPqCbaJ4tNZvHD09Aw54jB7YPGluz/qwk0xH+wqeLzh
+wGBfyyB/cOhC05Pzu3PTY3tleTUde8VBhV8/0LvI2A0MoY1JgYjw06wZ6nZvC/tU
+dx6VrH1cOdVp7+L8LttH+R5a+kyB5bzIQ9FS4Lii9M/raQnkYUg=
+=QDl+
+-----END PGP SIGNATURE-----
 
-Patch 14 add the dt-bindings for the PCF2131.
-
-I have tested the driver using a PCF2131-ARD evaluation board connected to
-an NXP imx8mp evaluation board:
-  - Time get/set ok;
-  - Alarms get/set ok
-  - Timestamp 1 to 4 ok
-  - IRQ alarm ok
-  - Watchdog ok
-  - Also tested successfully with "RTC Driver Test Example" from
-    Documentation/rtc.txt
-
-I have also tested the driver on a custom PCF2129 adapter board connected to a
-beaglebone black.
-
-Thank you.
-
-Link: [v1] https://patchwork.ozlabs.org/project/rtc-linux/patch/20220125200009.900660-2-hugo@hugovil.com/
-Link: [v2] https://patchwork.ozlabs.org/project/rtc-linux/list/?series=285734
-
-Changes for V3:
-- Rebased for kernel v6.1
-
-Changes for V2:
-- In general, fix and improvements after I have tested on real hardware
-- Fix alarm interrupt A/B mask setting for PCF2131:
-  PCF2131_BIT_INT_AIE must be cleared, not set, to enable interrupt.
-- Remove low_reg validation: only check if TS interrupt flag is
-  defined, as low_reg is defined at address 0 for PCF2127/29.
-- Change PWRMNG value for PCF2131: default is different than PCF2127/29.
-- Adapt time/date registers write sequence for PCF2131 (STOP and CPR bits).
-- Map all interrupt sources to INT A pin
-- Read and validate PCF2131 device presence from RESET register
-- Adapt watchdog configuration for PCF2131
-
-Hugo Villeneuve (14):
-  rtc: pcf2127: add variant-specific configuration structure
-  rtc: pcf2127: adapt for time/date registers at any offset
-  rtc: pcf2127: adapt for alarm registers at any offset
-  rtc: pcf2127: adapt for WD registers at any offset
-  rtc: pcf2127: adapt for CLKOUT register at any offset
-  rtc: pcf2127: add support for multiple TS functions
-  rtc: pcf2127: add support for PCF2131 RTC
-  rtc: pcf2127: add support for PCF2131 interrupts on output INT_A
-  rtc: pcf2127: set PWRMNG value for PCF2131
-  rtc: pcf2127: read and validate PCF2131 device signature
-  rtc: pcf2127: adapt time/date registers write sequence for PCF2131
-  rtc: pcf2127: support generic watchdog timing configuration
-  rtc: pcf2127: add flag for watchdog register value read support
-  dt-bindings: rtc: pcf2127: add PCF2131
-
- .../devicetree/bindings/rtc/nxp,pcf2127.yaml  |   4 +-
- drivers/rtc/Kconfig                           |   4 +-
- drivers/rtc/rtc-pcf2127.c                     | 939 ++++++++++++++----
- 3 files changed, 752 insertions(+), 195 deletions(-)
-
--- 
-2.30.2
-
+--ulyyuijbxyhtsviv--
