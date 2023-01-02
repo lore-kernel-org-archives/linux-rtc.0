@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80EE9C678D5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B256AC678DA
 	for <linux-rtc@archiver.kernel.org>; Mon,  2 Jan 2023 16:07:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236518AbjABQHK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 2 Jan 2023 11:07:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53112 "EHLO
+        id S236531AbjABQHL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 2 Jan 2023 11:07:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236555AbjABQGm (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 2 Jan 2023 11:06:42 -0500
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A160B483
-        for <linux-rtc@vger.kernel.org>; Mon,  2 Jan 2023 08:06:32 -0800 (PST)
-Received: by mail-wr1-x436.google.com with SMTP id h16so26659960wrz.12
-        for <linux-rtc@vger.kernel.org>; Mon, 02 Jan 2023 08:06:32 -0800 (PST)
+        with ESMTP id S236510AbjABQGi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 2 Jan 2023 11:06:38 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17824B1CA
+        for <linux-rtc@vger.kernel.org>; Mon,  2 Jan 2023 08:06:27 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id z10so26671896wrh.10
+        for <linux-rtc@vger.kernel.org>; Mon, 02 Jan 2023 08:06:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GI9uwBLCvWR3OgOlMBN6oypd3UQ7AbJ0Dp0NjT4lxFo=;
-        b=KyUrTchZmLg7jkQR10chpfJ9gQLM9EMAIksN6ELqwAXW8aT8mKff8eT71q0LPhBURn
-         owZeL1GD2Kz0xumb+Qbg1wxLr+PZAXNR3og74TvzGgoahXRhq3DOfoxBgXSnSsneSmDA
-         46Oqq+UM7U5a/OIR0of2xMu60b0l/gJi1/79y5lLM5wT6GqOxQLNpszs1JOkCwXLepbU
-         Nm3pqNg4Xv+Y1EtxADOfHa7ayif+3ADkHZP468dT2unNSDGxLDQ/FlHsI4xw61cGfUS+
-         CI+enEsLVq0ifT5wof0sDaZvVk8f8aeisjA7hC/DYNBLkOk9iQte29d5nVSQBty1xK+v
-         xPYw==
+        bh=nOc5nXUkixqx+y2eCbGI5mLqw2/4q4AeizPZGq7MRBY=;
+        b=2C8OFXUDDxkqv1zMr4TvartgULsNOhJ5KAMeWwyA1BrNpn6ddN8q0kRIKv57GX8TPL
+         /8UZqS8Qy+b/CK51m+Yc+ALNh6DpIHPqFb4QbU3W/8IKlR+XDu57uwQMqR6X7TY2qpoi
+         l/NJjRZ2bHRBwb042zyl0nSFb1+coUUwHY+sdldEuqxkMGERKQUxzfPwZyzHA+8ED2dl
+         +hMt1ZK81whHz5zUBF0i+R6uKA8WjE6VnJrM1ZuVPkNysckMlCMsr56USrNA3qIWBIbH
+         TtsdE3to36eKrcmxdWO2qL5j2DV3xAOcdrkS8VcKBbO6vrt0DzYtYElOYE6YiXnjTtMW
+         0hxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GI9uwBLCvWR3OgOlMBN6oypd3UQ7AbJ0Dp0NjT4lxFo=;
-        b=2LNZ6TiLfuIae48JARgO38m0OMPlKkFn7fAv6uahjUH1pWdB1IYIbnvbqSBuIWMBlM
-         hH9zl5lX5gOThIofngA4sSp/P28YY61J7HN7NdHBMEvna7ImtjL8r5ZIWMgQJPGM0Vt3
-         0Xn51IGzyCzIV5PuMwgF7+tmUC3RR9kvGUnP4Fm9NkY+6tqtRKBw8eX8prhez2hvYhdd
-         EJS1ImU7xMEkMBdDWT+3HHsf1cS3GTj9RYHfdlYaGb9ji6ACknEeS+ozn0aXWfBgoX+m
-         44vqb7lAueF34Mh1Bhdr+w5dCchCgGg1GOp7n4hzqYGxafK4pFN5YpMzEhm6xz9y8Vfb
-         /u7Q==
-X-Gm-Message-State: AFqh2krBPjrpx8mVUjj40DGRUlHAdRKPscbCIS/Qlhh08K08omOY+shz
-        bxuMFddqmXORNbnSsxY27QcW0w==
-X-Google-Smtp-Source: AMrXdXuYl53gcSszUzUfLiSf1h5NihwXzZfU0D6s12CBv1mCJ7OOmdiZZjUdfgUdey5wzxb5V+aVkw==
-X-Received: by 2002:a05:6000:1812:b0:238:3d56:f061 with SMTP id m18-20020a056000181200b002383d56f061mr23943850wrh.63.1672675590986;
-        Mon, 02 Jan 2023 08:06:30 -0800 (PST)
+        bh=nOc5nXUkixqx+y2eCbGI5mLqw2/4q4AeizPZGq7MRBY=;
+        b=aF/Dae+2yCH6cjO/ReXcZaHPyfo5mh74i8tLOu0PoU8sxlhZgHGpvzAM3Ibgw/ULBe
+         bb+iNG3ZqiqkB0JYC1B+XygM0/lytaaxVopa/Buu765ZWBGpgIOndUze8HKYbdjg6SeZ
+         gW5XnCOoApPcmnxLpo939UhqAvlYXGHpwYcrRRoxp50VWKelhbYEyde3wRitdfIssQ0P
+         aTN0i7ooakFrl7Mv6YoWl3h6tPOoNETaPbjkaCxVvWp9exIfUpoSyDXnM++lNbo11XQ1
+         6sr46kVno/4zlzh6mkuOMaRQwAUWriJOhiekctgp9rE7FXETb6JBZpDL18dWnqk0k2dS
+         zbWg==
+X-Gm-Message-State: AFqh2koU7y4qsDF4q+1MoGsV3J2VY06LqnC13g1WWpndxb2wrBeUcj8v
+        GJiwDf+ZAXiOaJxK5khjDZuBJw==
+X-Google-Smtp-Source: AMrXdXtuZkkvqONbTAmUfWL3sObnBYzI2V24P0UWTvs68UNlQASgeUJTHrhVSHhS2/HgRP45P8M0Gg==
+X-Received: by 2002:a5d:56cb:0:b0:28d:66c4:3102 with SMTP id m11-20020a5d56cb000000b0028d66c43102mr8789095wrw.12.1672675585449;
+        Mon, 02 Jan 2023 08:06:25 -0800 (PST)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id t5-20020a5d49c5000000b0028cf987d944sm11868020wrs.33.2023.01.02.08.06.29
+        by smtp.googlemail.com with ESMTPSA id t5-20020a5d49c5000000b0028cf987d944sm11868020wrs.33.2023.01.02.08.06.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Jan 2023 08:06:30 -0800 (PST)
+        Mon, 02 Jan 2023 08:06:25 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Mon, 02 Jan 2023 17:06:07 +0100
-Subject: [PATCH v8 6/6] Input: mtk-pmic-keys: add MT6357 support
+Date:   Mon, 02 Jan 2023 17:06:03 +0100
+Subject: [PATCH v8 2/6] dt-bindings: soc: mediatek: convert pwrap documentation
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221005-mt6357-support-v8-6-560caaafee53@baylibre.com>
+Message-Id: <20221005-mt6357-support-v8-2-560caaafee53@baylibre.com>
 References: <20221005-mt6357-support-v8-0-560caaafee53@baylibre.com>
 In-Reply-To: <20221005-mt6357-support-v8-0-560caaafee53@baylibre.com>
 To:     Mark Brown <broonie@kernel.org>,
@@ -84,80 +84,298 @@ Cc:     Alexandre Mergnat <amergnat@baylibre.com>,
         <angelogioacchino.delregno@collabora.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2028; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=K2/LktiwnSqpYUY/NYDB7cyyBwW4Kzl5Gx1VcVhpHIg=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjswD9VViN/i8FL25jhETD5m0ZS3rt7zH3DcWuuMdd
- jvJvgpSJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY7MA/QAKCRArRkmdfjHURcEaEA
- CM2nq2csWKuTEK9bxbJtJ+UOZJm0Q/HMn/a+C5qw35Tcuh9Ekn/8BlOkWqDFY7a9zdrbPir/6ZaxvV
- Wl1DPGw8WLXZk0zQ9ah6bt8bCs8XQsW65ANxsGEL2BbL/rdlWpotmCHuKt6Dcf93/JgaThDb35Oepa
- 3CmyLH2zbaYJdbJN6RWQFnLmfpPQ8w6MvFWSVxn9pEayV4XUp2RqykkZF0dAQEXU2M47aTUse/IULJ
- kAxVNafVS840EM/e/jRtl2j5gLT7G2NHQdMVm6+PJlodxcaGagW2rwsX2pwKhEv5/oxsaB5LeueeLo
- hmb2xObbGbY2MBFQJRwo5oQiNIgA/sONLT3FGA6Q6YEXrUFIjhQpWr+f/rK6Zo42yxtRl4visNGwgr
- bn8P9YzY/sER+k0CRS6xlK3zVu45fOMwnKYcfIXD4VieIiGDqZmn0wQdixjpixjwTbhHzct4nUFIlj
- tBRLcO4aAVNqrfM49ENZ2x10qW2+uXhv1n8cxty2DsZxw+/g7kTPZ5lh/lxkVGgRx8IlxC7G/2/ag3
- hX9t8NW00F9rGn38H/f7udJ4EHCQdOSneRfAlPxGJTuS4S0xwA27YgfQGcMv41AwKTtFRfl14SvwM9
- cAdZkGV2my/8L+iuAw5UQMfu7XrCxELII6xM0eHT7+bKWdNIkxKNVgetMvPg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=9638; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=cmlhRK9tSjWgidRT4HuJWIvfUhJuoLCgeyaF1sxatFI=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjswD8DrlqU16WurDTNSI1yXZd9D9Tyv2DXNbLdaSb
+ d6nrYwaJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY7MA/AAKCRArRkmdfjHURfF+EA
+ CdnPiZBrRy/0Vu/8fKF4U+XiZIjKSa+SBfI/+Oqezdytm0rS+u+wGk397vTzsf7941u/5ZeZXRsFfI
+ Hs27h35v4aC93l5/oMoc5UIYby5xN1O9wgoDKzXettFxaV/3dgtlblnYleXigsQiIfjfEsVJcRxpwn
+ eLBqhdiNzrl0uKe/qDNrqTB1hi6ORrOoBZjvYWGDwW0EiBXhlFEQfQhF6ZyMhD4CbDbBNyQYLsjxXB
+ qucTHgQvldFhxwRoMDHzrDxyp+YOPjL0CPpWMjdXOD3yqFpfd34LKIiaeNDlwWQvcJ6FtDZXyNhWWO
+ c7iLYG5MyO3xCqQMOwH/XVME++HIGnhUAXWEFq0TAoFLc5ZhbMFAmfCQ9/iirF/kBJ7dFqaHDBsNxF
+ e1v0lv3hernhK97GU+6xJ7j6ACRRtAtUtTTAF/tPIWT3RtulJAExsYPgH22BVZU6rSiYOmQjE4t5qk
+ wg/5fwmay+DzEZUw70NrPWl7MWt+MxhAxc0X+O26EX514I+tTNgbkrwoPXauWOrTi9YPq2i0tDKNkl
+ dXVEPpIU9/mQRlk+i8MgRScDz9DLt+noWZj+oy1KYMtmX+meEKylWsLIIpD31pf/WBeFTcKyUxmebf
+ WxUZM7lwB0wMABT83ZOB70D1z7mlC3NvN6nu/4PnBvMHpfDNxywi1zRZPNOA==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Fabien Parent <fparent@baylibre.com>
+- Convert soc/mediatek/pwrap.txt to soc/mediatek/mediatek,pwrap.yaml
+- Add syscon compatible const for mt8186 and mt8195 to match the DTS needs,
+  which is missing from pwrap.txt.
 
-Add PMIC Keys support on MT6357 SoC.
-
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ .../devicetree/bindings/leds/leds-mt6323.txt       |   2 +-
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |   2 +-
+ .../bindings/soc/mediatek/mediatek,pwrap.yaml      | 147 +++++++++++++++++++++
+ .../devicetree/bindings/soc/mediatek/pwrap.txt     |  75 -----------
+ 4 files changed, 149 insertions(+), 77 deletions(-)
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 9b34da0ec260..2a63e0718eb6 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/mfd/mt6323/registers.h>
- #include <linux/mfd/mt6331/registers.h>
-+#include <linux/mfd/mt6357/registers.h>
- #include <linux/mfd/mt6358/registers.h>
- #include <linux/mfd/mt6397/core.h>
- #include <linux/mfd/mt6397/registers.h>
-@@ -90,6 +91,19 @@ static const struct mtk_pmic_regs mt6331_regs = {
- 	.rst_lprst_mask = MTK_PMIC_MT6331_RST_DU_MASK,
- };
+diff --git a/Documentation/devicetree/bindings/leds/leds-mt6323.txt b/Documentation/devicetree/bindings/leds/leds-mt6323.txt
+index 45bf9f7d85f3..73353692efa1 100644
+--- a/Documentation/devicetree/bindings/leds/leds-mt6323.txt
++++ b/Documentation/devicetree/bindings/leds/leds-mt6323.txt
+@@ -9,7 +9,7 @@ MT6323 PMIC hardware.
+ For MT6323 MFD bindings see:
+ Documentation/devicetree/bindings/mfd/mt6397.txt
+ For MediaTek PMIC wrapper bindings see:
+-Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
++Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
  
-+static const struct mtk_pmic_regs mt6357_regs = {
-+	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-+				   0x2, MT6357_PSC_TOP_INT_CON0, 0x5,
-+				   MTK_PMIC_PWRKEY_RST),
-+	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
-+		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
-+				   0x8, MT6357_PSC_TOP_INT_CON0, 0xa,
-+				   MTK_PMIC_HOMEKEY_INDEX),
-+	.pmic_rst_reg = MT6357_TOP_RST_MISC,
-+	.rst_lprst_mask = MTK_PMIC_RST_DU_MASK,
-+};
+ Required properties:
+ - compatible : Must be "mediatek,mt6323-led"
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 0088442efca1..33b3d39d4ddd 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -13,7 +13,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
+ It is interfaced to host controller using SPI interface by a proprietary hardware
+ called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
+ See the following for pwarp node definitions:
+-../soc/mediatek/pwrap.txt
++../soc/mediatek/mediatek,pwrap.yaml
+ 
+ This document describes the binding for MFD device and its sub module.
+ 
+diff --git a/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml b/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
+new file mode 100644
+index 000000000000..3fefd634bc69
+--- /dev/null
++++ b/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
+@@ -0,0 +1,147 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/soc/mediatek/mediatek,pwrap.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- static const struct mtk_pmic_regs mt6358_regs = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
-@@ -276,6 +290,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
- 	}, {
- 		.compatible = "mediatek,mt6331-keys",
- 		.data = &mt6331_regs,
-+	}, {
-+		.compatible = "mediatek,mt6357-keys",
-+		.data = &mt6357_regs,
- 	}, {
- 		.compatible = "mediatek,mt6358-keys",
- 		.data = &mt6358_regs,
++title: Mediatek PMIC Wrapper
++
++maintainers:
++  - Flora Fu <flora.fu@mediatek.com>
++  - Alexandre Mergnat <amergnat@baylibre.com>
++
++description:
++  On MediaTek SoCs the PMIC is connected via SPI. The SPI master interface
++  is not directly visible to the CPU, but only through the PMIC wrapper
++  inside the SoC. The communication between the SoC and the PMIC can
++  optionally be encrypted. Also a non standard Dual IO SPI mode can be
++  used to increase speed.
++
++  IP Pairing
++
++  On MT8135 the pins of some SoC internal peripherals can be on the PMIC.
++  The signals of these pins are routed over the SPI bus using the pwrap
++  bridge. In the binding description below the properties needed for bridging
++  are marked with "IP Pairing". These are optional on SoCs which do not support
++  IP Pairing
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - mediatek,mt2701-pwrap
++              - mediatek,mt6765-pwrap
++              - mediatek,mt6779-pwrap
++              - mediatek,mt6797-pwrap
++              - mediatek,mt6873-pwrap
++              - mediatek,mt7622-pwrap
++              - mediatek,mt8135-pwrap
++              - mediatek,mt8173-pwrap
++              - mediatek,mt8183-pwrap
++              - mediatek,mt8186-pwrap
++              - mediatek,mt8188-pwrap
++              - mediatek,mt8195-pwrap
++              - mediatek,mt8365-pwrap
++              - mediatek,mt8516-pwrap
++      - items:
++          - enum:
++              - mediatek,mt8186-pwrap
++              - mediatek,mt8195-pwrap
++          - const: syscon
++
++  reg:
++    minItems: 1
++    items:
++      - description: PMIC wrapper registers
++      - description: IP pairing registers
++
++  reg-names:
++    minItems: 1
++    items:
++      - const: pwrap
++      - const: pwrap-bridge
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    minItems: 2
++    items:
++      - description: SPI bus clock
++      - description: Main module clock
++      - description: System module clock
++      - description: Timer module clock
++
++  clock-names:
++    minItems: 2
++    items:
++      - const: spi
++      - const: wrap
++      - const: sys
++      - const: tmr
++
++  resets:
++    minItems: 1
++    items:
++      - description: PMIC wrapper reset
++      - description: IP pairing reset
++
++  reset-names:
++    minItems: 1
++    items:
++      - const: pwrap
++      - const: pwrap-bridge
++
++  pmic:
++    type: object
++
++required:
++  - compatible
++  - reg
++  - reg-names
++  - interrupts
++  - clocks
++  - clock-names
++
++dependentRequired:
++  resets: [reset-names]
++
++allOf:
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: mediatek,mt8365-pwrap
++    then:
++      properties:
++        clocks:
++          minItems: 4
++
++        clock-names:
++          minItems: 4
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/reset/mt8135-resets.h>
++
++    soc {
++        #address-cells = <2>;
++        #size-cells = <2>;
++        pwrap@1000f000 {
++            compatible = "mediatek,mt8135-pwrap";
++            reg = <0 0x1000f000 0 0x1000>,
++                  <0 0x11017000 0 0x1000>;
++            reg-names = "pwrap", "pwrap-bridge";
++            interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
++            clocks = <&clk26m>, <&clk26m>;
++            clock-names = "spi", "wrap";
++            resets = <&infracfg MT8135_INFRA_PMIC_WRAP_RST>,
++                     <&pericfg MT8135_PERI_PWRAP_BRIDGE_SW_RST>;
++            reset-names = "pwrap", "pwrap-bridge";
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt b/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
+deleted file mode 100644
+index 12e4b4260b40..000000000000
+--- a/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
++++ /dev/null
+@@ -1,75 +0,0 @@
+-MediaTek PMIC Wrapper Driver
+-
+-This document describes the binding for the MediaTek PMIC wrapper.
+-
+-On MediaTek SoCs the PMIC is connected via SPI. The SPI master interface
+-is not directly visible to the CPU, but only through the PMIC wrapper
+-inside the SoC. The communication between the SoC and the PMIC can
+-optionally be encrypted. Also a non standard Dual IO SPI mode can be
+-used to increase speed.
+-
+-IP Pairing
+-
+-on MT8135 the pins of some SoC internal peripherals can be on the PMIC.
+-The signals of these pins are routed over the SPI bus using the pwrap
+-bridge. In the binding description below the properties needed for bridging
+-are marked with "IP Pairing". These are optional on SoCs which do not support
+-IP Pairing
+-
+-Required properties in pwrap device node.
+-- compatible:
+-	"mediatek,mt2701-pwrap" for MT2701/7623 SoCs
+-	"mediatek,mt6765-pwrap" for MT6765 SoCs
+-	"mediatek,mt6779-pwrap" for MT6779 SoCs
+-	"mediatek,mt6797-pwrap" for MT6797 SoCs
+-	"mediatek,mt6873-pwrap" for MT6873/8192 SoCs
+-	"mediatek,mt7622-pwrap" for MT7622 SoCs
+-	"mediatek,mt8135-pwrap" for MT8135 SoCs
+-	"mediatek,mt8173-pwrap" for MT8173 SoCs
+-	"mediatek,mt8183-pwrap" for MT8183 SoCs
+-	"mediatek,mt8186-pwrap" for MT8186 SoCs
+-	"mediatek,mt8188-pwrap", "mediatek,mt8195-pwrap" for MT8188 SoCs
+-	"mediatek,mt8195-pwrap" for MT8195 SoCs
+-	"mediatek,mt8365-pwrap" for MT8365 SoCs
+-	"mediatek,mt8516-pwrap" for MT8516 SoCs
+-- interrupts: IRQ for pwrap in SOC
+-- reg-names: "pwrap" is required; "pwrap-bridge" is optional.
+-  "pwrap": Main registers base
+-  "pwrap-bridge": bridge base (IP Pairing)
+-- reg: Must contain an entry for each entry in reg-names.
+-- clock-names: Must include the following entries:
+-  "spi": SPI bus clock
+-  "wrap": Main module clock
+-  "sys": Optional system module clock
+-  "tmr": Optional timer module clock
+-- clocks: Must contain an entry for each entry in clock-names.
+-
+-Optional properities:
+-- reset-names: Some SoCs include the following entries:
+-  "pwrap"
+-  "pwrap-bridge" (IP Pairing)
+-- resets: Must contain an entry for each entry in reset-names.
+-- pmic: Using either MediaTek PMIC MFD as the child device of pwrap
+-  See the following for child node definitions:
+-  Documentation/devicetree/bindings/mfd/mt6397.txt
+-  or the regulator-only device as the child device of pwrap, such as MT6380.
+-  See the following definitions for such kinds of devices.
+-  Documentation/devicetree/bindings/regulator/mt6380-regulator.txt
+-
+-Example:
+-	pwrap: pwrap@1000f000 {
+-		compatible = "mediatek,mt8135-pwrap";
+-		reg = <0 0x1000f000 0 0x1000>,
+-			<0 0x11017000 0 0x1000>;
+-		reg-names = "pwrap", "pwrap-bridge";
+-		interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
+-		resets = <&infracfg MT8135_INFRA_PMIC_WRAP_RST>,
+-				<&pericfg MT8135_PERI_PWRAP_BRIDGE_SW_RST>;
+-		reset-names = "pwrap", "pwrap-bridge";
+-		clocks = <&clk26m>, <&clk26m>;
+-		clock-names = "spi", "wrap";
+-
+-		pmic {
+-			compatible = "mediatek,mt6397";
+-		};
+-	};
 
 -- 
 b4 0.10.1
