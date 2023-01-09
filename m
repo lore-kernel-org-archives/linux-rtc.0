@@ -2,324 +2,95 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DF3FC5479D
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 12:55:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6D52C5479D
+	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 14:36:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236492AbjAIMzS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:55:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41022 "EHLO
+        id S230493AbjAIOga (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 9 Jan 2023 09:36:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236634AbjAIMxy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 07:53:54 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15C010066
-        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 04:53:47 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id k22-20020a05600c1c9600b003d1ee3a6289so6628804wms.2
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Jan 2023 04:53:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vDvyBGOGxxnDCc1Dw9lCfLpVZDhUmhTuEgqCyjZqWcQ=;
-        b=aDVJ74Qj+yag2OIPErtDd1rSmMVYOkl1ZY9MsJfl7BFTw8zf55YII6Rylr72VYafFJ
-         35JU/3St536Fm+xyvggEwOUaYmLo9bao+2zWWU/AWn0qL6jlBwN9s4pKEue8spJlRDfU
-         qzF9ZsM8b6t0fPS97W4O7WwfGHS84V9mna5T8eP6jNn6Y5JdH1fXoAL1Kebgrb6JYSe9
-         6ZrPvpAa4A40cLcYAprxx0E4r2Du6QH/1zHhXEPeZ8HMrjhSFOFXuNCGgl2Sy+Qr6Y56
-         UnaAlgNo9LacWKBplD6U+fxNaKvflLVTiebI7+1F5cLrFwreF4dGS3HYO1I0sy6yPQXb
-         x8FA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vDvyBGOGxxnDCc1Dw9lCfLpVZDhUmhTuEgqCyjZqWcQ=;
-        b=DuMMQVcVfnTx34sIoBftS0q7ZKG6VALq9ueVOF+kQqHA4N/EVrJ4ExQ8XsiO9QO4DJ
-         dEMx1SicCX9zmxul1u58PDpOMRH1CsxTP5Ms0eYir6W3pz/kPPEGIUnb02XCEdveOxzS
-         IUxJDRup+9612gGRJKRLdq/oXanfKHQye/vAEAVymN3vCbewwzsqFFYnPyx60D1v4EA3
-         wLDns9IecHw9+gEDUoNR5Rd5AYMVPToJt2VtGYUI+0NfBuoln649O+I9SetmqputXcAR
-         xNLkMwuBwLzDwIKxw5ZCTXUBX+0qGVWen09UwboYKvWclwEA5/YfwC+Q4wRewauchDWm
-         GrMw==
-X-Gm-Message-State: AFqh2kpch7UwwI84Ed/BneJJayGnx6pI81iDUXzmaCnNUm7tZUaU5fcF
-        WR7eDfwdbUNAaZ7hiXyhYX8bzA==
-X-Google-Smtp-Source: AMrXdXsvZ0K32fW7veYIM8wZMLJNnLqisx+xvWNu6XYBo9e2eJHZJi6EjXEgH2cz6hfQCKC8N2tDVw==
-X-Received: by 2002:a05:600c:1e24:b0:3d3:5075:7526 with SMTP id ay36-20020a05600c1e2400b003d350757526mr47525802wmb.31.1673268826484;
-        Mon, 09 Jan 2023 04:53:46 -0800 (PST)
-Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 04:53:46 -0800 (PST)
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 09 Jan 2023 13:53:34 +0100
-Subject: [PATCH v2 10/11] dt-bindings: PCI: convert amlogic,meson-pcie.txt to
- dt-schema
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v2-10-36ad050bb625@linaro.org>
-References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
-In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S230031AbjAIOg3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 09:36:29 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C120B26FB
+        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 06:36:23 -0800 (PST)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1pEtG9-0006S6-8R; Mon, 09 Jan 2023 15:36:21 +0100
+Received: from pengutronix.de (unknown [IPv6:2a03:f580:87bc:d400:5712:c65e:d5c2:94c])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        (Authenticated sender: mkl-all@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id 762161524E0;
+        Mon,  9 Jan 2023 14:36:20 +0000 (UTC)
+Date:   Mon, 9 Jan 2023 15:36:12 +0100
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-rtc@vger.kernel.org,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>
-Cc:     devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-pci@vger.kernel.org,
-        netdev@vger.kernel.org, Neil Armstrong <neil.armstrong@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.11.1
+        kernel@pengutronix.de, Alessandro Zummo <a.zummo@towertech.it>
+Subject: Re: [PATCH RESEND 0/2] rtc: rv8803 patches
+Message-ID: <20230109143612.7gqul6ccsjswvajg@pengutronix.de>
+References: <20221123095527.2771434-1-s.hauer@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="x5cjs62lm5zav7pg"
+Content-Disposition: inline
+In-Reply-To: <20221123095527.2771434-1-s.hauer@pengutronix.de>
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the Amlogic Meson AXG DWC PCIE SoC controller bindings to
-dt-schema.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
----
- .../devicetree/bindings/pci/amlogic,axg-pcie.yaml  | 134 +++++++++++++++++++++
- .../devicetree/bindings/pci/amlogic,meson-pcie.txt |  70 -----------
- 2 files changed, 134 insertions(+), 70 deletions(-)
+--x5cjs62lm5zav7pg
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/pci/amlogic,axg-pcie.yaml b/Documentation/devicetree/bindings/pci/amlogic,axg-pcie.yaml
-new file mode 100644
-index 000000000000..a08f15fe9a9a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/pci/amlogic,axg-pcie.yaml
-@@ -0,0 +1,134 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/pci/amlogic,axg-pcie.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Amlogic Meson AXG DWC PCIE SoC controller
-+
-+maintainers:
-+  - Neil Armstrong <neil.armstrong@linaro.org>
-+
-+description:
-+  Amlogic Meson PCIe host controller is based on the Synopsys DesignWare PCI core.
-+
-+allOf:
-+  - $ref: /schemas/pci/pci-bus.yaml#
-+  - $ref: /schemas/pci/snps,dw-pcie-common.yaml#
-+
-+# We need a select here so we don't match all nodes with 'snps,dw-pcie'
-+select:
-+  properties:
-+    compatible:
-+      enum:
-+        - amlogic,axg-pcie
-+        - amlogic,g12a-pcie
-+  required:
-+    - compatible
-+
-+properties:
-+  compatible:
-+    items:
-+      - enum:
-+          - amlogic,axg-pcie
-+          - amlogic,g12a-pcie
-+      - const: snps,dw-pcie
-+
-+  reg:
-+    items:
-+      - description: External local bus interface registers
-+      - description: Meson designed configuration registers
-+      - description: PCIe configuration space
-+
-+  reg-names:
-+    items:
-+      - const: elbi
-+      - const: cfg
-+      - const: config
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    items:
-+      - description: PCIe GEN 100M PLL clock
-+      - description: PCIe RC clock gate
-+      - description: PCIe PHY clock
-+
-+  clock-names:
-+    items:
-+      - const: pclk
-+      - const: port
-+      - const: general
-+
-+  phys:
-+    maxItems: 1
-+
-+  phy-names:
-+    const: pcie
-+
-+  resets:
-+    items:
-+      - description: Port Reset
-+      - description: Shared APB reset
-+
-+  reset-names:
-+    items:
-+      - const: port
-+      - const: apb
-+
-+  num-lanes:
-+    const: 1
-+
-+  power-domains:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - reg-names
-+  - interrupts
-+  - clock
-+  - clock-names
-+  - "#address-cells"
-+  - "#size-cells"
-+  - "#interrupt-cells"
-+  - interrupt-map
-+  - interrupt-map-mask
-+  - ranges
-+  - bus-range
-+  - device_type
-+  - num-lanes
-+  - phys
-+  - phy-names
-+  - resets
-+  - reset-names
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    pcie: pcie@f9800000 {
-+        compatible = "amlogic,axg-pcie", "snps,dw-pcie";
-+        reg = <0xf9800000 0x400000>, <0xff646000 0x2000>, <0xf9f00000 0x100000>;
-+        reg-names = "elbi", "cfg", "config";
-+        interrupts = <GIC_SPI 177 IRQ_TYPE_EDGE_RISING>;
-+        clocks = <&pclk>, <&clk_port>, <&clk_phy>;
-+        clock-names = "pclk", "port", "general";
-+        resets = <&reset_pcie_port>, <&reset_pcie_apb>;
-+        reset-names = "port", "apb";
-+        phys = <&pcie_phy>;
-+        phy-names = "pcie";
-+        #interrupt-cells = <1>;
-+        interrupt-map-mask = <0 0 0 0>;
-+        interrupt-map = <0 0 0 0 &gic GIC_SPI 179 IRQ_TYPE_EDGE_RISING>;
-+        bus-range = <0x0 0xff>;
-+        #address-cells = <3>;
-+        #size-cells = <2>;
-+        device_type = "pci";
-+        num-lanes = <1>;
-+        ranges = <0x82000000 0 0 0xf9c00000 0 0x00300000>;
-+    };
-+...
-diff --git a/Documentation/devicetree/bindings/pci/amlogic,meson-pcie.txt b/Documentation/devicetree/bindings/pci/amlogic,meson-pcie.txt
-deleted file mode 100644
-index c3a75ac6e59d..000000000000
---- a/Documentation/devicetree/bindings/pci/amlogic,meson-pcie.txt
-+++ /dev/null
-@@ -1,70 +0,0 @@
--Amlogic Meson AXG DWC PCIE SoC controller
--
--Amlogic Meson PCIe host controller is based on the Synopsys DesignWare PCI core.
--It shares common functions with the PCIe DesignWare core driver and
--inherits common properties defined in
--Documentation/devicetree/bindings/pci/snps,dw-pcie.yaml.
--
--Additional properties are described here:
--
--Required properties:
--- compatible:
--	should contain :
--	- "amlogic,axg-pcie" for AXG SoC Family
--	- "amlogic,g12a-pcie" for G12A SoC Family
--	to identify the core.
--- reg:
--	should contain the configuration address space.
--- reg-names: Must be
--	- "elbi"	External local bus interface registers
--	- "cfg"		Meson specific registers
--	- "config"	PCIe configuration space
--- reset-gpios: The GPIO to generate PCIe PERST# assert and deassert signal.
--- clocks: Must contain an entry for each entry in clock-names.
--- clock-names: Must include the following entries:
--	- "pclk"       PCIe GEN 100M PLL clock
--	- "port"       PCIe_x(A or B) RC clock gate
--	- "general"    PCIe Phy clock
--- resets: phandle to the reset lines.
--- reset-names: must contain "port" and "apb"
--       - "port"        Port A or B reset
--       - "apb"         Share APB reset
--- phys: should contain a phandle to the PCIE phy
--- phy-names: must contain "pcie"
--
--- device_type:
--	should be "pci". As specified in snps,dw-pcie.yaml
--
--
--Example configuration:
--
--	pcie: pcie@f9800000 {
--			compatible = "amlogic,axg-pcie", "snps,dw-pcie";
--			reg = <0x0 0xf9800000 0x0 0x400000
--					0x0 0xff646000 0x0 0x2000
--					0x0 0xf9f00000 0x0 0x100000>;
--			reg-names = "elbi", "cfg", "config";
--			reset-gpios = <&gpio GPIOX_19 GPIO_ACTIVE_HIGH>;
--			interrupts = <GIC_SPI 177 IRQ_TYPE_EDGE_RISING>;
--			#interrupt-cells = <1>;
--			interrupt-map-mask = <0 0 0 0>;
--			interrupt-map = <0 0 0 0 &gic GIC_SPI 179 IRQ_TYPE_EDGE_RISING>;
--			bus-range = <0x0 0xff>;
--			#address-cells = <3>;
--			#size-cells = <2>;
--			device_type = "pci";
--			ranges = <0x82000000 0 0 0x0 0xf9c00000 0 0x00300000>;
--
--			clocks = <&clkc CLKID_USB
--					&clkc CLKID_PCIE_A
--					&clkc CLKID_PCIE_CML_EN0>;
--			clock-names = "general",
--					"pclk",
--					"port";
--			resets = <&reset RESET_PCIE_A>,
--				<&reset RESET_PCIE_APB>;
--			reset-names = "port",
--					"apb";
--			phys = <&pcie_phy>;
--			phy-names = "pcie";
--	};
+On 23.11.2022 10:55:25, Sascha Hauer wrote:
+> This series has the remainder of
+> https://lore.kernel.org/all/20220426071056.1187235-1-s.hauer@pengutronix.=
+de/
+> which was partly applied.
+>=20
+> Alexandre,
+>=20
+> Last time this series was send you asked if this series fixes a problem
+> we've really seen to which Ahmad answered:
 
--- 
-2.34.1
+Happy new Year Alexandre!
+
+What can we do to bring this patch froward?
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+
+--x5cjs62lm5zav7pg
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmO8JlkACgkQrX5LkNig
+0126GQf/ZjalsA6j3wONADHsDlsIZIHFsrcgIb2cp4Mpyj+m8OIrX0UzooB5znng
+CBEIm5TM5cIlhi8Trm0IYdbkIu8Ko3NjxvJ2OIfUjYSV6OcdddjXtdeZMADt0CXG
+bEmB5rLcdWRIp6bTV42+JOVnu3k0+yt8mHTTuYEgcOxDIVTq+RHuFE847nlzHf4A
+QBt6K9soDYA24J6TwuhomWPoMMGqqbt7jqO6KCoU+ap7iG/dwppOxb+fvNvHnYUu
+KwdLjqCwvtVYgolTcWVNnWCeiAnBX9j/daOENpJU0ADVz3LmiHnWFg0861QOeElG
+cWX6VQGmJNaNrsKa76I8wM2AA42gow==
+=xYOl
+-----END PGP SIGNATURE-----
+
+--x5cjs62lm5zav7pg--
