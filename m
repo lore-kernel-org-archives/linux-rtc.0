@@ -2,61 +2,61 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 222B4C7112B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44E70C71130
 	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 12:54:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236108AbjAIMyJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:54:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41112 "EHLO
+        id S236869AbjAIMyK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 9 Jan 2023 07:54:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236276AbjAIMxs (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 07:53:48 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A1916488
-        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 04:53:41 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id m26-20020a05600c3b1a00b003d9811fcaafso6620023wms.5
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Jan 2023 04:53:41 -0800 (PST)
+        with ESMTP id S236428AbjAIMxu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 07:53:50 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C789513FAA
+        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 04:53:43 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id m8-20020a05600c3b0800b003d96f801c48so8914265wms.0
+        for <linux-rtc@vger.kernel.org>; Mon, 09 Jan 2023 04:53:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=eHeD4/5Q26ruqFmP/If/k2xNMCXAhjZeCMYfTgUbKRU=;
-        b=ST+d6exv+eSO89qaxYEHQlIUZjwGyGwBJ4xr+vru1zfL5TKvPyAhqO8Pkx0pwPrsz+
-         jgw4926gADuQo43X4dvIXEFVEX+2jkFCW71Ibl6xlz8rEKH4KDOuwPJavaTNh6Xc5P0A
-         AjwReWC2HFTNu9qYXgDmUygMPt7ZAvBkFipkWakWAcAxMsf5vwA9wpujm+DSd3CLhQ62
-         Fm9K10aodqGSrxbo5Zu0m7mpFDY6eTc0BH5igwv8WsKfuWKKBwQ+/tSlmb8JcRvYv2nf
-         gApIKGwFDwKoKVFmWMoGxExR8BxoEEnI+UkTInipxpBoGPl/IFugqltGY0B5Ddf6azXK
-         M/8A==
+        bh=Tquvwj2kpJM2Ju/UAJGs8M9lyCJgcUVyQS/lXUiEhkI=;
+        b=j4WnyX0OrhV3Tl4dXLdREy6trUYPvtp6GUEeJ7GPOcr73tsXoa4iOdeDXWB502uqCb
+         L8UokGsnT4o4qVlJsUCzo/J4Gx6YpBCaStpX8O2/AfvVVoCCWuOV6iFQdxiWGFhCM7pr
+         eBwl3cWeK751NdGbRKATht+u7uei9a51RSkVcEAxkFTpHBB7n4BU97L6gu+R591cFEc6
+         wrZPz6ROTTgyq5NNhr3BhFw/WQJVusUfgPQ6SFLl23+qT0Me5yjaHsxlb2fyXlliEoz4
+         gtb5vBBw0hqWuV9GYsAWdnIcxSuWq0N4fHT6PY0U8ME5pivWgx1xfJq+6oR1s6KvA+97
+         69Sg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=eHeD4/5Q26ruqFmP/If/k2xNMCXAhjZeCMYfTgUbKRU=;
-        b=dV1gi1DDPFiZxaNk6fFMjyRR+HbObqx7nkxZLguXsyYdUmIoNl6blSaQ7eE3q345Zx
-         9OI3ZF0nUTXByA8tuHAZbpMhhsI+tQwWVzxtTRDyzyY/ITnhNFG9d15rOtcqs+L6LuVu
-         2UeYi82s/mBBiNF6IYf1saeysQg3JQTIn6ktR95rqnw4nYmxL0u5QuipEb5hcJERm4ha
-         EXiZz2UPNpGKwnkk1jHvYmYDRVRaycG/kOICQnn7sEdDdzdyOH3ljUoo1IeZWbCEoYXL
-         srROaNkvuLPtEkwO1G5R/WGNGAeYvRaRd+vNCQEJpbIqqgmEXU6IcFcSu34DxcB/+ufl
-         e1RA==
-X-Gm-Message-State: AFqh2kpOA/fdgx85qENPkSoKWLuGcfNYR1fAGH+jYUaT6QLZ+QjmkrRt
-        ZX7k+nqih7COL7bmwxyTUhyQiw==
-X-Google-Smtp-Source: AMrXdXsaurQF4EtQDAHouXVvSJBqCu54hP/k4K5wC/jqtSrGfESg6vwwkM/iQm8oVMP1uuBrED7e8A==
-X-Received: by 2002:a05:600c:3d05:b0:3d3:5c21:dd94 with SMTP id bh5-20020a05600c3d0500b003d35c21dd94mr48020557wmb.9.1673268820053;
-        Mon, 09 Jan 2023 04:53:40 -0800 (PST)
+        bh=Tquvwj2kpJM2Ju/UAJGs8M9lyCJgcUVyQS/lXUiEhkI=;
+        b=oRp9BgQktpNLQtJCo10bGYESpjXHjftslaaysRmbg1iY7aCjB6L6tDtEb6k1UHg+l+
+         feLsd6e90qAK1DCF0/ETtOENBaBXSPHU8u2l0kNw4A4jk7AuwW+xMJ36b4SYom9oVp9s
+         Sx80ctMtgCPVaNLh1BFIz+cQPd3IXbbjVpppElGKzlr1ObVg7NRApXvLu8t8SWfhoG4p
+         9177BniwKFWJJ9+cEyFlDBKSU/bD60xqicVr597BaImYjVxnWFve81hVoaysC9Wbk7Fm
+         3Yn7ZTrT7TQsDGRmi0PXPrCWT3wX+Sy95U/3P4K6VcOio5ZoQ/0Zk+B9TjiPliDxUqmf
+         qsYg==
+X-Gm-Message-State: AFqh2krZDQDfmc0CdyMRjWOIXRsYuIJKziQbSaJxw2e4kMrad4I8pmfX
+        xqvwH/tWc9udorjIsr555mwHuP0SYljm1EYS
+X-Google-Smtp-Source: AMrXdXuDMWMWyAxYhduaA0kIz0hDTTIZak6lv6S7NHGoYj5aNSpW7iiMBldGLNyII8nQkPvLHAq60w==
+X-Received: by 2002:a05:600c:3b16:b0:3d5:365b:7749 with SMTP id m22-20020a05600c3b1600b003d5365b7749mr46672260wms.16.1673268823250;
+        Mon, 09 Jan 2023 04:53:43 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.38
+        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 04:53:39 -0800 (PST)
+        Mon, 09 Jan 2023 04:53:42 -0800 (PST)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 09 Jan 2023 13:53:30 +0100
-Subject: [PATCH v2 06/11] dt-bindings: power: amlogic,meson-gx-pwrc: mark
- bindings as deprecated
+Date:   Mon, 09 Jan 2023 13:53:32 +0100
+Subject: [PATCH v2 08/11] dt-bindings: phy: convert meson-gxl-usb2-phy.txt to
+ dt-schema
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v2-6-36ad050bb625@linaro.org>
+Message-Id: <20221117-b4-amlogic-bindings-convert-v2-8-36ad050bb625@linaro.org>
 References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 To:     Rob Herring <robh+dt@kernel.org>,
@@ -94,30 +94,105 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The amlogic,meson-gx-pwrc-vpu compatible isn't used anymore since [1]
-was merged in v5.8-rc1 and amlogic,meson-g12a-pwrc-vpu either since [2]
-was merged in v5.3-rc1.
+Convert the Amlogic Meson GXL USB2 PHY bindings to dt-schema.
 
-[1] commit 5273d6cacc06 ("arm64: dts: meson-gx: Switch to the meson-ee-pwrc bindings")
-[2] commit f4f1c8d9ace7 ("arm64: dts: meson-g12: add Everything-Else power domain controller")
-
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../bindings/phy/amlogic,meson-gxl-usb2-phy.yaml   | 56 ++++++++++++++++++++++
+ .../devicetree/bindings/phy/meson-gxl-usb2-phy.txt | 21 --------
+ 2 files changed, 56 insertions(+), 21 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt b/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
-index 99b5b10cda31..ba5865ae6bfe 100644
---- a/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
-+++ b/Documentation/devicetree/bindings/power/amlogic,meson-gx-pwrc.txt
-@@ -1,5 +1,5 @@
--Amlogic Meson Power Controller
--==============================
-+Amlogic Meson Power Controller (deprecated)
-+===========================================
- 
- The Amlogic Meson SoCs embeds an internal Power domain controller.
- 
+diff --git a/Documentation/devicetree/bindings/phy/amlogic,meson-gxl-usb2-phy.yaml b/Documentation/devicetree/bindings/phy/amlogic,meson-gxl-usb2-phy.yaml
+new file mode 100644
+index 000000000000..c2f5c9d2fce6
+--- /dev/null
++++ b/Documentation/devicetree/bindings/phy/amlogic,meson-gxl-usb2-phy.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/phy/amlogic,meson-gxl-usb2-phy.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic Meson GXL USB2 PHY
++
++maintainers:
++  - Neil Armstrong <neil.armstrong@linaro.org>
++
++properties:
++  compatible:
++    const: amlogic,meson-gxl-usb2-phy
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: phy
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    items:
++      - const: phy
++
++  "#phy-cells":
++    const: 0
++
++  phy-supply: true
++
++required:
++  - compatible
++  - reg
++  - "#phy-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    phy@78000 {
++        compatible = "amlogic,meson-gxl-usb2-phy";
++        reg = <0x78000 0x20>;
++        clocks = <&xtal>;
++        clock-names = "phy";
++        resets = <&phy_reset>;
++        reset-names = "phy";
++        #phy-cells = <0>;
++        phy-supply = <&usb2_supply>;
++    };
+diff --git a/Documentation/devicetree/bindings/phy/meson-gxl-usb2-phy.txt b/Documentation/devicetree/bindings/phy/meson-gxl-usb2-phy.txt
+deleted file mode 100644
+index b84a02ebffdf..000000000000
+--- a/Documentation/devicetree/bindings/phy/meson-gxl-usb2-phy.txt
++++ /dev/null
+@@ -1,21 +0,0 @@
+-* Amlogic Meson GXL and GXM USB2 PHY binding
+-
+-Required properties:
+-- compatible:	Should be "amlogic,meson-gxl-usb2-phy"
+-- reg:		The base address and length of the registers
+-- #phys-cells:	must be 0 (see phy-bindings.txt in this directory)
+-
+-Optional properties:
+-- clocks:	a phandle to the clock of this PHY
+-- clock-names:	must be "phy"
+-- resets:	a phandle to the reset line of this PHY
+-- reset-names:	must be "phy"
+-- phy-supply:	see phy-bindings.txt in this directory
+-
+-
+-Example:
+-	usb2_phy0: phy@78000 {
+-		compatible = "amlogic,meson-gxl-usb2-phy";
+-		#phy-cells = <0>;
+-		reg = <0x0 0x78000 0x0 0x20>;
+-	};
 
 -- 
 2.34.1
