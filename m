@@ -2,66 +2,70 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B92EC63797
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 21:16:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87326C54EBD
+	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 22:04:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238079AbjAIVP7 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 9 Jan 2023 16:15:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55744 "EHLO
+        id S234593AbjAIWEX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 9 Jan 2023 17:04:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238083AbjAIVPj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 16:15:39 -0500
-Received: from relay10.mail.gandi.net (relay10.mail.gandi.net [217.70.178.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318F83F478;
-        Mon,  9 Jan 2023 13:12:43 -0800 (PST)
+        with ESMTP id S231310AbjAIWEV (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 17:04:21 -0500
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 729BE13DC6;
+        Mon,  9 Jan 2023 14:04:20 -0800 (PST)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 19D69240005;
-        Mon,  9 Jan 2023 21:12:42 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 3D5A240002;
+        Mon,  9 Jan 2023 22:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1673298762;
+        t=1673301858;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=N0XPASlGe90fFlRfItezwOEQn/8ZZRtpRJg8H1ZFEkQ=;
-        b=PMNXxsHCQQ3tBxLzeGpPZ84qd1osPpfy9tBF340U8UEIOtSt7Zb76wsV/TGKxHSxf+CMcf
-        3LWaqLNvIbmUI5JLG9Pw+Lor9kECuswlA1rKDh8YqxaTFvnm9uRbVVmd06pcGmxl/SlN6C
-        fr6tgdU8FxR5G9ppUx+2yGdEvbRNvRoEbSaefX2l7T1gH1MH1s4u0Eosn0GB3sTewVkDIH
-        zrAsozxN67KHbZH9cTp6z9sIBeOhlGEPeegN4w9nFlv3aFSshrReyg9vv6ZKCJvZTGtN0/
-        2W5xELfh6LUiTEbYQO9Ha2cdGgZm7Ef0pg5WtJUEne+/HPCQ8sJFFvPNEgRyIA==
-Date:   Mon, 9 Jan 2023 22:12:41 +0100
+        bh=inY30xisfam4YsgnPcMR38i+CvhLKAgVwrVah5uQ76s=;
+        b=OqNAa3wF2sn6lXv0kug09Fl9zzZSf4UalHBh6pb+X1GmaeOux5zfD918K/cl+Ams1bF9Po
+        SydVLFNQlynY4/6sLct6Nv2ZCh4/TBcj4FAQpREyGFpqB5bDMslUbL73gMlW2ydxSQFG0T
+        l7xM93zQwdP91zAK2E7wrG13sUdIlIhepTr7rEsMHmDvsN3LeAAKjif1y/K4tRV1nTGGb0
+        YfPL8foszWTPEsezwLxA080y2j+ho5Hf4bjRT82nBG+uqb0Xt5veapLm06bJwQFE55Qnmt
+        pMCwNQEnie72B1mPConidzHn6pgDqh6fyJ8qEFfLBlkl09fn+HvyZ+Btr+9YgA==
+Date:   Mon, 9 Jan 2023 23:04:17 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Johan Hovold <johan+linaro@kernel.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx: allow 'wakeup-source'
- property
-Message-ID: <167329874507.49370.13680601587637257482.b4-ty@bootlin.com>
-References: <20230104095612.6756-1-johan+linaro@kernel.org>
+To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
+        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: (subset) [PATCH 560/606] rtc: ds1307: Convert to i2c's
+ .probe_new()
+Message-ID: <167330184365.58615.1381399815168512020.b4-ty@bootlin.com>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+ <20221118224540.619276-561-uwe@kleine-koenig.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20230104095612.6756-1-johan+linaro@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221118224540.619276-561-uwe@kleine-koenig.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
-On Wed, 04 Jan 2023 10:56:12 +0100, Johan Hovold wrote:
-> The RTC can be used as a wakeup source on at least some platforms so
-> allow it to be described as such.
+On Fri, 18 Nov 2022 23:44:54 +0100, Uwe Kleine-König wrote:
+> .probe_new() doesn't get the i2c_device_id * parameter, so determine
+> that explicitly in the probe function.
 > 
 > 
 
 Applied, thanks!
 
-[1/1] dt-bindings: rtc: qcom-pm8xxx: allow 'wakeup-source' property
-      commit: 51b3802e79606b2326f4a8cac0f2766a2e15338b
+[560/606] rtc: ds1307: Convert to i2c's .probe_new()
+          commit: 4cd0ca1fe9a79d81a001ff14f14035531773fe43
 
 Best regards,
 
