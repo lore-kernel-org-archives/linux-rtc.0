@@ -2,24 +2,24 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7868C67871
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 01:35:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6504C61DB3
+	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 01:35:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234006AbjAIBfC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sun, 8 Jan 2023 20:35:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41458 "EHLO
+        id S233818AbjAIBfD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 8 Jan 2023 20:35:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233841AbjAIBfB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sun, 8 Jan 2023 20:35:01 -0500
+        with ESMTP id S234022AbjAIBfD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 8 Jan 2023 20:35:03 -0500
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EBD14B87B;
-        Sun,  8 Jan 2023 17:34:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CE184B87B;
+        Sun,  8 Jan 2023 17:35:01 -0800 (PST)
 Received: from loongson.cn (unknown [112.20.112.33])
-        by gateway (Coremail) with SMTP id _____8CxvOpDb7tjs2kAAA--.1231S3;
-        Mon, 09 Jan 2023 09:34:59 +0800 (CST)
+        by gateway (Coremail) with SMTP id _____8CxOupEb7tjx2kAAA--.1179S3;
+        Mon, 09 Jan 2023 09:35:00 +0800 (CST)
 Received: from localhost.localdomain (unknown [112.20.112.33])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxsOQ_b7tjZ3gWAA--.3588S3;
-        Mon, 09 Jan 2023 09:34:58 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxsOQ_b7tjZ3gWAA--.3588S5;
+        Mon, 09 Jan 2023 09:35:00 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -32,65 +32,59 @@ Cc:     linux-rtc@vger.kernel.org, linux-mips@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         devicetree@vger.kernel.org, Qing Zhang <zhangqing@loongson.cn>,
         Tiezhu Yang <yangtiezhu@loongson.cn>,
-        zhaoxiao <zhaoxiao@uniontech.com>, WANG Xuerui <git@xen0n.name>,
-        Binbin Zhou <zhoubinbin@loongson.cn>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH V2 1/7] dt-bindings: rtc: Add Loongson LS2X RTC support
-Date:   Mon,  9 Jan 2023 09:35:11 +0800
-Message-Id: <0288efeb4209e4a49af07de6399045aaa00a970c.1673227292.git.zhoubinbin@loongson.cn>
+        zhaoxiao <zhaoxiao@uniontech.com>,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH V2 3/7] LoongArch: Enable LS2X RTC in loongson3_defconfig
+Date:   Mon,  9 Jan 2023 09:35:13 +0800
+Message-Id: <1281386ef23b1513c98774dfdcdde1e40d31a197.1673227292.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1673227292.git.zhoubinbin@loongson.cn>
 References: <cover.1673227292.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8BxsOQ_b7tjZ3gWAA--.3588S3
+X-CM-TRANSID: AQAAf8BxsOQ_b7tjZ3gWAA--.3588S5
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBjvdXoW7Jw18Ar43GrWxJF1UCrWxJFb_yoWDZFgE9a
-        4xAa4kA3Z8tF1Sg3Wvgr4ftr13X347KF1kCwnrtanav34S9F98KF97tw1Yyr1fuFW3u3W5
-        Wrs3GrZ7ZrnrKjkaLaAFLSUrUUUU5b8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
+X-Coremail-Antispam: 1Uk129KBjvdXoW7Jry5XrWkuF48uF15Ww1fXrb_yoWxKwb_XF
+        y7Kw4kWw48Aa97uas7Zw1rWw4Du3W7AF1FkrnrZr1xXa12gr13J3yDA3W3C3Z093yUWr43
+        XaykAF9F9r10yjkaLaAFLSUrUUUU5b8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
         xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY
-        X7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
-        AFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
-        6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j6F4UM28EF7
-        xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r4UJwAaw2AF
-        wI0_JF0_Jw1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
-        Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2jsIE
-        14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7
-        AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C2
-        67AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI
-        8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVW8JVW5
-        JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r
-        1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBI
-        daVFxhVjvjDU0xZFpf9x07jr9NsUUUUU=
+        C7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
+        AFIxvE14AKwVWUAVWUZwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
+        6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4
+        x0Y4vEx4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UM2kK
+        e7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI
+        0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWrXVW3AwAv7VC2z280
+        aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4
+        kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbckI
+        1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_Jr
+        Wlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26ryj
+        6F1UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6r
+        1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1U
+        YxBIdaVFxhVjvjDU0xZFpf9x07jfyCLUUUUU=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: WANG Xuerui <git@xen0n.name>
+This is now supported, enable for Loongson-3 systems.
+Other systems are unaffected.
 
-Document the binding for the LS2X RTC block found on the Loongson-2K SoC
-and the LS7A bridge, originally appearing on the Loongson-2H.
-
-Signed-off-by: WANG Xuerui <git@xen0n.name>
 Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/loongarch/configs/loongson3_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-index d9fc120c61cc..0ef1ffd54655 100644
---- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-@@ -47,6 +47,8 @@ properties:
-       - isil,isl1218
-       # Intersil ISL12022 Real-time Clock
-       - isil,isl12022
-+      # Loongson-2K Socs/LS7A bridge Real-time Clock
-+      - loongson,ls2x-rtc
-       # Real Time Clock Module with I2C-Bus
-       - microcrystal,rv3028
-       # Real Time Clock Module with I2C-Bus
+diff --git a/arch/loongarch/configs/loongson3_defconfig b/arch/loongarch/configs/loongson3_defconfig
+index 5677c4f8576e..43f46cfc73af 100644
+--- a/arch/loongarch/configs/loongson3_defconfig
++++ b/arch/loongarch/configs/loongson3_defconfig
+@@ -714,6 +714,7 @@ CONFIG_UCSI_ACPI=m
+ CONFIG_INFINIBAND=m
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_EFI=y
++CONFIG_RTC_DRV_LS2X=y
+ CONFIG_DMADEVICES=y
+ CONFIG_UIO=m
+ CONFIG_UIO_PDRV_GENIRQ=m
 -- 
 2.31.1
 
