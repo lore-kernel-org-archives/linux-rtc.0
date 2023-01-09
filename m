@@ -2,61 +2,61 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 938D1C7113C
-	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 12:54:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB86C678D7
+	for <linux-rtc@archiver.kernel.org>; Mon,  9 Jan 2023 12:55:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236893AbjAIMyM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 9 Jan 2023 07:54:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41180 "EHLO
+        id S236657AbjAIMzQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 9 Jan 2023 07:55:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236418AbjAIMxu (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 07:53:50 -0500
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED9A16587
-        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 04:53:43 -0800 (PST)
-Received: by mail-wm1-x329.google.com with SMTP id p1-20020a05600c1d8100b003d8c9b191e0so6618303wms.4
-        for <linux-rtc@vger.kernel.org>; Mon, 09 Jan 2023 04:53:43 -0800 (PST)
+        with ESMTP id S236723AbjAIMxz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 9 Jan 2023 07:53:55 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEF51649D
+        for <linux-rtc@vger.kernel.org>; Mon,  9 Jan 2023 04:53:48 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id k22-20020a05600c1c9600b003d1ee3a6289so6628873wms.2
+        for <linux-rtc@vger.kernel.org>; Mon, 09 Jan 2023 04:53:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=RRiMwFjCYTBiVehS5Zjzxk4QhzySk5Q8XvQ2DTwvGYo=;
-        b=aBiQ+I7Ke69g721Le6fWX/mYxuRyANWFBhR/OB6Pj9x0oGFKiFkeQxWoaRW2zRXN8T
-         GiSqyZf/lBsocyTcQ8cKypiZB6S7w9k+ycDis+ziOLhi593lbYcmCcnC3iGE6KWBwoVq
-         ZlZ0B8wF/umJSXsNhSDIZ6a5qBl/2K0bxFxngoIuwq/4Atx/jWBo0boxlSG7Yu6zku3U
-         pRPUARNjpFyclLHHls0eqOxejeZFNeF2pDldXfwhVGeYzVfnwX5sTR5UarOh8h1Hnpso
-         Lvf3+Gm2vUxJWwRWLLu1UKdVYW87GUe68F47H6D+SoDiSpMKvun5TQi6L8NeRLrTPi8e
-         +O4w==
+        bh=apTdb92AzNQ96d3ETxccHyv95HLA5cv6Przk0hO/8h8=;
+        b=EsPXoXoYQiEGXrVW2y08Jw63MOaSE7K82Wa7hO1KkMnIEV1GsOeInOf2/7FEhX/x7g
+         HfnceNCBdr4d2qFy48gJokuywZ0DFfHh0/lc/FmPU0BXvkVj9BFzr1QCZvHVnekASNRd
+         aPw+24RSxuSQfYvMPvyZSrIfntYA8LQV2+LMWjudIVGoj4nSTJSzSCjcsOWb0FLx8nFN
+         xbVGV/sNMT1pUIX7L/fyYV/wbCR02VLtIk0oHdwVzjN3iPjNggr+OOwIH2odCBxfsO1u
+         docmtVsMF/TOvbNWwV0XUaNuyxB4deNMoTK7R1YJc93cZ59tTYI9Mmn1E7mEnyNg6eIC
+         kKIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RRiMwFjCYTBiVehS5Zjzxk4QhzySk5Q8XvQ2DTwvGYo=;
-        b=rWiyeKJFdlyggp42ehKj+KZZmPPp8tZi5+YnLn1h40MOeIw0o6jb1dayBZIgpbHjUh
-         CdfSzVWBCINYbB370KIMV5FOW11iArBhZ5buPlC/7xJKxp9b+4F87Kxeim3plbS7S89h
-         BcPwHhZMIfGmhAwBEoKfoLnFQu/jEdhQF1wdHgQY+kvnWIuMujbvmJ/aqoRq9zR0Rhcv
-         KMxG7XRm36oK8m5YHqatdjtfZmJzEAGyxxGvACeQPgA1G/demUlEV6QuBOqIx8FhfU3P
-         ljC2xhKz1ul97u5Tg319FJwdZKUu3g43It/unUqApmyi726ijEdJGVx5V4LPM9Vh7pKG
-         wMxg==
-X-Gm-Message-State: AFqh2kpkJv8UHSnmUhEhks9WSttjvseAsZXpEEao5Uavw3+2YNjQ1epG
-        vGz6VzXIy4Xnn5Hd5p/dKXmG0A==
-X-Google-Smtp-Source: AMrXdXtpKrsAALSFga1fVeXlI0ytYl//rwO3a35WtI8uvdrDSrdT/sQXGg+OYuR+ehktTHxFhJFxjw==
-X-Received: by 2002:a05:600c:34ca:b0:3d6:80b5:f948 with SMTP id d10-20020a05600c34ca00b003d680b5f948mr46711984wmq.39.1673268821634;
-        Mon, 09 Jan 2023 04:53:41 -0800 (PST)
+        bh=apTdb92AzNQ96d3ETxccHyv95HLA5cv6Przk0hO/8h8=;
+        b=ERkUSzkqsGJdHtjGdxmvzTS5sQz6YY+Y3jORNlhDUEoJPk1d6xqnAttABPz1A/50DO
+         Vq0aC7ddYZgSSpnSpRnoRX3Aw9b/o7Gui44Ott5WHilFRJV5YOiVPqwo+IV0gp9ScP4F
+         y1AJuhaeLHe3a5W1OJvcua/tAE1rJt/+wqmoTrXo6u88UellJv1MW8EmcDGXgpEMQ0mo
+         nhjiS6vB2Ltdwf+21j+n3xg//hzSEp2iz7adgPSPMiUtj7nlpj4B1v+fmQlxqBMEAe8X
+         /QOFF/t9elc42PnInlVWW0zyAPzTsqQaVkS3FJUot8qIoW40lpsmllI3jPA4g2HbxG87
+         v7LA==
+X-Gm-Message-State: AFqh2kqHSuKGwPJzEHTsrc+0lZAPyPE6BQ26XtD74DsBmAutedtQA55j
+        +zHV4/Bcbugs3LWOE7pf9YB/YA==
+X-Google-Smtp-Source: AMrXdXtAapEnKxQpOhIkltcToEX8T5OnPnIqchFzqGnfuLYUoCHcU94+sp3J+/xrNs805/CeyL0VSw==
+X-Received: by 2002:a05:600c:1e1d:b0:3cf:b07a:cd2f with SMTP id ay29-20020a05600c1e1d00b003cfb07acd2fmr45391761wmb.37.1673268828090;
+        Mon, 09 Jan 2023 04:53:48 -0800 (PST)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.40
+        by smtp.gmail.com with ESMTPSA id y7-20020a7bcd87000000b003d997e5e679sm12805667wmj.14.2023.01.09.04.53.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 04:53:41 -0800 (PST)
+        Mon, 09 Jan 2023 04:53:47 -0800 (PST)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 09 Jan 2023 13:53:31 +0100
-Subject: [PATCH v2 07/11] dt-bindings: timer: convert
- timer/amlogic,meson6-timer.txt to dt-schema
+Date:   Mon, 09 Jan 2023 13:53:35 +0100
+Subject: [PATCH v2 11/11] dt-bindings: net: convert mdio-mux-meson-g12a.txt to
+ dt-schema
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221117-b4-amlogic-bindings-convert-v2-7-36ad050bb625@linaro.org>
+Message-Id: <20221117-b4-amlogic-bindings-convert-v2-11-36ad050bb625@linaro.org>
 References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 In-Reply-To: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
 To:     Rob Herring <robh+dt@kernel.org>,
@@ -94,104 +94,157 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the Amlogic Meson6 SoCs Timer Controller bindings to dt-schema.
+Convert MDIO bus multiplexer/glue of Amlogic G12a SoC family bindings
+to dt-schema.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/timer/amlogic,meson6-timer.txt        | 22 ---------
- .../bindings/timer/amlogic,meson6-timer.yaml       | 54 ++++++++++++++++++++++
- 2 files changed, 54 insertions(+), 22 deletions(-)
+ .../bindings/net/amlogic,g12a-mdio-mux.yaml        | 80 ++++++++++++++++++++++
+ .../bindings/net/mdio-mux-meson-g12a.txt           | 48 -------------
+ 2 files changed, 80 insertions(+), 48 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt
-deleted file mode 100644
-index a9da22bda912..000000000000
---- a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.txt
-+++ /dev/null
-@@ -1,22 +0,0 @@
--Amlogic Meson6 SoCs Timer Controller
--
--Required properties:
--
--- compatible : should be "amlogic,meson6-timer"
--- reg : Specifies base physical address and size of the registers.
--- interrupts : The four interrupts, one for each timer event
--- clocks : phandles to the pclk (system clock) and XTAL clocks
--- clock-names : must contain "pclk" and "xtal"
--
--Example:
--
--timer@c1109940 {
--	compatible = "amlogic,meson6-timer";
--	reg = <0xc1109940 0x14>;
--	interrupts = <GIC_SPI 10 IRQ_TYPE_EDGE_RISING>,
--		     <GIC_SPI 11 IRQ_TYPE_EDGE_RISING>,
--		     <GIC_SPI 6 IRQ_TYPE_EDGE_RISING>,
--		     <GIC_SPI 29 IRQ_TYPE_EDGE_RISING>;
--	clocks = <&xtal>, <&clk81>;
--	clock-names = "xtal", "pclk";
--};
-diff --git a/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml
+diff --git a/Documentation/devicetree/bindings/net/amlogic,g12a-mdio-mux.yaml b/Documentation/devicetree/bindings/net/amlogic,g12a-mdio-mux.yaml
 new file mode 100644
-index 000000000000..8381a5404ef7
+index 000000000000..ec5c038ce6a0
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/timer/amlogic,meson6-timer.yaml
-@@ -0,0 +1,54 @@
++++ b/Documentation/devicetree/bindings/net/amlogic,g12a-mdio-mux.yaml
+@@ -0,0 +1,80 @@
 +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: http://devicetree.org/schemas/timer/amlogic,meson6-timer.yaml#
++$id: http://devicetree.org/schemas/net/amlogic,g12a-mdio-mux.yaml#
 +$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+title: Amlogic Meson6 SoCs Timer Controller
++title: MDIO bus multiplexer/glue of Amlogic G12a SoC family
++
++description:
++  This is a special case of a MDIO bus multiplexer. It allows to choose between
++  the internal mdio bus leading to the embedded 10/100 PHY or the external
++  MDIO bus.
 +
 +maintainers:
 +  - Neil Armstrong <neil.armstrong@linaro.org>
-+  - Martin Blumenstingl <martin.blumenstingl@googlemail.com>
++
++allOf:
++  - $ref: mdio-mux.yaml#
 +
 +properties:
 +  compatible:
-+    const: amlogic,meson6-timer
++    const: amlogic,g12a-mdio-mux
 +
 +  reg:
 +    maxItems: 1
 +
-+  interrupts:
-+    maxItems: 4
-+    description: per-timer event interrupts
-+
 +  clocks:
-+    maxItems: 2
++    items:
++      - description: peripheral clock
++      - description: platform crytal
++      - description: SoC 50MHz MPLL
 +
 +  clock-names:
 +    items:
-+      - const: xtal
 +      - const: pclk
++      - const: clkin0
++      - const: clkin1
 +
 +required:
 +  - compatible
 +  - reg
-+  - interrupts
 +  - clocks
 +  - clock-names
 +
-+additionalProperties: false
++unevaluatedProperties: false
 +
 +examples:
 +  - |
 +    #include <dt-bindings/interrupt-controller/irq.h>
 +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    timer@c1109940 {
-+        compatible = "amlogic,meson6-timer";
-+        reg = <0xc1109940 0x14>;
-+        interrupts = <GIC_SPI 10 IRQ_TYPE_EDGE_RISING>,
-+                     <GIC_SPI 11 IRQ_TYPE_EDGE_RISING>,
-+                     <GIC_SPI 6 IRQ_TYPE_EDGE_RISING>,
-+                     <GIC_SPI 29 IRQ_TYPE_EDGE_RISING>;
-+        clocks = <&xtal>, <&clk81>;
-+        clock-names = "xtal", "pclk";
++    mdio-multiplexer@4c000 {
++        compatible = "amlogic,g12a-mdio-mux";
++        reg = <0x4c000 0xa4>;
++        clocks = <&clkc_eth_phy>, <&xtal>, <&clkc_mpll>;
++        clock-names = "pclk", "clkin0", "clkin1";
++        mdio-parent-bus = <&mdio0>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        mdio@0 {
++            reg = <0>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++        };
++
++        mdio@1 {
++            reg = <1>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++
++            ethernet-phy@8 {
++                compatible = "ethernet-phy-id0180.3301",
++                             "ethernet-phy-ieee802.3-c22";
++                interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
++                reg = <8>;
++                max-speed = <100>;
++            };
++        };
 +    };
++...
+diff --git a/Documentation/devicetree/bindings/net/mdio-mux-meson-g12a.txt b/Documentation/devicetree/bindings/net/mdio-mux-meson-g12a.txt
+deleted file mode 100644
+index 3a96cbed9294..000000000000
+--- a/Documentation/devicetree/bindings/net/mdio-mux-meson-g12a.txt
++++ /dev/null
+@@ -1,48 +0,0 @@
+-Properties for the MDIO bus multiplexer/glue of Amlogic G12a SoC family.
+-
+-This is a special case of a MDIO bus multiplexer. It allows to choose between
+-the internal mdio bus leading to the embedded 10/100 PHY or the external
+-MDIO bus.
+-
+-Required properties in addition to the generic multiplexer properties:
+-- compatible : amlogic,g12a-mdio-mux
+-- reg: physical address and length of the multiplexer/glue registers
+-- clocks: list of clock phandle, one for each entry clock-names.
+-- clock-names: should contain the following:
+-  * "pclk"   : peripheral clock.
+-  * "clkin0" : platform crytal
+-  * "clkin1" : SoC 50MHz MPLL
+-
+-Example :
+-
+-mdio_mux: mdio-multiplexer@4c000 {
+-	compatible = "amlogic,g12a-mdio-mux";
+-	reg = <0x0 0x4c000 0x0 0xa4>;
+-	clocks = <&clkc CLKID_ETH_PHY>,
+-		 <&xtal>,
+-		 <&clkc CLKID_MPLL_5OM>;
+-	clock-names = "pclk", "clkin0", "clkin1";
+-	mdio-parent-bus = <&mdio0>;
+-	#address-cells = <1>;
+-	#size-cells = <0>;
+-
+-	ext_mdio: mdio@0 {
+-		reg = <0>;
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-	};
+-
+-	int_mdio: mdio@1 {
+-		reg = <1>;
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		internal_ephy: ethernet-phy@8 {
+-			compatible = "ethernet-phy-id0180.3301",
+-				     "ethernet-phy-ieee802.3-c22";
+-			interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
+-			reg = <8>;
+-			max-speed = <100>;
+-		};
+-	};
+-};
 
 -- 
 2.34.1
