@@ -2,94 +2,122 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 608CDC46467
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 13:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 777DEC54EBC
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 14:08:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbjAJNCI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 Jan 2023 08:02:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35426 "EHLO
+        id S233327AbjAJOH4 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:07:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232715AbjAJNCH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 08:02:07 -0500
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFFBA52742
-        for <linux-rtc@vger.kernel.org>; Tue, 10 Jan 2023 05:02:06 -0800 (PST)
-Received: by mail-wr1-x430.google.com with SMTP id bn26so11680478wrb.0
-        for <linux-rtc@vger.kernel.org>; Tue, 10 Jan 2023 05:02:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=bXYjCeQ9QtsFL8nXtTdmpHyzQI1y6u5sI6jbDwGL5SM=;
-        b=R1uVAm7JLu/x7Lcqhyz1YRS0ajuGV+VRK6KwnsG6kAlPe769mSDTbTeD2u9Ej0Gwz/
-         y0GdsZqdcqu/D/o38hLxTZjmvQ2WA5PeK3M0gqoEN4RhHU6IPVphbDXuroDxP768adbI
-         wfN8JY7SgaBJAqEwF7k7qNw2LARDOPORXIts9AYzGsj28IhsQ8uoKMYo6/KSCQk0lYMr
-         kTguF3dXyIqd14IU8qg5iaUV6+AipPgVUPDqyluJtIWeNbsDcg7vIVNKHPkPzH8IuaKy
-         I6uoAnibychZmN+VHdCYei2UQzkJdAOuv+DltFdeXXxLk16OaMfnyNy4p+gkvR4V8tYd
-         rFDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bXYjCeQ9QtsFL8nXtTdmpHyzQI1y6u5sI6jbDwGL5SM=;
-        b=v0hEoiUiSpk8L1cZrwRX3KS9cEYx5t9LFWZFgxGBTOTBN59d0VA9K/IkCOi6VSrSQX
-         SLodY0VnC2uhK7Ci1O5nWaXmvZnTr/DkfW6ZP8gbaPQ49El0ViVPyBQYKNfLD71AGPK3
-         EGVwsI+tNymtMMjJre0l8NFhovva0eH6z30L2hQyg2rffDuLAA8NlBlGqNaOtYQs2o1K
-         MDKLCPJ/BDA7twCUois8ELzeZ+w6ov+zGcid/zoXBHLG/eFT+F6uT/iEfBNF52Ryx+rk
-         4BE14x5iLrjCFaJjGZXCXe7/s3NhTO05c7k+qoe5k6XwlimkarmoPOOfbfrClj6bvzmi
-         Xe/w==
-X-Gm-Message-State: AFqh2kr7k1gqdFI9StLIoVdCWimtFazYINJYAAMYpHtFFdXeW00Pah4W
-        l9eq0AX4O9E1KlPfCL/Imb1Y6g==
-X-Google-Smtp-Source: AMrXdXtl75e7E+BZquNgpJ2OWcid0C63zHWVvYENd5qmfR3H73H+RWSvhij+LCTdGK5AYuCUMxeFyg==
-X-Received: by 2002:a05:6000:888:b0:2aa:438a:2165 with SMTP id ca8-20020a056000088800b002aa438a2165mr16521627wrb.24.1673355725298;
-        Tue, 10 Jan 2023 05:02:05 -0800 (PST)
-Received: from [192.168.1.109] ([178.197.216.144])
-        by smtp.gmail.com with ESMTPSA id t17-20020a05600001d100b00241d21d4652sm11078676wrx.21.2023.01.10.05.02.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jan 2023 05:02:04 -0800 (PST)
-Message-ID: <b0189f64-59f1-6ba2-489c-383bd953cf2a@linaro.org>
-Date:   Tue, 10 Jan 2023 14:02:03 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH v2 2/3] dt-bindings: m41t80: add xtal load capacitance
-Content-Language: en-US
-To:     Dennis Lambe Jr <dennis@sparkcharge.io>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S238655AbjAJOHm (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 09:07:42 -0500
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291163FC83;
+        Tue, 10 Jan 2023 06:07:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1673359662; x=1704895662;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=4eiyGTWXX+oD7HoJjkMNpYlz3/ZKnnaK5/dHNcnJkPA=;
+  b=NbDDbR8iE534INn82Hz0vTgz0DWeEBxa9uJcVtPOpHXUhP9NeD3NE3qZ
+   nXH3qnYx9oJL9Pw6MeAiZ2DiOs+SVJAmykHtXnVHgfcvrblN4a5B10Ggw
+   c6NVhLbf2BAsKlPdXkTouiknofwOdelf7ZJf8L4LKQbdzS2O18E1DcBtf
+   SQI8K5hoHM68gDqAKX4VU2umq/EK6tKSy27qogRlRPBD77CkTCjbaFOKZ
+   M+wcDSZEXPJCOkMNyopqcx7gLM3kEVXVJWgVavgX2L+s+s90n1i2MKrmu
+   nTmAENI8cMPFcHAIB0khak3v4UsmeriOGufEXrjP3fHFy9MfajuIlm8AB
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="325156487"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="325156487"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 06:07:41 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="606971782"
+X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
+   d="scan'208";a="606971782"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga003.jf.intel.com with ESMTP; 10 Jan 2023 06:07:39 -0800
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 048AA31D; Tue, 10 Jan 2023 16:08:13 +0200 (EET)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hwmon@vger.kernel.org
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Atsushi Nemoto <anemo@mba.ocn.ne.jp>, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-References: <20230104052506.575619-1-dennis@sparkcharge.io>
- <20230104052506.575619-3-dennis@sparkcharge.io>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230104052506.575619-3-dennis@sparkcharge.io>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 3/5] rtc: isl12022: Drop unneeded OF guards and of_match_ptr()
+Date:   Tue, 10 Jan 2023 16:08:04 +0200
+Message-Id: <20230110140806.87432-4-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
+References: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 04/01/2023 06:25, Dennis Lambe Jr wrote:
-> The ST m41t82 and m41t83 support programmable load capacitance from 3.5
-> pF to 17.4 pF. The hardware defaults to 12.5 pF.
-> 
-> The accuracy of the xtal can be calibrated precisely by adjusting the
-> load capacitance.
-> 
-> Add default, minimum, and maximum for the standard rtc property
-> quartz-load-femtofarads on compatible devices.
-> 
-> Signed-off-by: Dennis Lambe Jr <dennis@sparkcharge.io>
-> ---
-> 
+Drop unneeded OF guards and of_match_ptr(). This allows use of
+the driver with other types of firmware such as ACPI PRP0001 based
+probing.
 
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/rtc/rtc-isl12022.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
-Best regards,
-Krzysztof
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index bf1aa6f6560d..77b4763f2a70 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -14,8 +14,6 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/err.h>
+-#include <linux/of.h>
+-#include <linux/of_device.h>
+ #include <linux/regmap.h>
+ #include <linux/hwmon.h>
+ 
+@@ -46,8 +44,6 @@
+ 
+ #define ISL12022_BETA_TSE	(1 << 7)
+ 
+-static struct i2c_driver isl12022_driver;
+-
+ static umode_t isl12022_hwmon_is_visible(const void *data,
+ 					 enum hwmon_sensor_types type,
+ 					 u32 attr, int channel)
+@@ -252,14 +248,12 @@ static int isl12022_probe(struct i2c_client *client)
+ 	return devm_rtc_register_device(rtc);
+ }
+ 
+-#ifdef CONFIG_OF
+ static const struct of_device_id isl12022_dt_match[] = {
+ 	{ .compatible = "isl,isl12022" }, /* for backward compat., don't use */
+ 	{ .compatible = "isil,isl12022" },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, isl12022_dt_match);
+-#endif
+ 
+ static const struct i2c_device_id isl12022_id[] = {
+ 	{ "isl12022", 0 },
+@@ -270,9 +264,7 @@ MODULE_DEVICE_TABLE(i2c, isl12022_id);
+ static struct i2c_driver isl12022_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-isl12022",
+-#ifdef CONFIG_OF
+-		.of_match_table = of_match_ptr(isl12022_dt_match),
+-#endif
++		.of_match_table = isl12022_dt_match,
+ 	},
+ 	.probe_new	= isl12022_probe,
+ 	.id_table	= isl12022_id,
+-- 
+2.39.0
 
