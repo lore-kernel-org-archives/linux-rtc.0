@@ -2,44 +2,44 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A36B3C54EBE
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 14:08:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B1DC54EBC
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 14:08:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbjAJOHz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 Jan 2023 09:07:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60268 "EHLO
+        id S231654AbjAJOIm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:08:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238659AbjAJOHn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 09:07:43 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F5BB1FD;
-        Tue, 10 Jan 2023 06:07:42 -0800 (PST)
+        with ESMTP id S238663AbjAJOIL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 09:08:11 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F7768CBE5;
+        Tue, 10 Jan 2023 06:08:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673359663; x=1704895663;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=MrltX0Mbfq5di0+cEUd00fzCE2JUwG4J0N0gH0rA9sM=;
-  b=KCUGyR5GingMfiNDGABiPev6egDpKYNW1tDH/NGJ09oweDR8oJo1DEbn
-   rHo6nbTJ+XOcxvHHDrQshMwUq9gvAZNQgaxz2eBP7GTSHJfrbrD4scuFa
-   IlmHjoNj74xk5WAgT/qjCFAOPPn5HudH9jRO3t7RYAlb9/HvWL9ndQANC
-   3sCOgXKeVnw4bmKJvW5OrsfJuSAX3dV/9FTqV8nE3wfSduSOy5rJ5jDF/
-   VnathzoXVMKUntBcTtjujTWWCQ3mb9Kt0LN3xebuRggvMqEJFga8v5DqJ
-   cu4vboZkSRGIfpE6mKKT3Gpvp7ZItxgLocxTYHJrtwZHPMH43vF4JLFAw
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="325156495"
+  t=1673359690; x=1704895690;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=/W8mB5CAUSKdgh4t9azmzmb5WV1al8YW28UpUk33I4Q=;
+  b=I9QAyZYuqdLhy83alIrBBYvwuBWe++oloKXQ5Kd1xW53btF1T4RDsqzP
+   KudknnZpHFQgRBpvVsGj94jtnD+wEYiZ7AA9IHCSXQcM3jodBwwPp7+69
+   DjbjkENR/Uhe8YgBoWGe9SJezWTTSA01c35rt9gXG4RuYf/oMnEcotUzz
+   ndbGHdLpF5QrVIc9SVVHMtyYNHBC9Lhv0wd0+emI0IL2v5oiOSgQUMS9M
+   fcaDo+jEE2TaBjtv1dbOWeZBxkWPOadn0LfzmyeEb3aqrqOPweK0nHNOC
+   Z9CoERCBqluqYqqc9lGiaXcg5YYHOyZqKOqfw0FOtXzBBRGQ7g5FCZ+9d
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="303513579"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="325156495"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 06:07:42 -0800
+   d="scan'208";a="303513579"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 06:07:41 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="606971784"
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="725555662"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="606971784"
+   d="scan'208";a="725555662"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga003.jf.intel.com with ESMTP; 10 Jan 2023 06:07:39 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 10 Jan 2023 06:07:39 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id D6F65130; Tue, 10 Jan 2023 16:08:12 +0200 (EET)
+        id 0BA2F330; Tue, 10 Jan 2023 16:08:13 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -49,32 +49,53 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Jean Delvare <jdelvare@suse.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 0/5] rtc: isl12022: Clean up and simplify the driver
-Date:   Tue, 10 Jan 2023 16:08:01 +0200
-Message-Id: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 4/5] rtc: isl12022: Join string literals back
+Date:   Tue, 10 Jan 2023 16:08:05 +0200
+Message-Id: <20230110140806.87432-5-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
+References: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-While looking for something else I noticed that this driver is dusted
-a bit. Clean up and simplify it using available kernel types and APIs.
+For easy grepping on debug purposes join string literals back in
+the messages.
 
-Changelog v2:
-- added tags to patches 1,2,4,5 (Rasmus)
+While at it, drop __func__ parameter from unique enough dev_dbg()
+message as Dynamic Debug can retrieve this at run time.
 
-Andy Shevchenko (5):
-  rtc: isl12022: Get rid of unneeded private struct isl12022
-  rtc: isl12022: Explicitly use __le16 type for ISL12022_REG_TEMP_L
-  rtc: isl12022: Drop unneeded OF guards and of_match_ptr()
-  rtc: isl12022: Join string literals back
-  rtc: isl12022: sort header inclusion alphabetically
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/rtc/rtc-isl12022.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
- drivers/rtc/rtc-isl12022.c | 93 ++++++++++++++------------------------
- 1 file changed, 34 insertions(+), 59 deletions(-)
-
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index 77b4763f2a70..ee38c5067ea8 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -143,16 +143,12 @@ static int isl12022_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	if (buf[ISL12022_REG_SR] & (ISL12022_SR_LBAT85 | ISL12022_SR_LBAT75)) {
+ 		dev_warn(dev,
+-			 "voltage dropped below %u%%, "
+-			 "date and time is not reliable.\n",
++			 "voltage dropped below %u%%, date and time is not reliable.\n",
+ 			 buf[ISL12022_REG_SR] & ISL12022_SR_LBAT85 ? 85 : 75);
+ 	}
+ 
+ 	dev_dbg(dev,
+-		"%s: raw data is sec=%02x, min=%02x, hr=%02x, "
+-		"mday=%02x, mon=%02x, year=%02x, wday=%02x, "
+-		"sr=%02x, int=%02x",
+-		__func__,
++		"raw data is sec=%02x, min=%02x, hr=%02x, mday=%02x, mon=%02x, year=%02x, wday=%02x, sr=%02x, int=%02x",
+ 		buf[ISL12022_REG_SC],
+ 		buf[ISL12022_REG_MN],
+ 		buf[ISL12022_REG_HR],
 -- 
 2.39.0
 
