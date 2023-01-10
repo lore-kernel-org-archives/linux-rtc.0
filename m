@@ -2,44 +2,44 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2357C67871
-	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 14:08:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 228B0C678D7
+	for <linux-rtc@archiver.kernel.org>; Tue, 10 Jan 2023 14:08:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232892AbjAJOIn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 10 Jan 2023 09:08:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32770 "EHLO
+        id S233467AbjAJOIo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:08:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238673AbjAJOIN (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 09:08:13 -0500
+        with ESMTP id S238668AbjAJOIM (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 10 Jan 2023 09:08:12 -0500
 Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8F58CBE2;
-        Tue, 10 Jan 2023 06:08:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8523C38C;
+        Tue, 10 Jan 2023 06:08:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673359692; x=1704895692;
+  t=1673359691; x=1704895691;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=4NOTfNW4jDLP34KQ7vuObhZRGJ9+73gybtn8mNZS7J4=;
-  b=l75mJ+HL+1N2aIBmgFij+XfJj7/rOdqwPDjQSdzj5HuHm3qyIbXu5WMe
-   1+zMSJAoOOOGfd8ebRFXOxIEmIXfH5kvSygF2+7VznVX+/JCPzvpdbCiz
-   wxYw7x8x/UNuid5qmR/zppUH+C77Foc6A67p4YRAgVxgXPagCXRozr7cX
-   t3yFFkkysCj6IKgLRSxYFLmLpIsQiw0Wd2S7Nm+mlHBl40ypILSGSEQl/
-   Yqtds/g5TjgHuGQLvSCKjq+xls188IPjzdL9s4lYGYUMp2qGX3GKB4lje
-   v/VOKmb1kD82hzOqsRyF/PIQwc3VRnKqENkqswcuE+pkPQEULViHS61RB
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="303513607"
+  bh=k3cvIiiipTOOOJMkBjXRIczi8x3kZeinL1bpJ1JiSWA=;
+  b=iuPOA6Oico/UR5QcKxLppKjC5FrLlKFV+8MniAbPnhMwi5wnrapIapB0
+   qwwzVz9xGgNr0aAjGXKr+Zm981C8bhsX6YCC2tYOq2bwtdLa4y2u0qEAJ
+   NIx87KVvBFblkeGvr+cs7LHnBPMa5McUInVMjN8ljoGaSNjhTvrGgif+T
+   egcrcrCDKkAU/J3psEW5QWvPOdxXKisqhhXro01FTT7seYrJ5K8HbG3Ct
+   5vG/+3BMJnRjEjcgPe5WXIwP1nbPR7jJOtaKkuCb0qtvirTCoKPIqTMK1
+   v4OFGThikhwpZYcijwfD4BAlREFv/3VsosA7JowM5JaAaaXLHW7mpl7sx
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="303513589"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="303513607"
+   d="scan'208";a="303513589"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 06:07:44 -0800
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 06:07:41 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="725555694"
+X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="725555661"
 X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="725555694"
+   d="scan'208";a="725555661"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga004.fm.intel.com with ESMTP; 10 Jan 2023 06:07:42 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 10 Jan 2023 06:07:39 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 125EB4E3; Tue, 10 Jan 2023 16:08:13 +0200 (EET)
+        id F19D91A3; Tue, 10 Jan 2023 16:08:12 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -49,9 +49,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Jean Delvare <jdelvare@suse.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 5/5] rtc: isl12022: sort header inclusion alphabetically
-Date:   Tue, 10 Jan 2023 16:08:06 +0200
-Message-Id: <20230110140806.87432-6-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 2/5] rtc: isl12022: Explicitly use __le16 type for ISL12022_REG_TEMP_L
+Date:   Tue, 10 Jan 2023 16:08:03 +0200
+Message-Id: <20230110140806.87432-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
 References: <20230110140806.87432-1-andriy.shevchenko@linux.intel.com>
@@ -61,37 +61,49 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Sort header inclusion alphabetically for better maintenance.
+We are reading 10-bit value in a 16-bit register in LE format.
+Make this explicit by using __le16 type for it and corresponding
+conversion function.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 ---
- drivers/rtc/rtc-isl12022.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-isl12022.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index ee38c5067ea8..e68a79b5e00e 100644
+index 44058fa27277..bf1aa6f6560d 100644
 --- a/drivers/rtc/rtc-isl12022.c
 +++ b/drivers/rtc/rtc-isl12022.c
-@@ -8,14 +8,14 @@
-  * by Alessandro Zummo <a.zummo@towertech.it>.
-  */
- 
--#include <linux/i2c.h>
- #include <linux/bcd.h>
--#include <linux/rtc.h>
--#include <linux/slab.h>
--#include <linux/module.h>
- #include <linux/err.h>
--#include <linux/regmap.h>
+@@ -19,6 +19,8 @@
+ #include <linux/regmap.h>
  #include <linux/hwmon.h>
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+#include <linux/regmap.h>
-+#include <linux/rtc.h>
-+#include <linux/slab.h>
  
- #include <asm/byteorder.h>
++#include <asm/byteorder.h>
++
+ /* ISL register offsets */
+ #define ISL12022_REG_SC		0x00
+ #define ISL12022_REG_MN		0x01
+@@ -63,17 +65,16 @@ static umode_t isl12022_hwmon_is_visible(const void *data,
+ static int isl12022_hwmon_read_temp(struct device *dev, long *mC)
+ {
+ 	struct regmap *regmap = dev_get_drvdata(dev);
+-	u8 temp_buf[2];
+ 	int temp, ret;
++	__le16 buf;
+ 
+-	ret = regmap_bulk_read(regmap, ISL12022_REG_TEMP_L,
+-			       temp_buf, sizeof(temp_buf));
++	ret = regmap_bulk_read(regmap, ISL12022_REG_TEMP_L, &buf, sizeof(buf));
+ 	if (ret)
+ 		return ret;
+ 	/*
+ 	 * Temperature is represented as a 10-bit number, unit half-Kelvins.
+ 	 */
+-	temp = (temp_buf[1] << 8) | temp_buf[0];
++	temp = le16_to_cpu(buf);
+ 	temp *= 500;
+ 	temp -= 273000;
  
 -- 
 2.39.0
