@@ -2,238 +2,139 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 579A8C5479D
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Jan 2023 16:35:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1D65C46467
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Jan 2023 16:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234703AbjAKQfL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Jan 2023 11:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43858 "EHLO
+        id S233100AbjAKQrq (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 11 Jan 2023 11:47:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235479AbjAKQeg (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jan 2023 11:34:36 -0500
-Received: from mickerik.phytec.de (mickerik.phytec.de [91.26.50.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5EF8FED
-        for <linux-rtc@vger.kernel.org>; Wed, 11 Jan 2023 08:34:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; d=phytec.de; s=a4; c=relaxed/simple;
-        q=dns/txt; i=@phytec.de; t=1673454851; x=1676046851;
-        h=From:Sender:Reply-To:Subject:Date:Message-ID:To:CC:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=DIVSltv1EoxJ/HckyzieslouUpu2jYUZiLJc7CfcCaE=;
-        b=GhEs4vp8Uz3g3xY3kL8CQoszNpr1KORB/4yxAxTVdk7Knqa0Eckp/M9aYs8dspFn
-        krokQP5triDkCwdcWWdfkmiXdosTgQcntOU8m/x/v/qf4I91VX/bflRcwRGhYDrj
-        iKufekjOExZDvY2umxxLS1XHU8IZiS4fO9U/AWJ3HlM=;
-X-AuditID: ac14000a-917fe70000007ecb-a4-63bee503c4b7
-Received: from berlix.phytec.de (Unknown_Domain [172.25.0.12])
-        (using TLS with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by mickerik.phytec.de (PHYTEC Mail Gateway) with SMTP id C1.F6.32459.305EEB36; Wed, 11 Jan 2023 17:34:11 +0100 (CET)
-Received: from augenblix2.phytec.de (172.25.0.11) by Berlix.phytec.de
- (172.25.0.12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.18; Wed, 11 Jan
- 2023 17:34:11 +0100
-From:   Wadim Egorov <w.egorov@phytec.de>
-To:     <linux-leds@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <upstream@lists.phytec.de>
-CC:     <riku.voipio@iki.fi>, <alexandre.belloni@bootlin.com>,
-        <a.zummo@towertech.it>, <krzysztof.kozlowski+dt@linaro.org>,
-        <robh+dt@kernel.org>, <lee@kernel.org>, <pavel@ucw.cz>
-Subject: [PATCH v2 1/2] dt-bindings: leds: Convert PCA9532 to dtschema
-Date:   Wed, 11 Jan 2023 17:34:03 +0100
-Message-ID: <20230111163404.3526248-1-w.egorov@phytec.de>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.25.0.11]
-X-ClientProxiedBy: Berlix.phytec.de (172.25.0.12) To Berlix.phytec.de
- (172.25.0.12)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrELMWRmVeSWpSXmKPExsWyRpKBR5f56b5kg63vzSyWXLzKbtH+bhm7
-        xfwj51gt+l48ZLbY0baQxeLyrjlsFlvfrGO0OLb6CpvF3VNH2SxObrjEZtG69wi7Rfc7dQce
-        j3lrqj0Of13I4rFpVSebx51re9g8+rtbWD2mz/vJ5LFi9Xd2j8+b5AI4orhsUlJzMstSi/Tt
-        ErgyevZ9Yi04oFZxYd1ZxgbGXtkuRk4OCQETiTPdK5i6GLk4hAQWM0l8fvWeGcJ5wijR3bSZ
-        DaSKTUBd4s6Gb6wgCRGB2YwSHW83gFUxC2xilJhy8zgLSJWwgJvE1eaDrCA2i4CqxMTup+xd
-        jBwcvAKWEhf/10Gsk5eYeek7O4jNKyAocXLmE7BWZqB489bZzBC2hMTBFy/AbCGg+ItLy1lg
-        eqede80MYYdKbP2ynWkCo8AsJKNmIRk1C8moBYzMqxiFcjOTs1OLMrP1CjIqS1KT9VJSNzGC
-        4kWEgWsHY98cj0OMTByMhxglOJiVRHhXcu5JFuJNSaysSi3Kjy8qzUktPsQozcGiJM57v4cp
-        UUggPbEkNTs1tSC1CCbLxMEp1cAYpKTBfECRVYh9wtpI3fu23dPPXVp6XyF22e20k2UC9cyu
-        n5tk8r+UCSzw8F7ItPb454smn+obz/zMWVklOfPMzncfLkYrvmrh9s1umvhCI/546GudZQkl
-        3YaK1p27zsysenXSd+3ryc+/nmRXPLdAdv/cHTH65ho9z4+9eOzQM/HyZYP5q28uUWIpzkg0
-        1GIuKk4EAH0/IumFAgAA
+        with ESMTP id S232408AbjAKQri (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jan 2023 11:47:38 -0500
+Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01061B86;
+        Wed, 11 Jan 2023 08:47:37 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 484493200945;
+        Wed, 11 Jan 2023 11:47:36 -0500 (EST)
+Received: from imap44 ([10.202.2.94])
+  by compute2.internal (MEProxy); Wed, 11 Jan 2023 11:47:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; h=
+        cc:cc:content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm1; t=1673455655; x=
+        1673542055; bh=317hm/HGpgVr00LGmqYgdx8qn5gsqlg5pbk+Bphz3lk=; b=O
+        2i5LKBJTP4Ytl/BdYnkPjuUsQ5C8JoSm2tGohQY2mNNyAIQSja5JDIEdhtN1Vuxw
+        rLOppgBaGzjRTFYUPLf/A0qY7+FyFznyXX1Fw5cFQQhEAX1uz0Xem4ZX8owE3P6t
+        jgu4n7+dzLNRaolapwY5DRBnj5DKLrF7K6xc5agpu+RvJKvU3Z0KnLiNQxOPJVBx
+        Dsw0pzQiuHMp4qmquZOtloj2R270AX35hE4VTq+rx8SV+GlDFEa+VoR0V41YIiEA
+        dqDFTT0lwylBKu8pjCSMLC3CXMzlNHPwvJkY6UqC33N4PzFGgFXShHHA7bvRkUxD
+        StYE/xeEqOmRoBynwgCYw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1673455655; x=
+        1673542055; bh=317hm/HGpgVr00LGmqYgdx8qn5gsqlg5pbk+Bphz3lk=; b=T
+        ZRlvkmRpkPS8vsjiZds74p9YlgD0Ps4Tt2Bqe4DectWKc0i/ZK2/Ix/kdBU7+Eo9
+        rni9vWUoOgPtyk6qMsbnEMnR0Q+l21EjKiX90qFCPxtxaxDwRm466/Bai3GE/OJZ
+        wDhBbNULdUIxgOpztj/4ViSLxSWg6WX9YOdOZnILKew+R/wXzLYB5HZ5vQSse+oK
+        hn0XwNMa7YqAGaX+4mQ4RMTtGsP5yc1BXWiX6bSH1V6/XPX/c9W4ViPGufQu50kq
+        w2x8MQVPRL7G80emOYbSJctrTlS82c8fn/lpLb4whBqqWokRK8da2+XiNSJ/wixh
+        I4cAHtiUC27A9+y7yNSoA==
+X-ME-Sender: <xms:Jui-Y70m9x498enBJPQbxeUPMFcRBTJQRJC-Zy-0PG6-8NF9sjrFiw>
+    <xme:Jui-Y6FoOyD6VuN3WzW0tLKALSwJdMge_yahGdMX74kBQT3dZ2_HCKUXjUmVz2TLw
+    mSXfk1llKIkPbQs9b0>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrleeggdelvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgfgsehtqhertderreejnecuhfhrohhmpedflfhi
+    rgiguhhnucgjrghnghdfuceojhhirgiguhhnrdihrghnghesfhhlhihgohgrthdrtghomh
+    eqnecuggftrfgrthhtvghrnhepudefgeeftedugeehffdtheefgfevffelfefghefhjeeu
+    geevtefhudduvdeihefgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepjhhirgiguhhnrdihrghnghesfhhlhihgohgrthdrtghomh
+X-ME-Proxy: <xmx:Jui-Y76KGCNLr_Fo-pv_X0BK3eKyg6jMfE2_AL3vLd9gS0Cy1IQ3fg>
+    <xmx:Jui-Yw0zJe7kllYpaBtUmbBiuL-3A8-H6SZxVAZfavSU5k6FXclEBw>
+    <xmx:Jui-Y-Eu9GMmEMeUKNzaXTiqKJKOD3-IfXbwo4fGuVj9-TQVujzN1A>
+    <xmx:J-i-Y6HnrkzHfe0zXx9zceFoazuZwE6DNSl8-jG4XO2EeNSI3bFjaA>
+Feedback-ID: ifd894703:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 2C25036A0073; Wed, 11 Jan 2023 11:47:34 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1185-g841157300a-fm-20221208.002-g84115730
+Mime-Version: 1.0
+Message-Id: <f6c80b25-c11d-4f11-885c-6d7fb71bb92f@app.fastmail.com>
+In-Reply-To: <8be1bf437f5407c54a93e7be2c6303d0eb6eeb83.1673227292.git.zhoubinbin@loongson.cn>
+References: <cover.1673227292.git.zhoubinbin@loongson.cn>
+ <8be1bf437f5407c54a93e7be2c6303d0eb6eeb83.1673227292.git.zhoubinbin@loongson.cn>
+Date:   Wed, 11 Jan 2023 16:47:13 +0000
+From:   "Jiaxun Yang" <jiaxun.yang@flygoat.com>
+To:     "Binbin Zhou" <zhoubinbin@loongson.cn>,
+        "Alessandro Zummo" <a.zummo@towertech.it>,
+        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+        "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+        "Huacai Chen" <chenhuacai@loongson.cn>,
+        "Xuerui Wang" <kernel@xen0n.name>
+Cc:     linux-rtc@vger.kernel.org,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        loongarch@lists.linux.dev, "Rob Herring" <robh+dt@kernel.org>,
+        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
+        devicetree@vger.kernel.org, "Qing Zhang" <zhangqing@loongson.cn>,
+        "Tiezhu Yang" <yangtiezhu@loongson.cn>,
+        zhaoxiao <zhaoxiao@uniontech.com>, "WANG Xuerui" <git@xen0n.name>
+Subject: Re: [PATCH V2 6/7] MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Convert the PCA9532 LED dimmer to dtschema.
-While at it, also update and the the example to match
-recommended node names and the link to the product datasheet.
 
-Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
----
-v2:
-  - Rename yaml file to match compatibles, nxp,pca953x.yaml
-  - Remove Jacek Anaszewski from maintainers list
-  - Remove color labels in example
-  - Restore labels/default-states from original example
-  - Drop reg description
-  - Add unevaluatedProperties to patternProperties scope
-  - Update description of type property & set default to 0
-  - Fix indentation in example
----
- .../devicetree/bindings/leds/leds-pca9532.txt | 49 -----------
- .../devicetree/bindings/leds/nxp,pca953x.yaml | 85 +++++++++++++++++++
- 2 files changed, 85 insertions(+), 49 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/leds/leds-pca9532.txt
- create mode 100644 Documentation/devicetree/bindings/leds/nxp,pca953x.yaml
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-pca9532.txt b/Documentation/devicetree/bindings/leds/leds-pca9532.txt
-deleted file mode 100644
-index f769c52e3643..000000000000
---- a/Documentation/devicetree/bindings/leds/leds-pca9532.txt
-+++ /dev/null
-@@ -1,49 +0,0 @@
--*NXP - pca9532 PWM LED Driver
--
--The PCA9532 family is SMBus I/O expander optimized for dimming LEDs.
--The PWM support 256 steps.
--
--Required properties:
--	- compatible:
--		"nxp,pca9530"
--		"nxp,pca9531"
--		"nxp,pca9532"
--		"nxp,pca9533"
--	- reg -  I2C slave address
--
--Each led is represented as a sub-node of the nxp,pca9530.
--
--Optional sub-node properties:
--	- label: see Documentation/devicetree/bindings/leds/common.txt
--	- type: Output configuration, see dt-bindings/leds/leds-pca9532.h (default NONE)
--	- linux,default-trigger: see Documentation/devicetree/bindings/leds/common.txt
--	- default-state: see Documentation/devicetree/bindings/leds/common.txt
--	  This property is only valid for sub-nodes of type <PCA9532_TYPE_LED>.
--
--Example:
--  #include <dt-bindings/leds/leds-pca9532.h>
--
--  leds: pca9530@60 {
--    compatible = "nxp,pca9530";
--    reg = <0x60>;
--
--    red-power {
--      label = "pca:red:power";
--      type = <PCA9532_TYPE_LED>;
--    };
--    green-power {
--      label = "pca:green:power";
--      type = <PCA9532_TYPE_LED>;
--    };
--    kernel-booting {
--      type = <PCA9532_TYPE_LED>;
--      default-state = "on";
--    };
--    sys-stat {
--      type = <PCA9532_TYPE_LED>;
--      default-state = "keep"; // don't touch, was set by U-Boot
--    };
--  };
--
--For more product information please see the link below:
--http://nxp.com/documents/data_sheet/PCA9532.pdf
-diff --git a/Documentation/devicetree/bindings/leds/nxp,pca953x.yaml b/Documentation/devicetree/bindings/leds/nxp,pca953x.yaml
-new file mode 100644
-index 000000000000..f735379775a7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/leds/nxp,pca953x.yaml
-@@ -0,0 +1,85 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/leds/nxp,pca953x.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: NXP PCA9532 LED Dimmer
-+
-+maintainers:
-+  - Riku Voipio <riku.voipio@iki.fi>
-+
-+description: |
-+  The PCA9532 family is SMBus I/O expander optimized for dimming LEDs.
-+  The PWM support 256 steps.
-+
-+  For more product information please see the link below:
-+    https://www.nxp.com/docs/en/data-sheet/PCA9532.pdf
-+
-+properties:
-+  compatible:
-+    enum:
-+      - nxp,pca9530
-+      - nxp,pca9531
-+      - nxp,pca9532
-+      - nxp,pca9533
-+
-+  reg:
-+    maxItems: 1
-+
-+patternProperties:
-+  "^led-[0-9a-z]+$":
-+    type: object
-+    $ref: common.yaml#
-+    unevaluatedProperties: false
-+
-+    properties:
-+      type:
-+        description: |
-+          Output configuration, see include/dt-bindings/leds/leds-pca9532.h
-+        $ref: /schemas/types.yaml#/definitions/uint32
-+        default: 0
-+        minimum: 0
-+        maximum: 4
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/leds/leds-pca9532.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        led-controller@62 {
-+            compatible = "nxp,pca9533";
-+            reg = <0x62>;
-+
-+            led-1 {
-+                label = "pca:red:power";
-+                type = <PCA9532_TYPE_LED>;
-+            };
-+
-+            led-2 {
-+                label = "pca:green:power";
-+                type = <PCA9532_TYPE_LED>;
-+            };
-+
-+            led-3 {
-+                type = <PCA9532_TYPE_LED>;
-+                default-state = "on";
-+            };
-+
-+            led-4 {
-+                type = <PCA9532_TYPE_LED>;
-+                default-state = "keep";
-+            };
-+        };
-+    };
-+
-+...
--- 
-2.34.1
+=E5=9C=A82023=E5=B9=B41=E6=9C=889=E6=97=A5=E4=B8=80=E6=9C=88 =E4=B8=8A=E5=
+=8D=881:36=EF=BC=8CBinbin Zhou=E5=86=99=E9=81=93=EF=BC=9A
+> The Loongson-2K RTC module is now supported, enable it.
+>
+> The MMIO address is unclear from the Loongson 2K1000 user manual, I to=
+ok
+> it from Loongson's out-of-tree fork of Linux 4.19.
 
+Can confirm this MMIO address is correct. It matches current confbus BAR
+setting by PMON.
+
+>
+> Signed-off-by: WANG Xuerui <git@xen0n.name>
+> Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+
+Acked-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+
+
+> ---
+>  arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>
+> diff --git a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi=20
+> b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+> index 8143a61111e3..c22414595140 100644
+> --- a/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+> +++ b/arch/mips/boot/dts/loongson/loongson64-2k1000.dtsi
+> @@ -57,6 +57,13 @@ pm: reset-controller@1fe07000 {
+>  			reg =3D <0 0x1fe07000 0 0x422>;
+>  		};
+>=20
+> +		rtc0: rtc@1fe07800 {
+> +			compatible =3D "loongson,ls2x-rtc";
+> +			reg =3D <0 0x1fe07800 0 0x78>;
+> +			interrupt-parent =3D <&liointc0>;
+> +			interrupts =3D <60 IRQ_TYPE_LEVEL_LOW>;
+> +		};
+> +
+>  		liointc0: interrupt-controller@1fe11400 {
+>  			compatible =3D "loongson,liointc-2.0";
+>  			reg =3D <0 0x1fe11400 0 0x40>,
+> --=20
+> 2.31.1
+
+--=20
+- Jiaxun
