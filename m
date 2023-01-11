@@ -2,116 +2,160 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7737C46467
-	for <linux-rtc@archiver.kernel.org>; Wed, 11 Jan 2023 09:01:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AD04C46467
+	for <linux-rtc@archiver.kernel.org>; Wed, 11 Jan 2023 16:35:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237715AbjAKJB1 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 11 Jan 2023 04:01:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36528 "EHLO
+        id S233974AbjAKQes (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 11 Jan 2023 11:34:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235983AbjAKJA4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jan 2023 04:00:56 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCFB3C1F
-        for <linux-rtc@vger.kernel.org>; Wed, 11 Jan 2023 01:00:54 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id p1-20020a05600c1d8100b003d8c9b191e0so12064834wms.4
-        for <linux-rtc@vger.kernel.org>; Wed, 11 Jan 2023 01:00:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=UIgNk4h0ykNf4W9R10f+g8s9MtlXPDlZWGID0CLp804=;
-        b=ACz2pUEAplUyKMwahar14IEYYnawh0ar2G+KL0+AdO+fXKDb6L1+7Aq1cR/JhRxMxF
-         mptt0m7OE+hHLEPyv2GGxmbq78+4PKJIg2OU+Et0ss+4vM4s35EB+0jdnp7VOr0n3o4Y
-         sVNrXDS1NCtl4llNRycijVOG7GqCqJE9sTXrkMnrFCkCNHARqK/VingD2ZFf2CaIyh5R
-         BkUyz70LPfPlxaoLoSrL9Eyv1OPob/snhvTSgSee+4oBHoO28UzKBMYs7qZmo3PKc7Oj
-         TZY7YEEZvny5IzPNF2MZFoR+8B8dExdbws1pT2JocEc7BXwbvR4fsYcDcyxTp6JjTglr
-         yNAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:organization:references:cc:to
-         :content-language:subject:reply-to:from:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UIgNk4h0ykNf4W9R10f+g8s9MtlXPDlZWGID0CLp804=;
-        b=gvHWcV8RNuDganNa1dSQqaE83LcTKYKSQTMzvqZJ4o0+q4GEmCC0frgMWv63DuYM7p
-         snm+8mZ6tIVgMmPg9U1eZBCtkjvuUOjtuw8MNWy4sN1drNYrjR+lpowcTli/UFtAHCOu
-         pKJVq3QgclkzVtHx9o3Rk06VFyo/goqQcnXsiw+DarBJlYPeYDDh3jBwRhHDdQmXRuDh
-         sZLqIaeEz+uaqAdV8RD9S4kI8f7bU1Uj/irYe8+RbFMefCGs94cTUpdRMdgj+dvoMdsX
-         Q1n2wUPgPqLjWyHIJrkWLzYxRUi1/mY0QFaOhT2QQYPEyPrd6xnRQU0dieYIvNR8oe9n
-         UbuQ==
-X-Gm-Message-State: AFqh2kpLRRgT0UtO30XDzi7eHXoaHgAJA2mL4jg3aUSbdiUUCRJzCg8r
-        RI3pC9/GiaxNYNqPu2GfGTG1Uw==
-X-Google-Smtp-Source: AMrXdXu50nuURvF/uZXf+xmLuSwesdnOY8E4IcaZoYRp8Au4jWUve2YDc0RJ8X2U2aelNYBfkHhv2g==
-X-Received: by 2002:a05:600c:34d0:b0:3d6:b691:b80d with SMTP id d16-20020a05600c34d000b003d6b691b80dmr50949988wmq.21.1673427652953;
-        Wed, 11 Jan 2023 01:00:52 -0800 (PST)
-Received: from ?IPV6:2a01:e0a:982:cbb0:d95d:43b7:d6a9:39a5? ([2a01:e0a:982:cbb0:d95d:43b7:d6a9:39a5])
-        by smtp.gmail.com with ESMTPSA id o21-20020a1c7515000000b003d995a704fdsm17507540wmc.33.2023.01.11.01.00.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Jan 2023 01:00:52 -0800 (PST)
-Message-ID: <08698c06-49b0-1cf7-efd3-1038104972cf@linaro.org>
-Date:   Wed, 11 Jan 2023 10:00:51 +0100
+        with ESMTP id S238633AbjAKQec (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 11 Jan 2023 11:34:32 -0500
+Received: from mickerik.phytec.de (mickerik.phytec.de [91.26.50.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C3B463D1
+        for <linux-rtc@vger.kernel.org>; Wed, 11 Jan 2023 08:34:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; d=phytec.de; s=a4; c=relaxed/simple;
+        q=dns/txt; i=@phytec.de; t=1673454852; x=1676046852;
+        h=From:Sender:Reply-To:Subject:Date:Message-ID:To:CC:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=C4kvWi4nYSn0kSIK0WvaQkfls0F7UuJxhBfke5JCvQE=;
+        b=GSjL3laUR3wL5q5WR1mBIqYvHmXfwkHxALnFu4n2tILDVvtsIyCTlERpiQrFIJyM
+        dpVj3K+99Tdk3iWnSC4FdzZZjGK5gHXT4nSyePL1W9vWz9Ub3lMFs0azHx5Deat/
+        b2dQvhWeRUn4aKS9Uv/+8Xqw0wqElU5LsgLFlxEZOH8=;
+X-AuditID: ac14000a-923ff70000007ecb-a5-63bee504219b
+Received: from berlix.phytec.de (Unknown_Domain [172.25.0.12])
+        (using TLS with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (Client did not present a certificate)
+        by mickerik.phytec.de (PHYTEC Mail Gateway) with SMTP id B2.F6.32459.405EEB36; Wed, 11 Jan 2023 17:34:12 +0100 (CET)
+Received: from augenblix2.phytec.de (172.25.0.11) by Berlix.phytec.de
+ (172.25.0.12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.18; Wed, 11 Jan
+ 2023 17:34:11 +0100
+From:   Wadim Egorov <w.egorov@phytec.de>
+To:     <linux-leds@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
+        <upstream@lists.phytec.de>
+CC:     <riku.voipio@iki.fi>, <alexandre.belloni@bootlin.com>,
+        <a.zummo@towertech.it>, <krzysztof.kozlowski+dt@linaro.org>,
+        <robh+dt@kernel.org>, <lee@kernel.org>, <pavel@ucw.cz>
+Subject: [PATCH v2 2/2] dt-bindings: rtc: Move rv3028 from trivial-rtc.yaml into own schema file
+Date:   Wed, 11 Jan 2023 17:34:04 +0100
+Message-ID: <20230111163404.3526248-2-w.egorov@phytec.de>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230111163404.3526248-1-w.egorov@phytec.de>
+References: <20230111163404.3526248-1-w.egorov@phytec.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-Reply-To: neil.armstrong@linaro.org
-Subject: Re: [PATCH v2 00/11] dt-bindings: first batch of dt-schema
- conversions for Amlogic Meson bindings
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-mmc@vger.kernel.org, linux-pci@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-References: <20221117-b4-amlogic-bindings-convert-v2-0-36ad050bb625@linaro.org>
- <20230110152324.1e19974d@kernel.org>
-Organization: Linaro Developer Services
-In-Reply-To: <20230110152324.1e19974d@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [172.25.0.11]
+X-ClientProxiedBy: Berlix.phytec.de (172.25.0.12) To Berlix.phytec.de
+ (172.25.0.12)
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupmkeLIzCtJLcpLzFFi42JZI8nAo8vydF+yweYGZoslF6+yW7S/W8Zu
+        Mf/IOVaLvhcPmS12tC1ksbi8aw6bxdY36xgtjq2+wmZx99RRNouTGy6xWbTuPcJu0f1O3YHH
+        Y96aao/DXxeyeGxa1cnmcefaHjaP/u4WVo/p834yeaxY/Z3d4/MmuQCOKC6blNSczLLUIn27
+        BK6MK6sa2Av+C1fMWHKTsYHxDn8XIyeHhICJxL/uz6xdjFwcQgKLmSQebN/DBOE8YZTobtrM
+        BlLFJqAucWfDN7AqEYHZjBIdbzcwgzjMApsYJabcPM4CUiUskCCx6eoHMJtFQFWiY+EbJhCb
+        V8BSYtaf0ywQ++QlZl76zg5icwpYSTw5+4kZxBYCqnl1+yYrRL2gxMmZT8DqmYHqm7fOZoaw
+        JSQOvngBVS8v8eLScriZ0869ZoawQyW2ftnONIFRaBaSUbOQjJqFZNQCRuZVjEK5mcnZqUWZ
+        2XoFGZUlqcl6KambGEERJsLAtYOxb47HIUYmDsZDjBIczEoivCs59yQL8aYkVlalFuXHF5Xm
+        pBYfYpTmYFES573fw5QoJJCeWJKanZpakFoEk2Xi4JRqYFTgaY1W/lihLDWtejGn2haOlcnn
+        nv457CuT/E58Q8yM3YkP+dhPb5ppJqPkpnW98Xf43pp3SezRdQsMZ0imRz/59uL4xdBZtomZ
+        XEIB+zPkdPnPtR8MLTj0/uxlA52y3JxE9Yhin/3qnc+6TdkZmf9Na/E8K+vEoP094XylkKrU
+        EgWH029WKrEUZyQaajEXFScCAEX6bHeeAgAA
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
+Move RV3028 RTC bindings from trivial-rtc.yaml into microcrystal,rv3032.yaml.
 
-On 11/01/2023 00:23, Jakub Kicinski wrote:
-> On Mon, 09 Jan 2023 13:53:25 +0100 Neil Armstrong wrote:
->> - patch 12: added reviewed-by
->> - Link to v1: https://lore.kernel.org/r/20221117-b4-amlogic-bindings-convert-v1-0-3f025599b968@linaro.org
-> 
-> I'm guessing patch 12 is patch 11 in this posting.
-> Should we take it via net-next? Looks acked & ready.
+Signed-off-by: Wadim Egorov <w.egorov@phytec.de>
+---
+v2:
+  - Update subject 
+  - Remove not needed quotes
+  - Remove start-year
+  - Use unevaluatedProperties instead of additionalProperties
+---
+ .../bindings/rtc/microcrystal,rv3028.yaml     | 54 +++++++++++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  |  2 -
+ 2 files changed, 54 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
 
-Exact it's ready to be taken
-
-Thanks,
-Neil
+diff --git a/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml b/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
+new file mode 100644
+index 000000000000..5ade5dfad048
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
+@@ -0,0 +1,54 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/microcrystal,rv3028.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Microchip RV-3028 RTC
++
++allOf:
++  - $ref: rtc.yaml#
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++
++properties:
++  compatible:
++    const: microcrystal,rv3028
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  trickle-resistor-ohms:
++    enum:
++      - 3000
++      - 5000
++      - 9000
++      - 15000
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@51 {
++            compatible = "microcrystal,rv3028";
++            reg = <0x51>;
++            pinctrl-0 = <&rtc_nint_pins>;
++            interrupts-extended = <&gpio1 16 IRQ_TYPE_LEVEL_HIGH>;
++            trickle-resistor-ohms = <3000>;
++        };
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index d9fc120c61cc..84cce1f0ca0c 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -48,8 +48,6 @@ properties:
+       # Intersil ISL12022 Real-time Clock
+       - isil,isl12022
+       # Real Time Clock Module with I2C-Bus
+-      - microcrystal,rv3028
+-      # Real Time Clock Module with I2C-Bus
+       - microcrystal,rv3029
+       # Real Time Clock
+       - microcrystal,rv8523
+-- 
+2.34.1
 
