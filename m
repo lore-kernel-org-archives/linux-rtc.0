@@ -2,179 +2,130 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5F1FC25B50
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 20:52:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5DF4C25B50
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 21:22:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231618AbjAWUwt (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Jan 2023 15:52:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50216 "EHLO
+        id S232231AbjAWVW2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Jan 2023 16:22:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbjAWUws (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 15:52:48 -0500
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82993AAF;
-        Mon, 23 Jan 2023 12:52:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:Content-Type:Mime-Version:
-        References:In-Reply-To:Message-Id:Cc:To:From:Date:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=qsCPhoBBU+b6VmrMnukQJibQG/2+6NvkvH8J8cCN6cY=; b=cxIKPtuHKdvjx2WkGG8H5dOyGa
-        TFLHr4Deg4IcFiGWozrYu8IGsuTLQiUJaDPIUHGo1Jnf1FZ921v9+vMOhhIv3FN1vdbN9HcvkBoR1
-        jxqF22FiDy7k82uRf8kO1bXp3+uVplBfRJuzwKFeZmvmc6W/h3IRcBLzgUiK7dpru4Ko=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:41504 helo=pettiford)
-        by mail.hugovil.com with esmtpa (Exim 4.92)
-        (envelope-from <hugo@hugovil.com>)
-        id 1pK3o0-0004p6-Em; Mon, 23 Jan 2023 15:52:41 -0500
-Date:   Mon, 23 Jan 2023 15:52:40 -0500
-From:   Hugo Villeneuve <hugo@hugovil.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     a.zummo@towertech.it, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Message-Id: <20230123155240.2d55fc2f5874a50e2e6252d2@hugovil.com>
-In-Reply-To: <Y8rHx8U4peB+fnW8@mail.local>
-References: <20221215150214.1109074-1-hugo@hugovil.com>
-        <20221215150214.1109074-9-hugo@hugovil.com>
-        <Y8rHx8U4peB+fnW8@mail.local>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        with ESMTP id S232107AbjAWVW2 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 16:22:28 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE563526C;
+        Mon, 23 Jan 2023 13:22:26 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id y19so16230732edc.2;
+        Mon, 23 Jan 2023 13:22:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=O/m9fxwpEbZpN8X/D6lwA+MFLaC8U37ezUMxtxmuH1s=;
+        b=nHYnC2veAbsrTjlHDQZR0BhSSYSQHFBMBLaA06XtKf/JcBy5o8Qo7rR09XYFpWbUEQ
+         zUOF/c0nEFw/jpxdxY0TfQt3XGGuupq5k+GM3BFNMVNokLyG6Kk1IjtfDSXvHP48ZG13
+         jdOgZSqvN3oJXcHwsBtb9UDARHudBrRRed8l6Isn9nuA4nQuuylTDdPnfDcXiZqSEILN
+         gWO7GzisBtbyiAwsbduiUw3652oAUhn8vy/MxZKL9AZXx0cbkrVRsYgm9na9wU7vZ5Fs
+         WThJGOxnqxCx06877AWz0wv5I7DlCBeQVyGjt7IoWTH2E3KUbvDlkObUuIZjI+xI/qTV
+         YVpg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=O/m9fxwpEbZpN8X/D6lwA+MFLaC8U37ezUMxtxmuH1s=;
+        b=hGifrAa0OWc5cLMtG4cxl1MC5lqEOWp8v4/khIuELyK4FonZ43BF2GXdiqNB4gtRSG
+         +FXnhTwaNCYiyUBo950QENaOhQAWGkTWgB1s+gr36YtZDH7luGRd40pUtxleeMV2Wmjl
+         OhLQaB5iDylddhPRkxVTN2tDWwGXAmp/STdpDkv2dctb+aDkJ1Bh6fIlluFRMXBhD9Kl
+         uBAgd4yP0yW2k1GjqM5dCrNChtGUHWuxtJP9TYlakAUo/M04i/3xxTAAnE+vEQAQkyj/
+         SI5M5nVQMnJ/qitwsk85wctLhnjaiV+YCraVU6GCpzwwaga/sj6T3CVdlWZKHC9wJpa8
+         AQcg==
+X-Gm-Message-State: AFqh2koOwsoXdHVXDaqP3ajgMXIalNtkWuUorPC8T7stvi31+wR+ezSD
+        EBysxTeF67wBXEPvAmxvMyk=
+X-Google-Smtp-Source: AMrXdXsecJ0Lmw0T6hteu5NgTW5sF1ad5h25d+1oE8fDr0Fwmliz4MOIjn5MfXF/7fkBbotfYHdm0g==
+X-Received: by 2002:a05:6402:5296:b0:49c:3cf4:d9ed with SMTP id en22-20020a056402529600b0049c3cf4d9edmr30260243edb.23.1674508945276;
+        Mon, 23 Jan 2023 13:22:25 -0800 (PST)
+Received: from ?IPV6:2a01:c23:bc5b:9400:dc4c:6fb7:47b2:beb7? (dynamic-2a01-0c23-bc5b-9400-dc4c-6fb7-47b2-beb7.c23.pool.telefonica.de. [2a01:c23:bc5b:9400:dc4c:6fb7:47b2:beb7])
+        by smtp.googlemail.com with ESMTPSA id cm28-20020a0564020c9c00b0049e9fe9abcasm213409edb.44.2023.01.23.13.22.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jan 2023 13:22:24 -0800 (PST)
+Message-ID: <cb62dfc0-cb3d-beba-6d0b-8db18583dda0@gmail.com>
+Date:   Mon, 23 Jan 2023 22:22:15 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Content-Language: en-US
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 0/8] soc: amlogic: switch bindings to yaml and adjust some
+ dtbs's
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 70.80.174.168
-X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: Re: [PATCH v3 08/14] rtc: pcf2127: add support for PCF2131
- interrupts on output INT_A
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Fri, 20 Jan 2023 17:56:39 +0100
-Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+At first adjust some existing dtbs's so that they pass dtbs_check
+after switching bindings to yaml.
 
-> On 15/12/2022 10:02:09-0500, Hugo Villeneuve wrote:
-> > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > 
-> > The PCF2127 and PCF2129 have one output interrupt pin. The PCF2131 has
-> > two, named INT_A and INT_B. The hardware support that any interrupt
-> > source can be routed to either one or both of them.
-> > 
-> > Force all interrupt sources to go to the INT A pin.
-> > 
-> > Support to route any interrupt source to INT A/B pins is not supported
-> > by this driver at the moment.
-> > 
-> 
-> The main issue with this is that this will created a breaking change
-> once someone needs support for INTB
+Then switch further Amlogic Meson bindings to yaml.
+Tested with make targets dt_binding_check and dtbs_check.
 
-We already had a discussion about this a while ago:
+Heiner Kallweit (8):
+  arm64: dts: meson-gx: Remove invalid pwm compatible
+  arm64: dts: amlogic: Fix non-compliant SD/SDIO node names
+  arm64: dts: meson-gx: Set only one compatible string for mmc
+  arm64: dts: amlogic: Remove invalid compatible string
+    amlogic,meson-gpio-intc
+  dt-bindings: rtc: Add Amlogic Meson vrtc controller binding
+  dt-bindings: pwm: Add Amlogic Meson PWM binding
+  dt-bindings: interrupt-controller: Add Amlogic Meson GPIO interrupt
+    controller binding
+  dt-bindings: pinctrl: Add Amlogic Meson pinctrl binding
 
-    https://lore.kernel.org/linux-rtc/7be3f9541eaed7e17e334267e49665f442b1b458.camel@dimonoff.com/
-
-What exactly do you suggest? I personnaly don't have any need for INTB at the moment and I would prefer to avoid the great complexity of supporting any combination of routing interrupts to any A ou  pins.
-
-
-> > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > ---
-> >  drivers/rtc/rtc-pcf2127.c | 35 +++++++++++++++++++++++++++++++++++
-> >  1 file changed, 35 insertions(+)
-> > 
-> > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> > index 4148e135f935..68af4d0438b8 100644
-> > --- a/drivers/rtc/rtc-pcf2127.c
-> > +++ b/drivers/rtc/rtc-pcf2127.c
-> > @@ -191,6 +191,7 @@ struct pcf21xx_config {
-> >  	int max_register;
-> >  	unsigned int has_nvmem:1;
-> >  	unsigned int has_bit_wd_ctl_cd0:1;
-> > +	unsigned int has_int_a_b:1; /* PCF2131 supports two interrupt outputs. */
-> >  	u8 regs_td_base; /* Time/data base registers. */
-> >  	u8 regs_alarm_base; /* Alarm function base registers. */
-> >  	u8 reg_wd_ctl; /* Watchdog control register. */
-> > @@ -879,6 +880,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
-> >  		.max_register = 0x1d,
-> >  		.has_nvmem = 1,
-> >  		.has_bit_wd_ctl_cd0 = 1,
-> > +		.has_int_a_b = 0,
-> >  		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
-> >  		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
-> >  		.reg_wd_ctl = PCF2127_REG_WD_CTL,
-> > @@ -902,6 +904,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
-> >  		.max_register = 0x19,
-> >  		.has_nvmem = 0,
-> >  		.has_bit_wd_ctl_cd0 = 0,
-> > +		.has_int_a_b = 0,
-> >  		.regs_td_base = PCF2127_REG_TIME_DATE_BASE,
-> >  		.regs_alarm_base = PCF2127_REG_ALARM_BASE,
-> >  		.reg_wd_ctl = PCF2127_REG_WD_CTL,
-> > @@ -925,6 +928,7 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
-> >  		.max_register = 0x36,
-> >  		.has_nvmem = 0,
-> >  		.has_bit_wd_ctl_cd0 = 0,
-> > +		.has_int_a_b = 1,
-> >  		.regs_td_base = PCF2131_REG_TIME_DATE_BASE,
-> >  		.regs_alarm_base = PCF2131_REG_ALARM_BASE,
-> >  		.reg_wd_ctl = PCF2131_REG_WD_CTL,
-> > @@ -1017,6 +1021,28 @@ static int pcf2127_enable_ts(struct device *dev, int ts_id)
-> >  	return ret;
-> >  }
-> >  
-> > +/* Route all interrupt sources to INT A pin. */
-> > +static int pcf2127_configure_interrupt_pins(struct device *dev)
-> > +{
-> > +	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
-> > +	int ret;
-> > +
-> > +	/* Mask bits need to be cleared to enable corresponding
-> > +	 * interrupt source.
-> > +	 */
-> > +	ret = regmap_write(pcf2127->regmap,
-> > +			   PCF2131_REG_INT_A_MASK1, 0);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	ret = regmap_write(pcf2127->regmap,
-> > +			   PCF2131_REG_INT_A_MASK2, 0);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> > +	return ret;
-> > +}
-> > +
-> >  static int pcf2127_probe(struct device *dev, struct regmap *regmap,
-> >  			 int alarm_irq, const char *name, const struct pcf21xx_config *config)
-> >  {
-> > @@ -1076,6 +1102,15 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
-> >  		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
-> >  	}
-> >  
-> > +	if (pcf2127->cfg->has_int_a_b) {
-> > +		/* Configure int A/B pins, independently of alarm_irq. */
-> > +		ret = pcf2127_configure_interrupt_pins(dev);
-> > +		if (ret) {
-> > +			dev_err(dev, "failed to configure interrupt pins\n");
-> > +			return ret;
-> > +		}
-> > +	}
-> > +
-> >  	if (pcf2127->cfg->has_nvmem) {
-> >  		struct nvmem_config nvmem_cfg = {
-> >  			.priv = pcf2127,
-> > -- 
-> > 2.30.2
-> > 
-> 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-> 
-
+ .../amlogic,meson-gpio-intc.txt               |  38 ------
+ .../amlogic,meson-gpio-intc.yaml              |  72 +++++++++++
+ .../pinctrl/amlogic,meson-pinctrl.yaml        | 121 ++++++++++++++++++
+ .../bindings/pinctrl/meson,pinctrl.txt        |  94 --------------
+ .../devicetree/bindings/pwm/pwm-amlogic.yaml  |  61 +++++++++
+ .../devicetree/bindings/pwm/pwm-meson.txt     |  29 -----
+ .../bindings/rtc/amlogic,meson-vrtc.yaml      |  50 ++++++++
+ .../bindings/rtc/rtc-meson-vrtc.txt           |  22 ----
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi    |   5 +-
+ .../boot/dts/amlogic/meson-g12-common.dtsi    |   7 +-
+ arch/arm64/boot/dts/amlogic/meson-gx.dtsi     |  15 +--
+ arch/arm64/boot/dts/amlogic/meson-gxbb.dtsi   |   3 +-
+ arch/arm64/boot/dts/amlogic/meson-gxl.dtsi    |   3 +-
+ arch/arm64/boot/dts/amlogic/meson-s4.dtsi     |   3 +-
+ arch/arm64/boot/dts/amlogic/meson-sm1.dtsi    |   3 +-
+ 15 files changed, 320 insertions(+), 206 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/interrupt-controller/amlogic,meson-gpio-intc.txt
+ create mode 100644 Documentation/devicetree/bindings/interrupt-controller/amlogic,meson-gpio-intc.yaml
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/amlogic,meson-pinctrl.yaml
+ delete mode 100644 Documentation/devicetree/bindings/pinctrl/meson,pinctrl.txt
+ create mode 100644 Documentation/devicetree/bindings/pwm/pwm-amlogic.yaml
+ delete mode 100644 Documentation/devicetree/bindings/pwm/pwm-meson.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/amlogic,meson-vrtc.yaml
+ delete mode 100644 Documentation/devicetree/bindings/rtc/rtc-meson-vrtc.txt
 
 -- 
-Hugo Villeneuve <hugo@hugovil.com>
+2.39.1
+
