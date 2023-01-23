@@ -2,162 +2,136 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A3CEC25B50
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 21:23:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9FFCC05027
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 21:31:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231981AbjAWVXz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Jan 2023 16:23:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
+        id S231851AbjAWVbF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Jan 2023 16:31:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230435AbjAWVXz (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 16:23:55 -0500
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA9830B15;
-        Mon, 23 Jan 2023 13:23:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:Content-Type:Mime-Version:
-        References:In-Reply-To:Message-Id:Cc:To:From:Date:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=17xF72TkOudZ1GH2KkrHuQYUcqBX4WbXM/q285Cqrn4=; b=XnQVbU04G+ibmyCKDQvP0W/GEB
-        rihr8unbovHcUxwXBhjEJUVsCn46FK+HKV0ITvrF1CbDz0bfVHFkjz8k2YcDbyMdZZbmJlZ3t+e2v
-        oo9rlBLWBPbv206BCcoZFy7MzmIAvU/92OwtsYWKntnyWM/m1NfjN6bToeeOoN9/ZXSY=;
-Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:41506 helo=pettiford)
-        by mail.hugovil.com with esmtpa (Exim 4.92)
-        (envelope-from <hugo@hugovil.com>)
-        id 1pK3qb-0004rC-35; Mon, 23 Jan 2023 15:55:23 -0500
-Date:   Mon, 23 Jan 2023 15:55:20 -0500
-From:   Hugo Villeneuve <hugo@hugovil.com>
-To:     Bruno Thomsen <bruno.thomsen@gmail.com>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Message-Id: <20230123155520.22a20149745dcbd536536e8f@hugovil.com>
-In-Reply-To: <CAH+2xPBD4ezWPzMj4YzF63duWnw3_af6KkC7eq1EWS=5F_5NGw@mail.gmail.com>
-References: <20221215150214.1109074-1-hugo@hugovil.com>
-        <20221215150214.1109074-12-hugo@hugovil.com>
-        <CAH+2xPBD4ezWPzMj4YzF63duWnw3_af6KkC7eq1EWS=5F_5NGw@mail.gmail.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        with ESMTP id S230224AbjAWVbF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 16:31:05 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21297126FF;
+        Mon, 23 Jan 2023 13:31:04 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id g11so10742553eda.12;
+        Mon, 23 Jan 2023 13:31:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tGy0L8FYKqoa2JKT2+lRKom4fwae0WN7DTnvx0E4Uzc=;
+        b=g3yJTOA2nZO0Dnf/q+WUQ17ab7h55P+/OqcdQBpFGQp6h3UtMIeFE9zmNJLc3X9fj6
+         C590kHQzH+fsVFJW1mzraHaBRoZJCUAZBsrQliiapxjd7tgxsgSnDf5HWyCJFssUI5nX
+         pbu3jwxkuA5AFPM5TcOj7frMlzIiJzWuyqCXuxAT8YrYSc39/yiwYut3kURTI0yeaf/g
+         faXzt2kIsdCyDiqHcDLixXZHcwQI9AXfa0x4cdMe9RR5qWnbuZuII5E17z/OzMP1jCde
+         baofBmX/duEWiPMyw8LfDVnM8qzLepwnPkNtLQgYsm8oA/4Vk1CFJryPS2QsxeiCOhAz
+         rO+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tGy0L8FYKqoa2JKT2+lRKom4fwae0WN7DTnvx0E4Uzc=;
+        b=cxAV3dWByiVjV2tIUN09TmERC6+6bI90GCuJ7qVq6so4viDXKYZ6AAJNJvX2Qp4/E8
+         Kf+K44XI7iMp7bxGxXRz+nkYLh3LccQBnKIf2cyC72AOZhFdVvbKJ/6Tan6pNOkPZ7zQ
+         J6nLEUy2FF9IzCWcszj05bXWnF+pN6mIhR1+6KZ3CIujxBID/A2293x/M10n/Lj1qYNF
+         5AEEO1R19vC0e7qv8jmy9bVtkL4uZ5HlxJKS25bznHCHB3/UkqZVMcQnCCguxWsMOx6z
+         AuJnQn6NKs3cqqa5MmaEQkyAqXIO5JcUylYPePL33iAS92Q+WjuWcZ1RiyZxzDmblm3w
+         69og==
+X-Gm-Message-State: AFqh2kq3ndzK8M03LaUIWHm/dJo1uLNd59h0l6fIGHACvpYFNNMad+TY
+        6+kzX8yeW0ATyLC1b2/1M4g=
+X-Google-Smtp-Source: AMrXdXtDrtFMC+Krfg/TfV027iJVS6WEimm/PnKTdIxeQra5m4weBTCn+UTAXPU83PrQ9lDliTU/zg==
+X-Received: by 2002:a05:6402:401d:b0:49b:5a1c:9cb5 with SMTP id d29-20020a056402401d00b0049b5a1c9cb5mr29220354eda.16.1674509462545;
+        Mon, 23 Jan 2023 13:31:02 -0800 (PST)
+Received: from ?IPV6:2a01:c23:bc5b:9400:dc4c:6fb7:47b2:beb7? (dynamic-2a01-0c23-bc5b-9400-dc4c-6fb7-47b2-beb7.c23.pool.telefonica.de. [2a01:c23:bc5b:9400:dc4c:6fb7:47b2:beb7])
+        by smtp.googlemail.com with ESMTPSA id u10-20020aa7db8a000000b00487b73912c2sm230560edt.12.2023.01.23.13.31.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jan 2023 13:31:02 -0800 (PST)
+Message-ID: <0fab069e-dc03-783e-e4f9-d49f96669328@gmail.com>
+Date:   Mon, 23 Jan 2023 22:23:57 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: [PATCH 1/8] arm64: dts: meson-gx: Remove invalid pwm compatible
+Content-Language: en-US
+From:   Heiner Kallweit <hkallweit1@gmail.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        linux-pwm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>
+References: <cb62dfc0-cb3d-beba-6d0b-8db18583dda0@gmail.com>
+In-Reply-To: <cb62dfc0-cb3d-beba-6d0b-8db18583dda0@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 70.80.174.168
-X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: Re: [PATCH v3 11/14] rtc: pcf2127: adapt time/date registers write
- sequence for PCF2131
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Sat, 7 Jan 2023 19:44:23 +0100
-Bruno Thomsen <bruno.thomsen@gmail.com> wrote:
+amlogic,meson-gx-pwm isn't a valid compatible string, so remove it.
+See drivers/pwm/pwm-meson.c.
 
-> Den tor. 15. dec. 2022 kl. 16.19 skrev Hugo Villeneuve <hugo@hugovil.com>:
-> >
-> > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> >
-> > The sequence for updating the time/date registers is slightly
-> > different between PCF2127/29 and PCF2131.
-> >
-> > For PCF2127/29, during write operations, the time counting
-> > circuits (memory locations 03h through 09h) are automatically blocked.
-> >
-> > For PCF2131, time/date registers write access requires setting the
-> > STOP bit and sending the clear prescaler instruction (CPR). STOP then
-> > needs to be released once write operation is completed.
-> >
-> > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > ---
-> >  drivers/rtc/rtc-pcf2127.c | 38 +++++++++++++++++++++++++++++++++++++-
-> >  1 file changed, 37 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> > index e4b78b9c03f9..11fbdab6bf01 100644
-> > --- a/drivers/rtc/rtc-pcf2127.c
-> > +++ b/drivers/rtc/rtc-pcf2127.c
-> > @@ -39,6 +39,7 @@
-> >  #define PCF2127_REG_CTRL1              0x00
-> >  #define PCF2127_BIT_CTRL1_POR_OVRD             BIT(3)
-> >  #define PCF2127_BIT_CTRL1_TSF1                 BIT(4)
-> > +#define PCF2127_BIT_CTRL1_STOP                 BIT(5)
-> >  /* Control register 2 */
-> >  #define PCF2127_REG_CTRL2              0x01
-> >  #define PCF2127_BIT_CTRL2_AIE                  BIT(1)
-> > @@ -70,6 +71,7 @@
-> >  #define PCF2131_REG_SR_RESET           0x05
-> >  #define PCF2131_SR_RESET_READ_PATTERN  0b00100100 /* Fixed pattern. */
-> >  #define PCF2131_SR_RESET_RESET_CMD     0x2C /* SR is bit 3. */
-> > +#define PCF2131_SR_RESET_CPR_CMD       0xA4 /* CPR is bit 7. */
-> 
-> Replace 0xA4 with (BIT(2) | BIT(5) | BIT(7)) or
-> (PCF2131_SR_RESET_READ_PATTERN | BIT(7))
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+---
+ arch/arm64/boot/dts/amlogic/meson-gx.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Done.
-
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
+index a79a35e84..75d35dcfe 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
+@@ -328,14 +328,14 @@ i2c_A: i2c@8500 {
+ 			};
  
-> >  /* Time and date registers */
-> >  #define PCF2127_REG_TIME_DATE_BASE     0x03
-> >  #define PCF2131_REG_TIME_DATE_BASE     0x07 /* Register 0x06 is 100th seconds,
-> > @@ -307,7 +309,31 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> >         /* year */
-> >         buf[i++] = bin2bcd(tm->tm_year - 100);
-> >
-> > -       /* write register's data */
-> > +       /* Write access to time registers:
-> > +        * PCF2127/29: no special action required.
-> > +        * PCF2131:    requires setting the STOP bit. STOP bit needs to
-> > +        *             be cleared after time registers are updated.
-> > +        *             It is also recommended to set CPR bit, although
-> > +        *             write access will work without it.
-> > +        */
-> > +       if (pcf2127->cfg->has_reset_reg) {
-> > +               err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-> > +                                        PCF2127_BIT_CTRL1_STOP,
-> > +                                        PCF2127_BIT_CTRL1_STOP);
-> > +               if (err) {
-> > +                       dev_err(dev, "setting STOP bit failed\n");
-> > +                       return err;
-> > +               }
-> > +
-> > +               err = regmap_write(pcf2127->regmap, pcf2127->cfg->reg_reset,
-> > +                                  PCF2131_SR_RESET_CPR_CMD);
-> > +               if (err) {
-> > +                       dev_err(dev, "sending CPR cmd failed\n");
-> > +                       return err;
-> > +               }
-> > +       }
-> > +
-> > +       /* write time register's data */
-> >         err = regmap_bulk_write(pcf2127->regmap, pcf2127->cfg->regs_td_base, buf, i);
-> >         if (err) {
-> >                 dev_err(dev,
-> > @@ -315,6 +341,16 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> >                 return err;
-> >         }
-> >
-> > +       if (pcf2127->cfg->has_reset_reg) {
-> > +               /* Clear STOP bit (PCF2131 only) after write is completed. */
-> > +               err = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL1,
-> > +                                        PCF2127_BIT_CTRL1_STOP, 0);
-> > +               if (err) {
-> > +                       dev_err(dev, "clearing STOP bit failed\n");
-> > +                       return err;
-> > +               }
-> > +       }
-> > +
-> >         return 0;
-> >  }
-> >
-> > --
-> > 2.30.2
-> >
-> 
-
-
+ 			pwm_ab: pwm@8550 {
+-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
++				compatible = "amlogic,meson-gxbb-pwm";
+ 				reg = <0x0 0x08550 0x0 0x10>;
+ 				#pwm-cells = <3>;
+ 				status = "disabled";
+ 			};
+ 
+ 			pwm_cd: pwm@8650 {
+-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
++				compatible = "amlogic,meson-gxbb-pwm";
+ 				reg = <0x0 0x08650 0x0 0x10>;
+ 				#pwm-cells = <3>;
+ 				status = "disabled";
+@@ -350,7 +350,7 @@ saradc: adc@8680 {
+ 			};
+ 
+ 			pwm_ef: pwm@86c0 {
+-				compatible = "amlogic,meson-gx-pwm", "amlogic,meson-gxbb-pwm";
++				compatible = "amlogic,meson-gxbb-pwm";
+ 				reg = <0x0 0x086c0 0x0 0x10>;
+ 				#pwm-cells = <3>;
+ 				status = "disabled";
+@@ -497,7 +497,7 @@ i2c_AO: i2c@500 {
+ 			};
+ 
+ 			pwm_AO_ab: pwm@550 {
+-				compatible = "amlogic,meson-gx-ao-pwm", "amlogic,meson-gxbb-ao-pwm";
++				compatible = "amlogic,meson-gxbb-ao-pwm";
+ 				reg = <0x0 0x00550 0x0 0x10>;
+ 				#pwm-cells = <3>;
+ 				status = "disabled";
 -- 
-Hugo Villeneuve <hugo@hugovil.com>
+2.39.1
+
+
