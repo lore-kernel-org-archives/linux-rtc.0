@@ -2,40 +2,40 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CC22C38142
-	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 20:02:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D08ECC54EAA
+	for <linux-rtc@archiver.kernel.org>; Mon, 23 Jan 2023 20:02:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232848AbjAWUC2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 23 Jan 2023 15:02:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
+        id S232888AbjAWUCa (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 23 Jan 2023 15:02:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231776AbjAWUC2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 15:02:28 -0500
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49BA30E93;
-        Mon, 23 Jan 2023 12:02:26 -0800 (PST)
+        with ESMTP id S232883AbjAWUC3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 23 Jan 2023 15:02:29 -0500
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::222])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD7528854;
+        Mon, 23 Jan 2023 12:02:28 -0800 (PST)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 5E72640006;
-        Mon, 23 Jan 2023 20:02:25 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id B150D40005;
+        Mon, 23 Jan 2023 20:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1674504145;
+        t=1674504146;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=itQ/AGjKyNo2fkcIbkmOoRnuNHgnlz3Nr0BwieritzE=;
-        b=XVzFPaXmTJzszYm9iugkGbl66Q8+SpKYtxXDwZ5GnZbsl9xhZ5WOMrmzXBuvxCk4Fe1Hg/
-        L0b6FADbFn0NivlQaFO2GqNBtScJXlJdp4nbZuItxfbvIU1L0mkVgBeSrmYuM68/AAp7Al
-        jWxNiYOjkojXQgCs54HkRVK2Inq1PKOWBJF+toxQsIkFsAZ8UjGi9eLQV8tHHx5p21wh6k
-        RMgkslp7QhJ3l/664TuF1Kf0JGnifiFMIHkSFxYZTfjsHcPnEkXhB4tIP852cEvls6ze1f
-        yH+80lm5gc4xrrubzqZ+xCyQmqTbg4z9eaeMcii7I49AjMxLG/1esM5YXzzOPA==
+        bh=i4CYOl5oNdw44YefzmYwC9lPiS1qIhS68kXXq1VFs7Y=;
+        b=Zy6NVI6mqBIUHMRhbq92oVN/rz91vj+BTE2KLGqj1zYuVn0X1kCg2TYEIFZkRPFaRyK/Uc
+        dmjWfVt6HwtDIuo6tu8y4KgHScBGOZ71EPBwXCRrRCM+Niw2WcMdRUNYuHsugB3VVtHrB6
+        g86FnThlDyF1MDZFar+m+boHgOX03Xwv03P6Jxi/u59SexLM50WBTR0OdG7mKEa7JG2eAU
+        Bviag3+orR22GvUFK2vooa/DSy70naTS8ZBHgkvHp0LzCkhuP7/YrcC/JWyqVCqw466SBq
+        LSDDoYOCFOnlQxuBFJ4k3FP35C13yWT0+EzqQmZpk5Y3csjnVWKGhmqJpb7OMA==
 From:   alexandre.belloni@bootlin.com
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 02/12] rtc: ab-eoz9: use IRQ flags obtained from fwnode
-Date:   Mon, 23 Jan 2023 21:02:07 +0100
-Message-Id: <20230123200217.1236011-2-alexandre.belloni@bootlin.com>
+Subject: [PATCH 04/12] rtc: m41t80: use IRQ flags obtained from fwnode
+Date:   Mon, 23 Jan 2023 21:02:09 +0100
+Message-Id: <20230123200217.1236011-4-alexandre.belloni@bootlin.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230123200217.1236011-1-alexandre.belloni@bootlin.com>
 References: <20230123200217.1236011-1-alexandre.belloni@bootlin.com>
@@ -53,29 +53,29 @@ RTC and the IRQ controller.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/rtc/rtc-ab-eoz9.c | 7 ++++++-
+ drivers/rtc/rtc-m41t80.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
-index 2f8deb8c4cd3..34611f6dedcb 100644
---- a/drivers/rtc/rtc-ab-eoz9.c
-+++ b/drivers/rtc/rtc-ab-eoz9.c
-@@ -536,9 +536,14 @@ static int abeoz9_probe(struct i2c_client *client)
- 	clear_bit(RTC_FEATURE_ALARM, data->rtc->features);
- 
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 494052dbd39f..c1963f7c424d 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -914,9 +914,14 @@ static int m41t80_probe(struct i2c_client *client)
+ 					      "wakeup-source");
+ #endif
  	if (client->irq > 0) {
 +		unsigned long irqflags = IRQF_TRIGGER_LOW;
 +
 +		if (dev_fwnode(&client->dev))
 +			irqflags = 0;
 +
- 		ret = devm_request_threaded_irq(dev, client->irq, NULL,
- 						abeoz9_rtc_irq,
--						IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+						irqflags | IRQF_ONESHOT,
- 						dev_name(dev), dev);
- 		if (ret) {
- 			dev_err(dev, "failed to request alarm irq\n");
+ 		rc = devm_request_threaded_irq(&client->dev, client->irq,
+ 					       NULL, m41t80_handle_irq,
+-					       IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++					       irqflags | IRQF_ONESHOT,
+ 					       "m41t80", client);
+ 		if (rc) {
+ 			dev_warn(&client->dev, "unable to request IRQ, alarms disabled\n");
 -- 
 2.39.1
 
