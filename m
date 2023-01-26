@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB46FC678D5
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2057C6FD18
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbjAZOXO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56394 "EHLO
+        id S232054AbjAZOXP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231879AbjAZOXC (ORCPT
+        with ESMTP id S231882AbjAZOXC (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF2A01D91F;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC1E1D91B;
         Thu, 26 Jan 2023 06:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C5A4B81DF0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0EFB61877;
         Thu, 26 Jan 2023 14:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E2BC43324;
-        Thu, 26 Jan 2023 14:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30AEC4339B;
+        Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674742977;
-        bh=7/HQf6/GGIuDaxy+2slvzMSyzdgxzdXhyFV520wU3YQ=;
+        s=k20201202; t=1674742979;
+        bh=q2Bbjj15dQE3xFdW3ZNa040Zv7U1rr2wKNg7FOHt9Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAOGAGpNA3ePLe//qEtVZpQq7P/FHcAbDUvjWAtzzuqXNaCArPvXkWSXv4AloYJJ0
-         YzzqlF1q8GUUQITiqe8Z/C9qm/BANog3AMA33CIBYVs27E94yId7Uk940ZdvOS7TCR
-         4FKq61ydVoO39kvuepnXVxJjtc6zasLIr/1N8P18jfCUH5vfzJYfHr7h8y6AHgZbtN
-         9BMXsHFD39o3Hie9tOBN7G+Y6WcZ/8I1n6PuE4c3S3kj4jpSwkUx9EUOvQGaHwrsJ9
-         XNkt9vwwIFraChOyUCXCozyp/z7KHBAAPSo2p4Fe/0y2W2xco+qIsGW92b2CiENBL6
-         /rzdMAa4SpaIQ==
+        b=FV1d9Unocn1wapAKWF+DKxSVHJgr3xEEW0vCjObhVaN5P8c2rAMovOJ0/T4zuatC9
+         9pnGTsUYl5LM8i0gt39olhyDNqUjUyw9fJQBgE85HVuC+Wkrpnk7nhjzKw2W9opoiU
+         BrZy1dolgpdc+9WZ27Gkbb/oDWSSc49J1pM7VrELTEAyKfsw/edNneTOZu8VTW1pek
+         Jt/F+CRKA058MJDz0zdpLVVBBRC52363GSzEXINFe3l0XgvSBr+ggJw0Ig6vGkmst9
+         id+S6fxlcY7ozBLDWRZug/NrGV17bEz5fpa2jdsC1gJCM1992irOrWuo8F9djUDaIP
+         z2ZO8227AlHRg==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39c-0006iZ-OG; Thu, 26 Jan 2023 15:23:04 +0100
+        id 1pL39d-0006jD-TT; Thu, 26 Jan 2023 15:23:05 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 09/24] rtc: pm8xxx: rename struct device pointer
-Date:   Thu, 26 Jan 2023 15:20:42 +0100
-Message-Id: <20230126142057.25715-10-johan+linaro@kernel.org>
+Subject: [PATCH 22/24] arm64: dts: qcom: sc8280xp-pmics: add pmk8280 sdam nvram
+Date:   Thu, 26 Jan 2023 15:20:55 +0100
+Message-Id: <20230126142057.25715-23-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,46 +58,34 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Rename the driver-data struct device pointer by dropping the "rtc"
-prefix which is both redundant and misleading (as this is a pointer to
-the platform device and not the rtc class device).
+Add one of the PMK8280 SDAM blocks which can be used to store an RTC
+offset.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 8c364e5d3b57..0fdbd233b10e 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -48,7 +48,7 @@ struct pm8xxx_rtc_regs {
-  * @allow_set_time:	indicates whether writing to the RTC is allowed
-  * @rtc_alarm_irq:	rtc alarm irq number.
-  * @regs:		rtc registers description.
-- * @rtc_dev:		device structure.
-+ * @dev:		device structure
-  */
- struct pm8xxx_rtc {
- 	struct rtc_device *rtc;
-@@ -56,7 +56,7 @@ struct pm8xxx_rtc {
- 	bool allow_set_time;
- 	int rtc_alarm_irq;
- 	const struct pm8xxx_rtc_regs *regs;
--	struct device *rtc_dev;
-+	struct device *dev;
- };
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi b/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
+index c62262b88810..7220d5b5ab7b 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-pmics.dtsi
+@@ -104,6 +104,15 @@ pmk8280_rtc: rtc@6100 {
+ 			wakeup-source;
+ 			status = "disabled";
+ 		};
++
++		pmk8280_sdam_6: nvram@8500 {
++			compatible = "qcom,spmi-sdam";
++			reg = <0x8500 0x100>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0 0x8500 0x100>;
++			status = "disabled";
++		};
+ 	};
  
- /*
-@@ -372,7 +372,7 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 						      "allow-set-time");
- 
- 	rtc_dd->regs = match->data;
--	rtc_dd->rtc_dev = &pdev->dev;
-+	rtc_dd->dev = &pdev->dev;
- 
- 	rc = pm8xxx_rtc_enable(rtc_dd);
- 	if (rc)
+ 	pmc8280_1: pmic@1 {
 -- 
 2.39.1
 
