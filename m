@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A29D2C636CB
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7289C636D7
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231934AbjAZOXD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56244 "EHLO
+        id S231954AbjAZOXE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231754AbjAZOXA (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:00 -0500
+        with ESMTP id S231856AbjAZOXB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199E511677;
-        Thu, 26 Jan 2023 06:22:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF7A17166;
+        Thu, 26 Jan 2023 06:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAB1161847;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23D026184D;
+        Thu, 26 Jan 2023 14:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8139C43615;
         Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A826FC43323;
-        Thu, 26 Jan 2023 14:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674742977;
-        bh=+e6vabk7nnIxKnRB4DqirjDl+9Kx3GaOJxRWKeLLfb0=;
+        s=k20201202; t=1674742978;
+        bh=kGIY8BsCOcAUuz4rUJvWx7AsZas3uSRgZ9e8CL6ualY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjJB62qscy8LcgCb/9NniHw+V1AN4aTmdvyP7U3LXDGUv95N47VxOkiaBlK3paSrL
-         rcjTE9yYmN/+gOzvz/fyRJy4SIgmc4xh1EZlq8bj3qgVwnW20XROWy6XhIG0zcQmuJ
-         fdalaJn7BuTpa3kmdPUmQwpSyxFa5OGXTK76ZSM7njEVbZwr1pN1TRGGIeRd3BbHNr
-         DvTLMffxuKc8gfQUuxS2lXQZVf8tH3R9/csZeOh55aSkltKjKsLUyshqKt711fn+RJ
-         5FyjhCA3N5VrXQFF9eoPkNjYZGLqdcuPtg7+Z8pOzgRFFXTLHrcfbjXNmWzTnPni3J
-         V/aJg0OtUa4Ig==
+        b=eHPvLL5BRkmGEBfeV0iCFJ3m0Iy4byK3gJD3+Hddcma5Ep/xVtAEUO/0qwXqvwaZo
+         magytMcxv9mNvnSd6TFYB/fxbtTjvpzjN7hlSsA+jo6yO+LDjYDhlonTkaZfVWI3Dx
+         wpeYT2zFfGcjZOeCcIZbT7vWFYKz4ghVcEcnSPHJhHXKTtSeW7WVpjQkaXwJ53xPhb
+         fwr8m7ENW8IdVTy6XQxMcZFZgC89DcB1mD2k1SIXAVFHajUm0B81w+NjoOxvyIaHcD
+         1qnfPvntsA3zL2SnMDHS+c0HKZFIGTtSQ6m+WFdVVXE4yLWLUW2H+QGAhXhD++AmOl
+         MHSYrWJ2zBi0A==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39c-0006iR-Fq; Thu, 26 Jan 2023 15:23:04 +0100
+        id 1pL39d-0006j1-Hw; Thu, 26 Jan 2023 15:23:05 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 06/24] rtc: pm8xxx: drop unused register defines
-Date:   Thu, 26 Jan 2023 15:20:39 +0100
-Message-Id: <20230126142057.25715-7-johan+linaro@kernel.org>
+Subject: [RFC 18/24] dt-bindings: rtc: qcom-pm8xxx: add uefi-variable offset
+Date:   Thu, 26 Jan 2023 15:20:51 +0100
+Message-Id: <20230126142057.25715-19-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,31 +58,44 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Drop the original register defines which have been used since commit
-c8d523a4b053 ("drivers/rtc/rtc-pm8xxx.c: rework to support pm8941 rtc").
+On many Qualcomm platforms the PMIC RTC control and time registers are
+read-only so that the RTC time can not be updated. Instead an offset
+needs be stored in some machine-specific non-volatile memory, which a
+driver can take into account.
+
+Add a 'qcom,uefi-rtc-info' boolean flag which indicates that the RTC
+offset is stored in a Qualcomm specific UEFI variable so that the RTC
+time can be updated on such platforms.
+
+The UEFI variable is
+
+	882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
+
+and holds a 12-byte structure where the first four bytes is a GPS time
+offset in little-endian byte order.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 6 ------
- 1 file changed, 6 deletions(-)
+ Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index dc7e659cbb2a..90027a7cfb12 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -12,12 +12,6 @@
- #include <linux/slab.h>
- #include <linux/spinlock.h>
+diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+index b95a69cc9ae0..774c34c3f8f6 100644
+--- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+@@ -50,6 +50,12 @@ properties:
+     items:
+       - const: offset
  
--/* RTC Register offsets from RTC CTRL REG */
--#define PM8XXX_ALARM_CTRL_OFFSET	0x01
--#define PM8XXX_RTC_WRITE_OFFSET		0x02
--#define PM8XXX_RTC_READ_OFFSET		0x06
--#define PM8XXX_ALARM_RW_OFFSET		0x0A
--
- /* RTC_CTRL register bit fields */
- #define PM8xxx_RTC_ENABLE		BIT(7)
- #define PM8xxx_RTC_ALARM_CLEAR		BIT(0)
++  qcom,uefi-rtc-info:
++    type: boolean
++    description:
++      RTC offset is stored as a four-byte GPS time offset in a 12-byte UEFI
++      variable 882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
++
+   wakeup-source: true
+ 
+ required:
 -- 
 2.39.1
 
