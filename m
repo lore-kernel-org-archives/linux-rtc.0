@@ -2,40 +2,63 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6404C05027
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:28:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CBA4C54E94
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 15:56:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232184AbjAZO2Z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:28:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
+        id S232360AbjAZP4d (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 10:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232164AbjAZO2Y (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:28:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E16274A1;
-        Thu, 26 Jan 2023 06:28:01 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34282B81DF0;
-        Thu, 26 Jan 2023 14:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF04FC433D2;
-        Thu, 26 Jan 2023 14:27:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674743277;
-        bh=fkNCWGzpN9noJHpG5tIoZbVO7VTTQDfyVLycvpHMucI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnoJ2SivmQHSNSxLclMx3tGin0IOcWk+i8F5yh3Im0HS4601HW5zys6GhNdTcjU0c
-         nltddIK3DgM8O9SF7tGgODjpje4V/rLiISSSzYvYH1I0tbR1Z3vP4ZrCfIjIzhH6JO
-         R00h9P+HBHYdIYl0jv4vJVaD/Sc9D6HuGjpMWelFw6QFSEqVGogmhLNl3IAt/Z6BC7
-         6vNvI2hahYP104gb1urzQyY+YbrBBI4gj9OubbxJjiMCPIaTjmmWs2GYLNqgfYq7ej
-         5/JZgFX98ODk/gmjo+1T2HRRGv1NSEzLkFCFINLAsDDBnDdK+avbfjrSapwwPF8wL6
-         91HkiS8vS0NmQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39c-0006iO-Cy; Thu, 26 Jan 2023 15:23:04 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        with ESMTP id S229459AbjAZP4c (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 10:56:32 -0500
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18BF84C6EC
+        for <linux-rtc@vger.kernel.org>; Thu, 26 Jan 2023 07:56:31 -0800 (PST)
+Received: by mail-wr1-x431.google.com with SMTP id bk16so2210733wrb.11
+        for <linux-rtc@vger.kernel.org>; Thu, 26 Jan 2023 07:56:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7X8vQJ82g1NBSgy7BqEe+UPGCLxYDo4vEHMc6PKXuH8=;
+        b=v96sfa23JY65nMhchkG1AlpCZpWwa4nxe8dntBmtZU+8hj74OH82bWsxOF/ov/uYJi
+         jUv2ZqiZ5sL/R5I3OkZ6usDOFByjf6LUA+IUZ+82m6nsbuQkUoRhDvVl5vxn+418dcnh
+         dmbThNd+hMTOIvtQUorebw8UxLJt7uDGLvlch1C0wXNWnLx+7uT7mM2ebEBhzVhiRKnZ
+         EzH70kd3ImEcAZQve/naGbUmtz6JPycN7L3gJ1bl1ZuCDgR137k0QR8Y13F/vkU6glYx
+         RYcaIWUMnvejuAEFmGLQ90rvtKFr8o9CgZXxG5RQY81C1vB5cr/+boytChcc/0obDuab
+         XTWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=7X8vQJ82g1NBSgy7BqEe+UPGCLxYDo4vEHMc6PKXuH8=;
+        b=AM5AMQdFRgD8y9ScNRYRi/Z+uRhDtopZNdnDf7GKsZPnxIz4+sItgOPi0l9H6lTEvC
+         RVM3gRyIQTQUNhocPYjM92dXZvxHZ6ffI/O1D3ze0MgzweG9xw0VXraz0v0VvT/uJvHN
+         srTZo24jeGeYR6h6BZESagzyc4rr8sSS661GrCnEs7JVm6K2unP+0SFqRXHdt9tgWDG6
+         +xrNPTuIc/2AiEN1nLZ7cNeNiCZevpSelury7rg0m2b+leXK7VpjAxNMtrSn0Om7EqgH
+         VS2h0LX+YnbcondNPj1YzB++1ModgH2JLcNp1QqiT4LuYFUED1usP/1hN3BJIx8Z0R+6
+         3hkQ==
+X-Gm-Message-State: AFqh2kreepXFnfM4X2eY+VCLZQPkjJXLEOX8rC1JHqZooQEF0gVbAZrl
+        GfwL10C5U44xz6LwXmpcLAlmmg==
+X-Google-Smtp-Source: AMrXdXvF0Fzot1vJfqbt44iNVaA6MBvfcl5qnUKqgrLzxTreoghoY2AjqsnfgCDO8Sonz016fO0KFg==
+X-Received: by 2002:adf:e611:0:b0:2bf:96b9:5865 with SMTP id p17-20020adfe611000000b002bf96b95865mr19180823wrm.9.1674748589583;
+        Thu, 26 Jan 2023 07:56:29 -0800 (PST)
+Received: from [192.168.1.109] ([178.197.216.144])
+        by smtp.gmail.com with ESMTPSA id x7-20020a5d6b47000000b002bbed1388a5sm1662536wrw.15.2023.01.26.07.56.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Jan 2023 07:56:28 -0800 (PST)
+Message-ID: <b5b0b377-b3da-1c32-3b40-6d8ef9774ca2@linaro.org>
+Date:   Thu, 26 Jan 2023 16:56:27 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.0
+Subject: Re: [PATCH 15/24] dt-bindings: rtc: qcom-pm8xxx: add nvmem-cell
+ offset
+Content-Language: en-US
+To:     Johan Hovold <johan+linaro@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
 Cc:     Andy Gross <agross@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
@@ -44,50 +67,33 @@ Cc:     Andy Gross <agross@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Maximilian Luz <luzmaximilian@gmail.com>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 05/24] rtc: pm8xxx: return IRQ_NONE on errors
-Date:   Thu, 26 Jan 2023 15:20:38 +0100
-Message-Id: <20230126142057.25715-6-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ <20230126142057.25715-16-johan+linaro@kernel.org>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230126142057.25715-16-johan+linaro@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In the unlikely event that disabling the alarm and clearing the status
-ever fails, return IRQ_NONE instead of IRQ_HANDLED.
+On 26/01/2023 15:20, Johan Hovold wrote:
+> On many Qualcomm platforms the PMIC RTC control and time registers are
+> read-only so that the RTC time can not be updated. Instead an offset
+> needs be stored in some machine-specific non-volatile memory, which a
+> driver can take into account.
+> 
+> Add an 'offset' nvmem cell which can be used to store a 32-bit offset
+> from the Unix epoch so that the RTC time can be updated on such
+> platforms.
+> 
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> ---
 
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/rtc/rtc-pm8xxx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 053a04f74a91..dc7e659cbb2a 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -291,14 +291,14 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
- 				regs->alarm_en, 0);
- 	if (rc)
--		goto out;
-+		return IRQ_NONE;
- 
- 	/* Clear RTC alarm register */
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
- 				PM8xxx_RTC_ALARM_CLEAR, 0);
- 	if (rc)
--		goto out;
--out:
-+		return IRQ_NONE;
-+
- 	return IRQ_HANDLED;
- }
- 
--- 
-2.39.1
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
+Best regards,
+Krzysztof
 
