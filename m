@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42314C64EC7
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08E69C636BD
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbjAZOXG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56318 "EHLO
+        id S232009AbjAZOXI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231873AbjAZOXC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECB9113E4;
+        with ESMTP id S231898AbjAZOXD (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB361CF59;
         Thu, 26 Jan 2023 06:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F3161856;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6B9BB81DEF;
         Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B1D0C433A1;
-        Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 866A4C4339E;
+        Thu, 26 Jan 2023 14:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674742978;
-        bh=yUxC+lcXB5W9v1WZ5zrNhza/r9HK2s/OODdAQcbHFZU=;
+        s=k20201202; t=1674742977;
+        bh=hhCtw+HmTT9km9pBv0XwTlPCeUZBnbPGQDj+D0a9Ak0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ejj99tG2bXtibv0Ng9yQlXE9MJdkQmaWaL0uOnpkCg3SwDVglOIoDA5fejqAPS8RJ
-         EGERQvMw0JYJqQD+Ap/SUbxyKdowiunvIXLcPUsQV1b8xZ+Q1fcPyIbiJgOWLg7UJa
-         KUPDx7iNFyeyyb/owSwhQ4KVXsLYQ5X4P45n5yQucekf11FvNiigJguauSOVNUG+I0
-         +ObVsbJuAHQghSVxwTgJ1mvTQb/FOqPLemd6RMX4jni30rmEJSLRaOX/rm/HF+7Zr5
-         0ZQP9z5M2Xn39QEVGurUOcCGl+A/kQlUA7VTwVo/CqCedhlHTPuaTZ5qG0142S4WbK
-         dwIXSEvs4Grrw==
+        b=EoGIpxvxks3Jv93NwXx2MehlRrAaHGlX2AMteW1QHAc74iTCc1j23iQ4prhVv9O4p
+         oBCWBawvl92ki/iuJNcaYsYSbxAJHmOFVwchirtR/xqr85w2/HpzDFhu7x9d55mD0q
+         zre/9ZXCWzHKNNVmxyDAKGMvD2beQe7PCICu3ouKmleiVMAVH9HufD+XU3fDlOuUbN
+         P8Qbd/a5c1s7FZ8jfogwRgDxLf30aqtfGSVWPbz7yBYdoZ4O1b7EY3saUFKcxQOvEa
+         bZCF3y/n/vRuEo48Xtw4eUWmKXkDNvYNGTamVvPRpzScdn9yJ09imLHDJniMusmun1
+         qdV2ERuz0Z9ww==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39d-0006im-4E; Thu, 26 Jan 2023 15:23:05 +0100
+        id 1pL39c-0006iL-9j; Thu, 26 Jan 2023 15:23:04 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 13/24] rtc: pm8xxx: refactor read_time()
-Date:   Thu, 26 Jan 2023 15:20:46 +0100
-Message-Id: <20230126142057.25715-14-johan+linaro@kernel.org>
+Subject: [PATCH 04/24] rtc: pm8xxx: drop bogus locking
+Date:   Thu, 26 Jan 2023 15:20:37 +0100
+Message-Id: <20230126142057.25715-5-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,93 +58,235 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In preparation for adding support for setting the time by means of an
-externally stored offset, refactor read_time() by adding a new helper
-that can be used to retrieve the raw time as stored in the RTC.
+Since commit c8d523a4b053 ("drivers/rtc/rtc-pm8xxx.c: rework to support
+pm8941 rtc") which removed the shadow control register there is no need
+for a driver lock.
+
+Specifically, the rtc ops are serialised by rtc core and the interrupt
+handler only unconditionally disables the alarm using the alarm_ctrl
+register.
+
+Note that since only the alarm enable bit of alarm_ctrl is used after
+enabling the RTC at probe, the locking was not needed when doing open
+coded read-modify-write cycles either.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 54 ++++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 67 +++++++++++++---------------------------
+ 1 file changed, 21 insertions(+), 46 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index b1ce246c501a..2f96a178595c 100644
+index 8c2847ac64f4..053a04f74a91 100644
 --- a/drivers/rtc/rtc-pm8xxx.c
 +++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -59,6 +59,37 @@ struct pm8xxx_rtc {
- 	struct device *dev;
+@@ -53,7 +53,6 @@ struct pm8xxx_rtc_regs {
+  * @rtc_alarm_irq:	rtc alarm irq number.
+  * @regs:		rtc registers description.
+  * @rtc_dev:		device structure.
+- * @ctrl_reg_lock:	spinlock protecting access to ctrl_reg.
+  */
+ struct pm8xxx_rtc {
+ 	struct rtc_device *rtc;
+@@ -62,7 +61,6 @@ struct pm8xxx_rtc {
+ 	int rtc_alarm_irq;
+ 	const struct pm8xxx_rtc_regs *regs;
+ 	struct device *rtc_dev;
+-	spinlock_t ctrl_reg_lock;
  };
  
-+static int pm8xxx_rtc_read_raw(struct pm8xxx_rtc *rtc_dd, u32 *secs)
-+{
-+	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u8 value[NUM_8_BIT_RTC_REGS];
-+	unsigned int reg;
-+	int rc;
-+
-+	rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value, sizeof(value));
-+	if (rc)
-+		return rc;
-+
-+	/*
-+	 * Read the LSB again and check if there has been a carry over.
-+	 * If there has, redo the read operation.
-+	 */
-+	rc = regmap_read(rtc_dd->regmap, regs->read, &reg);
-+	if (rc < 0)
-+		return rc;
-+
-+	if (reg < value[0]) {
-+		rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value,
-+				      sizeof(value));
-+		if (rc)
-+			return rc;
-+	}
-+
-+	*secs = get_unaligned_le32(value);
-+
-+	return 0;
-+}
-+
  /*
-  * Steps to write the RTC registers.
-  * 1. Disable alarm if enabled.
-@@ -129,33 +160,14 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -77,11 +75,11 @@ struct pm8xxx_rtc {
+ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	int rc, i;
+-	unsigned long secs, irq_flags;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+ 	bool alarm_enabled;
++	unsigned long secs;
+ 
+ 	if (!rtc_dd->allow_set_time)
+ 		return -ENODEV;
+@@ -95,51 +93,46 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		secs >>= 8;
+ 	}
+ 
+-	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+-
+ 	rc = regmap_update_bits_check(rtc_dd->regmap, regs->alarm_ctrl,
+ 				      regs->alarm_en, 0, &alarm_enabled);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Disable RTC H/w before writing on RTC register */
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE, 0);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Write 0 to Byte[0] */
+ 	rc = regmap_write(rtc_dd->regmap, regs->write, 0);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Write Byte[1], Byte[2], Byte[3] */
+ 	rc = regmap_bulk_write(rtc_dd->regmap, regs->write + 1,
+ 			       &value[1], sizeof(value) - 1);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Write Byte[0] */
+ 	rc = regmap_write(rtc_dd->regmap, regs->write, value[0]);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Enable RTC H/w after writing on RTC register */
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE,
+ 				PM8xxx_RTC_ENABLE);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	if (alarm_enabled) {
+ 		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
+ 					regs->alarm_en, regs->alarm_en);
+ 		if (rc)
+-			goto rtc_rw_fail;
++			return rc;
+ 	}
+ 
+-rtc_rw_fail:
+-	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+-
+-	return rc;
++	return 0;
+ }
  
  static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+@@ -184,9 +177,9 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
  {
--	int rc;
--	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int reg;
+ 	int rc, i;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+-	unsigned long secs, irq_flags;
  	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
--	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 	u32 secs;
-+	int rc;
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
++	unsigned long secs;
  
--	rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value, sizeof(value));
-+	rc = pm8xxx_rtc_read_raw(rtc_dd, &secs);
+ 	secs = rtc_tm_to_time64(&alarm->time);
+ 
+@@ -200,25 +193,22 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
  	if (rc)
  		return rc;
  
--	/*
--	 * Read the LSB again and check if there has been a carry over.
--	 * If there is, redo the read operation.
--	 */
--	rc = regmap_read(rtc_dd->regmap, regs->read, &reg);
--	if (rc < 0)
--		return rc;
+-	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
 -
--	if (unlikely(reg < value[0])) {
--		rc = regmap_bulk_read(rtc_dd->regmap, regs->read,
--				      value, sizeof(value));
--		if (rc)
--			return rc;
+ 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
+ 			       sizeof(value));
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	if (alarm->enabled) {
+ 		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
+ 					regs->alarm_en, regs->alarm_en);
+ 		if (rc)
+-			goto rtc_rw_fail;
++			return rc;
+ 	}
+ 
+ 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+ 		&alarm->time, &alarm->time);
+-rtc_rw_fail:
+-	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+-	return rc;
++
++	return 0;
+ }
+ 
+ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+@@ -255,14 +245,11 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ {
+ 	int rc;
+-	unsigned long irq_flags;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 	u8 value[NUM_8_BIT_RTC_REGS] = {0};
+ 	unsigned int val;
+ 
+-	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
+-
+ 	if (enable)
+ 		val = regs->alarm_en;
+ 	else
+@@ -271,19 +258,17 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
+ 				regs->alarm_en, val);
+ 	if (rc)
+-		goto rtc_rw_fail;
++		return rc;
+ 
+ 	/* Clear Alarm register */
+ 	if (!enable) {
+ 		rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
+ 				       sizeof(value));
+ 		if (rc)
+-			goto rtc_rw_fail;
++			return rc;
+ 	}
+ 
+-rtc_rw_fail:
+-	spin_unlock_irqrestore(&rtc_dd->ctrl_reg_lock, irq_flags);
+-	return rc;
++	return 0;
+ }
+ 
+ static const struct rtc_class_ops pm8xxx_rtc_ops = {
+@@ -302,25 +287,18 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
+ 
+ 	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
+ 
+-	spin_lock(&rtc_dd->ctrl_reg_lock);
+-
+ 	/* Clear the alarm enable bit */
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
+ 				regs->alarm_en, 0);
+-	if (rc) {
+-		spin_unlock(&rtc_dd->ctrl_reg_lock);
+-		goto rtc_alarm_handled;
 -	}
 -
--	secs = get_unaligned_le32(value);
- 	rtc_time64_to_tm(secs, tm);
+-	spin_unlock(&rtc_dd->ctrl_reg_lock);
++	if (rc)
++		goto out;
  
- 	dev_dbg(dev, "read time: %ptRd %ptRt (%u)\n", tm, tm, secs);
+ 	/* Clear RTC alarm register */
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
+ 				PM8xxx_RTC_ALARM_CLEAR, 0);
+ 	if (rc)
+-		goto rtc_alarm_handled;
+-
+-rtc_alarm_handled:
++		goto out;
++out:
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -398,9 +376,6 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 	if (rtc_dd == NULL)
+ 		return -ENOMEM;
+ 
+-	/* Initialise spinlock to protect RTC control register */
+-	spin_lock_init(&rtc_dd->ctrl_reg_lock);
+-
+ 	rtc_dd->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+ 	if (!rtc_dd->regmap) {
+ 		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
 -- 
 2.39.1
 
