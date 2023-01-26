@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C558EC61DA3
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1616BC636D7
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232120AbjAZOXW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
+        id S232132AbjAZOXZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231985AbjAZOXF (ORCPT
+        with ESMTP id S231990AbjAZOXF (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A102B113E4;
-        Thu, 26 Jan 2023 06:23:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F5A37B47;
+        Thu, 26 Jan 2023 06:23:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 001D0B81DF6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31A84B81DFB;
         Thu, 26 Jan 2023 14:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B115C4322E;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 957B2C4323F;
         Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1674742978;
-        bh=ivf8oy7wqRDszm/BUrY97t3/c8yLV7KjrfeB3zeaq0o=;
+        bh=TZt8tg0f5EGEIjmtonuFfOLla/KhReUiEwgCPwUl7Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgXXlPuYv2IqtdbJcM1Rcx7qf1xF0zIhG6QWg1mFH2mZq7r4DxuIKFRjLg5xmOFRI
-         r2gShAU7c6Du+NGn7P2HFOgg/lnnSX41hCqjMKt0PYDi96y1a6/15gi78ZXz/+3wvr
-         MqjDbCgDFaeQq2UPZ3FTzT5hOlCXResTRl+F8ybwVuRdgixTsMy0n/Y2qaVzgQ7iVo
-         NkxRTV3GGMgiJVkIdY4KB0/UxI+NM5IjUPE/A0xK+OOq98QWWY6cjVWmvCYkhUQ1/e
-         Z3eByYTJ5VZvm7yvpx2wgvTh17Spzj041nFlrMm4edAKA28ey7OpF2IeTbbSakK8I3
-         DfZc5CSBFS/oQ==
+        b=dqZDgQlYoS0ADYsAw5Kl0tc/vASEnUJdOEncA27mTb7vK50h1WKMrrKDllY3j0XaU
+         8UaxP2YrZklcHOWS3/G0Hq71+supY2z/20fhny7fAwTmHhY6wn5wBa5NpzjK32zBd4
+         YQeEVSs6ga/yysJoFRCCfet14xThts1Iq8F37IUAx6xc7ayF6ozTXWWofWrWwmXMEV
+         5/TcymIWe/XyBqRFrsiuIFJ68iRAk6nSzKGS5SG7jxt+b2nbi/T9sXlTE38QBSBxZJ
+         ZAxtigb0Wi0gqMKQHM11ECa0qd915d9EfLRe/XZ2a7ozCmOSbWnVhKeCmz5LPt5n5x
+         MTi9wkZyHbCfg==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39d-0006ip-6j; Thu, 26 Jan 2023 15:23:05 +0100
+        id 1pL39d-0006iy-FO; Thu, 26 Jan 2023 15:23:05 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 14/24] rtc: pm8xxx: clean up local declarations
-Date:   Thu, 26 Jan 2023 15:20:47 +0100
-Message-Id: <20230126142057.25715-15-johan+linaro@kernel.org>
+Subject: [PATCH 17/24] rtc: pm8xxx: add copyright notice
+Date:   Thu, 26 Jan 2023 15:20:50 +0100
+Message-Id: <20230126142057.25715-18-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,70 +58,34 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Clean up local declarations somewhat by using the reverse xmas style
-consistently throughout.
+Add a copyright notice for Linaro and add myself as a (primary) author
+of this driver.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 2f96a178595c..922aef0f0241 100644
+index 09816b9f6282..25bdd804b4d2 100644
 --- a/drivers/rtc/rtc-pm8xxx.c
 +++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -177,9 +177,9 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 
- static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	u8 value[NUM_8_BIT_RTC_REGS];
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u8 value[NUM_8_BIT_RTC_REGS];
- 	u32 secs;
- 	int rc;
- 
-@@ -210,12 +210,12 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 
- static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
--	int rc;
--	unsigned int ctrl_reg;
--	u8 value[NUM_8_BIT_RTC_REGS];
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u8 value[NUM_8_BIT_RTC_REGS];
-+	unsigned int ctrl_reg;
- 	u32 secs;
-+	int rc;
- 
- 	rc = regmap_bulk_read(rtc_dd->regmap, regs->alarm_rw, value,
- 			      sizeof(value));
-@@ -238,11 +238,11 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 
- static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- {
--	int rc;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 	u8 value[NUM_8_BIT_RTC_REGS] = {0};
- 	unsigned int val;
-+	int rc;
- 
- 	if (enable)
- 		val = regs->alarm_en;
-@@ -355,9 +355,9 @@ MODULE_DEVICE_TABLE(of, pm8xxx_id_table);
- 
- static int pm8xxx_rtc_probe(struct platform_device *pdev)
- {
--	int rc;
--	struct pm8xxx_rtc *rtc_dd;
- 	const struct of_device_id *match;
-+	struct pm8xxx_rtc *rtc_dd;
-+	int rc;
- 
- 	match = of_match_node(pm8xxx_id_table, pdev->dev.of_node);
- 	if (!match)
+@@ -1,5 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+-/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++/*
++ * pm8xxx RTC driver
++ *
++ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
++ * Copyright (c) 2023, Linaro Limited
+  */
+ #include <linux/of.h>
+ #include <linux/module.h>
+@@ -551,3 +555,4 @@ MODULE_ALIAS("platform:rtc-pm8xxx");
+ MODULE_DESCRIPTION("PMIC8xxx RTC driver");
+ MODULE_LICENSE("GPL v2");
+ MODULE_AUTHOR("Anirudh Ghayal <aghayal@codeaurora.org>");
++MODULE_AUTHOR("Johan Hovold <johan@kernel.org>");
 -- 
 2.39.1
 
