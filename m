@@ -2,82 +2,92 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57356C54E94
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:27:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6404C05027
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:28:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232011AbjAZO16 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:27:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37422 "EHLO
+        id S232184AbjAZO2Z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbjAZO15 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:27:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8741B410B8;
-        Thu, 26 Jan 2023 06:27:26 -0800 (PST)
+        with ESMTP id S232164AbjAZO2Y (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:28:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E16274A1;
+        Thu, 26 Jan 2023 06:28:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E842461852;
-        Thu, 26 Jan 2023 14:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55EBFC433EF;
-        Thu, 26 Jan 2023 14:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34282B81DF0;
+        Thu, 26 Jan 2023 14:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF04FC433D2;
+        Thu, 26 Jan 2023 14:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674743239;
-        bh=co41Sw1i3gt06AkD8wXROVzlyhI8ixuReFbBDCfcQuc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V4R3RAhKfNwFPbZWClkLLF2rbv2UVtoeD1VviKsjb1ykNXy2fyz1t+hKlICOfsoqC
-         +oEjp2BfgQGhwmFKBHdL9aYYNrFAkpP76cmGINIpVBLdZ4JQqAyEDfLlKUtlXtSkBk
-         RxiFqNA6lGcafmktgn8TPtwcAQ7CCJOZLwnjxVFYdUQCQVzN5n4AUp8UXRJM9yXVuO
-         4ptjVPt3w8WnRH515rkC6qW6H5zFQ3ICza8zc8GUU1ccs5URGGYackzva0p77qXi29
-         aj7r2DODQMergZGndBZKxgYB/8fA9T6tcD7tA6ldKgZat24ul4Iq+gRHTB1zD+jX5s
-         7masdTRvis4Ew==
+        s=k20201202; t=1674743277;
+        bh=fkNCWGzpN9noJHpG5tIoZbVO7VTTQDfyVLycvpHMucI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BnoJ2SivmQHSNSxLclMx3tGin0IOcWk+i8F5yh3Im0HS4601HW5zys6GhNdTcjU0c
+         nltddIK3DgM8O9SF7tGgODjpje4V/rLiISSSzYvYH1I0tbR1Z3vP4ZrCfIjIzhH6JO
+         R00h9P+HBHYdIYl0jv4vJVaD/Sc9D6HuGjpMWelFw6QFSEqVGogmhLNl3IAt/Z6BC7
+         6vNvI2hahYP104gb1urzQyY+YbrBBI4gj9OubbxJjiMCPIaTjmmWs2GYLNqgfYq7ej
+         5/JZgFX98ODk/gmjo+1T2HRRGv1NSEzLkFCFINLAsDDBnDdK+avbfjrSapwwPF8wL6
+         91HkiS8vS0NmQ==
 Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1pL3Dp-0006r1-Ps; Thu, 26 Jan 2023 15:27:25 +0100
-Date:   Thu, 26 Jan 2023 15:27:25 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan+linaro@kernel.org>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Andy Gross <agross@kernel.org>,
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1pL39c-0006iO-Cy; Thu, 26 Jan 2023 15:23:04 +0100
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Bjorn Andersson <andersson@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Maximilian Luz <luzmaximilian@gmail.com>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 19/24] rtc: pm8xxx: add support for uefi offset
-Message-ID: <Y9KNzSYotgOheKZN@hovoldconsulting.com>
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 05/24] rtc: pm8xxx: return IRQ_NONE on errors
+Date:   Thu, 26 Jan 2023 15:20:38 +0100
+Message-Id: <20230126142057.25715-6-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
- <20230126142057.25715-20-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230126142057.25715-20-johan+linaro@kernel.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Jan 26, 2023 at 03:20:52PM +0100, Johan Hovold wrote:
-> On many Qualcomm platforms the PMIC RTC control and time registers are
-> read-only so that the RTC time can not be updated. Instead an offset
-> needs be stored in some machine-specific non-volatile memory, which the
-> driver can take into account.
-> 
-> Add support for storing a 32-bit offset from the GPS time epoch in a
-> UEFI variable so that the RTC time can be set on such platforms.
-> 
-> The UEFI variable is
-> 
->             882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
-> 
-> and holds a 12-byte structure where the first four bytes is a GPS time
-> offset in little-endian byte order.
-> 
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+In the unlikely event that disabling the alarm and clearing the status
+ever fails, return IRQ_NONE instead of IRQ_HANDLED.
 
-The Subject of this one was supposed to say "RFC" as it, like the
-previous patch, is not intended to be merged just yet.
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ drivers/rtc/rtc-pm8xxx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Johan
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 053a04f74a91..dc7e659cbb2a 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -291,14 +291,14 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
+ 				regs->alarm_en, 0);
+ 	if (rc)
+-		goto out;
++		return IRQ_NONE;
+ 
+ 	/* Clear RTC alarm register */
+ 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
+ 				PM8xxx_RTC_ALARM_CLEAR, 0);
+ 	if (rc)
+-		goto out;
+-out:
++		return IRQ_NONE;
++
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.39.1
+
