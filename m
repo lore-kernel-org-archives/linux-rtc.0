@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCCB9C636BD
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24ACAC61DB3
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbjAZOXR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:17 -0500
+        id S232102AbjAZOXV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:21 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231509AbjAZOXC (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D58417171;
-        Thu, 26 Jan 2023 06:23:00 -0800 (PST)
+        with ESMTP id S231979AbjAZOXF (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94ADB34021;
+        Thu, 26 Jan 2023 06:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5134C61867;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AE43B81DF5;
         Thu, 26 Jan 2023 14:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD28C4361B;
-        Thu, 26 Jan 2023 14:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15EDDC43339;
+        Thu, 26 Jan 2023 14:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674742979;
-        bh=HCGjEGUFY0gKH3ZyA4nO2jGVovR75O5DPlTfU63GDlQ=;
+        s=k20201202; t=1674742978;
+        bh=4z6TJNCwS8qAM3wHcv2tU/0WELTPhAMwIRU/5y7TjEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvhIj1VGCEOt9h4Lgx+D4p1ZnjGp22aEyT0sSvkrWuhJZyw3vMdxsbCGsbd+q9iBo
-         8HaOVgkZBxIc2bxujRq9uGMIkY5VPgxFSaDqmzeipOtC2XVI58HDi6wbs9XY5CSSmw
-         smCdxK/T8ixr+PorT6XynyKKoJ1Pvu/hvn3O8RrOK2XnqRxWFNL1QFHfFb+mFaq7Xt
-         wnynkGVKPvyZEykAG6hs9/8gsJRnBGNOLfIvLtwwPihwLwUAtwgMaCVcb6HxqNpiGr
-         TfBQwugcHSuh7i63umCFVvtKBSVUK4W2ddp5GTGjiIWtNGxAda8/dq3TFvc5+FX0r0
-         uDTgC7hrfF6/A==
+        b=LBQT9bNAxaKz3msJlHyveDXtH9yd1HKLE5fDUuw8OD2p7etlbFJPb2qRBztfKhuYF
+         rUxQClpzfTQaRpRQa4CSoCp9T/Wl93TVXapwPn+FYBuONDOb74X6RIN37Fj8oD++SG
+         z1AsFAaBUmD783R10QNTVWZR21BwgdyEKS2dZ+oJ9W4IdWROZ/zEDqU8rSj7BqzI7L
+         qGMmjB/v+QqBKj+Up2tC8YiraDoyW0uzoh34MjZN9+L4RcytiIPb9vaft6pSNNhYFD
+         MEbIBK4TO9YL3rH86ppK60lMlB3mW5w1p1Juu/hqcVjinkWL0oREeZXJ1JXegeCHok
+         wi4F9K1A1yubA==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39d-0006jF-W4; Thu, 26 Jan 2023 15:23:06 +0100
+        id 1pL39c-0006id-RQ; Thu, 26 Jan 2023 15:23:04 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 23/24] arm64: dts: qcom: sc8280xp-crd: enable rtc
-Date:   Thu, 26 Jan 2023 15:20:56 +0100
-Message-Id: <20230126142057.25715-24-johan+linaro@kernel.org>
+Subject: [PATCH 10/24] rtc: pm8xxx: rename alarm irq variable
+Date:   Thu, 26 Jan 2023 15:20:43 +0100
+Message-Id: <20230126142057.25715-11-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,57 +58,65 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The SC8280XP CRD firmware does not implement the UEFI time runtime
-services so the RTC in the PM8280K PMIC needs to be accessed directly.
-
-To complicate things further, the RTC control and time registers are
-read-only on this platform so an offset must be stored in some other
-machine-specific non-volatile memory which an RTC driver can take into
-account when reading or updating the time.
-
-The UEFI firmware (and Windows) use a UEFI variable for this:
-
-	882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
-
-but the offset can only be accessed via the Qualcomm UEFI Secure
-Application residing in the TEE as the firmware does not implement the
-variable runtime services either.
-
-Unfortunately setting variables using this interface does not work on
-the CRD so updating the time would not be possible. Instead, reserve
-four bytes in one of the PMIC SDAM blocks to hold the RTC offset.
+Clean up the driver somewhat by renaming the driver-data alarm irq
+variable by dropping the redundant "rtc" prefix.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp-crd.dts | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/rtc/rtc-pm8xxx.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-index c780b82e498d..192e076345d2 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-@@ -500,6 +500,21 @@ &pmk8280_pon_pwrkey {
- 	status = "okay";
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 0fdbd233b10e..ea867b20573a 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -46,7 +46,7 @@ struct pm8xxx_rtc_regs {
+  * @rtc:		rtc device for this driver.
+  * @regmap:		regmap used to access RTC registers
+  * @allow_set_time:	indicates whether writing to the RTC is allowed
+- * @rtc_alarm_irq:	rtc alarm irq number.
++ * @alarm_irq:		alarm irq number
+  * @regs:		rtc registers description.
+  * @dev:		device structure
+  */
+@@ -54,7 +54,7 @@ struct pm8xxx_rtc {
+ 	struct rtc_device *rtc;
+ 	struct regmap *regmap;
+ 	bool allow_set_time;
+-	int rtc_alarm_irq;
++	int alarm_irq;
+ 	const struct pm8xxx_rtc_regs *regs;
+ 	struct device *dev;
  };
+@@ -364,8 +364,8 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
  
-+&pmk8280_rtc {
-+	nvmem-cells = <&rtc_offset>;
-+	nvmem-cell-names = "offset";
-+
-+	status = "okay";
-+};
-+
-+&pmk8280_sdam_6 {
-+	status = "okay";
-+
-+	rtc_offset: rtc-offset@bc {
-+		reg = <0xbc 0x4>;
-+	};
-+};
-+
- &qup0 {
- 	status = "okay";
- };
+-	rtc_dd->rtc_alarm_irq = platform_get_irq(pdev, 0);
+-	if (rtc_dd->rtc_alarm_irq < 0)
++	rtc_dd->alarm_irq = platform_get_irq(pdev, 0);
++	if (rtc_dd->alarm_irq < 0)
+ 		return -ENXIO;
+ 
+ 	rtc_dd->allow_set_time = of_property_read_bool(pdev->dev.of_node,
+@@ -391,7 +391,7 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 	rtc_dd->rtc->range_max = U32_MAX;
+ 
+ 	/* Request the alarm IRQ */
+-	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->rtc_alarm_irq,
++	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->alarm_irq,
+ 					  pm8xxx_alarm_trigger,
+ 					  IRQF_TRIGGER_RISING,
+ 					  "pm8xxx_rtc_alarm", rtc_dd);
+@@ -404,7 +404,7 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = dev_pm_set_wake_irq(&pdev->dev, rtc_dd->rtc_alarm_irq);
++	rc = dev_pm_set_wake_irq(&pdev->dev, rtc_dd->alarm_irq);
+ 	if (rc)
+ 		return rc;
+ 
 -- 
 2.39.1
 
