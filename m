@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E98C636CB
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB9BC61DA3
+	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 14:23:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbjAZOXL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 09:23:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
+        id S232036AbjAZOXN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 26 Jan 2023 09:23:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231939AbjAZOXD (ORCPT
+        with ESMTP id S231908AbjAZOXD (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 09:23:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DAFD241ED;
-        Thu, 26 Jan 2023 06:23:02 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE3711677;
+        Thu, 26 Jan 2023 06:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2055C61843;
-        Thu, 26 Jan 2023 14:23:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F47C433A1;
-        Thu, 26 Jan 2023 14:23:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 767B6B81DF4;
+        Thu, 26 Jan 2023 14:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E35B2C4332C;
+        Thu, 26 Jan 2023 14:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674742981;
-        bh=5UwR9QbyWi/Z/2mgCV5ah8EZM6pifSRECiAKO2qRn28=;
+        s=k20201202; t=1674742977;
+        bh=BIFSHNu7yn057HMpG1CPNyOgFjAwXeeB7J7A6POE7cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoAiN7RLIltAF2itdi3Ajs7/6S33o92wkpcy+qExHZNJo+NeZy1wAm5c8lDdbmCj/
-         Y7/do4gY6riMzI6mBqMH8aJB+0YJkh41cyZeWwHMSOPcx8UKe+94GDN8lYf8ivezIT
-         r2LjK+N8Vwj3ko5OVXCN3gXzffaET5/HLEFbqJ6osHexUbhLeDIx9xSYQX5x2AwGb9
-         GOrRVhWZQIQDcuWCr2FbND7cUkG7AWElZKRBsY+ipbZqu94DFtwIpMLi7d3RQrlqhS
-         J05jHWiqLRMKeyPv8PmleXqtaweyzMgdm3b7hMTlHIAig502LNjiSBg4d5JZYGR8U8
-         tbGdCvx76bkow==
+        b=XCmLjoe7BYsfcHll6t/6Pa8YrJoTH67+L+22S86k6yRv9G3bg7Qr27TPFBTdEjCJn
+         wxKZuUv1NBKvuxWrBmZhd/lV3rsz5bOPe9PY0wz2PQg/wGpcyjFxd+9HwMUGLPazMr
+         OCMmhyzN4SIid3raBv/+zD5lCixhR1QzsnbOPggsdnUKIn7XZJGfKaacFIBZuVsLwx
+         VIk1rwZ0iySaHQ7ZOZzFXXrkt5Lua8wi3KK29hWbRavXBwBDN5KJbbGhnlXG/ksfjn
+         ud/5Ob7aaHKGfWPK873k1sDj+PfEt38Ald+vea0PUR13fKI8MHZknBXRN0Z36dLiZj
+         8srZpHBfx2dfA==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pL39e-0006jI-2J; Thu, 26 Jan 2023 15:23:06 +0100
+        id 1pL39c-0006iW-LH; Thu, 26 Jan 2023 15:23:04 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 24/24] arm64: dts: qcom: sc8280xp-x13s: enable rtc
-Date:   Thu, 26 Jan 2023 15:20:57 +0100
-Message-Id: <20230126142057.25715-25-johan+linaro@kernel.org>
+Subject: [PATCH 08/24] rtc: pm8xxx: clean up time and alarm debugging
+Date:   Thu, 26 Jan 2023 15:20:41 +0100
+Message-Id: <20230126142057.25715-9-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230126142057.25715-1-johan+linaro@kernel.org>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
@@ -58,63 +58,56 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Lenovo X13s firmware does not implement the UEFI time runtime
-services so the RTC in the PM8280K PMIC needs to be accessed directly.
-
-To complicate things further, the RTC control and time registers are
-read-only on this platform so an offset must be stored in some other
-machine-specific non-volatile memory which an RTC driver can take into
-account when reading or updating the time.
-
-The UEFI firmware (and Windows) use a UEFI variable for this:
-
-	882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
-
-but the offset can only be accessed via the Qualcomm UEFI Secure
-Application residing in the TEE as the firmware does not implement the
-variable runtime services either.
-
-While it is possible to access this UEFI variable from Linux on the
-X13s, this requires using a fairly complex and reverse-engineered
-firmware interface. As the only benefit of doing so is to make sure that
-the UEFI (Windows) and Linux time never gets out of sync, it seems
-preferable to use the PMIC scratch registers for storing an offset
-instead. This also avoids flash wear in case of RTC drift, etc.
-
-So instead of using the UEFI RTC offset, reserve four bytes in one of
-the PMIC SDAM blocks to hold the RTC offset.
+Clean up the time and alarm callback debugging by using a consistent and
+succinct human-readable (i.e. non-raw) format.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- .../dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts    | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/rtc/rtc-pm8xxx.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-index db406f7774de..6e88e0bb6871 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-@@ -683,6 +683,21 @@ &pmk8280_pon_resin {
- 	status = "okay";
- };
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index 5ff6898bcace..8c364e5d3b57 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -83,7 +83,7 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	secs = rtc_tm_to_time64(tm);
+ 	put_unaligned_le32(secs, value);
  
-+&pmk8280_rtc {
-+	nvmem-cells = <&rtc_offset>;
-+	nvmem-cell-names = "offset";
-+
-+	status = "okay";
-+};
-+
-+&pmk8280_sdam_6 {
-+	status = "okay";
-+
-+	rtc_offset: rtc-offset@bc {
-+		reg = <0xbc 0x4>;
-+	};
-+};
-+
- &pmk8280_vadc {
- 	status = "okay";
+-	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
++	dev_dbg(dev, "set time: %ptRd %ptRt (%lu)\n", tm, tm, secs);
  
+ 	rc = regmap_update_bits_check(rtc_dd->regmap, regs->alarm_ctrl,
+ 				      regs->alarm_en, 0, &alarm_enabled);
+@@ -158,7 +158,7 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	secs = get_unaligned_le32(value);
+ 	rtc_time64_to_tm(secs, tm);
+ 
+-	dev_dbg(dev, "secs = %lu, h:m:s == %ptRt, y-m-d = %ptRdr\n", secs, tm, tm);
++	dev_dbg(dev, "read time: %ptRd %ptRt (%lu)\n", tm, tm, secs);
+ 
+ 	return 0;
+ }
+@@ -191,8 +191,7 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 			return rc;
+ 	}
+ 
+-	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
+-		&alarm->time, &alarm->time);
++	dev_dbg(dev, "set alarm: %ptRd %ptRt\n", &alarm->time, &alarm->time);
+ 
+ 	return 0;
+ }
+@@ -220,8 +219,7 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ 
+ 	alarm->enabled = !!(ctrl_reg & PM8xxx_RTC_ALARM_ENABLE);
+ 
+-	dev_dbg(dev, "Alarm set for - h:m:s=%ptRt, y-m-d=%ptRdr\n",
+-		&alarm->time, &alarm->time);
++	dev_dbg(dev, "read alarm: %ptRd %ptRt\n", &alarm->time, &alarm->time);
+ 
+ 	return 0;
+ }
 -- 
 2.39.1
 
