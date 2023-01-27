@@ -2,36 +2,43 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E48CBC54E94
-	for <linux-rtc@archiver.kernel.org>; Thu, 26 Jan 2023 16:06:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4CFBC61DA7
+	for <linux-rtc@archiver.kernel.org>; Fri, 27 Jan 2023 13:05:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232554AbjAZQG3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 26 Jan 2023 11:06:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S233042AbjA0NFD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 27 Jan 2023 08:05:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229606AbjAZQG2 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 26 Jan 2023 11:06:28 -0500
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::228])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BABDCA25E;
-        Thu, 26 Jan 2023 08:06:23 -0800 (PST)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id C8F8A1BF20C;
-        Thu, 26 Jan 2023 16:06:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1674749182;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=dz7ZrhSG/7//SAM3WUV6TQUEA7Ma7h1abeB1kwArUyQ=;
-        b=gx+VbNXAZowy/iiPGxv0wV8cdML21nDmwEwpBKavls2oV0QWiYsPjxfa+qiRUkctZve3a4
-        22Ai4cv1er/KzZVUb6wjyGX/JNJXE+AVroeZftDVbEByHwTzKbHhSlYHdS8el45IsqRa+X
-        8FY5Anyk+jTPfN9fA4LQd89kiRoM51fLxpZGjq7mdiczBq1hvHBQtGlHqdHdM1oXE6YWZe
-        3TlC7WFOu9jlHEbV7oe+TjInxKQ4XShAP8nker7vMEwqs5ILKAJjLi2gB1Emvnli7oYA6i
-        4PdmSW90ke8vMGH1rt8f42yfOJOxPg6zkpwljNoYSG3FV+bTFsy1RNsmSqc9fQ==
-Date:   Thu, 26 Jan 2023 17:06:20 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Johan Hovold <johan+linaro@kernel.org>
-Cc:     Bjorn Andersson <andersson@kernel.org>,
+        with ESMTP id S233250AbjA0NEn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 27 Jan 2023 08:04:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F31917CCAD;
+        Fri, 27 Jan 2023 05:04:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03523B81F21;
+        Fri, 27 Jan 2023 13:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C603C433EF;
+        Fri, 27 Jan 2023 13:04:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674824678;
+        bh=s2Kl2DFTjPfURrm0RC4TBfPUoYKL+iGruFychEwP8JI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BJghCqq5cgDU8pgSAyW0RJujDszQQxmqA3HnnnVs5m3L9NegM1AByLIVMFfiTncv6
+         Fm0HqtN9qnv1bMftwkPxidpLn5FuyLBjprgYUpUigPUtLFrMEwoJDjNREKhTy40xCu
+         3BakLwyCN/bGXcF7vYp5EAjRAu9ZWTeukbfIE9qguUJptfBzTNjBmKKQaaRi2hC8EL
+         J0c3ujHb29vhPyZm4oxQ3hi0LmiAhu+9TgEGyezNnQ/fU1SS0/TxNu5+K9L+2bOn6q
+         2gGqzb91/x7eKybEVBg628llCRZKLd/TBKG3XEABgLes0+MSqWLNkmMtSmIyCJlh8y
+         HeRFLmuymua3w==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1pLOPP-0008L8-Li; Fri, 27 Jan 2023 14:04:47 +0100
+Date:   Fri, 27 Jan 2023 14:04:47 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Andy Gross <agross@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -41,55 +48,56 @@ Cc:     Bjorn Andersson <andersson@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 17/24] rtc: pm8xxx: add copyright notice
-Message-ID: <Y9Kk/AYBUfnoPCcP@mail.local>
+Message-ID: <Y9PL73mTJZ3hayur@hovoldconsulting.com>
 References: <20230126142057.25715-1-johan+linaro@kernel.org>
  <20230126142057.25715-18-johan+linaro@kernel.org>
+ <Y9Kk/AYBUfnoPCcP@mail.local>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230126142057.25715-18-johan+linaro@kernel.org>
+In-Reply-To: <Y9Kk/AYBUfnoPCcP@mail.local>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 26/01/2023 15:20:50+0100, Johan Hovold wrote:
-> Add a copyright notice for Linaro and add myself as a (primary) author
-> of this driver.
+On Thu, Jan 26, 2023 at 05:06:20PM +0100, Alexandre Belloni wrote:
+> On 26/01/2023 15:20:50+0100, Johan Hovold wrote:
+> > Add a copyright notice for Linaro and add myself as a (primary) author
+> > of this driver.
+> > 
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> > ---
+> >  drivers/rtc/rtc-pm8xxx.c | 7 ++++++-
+> >  1 file changed, 6 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+> > index 09816b9f6282..25bdd804b4d2 100644
+> > --- a/drivers/rtc/rtc-pm8xxx.c
+> > +++ b/drivers/rtc/rtc-pm8xxx.c
+> > @@ -1,5 +1,9 @@
+> >  // SPDX-License-Identifier: GPL-2.0-only
+> > -/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+> > +/*
+> > + * pm8xxx RTC driver
+> > + *
+> > + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
+> > + * Copyright (c) 2023, Linaro Limited
 > 
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> ---
->  drivers/rtc/rtc-pm8xxx.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-> index 09816b9f6282..25bdd804b4d2 100644
-> --- a/drivers/rtc/rtc-pm8xxx.c
-> +++ b/drivers/rtc/rtc-pm8xxx.c
-> @@ -1,5 +1,9 @@
->  // SPDX-License-Identifier: GPL-2.0-only
-> -/* Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-> +/*
-> + * pm8xxx RTC driver
-> + *
-> + * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-> + * Copyright (c) 2023, Linaro Limited
+> Is this really useful? The authoritative source is going to be git
+> anyway.
 
-Is this really useful? The authoritative source is going to be git
-anyway.
+Sure, but in this case the driver ended up being almost completely
+reworked so I think it is warranted.
+ 
+> >   */
+> >  #include <linux/of.h>
+> >  #include <linux/module.h>
+> > @@ -551,3 +555,4 @@ MODULE_ALIAS("platform:rtc-pm8xxx");
+> >  MODULE_DESCRIPTION("PMIC8xxx RTC driver");
+> >  MODULE_LICENSE("GPL v2");
+> >  MODULE_AUTHOR("Anirudh Ghayal <aghayal@codeaurora.org>");
+> > +MODULE_AUTHOR("Johan Hovold <johan@kernel.org>");
+> > -- 
+> > 2.39.1
 
->   */
->  #include <linux/of.h>
->  #include <linux/module.h>
-> @@ -551,3 +555,4 @@ MODULE_ALIAS("platform:rtc-pm8xxx");
->  MODULE_DESCRIPTION("PMIC8xxx RTC driver");
->  MODULE_LICENSE("GPL v2");
->  MODULE_AUTHOR("Anirudh Ghayal <aghayal@codeaurora.org>");
-> +MODULE_AUTHOR("Johan Hovold <johan@kernel.org>");
-> -- 
-> 2.39.1
-> 
-
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Johan
