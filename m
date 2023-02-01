@@ -2,30 +2,29 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5188C64EC3
-	for <linux-rtc@archiver.kernel.org>; Wed,  1 Feb 2023 14:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ED24C05027
+	for <linux-rtc@archiver.kernel.org>; Wed,  1 Feb 2023 14:43:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbjBAOnM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 1 Feb 2023 09:43:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48814 "EHLO
+        id S232585AbjBAOnN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 1 Feb 2023 09:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjBAOnK (ORCPT
+        with ESMTP id S232513AbjBAOnK (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Feb 2023 09:43:10 -0500
-X-Greylist: delayed 488 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 01 Feb 2023 06:43:05 PST
-Received: from mail.fris.de (mail.fris.de [IPv6:2a01:4f8:c2c:390b::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6282E0D0;
+Received: from mail.fris.de (mail.fris.de [116.203.77.234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1992E825;
         Wed,  1 Feb 2023 06:43:04 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 663D9C033A;
-        Wed,  1 Feb 2023 15:35:04 +0100 (CET)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EA0A2C0330;
+        Wed,  1 Feb 2023 15:34:57 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fris.de; s=dkim;
-        t=1675262104; h=from:subject:date:message-id:to:cc:mime-version:
+        t=1675262099; h=from:subject:date:message-id:to:cc:mime-version:
          content-transfer-encoding:in-reply-to:references;
-        bh=lDLZ/xjvrtcN+1CWCH6iD2koCwn6Eb1LpwYqcz6QtGM=;
-        b=bZ55zZJ5eoXQhSN7w9SMB4VCaK51BKzgXkS33yOHee5bB2bhkPDekZpgtZ93c/YxCRE4lj
-        ucP6wYBafqEQ4SNVYXa+DD8qqy3gnRx0R01rnQWNjyWybCCtgxv9zgv4i8Tf3tBUmv3lBP
-        pFRu7HlgOucmf3Eb+CbBzy9BJLSWfwcbCA6r60JD0KySH1eEtuheqw9A4zQijH8Vq8t7k9
-        nQN+AWJYpWUnuilcqLkg7GvI4deowbc2IX/ABCe8mEG/QfFOrNopolv0QVTrPFn7dSpwBg
-        Ppc3o7UfL9AtjanRkaLAay/rCZYwQW21UmgD0hn7VmgT1YuFneII41Cba86oAw==
+        bh=hDg1hF2NZG1k6HPgl88QV1xEXYDBSAVmSwJrGIgDnCs=;
+        b=K8Sn9kFVdiKRSTQdmAJ99uubjckXX0hJqe5kiWAfiFUx38C+23x7+/xd7E/s7VaL4TU3g+
+        96gwIu0hLbSoIRppqatbdaf7J/iSUiZ9xBmhrcScR5VOqV01Kw3+3XcKV0rgCiubust8g8
+        CEwO2Xcaej3HLpsncemzwdp90EELfEWsS5gaWRxDlA5UjvaAuXZ+J/4ZugJE5Gk4so8DA/
+        MY8KvJNyp+KnDrJ6QUU+szz98Kfb3HVW0wAinePw08w3oi0PdEO7KaliaJNIcZxWdQNxqC
+        tPk4us47xOjJmGX/NbARdsWxt3w/fdSvIaaXfg+KFipW0WHsXk8pyAleEvB33A==
 From:   Frieder Schrempf <frieder@fris.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -33,10 +32,15 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
         Rob Herring <robh+dt@kernel.org>
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>
-Subject: [PATCH 4/7] rtc: Move BSM defines to separate header for DT usage
-Date:   Wed,  1 Feb 2023 15:34:26 +0100
-Message-Id: <20230201143431.863784-5-frieder@fris.de>
+Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 2/7] dt-bindings: rtc: Add backup-switch-mode property
+Date:   Wed,  1 Feb 2023 15:34:24 +0100
+Message-Id: <20230201143431.863784-3-frieder@fris.de>
 In-Reply-To: <20230201143431.863784-1-frieder@fris.de>
 References: <20230201143431.863784-1-frieder@fris.de>
 MIME-Version: 1.0
@@ -48,57 +52,32 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-To be able to use the BSM defines in the devicetree, move the defines
-to a separate header within the dt-bindings directory.
+Document the backups-switch-mode property that can be used to set the
+BSM via devicetree on devices like the RV3028.
 
 Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 ---
- include/dt-bindings/rtc/rtc.h | 11 +++++++++++
- include/uapi/linux/rtc.h      |  6 +-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
- create mode 100644 include/dt-bindings/rtc/rtc.h
+ Documentation/devicetree/bindings/rtc/rtc.yaml | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/dt-bindings/rtc/rtc.h b/include/dt-bindings/rtc/rtc.h
-new file mode 100644
-index 000000000000..b0cc06d368c0
---- /dev/null
-+++ b/include/dt-bindings/rtc/rtc.h
-@@ -0,0 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0 OR MIT */
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+index c6fff5486fe6..76b9605e755b 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+@@ -26,6 +26,13 @@ properties:
+       0: not chargeable
+       1: chargeable
+ 
++  backup-switch-mode:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    enum: [ 0, 1, 2, 3 ]
++    description:
++      The backup switch mode the RTC is forced into when registering
++      the device. See include/dt-bindings/rtc/rtc.h for a list of values.
 +
-+#ifndef _DT_BINDINGS_RTC_H
-+#define _DT_BINDINGS_RTC_H
-+
-+#define RTC_BSM_DISABLED	0
-+#define RTC_BSM_DIRECT		1
-+#define RTC_BSM_LEVEL		2
-+#define RTC_BSM_STANDBY		3
-+
-+#endif /* _DT_BINDINGS_RTC_H */
-diff --git a/include/uapi/linux/rtc.h b/include/uapi/linux/rtc.h
-index 97aca4503a6a..9e78c17b5733 100644
---- a/include/uapi/linux/rtc.h
-+++ b/include/uapi/linux/rtc.h
-@@ -12,6 +12,7 @@
- #ifndef _UAPI_LINUX_RTC_H_
- #define _UAPI_LINUX_RTC_H_
- 
-+#include <dt-bindings/rtc/rtc.h>
- #include <linux/const.h>
- #include <linux/ioctl.h>
- #include <linux/types.h>
-@@ -141,11 +142,6 @@ struct rtc_param {
- #define RTC_PARAM_CORRECTION		1
- #define RTC_PARAM_BACKUP_SWITCH_MODE	2
- 
--#define RTC_BSM_DISABLED	0
--#define RTC_BSM_DIRECT		1
--#define RTC_BSM_LEVEL		2
--#define RTC_BSM_STANDBY		3
--
- #define RTC_MAX_FREQ	8192
- 
- 
+   quartz-load-femtofarads:
+     description:
+       The capacitive load of the quartz(x-tal), expressed in femto
 -- 
 2.39.1
 
