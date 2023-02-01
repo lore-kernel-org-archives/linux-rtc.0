@@ -2,78 +2,108 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B4F0C38142
-	for <linux-rtc@archiver.kernel.org>; Tue, 31 Jan 2023 23:57:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8F1AC636D4
+	for <linux-rtc@archiver.kernel.org>; Wed,  1 Feb 2023 05:48:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbjAaX5z (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 31 Jan 2023 18:57:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45550 "EHLO
+        id S231300AbjBAFs2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 1 Feb 2023 00:48:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbjAaX5z (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 31 Jan 2023 18:57:55 -0500
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3256230E9;
-        Tue, 31 Jan 2023 15:57:53 -0800 (PST)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-15f97c478a8so21489519fac.13;
-        Tue, 31 Jan 2023 15:57:53 -0800 (PST)
+        with ESMTP id S231329AbjBAFs1 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Feb 2023 00:48:27 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0D3166E5;
+        Tue, 31 Jan 2023 21:48:22 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id t12-20020a17090aae0c00b00229f4cff534so2638361pjq.1;
+        Tue, 31 Jan 2023 21:48:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=tCn4l7XyJmqvO8YOLUdVG8XKO+1cKoU6pW7RtF3tr74=;
-        b=IzwooY+sBeq2MnjOtOpwvdVeZJFJhJySU3D2cF+O4XTn2J5TGIHfbkS5m9z0aootoi
-         NgRUo/ESY5IPAWz609HRTLPZOiBzgeFt9EHSCw1RE5Dow1gbmsd47N4D/1WUEH6bQthG
-         k6npYF3VU3fNnEH1wH0p+AyH6WHtV4oTemrtrbIt4iEZiQmA1w37CRiQdammZDXO4IMO
-         NiSiNez5FU4Ndx+WimDiV0fw2NOP2YdnIdrrwdwTCvMJ5tErPMJ43eSCg1OYEAPGVcS+
-         lyk3mRsLVFqFOHUM3m1ZMISJ/9WyLnY1zw36XHbc8QJwrgGdDAmgF6iH2FPnLZs6tq6w
-         FPGg==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2feaPTiFf6nFchWNFm62ii1folwFLguTnGsIZ0OJssw=;
+        b=YMpzAQ8fSIRxXawrqIgaOXYDEBG33SRSWpmrJnMmSK2OmQZgwHGwnRbudSsCj+yyxr
+         3rTv0zv0BkaTn18vomuhgoyWeFUmoeWGkQoBuUTf3erEAD98ucoD0r20wrTQSffGrGIW
+         qaR+uoKXBbLnFh7MGh7cIhqvQkPtLpkhzHv0VqK9lBQMS01ESJ5UZv9v7xu/eWFgmHZJ
+         rRrcPK4aZFTZbbQnoRXpPqVXPinXGowI1lPB3lxXcfDvE41gKH5hfQXejCqquluqsBEJ
+         Xc8J4DtqgF76zAOle7igHctSN7wHKCEfBQoz86Onk68CZW/sO5F9AwF030MvmWVJWF/z
+         8XbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=tCn4l7XyJmqvO8YOLUdVG8XKO+1cKoU6pW7RtF3tr74=;
-        b=XPMoK4Ilq7m+Z7Ft8ZSCUTh1N7K4ivKpcYPwZ8nRRk4998vU0gPD5f7E/3Inaxnm+v
-         LcujCiQBaknaZShii8cBhHuwJXL5+1zQCSv/WHT7qu9+Tpsmi63PotXatkftVDnWM3g9
-         KtfG7fFUhV2esWH9NDU//1KB16K1aCN67qoT63Qfm7IgtanjfDpAdD0hL6uESLjRJ0od
-         38DruiBzP4x9q9rrc0s0QIoeQAUSG3JEBIv7WfoPDEWx1mXVJugwplDIkIVAgTuFzTS0
-         dVAJ4V8QkSigrCTSq5/jDvnfONPaBDd6Bjo8vDQ+gsxaOjVOaUTdN/SUKIhhzo+LU22I
-         Ewcw==
-X-Gm-Message-State: AO0yUKUP+R37g21Xd3ESRbjHQzXk/2jnOZsT7DtHbozur9/YNlirnQMk
-        pTlyARL8wqgogfSiIybC/95rI8Uxf5z338X+i9gJQc/PJ1M=
-X-Google-Smtp-Source: AK7set/aCWzWuEyqapUB3071bHqGfTixl5dH1sOk6LZzWFxLlKNtaYfLDwh05ntlkd5cZpfYeUNQw8ahELSR+Vl7dwY=
-X-Received: by 2002:a05:6870:3913:b0:163:4ae7:f200 with SMTP id
- b19-20020a056870391300b001634ae7f200mr2022329oap.84.1675209471325; Tue, 31
- Jan 2023 15:57:51 -0800 (PST)
-MIME-Version: 1.0
-References: <20230130131024.695212-1-arnd@kernel.org>
-In-Reply-To: <20230130131024.695212-1-arnd@kernel.org>
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2feaPTiFf6nFchWNFm62ii1folwFLguTnGsIZ0OJssw=;
+        b=Px9bGtvh2qfHWksl7RpSKEaTyngELDTyLtwhNQdVhslko3I48CYYcoYribQsYu3ZU3
+         FuRP+uXUhGktayKO/ipZjXySP9mt3Zzp58HEhTR7jsa/9Fq7fYuDO3U+ZNMyyOD3Xiah
+         kvFhznMxlWLF+Cw1IdrbH48K7gjekIr19wJxJ4cjY38RI2bFGJZs9c4zw+MtVQK/xj59
+         JaI5mOcNUHRg4lpwH9oIusMRkL5C3ADJE0ilXccFJANGRMZbvyN2Xw9UbLcjxyw6Kfk7
+         YcJ09A8ttoYm7hVVROkmvBoLGmCLi1etCXEJuXLPvNJgbOlK8p5R3nP7P26/XCq44Eb1
+         xsNA==
+X-Gm-Message-State: AO0yUKVJZDIyjE+8r06wzyZozl9FtVu2FDO1G1CAzpVC2wNjPUPz8oqR
+        bb86Kd7VxEhies9CQOWZ9Tk=
+X-Google-Smtp-Source: AK7set9/DlMG+CPp/mVQehVhBkFrwmrOoHnW2npCWOboxIglzV+uSKWwQM1MOfN3MHrHHkOBv9jSFA==
+X-Received: by 2002:a17:903:1111:b0:196:6ec4:52db with SMTP id n17-20020a170903111100b001966ec452dbmr1854428plh.51.1675230502394;
+        Tue, 31 Jan 2023 21:48:22 -0800 (PST)
+Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:ce3a:44de:62b3:7a4b])
+        by smtp.gmail.com with ESMTPSA id w2-20020a1709027b8200b00196025a34b9sm7461575pll.159.2023.01.31.21.48.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Jan 2023 21:48:21 -0800 (PST)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Tue, 31 Jan 2023 15:57:37 -0800
-Message-ID: <CAKdAkRRnjdsQC_4qsjtHY1FfuPZ9vmV6gjDOeCzp7CZQATcUrw@mail.gmail.com>
-Subject: Re: [PATCH] rtc: moxart: convert to gpio descriptors
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH 2/3] dt-bindings: rtc: moxart: use proper names for gpio properties
+Date:   Tue, 31 Jan 2023 21:48:14 -0800
+Message-Id: <20230201054815.4112632-2-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.39.1.456.gfc5497dd1b-goog
+In-Reply-To: <20230201054815.4112632-1-dmitry.torokhov@gmail.com>
+References: <20230201054815.4112632-1-dmitry.torokhov@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Jan 30, 2023 at 5:29 AM Arnd Bergmann <arnd@kernel.org> wrote:
->
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> The conversion is fairly simple as the driver only has DT based
-> probing, and all the gpio calls have a direct replacement.
+MOXA ART RTC driver has been switched to gpiod API and is now using
+properly named properties for its gpios (with gpiolib implementing a
+quirk to recognize legacy names). Change binding document to use
+proper names as well.
 
-This is plain broken :( You cannot directly replace
-of_get_named_gpio() with non-standartly-formatted GPIO name with
-devm_gpiod_get().
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ .../devicetree/bindings/rtc/moxa,moxart-rtc.txt      | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt b/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
+index c9d3ac1477fe..1374df7bf9d6 100644
+--- a/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
++++ b/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
+@@ -3,15 +3,15 @@ MOXA ART real-time clock
+ Required properties:
+ 
+ - compatible : Should be "moxa,moxart-rtc"
+-- gpio-rtc-sclk : RTC sclk gpio, with zero flags
+-- gpio-rtc-data : RTC data gpio, with zero flags
+-- gpio-rtc-reset : RTC reset gpio, with zero flags
++- rtc-sclk-gpios : RTC sclk gpio, with zero flags
++- rtc-data-gpios : RTC data gpio, with zero flags
++- rtc-reset-gpios : RTC reset gpio, with zero flags
+ 
+ Example:
+ 
+ 	rtc: rtc {
+ 		compatible = "moxa,moxart-rtc";
+-		gpio-rtc-sclk = <&gpio 5 0>;
+-		gpio-rtc-data = <&gpio 6 0>;
+-		gpio-rtc-reset = <&gpio 7 0>;
++		rtc-sclk-gpios = <&gpio 5 0>;
++		rtc-data-gpios = <&gpio 6 0>;
++		rtc-reset-gpios = <&gpio 7 0>;
+ 	};
 -- 
-Dmitry
+2.39.1.456.gfc5497dd1b-goog
+
