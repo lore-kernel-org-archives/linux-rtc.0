@@ -2,81 +2,117 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2698BC63797
-	for <linux-rtc@archiver.kernel.org>; Wed,  1 Feb 2023 14:43:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A102C38142
+	for <linux-rtc@archiver.kernel.org>; Wed,  1 Feb 2023 16:09:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbjBAOnQ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 1 Feb 2023 09:43:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48880 "EHLO
+        id S232515AbjBAQJh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 1 Feb 2023 11:09:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232536AbjBAOnM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Feb 2023 09:43:12 -0500
-Received: from mail.fris.de (mail.fris.de [IPv6:2a01:4f8:c2c:390b::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6052E82E;
-        Wed,  1 Feb 2023 06:43:03 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 75799BFC6C;
-        Wed,  1 Feb 2023 15:34:48 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fris.de; s=dkim;
-        t=1675262091; h=from:subject:date:message-id:to:cc:mime-version:
-         content-transfer-encoding; bh=jpzkr24nHKJp5IYEK48VP/WYJnaAAqAY3mtPMKQ4JTk=;
-        b=EyhNDpImLtYrLnSp9RszhmfZjgngLI5STcz8zOdrh17GinHCp5YJE3zgtszbPSiQnpAnae
-        xNdr4zrlZ0mKxAUaBUSqQJuGlTP2/pCqfbrB5/hovHvR+PojO5PttjnGFIcnjJ31qp23nr
-        KdZlZTyJbhqvHE24LaQGzhdy4qYwLM4nxNYHAe/PUIY61wf7idcvDamcz4jI6virl51pHY
-        jpdHe8kKUEDGJjPiRr0KhLIL4GZhloH23lwsCEaQ1ykSVM7YcpFDTIMNYXmkKDs1IVwsqR
-        A9x7BKDpE/1rj0AeNSB3yW+hOWuKYYiBQdV0CGzRcpIomE9IBP6lCZc8K2iNeA==
-From:   Frieder Schrempf <frieder@fris.de>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
+        with ESMTP id S232135AbjBAQJg (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 1 Feb 2023 11:09:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A6326A6;
+        Wed,  1 Feb 2023 08:09:35 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8FFB6172E;
+        Wed,  1 Feb 2023 16:09:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56A11C433EF;
+        Wed,  1 Feb 2023 16:09:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675267774;
+        bh=OFFjipLLeQzikky+LqTRKkqTej58cv5vGpMRCQQNo04=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SsrkQlAySNT9T4qTChhsbieGUNSl3Lrv5aqnwB8d2ACOwkYCE9Lj6FxsMc28mSb13
+         rkwOnTuuMMwPN6vksKjY49Gs7H3hzKCldVN2gE9ZUzmZZPQqqixwkwLLT+ycRaxhZU
+         4sNUcpgEE76kzKHXx0vlAujb3J6YiuFdOqHen0fx7q9teXxE47FzeQdxShky6AfkBd
+         8zk/nkucfPLWshM1UI8ENSM5Pym3mq8rN2/k9SkD4QUQmaSBxAM+VuUV/gHQWMZOrs
+         kfd8R5FL+VNCbfwo1eYUVO26VuJrco88CcCkznENly8sBQqKbF5qZnm8898BidQBR5
+         RXqcRSaScpvmw==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1pNFgJ-00078p-HR; Wed, 01 Feb 2023 17:09:55 +0100
+Date:   Wed, 1 Feb 2023 17:09:55 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 0/7] Enable backup switch mode on RTCs via devicetree
-Date:   Wed,  1 Feb 2023 15:34:22 +0100
-Message-Id: <20230201143431.863784-1-frieder@fris.de>
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: Re: [RFC 18/24] dt-bindings: rtc: qcom-pm8xxx: add uefi-variable
+ offset
+Message-ID: <Y9qO0yQ7oLux2L9n@hovoldconsulting.com>
+References: <20230126142057.25715-1-johan+linaro@kernel.org>
+ <20230126142057.25715-19-johan+linaro@kernel.org>
+ <20230130184944.GA3096050-robh@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230130184944.GA3096050-robh@kernel.org>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+[ +CC: Ard ]
 
-Some RTC devices like the RV3028 have BSM disabled as factory default.
-This makes the RTC quite useless if it is expected to preserve the
-time on hardware that has a battery-buffered supply for the RTC.
+On Mon, Jan 30, 2023 at 12:49:44PM -0600, Rob Herring wrote:
+> On Thu, Jan 26, 2023 at 03:20:51PM +0100, Johan Hovold wrote:
+> > On many Qualcomm platforms the PMIC RTC control and time registers are
+> > read-only so that the RTC time can not be updated. Instead an offset
+> > needs be stored in some machine-specific non-volatile memory, which a
+> > driver can take into account.
+> > 
+> > Add a 'qcom,uefi-rtc-info' boolean flag which indicates that the RTC
+> > offset is stored in a Qualcomm specific UEFI variable so that the RTC
+> > time can be updated on such platforms.
+> > 
+> > The UEFI variable is
+> > 
+> > 	882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
+> > 
+> > and holds a 12-byte structure where the first four bytes is a GPS time
+> > offset in little-endian byte order.
+> 
+> Can't you just try to read the UEFI variable and use it if that 
+> succeeds?
 
-Let boards that have a buffered supply for the RTC force the BSM to the
-desired value via devicetree by setting the 'backup-switch-mode' property.
+Generally, yes. The problem here is that this UEFI variable is not used
+on all devices using these PMICs and I need a way to determine whether
+to wait for the UEFI variables to become available or not (e.g. when
+efivars support is built as module, yes, that's a thing now...).
 
-That way the RTC on the boards work as one would expect them to do without
-any per-board intervention through userspace tools to enable BSM.
+> I don't like this in DT because what if lots of devices start storing 
+> lots of things in vendor specific UEFI variables. It doesn't scale.
 
-Frieder Schrempf (7):
-  dt-bindings: rtc: Move RV3028 to separate binding file
-  dt-bindings: rtc: Add backup-switch-mode property
-  dt-bindings: rtc: microcrystal,rv3032: Add backup-switch-mode property
-  rtc: Move BSM defines to separate header for DT usage
-  rtc: class: Support setting backup switch mode from devicetree
-  arm64: dts: imx8mm-kontron: Remove useless trickle-diode-disable from
-    RTC node
-  arm64: dts: imx8mm-kontron: Enable backup switch mode for RTC on OSM-S
-    module
+I hope we won't see that even if we already have some devices for x86
+platforms storing MAC addresses and such in UEFI variables. They
+currently access the UEFI firmware directly (i.e. not using the efivars
+abstraction) and simply assume UEFI is always there.
 
- .../bindings/rtc/microcrystal,rv3028.yaml     | 60 +++++++++++++++++++
- .../devicetree/bindings/rtc/rtc.yaml          |  7 +++
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |  2 -
- .../dts/freescale/imx8mm-kontron-osm-s.dtsi   |  3 +-
- drivers/rtc/class.c                           | 14 +++++
- include/dt-bindings/rtc/rtc.h                 | 11 ++++
- include/uapi/linux/rtc.h                      |  6 +-
- 7 files changed, 95 insertions(+), 8 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
- create mode 100644 include/dt-bindings/rtc/rtc.h
+With the Google SMI efivars implementation or the new Qualcomm SMC-based
+one, we need a way to determine whether to wait for efivars to become
+registered. For drivers where efivars is always needed we can just probe
+defer, but in this case we should not wait unless the DT indicates that
+the RTC offset is stored in UEFI on this particular machine.
 
--- 
-2.39.1
+Just as the nvmem-cell property indicates that the offset is stored in
+some abstract nvmem, it seems reasonable to describe the offset being
+stored in UEFI when that is the case (even if it is indeed generally
+possible to probe for the latter).
+
+An alternative might be to describe the efivars fw dependency in DT too
+(e.g. for device links), but I believe you have already expressed some
+concerns over that:
+
+	https://lore.kernel.org/lkml/20230130210530.GA3339716-robh@kernel.org/
+
+Johan
