@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ABC7C677F1
-	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC31EC61DA4
+	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:56:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233417AbjBBPzy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 2 Feb 2023 10:55:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
+        id S233085AbjBBP4K (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 2 Feb 2023 10:56:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233223AbjBBPzH (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:55:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F67AAD0E;
-        Thu,  2 Feb 2023 07:54:57 -0800 (PST)
+        with ESMTP id S233304AbjBBPzX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:55:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 171E56B981;
+        Thu,  2 Feb 2023 07:55:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5CE8B826EE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31A9D61C17;
         Thu,  2 Feb 2023 15:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81EAAC4332A;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81D9FC43325;
         Thu,  2 Feb 2023 15:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675353285;
-        bh=6djvmuAChIFeJKMJvy/scNkMFP3hnJhKKtF5jokukOg=;
+        bh=R+lcw9Z2ly5fSK4ncGho+OoAniIGSr6RfBUKPnF3huQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6SUVO4EU/hNfLuDItJpqcKznhgeYxVBZ/K3xDo5aYROrdPEufLEreqp+tJ3cx9KO
-         sj64n7NicEFNeLfV4pvxV8pG/7BBfCZQ78Mw3hHpcPnouII3C3EWZFTvjiwoKpK6kS
-         JHkiwSPykZmX8Qpeadpi5HMoz6i6hiaJbM4lrIug2C0DauZccDlCfjO4I77ZpOMgYl
-         z+kV4YNeNLhx9nhbJMun7gik9M2+hMXXV8lWRwIhAwfuTWR1JCeqM+2GV5qp96qIQP
-         23+gLx62W6skWuZzxBYD+lmyYybQ3wka9VcCKiWUitb6B6bdYn4WQEKBjr7/zFiQQt
-         8av9qE2G7ywaA==
+        b=dJTGKfmkOkJW8WtINBZiQDfxE7K3e6wJXYEg7cIL40tdNmbNmZU0PR/1kkzxbDY5s
+         iCEixiUWWsoxrEcOfV9s9utyzSUq72Jg3zBiwUqUx5Pv20OkQ1sYERTfHWmmyQXyCO
+         dxqW6PvhJCf2b5sUotRJVA9sxKKWEExG3qKecPmdeLbFLKqjvCbCJuDrHN7FGFMVQN
+         h0hAa5yJYR4NJeZ7akIOewCGDp8fWjrmy3UNAGD9pEcdQiDuqc2fheIN2BY4DDvl8n
+         Pxt5idCSvUb8367cYafEmpRLOSCaqcU3qNhTfS1HXaQyoGHQltC0BUi5NCKCSHRBSx
+         5YmysIL2chG2A==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pNbva-0001mj-Ey; Thu, 02 Feb 2023 16:55:10 +0100
+        id 1pNbva-0001mg-Bk; Thu, 02 Feb 2023 16:55:10 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 22/22] arm64: dts: qcom: sc8280xp-x13s: enable rtc
-Date:   Thu,  2 Feb 2023 16:54:48 +0100
-Message-Id: <20230202155448.6715-23-johan+linaro@kernel.org>
+Subject: [PATCH v2 21/22] arm64: dts: qcom: sc8280xp-crd: enable rtc
+Date:   Thu,  2 Feb 2023 16:54:47 +0100
+Message-Id: <20230202155448.6715-22-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
 References: <20230202155448.6715-1-johan+linaro@kernel.org>
@@ -58,7 +58,7 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Lenovo X13s firmware does not implement the UEFI time runtime
+The SC8280XP CRD firmware does not implement the UEFI time runtime
 services so the RTC in the PM8280K PMIC needs to be accessed directly.
 
 To complicate things further, the RTC control and time registers are
@@ -74,26 +74,29 @@ but the offset can only be accessed via the Qualcomm UEFI Secure
 Application residing in the TEE as the firmware does not implement the
 variable runtime services either.
 
-While it is possible to access this UEFI variable from Linux on the
-X13s, this requires using a fairly complex and reverse-engineered
-firmware interface. As the only benefit of doing so is to make sure that
-the UEFI (Windows) and Linux time never gets out of sync, it seems
-preferable to use the PMIC scratch registers for storing an offset
-instead. This also avoids flash wear in case of RTC drift, etc.
+While it is possible to access this UEFI variable from Linux on the CRD,
+this requires using a fairly complex and reverse-engineered firmware
+interface. As the only benefit of doing so is to make sure that the UEFI
+(Windows) and Linux time never gets out of sync, it seems preferable to
+use the PMIC scratch registers for storing an offset instead. This also
+avoids flash wear in case of RTC drift, etc.
+
+Also note that setting variables using this interface does not work on
+at least one CRD for reasons not yet known.
 
 So instead of using the UEFI RTC offset, reserve four bytes in one of
 the PMIC SDAM scratch-register blocks to hold the RTC offset.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- .../dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts    | 15 +++++++++++++++
+ arch/arm64/boot/dts/qcom/sc8280xp-crd.dts | 15 +++++++++++++++
  1 file changed, 15 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-index db406f7774de..6e88e0bb6871 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-@@ -683,6 +683,21 @@ &pmk8280_pon_resin {
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
+index 3e0cbacb0641..73b7507b956a 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
+@@ -499,6 +499,21 @@ &pmk8280_pon_pwrkey {
  	status = "okay";
  };
  
@@ -112,9 +115,9 @@ index db406f7774de..6e88e0bb6871 100644
 +	};
 +};
 +
- &pmk8280_vadc {
+ &qup0 {
  	status = "okay";
- 
+ };
 -- 
 2.39.1
 
