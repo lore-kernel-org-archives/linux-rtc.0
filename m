@@ -2,239 +2,105 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27B3EC636D6
-	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:56:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B9C7C61DA4
+	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 23:23:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbjBBP4w (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 2 Feb 2023 10:56:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57078 "EHLO
+        id S231679AbjBBXXH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 2 Feb 2023 18:23:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233043AbjBBPyy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:54:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF5839B8F;
-        Thu,  2 Feb 2023 07:54:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B776961BF5;
-        Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F197C4339E;
-        Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675353284;
-        bh=PJLRhF0N1IQ7Gq3TQcph77IiU5e79uPUOVm8qGIdNmg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cdk/5Zo0AQs7i+8rPf6s0KwPi3GXahlPSo2f260LtUYREerBYzBXokmM8B0ywcy+F
-         7/2vD8+BqxP8GarUZux1Fn40TKxs0wXSEr2sKec3vssd8oQE40dfU2uP9VaO6zL+83
-         HHpZXWv+9WuHNVpF6CdCSnq0x3zeHAbclDKdoEAK+wur8r1i/1yv5srlAlxZYXf6Lz
-         tqMGDxZblG0QjjbuT7cbQjfaEnJ2NxdPWXTVP1ICs+fVE+GqoqPd23y9olDlrcWGlh
-         HtHRmW489LEVt3ETdBEjsvg+JOV9BpIkxSPWsbDM61VpSgNpXrFF6eYGXPNpGa/fRn
-         jYRQk+1t+pRPg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1pNbvY-0001ln-Oe; Thu, 02 Feb 2023 16:55:08 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        with ESMTP id S231322AbjBBXXE (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 18:23:04 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B186A5BA8;
+        Thu,  2 Feb 2023 15:23:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675380182; x=1706916182;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=bn6l3TxTIC/CqdrEgmBOI9ZWD5WN5Blzw4xC/dDljDU=;
+  b=mo7SIiuZjuJ6avi+67Gm5EXkL1WImd98ih1TtOezlfLIdLpLvmC1E/5m
+   1cyaXa6rgCYLdb3vqKxpm/1560Ngs4hKuSx85uPQ/Z46Z9orPmq6/cPdV
+   mcb6R5lK7i6huRnJ7av76McbmFdkuXxUBe2Ajh7np+Qd0aqoptrOTbCGt
+   49uiC/gUqoeZd8onMo9j34dYv0dlMkTG+GPEI4/jkOku/IxPRUEbzFv7f
+   k0NvNLAV1a5/kVK5X3YBrh/I7XPcok+Ow1H5Ea/vje5nG3yLZTMbTxzwJ
+   85PdZKdV40DLhJL6kY3hF8Y7ZI4RAjxQdM1CD7Mkl1Xr+r6MCQf7Vv5P8
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10609"; a="355939761"
+X-IronPort-AV: E=Sophos;i="5.97,268,1669104000"; 
+   d="scan'208";a="355939761"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2023 15:23:01 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10609"; a="643076420"
+X-IronPort-AV: E=Sophos;i="5.97,268,1669104000"; 
+   d="scan'208";a="643076420"
+Received: from lkp-server01.sh.intel.com (HELO ffa7f14d1d0f) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 02 Feb 2023 15:22:55 -0800
+Received: from kbuild by ffa7f14d1d0f with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pNius-0006wa-2r;
+        Thu, 02 Feb 2023 23:22:54 +0000
+Date:   Fri, 3 Feb 2023 07:22:50 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Frieder Schrempf <frieder@fris.de>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 03/22] rtc: pm8xxx: use regmap_update_bits()
-Date:   Thu,  2 Feb 2023 16:54:29 +0100
-Message-Id: <20230202155448.6715-4-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
-References: <20230202155448.6715-1-johan+linaro@kernel.org>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     oe-kbuild-all@lists.linux.dev,
+        Frieder Schrempf <frieder.schrempf@kontron.de>
+Subject: Re: [PATCH 4/7] rtc: Move BSM defines to separate header for DT usage
+Message-ID: <202302030706.gBkl14ay-lkp@intel.com>
+References: <20230201143431.863784-5-frieder@fris.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230201143431.863784-5-frieder@fris.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Switch to using regmap_update_bits() instead of open coding
-read-modify-write accesses.
+Hi Frieder,
 
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/rtc/rtc-pm8xxx.c | 87 ++++++++++------------------------------
- 1 file changed, 22 insertions(+), 65 deletions(-)
+Thank you for the patch! Yet something to improve:
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index f49bda999e02..8c2847ac64f4 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -78,10 +78,10 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	int rc, i;
- 	unsigned long secs, irq_flags;
--	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
--	unsigned int ctrl_reg, rtc_ctrl_reg;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u8 value[NUM_8_BIT_RTC_REGS];
-+	bool alarm_enabled;
- 
- 	if (!rtc_dd->allow_set_time)
- 		return -ENODEV;
-@@ -97,31 +97,16 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
-+	rc = regmap_update_bits_check(rtc_dd->regmap, regs->alarm_ctrl,
-+				      regs->alarm_en, 0, &alarm_enabled);
- 	if (rc)
- 		goto rtc_rw_fail;
- 
--	if (ctrl_reg & regs->alarm_en) {
--		alarm_enabled = 1;
--		ctrl_reg &= ~regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--		if (rc)
--			goto rtc_rw_fail;
--	}
--
- 	/* Disable RTC H/w before writing on RTC register */
--	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE, 0);
- 	if (rc)
- 		goto rtc_rw_fail;
- 
--	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
--		rtc_disabled = 1;
--		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
--		if (rc)
--			goto rtc_rw_fail;
--	}
--
- 	/* Write 0 to Byte[0] */
- 	rc = regmap_write(rtc_dd->regmap, regs->write, 0);
- 	if (rc)
-@@ -139,16 +124,14 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		goto rtc_rw_fail;
- 
- 	/* Enable RTC H/w after writing on RTC register */
--	if (rtc_disabled) {
--		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
--		if (rc)
--			goto rtc_rw_fail;
--	}
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE,
-+				PM8xxx_RTC_ENABLE);
-+	if (rc)
-+		goto rtc_rw_fail;
- 
- 	if (alarm_enabled) {
--		ctrl_reg |= regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
- 		if (rc)
- 			goto rtc_rw_fail;
- 	}
-@@ -275,21 +258,18 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- 	unsigned long irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
--	unsigned int ctrl_reg;
- 	u8 value[NUM_8_BIT_RTC_REGS] = {0};
-+	unsigned int val;
- 
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
--
- 	if (enable)
--		ctrl_reg |= regs->alarm_en;
-+		val = regs->alarm_en;
- 	else
--		ctrl_reg &= ~regs->alarm_en;
-+		val = 0;
- 
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, val);
- 	if (rc)
- 		goto rtc_rw_fail;
- 
-@@ -318,7 +298,6 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- {
- 	struct pm8xxx_rtc *rtc_dd = dev_id;
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
--	unsigned int ctrl_reg;
- 	int rc;
- 
- 	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
-@@ -326,15 +305,8 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- 	spin_lock(&rtc_dd->ctrl_reg_lock);
- 
- 	/* Clear the alarm enable bit */
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc) {
--		spin_unlock(&rtc_dd->ctrl_reg_lock);
--		goto rtc_alarm_handled;
--	}
--
--	ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
- 	if (rc) {
- 		spin_unlock(&rtc_dd->ctrl_reg_lock);
- 		goto rtc_alarm_handled;
-@@ -343,13 +315,11 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- 	spin_unlock(&rtc_dd->ctrl_reg_lock);
- 
- 	/* Clear RTC alarm register */
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl2, &ctrl_reg);
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
-+				PM8xxx_RTC_ALARM_CLEAR, 0);
- 	if (rc)
- 		goto rtc_alarm_handled;
- 
--	ctrl_reg |= PM8xxx_RTC_ALARM_CLEAR;
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl2, ctrl_reg);
--
- rtc_alarm_handled:
- 	return IRQ_HANDLED;
- }
-@@ -357,22 +327,9 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- static int pm8xxx_rtc_enable(struct pm8xxx_rtc *rtc_dd)
- {
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
--	unsigned int ctrl_reg;
--	int rc;
--
--	/* Check if the RTC is on, else turn it on */
--	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
--	if (rc)
--		return rc;
- 
--	if (!(ctrl_reg & PM8xxx_RTC_ENABLE)) {
--		ctrl_reg |= PM8xxx_RTC_ENABLE;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
--		if (rc)
--			return rc;
--	}
--
--	return 0;
-+	return regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE,
-+				  PM8xxx_RTC_ENABLE);
- }
- 
- static const struct pm8xxx_rtc_regs pm8921_regs = {
+[auto build test ERROR on robh/for-next]
+[also build test ERROR on arm/for-next arm/fixes arm64/for-next/core kvmarm/next rockchip/for-next shawnguo/for-next soc/for-next xilinx-xlnx/master linus/master v6.2-rc6]
+[cannot apply to abelloni/rtc-next next-20230202]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Frieder-Schrempf/dt-bindings-rtc-Move-RV3028-to-separate-binding-file/20230201-224450
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git for-next
+patch link:    https://lore.kernel.org/r/20230201143431.863784-5-frieder%40fris.de
+patch subject: [PATCH 4/7] rtc: Move BSM defines to separate header for DT usage
+config: x86_64-randconfig-a004 (https://download.01.org/0day-ci/archive/20230203/202302030706.gBkl14ay-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-8) 11.3.0
+reproduce (this is a W=1 build):
+        # https://github.com/intel-lab-lkp/linux/commit/2dfe054992e73c8da87d242a35a30d969d87b1a0
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Frieder-Schrempf/dt-bindings-rtc-Move-RV3028-to-separate-binding-file/20230201-224450
+        git checkout 2dfe054992e73c8da87d242a35a30d969d87b1a0
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 O=build_dir ARCH=x86_64 olddefconfig
+        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+   In file included from <command-line>:
+>> ./usr/include/linux/rtc.h:15:10: fatal error: dt-bindings/rtc/rtc.h: No such file or directory
+      15 | #include <dt-bindings/rtc/rtc.h>
+         |          ^~~~~~~~~~~~~~~~~~~~~~~
+   compilation terminated.
+
 -- 
-2.39.1
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
