@@ -2,107 +2,87 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0103C05027
-	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19455C05027
+	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231932AbjBBPWF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 2 Feb 2023 10:22:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
+        id S232625AbjBBPzB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 2 Feb 2023 10:55:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231614AbjBBPWE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:22:04 -0500
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FD65FED;
-        Thu,  2 Feb 2023 07:22:02 -0800 (PST)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id EDF5020008;
-        Thu,  2 Feb 2023 15:21:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1675351320;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=XNx1XchKzZSpJj1ujuH5U8jbslu3IqnhbHCw5cDW5jA=;
-        b=H4oDQ+Rr6ysWLSLtwPnOshk7gxyK4XPM8IhyHwwekTj89qge2tw0MGZKE2yyxZmoXIF3aI
-        d2jyqmfARSMb9Px1aT4/kcyggNP5xc8QxbN/ejBPJX8mQSWIHr61pm9L42+/zt0TdAqllZ
-        VG1SbAHJFYqWlN0WvhjCvfdZB0dQJ6P4ONDtCYVj7Puxgnvk9S33bYez3XyKbq3ioL8hoC
-        ThE2ituKWy0IrzYunOJsC3WnKlkVUJKZAoGLm54qkrU9Naqj8NnUdocTSIUzlt+vy7sh16
-        Oq9laYHpnjbQICtGKwFipH+TW49NsSrQcK15IimUGekqKnubwY851Kf+bbW2dQ==
-Date:   Thu, 2 Feb 2023 16:21:58 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Andy Gross <agross@kernel.org>,
+        with ESMTP id S233076AbjBBPy4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:54:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5DFD5CE68;
+        Thu,  2 Feb 2023 07:54:46 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72E2FB826E5;
+        Thu,  2 Feb 2023 15:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183E3C433A4;
+        Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675353284;
+        bh=+e6vabk7nnIxKnRB4DqirjDl+9Kx3GaOJxRWKeLLfb0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ciZXDGizJFd1TJYfJJ/zS/Q8jiKYC7lr27aPbJQ38ShGvTs4ajMm8t3XmKzfDviVT
+         CFTE2visdDCHaZGNqG/i/LnRq+IHZRtbCgJs2R/Te4G0oHNHSAm5cEXk3tLv7n5MJ/
+         +RK1vfbEoqzKE+wXXw2Buugo8fv+VIbgejO6htZEjbRFXaNKr84Em6KgRKemmJyhap
+         4DpiB5jvwTIn9YTSP2zlXZ7J0Dp1QqCpcUIv8IEEdVTYNA93t2CvcCoTfn5d6eMEQw
+         /KIMQjWG7G98uNySrX1ICfmLoVf6lj+osMK6n8gDvRgnoLLIbPWCiLMVmo1+uS9CA8
+         q0BJbuLUkFStQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1pNbvZ-0001lw-1n; Thu, 02 Feb 2023 16:55:09 +0100
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Bjorn Andersson <andersson@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Maximilian Luz <luzmaximilian@gmail.com>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 16/24] rtc: pm8xxx: add support for nvmem offset
-Message-ID: <Y9vVFtoIXglQpplh@mail.local>
-References: <20230126142057.25715-1-johan+linaro@kernel.org>
- <20230126142057.25715-17-johan+linaro@kernel.org>
- <Y9PpQkW3Rtm+bi2V@mail.local>
- <Y9Py/+GpI8x8ldDG@hovoldconsulting.com>
- <Y9P2L9sNiHIZt3On@mail.local>
- <Y9vS4TpVHDnGN0G/@hovoldconsulting.com>
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH v2 06/22] rtc: pm8xxx: drop unused register defines
+Date:   Thu,  2 Feb 2023 16:54:32 +0100
+Message-Id: <20230202155448.6715-7-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
+References: <20230202155448.6715-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9vS4TpVHDnGN0G/@hovoldconsulting.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 02/02/2023 16:12:33+0100, Johan Hovold wrote:
-> On Fri, Jan 27, 2023 at 05:05:03PM +0100, Alexandre Belloni wrote:
-> > On 27/01/2023 16:51:27+0100, Johan Hovold wrote:
-> 
-> > > > > @@ -380,9 +478,23 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
-> > > > >  	rtc_dd->allow_set_time = of_property_read_bool(pdev->dev.of_node,
-> > > > >  						      "allow-set-time");
-> > > > >  
-> > > > > +	rtc_dd->nvmem_cell = devm_nvmem_cell_get(&pdev->dev, "offset");
-> > > > 
-> > > > Maybe we should get something more specific than just "offset" so this
-> > > > could be parsed in the RTC core at some point (this is the second RTC to
-> > > > behave like this)
-> > > 
-> > > Yes, that thought crossed my mind, but it's an nvmem cell name (label)
-> > > and not a generic devicetree property. If you look at the binding
-> > > document I think the name makes sense given the current description, and
-> > > I'm not sure changing to something like 'base' would be much of an
-> > > improvement.
-> > > 
-> > > I also don't expect there to be more broken RTCs out there like these
-> > > ones. Hopefully Qualcomm will even get this fixed at some point
-> > > themselves.
-> > > 
-> > > And I assume you were think of the old Atmel driver which uses a timer
-> > > counter and a scratch register as a base? That one is also a bit
-> > > different in that the timer can be reset, just not set.
-> > 
-> > Nope, I'm thinking about the gamecube one and probably the nintendo
-> > switch one which seems to behave similarly (no driver in the kernel
-> > though).
-> 
-> Found the gamecube one now (misread you comment above to imply that it
-> was also out of tree).
-> 
-> That one is also different in that the timer in that RTC can also be
-> set (e.g. like the atmel one), but for consistency with some firmware an
-> offset also needs to be read from SRAM (not NVRAM) and applied. That
-> offset is also never updated by Linux.
+Drop the original register defines which have been used since commit
+c8d523a4b053 ("drivers/rtc/rtc-pm8xxx.c: rework to support pm8941 rtc").
 
-Yeah, I deally, the gamecube counter shouldn't be updated, the switch
-one doesn't seem to be updatable. I guess the idea being that games need
-to be able to know if you are messing with the RTC to get an advantage.
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ drivers/rtc/rtc-pm8xxx.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-
+diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+index dc7e659cbb2a..90027a7cfb12 100644
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -12,12 +12,6 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ 
+-/* RTC Register offsets from RTC CTRL REG */
+-#define PM8XXX_ALARM_CTRL_OFFSET	0x01
+-#define PM8XXX_RTC_WRITE_OFFSET		0x02
+-#define PM8XXX_RTC_READ_OFFSET		0x06
+-#define PM8XXX_ALARM_RW_OFFSET		0x0A
+-
+ /* RTC_CTRL register bit fields */
+ #define PM8xxx_RTC_ENABLE		BIT(7)
+ #define PM8xxx_RTC_ALARM_CLEAR		BIT(0)
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.39.1
+
