@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 604B5C636D7
-	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B665C61DA4
+	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233311AbjBBPzb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 2 Feb 2023 10:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57296 "EHLO
+        id S233317AbjBBPzc (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 2 Feb 2023 10:55:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233156AbjBBPzF (ORCPT
+        with ESMTP id S233181AbjBBPzF (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:55:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E90059B7F;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215E35CD0B;
         Thu,  2 Feb 2023 07:54:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 736CD61C18;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EA6861C27;
         Thu,  2 Feb 2023 15:54:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C11E0C433A7;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D09F4C432C6;
         Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675353284;
-        bh=/YRM5Ic3ZY+jzd9X9EDvX7MvH3WHxEA0VUrC4Satfvw=;
+        bh=g8tBszJ6bi4ZqUD9po9Mp1LVkFHLLnMzDqeejdkoUk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3c+cuq38lydsmyCdWn2pChmJPkNQJYH+sUZQiqqbvDW4yuypjcTgAynTgvTCevti
-         2ei4pAWza9t8VSeB869xiCJLxkjt8xHzf0FCyAT0aVGeFXkjr1WeXdb820rVrvVi0R
-         hANkyEawt78gcjwqQQF7JJNxyYbIDf2fKYiUmR80iHc0ZxWLnxMmSyrDjj+I4tJd92
-         CY2/t4EWAONaAVboPjAu9oF6ZrbC1FOHeTVXowS6Xpsz4uM7FBXG1m1dSQdnA0xES9
-         hdDFReBoOaeiTL+X3pTKV7GBqJ1Zi2uErgjm9ksHEwFJ43kO9oBuwML8R4jTvBTOyo
-         AuZXgVp4JeyqQ==
+        b=P55b/Nb7HMpX1HIFOXjNsKr9ri1eGohcOuaCvwmn6fFj2xDCAhe9J4Lr4JsRuiINH
+         jaDkhylrXVKdZrOAWn5HOmupo37BON/+YT4jCMonLSvLVjiGwO7tIGei8teShgzxWB
+         w5/1qqOwewzHXhjwr+LBe4RgRHvkoYnpuT20kfBaMg97Fk8CUeOySuSgo5zP9MuF5W
+         AqgM9ldbZw028+t2+bV8ACFxTQTCVP3ORVpABKPfaaoaKw6N6+cNRcKIkN1VtnUuFc
+         eJXqxiHYUETZTnM4o1CV0Jw2WkQjAtNf1+qHMbvAkWXanlyrWscuKxvQPQvbkOsyrB
+         +7/ETvwswxC4w==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pNbvZ-0001mE-JV; Thu, 02 Feb 2023 16:55:09 +0100
+        id 1pNbvZ-0001mO-RS; Thu, 02 Feb 2023 16:55:09 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 12/22] rtc: pm8xxx: use u32 for timestamps
-Date:   Thu,  2 Feb 2023 16:54:38 +0100
-Message-Id: <20230202155448.6715-13-johan+linaro@kernel.org>
+Subject: [PATCH v2 15/22] rtc: pm8xxx: drop error messages
+Date:   Thu,  2 Feb 2023 16:54:41 +0100
+Message-Id: <20230202155448.6715-16-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
 References: <20230202155448.6715-1-johan+linaro@kernel.org>
@@ -58,80 +58,43 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The PMIC RTC registers are 32-bit so explicitly use u32 rather than
-unsigned long for timestamps to reflect the hardware.
-
-This will also help avoid unintentional range extensions when adding
-support for managing an external offset.
+For consistency with the rest of the driver, drop the last two error
+messages for conditions that should only occur during development, if
+ever.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 8a94a19e0d14..b1ce246c501a 100644
+index 922aef0f0241..eff2782beeed 100644
 --- a/drivers/rtc/rtc-pm8xxx.c
 +++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -74,7 +74,7 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
- 	u8 value[NUM_8_BIT_RTC_REGS];
- 	bool alarm_enabled;
--	unsigned long secs;
-+	u32 secs;
- 	int rc;
+@@ -368,10 +368,8 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
- 	if (!rtc_dd->allow_set_time)
-@@ -83,7 +83,7 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	secs = rtc_tm_to_time64(tm);
- 	put_unaligned_le32(secs, value);
+ 	rtc_dd->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+-	if (!rtc_dd->regmap) {
+-		dev_err(&pdev->dev, "Parent regmap unavailable.\n");
++	if (!rtc_dd->regmap)
+ 		return -ENXIO;
+-	}
  
--	dev_dbg(dev, "set time: %ptRd %ptRt (%lu)\n", tm, tm, secs);
-+	dev_dbg(dev, "set time: %ptRd %ptRt (%u)\n", tm, tm, secs);
+ 	rtc_dd->alarm_irq = platform_get_irq(pdev, 0);
+ 	if (rtc_dd->alarm_irq < 0)
+@@ -402,10 +400,8 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+ 					  pm8xxx_alarm_trigger,
+ 					  IRQF_TRIGGER_RISING,
+ 					  "pm8xxx_rtc_alarm", rtc_dd);
+-	if (rc < 0) {
+-		dev_err(&pdev->dev, "Request IRQ failed (%d)\n", rc);
++	if (rc < 0)
+ 		return rc;
+-	}
  
- 	rc = regmap_update_bits_check(rtc_dd->regmap, regs->alarm_ctrl,
- 				      regs->alarm_en, 0, &alarm_enabled);
-@@ -131,10 +131,10 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	int rc;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned long secs;
- 	unsigned int reg;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u32 secs;
- 
- 	rc = regmap_bulk_read(rtc_dd->regmap, regs->read, value, sizeof(value));
+ 	rc = devm_rtc_register_device(rtc_dd->rtc);
  	if (rc)
-@@ -158,7 +158,7 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	secs = get_unaligned_le32(value);
- 	rtc_time64_to_tm(secs, tm);
- 
--	dev_dbg(dev, "read time: %ptRd %ptRt (%lu)\n", tm, tm, secs);
-+	dev_dbg(dev, "read time: %ptRd %ptRt (%u)\n", tm, tm, secs);
- 
- 	return 0;
- }
-@@ -168,7 +168,7 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	u8 value[NUM_8_BIT_RTC_REGS];
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
--	unsigned long secs;
-+	u32 secs;
- 	int rc;
- 
- 	secs = rtc_tm_to_time64(&alarm->time);
-@@ -201,9 +201,9 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 	int rc;
- 	unsigned int ctrl_reg;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned long secs;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-+	u32 secs;
- 
- 	rc = regmap_bulk_read(rtc_dd->regmap, regs->alarm_rw, value,
- 			      sizeof(value));
 -- 
 2.39.1
 
