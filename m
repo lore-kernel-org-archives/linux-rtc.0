@@ -2,38 +2,38 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B8D7C64EC7
-	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B207C05027
+	for <linux-rtc@archiver.kernel.org>; Thu,  2 Feb 2023 15:55:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbjBBPzD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 2 Feb 2023 10:55:03 -0500
+        id S233141AbjBBPzE (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 2 Feb 2023 10:55:04 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233146AbjBBPy7 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:54:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F236537D;
-        Thu,  2 Feb 2023 07:54:47 -0800 (PST)
+        with ESMTP id S233066AbjBBPyz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 2 Feb 2023 10:54:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22EE627A1;
+        Thu,  2 Feb 2023 07:54:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AACE1B826ED;
-        Thu,  2 Feb 2023 15:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C479BC433AE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 606A061C12;
+        Thu,  2 Feb 2023 15:54:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4134BC43325;
         Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675353284;
-        bh=WgIpMYi4FWB9ExPnYPbTqydDNPPFYwbTWNzEsRMkHfI=;
+        bh=INUNOAIIyLUZq0CCEN/lm/WexHT7eTy04ZYkgnZoeqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vge7gXX1vllHYmQoHm9pQrxWIYYRWTgDxbFNOy134RK4Q6YETyDfFW0IVcfNK0p1S
-         yLj0QR5Xeh5T9kVVgiLqwwgPSuGjEhzIWeQvA7zLnXiiL97zQPwc+r/crFfexH0tsf
-         29XliHm8VScyjMpBDwHr5ByuFlD7NlVRE7OkWZ4VDXhLGKa4yuddYebJGICsQ57c3T
-         MysR/jStftv3JW389sSWzDHE8OqdvkGTJOD6UXo6utApsdwAGLBACj48A9JEAm+E3t
-         msz60yb0ahhLMuhlnjQeBqlNmuJsSZTzuVj/Z6gCwJCFYHpnKKumRNQiWvquQJG9Cq
-         y2lITdMkhSJfA==
+        b=WKCd7jLAcATdRaKIjt8gj+oObiuW0FAfDMtGUb8bNlG2ycCLR9Cq8ZaQrfWpr/+ga
+         kMwjLlxIV51px4exKK1FQTSMvPSnEvV5xzTm/aRGcjRT+xPLGFHyXdgRMQTsjZMESW
+         JtkoYdiAEIB2rB1TVsnRvOu0+Pyfh4g7H4z3qnHDDhbjVkzeCML+ci+6M/QEAyx+nk
+         85EU9HO5tjVfYvbUZFw4T2s+9w2bSofl/YEsGzgc0n2M8Snqvve7ov9mPvcxZfJgNx
+         WwM1DOIdlyLS8L6dJyxMKPQzjhpwre7LIBBc93M5kBcvNdSVOX9cFQ6+agzXi3RUzO
+         HKR/agAxZkftQ==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pNbvZ-0001mB-GF; Thu, 02 Feb 2023 16:55:09 +0100
+        id 1pNbvZ-0001lz-4J; Thu, 02 Feb 2023 16:55:09 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Bjorn Andersson <andersson@kernel.org>
@@ -46,9 +46,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 11/22] rtc: pm8xxx: clean up comments
-Date:   Thu,  2 Feb 2023 16:54:37 +0100
-Message-Id: <20230202155448.6715-12-johan+linaro@kernel.org>
+Subject: [PATCH v2 07/22] rtc: pm8xxx: use unaligned le32 helpers
+Date:   Thu,  2 Feb 2023 16:54:33 +0100
+Message-Id: <20230202155448.6715-8-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
 References: <20230202155448.6715-1-johan+linaro@kernel.org>
@@ -58,126 +58,98 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Clean up the driver comments somewhat and remove obsolete, incorrect or
-redundant ones.
+Use the unaligned le32 helpers instead of open coding when accessing the
+time and alarm registers.
 
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 39 +++++++++++++++++----------------------
- 1 file changed, 17 insertions(+), 22 deletions(-)
+ drivers/rtc/rtc-pm8xxx.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index ea867b20573a..8a94a19e0d14 100644
+index 90027a7cfb12..5ff6898bcace 100644
 --- a/drivers/rtc/rtc-pm8xxx.c
 +++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -23,13 +23,13 @@
+@@ -12,6 +12,8 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
  
- /**
-  * struct pm8xxx_rtc_regs - describe RTC registers per PMIC versions
-- * @ctrl: base address of control register
-- * @write: base address of write register
-- * @read: base address of read register
-- * @alarm_ctrl: base address of alarm control register
-- * @alarm_ctrl2: base address of alarm control2 register
-- * @alarm_rw: base address of alarm read-write register
-- * @alarm_en: alarm enable mask
-+ * @ctrl:		address of control register
-+ * @write:		base address of write registers
-+ * @read:		base address of read registers
-+ * @alarm_ctrl:		address of alarm control register
-+ * @alarm_ctrl2:	address of alarm control2 register
-+ * @alarm_rw:		base address of alarm read-write registers
-+ * @alarm_en:		alarm enable mask
++#include <asm/unaligned.h>
++
+ /* RTC_CTRL register bit fields */
+ #define PM8xxx_RTC_ENABLE		BIT(7)
+ #define PM8xxx_RTC_ALARM_CLEAR		BIT(0)
+@@ -68,25 +70,21 @@ struct pm8xxx_rtc {
   */
- struct pm8xxx_rtc_regs {
- 	unsigned int ctrl;
-@@ -42,12 +42,12 @@ struct pm8xxx_rtc_regs {
- };
+ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+-	int rc, i;
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+ 	bool alarm_enabled;
+ 	unsigned long secs;
++	int rc;
  
- /**
-- * struct pm8xxx_rtc -  rtc driver internal structure
-- * @rtc:		rtc device for this driver.
-- * @regmap:		regmap used to access RTC registers
-- * @allow_set_time:	indicates whether writing to the RTC is allowed
-+ * struct pm8xxx_rtc -  RTC driver internal structure
-+ * @rtc:		RTC device
-+ * @regmap:		regmap used to access registers
-+ * @allow_set_time:	whether the time can be set
-  * @alarm_irq:		alarm irq number
-- * @regs:		rtc registers description.
-+ * @regs:		register description
-  * @dev:		device structure
-  */
- struct pm8xxx_rtc {
-@@ -90,7 +90,7 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	if (!rtc_dd->allow_set_time)
+ 		return -ENODEV;
+ 
+ 	secs = rtc_tm_to_time64(tm);
++	put_unaligned_le32(secs, value);
+ 
+ 	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
+ 
+-	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
+-		value[i] = secs & 0xFF;
+-		secs >>= 8;
+-	}
+-
+ 	rc = regmap_update_bits_check(rtc_dd->regmap, regs->alarm_ctrl,
+ 				      regs->alarm_en, 0, &alarm_enabled);
  	if (rc)
- 		return rc;
+@@ -157,9 +155,7 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 			return rc;
+ 	}
  
--	/* Disable RTC H/w before writing on RTC register */
-+	/* Disable RTC */
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE, 0);
- 	if (rc)
- 		return rc;
-@@ -111,7 +111,7 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	if (rc)
- 		return rc;
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
+-	       ((unsigned long)value[3] << 24);
+-
++	secs = get_unaligned_le32(value);
+ 	rtc_time64_to_tm(secs, tm);
  
--	/* Enable RTC H/w after writing on RTC register */
-+	/* Enable RTC */
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->ctrl, PM8xxx_RTC_ENABLE,
- 				PM8xxx_RTC_ENABLE);
- 	if (rc)
-@@ -242,7 +242,7 @@ static int pm8xxx_rtc_alarm_irq_enable(struct device *dev, unsigned int enable)
- 	if (rc)
- 		return rc;
+ 	dev_dbg(dev, "secs = %lu, h:m:s == %ptRt, y-m-d = %ptRdr\n", secs, tm, tm);
+@@ -169,18 +165,14 @@ static int pm8xxx_rtc_read_time(struct device *dev, struct rtc_time *tm)
  
--	/* Clear Alarm register */
-+	/* Clear alarm register */
- 	if (!enable) {
- 		rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
- 				       sizeof(value));
-@@ -269,13 +269,13 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
+ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+ {
+-	int rc, i;
+ 	u8 value[NUM_8_BIT_RTC_REGS];
+ 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
+ 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+ 	unsigned long secs;
++	int rc;
  
- 	rtc_update_irq(rtc_dd->rtc, 1, RTC_IRQF | RTC_AF);
+ 	secs = rtc_tm_to_time64(&alarm->time);
+-
+-	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
+-		value[i] = secs & 0xFF;
+-		secs >>= 8;
+-	}
++	put_unaligned_le32(secs, value);
  
--	/* Clear the alarm enable bit */
-+	/* Disable alarm */
  	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
  				regs->alarm_en, 0);
+@@ -219,9 +211,7 @@ static int pm8xxx_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
  	if (rc)
- 		return IRQ_NONE;
+ 		return rc;
  
--	/* Clear RTC alarm register */
-+	/* Clear alarm status */
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
- 				PM8xxx_RTC_ALARM_CLEAR, 0);
- 	if (rc)
-@@ -332,9 +332,6 @@ static const struct pm8xxx_rtc_regs pmk8350_regs = {
- 	.alarm_en	= BIT(7),
- };
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
+-	       ((unsigned long)value[3] << 24);
+-
++	secs = get_unaligned_le32(value);
+ 	rtc_time64_to_tm(secs, &alarm->time);
  
--/*
-- * Hardcoded RTC bases until IORESOURCE_REG mapping is figured out
-- */
- static const struct of_device_id pm8xxx_id_table[] = {
- 	{ .compatible = "qcom,pm8921-rtc", .data = &pm8921_regs },
- 	{ .compatible = "qcom,pm8058-rtc", .data = &pm8058_regs },
-@@ -382,7 +379,6 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	/* Register the RTC device */
- 	rtc_dd->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc_dd->rtc))
- 		return PTR_ERR(rtc_dd->rtc);
-@@ -390,7 +386,6 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 	rtc_dd->rtc->ops = &pm8xxx_rtc_ops;
- 	rtc_dd->rtc->range_max = U32_MAX;
- 
--	/* Request the alarm IRQ */
- 	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->alarm_irq,
- 					  pm8xxx_alarm_trigger,
- 					  IRQF_TRIGGER_RISING,
+ 	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
 -- 
 2.39.1
 
