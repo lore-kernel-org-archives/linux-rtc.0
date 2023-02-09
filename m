@@ -2,70 +2,77 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C91C61DA4
-	for <linux-rtc@archiver.kernel.org>; Thu,  9 Feb 2023 22:32:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84268C636D3
+	for <linux-rtc@archiver.kernel.org>; Thu,  9 Feb 2023 22:40:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbjBIWc0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 9 Feb 2023 17:32:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35732 "EHLO
+        id S230398AbjBIWkG (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 9 Feb 2023 17:40:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230333AbjBIWcZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Feb 2023 17:32:25 -0500
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70CA82594E;
-        Thu,  9 Feb 2023 14:32:19 -0800 (PST)
+        with ESMTP id S230472AbjBIWjQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Feb 2023 17:39:16 -0500
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [IPv6:2001:4b98:dc4:8::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB1F6BABE;
+        Thu,  9 Feb 2023 14:38:47 -0800 (PST)
 Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 2C2E560004;
-        Thu,  9 Feb 2023 22:32:17 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 796CA100004;
+        Thu,  9 Feb 2023 22:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1675981938;
+        t=1675982325;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=JaQiS2dN/M9fx40zrUI8U35PZY0eiH2r+XHNp2QEkyM=;
-        b=NZYoCZwY2/rlseuwuWlnTCO9CdtQS+Q9kmH37wdSrXN/RzH1eOt3C7/5K2pq3/nWB1hq3p
-        pmvflfixFNGxrJTzev9LA6QGtO7H3YfAj5c2MZ8343EiZgHF4Yy1ngldh05zFU9ZiTE8CP
-        Y2e4IipiNOTmpxpDZM/fcQX6XcRtRFO1l4WDHSOfdRVl7MAnT0mcSm9RI+5t7wcJbxoht5
-        iSs5ak3qj/VC326MZT0o0QGNePGA8qJAEgUYKLVmvZUgCdK909aMvH/LHx3cuW0lZpb+T1
-        hke2PI4zaXHWSSdSPUXDn2f4tk/SwD5kXgbwKmkybElXBZi8zCerYCKEFYcNjQ==
-Date:   Thu, 9 Feb 2023 23:32:16 +0100
+        bh=GlmlRq1SwmIoi67aUVNcS7ctofjzfmDlTqR+bZ6hmVg=;
+        b=GyHZle2edxB4Pl2ob6GyRhceamq4ZPeyBsxTMi8lsmZdGLJwLEYKtxnGFCrcg59J7qdMyY
+        fGL/E+WH29LnkgMXcjHndhwpe6NHCCAsxOEhzA4NKuNtpP3DXKXMOQ08Nw1zyL4qCQZyYM
+        EcEAwnT/hO2LFwAIIrmuH8BQu4VBpKqS8t3enrSHDDkHtlqCFD0upMQk4CH6ThbYZ34Gv4
+        Aic9WnwO5hAne8ECWhy3bAqDJwU69QHIUld+ZDUWZIoIXDjiSmbJmhaFeUGXXtZwFsaJSl
+        rbn9M0rP9BTkO5qQgf+O8IvWnqp3nJ7X8RyHdMSbI1ltH/e+4ox2Q/Ay1yV7jA==
+Date:   Thu, 9 Feb 2023 23:38:43 +0100
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: (subset) [PATCH 1/3] rtc: moxart: switch to using gpiod API
-Message-ID: <167598191742.1657202.12721365142557883643.b4-ty@bootlin.com>
-References: <20230201054815.4112632-1-dmitry.torokhov@gmail.com>
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        list@opendingux.net
+Subject: Re: [PATCH v3 0/4] rtc: jz4740: Various updates
+Message-ID: <167598230483.1658778.17605710915150090375.b4-ty@bootlin.com>
+References: <20230129120442.22858-1-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230201054815.4112632-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <20230129120442.22858-1-paul@crapouillou.net>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
-On Tue, 31 Jan 2023 21:48:13 -0800, Dmitry Torokhov wrote:
-> Switch the driver from legacy gpio API that is deprecated to the newer
-> gpiod API that respects line polarities described in ACPI/DT.
+On Sun, 29 Jan 2023 12:04:38 +0000, Paul Cercueil wrote:
+> Here's a revised patchset that introduces a few updates to the
+> jz4740-rtc driver.
 > 
-> This makes driver use standard property name for its gpios
-> ("rtc-*-gpios" vs "gpios-rtc-*"), however there is a quirk in gpiolib
-> to also recognize legacy names and keep compatibility with older DTSes:
-> eaf1a29665cd ("gpiolib: of: add a quirk for legacy names in MOXA ART
-> RTC").
+> Patch [1/4] used to break ABI, it does not anymore.
+> Patch [2/4] did not change, patch [3/4] is new.
+> 
+> Patch [3/4] has been updated to use dev_err_probe(), use __clk_hw_get()
+> instead of looking up the parent's clock by name, and will now register
+> the CLK32K clock when the #clock-cells device property is present
+> instead of doing it based on the compatible string.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/3] rtc: moxart: switch to using gpiod API
-      commit: 2985cda83b8107213e108f95c3cb8caa0da74918
-[2/3] dt-bindings: rtc: moxart: use proper names for gpio properties
-      commit: e8c9efd5d52f1da1c9e012466b9df94a38cc1c00
+[1/4] dt-bindings: rtc: Add #clock-cells property
+      commit: 4737a703528c769c4fde6b68462f656f91f4ad99
+[2/4] rtc: jz4740: Use readl_poll_timeout
+      commit: d644b133f78d6d8efd36f7b1703bebca09036f0b
+[3/4] rtc: jz4740: Use dev_err_probe()
+      commit: ff6fd3770e9687d7b849a0e826a32563bfcb98da
+[4/4] rtc: jz4740: Register clock provider for the CLK32K pin
+      commit: 5ddfa148de8cf5491fd1c89522c7cad859db8c88
 
 Best regards,
 
