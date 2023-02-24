@@ -2,62 +2,62 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8E7DC6FA99
-	for <linux-rtc@archiver.kernel.org>; Fri, 24 Feb 2023 13:31:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64035C6FA9E
+	for <linux-rtc@archiver.kernel.org>; Fri, 24 Feb 2023 13:31:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbjBXNbj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 24 Feb 2023 08:31:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58620 "EHLO
+        id S230011AbjBXNbk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 24 Feb 2023 08:31:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229744AbjBXNbh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Feb 2023 08:31:37 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64F764A1E4
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:33 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id o38-20020a05600c512600b003e8320d1c11so4142423wms.1
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:33 -0800 (PST)
+        with ESMTP id S229781AbjBXNbj (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Feb 2023 08:31:39 -0500
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2181348E0E
+        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:35 -0800 (PST)
+Received: by mail-wm1-x335.google.com with SMTP id p16so9191051wmq.5
+        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1677245492;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1677245493;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yoniXrMAMCP1ygXvpYDpat9bf0ssCt2SLlyt+NFABPo=;
-        b=N2LRUjZLdttLYVWwSQ+Qb+uQjRaJVVOuaSb+azySZDFZGlWMoqKxP3cvUIQPgCiycJ
-         LcQihuiuIQCoJKT+YpEVQ9Clu+mAmQlBUsueXVDz+/KDUSopoW0Gn582H49I0ckj93fk
-         AjwVx4lFVBFCHK4Mufce6jHIfoTjs1uPO6ewzyBFplaUICMb0Dd29hySPEkYpTgo5jeT
-         0mplG4gxz1ZUea6VGbINjdeF22NxAxqx/JKiFzUer3peJyTNOBiuqXGNy/KP+8IgxCw9
-         rECdYtZRxk1nqkSjlyqUbLJwh3MOiSJVHm0S/sUVCdWAGA2rUIchQpnXybVjO1wGdbpW
-         MUqg==
+        bh=2ijOtHUPERBPPWuAmpk8gADuY1h1/51fjdHIzcrWuFM=;
+        b=PoaswVVEJcfhnGpQ6ZcVbI4mzs3Y2JR/Lu0S89Bq5JfNRnkLetrmfEj39vi4LqBVme
+         m5jUU+z3MstdbDuPH7DpJ2FeQD6YE7dVQLhKPYUMMFJQCuAvMCHYYVF8AMfxs8iweqiK
+         cF8Ar+XIPt5JYzZlS23UbFY1lVZ1Ez+LRGJLBWAu5ICHs2Lj0TJysjhiQSYHN1higHNl
+         THUx6+4f+BNFvqV4BWv5y1BRSJLsLrYiZPO0FLzYVnA5dM9NOME58z75UDsHZlQh7J86
+         ySOkHqjEP1wqxrdbpwNEK4R0hkrpPk5c0LZuLqkYdbyWO1ccnnZ+cCKX9W/OsZ7aXBDK
+         l6Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677245492;
+        d=1e100.net; s=20210112; t=1677245493;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yoniXrMAMCP1ygXvpYDpat9bf0ssCt2SLlyt+NFABPo=;
-        b=K2BlNqFHtw6xVP976sHDWDOk9RQXMhBEw5V+carX+SMZKJkBy804MuAVA2D2Cf5qqq
-         kZtfU6mD+3tt2NS1su09RqRdY66FObl4oKpYVg4PpEgS9GOcG3DZqQMmpWwsWMgt6MXQ
-         zI4UED+BvwvFztGgMnlEYMamXLdgbwMD4nGMO1eds332zyC4VZotN4owDr8m+4JMzNfP
-         r1ykJvNiyB6I+LTFm+gm0kIBO3IwPzdFFMsvdRkdhrsAgRLefN8L16jm/gBfUA/2VSb5
-         nmh82PCdWQUzyiRWab2n8N8srV3jyhPbkruLNxV5Mrc1pj/EbGzIw2in3i4vxmxhmQ62
-         TCzQ==
-X-Gm-Message-State: AO0yUKWIk76fzQFVFuG2txwixzjPsOCwVrHD6CAifuEDMm6gkuSYITA9
-        5QVb3mcgf0Oe+Lclo8yf/H0x1Q==
-X-Google-Smtp-Source: AK7set8KhmdSLDLrap5U721LvZMJFmsNPMFod4er9hFMe0xX2IiOZU+nnSlAJjMKwe1pC00LGGghgQ==
-X-Received: by 2002:a05:600c:198e:b0:3df:9858:c037 with SMTP id t14-20020a05600c198e00b003df9858c037mr13460121wmq.12.1677245491846;
-        Fri, 24 Feb 2023 05:31:31 -0800 (PST)
+        bh=2ijOtHUPERBPPWuAmpk8gADuY1h1/51fjdHIzcrWuFM=;
+        b=Q3ZzS/kAyd6SQnB0k9GskMWK6nIXi86OqgSAEeeg1JDC5Js8oT5eGbj/frHLVl9W/A
+         nglsM0KOyutln5DnXDZ64Huvpfl9oT/31KCorpKg3dVumd+dGzX85KTNkWIh9FaVepuA
+         fHSAw4C4tCu+aRQZVILFKRDjljGw8zL6/cbPDh//UB0/O4Jih+s/OQptFIxVUj+/KZce
+         x99jRPr2akH4rTaYIM6Bd9/gUr0F6aNfk9YOutDVO1IXfdwk8jL/wpyQ6Ng+258DP9AZ
+         oWwH+D97VWFZkOuaGgLEgLxIstBdpB9P72cW7JVLk930T5mspmxPa9GIP0nrH4IhhBoz
+         hlOg==
+X-Gm-Message-State: AO0yUKVNFYmF7WfYGu5Z9z8Db7YQ3asWz09ycesaIbKBM/08RdKrUYdm
+        6ZcJIAVURmsOJxdVgkto2fPunQ==
+X-Google-Smtp-Source: AK7set8hyD0+WmIZswfyVJ+6sQG1lHIjPQwRmeQ7PD601Ueic6NnXSUzIba5FjXEgTj1XUFJb71dNg==
+X-Received: by 2002:a05:600c:16c5:b0:3e2:1532:bb57 with SMTP id l5-20020a05600c16c500b003e21532bb57mr9762867wmn.29.1677245493603;
+        Fri, 24 Feb 2023 05:31:33 -0800 (PST)
 Received: from localhost.localdomain ([2a01:e0a:28d:66d0:5e4:476:5145:2ad1])
-        by smtp.gmail.com with ESMTPSA id o25-20020a05600c511900b003dfe549da4fsm3308735wms.18.2023.02.24.05.31.31
+        by smtp.gmail.com with ESMTPSA id o25-20020a05600c511900b003dfe549da4fsm3308735wms.18.2023.02.24.05.31.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Feb 2023 05:31:31 -0800 (PST)
+        Fri, 24 Feb 2023 05:31:33 -0800 (PST)
 From:   Esteban Blanc <eblanc@baylibre.com>
 To:     linus.walleij@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
         a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-rtc@vger.kernel.org, jpanis@baylibre.com,
         jneanne@baylibre.com
-Subject: [PATCH INTERNAL v1 1/3] rtc: tps6594: add driver for TPS6594 PMIC RTC
-Date:   Fri, 24 Feb 2023 14:31:27 +0100
-Message-Id: <20230224133129.887203-2-eblanc@baylibre.com>
+Subject: [PATCH INTERNAL v1 3/3] regulator: tps6594-regulator: Add driver for TI TPS6594 regulators
+Date:   Fri, 24 Feb 2023 14:31:29 +0100
+Message-Id: <20230224133129.887203-4-eblanc@baylibre.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20230224133129.887203-1-eblanc@baylibre.com>
 References: <20230224133129.887203-1-eblanc@baylibre.com>
@@ -67,571 +67,621 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-TPS6594 PMIC is a MFD driver. This add support for the RTC found inside
-TPS6594 family of PMIC.
+From: Jerome Neanne <jneanne@baylibre.com>
 
-Alarm is also supported.
+This patch adds support for TPS6594 regulators (bucks and LDOs).
+The output voltages are configurable and are meant to supply power
+to the main processor and other components.
+Bucks can be used in single or multiphase mode, depending on PMIC
+part number.
 
-Signed-off-by: Esteban Blanc <eblanc@baylibre.com>
+Signed-off-by: Jerome Neanne <jneanne@baylibre.com>
 ---
- drivers/rtc/Kconfig       |   8 +
- drivers/rtc/Makefile      |   1 +
- drivers/rtc/rtc-tps6594.c | 516 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 525 insertions(+)
- create mode 100644 drivers/rtc/rtc-tps6594.c
+ drivers/regulator/Kconfig             |  12 +
+ drivers/regulator/Makefile            |   1 +
+ drivers/regulator/tps6594-regulator.c | 559 ++++++++++++++++++++++++++
+ 3 files changed, 572 insertions(+)
+ create mode 100644 drivers/regulator/tps6594-regulator.c
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 677d2601d305..34c63555669d 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -578,6 +578,14 @@ config RTC_DRV_TPS6586X
- 	  along with alarm. This driver supports the RTC driver for
- 	  the TPS6586X RTC module.
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 820c9a0788e5..921540af6958 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -1432,6 +1432,18 @@ config REGULATOR_TPS65219
+ 	  voltage regulators. It supports software based voltage control
+ 	  for different voltage domains.
  
-+config RTC_DRV_TPS6594
-+	tristate "TI TPS6594 RTC driver"
-+	depends on MFD_TPS6594
++config REGULATOR_TPS6594
++	tristate "TI TPS6594 Power regulators"
++	depends on MFD_TPS6594 && OF
 +	help
-+	  TI Power Management IC TPS6594 supports RTC functionality
-+	  along with alarm. This driver supports the RTC driver for
-+	  the TPS6594 RTC module.
++	  This driver supports TPS6594 voltage regulator chips.
++	  TPS6594 series of PMICs have 5 BUCKs and 4 LDOs
++	  voltage regulators.
++	  BUCKs 1,2,3,4 can be used in single phase or multiphase mode.
++	  Part number defines which single or multiphase mode is i used.
++	  It supports software based voltage control
++	  for different voltage domains.
 +
- config RTC_DRV_TPS65910
- 	tristate "TI TPS65910 RTC driver"
- 	depends on MFD_TPS65910
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index d3c042dcbc73..7dbeec711ad5 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -174,6 +174,7 @@ obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_TI_K3)	+= rtc-ti-k3.o
- obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
-+obj-$(CONFIG_RTC_DRV_TPS6594)	+= rtc-tps6594.o
- obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
- obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
- obj-$(CONFIG_RTC_DRV_V3020)	+= rtc-v3020.o
-diff --git a/drivers/rtc/rtc-tps6594.c b/drivers/rtc/rtc-tps6594.c
+ config REGULATOR_TPS6524X
+ 	tristate "TI TPS6524X Power regulators"
+ 	depends on SPI
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index b9f5eb35bf5f..948b53f6156b 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -171,6 +171,7 @@ obj-$(CONFIG_REGULATOR_TPS6524X) += tps6524x-regulator.o
+ obj-$(CONFIG_REGULATOR_TPS6586X) += tps6586x-regulator.o
+ obj-$(CONFIG_REGULATOR_TPS65910) += tps65910-regulator.o
+ obj-$(CONFIG_REGULATOR_TPS65912) += tps65912-regulator.o
++obj-$(CONFIG_REGULATOR_TPS6594) += tps6594-regulator.o
+ obj-$(CONFIG_REGULATOR_TPS65132) += tps65132-regulator.o
+ obj-$(CONFIG_REGULATOR_TPS68470) += tps68470-regulator.o
+ obj-$(CONFIG_REGULATOR_TWL4030) += twl-regulator.o twl6030-regulator.o
+diff --git a/drivers/regulator/tps6594-regulator.c b/drivers/regulator/tps6594-regulator.c
 new file mode 100644
-index 000000000000..f150ef33f65f
+index 000000000000..c099711fd460
 --- /dev/null
-+++ b/drivers/rtc/rtc-tps6594.c
-@@ -0,0 +1,516 @@
++++ b/drivers/regulator/tps6594-regulator.c
+@@ -0,0 +1,559 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * RTC driver for tps6594 PMIC
++ * Regulator driver for tps6594 PMIC
 + *
 + * Copyright (C) 2022 BayLibre Incorporated - https://www.baylibre.com/
++ *
++ * This implementation derived from tps65218 authored by "J Keerthy <j-keerthy@ti.com>"
 + */
 +
-+#include <linux/bcd.h>
-+#include <linux/errno.h>
++#include <linux/device.h>
++#include <linux/err.h>
 +#include <linux/init.h>
-+#include <linux/interrupt.h>
 +#include <linux/kernel.h>
-+#include <linux/math64.h>
 +#include <linux/module.h>
-+#include <linux/rtc.h>
-+#include <linux/types.h>
++#include <linux/of_device.h>
 +#include <linux/platform_device.h>
-+#include <linux/property.h>
++#include <linux/regmap.h>
++#include <linux/regulator/driver.h>
++#include <linux/regulator/machine.h>
++#include <linux/regulator/of_regulator.h>
 +
 +#include <linux/mfd/tps6594.h>
 +
-+struct tps6594_rtc {
-+	struct rtc_device *rtc;
++#define BUCK_NB		5
++#define LDO_NB		4
++#define MULTI_PHASE_NB	4
++
++enum tps6594_regulator_id {
++	/* DCDC's */
++	TPS6594_BUCK_1,
++	TPS6594_BUCK_2,
++	TPS6594_BUCK_3,
++	TPS6594_BUCK_4,
++	TPS6594_BUCK_5,
++
++	/* LDOs */
++	TPS6594_LDO_1,
++	TPS6594_LDO_2,
++	TPS6594_LDO_3,
++	TPS6594_LDO_4,
 +};
 +
-+#define TPS6594_GET_TIME_ON TPS6594_BIT_GET_TIME
-+#define TPS6594_GET_TIME_OFF 0
-+#define TPS6594_IT_ALARM_ON TPS6594_BIT_IT_ALARM
-+#define TPS6594_IT_ALARM_OFF 0
-+#define TPS6594_AUTO_COMP_ON TPS6594_BIT_IT_ALARM
++enum tps6594_multi_regulator_id {
++	/* Multi-phase DCDC's */
++	TPS6594_BUCK_12,
++	TPS6594_BUCK_34,
++	TPS6594_BUCK_123,
++	TPS6594_BUCK_1234,
++};
 +
-+/* Total number of RTC registers needed to set time*/
-+#define NUM_TIME_REGS (TPS6594_REG_RTC_WEEKS - TPS6594_REG_RTC_SECONDS + 1)
++struct tps6594_regulator_irq_type {
++	const char *irq_name;
++	const char *regulator_name;
++	const char *event_name;
++	unsigned long event;
++};
 +
-+/* Total number of RTC alarm register */
-+#define NUM_TIME_ALARM_REGS (NUM_TIME_REGS - 1)
++static struct tps6594_regulator_irq_type tps6594_regulator_irq_types[] = {
++	{ TPS6594_IRQ_NAME_BUCK1_OV, "BUCK1", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_BUCK1_UV, "BUCK1", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_BUCK1_SC, "BUCK1", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_BUCK1_ILIM, "BUCK1", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_BUCK2_OV, "BUCK2", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_BUCK2_UV, "BUCK2", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_BUCK2_SC, "BUCK2", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_BUCK2_ILIM, "BUCK2", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_BUCK3_OV, "BUCK3", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_BUCK3_UV, "BUCK3", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_BUCK3_SC, "BUCK3", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_BUCK3_ILIM, "BUCK3", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_BUCK4_OV, "BUCK4", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_BUCK4_UV, "BUCK4", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_BUCK4_SC, "BUCK4", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_BUCK4_ILIM, "BUCK4", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_BUCK5_OV, "BUCK5", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_BUCK5_UV, "BUCK5", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_BUCK5_SC, "BUCK5", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_BUCK5_ILIM, "BUCK5", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_LDO1_OV, "LDO1", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_LDO1_UV, "LDO1", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_LDO1_SC, "LDO1", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_LDO1_ILIM, "LDO1", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_LDO2_OV, "LDO2", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_LDO2_UV, "LDO2", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_LDO2_SC, "LDO2", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_LDO2_ILIM, "LDO2", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_LDO3_OV, "LDO3", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_LDO3_UV, "LDO3", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_LDO3_SC, "LDO3", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_LDO3_ILIM, "LDO3", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++	{ TPS6594_IRQ_NAME_LDO4_OV, "LDO4", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_LDO4_UV, "LDO4", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_LDO4_SC, "LDO4", "short circuit", REGULATOR_EVENT_REGULATION_OUT },
++	{ TPS6594_IRQ_NAME_LDO4_ILIM, "LDO4", "reach ilim, overcurrent",
++	  REGULATOR_EVENT_OVER_CURRENT },
++};
 +
-+/* Total number of RTC registers needed to set compensation registers */
-+#define NUM_COMP_REGS (TPS6594_REG_RTC_COMP_MSB - TPS6594_REG_RTC_COMP_LSB + 1)
++static struct tps6594_regulator_irq_type tps6594_ext_regulator_irq_types[] = {
++	{ TPS6594_IRQ_NAME_VCCA_OV, "VCCA", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_VCCA_UV, "VCCA", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_VMON1_OV, "VMON1", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_VMON1_UV, "VMON1", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_VMON1_RV, "VMON1", "residual voltage",
++	  REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_VMON2_OV, "VMON2", "overvoltage", REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++	{ TPS6594_IRQ_NAME_VMON2_UV, "VMON2", "undervoltage", REGULATOR_EVENT_UNDER_VOLTAGE },
++	{ TPS6594_IRQ_NAME_VMON2_RV, "VMON2", "residual voltage",
++	  REGULATOR_EVENT_OVER_VOLTAGE_WARN },
++};
 +
-+/* Min and max values supported with 'offset' interface (swapped sign)
-+ * After conversion, the values does not exceed the range [-32767, 33767] which COMP_REG must
-+ * conform to
-+ */
-+#define MIN_OFFSET (-277774)
-+#define MAX_OFFSET (277774)
++struct tps6594_regulator_irq_data {
++	struct device *dev;
++	struct tps6594_regulator_irq_type *type;
++	struct regulator_dev *rdev;
++};
 +
-+/* Number of ticks per hour */
-+#define TICKS_PER_HOUR (32768 * 3600)
++struct tps6594_ext_regulator_irq_data {
++	struct device *dev;
++	struct tps6594_regulator_irq_type *type;
++};
 +
-+/* Multiplier for ppb conversions */
-+#define PPB_MULT (1000000000LL)
++#define TPS6594_REGULATOR(_name, _of, _id, _type, _ops, _n, _vr, _vm, _er, \
++			   _em, _cr, _cm, _lr, _nlr, _delay, _fuv, \
++			   _ct, _ncl, _bpm) \
++	{								\
++		.name			= _name,			\
++		.of_match		= _of,				\
++		.regulators_node	= of_match_ptr("regulators"),	\
++		.supply_name		= _of,				\
++		.id			= _id,				\
++		.ops			= &(_ops),			\
++		.n_voltages		= _n,				\
++		.type			= _type,			\
++		.owner			= THIS_MODULE,			\
++		.vsel_reg		= _vr,				\
++		.vsel_mask		= _vm,				\
++		.csel_reg		= _cr,				\
++		.csel_mask		= _cm,				\
++		.curr_table		= _ct,				\
++		.n_current_limits	= _ncl,				\
++		.enable_reg		= _er,				\
++		.enable_mask		= _em,				\
++		.volt_table		= NULL,				\
++		.linear_ranges		= _lr,				\
++		.n_linear_ranges	= _nlr,				\
++		.ramp_delay		= _delay,			\
++		.fixed_uV		= _fuv,				\
++		.bypass_reg		= _vr,				\
++		.bypass_mask		= _bpm,				\
++	}								\
 +
-+static int tps6594_rtc_alarm_irq_enable(struct device *dev,
-+					unsigned int enabled)
++static const struct linear_range bucks_ranges[] = {
++	REGULATOR_LINEAR_RANGE(300000, 0x0, 0xe, 20000),
++	REGULATOR_LINEAR_RANGE(600000, 0xf, 0x72, 5000),
++	REGULATOR_LINEAR_RANGE(1100000, 0x73, 0xaa, 10000),
++	REGULATOR_LINEAR_RANGE(1660000, 0xab, 0xff, 20000),
++};
++
++static const struct linear_range ldos_1_2_3_ranges[] = {
++	REGULATOR_LINEAR_RANGE(600000, 0x4, 0x3a, 50000),
++};
++
++static const struct linear_range ldos_4_ranges[] = {
++	REGULATOR_LINEAR_RANGE(1200000, 0x20, 0x74, 25000),
++};
++
++static unsigned int tps6594_get_mode(struct regulator_dev *dev)
 +{
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	u8 val = 0;
-+	int ret;
-+
-+	val = enabled ? TPS6594_IT_ALARM_ON : TPS6594_IT_ALARM_OFF;
-+
-+	ret = regmap_update_bits(tps->regmap, TPS6594_REG_RTC_INTERRUPTS,
-+				 TPS6594_BIT_IT_ALARM, val);
-+
-+	return ret;
++	return REGULATOR_MODE_NORMAL;
 +}
 +
-+/* Pulse GET_TIME field of RTC_CTRL_1 to store a timestamp in shadow registers */
-+static int tps6594_rtc_shadow_timestamp(struct device *dev, struct tps6594 *tps)
++/* Operations permitted on BUCK1/2/3/4/5 */
++static const struct regulator_ops tps6594_bucks_ops = {
++	.is_enabled		= regulator_is_enabled_regmap,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.get_mode		= tps6594_get_mode,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_linear_range,
++	.map_voltage		= regulator_map_voltage_linear_range,
++	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
++
++};
++
++/* Operations permitted on LDO1/2/3 */
++static const struct regulator_ops tps6594_ldos_1_2_3_ops = {
++	.is_enabled		= regulator_is_enabled_regmap,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.get_mode		= tps6594_get_mode,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_linear_range,
++	.map_voltage		= regulator_map_voltage_linear_range,
++	.set_bypass		= regulator_set_bypass_regmap,
++	.get_bypass		= regulator_get_bypass_regmap,
++};
++
++/* Operations permitted on LDO4 */
++static const struct regulator_ops tps6594_ldos_4_ops = {
++	.is_enabled		= regulator_is_enabled_regmap,
++	.enable			= regulator_enable_regmap,
++	.disable		= regulator_disable_regmap,
++	.get_mode		= tps6594_get_mode,
++	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
++	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
++	.list_voltage		= regulator_list_voltage_linear_range,
++	.map_voltage		= regulator_map_voltage_linear_range,
++};
++
++static const struct regulator_desc buck_regs[] = {
++	TPS6594_REGULATOR("BUCK1", "buck1", TPS6594_BUCK_1,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(0),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(0),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK2", "buck2", TPS6594_BUCK_2,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(1),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(1),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK3", "buck3", TPS6594_BUCK_3,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(2),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(2),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK4", "buck4", TPS6594_BUCK_4,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(3),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(3),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK5", "buck5", TPS6594_BUCK_5,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(4),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(4),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++};
++
++static const struct regulator_desc multi_regs[] = {
++	TPS6594_REGULATOR("BUCK12", "buck12", TPS6594_BUCK_1,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(1),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(1),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 4000, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK34", "buck34", TPS6594_BUCK_3,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(3),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(3),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 0, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK123", "buck123", TPS6594_BUCK_1,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(1),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(1),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 4000, 0, NULL, 0, 0),
++	TPS6594_REGULATOR("BUCK1234", "buck1234", TPS6594_BUCK_1,
++			  REGULATOR_VOLTAGE, tps6594_bucks_ops, TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_VOUT_1(1),
++			  TPS6594_MASK_BUCKS_VSET,
++			  TPS6594_REG_BUCKX_CTRL(1),
++			  TPS6594_BIT_BUCK_EN, 0, 0, bucks_ranges,
++			  4, 4000, 0, NULL, 0, 0),
++};
++
++static const struct regulator_desc ldo_regs[] = {
++	TPS6594_REGULATOR("LDO1", "ldo1", TPS6594_LDO_1,
++			  REGULATOR_VOLTAGE, tps6594_ldos_1_2_3_ops, TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_VOUT(0),
++			  TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_CTRL(0),
++			  TPS6594_BIT_LDO_EN, 0, 0, ldos_1_2_3_ranges,
++			  1, 0, 0, NULL, 0, TPS6594_BIT_LDO_BYPASS),
++	TPS6594_REGULATOR("LDO2", "ldo2", TPS6594_LDO_2,
++			  REGULATOR_VOLTAGE, tps6594_ldos_1_2_3_ops, TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_VOUT(1),
++			  TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_CTRL(1),
++			  TPS6594_BIT_LDO_EN, 0, 0, ldos_1_2_3_ranges,
++			  1, 0, 0, NULL, 0, TPS6594_BIT_LDO_BYPASS),
++	TPS6594_REGULATOR("LDO3", "ldo3", TPS6594_LDO_3,
++			  REGULATOR_VOLTAGE, tps6594_ldos_1_2_3_ops, TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_VOUT(2),
++			  TPS6594_MASK_LDO123_VSET,
++			  TPS6594_REG_LDOX_CTRL(2),
++			  TPS6594_BIT_LDO_EN, 0, 0, ldos_1_2_3_ranges,
++			  1, 0, 0, NULL, 0, TPS6594_BIT_LDO_BYPASS),
++	TPS6594_REGULATOR("LDO4", "ldo4", TPS6594_LDO_4,
++			  REGULATOR_VOLTAGE, tps6594_ldos_4_ops, TPS6594_MASK_LDO4_VSET >> 1,
++			  TPS6594_REG_LDOX_VOUT(3),
++			  TPS6594_MASK_LDO4_VSET,
++			  TPS6594_REG_LDOX_CTRL(3),
++			  TPS6594_BIT_LDO_EN, 0, 0, ldos_4_ranges,
++			  1, 0, 0, NULL, 0, 0),
++};
++
++static irqreturn_t tps6594_regulator_irq_handler(int irq, void *data)
 +{
-+	int ret;
++	struct tps6594_regulator_irq_data *irq_data = data;
 +
-+	/* Set GET_TIME to 0. This way, next time we set GET_TIME to 1 we are sure to store an
-+	 * up-to-date timestamp
-+	 */
-+	ret = regmap_clear_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
-+				TPS6594_BIT_GET_TIME);
-+	if (ret < 0) {
-+		dev_err(dev, "RTC CTRL1 reg update failed with err:%d\n", ret);
-+		return ret;
++	if (irq_data->type->event_name[0] == '\0') {
++		/* This is the timeout interrupt no specific regulator */
++		dev_err(irq_data->dev,
++			"System was put in shutdown due to timeout during an active or standby transition.\n");
++		return IRQ_HANDLED;
 +	}
 +
-+	/* Copy content of RTC registers to shadow registers or latches to read a coherent
-+	 *  timestamp
-+	 */
-+	ret = regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
-+			      TPS6594_BIT_GET_TIME);
-+	if (ret < 0) {
-+		dev_err(dev, "RTC CTRL1 reg update failed with err:%d\n", ret);
-+		return ret;
-+	}
++	regulator_notifier_call_chain(irq_data->rdev,
++				      irq_data->type->event, NULL);
 +
-+	return ret;
-+}
-+
-+/*
-+ * Gets current tps6594 RTC time and date parameters.
-+ *
-+ * The RTC's time/alarm representation is not what gmtime(3) requires
-+ * Linux to use:
-+ *
-+ *  - Months are 1..12 vs Linux 0-11
-+ *  - Years are 0..99 vs Linux 1900..N (we assume 21st century)
-+ */
-+static int tps6594_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned char rtc_data[NUM_TIME_REGS];
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	int ret;
-+
-+	ret = tps6594_rtc_shadow_timestamp(dev, tps);
-+	if (ret < 0) {
-+		dev_err(dev,
-+			"failed to store a timestamp in shadow registers:%d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	/* Read shadowed RTC registers */
-+	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_RTC_SECONDS, rtc_data,
-+			       NUM_TIME_REGS);
-+	if (ret < 0) {
-+		dev_err(dev, "rtc_read_time failed with error :%d\n", ret);
-+		return ret;
-+	}
-+
-+	tm->tm_sec = bcd2bin(rtc_data[0]);
-+	tm->tm_min = bcd2bin(rtc_data[1]);
-+	tm->tm_hour = bcd2bin(rtc_data[2]);
-+	tm->tm_mday = bcd2bin(rtc_data[3]);
-+	tm->tm_mon = bcd2bin(rtc_data[4]) - 1;
-+	tm->tm_year = bcd2bin(rtc_data[5]) + 100;
-+	tm->tm_wday = bcd2bin(rtc_data[6]);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Sets current tps6594 RTC time and date parameters.
-+ *
-+ * The RTC's time/alarm representation is not what gmtime(3) requires
-+ * Linux to use:
-+ *
-+ *  - Months are 1..12 vs Linux 0-11
-+ *  - Years are 0..99 vs Linux 1900..N (we assume 21st century)
-+ */
-+static int tps6594_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned char rtc_data[NUM_TIME_REGS];
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	int ret;
-+
-+	rtc_data[0] = bin2bcd(tm->tm_sec);
-+	rtc_data[1] = bin2bcd(tm->tm_min);
-+	rtc_data[2] = bin2bcd(tm->tm_hour);
-+	rtc_data[3] = bin2bcd(tm->tm_mday);
-+	rtc_data[4] = bin2bcd(tm->tm_mon + 1);
-+	rtc_data[5] = bin2bcd(tm->tm_year - 100);
-+	rtc_data[6] = bin2bcd(tm->tm_wday);
-+
-+	/* Stop RTC while updating the RTC time registers */
-+	ret = regmap_clear_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
-+				TPS6594_BIT_STOP_RTC);
-+	if (ret < 0) {
-+		dev_err(dev, "RTC stop failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* Update all the time registers in one shot */
-+	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_RTC_SECONDS, rtc_data,
-+				NUM_TIME_REGS);
-+	if (ret < 0) {
-+		dev_err(dev, "rtc_set_time failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* Start back RTC */
-+	ret = regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
-+			      TPS6594_BIT_STOP_RTC);
-+	if (ret < 0)
-+		dev_err(dev, "RTC start failed: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Gets current tps6594 RTC alarm time.
-+ */
-+static int tps6594_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
-+{
-+	unsigned char alarm_data[NUM_TIME_ALARM_REGS];
-+	u32 int_val;
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	int ret;
-+
-+	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_ALARM_SECONDS,
-+			       alarm_data, NUM_TIME_ALARM_REGS);
-+	if (ret < 0) {
-+		dev_err(dev, "rtc_read_alarm failed read alarm registers: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	alm->time.tm_sec = bcd2bin(alarm_data[0]);
-+	alm->time.tm_min = bcd2bin(alarm_data[1]);
-+	alm->time.tm_hour = bcd2bin(alarm_data[2]);
-+	alm->time.tm_mday = bcd2bin(alarm_data[3]);
-+	alm->time.tm_mon = bcd2bin(alarm_data[4]) - 1;
-+	alm->time.tm_year = bcd2bin(alarm_data[5]) + 100;
-+
-+	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_INTERRUPTS, &int_val);
-+	if (ret < 0) {
-+		dev_err(dev, "rtc_read_alarm failed to read alarm status: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	alm->enabled = int_val & TPS6594_BIT_IT_ALARM ? 1 : 0;
-+
-+	return ret;
-+}
-+
-+static int tps6594_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-+{
-+	unsigned char alarm_data[NUM_TIME_ALARM_REGS];
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	int ret;
-+
-+	/* Disable alarm irq before changing the alarm timestamp */
-+	ret = tps6594_rtc_alarm_irq_enable(dev, 0);
-+	if (ret) {
-+		dev_err(dev, "rtc_set_alarm failed to disable alarm: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	alarm_data[0] = bin2bcd(alm->time.tm_sec);
-+	alarm_data[1] = bin2bcd(alm->time.tm_min);
-+	alarm_data[2] = bin2bcd(alm->time.tm_hour);
-+	alarm_data[3] = bin2bcd(alm->time.tm_mday);
-+	alarm_data[4] = bin2bcd(alm->time.tm_mon + 1);
-+	alarm_data[5] = bin2bcd(alm->time.tm_year - 100);
-+
-+	/* Update all the alarm registers in one shot */
-+	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_ALARM_SECONDS,
-+				alarm_data, NUM_TIME_ALARM_REGS);
-+	if (ret) {
-+		dev_err(dev,
-+			"rtc_set_alarm failed to write alarm registers: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	if (alm->enabled) {
-+		ret = tps6594_rtc_alarm_irq_enable(dev, 1);
-+		if (ret < 0) {
-+			dev_err(dev,
-+				"rtc_set_alarm failed to re-enable the alarm: %d\n",
-+				ret);
-+			return ret;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+static int tps6594_rtc_set_calibration(struct device *dev, int calibration)
-+{
-+	unsigned char comp_data[NUM_COMP_REGS];
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	s16 value;
-+	int ret;
-+
-+	/*
-+	 * TPS6594 uses two's complement 16 bit value for compensation for RTC
-+	 * crystal inaccuracies. One time every hour when seconds counter
-+	 * increments from 0 to 1 compensation value will be added to internal
-+	 * RTC counter value.
-+	 *
-+	 *
-+	 * Valid range for compensation value: [-32767 .. 32767]
-+	 */
-+	if (calibration < -32767 || calibration > 32767) {
-+		dev_err(dev, "RTC calibration value out of range: %d\n",
-+			calibration);
-+		return -EINVAL;
-+	}
-+
-+	value = (s16)calibration;
-+
-+	comp_data[0] = (u16)value & 0xFF;
-+	comp_data[1] = ((u16)value >> 8) & 0xFF;
-+
-+	/* Update all the compensation registers in one shot */
-+	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_RTC_COMP_LSB,
-+				comp_data, NUM_COMP_REGS);
-+	if (ret < 0) {
-+		dev_err(dev,
-+			"rtc_set_calibration failed to write compensation value: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	/* Enable automatic compensation */
-+	ret = regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
-+			      TPS6594_BIT_AUTO_COMP);
-+	if (ret < 0)
-+		dev_err(dev,
-+			"rtc_set_calibration failed to enable auto_comp: %d\n",
-+			ret);
-+
-+	return ret;
-+}
-+
-+static int tps6594_rtc_get_calibration(struct device *dev, int *calibration)
-+{
-+	unsigned char comp_data[NUM_COMP_REGS];
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	unsigned int ctrl;
-+	u16 value;
-+	int ret;
-+
-+	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_CTRL_1, &ctrl);
-+	if (ret < 0) {
-+		dev_err(dev,
-+			"rtc_get_calibration failed to read control register 1: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	/* If automatic compensation is not enabled report back zero */
-+	if (!(ctrl & TPS6594_BIT_AUTO_COMP)) {
-+		*calibration = 0;
-+		return 0;
-+	}
-+
-+	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_RTC_COMP_LSB, comp_data,
-+			       NUM_COMP_REGS);
-+	if (ret < 0) {
-+		dev_err(dev,
-+			"rtc_get_calibration failed to read compensation registers: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	value = (u16)comp_data[0] | ((u16)comp_data[1] << 8);
-+
-+	*calibration = (s16)value;
-+
-+	return 0;
-+}
-+
-+static int tps6594_rtc_read_offset(struct device *dev, long *offset)
-+{
-+	int calibration;
-+	s64 tmp;
-+	int ret;
-+
-+	ret = tps6594_rtc_get_calibration(dev, &calibration);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Convert from RTC calibration register format to ppb format */
-+	tmp = calibration * (s64)PPB_MULT;
-+	if (tmp < 0)
-+		tmp -= TICKS_PER_HOUR / 2LL;
-+	else
-+		tmp += TICKS_PER_HOUR / 2LL;
-+	tmp = div_s64(tmp, TICKS_PER_HOUR);
-+
-+	/* Offset value operates in negative way, so swap sign.
-+	 * See 8.3.10.5, (32768 - COMP_REG)
-+	 */
-+	*offset = (long)-tmp;
-+
-+	return 0;
-+}
-+
-+static int tps6594_rtc_set_offset(struct device *dev, long offset)
-+{
-+	int calibration;
-+	s64 tmp;
-+	int ret;
-+
-+	/* Make sure offset value is within supported range */
-+	if (offset < MIN_OFFSET || offset > MAX_OFFSET)
-+		return -ERANGE;
-+
-+	/* Convert from ppb format to RTC calibration register format */
-+	tmp = offset * (s64)TICKS_PER_HOUR;
-+	if (tmp < 0)
-+		tmp -= PPB_MULT / 2LL;
-+	else
-+		tmp += PPB_MULT / 2LL;
-+	tmp = div_s64(tmp, PPB_MULT);
-+
-+	/* Offset value operates in negative way, so swap sign */
-+	calibration = (int)-tmp;
-+
-+	ret = tps6594_rtc_set_calibration(dev, calibration);
-+
-+	return ret;
-+}
-+
-+static irqreturn_t tps6594_rtc_interrupt(int irq, void *rtc)
-+{
-+	struct device *dev = rtc;
-+	unsigned long events = 0;
-+	struct tps6594 *tps = dev_get_drvdata(dev->parent);
-+	struct tps6594_rtc *tps_rtc = dev_get_drvdata(dev);
-+	int ret;
-+	u32 rtc_reg;
-+
-+	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_STATUS, &rtc_reg);
-+	if (ret)
-+		return IRQ_NONE;
-+
-+	if (rtc_reg & TPS6594_BIT_ALARM)
-+		events = RTC_IRQF | RTC_AF;
-+
-+	/* Notify RTC core on event */
-+	rtc_update_irq(tps_rtc->rtc, 1, events);
-+
++	dev_err(irq_data->dev, "Error IRQ trap %s for %s\n",
++		irq_data->type->event_name, irq_data->type->regulator_name);
 +	return IRQ_HANDLED;
 +}
 +
-+static const struct rtc_class_ops tps6594_rtc_ops = {
-+	.read_time = tps6594_rtc_read_time,
-+	.set_time = tps6594_rtc_set_time,
-+	.read_alarm = tps6594_rtc_read_alarm,
-+	.set_alarm = tps6594_rtc_set_alarm,
-+	.alarm_irq_enable = tps6594_rtc_alarm_irq_enable,
-+	.read_offset = tps6594_rtc_read_offset,
-+	.set_offset = tps6594_rtc_set_offset,
-+};
-+
-+static int tps6594_rtc_probe(struct platform_device *pdev)
++static int tps6594_get_rdev_by_name(const char *regulator_name,
++				    struct regulator_dev *rdevbucktbl[BUCK_NB],
++				    struct regulator_dev *rdevldotbl[LDO_NB],
++				    struct regulator_dev *dev)
 +{
-+	struct tps6594 *tps6594;
-+	struct tps6594_rtc *tps_rtc;
-+	int irq;
-+	int ret;
++	int i;
 +
-+	tps6594 = dev_get_drvdata(pdev->dev.parent);
-+
-+	tps_rtc = devm_kzalloc(&pdev->dev, sizeof(struct tps6594_rtc),
-+			       GFP_KERNEL);
-+	if (!tps_rtc)
-+		return -ENOMEM;
-+
-+	tps_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(tps_rtc->rtc))
-+		return PTR_ERR(tps_rtc->rtc);
-+
-+	/* Enable crystal oscillator */
-+	ret = regmap_set_bits(tps6594->regmap, TPS6594_REG_RTC_CTRL_2,
-+			      TPS6594_BIT_XTAL_EN);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Start rtc */
-+	ret = regmap_set_bits(tps6594->regmap, TPS6594_REG_RTC_CTRL_1,
-+			      TPS6594_BIT_STOP_RTC);
-+	if (ret < 0)
-+		return ret;
-+
-+	mdelay(100);
-+
-+	/*
-+	 * RTC should be running now. Check if this is the case.
-+	 * If not it might be a missing oscillator.
-+	 */
-+	ret = regmap_test_bits(tps6594->regmap, TPS6594_REG_RTC_STATUS,
-+			       TPS6594_BIT_RUN);
-+	if (ret < 0)
-+		return ret;
-+	if (ret == 0)
-+		return -ENODEV;
-+
-+	platform_set_drvdata(pdev, tps_rtc);
-+
-+	irq = platform_get_irq_byname(pdev, TPS6594_IRQ_NAME_ALARM);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "Failed to get irq\n");
-+		return irq;
++	for (i = 0; i <= BUCK_NB; i++) {
++		if (strcmp(regulator_name, buck_regs[i].name) == 0) {
++			dev = rdevbucktbl[i];
++			return 0;
++		}
 +	}
 +
-+	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-+					tps6594_rtc_interrupt, IRQF_ONESHOT,
-+					TPS6594_IRQ_NAME_ALARM, &pdev->dev);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to request_threaded_irq\n");
-+		return ret;
++	for (i = 0; i < ARRAY_SIZE(ldo_regs); i++) {
++		if (strcmp(regulator_name, ldo_regs[i].name) == 0) {
++			dev = rdevldotbl[i];
++			return 0;
++		}
 +	}
-+
-+	tps_rtc->rtc->ops = &tps6594_rtc_ops;
-+	tps_rtc->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-+	tps_rtc->rtc->range_max = RTC_TIMESTAMP_END_2099;
-+
-+	return devm_rtc_register_device(tps_rtc->rtc);
++	return -EINVAL;
 +}
 +
-+static struct platform_driver tps6594_rtc_driver = {
-+	.probe		= tps6594_rtc_probe,
-+	.driver		= {
-+		.name	= "tps6594-rtc",
++static int tps6594_regulator_probe(struct platform_device *pdev)
++{
++	struct tps6594 *tps = dev_get_drvdata(pdev->dev.parent);
++	struct regulator_dev *rdev;
++	struct regulator_config config = {};
++	u8 buck_configured[BUCK_NB] = { 0 };
++	u8 buck_multi[MULTI_PHASE_NB] = { 0 };
++	int i;
++	int error;
++	int irq;
++	int ext_reg_irq_nb = 2;
++	struct tps6594_regulator_irq_data *irq_data;
++	struct tps6594_ext_regulator_irq_data *irq_ext_reg_data;
++	struct tps6594_regulator_irq_type *irq_type;
++	struct regulator_dev *rdevbucktbl[BUCK_NB];
++	struct regulator_dev *rdevmultitbl[MULTI_PHASE_NB];
++	struct regulator_dev *rdevldotbl[LDO_NB];
++
++	int multi_phase_id;
++	int multi_phase_case = 0xFFFF;
++
++	config.dev = tps->dev;
++	config.driver_data = tps;
++	config.regmap = tps->regmap;
++
++	/*
++	 * Switch case defines different possible multi phase config
++	 * This is based on dts custom property: multi-phase-id
++	 * Using compatible or device rev is a too complex alternative
++	 * Default case is no Multiphase buck.
++	 * In case of Multiphase configuration, value should be defined for
++	 * buck_configured to avoid creating bucks for every buck in multiphase
++	 */
++
++	if (device_property_present(tps->dev, "ti,multi-phase-id")) {
++		device_property_read_u32(tps->dev, "ti,multi-phase-id", &multi_phase_id);
++		switch (multi_phase_id) {
++		case 12:
++			buck_multi[0] = 1;
++			buck_configured[0] = 1;
++			buck_configured[1] = 1;
++			multi_phase_case = TPS6594_BUCK_12;
++			break;
++		case 34:
++			buck_multi[1] = 1;
++			buck_configured[2] = 1;
++			buck_configured[3] = 1;
++			multi_phase_case = TPS6594_BUCK_34;
++			break;
++		case 123:
++			buck_multi[2] = 1;
++			buck_configured[0] = 1;
++			buck_configured[1] = 1;
++			buck_configured[2] = 1;
++			multi_phase_case = TPS6594_BUCK_123;
++			break;
++		case 1234:
++			buck_multi[3] = 1;
++			buck_configured[0] = 1;
++			buck_configured[1] = 1;
++			buck_configured[2] = 1;
++			buck_configured[3] = 1;
++			multi_phase_case = TPS6594_BUCK_1234;
++			break;
++		}
++	}
++
++	for (i = 0; i < MULTI_PHASE_NB; i++) {
++		if (buck_multi[i] == 0)
++			continue;
++
++		rdev = devm_regulator_register(&pdev->dev, &multi_regs[i], &config);
++		if (IS_ERR(rdev)) {
++			dev_err(tps->dev, "failed to register %s regulator\n",
++				pdev->name);
++			return PTR_ERR(rdev);
++		}
++		rdevmultitbl[i] = rdev;
++	}
++
++	if (tps->chip_id == LP8764X)
++		/* There is only 4 buck on LP8764X */
++		buck_configured[4] = 1;
++
++	for (i = 0; i < BUCK_NB; i++) {
++		if (buck_configured[i] == 1)
++			continue;
++
++		rdev = devm_regulator_register(&pdev->dev, &buck_regs[i], &config);
++		if (IS_ERR(rdev)) {
++			dev_err(tps->dev, "failed to register %s regulator\n",
++				pdev->name);
++			return PTR_ERR(rdev);
++		}
++		rdevbucktbl[i] = rdev;
++	}
++
++	/* LP8764X dosen't have LDO */
++	if (tps->chip_id != LP8764X) {
++		for (i = 0; i < ARRAY_SIZE(ldo_regs); i++) {
++			rdev = devm_regulator_register(&pdev->dev, &ldo_regs[i], &config);
++			if (IS_ERR(rdev)) {
++				dev_err(tps->dev,
++					"failed to register %s regulator\n",
++					pdev->name);
++				return PTR_ERR(rdev);
++			}
++			rdevldotbl[i] = rdev;
++		}
++	}
++
++	irq_data = devm_kmalloc(tps->dev,
++				ARRAY_SIZE(tps6594_regulator_irq_types) *
++				sizeof(struct tps6594_regulator_irq_data),
++				GFP_KERNEL);
++	if (!irq_data)
++		return -ENOMEM;
++
++	for (i = 0; i < ARRAY_SIZE(tps6594_regulator_irq_types); ++i) {
++		irq_type = &tps6594_regulator_irq_types[i];
++
++		irq = platform_get_irq_byname(pdev, irq_type->irq_name);
++		if (irq < 0)
++			return -EINVAL;
++
++		irq_data[i].dev = tps->dev;
++		irq_data[i].type = irq_type;
++
++		tps6594_get_rdev_by_name(irq_type->regulator_name, rdevbucktbl,
++					 rdevldotbl, rdev);
++
++		if (rdev < 0) {
++			dev_err(tps->dev, "Failed to get rdev for %s\n",
++				irq_type->regulator_name);
++			return -EINVAL;
++		}
++		irq_data[i].rdev = rdev;
++
++		error = devm_request_threaded_irq(tps->dev, irq, NULL,
++						  tps6594_regulator_irq_handler,
++						  IRQF_ONESHOT,
++						  irq_type->irq_name,
++						  &irq_data[i]);
++		if (error) {
++			dev_err(tps->dev, "failed to request %s IRQ %d: %d\n",
++				irq_type->irq_name, irq, error);
++			return error;
++		}
++	}
++
++	if (tps->chip_id == LP8764X)
++		ext_reg_irq_nb = ARRAY_SIZE(tps6594_ext_regulator_irq_types);
++
++	irq_ext_reg_data = devm_kmalloc(tps->dev,
++					ext_reg_irq_nb *
++					sizeof(struct tps6594_ext_regulator_irq_data),
++					GFP_KERNEL);
++	if (!irq_ext_reg_data)
++		return -ENOMEM;
++
++	for (i = 0; i < ext_reg_irq_nb; ++i) {
++		irq_type = &tps6594_ext_regulator_irq_types[i];
++
++		irq = platform_get_irq_byname(pdev, irq_type->irq_name);
++		if (irq < 0)
++			return -EINVAL;
++
++		irq_ext_reg_data[i].dev = tps->dev;
++		irq_ext_reg_data[i].type = irq_type;
++
++		error = devm_request_threaded_irq(tps->dev, irq, NULL,
++						  tps6594_regulator_irq_handler,
++						  IRQF_ONESHOT,
++						  irq_type->irq_name,
++						  &irq_ext_reg_data[i]);
++		if (error) {
++			dev_err(tps->dev, "failed to request %s IRQ %d: %d\n",
++				irq_type->irq_name, irq, error);
++			return error;
++		}
++	}
++
++	return 0;
++}
++
++static struct platform_driver tps6594_regulator_driver = {
++	.driver = {
++		.name = "tps6594-regulator",
 +	},
++	.probe = tps6594_regulator_probe,
 +};
 +
-+module_platform_driver(tps6594_rtc_driver);
++module_platform_driver(tps6594_regulator_driver);
 +
-+MODULE_ALIAS("platform:tps6594-rtc");
-+MODULE_AUTHOR("Esteban Blanc <eblanc@baylibre.com>");
-+MODULE_DESCRIPTION("TPS6594 RTC driver");
++MODULE_ALIAS("platform:tps6594-regulator");
++MODULE_AUTHOR("Jerome Neanne <jneanne@baylibre.com>");
++MODULE_DESCRIPTION("TPS6594 voltage regulator driver");
 +MODULE_LICENSE("GPL");
 -- 
 2.38.1
