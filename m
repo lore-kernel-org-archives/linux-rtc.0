@@ -2,120 +2,489 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B603C61DA3
-	for <linux-rtc@archiver.kernel.org>; Fri, 24 Feb 2023 13:31:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54646C61DA4
+	for <linux-rtc@archiver.kernel.org>; Fri, 24 Feb 2023 13:31:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbjBXNbf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 24 Feb 2023 08:31:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
+        id S229985AbjBXNbi (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 24 Feb 2023 08:31:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229534AbjBXNbe (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Feb 2023 08:31:34 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9BA1042B
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:32 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id j2so13746086wrh.9
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:32 -0800 (PST)
+        with ESMTP id S229829AbjBXNbh (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 24 Feb 2023 08:31:37 -0500
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E5751F93
+        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:34 -0800 (PST)
+Received: by mail-wm1-x32d.google.com with SMTP id p3-20020a05600c358300b003e206711347so1767724wmq.0
+        for <linux-rtc@vger.kernel.org>; Fri, 24 Feb 2023 05:31:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1677245491;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0XqYg5Ih2XOB+UkK6Z2brkA3laKu2T8wLWLgaXnwM1Q=;
-        b=6oqHXBlu/N0/yThR76ViJSYXhaAX7ujx9DglLla4OUVxZzD3lg5tBlXKyhbOyQ9kC1
-         CGCQcrIJ1fMeNRdUuje/tWrMRxhnDudqwME6xPGF/oHjVAwcAVYIqb2oebaE4WsDlol0
-         xG0z3zHzRn6avg5KhKW2bndVtf7kqKhMMvo5ZytW3EH6SW4d3nGAf9R0Qu8TCnRFrYTg
-         kpJQklE/6eC+PqWKQKf5SIKXwFLwCBeY7qS8yG+YtzH33o7nPOaH2d5WNgFYKWozOO3u
-         i4yJPO82fnk1cmgCzP0g04OHCV9lxF1XH4Jk74JdfBaGW9O+nZbsjPtbFon+BD81Drtj
-         ejXQ==
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112; t=1677245493;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7AJpG3b+5nh0JP3Y3B72T/w7YEmWL2KoaIhrl1LS2N4=;
+        b=4SQlr4yFY8ZKc9cIxtafVYxVATgwia3+3+8WaJdaxY6LpWQFil1vDvWBk/RQkguyiF
+         bGIfV6tXuO7fFXIMsMfX2RC3cSiQAULuVR+s0nKeiyM30shyI40qE6DrbC5iqCKoKsln
+         fG9VgZNhwexQlAkMb8KjR2AgsizOr8rNuH2U+1tXuotq/duRfgy8YuCz9bfkcp/gnsiG
+         V5WWZQnki7KSw6TkGmN3YRTdJqnT1CZWuHZSihy02+aPqYDrkvDcHH8YnYbXohu3ZuOX
+         LjHX8V71G/6NWT1LYC0KIAG+BTAnV0DYvtCYciHvP2K4NLziUSgIDFofHjgyh4UuebUr
+         i7fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677245491;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0XqYg5Ih2XOB+UkK6Z2brkA3laKu2T8wLWLgaXnwM1Q=;
-        b=Hugb6PXfKL9jxTh75NwsWvt+czwVECDVN24e9YwthkT0MnxkKvBJvKSWyY12LnzEEO
-         3gFC4JIsZvXpNRmsIaqqskcdzV9rPvQkBX0umxSyyRKyAs85R0V8sf5qPmPVu1aBAW1l
-         JKLmRxgSWMHDDWVQ4vdE99V1G+iSsrFjVVW3yWtKJSb+ks1rbtrl3BO6562DOHARwcv9
-         YnNZirge6Dmd49hu8s4zrsEiT1tKcYkF8AQK1nDDW8zkh1gdtV1O2QHGLVZ/0pm5P46a
-         GPGYC2w9Qmw/XNTJkCGt86K34uykwJt3eJwsI4x5tbI78IUpOW06ERj7tBgOhLhEymhb
-         JjTA==
-X-Gm-Message-State: AO0yUKU0TfR/rqexgjOt9xM2VFD55/x9cMd63ZV+7ZrGib1w4nRfRaeO
-        Ii4TQD74EakqAVkiviBRqvODrg==
-X-Google-Smtp-Source: AK7set/mKG+V73AaZM/iRyaTRZTbvTZo4lDTbvttqg2fK40sll1rwkx4ofKgzE/GK6SRyOxhdL/uDA==
-X-Received: by 2002:adf:e412:0:b0:2c7:148c:b04f with SMTP id g18-20020adfe412000000b002c7148cb04fmr4635735wrm.37.1677245490960;
-        Fri, 24 Feb 2023 05:31:30 -0800 (PST)
+        d=1e100.net; s=20210112; t=1677245493;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7AJpG3b+5nh0JP3Y3B72T/w7YEmWL2KoaIhrl1LS2N4=;
+        b=B5GOXOHzkabUtcqHc0NHDM9ycyosJSmysDnpZnOuKd3Rl1r13m+sQzw1Ke93ogYdLN
+         fu9e9hnmfPKdBF4kIfQlmcQqnPJuFV8bdrP/HAlWQPjQt6/d89kHnnuhH66CJKfGlc/G
+         j1Zro+Ihy6MNXIp4/27JaSCI0tYHV1raHaU1xfl5By1SSC6qlyKg5hU1P7ydkk3GDTiO
+         +BVWbntxcrODjpiN+D4SA32/dNzgHbNLJMsrHdj3wxESCjmZq7Kfex3L/cOfLcdEWfl0
+         yqWzWQne+HdWek37SIPYcAuajx29ad2B8+OTN7qOOQ9qJT3E4b7B9qG/18Jj1S+oJwWj
+         0uLg==
+X-Gm-Message-State: AO0yUKXcYA0garejstYb21VBBB07ChUWbVwMJsxzpGdtAFtJR+bh/vJG
+        2kI8uH6MDMCcoBPWDP+b3m2Ypg==
+X-Google-Smtp-Source: AK7set9GgTxT9QPDajl0We3MlLaa8VCoWm+j0LyDjDTQM3BSMQLy1LdTioqEPGuvU8DUucyMDPD6vg==
+X-Received: by 2002:a05:600c:a295:b0:3eb:29fe:70ec with SMTP id hu21-20020a05600ca29500b003eb29fe70ecmr813792wmb.27.1677245492688;
+        Fri, 24 Feb 2023 05:31:32 -0800 (PST)
 Received: from localhost.localdomain ([2a01:e0a:28d:66d0:5e4:476:5145:2ad1])
-        by smtp.gmail.com with ESMTPSA id o25-20020a05600c511900b003dfe549da4fsm3308735wms.18.2023.02.24.05.31.29
+        by smtp.gmail.com with ESMTPSA id o25-20020a05600c511900b003dfe549da4fsm3308735wms.18.2023.02.24.05.31.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Feb 2023 05:31:30 -0800 (PST)
+        Fri, 24 Feb 2023 05:31:32 -0800 (PST)
 From:   Esteban Blanc <eblanc@baylibre.com>
 To:     linus.walleij@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
         a.zummo@towertech.it, alexandre.belloni@bootlin.com
 Cc:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-rtc@vger.kernel.org, jpanis@baylibre.com,
         jneanne@baylibre.com
-Subject: [PATCH v1 0/3] TI TPS6594 PMIC support (RTC, pinctrl, regulators, device trees)
-Date:   Fri, 24 Feb 2023 14:31:26 +0100
-Message-Id: <20230224133129.887203-1-eblanc@baylibre.com>
+Subject: [PATCH INTERNAL v1 2/3] pinctrl: tps6594: add for TPS6594 PMIC
+Date:   Fri, 24 Feb 2023 14:31:28 +0100
+Message-Id: <20230224133129.887203-3-eblanc@baylibre.com>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20230224133129.887203-1-eblanc@baylibre.com>
+References: <20230224133129.887203-1-eblanc@baylibre.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-TPS6594 is a Power Management IC which provides regulators and others
-features like GPIOs, RTC, watchdog, ESMs (Error Signal Monitor), and
-PFSM (Pre-configurable Finite State Machine). The SoC and the PMIC can
-communicate through the I2C or SPI interfaces.
-TPS6594 is the super-set device while TPS6593 and LP8764X are derivatives.
+TI TPS6594 PMIC has 11 GPIOs which can be used for different
+functions
 
-This series adds support to TI TPS6594 PMIC and its derivatives.
+This add a pinctrl and pinmux drivers in order to use those functions
 
-This should be applied on top of other patch series:
-- https://lore.kernel.org/all/20230216114410.183489-1-jpanis@baylibre.com/
-  For core MFD driver
-
-The features implemented in this series are:
-- RTC (child device)
-- Pinmux/GPIO (child device)
-- Regulator (child device)
-
-RTC description:
-The TPS6594 family has an RTC built-in, except for LP8764X.
-It provides time and an alarm.
-
-Pinmux/GPIO:
-TPS6594 family has 11 GPIOs. Those GPIO can also serve different
-functions such as I2C or SPI interface, watchdog disable functions.
-The driver provides both pinmuxing for the functions and GPIO capability.
-
-Regulator:
-TPS6594/TPS6593: 5 BUCKs and 4LDOs
-LP8764X: 4 BUCKs and no LDO
-Bucks can be used in multipahse mode
-
-Esteban Blanc (2):
-  rtc: tps6594: add driver for TPS6594 PMIC RTC
-  pinctrl: tps6594: add for TPS6594 PMIC
-
-Jerome Neanne (1):
-  regulator: tps6594-regulator: Add driver for TI TPS6594 regulators
-
- drivers/pinctrl/Kconfig               |   9 +
- drivers/pinctrl/Makefile              |   1 +
- drivers/pinctrl/pinctrl-tps6594.c     | 367 +++++++++++++++++
- drivers/regulator/Kconfig             |  12 +
- drivers/regulator/Makefile            |   1 +
- drivers/regulator/tps6594-regulator.c | 559 ++++++++++++++++++++++++++
- drivers/rtc/Kconfig                   |   8 +
- drivers/rtc/Makefile                  |   1 +
- drivers/rtc/rtc-tps6594.c             | 516 ++++++++++++++++++++++++
- 9 files changed, 1474 insertions(+)
+Signed-off-by: Esteban Blanc <eblanc@baylibre.com>
+---
+ drivers/pinctrl/Kconfig           |   9 +
+ drivers/pinctrl/Makefile          |   1 +
+ drivers/pinctrl/pinctrl-tps6594.c | 367 ++++++++++++++++++++++++++++++
+ 3 files changed, 377 insertions(+)
  create mode 100644 drivers/pinctrl/pinctrl-tps6594.c
- create mode 100644 drivers/regulator/tps6594-regulator.c
- create mode 100644 drivers/rtc/rtc-tps6594.c
 
+diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
+index 7d5f5458c72e..323c5b0d63bd 100644
+--- a/drivers/pinctrl/Kconfig
++++ b/drivers/pinctrl/Kconfig
+@@ -499,6 +499,15 @@ config PINCTRL_THUNDERBAY
+ 	  rate control and direction control. This module will be
+ 	  called as pinctrl-thunderbay.
+ 
++config PINCTRL_TPS6594
++	tristate "Pinctrl and GPIO driver for TI TPS6594 PMIC"
++	depends on MFD_TPS6594
++	select PINMUX
++	select GPIOLIB
++	help
++	  This driver supports the GPIO for the TPS6594 PMICs.
++	  chip family.
++
+ config PINCTRL_ZYNQ
+ 	bool "Pinctrl driver for Xilinx Zynq"
+ 	depends on ARCH_ZYNQ
+diff --git a/drivers/pinctrl/Makefile b/drivers/pinctrl/Makefile
+index d5939840bb2a..ba7149883a06 100644
+--- a/drivers/pinctrl/Makefile
++++ b/drivers/pinctrl/Makefile
+@@ -49,6 +49,7 @@ obj-$(CONFIG_PINCTRL_STMFX) 	+= pinctrl-stmfx.o
+ obj-$(CONFIG_PINCTRL_SX150X)	+= pinctrl-sx150x.o
+ obj-$(CONFIG_PINCTRL_TB10X)	+= pinctrl-tb10x.o
+ obj-$(CONFIG_PINCTRL_THUNDERBAY) += pinctrl-thunderbay.o
++obj-$(CONFIG_PINCTRL_TPS6594) += pinctrl-tps6594.o
+ obj-$(CONFIG_PINCTRL_ZYNQMP)	+= pinctrl-zynqmp.o
+ obj-$(CONFIG_PINCTRL_ZYNQ)	+= pinctrl-zynq.o
+ 
+diff --git a/drivers/pinctrl/pinctrl-tps6594.c b/drivers/pinctrl/pinctrl-tps6594.c
+new file mode 100644
+index 000000000000..8decf758ff54
+--- /dev/null
++++ b/drivers/pinctrl/pinctrl-tps6594.c
+@@ -0,0 +1,367 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Pinmux and GPIO driver for tps6594 PMIC
++ *
++ * Copyright (C) 2022 BayLibre Incorporated - https://www.baylibre.com/
++ */
++
++#define DEBUG
++
++#include <linux/gpio/driver.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/pinctrl/pinmux.h>
++
++#include <linux/mfd/tps6594.h>
++
++#define TPS6594_GPIO_DIR_IN 0
++#define TPS6594_GPIO_DIR_OUT TPS6594_BIT_GPIO_DIR
++#define TPS6594_PINCTRL_PINS_NB 11
++
++#define TPS6594_PINCTRL_GPIO_FUNCTION 0
++#define TPS6594_PINCTRL_SCL_I2C2_CS_SPI_FUNCTION 1
++#define TPS6594_PINCTRL_TRIG_WDOG_FUNCTION 1
++#define TPS6594_PINCTRL_CLK32KOUT_FUNCTION 1
++#define TPS6594_PINCTRL_SCLK_SPMI_FUNCTION 1
++#define TPS6594_PINCTRL_SDATA_SPMI_FUNCTION 1
++#define TPS6594_PINCTRL_NERR_MCU_FUNCTION 1
++#define TPS6594_PINCTRL_PDOG_FUNCTION 1
++#define TPS6594_PINCTRL_SYNCCLKIN_FUNCTION 1
++#define TPS6594_PINCTRL_NRSTOUT_SOC_FUNCTION 2
++#define TPS6594_PINCTRL_SYNCCLKOUT_FUNCTION 2
++#define TPS6594_PINCTRL_SDA_I2C2_SDO_SPI_FUNCTION 2
++#define TPS6594_PINCTRL_NERR_SOC_FUNCTION 2
++#define TPS6594_PINCTRL_DISABLE_WDOG_FUNCTION 3
++#define TPS6594_PINCTRL_NSLEEP1_FUNCTION 4
++#define TPS6594_PINCTRL_NSLEEP2_FUNCTION 5
++#define TPS6594_PINCTRL_WKUP1_FUNCTION 6
++#define TPS6594_PINCTRL_WKUP2_FUNCTION 7
++
++/* Special muxval for recalcitrant pins */
++#define TPS6594_PINCTRL_DISABLE_WDOG_FUNCTION_GPIO8 2
++#define TPS6594_PINCTRL_SYNCCLKOUT_FUNCTION_GPIO8 3
++#define TPS6594_PINCTRL_CLK32KOUT_FUNCTION_GPIO9 3
++
++#define TPS6594_OFFSET_GPIO_SEL 5
++
++static const struct pinctrl_pin_desc tps6594_pins[TPS6594_PINCTRL_PINS_NB] = {
++	PINCTRL_PIN(0, "GPIO0"),   PINCTRL_PIN(1, "GPIO1"),
++	PINCTRL_PIN(2, "GPIO2"),   PINCTRL_PIN(3, "GPIO3"),
++	PINCTRL_PIN(4, "GPIO4"),   PINCTRL_PIN(5, "GPIO5"),
++	PINCTRL_PIN(6, "GPIO6"),   PINCTRL_PIN(7, "GPIO7"),
++	PINCTRL_PIN(8, "GPIO8"),   PINCTRL_PIN(9, "GPIO9"),
++	PINCTRL_PIN(10, "GPIO10"),
++};
++
++static const char *groups_name[TPS6594_PINCTRL_PINS_NB] = {
++	"GPIO0", "GPIO1", "GPIO2", "GPIO3", "GPIO4", "GPIO5",
++	"GPIO6", "GPIO7", "GPIO8", "GPIO9", "GPIO10"
++};
++
++struct tps6594_pinctrl_function {
++	const char *name;
++	u8 muxval;
++	const char **groups;
++	unsigned long ngroups;
++};
++
++static const struct tps6594_pinctrl_function pinctrl_functions[] = {
++	{ "gpio", TPS6594_PINCTRL_GPIO_FUNCTION, groups_name,
++	  TPS6594_PINCTRL_PINS_NB },
++	{ "nsleep1", TPS6594_PINCTRL_NSLEEP1_FUNCTION, groups_name,
++	  TPS6594_PINCTRL_PINS_NB },
++	{ "nsleep2", TPS6594_PINCTRL_NSLEEP2_FUNCTION, groups_name,
++	  TPS6594_PINCTRL_PINS_NB },
++	{ "wkup1", TPS6594_PINCTRL_WKUP1_FUNCTION, groups_name,
++	  TPS6594_PINCTRL_PINS_NB },
++	{ "wkup2", TPS6594_PINCTRL_WKUP2_FUNCTION, groups_name,
++	  TPS6594_PINCTRL_PINS_NB },
++	{ "scl_i2c2-cs_spi", TPS6594_PINCTRL_SCL_I2C2_CS_SPI_FUNCTION,
++	  (const char *[]){ "GPIO0", "GPIO1" }, 2 },
++	{ "nrstout_soc", TPS6594_PINCTRL_NRSTOUT_SOC_FUNCTION,
++	  (const char *[]){ "GPIO0", "GPIO10" }, 2 },
++	{ "trig_wdog", TPS6594_PINCTRL_TRIG_WDOG_FUNCTION,
++	  (const char *[]){ "GPIO1", "GPIO10" }, 2 },
++	{ "sda_i2c2-sdo_spi", TPS6594_PINCTRL_SDA_I2C2_SDO_SPI_FUNCTION,
++	  (const char *[]){ "GPIO1" }, 1 },
++	{ "clk32kout", TPS6594_PINCTRL_CLK32KOUT_FUNCTION,
++	  (const char *[]){ "GPIO2", "GPIO3", "GPIO7" }, 3 },
++	{ "nerr_soc", TPS6594_PINCTRL_NERR_SOC_FUNCTION,
++	  (const char *[]){ "GPIO2" }, 1 },
++	{ "sclk_spmi", TPS6594_PINCTRL_SCLK_SPMI_FUNCTION,
++	  (const char *[]){ "GPIO4" }, 1 },
++	{ "sdata_spmi", TPS6594_PINCTRL_SDATA_SPMI_FUNCTION,
++	  (const char *[]){ "GPIO5" }, 1 },
++	{ "nerr_mcu", TPS6594_PINCTRL_NERR_MCU_FUNCTION,
++	  (const char *[]){ "GPIO6" }, 1 },
++	{ "syncclkout", TPS6594_PINCTRL_SYNCCLKOUT_FUNCTION,
++	  (const char *[]){ "GPIO7", "GPIO9" }, 2 },
++	{ "disable_wdog", TPS6594_PINCTRL_DISABLE_WDOG_FUNCTION,
++	  (const char *[]){ "GPIO7", "GPIO8" }, 2 },
++	{ "pdog", TPS6594_PINCTRL_PDOG_FUNCTION, (const char *[]){ "GPIO8" },
++	  1 },
++	{ "syncclkin", TPS6594_PINCTRL_SYNCCLKIN_FUNCTION,
++	  (const char *[]){ "GPIO9" }, 1 },
++};
++
++struct tps6594_pinctrl {
++	struct tps6594 *tps;
++	struct gpio_chip gpio_chip;
++	struct pinctrl_dev *pctl_dev;
++	const struct tps6594_pinctrl_function *funcs;
++	const struct pinctrl_pin_desc *pins;
++};
++
++static int tps6594_gpio_get(struct gpio_chip *gc, unsigned int offset)
++{
++	struct tps6594_pinctrl *pinctrl = gpiochip_get_data(gc);
++	int ret, val;
++
++	ret = regmap_read(pinctrl->tps->regmap, TPS6594_REG_GPIOX_IN(offset),
++			  &val);
++	if (ret < 0)
++		return ret;
++
++	val = (val & TPS6594_BIT_GPIOX_IN(offset)) > 0;
++
++	return val;
++}
++
++static void tps6594_gpio_set(struct gpio_chip *gc, unsigned int offset,
++			     int value)
++{
++	struct tps6594_pinctrl *pinctrl = gpiochip_get_data(gc);
++	unsigned int set_register = TPS6594_REG_GPIOX_OUT(offset);
++	int ret;
++
++	ret = regmap_update_bits(pinctrl->tps->regmap, set_register,
++				 TPS6594_BIT_GPIOX_OUT(offset),
++				 value ? TPS6594_BIT_GPIOX_OUT(offset) : 0);
++	if (ret < 0)
++		dev_err(pinctrl->tps->dev,
++			"gpio_set failed to set GPIO%d to %d: %d\n", offset,
++			value, ret);
++}
++
++static int tps6594_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
++{
++	struct tps6594_pinctrl *pinctrl = gpiochip_get_data(gc);
++	int ret;
++
++	ret = regmap_test_bits(pinctrl->tps->regmap,
++			       TPS6594_REG_GPIOX_CONF(offset),
++			       TPS6594_BIT_GPIO_DIR);
++	if (ret < 0) {
++		dev_err(pinctrl->tps->dev,
++			"gpio_get_direction for GPIO%d failed: %d\n", offset,
++			ret);
++		return ret;
++	}
++
++	/*
++	 * TPS6594 direction is 0 = input and 1 = output but Linux direction is 0 = output and
++	 * 1 = input
++	 * Let's invert our value
++	 */
++	return !ret;
++}
++
++static int tps6594_gpio_change_direction(struct gpio_chip *gc,
++					 unsigned int offset,
++					 unsigned int direction)
++{
++	struct tps6594_pinctrl *pinctrl = gpiochip_get_data(gc);
++	int ret;
++
++	ret = regmap_update_bits(pinctrl->tps->regmap,
++				 TPS6594_REG_GPIOX_CONF(offset),
++				 TPS6594_BIT_GPIO_DIR, direction);
++	if (ret < 0)
++		dev_err(pinctrl->tps->dev,
++			"gpio_change_direction for GPIO%d to %u direction failed: %d\n",
++			offset, direction, ret);
++
++	return ret;
++}
++
++static int tps6594_gpio_direction_input(struct gpio_chip *gc,
++					unsigned int offset)
++{
++	return tps6594_gpio_change_direction(gc, offset, TPS6594_GPIO_DIR_IN);
++}
++
++static int tps6594_gpio_direction_output(struct gpio_chip *gc,
++					 unsigned int offset, int value)
++{
++	tps6594_gpio_set(gc, offset, value);
++
++	return tps6594_gpio_change_direction(gc, offset, TPS6594_GPIO_DIR_OUT);
++}
++
++static const struct gpio_chip template_gpio_chip = {
++	.label = "tps6594-gpio",
++	.owner = THIS_MODULE,
++	.get_direction = tps6594_gpio_get_direction,
++	.direction_input = tps6594_gpio_direction_input,
++	.direction_output = tps6594_gpio_direction_output,
++	.get = tps6594_gpio_get,
++	.set = tps6594_gpio_set,
++	.base = -1,
++	.ngpio = TPS6594_PINCTRL_PINS_NB,
++	.can_sleep = true,
++};
++
++static int tps6594_pmx_func_cnt(struct pinctrl_dev *pctldev)
++{
++	return ARRAY_SIZE(pinctrl_functions);
++}
++
++static const char *tps6594_pmx_func_name(struct pinctrl_dev *pctldev,
++					 unsigned int selector)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++
++	return pinctrl->funcs[selector].name;
++}
++
++static int tps6594_pmx_func_groups(struct pinctrl_dev *pctldev,
++				   unsigned int selector,
++				   const char *const **groups,
++				   unsigned int *num_groups)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++
++	*groups = pinctrl->funcs[selector].groups;
++	*num_groups = pinctrl->funcs[selector].ngroups;
++
++	return 0;
++}
++
++static int tps6594_pmx_set(struct tps6594_pinctrl *pinctrl, unsigned int pin,
++			   u8 muxval)
++{
++	u8 mux_sel_val = muxval << TPS6594_OFFSET_GPIO_SEL;
++
++	return regmap_update_bits(pinctrl->tps->regmap,
++				  TPS6594_REG_GPIOX_CONF(pin),
++				  TPS6594_MASK_GPIO_SEL, mux_sel_val);
++}
++
++static int tps6594_pmx_set_mux(struct pinctrl_dev *pctldev,
++			       unsigned int function, unsigned int group)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++	u8 muxval = pinctrl->funcs[function].muxval;
++
++	/* Some pins don't have the same muxval for the same function... */
++	if (group == 8) {
++		if (muxval == TPS6594_PINCTRL_DISABLE_WDOG_FUNCTION)
++			muxval = TPS6594_PINCTRL_DISABLE_WDOG_FUNCTION_GPIO8;
++		else if (muxval == TPS6594_PINCTRL_SYNCCLKOUT_FUNCTION)
++			muxval = TPS6594_PINCTRL_SYNCCLKOUT_FUNCTION_GPIO8;
++	} else if (group == 9) {
++		if (muxval == TPS6594_PINCTRL_CLK32KOUT_FUNCTION)
++			muxval = TPS6594_PINCTRL_CLK32KOUT_FUNCTION_GPIO9;
++	}
++
++	return tps6594_pmx_set(pinctrl, group, muxval);
++}
++
++static int tps6594_pmx_gpio_set_direction(struct pinctrl_dev *pctldev,
++					  struct pinctrl_gpio_range *range,
++					  unsigned int offset, bool input)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++	u8 muxval = pinctrl->funcs[TPS6594_PINCTRL_GPIO_FUNCTION].muxval;
++
++	return tps6594_pmx_set(pinctrl, offset, muxval);
++}
++
++static const struct pinmux_ops tps6594_pmx_ops = {
++	.get_functions_count = tps6594_pmx_func_cnt,
++	.get_function_name = tps6594_pmx_func_name,
++	.get_function_groups = tps6594_pmx_func_groups,
++	.set_mux = tps6594_pmx_set_mux,
++	.gpio_set_direction = tps6594_pmx_gpio_set_direction,
++	.strict = true,
++};
++
++static int tps6594_groups_cnt(struct pinctrl_dev *pctldev)
++{
++	return ARRAY_SIZE(tps6594_pins);
++}
++
++static int tps6594_group_pins(struct pinctrl_dev *pctldev,
++			      unsigned int selector, const unsigned int **pins,
++			      unsigned int *num_pins)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++
++	*pins = (unsigned int *)&pinctrl->pins[selector];
++	*num_pins = 1;
++
++	return 0;
++}
++
++static const char *tps6594_group_name(struct pinctrl_dev *pctldev,
++				      unsigned int selector)
++{
++	struct tps6594_pinctrl *pinctrl = pinctrl_dev_get_drvdata(pctldev);
++
++	return pinctrl->pins[selector].name;
++}
++
++static const struct pinctrl_ops tps6594_pctrl_ops = {
++	.dt_node_to_map = pinconf_generic_dt_node_to_map_group,
++	.dt_free_map = pinconf_generic_dt_free_map,
++	.get_groups_count = tps6594_groups_cnt,
++	.get_group_name = tps6594_group_name,
++	.get_group_pins = tps6594_group_pins,
++};
++
++static int tps6594_pinctrl_probe(struct platform_device *pdev)
++{
++	struct tps6594 *tps = dev_get_drvdata(pdev->dev.parent);
++	struct tps6594_pinctrl *pinctrl;
++	struct pinctrl_desc *pctrl_desc;
++
++	pinctrl = devm_kzalloc(&pdev->dev, sizeof(*pinctrl), GFP_KERNEL);
++	if (!pinctrl)
++		return -ENOMEM;
++
++	pinctrl->tps = dev_get_drvdata(pdev->dev.parent);
++	pinctrl->gpio_chip = template_gpio_chip;
++	pinctrl->gpio_chip.parent = tps->dev;
++
++	pctrl_desc = devm_kzalloc(&pdev->dev, sizeof(*pctrl_desc), GFP_KERNEL);
++	if (!pctrl_desc)
++		return -ENOMEM;
++
++	pctrl_desc->name = dev_name(&pdev->dev);
++	pctrl_desc->owner = THIS_MODULE;
++	pctrl_desc->pins = tps6594_pins;
++	pctrl_desc->npins = ARRAY_SIZE(tps6594_pins);
++	pctrl_desc->pctlops = &tps6594_pctrl_ops;
++	pctrl_desc->pmxops = &tps6594_pmx_ops;
++	pinctrl->funcs = pinctrl_functions;
++	pinctrl->pins = tps6594_pins;
++	pinctrl->pctl_dev =
++		devm_pinctrl_register(&pdev->dev, pctrl_desc, pinctrl);
++	if (IS_ERR(pinctrl->pctl_dev)) {
++		dev_err(&pdev->dev, "Couldn't register pinctrl driver\n");
++		return PTR_ERR(pinctrl->pctl_dev);
++	}
++
++	return devm_gpiochip_add_data(&pdev->dev, &pinctrl->gpio_chip, pinctrl);
++}
++
++static struct platform_driver tps6594_pinctrl_driver = {
++	.driver = { .name = "tps6594-pinctrl" },
++	.probe = tps6594_pinctrl_probe,
++};
++module_platform_driver(tps6594_pinctrl_driver);
++
++MODULE_ALIAS("platform:tps6594-pinctrl");
++MODULE_AUTHOR("Esteban Blanc <eblanc@baylibre.com>");
++MODULE_DESCRIPTION("TPS6594 pinctrl and GPIO driver");
++MODULE_LICENSE("GPL");
 -- 
 2.38.1
 
