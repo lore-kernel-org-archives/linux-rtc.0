@@ -2,44 +2,51 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E81CC678DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB01EC6FA9E
 	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:32:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbjCDNc3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 4 Mar 2023 08:32:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33706 "EHLO
+        id S229792AbjCDNca (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 4 Mar 2023 08:32:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbjCDNcZ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:25 -0500
+        with ESMTP id S229661AbjCDNc0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:26 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89D61BAEC
-        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:32:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1969986B1
+        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:32:02 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyM-0000wt-JO; Sat, 04 Mar 2023 14:30:50 +0100
+        id 1pYRyL-0000hX-BU; Sat, 04 Mar 2023 14:30:49 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyK-001nbe-UO; Sat, 04 Mar 2023 14:30:48 +0100
+        id 1pYRyH-001naQ-Gb; Sat, 04 Mar 2023 14:30:45 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyJ-0027IT-SJ; Sat, 04 Mar 2023 14:30:47 +0100
+        id 1pYRyG-0027HQ-Nz; Sat, 04 Mar 2023 14:30:44 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 36/41] rtc: tps6586x: Convert to platform remove callback returning void
-Date:   Sat,  4 Mar 2023 14:30:23 +0100
-Message-Id: <20230304133028.2135435-37-u.kleine-koenig@pengutronix.de>
+To:     Eddie Huang <eddie.huang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: [PATCH 19/41] rtc: mt7622: Convert to platform remove callback returning void
+Date:   Sat,  4 Mar 2023 14:30:06 +0100
+Message-Id: <20230304133028.2135435-20-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1628; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=NhyZ9biLfPkzDEDPTZaeZnCsLOvZTaql0nqqo7Ryc4k=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0fc7zM/poKLsY6+feJ3i6GusNe6bfYSQmYYa mp0mkwl+nSJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANH3AAKCRDB/BR4rcrs CX3hCACDnidkeMJb0NWRqjPCAJuDebGMb7G8VZI0BGk36A3p86HSKqyrNfSEwsMhf8GBDFnVvaF ugzWdyAR5VE/rr+8qEJK9o2zBTwvwPQl0u97VTBc1b1BpYd7MC+1utiODUSa9rmCXnAKxPD0rIK /tYY2dHUD7Y+NgTpsq/bWlERZR8lvs4VS2mTFMzT8u8rTGrGbwBY7JyAawU/uX9uJE0nifVL55B XxZBrEz1vY2jAGuc+92hY67049GuCyrgRjZAdurgy1k3cGja5FDxEGk7rWeQ8H5Tv4J1fNtQxYD ZsychHMQwEedhrJyOc+QkCDfKMlNik5x6VD67uuy2dlu3a0X
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1585; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=wsitiIApd4ucVW84Pvz8D60NiLt7vailK+/0WWhDkC0=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0ejOVlmBKaKDYk1u+oNiMMy85Nj6w38owcQa UoeS1QQPE6JATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHowAKCRDB/BR4rcrs CWtEB/0URD+d/dClTJt0HoSoK44vQrbZjdGcXmbb6EFMphfDfkPgN7CP8SNlX8HYYKQ7NQ2UDAN Ejuafmz7SURmVR1RzSSpUFVSSTnuEcpiQzMLKSlng+VETU9E/csn9H7W9DiZ8cVak9JVDWS2v8/ bXAhzJKz4YSbVAM4fu/i1At/X+nMqu3R1w6r3wO1SSSocwbkHXvWT84i1mgWc6/blhV1U2qCZ8w aiwIWmekX+AyaJ4WwU26gWdT9hqLroIATl88kbLh+evlcxclFJ344J4cPksQnm3Lot8RTpY+mIE uMmKQl/I+8+cxySoeOTtMkX6gqPdgfmkhiJrML9lplIlWLe7
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -63,37 +70,37 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-tps6586x.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-mt7622.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
-index 52093e7ba22d..9f14e2475747 100644
---- a/drivers/rtc/rtc-tps6586x.c
-+++ b/drivers/rtc/rtc-tps6586x.c
-@@ -279,13 +279,12 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-mt7622.c b/drivers/rtc/rtc-mt7622.c
+index f1e356394814..81857a457c32 100644
+--- a/drivers/rtc/rtc-mt7622.c
++++ b/drivers/rtc/rtc-mt7622.c
+@@ -357,13 +357,11 @@ static int mtk_rtc_probe(struct platform_device *pdev)
  	return ret;
- };
+ }
  
--static int tps6586x_rtc_remove(struct platform_device *pdev)
-+static void tps6586x_rtc_remove(struct platform_device *pdev)
+-static int mtk_rtc_remove(struct platform_device *pdev)
++static void mtk_rtc_remove(struct platform_device *pdev)
  {
- 	struct device *tps_dev = to_tps6586x_dev(&pdev->dev);
+ 	struct mtk_rtc *hw = platform_get_drvdata(pdev);
  
- 	tps6586x_update(tps_dev, RTC_CTRL, 0,
- 		RTC_ENABLE | OSC_SRC_SEL | PRE_BYPASS | CL_SEL_MASK);
+ 	clk_disable_unprepare(hw->clk);
+-
 -	return 0;
  }
  
  #ifdef CONFIG_PM_SLEEP
-@@ -317,7 +316,7 @@ static struct platform_driver tps6586x_rtc_driver = {
- 		.pm	= &tps6586x_pm_ops,
- 	},
- 	.probe	= tps6586x_rtc_probe,
--	.remove	= tps6586x_rtc_remove,
-+	.remove_new = tps6586x_rtc_remove,
- };
- module_platform_driver(tps6586x_rtc_driver);
+@@ -396,7 +394,7 @@ static SIMPLE_DEV_PM_OPS(mtk_rtc_pm_ops, mtk_rtc_suspend, mtk_rtc_resume);
  
+ static struct platform_driver mtk_rtc_driver = {
+ 	.probe	= mtk_rtc_probe,
+-	.remove	= mtk_rtc_remove,
++	.remove_new = mtk_rtc_remove,
+ 	.driver = {
+ 		.name = MTK_RTC_DEV,
+ 		.of_match_table = mtk_rtc_match,
 -- 
 2.39.1
 
