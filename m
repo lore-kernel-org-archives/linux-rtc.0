@@ -2,44 +2,46 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0322AC678DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A03DC6FA9E
 	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:32:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229706AbjCDNc0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S229810AbjCDNc0 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Sat, 4 Mar 2023 08:32:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33682 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbjCDNcX (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:23 -0500
+        with ESMTP id S229704AbjCDNcY (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:24 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1FD211FF
-        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:31:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5F52055A
+        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:31:58 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyM-0000xd-Mk; Sat, 04 Mar 2023 14:30:50 +0100
+        id 1pYRyN-00012X-JB; Sat, 04 Mar 2023 14:30:51 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyL-001nbr-2k; Sat, 04 Mar 2023 14:30:49 +0100
+        id 1pYRyM-001nc7-2Q; Sat, 04 Mar 2023 14:30:50 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyK-0027IY-1M; Sat, 04 Mar 2023 14:30:48 +0100
+        id 1pYRyK-0027In-Pr; Sat, 04 Mar 2023 14:30:48 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     linux-rtc@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 37/41] rtc: twl: Convert to platform remove callback returning void
-Date:   Sat,  4 Mar 2023 14:30:24 +0100
-Message-Id: <20230304133028.2135435-38-u.kleine-koenig@pengutronix.de>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Michal Simek <michal.simek@xilinx.com>
+Cc:     linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        kernel@pengutronix.de
+Subject: [PATCH 41/41] rtc: zynqmp: Convert to platform remove callback returning void
+Date:   Sat,  4 Mar 2023 14:30:28 +0100
+Message-Id: <20230304133028.2135435-42-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1758; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=vD7lH5f0W6vSdLS2Xd8u54BNBcIIgWI8ewZwLMQ89sA=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0fgfJynnDixzvP4f+gWew5IKpO0kbOr0MZO8 EuVM1Qrvq2JATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANH4AAKCRDB/BR4rcrs CcxoCACZQIOc424Ae2UbsS4PtlS9ImeXpwhqhd1xXuE2PGDOV+JjTCjJ2QQZgNmereaMWn8WXHl skzPDGYmizWvtK7VcZTR1U1Y0+gy8te1OcfHUbo7NlS9tAEc9Jf/gv6LBQ9AfUSDYbUG+QQbS9g uTBEqeBjO1wpD0NWBazv9nAf5lCMZAclSCnYJAuCom5X/Vdcd6qWakb7qbjKMC36pZ987gPLebs EujYdc+M2pzZjd1/6sh/JPxRyO8e3A8/JoJtQGsUcjBBVpFdHxNmVB7j3NQeW4zO2qOnxudnuFK DodTqBsfRJnUjJPRr6m7RjCwJXCzCu14b6BJWK2FcKxHLo75
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1626; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=YtSHsUVRoEfZY+IeJpnLYhSUr3NzpHhzFzNoaoxhphM=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0fum+Ej/S9UKeCeKGoHKzTRXDQ5NgaRTSRoK jm1uNw1k1qJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANH7gAKCRDB/BR4rcrs CTD/B/90p1bjjLLVNRNSM0ysp3tpYrrWoLe8ipYVMLqxFkC9qeKBZwzkwMWoXgHINEIyIVn1niS I3PusbTy1kPHsce5W0fwDAbdMUV2M/CONMzf/t8dgb0Myo7NYIBZYlR77uqSo60bQ5Qfm7w2i5O IuUXnk1lPSjOsjTXxRqf2yDrECJs9CALa8Zjw4Li7lnKgTpePN7HlOnXvLUkVlo7aY8ABHxm0jo pvhUwTDHfuE/XGCu3XGxSiKGmcGfVyoVGH3G/2Il1SH4wlj6ybUBn/7iOYxHR/aO5lNQSxY7yeP ZCpLyetYOKxSAxG/vVIGMWKBzwHK9OC5K6GCdc3FcRBaU6Gr
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -63,40 +65,36 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-twl.c | 6 ++----
+ drivers/rtc/rtc-zynqmp.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
-index c24d1e18f56c..81b36948c2fa 100644
---- a/drivers/rtc/rtc-twl.c
-+++ b/drivers/rtc/rtc-twl.c
-@@ -586,7 +586,7 @@ static int twl_rtc_probe(struct platform_device *pdev)
-  * Disable all TWL RTC module interrupts.
-  * Sets status flag to free.
-  */
--static int twl_rtc_remove(struct platform_device *pdev)
-+static void twl_rtc_remove(struct platform_device *pdev)
- {
- 	struct twl_rtc *twl_rtc = platform_get_drvdata(pdev);
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index c9b85c838ebe..08ed171bdab4 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -342,12 +342,10 @@ static int xlnx_rtc_probe(struct platform_device *pdev)
+ 	return devm_rtc_register_device(xrtcdev->rtc);
+ }
  
-@@ -599,8 +599,6 @@ static int twl_rtc_remove(struct platform_device *pdev)
- 		twl6030_interrupt_mask(TWL6030_RTC_INT_MASK,
- 			REG_INT_MSK_STS_A);
- 	}
+-static int xlnx_rtc_remove(struct platform_device *pdev)
++static void xlnx_rtc_remove(struct platform_device *pdev)
+ {
+ 	xlnx_rtc_alarm_irq_enable(&pdev->dev, 0);
+ 	device_init_wakeup(&pdev->dev, 0);
 -
 -	return 0;
  }
  
- static void twl_rtc_shutdown(struct platform_device *pdev)
-@@ -642,7 +640,7 @@ MODULE_DEVICE_TABLE(of, twl_rtc_of_match);
+ static int __maybe_unused xlnx_rtc_suspend(struct device *dev)
+@@ -384,7 +382,7 @@ MODULE_DEVICE_TABLE(of, xlnx_rtc_of_match);
  
- static struct platform_driver twl4030rtc_driver = {
- 	.probe		= twl_rtc_probe,
--	.remove		= twl_rtc_remove,
-+	.remove_new	= twl_rtc_remove,
- 	.shutdown	= twl_rtc_shutdown,
+ static struct platform_driver xlnx_rtc_driver = {
+ 	.probe		= xlnx_rtc_probe,
+-	.remove		= xlnx_rtc_remove,
++	.remove_new	= xlnx_rtc_remove,
  	.driver		= {
- 		.name		= "twl_rtc",
+ 		.name	= KBUILD_MODNAME,
+ 		.pm	= &xlnx_rtc_pm_ops,
 -- 
 2.39.1
 
