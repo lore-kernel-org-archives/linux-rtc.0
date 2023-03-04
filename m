@@ -2,47 +2,46 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BCFAC678DB
-	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:33:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 221C3C6FA9E
+	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:33:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbjCDNdC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 4 Mar 2023 08:33:02 -0500
+        id S229584AbjCDNdD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 4 Mar 2023 08:33:03 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbjCDNdB (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:33:01 -0500
+        with ESMTP id S229551AbjCDNdC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:33:02 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8612103
-        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:32:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65FC211DE
+        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:32:39 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyH-0000cR-6h; Sat, 04 Mar 2023 14:30:45 +0100
+        id 1pYRyI-0000fI-T8; Sat, 04 Mar 2023 14:30:46 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyF-001nZR-E9; Sat, 04 Mar 2023 14:30:43 +0100
+        id 1pYRyG-001na3-L3; Sat, 04 Mar 2023 14:30:44 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyE-0027Gc-LH; Sat, 04 Mar 2023 14:30:42 +0100
+        id 1pYRyG-0027H6-1E; Sat, 04 Mar 2023 14:30:44 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Cc:     Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>, linux-rtc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de
-Subject: [PATCH 07/41] rtc: brcmstb-waketimer: Convert to platform remove callback returning void
-Date:   Sat,  4 Mar 2023 14:29:54 +0100
-Message-Id: <20230304133028.2135435-8-u.kleine-koenig@pengutronix.de>
+To:     Chanwoo Choi <cw00.choi@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 15/41] rtc: max77686: Convert to platform remove callback returning void
+Date:   Sat,  4 Mar 2023 14:30:02 +0100
+Message-Id: <20230304133028.2135435-16-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1784; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=kjnGxqhjIgsGsOQPNMPsXzzsfJnNj8qIf9vPEfGlAz4=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0d947p8DBpXn/pK0tti7SJKgxZ9DmxMyGw3w bQgV7OG7XqJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHfQAKCRDB/BR4rcrs CURCCACEryE1N+xpB8+OqK4+/0aE2fcqZkCD+Y9m1QobmlFGi6tjWvcY2mKzGNPtd9EdopHvzNh 6ZbFmPjfQXjt/DckQmES5vpVXym7o9Bu0QFvofLc6AwgSFGemGd5tukSmRdbMiM+FmSJgAMxSG7 yWyVVoWQL+nm2yOcI/AxZDo83RtJwg4I4NCWGuIrcvOsvki6Cf7WCTxanlStpNOXrZLF5WKEm9C aCLTfCY4Hu1vzbHviCzWx9tKB6mVk6DkzKK1gsQIcd7mW6zvEWhRCVfnIwQrtFTOgbYkh5TZvnF 3DkS9AxdPQJ6OXNM/VD1QP96lvO3UVjIdOUXTISYay/t65Io
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1611; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=4R2BJ7Ycjbairv40Vj8Zl/xcRUirl4wyUSjCyTmSnPM=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0eWytfoB5ygywh2kxPuy3OtyqMm18OiGcQW3 JZBy1KP2eGJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHlgAKCRDB/BR4rcrs CUY7B/9vTP9CgQtQvoLBpxgJPvT+tAzKno3fwjEC4x0NKE2g44qCw0SRzaRHpB0izts3HgfTKUM SihGDhc8yVpFwhz4J3pFK9RuS7nk56CH5uxE2xStiQVxQbkKmXF2DRg1Ei//sZD/dQ7welOe30C Nuw4WbwKoahzAGJZbJaEFIso4KA3EkhOHM45niWpbYJ6Ybtyr0A27bPemWnkI4dPmker+T1FR+j VEngSH1iyw1yBtqeVe4Vcq9eZCW93un2x+uLwA0J6lUHd2y2BW36T1rAl5Jmw/QeaO8s71uzB3n W6lRwEweXnGgZDuCrpF0LK6vwXgXm6sM3p9/3Jl1Qp7eLWa4
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -66,38 +65,38 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-brcmstb-waketimer.c | 6 ++----
+ drivers/rtc/rtc-max77686.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-index 1efa81cecc27..3cdc015692ca 100644
---- a/drivers/rtc/rtc-brcmstb-waketimer.c
-+++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-@@ -336,14 +336,12 @@ static int brcmstb_waketmr_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index b0250d91fb00..35a6021d9ba4 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -806,14 +806,12 @@ static int max77686_rtc_probe(struct platform_device *pdev)
  	return ret;
  }
  
--static int brcmstb_waketmr_remove(struct platform_device *pdev)
-+static void brcmstb_waketmr_remove(struct platform_device *pdev)
+-static int max77686_rtc_remove(struct platform_device *pdev)
++static void max77686_rtc_remove(struct platform_device *pdev)
  {
- 	struct brcmstb_waketmr *timer = dev_get_drvdata(&pdev->dev);
+ 	struct max77686_rtc_info *info = platform_get_drvdata(pdev);
  
- 	unregister_reboot_notifier(&timer->reboot_notifier);
- 	clk_disable_unprepare(timer->clk);
+ 	free_irq(info->virq, info);
+ 	regmap_del_irq_chip(info->rtc_irq, info->rtc_irq_data);
 -
 -	return 0;
  }
  
  #ifdef CONFIG_PM_SLEEP
-@@ -382,7 +380,7 @@ static const __maybe_unused struct of_device_id brcmstb_waketmr_of_match[] = {
+@@ -877,7 +875,7 @@ static struct platform_driver max77686_rtc_driver = {
+ 		.pm	= &max77686_rtc_pm_ops,
+ 	},
+ 	.probe		= max77686_rtc_probe,
+-	.remove		= max77686_rtc_remove,
++	.remove_new	= max77686_rtc_remove,
+ 	.id_table	= rtc_id,
+ };
  
- static struct platform_driver brcmstb_waketmr_driver = {
- 	.probe			= brcmstb_waketmr_probe,
--	.remove			= brcmstb_waketmr_remove,
-+	.remove_new		= brcmstb_waketmr_remove,
- 	.driver = {
- 		.name		= "brcmstb-waketimer",
- 		.pm		= &brcmstb_waketmr_pm_ops,
 -- 
 2.39.1
 
