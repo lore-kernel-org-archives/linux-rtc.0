@@ -2,115 +2,98 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 582F8C7EE33
-	for <linux-rtc@archiver.kernel.org>; Fri,  3 Mar 2023 21:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58CE8C6FA8E
+	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:32:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232871AbjCCVvg (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 3 Mar 2023 16:51:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37704 "EHLO
+        id S229487AbjCDNcR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 4 Mar 2023 08:32:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233180AbjCCVum (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 3 Mar 2023 16:50:42 -0500
-Received: from bee.birch.relay.mailchannels.net (bee.birch.relay.mailchannels.net [23.83.209.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223CC2712;
-        Fri,  3 Mar 2023 13:46:44 -0800 (PST)
-X-Sender-Id: dreamhost|x-authsender|hussein@unixcat.org
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-        by relay.mailchannels.net (Postfix) with ESMTP id D0AE3880E3E;
-        Fri,  3 Mar 2023 21:45:33 +0000 (UTC)
-Received: from pdx1-sub0-mail-a274.dreamhost.com (unknown [127.0.0.6])
-        (Authenticated sender: dreamhost)
-        by relay.mailchannels.net (Postfix) with ESMTPA id 5A65B88101F;
-        Fri,  3 Mar 2023 21:45:33 +0000 (UTC)
-ARC-Seal: i=1; s=arc-2022; d=mailchannels.net; t=1677879933; a=rsa-sha256;
-        cv=none;
-        b=MEGxXBHUnxusvezEG69tROrDKDyqKvgEZdl1jXELcQk9v1sc4+/MduaVF6wnHdAxIeJyqx
-        A7U0LAaH4pD0ij1+jhL0aixFmLmTnkABP3WHngMIh/RUWZzxi0hxFtC0FyV42hZKTh8UX2
-        y+sfFLiVJzi4k1PPlN5mu7LzI1Udq800wF0UtMZAJGxqO2SLH/xHN66fbSCtEQYv7WvmJr
-        +F/127Otw6r0lul0uTu+zGb5cXMswDGkp22RGvf+A6+y/wg2PnskKDYfBDMu5cvyUZByKk
-        GfTb8fpgn9fvGtqCiwHToS4c+y8DTcmf91Af94JAlWaHHEtGuoeMxEVxUi5kgg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed;
- d=mailchannels.net;
-        s=arc-2022; t=1677879933;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:dkim-signature;
-        bh=u+9GNR2JIWiMQyC7QKqhP3pgacqFjUfe90nVtUf476g=;
-        b=CUBNET4t3cRwCazTcnBPrSHso18jBObrz1NQlAjdF7uTA5uLkd0vIFg24pfnxG7EIow6ri
-        rR6VGv00EF+knI8sbyqWdC0tP0sSZe0M4P6Mj4edb26lWEhOwcqzH5SyfPqOuaJiQLFpQ8
-        56n2djtNTt3OmhsUCUb+KUtPSHHgrpSBNWxDMkiDRraDXOeZWcIPSDVeO+qrZgc4jD2RGv
-        +OGoEvX9TtBdXYTYeaX9JZPIpZQMamM0XUMDv/rwoP316PkzwqN7jg2SA1OdZcDAkh77tO
-        owShcZebq7hx29wz/MUJKPrnW4nAdilJinLhwKznPExRnQYz+iv6bI7DdxJR+w==
-ARC-Authentication-Results: i=1;
-        rspamd-fd4f5fb8c-t7qck;
-        auth=pass smtp.auth=dreamhost smtp.mailfrom=hussein@unixcat.org
-X-Sender-Id: dreamhost|x-authsender|hussein@unixcat.org
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: dreamhost|x-authsender|hussein@unixcat.org
-X-MailChannels-Auth-Id: dreamhost
-X-Turn-Chemical: 4fa4edc10520b167_1677879933636_439526163
-X-MC-Loop-Signature: 1677879933636:854917284
-X-MC-Ingress-Time: 1677879933636
-Received: from pdx1-sub0-mail-a274.dreamhost.com (pop.dreamhost.com
- [64.90.62.162])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-        by 100.119.33.161 (trex/6.7.2);
-        Fri, 03 Mar 2023 21:45:33 +0000
-Received: from localhost (unknown [175.144.191.112])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: hussein@unixcat.org)
-        by pdx1-sub0-mail-a274.dreamhost.com (Postfix) with ESMTPSA id 4PT1jm4YpPzqw;
-        Fri,  3 Mar 2023 13:45:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=unixcat.org;
-        s=dreamhost; t=1677879933;
-        bh=u+9GNR2JIWiMQyC7QKqhP3pgacqFjUfe90nVtUf476g=;
-        h=From:To:Cc:Subject:Date:Content-Transfer-Encoding;
-        b=qkRGTl7whr+bfZYrsZNtXxHdxZjfkSwhoBAtn4qzOK41rF9h6beGnlGtG3BUL+xyV
-         SznlIC47+lpYNbcdAa6nj/svz34+i+upnR1//JSBCcgbPfVDJrzQ2LnkjlO0JVyAmZ
-         dHvXfoqleB6VTajRRArX4Jk/aoZMP+Z27MiSSxWg=
-From:   Nur Hussein <hussein@unixcat.org>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Nur Hussein <hussein@unixcat.org>
-Subject: [PATCH] Error checking for spi_setup during probe function added to rtc-m41t94 driver
-Date:   Sat,  4 Mar 2023 05:45:26 +0800
-Message-Id: <20230303214526.1831504-1-hussein@unixcat.org>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229506AbjCDNcQ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:16 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38D1C1F90A
+        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:31:51 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYRyF-0000bl-EX; Sat, 04 Mar 2023 14:30:43 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYRyE-001nZE-PL; Sat, 04 Mar 2023 14:30:42 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1pYRyE-0027GR-4F; Sat, 04 Mar 2023 14:30:42 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 04/41] rtc: ac100: Convert to platform remove callback returning void
+Date:   Sat,  4 Mar 2023 14:29:51 +0100
+Message-Id: <20230304133028.2135435-5-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
+References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1654; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=AjxRkeaeiRejjRKZfMSIhM0IqNs7Ec3jKTZRJ9+NOYY=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0dzAY9/mrmH9+LlqPpHeJwlYsNDPJrnCin6M +yXjpC+u0eJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHcwAKCRDB/BR4rcrs Ccl+B/9ImidqWibGqE7o6Mg8jZISgFyYN0KCIUOsZRl3nyo9qpOvFHL3UM4f/Xsq9CzX98+00nn esmyshk8VSr8G5zk7q2p94CNPfg0TIYuwXOgOUaiV2YmFGESf7q8z8HDlRNWVWQwcYoWj+44UjN jKkIft3oxVxgrQeOTVuC9F/EatuhJ/YAeM+rCvZI50Cm5zSDj3nHPq8CYoIXjiJRcYiiiVd1qM0 tYY6Gcz1r+DJ+iO1zzii8U9pQos3uhLQkeSLupolh3+iuuq/RDYiGG5kv0wBtFbMjETUxJY5cNU Nu0QHMuUEAmZCP0KnCiHmkRl+vs216OgL9OImEWjMHxYrhK4
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The m41t94_probe() function calls spi_setup() but does not check for an
-error upon return. I have added this check, and returns the error and
-sets the error message via dev_error to "spi_setup failed".
+The .remove() callback for a platform driver returns an int which makes
+many driver authors wrongly assume it's possible to do error handling by
+returning an error code. However the value returned is (mostly) ignored
+and this typically results in resource leaks. To improve here there is a
+quest to make the remove callback return void. In the first step of this
+quest all drivers are converted to .remove_new() which already returns
+void.
 
-Signed-off-by: Nur Hussein <hussein@unixcat.org>
+Trivially convert this driver from always returning zero in the remove
+callback to the void returning variant.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-m41t94.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-ac100.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-m41t94.c b/drivers/rtc/rtc-m41t94.c
-index 6803b0273302..4bdee2336228 100644
---- a/drivers/rtc/rtc-m41t94.c
-+++ b/drivers/rtc/rtc-m41t94.c
-@@ -112,7 +112,12 @@ static int m41t94_probe(struct spi_device *spi)
- 	int res;
+diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+index 66783cb5e711..eaf2c9ab9661 100644
+--- a/drivers/rtc/rtc-ac100.c
++++ b/drivers/rtc/rtc-ac100.c
+@@ -613,13 +613,11 @@ static int ac100_rtc_probe(struct platform_device *pdev)
+ 	return devm_rtc_register_device(chip->rtc);
+ }
  
- 	spi->bits_per_word = 8;
--	spi_setup(spi);
-+
-+	res = spi_setup(spi);
-+	if (res < 0) {
-+		dev_err(&spi->dev, "spi setup failed.\n");
-+		return res;
-+	}
+-static int ac100_rtc_remove(struct platform_device *pdev)
++static void ac100_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct ac100_rtc_dev *chip = platform_get_drvdata(pdev);
  
- 	res = spi_w8r8(spi, M41T94_REG_SECONDS);
- 	if (res < 0) {
+ 	ac100_rtc_unregister_clks(chip);
+-
+-	return 0;
+ }
+ 
+ static const struct of_device_id ac100_rtc_match[] = {
+@@ -630,7 +628,7 @@ MODULE_DEVICE_TABLE(of, ac100_rtc_match);
+ 
+ static struct platform_driver ac100_rtc_driver = {
+ 	.probe		= ac100_rtc_probe,
+-	.remove		= ac100_rtc_remove,
++	.remove_new	= ac100_rtc_remove,
+ 	.driver		= {
+ 		.name		= "ac100-rtc",
+ 		.of_match_table	= of_match_ptr(ac100_rtc_match),
 -- 
-2.34.1
+2.39.1
 
