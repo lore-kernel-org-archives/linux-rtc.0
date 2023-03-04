@@ -2,46 +2,44 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B37B8C678DB
-	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:32:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23BF5C6FA9E
+	for <linux-rtc@archiver.kernel.org>; Sat,  4 Mar 2023 13:32:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229584AbjCDNcX (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 4 Mar 2023 08:32:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33656 "EHLO
+        id S229551AbjCDNcY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 4 Mar 2023 08:32:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbjCDNcV (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:21 -0500
+        with ESMTP id S229661AbjCDNcW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 4 Mar 2023 08:32:22 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C394A206AD
-        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:31:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E4A20D26
+        for <linux-rtc@vger.kernel.org>; Sat,  4 Mar 2023 05:31:56 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyH-0000dc-OI; Sat, 04 Mar 2023 14:30:45 +0100
+        id 1pYRyI-0000jX-QZ; Sat, 04 Mar 2023 14:30:46 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyG-001nZt-Fn; Sat, 04 Mar 2023 14:30:44 +0100
+        id 1pYRyI-001naZ-14; Sat, 04 Mar 2023 14:30:46 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1pYRyF-0027Gp-5H; Sat, 04 Mar 2023 14:30:43 +0100
+        id 1pYRyH-0027HZ-AB; Sat, 04 Mar 2023 14:30:45 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Benson Leung <bleung@chromium.org>
-Cc:     Guenter Roeck <groeck@chromium.org>, linux-rtc@vger.kernel.org,
-        chrome-platform@lists.linux.dev, kernel@pengutronix.de
-Subject: [PATCH 10/41] rtc: cros-ec: Convert to platform remove callback returning void
-Date:   Sat,  4 Mar 2023 14:29:57 +0100
-Message-Id: <20230304133028.2135435-11-u.kleine-koenig@pengutronix.de>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 22/41] rtc: palmas: Convert to platform remove callback returning void
+Date:   Sat,  4 Mar 2023 14:30:09 +0100
+Message-Id: <20230304133028.2135435-23-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1671; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=K+XKlXv766x2AdrMgVzY+f8frj0KOQQ2uyntmhYV3uc=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0eGunPhWAJAYFDQBXkKCceudbKWQlDH9+TIZ C6tIOw6+8+JATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHhgAKCRDB/BR4rcrs CTD+B/0aDynlGGn7bpYdwp7GEFccUwZxbqpI2nBbPcYr1xv5TIEq/pU1xqAtzNNtw2RKnTSzSbv iZnBeqCX/TABgGHPRTRHwE44uhrdXsXTaMVnqC5JUEZtMkR5I3BiIM0byoUHSmj7xNCAGy1/E1E xsRELQZyfMUEGDilskW9KhLJ6jCSzVOnlXqJbzkPkF2buKTn/+cFGl7ghXeiJs7Q7joRRPZm0ei Z6oos1yW9WJ9lwS0mcafQV3HXF+1NweTeRFAtSzdII1b6oy/p8bwUYqFY50JJQ1W/fYoVpCN4Yg z/znzIle6dsBb/Y8KTn6LMxtM7Xnj3SxeBI2kw+5xyw1tKnm
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1524; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=6KsH1C70dgoiqwQv//ldlbyWGTHAHUaGFlOnk85hGxc=; b=owEBbQGS/pANAwAKAcH8FHityuwJAcsmYgBkA0es+a3MCKhq9JbTJJYBMT8zGIHkbWPLz0lQ8 nWZB0wMPJOJATMEAAEKAB0WIQR+cioWkBis/z50pAvB/BR4rcrsCQUCZANHrAAKCRDB/BR4rcrs CVdkB/90ndHDDkhOy+tn4+66WM3NGMHQS1HrLvqyV1yLKXhJXigk5Y95C8chHtiBIeLw2s4nIUE sI514s5sKsSwNLSIAJmQsxtphPB9lXq+HbLkKIzQQZ1b1G2w8x0DnHnYRwRoYDc7d8Iqpbrl2wv FGk9UsHT/mpwfEiF6l5nmJ3uwzC5agG3BjuGLP9TjqjVhwgV7y8/757wJTdtNUzMOR2DcBMBJ+I /5bVg1aNJ/H8g//BCKbMTwfp5TM6LtRX0yAIz3gUPmJGZ/nJF/xEVb8u875dNP7ePz6+lORtAgZ 8PH9OCIE9yhARxGRGbzHeJRNc+Veg3Dd10M+OAQh6I029Bjy
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -65,37 +63,34 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-cros-ec.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-palmas.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cros-ec.c b/drivers/rtc/rtc-cros-ec.c
-index a3ec066d8066..998ab8606f0b 100644
---- a/drivers/rtc/rtc-cros-ec.c
-+++ b/drivers/rtc/rtc-cros-ec.c
-@@ -371,7 +371,7 @@ static int cros_ec_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-palmas.c b/drivers/rtc/rtc-palmas.c
+index 67571f7f0bbc..6971e47c6021 100644
+--- a/drivers/rtc/rtc-palmas.c
++++ b/drivers/rtc/rtc-palmas.c
+@@ -308,10 +308,9 @@ static int palmas_rtc_probe(struct platform_device *pdev)
  	return 0;
  }
  
--static int cros_ec_rtc_remove(struct platform_device *pdev)
-+static void cros_ec_rtc_remove(struct platform_device *pdev)
+-static int palmas_rtc_remove(struct platform_device *pdev)
++static void palmas_rtc_remove(struct platform_device *pdev)
  {
- 	struct cros_ec_rtc *cros_ec_rtc = platform_get_drvdata(pdev);
- 	struct device *dev = &pdev->dev;
-@@ -382,13 +382,11 @@ static int cros_ec_rtc_remove(struct platform_device *pdev)
- 				&cros_ec_rtc->notifier);
- 	if (ret)
- 		dev_err(dev, "failed to unregister notifier\n");
--
+ 	palmas_rtc_alarm_irq_enable(&pdev->dev, 0);
 -	return 0;
  }
  
- static struct platform_driver cros_ec_rtc_driver = {
- 	.probe = cros_ec_rtc_probe,
--	.remove = cros_ec_rtc_remove,
-+	.remove_new = cros_ec_rtc_remove,
- 	.driver = {
- 		.name = DRV_NAME,
- 		.pm = &cros_ec_rtc_pm_ops,
+ #ifdef CONFIG_PM_SLEEP
+@@ -347,7 +346,7 @@ MODULE_DEVICE_TABLE(of, of_palmas_rtc_match);
+ 
+ static struct platform_driver palmas_rtc_driver = {
+ 	.probe		= palmas_rtc_probe,
+-	.remove		= palmas_rtc_remove,
++	.remove_new	= palmas_rtc_remove,
+ 	.driver		= {
+ 		.name	= "palmas-rtc",
+ 		.pm	= &palmas_rtc_pm_ops,
 -- 
 2.39.1
 
