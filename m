@@ -2,121 +2,86 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF06EC61DA4
-	for <linux-rtc@archiver.kernel.org>; Mon,  6 Mar 2023 08:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE0DC61DA4
+	for <linux-rtc@archiver.kernel.org>; Mon,  6 Mar 2023 09:37:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229519AbjCFIjh (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 6 Mar 2023 03:39:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41308 "EHLO
+        id S229567AbjCFJha (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 6 Mar 2023 04:37:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229914AbjCFIjh (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Mar 2023 03:39:37 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5611E9FF
-        for <linux-rtc@vger.kernel.org>; Mon,  6 Mar 2023 00:39:35 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id fm20-20020a05600c0c1400b003ead37e6588so7577724wmb.5
-        for <linux-rtc@vger.kernel.org>; Mon, 06 Mar 2023 00:39:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1678091974;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mdXHSSzFb0wf4Z5ebFpbSvGWzd8D68jDgoc9WISe18M=;
-        b=YDzgs6ohOBXeckWB2RLnBSj0GvWH9mWSPqHl7QN2VIHs2zzVMceOCigWeXjTmItup+
-         ylJ/DahLMUL15wDbIQfjxSRUT00BYTlrmBEvu6yHalSxCyWZW7/deyfhlV5PXgfban4O
-         sU/hynle9mnPZdsSXvAwD4kkqRcw3202+XtP12PUFbpXN3DPfJnWpwx99l67bUA1NUX4
-         gogwcJU6OO5Dk68JqmiBKbYVFvPEbyo3bwSgF/7ZGzVgQluCeaIWHqi+/CXl1AvHvjW4
-         df5uMI0YevCDCL/WUYhn81wzKOaarOuDdwXXrnfUq3a0pVFR7Mj3wilOeozaNjVe4eMP
-         3T6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678091974;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mdXHSSzFb0wf4Z5ebFpbSvGWzd8D68jDgoc9WISe18M=;
-        b=ISz7pfrg7suiBidP+Xe90v60pOfCsL6WvE+ms0NBKodvTtZyD4uP222mQirpogg7Kk
-         lo5AXnu7sCgGU0m8QfqiBLrUie48h415qUP8n/IkP7bAxDYVHvlK0q98Ba3LT/CH5yAJ
-         hkkUP8PowDaYY6tFydJsE7J1jZZrDYv3d1vYhSW50fBXa7wUVYKJ0zB9EAz6baSRgShR
-         1ZGN3FZ/xOO9I3UECKo44uCotg1Q9DhKzWlelWR17j8oM/8/wHa4AfYEaQOGZJugQJXP
-         +ErSkO7LQVWgN7b1x1e7j2CtZmq33VLXZoDTvwMziV5m5CG3kqQXzCLRc6+i4ecShA/3
-         Di5A==
-X-Gm-Message-State: AO0yUKUE6WF9rCC2kmiiZwSNp3wKhzuxjkWvKf4qpBsznINrCXbAg4Vp
-        Z0mgp7tCcjQslN+Td2GW4sEWiw==
-X-Google-Smtp-Source: AK7set+ZWZw+hQJ/2sk3ResOt44ySPYhF3lJa5MGYX4FLkyMzo9GSQeeqZSK5eB9zmeofrYdEnx6Gw==
-X-Received: by 2002:a05:600c:350c:b0:3dc:40a0:3853 with SMTP id h12-20020a05600c350c00b003dc40a03853mr6535425wmq.11.1678091969437;
-        Mon, 06 Mar 2023 00:39:29 -0800 (PST)
-Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id d1-20020a5d4f81000000b002c54e26bca5sm9190736wru.49.2023.03.06.00.39.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Mar 2023 00:39:29 -0800 (PST)
-From:   Neil Armstrong <neil.armstrong@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S229486AbjCFJh3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 6 Mar 2023 04:37:29 -0500
+Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85073ABF
+        for <linux-rtc@vger.kernel.org>; Mon,  6 Mar 2023 01:37:28 -0800 (PST)
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+        by mx0a-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3268e3Yi013010;
+        Mon, 6 Mar 2023 03:37:14 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=PODMain02222019;
+ bh=yx89XbYbo2ayyKVzTM1XTk8n6bJRcj3bIZzeHiYfN7E=;
+ b=TRCi/TrgZgiswDoD5nf2QEv4HnZX6RLwmi0YPb0x7UXUpqfqw8rOk8Hq7DbVC4fjoe5+
+ tgBZ7DNXhbShEgzsvKIgPQuUnwUBDpbR1BojuPeX9CwYcWSAwLOTL1H5p8VBHJzK3Xv6
+ 0ph5hE5Hk9GBF5jsU2o1KYTg6+a78Ln7O+r62unHnr0jITgxiNT7AMsFQALbtNtoInJF
+ jQVx60WVhIbv/4lENftqeAhF9Brq8HP5DgURT8QCh1pvro+goC68M1rI/MnHWcnDKVaV
+ /7R4X8dbMAeYlMbl8JnFkkqP74D5yfkZFdLAwXnk4oQaSx56e01oPUsXHClN/qM5KfbL 7A== 
+Received: from ediex01.ad.cirrus.com ([84.19.233.68])
+        by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 3p44972bbh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 06 Mar 2023 03:37:13 -0600
+Received: from ediex02.ad.cirrus.com (198.61.84.81) by ediex01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.25; Mon, 6 Mar
+ 2023 03:37:11 -0600
+Received: from ediswmail.ad.cirrus.com (198.61.86.93) by
+ anon-ediex02.ad.cirrus.com (198.61.84.81) with Microsoft SMTP Server id
+ 15.2.1118.25 via Frontend Transport; Mon, 6 Mar 2023 03:37:11 -0600
+Received: from ediswmail.ad.cirrus.com (ediswmail.ad.cirrus.com [198.61.86.93])
+        by ediswmail.ad.cirrus.com (Postfix) with ESMTP id CBF69458;
+        Mon,  6 Mar 2023 09:37:11 +0000 (UTC)
+Date:   Mon, 6 Mar 2023 09:37:11 +0000
+From:   Charles Keepax <ckeepax@opensource.cirrus.com>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+CC:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org
-In-Reply-To: <20230209-b4-amlogic-bindings-convert-take2-v1-0-c4fe9049def9@linaro.org>
-References: <20230209-b4-amlogic-bindings-convert-take2-v1-0-c4fe9049def9@linaro.org>
-Subject: Re: (subset) [PATCH 0/6] dt-bindings: second batch of dt-schema
- conversions for Amlogic Meson bindings
-Message-Id: <167809196860.10551.9031776722379367022.b4-ty@linaro.org>
-Date:   Mon, 06 Mar 2023 09:39:28 +0100
+        <patches@opensource.cirrus.com>, <linux-rtc@vger.kernel.org>,
+        <kernel@pengutronix.de>
+Subject: Re: [PATCH 39/41] rtc: wm8350: Convert to platform remove callback
+ returning void
+Message-ID: <20230306093711.GR68926@ediswmail.ad.cirrus.com>
+References: <20230304133028.2135435-1-u.kleine-koenig@pengutronix.de>
+ <20230304133028.2135435-40-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.12.1
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230304133028.2135435-40-u.kleine-koenig@pengutronix.de>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Proofpoint-GUID: yZhSlUVV6u7CMfAKk079X40MXTxCAkSN
+X-Proofpoint-ORIG-GUID: yZhSlUVV6u7CMfAKk079X40MXTxCAkSN
+X-Proofpoint-Spam-Reason: safe
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi,
-
-On Thu, 09 Feb 2023 14:41:36 +0100, Neil Armstrong wrote:
-> Batch conversion of the following bindings:
-> - rtc-meson-vrtc.txt
-> - amlogic,gxbb-clkc.txt
-> - amlogic,gxbb-aoclkc.txt
-> - clk-measure.txt
+On Sat, Mar 04, 2023 at 02:30:26PM +0100, Uwe Kleine-König wrote:
+> The .remove() callback for a platform driver returns an int which makes
+> many driver authors wrongly assume it's possible to do error handling by
+> returning an error code. However the value returned is (mostly) ignored
+> and this typically results in resource leaks. To improve here there is a
+> quest to make the remove callback return void. In the first step of this
+> quest all drivers are converted to .remove_new() which already returns
+> void.
 > 
-> And in addition document the System Control registers top node.
+> Trivially convert this driver from always returning zero in the remove
+> callback to the void returning variant.
 > 
-> [...]
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> ---
 
-Thanks, Applied to https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git (v6.4/drivers)
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[2/6] dt-bindings: soc: amlogic: convert clk-measure.txt to dt-schema
-      https://git.kernel.org/amlogic/c/2227e738b30bf20380a48391a73752c52f5f5c6a
-
-These changes has been applied on the intermediate git tree [1].
-
-The v6.4/drivers branch will then be sent via a formal Pull Request to the Linux SoC maintainers
-for inclusion in their intermediate git branches in order to be sent to Linus during
-the next merge window, or sooner if it's a set of fixes.
-
-In the cases of fixes, those will be merged in the current release candidate
-kernel and as soon they appear on the Linux master branch they will be
-backported to the previous Stable and Long-Stable kernels [2].
-
-The intermediate git branches are merged daily in the linux-next tree [3],
-people are encouraged testing these pre-release kernels and report issues on the
-relevant mailing-lists.
-
-If problems are discovered on those changes, please submit a signed-off-by revert
-patch followed by a corrective changeset.
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-[3] https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-
--- 
-Neil
-
+Thanks,
+Charles
