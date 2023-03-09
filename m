@@ -2,35 +2,35 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9F12C61DA4
-	for <linux-rtc@archiver.kernel.org>; Thu,  9 Mar 2023 20:45:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A04C64EC4
+	for <linux-rtc@archiver.kernel.org>; Thu,  9 Mar 2023 20:46:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbjCIUpm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 9 Mar 2023 15:45:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
+        id S231321AbjCIUpo (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 9 Mar 2023 15:45:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbjCIUpd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Mar 2023 15:45:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98538F739E;
-        Thu,  9 Mar 2023 12:45:14 -0800 (PST)
+        with ESMTP id S230378AbjCIUpi (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Mar 2023 15:45:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158EAF222B;
+        Thu,  9 Mar 2023 12:45:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E9D61CE5;
-        Thu,  9 Mar 2023 20:45:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2028DC433A1;
-        Thu,  9 Mar 2023 20:45:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC7CCB8208A;
+        Thu,  9 Mar 2023 20:45:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E694CC4339B;
+        Thu,  9 Mar 2023 20:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1678394713;
-        bh=9xUeuaqJETlsyaOBibq9HqTPqXfzlcN4B6jvEtDgTas=;
+        s=k20201202; t=1678394721;
+        bh=69cMqall9ySx9R5xXzMB2/T+YDWmm6o9YXNbjv3RYmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGDw9GshVwKoLdPjIxK7oLw5/ilRPAbxYq2j8YmvhFhgVyAO35+tbtndgxNXvKMRL
-         iK53TmvKBXT0GSYoe73SHWiQj99xtJpRqm8vYgegX5YvVkyNzCZAGj1hsPdWIP33PE
-         rAon7G0u84acHoFx6kkbNweOuOZIpIqf20ZUU7DB0dGj9L3Ev8F3pU+jxvPZz86glJ
-         PPG5D0pWD3Enk3hWsglJwq90cYf39JWVqlFyq9AQCtZ1BLU98XQwy+LjCctHLx69d3
-         h1py7sojz8cheFE7AuDBynp+jMZ7+uKsdn4Tfs0mHV2N1a0Fn51PfyiAdKbq5m4ODo
-         L1YiQVAUFhr5Q==
+        b=doG+ooEVvhghSuy3xmfVYkqGfZsYRIZmobvE6daPQDekROCM/vdBLNWB53oOyxq8v
+         uLp4Hunt6kZ2ikvm/vNbxA+j8ApIUnZmaGI9rmSirLCplLPKo7eDP2FDscSLGKk1aj
+         rIiiCJSEHF5zKia+z+Db4oASRNLRZuYt0h6AHs9yaIpwVZv+hBkiz38seuTHfmPa2Z
+         FKIw5xcfEb8IyJCq8HCnt6s7hcRmlN2jnB6G3JiXeh8bUtorsUm9rsYfaS7lIig5xz
+         y5Edku6QuBInyWAMVL++zfXQQ3FYr95SHSvx4jz5pkulYH3TZFQbyTG5THlxECaL8h
+         crb9NdE/9QWBQ==
 From:   Conor Dooley <conor@kernel.org>
 To:     linux-riscv@lists.infradead.org
 Cc:     conor@kernel.org, Conor Dooley <conor.dooley@microchip.com>,
@@ -46,14 +46,14 @@ Cc:     conor@kernel.org, Conor Dooley <conor.dooley@microchip.com>,
         linux-usb@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
         linux-i2c@vger.kernel.org,
         Daire McNamara <daire.mcnamara@microchip.com>
-Subject: [PATCH v1 3/5] mailbox: mpfs: convert SOC_MICROCHIP_POLARFIRE to ARCH_MICROCHIP_POLARFIRE
-Date:   Thu,  9 Mar 2023 20:44:50 +0000
-Message-Id: <20230309204452.969574-4-conor@kernel.org>
+Subject: [PATCH v1 5/5] usb: musb: mpfs: convert SOC_MICROCHIP_POLARFIRE to ARCH_MICROCHIP_POLARFIRE
+Date:   Thu,  9 Mar 2023 20:44:52 +0000
+Message-Id: <20230309204452.969574-6-conor@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230309204452.969574-1-conor@kernel.org>
 References: <20230309204452.969574-1-conor@kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=848; i=conor.dooley@microchip.com; h=from:subject; bh=9jucC2HUrzLki0OwISlZ9w8uDjkgxcnchy6bulfM2rU=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClcrs5LlmjGTr4Vo/ArYPZ9o861T3331dyTmHN/2acCb enQzI6pHaUsDGIcDLJiiiyJt/tapNb/cdnh3PMWZg4rE8gQBi5OAZjI+2xGhq29az7az0/S6le8 qOpTu2PK3jz/N/bBDLOyj37pS3uXlcrw3715goRcWcSTRt239Rt6jzHcW6On9mZh+NuUzZtmN1o qMwEA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=825; i=conor.dooley@microchip.com; h=from:subject; bh=ul3OSqO/d4GMmYQrlW57NLjBDlDK4kMBe+YtWdntPBE=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDClcri4Tg0KdO75ernl0V2oP577eig86pm6uk0uz1mV1l lSoeD/vKGVhEONgkBVTZEm83dcitf6Pyw7nnrcwc1iZQIYwcHEKwEROX2Fk6L6ywa+rfynbhi5t g79SvndjfvT9W6AQF790ycVnHj3vshn+V091U3+3NuX2Ej5V6Ru8Fid5Oy9OqDp62Ewm64pm/DU 7LgA=
 X-Developer-Key: i=conor.dooley@microchip.com; a=openpgp; fpr=F9ECA03CF54F12CD01F1655722E2C55B37CF380C
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -64,26 +64,26 @@ From: Conor Dooley <conor.dooley@microchip.com>
 
 As part of converting RISC-V SOC_FOO symbols to ARCH_FOO to match the
 use of such symbols on other architectures, convert the Microchip FPGA
-mailbox driver to use the new symbol.
+usb glue layer driver to use the new symbol.
 
 Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- drivers/mailbox/Kconfig | 2 +-
+ drivers/usb/musb/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mailbox/Kconfig b/drivers/mailbox/Kconfig
-index 1495965bc394..3f97d5535267 100644
---- a/drivers/mailbox/Kconfig
-+++ b/drivers/mailbox/Kconfig
-@@ -176,7 +176,7 @@ config MAILBOX_TEST
- config POLARFIRE_SOC_MAILBOX
- 	tristate "PolarFire SoC (MPFS) Mailbox"
- 	depends on HAS_IOMEM
+diff --git a/drivers/usb/musb/Kconfig b/drivers/usb/musb/Kconfig
+index 3a1f4bcea80c..9a8cf3de0617 100644
+--- a/drivers/usb/musb/Kconfig
++++ b/drivers/usb/musb/Kconfig
+@@ -113,7 +113,7 @@ config USB_MUSB_MEDIATEK
+ 
+ config USB_MUSB_POLARFIRE_SOC
+ 	tristate "Microchip PolarFire SoC platforms"
 -	depends on SOC_MICROCHIP_POLARFIRE || COMPILE_TEST
 +	depends on ARCH_MICROCHIP_POLARFIRE || COMPILE_TEST
+ 	depends on NOP_USB_XCEIV
+ 	select USB_MUSB_DUAL_ROLE
  	help
- 	  This driver adds support for the PolarFire SoC (MPFS) mailbox controller.
- 
 -- 
 2.39.2
 
