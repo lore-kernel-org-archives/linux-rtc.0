@@ -2,38 +2,63 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE3CC6FD19
-	for <linux-rtc@archiver.kernel.org>; Thu,  9 Mar 2023 08:58:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90906C61DA4
+	for <linux-rtc@archiver.kernel.org>; Thu,  9 Mar 2023 09:37:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231146AbjCII6q (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 9 Mar 2023 03:58:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
+        id S231182AbjCIJhm (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 9 Mar 2023 04:37:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbjCII55 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Mar 2023 03:57:57 -0500
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F2A4ECCF;
-        Thu,  9 Mar 2023 00:56:42 -0800 (PST)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 0DF70C000C;
-        Thu,  9 Mar 2023 08:56:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1678352200;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=OsU9P3Ur2VchpA2JUh4YcUF6jVWgdCHPblwwuyxuAmM=;
-        b=EW5TlrV4CQ9Mmh3SXctNaJ3E6vLQDFLpT6USUszQ40PiT/G/H4kAE2HOo8ELaXuTkQPE/7
-        PtSBDFGEz5+owBxACqFApT/rEhZ1UxHqNQ0JeqAu7Y49D+uyNiZTkb/3qaS0KlqJ0+rphE
-        qIHERnL/qjJdmjUuJZSbLAMEw5XPfRTXbqn2KpThaanjWeSO5BLuTHqBXNc78c2T3tDPoq
-        gxPCqP0Lav/+NoCIm4vbutUJeL5h6HwWDWnvPFToYQgPMhmyieIQfmBLWAYQ3xf2jWpDDV
-        cBud8//oMxWBO+HUTDJcrxne728LVfY0Y7zyx0qQ98HvdR1wEinFBBmNGtj0Cg==
-Date:   Thu, 9 Mar 2023 09:56:31 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
-Cc:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        with ESMTP id S230176AbjCIJhl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 9 Mar 2023 04:37:41 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 278C3E20CC
+        for <linux-rtc@vger.kernel.org>; Thu,  9 Mar 2023 01:37:37 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id i34so4450730eda.7
+        for <linux-rtc@vger.kernel.org>; Thu, 09 Mar 2023 01:37:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1678354655;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9XwfYOArDPMtl64pxfHU+iaSTS0ZOFrVEcLl1grbXos=;
+        b=t9Y/Oa7mx4j+h43gXLA031WTG/ytRgcE0HI9BVvs1sTIsXsBhM1bCfnYZ4cVr/STCz
+         OS/AOL+kGDJ5PTj+Bh3cs1iijviAjScDyMdy977LvYDwqfTScO5Kk7xLX7v8ToEMtdrd
+         FxSX8E8iFw7E2d5twzDQtN0WLI0jHffj5bPPj/v/qkVYjvW+XRTHUCVVsiqVjkPR9gCy
+         VqK57hTtldZOVEJVV5oPeknv36jOijWWBJohu+XHgJBHZiCnZcgrDTasV7XOnHisELP1
+         AxL5iL8edzdsVAGlFxWdipBWPuTipQ1svB53tR4JY36m9jh2uw9wIyoL1MwrkpJhhEGJ
+         v3Rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678354655;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9XwfYOArDPMtl64pxfHU+iaSTS0ZOFrVEcLl1grbXos=;
+        b=CGJ4jWWTfPizZnCeO7+9uKHDOe0RD0WGx46uKZm1Qr2k1aim4rBtjtJGjQOKtEj77m
+         wNKKubc23KsX2FR1zvTSp0tBVR9dSDqVj8vjtq7uUhrdZAKL0lkML4zMkDq7CpdKHoof
+         STfJwezF+0hetrAUIHxNoFcVw/Qkj32NIDfaZ9r5RHI5X1un5EpbCNPxFdmZ8/S2VdUy
+         COcMCMDy19Uxy0hkEHkI6rDUs94PRiTVYNoEVJo3nkeFKelcELW50otp5PpWPrU7uDWx
+         Njc828ic07hDj06cA7qbqDpfraw25+5xO032sk92qq8ivZ5SrVW07hTVRKt7wprz4WWd
+         2ZNg==
+X-Gm-Message-State: AO0yUKX4Vr6894mbN/QfO/qRtiHutTUlQctnrpwkYzWg8ovIM2GYOPcq
+        icjB65L+MlGZQNWdZxmfKCWXVQ==
+X-Google-Smtp-Source: AK7set8RaHglZb/tbGRd38GxDvcsu6FHEHtwnBUbEYArd4Ax9m25A8WDyYVjR6ifdgkC/7IF4tS8xQ==
+X-Received: by 2002:a17:906:546:b0:8b1:78bc:7508 with SMTP id k6-20020a170906054600b008b178bc7508mr18999307eja.20.1678354655512;
+        Thu, 09 Mar 2023 01:37:35 -0800 (PST)
+Received: from [192.168.1.195] ([5.133.47.210])
+        by smtp.googlemail.com with ESMTPSA id qt2-20020a170906ece200b008e938e98046sm8557373ejb.223.2023.03.09.01.37.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Mar 2023 01:37:34 -0800 (PST)
+Message-ID: <b0ca0137-cba8-3132-8089-e5b62ac8700f@linaro.org>
+Date:   Thu, 9 Mar 2023 09:37:32 +0000
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH V2] nvmem: add explicit config option to read OF fixed
+ cells
+Content-Language: en-US
+To:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
         Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Hector Martin <marcan@marcan.st>,
@@ -77,255 +102,395 @@ Cc:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
         linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
         linux-rockchip@lists.infradead.org,
         linux-stm32@st-md-mailman.stormreply.com,
-        linux-sunxi@lists.linux.dev, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH V2] nvmem: add explicit config option to read OF fixed
- cells
-Message-ID: <20230309095631.7b4f610e@xps-13>
-In-Reply-To: <af5dfd4701666d4ea50ec1015b1d2e5c@milecki.pl>
+        linux-sunxi@lists.linux.dev, linux-rtc@vger.kernel.org,
+        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>
 References: <20230224072903.20945-1-zajec5@gmail.com>
-        <20230308173256.3837b87b@xps-13>
-        <91ff425b4c901648b1faf34c784f20ad@milecki.pl>
-        <20230308190636.7fabab9c@xps-13>
-        <5974d28426057975e701c4a8454b5a13@milecki.pl>
-        <20230308193121.7f5b3d02@xps-13>
-        <930f3549-440d-adac-ae9d-1aa6ef07c44b@gmail.com>
-        <20230309093415.2b1088c8@xps-13>
-        <af5dfd4701666d4ea50ec1015b1d2e5c@milecki.pl>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.33; x86_64-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+In-Reply-To: <20230224072903.20945-1-zajec5@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi Rafa=C5=82,
 
-rafal@milecki.pl wrote on Thu, 09 Mar 2023 09:39:54 +0100:
 
-> On 2023-03-09 09:34, Miquel Raynal wrote:
-> > Hi Rafa=C5=82,
-> >=20
-> > zajec5@gmail.com wrote on Thu, 9 Mar 2023 07:56:05 +0100:
-> >  =20
-> >> On 8.03.2023 19:31, Miquel Raynal wrote: =20
-> >> > Hi Rafa=C5=82,
-> >> >
-> >> > rafal@milecki.pl wrote on Wed, 08 Mar 2023 19:12:32 +0100:
-> >> > =20
-> >> >> On 2023-03-08 19:06, Miquel Raynal wrote: =20
-> >> >>> Hi Rafa=C5=82,
-> >> >>>
-> >> >>> rafal@milecki.pl wrote on Wed, 08 Mar 2023 17:55:46 +0100: =20
-> >> >>>    >>>> On 2023-03-08 17:34, Miquel Raynal wrote: =20
-> >> >>>>> Hi Rafa=C5=82,
-> >> >>>>>
-> >> >>>>> zajec5@gmail.com wrote on Fri, 24 Feb 2023 08:29:03 +0100: =20
-> >> >>>>>   >>>>>> From: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl> =20
-> >> >>>>>>>> NVMEM subsystem looks for fixed NVMEM cells (specified in DT)=
- by =20
-> >> >>>>>> default. This behaviour made sense in early days before adding =
-support
-> >> >>>>>> for dynamic cells. =20
-> >> >>>>>>>> With every new supported NVMEM device with dynamic cells curr=
-ent =20
-> >> >>>>>> behaviour becomes non-optimal. It results in unneeded iterating=
- over >> DT
-> >> >>>>>> nodes and may result in false discovery of cells (depending on =
-used DT
-> >> >>>>>> properties). =20
-> >> >>>>>>>> This behaviour has actually caused a problem already with the=
- MTD =20
-> >> >>>>>> subsystem. MTD subpartitions were incorrectly treated as NVMEM =
-cells. =20
-> >> >>>>>
-> >> >>>>> That's true, but I expect this to be really MTD specific.
-> >> >>>>>
-> >> >>>>> A concrete proposal below. =20
-> >> >>>>>   >>>>>> Also with upcoming support for NVMEM layouts no new bin=
-ding or driver =20
-> >> >>>>>> should support fixed cells defined in device node. =20
-> >> >>>>>
-> >> >>>>> I'm not sure I agree with this statement. We are not preventing =
-new
-> >> >>>>> binding/driver to use fixed cells, or...? We offer a new way to =
-expose
-> >> >>>>> nvmem cells with another way than "fixed-offset" and "fixed-size=
-" OF
-> >> >>>>> nodes. =20
-> >> >>>>>>   From what I understood all new NVMEM bindings should have cel=
-ls >> defined =20
-> >> >>>> in the nvmem-layout { } node. That's what I mean by saying they s=
-hould
-> >> >>>> not be defined in device node (but its "nvmem-layout" instead). =
-=20
-> >> >>>
-> >> >>> Layouts are just another possibility, either you user the nvmem-ce=
-lls
-> >> >>> compatible and produce nvmem cells with fixed OF nodes, or you use=
- the
-> >> >>> nvmem-layout container. I don't think all new bindings should have
-> >> >>> cells in layouts. It depends if the content is static or not. =20
-> >> >>>    >>>>>> Solve this by modifying drivers for bindings that suppor=
-t specifying =20
-> >> >>>>>> fixed NVMEM cells in DT. Make them explicitly tell NVMEM subsys=
-tem to
-> >> >>>>>> read cells from DT. =20
-> >> >>>>>>>> It wasn't clear (to me) if rtc and w1 code actually uses fixe=
-d cells. >> I =20
-> >> >>>>>> enabled them to don't risk any breakage. =20
-> >> >>>>>>>> Signed-off-by: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl> =20
-> >> >>>>>> [for drivers/nvmem/meson-{efuse,mx-efuse}.c]
-> >> >>>>>> Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.c=
-om>
-> >> >>>>>> ---
-> >> >>>>>> V2: Fix stm32-romem.c typo breaking its compilation
-> >> >>>>>>      Pick Martin's Acked-by
-> >> >>>>>>      Add paragraph about layouts deprecating use_fixed_of_cells
-> >> >>>>>> ---
-> >> >>>>>>   drivers/mtd/mtdcore.c          | 2 ++
-> >> >>>>>>   drivers/nvmem/apple-efuses.c   | 1 +
-> >> >>>>>>   drivers/nvmem/core.c           | 8 +++++---
-> >> >>>>>>   drivers/nvmem/imx-ocotp-scu.c  | 1 +
-> >> >>>>>>   drivers/nvmem/imx-ocotp.c      | 1 +
-> >> >>>>>>   drivers/nvmem/meson-efuse.c    | 1 +
-> >> >>>>>>   drivers/nvmem/meson-mx-efuse.c | 1 +
-> >> >>>>>>   drivers/nvmem/microchip-otpc.c | 1 +
-> >> >>>>>>   drivers/nvmem/mtk-efuse.c      | 1 +
-> >> >>>>>>   drivers/nvmem/qcom-spmi-sdam.c | 1 +
-> >> >>>>>>   drivers/nvmem/qfprom.c         | 1 +
-> >> >>>>>>   drivers/nvmem/rave-sp-eeprom.c | 1 +
-> >> >>>>>>   drivers/nvmem/rockchip-efuse.c | 1 +
-> >> >>>>>>   drivers/nvmem/sc27xx-efuse.c   | 1 +
-> >> >>>>>>   drivers/nvmem/sprd-efuse.c     | 1 +
-> >> >>>>>>   drivers/nvmem/stm32-romem.c    | 1 +
-> >> >>>>>>   drivers/nvmem/sunplus-ocotp.c  | 1 +
-> >> >>>>>>   drivers/nvmem/sunxi_sid.c      | 1 +
-> >> >>>>>>   drivers/nvmem/uniphier-efuse.c | 1 +
-> >> >>>>>>   drivers/nvmem/zynqmp_nvmem.c   | 1 +
-> >> >>>>>>   drivers/rtc/nvmem.c            | 1 +
-> >> >>>>>>   drivers/w1/slaves/w1_ds250x.c  | 1 +
-> >> >>>>>>   include/linux/nvmem-provider.h | 2 ++
-> >> >>>>>>   23 files changed, 29 insertions(+), 3 deletions(-) =20
-> >> >>>>>>>> diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c =20
-> >> >>>>>> index 0feacb9fbdac..1bb479c0f758 100644
-> >> >>>>>> --- a/drivers/mtd/mtdcore.c
-> >> >>>>>> +++ b/drivers/mtd/mtdcore.c
-> >> >>>>>> @@ -523,6 +523,7 @@ static int mtd_nvmem_add(struct mtd_info *m=
-td)
-> >> >>>>>>   	config.dev =3D &mtd->dev;
-> >> >>>>>>   	config.name =3D dev_name(&mtd->dev);
-> >> >>>>>>   	config.owner =3D THIS_MODULE;
-> >> >>>>>> +	config.use_fixed_of_cells =3D of_device_is_compatible(node, >=
-> "nvmem-cells"); =20
-> >> >>>>>
-> >> >>>>> I am wondering how mtd specific this is? For me all OF nodes con=
-taining
-> >> >>>>> the nvmem-cells compatible should be treated as cells providers =
-and
-> >> >>>>> populate nvmem cells as for each children.
-> >> >>>>>
-> >> >>>>> Why don't we just check for this compatible to be present? in
-> >> >>>>> nvmem_add_cells_from_of() ? And if not we just skip the operatio=
-n.
-> >> >>>>>
-> >> >>>>> This way we still follow the bindings (even though using nvmem-c=
-ells in
-> >> >>>>> the compatible property to require cells population was a mistak=
-e in
-> >> >>>>> the first place, as discussed in the devlink thread recently) bu=
-t there
-> >> >>>>> is no need for a per-driver config option? =20
-> >> >>>>>> This isn't mtd specific. Please check this patch for all occurr=
-ences >> of =20
-> >> >>>> the:
-> >> >>>> use_fixed_of_cells =3D true =20
-> >> >>>>>> The very first one: drivers/nvmem/apple-efuses.c driver for the=
- =20
-> >> >>>> "apple,efuses" binding. That binding supports fixed OF cells, see:
-> >> >>>> Documentation/devicetree/bindings/nvmem/apple,efuses.yaml =20
-> >> >>>
-> >> >>> I'm saying: based on what has been enforced so far, I would expect=
- all
-> >> >>> fixed cell providers to come with nvmem-cells as compatible, no?
-> >> >>>
-> >> >>> If that's the case we could use that as a common denominator? =20
-> >> >>
-> >> >> Sorry, I don't get it. Have you checked
-> >> >> Documentation/devicetree/bindings/nvmem/apple,efuses.yaml
-> >> >> ?
-> >> >>
-> >> >> It's a NVMEM provied binding with fixed cells that doesn't use
-> >> >> nvmem-cells as compatible. There are many more. =20
-> >> >
-> >> > Oh yeah you're right, I'm mixing things. Well I guess you're right
-> >> > then, it's such a mess, we have to tell the core the parsing method.
-> >> >
-> >> > So maybe another question: do we have other situations than mtd which
-> >> > sometimes expect the nvmem core to parse the OF nodes to populate ce=
-lls,
-> >> > and sometimes not? =20
-> >> >> I'm not aware of that. Please also check my patch. The only case I =
-set =20
-> >> "use_fixed_of_cells" conditionally is mtd code. In other cases it's
-> >> hardcoded to "true". =20
-> >> >> >> > Also, what about "of_children_are_cells" ? Because actually in=
- most =20
-> >> > cases it's a "fixed of cell", so I don't find the current naming
-> >> > descriptive enough for something so touchy. =20
-> >> >> That would be just incorrect because this new config property =20
-> >> ("use_fixed_of_cells") is only about FIXED cells. =20
-> >> >> There are cases of OF children being cells but NOT being fixed cell=
-s. =20
-> >> They should NOT be parsed by the nvmem_add_cells_from_of(). =20
-> >> >> Example: =20
-> >> a607a850ba1f ("dt-bindings: nvmem: u-boot,env: add basic NVMEM cells")
-> >> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/com=
-mit/?id=3Da607a850ba1fa966cbb035544c1588e24a6307df =20
-> >=20
-> > This is backwards. That's why layouts have been proposed: having
-> > a clear framework were the nvmem core should or should not play with
-> > the OF children nodes. If each binding is different, you end up with
-> > the mess we have today, where nobody knows how to properly
-> > populate the cells.
-> >=20
-> > Anyway, it's not a big deal either, if the cells are empty we can
-> > easily check that and have *yet another* specific case in the core.
-> >  =20
-> >> So that would result in U-Boot env:
-> >> 1. Having OF children nodes being cells
-> >> 2. Setting "of_children_are_cells" to false (counter-intuitive) to >> =
-avoid nvmem_add_cells_from_of() =20
-> >=20
-> > Agreed. So what about config.ignore_of_children?
-> > - mtd sets this to !is_compatible(nvmem-cells)
-> > - nobody else touches it (the core don't try to parse the cell if it's
-> >   empty so U-Boot env driver works) =20
->=20
-> "ignore_of_children" would have opposite (reversed) meaning to the
-> "use_fixed_of_cells":
-> 1. By default it would be 0 / false
-> 2. By default NVMEM code would NOT ignore OF children nodes
->=20
-> That is what I actually *don't* want.
->=20
-> Having NVMEM core look for fixed cells in device node is undesirable.
+On 24/02/2023 07:29, Rafał Miłecki wrote:
+> From: Rafał Miłecki <rafal@milecki.pl>
+> 
+> NVMEM subsystem looks for fixed NVMEM cells (specified in DT) by
+> default. This behaviour made sense in early days before adding support
+> for dynamic cells.
+> 
+> With every new supported NVMEM device with dynamic cells current
+> behaviour becomes non-optimal. It results in unneeded iterating over DT
+> nodes and may result in false discovery of cells (depending on used DT
+> properties).
 
-Is it?
+> 
+> This behaviour has actually caused a problem already with the MTD
+> subsystem. MTD subpartitions were incorrectly treated as NVMEM cells.
+> 
+> Also with upcoming support for NVMEM layouts no new binding or driver
+> should support fixed cells defined in device node.
 
-I think this is the standard case. Most of the time fixed cells are
-the simplest and most direct approach. I don't get why we would like
-to prevent it at some point? Only the more advanced stuff that does not
-fit the purpose of fixed OF cells should go through layouts.
+This is not very clear, are you saying that we should not support fixed 
+cells? If that is the case then you are proabably taking this in wrong 
+direction. nvmem was built based on the fact that drivers can read from 
+a fixed offsets. Dynamic cells is something very new, that does not mean 
+that we should ditch fixed cells support in dt.
 
-> I want that feature to be off by default. I want devices to have to
-> enable it explicitly only when it's needed.
+> 
+> Solve this by modifying drivers for bindings that support specifying
+> fixed NVMEM cells in DT. Make them explicitly tell NVMEM subsystem to
+> read cells from DT.
 
-Well, that's exactly the opposite of what nvmem does right now, that's
-maybe why reviewers don't get the interest of the current
-implementation: it has many impacts on users which should not be
-impacted just because we messed with mtd.
+Shouldn't this be opposite, let the new providers tell that cells are 
+created at runtime?
 
-Thanks,
-Miqu=C3=A8l
+or even better if there is a way to detect if we can set this flag 
+dynamically based on layout/post-processing configuration.
+
+that should be much cleaner approch.
+
+note, I have not read all the review discussions emails, so please 
+ignore any duplicate comments.
+
+--srini
+
+> 
+> It wasn't clear (to me) if rtc and w1 code actually uses fixed cells. I
+> enabled them to don't risk any breakage.
+> 
+> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+> [for drivers/nvmem/meson-{efuse,mx-efuse}.c]
+> Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> ---
+> V2: Fix stm32-romem.c typo breaking its compilation
+>      Pick Martin's Acked-by
+>      Add paragraph about layouts deprecating use_fixed_of_cells
+> ---
+>   drivers/mtd/mtdcore.c          | 2 ++
+>   drivers/nvmem/apple-efuses.c   | 1 +
+>   drivers/nvmem/core.c           | 8 +++++---
+>   drivers/nvmem/imx-ocotp-scu.c  | 1 +
+>   drivers/nvmem/imx-ocotp.c      | 1 +
+>   drivers/nvmem/meson-efuse.c    | 1 +
+>   drivers/nvmem/meson-mx-efuse.c | 1 +
+>   drivers/nvmem/microchip-otpc.c | 1 +
+>   drivers/nvmem/mtk-efuse.c      | 1 +
+>   drivers/nvmem/qcom-spmi-sdam.c | 1 +
+>   drivers/nvmem/qfprom.c         | 1 +
+>   drivers/nvmem/rave-sp-eeprom.c | 1 +
+>   drivers/nvmem/rockchip-efuse.c | 1 +
+>   drivers/nvmem/sc27xx-efuse.c   | 1 +
+>   drivers/nvmem/sprd-efuse.c     | 1 +
+>   drivers/nvmem/stm32-romem.c    | 1 +
+>   drivers/nvmem/sunplus-ocotp.c  | 1 +
+>   drivers/nvmem/sunxi_sid.c      | 1 +
+>   drivers/nvmem/uniphier-efuse.c | 1 +
+>   drivers/nvmem/zynqmp_nvmem.c   | 1 +
+>   drivers/rtc/nvmem.c            | 1 +
+>   drivers/w1/slaves/w1_ds250x.c  | 1 +
+>   include/linux/nvmem-provider.h | 2 ++
+>   23 files changed, 29 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
+> index 0feacb9fbdac..1bb479c0f758 100644
+> --- a/drivers/mtd/mtdcore.c
+> +++ b/drivers/mtd/mtdcore.c
+> @@ -523,6 +523,7 @@ static int mtd_nvmem_add(struct mtd_info *mtd)
+>   	config.dev = &mtd->dev;
+>   	config.name = dev_name(&mtd->dev);
+>   	config.owner = THIS_MODULE;
+> +	config.use_fixed_of_cells = of_device_is_compatible(node, "nvmem-cells");
+>   	config.reg_read = mtd_nvmem_reg_read;
+>   	config.size = mtd->size;
+>   	config.word_size = 1;
+> @@ -891,6 +892,7 @@ static struct nvmem_device *mtd_otp_nvmem_register(struct mtd_info *mtd,
+>   	config.name = kasprintf(GFP_KERNEL, "%s-%s", dev_name(&mtd->dev), compatible);
+>   	config.id = NVMEM_DEVID_NONE;
+>   	config.owner = THIS_MODULE;
+> +	config.use_fixed_of_cells = true;
+>   	config.type = NVMEM_TYPE_OTP;
+>   	config.root_only = true;
+>   	config.ignore_wp = true;
+> diff --git a/drivers/nvmem/apple-efuses.c b/drivers/nvmem/apple-efuses.c
+> index 9b7c87102104..0119bac43b2c 100644
+> --- a/drivers/nvmem/apple-efuses.c
+> +++ b/drivers/nvmem/apple-efuses.c
+> @@ -36,6 +36,7 @@ static int apple_efuses_probe(struct platform_device *pdev)
+>   	struct resource *res;
+>   	struct nvmem_config config = {
+>   		.dev = &pdev->dev,
+> +		.use_fixed_of_cells = true,
+>   		.read_only = true,
+>   		.reg_read = apple_efuses_read,
+>   		.stride = sizeof(u32),
+> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+> index 174ef3574e07..6783cd8478d7 100644
+> --- a/drivers/nvmem/core.c
+> +++ b/drivers/nvmem/core.c
+> @@ -844,9 +844,11 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+>   	if (rval)
+>   		goto err_remove_cells;
+>   
+> -	rval = nvmem_add_cells_from_of(nvmem);
+> -	if (rval)
+> -		goto err_remove_cells;
+> +	if (config->use_fixed_of_cells) {
+> +		rval = nvmem_add_cells_from_of(nvmem);
+> +		if (rval)
+> +			goto err_remove_cells;
+> +	}
+>   
+>   	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+>   
+> diff --git a/drivers/nvmem/imx-ocotp-scu.c b/drivers/nvmem/imx-ocotp-scu.c
+> index 399e1eb8b4c1..ec5cce7c6697 100644
+> --- a/drivers/nvmem/imx-ocotp-scu.c
+> +++ b/drivers/nvmem/imx-ocotp-scu.c
+> @@ -220,6 +220,7 @@ static int imx_scu_ocotp_write(void *context, unsigned int offset,
+>   
+>   static struct nvmem_config imx_scu_ocotp_nvmem_config = {
+>   	.name = "imx-scu-ocotp",
+> +	.use_fixed_of_cells = true,
+>   	.read_only = false,
+>   	.word_size = 4,
+>   	.stride = 1,
+> diff --git a/drivers/nvmem/imx-ocotp.c b/drivers/nvmem/imx-ocotp.c
+> index e9b52ecb3f72..e37a82f98ba6 100644
+> --- a/drivers/nvmem/imx-ocotp.c
+> +++ b/drivers/nvmem/imx-ocotp.c
+> @@ -616,6 +616,7 @@ static int imx_ocotp_probe(struct platform_device *pdev)
+>   		return PTR_ERR(priv->clk);
+>   
+>   	priv->params = of_device_get_match_data(&pdev->dev);
+> +	imx_ocotp_nvmem_config.use_fixed_of_cells = true;
+>   	imx_ocotp_nvmem_config.size = 4 * priv->params->nregs;
+>   	imx_ocotp_nvmem_config.dev = dev;
+>   	imx_ocotp_nvmem_config.priv = priv;
+> diff --git a/drivers/nvmem/meson-efuse.c b/drivers/nvmem/meson-efuse.c
+> index d6b533497ce1..657e171d5af3 100644
+> --- a/drivers/nvmem/meson-efuse.c
+> +++ b/drivers/nvmem/meson-efuse.c
+> @@ -93,6 +93,7 @@ static int meson_efuse_probe(struct platform_device *pdev)
+>   
+>   	econfig->dev = dev;
+>   	econfig->name = dev_name(dev);
+> +	econfig->use_fixed_of_cells = true;
+>   	econfig->stride = 1;
+>   	econfig->word_size = 1;
+>   	econfig->reg_read = meson_efuse_read;
+> diff --git a/drivers/nvmem/meson-mx-efuse.c b/drivers/nvmem/meson-mx-efuse.c
+> index 13eb14316f46..7cc51391ec9c 100644
+> --- a/drivers/nvmem/meson-mx-efuse.c
+> +++ b/drivers/nvmem/meson-mx-efuse.c
+> @@ -213,6 +213,7 @@ static int meson_mx_efuse_probe(struct platform_device *pdev)
+>   	efuse->config.owner = THIS_MODULE;
+>   	efuse->config.dev = &pdev->dev;
+>   	efuse->config.priv = efuse;
+> +	efuse->config.use_fixed_of_cells = true;
+>   	efuse->config.stride = drvdata->word_size;
+>   	efuse->config.word_size = drvdata->word_size;
+>   	efuse->config.size = SZ_512;
+> diff --git a/drivers/nvmem/microchip-otpc.c b/drivers/nvmem/microchip-otpc.c
+> index 436e0dc4f337..fb920fd7a8fc 100644
+> --- a/drivers/nvmem/microchip-otpc.c
+> +++ b/drivers/nvmem/microchip-otpc.c
+> @@ -261,6 +261,7 @@ static int mchp_otpc_probe(struct platform_device *pdev)
+>   		return ret;
+>   
+>   	mchp_nvmem_config.dev = otpc->dev;
+> +	mchp_nvmem_config.use_fixed_of_cells = true;
+>   	mchp_nvmem_config.size = size;
+>   	mchp_nvmem_config.priv = otpc;
+>   	nvmem = devm_nvmem_register(&pdev->dev, &mchp_nvmem_config);
+> diff --git a/drivers/nvmem/mtk-efuse.c b/drivers/nvmem/mtk-efuse.c
+> index a08e0aedd21c..1947337a121f 100644
+> --- a/drivers/nvmem/mtk-efuse.c
+> +++ b/drivers/nvmem/mtk-efuse.c
+> @@ -45,6 +45,7 @@ static int mtk_efuse_probe(struct platform_device *pdev)
+>   	if (IS_ERR(priv->base))
+>   		return PTR_ERR(priv->base);
+>   
+> +	econfig.use_fixed_of_cells = true;
+>   	econfig.stride = 1;
+>   	econfig.word_size = 1;
+>   	econfig.reg_read = mtk_reg_read;
+> diff --git a/drivers/nvmem/qcom-spmi-sdam.c b/drivers/nvmem/qcom-spmi-sdam.c
+> index f822790db49e..b547def94b5b 100644
+> --- a/drivers/nvmem/qcom-spmi-sdam.c
+> +++ b/drivers/nvmem/qcom-spmi-sdam.c
+> @@ -142,6 +142,7 @@ static int sdam_probe(struct platform_device *pdev)
+>   	sdam->sdam_config.name = "spmi_sdam";
+>   	sdam->sdam_config.id = NVMEM_DEVID_AUTO;
+>   	sdam->sdam_config.owner = THIS_MODULE;
+> +	sdam->sdam_config.use_fixed_of_cells = true;
+>   	sdam->sdam_config.stride = 1;
+>   	sdam->sdam_config.word_size = 1;
+>   	sdam->sdam_config.reg_read = sdam_read;
+> diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
+> index c1e893c8a247..eb126d507561 100644
+> --- a/drivers/nvmem/qfprom.c
+> +++ b/drivers/nvmem/qfprom.c
+> @@ -357,6 +357,7 @@ static int qfprom_probe(struct platform_device *pdev)
+>   {
+>   	struct nvmem_config econfig = {
+>   		.name = "qfprom",
+> +		.use_fixed_of_cells = true,
+>   		.stride = 1,
+>   		.word_size = 1,
+>   		.id = NVMEM_DEVID_AUTO,
+> diff --git a/drivers/nvmem/rave-sp-eeprom.c b/drivers/nvmem/rave-sp-eeprom.c
+> index c456011b75e8..e9b4c7927e37 100644
+> --- a/drivers/nvmem/rave-sp-eeprom.c
+> +++ b/drivers/nvmem/rave-sp-eeprom.c
+> @@ -328,6 +328,7 @@ static int rave_sp_eeprom_probe(struct platform_device *pdev)
+>   	of_property_read_string(np, "zii,eeprom-name", &config.name);
+>   	config.priv		= eeprom;
+>   	config.dev		= dev;
+> +	config.use_fixed_of_cells	= true;
+>   	config.size		= size;
+>   	config.reg_read		= rave_sp_eeprom_reg_read;
+>   	config.reg_write	= rave_sp_eeprom_reg_write;
+> diff --git a/drivers/nvmem/rockchip-efuse.c b/drivers/nvmem/rockchip-efuse.c
+> index e4579de5d014..211f6e7401a9 100644
+> --- a/drivers/nvmem/rockchip-efuse.c
+> +++ b/drivers/nvmem/rockchip-efuse.c
+> @@ -205,6 +205,7 @@ static int rockchip_rk3399_efuse_read(void *context, unsigned int offset,
+>   
+>   static struct nvmem_config econfig = {
+>   	.name = "rockchip-efuse",
+> +	.use_fixed_of_cells = true,
+>   	.stride = 1,
+>   	.word_size = 1,
+>   	.read_only = true,
+> diff --git a/drivers/nvmem/sc27xx-efuse.c b/drivers/nvmem/sc27xx-efuse.c
+> index c825fc902d10..ed5cc4f3e2bc 100644
+> --- a/drivers/nvmem/sc27xx-efuse.c
+> +++ b/drivers/nvmem/sc27xx-efuse.c
+> @@ -248,6 +248,7 @@ static int sc27xx_efuse_probe(struct platform_device *pdev)
+>   	econfig.reg_read = sc27xx_efuse_read;
+>   	econfig.priv = efuse;
+>   	econfig.dev = &pdev->dev;
+> +	econfig.use_fixed_of_cells = true;
+>   	nvmem = devm_nvmem_register(&pdev->dev, &econfig);
+>   	if (IS_ERR(nvmem)) {
+>   		dev_err(&pdev->dev, "failed to register nvmem config\n");
+> diff --git a/drivers/nvmem/sprd-efuse.c b/drivers/nvmem/sprd-efuse.c
+> index 4f1fcbfec394..ef3161645f60 100644
+> --- a/drivers/nvmem/sprd-efuse.c
+> +++ b/drivers/nvmem/sprd-efuse.c
+> @@ -408,6 +408,7 @@ static int sprd_efuse_probe(struct platform_device *pdev)
+>   	econfig.read_only = false;
+>   	econfig.name = "sprd-efuse";
+>   	econfig.size = efuse->data->blk_nums * SPRD_EFUSE_BLOCK_WIDTH;
+> +	econfig.use_fixed_of_cells = true;
+>   	econfig.reg_read = sprd_efuse_read;
+>   	econfig.reg_write = sprd_efuse_write;
+>   	econfig.priv = efuse;
+> diff --git a/drivers/nvmem/stm32-romem.c b/drivers/nvmem/stm32-romem.c
+> index ba779e26937a..a6fc43acb797 100644
+> --- a/drivers/nvmem/stm32-romem.c
+> +++ b/drivers/nvmem/stm32-romem.c
+> @@ -208,6 +208,7 @@ static int stm32_romem_probe(struct platform_device *pdev)
+>   	priv->cfg.priv = priv;
+>   	priv->cfg.owner = THIS_MODULE;
+>   	priv->cfg.type = NVMEM_TYPE_OTP;
+> +	priv->cfg.use_fixed_of_cells = true;
+>   
+>   	priv->lower = 0;
+>   
+> diff --git a/drivers/nvmem/sunplus-ocotp.c b/drivers/nvmem/sunplus-ocotp.c
+> index 52b928a7a6d5..57e3e0833b85 100644
+> --- a/drivers/nvmem/sunplus-ocotp.c
+> +++ b/drivers/nvmem/sunplus-ocotp.c
+> @@ -145,6 +145,7 @@ static int sp_ocotp_read(void *priv, unsigned int offset, void *value, size_t by
+>   
+>   static struct nvmem_config sp_ocotp_nvmem_config = {
+>   	.name = "sp-ocotp",
+> +	.use_fixed_of_cells = true,
+>   	.read_only = true,
+>   	.word_size = 1,
+>   	.size = QAC628_OTP_SIZE,
+> diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
+> index a970f1741cc6..6ab7aa3724a0 100644
+> --- a/drivers/nvmem/sunxi_sid.c
+> +++ b/drivers/nvmem/sunxi_sid.c
+> @@ -156,6 +156,7 @@ static int sunxi_sid_probe(struct platform_device *pdev)
+>   	nvmem_cfg->dev = dev;
+>   	nvmem_cfg->name = "sunxi-sid";
+>   	nvmem_cfg->type = NVMEM_TYPE_OTP;
+> +	nvmem_cfg->use_fixed_of_cells = true;
+>   	nvmem_cfg->read_only = true;
+>   	nvmem_cfg->size = cfg->size;
+>   	nvmem_cfg->word_size = 1;
+> diff --git a/drivers/nvmem/uniphier-efuse.c b/drivers/nvmem/uniphier-efuse.c
+> index aca910b3b6f8..69b9dfe6ab6e 100644
+> --- a/drivers/nvmem/uniphier-efuse.c
+> +++ b/drivers/nvmem/uniphier-efuse.c
+> @@ -53,6 +53,7 @@ static int uniphier_efuse_probe(struct platform_device *pdev)
+>   	econfig.size = resource_size(res);
+>   	econfig.priv = priv;
+>   	econfig.dev = dev;
+> +	econfig.use_fixed_of_cells = true;
+>   	nvmem = devm_nvmem_register(dev, &econfig);
+>   
+>   	return PTR_ERR_OR_ZERO(nvmem);
+> diff --git a/drivers/nvmem/zynqmp_nvmem.c b/drivers/nvmem/zynqmp_nvmem.c
+> index e28d7b133e11..d13750a4c112 100644
+> --- a/drivers/nvmem/zynqmp_nvmem.c
+> +++ b/drivers/nvmem/zynqmp_nvmem.c
+> @@ -58,6 +58,7 @@ static int zynqmp_nvmem_probe(struct platform_device *pdev)
+>   
+>   	priv->dev = dev;
+>   	econfig.dev = dev;
+> +	econfig.use_fixed_of_cells = true;
+>   	econfig.reg_read = zynqmp_nvmem_read;
+>   	econfig.priv = priv;
+>   
+> diff --git a/drivers/rtc/nvmem.c b/drivers/rtc/nvmem.c
+> index 07ede21cee34..5cc039d92257 100644
+> --- a/drivers/rtc/nvmem.c
+> +++ b/drivers/rtc/nvmem.c
+> @@ -21,6 +21,7 @@ int devm_rtc_nvmem_register(struct rtc_device *rtc,
+>   
+>   	nvmem_config->dev = dev;
+>   	nvmem_config->owner = rtc->owner;
+> +	nvmem_config->use_fixed_of_cells = true;
+>   	nvmem = devm_nvmem_register(dev, nvmem_config);
+>   	if (IS_ERR(nvmem))
+>   		dev_err(dev, "failed to register nvmem device for RTC\n");
+> diff --git a/drivers/w1/slaves/w1_ds250x.c b/drivers/w1/slaves/w1_ds250x.c
+> index 7592c7050d1d..538722b41f87 100644
+> --- a/drivers/w1/slaves/w1_ds250x.c
+> +++ b/drivers/w1/slaves/w1_ds250x.c
+> @@ -168,6 +168,7 @@ static int w1_eprom_add_slave(struct w1_slave *sl)
+>   	struct nvmem_device *nvmem;
+>   	struct nvmem_config nvmem_cfg = {
+>   		.dev = &sl->dev,
+> +		.use_fixed_of_cells = true,
+>   		.reg_read = w1_nvmem_read,
+>   		.type = NVMEM_TYPE_OTP,
+>   		.read_only = true,
+> diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
+> index 0262b86194eb..b3c14ce87a65 100644
+> --- a/include/linux/nvmem-provider.h
+> +++ b/include/linux/nvmem-provider.h
+> @@ -73,6 +73,7 @@ struct nvmem_cell_info {
+>    * @owner:	Pointer to exporter module. Used for refcounting.
+>    * @cells:	Optional array of pre-defined NVMEM cells.
+>    * @ncells:	Number of elements in cells.
+> + * @use_fixed_of_cells:	Read fixed NVMEM cells from OF.
+>    * @keepout:	Optional array of keepout ranges (sorted ascending by start).
+>    * @nkeepout:	Number of elements in the keepout array.
+>    * @type:	Type of the nvmem storage
+> @@ -103,6 +104,7 @@ struct nvmem_config {
+>   	struct module		*owner;
+>   	const struct nvmem_cell_info	*cells;
+>   	int			ncells;
+> +	bool			use_fixed_of_cells;
+>   	const struct nvmem_keepout *keepout;
+>   	unsigned int		nkeepout;
+>   	enum nvmem_type		type;
