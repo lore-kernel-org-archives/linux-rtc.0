@@ -2,73 +2,73 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AFBFC7EE22
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 12:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06494C7EE24
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 12:45:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235076AbjDDMpI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Apr 2023 08:45:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38282 "EHLO
+        id S235094AbjDDMpK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Apr 2023 08:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234159AbjDDMov (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 08:44:51 -0400
+        with ESMTP id S234661AbjDDMpC (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 08:45:02 -0400
 Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F025D90;
-        Tue,  4 Apr 2023 05:44:49 -0700 (PDT)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 62D7A58215F;
-        Tue,  4 Apr 2023 08:44:49 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 04 Apr 2023 08:44:49 -0400
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E489E90;
+        Tue,  4 Apr 2023 05:45:01 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 58386582192;
+        Tue,  4 Apr 2023 08:45:01 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 04 Apr 2023 08:45:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
         :cc:content-transfer-encoding:content-type:content-type:date
         :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1680612289; x=1680619489; bh=r3KMQFa+lrkWg2WBqQj10EQ9q1W+/TWm+Pz
-        BqMrDdTI=; b=dbf1x1yAHsITG76k8ptMk0OBcyBgbTQmL0tomFHDYQQ9pkmYru+
-        SjjJzxdhnYpJOlilnagvfJ8nZ9DXzV2/VplzO7zXCjLxoU24ZTGushKTSsBjT76k
-        NqMuT82075ETWV4+o/yzRzQLxyD4oXv3rouWwylMovmbiTVwxdxLGlfnr+5RkJUP
-        y/DUcQAsyxND9Go+AUEOEn5OQempm7FAZJcNF/x5734UukiqgwFnn0g+h+qOYDrL
-        eHCTFUNe9iHHWcvgNFpdDwprFPTkn9llMRiqgDfAhUz0FucVIE5spyRnWkAnWybY
-        jc6zCDLRwfA9giqONPbs3Uz0G8/uSwQCmoA==
+        1680612301; x=1680619501; bh=Qc5oVZ9DbLI9MerewUDNIffhIeuagGHpz5D
+        f8tzeNq8=; b=RVk3rYnlzFHHIVyHKmdEC/H1hq85m/LoF4VTX8lDoLjahRZU4kD
+        /u1J7s1TOd2WDeSBkliz12Hj3RYVVEuan9g6Wxr67RLrEfjO3yTGbLvV71HpfyrZ
+        gyKzw9sRGub6IU3F+GUiicSyWJwlKdLvjZkEkB/Vj7aeSfC4udM4wqrIz3UIto1L
+        UkyiQaD+IRQzaRAeyKRMEzL22iA6d7zLALxemvq0M7LIRTICe/m2db4Zj69bYptL
+        XvATG6js0ZVACOpDwC4RDPFHlniXa1tdb7bvA9OUrRVvJRkRx86cY6NqPp+QcPDT
+        +QWY4atXmvzSw1Wa2g9jFRHe7M6i//TPUBA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding
         :content-type:content-type:date:date:feedback-id:feedback-id
         :from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to:x-me-proxy
         :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1680612289; x=1680619489; bh=r3KMQFa+lrkWg2WBqQj10EQ9q1W+/TWm+Pz
-        BqMrDdTI=; b=nElUpLJwgeTtdOqmWG4IwxnjdUrYPdii6dEH+uAl+kwUefciUYZ
-        gqYb/avO7cwVspHOpaNauBgUjRQa9R3Qs+octaZeySM2iL0niI8WlBEhnMC6ZT9g
-        sC0ITnmUhNjeS3E+0WCRvsuH1Y1syo3EssDel2Ulw39whCEw0SdOQCmeBgF/bq0w
-        TUJpxEvdc0R0oLGWkZe4Y7a7JngtpuOcN8l/RGAKgfG5Ckq6k3c9PdkwDwUy1WS2
-        NUWz0VXnVy/7hkY5gjH5363lE/xa9OLni/OXe/RTjj0zjBXC/k+aTmZDOeoS0LqC
-        P53zQiIh4zlfj4GrBOZo08Kq9QqEs6pgXsw==
-X-ME-Sender: <xms:wRssZOxTGukDEojnk4xSOWdN2ME-tgZ1lLNOlY1nX4qAArCmkOJszA>
-    <xme:wRssZKTfITVz8_5Z3grLCbOC89cDu0t2wYJRI85rfM6Xr0429B8tkTGN9fXaKqGL4
-    8t15RizsF3zHWsPISE>
-X-ME-Received: <xmr:wRssZAXp6Wj5S13yPzOduIgHGmxgzx-Twv9552CW50WD0_oPvxSEwwYzkqzlco3yXapOlByjAEOrMuMBSydZhzySdWuwHlw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiledgheehucetufdoteggodetrfdotf
+        1680612301; x=1680619501; bh=Qc5oVZ9DbLI9MerewUDNIffhIeuagGHpz5D
+        f8tzeNq8=; b=kCVHEj5g3H8sSM8QkQsIWa4sP5auCkawDN5CmB9XYuuKQcpGxau
+        QruyduahVcuEdYYEAZShtEmSv45x6pJ9VUs8LU2D046z+ghQ7hDlCDeX3HlIj67m
+        iT3d/PnMaJdw1q+zPoCNnZCfe/HpATPZXenzkQancXwvGPFza7j4R+kUs8CeUC1g
+        S76+MuP88g5IDD7pZHe5C05BvH8XDK/Q4Zd6ow8wIWqhWC+WCTuvghFYSTpYHAYM
+        v8F9Kn02Hl6KRSqIyhsy+iYjlXv+G8ogtQaQdMU6mQ1iG3GTmFBmVx2Llb8vaL4v
+        jhNmuYHg6o50Fk1hF4OzUdXgpd8Lnu2txKA==
+X-ME-Sender: <xms:zRssZLclLKG0UVXg_66lwT4zXhAwwBTosv8jJZD2frxfJVpNAzCu3Q>
+    <xme:zRssZBOVWAhESc3wNZXAp-pU62XUuomiyq3iYYs1ayiE4matQVnk6pla2hIVGuDSZ
+    aGaSGTIJMdH2MneXRc>
+X-ME-Received: <xmr:zRssZEjjigLwNc-AyLK9zblhjdytfcZs-75f1VC7nQgWj6eHRzztg7iloiOh8yLEGRTYdy3cc2LJSb-RmhfbEh0zQHKYIXU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiledgheeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforgig
     ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
     grthhtvghrnhepvedvleeijeegvdekffehkeehieelhfeggfffheetkeeuledvtdeuffeh
-    teeltdffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    teeltdffnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomh
     epmhgrgihimhgvsegtvghrnhhordhtvggthh
-X-ME-Proxy: <xmx:wRssZEghcj5-rsgpP-XLjkuvwkCTTR2FlEK8FdhtXgxcxTvsywFLsQ>
-    <xmx:wRssZACgInuYmGTxIGwix2FElZYkT6oXFZT6XM5JgC7kXPOF-rscLA>
-    <xmx:wRssZFK8ZIoB4JGkZpD2ZTdRwJ38_Zmqya-qj_rZQC01VDFvcPTS1w>
-    <xmx:wRssZCNPAA4eUsexTFD3INnj8DX8hf6HjMWkFo2PLDinfOp0xXmmYQ>
+X-ME-Proxy: <xmx:zRssZM_hmBghJ8tbHlT8WH3dFYSybH4BMBOLoNFoWmDWP9BgF2lziQ>
+    <xmx:zRssZHvjD73RKKjEXWlCI-z8zgy48QVEcpWezT3cpVhqPYMtT9orJQ>
+    <xmx:zRssZLH5bqaurDorgAwYYTwJG7tK3jLv_ML1eJyon88irMjkm9NebA>
+    <xmx:zRssZJYgL0dPcC_UGiOuikJZDdrcilmmBag28v8zcspbFQLpYyKynQ>
 Feedback-ID: i8771445c:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 4 Apr 2023 08:44:47 -0400 (EDT)
+ 4 Apr 2023 08:44:59 -0400 (EDT)
 From:   Maxime Ripard <maxime@cerno.tech>
-Date:   Tue, 04 Apr 2023 12:11:16 +0200
-Subject: [PATCH v3 26/65] clk: mediatek: cpumux: Add a determine_rate hook
+Date:   Tue, 04 Apr 2023 12:11:20 +0200
+Subject: [PATCH v3 30/65] clk: stm32: core: Add a determine_rate hook
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221018-clk-range-checks-fixes-v3-26-9a1358472d52@cerno.tech>
+Message-Id: <20221018-clk-range-checks-fixes-v3-30-9a1358472d52@cerno.tech>
 References: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
 In-Reply-To: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
 To:     Michael Turquette <mturquette@baylibre.com>,
@@ -128,18 +128,18 @@ Cc:     linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
         alsa-devel@alsa-project.org, linux-mips@vger.kernel.org,
         Maxime Ripard <maxime@cerno.tech>
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2408; i=maxime@cerno.tech;
- h=from:subject:message-id; bh=vAoGLWC1+b7M6VlyyPtfv65hShVWSyPsvsjKIhTdNgA=;
- b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCna37cyZ/V9P9lwJrpi9jMez6jcp6c2xfaFrr5b+vt68MkD
- 10w2dJSyMIhxMciKKbLECJsviTs163UnG988mDmsTCBDGLg4BWAidzczMuwrUPN0ZdR49tD495xcpt
- e9U97FM85XtX7YEfa+KPMC1y2G/6kHSiuP2ed/vNbDM+HV253yZxuE1Jx+nbr15652n4HmUm4A
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2122; i=maxime@cerno.tech;
+ h=from:subject:message-id; bh=Yck6i64eKHJ3mBHbmM1f5e+l/66UKF/5+Kgv7VOkfmE=;
+ b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCna37eteFDj5yYhsFr18PO/9+57BgRN+Wq3yubXvqdcfewS
+ sYXXO0pZGMS4GGTFFFlihM2XxJ2a9bqTjW8ezBxWJpAhDFycAjARlueMDKtKumpmREtLGou11jacXs
+ XjLWKowv1yicPz6ZcmvzulFcHIsH2a19SqjqzEMK9gwyd8cq42FxZZ+p4Qn9x748zE+AuuDAA=
 X-Developer-Key: i=maxime@cerno.tech; a=openpgp;
  fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Mediatek cpumux clock implements a mux with a set_parent hook, but
+The STM32 mux clock implements a mux with a set_parent hook, but
 doesn't provide a determine_rate implementation.
 
 This is a bit odd, since set_parent() is there to, as its name implies,
@@ -168,32 +168,26 @@ CLK_SET_RATE_NO_REPARENT is set.
 And if it was an oversight, then we are at least explicit about our
 behavior now and it can be further refined down the line.
 
+Since the CLK_SET_RATE_NO_REPARENT flag was already set though, it seems
+unlikely.
+
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 ---
- drivers/clk/mediatek/clk-cpumux.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/stm32/clk-stm32-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/mediatek/clk-cpumux.c b/drivers/clk/mediatek/clk-cpumux.c
-index da05f06192c0..dd4eb3f215cc 100644
---- a/drivers/clk/mediatek/clk-cpumux.c
-+++ b/drivers/clk/mediatek/clk-cpumux.c
-@@ -53,6 +53,7 @@ static int clk_cpumux_set_parent(struct clk_hw *hw, u8 index)
+diff --git a/drivers/clk/stm32/clk-stm32-core.c b/drivers/clk/stm32/clk-stm32-core.c
+index 45a279e73779..3247539683c9 100644
+--- a/drivers/clk/stm32/clk-stm32-core.c
++++ b/drivers/clk/stm32/clk-stm32-core.c
+@@ -275,6 +275,7 @@ static int clk_stm32_mux_set_parent(struct clk_hw *hw, u8 index)
  }
  
- static const struct clk_ops clk_cpumux_ops = {
-+	.determine_rate = __clk_mux_determine_rate,
- 	.get_parent = clk_cpumux_get_parent,
- 	.set_parent = clk_cpumux_set_parent,
+ const struct clk_ops clk_stm32_mux_ops = {
++	.determine_rate	= __clk_mux_determine_rate,
+ 	.get_parent	= clk_stm32_mux_get_parent,
+ 	.set_parent	= clk_stm32_mux_set_parent,
  };
-@@ -73,7 +74,7 @@ mtk_clk_register_cpumux(struct device *dev, const struct mtk_composite *mux,
- 	init.ops = &clk_cpumux_ops;
- 	init.parent_names = mux->parent_names;
- 	init.num_parents = mux->num_parents;
--	init.flags = mux->flags;
-+	init.flags = mux->flags | CLK_SET_RATE_NO_REPARENT;
- 
- 	cpumux->reg = mux->mux_reg;
- 	cpumux->shift = mux->mux_shift;
 
 -- 
 2.39.2
