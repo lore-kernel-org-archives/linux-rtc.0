@@ -2,193 +2,138 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 043E3C77B62
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 12:54:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86B05C77B62
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 13:02:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235097AbjDDMyF (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Apr 2023 08:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58010 "EHLO
+        id S234191AbjDDNCV (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Apr 2023 09:02:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235084AbjDDMyE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 08:54:04 -0400
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D02172C;
-        Tue,  4 Apr 2023 05:54:02 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id D9E26582090;
-        Tue,  4 Apr 2023 08:54:01 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Tue, 04 Apr 2023 08:54:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1680612841; x=1680620041; bh=4NvJp7jYUED4O4aUShshRJGoUDX/FaepDgp
-        PhaXdD/I=; b=Ye1oyDOVVUhC6pcS2ENQfOcf8EhgUU4DIPZkeGsgHcxDEcyiq1n
-        fPv2C5s7zuBfpqoHqcGmF6OlEUpTCXO2PfYaMQOBLBLJ37sL0tiFwpxCxS33xats
-        NkwMEiRyCsfMozpo/6jgxpoBP7SUbh++uzofP+yckN0B+kQcjRpH3lRpUmyGnNxd
-        tB3DH2vJ5GtpXaIA6c095pG8uRMJCQF0av5yALbzIqW2CLrDTS543hEE0ShKrTUW
-        oyuvTB4F5CMBmfKPlujr4RBGLos8S9W7fgyufPn29FeosXThUw5rsM4VuLmEyCI0
-        pVnOLsSZ6T0PAxor9g1rXA6dX04bWiigl/Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1680612841; x=1680620041; bh=4NvJp7jYUED4O4aUShshRJGoUDX/FaepDgp
-        PhaXdD/I=; b=rNT1HqodPYK+/LS60v3Nt/wCfyi5JlbD4datIbSUiuZ/grTBSnU
-        a8xfU4DBb0FQ3pmkXnDujMDuiCJZbG1BBiA7DKU7lU1kxjuRQey5GmUJ0Dz2Lgt/
-        BM4ZXGMjGBXUO+40xYtt1cfT6B++tyo3xWz0jYZjBbjwCR69+pS1mKs+Pwssc5Xh
-        PD+5R0vPZ3BIqQiz8DnDfHGN2jDCjD+NBiY1dixxJ5LxwXheXzWqqUH2nYWlnbOa
-        TJJV7EfqyrpH6EpIv4XGE5J4a0qC9x+fEpGyYUvNZw6WOwECtLV5+CnFUxAyKzb4
-        3uB+ICPt3gee+xM/epabHz+B5hqvoTxV3KA==
-X-ME-Sender: <xms:5x0sZNcdVuUlLla0JA2KutcTkw8q0gSGSlBlfvUgObT5MIuduvmlUg>
-    <xme:5x0sZLP6o0DQ-qG1VK_POKJUyWJaCgXgCEDaWI8o7HRpOAjgJ__u-dO1Nz8_igQwK
-    BLfZGt0BFNsNRufdY0>
-X-ME-Received: <xmr:5x0sZGjocidVDNEGOa92b4XeXLrqyqybVMpRXAcTQziwTH70bax0LzWyqqZyYKhU2mzffOecGGKplXWMeur6H_jpv_kcYkY>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiledgheejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforgig
-    ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
-    grthhtvghrnhepvedvleeijeegvdekffehkeehieelhfeggfffheetkeeuledvtdeuffeh
-    teeltdffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epmhgrgihimhgvsegtvghrnhhordhtvggthh
-X-ME-Proxy: <xmx:5x0sZG_Qfb3zdZRiVuBaXPgVWFjtoYYJ793KmmICs2oqUquy0HcuwA>
-    <xmx:5x0sZJs9bVyDWcirwlmqThhbh2l-1exQL1qyey_hlzjHv_y0oh8c-g>
-    <xmx:5x0sZFEZpzV5ZUTvyLYGhIuBOUhtaG498impCO_NeNOhJUE5WOdw8A>
-    <xmx:6R0sZLaX1l1EE8i8lmKEHLxInwetLLNkFpgU1V44xJoUwbYnRE7j-g>
-Feedback-ID: i8771445c:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 4 Apr 2023 08:53:57 -0400 (EDT)
-From:   Maxime Ripard <maxime@cerno.tech>
-Date:   Tue, 04 Apr 2023 12:11:28 +0200
-Subject: [PATCH v3 38/65] phy: cadence: sierra: Add a determine_rate hook
+        with ESMTP id S234372AbjDDNCU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 09:02:20 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC5D1BC7
+        for <linux-rtc@vger.kernel.org>; Tue,  4 Apr 2023 06:02:19 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id r11so130323059edd.5
+        for <linux-rtc@vger.kernel.org>; Tue, 04 Apr 2023 06:02:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1680613337;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=80YBPi+85zCnOkMuZy/EOCJgSFeaKJCfBUB0QXoMJG0=;
+        b=n9c4JUKx+rSAWG3kH+jFpCPCju35S2p0ig5Szc/q2VRDyUfttMRDmgoXNqSX8dC5Um
+         QCkapdOErvevGkUPysYDk1W/A582aXWjKE5a5BNq7Eh9MEdtH8ysVCQnt+4SV+wRgSiQ
+         iAB6iQzhfbcU5+SR4y/bPpSCiOrT5g+P9DZRHMgQO/Q2PArngIWvPdf69/26Uqk9uRnm
+         bVcv2j6SNqTEZG5u1xKS9sVWybQADCF5W9LyjwAIPY17BlUdLfBFkK0Ho+1d+86dIBeQ
+         ggTuSsovpCQ3aGOA2GfrPdm+sa7GCq5G4cxZLl2boJJiRiIxkhYUM4YPEsEaCZSIwZ7y
+         ddiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680613337;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=80YBPi+85zCnOkMuZy/EOCJgSFeaKJCfBUB0QXoMJG0=;
+        b=tL1DdIv+O5KOP0I3GyDkmz/mBw6u1thq8oaPL6Z+qfPOPFeW9zZCdiXY5D3ypXb+l2
+         SkGjZPq630BoA9uH4Z2hBM32aCjmubEkj0vyKK5jdpm9shzDDJR5tUWRAojX1A1mtvvo
+         i6F1Os9pUA3a6DSvALIW0M809MXazs1E5SQUrUHvZtDUQOSWIonMVxd41Xsl2tc0Ulup
+         szPedvBu4FNyh1TaiNi1N6GAWkHb5cgwdaVijIo0haRReGOMflUovnJNIkZlwCjHzcU2
+         g2xqQyfSAl/IGDzAo3F1ku4stcu7OrPHUqdS8wfuh8gFHOwY9AhKPPNGwmcDFLbc0g5D
+         GcFA==
+X-Gm-Message-State: AAQBX9fX6Rn3RHQxFxz8JR5afPq2Kx9fMXiUoNnChW04bj9Wk+Qx69Hp
+        3k2YvFGtPaBWSX5y4U+xhlEARw==
+X-Google-Smtp-Source: AKy350aF8oPMiNgn4tk1wpZPkLE/N6LCtJYbRyyIQqV6ip9JZ5rFaqVYWqODG9QkmJpKUvt6S7C6AA==
+X-Received: by 2002:a17:906:27d4:b0:930:3840:1c4d with SMTP id k20-20020a17090627d400b0093038401c4dmr2207998ejc.32.1680613337609;
+        Tue, 04 Apr 2023 06:02:17 -0700 (PDT)
+Received: from ?IPV6:2a02:810d:15c0:828:7467:56f4:40b7:cba8? ([2a02:810d:15c0:828:7467:56f4:40b7:cba8])
+        by smtp.gmail.com with ESMTPSA id e27-20020a50d4db000000b004fadc041e13sm5884140edj.42.2023.04.04.06.02.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Apr 2023 06:02:17 -0700 (PDT)
+Message-ID: <68bc0c88-541d-269d-58d2-67dbe6d44b7e@linaro.org>
+Date:   Tue, 4 Apr 2023 15:02:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH v5 2/2] dt-bindings: rtc: add max313xx RTCs
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Tilki, Ibrahim" <Ibrahim.Tilki@analog.com>
+Cc:     "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "krzysztof.kozlowski+dt@linaro.org" 
+        <krzysztof.kozlowski+dt@linaro.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "Arslanbenzer, Zeynep" <Zeynep.Arslanbenzer@analog.com>
+References: <20230403154342.3108-1-Ibrahim.Tilki@analog.com>
+ <20230403154342.3108-3-Ibrahim.Tilki@analog.com>
+ <dd6f0842-519f-1bc9-f7f5-459863dc3dcd@linaro.org>
+ <202304040710049c9cc01a@mail.local>
+ <CY4PR03MB2488DFC99C23ADE16FF40E2F96939@CY4PR03MB2488.namprd03.prod.outlook.com>
+ <1efdb870-cac2-f6ed-72b5-d0550dbb5257@linaro.org>
+ <CY4PR03MB24883E0406C2A16E566DB39196939@CY4PR03MB2488.namprd03.prod.outlook.com>
+ <202304041226162e231e78@mail.local> <2023040412291166c04438@mail.local>
+Content-Language: en-US
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <2023040412291166c04438@mail.local>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20221018-clk-range-checks-fixes-v3-38-9a1358472d52@cerno.tech>
-References: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
-In-Reply-To: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        =?utf-8?q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        David Lechner <david@lechnology.com>,
-        Sekhar Nori <nsekhar@ti.com>, Abel Vesa <abelvesa@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Prashant Gaikwad <pgaikwad@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-actions@lists.infradead.org, patches@opensource.cirrus.com,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-phy@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        alsa-devel@alsa-project.org, linux-mips@vger.kernel.org,
-        Maxime Ripard <maxime@cerno.tech>
-X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2192; i=maxime@cerno.tech;
- h=from:subject:message-id; bh=emCWDi8Q7v/nBEvpOPyhOffdcXDoO1tJu6NLHT7Pw0Y=;
- b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCna37e9Mq+YuERpz7kyfgHzS492PO3q//LuRQkjG/tEp7Zv
- P/YwdZSyMIhxMciKKbLECJsviTs163UnG988mDmsTCBDGLg4BWAiG+IY/qmuP9x1pfrK3oD/0xnDxb
- Rnbsuv1d5+WGGPRVVlTK3UzrWMDO/F/jEkLhWKV4tRNJJf5Cu8fqqQqPfpejXrLZnWaV8UeQA=
-X-Developer-Key: i=maxime@cerno.tech; a=openpgp;
- fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Cadence Sierra PLL clock implements a mux with a set_parent hook,
-but doesn't provide a determine_rate implementation.
+On 04/04/2023 14:29, Alexandre Belloni wrote:
+> On 04/04/2023 14:26:18+0200, Alexandre Belloni wrote:
+>> On 04/04/2023 10:35:53+0000, Tilki, Ibrahim wrote:
+>>>>>>>> +  aux-voltage-chargeable:
+>>>>>>>> +    enum: [0, 1, 2]
+>>>>>>>> +    description: |
+>>>>>>>> +      Enables trickle charger.
+>>>>>>>> +      0: Charger is disabled (default)
+>>>>>>>> +      1: Charger is enabled
+>>>>>>>> +      2: Charger is enabled with a diode
+>>>>>>>
+>>>>>>> 2 is not an allowed value. I asked to drop this property. It is coming
+>>>>>>> from rtc.yaml. I also do not understand "with a diode". So otherwise it
+>>>>>>> is charging with, I don't know, FET?
+>>>>>>
+>>>>>> No, what is not explained here (and maybe not unsterstood by the
+>>>>>> submitter) is that the RTC has an extra diode so, charging will always
+>>>>>> enable a diode, select a resistor and then have or not an extra diode.
+>>>>>> Figure2 of the MAX31329 datasheet is great.
+>>>>>>
+>>>>>
+>>>>> That is exactly why I had "adi,trickle-diode-enable" property in previous patch.
+>>>>> So if I can't have "adi,trickle-diode-enable" and can't add an additional value
+>>>>> to "aux-voltage-chargeable", I am not sure how to add support for the extra
+>>>>> diode at this point.
+>>>>
+>>>> Ask the person who asked you to remove adi,trickle-diode-enable...
+>>>
+>>> That was the purpose.
+>>>
+>>
+>> If the earlier submission was clearer my answer would have been
+>> different but note how I had to dig up the datasheet to understand there
+>> were two diodes. All the trickle chargers have a schottky diode so
+>> "adi,trickle-diode-enable" nor the commit log were explicit about the
+>> second diode (which is a regular diode).
+>>
+>> aux-voltage-chargeable is enabling a diode on all the existing RTC
+>> drivers so instead of trying to make me look like the bad guy you should
+>> rather thank for taking the time trying to get better DT bindings.
+>>
+> 
+> BTW, Krzysztof, you should focus more on how v5 of the driver is still
+> abusing the #clock-cells property to do pinmuxing after I repeatedly
+> explain to not do that.
 
-This is a bit odd, since set_parent() is there to, as its name implies,
-change the parent of a clock. However, the most likely candidate to
-trigger that parent change is a call to clk_set_rate(), with
-determine_rate() figuring out which parent is the best suited for a
-given rate.
+Uh, I assumed #clock-cells in the binding is for its purpose - clocks. I
+am rarely verifying driver implementation.
 
-The other trigger would be a call to clk_set_parent(), but it's far less
-used, and it doesn't look like there's any obvious user for that clock.
-
-So, the set_parent hook is effectively unused, possibly because of an
-oversight. However, it could also be an explicit decision by the
-original author to avoid any reparenting but through an explicit call to
-clk_set_parent().
-
-The latter case would be equivalent to setting the flag
-CLK_SET_RATE_NO_REPARENT, together with setting our determine_rate hook
-to __clk_mux_determine_rate(). Indeed, if no determine_rate
-implementation is provided, clk_round_rate() (through
-clk_core_round_rate_nolock()) will call itself on the parent if
-CLK_SET_RATE_PARENT is set, and will not change the clock rate
-otherwise. __clk_mux_determine_rate() has the exact same behavior when
-CLK_SET_RATE_NO_REPARENT is set.
-
-And if it was an oversight, then we are at least explicit about our
-behavior now and it can be further refined down the line.
-
-Since the CLK_SET_RATE_NO_REPARENT flag was already set though, it seems
-unlikely.
-
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
----
- drivers/phy/cadence/phy-cadence-sierra.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
-index ab0a37618ef3..19a50247e305 100644
---- a/drivers/phy/cadence/phy-cadence-sierra.c
-+++ b/drivers/phy/cadence/phy-cadence-sierra.c
-@@ -716,6 +716,7 @@ static int cdns_sierra_pll_mux_set_parent(struct clk_hw *hw, u8 index)
- }
- 
- static const struct clk_ops cdns_sierra_pll_mux_ops = {
-+	.determine_rate = __clk_mux_determine_rate,
- 	.set_parent = cdns_sierra_pll_mux_set_parent,
- 	.get_parent = cdns_sierra_pll_mux_get_parent,
- };
-
--- 
-2.39.2
+Best regards,
+Krzysztof
 
