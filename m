@@ -2,145 +2,221 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E4DC761AF
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Apr 2023 06:16:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C12F3C77B6E
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Apr 2023 12:25:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237024AbjDEGQJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Apr 2023 02:16:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34536 "EHLO
+        id S237988AbjDEMZ2 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 Apr 2023 08:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236670AbjDEGQJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Apr 2023 02:16:09 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D9530C4
-        for <linux-rtc@vger.kernel.org>; Tue,  4 Apr 2023 23:16:06 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id r11so138440266edd.5
-        for <linux-rtc@vger.kernel.org>; Tue, 04 Apr 2023 23:16:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1680675365;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=SB6X/HPTBevD11u4QesH1uUiIVJAKhGlwM+UoQhXDmQ=;
-        b=qJhxInXHBw/oSbV9tNmfcQFbtnUx6E7N2r9k3ZFHgcpcgdbTB/BheZcrVZk2ompKf6
-         QZvCAW+W7dLo/vGw09DONctdVUzN5Y6zpsklyAvSWyMTGkzCvNtXkm+LBctimMZP3ebj
-         41EW9FJvirGU86VygdOFV42YVmrch4kbTp6z8JBsh/Zg5Q3rwHrPnQ9TufpF5CJhUWvb
-         +GQ92fsVA4uwK6V92UHDLVKb5n8cWo5zlwlWZ/M2zccjH+6IDfpL+IEKg57BeYpmRScp
-         BImKfkvu/EQKNwltoGoKP1AgIF032xnerm0u2isVkdbwmq7TZlYenDjOIf6kL3dbZwGI
-         qH3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680675365;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SB6X/HPTBevD11u4QesH1uUiIVJAKhGlwM+UoQhXDmQ=;
-        b=x+p5C2gdI7yrCDGFRI+Dm9C1WZmkmdAR1k+rNP5+qQJkOdyZcqkeq3KqGuPE/UE0KU
-         1v+O8NueAc43zluad6/t7SL4lzfbcX3zz9TgSR79tkwCnjCMe1lkZOi9NzbaNS2veXkg
-         bbWqyEBAcrc151zb8VVZB6U2hm9iK+uFbLZpnbYfoSYuZwT59EhB8+DbHukvx2wPHTbg
-         XD/iE0367BIpVrjHoDQ4YMbzKJvFZGsomSq6kowEauQvsoYkJQ2xhIoRf7zwmniRpu78
-         64PUszF9/IPN7/0W/JWi1hhvWHNPRSu/eNtc/AM+9nNhmM78ZEvXburPn6n7FoC1XTed
-         6h4g==
-X-Gm-Message-State: AAQBX9cy3b9jc3tGwljkGKfVA1E+j6uQIPCaPfUg5TdkaNtub32Jj6YI
-        DHyagVLIHda2LD9h5QK0SUqH5A==
-X-Google-Smtp-Source: AKy350ZqXgpOtVx4SPo6LBhpRXn1qmcne+hCujVIv/eRRqCcdGlsUSwBk4dJbc9hzj2xOu33Zw/2UA==
-X-Received: by 2002:a17:906:ef2:b0:93f:9ef3:945b with SMTP id x18-20020a1709060ef200b0093f9ef3945bmr1889689eji.17.1680675365315;
-        Tue, 04 Apr 2023 23:16:05 -0700 (PDT)
-Received: from ?IPV6:2a02:810d:15c0:828:3f:6b2:54cd:498e? ([2a02:810d:15c0:828:3f:6b2:54cd:498e])
-        by smtp.gmail.com with ESMTPSA id l23-20020a170906079700b0093338259b2bsm6772861ejc.207.2023.04.04.23.16.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Apr 2023 23:16:04 -0700 (PDT)
-Message-ID: <fe580065-9ad3-3d28-522d-3905a9e9e518@linaro.org>
-Date:   Wed, 5 Apr 2023 08:16:03 +0200
+        with ESMTP id S238010AbjDEMZ0 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Apr 2023 08:25:26 -0400
+Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000E34EEB;
+        Wed,  5 Apr 2023 05:25:21 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id E031F2B06740;
+        Wed,  5 Apr 2023 08:25:11 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Wed, 05 Apr 2023 08:25:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
+        :cc:content-transfer-encoding:content-type:content-type:date
+        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
+        1680697511; x=1680704711; bh=gWfanKGu7k0uR6sCschsWvSUb9iXlQk4TW0
+        N04BwoCQ=; b=Wts/Ah4xwykIELLuVOyydo/p1UGL9G/HJY/ERkwIccdne8UsCAw
+        X0PmG5K0bcqaEyRUzoWHG0oVt+49ZELc6VwPM2bbnB7Q6KDqcs8OOo8ckMbMZ+RL
+        DKwDb8ModcB/XpwqnfSu9kwYDO781wqKfc3k85DrB5IrzhsEsb5/w+mH3LJR/fmM
+        XbWCKuHGNs/G2Ncxgv0wXe0b7UZjnUDqlm/H+vVP7y6M5EzJSI5hwcXryt/7TWcn
+        x2PoNUmovZSVXjqXU442ELIWyFCb2TK0OquEZRilwLsEUnxWf2tD6NYbDZuxZaBO
+        1e9oE8wU1U+oCwmBb981th4h8d6MQ6I15rA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:content-type:date:date:feedback-id:feedback-id
+        :from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+        1680697511; x=1680704711; bh=gWfanKGu7k0uR6sCschsWvSUb9iXlQk4TW0
+        N04BwoCQ=; b=TJt8SE1IgEzc0KpglToUainSE4eNFtJFqOIadR3Aw0w4iPzOBCp
+        T7zZ1chmtSiOBxN3MvHWzyoyNC43zazRBLNOMgwV2goNvpcmLNoxWEHiDb/9V03T
+        WqbkUOPppAfDp1lfLQERD4d9RtAdodePkq783ksNdsQOEtZ0YNss3Eprqjfvt/nN
+        kO7L5DariGDXLonWJO+hWIpoZxEYQCsypuK/jqg0nKXQ3uvKiqloZ1BiukZJzPz1
+        YpR3d+y3y6G243Ad9Cj01eNNPcdlL1pIs4n9C1Ejcg0dYX17CKsF9c3c6oJA9TLj
+        OI6pgZjc8LIQJcEp85pkrQBuBvOHfuhKBEg==
+X-ME-Sender: <xms:pGgtZOMldRw9UEzMSSw9I_16P6Nh8uWoC4G5IxdeXhaf6cgqrrzPkw>
+    <xme:pGgtZM8vJW0v5RLXKfpP1B30xBya9iCZQG9f3N4LOeu6GPgZLeDUnDyQ9xb3eVe8U
+    Jjfq16Xf1lnK5HolA0>
+X-ME-Received: <xmr:pGgtZFSt_W3SaLhjt9yJ8c7kyZV5sinLzmDcveP-bhjWLgYOnINQKkWGt_VoysCLks7z4FJH18Z3Iufubf4jHvGpiizZ09U>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdejuddgheefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforgig
+    ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
+    grthhtvghrnhepvedvleeijeegvdekffehkeehieelhfeggfffheetkeeuledvtdeuffeh
+    teeltdffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epmhgrgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:pGgtZOuwD6V3-SK77MsB7UnDET01NWQ1J0FEM_a_tHDV_Wd8LAX3nA>
+    <xmx:pGgtZGc6iX9GiPe48LHMJqyM2e5beO91F8WcGBskctjFG2kJLt3MBQ>
+    <xmx:pGgtZC0EwUEqmao45oOU_dJyzQL31Mo4S3zcbaFAhGu0aeI6ljMT_w>
+    <xmx:p2gtZGJX-HkMFt7mgRW1BHWYhPPxWlY5gUmeCqa4tyFNOW-Njt8_xUIYlj4>
+Feedback-ID: i8771445c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 5 Apr 2023 08:25:07 -0400 (EDT)
+From:   Maxime Ripard <maxime@cerno.tech>
+Date:   Tue, 04 Apr 2023 12:11:53 +0200
+Subject: [PATCH v3 63/65] ASoC: tlv320aic32x4: pll: Switch to
+ determine_rate
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH v5 2/2] dt-bindings: rtc: add max313xx RTCs
-Content-Language: en-US
-To:     "Tilki, Ibrahim" <Ibrahim.Tilki@analog.com>,
-        "a.zummo@towertech.it" <a.zummo@towertech.it>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "jdelvare@suse.com" <jdelvare@suse.com>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>,
-        "krzysztof.kozlowski+dt@linaro.org" 
-        <krzysztof.kozlowski+dt@linaro.org>
-Cc:     "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "Arslanbenzer, Zeynep" <Zeynep.Arslanbenzer@analog.com>
-References: <20230403154342.3108-1-Ibrahim.Tilki@analog.com>
- <20230403154342.3108-3-Ibrahim.Tilki@analog.com>
- <7d5c4407-3198-c39a-2c30-fbaeb5c53b08@linaro.org>
- <CY4PR03MB2488D9CED963C26DB7D9709B96939@CY4PR03MB2488.namprd03.prod.outlook.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <CY4PR03MB2488D9CED963C26DB7D9709B96939@CY4PR03MB2488.namprd03.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20221018-clk-range-checks-fixes-v3-63-9a1358472d52@cerno.tech>
+References: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
+In-Reply-To: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        =?utf-8?q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        David Lechner <david@lechnology.com>,
+        Sekhar Nori <nsekhar@ti.com>, Abel Vesa <abelvesa@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Prashant Gaikwad <pgaikwad@nvidia.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>, Vinod Koul <vkoul@kernel.org>,
+        Kishon Vijay Abraham I <kishon@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Cc:     linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-actions@lists.infradead.org, patches@opensource.cirrus.com,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-mediatek@lists.infradead.org,
+        linux-renesas-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-phy@lists.infradead.org,
+        linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+        alsa-devel@alsa-project.org, linux-mips@vger.kernel.org,
+        Maxime Ripard <maxime@cerno.tech>
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3060; i=maxime@cerno.tech;
+ h=from:subject:message-id; bh=H89ybMftU/jF/mSnT7t9XXRlldLTbWRKBAeeojhOMGw=;
+ b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCna37ez8VvEii39va+tcvoZfzdxxUPd2wRkdwVYPMp1lo9Z
+ pGHcUcrCIMbFICumyBIjbL4k7tSs151sfPNg5rAygQxh4OIUgIuIMvzT6NRk4a6VklCfFrt34pOivT
+ dO/vx0ZleDzy3WQH7/Ndt8GP4Xn+z4wbyskuNe7PtDUnKLNxhutHRaJHJKenEay+7oL/bMAA==
+X-Developer-Key: i=maxime@cerno.tech; a=openpgp;
+ fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 04/04/2023 17:40, Tilki, Ibrahim wrote:
->>> +  interrupts:
->>> +    description: |
->>> +      Alarm1 interrupt line of the RTC. Some of the RTCs have two interrupt
->>> +      lines and alarm1 interrupt muxing depends on the clockin/clockout
->>> +      configuration.
->>> +    maxItems: 1
->>> +
->>> +  "#clock-cells":
->>> +    description: |
->>> +      RTC can be used as a clock source through its clock output pin when
->>> +      supplied.
->>
->> This part is correct, but your implementation is not. I don't think you
->> can disable or enable interrupts, based on usage of clock. Either this
->> is clock (gated or not) or interrupt, not both.
->>
-> 
-> The driver doesn't enable or disable interrupts based on clock usage. It checks
-> whether the IRQ is possible or not. Enablement of interrupt depends on the 
-> "interrupts" property. The tricky part is that interrupt muxing depends on
-> clock configuration.
+The tlv320aic32x4 PLL clocks implements a mux with a set_parent hook, but
+doesn't provide a determine_rate implementation.
 
-I think it is not what your driver is doing. It checks if clock-cells...
+This is a bit odd, since set_parent() is there to, as its name implies,
+change the parent of a clock. However, the most likely candidate to
+trigger that parent change is a call to clk_set_rate(), with
+determine_rate() figuring out which parent is the best suited for a
+given rate.
 
-> 
-> Let me briefly explain the behavior of RTCs and the driver[v4]
-> 
-> MAX31328:
->   - Has a single pin which is either used as IRQ or clock output.
->   - Driver aborts probe with "-EOPNOTSUPP" when user requests irq and clockout
->     at the same time. In other words, when both "interrupts" and "#clock-cells"
->     properties are present. Otherwise, we are fine.
+The other trigger would be a call to clk_set_parent(), but it's far less
+used, and it doesn't look like there's any obvious user for that clock.
 
-Why? These are fixed properties of the device. It is always a clock
-controller and always has interrupt line. The choice between them is
-depending on pins, so pin control.
+So, the set_parent hook is effectively unused, possibly because of an
+oversight. However, it could also be an explicit decision by the
+original author to avoid any reparenting but through an explicit call to
+clk_set_parent().
 
-> 
-> MAX31331:
-> MAX31334:
->   - Has two pins: INTA and INTB/CLOCKOUT. INTA pin is dedicated for interrupt.
->     INTB pin is used as either interrupt or clockout. The Alarm1 interrupt is
->     muxed into INTB by default. If the CLOCKOUT is enabled, Alarm1 irq is muxed
->     into INTA. We don't have further control over interrupt muxing.
->   - Driver checks for "#clock-cells". If it is present, it enables the clockout
->     so that we can get interrupt from INTA.
-> 
-> The Rest:
->   - Has two pins: INTA/CLKIN and INTB/CLOCKOUT. Alarm1 interrupt is muxed into
->     INTA by default, muxed into INTB if and only if we enable CLKIN.
->   - Driver aborts probe with -EOPNOTSUPP when user requests interrupt, clockin
->     and clockout at the same time. We can't have all three with two pins.
-> 	
-> 
-> Unfortunately we don't have control over the interrupt muxing other than clock
-> configuration. How should the driver approach this?
+The driver does implement round_rate() though, which means that we can
+change the rate of the clock, but we will never get to change the
+parent.
 
-Pinmux with two states - interrupt or clock.
+However, It's hard to tell whether it's been done on purpose or not.
 
-Best regards,
-Krzysztof
+Since we'll start mandating a determine_rate() implementation, let's
+convert the round_rate() implementation to a determine_rate(), which
+will also make the current behavior explicit. And if it was an
+oversight, the clock behaviour can be adjusted later on.
+
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+---
+ sound/soc/codecs/tlv320aic32x4-clk.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/sound/soc/codecs/tlv320aic32x4-clk.c b/sound/soc/codecs/tlv320aic32x4-clk.c
+index 65b72373cb95..d8b8ea3eaa12 100644
+--- a/sound/soc/codecs/tlv320aic32x4-clk.c
++++ b/sound/soc/codecs/tlv320aic32x4-clk.c
+@@ -205,18 +205,23 @@ static unsigned long clk_aic32x4_pll_recalc_rate(struct clk_hw *hw,
+ 	return clk_aic32x4_pll_calc_rate(&settings, parent_rate);
+ }
+ 
+-static long clk_aic32x4_pll_round_rate(struct clk_hw *hw,
+-			unsigned long rate,
+-			unsigned long *parent_rate)
++static int clk_aic32x4_pll_determine_rate(struct clk_hw *hw,
++					  struct clk_rate_request *req)
+ {
+ 	struct clk_aic32x4_pll_muldiv settings;
++	unsigned long rate;
+ 	int ret;
+ 
+-	ret = clk_aic32x4_pll_calc_muldiv(&settings, rate, *parent_rate);
++	ret = clk_aic32x4_pll_calc_muldiv(&settings, req->rate, req->best_parent_rate);
+ 	if (ret < 0)
+-		return 0;
++		return -EINVAL;
+ 
+-	return clk_aic32x4_pll_calc_rate(&settings, *parent_rate);
++	rate = clk_aic32x4_pll_calc_rate(&settings, req->best_parent_rate);
++	if (rate < 0)
++		return rate;
++
++	req->rate = rate;
++	return 0;
+ }
+ 
+ static int clk_aic32x4_pll_set_rate(struct clk_hw *hw,
+@@ -267,7 +272,7 @@ static const struct clk_ops aic32x4_pll_ops = {
+ 	.unprepare = clk_aic32x4_pll_unprepare,
+ 	.is_prepared = clk_aic32x4_pll_is_prepared,
+ 	.recalc_rate = clk_aic32x4_pll_recalc_rate,
+-	.round_rate = clk_aic32x4_pll_round_rate,
++	.determine_rate = clk_aic32x4_pll_determine_rate,
+ 	.set_rate = clk_aic32x4_pll_set_rate,
+ 	.set_parent = clk_aic32x4_pll_set_parent,
+ 	.get_parent = clk_aic32x4_pll_get_parent,
+
+-- 
+2.39.2
 
