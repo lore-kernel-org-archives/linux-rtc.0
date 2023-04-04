@@ -2,220 +2,227 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68795C761AF
-	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 14:06:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9D1AC77B60
+	for <linux-rtc@archiver.kernel.org>; Tue,  4 Apr 2023 14:51:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235790AbjDDOGT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 4 Apr 2023 10:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S231964AbjDDOvH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 4 Apr 2023 10:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235515AbjDDOGI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 10:06:08 -0400
-Received: from new3-smtp.messagingengine.com (new3-smtp.messagingengine.com [66.111.4.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 219A85243;
-        Tue,  4 Apr 2023 07:05:49 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 93B4B582182;
-        Tue,  4 Apr 2023 09:57:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Tue, 04 Apr 2023 09:57:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm3; t=
-        1680616643; x=1680623843; bh=u5IaUxp37Eo22Z56jEIWVdhJKniriGtZUw7
-        vNfPP1hQ=; b=e+xt/OOvKjKGuDtA0Ahj98cbkLitDqUU/UKcS7yZvjtyc7psjqk
-        LLw1N3v1gT2lsI/jgZA00iUrVTwZQxGKzydhUwln9Tj+wVAEXYIgbj3+MsmLaCaE
-        Cdo43DrAYaRpuSPg3B7Q7p+OsKoFrmKWU52+BSzHDJ1vA0+MtqsVego5xt5NE4Fb
-        XmbZatqcMRhZuyd5Vm0CAuUt4jPlErlw+Mec+xBQ8k/0s2XKZJjz4y+43nkwzhAh
-        vCvnI1CKC25cC7E2n7m/B0np80epZ7fwDkl4RIbHNtgoZe92XFv8vVJr4POIg/P0
-        es8wZkSwpUBx2vbqr+t8TgShtC0OsLucfSg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1680616643; x=1680623843; bh=u5IaUxp37Eo22Z56jEIWVdhJKniriGtZUw7
-        vNfPP1hQ=; b=NXOXR9qVx9GhB0bCSr2MeQseIneXnaIVjiGYQJEvq0EZ31TnNDj
-        RptliQ+Rq4cWDdoPDc66MlDR2SDmZZZNuJCK7UVliZva62cXnBLaSluuuBoPDA69
-        pNSOkZk95veaoI39rp0+uzJhRgkiCawy98yPzfTC+q4CBYvb0OfiRZf7mvKk423z
-        VTAmddPC+8W8DD039rTb8mFeqaTPFl4qq5z3lTvvHaMcII8D0u6A6F967BqCHpRA
-        AqY6g65szcumC5rvueD4FsAd83aexoCXosZV4WGQIgfRPrC2DW3reUqp9dtEchD1
-        SR1X0sqOYKpt7s6rc2nTiqdHTGREkC7SOVw==
-X-ME-Sender: <xms:wywsZNiCxmvgcKric11KJvKuEq1FehZqEcIxwniPsULXBadQlxvF2w>
-    <xme:wywsZCDiKXQ-SwIPeBZdKU0x6Oe3k4wqeumQLw3sO5StItxIkxX0NPDS5XP8x78Rr
-    KOCKwU-fc1G-sB162I>
-X-ME-Received: <xmr:wywsZNFf3kNKAQom6E7PTWT_AclJRPGTzSMo5gMkrGzVQNAQWEkSOL4Oul0Nyq0ovjI3B-6TXoUd03airWEzvyGtHYhjJZc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiledgjedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforgig
-    ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
-    grthhtvghrnhepvedvleeijeegvdekffehkeehieelhfeggfffheetkeeuledvtdeuffeh
-    teeltdffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epmhgrgihimhgvsegtvghrnhhordhtvggthh
-X-ME-Proxy: <xmx:wywsZCT-U4e-6PkOEQgY4RIEhmT1p7JS2YyOE-sY9IGIKSFnO6pszw>
-    <xmx:wywsZKxRi9LUhyDXJmLOyS6WVxSfn71QPg6OgjWVUhsROrBPL-9x0A>
-    <xmx:wywsZI7qKMRHIbetV5AV9nEa0pScwXAhYlU19ov_TQRMFoqsmt8EsA>
-    <xmx:wywsZK--zs-8fCvMuaT7dX3Yp0547dKOF-7Od2LEpp5JmlfcUPbh2w>
-Feedback-ID: i8771445c:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 4 Apr 2023 09:57:21 -0400 (EDT)
-From:   Maxime Ripard <maxime@cerno.tech>
-Date:   Tue, 04 Apr 2023 12:11:46 +0200
-Subject: [PATCH v3 56/65] clk: ingenic: cgu: Switch to determine_rate
+        with ESMTP id S231972AbjDDOvG (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 4 Apr 2023 10:51:06 -0400
+Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674E30C5;
+        Tue,  4 Apr 2023 07:51:05 -0700 (PDT)
+Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
+        by mx0a-00128a01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 334DddmA013755;
+        Tue, 4 Apr 2023 10:50:37 -0400
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2175.outbound.protection.outlook.com [104.47.55.175])
+        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3pqrh59m93-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 04 Apr 2023 10:50:36 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jgpflzPlaGyMoYn7puNEde7PznA5OeD0o3MhQgGQXOuSX0EkL9i7L8rdHT3rYowpTo5Q+7TDNYpvutgF3KrF8Bi60Dool+zfQYnZK2DBCT4bBBccHxJiKMuzvG8ELHyMY6loYhchYpgvsIMxmQJPi1OqyA88/vbLIys3zo+1EodXp8rJQBQWRNxpeEDdYMO9bNM9dKs/QgADJtzu4w8JkN14280uVqYnCTgbakWk1ISvmMEa8RBfU+1o++puYd7WPu/5IL5uBLCebDPYTJuEyfosOavo1KvfKmvIQh3gv+OCHwSFHY75V3ceZQsvrnXfnWmxdX++D+lKcr2zJ0mzhw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0n5ksVWrcxixJ+YLlbCmOjcIyPX6FQieNBPg6kiDmOo=;
+ b=YF2IiTT7pE3qCwsDJaoKkNrKZXyLG4/TQkEd2fKPe5vi2ieRnctD31nSB+8QjrfFh8DjYBgHerdRrXKhNl+e7uzO/V+/BmoKIAEeaoEKnpd6lvMTlpvSwsiEUrrW8hLpqQYXAZZOvv/bJDVfrl4/fV57w535dv/E4njGW7iRhmWCvaJJTGwmsX2bxGwNhM84NsoV0UylC4cqmb9MsPr/S2gRcFnXwYhCKlG4VzQrV44JCZ6t+6E3RHZnaDa3OxzlPi47EXYoomhTcgCF/GjfrGNDjKE0jR2JPQlpVm6w6Xo+x+eV9PMfWfQbnd/tAaiBEzUjJbIAvkeI/IFU9ffCFw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=analog.com; dmarc=pass action=none header.from=analog.com;
+ dkim=pass header.d=analog.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=analog.onmicrosoft.com; s=selector2-analog-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0n5ksVWrcxixJ+YLlbCmOjcIyPX6FQieNBPg6kiDmOo=;
+ b=m5ruo7nlvHl3GLGK6DmWkc1Q2MJrrVPUmh+xn1mPIJ96olIo+0pDH8QMove/nTQnKKtl0KQqlOy98l5MA7Q6QHvsyDsUh3SmeJqvs5XZZ2obq7J14Auj+aDuqWTlm51RYAgrjKtuCg1mcl6hibb7vFDJLOIPJVdD6GUfOBcqFEo=
+Received: from CY4PR03MB2488.namprd03.prod.outlook.com (2603:10b6:903:39::12)
+ by PH0PR03MB7113.namprd03.prod.outlook.com (2603:10b6:510:298::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.35; Tue, 4 Apr
+ 2023 14:50:33 +0000
+Received: from CY4PR03MB2488.namprd03.prod.outlook.com
+ ([fe80::3ebb:ede8:1ce9:2528]) by CY4PR03MB2488.namprd03.prod.outlook.com
+ ([fe80::3ebb:ede8:1ce9:2528%6]) with mapi id 15.20.6254.035; Tue, 4 Apr 2023
+ 14:50:33 +0000
+From:   "Tilki, Ibrahim" <Ibrahim.Tilki@analog.com>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "a.zummo@towertech.it" <a.zummo@towertech.it>,
+        "jdelvare@suse.com" <jdelvare@suse.com>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "krzysztof.kozlowski+dt@linaro.org" 
+        <krzysztof.kozlowski+dt@linaro.org>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "Arslanbenzer, Zeynep" <Zeynep.Arslanbenzer@analog.com>
+Subject: RE: [PATCH v5 2/2] dt-bindings: rtc: add max313xx RTCs
+Thread-Topic: [PATCH v5 2/2] dt-bindings: rtc: add max313xx RTCs
+Thread-Index: AQHZZkM1/0NcmmhHVE+7c9BLHmZIxK8arcoAgAAOpACAACNY0IAADnQAgAAGjDCAACABAIAAI8ag
+Date:   Tue, 4 Apr 2023 14:50:33 +0000
+Message-ID: <CY4PR03MB248854B4B6E61323EB16895196939@CY4PR03MB2488.namprd03.prod.outlook.com>
+References: <20230403154342.3108-1-Ibrahim.Tilki@analog.com>
+ <20230403154342.3108-3-Ibrahim.Tilki@analog.com>
+ <dd6f0842-519f-1bc9-f7f5-459863dc3dcd@linaro.org>
+ <202304040710049c9cc01a@mail.local>
+ <CY4PR03MB2488DFC99C23ADE16FF40E2F96939@CY4PR03MB2488.namprd03.prod.outlook.com>
+ <1efdb870-cac2-f6ed-72b5-d0550dbb5257@linaro.org>
+ <CY4PR03MB24883E0406C2A16E566DB39196939@CY4PR03MB2488.namprd03.prod.outlook.com>
+ <202304041226162e231e78@mail.local>
+In-Reply-To: <202304041226162e231e78@mail.local>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-dg-rorf: true
+x-dg-ref: =?us-ascii?Q?PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcaWJyYWhpbS50?=
+ =?us-ascii?Q?aWxraVxhcHBkYXRhXHJvYW1pbmdcMDlkODQ5YjYtMzJkMy00YTQwLTg1ZWUt?=
+ =?us-ascii?Q?NmI4NGJhMjllMzViXG1zZ3NcbXNnLTBiNTlmYmUwLWQyZjgtMTFlZC04ZTgw?=
+ =?us-ascii?Q?LTdjYjI3ZDcyMzFhYlxhbWUtdGVzdFwwYjU5ZmJlMS1kMmY4LTExZWQtOGU4?=
+ =?us-ascii?Q?MC03Y2IyN2Q3MjMxYWJib2R5LnR4dCIgc3o9IjIzNjkiIHQ9IjEzMzI1MDkz?=
+ =?us-ascii?Q?NDMxNDQ0MDU3NyIgaD0icjM2cXVHSHMwcTMwMWxCdGp5TFR4a1lQaGZrPSIg?=
+ =?us-ascii?Q?aWQ9IiIgYmw9IjAiIGJvPSIxIiBjaT0iY0FBQUFFUkhVMVJTUlVGTkNnVUFB?=
+ =?us-ascii?Q?RW9DQUFDQkY4M05CR2ZaQVk3U25xVmMxdG1YanRLZXBWelcyWmNEQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUhBQUFBRGFBUUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUVBQVFBQkFBQUFRZGlrNVFBQUFBQUFBQUFBQUFBQUFKNEFBQUJo?=
+ =?us-ascii?Q?QUdRQWFRQmZBSE1BWlFCakFIVUFjZ0JsQUY4QWNBQnlBRzhBYWdCbEFHTUFk?=
+ =?us-ascii?Q?QUJ6QUY4QVpnQmhBR3dBY3dCbEFGOEFaZ0J2QUhNQWFRQjBBR2tBZGdCbEFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBRUFBQUFBQUFBQUFnQUFBQUFBbmdBQUFHRUFaQUJwQUY4QWN3QmxB?=
+ =?us-ascii?Q?R01BZFFCeUFHVUFYd0J3QUhJQWJ3QnFBR1VBWXdCMEFITUFYd0IwQUdrQVpR?=
+ =?us-ascii?Q?QnlBREVBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQVFBQUFBQUFB?=
+ =?us-ascii?Q?QUFDQUFBQUFBQ2VBQUFBWVFCa0FHa0FYd0J6QUdVQVl3QjFBSElBWlFCZkFI?=
+ =?us-ascii?Q?QUFjZ0J2QUdvQVpRQmpBSFFBY3dCZkFIUUFhUUJsQUhJQU1nQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUJBQUFBQUFBQUFBSUFBQUFBQUE9PSIv?=
+ =?us-ascii?Q?PjwvbWV0YT4=3D?=
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CY4PR03MB2488:EE_|PH0PR03MB7113:EE_
+x-ms-office365-filtering-correlation-id: e4d8ca37-b221-4311-69d7-08db351bf161
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 86f8PJb/7iHrswBvgDlG2n5QCSoJvrGZS84vX1hC82XNMs1w9vS59rSKRcWKiLvafCtVNL/C+9R40N7475noLA1ZLKY3c/Zge8z1XR7YVpkMwlOn3x6BVgER1qI+CW1a69O9WalYrXLbTRBu8FQS35Raq8HpLDQRIj0SKIYJ/zYpiuH6X0t8s4eEcsbbltPh5fl6AZ+ypdDUnFHSsD3hq9Kxh9QQMnM/+5OYWyoF+rstlZpfG6R+A60+fVMMqFVk8hdcljMTbCorf64o7d+lLEgdNsoOT1dBdiYgQlOjFiXtlEM279lGYEo98wNX6CoHvX8MEBX4PWaz4zqj1F1yWgxRwfUqbOhVZx8vYppbzvGVi9yop5V29xnxji5yt5CtiWKlox++XBERTlNsLzwvQiM2qBbYNNMW20uhu0cb5I/q3QnwZBcwfhQPJVwzQfThFj+M4X+8/w/u9MjusNkvbJGgtcdKyBKX5vUdKoGaYe81xrGx1C68scO4BtOCD/wbD5G4DIEzvW2KAjrYhHHNcdQs9t0Bz/TV4z+pmZh6TNXeY9IEG2pKVcrd2qYNmw0HtTTyC1wXDtDWX9M1h2aLmExySJ4mQa1nTDbnufM9GOw=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR03MB2488.namprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(376002)(39860400002)(396003)(136003)(346002)(451199021)(55016003)(107886003)(83380400001)(186003)(26005)(6506007)(9686003)(76116006)(4326008)(86362001)(66556008)(66476007)(66946007)(8676002)(6916009)(52536014)(38100700002)(64756008)(66446008)(2906002)(38070700005)(122000001)(41300700001)(316002)(71200400001)(54906003)(33656002)(478600001)(7696005)(5660300002)(7416002)(8936002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Ehk/AsM9N0D1GwMXzWeFVGYQIUBri/nAMYvIu8I68B8cSxTkAnIfLKsVOFSm?=
+ =?us-ascii?Q?TwamB5nx7rSVrY6x68UiCEUcSPNDAKT2x5WgUTq3U8Wr4czX2zAV2aniAy+W?=
+ =?us-ascii?Q?FiZJ8iWuLOCx1Ru50I+qCq/xfh1TgwRioihTb3x05QQydZMWzhseP6+c8Rf8?=
+ =?us-ascii?Q?32GbCa2FQQW0dd+kLGoBcksvyTj5o1RdHV3cAo1ScjzhpkN/DFbzJF4EWIID?=
+ =?us-ascii?Q?kZkxvjBxr0A1CPjcFKABIOGjOAbjrNkEDkSPupCaxwPCDp/TjgWGOKDviPjo?=
+ =?us-ascii?Q?AnuletKr/v9sXUS10x4IlcCU/lrKM83h1LqSBCVHKJITaxVIgbt0HYzBNWzl?=
+ =?us-ascii?Q?Q0SUvS4IlzAuYyy2WX4DUaVA8kIbEuxqdq1AuaGIoDoxZffq9q3ii+UDXQ0z?=
+ =?us-ascii?Q?1rX2V2NSO8e3rlTXavk8lBBP1DcaKaU5KaR8sUkvx/Y2ud/+4hWi1I1G1Dov?=
+ =?us-ascii?Q?loL7xFzeHdvh28k28fwS/fMsqz9HXXfVsGEorbJTdjlb3wKJj9yV0/3ZRYEf?=
+ =?us-ascii?Q?Bk38wN0WI3kSKYG+jbF07GctKZ31Z+5nSgxQG+0z9+ODX1RwWWIRrwKmBw7W?=
+ =?us-ascii?Q?UiGyFxpmOGnXvqSGx871HonUbOZfdcBkGKvj2umbbKvvtkFTE/3qwqNtjxaf?=
+ =?us-ascii?Q?vuCHOZ0XbbKVHHOHB0+UvSr+JCQ3sOqLw+7GR+/bX+zdKMzvU0MLNZrPAeLJ?=
+ =?us-ascii?Q?uOhAwXbXZyNZEZ/LzPfpsiQaPaRUY6HAKurXpurZ2vF33Aq2AjPgTmODKtNK?=
+ =?us-ascii?Q?qOlzizPSmmSA0iJC2neHXAdaJgQCs7jG+HiTuqTSlKw0O653s+nH/gyOL4WQ?=
+ =?us-ascii?Q?ujoAJ+I23niEYEcZ+wAhk0PY/yCBNvUDFkjlB0AGTD60I3BUcliIXK8q/vap?=
+ =?us-ascii?Q?Qj5WgJ94hZX03M0CQjdD2aDfV4vqB9YukLOVoe7m/6rmm++S9WtZXN5WHdit?=
+ =?us-ascii?Q?ADGEHGVoe2jl46b7ABUIpNiRao+SsFy6DfYKP3L70sxJpc3pUxA5YOoQbJGU?=
+ =?us-ascii?Q?KXkFvT2pc26M9yY1kZWuFbm+iRVAH6eKB1gTVzKVnzQlSs2Bz3CPgygkArO7?=
+ =?us-ascii?Q?cSchqlx79Mhf63S1+nwafj4j6GMDq1kYgIVBmYYG9gE5os968Z9j8tDFbafJ?=
+ =?us-ascii?Q?UnJQPj9gdNvUk97us7Ggul3FkgV0pbSlDBfk0Rs/qJzDlt/KoFVSC0y4ePFt?=
+ =?us-ascii?Q?sX0HxLUJIwxcic9sGA6jFUziSM/QH/CXsEdKeBYtivrrKtvTHggf38nFu1Ko?=
+ =?us-ascii?Q?5a+Vrs83NRQ55UB8ocOHmamaj1TlZYNasMHgMVXQxGMTDwYMCLlDP0yAHG0O?=
+ =?us-ascii?Q?yBILUKe7YTGmWBbOt1YGtZ7fe5c1tu69YKLGBtGr3JCVJSQdcrh7JH3ghv+Z?=
+ =?us-ascii?Q?23bGmwum0Ec3YdmqSRcH1LArFvcmhQNzT5V96/yGsodo2pEmbHPmLl30KAJ5?=
+ =?us-ascii?Q?ZQgHZTg45GxDz+g+NxXNxGZrUqyH6jXIu2W4V2apzuT2hoKFs9D5CKqDrupW?=
+ =?us-ascii?Q?WjmMZ6Ty8Y+gKTAM+gZz2sZd49SCNHBcS7QIFkKlXLFW8PNs4du/jvRxryEp?=
+ =?us-ascii?Q?7lk0d+6/44fArM07q1KpToyX07tglHDmdmVss3yE?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20221018-clk-range-checks-fixes-v3-56-9a1358472d52@cerno.tech>
-References: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
-In-Reply-To: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        =?utf-8?q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        David Lechner <david@lechnology.com>,
-        Sekhar Nori <nsekhar@ti.com>, Abel Vesa <abelvesa@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Prashant Gaikwad <pgaikwad@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>
-Cc:     linux-clk@vger.kernel.org, linux-kernel@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-actions@lists.infradead.org, patches@opensource.cirrus.com,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-mediatek@lists.infradead.org,
-        linux-renesas-soc@vger.kernel.org, linux-tegra@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-phy@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev,
-        alsa-devel@alsa-project.org, linux-mips@vger.kernel.org,
-        Maxime Ripard <maxime@cerno.tech>
-X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2991; i=maxime@cerno.tech;
- h=from:subject:message-id; bh=p50VsOqv1T6k93woaLiN8Bd5AJfocwfLhT9fhB9gDvw=;
- b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCna37f7LQ1ZEGqj8Ozv94ZVPP9uWmyJX/grlLV048y9bA11
- ZetXd5SyMIhxMciKKbLECJsviTs163UnG988mDmsTCBDGLg4BWAiN44zMlz8f591su6Xe0mLwu49kf
- 8nqznpSaNM1fGOHzGZPyPsVl5m+O+76l2DYc/ex/dTXp3UD9hYzthavZp1tWOT0zOjtOvTl3MAAA==
-X-Developer-Key: i=maxime@cerno.tech; a=openpgp;
- fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
+X-OriginatorOrg: analog.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY4PR03MB2488.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e4d8ca37-b221-4311-69d7-08db351bf161
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Apr 2023 14:50:33.2965
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: eaa689b4-8f87-40e0-9c6f-7228de4d754a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 6wVaLx99VDpKu9jfrz/hBe4KdBIobOcsDhTt6rUFDttKn7VBaJ2yMIGVT1GDOfL9Wugrcj5mFoa3BKUhizcC5sfRGksFs/lkxA9ggdeqETs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR03MB7113
+X-Proofpoint-ORIG-GUID: ED5QqXxe1H9m73hLEaKFJN0PKrHDv4al
+X-Proofpoint-GUID: ED5QqXxe1H9m73hLEaKFJN0PKrHDv4al
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-04_06,2023-04-04_04,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
+ impostorscore=0 mlxscore=0 malwarescore=0 spamscore=0 phishscore=0
+ clxscore=1015 adultscore=0 suspectscore=0 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2303200000 definitions=main-2304040137
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The Ingenic CGU clocks implements a mux with a set_parent hook, but
-doesn't provide a determine_rate implementation.
 
-This is a bit odd, since set_parent() is there to, as its name implies,
-change the parent of a clock. However, the most likely candidate to
-trigger that parent change is a call to clk_set_rate(), with
-determine_rate() figuring out which parent is the best suited for a
-given rate.
+> >>>>>> +  aux-voltage-chargeable:
+> >>>>>> +    enum: [0, 1, 2]
+> >>>>>> +    description: |
+> >>>>>> +      Enables trickle charger.
+> >>>>>> +      0: Charger is disabled (default)
+> >>>>>> +      1: Charger is enabled
+> >>>>>> +      2: Charger is enabled with a diode
+> >>>>>
+> >>>>> 2 is not an allowed value. I asked to drop this property. It is com=
+ing
+> >>>>> from rtc.yaml. I also do not understand "with a diode". So otherwis=
+e it
+> >>>>> is charging with, I don't know, FET?
+> >>>>
+> >>>> No, what is not explained here (and maybe not unsterstood by the
+> >>>> submitter) is that the RTC has an extra diode so, charging will alwa=
+ys
+> >>>> enable a diode, select a resistor and then have or not an extra diod=
+e.
+> >>>> Figure2 of the MAX31329 datasheet is great.
+> >>>>
+> >>>=20
+> >>> That is exactly why I had "adi,trickle-diode-enable" property in prev=
+ious patch.
+> >>> So if I can't have "adi,trickle-diode-enable" and can't add an additi=
+onal value
+> >>> to "aux-voltage-chargeable", I am not sure how to add support for the=
+ extra
+> >>> diode at this point.
+> >>
+> >> Ask the person who asked you to remove adi,trickle-diode-enable...
+> >=20
+> > That was the purpose.
+> >=20
+>=20
+> If the earlier submission was clearer my answer would have been
+> different but note how I had to dig up the datasheet to understand there
+> were two diodes. All the trickle chargers have a schottky diode so
+> "adi,trickle-diode-enable" nor the commit log were explicit about the
+> second diode (which is a regular diode).
+>=20
+> aux-voltage-chargeable is enabling a diode on all the existing RTC
+> drivers so instead of trying to make me look like the bad guy you should
+> rather thank for taking the time trying to get better DT bindings.
 
-The other trigger would be a call to clk_set_parent(), but it's far less
-used, and it doesn't look like there's any obvious user for that clock.
+With all due respect, I am not trying to make you look like the bad guy.
+It wouldn't help me in any way. It is just that this is a non-verbal
+communication channel, if anything. I didn't think "That was the purpose"
+would sound rude here and my apoligies if it does.
 
-So, the set_parent hook is effectively unused, possibly because of an
-oversight. However, it could also be an explicit decision by the
-original author to avoid any reparenting but through an explicit call to
-clk_set_parent().
+I am just trying to understand your expectations and this was my interpreta=
+tion
+of your comment on v4. So, "adi,trickle-diode-enable" it is or should I cha=
+nge
+the name? The datasheet doesn't say anything but "diode".
 
-The driver does implement round_rate() though, which means that we can
-change the rate of the clock, but we will never get to change the
-parent.
-
-However, It's hard to tell whether it's been done on purpose or not.
-
-Since we'll start mandating a determine_rate() implementation, let's
-convert the round_rate() implementation to a determine_rate(), which
-will also make the current behavior explicit. And if it was an
-oversight, the clock behaviour can be adjusted later on.
-
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
----
- drivers/clk/ingenic/cgu.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/clk/ingenic/cgu.c b/drivers/clk/ingenic/cgu.c
-index 1f7ba30f5a1b..0c9c8344ad11 100644
---- a/drivers/clk/ingenic/cgu.c
-+++ b/drivers/clk/ingenic/cgu.c
-@@ -491,22 +491,23 @@ ingenic_clk_calc_div(struct clk_hw *hw,
- 	return div;
- }
- 
--static long
--ingenic_clk_round_rate(struct clk_hw *hw, unsigned long req_rate,
--		       unsigned long *parent_rate)
-+static int ingenic_clk_determine_rate(struct clk_hw *hw,
-+				      struct clk_rate_request *req)
- {
- 	struct ingenic_clk *ingenic_clk = to_ingenic_clk(hw);
- 	const struct ingenic_cgu_clk_info *clk_info = to_clk_info(ingenic_clk);
- 	unsigned int div = 1;
- 
- 	if (clk_info->type & CGU_CLK_DIV)
--		div = ingenic_clk_calc_div(hw, clk_info, *parent_rate, req_rate);
-+		div = ingenic_clk_calc_div(hw, clk_info, req->best_parent_rate,
-+					   req->rate);
- 	else if (clk_info->type & CGU_CLK_FIXDIV)
- 		div = clk_info->fixdiv.div;
- 	else if (clk_hw_can_set_rate_parent(hw))
--		*parent_rate = req_rate;
-+		req->best_parent_rate = req->rate;
- 
--	return DIV_ROUND_UP(*parent_rate, div);
-+	req->rate = DIV_ROUND_UP(req->best_parent_rate, div);
-+	return 0;
- }
- 
- static inline int ingenic_clk_check_stable(struct ingenic_cgu *cgu,
-@@ -626,7 +627,7 @@ static const struct clk_ops ingenic_clk_ops = {
- 	.set_parent = ingenic_clk_set_parent,
- 
- 	.recalc_rate = ingenic_clk_recalc_rate,
--	.round_rate = ingenic_clk_round_rate,
-+	.determine_rate = ingenic_clk_determine_rate,
- 	.set_rate = ingenic_clk_set_rate,
- 
- 	.enable = ingenic_clk_enable,
-
--- 
-2.39.2
-
+Best regards,
+Ibrahim
