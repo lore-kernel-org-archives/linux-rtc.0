@@ -2,41 +2,71 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B89A0C77B72
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Apr 2023 15:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35B8EC761A6
+	for <linux-rtc@archiver.kernel.org>; Wed,  5 Apr 2023 15:18:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238832AbjDEPNC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Apr 2023 11:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
+        id S238951AbjDEPS3 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 5 Apr 2023 11:18:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238730AbjDEPMl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Apr 2023 11:12:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AECC97EC0;
-        Wed,  5 Apr 2023 08:10:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA53F625CE;
-        Wed,  5 Apr 2023 15:10:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604D1C433D2;
-        Wed,  5 Apr 2023 15:09:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680707405;
-        bh=rJ3M+zYS15q5Quad0wzrZG7xL5+9ADdP5E4EpauPQDA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uwvoLG9Mg6dizDLr402j7UdbsqsQxuYjteYBhYwhrJlAsrbTC9nd6DQo1IzXxCIaN
-         9U72nBXMiZahaLCTdTcDIyoRUQ+ocS5hUtOmf5c/huPkH9rNDWmoozW7pynZHzH+D0
-         BGkdmKh+F8uLhLLPmXVxsc28WnJBRX2V3SfGP8T4wKvdqas3AfRJERK4rgMzIwhb2E
-         qUgFyspMctrP+YLPss7RMpYkfaXUxCSqnJxvkR2qxW/mhhhcEOUM7AD8vA30RzOHfq
-         MNkaCuaeprkDAK/eetegajbSH5jkLfbeRNdoBlc7xa5It9mB4L6J4Y1vI1mBg8lIkR
-         DpSUyJSUzAZBg==
-Date:   Wed, 5 Apr 2023 16:09:49 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Maxime Ripard <maxime@cerno.tech>
+        with ESMTP id S238683AbjDEPSN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Apr 2023 11:18:13 -0400
+Received: from wnew3-smtp.messagingengine.com (wnew3-smtp.messagingengine.com [64.147.123.17])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DD555B95;
+        Wed,  5 Apr 2023 08:17:35 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id CFB322B06725;
+        Wed,  5 Apr 2023 11:17:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Wed, 05 Apr 2023 11:17:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm3; t=1680707845; x=1680715045; bh=4g
+        3Y3WtpEmHJBlHmaZSfRkusN6Gsi4T8SDJHzgHkAHw=; b=L4vZO5QE1gCVJJlu2o
+        r6vojScB4+ZzvhrGxAnCgZw8q3iEvd5m35SZkx+KC1V9nR1oJrFdkv+ey7bHZjCL
+        h7ZEBk9Gmy/3C1A/1qdft9MpePUYhTf2LMdsCjgEXC/wq8oDjffPfKya8bL0vOhv
+        zM4glmn3aahZ0fd/tWPeXFJVlzfG49xJGig3f3S4nIf2yKej0KUqRbtf9U4HO7U4
+        Fca3KFRY0boUta2nyK/ZvwIoPXjc0uR7jRie7ubda+6o8LFTmR3EQPKCjDxKPY69
+        q+rnuCjeiU34JIwElnik7ZIFhfh2uCaJ5k3L+G6Ma8lMgJQI3qmYO86jMfQxx5Ci
+        VdNw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1680707845; x=1680715045; bh=4g3Y3WtpEmHJB
+        lHmaZSfRkusN6Gsi4T8SDJHzgHkAHw=; b=VEkZsmfrmM6qqrbSYR67T7b6tnqGF
+        AvhJD3Y4WLLq1tU2AX/t6uAgHsNHwJpXvwtS4GnhhmEJ7XPVKNwRq+9WMhmmzML+
+        RG6DEdWr2hNUhcl8o0yOuq3CX2GqoiuaH9MsBOokOxVfwovgwExj8beYgt4/HxuA
+        a96LoWlzOcRy23htu+pg7NjQwIET42Hppt8MLtacCrxmqqy1yW4bPHimBOxOQWfJ
+        wAwezgR/QID/T8H8Ty1cHIhdRLrfE64Z96wSdoJclrB780/8YTOOdsPEANPT/KF4
+        SSABADpffcDQPX+mkREx6UEIjxMxopVCUSw91MvdZ2vn4nW1L5oPr6aSQ==
+X-ME-Sender: <xms:BJEtZAuMkk6wnab4QseDQgMYaxs-ZoalWk6ba9JDW-N_MwUR-r-0_g>
+    <xme:BJEtZNeeUQqDS514Kh75x4vjSF_5nb0vlfH8K6OmRPlsGhffGSlMHsAhdX_0tWg6m
+    1rxuj_wVXQehW37VVk>
+X-ME-Received: <xmr:BJEtZLwjCpHui3RPPt2Zh-h4Q5a1KUTc9johjdZpp-INV-i7TjtqsffumjLDSjqJRIBhpUDe69m60CBw6P-vuyAbTZVw17w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdejuddgkeejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesghdtsfertddtvdenucfhrhhomhepofgrgihi
+    mhgvucftihhprghrugcuoehmrgigihhmvgestggvrhhnohdrthgvtghhqeenucggtffrrg
+    htthgvrhhnpeeuveduheeutdekvefgudevjeeufedvvdevhfejgfelgfdtkeevueegteek
+    gfelfeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hmrgigihhmvgestggvrhhnohdrthgvtghh
+X-ME-Proxy: <xmx:BJEtZDOLnxucnvKx3FD6J-fSLSIdKT1u6WKBdKX_FeKFrkbQnefb_g>
+    <xmx:BJEtZA_bReMUs9Hnw0kWbI8p_MC65dZMSzDb9-uV0n2-sq5SiGHLpg>
+    <xmx:BJEtZLVbSPxoi4qvWklXjQcQFOKJSC341u3oT8-2Qg5yq0Cm5T0yJQ>
+    <xmx:BZEtZFFxxiKux8gHULwGp3q2GhoxRfghXYlW4d0UO9AUrD_vtD7rQM5gvGo>
+Feedback-ID: i8771445c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 5 Apr 2023 11:17:22 -0400 (EDT)
+Date:   Wed, 5 Apr 2023 17:17:21 +0200
+From:   Maxime Ripard <maxime@cerno.tech>
+To:     Mark Brown <broonie@kernel.org>
 Cc:     Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>,
+        Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
         Manivannan Sadhasivam <mani@kernel.org>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -88,56 +118,85 @@ Cc:     Michael Turquette <mturquette@baylibre.com>,
         dri-devel@lists.freedesktop.org, linux-phy@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev,
         alsa-devel@alsa-project.org, linux-mips@vger.kernel.org
-Subject: Re: [PATCH v3 63/65] ASoC: tlv320aic32x4: pll: Switch to
- determine_rate
-Message-ID: <6b83dd87-3819-4db4-bd07-92487a1df09d@sirena.org.uk>
+Subject: Re: [PATCH v3 43/65] ASoC: tlv320aic32x4: Add a determine_rate hook
+Message-ID: <erm4iq3mygnrr4h2gd5cag3sfuovv47ibdqsbmxcfabngvnwy4@z63ksvj55zuu>
 References: <20221018-clk-range-checks-fixes-v3-0-9a1358472d52@cerno.tech>
- <20221018-clk-range-checks-fixes-v3-63-9a1358472d52@cerno.tech>
+ <20221018-clk-range-checks-fixes-v3-43-9a1358472d52@cerno.tech>
+ <01f32440-8dd2-4030-9006-a3123be55845@sirena.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="bXPsTMNAHQ2iLa6U"
+        protocol="application/pgp-signature"; boundary="l2rp74o6ajwb6i7x"
 Content-Disposition: inline
-In-Reply-To: <20221018-clk-range-checks-fixes-v3-63-9a1358472d52@cerno.tech>
-X-Cookie: 1 bulls, 3 cows.
+In-Reply-To: <01f32440-8dd2-4030-9006-a3123be55845@sirena.org.uk>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
---bXPsTMNAHQ2iLa6U
+--l2rp74o6ajwb6i7x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 04, 2023 at 12:11:53PM +0200, Maxime Ripard wrote:
+Hi Mark,
 
-> The driver does implement round_rate() though, which means that we can
-> change the rate of the clock, but we will never get to change the
-> parent.
+On Tue, Apr 04, 2023 at 04:26:18PM +0100, Mark Brown wrote:
+> On Tue, Apr 04, 2023 at 12:11:33PM +0200, Maxime Ripard wrote:
+> > The tlv320aic32x4 clkin clock implements a mux with a set_parent hook,
+> > but doesn't provide a determine_rate implementation.
+>=20
+> > This is a bit odd, since set_parent() is there to, as its name implies,
+> > change the parent of a clock. However, the most likely candidate to
+> > trigger that parent change is a call to clk_set_rate(), with
+> > determine_rate() figuring out which parent is the best suited for a
+> > given rate.
+>=20
+> > The other trigger would be a call to clk_set_parent(), but it's far less
+> > used, and it doesn't look like there's any obvious user for that clock.
+>=20
+> It could be configured from device tree as well couldn't it?
 
-> However, It's hard to tell whether it's been done on purpose or not.
+Yep, indeed.
 
-> Since we'll start mandating a determine_rate() implementation, let's
-> convert the round_rate() implementation to a determine_rate(), which
-> will also make the current behavior explicit. And if it was an
-> oversight, the clock behaviour can be adjusted later on.
+> > So, the set_parent hook is effectively unused, possibly because of an
+> > oversight. However, it could also be an explicit decision by the
+> > original author to avoid any reparenting but through an explicit call to
+> > clk_set_parent().
+>=20
+> Historically clk_set_rate() wouldn't reparent IIRC.
+>=20
+> > The latter case would be equivalent to setting the flag
+> > CLK_SET_RATE_NO_REPARENT, together with setting our determine_rate hook
+> > to __clk_mux_determine_rate(). Indeed, if no determine_rate
+> > implementation is provided, clk_round_rate() (through
+> > clk_core_round_rate_nolock()) will call itself on the parent if
+> > CLK_SET_RATE_PARENT is set, and will not change the clock rate
+> > otherwise. __clk_mux_determine_rate() has the exact same behavior when
+> > CLK_SET_RATE_NO_REPARENT is set.
+>=20
+> > And if it was an oversight, then we are at least explicit about our
+> > behavior now and it can be further refined down the line.
+>=20
+> To be honest it's surprising that we'd have to manually specify this, I
+> would expect to be able to reparent.  I suspect it'd be better to go the
+> other way here and allow reparenting.
 
-Similar comments to the other patch, I'm pretty sure this is just
-surprising design on the part of the clock API and we should just allow
-reparenting.
+Yeah, I think I'd prefer to allow reparenting too, but as can be seen
+=66rom the other reviewers in that thread, it seems like we have a very
+split community here, so that doesn't sound very realistic without some
+major pushback :)
 
---bXPsTMNAHQ2iLa6U
+Maxime
+
+--l2rp74o6ajwb6i7x
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmQtjzwACgkQJNaLcl1U
-h9AOwgf9ErN1u2S7sQlFKj2SeLpE5lRKnNP6D1ooc6560nzhA27lBtrYHbRW8SJl
-T+kbhVrNtrlNbq+4ODnnfurtCWZnzgv4x6SDSb4ifzjckcCo4hjqHk9kcGQk/0Cw
-pe5S6KjNiGE3LWSWa85iqnAHH8XPVms/VcjAtDbLdiXBqV0fBmvKHpKkqpQ2IKiJ
-CPVabkZYMXj4Qh+tGAScos2ZPgNI6nG1euebgm1iPDvutLxcxU8RVHA++BVKNa62
-/ijunLrZY+U2Msq+RZQGuSWr7TfdD1DUhxhdnTG4Hjm4Q3r0KaWeixGyICYY6TyC
-r4CUzpWuZDn+9YNx2ETW7ACv6ayuMg==
-=P5db
+iHUEABYKAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCZC2RAQAKCRDj7w1vZxhR
+xRegAPwLq9rAf2gXBh+S5NNzglDB7jF/equjD6dhO2iJfkonFgD+OuUuIkBhvEAH
+dy14syHvUOJJRm7L8hscnDwFHJrXQA0=
+=mQrD
 -----END PGP SIGNATURE-----
 
---bXPsTMNAHQ2iLa6U--
+--l2rp74o6ajwb6i7x--
