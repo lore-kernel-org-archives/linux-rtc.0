@@ -2,25 +2,25 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E12AC77B6C
-	for <linux-rtc@archiver.kernel.org>; Fri,  7 Apr 2023 15:05:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A638C6FD1D
+	for <linux-rtc@archiver.kernel.org>; Fri,  7 Apr 2023 15:05:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240590AbjDGPFK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 7 Apr 2023 11:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42436 "EHLO
+        id S240695AbjDGPFL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 7 Apr 2023 11:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240845AbjDGPEy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Apr 2023 11:04:54 -0400
+        with ESMTP id S240861AbjDGPEz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 7 Apr 2023 11:04:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 489A3AF3C;
-        Fri,  7 Apr 2023 08:03:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CDA4BDDA;
+        Fri,  7 Apr 2023 08:03:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED3B649F1;
-        Fri,  7 Apr 2023 15:03:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B22CAC433D2;
-        Fri,  7 Apr 2023 15:03:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40E626498A;
+        Fri,  7 Apr 2023 15:03:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B13B9C4339B;
+        Fri,  7 Apr 2023 15:03:14 +0000 (UTC)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -28,10 +28,12 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
 Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Jean Delvare <jdelvare@suse.com>,
         Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org
-Subject: [PATCH 1/4] rtc: ab-eoz9: constify pointers to hwmon_channel_info
-Date:   Fri,  7 Apr 2023 17:03:03 +0200
-Message-Id: <20230407150306.80141-1-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 3/4] rtc: isl12022: constify pointers to hwmon_channel_info
+Date:   Fri,  7 Apr 2023 17:03:05 +0200
+Message-Id: <20230407150306.80141-3-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230407150306.80141-1-krzysztof.kozlowski@linaro.org>
+References: <20230407150306.80141-1-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -54,22 +56,22 @@ Cc: Jean Delvare <jdelvare@suse.com>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Cc: linux-hwmon@vger.kernel.org
 ---
- drivers/rtc/rtc-ab-eoz9.c | 2 +-
+ drivers/rtc/rtc-isl12022.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
-index 34611f6dedcb..143650cb7822 100644
---- a/drivers/rtc/rtc-ab-eoz9.c
-+++ b/drivers/rtc/rtc-ab-eoz9.c
-@@ -455,7 +455,7 @@ static const struct hwmon_channel_info abeoz9_temp = {
- 	.config = abeoz9_temp_config,
- };
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index e68a79b5e00e..eef66453841f 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -89,7 +89,7 @@ static int isl12022_hwmon_read(struct device *dev,
+ 	return -EOPNOTSUPP;
+ }
  
--static const struct hwmon_channel_info *abeoz9_info[] = {
-+static const struct hwmon_channel_info * const abeoz9_info[] = {
- 	&abeoz9_chip,
- 	&abeoz9_temp,
+-static const struct hwmon_channel_info *isl12022_hwmon_info[] = {
++static const struct hwmon_channel_info * const isl12022_hwmon_info[] = {
+ 	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
  	NULL
+ };
 -- 
 2.34.1
 
