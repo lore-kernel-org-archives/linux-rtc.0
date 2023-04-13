@@ -2,24 +2,24 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D31CC77B76
-	for <linux-rtc@archiver.kernel.org>; Thu, 13 Apr 2023 07:58:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43746C77B7A
+	for <linux-rtc@archiver.kernel.org>; Thu, 13 Apr 2023 07:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230263AbjDMH6O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 13 Apr 2023 03:58:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42346 "EHLO
+        id S230294AbjDMH6P (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 13 Apr 2023 03:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbjDMH6M (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Apr 2023 03:58:12 -0400
+        with ESMTP id S230229AbjDMH6N (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 13 Apr 2023 03:58:13 -0400
 Received: from loongson.cn (mail.loongson.cn [114.242.206.163])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C03A076AD;
-        Thu, 13 Apr 2023 00:58:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 93FA486BA;
+        Thu, 13 Apr 2023 00:58:03 -0700 (PDT)
 Received: from loongson.cn (unknown [112.20.110.113])
-        by gateway (Coremail) with SMTP id _____8DxUOUHtjdkH7obAA--.42985S3;
-        Thu, 13 Apr 2023 15:57:59 +0800 (CST)
+        by gateway (Coremail) with SMTP id _____8DxldgKtjdkQLobAA--.48073S3;
+        Thu, 13 Apr 2023 15:58:02 +0800 (CST)
 Received: from localhost.localdomain (unknown [112.20.110.113])
-        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxHuQDtjdk7BciAA--.6706S2;
-        Thu, 13 Apr 2023 15:57:56 +0800 (CST)
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxHuQDtjdk7BciAA--.6706S5;
+        Thu, 13 Apr 2023 15:58:01 +0800 (CST)
 From:   Binbin Zhou <zhoubinbin@loongson.cn>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -33,105 +33,57 @@ Cc:     linux-rtc@vger.kernel.org, linux-mips@vger.kernel.org,
         devicetree@vger.kernel.org, Qing Zhang <zhangqing@loongson.cn>,
         zhaoxiao <zhaoxiao@uniontech.com>, keguang.zhang@gmail.com,
         Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH V3 0/7] rtc: ls2x: Add support for the Loongson-2K/LS7A RTC
-Date:   Thu, 13 Apr 2023 15:57:32 +0800
-Message-Id: <cover.1681370153.git.zhoubinbin@loongson.cn>
+Subject: [PATCH V3 3/7] LoongArch: Enable LS2X RTC in loongson3_defconfig
+Date:   Thu, 13 Apr 2023 15:57:35 +0800
+Message-Id: <dcac678ed0739f4925fff3d5f57fd1f435865692.1681370153.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.39.1
+In-Reply-To: <cover.1681370153.git.zhoubinbin@loongson.cn>
+References: <cover.1681370153.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf8BxHuQDtjdk7BciAA--.6706S2
+X-CM-TRANSID: AQAAf8BxHuQDtjdk7BciAA--.6706S5
 X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBjvJXoW7uFW5JrWxAryUCryrZw47Jwb_yoW5JF4kpa
-        y3CwnxKr1ktr13Ars3Jrykurn3ZrW3JryDAa17J3y3urZ3Ca4UZa4SyFWFyrsxCr95CFyj
-        qryrGF43Way5CrJanT9S1TB71UUUUjJqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
-        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
-        bS8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
-        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-        wVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+X-Coremail-Antispam: 1Uk129KBjvdXoW7Jry5XrWkuF48uF15Ww1fXrb_yoWxKwb_XF
+        y7Kw4kur48J397ua4xZw1rWw4DZ3W7JF1FkFnrXw1xX3Wagr13J3yDC3W3C3Z093yDWr43
+        Zay8AasF9r18tjkaLaAFLSUrUUUU5b8apTn2vfkv8UJUUUU8wcxFpf9Il3svdxBIdaVrn0
+        xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUY
+        u7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3w
+        AFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK
+        6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwA2z4
         x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJVWxJr1l
         n4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6x
-        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r126r1DMcIj6I8E
-        87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
+        ACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26rWY6Fy7McIj6I8E
+        87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxV
         Aaw2AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxY
         O2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGV
         WUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_
-        JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rV
-        WUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4U
-        YxBIdaVFxhVjvjDU0xZFpf9x07j5o7tUUUUU=
+        Ar0_tr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY6xAIw20EY4v20xvaj4
+        0_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8
+        JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0_WrPUUUUU==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hi all:
+This is now supported, enable for Loongson-3 systems. Other systems are
+unaffected.
 
-The initial DT-base ls2x rtc driver was written by Wang Xuerui, He has
-released five versions of patchset before, and all related mail records
-are shown below if you are interested:
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ arch/loongarch/configs/loongson3_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-https://lore.kernel.org/all/?q=ls2x-rtc
-
-In this series of patches, based on the code above, I have added the
-following support:
-
-1. Add ACPI-related support, as Loongson-3A5000 + LS7A is now ACPI-base
-   by default under LoongArch architecture;
-2. Add rtc alarm/walarm related functions.
-
-I have tested on Loongson-3A5000LA+LS7A1000/LS7A2000, Loongson-2K1000LA
-and Loongson-2K0500.
-
-BTW:
-As LS1X does not support DT, we will merge LS2X and LS1X after keguang
-has completed DT support for LS1X.
-
--------
-Changes since v2:
-- Rebase on the top of rtc-next.
-patch(1/7):
- - The new patch.
-patch(2/7):
- - Check patchset with "checkpatch.pl --strict";
- - Drop static inline functions which are used only once, such as
-   ls2x_rtc_regs_to_time;
- - Remove the suruct ls2x_rtc_regs and regmap_bulk_xxx() is used to read
-   and write rtc registers;
- - Clear the RTC wakeup interrupt manually;
- - Enable the RTC in set_time() and check in read_time();
- - device_get_match_data() is used to get ls2x_pm_offset, for LS2k1000
-   has the different value;
- - Remove some inexact CONFIG_ACPI;
- - remove()->remove_new().
-
-Changes since v1:
-1. Rebased on top of latest loongarch-next;
-2. Add interrupt descriptions to the ls2k and ls7a DTS files to avoid
-errors when the driver gets the IRQ number, Thanks to Qing Zhang for
-testing;
-3. Remove some inexact CONFIG_ACPI.
-
-Thanks.
-
-Binbin Zhou (7):
-  dt-bindings: rtc: Subdivision of LS2X RTC compatible
-  rtc: Add support for the Loongson-2K/LS7A RTC
-  LoongArch: Enable LS2X RTC in loongson3_defconfig
-  MIPS: Loongson64: DTS: Add RTC support to LS7A
-  MIPS: Loongson: Enable LS2X RTC in loongson3_defconfig
-  MIPS: Loongson64: DTS: Add RTC support to Loongson-2K
-  MIPS: Loongson: Enable LS2X RTC in loongson2k_defconfig
-
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |   7 +-
- arch/loongarch/configs/loongson3_defconfig    |   1 +
- .../boot/dts/loongson/loongson64-2k1000.dtsi  |   7 +
- arch/mips/boot/dts/loongson/ls7a-pch.dtsi     |   7 +
- arch/mips/configs/loongson2k_defconfig        |   1 +
- arch/mips/configs/loongson3_defconfig         |   1 +
- drivers/rtc/Kconfig                           |  11 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-ls2x.c                        | 345 ++++++++++++++++++
- 9 files changed, 379 insertions(+), 2 deletions(-)
- create mode 100644 drivers/rtc/rtc-ls2x.c
-
+diff --git a/arch/loongarch/configs/loongson3_defconfig b/arch/loongarch/configs/loongson3_defconfig
+index e18213f01cc4..27f8408bb2ba 100644
+--- a/arch/loongarch/configs/loongson3_defconfig
++++ b/arch/loongarch/configs/loongson3_defconfig
+@@ -713,6 +713,7 @@ CONFIG_UCSI_ACPI=m
+ CONFIG_INFINIBAND=m
+ CONFIG_RTC_CLASS=y
+ CONFIG_RTC_DRV_EFI=y
++CONFIG_RTC_DRV_LS2X=y
+ CONFIG_DMADEVICES=y
+ CONFIG_UIO=m
+ CONFIG_UIO_PDRV_GENIRQ=m
 -- 
 2.39.1
 
