@@ -2,111 +2,88 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C940AC77B61
-	for <linux-rtc@archiver.kernel.org>; Mon, 24 Apr 2023 10:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B89CAC77B7E
+	for <linux-rtc@archiver.kernel.org>; Mon, 24 Apr 2023 10:20:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbjDXKIn (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 24 Apr 2023 06:08:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35560 "EHLO
+        id S231608AbjDXKUr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 24 Apr 2023 06:20:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229603AbjDXKIl (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Apr 2023 06:08:41 -0400
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 120D29B;
-        Mon, 24 Apr 2023 03:08:38 -0700 (PDT)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 2F41C1C0008;
-        Mon, 24 Apr 2023 10:08:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1682330917;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=BSjwAVriP8NSs8GDNrCwBt3GMm7ESSx/o2pcAH83Wi0=;
-        b=jNylB+SqKQYfJS2hb3gYwyPEocjggyM16Bfv/d4AZBhLmzCFEcDtoc9Iz5zL2NdSx7YQep
-        gOnNcZJ2QrHBUtGkLwbVBPBCHCaHPDKAzYspMqdFfl5hQoXCWaOzrb/n2GXotWRHfEqpF3
-        IlE0+ZTmviM1GkojNcCvxzGOKDD5YoALxvPnf6QDaUalvsyg8Pe5aQOqgt90obBlCO98M+
-        dF6/nX0hHMn3Jg5q8QfYl1auoNNRUD0rfMnlNry/tbGD6jPS+8DTlUgp/QBjOdbGY8v1Zg
-        EEbdRNktcpRM7/cso5gMwKCEqnXlNU8YxbnWDzWnaUDVBh1fpPggIoK64yIjJg==
-Date:   Mon, 24 Apr 2023 12:08:34 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Nikita Shubin <nikita.shubin@maquefel.me>
+        with ESMTP id S231603AbjDXKUn (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 24 Apr 2023 06:20:43 -0400
+Received: from forward501c.mail.yandex.net (forward501c.mail.yandex.net [178.154.239.209])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9309A26A6
+        for <linux-rtc@vger.kernel.org>; Mon, 24 Apr 2023 03:20:42 -0700 (PDT)
+Received: from mail-nwsmtp-smtp-production-main-39.myt.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-39.myt.yp-c.yandex.net [IPv6:2a02:6b8:c12:261e:0:640:2e3d:0])
+        by forward501c.mail.yandex.net (Yandex) with ESMTP id 0235D5EEC3;
+        Mon, 24 Apr 2023 12:36:03 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-39.myt.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id JZBb1pbWwKo0-5B6DOfTV;
+        Mon, 24 Apr 2023 12:36:02 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1682328962;
+        bh=dvHbRWEIIPXMemHUevxLrNBPqJlxXPnkd3R644ugivQ=;
+        h=Message-Id:Date:In-Reply-To:Cc:Subject:References:To:From;
+        b=n+rtBGxIG41mLHbLhfdtmpsbVLo8Dt1ufiEtSoVEm32SWm/R6+Sd9IL/K4N67bx0V
+         dvUpDQ6NoqfDN2d59qaYRn6l15lHXV2Fo3xlrVerlzr29Tn0VwMrWLmHxjroxV4bDM
+         t2EKGFiaApUgtJTXLyvlFAlyypH/9zBn7ZbeA15Y=
+Authentication-Results: mail-nwsmtp-smtp-production-main-39.myt.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
+From:   Nikita Shubin <nikita.shubin@maquefel.me>
 Cc:     Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linusw@kernel.org>,
         Alexander Sverdlin <alexander.sverdlin@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Hartley Sweeten <hsweeten@visionengravers.com>,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 07/43] dt-bindings: rtc: add DT bindings for Cirrus EP93xx
-Message-ID: <2023042410083435b9b09b@mail.local>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 29/43] rtc: m48t86: add DT support for m48t86
+Date:   Mon, 24 Apr 2023 15:34:45 +0300
+Message-Id: <20230424123522.18302-30-nikita.shubin@maquefel.me>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230424123522.18302-1-nikita.shubin@maquefel.me>
 References: <20230424123522.18302-1-nikita.shubin@maquefel.me>
- <20230424123522.18302-8-nikita.shubin@maquefel.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230424123522.18302-8-nikita.shubin@maquefel.me>
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 24/04/2023 15:34:23+0300, Nikita Shubin wrote:
-> This adds device tree bindings for the Cirrus Logic EP93xx
-> RTC block used in these SoCs.
-> 
-> Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
-> ---
->  .../bindings/rtc/cirrus,ep93xx-rtc.yaml       | 32 +++++++++++++++++++
->  1 file changed, 32 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
-> new file mode 100644
-> index 000000000000..d4774e984e7b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
+- get regs from device tree
 
-I guess this one should go in .Documentation/devicetree/bindings/rtc/trivial-rtc.yaml?
+Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+---
+ drivers/rtc/rtc-m48t86.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-> @@ -0,0 +1,32 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/rtc/cirrus,ep93xx-rtc.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Cirrus EP93xx Real Time Clock controller
-> +
-> +maintainers:
-> +  - Hartley Sweeten <hsweeten@visionengravers.com>
-> +  - Alexander Sverdlin <alexander.sverdlin@gmail.com>
-> +
-> +properties:
-> +  compatible:
-> +    const: cirrus,ep9301-rtc
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    rtc0: rtc@80920000 {
-> +        compatible = "cirrus,ep9301-rtc";
-> +        reg = <0x80920000 0x100>;
-> +    };
-> +
-> -- 
-> 2.39.2
-> 
-
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index 481c9525b1dd..d65727ac283a 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -15,6 +15,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/bcd.h>
+ #include <linux/io.h>
++#include <linux/of.h>
+ 
+ #define M48T86_SEC		0x00
+ #define M48T86_SECALRM		0x01
+@@ -269,9 +270,18 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id m48t86_rtc_of_ids[] = {
++	{ .compatible = "dallas,rtc-m48t86" },
++	{ /* end of table */ },
++};
++MODULE_DEVICE_TABLE(of, m48t86_rtc_of_ids);
++#endif
++
+ static struct platform_driver m48t86_rtc_platform_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-m48t86",
++		.of_match_table = of_match_ptr(m48t86_rtc_of_ids),
+ 	},
+ 	.probe		= m48t86_rtc_probe,
+ };
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.39.2
+
