@@ -2,36 +2,61 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A180FC77B60
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Apr 2023 11:35:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2AA6C77B7C
+	for <linux-rtc@archiver.kernel.org>; Fri, 28 Apr 2023 12:21:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230435AbjD1Lfp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 28 Apr 2023 07:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
+        id S1346065AbjD1MVy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 28 Apr 2023 08:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbjD1Lfo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Apr 2023 07:35:44 -0400
-Received: from forward502b.mail.yandex.net (forward502b.mail.yandex.net [178.154.239.146])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EEBC59F5;
-        Fri, 28 Apr 2023 04:35:40 -0700 (PDT)
-Received: from mail-nwsmtp-smtp-production-main-31.sas.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-31.sas.yp-c.yandex.net [IPv6:2a02:6b8:c08:d315:0:640:bb64:0])
-        by forward502b.mail.yandex.net (Yandex) with ESMTP id 40E245EB4F;
-        Fri, 28 Apr 2023 14:35:38 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-31.sas.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id aZHRVt0Wo8c0-ZH0b4yvg;
-        Fri, 28 Apr 2023 14:35:37 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1682681737;
-        bh=CCx18jxXnQWO9tYFjWm/WdccOn5/RZF/6RqlULR1c7g=;
-        h=References:Date:In-Reply-To:Cc:To:From:Subject:Message-ID;
-        b=Q+zmdGt0nz+3XBM3dGR1j8w0Te+iwZ5NERi58hbhOz/nbbFlaHemMnDcfTPT4a8ET
-         xoDaVzXGqPa7tKcRK7ch4kfXbt+25hIVPmnp+Oh80Xb+ypEf9C1rw7BXDbngCd9BZp
-         BogMcMnPSjbZRlxUMigYMBk6UTi5TpR+OEbNg9LM=
-Authentication-Results: mail-nwsmtp-smtp-production-main-31.sas.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
-Message-ID: <d1b7f24604332cf6010f533898f96eb9be4bb686.camel@maquefel.me>
-Subject: Re: [PATCH 07/43] dt-bindings: rtc: add DT bindings for Cirrus
- EP93xx
-From:   Nikita Shubin <nikita.shubin@maquefel.me>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+        with ESMTP id S1345771AbjD1MVx (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Apr 2023 08:21:53 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CEAE59F4
+        for <linux-rtc@vger.kernel.org>; Fri, 28 Apr 2023 05:21:46 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id ffacd0b85a97d-2f86ee42669so9449988f8f.2
+        for <linux-rtc@vger.kernel.org>; Fri, 28 Apr 2023 05:21:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1682684505; x=1685276505;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=zJRfumNsycQad/le1DWiZZ20NIuNmrLWpYlzEA2kVtU=;
+        b=OMzA3/Am3mFmo80RiHxiTLWHsl1TP/rhS2K1Ss6708SrYrXoTjFMFnEwfKe8klIPPv
+         fnMiuaGfcHUUdyCYqQPa+Qh9MD4/JLJ5rwkomzX2QexIS8lsL9eIr7/maOBUHdwVzm8j
+         tjyrZh9Gjdq9DtNDgm4+xZl/nQ2grMD48OK/rUgrXRFhiR21OuaWHV1UNL3tu8Jt81kw
+         2a5TyxWGadxerL2ydtCjOdCnYvZUTPrbWrpXwdHIwDcd7QkIRDLtPFDIWaPDMrpK1WWS
+         x8wEGTSrpND/U3csOnCjNYOoaRGc6L5RelBs1QEzKwVMwTn9Bb955AUwLOx8ynnpaEs2
+         s8eQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682684505; x=1685276505;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=zJRfumNsycQad/le1DWiZZ20NIuNmrLWpYlzEA2kVtU=;
+        b=a2wfYP6OBrpVYJ3pJmys2oUwXdt1GdenPTxnrPFE4gBqE0UDZ6gwiirteRcEqrTXip
+         zFcEyBG+virbKpc5Z7LYsPfxeze1ShzajzfIPbOS7yBn2iywVybXYY0gckha4Ihz0ouN
+         u5WcmDAzJ0Sm3jGgZ5rVH8bdItzP2MIfUUuvzq92qIWawUtd1/QHSU2WP/D5vDyIpAVD
+         KaFXSRXdbafdEk+kxZHtvkAR5S3pg4cB/CbdJsZmmJRxduF6zvIvxGNFa/tXFgreyLfo
+         0Fa0YQoAF27GAkogWoZ6G07v/kolLV3tiEqaAXBJ6bW/YZStKxawnDTImJbwkWt69gJA
+         RxtA==
+X-Gm-Message-State: AC+VfDzBVtb/OWzBPB30cBigA5oVvQxUGdnKevR6JSNF5DK5w6weP5yN
+        NzcENnpChrTQFJx4Op1xQjBpOQ==
+X-Google-Smtp-Source: ACHHUZ5KOVTQTuUmVpmyccDePstLauzAQKH/YGLX3/ZD+6wFjN7hEDUhXqujsvo4UnNn7rqqiunbsA==
+X-Received: by 2002:a5d:400e:0:b0:2f6:a7a:1ded with SMTP id n14-20020a5d400e000000b002f60a7a1dedmr3725409wrp.30.1682684505000;
+        Fri, 28 Apr 2023 05:21:45 -0700 (PDT)
+Received: from [172.23.2.142] ([195.167.132.10])
+        by smtp.gmail.com with ESMTPSA id o3-20020a05600c378300b003ef5f77901dsm24150251wmr.45.2023.04.28.05.21.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Apr 2023 05:21:44 -0700 (PDT)
+Message-ID: <3e1a8567-efef-ee4a-b16f-b3f81570f88b@linaro.org>
+Date:   Fri, 28 Apr 2023 14:21:43 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH 07/43] dt-bindings: rtc: add DT bindings for Cirrus EP93xx
+Content-Language: en-US
+To:     Nikita Shubin <nikita.shubin@maquefel.me>
 Cc:     Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linusw@kernel.org>,
         Alexander Sverdlin <alexander.sverdlin@gmail.com>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -40,73 +65,72 @@ Cc:     Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linusw@kernel.org>,
         Hartley Sweeten <hsweeten@visionengravers.com>,
         linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Date:   Fri, 28 Apr 2023 17:35:38 +0300
-In-Reply-To: <9e7583be-ad4a-0ccc-08f6-cdf3fa4ed6bd@linaro.org>
 References: <20230424123522.18302-1-nikita.shubin@maquefel.me>
-         <20230424123522.18302-8-nikita.shubin@maquefel.me>
-         <9e7583be-ad4a-0ccc-08f6-cdf3fa4ed6bd@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 
-MIME-Version: 1.0
+ <20230424123522.18302-8-nikita.shubin@maquefel.me>
+ <9e7583be-ad4a-0ccc-08f6-cdf3fa4ed6bd@linaro.org>
+ <d1b7f24604332cf6010f533898f96eb9be4bb686.camel@maquefel.me>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <d1b7f24604332cf6010f533898f96eb9be4bb686.camel@maquefel.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 2023-04-25 at 11:28 +0200, Krzysztof Kozlowski wrote:
-> On 24/04/2023 14:34, Nikita Shubin wrote:
-> > This adds device tree bindings for the Cirrus Logic EP93xx
-> > RTC block used in these SoCs.
->=20
-> Thank you for your patch. There is something to discuss/improve.
->=20
-> >=20
-> > Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
-> > ---
-> > =C2=A0.../bindings/rtc/cirrus,ep93xx-rtc.yaml=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 | 32
-> > +++++++++++++++++++
-> > =C2=A01 file changed, 32 insertions(+)
-> > =C2=A0create mode 100644
-> > Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-
-> > rtc.yaml b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-
-> > rtc.yaml
-> > new file mode 100644
-> > index 000000000000..d4774e984e7b
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
-> > @@ -0,0 +1,32 @@
-> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/rtc/cirrus,ep93xx-rtc.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Cirrus EP93xx Real Time Clock controller
-> > +
-> > +maintainers:
-> > +=C2=A0 - Hartley Sweeten <hsweeten@visionengravers.com>
-> > +=C2=A0 - Alexander Sverdlin <alexander.sverdlin@gmail.com>
-> > +
-> > +properties:
-> > +=C2=A0 compatible:
-> > +=C2=A0=C2=A0=C2=A0 const: cirrus,ep9301-rtc
->=20
-> Why only one compatible? What about ep9307 and ep9312? The same
-> question
-> for your previous patch - timer.
->=20
-> Anyway, if you want to keep it like that, then filename should match
-> compatible. Or merge it into trivial-rtc like Alexandre suggested.
+On 28/04/2023 16:35, Nikita Shubin wrote:
+> On Tue, 2023-04-25 at 11:28 +0200, Krzysztof Kozlowski wrote:
+>> On 24/04/2023 14:34, Nikita Shubin wrote:
+>>> This adds device tree bindings for the Cirrus Logic EP93xx
+>>> RTC block used in these SoCs.
+>>
+>> Thank you for your patch. There is something to discuss/improve.
+>>
+>>>
+>>> Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+>>> ---
+>>>  .../bindings/rtc/cirrus,ep93xx-rtc.yaml       | 32
+>>> +++++++++++++++++++
+>>>  1 file changed, 32 insertions(+)
+>>>  create mode 100644
+>>> Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-
+>>> rtc.yaml b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-
+>>> rtc.yaml
+>>> new file mode 100644
+>>> index 000000000000..d4774e984e7b
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/rtc/cirrus,ep93xx-rtc.yaml
+>>> @@ -0,0 +1,32 @@
+>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>> +%YAML 1.2
+>>> +---
+>>> +$id: http://devicetree.org/schemas/rtc/cirrus,ep93xx-rtc.yaml#
+>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>>> +
+>>> +title: Cirrus EP93xx Real Time Clock controller
+>>> +
+>>> +maintainers:
+>>> +  - Hartley Sweeten <hsweeten@visionengravers.com>
+>>> +  - Alexander Sverdlin <alexander.sverdlin@gmail.com>
+>>> +
+>>> +properties:
+>>> +  compatible:
+>>> +    const: cirrus,ep9301-rtc
+>>
+>> Why only one compatible? What about ep9307 and ep9312? The same
+>> question
+>> for your previous patch - timer.
+>>
+>> Anyway, if you want to keep it like that, then filename should match
+>> compatible. Or merge it into trivial-rtc like Alexandre suggested.
+> 
+> I think i should move it to trivial-rtc - there is no need for a
+> separate file.
 
-I think i should move it to trivial-rtc - there is no need for a
-separate file.
+If you add missing compatibles, you won't be able to move it easily to
+trivial-rtc.
 
-
->=20
-> Best regards,
-> Krzysztof
->=20
+Best regards,
+Krzysztof
 
