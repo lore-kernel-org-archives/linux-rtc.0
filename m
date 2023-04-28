@@ -2,68 +2,75 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C082C77B61
-	for <linux-rtc@archiver.kernel.org>; Thu, 27 Apr 2023 22:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98920C77B7C
+	for <linux-rtc@archiver.kernel.org>; Fri, 28 Apr 2023 11:31:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344227AbjD0WnS (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 27 Apr 2023 18:43:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50500 "EHLO
+        id S1345885AbjD1LbK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 28 Apr 2023 07:31:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbjD0WnR (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 27 Apr 2023 18:43:17 -0400
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::223])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A361BDC
-        for <linux-rtc@vger.kernel.org>; Thu, 27 Apr 2023 15:43:16 -0700 (PDT)
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id BF5A760006;
-        Thu, 27 Apr 2023 22:43:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1682635395;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=085dZEsvlKZdj52YEthFMTr8nW7rhNtDUSy7epeEMGA=;
-        b=P8LjO46HPFj851psdndP98IkDJN6psKp9Wx+YzinGIWr5hOcLFcJ5yL/VXO8MyjaWXL2ae
-        X6u6RuCVqxL41fChEEc2eKhJO6k+oxdNPx0vZQfCvWN26WIl9Ns8PUPdnLse1VCi2g+DP3
-        Luos4m8MOo06SMr0c4JvCZ6jpKk4X++s9/NJz4J0gvZO5G73z5k0HhLIawCB8Br2nlGdRH
-        a641Yv3sbkidEn9n1Ruz48+4QLMDA1nys+VBT8yQ8syLyHPT9KlanvHVngfCAKJnVf7Wc5
-        RuUT86giYXO5W3WxpmH+qZlo2w1k0qa9O7vK6AApHJAics9vlDVQW1DiyGNyrg==
-Date:   Fri, 28 Apr 2023 00:43:14 +0200
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Lars-Peter Clausen <lars@metafoo.de>
-Cc:     Paul Cercueil <paul@crapouillou.net>, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: jz4740: Make sure clock provider gets removed
-Message-ID: <168263537543.79851.7243339932183111165.b4-ty@bootlin.com>
-References: <20230409162544.16155-1-lars@metafoo.de>
+        with ESMTP id S1345880AbjD1LbJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Apr 2023 07:31:09 -0400
+Received: from forward500c.mail.yandex.net (forward500c.mail.yandex.net [178.154.239.208])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C4A55A1
+        for <linux-rtc@vger.kernel.org>; Fri, 28 Apr 2023 04:31:07 -0700 (PDT)
+Received: from mail-nwsmtp-smtp-production-main-85.iva.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-85.iva.yp-c.yandex.net [IPv6:2a02:6b8:c0c:b14:0:640:93f9:0])
+        by forward500c.mail.yandex.net (Yandex) with ESMTP id 1FC2D5E7B0;
+        Fri, 28 Apr 2023 14:31:01 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-85.iva.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id xUHfdw0DZ8c0-MMVwmCQb;
+        Fri, 28 Apr 2023 14:31:00 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1682681460;
+        bh=NwxRsu8ht1atvOJT+L90HFqBBiIpbm8MFFmBYW6Zgcg=;
+        h=References:Date:In-Reply-To:Cc:To:From:Subject:Message-ID;
+        b=FNHvO6bWnBk2y/dQjZHyQBjMkk+QLTdaJbEjCUYIs+penWxplDFFFO+dB4tCQ/fMo
+         jflzbouhJVv943orvd+aW26rts+UcxB08FeMf6IWBccjPGi5drQF9nfeaCxYJQUmQf
+         PBVDDgNLnEzcNYdu9WyzcTAlgqQvROmLS3cS/MIs=
+Authentication-Results: mail-nwsmtp-smtp-production-main-85.iva.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
+Message-ID: <bd4554f1910ba253d7833bae99d7c00b9098eae2.camel@maquefel.me>
+Subject: Re: [PATCH 29/43] rtc: m48t86: add DT support for m48t86
+From:   Nikita Shubin <nikita.shubin@maquefel.me>
+To:     andy.shevchenko@gmail.com
+Cc:     Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linusw@kernel.org>,
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Fri, 28 Apr 2023 17:31:01 +0300
+In-Reply-To: <ZEkozMAM674O2r7e@surfacebook>
+References: <20230424123522.18302-1-nikita.shubin@maquefel.me>
+         <20230424123522.18302-30-nikita.shubin@maquefel.me>
+         <ZEkozMAM674O2r7e@surfacebook>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230409162544.16155-1-lars@metafoo.de>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
+On Wed, 2023-04-26 at 16:36 +0300, andy.shevchenko@gmail.com wrote:
+> Mon, Apr 24, 2023 at 03:34:45PM +0300, Nikita Shubin kirjoitti:
+> > - get regs from device tree
+>=20
+> ...
+>=20
+> > +#include <linux/of.h>
+>=20
+> mod_devicetable.h and drop ugly ifdeffery along with of_match_ptr().
+>=20
+> ...
+>=20
+> > +static const struct of_device_id m48t86_rtc_of_ids[] =3D {
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ .compatible =3D "dallas,rt=
+c-m48t86" },
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0{ /* end of table */ },
+>=20
+> No comma for the terminator entry
+>=20
+> > +};
+>=20
 
-On Sun, 09 Apr 2023 09:25:44 -0700, Lars-Peter Clausen wrote:
-> The jz4740 RTC driver registers a clock provider, but never removes it.
-> This leaves a stale clock provider behind that references freed clocks when
-> the device is unbound.
-> 
-> Use the managed `devm_of_clk_add_hw_provider()` instead of
-> `of_clk_add_hw_provider()` to make sure the provider gets automatically
-> removed on unbind.
-> 
-> [...]
+Thanks you for all your comments and effort!
 
-Applied, thanks!
-
-[1/1] rtc: jz4740: Make sure clock provider gets removed
-      commit: 4fee39815aafd68ebc6a71b1b1b5d63f0ddde671
-
-Best regards,
-
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+All will be fixed conforming your comments.
