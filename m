@@ -2,125 +2,320 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96F25C77B75
-	for <linux-rtc@archiver.kernel.org>; Fri,  5 May 2023 11:23:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94214C7EE22
+	for <linux-rtc@archiver.kernel.org>; Fri,  5 May 2023 11:27:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231616AbjEELX6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 5 May 2023 07:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33148 "EHLO
+        id S231643AbjEEL1I (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 5 May 2023 07:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231448AbjEELX5 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 May 2023 07:23:57 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035FF19938
-        for <linux-rtc@vger.kernel.org>; Fri,  5 May 2023 04:23:56 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-55a14807e4cso28276587b3.1
-        for <linux-rtc@vger.kernel.org>; Fri, 05 May 2023 04:23:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1683285835; x=1685877835;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VMh/43OBmVa5W+sApW1lWJ+8XgRig/QCp8MH47Ky4W4=;
-        b=Gid/OSuLLgZJuvHMZ03uxW45BnHAT4yABfayVkZxEnTsaOgEJTcFhZW14vbUifPUpj
-         4lvMtKPqbbn8/CSf2AySUrvJfmNSim2bD02RcxGP1MbrJ/TxjaZaA4/75Km0akf4erc5
-         18pkEewruftfw+HEYwccY8czqRKyDbYuSAXNgXXX6frNuzVQZX3tQemHOwJ+Pt4Pzf3+
-         FQTZD/HkzQN2VNqutAlJ5i3xIoyFEB4EQ5jIq0+ebA8TpL8ywdT0IFptsJTaV8guoM5K
-         F7XFO/ItU5W8pgA9eAHmVeqCnbzeLm1XjjBmfgX6jrmtjp1O4uDTWhQPbj+JsIsZf+Ng
-         4W1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683285835; x=1685877835;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VMh/43OBmVa5W+sApW1lWJ+8XgRig/QCp8MH47Ky4W4=;
-        b=FOzwSyyWZMa58d5lgGu/z1ENgky3YyMZ7vkEKT/K2e66GSbrMA5PlbkFJApPaLkoB1
-         9PFjIEAfx2jCqKz7mbYunf8NI5WjzbbJPDEHuiQqKkphIxlmokqnMzXntErn5ZLIh5Nv
-         iIWZ4JkF94gAhueZQ9T5jNJWH2+1Rj0fZT+gpuHjZOo0PBMKIC25LByJhqLiUPvh/1Qz
-         MQyN4cgjppiMC+2VMsleFMqTybBSFuCVao4OoE7KmN3RQlw44zqjTxN/Wzf8KrNpmvWi
-         kl1l7pOYCzTqPheknpjWgK4BICwQqD626EjAAGv0cqKqVhu0jgJ95J/1mVpubhxA/pSq
-         QtWA==
-X-Gm-Message-State: AC+VfDxCi7L+zU+n/RREcx1R8XEZqICHpYfzNfLQPDiJraM2RUirjmaO
-        stLh8Hls9uEc/jeUE+2mflRjt7rYtxDokuOylTziPg==
-X-Google-Smtp-Source: ACHHUZ7g/jGf+/fhUkp7+9iJZUlRlgX3ZtKgawdt5oBld8cJzk6/UtcrWYbHKVwfD5LPUh47aFlkCiOIuEXQlwfmOgw=
-X-Received: by 2002:a0d:dd10:0:b0:559:eb47:fc65 with SMTP id
- g16-20020a0ddd10000000b00559eb47fc65mr1179026ywe.28.1683285835210; Fri, 05
- May 2023 04:23:55 -0700 (PDT)
+        with ESMTP id S231686AbjEEL1F (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 5 May 2023 07:27:05 -0400
+Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F041AEEF;
+        Fri,  5 May 2023 04:26:39 -0700 (PDT)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.west.internal (Postfix) with ESMTP id EAC902B067B4;
+        Fri,  5 May 2023 07:25:45 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Fri, 05 May 2023 07:25:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cerno.tech; h=cc
+        :cc:content-transfer-encoding:content-type:content-type:date
+        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to; s=fm2; t=
+        1683285945; x=1683293145; bh=UQKDjmKPSzC7x5C95cs9YOZc6yAVPvrTJ4b
+        1utEyhQs=; b=UDQJjfgae9Jy0KKyFS0jdkkFbIHInOjJANJqIPxcx2irxjptzoa
+        sOkGAs/Z2RiPml73V/Dyqz18ojQmjuG0m5k2qzRasE2wOduD0CM8Clamakjgpmr6
+        cCDoP9q1ou3E91lXfG3zQq94jjWZw7UtQ4ecrXCJNgsgnb0RX7vXIXcU3WAaEa7D
+        PrLAjPWKmGuGUZB+qjmy3wiVkZUpVewbtTrg5ySbFZP8gV1D1a8ytRBQ6oMOsLEw
+        5e92vJbN6fb877F8q/bLcn8jg76/PM41W/zJ3tFHn9N3jA4plS5kcc3kJ+o8zzms
+        2jftE0cuihiOeKakfTVrSqvLxUNW+XVhkgQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:content-type:date:date:feedback-id:feedback-id
+        :from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1683285945; x=1683293145; bh=UQKDjmKPSzC7x5C95cs9YOZc6yAVPvrTJ4b
+        1utEyhQs=; b=eETp/afWAPWzhC0ojTjFS4E2W8DChqKPKekP/EPuz5wcqmFBedN
+        ZE+2I5zoeVPXyzKsIEvFVqbdeKASr4jE/E0HiMkzTedmCrKH7DHijuv1Pr0iz6lm
+        mkw6mO2IYBh/nuQLdyKHPD9sAPZo6XHnTGzbJmn9B/JRjfopvt9kUHSt7K7spG5U
+        mWrJ8HMVdVXDUOfwWRWWOBbcosSLQzfxtxBGfoiLaSQVUQQwmLExj8nwhCziNLGx
+        3WVMizySGqhM98PNWHHPcW+udXkQtb9aSDcQw/m31nJjuplyRlOmetOHAEsIxyUq
+        98B8xE3APjy+uJkG8FtMHjn7l8Mdn0KBGkg==
+X-ME-Sender: <xms:uOdUZNj3ZpRewkMtfxJ6-ctpOTk2iZx5Ay1l69YUkk0t1y1bBktOIw>
+    <xme:uOdUZCCzmcX3Ogu0_MvnPgEHEe5QuKkoSeQ39kZDFWs5CBbm3W3hi8pMTy23Haspl
+    MBMYjdHw32Wvd2ycdQ>
+X-ME-Received: <xmr:uOdUZNFcQBLQLsDsGRahkPNFqahy8ULrpN3NGsH_y-MOTDZwMw-Gom31V1u7tVnIPIHyGwtAF-f649-KhACFYqJrLXRbNVI>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeefvddgfeelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephfffufggtgfgkfhfjgfvvefosehtkeertdertdejnecuhfhrohhmpeforgig
+    ihhmvgcutfhiphgrrhguuceomhgrgihimhgvsegtvghrnhhordhtvggthheqnecuggftrf
+    grthhtvghrnhepudduudfhveejteefgedvffdvvedvjedugedukeejhedtlefhffevtefh
+    jeeltdevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epmhgrgihimhgvsegtvghrnhhordhtvggthh
+X-ME-Proxy: <xmx:uOdUZCS3WqyF5n_W3EiJVuNpMnHgAXUa1OpdnFRLa8UYUgd11F-oNg>
+    <xmx:uOdUZKwWniyq1PrG5KiKO_9_icEmzUCRDxijmAeCZ0CdvgtAjfwv1A>
+    <xmx:uOdUZI7LJJc_HfCtyAo4xAEhts_dpqgNb42EzjXV5B62USvVCiTKVQ>
+    <xmx:uedUZK5NUkPOnYhg1Pw5l4WoybZn50aZGTzwuONG_b-ZzRWQ6TMX7TYzgTw>
+Feedback-ID: i8771445c:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 5 May 2023 07:25:43 -0400 (EDT)
+From:   Maxime Ripard <maxime@cerno.tech>
+Date:   Fri, 05 May 2023 13:25:05 +0200
+Subject: [PATCH v4 03/68] clk: Move no reparent case into a separate
+ function
 MIME-Version: 1.0
-References: <20230414101217.1342891-1-eblanc@baylibre.com> <20230414101217.1342891-3-eblanc@baylibre.com>
- <CACRpkdab_26D9BMGeSygy_oa6SFa62ytXcy+Ydi3yPzQO3tU4A@mail.gmail.com> <CSCM20VPW7QB.RQD36XO6634I@burritosblues>
-In-Reply-To: <CSCM20VPW7QB.RQD36XO6634I@burritosblues>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 5 May 2023 13:23:44 +0200
-Message-ID: <CACRpkdZ8oudy3XfKggZm5srJfOxmRXoFUoiuA3P4i0RTCdc5fQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] pinctrl: tps6594: add for TPS6594 PMIC
-To:     Esteban Blanc <eblanc@baylibre.com>,
-        Michael Walle <michael@walle.cc>
-Cc:     lgirdwood@gmail.com, broonie@kernel.org, a.zummo@towertech.it,
-        alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        jpanis@baylibre.com, jneanne@baylibre.com, aseketeli@baylibre.com,
-        sterzik@ti.com, u-kumar1@ti.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221018-clk-range-checks-fixes-v4-3-971d5077e7d2@cerno.tech>
+References: <20221018-clk-range-checks-fixes-v4-0-971d5077e7d2@cerno.tech>
+In-Reply-To: <20221018-clk-range-checks-fixes-v4-0-971d5077e7d2@cerno.tech>
+To:     Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Cc:     linux-clk@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Abel Vesa <abelvesa@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        =?utf-8?q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@gmail.com>,
+        David Lechner <david@lechnology.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Kishon Vijay Abraham I <kishon@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Manivannan Sadhasivam <mani@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Markus Schneider-Pargmann <msp@baylibre.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Mikko Perttunen <mperttunen@nvidia.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Orson Zhai <orsonzhai@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Peng Fan <peng.fan@nxp.com>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Prashant Gaikwad <pgaikwad@nvidia.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Sekhar Nori <nsekhar@ti.com>, Shawn Guo <shawnguo@kernel.org>,
+        Takashi Iwai <tiwai@suse.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, dri-devel@lists.freedesktop.org,
+        linux-actions@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+        linux-phy@lists.infradead.org, linux-renesas-soc@vger.kernel.org,
+        linux-rtc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+        NXP Linux Team <linux-imx@nxp.com>,
+        patches@opensource.cirrus.com,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5599; i=maxime@cerno.tech;
+ h=from:subject:message-id; bh=Pxa6LrZe1o/eBr4UI7umXibSzTm/MpQguARoHEO5XCk=;
+ b=owGbwMvMwCX2+D1vfrpE4FHG02pJDCkhzxc5Rstf2bExQeEn73VnY64JKuoy700DJTb9UzzofGj6
+ AUHmjlIWBjEuBlkxRZYYYfMlcadmve5k45sHM4eVCWQIAxenAEzk3AyGf/Zn+S0ni19r774wuWmK42
+ TRba9ZDL7d93cNy5IJu/ex8zjD/2SHmTwr1himMz9fPun629N1J8OVT1ytvTFn9681xQe/X+YAAA==
+X-Developer-Key: i=maxime@cerno.tech; a=openpgp;
+ fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, May 3, 2023 at 1:37=E2=80=AFPM Esteban Blanc <eblanc@baylibre.com> =
-wrote:
-> On Fri Apr 21, 2023 at 10:34 AM CEST, Linus Walleij wrote:
-> > Hi Esteban,
-> >
-> > thanks for your patch!
-> >
-> > On Fri, Apr 14, 2023 at 12:12=E2=80=AFPM Esteban Blanc <eblanc@baylibre=
-.com> wrote:
-> >
-> > > TI TPS6594 PMIC has 11 GPIOs which can be used for different
-> > > functions.
-> > >
-> > > This add a pinctrl and pinmux drivers in order to use those functions=
-.
-> > >
-> > > Signed-off-by: Esteban Blanc <eblanc@baylibre.com>
-> > (...)
-> > > +config PINCTRL_TPS6594
-> > > +       tristate "Pinctrl and GPIO driver for TI TPS6594 PMIC"
-> > > +       depends on MFD_TPS6594
-> > > +       default MFD_TPS6594
-> > > +       select PINMUX
-> > > +       select GPIOLIB
-> >
-> > select GPIO_REGMAP
-> > ?
-> >
-> > I think this driver can use the GPIO_REGMAP helper library.
-> >
-> > Please look into other drivers using this, such as
-> > drivers/gpio/gpio-sl28cpld.c
->
-> I had a look at this driver and gpio-regmap.c. I think I understood
-> what's going on, but I'm not sure how to handle the
-> gpio_regmap_set_direction case. It is using the same reg_mask_xlate to
-> determine the register and value to write as gpio_regmap_set or
-> gpio_regmap_read. The problem is that this PMIC has 1 register per GPIO
-> for the configuration (GPIOX_CONF registers with a bit for direction),
-> while the in and out register are used for 8 pins (GPIO_OUT_1,
-> GPIO_OUT_2 and GPIO_IN_1, GPIO_IN_2). This means that the register and
-> mask returned by reg_mask_xlate will be erroneous in one or the other
-> case.
->
-> I noticed that I could override reg_mask_xlate, so I should be able to
-> "just" match on the base address given as argument to perform a
-> different computation depending on whether we are using reg_mask_xlate in
-> a "direction change" or not, but somehow this feels a bit wrong.
->
-> Is this the correct solution?
-> Am I missing something?
+From: Stephen Boyd <sboyd@kernel.org>
 
-This is a question for Michael Walle who wrote gpio-regmap,
-Michael, what do you say?
+We'll need to turn the code in clk_mux_determine_rate_flags() to deal
+with CLK_SET_RATE_NO_REPARENT into a helper clock drivers will be able
+to use if they don't want to allow reparenting.
 
-Yours,
-Linus Walleij
+Cc: Abel Vesa <abelvesa@kernel.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: "Andreas Färber" <afaerber@suse.de>
+Cc: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Cc: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Chunyan Zhang <zhang.lyra@gmail.com>
+Cc: Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@gmail.com>
+Cc: David Lechner <david@lechnology.com>
+Cc: Dinh Nguyen <dinguyen@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Jernej Skrabec <jernej.skrabec@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: Kishon Vijay Abraham I <kishon@kernel.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Cc: Manivannan Sadhasivam <mani@kernel.org>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Markus Schneider-Pargmann <msp@baylibre.com>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Mikko Perttunen <mperttunen@nvidia.com>
+Cc: Miles Chen <miles.chen@mediatek.com>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Orson Zhai <orsonzhai@gmail.com>
+Cc: Paul Cercueil <paul@crapouillou.net>
+Cc: Peng Fan <peng.fan@nxp.com>
+Cc: Peter De Schrijver <pdeschrijver@nvidia.com>
+Cc: Prashant Gaikwad <pgaikwad@nvidia.com>
+Cc: Richard Fitzgerald <rf@opensource.cirrus.com>
+Cc: Samuel Holland <samuel@sholland.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Sekhar Nori <nsekhar@ti.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-actions@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-phy@lists.infradead.org
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-sunxi@lists.linux.dev
+Cc: linux-tegra@vger.kernel.org
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: patches@opensource.cirrus.com
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+---
+ drivers/clk/clk.c | 75 +++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 43 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index e495dd7a1eae..f57f821a5e5a 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -594,6 +594,46 @@ clk_core_forward_rate_req(struct clk_core *core,
+ 		req->max_rate = old_req->max_rate;
+ }
+ 
++static int
++clk_core_determine_rate_no_reparent(struct clk_hw *hw,
++				    struct clk_rate_request *req)
++{
++	struct clk_core *core = hw->core;
++	struct clk_core *parent = core->parent;
++	unsigned long best;
++	int ret;
++
++	if (core->flags & CLK_SET_RATE_PARENT) {
++		struct clk_rate_request parent_req;
++
++		if (!parent) {
++			req->rate = 0;
++			return 0;
++		}
++
++		clk_core_forward_rate_req(core, req, parent, &parent_req,
++					  req->rate);
++
++		trace_clk_rate_request_start(&parent_req);
++
++		ret = clk_core_round_rate_nolock(parent, &parent_req);
++		if (ret)
++			return ret;
++
++		trace_clk_rate_request_done(&parent_req);
++
++		best = parent_req.rate;
++	} else if (parent) {
++		best = clk_core_get_rate_nolock(parent);
++	} else {
++		best = clk_core_get_rate_nolock(core);
++	}
++
++	req->rate = best;
++
++	return 0;
++}
++
+ int clk_mux_determine_rate_flags(struct clk_hw *hw,
+ 				 struct clk_rate_request *req,
+ 				 unsigned long flags)
+@@ -603,35 +643,8 @@ int clk_mux_determine_rate_flags(struct clk_hw *hw,
+ 	unsigned long best = 0;
+ 
+ 	/* if NO_REPARENT flag set, pass through to current parent */
+-	if (core->flags & CLK_SET_RATE_NO_REPARENT) {
+-		parent = core->parent;
+-		if (core->flags & CLK_SET_RATE_PARENT) {
+-			struct clk_rate_request parent_req;
+-
+-			if (!parent) {
+-				req->rate = 0;
+-				return 0;
+-			}
+-
+-			clk_core_forward_rate_req(core, req, parent, &parent_req, req->rate);
+-
+-			trace_clk_rate_request_start(&parent_req);
+-
+-			ret = clk_core_round_rate_nolock(parent, &parent_req);
+-			if (ret)
+-				return ret;
+-
+-			trace_clk_rate_request_done(&parent_req);
+-
+-			best = parent_req.rate;
+-		} else if (parent) {
+-			best = clk_core_get_rate_nolock(parent);
+-		} else {
+-			best = clk_core_get_rate_nolock(core);
+-		}
+-
+-		goto out;
+-	}
++	if (core->flags & CLK_SET_RATE_NO_REPARENT)
++		return clk_core_determine_rate_no_reparent(hw, req);
+ 
+ 	/* find the parent that can provide the fastest rate <= rate */
+ 	num_parents = core->num_parents;
+@@ -670,9 +683,7 @@ int clk_mux_determine_rate_flags(struct clk_hw *hw,
+ 	if (!best_parent)
+ 		return -EINVAL;
+ 
+-out:
+-	if (best_parent)
+-		req->best_parent_hw = best_parent->hw;
++	req->best_parent_hw = best_parent->hw;
+ 	req->best_parent_rate = best;
+ 	req->rate = best;
+ 
+
+-- 
+2.40.0
+
