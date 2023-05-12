@@ -2,91 +2,184 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A451DC7EE24
-	for <linux-rtc@archiver.kernel.org>; Thu, 11 May 2023 17:56:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 277D5C7EE23
+	for <linux-rtc@archiver.kernel.org>; Fri, 12 May 2023 14:18:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238812AbjEKR4y (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 11 May 2023 13:56:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49818 "EHLO
+        id S241508AbjELOSO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 12 May 2023 10:18:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239026AbjEKR4s (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 11 May 2023 13:56:48 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18549026
-        for <linux-rtc@vger.kernel.org>; Thu, 11 May 2023 10:56:18 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id a640c23a62f3a-956ff2399b1so1690593566b.3
-        for <linux-rtc@vger.kernel.org>; Thu, 11 May 2023 10:56:18 -0700 (PDT)
+        with ESMTP id S241462AbjELOSN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 12 May 2023 10:18:13 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F9D13860
+        for <linux-rtc@vger.kernel.org>; Fri, 12 May 2023 07:17:59 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-307d84f5ce4so1048763f8f.2
+        for <linux-rtc@vger.kernel.org>; Fri, 12 May 2023 07:17:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1683827775; x=1686419775;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kq3xdaWbI38VbfHI2H2l4imhWRTMT3X9WaNVdUPW3NQ=;
-        b=hE2R2qAE+wJQ4exZRg2a7m7xY99SkSY6KF/r1j4oNUbZEMCqiDRKPbV0hbR5WXOYcw
-         mz27le+L37SqkFA4ytw7VHnUlE402c1xJ1JxCarYIZ4t7rU+B2YNfyLivGu8nqCQPH8R
-         n56myZts5jZTdiy25B9/j0mEd9f7zqcfep4BcoalLEQCpbZsJAVrSs79KwX27LWLYsYl
-         lKU+bBd8q/xZJatUPahBnRdGNSTm7VoD88Iyo5GbqGrI2jKFofuxUu/e47Pcs0I01+GU
-         ZKhI39Qrl6B4psVgUsRyH+ZRmMDrjwJ+Kw6BhngPTXgVOTmsb0TGYs/UswAEFWNuEu1k
-         dSEw==
+        d=baylibre-com.20221208.gappssmtp.com; s=20221208; t=1683901077; x=1686493077;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rrJxMU8vIMHm/TMwdpWrRCixZQfDd4ErxxMWxBnxsIw=;
+        b=xsWSJes1/LDFaZJmw5SGhHwYE3xlBrAEX7eqH6b8Gsbuof6UB2KjGVk1gNwLXvNMUZ
+         y757ReyoLYsWKwMnCITiGnkPSvyqXS9H3TG8rUxuOTR+2dI9goQdiiyVT32XZon2F8oG
+         AWpFJt8CfCw9DK9VGT1PXZVxijHEpGuxaqCpGmklOnA1bE49qNdjDRth5NbYp0kqyA21
+         eNm1/b68d0+wg96IClikVvcqJSwB6FTj0AaeSKdkwQO6sv1zqpemPIFNR7fmFBPr+NZi
+         tZqt8rlQEzqXtq6xfAIBfJFhFeLJIhcEJW6WVIOAU2EQrzemVvMyvHcbCxBgn35AKw9s
+         q7Og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683827775; x=1686419775;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kq3xdaWbI38VbfHI2H2l4imhWRTMT3X9WaNVdUPW3NQ=;
-        b=W9X1squdUAZPUPX3Y0hVm9lfKQuKAHFNWIC9TO92uWvEts42zDMOHJg6UTcC4xseVa
-         tms9e+hFtm6oYIAGzNz9d+CZhRNNupUSanN/yz3Snp1YOsYNBPbuHI4uhGa3V7zpKk0G
-         vA+YgpPm7tW/D9hVJ0VtV7wBsY8qCJX3vzoNkEf9OQjFz8DpMQ1QTnnnCSlhCGYLC6vc
-         n6QywRaJgv4jxVKDaQj6cLD2qcScsA2wjUm8AwW7hcn792PIN9ACyFiwESwFdhl6oo1S
-         Tk1/HCrj4+UrbjUF01G1XXXBLBKg26+/48f4g2ewMBvT0kORnryKBxliyhN8/iZRdUxC
-         2GaA==
-X-Gm-Message-State: AC+VfDzCrMgLmTxP5voEB4a/wbyFQisjmE14brMDi4UKeO9p3/tUYBfY
-        VC+zZ6hRaJCTqZQX1P9fjSfGXw==
-X-Google-Smtp-Source: ACHHUZ5TbI5yiZxzcAVL3WTsRXuiksWbaxiLOHY/lXw+vzlHCKWlwKQT6uqTl3XSx4urMCkxZbmTzA==
-X-Received: by 2002:a17:906:d542:b0:953:7e25:2156 with SMTP id cr2-20020a170906d54200b009537e252156mr19528034ejc.51.1683827774746;
-        Thu, 11 May 2023 10:56:14 -0700 (PDT)
-Received: from krzk-bin.. ([2a02:810d:15c0:828:d7cd:1be6:f89d:7218])
-        by smtp.gmail.com with ESMTPSA id lf23-20020a170906ae5700b0094ee700d8e4sm4247029ejb.44.2023.05.11.10.56.13
+        d=1e100.net; s=20221208; t=1683901077; x=1686493077;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rrJxMU8vIMHm/TMwdpWrRCixZQfDd4ErxxMWxBnxsIw=;
+        b=PyBJx7Mnkl1pRiuklg4XJ3foUuGmj8lGncMX6HRsCbrJiEFjb/Iz2tF/XjMJmkqMp/
+         G3vtI9clHIr9qlzrtDwp2xLaGV4MAFTbG7DisPM3gnWrw/ATc5u7NsLiTU8xwVwWEbye
+         Vab3qquRtksYVDa2mFT/IurNA+RYWcZSJheMS3r/ntCWVd+NbFekqYo0JWxikfzIKQJn
+         4cq5ovhhT1ThfP8qLZlyTnUzdW19XdYJSTfq7UOwwKtorP/EAEAuZbxBLNlM6nCEifgd
+         2DH3mmaXgFXPBHxm0pwoeELNR66vOa0SU7kpsxRdLp1LkFsAFj8XZaJKFEeNniVfvjI9
+         KeIw==
+X-Gm-Message-State: AC+VfDyKrF2HIgzKjPVpFMNDRuyX0rPOVvTvdapZsPPOI+U09pK0PQh1
+        siV3wOGQjOhD37XW5bHNoQi4+A==
+X-Google-Smtp-Source: ACHHUZ5Dam+p3j2mO7hOPDi7EwOapz3Q9dzuaFpo1CqgC96qPBKIszszLRwntx88jEu+00Gim4jxxA==
+X-Received: by 2002:a5d:6dce:0:b0:306:db7b:bb2d with SMTP id d14-20020a5d6dce000000b00306db7bbb2dmr17042012wrz.38.1683901077543;
+        Fri, 12 May 2023 07:17:57 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:e0a:28d:66d0:c0c4:a67e:f152:1413])
+        by smtp.gmail.com with ESMTPSA id r12-20020a5d494c000000b003077f3dfcc8sm22819982wrs.32.2023.05.12.07.17.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 May 2023 10:56:14 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [RESEND PATCH 3/4] rtc: isl12022: constify pointers to hwmon_channel_info
-Date:   Thu, 11 May 2023 19:56:08 +0200
-Message-Id: <20230511175609.282191-3-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230511175609.282191-1-krzysztof.kozlowski@linaro.org>
-References: <20230511175609.282191-1-krzysztof.kozlowski@linaro.org>
+        Fri, 12 May 2023 07:17:57 -0700 (PDT)
+From:   Esteban Blanc <eblanc@baylibre.com>
+To:     linus.walleij@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
+        a.zummo@towertech.it, alexandre.belloni@bootlin.com
+Cc:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, jpanis@baylibre.com,
+        jneanne@baylibre.com, aseketeli@baylibre.com, eblanc@baylibre.com,
+        sterzik@ti.com, u-kumar1@ti.com
+Subject: [PATCH v4 0/3] TI TPS6594 PMIC support (RTC, pinctrl, regulators)
+Date:   Fri, 12 May 2023 16:17:52 +0200
+Message-Id: <20230512141755.1712358-1-eblanc@baylibre.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Statically allocated array of pointers to hwmon_channel_info can be made
-const for safety.
+TPS6594 is a Power Management IC which provides regulators and others
+features like GPIOs, RTC, watchdog, ESMs (Error Signal Monitor), and
+PFSM (Pre-configurable Finite State Machine). The SoC and the PMIC can
+communicate through the I2C or SPI interfaces.
+TPS6594 is the super-set device while TPS6593 and LP8764 are derivatives.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- drivers/rtc/rtc-isl12022.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This series adds support to TI TPS6594 PMIC and its derivatives.
 
-diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index e68a79b5e00e..eef66453841f 100644
---- a/drivers/rtc/rtc-isl12022.c
-+++ b/drivers/rtc/rtc-isl12022.c
-@@ -89,7 +89,7 @@ static int isl12022_hwmon_read(struct device *dev,
- 	return -EOPNOTSUPP;
- }
- 
--static const struct hwmon_channel_info *isl12022_hwmon_info[] = {
-+static const struct hwmon_channel_info * const isl12022_hwmon_info[] = {
- 	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
- 	NULL
- };
+This should be applied on top of other patch series:
+- https://lore.kernel.org/all/20230406075622.8990-1-jpanis@baylibre.com/
+  For core MFD driver
+
+The features implemented in this series are:
+- RTC (child device)
+- Pinmux/GPIO (child device)
+- Regulator (child device)
+
+RTC description:
+The TPS6594 family has an RTC built-in, except for LP8764.
+It provides time and an alarm.
+
+Pinmux/GPIO:
+TPS6594 family has 11 GPIOs. Those GPIO can also serve different
+functions such as I2C or SPI interface, watchdog disable functions.
+The driver provides both pinmuxing for the functions and GPIO capability.
+
+Regulator:
+TPS6594/TPS6593: 5 BUCKs and 4LDOs
+LP8764: 4 BUCKs and no LDO
+Bucks can be used in multipahse mode.
+
+Changes since v1:
+https://lore.kernel.org/all/20230224133129.887203-1-eblanc@baylibre.com/
+Rtc:
+- Removed struct tps6594_rtc.
+- Removed some dev_err messages.
+- Removed some comments.
+- Remove some whitespaces in comments and error messages.
+- Check if RTC is running before reading a timestamp in read_rtc.
+- Stop RTC at the end of probe to wait for a timestamp to be set.
+- Add default MFD_TPS6594 to Kconfig.
+
+Pinctrl:
+- Removed #define DEBUG.
+- Add default MFD_TPS6594 to Kconfig.
+- Fix typo and reword help message of Kconfig.
+
+Regulators:
+Further to Mark Brown review:
+- File header whole block C++ style.
+- Configuring modes not supported: omit all mode operations
+- Log the error before notifying.
+- Request the interrupts while registering the regulators (then remove
+  the lookup function).
+Further to Matti review:
+- Postponed: devm_regulator_irq_helper() and
+  regulator_irq_map_event_simple() can probably be used but code.
+  refactoring is not so trivial. This can be done later as an enhancement
+  after this patch list is merged.
+Buck Multi phase management:
+- Multiphase property can take an array when 2 multi phase buck, buck12
+  and buck34.
+- Configuration multi phase buck34 without multiphase buck12 is not
+  supported (when only one multiphase, must be buck12). Not clear from the
+  spec but confirmed by TI.
+- Supported multiphase conficurations: buck12, buck123, buck1234,
+  buck12 + buck34.
+- All interrupts are attached to the multiphase buck (ie: for regulator
+  buck12, buck1 & buck2 interrupts are registered).
+
+Changes since v2:
+https://lore.kernel.org/all/20230328091448.648452-1-eblanc@baylibre.com/
+Rtc:
+- Add logic to avoid reinitializing a working clock.
+- Fix some multiline comments format.
+
+Regulators:
+Further to Mark Brown review:
+- Log the error before notifying.
+- Request the interrupts while registering the regulators.
+Further to Krzysztof Kozlowski:
+https://lore.kernel.org/all/75f0a18d-aed9-8610-2925-4e604b4b0241@baylibre.com/
+- Remove ti, multi-phase-id property which is redundant with buck dts naming
+  rules.
+
+Changes since v3:
+https://lore.kernel.org/lkml/20230414101217.1342891-1-eblanc@baylibre.com/
+RTC:
+- Add wakeup source
+
+Pinctrl:
+- Switch to GPIO_REGMAP framework
+
+Esteban Blanc (2):
+  rtc: tps6594: Add driver for TPS6594 RTC
+  pinctrl: tps6594: Add driver for TPS6594 pinctrl and GPIOs
+
+Jerome Neanne (1):
+  regulator: tps6594-regulator: Add driver for TI TPS6594 regulators
+
+ drivers/pinctrl/Kconfig               |  31 ++
+ drivers/pinctrl/Makefile              |   2 +
+ drivers/pinctrl/pinctrl-tps6594.c     | 301 +++++++++++++
+ drivers/regulator/Kconfig             |  13 +
+ drivers/regulator/Makefile            |   1 +
+ drivers/regulator/tps6594-regulator.c | 620 ++++++++++++++++++++++++++
+ drivers/rtc/Kconfig                   |   9 +
+ drivers/rtc/Makefile                  |   1 +
+ drivers/rtc/rtc-tps6594.c             | 479 ++++++++++++++++++++
+ include/linux/mfd/tps6594.h           |   3 +-
+ 10 files changed, 1459 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/pinctrl/pinctrl-tps6594.c
+ create mode 100644 drivers/regulator/tps6594-regulator.c
+ create mode 100644 drivers/rtc/rtc-tps6594.c
+
 -- 
-2.34.1
+2.39.2
 
