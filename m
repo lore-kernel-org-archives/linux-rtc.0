@@ -2,135 +2,133 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CAAEC7EE24
-	for <linux-rtc@archiver.kernel.org>; Thu, 18 May 2023 11:39:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F601C77B7A
+	for <linux-rtc@archiver.kernel.org>; Thu, 18 May 2023 19:17:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231538AbjERLjK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 18 May 2023 07:39:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32800 "EHLO
+        id S229550AbjERTRr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 18 May 2023 15:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbjERLi6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 May 2023 07:38:58 -0400
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 08ABE271F;
-        Thu, 18 May 2023 04:37:58 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="5.99,285,1677510000"; 
-   d="scan'208";a="159842781"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 18 May 2023 20:37:16 +0900
-Received: from localhost.localdomain (unknown [10.226.92.79])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 33C1640037F6;
-        Thu, 18 May 2023 20:37:13 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-rtc@vger.kernel.org,
+        with ESMTP id S229452AbjERTRr (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 18 May 2023 15:17:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4419195;
+        Thu, 18 May 2023 12:17:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D517864A23;
+        Thu, 18 May 2023 19:17:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8C06C433D2;
+        Thu, 18 May 2023 19:17:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1684437465;
+        bh=xtcGW4M791pIaymohA8Ym/cn2rgOqTlGjlCXj4M8lHI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Tum2ju3kf/ZEFXl8REbZzCnUf+lTDYMkdwa58OuA5DnskOiSqE1HFsyIW0sv4cgIZ
+         nx0YVvnsTTwAhwLLXkOdgE84hE6vE4p0eANNeIc+cr6sJuf0mFks9pOiTqOsB9mKov
+         uJUJ6tjEvvTLqQyv9/sDDbrB3tstJvlB4EJUh09Nfzva8btcKB48Ytfg1sX+aU9fm7
+         A9RzBF2dxj3uhbhBBBusGcyRxHcSJmoqMTrXbrvIp4olM4/3WbPUynFYQ5CpkQ0d6Y
+         ew7mxeGs8P2rgKBt8YVcnOtqf6qeHu9xutf4J8kvRVwnS+PT4bLge4K4FD09auNGDx
+         EJbpZYGA3Rwmw==
+Date:   Thu, 18 May 2023 20:17:40 +0100
+From:   Conor Dooley <conor@kernel.org>
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Trent Piepho <tpiepho@gmail.com>, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
         linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v4 06/11] rtc: isl1208: Drop enum isl1208_id and split isl1208_configs[]
-Date:   Thu, 18 May 2023 12:36:38 +0100
-Message-Id: <20230518113643.420806-7-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230518113643.420806-1-biju.das.jz@bp.renesas.com>
+Subject: Re: [PATCH v4 03/11] dt-bindings: rtc: isil,isl1208: Document clock
+ and clock-names properties
+Message-ID: <20230518-plenty-drove-fced48ac6465@spud>
 References: <20230518113643.420806-1-biju.das.jz@bp.renesas.com>
+ <20230518113643.420806-4-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="eW16SawQRMl3qN4B"
+Content-Disposition: inline
+In-Reply-To: <20230518113643.420806-4-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Drop enum isl1208_id and split the array isl1208_configs[] as individual
-variables, and make lines shorter by referring to e.g. &config_isl1219
-instead of &isl1208_configs[TYPE_ISL1219].
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
----
-v4:
- * New patch
----
- drivers/rtc/rtc-isl1208.c | 56 +++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+--eW16SawQRMl3qN4B
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index a6a133f719df..916e7d44c96f 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -68,41 +68,51 @@
- 
- static struct i2c_driver isl1208_driver;
- 
--/* ISL1208 various variants */
--enum isl1208_id {
--	TYPE_ISL1208 = 0,
--	TYPE_ISL1209,
--	TYPE_ISL1218,
--	TYPE_ISL1219,
--	ISL_LAST_ID
--};
--
- /* Chip capabilities table */
--static const struct isl1208_config {
-+struct isl1208_config {
- 	unsigned int	nvmem_length;
- 	unsigned	has_tamper:1;
- 	unsigned	has_timestamp:1;
--} isl1208_configs[] = {
--	[TYPE_ISL1208] = { 2, false, false },
--	[TYPE_ISL1209] = { 2, true,  false },
--	[TYPE_ISL1218] = { 8, false, false },
--	[TYPE_ISL1219] = { 2, true,  true },
-+};
-+
-+static const struct isl1208_config config_isl1208 = {
-+	.nvmem_length = 2,
-+	.has_tamper = false,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1209 = {
-+	.nvmem_length = 2,
-+	.has_tamper = true,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1218 = {
-+	.nvmem_length = 8,
-+	.has_tamper = false,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1219 = {
-+	.nvmem_length = 2,
-+	.has_tamper = true,
-+	.has_timestamp = true
- };
- 
- static const struct i2c_device_id isl1208_id[] = {
--	{ "isl1208", .driver_data = (unsigned long)&isl1208_configs[TYPE_ISL1208] },
--	{ "isl1209", .driver_data = (unsigned long)&isl1208_configs[TYPE_ISL1209] },
--	{ "isl1218", .driver_data = (unsigned long)&isl1208_configs[TYPE_ISL1218] },
--	{ "isl1219", .driver_data = (unsigned long)&isl1208_configs[TYPE_ISL1219] },
-+	{ "isl1208", .driver_data = (unsigned long)&config_isl1208 },
-+	{ "isl1209", .driver_data = (unsigned long)&config_isl1209 },
-+	{ "isl1218", .driver_data = (unsigned long)&config_isl1218 },
-+	{ "isl1219", .driver_data = (unsigned long)&config_isl1219 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, isl1208_id);
- 
- static const __maybe_unused struct of_device_id isl1208_of_match[] = {
--	{ .compatible = "isil,isl1208", .data = &isl1208_configs[TYPE_ISL1208] },
--	{ .compatible = "isil,isl1209", .data = &isl1208_configs[TYPE_ISL1209] },
--	{ .compatible = "isil,isl1218", .data = &isl1208_configs[TYPE_ISL1218] },
--	{ .compatible = "isil,isl1219", .data = &isl1208_configs[TYPE_ISL1219] },
-+	{ .compatible = "isil,isl1208", .data = &config_isl1208 },
-+	{ .compatible = "isil,isl1209", .data = &config_isl1209 },
-+	{ .compatible = "isil,isl1218", .data = &config_isl1218 },
-+	{ .compatible = "isil,isl1219", .data = &config_isl1219 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, isl1208_of_match);
--- 
-2.25.1
+On Thu, May 18, 2023 at 12:36:35PM +0100, Biju Das wrote:
+> As per the HW manual, XTOSCB bit setting is as follows
+>=20
+> If using an external clock signal, set the XTOSCB bit as 1 to
+> disable the crystal oscillator.
+>=20
+> If using an external crystal, the XTOSCB bit needs to be set at 0
+> to enable the crystal oscillator.
+>=20
+> Document clock and clock-names properties.
+>=20
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 
+I notice on v3 you appealed to Rob or Krzysztof for approval about this
+approach. Clearly I not either of them, but it seems reasonable to me.
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+
+Thanks,
+Conor.
+
+> ---
+> v4:
+>  * New patch
+> ---
+>  .../devicetree/bindings/rtc/isil,isl1208.yaml       | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml b/Do=
+cumentation/devicetree/bindings/rtc/isil,isl1208.yaml
+> index 565965147ce6..6c270dd53605 100644
+> --- a/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml
+> @@ -25,6 +25,19 @@ properties:
+>    reg:
+>      maxItems: 1
+> =20
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  clock-names:
+> +    description: |
+> +      Use xin, if connected to an external crystal.
+> +      Use clkin, if connected to an external clock signal.
+> +    oneOf:
+> +      - items:
+> +          - const: xin
+> +      - items:
+> +          - const: clkin
+> +
+>    interrupts:
+>      minItems: 1
+>      maxItems: 2
+> --=20
+> 2.25.1
+>=20
+
+--eW16SawQRMl3qN4B
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZGZ51AAKCRB4tDGHoIJi
+0o2BAQCLed5tYqJspz3QFKR0lfJl7WOvz0Ofx4DCy9Aoqykm7wEA9FLfdh1MguPh
+6ehuPKZ+lu/o1zYTjCeUGpox2k56aAg=
+=z6g1
+-----END PGP SIGNATURE-----
+
+--eW16SawQRMl3qN4B--
