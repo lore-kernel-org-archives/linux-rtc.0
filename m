@@ -2,323 +2,153 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2CC2C7EE23
-	for <linux-rtc@archiver.kernel.org>; Tue, 23 May 2023 19:35:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB9D8C77B7E
+	for <linux-rtc@archiver.kernel.org>; Thu, 25 May 2023 12:56:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238384AbjEWTfk (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 23 May 2023 15:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
+        id S233615AbjEYM43 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 25 May 2023 08:56:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233678AbjEWTfd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 23 May 2023 15:35:33 -0400
-Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F08E129
-        for <linux-rtc@vger.kernel.org>; Tue, 23 May 2023 12:35:06 -0700 (PDT)
-Received: from localhost (88-113-26-95.elisa-laajakaista.fi [88.113.26.95])
-        by fgw21.mail.saunalahti.fi (Halon) with ESMTP
-        id be849199-f9a0-11ed-abf4-005056bdd08f;
-        Tue, 23 May 2023 22:33:50 +0300 (EEST)
-From:   andy.shevchenko@gmail.com
-Date:   Tue, 23 May 2023 22:33:50 +0300
-To:     Esteban Blanc <eblanc@baylibre.com>
-Cc:     linus.walleij@linaro.org, lgirdwood@gmail.com, broonie@kernel.org,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, jpanis@baylibre.com,
-        jneanne@baylibre.com, aseketeli@baylibre.com, u-kumar1@ti.com
-Subject: Re: [PATCH v5 3/3] regulator: tps6594-regulator: Add driver for TI
- TPS6594 regulators
-Message-ID: <ZG0VHnEByyMW9i4a@surfacebook>
-References: <20230522163115.2592883-1-eblanc@baylibre.com>
- <20230522163115.2592883-4-eblanc@baylibre.com>
+        with ESMTP id S231451AbjEYM42 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 25 May 2023 08:56:28 -0400
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5797CE4A;
+        Thu, 25 May 2023 05:55:56 -0700 (PDT)
+Received: from loongson.cn (unknown [223.106.25.146])
+        by gateway (Coremail) with SMTP id _____8CxpPDJWm9kVv8AAA--.2414S3;
+        Thu, 25 May 2023 20:55:37 +0800 (CST)
+Received: from localhost.localdomain (unknown [223.106.25.146])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxFLXFWm9kdYR3AA--.1778S3;
+        Thu, 25 May 2023 20:55:36 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+        Huacai Chen <chenhuacai@loongson.cn>
+Cc:     Huacai Chen <chenhuacai@kernel.org>,
+        Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        zhao zhang <zhzhl555@gmail.com>,
+        Yang Ling <gnaygnil@gmail.com>,
+        loongson-kernel@lists.loongnix.cn,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH V4 1/5] dt-bindings: rtc: Remove the LS2X from the trivial RTCs
+Date:   Thu, 25 May 2023 20:55:23 +0800
+Message-Id: <9a2fbd6860f37760ca6089c150fd6f67628405f6.1684983279.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <cover.1684983279.git.zhoubinbin@loongson.cn>
+References: <cover.1684983279.git.zhoubinbin@loongson.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230522163115.2592883-4-eblanc@baylibre.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8BxFLXFWm9kdYR3AA--.1778S3
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBjvJXoW7uFy5tryDZFyrJr1Utw43Jrb_yoW8KFWxpa
+        nrC3Z8KF4jqF17u39rta48Cw15Zas5C3ZrGFsFyw1xKas8Ca4Yqw4akw1DX3W3CFW8uFW7
+        WFyv9r4rKF9rAr7anT9S1TB71UUUUbUqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bfAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+        x0Y4vEx4A2jsIE14v26F4UJVW0owA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2kK
+        e7AKxVWUAVWUtwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI
+        0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWrXwAv7VC2z280
+        aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4
+        kS14v26r1q6r43MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMxCIbckI
+        1I0E14v26r126r1DMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_Jr
+        Wlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r4j
+        6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Jr
+        0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUv
+        cSsGvfC2KfnxnUUI43ZEXa7IU8XTm3UUUUU==
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Mon, May 22, 2023 at 06:31:15PM +0200, Esteban Blanc kirjoitti:
-> From: Jerome Neanne <jneanne@baylibre.com>
-> 
-> This patch adds support for TPS6594 regulators (bucks and LDOs).
-
-BUCKs (otherwise $$$?)
-
-> The output voltages are configurable and are meant to supply power
-> to the main processor and other components.
-> Bucks can be used in single or multiphase mode, depending on PMIC
-
-BUCKs (otherwise $$$?)
-
-> part number.
-
-...
-
-> +	help
-> +	  This driver supports TPS6594 voltage regulator chips.
-> +	  TPS6594 series of PMICs have 5 BUCKs and 4 LDOs
-> +	  voltage regulators.
-> +	  BUCKs 1,2,3,4 can be used in single phase or multiphase mode.
-> +	  Part number defines which single or multiphase mode is i used.
-
-i?!
-
-> +	  It supports software based voltage control
-> +	  for different voltage domains.
-
-...
-
-> +#include <linux/device.h>
-> +#include <linux/err.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-
-> +#include <linux/of_device.h>
-
-Are you sure this one is correct and / or of.h is not missing? of_match_ptr()
-IIRC is defined in of.h.
-
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/regulator/driver.h>
-> +#include <linux/regulator/machine.h>
-> +#include <linux/regulator/of_regulator.h>
-
-...
-
-> +/* Operations permitted on BUCK1/2/3/4/5 */
-> +static const struct regulator_ops tps6594_bucks_ops = {
-> +	.is_enabled		= regulator_is_enabled_regmap,
-> +	.enable			= regulator_enable_regmap,
-> +	.disable		= regulator_disable_regmap,
-> +	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
-> +	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
-> +	.list_voltage		= regulator_list_voltage_linear_range,
-> +	.map_voltage		= regulator_map_voltage_linear_range,
-> +	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
-
-> +
-
-Redundant blank line.
-
-> +};
-
-...
-
-> +	int error;
-> +
-> +	for (j = 0; j < REGS_INT_NB; j++) {
-> +		irq_type = &tps6594_regs_irq_types[j];
-> +		irq = platform_get_irq_byname(pdev, irq_type->irq_name);
-> +		if (irq < 0)
-> +			return -EINVAL;
-> +
-> +		irq_data[*irq_idx + j].dev = tps->dev;
-> +		irq_data[*irq_idx + j].type = irq_type;
-> +		irq_data[*irq_idx + j].rdev = rdev;
-> +
-> +		error = devm_request_threaded_irq(tps->dev, irq, NULL,
-> +						  tps6594_regulator_irq_handler,
-> +						  IRQF_ONESHOT,
-> +						  irq_type->irq_name,
-> +						  &irq_data[*irq_idx]);
-
-> +		(*irq_idx)++;
-
-This is interesing. So, even in error case we touch given parameter. Usually
-the pattern is not to touch the output if we know there is an error.
-
-> +		if (error) {
-> +			dev_err(tps->dev, "tps6594 failed to request %s IRQ %d: %d\n",
-> +				irq_type->irq_name, irq, error);
-> +			return error;
-> +		}
-> +	}
-
-...
-
-> +	u8 buck_configured[BUCK_NB] = { 0 };
-> +	u8 buck_multi[MULTI_PHASE_NB] = { 0 };
-
-0:s are not needed but I dunno if it's a style in the regulator subsystem.
-
-> +	static const char * const multiphases[] = {"buck12", "buck123", "buck1234", "buck34"};
-> +	static const char *npname;
-> +	int error, i, irq, multi, delta;
-> +	int irq_idx = 0;
-> +	int buck_idx = 0;
-> +	int ext_reg_irq_nb = 2;
-
-> +
-
-Redundant blank line.
-
-> +	enum {
-> +		MULTI_BUCK12,
-> +		MULTI_BUCK123,
-> +		MULTI_BUCK1234,
-> +		MULTI_BUCK12_34,
-
-> +		MULTI_FIRST = MULTI_BUCK12,
-> +		MULTI_LAST = MULTI_BUCK12_34,
-> +		MULTI_NUM = MULTI_LAST - MULTI_FIRST + 1
-
-		MULT_NUM
-
-will suffice instead all this.
-
-> +	};
-
-But why enum at all? See below.
-
-...
-
-> +	/*
-> +	 * Switch case defines different possible multi phase config
-> +	 * This is based on dts buck node name.
-> +	 * Buck node name must be chosen accordingly.
-> +	 * Default case is no Multiphase buck.
-> +	 * In case of Multiphase configuration, value should be defined for
-> +	 * buck_configured to avoid creating bucks for every buck in multiphase
-> +	 */
-> +	for (multi = MULTI_FIRST; multi < MULTI_NUM; multi++) {
-> +		np = of_find_node_by_name(tps->dev->of_node, multiphases[multi]);
-> +		npname = of_node_full_name(np);
-> +		np_pmic_parent = of_get_parent(of_get_parent(np));
-> +		if (of_node_cmp(of_node_full_name(np_pmic_parent), tps->dev->of_node->full_name))
-
-Why not of_node_full_name() in the second case?
-
-
-> +			continue;
-> +		delta = strcmp(npname, multiphases[multi]);
-> +		if (!delta) {
-> +			switch (multi) {
-> +			case MULTI_BUCK12:
-
-This all looks like match_string() reinvention.
-
-> +				buck_multi[0] = 1;
-> +				buck_configured[0] = 1;
-> +				buck_configured[1] = 1;
-> +				break;
-> +			/* multiphase buck34 is supported only with buck12 */
-> +			case MULTI_BUCK12_34:
-> +				buck_multi[0] = 1;
-> +				buck_multi[1] = 1;
-> +				buck_configured[0] = 1;
-> +				buck_configured[1] = 1;
-> +				buck_configured[2] = 1;
-> +				buck_configured[3] = 1;
-> +				break;
-> +			case MULTI_BUCK123:
-> +				buck_multi[2] = 1;
-> +				buck_configured[0] = 1;
-> +				buck_configured[1] = 1;
-> +				buck_configured[2] = 1;
-> +				break;
-> +			case MULTI_BUCK1234:
-> +				buck_multi[3] = 1;
-> +				buck_configured[0] = 1;
-> +				buck_configured[1] = 1;
-> +				buck_configured[2] = 1;
-> +				buck_configured[3] = 1;
-> +				break;
-> +			}
-> +		}
-> +	}
-
-...
-
-> +	irq_data = devm_kmalloc_array(tps->dev,
-> +				REGS_INT_NB * sizeof(struct tps6594_regulator_irq_data),
-> +				ARRAY_SIZE(tps6594_bucks_irq_types) +
-> +				ARRAY_SIZE(tps6594_ldos_irq_types),
-> +				GFP_KERNEL);
-
-Have you checked overflow.h? There are macros to help with the above calculus.
-
-> +	if (!irq_data)
-> +		return -ENOMEM;
-
-...
-
-> +		rdev = devm_regulator_register(&pdev->dev, &multi_regs[i], &config);
-> +		if (IS_ERR(rdev))
-> +			return dev_err_probe(tps->dev, PTR_ERR(rdev),
-
-Why not &pdev->dev here?
-
-> +					     "failed to register %s regulator\n",
-> +					     pdev->name);
-
-...
-
-> +		rdev = devm_regulator_register(&pdev->dev, &buck_regs[i], &config);
-> +		if (IS_ERR(rdev))
-> +			return dev_err_probe(tps->dev, PTR_ERR(rdev),
-> +					     "failed to register %s regulator\n",
-> +					     pdev->name);
-
-Hmm... Again, why the error is printed against different device than regulator
-registration?
-
-...
-
-> +	/* LP8764 dosen't have LDO */
-> +	if (tps->chip_id != LP8764) {
-> +		for (i = 0; i < ARRAY_SIZE(ldo_regs); i++) {
-> +			rdev = devm_regulator_register(&pdev->dev, &ldo_regs[i], &config);
-> +			if (IS_ERR(rdev))
-> +				return dev_err_probe(tps->dev, PTR_ERR(rdev),
-> +						     "failed to register %s regulator\n",
-> +						     pdev->name);
-> +
-> +			error = tps6594_request_reg_irqs(pdev, rdev, irq_data,
-> +							 tps6594_ldos_irq_types[i],
-> +							 &irq_idx);
-> +			if (error)
-> +				return error;
-> +		}
-> +	}
-> +
-> +	if (tps->chip_id == LP8764)
-
-'else'?
-
-Or actually
-
-	if (tps->chip_id == LP8764) {
-		...
-	} else {
-		the above part
-	}
-
-?
-
-
-> +		ext_reg_irq_nb = ARRAY_SIZE(tps6594_ext_regulator_irq_types);
-
-...
-
-> +static struct platform_driver tps6594_regulator_driver = {
-> +	.driver = {
-> +		.name = "tps6594-regulator",
-> +	},
-> +	.probe = tps6594_regulator_probe,
-> +};
-
-> +
-
-This blank line is not needed.
-
-> +module_platform_driver(tps6594_regulator_driver);
-
+Move Loongson RTC bindings from trivial-rtc.yaml into loongson,rtc.yaml.
+
+Also, we will discard the use of wildcards in compatible (ls2x-rtc),
+soc-based compatible is more accurate for hardware differences between
+chips.
+
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ .../devicetree/bindings/rtc/loongson,rtc.yaml | 47 +++++++++++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  |  2 -
+ 2 files changed, 47 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/loongson,rtc.yaml
+
+diff --git a/Documentation/devicetree/bindings/rtc/loongson,rtc.yaml b/Documentation/devicetree/bindings/rtc/loongson,rtc.yaml
+new file mode 100644
+index 000000000000..68e56829e390
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/loongson,rtc.yaml
+@@ -0,0 +1,49 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/loongson,rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Loongson Real-Time Clock
++
++maintainers:
++  - Binbin Zhou <zhoubinbin@loongson.cn>
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    enum:
++      - loongson,ls1b-rtc
++      - loongson,ls1c-rtc
++      - loongson,ls7a-rtc
++      - loongson,ls2k0500-rtc
++      - loongson,ls2k1000-rtc
++      - loongson,ls2k2000-rtc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    rtc_dev: rtc@1fe27800 {
++      compatible = "loongson,ls2k0500-rtc";
++      reg = <0x1fe27800 0x100>;
++
++      interrupt-parent = <&liointc1>;
++      interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index a3603e638c37..9af77f21bb7f 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -47,8 +47,6 @@ properties:
+       - isil,isl1218
+       # Intersil ISL12022 Real-time Clock
+       - isil,isl12022
+-      # Loongson-2K Socs/LS7A bridge Real-time Clock
+-      - loongson,ls2x-rtc
+       # Real Time Clock Module with I2C-Bus
+       - microcrystal,rv3029
+       # Real Time Clock
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.39.1
 
