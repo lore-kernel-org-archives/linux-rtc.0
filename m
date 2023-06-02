@@ -2,79 +2,169 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA197C7EE24
-	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jun 2023 07:29:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38ADCC7EE24
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jun 2023 09:50:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234071AbjFBH3J (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 2 Jun 2023 03:29:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
+        id S234608AbjFBJur (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 2 Jun 2023 05:50:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234066AbjFBH3G (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jun 2023 03:29:06 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250731A6
-        for <linux-rtc@vger.kernel.org>; Fri,  2 Jun 2023 00:29:01 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id 3f1490d57ef6-bacf9edc87bso1798998276.1
-        for <linux-rtc@vger.kernel.org>; Fri, 02 Jun 2023 00:29:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1685690940; x=1688282940;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aH3Y/v9X186tzK7HzUlONQYSFI1OQUrukuDM46U+ZII=;
-        b=RQkvrJrR90O9/4QwQTk1VD+v4lTSjCx9AQ0JIljEGQizj0G3/5YLlt32Kbo6EL7WOj
-         t7rYi9bTxeTZ1pKP2ejd6MpD1YkHeX1k8JJFlmKRCNIbt+X6MdSna2I0ki8Vl3OFU8rp
-         UZXQbhj1h3+CVf1uPWnrhRB5SWWwFlhKho+0h7zPB3yj2ZloJdiW61uzNMSSoKzTdxQ9
-         Y5W+i1028Ge/7QEexXIjdFUNagZGv/BSqJjSGgINsoZwVSWFDjyOI2VmKm8LAyl89wa5
-         HeofJEz4TfcmmVjQt964u3NxIyepANsDWsEkVRqcdmV09xpt7iqxAs0nSfatOmlljLUI
-         aYXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685690940; x=1688282940;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=aH3Y/v9X186tzK7HzUlONQYSFI1OQUrukuDM46U+ZII=;
-        b=ks8U9A70DyKupbDtOPJlOLenQGfK7leYnwheaJnGBzJcIImPsqgvm0oT1rOqxVE07S
-         peanW1u2JkatdvHLzZO13YjBI3HEqtnSBTEd/Hw0zNZK8HxLeWL21V/+1hpsroFXIaQ+
-         jF8KdNrdXNEA5ZQLvr9sFqndBQpFlBrKItUQXwjeqYkhGR87e4eHjnfDUI9aPz2UJDkb
-         AEHLcJ6C8MS3nl8pcrCqIX/66F0CB4JWiB02rQQ4tV6p11pYnn+pGN3KdGsewBti9l+j
-         RcuKygsthoI+U1wqmNQ3PUAW2iNl4duZvH7JXlz5J8AriHQ4YUwPsiMzy5Ix7WmIGZ8m
-         593Q==
-X-Gm-Message-State: AC+VfDy74bCWfcfZ1aUXldAkc/rhk3KkhuINKBv71+e4/3P7+AbUnFjd
-        okNNuGpjE2DCS8Z6QsFO8Zok//0SOR4wTgK5JsUxFA==
-X-Google-Smtp-Source: ACHHUZ4P26QRg0z3Cp5tAgnpxQzmaTfUlISKw09WuNlC/KVQGCy4zcdSJEIg+FXUI0dElFNofz56XRiMqxyVNo+1brI=
-X-Received: by 2002:a81:7105:0:b0:568:fe3a:46a2 with SMTP id
- m5-20020a817105000000b00568fe3a46a2mr6198973ywc.18.1685690940408; Fri, 02 Jun
- 2023 00:29:00 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230424123522.18302-1-nikita.shubin@maquefel.me> <20230601054549.10843-12-nikita.shubin@maquefel.me>
-In-Reply-To: <20230601054549.10843-12-nikita.shubin@maquefel.me>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 2 Jun 2023 09:28:49 +0200
-Message-ID: <CACRpkdZ18Yct5PAk+vuJaSV1j4XU9y9K2FTc=X-UM9JBLz-EZQ@mail.gmail.com>
-Subject: Re: [PATCH v1 30/43] rtc: m48t86: add DT support for m48t86
-To:     Nikita Shubin <nikita.shubin@maquefel.me>
-Cc:     Alexander Sverdlin <alexander.sverdlin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
+        with ESMTP id S234552AbjFBJup (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jun 2023 05:50:45 -0400
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AD4B21B6;
+        Fri,  2 Jun 2023 02:50:39 -0700 (PDT)
+Received: from loongson.cn (unknown [223.106.25.146])
+        by gateway (Coremail) with SMTP id _____8CxjOtuu3lk5pYDAA--.4700S3;
+        Fri, 02 Jun 2023 17:50:38 +0800 (CST)
+Received: from localhost.localdomain (unknown [223.106.25.146])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8Dx_7Nqu3lkzrqFAA--.20150S2;
+        Fri, 02 Jun 2023 17:50:35 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
+To:     Binbin Zhou <zhoubb.aaron@gmail.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Michael Peters <mpeters@embeddedts.com>,
-        Kris Bahnsen <kris@embeddedts.com>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-rtc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org
+Cc:     Huacai Chen <chenhuacai@kernel.org>,
+        loongson-kernel@lists.loongnix.cn, Xuerui Wang <kernel@xen0n.name>,
+        loongarch@lists.linux.dev,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        zhao zhang <zhzhl555@gmail.com>,
+        Yang Ling <gnaygnil@gmail.com>,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH V5 0/5] Add rtc driver for the Loongson family chips
+Date:   Fri,  2 Jun 2023 17:50:19 +0800
+Message-Id: <cover.1685693501.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.39.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8Dx_7Nqu3lkzrqFAA--.20150S2
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBjvJXoWxGFWDXFy7GryfuFWkWF48JFb_yoWrJr13pa
+        1ak3sxGrn5tr47Arn3Jry8uFyrZ393JrWDCF4xJ34S9FZ5C3WUXrWfKa1FyrZxur95WFy2
+        qrn5Gr15WF45AFJanT9S1TB71UUUUbUqnTZGkaVYY2UrUUUUj1kv1TuYvTs0mT0YCTnIWj
+        qI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUIcSsGvfJTRUUU
+        bS8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s
+        1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
+        wVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwA2z4
+        x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v26F4UJVW0owAa
+        w2AFwI0_JF0_Jw1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44
+        I27wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jw0_WrylYx0Ex4A2
+        jsIE14v26r4j6F4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262
+        kKe7AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km
+        07C267AKxVWUAVWUtwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r
+        1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWU
+        CVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r
+        1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1U
+        YxBIdaVFxhVjvjDU0xZFpf9x07jr9NsUUUUU=
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 7:46=E2=80=AFAM Nikita Shubin <nikita.shubin@maquefe=
-l.me> wrote:
+Hi all:
 
-> - get regs from device tree
->
-> Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+The initial DT-base ls2x rtc driver was written by Wang Xuerui, He has
+released five versions of patchset before, and all related mail records
+are shown below if you are interested:
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+https://lore.kernel.org/all/?q=ls2x-rtc
 
-Yours,
-Linus Walleij
+In this series of patches, based on the code above, I have added the
+following support:
+
+1. Add ACPI-related support, as Loongson-3A5000 + LS7A is now ACPI-base
+   by default under LoongArch architecture;
+2. Add rtc alarm/walarm related functions;
+3. Merge LS1X rtc and LS2X rtc into a unified rtc-loongson driver.
+
+I have tested on Loongson-3A5000LA+LS7A1000/LS7A2000, Loongson-2K1000LA,
+Loongson-2K0500 and Loongson-2K2000(ACPI/DT).
+
+Thanks to everyone for reviewing and testing the code.
+
+-------
+v5:
+patch(1/5)
+  - The reason why ls2x can be removed directly is explained in the
+    commit message;
+  - Use fallback compatible;
+    Thanks to all who participated in the fallback compatible discussion.
+patch(3/5)
+  - Since ls1b and ls1c have different register definitions, we'd better
+    distinguish them with different
+    configurations(ls1b_rtc_config/ls1c_rtc_config);
+  - Due to the use of fallback compatible, the redundant compatible is
+    removed. We can see the full list of supported chips in dt-binding..
+
+v4:
+https://lore.kernel.org/linux-rtc/cover.1684983279.git.zhoubinbin@loongson.cn/
+
+- Rebase on the top of rtc-next;
+- Drop defconfig-related patches;
+patch(1/5)
+  - New patch, Loongson RTC bindings have been rewritten and we have
+    dropped the wildcard (ls2x) in compatible.
+    Thanks to Krzysztof for your comments;
+patch(2/5)
+  - New patch, drop the ls1x rtc driver;
+patch(3/5)
+  - Clear RTC_FEATURE_UPDATE_INTERRUPT bit, for the rtc does not support
+    UIE;
+  - Add LS2K2000 support(DT/ACPI);
+  - Merge ls1x support and name the driver rtc-loongson;
+    Thanks to Jiaxun for his comments and Keguang for his assistance in
+testing.
+
+v3:
+https://lore.kernel.org/linux-rtc/cover.1681370153.git.zhoubinbin@loongson.cn/
+
+patch(2/7):
+ - Check patchset with "checkpatch.pl --strict";
+ - Drop static inline functions which are used only once, such as
+   ls2x_rtc_regs_to_time;
+ - Remove the suruct ls2x_rtc_regs and regmap_bulk_xxx() is used to read
+   and write rtc registers;
+ - Clear the RTC wakeup interrupt manually;
+ - Enable the RTC in set_time() and check in read_time();
+ - device_get_match_data() is used to get ls2x_pm_offset, for LS2k1000
+   has the different value;
+ - Remove some inexact CONFIG_ACPI.
+
+v2:
+1. Rebased on top of latest loongarch-next;
+2. Add interrupt descriptions to the ls2k and ls7a DTS files to avoid
+errors when the driver gets the IRQ number, Thanks to Qing Zhang for
+testing;
+3. Remove some inexact CONFIG_ACPI.
+
+Thanks.
+
+Binbin Zhou (5):
+  dt-bindings: rtc: Remove the LS2X from the trivial RTCs
+  rtc: Remove the Loongson-1 RTC driver
+  rtc: Add rtc driver for the Loongson family chips
+  MIPS: Loongson64: DTS: Add RTC support to LS7A PCH
+  MIPS: Loongson64: DTS: Add RTC support to Loongson-2K1000
+
+ .../devicetree/bindings/rtc/loongson,rtc.yaml |  57 +++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  |   2 -
+ .../boot/dts/loongson/loongson64-2k1000.dtsi  |   7 +
+ arch/mips/boot/dts/loongson/ls7a-pch.dtsi     |   7 +
+ drivers/rtc/Kconfig                           |  23 +-
+ drivers/rtc/Makefile                          |   2 +-
+ drivers/rtc/rtc-loongson.c                    | 397 ++++++++++++++++++
+ drivers/rtc/rtc-ls1x.c                        | 192 ---------
+ 8 files changed, 482 insertions(+), 205 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/loongson,rtc.yaml
+ create mode 100644 drivers/rtc/rtc-loongson.c
+ delete mode 100644 drivers/rtc/rtc-ls1x.c
+
+-- 
+2.39.1
+
