@@ -2,41 +2,35 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD285C7EE33
-	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jun 2023 14:26:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51003C7EE39
+	for <linux-rtc@archiver.kernel.org>; Fri,  2 Jun 2023 14:26:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229447AbjFBOZb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 2 Jun 2023 10:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33966 "EHLO
+        id S235935AbjFBOZf (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 2 Jun 2023 10:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235813AbjFBOZE (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jun 2023 10:25:04 -0400
-Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5387D9F;
-        Fri,  2 Jun 2023 07:25:02 -0700 (PDT)
+        with ESMTP id S235973AbjFBOZL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 2 Jun 2023 10:25:11 -0400
+Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3B7179F;
+        Fri,  2 Jun 2023 07:25:10 -0700 (PDT)
 X-IronPort-AV: E=Sophos;i="6.00,213,1681138800"; 
-   d="scan'208";a="161964815"
+   d="scan'208";a="165499023"
 Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 02 Jun 2023 23:25:01 +0900
+  by relmlie6.idc.renesas.com with ESMTP; 02 Jun 2023 23:25:10 +0900
 Received: from localhost.localdomain (unknown [10.226.93.55])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id D404640065BD;
-        Fri,  2 Jun 2023 23:24:57 +0900 (JST)
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id CE66940065BD;
+        Fri,  2 Jun 2023 23:25:07 +0900 (JST)
 From:   Biju Das <biju.das.jz@bp.renesas.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
-        Trent Piepho <tpiepho@gmail.com>, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-rtc@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        linux-renesas-soc@vger.kernel.org,
-        Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v6 06/11] dt-bindings: rtc: isil,isl1208: Document clock and clock-names properties
-Date:   Fri,  2 Jun 2023 15:24:21 +0100
-Message-Id: <20230602142426.438375-7-biju.das.jz@bp.renesas.com>
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH v6 09/11] rtc: isl1208: Drop enum isl1208_id and split isl1208_configs[]
+Date:   Fri,  2 Jun 2023 15:24:24 +0100
+Message-Id: <20230602142426.438375-10-biju.das.jz@bp.renesas.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230602142426.438375-1-biju.das.jz@bp.renesas.com>
 References: <20230602142426.438375-1-biju.das.jz@bp.renesas.com>
@@ -46,53 +40,103 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-As per the HW manual, XTOSCB bit setting is as follows
-
-If using an external clock signal, set the XTOSCB bit as 1 to
-disable the crystal oscillator.
-
-If using an external crystal, the XTOSCB bit needs to be set at 0
-to enable the crystal oscillator.
-
-Document clock and clock-names properties.
+Drop enum isl1208_id and split the array isl1208_configs[] as individual
+variables, and make lines shorter by referring to e.g. &config_isl1219
+instead of &isl1208_configs[TYPE_ISL1219].
 
 Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
 v5->v6:
- * Added Rb tag from Geert.
+ * No change.
 v4->v5:
- * Replaced oneOf->enum for clock-names as it is simpler.
- * Added Rb tag from Conor.
+ * Added Rb tag from Geert.
+ * Replaced "unsigned long"->"kernel_ulong_t" in isl1208_id[].
 v4:
  * New patch
 ---
- .../devicetree/bindings/rtc/isil,isl1208.yaml         | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/rtc/rtc-isl1208.c | 56 +++++++++++++++++++++++----------------
+ 1 file changed, 33 insertions(+), 23 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml b/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml
-index 565965147ce6..11f7378d4997 100644
---- a/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml
-+++ b/Documentation/devicetree/bindings/rtc/isil,isl1208.yaml
-@@ -25,6 +25,17 @@ properties:
-   reg:
-     maxItems: 1
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index 9955378b4ea6..d42615fcdd9f 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -68,41 +68,51 @@
  
-+  clocks:
-+    maxItems: 1
+ static struct i2c_driver isl1208_driver;
+ 
+-/* ISL1208 various variants */
+-enum isl1208_id {
+-	TYPE_ISL1208 = 0,
+-	TYPE_ISL1209,
+-	TYPE_ISL1218,
+-	TYPE_ISL1219,
+-	ISL_LAST_ID
+-};
+-
+ /* Chip capabilities table */
+-static const struct isl1208_config {
++struct isl1208_config {
+ 	unsigned int	nvmem_length;
+ 	unsigned	has_tamper:1;
+ 	unsigned	has_timestamp:1;
+-} isl1208_configs[] = {
+-	[TYPE_ISL1208] = { 2, false, false },
+-	[TYPE_ISL1209] = { 2, true,  false },
+-	[TYPE_ISL1218] = { 8, false, false },
+-	[TYPE_ISL1219] = { 2, true,  true },
++};
 +
-+  clock-names:
-+    description: |
-+      Use xin, if connected to an external crystal.
-+      Use clkin, if connected to an external clock signal.
-+    enum:
-+      - xin
-+      - clkin
++static const struct isl1208_config config_isl1208 = {
++	.nvmem_length = 2,
++	.has_tamper = false,
++	.has_timestamp = false
++};
 +
-   interrupts:
-     minItems: 1
-     maxItems: 2
++static const struct isl1208_config config_isl1209 = {
++	.nvmem_length = 2,
++	.has_tamper = true,
++	.has_timestamp = false
++};
++
++static const struct isl1208_config config_isl1218 = {
++	.nvmem_length = 8,
++	.has_tamper = false,
++	.has_timestamp = false
++};
++
++static const struct isl1208_config config_isl1219 = {
++	.nvmem_length = 2,
++	.has_tamper = true,
++	.has_timestamp = true
+ };
+ 
+ static const struct i2c_device_id isl1208_id[] = {
+-	{ "isl1208", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1208] },
+-	{ "isl1209", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1209] },
+-	{ "isl1218", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1218] },
+-	{ "isl1219", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1219] },
++	{ "isl1208", .driver_data = (kernel_ulong_t)&config_isl1208 },
++	{ "isl1209", .driver_data = (kernel_ulong_t)&config_isl1209 },
++	{ "isl1218", .driver_data = (kernel_ulong_t)&config_isl1218 },
++	{ "isl1219", .driver_data = (kernel_ulong_t)&config_isl1219 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+ 
+ static const __maybe_unused struct of_device_id isl1208_of_match[] = {
+-	{ .compatible = "isil,isl1208", .data = &isl1208_configs[TYPE_ISL1208] },
+-	{ .compatible = "isil,isl1209", .data = &isl1208_configs[TYPE_ISL1209] },
+-	{ .compatible = "isil,isl1218", .data = &isl1208_configs[TYPE_ISL1218] },
+-	{ .compatible = "isil,isl1219", .data = &isl1208_configs[TYPE_ISL1219] },
++	{ .compatible = "isil,isl1208", .data = &config_isl1208 },
++	{ .compatible = "isil,isl1209", .data = &config_isl1209 },
++	{ .compatible = "isil,isl1218", .data = &config_isl1218 },
++	{ .compatible = "isil,isl1219", .data = &config_isl1219 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, isl1208_of_match);
 -- 
 2.25.1
 
