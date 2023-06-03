@@ -2,63 +2,59 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7322C77B7A
-	for <linux-rtc@archiver.kernel.org>; Sat,  3 Jun 2023 09:30:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7766BC7EE24
+	for <linux-rtc@archiver.kernel.org>; Sat,  3 Jun 2023 20:11:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230013AbjFCJ36 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Sat, 3 Jun 2023 05:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
+        id S230123AbjFCULv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 3 Jun 2023 16:11:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230028AbjFCJ35 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Sat, 3 Jun 2023 05:29:57 -0400
-X-Greylist: delayed 89953 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 02:29:55 PDT
-Received: from mail.webtopbits.pl (mail.webtopbits.pl [195.231.64.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FED2E4C
-        for <linux-rtc@vger.kernel.org>; Sat,  3 Jun 2023 02:29:55 -0700 (PDT)
-Received: by mail.webtopbits.pl (Postfix, from userid 1001)
-        id B5709A385E; Fri,  2 Jun 2023 09:30:39 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=webtopbits.pl;
-        s=mail; t=1685694640;
-        bh=Eh8ECMiYd4baGAwPAzhz8mhJACXX7NSRkYjh+plaY18=;
-        h=Date:From:To:Subject:From;
-        b=DdOCVBNQJUfz6f3X237k/g4lZHh2rjT7Gd6ddvV21AO8rOFivILrX2GUaINCB7Wlg
-         KJ+7HI/bTnjglz+y6ktwfeH91qwmak8heGKqTtiGz0jpwel2asSBObPFBZ2+728tQL
-         Fdg0BTd29Xyqc1m9G2OVLfQesOddkVTEMnwHZkD+c5JUXvbhTgjmvrWxd0kEUjl+02
-         haXka6dkyqfP4xpwKeCPuFcAeYHjqgahWYG3I+ZTCwR2U7mRdCvqIJLNfmIJ06364c
-         5p4E/8PP1JRBEgQpszxDZMYfr8If+RgViGcAiOjL37qnpxjsnycEex6lxZW/YblYHN
-         6c5hZw3jCM4bQ==
-Received: by mail.webtopbits.pl for <linux-rtc@vger.kernel.org>; Fri,  2 Jun 2023 08:30:38 GMT
-Message-ID: <20230602085530-0.1.8w.5jrp.0.32l0slefb8@webtopbits.pl>
-Date:   Fri,  2 Jun 2023 08:30:38 GMT
-From:   "Kamil Durjasz" <kamil.durjasz@webtopbits.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: =?UTF-8?Q?Wy=C5=BCsza_konwersja_w_e-sklepie_?=
-X-Mailer: mail.webtopbits.pl
+        with ESMTP id S229627AbjFCULu (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 3 Jun 2023 16:11:50 -0400
+Received: from fgw22-7.mail.saunalahti.fi (fgw22-7.mail.saunalahti.fi [62.142.5.83])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B27E5C
+        for <linux-rtc@vger.kernel.org>; Sat,  3 Jun 2023 13:11:30 -0700 (PDT)
+Received: from localhost (88-113-26-95.elisa-laajakaista.fi [88.113.26.95])
+        by fgw22.mail.saunalahti.fi (Halon) with ESMTP
+        id aab8af8e-024a-11ee-a9de-005056bdf889;
+        Sat, 03 Jun 2023 23:10:21 +0300 (EEST)
+From:   andy.shevchenko@gmail.com
+Date:   Sat, 3 Jun 2023 23:10:20 +0300
+To:     Nikita Shubin <nikita.shubin@maquefel.me>
+Cc:     Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Michael Peters <mpeters@embeddedts.com>,
+        Kris Bahnsen <kris@embeddedts.com>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 30/43] rtc: m48t86: add DT support for m48t86
+Message-ID: <ZHueLMHnFnvxsaPL@surfacebook>
+References: <20230424123522.18302-1-nikita.shubin@maquefel.me>
+ <20230601054549.10843-12-nikita.shubin@maquefel.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230601054549.10843-12-nikita.shubin@maquefel.me>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Thu, Jun 01, 2023 at 08:45:35AM +0300, Nikita Shubin kirjoitti:
+> - get regs from device tree
 
-w jaki spos=C3=B3b docieraj=C4=85 Pa=C5=84stwo do odbiorc=C3=B3w?
+...
 
-Tworzymy pot=C4=99=C5=BCne narz=C4=99dzia sprzeda=C5=BCy, kt=C3=B3re pozw=
-alaj=C4=85 kompleksowo rozwi=C4=85za=C4=87 problemy potencjalnych klient=C3=
-=B3w i skutecznie wp=C5=82yn=C4=85=C4=87 na ich decyzje zakupowe.=20
+> +#include <linux/of.h>
 
-Skupiamy si=C4=99 na Pa=C5=84stwa potrzebach zwi=C4=85zanych z obs=C5=82u=
-g=C4=85 sklepu, oczekiwaniach i planach sprzeda=C5=BCowych. Szczeg=C3=B3=C5=
-=82owo dopasowujemy grafik=C4=99, funkcjonalno=C5=9Bci, struktur=C4=99 i =
-mikrointerakcje do Pa=C5=84stwa grupy docelowej, co przek=C5=82ada si=C4=99=
- na oczekiwane rezultaty.
+This is wrong header. Should be mod_devicetable.h.
 
-Ch=C4=99tnie przedstawi=C4=99 dotychczasowe realizacje, aby mogli Pa=C5=84=
-stwo przekona=C4=87 si=C4=99 o naszych mo=C5=BCliwo=C5=9Bciach. Mog=C4=99=
- si=C4=99 skontaktowa=C4=87?
+Please, as I mentioned before, change this in *all* patches in your series
+where just an ID table is added.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Pozdrawiam
-Kamil Durjasz
