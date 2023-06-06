@@ -2,30 +2,30 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83E0CC7EE2F
-	for <linux-rtc@archiver.kernel.org>; Tue,  6 Jun 2023 21:38:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B4B0C7EE2F
+	for <linux-rtc@archiver.kernel.org>; Tue,  6 Jun 2023 21:42:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239743AbjFFViz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 6 Jun 2023 17:38:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45078 "EHLO
+        id S238110AbjFFVmU (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 6 Jun 2023 17:42:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233854AbjFFViy (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Jun 2023 17:38:54 -0400
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D76A7;
-        Tue,  6 Jun 2023 14:38:51 -0700 (PDT)
+        with ESMTP id S234384AbjFFVmR (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 6 Jun 2023 17:42:17 -0400
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4027A7;
+        Tue,  6 Jun 2023 14:42:16 -0700 (PDT)
 X-GND-Sasl: alexandre.belloni@bootlin.com
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1686087530;
+        t=1686087735;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=3IwmjLGuCx7jekbUY8ILKERGOQVFTWDIVAWaU21blAo=;
-        b=Dy4SLnZUwcBMfnuMUzXEiXCCf+OmuELyM00v0pww4+vjIpTkOl+fIRH8pEhvM3x/nzJMul
-        gLpZwLuDEdQHu871QMg10ARRE7Y74jYVWG5XY9fSdiAc7SjvAqooEU0I2D3djYQbWfZg9i
-        gpkLD8Maj0s77aaFOD0cyPpPtPxATVkRZIBM48CVdrshJP0QpbqLmAFalwMuGNC/GjSkEY
-        WJ96JK9/rX/yow7IfCyUGwDOyV8U4+9xZv1jjNjaWJClu3FVDFznyaBtSSfZP2dHjPbqSF
-        vZPjmj0aoqg4aH0mO2CuZETzpDn1hyqT2h3IlvksnZgg8qeXiFSKakpfe4lPSw==
+        bh=6PcfXqgkRAFVRmbupkXph6bVSIl668fEjh7jlXGINRk=;
+        b=jJIHXvc/7cRINmR3iDHISsS4zx8ryuhgjIZOzgfVu4MiAPnJUjCPgXAicAI3aGkO3TLW/h
+        b4gdgeiicQBF7fFAG850bd9/0pX6ImVOfIdRN5QLQ/RK9x5e4jAM0eh+4b8erY+pvFSDlE
+        mEQask8SWaEBt5Z67/0U6OnmLliHnWx255pkBkHGgZ+kAQ+3ulHha5r4Ab3EJMIkwltOMq
+        Be2EaRMg21RAI9c2uHcFb+xlBre41sBtbMAR3yr1SIsyndCN0/j6e6N7ETOBP0VzJCaPwM
+        zY9nxGFW+wy/oDZyR8yo3qIPh79UInGvDwY9PS9qQDgHuTU3Joaeft9nbKo93g==
 X-GND-Sasl: alexandre.belloni@bootlin.com
 X-GND-Sasl: alexandre.belloni@bootlin.com
 X-GND-Sasl: alexandre.belloni@bootlin.com
@@ -33,78 +33,43 @@ X-GND-Sasl: alexandre.belloni@bootlin.com
 X-GND-Sasl: alexandre.belloni@bootlin.com
 X-GND-Sasl: alexandre.belloni@bootlin.com
 X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-X-GND-Sasl: alexandre.belloni@bootlin.com
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 2D59E60004;
-        Tue,  6 Jun 2023 21:38:48 +0000 (UTC)
-Date:   Tue, 6 Jun 2023 23:38:47 +0200
+Received: by mail.gandi.net (Postfix) with ESMTPSA id AD424FF802;
+        Tue,  6 Jun 2023 21:42:14 +0000 (UTC)
+Date:   Tue, 6 Jun 2023 23:42:14 +0200
 From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Dipen Patel <dipenp@nvidia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Dilip Kota <eswara.kota@linux.intel.com>,
-        linux-phy@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-spi@vger.kernel.org, timestamp@lists.linux.dev,
-        linux-watchdog@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Rob Herring <robh@kernel.org>, Tony Lindgren <tony@atomide.com>,
-        Oleksij Rempel <linux@rempel-privat.de>
-Subject: Re: (subset) [PATCH 3/7] dt-bindings: rtc: restrict node name
- suffixes
-Message-ID: <168608750603.35578.4427104675666542685.b4-ty@bootlin.com>
-References: <20230530144851.92059-1-krzysztof.kozlowski@linaro.org>
- <20230530144851.92059-4-krzysztof.kozlowski@linaro.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>
+Cc:     linux-rtc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: stm32: remove dedicated wakeup management
+Message-ID: <168608768267.37577.7065576834191404106.b4-ty@bootlin.com>
+References: <20230531122732.1515594-1-amelie.delaunay@foss.st.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230530144851.92059-4-krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230531122732.1515594-1-amelie.delaunay@foss.st.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 
-On Tue, 30 May 2023 16:48:47 +0200, Krzysztof Kozlowski wrote:
-> Make the pattern matching node names a bit stricter to improve DTS
-> consistency.  The pattern is restricted to:
-> 1. Only one unit address or one -N suffix,
-> 2. -N suffixes to decimal numbers.
+On Wed, 31 May 2023 14:27:31 +0200, Amelie Delaunay wrote:
+> There is no more needs to use a dedicated wake up interrupt for RTC as
+> EXTI block manages by itself now all interrupt lines.
 > 
+> Dedicated wakeup interrupt has been introduced with STM32 MP1 support
+> commit b72252b6580c ("rtc: stm32: add stm32mp1 rtc support") because GIC &
+> EXTI interrupts were not yet linked in EXTI driver.
 > 
+> [...]
 
 Applied, thanks!
 
-[3/7] dt-bindings: rtc: restrict node name suffixes
-      commit: 93eff1e0e67a0b54fc16f07f0ca88f8b5afd9f89
+[1/1] rtc: stm32: remove dedicated wakeup management
+      commit: 38e0689b27f8b9a0085815b2446b12f685d028aa
 
 Best regards,
 
