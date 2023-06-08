@@ -2,47 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE4DC7EE23
-	for <linux-rtc@archiver.kernel.org>; Thu,  8 Jun 2023 10:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A403C7EE23
+	for <linux-rtc@archiver.kernel.org>; Thu,  8 Jun 2023 10:35:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235808AbjFHKAW (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 8 Jun 2023 06:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55524 "EHLO
+        id S232272AbjFHKfZ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 8 Jun 2023 06:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235863AbjFHKAU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2023 06:00:20 -0400
-X-Greylist: delayed 3312 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Jun 2023 03:00:14 PDT
+        with ESMTP id S230503AbjFHKfX (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 8 Jun 2023 06:35:23 -0400
+X-Greylist: delayed 2106 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Jun 2023 03:35:20 PDT
 Received: from cpanel.siel.si (cpanel.siel.si [46.19.9.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3121526B2
-        for <linux-rtc@vger.kernel.org>; Thu,  8 Jun 2023 03:00:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22894272D;
+        Thu,  8 Jun 2023 03:35:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=norik.com;
-        s=default; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=GMxYhkc1VAN6YvzxDxUID5gzfvinfcgW0ko7ik3lln8=; b=GEMHS/USCzB14ZEJ4dE1ihPswr
-        sqIhALd+xoeXPiSDsghHKisxV8XrLDTf8lFXrjPJUao0ayE2ulzMXTjh2pgjLQ/YiH5xknP6Wuh87
-        zJddKFt9BfGJdsuyBqLPsep+9gMN6s6PB95xbTGD4duoBM11C7PQW43MSQWn00wjbSN5I3g/gJtYJ
-        EF+YfnQ8OI31b6ZVrkJuFffAtikqByGIfXnC2ILGVPAstHrXOKkGSg+3tRlmYsws8ETdMU06+j+G6
-        e5ETd25tBHvyvZMpG6VPaN8s3d4kd5exdmLYyueS5SZ/ovkGIVQS9L1R1sOLSd9cjeoZh68URsQyP
-        uHdp4Ofw==;
-Received: from [89.212.21.243] (port=58494 helo=localhost.localdomain)
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=yllUui2WHKRjGM9gI2InP1W8bx0FpZ1/47wA5j7HBp8=; b=imyDzDdRJHNS6HF5qlP4G9cPFJ
+        o2tg70d+6QVZwYnshcyLcSCUAoBdN2J0NjxURmQM+zf9EHPit+r2a6IAim/MEOLzFZH0d974w+ONi
+        U4BQU6Flg7lfRU43l6GBz6omE2YtGlP5iZK3UCS/yOsR16lXTHde2Dq9c5WiOZj5C8kXyHDZAAuQM
+        DvwJmBVRTtvrISpdN7NpA0vdz12T2h1cir+LHEG50ur42i0LbogEVT1m73Q9UqoZOBDgbBXYLysD+
+        9qjnBPqdgkFQW+/KuW3VbPaIDz9dEJpafKt9EOmGzcmAUhLDXVE403TbcXPgFPZmc5icfYZX8a9ik
+        CTcAWL2A==;
+Received: from 89-212-21-243.static.t-2.net ([89.212.21.243]:44456 helo=[192.168.69.84])
         by cpanel.siel.si with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.96)
         (envelope-from <andrej.picej@norik.com>)
-        id 1q7BZf-00CHxg-0m;
-        Thu, 08 Jun 2023 11:04:54 +0200
-From:   Andrej Picej <andrej.picej@norik.com>
-To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com
-Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        upstream@phytec.de
-Subject: [PATCH] rtc: rv3028: Improve trickle charger logic
-Date:   Thu,  8 Jun 2023 11:04:46 +0200
-Message-Id: <20230608090446.2899646-1-andrej.picej@norik.com>
-X-Mailer: git-send-email 2.25.1
+        id 1q7Cz8-00CY28-0s;
+        Thu, 08 Jun 2023 12:35:18 +0200
+Message-ID: <73bc2f5c-bdae-e57f-73ab-db5e453e0c7f@norik.com>
+Date:   Thu, 8 Jun 2023 12:35:17 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH] rtc: rv3028: Improve trickle charger logic
+Content-Language: en-GB
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     a.zummo@towertech.it, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, upstream@phytec.de
+References: <20230608090446.2899646-1-andrej.picej@norik.com>
+ <20230608093155cedff41a@mail.local>
+From:   Andrej Picej <andrej.picej@norik.com>
+In-Reply-To: <20230608093155cedff41a@mail.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cpanel.siel.si
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -57,80 +63,85 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Property "trickle-resistor-ohms" allows us to set trickle charger
-resistor. However there is no possibility to disable it afterwards.
+Hi Alexandre,
 
-From now on, disable trickle charger circuit in case device-tree
-property "trickle-resistor-ohms" is not present. RV3029 RTC driver uses
-the same trickle charger disable logic.
+On 8. 06. 23 11:31, Alexandre Belloni wrote:
+> Hello,
+> 
+> On 08/06/2023 11:04:46+0200, Andrej Picej wrote:
+>> +	ret = regmap_read(rv3028->regmap, RV3028_BACKUP, &val_old);
+>> +	if (ret < 0)
+>> +		return ret;
+>> +
+>> +	/* mask out only trickle charger bits */
+>> +	val_old = val_old & (RV3028_BACKUP_TCE | RV3028_BACKUP_TCR_MASK);
+>> +
+>>   	/* setup trickle charger */
+>> -	if (!device_property_read_u32(&client->dev, "trickle-resistor-ohms",
+>> -				      &ohms)) {
+>> +	if (device_property_read_u32(&client->dev, "trickle-resistor-ohms", &ohms)) {
+>> +		/* disable the trickle charger */
+>> +		val = 0;
+> 
+> You can't do that, this will break existing users that may set the
+> trickle charger from their bootloader for example.
 
-Additionally, lets make sure we only update internal EEPROM in case of a
-change. This prevents wear due to excessive EEPROM writes on each probe.
+hmm...ok I understand that idea. I thought that might be a problem. I 
+guess keeping default as it is has a higher priority.
 
-Signed-off-by: Andrej Picej <andrej.picej@norik.com>
----
- drivers/rtc/rtc-rv3028.c | 28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
+What do you say if setting this property to 0 (or maybe -1) disabled the 
+trickle charger?
+So if users add:
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index ec5d7a614e2d..190507bf97d0 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -860,6 +860,7 @@ static int rv3028_probe(struct i2c_client *client)
- 	struct rv3028_data *rv3028;
- 	int ret, status;
- 	u32 ohms;
-+	int val_old, val;
- 	struct nvmem_config nvmem_cfg = {
- 		.name = "rv3028_nvram",
- 		.word_size = 1,
-@@ -937,9 +938,18 @@ static int rv3028_probe(struct i2c_client *client)
- 	if (ret)
- 		return ret;
- 
-+	ret = regmap_read(rv3028->regmap, RV3028_BACKUP, &val_old);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* mask out only trickle charger bits */
-+	val_old = val_old & (RV3028_BACKUP_TCE | RV3028_BACKUP_TCR_MASK);
-+
- 	/* setup trickle charger */
--	if (!device_property_read_u32(&client->dev, "trickle-resistor-ohms",
--				      &ohms)) {
-+	if (device_property_read_u32(&client->dev, "trickle-resistor-ohms", &ohms)) {
-+		/* disable the trickle charger */
-+		val = 0;
-+	} else {
- 		int i;
- 
- 		for (i = 0; i < ARRAY_SIZE(rv3028_trickle_resistors); i++)
-@@ -947,15 +957,21 @@ static int rv3028_probe(struct i2c_client *client)
- 				break;
- 
- 		if (i < ARRAY_SIZE(rv3028_trickle_resistors)) {
--			ret = rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_TCE |
--						 RV3028_BACKUP_TCR_MASK, RV3028_BACKUP_TCE | i);
--			if (ret)
--				return ret;
-+			/* enable the trickle charger and setup its resistor accordingly */
-+			val = RV3028_BACKUP_TCE | i;
- 		} else {
- 			dev_warn(&client->dev, "invalid trickle resistor value\n");
- 		}
- 	}
- 
-+	/* only update EEPROM if changes are necessary */
-+	if (val_old != val) {
-+		ret = rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_TCE |
-+					RV3028_BACKUP_TCR_MASK, val);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	ret = rtc_add_group(rv3028->rtc, &rv3028_attr_group);
- 	if (ret)
- 		return ret;
--- 
-2.25.1
+trickle-resistor-ohms = <0>;
+or
+trickle-resistor-ohms = <(-1)>;
 
+this would mean disable the trickle charger?
+
+I know it is far from optimal, but this would solve both things:
+* not braking existing implementation,
+* users could disable the trickle charger.
+
+What do you say.
+
+Thanks for your review.
+
+Best regards,
+Andrej
+
+> 
+>> +	} else {
+>>   		int i;
+>>   
+>>   		for (i = 0; i < ARRAY_SIZE(rv3028_trickle_resistors); i++)
+>> @@ -947,15 +957,21 @@ static int rv3028_probe(struct i2c_client *client)
+>>   				break;
+>>   
+>>   		if (i < ARRAY_SIZE(rv3028_trickle_resistors)) {
+>> -			ret = rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_TCE |
+>> -						 RV3028_BACKUP_TCR_MASK, RV3028_BACKUP_TCE | i);
+>> -			if (ret)
+>> -				return ret;
+>> +			/* enable the trickle charger and setup its resistor accordingly */
+>> +			val = RV3028_BACKUP_TCE | i;
+>>   		} else {
+>>   			dev_warn(&client->dev, "invalid trickle resistor value\n");
+>>   		}
+>>   	}
+>>   
+>> +	/* only update EEPROM if changes are necessary */
+>> +	if (val_old != val) {
+>> +		ret = rv3028_update_cfg(rv3028, RV3028_BACKUP, RV3028_BACKUP_TCE |
+>> +					RV3028_BACKUP_TCR_MASK, val);
+>> +		if (ret)
+>> +			return ret;
+>> +	}
+>> +
+>>   	ret = rtc_add_group(rv3028->rtc, &rv3028_attr_group);
+>>   	if (ret)
+>>   		return ret;
+>> -- 
+>> 2.25.1
+>>
+> 
