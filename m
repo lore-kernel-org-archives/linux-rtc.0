@@ -2,133 +2,107 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 889D8C83005
-	for <linux-rtc@archiver.kernel.org>; Wed,  7 Jun 2023 16:57:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C38D1C77B7A
+	for <linux-rtc@archiver.kernel.org>; Thu,  8 Jun 2023 02:51:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231356AbjFGQ5r (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 7 Jun 2023 12:57:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42288 "EHLO
+        id S233770AbjFHCvO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 7 Jun 2023 22:51:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbjFGQ5q (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Jun 2023 12:57:46 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C65D71BF8;
-        Wed,  7 Jun 2023 09:57:44 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="6.00,224,1681138800"; 
-   d="scan'208";a="166132834"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 08 Jun 2023 01:57:44 +0900
-Received: from localhost.localdomain (unknown [10.226.92.241])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 88D264020F1B;
-        Thu,  8 Jun 2023 01:57:40 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Wolfram Sang <wsa@kernel.org>,
+        with ESMTP id S233771AbjFHCvN (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 7 Jun 2023 22:51:13 -0400
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DACA526AD;
+        Wed,  7 Jun 2023 19:51:09 -0700 (PDT)
+Received: from loongson.cn (unknown [223.106.25.146])
+        by gateway (Coremail) with SMTP id _____8Cx+ekcQoFkB1oAAA--.1333S3;
+        Thu, 08 Jun 2023 10:51:08 +0800 (CST)
+Received: from localhost.localdomain (unknown [223.106.25.146])
+        by localhost.localdomain (Coremail) with SMTP id AQAAf8BxjcoYQoFkl1EGAA--.12466S2;
+        Thu, 08 Jun 2023 10:51:05 +0800 (CST)
+From:   Binbin Zhou <zhoubinbin@loongson.cn>
+To:     Binbin Zhou <zhoubb.aaron@gmail.com>,
+        Huacai Chen <chenhuacai@loongson.cn>,
         Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-i2c@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-clk@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v4] i2c: Add i2c_get_match_data()
-Date:   Wed,  7 Jun 2023 17:57:38 +0100
-Message-Id: <20230607165738.138357-1-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
+        linux-rtc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org
+Cc:     Huacai Chen <chenhuacai@kernel.org>,
+        loongson-kernel@lists.loongnix.cn, Xuerui Wang <kernel@xen0n.name>,
+        loongarch@lists.linux.dev,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org,
+        Keguang Zhang <keguang.zhang@gmail.com>,
+        zhao zhang <zhzhl555@gmail.com>,
+        Yang Ling <gnaygnil@gmail.com>,
+        Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH v2 0/2] New driver for the Loongson LS2X APB DMA Controller
+Date:   Thu,  8 Jun 2023 10:51:01 +0800
+Message-Id: <cover.1686192243.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.39.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf8BxjcoYQoFkl1EGAA--.12466S2
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBj9xXoWrtF4xXFWrCw1rZrWrGrWUJrc_yoWkArgE9F
+        yFqFZ7Arn8uF17CFWjvr4fXFy3ZF4jg34F9a4Utr1S9F1fJrn0gFyvyrZ3u3WIgFs8ur17
+        urW0qr1xA3W7JosvyTuYvTs0mTUanT9S1TB71UUUUbUqnTZGkaVYY2UrUUUUj1kv1TuYvT
+        s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+        cSsGvfJTRUUUbSxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+        vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+        w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+        W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+        6r4UJVWxJr1ln4kS14v26r126r1DM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12
+        xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q
+        6rW5McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+        vIr41lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_
+        Jr0_Gr1l4IxYO2xFxVAFwI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8Gjc
+        xK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0
+        cI8IcVAFwI0_JFI_Gr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8V
+        AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E
+        14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU2pVbDUUUU
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add i2c_get_match_data() to get match data for I2C, ACPI and
-DT-based matching, so that we can optimize the driver code.
+Hi all:
 
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
----
-v3->v4:
- * Added support for ACPI matching as well by replacing of_device_
-   get_match_data->device_get_match_data.
- * Removed Rb tag from Geert as there is change in logic.
-v2->v3:
- * Added support for getting match data for both I2C and DT-based
-   matching.
- * Added Rb tag from Geert and retained the Rb tag as change is trivial.
-v1->v2:
- * Dropped parameter const struct i2c_device_id *id and the helper function.
+This patchset introduces you to the LS2X apbdma controller.
 
-eg: The RTC pcf85063/isl1208 driver code can be optimized with this patch.
--       if (client->dev.of_node) {
--                config = of_device_get_match_data(&client->dev);
--               if (!config)
--                       return -ENODEV;
--       } else {
--               enum pcf85063_type type =
--                       i2c_match_id(pcf85063_ids, client)->driver_data;
--               if (type >= PCF85063_LAST_ID)
--                       return -ENODEV;
--               config = &pcf85063_cfg[type];
--       }
-+       config = i2c_get_match_data(client);
-+       if (!config)
-+               return -ENODEV;
+The Loongson LS2X APB DMA controller is available on Loongson-2K chips.
+It is a single-channel, configurable DMA controller IP core based on the
+AXI bus, whose main function is to integrate DMA functionality on a chip
+dedicated to carrying data between memory and peripherals in APB bus
+(e.g. nand).
 
-similar case exists for adding I2C match support for the below clock drivers
-along with already supported OF/ACPI based matching.
+Thanks.
 
-https://elixir.bootlin.com/linux/latest/source/drivers/clk/clk-renesas-pcie.c#L282
-https://elixir.bootlin.com/linux/latest/source/drivers/clk/clk-versaclock5.c#L956
-https://elixir.bootlin.com/linux/latest/source/drivers/clk/clk-versaclock7.c#L1111
----
- drivers/i2c/i2c-core-base.c | 20 ++++++++++++++++++++
- include/linux/i2c.h         |  2 ++
- 2 files changed, 22 insertions(+)
+----
+V2:
+patch(1/2)
+  - Minor changes from Conor;
+  - Add Reviewed-by tag.
+patch(2/2)
+  - Fix build errors from lkp@intel.com.
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index ae3af738b03f..040544b2ced4 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -114,6 +114,26 @@ const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- }
- EXPORT_SYMBOL_GPL(i2c_match_id);
- 
-+const void *i2c_get_match_data(const struct i2c_client *client)
-+{
-+	struct device_driver *drv = client->dev.driver;
-+	struct i2c_driver *driver = to_i2c_driver(drv);
-+	const struct i2c_device_id *match;
-+	const void *data;
-+
-+	data = device_get_match_data(&client->dev);
-+	if (!data) {
-+		match = i2c_match_id(driver->id_table, client);
-+		if (!match)
-+			return NULL;
-+
-+		data = (const void *)match->driver_data;
-+	}
-+
-+	return data;
-+}
-+EXPORT_SYMBOL(i2c_get_match_data);
-+
- static int i2c_device_match(struct device *dev, struct device_driver *drv)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 13a1ce38cb0c..3430cc2b05a6 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -367,6 +367,8 @@ struct i2c_adapter *i2c_verify_adapter(struct device *dev);
- const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
- 					 const struct i2c_client *client);
- 
-+const void *i2c_get_match_data(const struct i2c_client *client);
-+
- static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
- {
- 	struct device * const dev = kobj_to_dev(kobj);
+Link to V1:
+https://lore.kernel.org/dmaengine/cover.1685448898.git.zhoubinbin@loongson.cn/
+
+Binbin Zhou (2):
+  dt-bindings: dmaengine: Add Loongson LS2X APB DMA controller
+  dmaengine: ls2x-apb: new driver for the Loongson LS2X APB DMA
+    controller
+
+ .../bindings/dma/loongson,ls2x-apbdma.yaml    |  61 ++
+ drivers/dma/Kconfig                           |  14 +
+ drivers/dma/Makefile                          |   1 +
+ drivers/dma/ls2x-apb-dma.c                    | 644 ++++++++++++++++++
+ 4 files changed, 720 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/dma/loongson,ls2x-apbdma.yaml
+ create mode 100644 drivers/dma/ls2x-apb-dma.c
+
 -- 
-2.25.1
+2.39.3
 
