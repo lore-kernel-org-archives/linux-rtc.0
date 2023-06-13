@@ -2,50 +2,50 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 787C1C83003
-	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 13:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 386FBC7EE2E
+	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 13:01:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242474AbjFMNBK (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 13 Jun 2023 09:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54980 "EHLO
+        id S242468AbjFMNBJ (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 13 Jun 2023 09:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242367AbjFMNBI (ORCPT
+        with ESMTP id S242266AbjFMNBI (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Jun 2023 09:01:08 -0400
 Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79F451734
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:05 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4f640e48bc3so6699498e87.2
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D497184
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:03 -0700 (PDT)
+Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4f654d713c0so6292782e87.3
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google; t=1686661264; x=1689253264;
+        d=rasmusvillemoes.dk; s=google; t=1686661261; x=1689253261;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+xJuMWym61lAEVxXUiTue+H/o7LcrO2jH0iNPvdmqYU=;
-        b=LZ554JGK/zXIUQdGLcTIlzX3rHyujMe7o5jnsteRYfwba1zjXfbIijsAxJUTqfVdi6
-         LkYCRuULWSMbRWUw9Ba0J9CeyUj8cDhtVmPI3As/dDfgqrfLqBmetoUrRVNcUb1RtLpG
-         /uiAbehGWTIUscnTWW3bRyT7vhE+Eos+jxBm0=
+        bh=aS6Gi7g7eDCDNQDvlHC7Us6sqghWhijHfehYSOZqtEM=;
+        b=LisPTImd8VrrXfJGPqsS8XnzDrSA6+GXkT/WswM3qxx44bs7+F2raXKdHTDa6pYAc3
+         1oLcDAAUrQ0qA7e7p4mJbuC2fl2eiNutGi0osmxNQwXp5kgO7wIsy5T7DmpwfTZfWomE
+         C6rAwYmOSqJ2f0FAVrVrzeDq0qoth+0Q/ViRg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686661264; x=1689253264;
+        d=1e100.net; s=20221208; t=1686661261; x=1689253261;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+xJuMWym61lAEVxXUiTue+H/o7LcrO2jH0iNPvdmqYU=;
-        b=Pb5kOl6IiUWGXyGijs2tJo6tBBKznkXQwzdqcwDcaSymp/wrUhmybyouzsGstwxAYN
-         KmiBPoXGuPz7gJ0HHOTcm9cMyn6b/3TSTDlUyjcq82ivosWvolLkLcMfI1JN+LXjnR4V
-         5QjaoJkCW2HkgXLrLQxNFIlR3o0IY3kexgqkj4Dtqb9FQQFXDQh9i9nqKjOOz9V8uj2e
-         ENKqAQ7bdzR1DBR3Q9obdtZ1DwPsMZFK8zY0gZ9dSPKSs8c5QUonnP3MnKPUMTgOHKxc
-         iJ8cP2Yfty+oT8SwVEMNi8ZQQPdMwojGgbXihmxy75Ss6DzCGNqym/WKZnTnw0LPE4nd
-         l+ow==
-X-Gm-Message-State: AC+VfDw+33JZuzA3/jZO8tG/tbFm8k0F5GKlfHxRxkqxIDU/pEZVvezR
-        RhTju1i2NqRw4MpN46UH9fwV1U02GtMTNWsVLEI//Q==
-X-Google-Smtp-Source: ACHHUZ7tCa0q1BAkEP3y2uWu1//37M6R75CuHHWbDdaW0T2zY7TFjMq1RkFvolTE0S2Qe6AkLZjCmw==
-X-Received: by 2002:a05:6512:3130:b0:4ef:eda6:c14 with SMTP id p16-20020a056512313000b004efeda60c14mr6073313lfd.35.1686661263750;
-        Tue, 13 Jun 2023 06:01:03 -0700 (PDT)
+        bh=aS6Gi7g7eDCDNQDvlHC7Us6sqghWhijHfehYSOZqtEM=;
+        b=Hnf76jD17/LFWmFiPyUyLHrWupkMOKQXzFvyFkNDHHHhxjdVVCKoJQw3h7/om9Y3gh
+         ObavYJABqGYkWn2NLczZQklsxHqnzg5deANJGTk/WpcL4twsQG6g57G6JUGZ6eMcHo6F
+         Y+4VELsLk37kARb3oM44zxnAHNXcNp5nndDyNmb0N9dyXiLqs4Mgv0v2VGyl6ffN7v/3
+         aHx53l+5FKMaz0c+Jdf6FNqm530wzfZNz3M5C/FemGoWd3XBj9VG9YNRTPQIOEKOF6TU
+         Ve3rqYPvgeaINn472dyNg6FhXyXZIAKackn0DHAMkQ86MGLir6xSDPUiK2aK/Q2N+wy7
+         BuWg==
+X-Gm-Message-State: AC+VfDxhJJ/ojLn6e5IamiYHX4I1LSSyi+4byMfugXqZnpBpMjO9Mpiy
+        voTYGda4lJV/kP7/qKaPQR8wRH3l/n/Dg2t41h2j6A==
+X-Google-Smtp-Source: ACHHUZ5D8hhEycvaYqYLCw5A9vJVXA3pfSM6VAKOzOBZL/76RnyB3jOrmCwHd9j72oN5pqEffCvi5w==
+X-Received: by 2002:a19:791e:0:b0:4f6:29b3:8df3 with SMTP id u30-20020a19791e000000b004f629b38df3mr5823550lfc.20.1686661261174;
+        Tue, 13 Jun 2023 06:01:01 -0700 (PDT)
 Received: from prevas-ravi.prevas.se ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id u24-20020ac243d8000000b004f14ae5ded8sm1793786lfl.28.2023.06.13.06.01.02
+        by smtp.gmail.com with ESMTPSA id u24-20020ac243d8000000b004f14ae5ded8sm1793786lfl.28.2023.06.13.06.00.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jun 2023 06:01:03 -0700 (PDT)
+        Tue, 13 Jun 2023 06:01:00 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -55,93 +55,65 @@ Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Conor Dooley <conor+dt@kernel.org>, linux-rtc@vger.kernel.org,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/8] dt-bindings: rtc: Move isil,isl12022 from trivial-rtc.yaml into own schema file
-Date:   Tue, 13 Jun 2023 15:00:04 +0200
-Message-Id: <20230613130011.305589-3-linux@rasmusvillemoes.dk>
+Subject: [PATCH v2 0/8] rtc: isl12022: battery backup voltage and clock support
+Date:   Tue, 13 Jun 2023 15:00:02 +0200
+Message-Id: <20230613130011.305589-1-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20230613130011.305589-1-linux@rasmusvillemoes.dk>
+In-Reply-To: <20230612113059.247275-1-linux@rasmusvillemoes.dk>
 References: <20230612113059.247275-1-linux@rasmusvillemoes.dk>
- <20230613130011.305589-1-linux@rasmusvillemoes.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Move the isil,isl12022 RTC bindings from trivial-rtc.yaml into its own
-intersil,isl12022.yaml file, in preparation for adding more bindings.
+The current handling of the low-battery bits in the status register is
+wrong. The first six patches fix that and implement proper support for
+RTC_VL_READ.
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
----
- .../bindings/rtc/intersil,isl12022.yaml       | 45 +++++++++++++++++++
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |  2 -
- 2 files changed, 45 insertions(+), 2 deletions(-)
+The last two patches allow describing the isl12022 as a clock
+provider, for now just as a fixed 32kHz clock. They are also
+tangentially related to the backup battery, in that when the isl12022
+is not used as a clock source, one can save some power consumption in
+battery mode by setting the FOx bits to 0.
+
+v2 changes:
+
+Patch 2: add Alexandre as maintainer [Rob's bot].
+
+Patch 4: On arm64, <linux/bitfield.h> apparently ends up being
+included implicitly, but not so on arm [kernel test robot]. Use the
+more common post-increment in for loops [Andy].
+
+Patch 5: Drop RTC_VL_CLR, just do RTC_VL_READ [Alexandre].
+
+Patch 6: Set the TSE bit to trigger a manual detection, but drop the
+part reading the SR register and issuing a dev_warn() in case of low
+battery [Alexandre].
+
+Patch 7: (Hopefully) properly describe the "at most one of interrupts
+and #clock-cells" [thanks Krzysztof].
+
+Patch 8: Drop a useless dev_warn() in case clearing the FOx bits fails.
+
+
+Rasmus Villemoes (8):
+  rtc: isl12022: remove wrong warning for low battery level
+  dt-bindings: rtc: Move isil,isl12022 from trivial-rtc.yaml into own
+    schema file
+  dt-bindings: rtc: isl12022: add bindings for battery alarm trip levels
+  rtc: isl12022: add support for trip level DT bindings
+  rtc: isl12022: implement RTC_VL_READ ioctl
+  rtc: isl12022: trigger battery level detection during probe
+  dt-bindings: rtc: isl12022: add #clock-cells property
+  rtc: isl12022: implement support for the #clock-cells DT property
+
+ .../bindings/rtc/intersil,isl12022.yaml       |  69 ++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml  |   2 -
+ drivers/rtc/rtc-isl12022.c                    | 118 +++++++++++++++++-
+ 3 files changed, 181 insertions(+), 8 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
 
-diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
-new file mode 100644
-index 000000000000..7c1e638d657a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
-@@ -0,0 +1,45 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/intersil,isl12022.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Intersil ISL12022 Real-time Clock
-+
-+maintainers:
-+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
-+
-+allOf:
-+  - $ref: rtc.yaml#
-+
-+properties:
-+  compatible:
-+    const: isil,isl12022
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@6f {
-+            compatible = "isil,isl12022";
-+            reg = <0x6f>;
-+            interrupts-extended = <&gpio1 5 IRQ_TYPE_LEVEL_LOW>;
-+        };
-+    };
-+
-+...
-diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-index a3603e638c37..b062c64266a6 100644
---- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-@@ -45,8 +45,6 @@ properties:
-       - isil,isl1208
-       # Intersil ISL1218 Low Power RTC with Battery Backed SRAM
-       - isil,isl1218
--      # Intersil ISL12022 Real-time Clock
--      - isil,isl12022
-       # Loongson-2K Socs/LS7A bridge Real-time Clock
-       - loongson,ls2x-rtc
-       # Real Time Clock Module with I2C-Bus
 -- 
 2.37.2
 
