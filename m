@@ -2,50 +2,50 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6867BC88CB7
-	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 13:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F28C7EE29
+	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 13:01:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242367AbjFMNBM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 13 Jun 2023 09:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54974 "EHLO
+        id S242492AbjFMNBN (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 13 Jun 2023 09:01:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242339AbjFMNBI (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Jun 2023 09:01:08 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43CF41A1
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:04 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4f655293a38so6373803e87.0
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:04 -0700 (PDT)
+        with ESMTP id S242412AbjFMNBJ (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Jun 2023 09:01:09 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAF1198D
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:06 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4f654d713c0so6292904e87.3
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 06:01:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google; t=1686661262; x=1689253262;
+        d=rasmusvillemoes.dk; s=google; t=1686661265; x=1689253265;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jgVb0YJLMNEKVO6C16PIZb2dGiXFxsfavrt5+857HKY=;
-        b=AUEQfc0jRceHGb1w6P4Iboyfii+Xnq+70m0yflsKCMZERq9S1JJ7ZkrJzwjudlQH2V
-         uERCy/ImP9fgYGc9vwqJMo31t2u3QJyyRRaTNgF1TnENWMHyDNPXq77+1z4uDaFg0eJr
-         vkWox32OwQJI90VQZ9ruu7TSxJ1LFl8U+1eaA=
+        bh=5TLZqf6X/lOVmCq6dcL8fAW/4Qa2W1ozlpyLia0p++0=;
+        b=Cc8C3RlOC4doOxWhwCDaBv2LKpIC/95gqH2EsIhJxCZmXm6n004MXOc77OlF8ACOnN
+         pGrI7hefBn7Lkk3Rx68bnltrYEC2lzph4N1MRE/Gnmnjly/E9Yu8ikMsNjKRAY7ipBX2
+         hHYLwgxdfRz0yCu/5ZzTCFG1DZ0urz4I/2eq4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686661262; x=1689253262;
+        d=1e100.net; s=20221208; t=1686661265; x=1689253265;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jgVb0YJLMNEKVO6C16PIZb2dGiXFxsfavrt5+857HKY=;
-        b=Q9SscQHCtrouFvEnvY38Sz+3X373iRhQATnKCEfK5CtaD2EnoZQhBwB95Y9B8r8sls
-         GVHOVyQuOTSlD9s2d2H5IEhjhyva9TyFcPrNNDO1sxqN14GEDdHlkBV+sDn4mHXL/xl5
-         RahHZahuFXp8T9AKIQr1WJY3WkjYRK64hyTpuSghQCCkVklFnKtvXGZ+rl9QMFJ730L0
-         5Wj3jwAqqvC/A3RiZmvhBuikhv/tBDxz8CfimLPOl7AY2Tqjimg7XnMiIR0nd2OMOxby
-         vIhtoMyBVy6ObIMqjMzuOTc6ZlPsr5G64zc/+ZiwPHMgB0jLKIhJMgJKQbLQtaEuJPaZ
-         JhXQ==
-X-Gm-Message-State: AC+VfDxtwZBmVNcYexkpDBvB+TtGAuJoE5yixNKJsbRZGUyF7mnRQG2o
-        OjIDaCQIk5nHviTpFg+L86VAew==
-X-Google-Smtp-Source: ACHHUZ5Qo6a3Iodn4uCUyUlQCY7xwqhM3pAPGUfek4nLzEXdGpHm5bVODFL/XdUnGOPmsJOid9eWoQ==
-X-Received: by 2002:a19:6515:0:b0:4f3:8c0d:41c1 with SMTP id z21-20020a196515000000b004f38c0d41c1mr4769696lfb.64.1686661262496;
-        Tue, 13 Jun 2023 06:01:02 -0700 (PDT)
+        bh=5TLZqf6X/lOVmCq6dcL8fAW/4Qa2W1ozlpyLia0p++0=;
+        b=Q4g2hSD8waBVNvVGUiLEDW9goE8TTCT63H6CEfJrlPaVKP/qgQRYIA/kSAwMLZnmbc
+         jmb5dCQJTGtJBnoUi0FDEfUSoxe2RQSylannJzDy+wroZj6bc6bm60aXEO5lymWbOLDF
+         xSztnaKUHRkwenWXBMN64H7hdgB7Dzfn8f3e4IlUR9h1OiucbpKYOARetNURbYF6YLdo
+         N4EvONRuwTOhy3mLcyvSeXlPo9Yxw1RAsb0IS/RlgIoIJex3iCRuGaAdhu2Rmye+OqF7
+         Se7bMS9oXeLZd0u3irDiqyulT3UeESoxBRw3ll2FB4IrL9k0xgkjAO6/2CCg9HbeX/Jv
+         cBaA==
+X-Gm-Message-State: AC+VfDy+X55sQEKUp3Js735oUJlJa3MDK5aB0r+aelPydK9442CTwkBm
+        DmZe4BUGbWdgQqVm0sClSGhFHA==
+X-Google-Smtp-Source: ACHHUZ4a+7/6S+KwcMX6eDYPTBlFQ+4k9K0mqeAmugHESM4BCX5ZT18ky3mzRqeYaSY3kjrMe/qckg==
+X-Received: by 2002:a19:6d1c:0:b0:4f6:424c:4fa8 with SMTP id i28-20020a196d1c000000b004f6424c4fa8mr5216464lfc.17.1686661265065;
+        Tue, 13 Jun 2023 06:01:05 -0700 (PDT)
 Received: from prevas-ravi.prevas.se ([81.216.59.226])
-        by smtp.gmail.com with ESMTPSA id u24-20020ac243d8000000b004f14ae5ded8sm1793786lfl.28.2023.06.13.06.01.01
+        by smtp.gmail.com with ESMTPSA id u24-20020ac243d8000000b004f14ae5ded8sm1793786lfl.28.2023.06.13.06.01.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jun 2023 06:01:02 -0700 (PDT)
+        Tue, 13 Jun 2023 06:01:04 -0700 (PDT)
 From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -55,9 +55,9 @@ Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Conor Dooley <conor+dt@kernel.org>, linux-rtc@vger.kernel.org,
         Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/8] rtc: isl12022: remove wrong warning for low battery level
-Date:   Tue, 13 Jun 2023 15:00:03 +0200
-Message-Id: <20230613130011.305589-2-linux@rasmusvillemoes.dk>
+Subject: [PATCH v2 3/8] dt-bindings: rtc: isl12022: add bindings for battery alarm trip levels
+Date:   Tue, 13 Jun 2023 15:00:05 +0200
+Message-Id: <20230613130011.305589-4-linux@rasmusvillemoes.dk>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20230613130011.305589-1-linux@rasmusvillemoes.dk>
 References: <20230612113059.247275-1-linux@rasmusvillemoes.dk>
@@ -68,79 +68,63 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-There are multiple problems with this warning.
+The isl12022 has a built-in support for monitoring the voltage of the
+backup battery, and setting bits in the status register when that
+voltage drops below two predetermined levels (usually 85% and 75% of
+the nominal voltage). However, since it can operate at wide range of
+battery voltages (2.5V - 5.5V), one must configure those trip levels
+according to which battery is used on a given board.
 
-First of all, it triggers way too often, in fact nearly on every boot,
-because the SR_LBAT85/SR_LBAT75 bits have another meaning when in
-battery backup mode. Quoting from the data sheet:
+Add bindings for defining these two trip levels. While the register
+and bit names suggest that they should correspond to 85% and 75% of
+the nominal battery voltage, the data sheet also says
 
-  LOW BATTERY INDICATOR 85% BIT (LBAT85)
+  There are total of 7 levels that could be selected for the first
+  alarm. Any of the of levels could be selected as the first alarm
+  with no reference as to nominal Battery voltage level.
 
-  In Normal Mode (VDD), this bit indicates when the battery level has
-  dropped below the pre-selected trip levels. [...] The LBAT85
-  detection happens automatically once every minute when seconds
-  register reaches 59.
-
-  In Battery Mode (VBAT), this bit indicates the device has entered
-  into battery mode by polling once every 10 minutes. The LBAT85
-  detection happens automatically once when the minute register
-  reaches x9h or x0h minutes.
-
-Similar wording applies to the LBAT75 bit.
-
-This means that if the device is powered off for more than 10 minutes,
-the LBAT85 bit is guaranteed to be set. Upon power-on, unless we're
-close enough to the end of a minute and/or the boot is slow enough
-that the second register passes 59, the LBAT85 bit is still set when
-the kernel (or early userspace) reads the RTC to set the system's
-wallclock time.
-
-Another minor problem is with the bit logic. If the 75% level is
-reached, logically we're also below 85%, so both bits would most
-likely be set. So even if the battery is below 75%, the warning would
-still say "voltage dropped below 85%".
-
-A third problem is that the driver and current DT binding offer no way
-to indicate the nominal battery level and/or settings of the Battery
-Level Monitor Trip Bits. Since the default value of the VB85TP[2:0] and
-VB75TP[2:0] bits are 000, this means the actual setting of the
-LBAT85/LBAT75 bits in VDD mode doesn't happen until the battery is below
-2.125V/1.875V, which for a standard 3V battery is way too late.
-
-A fourth problem is emitting this warning from ->read_time:
-util-linux' hwclock will, in the absence of support for getting an
-interrupt when the seconds counter is updated, issue
-ioctl(RTC_RD_TIME) in a busy-loop until it sees a change in the
-seconds field. In that case, if the battery low bits are set (either
-genuinely, more than a minute after boot, due to the battery actually
-being low, or as above, bogusly shortly after boot), the kernel log is
-swamped with hundreds of identical warnings.
-
-Subsequent patches will add such bindings and driver support, and also
-proper support for RTC_VL_READ. For now, remove the broken warning.
+Hence this provides the hardware designer the ability to choose values
+based on the discharge characteristics of the battery chosen for the
+given product, rather than just having one battery-microvolt property
+and having the driver choose levels close to 0.85/0.75 times that.
 
 Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 ---
- drivers/rtc/rtc-isl12022.c | 6 ------
- 1 file changed, 6 deletions(-)
+ .../devicetree/bindings/rtc/intersil,isl12022.yaml | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
-index e68a79b5e00e..ebd66b835cef 100644
---- a/drivers/rtc/rtc-isl12022.c
-+++ b/drivers/rtc/rtc-isl12022.c
-@@ -141,12 +141,6 @@ static int isl12022_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	if (ret)
- 		return ret;
+diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
+index 7c1e638d657a..d5d3a687a34d 100644
+--- a/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
++++ b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
+@@ -22,6 +22,18 @@ properties:
+   interrupts:
+     maxItems: 1
  
--	if (buf[ISL12022_REG_SR] & (ISL12022_SR_LBAT85 | ISL12022_SR_LBAT75)) {
--		dev_warn(dev,
--			 "voltage dropped below %u%%, date and time is not reliable.\n",
--			 buf[ISL12022_REG_SR] & ISL12022_SR_LBAT85 ? 85 : 75);
--	}
--
- 	dev_dbg(dev,
- 		"raw data is sec=%02x, min=%02x, hr=%02x, mday=%02x, mon=%02x, year=%02x, wday=%02x, sr=%02x, int=%02x",
- 		buf[ISL12022_REG_SC],
++  isil,trip-level85-microvolt:
++    description: |
++      The battery voltage at which the first alarm should trigger
++      (normally ~85% of nominal V_BAT).
++    enum: [2125000, 2295000, 2550000, 2805000, 3060000, 4250000, 4675000]
++
++  isil,trip-level75-microvolt:
++    description: |
++      The battery voltage at which the second alarm should trigger
++      (normally ~75% of nominal V_BAT).
++    enum: [1875000, 2025000, 2250000, 2475000, 2700000, 3750000, 4125000]
++
+ required:
+   - compatible
+   - reg
+@@ -39,6 +51,8 @@ examples:
+             compatible = "isil,isl12022";
+             reg = <0x6f>;
+             interrupts-extended = <&gpio1 5 IRQ_TYPE_LEVEL_LOW>;
++            isil,trip-level85-microvolt = <2550000>;
++            isil,trip-level75-microvolt = <2250000>;
+         };
+     };
+ 
 -- 
 2.37.2
 
