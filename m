@@ -2,60 +2,60 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C478BEB64D0
-	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 19:09:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3067EB64D0
+	for <linux-rtc@archiver.kernel.org>; Tue, 13 Jun 2023 19:10:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238349AbjFMTJL (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 13 Jun 2023 15:09:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
+        id S229472AbjFMTK6 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 13 Jun 2023 15:10:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236458AbjFMTJJ (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Jun 2023 15:09:09 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 480E91BD7
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 12:09:06 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id 4fb4d7f45d1cf-5183101690cso6547245a12.0
-        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 12:09:06 -0700 (PDT)
+        with ESMTP id S234648AbjFMTK4 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 13 Jun 2023 15:10:56 -0400
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90AA41BE9
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 12:10:55 -0700 (PDT)
+Received: by mail-lf1-x134.google.com with SMTP id 2adb3069b0e04-4f004cc54f4so7401926e87.3
+        for <linux-rtc@vger.kernel.org>; Tue, 13 Jun 2023 12:10:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1686683345; x=1689275345;
+        d=linaro.org; s=google; t=1686683454; x=1689275454;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=MKlCZA3/0PkDlUywQkb1PhLDuUB0+9ELHymR4eA15rU=;
-        b=lZ1wJxBDp4pcSXNcp8cWxLTeTK+HfrIKZf+m6Da9S4dJxZnFROIxyPWK29t5lg1uIz
-         f1vRtdGpZwRVf763rgTVMVwR52eCt803s6ILFw2sgIwPUWkL73MljIkpr4sheWylcuRy
-         IdJCUShTOt/IM3ybMAIoedKwvM1U2UAUzAByDo40cgdBapXMYB33FM8PLgrfRI7mCy3G
-         i1kcpoccvYIFngDig6XYaxjmxrD3eM2eiDq0BOxzXbr3Q7AGJ/44syvx/knQZz6NUWv5
-         Ru5Sc4OsHz5xRVMvUd9RxoIXp+VA99Mg8ZtC+zGhpZ10wgU6JWA4QDHTWWzWtgq2dNae
-         r2Dg==
+        bh=0bsthYoTMoxKvhCTREZdV1Kid7Fcy+tC3T2OnmSeiNw=;
+        b=GD+dsWXhc4Jx4h5q1rLFVbaICNav2yheoYx+hViDBrl+DYy6sh22S+/NJAGlO862nj
+         ra1TFSwxC9DtpUR/p37d2Xr45DWefo+F5OlEq05Esb8K/f0K2uT00il8AC87oD4IfgEM
+         +mtCFS5e6/pM9m+nt7QSVyM9a5jTQKjtkeD5m38D5OLuefXBHwAxcnIrCI66C/Uyg4ii
+         K/Ql5mHMk9H2KQTmCpL4zLsaXkL1emJZfChO+GveeBYvH7Dvjzz1+3tknlbyWqB3PQIp
+         yjZCkBQoxYoA9q6L8Lf0RPuTWePxStd3mjVAlHSsqIhd3Pss00hiiNIx8A+AdzhMOJNY
+         gEpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686683345; x=1689275345;
+        d=1e100.net; s=20221208; t=1686683454; x=1689275454;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MKlCZA3/0PkDlUywQkb1PhLDuUB0+9ELHymR4eA15rU=;
-        b=gAB7NMnzuM42h/x/YTLGxelN2KxHyTN+umIK19gsJxdQhTK97eNysK6Q9vp/Lt6znJ
-         /x3p3Rb8YY+An01LeOa7MN6km/RszHgHYnHQ3HSViOq6kkKZ8fFULWbVv+ZUFbYASGYj
-         k0fvboPEWxLREJPfXJA0RjnEC3Zg6caENlj/Nfkp1uQjfsxAAPkR/DfDPGwm+UQJSIxh
-         grYpKooCJXI7f4EPh/BKvyF3YIJH5qvk43vheJOqTEeQFp2Lw903GtNht/iA/FyNoGhK
-         R36CeAG0wtxYMjrKP5AGpDWlrgLFInczj0s+10O34wsy0VnW/JHbI16nigoTpwD7Cvg8
-         bg3g==
-X-Gm-Message-State: AC+VfDzTVBFAf3wBHmA+rX8/86TbY29+AbyU7bofoOdQHUKT8hNhgGr1
-        Gy1IbajVEihz7EvaNfaZ69EPiA==
-X-Google-Smtp-Source: ACHHUZ4yc/iBIzssqHOIK2gvJxevALXcV3FSbVA9Not+FCwtqKOBEB2uVioxt8Oj1PA/XRY9ZE8rTg==
-X-Received: by 2002:a05:6402:2691:b0:514:9e81:6185 with SMTP id w17-20020a056402269100b005149e816185mr9449038edd.16.1686683344773;
-        Tue, 13 Jun 2023 12:09:04 -0700 (PDT)
+        bh=0bsthYoTMoxKvhCTREZdV1Kid7Fcy+tC3T2OnmSeiNw=;
+        b=YiZjycuVeNRTY4frwdyx5Bb8qKr5C0yNGNKght5mcZ9vHFYn4Zf1x3t+DaPmMROzjT
+         HItze9VEmx9ngp7Dt/VAusmZ7vdSe7gsMqw9FgXgtxqENyJKQdMPI7k9HhaXLIolJKBu
+         MLr3PEN4cCc9+lWkgNp3s6thr3bGnBkwyWZPARIQa4PjJLBr5GAuse8C0IlZx4Yxvaey
+         WRzTkdp4BuYO0EFbRvtpvcIRbxGBCwinWCpdbr2trh++Q1tNYPZ4WVfb6rnOUXrr6yuq
+         k2Tw0fcaiTS7hwt30/aaRqIpzUr825HIcWwob/B7kEPHBQa+F0gYss6Ljlao0fIkMhtv
+         rc9Q==
+X-Gm-Message-State: AC+VfDwkC25k2Y/KqWB3lr/lzOyxf4J9Px3D7xOzBvewRBbDb+DmN/8d
+        dVRo3SXqgPLc6RHIwnlyd1voAw==
+X-Google-Smtp-Source: ACHHUZ5OMU9IQGCMZ6AHR8ezt2PQkmNVD/i8Q4phlBfYM0zoCZUE85NqI4RSCWrszKbuQ+cbdZbc4A==
+X-Received: by 2002:ac2:5f87:0:b0:4f6:4d92:9ffb with SMTP id r7-20020ac25f87000000b004f64d929ffbmr6606096lfe.21.1686683453771;
+        Tue, 13 Jun 2023 12:10:53 -0700 (PDT)
 Received: from [192.168.1.20] ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id j25-20020aa7c0d9000000b005148f0e8568sm6820301edp.39.2023.06.13.12.09.03
+        by smtp.gmail.com with ESMTPSA id b8-20020aa7cd08000000b005187af2dbe3sm588947edw.6.2023.06.13.12.10.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 Jun 2023 12:09:04 -0700 (PDT)
-Message-ID: <0600a505-d1bf-f4be-57ef-51d34c77501e@linaro.org>
-Date:   Tue, 13 Jun 2023 21:09:02 +0200
+        Tue, 13 Jun 2023 12:10:53 -0700 (PDT)
+Message-ID: <208d06d1-58e3-748e-de28-075dc0cd28de@linaro.org>
+Date:   Tue, 13 Jun 2023 21:10:51 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.12.0
-Subject: Re: [PATCH v2 3/8] dt-bindings: rtc: isl12022: add bindings for
- battery alarm trip levels
+Subject: Re: [PATCH v2 7/8] dt-bindings: rtc: isl12022: add #clock-cells
+ property
 Content-Language: en-US
 To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Alessandro Zummo <a.zummo@towertech.it>,
@@ -67,9 +67,9 @@ Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-kernel@vger.kernel.org
 References: <20230612113059.247275-1-linux@rasmusvillemoes.dk>
  <20230613130011.305589-1-linux@rasmusvillemoes.dk>
- <20230613130011.305589-4-linux@rasmusvillemoes.dk>
+ <20230613130011.305589-8-linux@rasmusvillemoes.dk>
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230613130011.305589-4-linux@rasmusvillemoes.dk>
+In-Reply-To: <20230613130011.305589-8-linux@rasmusvillemoes.dk>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -77,48 +77,33 @@ List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
 On 13/06/2023 15:00, Rasmus Villemoes wrote:
-> The isl12022 has a built-in support for monitoring the voltage of the
-> backup battery, and setting bits in the status register when that
-> voltage drops below two predetermined levels (usually 85% and 75% of
-> the nominal voltage). However, since it can operate at wide range of
-> battery voltages (2.5V - 5.5V), one must configure those trip levels
-> according to which battery is used on a given board.
-> 
-> Add bindings for defining these two trip levels. While the register
-> and bit names suggest that they should correspond to 85% and 75% of
-> the nominal battery voltage, the data sheet also says
-> 
->   There are total of 7 levels that could be selected for the first
->   alarm. Any of the of levels could be selected as the first alarm
->   with no reference as to nominal Battery voltage level.
-> 
-> Hence this provides the hardware designer the ability to choose values
-> based on the discharge characteristics of the battery chosen for the
-> given product, rather than just having one battery-microvolt property
-> and having the driver choose levels close to 0.85/0.75 times that.
+> The isl12022 has a dual-purpose irq/f_out pin, which can either be
+> used as an interrupt or clock output.
 > 
 > Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 > ---
->  .../devicetree/bindings/rtc/intersil,isl12022.yaml | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
+>  .../devicetree/bindings/rtc/intersil,isl12022.yaml     | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 > 
 > diff --git a/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
-> index 7c1e638d657a..d5d3a687a34d 100644
+> index d5d3a687a34d..a9ef68b5fdcd 100644
 > --- a/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
 > +++ b/Documentation/devicetree/bindings/rtc/intersil,isl12022.yaml
-> @@ -22,6 +22,18 @@ properties:
->    interrupts:
->      maxItems: 1
+> @@ -11,6 +11,13 @@ maintainers:
 >  
-> +  isil,trip-level85-microvolt:
+>  allOf:
+>    - $ref: rtc.yaml#
+> +  # If #clock-cells is present, interrupts must not be present
+> +  - if:
+> +      required:
+> +        - '#clock-cells'
+> +    then:
+> +      properties:
+> +        interrupts: false
 
-Why encoding level85 in the property name? Your commit msg (datasheet)
-suggests this is quite flexible, so why it cannot be just list of two
-trip levels - for first and second interrupt?
-
-> +    description: |
-
-Do not need '|' unless you need to preserve formatting.
+Entire allOf block should be like in example-schema, so before
+unevaluatedProperties. Please put it in correct place in your first
+patch so here it does not have to be moved.
 
 Best regards,
 Krzysztof
