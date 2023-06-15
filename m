@@ -2,44 +2,44 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C9BDEB64D9
-	for <linux-rtc@archiver.kernel.org>; Thu, 15 Jun 2023 09:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 452A7EB64DB
+	for <linux-rtc@archiver.kernel.org>; Thu, 15 Jun 2023 09:32:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244884AbjFOJcj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 15 Jun 2023 05:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34402 "EHLO
+        id S245112AbjFOJck (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 15 Jun 2023 05:32:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234714AbjFOJch (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Jun 2023 05:32:37 -0400
+        with ESMTP id S240097AbjFOJci (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 15 Jun 2023 05:32:38 -0400
 Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD2326AA;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E732683;
         Thu, 15 Jun 2023 02:32:36 -0700 (PDT)
-Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35F8I2Et009956;
-        Thu, 15 Jun 2023 11:32:21 +0200
+Received: from pps.filterd (m0241204.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35F8YpBa021622;
+        Thu, 15 Jun 2023 11:32:23 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=selector1;
- bh=7FTvGFOInZeY6DQoM9GEo1BZzNU9jNs0DHdmg607YF4=;
- b=qME7t9rpEE4303bvZoAbFXYZETQhqt3DN7XsWVgXTkasE71XsacSUGPg+3hJE+ZiTRJk
- 9+EuJmCmskQvzB2YNOT1/HicbCmgSIFBBY0XMMMulR/KELxqFmYEF/gz2+rQFjEJpp/y
- vBao6xoe/OCnSqe7ifadgLH9bHBA34HIqnEaHQpoG7NNROTAWc/Afm18Qj/fY5mwif7k
- xF+NsB98MBYb51e9kGYv6cibAsPl7ROZ5oohAGh1WFSIzC6HqUN+TJlrkgRMMcZzJexD
- cVRnqaOlpPYoGDT5tTNyO/GqFxoETVrtJOWsnP0sGSniHncvPC1xkhcimh3YCXbIXMC/ Kg== 
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=selector1;
+ bh=3uBLJmxq5VVWC2o5xkCW/MuK8POUJa1lY65SLOrbAlI=;
+ b=cVtd5PJjhGLfmF4RwGm+bP1LzN007yc/3l6k9Ad4UD0tlSxgBDnOniSQTPbM9gKQ0mH4
+ 05m34vL7As4a8I0I4ivY5z3Irgru2n7k9pwnxzztngJD6UgLRHAhPdPDsgYWuCQEc8y4
+ ZlCnhZcv5PB5UO3roTqkSyh1TLgbJpsJuSsw0oomyBwU6chgQBGYcpWbLrACPnzgOrr+
+ ncMjNT9SXEkhdi7Gt5g3wP0HaRcq7+/ZPNZewLvSgeqTmXPluL1KPNGzI47g/7FRACgF
+ QrkKiuwPulr5/0D7x1hVLOk+xhqK56f+Y3xPx/lkpsOOGoXlXHlIpLZDmIjJANToBoLh cA== 
 Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3r7s1maxqa-1
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3r7y8sge46-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 15 Jun 2023 11:32:21 +0200
+        Thu, 15 Jun 2023 11:32:23 +0200
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id E8D0110002A;
-        Thu, 15 Jun 2023 11:32:20 +0200 (CEST)
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id E441810002A;
+        Thu, 15 Jun 2023 11:32:22 +0200 (CEST)
 Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id B712521A91B;
-        Thu, 15 Jun 2023 11:32:20 +0200 (CEST)
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id DCD6421A91B;
+        Thu, 15 Jun 2023 11:32:22 +0200 (CEST)
 Received: from localhost (10.252.8.64) by SHFDAG1NODE1.st.com (10.75.129.69)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Thu, 15 Jun
- 2023 11:32:20 +0200
+ 2023 11:32:22 +0200
 From:   Valentin Caron <valentin.caron@foss.st.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -52,10 +52,12 @@ CC:     Alexandre Torgue <alexandre.torgue@foss.st.com>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         Valentin Caron <valentin.caron@foss.st.com>
-Subject: [PATCH 0/7] rtc: stm32: multiple bug fixes and improvements
-Date:   Thu, 15 Jun 2023 11:27:46 +0200
-Message-ID: <20230615092753.323844-1-valentin.caron@foss.st.com>
+Subject: [PATCH 2/7] rtc: stm32: don't stop time counter if not needed
+Date:   Thu, 15 Jun 2023 11:27:48 +0200
+Message-ID: <20230615092753.323844-3-valentin.caron@foss.st.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230615092753.323844-1-valentin.caron@foss.st.com>
+References: <20230615092753.323844-1-valentin.caron@foss.st.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -69,34 +71,79 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This series implements some bug fixes for theses issues:
-- typo issues
-- register read sequence issue
-- irq during pm callbacks issue
+From: Antonio Borneo <antonio.borneo@foss.st.com>
 
-This series implements also some improvements:
-- don't switch to INIT mode uselessly
-- improve error printing during probe
-- improve rtc precision on stm32mp1
+RTC counters are stopped when INIT bit in ISR register is set and
+start counting from the (eventual) new value when INIT is reset.
 
-Antonio Borneo (2):
-  rtc: stm32: use the proper register sequence to read date/time
-  rtc: stm32: don't stop time counter if not needed
+In stm32_rtc_init(), called during probe, the INIT bit is set to
+program the prescaler and the 24h mode. This halts the RTC counter
+at each probe tentative causing the RTC time to loose from 0.3s to
+0.8s at each kernel boot.
+If the RTC is battery powered, both prescaler value and 24h mode
+are kept during power cycle and there is no need to program them
+again.
 
-Christophe Guibout (1):
-  rtc: stm32: improve rtc precision
+Check if the desired prescaler value and the 24h mode are already
+programmed, then skip reprogramming them to avoid halting the time
+counter.
 
-Gabriel Fernandez (1):
-  rtc: stm32: change PM callbacks to "_noirq()"
+Signed-off-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+---
+ drivers/rtc/rtc-stm32.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-Valentin Caron (3):
-  rtc: stm32: don't print an error on probe deferral
-  rtc: stm32: fix unnecessary parentheses
-  rtc: stm32: fix issues of stm32_rtc_valid_alrm function
-
- drivers/rtc/rtc-stm32.c | 138 +++++++++++++++++++++++++---------------
- 1 file changed, 85 insertions(+), 53 deletions(-)
-
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index abb77ad774a1..bd7a59a07537 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -628,7 +628,7 @@ static int stm32_rtc_init(struct platform_device *pdev,
+ 	const struct stm32_rtc_registers *regs = &rtc->data->regs;
+ 	unsigned int prer, pred_a, pred_s, pred_a_max, pred_s_max, cr;
+ 	unsigned int rate;
+-	int ret = 0;
++	int ret;
+ 
+ 	rate = clk_get_rate(rtc->rtc_ck);
+ 
+@@ -656,6 +656,20 @@ static int stm32_rtc_init(struct platform_device *pdev,
+ 			 "fast" : "slow");
+ 	}
+ 
++	cr = readl_relaxed(rtc->base + regs->cr);
++
++	prer = readl_relaxed(rtc->base + regs->prer);
++	prer &= STM32_RTC_PRER_PRED_S | STM32_RTC_PRER_PRED_A;
++
++	pred_s = (pred_s << STM32_RTC_PRER_PRED_S_SHIFT) &
++		 STM32_RTC_PRER_PRED_S;
++	pred_a = (pred_a << STM32_RTC_PRER_PRED_A_SHIFT) &
++		 STM32_RTC_PRER_PRED_A;
++
++	/* quit if there is nothing to initialize */
++	if ((cr & STM32_RTC_CR_FMT) == 0 && prer == (pred_s | pred_a))
++		return 0;
++
+ 	stm32_rtc_wpr_unlock(rtc);
+ 
+ 	ret = stm32_rtc_enter_init_mode(rtc);
+@@ -665,13 +679,10 @@ static int stm32_rtc_init(struct platform_device *pdev,
+ 		goto end;
+ 	}
+ 
+-	prer = (pred_s << STM32_RTC_PRER_PRED_S_SHIFT) & STM32_RTC_PRER_PRED_S;
+-	writel_relaxed(prer, rtc->base + regs->prer);
+-	prer |= (pred_a << STM32_RTC_PRER_PRED_A_SHIFT) & STM32_RTC_PRER_PRED_A;
+-	writel_relaxed(prer, rtc->base + regs->prer);
++	writel_relaxed(pred_s, rtc->base + regs->prer);
++	writel_relaxed(pred_a | pred_s, rtc->base + regs->prer);
+ 
+ 	/* Force 24h time format */
+-	cr = readl_relaxed(rtc->base + regs->cr);
+ 	cr &= ~STM32_RTC_CR_FMT;
+ 	writel_relaxed(cr, rtc->base + regs->cr);
+ 
 -- 
 2.25.1
 
