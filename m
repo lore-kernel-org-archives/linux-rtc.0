@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E914C001DD
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jun 2023 14:58:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F04DCEB64DC
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jun 2023 14:58:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232066AbjFVO6R (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Jun 2023 10:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34892 "EHLO
+        id S231980AbjFVO6T (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Jun 2023 10:58:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232034AbjFVO6P (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2023 10:58:15 -0400
+        with ESMTP id S232055AbjFVO6Q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2023 10:58:16 -0400
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C631BF9;
-        Thu, 22 Jun 2023 07:58:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8541171C;
+        Thu, 22 Jun 2023 07:58:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
         ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
         In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
         Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
         Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
         List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=PHAQXj72YwnlygCv+bURlekJBj3OCPKU5CLFZlp4W1g=; b=sFY6YOpAcf2in17XA6cp4cTBa0
-        /6faN1EVK4Qm2grpbsXqxh4JpUGR7JyPKkMLeEfWzU77dLdwWvN5WLG48NcndIPO/oKET+F7IiKMh
-        KrMjNhX00BesYK4i0hRQJYwMWseG3tZN1av8N+BzhTbSGkRGZ49BdZrlbk9x0cLxknsA=;
+        bh=MFAeS1fpgJDPWywkckQ2YwMSJRB/NE9brhzP8O3y2c4=; b=uXFLZwLKu37ClM3jbrXGm7skz0
+        4KZMsdikjmERMIlw9zeFcDR1pjsTT7V0wm/QS4mnwTO7D7pkQbZjz6pNFOsKcoAvIVD2AT85eayHH
+        VmPAkd48sfOh000UeRhJhaFRPgxvdKnkisMp1SNCrjB+fOMmiCirEvB3RUchjeepN9V8=;
 Received: from modemcable061.19-161-184.mc.videotron.ca ([184.161.19.61]:55382 helo=localhost.localdomain)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1qCLlA-0002fr-60; Thu, 22 Jun 2023 10:58:08 -0400
+        id 1qCLlC-0002fr-Nj; Thu, 22 Jun 2023 10:58:11 -0400
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
         robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
@@ -34,8 +34,8 @@ To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, hugo@hugovil.com,
         Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Date:   Thu, 22 Jun 2023 10:57:47 -0400
-Message-Id: <20230622145800.2442116-5-hugo@hugovil.com>
+Date:   Thu, 22 Jun 2023 10:57:49 -0400
+Message-Id: <20230622145800.2442116-7-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230622145800.2442116-1-hugo@hugovil.com>
 References: <20230622145800.2442116-1-hugo@hugovil.com>
@@ -43,7 +43,7 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 184.161.19.61
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v4 04/17] rtc: pcf2127: remove superfluous comments
+Subject: [PATCH v4 06/17] rtc: pcf2127: adapt for time/date registers at any offset
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -52,29 +52,71 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Noted while reviewing new PCF2131 driver.
+This will simplify the implementation of new variants into this driver.
+
+Some variants (PCF2131) have a 100th seconds register. This register is
+currently not supported in this driver.
 
 Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf2127.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 443c9544f575..b10878a9224c 100644
+index 61918d7dc7a5..0b9110b936f0 100644
 --- a/drivers/rtc/rtc-pcf2127.c
 +++ b/drivers/rtc/rtc-pcf2127.c
-@@ -137,10 +137,10 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
+@@ -44,7 +44,7 @@
+ #define PCF2127_BIT_CTRL3_BF			BIT(3)
+ #define PCF2127_BIT_CTRL3_BTSE			BIT(4)
+ /* Time and date registers */
+-#define PCF2127_REG_SC			0x03
++#define PCF2127_REG_TIME_BASE		0x03
+ #define PCF2127_BIT_SC_OSF			BIT(7)
+ /* Alarm registers */
+ #define PCF2127_REG_ALARM_SC		0x0A
+@@ -101,6 +101,7 @@ struct pcf21xx_config {
+ 	int max_register;
+ 	unsigned int has_nvmem:1;
+ 	unsigned int has_bit_wd_ctl_cd0:1;
++	u8 reg_time_base; /* Time/date base register. */
+ };
  
- 	tm->tm_sec = bcd2bin(buf[0] & 0x7F);
- 	tm->tm_min = bcd2bin(buf[1] & 0x7F);
--	tm->tm_hour = bcd2bin(buf[2] & 0x3F); /* rtc hr 0-23 */
-+	tm->tm_hour = bcd2bin(buf[2] & 0x3F);
- 	tm->tm_mday = bcd2bin(buf[3] & 0x3F);
- 	tm->tm_wday = buf[4] & 0x07;
--	tm->tm_mon = bcd2bin(buf[5] & 0x1F) - 1; /* rtc mn 1-12 */
-+	tm->tm_mon = bcd2bin(buf[5] & 0x1F) - 1;
- 	tm->tm_year = bcd2bin(buf[6]);
- 	tm->tm_year += 100;
+ struct pcf2127 {
+@@ -127,8 +128,8 @@ static int pcf2127_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	 * Avoid reading CTRL2 register as it causes WD_VAL register
+ 	 * value to reset to 0 which means watchdog is stopped.
+ 	 */
+-	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_SC, buf,
+-			       sizeof(buf));
++	ret = regmap_bulk_read(pcf2127->regmap, pcf2127->cfg->reg_time_base,
++			       buf, sizeof(buf));
+ 	if (ret) {
+ 		dev_err(dev, "%s: read error\n", __func__);
+ 		return ret;
+@@ -194,7 +195,7 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[i++] = bin2bcd(tm->tm_year - 100);
+ 
+ 	/* write register's data */
+-	err = regmap_bulk_write(pcf2127->regmap, PCF2127_REG_SC, buf, i);
++	err = regmap_bulk_write(pcf2127->regmap, pcf2127->cfg->reg_time_base, buf, i);
+ 	if (err) {
+ 		dev_dbg(dev, "%s: err=%d", __func__, err);
+ 		return err;
+@@ -627,12 +628,14 @@ static struct pcf21xx_config pcf21xx_cfg[] = {
+ 		.max_register = 0x1d,
+ 		.has_nvmem = 1,
+ 		.has_bit_wd_ctl_cd0 = 1,
++		.reg_time_base = PCF2127_REG_TIME_BASE,
+ 	},
+ 	[PCF2129] = {
+ 		.type = PCF2129,
+ 		.max_register = 0x19,
+ 		.has_nvmem = 0,
+ 		.has_bit_wd_ctl_cd0 = 0,
++		.reg_time_base = PCF2127_REG_TIME_BASE,
+ 	},
+ };
  
 -- 
 2.30.2
