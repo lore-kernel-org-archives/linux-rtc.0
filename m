@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 497C5EB64D8
-	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jun 2023 14:58:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2007BEB64DB
+	for <linux-rtc@archiver.kernel.org>; Thu, 22 Jun 2023 14:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231823AbjFVO6O (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 22 Jun 2023 10:58:14 -0400
+        id S231655AbjFVO6P (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 22 Jun 2023 10:58:15 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231384AbjFVO6N (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2023 10:58:13 -0400
+        with ESMTP id S231799AbjFVO6O (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 22 Jun 2023 10:58:14 -0400
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97245E42;
-        Thu, 22 Jun 2023 07:58:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5401BD3;
+        Thu, 22 Jun 2023 07:58:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Cc:To
-        :From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date
-        :Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
-        List-Owner:List-Archive; bh=OdPMqDWgVDt0x793WxRc09L+unPTlnGwL75MUH9aCYo=; b=W
-        Np8UN7yYhJ+zqJkYdQB7NEibtid48PpIySKChx0CWnZsoKOMBdifWkF/F7NMyMH8p3ktKmUq3vDVB
-        2H0Q4KfPDlf9457nIE7TFqHeYTDGFpW2ixrW7E2dzRlwcBFgVC/7fT4SptKGYkxT8XhW39QG/ZeqM
-        nKvXhJX2ZbqOJ0wE=;
+        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
+        In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=kjlL749POLc458GlWLRNNri1NUsgCuh3v/YoFElLBtY=; b=G85cFQ3JOCgUBiDDwphMR0OAow
+        daaTLqjzSEE2ptl59o8LuXr+ymH3UF0ho84FXgIDyMf3J0QgBoaMKH4rTHvjjvlv5NOHofHaxSugb
+        HK32/1vgDrCZPTcWrnSYpMacayaUjdB7j5g96p+Va3LJOYkuEnF8S0SX6mfswlEMPS6I=;
 Received: from modemcable061.19-161-184.mc.videotron.ca ([184.161.19.61]:55382 helo=localhost.localdomain)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1qCLl5-0002fr-Dz; Thu, 22 Jun 2023 10:58:04 -0400
+        id 1qCLl8-0002fr-2v; Thu, 22 Jun 2023 10:58:06 -0400
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
         robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
@@ -34,14 +34,16 @@ To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, hugo@hugovil.com,
         Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Date:   Thu, 22 Jun 2023 10:57:43 -0400
-Message-Id: <20230622145800.2442116-1-hugo@hugovil.com>
+Date:   Thu, 22 Jun 2023 10:57:45 -0400
+Message-Id: <20230622145800.2442116-3-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230622145800.2442116-1-hugo@hugovil.com>
+References: <20230622145800.2442116-1-hugo@hugovil.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 184.161.19.61
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH v4 00/17] rtc: pcf2127: add PCF2131 driver
+Subject: [PATCH v4 02/17] rtc: pcf2127: improve timestamp reading performance
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,139 +52,83 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Hello,
-this patch series adds the driver for the PCF2131 real-time clock.
+Reading the 7 timetamp registers currently involves reading 25 registers
+solely to be able to print the content of the three control registers,
+in addition to the 7 timestamp registers. This print never occurs,
+unless the user enables dynamic debug in this driver or set
+CONFIG_RTC_DEBUG.
 
-This RTC is very similar in functionality to the PCF2127/29 with the
-following differences:
-  -supports two new control registers at offsets 4 and 5
-  -supports a new reset register
-  -supports 4 tamper detection functions instead of 1
-  -has no nvmem (like the PCF2129)
-  -has two output interrupt pins instead of one
-  -has 1/100th seconds capabilities (not supported in this driver)
-  -pcf2127 has watchdog clock sources: 1/60,   1, 64 and 4096Hz
-   pcf2131 has watchdog clock sources: 1/64, 1/4,  4 and   64Hz
-  -watchdog value register cannot be read after being set
+Reading the timestamp registers should consist of reading 7
+consecutive timestamp registers.
 
-Most of the register addresses are very different, although they still
-follow the same layout. For example, the time/date and tamper registers
-have a different base address, but the offsets are all the same.
-Consequently, the source code of the PCF2127 driver can be easily adapted
-to support this new device.
+This patch optimize the performance of reading the timestamp registers
+by reading 7 consecutive registers instead of 25, and dropping the
+print of the control registers.
 
-Patch 1 improves rtc_read_time() performance
+Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+---
+ drivers/rtc/rtc-pcf2127.c | 32 +++++++++++---------------------
+ 1 file changed, 11 insertions(+), 21 deletions(-)
 
-Patch 2 improve timestamp reading performance
-
-Patch 3 lowers error message severity
-
-Patch 4 remove superfluous comments.
-
-Patches 5 to 10 modify the existing pcf2127 driver to make it more generic
-and able to support multiple variants, like the PCF2131. This is done
-mostly by using offsets instead of absolute hardcoded register addresses.
-
-Patch 11 add actual support for the PCF2131.
-
-Patch 12 configures all interrupt sources to go through the INT A pin.
-
-Patch 13 adapt the time/date registers write sequence for PCF2131 (STOP and
-      CPR bits).
-
-Patch 14 add support for generic watchdog timing configuration.
-
-Patch 15 add a new flag to identify if device has read support for reading
-      watchdog register value.
-      Since the watchdog value register cannot be read on the PCF2131 after
-      being set, it seems that we cannot detect if watchdog timer was
-      started by bootloader. I am not sure what is the best way to handle
-      this situation, suggestions are welcomed.
-
-Patch 16 add UIE support for PCF2131
-
-Patch 17 add the dt-bindings for the PCF2131.
-
-I have tested the driver using a PCF2131-ARD evaluation board connected to
-a Variscite imx8mn NANO SOM evaluation board:
-  - Time get/set ok;
-  - Alarms get/set ok
-  - Timestamp 1 to 4 ok
-  - IRQ alarm ok
-  - Watchdog ok
-  - Also tested successfully with "RTC Driver Test Example" from
-    Documentation/rtc.txt
-
-I have also tested the driver on a custom PCF2129 adapter board connected to
-a Variscite imx8mn NANO SOM evaluation board.
-
-Thank you.
-
-Link: [v1] https://patchwork.ozlabs.org/project/rtc-linux/patch/20220125200009.900660-2-hugo@hugovil.com/
-Link: [v2] https://patchwork.ozlabs.org/project/rtc-linux/list/?series=285734
-Link: [v3] https://patchwork.ozlabs.org/project/rtc-linux/list/?series=332888
-
-Changes for V2:
-- In general, fix and improvements after I have tested on real hardware
-- Fix alarm interrupt A/B mask setting for PCF2131:
-  PCF2131_BIT_INT_AIE must be cleared, not set, to enable interrupt.
-- Remove low_reg validation: only check if TS interrupt flag is
-  defined, as low_reg is defined at address 0 for PCF2127/29.
-- Change PWRMNG value for PCF2131: default is different than PCF2127/29.
-- Adapt time/date registers write sequence for PCF2131 (STOP and CPR bits).
-- Map all interrupt sources to INT A pin
-- Read and validate PCF2131 device presence from RESET register
-- Adapt watchdog configuration for PCF2131
-
-Changes for V3:
-- Rebase for kernel v6.1
-
-Changes for V4:
-- Rebase for kernel v6.4-rc7
-- Add base-commit infos (git format-patch with --base= option)
-- Rename regs_td_base -> reg_time_base
-- Rename PCF2127_REG_TIME_DATE_BASE -> PCF2127_REG_TIME_BASE
-- Remove/update comments
-- Remove PCF2127_OFFSET_ALARM_* defines
-- Remove PCF2127_OFFSET_TD_* defines
-- Rename regs_base -> reg_base in struct pcf21xx_ts_config
-- Remove identity string changes to not break userspace
-- Explicitely set .inter_detect_bit to 0
-- Replace hardcoded bit values with BIT() macros
-- Remove reset register signature read
-- Remove patch to set PWRMNG bits
-- Rework to keep watchdog value store/computed inside the structure wdd
-  (struct watchdog_device) to be in seconds.
-- Rename confusing structure members
-- Create separate patch for optimization of timestamp and time reading.
-- Add UIE support for PCF2131
-
-Hugo Villeneuve (17):
-  rtc: pcf2127: improve rtc_read_time() performance
-  rtc: pcf2127: improve timestamp reading performance
-  rtc: pcf2127: lower message severity if setting time fails
-  rtc: pcf2127: remove superfluous comments
-  rtc: pcf2127: add variant-specific configuration structure
-  rtc: pcf2127: adapt for time/date registers at any offset
-  rtc: pcf2127: adapt for alarm registers at any offset
-  rtc: pcf2127: adapt for WD registers at any offset
-  rtc: pcf2127: adapt for CLKOUT register at any offset
-  rtc: pcf2127: add support for multiple TS functions
-  rtc: pcf2127: add support for PCF2131 RTC
-  rtc: pcf2127: add support for PCF2131 interrupts on output INT_A
-  rtc: pcf2127: adapt time/date registers write sequence for PCF2131
-  rtc: pcf2127: support generic watchdog timing configuration
-  rtc: pcf2127: add flag for watchdog register value read support
-  rtc: pcf2127: add UIE support for PCF2131
-  dt-bindings: rtc: pcf2127: add PCF2131
-
- .../devicetree/bindings/rtc/nxp,pcf2127.yaml  |   1 +
- drivers/rtc/Kconfig                           |   4 +-
- drivers/rtc/rtc-pcf2127.c                     | 874 ++++++++++++++----
- 3 files changed, 691 insertions(+), 188 deletions(-)
-
-
-base-commit: dad9774deaf1cf8e8f7483310dfb2690310193d2
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 475a627b2254..a913a5c82ebf 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -66,12 +66,6 @@
+ #define PCF2127_REG_TS_CTRL		0x12
+ #define PCF2127_BIT_TS_CTRL_TSOFF		BIT(6)
+ #define PCF2127_BIT_TS_CTRL_TSM			BIT(7)
+-#define PCF2127_REG_TS_SC		0x13
+-#define PCF2127_REG_TS_MN		0x14
+-#define PCF2127_REG_TS_HR		0x15
+-#define PCF2127_REG_TS_DM		0x16
+-#define PCF2127_REG_TS_MO		0x17
+-#define PCF2127_REG_TS_YR		0x18
+ /*
+  * RAM registers
+  * PCF2127 has 512 bytes general-purpose static RAM (SRAM) that is
+@@ -440,9 +434,9 @@ static int pcf2127_rtc_ts_read(struct device *dev, time64_t *ts)
+ 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+ 	struct rtc_time tm;
+ 	int ret;
+-	unsigned char data[25];
++	unsigned char data[7];
+ 
+-	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_CTRL1, data,
++	ret = regmap_bulk_read(pcf2127->regmap, PCF2127_REG_TS_CTRL, data,
+ 			       sizeof(data));
+ 	if (ret) {
+ 		dev_err(dev, "%s: read error ret=%d\n", __func__, ret);
+@@ -450,20 +444,16 @@ static int pcf2127_rtc_ts_read(struct device *dev, time64_t *ts)
+ 	}
+ 
+ 	dev_dbg(dev,
+-		"%s: raw data is cr1=%02x, cr2=%02x, cr3=%02x, ts_sc=%02x, ts_mn=%02x, ts_hr=%02x, ts_dm=%02x, ts_mo=%02x, ts_yr=%02x\n",
+-		__func__, data[PCF2127_REG_CTRL1], data[PCF2127_REG_CTRL2],
+-		data[PCF2127_REG_CTRL3], data[PCF2127_REG_TS_SC],
+-		data[PCF2127_REG_TS_MN], data[PCF2127_REG_TS_HR],
+-		data[PCF2127_REG_TS_DM], data[PCF2127_REG_TS_MO],
+-		data[PCF2127_REG_TS_YR]);
+-
+-	tm.tm_sec = bcd2bin(data[PCF2127_REG_TS_SC] & 0x7F);
+-	tm.tm_min = bcd2bin(data[PCF2127_REG_TS_MN] & 0x7F);
+-	tm.tm_hour = bcd2bin(data[PCF2127_REG_TS_HR] & 0x3F);
+-	tm.tm_mday = bcd2bin(data[PCF2127_REG_TS_DM] & 0x3F);
++		"%s: raw data is ts_sc=%02x, ts_mn=%02x, ts_hr=%02x, ts_dm=%02x, ts_mo=%02x, ts_yr=%02x\n",
++		__func__, data[1], data[2], data[3], data[4], data[5], data[6]);
++
++	tm.tm_sec = bcd2bin(data[1] & 0x7F);
++	tm.tm_min = bcd2bin(data[2] & 0x7F);
++	tm.tm_hour = bcd2bin(data[3] & 0x3F);
++	tm.tm_mday = bcd2bin(data[4] & 0x3F);
+ 	/* TS_MO register (month) value range: 1-12 */
+-	tm.tm_mon = bcd2bin(data[PCF2127_REG_TS_MO] & 0x1F) - 1;
+-	tm.tm_year = bcd2bin(data[PCF2127_REG_TS_YR]);
++	tm.tm_mon = bcd2bin(data[5] & 0x1F) - 1;
++	tm.tm_year = bcd2bin(data[6]);
+ 	if (tm.tm_year < 70)
+ 		tm.tm_year += 100; /* assume we are in 1970...2069 */
+ 
 -- 
 2.30.2
 
