@@ -2,145 +2,108 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AE80C001DB
-	for <linux-rtc@archiver.kernel.org>; Fri, 23 Jun 2023 14:10:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B96EC001DB
+	for <linux-rtc@archiver.kernel.org>; Fri, 23 Jun 2023 14:52:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231529AbjFWOKs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 23 Jun 2023 10:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44140 "EHLO
+        id S232330AbjFWOwB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 23 Jun 2023 10:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231880AbjFWOKn (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Jun 2023 10:10:43 -0400
-Received: from relmlie6.idc.renesas.com (relmlor2.renesas.com [210.160.252.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 99C31270A;
-        Fri, 23 Jun 2023 07:10:34 -0700 (PDT)
-X-IronPort-AV: E=Sophos;i="6.01,152,1684767600"; 
-   d="scan'208";a="168706047"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie6.idc.renesas.com with ESMTP; 23 Jun 2023 23:10:32 +0900
-Received: from localhost.localdomain (unknown [10.226.93.107])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 479D7427049D;
-        Fri, 23 Jun 2023 23:10:28 +0900 (JST)
-From:   Biju Das <biju.das.jz@bp.renesas.com>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Biju Das <biju.das.jz@bp.renesas.com>, linux-rtc@vger.kernel.org,
-        Trent Piepho <tpiepho@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH v7 08/10] rtc: isl1208: Drop enum isl1208_id and split isl1208_configs[]
-Date:   Fri, 23 Jun 2023 15:09:46 +0100
-Message-Id: <20230623140948.384762-9-biju.das.jz@bp.renesas.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230623140948.384762-1-biju.das.jz@bp.renesas.com>
-References: <20230623140948.384762-1-biju.das.jz@bp.renesas.com>
+        with ESMTP id S232307AbjFWOvz (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 23 Jun 2023 10:51:55 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1594E7E;
+        Fri, 23 Jun 2023 07:51:54 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id ffacd0b85a97d-307d20548adso737801f8f.0;
+        Fri, 23 Jun 2023 07:51:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1687531913; x=1690123913;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rJWtnTqZGQqiTeKl4r3aFL4RAd0yKamdEh9nm3JU/uE=;
+        b=nZcAJ+sOqOwPNZAQ60lFA97QCbjofCc+XbSeSieNhhuKrWMtiE/O020aJCaGZig5Lf
+         M+2Ra8MPpBVqUhcStWmEYd2ObUzA+kQ3K8H2ePAsYG1JWTf3WWXWaROYVC6t7QX+mx6J
+         ESspbYNZ8OxGO/MfZaT0ORXOyftuTisX0q5bz1doEqX176Xd3AyztjKHNHN63UimszRn
+         Dqv+xetGcZd2+R0LFeA2aONQHwXzUPMXk9dRWS8mqvQ8vpJvPrOKCvsRr9lGz/T5jW+G
+         bbfDKveX+aL7d/d/Okx6QglyYu1YT1lUbE8K9aKT4exUm3nUwLqWGufz9RjrDc1FYimv
+         EUrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687531913; x=1690123913;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rJWtnTqZGQqiTeKl4r3aFL4RAd0yKamdEh9nm3JU/uE=;
+        b=WYehHfDU/yBusayWkcf6YXa5LybZix2sh2aedojwRd6UTW49XKK3KM/R1odeuyRhiW
+         KVSNaUpOEbd+GAppbmuwVcLxCJv7YHDKBiC1C+2nNp2eQASghcc7YT5XGTcwOIRlzzMR
+         ih+jHVUyJeZkPcW5NOYK5gpRaATIGg9DBK7PxG921nwwZa1+8blKle1G+jW/3y5p8QuP
+         WckyEFqJOZWFMYq+w00HIYsuBobw4nl3xYPQuTkG3nBW8qoougT9Nc34CZXz1cLA47p4
+         xU7t/kfO1NM8ZvolWkuUtcd8ynw5VqjEMOh+s9PSOpalyx0LfVTHaV3b4I1wjfaLewYH
+         cTTg==
+X-Gm-Message-State: AC+VfDw1Yjl4MOZLfZQvSd/xwd3Ajzn4dEsLmgP0xEgm0frbRjFqSypG
+        C7fYJXqQZEj3yAAw3qgFCDY=
+X-Google-Smtp-Source: ACHHUZ4EBaf4UIgKOYCqelucvQ5eoSxiLNvK3UwYGIN9g04VxMMagZ6W8cf/YKjEZ8A8mLc9ODWWzg==
+X-Received: by 2002:a5d:5642:0:b0:311:13e6:6504 with SMTP id j2-20020a5d5642000000b0031113e66504mr14242204wrw.47.1687531913116;
+        Fri, 23 Jun 2023 07:51:53 -0700 (PDT)
+Received: from localhost (p200300e41f305300f22f74fffe1f3a53.dip0.t-ipconnect.de. [2003:e4:1f30:5300:f22f:74ff:fe1f:3a53])
+        by smtp.gmail.com with ESMTPSA id n11-20020a5d4c4b000000b003113ccbf388sm9844475wrt.13.2023.06.23.07.51.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Jun 2023 07:51:52 -0700 (PDT)
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Vinod Koul <vkoul@kernel.org>,
+        Kishon Vijay Abraham I <kishon@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Dipen Patel <dipenp@nvidia.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Dilip Kota <eswara.kota@linux.intel.com>,
+        linux-phy@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-pwm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-spi@vger.kernel.org, timestamp@lists.linux.dev,
+        linux-watchdog@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Oleksij Rempel <linux@rempel-privat.de>
+Subject: Re: (subset) [PATCH 0/7] dt-bindings: restrict node name suffixes
+Date:   Fri, 23 Jun 2023 16:51:36 +0200
+Message-ID: <168753171977.1191890.3520383079920452323.b4-ty@gmail.com>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230530144851.92059-1-krzysztof.kozlowski@linaro.org>
+References: <20230530144851.92059-1-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Drop enum isl1208_id and split the array isl1208_configs[] as individual
-variables, and make lines shorter by referring to e.g. &config_isl1219
-instead of &isl1208_configs[TYPE_ISL1219].
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-v6->v7:
- * No change.
-v5->v6:
- * No change.
-v4->v5:
- * Added Rb tag from Geert.
- * Replaced "unsigned long"->"kernel_ulong_t" in isl1208_id[].
-v4:
- * New patch
----
- drivers/rtc/rtc-isl1208.c | 56 +++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 23 deletions(-)
+On Tue, 30 May 2023 16:48:44 +0200, Krzysztof Kozlowski wrote:
+> Tree-wide cleanup of DTS node name suffixes "-N", e.g. "pwm-5", so we allow
+> only decimal numbers.  In few cases narrow the pattern to also disallow
+> multiple suffixes, e.g. "pwm-5-5".
+> 
+> No dependencies, can be applied by individual subsystems.
+> 
+> Cc: Tony Lindgren <tony@atomide.com>
+> Cc: Oleksij Rempel <o.rempel@pengutronix.de>
+> 
+> [...]
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index cefff1d863ac..42d2116d244d 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -68,41 +68,51 @@
- 
- static struct i2c_driver isl1208_driver;
- 
--/* ISL1208 various variants */
--enum isl1208_id {
--	TYPE_ISL1208 = 0,
--	TYPE_ISL1209,
--	TYPE_ISL1218,
--	TYPE_ISL1219,
--	ISL_LAST_ID
--};
--
- /* Chip capabilities table */
--static const struct isl1208_config {
-+struct isl1208_config {
- 	unsigned int	nvmem_length;
- 	unsigned	has_tamper:1;
- 	unsigned	has_timestamp:1;
--} isl1208_configs[] = {
--	[TYPE_ISL1208] = { 2, false, false },
--	[TYPE_ISL1209] = { 2, true,  false },
--	[TYPE_ISL1218] = { 8, false, false },
--	[TYPE_ISL1219] = { 2, true,  true },
-+};
-+
-+static const struct isl1208_config config_isl1208 = {
-+	.nvmem_length = 2,
-+	.has_tamper = false,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1209 = {
-+	.nvmem_length = 2,
-+	.has_tamper = true,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1218 = {
-+	.nvmem_length = 8,
-+	.has_tamper = false,
-+	.has_timestamp = false
-+};
-+
-+static const struct isl1208_config config_isl1219 = {
-+	.nvmem_length = 2,
-+	.has_tamper = true,
-+	.has_timestamp = true
- };
- 
- static const struct i2c_device_id isl1208_id[] = {
--	{ "isl1208", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1208] },
--	{ "isl1209", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1209] },
--	{ "isl1218", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1218] },
--	{ "isl1219", .driver_data = (kernel_ulong_t)&isl1208_configs[TYPE_ISL1219] },
-+	{ "isl1208", .driver_data = (kernel_ulong_t)&config_isl1208 },
-+	{ "isl1209", .driver_data = (kernel_ulong_t)&config_isl1209 },
-+	{ "isl1218", .driver_data = (kernel_ulong_t)&config_isl1218 },
-+	{ "isl1219", .driver_data = (kernel_ulong_t)&config_isl1219 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, isl1208_id);
- 
- static const __maybe_unused struct of_device_id isl1208_of_match[] = {
--	{ .compatible = "isil,isl1208", .data = &isl1208_configs[TYPE_ISL1208] },
--	{ .compatible = "isil,isl1209", .data = &isl1208_configs[TYPE_ISL1209] },
--	{ .compatible = "isil,isl1218", .data = &isl1208_configs[TYPE_ISL1218] },
--	{ .compatible = "isil,isl1219", .data = &isl1208_configs[TYPE_ISL1219] },
-+	{ .compatible = "isil,isl1208", .data = &config_isl1208 },
-+	{ .compatible = "isil,isl1209", .data = &config_isl1209 },
-+	{ .compatible = "isil,isl1218", .data = &config_isl1218 },
-+	{ .compatible = "isil,isl1219", .data = &config_isl1219 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, isl1208_of_match);
+Applied, thanks!
+
+[2/7] dt-bindings: pwm: restrict node name suffixes
+      commit: 05b743db9d8cc4e51b3eb77889d24ab9aa2bf169
+
+Best regards,
 -- 
-2.25.1
-
+Thierry Reding <thierry.reding@gmail.com>
