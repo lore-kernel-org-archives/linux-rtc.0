@@ -2,192 +2,146 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F069EB64DA
-	for <linux-rtc@archiver.kernel.org>; Wed,  5 Jul 2023 17:45:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30397EB64D9
+	for <linux-rtc@archiver.kernel.org>; Thu,  6 Jul 2023 05:13:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230513AbjGERpY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 5 Jul 2023 13:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58000 "EHLO
+        id S229476AbjGFFNr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 6 Jul 2023 01:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjGERpT (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 5 Jul 2023 13:45:19 -0400
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F320DE57;
-        Wed,  5 Jul 2023 10:45:12 -0700 (PDT)
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 365FXoSQ003080;
-        Wed, 5 Jul 2023 19:45:07 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=selector1;
- bh=dN1qCgWUTnSB2VT3boIvq2sG0C+LBCKFw0qc3azzqRY=;
- b=gAH7crBL89D6MvoM2xiqzMqdsWNxJGgo8RRNEUKl9YnXGV1F6GsL17Z/6ngm6cNw0Q7y
- dh1rH/CoL9Uas3OvYtodVOymKsGppUP5+x/FtdD+DxE7NOoC1ivoSFRjHzadqrdlAGgM
- 1LAcKXNISn/TlpfbMg+da9xUV6lfn7dS5KMw9MmffLMxBpFk8jroAMfG4DetwmCxTLml
- ynd2G1BkdCVaBGwWcgnIj2Vhpfr27rf6p0T5tEtJedQst2xTjJxRtAbx0NxAfocGteRM
- NzOAhZcyf4J9ZZRtJnvfUpjMsFPGr1GTi5r0wl/T/5SfQWGAbrjjWLTTrIi6z5H63cZC ww== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3rn8c9t538-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 05 Jul 2023 19:45:07 +0200
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 8F3F410005E;
-        Wed,  5 Jul 2023 19:45:06 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 87B66252254;
-        Wed,  5 Jul 2023 19:45:06 +0200 (CEST)
-Received: from localhost (10.201.20.168) by SHFDAG1NODE1.st.com (10.75.129.69)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Wed, 5 Jul
- 2023 19:45:06 +0200
-From:   Valentin Caron <valentin.caron@foss.st.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-CC:     Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Antonio Borneo <antonio.borneo@foss.st.com>,
-        Christophe Guibout <christophe.guibout@foss.st.com>,
-        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
-        <linux-rtc@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Valentin Caron <valentin.caron@foss.st.com>
-Subject: [PATCH v2 6/7] rtc: stm32: fix issues of stm32_rtc_valid_alrm function
-Date:   Wed, 5 Jul 2023 19:43:56 +0200
-Message-ID: <20230705174357.353616-7-valentin.caron@foss.st.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230705174357.353616-1-valentin.caron@foss.st.com>
-References: <20230705174357.353616-1-valentin.caron@foss.st.com>
+        with ESMTP id S229589AbjGFFNq (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 6 Jul 2023 01:13:46 -0400
+Received: from FRA01-PR2-obe.outbound.protection.outlook.com (mail-pr2fra01on2043.outbound.protection.outlook.com [40.107.12.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38219E1
+        for <linux-rtc@vger.kernel.org>; Wed,  5 Jul 2023 22:13:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DMFVOtHFIm7DLpwdqSEFwdfjVKVzqiAPNB8p3gc27ZAur77k0KnXGHkCm+JBCHRjwgVohKpAM7wGF2k46Pv/JVbtBFZxPpdVvTbdZbKsf/QgLjuwOpiVxWZVCRZ4OCK0vC03V7gjUWgWFhgPqKgD4E43vTDHpjrwi8AsqS7ev952Tos8/XT0wuSyRXT90yt1LSuQdaTnMPDwuF00/PR6O/LqzBBdN7aWlfuEEMyAMLJRzvJX38lHaNpVxKgw7k6rtWb+EjbyBbTT1fl3i8P1Gbai1o0lazAyNG55m/ZZrTJKCkiJdxkzYp0gAXHEBUtsxHORvzW84Z3QRAUghJ+Kbg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=DWwY7pAG9MLtfmb+sBB7+i1iGCGrLxjhmoFvvh0IMVQ=;
+ b=ScsgJ3M/0YTkg14NQ6J9Ja6XhC2MdbAhhfQfjIqezOR7zTQqM4NN74VceS4zAvPQt4Pkfc4EekqVHmBK+1gT9uxeDWZiMMG5wr5zEHnE2bl4VsABN6tLvLdFyKEfT9O6Sk8/TT+oD8Uwx59h5MJpHCcHIg9KbtICd9NFYnQsXJ1sfazqTCCCKYMtxW/P+3k0nivO/2BcSvR/nHtHEMls0Gst8ukOcDEOTBvZ1S7NP9TfLkPZW0EOHcliMGx6noKIog+rdgXnbu6Yf/67wN85n80oQsU4SLf2reRZHF9OQ5MW2jlHdODoZoSfy1voT3j0rQdO/UQTNQrKLc2jeEqUNA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=csgroup.eu; dmarc=pass action=none header.from=csgroup.eu;
+ dkim=pass header.d=csgroup.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=csgroup.eu;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DWwY7pAG9MLtfmb+sBB7+i1iGCGrLxjhmoFvvh0IMVQ=;
+ b=UzbgIuVdxU8jBSklYYQC9iAe+0LjUH+dl3aMoqxigHCTPt6hjBfNqzgqPgegPGHOn3aEQFpalqdBRdkrd4dU38YRWY08YC8R93G9Mionwfw5y01i796CgrPyVK0c8RuujleOSY33Yb7XWj0wc7Qmm83bU7B+WWIBdIcsot0Z8+FrGzxhPQAtfABproTvl6g/iDgVfamCKNgWkXt+wqZTTChzv1nB4+6G0y9gk8A1KdBcz5NMT6RTMgLoEJ53Y2S4zOLmcbZi0J5HRE6oiyN7XMS4Su/BrN9Xa0m0nYEcqkSG8iUOx6kkNDpTWY3QLmmvykLVPa80toVawOO2U/QmQg==
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
+ by MR1P264MB2083.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:11::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.17; Thu, 6 Jul
+ 2023 05:13:38 +0000
+Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::802b:33:561c:4217]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+ ([fe80::802b:33:561c:4217%4]) with mapi id 15.20.6565.016; Thu, 6 Jul 2023
+ 05:13:37 +0000
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Benjamin Gray <bgray@linux.ibm.com>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
+CC:     "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Subject: Re: [PATCH] rtc: Kconfig: select REGMAP for RTC_DRV_DS1307
+Thread-Topic: [PATCH] rtc: Kconfig: select REGMAP for RTC_DRV_DS1307
+Thread-Index: AQHZrtgK5cTbG97WIEibeUwAL5uQ7K+sM4sA
+Date:   Thu, 6 Jul 2023 05:13:37 +0000
+Message-ID: <4e94cb11-1f39-d631-fe0a-b945b301b77c@csgroup.eu>
+References: <20230705003024.1486757-1-bgray@linux.ibm.com>
+In-Reply-To: <20230705003024.1486757-1-bgray@linux.ibm.com>
+Accept-Language: fr-FR, en-US
+Content-Language: fr-FR
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=csgroup.eu;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MRZP264MB2988:EE_|MR1P264MB2083:EE_
+x-ms-office365-filtering-correlation-id: fca516e4-dd0d-46db-a0e3-08db7ddfc167
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: YCCIyFGE2ra4FpEca8VQqIeYWOrOaKKYvxSa2xaGTdSDhMm1ZDfQxSdD8eYbvlKjwI1gtdRHHptLKi08lqY1PiHNglAK91iyBZ+AuF1PRD/HkyI76yG00E49adKOItK7v6V4lyuoB+ejS8v+IIenpvMbGNBskEBwfpArFinkUN1kuoNY1OVKX1aP2qeyihD0SEgd5F6pYYVo355VbLK01H7Pyctf1U/kAGSdoEn33ZglW8iIVwCFBDh2gwSYUtk8JVWgxrWh4uwfH9/ZJx86QGShDoO9hlBhdhbGhsBlx9w9FjiAlJP7mihUmao/kUX8lAOygiSO8QGY6cxTsP6maKFN5ATwxFffdZuoiA6l75BOszaMZnZMpRtCXqXJT9t3vq0sh7c51yA3XiOm1EqYBOSptdRD6EDswl38dK/EijrrZcTmTCUdI6eI1o6PrxyEmYickVCoRmCS5Fc0gTtu54W/Gj/WBVQz+bjMqtmAadaGtkJRJkl5gY1R6Rj+9XSzojjFQavLVEnphn2LA6pwaUgX9YIWkj4/9+Xc3VDlQKF/Fcjrd/RSIk5uHHT/fDE60bnYq93m8oc30eOBjViivYAtGEXDeTS3RmVE+Rgj5H39cBFdu/KQPy7nQ2FiJDw1QKrc4/uKK26jrvSU7fjfB9VZ+UsqLSFNYfeVhl2YOr0SsYCHzFXbmRbdG2ISBvrP
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(376002)(39850400004)(366004)(396003)(136003)(451199021)(44832011)(5660300002)(8676002)(8936002)(41300700001)(316002)(2906002)(83380400001)(31686004)(122000001)(76116006)(6506007)(2616005)(4326008)(91956017)(66476007)(64756008)(66946007)(66446008)(66556008)(38100700002)(86362001)(186003)(6512007)(26005)(110136005)(478600001)(6486002)(31696002)(38070700005)(36756003)(71200400001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?UjRZa21XL3Y2Z3BxWjhaU2FXVHRONG0wYk82bml0YUlhZWxqY2kvRlQ2aFd4?=
+ =?utf-8?B?RVZvNUZWa3czTDExWTlqamVGVnRmbE0ybENiMmZ1RXhKMW1IUnQ5c1lLV0lB?=
+ =?utf-8?B?MCtONDhmeEtHTnFSZzd5OGh3SG5GUkNLZWtqeVdGUWlmOWI1UE5jTUdmNzJt?=
+ =?utf-8?B?eVI0ZFNJQWdVQjRnS2NmLzFod3dLS2ZyVHphRmhVS1U3aWpuUGZURmxZekNV?=
+ =?utf-8?B?SkxYTi92UGpTNXpXZmN5ZUc1UXU3S2NCSEVRU3dFNFJ0UkVrQlVOMVR1ekpV?=
+ =?utf-8?B?c05qUllDeERWY0h3WUltZ3dGM3VDdjEvZ2wxOGRaWDNBRG5GdUxWWDVYK3o4?=
+ =?utf-8?B?SmRqT09BdXhaMUNrelFCUzVHZkpLTXI2VkhNeUZDblVxY1hHYUlvTlY5ZVBF?=
+ =?utf-8?B?ekZoVGJWYXR2aGZEK3lDOU8wdlF2VXJvZHFPLzJhOGlTalRQUVk5czFtd3M0?=
+ =?utf-8?B?MEJuaEJNWEFmcEF3d05YNWR4L3JUSTRIQ3Z5ZjhPQUM4cnRpbE5PaGo4Nlg4?=
+ =?utf-8?B?QWNGdGlwWWYvcjlTZFBKdkIvYWIyRjZDdm1VNVlGR2Z2Y254bHdvaFdrbHBY?=
+ =?utf-8?B?d0c5dXZ0ZlEvRUhBd2NCbG56UWl1MTJ2TjQ0eHYxSVdxY2NCbG04Q08xOUxx?=
+ =?utf-8?B?ODJvdmg2Yk5uRlU3NnQzWldwWGhhc3FLaGFiTDB1TW44WWwwSEJOaFl4SkxR?=
+ =?utf-8?B?VWliQ0FmVytjMFFURGViN2ljZkJpZ2Zra0J5S01seEQzeklka29wWU43akF6?=
+ =?utf-8?B?TmI0RFlUNVh3NEZHREpkRkhkSDdJVDZVVG9JTExYUWlTZ3dLQXB6SzIrMGd0?=
+ =?utf-8?B?SGRDcmV4KzFHdkgzeEduTU1pVlRKTGszeTdlTkgxTWV6K1daZFMxQ1dLckZY?=
+ =?utf-8?B?MWFLUUFrUnNjNjZZZldWMHdvWDV4N3pUZmNhWU94SXFMZWF6MzFLTGpKUFdL?=
+ =?utf-8?B?dmVWWTdxRkVMenRvMDdTa2YvTU80cDBqRjZkRkxBeWVldkJIZGJxbmg1NGpM?=
+ =?utf-8?B?djJpejVnRi9CSHNhaExtTUFpTzc4R25BQURueEM0UWlXakhCRm5kVTJTdXZl?=
+ =?utf-8?B?ZklVV0x6YTM5cWxmcGhnYUhSbk8zY2RNMHdwT01aU2ZUcVJKUDUraTByR3NN?=
+ =?utf-8?B?c3A5cFNvT1VvZFg5TnRCSzk1M0VubFdreDBQQ2RmY01jQnpLVzhza1lHLzho?=
+ =?utf-8?B?U1ZXenFWTTc2VVppSHRnMWtUbWtNTThRN3ExeFozTFBtSGh6VHh1ZnVta1Mv?=
+ =?utf-8?B?MDBSRHZsMFp1cFliT0lIZ3JaZ21sdDEza1JXUk5QRDk5ZVY3UDBIdENDOVFJ?=
+ =?utf-8?B?TlFwNytPT0JSdjFlN2h4UW5MVE81V3NtNkYzWDBGbU15ekJ5SjRSZ2JqaE5S?=
+ =?utf-8?B?VVFkSGo4S2pxMkFZZDduMDFrNFVwb3g4WlBpRUNoZjBBcTkyaURGZ2l5MG5k?=
+ =?utf-8?B?eWlXbWVBOEMrM0NnVGRrZVJTZXUzTFlSVGZhOHlDM0txeWgvUGtna3ZjempK?=
+ =?utf-8?B?YjF5M2VFKzJsTWhBMFBIekxxVStNOE1iQm9BY0lQN1VEYmxSQXEwc2RibnNB?=
+ =?utf-8?B?OXBTSHJoZ3gwVUVZei96bTJpSVQvdXZsaS9icTVPaWZGM0hmazJ3WHAzeHNF?=
+ =?utf-8?B?NGFDQ3M1aUZtd3VWSVExK1JMRHZTRVJvRE9LV0c5OC9XeFF6cVNhSXpIMksw?=
+ =?utf-8?B?ZzdJQU1VODFyQlJvZTkvaEh1QkowdHdTNzIya09GMjBQRkxHVnczQ0lNN2g2?=
+ =?utf-8?B?bUdJNEVTMmd6cWh2MXZKSVYramNhbFJPQU9Cd1AzV0xkZndHNmkxbzN3OE1G?=
+ =?utf-8?B?RW5PaWZacmE3M1V0a3VtdUVaWkU4QlpBcm15M1VpTFRtREFEc095Qi9oL0NP?=
+ =?utf-8?B?NXRqazJHbHNDZzhrYU04amgwbVczTEdENVUvY09GMmdyMnh4YjVHMWpraEJE?=
+ =?utf-8?B?S29UL2kzMjJPSGIwcmwwcWhGTVYyaXJKZDNYZ2ZUWk56TTdWbnhBUDlPV21Q?=
+ =?utf-8?B?NXYxd0NRbmZmTTh3Q0JxNkZMakhRR2J4YVFCaHZJekRDQUcrTVkxZDl2dkZE?=
+ =?utf-8?B?VWtaa0NJYnhyVzkyTnJuMWhGWjNPaS82SjVFaWxzMmtIM09jRGtzdXNxb3Y5?=
+ =?utf-8?Q?Hrkj4dleBqwElCEuvm33cnvaq?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <70BDCCE043276642A3E0C2F44F397B99@FRAP264.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.201.20.168]
-X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-05_09,2023-07-05_01,2023-05-22_02
+X-OriginatorOrg: csgroup.eu
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: fca516e4-dd0d-46db-a0e3-08db7ddfc167
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Jul 2023 05:13:37.8557
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TN3gz9s9spsymHVOh4XZZfMQAFyYelPcWFu7mPEXHnCJYszQ90V/xNb0IL67V58mRujuNcqWsn1hcBtUcbEoJTomI19nc1w1azVUBWv7/2s=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MR1P264MB2083
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-stm32_rtc_valid_alrm function has some issues :
-- arithmetical operations are impossible on BCD values
-- "cur_mon + 1" can overflow
-- the use case with the next month, the same day/hour/minutes went wrong
-
-To solve that, we prefer to use timestamp comparison.
-e.g. : On 5 Dec. 2021, the alarm limit is 5 Jan. 2022 (+31 days)
-       On 31 Jan 2021, the alarm limit is 28 Feb. 2022 (+28 days)
-
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
----
- drivers/rtc/rtc-stm32.c | 61 ++++++++++++++++++++++-------------------
- 1 file changed, 33 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index 17e549806784..836d39a124dd 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -90,6 +90,9 @@
- /* Max STM32 RTC register offset is 0x3FC */
- #define UNDEF_REG			0xFFFF
- 
-+/* STM32 RTC driver time helpers */
-+#define SEC_PER_DAY		(24 * 60 * 60)
-+
- struct stm32_rtc;
- 
- struct stm32_rtc_registers {
-@@ -427,40 +430,42 @@ static int stm32_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- 	return 0;
- }
- 
--static int stm32_rtc_valid_alrm(struct stm32_rtc *rtc, struct rtc_time *tm)
-+static int stm32_rtc_valid_alrm(struct device *dev, struct rtc_time *tm)
- {
--	const struct stm32_rtc_registers *regs = &rtc->data->regs;
--	int cur_day, cur_mon, cur_year, cur_hour, cur_min, cur_sec;
--	unsigned int tr = readl_relaxed(rtc->base + regs->tr);
--	unsigned int dr = readl_relaxed(rtc->base + regs->dr);
--
--	cur_day = (dr & STM32_RTC_DR_DATE) >> STM32_RTC_DR_DATE_SHIFT;
--	cur_mon = (dr & STM32_RTC_DR_MONTH) >> STM32_RTC_DR_MONTH_SHIFT;
--	cur_year = (dr & STM32_RTC_DR_YEAR) >> STM32_RTC_DR_YEAR_SHIFT;
--	cur_sec = (tr & STM32_RTC_TR_SEC) >> STM32_RTC_TR_SEC_SHIFT;
--	cur_min = (tr & STM32_RTC_TR_MIN) >> STM32_RTC_TR_MIN_SHIFT;
--	cur_hour = (tr & STM32_RTC_TR_HOUR) >> STM32_RTC_TR_HOUR_SHIFT;
-+	static struct rtc_time now;
-+	time64_t max_alarm_time64;
-+	int max_day_forward;
-+	int next_month;
-+	int next_year;
- 
- 	/*
- 	 * Assuming current date is M-D-Y H:M:S.
- 	 * RTC alarm can't be set on a specific month and year.
- 	 * So the valid alarm range is:
- 	 *	M-D-Y H:M:S < alarm <= (M+1)-D-Y H:M:S
--	 * with a specific case for December...
- 	 */
--	if ((((tm->tm_year > cur_year) &&
--	      (tm->tm_mon == 0x1) && (cur_mon == 0x12)) ||
--	     ((tm->tm_year == cur_year) &&
--	      (tm->tm_mon <= cur_mon + 1))) &&
--	    ((tm->tm_mday > cur_day) ||
--	     ((tm->tm_mday == cur_day) &&
--	     ((tm->tm_hour > cur_hour) ||
--	      ((tm->tm_hour == cur_hour) && (tm->tm_min > cur_min)) ||
--	      ((tm->tm_hour == cur_hour) && (tm->tm_min == cur_min) &&
--	       (tm->tm_sec >= cur_sec))))))
--		return 0;
-+	stm32_rtc_read_time(dev, &now);
-+
-+	/*
-+	 * Find the next month and the year of the next month.
-+	 * Note: tm_mon and next_month are from 0 to 11
-+	 */
-+	next_month = now.tm_mon + 1;
-+	if (next_month == 12) {
-+		next_month = 0;
-+		next_year = now.tm_year + 1;
-+	} else {
-+		next_year = now.tm_year;
-+	}
- 
--	return -EINVAL;
-+	/* Find the maximum limit of alarm in days. */
-+	max_day_forward = rtc_month_days(now.tm_mon, now.tm_year)
-+			 - now.tm_mday
-+			 + min(rtc_month_days(next_month, next_year), now.tm_mday);
-+
-+	/* Convert to timestamp and compare the alarm time and its upper limit */
-+	max_alarm_time64 = rtc_tm_to_time64(&now) + max_day_forward * SEC_PER_DAY;
-+	return rtc_tm_to_time64(tm) <= max_alarm_time64 ? 0 : -EINVAL;
- }
- 
- static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
-@@ -471,17 +476,17 @@ static int stm32_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	unsigned int cr, isr, alrmar;
- 	int ret = 0;
- 
--	tm2bcd(tm);
--
- 	/*
- 	 * RTC alarm can't be set on a specific date, unless this date is
- 	 * up to the same day of month next month.
- 	 */
--	if (stm32_rtc_valid_alrm(rtc, tm) < 0) {
-+	if (stm32_rtc_valid_alrm(dev, tm) < 0) {
- 		dev_err(dev, "Alarm can be set only on upcoming month.\n");
- 		return -EINVAL;
- 	}
- 
-+	tm2bcd(tm);
-+
- 	alrmar = 0;
- 	/* tm_year and tm_mon are not used because not supported by RTC */
- 	alrmar |= (tm->tm_mday << STM32_RTC_ALRMXR_DATE_SHIFT) &
--- 
-2.25.1
-
+DQoNCkxlIDA1LzA3LzIwMjMgw6AgMDI6MzAsIEJlbmphbWluIEdyYXkgYSDDqWNyaXTCoDoNCj4g
+VGhlIGRyaXZlcnMvcnRjL3J0Yy1kczEzMDcuYyBkcml2ZXIgaGFzIGEgZGlyZWN0IGRlcGVuZGVu
+Y3kgb24NCj4gc3RydWN0IHJlZ21hcF9jb25maWcsIHdoaWNoIGlzIGd1YXJkZWQgYmVoaW5kIENP
+TkZJR19SRUdNQVAuDQo+IA0KPiBDb21taXQgNzBhNjQwYzBlZmE3ICgicmVnbWFwOiBSRUdNQVBf
+S1VOSVQgc2hvdWxkIG5vdCBzZWxlY3QgUkVHTUFQIikNCj4gZXhwb3NlZCB0aGlzIGJ5IGRpc2Fi
+bGluZyB0aGUgZGVmYXVsdCBwaWNrIHVubGVzcyBLVU5JVF9BTExfVEVTVFMgaXMNCj4gc2V0LCBj
+YXVzaW5nIHRoZSBwcGM2NGJlIGFsbG5vY29uZmlnIGJ1aWxkIHRvIGZhaWwuDQo+IA0KPiBTaWdu
+ZWQtb2ZmLWJ5OiBCZW5qYW1pbiBHcmF5IDxiZ3JheUBsaW51eC5pYm0uY29tPg0KPiAtLS0NCj4g
+ICBkcml2ZXJzL3J0Yy9LY29uZmlnIHwgMSArDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
+aW9uKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ydGMvS2NvbmZpZyBiL2RyaXZlcnMv
+cnRjL0tjb25maWcNCj4gaW5kZXggZmZjYTlhOGJiODc4Li43NDU1ZWJkMTg5ZmUgMTAwNjQ0DQo+
+IC0tLSBhL2RyaXZlcnMvcnRjL0tjb25maWcNCj4gKysrIGIvZHJpdmVycy9ydGMvS2NvbmZpZw0K
+PiBAQCAtMjQ2LDYgKzI0Niw3IEBAIGNvbmZpZyBSVENfRFJWX0FTMzcyMg0KPiAgIA0KPiAgIGNv
+bmZpZyBSVENfRFJWX0RTMTMwNw0KPiAgIAl0cmlzdGF0ZSAiRGFsbGFzL01heGltIERTMTMwNy8z
+Ny8zOC8zOS80MC80MSwgU1QgTTQxVDAwLCBFUFNPTiBSWC04MDI1LCBJU0wxMjA1NyINCj4gKwlz
+ZWxlY3QgUkVHTUFQDQoNCkFzIGZhciBhcyBJIGNhbiBzZWUsIFJFR01BUCBkZWZhdWx0cyB0byBZ
+IHdoZW4gUkVHTUFQX0kyQyBpcyBzZWxlY3RlZC4NCkNhbiB5b3UgZXhwbGFpbiBtb3JlIGluIGRl
+dGFpbHMgd2h5IHlvdSBoYXZlIHRvIHNlbGVjdCBpdCBleHBsaWNpdGVseSA/IA0KSWYgdGhlcmUg
+aXMgc29tZXRoaW5nIHdyb25nIHdpdGggdGhlIGxvZ2ljLCB0aGVuIHRoZSBsb2dpYyBzaG91bGQg
+YmUgDQpmaXhlZCBpbnN0ZWFkIG9mIGp1c3QgYWRkaW5nIGEgc2VsZWN0aW9uIG9mIFJFR01BUCBm
+b3IgdGhhdCBwYXJ0aWN1bGFyIA0KUlRDX0RSVl9EUzEzMDcuIEJlY2F1c2Ugb3RoZXJzIGxpa2Ug
+UlRDX0RSVl9BQkI1WkVTMyBvciBSVENfRFJWX0FCRU9aOSANCm1pZ2h0IGhhdmUgdGhlIGV4YWN0
+IHNhbWUgcHJvYmxlbS4NCg0KPiAgIAlzZWxlY3QgUkVHTUFQX0kyQw0KPiAgIAlzZWxlY3QgV0FU
+Q0hET0dfQ09SRSBpZiBXQVRDSERPRw0KPiAgIAloZWxwDQo=
