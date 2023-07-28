@@ -2,99 +2,110 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1462C001DE
-	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jul 2023 10:29:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 677D3C0015E
+	for <linux-rtc@archiver.kernel.org>; Fri, 28 Jul 2023 11:32:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233935AbjG1K3a (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 28 Jul 2023 06:29:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52884 "EHLO
+        id S234543AbjG1LcY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 28 Jul 2023 07:32:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233708AbjG1K3F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Jul 2023 06:29:05 -0400
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3072949F3;
-        Fri, 28 Jul 2023 03:28:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1690540086; x=1722076086;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=rJtzpp4B8syipLQfPojstoT7Q44bLhfc2vm+myC71tg=;
-  b=SrLhSnKWJmlFGOgkEFMnGeHLFtejgn9Z4IpCnDZP+hFoRsZ1UimtLbXi
-   ceqSc1bibEhGeyPflIGq70ysTCvYcgR2TyvQRuFwH3iQ1fpcAzWkHdZBz
-   JgGfuk1ybP1oR6SBzJeLEeYAZQfjGWmov1/jGTj+xC1WPuSss6Yny7aX1
-   LEFyYtCzd6urYkTNCipfOptgUcw9s1kV1DMu+PfxQd2Y1Y58ClvhZrPWE
-   NRrS7kst3Mo324BLPtL08jRTOH/dfsZwcDQvZPsmVNZ0/rKENELTRUYTA
-   NBGstKzF9wKvjwVfNj8kxsYcKU5wpMfyIK6no+kdv6JaUK3pXTw38ND87
-   Q==;
-X-IronPort-AV: E=Sophos;i="6.01,237,1684825200"; 
-   d="scan'208";a="163712691"
-X-Amp-Result: SKIPPED(no attachment in message)
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa6.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 28 Jul 2023 03:27:18 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Fri, 28 Jul 2023 03:27:17 -0700
-Received: from che-lt-i67070.amer.actel.com (10.10.115.15) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
- 15.1.2507.21 via Frontend Transport; Fri, 28 Jul 2023 03:27:13 -0700
-From:   Varshini Rajendran <varshini.rajendran@microchip.com>
-To:     <a.zummo@towertech.it>, <alexandre.belloni@bootlin.com>,
-        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
-        <conor+dt@kernel.org>, <nicolas.ferre@microchip.com>,
-        <claudiu.beznea@microchip.com>, <linux-rtc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <varshini.rajendran@microchip.com>
-Subject: [PATCH v3 23/50] dt-bindings: rtc: at91rm9200: add sam9x7 compatible
-Date:   Fri, 28 Jul 2023 15:57:10 +0530
-Message-ID: <20230728102710.266457-1-varshini.rajendran@microchip.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S234793AbjG1LcW (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 28 Jul 2023 07:32:22 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C0C35AB
+        for <linux-rtc@vger.kernel.org>; Fri, 28 Jul 2023 04:32:18 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-3fc02a92dcfso20730025e9.0
+        for <linux-rtc@vger.kernel.org>; Fri, 28 Jul 2023 04:32:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1690543937; x=1691148737;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+F++azjWGXR/zzwHylDS5zKIIkHfazjhU13uoVBCItI=;
+        b=AMnkE9WuW7Szt2FbkP+Jy7gImGXicajY9/8nwcsWkrUwhvEUvP7ntHlB4esXk3K8U4
+         0i6OvKn+5MRV/VvX72hQyI3+TxZnb6cRN+AlFwW7eoAEroux8iHcBnUojCtWchKA78jl
+         SY5zsDpCGe7jFTiAVJefedCk62+1uRl1DCOGCwjHw3AcI7lBvwuS6yZmpan72Z124GkA
+         HzuwDVmYWrxvejLrwD5DxuP7Te8Jagm+rkOkbxUiWNpEVTWGGoMyhL+3cuwlWbXGDr0B
+         nKgA+tN0Fx8WjnGsZEpQTGxaPoJXDju/pS2BVUhj93heIIMcoWmwxaaXx1t90HNC7HAh
+         LaVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690543937; x=1691148737;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+F++azjWGXR/zzwHylDS5zKIIkHfazjhU13uoVBCItI=;
+        b=X8aPGHD77T9Gj6LVQ1USrqHMNwKSX61F/S3XOz0sjBllD6vNCr+zaSEGZgzxaQ4zNy
+         b/U2US04SSOjilZxF0h675nBCFpoJL3FH8HPwfvJzDeCTFd9nutoTFRLVKepApDP3aaM
+         JYoyz26Z35ML/YltFpvoXEvxflP9nr0STZIb9CIwUDo0geUGTErsg2KykJR5zKTP+qNg
+         RmMp6PIJKpCLfB1WrwsMhNtx2WymTltcqY4b6E3SX5x9CAeSEkpk4M63HhJV54bcbX13
+         bSt/ZGRThXp4UOGJNUgKr6WVDQStRy9/novl2jvbPsA1GCE+TurWNN1e2oOq440NRBqC
+         aB6Q==
+X-Gm-Message-State: ABy/qLY1akxCkEi6DQb6xMsBu08exDlARXxOJ1iBlpvTPDzWNxbpM9cs
+        tZsjjI8ot+eKlc4CEnY+3sBSbg==
+X-Google-Smtp-Source: APBJJlGEkskLn7KheQI/2hh6B8RIJum6fk3h7Nk91C/s4cct7x2FxIqw26uj1lGmelJK6ucVYjt8Ng==
+X-Received: by 2002:adf:e94f:0:b0:314:3611:3e54 with SMTP id m15-20020adfe94f000000b0031436113e54mr1907446wrn.9.1690543937250;
+        Fri, 28 Jul 2023 04:32:17 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.223.104])
+        by smtp.gmail.com with ESMTPSA id m14-20020adffa0e000000b003177e9b2e64sm4508524wrr.90.2023.07.28.04.32.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Jul 2023 04:32:16 -0700 (PDT)
+Message-ID: <c0792cfd-db4f-7153-0775-824912277908@linaro.org>
+Date:   Fri, 28 Jul 2023 13:32:12 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v3 00/50] Add support for sam9x7 SoC family
+Content-Language: en-US
+To:     Varshini Rajendran <varshini.rajendran@microchip.com>,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org, nicolas.ferre@microchip.com,
+        alexandre.belloni@bootlin.com, claudiu.beznea@microchip.com,
+        mturquette@baylibre.com, sboyd@kernel.org,
+        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
+        andi.shyti@kernel.org, tglx@linutronix.de, maz@kernel.org,
+        lee@kernel.org, ulf.hansson@linaro.org, tudor.ambarus@linaro.org,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linus.walleij@linaro.org, sre@kernel.org, p.zabel@pengutronix.de,
+        olivia@selenic.com, a.zummo@towertech.it,
+        radu_nicolae.pirea@upb.ro, richard.genoud@gmail.com,
+        gregkh@linuxfoundation.org, lgirdwood@gmail.com,
+        broonie@kernel.org, wim@linux-watchdog.org, linux@roeck-us.net,
+        linux@armlinux.org.uk, durai.manickamkr@microchip.com,
+        andrew@lunn.ch, jerry.ray@microchip.com, andre.przywara@arm.com,
+        mani@kernel.org, alexandre.torgue@st.com,
+        gregory.clement@bootlin.com, arnd@arndb.de, rientjes@google.com,
+        deller@gmx.de, 42.hyeyoo@gmail.com, vbabka@suse.cz,
+        mripard@kernel.org, mihai.sain@microchip.com,
+        codrin.ciubotariu@microchip.com, eugen.hristev@collabora.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, netdev@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-serial@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org
+References: <20230728102223.265216-1-varshini.rajendran@microchip.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230728102223.265216-1-varshini.rajendran@microchip.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Add compatible for SAM9X7 RTC.
+On 28/07/2023 12:22, Varshini Rajendran wrote:
+> This patch series adds support for the new SoC family - sam9x7.
+>  - The device tree, configs and drivers are added
+>  - Clock driver for sam9x7 is added
+>  - Support for basic peripherals is added
+>  - Target board SAM9X75 Curiosity is added
+> 
 
-Signed-off-by: Varshini Rajendran <varshini.rajendran@microchip.com>
----
- .../bindings/rtc/atmel,at91rm9200-rtc.yaml     | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+Your threading is absolutely broken making it difficult to review and apply.
 
-diff --git a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.yaml b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.yaml
-index 4d2bef15fb7a..c8bb2eef442d 100644
---- a/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/atmel,at91rm9200-rtc.yaml
-@@ -14,13 +14,17 @@ maintainers:
- 
- properties:
-   compatible:
--    enum:
--      - atmel,at91rm9200-rtc
--      - atmel,at91sam9x5-rtc
--      - atmel,sama5d4-rtc
--      - atmel,sama5d2-rtc
--      - microchip,sam9x60-rtc
--      - microchip,sama7g5-rtc
-+    oneOf:
-+      - enum:
-+          - atmel,at91rm9200-rtc
-+          - atmel,at91sam9x5-rtc
-+          - atmel,sama5d4-rtc
-+          - atmel,sama5d2-rtc
-+          - microchip,sam9x60-rtc
-+          - microchip,sama7g5-rtc
-+      - items:
-+          - const: microchip,sam9x7-rtc
-+          - const: microchip,sam9x60-rtc
- 
-   reg:
-     maxItems: 1
--- 
-2.25.1
+Best regards,
+Krzysztof
 
