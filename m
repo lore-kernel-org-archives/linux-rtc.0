@@ -2,119 +2,104 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 784A3C001DE
-	for <linux-rtc@archiver.kernel.org>; Mon, 31 Jul 2023 20:38:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85A98C001E0
+	for <linux-rtc@archiver.kernel.org>; Tue,  1 Aug 2023 11:06:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjGaUir (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 31 Jul 2023 16:38:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
+        id S234017AbjHALGT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 1 Aug 2023 07:06:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbjGaUiq (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 31 Jul 2023 16:38:46 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C42C198;
-        Mon, 31 Jul 2023 13:38:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=ISelzNfwyo+LcVPzu+i+zMJl2RrP3z4luSWxJvJvqhk=; b=ecUqOk1P/oc9OcuXHSZ4MXiHaz
-        s/PUYhO4jddknCn7BxNh6AzglP5ru5XtyE4NPHgTggJ0hBrG/vFhkvbG5IJbN1J7hGM0EDaSwc+pQ
-        TsZc+j9vY2HQCy+iTROBNCUObuLKlTx3SROOpnfU/3kMNRKFdtDEEXomOVD/pJcUfyog6zrUK/ISn
-        regdYt0O7+gGqlcThcy60t/PrOiRSerwdcBtDt1m4wQGOE4knIxa9iQKHqmL9w58KiZAnE9IT07Ub
-        1nty92Qo1vZPqkwYQTLkzX3ueFVI5MOeL/cKXq8eA/gAQ8Ryd1hzXRsM73GsRhoxl8qgKPID3F/cN
-        IJkuQY5g==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qQZey-00HJ3x-0X;
-        Mon, 31 Jul 2023 20:38:32 +0000
-Date:   Mon, 31 Jul 2023 13:38:32 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
-        Joshua Kinard <kumba@gentoo.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        linux-arm-kernel@lists.infradead.org,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-mmc@vger.kernel.org, netdev@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-modules@vger.kernel.org
-Subject: Re: [PATCH 5/5] modules: only allow symbol_get of EXPORT_SYMBOL_GPL
- modules
-Message-ID: <ZMgbyNKnotCMyB+f@bombadil.infradead.org>
-References: <20230731083806.453036-1-hch@lst.de>
- <20230731083806.453036-6-hch@lst.de>
+        with ESMTP id S233998AbjHALF6 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Aug 2023 07:05:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 397CB7AA9;
+        Tue,  1 Aug 2023 03:59:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C21C361519;
+        Tue,  1 Aug 2023 10:59:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F66C433C8;
+        Tue,  1 Aug 2023 10:59:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1690887578;
+        bh=W6uC+hfdQjXTE0b+hUiFIq4lfhy6AJ+5JMfKAqdfPEg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=I3i7dgT+D7pQRjctNSQCfp2q3NsGd0IjKONwgsV5qi8MuPuNxiXt3FhH/F8UHr3NJ
+         H6mbydie71eLjQgprazKi0/9WCDZaQdB9CI+YGBeO4ic0O7fDcb+Wh5kSA6akqKvsM
+         rYzIwsA1LuNixpwVzxZzH4m1Kffo/le6cp3BCbeKy24Iuhw24sdRfesACPcTPrQ6FY
+         Fy/HTlrayvB15X/PhESYg52xrOovl+Y5/mXrdEu0Y25QGEKzqdccTzl450jNLZ3EsJ
+         szRAHJrb6MjAXz7UoAIcBBCTUn7hiYskhJrEbuvUPw3QcjsUIQWe0o2lp5XtyUblRS
+         Jo/W818d0jTyw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>,
+        Antonio Borneo <antonio.borneo@foss.st.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Christophe Guibout <christophe.guibout@foss.st.com>,
+        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        linux-rtc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: stm32: remove incorrect #ifdef check
+Date:   Tue,  1 Aug 2023 12:59:15 +0200
+Message-Id: <20230801105932.3738430-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230731083806.453036-6-hch@lst.de>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Mon, Jul 31, 2023 at 10:38:06AM +0200, Christoph Hellwig wrote:
-> ---
->  kernel/module/internal.h |  1 +
->  kernel/module/main.c     | 17 ++++++++++++-----
->  2 files changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/kernel/module/internal.h b/kernel/module/internal.h
-> index c8b7b4dcf7820d..add687c2abde8b 100644
-> --- a/kernel/module/internal.h
-> +++ b/kernel/module/internal.h
-> @@ -93,6 +93,7 @@ struct find_symbol_arg {
->  	/* Input */
->  	const char *name;
->  	bool gplok;
-> +	bool gplonly;
+From: Arnd Bergmann <arnd@arndb.de>
 
-We'd want to add here a reason or something like that to allow the
-caller to know why we failed if we want to provide feedback.
+After a previous commit changed the driver over to
+SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(), the suspend/resume
+functions must no longer be hidden behind an #ifdef:
 
->  	bool warn;
->  
->  	/* Output */
-> diff --git a/kernel/module/main.c b/kernel/module/main.c
-> index 59b1d067e52890..85d3f00ca65758 100644
-> --- a/kernel/module/main.c
-> +++ b/kernel/module/main.c
-> @@ -281,6 +281,8 @@ static bool find_exported_symbol_in_section(const struct symsearch *syms,
->  
->  	if (!fsa->gplok && syms->license == GPL_ONLY)
->  		return false;
-> +	if (fsa->gplonly && syms->license != GPL_ONLY)
+In file included from include/linux/clk.h:13,
+                 from drivers/rtc/rtc-stm32.c:8:
+drivers/rtc/rtc-stm32.c:927:39: error: 'stm32_rtc_suspend' undeclared here (not in a function); did you mean 'stm32_rtc_probe'?
+  927 |         SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(stm32_rtc_suspend, stm32_rtc_resume)
+      |                                       ^~~~~~~~~~~~~~~~~
+include/linux/kernel.h:58:44: note: in definition of macro 'PTR_IF'
+   58 | #define PTR_IF(cond, ptr)       ((cond) ? (ptr) : NULL)
+      |                                            ^~~
+include/linux/pm.h:329:26: note: in expansion of macro 'pm_sleep_ptr'
+  329 |         .suspend_noirq = pm_sleep_ptr(suspend_fn), \
+      |                          ^~~~~~~~~~~~
 
-And set it here to something other than perhaps a default of NOT_FOUND.
+Fixes: fb9a7e5360dc8 ("rtc: stm32: change PM callbacks to "_noirq()"")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/rtc/rtc-stm32.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-> +		return false;
->  
->  	sym = bsearch(fsa->name, syms->start, syms->stop - syms->start,
->  			sizeof(struct kernel_symbol), cmp_name);
-> @@ -776,8 +778,9 @@ SYSCALL_DEFINE2(delete_module, const char __user *, name_user,
-> @@ -1289,14 +1292,18 @@ static void free_module(struct module *mod)
->  void *__symbol_get(const char *symbol)
->  {
->  	struct find_symbol_arg fsa = {
-> -		.name	= symbol,
-> -		.gplok	= true,
-> -		.warn	= true,
-> +		.name		= symbol,
-> +		.gplok		= true,
-> +		.gplonly	= true,
-> +		.warn		= true,
->  	};
->  
->  	preempt_disable();
->  	if (!find_symbol(&fsa) || strong_try_module_get(fsa.owner)) {
->  		preempt_enable();
-> +		if (fsa.gplonly)
-> +			pr_warn("failing symbol_get of non-GPLONLY symbol %s.\n",
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 85689192fa7ae..c296e7af0700c 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -890,7 +890,6 @@ static void stm32_rtc_remove(struct platform_device *pdev)
+ 	device_init_wakeup(&pdev->dev, false);
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+ static int stm32_rtc_suspend(struct device *dev)
+ {
+ 	struct stm32_rtc *rtc = dev_get_drvdata(dev);
+@@ -921,7 +920,6 @@ static int stm32_rtc_resume(struct device *dev)
+ 
+ 	return ret;
+ }
+-#endif
+ 
+ static const struct dev_pm_ops stm32_rtc_pm_ops = {
+ 	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(stm32_rtc_suspend, stm32_rtc_resume)
+-- 
+2.39.2
 
-Because here fsa.gplonly is always true here so the above warn will
-print even if a symbol is just not found.
-
-  Luis
