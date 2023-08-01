@@ -2,61 +2,83 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF0CC0015E
-	for <linux-rtc@archiver.kernel.org>; Tue,  1 Aug 2023 11:52:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6DBBC001DF
+	for <linux-rtc@archiver.kernel.org>; Tue,  1 Aug 2023 12:41:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234433AbjHALwj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 1 Aug 2023 07:52:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46478 "EHLO
+        id S232498AbjHAMlC (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 1 Aug 2023 08:41:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234426AbjHALwd (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Aug 2023 07:52:33 -0400
-Received: from mail.cothiafon.pl (mail.cothiafon.pl [217.61.106.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7F01BD2
-        for <linux-rtc@vger.kernel.org>; Tue,  1 Aug 2023 04:52:30 -0700 (PDT)
-Received: by mail.cothiafon.pl (Postfix, from userid 1002)
-        id B159B83C7C; Mon, 31 Jul 2023 10:36:45 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=cothiafon.pl; s=mail;
-        t=1690792652; bh=dwoca0X6C9VXklO/zRgFQCPapTk5LFz4tKaENdvy6Po=;
-        h=Date:From:To:Subject:From;
-        b=W0tr0AySefde7ZR/9bJkFCXp5w8uIaf0rU+PW+eUZHmX1RNgmVhXR3djtx/pSEQvG
-         pfjA0kFZC70KBI/OmBsRque9WzmuCCQ5gS95u9yshbZBMDqKBrnmAfgcAXvcbIDxm2
-         LIeMZAWjZbUVHpJtsO6DA4uDDeFGrBaYnvZWqTpm3hp4H/POuWVUUU8f5o+4Zx4Zb0
-         VKf2BkK11mhGjLAx5Y0LIQ9RDu+6ON/uKF59JpMBp8ZFMgdhdNZMGg22u/pM6TokqE
-         EMUB4ljf7KXDFHWB9i4lJQQBVl2Xe9QiM2YwSi7/qcxjswxw9F1uNxkTiXCoepeTUW
-         2/qv0QOXH/20Q==
-Received: by mail.cothiafon.pl for <linux-rtc@vger.kernel.org>; Mon, 31 Jul 2023 08:35:48 GMT
-Message-ID: <20230731095940-0.1.28.onre.0.c29kige34f@cothiafon.pl>
-Date:   Mon, 31 Jul 2023 08:35:48 GMT
-From:   =?UTF-8?Q? "Rados=C5=82aw_Grabowski" ?= 
-        <radoslaw.grabowski@cothiafon.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: W sprawie samochodu
-X-Mailer: mail.cothiafon.pl
+        with ESMTP id S233378AbjHAMlB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 1 Aug 2023 08:41:01 -0400
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70AD3A8;
+        Tue,  1 Aug 2023 05:40:59 -0700 (PDT)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 31AEB1C0006;
+        Tue,  1 Aug 2023 12:40:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1690893657;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=v3Hw1gMaiWhoQKKZK2hbOYHO2XGGZMLV2/iOs78dLbs=;
+        b=fCbAQl2f6bVcczNsiSn20w0R4GSWTzdJtsvxoT8oJuXqRxwzubrCHgT+dTC8KuMsN/hXU4
+        qjlgxD280xtPjU+jrd2UCTJlV2evSae4wIrOFEyZNn49zO/2T1Hwl9Dq8k6YYf7Qw5pL2f
+        2/rgab5/Th6Ca1Sfi6jYkxMHsyMZcRFIubPVoSYgZ+Ondr0OweFT7yzlxUNHpySUpaish4
+        6OK5Hl9YRdThPKmAw0gw5QPio3MahcKkEQ50c/34jJ4Z4TVK+xVHa2t91fGe4w2Q8DZfux
+        ITpMoDX82JKsI2twWhwnEyjxywVLbcY0ZIz9NXGerqpMn7nOBLqJzhNJKWgDuA==
+Date:   Tue, 1 Aug 2023 14:40:56 +0200
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Anvesh Jain P <quic_ajainp@quicinc.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Venkata Rao Kakani <quic_vkakani@quicinc.com>
+Subject: Re: [PATCH] rtc: rtc-pm8xxx: control default alarm wake up capability
+Message-ID: <20230801124056fc665814@mail.local>
+References: <20230801114549.26956-1-quic_ajainp@quicinc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230801114549.26956-1-quic_ajainp@quicinc.com>
+X-GND-Sasl: alexandre.belloni@bootlin.com
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On 01/08/2023 17:15:49+0530, Anvesh Jain P wrote:
+> Enable & disable rtc alarm wake up capability based on
+> default parameter passed from device tree.
+> 
 
-chcieliby=C5=9Bmy zapewni=C4=87 Pa=C5=84stwu kompleksowe rozwi=C4=85zania=
-, je=C5=9Bli chodzi o system monitoringu GPS.
+I see what you are doing but not why this is necessary, NAK.
 
-Precyzyjne monitorowanie pojazd=C3=B3w na mapach cyfrowych, =C5=9Bledzeni=
-e ich parametr=C3=B3w eksploatacyjnych w czasie rzeczywistym oraz kontrol=
-a paliwa to kluczowe funkcjonalno=C5=9Bci naszego systemu.=20
+> Signed-off-by: Venkata Rao Kakani <quic_vkakani@quicinc.com>
+> Signed-off-by: Anvesh Jain P <quic_ajainp@quicinc.com>
+> ---
+>  drivers/rtc/rtc-pm8xxx.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+> index f6b779c12ca7..bed57be602b6 100644
+> --- a/drivers/rtc/rtc-pm8xxx.c
+> +++ b/drivers/rtc/rtc-pm8xxx.c
+> @@ -523,6 +523,9 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
+>  	if (rc)
+>  		return rc;
+>  
+> +	if (of_property_read_bool(pdev->dev.of_node, "disable-alarm-wakeup"))
+> +		device_set_wakeup_capable(&pdev->dev, false);
+> +
+>  	rc = dev_pm_set_wake_irq(&pdev->dev, rtc_dd->alarm_irq);
+>  	if (rc)
+>  		return rc;
+> 
+> base-commit: 0a8db05b571ad5b8d5c8774a004c0424260a90bd
+> -- 
+> 2.17.1
+> 
 
-Organizowanie pracy pracownik=C3=B3w jest dzi=C4=99ki temu prostsze i bar=
-dziej efektywne, a oszcz=C4=99dno=C5=9Bci i optymalizacja w zakresie pono=
-szonych koszt=C3=B3w, maj=C4=85 dla ka=C5=BCdego przedsi=C4=99biorcy ogro=
-mne znaczenie.
-
-Dopasujemy nasz=C4=85 ofert=C4=99 do Pa=C5=84stwa oczekiwa=C5=84 i potrze=
-b organizacji. Czy mogliby=C5=9Bmy porozmawia=C4=87 o naszej propozycji?
-
-
-Pozdrawiam
-Rados=C5=82aw Grabowski
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
