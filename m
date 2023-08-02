@@ -2,31 +2,31 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DDEAC001DF
-	for <linux-rtc@archiver.kernel.org>; Wed,  2 Aug 2023 19:12:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DA03C04FDF
+	for <linux-rtc@archiver.kernel.org>; Wed,  2 Aug 2023 19:12:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231901AbjHBTMP (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 2 Aug 2023 15:12:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60086 "EHLO
+        id S232421AbjHBTMR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 2 Aug 2023 15:12:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbjHBTMP (ORCPT
+        with ESMTP id S229535AbjHBTMP (ORCPT
         <rfc822;linux-rtc@vger.kernel.org>); Wed, 2 Aug 2023 15:12:15 -0400
 Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A1826B0;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74BFC26B2;
         Wed,  2 Aug 2023 12:12:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Cc:To
-        :From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date
-        :Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-        References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
-        List-Owner:List-Archive; bh=8WLpw6r5gAvcjcRiv8zlx0QGc4QyV5Z8Lyq6blhWPEk=; b=T
-        I4T/GT2WUPvcY20vXyfr8xfGUq8ezI58z2FD6FQIvlo9xkcpuwneALGou7HZMTtbBQLXH2me8X51G
-        p+gJTh1+n947WJJqiPOVsMhw4+m0Ncu5e4pYfG/AOb0FFU9+k3kC9bvWKW2cYaxJypnxxCCJkA8G3
-        KG1QnpWSV2EVSD+Q=;
+        ; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:References:
+        In-Reply-To:Message-Id:Date:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=l0fagwpjnO0mCXCu/hb1J7U1QL4bJjiaBDvQnvA0kiY=; b=ZJHc5KT4QuCBR5z+VPN0cY+pvX
+        WORp8NjEOqITE7KRFKUnPYZq88XtaWHbNuuPPJ7/20deZo9pJflnY07ZnqZDJe7UQI3R4Y86bkLd6
+        hBgQT3V0R7mfT3J0g6YIIE0IgeKl/sj7Z6kAyLcaiRb4kprANGXj3No1FuQQMRWaJpog=;
 Received: from modemcable061.19-161-184.mc.videotron.ca ([184.161.19.61]:50458 helo=localhost.localdomain)
         by mail.hugovil.com with esmtpa (Exim 4.92)
         (envelope-from <hugo@hugovil.com>)
-        id 1qRHGK-0003z2-IX; Wed, 02 Aug 2023 15:12:01 -0400
+        id 1qRHGM-0003z2-Ie; Wed, 02 Aug 2023 15:12:03 -0400
 From:   Hugo Villeneuve <hugo@hugovil.com>
 To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
         robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
@@ -34,14 +34,16 @@ To:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, hugo@hugovil.com,
         bruno.thomsen@gmail.com, Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Date:   Wed,  2 Aug 2023 15:11:51 -0400
-Message-Id: <20230802191153.952667-1-hugo@hugovil.com>
+Date:   Wed,  2 Aug 2023 15:11:53 -0400
+Message-Id: <20230802191153.952667-3-hugo@hugovil.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20230802191153.952667-1-hugo@hugovil.com>
+References: <20230802191153.952667-1-hugo@hugovil.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 184.161.19.61
 X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: [PATCH 0/2] rtc: pcf2127: add default battery-related power-on values
+Subject: [PATCH 2/2] rtc: pcf2127: add support for battery-related DT properties
 X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
 X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 Precedence: bulk
@@ -50,39 +52,116 @@ X-Mailing-List: linux-rtc@vger.kernel.org
 
 From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 
-Hello,
-this patch series adds support for setting default battery-related
-functions for RTC devices.
+Add support for "battery-switch-over-enable" DT property which can be
+used to enable/disable the battery switch over function.
 
-This evolved from previous discussions about PCF2127 and also when reviewing
-PCF2131 driver:
+Also add support for "battery-low-detect-enable" DT property which can
+be used to enable/disable the battery low detection function.
 
-Link: https://lore.kernel.org/linux-rtc/20190910143945.9364-1-bruno.thomsen@gmail.com/
-Link: https://lore.kernel.org/linux-rtc/20191211163354.GC1463890@piout.net/
-Link: https://lore.kernel.org/linux-rtc/20230123170731.6064430c50f5fb7b484d8734@hugovil.com/
+If any of these properties is not defined, then no alteration to the
+PWRMNG field will occur.
 
-I decided to add these two new DT properties as generic RTC properties, in the
-hope that they can be reused by other RTC drivers if needed.
+These properties can be used to change the default power-on values
+(PWRMNG) for battery-related functions. It is especially useful for
+the PCF2131 where the default PWRMNG power-on values disable by
+default the battery-related functions (contrary to the PCF2127).
 
-Patch 1 adds two new DT properties to set battery-related functions. These
-properties are generic for all RTC devices.
+Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+---
+ drivers/rtc/rtc-pcf2127.c | 59 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
-Patch 2 adds support for these two new DT properties to the PCF2127 driver.
-This is especially important for PCF2131 devices which have default PWRMNG
-values which disable battery-related functions.
-
-Thank you.
-
-Hugo Villeneuve (2):
-  dt-bindings: rtc: add properties to set battery-related functions
-  rtc: pcf2127: add support for battery-related DT properties
-
- .../devicetree/bindings/rtc/rtc.yaml          | 19 ++++++
- drivers/rtc/rtc-pcf2127.c                     | 59 +++++++++++++++++++
- 2 files changed, 78 insertions(+)
-
-
-base-commit: 3c87b351809f220294aec3c0df7b078ff5c5b15b
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 78141bb06ab0..3bb3ad95c67e 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -20,6 +20,7 @@
+ #include <linux/i2c.h>
+ #include <linux/spi/spi.h>
+ #include <linux/bcd.h>
++#include <linux/bitfield.h>
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+@@ -48,6 +49,7 @@
+ #define PCF2127_BIT_CTRL3_BLF			BIT(2)
+ #define PCF2127_BIT_CTRL3_BF			BIT(3)
+ #define PCF2127_BIT_CTRL3_BTSE			BIT(4)
++#define PCF2127_CTRL3_PWRMNG_MASK		GENMASK(7, 5)
+ /* Time and date registers */
+ #define PCF2127_REG_TIME_BASE		0x03
+ #define PCF2127_BIT_SC_OSF			BIT(7)
+@@ -1080,6 +1082,57 @@ static int pcf2127_enable_ts(struct device *dev, int ts_id)
+ 	return ret;
+ }
+ 
++/*
++ * By default, do not reconfigure or set default power management mode,
++ * unless explicitly requested via DT properties:
++ *   battery-switch-over
++ *   battery-low-detect
++ */
++static int pcf2127_configure_power_management(struct device *dev)
++{
++	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
++	int ret;
++	u8 pwrmng;
++	u32 bat_sw_over, bat_low_detect;
++
++	/*
++	 * The PWRMNG field is defined in a peculiar way for PCF21XX
++	 * devices: there is no individual bit defined for the
++	 * battery-switch-over or battery-low-detect functions.
++	 * Therefore, we require that both properties must be defined
++	 * to alter the PWRMNG field.
++	 */
++	if (device_property_read_u32(dev, "battery-switch-over", &bat_sw_over))
++		return 0;
++
++	if (device_property_read_u32(dev, "battery-low-detect",
++				     &bat_low_detect))
++		return 0;
++
++	if (!bat_sw_over) {
++		/*
++		 * If battery-switch-over is disabled, then the
++		 * battery-low-detect function is always disabled.
++		 */
++		pwrmng = BIT(2) | BIT(1) | BIT(0);
++	} else {
++		if (bat_low_detect)
++			pwrmng = 0;
++		else
++			pwrmng = BIT(0);
++	}
++
++	ret = regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL3,
++				 PCF2127_CTRL3_PWRMNG_MASK,
++				 FIELD_PREP(PCF2127_CTRL3_PWRMNG_MASK, pwrmng));
++	if (ret < 0) {
++		dev_dbg(dev, "PWRMNG config failed\n");
++		return ret;
++	}
++
++	return 0;
++}
++
+ /* Route all interrupt sources to INT A pin. */
+ static int pcf2127_configure_interrupt_pins(struct device *dev)
+ {
+@@ -1163,6 +1216,12 @@ static int pcf2127_probe(struct device *dev, struct regmap *regmap,
+ 		pcf2127->irq_enabled = true;
+ 	}
+ 
++	ret = pcf2127_configure_power_management(dev);
++	if (ret) {
++		dev_err(dev, "failed to configure power management\n");
++		return ret;
++	}
++
+ 	if (alarm_irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
+ 		device_init_wakeup(dev, true);
+ 		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
 -- 
 2.30.2
 
