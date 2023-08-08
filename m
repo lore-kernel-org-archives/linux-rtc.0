@@ -2,162 +2,73 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54207C0729B
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Aug 2023 17:32:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22238C04FE0
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Aug 2023 18:44:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbjHHRcp (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Aug 2023 13:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34634 "EHLO
+        id S231496AbjHHSoy (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Aug 2023 14:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234803AbjHHRb6 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2023 13:31:58 -0400
-Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9847D21E72;
-        Tue,  8 Aug 2023 09:13:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
-        ; s=x; h=Subject:Content-Transfer-Encoding:Mime-Version:Message-Id:Cc:To:From
-        :Date:subject:date:message-id:reply-to;
-        bh=Np/8r+TSn8pg9ybumTH+W9CcvjeAPLw+0XCrZJb8yx0=; b=a6jQ+czvjsLICRI1H9YMN6px29
-        RDXso6oV45hQg8FTvlCY/Z2LR2KkqZ4OABJUFr64wO6lFnXSVTowPobNY8WgIHcG2Tz4fTbVDO5QW
-        XfQKlvOSncGaxajKy67p8K0V6KLgBPnM8WMsvwgTN3QMCUnuqXJ02EKLJJEF/pzGcPaU=;
-Received: from modemcable061.19-161-184.mc.videotron.ca ([184.161.19.61]:53964 helo=pettiford)
-        by mail.hugovil.com with esmtpa (Exim 4.92)
-        (envelope-from <hugo@hugovil.com>)
-        id 1qTM4Z-0004b7-K0; Tue, 08 Aug 2023 08:44:29 -0400
-Date:   Tue, 8 Aug 2023 08:44:26 -0400
-From:   Hugo Villeneuve <hugo@hugovil.com>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Conor Dooley <conor@kernel.org>, a.zummo@towertech.it,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        conor+dt@kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bruno.thomsen@gmail.com, Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Message-Id: <20230808084426.fc7e432a9d85e5caf72d3ffe@hugovil.com>
-In-Reply-To: <202308081232266ec8a9b7@mail.local>
-References: <20230802191153.952667-1-hugo@hugovil.com>
-        <20230802191153.952667-2-hugo@hugovil.com>
-        <20230808-capsize-deodorize-5776d3dbb192@spud>
-        <20230808082533.b608c9a2a4bd922920643c4b@hugovil.com>
-        <202308081232266ec8a9b7@mail.local>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 184.161.19.61
-X-SA-Exim-Mail-From: hugo@hugovil.com
-Subject: Re: [PATCH 1/2] dt-bindings: rtc: add properties to set
- battery-related functions
-X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
-X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
+        with ESMTP id S231767AbjHHSoU (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2023 14:44:20 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 185913D1B4
+        for <linux-rtc@vger.kernel.org>; Tue,  8 Aug 2023 09:41:34 -0700 (PDT)
+Received: from dggpeml500025.china.huawei.com (unknown [172.30.72.57])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4RKs1Z4q9Tz1hwH0;
+        Tue,  8 Aug 2023 19:49:54 +0800 (CST)
+Received: from ubuntu1804.huawei.com (10.67.174.202) by
+ dggpeml500025.china.huawei.com (7.185.36.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Tue, 8 Aug 2023 19:52:43 +0800
+From:   Zhu Wang <wangzhu9@huawei.com>
+To:     <andrew@lunn.ch>, <gregory.clement@bootlin.com>,
+        <sebastian.hesselbarth@gmail.com>, <a.zummo@towertech.it>,
+        <alexandre.belloni@bootlin.com>, <joel@jms.id.au>,
+        <andrew@aj.id.au>, <nicolas.ferre@microchip.com>,
+        <claudiu.beznea@tuxon.dev>, <avifishman70@gmail.com>,
+        <tmaimon77@gmail.com>, <tali.perry1@gmail.com>,
+        <venture@google.com>, <yuenn@google.com>,
+        <benjaminfair@google.com>, <linux-arm-kernel@lists.infradead.org>,
+        <linux-rtc@vger.kernel.org>, <linux-aspeed@lists.ozlabs.org>
+CC:     <wangzhu9@huawei.com>
+Subject: [PATCH -next 2/5] rtc: at91sam9: remove redundant of_match_ptr()
+Date:   Tue, 8 Aug 2023 19:52:10 +0800
+Message-ID: <20230808115213.154377-3-wangzhu9@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230808115213.154377-1-wangzhu9@huawei.com>
+References: <20230808115213.154377-1-wangzhu9@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.202]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500025.china.huawei.com (7.185.36.35)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Tue, 8 Aug 2023 14:32:26 +0200
-Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+The driver depends on CONFIG_OF, so it is not necessary to use
+of_match_ptr() here. We remove of_match_ptr() here.
 
-> On 08/08/2023 08:25:33-0400, Hugo Villeneuve wrote:
-> > On Tue, 8 Aug 2023 12:21:24 +0100
-> > Conor Dooley <conor@kernel.org> wrote:
-> > 
-> > > Hey Hugo,
-> > > 
-> > > On Wed, Aug 02, 2023 at 03:11:52PM -0400, Hugo Villeneuve wrote:
-> > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > 
-> > > > These properties can be defined in the board's device tree to set the
-> > > > default power-on values for battery-related functions.
-> > > > 
-> > > > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> > > > ---
-> > > >  .../devicetree/bindings/rtc/rtc.yaml          | 19 +++++++++++++++++++
-> > > >  1 file changed, 19 insertions(+)
-> > > > 
-> > > > diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
-> > > > index efb66df82782..0217d229e3fa 100644
-> > > > --- a/Documentation/devicetree/bindings/rtc/rtc.yaml
-> > > > +++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
-> > > > @@ -26,6 +26,25 @@ properties:
-> > > >        0: not chargeable
-> > > >        1: chargeable
-> > > >  
-> > > > +  battery-low-detect:
-> > > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > > +    enum: [0, 1]
-> > > > +    description: |
-> > > > +      For RTC devices supporting a backup battery/supercap, this flag can be
-> > > > +      used to configure the battery low detection reporting function:
-> > > > +      0: disabled
-> > > > +      1: enabled
-> > > > +
-> > > > +  battery-switch-over:
-> > > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > > +    enum: [0, 1]
-> > > > +    description: |
-> > > > +      For RTC devices supporting a backup battery/supercap, this flag can be
-> > > > +      used to configure the battery switch over when the main voltage source is
-> > > > +      turned off:
-> > > > +      0: disabled
-> > > > +      1: enabled
-> > > 
-> > > Why are these implemented as enums? This seems to fall into the category
-> > > of using DT to determine software policy - why's it not sufficient to
-> > > have boolean properties that indicate hardware support and let the software
-> > > decide what to do with them?
-> > 
-> > Hi Conor,
-> > the reason is that I based the new properties on the existing property
-> > "aux-voltage-chargeable":
-> > 
-> > -------------------
-> >  aux-voltage-chargeable:
-> >     $ref: /schemas/types.yaml#/definitions/uint32
-> >     enum: [0, 1]
-> >     description: |
-> >       Tells whether the battery/supercap of the RTC (if any) is
-> >       chargeable or not:
-> >       0: not chargeable
-> >       1: chargeable
-> > -------------------
-> > 
-> > I agree with you that a boolean would be more appropriate. Should I
-> > also submit a (separate) patch to fix the "aux-voltage-chargeable"
-> > property to a boolean?
-> > 
-> 
-> No, this is an enum on purpose.
-> I will not take battery switch over related properties, this is not
-> hardware description but software configuration. There is an ioctl for
-> this.
+Signed-off-by: Zhu Wang <wangzhu9@huawei.com>
+---
+ drivers/rtc/rtc-at91sam9.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hi Alexandre,
-can you suggest then how we can set default PWRMNG values for the
-PCF2131 then?
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 610f27dfc462..f93bee96e362 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -534,7 +534,7 @@ static struct platform_driver at91_rtc_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-at91sam9",
+ 		.pm	= &at91_rtc_pm_ops,
+-		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
++		.of_match_table = at91_rtc_dt_ids,
+ 	},
+ };
+ 
+-- 
+2.17.1
 
-I looked at Documentation/ABI/testing/rtc-cdev but couldn't find an
-ioctl to activate the battery switch over function, nor one to activate
-the battery-low detection...
-
-Thank you,
-Hugo.
-
-
-> 
-> > Hugo.
-> > 
-> > 
-> > > Thanks,
-> > > Conor.
-> > > 
-> > > > +
-> > > >    quartz-load-femtofarads:
-> > > >      description:
-> > > >        The capacitive load of the quartz(x-tal), expressed in femto
-> > > > -- 
-> > > > 2.30.2
-> > > > 
-> 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
