@@ -2,25 +2,25 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0701CC001DB
-	for <linux-rtc@archiver.kernel.org>; Tue,  8 Aug 2023 18:45:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17BC8C04A94
+	for <linux-rtc@archiver.kernel.org>; Tue,  8 Aug 2023 18:45:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234077AbjHHSpR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 8 Aug 2023 14:45:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
+        id S230518AbjHHSpT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 8 Aug 2023 14:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233802AbjHHSom (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2023 14:44:42 -0400
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DEF3D1BA
-        for <linux-rtc@vger.kernel.org>; Tue,  8 Aug 2023 09:41:35 -0700 (PDT)
-Received: from dggpeml500025.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4RKs1f66cJz1hwH1;
-        Tue,  8 Aug 2023 19:49:58 +0800 (CST)
+        with ESMTP id S231308AbjHHSov (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 8 Aug 2023 14:44:51 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE723F19E
+        for <linux-rtc@vger.kernel.org>; Tue,  8 Aug 2023 09:42:18 -0700 (PDT)
+Received: from dggpeml500025.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RKs2d14ZxzVkGN;
+        Tue,  8 Aug 2023 19:50:49 +0800 (CST)
 Received: from ubuntu1804.huawei.com (10.67.174.202) by
  dggpeml500025.china.huawei.com (7.185.36.35) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Tue, 8 Aug 2023 19:52:47 +0800
+ 15.1.2507.27; Tue, 8 Aug 2023 19:52:42 +0800
 From:   Zhu Wang <wangzhu9@huawei.com>
 To:     <andrew@lunn.ch>, <gregory.clement@bootlin.com>,
         <sebastian.hesselbarth@gmail.com>, <a.zummo@towertech.it>,
@@ -32,9 +32,9 @@ To:     <andrew@lunn.ch>, <gregory.clement@bootlin.com>,
         <benjaminfair@google.com>, <linux-arm-kernel@lists.infradead.org>,
         <linux-rtc@vger.kernel.org>, <linux-aspeed@lists.ozlabs.org>
 CC:     <wangzhu9@huawei.com>
-Subject: [PATCH -next 5/5] rtc: at91rm9200: remove redundant of_match_ptr()
-Date:   Tue, 8 Aug 2023 19:52:13 +0800
-Message-ID: <20230808115213.154377-6-wangzhu9@huawei.com>
+Subject: [PATCH -next 1/5] rtc: aspeed: remove redundant of_match_ptr()
+Date:   Tue, 8 Aug 2023 19:52:09 +0800
+Message-ID: <20230808115213.154377-2-wangzhu9@huawei.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230808115213.154377-1-wangzhu9@huawei.com>
 References: <20230808115213.154377-1-wangzhu9@huawei.com>
@@ -53,19 +53,19 @@ of_match_ptr() here. We remove of_match_ptr() here.
 
 Signed-off-by: Zhu Wang <wangzhu9@huawei.com>
 ---
- drivers/rtc/rtc-at91rm9200.c | 2 +-
+ drivers/rtc/rtc-aspeed.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-index e9d17232d0a8..4052e983455f 100644
---- a/drivers/rtc/rtc-at91rm9200.c
-+++ b/drivers/rtc/rtc-at91rm9200.c
-@@ -642,7 +642,7 @@ static struct platform_driver at91_rtc_driver = {
- 	.driver		= {
- 		.name	= "at91_rtc",
- 		.pm	= &at91_rtc_pm_ops,
--		.of_match_table = of_match_ptr(at91_rtc_dt_ids),
-+		.of_match_table = at91_rtc_dt_ids,
+diff --git a/drivers/rtc/rtc-aspeed.c b/drivers/rtc/rtc-aspeed.c
+index a93352ed3aec..880b015eebaf 100644
+--- a/drivers/rtc/rtc-aspeed.c
++++ b/drivers/rtc/rtc-aspeed.c
+@@ -118,7 +118,7 @@ MODULE_DEVICE_TABLE(of, aspeed_rtc_match);
+ static struct platform_driver aspeed_rtc_driver = {
+ 	.driver = {
+ 		.name = "aspeed-rtc",
+-		.of_match_table = of_match_ptr(aspeed_rtc_match),
++		.of_match_table = aspeed_rtc_match,
  	},
  };
  
