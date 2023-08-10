@@ -2,97 +2,126 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C214BC001DE
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Aug 2023 10:39:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ADB3C41513
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Aug 2023 15:12:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234928AbjHJKjO (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Aug 2023 06:39:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52018 "EHLO
+        id S234003AbjHJPMI (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 10 Aug 2023 11:12:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235032AbjHJKjM (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2023 06:39:12 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4141E10DA
-        for <linux-rtc@vger.kernel.org>; Thu, 10 Aug 2023 03:39:11 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id 4fb4d7f45d1cf-523b066d7ceso345304a12.2
-        for <linux-rtc@vger.kernel.org>; Thu, 10 Aug 2023 03:39:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1691663950; x=1692268750;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UVkz966lVYyCDepVDZixPFVRMmINlccfjfN4fA3av38=;
-        b=rcBWBchpudmlABde9Rt0jgbwvZt3JLlNKnutj7SpHxmJb+2+blf8UeEmRvnoxluzW5
-         1gv0+uFgkYSX35giBFSt9niVpWRGpyGZdkai1ta1th3BOkF5gQ2GIZUaH/mYg0SR0snU
-         x1pZ8KoqOKd0D7HN+ijqszlHiiJGiiY6XQp2NGiWnjhaPXa4JTYLbJT2A3VIKGXCOQlm
-         sf6425ASRzlmlV/URjhquYM3Y3zDd1PxHBCfewhZH/6j5iTH18r2hSMG2FxDCIWTPXXM
-         IrlIBhztFlBkJMejHnraCLp2zpGL9fYMyf/knI35LDBH/LvzEvfPG4ehkKekvAex96AF
-         /Krg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691663950; x=1692268750;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UVkz966lVYyCDepVDZixPFVRMmINlccfjfN4fA3av38=;
-        b=khJGq1gs4rUef7eC6z1vW0b7cWeWiKmqGKI1EF0cQMt6xdVax9foICU5s2KZKHJAnw
-         aWktpE3cBmHwSM/4/BzdafnTY8cFCP76OXpJUwmfyGNpumvmOQMntcBe1gS3Kws6bCVL
-         cDVLXKSUi3gkgAj5NINjOuc/+MniOGdcFSQ6USNDlVsEtp1GhNy2EajMK9lN3yc8Swqn
-         Sy0gwshi9WTfEqPK4EW6jrl0OHP5lNAKWhbDl5jiZecRuJVs4xw+AMdp/zgmz25RVzJJ
-         fGtlf4I5yPlvyBADqxz0UcHZTbdFwVKhgWOvBItJnkUnHXmwxYTw9upenSTpZFXq8h0S
-         dfbw==
-X-Gm-Message-State: AOJu0YxFBSc9E/C6cmc3uOTCH+/4vIb2vVTiAc0TGi6dE8/vGRQDre29
-        PAT/mY07mrTpLPJ1YX253bopzg==
-X-Google-Smtp-Source: AGHT+IEjQzcGZgIz+Rb4K1zibn9OcjCTVtMdKc90JKBBfHAV2Gn4v8OlNYGNSmZP7MYiUBNsXJF8oA==
-X-Received: by 2002:a05:6402:6c9:b0:51e:3558:5eb6 with SMTP id n9-20020a05640206c900b0051e35585eb6mr1856385edy.3.1691663949849;
-        Thu, 10 Aug 2023 03:39:09 -0700 (PDT)
-Received: from krzk-bin.. ([178.197.222.113])
-        by smtp.gmail.com with ESMTPSA id g11-20020a170906868b00b0099bca8b9a31sm742180ejx.100.2023.08.10.03.39.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Aug 2023 03:39:09 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Alessandro Zummo <a.zummo@towertech.it>,
+        with ESMTP id S230505AbjHJPMH (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2023 11:12:07 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F58D26A6;
+        Thu, 10 Aug 2023 08:12:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1691680326; x=1723216326;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=PoPLH6q9kFPcmdWUSyqja114zqyQiVZBg03NQdgbgJA=;
+  b=C4GWCdmHECke++9Bf7GWK6BC/DTCegWyp5Tn9PSpngIBpzPpt+fPwwp+
+   0Ni3SxVV1Pv+qpRCFEzXh/ihtgjcTFbdCp8SzI1ZQLZQvPtofWOM9hZnq
+   Hyl/ti1G0HLcZa35cqTFkLYQddYiHbWEXvhCHvzFhRu6vv36hRKEEZZgN
+   EBMW+JTxj1HtzUMQoGqCwBw6eY5eCw4wFGgqnZ7/tlwcYAGFsscH5Y8fq
+   9jQ9ytULTHHMuxQ4hcd8HUTUP9RwSaampdU4uISAYfLvq8W8lGSawNFfl
+   idX/DM8fv3rbNTcQbGdPH9XpC6Rt+mKkzhLn4ok94PDkWTWgEkc8ISYFK
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="361565741"
+X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
+   d="scan'208";a="361565741"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2023 08:11:56 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="797644555"
+X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
+   d="scan'208";a="797644555"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga008.fm.intel.com with ESMTP; 10 Aug 2023 08:11:51 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1qU7KH-006JF1-1j;
+        Thu, 10 Aug 2023 18:11:49 +0300
+Date:   Thu, 10 Aug 2023 18:11:49 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Jonathan Cameron <jic23@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Peter Rosin <peda@axentia.se>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Daniel Scally <djrscally@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mips@vger.kernel.org
-Cc:     Andi Shyti <andi.shyti@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 4/4] rtc: rs5c372: fix Wvoid-pointer-to-enum-cast warning
-Date:   Thu, 10 Aug 2023 12:39:02 +0200
-Message-Id: <20230810103902.151145-4-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230810103902.151145-1-krzysztof.kozlowski@linaro.org>
-References: <20230810103902.151145-1-krzysztof.kozlowski@linaro.org>
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>
+Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct bus_type
+Message-ID: <ZNT+NY99n7y3abwa@smile.fi.intel.com>
+References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
+ <20230805174036.129ffbc2@jic23-huawei>
+ <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+ <20230806142950.6c409600@jic23-huawei>
+ <ZNEFjyAloqlkMWn7@smile.fi.intel.com>
+ <ZNFV+C1HCIRJpbdC@google.com>
+ <ZNIyrG/2h/PeS9Oz@smile.fi.intel.com>
+ <20230809182551.7eca502e@jic23-huawei>
+ <OS0PR01MB59221A1ADB67E96E9E39D0198613A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OS0PR01MB59221A1ADB67E96E9E39D0198613A@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-'type' is an enum, thus cast of pointer on 64-bit compile test with W=1
-causes:
+On Thu, Aug 10, 2023 at 09:05:10AM +0000, Biju Das wrote:
+> > On Tue, 8 Aug 2023 15:18:52 +0300
+> > Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
+> > > On Mon, Aug 07, 2023 at 01:37:12PM -0700, Dmitry Torokhov wrote:
+> > > > On Mon, Aug 07, 2023 at 05:54:07PM +0300, Andy Shevchenko wrote:
 
-  rtc-rs5c372.c:829:19: error: cast to smaller integer type 'enum rtc_type' from 'const void *' [-Werror,-Wvoid-pointer-to-enum-cast]
+...
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- drivers/rtc/rtc-rs5c372.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+> > > > So in legacy ID lookup path we can safely assume that values below
+> > > > 4096 are scalars and return NULL from the new
+> > > > device_get_match_data(). This way current drivers using the values
+> > > > as indices or doing direct comparisons against them can continue
+> > > > doing manual look up and using them as they see fit. And we can
+> > convert the drivers at our leisure.
+> > >
+> > > It's a good idea, but I believe will be received as hack.
+> > > But why not to try? We indeed have an error pointers for the last page
+> > > and NULL (which is only up to 16 IIRC) and reserved space in the first
+> > > page. To be more robust I would check all enums that are being used in
+> > > I2C ID tables for maximum value and if that is less than 16, use
+> > > ZERO_OR_NULL_PTR() instead of custom stuff.
+> > >
+> > See iio/adc/max1363 example that has 37ish.
+> > 
+> > Could tidy that one up first and hopefully not find any others that are in
+> > subsystems not keen on the move away from enums.
+> 
+> If there is no objection, I can fix this using i2c_get_match_data() for
+> iio/adc/max1363 and device_match_data() will return ZERO_OR_NULL_PTR()
+> if max enum ID in the ID lookup table is less than 16. And the drivers
+> that use legacy ID's will fallback to ID lookup. So that there won't be
+> any regression.
 
-diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-index a5a6c8772ecd..6df3d25345ac 100644
---- a/drivers/rtc/rtc-rs5c372.c
-+++ b/drivers/rtc/rtc-rs5c372.c
-@@ -826,8 +826,7 @@ static int rs5c372_probe(struct i2c_client *client)
- 	rs5c372->client = client;
- 	i2c_set_clientdata(client, rs5c372);
- 	if (client->dev.of_node) {
--		rs5c372->type = (enum rtc_type)
--			of_device_get_match_data(&client->dev);
-+		rs5c372->type = (uintptr_t)of_device_get_match_data(&client->dev);
- 	} else {
- 		const struct i2c_device_id *id = i2c_match_id(rs5c372_id, client);
- 		rs5c372->type = id->driver_data;
+I'm good with this approach, but make sure you checked the whole kernel source
+tree for a such.
+
 -- 
-2.34.1
+With Best Regards,
+Andy Shevchenko
+
 
