@@ -2,197 +2,97 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 125ECC001DE
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Aug 2023 09:43:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFBD3C04A94
+	for <linux-rtc@archiver.kernel.org>; Thu, 10 Aug 2023 10:39:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234126AbjHJJne (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Aug 2023 05:43:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
+        id S235045AbjHJKjM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 10 Aug 2023 06:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229631AbjHJJnc (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2023 05:43:32 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2B21BCF;
-        Thu, 10 Aug 2023 02:43:32 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-1bc0d39b52cso5183385ad.2;
-        Thu, 10 Aug 2023 02:43:32 -0700 (PDT)
+        with ESMTP id S234920AbjHJKjI (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2023 06:39:08 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B3210E6
+        for <linux-rtc@vger.kernel.org>; Thu, 10 Aug 2023 03:39:08 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-99c1f6f3884so114312366b.0
+        for <linux-rtc@vger.kernel.org>; Thu, 10 Aug 2023 03:39:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691660612; x=1692265412;
-        h=references:in-reply-to:message-id:date:subject:cc:to:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=2ht3VL/Ute0f0NpKuJCr8WI+TjnXswoA7IO1WC8WBAU=;
-        b=Du/F3XNKyw207VcXml+AY4g3uFJ1aRsJY3WvB/ujeTunAkzJfZ6hJuiWmp4ktzf0mq
-         cU6wRhW2OijJvyigoCR8PhNMtufVeq8Nr14YOlC6tzLg1rYrAmZW7v9Xoj8T11qgNVlQ
-         un7BfkUMf3iQxUscOUPPor5fG/o2zAc+Pz+qqnCLP5Ds0/HRdL5rnvdcnc6JzM06+iw3
-         PA2xYtiux/7Yaj+EqNmTfekyWN74aJnJOveipih4yfMzBIrM78hd8863FeEq1+El/t8z
-         TGaubqXThoc9zbX4ktmEBIYJlTKSNPlSGmu4pNJ/4H1IyHtarxqun6b0Zbek67OXGgDJ
-         98qw==
+        d=linaro.org; s=google; t=1691663946; x=1692268746;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tjssVyu9VJwz+xDSDWNEHPUfzXNslCG23eueJNmPGQ8=;
+        b=uqNJ1HX/qjQIexV2nf059Rdzb/vqdUAP7+BucQ7L2+H6Cv3YX4VzsYY2QdgUBz5zfw
+         RqIgwEmU/2ZOhRu3NoQxtaPmwxFofNfW9LUb5IwQQs7enednpNFFYIA5KT3Yc9Kdwofv
+         15SJTOYUrlVSwP3qf17oDTKcHc26PGvCDh4wGHdiDsX/xOZU8M2pXdp8Npgm8kpjNh2y
+         mDHQRW4VFSrGvKVxO5APnSh54XKspyCJpbgznrvtOPMbWTb9c4S8oXFfmDUa/2l8jxNE
+         0t/Fi8H4wBUqr9RsCnrlgBWsI2W9hW6UK3ceRzrIrmlQrclmH7TlrdEeKnIFFyvMm/dR
+         eVpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691660612; x=1692265412;
-        h=references:in-reply-to:message-id:date:subject:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2ht3VL/Ute0f0NpKuJCr8WI+TjnXswoA7IO1WC8WBAU=;
-        b=d/VEwYVQTrTvF9FnCn5lcyLwaI+N6lVvogz3bde4WSN4YpyMuaFvJeNHowYLL0mQpL
-         qHtcD0XHMeKNeJqS6ZhX79dwYQ4mbDBWSliID+nXGKjUbPJz4veRJbsyk/xojDu3m7W6
-         TCcVS0qwhAVEmCurABadXXcwIJWTirUo2OLOUrOw7uj8nf+pmlhs074+MpjgcJBk4ZP9
-         Z6w0kyG1Ts2IrBagAdi7hL5D229won29w8gQFd/N4wGf6tmMODAf7+TuTj3wNJx7w3Va
-         0L/XdYJ5KS2zRtai4lM3X9Wu1rg64r4s7hApobSTaHVFH7QwW9T3l6Krkl+jcJ3hScg/
-         3hpg==
-X-Gm-Message-State: AOJu0YyILnu693fiqz59TFZNEDeZQOXDGq6f/6bkLxxNZsATR3HzP51v
-        CqqYr64IezEVAIY29MjC8m0=
-X-Google-Smtp-Source: AGHT+IEvIA7YB3PfyUgRkmbr8R8VeKGCOJisl2sw+yV7WDIIhnBPkWwkd1EYKsMuvxES1eYW3blvHg==
-X-Received: by 2002:a17:902:aa0c:b0:1b8:847d:973a with SMTP id be12-20020a170902aa0c00b001b8847d973amr1486435plb.46.1691660611621;
-        Thu, 10 Aug 2023 02:43:31 -0700 (PDT)
-Received: from localhost.localdomain (60-250-192-107.hinet-ip.hinet.net. [60.250.192.107])
-        by smtp.gmail.com with ESMTPSA id bi8-20020a170902bf0800b001bba3650448sm1233665plb.258.2023.08.10.02.43.29
+        d=1e100.net; s=20221208; t=1691663946; x=1692268746;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tjssVyu9VJwz+xDSDWNEHPUfzXNslCG23eueJNmPGQ8=;
+        b=Dm+MYf38WpWSPdMXOcK0S4aBcnZVc3ImmhaMUHv5j6WfDmGZxnfICXuC1atXzR1n1+
+         4PaB9hztv/E7f7Nn9CiSAK2y0YxT9FDtamVebf871gvzMxlTDkAGb74JDMH6cQQZCiAx
+         Km3hI++Zt1dn5tYCVh6zq4jnyOoJ/oZBwqa14ZED9XxNFdSUOLy8r1oaHZTqbhDBlFIG
+         1HNpXaM7jdmp+J62/72hs1gG2N8HlA3GQBLmrwP+T2QEos1PkIUhgvZfKvi65pK6/yfw
+         lAAlJkL2Qkjd12GYoLF0d1hTcz4chvNO1FdLtziPBQEdUjy5TSrSf5P5uOK6CadTYk51
+         Stjw==
+X-Gm-Message-State: AOJu0Yzq9UzgoFktkpuU7uKQOhPXhcFq7CiyhVHmsvgY6Difn97VLGo8
+        P/btj7ZOPJ4qXgzSghS7yWgA8g==
+X-Google-Smtp-Source: AGHT+IGT/7vPszp+L5u5i3kb8y/saAj4/upC2TQoXFJR3H17BGkbKlbzLVtk7KUts7U7TQAQw1OGEg==
+X-Received: by 2002:a17:906:1da1:b0:99b:f3f5:9752 with SMTP id u1-20020a1709061da100b0099bf3f59752mr1854481ejh.14.1691663946501;
+        Thu, 10 Aug 2023 03:39:06 -0700 (PDT)
+Received: from krzk-bin.. ([178.197.222.113])
+        by smtp.gmail.com with ESMTPSA id g11-20020a170906868b00b0099bca8b9a31sm742180ejx.100.2023.08.10.03.39.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Aug 2023 02:43:31 -0700 (PDT)
-From:   Mia Lin <mimi05633@gmail.com>
-To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        KWLIU@nuvoton.com, JJLIU0@nuvoton.com, KFLIN@nuvoton.com,
-        mylin1@nuvoton.com
-Cc:     openbmc@lists.ozlabs.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Mia Lin <mimi05633@gmail.com>
-Subject: [PATCH v3 1/1] rtc: nuvoton: Compatible with NCT3015Y-R and NCT3018Y-R
-Date:   Thu, 10 Aug 2023 17:43:23 +0800
-Message-Id: <20230810094323.20077-2-mimi05633@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230810094323.20077-1-mimi05633@gmail.com>
-References: <20230810094323.20077-1-mimi05633@gmail.com>
+        Thu, 10 Aug 2023 03:39:06 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mips@vger.kernel.org
+Cc:     Andi Shyti <andi.shyti@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH 2/4] rtc: rv8803: fix Wvoid-pointer-to-enum-cast warning
+Date:   Thu, 10 Aug 2023 12:39:00 +0200
+Message-Id: <20230810103902.151145-2-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230810103902.151145-1-krzysztof.kozlowski@linaro.org>
+References: <20230810103902.151145-1-krzysztof.kozlowski@linaro.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-- In probe,
-  If part number is NCT3018Y-R, only set HF bit to 24-Hour format.
-  Else, do nothing
-- In set_time,
-  If part number is NCT3018Y-R && TWO bit is 0,
-    change TWO bit to 1, and restore TWO bit after updating time.
+'type' is an enum, thus cast of pointer on 64-bit compile test with W=1
+causes:
 
-Signed-off-by: Mia Lin <mimi05633@gmail.com>
+  rtc-rv8803.c:648:18: error: cast to smaller integer type 'enum rv8803_type' from 'const void *' [-Werror,-Wvoid-pointer-to-enum-cast]
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- drivers/rtc/rtc-nct3018y.c | 63 ++++++++++++++++++++++++++++++++------
- 1 file changed, 54 insertions(+), 9 deletions(-)
+ drivers/rtc/rtc-rv8803.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-nct3018y.c b/drivers/rtc/rtc-nct3018y.c
-index a4e3f924837e..bac1e3fbbbcd 100644
---- a/drivers/rtc/rtc-nct3018y.c
-+++ b/drivers/rtc/rtc-nct3018y.c
-@@ -23,6 +23,7 @@
- #define NCT3018Y_REG_CTRL	0x0A /* timer control */
- #define NCT3018Y_REG_ST		0x0B /* status */
- #define NCT3018Y_REG_CLKO	0x0C /* clock out */
-+#define NCT3018Y_REG_PART	0x21 /* part info */
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 98679cae13e8..c09d66f881fd 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -645,8 +645,7 @@ static int rv8803_probe(struct i2c_client *client)
+ 	mutex_init(&rv8803->flags_lock);
+ 	rv8803->client = client;
+ 	if (client->dev.of_node) {
+-		rv8803->type = (enum rv8803_type)
+-			of_device_get_match_data(&client->dev);
++		rv8803->type = (uintptr_t)of_device_get_match_data(&client->dev);
+ 	} else {
+ 		const struct i2c_device_id *id = i2c_match_id(rv8803_id, client);
  
- #define NCT3018Y_BIT_AF		BIT(7)
- #define NCT3018Y_BIT_ST		BIT(7)
-@@ -37,6 +38,7 @@
- #define NCT3018Y_REG_BAT_MASK		0x07
- #define NCT3018Y_REG_CLKO_F_MASK	0x03 /* frequenc mask */
- #define NCT3018Y_REG_CLKO_CKE		0x80 /* clock out enabled */
-+#define NCT3018Y_REG_PART_NCT3018Y	0x02
- 
- struct nct3018y {
- 	struct rtc_device *rtc;
-@@ -52,7 +54,7 @@ static int nct3018y_set_alarm_mode(struct i2c_client *client, bool on)
- 
- 	dev_dbg(&client->dev, "%s:on:%d\n", __func__, on);
- 
--	flags =  i2c_smbus_read_byte_data(client, NCT3018Y_REG_CTRL);
-+	flags = i2c_smbus_read_byte_data(client, NCT3018Y_REG_CTRL);
- 	if (flags < 0) {
- 		dev_dbg(&client->dev,
- 			"Failed to read NCT3018Y_REG_CTRL\n");
-@@ -109,8 +111,10 @@ static int nct3018y_get_alarm_mode(struct i2c_client *client, unsigned char *ala
- 		*alarm_flag = flags & NCT3018Y_BIT_AF;
- 	}
- 
--	dev_dbg(&client->dev, "%s:alarm_enable:%x alarm_flag:%x\n",
--		__func__, *alarm_enable, *alarm_flag);
-+	if (alarm_enable && alarm_flag) {
-+		dev_dbg(&client->dev, "%s:alarm_enable:%x alarm_flag:%x\n",
-+			__func__, *alarm_enable, *alarm_flag);
-+	}
- 
- 	return 0;
- }
-@@ -178,7 +182,30 @@ static int nct3018y_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	unsigned char buf[4] = {0};
--	int err;
-+	int err, part_num, flags, restore_flags = 0;
-+
-+	part_num = i2c_smbus_read_byte_data(client, NCT3018Y_REG_PART);
-+	if (part_num < 0) {
-+		dev_dbg(&client->dev, "%s: read error\n", __func__);
-+		return part_num;
-+	}
-+
-+	flags = i2c_smbus_read_byte_data(client, NCT3018Y_REG_CTRL);
-+	if (flags < 0) {
-+		dev_dbg(&client->dev, "%s: read error\n", __func__);
-+		return flags;
-+	}
-+
-+	/* Check and set TWO bit */
-+	if ((part_num & NCT3018Y_REG_PART_NCT3018Y) && !(flags & NCT3018Y_BIT_TWO)) {
-+		restore_flags = 1;
-+		flags |= NCT3018Y_BIT_TWO;
-+		err = i2c_smbus_write_byte_data(client, NCT3018Y_REG_CTRL, flags);
-+		if (err < 0) {
-+			dev_dbg(&client->dev, "Unable to write NCT3018Y_REG_CTRL\n");
-+			return err;
-+		}
-+	}
- 
- 	buf[0] = bin2bcd(tm->tm_sec);
- 	err = i2c_smbus_write_byte_data(client, NCT3018Y_REG_SC, buf[0]);
-@@ -212,6 +239,18 @@ static int nct3018y_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		return -EIO;
- 	}
- 
-+	/* Restore TWO bit */
-+	if (restore_flags) {
-+		if (part_num & NCT3018Y_REG_PART_NCT3018Y)
-+			flags &= ~NCT3018Y_BIT_TWO;
-+
-+		err = i2c_smbus_write_byte_data(client, NCT3018Y_REG_CTRL, flags);
-+		if (err < 0) {
-+			dev_dbg(&client->dev, "Unable to write NCT3018Y_REG_CTRL\n");
-+			return err;
-+		}
-+	}
-+
- 	return err;
- }
- 
-@@ -479,11 +518,17 @@ static int nct3018y_probe(struct i2c_client *client)
- 		dev_dbg(&client->dev, "%s: NCT3018Y_BIT_TWO is set\n", __func__);
- 	}
- 
--	flags = NCT3018Y_BIT_TWO;
--	err = i2c_smbus_write_byte_data(client, NCT3018Y_REG_CTRL, flags);
--	if (err < 0) {
--		dev_dbg(&client->dev, "Unable to write NCT3018Y_REG_CTRL\n");
--		return err;
-+	flags = i2c_smbus_read_byte_data(client, NCT3018Y_REG_PART);
-+	if (flags < 0) {
-+		dev_dbg(&client->dev, "%s: read error\n", __func__);
-+		return flags;
-+	} else if (flags & NCT3018Y_REG_PART_NCT3018Y) {
-+		flags = NCT3018Y_BIT_HF;
-+		err = i2c_smbus_write_byte_data(client, NCT3018Y_REG_CTRL, flags);
-+		if (err < 0) {
-+			dev_dbg(&client->dev, "Unable to write NCT3018Y_REG_CTRL\n");
-+			return err;
-+		}
- 	}
- 
- 	flags = 0;
 -- 
-2.17.1
+2.34.1
 
