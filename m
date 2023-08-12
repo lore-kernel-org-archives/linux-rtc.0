@@ -2,123 +2,118 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BB2DC001B0
-	for <linux-rtc@archiver.kernel.org>; Thu, 10 Aug 2023 15:10:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D73EC001DB
+	for <linux-rtc@archiver.kernel.org>; Sat, 12 Aug 2023 08:54:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234670AbjHJPKT (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 10 Aug 2023 11:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36292 "EHLO
+        id S234095AbjHLIyr (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sat, 12 Aug 2023 04:54:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232967AbjHJPKS (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 10 Aug 2023 11:10:18 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DCB826B7;
-        Thu, 10 Aug 2023 08:10:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1691680218; x=1723216218;
-  h=resent-from:resent-date:resent-message-id:resent-to:date:
-   from:to:subject:message-id:references:mime-version:
-   in-reply-to;
-  bh=E3ZMke54mtosCQbG55UwhQh1q58r9W+COrYMi8FksLs=;
-  b=UUi6OmvgurLe6GQUvazqKkcz+DoptSvufz9wAAtoIzlhhdOoULsbq8uz
-   WRkSKSFUzQUXcfnmoCf8rJcElgNicr6fFQkWgYwGzTu0HtNqadmz90o5i
-   VnSWDqwZHgak8bPAqAPXsYIO5o/GeZNo2uvr/MAXk33N0lznUmN1PrTy3
-   6vZj5zX1zoKeFsGxu+5+xmM7enEzYYuhgOSk0ksFjiEb29bbNnRVq314z
-   GGhgn1UNNz9tJFoFONToXifF7rbQjkH6pznpQQs9Grn/Fh8yMFuUrrApI
-   ZOJWO+reoowe8CZ6GvGfQ10F2WmgCIMq3HXgkuaSoAuwWTXcDjJsvuLCV
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="351033520"
-X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
-   d="scan'208";a="351033520"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Aug 2023 08:09:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10798"; a="855968836"
-X-IronPort-AV: E=Sophos;i="6.01,162,1684825200"; 
-   d="scan'208";a="855968836"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga004.jf.intel.com with ESMTP; 10 Aug 2023 08:09:12 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@intel.com>)
-        id 1qU7Hi-006DXR-1o;
-        Thu, 10 Aug 2023 18:09:10 +0300
-Date:   Thu, 10 Aug 2023 18:04:58 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v7 0/4] Extend device_get_match_data() to struct bus_type
-Message-ID: <ZNT8mrh6seDQL3kz@smile.fi.intel.com>
-References: <20230804161728.394920-1-biju.das.jz@bp.renesas.com>
- <20230805174036.129ffbc2@jic23-huawei>
- <OS0PR01MB59220491C7C8AA40BEFAAD82860EA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <20230806142950.6c409600@jic23-huawei>
- <ZNEFjyAloqlkMWn7@smile.fi.intel.com>
- <ZNFV+C1HCIRJpbdC@google.com>
- <ZNIyrG/2h/PeS9Oz@smile.fi.intel.com>
- <20230809182551.7eca502e@jic23-huawei>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230809182551.7eca502e@jic23-huawei>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+        with ESMTP id S237056AbjHLIy3 (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sat, 12 Aug 2023 04:54:29 -0400
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50B473C28;
+        Sat, 12 Aug 2023 01:54:12 -0700 (PDT)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.nyi.internal (Postfix) with ESMTP id 919A45C00E7;
+        Sat, 12 Aug 2023 04:53:23 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+  by compute6.internal (MEProxy); Sat, 12 Aug 2023 04:53:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+        :cc:content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm3; t=1691830403; x=1691916803; bh=SE
+        nGcpG27n6iOUXoo8tDjCIBUt8tik6949s/gqlsr/k=; b=MIlP4XVDM9/3JO0cQt
+        dg/ZbcaHdggJQkgkz1ABOzarv7hrkCKg/be2DAHLGJOcOmt+OjrzwxOceJ3q8bOr
+        XzsxuuZt3v2/hXBcl7B2XMDGivpey6VE+tuT0XaF4Mm6f0geKTOTHa8IuSFO/Rcz
+        gfX8GSkhB7cpvR8j1bUggkcotBd2BaQE6MIHXZRZt9HaX3tU9KFcZO6MO1slnyBa
+        kBe0JjBQrsEj29OKYA47ou7Zg6osC9F3GUKQbFzVJ7n3S3GF7rCmINd+k7Mp9tXo
+        qW/JEJJz2BzJSOefepShcr33RBL40TWoUlpO5p1ZQAYmJeXRhuKyLIOZv2Hi/tsP
+        Hr7w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1691830403; x=1691916803; bh=SEnGcpG27n6iO
+        UXoo8tDjCIBUt8tik6949s/gqlsr/k=; b=hNtIKDtKAmLTqJ77bx0sDpwNyMzXU
+        boOAJ3Wse9veYN3csGBKuHADwdEstAr/WfI918waLqjUCTs8yQaLkRsmSt3SGxET
+        pcjWAgG54yTrbZf16l5yD72x4rUMN+ghgJTnx4Qpnu9YXIWx3x01A5XKdHRUAmx7
+        OKGvuANK8mg1Onr5RylDTew4TL5Uqw98Ujs6G8AFcckrXMxFculCOoXJF3GOXNLt
+        Ai3MLWVss16RUeQ9yhsDuw6Xvnbshvg2qLZbS9U0sRysgC09E0UcqUdZ5U4d6gXE
+        ltWtxF/nQ0C7o5TRmcptBlKFcncZi/LRNYW5bIMlM/IRZcOAuGnJkwjXQ==
+X-ME-Sender: <xms:gkjXZOmiIngsPSt-0vMoYgu7wGBsbAN6lnPBGlz9qmhvYaY0M56-ug>
+    <xme:gkjXZF3P3snSTLsqzA43nGEPuFn32q3vp6JvjKrGGdT9Y_5SLoydhNyEmCLoIfclE
+    utA0vpSQz2sQZhnzIE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedviedruddttddgtdekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
+    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
+    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
+    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hrnhgusegrrhhnuggsrdguvg
+X-ME-Proxy: <xmx:gkjXZMowSOmH1SWl79ZGtVk8uOsfkymQWvwjAzXZm7nWjRnS0VtvVQ>
+    <xmx:gkjXZCmurZrEm8XQCmNlLmjEUy-tF-TuSHiEXjLFCvDJbVYr4sd7sQ>
+    <xmx:gkjXZM3Bez4zyiJxzxIfXG60hOAbKFLUF0-fDApVXSnvg4BhCdTNGA>
+    <xmx:g0jXZBs-tcjWTblYrKGg85aG6isIL9ITSiIFU5pjBPTbiZRY2hlUSA>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id C157FB60089; Sat, 12 Aug 2023 04:53:22 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-624-g7714e4406d-fm-20230801.001-g7714e440
+Mime-Version: 1.0
+Message-Id: <43e42ee5-7a56-49ba-8e06-5046ef85c98f@app.fastmail.com>
+In-Reply-To: <20230809011542.429945-1-ychuang570808@gmail.com>
+References: <20230809011542.429945-1-ychuang570808@gmail.com>
+Date:   Sat, 12 Aug 2023 10:53:02 +0200
+From:   "Arnd Bergmann" <arnd@arndb.de>
+To:     "Jacky Huang" <ychuang570808@gmail.com>,
+        "Alessandro Zummo" <a.zummo@towertech.it>,
+        "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+        "Rob Herring" <robh+dt@kernel.org>,
+        krzysztof.kozlowski+dt@linaro.org,
+        "Conor Dooley" <conor+dt@kernel.org>
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        soc@kernel.org, mjchen@nuvoton.com, schung@nuvoton.com,
+        "Jacky Huang" <ychuang3@nuvoton.com>
+Subject: Re: [RESEND PATCH v2 0/3] Add support for Nuvoton ma35d1 rtc controller
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On Wed, Aug 09, 2023 at 06:25:51PM +0100, Jonathan Cameron wrote:
-> On Tue, 8 Aug 2023 15:18:52 +0300
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
-> > On Mon, Aug 07, 2023 at 01:37:12PM -0700, Dmitry Torokhov wrote:
-> > > On Mon, Aug 07, 2023 at 05:54:07PM +0300, Andy Shevchenko wrote:  
-> > > > On Sun, Aug 06, 2023 at 02:29:50PM +0100, Jonathan Cameron wrote:  
-> > > > > On Sat, 5 Aug 2023 17:42:21 +0000
-> > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
-> > > > > > > On Fri,  4 Aug 2023 17:17:24 +0100
-> > > > > > > Biju Das <biju.das.jz@bp.renesas.com> wrote:  
+On Wed, Aug 9, 2023, at 03:15, Jacky Huang wrote:
+> From: Jacky Huang <ychuang3@nuvoton.com>
+>
+> This patch series adds the rtc driver for the nuvoton ma35d1 ARMv8 SoC.
+> It includes DT binding documentation, the ma35d1 rtc driver, and device
+> tree updates.
+>
+> The ma35d1 rtc controller provides real-time and calendar messaging
+> capabilities. It supports programmable time tick and alarm match
+> interrupts. The time and calendar messages are expressed in BCD format.
+>
+> This rtc driver has been tested on the ma35d1 som board with Linux 6.5-rc2.
 
-...
+Hi Jacky,
 
-> > > > > > + * Besides the fact that some drivers abuse the device ID driver_data type
-> > > > > > + * and claim it to be integer, for the bus specific ID tables the driver_data
-> > > > > > + * may be defined as kernel_ulong_t. For these tables 0 is a valid response,
-> > > > > > + * but not for this function. It's recommended to convert those either to avoid
-> > > > > > + * 0 or use a real pointer to the predefined driver data.  
-> > > >   
-> > > > > We still need to maintain consistency across the two tables, which
-> > > > > is a stronger requirement than avoiding 0.  
-> > > > 
-> > > > True. Any suggestion how to amend the above comment? Because the documentation
-> > > > makes sense on its own (may be split from the series?).
-> > > >   
-> > > > > Some drivers already do that by forcing the enum used to start at 1 which
-> > > > > doesn't solver the different data types issue.  
-> > > > 
-> > > > And some maintainers do not want to see non-enum values in i2c ID table.
-> > > > *Shrug*.  
-> > > 
-> > > So in legacy ID lookup path we can safely assume that values below 4096
-> > > are scalars and return NULL from the new device_get_match_data(). This
-> > > way current drivers using the values as indices or doing direct
-> > > comparisons against them can continue doing manual look up and using
-> > > them as they see fit. And we can convert the drivers at our leisure.  
-> > 
-> > It's a good idea, but I believe will be received as hack.
-> > But why not to try? We indeed have an error pointers for the last page
-> > and NULL (which is only up to 16 IIRC) and reserved space in the first
-> > page. To be more robust I would check all enums that are being used
-> > in I2C ID tables for maximum value and if that is less than 16, use
-> > ZERO_OR_NULL_PTR() instead of custom stuff.
-> > 
-> See iio/adc/max1363 example that has 37ish.
-> 
-> Could tidy that one up first and hopefully not find any others that
-> are in subsystems not keen on the move away from enums.
+I see you added soc@kernel.org to Cc for all three patches, which
+has put them into the patchwork tracker.
 
-Oh, yep, this needs a treewide audit and fixes around before going further.
-As you said.
+Now that the platoform support is merged, I do not pick up patches
+for other subsystems through the soc tree, so please drop the Cc
+here.
 
--- 
-With Best Regards,
-Andy Shevchenko
+You can post the the dts change along with the driver, but the
+correct process is that the subsystem maintainer(s) pick up the
+DT binding and the driver once the review is complete, and then
+you send the dts changes to soc@kernel.org. Depending on the
+platform, there may be a lot of conflicting dts changes, so this
+way you can aggregate any patches for these files before sending
+them to the soc tree for inclusion, while I then merge them
+with all the dts changes for other platforms and any global
+cleanup. 
 
-
+    Arnd
