@@ -2,87 +2,85 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A6D5C41513
-	for <linux-rtc@archiver.kernel.org>; Wed, 16 Aug 2023 01:27:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09104C001B0
+	for <linux-rtc@archiver.kernel.org>; Wed, 16 Aug 2023 11:34:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241029AbjHPB01 (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 15 Aug 2023 21:26:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38006 "EHLO
+        id S241072AbjHPLeY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 16 Aug 2023 07:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241014AbjHPBZ4 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 15 Aug 2023 21:25:56 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9E42121;
-        Tue, 15 Aug 2023 18:25:56 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id d2e1a72fcca58-68872ca740bso805344b3a.2;
-        Tue, 15 Aug 2023 18:25:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692149156; x=1692753956;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=eS73907VIaCeI53gzLLDOXrTmdR8uzZ1TgnhrmdjAfE=;
-        b=W2BVuarHi+6pbrQsl6hiKrxEXM9fXIA6Su8DOcpzFEbDu4//L9sLF6EgJaZhkvnUev
-         N+6t2NTVAFl4kSpxLw1uez5Hr9nAKkejmVBfrO9jWHRUGfWjoY/MKlNxovAqpdnq3q+F
-         Ol7+C2hR62tDDpgSDlO8yl9qHCUUEBBrVG5BkoP3jgS6hXSIOzRgzsThrOwRSzfSSr4m
-         H5i1bOOFKxV6J5Hkbz5Rz5FSTmBGa8uqXf6OdKg/L35iBDzSz4D2iMajGiyz5b1/I+TV
-         55Eh8VMUCMAHp2oRIyjIwcYbU5JwLH/Xa13gWByWSA171lnThMuEJQIsSN085rlWkHYb
-         uVIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692149156; x=1692753956;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eS73907VIaCeI53gzLLDOXrTmdR8uzZ1TgnhrmdjAfE=;
-        b=ZN+r1OhBlh82JjyLxfYd8tmdSsRnlLIEvPFzFDa3EUT/BQxYixd7Lu7UJBOCllZfvt
-         1rC6yRYc/SNTBoM2YsF+xRhiAYZCWU83fooZ0iTKLGmGuSJIO7j+hCeH5QYADdBOE6ue
-         5/4mBKqYV/1jK9j1X53drUQV2sXt78/rp2sankJWc7T+JPecq1UaWAJkWOwpCt94BlKN
-         LASFWx7DkZVwZb2dhl0qG1ahng1Y2DdJ9A7KA7wGdkWBhezPio/XSNFC7tlPsG50AlpW
-         YavFoBQvtpZZ5AARHSPhBnI67celkBDisUlUwnM2YycGIQWnZCzAyS+TFRLt5WJ6MBR/
-         P83A==
-X-Gm-Message-State: AOJu0YwDz77Vmg7aktER3xaEPvU89iNmmUFcfa5RZjahgUTYOv37VuAS
-        M5XJcjl4V0dLBHi9xELu4Wk=
-X-Google-Smtp-Source: AGHT+IHKxroaeDsPMZSPoBDxdrhVDk2WoFodBQQXZmJfm7VKR0XuLLTGvJIobdyYW/H8EJzlkqDyDQ==
-X-Received: by 2002:a05:6a20:42a6:b0:135:110c:c6de with SMTP id o38-20020a056a2042a600b00135110cc6demr769678pzj.6.1692149155478;
-        Tue, 15 Aug 2023 18:25:55 -0700 (PDT)
-Received: from localhost.localdomain (60-250-192-107.hinet-ip.hinet.net. [60.250.192.107])
-        by smtp.gmail.com with ESMTPSA id 17-20020aa79251000000b0064d47cd116esm9895468pfp.161.2023.08.15.18.25.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Aug 2023 18:25:54 -0700 (PDT)
-From:   Mia Lin <mimi05633@gmail.com>
-To:     avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com,
-        venture@google.com, yuenn@google.com, benjaminfair@google.com,
-        a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        KWLIU@nuvoton.com, JJLIU0@nuvoton.com, KFLIN@nuvoton.com,
-        mylin1@nuvoton.com
-Cc:     openbmc@lists.ozlabs.org, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Mia Lin <mimi05633@gmail.com>
-Subject: [PATCH v4 0/1] Compatible with NCT3015Y-R and NCT3018Y-R
-Date:   Wed, 16 Aug 2023 09:25:39 +0800
-Message-Id: <20230816012540.18464-1-mimi05633@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S244682AbjHPLeL (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Aug 2023 07:34:11 -0400
+Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [IPv6:2a02:1800:120:4::f00:14])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CBDE138
+        for <linux-rtc@vger.kernel.org>; Wed, 16 Aug 2023 04:33:36 -0700 (PDT)
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed40:5d0c:f209:12a7:4ce5])
+        by xavier.telenet-ops.be with bizsmtp
+        id aBZT2A00445ualL01BZTFl; Wed, 16 Aug 2023 13:33:28 +0200
+Received: from rox.of.borg ([192.168.97.57])
+        by ramsan.of.borg with esmtp (Exim 4.95)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1qWEm8-000p1Y-GO;
+        Wed, 16 Aug 2023 13:33:26 +0200
+Received: from geert by rox.of.borg with local (Exim 4.95)
+        (envelope-from <geert@linux-m68k.org>)
+        id 1qWEmE-006A0c-RE;
+        Wed, 16 Aug 2023 13:33:26 +0200
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Valentin Caron <valentin.caron@foss.st.com>
+Cc:     linux-rtc@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] rtc: stm32: Use NOIRQ_SYSTEM_SLEEP_PM_OPS()
+Date:   Wed, 16 Aug 2023 13:33:26 +0200
+Message-Id: <20230816113326.1468435-1-geert@linux-m68k.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Changes since version 4:
-  Add an introduction bewteen NCT3015Y-R and NCT3018Y-R.
-  Restore the initial value of err in nct3018y_rtc_set_time().
-  Refine error messages to pinpoint the correct location.
+If CONFIG_PM_SLEEP=n (e.g. m68k/allmodconfig):
 
-Changes since version 3:
-  Remove the comparison between DT compatible and chip data.
+    drivers/rtc/rtc-stm32.c:904:12: error: ‘stm32_rtc_resume’ defined but not used [-Werror=unused-function]
+      904 | static int stm32_rtc_resume(struct device *dev)
+	  |            ^~~~~~~~~~~~~~~~
+    drivers/rtc/rtc-stm32.c:894:12: error: ‘stm32_rtc_suspend’ defined but not used [-Werror=unused-function]
+      894 | static int stm32_rtc_suspend(struct device *dev)
+	  |            ^~~~~~~~~~~~~~~~~
 
-Changes since version 2:
-  Add DT compatible to check the chip matches or not.
+Indeed, the previous change mixed up the semantics between
+SET_NOIRQ_SYSTEM_SLEEP_PM_OPS() and NOIRQ_SYSTEM_SLEEP_PM_OPS().
+Fix this by using the modern NOIRQ_SYSTEM_SLEEP_PM_OPS() instead.
 
-Changes since version 1:
-  rtc: nuvoton: Compatible with NCT3015Y-R and NCT3018Y-R
+Reported-by: noreply@ellerman.id.au
+Fixes: a69c610e13e2b2de ("rtc: stm32: remove incorrect #ifdef check")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/rtc/rtc-stm32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Mia Lin (1):
-  rtc: nuvoton: Compatible with NCT3015Y-R and NCT3018Y-R
-
- drivers/rtc/rtc-nct3018y.c | 122 +++++++++++++++++++++++++------------
- 1 file changed, 83 insertions(+), 39 deletions(-)
-
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index 3ce4b3d08155b48d..76753c71d92eef3e 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -923,7 +923,7 @@ static int stm32_rtc_resume(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops stm32_rtc_pm_ops = {
+-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(stm32_rtc_suspend, stm32_rtc_resume)
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(stm32_rtc_suspend, stm32_rtc_resume)
+ };
+ 
+ static struct platform_driver stm32_rtc_driver = {
 -- 
-2.17.1
+2.34.1
 
