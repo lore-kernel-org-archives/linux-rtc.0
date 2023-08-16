@@ -2,53 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEEE8C41513
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E15B7C04FDF
 	for <linux-rtc@archiver.kernel.org>; Wed, 16 Aug 2023 13:40:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245610AbjHPNkB (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 16 Aug 2023 09:40:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
+        id S245602AbjHPNkD (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 16 Aug 2023 09:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245603AbjHPNjo (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Aug 2023 09:39:44 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BD7B9;
-        Wed, 16 Aug 2023 06:39:43 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1bdf4752c3cso15352565ad.2;
-        Wed, 16 Aug 2023 06:39:43 -0700 (PDT)
+        with ESMTP id S245609AbjHPNjt (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 16 Aug 2023 09:39:49 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 459C726A9;
+        Wed, 16 Aug 2023 06:39:48 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1bdf7086ae5so16019805ad.0;
+        Wed, 16 Aug 2023 06:39:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692193183; x=1692797983;
+        d=gmail.com; s=20221208; t=1692193188; x=1692797988;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cPyeOQTHUIBx8cc+Tlz/Akt92G3Epi3WuhjRpP+czGE=;
-        b=QgSe0DICMVH4IRWluBGO8+2roayy19LAu2pzIAEfoOXM9/KUE+DK17tR/W7tBbYDzN
-         Z6D4KoHxn5GZgQ1nhLeseANBQ3XfnmKv/tgNOcoPRdFO3ovB1/W9Y8kBvvjMJzajxhET
-         7+/Q6v3m9FZW3Aiw3IApFrlBXl3ocGZSUtJnL66sP6YiyCpirPV9vy6hwG+dqk5nO/sP
-         CbrSgay46oSwBjrRiEl3VS1ac2g6L5qZG+qmCQaS/0eCjBBAz7Xd5aHJk8Y1/FRJOUrN
-         OitiJrGWGJTYG1sWh2yn8oETYxbAYHXrOlsvz0739sQzToQskoQM3cnIW3cnZA0s7kot
-         xZHw==
+        bh=oscugnf7qYaTZOb13U9ax19uPvy15y4ztIfQsoTuemg=;
+        b=C4NKz8S2dkpWNgwFeQmkOLjPwyXB2iURVjCpQ73Sa5SYRQEjIRSFZkXJV17gS6ppfG
+         etzuAmbwu94iRIMEuqQdmVd73tTyXvyqJd7wBVNUoL4It95ok5sKs4YF3iEXC7BnQ1lE
+         7UmKVCEHWgGebJ16Od3m8lfc1Inl/OFqt8wLn0hDLSUpK8n3ZqsVANSFkesUI7EncayZ
+         6zw8MDCGSToRyvnVXuadnKjst7LTvrNNZSCX32IiUjOaN++Vb/1WI+vZUyAw9vJMo1dO
+         MaV3mgE4pGTCUxje2bS0xZDNqpQYB5dTAka55kHTzaXTwHUhVFKBfpjCJegRp6/DG4IN
+         3oYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692193183; x=1692797983;
+        d=1e100.net; s=20221208; t=1692193188; x=1692797988;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=cPyeOQTHUIBx8cc+Tlz/Akt92G3Epi3WuhjRpP+czGE=;
-        b=ZY0NUvv8NkyODcsrxHXd1MjSExUoib4Xv7Ex77FlSvupjZnTsNbslaoiBpSzQUB3d1
-         gozbJuaJOgIdl7+MAblzh9pLLukvBIoISPsUYzb5osHBEc4kePaZHEwUa5EGr33KEV/a
-         PCKx45LY+LxoeZaG8gKtpzPzDysrxNcafjbanmGx+ah9Vm0IBnnAacv+7xn+qqJdTd6T
-         eUGQ0yPA7irFY0L08/3/vnbBAl8yK99ITuCALLdVfyia6oe95nG9GT791HANfp3VKE0m
-         zH3gUdGDr3lPntWrHemXKglnqysliSsQ4O3HzjNosTAtpn5Uv2gb8oLV1WvAmYJmmTIm
-         nJUA==
-X-Gm-Message-State: AOJu0YwYxHBWOXK3pLz2EXHCd28iIIhCrKcL2F3GQjJ143F9Zlk4ph1o
-        ffB0J6HAIGzI/o9L/5IdQbM=
-X-Google-Smtp-Source: AGHT+IFAKTyPIvG2X5mhnjPAwP1/DDgYxP4XOiqgVhuJxWMcc5SaOG0HL7HBB90p8koUe9URm+73Aw==
-X-Received: by 2002:a17:902:f687:b0:1bc:239:a7e3 with SMTP id l7-20020a170902f68700b001bc0239a7e3mr1873820plg.44.1692193183233;
-        Wed, 16 Aug 2023 06:39:43 -0700 (PDT)
+        bh=oscugnf7qYaTZOb13U9ax19uPvy15y4ztIfQsoTuemg=;
+        b=ELyaDrVOw2A5kSFsFBR+lKpw4E5k8CHEilru8m/BWuTL+UIbc73maZgnJJiZuotbvw
+         gGHOpU3SsGts1hBiJnKmYIn78cmnw5QRo2PkE+uPoKJ3IOTfJ1CTxH0yjm0wqkxGGLo2
+         QX9+8aOAjNRhBR3eUqReIxgLhuwZilKY6f7rkAKJVAgOEd0kIgfOzp5SfsboAsGXtpY0
+         IwIMZGGp0aPD+TSaLpkxNlJ9UmTdNAJi0t9wIvJc+t1MjOltYAzgAv0nACKp8xU34jd/
+         XlOoFmlF9uz2tPA7Z93U+f5uiOeKICp/51Ee7ogVOVYZDjssZ8ZcPga2uY0YXhQbvp9x
+         DtiQ==
+X-Gm-Message-State: AOJu0Yy37Bj6l3ySemJSxlhmBjS76kOT+sXFXK4LBpjF2JQbamq3R0lS
+        YB8ynoRXArC5pd4PECQHtv172L/ltCk=
+X-Google-Smtp-Source: AGHT+IE9o2BFl+XSfkXzpZE3w/IEWeczET+nJDuzj9eYjAN8CUJekT0r5nLPfNh05AT8k+Z6CzUjWg==
+X-Received: by 2002:a17:902:e5cc:b0:1bc:5197:73c5 with SMTP id u12-20020a170902e5cc00b001bc519773c5mr2172551plf.54.1692193187739;
+        Wed, 16 Aug 2023 06:39:47 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z17-20020a170903019100b001bbb25dd3a7sm13109199plg.187.2023.08.16.06.39.42
+        by smtp.gmail.com with ESMTPSA id b4-20020a170902d50400b001bb9b5e86b7sm13173773plg.91.2023.08.16.06.39.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Aug 2023 06:39:42 -0700 (PDT)
+        Wed, 16 Aug 2023 06:39:47 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -61,9 +61,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Brian Norris <briannorris@chromium.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 1/7] rtc: Add support for limited alarm timer offsets
-Date:   Wed, 16 Aug 2023 06:39:30 -0700
-Message-Id: <20230816133936.2150294-2-linux@roeck-us.net>
+Subject: [PATCH 4/7] rtc: cmos: Report supported alarm limit to rtc infrastructure
+Date:   Wed, 16 Aug 2023 06:39:33 -0700
+Message-Id: <20230816133936.2150294-5-linux@roeck-us.net>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230816133936.2150294-1-linux@roeck-us.net>
 References: <20230816133936.2150294-1-linux@roeck-us.net>
@@ -73,43 +73,44 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some alarm timers are based on time offsets, not on absolute times.
-In some situations, the amount of time that can be scheduled in the
-future is limited. This may result in a refusal to suspend the system,
-causing substantial battery drain.
-
-Some RTC alarm drivers remedy the situation by setting the alarm time
-to the maximum supported time if a request for an out-of-range timeout
-is made. This is not really desirable since it may result in unexpected
-early wakeups.
-
-To reduce the impact of this problem, let RTC drivers report the maximum
-supported alarm timer offset. The code setting alarm timers can then
-decide if it wants to reject setting alarm timers to a larger value, if it
-wants to implement recurring alarms until the actually requested alarm
-time is met, or if it wants to accept the limited alarm time.
-
-Only introduce the necessary variable into struct rtc_device.
-Code to set and use the variable will follow with subsequent patches.
+The alarm window supported by the cmos RTC depends on the chip
+and its configuration. Report the limit to the RTC core.
 
 Cc: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- include/linux/rtc.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-cmos.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 1fd9c6a21ebe..b6d000ab1e5e 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -146,6 +146,7 @@ struct rtc_device {
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index c9416fe8542d..c565dc4d5bf5 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -913,6 +913,10 @@ static inline void cmos_check_acpi_rtc_status(struct device *dev,
+ #define	INITSECTION	__init
+ #endif
  
- 	time64_t range_min;
- 	timeu64_t range_max;
-+	timeu64_t range_max_offset;
- 	time64_t start_secs;
- 	time64_t offset_secs;
- 	bool set_start_time;
++#define SECS_PER_DAY	(24 * 60 * 60)
++#define SECS_PER_MONTH	(28 * SECS_PER_DAY)
++#define SECS_PER_YEAR	(365 * SECS_PER_DAY)
++
+ static int INITSECTION
+ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ {
+@@ -1019,6 +1023,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+ 		goto cleanup0;
+ 	}
+ 
++	if (cmos_rtc.mon_alrm)
++		cmos_rtc.rtc->range_max_offset = SECS_PER_YEAR - 1;
++	else if (cmos_rtc.day_alrm)
++		cmos_rtc.rtc->range_max_offset = SECS_PER_MONTH - 1;
++	else
++		cmos_rtc.rtc->range_max_offset = SECS_PER_DAY - 1;
++
+ 	rename_region(ports, dev_name(&cmos_rtc.rtc->dev));
+ 
+ 	if (!mc146818_does_rtc_work()) {
 -- 
 2.39.2
 
