@@ -2,53 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49E03C678DD
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14BAAC6FD22
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355928AbjHQW4g (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        id S1355933AbjHQW4g (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
         Thu, 17 Aug 2023 18:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55286 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355935AbjHQW4F (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:05 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4BB3A86;
-        Thu, 17 Aug 2023 15:55:46 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1bee82fab5aso2700275ad.3;
-        Thu, 17 Aug 2023 15:55:46 -0700 (PDT)
+        with ESMTP id S1355931AbjHQW4E (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:04 -0400
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA2535AD;
+        Thu, 17 Aug 2023 15:55:44 -0700 (PDT)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-1c5046642b4so153944fac.1;
+        Thu, 17 Aug 2023 15:55:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692312946; x=1692917746;
+        d=gmail.com; s=20221208; t=1692312943; x=1692917743;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oBswWeic/lo4KfdmWov/kNdO9T86copP+2hJMykbXoU=;
-        b=SkFvGImlqWNj7k34nqFQ0h98ZUGV0d/dBxQ/TCfwPQJFUW2xvaBQgORu9wRoxqFTB6
-         zj4mWDkCrU6t3meRpjTUmUsmnC/sDXkqoFesuLocHt005vmRQzOI40MQjQRN1JC60wZX
-         d4+KusfOGcATN9sZliVHVD9vHGAq6gkSByL/plmCiNElMXC27/BO0p/Rw1eKjQbzkd/l
-         pP6bdRd23JTnGMGW3Bs/M+I5Xr0yMyAKxvSvLJDaH7SS0d9aRy7f+RgAvUmQFMVmVvKi
-         8ZFBeDdf+8WvG3+1F15iL1eATbVw2c7gi4Ew7+Gy7v0vcqLLv6w4NDH27+RqQ31s07GG
-         SqYQ==
+        bh=XfRFkZNYpcFtEpCJ6592jYz9YhXnTUHLdeGPiNrj2fk=;
+        b=MXRCzbCTeWNzNbEDyd8SMiVUQsEtHfbcb6hBK9mJqHcFVGk3X1Cm8T6cZJsg4eap+5
+         xj2m86LAyvS6tMx3s0RSLf0LDwThu3a1V38VfwFhGQDfludVBQXo8Bj0vL8xUEEpBTm5
+         3g1puHO6TFf7goWKkmfUflJnt0dADKb5JwDmeamQ/muMRcYpe/bJ3dZR4n2wQkZumkDI
+         9gQmUZV1xwtBL8a6BIxlAUIkDsZThyQoVTfA+0qwuS5gketBeD4dk0MBsoBLRDtpfVp3
+         kJOAJnBQnSBkxXBysbcHxFlcE2y4FK+mfWONZRFT5F99JkqOEBW/69bsTVsl4BiOuvAh
+         /C6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692312946; x=1692917746;
+        d=1e100.net; s=20221208; t=1692312943; x=1692917743;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=oBswWeic/lo4KfdmWov/kNdO9T86copP+2hJMykbXoU=;
-        b=axFT9YhWC+w1W3VQyC2GB7EdrUBtRE2UC3L6++ql16Ye6Y5HChH5zTJCIzmQdhN+fu
-         Np1CX+TazP4L2mpQlJzAVPkxRe3D7XLuiBN3foD3HO+UTxOBwqS5nBEFpgfZONTmp1NP
-         MNIo+Ak23JIwuWZlA68Sss6dGTuqSes+HgNRZjE9TvZBfi38D8Vp1lXYc+qBySEgn/il
-         3DLJ/tccTbgTes4JuIjuBPkTTFYvRPlPAzatO84gXe5rriojEpIvS5hiUy8YrkR6wj8l
-         9pHNV6zMGfKKi0M1ay+sfKbqKZpg+nECCsv9dHdw6frUfiaLdTkISCzQRZlroKwhFQOF
-         3VhQ==
-X-Gm-Message-State: AOJu0YzE04bf7WgA+FZZFrdywM87N9EmcuNr+JzPMujSDqEcASTS5e14
-        U5YXvj0Hbi/r0MD8caJ2FSE=
-X-Google-Smtp-Source: AGHT+IH/z7EPJYgQZK9t5l7bkg+hRtsW1dDieYTbI0lqpjOZ7BlFEpRYNW6bHMH6bWrXqay6elvAPQ==
-X-Received: by 2002:a17:902:b783:b0:1b8:8dbd:e1a0 with SMTP id e3-20020a170902b78300b001b88dbde1a0mr807488pls.13.1692312945903;
-        Thu, 17 Aug 2023 15:55:45 -0700 (PDT)
+        bh=XfRFkZNYpcFtEpCJ6592jYz9YhXnTUHLdeGPiNrj2fk=;
+        b=FXGwI9Kwh/rEpLIdk++OHAmUobPPDXWv8ntqQhx29X4AJ8sWH0kYMY+HKQBf3z/DPr
+         EMot4XsZTQaffbHXZ5GN1O+Al5MVSsq7jlUXLmWjsWU3HF8/YFTBVnvT62FF0SbiZH1Y
+         aViL6bgKq5p0pECZnVOn2q+H1z9gW9S8TpBroSt064Em+ZIRnvwtl7y8XoxWRKVbfWwH
+         iUYkrt/EkMLBWRWCtErdD2pqd1odkpfDgp/VbWf3smXEGrLFTwhtkf7OfL79gOeA32rW
+         2O32SA86+e/p09mc3LtI+ptoRKGrouFH3HpioBZB4Q1BLoTp/w3kod2BLUrHRj+bQAL8
+         W6lw==
+X-Gm-Message-State: AOJu0Yx0DK/HDO4o+85Bg+z4UHPBoXHb5L82eTXkLwrWN2VmuEzekZnr
+        /IEBwm5w/gJDgCfJxl8MTsQ=
+X-Google-Smtp-Source: AGHT+IGecaZOASaYD6zXgLwsM0W8IL7sV2ZlDZ4eoU13hQxg2omBb9E8fKlB7FZOMNsQwyzsYT6sqQ==
+X-Received: by 2002:a05:6870:e304:b0:1c8:baa5:a50f with SMTP id z4-20020a056870e30400b001c8baa5a50fmr1043267oad.27.1692312943209;
+        Thu, 17 Aug 2023 15:55:43 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id iz22-20020a170902ef9600b001b9da42cd7dsm282552plb.279.2023.08.17.15.55.45
+        by smtp.gmail.com with ESMTPSA id z15-20020a17090a014f00b0026d214a2b33sm1829850pje.7.2023.08.17.15.55.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Aug 2023 15:55:45 -0700 (PDT)
+        Thu, 17 Aug 2023 15:55:42 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -61,9 +61,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Brian Norris <briannorris@chromium.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 4/7] rtc: cmos: Report supported alarm limit to rtc infrastructure
-Date:   Thu, 17 Aug 2023 15:55:34 -0700
-Message-Id: <20230817225537.4053865-5-linux@roeck-us.net>
+Subject: [PATCH v2 2/7] rtc: alarmtimer: Use maximum alarm time offset
+Date:   Thu, 17 Aug 2023 15:55:32 -0700
+Message-Id: <20230817225537.4053865-3-linux@roeck-us.net>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230817225537.4053865-1-linux@roeck-us.net>
 References: <20230817225537.4053865-1-linux@roeck-us.net>
@@ -73,46 +73,58 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-The alarm window supported by the cmos RTC depends on the chip
-and its configuration. Report the limit to the RTC core.
+Some userspace applications use timerfd_create() to request wakeups after
+a long period of time. For example, a backup application may request a
+wakeup once per week. This is perfectly fine as long as the system does
+not try to suspend. However, if the system tries to suspend and the
+system's RTC does not support the required alarm timeout, the suspend
+operation will fail with an error such as
+
+rtc_cmos 00:01: Alarms can be up to one day in the future
+PM: dpm_run_callback(): platform_pm_suspend+0x0/0x4a returns -22
+alarmtimer alarmtimer.4.auto: platform_pm_suspend+0x0/0x4a returned -22 after 117 usecs
+PM: Device alarmtimer.4.auto failed to suspend: error -22
+
+This results in a refusal to suspend the system, causing substantial
+battery drain on affected systems.
+
+To fix the problem, use the maximum alarm time offset as reported by rtc
+drivers to set the maximum alarm time. While this will result in brief
+spurious wakeups from suspend, it is still much better than not suspending
+at all.
 
 Cc: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Rename range_max_offset -> alarm_offset_max
 
- drivers/rtc/rtc-cmos.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/time/alarmtimer.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index c9416fe8542d..228fb2d11c70 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -913,6 +913,10 @@ static inline void cmos_check_acpi_rtc_status(struct device *dev,
- #define	INITSECTION	__init
- #endif
- 
-+#define SECS_PER_DAY	(24 * 60 * 60)
-+#define SECS_PER_MONTH	(28 * SECS_PER_DAY)
-+#define SECS_PER_YEAR	(365 * SECS_PER_DAY)
+diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
+index 8d9f13d847f0..895e3a6d6444 100644
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -290,6 +290,19 @@ static int alarmtimer_suspend(struct device *dev)
+ 	rtc_timer_cancel(rtc, &rtctimer);
+ 	rtc_read_time(rtc, &tm);
+ 	now = rtc_tm_to_ktime(tm);
 +
- static int INITSECTION
- cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- {
-@@ -1019,6 +1023,13 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 		goto cleanup0;
- 	}
- 
-+	if (cmos_rtc.mon_alrm)
-+		cmos_rtc.rtc->alarm_offset_max = SECS_PER_YEAR - 1;
-+	else if (cmos_rtc.day_alrm)
-+		cmos_rtc.rtc->alarm_offset_max = SECS_PER_MONTH - 1;
-+	else
-+		cmos_rtc.rtc->alarm_offset_max = SECS_PER_DAY - 1;
++	/*
++	 * If the RTC alarm timer only supports a limited time offset, set
++	 * the alarm time to the maximum supported value.
++	 * The system will wake up earlier than necessary and is expected
++	 * to go back to sleep if it has nothing to do.
++	 * It would be desirable to handle such early wakeups without fully
++	 * waking up the system, but it is unknown if this is even possible.
++	 */
++	if (rtc->alarm_offset_max &&
++	    rtc->alarm_offset_max * MSEC_PER_SEC < ktime_to_ms(min))
++		min = ms_to_ktime(rtc->alarm_offset_max * MSEC_PER_SEC);
 +
- 	rename_region(ports, dev_name(&cmos_rtc.rtc->dev));
+ 	now = ktime_add(now, min);
  
- 	if (!mc146818_does_rtc_work()) {
+ 	/* Set alarm, if in the past reject suspend briefly to handle */
 -- 
 2.39.2
 
