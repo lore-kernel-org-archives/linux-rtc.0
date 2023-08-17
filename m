@@ -2,53 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C2EC678DC
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24374C7112F
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355867AbjHQW4f (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 17 Aug 2023 18:56:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55264 "EHLO
+        id S1355936AbjHQW4h (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 17 Aug 2023 18:56:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355938AbjHQW4H (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:07 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE983592;
-        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-1bdc19b782aso2721895ad.0;
-        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
+        with ESMTP id S1355946AbjHQW4K (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:10 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9032A3A82;
+        Thu, 17 Aug 2023 15:55:50 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id d9443c01a7336-1bee82fad0fso2595255ad.2;
+        Thu, 17 Aug 2023 15:55:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692312947; x=1692917747;
+        d=gmail.com; s=20221208; t=1692312950; x=1692917750;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MTlnm6sGIO31jUGXUD0CO65f2YiL6ybxcsMLmHiDeHU=;
-        b=kwlm7mNhxTgprppiKt7Pvjl1pFLb5htxS+x3HzcvYrhNovyMFHGVCvlMGSWusXGkXs
-         2jGxl8bnzrbEkrEqrt1+IDWh4VroLHYpInimpsCWCb2nAK/WcXBF6iynFxVtHSV1RAf/
-         yCOm1qAPxdGASYIxKVdp2uORGTmQ2lCg2I88BOKJWkZRk01qeguSAH4HABEjPZ4rq+R3
-         y1AbcPXaCccPPYyEzpl+1h4KuvzlXvGYFaczGtk89OTAi2H0WJqJTE0K2L5/JqAtDO8K
-         3olNb9zkqfHiXQAt/QXW2aPxuB18SVxMRvbIFTntlnsRsqkf/jbe7w+V1KLt6Mxx6XJq
-         niOQ==
+        bh=jjEQDL946xgGUJAzfsyFPr1apPg18WStQIZsR3DmfU4=;
+        b=sxBOeW/rizPWbjiPLMxAk5U9+4S7kA+IKo6PLdUGh1nAHynXu4Cy98YcoPELIZdFpM
+         276r7Da3Z/NCExbqCfse6c5yqCfmSY/+XBpfNHwtcW67b80qmoaRXMx9SSOHSGypTo9C
+         FLB+t7UId0qW5QYNzVgQCcFFtHKe3dhOLAoY0a5dj85fuEh8n13f/bbFS2xpMCm3VC8N
+         LZMxUKxU9vkv/QPDRLgAMkUHKJCYWoqqeVX6IDEwbjjto43yrexm64v+1r61p7xBdzAP
+         DsPkz6+YPq9sm4BHuFaOCj/TRVxZIZajyb9fpizanZwswt1/r5rZOnSn0I/XcV8IUMFg
+         mh0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692312947; x=1692917747;
+        d=1e100.net; s=20221208; t=1692312950; x=1692917750;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=MTlnm6sGIO31jUGXUD0CO65f2YiL6ybxcsMLmHiDeHU=;
-        b=cS72ZSjFR7DvEvFDjG59DqhYYjt+FwWMXRx9mbwMzI9znX5LsMfyTTWG1gH4dvoe/0
-         GWQImAbeHLmGR4n2A6wvuqOFNxgj0vbQCVvP4ayu0pgVtqO0CwAycWER4zonx24rAkww
-         h/27SMFwoldYDAsd7ogYpZ8LcGViqCRZhiXxDYtyX7e1HSWT5cSJz43n9/TxwKSoUhuC
-         w/QYOyW3PxWfvAhcGegYeYuhizD8T6rp6OJIN/HJvuqWI4AmVo2Yc0kSd3saVwwmUIJc
-         H69Vnw6qcnTP0OwzKIKieeHvJtPGjgPtsjv/wFTgD8dL0YyU1JXMwemXyAE491NOrXGZ
-         2Shw==
-X-Gm-Message-State: AOJu0YxXPlMAq1ng8+q9RikSNFgnn+YkK8fnBtyTN7reK4mggKeN7Tq5
-        RzGkBkHadAomeYXTkMbdNgY=
-X-Google-Smtp-Source: AGHT+IFn+oYy10wGoisjfnlfb0srVFvmaNBXWiaTt2UPVed+845FW9/w9Oa4qB0bN7y41x6tmth99g==
-X-Received: by 2002:a17:903:2644:b0:1b5:5059:e733 with SMTP id je4-20020a170903264400b001b55059e733mr705405plb.17.1692312947173;
-        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
+        bh=jjEQDL946xgGUJAzfsyFPr1apPg18WStQIZsR3DmfU4=;
+        b=RJMz+XnqRRVW7HpAzrdBZijcaShzWksbCHA7PI8x2flnpPlgdktjEmztZx6xIyi3Ab
+         L0h2dz7zVOnMQn1vGO90Ic+W+5S+G79khNQwy+q0SKj3wiq1HyXjHB0YW8lRKE0FLPut
+         4FnyG0kCsI3uqar2YWv+lYIZNKhDkH3J2Ti8e4FJDSdcKO/WphXG1E395dum38YT/zR9
+         UIneOWrDHwhMt6z74aYoswn8O/8nh06bf0tR+EcIqQPgyTgRLiqF118RP/i1hygvoiUO
+         43/9Gc4SwDQmhYAk5kM9+368c091hOsO5r1I/UAv0ljtiusVPv7VJNRox9YoXSaA9NRh
+         ioig==
+X-Gm-Message-State: AOJu0YxkH5cvOJKu5poL4AzSOuUT3PxO+0dNWYoTNv5GxNBCmza7HCVx
+        Nbw2tKJKWBFYGmo7osKb/NI=
+X-Google-Smtp-Source: AGHT+IG/Wnfiq+DYaLHKd8m6+SMPhdUy5ef7fWwjXDlFsqmmnP7r8TZ8PYH3y/sXF8epkg0ER55x/Q==
+X-Received: by 2002:a17:902:d38d:b0:1bf:3094:32eb with SMTP id e13-20020a170902d38d00b001bf309432ebmr828426pld.50.1692312949935;
+        Thu, 17 Aug 2023 15:55:49 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j15-20020a170902da8f00b001bba7aab826sm287927plx.163.2023.08.17.15.55.46
+        by smtp.gmail.com with ESMTPSA id q6-20020a170902a3c600b001bbd8cf6b57sm294962plb.230.2023.08.17.15.55.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Aug 2023 15:55:46 -0700 (PDT)
+        Thu, 17 Aug 2023 15:55:49 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -61,9 +61,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Brian Norris <briannorris@chromium.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 5/7] rtc: tps6586x: Report maximum alarm limit to rtc core
-Date:   Thu, 17 Aug 2023 15:55:35 -0700
-Message-Id: <20230817225537.4053865-6-linux@roeck-us.net>
+Subject: [PATCH v2 7/7] rtc: rzn1: Report maximum alarm limit to rtc core
+Date:   Thu, 17 Aug 2023 15:55:37 -0700
+Message-Id: <20230817225537.4053865-8-linux@roeck-us.net>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230817225537.4053865-1-linux@roeck-us.net>
 References: <20230817225537.4053865-1-linux@roeck-us.net>
@@ -73,29 +73,40 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-tps6586x only supports alarms up to 16,383 seconds in the future.
-Report the limit to the RTC core.
+RZN1 only supports alarms up to one week in the future.
+Report the limit to the RTC core and use the reported limit
+to validate the requested alarm time when setting it.
 
 Cc: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Rename range_max_offset -> alarm_offset_max
+    Use the new variable to validate the limit when setting the alarm
 
- drivers/rtc/rtc-tps6586x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-rzn1.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
-index 9f14e2475747..20faf08c254c 100644
---- a/drivers/rtc/rtc-tps6586x.c
-+++ b/drivers/rtc/rtc-tps6586x.c
-@@ -252,6 +252,7 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
+index dca736caba85..c0f448bce145 100644
+--- a/drivers/rtc/rtc-rzn1.c
++++ b/drivers/rtc/rtc-rzn1.c
+@@ -227,7 +227,7 @@ static int rzn1_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 		return ret;
  
- 	rtc->rtc->ops = &tps6586x_rtc_ops;
- 	rtc->rtc->range_max = (1ULL << 30) - 1; /* 30-bit seconds */
-+	rtc->rtc->alarm_offset_max = ALM1_VALID_RANGE_IN_SEC;
- 	rtc->rtc->start_secs = mktime64(2009, 1, 1, 0, 0, 0);
- 	rtc->rtc->set_start_time = true;
+ 	/* We cannot set alarms more than one week ahead */
+-	farest = rtc_tm_to_time64(&tm_now) + (7 * 86400);
++	farest = rtc_tm_to_time64(&tm_now) + rtc->rtcdev->alarm_offset_max;
+ 	alarm = rtc_tm_to_time64(tm);
+ 	if (time_after(alarm, farest))
+ 		return -ERANGE;
+@@ -351,6 +351,7 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
  
+ 	rtc->rtcdev->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	rtc->rtcdev->range_max = RTC_TIMESTAMP_END_2099;
++	rtc->rtcdev->alarm_offset_max = 7 * 86400;
+ 	rtc->rtcdev->ops = &rzn1_rtc_ops;
+ 	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
+ 	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
 -- 
 2.39.2
 
