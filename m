@@ -2,53 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14BAAC6FD22
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C2EC678DC
+	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355933AbjHQW4g (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 17 Aug 2023 18:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55250 "EHLO
+        id S1355867AbjHQW4f (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Thu, 17 Aug 2023 18:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355931AbjHQW4E (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:04 -0400
-Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA2535AD;
-        Thu, 17 Aug 2023 15:55:44 -0700 (PDT)
-Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-1c5046642b4so153944fac.1;
-        Thu, 17 Aug 2023 15:55:44 -0700 (PDT)
+        with ESMTP id S1355938AbjHQW4H (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:07 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE983592;
+        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id d9443c01a7336-1bdc19b782aso2721895ad.0;
+        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692312943; x=1692917743;
+        d=gmail.com; s=20221208; t=1692312947; x=1692917747;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XfRFkZNYpcFtEpCJ6592jYz9YhXnTUHLdeGPiNrj2fk=;
-        b=MXRCzbCTeWNzNbEDyd8SMiVUQsEtHfbcb6hBK9mJqHcFVGk3X1Cm8T6cZJsg4eap+5
-         xj2m86LAyvS6tMx3s0RSLf0LDwThu3a1V38VfwFhGQDfludVBQXo8Bj0vL8xUEEpBTm5
-         3g1puHO6TFf7goWKkmfUflJnt0dADKb5JwDmeamQ/muMRcYpe/bJ3dZR4n2wQkZumkDI
-         9gQmUZV1xwtBL8a6BIxlAUIkDsZThyQoVTfA+0qwuS5gketBeD4dk0MBsoBLRDtpfVp3
-         kJOAJnBQnSBkxXBysbcHxFlcE2y4FK+mfWONZRFT5F99JkqOEBW/69bsTVsl4BiOuvAh
-         /C6A==
+        bh=MTlnm6sGIO31jUGXUD0CO65f2YiL6ybxcsMLmHiDeHU=;
+        b=kwlm7mNhxTgprppiKt7Pvjl1pFLb5htxS+x3HzcvYrhNovyMFHGVCvlMGSWusXGkXs
+         2jGxl8bnzrbEkrEqrt1+IDWh4VroLHYpInimpsCWCb2nAK/WcXBF6iynFxVtHSV1RAf/
+         yCOm1qAPxdGASYIxKVdp2uORGTmQ2lCg2I88BOKJWkZRk01qeguSAH4HABEjPZ4rq+R3
+         y1AbcPXaCccPPYyEzpl+1h4KuvzlXvGYFaczGtk89OTAi2H0WJqJTE0K2L5/JqAtDO8K
+         3olNb9zkqfHiXQAt/QXW2aPxuB18SVxMRvbIFTntlnsRsqkf/jbe7w+V1KLt6Mxx6XJq
+         niOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692312943; x=1692917743;
+        d=1e100.net; s=20221208; t=1692312947; x=1692917747;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=XfRFkZNYpcFtEpCJ6592jYz9YhXnTUHLdeGPiNrj2fk=;
-        b=FXGwI9Kwh/rEpLIdk++OHAmUobPPDXWv8ntqQhx29X4AJ8sWH0kYMY+HKQBf3z/DPr
-         EMot4XsZTQaffbHXZ5GN1O+Al5MVSsq7jlUXLmWjsWU3HF8/YFTBVnvT62FF0SbiZH1Y
-         aViL6bgKq5p0pECZnVOn2q+H1z9gW9S8TpBroSt064Em+ZIRnvwtl7y8XoxWRKVbfWwH
-         iUYkrt/EkMLBWRWCtErdD2pqd1odkpfDgp/VbWf3smXEGrLFTwhtkf7OfL79gOeA32rW
-         2O32SA86+e/p09mc3LtI+ptoRKGrouFH3HpioBZB4Q1BLoTp/w3kod2BLUrHRj+bQAL8
-         W6lw==
-X-Gm-Message-State: AOJu0Yx0DK/HDO4o+85Bg+z4UHPBoXHb5L82eTXkLwrWN2VmuEzekZnr
-        /IEBwm5w/gJDgCfJxl8MTsQ=
-X-Google-Smtp-Source: AGHT+IGecaZOASaYD6zXgLwsM0W8IL7sV2ZlDZ4eoU13hQxg2omBb9E8fKlB7FZOMNsQwyzsYT6sqQ==
-X-Received: by 2002:a05:6870:e304:b0:1c8:baa5:a50f with SMTP id z4-20020a056870e30400b001c8baa5a50fmr1043267oad.27.1692312943209;
-        Thu, 17 Aug 2023 15:55:43 -0700 (PDT)
+        bh=MTlnm6sGIO31jUGXUD0CO65f2YiL6ybxcsMLmHiDeHU=;
+        b=cS72ZSjFR7DvEvFDjG59DqhYYjt+FwWMXRx9mbwMzI9znX5LsMfyTTWG1gH4dvoe/0
+         GWQImAbeHLmGR4n2A6wvuqOFNxgj0vbQCVvP4ayu0pgVtqO0CwAycWER4zonx24rAkww
+         h/27SMFwoldYDAsd7ogYpZ8LcGViqCRZhiXxDYtyX7e1HSWT5cSJz43n9/TxwKSoUhuC
+         w/QYOyW3PxWfvAhcGegYeYuhizD8T6rp6OJIN/HJvuqWI4AmVo2Yc0kSd3saVwwmUIJc
+         H69Vnw6qcnTP0OwzKIKieeHvJtPGjgPtsjv/wFTgD8dL0YyU1JXMwemXyAE491NOrXGZ
+         2Shw==
+X-Gm-Message-State: AOJu0YxXPlMAq1ng8+q9RikSNFgnn+YkK8fnBtyTN7reK4mggKeN7Tq5
+        RzGkBkHadAomeYXTkMbdNgY=
+X-Google-Smtp-Source: AGHT+IFn+oYy10wGoisjfnlfb0srVFvmaNBXWiaTt2UPVed+845FW9/w9Oa4qB0bN7y41x6tmth99g==
+X-Received: by 2002:a17:903:2644:b0:1b5:5059:e733 with SMTP id je4-20020a170903264400b001b55059e733mr705405plb.17.1692312947173;
+        Thu, 17 Aug 2023 15:55:47 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z15-20020a17090a014f00b0026d214a2b33sm1829850pje.7.2023.08.17.15.55.42
+        by smtp.gmail.com with ESMTPSA id j15-20020a170902da8f00b001bba7aab826sm287927plx.163.2023.08.17.15.55.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Aug 2023 15:55:42 -0700 (PDT)
+        Thu, 17 Aug 2023 15:55:46 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -61,9 +61,9 @@ Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         linux-kernel@vger.kernel.org,
         Brian Norris <briannorris@chromium.org>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 2/7] rtc: alarmtimer: Use maximum alarm time offset
-Date:   Thu, 17 Aug 2023 15:55:32 -0700
-Message-Id: <20230817225537.4053865-3-linux@roeck-us.net>
+Subject: [PATCH v2 5/7] rtc: tps6586x: Report maximum alarm limit to rtc core
+Date:   Thu, 17 Aug 2023 15:55:35 -0700
+Message-Id: <20230817225537.4053865-6-linux@roeck-us.net>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230817225537.4053865-1-linux@roeck-us.net>
 References: <20230817225537.4053865-1-linux@roeck-us.net>
@@ -73,58 +73,29 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Some userspace applications use timerfd_create() to request wakeups after
-a long period of time. For example, a backup application may request a
-wakeup once per week. This is perfectly fine as long as the system does
-not try to suspend. However, if the system tries to suspend and the
-system's RTC does not support the required alarm timeout, the suspend
-operation will fail with an error such as
-
-rtc_cmos 00:01: Alarms can be up to one day in the future
-PM: dpm_run_callback(): platform_pm_suspend+0x0/0x4a returns -22
-alarmtimer alarmtimer.4.auto: platform_pm_suspend+0x0/0x4a returned -22 after 117 usecs
-PM: Device alarmtimer.4.auto failed to suspend: error -22
-
-This results in a refusal to suspend the system, causing substantial
-battery drain on affected systems.
-
-To fix the problem, use the maximum alarm time offset as reported by rtc
-drivers to set the maximum alarm time. While this will result in brief
-spurious wakeups from suspend, it is still much better than not suspending
-at all.
+tps6586x only supports alarms up to 16,383 seconds in the future.
+Report the limit to the RTC core.
 
 Cc: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
 v2: Rename range_max_offset -> alarm_offset_max
 
- kernel/time/alarmtimer.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/rtc/rtc-tps6586x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index 8d9f13d847f0..895e3a6d6444 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -290,6 +290,19 @@ static int alarmtimer_suspend(struct device *dev)
- 	rtc_timer_cancel(rtc, &rtctimer);
- 	rtc_read_time(rtc, &tm);
- 	now = rtc_tm_to_ktime(tm);
-+
-+	/*
-+	 * If the RTC alarm timer only supports a limited time offset, set
-+	 * the alarm time to the maximum supported value.
-+	 * The system will wake up earlier than necessary and is expected
-+	 * to go back to sleep if it has nothing to do.
-+	 * It would be desirable to handle such early wakeups without fully
-+	 * waking up the system, but it is unknown if this is even possible.
-+	 */
-+	if (rtc->alarm_offset_max &&
-+	    rtc->alarm_offset_max * MSEC_PER_SEC < ktime_to_ms(min))
-+		min = ms_to_ktime(rtc->alarm_offset_max * MSEC_PER_SEC);
-+
- 	now = ktime_add(now, min);
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index 9f14e2475747..20faf08c254c 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -252,6 +252,7 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
  
- 	/* Set alarm, if in the past reject suspend briefly to handle */
+ 	rtc->rtc->ops = &tps6586x_rtc_ops;
+ 	rtc->rtc->range_max = (1ULL << 30) - 1; /* 30-bit seconds */
++	rtc->rtc->alarm_offset_max = ALM1_VALID_RANGE_IN_SEC;
+ 	rtc->rtc->start_secs = mktime64(2009, 1, 1, 0, 0, 0);
+ 	rtc->rtc->set_start_time = true;
+ 
 -- 
 2.39.2
 
