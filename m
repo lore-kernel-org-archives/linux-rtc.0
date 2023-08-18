@@ -2,116 +2,93 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4509BC71131
-	for <linux-rtc@archiver.kernel.org>; Thu, 17 Aug 2023 22:57:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CFB0C001DE
+	for <linux-rtc@archiver.kernel.org>; Fri, 18 Aug 2023 07:03:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355934AbjHQW4h (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Thu, 17 Aug 2023 18:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
+        id S1345893AbjHRHDH (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Fri, 18 Aug 2023 03:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355940AbjHQW4I (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Thu, 17 Aug 2023 18:56:08 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB823594;
-        Thu, 17 Aug 2023 15:55:49 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-1bf1935f6c2so2389855ad.1;
-        Thu, 17 Aug 2023 15:55:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692312948; x=1692917748;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t6uAKnykE3/ora4oCsRY4juR6xwaJtjAdt7QYyhHpdk=;
-        b=dc79vIJ/WE76Iq/R8Hs//FI+ZVKEBsQG/wRy6+H3AS3pjo5mxFFWHPjcr+uC0+9SZV
-         O0LQHcTD3LaoAcJ3St+DFoNawCOow0fdMF3SRtxiPJ9LZs+SfXyloexmeYD7u8PT+qe5
-         ExTUHE80thV6RImHv4GQ4Q+yZWDYLfY6SMn8JhfSFqPDvcFDDBRBfEkwMNlFnCnKMGrb
-         SCovuXYCH6b4HOa99WCrHQppVyzffxzYRU7Ftvjg+gKXfizlWEEYIflT24IiVYnJHoCe
-         B2rAkPP4XBKm3+GzAzPYWryR2jorrEye1wj079OmczNuBlIligdNxkV4zjD+MGp0+nw5
-         9MlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692312948; x=1692917748;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=t6uAKnykE3/ora4oCsRY4juR6xwaJtjAdt7QYyhHpdk=;
-        b=b7421w9u12KkF4Rw7/Up4PtVSIeeAM9KhxA5A72E6vtZhjoYdNU2kYFkUtFRW2yx/G
-         cHIQDxhdXyCMeu4UUKiHy4UL3tSXoBZTEM1T6CZTAXrowN1k3BZg2CkOsJWEHsQJFZTb
-         tBsgVpSSy/h5joV6360sIFB+eEYAM6HNwO4eRS5eNd0D1iNdPMSNkBlMzPGF7KNqtDaU
-         XKLWEGhAUrCRNqXTFRNaIRNsXJ9qDr+q2gTn3dNj6k8q/YZ+m5ce5qfIZsgkcSz5D5lk
-         5t26SqQ4X9cPUjG0mgbXUdTIDRejHQ+bS9j9Bzx5kyC6BfECqwKNmaLfCUEHXIcYPgNx
-         p2ZA==
-X-Gm-Message-State: AOJu0YzKYXQiIoXt+eDGUL6Ss6eAHpzV/RrSwJBOPfhK4fDzkbCEGiPo
-        ep2vUMX00+ZNPim3c5SlykA=
-X-Google-Smtp-Source: AGHT+IHxHgBCh+okSlstB38ITdbHEzRb7AOaLFKIZ6UTfREW8hAnGtFjaVRP6mnij4jiZY9TIvb8Sw==
-X-Received: by 2002:a17:902:f0c4:b0:1bb:cd5a:ba53 with SMTP id v4-20020a170902f0c400b001bbcd5aba53mr3814702pla.14.1692312948529;
-        Thu, 17 Aug 2023 15:55:48 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y23-20020a170902b49700b001bb9aadfb04sm282269plr.220.2023.08.17.15.55.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Aug 2023 15:55:48 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+        with ESMTP id S1358122AbjHRHDB (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Aug 2023 03:03:01 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D412D73;
+        Fri, 18 Aug 2023 00:02:58 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5238E1C0004; Fri, 18 Aug 2023 09:02:56 +0200 (CEST)
+Date:   Fri, 18 Aug 2023 09:02:55 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Biju Das <biju.das.jz@bp.renesas.com>
 Cc:     Alessandro Zummo <a.zummo@towertech.it>,
-        Benson Leung <bleung@chromium.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <jstultz@google.com>,
-        Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Brian Norris <briannorris@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v2 6/7] rtc: ds1305: Report maximum alarm limit to rtc core
-Date:   Thu, 17 Aug 2023 15:55:36 -0700
-Message-Id: <20230817225537.4053865-7-linux@roeck-us.net>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230817225537.4053865-1-linux@roeck-us.net>
-References: <20230817225537.4053865-1-linux@roeck-us.net>
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-rtc@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Pavel Machek <pavel@denx.de>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH] rtc: isl1208: Fix incorrect logic in isl1208_set_xtoscb()
+Message-ID: <ZN8Xny+sYCnoLINM@duo.ucw.cz>
+References: <20230817161038.407960-1-biju.das.jz@bp.renesas.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="vhMN/q3qgJ35pC2J"
+Content-Disposition: inline
+In-Reply-To: <20230817161038.407960-1-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-DS1305 only supports alarms up to 24 hours in the future.
-Report the limit to the RTC core, and use the reported limit
-to validate the requested alarm time when setting it.
 
-If the alarm is too large when trying to set an alarm, return -ERANGE
-instead of -EDOM to align with error codes returned by other rtc drivers.
+--vhMN/q3qgJ35pC2J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cc: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-v2: Rename range_max_offset -> alarm_offset_max
-    Use the new variable to validate the limit when setting the alarm
+On Thu 2023-08-17 17:10:38, Biju Das wrote:
+> The XTOSCB bit is not bit 0, but xtosb_val is either 0 or 1. If it is 1,
+> test will never succeed. Fix this issue by using double negation.
+>=20
+> While at it, remove unnecessary blank line from probe().
 
- drivers/rtc/rtc-ds1305.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Reviewed-by: Pavel Machek <pavel@denx.de>
 
-diff --git a/drivers/rtc/rtc-ds1305.c b/drivers/rtc/rtc-ds1305.c
-index ed9360486953..d4de401548b4 100644
---- a/drivers/rtc/rtc-ds1305.c
-+++ b/drivers/rtc/rtc-ds1305.c
-@@ -336,8 +336,8 @@ static int ds1305_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	/* make sure alarm fires within the next 24 hours */
- 	if (later <= now)
- 		return -EINVAL;
--	if ((later - now) > 24 * 60 * 60)
--		return -EDOM;
-+	if ((later - now) > ds1305->rtc->alarm_offset_max)
-+		return -ERANGE;
- 
- 	/* disable alarm if needed */
- 	if (ds1305->ctrl[0] & DS1305_AEI0) {
-@@ -691,6 +691,7 @@ static int ds1305_probe(struct spi_device *spi)
- 	ds1305->rtc->ops = &ds1305_ops;
- 	ds1305->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	ds1305->rtc->range_max = RTC_TIMESTAMP_END_2099;
-+	ds1305->rtc->alarm_offset_max = 24 * 60 * 60;
- 
- 	ds1305_nvmem_cfg.priv = ds1305;
- 	status = devm_rtc_register_device(ds1305->rtc);
--- 
-2.39.2
+Thank you!
 
+Best regards,
+								Pavel
+
+> +++ b/drivers/rtc/rtc-isl1208.c
+> @@ -188,7 +188,7 @@ isl1208_i2c_validate_client(struct i2c_client *client)
+>  static int isl1208_set_xtoscb(struct i2c_client *client, int sr, int xto=
+sb_val)
+>  {
+>  	/* Do nothing if bit is already set to desired value */
+> -	if ((sr & ISL1208_REG_SR_XTOSCB) =3D=3D xtosb_val)
+> +	if (!!(sr & ISL1208_REG_SR_XTOSCB) =3D=3D xtosb_val)
+>  		return 0;
+> =20
+>  	if (xtosb_val)
+> @@ -944,7 +944,6 @@ isl1208_probe(struct i2c_client *client)
+>  		rc =3D isl1208_setup_irq(client, client->irq);
+>  		if (rc)
+>  			return rc;
+> -
+>  	} else {
+>  		clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, isl1208->rtc->features);
+>  	}
+
+--=20
+DENX Software Engineering GmbH,        Managing Director: Erika Unter
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--vhMN/q3qgJ35pC2J
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCZN8XnwAKCRAw5/Bqldv6
+8jNbAJ41UwIs2TFVKmDACB+Q5KKPEMdppgCeKTQ0XsX+XjijYB1eFi0zcIp6U+o=
+=aDq+
+-----END PGP SIGNATURE-----
+
+--vhMN/q3qgJ35pC2J--
