@@ -2,50 +2,77 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA978C71140
-	for <linux-rtc@archiver.kernel.org>; Fri, 18 Aug 2023 09:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42C5FEE4996
+	for <linux-rtc@archiver.kernel.org>; Sun, 20 Aug 2023 20:38:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358921AbjHRJCz (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Fri, 18 Aug 2023 05:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53442 "EHLO
+        id S231926AbjHTUiR (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Sun, 20 Aug 2023 16:38:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359009AbjHRJCU (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Fri, 18 Aug 2023 05:02:20 -0400
-X-Greylist: delayed 1497 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 18 Aug 2023 02:01:58 PDT
-Received: from mail.leachkin.pl (mail.leachkin.pl [217.61.97.203])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB613C20
-        for <linux-rtc@vger.kernel.org>; Fri, 18 Aug 2023 02:01:58 -0700 (PDT)
-Received: by mail.leachkin.pl (Postfix, from userid 1001)
-        id 11DA38470C; Fri, 18 Aug 2023 09:16:50 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leachkin.pl; s=mail;
-        t=1692346633; bh=elHzctRz/z3PfTIhGYJKd0TeBTmca98Y+JNgX4gfsPI=;
-        h=Date:From:To:Subject:From;
-        b=hxUC6KPJlQN3P5mb6VM9kxtobjAk+a0VhzWhkWynqTRGTC+Sc4LMq6uDACDi603Ee
-         vJMddSKgDkxFEHWqBCYjpPIX5Hid84qhJmH3K9qwqU+F3he06CEdc0GVe9Xjpk8RJI
-         T103Wz8szKM0ezsHDJD9MgLsHHwzU0yjKiQU+JiZ3VAs87OtMJOCjRjBWq9JIq9yOs
-         EMVlW1WRNd+2N+O31Q4NhEHgpk/1ENQpg7Q+NG8BhsfpNG2yW6mJFVMmrUj7suB3WP
-         xDFjAwmLZTkSrQ4irkn0Eks41JHmgHCTaRlWhUkrAJ2b0N77TS732npm+Evnwo+yku
-         wdW1ypNDRUkVA==
-Received: by mail.leachkin.pl for <linux-rtc@vger.kernel.org>; Fri, 18 Aug 2023 08:15:51 GMT
-Message-ID: <20230818074501-0.1.4u.cunh.0.vt49719v4x@leachkin.pl>
-Date:   Fri, 18 Aug 2023 08:15:51 GMT
-From:   "Jakub Lemczak" <jakub.lemczak@leachkin.pl>
-To:     <linux-rtc@vger.kernel.org>
-Subject: =?UTF-8?Q?Pytanie_o_samoch=C3=B3d?=
-X-Mailer: mail.leachkin.pl
+        with ESMTP id S231927AbjHTUiO (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Sun, 20 Aug 2023 16:38:14 -0400
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::226])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3C0118;
+        Sun, 20 Aug 2023 13:37:05 -0700 (PDT)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 8E5A1C0004;
+        Sun, 20 Aug 2023 20:36:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+        t=1692563812;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=yUtefMT07gosJBbgTgNu4VdcZGzI0rus4/1Y01+kc00=;
+        b=JtwW6ncnkZ8aI420nBV4QtWYCdvAUtbOqhZK1Y7mwDsmWr3W/pzx72Ufi0oLTru1V8wLZo
+        qwLoaW2lxz2xNMWPfKMJOt1P1s8pfOforkd+/bSTcocRwp4WDOTi3j8ric/zA70DzTtLOp
+        KhY+TcBNbENdQQbierxgAuORd0NsN8EJwIjCDivqShnXVJTaEx1cxJsF/b399ctdUJ7N3v
+        HcElchr2BydBicjE/GvAteJQk8wTHar/U4Kce24tBncrMfjfdWCEs1qGxOP+C9JumB1Unn
+        sUMuda+fSYBgCYKoot/9DrROtIhgNF8oqj2qadQcDi/ooa9wYHx+3YDqOas8ZA==
+From:   alexandre.belloni@bootlin.com
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] pcf2127: remove useless check
+Date:   Sun, 20 Aug 2023 22:36:46 +0200
+Message-ID: <20230820203647.243799-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-GND-Sasl: alexandre.belloni@bootlin.com
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Dzie=C5=84 dobry,
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Czy interesuje Pa=C5=84stwa rozwi=C4=85zanie umo=C5=BCliwiaj=C4=85ce moni=
-torowanie samochod=C3=B3w firmowych oraz optymalizacj=C4=99 koszt=C3=B3w =
-ich utrzymania?=20
+Let's cut down on the number of strings in the driver as returning ret here
+will return 0 and the message is only useful when introducing support for a
+new RTC in the driver.
 
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-pcf2127.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-Pozdrawiam,
-Jakub Lemczak
+diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+index 78141bb06ab0..8960213ce9da 100644
+--- a/drivers/rtc/rtc-pcf2127.c
++++ b/drivers/rtc/rtc-pcf2127.c
+@@ -1054,15 +1054,6 @@ static int pcf2127_enable_ts(struct device *dev, int ts_id)
+ 		return ret;
+ 	}
+ 
+-	/* TS input pin driven to GND detection is supported by all variants.
+-	 * Make sure that interrupt bit is defined.
+-	 */
+-	if (pcf2127->cfg->ts[ts_id].gnd_detect_bit == 0) {
+-		dev_err(dev, "%s: tamper detection to GND configuration invalid\n",
+-			__func__);
+-		return ret;
+-	}
+-
+ 	/*
+ 	 * Enable interrupt generation when TSF timestamp flag is set.
+ 	 * Interrupt signals are open-drain outputs and can be left floating if
+-- 
+2.41.0
+
