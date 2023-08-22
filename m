@@ -2,42 +2,47 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BD99EE4993
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Aug 2023 10:27:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71920EE49AB
+	for <linux-rtc@archiver.kernel.org>; Tue, 22 Aug 2023 10:27:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233676AbjHVK1p (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Aug 2023 06:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47124 "EHLO
+        id S233690AbjHVK1r (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Tue, 22 Aug 2023 06:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233690AbjHVK1p (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2023 06:27:45 -0400
+        with ESMTP id S233257AbjHVK1q (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2023 06:27:46 -0400
 Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CF5ECD1;
-        Tue, 22 Aug 2023 03:27:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1EECC7;
+        Tue, 22 Aug 2023 03:27:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=axis.com; q=dns/txt; s=axis-central1; t=1692700063;
-  x=1724236063;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=p50imcCFa/rY09pHfsfLn8Pcg/uVZPGOFH2OvBDpFZk=;
-  b=IMABWM7Wq9Bi+cKR0lPAmx5KmY5shDxCTZuF1eqMoymg9luOJQjdSIvo
-   006cvpKMp38Y3ep6TTgW0ZqpSUB0vL5IHES5ScC7Kr6sUA7xo3QP+bv0m
-   eVPcrGostkmEwycbK8Di8NYh4H+KVPncYF0c/2U4fgR/NdK2e1Bo/XtyK
-   RA7uexh5K2aWb7dxoQ7qjDiqcZ6XZX75jWcVpbYAHb+p6O0pq4LKVbi9q
-   rV1DjCmdq9SCiswbk4++Hu58/b/CEfXi2gx/Tsk01m99K2va/L8HoDvO3
-   fwei0lRjikhFXdxJ4qBxnD34nfU/vo2gX6iYB7BXPuVPDvjZRWj25ChwI
-   w==;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1692700065;
+  x=1724236065;
+  h=references:from:to:cc:subject:in-reply-to:date:
+   message-id:mime-version;
+  bh=WDt0bx6LiVXGKVc4xF/60SMvFuft506gwIf5jppItDg=;
+  b=YW9lD2a9KYgEO4r1lDm7tEEhA4v7nz9sUHByBmnueuintyIRkphB+JoO
+   tNVtsuhhpyZJ+qLwz9GSUgMew5dDE4PaGCFmNE4i6NEYcxjUmpoBqEQrK
+   nwSoeCb2LguyTi4F33ayTj0cS6toIKoqljdH7cot98yFTcuDbRH6OiHBW
+   j1zJ7Q2uWl2M0+hyrbHS46YHURtQvJ+m1VulxptT6aZ3zMtJEGsefBFzl
+   06qpJ8uKOj+APQH8qv5URGlBMX3Ee6BPUUYUEyACTcku7nrS/E+qhgVNz
+   w5bVxEJYsj8HneR8EGZDOE9BLT+kkHogr8UeY9xrhDtrCFu13IPp+U+VQ
+   g==;
+References: <cover.1692699931.git.waqar.hameed@axis.com>
 User-agent: a.out
 From:   Waqar Hameed <waqar.hameed@axis.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-CC:     <kernel@axis.com>, <linux-kernel@vger.kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>
+CC:     <kernel@axis.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>
-Subject: [PATCH v2 0/2] Add a driver for Epson RX8111 RTC
+        <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 1/2] dt-bindings: rtc: Add Epson RX8111
+In-Reply-To: <cover.1692699931.git.waqar.hameed@axis.com>
 Date:   Tue, 22 Aug 2023 12:25:31 +0200
-Message-ID: <cover.1692699931.git.waqar.hameed@axis.com>
+Message-ID: <903c1e05804535f212fa128425326b7554c0794a.1692699931.git.waqar.hameed@axis.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-Originating-IP: [10.0.5.60]
@@ -47,32 +52,27 @@ Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-In this patch series we add a basic driver for Epson RX8111 RTC with support for
-only reading/writing the time and the `ioctl`s `RTC_VL_READ` and `RTC_VL_CLR`.
+Epson RX8111 is an RTC with timestamp functionality. Add devicetree
+bindings requiring the compatible string and I2C slave address (reg)
+through `trivial-rtc.yaml`.
 
-Datasheet: https://support.epson.biz/td/api/doc_check.php?dl=app_RX8111CE&lang=en
+Signed-off-by: Waqar Hameed <waqar.hameed@axis.com>
+---
+ Documentation/devicetree/bindings/rtc/trivial-rtc.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes in v2:
-* Move dt-bindings to `trivial-rtc.yaml`.
-
-Link to v1: https://lore.kernel.org/lkml/cover.1691158774.git.waqar.hameed@axis.com/
-
-I decided to send v2 now since it has been a while, and I didn't get any
-comments for `rtc-rx8111.c` in v1.
-
-Waqar Hameed (2):
-  dt-bindings: rtc: Add Epson RX8111
-  rtc: Add driver for Epson RX8111
-
- .../devicetree/bindings/rtc/trivial-rtc.yaml  |   1 +
- drivers/rtc/Kconfig                           |  10 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-rx8111.c                      | 411 ++++++++++++++++++
- 4 files changed, 423 insertions(+)
- create mode 100644 drivers/rtc/rtc-rx8111.c
-
-
-base-commit: ec351c8f2e6211054e51e661589cddd1fe856425
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index 9af77f21bb7f..b0c07f734f14 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -38,6 +38,7 @@ properties:
+       - epson,rx8025
+       - epson,rx8035
+       # I2C-BUS INTERFACE REAL TIME CLOCK MODULE with Battery Backed RAM
++      - epson,rx8111
+       - epson,rx8571
+       # I2C-BUS INTERFACE REAL TIME CLOCK MODULE
+       - epson,rx8581
 -- 
 2.30.2
 
