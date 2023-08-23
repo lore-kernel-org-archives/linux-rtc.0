@@ -2,89 +2,115 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F014AEE49AE
-	for <linux-rtc@archiver.kernel.org>; Tue, 22 Aug 2023 11:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27642EE49A0
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Aug 2023 09:14:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235389AbjHVLtM (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Tue, 22 Aug 2023 07:49:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50974 "EHLO
+        id S235058AbjHWJOs (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Aug 2023 05:14:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235379AbjHVLtL (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Tue, 22 Aug 2023 07:49:11 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AC910D2
-        for <linux-rtc@vger.kernel.org>; Tue, 22 Aug 2023 04:48:51 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-99bdeae1d0aso578959666b.1
-        for <linux-rtc@vger.kernel.org>; Tue, 22 Aug 2023 04:48:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692704923; x=1693309723;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oH11Oc+qbxmWTzYqIGrVP17FnC0Zqpu68k1rvfbbDX0=;
-        b=P4Qf1myvTmUWlrB6GossTUcUgcbmdwvSKgQz+8PFMPd+AXQDqxt18/VpcxkKXkMHe+
-         1OSrBCNuUKxSzIh9WXDWeaD5tXNmcbaRk0ID4AiMJYwNOPC9ztzNQ4TeAvhD0lbpCERe
-         V5eIzmMuhp8SrDC9kScNsToK16LLNFtc0ss/2yXH/PKiE60jPrrm8OcOoKPCjESuU8g2
-         dMj9DQenXX6r9NkRsSXTFjvkqiDaksGcslAFoE2msJ3atai1dinKn+aDSHnDaOoA3Vmb
-         mCGLo8dozgQMZfgRUyNy9j4vJIalBdlmPWUoxYQrxwxBbLO4cMW254X2d8Z6+lSbkV3b
-         56Xw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692704923; x=1693309723;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oH11Oc+qbxmWTzYqIGrVP17FnC0Zqpu68k1rvfbbDX0=;
-        b=L4AhYwDezvv09m5VzP9QfMHaGWA07biTe15UoffGFbw9GB2uX+gHpTyLZN2L/KWVZO
-         yiE/8Wf8V1chlXerpQz27xjZW8jpjD7sqfWEOQCt4SfWoHY3Ho64S83i6bVcYFQ8vncp
-         Dwxp0Epjw2vFnJsP10Id/18oAH/X3vCRZjvBjIc55IRXaIMV8Sc9EeomYw0XGJ4B+Xig
-         i5nPSuwBWdYkpkMpF+jYPJcLvHXxnu5UvqQqffNmDYuXtmOuHcEAOCiIcPESU85iK3mf
-         dobduVulW3W3WqzyKqSQjk+QgtQ8VbhWvGa2rQzyHbyxCYVqtixxvrrBbmoFy65WfmnO
-         K99w==
-X-Gm-Message-State: AOJu0YyE3Fc7nJed42aq98Btyjk4ZZ7iONgbyAt3amKLcwxBMwYtu4Ob
-        RhylsaFn4OADPiHj9r6uIPXttQ==
-X-Google-Smtp-Source: AGHT+IE7A1CYr6kVDOW4fVuqD06IgAC6NbsrvQnOKHnd0u7YxGHAAHU+Uj53ZLTs4MMK2cnh00OO7w==
-X-Received: by 2002:a17:907:2c6a:b0:991:d05c:f065 with SMTP id ib10-20020a1709072c6a00b00991d05cf065mr7417198ejc.52.1692704923543;
-        Tue, 22 Aug 2023 04:48:43 -0700 (PDT)
-Received: from [192.168.0.22] ([77.252.47.198])
-        by smtp.gmail.com with ESMTPSA id f20-20020a170906561400b0099bd1a78ef5sm8026861ejq.74.2023.08.22.04.48.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Aug 2023 04:48:43 -0700 (PDT)
-Message-ID: <8ff579bc-423c-3edf-dc78-28370b2a0f19@linaro.org>
-Date:   Tue, 22 Aug 2023 13:48:42 +0200
+        with ESMTP id S235190AbjHWJLl (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2023 05:11:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD3E49CD;
+        Wed, 23 Aug 2023 02:03:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ACC3659DD;
+        Wed, 23 Aug 2023 09:03:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1BA4DC433CA;
+        Wed, 23 Aug 2023 09:03:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1692781412;
+        bh=uJJGrLInovzzXUd3VI0hpNZckJsauxx8iSDbPseYllU=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+        b=pmwMwXfxraJYnLDij41Hb1BjIS7xvAGJ2oKbkLqWbcnIKYF0qo0ZN8hxUv4Ip2aVB
+         Z+YFx0DWTYNI8A8WIqir6kcvtz4VmMMyjrRi+ZO6Bdq/ufDxFUtR8A8GSqr7nn7WtB
+         oodq0XDxcjZqgMT8jSCUG5J0aLJSsZrdJV5QMW6O1qzLtkD1VNwn3ADqZtpf2MnLor
+         LpU86+z4cL8HMup4RldIG7Eubn1ONeQvtwgU/g+QAiGCV/ITZ5ISvd+PXRhh9/6kNd
+         u4qCmgOm0ngAnBi+LV0hEt4yeLAZBqg+PwugerDg1VuFdllb5eNb+cqvkPmxgHQLpt
+         dOecEBOKQrXuA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by smtp.lore.kernel.org (Postfix) with ESMTP id EF8E2EE49B6;
+        Wed, 23 Aug 2023 09:03:31 +0000 (UTC)
+From:   Nikita Shubin via B4 Relay 
+        <devnull+nikita.shubin.maquefel.me@kernel.org>
+Date:   Wed, 23 Aug 2023 12:03:15 +0300
+Subject: [PATCH 2/2] rtc: m48t86: add DT support for m48t86
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH v2 1/2] dt-bindings: rtc: Add Epson RX8111
-Content-Language: en-US
-To:     Waqar Hameed <waqar.hameed@axis.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230823-m48t86_device_tree-v1-2-240023b435ac@maquefel.me>
+References: <20230823-m48t86_device_tree-v1-0-240023b435ac@maquefel.me>
+In-Reply-To: <20230823-m48t86_device_tree-v1-0-240023b435ac@maquefel.me>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>
-Cc:     kernel@axis.com, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <cover.1692699931.git.waqar.hameed@axis.com>
- <903c1e05804535f212fa128425326b7554c0794a.1692699931.git.waqar.hameed@axis.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <903c1e05804535f212fa128425326b7554c0794a.1692699931.git.waqar.hameed@axis.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1692781413; l=1084;
+ i=nikita.shubin@maquefel.me; s=20230718; h=from:subject:message-id;
+ bh=ehFfMUFPSDk+3aqtlEGp6k1Cn9nX+Zuoc/v7Lg62J6w=; =?utf-8?q?b=3D2ABaIsohEYpf?=
+ =?utf-8?q?ETx/myw5s5Wg75v3Kr4NyOqQviyUbY7TJttQ9J+nNNY3NlpYKURudeo9LpjjdSDA?=
+ kx+IWOvADZ54mqfCsrqeQQexVZYNDdC3pI+b2PWvcfVBEUC9+KWc
+X-Developer-Key: i=nikita.shubin@maquefel.me; a=ed25519;
+ pk=vqf5YIUJ7BJv3EJFaNNxWZgGuMgDH6rwufTLflwU9ac=
+X-Endpoint-Received: by B4 Relay for nikita.shubin@maquefel.me/20230718 with auth_id=65
+X-Original-From: Nikita Shubin <nikita.shubin@maquefel.me>
+Reply-To: <nikita.shubin@maquefel.me>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 22/08/2023 12:25, Waqar Hameed wrote:
-> Epson RX8111 is an RTC with timestamp functionality. Add devicetree
-> bindings requiring the compatible string and I2C slave address (reg)
-> through `trivial-rtc.yaml`.
-> 
-> Signed-off-by: Waqar Hameed <waqar.hameed@axis.com>
-> ---
+From: Nikita Shubin <nikita.shubin@maquefel.me>
 
+Add OF ID match table.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+---
+ drivers/rtc/rtc-m48t86.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/rtc/rtc-m48t86.c b/drivers/rtc/rtc-m48t86.c
+index 481c9525b1dd..dd4a62e2d39c 100644
+--- a/drivers/rtc/rtc-m48t86.c
++++ b/drivers/rtc/rtc-m48t86.c
+@@ -11,6 +11,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/rtc.h>
+ #include <linux/platform_device.h>
+ #include <linux/bcd.h>
+@@ -269,9 +270,16 @@ static int m48t86_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id m48t86_rtc_of_ids[] = {
++	{ .compatible = "st,m48t86" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, m48t86_rtc_of_ids);
++
+ static struct platform_driver m48t86_rtc_platform_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-m48t86",
++		.of_match_table = m48t86_rtc_of_ids,
+ 	},
+ 	.probe		= m48t86_rtc_probe,
+ };
+
+-- 
+2.39.2
 
