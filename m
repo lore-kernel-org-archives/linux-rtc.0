@@ -2,82 +2,125 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0423DEE49A0
-	for <linux-rtc@archiver.kernel.org>; Wed, 23 Aug 2023 10:28:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B53C27C40
+	for <linux-rtc@archiver.kernel.org>; Wed, 23 Aug 2023 16:50:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233680AbjHWK2u (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 23 Aug 2023 06:28:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55468 "EHLO
+        id S235690AbjHWQuv (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 23 Aug 2023 12:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232793AbjHWK2t (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2023 06:28:49 -0400
-X-Greylist: delayed 459 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 23 Aug 2023 03:28:43 PDT
-Received: from forward501c.mail.yandex.net (forward501c.mail.yandex.net [178.154.239.209])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824DBFB;
-        Wed, 23 Aug 2023 03:28:43 -0700 (PDT)
-Received: from mail-nwsmtp-smtp-production-main-29.myt.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-29.myt.yp-c.yandex.net [IPv6:2a02:6b8:c12:5faf:0:640:dd1b:0])
-        by forward501c.mail.yandex.net (Yandex) with ESMTP id 92D6B5EEEA;
-        Wed, 23 Aug 2023 13:20:58 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-29.myt.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id uKHTnk0WkCg0-TTafOwS9;
-        Wed, 23 Aug 2023 13:20:57 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail; t=1692786057;
-        bh=8Pq1lYC71AwHsxprgP4hPusQdlFzoJPLVzm11dwsZXE=;
-        h=References:Date:In-Reply-To:Cc:To:From:Subject:Message-ID;
-        b=MhbTZ5GkTkPCr14ls4Y+5+AWU4kpAwJZDepqY9cBeixBCwUQvEvlyqhfUB7ADMh4u
-         XWq1ewFgBbldNKuWczJKxNRCqiy7JWIpZvq4oJbwpOEuck8OmKe+snhbZvRENUCS1B
-         /1Ybgg6ySyBQfQ2AVgf9/Quf51IpECSjerOOfDlc=
-Authentication-Results: mail-nwsmtp-smtp-production-main-29.myt.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
-Message-ID: <c39b9281fa599d523591b3a3b34db6a05362cdbf.camel@maquefel.me>
-Subject: Re: [PATCH 2/2] rtc: m48t86: add DT support for m48t86
-From:   Nikita Shubin <nikita.shubin@maquefel.me>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>
-Date:   Wed, 23 Aug 2023 13:20:59 +0300
-In-Reply-To: <19f09a5e-c420-f209-ebef-cfa36ffa8467@linaro.org>
-References: <20230823-m48t86_device_tree-v1-0-240023b435ac@maquefel.me>
-         <20230823-m48t86_device_tree-v1-2-240023b435ac@maquefel.me>
-         <19f09a5e-c420-f209-ebef-cfa36ffa8467@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 
+        with ESMTP id S234897AbjHWQuv (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 23 Aug 2023 12:50:51 -0400
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B184ECD5;
+        Wed, 23 Aug 2023 09:50:49 -0700 (PDT)
+Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1bdbbede5d4so46360305ad.2;
+        Wed, 23 Aug 2023 09:50:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1692809449; x=1693414249;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=D1rJRywRerSHpKN9caLA2gQ8y2MlCgXj2iqPjlxyJ44=;
+        b=ZbJqUYDB3GH7o2Dm2wwcpAzSQT4h22XkwlJbjDjyNNmOncay379skFsmRHmELyV4/R
+         IgvA/cow2ZAkGqAh8APe6+AMtAb++uacUJvIA93GQV4mOxDUWB9jdP0L72ojG5vy4Cz1
+         Wn8Awn3qs5GETBGRhRcqXZn2Bcd5g64xf1uf27MO3ib51XXDXEW+D0SFd0cuFzfBmD6F
+         hzCzycyvMwyLh91/WxMAGwZHNqvlKgsIA0iUTqsdsn6ZibQr/TSJHH8leGDrghxKdjni
+         nP8M180gNQeFRMpuDop737u0V8M2LfgRBGae3AZyJW3luesgnrnM7dCqjBoGFTZdTrcM
+         Jzog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692809449; x=1693414249;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D1rJRywRerSHpKN9caLA2gQ8y2MlCgXj2iqPjlxyJ44=;
+        b=GR5IAmB5ycEohXdmnfqBXzuAUztLdgWf+alHruX2cKQQ+EDamtXO1fKUfn49DfAslW
+         ZdruYxWWMl80GBtr98geLHsRTHeP8/NMavz+kE1+SPlhLB/pNsvlOd79Ev3J8willXHt
+         5VoJ57Dmc2AtC679C2wq/EciuBbEhSptgpLRBlNPpbnYTLXWkqYreD9sT296/0MBaJOd
+         9aR3Msynq1n9VKmfR+TRTEoZHE/FBAlun3Ck3VhcMLRk+0zXQ5B2+lao9FESAV14jmF6
+         Ro2YLnHzAffBhq7ElLHaNgCshPvQclIRYyaPItymDcP1f2J3o6jqh0Ei0Y6pUn2HeJxz
+         yeJw==
+X-Gm-Message-State: AOJu0Ywnq/fQzmJq80sRbNVHT8rtDSDpjEUlkZFWdP7+t7eT7MfPgUN8
+        oVMv/duVlOSN4yVOECYcwdau/yGY2zc=
+X-Google-Smtp-Source: AGHT+IGJ4zPUahe+I8pV4fKp97GwuTJ5+jKETKiilPbd2CcbtxsDMr1YLovxtT0fLpMFWDJ1Tyo4Og==
+X-Received: by 2002:a17:903:25d4:b0:1bd:bbc3:c87b with SMTP id jc20-20020a17090325d400b001bdbbc3c87bmr11857518plb.41.1692809449014;
+        Wed, 23 Aug 2023 09:50:49 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s15-20020a170902ea0f00b001bbc8d65de0sm11221936plg.67.2023.08.23.09.50.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Aug 2023 09:50:48 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 23 Aug 2023 09:50:47 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
+        Benson Leung <bleung@chromium.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <jstultz@google.com>,
+        Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Brian Norris <briannorris@chromium.org>
+Subject: Re: [PATCH v2 1/7] rtc: Add support for limited alarm timer offsets
+Message-ID: <b07b19ce-7f04-409c-bcb9-6deba059f57a@roeck-us.net>
+References: <20230817225537.4053865-1-linux@roeck-us.net>
+ <20230817225537.4053865-2-linux@roeck-us.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230817225537.4053865-2-linux@roeck-us.net>
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-Hello Krzysztof!
+Hi Alexandre,
 
-On Wed, 2023-08-23 at 12:14 +0200, Krzysztof Kozlowski wrote:
-> On 23/08/2023 11:03, Nikita Shubin via B4 Relay wrote:
-> > From: Nikita Shubin <nikita.shubin@maquefel.me>
-> >=20
-> > Add OF ID match table.
-> >=20
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
->=20
-> How did these appear? It's v1, so it is a bit confusing.
+On Thu, Aug 17, 2023 at 03:55:31PM -0700, Guenter Roeck wrote:
+> Some alarm timers are based on time offsets, not on absolute times.
+> In some situations, the amount of time that can be scheduled in the
+> future is limited. This may result in a refusal to suspend the system,
+> causing substantial battery drain.
+> 
+> Some RTC alarm drivers remedy the situation by setting the alarm time
+> to the maximum supported time if a request for an out-of-range timeout
+> is made. This is not really desirable since it may result in unexpected
+> early wakeups.
+> 
+> To reduce the impact of this problem, let RTC drivers report the maximum
+> supported alarm timer offset. The code setting alarm timers can then
+> decide if it wants to reject setting alarm timers to a larger value, if it
+> wants to implement recurring alarms until the actually requested alarm
+> time is met, or if it wants to accept the limited alarm time.
+> 
+> Only introduce the necessary variable into struct rtc_device.
+> Code to set and use the variable will follow with subsequent patches.
+> 
+> Cc: Brian Norris <briannorris@chromium.org>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Indeed this is from "ep93xx device tree conversion" series, you asked
-to submit these part as a separate.
+I guess it is a bit late to get the series into v6.6, but would it be
+possible to apply it to a -next branch to get some more test coverage ?
 
-I don't know the rules for tags in such cases, sorry. It's discouraged
-to use tags given elsewhere ?
+Either case, do you have any additional comments / feedback ?
 
->=20
-> > Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
->=20
-> >=20
->=20
-> Best regards,
-> Krzysztof
->=20
+Thanks,
+Guenter
 
+> ---
+> v2: Rename range_max_offset -> alarm_offset_max
+> 
+>  include/linux/rtc.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+> index 1fd9c6a21ebe..4c0bcbeb1f00 100644
+> --- a/include/linux/rtc.h
+> +++ b/include/linux/rtc.h
+> @@ -146,6 +146,7 @@ struct rtc_device {
+>  
+>  	time64_t range_min;
+>  	timeu64_t range_max;
+> +	timeu64_t alarm_offset_max;
+>  	time64_t start_secs;
+>  	time64_t offset_secs;
+>  	bool set_start_time;
