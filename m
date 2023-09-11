@@ -2,101 +2,188 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A346EEE57DF
-	for <linux-rtc@archiver.kernel.org>; Mon, 11 Sep 2023 06:17:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDB0FEE3F0E
+	for <linux-rtc@archiver.kernel.org>; Mon, 11 Sep 2023 20:50:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbjIKGRj (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Mon, 11 Sep 2023 02:17:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
+        id S230295AbjIKUuY (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Mon, 11 Sep 2023 16:50:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231663AbjIKGRj (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Sep 2023 02:17:39 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EFF2109
-        for <linux-rtc@vger.kernel.org>; Sun, 10 Sep 2023 23:17:34 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-401bbfc05fcso45012555e9.3
-        for <linux-rtc@vger.kernel.org>; Sun, 10 Sep 2023 23:17:34 -0700 (PDT)
+        with ESMTP id S235482AbjIKInb (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Mon, 11 Sep 2023 04:43:31 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6471A5;
+        Mon, 11 Sep 2023 01:43:26 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2b9338e4695so67908241fa.2;
+        Mon, 11 Sep 2023 01:43:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1694413053; x=1695017853; darn=vger.kernel.org;
+        d=gmail.com; s=20221208; t=1694421804; x=1695026604; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=IiC0IE6m0wPl8pl5dOrurkz/p4cSmknmvfdSlln6DIk=;
-        b=uVtQz3GOlfJieNng8T9BmINazQXdAAIGZYglgc5PKQ4n+AlbGHXBa/KOw/ej41/6PK
-         szWngTh94o4FdSWl9QHaT3YFj0rl3yEyc92x+G6EGN6mZJZNjjjrkIb88mHSsLQwmyel
-         Dq/C+XiXROiOnIXAtivxVLKetXMD1WLs7/oLAIExF4eRt3CjdfTZnhwOisblgTv1chCL
-         A02abrbXEM5KesaHmsRu0hLBOOA+UGVDxVaZGwlNWvVDlFSmgKoRGjrAJHqhBZ7Yy6u+
-         s1i14srMUB04Y0h4iavfK9x11ylorF+dpI/fJnfiHLNQtrL9Fax9o/Xtzp9Gl3MbqlzQ
-         Bz6A==
+        bh=VXFTsP12wrxAzUjCCRboSM4a3IaTPoXxwWoK/D998/w=;
+        b=ZnHnDJLjc0GjCqMA4/Z/mZbcL7LVy8Y+yu/mUiA8nzCYT5DMvWQKasVt/iKo7Urrrq
+         u5ZukdaeMKSjgTKSdsKx0U+H1wk7ANRNUzcQNeRbXKn1ljj4kn58TwoTOiziOiV2Uh0m
+         MRdrZTugI/ZYc3Qljjuwz2m27xUi1OZcFxVYOLsJ+d7M/ozxPGqOBpU9dAVLdXAN1QEl
+         r+oWQZN5/iD4EQVz3FxHphkFK4KXR3FJhgspzWtzM2y22laaWubF4EMp46snK36YXWj1
+         CRiCozEGdqAtJ1e7dINaUBhl2Y97RRaBOibcsMG50+SwGKA9W+BIVbapX0uzzqxwgc0P
+         F1QQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694413053; x=1695017853;
+        d=1e100.net; s=20230601; t=1694421804; x=1695026604;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IiC0IE6m0wPl8pl5dOrurkz/p4cSmknmvfdSlln6DIk=;
-        b=LC8m0mld2i0WvqrEQpSLmAr5xrYexSUakvYz7YGAHmsEINcaGSXilFY6tLShACGsJY
-         HQb4rJpGwY1oCBBvMpL4Ic65wr50sg7p2tW3eDaITCn2RMAxNdSL9e6aAfR519gA+Jq7
-         SvjnXtK0KEhX4fm3jEojc6ZZIyFJN2iKKBrMPKTIZERaqo86YcjOqPfJ6QrL3PYyu8aj
-         bbm7xOdYvxf8+aZ5ufXrn7nTG1PRhNFrvaIbD1/d1iYtvazX8iWfPDzv0coBeYlHSlT5
-         j4QR7vG866GSfjwfjSuqxZgb/nIFTV8OOxRZZ68DZW/WRP8r3jrNQHC4hjRaYgYLd0N+
-         ZTvA==
-X-Gm-Message-State: AOJu0Yzaxi30VKegw1x/NOl2mXDTKlYSkjE8nLLph/Qz4pGP522aieJG
-        po74vLM6GgyH1Ed4OA6dlItZNw==
-X-Google-Smtp-Source: AGHT+IHlyNmlmSt6D4JVp//iLOeraMdK0dpTiYSmwNu+q4Xj+pcPd078PdyE1qDbDo08dGfDkJVTBA==
-X-Received: by 2002:a7b:cb90:0:b0:3fe:dc99:56ea with SMTP id m16-20020a7bcb90000000b003fedc9956eamr7246164wmi.19.1694413052986;
-        Sun, 10 Sep 2023 23:17:32 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.214.188])
-        by smtp.gmail.com with ESMTPSA id u3-20020a05600c210300b003fe601a7d46sm12143847wml.45.2023.09.10.23.17.31
+        bh=VXFTsP12wrxAzUjCCRboSM4a3IaTPoXxwWoK/D998/w=;
+        b=HQ0hxA6RSH0yanhxMjc/j7STMmEAj334+UycXxFQjH34qiUnjd7v1mSQg/TWpu/Eml
+         oOL85jyGlyrx5E49n7XG3vi/GFuvK0MEgsNoIIEigRE7LB7uP8xzgUl8gG+Y1aizLt9Q
+         snqmsElmnZPJOM6PlkJNqXVOM2qFASNpFF2Nh2wNs7ketwzJMF3kQWrg1xM7fM/aKQ9h
+         hCtXzK1hF+nMmsPUGHMEYHEb47OhyYUWPRy+2aiqOYwzCcLzHkTxAlBc/n70zWHkNGo6
+         aqMJvzVkzdebWNGFJr37ih215PoS6/RRFoj8qnNiEfTljglk4ZM0OEgoY4MPWZEr91GR
+         xkPg==
+X-Gm-Message-State: AOJu0YxtJidUuynkgdeYrBwsj9ycXuOo3sxNc8LXct6VlM0GMwlYcACU
+        srAOMFU+clSOMBj+KBoFAhQ=
+X-Google-Smtp-Source: AGHT+IEBePdY5vRblamEOb4Bxr3m/BHlMOLZkfFn36ztGoB0yxzSBu2uVVDZkqtjqnQUqPnzTh0XJA==
+X-Received: by 2002:a2e:9f45:0:b0:2b6:9da9:2884 with SMTP id v5-20020a2e9f45000000b002b69da92884mr6670730ljk.40.1694421804210;
+        Mon, 11 Sep 2023 01:43:24 -0700 (PDT)
+Received: from [192.168.100.74] (91-118-163-37.static.upcbusiness.at. [91.118.163.37])
+        by smtp.gmail.com with ESMTPSA id f2-20020a1709064dc200b0099cc15f09a0sm4945462ejw.55.2023.09.11.01.43.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 10 Sep 2023 23:17:32 -0700 (PDT)
-Message-ID: <f0224983-d276-8d9c-f6ce-bd77f350bc3c@linaro.org>
-Date:   Mon, 11 Sep 2023 08:17:30 +0200
+        Mon, 11 Sep 2023 01:43:23 -0700 (PDT)
+Message-ID: <32c8cfb6-e14b-326d-1415-63c4bf46b23e@gmail.com>
+Date:   Mon, 11 Sep 2023 10:43:21 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.15.0
 Subject: Re: [PATCH] dt-bindings: rtc: pcf2123: convert to YAML
 Content-Language: en-US
-To:     Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+To:     Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     Alessandro Zummo <a.zummo@towertech.it>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        Chris Verges <chrisv@cyberswitching.com>
-Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Chris Verges <chrisv@cyberswitching.com>,
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org
 References: <20230907-topic-pcf2123_yaml-v1-1-40e82bed2066@gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230907-topic-pcf2123_yaml-v1-1-40e82bed2066@gmail.com>
+ <202309101217447eae4bc4@mail.local>
+From:   Javier Carrasco <javier.carrasco.cruz@gmail.com>
+In-Reply-To: <202309101217447eae4bc4@mail.local>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-On 10/09/2023 13:00, Javier Carrasco wrote:
-> Convert the existing txt binding to the preferred YAML format.
+
+On 10.09.23 14:17, Alexandre Belloni wrote:
+> On 10/09/2023 13:00:27+0200, Javier Carrasco wrote:
+>> Convert the existing txt binding to the preferred YAML format.
+>>
+>> The pcf2123 node may contain SPI settings such as spi-cs-high and
+>> spi-max-frequency, which keeps it from being added to the trivial-rtc
+>> binding with its current definition. Add a reference to
+>> spi-peripheral-props.yaml to account for that.
+>>
+>> The "interrupts" property was missing in the binding although it is
+>> already supported. Add the missing property in the new binding.
+>>
+>> Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
+>> ---
+>>  .../devicetree/bindings/rtc/nxp,pcf2123.yaml       | 45 ++++++++++++++++++++++
+>>  .../devicetree/bindings/rtc/nxp,rtc-2123.txt       | 17 --------
+>>  2 files changed, 45 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf2123.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf2123.yaml
+>> new file mode 100644
+>> index 000000000000..013e5e5dc0ae
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/rtc/nxp,pcf2123.yaml
+>> @@ -0,0 +1,45 @@
+>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>> +%YAML 1.2
+>> +---
+>> +$id: http://devicetree.org/schemas/rtc/nxp,pcf2123.yaml#
+>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>> +
+>> +title: NXP PCF2123 SPI Real Time Clock
+>> +
+>> +maintainers:
+>> +  - Chris Verges <chrisv@cyberswitching.com>
 > 
+> Is Chris willing to maintain the binding?
+> 
+The email address chrisv@cyberswitching.com does not exist anymore so it
+is likely that Chris will not reply unless he is subscribed to the
+mailing list with a different email address. I would propose that I add
+myself as the binding maintainer and send a v2.
 
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    spi {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        rtc@3 {
-> +            compatible = "nxp,pcf2123";
-> +            reg = <3>;
-> +            spi-cs-high;
-
-Example should be complete, so preferably also with interrupts.
-
-Anyway:
-
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
+>> +
+>> +allOf:
+>> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
+>> +  - $ref: rtc.yaml#
+>> +
+>> +properties:
+>> +  compatible:
+>> +    enum:
+>> +      - nxp,pcf2123
+>> +
+>> +  reg:
+>> +    maxItems: 1
+>> +
+>> +  interrupts:
+>> +    maxItems: 1
+>> +
+>> +required:
+>> +  - compatible
+>> +  - reg
+>> +
+>> +unevaluatedProperties: false
+>> +
+>> +examples:
+>> +  - |
+>> +    spi {
+>> +        #address-cells = <1>;
+>> +        #size-cells = <0>;
+>> +
+>> +        rtc@3 {
+>> +            compatible = "nxp,pcf2123";
+>> +            reg = <3>;
+>> +            spi-cs-high;
+>> +        };
+>> +    };
+>> +...
+>> diff --git a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt b/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
+>> deleted file mode 100644
+>> index 7371f525a687..000000000000
+>> --- a/Documentation/devicetree/bindings/rtc/nxp,rtc-2123.txt
+>> +++ /dev/null
+>> @@ -1,17 +0,0 @@
+>> -NXP PCF2123 SPI Real Time Clock
+>> -
+>> -Required properties:
+>> -- compatible: should be: "nxp,pcf2123"
+>> -                      or "microcrystal,rv2123"
+>> -- reg: should be the SPI slave chipselect address
+>> -
+>> -Optional properties:
+>> -- spi-cs-high: PCF2123 needs chipselect high
+>> -
+>> -Example:
+>> -
+>> -pcf2123: rtc@3 {
+>> -	compatible = "nxp,pcf2123"
+>> -	reg = <3>
+>> -	spi-cs-high;
+>> -};
+>>
+>> ---
+>> base-commit: 535a265d7f0dd50d8c3a4f8b4f3a452d56bd160f
+>> change-id: 20230907-topic-pcf2123_yaml-2ce57f4e77d7
+>>
+>> Best regards,
+>> -- 
+>> Javier Carrasco <javier.carrasco.cruz@gmail.com>
+>>
+> 
 Best regards,
-Krzysztof
-
+Javier Carrasco
