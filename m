@@ -2,52 +2,53 @@ Return-Path: <linux-rtc-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7448EDEC70
-	for <linux-rtc@archiver.kernel.org>; Wed, 13 Sep 2023 15:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F617EDEC75
+	for <linux-rtc@archiver.kernel.org>; Wed, 13 Sep 2023 15:16:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241552AbjIMPQb (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
-        Wed, 13 Sep 2023 11:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39208 "EHLO
+        id S241728AbjIMPQx (ORCPT <rfc822;linux-rtc@archiver.kernel.org>);
+        Wed, 13 Sep 2023 11:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbjIMPQ1 (ORCPT
-        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Sep 2023 11:16:27 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96AEBD;
-        Wed, 13 Sep 2023 08:16:22 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-4018af1038cso75538515e9.0;
-        Wed, 13 Sep 2023 08:16:22 -0700 (PDT)
+        with ESMTP id S241308AbjIMPQa (ORCPT
+        <rfc822;linux-rtc@vger.kernel.org>); Wed, 13 Sep 2023 11:16:30 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464F5FB;
+        Wed, 13 Sep 2023 08:16:25 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-31c73c21113so6557356f8f.1;
+        Wed, 13 Sep 2023 08:16:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694618181; x=1695222981; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+wHlb4TZdTg18dIQRSMHj1vLV5U+xhED8U8Tcp/nIAY=;
-        b=pt7b3ELNkFkWz/Qm60VgX2GufJFrwa1Jyfk1gf+5HWsmKazqN7WIGvCiZ1raeuVAN8
-         Y2KWvv6WcJMlEfeDBJ5jrPWWO4dnY5TuHhOw7eeuvk4kRHuVJX5nORLGO3K5UpsQyHRk
-         P0CPOO6YOFFb2xx9Nyd7GakQJcomDstplGOjpRsyCqhsiNM7zfpXYIaO3ZcD30ttp8SX
-         4jtUiau8/f1QLnMk4dh7qveEC7WKyVtcwVuLCwdVl89fucfoSGyGzYT/BmU9IIhlJyYU
-         YFK56r1QMn/cfPQydccLLSPtDSyzCdDyy69s6Eg/aKuzjXwdtluitiAI2L5nspydZt28
-         l5jA==
+        d=gmail.com; s=20221208; t=1694618183; x=1695222983; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pNvYjKW7PomV76gyvQhLurgIb+vmLHOwQJgyz6Ao3Z4=;
+        b=OL9M/v+IrWEyqtJVXYgNJz6UIYWSWHXbmmupqxWOPk7TrDIM8VJm8bsieebdB/bpuB
+         iTrHLsRRnymiGJiE8XPaY00fPuHzZATzNBUoRuLAptEmaDuI38/RVKsoMVXG9yHf6tAV
+         BPcMDi6n2woOGQjwD4TF3AI8Gg7/ov7yl8EeqcqNa9BU0TVWGfgIjz49POuTsVtTV4G7
+         wYg2+qjM4bEaJliUGBMsRm6JP+C6t0rlbbIBC+Jj6tAk5VlBh8DsAqU+fdJRnuTgvldm
+         1glVAih1bdtPk7CP+BPKtiZWuXL1HH34y5MZZpIgQqkBl40lE3w51id+h7UZ7FKlb5jq
+         Invg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694618181; x=1695222981;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+wHlb4TZdTg18dIQRSMHj1vLV5U+xhED8U8Tcp/nIAY=;
-        b=cFThWIVC+TgyDMp6FtCYpuoPw/M3Zr9nOnLXEEM45fHDhjcKWoMKm1PGvekPHsqiDb
-         Df1e+IvUCO5ropQmq1X3VJJgFStKwwVI1W+M/QvGa1UyOyE+13ivSruq5dHWhzeG7NzB
-         UgpUsNnqFIfKKKwl60YuI8GeS0DtA5zwXmbloes6ngqlvJZNGs+/ijx5IUZi38+zukcb
-         2g6lBWc5dj3phN4MZQJNffLira375LqxyInRXt8MoiKSEADLBFWpO62FpDGyrRC1SrUi
-         3jmriF2EojbLe8LZAYfAE2CclZzYl0YvmhcISwJpN0cwdJCNIJHmhFbRoTNYLlW93kQw
-         xacw==
-X-Gm-Message-State: AOJu0YyG/DCBq6f04o3ReB6xrzSW5g24TFqvf+rccYmw+zCdkMLAZxSc
-        K1PLu1LQBV5lmR6kxSLkDgzNz37LYIyIsw==
-X-Google-Smtp-Source: AGHT+IHDFXk9pLwaVNEfoWDOMr0cNYlA7ShKyzzr1OimlPOFw7rJqT0nMt26qj4IyJRDn5otb6IwgA==
-X-Received: by 2002:a7b:c416:0:b0:403:bb04:2908 with SMTP id k22-20020a7bc416000000b00403bb042908mr2217447wmi.23.1694618180871;
-        Wed, 13 Sep 2023 08:16:20 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1694618183; x=1695222983;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pNvYjKW7PomV76gyvQhLurgIb+vmLHOwQJgyz6Ao3Z4=;
+        b=nK1P1lsdoh9X6av+rb2TWeB9dnUIbCqul9Qu1KSmDNwoPgYMMP6GX+W6iSkgE7m+0Z
+         EzFZI2J9judrSHAYhbkMWLoWxT7NbtmVjTxRY18XeMOt0arPFrbzqPpLRewZmZGO52IR
+         6bVf5O9UsR45UxBanefkahUUsoMUuaXZxzZhHTrHlXm5CfldsFFvjxBMYEoEl3e92j0W
+         GNOthzsN3LGYVPfabMz4zAsR/BYyke+8qT2KP/Xl8n+qOfIhMAt3kL8PeUGj/1CgtCTw
+         dZp+20KsUra3OraqQKYPE1Qg3MBoLQVglfEAW+jOk2NHgoBgNq2jahn6CsuX7zf5XlhI
+         ffeg==
+X-Gm-Message-State: AOJu0YxdQbmjEusPc1t5Hwd2WWH4Yv1Ekpg/P6igGi09psyFYYtEiAoh
+        axDOWzUlXv/h9gZ2T3nqB7Q=
+X-Google-Smtp-Source: AGHT+IGn4OleF+wn7zer6c5nSeHVXOWrMzBtMjTRpP5K22bLCa0F/2iJByN4iCAY73vGnev+is5GPg==
+X-Received: by 2002:a05:6000:1006:b0:319:7472:f0b6 with SMTP id a6-20020a056000100600b003197472f0b6mr2171418wrx.15.1694618183348;
+        Wed, 13 Sep 2023 08:16:23 -0700 (PDT)
 Received: from debby ([2a01:e0a:a6d:a8d0:7ff4:8f61:5574:9f95])
-        by smtp.gmail.com with ESMTPSA id w18-20020a5d6092000000b0031c52e81490sm15886631wrt.72.2023.09.13.08.16.20
+        by smtp.gmail.com with ESMTPSA id h5-20020adfe985000000b0031ae8d86af4sm15664490wrm.103.2023.09.13.08.16.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Sep 2023 08:16:20 -0700 (PDT)
+        Wed, 13 Sep 2023 08:16:23 -0700 (PDT)
 From:   Romain Perier <romain.perier@gmail.com>
 To:     Alessandro Zummo <a.zummo@towertech.it>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -58,88 +59,67 @@ To:     Alessandro Zummo <a.zummo@towertech.it>,
         Conor Dooley <conor+dt@kernel.org>
 Cc:     linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v2 0/3] Add RTC for MStar SSD20xD SoCs
-Date:   Wed, 13 Sep 2023 17:16:03 +0200
-Message-Id: <20230913151606.69494-1-romain.perier@gmail.com>
+Subject: [PATCH v2 2/3] dt-bindings: rtc: Add Mstar SSD202D RTC
+Date:   Wed, 13 Sep 2023 17:16:05 +0200
+Message-Id: <20230913151606.69494-3-romain.perier@gmail.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230913151606.69494-1-romain.perier@gmail.com>
+References: <20230913151606.69494-1-romain.perier@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-rtc.vger.kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 
-This patches series adds a new driver for the RTC found in the Mstar
-SSD202D SoCs. It adds a basic rtc driver, the corresponding devicetree
-bindings.
+Add YAML bindings for Mstar SSD202D RTC.
 
-The rtctest (from selftests) has been passed on this driver, with the
-following output:
-
-# rtctest 
-TAP version 13
-1..8
-# Starting 8 tests from 1 test cases.
-#  RUN           rtc.date_read ...
-# rtctest.c:52:date_read:Current RTC date/time is 17/05/2023 15:58:12.
-#            OK  rtc.date_read
-ok 1 rtc.date_read
-#  RUN           rtc.date_read_loop ...
-# rtctest.c:95:date_read_loop:Continuously reading RTC time for 30s (with 11ms breaks after every read).
-# rtctest.c:122:date_read_loop:Performed 888 RTC time reads.
-#            OK  rtc.date_read_loop
-ok 2 rtc.date_read_loop
-#  RUN           rtc.uie_read ...
-# rtctest.c:137:uie_read:skip update IRQs not supported.
-#            OK  rtc.uie_read
-ok 3 rtc.uie_read
-#  RUN           rtc.uie_select ...
-# rtctest.c:166:uie_select:skip update IRQs not supported.
-#            OK  rtc.uie_select
-ok 4 rtc.uie_select
-#  RUN           rtc.alarm_alm_set ...
-# rtctest.c:214:alarm_alm_set:skip alarms are not supported.
-#            OK  rtc.alarm_alm_set
-ok 5 rtc.alarm_alm_set
-#  RUN           rtc.alarm_wkalm_set ...
-# rtctest.c:274:alarm_wkalm_set:skip alarms are not supported.
-#            OK  rtc.alarm_wkalm_set
-ok 6 rtc.alarm_wkalm_set
-#  RUN           rtc.alarm_alm_set_minute ...
-# rtctest.c:324:alarm_alm_set_minute:skip alarms are not supported.
-#            OK  rtc.alarm_alm_set_minute
-ok 7 rtc.alarm_alm_set_minute
-#  RUN           rtc.alarm_wkalm_set_minute ...
-# rtctest.c:384:alarm_wkalm_set_minute:skip alarms are not supported.
-#            OK  rtc.alarm_wkalm_set_minute
-ok 8 rtc.alarm_wkalm_set_minute
-# PASSED: 8 / 8 tests passed.
-# Totals: pass:8 fail:0 xfail:0 xpass:0 skip:0 error:0
-
-Changes since v1:
-- Changed the compatible from mstar,ssd20xd-rtc to mstar,ssd20d-rtc.
-  So the driver, its documentation and the commit messages have been
-  reworked accordingly.
-- Re-worked the dt-binding, I have also simplified the commit message
-- Re-worked the commit message for the driver
-- Remove redundant logging message for the user in the driver, as
-  requested by the subsystem maintainer. As these messages are helpful
-  for debugging purpose, I have switched these to dev_dbg().
-- Updated the list of maintainers (sorry for that).
-
-Romain Perier (3):
-  rtc: Add support for the SSD202D RTC
-  dt-bindings: rtc: Add Mstar SSD202D RTC
-  ARM: dts: mstar: Enable rtc for SSD202D
-
- .../bindings/rtc/mstar,ssd202d-rtc.yaml       |  35 +++
- .../boot/dts/sigmastar/mstar-infinity2m.dtsi  |   5 +
- drivers/rtc/Kconfig                           |  11 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-ssd202d.c                     | 249 ++++++++++++++++++
- 5 files changed, 301 insertions(+)
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+---
+ .../bindings/rtc/mstar,ssd202d-rtc.yaml       | 35 +++++++++++++++++++
+ 1 file changed, 35 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/rtc/mstar,ssd202d-rtc.yaml
- create mode 100644 drivers/rtc/rtc-ssd202d.c
 
+diff --git a/Documentation/devicetree/bindings/rtc/mstar,ssd202d-rtc.yaml b/Documentation/devicetree/bindings/rtc/mstar,ssd202d-rtc.yaml
+new file mode 100644
+index 000000000000..4c1f22ef5a2c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/mstar,ssd202d-rtc.yaml
+@@ -0,0 +1,35 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/mstar,ssd202d-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Mstar SSD202D Real Time Clock
++
++maintainers:
++  - Daniel Palmer <daniel@0x0f.com>
++  - Romain Perier <romain.perier@gmail.com>
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    enum:
++      - mstar,ssd202d-rtc
++  reg:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    rtc@6800 {
++        compatible = "mstar,ssd202d-rtc";
++        reg = <0x6800 0x200>;
++    };
++...
 -- 
 2.39.2
 
