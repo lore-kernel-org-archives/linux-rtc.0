@@ -1,32 +1,32 @@
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3799E1873
-	for <linux-rtc@vger.kernel.org>; Mon,  2 Oct 2023 08:05:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69D711C01
+	for <linux-rtc@vger.kernel.org>; Mon,  2 Oct 2023 08:05:38 +0000 (UTC)
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C449BD
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E97AC6
 	for <linux-rtc@vger.kernel.org>; Mon,  2 Oct 2023 01:05:36 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
 	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <ukl@pengutronix.de>)
-	id 1qnDvp-0004nI-V8; Mon, 02 Oct 2023 10:05:33 +0200
+	id 1qnDvq-0004oP-EZ; Mon, 02 Oct 2023 10:05:34 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
 	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <ukl@pengutronix.de>)
-	id 1qnDvp-00ATmv-Im; Mon, 02 Oct 2023 10:05:33 +0200
+	id 1qnDvq-00ATn3-1D; Mon, 02 Oct 2023 10:05:34 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
 	(envelope-from <ukl@pengutronix.de>)
-	id 1qnDvp-007fnX-9g; Mon, 02 Oct 2023 10:05:33 +0200
+	id 1qnDvp-007fnf-OT; Mon, 02 Oct 2023 10:05:33 +0200
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 To: Alessandro Zummo <a.zummo@towertech.it>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org,
 	kernel@pengutronix.de
-Subject: [PATCH 04/12] rtc: mv: Mark driver struct with __refdata to prevent section mismatch warning
-Date: Mon,  2 Oct 2023 10:05:21 +0200
-Message-Id: <20231002080529.2535610-5-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 06/12] rtc: sh: Mark driver struct with __refdata to prevent section mismatch warning
+Date: Mon,  2 Oct 2023 10:05:23 +0200
+Message-Id: <20231002080529.2535610-7-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231002080529.2535610-1-u.kleine-koenig@pengutronix.de>
 References: <20231002080529.2535610-1-u.kleine-koenig@pengutronix.de>
@@ -37,7 +37,7 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1133; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=xAzhtTQd5su+Mue5LoWBU8jNBhZjHfavdbMBedcRZ2k=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlGnm9IxzG2lRUUNeNl2YA7bszo7oNW5Aj1FFqr ayaWA7dq3GJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZRp5vQAKCRCPgPtYfRL+ Ti3FB/4qv512n8T7h/H+KandjrISvSuULdusQyx5j530ZpaClzk9k1McapO7RmFJaThdDG34BDx HEYbkBf9AvQaGcT0g3JXI45kpgVkD5B9eMvVcyzJpjnHcW+0ZHX9tkKhxamW32NzKQhbdLt30/w TqSJAjkJ/9jRygaGQtuYpsa05sCOhrs4LuXBoWG1bY9/vG1kUo16nfu5BRY4uvcBAEb+9I3Qxl8 fY+BJBVWqOxmhng5dHW/34KOa11MjF/tV6NDaPsB7KLEPOehyef00i0gThvR1o9duR1Vt4p5NgW 6GEHmibgnX+lD4fqDwJ59XRlABEjrOuvdGlKU1PsR5/fJd9O
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1122; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=xC9km4Thelh5moc+bAWipo74OHEz1GoJuIXzpbIZGT0=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlGnm/DRutpKCsd667RNVxAegDOZf3ywVdfJrbX n7OVT3U/lmJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZRp5vwAKCRCPgPtYfRL+ TldsB/9hECfHY55kww9s8P4KQ6m7cufzz8QTpwzuvB23qzKE+OYm1LF4EjQqY7wLOTWzGKTA0lN kU2y0IDf4QyB+9W2R2y7f8xELyMXo8zPXDoNJSz4ndQ7WGUmYcQNWEA2frgGlZquhvdPsmgLGjV 2qXv626lxxOKr5NEtohHbO+XfnhH/RCS5T6o/1hI2LAeR23BAdLBKZcvQRH+B4UBFJgqhBtcIcw 1IDpjjplDkMoHg4Z48Q+FoIp3KrXcbxKeioloMLOJfelATZ9YkhX07qjtvCMKolMETMjyoc9OS+ +E2x+dVqy+4RpA6Qy0Y4tmZSNObm+1YwGY699Ad6CtXEf2ms
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -56,28 +56,28 @@ explicit to prevent a section mismatch warning.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/rtc/rtc-mv.c | 8 +++++++-
+ drivers/rtc/rtc-sh.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mv.c b/drivers/rtc/rtc-mv.c
-index 6c526e2ec56d..d3c60c5b5897 100644
---- a/drivers/rtc/rtc-mv.c
-+++ b/drivers/rtc/rtc-mv.c
-@@ -303,7 +303,13 @@ static const struct of_device_id rtc_mv_of_match_table[] = {
- MODULE_DEVICE_TABLE(of, rtc_mv_of_match_table);
- #endif
+diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
+index cd146b574143..3f6a5d130690 100644
+--- a/drivers/rtc/rtc-sh.c
++++ b/drivers/rtc/rtc-sh.c
+@@ -668,7 +668,13 @@ static const struct of_device_id sh_rtc_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, sh_rtc_of_match);
  
--static struct platform_driver mv_rtc_driver = {
+-static struct platform_driver sh_rtc_platform_driver = {
 +/*
-+ * mv_rtc_remove() lives in .exit.text. For drivers registered via
++ * sh_rtc_remove() lives in .exit.text. For drivers registered via
 + * module_platform_driver_probe() this is ok because they cannot get unbound at
 + * runtime. So mark the driver struct with __refdata to prevent modpost
 + * triggering a section mismatch warning.
 + */
-+static struct platform_driver mv_rtc_driver __refdata = {
- 	.remove		= __exit_p(mv_rtc_remove),
++static struct platform_driver sh_rtc_platform_driver __refdata = {
  	.driver		= {
- 		.name	= "rtc-mv",
+ 		.name	= DRV_NAME,
+ 		.pm	= &sh_rtc_pm_ops,
 -- 
 2.40.1
 
