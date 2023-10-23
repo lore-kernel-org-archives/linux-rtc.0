@@ -1,100 +1,107 @@
-Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 681BB8F5A
-	for <linux-rtc@vger.kernel.org>; Fri, 20 Oct 2023 12:47:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FE31BDD0;
+	Mon, 23 Oct 2023 14:31:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="eg5kLCVl"
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D7291;
-	Fri, 20 Oct 2023 05:47:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1697806050; x=1729342050;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=aXXmqAMTaJ9llNy54dgQduDOBZlBWnWwsrEn2k0KPf8=;
-  b=eg5kLCVlCOr3dgpo9WjJh9IIJFJmumbk9VYowJyA9dkPsuUZFeFwEeYl
-   2yk1xe4OkVjiZJSAN3AfRJ6dMc9p6Pi+iUC7wKlwx3Red9f4Hasc5K93G
-   j7MOZ+btxuN3lc/2lZeSV0L+pVmb9K4N7EAcJpNSCGv49b1UZrkTwAs4j
-   PjPbpqNepjcwsZi3u5p/SE5lVX5/ZVxafCIwW5I7m2gVWba8/MsBxmmjs
-   wnJbZKGXdw324vzB6x+WtQMNfKuP6KHgR8nVXNJHRccs+e449RBMgMg0r
-   83Sj/ieO7YiwULP+eSe3Drk630ECNK+9X3n9yR7aStY2G4VUvYNWMimrk
-   w==;
-X-CSE-ConnectionGUID: j5zftE2fQGeYR+MQxGrMGg==
-X-CSE-MsgGUID: iEkiYNzOQ1W2SQf1bIdoew==
-X-ThreatScanner-Verdict: Negative
-X-IronPort-AV: E=Sophos;i="6.03,238,1694761200"; 
-   d="scan'208";a="10428489"
-X-Amp-Result: SKIPPED(no attachment in message)
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Oct 2023 05:47:29 -0700
-Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.21; Fri, 20 Oct 2023 05:47:11 -0700
-Received: from [10.159.245.205] (10.10.85.11) by chn-vm-ex01.mchp-main.com
- (10.10.85.143) with Microsoft SMTP Server id 15.1.2507.21 via Frontend
- Transport; Fri, 20 Oct 2023 05:47:10 -0700
-Message-ID: <c339d334-5fe4-4c1a-81ee-42882d93f3e5@microchip.com>
-Date: Fri, 20 Oct 2023 14:46:43 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HrDIxiY3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2109C433C8;
+	Mon, 23 Oct 2023 14:31:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1698071497;
+	bh=op1TQ1CkzwHxq8Z5ucFb/6/AuiA6zhcq2OVkycKqPXI=;
+	h=From:List-Id:To:Cc:Subject:Date:From;
+	b=HrDIxiY341J98QsROmXCAI+0dBFa4WOo5Yd0NYEYrhGGZ8lZ68djaVOrDTjpNgXK4
+	 VJeFgNuedXOpLk+VFETT2MnYZ4qWA29MsxJ2dlR9ge7mhYQxD5unm9tioP3l30JReR
+	 1Msd8FtOK//yvTtfWkqbv1EwJVlsvHC2ybxppZJrRqrfECuYF7WrTJZtpOyPKJ7Y9y
+	 7RCFOBge0Aau1E/G59aD7u76ctd4wgEAukfsB0vn6dNHXkbryYVhlOblvBvB+i9/Iy
+	 obNbZZv16FsnU0dZo3Q5rG06iloukt96vhnh6HUke7PJuj2lZrn1SUKFnGrZd8v5wR
+	 YkGuVGZg4Q7HA==
+From: =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+List-Id: <soc.lore.kernel.org>
+To: Gregory CLEMENT <gregory.clement@bootlin.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	soc@kernel.org,
+	arm@kernel.org,
+	Andy Shevchenko <andy@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	devicetree@vger.kernel.org,
+	Guenter Roeck <linux@roeck-us.net>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	linux-gpio@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	Rob Herring <robh+dt@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH v3 0/7] Turris Omnia MCU driver
+Date: Mon, 23 Oct 2023 16:31:23 +0200
+Message-ID: <20231023143130.11602-1-kabel@kernel.org>
+X-Mailer: git-send-email 2.41.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] rtc: at91rm9200: annotate at91_rtc_remove with __exit
- again
-Content-Language: en-US, fr-FR
-To: <alexandre.belloni@bootlin.com>, Alessandro Zummo <a.zummo@towertech.it>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>
-CC: kernel test robot <lkp@intel.com>, <linux-rtc@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>
-References: <20231016041816.246426-1-alexandre.belloni@bootlin.com>
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
-Organization: microchip
-In-Reply-To: <20231016041816.246426-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 16/10/2023 at 06:18, alexandre.belloni@bootlin.com wrote:
-> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> 
-> Without __exit, having the driver as a builtin after dropping the __exit
-> annotation results in:
-> 
->>> drivers/rtc/rtc-at91rm9200.c:561:13: warning: 'at91_rtc_remove' defined but not used [-Wunused-function]
->       561 | static void at91_rtc_remove(struct platform_device *pdev)
->           |             ^~~~~~~~~~~~~~~
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Closes: https://lore.kernel.org/oe-kbuild-all/202310160705.vlElNOGb-lkp@intel.com/
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Hello Andy, Linus, Arnd, Gregory, and others,
 
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Thanks Alexandre, best regards,
-   Nicolas
+this is v3 of series adding support for Turris Omnia MCU. See the cover
+letter from v1 and v2:
+  https://patchwork.kernel.org/project/linux-soc/cover/20230823161012.6986-1-kabel@kernel.org/
+  https://patchwork.kernel.org/project/linux-soc/cover/20230919103815.16818-1-kabel@kernel.org/
 
-> ---
->   drivers/rtc/rtc-at91rm9200.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-at91rm9200.c b/drivers/rtc/rtc-at91rm9200.c
-> index 3f5ff9867c02..c16fe711a0d9 100644
-> --- a/drivers/rtc/rtc-at91rm9200.c
-> +++ b/drivers/rtc/rtc-at91rm9200.c
-> @@ -558,7 +558,7 @@ static int __init at91_rtc_probe(struct platform_device *pdev)
->   /*
->    * Disable and remove the RTC driver
->    */
-> -static void at91_rtc_remove(struct platform_device *pdev)
-> +static void __exit at91_rtc_remove(struct platform_device *pdev)
->   {
->          /* Disable all interrupts */
->          at91_rtc_write_idr(AT91_RTC_ACKUPD | AT91_RTC_ALARM |
-> --
-> 2.41.0
-> 
+Changes since v2:
+- I've dropped the usage of devm_device_add_group(), since it is
+  deprecated as noted by Andy. In patch 4 I use the .is_visible()
+  attribute group method instead
+- dropped the setting of min_hw_heartbeat_ms watchdog member in 5/7,
+  since it is not needed, as suggested by Guenter
+- addressed Linus' and Andy's suggestions in patches 2/7 and 3/7.
+  There is one of Andy's suggestions which I did not address completely,
+  see changelog directly in patch 3/7
+
+Marek Behún (7):
+  dt-bindings: arm: add cznic,turris-omnia-mcu binding
+  platform: cznic: Add preliminary support for Turris Omnia MCU
+  platform: cznic: turris-omnia-mcu: Add support for MCU connected GPIOs
+  platform: cznic: turris-omnia-mcu: Add support for poweroff and wakeup
+  platform: cznic: turris-omnia-mcu: Add support for MCU watchdog
+  ARM: dts: turris-omnia: Add MCU system-controller node
+  ARM: dts: turris-omnia: Add GPIO key node for front button
+
+ .../sysfs-bus-i2c-devices-turris-omnia-mcu    |   77 ++
+ .../bindings/arm/cznic,turris-omnia-mcu.yaml  |   67 ++
+ MAINTAINERS                                   |    4 +
+ .../dts/marvell/armada-385-turris-omnia.dts   |   35 +-
+ drivers/platform/Kconfig                      |    2 +
+ drivers/platform/Makefile                     |    1 +
+ drivers/platform/cznic/Kconfig                |   47 +
+ drivers/platform/cznic/Makefile               |    7 +
+ .../platform/cznic/turris-omnia-mcu-base.c    |  271 +++++
+ .../platform/cznic/turris-omnia-mcu-gpio.c    | 1021 +++++++++++++++++
+ .../cznic/turris-omnia-mcu-sys-off-wakeup.c   |  250 ++++
+ .../cznic/turris-omnia-mcu-watchdog.c         |  122 ++
+ drivers/platform/cznic/turris-omnia-mcu.h     |  168 +++
+ include/linux/turris-omnia-mcu-interface.h    |  194 ++++
+ 14 files changed, 2265 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-turris-omnia-mcu
+ create mode 100644 Documentation/devicetree/bindings/arm/cznic,turris-omnia-mcu.yaml
+ create mode 100644 drivers/platform/cznic/Kconfig
+ create mode 100644 drivers/platform/cznic/Makefile
+ create mode 100644 drivers/platform/cznic/turris-omnia-mcu-base.c
+ create mode 100644 drivers/platform/cznic/turris-omnia-mcu-gpio.c
+ create mode 100644 drivers/platform/cznic/turris-omnia-mcu-sys-off-wakeup.c
+ create mode 100644 drivers/platform/cznic/turris-omnia-mcu-watchdog.c
+ create mode 100644 drivers/platform/cznic/turris-omnia-mcu.h
+ create mode 100644 include/linux/turris-omnia-mcu-interface.h
+
+-- 
+2.41.0
 
