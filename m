@@ -1,52 +1,50 @@
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 482FA1E515;
-	Tue, 31 Oct 2023 16:01:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A2F2031D
+	for <linux-rtc@vger.kernel.org>; Tue, 31 Oct 2023 17:08:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TRow5zti"
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A968BE6;
-	Tue, 31 Oct 2023 09:01:19 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id d2e1a72fcca58-6b9af7d41d2so5155643b3a.0;
-        Tue, 31 Oct 2023 09:01:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="JzOU3uur"
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92EF01AA
+	for <linux-rtc@vger.kernel.org>; Tue, 31 Oct 2023 10:08:49 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-9d274222b5dso474708266b.3
+        for <linux-rtc@vger.kernel.org>; Tue, 31 Oct 2023 10:08:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1698768079; x=1699372879; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1698772128; x=1699376928; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=fSkWUAaL15CpGTewW928PS3JdYXegcRfmO7SVs8ug3U=;
-        b=TRow5zti8xTzIPlcclFjqenjSiCADQaddGpaiA8zxM9+z9ycMSdP5cVEadTi6Jz139
-         I6eeZVIZbXTKV3qcaAlfUugM/gZ0sAoLE/r5Bx8InPwcIGs448bONdOlVfh1cp9xvr2L
-         WYo8QiWLTSd9Ceq8x55KWrzbOpqX6jFHs5N7PiNbgejOCh9JITn6iupXWf4lIdbrHJUw
-         r562goY3ZNQ8S9QlD4ZrgqaJ3o1ALv8TwU6GkKeR4qj17zKpYi1447+HCsg+mJiPgX6H
-         DZTSXj9rpSZTTRsd4N7hYd3ohKiNTVMxVl0CNOLb9nsjqmSiM60lXfWngAEIfbSiYCsK
-         SUlw==
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+feQs+itGdxA7Jm7f8P6UpJRY3RLYxDN+ML61Wt8IfA=;
+        b=JzOU3uurkijpJ/gjOyKN0ODkzWPWcNf4xFkMis73Y6AJaGP+m9TBSbYZrkP+ivEkyi
+         m53D/eA0Sp+1bBosL9q4L6qKdSUIk4svlCJOdfbK5XQQW+rB6XZkNJzQTCSTWkfBC6yC
+         V+GjGilQx5d9Hmvz+fWNFSdBK8m/5lBBhAFyuTfXw0I8ij8vT1zFC0XSTkmy445JDj0e
+         KqcjcYVZ6U1sUDnt/+7A6iZcbpBK9LNWx330lsdHmNvesgyRnrcTADTjfBWuF6RF2kgT
+         hn1T0GcMlu+PmNROLhroTTGlEiaWNQx3KDo/MSOs4bQpZWV0LYKzOg2F02o565QDmBZO
+         orfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698768079; x=1699372879;
+        d=1e100.net; s=20230601; t=1698772128; x=1699376928;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fSkWUAaL15CpGTewW928PS3JdYXegcRfmO7SVs8ug3U=;
-        b=j0F0pwdKTm3PtQlTNoGCbqtPHr0XC/gvbEum4ONIjJywDQJs1dz0mdEZ7Ye7jJ2cwx
-         wAA4jY//7mT+9zGzGhhoMzEprKRiA/f8GWHFyiQIiAzAcLJeztU57pKgNFH3ugfDwxxf
-         ZCrvN/hVgJ6K/mjvywdMWQMRAtas8qJkBjNEYNr48hkD3JWV7E6fFOz5dm53TZMRDTN5
-         Ri9p4A6GSaEfThKD03h194qUg5UVdEIrVrNJF1QJ+axWI/lkxB9oFtmzDClwLp6PRlqG
-         DOaq97QJNiGzuPjVg84rlJ7KMQEZwv2bPxMcep8H8+wOyZEPtUjSnU23WrJivBIHz99h
-         wY3Q==
-X-Gm-Message-State: AOJu0YyyYaoAHeSDtWhFmHgJEvVAeuJomd+yPotR094qMxb++y1eQFtU
-	ceuHBzanNZPFJcmyiyoXosM=
-X-Google-Smtp-Source: AGHT+IEB5Jt8XmT4PAsYiOxccvkYS0Vkr7blEiqbpZrF8DzB2UBJIReZDxHKCaFoLwGSij+DTEs8pQ==
-X-Received: by 2002:a05:6a20:3956:b0:17f:66f7:e079 with SMTP id r22-20020a056a20395600b0017f66f7e079mr13674944pzg.19.1698768078850;
-        Tue, 31 Oct 2023 09:01:18 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c25-20020a637259000000b0058a9621f583sm1242444pgn.44.2023.10.31.09.01.17
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+feQs+itGdxA7Jm7f8P6UpJRY3RLYxDN+ML61Wt8IfA=;
+        b=ppqR5oe7ezJIPBSbUATS8fdHKG8SM+q2AEstkY1wAX015EI8kpHfaMEvGeo1hvKicV
+         avgb0FiQsTUdZPgvC1nw5R77oqgttTcutFvQ8aQi4PsnxTz6dewmBM9YO64d3W60OI8I
+         xDJpWDdQdL4dRQpexTJSO+CYXxlqsgLee2k/YYoFg6woQ5vBPynDX7KOQUy+/Up5IFgh
+         Y2PO08qt1BM2ZVh/GWkEZgLU+T20zvQhK0Z6roP1jVVNsndacdbLjgRYesoRO9ltq7b0
+         bCn4nal0q3jb+fj2vr3YZxdc4LJg94X4dlly7ZXNSllL2JTq2Mydbv0lVKJr1x93Ba0R
+         b5BQ==
+X-Gm-Message-State: AOJu0Yy/TTboNxVDvg4+BVjw+lBRzwea8/f+siConqMTLa/1FeSFx/Fi
+	h/Z/jSejxwk+TiijAHgL89ZKzQ==
+X-Google-Smtp-Source: AGHT+IHNVvDfKgiVTVWwyGmdsJki5ouK2yEzuxPef8Y/cOycrK5RxEm3D0Hzd3jvNoa64LCA73HpjQ==
+X-Received: by 2002:a17:906:c148:b0:9be:6ccb:6a8b with SMTP id dp8-20020a170906c14800b009be6ccb6a8bmr12321140ejc.10.1698772127901;
+        Tue, 31 Oct 2023 10:08:47 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.218.126])
+        by smtp.gmail.com with ESMTPSA id lg17-20020a170906f89100b0098e78ff1a87sm1259634ejb.120.2023.10.31.10.08.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 31 Oct 2023 09:01:17 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <95e41f16-4b5f-4f2a-bc31-17273032312b@roeck-us.net>
-Date: Tue, 31 Oct 2023 09:01:16 -0700
+        Tue, 31 Oct 2023 10:08:47 -0700 (PDT)
+Message-ID: <084b6dd7-2078-43ca-90fe-3611c65dad8a@linaro.org>
+Date: Tue, 31 Oct 2023 18:08:45 +0100
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -54,7 +52,7 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/2] rtc: max31335: add driver support
+Subject: Re: [PATCH v3 1/2] dt-bindings: rtc: max31335: add max31335 bindings
 Content-Language: en-US
 To: Antoniu Miclaus <antoniu.miclaus@analog.com>,
  Alessandro Zummo <a.zummo@towertech.it>,
@@ -62,119 +60,124 @@ To: Antoniu Miclaus <antoniu.miclaus@analog.com>,
  Rob Herring <robh+dt@kernel.org>,
  Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
  Conor Dooley <conor+dt@kernel.org>, Jean Delvare <jdelvare@suse.com>,
- linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org
+ Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-hwmon@vger.kernel.org
 References: <20231031153100.92939-1-antoniu.miclaus@analog.com>
- <20231031153100.92939-2-antoniu.miclaus@analog.com>
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <20231031153100.92939-2-antoniu.miclaus@analog.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
+ 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
+ D2GYIS41Kv4Isx2dEFh+/Q==
+In-Reply-To: <20231031153100.92939-1-antoniu.miclaus@analog.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 10/31/23 08:30, Antoniu Miclaus wrote:
-> RTC driver for MAX31335 ±2ppm Automotive Real-Time Clock with
-> Integrated MEMS Resonator.
+On 31/10/2023 16:30, Antoniu Miclaus wrote:
+> Document the Analog Devices MAX31335 device tree bindings.
 > 
 > Signed-off-by: Antoniu Miclaus <antoniu.miclaus@analog.com>
 > ---
 > changes in v3:
->   - drop MAX31335_STATUS1 register check inside probe function.
->   drivers/rtc/Kconfig        |  11 +
->   drivers/rtc/Makefile       |   1 +
->   drivers/rtc/rtc-max31335.c | 765 +++++++++++++++++++++++++++++++++++++
->   3 files changed, 777 insertions(+)
->   create mode 100644 drivers/rtc/rtc-max31335.c
+>  - `trickle-resistor-ohms` description specifies that the property is mandatory
+>     if trickle charger should be enabled.
+>  .../devicetree/bindings/rtc/adi,max31335.yaml | 64 +++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/rtc/adi,max31335.yaml
 > 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index d7502433c78a..11c7d7fe1e85 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -373,6 +373,17 @@ config RTC_DRV_MAX8997
->   	  This driver can also be built as a module. If so, the module
->   	  will be called rtc-max8997.
->   
-> +config RTC_DRV_MAX31335
-> +	tristate "Analog Devices MAX31335"
-> +	depends on I2C
-> +	select REGMAP_I2C
-> +	help
-> +	  If you say yes here you get support for the Analog Devices
-> +	  MAX31335.
+> diff --git a/Documentation/devicetree/bindings/rtc/adi,max31335.yaml b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
+> new file mode 100644
+> index 000000000000..8da9cf2565be
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
+> @@ -0,0 +1,64 @@
+> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/rtc/adi,max31335.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-max31335.
+> +title: Analog Devices MAX31335 RTC
 > +
-
-Just out of curiosity, is this an unreleased chip ? I only find
-MAX311331 and MAX31334 on the Analog website, but the register
-map for those is different, and they don't support reporting
-the chip temperature.
-
-[ ... ]
-
+> +maintainers:
+> +  - Antoniu Miclaus <antoniu.miclaus@analog.com>
 > +
-> +static const struct hwmon_channel_info *max31335_info[] = {
-> +	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
-
-According to the register map above, the chip does support
-low and high temperature limits as well as over- and undertemperature
-alarms and interrupts. I would suggest to add support for all of those.
-You might also consider adding support for temperature alarm interrupts
-and report temperature alarm events by calling hwmon_notify_event()
-if a thermal event occurs.
-
-[ ... ]
-
+> +description:
+> +  Analog Devices MAX31335 I2C RTC ±2ppm Automotive Real-Time Clock with
+> +  Integrated MEMS Resonator.
 > +
-> +	hwmon = devm_hwmon_device_register_with_info(&client->dev, client->name,
-> +						     max31335,
-> +						     &max31335_chip_info,
-> +						     NULL);
+> +allOf:
+> +  - $ref: rtc.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: adi,max31335
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  "#clock-cells":
+> +    description:
+> +      RTC can be used as a clock source through its clock output pin.
+> +    const: 0
+> +
+> +  trickle-resistor-ohms:
+> +    description:
+> +      Selected resistor for trickle charger. Should be specified if trickle
+> +      charger should be enabled.
+> +    enum: [3000, 6000, 11000]
+> +
+> +  aux-voltage-chargeable: true
 
-There is no "depends on HWMON" in the Kconfig entry, meaning this will fail
-to compile if HWMON=n or if HWMON=m and RTC_DRV_MAX31335=y.
+Drop, it comes with rtc.yaml.
 
-Guenter
+With this property removed:
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
+Best regards,
+Krzysztof
+
