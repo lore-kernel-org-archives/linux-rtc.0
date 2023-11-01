@@ -1,150 +1,188 @@
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C48F6101E8;
-	Wed,  1 Nov 2023 12:29:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682DBDC;
-	Wed,  1 Nov 2023 05:29:48 -0700 (PDT)
-Received: from pps.filterd (m0167089.ppops.net [127.0.0.1])
-	by mx0a-00128a01.pphosted.com (8.17.1.22/8.17.1.22) with ESMTP id 3A1B2x4k029612;
-	Wed, 1 Nov 2023 08:29:19 -0400
-Received: from nwd2mta4.analog.com ([137.71.173.58])
-	by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3u39354ybh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 01 Nov 2023 08:29:18 -0400 (EDT)
-Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
-	by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 3A1CSeDI011144
-	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-	Wed, 1 Nov 2023 08:28:40 -0400
-Received: from ASHBMBX8.ad.analog.com (10.64.17.5) by ASHBMBX9.ad.analog.com
- (10.64.17.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Wed, 1 Nov 2023
- 05:49:09 -0400
-Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx8.ad.analog.com
- (10.64.17.5) with Microsoft SMTP Server id 15.2.986.14 via Frontend
- Transport; Wed, 1 Nov 2023 05:49:09 -0400
-Received: from amiclaus-VirtualBox.ad.analog.com (AMICLAUS-L02.ad.analog.com [10.48.65.145])
-	by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 3A19mnJm018866;
-	Wed, 1 Nov 2023 05:48:52 -0400
-From: Antoniu Miclaus <antoniu.miclaus@analog.com>
-To: Antoniu Miclaus <antoniu.miclaus@analog.com>,
-        Alessandro Zummo
-	<a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski
-	<krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>, Jean
- Delvare <jdelvare@suse.com>,
-        Guenter Roeck <linux@roeck-us.net>, <linux-rtc@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-hwmon@vger.kernel.org>
-CC: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 1/2] dt-bindings: rtc: max31335: add max31335 bindings
-Date: Wed, 1 Nov 2023 11:48:13 +0200
-Message-ID: <20231101094835.51031-1-antoniu.miclaus@analog.com>
-X-Mailer: git-send-email 2.42.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4692B7489;
+	Wed,  1 Nov 2023 14:19:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="N5L7RROl"
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A980DC;
+	Wed,  1 Nov 2023 07:19:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=x; h=Subject:Content-Transfer-Encoding:Mime-Version:Message-Id:Cc:To:From
+	:Date:subject:date:message-id:reply-to;
+	bh=OCON80s5+YBfYIu8CqkppkNaABmnDO3nFsvKwtvLV2k=; b=N5L7RROlMKNHC0MTKFbiB/5ZxP
+	PT0zK4Q3Ip1YMbe8c4/sIZ+W0d3tKXM9N5XBFsihGEd1nksb4AWPgyrDqxf+T2YCzPQhoBZ67iqgJ
+	+D1SfnV/qssCq9Pu/kHQRz9LAMiVI5shaoSYbGTBS+YH9NZRY8qk9ziU03F+lDwBHwqo=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:37880 helo=pettiford)
+	by mail.hugovil.com with esmtpa (Exim 4.92)
+	(envelope-from <hugo@hugovil.com>)
+	id 1qyC3x-0005yH-RT; Wed, 01 Nov 2023 10:19:22 -0400
+Date: Wed, 1 Nov 2023 10:19:16 -0400
+From: Hugo Villeneuve <hugo@hugovil.com>
+To: Hugo Villeneuve <hugo@hugovil.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Conor Dooley
+ <conor@kernel.org>, a.zummo@towertech.it, robh+dt@kernel.org,
+ krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
+ linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bruno.thomsen@gmail.com, Hugo Villeneuve
+ <hvilleneuve@dimonoff.com>
+Message-Id: <20231101101916.259618f7e5d4abfcac2ffe9b@hugovil.com>
+In-Reply-To: <20231011182330.393f4ec10ba53c85cb09c7e8@hugovil.com>
+References: <20230802191153.952667-1-hugo@hugovil.com>
+	<20230802191153.952667-2-hugo@hugovil.com>
+	<20230808-capsize-deodorize-5776d3dbb192@spud>
+	<20230808082533.b608c9a2a4bd922920643c4b@hugovil.com>
+	<202308081232266ec8a9b7@mail.local>
+	<20230808084426.fc7e432a9d85e5caf72d3ffe@hugovil.com>
+	<20230905113058.0fed933265fb68cd53b6d0fa@hugovil.com>
+	<20230919113423.6c8c48cb1b89275f5b4f3cc2@hugovil.com>
+	<20231011182330.393f4ec10ba53c85cb09c7e8@hugovil.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ADIRuleOP-NewSCL: Rule Triggered
-X-Proofpoint-GUID: 9h3A7EFxEa2DlJvgm57yJDk90m9zYcx4
-X-Proofpoint-ORIG-GUID: 9h3A7EFxEa2DlJvgm57yJDk90m9zYcx4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-01_10,2023-11-01_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 mlxscore=0 phishscore=0 suspectscore=0 clxscore=1015
- priorityscore=1501 lowpriorityscore=0 spamscore=0 adultscore=0 bulkscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2310240000 definitions=main-2311010104
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 70.80.174.168
+X-SA-Exim-Mail-From: hugo@hugovil.com
+X-Spam-Level: 
+Subject: Re: [PATCH 1/2] dt-bindings: rtc: add properties to set
+ battery-related functions
+X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
+X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 
-Document the Analog Devices MAX31335 device tree bindings.
+On Wed, 11 Oct 2023 18:23:30 -0400
+Hugo Villeneuve <hugo@hugovil.com> wrote:
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Antoniu Miclaus <antoniu.miclaus@analog.com>
----
-changes in v4:
- - drop `aux-voltage-chargeable` since it comes with rtc.yaml
- .../devicetree/bindings/rtc/adi,max31335.yaml | 62 +++++++++++++++++++
- 1 file changed, 62 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/adi,max31335.yaml
+> On Tue, 19 Sep 2023 11:34:23 -0400
+> Hugo Villeneuve <hugo@hugovil.com> wrote:
+> 
+> > On Tue, 5 Sep 2023 11:30:58 -0400
+> > Hugo Villeneuve <hugo@hugovil.com> wrote:
+> > 
+> > > On Tue, 8 Aug 2023 08:44:26 -0400
+> > > Hugo Villeneuve <hugo@hugovil.com> wrote:
+> > > 
+> > > > On Tue, 8 Aug 2023 14:32:26 +0200
+> > > > Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+> > > > 
+> > > > > On 08/08/2023 08:25:33-0400, Hugo Villeneuve wrote:
+> > > > > > On Tue, 8 Aug 2023 12:21:24 +0100
+> > > > > > Conor Dooley <conor@kernel.org> wrote:
+> > > > > > 
+> > > > > > > Hey Hugo,
+> > > > > > > 
+> > > > > > > On Wed, Aug 02, 2023 at 03:11:52PM -0400, Hugo Villeneuve wrote:
+> > > > > > > > From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > > > > > 
+> > > > > > > > These properties can be defined in the board's device tree to set the
+> > > > > > > > default power-on values for battery-related functions.
+> > > > > > > > 
+> > > > > > > > Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+> > > > > > > > ---
+> > > > > > > >  .../devicetree/bindings/rtc/rtc.yaml          | 19 +++++++++++++++++++
+> > > > > > > >  1 file changed, 19 insertions(+)
+> > > > > > > > 
+> > > > > > > > diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+> > > > > > > > index efb66df82782..0217d229e3fa 100644
+> > > > > > > > --- a/Documentation/devicetree/bindings/rtc/rtc.yaml
+> > > > > > > > +++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+> > > > > > > > @@ -26,6 +26,25 @@ properties:
+> > > > > > > >        0: not chargeable
+> > > > > > > >        1: chargeable
+> > > > > > > >  
+> > > > > > > > +  battery-low-detect:
+> > > > > > > > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > > > > > > > +    enum: [0, 1]
+> > > > > > > > +    description: |
+> > > > > > > > +      For RTC devices supporting a backup battery/supercap, this flag can be
+> > > > > > > > +      used to configure the battery low detection reporting function:
+> > > > > > > > +      0: disabled
+> > > > > > > > +      1: enabled
+> > > > > > > > +
+> > > > > > > > +  battery-switch-over:
+> > > > > > > > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > > > > > > > +    enum: [0, 1]
+> > > > > > > > +    description: |
+> > > > > > > > +      For RTC devices supporting a backup battery/supercap, this flag can be
+> > > > > > > > +      used to configure the battery switch over when the main voltage source is
+> > > > > > > > +      turned off:
+> > > > > > > > +      0: disabled
+> > > > > > > > +      1: enabled
+> > > > > > > 
+> > > > > > > Why are these implemented as enums? This seems to fall into the category
+> > > > > > > of using DT to determine software policy - why's it not sufficient to
+> > > > > > > have boolean properties that indicate hardware support and let the software
+> > > > > > > decide what to do with them?
+> > > > > > 
+> > > > > > Hi Conor,
+> > > > > > the reason is that I based the new properties on the existing property
+> > > > > > "aux-voltage-chargeable":
+> > > > > > 
+> > > > > > -------------------
+> > > > > >  aux-voltage-chargeable:
+> > > > > >     $ref: /schemas/types.yaml#/definitions/uint32
+> > > > > >     enum: [0, 1]
+> > > > > >     description: |
+> > > > > >       Tells whether the battery/supercap of the RTC (if any) is
+> > > > > >       chargeable or not:
+> > > > > >       0: not chargeable
+> > > > > >       1: chargeable
+> > > > > > -------------------
+> > > > > > 
+> > > > > > I agree with you that a boolean would be more appropriate. Should I
+> > > > > > also submit a (separate) patch to fix the "aux-voltage-chargeable"
+> > > > > > property to a boolean?
+> > > > > > 
+> > > > > 
+> > > > > No, this is an enum on purpose.
+> > > > > I will not take battery switch over related properties, this is not
+> > > > > hardware description but software configuration. There is an ioctl for
+> > > > > this.
+> > > > 
+> > > > Hi Alexandre,
+> > > > can you suggest then how we can set default PWRMNG values for the
+> > > > PCF2131 then?
+> > > > 
+> > > > I looked at Documentation/ABI/testing/rtc-cdev but couldn't find an
+> > > > ioctl to activate the battery switch over function, nor one to activate
+> > > > the battery-low detection...
+> > > 
+> > > Ping...
+> > 
+> > Second ping...
+> > 
+> > Hugo.
+> 
+> Third ping...
 
-diff --git a/Documentation/devicetree/bindings/rtc/adi,max31335.yaml b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
-new file mode 100644
-index 000000000000..34cc87b92c02
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
-@@ -0,0 +1,62 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/adi,max31335.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Analog Devices MAX31335 RTC
-+
-+maintainers:
-+  - Antoniu Miclaus <antoniu.miclaus@analog.com>
-+
-+description:
-+  Analog Devices MAX31335 I2C RTC ±2ppm Automotive Real-Time Clock with
-+  Integrated MEMS Resonator.
-+
-+allOf:
-+  - $ref: rtc.yaml#
-+
-+properties:
-+  compatible:
-+    const: adi,max31335
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  "#clock-cells":
-+    description:
-+      RTC can be used as a clock source through its clock output pin.
-+    const: 0
-+
-+  trickle-resistor-ohms:
-+    description:
-+      Selected resistor for trickle charger. Should be specified if trickle
-+      charger should be enabled.
-+    enum: [3000, 6000, 11000]
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@68 {
-+            compatible = "adi,max31335";
-+            reg = <0x68>;
-+            pinctrl-0 = <&rtc_nint_pins>;
-+            interrupts-extended = <&gpio1 16 IRQ_TYPE_LEVEL_HIGH>;
-+            trickle-resistor-ohms = <6000>;
-+            aux-voltage-chargeable =<1>;
-+        };
-+    };
-+...
--- 
-2.42.0
+Hi Alexandre,
+Fourth ping...
 
+People are writing to me off the mailing
+list to indicate that there is a "bug" with the PCF2131 driver relating
+to PWRMNG incorrect values.
+
+Can you answer my question so that we can find a solution to this
+problem?
+
+Hugo.
+
+
+> > > > > > > > +
+> > > > > > > >    quartz-load-femtofarads:
+> > > > > > > >      description:
+> > > > > > > >        The capacitive load of the quartz(x-tal), expressed in femto
+> > > > > > > > -- 
+> > > > > > > > 2.30.2
+> > > > > > > > 
+> > > > > 
+> > > > > -- 
+> > > > > Alexandre Belloni, co-owner and COO, Bootlin
+> > > > > Embedded Linux and Kernel engineering
+> > > > > https://bootlin.com
+> > > 
