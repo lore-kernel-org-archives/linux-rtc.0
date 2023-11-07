@@ -1,552 +1,746 @@
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C59229402
-	for <linux-rtc@vger.kernel.org>; Mon,  6 Nov 2023 16:18:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4B0E11C8B
+	for <linux-rtc@vger.kernel.org>; Tue,  7 Nov 2023 09:47:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=axis.com header.i=@axis.com header.b="eN2zhaFY"
-Received: from EUR05-VI1-obe.outbound.protection.outlook.com (mail-vi1eur05on2077.outbound.protection.outlook.com [40.107.21.77])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68EE7D42;
-	Mon,  6 Nov 2023 08:17:59 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GVEQF8uOwbsvit2HWqDgqfoMUU/lYdkM6zUyYSbh4Wgf5zYH5SWkexJRaYHIVHl/p+Zdv9WPLkddEWTdExmpJ9uUps4P3B+QB/ZvX9IafLV3HjJAfzU+Cx/D0qSL/TYnMlr98CHpE7PxiZA8yW7sHYtUr9aL8pgdgtQzh1KXm3BbCtwCJFNUSRwtjqdhPR38pOuki2EviBla3CpUsdHVXABGWdnSD8UNsJxN+YAQiGqRD0FIBoxbC/F8LbMfUYCr1ziMzH7rFqZZc0YOzix3dql0ebpotxHGCz9oxAOfet+uTMhS+cg0RAnx/XYHm7jHvDXcS4gkeLtWtsrGRt7rjA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=C164GxtIP68KIBm3BCbWqXUb//7dcipOUYttZuU7EJY=;
- b=gQPDX31syQPYsuZeD50CoIadsCgmQxTTo4naUwU5WqMKvZZByVc9gFOGkEDYZBDi9RcxIOOAWOjcda/9oSKtm3Psx6Vr/OMbNxbGaIRgri3ODGj+TdOCe/zOaJGF+LLieVuwZD2zrJBdmmJqcz/1NtalmpgrZMg/D2hCkerC6XxWZbDnXVlzya8m8ps2YKGiTJpXqYxmo7lvx5CaiWqdU+oT9R5Bd3gN36+Q0/027/ox3bBDzOnKRC3Yajf2O0XVEFdjaFnYh9Wc1oeQk8zhZYjmagKIgSR8I7nuB4P2yWr0APn/7lwWyzO4PKlFotG95LQCBAdIHO7cO6Y1og6N6g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 195.60.68.100) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=axis.com;
- dmarc=fail (p=none sp=none pct=100) action=none header.from=axis.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axis.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=C164GxtIP68KIBm3BCbWqXUb//7dcipOUYttZuU7EJY=;
- b=eN2zhaFYz0FEM19Flxwh89DeeJHNN9nyTNKut2EZahVDntWJmjysbq5fhPCbEl1uI0wVBgJabbWGlXyEAC2xJyYqobI8LgDiZtiSJ6P2YRd9D44/S+KXhGEmEXvVqTAFSNkBfp6U4D+8Ykp7vEcNBqSqzoXCRMLp3RtTZVKP5jU=
-Received: from AS4P190CA0021.EURP190.PROD.OUTLOOK.COM (2603:10a6:20b:5d0::6)
- by PAVPR02MB9112.eurprd02.prod.outlook.com (2603:10a6:102:324::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.28; Mon, 6 Nov
- 2023 16:17:56 +0000
-Received: from AM4PEPF00027A62.eurprd04.prod.outlook.com
- (2603:10a6:20b:5d0:cafe::79) by AS4P190CA0021.outlook.office365.com
- (2603:10a6:20b:5d0::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.27 via Frontend
- Transport; Mon, 6 Nov 2023 16:17:56 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 195.60.68.100)
- smtp.mailfrom=axis.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=none header.from=axis.com;
-Received-SPF: Fail (protection.outlook.com: domain of axis.com does not
- designate 195.60.68.100 as permitted sender) receiver=protection.outlook.com;
- client-ip=195.60.68.100; helo=mail.axis.com;
-Received: from mail.axis.com (195.60.68.100) by
- AM4PEPF00027A62.mail.protection.outlook.com (10.167.16.71) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6977.16 via Frontend Transport; Mon, 6 Nov 2023 16:17:55 +0000
-Received: from pc52311-2249 (10.0.5.60) by se-mail01w.axis.com (10.20.40.7)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Mon, 6 Nov
- 2023 17:17:55 +0100
-References: <cover.1692699931.git.waqar.hameed@axis.com>
- <7b856b74c4c0f8c6c539d7c692051c9203b103c0.1692699931.git.waqar.hameed@axis.com>
- <20231103225331f0fee24a@mail.local>
-User-agent: a.out
-From: Waqar Hameed <waqar.hameed@axis.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: Alessandro Zummo <a.zummo@towertech.it>, <kernel@axis.com>,
-	<linux-kernel@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] rtc: Add driver for Epson RX8111
-Date: Mon, 6 Nov 2023 15:36:55 +0100
-In-Reply-To: <20231103225331f0fee24a@mail.local>
-Message-ID: <pndo7g67t59.fsf@axis.com>
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="oIdu5gl9"
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2490A10A
+	for <linux-rtc@vger.kernel.org>; Tue,  7 Nov 2023 01:47:05 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-40907b82ab9so37992195e9.1
+        for <linux-rtc@vger.kernel.org>; Tue, 07 Nov 2023 01:47:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1699350423; x=1699955223; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7cVDRIKB7UpPyg/gCWoDLMvND7PtkjZQwLFTRyhjc3I=;
+        b=oIdu5gl9LqFT+pcW8IYi7MwgP7cKdyOnS7hzoUC4V5/yC+adpW/HgAlhGf+dcBzmSK
+         FMTxUa8tevX410a5TGS6Z4oqSP9RxrVO2mcwqDOBdMVTOlg3T1Yjnxeqez48VXlr26KW
+         qTgzN6WghnokxtdzOVnmSd6nXy+lNMABMQjDXI1aQ3t5krxo0U0nMN0Y7Hxf8TNCNn8b
+         FBlR+SRD+EfV6E9thIUtIk8+gFJ0IFanyJOhF/Rpt4gGkEELOCY+o9j9vKNRzMZi53gj
+         4V8GBwh8GY8goA3y8HSSh4R17qYc1FQs3IHr/tedumbxuIDgqwSBjKqdiNsr/Sn4BzHf
+         /isg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699350423; x=1699955223;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7cVDRIKB7UpPyg/gCWoDLMvND7PtkjZQwLFTRyhjc3I=;
+        b=J2YAHN9UcGki18exj6EMP16Tn1uEqIPu5VTebcza9QQcJW8fZT2DzrIPgBvZjYl0Ba
+         9pccxJFIf5fOQPyxWRsU5Gq3AWTi0ozI4eBJXkVqvJkpXrA4G1CpxlIBJUFlto5214kh
+         4Mv4QwFA+qdxMktTtvDthBbmR3D1B6TS8w4Hhmxvhm9KQaGLIKLWLloRObdWucQKuEVf
+         a9uvKTLVSOlbvtNeMp1WQJceF1x7PXL9+2R/V/CeuOzd+KT+YmI/b6g+yPiEdqs1VTPf
+         uAiXGsYTUzcnf5fbz68EdTzaXXMtN5rrEv5ThF1Nu5p+nmexKOod6Sw3RCv5YLru9mtl
+         ShIQ==
+X-Gm-Message-State: AOJu0Yxl++6/ptjo6IDpV0uJOT7ai+pO9lHMpke3kWOpxDMRUuh09+GP
+	geVs/RSBc35vsf5r6FodmwScbQ==
+X-Google-Smtp-Source: AGHT+IEGIL9CF6yd8NXUEMaUB5WnLZx9wOBEs/IlxxKNdHXu9DnXKHMBZwrKlY8Mrku8QDsUjuytwA==
+X-Received: by 2002:a05:600c:3306:b0:405:3f06:d2ef with SMTP id q6-20020a05600c330600b004053f06d2efmr2342616wmp.4.1699350423338;
+        Tue, 07 Nov 2023 01:47:03 -0800 (PST)
+Received: from localhost.localdomain (abordeaux-655-1-152-60.w90-5.abo.wanadoo.fr. [90.5.9.60])
+        by smtp.gmail.com with ESMTPSA id bg19-20020a05600c3c9300b0040531f5c51asm15419909wmb.5.2023.11.07.01.47.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Nov 2023 01:47:02 -0800 (PST)
+From: Esteban Blanc <eblanc@baylibre.com>
+To: a.zummo@towertech.it,
+	alexandre.belloni@bootlin.com
+Cc: andy.shevchenko@gmail.com,
+	linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	jpanis@baylibre.com,
+	jneanne@baylibre.com,
+	eblanc@baylibre.com,
+	u-kumar1@ti.com
+Subject: [PATCH v9] rtc: tps6594: Add driver for TPS6594 RTC
+Date: Tue,  7 Nov 2023 10:47:01 +0100
+Message-Id: <20231107094701.2223486-1-eblanc@baylibre.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.0.5.60]
-X-ClientProxiedBy: se-mail02w.axis.com (10.20.40.8) To se-mail01w.axis.com
- (10.20.40.7)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM4PEPF00027A62:EE_|PAVPR02MB9112:EE_
-X-MS-Office365-Filtering-Correlation-Id: a567821e-25ec-49d1-f2bc-08dbdee3ef60
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	bQmOBPzd0OlF742fYjcXC+4skuK3tNfHbeZRClaOgaACWd18hzlWoArAZ63c5vi38D5gBn/bQCd6sdqh+4AO1irmHT3g70pyEBmkg3ek7k5ZTYQWaf3HXtkktecYqRIRJom/oPxvpLtzat4hzyRCsm790UJolzWMRdCHJnt7e1KOEasHMOgz5cHWwG9lAZ7VgScakqBhiy+Ho2YBaJzSVedaPq0r26I7NxntxMSxLFKk0aeKfQlxQcEhErcGBscdGClAuF5htl5ilJtm+ZRMy/yjpXlldwz3M2qtiRKKdCar42d4IHZyowNLfvMZV8/50nTm57nXBLmEckWs29jCan206kbDuZ8tOf8SQ2yV2ZStFvN6Y7UfAfU12fbGkR+IF7x7cRIXlklv4LXeC2KQJ3RpGwN0izjgbnOrNRRczK0C/QvgIsZTMgQSJJ926pKhcE5Bv3Q9Z/m6fGVVIFk046b44AzvNd27aLxvHKZfW/yu0DTHulokzW35ceLb+bjXX6cqTu8Kf77XNeMQwoi5uojjaOpb8w9G/rYfxdHdXtAa7lnppvJV2vK28ZhMAqzDJBSIVhfgCNAMZCN3lvVfDBO7RlNNpYSf6pMDMy0YA68P1uEdZWvmf6+5/BSs6x4O8IC+ttlfJBhaBJxZschba7TRTYA/IUM3onKYsfo8V2u5WtqR1nYDYIoy+VS5jJ+UYFbydUEUz4XBteqlgbp5Shg+QFqkDCPf6t+j0VKRDbbvc7Ybu9Qp6+n6oQhxz7neg46WyfJveLnb9SVxNdEVeQ==
-X-Forefront-Antispam-Report:
-	CIP:195.60.68.100;CTRY:SE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.axis.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(396003)(376002)(136003)(346002)(39860400002)(230922051799003)(186009)(1800799009)(82310400011)(451199024)(64100799003)(36840700001)(40470700004)(46966006)(16526019)(53546011)(426003)(336012)(26005)(2616005)(41300700001)(47076005)(36860700001)(83380400001)(4326008)(8676002)(8936002)(30864003)(2906002)(44832011)(5660300002)(478600001)(70206006)(316002)(70586007)(6916009)(36756003)(54906003)(81166007)(356005)(16799955002)(82740400003)(86362001)(40480700001)(40460700003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: axis.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Nov 2023 16:17:55.7795
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a567821e-25ec-49d1-f2bc-08dbdee3ef60
-X-MS-Exchange-CrossTenant-Id: 78703d3c-b907-432f-b066-88f7af9ca3af
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=78703d3c-b907-432f-b066-88f7af9ca3af;Ip=[195.60.68.100];Helo=[mail.axis.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	AM4PEPF00027A62.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAVPR02MB9112
+Content-Transfer-Encoding: 8bit
 
-On Fri, Nov 03, 2023 at 23:53 +0100 Alexandre Belloni <alexandre.belloni@bootlin.com> wrote:
+TPS6594 PMIC is a MFD. This patch adds support for
+the RTC found inside TPS6594 family of PMIC.
 
-> Hello,
->
-> I'm sorry for the very late review...
+Alarm is also supported.
 
-No worries! Thank you very much for reviewing!
+Signed-off-by: Esteban Blanc <eblanc@baylibre.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
 
->
-> On 22/08/2023 12:25:31+0200, Waqar Hameed wrote:
->> +#include <linux/bcd.h>
->> +#include <linux/i2c.h>
->> +#include <linux/module.h>
->> +#include <linux/regmap.h>
->> +
->> +#include <linux/rtc.h>
->> +
->> +#define RX8111_DRV_NAME "rtc-rx8111"
->
-> This define is not necessary
+Notes:
+    This patch was picked in V7 from a series since there is no dependency between
+    the two patches.
+    
+    Changes since v8:
+    https://lore.kernel.org/lkml/20231102132616.1130960-1-eblanc@baylibre.com/
+    - Drop MODULE_ALIAS in favor of ID table as requested by Krzysztof Kozlowski.
+    The Reviewed-by and Acked-by tags were kept as this new version does not change
+    the driver inner working.
+    
+    Changes since v7:
+    https://lore.kernel.org/lkml/20230628133021.500477-1-eblanc@baylibre.com/
+    - Remove useless variable and comment
+    - Fix a typo
+    
+    Here is the old cover-letter:
+    TPS6594 is a Power Management IC which provides regulators and others
+    features like GPIOs, RTC, watchdog, ESMs (Error Signal Monitor), and
+    PFSM (Pre-configurable Finite State Machine). The SoC and the PMIC can
+    communicate through the I2C or SPI interfaces.
+    TPS6594 is the super-set device while TPS6593 and LP8764 are derivatives.
+    
+    This series adds support to TI TPS6594 PMIC and its derivatives.
+    
+    This should be applied on top of other patch series:
+    - https://lore.kernel.org/all/20230511095126.105104-1-jpanis@baylibre.com/
+      For core MFD driver. The necessary part of this patch series is already
+      applied in linux-next.
+    
+    The features implemented in this series are:
+    - RTC (child device)
+    - Pinmux/GPIO (child device)
+    - Regulator (child device)
+    
+    RTC description:
+    The TPS6594 family has an RTC built-in, except for LP8764.
+    It provides time and an alarm.
+    
+    Pinmux/GPIO:
+    TPS6594 family has 11 GPIOs. Those GPIO can also serve different
+    functions such as I2C or SPI interface, watchdog disable functions.
+    The driver provides both pinmuxing for the functions and GPIO capability.
+    
+    Regulator:
+    TPS6594/TPS6593: 5 BUCKs and 4LDOs
+    LP8764: 4 BUCKs and no LDO
+    Bucks can be used in multipahse mode.
+    
+    Regulators were applied to linux-next by Mark Brown on 06/06/2023 so this
+    patch has been dropped from the patch series.
+    There were some pending comments from Andy Shevchenko so a follow up patch will
+    be sent later.
+    
+    Changes since v1:
+    https://lore.kernel.org/all/20230224133129.887203-1-eblanc@baylibre.com/
+    Rtc:
+    - Removed struct tps6594_rtc.
+    - Removed some dev_err messages.
+    - Removed some comments.
+    - Remove some whitespaces in comments and error messages.
+    - Check if RTC is running before reading a timestamp in read_rtc.
+    - Stop RTC at the end of probe to wait for a timestamp to be set.
+    - Add default MFD_TPS6594 to Kconfig.
+    
+    Pinctrl:
+    - Removed #define DEBUG.
+    - Add default MFD_TPS6594 to Kconfig.
+    - Fix typo and reword help message of Kconfig.
+    
+    Regulators:
+    Further to Mark Brown review:
+    - File header whole block C++ style.
+    - Configuring modes not supported: omit all mode operations
+    - Log the error before notifying.
+    - Request the interrupts while registering the regulators (then remove
+      the lookup function).
+    Further to Matti review:
+    - Postponed: devm_regulator_irq_helper() and
+      regulator_irq_map_event_simple() can probably be used but code.
+      refactoring is not so trivial. This can be done later as an enhancement
+      after this patch list is merged.
+    Buck Multi phase management:
+    - Multiphase property can take an array when 2 multi phase buck, buck12
+      and buck34.
+    - Configuration multi phase buck34 without multiphase buck12 is not
+      supported (when only one multiphase, must be buck12). Not clear from the
+      spec but confirmed by TI.
+    - Supported multiphase conficurations: buck12, buck123, buck1234,
+      buck12 + buck34.
+    - All interrupts are attached to the multiphase buck (ie: for regulator
+      buck12, buck1 & buck2 interrupts are registered).
+    
+    Changes since v2:
+    https://lore.kernel.org/all/20230328091448.648452-1-eblanc@baylibre.com/
+    Rtc:
+    - Add logic to avoid reinitializing a working clock.
+    - Fix some multiline comments format.
+    
+    Regulators:
+    Further to Mark Brown review:
+    - Log the error before notifying.
+    - Request the interrupts while registering the regulators.
+    Further to Krzysztof Kozlowski:
+    https://lore.kernel.org/all/75f0a18d-aed9-8610-2925-4e604b4b0241@baylibre.com/
+    - Remove ti, multi-phase-id property which is redundant with buck dts naming
+      rules.
+    
+    Changes since v3:
+    https://lore.kernel.org/lkml/20230414101217.1342891-1-eblanc@baylibre.com/
+    RTC:
+    - Add wakeup source
+    
+    Pinctrl:
+    - Switch to GPIO_REGMAP framework
+    
+    Change since v4:
+    https://lore.kernel.org/lkml/20230512141755.1712358-1-eblanc@baylibre.com/
+    Update Copyright notice date
+    Reorder includes
+    
+    RTC:
+    - Rework some comments, fixing punctuation and style
+    - Use NANO macro from units.h for PPB_MULT
+    - Rework to use bitwise types
+    - Remove unnecessary casts
+    - Add SAFETY comments
+    - Use `dev_err_probe(...)` instead of print then return
+    
+    Pinctrl:
+    - Reword help message and add module name in Kconfig
+    - Rework code to use struct pinfunction and PINCTRL_PINFUNCTION() macro
+    - Remove unnecessary casts
+    - Use `dev_err_probe(...)` instead of print then return
+    - Replace TPS6594_REG_GPIO1_CONF with a comment for TPS6594_REG_GPIOX_CONF
+    
+    Regulators:
+    - nits: Add missing tabs, standard spaces, group "buck_multi".
+    - Use OF dedicated of_node_cmp API instead of standard strcmp.
+    - Use devm_kmalloc_array(...) API instead of devm_kmalloc(...) wherever
+      possible.
+    - return dev_err_probe(...) wherever possible.
+    
+    Changes since v5:
+    https://lore.kernel.org/lkml/20230522163115.2592883-1-eblanc@baylibre.com/
+    
+    Pinctrl:
+    - Rework code for clarity
+    - Rework macro to fix checkpatch macro argument reuse
+    - Coding style fixes
+    - Reword some comments
+    
+    Rtc:
+    - Grammar fixes
+    - Removed unused macros
+    - Use type MIN/MAX macro instead of magic numbers
+    - Fix return code in calibration
+    - Use cpu_to_le16 and le16_to_cpu APIs instead of casting.
+    - Reintroduce mdelay before reading BIT_RUN as otherwise both AM62 and J784S4
+      will report a -ENODEV on a working RTC.
+    
+    Changes since v6:
+    https://lore.kernel.org/all/20230612125248.1235581-1-eblanc@baylibre.com/
+    
+    Pinctrl:
+    - Remove a comment
 
-Alright, will remove and enter it directly in `.name = ...`.
+ drivers/rtc/Kconfig       |  12 +
+ drivers/rtc/Makefile      |   1 +
+ drivers/rtc/rtc-tps6594.c | 454 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 467 insertions(+)
+ create mode 100644 drivers/rtc/rtc-tps6594.c
 
-[...]
-
->> +#define RX8111_TIME_BUF_SZ (RX8111_REG_YEAR - RX8111_REG_SEC + 1)
->> +#define RX8111_TIME_BUF_IDX(reg)                                               \
->> +	({                                                                     \
->> +		BUILD_BUG_ON_MSG(reg < RX8111_REG_SEC || reg > RX8111_REG_YEAR,\
->> +				 "Invalid reg value");                         \
->> +		(reg - RX8111_REG_SEC);                                        \
->> +	})
->
-> I don't feel like this is improving the legibility of the code. 
-
-Sure, I just wanted to minimize `reg - RX8111_REG_SEC` expressions
-everywhere. I think it's a matter of taste here. I'll remove the
-macro `RX8111_TIME_BUF_IDX()` altogether.
-
-
-> Also, the BUILD_BUG_ON_MSG is never going to happen and doesn't
-> protect against a frequent issue.
-
-Yeah, it's probably not that frequent. Just wanted to help the next
-person here :)
-
->
->> +
->> +enum rx8111_regfield {
->> +	/* RX8111_REG_EXT. */
->> +	RX8111_REGF_TSEL0,
->> +	RX8111_REGF_TSEL1,
->> +	RX8111_REGF_ETS,
->> +	RX8111_REGF_WADA,
->> +	RX8111_REGF_TE,
->> +	RX8111_REGF_USEL,
->> +	RX8111_REGF_FSEL0,
->> +	RX8111_REGF_FSEL1,
->> +
->> +	/* RX8111_REG_FLAG. */
->> +	RX8111_REGF_XST,
->> +	RX8111_REGF_VLF,
->> +	RX8111_REGF_EVF,
->> +	RX8111_REGF_AF,
->> +	RX8111_REGF_TF,
->> +	RX8111_REGF_UF,
->> +	RX8111_REGF_POR,
->> +
->> +	/* RX8111_REG_CTRL. */
->> +	RX8111_REGF_STOP,
->> +	RX8111_REGF_EIE,
->> +	RX8111_REGF_AIE,
->> +	RX8111_REGF_TIE,
->> +	RX8111_REGF_UIE,
->> +
->> +	/* RX8111_REG_PWR_SWITCH_CTRL. */
->> +	RX8111_REGF_SMPT0,
->> +	RX8111_REGF_SMPT1,
->> +	RX8111_REGF_SWSEL0,
->> +	RX8111_REGF_SWSEL1,
->> +	RX8111_REGF_INIEN,
->> +	RX8111_REGF_CHGEN,
->> +
->> +	/* Sentinel value. */
->> +	RX8111_REGF_MAX
->> +};
->> +
->> +static const struct reg_field rx8111_regfields[] = {
->> +	[RX8111_REGF_TSEL0] = REG_FIELD(RX8111_REG_EXT, 0, 0),
->> +	[RX8111_REGF_TSEL1] = REG_FIELD(RX8111_REG_EXT, 1, 1),
->> +	[RX8111_REGF_ETS]   = REG_FIELD(RX8111_REG_EXT, 2, 2),
->> +	[RX8111_REGF_WADA]  = REG_FIELD(RX8111_REG_EXT, 3, 3),
->> +	[RX8111_REGF_TE]    = REG_FIELD(RX8111_REG_EXT, 4, 4),
->> +	[RX8111_REGF_USEL]  = REG_FIELD(RX8111_REG_EXT, 5, 5),
->> +	[RX8111_REGF_FSEL0] = REG_FIELD(RX8111_REG_EXT, 6, 6),
->> +	[RX8111_REGF_FSEL1] = REG_FIELD(RX8111_REG_EXT, 7, 7),
->> +
->> +	[RX8111_REGF_XST] = REG_FIELD(RX8111_REG_FLAG, 0, 0),
->> +	[RX8111_REGF_VLF] = REG_FIELD(RX8111_REG_FLAG, 1, 1),
->> +	[RX8111_REGF_EVF] = REG_FIELD(RX8111_REG_FLAG, 2, 2),
->> +	[RX8111_REGF_AF]  = REG_FIELD(RX8111_REG_FLAG, 3, 3),
->> +	[RX8111_REGF_TF]  = REG_FIELD(RX8111_REG_FLAG, 4, 4),
->> +	[RX8111_REGF_UF]  = REG_FIELD(RX8111_REG_FLAG, 5, 5),
->> +	[RX8111_REGF_POR] = REG_FIELD(RX8111_REG_FLAG, 7, 7),
->> +
->> +	[RX8111_REGF_STOP] = REG_FIELD(RX8111_REG_CTRL, 0, 0),
->> +	[RX8111_REGF_EIE]  = REG_FIELD(RX8111_REG_CTRL, 2, 2),
->> +	[RX8111_REGF_AIE]  = REG_FIELD(RX8111_REG_CTRL, 3, 3),
->> +	[RX8111_REGF_TIE]  = REG_FIELD(RX8111_REG_CTRL, 4, 4),
->> +	[RX8111_REGF_UIE]  = REG_FIELD(RX8111_REG_CTRL, 5, 5),
->> +
->> +	[RX8111_REGF_SMPT0]  = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 0, 0),
->> +	[RX8111_REGF_SMPT1]  = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 1, 1),
->> +	[RX8111_REGF_SWSEL0] = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 2, 2),
->> +	[RX8111_REGF_SWSEL1] = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 3, 3),
->> +	[RX8111_REGF_INIEN]  = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 6, 6),
->> +	[RX8111_REGF_CHGEN]  = REG_FIELD(RX8111_REG_PWR_SWITCH_CTRL, 7, 7),
->> +};
->
-> I'm not quite sure using reg_field is actually an improvement. I don't
-> have anything against it either, unless it adds bus reads/writes when
-> reading or setting the time.
-
-We shouldn't of course use `reg_field` to do extra unnecessary bus
-calls. Also see the comment below when "`reg_field` is worse".
-
->
->> +
->> +static const struct regmap_config rx8111_regmap_config = {
->> +	.reg_bits = 8,
->> +	.val_bits = 8,
->> +	.max_register = RX8111_REG_TS_CTRL3,
->> +};
-
-[...]
-
->> +static int rx8111_setup(struct rx8111_data *data)
->> +{
->> +	int ret;
->> +
->> +	/* Disable extended functionality (timer, events, timestamps etc.). */
->> +	ret = regmap_write(data->regmap, RX8111_REG_EXT, 0);
->
-> This will lead to issues later on, you should leave the default values.
-
-Alright, I understand. Will remove.
-
->
->> +	if (ret) {
->> +		dev_err(data->dev,
->> +			"Could not disable extended functionality (%d)\n", ret);
->
-> You should cut down on the number of message, this would be a bus error
-> and the user has no actual action after seeing the message.
-
-True, will convert it to `dev_dbg()` then.
-
->
->> +		return ret;
->> +	}
->> +
->> +	/* Disable all interrupts. */
->> +	ret = regmap_write(data->regmap, RX8111_REG_CTRL, 0);
->
-> This will also lead to issues later on when adding alarm support.
-
-I see, will remove.
-
->
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not disable interrupts (%d)\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static int rx8111_read_vl_flag(struct rx8111_data *data, unsigned int *vlval)
->> +{
->> +	int ret;
->> +
->> +	ret = regmap_field_read(data->regfields[RX8111_REGF_VLF], vlval);
->> +	if (ret)
->> +		dev_err(data->dev, "Could not read VL flag (%d)", ret);
->> +
->> +	return ret;
->> +}
->> +
->> +static int rx8111_clear_vl_flag(struct rx8111_data *data)
->> +{
->> +	int ret;
->> +
->> +	ret = regmap_field_write(data->regfields[RX8111_REGF_VLF], 0);
->> +	if (ret)
->> +		dev_err(data->dev, "Could not write VL flag (%d)", ret);
->> +
->> +	return ret;
->> +}
->> +
->> +static int rx8111_read_time(struct device *dev, struct rtc_time *tm)
->> +{
->> +	struct rx8111_data *data = dev_get_drvdata(dev);
->> +	u8 buf[RX8111_TIME_BUF_SZ];
->> +	unsigned int regval;
->> +	int ret;
->> +
->> +	/* Check status. */
->> +	ret = rx8111_read_vl_flag(data, &regval);
->> +	if (ret)
->> +		return ret;
->> +
->> +	if (regval) {
->> +		dev_warn(data->dev,
->> +			 "Low voltage detected, time is not reliable\n");
->> +		return -EINVAL;
->> +	}
->> +
->
-> Should you check XST too? 
-
-According to the datasheet
-(https://support.epson.biz/td/api/doc_check.php?dl=app_RX8111CE&lang=en),
-when the VLF bit is set, "Either power on reset _or_ X'tal oscillation
-stop is detected". It should therefore be sufficient to only check the
-VLF bit?
-
-However, I do understand that it's maybe more "robust" to also check XST
-(and to be able to distinguish and report it). We could add that.
-
-> And with this, using reg_field is worse.
-
-Reading two fields in the same register with `reg_field` sure is worse.
-If we now also want to check XST, a better (usual) way is to do a
-`regmap_read()` and then `FIELD_GET()`. What do you think?
-
->
->> +	ret = regmap_field_read(data->regfields[RX8111_REGF_STOP], &regval);
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not read clock status (%d)\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	if (regval) {
->> +		dev_warn(data->dev, "Clock stopped, time is not reliable\n");
->> +		return -EINVAL;
->> +	}
->> +
->> +	/* Read time. */
->> +	ret = regmap_bulk_read(data->regmap, RX8111_REG_SEC, buf,
->> +			       ARRAY_SIZE(buf));
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not bulk read time (%d)\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	tm->tm_sec = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_SEC)]);
->> +	tm->tm_min = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_MIN)]);
->> +	tm->tm_hour = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_HOUR)]);
->> +	tm->tm_mday = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_DAY)]);
->> +
->> +	/* Our month range is [1, 12] and tm_mon has [0, 11]. */
->> +	tm->tm_mon = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_MONTH)]) - 1;
->> +
->> +	/*
->> +	 * We begin at year 2000 (c.f. rtc->range_min) and tm_year starts at
->> +	 * year 1900.
->> +	 */
->
-> Theses comments are not super useful because most of the RTC drivers are
-> behaving this way and it is quite obvious why this is the case.
-
-Sure, I'll remove them.
-
->
->> +	tm->tm_year = bcd2bin(buf[RX8111_TIME_BUF_IDX(RX8111_REG_YEAR)]) + 100;
->> +
->> +	/* A single bit specifies the week day [0, 6]. Note that ffs(1) = 1. */
->> +	tm->tm_wday = ffs(buf[RX8111_TIME_BUF_IDX(RX8111_REG_WEEK)]) - 1;
->> +
->> +	return 0;
->> +}
->> +
->> +static int rx8111_set_time(struct device *dev, struct rtc_time *tm)
->> +{
->> +	struct rx8111_data *data = dev_get_drvdata(dev);
->> +	u8 buf[RX8111_TIME_BUF_SZ];
->> +	int ret;
->> +
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_SEC)] = bin2bcd(tm->tm_sec);
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_MIN)] = bin2bcd(tm->tm_min);
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_HOUR)] = bin2bcd(tm->tm_hour);
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_DAY)] = bin2bcd(tm->tm_mday);
->> +
->> +	/* Our month range is [1, 12] and tm_mon has [0, 11]. */
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_MONTH)] = bin2bcd(tm->tm_mon + 1);
->> +
->> +	/*
->> +	 * We begin at year 2000 (c.f. rtc->range_min) and tm_year starts at
->> +	 * year 1900.
->> +	 */
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_YEAR)] = bin2bcd(tm->tm_year - 100);
->> +
->> +	/* A single bit specifies the week day [0, 6].*/
->> +	buf[RX8111_TIME_BUF_IDX(RX8111_REG_WEEK)] = BIT(tm->tm_wday);
->> +
->> +	ret = rx8111_clear_vl_flag(data);
->> +	if (ret)
->> +		return ret;A
-
-(What happened here? Hopefully not present in original patch.)
-
->> +
->> +	/* Stop the clock. */
->> +	ret = regmap_field_write(data->regfields[RX8111_REGF_STOP], 1);
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not stop the clock (%d)\n", ret);
->> +		return ret;
->> +	}
->> +
->> +	/* Set the time. */
->> +	ret = regmap_bulk_write(data->regmap, RX8111_REG_SEC, buf,
->> +				ARRAY_SIZE(buf));
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not bulk write time (%d)\n", ret);
->> +
->> +		/*
->> +		 * We don't bother with trying to start the clock again. We
->> +		 * check for this in rx8111_read_time() (and thus force user to
->> +		 * call rx8111_set_time() to try again).
->> +		 */
->> +		return ret;
->> +	}
->> +
->> +	/* Start the clock. */
->> +	ret = regmap_field_write(data->regfields[RX8111_REGF_STOP], 0);
->> +	if (ret) {
->> +		dev_err(data->dev, "Could not start the clock (%d)\n", ret);
->> +		return ret;
->> +	}
->> +
->
-> You definitively need to handle XST here too.
-
-Do you mean to also clear XST the same way we clear VLF (before stopping
-the clock)?
-
->
->> +	return 0;
->> +}
->> +
->> +static int rx8111_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
->> +{
->> +	struct rx8111_data *data = dev_get_drvdata(dev);
->> +	unsigned int regval;
->> +	unsigned long vlval;
-
-Just caught this; it should actually be an `unsigned int`...
-
->> +	int ret;
->> +
->> +	switch (cmd) {
->> +	case RTC_VL_READ:
->> +		ret = rx8111_read_vl_flag(data, &regval);
->> +		if (ret)
->> +			return ret;
->> +
->> +		vlval = regval ? RTC_VL_DATA_INVALID : 0;
->> +
->> +		return put_user(vlval, (unsigned long __user *)arg);
-
-... and then change this accordingly.
-
->> +	case RTC_VL_CLR:
->> +		return rx8111_clear_vl_flag(data);
->
-> Do not allow userspace to clear VLF without setting the time.
-
-Hm, makes sense. Let's remove it here (since we already clear it in
-`rx8111_set_time()`).
-
-(I think I got "fooled" when doing a quick search and seeing some
-drivers allowing this. They sure are in the minority though...)
-
->
->> +	default:
->> +		return -ENOIOCTLCMD;
->> +	}
->> +}
->> +
->> +static const struct rtc_class_ops rx8111_rtc_ops = {
->> +	.read_time = rx8111_read_time,
->> +	.set_time = rx8111_set_time,
->> +	.ioctl = rx8111_ioctl,
->> +};
->> +
->> +static int rx8111_probe(struct i2c_client *client)
->> +{
->> +	struct rx8111_data *data;
->> +	struct rtc_device *rtc;
->> +	size_t i;
->> +	int ret;
->> +
->> +	data = devm_kmalloc(&client->dev, sizeof(*data), GFP_KERNEL);
->> +	if (!data)
->> +		return dev_err_probe(&client->dev, -ENOMEM,
->> +				     "Could not allocate device data\n");
->
-> Please, less strings in probe or at least, use dev_dbg.
-
-Alright, I'll convert them to `dev_dbg()`.
-
->
->> +
->> +	data->dev = &client->dev;
->> +	dev_set_drvdata(data->dev, data);
->> +
->> +	data->regmap = devm_regmap_init_i2c(client, &rx8111_regmap_config);
->> +	if (IS_ERR(data->regmap))
->> +		return dev_err_probe(data->dev, PTR_ERR(data->regmap),
->> +				     "Could not initialize regmap\n");
->> +
->> +	for (i = 0; i < RX8111_REGF_MAX; ++i) {
->> +		data->regfields[i] = devm_regmap_field_alloc(
->> +			data->dev, data->regmap, rx8111_regfields[i]);
->> +		if (IS_ERR(data->regfields[i]))
->> +			return dev_err_probe(
->> +				data->dev, PTR_ERR(data->regfields[i]),
->> +				"Could not allocate register field %zu\n", i);
->> +	}
->> +
->> +	ret = rx8111_setup(data);
->> +	if (ret)
->> +		return ret;
->> +
->> +	rtc = devm_rtc_allocate_device(data->dev);
->> +	if (IS_ERR(rtc))
->> +		return dev_err_probe(data->dev, PTR_ERR(rtc),
->> +				     "Could not allocate rtc device\n");
->> +
->> +	rtc->ops = &rx8111_rtc_ops;
->> +	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
->> +	rtc->range_max = RTC_TIMESTAMP_END_2099;
->> +
->> +	clear_bit(RTC_FEATURE_ALARM, rtc->features);
->> +
->> +	ret = devm_rtc_register_device(rtc);
->> +	if (ret)
->> +		return dev_err_probe(data->dev, ret,
->> +				     "Could not register rtc device (%d)\n",
->> +				     ret);
->
-> devm_rtc_register_device already has messages in all the error path,
-> simply return here.
-
-Ah, that's nice! Will do then!
-
-[...]
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index d7502433c78a..65a97e2b58f8 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -578,6 +578,18 @@ config RTC_DRV_TPS6586X
+ 	  along with alarm. This driver supports the RTC driver for
+ 	  the TPS6586X RTC module.
+ 
++config RTC_DRV_TPS6594
++	tristate "TI TPS6594 RTC driver"
++	depends on MFD_TPS6594
++	default MFD_TPS6594
++	help
++	  TI Power Management IC TPS6594 supports RTC functionality
++	  along with alarm. This driver supports the RTC driver for
++	  the TPS6594 RTC module.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-tps6594.
++
+ config RTC_DRV_TPS65910
+ 	tristate "TI TPS65910 RTC driver"
+ 	depends on MFD_TPS65910
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index fd209883ee2e..5ed28639300c 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -175,6 +175,7 @@ obj-$(CONFIG_RTC_DRV_TEGRA)	+= rtc-tegra.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
+ obj-$(CONFIG_RTC_DRV_TI_K3)	+= rtc-ti-k3.o
+ obj-$(CONFIG_RTC_DRV_TPS6586X)	+= rtc-tps6586x.o
++obj-$(CONFIG_RTC_DRV_TPS6594)	+= rtc-tps6594.o
+ obj-$(CONFIG_RTC_DRV_TPS65910)	+= rtc-tps65910.o
+ obj-$(CONFIG_RTC_DRV_TWL4030)	+= rtc-twl.o
+ obj-$(CONFIG_RTC_DRV_VT8500)	+= rtc-vt8500.o
+diff --git a/drivers/rtc/rtc-tps6594.c b/drivers/rtc/rtc-tps6594.c
+new file mode 100644
+index 000000000000..838ae8562a35
+--- /dev/null
++++ b/drivers/rtc/rtc-tps6594.c
+@@ -0,0 +1,454 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * RTC driver for tps6594 PMIC
++ *
++ * Copyright (C) 2023 BayLibre Incorporated - https://www.baylibre.com/
++ */
++
++#include <linux/bcd.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/limits.h>
++#include <linux/math64.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
++#include <linux/property.h>
++#include <linux/rtc.h>
++#include <linux/types.h>
++#include <linux/units.h>
++
++#include <linux/mfd/tps6594.h>
++
++// Total number of RTC registers needed to set time
++#define NUM_TIME_REGS (TPS6594_REG_RTC_WEEKS - TPS6594_REG_RTC_SECONDS + 1)
++
++// Total number of RTC alarm registers
++#define NUM_TIME_ALARM_REGS (NUM_TIME_REGS - 1)
++
++/*
++ * Min and max values supported by 'offset' interface (swapped sign).
++ * After conversion, the values do not exceed the range [-32767, 33767]
++ * which COMP_REG must conform to.
++ */
++#define MIN_OFFSET (-277774)
++#define MAX_OFFSET (277774)
++
++// Number of ticks per hour
++#define TICKS_PER_HOUR (32768 * 3600)
++
++// Multiplier for ppb conversions
++#define PPB_MULT NANO
++
++static int tps6594_rtc_alarm_irq_enable(struct device *dev,
++					unsigned int enabled)
++{
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	u8 val;
++
++	val = enabled ? TPS6594_BIT_IT_ALARM : 0;
++
++	return regmap_update_bits(tps->regmap, TPS6594_REG_RTC_INTERRUPTS,
++				  TPS6594_BIT_IT_ALARM, val);
++}
++
++/* Pulse GET_TIME field of RTC_CTRL_1 to store a timestamp in shadow registers. */
++static int tps6594_rtc_shadow_timestamp(struct device *dev, struct tps6594 *tps)
++{
++	int ret;
++
++	/*
++	 * Set GET_TIME to 0. Next time we set GET_TIME to 1 we will be sure to store
++	 * an up-to-date timestamp.
++	 */
++	ret = regmap_clear_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++				TPS6594_BIT_GET_TIME);
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * Copy content of RTC registers to shadow registers or latches to read
++	 * a coherent timestamp.
++	 */
++	return regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++			       TPS6594_BIT_GET_TIME);
++}
++
++static int tps6594_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	unsigned char rtc_data[NUM_TIME_REGS];
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	int ret;
++
++	// Check if RTC is running.
++	ret = regmap_test_bits(tps->regmap, TPS6594_REG_RTC_STATUS,
++			       TPS6594_BIT_RUN);
++	if (ret < 0)
++		return ret;
++	if (ret == 0)
++		return -EINVAL;
++
++	ret = tps6594_rtc_shadow_timestamp(dev, tps);
++	if (ret < 0)
++		return ret;
++
++	// Read shadowed RTC registers.
++	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_RTC_SECONDS, rtc_data,
++			       NUM_TIME_REGS);
++	if (ret < 0)
++		return ret;
++
++	tm->tm_sec = bcd2bin(rtc_data[0]);
++	tm->tm_min = bcd2bin(rtc_data[1]);
++	tm->tm_hour = bcd2bin(rtc_data[2]);
++	tm->tm_mday = bcd2bin(rtc_data[3]);
++	tm->tm_mon = bcd2bin(rtc_data[4]) - 1;
++	tm->tm_year = bcd2bin(rtc_data[5]) + 100;
++	tm->tm_wday = bcd2bin(rtc_data[6]);
++
++	return 0;
++}
++
++static int tps6594_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	unsigned char rtc_data[NUM_TIME_REGS];
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	int ret;
++
++	rtc_data[0] = bin2bcd(tm->tm_sec);
++	rtc_data[1] = bin2bcd(tm->tm_min);
++	rtc_data[2] = bin2bcd(tm->tm_hour);
++	rtc_data[3] = bin2bcd(tm->tm_mday);
++	rtc_data[4] = bin2bcd(tm->tm_mon + 1);
++	rtc_data[5] = bin2bcd(tm->tm_year - 100);
++	rtc_data[6] = bin2bcd(tm->tm_wday);
++
++	// Stop RTC while updating the RTC time registers.
++	ret = regmap_clear_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++				TPS6594_BIT_STOP_RTC);
++	if (ret < 0)
++		return ret;
++
++	// Update all the time registers in one shot.
++	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_RTC_SECONDS, rtc_data,
++				NUM_TIME_REGS);
++	if (ret < 0)
++		return ret;
++
++	// Start back RTC.
++	return regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++			       TPS6594_BIT_STOP_RTC);
++}
++
++static int tps6594_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	unsigned char alarm_data[NUM_TIME_ALARM_REGS];
++	u32 int_val;
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	int ret;
++
++	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_ALARM_SECONDS,
++			       alarm_data, NUM_TIME_ALARM_REGS);
++	if (ret < 0)
++		return ret;
++
++	alm->time.tm_sec = bcd2bin(alarm_data[0]);
++	alm->time.tm_min = bcd2bin(alarm_data[1]);
++	alm->time.tm_hour = bcd2bin(alarm_data[2]);
++	alm->time.tm_mday = bcd2bin(alarm_data[3]);
++	alm->time.tm_mon = bcd2bin(alarm_data[4]) - 1;
++	alm->time.tm_year = bcd2bin(alarm_data[5]) + 100;
++
++	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_INTERRUPTS, &int_val);
++	if (ret < 0)
++		return ret;
++
++	alm->enabled = int_val & TPS6594_BIT_IT_ALARM;
++
++	return 0;
++}
++
++static int tps6594_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
++{
++	unsigned char alarm_data[NUM_TIME_ALARM_REGS];
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	int ret;
++
++	// Disable alarm irq before changing the alarm timestamp.
++	ret = tps6594_rtc_alarm_irq_enable(dev, 0);
++	if (ret)
++		return ret;
++
++	alarm_data[0] = bin2bcd(alm->time.tm_sec);
++	alarm_data[1] = bin2bcd(alm->time.tm_min);
++	alarm_data[2] = bin2bcd(alm->time.tm_hour);
++	alarm_data[3] = bin2bcd(alm->time.tm_mday);
++	alarm_data[4] = bin2bcd(alm->time.tm_mon + 1);
++	alarm_data[5] = bin2bcd(alm->time.tm_year - 100);
++
++	// Update all the alarm registers in one shot.
++	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_ALARM_SECONDS,
++				alarm_data, NUM_TIME_ALARM_REGS);
++	if (ret < 0)
++		return ret;
++
++	if (alm->enabled)
++		ret = tps6594_rtc_alarm_irq_enable(dev, 1);
++
++	return ret;
++}
++
++static int tps6594_rtc_set_calibration(struct device *dev, int calibration)
++{
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	__le16 value;
++	int ret;
++
++	/*
++	 * TPS6594 uses two's complement 16 bit value for compensation of RTC
++	 * crystal inaccuracies. One time every hour when seconds counter
++	 * increments from 0 to 1 compensation value will be added to internal
++	 * RTC counter value.
++	 *
++	 * Valid range for compensation value: [-32767 .. 32767].
++	 */
++	if (calibration < S16_MIN + 1 || calibration > S16_MAX)
++		return -ERANGE;
++
++	value = cpu_to_le16(calibration);
++
++	// Update all the compensation registers in one shot.
++	ret = regmap_bulk_write(tps->regmap, TPS6594_REG_RTC_COMP_LSB, &value,
++				sizeof(value));
++	if (ret < 0)
++		return ret;
++
++	// Enable automatic compensation.
++	return regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++			       TPS6594_BIT_AUTO_COMP);
++}
++
++static int tps6594_rtc_get_calibration(struct device *dev, int *calibration)
++{
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	unsigned int ctrl;
++	__le16 value;
++	int ret;
++
++	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_CTRL_1, &ctrl);
++	if (ret < 0)
++		return ret;
++
++	// If automatic compensation is not enabled report back zero.
++	if (!(ctrl & TPS6594_BIT_AUTO_COMP)) {
++		*calibration = 0;
++		return 0;
++	}
++
++	ret = regmap_bulk_read(tps->regmap, TPS6594_REG_RTC_COMP_LSB, &value,
++			       sizeof(value));
++	if (ret < 0)
++		return ret;
++
++	*calibration = le16_to_cpu(value);
++
++	return 0;
++}
++
++static int tps6594_rtc_read_offset(struct device *dev, long *offset)
++{
++	int calibration;
++	s64 tmp;
++	int ret;
++
++	ret = tps6594_rtc_get_calibration(dev, &calibration);
++	if (ret < 0)
++		return ret;
++
++	// Convert from RTC calibration register format to ppb format.
++	tmp = calibration * PPB_MULT;
++
++	if (tmp < 0)
++		tmp -= TICKS_PER_HOUR / 2LL;
++	else
++		tmp += TICKS_PER_HOUR / 2LL;
++	tmp = div_s64(tmp, TICKS_PER_HOUR);
++
++	/*
++	 * SAFETY:
++	 * Computatiion is the reverse operation of the one done in
++	 * `tps6594_rtc_set_offset`. The safety remarks applie here too.
++	 */
++
++	/*
++	 * Offset value operates in negative way, so swap sign.
++	 * See 8.3.10.5, (32768 - COMP_REG).
++	 */
++	*offset = (long)-tmp;
++
++	return 0;
++}
++
++static int tps6594_rtc_set_offset(struct device *dev, long offset)
++{
++	int calibration;
++	s64 tmp;
++
++	// Make sure offset value is within supported range.
++	if (offset < MIN_OFFSET || offset > MAX_OFFSET)
++		return -ERANGE;
++
++	// Convert from ppb format to RTC calibration register format.
++
++	tmp = offset * TICKS_PER_HOUR;
++	if (tmp < 0)
++		tmp -= PPB_MULT / 2LL;
++	else
++		tmp += PPB_MULT / 2LL;
++	tmp = div_s64(tmp, PPB_MULT);
++
++	/*
++	 * SAFETY:
++	 * - tmp = offset * TICK_PER_HOUR :
++	 *	`offset` can't be more than 277774, so `tmp` can't exceed 277774000000000
++	 *	which is lower than the maximum value in an `s64` (2^63-1). No overflow here.
++	 *
++	 * - tmp += TICK_PER_HOUR / 2LL :
++	 *	tmp will have a maximum value of 277774117964800 which is still inferior to 2^63-1.
++	 */
++
++	// Offset value operates in negative way, so swap sign.
++	calibration = (int)-tmp;
++
++	return tps6594_rtc_set_calibration(dev, calibration);
++}
++
++static irqreturn_t tps6594_rtc_interrupt(int irq, void *rtc)
++{
++	struct device *dev = rtc;
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	struct rtc_device *rtc_dev = dev_get_drvdata(dev);
++	int ret;
++	u32 rtc_reg;
++
++	ret = regmap_read(tps->regmap, TPS6594_REG_RTC_STATUS, &rtc_reg);
++	if (ret)
++		return IRQ_NONE;
++
++	rtc_update_irq(rtc_dev, 1, RTC_IRQF | RTC_AF);
++
++	return IRQ_HANDLED;
++}
++
++static const struct rtc_class_ops tps6594_rtc_ops = {
++	.read_time = tps6594_rtc_read_time,
++	.set_time = tps6594_rtc_set_time,
++	.read_alarm = tps6594_rtc_read_alarm,
++	.set_alarm = tps6594_rtc_set_alarm,
++	.alarm_irq_enable = tps6594_rtc_alarm_irq_enable,
++	.read_offset = tps6594_rtc_read_offset,
++	.set_offset = tps6594_rtc_set_offset,
++};
++
++static int tps6594_rtc_probe(struct platform_device *pdev)
++{
++	struct tps6594 *tps = dev_get_drvdata(pdev->dev.parent);
++	struct device *dev = &pdev->dev;
++	struct rtc_device *rtc;
++	int irq;
++	int ret;
++
++	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
++	if (!rtc)
++		return -ENOMEM;
++
++	rtc = devm_rtc_allocate_device(dev);
++	if (IS_ERR(rtc))
++		return PTR_ERR(rtc);
++
++	// Enable crystal oscillator.
++	ret = regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_2,
++			      TPS6594_BIT_XTAL_EN);
++	if (ret < 0)
++		return ret;
++
++	ret = regmap_test_bits(tps->regmap, TPS6594_REG_RTC_STATUS,
++			       TPS6594_BIT_RUN);
++	if (ret < 0)
++		return ret;
++	// RTC not running.
++	if (ret == 0) {
++		ret = regmap_set_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++				      TPS6594_BIT_STOP_RTC);
++		if (ret < 0)
++			return ret;
++
++		/*
++		 * On some boards, a 40 ms delay is needed before BIT_RUN is set.
++		 * 80 ms should provide sufficient margin.
++		 */
++		mdelay(80);
++
++		/*
++		 * RTC should be running now. Check if this is the case.
++		 * If not it might be a missing oscillator.
++		 */
++		ret = regmap_test_bits(tps->regmap, TPS6594_REG_RTC_STATUS,
++				       TPS6594_BIT_RUN);
++		if (ret < 0)
++			return ret;
++		if (ret == 0)
++			return -ENODEV;
++
++		// Stop RTC until first call to `tps6594_rtc_set_time`.
++		ret = regmap_clear_bits(tps->regmap, TPS6594_REG_RTC_CTRL_1,
++					TPS6594_BIT_STOP_RTC);
++		if (ret < 0)
++			return ret;
++	}
++
++	platform_set_drvdata(pdev, rtc);
++
++	irq = platform_get_irq_byname(pdev, TPS6594_IRQ_NAME_ALARM);
++	if (irq < 0)
++		return dev_err_probe(dev, irq, "Failed to get irq\n");
++
++	ret = devm_request_threaded_irq(dev, irq, NULL, tps6594_rtc_interrupt,
++					IRQF_ONESHOT, TPS6594_IRQ_NAME_ALARM,
++					dev);
++	if (ret < 0)
++		return dev_err_probe(dev, ret,
++				     "Failed to request_threaded_irq\n");
++
++	ret = device_init_wakeup(dev, true);
++	if (ret < 0)
++		return dev_err_probe(dev, ret,
++				     "Failed to init rtc as wakeup source\n");
++
++	rtc->ops = &tps6594_rtc_ops;
++	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rtc->range_max = RTC_TIMESTAMP_END_2099;
++
++	return devm_rtc_register_device(rtc);
++}
++
++static const struct platform_device_id tps6594_rtc_id_table[] = {
++	{ "tps6594-rtc", },
++	{}
++};
++MODULE_DEVICE_TABLE(platform, tps6594_rtc_id_table);
++
++static struct platform_driver tps6594_rtc_driver = {
++	.probe		= tps6594_rtc_probe,
++	.driver		= {
++		.name	= "tps6594-rtc",
++	},
++	.id_table = tps6594_rtc_id_table,
++};
++
++module_platform_driver(tps6594_rtc_driver);
++MODULE_AUTHOR("Esteban Blanc <eblanc@baylibre.com>");
++MODULE_DESCRIPTION("TPS6594 RTC driver");
++MODULE_LICENSE("GPL");
+-- 
+2.40.1
 
