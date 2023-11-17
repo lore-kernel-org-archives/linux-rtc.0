@@ -1,303 +1,132 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="tud27KH2"
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2073.outbound.protection.outlook.com [40.107.92.73])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451C2171F;
-	Fri, 17 Nov 2023 13:09:43 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dNDNlOsqYftdcRKfkUZh2hlg7VuG+2m0ylMhVT2Jne9QqQmcWaMQKqMHLwl+SEMwwB/ixfuwc64FLwPZqsf0tPj+FFZF2kBb9wqJRoJnbv9OUVHxjNfSfXLyRV5U+8FPhOfVVC/3QSMJJhARoezgn6+p9+hmygDV/rSQKjnyOxzHtxPnh3GMGzURbCCQMW9/1wwp3+TBvHoC0SVWGaMayuRe4ZpFuV4c9x0f0mfuxmap6u46o976fjn7IvgLJDJv9O/x7cM447EG+D2/BqODs0AtlS6KwXiyRyUGZJuqbe2y6LcfVAQ+Ywf6zOgE24KFnSviXV0W01Zs0F0s/E/Umw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RFyiGmf119Op9GqQbFyP0NA4Zv5VJqvlGq3oKt7TijQ=;
- b=Z51eYaE3Qa8orG3JLEt4Qzw936WWroq1NpueNUCngdl8IfZgcaeirFGQjVM6KGMLZrRPccjbuEPZVcx7/Vq6s7O8OPrkUL94Rb9MBguEISn3PuBVZRl4bBQzCLb/uUnNbFmLfIDhHJTwEJNDpjr09h6pghvOJ3eDrnPpbr5O4479J04Q7ugd4bC9N3erXKgDh95n5PoKADcBu0iNT2HmCWWR9gisOahbRa3FCBEWHjHlh8LZQX6FwEiLiVsLtVhNLMu1JurO7dWjBmXZlKpPPLcz4MgtmsuwKCIGC7ft2JB6S7pl1IggXCWYoNDHjY3YI0CXxZ9dyvXM/AfZGIkp/A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=o2.pl smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RFyiGmf119Op9GqQbFyP0NA4Zv5VJqvlGq3oKt7TijQ=;
- b=tud27KH2Fa1DZtcj7xap5bx4Mq4AxGahzmcBezqBM3KlXc/IE+WwuKhbu9IXYH1czbx4yIwqegGksMGMmYvKWAco2DAnjDkrGt9LNyRTRhCYzZZKH+dpVzTbrlSnXwUf2xFbleKXa0WSv2WoeVqsHRkE9jJewy87QF+jO9CrIg4=
-Received: from MW4P220CA0005.NAMP220.PROD.OUTLOOK.COM (2603:10b6:303:115::10)
- by SJ2PR12MB8847.namprd12.prod.outlook.com (2603:10b6:a03:546::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.21; Fri, 17 Nov
- 2023 21:09:36 +0000
-Received: from CO1PEPF000042AA.namprd03.prod.outlook.com
- (2603:10b6:303:115:cafe::91) by MW4P220CA0005.outlook.office365.com
- (2603:10b6:303:115::10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.23 via Frontend
- Transport; Fri, 17 Nov 2023 21:09:36 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1PEPF000042AA.mail.protection.outlook.com (10.167.243.39) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7025.12 via Frontend Transport; Fri, 17 Nov 2023 21:09:36 +0000
-Received: from AUS-P9-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.32; Fri, 17 Nov
- 2023 15:09:34 -0600
-From: Mario Limonciello <mario.limonciello@amd.com>
-To: =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Alessandro Zummo
-	<a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-	<tobrohl@gmail.com>, <aalsing@gmail.com>, <Dhaval.Giani@amd.com>,
-	<xmb8dsv4@gmail.com>, <x86@kernel.org>, Mario Limonciello
-	<mario.limonciello@amd.com>
-Subject: [PATCH 3/4] rtc: Add support for configuring the UIP timeout for RTC reads
-Date: Fri, 17 Nov 2023 00:32:19 -0600
-Message-ID: <20231117063220.65093-4-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20231117063220.65093-1-mario.limonciello@amd.com>
-References: <20231117063220.65093-1-mario.limonciello@amd.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Vodl7Yic"
+Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59494D4D;
+	Fri, 17 Nov 2023 14:21:47 -0800 (PST)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 0457960002;
+	Fri, 17 Nov 2023 22:21:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1700259705;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=z+XRMcZX0l03AC5u4LRSmNZEIVypqySKCEXV2aTX1bg=;
+	b=Vodl7YicdQp6H8eKKBzX+WV5WOiJ29HWHexR5suyxhKzXzzboMec5CMbwVlUuAQGlHH+i0
+	w51lGEaddRZ3lekpEtUWIS4mAhBMr1w1ChRqkC7VJ+h3PjPDa6/LdLvAd1cNFur7MRHjsG
+	lweLsQcNTO/qSS3AU6US/VgJy0UOjdwslNZCO8nqjZbf/NkkBqJYP3SusgO3BGTrqSl0Mx
+	Uog+HRbihWzsCIQdH3P1iIXsBrhBFzyvO823q9gMTL4oCXekEr1B7Bc8VUygeUQWUrTKf1
+	OjNeikDCgkvIpkq1f5bpEM5l8WMmRtTaG5dh670mEIv+QCFeuz+RrSCqvog9eg==
+Date: Fri, 17 Nov 2023 23:21:44 +0100
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Carlos Menin <menin@carlosaurelio.net>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+	Alessandro Zummo <a.zummo@towertech.it>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Jean Delvare <jdelvare@suse.com>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Sergio Prado <sergio.prado@e-labworks.com>
+Subject: Re: [PATCH v2 1/2] rtc: add pcf85053a
+Message-ID: <2023111722214402006513@mail.local>
+References: <20231103125106.78220-1-menin@carlosaurelio.net>
+ <20231103142822abbca0ed@mail.local>
+ <ZUf_3TAZh1bpVOVt@arch-bow>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000042AA:EE_|SJ2PR12MB8847:EE_
-X-MS-Office365-Filtering-Correlation-Id: c0912520-5cbb-4516-4b0a-08dbe7b1810f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	f1AvWDSWXbFzEKQu3v/vYEMJqKg0SJF4Y444aPwunfUQ1nl9b62yN1SzNU/Bppet4SWEXk64qpCnqIjc0LoYSymSwoWWPItOVlOmy+Cl6wfeMEMwwrWGiUnw800Su+/cyNU0Fk6gnmzSUIto60Q3Wqu9VW49mfBUbHZYwVvDyFTBeMeSESZ4Rtuc4ov/hF/7Ay+vPzCkiui/T21yzhmji3YXXmkt8uLMB/5c0nwW4w/+HlfIusy8fKotpHV99m4C3rZx1167V9gKRqr0L67MVUkgiWNFWVIPGGteMLXrfVSHvb2QTdNbpJxeamWsJY4MuJ+Nepufk7onUv6Mz6Akt1b38bh+dylZ+X5alaNGiXDhsD/whDy3RT4W9FPQeyHlO1TPSXqcV/vzGOa/Aepaf/t/2Tv1KznN49sszsfScSGUVzs5t4yaPQ0E9C7Rg58bZLV7M/cJYmel3uzDPH7tvM/JEuywu1rpA2r2rm751XXpA07+u7PZvnm8CpoF4MIAYQgd2OTF6DhZEhiw/u5E//Gs/hLbV7Zm6MpuZoL5Dj8ODsZ+yL2yD8AVF7jgnpCnFj+0NU3oPOV+6bhX3uzSZ+5aOiwYaHEnTQsW0xI06d8F+M7clMfX/MEI0D6NI/Sj820AWi3PtPsWh3Sc+Hwos1xwXXi/aGQevUidvrjiR8kf9jgjExH953M3pK7n36DvCOYmIB7NQw/xJn+BoagTxzhziq9DhgqHTtCA5dp96XukHlvwULskmDTOnpYRo/pbpEX3br77aoFLARrNhaLVHaAWzq97eyYMgjxQ4AnpZvzwMXwZmf1FKUvs7GN2vpLjy7U01H4imT1wdaI19WT2hCaHMYCLGJHVVcXR6W9iwuB0vgje5Q/a56abueIWb0Dlt+VeSGn/X1cSXy6j3pxSNA==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(376002)(136003)(396003)(346002)(39860400002)(230173577357003)(230273577357003)(230922051799003)(186009)(1800799009)(64100799003)(82310400011)(451199024)(46966006)(36840700001)(40470700004)(336012)(83380400001)(426003)(6666004)(7696005)(82740400003)(16526019)(1076003)(26005)(2616005)(40480700001)(70586007)(70206006)(54906003)(110136005)(478600001)(316002)(36860700001)(47076005)(81166007)(356005)(40460700003)(8936002)(8676002)(4326008)(44832011)(7416002)(41300700001)(2906002)(36756003)(5660300002)(86362001)(557034005)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2023 21:09:36.1829
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c0912520-5cbb-4516-4b0a-08dbe7b1810f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF000042AA.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8847
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZUf_3TAZh1bpVOVt@arch-bow>
+X-GND-Sasl: alexandre.belloni@bootlin.com
 
-The UIP timeout is hardcoded to 10ms for all RTC reads, but in some
-contexts this might not be enough time. Add a timeout parameter to
-mc146818_get_time() and mc146818_get_time_callback().
-Make all callers use 10ms to ensure no functional changes.
+On 05/11/2023 17:49:33-0300, Carlos Menin wrote:
+> > > +static int pcf85053a_rtc_check_reliability(struct device *dev, u8 status_reg)
+> > > +{
+> > > +	int ret = 0;
+> > > +
+> > > +	if (status_reg & REG_STATUS_CIF) {
+> > > +		dev_warn(dev, "tamper detected,"
+> > > +			 " date/time is not reliable\n");
+> > You should not split strings. Also, I don't think most of the messages
+> > are actually useful as the end user doesn't have any specific action
+> > after seeing it. You should probably drop them.
+> > 
+> 
+> About the usefullness of the message, do this apply to this CIF related
+> message or also to the other two flags?
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
----
- arch/alpha/kernel/rtc.c        |  2 +-
- arch/x86/kernel/hpet.c         |  2 +-
- arch/x86/kernel/rtc.c          |  2 +-
- drivers/base/power/trace.c     |  2 +-
- drivers/rtc/rtc-cmos.c         |  6 +++---
- drivers/rtc/rtc-mc146818-lib.c | 31 +++++++++++++++++++++++--------
- include/linux/mc146818rtc.h    |  3 ++-
- 7 files changed, 32 insertions(+), 16 deletions(-)
+This actually applies to all the messages of the driver, they will add
+to the size of the kernel then slow the boot time so please have a
+careful look at the usefulness of messages. You may consider swtching
+them to dev_dbg.
 
-diff --git a/arch/alpha/kernel/rtc.c b/arch/alpha/kernel/rtc.c
-index fb3025396ac9..cfdf90bc8b3f 100644
---- a/arch/alpha/kernel/rtc.c
-+++ b/arch/alpha/kernel/rtc.c
-@@ -80,7 +80,7 @@ init_rtc_epoch(void)
- static int
- alpha_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
--	int ret = mc146818_get_time(tm);
-+	int ret = mc146818_get_time(tm, 10);
- 
- 	if (ret < 0) {
- 		dev_err_ratelimited(dev, "unable to read current time\n");
-diff --git a/arch/x86/kernel/hpet.c b/arch/x86/kernel/hpet.c
-index 41eecf180b7f..17adad4cbe78 100644
---- a/arch/x86/kernel/hpet.c
-+++ b/arch/x86/kernel/hpet.c
-@@ -1438,7 +1438,7 @@ irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id)
- 	memset(&curr_time, 0, sizeof(struct rtc_time));
- 
- 	if (hpet_rtc_flags & (RTC_UIE | RTC_AIE)) {
--		if (unlikely(mc146818_get_time(&curr_time) < 0)) {
-+		if (unlikely(mc146818_get_time(&curr_time, 10) < 0)) {
- 			pr_err_ratelimited("unable to read current time from RTC\n");
- 			return IRQ_HANDLED;
- 		}
-diff --git a/arch/x86/kernel/rtc.c b/arch/x86/kernel/rtc.c
-index 1309b9b05338..961ebc7f1872 100644
---- a/arch/x86/kernel/rtc.c
-+++ b/arch/x86/kernel/rtc.c
-@@ -67,7 +67,7 @@ void mach_get_cmos_time(struct timespec64 *now)
- 		return;
- 	}
- 
--	if (mc146818_get_time(&tm)) {
-+	if (mc146818_get_time(&tm, 10)) {
- 		pr_err("Unable to read current time from RTC\n");
- 		now->tv_sec = now->tv_nsec = 0;
- 		return;
-diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
-index 72b7a92337b1..c2e925357474 100644
---- a/drivers/base/power/trace.c
-+++ b/drivers/base/power/trace.c
-@@ -120,7 +120,7 @@ static unsigned int read_magic_time(void)
- 	struct rtc_time time;
- 	unsigned int val;
- 
--	if (mc146818_get_time(&time) < 0) {
-+	if (mc146818_get_time(&time, 10) < 0) {
- 		pr_err("Unable to read current time from RTC\n");
- 		return 0;
- 	}
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index b39890a5531e..16dcbd196ce2 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -231,7 +231,7 @@ static int cmos_read_time(struct device *dev, struct rtc_time *t)
- 	if (!pm_trace_rtc_valid())
- 		return -EIO;
- 
--	ret = mc146818_get_time(t);
-+	ret = mc146818_get_time(t, 10);
- 	if (ret < 0) {
- 		dev_err_ratelimited(dev, "unable to read current time\n");
- 		return ret;
-@@ -307,7 +307,7 @@ static int cmos_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	 *
- 	 * Use the mc146818_avoid_UIP() function to avoid this.
- 	 */
--	if (!mc146818_avoid_UIP(cmos_read_alarm_callback, &p))
-+	if (!mc146818_avoid_UIP(cmos_read_alarm_callback, 10, &p))
- 		return -EIO;
- 
- 	if (!(p.rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
-@@ -556,7 +556,7 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	 *
- 	 * Use mc146818_avoid_UIP() to avoid this.
- 	 */
--	if (!mc146818_avoid_UIP(cmos_set_alarm_callback, &p))
-+	if (!mc146818_avoid_UIP(cmos_set_alarm_callback, 10, &p))
- 		return -ETIMEDOUT;
- 
- 	cmos->alarm_expires = rtc_tm_to_time64(&t->time);
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 43a28e82674e..75b2fc1791e6 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -8,26 +8,29 @@
- #include <linux/acpi.h>
- #endif
- 
-+#define UIP_RECHECK_DELAY		100	/* usec */
-+
- /*
-  * Execute a function while the UIP (Update-in-progress) bit of the RTC is
-- * unset.
-+ * unset. The timeout is configurable by the caller in ms.
-  *
-  * Warning: callback may be executed more then once.
-  */
- bool mc146818_avoid_UIP(void (*callback)(unsigned char seconds, void *param),
-+			int timeout,
- 			void *param)
- {
- 	int i;
- 	unsigned long flags;
- 	unsigned char seconds;
- 
--	for (i = 0; i < 100; i++) {
-+	for (i = 0; i < USEC_PER_MSEC / UIP_RECHECK_DELAY * timeout; i++) {
- 		spin_lock_irqsave(&rtc_lock, flags);
- 
- 		/*
- 		 * Check whether there is an update in progress during which the
- 		 * readout is unspecified. The maximum update time is ~2ms. Poll
--		 * every 100 usec for completion.
-+		 * for completion.
- 		 *
- 		 * Store the second value before checking UIP so a long lasting
- 		 * NMI which happens to hit after the UIP check cannot make
-@@ -37,7 +40,7 @@ bool mc146818_avoid_UIP(void (*callback)(unsigned char seconds, void *param),
- 
- 		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
- 			spin_unlock_irqrestore(&rtc_lock, flags);
--			udelay(100);
-+			udelay(UIP_RECHECK_DELAY);
- 			continue;
- 		}
- 
-@@ -56,7 +59,7 @@ bool mc146818_avoid_UIP(void (*callback)(unsigned char seconds, void *param),
- 		 */
- 		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
- 			spin_unlock_irqrestore(&rtc_lock, flags);
--			udelay(100);
-+			udelay(UIP_RECHECK_DELAY);
- 			continue;
- 		}
- 
-@@ -84,7 +87,7 @@ EXPORT_SYMBOL_GPL(mc146818_avoid_UIP);
-  */
- bool mc146818_does_rtc_work(void)
- {
--	return mc146818_avoid_UIP(NULL, NULL);
-+	return mc146818_avoid_UIP(NULL, 10, NULL);
- }
- EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
- 
-@@ -130,13 +133,25 @@ static void mc146818_get_time_callback(unsigned char seconds, void *param_in)
- 	p->ctrl = CMOS_READ(RTC_CONTROL);
- }
- 
--int mc146818_get_time(struct rtc_time *time)
-+/**
-+ * mc146818_get_time - Get the current time from the RTC
-+ * @time: pointer to struct rtc_time to store the current time
-+ * @timeout: timeout value in ms
-+ *
-+ * This function reads the current time from the RTC and stores it in the
-+ * provided struct rtc_time. The timeout parameter specifies the maximum
-+ * time to wait for the RTC to become ready.
-+ *
-+ * Return: 0 on success, -ETIMEDOUT if the RTC did not become ready within
-+ * the specified timeout, or another error code if an error occurred.
-+ */
-+int mc146818_get_time(struct rtc_time *time, int timeout)
- {
- 	struct mc146818_get_time_callback_param p = {
- 		.time = time
- 	};
- 
--	if (!mc146818_avoid_UIP(mc146818_get_time_callback, &p)) {
-+	if (!mc146818_avoid_UIP(mc146818_get_time_callback, timeout, &p)) {
- 		memset(time, 0, sizeof(*time));
- 		return -ETIMEDOUT;
- 	}
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index b0da04fe087b..34dfcc77f505 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -126,10 +126,11 @@ struct cmos_rtc_board_info {
- #endif /* ARCH_RTC_LOCATION */
- 
- bool mc146818_does_rtc_work(void);
--int mc146818_get_time(struct rtc_time *time);
-+int mc146818_get_time(struct rtc_time *time, int timeout);
- int mc146818_set_time(struct rtc_time *time);
- 
- bool mc146818_avoid_UIP(void (*callback)(unsigned char seconds, void *param),
-+			int timeout,
- 			void *param);
- 
- #endif /* _MC146818RTC_H */
+> > > +	tm->tm_year = buf[REG_YEARS];
+> > > +	/* adjust for 1900 base of rtc_time */
+> > > +	tm->tm_year += 100;
+> > > +
+> > > +	tm->tm_wday = (buf[REG_WEEKDAYS] - 1) & 7; /* 1 - 7 */
+> > > +	tm->tm_sec = buf[REG_SECS];
+> > > +	tm->tm_min = buf[REG_MINUTES];
+> > > +	tm->tm_hour = buf[REG_HOURS];
+> > > +	tm->tm_mday = buf[REG_DAYS];
+> > > +	tm->tm_mon = buf[REG_MONTHS] - 1; /* 1 - 12 */
+> > 
+> > Those comments are not useful.
+> > 
+> 
+> I Will improve them to explain why I am offsetting the register value.
+
+I don't think this is necessary, most of the drivers are doing it so
+this is expected.
+
+> > > +static struct attribute *pcf85053a_attrs_flags[] = {
+> > > +	&dev_attr_rtc_fail.attr,
+> > > +	&dev_attr_oscillator_fail.attr,
+> > > +	&dev_attr_rtc_clear.attr,
+> > > +	0,
+> > > +};
+> > 
+> > Don't add undocumented sysfs files. Also, You must not allow userspace
+> > to clear those flags without setting the time properly.
+> > 
+> 
+> Should the flags be cleared only by setting the time, or is there
+> another acceptable method? What would be the correct way to let
+> userspace read those flags?
+
+The RTC_VL_READ ioctl will allow reading the flags from userspace. For
+the flags that monitor the validity of the time and date, they must only
+be cleared when the time and date is known to be good s only when
+setting the time.
+
+> > > +}
+> > > +
+> > > +static void pcf85053a_set_low_jitter(struct device *dev, u8 *reg_ctrl)
+> > > +{
+> > > +	bool val;
+> > > +	u8 regval;
+> > > +
+> > > +	val = of_property_read_bool(dev->of_node, "nxp,low-jitter-mode");
+> > 
+> > Bool properties don't work well with RTC because with this, there is now
+> > way to enable the normal mode.
+> > 
+> 
+> Wouldn't the absence of the property enable normal mode? Or I am missing
+> something?
+
+RTC have a greater lifetime than the linux system so you must have a way
+to indicate that you don't want to change the configuration for example
+if it has been set from the bootloader or at the factory.
+
+Regards,
+
 -- 
-2.34.1
-
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
