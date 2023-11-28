@@ -1,120 +1,123 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TrAkaISa"
-Received: from mail-oo1-xc2e.google.com (mail-oo1-xc2e.google.com [IPv6:2607:f8b0:4864:20::c2e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6704E18D;
-	Tue, 28 Nov 2023 06:34:34 -0800 (PST)
-Received: by mail-oo1-xc2e.google.com with SMTP id 006d021491bc7-58d98188dc0so944735eaf.3;
-        Tue, 28 Nov 2023 06:34:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701182073; x=1701786873; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bMG48SwBK5UHsAZmvVGge+eO1O9aG82zKUQLg7KuJ3A=;
-        b=TrAkaISaDFsf9QTCF4R7EN8cSm7eMOAYjOFBXxrz9YTAtDFlnukVJoXLhlcFqGX8xQ
-         BzkToS8U/L0ZpYEuu6MTd9Gs+U1bM5iW3wbSpz6mjov3p+gnXvNSXViHO3XoJ2uhU3Cq
-         wDhzVr2/essS5hMZXW8vcV8m4lpT8ToH9Uz8aZ+hqAMPQfyvJgoFoqoFYOJIdAea4Uvl
-         CcAjhdgfB9DBCSuvBzqOiLscbKOoEd2SYjpuDbHHvmahW+90TA4iYpbZuSAf+PQnTFUx
-         Jx0mVwBTVRR/dbNWaKX2MbrW66BH9T3H6eaXqdiA1xJ3hZ5leWikInFNdFMH6HXcm5ce
-         Ul0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701182073; x=1701786873;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bMG48SwBK5UHsAZmvVGge+eO1O9aG82zKUQLg7KuJ3A=;
-        b=ERQnmb23A4yC8DDE8TxrUdGVe8jdyTYaVn954Edu+/98fzdBEmKEeoVeZysvJb+1B3
-         wv+6RNfG24F61f39iptATcPRO4Q1MBhPe/c6sAIK4qgQtojVLma/EotJGE892SzuXAYn
-         6/DZzq2tuzmPPrE7zAW0n2m/JQaIpmSCJDTErkoMkrHAj12u+qmN/opFzbDGHj7ItL2X
-         XpaTVB3Vce2oQeogC7MKq3tOsth27daj8Py0dFEh4ETTR/XTmlPODoxiVKK8UXxibzcj
-         rOgho+B52JGR2Kf6Z/TobJfSR80b87+2eAmx+uVu0ZC8EQM8xyWAgc7i59lQsI/rpDxJ
-         1eGw==
-X-Gm-Message-State: AOJu0YxVOfGinY7WQis2wQTX4gx0/fmUGGsfdP6kSEUYSDr9jUPVH1/H
-	8R757AGbw8FI8GUgSbd+sSeWkyDF63crMZE8qSs=
-X-Google-Smtp-Source: AGHT+IHzPkygydR5FCKAGeIxu2k+cpNdyTREovFpmnR+IYF8jBCyYIDp1Zft+jE6Elx/jhXtXOz/zAXUZQqbC70bm0c=
-X-Received: by 2002:a4a:e559:0:b0:58d:bfab:f5f with SMTP id
- s25-20020a4ae559000000b0058dbfab0f5fmr454326oot.1.1701182073588; Tue, 28 Nov
- 2023 06:34:33 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="K5t6ay4e"
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2051.outbound.protection.outlook.com [40.107.223.51])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4043D6D;
+	Tue, 28 Nov 2023 06:46:41 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ay23RgrgoUDBgZAcNx9ph0hgBVZEj1zPUa5Idg4k9ZiM7XzcYajKzUdgvuMLItFI4S3diLw3aeRRwmYIbNCnP5e6cDYz+HVIcWAXn1nNuDk/5VfB5OuLBJvNidGU7CZkvUo81MSIuChlcyRs4TqqsfYUJfKZ+DaOxxLIC7T8VGyBm7xQvp0kvHfv/zdZhXI5tNjJuDrLpAcLrTz+/6kkDiIY++PK37dbjeKxMckubx5Shq0iPdIUx6FN/zLMMuRF92NDAEVd37pZ9r9Z5sjIeFsUjMEqcaG6BmTRahBvUnY+tXgAP79+1QiDBQ2JKa/SPPZ8euqO0xTxJqDlzY9reQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9XYRjI85l3XoStfjzk+xdJAsFHr3djJ/4PNC0Gp5mbw=;
+ b=jVQlqFLaLE+OwJAPqylDWpKKN1BkNeSVfkjA8ehsH504aG2UawwILoct8QKpTPvUXUnL1V1uNkG3UsVOk27V+1jrRr2s7N/fjxnt3TfRR/LKoTW5TsU5ffoHy/zWuQAEPAN43ZvV5a3dC8mk5hV2JFj3xSWuHFh112CJfGF/J/RtuZqgKXkeHELzgeJKXXfSvC1AiHiJnhBgcPlhPPuR4OlZvqxz5VUVGPhGCQcx0JcXsGATDWwSLck3ZDgra9FQLgRdbZjlctWTVG4a/S4mOwC4W3BvPxSL+Mt2ZxJfFfHg8YP0XuCsVDGazpiBtU/ocwP0S2xeryFH/BytA711ZQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=o2.pl smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9XYRjI85l3XoStfjzk+xdJAsFHr3djJ/4PNC0Gp5mbw=;
+ b=K5t6ay4ee/K9KVxhWe1tzgEL8WOSRu/wGwsYojcA/7+y01iQJ2+StddEYX1C8AWhNy1Y08Nc6OZWHADYf2kkBLutF4AYygDWdoXpCZavqPdWi4QFJ3L/USUyj/h/ZdGdyowwEiObbI1m5A/S9VPQaHZfGmRyp9MMzfaAaEIM+1A=
+Received: from BY5PR13CA0012.namprd13.prod.outlook.com (2603:10b6:a03:180::25)
+ by SA0PR12MB4381.namprd12.prod.outlook.com (2603:10b6:806:70::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.29; Tue, 28 Nov
+ 2023 14:46:39 +0000
+Received: from CO1PEPF000042A7.namprd03.prod.outlook.com
+ (2603:10b6:a03:180:cafe::7d) by BY5PR13CA0012.outlook.office365.com
+ (2603:10b6:a03:180::25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.17 via Frontend
+ Transport; Tue, 28 Nov 2023 14:46:39 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1PEPF000042A7.mail.protection.outlook.com (10.167.243.36) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7046.17 via Frontend Transport; Tue, 28 Nov 2023 14:46:38 +0000
+Received: from AUS-P9-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Tue, 28 Nov
+ 2023 08:46:34 -0600
+From: Mario Limonciello <mario.limonciello@amd.com>
+To: =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>, Alessandro Zummo
+	<a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>
+CC: "open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+	<tobrohl@gmail.com>, <aalsing@gmail.com>, <Dhaval.Giani@amd.com>,
+	<xmb8dsv4@gmail.com>, <x86@kernel.org>, <dhaval.giani@gmail.com>, Dave Hansen
+	<dave.hansen@linux.intel.com>, Borislav Petkov <bp@alien8.de>, "H . Peter
+ Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar
+	<mingo@redhat.com>, Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH v4 0/4] Extend time to wait for UIP for some callers
+Date: Mon, 27 Nov 2023 23:36:49 -0600
+Message-ID: <20231128053653.101798-1-mario.limonciello@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231121094642.2973795-1-qiujingbao.dlmu@gmail.com>
- <20231121094642.2973795-3-qiujingbao.dlmu@gmail.com> <09b29f1f-a42b-49f7-afca-f82357acd4c8@linaro.org>
- <CAJRtX8TU9Z3OXL1zw9+mGNhxugp_C2jo40k-s9V2byNCQeBoLQ@mail.gmail.com> <438768a3-c50c-46f1-8a4e-2233c7545453@linaro.org>
-In-Reply-To: <438768a3-c50c-46f1-8a4e-2233c7545453@linaro.org>
-From: jingbao qiu <qiujingbao.dlmu@gmail.com>
-Date: Tue, 28 Nov 2023 22:34:22 +0800
-Message-ID: <CAJRtX8QkUFLnrGXHNH_StQeYy3cJZ6svcO4yz+cTC5x4D88mGg@mail.gmail.com>
-Subject: Re: [PATCH 2/3] rtc: add rtc controller support for Sophgo CV1800B SoC
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com, 
-	krzysztof.kozlowski+dt@linaro.org, chao.wei@sophgo.com, 
-	unicorn_wang@outlook.com, conor+dt@kernel.org, robh+dt@kernel.org, 
-	conor@kernel.org, paul.walmsley@sifive.com, palmer@dabbelt.com, 
-	aou@eecs.berkeley.edu, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF000042A7:EE_|SA0PR12MB4381:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1f924ded-8169-4b3b-cdc5-08dbf020d3fe
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	adIhOoFaqtslCzu5l7rdE12wyiLlgnhivxOIYoQ5fig+QgHlT+K19L1+QbNgiwtttGSiOrebi+gCj0P8TKFayEmpMCUzGFc7vhMTjYHD3HbbjMiBJcn6bKU3L848Kp+8M855oN7MDocrAQMB01LFoXmtH5JVOO2UbBxx2FMyyfuvb1yYgm4OH69SMfZFee+hHYa2y9u4Y/IldGJmWzLutuRgUUEtPmRmpuvAV0AH7kEqwOqA7SDTu36PbxdvLJmoYE77SObP5xL2X0jV+n661Ohh7+R+Ztzmvn3c5BzJTbW/n3wccmVBsRb3r+S8oJly7LUmDxPMmFf/+KEr1NdcGMqcXpWnAqHE52kby0Vpwl6iUIL4ZiQ1BhSeJyk88oZpYSe0xqNLZaXgE4TbAd0IT3Ng0Qoc/xQDFMbNsFXPAl6Gn5mqM1Jhwd7wSnCluzc6UYaISWNPeSbcBDt05zsxfkMkFb5nbzTXi70hga814XX9Ju/n9CBQbJ5fU+HlBe9vrX67HJ+qwRWZcPqSN4oKq+9LpQN/4xSR2ilPRE9zpFKKKWsN9FZ0/QRUmZlqovTNBBRiIv3BmJSHjQ6sNghvfjMaybwQsx97GTflkMHqG+obUKnAWoT3s7xCJrsz/zBInqyia8HY0AJctekdhp2xvT2InrIXvSg1ceA+8Onvt0W5VRxFbWIlG4L5elX4U7r6y1DrRpxs9qRy2rDbFaepXJmoY89MXYBDmrh7+aWgAIQbhzE2J4PFKAJsP980B1xS1pQVg4LFDafRC5BljO2wBA==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(136003)(396003)(39860400002)(346002)(376002)(230922051799003)(64100799003)(1800799012)(82310400011)(451199024)(186009)(46966006)(40470700004)(36840700001)(40480700001)(26005)(6666004)(16526019)(1076003)(336012)(66574015)(426003)(2616005)(40460700003)(81166007)(356005)(82740400003)(36756003)(86362001)(7416002)(5660300002)(44832011)(41300700001)(2906002)(7696005)(47076005)(36860700001)(83380400001)(70206006)(316002)(54906003)(8936002)(8676002)(4326008)(478600001)(70586007)(110136005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Nov 2023 14:46:38.7805
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1f924ded-8169-4b3b-cdc5-08dbf020d3fe
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF000042A7.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR12MB4381
 
-On Tue, Nov 28, 2023 at 9:59=E2=80=AFPM Krzysztof Kozlowski
-<krzysztof.kozlowski@linaro.org> wrote:
->
-> On 28/11/2023 14:22, jingbao qiu wrote:
-> >>> +     if (ret)
-> >>> +             goto err;
-> >>> +
-> >>> +     rtc->clk =3D devm_clk_get(&pdev->dev, NULL);
-> >>> +     if (IS_ERR(rtc->clk)) {
-> >>> +             dev_err(&pdev->dev, "no clock");
-> >>
-> >> This code is not ready for upstream. There are multiple things wrong h=
-ere.
-> >>
-> >> First, syntax is return dev_err_probe.
-> >>
-> >> Second, you do not have clocks and you do not allow them! Just open yo=
-ur
-> >> binding.
-> >
-> > I'm not fully understanding here, can you elaborate more?
->
-> That the syntax is dev_err_probe() or that you do not have clocks?
->
->
-> > as there is clocks info like this in the dt-bindings:
-> >  clocks =3D <&osc>;
->
-> Really?
->
-> Point me to the line in your patch:
->
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - sophgo,cv1800b-rtc
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
->
-> Where are the clocks?
+A number of users have reported their system will have a failure reading
+the RTC around s2idle entry or exit.
 
-I will fix properties.
+This failure manifests as UIP clear taking longer than 10ms.
 
->
->
-> Best regards,
-> Krzysztof
->
+By a debugging patch provided by Mateusz Jończyk it is shown that this
+has taken upwards of 300ms in some cases.
 
-Best regards,
-Jingbao Qiu
+This series adjusts the UIP timeout to be configurable by the caller and
+changes some callers which aren't called in an interrupt context to allow
+longer timeouts.
+
+Mario Limonciello (4):
+  rtc: mc146818-lib: Adjust failure return code for mc146818_get_time()
+  rtc: Adjust failure return code for cmos_set_alarm()
+  rtc: Add support for configuring the UIP timeout for RTC reads
+  rtc: Extend timeout for waiting for UIP to clear to 1s
+
+ arch/alpha/kernel/rtc.c        |  2 +-
+ arch/x86/kernel/hpet.c         |  2 +-
+ arch/x86/kernel/rtc.c          |  2 +-
+ drivers/base/power/trace.c     |  2 +-
+ drivers/rtc/rtc-cmos.c         | 10 ++++-----
+ drivers/rtc/rtc-mc146818-lib.c | 39 ++++++++++++++++++++++++++--------
+ include/linux/mc146818rtc.h    |  3 ++-
+ 7 files changed, 41 insertions(+), 19 deletions(-)
+
+
+base-commit: 2cc14f52aeb78ce3f29677c2de1f06c0e91471ab
+-- 
+2.34.1
+
