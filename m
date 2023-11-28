@@ -1,183 +1,174 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="L89B5vte"
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92601E6;
-	Mon, 27 Nov 2023 19:02:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1701140533; x=1732676533;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=GHfgwWLsu9jzuKtJnQ3BCNFmuSuFaxa27DukiFUuftg=;
-  b=L89B5vte26YSR3O+wlziguUYlBrUE0Cru0rGnc5X/J09a3fR1RfXFRw5
-   DlAdgz7lUbRivW7XPFVKARXsSDA/d3uzBHfX/rb8KZJLolrC80+gRU8Hp
-   cdVK9fy/50J1PfawD1PxRa0wDrva088lDQkhwIZUHe+28Eu8UN54+DScr
-   HQyQ6oLdHfWaKqKB16AsdQYvTlNfceyFNQizYjP4p+Tgy/EK3FJ8ZrN9m
-   hJ5NASj/PwbRkIn28V7mz9/rGxImxYxNNEwwUARKzQsjPYhfaTSvTwTbm
-   /S4jnggwiGkRg2ZU7yws+ytU9mMLSylnbpT/cz21rdDkEfUck8soZSCdd
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10907"; a="457170208"
-X-IronPort-AV: E=Sophos;i="6.04,232,1695711600"; 
-   d="scan'208";a="457170208"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Nov 2023 19:02:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.04,232,1695711600"; 
-   d="scan'208";a="16482931"
-Received: from lkp-server01.sh.intel.com (HELO d584ee6ebdcc) ([10.239.97.150])
-  by orviesa001.jf.intel.com with ESMTP; 27 Nov 2023 19:02:07 -0800
-Received: from kbuild by d584ee6ebdcc with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1r7oMP-0006v8-1E;
-	Tue, 28 Nov 2023 03:02:05 +0000
-Date: Tue, 28 Nov 2023 11:01:50 +0800
-From: kernel test robot <lkp@intel.com>
-To: Mario Limonciello <mario.limonciello@amd.com>,
-	Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: oe-kbuild-all@lists.linux.dev,
-	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org,
-	tobrohl@gmail.com, aalsing@gmail.com, Dhaval.Giani@amd.com,
-	xmb8dsv4@gmail.com, x86@kernel.org, dhaval.giani@gmail.com,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Mario Limonciello <mario.limonciello@amd.com>
-Subject: Re: [PATCH v3 3/4] rtc: Add support for configuring the UIP timeout
- for RTC reads
-Message-ID: <202311280845.YrtuJ0eq-lkp@intel.com>
-References: <20231127192553.9734-4-mario.limonciello@amd.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nOb130mw"
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A8590;
+	Tue, 28 Nov 2023 05:20:30 -0800 (PST)
+Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-1fa289a3b6aso1805011fac.3;
+        Tue, 28 Nov 2023 05:20:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1701177629; x=1701782429; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=On66ueZto3GF440UWVrRBZc4wrXhVsUGn1SXWaiDi8g=;
+        b=nOb130mw+xpBoGsNiULUoOXulipzQ/m87Ge8d0uVlx2W0To1XkjSgaYck+hNekcdcq
+         8O+RGFRUsxTuSvfTOrC6QcFY/mortnROYFilnD5xZLz8VdJc8CiaTxpTR5DAdm8K8Njm
+         H/ZHLFd9lURqj3iTDF0/8p2abXJ1vdxIf34po8M/CPPGQL6D3fAF/6yZwjD06cfDwgXU
+         4ZSW7zyvB/vMJ8YhCEciL5KOrhgPR/hjfZLyFzRbT9Hu+DqVvAebX+YOyHJxV2LZt5LR
+         Bns+o0nE/0dLwf2UyQxl4uhXbA6SSKZEeHchUh15aHhZ+SeViHrJsd/GINDgF7kHJ97A
+         MBlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701177629; x=1701782429;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=On66ueZto3GF440UWVrRBZc4wrXhVsUGn1SXWaiDi8g=;
+        b=X5ov/zQ08McqTvG/StlNEiN6wnIbFoSJBQZ4v1NlyWhHoGx8ZxmgR8kqZTOStc+/DI
+         QmeIzCszATCNEQnu7xytfo/iCmQxJrQlxwK1uVcsCxhlKkKPAET48uI63Fqt2VD/DKMi
+         aDahbkfBkPO+7w4lMpEo6wLeKumpOfdxoqBFaG5lYJmdvfRynqFRORZoKXz/LKid4N/m
+         q8wolX6k/hVTX2h/PEwMdlqfKc+0N8r0LBXt216X1y89qZNCA2KcDDqAZMoOFF+95bob
+         HFL3Rx9o09xiCnzRHNMt4XwEQeCyC+9wFIQ9VwzkBFFxpqamIDtlo7HGZwYv+wwXbjeD
+         gUWg==
+X-Gm-Message-State: AOJu0Yw7/VWE2rjtkz+DAuNS+QTOa/fCm77pHMNfhJM3MXKpJoDozhpU
+	6SfHSjGXcGRYuwFrTOhOaKvP/hJgkNrUhNMwibAL2/0dhflKVfpH
+X-Google-Smtp-Source: AGHT+IEA6UtACp1At/yuKOgBXha03/AXtZNDcuSQGTuIOcoIm/wVD0Z2tmYIHiOzc7bOCaCNw+wXQ+9dUt2B7jIcqqk=
+X-Received: by 2002:a05:6870:788c:b0:1eb:e8b:73cb with SMTP id
+ hc12-20020a056870788c00b001eb0e8b73cbmr21421178oab.58.1701177629143; Tue, 28
+ Nov 2023 05:20:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231127192553.9734-4-mario.limonciello@amd.com>
+References: <20231121094642.2973795-1-qiujingbao.dlmu@gmail.com>
+ <20231121094642.2973795-2-qiujingbao.dlmu@gmail.com> <84a12a2c-3f64-4517-8d38-14c8516e70d0@linaro.org>
+In-Reply-To: <84a12a2c-3f64-4517-8d38-14c8516e70d0@linaro.org>
+From: jingbao qiu <qiujingbao.dlmu@gmail.com>
+Date: Tue, 28 Nov 2023 21:20:18 +0800
+Message-ID: <CAJRtX8ToRv7Bzyj7fZ530H9oYQWGNnEK_2G5EQjECgg_Y37guQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: add binding for Sophgo CV1800B rtc controller
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: a.zummo@towertech.it, alexandre.belloni@bootlin.com, 
+	krzysztof.kozlowski+dt@linaro.org, chao.wei@sophgo.com, 
+	unicorn_wang@outlook.com, conor+dt@kernel.org, robh+dt@kernel.org, 
+	conor@kernel.org, paul.walmsley@sifive.com, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Mario,
+On Tue, Nov 21, 2023 at 5:57=E2=80=AFPM Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+>
+> On 21/11/2023 10:46, Jingbao Qiu wrote:
+> > Add devicetree binding for Sophgo CV1800B SoC rtc controller.
+>
+> A nit, subject: drop second/last, redundant "binding for". The
+> "dt-bindings" prefix is already stating that these are bindings.
 
-kernel test robot noticed the following build warnings:
+will fix.
 
-[auto build test WARNING on 2cc14f52aeb78ce3f29677c2de1f06c0e91471ab]
+>
+> >
+> > Signed-off-by: Jingbao Qiu <qiujingbao.dlmu@gmail.com>
+> > ---
+> >  .../bindings/rtc/sophgo,cv1800b-rtc.yaml      | 37 +++++++++++++++++++
+> >  1 file changed, 37 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/rtc/sophgo,cv1800=
+b-rtc.yaml
+> >
+> > diff --git a/Documentation/devicetree/bindings/rtc/sophgo,cv1800b-rtc.y=
+aml b/Documentation/devicetree/bindings/rtc/sophgo,cv1800b-rtc.yaml
+> > new file mode 100644
+> > index 000000000000..fefb1e70c45c
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/sophgo,cv1800b-rtc.yaml
+> > @@ -0,0 +1,37 @@
+> > +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/rtc/sophgo,cv1800b-rtc.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: Sophgo CV1800B SoC RTC Controller
+>
+> What is a RTC Controller? You have multiple RTCs there?
+>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Mario-Limonciello/rtc-mc146818-lib-Adjust-failure-return-code-for-mc146818_get_time/20231128-032825
-base:   2cc14f52aeb78ce3f29677c2de1f06c0e91471ab
-patch link:    https://lore.kernel.org/r/20231127192553.9734-4-mario.limonciello%40amd.com
-patch subject: [PATCH v3 3/4] rtc: Add support for configuring the UIP timeout for RTC reads
-config: i386-randconfig-141-20231128 (https://download.01.org/0day-ci/archive/20231128/202311280845.YrtuJ0eq-lkp@intel.com/config)
-compiler: clang version 16.0.4 (https://github.com/llvm/llvm-project.git ae42196bc493ffe877a7e3dff8be32035dea4d07)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231128/202311280845.YrtuJ0eq-lkp@intel.com/reproduce)
+will drop "Controller", as I think RTC is not something like I2C, eMMC, USB=
+,
+which have the "controller <-> client/device" model.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202311280845.YrtuJ0eq-lkp@intel.com/
+> > +
+> > +maintainers:
+> > +  - Jingbao Qiu <qiujingbao.dlmu@gmail.com>
+> > +
+>
+> Missing ref to rtc.yaml. Unless it is not applicable but then why?
 
-All warnings (new ones prefixed by >>):
+ok, I should ref this file.
 
->> drivers/rtc/rtc-mc146818-lib.c:82:5: warning: format specifies type 'int' but the argument has type 'long' [-Wformat]
-                                   UIP_RECHECK_TIMEOUT_MS(i));
-                                   ^~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/printk.h:508:37: note: expanded from macro 'pr_warn'
-           printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
-                                      ~~~     ^~~~~~~~~~~
-   include/linux/printk.h:455:60: note: expanded from macro 'printk'
-   #define printk(fmt, ...) printk_index_wrap(_printk, fmt, ##__VA_ARGS__)
-                                                       ~~~    ^~~~~~~~~~~
-   include/linux/printk.h:427:19: note: expanded from macro 'printk_index_wrap'
-                   _p_func(_fmt, ##__VA_ARGS__);                           \
-                           ~~~~    ^~~~~~~~~~~
-   drivers/rtc/rtc-mc146818-lib.c:13:35: note: expanded from macro 'UIP_RECHECK_TIMEOUT_MS'
-   #define UIP_RECHECK_TIMEOUT_MS(x)       (x / UIP_RECHECK_DELAY_MS)
-                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   1 warning generated.
+>
+> > +properties:
+> > +  compatible:
+> > +    enum:
+> > +      - sophgo,cv1800b-rtc
+>
+> Blank line
 
+ok
 
-vim +82 drivers/rtc/rtc-mc146818-lib.c
+>
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  interrupts:
+> > +    maxItems: 1
+> > +
+> > +required:
+> > +  - compatible
+> > +  - reg
+> > +  - interrupts
+> > +
+> > +additionalProperties: false
+>
+> unevaluatedProperties instead
 
-    14	
-    15	/*
-    16	 * Execute a function while the UIP (Update-in-progress) bit of the RTC is
-    17	 * unset. The timeout is configurable by the caller in ms.
-    18	 *
-    19	 * Warning: callback may be executed more then once.
-    20	 */
-    21	bool mc146818_avoid_UIP(void (*callback)(unsigned char seconds, void *param),
-    22				int timeout,
-    23				void *param)
-    24	{
-    25		int i;
-    26		unsigned long flags;
-    27		unsigned char seconds;
-    28	
-    29		for (i = 0; i < UIP_RECHECK_TIMEOUT_MS(timeout); i++) {
-    30			spin_lock_irqsave(&rtc_lock, flags);
-    31	
-    32			/*
-    33			 * Check whether there is an update in progress during which the
-    34			 * readout is unspecified. The maximum update time is ~2ms. Poll
-    35			 * for completion.
-    36			 *
-    37			 * Store the second value before checking UIP so a long lasting
-    38			 * NMI which happens to hit after the UIP check cannot make
-    39			 * an update cycle invisible.
-    40			 */
-    41			seconds = CMOS_READ(RTC_SECONDS);
-    42	
-    43			if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
-    44				spin_unlock_irqrestore(&rtc_lock, flags);
-    45				udelay(UIP_RECHECK_DELAY);
-    46				continue;
-    47			}
-    48	
-    49			/* Revalidate the above readout */
-    50			if (seconds != CMOS_READ(RTC_SECONDS)) {
-    51				spin_unlock_irqrestore(&rtc_lock, flags);
-    52				continue;
-    53			}
-    54	
-    55			if (callback)
-    56				callback(seconds, param);
-    57	
-    58			/*
-    59			 * Check for the UIP bit again. If it is set now then
-    60			 * the above values may contain garbage.
-    61			 */
-    62			if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP) {
-    63				spin_unlock_irqrestore(&rtc_lock, flags);
-    64				udelay(UIP_RECHECK_DELAY);
-    65				continue;
-    66			}
-    67	
-    68			/*
-    69			 * A NMI might have interrupted the above sequence so check
-    70			 * whether the seconds value has changed which indicates that
-    71			 * the NMI took longer than the UIP bit was set. Unlikely, but
-    72			 * possible and there is also virt...
-    73			 */
-    74			if (seconds != CMOS_READ(RTC_SECONDS)) {
-    75				spin_unlock_irqrestore(&rtc_lock, flags);
-    76				continue;
-    77			}
-    78			spin_unlock_irqrestore(&rtc_lock, flags);
-    79	
-    80			if (i >= UIP_RECHECK_TIMEOUT_MS(100))
-    81				pr_warn("Reading current time from RTC took around %d ms\n",
-  > 82					UIP_RECHECK_TIMEOUT_MS(i));
-    83	
-    84			return true;
-    85		}
-    86		return false;
-    87	}
-    88	EXPORT_SYMBOL_GPL(mc146818_avoid_UIP);
-    89	
+will fix .
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+>
+> > +
+> > +examples:
+> > +  - |
+> > +    rtc-controller@05026000{
+>
+> The names is always "rtc", unless this is not RTC. If it isn't, please
+> add full description of the hardware.
+
+I will use "rtc" replace "rtc-controller" .
+
+>
+> > +      compatible =3D "sophgo,cv800b-rtc";
+> > +      reg =3D <0x05026000 0x1000>;
+> > +      interrupts =3D <17 IRQ_TYPE_LEVEL_HIGH>;
+> > +      interrupt-parent =3D <&plic0>;
+> > +      clocks =3D <&osc>;
+>
+> Why do you send untested bindings? Review costs significant amount of
+> effort. Code was also not compiled? Warnings not fixed?
+
+I will check it.
+Leading 0 and referencing issues will be fixed.
+
+>
+> Best regards,
+> Krzysztof
+>
+
+I'm sorry for taking so long to reply.
+I took a few days off due to being infected with the flu.
+Thank you again for your patient reply.
+
+Best regards,
+Jingbao Qiu
