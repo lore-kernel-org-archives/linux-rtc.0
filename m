@@ -1,44 +1,43 @@
 Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06DB2E575
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06CD0E568
 	for <linux-rtc@vger.kernel.org>; Fri,  2 Feb 2024 02:52:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706842373; cv=none; b=MvEUXKVDBcyngfnBRzh+RQOpfvBNitH5Sihp3nrAA4nb4QnU6uT643Yo6jSbiDEbKjoE7uYwy1iG4B4YUm3TbgGvo1bN6cdOo6ymefhU/sCQgedFRsQoa0SqVNuaVhyysZjAILcmakcUlM4iGFm7zTw+ANN7GsU1f/pthH0BVEU=
+	t=1706842373; cv=none; b=FQg+sJ+jYm52+PAKUGs7f2I03oHV7KWyHI5wNY9+ctKGd+2HFn38CRAIchiwhKl/tGWWGOpTK32oxeBtdyWrI7q2DZ+kpR7bBuzfIgBpjQyCIpuQrWyKL9IIpiJ7gUEGevE5jGEFmMmNTS3PP02Pk0+kK8zLJ1iJaSXB2QzESH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1706842373; c=relaxed/simple;
-	bh=QqjuENTdk7eOyEsK4MLG1kNiU0NEVI5RtJWR5DtykL4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=U3O62rpimURauExv69eXGbpStls7S3nTqBXslsYS7P9oNs6F7SA/s/kECVUJE1J84cLLTXba1TRPhGXK/nLvuJZ/AAqdPvxhFfzOmlb+QTgM1k/GIK70ts5s1XDbeQm1eXDKnp8AW/IALivpg5tyBeWH0JtGPE4N6fySb43//TE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=0OAi9XV8; arc=none smtp.client-ip=202.36.163.20
+	bh=FfI+psqa5rlhKOTLCfKVaPMsCPGNwBQKn4DDGo5wymk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UAy4CimWixKYlKf1Km31u+sPeIcakYnL04AQ66FLpwgJrrYb59Z3NzjpSNupLCLfgZbKcnbDNWn7I6N6kJ03VKXYH8JcKm714znhc/RRbaADFeBJEt1e34EReWbg3mbAvb5aAoSkhuo329lbDevQDYqpdHvgvZHXXI6ElfpRKT0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=qe1pMcBX; arc=none smtp.client-ip=202.36.163.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="0OAi9XV8"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="qe1pMcBX"
 Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id AFE1D2C05EE;
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id A8FBA2C018D;
 	Fri,  2 Feb 2024 15:52:48 +1300 (NZDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
 	s=mail181024; t=1706842368;
-	bh=jigWZVExlHT68HTKXoH+elk5GMoflcfVL+zYx+L5+Uc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=0OAi9XV8WJ8GqQ5q3kPCGC8YNJLnPcCfP1iaa4hrQKoX+8nw4jp+xoO+uLa9vgyef
-	 i7CesjfqWjXcV+RAWkr+dH42M8eQp9H4rZupP+PjRcHEdwqJS97giSo0hcKEzjNrwo
-	 y9CABIoqsBJN60SkcO9taDLIudn3WBRBmnY+tpflp1XvBhBPnSjW5BJ1pgFARj4eG4
-	 MbtSm6Wrl3933mCjpks3KAKGlkgbb+nj+WqOnREgKsir2y2Zk1QW6BRP1m2PJbKbKu
-	 LWO4K4EtWXVMkKtbXFtfks8LyN6tJP6DWZKTfW3Sl4nvSR+cFtYcHOqlz4SrRoXTCz
-	 gVjbAV2OBsRJw==
+	bh=unF68hkU9VlsR/Q1RG29bTiUOBUgCrxhHhvhNebROP0=;
+	h=From:To:Cc:Subject:Date:From;
+	b=qe1pMcBXMfjf7j56Vl/Fes0jHWYlZXM1t7fIOrWSSYJdQgAnvwtR8//xAauKurupx
+	 GM1PgsNQ+WIw9s9m4eGFBKGVyhDObMBkiXUweLd3/8LiWrjFIFLsgpNH0NF31drOcM
+	 o726t3CG0EWC+6nH5PpwZ2ynwwIABzFH43iWL1WeVFGlBO2sI5rYe8rFDwWgJV0EfX
+	 SlDOBZESbm1kVZgmK/uupqpEwp7TLw+XWfK0UYUcLpzMnHjy9I0KarNU0xeMtzJSD5
+	 dikiW7t3lGy7XEq5mJow4UZSKtg6Y3/p/S3oBVzvrkoZt3CsiciS3W8NOMep015uY3
+	 xqGvZlhAzpeCA==
 Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B65bc59000002>; Fri, 02 Feb 2024 15:52:48 +1300
+	id <B65bc59000000>; Fri, 02 Feb 2024 15:52:48 +1300
 Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.30])
-	by pat.atlnz.lc (Postfix) with ESMTP id 697AB13EDA9;
+	by pat.atlnz.lc (Postfix) with ESMTP id 608D913EDA9;
 	Fri,  2 Feb 2024 15:52:48 +1300 (NZDT)
 Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-	id 5F37A280EB7; Fri,  2 Feb 2024 15:52:48 +1300 (NZDT)
+	id 56D5D280EB5; Fri,  2 Feb 2024 15:52:48 +1300 (NZDT)
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 To: alexandre.belloni@bootlin.com,
 	robh+dt@kernel.org,
@@ -52,15 +51,11 @@ Cc: linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-hwmon@vger.kernel.org,
-	Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
-	Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>,
 	Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v6 2/2] dt-bindings: rtc: add max313xx RTCs
-Date: Fri,  2 Feb 2024 15:52:41 +1300
-Message-ID: <20240202025241.834283-3-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v6 0/2] drivers: rtc: add max313xx series rtc driver
+Date: Fri,  2 Feb 2024 15:52:39 +1300
+Message-ID: <20240202025241.834283-1-chris.packham@alliedtelesis.co.nz>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240202025241.834283-1-chris.packham@alliedtelesis.co.nz>
-References: <20240202025241.834283-1-chris.packham@alliedtelesis.co.nz>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -68,178 +63,61 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=LZFCFQXi c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=k7vzHIieQBIA:10 a=gAnH3GRIAAAA:8 a=gEfo2CItAAAA:8 a=8-29ehldHqSqZt1QG5QA:9 a=oVHKYsEdi7-vN-J5QA_j:22 a=sptkURWiP4Gy88Gu7hUp:22
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=LZFCFQXi c=1 sm=1 tr=0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=k7vzHIieQBIA:10 a=QyXUC8HyAAAA:8 a=JN5pTWmEISIy-nGIZr8A:9
 X-SEG-SpamProfiler-Score: 0
 x-atlnz-ls: pat
 
-From: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
+changelog:
+since v5:
+  - change of maintainer
+  - use adi,ti-diode property
+  - deal with oscillator fail and releasing SWRST
 
-Devicetree binding documentation for Analog Devices MAX313XX RTCs
+since v4:
+  - dt-binding: add enum value "2" to aux-voltage-chargable
+  - dt-binding: remove adi,trickle-diode-enable
+  - dt-binding: change description of trickle-resistor-ohms
+  - dt-binding: reorder as in example schema
+  - parse "wakeup-source" when irq not requested
+  - remove limitation on max31328 irq and clockout
+  - remove error and warning messages during trickle charger setup
 
-Signed-off-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
-Signed-off-by: Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- .../devicetree/bindings/rtc/adi,max313xx.yaml | 145 ++++++++++++++++++
- 1 file changed, 145 insertions(+)
+since v3:
+  - dt-binding: remove interrupt names.
+  - dt-binding: add description for "interrupts" property
+  - dt-binding: replace deprecated property "trickle-diode-disable"
+      by "aux-voltage-chargeable"
+  - dt-binding: add new property "adi,trickle-diode-enable"
+  - dt-binding: remove "wakeup-source"
+  - use clear_bit instead of __clear_bit
+  - use devm_of_clk_add_hw_provider instead of of_clk_add_provider
+  - use chip_desc pointer as driver data instead of enum.
+
+since v2:
+  - add "break" to fix warning: unannotated fall-through
+    Reported-by: kernel test robot <lkp@intel.com>
+
+since v1:
+  - dt-binding: update title and description
+  - dt-binding: remove last example
+  - drop watchdog support
+  - support reading 12Hr format instead of forcing 24hr at probe time
+  - use "tm_year % 100" instead of range check
+  - refactor max313xx_init for readability
+
+Ibrahim Tilki (2):
+  drivers: rtc: add max313xx series rtc driver
+  dt-bindings: rtc: add max313xx RTCs
+
+ .../devicetree/bindings/rtc/adi,max313xx.yaml |  145 +++
+ drivers/rtc/Kconfig                           |   11 +
+ drivers/rtc/Makefile                          |    1 +
+ drivers/rtc/rtc-max313xx.c                    | 1098 +++++++++++++++++
+ 4 files changed, 1255 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/rtc/adi,max313xx.ya=
 ml
+ create mode 100644 drivers/rtc/rtc-max313xx.c
 
-diff --git a/Documentation/devicetree/bindings/rtc/adi,max313xx.yaml b/Do=
-cumentation/devicetree/bindings/rtc/adi,max313xx.yaml
-new file mode 100644
-index 000000000000..ccfb0cbfb045
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/adi,max313xx.yaml
-@@ -0,0 +1,145 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+# Copyright 2022 Analog Devices Inc.
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/adi,max313xx.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Analog Devices MAX313XX series I2C RTCs
-+
-+maintainers:
-+  - Chris Packham <chris.packham@alliedtelesis.co.nz>
-+
-+description: Analog Devices MAX313XX series I2C RTCs.
-+
-+properties:
-+  compatible:
-+    enum:
-+      - adi,max31328
-+      - adi,max31329
-+      - adi,max31331
-+      - adi,max31334
-+      - adi,max31341
-+      - adi,max31342
-+      - adi,max31343
-+
-+  reg:
-+    description: I2C address of the RTC
-+    items:
-+      - enum: [0x68, 0x69]
-+
-+  interrupts:
-+    description:
-+      Alarm1 interrupt line of the RTC. Some of the RTCs have two interr=
-upt
-+      lines and alarm1 interrupt muxing depends on the clockin/clockout
-+      configuration.
-+    maxItems: 1
-+
-+  "#clock-cells":
-+    description:
-+      RTC can be used as a clock source through its clock output pin whe=
-n
-+      supplied.
-+    const: 0
-+
-+  clocks:
-+    description:
-+      RTC uses this clock for clock input when supplied. Clock has to pr=
-ovide
-+      one of these four frequencies - 1Hz, 50Hz, 60Hz or 32.768kHz.
-+    maxItems: 1
-+
-+  adi,tc-diode:
-+    description:
-+      Select the diode configuration for the trickle charger.
-+      schottky - Schottky diode in series.
-+      standard+schottky - standard diode + Schottky diode in series.
-+    enum: [schottky, standard+schottky]
-+
-+  trickle-resistor-ohms:
-+    description: Selected resistor for trickle charger.
-+    enum: [3000, 6000, 11000]
-+
-+required:
-+  - compatible
-+  - reg
-+
-+allOf:
-+  - $ref: rtc.yaml#
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - adi,max31328
-+              - adi,max31342
-+
-+    then:
-+      properties:
-+        aux-voltage-chargeable: false
-+        trickle-resistor-ohms: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - adi,max31328
-+              - adi,max31331
-+              - adi,max31334
-+              - adi,max31343
-+
-+    then:
-+      properties:
-+        clocks: false
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - adi,max31341
-+              - adi,max31342
-+
-+    then:
-+      properties:
-+        reg:
-+          items:
-+            - const: 0x69
-+
-+    else:
-+      properties:
-+        reg:
-+          items:
-+            - const: 0x68
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+
-+        rtc@68 {
-+            reg =3D <0x68>;
-+            compatible =3D "adi,max31329";
-+            clocks =3D <&clkin>;
-+            interrupt-parent =3D <&gpio>;
-+            interrupts =3D <26 IRQ_TYPE_EDGE_FALLING>;
-+            aux-voltage-chargeable =3D <1>;
-+            trickle-resistor-ohms =3D <6000>;
-+            adi,tc-diode =3D "schottky";
-+        };
-+    };
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    i2c {
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+
-+        rtc@68 {
-+            reg =3D <0x68>;
-+            compatible =3D "adi,max31331";
-+            #clock-cells =3D <0>;
-+        };
-+    };
 --=20
 2.43.0
 
