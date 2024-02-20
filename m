@@ -1,1590 +1,201 @@
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2074.outbound.protection.outlook.com [40.107.220.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C7FB54FB8
-	for <linux-rtc@vger.kernel.org>; Mon, 19 Feb 2024 22:18:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708381115; cv=none; b=aqHKcXI60bPr6D5V8Xs5w0myFSdWLlRALf5/EXv0UHG662ahj0sMkUxZPdehPg/VSozLM76zyi8YceuuhjPO4se4HDqO/s9+3Lldj630J/hl8A4XikP57UBUCAQxhSdvfn1MQsLhh9TYnt5cMO3Iuld5AQn7c02+PcZi2VoQgL8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708381115; c=relaxed/simple;
-	bh=Kz10T01bA+b7zW6jUgV0Nf38GSabdjIk5BBO3xLs1UQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UF68Hyvgd3AQoseQWsEzxJfD/ma7gCjMmen8hWdlvOJorfqvhzyaH7JZWTegspal+9TgS7oB5JXTPCgpAPzn3IEX0pJZyFITHw01S9WQcdCKo+VIYXnMXxKlVf3kIc8tc8DvYQRNtf0gC9hqyH8mQOGFc/3JgPKyfopmTQSRyl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=IcCTe/mL; arc=none smtp.client-ip=202.36.163.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3F6264A80;
+	Tue, 20 Feb 2024 10:51:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.74
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708426321; cv=fail; b=ScERMmVv+cb+uz0GVZzSGzxVC6d73LDMXYMAWN2v9UhdzM7lVQq8z3sv6pBu85HdDYqZUHBNWElFHetmuUehaJhA7rQOMiE+5loNB7tAO8ULn4evzcMKtB3OUgsT96w6XRAqUZqbMTzTEf23tHdgKT+TctUxbUa+eRBMpEU8h3c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708426321; c=relaxed/simple;
+	bh=UnuLSRAzU1fv8HFUS/nYyFQsCNjpYapCFMZkC8qDgv8=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=oIKVt3r+hHwT6WBndKjRTWTyCFKepPM0WDcIn3bI57xdc+5//0rPvlofXcdD1Jx0pNEYqcW8/hGjY1UWHcQgJ8JS4eAZdrvrCdrwnx6J+cr8E6W5gi2nZETpeaLxs+zpmTvIrC2gt1ri4m/zfpaYJ6Z5nd26Q3BjZMyQo2vBvSY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Rn5vXNPc; arc=fail smtp.client-ip=40.107.220.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="IcCTe/mL"
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id F269E2C072D;
-	Tue, 20 Feb 2024 11:18:28 +1300 (NZDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1708381108;
-	bh=x4o4MIsFrPnpOzzP0Y7lDKTW8gUa/+IluW7OBG60G1c=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=IcCTe/mLfWjpxtY6ki17wzCrGNTyPQ5p0VbLTX3UAlaIaDmNaCw6weCALs/fjIpre
-	 XBkZiOyjdk9NzX57uLCTvwMRmdx4BRpDsaRZjDM0RRTfGsBHJmYRQaea9L3GFE4b0l
-	 T0OwXhFzBBsBMWQcb5jfMF9T/WNDD4A8b4Q/sIj6TY5UOxF4vL3aG1hKKeTgTP07CH
-	 5ZWldjE0xAKgVFn+aYV10pFahvamuPVaiMuYkYGO3fL8P0hOc8amo6KQFPayIQvL4q
-	 RLu5QSwQuft7jM1zHta+zcdH+wmOsGaeKJe3VcSYeIUZH3PU92ymwgyYZuucwBxOaD
-	 nQD4gmboRr74g==
-Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B65d3d3b40001>; Tue, 20 Feb 2024 11:18:28 +1300
-Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.30])
-	by pat.atlnz.lc (Postfix) with ESMTP id 8D64813EE5B;
-	Tue, 20 Feb 2024 11:18:28 +1300 (NZDT)
-Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-	id 86DE0280480; Tue, 20 Feb 2024 11:18:28 +1300 (NZDT)
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-To: antoniu.miclaus@analog.com,
-	alexandre.belloni@bootlin.com,
-	robh+dt@kernel.org,
-	krzysztof.kozlowski+dt@linaro.org,
-	conor+dt@kernel.org,
-	jdelvare@suse.com,
-	linux@roeck-us.net
-Cc: linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
-	Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>,
-	Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v7 1/2] drivers: rtc: add max313xx series rtc driver
-Date: Tue, 20 Feb 2024 11:18:23 +1300
-Message-ID: <20240219221827.3821415-2-chris.packham@alliedtelesis.co.nz>
-X-Mailer: git-send-email 2.43.2
-In-Reply-To: <20240219221827.3821415-1-chris.packham@alliedtelesis.co.nz>
-References: <20240219221827.3821415-1-chris.packham@alliedtelesis.co.nz>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Rn5vXNPc"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XgKcVojOUwwrp7WUUKXr4HJaD8UVaMSeN7g8mu9Dm0n/D0jDmqm7AR20l9gHbFpCC1kJzJz91yOMxFZIkkR7YzoOo26H2sO7uM3u3oiAzSnPrMx/hLBa6vUh8ISr2SrRfTwo6J6eAQtTfU3FiuZx6kVp5l8dNG0zGDkyNm9OvWEXXbuHC+RQf3+HBfad0xXSjgEcDcT6Unmqem2HUsglqCqMYWd5at7LBIl56R8KJIT108pY0BN6IxYRLsZIeX0JE1aIoI/cxya/cI5cbWSMjZqKMXoXjtpc29QHvhJBnLlsjrM3s1lc5mVQL61O0Q2BEEGYZlpyWGkJhrwF6QGegg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=e5Bod2J9Mqu0N5RimJ/vdIA/RXbhRlIKtWnOwprHC24=;
+ b=lWJ9Wc1gjfAZwkSN0dXWuSZsCXe44lRhOvXF+apUrUPeJGa7UJYabBydP7iL9i6PPpDj0s/QnVuVjjHJq2tJfy6L00e7uWCIC1vYdsdqR4VwFU/rwrpERT3YBezavRQlqmMWHSiIX/nZLcwIamKEN0JTNdjSS9PfwlgbDr2ZcpqJMZLlkFFtImRjqj+Fj+SxZJeSiJ2pGDRxOOGTUgo1JvRI5eEvGhMoR5HdIU4E+RsK8uhHjMZj2qCvI3aHb92r5w0M/09xSi3AothAGxh2qjARgnyg/36LEhDnUUf4+Ifh7pjskQWJLo4OP5ypqtDWkzPG0TK8yPO0Idm56FGbig==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=e5Bod2J9Mqu0N5RimJ/vdIA/RXbhRlIKtWnOwprHC24=;
+ b=Rn5vXNPcQeaXCK/7+KtBWwtTP/Kez6/u8osLY3Pqt+4x+vQpJc+zXxChYAE3lRCRRS2gxooQC1MWjSwZeDBbqa7ZkyF4PZGn9dt3jK0qPAXQYSTeaPGZZ1hj4I2dvA45xjrdOrDuXnmoZOWP14dg+TtJCrry2LklRCCx9+NBOlw=
+Received: from DM6PR12MB4465.namprd12.prod.outlook.com (2603:10b6:5:28f::17)
+ by IA1PR12MB9064.namprd12.prod.outlook.com (2603:10b6:208:3a8::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7316.17; Tue, 20 Feb
+ 2024 10:51:57 +0000
+Received: from DM6PR12MB4465.namprd12.prod.outlook.com
+ ([fe80::3d54:20fd:bfee:7fc6]) by DM6PR12MB4465.namprd12.prod.outlook.com
+ ([fe80::3d54:20fd:bfee:7fc6%4]) with mapi id 15.20.7316.018; Tue, 20 Feb 2024
+ 10:51:57 +0000
+From: "Buddhabhatti, Jay" <jay.buddhabhatti@amd.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, "Simek, Michal"
+	<michal.simek@amd.com>
+CC: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"monstr@monstr.eu" <monstr@monstr.eu>, "michal.simek@xilinx.com"
+	<michal.simek@xilinx.com>, "git@xilinx.com" <git@xilinx.com>, Conor Dooley
+	<conor+dt@kernel.org>, Krzysztof Kozlowski
+	<krzysztof.kozlowski+dt@linaro.org>, Rob Herring <robh@kernel.org>, "open
+ list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS"
+	<devicetree@vger.kernel.org>, "moderated list:ARM/ZYNQ ARCHITECTURE"
+	<linux-arm-kernel@lists.infradead.org>, "open list:REAL TIME CLOCK (RTC)
+ SUBSYSTEM" <linux-rtc@vger.kernel.org>
+Subject: RE: [PATCH] dt-bindings: rtc: zynqmp: Describe power-domains property
+Thread-Topic: [PATCH] dt-bindings: rtc: zynqmp: Describe power-domains
+ property
+Thread-Index: AQHaY+ZmsRZsdu8zXkqO0n0tzvdoobETDdZQ
+Date: Tue, 20 Feb 2024 10:51:57 +0000
+Message-ID:
+ <DM6PR12MB4465FAF7AB3F9CE15FAC6C879D502@DM6PR12MB4465.namprd12.prod.outlook.com>
+References: <202402192019160b9c4120@mail.local>
+In-Reply-To: <202402192019160b9c4120@mail.local>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB4465:EE_|IA1PR12MB9064:EE_
+x-ms-office365-filtering-correlation-id: 8fdd2701-0b31-4568-0ed9-08dc3201f54d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ GOPsAMXFUnwlK0gocFjQKsyKpFnrj9fuvmbyqR9X2awjcO4TFjQy74KBPcirRM1seo60oD2A7kwy/K3YWlMkHbbTqnHCA4rhaq4IJ2Lw5MizJnyLqc2EgMyZly4EINB2k+L6MbyNVoRiSzOjjR1wyA7hCP23D8iFr/agVpSu4XrHhdORvE+0nX5hOgXvC3Tl8leMHTtvN0QBR7uc95x+JPRsf2Ao5ILpsbCUAyDmZS1w3gDddJTGJIH5CRfP593Bncprucx8hy83gT5D9d7XLPerPsbLyRAZRoGrPP0amMAF+C0GZLWOQyto8bPzsqvSBoX/VmdyB9RpE7LC/olmB4CBREqT/kF+1z5/jbaPd/8UcS7KiKKAQf8+OQSz/N/TtTZgutSDq2d8OVPBFVm1WdCArL1RZaI5VzBSgklJRwoR5XrKulqZOs7uTuhdxGO/PtUrfvuAAM87m+8jr/0ZcMcYurePVhPq88tJtXEqbK8S3l09Qfyn4UO28P8DQWglSNjWgNoyVzdJwK/xdSFVCuH7BfNVrYbosGIwhZoJUoVOxgiDvwAXITRRk/4Iy2PEp9ANQfUzwce6k4AWCp6qsqfHNSJ1peg51xgFdCLtY5I=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR12MB4465.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(38070700009);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?IUZvNUk99KzoegISlhA5OP77sRz4ERaffjNUZ4TKtp+P1CfKuL2MY2ElJIdH?=
+ =?us-ascii?Q?xA6v0FAJwk045qzCp8DUpXrgbUg35pGgV3bCZobAGcbNjRHyDhFnYntbgm+C?=
+ =?us-ascii?Q?dfMosuv7bmk5rJdjEqn6/MoXhohZyVhSaqPfTy0hWw75ZjkAY/9YhjWmHrJ1?=
+ =?us-ascii?Q?eUZdHyvcRGozsKHkn7GzvqPzGyCAr3OSrUV3XwBTmIFWFJGU/2xSk+0CKJfw?=
+ =?us-ascii?Q?leN8dDf4UcsgNSxMkeCbsocd2F4Haz1KB+lV2DiEMDjVuBQ9xl2iy0l3ZWKS?=
+ =?us-ascii?Q?JTad1RiTm+O+2F/owGLrUC/Qg15KgojgdFk7pnl7bcjE7qZ3ZE9cdasD1U59?=
+ =?us-ascii?Q?wLeYqF78mmmcm+FU9gqnFEhLyPeK210Kto45FKHCsZdk6Vn1nko+tYX2Bm6K?=
+ =?us-ascii?Q?ORsmhExfr5WwhWbnB6v5oSdw8Ik80HdWjQfOdp3IMec6WyEh/ASD5ezE1oJP?=
+ =?us-ascii?Q?kLTSKWv8MSEfiz0UTcLAK2+QQadrO2F/8KdXvr4mMYsF5D/YOSRXhPxf521n?=
+ =?us-ascii?Q?dgwKr3hagGbr3L3o0rx5H2hKRCNkbNAt6SX9lPhOotVqAfpBJ0zA7oUEFj6c?=
+ =?us-ascii?Q?W5OCzhsEIcEbJwwchtQHy+cMR1E09bsvQxVO5+wHLTf0ybOLH2EeZICR1EmZ?=
+ =?us-ascii?Q?IxD3Kb4rP+Dux5fqIx8sYdQ/41O9qeOW7javFP7QvMWqfgTvjtsJHNqYTwGh?=
+ =?us-ascii?Q?PX7RZYPW1OqpoRNcC2wFejbaaIYFy47lPvsHMK/TDsecRuqrsd/Cs9BrCUGT?=
+ =?us-ascii?Q?DGtZEGm/ksnbxSF8lGDvBepCxOOenplDAnscG7PDLDDNpwR4t9vVDkBf192w?=
+ =?us-ascii?Q?E03liYK/66cKutUT7CMNvLQ0Z7fIcNyaducGKmEEOzNBkizF+Va8z1Dg7AaE?=
+ =?us-ascii?Q?/FicUjx0xV5eGO3h+wGbFG7jbpZm61wDQc1RwHj1KSY6MrHHyVJPYEkB2JfU?=
+ =?us-ascii?Q?yknN3VuoxTYxAwW5EKRL8Knp1IS/AImm63xdeenkBkd3GPdn2ST1Gqz6N1bh?=
+ =?us-ascii?Q?89wrpEopKYmXZJPL1JD0NESv9Glqtde48QhDZPcKHTWTu2IA3DsinMitHR6D?=
+ =?us-ascii?Q?fqaDcFkQoFhnwbuPray2elhQiOEad9FhUkEvtaUCKvi3oejftO1Ds0Kn+KgT?=
+ =?us-ascii?Q?SxEE9xDNmkXw4xroWbNtLy/9VVqSDx5IEafgqeQ28BMkXEqye3FrKuzre6Bd?=
+ =?us-ascii?Q?frs0MDbjFGa59VzyyCNSMZ7QJzqxLZXpuyuhBxO9jWJGLZqdYx9G36JccjOP?=
+ =?us-ascii?Q?lUahVonrko5fa6Z3Xbb3AHEkRazpJFHBxBcp1/8/QtkQjZv3PjcoYuIBi8cQ?=
+ =?us-ascii?Q?PkZ5VX09HT6ZC+PKh6c+QSp26419p05B424ddE3nVlDX1sNB0HIHgmMnw3N7?=
+ =?us-ascii?Q?bxLk2uRBUzsaevqHr5pzckKfKFVDKlczACt8n4FbZzG7te7dOkph+f7ZcmYo?=
+ =?us-ascii?Q?++7cmV3iYI42pwZRL2aFehiM3iCOf0ror2aYq9Pgpl+lpfcPjWxzngPXuVfu?=
+ =?us-ascii?Q?Yf5Kyhv5fHDb/z15/2/6I7hI18r/U6soCFL7rU00llwKzrm2SGrpDCrhOXyk?=
+ =?us-ascii?Q?T5zTeUYXMXDRFO5dxjc=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=BKkQr0QG c=1 sm=1 tr=0 ts=65d3d3b4 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=k7vzHIieQBIA:10 a=gAnH3GRIAAAA:8 a=TgWwoY1It6pAwy9ok4IA:9 a=3ZKOabzyN94A:10 a=oVHKYsEdi7-vN-J5QA_j:22
-X-SEG-SpamProfiler-Score: 0
-x-atlnz-ls: pat
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB4465.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8fdd2701-0b31-4568-0ed9-08dc3201f54d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Feb 2024 10:51:57.1190
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 0hcgKYXxqGR8R0vyz/x8dyrkHhcJaug/X7p27WbAVVQ/i1/9G1tHwPWoMJfN6yZG/r3dmNFl4M26GW/RexUHZg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB9064
 
-From: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
+Hi Alexandre,
 
-Adding support for Analog Devices MAX313XX series RTCs.
+> -----Original Message-----
+> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Sent: Tuesday, February 20, 2024 1:49 AM
+> To: Simek, Michal <michal.simek@amd.com>
+> Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>; linux-
+> kernel@vger.kernel.org; monstr@monstr.eu; michal.simek@xilinx.com;
+> git@xilinx.com; Conor Dooley <conor+dt@kernel.org>; Krzysztof Kozlowski
+> <krzysztof.kozlowski+dt@linaro.org>; Rob Herring <robh@kernel.org>; open
+> list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS
+> <devicetree@vger.kernel.org>; moderated list:ARM/ZYNQ ARCHITECTURE
+> <linux-arm-kernel@lists.infradead.org>; open list:REAL TIME CLOCK (RTC)
+> SUBSYSTEM <linux-rtc@vger.kernel.org>
+> Subject: Re: [PATCH] dt-bindings: rtc: zynqmp: Describe power-domains
+> property
+>=20
+> On 19/02/2024 14:11:50+0100, Michal Simek wrote:
+> >
+> >
+> > On 2/17/24 09:26, Krzysztof Kozlowski wrote:
+> > > On 16/02/2024 10:42, Michal Simek wrote:
+> > > >
+> > > >
+> > > > On 2/16/24 10:19, Krzysztof Kozlowski wrote:
+> > > > > On 16/02/2024 09:51, Michal Simek wrote:
+> > > > > > RTC has its own power domain on Xilinx Versal SOC that's why
+> > > > > > describe it as optional property.
+> > > > > >
+> > > > > > Signed-off-by: Michal Simek <michal.simek@amd.com>
+> > > > > > ---
+> > > > > >
+> > > > > >    Documentation/devicetree/bindings/rtc/xlnx,zynqmp-rtc.yaml |=
+ 3
+> +++
+> > > > > >    1 file changed, 3 insertions(+)
+> > > > > >
+> > > > >
+> > > > > But Versal is not described in this binding, is it? I see only
+> > > > > one compatible.
+> > > >
+> > > > It is the same IP only as is on zynqmp with own power rail.
+> > >
+> > > Then you should have separate compatible, because they are not
+> > > identical. It would also allow you to narrow the domains to versal
+> > > and also require it (on versal).
+> >
+> > I can double check with HW guys but I am quite sure IP itself is
+> > exactly the same. What it is different is that there is own power
+> > domain to it (not shared one as is in zynqmp case).
+> >
+> > Also Linux is non secure sw and if secure firmware won't allow to
+> > change setting of it it can't be required. I am just saying that Linux
+> > doesn't need to be owner of any power domain that's why it shouldn't
+> > be required property.
+>=20
+> I guess because the integration is different, you still need a differente
+> compatible so you can forbid the property on non-Versal.
 
-Signed-off-by: Ibrahim Tilki <Ibrahim.Tilki@analog.com>
-Signed-off-by: Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
----
- drivers/rtc/Kconfig        |    2 +-
- drivers/rtc/rtc-max31335.c | 1152 ++++++++++++++++++++++++------------
- 2 files changed, 790 insertions(+), 364 deletions(-)
+[Jay] RTC has its own power domain in case of Versal and ZynqMP both that w=
+e double check it.
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index e37a4341f442..b30e384d0d3c 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -381,7 +381,7 @@ config RTC_DRV_MAX31335
- 	select REGMAP_I2C
- 	help
- 	  If you say yes here you get support for the Analog Devices
--	  MAX31335.
-+	  MAX31335/31328/31329/31331/31334/31341/31342/31343.
-=20
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-max31335.
-diff --git a/drivers/rtc/rtc-max31335.c b/drivers/rtc/rtc-max31335.c
-index 402fda8fd548..36a5bb37e0b0 100644
---- a/drivers/rtc/rtc-max31335.c
-+++ b/drivers/rtc/rtc-max31335.c
-@@ -1,13 +1,12 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- * RTC driver for the MAX31335
-+ * RTC driver for the MAX313XX series
-  *
-  * Copyright (C) 2023 Analog Devices
-  *
-  * Antoniu Miclaus <antoniu.miclaus@analog.com>
-  *
-  */
--
- #include <asm-generic/unaligned.h>
- #include <linux/bcd.h>
- #include <linux/bitfield.h>
-@@ -24,232 +23,398 @@
- #include <linux/rtc.h>
- #include <linux/util_macros.h>
-=20
--/* MAX31335 Register Map */
--#define MAX31335_STATUS1			0x00
--#define MAX31335_INT_EN1			0x01
--#define MAX31335_STATUS2			0x02
--#define MAX31335_INT_EN2			0x03
--#define MAX31335_RTC_RESET			0x04
--#define MAX31335_RTC_CONFIG			0x05
--#define MAX31335_RTC_CONFIG2			0x06
--#define MAX31335_TIMESTAMP_CONFIG		0x07
--#define MAX31335_TIMER_CONFIG			0x08
--#define MAX31335_SECONDS_1_128			0x09
--#define MAX31335_SECONDS			0x0A
--#define MAX31335_MINUTES			0x0B
--#define MAX31335_HOURS				0x0C
--#define MAX31335_DAY				0x0D
--#define MAX31335_DATE				0x0E
--#define MAX31335_MONTH				0x0F
--#define MAX31335_YEAR				0x0F
--#define MAX31335_ALM1_SEC			0x11
--#define MAX31335_ALM1_MIN			0x12
--#define MAX31335_ALM1_HRS			0x13
--#define MAX31335_ALM1_DAY_DATE			0x14
--#define MAX31335_ALM1_MON			0x15
--#define MAX31335_ALM1_YEAR			0x16
--#define MAX31335_ALM2_MIN			0x17
--#define MAX31335_ALM2_HRS			0x18
--#define MAX31335_ALM2_DAY_DATE			0x19
--#define MAX31335_TIMER_COUNT			0x1A
--#define MAX31335_TIMER_INIT			0x1B
--#define MAX31335_PWR_MGMT			0x1C
--#define MAX31335_TRICKLE_REG			0x1D
--#define MAX31335_AGING_OFFSET			0x1E
--#define MAX31335_TS_CONFIG			0x30
--#define MAX31335_TEMP_ALARM_HIGH_MSB		0x31
--#define MAX31335_TEMP_ALARM_HIGH_LSB		0x32
--#define MAX31335_TEMP_ALARM_LOW_MSB		0x33
--#define MAX31335_TEMP_ALARM_LOW_LSB		0x34
--#define MAX31335_TEMP_DATA_MSB			0x35
--#define MAX31335_TEMP_DATA_LSB			0x36
--#define MAX31335_TS0_SEC_1_128			0x40
--#define MAX31335_TS0_SEC			0x41
--#define MAX31335_TS0_MIN			0x42
--#define MAX31335_TS0_HOUR			0x43
--#define MAX31335_TS0_DATE			0x44
--#define MAX31335_TS0_MONTH			0x45
--#define MAX31335_TS0_YEAR			0x46
--#define MAX31335_TS0_FLAGS			0x47
--#define MAX31335_TS1_SEC_1_128			0x48
--#define MAX31335_TS1_SEC			0x49
--#define MAX31335_TS1_MIN			0x4A
--#define MAX31335_TS1_HOUR			0x4B
--#define MAX31335_TS1_DATE			0x4C
--#define MAX31335_TS1_MONTH			0x4D
--#define MAX31335_TS1_YEAR			0x4E
--#define MAX31335_TS1_FLAGS			0x4F
--#define MAX31335_TS2_SEC_1_128			0x50
--#define MAX31335_TS2_SEC			0x51
--#define MAX31335_TS2_MIN			0x52
--#define MAX31335_TS2_HOUR			0x53
--#define MAX31335_TS2_DATE			0x54
--#define MAX31335_TS2_MONTH			0x55
--#define MAX31335_TS2_YEAR			0x56
--#define MAX31335_TS2_FLAGS			0x57
--#define MAX31335_TS3_SEC_1_128			0x58
--#define MAX31335_TS3_SEC			0x59
--#define MAX31335_TS3_MIN			0x5A
--#define MAX31335_TS3_HOUR			0x5B
--#define MAX31335_TS3_DATE			0x5C
--#define MAX31335_TS3_MONTH			0x5D
--#define MAX31335_TS3_YEAR			0x5E
--#define MAX31335_TS3_FLAGS			0x5F
-+/* common registers */
-+#define MAX313XX_INT_ALARM1		BIT(0)
-+#define MAX313XX_HRS_F_AM_PM		BIT(5)
-+#define MAX313XX_HRS_F_12_24		BIT(6)
-+#define MAX313XX_MONTH_CENTURY		BIT(7)
-=20
--/* MAX31335_STATUS1 Bit Definitions */
--#define MAX31335_STATUS1_PSDECT			BIT(7)
--#define MAX31335_STATUS1_OSF			BIT(6)
--#define MAX31335_STATUS1_PFAIL			BIT(5)
--#define MAX31335_STATUS1_VBATLOW		BIT(4)
--#define MAX31335_STATUS1_DIF			BIT(3)
--#define MAX31335_STATUS1_TIF			BIT(2)
--#define MAX31335_STATUS1_A2F			BIT(1)
--#define MAX31335_STATUS1_A1F			BIT(0)
-+#define MAX313XX_TIME_SIZE		0x07
-=20
--/* MAX31335_INT_EN1 Bit Definitions */
--#define MAX31335_INT_EN1_DOSF			BIT(6)
--#define MAX31335_INT_EN1_PFAILE			BIT(5)
--#define MAX31335_INT_EN1_VBATLOWE		BIT(4)
--#define MAX31335_INT_EN1_DIE			BIT(3)
--#define MAX31335_INT_EN1_TIE			BIT(2)
--#define MAX31335_INT_EN1_A2IE			BIT(1)
--#define MAX31335_INT_EN1_A1IE			BIT(0)
-+/* device specific registers */
-+#define MAX3134X_CFG2_REG		0x01
-+#define MAX3134X_CFG2_SET_RTC		BIT(1)
-=20
--/* MAX31335_STATUS2 Bit Definitions */
--#define MAX31335_STATUS2_TEMP_RDY		BIT(2)
--#define MAX31335_STATUS2_OTF			BIT(1)
--#define MAX31335_STATUS2_UTF			BIT(0)
-+#define MAX31341_TRICKLE_RES_MASK	GENMASK(1, 0)
-+#define MAX31341_TRICKLE_DIODE_EN	BIT(2)
-+#define MAX31341_TRICKLE_ENABLE_BIT	BIT(3)
-+#define MAX31341_POWER_MGMT_REG		0x56
-+#define MAX31341_POWER_MGMT_TRICKLE_BIT	BIT(0)
-=20
--/* MAX31335_INT_EN2 Bit Definitions */
--#define MAX31335_INT_EN2_TEMP_RDY_EN		BIT(2)
--#define MAX31335_INT_EN2_OTIE			BIT(1)
--#define MAX31335_INT_EN2_UTIE			BIT(0)
-+#define MAX3133X_TRICKLE_RES_MASK	GENMASK(2, 1)
-+#define MAX3133X_TRICKLE_DIODE_EN	BIT(3)
-+#define MAX3133X_TRICKLE_ENABLE_BIT	BIT(0)
-=20
--/* MAX31335_RTC_RESET Bit Definitions */
--#define MAX31335_RTC_RESET_SWRST		BIT(0)
-+#define MAX31329_TRICKLE_ENABLE_BIT	BIT(7)
-+#define MAX31343_TRICKLE_ENABLE_MASK	GENMASK(7, 4)
-+#define MAX31343_TRICKLE_ENABLE_CODE	5
-+#define MAX31329_43_TRICKLE_RES_MASK	GENMASK(1, 0)
-+#define MAX31329_43_TRICKLE_DIODE_EN	BIT(2)
-=20
--/* MAX31335_RTC_CONFIG1 Bit Definitions */
--#define MAX31335_RTC_CONFIG1_EN_IO		BIT(6)
--#define MAX31335_RTC_CONFIG1_A1AC		GENMASK(5, 4)
--#define MAX31335_RTC_CONFIG1_DIP		BIT(3)
--#define MAX31335_RTC_CONFIG1_I2C_TIMEOUT	BIT(1)
--#define MAX31335_RTC_CONFIG1_EN_OSC		BIT(0)
-+#define MAX31329_CONFIG2_REG		0x04
-+#define MAX31329_CONFIG2_CLKIN_EN	BIT(2)
-+#define MAX31329_CONFIG2_CLKIN_FREQ	GENMASK(1, 0)
-=20
--/* MAX31335_RTC_CONFIG2 Bit Definitions */
--#define MAX31335_RTC_CONFIG2_ENCLKO		BIT(2)
--#define MAX31335_RTC_CONFIG2_CLKO_HZ		GENMASK(1, 0)
-+#define MAX31341_42_CONFIG1_REG		0x00
-+#define MAX31341_42_CONFIG1_CLKIN_EN	BIT(7)
-+#define MAX31341_42_CONFIG1_CLKIN_FREQ	GENMASK(5, 4)
-+#define MAX31341_42_CONFIG1_OSC_DISABLE	BIT(3)
-+#define MAX31341_42_CONFIG1_SWRST	BIT(0)
-=20
--/* MAX31335_TIMESTAMP_CONFIG Bit Definitions */
--#define MAX31335_TIMESTAMP_CONFIG_TSVLOW	BIT(5)
--#define MAX31335_TIMESTAMP_CONFIG_TSPWM		BIT(4)
--#define MAX31335_TIMESTAMP_CONFIG_TSDIN		BIT(3)
--#define MAX31335_TIMESTAMP_CONFIG_TSOW		BIT(2)
--#define MAX31335_TIMESTAMP_CONFIG_TSR		BIT(1)
--#define MAX31335_TIMESTAMP_CONFIG_TSE		BIT(0)
-+enum max313xx_ids {
-+	ID_MAX31328,
-+	ID_MAX31329,
-+	ID_MAX31331,
-+	ID_MAX31334,
-+	ID_MAX31335,
-+	ID_MAX31341,
-+	ID_MAX31342,
-+	ID_MAX31343,
-+	MAX313XX_ID_NR
-+};
-=20
--/* MAX31335_TIMER_CONFIG Bit Definitions */
--#define MAX31335_TIMER_CONFIG_TE		BIT(4)
--#define MAX31335_TIMER_CONFIG_TPAUSE		BIT(3)
--#define MAX31335_TIMER_CONFIG_TRPT		BIT(2)
--#define MAX31335_TIMER_CONFIG_TFS		GENMASK(1, 0)
-+struct clkout_cfg {
-+	const int *freq_avail;
-+	u8 freq_size;
-+	u8 freq_pos;
-+	u8 reg;
-+	u8 en_bit;
-+	bool en_invert;
-+};
-=20
--/* MAX31335_HOURS Bit Definitions */
--#define MAX31335_HOURS_F_24_12			BIT(6)
--#define MAX31335_HOURS_HR_20_AM_PM		BIT(5)
-+struct chip_desc {
-+	struct clkout_cfg *clkout;
-+	const char *clkout_name;
-+	u8 sec_reg;
-+	u8 alarm1_sec_reg;
-=20
--/* MAX31335_MONTH Bit Definitions */
--#define MAX31335_MONTH_CENTURY			BIT(7)
-+	u8 int_en_reg;
-+	u8 int_status_reg;
-+	u8 osf_bit;
-=20
--/* MAX31335_PWR_MGMT Bit Definitions */
--#define MAX31335_PWR_MGMT_PFVT			BIT(0)
-+	u8 ram_reg;
-+	u8 ram_size;
-=20
--/* MAX31335_TRICKLE_REG Bit Definitions */
--#define MAX31335_TRICKLE_REG_TRICKLE		GENMASK(3, 1)
--#define MAX31335_TRICKLE_REG_EN_TRICKLE		BIT(0)
-+	u8 temp_reg;
-=20
--/* MAX31335_TS_CONFIG Bit Definitions */
--#define MAX31335_TS_CONFIG_AUTO			BIT(4)
--#define MAX31335_TS_CONFIG_CONVERT_T		BIT(3)
--#define MAX31335_TS_CONFIG_TSINT		GENMASK(2, 0)
-+	u8 trickle_reg;
-=20
--/* MAX31335_TS_FLAGS Bit Definitions */
--#define MAX31335_TS_FLAGS_VLOWF			BIT(3)
--#define MAX31335_TS_FLAGS_VBATF			BIT(2)
--#define MAX31335_TS_FLAGS_VCCF			BIT(1)
--#define MAX31335_TS_FLAGS_DINF			BIT(0)
-+	u8 rst_reg;
-+	u8 rst_bit;
-+};
-=20
--/* MAX31335 Miscellaneous Definitions */
--#define MAX31335_TRICKLE_SCHOTTKY_DIODE		1
--#define MAX31335_TRICKLE_STANDARD_DIODE		4
--#define MAX31335_RAM_SIZE			32
--#define MAX31335_TIME_SIZE			0x07
-+#define clk_hw_to_max313xx(_hw) container_of(_hw, struct max313xx, clkou=
-t)
-=20
--#define clk_hw_to_max31335(_hw) container_of(_hw, struct max31335_data, =
-clkout)
--
--struct max31335_data {
-+struct max313xx {
-+	enum max313xx_ids id;
- 	struct regmap *regmap;
- 	struct rtc_device *rtc;
- 	struct clk_hw clkout;
-+	struct clk *clkin;
-+	const struct chip_desc *chip;
-+	int irq;
- };
-=20
--static const int max31335_clkout_freq[] =3D { 1, 64, 1024, 32768 };
-+static const int max313xx_clkin_freq[] =3D { 1, 50, 60, 32768 };
-=20
--static const u16 max31335_trickle_resistors[] =3D {3000, 6000, 11000};
-+static const int max31328_clkout_freq[] =3D { 1, 1024, 4096, 8192 };
-+static const int max31329_clkout_freq[] =3D { 1, 4096, 8192, 32768 };
-+static const int max3133x_clkout_freq[] =3D { 1, 64, 1024, 32768 };
-+static const int max31341_42_clkout_freq[] =3D { 1, 50, 60, 32768 };
-+static const int max31343_clkout_freq[] =3D { 1, 2, 4, 8, 16, 32, 64, 12=
-8, 32875 };
-=20
--static bool max31335_volatile_reg(struct device *dev, unsigned int reg)
-+static struct clkout_cfg max31328_clkout =3D {
-+	.freq_avail =3D max31328_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max31328_clkout_freq),
-+	.freq_pos =3D 3,
-+	.reg =3D 0x0E,
-+	.en_bit =3D BIT(3),
-+	.en_invert =3D true,
-+};
-+
-+static struct clkout_cfg max31329_clkout =3D {
-+	.freq_avail =3D max31329_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max31329_clkout_freq),
-+	.freq_pos =3D 5,
-+	.reg =3D 0x04,
-+	.en_bit =3D BIT(7),
-+};
-+
-+static struct clkout_cfg max3133x_clkout =3D {
-+	.freq_avail =3D max3133x_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max3133x_clkout_freq),
-+	.freq_pos =3D 0,
-+	.reg =3D 0x04,
-+	.en_bit =3D BIT(2),
-+};
-+
-+static struct clkout_cfg max31335_clkout =3D {
-+	.freq_avail =3D max3133x_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max3133x_clkout_freq),
-+	.freq_pos =3D 0,
-+	.reg =3D 0x06,
-+	.en_bit =3D BIT(2),
-+};
-+
-+static struct clkout_cfg max31341_42_clkout =3D {
-+	.freq_avail =3D max31341_42_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max31341_42_clkout_freq),
-+	.freq_pos =3D 1,
-+	.reg =3D 0x00,
-+	.en_bit =3D BIT(6),
-+	.en_invert =3D true,
-+};
-+
-+static struct clkout_cfg max31343_clkout =3D {
-+	.freq_avail =3D max31343_clkout_freq,
-+	.freq_size =3D ARRAY_SIZE(max31343_clkout_freq),
-+	.freq_pos =3D 3,
-+	.reg =3D 0x04,
-+	.en_bit =3D BIT(7),
-+};
-+
-+static const struct chip_desc chip[MAX313XX_ID_NR] =3D {
-+	[ID_MAX31328] =3D {
-+		.int_en_reg =3D 0x0E,
-+		.int_status_reg =3D 0x0F,
-+		.osf_bit =3D BIT(7),
-+		.sec_reg =3D 0x00,
-+		.alarm1_sec_reg =3D 0x07,
-+		.temp_reg =3D 0x11,
-+		.clkout =3D &max31328_clkout,
-+		.clkout_name =3D "max31328-sqw",
-+	},
-+	[ID_MAX31329] =3D {
-+		.int_en_reg =3D 0x01,
-+		.int_status_reg =3D 0x00,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x06,
-+		.alarm1_sec_reg =3D 0x0D,
-+		.ram_reg =3D 0x22,
-+		.ram_size =3D 64,
-+		.trickle_reg =3D 0x19,
-+		.clkout =3D &max31329_clkout,
-+		.clkout_name =3D "max31329-clkout",
-+		.rst_reg =3D 0x02,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31331] =3D {
-+		.int_en_reg =3D 0x01,
-+		.int_status_reg =3D 0x00,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x08,
-+		.alarm1_sec_reg =3D 0x0F,
-+		.ram_reg =3D 0x20,
-+		.ram_size =3D 32,
-+		.trickle_reg =3D 0x1B,
-+		.clkout =3D &max3133x_clkout,
-+		.clkout_name =3D "max31331-clkout",
-+		.rst_reg =3D 0x02,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31334] =3D {
-+		.int_en_reg =3D 0x01,
-+		.int_status_reg =3D 0x00,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x09,
-+		.alarm1_sec_reg =3D 0x10,
-+		.ram_reg =3D 0x30,
-+		.ram_size =3D 32,
-+		.trickle_reg =3D 0x1E,
-+		.clkout =3D &max3133x_clkout,
-+		.clkout_name =3D "max31334-clkout",
-+		.rst_reg =3D 0x02,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31335] =3D {
-+		.int_en_reg =3D 0x01,
-+		.int_status_reg =3D 0x00,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x0a,
-+		.alarm1_sec_reg =3D 0x11,
-+		.ram_reg =3D 0x40,
-+		.ram_size =3D 32,
-+		.temp_reg =3D 0x35,
-+		.trickle_reg =3D 0x1d,
-+		.clkout =3D &max31335_clkout,
-+		.clkout_name =3D "max31335-clkout",
-+		.rst_reg =3D 0x04,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31341] =3D {
-+		.int_en_reg =3D 0x04,
-+		.int_status_reg =3D 0x05,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x06,
-+		.alarm1_sec_reg =3D 0x0D,
-+		.ram_reg =3D 0x16,
-+		.ram_size =3D 64,
-+		.trickle_reg =3D 0x57,
-+		.clkout =3D &max31341_42_clkout,
-+		.clkout_name =3D "max31341-clkout",
-+		.rst_reg =3D 0x00,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31342] =3D {
-+		.int_en_reg =3D 0x04,
-+		.int_status_reg =3D 0x05,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x06,
-+		.alarm1_sec_reg =3D 0x0D,
-+		.clkout =3D &max31341_42_clkout,
-+		.clkout_name =3D "max31342-clkout",
-+		.rst_reg =3D 0x00,
-+		.rst_bit =3D BIT(0),
-+	},
-+	[ID_MAX31343] =3D {
-+		.int_en_reg =3D 0x01,
-+		.int_status_reg =3D 0x00,
-+		.osf_bit =3D BIT(6),
-+		.sec_reg =3D 0x06,
-+		.alarm1_sec_reg =3D 0x0D,
-+		.ram_reg =3D 0x22,
-+		.ram_size =3D 64,
-+		.temp_reg =3D 0x1A,
-+		.trickle_reg =3D 0x19,
-+		.clkout =3D &max31343_clkout,
-+		.clkout_name =3D "max31343-clko",
-+		.rst_reg =3D 0x02,
-+		.rst_bit =3D BIT(0),
-+	},
-+};
-+
-+static const u32 max313xx_trickle_ohms[] =3D { 3000, 6000, 11000 };
-+
-+static bool max313xx_volatile_reg(struct device *dev, unsigned int reg)
- {
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-+	const struct chip_desc *chip =3D rtc->chip;
-+
- 	/* time keeping registers */
--	if (reg >=3D MAX31335_SECONDS &&
--	    reg < MAX31335_SECONDS + MAX31335_TIME_SIZE)
-+	if (reg >=3D chip->sec_reg && reg < chip->sec_reg + MAX313XX_TIME_SIZE)
- 		return true;
-=20
- 	/* interrupt status register */
--	if (reg =3D=3D MAX31335_INT_EN1_A1IE)
-+	if (reg =3D=3D chip->int_status_reg)
- 		return true;
-=20
- 	/* temperature registers */
--	if (reg =3D=3D MAX31335_TEMP_DATA_MSB || reg =3D=3D MAX31335_TEMP_DATA_=
-LSB)
--		return true;
--
--	return false;
-+	return chip->temp_reg &&
-+		(reg =3D=3D chip->temp_reg || reg =3D=3D chip->temp_reg + 1);
- }
-=20
- static const struct regmap_config regmap_config =3D {
- 	.reg_bits =3D 8,
- 	.val_bits =3D 8,
--	.max_register =3D 0x5F,
--	.volatile_reg =3D max31335_volatile_reg,
-+	.cache_type =3D REGCACHE_RBTREE,
-+	.volatile_reg =3D max313xx_volatile_reg,
- };
-=20
--static int max31335_read_time(struct device *dev, struct rtc_time *tm)
-+static int max313xx_get_hour(u8 hour_reg)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	int hour;
-+
-+	/* 24Hr mode */
-+	if (!FIELD_GET(MAX313XX_HRS_F_12_24, hour_reg))
-+		return bcd2bin(hour_reg & 0x3f);
-+
-+	/* 12Hr mode */
-+	hour =3D bcd2bin(hour_reg & 0x1f);
-+	if (hour =3D=3D 12)
-+		hour =3D 0;
-+
-+	if (FIELD_GET(MAX313XX_HRS_F_AM_PM, hour_reg))
-+		hour +=3D 12;
-+
-+	return hour;
-+}
-+
-+static int max313xx_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
- 	u8 date[7];
- 	int ret;
-+	unsigned int status;
-=20
--	ret =3D regmap_bulk_read(max31335->regmap, MAX31335_SECONDS, date,
--			       sizeof(date));
-+	ret =3D regmap_read(rtc->regmap, rtc->chip->int_status_reg, &status);
-+	if (ret)
-+		return ret;
-+
-+	if (status & rtc->chip->osf_bit)
-+		return -EINVAL;
-+
-+	ret =3D regmap_bulk_read(rtc->regmap, rtc->chip->sec_reg, date, 7);
- 	if (ret)
- 		return ret;
-=20
- 	tm->tm_sec  =3D bcd2bin(date[0] & 0x7f);
- 	tm->tm_min  =3D bcd2bin(date[1] & 0x7f);
--	tm->tm_hour =3D bcd2bin(date[2] & 0x3f);
-+	tm->tm_hour =3D max313xx_get_hour(date[2]);
- 	tm->tm_wday =3D bcd2bin(date[3] & 0x7) - 1;
- 	tm->tm_mday =3D bcd2bin(date[4] & 0x3f);
- 	tm->tm_mon  =3D bcd2bin(date[5] & 0x1f) - 1;
- 	tm->tm_year =3D bcd2bin(date[6]) + 100;
-=20
--	if (FIELD_GET(MAX31335_MONTH_CENTURY, date[5]))
-+	if (FIELD_GET(MAX313XX_MONTH_CENTURY, date[5]))
- 		tm->tm_year +=3D 100;
-=20
- 	return 0;
- }
-=20
--static int max31335_set_time(struct device *dev, struct rtc_time *tm)
-+static int max313xx_pre_set_time(struct max313xx *rtc)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	if (!rtc->clkin)
-+		return 0;
-+
-+	/* Clkin needs to be disabled before setting time. */
-+	switch (rtc->id) {
-+	case ID_MAX31341:
-+	case ID_MAX31342:
-+		return regmap_clear_bits(rtc->regmap,
-+					 MAX31341_42_CONFIG1_REG,
-+					 MAX31341_42_CONFIG1_CLKIN_EN);
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static int max313xx_post_set_time(struct max313xx *rtc)
-+{
-+	int ret;
-+
-+	switch (rtc->id) {
-+	case ID_MAX31341:
-+	case ID_MAX31342:
-+		ret =3D regmap_set_bits(rtc->regmap, MAX3134X_CFG2_REG,
-+				      MAX3134X_CFG2_SET_RTC);
-+		if (ret)
-+			return ret;
-+
-+		fsleep(10000);
-+
-+		ret =3D regmap_clear_bits(rtc->regmap, MAX3134X_CFG2_REG,
-+					MAX3134X_CFG2_SET_RTC);
-+		if (ret)
-+			return ret;
-+
-+		if (rtc->clkin)
-+			ret =3D regmap_set_bits(rtc->regmap,
-+					      MAX31341_42_CONFIG1_REG,
-+					      MAX31341_42_CONFIG1_CLKIN_EN);
-+
-+		break;
-+	default:
-+		return 0;
-+	}
-+
-+	return ret;
-+}
-+
-+static int max313xx_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
- 	u8 date[7];
-+	int ret;
-=20
- 	date[0] =3D bin2bcd(tm->tm_sec);
- 	date[1] =3D bin2bcd(tm->tm_min);
-@@ -260,20 +425,34 @@ static int max31335_set_time(struct device *dev, st=
-ruct rtc_time *tm)
- 	date[6] =3D bin2bcd(tm->tm_year % 100);
-=20
- 	if (tm->tm_year >=3D 200)
--		date[5] |=3D FIELD_PREP(MAX31335_MONTH_CENTURY, 1);
-+		date[5] |=3D FIELD_PREP(MAX313XX_MONTH_CENTURY, 1);
-=20
--	return regmap_bulk_write(max31335->regmap, MAX31335_SECONDS, date,
--				 sizeof(date));
-+	ret =3D max313xx_pre_set_time(rtc);
-+	if (ret)
-+		return ret;
-+
-+	if (rtc->chip->rst_bit) {
-+		ret =3D regmap_clear_bits(rtc->regmap, rtc->chip->rst_reg, rtc->chip->=
-rst_bit);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret =3D regmap_bulk_write(rtc->regmap, rtc->chip->sec_reg, date, 7);
-+	if (ret)
-+		return ret;
-+
-+	return max313xx_post_set_time(rtc);
- }
-=20
--static int max31335_read_alarm(struct device *dev, struct rtc_wkalrm *al=
-rm)
-+static int max313xx_read_alarm(struct device *dev, struct rtc_wkalrm *al=
-rm)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
--	int ret, ctrl, status;
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-+	unsigned int status, int_en;
- 	struct rtc_time time;
- 	u8 regs[6];
-+	int ret;
-=20
--	ret =3D regmap_bulk_read(max31335->regmap, MAX31335_ALM1_SEC, regs,
-+	ret =3D regmap_bulk_read(rtc->regmap, rtc->chip->alarm1_sec_reg, regs,
- 			       sizeof(regs));
- 	if (ret)
- 		return ret;
-@@ -285,30 +464,30 @@ static int max31335_read_alarm(struct device *dev, =
-struct rtc_wkalrm *alrm)
- 	alrm->time.tm_mon  =3D bcd2bin(regs[4] & 0x1f) - 1;
- 	alrm->time.tm_year =3D bcd2bin(regs[5]) + 100;
-=20
--	ret =3D max31335_read_time(dev, &time);
-+	ret =3D max313xx_read_time(dev, &time);
- 	if (ret)
- 		return ret;
-=20
- 	if (time.tm_year >=3D 200)
- 		alrm->time.tm_year +=3D 100;
-=20
--	ret =3D regmap_read(max31335->regmap, MAX31335_INT_EN1, &ctrl);
-+	ret =3D regmap_read(rtc->regmap, rtc->chip->int_status_reg, &status);
- 	if (ret)
- 		return ret;
-=20
--	ret =3D regmap_read(max31335->regmap, MAX31335_STATUS1, &status);
-+	ret =3D regmap_read(rtc->regmap, rtc->chip->int_en_reg, &int_en);
- 	if (ret)
- 		return ret;
-=20
--	alrm->enabled =3D FIELD_GET(MAX31335_INT_EN1_A1IE, ctrl);
--	alrm->pending =3D FIELD_GET(MAX31335_STATUS1_A1F, status);
-+	alrm->enabled =3D FIELD_GET(MAX313XX_INT_ALARM1, int_en);
-+	alrm->pending =3D FIELD_GET(MAX313XX_INT_ALARM1, status);
-=20
- 	return 0;
- }
-=20
--static int max31335_set_alarm(struct device *dev, struct rtc_wkalrm *alr=
-m)
-+static int max313xx_set_alarm(struct device *dev, struct rtc_wkalrm *alr=
-m)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
- 	unsigned int reg;
- 	u8 regs[6];
- 	int ret;
-@@ -320,61 +499,62 @@ static int max31335_set_alarm(struct device *dev, s=
-truct rtc_wkalrm *alrm)
- 	regs[4] =3D bin2bcd(alrm->time.tm_mon + 1);
- 	regs[5] =3D bin2bcd(alrm->time.tm_year % 100);
-=20
--	ret =3D regmap_bulk_write(max31335->regmap, MAX31335_ALM1_SEC,
--				regs, sizeof(regs));
-+	ret =3D regmap_bulk_write(rtc->regmap, rtc->chip->alarm1_sec_reg, regs,
-+				sizeof(regs));
- 	if (ret)
- 		return ret;
-=20
--	reg =3D FIELD_PREP(MAX31335_INT_EN1_A1IE, alrm->enabled);
--	ret =3D regmap_update_bits(max31335->regmap, MAX31335_INT_EN1,
--				 MAX31335_INT_EN1_A1IE, reg);
-+	reg =3D FIELD_PREP(MAX313XX_INT_ALARM1, alrm->enabled);
-+	ret =3D regmap_update_bits(rtc->regmap, rtc->chip->int_en_reg,
-+				 MAX313XX_INT_ALARM1, reg);
- 	if (ret)
- 		return ret;
-=20
--	ret =3D regmap_update_bits(max31335->regmap, MAX31335_STATUS1,
--				 MAX31335_STATUS1_A1F, 0);
--
--	return 0;
-+	/* Clear status register */
-+	return regmap_read(rtc->regmap, rtc->chip->int_status_reg, &reg);
- }
-=20
--static int max31335_alarm_irq_enable(struct device *dev, unsigned int en=
-abled)
-+static int max313xx_alarm_irq_enable(struct device *dev, unsigned int en=
-abled)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-=20
--	return regmap_update_bits(max31335->regmap, MAX31335_INT_EN1,
--				  MAX31335_INT_EN1_A1IE, enabled);
-+	return regmap_update_bits(rtc->regmap, rtc->chip->int_en_reg,
-+				  MAX313XX_INT_ALARM1,
-+				  FIELD_PREP(MAX313XX_INT_ALARM1, enabled));
- }
-=20
--static irqreturn_t max31335_handle_irq(int irq, void *dev_id)
-+static irqreturn_t max313xx_irq(int irq, void *dev_id)
- {
--	struct max31335_data *max31335 =3D dev_id;
-+	struct max313xx	*rtc =3D dev_id;
- 	bool status;
- 	int ret;
-=20
--	ret =3D regmap_update_bits_check(max31335->regmap, MAX31335_STATUS1,
--				       MAX31335_STATUS1_A1F, 0, &status);
-+	ret =3D regmap_update_bits_check(rtc->regmap, rtc->chip->int_status_reg=
-,
-+				       MAX313XX_INT_ALARM1, 0, &status);
- 	if (ret)
- 		return IRQ_HANDLED;
-=20
- 	if (status)
--		rtc_update_irq(max31335->rtc, 1, RTC_AF | RTC_IRQF);
-+		rtc_update_irq(rtc->rtc, 1, RTC_AF | RTC_IRQF);
-=20
- 	return IRQ_HANDLED;
- }
-=20
--static const struct rtc_class_ops max31335_rtc_ops =3D {
--	.read_time =3D max31335_read_time,
--	.set_time =3D max31335_set_time,
--	.read_alarm =3D max31335_read_alarm,
--	.set_alarm =3D max31335_set_alarm,
--	.alarm_irq_enable =3D max31335_alarm_irq_enable,
-+static const struct rtc_class_ops max3133x_rtc_ops =3D {
-+	.read_time	=3D max313xx_read_time,
-+	.set_time	=3D max313xx_set_time,
-+	.read_alarm	=3D max313xx_read_alarm,
-+	.set_alarm	=3D max313xx_set_alarm,
-+	.alarm_irq_enable =3D max313xx_alarm_irq_enable,
- };
-=20
--static int max31335_trickle_charger_setup(struct device *dev,
--					  struct max31335_data *max31335)
-+static int max313xx_trickle_charger_setup(struct device *dev)
- {
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-+	bool trickle_diode_en;
-+	int index, reg;
- 	u32 ohms, chargeable;
--	int i, trickle_cfg;
-+	int ret;
- 	const char *diode;
-=20
- 	if (device_property_read_u32(dev, "aux-voltage-chargeable",
-@@ -388,144 +568,196 @@ static int max31335_trickle_charger_setup(struct =
-device *dev,
- 		return 0;
-=20
- 	if (!strcmp(diode, "schottky"))
--		trickle_cfg =3D MAX31335_TRICKLE_SCHOTTKY_DIODE;
-+		trickle_diode_en =3D 0;
- 	else if (!strcmp(diode, "standard+schottky"))
--		trickle_cfg =3D MAX31335_TRICKLE_STANDARD_DIODE;
-+		trickle_diode_en =3D 1;
- 	else
- 		return dev_err_probe(dev, -EINVAL,
- 				     "Invalid tc-diode value: %s\n", diode);
-=20
--	for (i =3D 0; i < ARRAY_SIZE(max31335_trickle_resistors); i++)
--		if (ohms =3D=3D max31335_trickle_resistors[i])
--			break;
--
--	if (i >=3D ARRAY_SIZE(max31335_trickle_resistors))
-+	if (!rtc->chip->trickle_reg)
- 		return 0;
-=20
--	i =3D i + trickle_cfg;
-+	index =3D find_closest(ohms, max313xx_trickle_ohms,
-+			     ARRAY_SIZE(max313xx_trickle_ohms)) + 1;
-=20
--	return regmap_write(max31335->regmap, MAX31335_TRICKLE_REG,
--			    FIELD_PREP(MAX31335_TRICKLE_REG_TRICKLE, i) |
--			    FIELD_PREP(MAX31335_TRICKLE_REG_EN_TRICKLE,
--				       chargeable));
-+	switch (rtc->id) {
-+	case ID_MAX31329:
-+		reg =3D FIELD_PREP(MAX31329_TRICKLE_ENABLE_BIT, chargeable) |
-+		      FIELD_PREP(MAX31329_43_TRICKLE_RES_MASK, index) |
-+		      FIELD_PREP(MAX31329_43_TRICKLE_DIODE_EN, trickle_diode_en);
-+		break;
-+	case ID_MAX31331:
-+	case ID_MAX31334:
-+		reg =3D FIELD_PREP(MAX3133X_TRICKLE_ENABLE_BIT, chargeable) |
-+		      FIELD_PREP(MAX3133X_TRICKLE_RES_MASK, index) |
-+		      FIELD_PREP(MAX3133X_TRICKLE_DIODE_EN, trickle_diode_en);
-+		break;
-+	case ID_MAX31341:
-+		if (index =3D=3D 1)
-+			index =3D 0;
-+
-+		reg =3D FIELD_PREP(MAX31341_TRICKLE_ENABLE_BIT, chargeable) |
-+		      FIELD_PREP(MAX31341_TRICKLE_RES_MASK, index) |
-+		      FIELD_PREP(MAX31341_TRICKLE_DIODE_EN, trickle_diode_en);
-+
-+		ret =3D regmap_set_bits(rtc->regmap, MAX31341_POWER_MGMT_REG,
-+				      MAX31341_POWER_MGMT_TRICKLE_BIT);
-+		if (ret)
-+			return ret;
-+
-+		break;
-+	case ID_MAX31343:
-+		reg =3D FIELD_PREP(MAX31329_43_TRICKLE_RES_MASK, index) |
-+		      FIELD_PREP(MAX31329_43_TRICKLE_DIODE_EN, trickle_diode_en) |
-+		      FIELD_PREP(MAX31343_TRICKLE_ENABLE_MASK,
-+				 MAX31343_TRICKLE_ENABLE_CODE);
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return regmap_write(rtc->regmap, rtc->chip->trickle_reg, reg);
- }
-=20
--static unsigned long max31335_clkout_recalc_rate(struct clk_hw *hw,
-+static unsigned long max313xx_clkout_recalc_rate(struct clk_hw *hw,
- 						 unsigned long parent_rate)
- {
--	struct max31335_data *max31335 =3D clk_hw_to_max31335(hw);
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	const struct clkout_cfg *clkout =3D rtc->chip->clkout;
- 	unsigned int freq_mask;
- 	unsigned int reg;
- 	int ret;
-=20
--	ret =3D regmap_read(max31335->regmap, MAX31335_RTC_CONFIG2, &reg);
-+	ret =3D regmap_read(rtc->regmap, clkout->reg, &reg);
- 	if (ret)
- 		return 0;
-=20
--	freq_mask =3D __roundup_pow_of_two(ARRAY_SIZE(max31335_clkout_freq)) - =
-1;
-+	freq_mask =3D __roundup_pow_of_two(clkout->freq_size) - 1;
-=20
--	return max31335_clkout_freq[reg & freq_mask];
-+	return clkout->freq_avail[(reg >> clkout->freq_pos) & freq_mask];
- }
-=20
--static long max31335_clkout_round_rate(struct clk_hw *hw, unsigned long =
-rate,
-+static long max313xx_clkout_round_rate(struct clk_hw *hw, unsigned long =
-rate,
- 				       unsigned long *prate)
- {
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	struct clkout_cfg *clkout =3D rtc->chip->clkout;
- 	int index;
-=20
--	index =3D find_closest(rate, max31335_clkout_freq,
--			     ARRAY_SIZE(max31335_clkout_freq));
--
--	return max31335_clkout_freq[index];
-+	index =3D find_closest(rate, clkout->freq_avail, clkout->freq_size);
-+	return clkout->freq_avail[index];
- }
-=20
--static int max31335_clkout_set_rate(struct clk_hw *hw, unsigned long rat=
-e,
-+static int max313xx_clkout_set_rate(struct clk_hw *hw, unsigned long rat=
-e,
- 				    unsigned long parent_rate)
- {
--	struct max31335_data *max31335 =3D clk_hw_to_max31335(hw);
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	struct clkout_cfg *clkout =3D rtc->chip->clkout;
- 	unsigned int freq_mask;
- 	int index;
-=20
--	index =3D find_closest(rate, max31335_clkout_freq,
--			     ARRAY_SIZE(max31335_clkout_freq));
--	freq_mask =3D __roundup_pow_of_two(ARRAY_SIZE(max31335_clkout_freq)) - =
-1;
-+	index =3D find_closest(rate, clkout->freq_avail, clkout->freq_size);
-+	freq_mask =3D __roundup_pow_of_two(clkout->freq_size) - 1;
-=20
--	return regmap_update_bits(max31335->regmap, MAX31335_RTC_CONFIG2,
--				  freq_mask, index);
-+	return regmap_update_bits(rtc->regmap, clkout->reg,
-+				  freq_mask << clkout->freq_pos,
-+				  index << clkout->freq_pos);
- }
-=20
--static int max31335_clkout_enable(struct clk_hw *hw)
-+static int max313xx_clkout_enable(struct clk_hw *hw)
- {
--	struct max31335_data *max31335 =3D clk_hw_to_max31335(hw);
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	struct clkout_cfg *clkout =3D rtc->chip->clkout;
-=20
--	return regmap_set_bits(max31335->regmap, MAX31335_RTC_CONFIG2,
--			       MAX31335_RTC_CONFIG2_ENCLKO);
-+	if (clkout->en_invert)
-+		return regmap_clear_bits(rtc->regmap, clkout->reg,
-+					 clkout->en_bit);
-+
-+	return regmap_set_bits(rtc->regmap, clkout->reg,  clkout->en_bit);
- }
-=20
--static void max31335_clkout_disable(struct clk_hw *hw)
-+static void max313xx_clkout_disable(struct clk_hw *hw)
- {
--	struct max31335_data *max31335 =3D clk_hw_to_max31335(hw);
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	struct clkout_cfg *clkout =3D rtc->chip->clkout;
-=20
--	regmap_clear_bits(max31335->regmap, MAX31335_RTC_CONFIG2,
--			  MAX31335_RTC_CONFIG2_ENCLKO);
-+	switch (rtc->id) {
-+	case ID_MAX31331:
-+	case ID_MAX31334:
-+		if (rtc->irq > 0) {
-+			dev_err(rtc->rtc->dev.parent,
-+				"clkout cannot be disabled when IRQ is requested");
-+			return;
-+		}
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	if (clkout->en_invert)
-+		regmap_set_bits(rtc->regmap, clkout->reg, clkout->en_bit);
-+	else
-+		regmap_clear_bits(rtc->regmap, clkout->reg,  clkout->en_bit);
- }
-=20
--static int max31335_clkout_is_enabled(struct clk_hw *hw)
-+static int max313xx_clkout_is_enabled(struct clk_hw *hw)
- {
--	struct max31335_data *max31335 =3D clk_hw_to_max31335(hw);
-+	struct max313xx *rtc =3D clk_hw_to_max313xx(hw);
-+	struct clkout_cfg *clkout =3D rtc->chip->clkout;
- 	unsigned int reg;
- 	int ret;
-=20
--	ret =3D regmap_read(max31335->regmap, MAX31335_RTC_CONFIG2, &reg);
-+	ret =3D regmap_read(rtc->regmap, clkout->reg, &reg);
- 	if (ret)
- 		return ret;
-=20
--	return !!(reg & MAX31335_RTC_CONFIG2_ENCLKO);
-+	return !!(reg & clkout->en_bit) ^ clkout->en_invert;
- }
-=20
--static const struct clk_ops max31335_clkout_ops =3D {
--	.recalc_rate =3D max31335_clkout_recalc_rate,
--	.round_rate =3D max31335_clkout_round_rate,
--	.set_rate =3D max31335_clkout_set_rate,
--	.enable =3D max31335_clkout_enable,
--	.disable =3D max31335_clkout_disable,
--	.is_enabled =3D max31335_clkout_is_enabled,
-+static const struct clk_ops max313xx_clkout_ops =3D {
-+	.recalc_rate =3D max313xx_clkout_recalc_rate,
-+	.round_rate =3D max313xx_clkout_round_rate,
-+	.set_rate =3D max313xx_clkout_set_rate,
-+	.enable =3D max313xx_clkout_enable,
-+	.disable =3D max313xx_clkout_disable,
-+	.is_enabled =3D max313xx_clkout_is_enabled,
- };
-=20
--static struct clk_init_data max31335_clk_init =3D {
--	.name =3D "max31335-clkout",
--	.ops =3D &max31335_clkout_ops,
-+struct clk_init_data max313xx_clk_init =3D {
-+	.name =3D "max313xx-clkout",
-+	.ops =3D &max313xx_clkout_ops,
- };
-=20
--static int max31335_nvmem_reg_read(void *priv, unsigned int offset,
-+static int max313xx_nvmem_reg_read(void *priv, unsigned int offset,
- 				   void *val, size_t bytes)
- {
--	struct max31335_data *max31335 =3D priv;
--	unsigned int reg =3D MAX31335_TS0_SEC_1_128 + offset;
-+	struct max313xx *rtc =3D priv;
-+	unsigned int reg =3D rtc->chip->ram_reg + offset;
-=20
--	return regmap_bulk_read(max31335->regmap, reg, val, bytes);
-+	return regmap_bulk_read(rtc->regmap, reg, val, bytes);
- }
-=20
--static int max31335_nvmem_reg_write(void *priv, unsigned int offset,
-+static int max313xx_nvmem_reg_write(void *priv, unsigned int offset,
- 				    void *val, size_t bytes)
- {
--	struct max31335_data *max31335 =3D priv;
--	unsigned int reg =3D MAX31335_TS0_SEC_1_128 + offset;
-+	struct max313xx *rtc =3D priv;
-+	unsigned int reg =3D rtc->chip->ram_reg + offset;
-=20
--	return regmap_bulk_write(max31335->regmap, reg, val, bytes);
-+	return regmap_bulk_write(rtc->regmap, reg, val, bytes);
- }
-=20
--static struct nvmem_config max31335_nvmem_cfg =3D {
--	.reg_read =3D max31335_nvmem_reg_read,
--	.reg_write =3D max31335_nvmem_reg_write,
-+struct nvmem_config max313xx_nvmem_cfg =3D {
-+	.reg_read =3D max313xx_nvmem_reg_read,
-+	.reg_write =3D max313xx_nvmem_reg_write,
- 	.word_size =3D 8,
--	.size =3D MAX31335_RAM_SIZE,
- };
-=20
- #if IS_REACHABLE(HWMON)
--static int max31335_read_temp(struct device *dev, enum hwmon_sensor_type=
-s type,
-+static int max313xx_read_temp(struct device *dev, enum hwmon_sensor_type=
-s type,
- 			      u32 attr, int channel, long *val)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
- 	u8 reg[2];
- 	s16 temp;
- 	int ret;
-@@ -533,8 +765,7 @@ static int max31335_read_temp(struct device *dev, enu=
-m hwmon_sensor_types type,
- 	if (type !=3D hwmon_temp || attr !=3D hwmon_temp_input)
- 		return -EOPNOTSUPP;
-=20
--	ret =3D regmap_bulk_read(max31335->regmap, MAX31335_TEMP_DATA_MSB,
--			       reg, 2);
-+	ret =3D regmap_bulk_read(rtc->regmap, rtc->chip->temp_reg, reg, 2);
- 	if (ret)
- 		return ret;
-=20
-@@ -545,7 +776,7 @@ static int max31335_read_temp(struct device *dev, enu=
-m hwmon_sensor_types type,
- 	return 0;
- }
-=20
--static umode_t max31335_is_visible(const void *data,
-+static umode_t max313xx_is_visible(const void *data,
- 				   enum hwmon_sensor_types type,
- 				   u32 attr, int channel)
- {
-@@ -555,143 +786,338 @@ static umode_t max31335_is_visible(const void *da=
-ta,
- 	return 0;
- }
-=20
--static const struct hwmon_channel_info *max31335_info[] =3D {
-+static const struct hwmon_channel_info *max313xx_info[] =3D {
- 	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
- 	NULL
- };
-=20
--static const struct hwmon_ops max31335_hwmon_ops =3D {
--	.is_visible =3D max31335_is_visible,
--	.read =3D max31335_read_temp,
-+static const struct hwmon_ops max313xx_hwmon_ops =3D {
-+	.is_visible =3D max313xx_is_visible,
-+	.read =3D max313xx_read_temp,
- };
-=20
--static const struct hwmon_chip_info max31335_chip_info =3D {
--	.ops =3D &max31335_hwmon_ops,
--	.info =3D max31335_info,
-+static const struct hwmon_chip_info max313xx_chip_info =3D {
-+	.ops =3D &max313xx_hwmon_ops,
-+	.info =3D max313xx_info,
- };
- #endif
-=20
--static int max31335_clkout_register(struct device *dev)
-+static int max313xx_init(struct max313xx *rtc)
- {
--	struct max31335_data *max31335 =3D dev_get_drvdata(dev);
-+	int ret;
-+
-+	switch (rtc->id) {
-+	case ID_MAX31341:
-+	case ID_MAX31342:
-+		ret =3D regmap_clear_bits(rtc->regmap, MAX31341_42_CONFIG1_REG,
-+					MAX31341_42_CONFIG1_OSC_DISABLE);
-+		if (ret)
-+			return ret;
-+
-+		return regmap_set_bits(rtc->regmap, MAX31341_42_CONFIG1_REG,
-+				       MAX31341_42_CONFIG1_SWRST);
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static int max313xx_clkout_register(struct device *dev)
-+{
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
- 	int ret;
-=20
- 	if (!device_property_present(dev, "#clock-cells"))
--		return regmap_clear_bits(max31335->regmap, MAX31335_RTC_CONFIG2,
--					 MAX31335_RTC_CONFIG2_ENCLKO);
-+		return 0;
-=20
--	max31335->clkout.init =3D &max31335_clk_init;
-+	max313xx_clk_init.name =3D rtc->chip->clkout_name;
-+	device_property_read_string(dev, "clock-output-names",
-+				    &max313xx_clk_init.name);
-+	rtc->clkout.init =3D &max313xx_clk_init;
-=20
--	ret =3D devm_clk_hw_register(dev, &max31335->clkout);
-+	ret =3D devm_clk_hw_register(dev, &rtc->clkout);
- 	if (ret)
- 		return dev_err_probe(dev, ret, "cannot register clock\n");
-=20
--	ret =3D devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
--					  &max31335->clkout);
--	if (ret)
--		return dev_err_probe(dev, ret, "cannot add hw provider\n");
-+	return devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
-+					   &rtc->clkout);
-+}
-=20
--	max31335->clkout.clk =3D devm_clk_get_enabled(dev, NULL);
--	if (IS_ERR(max31335->clkout.clk))
--		return dev_err_probe(dev, PTR_ERR(max31335->clkout.clk),
--				     "cannot enable clkout\n");
-+static int max313xx_find_clkin_freq_index(struct clk *clk)
-+{
-+	unsigned long rate =3D clk_get_rate(clk);
-+	int freq;
-+	int i;
-+
-+	i =3D find_closest(rate, max313xx_clkin_freq,
-+			 ARRAY_SIZE(max313xx_clkin_freq));
-+	if (max313xx_clkin_freq[i] =3D=3D rate)
-+		return i;
-+
-+	for (i =3D ARRAY_SIZE(max313xx_clkin_freq) - 1; i >=3D 0; i--) {
-+		freq =3D max313xx_clkin_freq[i];
-+		if (freq =3D=3D clk_round_rate(clk, freq))
-+			return i;
-+	}
-+
-+	/* supplied clock cannot produce one of desired frequency rate */
-+	return -ENODEV;
-+}
-+
-+static int max313xx_clkin_init(struct device *dev)
-+{
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-+	int rate;
-+	int ret;
-+
-+	rtc->clkin =3D devm_clk_get_enabled(dev, NULL);
-+	if (IS_ERR(rtc->clkin)) {
-+		if (PTR_ERR(rtc->clkin) =3D=3D -ENOENT)
-+			rtc->clkin =3D NULL;
-+		else
-+			return dev_err_probe(dev, PTR_ERR(rtc->clkin),
-+					     "error while clkin setup\n");
-+	}
-+
-+	if (!rtc->clkin) {
-+		switch (rtc->id) {
-+		case ID_MAX31329:
-+			return regmap_clear_bits(rtc->regmap,
-+						 MAX31329_CONFIG2_REG,
-+						 MAX31329_CONFIG2_CLKIN_EN);
-+		case ID_MAX31341:
-+		case ID_MAX31342:
-+			return regmap_clear_bits(rtc->regmap,
-+						 MAX31341_42_CONFIG1_REG,
-+						 MAX31341_42_CONFIG1_CLKIN_EN);
-+		default:
-+			return 0;
-+		}
-+	}
-+
-+	rate =3D max313xx_find_clkin_freq_index(rtc->clkin);
-+	if (rate < 0)
-+		return dev_err_probe(dev, rate,
-+				     "clkin cannot produce required frequency\n");
-+
-+	ret =3D clk_set_rate(rtc->clkin, max313xx_clkin_freq[rate]);
-+	if (ret)
-+		return ret;
-+
-+	switch (rtc->id) {
-+	case ID_MAX31329:
-+		ret =3D regmap_update_bits(rtc->regmap, MAX31329_CONFIG2_REG,
-+					 MAX31329_CONFIG2_CLKIN_FREQ, rate);
-+		if (ret)
-+			return ret;
-+
-+		return regmap_set_bits(rtc->regmap, MAX31329_CONFIG2_REG,
-+				       MAX31329_CONFIG2_CLKIN_EN);
-+	case ID_MAX31341:
-+	case ID_MAX31342:
-+		ret =3D regmap_update_bits(rtc->regmap, MAX31341_42_CONFIG1_REG,
-+					 MAX31341_42_CONFIG1_CLKIN_FREQ,
-+					 FIELD_PREP(MAX31341_42_CONFIG1_CLKIN_FREQ, rate));
-+		if (ret)
-+			return ret;
-+
-+		return regmap_set_bits(rtc->regmap, MAX31341_42_CONFIG1_REG,
-+				       MAX31341_42_CONFIG1_CLKIN_EN);
-+	default:
-+		rtc->clkin =3D NULL;
-+		dev_warn(dev, "device does not have clock input\n");
-+		return 0;
-+	}
-+}
-+
-+static int max313xx_irq_init(struct device *dev, const char *devname)
-+{
-+	struct max313xx *rtc =3D dev_get_drvdata(dev);
-+	int ret;
-+
-+	switch (rtc->id) {
-+	case ID_MAX31328:
-+		break;
-+	case ID_MAX31331:
-+	case ID_MAX31334:
-+		if (rtc->clkout.clk) {
-+			/*
-+			 * interrupt muxing depends on clkout so enable clkout
-+			 * if configured before requesting interrupt
-+			 */
-+			ret =3D clk_prepare_enable(rtc->clkout.clk);
-+			if (ret)
-+				return dev_err_probe(dev, ret,
-+						     "cannot enable clkout\n");
-+		}
-+		break;
-+	default:
-+		if (rtc->clkin) {
-+			if (rtc->clkout.clk && rtc->irq > 0)
-+				return dev_err_probe(dev, -EOPNOTSUPP,
-+						     "irq not possible when both clkin and clkout are configured\n=
-");
-+
-+			if (rtc->irq <=3D 0)
-+				break;
-+
-+			/* clkout needs to be disabled for interrupt */
-+			if (rtc->chip->clkout->en_invert)
-+				ret =3D regmap_set_bits(rtc->regmap,
-+						      rtc->chip->clkout->reg,
-+						      rtc->chip->clkout->en_bit);
-+			else
-+				ret =3D regmap_clear_bits(rtc->regmap,
-+							rtc->chip->clkout->reg,
-+							rtc->chip->clkout->en_bit);
-+
-+			if (ret)
-+				return ret;
-+		}
-+		break;
-+	}
-+
-+	if (rtc->irq > 0) {
-+		return devm_request_threaded_irq(dev, rtc->irq, NULL,
-+						 &max313xx_irq, IRQF_ONESHOT,
-+						 devname, rtc);
-+	} else if (device_property_read_bool(dev, "wakeup-source")) {
-+		clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtc->features);
-+		return device_init_wakeup(dev, true);
-+	}
-+
-+	clear_bit(RTC_FEATURE_ALARM, rtc->rtc->features);
-=20
- 	return 0;
- }
-=20
--static int max31335_probe(struct i2c_client *client)
-+static int max313xx_probe(struct i2c_client *client)
- {
--	struct max31335_data *max31335;
-+	const struct i2c_device_id *id =3D i2c_client_get_device_id(client);
-+	struct device *dev =3D &client->dev;
-+	struct max313xx *max313xx;
- #if IS_REACHABLE(HWMON)
- 	struct device *hwmon;
- #endif
-+	const void *match;
- 	int ret;
-=20
--	max31335 =3D devm_kzalloc(&client->dev, sizeof(*max31335), GFP_KERNEL);
--	if (!max31335)
-+	max313xx =3D devm_kzalloc(&client->dev, sizeof(*max313xx), GFP_KERNEL);
-+	if (!max313xx)
- 		return -ENOMEM;
-=20
--	max31335->regmap =3D devm_regmap_init_i2c(client, &regmap_config);
--	if (IS_ERR(max31335->regmap))
--		return PTR_ERR(max31335->regmap);
-+	dev_set_drvdata(&client->dev, max313xx);
-=20
--	i2c_set_clientdata(client, max31335);
--
--	max31335->rtc =3D devm_rtc_allocate_device(&client->dev);
--	if (IS_ERR(max31335->rtc))
--		return PTR_ERR(max31335->rtc);
--
--	max31335->rtc->ops =3D &max31335_rtc_ops;
--	max31335->rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
--	max31335->rtc->range_max =3D RTC_TIMESTAMP_END_2199;
--	max31335->rtc->alarm_offset_max =3D 24 * 60 * 60;
--
--	ret =3D max31335_clkout_register(&client->dev);
--	if (ret)
--		return ret;
--
--	if (client->irq > 0) {
--		ret =3D devm_request_threaded_irq(&client->dev, client->irq,
--						NULL, max31335_handle_irq,
--						IRQF_ONESHOT,
--						"max31335", max31335);
--		if (ret) {
--			dev_warn(&client->dev,
--				 "unable to request IRQ, alarm max31335 disabled\n");
--			client->irq =3D 0;
--		}
-+	max313xx->regmap =3D devm_regmap_init_i2c(client, &regmap_config);
-+	if (IS_ERR(max313xx->regmap)) {
-+		return dev_err_probe(dev, PTR_ERR(max313xx->regmap),
-+				     "regmap init failed\n");
- 	}
-=20
--	if (!client->irq)
--		clear_bit(RTC_FEATURE_ALARM, max31335->rtc->features);
-+	i2c_set_clientdata(client, max313xx);
-=20
--	max31335_nvmem_cfg.priv =3D max31335;
--	ret =3D devm_rtc_nvmem_register(max31335->rtc, &max31335_nvmem_cfg);
--	if (ret)
--		return dev_err_probe(&client->dev, ret,
--				     "cannot register rtc nvmem\n");
-+	match =3D device_get_match_data(dev);
-+	if (match)
-+		max313xx->chip =3D match;
-+	else if (id)
-+		max313xx->chip =3D (struct chip_desc *)id->driver_data;
-+	else
-+		return -ENODEV;
-=20
--#if IS_REACHABLE(HWMON)
--	hwmon =3D devm_hwmon_device_register_with_info(&client->dev, client->na=
-me,
--						     max31335,
--						     &max31335_chip_info,
--						     NULL);
--	if (IS_ERR(hwmon))
--		return dev_err_probe(&client->dev, PTR_ERR(hwmon),
--				     "cannot register hwmon device\n");
--#endif
-+	max313xx->id =3D max313xx->chip - chip;
-=20
--	ret =3D max31335_trickle_charger_setup(&client->dev, max31335);
-+	ret =3D max313xx_init(max313xx);
- 	if (ret)
- 		return ret;
-=20
--	return devm_rtc_register_device(max31335->rtc);
-+	max313xx->rtc =3D devm_rtc_allocate_device(dev);
-+	if (IS_ERR(max313xx->rtc))
-+		return PTR_ERR(max313xx->rtc);
-+
-+	max313xx->rtc->ops =3D &max3133x_rtc_ops;
-+	max313xx->rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
-+	max313xx->rtc->range_max =3D RTC_TIMESTAMP_END_2199;
-+
-+	max313xx->irq =3D client->irq;
-+
-+	ret =3D max313xx_clkout_register(dev);
-+	if (ret)
-+		return ret;
-+
-+	ret =3D max313xx_clkin_init(dev);
-+	if (ret)
-+		return ret;
-+
-+	/* IRQ wiring depends on the clock configuration so parse them first */
-+	ret =3D max313xx_irq_init(dev, client->name);
-+	if (ret)
-+		return ret;
-+
-+	if (max313xx->chip->ram_size) {
-+		max313xx_nvmem_cfg.size =3D max313xx->chip->ram_size;
-+		max313xx_nvmem_cfg.priv =3D max313xx;
-+
-+		ret =3D devm_rtc_nvmem_register(max313xx->rtc, &max313xx_nvmem_cfg);
-+		if (ret)
-+			dev_warn(dev, "cannot register rtc nvmem\n");
-+	}
-+
-+#if IS_REACHABLE(HWMON)
-+	if (max313xx->chip->temp_reg) {
-+		hwmon =3D devm_hwmon_device_register_with_info(dev, client->name,
-+							     max313xx,
-+							     &max313xx_chip_info,
-+							     NULL);
-+		if (IS_ERR(hwmon))
-+			dev_warn(dev, "cannot register hwmon device: %li\n",
-+				 PTR_ERR(hwmon));
-+	}
-+#endif
-+
-+	ret =3D max313xx_trickle_charger_setup(dev);
-+	if (ret)
-+		return ret;
-+
-+	return devm_rtc_register_device(max313xx->rtc);
- }
-=20
--static const struct i2c_device_id max31335_id[] =3D {
--	{ "max31335", 0 },
-+static const struct of_device_id max313xx_of_id[] =3D {
-+	{ .compatible =3D "adi,max31328", .data =3D &chip[ID_MAX31328] },
-+	{ .compatible =3D "adi,max31329", .data =3D &chip[ID_MAX31329] },
-+	{ .compatible =3D "adi,max31331", .data =3D &chip[ID_MAX31331] },
-+	{ .compatible =3D "adi,max31334", .data =3D &chip[ID_MAX31334] },
-+	{ .compatible =3D "adi,max31335", .data =3D &chip[ID_MAX31335] },
-+	{ .compatible =3D "adi,max31341", .data =3D &chip[ID_MAX31341] },
-+	{ .compatible =3D "adi,max31342", .data =3D &chip[ID_MAX31342] },
-+	{ .compatible =3D "adi,max31343", .data =3D &chip[ID_MAX31343] },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, max313xx_of_id);
-=20
--MODULE_DEVICE_TABLE(i2c, max31335_id);
--
--static const struct of_device_id max31335_of_match[] =3D {
--	{ .compatible =3D "adi,max31335" },
-+static const struct i2c_device_id max313xx_id[] =3D {
-+	{ "max31328", (kernel_ulong_t)&chip[ID_MAX31328] },
-+	{ "max31329", (kernel_ulong_t)&chip[ID_MAX31329] },
-+	{ "max31331", (kernel_ulong_t)&chip[ID_MAX31331] },
-+	{ "max31334", (kernel_ulong_t)&chip[ID_MAX31334] },
-+	{ "max31335", (kernel_ulong_t)&chip[ID_MAX31335] },
-+	{ "max31341", (kernel_ulong_t)&chip[ID_MAX31341] },
-+	{ "max31342", (kernel_ulong_t)&chip[ID_MAX31342] },
-+	{ "max31343", (kernel_ulong_t)&chip[ID_MAX31343] },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(i2c, max313xx_id);
-=20
--MODULE_DEVICE_TABLE(of, max31335_of_match);
--
--static struct i2c_driver max31335_driver =3D {
-+static struct i2c_driver max313xx_driver =3D {
- 	.driver =3D {
--		.name =3D "rtc-max31335",
--		.of_match_table =3D max31335_of_match,
-+		.name	=3D "rtc-max31335",
-+		.of_match_table =3D max313xx_of_id,
- 	},
--	.probe =3D max31335_probe,
--	.id_table =3D max31335_id,
-+	.probe		=3D max313xx_probe,
-+	.id_table	=3D max313xx_id,
- };
--module_i2c_driver(max31335_driver);
-+module_i2c_driver(max313xx_driver);
-=20
- MODULE_AUTHOR("Antoniu Miclaus <antoniu.miclaus@analog.com>");
--MODULE_DESCRIPTION("MAX31335 RTC driver");
-+MODULE_AUTHOR("Zeynep Arslanbenzer <Zeynep.Arslanbenzer@analog.com>");
-+MODULE_AUTHOR("Ibrahim Tilki <Ibrahim.Tilki@analog.com>");
-+MODULE_DESCRIPTION("MAX313XX RTC driver");
-+MODULE_SOFTDEP("pre: regmap-i2c");
- MODULE_LICENSE("GPL");
---=20
-2.43.2
+Thanks,
+Jay
+>=20
+> >
+> > Thanks,
+> > Michal
+>=20
+> --
+> Alexandre Belloni, co-owner and COO, Bootlin Embedded Linux and Kernel
+> engineering https://bootlin.com
 
