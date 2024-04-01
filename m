@@ -1,126 +1,114 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902DD4683;
-	Mon,  1 Apr 2024 01:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 597737F;
+	Mon,  1 Apr 2024 02:30:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711936636; cv=none; b=VDYp/cCp2wPuJwSGA+k1bOI9AdH4ZPC7VYIzwmstWSCmFJTie7F6wxAuZqnsXwwNX1AFc9Osi5//Fa0GjjHvLi6ftapBeYgwPcXLVIldaWKCyH4/1w2c5AE2OdO4HyVpvLf9mEinKuKMNLdGn+mud9WA9xjHC0rAf+m9nKl8eo0=
+	t=1711938628; cv=none; b=KG1XIpLs3l7VRHyX4RTvPY502rGeVaCYzAmOLO1im7q5gMcB+9ePLaJrujk9393EK+y47Bhv/GGo/eI/mp9lqKVhPZ3wUy/7gB5XIPXH823ZZsRQxVbIK6egvxTc/JpYw2y0/NiHnOMc0CXk4ieq9wqDnHHx+LsPBMmTLZycphg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711936636; c=relaxed/simple;
-	bh=MWWUYfBfJ+W+K7MWTchapqC1K1oEOTbwWXy3pHBvkxw=;
-	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:CC; b=CfjsHXEWSPY6zvLfNi0MUwuIMq/BLAFxM28PSLCI/aRoP5iWqgsYPTG10Yhj9kzZj1/J/Cy2iXwELVtlL4vdtO8suJm41z+epDgrA+JyACR9/7lJzEAfhE//ZBNUp6qwBWItUcCe8kwPiW+uej8dxkWjvCQZB5MrzkPqL3wqp/8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=JTIMJvHR; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1711938628; c=relaxed/simple;
+	bh=NsrbsQxeuGANg7ZCOH7zwX7e8H4x+BKV2I4IrrkCfm8=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=oa94kHmBNm1iSqj9GsaVmQ4AB8kyu2HKxQfktgBumxVyQZ+DaqDcK+9GqbR64A0nXtCyNM6VTwT9fvBi6I4FXbWTeGK2/E1mnlSZssk0/sSRRUXN8ve9zpRpDCI0qQuVJQuQT2M1asTY3JqisWCTYxtxp/ybOdtVVvR25NnidXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a1G8vljM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="JTIMJvHR"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 4311gHTl031750;
-	Mon, 1 Apr 2024 01:56:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	from:subject:date:message-id:mime-version:content-type
-	:content-transfer-encoding:to:cc; s=qcppdkim1; bh=GAkLdLSYFHmFYC
-	lUBJFWkUPMHRmzAIsktPBWFnF+tCY=; b=JTIMJvHRu7WS85OY2hAKshTHYEr8OV
-	lVkD0oYp0aD6rEPGuB9wEbhBZpu4z5WlqYEHrCPQSLMMQI2N+PpQ6V++siuM+kwu
-	wtZyLyKTb0DoUjse+UNod+DMp41B/VlR1S9K07xRSNgorZ/hNijEK2Ybw4nuFRe1
-	l0r1ftu3h8zwhSG0+fI8K53iQdfbHehmvgYl+w/EmdzLErdUWD+fDEcgOQ9N9Y+N
-	6oTPwwGvP4+iLfMLaZIpy3KbGAq6ezHNV9Zaxn/+OjhlnztulIylTaPyHsah0Ide
-	LtmWIfi6tRuA/SSDKUYeUVriW49iGCTGUjZR7gmFaGyl4HKh/Ik/LdrQ==
-Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3x69pvtx3s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 01:56:56 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 4311uuEC009280
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 1 Apr 2024 01:56:56 GMT
-Received: from jianbinz-gv.ap.qualcomm.com (10.80.80.8) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Sun, 31 Mar 2024 18:56:53 -0700
-From: jianbin zhang <quic_jianbinz@quicinc.com>
-Subject: [PATCH v4 0/2] rtc-pm8xxx: fix rtc alarm which fired before driver
- probe not be cleard
-Date: Mon, 1 Apr 2024 09:56:28 +0800
-Message-ID: <20240401-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-v1-0-aab2cd6ddab8@quicinc.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a1G8vljM"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E114BC43390;
+	Mon,  1 Apr 2024 02:30:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711938628;
+	bh=NsrbsQxeuGANg7ZCOH7zwX7e8H4x+BKV2I4IrrkCfm8=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=a1G8vljMogY/BupvursTPI3HFqhDNGuiDLAHvlt1esJGJ1yASLg0LiLUSXssL5f24
+	 jjLe6Miip2IDyy6qBHljx0gRd2ZhnWVZWa6TZ2J9NE9qtfKvWueysnbPq/sx6+xmGG
+	 gbLrwKhvDtcOmBW+6kKt/8A7YJQhqEFWzzWrMB7Evcioz/cE7DLgO9/ZxlsRL6q3C+
+	 icXRt2gmnVhrcuPqN7BMr1PeS+Ygwzhl9+p0zt27NeUb+xuLVYBQSdaPj4oTIDoyyo
+	 4AnblGxv2hZgPPZehCa8TWrhY/E8CtffSTUVqQsEcHf1yogJ7C2ksM8JJWydN8Zi4H
+	 l7jBe5vPu9oXg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id D203BD9A14F;
+	Mon,  1 Apr 2024 02:30:27 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAE0UCmYC/x2NwQ6CMBAFf4Xs2U1KhaB+iBfjobQPuwm2ZEvQh
- PDvNh5nDjM7Faig0K3ZSbFJkZwqtKeGfHTpBZZQmayxnTnbK0/yZV09u9npmz9RfKxOEXjElBU
- cVDYoL5pHcMpr9exnOA1sBm/bi0Hfm4HqYVHU3P/+oHtHz+P4AWgKYvmRAAAA
-To: Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio
-	<konrad.dybcio@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-CC: <linux-arm-msm@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        jianbin zhang <quic_jianbinz@quicinc.com>
-X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1711936613; l=1607;
- i=quic_jianbinz@quicinc.com; s=20240329; h=from:subject:message-id;
- bh=MWWUYfBfJ+W+K7MWTchapqC1K1oEOTbwWXy3pHBvkxw=;
- b=xZuifqRCbJMCACnTkYoyyYGiltQ0nZfzdGAx7rRLd+j2TWwU0Ox9M0075nxW7SYwDDcsYmg3U
- T16fR98PXRJAdUE1ZCLlpIJyhTI4MdzGHrXUL/47dujNAFcbEsig4Su
-X-Developer-Key: i=quic_jianbinz@quicinc.com; a=ed25519;
- pk=8Qm7Xwv+QY8Y3hGEXPGglY/NRmdGYSKQJh+oPGgX+2c=
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: v_cfyh0-Ds5N7P1nEJB0UAqf-foGbg44
-X-Proofpoint-GUID: v_cfyh0-Ds5N7P1nEJB0UAqf-foGbg44
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-31_21,2024-03-28_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
- mlxscore=0 malwarescore=0 mlxlogscore=749 clxscore=1011 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2403210001 definitions=main-2404010013
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH 00/18] platform/chrome: provide ID table for avoiding fallback
+ match
+From: patchwork-bot+chrome-platform@kernel.org
+Message-Id: 
+ <171193862785.2149.7081277196721429329.git-patchwork-notify@kernel.org>
+Date: Mon, 01 Apr 2024 02:30:27 +0000
+References: <20240329075630.2069474-1-tzungbi@kernel.org>
+In-Reply-To: <20240329075630.2069474-1-tzungbi@kernel.org>
+To: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: bleung@chromium.org, groeck@chromium.org, linus.walleij@linaro.org,
+ brgl@bgdev.pl, hverkuil-cisco@xs4all.nl, mchehab@kernel.org, sre@kernel.org,
+ alexandre.belloni@bootlin.com, chrome-platform@lists.linux.dev,
+ pmalani@chromium.org, linux-gpio@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pm@vger.kernel.org,
+ linux-rtc@vger.kernel.org, krzk@kernel.org
 
-Hi maintainers,
+Hello:
 
-In this v4 patch series include following:
-- Fix the issue that rtc alarm interrupt triggered befor driver probe is not cleared
-- Correct the value written into PM8xxx_RTC_ALARM_CLEAR register in trigger function
+This series was applied to chrome-platform/linux.git (for-kernelci)
+by Tzung-Bi Shih <tzungbi@kernel.org>:
 
-Regarding the issue "Fix the issue that rtc alarm interrupt triggered befor driver probe is not cleared":
-- Issue describtion as following
-  If the alarm is triggered before the driver gets probed, the alarm interrupt
-  will be missed and it won't be detected, and the stale alarm settings will
-  be still retained because of not being cleared.
-- Issue reproduce step:
-  (1) set the alarm and poweroff the device
-  (2) alarm happens and the device boots
-  (3) poweroff the device again
-  (4) alarm irq not be cleard, device boots again
+On Fri, 29 Mar 2024 15:56:12 +0800 you wrote:
+> Inspired by [1].  Turn all MODULE_ALIAS() in ChromeOS EC platform drivers into
+> proper platform_device_id table and MODULE_DEVICE_TABLE().
+> 
+> The series is basically looking for drivers from:
+> - `struct mfd_cell` in drivers/mfd/cros_ec_dev.c.
+> - grep -R MODULE_ALIAS drivers/platform/chrome/.
+> 
+> [...]
 
-Regarding "Correct the value written into PM8xxx_RTC_ALARM_CLEAR"
-- Writing 1 to the register is expected to clear the fired alarm
- register. In patch v2, the value written to the register in the
- trigger function is incorrectly written as 0. So correct the value
- to 1.
+Here is the summary with links:
+  - [01/18] media: platform: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [02/18] gpio: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [03/18] rtc: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [04/18] platform/chrome: cros_ec_sensorhub: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/12e981d4d643
+  - [05/18] power: supply: cros_usbpd: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [06/18] platform/chrome: cros_usbpd_logger: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/2b895835bd56
+  - [07/18] platform/chrome: cros_usbpd_notify: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/522b9910fa25
+  - [08/18] platform/chrome: cros_ec_chardev: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/e4d063f262df
+  - [09/18] platform/chrome: cros_ec_debugfs: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/e26205b5728f
+  - [10/18] platform/chrome: cros_ec_sysfs: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/6e92e7f792eb
+  - [11/18] power: supply: cros_pchg: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [12/18] platform/chrome: cros_ec_lightbar: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/4f6b823b5caa
+  - [13/18] platform/chrome: cros_ec_vbc: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/883030dae2d2
+  - [14/18] platform/chrome: cros_kbd_led_backlight: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [15/18] platform/chrome: wilco_ec: telemetry: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/b17dd111645b
+  - [16/18] platform/chrome: wilco_ec: debugfs: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/c0649ca22fe8
+  - [17/18] platform/chrome: wilco_ec: event: remove redundant MODULE_ALIAS
+    https://git.kernel.org/chrome-platform/c/fc87ba8e4525
+  - [18/18] platform/chrome/wilco_ec: core: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/d8db2c6d7b0e
 
-Signed-off-by: jianbin zhang <quic_jianbinz@quicinc.com>
----
-jianbin zhang (2):
-      rtc-pm8xxx: clear the triggered alarm interrupt during driver probe
-      rtc-pm8xxx: Correct the value written into the PM8xxx_RTC_ALARM_CLEAR
-
- drivers/rtc/rtc-pm8xxx.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
----
-base-commit: 317c7bc0ef035d8ebfc3e55c5dde0566fd5fb171
-change-id: 20240329-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-07c2180e5507
-
-Best regards,
+You are awesome, thank you!
 -- 
-jianbin zhang <quic_jianbinz@quicinc.com>
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
