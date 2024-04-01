@@ -1,50 +1,49 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636B4A59;
-	Mon,  1 Apr 2024 01:57:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 902DD4683;
+	Mon,  1 Apr 2024 01:57:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711936634; cv=none; b=eHZyhownlA+QsN5oOs4n2YdShGVHM/hF8a6ZUOKLoj+/I61WgLM8S0Z2KuChaJ55X0jqgQF5CO57/fj6jTIYyOXfBOCDZ4RIZATdsgzoI3jK6453keCcMFXDXyWteMsGfK2Dfqey55M/2Ir5ABdyAoa1BWqcYi5BVcALFT+Obmo=
+	t=1711936636; cv=none; b=VDYp/cCp2wPuJwSGA+k1bOI9AdH4ZPC7VYIzwmstWSCmFJTie7F6wxAuZqnsXwwNX1AFc9Osi5//Fa0GjjHvLi6ftapBeYgwPcXLVIldaWKCyH4/1w2c5AE2OdO4HyVpvLf9mEinKuKMNLdGn+mud9WA9xjHC0rAf+m9nKl8eo0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711936634; c=relaxed/simple;
-	bh=FsnJhWLrK6yQEdwItnrbi6ql0DJrxh0BVVewjzzPk9A=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=r5iPmRX4VmBzev9OQXwyhMfj56LplczEBCKlyUVgEbf8/SoSk25pU5hZgi2HsJCZHmDvz23OwM1yIIiMYNKMsW+OzI8EIvx2D9C9+a+fpEtrF5s4FDUK810amOmfKp/q0edrFCV/VPlbKFaIUHnDL+vdduCf4EFJUqcUCqfsoRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=emvmUOY7; arc=none smtp.client-ip=205.220.180.131
+	s=arc-20240116; t=1711936636; c=relaxed/simple;
+	bh=MWWUYfBfJ+W+K7MWTchapqC1K1oEOTbwWXy3pHBvkxw=;
+	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:CC; b=CfjsHXEWSPY6zvLfNi0MUwuIMq/BLAFxM28PSLCI/aRoP5iWqgsYPTG10Yhj9kzZj1/J/Cy2iXwELVtlL4vdtO8suJm41z+epDgrA+JyACR9/7lJzEAfhE//ZBNUp6qwBWItUcCe8kwPiW+uej8dxkWjvCQZB5MrzkPqL3wqp/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=JTIMJvHR; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="emvmUOY7"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 4311S8mN018479;
-	Mon, 1 Apr 2024 01:57:01 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="JTIMJvHR"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 4311gHTl031750;
+	Mon, 1 Apr 2024 01:56:57 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	from:date:subject:mime-version:content-type
-	:content-transfer-encoding:message-id:references:in-reply-to:to
-	:cc; s=qcppdkim1; bh=qHa8j0EWQj1Gt7XdFiNVs6P5MImRXRQTEjx+DmfI+yA
-	=; b=emvmUOY7c4Vq/VNusYC4rEVAI7Tjcq6x6LrBW37awzQSrGQ8AXQBisUsKQt
-	txTOpyEqR+gCzIU8iRaZYU3nB5Q8Cefcpu2TzRv+lGSpDtLrltDr2ahkwc/w/XTA
-	j8AzRjketQFKzoN0YWNj80UglVM1FMrFaDuHTye+TEAoTpLIC498Vy0eNAdxu9o2
-	Df3bY14YxRtINzui6fU33WNQrYJ9PKoJIykSq04yre7aEsAaSjGTGIX7q0cztnT2
-	cHVxCFD/8zduXXbs8kZeuMDK88YPW62/OBqGGSv4bei695IY0GFNflDMw/fs4GkR
-	gZFd/aBnaqtImXU2t/PI8ALR4Qw==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3x6atwjvpw-1
+	from:subject:date:message-id:mime-version:content-type
+	:content-transfer-encoding:to:cc; s=qcppdkim1; bh=GAkLdLSYFHmFYC
+	lUBJFWkUPMHRmzAIsktPBWFnF+tCY=; b=JTIMJvHRu7WS85OY2hAKshTHYEr8OV
+	lVkD0oYp0aD6rEPGuB9wEbhBZpu4z5WlqYEHrCPQSLMMQI2N+PpQ6V++siuM+kwu
+	wtZyLyKTb0DoUjse+UNod+DMp41B/VlR1S9K07xRSNgorZ/hNijEK2Ybw4nuFRe1
+	l0r1ftu3h8zwhSG0+fI8K53iQdfbHehmvgYl+w/EmdzLErdUWD+fDEcgOQ9N9Y+N
+	6oTPwwGvP4+iLfMLaZIpy3KbGAq6ezHNV9Zaxn/+OjhlnztulIylTaPyHsah0Ide
+	LtmWIfi6tRuA/SSDKUYeUVriW49iGCTGUjZR7gmFaGyl4HKh/Ik/LdrQ==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3x69pvtx3s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 01:57:01 +0000 (GMT)
+	Mon, 01 Apr 2024 01:56:56 +0000 (GMT)
 Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 4311v0wV030730
+	by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 4311uuEC009280
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 1 Apr 2024 01:57:00 GMT
+	Mon, 1 Apr 2024 01:56:56 GMT
 Received: from jianbinz-gv.ap.qualcomm.com (10.80.80.8) by
  nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Sun, 31 Mar 2024 18:56:58 -0700
+ 15.2.1118.40; Sun, 31 Mar 2024 18:56:53 -0700
 From: jianbin zhang <quic_jianbinz@quicinc.com>
-Date: Mon, 1 Apr 2024 09:56:30 +0800
-Subject: [PATCH V4 2/2] rtc-pm8xxx: Correct the value written into the
- PM8xxx_RTC_ALARM_CLEAR
+Subject: [PATCH v4 0/2] rtc-pm8xxx: fix rtc alarm which fired before driver
+ probe not be cleard
+Date: Mon, 1 Apr 2024 09:56:28 +0800
+Message-ID: <20240401-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-v1-0-aab2cd6ddab8@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -53,9 +52,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20240401-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-v1-2-aab2cd6ddab8@quicinc.com>
-References: <20240401-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-v1-0-aab2cd6ddab8@quicinc.com>
-In-Reply-To: <20240401-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-v1-0-aab2cd6ddab8@quicinc.com>
+X-B4-Tracking: v=1; b=H4sIAE0UCmYC/x2NwQ6CMBAFf4Xs2U1KhaB+iBfjobQPuwm2ZEvQh
+ PDvNh5nDjM7Faig0K3ZSbFJkZwqtKeGfHTpBZZQmayxnTnbK0/yZV09u9npmz9RfKxOEXjElBU
+ cVDYoL5pHcMpr9exnOA1sBm/bi0Hfm4HqYVHU3P/+oHtHz+P4AWgKYvmRAAAA
 To: Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio
 	<konrad.dybcio@linaro.org>,
@@ -64,69 +63,64 @@ CC: <linux-arm-msm@vger.kernel.org>, <linux-rtc@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
         jianbin zhang <quic_jianbinz@quicinc.com>
 X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1711936613; l=1502;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1711936613; l=1607;
  i=quic_jianbinz@quicinc.com; s=20240329; h=from:subject:message-id;
- bh=FsnJhWLrK6yQEdwItnrbi6ql0DJrxh0BVVewjzzPk9A=;
- b=N3voitpGq2saSmwNLvKJ75hp5xELj5ClDQnckOcldhd+UnJLBFwheMvOLBq/S00SNKjzFv8Pj
- ZAsRFdf4W6/CDegIjC0NOkYzv3HQNrnR34tPdiU4n/Fd/eqjFB1BbMo
+ bh=MWWUYfBfJ+W+K7MWTchapqC1K1oEOTbwWXy3pHBvkxw=;
+ b=xZuifqRCbJMCACnTkYoyyYGiltQ0nZfzdGAx7rRLd+j2TWwU0Ox9M0075nxW7SYwDDcsYmg3U
+ T16fR98PXRJAdUE1ZCLlpIJyhTI4MdzGHrXUL/47dujNAFcbEsig4Su
 X-Developer-Key: i=quic_jianbinz@quicinc.com; a=ed25519;
  pk=8Qm7Xwv+QY8Y3hGEXPGglY/NRmdGYSKQJh+oPGgX+2c=
 X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
  nalasex01a.na.qualcomm.com (10.47.209.196)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: jVC1cSD5ZPS3H_TrOTLSRal_UyTELRqQ
-X-Proofpoint-ORIG-GUID: jVC1cSD5ZPS3H_TrOTLSRal_UyTELRqQ
+X-Proofpoint-ORIG-GUID: v_cfyh0-Ds5N7P1nEJB0UAqf-foGbg44
+X-Proofpoint-GUID: v_cfyh0-Ds5N7P1nEJB0UAqf-foGbg44
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-03-31_21,2024-03-28_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- adultscore=0 priorityscore=1501 bulkscore=0 mlxscore=0 mlxlogscore=999
- impostorscore=0 spamscore=0 malwarescore=0 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2403210001
- definitions=main-2404010013
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
+ mlxscore=0 malwarescore=0 mlxlogscore=749 clxscore=1011 bulkscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2403210001 definitions=main-2404010013
 
-Writing 1 to the PM8xxx_RTC_ALARM_CLEAR register is expected to clear
-the triggered alarm status. In patch v2, the value written to the
-PM8xxx_RTC_ALARM_CLEAR register in the trigger function is incorrectly
-written as 0. So correct the value written to PM8xxx_RTC_ALARM_CLEAR
-register into 1.
+Hi maintainers,
+
+In this v4 patch series include following:
+- Fix the issue that rtc alarm interrupt triggered befor driver probe is not cleared
+- Correct the value written into PM8xxx_RTC_ALARM_CLEAR register in trigger function
+
+Regarding the issue "Fix the issue that rtc alarm interrupt triggered befor driver probe is not cleared":
+- Issue describtion as following
+  If the alarm is triggered before the driver gets probed, the alarm interrupt
+  will be missed and it won't be detected, and the stale alarm settings will
+  be still retained because of not being cleared.
+- Issue reproduce step:
+  (1) set the alarm and poweroff the device
+  (2) alarm happens and the device boots
+  (3) poweroff the device again
+  (4) alarm irq not be cleard, device boots again
+
+Regarding "Correct the value written into PM8xxx_RTC_ALARM_CLEAR"
+- Writing 1 to the register is expected to clear the fired alarm
+ register. In patch v2, the value written to the register in the
+ trigger function is incorrectly written as 0. So correct the value
+ to 1.
 
 Signed-off-by: jianbin zhang <quic_jianbinz@quicinc.com>
 ---
-Changess in v4:
-- add the cover letter
-- modify the patch to conform to the specification
+jianbin zhang (2):
+      rtc-pm8xxx: clear the triggered alarm interrupt during driver probe
+      rtc-pm8xxx: Correct the value written into the PM8xxx_RTC_ALARM_CLEAR
 
-Changes in v3:
-- Correct the value written into the PM8xxx_RTC_ALARM_CLEAR to 1.
-- link: https://lore.kernel.org/linux-rtc/20240319191216.GB3796206@hu-bjorande-lv.qualcomm.com/T/#t
-
-Changes in v2:
-- Switch to using regmap_update_bits() instead of open coding
-  read-modify-write accesses.
-- link: https://lore.kernel.org/lkml/20230202155448.6715-4-johan+linaro@kernel.org/
-
-Changes in v1:
--link: https://lore.kernel.org/linux-rtc/20230126142057.25715-4-johan+linaro@kernel.org/
+ drivers/rtc/rtc-pm8xxx.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 ---
- drivers/rtc/rtc-pm8xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+base-commit: 317c7bc0ef035d8ebfc3e55c5dde0566fd5fb171
+change-id: 20240329-fix-rtc-alarm-which-fired-before-driver-probe-not-be-cleard-07c2180e5507
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index e4e2307445cf..806c99cdac9a 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -391,7 +391,7 @@ static irqreturn_t pm8xxx_alarm_trigger(int irq, void *dev_id)
- 
- 	/* Clear alarm status */
- 	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl2,
--				PM8xxx_RTC_ALARM_CLEAR, 0);
-+				PM8xxx_RTC_ALARM_CLEAR, 1);
- 	if (rc)
- 		return IRQ_NONE;
- 
-
+Best regards,
 -- 
-2.43.2
+jianbin zhang <quic_jianbinz@quicinc.com>
 
