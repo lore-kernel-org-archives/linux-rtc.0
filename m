@@ -1,97 +1,114 @@
-Received: from mail.nic.cz (mail.nic.cz [217.31.204.67])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA8CC14B09C;
-	Tue,  2 Apr 2024 16:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.31.204.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCDB34D133;
+	Wed,  3 Apr 2024 07:20:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712076709; cv=none; b=c8/JnonePhUaskJBp9T7+zw0RbGLNzFqmCV4Ga/joWIug4wiUg47qAM3FGlMBTBiM6TLaLjbJk7chfcciO7P5pGOtSPcfaQsoRTs7cXtUxjJFkCaJ5YNJ3EQlx4Jr7U+LWw+6u/I01oRy8NqxxQDfANUJvbWzUVKyFgEY2Ionh0=
+	t=1712128827; cv=none; b=JBGhuDAR4Bx8juI4iQ+efe/z1ILTtsragkY/T8EGs87IW71saTzaMUflwTZQakXD9bOtWdF492rbYIfZ0xibWYFBhCXFakPRAZ9d0mKPSE9N2uLx6y+OpRGG8kLfGjZTpKeKqZLlfao6d7xjSyK7H37vYzMUS06wTr66W5wwv9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712076709; c=relaxed/simple;
-	bh=KsHqIU03sKEpvUMS47A78uuJhzarHCzHfAicczh24Rw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NM75azOXITPamcLUJa+R8HbgqB08Ocy8ZOQnafjDPBWpDx4bf76QxaGZ6e0fkxVoOvw7+pF1u6axsU/RVVIH/E8qAjascSBB+Z0p0AnnGFwYKaKqzYtyfPQITuhZj5w2HMgx+abO6HRn1PYGZLrZcW4KU1yBYoVLGt2483KKGCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nic.cz; spf=pass smtp.mailfrom=nic.cz; dkim=pass (1024-bit key) header.d=nic.cz header.i=@nic.cz header.b=wAajVCPs; arc=none smtp.client-ip=217.31.204.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nic.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nic.cz
+	s=arc-20240116; t=1712128827; c=relaxed/simple;
+	bh=+ye0ANlJ3AJBgvzVY9w5v2SVeZwz8u+XeZZr7JXa8yQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=qwf/I29g+xyF2yR0210oJSAf2vXElfm2SG5PSWyhHvmUP8XMVjCpoB5ewgyuRI2JIzuR6de7RFuLvQ7A+GuX6Ki5NeGnLINgaSCi2qQdxwKi9sfidZBJCSaHOEKYV21GrE0OgWZaEcNmoOkbSMZa6EAnQiepxV6b0SvXx8N4dWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D1qg+8I9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=nic.cz header.i=@nic.cz header.b="wAajVCPs"
-Received: from kandell (unknown [172.20.6.80])
-	by mail.nic.cz (Postfix) with ESMTPS id AEC1A1C184F;
-	Tue,  2 Apr 2024 18:41:59 +0200 (CEST)
-Authentication-Results: mail.nic.cz;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nic.cz; s=default;
-	t=1712076119; bh=KsHqIU03sKEpvUMS47A78uuJhzarHCzHfAicczh24Rw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Reply-To:
-	 Subject:To:Cc;
-	b=wAajVCPskhVE6QjgewseYXgMvfXy+nAr9nqIxZzBmCGOJ1MHz0qbE0w/Gu1bYzNJz
-	 kneTVuNk4xUrIOF/IBR4mWDIZnwxbAQ6hQ177SkR37jGIKtvE9tUwGLBvuGs8OhhL8
-	 7JqkMAm8d2CkkCGSUooowNcfWay3yzVdhSbpXCv4=
-Date: Tue, 2 Apr 2024 18:41:59 +0200
-From: Marek =?utf-8?B?QmVow7pu?= <marek.behun@nic.cz>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>, soc@kernel.org,
-	arm@kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andy Shevchenko <andy@kernel.org>, linux-gpio@vger.kernel.org,
-	Alessandro Zummo <a.zummo@towertech.it>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, linux-watchdog@vger.kernel.org
-Subject: Re: [PATCH v5 02/11] platform: cznic: Add preliminary support for
- Turris Omnia MCU
-Message-ID: <20240402164159.ylu3gy4pwrbxqoeb@kandell>
-References: <20240323164359.21642-1-kabel@kernel.org>
- <20240323164359.21642-3-kabel@kernel.org>
- <ZgAII1B03bLUisWr@surfacebook.localdomain>
- <20240324160408.77c8574e@thinkpad>
- <CAHp75VesxrOdm4H3TYUtfEJx=i3Zpd6a=yzbkUFismnzW=nE-g@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D1qg+8I9"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5D27DC433F1;
+	Wed,  3 Apr 2024 07:20:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712128826;
+	bh=+ye0ANlJ3AJBgvzVY9w5v2SVeZwz8u+XeZZr7JXa8yQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=D1qg+8I9Meq1gWuzmyCbX4jtvHi/dBLn4GGYDCLGGaZs5xp4Auq/NFEyxa9Ph1o1Y
+	 qWhiXcwxf9NG6v6l07IIjI04GUqEipwFVgZEx32tIE7ukfO5Rz8brl4g1jGgb4hgRL
+	 BfdtMRJlaaVKkJcJVJ1gTiNSOI/3YheE6wOjqa8WJWHKtbKdEktsWcAn6BRvtquMVH
+	 wXOsnXakNmxTnsw9IHakAhf0Rhms220TNXHv3673cZaVCMJWRFaP0Uv48mizJD97va
+	 VLz/8a+/ebY1NU1scfuRGM8QriPQtqgMJ9iHLCQNfYjYEqIisdiiEF/P2GoHLWAY6a
+	 VYjN8k6uUcFUw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4C2A0C43168;
+	Wed,  3 Apr 2024 07:20:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHp75VesxrOdm4H3TYUtfEJx=i3Zpd6a=yzbkUFismnzW=nE-g@mail.gmail.com>
-X-Virus-Scanned: clamav-milter 0.103.10 at mail
-X-Virus-Status: Clean
-X-Rspamd-Action: no action
-X-Rspamd-Pre-Result: action=no action;
-	module=multimap;
-	Matched map: WHITELISTED_IP
-X-Rspamd-Server: mail
-X-Spamd-Bar: /
-X-Rspamd-Queue-Id: AEC1A1C184F
-X-Spamd-Result: default: False [-0.10 / 20.00];
-	MIME_GOOD(-0.10)[text/plain];
-	WHITELISTED_IP(0.00)[172.20.6.80];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com]
+Subject: Re: [PATCH 00/18] platform/chrome: provide ID table for avoiding fallback
+ match
+From: patchwork-bot+chrome-platform@kernel.org
+Message-Id: 
+ <171212882630.6261.5572341363969592219.git-patchwork-notify@kernel.org>
+Date: Wed, 03 Apr 2024 07:20:26 +0000
+References: <20240329075630.2069474-1-tzungbi@kernel.org>
+In-Reply-To: <20240329075630.2069474-1-tzungbi@kernel.org>
+To: Tzung-Bi Shih <tzungbi@kernel.org>
+Cc: bleung@chromium.org, groeck@chromium.org, linus.walleij@linaro.org,
+ brgl@bgdev.pl, hverkuil-cisco@xs4all.nl, mchehab@kernel.org, sre@kernel.org,
+ alexandre.belloni@bootlin.com, chrome-platform@lists.linux.dev,
+ pmalani@chromium.org, linux-gpio@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pm@vger.kernel.org,
+ linux-rtc@vger.kernel.org, krzk@kernel.org
 
-On Sun, Mar 24, 2024 at 05:30:39PM +0200, Andy Shevchenko wrote:
-> On Sun, Mar 24, 2024 at 5:04 PM Marek Behún <kabel@kernel.org> wrote:
-> >
-> > Hi Andy,
-> >
-> > thank you very much for the review. I have some notes and some
-> > questions, see below.
+Hello:
+
+This series was applied to chrome-platform/linux.git (for-kernelci)
+by Tzung-Bi Shih <tzungbi@kernel.org>:
+
+On Fri, 29 Mar 2024 15:56:12 +0800 you wrote:
+> Inspired by [1].  Turn all MODULE_ALIAS() in ChromeOS EC platform drivers into
+> proper platform_device_id table and MODULE_DEVICE_TABLE().
 > 
-> Btw, I'll look into other patches next week.
+> The series is basically looking for drivers from:
+> - `struct mfd_cell` in drivers/mfd/cros_ec_dev.c.
+> - grep -R MODULE_ALIAS drivers/platform/chrome/.
+> 
+> [...]
 
-Hello Andy,
+Here is the summary with links:
+  - [01/18] media: platform: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [02/18] gpio: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [03/18] rtc: cros-ec: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [04/18] platform/chrome: cros_ec_sensorhub: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [05/18] power: supply: cros_usbpd: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [06/18] platform/chrome: cros_usbpd_logger: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [07/18] platform/chrome: cros_usbpd_notify: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [08/18] platform/chrome: cros_ec_chardev: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [09/18] platform/chrome: cros_ec_debugfs: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [10/18] platform/chrome: cros_ec_sysfs: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [11/18] power: supply: cros_pchg: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [12/18] platform/chrome: cros_ec_lightbar: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [13/18] platform/chrome: cros_ec_vbc: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [14/18] platform/chrome: cros_kbd_led_backlight: provide ID table for avoiding fallback match
+    https://git.kernel.org/chrome-platform/c/d91ca83599cd
+  - [15/18] platform/chrome: wilco_ec: telemetry: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [16/18] platform/chrome: wilco_ec: debugfs: provide ID table for avoiding fallback match
+    (no matching commit)
+  - [17/18] platform/chrome: wilco_ec: event: remove redundant MODULE_ALIAS
+    (no matching commit)
+  - [18/18] platform/chrome/wilco_ec: core: provide ID table for avoiding fallback match
+    (no matching commit)
 
-did you have a chance to look at the other patches?
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Marek
+
