@@ -1,68 +1,97 @@
-Received: from 5635498.btmindustrial.com (5635498.btmindustrial.com [162.215.218.156])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41CFD10979
-	for <linux-rtc@vger.kernel.org>; Sat, 18 May 2024 13:14:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.215.218.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9452E3FE
+	for <linux-rtc@vger.kernel.org>; Sat, 18 May 2024 17:18:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716038068; cv=none; b=aUI+4Mxf1A4TTJzKLL5nvHphNMDYHke/qEEX9/S4Y/ovChrV9qKRpIQDM0URKOSsKS4sa487Bdme55w9dk5R0f5dEaFkWACYeBH+pcCW9Y2MoMQgtDkZZYuVSd5BDXYJOgWGY7nt2PvFfwW9tlxO8bjZfc6bCBhp5j+gL0WtzMs=
+	t=1716052734; cv=none; b=gB/kKlbOXG14B0U/T5IFTLJKwIPJ9se9fuGu4B1VxxotzjsjO7WwAIRvjAsPPTqICJcdcwHye345Vdbr/F/Q6B48oBd7vIzr8ffjQDmeVMME1JL8z6rMvjas1l/pIN4RNxlO9hQu2tt9USg4NWukc/Cj4ojVWbK+DFR7jmOoh5s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716038068; c=relaxed/simple;
-	bh=prydTSJomuOSaK1F8pm+CpThI/muxpTqHNJw8ri2S1w=;
-	h=To:Subject:From:Message-Id:Date; b=ZnZosyFIU2/Qbbfct3G+XgNoLIeOMWs4YozGELBVJtl4iIXdLfl8bgHiBjCGRzoSacZBohIrU7gga6IzUxc8pnIL/we2uv0Zw11Q/tKoLj5ESlZRaaVyuw9E9QB+S+K3dBhQUg02c7nZS6BvxY2vorJlYHmSlCFJIR87bhjomaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=BTMIndustrial.com; spf=none smtp.mailfrom=5635498.btmindustrial.com; dkim=pass (2048-bit key) header.d=btmindustrial.com header.i=@btmindustrial.com header.b=ePKkWttN; arc=none smtp.client-ip=162.215.218.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=BTMIndustrial.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=5635498.btmindustrial.com
+	s=arc-20240116; t=1716052734; c=relaxed/simple;
+	bh=//8QV5TSiMfT14T+L5Dni8yVPWQI23EOE8lPHpMRkQs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=A/i/iBBxhvIFCW7oEiqrIKOa5B/Bgpu1P3oCOTGdwGghOYb2TO05jdMizYsv484oM63k6Qz0REKz/mJ0W4cZV8TSb+qGZZQrPEsyBq/1k+i91gTSZM1HDZcpUt0nZlMrhZtiilIlbXuGVDPtGGIy+mBTS0mv3klCGf+UEMfTG5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=bLvtPKtf; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=btmindustrial.com header.i=@btmindustrial.com header.b="ePKkWttN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=btmindustrial.com; s=default; h=Date:Message-Id:From:Subject:To:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=MSwWR8pC4+BDrNyRK/qe/6PxQX2XcAnW7eHPGL8ogao=; b=ePKkWttN4ZzSt1mCZU3rG6wMXP
-	z7PXoNjgQ0wLzPlOyT6ZzhraIxJUhAgFf1k//bs25ETdBrFGSJFvw9REW3H/LgBGE2ZLINitP+wh/
-	h1gE+KAc3pSN2BlirkcRvOLrBpYQXAHajXXle7O1ZZlRGkWbAapVnvNWLF2XxFdyi3PXn17P+37Kr
-	SkXlj6ZjuBzERHD8Mn8c4B4l+q4Glsm4eDfwry1zRF0mAFKigZuJKfCCMBfYzXLOUft1ip0Cfb1Yi
-	0hUypAwVZy+uniQucqDW0ux6D1H/mrojDjKQBWPZSmTFC3lWOrgdTQYituqXZWZkWz6oKYHsgaHJJ
-	BtfwvDyw==;
-Received: from machinre by 5635498.btmindustrial.com with local (Exim 4.96.2)
-	(envelope-from <machinre@5635498.btmindustrial.com>)
-	id 1s8JLw-0005xN-0w
-	for linux-rtc@vger.kernel.org;
-	Sat, 18 May 2024 07:39:56 -0500
-To: linux-rtc@vger.kernel.org
-Subject: [Replay] I promised.
-X-PHP-Script: www.btmindustrial.com/contactFormSend.php for 212.102.35.132
-X-PHP-Originating-Script: 1004:contactFormSend.php
-From: Surplus@BTMIndustrial.com
-Message-Id: <E1s8JLw-0005xN-0w@5635498.btmindustrial.com>
-Date: Sat, 18 May 2024 07:39:56 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 5635498.btmindustrial.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1004 991] / [47 12]
-X-AntiAbuse: Sender Address Domain - 5635498.btmindustrial.com
-X-Get-Message-Sender-Via: 5635498.btmindustrial.com: authenticated_id: machinre/from_h
-X-Authenticated-Sender: 5635498.btmindustrial.com: Surplus@BTMIndustrial.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="bLvtPKtf"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1ecc23e6c9dso38488855ad.2
+        for <linux-rtc@vger.kernel.org>; Sat, 18 May 2024 10:18:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1716052732; x=1716657532; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bI35mSpFGv5azuf3W34PAy5g+Nwe9xTUDOP2VBYb+qw=;
+        b=bLvtPKtf7AAWUQL7+1BKfBQFilZk/h/+9MqhYx3/ShuBC/VbG7djvHzsS5IkURC66Q
+         01vQjZEIk0vVLgNCnqrW31X87xGfJIH8Zb0RGjsovgioPJUSOqmnKHV3pz4gKKRjv+vk
+         ORI+VxKwcJWNGn1ZIf67KYxyKfGxIkGDJCZMk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716052732; x=1716657532;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bI35mSpFGv5azuf3W34PAy5g+Nwe9xTUDOP2VBYb+qw=;
+        b=uOuk6p1OTeiy96QorFCWq7wuDOMwADknpCBQOKKQzwVgKGIhBtC8EKWuFCtng52e5Z
+         zKI2NunbiCnYBIBrIGG3HBovPOuDqNp6lALHMxVWcqm+oJSugo3WlyUFzOuKrqUtbuf7
+         lN7MZSUmAhyIchLPDWNyifDLhlHiduY86fV52CxbuL2J+6Y/Qy3wqcJuLsvuH0hcrhxn
+         a83Tb3icyA+F61bALB1KOwlEkff8X+G0mBvEfHWVzhjMpqA9AxQFS7BYX9y8p+Tv9Hd/
+         3j7c+NqCVegj1tR3nd7NSNeD6L1Ukh+4BnlFmCC/ZUeI0n9peeSwAn4+TSzS9HO+lOQU
+         HFyg==
+X-Forwarded-Encrypted: i=1; AJvYcCX9qJQNlW/QvYfeMk6w9gypnSxnaFtfEU+zfn7s+cH32CtE3vLkz6HwyQZdrNhcJnIAPiNwQw6rIhYAcKa8psbM4vvaHS7gijgJ
+X-Gm-Message-State: AOJu0YxO66fH4Z5Si1EmeZuqZ9n9jYo1u7N9KhaH7OLGjaf7ECpEBoIU
+	WkV50gztWu3QNipfEWiAZtTWUliFRhQYeAKnnreAAM02ZurueO9N1DajDo1ffQ==
+X-Google-Smtp-Source: AGHT+IHnTm7HxB1ifDLOfll4lXfhQucVtONb5bXh+in0GA9Emo8PEiZzBgcOx9HwsOaXGa4JlF1tXg==
+X-Received: by 2002:a05:6a20:5602:b0:1af:cbd3:ab4d with SMTP id adf61e73a8af0-1afde120e4dmr22666060637.33.1716052732590;
+        Sat, 18 May 2024 10:18:52 -0700 (PDT)
+Received: from www.outflux.net ([198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-6f4fff45ce3sm11294743b3a.197.2024.05.18.10.18.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 May 2024 10:18:51 -0700 (PDT)
+Date: Sat, 18 May 2024 10:18:50 -0700
+From: Kees Cook <keescook@chromium.org>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Andy Lutomirski <luto@amacapital.net>, Will Drewry <wad@chromium.org>,
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@redhat.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	bpf@vger.kernel.org, kvm@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH 1/2] selftests: harness: remove unneeded
+ __constructor_order_last()
+Message-ID: <202405181014.B84D979BA@keescook>
+References: <20240517114506.1259203-1-masahiroy@kernel.org>
+ <20240517114506.1259203-2-masahiroy@kernel.org>
+ <202405171621.A178606D8@keescook>
+ <CAK7LNARpvZ5AeH9HXFPupD_Jj0Gw4D6MZ5iR7uvVwnm9nSg9CA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK7LNARpvZ5AeH9HXFPupD_Jj0Gw4D6MZ5iR7uvVwnm9nSg9CA@mail.gmail.com>
 
-Thank you for emailing BTM Industrial. We will be contacting you shortly. 
+On Sat, May 18, 2024 at 12:29:00PM +0900, Masahiro Yamada wrote:
+> It will be set to "true" eventually,
+> but __LIST_APPEND() still sees "false"
+> on backward-order systems.
 
+Ah, yes -- you are right. I looked through the commit history (I had
+to go back to when the seccomp test, and the harness, was out of tree).
+There was a time when the logic happened during the list walking, rather
+than during list _creation_. I was remembering the former.
 
- Email Submitted to Surplus@BTMIndustrial.com below: 
+So, yes, let's make this change. As you say, it also solves for defining
+TEST_HARNESS_MAIN before the tests. Thank you! I'd still like to replace
+all the open-coded TEST_HARNESS_MAIN calls, though.
 
- EMAIL SENT USING BTM's website form.
-Company: google
-Contact Number: 84147919274
-Heard about us from: Postcard
-Other: Google
-Hi, this is Irina. I am sending you my intimate photos as I promised. https://tinyurl.com/2adtalar#Pjla0r
+-- 
+Kees Cook
