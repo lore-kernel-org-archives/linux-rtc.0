@@ -1,119 +1,132 @@
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FE03B192;
-	Tue, 11 Jun 2024 16:21:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.132.182.106
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1CF274418;
+	Tue, 11 Jun 2024 18:16:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718122882; cv=none; b=rvA9qMtvHbIt6OpD7PZf3I+8WXTxRy/F1b4Qjs2QBWA3CWUftIGMuYgA1XWT9YnbfkWesFwGzWUpxGmBg9S87EsdPLCkBIrMM6JYZgv/9xChWJ1GZfbYYjVfXfY0vA7a7eCtDtHxIIUlYyoZK1GifcATvgNJlcbgIBWpGlpLgyA=
+	t=1718129789; cv=none; b=RtxiRcypHlQBDILSODBeNGxVRpJBx6dJ+QqRJOzllb605rd8pAnuo3UNrHuxAt3UVfTzpEVzL6xlY81KSNTgcFE8nru28nc1CKfwiG2KZQ/u6lX3yRaz50GMBJKE26bhZn6AklKchjAesvDpuEKcw2GoLCL8Uev83UMWAH5vkKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718122882; c=relaxed/simple;
-	bh=vZkZeJSRWsSlA3r72qLOgkTOis1ylOjAsa45W57y/jk=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Urqa827zz3D8p/JwFqH+ZMFSBg7q/vx2okSTjD5yvKlojjfLR2FpdTiaGRAwPx+vL+BuDxbdwOaR7I1+gn5yp4LKk3Nq29GHo0HtvyfzUpxyCzWXYtZlEqx4KrUEq3OYa3DvJWKVWcNiJWYRMn/K9n9vtGtpkRhsAcJ1BxRVgtM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=nQgaEm7X; arc=none smtp.client-ip=185.132.182.106
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	s=arc-20240116; t=1718129789; c=relaxed/simple;
+	bh=QhiccRUa8nUsNwUtkF0DHVHRaqAFjgzP5RrKB+6T1JY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bQMvk29cuZ5pdYpRdxHQcNsniITSmJCuGViZluiWpsh8tDE3goO35BMvXwEaHaMsJOVeAhrDnYlJ39OwBvgpVqMNYNe6vCNnfIRLIoPwaEDmeHv7wfAJKku58HLqPzLc3SEKm/eM3cYTc2If0NpugLH9UQTqxwFfJljJeB2uy3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pEPxnzB8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="nQgaEm7X"
-Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
-	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45BBkVGZ017594;
-	Tue, 11 Jun 2024 18:20:55 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=selector1; bh=
-	PLilViIb1Wrvxygr4/yl4pIC2TFoQ5rU0JcHSUgX2vk=; b=nQgaEm7XMOtwnIIw
-	xFGdC2Vwcwr5nV5q9CgaXOnga8VOSaF2xyaztHD36EopXt2ItD73A48HqDgGNX11
-	O+h4TYviz/0sCo8+GAV8D6qFwBEw8BN7nQkJh+/nUwq0AuE4zcNBUwe5NSAUed3T
-	MHwX/R1l6DF08fV1IxpbwPNZDm6Jh0Rw+VX6Zjh+MuU7umzykCd4D6kAIU5wehHK
-	+7yiSKaRM2xKOdp54eLmFtJwe6u1hgqRiUu0ub3aM+TgC7JY5gcqYyvG4ocOHveT
-	6gjMrnMeONuDHmrgHct07GehzNM3lEldCJM7Ww3RYHcn00UeyxR24clHXQctueca
-	1W7S4g==
-Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
-	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3ypbp2kvb2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Jun 2024 18:20:55 +0200 (MEST)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 7C82240044;
-	Tue, 11 Jun 2024 18:20:48 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 4C5EA21B504;
-	Tue, 11 Jun 2024 18:20:12 +0200 (CEST)
-Received: from localhost (10.48.86.111) by SHFDAG1NODE1.st.com (10.75.129.69)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Tue, 11 Jun
- 2024 18:20:12 +0200
-From: Valentin Caron <valentin.caron@foss.st.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Rob Herring
-	<robh@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Alexandre Torgue
-	<alexandre.torgue@foss.st.com>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        Valentin Caron <valentin.caron@foss.st.com>
-Subject: [PATCH 1/2] dt-bindings: rtc: stm32: introduce new st,stm32mp25-rtc compatible
-Date: Tue, 11 Jun 2024 18:19:57 +0200
-Message-ID: <20240611161958.469209-2-valentin.caron@foss.st.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240611161958.469209-1-valentin.caron@foss.st.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pEPxnzB8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08239C2BD10;
+	Tue, 11 Jun 2024 18:16:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718129789;
+	bh=QhiccRUa8nUsNwUtkF0DHVHRaqAFjgzP5RrKB+6T1JY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=pEPxnzB8t7dMfbQEPHmexKo0L4OWfieS9RXtZ4ZFc3/2fSzLcXqPQepAcvTrqtHLd
+	 swqvZEK56Eai0ZNq9HFFFks6VlBoARyn+FIZNySty+FPp2GocnCdVhAkdDnOqpDRQs
+	 wq1MUYKD6OWlM+vNeRH3hkV8OrzY7PU5ZVj/Ywnk0A2sbb0MsoC+LXX9uyoryiqRgg
+	 Z7HVuzfDTubzLDmHXjYRWFW5rqFEtNiHOB3Au83wdMtTIR7+7QxfqhxnmAGVN2GAp3
+	 A1lCO5FZvpfLxspUkn5zrF+iLAmcXC3F/AH7mhrHGwAAyu5UIKGM6C4/DfmLcDArhI
+	 NoX7FEHV+mhuA==
+Date: Tue, 11 Jun 2024 19:16:24 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Valentin Caron <valentin.caron@foss.st.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: rtc: stm32: introduce new
+ st,stm32mp25-rtc compatible
+Message-ID: <20240611-sample-remold-a75d6f6515d8@spud>
 References: <20240611161958.469209-1-valentin.caron@foss.st.com>
+ <20240611161958.469209-2-valentin.caron@foss.st.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-11_09,2024-06-11_01,2024-05-17_01
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="KKwSS3olauYNtTau"
+Content-Disposition: inline
+In-Reply-To: <20240611161958.469209-2-valentin.caron@foss.st.com>
 
-Introduce new st,stm32mp25-rtc compatible. It is based on st,stm32mp1-rtc.
 
-Difference is that stm32mp25 SoC implements a triple protection on RTC
-registers:
-- Secure bit based protection
-- Privileged context based protection
-- Compartment ID filtering based protection
-This driver will now check theses configurations before probing to avoid
-exceptions and fake reads on register.
+--KKwSS3olauYNtTau
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Link: https://www.st.com/resource/en/reference_manual/rm0457-stm32mp25xx-advanced-armbased-3264bit-mpus-stmicroelectronics.pdf#page=4081
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
----
- Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On Tue, Jun 11, 2024 at 06:19:57PM +0200, Valentin Caron wrote:
+> Introduce new st,stm32mp25-rtc compatible. It is based on st,stm32mp1-rtc.
+>=20
+> Difference is that stm32mp25 SoC implements a triple protection on RTC
+> registers:
+> - Secure bit based protection
+> - Privileged context based protection
+> - Compartment ID filtering based protection
+> This driver will now check theses configurations before probing to avoid
+> exceptions and fake reads on register.
+>=20
+> Link: https://www.st.com/resource/en/reference_manual/rm0457-stm32mp25xx-=
+advanced-armbased-3264bit-mpus-stmicroelectronics.pdf#page=3D4081
+> Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml b/Do=
+cumentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> index 4703083d1f11f..65a8a93ef5753 100644
+> --- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
+> @@ -15,6 +15,7 @@ properties:
+>        - st,stm32-rtc
+>        - st,stm32h7-rtc
+>        - st,stm32mp1-rtc
+> +      - st,stm32mp25-rtc
+> =20
+>    reg:
+>      maxItems: 1
+> @@ -90,7 +91,9 @@ allOf:
+>        properties:
+>          compatible:
+>            contains:
+> -            const: st,stm32mp1-rtc
+> +            anyOf:
+> +              - const: st,stm32mp1-rtc
 
-diff --git a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
-index 4703083d1f11f..65a8a93ef5753 100644
---- a/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/st,stm32-rtc.yaml
-@@ -15,6 +15,7 @@ properties:
-       - st,stm32-rtc
-       - st,stm32h7-rtc
-       - st,stm32mp1-rtc
-+      - st,stm32mp25-rtc
- 
-   reg:
-     maxItems: 1
-@@ -90,7 +91,9 @@ allOf:
-       properties:
-         compatible:
-           contains:
--            const: st,stm32mp1-rtc
-+            anyOf:
-+              - const: st,stm32mp1-rtc
-+              - const: st,stm32mp25-rtc
- 
-     then:
-       properties:
--- 
-2.25.1
+anyOf:
+  - const: foo
+  - const: bar
 
+is just the same as using
+enum:
+  - foo
+  - bar
+
+Thanks,
+Conor.
+
+> +              - const: st,stm32mp25-rtc
+> =20
+>      then:
+>        properties:
+> --=20
+> 2.25.1
+>=20
+
+--KKwSS3olauYNtTau
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZmiUeAAKCRB4tDGHoIJi
+0vaeAP40eEjU5fOjvpKKJDIRxVKhVBgtjG8rxLq1chsBTt6ukQEAoXjCusbWQHYQ
+5OMNChI7TBH/+N8h7CaL9XazCcw9CwY=
+=91pq
+-----END PGP SIGNATURE-----
+
+--KKwSS3olauYNtTau--
