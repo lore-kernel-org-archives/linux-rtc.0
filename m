@@ -1,181 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from Atcsqr.andestech.com (60-248-80-70.hinet-ip.hinet.net [60.248.80.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCE4718628D;
-	Mon, 17 Jun 2024 08:10:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3126C190497
+	for <linux-rtc@vger.kernel.org>; Mon, 17 Jun 2024 08:38:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.248.80.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718611837; cv=none; b=aPrsoseP8XStVqYwLMc7DwCtsSYy8GpxDehCu9wMe+F1NOpMnVZWrX6zm7eYABCX7K6Squo7rank4/9CIeFgjKuKE6nkwaDYZTw2VkYJBY9+j6gg1G/zLvV2i2aofmbf0CmH5UHOpAr9HHynN83KvPaNW/FoYO7nrodlOv5Z0JI=
+	t=1718613528; cv=none; b=XSwJ7DAZdRuuVssFISWqzD+2M+pKESgRrSCLmFgiAiCTnYeDqP7tXtqFXS86sVqYsYOIqwOHsRtqd6aDbA7BEX06SR3UYIiykvTT+WbO9Mr5FaYg+jkla/LHH9i9pFUf6tn1FkVs1Bfbg25JbWmrLE0nNq9ZnYK1jXUnMB68a0M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718611837; c=relaxed/simple;
-	bh=W6rU61EVSQ4sYbxH5Y0c74b06f0qBT0tT083RB8D/38=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=k9QK2+eYKZzH1y50Ti4Ha21LUflGRunRdrBGWS9vM7RdukA3IWig2dSJ+N4aO8DbvUGnR2ybpYbH66t+u/riMVRvWIXhLEofkXw+jTFJ07CLmMBXGt5+Bq0JHh0aLB9Wk5n7DsYrvJaoeNAnDbmWgOcMMymshHrPy+tzhPYFM48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BR2euYR3; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BR2euYR3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540A0C2BD10;
-	Mon, 17 Jun 2024 08:10:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718611836;
-	bh=W6rU61EVSQ4sYbxH5Y0c74b06f0qBT0tT083RB8D/38=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=BR2euYR3Zg+pMtLe/8Kf5sM06U24oWD+570LZdovf7LaE/5RudxPrhrUMYlAAbjA8
-	 +z2Mkj9PnK876fIiFPMRqcnk7H5MtPvzgnfKGZbzAi8RYf244jHtKrawaC2oB1qvBM
-	 gKiF/8cXzzVVUTRZ3jfdX3arOa5ePW8awf7YlkpBFt6lY2uitJlp6VmcIXYPp9Elr0
-	 IlbEQ+rB0OVcp5ulymrxWy0qxjFRfZAtE1IfQ6SasJWphkliEhEesM/ZcSyhXU9xxS
-	 xsIBx/34tUA2uMbTICNNQArSqoCnXMdeW2XdR8HukmKm3Xlxc8bKbL6/E2/brIONJL
-	 rTXCOVcUhg9Rg==
-Message-ID: <8105e441-07bf-41fc-8fb9-9d5816a60e11@kernel.org>
-Date: Mon, 17 Jun 2024 10:10:30 +0200
+	s=arc-20240116; t=1718613528; c=relaxed/simple;
+	bh=9iZmNW5Ylrns1GVS3Kh1kPqZFr0ZPpWvvtixJZGq9Mk=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HRxoH6Zobt6PLeD2+CoPe7XJ+xspjvRIp5/rr7Ulnvk43nnK44A0SBNI2+xReQ4qcfcZycsGIH+OL/oiwmFyo4qhYI+khDt3Oep1twpKPSppxvfxWF4F2wHCihNdbiNIQggAfCUEMGGTToZ848T8WoIjnACfNC5P97hQHHsOSDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=andestech.com; spf=pass smtp.mailfrom=andestech.com; arc=none smtp.client-ip=60.248.80.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=andestech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=andestech.com
+Received: from Atcsqr.andestech.com (localhost [127.0.0.2] (may be forged))
+	by Atcsqr.andestech.com with ESMTP id 45H8Pgbk079767
+	for <linux-rtc@vger.kernel.org>; Mon, 17 Jun 2024 16:25:42 +0800 (+08)
+	(envelope-from cl634@andestech.com)
+Received: from mail.andestech.com (ATCPCS34.andestech.com [10.0.1.134])
+	by Atcsqr.andestech.com with ESMTP id 45H8PFDM079702;
+	Mon, 17 Jun 2024 16:25:15 +0800 (+08)
+	(envelope-from cl634@andestech.com)
+Received: from swlinux02.andestech.com (10.0.15.183) by ATCPCS34.andestech.com
+ (10.0.1.134) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 17 Jun
+ 2024 16:25:16 +0800
+From: CL Wang <cl634@andestech.com>
+To: <cl634@andestech.com>, <alexandre.belloni@bootlin.com>, <krzk@kernel.org>,
+        <linux-rtc@vger.kernel.org>
+CC: <tim609@andestech.com>
+Subject: [PATCH V2 1/2] dt-bindings: rtc: atcrtc100: Add atcrtc100 bindings
+Date: Mon, 17 Jun 2024 16:25:06 +0800
+Message-ID: <20240617082507.3968910-2-cl634@andestech.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240617082507.3968910-1-cl634@andestech.com>
+References: <20240617082507.3968910-1-cl634@andestech.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/12] dt-bindings: mfd: renesas,rzg3s-vbattb: Document
- VBATTB
-To: claudiu beznea <claudiu.beznea@tuxon.dev>, geert+renesas@glider.be,
- mturquette@baylibre.com, sboyd@kernel.org, robh@kernel.org,
- krzk+dt@kernel.org, conor+dt@kernel.org, lee@kernel.org,
- alexandre.belloni@bootlin.com, magnus.damm@gmail.com
-Cc: linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-References: <20240614071932.1014067-1-claudiu.beznea.uj@bp.renesas.com>
- <20240614071932.1014067-4-claudiu.beznea.uj@bp.renesas.com>
- <936beb9a-2701-476c-8f5a-4b6b06d4f87d@kernel.org>
- <c882bac6-9cb9-4ba2-9bc4-967c03fcb031@tuxon.dev>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 fv0=
-In-Reply-To: <c882bac6-9cb9-4ba2-9bc4-967c03fcb031@tuxon.dev>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: ATCPCS33.andestech.com (10.0.1.100) To
+ ATCPCS34.andestech.com (10.0.1.134)
+X-DNSRBL: 
+X-SPAM-SOURCE-CHECK: pass
+X-MAIL:Atcsqr.andestech.com 45H8Pgbk079767
 
-On 17/06/2024 09:16, claudiu beznea wrote:
-> 
-> 
-> On 16.06.2024 10:38, Krzysztof Kozlowski wrote:
->> On 14/06/2024 09:19, Claudiu wrote:
->>> From: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
->>
->>> +
->>> +maintainers:
->>> +  - Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
->>> +
->>> +properties:
->>> +  compatible:
->>> +    items:
->>> +      - const: renesas,rzg3s-vbattb
->>> +      - const: syscon
->>> +      - const: simple-mfd
->>
->> No, mfd does no look good. That's not a simple device anymore and you
->> claim here child does not need vbat bclk, power domains and resets? That
->> would be a big surprise, although technically possible.
-> 
-> I wasn't sure how this MFD will be received by the Renesas maintainers so I
-> kept it simple for this version.
-> 
-> In theory the VBAT clk, power domain and resets are specific to VBAT module
-> itself but, indeed, the child cannot work w/o these.
-> 
->>
->> Please clarify: which of parent resources are needed for children?
-> 
-> VBAT clock, power domain are needed. Reset, too. In the current
-> implementation the reset is deasserted though parent by calling the
-> syscon_node_to_regmap(np->parent) in the clock driver.
+Add YAML bindings for Andes atcrtc100 RTC.
 
-Then you must drop simple-mfd. It's not simple-mfd if children needs
-parent's resources.
+Signed-off-by: CL Wang <cl634@andestech.com>
+---
+ .../bindings/rtc/andes,atcrtc100-rtc.yaml     | 39 +++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/andes,atcrtc100-rtc.yaml
 
-> 
->>
->> ...
->>
->>> +
->>> +additionalProperties: false
->>> +
->>> +examples:
->>> +  - |
->>> +    #include <dt-bindings/clock/r9a08g045-cpg.h>
->>> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
->>> +
->>> +    vbattb: vbattb@1005c000 {
->>> +        compatible = "renesas,rzg3s-vbattb", "syscon", "simple-mfd";
->>> +        reg = <0x1005c000 0x1000>;
->>> +        ranges = <0 0 0x1005c000 0 0x1000>;
->>> +        interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
->>> +        interrupt-names = "tampdi";
->>> +        clocks = <&cpg CPG_MOD R9A08G045_VBAT_BCLK>;
->>> +        clock-names = "bclk";
->>> +        power-domains = <&cpg>;
->>> +        resets = <&cpg R9A08G045_VBAT_BRESETN>;
->>> +        #address-cells = <2>;
->>> +        #size-cells = <2>;
->>> +        status = "disabled";
->>
->> Drop
-> 
-> Could you please clarify this? Would you want me to drop the full node
-> (same for clock-controller node)?
-> 
-> Can you point me an example that you are thinking about?
-
-The exact line I commented under.
-
-There is never status in any example. Please open any other binding or
-example-schema.
-
-
-
-Best regards,
-Krzysztof
+diff --git a/Documentation/devicetree/bindings/rtc/andes,atcrtc100-rtc.yaml b/Documentation/devicetree/bindings/rtc/andes,atcrtc100-rtc.yaml
+new file mode 100644
+index 000000000000..86cecb30c889
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/andes,atcrtc100-rtc.yaml
+@@ -0,0 +1,39 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/andes,atcrtc100-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Andes, ATCRTC100 on-SoC RTC
++
++allOf:
++  - $ref: rtc.yaml#
++
++maintainers:
++  - CL Wang <cl634@andestech.com>
++
++properties:
++  compatible:
++    enum:
++      - andestech,atcrtc100
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    minItems: 2
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++additionalProperties: false
++
++examples:
++  - |
++    rtc@f0300000 {
++        compatible = "andestech,atcrtc100";
++        reg = <0xf0300000 0x100>;
++        interrupts = <1>, <2>;
++    };
+-- 
+2.34.1
 
