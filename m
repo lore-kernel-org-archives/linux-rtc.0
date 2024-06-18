@@ -1,33 +1,35 @@
 Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AF83155A56;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A11155A3C;
 	Tue, 18 Jun 2024 14:19:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718720348; cv=none; b=mzQuAQ1l079o/Zzw0NLbVwMoURczmxIwEqA9a20WjihUhKoETxJahX/QpzAkaDesOdtojNWixsoK9HuJzoa4kRon7rg9zHCzg6vgsnmdt8kMrg7CvFBUauIZim1XBNfKjwrVVAFnlhhCgn7M+fGR6eS2wxDolx+LQFeOihJRHKc=
+	t=1718720349; cv=none; b=UTw1Ye/OTn/dYiCMCaJ4eyCvlg7yFuxCIUbme6mJR9nlRcierQtNiIqsMqEi8n+jZ0rkIng64qIGoV1IW/21L1K40/pU8tRo9ckaQbgQbC8maMOWmMhsmlt9g2XTKixPcGuOMjUTPDmmLPvNOn11+e6AOwhxBxScNVBI3cMH0fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718720348; c=relaxed/simple;
-	bh=3q4E1Yg0D77nrOFykHyo9O4ie2FnEOchmgONMr8mB2g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BJsjqMvmY7IrqX6r5qo3cXI4vGHH1+Q5IzB3A/jSl5LK1dNIWsaXpNEeSI8dqn7u9H8SiIOozbhB+WP71bz1OmUL3AEKWBUSGlIAfvwHe8KK111oDXNFaZUfmvOFaBzeFrl0zoG5xez+JqLjzpABmJzFXXCO1NMbPl4ZYoGOET8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=MDZypJh1; arc=none smtp.client-ip=217.70.183.197
+	s=arc-20240116; t=1718720349; c=relaxed/simple;
+	bh=YfMI02tpu0n8qRSeuJ2M30NKeDZGMK+deHo+6NDawxI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KgosdQlhaRzcAQ4YvDTRRIVkRdkm72wQqGAM62qpCOaqjROCr+e0eua8lioWuSmFTj8dHvGdeIOxZhCPgJ7izIGZOI97BhnBpZuqJ7RrQUjTVeQ5c63d+UE/Un2clclQ9aGvWwRARTUcNpRf9eKajyHrZbYZY7H3sILu8qmk9yY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=lIdaiIIi; arc=none smtp.client-ip=217.70.183.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="MDZypJh1"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 3CE5B1C0002;
-	Tue, 18 Jun 2024 14:19:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="lIdaiIIi"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 6E4E71C000E;
+	Tue, 18 Jun 2024 14:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1718720342;
+	t=1718720344;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=gyL/hw59WqU2reMGUKBGMooPbHmAQCDP31Jx4rlQFm8=;
-	b=MDZypJh1alvXt+BkMK+ZSeTMTlIF87U8/pjpPaFhHroT+PNoT7pgzaMBXpZxecE+evTAMo
-	0wsAEN2zm1ceqcTrhyELoYzVGnDOCnFVxAwNWISGgBCQ+Go/E5g1jDYvV5cuZF0OoUt92Q
-	2qdwKwOI8LWUi4r7+c5P5Xvxjlo8kAuHMcCuw1GrB0KvtxKHFxxOdJS4iDe+/dgrqFn5FM
-	PVCQCzzcWVo2Eqigiu9nypBq7GhFnUy+ygXxfFsvJjDfRKNRP4ZBbtRmHB2ACItvjwDX1d
-	PlYnL0OhbbIOqCWIh1GGQOpYbC2x5SXIc/cZ8gLcsFK0XtLwZ7OHibA10TtK2Q==
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0fSZPuWmFvT69TU6yL+a+QbionkgbFOONJgwSOT+Dt8=;
+	b=lIdaiIIiw68mLJjVJxNNKubi/YouJv7qCk+ZwtwpwmNPZAfbkdkHr2FN4bnRLFVreL6knk
+	EWg1UoR9ziMeU+5Kgrf8L0rEy1S+/s4jeRAS/isnelp/XjwgEVcb6oAqZEyGqqLNfxbTlo
+	yymVLBrA/FkYs2rOrqHpgVTC0E3lWQ1n1Ss92PlHXhVnQxgWgO2W145Iqst/Vvsct+rQj9
+	m5BhR3IExVuvIQcEeRaYPRzxktY/lg3xmebQXOCCfH82VG+Zi4AQR2fu4VFaXXd+wad6X1
+	yjF6KB+Y/2bJTgLHNplR9IApF+NkrnOohko6SPSWKfUiZbtk0gguol0QS38gtQ==
 From: Richard Genoud <richard.genoud@bootlin.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
@@ -39,10 +41,12 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	Lee Jones <lee@kernel.org>,
 	linux-kernel@vger.kernel.org,
 	Richard Genoud <richard.genoud@bootlin.com>
-Subject: [PATCH v3 0/3] rtc: tps6594: Add power management support
-Date: Tue, 18 Jun 2024 16:18:48 +0200
-Message-ID: <20240618141851.1810000-1-richard.genoud@bootlin.com>
+Subject: [PATCH v3 3/3] rtc: tps6594: Add power management support
+Date: Tue, 18 Jun 2024 16:18:51 +0200
+Message-ID: <20240618141851.1810000-4-richard.genoud@bootlin.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240618141851.1810000-1-richard.genoud@bootlin.com>
+References: <20240618141851.1810000-1-richard.genoud@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -52,27 +56,93 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-GND-Sasl: richard.genoud@bootlin.com
 
-This series add power management support for tps6594_rtc.
+Add power management support to the driver. This allows a SoC to wake
+from suspend using the nINT provided by the RTC.
+It takes care of the case when the interrupt has not been caught because
+the kernel has not yet woke up.
+(This is the case when only edges interrupt are caught)
 
-The 1st patch fixes a memleak found in the probe()
-The 2nd patch simply introduce a private structure as drvdata that will
-be used in the 3rd patch. (no functionnal change)
-The 3rd patch introduce the power management support.
+Signed-off-by: Richard Genoud <richard.genoud@bootlin.com>
+---
+ drivers/rtc/rtc-tps6594.c | 47 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
-Changes in v3:
- - Fix a memleak found in probe()
- - introduce a private structure to prevent squatting the mfd structure
-   (struct tps6594) with rtc-only related stuff.
-
-Changes in v2:
- - use DEFINE_SIMPLE_DEV_PM_OPS instead of deprecated SIMPLE_DEV_PM_OPS
-   (This fixes the defined but unsed warning when CONFIG_PM is unset)
-
-Richard Genoud (3):
-  rtc: tps6594: Fix memleak in probe
-  rtc: tps6594: introduce private structure as drvdata
-  rtc: tps6594: Add power management support
-
- drivers/rtc/rtc-tps6594.c | 75 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 63 insertions(+), 12 deletions(-)
-
+diff --git a/drivers/rtc/rtc-tps6594.c b/drivers/rtc/rtc-tps6594.c
+index 06af177b2d78..e69667634137 100644
+--- a/drivers/rtc/rtc-tps6594.c
++++ b/drivers/rtc/rtc-tps6594.c
+@@ -44,6 +44,7 @@
+ 
+ struct tps6594_rtc {
+ 	struct rtc_device *rtc_dev;
++	int irq;
+ };
+ 
+ static int tps6594_rtc_alarm_irq_enable(struct device *dev,
+@@ -419,6 +420,8 @@ static int tps6594_rtc_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		return dev_err_probe(dev, irq, "Failed to get irq\n");
+ 
++	rtc->irq = irq;
++
+ 	ret = devm_request_threaded_irq(dev, irq, NULL, tps6594_rtc_interrupt,
+ 					IRQF_ONESHOT, TPS6594_IRQ_NAME_ALARM,
+ 					dev);
+@@ -438,6 +441,49 @@ static int tps6594_rtc_probe(struct platform_device *pdev)
+ 	return devm_rtc_register_device(rtc->rtc_dev);
+ }
+ 
++static int tps6594_rtc_resume(struct device *dev)
++{
++	struct tps6594 *tps = dev_get_drvdata(dev->parent);
++	struct tps6594_rtc *rtc = dev_get_drvdata(dev);
++	int ret;
++
++	ret = regmap_test_bits(tps->regmap, TPS6594_REG_INT_STARTUP,
++			       TPS6594_BIT_RTC_INT);
++	if (ret < 0) {
++		dev_err(dev, "failed to read REG_INT_STARTUP: %d\n", ret);
++		goto out;
++	}
++
++	if (ret > 0) {
++		/*
++		 * If the alarm bit is set, it means that the IRQ has been
++		 * fired. But, the kernel may not have woke up yet when it
++		 * happened. So, we have to clear it.
++		 */
++		ret = regmap_write(tps->regmap, TPS6594_REG_RTC_STATUS,
++				   TPS6594_BIT_ALARM);
++		if (ret < 0)
++			dev_err(dev, "error clearing alarm bit: %d", ret);
++
++		rtc_update_irq(rtc->rtc_dev, 1, RTC_IRQF | RTC_AF);
++	}
++out:
++	disable_irq_wake(rtc->irq);
++
++	return 0;
++}
++
++static int tps6594_rtc_suspend(struct device *dev)
++{
++	struct tps6594_rtc *rtc = dev_get_drvdata(dev);
++
++	enable_irq_wake(rtc->irq);
++
++	return 0;
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(tps6594_rtc_pm_ops, tps6594_rtc_suspend, tps6594_rtc_resume);
++
+ static const struct platform_device_id tps6594_rtc_id_table[] = {
+ 	{ "tps6594-rtc", },
+ 	{}
+@@ -448,6 +494,7 @@ static struct platform_driver tps6594_rtc_driver = {
+ 	.probe		= tps6594_rtc_probe,
+ 	.driver		= {
+ 		.name	= "tps6594-rtc",
++		.pm = pm_sleep_ptr(&tps6594_rtc_pm_ops),
+ 	},
+ 	.id_table = tps6594_rtc_id_table,
+ };
