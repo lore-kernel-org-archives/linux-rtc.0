@@ -1,84 +1,86 @@
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0A81155A53;
-	Tue, 18 Jun 2024 14:19:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE8223749;
+	Tue, 18 Jun 2024 15:17:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718720349; cv=none; b=JMgPRGIeWn5Qn17WYrAqcJ2qNYTkI8YmrLqLc/qVD5iOmxyzb03uhxgZFICYjezTJPqTNgTIZhQ+yOQaBLXaxQB1c2y2tRVfsutz9bzu/5NtTPEL+3GdLjZOL86KI/8oElUkzwRuMgHlLZ34B1CMLL7no2UwX5BYLsdNYoL8rcE=
+	t=1718723879; cv=none; b=IpFmTzUP8JT3TvU4S6iMWI2S5+8RA4PBQMsVtTr4jcxjibs8jygm1sSBBByTBJ+iFfPuSzsgMpP4/RQjD7k6Jtwvb3S/vh+ijxKmygWcz6WmkZmtTS+YA62fPpDRbZrHa56B2dwicizLFJw+HH1iZdt4D5zQCxoG3+iC3es37JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718720349; c=relaxed/simple;
-	bh=Ggs4LiAIFz6s55sxtqUcaZ2B7cPu/teZ0uahLhWKsNs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uRpfgQQIxgOjQcoFCfvJslwZoX5jOs1hoqyvBtbkSWJ/sf6/6KS9Wyfz+/HUWkMth9TwiJU/QCacWFMaLb/SpdcS6AB14HpDRaStuAHQFsv0zI3sUxUqACINNsyftPYQWqXTWP0HDQ8e0tR72rxSLwEO3/gLRlbiv5sq0vWQn74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=OTlLKG6E; arc=none smtp.client-ip=217.70.183.197
+	s=arc-20240116; t=1718723879; c=relaxed/simple;
+	bh=TSyddSQwddStofTU8ovraNU+a6CE76ymidBr5E0QYzs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DqsZg2n5Yj+HRhscpTtYsL2+R6x1nfPzsaBskc895ujhw8+RYqNrcUFILyapIThZNk8gDTcZB2vmBSMBWSvmClIhDyoHwViV7FwKzqhkSsmEJ4iI6OV+9IToPkgQFWb6m0n6z7gCZ1yN1QO2HEn+za0glYVb7RjwCsBTUBN1fKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=bVmvQHsu; arc=none smtp.client-ip=217.70.183.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="OTlLKG6E"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 177BB1C0004;
-	Tue, 18 Jun 2024 14:19:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="bVmvQHsu"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 2EA9C240006;
+	Tue, 18 Jun 2024 15:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1718720342;
+	t=1718723870;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=unycStWLNSmZi3IWJRgG9YiHqHREugQ7zxLXwZKoaoM=;
-	b=OTlLKG6EFtlVA3DMngANVrxMygfpi+XMU5YIhVnM7y8eZ+tRGUFh+hLvcLJcSwQ0+nUHke
-	Wq9S+tpGuTSQTAZvbdt/+bCH+u81h+pyAqHGu1k06HnzpgG+bGWsqN8kINBWhv355imwaL
-	HDzJ+3JcM78o9QXZ6d8ivuwyGRgM9Dh4UgZITX8xK0xRuw2lHsTkPwus48q+wNsG3NlAAs
-	Af6Tv1FWZGrCki+YWN+tqDu1gRhUHYlLi7Ym1dRBXnt6WoR7VIrBMhmGjmbV9mL/ak83Xr
-	/dDOFHVTMx49ufRwY0AAG97s0QVbiDucBQ+q49PhH1weg5tGhHHlSP2kb9FB5Q==
-From: Richard Genoud <richard.genoud@bootlin.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	bh=NbgnawqPU9vT8GnZ5Li1z5KdrSOCwdjOzlBrIYH0Ric=;
+	b=bVmvQHsuT8SSN2WzjlHpmIoAeD0zMa+YqUM1MT4WHJyQKDe5XvqoH1bV3ksoFgo7IORTwe
+	lIn1Ee5thWVkg67Y92kmNbdDzZiIpxE981uoNLALizqJRH8JCbnVat6kvgjmXbmGTUfgMb
+	SguTATDlW9fC1FNzV2s/S9c9+0EC/sNCxcOCOB0w5VMZCgYQc3w/UDKpzw4zitJo316+i6
+	vtQW2P3jiQ6lgUr2LfyFBkWkSpANBUXSi4Dg+ehyDlK9/puzycU25fPwf+GQihvXWZStD2
+	8YUafN91e/TkVThumXunTa27bL1ln4tyHO4taFvA99iw8ZQmADyrYOGCJUz/xw==
+Date: Tue, 18 Jun 2024 17:17:49 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Richard GENOUD <richard.genoud@bootlin.com>
+Cc: Thomas Richard <thomas.richard@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	Udit Kumar <u-kumar1@ti.com>,
-	Thomas Richard <thomas.richard@bootlin.com>,
 	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	Esteban Blanc <eblanc@baylibre.com>,
-	linux-rtc@vger.kernel.org,
-	Lee Jones <lee@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	Richard Genoud <richard.genoud@bootlin.com>
-Subject: [PATCH v3 1/3] rtc: tps6594: Fix memleak in probe
-Date: Tue, 18 Jun 2024 16:18:49 +0200
-Message-ID: <20240618141851.1810000-2-richard.genoud@bootlin.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240618141851.1810000-1-richard.genoud@bootlin.com>
-References: <20240618141851.1810000-1-richard.genoud@bootlin.com>
+	Esteban Blanc <eblanc@baylibre.com>, linux-rtc@vger.kernel.org,
+	Lee Jones <lee@kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] rtc: tps6594: Add power management support
+Message-ID: <20240618151749d6ed0733@mail.local>
+References: <20240515152827.80185-1-richard.genoud@bootlin.com>
+ <20240515152827.80185-2-richard.genoud@bootlin.com>
+ <09168a9a-d8a3-43a9-b8cc-fd88cff9db82@bootlin.com>
+ <c4ce3a14-fb28-4c34-abc1-9b0ae1c1a82f@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-GND-Sasl: richard.genoud@bootlin.com
+In-Reply-To: <c4ce3a14-fb28-4c34-abc1-9b0ae1c1a82f@bootlin.com>
+X-GND-Sasl: alexandre.belloni@bootlin.com
 
-struct rtc_device is allocated twice in probe(), once with
-devm_kzalloc(), and then with devm_rtc_allocate_device().
+On 18/06/2024 11:48:33+0200, Richard GENOUD wrote:
+> Le 14/06/2024 à 15:21, Thomas Richard a écrit :
+> > > diff --git a/include/linux/mfd/tps6594.h b/include/linux/mfd/tps6594.h
+> > > index 3f7c5e23cd4c..85933f1519c4 100644
+> > > --- a/include/linux/mfd/tps6594.h
+> > > +++ b/include/linux/mfd/tps6594.h
+> > > @@ -1011,6 +1011,7 @@ struct tps6594 {
+> > >   	bool use_crc;
+> > >   	struct regmap *regmap;
+> > >   	int irq;
+> > > +	int irq_rtc;
+> > 
+> > irq_rtc should be stored in driver data.
+> I understand your point.
+> It may indeed be cleaner to separate the rtc-specific data into a private
+> struct.
+> 
+> I'll send a v3 with this modification, and I'll let Alexandre decide which
+> he prefers.
 
-The allocation with devm_kzalloc() is lost and superfluous.
+My plan is to take v2 as-is
 
-Fixes: 9f67c1e63976 ("rtc: tps6594: Add driver for TPS6594 RTC")
-Signed-off-by: Richard Genoud <richard.genoud@bootlin.com>
----
- drivers/rtc/rtc-tps6594.c | 4 ----
- 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/rtc/rtc-tps6594.c b/drivers/rtc/rtc-tps6594.c
-index 838ae8562a35..bc8dc735aa23 100644
---- a/drivers/rtc/rtc-tps6594.c
-+++ b/drivers/rtc/rtc-tps6594.c
-@@ -360,10 +360,6 @@ static int tps6594_rtc_probe(struct platform_device *pdev)
- 	int irq;
- 	int ret;
- 
--	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
--	if (!rtc)
--		return -ENOMEM;
--
- 	rtc = devm_rtc_allocate_device(dev);
- 	if (IS_ERR(rtc))
- 		return PTR_ERR(rtc);
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
