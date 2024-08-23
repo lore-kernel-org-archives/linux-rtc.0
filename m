@@ -1,59 +1,59 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00F951494D6;
-	Fri, 23 Aug 2024 09:02:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15BA2149002;
+	Fri, 23 Aug 2024 09:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724403747; cv=none; b=lVIs4E6XYCTtbuGmSrY6LPMr48jIPWoYGUuqb2L2OjcF4a+kG6tyDU79FtvmKB4sRGzc7YQj86VyUFEnRa9Z8k2BwgoDnvwsiwYMJAXkxBgNVGAtMZ1ZpSkfrMxYddt9Ggyk21xIBa8FCEdylavrohwlPdkrtZHV+IDTJnweFrM=
+	t=1724404347; cv=none; b=FuVsFRm8Fn/g+MdukkYDaecG8kiMdtzSqkcE14RtlpCTs6qhWZqQaPQ1/ja1tzu1Yc0M+WcNN9GokX99+Ap7gSTi28JkHLmr3pAP0C2fktGJ4Cqe+HUgydIPnaeHcpIEPv7gJKnLl5+U5ctjGHYa5F/IjBOYDQk43j81A5nJB8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724403747; c=relaxed/simple;
-	bh=bNAz38XBI+Ew8emwZS9IZZmsuKD/DTYDcohoAnwBhU0=;
+	s=arc-20240116; t=1724404347; c=relaxed/simple;
+	bh=eHJm1q1OOWYK8xxi+RglQ6jSRl5S5FTqCzDh314fzKI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eTaP5ggHM358tPaGCI4Y9Q/OHpCOO8lu8p+R91Q3R/MzXPYx8nV312nJ3Pq23wZZGIazK+JreI4tYiDl6XCFOG9c7+bLJkRx0XTSOOFGMkOcKUV9FMXg8xEbu00csAIgUJ9QxdgIa9kHgnoJXkHURCRSHtyZSzwhYR7vqIcmzus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fBkRvtU/; arc=none smtp.client-ip=198.175.65.15
+	 Content-Type:Content-Disposition:In-Reply-To; b=WaFYORk/CjU4PgVmndKIA2PaNjZKLjRjyTgwqJBQuVzdYF7+NfLHXbr++QsZVRsBhmRLZ58mqEPuvVQS4IxHkbVEDJK1MwmHP/lqCvRyF/VfLfziShNVHNYS35h6RTWQF0BLp01Y0iDtiFpQnssKXOYxUUTU9ftxeuRw/4b6S2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GOqxw9zE; arc=none smtp.client-ip=192.198.163.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fBkRvtU/"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GOqxw9zE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1724403746; x=1755939746;
+  t=1724404345; x=1755940345;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=bNAz38XBI+Ew8emwZS9IZZmsuKD/DTYDcohoAnwBhU0=;
-  b=fBkRvtU/F3zSwImOlKxyUBGGgFeBLc8utz0cymt9q2zfLR6JaIGN/Tr+
-   a4nkdj31UQz9swIEN6Uek/L8wpZpHtVBNyuUKkFzbP47OekYCYnPgFtsH
-   VbKi4hEbFNEYDcXANIcp7jyUgbzFKSgcdVhPP8FlmNn+r+lpWQ3lcNseV
-   ZqdGZABkvn3yLEAKWgEyB92OlHCmPTRsQcqVu08FdwZJkN92ftPwJabAs
-   i7E91w7/xr5IU8nHnHz+K2tYBIi7kldrkudkSQiScmaoS0RStEQtgK9vx
-   3HkLIHdCJmFQhfEnX0KC44A7p980289stkjIXsXOT4+Z4iVXvNq1zxdsN
-   w==;
-X-CSE-ConnectionGUID: Ig4QxkQ6SoKd20XjDz3ISw==
-X-CSE-MsgGUID: f+dMSUlAQyud8qen/0KYNA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11172"; a="26617982"
+  bh=eHJm1q1OOWYK8xxi+RglQ6jSRl5S5FTqCzDh314fzKI=;
+  b=GOqxw9zE0w9OH9u9OenuskQfO+/ilrqgBhQUh9U/ID0SVNPxPb9q9lCw
+   jHb2WNAWsm0Z79hY/YZ2ZsFfiyYD9lTu2Fumjwoty7B0FlZrraLrFasAV
+   u4nuRUgSDOFcXk4+wSurncFKz+qITa15OPA2A3JHwDx4yCXNvADp9Ln+E
+   YL61wDS41w5+ri0FfQD8FogOWh37kVhx0NOAyPhLaERld4w0v26VFp7pu
+   r8APYhdo8BDa6lBiJH5Tw+usZqdhsfZNUAdyFuzrhAiTV0kpAzUXxkuhU
+   f3IsKzvV4SO1XMq4v4WV5cy3Z1cEeVde/JwpkAu8t2yXzjfk0+jXbRGI4
+   A==;
+X-CSE-ConnectionGUID: In5zubQwSF65Xkjv3WfH9g==
+X-CSE-MsgGUID: Nbzzku6uQoGNHEB+JMCloA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11172"; a="22384862"
 X-IronPort-AV: E=Sophos;i="6.10,169,1719903600"; 
-   d="scan'208";a="26617982"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2024 02:02:24 -0700
-X-CSE-ConnectionGUID: xamOvUGWRheSqddhL0HklQ==
-X-CSE-MsgGUID: EHRKSNtNSFSlB1bo2yDmqA==
+   d="scan'208";a="22384862"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2024 02:12:24 -0700
+X-CSE-ConnectionGUID: vxD6szCLRNa+rUFcKl3fQg==
+X-CSE-MsgGUID: 8JLwp4AkTVWqEYRrnZgS8g==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,169,1719903600"; 
-   d="scan'208";a="92529962"
+   d="scan'208";a="92463441"
 Received: from lkp-server01.sh.intel.com (HELO 9a732dc145d3) ([10.239.97.150])
-  by fmviesa001.fm.intel.com with ESMTP; 23 Aug 2024 02:02:21 -0700
+  by orviesa002.jf.intel.com with ESMTP; 23 Aug 2024 02:12:23 -0700
 Received: from kbuild by 9a732dc145d3 with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1shQBX-000DbM-1n;
-	Fri, 23 Aug 2024 09:02:19 +0000
-Date: Fri, 23 Aug 2024 17:01:35 +0800
+	id 1shQLD-000Dbg-2e;
+	Fri, 23 Aug 2024 09:12:19 +0000
+Date: Fri, 23 Aug 2024 17:11:59 +0800
 From: kernel test robot <lkp@intel.com>
 To: Liao Yuanhong <liaoyuanhong@vivo.com>, alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: oe-kbuild-all@lists.linux.dev, Liao Yuanhong <liaoyuanhong@vivo.com>
 Subject: Re: [PATCH 1/7] rtc:rtc-at91rm9200:Use devm_clk_get_enabled() helpers
-Message-ID: <202408231657.ZitX62vV-lkp@intel.com>
+Message-ID: <202408231607.RHujmOKI-lkp@intel.com>
 References: <20240821092846.20138-2-liaoyuanhong@vivo.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
@@ -79,14 +79,14 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Liao-Yuanhong/rtc-rtc-at9
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
 patch link:    https://lore.kernel.org/r/20240821092846.20138-2-liaoyuanhong%40vivo.com
 patch subject: [PATCH 1/7] rtc:rtc-at91rm9200:Use devm_clk_get_enabled() helpers
-config: sparc64-randconfig-r064-20240823 (https://download.01.org/0day-ci/archive/20240823/202408231657.ZitX62vV-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 14.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240823/202408231657.ZitX62vV-lkp@intel.com/reproduce)
+config: sh-allmodconfig (https://download.01.org/0day-ci/archive/20240823/202408231607.RHujmOKI-lkp@intel.com/config)
+compiler: sh4-linux-gcc (GCC) 14.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240823/202408231607.RHujmOKI-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202408231657.ZitX62vV-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202408231607.RHujmOKI-lkp@intel.com/
 
 All errors (new ones prefixed by >>):
 
@@ -94,28 +94,53 @@ All errors (new ones prefixed by >>):
    drivers/rtc/rtc-at91rm9200.c:473:13: warning: unused variable 'ret' [-Wunused-variable]
      473 |         int ret = 0;
          |             ^~~
+   In file included from include/linux/io.h:14,
+                    from include/linux/irq.h:20,
+                    from include/asm-generic/hardirq.h:17,
+                    from arch/sh/include/asm/hardirq.h:9,
+                    from include/linux/hardirq.h:11,
+                    from include/linux/interrupt.h:11,
+                    from drivers/rtc/rtc-at91rm9200.c:20:
    drivers/rtc/rtc-at91rm9200.c: At top level:
-   drivers/rtc/rtc-at91rm9200.c:89:24: error: expected declaration specifiers or '...' before '(' token
+>> arch/sh/include/asm/io.h:46:35: error: expected identifier or '(' before 'void'
+      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
+         |                                   ^~~~
+   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
       89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |                        ^
+         |         ^~~~~~~~~~~~~~
    drivers/rtc/rtc-at91rm9200.c:506:9: note: in expansion of macro 'at91_rtc_write'
      506 |         at91_rtc_write(AT91_RTC_CR, 0);
          |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:89:31: error: expected declaration specifiers or '...' before 'at91_rtc_regs'
+>> arch/sh/include/asm/io.h:31:33: error: expected ')' before '(' token
+      31 | #define __raw_writel(v,a)       (__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
+         |                                 ^
+   arch/sh/include/asm/io.h:46:40: note: in expansion of macro '__raw_writel'
+      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
+         |                                        ^~~~~~~~~~~~
+   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
       89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |                               ^~~~~~~~~~~~~
+         |         ^~~~~~~~~~~~~~
    drivers/rtc/rtc-at91rm9200.c:506:9: note: in expansion of macro 'at91_rtc_write'
      506 |         at91_rtc_write(AT91_RTC_CR, 0);
          |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:89:24: error: expected declaration specifiers or '...' before '(' token
+>> arch/sh/include/asm/io.h:46:35: error: expected identifier or '(' before 'void'
+      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
+         |                                   ^~~~
+   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
       89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |                        ^
+         |         ^~~~~~~~~~~~~~
    drivers/rtc/rtc-at91rm9200.c:507:9: note: in expansion of macro 'at91_rtc_write'
      507 |         at91_rtc_write(AT91_RTC_MR, at91_rtc_read(AT91_RTC_MR) & ~AT91_RTC_HRMOD);
          |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:89:31: error: expected declaration specifiers or '...' before 'at91_rtc_regs'
+>> arch/sh/include/asm/io.h:31:33: error: expected ')' before '(' token
+      31 | #define __raw_writel(v,a)       (__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
+         |                                 ^
+   arch/sh/include/asm/io.h:46:40: note: in expansion of macro '__raw_writel'
+      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
+         |                                        ^~~~~~~~~~~~
+   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
       89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |                               ^~~~~~~~~~~~~
+         |         ^~~~~~~~~~~~~~
    drivers/rtc/rtc-at91rm9200.c:507:9: note: in expansion of macro 'at91_rtc_write'
      507 |         at91_rtc_write(AT91_RTC_MR, at91_rtc_read(AT91_RTC_MR) & ~AT91_RTC_HRMOD);
          |         ^~~~~~~~~~~~~~
@@ -141,60 +166,13 @@ All errors (new ones prefixed by >>):
      514 |         ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
          |                                 ^~~~
          |                                 cdev
-   In file included from include/linux/bcd.h:5,
-                    from drivers/rtc/rtc-at91rm9200.c:16:
->> include/linux/compiler.h:55:23: error: expected identifier or '(' before 'if'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                       ^~
-   drivers/rtc/rtc-at91rm9200.c:517:9: note: in expansion of macro 'if'
+   drivers/rtc/rtc-at91rm9200.c:517:9: error: expected identifier or '(' before 'if'
      517 |         if (ret) {
          |         ^~
->> include/linux/compiler.h:71:2: error: expected identifier or '(' before ')' token
-      71 | })
-         |  ^
-   include/linux/compiler.h:57:69: note: in expansion of macro '__trace_if_value'
-      57 | #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-         |                                                                     ^~~~~~~~~~~~~~~~
-   include/linux/compiler.h:55:28: note: in expansion of macro '__trace_if_var'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                            ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:517:9: note: in expansion of macro 'if'
-     517 |         if (ret) {
-         |         ^~
->> include/linux/compiler.h:55:23: error: expected identifier or '(' before 'if'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                       ^~
-   drivers/rtc/rtc-at91rm9200.c:525:9: note: in expansion of macro 'if'
+   drivers/rtc/rtc-at91rm9200.c:525:9: error: expected identifier or '(' before 'if'
      525 |         if (!device_can_wakeup(&pdev->dev))
          |         ^~
->> include/linux/compiler.h:71:2: error: expected identifier or '(' before ')' token
-      71 | })
-         |  ^
-   include/linux/compiler.h:57:69: note: in expansion of macro '__trace_if_value'
-      57 | #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-         |                                                                     ^~~~~~~~~~~~~~~~
-   include/linux/compiler.h:55:28: note: in expansion of macro '__trace_if_var'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                            ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:525:9: note: in expansion of macro 'if'
-     525 |         if (!device_can_wakeup(&pdev->dev))
-         |         ^~
->> include/linux/compiler.h:55:23: error: expected identifier or '(' before 'if'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                       ^~
-   drivers/rtc/rtc-at91rm9200.c:528:9: note: in expansion of macro 'if'
-     528 |         if (at91_rtc_config->has_correction)
-         |         ^~
->> include/linux/compiler.h:71:2: error: expected identifier or '(' before ')' token
-      71 | })
-         |  ^
-   include/linux/compiler.h:57:69: note: in expansion of macro '__trace_if_value'
-      57 | #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-         |                                                                     ^~~~~~~~~~~~~~~~
-   include/linux/compiler.h:55:28: note: in expansion of macro '__trace_if_var'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                            ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:528:9: note: in expansion of macro 'if'
+   drivers/rtc/rtc-at91rm9200.c:528:9: error: expected identifier or '(' before 'if'
      528 |         if (at91_rtc_config->has_correction)
          |         ^~
    drivers/rtc/rtc-at91rm9200.c:530:9: error: expected identifier or '(' before 'else'
@@ -221,22 +199,7 @@ All errors (new ones prefixed by >>):
    include/linux/rtc.h:246:49: note: in definition of macro 'devm_rtc_register_device'
      246 |         __devm_rtc_register_device(THIS_MODULE, device)
          |                                                 ^~~~~~
->> include/linux/compiler.h:55:23: error: expected identifier or '(' before 'if'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                       ^~
-   drivers/rtc/rtc-at91rm9200.c:536:9: note: in expansion of macro 'if'
-     536 |         if (ret)
-         |         ^~
->> include/linux/compiler.h:71:2: error: expected identifier or '(' before ')' token
-      71 | })
-         |  ^
-   include/linux/compiler.h:57:69: note: in expansion of macro '__trace_if_value'
-      57 | #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-         |                                                                     ^~~~~~~~~~~~~~~~
-   include/linux/compiler.h:55:28: note: in expansion of macro '__trace_if_var'
-      55 | #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-         |                            ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:536:9: note: in expansion of macro 'if'
+   drivers/rtc/rtc-at91rm9200.c:536:9: error: expected identifier or '(' before 'if'
      536 |         if (ret)
          |         ^~
    include/vdso/bits.h:7:33: error: expected declaration specifiers or '...' before '(' token
@@ -270,41 +233,31 @@ All errors (new ones prefixed by >>):
    drivers/rtc/rtc-at91rm9200.c:504:9: warning: control reaches end of non-void function [-Wreturn-type]
      504 |         }
          |         ^
-   drivers/rtc/rtc-at91rm9200.c: At top level:
-   drivers/rtc/rtc-at91rm9200.c:456:35: warning: 'sama5d4_rtc_ops' defined but not used [-Wunused-const-variable=]
-     456 | static const struct rtc_class_ops sama5d4_rtc_ops = {
-         |                                   ^~~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:448:35: warning: 'at91_rtc_ops' defined but not used [-Wunused-const-variable=]
-     448 | static const struct rtc_class_ops at91_rtc_ops = {
-         |                                   ^~~~~~~~~~~~
 
 
-vim +55 include/linux/compiler.h
+vim +46 arch/sh/include/asm/io.h
 
-2bcd521a684cc9 Steven Rostedt 2008-11-21  49  
-2bcd521a684cc9 Steven Rostedt 2008-11-21  50  #ifdef CONFIG_PROFILE_ALL_BRANCHES
-2bcd521a684cc9 Steven Rostedt 2008-11-21  51  /*
-2bcd521a684cc9 Steven Rostedt 2008-11-21  52   * "Define 'is'", Bill Clinton
-2bcd521a684cc9 Steven Rostedt 2008-11-21  53   * "Define 'if'", Steven Rostedt
-2bcd521a684cc9 Steven Rostedt 2008-11-21  54   */
-a15fd609ad53a6 Linus Torvalds 2019-03-20 @55  #define if(cond, ...) if ( __trace_if_var( !!(cond , ## __VA_ARGS__) ) )
-a15fd609ad53a6 Linus Torvalds 2019-03-20  56  
-a15fd609ad53a6 Linus Torvalds 2019-03-20  57  #define __trace_if_var(cond) (__builtin_constant_p(cond) ? (cond) : __trace_if_value(cond))
-a15fd609ad53a6 Linus Torvalds 2019-03-20  58  
-a15fd609ad53a6 Linus Torvalds 2019-03-20  59  #define __trace_if_value(cond) ({			\
-2bcd521a684cc9 Steven Rostedt 2008-11-21  60  	static struct ftrace_branch_data		\
-e04462fb82f8dd Miguel Ojeda   2018-09-03  61  		__aligned(4)				\
-33def8498fdde1 Joe Perches    2020-10-21  62  		__section("_ftrace_branch")		\
-a15fd609ad53a6 Linus Torvalds 2019-03-20  63  		__if_trace = {				\
-2bcd521a684cc9 Steven Rostedt 2008-11-21  64  			.func = __func__,		\
-2bcd521a684cc9 Steven Rostedt 2008-11-21  65  			.file = __FILE__,		\
-2bcd521a684cc9 Steven Rostedt 2008-11-21  66  			.line = __LINE__,		\
-2bcd521a684cc9 Steven Rostedt 2008-11-21  67  		};					\
-a15fd609ad53a6 Linus Torvalds 2019-03-20  68  	(cond) ?					\
-a15fd609ad53a6 Linus Torvalds 2019-03-20  69  		(__if_trace.miss_hit[1]++,1) :		\
-a15fd609ad53a6 Linus Torvalds 2019-03-20  70  		(__if_trace.miss_hit[0]++,0);		\
-a15fd609ad53a6 Linus Torvalds 2019-03-20 @71  })
-a15fd609ad53a6 Linus Torvalds 2019-03-20  72  
+b66c1a3919abb4 include/asm-sh/io.h      Paul Mundt 2006-01-16  28  
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  29  #define __raw_writeb(v,a)	(__chk_io_ptr(a), *(volatile u8  __force *)(a) = (v))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  30  #define __raw_writew(v,a)	(__chk_io_ptr(a), *(volatile u16 __force *)(a) = (v))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04 @31  #define __raw_writel(v,a)	(__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  32  #define __raw_writeq(v,a)	(__chk_io_ptr(a), *(volatile u64 __force *)(a) = (v))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  33  
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  34  #define __raw_readb(a)		(__chk_io_ptr(a), *(volatile u8  __force *)(a))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  35  #define __raw_readw(a)		(__chk_io_ptr(a), *(volatile u16 __force *)(a))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  36  #define __raw_readl(a)		(__chk_io_ptr(a), *(volatile u32 __force *)(a))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  37  #define __raw_readq(a)		(__chk_io_ptr(a), *(volatile u64 __force *)(a))
+14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  38  
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  39  #define readb_relaxed(c)	({ u8  __v = ioswabb(__raw_readb(c)); __v; })
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  40  #define readw_relaxed(c)	({ u16 __v = ioswabw(__raw_readw(c)); __v; })
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  41  #define readl_relaxed(c)	({ u32 __v = ioswabl(__raw_readl(c)); __v; })
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  42  #define readq_relaxed(c)	({ u64 __v = ioswabq(__raw_readq(c)); __v; })
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  43  
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  44  #define writeb_relaxed(v,c)	((void)__raw_writeb((__force  u8)ioswabb(v),c))
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  45  #define writew_relaxed(v,c)	((void)__raw_writew((__force u16)ioswabw(v),c))
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29 @46  #define writel_relaxed(v,c)	((void)__raw_writel((__force u32)ioswabl(v),c))
+b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  47  #define writeq_relaxed(v,c)	((void)__raw_writeq((__force u64)ioswabq(v),c))
+37b7a97884ba64 arch/sh/include/asm/io.h Paul Mundt 2010-11-01  48  
 
 -- 
 0-DAY CI Kernel Test Service
