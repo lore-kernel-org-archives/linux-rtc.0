@@ -1,30 +1,30 @@
-Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+Received: from omta036.useast.a.cloudfilter.net (omta036.useast.a.cloudfilter.net [44.202.169.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE7DD1891BA
-	for <linux-rtc@vger.kernel.org>; Fri, 23 Aug 2024 15:35:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.202.169.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E80241898EA
+	for <linux-rtc@vger.kernel.org>; Fri, 23 Aug 2024 15:36:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.202.169.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724427362; cv=none; b=kQGa1mSwA5o7cUZr6b3GXHnVC3VsQoU4TeYVfaVSwFaOwRuTdjoV3+/H11ubY6WjiFpsflmLuwbZmW7UVN9JIjvQRkC6LV/Eq911jaeT18hL2+oK5icyZlpta0rUnwJAAKGZAHR7J36AFpnGKKCUfs5dOjMmSkJ9cJHznwJkv8o=
+	t=1724427363; cv=none; b=dpzUkNUKKJZ2NprC7i4so/O6pR6Dgu4u+2jykssat/cXPa1Q+VxslSkIVfn5+PZvFz9Zn/or8Wt+Pcr/LlXusc8mXnJcp91bhY30KfkeowvAg3Rnx/mYvkpp7cGDSyDOlPqbxEOqukg+BSBwxPLuevrigY+DP5bXf64vCU+N//Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724427362; c=relaxed/simple;
-	bh=ic1UksxX9C3U+zO04YiIE/rAsB50nQjVR88sEiBVK1o=;
+	s=arc-20240116; t=1724427363; c=relaxed/simple;
+	bh=NdEvoB57CFSCUVslQzJFyW04yg8jIdDlAxY/1vtsX9Y=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Viqn80OE3eJrk4SI4v0i+ZU893DrKLHFwKz2ktyLuio754EqBXPBdIyp/fYdImEkgK8ZSCCXAW5qSWoaQ8hZtIwMVFgA+hrkfvu2iPoCzWe+Ce1U7ErGSFCYVkT/bHbmxPK5G4lhIeNRWveWeOqmK4FOPNRj3FWO4E1u6fnAB30=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com; spf=pass smtp.mailfrom=linumiz.com; dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b=VJOQ8SI7; arc=none smtp.client-ip=44.202.169.39
+	 MIME-Version; b=HWOcC5FX4p4TboR2VIjPtvH1NvkVgggn2YiZD9TPLcRad7BX7Bbkbr5/UwoVOJLIYjiUFIKKvYtkGE/zZCOSsOW53BFZF+8mcg/ln+ytfAOwYMS+qBGzPkaxkO501Yos5lEA3Yg6hIZaIyHBmX85pY0NFWHTvNrp72X5kpOkG6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com; spf=pass smtp.mailfrom=linumiz.com; dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b=h58cQZqW; arc=none smtp.client-ip=44.202.169.35
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linumiz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b="VJOQ8SI7"
-Received: from eig-obgw-5008a.ext.cloudfilter.net ([10.0.29.246])
+	dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b="h58cQZqW"
+Received: from eig-obgw-5001a.ext.cloudfilter.net ([10.0.29.139])
 	by cmsmtp with ESMTPS
-	id h53KsIy5BnNFGhWKPsLVt0; Fri, 23 Aug 2024 15:35:53 +0000
+	id hSFIseEXQiA19hWKXs8u9L; Fri, 23 Aug 2024 15:36:01 +0000
 Received: from md-in-79.webhostbox.net ([43.225.55.182])
 	by cmsmtp with ESMTPS
-	id hWKNskt3M85uZhWKOs3C2g; Fri, 23 Aug 2024 15:35:53 +0000
-X-Authority-Analysis: v=2.4 cv=J6Gs7hnS c=1 sm=1 tr=0 ts=66c8ac59
+	id hWKUsr4QDmqhihWKWs7O6O; Fri, 23 Aug 2024 15:36:00 +0000
+X-Authority-Analysis: v=2.4 cv=NdEt1HD4 c=1 sm=1 tr=0 ts=66c8ac60
  a=LfuyaZh/8e9VOkaVZk0aRw==:117 a=kofhyyBXuK/oEhdxNjf66Q==:17
- a=yoJbH4e0A30A:10 a=vU9dKmh3AAAA:8 a=PIVyUoi6X9y6bivDt_YA:9
+ a=yoJbH4e0A30A:10 a=vU9dKmh3AAAA:8 a=4uBLznlVahHWhnoGBvoA:9
  a=rsP06fVo5MYu2ilr0aT5:22 a=ZCPYImcxYIQFgLOT52_G:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=linumiz.com
 	; s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
@@ -32,18 +32,18 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=linumiz.com
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=HI4wA5946lgKTidFdG+3Mj2M1oic6hs347gXt2MsqwU=; b=VJOQ8SI7zWFzyuDXoLQpIwwRFZ
-	I9b+Ml8jOjYnmdAtObuXmj1zNlq6uuXbLPNXHlV8hkLbtnj229NavZX56pqdTeiBojhE0KgI39kF/
-	rUC6P0UG0ARVZ/rE01l8CE/6HfAOsR1z4WirP2E8UhEWRJFGRD8d+Cfe4I5w/hfZEWvtfGl1CJybj
-	bDhuU1W73xngcpo9kFK/15Sg15jMTzrFZoIgk8mfuKRX7Yt/qUek8FUy3eNz9vrQiw/8cqBdZdHcE
-	uR8TBbivAQWFHWjqSH6ChQXbdtU5SvzTMUgz0XBurwgzHnyOOSQ8YVq02XqQ6d/YDeglBMD96Bbqy
-	oNKcMaSw==;
+	bh=GFh4qRuUJB0rrMs4T9RVkJerrRO8OYO4En9jGqxlD3Y=; b=h58cQZqWgaqWJE2GIGhYjwwR8B
+	wDTc4ZTzz+PMaPqUrJbGHtVMbfXdWqcv6dnoZdcD1um3PjeBVjV6N76bHopmZiQ9dItC9KXVvov2y
+	Khg6Rme5M2xenJM+VmlM6Rzv4/DS6lP5wDLaUp7sb9M1su22AyEODNBBCAt87D6rmvi/KA43R+i5K
+	q9THMY4EdyTCgGCRgyDC53j8wN8QlgTzv57OJSC4UBjHe6Aj7vrEce2HH6FIFjkUZP3p0MrZ9ZPgQ
+	vYAhPsow0dMui7/nWglpBgL8J6bBB0nT9hjy3TqrjnDNrLJHkl1Tk+ttgBozx7ePI9cpoPaIXTMvR
+	qX7/uGlQ==;
 Received: from [122.165.245.213] (port=53684 helo=localhost.localdomain)
 	by md-in-79.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.96.2)
 	(envelope-from <karthikeyan@linumiz.com>)
-	id 1shWKL-000GB4-37;
-	Fri, 23 Aug 2024 21:05:50 +0530
+	id 1shWKT-000GB4-0J;
+	Fri, 23 Aug 2024 21:05:57 +0530
 From: Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
 To: robh@kernel.org,
 	krzk+dt@kernel.org,
@@ -56,9 +56,9 @@ Cc: devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
 	Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
-Subject: [PATCH 2/8] ARM: dts: rockchip: Add i2s0 node for RV1126
-Date: Fri, 23 Aug 2024 21:05:22 +0530
-Message-Id: <20240823153528.3863993-3-karthikeyan@linumiz.com>
+Subject: [PATCH 7/8] dt-bindings: arm: rockchip: Add Relfor Saib
+Date: Fri, 23 Aug 2024 21:05:27 +0530
+Message-Id: <20240823153528.3863993-8-karthikeyan@linumiz.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240823153528.3863993-1-karthikeyan@linumiz.com>
 References: <20240823153528.3863993-1-karthikeyan@linumiz.com>
@@ -77,177 +77,44 @@ X-AntiAbuse: Sender Address Domain - linumiz.com
 X-BWhitelist: no
 X-Source-IP: 122.165.245.213
 X-Source-L: No
-X-Exim-ID: 1shWKL-000GB4-37
+X-Exim-ID: 1shWKT-000GB4-0J
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
 X-Source-Sender: (localhost.localdomain) [122.165.245.213]:53684
 X-Source-Auth: karthikeyan@linumiz.com
-X-Email-Count: 21
+X-Email-Count: 71
 X-Org: HG=dishared_whb_net_legacy;ORG=directi;
 X-Source-Cap: bGludW1jbWM7aG9zdGdhdG9yO21kLWluLTc5LndlYmhvc3Rib3gubmV0
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfIEMgMIH7HskknauuNuB9lTwFlPIlyHNMSu259uMfu2kOvbtYp5T5Pm9+5ZpDKHCdB9ZZ0W2DjCCIFtiPN+oqXqiPoa6DkBMP6INYF9daxIBnAwcijeF
- CAW/NWOVwiLlSd2i0vcsiNFkUi5JEhWpXAANLkhxl0SguYGqdH9YIE3pWNXIuZjegJGzsluXgSr83/5kDGHF0sExP+fFLsd5UF4=
+X-CMAE-Envelope: MS4xfMgywCpn8h9txVfHkaFn3B3t5aAv4ToMazU1xUSMHGCyI9TxfADepRqtNC2iEcRZUMovUqDVi/5YhcrHQF9bhQ3Y1x1b7rj38N6sm3EhUZ+aUjw3dh+7
+ qqJ0rE+41JQnevNrVHOzS1GfpBbqBNZU8yzUVowrG2lgKUGg5tIMmsXoO6s69mtZGMN1pUO5JGqOm8BsR6q5qB8B4JlfFh/LL78=
 
-Add i2s0 node and possible pinctrl for Rockchip RV1126
+Add devicetree binding documentation for Relfor Saib
+board which uses Rockchip RV1109 SoC
 
 Signed-off-by: Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
 ---
- .../arm/boot/dts/rockchip/rv1126-pinctrl.dtsi | 102 ++++++++++++++++++
- arch/arm/boot/dts/rockchip/rv1126.dtsi        |  26 +++++
- 2 files changed, 128 insertions(+)
+ Documentation/devicetree/bindings/arm/rockchip.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm/boot/dts/rockchip/rv1126-pinctrl.dtsi b/arch/arm/boot/dts/rockchip/rv1126-pinctrl.dtsi
-index be666b25b830..c83490dfe8f6 100644
---- a/arch/arm/boot/dts/rockchip/rv1126-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/rockchip/rv1126-pinctrl.dtsi
-@@ -123,6 +123,108 @@ i2c3m2_xfer: i2c3m2-xfer {
- 				<1 RK_PD7 3 &pcfg_pull_none>;
- 		};
- 	};
-+	i2s0 {
-+		i2s0m0_sclk_tx: i2s0m0-sclk-tx {
-+			rockchip,pins =
-+			/* i2s0_sclk_tx_m0 */
-+			<3 RK_PD0 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sclk_rx: i2s0m0-sclk-rx {
-+			rockchip,pins =
-+			/* i2s0_sclk_rx_m0 */
-+			<3 RK_PD1 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_mclk: i2s0m0-mclk {
-+			rockchip,pins =
-+			/* i2s0_mclk_m0 */
-+			<3 RK_PD2 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_lrck_tx: i2s0m0-lrck-tx {
-+			rockchip,pins =
-+			/* i2s0_lrck_tx_m0 */
-+			<3 RK_PD3 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_lrck_rx: i2s0m0-lrck-rx {
-+			rockchip,pins =
-+			/* i2s0_lrck_rx_m0 */
-+			<3 RK_PD4 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sdi0: i2s0m0-sdi0 {
-+			rockchip,pins =
-+			/* i2s0_sdi0_m0 */
-+			<3 RK_PD6 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sdo0: i2s0m0-sdo0 {
-+			rockchip,pins =
-+			/* i2s0_sdo0_m0 */
-+			<3 RK_PD5 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sdo1_sdi3: i2s0m0-sdo1_sdi3 {
-+			rockchip,pins =
-+			/* i2s0_sdo1_sdi3_m0 */
-+			<3 RK_PD7 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sdo2_sdi2: i2s0m0-sdo2_sdi2 {
-+			rockchip,pins =
-+			/* i2s0_sdo2_sdi2_m0 */
-+			<4 RK_PA0 1 &pcfg_pull_none>;
-+		};
-+		i2s0m0_sdo3_sdi1: i2s0m0-sdo3_sdi1 {
-+			rockchip,pins =
-+			/* i2s0_sdo3_sdi1_m0 */
-+			<4 RK_PA1 1 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sclk_tx: i2s0m1-sclk-tx {
-+			rockchip,pins =
-+			/* i2s0_sclk_tx_m1 */
-+			<3 RK_PA4 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sclk_rx: i2s0m1-sclk-rx {
-+			rockchip,pins =
-+			/* i2s0_sclk_rx_m1 */
-+			<3 RK_PB1 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_mclk: i2s0m1-mclk {
-+			rockchip,pins =
-+			/* i2s0_mclk_m1 */
-+			<3 RK_PB0 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_lrck_tx: i2s0m1-lrck-tx {
-+			rockchip,pins =
-+			/* i2s0_lrck_tx_m1 */
-+			<3 RK_PA5 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_lrck_rx: i2s0m1-lrck-rx {
-+			rockchip,pins =
-+			/* i2s0_lrck_rx_m1 */
-+			<3 RK_PB2 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sdi0: i2s0m1-sdi0 {
-+			rockchip,pins =
-+			/* i2s0_sdi0_m1 */
-+			<3 RK_PA7 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sdo0: i2s0m1-sdo0 {
-+			rockchip,pins =
-+			/* i2s0_sdo0_m1 */
-+			<3 RK_PA6 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sdo1_sdi3: i2s0m1-sdo1_sdi3 {
-+			rockchip,pins =
-+			/* i2s0_sdo1_sdi3_m1 */
-+			<3 RK_PB3 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sdo2_sdi2: i2s0m1-sdo2_sdi2 {
-+			rockchip,pins =
-+			/* i2s0_sdo2_sdi2_m1 */
-+			<3 RK_PB4 3 &pcfg_pull_none>;
-+		};
-+		i2s0m1_sdo3_sdi1: i2s0m1-sdo3_sdi1 {
-+			rockchip,pins =
-+			/* i2s0_sdo3_sdi1_m1 */
-+			<3 RK_PB5 3 &pcfg_pull_none>;
-+		};
-+	};
- 	pwm2 {
- 		/omit-if-no-ref/
- 		pwm2m0_pins: pwm2m0-pins {
-diff --git a/arch/arm/boot/dts/rockchip/rv1126.dtsi b/arch/arm/boot/dts/rockchip/rv1126.dtsi
-index 59de848c9a83..09ecde58c553 100644
---- a/arch/arm/boot/dts/rockchip/rv1126.dtsi
-+++ b/arch/arm/boot/dts/rockchip/rv1126.dtsi
-@@ -434,6 +434,32 @@ timer0: timer@ff660000 {
- 		clock-names = "pclk", "timer";
- 	};
+diff --git a/Documentation/devicetree/bindings/arm/rockchip.yaml b/Documentation/devicetree/bindings/arm/rockchip.yaml
+index 1ef09fbfdfaf..29f7e09ae443 100644
+--- a/Documentation/devicetree/bindings/arm/rockchip.yaml
++++ b/Documentation/devicetree/bindings/arm/rockchip.yaml
+@@ -848,6 +848,12 @@ properties:
+               - radxa,zero-3w
+           - const: rockchip,rk3566
  
-+	i2s0: i2s@ff800000 {
-+		compatible = "rockchip,rv1126-i2s-tdm";
-+		reg = <0xff800000 0x1000>;
-+		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
-+		clocks = <&cru MCLK_I2S0_TX>, <&cru MCLK_I2S0_RX>, <&cru HCLK_I2S0>;
-+		clock-names = "mclk_tx", "mclk_rx", "hclk";
-+		dmas = <&dmac 20>, <&dmac 19>;
-+		dma-names = "tx", "rx";
-+		resets = <&cru SRST_I2S0_TX_M>, <&cru SRST_I2S0_RX_M>;
-+		reset-names = "tx-m", "rx-m";
-+		rockchip,grf = <&grf>;
-+		#sound-dai-cells = <0>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&i2s0m0_sclk_tx>,
-+			     <&i2s0m0_sclk_rx>,
-+			     <&i2s0m0_mclk>,
-+			     <&i2s0m0_lrck_tx>,
-+			     <&i2s0m0_lrck_rx>,
-+			     <&i2s0m0_sdi0>,
-+			     <&i2s0m0_sdo0>,
-+			     <&i2s0m0_sdo1_sdi3>,
-+			     <&i2s0m0_sdo2_sdi2>,
-+			     <&i2s0m0_sdo3_sdi1>;
-+		status = "disabled";
-+	};
++      - description: Relfor SAIB board
++        items:
++          - const: relfor,saib
++          - enum:
++              - rockchip,rv1109
 +
- 	vop: vop@ffb00000 {
- 		compatible = "rockchip,rv1126-vop";
- 		reg = <0xffb00000 0x200>, <0xffb00a00 0x400>;
+       - description: Rikomagic MK808 v1
+         items:
+           - const: rikomagic,mk808
 -- 
 2.39.2
 
