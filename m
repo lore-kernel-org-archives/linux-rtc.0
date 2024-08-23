@@ -1,264 +1,152 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15BA2149002;
-	Fri, 23 Aug 2024 09:12:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9079145B05;
+	Fri, 23 Aug 2024 09:19:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724404347; cv=none; b=FuVsFRm8Fn/g+MdukkYDaecG8kiMdtzSqkcE14RtlpCTs6qhWZqQaPQ1/ja1tzu1Yc0M+WcNN9GokX99+Ap7gSTi28JkHLmr3pAP0C2fktGJ4Cqe+HUgydIPnaeHcpIEPv7gJKnLl5+U5ctjGHYa5F/IjBOYDQk43j81A5nJB8Q=
+	t=1724404787; cv=none; b=X/us9+LlhorhymXPFgRhDKZ14ERWDGZc3Oj0SZ5pktXAo1LYX9eQMFoXrsBz31tIPIGZhTesZfARSqjx0YgvOUqHNfhDR5iOOr6GTjCyw9KEb/IMAilTAf+vAwkArZ0EdterIoduWHoV1QLyIB7K6hKn6aglZA4t5Ui3lnDAF14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724404347; c=relaxed/simple;
-	bh=eHJm1q1OOWYK8xxi+RglQ6jSRl5S5FTqCzDh314fzKI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WaFYORk/CjU4PgVmndKIA2PaNjZKLjRjyTgwqJBQuVzdYF7+NfLHXbr++QsZVRsBhmRLZ58mqEPuvVQS4IxHkbVEDJK1MwmHP/lqCvRyF/VfLfziShNVHNYS35h6RTWQF0BLp01Y0iDtiFpQnssKXOYxUUTU9ftxeuRw/4b6S2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GOqxw9zE; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1724404787; c=relaxed/simple;
+	bh=4tFRUr6pC6/XXpYh11KENxGWfRrFHffWmB1w9kduv2k=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=HLjqcMXTR5HzTGIf82poG3DjBB9EtbIpQSMRLT0PIr+Pg+yOolDa8r3G5faRlyBWujZ9L6HqdWfT6tZCXMJmok4mQCNTkB3pDZNAPKIcZzItgoAEfe6f+0k4vqWwIiCOVaQ2Wo/UEbtZen/vaQ76EOnoR9HN7STcvwikvv7D8A8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=agGWn2aO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GOqxw9zE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1724404345; x=1755940345;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eHJm1q1OOWYK8xxi+RglQ6jSRl5S5FTqCzDh314fzKI=;
-  b=GOqxw9zE0w9OH9u9OenuskQfO+/ilrqgBhQUh9U/ID0SVNPxPb9q9lCw
-   jHb2WNAWsm0Z79hY/YZ2ZsFfiyYD9lTu2Fumjwoty7B0FlZrraLrFasAV
-   u4nuRUgSDOFcXk4+wSurncFKz+qITa15OPA2A3JHwDx4yCXNvADp9Ln+E
-   YL61wDS41w5+ri0FfQD8FogOWh37kVhx0NOAyPhLaERld4w0v26VFp7pu
-   r8APYhdo8BDa6lBiJH5Tw+usZqdhsfZNUAdyFuzrhAiTV0kpAzUXxkuhU
-   f3IsKzvV4SO1XMq4v4WV5cy3Z1cEeVde/JwpkAu8t2yXzjfk0+jXbRGI4
-   A==;
-X-CSE-ConnectionGUID: In5zubQwSF65Xkjv3WfH9g==
-X-CSE-MsgGUID: Nbzzku6uQoGNHEB+JMCloA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11172"; a="22384862"
-X-IronPort-AV: E=Sophos;i="6.10,169,1719903600"; 
-   d="scan'208";a="22384862"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Aug 2024 02:12:24 -0700
-X-CSE-ConnectionGUID: vxD6szCLRNa+rUFcKl3fQg==
-X-CSE-MsgGUID: 8JLwp4AkTVWqEYRrnZgS8g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,169,1719903600"; 
-   d="scan'208";a="92463441"
-Received: from lkp-server01.sh.intel.com (HELO 9a732dc145d3) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 23 Aug 2024 02:12:23 -0700
-Received: from kbuild by 9a732dc145d3 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1shQLD-000Dbg-2e;
-	Fri, 23 Aug 2024 09:12:19 +0000
-Date: Fri, 23 Aug 2024 17:11:59 +0800
-From: kernel test robot <lkp@intel.com>
-To: Liao Yuanhong <liaoyuanhong@vivo.com>, alexandre.belloni@bootlin.com,
-	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Liao Yuanhong <liaoyuanhong@vivo.com>
-Subject: Re: [PATCH 1/7] rtc:rtc-at91rm9200:Use devm_clk_get_enabled() helpers
-Message-ID: <202408231607.RHujmOKI-lkp@intel.com>
-References: <20240821092846.20138-2-liaoyuanhong@vivo.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="agGWn2aO"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 54287C4AF0B;
+	Fri, 23 Aug 2024 09:19:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724404787;
+	bh=4tFRUr6pC6/XXpYh11KENxGWfRrFHffWmB1w9kduv2k=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=agGWn2aOlO3V1Yc/uSYbaee0W82ReHFO7fXfzpsiQYex2jkOCotR3W5sRKhJPeQ7w
+	 vG301xgNgm3RVAS9IaDoVnK+0TPG5gxl2dAvczC2Sbt+OI8vygA4aBIDCIJrGF8KWC
+	 +MNHarTgljIOkH3+tetALV26MMoNLcp1Mz/dUAfnbABMQaTtH37cYFTZrprLDNsTya
+	 XZuaKUzmb3tYmKdVPGBSS2HocvBNKykuUWYztUGodPwJ4WNbcYiiPkfJxzCemc98qk
+	 hyIwUUI2yPpgoT7MbAedlJKimmvDwD/dkOonMZpygHHYQaio3WlGdAdU3N6pvcnzf+
+	 wR2TKCte9PDFA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 440E3C52D7C;
+	Fri, 23 Aug 2024 09:19:47 +0000 (UTC)
+From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
+Date: Fri, 23 Aug 2024 17:19:44 +0800
+Subject: [PATCH 1/3] dt-bindings: rtc: Add Amlogic A311L2 and A113X2 rtc
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240821092846.20138-2-liaoyuanhong@vivo.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240823-rtc-v1-1-6f70381da283@amlogic.com>
+References: <20240823-rtc-v1-0-6f70381da283@amlogic.com>
+In-Reply-To: <20240823-rtc-v1-0-6f70381da283@amlogic.com>
+To: Yiting Deng <yiting.deng@amlogic.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Xianwei Zhao <xianwei.zhao@amlogic.com>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1724404784; l=2235;
+ i=xianwei.zhao@amlogic.com; s=20231208; h=from:subject:message-id;
+ bh=OuCbmduzBkZkzatxp6faWcdgmpE7uNtqHqmhQseAr7Q=;
+ b=dISvZXk6kBMEY4QicOnnOG4EnavSgL5tgiaHxWNMtJlC1IK0M9ZC0Mk+6UrV4a7/RyGGtpizi
+ z4qtwKvsNUkAOFXsKzzFCrFp6FYHRWi5RFa1J56cuPfkpYnyDwPdSfZ
+X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
+ pk=o4fDH8ZXL6xQg5h17eNzRljf6pwZHWWjqcOSsj3dW24=
+X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20231208 with
+ auth_id=107
+X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Reply-To: xianwei.zhao@amlogic.com
 
-Hi Liao,
+From: Yiting Deng <yiting.deng@amlogic.com>
 
-kernel test robot noticed the following build errors:
+Add documentation describing the Amlogic A113L2 and A113X2 rtc controller.
 
-[auto build test ERROR on abelloni/rtc-next]
-[also build test ERROR on tegra/for-next linus/master v6.11-rc4 next-20240823]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Yiting Deng <yiting.deng@amlogic.com>
+Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+---
+ .../bindings/rtc/amlogic,amlogic-rtc.yaml          | 66 ++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Liao-Yuanhong/rtc-rtc-at91rm9200-Use-devm_clk_get_enabled-helpers/20240822-150754
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-patch link:    https://lore.kernel.org/r/20240821092846.20138-2-liaoyuanhong%40vivo.com
-patch subject: [PATCH 1/7] rtc:rtc-at91rm9200:Use devm_clk_get_enabled() helpers
-config: sh-allmodconfig (https://download.01.org/0day-ci/archive/20240823/202408231607.RHujmOKI-lkp@intel.com/config)
-compiler: sh4-linux-gcc (GCC) 14.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240823/202408231607.RHujmOKI-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202408231607.RHujmOKI-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/rtc/rtc-at91rm9200.c: In function 'at91_rtc_probe':
-   drivers/rtc/rtc-at91rm9200.c:473:13: warning: unused variable 'ret' [-Wunused-variable]
-     473 |         int ret = 0;
-         |             ^~~
-   In file included from include/linux/io.h:14,
-                    from include/linux/irq.h:20,
-                    from include/asm-generic/hardirq.h:17,
-                    from arch/sh/include/asm/hardirq.h:9,
-                    from include/linux/hardirq.h:11,
-                    from include/linux/interrupt.h:11,
-                    from drivers/rtc/rtc-at91rm9200.c:20:
-   drivers/rtc/rtc-at91rm9200.c: At top level:
->> arch/sh/include/asm/io.h:46:35: error: expected identifier or '(' before 'void'
-      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
-         |                                   ^~~~
-   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
-      89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:506:9: note: in expansion of macro 'at91_rtc_write'
-     506 |         at91_rtc_write(AT91_RTC_CR, 0);
-         |         ^~~~~~~~~~~~~~
->> arch/sh/include/asm/io.h:31:33: error: expected ')' before '(' token
-      31 | #define __raw_writel(v,a)       (__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
-         |                                 ^
-   arch/sh/include/asm/io.h:46:40: note: in expansion of macro '__raw_writel'
-      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
-         |                                        ^~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
-      89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:506:9: note: in expansion of macro 'at91_rtc_write'
-     506 |         at91_rtc_write(AT91_RTC_CR, 0);
-         |         ^~~~~~~~~~~~~~
->> arch/sh/include/asm/io.h:46:35: error: expected identifier or '(' before 'void'
-      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
-         |                                   ^~~~
-   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
-      89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:507:9: note: in expansion of macro 'at91_rtc_write'
-     507 |         at91_rtc_write(AT91_RTC_MR, at91_rtc_read(AT91_RTC_MR) & ~AT91_RTC_HRMOD);
-         |         ^~~~~~~~~~~~~~
->> arch/sh/include/asm/io.h:31:33: error: expected ')' before '(' token
-      31 | #define __raw_writel(v,a)       (__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
-         |                                 ^
-   arch/sh/include/asm/io.h:46:40: note: in expansion of macro '__raw_writel'
-      46 | #define writel_relaxed(v,c)     ((void)__raw_writel((__force u32)ioswabl(v),c))
-         |                                        ^~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:89:9: note: in expansion of macro 'writel_relaxed'
-      89 |         writel_relaxed((val), at91_rtc_regs + field)
-         |         ^~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:507:9: note: in expansion of macro 'at91_rtc_write'
-     507 |         at91_rtc_write(AT91_RTC_MR, at91_rtc_read(AT91_RTC_MR) & ~AT91_RTC_HRMOD);
-         |         ^~~~~~~~~~~~~~
-   In file included from include/linux/bits.h:6,
-                    from include/linux/bitops.h:6,
-                    from include/linux/kernel.h:23,
-                    from include/linux/clk.h:13,
-                    from drivers/rtc/rtc-at91rm9200.c:18:
-   include/vdso/bits.h:7:33: error: expected declaration specifiers or '...' before '(' token
-       7 | #define BIT(nr)                 (UL(1) << (nr))
-         |                                 ^
-   drivers/rtc/rtc-at91rm9200.c:66:41: note: in expansion of macro 'BIT'
-      66 | #define         AT91_RTC_ACKUPD         BIT(0)          /* Acknowledge for Update */
-         |                                         ^~~
-   drivers/rtc/rtc-at91rm9200.c:510:28: note: in expansion of macro 'AT91_RTC_ACKUPD'
-     510 |         at91_rtc_write_idr(AT91_RTC_ACKUPD | AT91_RTC_ALARM |
-         |                            ^~~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:514:9: warning: data definition has no type or storage class
-     514 |         ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
-         |         ^~~
-   drivers/rtc/rtc-at91rm9200.c:514:9: error: type defaults to 'int' in declaration of 'ret' [-Wimplicit-int]
-   drivers/rtc/rtc-at91rm9200.c:514:33: error: 'pdev' undeclared here (not in a function); did you mean 'cdev'?
-     514 |         ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
-         |                                 ^~~~
-         |                                 cdev
-   drivers/rtc/rtc-at91rm9200.c:517:9: error: expected identifier or '(' before 'if'
-     517 |         if (ret) {
-         |         ^~
-   drivers/rtc/rtc-at91rm9200.c:525:9: error: expected identifier or '(' before 'if'
-     525 |         if (!device_can_wakeup(&pdev->dev))
-         |         ^~
-   drivers/rtc/rtc-at91rm9200.c:528:9: error: expected identifier or '(' before 'if'
-     528 |         if (at91_rtc_config->has_correction)
-         |         ^~
-   drivers/rtc/rtc-at91rm9200.c:530:9: error: expected identifier or '(' before 'else'
-     530 |         else
-         |         ^~~~
-   drivers/rtc/rtc-at91rm9200.c:533:12: error: expected '=', ',', ';', 'asm' or '__attribute__' before '->' token
-     533 |         rtc->range_min = RTC_TIMESTAMP_BEGIN_1900;
-         |            ^~
-   drivers/rtc/rtc-at91rm9200.c:534:12: error: expected '=', ',', ';', 'asm' or '__attribute__' before '->' token
-     534 |         rtc->range_max = RTC_TIMESTAMP_END_2099;
-         |            ^~
-   drivers/rtc/rtc-at91rm9200.c:535:9: warning: data definition has no type or storage class
-     535 |         ret = devm_rtc_register_device(rtc);
-         |         ^~~
-   drivers/rtc/rtc-at91rm9200.c:535:9: error: type defaults to 'int' in declaration of 'ret' [-Wimplicit-int]
-   drivers/rtc/rtc-at91rm9200.c:535:9: error: redefinition of 'ret'
-   drivers/rtc/rtc-at91rm9200.c:514:9: note: previous definition of 'ret' with type 'int'
-     514 |         ret = devm_request_irq(&pdev->dev, irq, at91_rtc_interrupt,
-         |         ^~~
-   In file included from drivers/rtc/rtc-at91rm9200.c:27:
-   drivers/rtc/rtc-at91rm9200.c:535:40: error: 'rtc' undeclared here (not in a function)
-     535 |         ret = devm_rtc_register_device(rtc);
-         |                                        ^~~
-   include/linux/rtc.h:246:49: note: in definition of macro 'devm_rtc_register_device'
-     246 |         __devm_rtc_register_device(THIS_MODULE, device)
-         |                                                 ^~~~~~
-   drivers/rtc/rtc-at91rm9200.c:536:9: error: expected identifier or '(' before 'if'
-     536 |         if (ret)
-         |         ^~
-   include/vdso/bits.h:7:33: error: expected declaration specifiers or '...' before '(' token
-       7 | #define BIT(nr)                 (UL(1) << (nr))
-         |                                 ^
-   drivers/rtc/rtc-at91rm9200.c:68:41: note: in expansion of macro 'BIT'
-      68 | #define         AT91_RTC_SECEV          BIT(2)          /* Second Event */
-         |                                         ^~~
-   drivers/rtc/rtc-at91rm9200.c:542:28: note: in expansion of macro 'AT91_RTC_SECEV'
-     542 |         at91_rtc_write_ier(AT91_RTC_SECEV);
-         |                            ^~~~~~~~~~~~~~
-   In file included from include/linux/device.h:15,
-                    from include/linux/platform_device.h:13,
-                    from drivers/rtc/rtc-at91rm9200.c:26:
-   include/linux/dev_printk.h:108:10: error: expected identifier or '(' before '{' token
-     108 |         ({                                                              \
-         |          ^
-   include/linux/dev_printk.h:160:9: note: in expansion of macro 'dev_printk_index_wrap'
-     160 |         dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:544:9: note: in expansion of macro 'dev_info'
-     544 |         dev_info(&pdev->dev, "AT91 Real Time Clock driver.\n");
-         |         ^~~~~~~~
-   drivers/rtc/rtc-at91rm9200.c:545:9: error: expected identifier or '(' before 'return'
-     545 |         return 0;
-         |         ^~~~~~
-   drivers/rtc/rtc-at91rm9200.c:546:1: error: expected identifier or '(' before '}' token
-     546 | }
-         | ^
-   drivers/rtc/rtc-at91rm9200.c: In function 'at91_rtc_probe':
-   drivers/rtc/rtc-at91rm9200.c:504:9: warning: control reaches end of non-void function [-Wreturn-type]
-     504 |         }
-         |         ^
-
-
-vim +46 arch/sh/include/asm/io.h
-
-b66c1a3919abb4 include/asm-sh/io.h      Paul Mundt 2006-01-16  28  
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  29  #define __raw_writeb(v,a)	(__chk_io_ptr(a), *(volatile u8  __force *)(a) = (v))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  30  #define __raw_writew(v,a)	(__chk_io_ptr(a), *(volatile u16 __force *)(a) = (v))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04 @31  #define __raw_writel(v,a)	(__chk_io_ptr(a), *(volatile u32 __force *)(a) = (v))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  32  #define __raw_writeq(v,a)	(__chk_io_ptr(a), *(volatile u64 __force *)(a) = (v))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  33  
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  34  #define __raw_readb(a)		(__chk_io_ptr(a), *(volatile u8  __force *)(a))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  35  #define __raw_readw(a)		(__chk_io_ptr(a), *(volatile u16 __force *)(a))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  36  #define __raw_readl(a)		(__chk_io_ptr(a), *(volatile u32 __force *)(a))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  37  #define __raw_readq(a)		(__chk_io_ptr(a), *(volatile u64 __force *)(a))
-14866543ad2201 arch/sh/include/asm/io.h Paul Mundt 2008-10-04  38  
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  39  #define readb_relaxed(c)	({ u8  __v = ioswabb(__raw_readb(c)); __v; })
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  40  #define readw_relaxed(c)	({ u16 __v = ioswabw(__raw_readw(c)); __v; })
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  41  #define readl_relaxed(c)	({ u32 __v = ioswabl(__raw_readl(c)); __v; })
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  42  #define readq_relaxed(c)	({ u64 __v = ioswabq(__raw_readq(c)); __v; })
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  43  
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  44  #define writeb_relaxed(v,c)	((void)__raw_writeb((__force  u8)ioswabb(v),c))
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  45  #define writew_relaxed(v,c)	((void)__raw_writew((__force u16)ioswabw(v),c))
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29 @46  #define writel_relaxed(v,c)	((void)__raw_writel((__force u32)ioswabl(v),c))
-b7e68d6876dfba arch/sh/include/asm/io.h Paul Mundt 2012-03-29  47  #define writeq_relaxed(v,c)	((void)__raw_writeq((__force u64)ioswabq(v),c))
-37b7a97884ba64 arch/sh/include/asm/io.h Paul Mundt 2010-11-01  48  
+diff --git a/Documentation/devicetree/bindings/rtc/amlogic,amlogic-rtc.yaml b/Documentation/devicetree/bindings/rtc/amlogic,amlogic-rtc.yaml
+new file mode 100644
+index 000000000000..fa3d7838022e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/amlogic,amlogic-rtc.yaml
+@@ -0,0 +1,66 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright (C) 2024 Amlogic, Inc. All rights reserved
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/amlogic,amlogic-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic Real Time Clock controller include a4, a5
++
++maintainers:
++  - Yiting Deng <yiting.deng@amlogic.com>
++  - Xianwei Zhao <xianwei.zhao@amlogic.com>
++
++description:
++  The Amlogic new chips used RTC module.
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    enum:
++      - amlogic,a4-rtc
++      - amlogic,a5-rtc
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: RTC clock source, available 24M or 32K crystal
++          oscillator source. when using 24M, need to divide 24M into 32K.
++      - description: RTC module accesses the clock of the apb bus.
++
++  clock-names:
++    items:
++      - const: rtc_osc
++      - const: rtc_sys_clk
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - interrupts
++  - reg
++  - clocks
++  - clock-names
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    apb {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        rtc: rtc@8e600 {
++            compatible = "amlogic,a4-rtc";
++            interrupts = <GIC_SPI 131 IRQ_TYPE_EDGE_RISING>;
++            reg = <0x0 0x8e600 0x0 0x38>;
++            clocks = <&xtal_32k>, <&clkc_periphs 1>;
++            clock-names = "rtc_osc", "rtc_sys_clk";
++        };
++    };
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.37.1
+
+
