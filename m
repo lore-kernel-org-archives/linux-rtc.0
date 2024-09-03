@@ -1,30 +1,30 @@
-Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+Received: from omta038.useast.a.cloudfilter.net (omta038.useast.a.cloudfilter.net [44.202.169.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6008A1DA10B
-	for <linux-rtc@vger.kernel.org>; Tue,  3 Sep 2024 10:53:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.202.169.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D3EF2139DB
+	for <linux-rtc@vger.kernel.org>; Tue,  3 Sep 2024 10:53:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=44.202.169.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725360791; cv=none; b=VEcUvnW7Ok3tGiLK70HKnNAPLxNK1+98VIS3i4KHB3QFztDJmm4tinslqWbBbmQ9Vbe4xBhv/0yqZya+GC83AVRIc8xBG4HVVV5nPJMKZ2TPcYh8Qz+Bb1cU89lphnKdhmtyvK3NXujdeWas31Bv6n7o/D8mfglA2dXkxbm6Mm8=
+	t=1725360793; cv=none; b=GpJRIwrgdnJ+Q3f33Ez/lLO25Exko6YIC3+OWhrnRSn+EHnVHvxGpN5CsdpHZfP+ddlNMTQOKQcQO8RhZNMsHAd37EchTX7MhjwyazMtF9pIBJnI7NOrOviQAsusX6wTRpr8YlFlsLIqIJAwf+VAIo8wVdAT5Lw8KL7aUz9pSs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725360791; c=relaxed/simple;
-	bh=IEvc5bAwiIt8oyx0it1qXA04D8itst9KAXzwOeKt7r0=;
+	s=arc-20240116; t=1725360793; c=relaxed/simple;
+	bh=SgPga/d86Gm2VyyGjtz7WzQyqiIRR5zs43Xg3j1NRqQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=noX2mNkGgroGImaGJ3pbhVXQjbavcVNteDbCVx7YoKcvnhbZYJrDPsqNGHH5vqeAqztIOvc8zaVUcs5/N+RkNwRtlkNKO5bfoJdEjdQJV+f5uiAiNBKVU7EHf+t5O3ggvdyZLiWw1FbsWrUAAVgfiPOfOmcl90/ewdScGldlYrY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com; spf=pass smtp.mailfrom=linumiz.com; dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b=mK5jSS8Q; arc=none smtp.client-ip=44.202.169.39
+	 MIME-Version; b=En2+XUv69lYnI3j1+T8HCJH367VifKxXy/W5jO878PU3CU2KP1Mr7WINRSldqzpppeJpBBVjiUX/sKQZlCJPlbi25eVcSKLl3FzhwSCWc/kuXy4/Xi3kWTxQqHZ0c2x5Fk8ZdB6hzvsNv8cylsczb/ah/scEAJoXRDnvG7t87GM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com; spf=pass smtp.mailfrom=linumiz.com; dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b=F0GckXGj; arc=none smtp.client-ip=44.202.169.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linumiz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linumiz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b="mK5jSS8Q"
-Received: from eig-obgw-5008a.ext.cloudfilter.net ([10.0.29.246])
+	dkim=pass (2048-bit key) header.d=linumiz.com header.i=@linumiz.com header.b="F0GckXGj"
+Received: from eig-obgw-5010a.ext.cloudfilter.net ([10.0.29.199])
 	by cmsmtp with ESMTPS
-	id lINSs21iMnNFGlR9osUNjn; Tue, 03 Sep 2024 10:53:08 +0000
+	id lPiUsgRKeg2lzlR9rsXbBO; Tue, 03 Sep 2024 10:53:11 +0000
 Received: from md-in-79.webhostbox.net ([43.225.55.182])
 	by cmsmtp with ESMTPS
-	id lR9ms6zRFlBoelR9nsdCwm; Tue, 03 Sep 2024 10:53:08 +0000
-X-Authority-Analysis: v=2.4 cv=Lc066Cfi c=1 sm=1 tr=0 ts=66d6ea94
+	id lR9psGAuGr1JulR9qslc26; Tue, 03 Sep 2024 10:53:11 +0000
+X-Authority-Analysis: v=2.4 cv=VPjbncPX c=1 sm=1 tr=0 ts=66d6ea97
  a=LfuyaZh/8e9VOkaVZk0aRw==:117 a=kofhyyBXuK/oEhdxNjf66Q==:17
- a=EaEq8P2WXUwA:10 a=-pn6D5nKLtMA:10 a=vU9dKmh3AAAA:8 a=Kb_rVgeVel1wak-Xqx8A:9
+ a=EaEq8P2WXUwA:10 a=-pn6D5nKLtMA:10 a=vU9dKmh3AAAA:8 a=7OYjvGxe6aps89qF7tkA:9
  a=rsP06fVo5MYu2ilr0aT5:22 a=ZCPYImcxYIQFgLOT52_G:22
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=linumiz.com
 	; s=default; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
@@ -32,18 +32,18 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=linumiz.com
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=FbIDmWyU4STgLTHI4VqNt8b7SMBSfP3dJQ9o9Le9Jaw=; b=mK5jSS8Q8/Iu7NGFXTNQlKgRID
-	YC+shzubhO6R0M1heUNWgZW1GE5H9ycqewmgYnBX26PT/Jm4Wj1EVnlRp1R6VNdGLHEiUeRw58r3s
-	T+20ayMdsRRLOcH1LLrgHjioyv8m8HcMJbPnE6oJReBABS/dVKAgNs8BvTXVoZ3KNUFWrbci2Mv1X
-	5oPfy9nsv4c8xlEMdEXtlPa8JEBBY98Sy0v9OAg4WIs/0EaP/bIpUjQr/0bWabTzQbm+uFAWpFz0o
-	0FESaRvbSgB8ZFT+S+khN4MS4+cTTBsuPMt0rzuenM483jqcKYxcYEsgKH9mgTHKDUJiYrg4U+Trc
-	H/RCGwhg==;
+	bh=PAMyEJR5pOPxI5Asmm0hE30XD1Dj2/A0rZvF2cKurUY=; b=F0GckXGjjqs2/oWFghEYepfzkb
+	G9xaeaUxss6pXFoWtHEgBX31j/rE+RhsfgxlSP8a6SXmzfom2WHkKuTGP9BAXoxKxDzc50Ffb/rI2
+	mpCe72cXud+OFetv2eWMSHgw7ghNTkRtTg5Myyo4sj/TU7vgYmFdwfIUbgKG0sUkf4Mpzx0l2sM4X
+	oCUt8fLEldkTHCfe8C+8CxFVcRq5VV9/baq6q9fh581D5nMkdL13Jz85QFImIJQ+PQrknEDWYNgPK
+	pJ1eOWzfZNVObUMWtTK8GW9NSR5QHdlOAJv2PkzoFAODYzgg6iQdx7qi/NVY2DG81ggQiYPuT4YiD
+	73XwK52w==;
 Received: from [122.165.245.213] (port=41440 helo=localhost.localdomain)
 	by md-in-79.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.96.2)
 	(envelope-from <karthikeyan@linumiz.com>)
-	id 1slR9k-000Elu-2p;
-	Tue, 03 Sep 2024 16:23:04 +0530
+	id 1slR9n-000Elu-2Z;
+	Tue, 03 Sep 2024 16:23:07 +0530
 From: Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
 To: robh@kernel.org,
 	krzk+dt@kernel.org,
@@ -56,9 +56,9 @@ Cc: devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-rtc@vger.kernel.org,
 	Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
-Subject: [PATCH v2 5/8] dt-bindings: rtc: microcrystal,rv3028: add clock-cells property
-Date: Tue,  3 Sep 2024 16:22:42 +0530
-Message-Id: <20240903105245.715899-6-karthikeyan@linumiz.com>
+Subject: [PATCH v2 7/8] dt-bindings: arm: rockchip: Add Relfor Saib
+Date: Tue,  3 Sep 2024 16:22:44 +0530
+Message-Id: <20240903105245.715899-8-karthikeyan@linumiz.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240903105245.715899-1-karthikeyan@linumiz.com>
 References: <20240903105245.715899-1-karthikeyan@linumiz.com>
@@ -77,46 +77,48 @@ X-AntiAbuse: Sender Address Domain - linumiz.com
 X-BWhitelist: no
 X-Source-IP: 122.165.245.213
 X-Source-L: No
-X-Exim-ID: 1slR9k-000Elu-2p
+X-Exim-ID: 1slR9n-000Elu-2Z
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
 X-Source-Sender: (localhost.localdomain) [122.165.245.213]:41440
 X-Source-Auth: karthikeyan@linumiz.com
-X-Email-Count: 52
+X-Email-Count: 72
 X-Org: HG=dishared_whb_net_legacy;ORG=directi;
 X-Source-Cap: bGludW1jbWM7aG9zdGdhdG9yO21kLWluLTc5LndlYmhvc3Rib3gubmV0
 X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfC6Ks6SWbFMat9F8VPFzZWn45eYVL100V/P1aWZDwtG6AIL1PMYnDTA4cNRO4WxYnZf3YEQPN0o+Qq8x0I0nByzLhGtYKf9sLnScBcL3skoRSQ4yPhqf
- 3JTbl70rVGI7KOMhPhCmowxDMk2gPgakJQI/za3RcvmK4cLbbkZYywtZrvQ2LBeyh3I6w/tZ6SioaVL3h+CMMpbtMlk6hznRZlY=
+X-CMAE-Envelope: MS4xfGreBmA9jv1mAEB0fgktuyMfFqLTNNvPRozZEG8EhjYrJlcPbtACERW0HCZEnOrjRUYm9SGa8ShtNb9aLyoKECu/q5uh9st8RspsvxnrHbwSM0aUfoAA
+ O8cnvlrMGQjFmZUc1t6a7C5RMX+i2/t8mE1qdLJ8dh3cq67PdCTLNqrky5qkaXYlbQs9eumrAzbDgxQz8ZM5nox0VMbKY+6ym+c=
 
-consume clkout from rv3028 rtc which is able to provide
-different clock frequency upon configuration
+Add devicetree binding for the Relfor saib board which
+is based on Rockchip RV1109
 
 Signed-off-by: Karthikeyan Krishnasamy <karthikeyan@linumiz.com>
 ---
 
 Notes:
     v2:
-    - fix commit message subject
+    - fix wrong usage of SoC enum
 
- Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/devicetree/bindings/arm/rockchip.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml b/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
-index 5ade5dfad048..cda8ad7c1203 100644
---- a/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
-+++ b/Documentation/devicetree/bindings/rtc/microcrystal,rv3028.yaml
-@@ -22,6 +22,9 @@ properties:
-   interrupts:
-     maxItems: 1
+diff --git a/Documentation/devicetree/bindings/arm/rockchip.yaml b/Documentation/devicetree/bindings/arm/rockchip.yaml
+index 1ef09fbfdfaf..ae5e0104612e 100644
+--- a/Documentation/devicetree/bindings/arm/rockchip.yaml
++++ b/Documentation/devicetree/bindings/arm/rockchip.yaml
+@@ -848,6 +848,11 @@ properties:
+               - radxa,zero-3w
+           - const: rockchip,rk3566
  
-+  "#clock-cells":
-+    const: 0
++      - description: Relfor SAIB board
++        items:
++          - const: relfor,saib
++          - const: rockchip,rv1109
 +
-   trickle-resistor-ohms:
-     enum:
-       - 3000
+       - description: Rikomagic MK808 v1
+         items:
+           - const: rikomagic,mk808
 -- 
 2.39.2
 
