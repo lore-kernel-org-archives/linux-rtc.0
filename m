@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D04E1D619F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62A9B1D61B4;
 	Tue,  3 Sep 2024 07:00:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725346847; cv=none; b=naf2Wcq9j36msztjqbDR6hnitZa3fzDxmp+J15VvcVO6KMtNVPYflrHUgSWrwWVmg5fC+X8n9logmSuymn4xb5g5KYQSZsmRQzXlX0AC9iRGUEOBnMFrq0QTJBuuKBUhRrOXQlvSfsEBOxCdfw46i54ihHmW45Cp+5A5HsqVNcE=
+	t=1725346847; cv=none; b=jRKjs8z5oChik1UtOuFpi5AopANzxkbb5I5os83PUhDFXFa+/AS1S4ZnWPfA9XbB0oCd1/NiYBxCvvY71/zG/w4S9haM4QxlFcpt6SWQOcAxzePkZhkzrjcWAznGBCbBWIdZddZtIkRhcESZyXvclGMhuUwDAnFva8Oj53HLd28=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725346847; c=relaxed/simple;
-	bh=mUFXxsk2DgyvRFloTAD6u/HD5++5mkG+NueFPTUEMI0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=EeD3bjtwU/XDXuJCOykpsCC1mIF4o/WR7qpxM0T8uFMdDhYXpH+vsfA43RFbGBkuO1f5hKPgAEVmzQnj35CXNch4V6g5IA6o8Py9HW5rN3kT1i4Q2/5SEBrzFMWWSlPtXaSaFo2B9D5JCtsQRdLOvsrbP4Q4zmSDeP/PwBBK2s4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dSJ4g0TB; arc=none smtp.client-ip=10.30.226.201
+	bh=i8gz704Qm8ya/o5dE5ZS51DTR2abXR44TQSYVdI/Rvs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=dP+3qh9J/37S4GVKlWpXwKeKK64/sS4Z/nsL0nCEdWZF0fj3UBJPfA+WOyDx/YkeyE2QGzvwEmeZFaSyANYOtwtc3n4EezBngO1dD5v1Kw7UErhzd+fruJDDljXU9pAaNBit/RAsue6g4rtdh5zu3yB04v5rRuRkzqG+Nn6Oxec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LKGBRKrI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dSJ4g0TB"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1FA17C4CEC9;
-	Tue,  3 Sep 2024 07:00:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LKGBRKrI"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id EC8B5C4CEC8;
+	Tue,  3 Sep 2024 07:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1725346847;
-	bh=mUFXxsk2DgyvRFloTAD6u/HD5++5mkG+NueFPTUEMI0=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=dSJ4g0TBjeh/vsL5/0BGiOAt3eZKRKqsr176a24yoiA13uGV2ukPj2Euh1YG4ccll
-	 wiBBvrJu7Rchl/PD8/NiVPLTuHAaaADFPvq4DBybqi0IVvH3gdAVOrDJilng0qFJnF
-	 usXWAiyq/MpKYbZgbBnoz7unAFgqkRh3DiJw4zCsfKDZ549aVyNoRP6KsF1lE7w3KB
-	 wdvObBcBSlRJ/Y8i71w6k9Gr9sFZPG4YWhhW1M1pJuv2Hfmi+E9MUK4eH+pWmCJ1im
-	 uFRJeaPDc5EOa2cwGc0tz1WOtYpnlIeZeguATQYPpaeDZmHMHllMXHMlHPSskRBeH1
-	 a1HAyWbL/BqnQ==
+	bh=i8gz704Qm8ya/o5dE5ZS51DTR2abXR44TQSYVdI/Rvs=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=LKGBRKrII2OnJLG+xXOoZkNmjg6ze4cKMSaiXzuWwfs54t9MpoQNyiJY53hOM9vF1
+	 P0BSAB5H3OB32JWIGGSIpDn9PJEpMw74aiw4LIOuBMiUJ27M8dqZxbpEPfhRu6YKEB
+	 IACj7LUAIOA5eQzky+tR77KMruu1NmhfOjL/tRqqJBe9KE7vwBDQ25kqgO6FsS2cWv
+	 guBMvZK+JNEklUnPYk1+ik8c524795jjmqPnRAFKXY4sBNPy7AQHztSpu3Wvha4j/b
+	 v6QFVCoCAycvdqRDDIoFaY54zm9+2WU1MI4cAjAkiJv41w74D6fflQCt8I6cyRnUps
+	 /rSW7lEVqtrow==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11139CD3435;
-	Tue,  3 Sep 2024 07:00:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8D3ACD342F;
+	Tue,  3 Sep 2024 07:00:46 +0000 (UTC)
 From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Date: Tue, 03 Sep 2024 15:00:47 +0800
-Subject: [PATCH v2 3/3] MAINTAINERS: Add an entry for Amlogic RTC driver
+Subject: [PATCH v2 0/3] support for amlogic rtc
+Date: Tue, 03 Sep 2024 15:00:44 +0800
+Message-Id: <20240903-rtc-v2-0-05da5755b8d9@amlogic.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -40,9 +40,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240903-rtc-v2-3-05da5755b8d9@amlogic.com>
-References: <20240903-rtc-v2-0-05da5755b8d9@amlogic.com>
-In-Reply-To: <20240903-rtc-v2-0-05da5755b8d9@amlogic.com>
+X-B4-Tracking: v=1; b=H4sIABy01mYC/1WMQQ6DIBBFr2JmXRpmaCrtyns0LgigTlKlAUNqD
+ HeXuuvy/fz3dkg+sk/wbHaIPnPisFSgSwN2MsvoBbvKQJJuUpMScbUCqbVO44MMKqjPT/QDf8/
+ Kq688cVpD3M5oxt/672cUUtyHViqNzpBWnZnfYWR7tWGGvpRyAFKqYPSYAAAA
 To: Yiting Deng <yiting.deng@amlogic.com>, 
  Alexandre Belloni <alexandre.belloni@bootlin.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -51,11 +51,11 @@ Cc: linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Xianwei Zhao <xianwei.zhao@amlogic.com>
 X-Mailer: b4 0.12.4
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1725346845; l=877;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1725346845; l=1168;
  i=xianwei.zhao@amlogic.com; s=20231208; h=from:subject:message-id;
- bh=XIFaH+nJVOwTXlOGddbE310DKNtSVCRPwv4K0uAQLf0=;
- b=Gk/bz/WWEsRaeP+6/mmQ6yyounrKWRHq8LqmEPUr4dcIrifmX1etdoSsvYG9Gq6D3WQqh0vCC
- ta2k/+9Tu2YB02E6FUUGfHxjjb/rDPlGFXzEc1lqvo5BSzqPjoRDWyk
+ bh=i8gz704Qm8ya/o5dE5ZS51DTR2abXR44TQSYVdI/Rvs=;
+ b=PUa5Yy6NzJIV4PQ0E3FCZ1uWMcAzPrDAK3DadDyPFeWCAyJhZd0yCH21KZg7uBVsNtp/en4hi
+ q5T0DfLtl5qCcRhzV271WF0t/jm/Ub6Xg8GeoRYlm6eW6yj2G/j74Y9
 X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
  pk=o4fDH8ZXL6xQg5h17eNzRljf6pwZHWWjqcOSsj3dW24=
 X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20231208 with
@@ -63,37 +63,35 @@ X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20231208 with
 X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
 Reply-To: xianwei.zhao@amlogic.com
 
-From: Yiting Deng <yiting.deng@amlogic.com>
+Add rtc driver and bindigns for the amlogic A113L2 and A113X2 SoCs
 
-Add Amlogic RTC entry to MAINTAINERS to clarify the maintainers
-
-Signed-off-by: Yiting Deng <yiting.deng@amlogic.com>
 Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
 ---
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Changes in v2:
+- Modify bindings clock name and perfect the example.
+- Fix some bug in driver, and use dev_err_probe instead of dev_err in probe process.
+- Use RTC API to handle calibration.
+- Remove unused func and rename driver file name.
+- Link to v1: https://lore.kernel.org/r/20240823-rtc-v1-0-6f70381da283@amlogic.com
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 42decde38320..cdcd23456567 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2481,6 +2481,14 @@ F:	drivers/irqchip/irq-mvebu-*
- F:	drivers/pinctrl/mvebu/
- F:	drivers/rtc/rtc-armada38x.c
- 
-+AMLOGIC RTC DRIVER
-+M:	Yiting Deng <yiting.deng@amlogic.com>
-+M:	Xianwei Zhao <xianwei.zhao@amlogic.com>
-+L:	linux-amlogic@lists.infradead.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/rtc/amlogic,amlogic-rtc.yaml
-+F:	drivers/rtc/rtc-amlogic-a4.c
-+
- ARM/Mediatek RTC DRIVER
- M:	Eddie Huang <eddie.huang@mediatek.com>
- M:	Sean Wang <sean.wang@mediatek.com>
+---
+Yiting Deng (3):
+      dt-bindings: rtc: Add Amlogic A4 and A5 rtc
+      rtc: support for the Amlogic on-chip RTC
+      MAINTAINERS: Add an entry for Amlogic RTC driver
 
+ .../bindings/rtc/amlogic,amlogic-rtc.yaml          |  66 +++
+ MAINTAINERS                                        |   8 +
+ drivers/rtc/Kconfig                                |  12 +
+ drivers/rtc/Makefile                               |   1 +
+ drivers/rtc/rtc-amlogic-a4.c                       | 481 +++++++++++++++++++++
+ 5 files changed, 568 insertions(+)
+---
+base-commit: 3047c9a740816d5a930c8c741c3932a3544267f2
+change-id: 20240823-rtc-127cd8192a13
+
+Best regards,
 -- 
-2.37.1
+Xianwei Zhao <xianwei.zhao@amlogic.com>
 
 
