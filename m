@@ -1,183 +1,149 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D1CF174EFC;
-	Tue, 10 Sep 2024 08:02:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5F8144D1A;
+	Tue, 10 Sep 2024 10:14:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725955363; cv=none; b=uSNvHt7BQbjC5S0BUfGyjUJkjTYa1bq6/dCc6bfTXCGRwDP5u9OnpIytAaDbzGx8wX8bEotiIBXnnnWtilA//DQx6uITs7lpv71/UeEATU0FXTrjihGZYA3DNDR2IQ8GVVbGnuFVgX9dAbgg+MgFLUlEpQW9amW+f3wKdWm2Cmc=
+	t=1725963260; cv=none; b=rPYoCNHljFr7Le/dgBhmbUhnKOs/vUn8Q3RTT3ILNUQsM3WcYvOmpNYAizsKOSbCp5hPwcp4bMu8yBR4Imh0t/bwUZhM1HAlxq06iawJB2WlxGlbJvYKPGfrgFGx/2I0pm1YHePYOw4RcWEWVSzYTyFerGsGCQbI4CkPr5QtxwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725955363; c=relaxed/simple;
-	bh=bZQ56TI9jacC06ucCOzxlRB8MZhqw4u3oVbjFPOEG04=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OhohNAwFjzeYZPwm6uvID8OYbZPCVysGghyfko6ZAyzHqL1XnFt8MXnhwLsi3CSCLkyjnjD50+HRlACJTRbRA1/NwCMDJgvqGRcCt1Ff4Mr8CpFTkS6vODY6LBmhHzAx6/tozjtuKu4qVgPmvBFwnWfQzRea+uLQOTbycbSa0TI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-6b6b9867f81so2801497b3.1;
-        Tue, 10 Sep 2024 01:02:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725955358; x=1726560158;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fzRdJw3jGdTpaaxC4oTRsBtst8mfyJSId4rDFBKOHV0=;
-        b=hf/5DvQXc07ReeqJOh/x7w7aAifKsvC+Cdnd9Vr04mivTQCwXxg7QaHx0Dif6dvIYc
-         LGgsuhkAhSpOhpqh/aQevJ5D+AfHqdNZVyHkErX612V9q0P4btxSZHX6gVpy6aSd8UF6
-         nP+g553BD0iahWe7YGE6xY7wa8m3du/x1hu3GyHmp3bmEeFtvQS3Vl4ixTSWTfqQvCa7
-         dFy7y5iBIkvWZjDQvGFMqRkOZOh0xJl+lgxCAI1woEsDYtIUHtPe8vCyaEnVLZW8rylT
-         du1metny8dI9UDXW4XhgPTg6g/dgoK8vtfT0lAsZUecLtL7NihvvTBG436RoRQTSTwKr
-         iMdA==
-X-Forwarded-Encrypted: i=1; AJvYcCWOyNIeWSeKkHGVQzhTDNO2brNBi+Et8GUEiS4SLEqVPaSRiN79tCywtrTl9NHRhtfdYPEu8LWC0PMx505s64p1v2s=@vger.kernel.org, AJvYcCX+dPA3oZ2Pn8158a51PHSXdHzIlKdXtu09Xa8al0Ho02AL/nHlzY1JJbYp60rsXanZCYoZGGdQnBHs9IqI@vger.kernel.org, AJvYcCX/+ZcBEOcubMzYUh32DZw/oafIKJJ+lLZORGDr2f4XV8N8fd8p2kdjgW5UhG0iFCx6/T4NDp9a5iYn@vger.kernel.org, AJvYcCXod0PX0RBMUS32LY2LT4HyPu6jvbxcFRnVNJDvEj6mkfIpfwdvUlZwm0YlNCO+yipTHIYjO+m8C5Y/@vger.kernel.org, AJvYcCXqiMs1rEYsm1nBlJIj9A3+jU5cXD94zJo/w0G5/pHGmT8rVkLl9Z2pc4R4BLnZX/9bMpfj6p7YT1Am@vger.kernel.org
-X-Gm-Message-State: AOJu0YzzehQ3ga3o16Hyvn7mkuxXvqR0QqTj5bdQxV0AKK5YpGiLSTY2
-	qdWugiMRgn7subZUHxEwsnAdWAHMe6YKFpnf6VJHlzP0sPW0gadtQjbIF0Bi
-X-Google-Smtp-Source: AGHT+IEDzeFJg++83VtrB6IWJnIkEpcY+S8zu/4dF6JnBPmVZ02H8azk96uClHp01u5ASpF5vIUQ+g==
-X-Received: by 2002:a05:690c:dc5:b0:65f:d27d:3f6a with SMTP id 00721157ae682-6db44d61d1dmr158085997b3.7.1725955358109;
-        Tue, 10 Sep 2024 01:02:38 -0700 (PDT)
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com. [209.85.128.175])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-6db9648d551sm2189837b3.63.2024.09.10.01.02.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Sep 2024 01:02:37 -0700 (PDT)
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-6b6b9867f81so2801127b3.1;
-        Tue, 10 Sep 2024 01:02:37 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCV8EYR7jgyebhDZo2pAtd6e2eyhG3O2VUVw36sfXiUMPUnKbZN+yPb5CSD9j3fWUmbBK5n/yWP9Y454@vger.kernel.org, AJvYcCVO7uZSVziTLVhbZa/jj0dMctzRtiUoRktz1ONYwhUdH5vLilM5XIW7UCRHLFwr+lFASGdr/52VebTy@vger.kernel.org, AJvYcCWWFJS1hxlG1k45ou7p/89Y8U83wb8ut4tP7weBIgj6DL5lpnPEugFTN9S5zKCbnCl50w0waXmC7enBJxeAofesENU=@vger.kernel.org, AJvYcCXelkVbxMta2r+SPTIgeNe2QU/E4uMe/Gr9jy3t1Ej6LjV35xRzGw2QqGAR21vgHmVrB9hoBGzFH0omN2wm@vger.kernel.org, AJvYcCXzkTYygK8Xt7wG684wXki9BGuOsZF82qRMlOxUQLHHX1/UnC6q/wgvx9uJNbqlPIomwrsC9kcvZc9h@vger.kernel.org
-X-Received: by 2002:a05:690c:d18:b0:6af:eaaf:2527 with SMTP id
- 00721157ae682-6db44dfed1amr147937807b3.18.1725955356625; Tue, 10 Sep 2024
- 01:02:36 -0700 (PDT)
+	s=arc-20240116; t=1725963260; c=relaxed/simple;
+	bh=KDsv3s5S2knS4s9lv8drKPwrJUJ8cTMP0GELKtXUN7U=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=FhU6kAzw4sWUHHtXu369yieXp+clPSFfkxDQyYLsUZuxSNYrGhtBu8DOsEYqFiJpVuMwLAMYGEOJJ2EScK0y2gIhCAXoYq7p50E8ZfpCJ4wXTWurdyovYdP2+FUb6svRlIp3RnEsIVAGJ76T46sX3/e2Ydt6dTiVaPkHdFAHFoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RPxe5kjF; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RPxe5kjF"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6ADDFC4CEC3;
+	Tue, 10 Sep 2024 10:14:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1725963260;
+	bh=KDsv3s5S2knS4s9lv8drKPwrJUJ8cTMP0GELKtXUN7U=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=RPxe5kjFUoTcryIcIed+HVxDZ0RPRA4FQkW5camA4tc+fFnXN+em2/qrCWw8y2T3L
+	 NlF5d9//sxB/jiDrcf/P0UEBMiR7behXr3r+5k0wP3ig9y5ECYDh+F+Xyn/TtTm3p/
+	 5Rx5frmI/vO7E+DOgtQokNsn1LG3sEdOHumBpXKYSt/hars/cnr8Kj1bSGsaWhPj+X
+	 TNKvyBnCxN02UlQIel+vSGD9E5Xw4/ti3ElpJJyRVkmY/JDyEDNr2bHi8Qn0cjzNtv
+	 udK06wDqslxJ6U7rmMFr7xvARBeJU67mqpn+/26xIT+FYZOHxYkzAJUD4XIyRSbcd+
+	 1VnR2i3G716uw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ADAAECE58D;
+	Tue, 10 Sep 2024 10:14:20 +0000 (UTC)
+From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
+Date: Tue, 10 Sep 2024 18:14:18 +0800
+Subject: [PATCH v3 1/3] dt-bindings: rtc: Add Amlogic A4 and A5 RTC
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240830130218.3377060-1-claudiu.beznea.uj@bp.renesas.com>
- <20240830130218.3377060-8-claudiu.beznea.uj@bp.renesas.com>
- <83fac884d749bda0cf0b346e4e869bc8.sboyd@kernel.org> <d8303146-89e0-4229-a3fe-9f3c42434045@tuxon.dev>
- <c744cf7a70a3f97722146215a7620cfb.sboyd@kernel.org> <CAMuHMdX40ROk2vZe9VHoiPDJCvtrjto+swkicv29LFyQ7zoVng@mail.gmail.com>
- <951b5c09c3ca2de3f0a28a078084f7dd.sboyd@kernel.org> <CAMuHMdWBT6AaH2_5qj+j4s8JeeO3qrhYUTCVG=s_J13nSzYPsQ@mail.gmail.com>
- <8fa43530daa941b059b2de1e15dd7773.sboyd@kernel.org>
-In-Reply-To: <8fa43530daa941b059b2de1e15dd7773.sboyd@kernel.org>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 10 Sep 2024 10:02:24 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdW12EO=U2b93C=hkL3Z-ncf85X0-9KB4Ds9d5+b5MhLMw@mail.gmail.com>
-Message-ID: <CAMuHMdW12EO=U2b93C=hkL3Z-ncf85X0-9KB4Ds9d5+b5MhLMw@mail.gmail.com>
-Subject: Re: [PATCH v3 07/12] arm64: dts: renesas: r9a08g045: Add VBATTB node
-To: Stephen Boyd <sboyd@kernel.org>
-Cc: alexandre.belloni@bootlin.com, claudiu beznea <claudiu.beznea@tuxon.dev>, 
-	conor+dt@kernel.org, krzk+dt@kernel.org, magnus.damm@gmail.com, 
-	mturquette@baylibre.com, p.zabel@pengutronix.de, robh@kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240910-rtc-v3-1-1fa077a69a20@amlogic.com>
+References: <20240910-rtc-v3-0-1fa077a69a20@amlogic.com>
+In-Reply-To: <20240910-rtc-v3-0-1fa077a69a20@amlogic.com>
+To: Yiting Deng <yiting.deng@amlogic.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Xianwei Zhao <xianwei.zhao@amlogic.com>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1725963258; l=2094;
+ i=xianwei.zhao@amlogic.com; s=20231208; h=from:subject:message-id;
+ bh=RJlEl+9x/wxXWC6SJOp6Ssaq+XIiQ49flcxO3prFEIo=;
+ b=lqlH6lI6Mbaz8YpxYz0TvJYx6HNMDygTItWswCe2gH4ekIPI9APVWGUrxlgDcFj2lr+EWy8WV
+ ZTtRGI+e0jcD6hektMsVUGKIXJRU9RwY0rVIX3/vSUQEUVyHcpFOqJ5
+X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
+ pk=o4fDH8ZXL6xQg5h17eNzRljf6pwZHWWjqcOSsj3dW24=
+X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20231208 with
+ auth_id=107
+X-Original-From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+Reply-To: xianwei.zhao@amlogic.com
 
-Hi Stephen,
+From: Yiting Deng <yiting.deng@amlogic.com>
 
-On Mon, Sep 9, 2024 at 11:18=E2=80=AFPM Stephen Boyd <sboyd@kernel.org> wro=
-te:
-> Quoting Geert Uytterhoeven (2024-09-09 05:11:03)
-> > On Sat, Sep 7, 2024 at 1:01=E2=80=AFAM Stephen Boyd <sboyd@kernel.org> =
-wrote:
-> > > Quoting Geert Uytterhoeven (2024-09-06 00:28:38)
-> > > >
-> > > > My main objections are that (1) this approach is different than the=
- one used
-> > > > for all other external clock inputs on Renesas SoCs, and (2) this r=
-equires
-> > > > duplicating part of the clocks property in all board DTS files.
-> > >
-> > > Can 'clock-ranges' be used here? Leave the cell as null in the SoC dt=
-si
-> > > file and then fill it in with clocks property at the parent node. I
-> > > think you'd have to use clock-names for this though.
-> >
-> > "clock-ranges" does not seem to be well-documented...
->
-> Yeah, I wasn't aware of it for years!
->
-> > IUIC, your suggestion is to:
-> >   1. Add "clock-ranges" to the /soc subnode,
-> >   2. Completely leave out the "rtx" clock from the clocks property
-> >      of the vbattb@1005c000 node,
-> >   3. Add the following to the board DTS:
-> >
-> >         &soc {
-> >                 clocks =3D <&vbattb_xtal>;
-> >                 clock-names =3D "rtx";
-> >         };
-> >
-> > Then, when resolving "rtx" for the vbattb@1005c000 node,
-> > of_parse_clkspec() would iterate up and find the proper vbattb_xtal.
-> > Is that correct? And probably that should be done for other external
-> > clock inputs as well?
->
-> Sounds about right.
->
-> > Still, it looks a bit complicated and un-intuitive. And what about
-> > e.g. carrier boards with a SoM, where some clocks are provided by
-> > the SoM, and some by the carrier? In that case you still have to
-> > override the clock and clock-names properties in the carrier .dts,
-> > thus duplicating all clocks provided by the SoM.
->
-> This is the same case as the board wanting to override the soc node?
+Add documentation describing the Amlogic A4(A113L2) and A5(A113X2) RTC.
 
-Yes, but more complicated,
+Signed-off-by: Yiting Deng <yiting.deng@amlogic.com>
+Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+---
+ .../devicetree/bindings/rtc/amlogic,a4-rtc.yaml    | 63 ++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
-> When it's a SoM is there a node for the SoM? Is the clock on the SoM?
-> Does this case exist? Hopefully this isn't a straw man.
+diff --git a/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml b/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml
+new file mode 100644
+index 000000000000..eee994753a12
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml
+@@ -0,0 +1,63 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright (C) 2024 Amlogic, Inc. All rights reserved
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/amlogic,a4-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Amlogic A4 and A5 RTC
++
++maintainers:
++  - Yiting Deng <yiting.deng@amlogic.com>
++  - Xianwei Zhao <xianwei.zhao@amlogic.com>
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    enum:
++      - amlogic,a4-rtc
++      - amlogic,a5-rtc
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    items:
++      - description: RTC clock source, available 24M or 32K crystal
++          oscillator source. when using 24M, need to divide 24M into 32K.
++      - description: RTC module accesses the clock of the apb bus.
++
++  clock-names:
++    items:
++      - const: osc
++      - const: sys
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    apb {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        rtc@8e600 {
++            compatible = "amlogic,a4-rtc";
++            reg = <0x0 0x8e600 0x0 0x38>;
++            interrupts = <GIC_SPI 131 IRQ_TYPE_EDGE_RISING>;
++            clocks = <&xtal_32k>, <&clkc_periphs 1>;
++            clock-names = "osc", "sys";
++        };
++    };
 
-E.g. the White Hawk CPU board[1] contains extal_clk, extalr_clk, and
-scif_clk, so it would need something like:
+-- 
+2.37.1
 
-    &soc {
-            clocks =3D <&extal_clk>, <&extalr_clk>, <&scif_clk>;
-            clocks-names =3D "extal", "extalr", "scif";
-    };
 
-The White Hawk Break-Out board[2] contains can_clk, so it would
-need to append that, by overriding (duplicate + append):
-
-    &soc {
-            clocks =3D <&extal_clk>, <&extalr_clk>, <&scif_clk>, <&can_clk>=
-;
-            clocks-names =3D "extal", "extalr", "scif", "can";
-    };
-
-Currently, [1] does:
-
-    &extal_clk {
-            clock-frequency =3D <16666666>;
-    };
-
-    &extalr_clk {
-            clock-frequency =3D <32768>;
-    };
-
-    &scif_clk {
-            clock-frequency =3D <24000000>;
-    };
-
-And [2] does:
-
-    &can_clk {
-            clock-frequency =3D <40000000>;
-    };
-
-[1] arch/arm64/boot/dts/renesas/white-hawk-cpu-common.dtsi:
-[2] arch/arm64/boot/dts/renesas/white-hawk-common.dtsi
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
