@@ -1,140 +1,222 @@
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+Received: from smtp1.ms.mff.cuni.cz (smtp-in1.ms.mff.cuni.cz [195.113.20.234])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D24617839C;
-	Fri, 20 Sep 2024 13:37:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C8461FCF;
+	Fri, 20 Sep 2024 16:17:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.113.20.234
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726839479; cv=none; b=byEwPmUxJC5Uxx1s6g7NyPxJCPqNtY+zEhy2QXbKmX+bzuHe/ggbQAp4MEowNHCL3+xfRTvsdwU8EO1j3IdiGRFchkV9p3l3tMdyQJkNCDYTghv0qN9xhyNFw33aZDx+hgugeniQ18xiLKlSv8KVZz7TPd+wo9mKka2oTeWpza8=
+	t=1726849080; cv=none; b=XCM8uc+c/8+oDoLg2D6KMAcjZW18+IuIBwdIjenzSFNqIWfT8Q8oo9F88fkWNH1n4aRruAzLSsNbfgyDee+7bk3wxcxHx5uZubrqfntoPejosVaQPTfl6HUF8Bj1RHfOzJTLtuS+RFTsrMUS8p5Kw7rC1kWeqrsBwZjD58nW8h0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726839479; c=relaxed/simple;
-	bh=kgWb5kRwz1iKoDUmfC8iUWF0tLM8l/Q9bdKBzrkGBxE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bsMcYkCFupkBifFaqzZc2Z1d9+uWpE2of9O39oqxPyjjqrfH48BRxCnltX/tjzHE0EcUqS6+ZZzE7SQ/j8feGPMMdqLeoQ1aNPeMRd9zVuuhXSmbOTtTJ0SB4yeB4cf3fMSpV7Pow+UdRnWdOllYOq7ydRTjZh8UEKN1eeLaBMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=UXs9/D0D; arc=none smtp.client-ip=217.70.183.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1726849080; c=relaxed/simple;
+	bh=Nw506nHPim57dMdRRS1wOLHKQ4UMBJdg7SIf0Uaj5X0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=uZ0vMjfNOj1kt3Z+nKRe4xKiiZcC5kbL+CrFN4d3XuwM8xAVvfYN0N0JgbUaZ2GwysQmATrTYoNgHP/2nS73rs7jj8Ad6LpojeSY4xoYs/ReE7i3AwSsymM8z53/32tGJnb3l3TNJF5fPRg+q6ZvX/CFs6gUHNcVcrWUZBwhS2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz; spf=pass smtp.mailfrom=matfyz.cz; dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b=F6azvPeW; arc=none smtp.client-ip=195.113.20.234
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matfyz.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="UXs9/D0D"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 00CCE240003;
-	Fri, 20 Sep 2024 13:37:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1726839473;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VlxQbVI6GjsZePKg/GpEB4+lUld/JLjhc7SjBhbTe4Q=;
-	b=UXs9/D0DtqVUffHhaaWz9qCOw/YcTM1Da9aftLEfmybPoIbNYYchtTL63Nv0L731M/G8/u
-	m/kgvm1ljyop99J/70lQJKwq1y4Ey3TwCNEW51rZ3TLJcb2Efbi6+vblOwv+FlLGcVxJIu
-	sR9XtjpZDrhyXa1yPyG6LVN/IVgh1cYd9HbBIF43LtOxYg3geiazifHUSsyCnv61VYijua
-	5zmxBLG9zHiaseTmUMaOOege3taJZ7w6TH0KN46RL6i/MgQD/eQWXaOq9JkSBx7HEkZCZe
-	g8lOObN72EGjYEwtc9w0du8y50UWLZ5en31dBX8U5NCUNekmjK3goVGk1qJsVA==
-Date: Fri, 20 Sep 2024 15:37:50 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: Macpaul Lin <macpaul.lin@mediatek.com>, Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Sean Wang <sean.wang@mediatek.com>,
-	Sen Chu <sen.chu@mediatek.com>, netdev@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@ucw.cz>, Lee Jones <lee@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-rtc@vger.kernel.org, linux-sound@vger.kernel.org,
-	Alexandre Mergnat <amergnat@baylibre.com>,
-	Bear Wang <bear.wang@mediatek.com>,
-	Pablo Sun <pablo.sun@mediatek.com>, Macpaul Lin <macpaul@gmail.com>,
-	Chris-qj chen <chris-qj.chen@mediatek.com>,
-	MediaTek Chromebook Upstream <Project_Global_Chrome_Upstream_Group@mediatek.com>,
-	Chen-Yu Tsai <wenst@chromium.org>
-Subject: Re: [PATCH v6 2/2] dt-bindings: mfd: mediatek: mt6397: Convert to DT
- schema format
-Message-ID: <202409201337500284902d@mail.local>
-References: <20240918064955.6518-1-macpaul.lin@mediatek.com>
- <20240918064955.6518-2-macpaul.lin@mediatek.com>
- <20240918115151c896f33f@mail.local>
- <20240918115651c1475d36@mail.local>
- <2af0621d-14ac-b7f3-b28d-2df698931121@mediatek.com>
- <d8b90ddf-efbc-4434-9ad0-4be6942d51a5@collabora.com>
+	dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b="F6azvPeW"
+X-SubmittedBy: id balejk@matfyz.cz subject /postalCode=110+2000/O=Univerzita+20Karlova/street=Ovocn+5CxC3+5CxBD+20trh+20560/5/ST=Praha,+20Hlavn+5CxC3+5CxAD+20m+5CxC4+5Cx9Bsto/C=CZ/CN=Karel+20Balej/emailAddress=balejk@matfyz.cz
+	serial F5FD910E8FE2121B897F7E55B84E351D
+	issued by /C=NL/O=GEANT+20Vereniging/CN=GEANT+20Personal+20CA+204
+	auth type TLS.CUNI
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mff.cuni.cz;
+	s=submission; t=1726849011; x=1728149011;
+	bh=IGk8nyFkAs2srxF2XTaK0oygG3aLSHF7yVaDtue6ZGQ=; h=From;
+	b=F6azvPeWKot53Y/6FGE6zAL1uhWqIKHykydM2UZMt1ljfJA7fL3IgHnT3oIN14xwP
+	 2/dt9G8E5CdM2sMe0UEkTHEXdktDLx6mofXvRVMQQAOKO/qiNvIRavF9krlEPCO2aM
+	 E8oXnrp9xqUC4/qMY9lp3B2RBRQFmWeC8l7VfP9oP2cMMqUwA5s1mUA3zTaTs2XTvu
+	 CrWA/5Z6DTKgjYcAWVNbrJOKRPAGfTo207uVpU9kFz8UV2xokLKT7CyesQeQESZjEE
+	 IsQTYZNjYqHaDTcwfyUdmbHSpwuA6YPwygg6WTxeWAKS6D/ni/uv34AOqBV51w1pqn
+	 yQxvUBNHD7qFQ==
+Received: from localhost (internet5.mraknet.com [185.200.108.250])
+	(authenticated)
+	by smtp1.ms.mff.cuni.cz (8.16.1/8.16.1) with ESMTPS id 48KGGo67017532
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
+	Fri, 20 Sep 2024 18:16:51 +0200 (CEST)
+	(envelope-from balejk@matfyz.cz)
+From: Karel Balej <balejk@matfyz.cz>
+To: Lee Jones <lee@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Cc: duje.mihanovic@skole.hr, phone-devel@vger.kernel.org,
+        ~postmarketos/upstreaming@lists.sr.ht
+Subject: [RFC PATCH 2/2] rtc: add driver for Marvell 88PM886 PMIC RTC
+Date: Fri, 20 Sep 2024 18:12:35 +0200
+Message-ID: <20240920161518.32346-2-balejk@matfyz.cz>
+X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240920161518.32346-1-balejk@matfyz.cz>
+References: <20240920161518.32346-1-balejk@matfyz.cz>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <d8b90ddf-efbc-4434-9ad0-4be6942d51a5@collabora.com>
-X-GND-Sasl: alexandre.belloni@bootlin.com
 
-On 20/09/2024 09:31:24+0200, AngeloGioacchino Del Regno wrote:
-> Il 18/09/24 16:18, Macpaul Lin ha scritto:
-> > 
-> > On 9/18/24 19:56, Alexandre Belloni wrote:
-> > > 
-> > > On 18/09/2024 13:51:51+0200, Alexandre Belloni wrote:
-> > > > > Changes for v4:
-> > > > >  - Remove "mediatek,mt6357" from PMIC's compatible string since there is a
-> > > > >    seperated DT schema for PMIC mt6357.
-> > > > > > Changes for v5:
-> > > > >  - Rebase to next-20240913 (linux-next/master).
-> > > > >  - Fix the "title" (device type) of mfd/mediatek,mt6397.yaml to "PMIC".
-> > > > >  - RTC:
-> > > > >   - Drop "start-year"
-> > > > 
-> > > > Maybe, instead of dropping the property, you should add support in the
-> > > > driver by setting range_min and range_max.
-> > > 
-> > > Looking at this even more, the driver can probably be simplified by
-> > > setting start_year in probe and dropping RTC_MIN_YEAR_OFFSET.
-> > 
-> > Thank you for pointing out where and how the driver should be changed.
-> > However, I'm wondering if this should be a fix with a separated
-> > patchset (bindings and the driver)? The board or SoC's device trees
-> > should be reviewed as well. I'll need to get someone's help (permission)
-> > inside MediaTek to check those dts and construct the patch for RTC
-> > driver.
-> > That will take sometime.
-> > 
-> 
-> Alexandre, I definitely agree with you on the fact that the MTK PMIC RTC driver
-> can (and needs to) be improved, and that it can make use of some nice cleanup...
-> 
-> ... but!
-> 
-> This series performs a conversion to schema, and the previous txt file didn't
-> say anything about the start-year property - which was not mandatory to support
-> at that time (nor now, afaik?), so adding support for that is out of scope for
-> this series.
+Only basic set/read time functionality is supported at the moment.
+Tested with the samsung,coreprimevelte smartphone which contains this
+PMIC and whose vendor kernel tree has also served as the sole reference
+for this.
 
-It is mandatory now. I agree this can be done in a subsequent series.
+Signed-off-by: Karel Balej <balejk@matfyz.cz>
+---
+ MAINTAINERS               |  1 +
+ drivers/rtc/Kconfig       | 10 ++++
+ drivers/rtc/Makefile      |  1 +
+ drivers/rtc/rtc-88pm886.c | 97 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 109 insertions(+)
+ create mode 100644 drivers/rtc/rtc-88pm886.c
 
-> 
-> Eventually, that can come as a series on top, adding support for that in the
-> binding (and, of course, in the driver).
-> 
-> I should be able to tackle that... most probably next week - but still, the
-> improvements would come as a series on top of this one.
-> 
-> Cheers,
-> Angelo
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index cc40a9d9b8cd..fe50a43f4e0d 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13518,6 +13518,7 @@ F:	Documentation/devicetree/bindings/mfd/marvell,88pm886-a1.yaml
+ F:	drivers/input/misc/88pm886-onkey.c
+ F:	drivers/mfd/88pm886.c
+ F:	drivers/regulators/88pm886-regulator.c
++F:	drivers/rtc/rtc-88pm886.c
+ F:	include/linux/mfd/88pm886.h
+ 
+ MARVELL ARMADA 3700 PHY DRIVERS
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 2a95b05982ad..6c9d51c585a2 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -182,6 +182,16 @@ config RTC_DRV_88PM80X
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-88pm80x.
+ 
++config RTC_DRV_88PM886
++	tristate "Marvell 88PM886 RTC driver"
++	depends on MFD_88PM886_PMIC
++	help
++	  If you say yes here you will get support for the RTC function in the
++	  Marvell 88PM886 chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-88pm886.
++
+ config RTC_DRV_ABB5ZES3
+ 	select REGMAP_I2C
+ 	tristate "Abracon AB-RTCMC-32.768kHz-B5ZE-S3"
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 3004e372f25f..0cd2c4943b7b 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -21,6 +21,7 @@ obj-$(CONFIG_RTC_LIB_KUNIT_TEST)	+= lib_test.o
+ 
+ obj-$(CONFIG_RTC_DRV_88PM80X)	+= rtc-88pm80x.o
+ obj-$(CONFIG_RTC_DRV_88PM860X)	+= rtc-88pm860x.o
++obj-$(CONFIG_RTC_DRV_88PM886)	+= rtc-88pm886.o
+ obj-$(CONFIG_RTC_DRV_AB8500)	+= rtc-ab8500.o
+ obj-$(CONFIG_RTC_DRV_ABB5ZES3)	+= rtc-ab-b5ze-s3.o
+ obj-$(CONFIG_RTC_DRV_ABEOZ9)	+= rtc-ab-eoz9.o
+diff --git a/drivers/rtc/rtc-88pm886.c b/drivers/rtc/rtc-88pm886.c
+new file mode 100644
+index 000000000000..57e9b0a66eed
+--- /dev/null
++++ b/drivers/rtc/rtc-88pm886.c
+@@ -0,0 +1,97 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <linux/limits.h>
++#include <linux/mod_devicetable.h>
++#include <linux/platform_device.h>
++#include <linux/rtc.h>
++
++#include <linux/mfd/88pm886.h>
++
++/*
++ * Time is calculated as the sum of a 32-bit read-only advancing counter and a
++ * writeable constant offset stored in the chip's spare registers.
++ */
++
++static int pm886_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	struct regmap *regmap = dev_get_drvdata(dev);
++	u32 time;
++	u32 buf;
++	int ret;
++
++	ret = regmap_bulk_read(regmap, PM886_REG_RTC_SPARE1, &buf, 4);
++	if (ret)
++		return ret;
++	time = buf;
++
++	ret = regmap_bulk_read(regmap, PM886_REG_RTC_CNT1, &buf, 4);
++	if (ret)
++		return ret;
++	time += buf;
++
++	rtc_time64_to_tm(time, tm);
++
++	return 0;
++}
++
++static int pm886_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	struct regmap *regmap = dev_get_drvdata(dev);
++	u32 buf;
++	int ret;
++
++	ret = regmap_bulk_read(regmap, PM886_REG_RTC_CNT1, &buf, 4);
++	if (ret)
++		return ret;
++
++	buf = rtc_tm_to_time64(tm) - buf;
++
++	return regmap_bulk_write(regmap, PM886_REG_RTC_SPARE1, &buf, 4);
++}
++
++static const struct rtc_class_ops pm886_rtc_ops = {
++	.read_time = pm886_rtc_read_time,
++	.set_time = pm886_rtc_set_time,
++};
++
++static int pm886_rtc_probe(struct platform_device *pdev)
++{
++	struct pm886_chip *chip = dev_get_drvdata(pdev->dev.parent);
++	struct device *dev = &pdev->dev;
++	struct rtc_device *rtc;
++	int ret;
++
++	platform_set_drvdata(pdev, chip->regmap);
++
++	rtc = devm_rtc_allocate_device(dev);
++	if (IS_ERR(rtc))
++		return dev_err_probe(dev, PTR_ERR(rtc),
++				"Failed to allocate RTC device\n");
++
++	rtc->ops = &pm886_rtc_ops;
++	rtc->range_max = U32_MAX;
++
++	ret = devm_rtc_register_device(rtc);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to register RTC device\n");
++
++	return 0;
++}
++
++static const struct platform_device_id pm886_rtc_id_table[] = {
++	{ "88pm886-rtc", },
++	{ }
++};
++MODULE_DEVICE_TABLE(platform, pm886_rtc_id_table);
++
++static struct platform_driver pm886_rtc_driver = {
++	.driver = {
++		.name = "88pm886-rtc",
++	},
++	.probe = pm886_rtc_probe,
++	.id_table = pm886_rtc_id_table,
++};
++module_platform_driver(pm886_rtc_driver);
++
++MODULE_DESCRIPTION("Marvell 88PM886 RTC driver");
++MODULE_AUTHOR("Karel Balej <balejk@matfyz.cz>");
++MODULE_LICENSE("GPL");
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.46.0
+
