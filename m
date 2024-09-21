@@ -1,94 +1,68 @@
-Received: from smtp1.ms.mff.cuni.cz (smtp-in1.ms.mff.cuni.cz [195.113.20.234])
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3053413AA3F;
-	Fri, 20 Sep 2024 16:45:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.113.20.234
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 726A18BEC;
+	Sat, 21 Sep 2024 23:43:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726850736; cv=none; b=IJa8v3eHQpCkOx8yRdJ0B+JqVi4sjPui1cuQwGOxm4NQekdawLz0fNLIvGuv03dyspGOzdqEi0oTVb7rYLz2dw8mouoL0aKPNopS+EUASHfWPqOzFNZ1bXWQ6v3HKAlLxdqWuHN09bP/0R2VgqhABle8HGfkyHn7hzE9xqDvuXM=
+	t=1726962234; cv=none; b=ZfmSKoRrdUFfw1Ts3FXiPXUELzP6b9Jlex7QeslDyRuA+CnB95iZZqsJTSHrObEZI4PmAAiXC/8ccqBeTGQs61+7ytUx5Qu73HX9ZaCGMvV80bgYLlf/oKWifSi3xYPTvDt1Yr7k96gaQGti3xUG/Uz+wN1lPI/V3ITsSmHSBsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726850736; c=relaxed/simple;
-	bh=cLMGwBDbHOwlp6l2fxlf5v0qFNWyzYBnuy3KDrHgc1o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VOQfgZCx/MpN9IZs85ceTrPC8vfd7YR0jJlYT2bj16SCoqUVD2iZjbXGuRFraHXt7SjzwB/reXGrB9aXFlwALAIPWPfn4t/4eXw9BDwWW7Nus3uLobjgsQGn6ZYuRJmyvMdMAJK4gO2jZ3Z7BOA4BuzpTN5WVdywbR9Bzf+7hOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz; spf=pass smtp.mailfrom=matfyz.cz; dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b=VdfzrC8H; arc=none smtp.client-ip=195.113.20.234
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matfyz.cz
+	s=arc-20240116; t=1726962234; c=relaxed/simple;
+	bh=+BGAsLE36zVsTJqm7vmjnYCYPyF+jJlfEf5rI9mvhR4=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jud1L8JqYjFNqNCXzZSNnfYoUE7UDzsEMI7D6c5awaj//o+JrvfIOKalZAADrOGuSMEyS3KMJ6uMqP24frYfYV9P2qxudoaAqQmfP/Vuc1EhUauVVo2kC16QqCWySE3puT/RmBzsbzhgJUMuSQbekb16Z7X5+v5kG8J9fxIQ48Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=K5Qao8jo; arc=none smtp.client-ip=217.70.178.240
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b="VdfzrC8H"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mff.cuni.cz;
-	s=submission; t=1726849008; x=1728149008;
-	bh=sTV3/3SaZ+NJbD9hQE/+9IHDpO4DnCnmNCh4a+dGmAM=; h=From;
-	b=VdfzrC8H86sUNAxt/CMOl4apHFbHQDTYR0+ECZDDpmkA+SvAfpEVJYFoiF5PxLCls
-	 qbubCNHf6VB9NYeC9MJRerZ6gvaW1TRGGD+cSj69j/iRbpq7EXAHPj7ted09WfkOmT
-	 ecyTD6BTfB2MM8VBn3syady7wjWlX0H4qSC2UnaAYvLT80/C+wpaxENzvInhlS3D9b
-	 yU8azb6hmJ7cAIHtbMv3JIBJW88e2GW4Uh2CX0uOJYTC4YBXHiA4bq2ePZOGwBy1ll
-	 s1tv3c5EO8A9W6xtsOf8nS4Ym3niQDRlODUoq26bWpPBV7Oy28fJLphKEs0I/AAH+i
-	 enq+5RMXBxmjQ==
-Received: from localhost (internet5.mraknet.com [185.200.108.250])
-	(authenticated)
-	by smtp1.ms.mff.cuni.cz (8.16.1/8.16.1) with ESMTPS id 48KGGjEg017529
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
-	Fri, 20 Sep 2024 18:16:47 +0200 (CEST)
-	(envelope-from balejk@matfyz.cz)
-From: Karel Balej <balejk@matfyz.cz>
-To: Lee Jones <lee@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc: duje.mihanovic@skole.hr, phone-devel@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht
-Subject: [RFC PATCH 1/2] mfd: 88pm886: add the RTC cell and relevant definitions
-Date: Fri, 20 Sep 2024 18:12:34 +0200
-Message-ID: <20240920161518.32346-1-balejk@matfyz.cz>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="K5Qao8jo"
+Received: from relay4-d.mail.gandi.net (unknown [217.70.183.196])
+	by mslow1.mail.gandi.net (Postfix) with ESMTP id 83351C0479;
+	Sat, 21 Sep 2024 23:19:17 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 8BA48E0003;
+	Sat, 21 Sep 2024 23:19:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1726960750;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Pd5piRkOyvNtkB5wA7K5ClTk4Ahw21GKP2WyPHgRnuc=;
+	b=K5Qao8joQDe13wllMXkZkHrI27p/usJcJ/a8lx6QxKwAdxxR06G4QnWBYkr2rlZEg0ARyy
+	eEql93l6BUSy12eMPOcvImUkcLSPiz8YGLqG8/IFaqaem41asCCKT0nSlGvCtqCuCiVPGb
+	TBgh8nUck7eO0/S3c2FSZ1cQa1VlkYtrYS7yK2h2W+Z0jL8I3zAlQZP/mAiPL2WcSaxm9c
+	+HeI6G4AXrRLUUm07pa3VE9fq8/sJm2ymOwfVp4n1QXWcR4IteBcCb39oukVUVRbwzs9cp
+	k3niH4ine8fwWA7yqgDr4SjB4+OmZBrMzZRBQtgkdk9W9Qm0q8cb//B/wc+acg==
+Date: Sun, 22 Sep 2024 01:19:10 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Andreas Kemnade <andreas@kemnade.info>
+Subject: Re: [PATCH] rtc: rc5t619: use proper module tables
+Message-ID: <172696072277.282436.6650836078742883740.b4-ty@bootlin.com>
+References: <20240918212159.1191637-1-andreas@kemnade.info>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240918212159.1191637-1-andreas@kemnade.info>
+X-GND-Sasl: alexandre.belloni@bootlin.com
 
-RTC lives on the base register page of the chip. Add definitions of the
-registers needed for a basic set/read time functionality.
+On Wed, 18 Sep 2024 23:21:59 +0200, Andreas Kemnade wrote:
+> Avoid requiring MODULE_ALIASES by declaring proper device id tables.
+> 
+> 
 
-Signed-off-by: Karel Balej <balejk@matfyz.cz>
----
- drivers/mfd/88pm886.c       | 1 +
- include/linux/mfd/88pm886.h | 9 +++++++++
- 2 files changed, 10 insertions(+)
+Applied, thanks!
 
-diff --git a/drivers/mfd/88pm886.c b/drivers/mfd/88pm886.c
-index dbe9efc027d2..891fdce5d8c1 100644
---- a/drivers/mfd/88pm886.c
-+++ b/drivers/mfd/88pm886.c
-@@ -37,6 +37,7 @@ static struct resource pm886_onkey_resources[] = {
- static struct mfd_cell pm886_devs[] = {
- 	MFD_CELL_RES("88pm886-onkey", pm886_onkey_resources),
- 	MFD_CELL_NAME("88pm886-regulator"),
-+	MFD_CELL_NAME("88pm886-rtc"),
- };
- 
- static int pm886_power_off_handler(struct sys_off_data *sys_off_data)
-diff --git a/include/linux/mfd/88pm886.h b/include/linux/mfd/88pm886.h
-index 133aa302e492..85eca44f39ab 100644
---- a/include/linux/mfd/88pm886.h
-+++ b/include/linux/mfd/88pm886.h
-@@ -31,6 +31,15 @@
- #define PM886_INT_WC			BIT(1)
- #define PM886_INT_MASK_MODE		BIT(2)
- 
-+#define PM886_REG_RTC_CNT1		0xd1
-+#define PM886_REG_RTC_CNT2		0xd2
-+#define PM886_REG_RTC_CNT3		0xd3
-+#define PM886_REG_RTC_CNT4		0xd4
-+#define PM886_REG_RTC_SPARE1		0xea
-+#define PM886_REG_RTC_SPARE2		0xeb
-+#define PM886_REG_RTC_SPARE3		0xec
-+#define PM886_REG_RTC_SPARE4		0xed
-+#define PM886_REG_RTC_SPARE5		0xee
- #define PM886_REG_RTC_SPARE6		0xef
- 
- #define PM886_REG_BUCK_EN		0x08
+[1/1] rtc: rc5t619: use proper module tables
+      https://git.kernel.org/abelloni/c/690286214916
+
+Best regards,
+
 -- 
-2.46.0
-
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
