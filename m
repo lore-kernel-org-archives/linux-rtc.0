@@ -1,143 +1,91 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 583EE8479;
-	Mon, 23 Sep 2024 09:53:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C60AC195809;
+	Mon, 23 Sep 2024 10:00:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727085191; cv=none; b=LeTCLeYw4/vxkRyqI3nbPsIHUNSonuTIBYdT3KhUOwGhOLaxBl1s6w15YhR44Q3RD1CzI+bbhDvAF562SPnSRcLmbwIYOOD3DINYRMev2uP+ajECrTh7AU2rrwZ/mR86jZYBHwUyzNIQ2Zc6o6spsHuWu6kGZ8mNDFUes3bxw2k=
+	t=1727085617; cv=none; b=OV9FVW6iiOu2d5gCLNc0APrIM41Cw/sYlHXutj0NhhitoaGcQj2KWLPfwMm7hutA+9ijfHLDPzXzDTP8pv7RyLI1QQMrk0JglE7DZG7/u+TwxOnA8tAJgYJvhjYadZZ8D4o3RBQhFPtor9Gmifxtu4/I4XjbxWpXIRXFdZ+yW+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727085191; c=relaxed/simple;
-	bh=oZq/tJZEKhLPOMgfoJYimVhT73cmX0YvXhNZwch10fw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d1Qu7lqr6AZUaNEsGMu9lNPVfB1qH2i3KYsNQz5wFFGTAf2GoX0QhYr9/bA1hQpwMNG1IgSmhL2tHXST+TXNZpTvcm4xEvDDzuapTf7t1Uh0dg5ocg7fcQYW/WEhkqUs6X2dehiS6eDoGhiYM/1GlOkO/yY4edHrspZBv5jNHYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=MZ+hq6OI; arc=none smtp.client-ip=148.251.105.195
+	s=arc-20240116; t=1727085617; c=relaxed/simple;
+	bh=7ECwv49t0WFiAx3RhC+fh1v+7w6XzbPg4STX+u9qe/0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VZ6LLX9ZI0+6nDfFHoaQ17cXYxla00Ic3VzDFQ0vNvVDYe2bHWFV6x/pqgp5jVOOmUTw+BOU8MBGxafeBs3jsVJo3EcEzTPEAtnqearOOdQIF853JjEQcR/ozkhPubAXvcuDlk6G1EUc0KYqcGLfrxgw5VPZ0Wp0knaqjMwcR/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=HAIVGcXg; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="MZ+hq6OI"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="HAIVGcXg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1727085187;
-	bh=oZq/tJZEKhLPOMgfoJYimVhT73cmX0YvXhNZwch10fw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=MZ+hq6OINW90+WpTkHHmPOoq2HKPAuvI+1xkqbswtdYsklz/MSFzr68+Q+giSL+I5
-	 OzP9T9Zr4wDKneB6nMIYOUVE4Fm3bAbN3ouV21gTJTi2xXnyp7DzwK9oRCcafr5ody
-	 WFj5GYNdLHfbZbXWSmPRUUGE0etUK0yOuZdYIbdXxTfyrvzezFQV8LHaNU197eITR9
-	 +c9hdBh2po9xsq8ZwmGclZ597SEZhcqwtqv3bVRGUxKmfMJ8PQbFuYjZBdEa1LsKZB
-	 wydLnlk5Im0F2Q9H+qjKlLAFoanlLXpwwrXA2ndHDXHHaqAx/wicl937ots20axw9F
-	 cIAGwuzXBkXfA==
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	s=mail; t=1727085614;
+	bh=7ECwv49t0WFiAx3RhC+fh1v+7w6XzbPg4STX+u9qe/0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=HAIVGcXgONpShgBWkyfL+ym8Jj4ookW2rEdYeDNvI+hsmFDEuKbmTVhk3gZsR6VwX
+	 oH/dC78n3lvf/ujs52/q8fZtEW1QxndWkKDEipAyUqgf13JdfBUFyDDqsxTF8gOlcx
+	 gSJj0a5oIGFTz9ATPhpVSyHaMU/HFAhxRecFGwwWFlP2bhrbBnifjHhXAK4RCwhAdo
+	 ejvAEfKZ/iyj4mYOPmoUMaqFPMGznqPkNSQjWO02LrbqcZZNL3yrQ/vJis6rjbjEZK
+	 978tgdjkz4D6e5d8FPNz0aF1TuCp6vMIpIDDdFSYsIS1bfChzpk4xDie1ODWRvWhkq
+	 Cr1IpRs3Hmcrw==
+Received: from IcarusMOD.eternityproject.eu (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 57D9417E10C2;
-	Mon, 23 Sep 2024 11:53:06 +0200 (CEST)
-Message-ID: <122e5099-4f0b-41cc-93c9-7ccdfc0207ad@collabora.com>
-Date: Mon, 23 Sep 2024 11:53:06 +0200
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 55AB217E10AE;
+	Mon, 23 Sep 2024 12:00:13 +0200 (CEST)
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+To: lee@kernel.org
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	matthias.bgg@gmail.com,
+	angelogioacchino.delregno@collabora.com,
+	eddie.huang@mediatek.com,
+	sean.wang@mediatek.com,
+	alexandre.belloni@bootlin.com,
+	sen.chu@mediatek.com,
+	macpaul.lin@mediatek.com,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	linux-rtc@vger.kernel.org,
+	kernel@collabora.com
+Subject: [PATCH v1 1/3] dt-bindings: mfd: mediatek: mt6397: Add start-year property to RTC
+Date: Mon, 23 Sep 2024 12:00:08 +0200
+Message-ID: <20240923100010.97470-2-angelogioacchino.delregno@collabora.com>
+X-Mailer: git-send-email 2.46.0
+In-Reply-To: <20240923100010.97470-1-angelogioacchino.delregno@collabora.com>
+References: <20240923100010.97470-1-angelogioacchino.delregno@collabora.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/2] dt-bindings: mfd: mediatek: mt6397: Convert to DT
- schema format
-To: Macpaul Lin <macpaul.lin@mediatek.com>, Andrew Lunn <andrew@lunn.ch>,
- Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean
- <olteanv@gmail.com>, "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
- Sean Wang <sean.wang@mediatek.com>, Sen Chu <sen.chu@mediatek.com>,
- netdev@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>,
- Lee Jones <lee@kernel.org>, Sebastian Reichel <sre@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-sound@vger.kernel.org,
- Alexandre Mergnat <amergnat@baylibre.com>
-Cc: Bear Wang <bear.wang@mediatek.com>, Pablo Sun <pablo.sun@mediatek.com>,
- Macpaul Lin <macpaul@gmail.com>, Chris-qj chen <chris-qj.chen@mediatek.com>,
- MediaTek Chromebook Upstream
- <Project_Global_Chrome_Upstream_Group@mediatek.com>,
- Chen-Yu Tsai <wenst@chromium.org>
-References: <20240918064955.6518-1-macpaul.lin@mediatek.com>
- <20240918064955.6518-2-macpaul.lin@mediatek.com>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20240918064955.6518-2-macpaul.lin@mediatek.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Il 18/09/24 08:49, Macpaul Lin ha scritto:
-> Convert the mfd: mediatek: mt6397 binding to DT schema format.
-> 
-> MT6323, MT6358, and MT6397 are PMIC devices with multiple function
-> subdevices. They share a common PMIC design but have variations in
-> subdevice combinations.
-> 
-> Key updates in this conversion:
-> 
-> 1. RTC:
->     - Convert rtc-mt6397.txt and merge into parent MT6397 PMIC DT schema.
-> 
-> 2. Regulators:
->     - Align to generic name "regulators".
->     - Update references from .txt to .yaml for mt6323, mt6358, and mt6397
->       regulators.
->     - Simplify regulator name labels in device tree examples.
-> 
-> 3. Audio Codec:
->     - Convert sound/mt6358.txt and merge into parent MT6397 PMIC DT schema.
->     - Align to generic name "audio-codec" for codec and sound subdevices.
->     - Add "mediatek,dmic-mode" and "Avdd-supply" properties.
-> 
-> 4. Clocks:
->     - Align to generic name "clocks" for clockbuffer subdevices.
-> 
-> 5. LEDs:
->     - Convert leds-mt6323.txt and merge into parent MT6397 PMIC DT schema.
->     - Update LED binding.
-> 
-> 6. Keys:
->     - Add detailed descriptions for power and home keys.
->     - Add compatible: mediatek,mt6358-keys.
-> 
-> 7. Power Controller:
->     - Convert mt6323-poweroff.txt and merge into parent MT6397 PMIC DT
->       schema.
->     - Add #power-domain-cells property to fix dt-binding check error.
->     - Clarify "BBPU" as "Baseband power up".
-> 
-> 8. Pinctrl:
->     - Align to generic name "pinctrl" instead of "pin-controller".
-> 
-> 9. Compatible:
->     - Drop "mediatek,mt6357" since there is a separated DT Schema
->       for PMIC MT6357.
-> 
-> 10. Examples:
->     - MT6323: Retain complete examples for this PMIC.
->     - MT6358 and MT6397: simplify settings in regulators.
->      - Preserve "audio-codec", "clocks", "pinctrl", "rtc", and "keys"
->        sections as they contain typical settings for different PMICs.
-> 
-> Additional updates:
-> - MAINTAINERS: Add co-maintainers and reference to
->    mfd/mediatek,mt6397.yaml for LED and power-controller drivers.
-> - input/mediatek,pmic-keys.yaml: Update reference to
->    mfd/mediatek,mt6397.yaml.
-> 
-> Signed-off-by: Sen Chu <sen.chu@mediatek.com>
-> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Enable evaluating the start-year property to allow shifting the
+RTC's HW range.
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+---
+ Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
+index 953358bc997a..a83cc35f51f1 100644
+--- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
++++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
+@@ -71,6 +71,8 @@ properties:
+                   - mediatek,mt6366-rtc
+               - const: mediatek,mt6358-rtc
+ 
++      start-year: true
++
+     required:
+       - compatible
+ 
+-- 
+2.46.0
 
