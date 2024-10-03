@@ -1,106 +1,164 @@
 Received: from fout-a3-smtp.messagingengine.com (fout-a3-smtp.messagingengine.com [103.168.172.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B6017C77;
-	Thu,  3 Oct 2024 03:27:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBAEC38DE0;
+	Thu,  3 Oct 2024 03:27:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727926063; cv=none; b=UOWss8dKCzPGSoBxwPsW64pzhV1/EMGXuGSWsKjzcsMRmjvjtghWx9UizuPKUpEcBu/92Zi3JlsKVoh0AoSYHwgPTv/Ta7QfTU+6ESaDQFyk/rmTmGZU0n79IqJdXthtTdbQHCEsWxhZXX2KqVxfEWCtxaTg0wKAU7qSSnNEAvQ=
+	t=1727926071; cv=none; b=sT809dyu6QZSGjF75CHRVdsq/AOzz81SwxbtBWRgkHoLx+xdWjnBpq3+y6p3NL7DM6/scGIyNO1h4jroXs1radOm1l0mAnOQMdnr7Y954Q8YA3FgKhhuYhAZHE2CDIqBpi1ZCS/Gz0xfkDp9WAAhszHFloWAkdjuNTzM8DVNUpQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727926063; c=relaxed/simple;
-	bh=o+3jrKW7b7kFBJRKWePVxzV/UhWLYrB9mPeX8rVWu+g=;
-	h=Message-Id:From:Subject:Date:To:Cc; b=pyy4w1rEPK2hGZcn+8q1w9s23iFVfvbZSTFbKAc9+OgrxPT5C/ctEvlXcoExhgYAFDiqt9J/XF8GBrU4IhBZSfq7LZbBlT1TIXv9cgHr+wvoa2EGOKQ2P7YtJhMtBfHN1GH22mKqD3cqhwO2j1y1uszGo/jyuZEzA49lKON5PUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=dRFUVKnE; arc=none smtp.client-ip=103.168.172.146
+	s=arc-20240116; t=1727926071; c=relaxed/simple;
+	bh=VxZlrtAqFv9j/uHtY1BhROEG/+3JnklZMvpNVUxPEJw=;
+	h=To:Cc:Message-Id:In-Reply-To:References:From:Subject:Date; b=H75j1RwDGRtla48EKlcWrp+KIJpWPlbLX5uaXcm+SXuDe/99wHxD1D61eaqx0WL9Q1LNoUwnkk31YYj7tmcofyCcde2HcmPhJ3xtXgFf+awBILlScA9uAfP40E/HOAwNpKoL2x065jb7twZEt35gnnQpzuEYBOKVY3lbXlWpFAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=eYqEwAeT; arc=none smtp.client-ip=103.168.172.146
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dRFUVKnE"
-Received: from phl-compute-02.internal (phl-compute-02.phl.internal [10.202.2.42])
-	by mailfout.phl.internal (Postfix) with ESMTP id AA20B13804B7;
-	Wed,  2 Oct 2024 23:27:39 -0400 (EDT)
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="eYqEwAeT"
+Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
+	by mailfout.phl.internal (Postfix) with ESMTP id 0488F13804B7;
+	Wed,  2 Oct 2024 23:27:49 -0400 (EDT)
 Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Wed, 02 Oct 2024 23:27:39 -0400
+  by phl-compute-10.internal (MEProxy); Wed, 02 Oct 2024 23:27:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-	:feedback-id:from:from:in-reply-to:message-id:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-	:x-sasl-enc; s=fm2; t=1727926059; x=1728012459; bh=JxvPYPBns9YkU
-	mhU8vnRGYX0kJFFoS3PbWqDIlFrT5Q=; b=dRFUVKnEQOmDWF0lTtzX+fZRgxh4x
-	LibkEdnyf+rDtEuNiiUB0xZjdlTRfoWD3/ppVH6fUjYqwxCKN7GmBlUNTDJK6I2f
-	iPrp3B4UqpWfl/1NFP6iuE62COdfx/6Y1NUgRSgiKPuKTibO3ka7OkqQegZdkQGb
-	CNbWM8VOhvLsHS+W8YsttkMpQOYdPBCjsuDgzcequGUmIuFyNGjVU6QXpNwF6Qk2
-	PCpcBtTROSv2Dhphq/VjFJ4nHJosJ57Iem2s86sp5PEsvu21XIHdBIXI38Z0bQX4
-	FsPKhWOi7g0K0bGNlH1U7Qie5h1a5dxOWXGS0IpheGUCuRCmoPv4zgVJA==
-X-ME-Sender: <xms:Kg_-ZoIsxZoquFVOFDu06PJYqjiA_r-BelkmrEw37DJUzxzV87-hZQ>
-    <xme:Kg_-ZoLbvhfgPCNpymRKtYvigEfV4NIrnUKHmjnQatauYhZHCfIL0Mc0CTTd-x6n-
-    plVOpWB7S1L2Mkn-jQ>
-X-ME-Received: <xmr:Kg_-ZouasqQhQaHQ6kDn0AH_oUC9ec36dIkMCJ9CjpDG_-2ZMJa9jdg4gwhAiE6aIN7uhnLRQCN0LPqFBP69yn4UWhm4-IKVEYo>
+	:feedback-id:from:from:in-reply-to:in-reply-to:message-id
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1727926069; x=
+	1728012469; bh=RXdzWn7PA5l/DmEXkF+W4h++S2gHqll77LPZsh02hLA=; b=e
+	YqEwAeTaGrXdaqqquahNRMZAa5y8ckbKD62mg3Zrf3x+1NcEQ8spevrZAehPY4Gx
+	IdXKRqfbglKj/LSCncMdXewKIlHkQ1nBAMGATM2WtNTtFaSXxeH6QPr9M3JiTGZQ
+	jnakK0i43ij0yQgvwLDik1t3PIk5R+21xhr9DCATntBv2Yri/rCPwTfSXxT9ANl7
+	lEZZ/PdcubIMk7mJxNgS2Cx8PnYe05R8hvup4RK536NZRiAJsELd2jwBYP4pbSas
+	m+09sagZ56ukZUGx14qvkyPP3rcIge1WFPcfmC1AdlifLOFb8DirRPdMG2vtwHqk
+	vhzUzZUCUqDZ+Np058AjA==
+X-ME-Sender: <xms:NA_-ZpgMClRvJV_civMG1xATa1LYBUA0agClzLwh1WvYgmz-AAJB4g>
+    <xme:NA_-ZuAIroN9IS-BOHa9fouMxPcpYVfmFEXw5dxZ9cSA0Hd0FpDbGfUnZgLyLOd-f
+    Dp2z6EY9RsGPKeQ2iI>
+X-ME-Received: <xmr:NA_-ZpFf89KTROxQZuSNg2SCHcu_l7syccNFGdKuWhRaPs4zaifASTXb6XSwMeeZR-ojxgzr7IP9CNxTC5LULSHeUww1tG8ycT0>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvddvtddgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
     rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepkffhufffvfevsedttdertddttddtnecuhfhrohhm
-    pefhihhnnhcuvfhhrghinhcuoehfthhhrghinheslhhinhhugidqmheikehkrdhorhhgqe
-    enucggtffrrghtthgvrhhnpeehffdukeetffdutedvffffheegtdetkeekfeevgfeitefh
-    vedvtdelhfduudettdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehfthhhrghinheslhhinhhugidqmheikehkrdhorhhgpdhnsggprhgtphht
-    thhopeejpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhgvgigrnhgurhgvrd
-    gsvghllhhonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepghgvvghrtheslhhi
-    nhhugidqmheikehkrdhorhhgpdhrtghpthhtohepuggrnhhivghlsedtgidtfhdrtghomh
-    dprhgtphhtthhopehprghvohhnvgesrhgvthhrohguvghvrdgtohhmpdhrtghpthhtohep
-    lhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
-    eplhhinhhugidqmheikehksehlihhsthhsrdhlihhnuhigqdhmieekkhdrohhrghdprhgt
-    phhtthhopehlihhnuhigqdhrthgtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:Kg_-ZlYb7N13r24bkQPRwOSqd18zLoXBztkdnIPoHM-A8KFifZpLaQ>
-    <xmx:Kg_-ZvaroqHXpAAMu1RvrOo7rAajhiuNYkqdsl4Qd58mlVqsiRqLkA>
-    <xmx:Kg_-ZhDYcFSoLLjLJqbEeS3eKCmGXsKLCcSmxJvQ5TgiNs4ePoiwNQ>
-    <xmx:Kg_-Zlbwh9c_s0YY1jWc49wFuc0chuM-9HfVzKhSPGi1H8hPy3xKcQ>
-    <xmx:Kw_-ZkO2vmwKI7WDf4SsTMKIj7mGd69ZSWPYf1PcH_BgKhXFnQbD2zNZ>
+    htshculddquddttddmnecujfgurhepvfevkfgjfhfhufffsedttdertddttddtnecuhfhr
+    ohhmpefhihhnnhcuvfhhrghinhcuoehfthhhrghinheslhhinhhugidqmheikehkrdhorh
+    hgqeenucggtffrrghtthgvrhhnpeevgffgtdfhhfefveeuudfgtdeugfeftedtveekieeg
+    gfduleetgeegueehgeffffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehfthhhrghinheslhhinhhugidqmheikehkrdhorhhgpdhnsggprhgt
+    phhtthhopeejpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegrlhgvgigrnhgurh
+    gvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepghgvvghrthes
+    lhhinhhugidqmheikehkrdhorhhgpdhrtghpthhtohepuggrnhhivghlsedtgidtfhdrtg
+    homhdprhgtphhtthhopehprghvohhnvgesrhgvthhrohguvghvrdgtohhmpdhrtghpthht
+    oheplhhinhhugidqmheikehksehlihhsthhsrdhlihhnuhigqdhmieekkhdrohhrghdprh
+    gtphhtthhopehlihhnuhigqdhrthgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghp
+    thhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:NA_-ZuRiC5bkP3QyzReOsrvaKdbL4MdrGpNREVtUZQlIrqR4wK4Uxg>
+    <xmx:NA_-Zmy3JTyqZMlV7GZSMVnqYhq54NUZNBEsFIFbkglhQgdKDIAv8A>
+    <xmx:NA_-Zk69UL8uWm9QqZN1BAciJ2P0DIyA_UBY3NFsQloTJbXbwuSlng>
+    <xmx:NA_-Zrw_-pnJe19_0ZZe2FrhhjBwhQiMXs6BUm2_sJL0Q3ka2oTp-A>
+    <xmx:NA_-ZtnH88qGQU2-WjC3VYkoLxeRZlIMmn4wuNfvC4Pl0qXhdmdSJALR>
 Feedback-ID: i58a146ae:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 2 Oct 2024 23:27:35 -0400 (EDT)
-Message-Id: <cover.1727925802.git.fthain@linux-m68k.org>
-From: Finn Thain <fthain@linux-m68k.org>
-Subject: [PATCH 0/2] 
-Date: Thu, 03 Oct 2024 13:23:22 +1000
+ 2 Oct 2024 23:27:46 -0400 (EDT)
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
     Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Daniel Palmer <daniel@0x0f.com>,
     Michael Pavone <pavone@retrodev.com>,
-    linux-kernel@vger.kernel.org,
     linux-m68k@lists.linux-m68k.org,
-    linux-rtc@vger.kernel.org
+    linux-rtc@vger.kernel.org,
+    linux-kernel@vger.kernel.org
+Message-Id: <f9eedf61f64906006f57ac88bdc160e55bc40c8a.1727925802.git.fthain@linux-m68k.org>
+In-Reply-To: <cover.1727925802.git.fthain@linux-m68k.org>
+References: <cover.1727925802.git.fthain@linux-m68k.org>
+From: Finn Thain <fthain@linux-m68k.org>
+Subject: [PATCH 1/2] rtc: m48t59: Accommodate chips that lack a century bit
+Date: Thu, 03 Oct 2024 13:23:22 +1000
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-This series removes some duplicate RTC driver code. rtc-m48t59 is tweaked
-to bring it into equivalence with the RTC drivers in arch/m68k/mvme*.
-Then the latter drivers are removed and platform devices added to make use
-of the former.
+The m48t59 driver is needed by both SPARC and MVME systems. Linux on
+MVME uses 1970 as "year zero" rather than 1968 that's used on SPARC.
+Add support for the MVME convention. Otherwise, the RTC on non-SPARC
+systems can only read and write dates between 1900 and 1999.
 
-The second patch depends upon the first, which will require some
-coordination between the maintainers of the RTC and m68k subsystems.
+Tested-by: Daniel Palmer <daniel@0x0f.com>
+Signed-off-by: Finn Thain <fthain@linux-m68k.org>
+---
+ drivers/rtc/rtc-m48t59.c | 31 +++++++++++++++----------------
+ 1 file changed, 15 insertions(+), 16 deletions(-)
 
-
-Finn Thain (2):
-  rtc: m48t59: Accommodate chips that lack a century bit
-  m68k: mvme147, mvme16x: Adopt rtc-m48t59 platform driver
-
- arch/m68k/configs/multi_defconfig   |   1 +
- arch/m68k/configs/mvme147_defconfig |   1 +
- arch/m68k/configs/mvme16x_defconfig |   1 +
- arch/m68k/include/asm/mvme147hw.h   |  19 +---
- arch/m68k/include/asm/mvme16xhw.h   |  18 +--
- arch/m68k/mvme147/config.c          |  54 ++++-----
- arch/m68k/mvme16x/Makefile          |   2 +-
- arch/m68k/mvme16x/config.c          |  56 ++++------
- arch/m68k/mvme16x/rtc.c             | 165 ----------------------------
- drivers/rtc/rtc-m48t59.c            |  31 +++---
- 10 files changed, 67 insertions(+), 281 deletions(-)
- delete mode 100644 arch/m68k/mvme16x/rtc.c
-
+diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+index f0f6b9b6daec..e2d882ea5c2f 100644
+--- a/drivers/rtc/rtc-m48t59.c
++++ b/drivers/rtc/rtc-m48t59.c
+@@ -57,6 +57,17 @@ m48t59_mem_readb(struct device *dev, u32 ofs)
+ 	return readb(m48t59->ioaddr+ofs);
+ }
+ 
++/*
++ * Sun SPARC machines count years since 1968. MVME machines running Linux
++ * count years since 1970.
++ */
++
++#ifdef CONFIG_SPARC
++#define YEAR0 68
++#else
++#define YEAR0 70
++#endif
++
+ /*
+  * NOTE: M48T59 only uses BCD mode
+  */
+@@ -82,10 +93,7 @@ static int m48t59_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 		dev_dbg(dev, "Century bit is enabled\n");
+ 		tm->tm_year += 100;	/* one century */
+ 	}
+-#ifdef CONFIG_SPARC
+-	/* Sun SPARC machines count years since 1968 */
+-	tm->tm_year += 68;
+-#endif
++	tm->tm_year += YEAR0;
+ 
+ 	tm->tm_wday	= bcd2bin(val & 0x07);
+ 	tm->tm_hour	= bcd2bin(M48T59_READ(M48T59_HOUR) & 0x3F);
+@@ -108,10 +116,7 @@ static int m48t59_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	u8 val = 0;
+ 	int year = tm->tm_year;
+ 
+-#ifdef CONFIG_SPARC
+-	/* Sun SPARC machines count years since 1968 */
+-	year -= 68;
+-#endif
++	year -= YEAR0;
+ 
+ 	dev_dbg(dev, "RTC set time %04d-%02d-%02d %02d/%02d/%02d\n",
+ 		year + 1900, tm->tm_mon, tm->tm_mday,
+@@ -163,10 +168,7 @@ static int m48t59_rtc_readalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	M48T59_SET_BITS(M48T59_CNTL_READ, M48T59_CNTL);
+ 
+ 	tm->tm_year = bcd2bin(M48T59_READ(M48T59_YEAR));
+-#ifdef CONFIG_SPARC
+-	/* Sun SPARC machines count years since 1968 */
+-	tm->tm_year += 68;
+-#endif
++	tm->tm_year += YEAR0;
+ 	/* tm_mon is 0-11 */
+ 	tm->tm_mon = bcd2bin(M48T59_READ(M48T59_MONTH)) - 1;
+ 
+@@ -199,10 +201,7 @@ static int m48t59_rtc_setalarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	unsigned long flags;
+ 	int year = tm->tm_year;
+ 
+-#ifdef CONFIG_SPARC
+-	/* Sun SPARC machines count years since 1968 */
+-	year -= 68;
+-#endif
++	year -= YEAR0;
+ 
+ 	/* If no irq, we don't support ALARM */
+ 	if (m48t59->irq == NO_IRQ)
 -- 
 2.39.5
 
