@@ -1,579 +1,113 @@
-Received: from fhigh-a7-smtp.messagingengine.com (fhigh-a7-smtp.messagingengine.com [103.168.172.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58F7918E040;
-	Mon,  7 Oct 2024 22:43:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9007D18CBFD
+	for <linux-rtc@vger.kernel.org>; Mon,  7 Oct 2024 23:24:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728341018; cv=none; b=G+6iItyrj94+1HGaaR1M7ozcllsA0Y7lEhLTRW+e8fZ6cV0khpjM1fcvtMsZspRSsAAvXTT3YdMHDxidJfDj4UaYU+1na/sqAVoviUKi1QFmopmchH9p+xMopRw7yixAT9teqIgEg1IBt8651mss54+3UgRPenEEPUUp75aiG7Q=
+	t=1728343457; cv=none; b=k2sKot9xSYUTNdeF4kUdNGNsHO1yS7eyAp117Aj1Y3drly1eu3Ez4TTiHecEQkPqNIv2tCS2URsjHQnsS8Rwm5uMZ7agXs3xrHcbpnIWHy7HckusMrBBLbOweR4SDyreD1flB4fXt5WOD20ktTpDCN81LyCBXWJcL1s8lNIFT7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728341018; c=relaxed/simple;
-	bh=iEvmiQzVFaACDIJubF1zf1z+FounRzHmquv1QSbaYo0=;
-	h=To:Cc:Message-Id:In-Reply-To:References:From:Subject:Date; b=UaKrzbP6gXwMSvbbVHeGYE8B1WqTpi+HoS2uV1gZYMPXshCjGTwMUZDnHYOTXR3nFWuxfPu3v8NO5ccp0Ac04EjdWPwbvx8wGYNT16SWCZfoCj+23eZ8ozbXwb9/Z5Jj5Yg+9gEzQD6bbF2YF4vVI75BzIHJcFbBqA6igNKpgcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=none smtp.mailfrom=linux-m68k.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=BH6yS5qj; arc=none smtp.client-ip=103.168.172.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
+	s=arc-20240116; t=1728343457; c=relaxed/simple;
+	bh=S++SZRGC4WZd6VqO5EBNm14oG5f04BfiaAcbU5vSpUI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ifht2Er+7giZX8x3ezUxm+uAfSvYARr/feKVYOzu0XHmSM9g3vI6137WskElae5jsgyR7Ewhvks/uhGda3zejlCin5qPOaQ5v50oMFx2mETBz6GxujP3sNVd2GX1kOQOVkTX6B53npKuq1tkCViB9+p40pZx3LTJGqNgg4LQEhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nigauri.org; spf=none smtp.mailfrom=nigauri.org; dkim=pass (2048-bit key) header.d=nigauri-org.20230601.gappssmtp.com header.i=@nigauri-org.20230601.gappssmtp.com header.b=BknXOZ8s; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nigauri.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nigauri.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="BH6yS5qj"
-Received: from phl-compute-01.internal (phl-compute-01.phl.internal [10.202.2.41])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 96E44114015F;
-	Mon,  7 Oct 2024 18:43:35 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Mon, 07 Oct 2024 18:43:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-	:feedback-id:from:from:in-reply-to:in-reply-to:message-id
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1728341015; x=
-	1728427415; bh=OQV1Ml3IQjMOJbT0npBbPfqRVnu/0BS+T7xjD8Hj3r0=; b=B
-	H6yS5qjNg+fzkF+jmcbSF0cxADvyvpP1wU+ZPgMSytzzLzmoz/K9OPjcfJ30WUZg
-	RNc5Aq8RDZwpDUET7sKICwKKbSVIV4RGezjA86CuIzS7VKmJvjFfK/nIkSMhhdE6
-	usdNAXZpyIlBxhimOt3l2HWRR3Rwf+PSPdLT/vPKZNBdnRRCCT3DAwFMy44xJ9d2
-	5l8ctA2R8RLmpWmuPFNt8YxXGLBlQ8mhVfp8PVc4yYFKgFKaMHIn57EODr4B3NZG
-	+lzu02RFNYfGXLGtu/PgD/maYV7o6A3+jiVlRVVL/0k+5w5HiJtniM1giGKfwZM9
-	GGZE/CXk1VrRS/x2U6i2w==
-X-ME-Sender: <xms:F2QEZ_6lUEGcV8Mj0tClwLzFQ2T5dY0AnILfCF4IdTPlQMg9_GtHPg>
-    <xme:F2QEZ079ltandKk7zyfwe4mEHA5_Sr6SIc1J21Q_BGF2moGHA6P1LyIpTrkb35BvT
-    Mk3OUB2uW7Gyyg9YEU>
-X-ME-Received: <xmr:F2QEZ2dGJiVm-Np0idE57ASDJBm3tBk48x4-mKwz4wwrDC7ZyP5tY168IfrRKmyBqbzTvkpBTxasxpIEcqQbW3RsH60zy0dCV4E>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrvdeftddgudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepvfevkfgjfhfhufffsedttdertddttddtnecuhfhr
-    ohhmpefhihhnnhcuvfhhrghinhcuoehfthhhrghinheslhhinhhugidqmheikehkrdhorh
-    hgqeenucggtffrrghtthgvrhhnpeevgffgtdfhhfefveeuudfgtdeugfeftedtveekieeg
-    gfduleetgeegueehgeffffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehfthhhrghinheslhhinhhugidqmheikehkrdhorhhgpdhnsggprhgt
-    phhtthhopeeipdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehgvggvrhhtsehlih
-    hnuhigqdhmieekkhdrohhrghdprhgtphhtthhopegurghnihgvlhestdigtdhfrdgtohhm
-    pdhrtghpthhtohepphgrvhhonhgvsehrvghtrhhouggvvhdrtghomhdprhgtphhtthhope
-    hlihhnuhigqdhmieekkheslhhishhtshdrlhhinhhugidqmheikehkrdhorhhgpdhrtghp
-    thhtoheplhhinhhugidqrhhttgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:F2QEZwLwY7Lp295B2E5E5XgAp6MCVh7659zSjaZLD7SX8eeNf3pnVw>
-    <xmx:F2QEZzLBSvg3quNPd5fXCQSl-5ceqk2JMPJsbCW4IFIUOqlbudAzfQ>
-    <xmx:F2QEZ5zKZdi9ei78vAN88NmjqSJKK3hTSM7hfSZ7S6TiDqPnTPK-tw>
-    <xmx:F2QEZ_L9zBnwPP61vAXNGvDv5TikaE5hoXnMPZHynmAmM_yCG7QdYQ>
-    <xmx:F2QEZ5gBKkL5P9iWh5QDSD4WQEflm6V9wD-zFyrQ9FJM_-trrK-VUA5l>
-Feedback-ID: i58a146ae:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 7 Oct 2024 18:43:32 -0400 (EDT)
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Daniel Palmer <daniel@0x0f.com>,
-    Michael Pavone <pavone@retrodev.com>,
-    linux-m68k@lists.linux-m68k.org,
-    linux-rtc@vger.kernel.org,
-    linux-kernel@vger.kernel.org
-Message-Id: <96a77a0c46d506f6e893eec04a2ae8e60283b935.1728340717.git.fthain@linux-m68k.org>
-In-Reply-To: <cover.1728340717.git.fthain@linux-m68k.org>
-References: <cover.1728340717.git.fthain@linux-m68k.org>
-From: Finn Thain <fthain@linux-m68k.org>
-Subject: [PATCH v2 2/2] m68k: mvme147, mvme16x: Adopt rtc-m48t59 platform
- driver
-Date: Tue, 08 Oct 2024 09:38:37 +1100
+	dkim=pass (2048-bit key) header.d=nigauri-org.20230601.gappssmtp.com header.i=@nigauri-org.20230601.gappssmtp.com header.b="BknXOZ8s"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a8ce5db8668so775167666b.1
+        for <linux-rtc@vger.kernel.org>; Mon, 07 Oct 2024 16:24:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nigauri-org.20230601.gappssmtp.com; s=20230601; t=1728343454; x=1728948254; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IA93a5yRb00a+UuMXUW9NqL0csLZVpZst4pu2BAc5AA=;
+        b=BknXOZ8s68wjlH9MaVnZiMwTjWnBScNqP0rFrtSDj2tuHEi0CqKmLwuOeFj4ygv2aa
+         HhcftVdJjJjNvkZa/uDfAfHAdSYHChKzXQhlfwcqfvmaWWdIIOIk+581Tt+CMLos3yHl
+         0vIaoZm2u1eg7aZTY6Vb91rnHPWxYyIzQqMo+L/ksob8urFIxE0oLNqX8MHugyNUZscM
+         uGt6/V/sv0vVlXrHADZMkIp2cemEzQ7uPCxas0CvtbFWzpoiGEnnzFukb4Nzu3IMHGVO
+         hBPFg7s+bTD3amfhsfotAdzgFSkhd8qRfNRJeH9siK3II7wge771wsUMkfiteMfpdfxn
+         G90g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728343454; x=1728948254;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IA93a5yRb00a+UuMXUW9NqL0csLZVpZst4pu2BAc5AA=;
+        b=if+KVWnp+gfAbFlesJ03penIoMCGyntdxeB8W6OqxIHv9Eb8o/nSa8kkL2pN941DLz
+         pU6ZFP/jNIA54ljqzdGS2rIia5SXKwaDMuybK/jRvQ1hXiGQS5SndyTl2Z/ukcoGklup
+         n8taPDzczuSTr1mg8jW33WUTZs+h3mOIJ1ejDgCO9JoZc1auRoqqpuragSnvdRmH/5z4
+         r7wfIHtoOplYFxWc/W3rIPYEKQsTYTYqmqbajm932Cn2hCcvectEA3Xe7P89OHut3YOJ
+         nWJbcthe0NU/SkbLpMY76DeXhVsyF2zT5fUU+f5COgcCLDKnVwjLw8qm+ZpMa21nnwf0
+         i2ZA==
+X-Gm-Message-State: AOJu0Yzg1xNgq+JFv5DnHgmdwcCyAFCTDu92k0A3RhqlMJ4lNkF7tvoR
+	gVJp/rtRa4cBvkXaVWvj0eFqt3UhrnngvkNQERousttYxVnsXj2MwEZ77pGPsjQpkudFWNiANjw
+	sg/E/VPyJ5chzX+/fhbdkqzil6VN2F7Gpnz0=
+X-Google-Smtp-Source: AGHT+IERrr0zaNaDVVkW0Rnlzxg6JvJCU14edQFkNtV2OEdfJ3z6obkLAO+RaU9b3thWOGpvRRhCh+RZYXmVn1C4KNE=
+X-Received: by 2002:a17:907:1c93:b0:a90:d17f:eced with SMTP id
+ a640c23a62f3a-a991bd04dd2mr1420586866b.5.1728343453702; Mon, 07 Oct 2024
+ 16:24:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20241006001553.7430-1-iwamatsu@nigauri.org> <20241007135920ef75da53@mail.local>
+In-Reply-To: <20241007135920ef75da53@mail.local>
+From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date: Tue, 8 Oct 2024 08:23:47 +0900
+Message-ID: <CABMQnV+Gi2qysXf872OCevCJikyWRbbw016ivoD_tmvweUan5Q@mail.gmail.com>
+Subject: Re: [PATCH] rtc: rtc-mc146818-lib: Use is_leap_year instead of
+ calculate leap years
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Both mvme147 and mvme16x platforms have their own RTC driver
-implementations that duplicate functionality provided by the rtc-m48t59
-driver. Adopt the rtc-m48t59 driver and remove the other ones.
+Hi,
 
-Tested-by: Daniel Palmer <daniel@0x0f.com>
-Signed-off-by: Finn Thain <fthain@linux-m68k.org>
----
-This patch depends upon the m48t59 driver changes in the preceding patch.
+2024=E5=B9=B410=E6=9C=887=E6=97=A5(=E6=9C=88) 22:59 Alexandre Belloni <alex=
+andre.belloni@bootlin.com>:
+>
+> Hello,
+>
+> On 06/10/2024 09:15:53+0900, Nobuhiro Iwamatsu wrote:
+> > The is_leap_year() for determining leap year is provided in rtc lib.
+> > This uses is_leap_year() instead of its own leap year determination
+> > routine.
+> >
+> > Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+> > ---
+> >  drivers/rtc/rtc-mc146818-lib.c | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-=
+lib.c
+> > index 651bf3c279c74..ce4d68de05831 100644
+> > --- a/drivers/rtc/rtc-mc146818-lib.c
+> > +++ b/drivers/rtc/rtc-mc146818-lib.c
+> > @@ -232,8 +232,7 @@ int mc146818_set_time(struct rtc_time *time)
+> >
+> >  #ifdef CONFIG_MACH_DECSTATION
+> >       real_yrs =3D yrs;
+> > -     leap_yr =3D ((!((yrs + 1900) % 4) && ((yrs + 1900) % 100)) ||
+> > -                     !((yrs + 1900) % 400));
+> > +     leap_yr =3D is_leap_year(yrs + 1900);
+>
+> Could you also eliminate the leap_yr variable?
+>
 
-Changed since v1:
- - Initialize yy_offset in struct m48t59_plat_data.
----
- arch/m68k/configs/multi_defconfig   |   1 +
- arch/m68k/configs/mvme147_defconfig |   1 +
- arch/m68k/configs/mvme16x_defconfig |   1 +
- arch/m68k/include/asm/mvme147hw.h   |  19 +---
- arch/m68k/include/asm/mvme16xhw.h   |  18 +--
- arch/m68k/mvme147/config.c          |  55 ++++------
- arch/m68k/mvme16x/Makefile          |   2 +-
- arch/m68k/mvme16x/config.c          |  57 ++++------
- arch/m68k/mvme16x/rtc.c             | 165 ----------------------------
- 9 files changed, 54 insertions(+), 265 deletions(-)
- delete mode 100644 arch/m68k/mvme16x/rtc.c
+Yes, I will send v2  patch that deleted it.
 
-diff --git a/arch/m68k/configs/multi_defconfig b/arch/m68k/configs/multi_defconfig
-index 638df8442c98..617ac93298f3 100644
---- a/arch/m68k/configs/multi_defconfig
-+++ b/arch/m68k/configs/multi_defconfig
-@@ -506,6 +506,7 @@ CONFIG_RTC_CLASS=y
- CONFIG_RTC_DRV_MSM6242=m
- CONFIG_RTC_DRV_RP5C01=m
- CONFIG_RTC_DRV_GENERIC=m
-+CONFIG_RTC_DRV_M48T59=m
- # CONFIG_VIRTIO_MENU is not set
- # CONFIG_VHOST_MENU is not set
- # CONFIG_IOMMU_SUPPORT is not set
-diff --git a/arch/m68k/configs/mvme147_defconfig b/arch/m68k/configs/mvme147_defconfig
-index 2248db426081..4a0928b3b842 100644
---- a/arch/m68k/configs/mvme147_defconfig
-+++ b/arch/m68k/configs/mvme147_defconfig
-@@ -392,6 +392,7 @@ CONFIG_UHID=m
- CONFIG_RTC_CLASS=y
- # CONFIG_RTC_NVMEM is not set
- CONFIG_RTC_DRV_GENERIC=m
-+CONFIG_RTC_DRV_M48T59=y
- # CONFIG_VIRTIO_MENU is not set
- # CONFIG_VHOST_MENU is not set
- # CONFIG_IOMMU_SUPPORT is not set
-diff --git a/arch/m68k/configs/mvme16x_defconfig b/arch/m68k/configs/mvme16x_defconfig
-index 2975b66521f6..481fb2810f1e 100644
---- a/arch/m68k/configs/mvme16x_defconfig
-+++ b/arch/m68k/configs/mvme16x_defconfig
-@@ -393,6 +393,7 @@ CONFIG_UHID=m
- CONFIG_RTC_CLASS=y
- # CONFIG_RTC_NVMEM is not set
- CONFIG_RTC_DRV_GENERIC=m
-+CONFIG_RTC_DRV_M48T59=y
- # CONFIG_VIRTIO_MENU is not set
- # CONFIG_VHOST_MENU is not set
- # CONFIG_IOMMU_SUPPORT is not set
-diff --git a/arch/m68k/include/asm/mvme147hw.h b/arch/m68k/include/asm/mvme147hw.h
-index dbf88059e47a..6ad93bac06f9 100644
---- a/arch/m68k/include/asm/mvme147hw.h
-+++ b/arch/m68k/include/asm/mvme147hw.h
-@@ -4,24 +4,7 @@
- 
- #include <asm/irq.h>
- 
--typedef struct {
--	unsigned char
--		ctrl,
--		bcd_sec,
--		bcd_min,
--		bcd_hr,
--		bcd_dow,
--		bcd_dom,
--		bcd_mth,
--		bcd_year;
--} MK48T02;
--
--#define RTC_WRITE	0x80
--#define RTC_READ	0x40
--#define RTC_STOP	0x20
--
--#define m147_rtc ((MK48T02 * volatile)0xfffe07f8)
--
-+#define MVME147_RTC_BASE	0xfffe0000
- 
- struct pcc_regs {
-    volatile u_long	dma_tadr;
-diff --git a/arch/m68k/include/asm/mvme16xhw.h b/arch/m68k/include/asm/mvme16xhw.h
-index cc7f5ae1220f..ff1126a51fbe 100644
---- a/arch/m68k/include/asm/mvme16xhw.h
-+++ b/arch/m68k/include/asm/mvme16xhw.h
-@@ -24,23 +24,7 @@ typedef struct {
- 
- #define mvmelp   ((*(volatile MVMElpPtr)(MVME_LPR_BASE)))
- 
--typedef struct {
--	unsigned char
--		ctrl,
--		bcd_sec,
--		bcd_min,
--		bcd_hr,
--		bcd_dow,
--		bcd_dom,
--		bcd_mth,
--		bcd_year;
--} MK48T08_t, *MK48T08ptr_t;
--
--#define RTC_WRITE	0x80
--#define RTC_READ	0x40
--#define RTC_STOP	0x20
--
--#define MVME_RTC_BASE	0xfffc1ff8
-+#define MVME_RTC_BASE	0xfffc0000
- 
- #define MVME_I596_BASE	0xfff46000
- 
-diff --git a/arch/m68k/mvme147/config.c b/arch/m68k/mvme147/config.c
-index aa46a80e65a2..e243f2770b91 100644
---- a/arch/m68k/mvme147/config.c
-+++ b/arch/m68k/mvme147/config.c
-@@ -19,8 +19,9 @@
- #include <linux/linkage.h>
- #include <linux/init.h>
- #include <linux/major.h>
--#include <linux/rtc.h>
- #include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc/m48t59.h>
- 
- #include <asm/bootinfo.h>
- #include <asm/bootinfo-vme.h>
-@@ -36,13 +37,9 @@
- 
- static void mvme147_get_model(char *model);
- extern void mvme147_sched_init(void);
--extern int mvme147_hwclk (int, struct rtc_time *);
- extern void mvme147_reset (void);
- 
- 
--static int bcd2int (unsigned char b);
--
--
- int __init mvme147_parse_bootinfo(const struct bi_record *bi)
- {
- 	uint16_t tag = be16_to_cpu(bi->tag);
-@@ -80,7 +77,6 @@ void __init config_mvme147(void)
- {
- 	mach_sched_init		= mvme147_sched_init;
- 	mach_init_IRQ		= mvme147_init_IRQ;
--	mach_hwclk		= mvme147_hwclk;
- 	mach_reset		= mvme147_reset;
- 	mach_get_model		= mvme147_get_model;
- 
-@@ -89,6 +85,28 @@ void __init config_mvme147(void)
- 		vme_brdtype = VME_TYPE_MVME147;
- }
- 
-+static struct resource m48t59_rsrc[] = {
-+	DEFINE_RES_MEM(MVME147_RTC_BASE, 0x800),
-+};
-+
-+static struct m48t59_plat_data m48t59_data = {
-+	.type = M48T59RTC_TYPE_M48T02,
-+	.yy_offset = 70,
-+};
-+
-+static int __init mvme147_platform_init(void)
-+{
-+	if (!MACH_IS_MVME147)
-+		return 0;
-+
-+	platform_device_register_resndata(NULL, "rtc-m48t59", -1,
-+					  m48t59_rsrc, ARRAY_SIZE(m48t59_rsrc),
-+					  &m48t59_data, sizeof(m48t59_data));
-+	return 0;
-+}
-+
-+arch_initcall(mvme147_platform_init);
-+
- static u64 mvme147_read_clk(struct clocksource *cs);
- 
- static struct clocksource mvme147_clk = {
-@@ -162,31 +180,6 @@ static u64 mvme147_read_clk(struct clocksource *cs)
- 	return ticks;
- }
- 
--static int bcd2int (unsigned char b)
--{
--	return ((b>>4)*10 + (b&15));
--}
--
--int mvme147_hwclk(int op, struct rtc_time *t)
--{
--	if (!op) {
--		m147_rtc->ctrl = RTC_READ;
--		t->tm_year = bcd2int (m147_rtc->bcd_year);
--		t->tm_mon  = bcd2int(m147_rtc->bcd_mth) - 1;
--		t->tm_mday = bcd2int (m147_rtc->bcd_dom);
--		t->tm_hour = bcd2int (m147_rtc->bcd_hr);
--		t->tm_min  = bcd2int (m147_rtc->bcd_min);
--		t->tm_sec  = bcd2int (m147_rtc->bcd_sec);
--		m147_rtc->ctrl = 0;
--		if (t->tm_year < 70)
--			t->tm_year += 100;
--	} else {
--		/* FIXME Setting the time is not yet supported */
--		return -EOPNOTSUPP;
--	}
--	return 0;
--}
--
- #define SCC_DELAY do { __asm__ __volatile__ ("nop; nop;"); } while (0)
- 
- static void scc_write(char ch)
-diff --git a/arch/m68k/mvme16x/Makefile b/arch/m68k/mvme16x/Makefile
-index a8a368c2cbea..02f9e4ad8209 100644
---- a/arch/m68k/mvme16x/Makefile
-+++ b/arch/m68k/mvme16x/Makefile
-@@ -3,4 +3,4 @@
- # Makefile for Linux arch/m68k/mvme16x source directory
- #
- 
--obj-y		:= config.o rtc.o
-+obj-y		:= config.o
-diff --git a/arch/m68k/mvme16x/config.c b/arch/m68k/mvme16x/config.c
-index d1fbd1704d65..99768fe8da73 100644
---- a/arch/m68k/mvme16x/config.c
-+++ b/arch/m68k/mvme16x/config.c
-@@ -21,9 +21,10 @@
- #include <linux/linkage.h>
- #include <linux/init.h>
- #include <linux/major.h>
--#include <linux/rtc.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/rtc/m48t59.h>
- 
- #include <asm/bootinfo.h>
- #include <asm/bootinfo-vme.h>
-@@ -39,16 +40,10 @@
- 
- extern t_bdid mvme_bdid;
- 
--static MK48T08ptr_t volatile rtc = (MK48T08ptr_t)MVME_RTC_BASE;
--
- static void mvme16x_get_model(char *model);
- extern void mvme16x_sched_init(void);
--extern int mvme16x_hwclk (int, struct rtc_time *);
- extern void mvme16x_reset (void);
- 
--int bcd2int (unsigned char b);
--
--
- unsigned short mvme16x_config;
- EXPORT_SYMBOL(mvme16x_config);
- 
-@@ -268,7 +263,6 @@ void __init config_mvme16x(void)
- 
-     mach_sched_init      = mvme16x_sched_init;
-     mach_init_IRQ        = mvme16x_init_IRQ;
--    mach_hwclk           = mvme16x_hwclk;
-     mach_reset		 = mvme16x_reset;
-     mach_get_model       = mvme16x_get_model;
-     mach_get_hardware_list = mvme16x_get_hardware_list;
-@@ -312,6 +306,28 @@ void __init config_mvme16x(void)
-     }
- }
- 
-+static struct resource m48t59_rsrc[] = {
-+	DEFINE_RES_MEM(MVME_RTC_BASE, 0x2000),
-+};
-+
-+static struct m48t59_plat_data m48t59_data = {
-+	.type = M48T59RTC_TYPE_M48T08,
-+	.yy_offset = 70,
-+};
-+
-+static int __init mvme16x_platform_init(void)
-+{
-+	if (!MACH_IS_MVME16x)
-+		return 0;
-+
-+	platform_device_register_resndata(NULL, "rtc-m48t59", -1,
-+					  m48t59_rsrc, ARRAY_SIZE(m48t59_rsrc),
-+					  &m48t59_data, sizeof(m48t59_data));
-+	return 0;
-+}
-+
-+arch_initcall(mvme16x_platform_init);
-+
- static irqreturn_t mvme16x_abort_int (int irq, void *dev_id)
- {
- 	unsigned long *new = (unsigned long *)vectors;
-@@ -426,28 +442,3 @@ static u64 mvme16x_read_clk(struct clocksource *cs)
- 
- 	return ticks;
- }
--
--int bcd2int (unsigned char b)
--{
--	return ((b>>4)*10 + (b&15));
--}
--
--int mvme16x_hwclk(int op, struct rtc_time *t)
--{
--	if (!op) {
--		rtc->ctrl = RTC_READ;
--		t->tm_year = bcd2int (rtc->bcd_year);
--		t->tm_mon  = bcd2int(rtc->bcd_mth) - 1;
--		t->tm_mday = bcd2int (rtc->bcd_dom);
--		t->tm_hour = bcd2int (rtc->bcd_hr);
--		t->tm_min  = bcd2int (rtc->bcd_min);
--		t->tm_sec  = bcd2int (rtc->bcd_sec);
--		rtc->ctrl = 0;
--		if (t->tm_year < 70)
--			t->tm_year += 100;
--	} else {
--		/* FIXME Setting the time is not yet supported */
--		return -EOPNOTSUPP;
--	}
--	return 0;
--}
-diff --git a/arch/m68k/mvme16x/rtc.c b/arch/m68k/mvme16x/rtc.c
-deleted file mode 100644
-index ccbaae1125e6..000000000000
---- a/arch/m68k/mvme16x/rtc.c
-+++ /dev/null
-@@ -1,165 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- *	Real Time Clock interface for Linux on the MVME16x
-- *
-- * Based on the PC driver by Paul Gortmaker.
-- */
--
--#define RTC_VERSION		"1.00"
--
--#include <linux/types.h>
--#include <linux/errno.h>
--#include <linux/miscdevice.h>
--#include <linux/ioport.h>
--#include <linux/capability.h>
--#include <linux/fcntl.h>
--#include <linux/init.h>
--#include <linux/poll.h>
--#include <linux/rtc.h>	/* For struct rtc_time and ioctls, etc */
--#include <linux/bcd.h>
--#include <asm/mvme16xhw.h>
--
--#include <asm/io.h>
--#include <linux/uaccess.h>
--#include <asm/setup.h>
--
--/*
-- *	We sponge a minor off of the misc major. No need slurping
-- *	up another valuable major dev number for this. If you add
-- *	an ioctl, make sure you don't conflict with SPARC's RTC
-- *	ioctls.
-- */
--
--static const unsigned char days_in_mo[] =
--{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
--
--static atomic_t rtc_ready = ATOMIC_INIT(1);
--
--static long rtc_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
--{
--	volatile MK48T08ptr_t rtc = (MK48T08ptr_t)MVME_RTC_BASE;
--	unsigned long flags;
--	struct rtc_time wtime;
--	void __user *argp = (void __user *)arg;
--
--	switch (cmd) {
--	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
--	{
--		local_irq_save(flags);
--		/* Ensure clock and real-time-mode-register are accessible */
--		rtc->ctrl = RTC_READ;
--		memset(&wtime, 0, sizeof(struct rtc_time));
--		wtime.tm_sec =  bcd2bin(rtc->bcd_sec);
--		wtime.tm_min =  bcd2bin(rtc->bcd_min);
--		wtime.tm_hour = bcd2bin(rtc->bcd_hr);
--		wtime.tm_mday =  bcd2bin(rtc->bcd_dom);
--		wtime.tm_mon =  bcd2bin(rtc->bcd_mth)-1;
--		wtime.tm_year = bcd2bin(rtc->bcd_year);
--		if (wtime.tm_year < 70)
--			wtime.tm_year += 100;
--		wtime.tm_wday = bcd2bin(rtc->bcd_dow)-1;
--		rtc->ctrl = 0;
--		local_irq_restore(flags);
--		return copy_to_user(argp, &wtime, sizeof wtime) ?
--								-EFAULT : 0;
--	}
--	case RTC_SET_TIME:	/* Set the RTC */
--	{
--		struct rtc_time rtc_tm;
--		unsigned char mon, day, hrs, min, sec, leap_yr;
--		unsigned int yrs;
--
--		if (!capable(CAP_SYS_ADMIN))
--			return -EACCES;
--
--		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
--			return -EFAULT;
--
--		yrs = rtc_tm.tm_year;
--		if (yrs < 1900)
--			yrs += 1900;
--		mon = rtc_tm.tm_mon + 1;   /* tm_mon starts at zero */
--		day = rtc_tm.tm_mday;
--		hrs = rtc_tm.tm_hour;
--		min = rtc_tm.tm_min;
--		sec = rtc_tm.tm_sec;
--
--		leap_yr = ((!(yrs % 4) && (yrs % 100)) || !(yrs % 400));
--
--		if ((mon > 12) || (day == 0))
--			return -EINVAL;
--
--		if (day > (days_in_mo[mon] + ((mon == 2) && leap_yr)))
--			return -EINVAL;
--
--		if ((hrs >= 24) || (min >= 60) || (sec >= 60))
--			return -EINVAL;
--
--		if (yrs >= 2070)
--			return -EINVAL;
--
--		local_irq_save(flags);
--		rtc->ctrl     = RTC_WRITE;
--
--		rtc->bcd_sec  = bin2bcd(sec);
--		rtc->bcd_min  = bin2bcd(min);
--		rtc->bcd_hr   = bin2bcd(hrs);
--		rtc->bcd_dom  = bin2bcd(day);
--		rtc->bcd_mth  = bin2bcd(mon);
--		rtc->bcd_year = bin2bcd(yrs%100);
--
--		rtc->ctrl     = 0;
--		local_irq_restore(flags);
--		return 0;
--	}
--	default:
--		return -EINVAL;
--	}
--}
--
--/*
-- * We enforce only one user at a time here with the open/close.
-- */
--static int rtc_open(struct inode *inode, struct file *file)
--{
--	if( !atomic_dec_and_test(&rtc_ready) )
--	{
--		atomic_inc( &rtc_ready );
--		return -EBUSY;
--	}
--	return 0;
--}
--
--static int rtc_release(struct inode *inode, struct file *file)
--{
--	atomic_inc( &rtc_ready );
--	return 0;
--}
--
--/*
-- *	The various file operations we support.
-- */
--
--static const struct file_operations rtc_fops = {
--	.unlocked_ioctl	= rtc_ioctl,
--	.open		= rtc_open,
--	.release	= rtc_release,
--	.llseek		= noop_llseek,
--};
--
--static struct miscdevice rtc_dev=
--{
--	.minor =	RTC_MINOR,
--	.name =		"rtc",
--	.fops =		&rtc_fops
--};
--
--static int __init rtc_MK48T08_init(void)
--{
--	if (!MACH_IS_MVME16x)
--		return -ENODEV;
--
--	pr_info("MK48T08 Real Time Clock Driver v%s\n", RTC_VERSION);
--	return misc_register(&rtc_dev);
--}
--device_initcall(rtc_MK48T08_init);
--- 
-2.39.5
+> Thanks!
 
+Best regards,
+  Nobuhiro
+
+--=20
+Nobuhiro Iwamatsu
+   iwamatsu at {nigauri.org / debian.org / kernel.org}
+   GPG ID: 32247FBB40AD1FA6
