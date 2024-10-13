@@ -1,49 +1,71 @@
-Received: from smtp1.ms.mff.cuni.cz (smtp-in1.ms.mff.cuni.cz [195.113.20.234])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C1F81AD7;
-	Sat, 12 Oct 2024 19:34:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.113.20.234
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCEB12CAB
+	for <linux-rtc@vger.kernel.org>; Sun, 13 Oct 2024 05:22:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728761684; cv=none; b=Ej2TnqmD5m9+tcvI7x0G/6erBKHeOnVUtPtYBx1MYD3djSU05YtQlZkKSPwLkqSm1yuoaS+tRJJdS4fqVCcpAdNN8c1/3yB4tTCiAWSuwA2v4pWZnBEOhKugd5rhmQlDiOwhZY7eFo3/KftFzV17GerqR5Lw3OLM1AyUY0JnBzI=
+	t=1728796961; cv=none; b=IgX7altVa2hFQEFkGp2BJEMCf8ws+FfP3+nAsLdMm0tEwql0juSZazSVSZw8+3Lrxl20UKxjQ6XYoFB+PZEYzBbAYYAs3QTFavoS0e2/TaKy0jMf6WRqfMQk/l/1EPsjLC/3+oH+Tgpslbwt6V+HdUTFDpbGZ8YA1swdLHlDjZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728761684; c=relaxed/simple;
-	bh=Xzh8LSdDSmKjoRzY+Q8KoyXfit0wRItAgB7kTdNOMHs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YtqeCcsNhjSDeuEpAsmd2BfNPRevhYn4rI0EPvav+V+cVEkej1UJPZYdBac5XuJJ0qdn3pp/U5wbpcU25eM31T/ENcxCgORSoY6zijd0RHkbw8Fs1OWYnQrkeZO6IsW/wLjhGLtVWSHGNIpmehLOSpr6dDxNjikcPAaXDwzxQ3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz; spf=pass smtp.mailfrom=matfyz.cz; dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b=qHLvsdL/; arc=none smtp.client-ip=195.113.20.234
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matfyz.cz
+	s=arc-20240116; t=1728796961; c=relaxed/simple;
+	bh=H8ErPu/ImGfE+2rjIbwJJ2vkwDeLqOsDxwgngECtaqU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aZWc9ix75rPZ4knpVAgWYmk9xnRhqr21kS7JdLKwXbEmZWOM7T9172W/HnEV9lCWOSqA7qwhO8LCuk5ZYrh3lx5H5G04ZzbvYvPrqt6tbBobs51JfNVAu/wdsA/+7UXXrw7W3XtqKMGQj9LAEA7q5MZ4Y3nagB3vRVv8FIxtHCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marek.ca; spf=pass smtp.mailfrom=marek.ca; dkim=pass (2048-bit key) header.d=marek.ca header.i=@marek.ca header.b=FrzjGw1i; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marek.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marek.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b="qHLvsdL/"
-X-SubmittedBy: id balejk@matfyz.cz subject /postalCode=110+2000/O=Univerzita+20Karlova/street=Ovocn+5CxC3+5CxBD+20trh+20560/5/ST=Praha,+20Hlavn+5CxC3+5CxAD+20m+5CxC4+5Cx9Bsto/C=CZ/CN=Karel+20Balej/emailAddress=balejk@matfyz.cz
-	serial F5FD910E8FE2121B897F7E55B84E351D
-	issued by /C=NL/O=GEANT+20Vereniging/CN=GEANT+20Personal+20CA+204
-	auth type TLS.CUNI
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mff.cuni.cz;
-	s=submission; t=1728761647; x=1730061647;
-	bh=xMK/ULefJOKcVOGvdm5HBqtWSL+Yu2XMd5io6AH9Omo=; h=From;
-	b=qHLvsdL/v1FYqgmu86vVbwFYku/oHlHUX0OHNgK5MJVgzQQ4DJYyamPrjcQnd4Q+6
-	 n7TuJQcOgyU2981glYz3GHjq0rxxF3FO+/og3kQUB6mf34tNZlkxhqE/RisoOyGU4q
-	 YsWZwt8DmuLc7jhLXxuCvj40fde3VNjwtZov898DtFlSlnAwTALEm103Pn0dDCML3C
-	 f8oTbAmMzIowgiPqS0BXrtk11d3K94hCSJJX2bAX8FY9k2vTFitcyDoLCN5C9ffHSD
-	 Q4jJMmSpgZqfcaSdR9FbM/H2HpZvCmoW/P6a4O+cRrn8JvwljMnbTfQr6LDQn1Ow0z
-	 ZY22JYbewszXA==
-Received: from localhost (internet5.mraknet.com [185.200.108.250])
-	(authenticated)
-	by smtp1.ms.mff.cuni.cz (8.16.1/8.16.1) with ESMTPS id 49CJY5ZO082920
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
-	Sat, 12 Oct 2024 21:34:06 +0200 (CEST)
-	(envelope-from balejk@matfyz.cz)
-From: Karel Balej <balejk@matfyz.cz>
-To: Lee Jones <lee@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Cc: duje.mihanovic@skole.hr, balejk@matfyz.cz, phone-devel@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht
-Subject: [RFC PATCH v2 1/2] mfd: 88pm886: add the RTC cell
-Date: Sat, 12 Oct 2024 21:31:38 +0200
-Message-ID: <20241012193345.18594-1-balejk@matfyz.cz>
-X-Mailer: git-send-email 2.47.0
+	dkim=pass (2048-bit key) header.d=marek.ca header.i=@marek.ca header.b="FrzjGw1i"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6cbd092f7f0so22820096d6.0
+        for <linux-rtc@vger.kernel.org>; Sat, 12 Oct 2024 22:22:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=marek.ca; s=google; t=1728796958; x=1729401758; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rOLKkxt2O4eXFAynwZlbFaG/jsGjgjQ3LzOfyoxebZg=;
+        b=FrzjGw1i6ton/y0V4C5aKOSvED7GVhyJ30g7KH2mB3BrX7tmxUVcs51+ccaH8ag6ut
+         UJNlCrTKfUyv1T1Xo6DDa06BK5hvOWn/BP6Dvc8T+qSFIQqowc4ydN22xgisrhTxiN2w
+         vEbaHY8aeQAUcAXO7z+XDHMDQ1e1ycBnknf9eUuBEPSl0xPIZmphZ9D3Bdfg2ZgJxxgs
+         qBzgiiCR9V+toE2hRdStHW0VW0l00UnO3c+c1IoCKPfcZJrpzUMmVI+Xui8s7K8ZiBiL
+         EaxOzGMvuSviLpGgIZV6mInKSorqW4uclv5hPNDypQiRh7v40DsMZobRsGAVlodT8pcD
+         rq5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728796958; x=1729401758;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rOLKkxt2O4eXFAynwZlbFaG/jsGjgjQ3LzOfyoxebZg=;
+        b=JQAVbnHRwu6nxIJzW8SPfhGOGoZ5r0pjKiZhIhJ9x4r2ZdZZ7otrk8Tuaz+SiJFeS1
+         XtpplnVhfNmtKoOURuMxk+c8Ks52GNHTm1VocO5bxwWkmIgH9mLoc1XHxgiHrCyrP+Vc
+         SU4L/XcVyv0aFvFyBaPmLdzIOTBLfxYvCdFE/mgaBvzOeuj8lbhvGeP/6G8iTOMk4akH
+         vI6z0D1acdBZg3QSuehGUDv5MNjzxdAJ1ffJmkZMlXt2grSiMUOHjUrvoDS+943l3Giv
+         +On3JSzDGLYbv0YMjtA4qw+QxAIXwhJCdJB+63sDFiwMtyj9orIPQcbt3X5jYUAL2Xay
+         5k+w==
+X-Forwarded-Encrypted: i=1; AJvYcCWlnBtc+qyGLlAq8u54d/vZ1QKZvg/jvyiy4xC038QpS/5EmWRquzTlMPin/mFLS9nX67toB5DgxRs=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+CSAt2KIEXKcxihrwfmTK0h760Tc7CTA+JhRYEAwdk/KY4+ql
+	vEgK8F2E16jYIFCP41Mpldli6zL83DpmE9J/am0OAD6jAsJBPwYV9o3Uxd5eC4A=
+X-Google-Smtp-Source: AGHT+IGUAYa5kQJxeIRdbuM7yQSyo+dJ62ySg64ZZp0mo56zPCmw8lAZbrBCpr2OqBEFjEbKczgt0g==
+X-Received: by 2002:a05:6214:3c9e:b0:6cc:ff:e695 with SMTP id 6a1803df08f44-6cc00ffe70amr44689326d6.52.1728796957755;
+        Sat, 12 Oct 2024 22:22:37 -0700 (PDT)
+Received: from localhost.localdomain (modemcable125.110-19-135.mc.videotron.ca. [135.19.110.125])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cbe8608e2csm31821496d6.102.2024.10.12.22.22.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Oct 2024 22:22:37 -0700 (PDT)
+From: Jonathan Marek <jonathan@marek.ca>
+To: linux-arm-msm@vger.kernel.org
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS),
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	linux-kernel@vger.kernel.org (open list),
+	linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
+	Rob Herring <robh@kernel.org>,
+	Satya Priya <quic_c_skakit@quicinc.com>
+Subject: [PATCH v2 0/5] x1e80100 RTC support
+Date: Sun, 13 Oct 2024 01:15:25 -0400
+Message-ID: <20241013051859.22800-1-jonathan@marek.ca>
+X-Mailer: git-send-email 2.45.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -52,32 +74,25 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a MFD cell for the chip's real-time clock.
+x1e80100 needs a workaround because the RTC alarm is not owned by HLOS.
+It also needs the same offset workaround as sc8280xp/etc.
 
-Signed-off-by: Karel Balej <balejk@matfyz.cz>
----
+v2: remove duplicated ops and use RTC_FEATURE_ALARM instead
 
-Notes:
-    RFC v2:
-    - Break out the register definitions and reword the commit message
-      accordingly.
-    - RFC v1: https://lore.kernel.org/r/20240920161518.32346-1-balejk@matfyz.cz/
+Jonathan Marek (5):
+  rtc: pm8xxx: implement no-alarm flag for non-HLOS owned alarm
+  dt-bindings: rtc: qcom-pm8xxx: document no-alarm flag
+  arm64: dts: qcom: x1e80100-pmics: enable RTC
+  arm64: dts: qcom: x1e80100-crd: add rtc offset to set rtc time
+  arm64: dts: qcom: x1e78100-t14s: add rtc offset to set rtc time
 
- drivers/mfd/88pm886.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../bindings/rtc/qcom-pm8xxx-rtc.yaml         |  5 +++
+ .../qcom/x1e78100-lenovo-thinkpad-t14s.dts    | 11 +++++
+ arch/arm64/boot/dts/qcom/x1e80100-crd.dts     | 11 +++++
+ arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi  |  8 ++--
+ drivers/rtc/rtc-pm8xxx.c                      | 43 +++++++++++++------
+ 5 files changed, 59 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/mfd/88pm886.c b/drivers/mfd/88pm886.c
-index dbe9efc027d2..891fdce5d8c1 100644
---- a/drivers/mfd/88pm886.c
-+++ b/drivers/mfd/88pm886.c
-@@ -37,6 +37,7 @@ static struct resource pm886_onkey_resources[] = {
- static struct mfd_cell pm886_devs[] = {
- 	MFD_CELL_RES("88pm886-onkey", pm886_onkey_resources),
- 	MFD_CELL_NAME("88pm886-regulator"),
-+	MFD_CELL_NAME("88pm886-rtc"),
- };
- 
- static int pm886_power_off_handler(struct sys_off_data *sys_off_data)
 -- 
-2.47.0
+2.45.1
 
