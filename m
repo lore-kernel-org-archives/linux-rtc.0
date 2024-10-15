@@ -1,174 +1,118 @@
-Received: from mail-vk1-f173.google.com (mail-vk1-f173.google.com [209.85.221.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E302482EB
-	for <linux-rtc@vger.kernel.org>; Tue, 15 Oct 2024 00:53:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.173
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E81A816A92D;
+	Tue, 15 Oct 2024 02:43:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728953607; cv=none; b=pzEpRxr5GaoW48PDVIBbxIocIjineLNAjjtbvT+FRnQ7TD04cn3orwWB7NTwVlyZJmwBCRULW3HBPwkkRQ5ZIhRf/wFBuA2w5pmXPuDgEBUpev/mQgssGTBBF4mrNjNWySxfoBzGgmuB+ATQTwifIITll1SBZDxF0VFkHMNyPis=
+	t=1728960220; cv=none; b=ploLB5EVO/Q+fygHQd4KhVlagYl6/QWz9cnn5vyfDGr1SFNlmypaLSCvVITBmIr+0XJG7TKZIO8G1uPRp+7SwrTt4IDEaINEVR0ukvThBQRiJDgRdVHVjScjYqbRfOQs+wXocNkx0az5A5ib9QE3e3wHC+WZzxnf/jFMwEQU9kg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728953607; c=relaxed/simple;
-	bh=M9pSr77YpiD2gyGMSu3oZBYC1P5oFRrFGy32m9f1XkQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a5adOg6id7lCRA3JvJ+9sVkga664nb08EBXy5ZybI8i1Jlib2wHPgW9HWK7PlxpmSa8mZTIB1yZfvUa08BRVXXD/BiH8SFNIqnSGIYR8zJeYSmydK16/MVVBV2nb50QyzR5w1I/abG0VVAepvWgSwUYlHnS8dN4G3/kD1rKHetc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marek.ca; spf=pass smtp.mailfrom=marek.ca; dkim=pass (2048-bit key) header.d=marek.ca header.i=@marek.ca header.b=UqGOUIkB; arc=none smtp.client-ip=209.85.221.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=marek.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marek.ca
+	s=arc-20240116; t=1728960220; c=relaxed/simple;
+	bh=fu4tV/Ybuw5z2VSKw3uQ2W+FpVaaobIFmxfAkGSDrv4=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=H03CWuf8znAbWVBlT85pH7XAvVAjZ/x+vZAs+wPpuKhP4NJ93hX7B3lcRgrrBSrpLghMXbqL+xO6pq8w5/2x/9PLnmv1CLlGekKJS2KJj2+i3NSfRVeMYWymB1LgkAhdlzYC8kj/H740mr+E7Dg7HSlKA6+t4g5MvdXaorjrAXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Yae3PdeC; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marek.ca header.i=@marek.ca header.b="UqGOUIkB"
-Received: by mail-vk1-f173.google.com with SMTP id 71dfb90a1353d-50d5804c13aso452004e0c.1
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Oct 2024 17:53:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=marek.ca; s=google; t=1728953603; x=1729558403; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IWfViXixCZNOpw64qnGzSzSKYZcS6fQ7/2LaWhKIPDs=;
-        b=UqGOUIkBG3Z48e8BJhFUf1c0a/75rpKX5uBsxk8Rv6khjXaSJOw1K8QnFIHtm5opdn
-         czYTcKkhL3ormypt1L8TJJDamMx3/VX99niZVxAkTCgPlpqe8YQbv/QeBeWJQcHz4ZYX
-         YJyZUj3BdBGwnWG/Y7Dt5iwJMsGOc9kmFGLZm3Dx1jwjXlNTu9cZDkdq7b9et4OEsgal
-         fX6DtHsUurV0hQcOANmEpFLlc2Xj1mc8sTusUI1GbfELgLuZXnmeM33ZzEcvrzisG80B
-         M1xCcvtQe2KFYM+12cm1NCPFHNfW/s1hvSbNeaYDBzp2aZ+CN4FUexV37cAHyooOAcF1
-         19cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728953603; x=1729558403;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IWfViXixCZNOpw64qnGzSzSKYZcS6fQ7/2LaWhKIPDs=;
-        b=hyKU01g+DQxaT8iPjdnNSd4B9A8L3+jVW4ggri5sg40utmy2xQs4hkl61Py44okPR+
-         Mf8+aZjYFGbWnCcJy6ujvbXgvqsYeKEyjSBzRPp0r3jK15RBr/J6dIwG4S8jl9noRv76
-         kct+BHn26ApzGH/I16pkgNXYC2bkAwsyMaH+TXNY8e2sZOPZRLftGwky2kUsTgoHAKIT
-         aDVIDnIrgQgUsmtDzhKr7yJXoaU5UXlCApDIj6JLA6pqM/aS5agoSlmi+Vfh2u/CP/Vg
-         kDEpaxamrnZAuyxhzk76NjxaQK6yh9eDyv0zuiKPkzQdovZI1hD60wIXFu8A0hdKJrc4
-         oKYg==
-X-Forwarded-Encrypted: i=1; AJvYcCXygHPeHdHtvutnnhWQF249t604WHXnJpvvV9BuvmEgBGN26jY3HcVdz5yCqqZTLobPAKJqryJABrU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbavVn/vkeDDlWlUTWmd7G2SYHWxzMZQ3+6vZSxrAKpri0NmLV
-	7KmwlAAPL79aXYIekfMnTP7Mz3kKd2sHcQgnZOxHFGUcFDVJiUZdSGyOn+46gEc=
-X-Google-Smtp-Source: AGHT+IGvbaoUJ4CRlMi5XS2flUCfSbsR4fRBcjNweqxMEcN4bKyqR12UxbpDWubEBGNcicnOeX9jhw==
-X-Received: by 2002:a05:6122:268f:b0:50d:3ec1:1546 with SMTP id 71dfb90a1353d-50d3ec1165emr5612872e0c.4.1728953603262;
-        Mon, 14 Oct 2024 17:53:23 -0700 (PDT)
-Received: from localhost.localdomain (modemcable125.110-19-135.mc.videotron.ca. [135.19.110.125])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cc22910f0bsm1213956d6.16.2024.10.14.17.53.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Oct 2024 17:53:22 -0700 (PDT)
-From: Jonathan Marek <jonathan@marek.ca>
-To: linux-arm-msm@vger.kernel.org
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org (open list:REAL TIME CLOCK (RTC) SUBSYSTEM),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v3 1/5] rtc: pm8xxx: implement qcom,no-alarm flag for non-HLOS owned alarm
-Date: Mon, 14 Oct 2024 20:47:26 -0400
-Message-ID: <20241015004945.3676-2-jonathan@marek.ca>
-X-Mailer: git-send-email 2.45.1
-In-Reply-To: <20241015004945.3676-1-jonathan@marek.ca>
-References: <20241015004945.3676-1-jonathan@marek.ca>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Yae3PdeC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:Subject:Date:Message-Id; bh=YHoulzNfEf/3cchh2O
+	p7Oha0dOhZ4RRfuu2b6gpk1XQ=; b=Yae3PdeCU6cpDz4x/SeXTr60D65nDQRV6P
+	M8KAdX6reL3MDZ+JKdTXkHrLwIO4R/JKlCCiSB0eoCSPEbbukUtIq8juRRpBbGfd
+	YIfX7u7LoHj7D8xjhOe9vcDQa5Fr+S+LKqQYU4PZ2O2nE2M/CeTP1BCuoKNpg8U2
+	SGBz8roNc=
+Received: from localhost.localdomain (unknown [111.48.58.10])
+	by gzga-smtp-mtada-g1-0 (Coremail) with SMTP id _____wD3vwnM1g1nGs7RBA--.775S2;
+	Tue, 15 Oct 2024 10:43:25 +0800 (CST)
+From: huanglei814 <huanglei814@163.com>
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	huanglei <huanglei@kylinos.cn>
+Subject: [PATCH] rtc: add prefix modalias for rtc modules
+Date: Tue, 15 Oct 2024 10:43:22 +0800
+Message-Id: <20241015024322.15272-1-huanglei814@163.com>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID:_____wD3vwnM1g1nGs7RBA--.775S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxJF4xuF13CF48KFyUAFyxKrg_yoW5CrW5pa
+	15Ar15ur17Krs3GaykGrZ8uFW5K3W7KrWjkF1UJa9I9a4fAFn7ZwnxJFyrXF1DXrn5Ww42
+	qw1jkr15GFykJFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UE9aPUUUUU=
+X-CM-SenderInfo: xkxd0wxohlmiqu6rljoofrz/1tbixwx59mcNzu-iFAAAs5
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Qualcomm x1e80100 firmware sets the ownership of the RTC alarm to ADSP.
-Thus writing to RTC alarm registers and receiving alarm interrupts is not
-possible.
+From: huanglei <huanglei@kylinos.cn>
 
-Add a qcom,no-alarm flag to support RTC on this platform.
+When these rtc drivers is built as a module, To wire it up to udev,
+and let the module be loaded automatically, we need to export these
+alias from the modules.
 
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Signed-off-by: huanglei <huanglei@kylinos.cn>
 ---
- drivers/rtc/rtc-pm8xxx.c | 44 +++++++++++++++++++++++++++-------------
- 1 file changed, 30 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-ds1302.c | 1 +
+ drivers/rtc/rtc-ds1307.c | 1 +
+ drivers/rtc/rtc-ds1343.c | 1 +
+ drivers/rtc/rtc-ds1347.c | 1 +
+ drivers/rtc/rtc-ds1374.c | 1 +
+ drivers/rtc/rtc-ds1672.c | 1 +
+ 6 files changed, 6 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index c32fba550c8e0..1e78939625622 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -61,6 +61,7 @@ struct pm8xxx_rtc {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
- 	bool allow_set_time;
-+	bool no_alarm;
- 	int alarm_irq;
- 	const struct pm8xxx_rtc_regs *regs;
- 	struct device *dev;
-@@ -473,9 +474,14 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 	if (!rtc_dd->regmap)
- 		return -ENXIO;
+diff --git a/drivers/rtc/rtc-ds1302.c b/drivers/rtc/rtc-ds1302.c
+index ecc7d0307932..cc82f8e6326b 100644
+--- a/drivers/rtc/rtc-ds1302.c
++++ b/drivers/rtc/rtc-ds1302.c
+@@ -211,3 +211,4 @@ module_spi_driver(ds1302_driver);
+ MODULE_DESCRIPTION("Dallas DS1302 RTC driver");
+ MODULE_AUTHOR("Paul Mundt, David McCullough");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("spi:rtc-ds1302");
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 872e0b679be4..c402ab5cf383 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -2024,3 +2024,4 @@ module_i2c_driver(ds1307_driver);
  
--	rtc_dd->alarm_irq = platform_get_irq(pdev, 0);
--	if (rtc_dd->alarm_irq < 0)
--		return -ENXIO;
-+	rtc_dd->no_alarm = of_property_read_bool(pdev->dev.of_node,
-+						 "qcom,no-alarm");
-+
-+	if (!rtc_dd->no_alarm) {
-+		rtc_dd->alarm_irq = platform_get_irq(pdev, 0);
-+		if (rtc_dd->alarm_irq < 0)
-+			return -ENXIO;
-+	}
- 
- 	rtc_dd->allow_set_time = of_property_read_bool(pdev->dev.of_node,
- 						      "allow-set-time");
-@@ -503,7 +509,8 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, rtc_dd);
- 
--	device_init_wakeup(&pdev->dev, 1);
-+	if (!rtc_dd->no_alarm)
-+		device_init_wakeup(&pdev->dev, 1);
- 
- 	rtc_dd->rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc_dd->rtc))
-@@ -512,27 +519,36 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 	rtc_dd->rtc->ops = &pm8xxx_rtc_ops;
- 	rtc_dd->rtc->range_max = U32_MAX;
- 
--	rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->alarm_irq,
--					  pm8xxx_alarm_trigger,
--					  IRQF_TRIGGER_RISING,
--					  "pm8xxx_rtc_alarm", rtc_dd);
--	if (rc < 0)
--		return rc;
-+	if (!rtc_dd->no_alarm) {
-+		rc = devm_request_any_context_irq(&pdev->dev, rtc_dd->alarm_irq,
-+						  pm8xxx_alarm_trigger,
-+						  IRQF_TRIGGER_RISING,
-+						  "pm8xxx_rtc_alarm", rtc_dd);
-+		if (rc < 0)
-+			return rc;
-+	}
- 
- 	rc = devm_rtc_register_device(rtc_dd->rtc);
- 	if (rc)
- 		return rc;
- 
--	rc = dev_pm_set_wake_irq(&pdev->dev, rtc_dd->alarm_irq);
--	if (rc)
--		return rc;
-+	if (!rtc_dd->no_alarm) {
-+		rc = dev_pm_set_wake_irq(&pdev->dev, rtc_dd->alarm_irq);
-+		if (rc)
-+			return rc;
-+	} else {
-+		clear_bit(RTC_FEATURE_ALARM, rtc_dd->rtc->features);
-+	}
- 
- 	return 0;
- }
- 
- static void pm8xxx_remove(struct platform_device *pdev)
- {
--	dev_pm_clear_wake_irq(&pdev->dev);
-+	struct pm8xxx_rtc *rtc_dd = platform_get_drvdata(pdev);
-+
-+	if (!rtc_dd->no_alarm)
-+		dev_pm_clear_wake_irq(&pdev->dev);
- }
- 
- static struct platform_driver pm8xxx_rtc_driver = {
+ MODULE_DESCRIPTION("RTC driver for DS1307 and similar chips");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("i2c:rtc-ds1307");
+diff --git a/drivers/rtc/rtc-ds1343.c b/drivers/rtc/rtc-ds1343.c
+index ed5a6ba89a3e..e9183f745922 100644
+--- a/drivers/rtc/rtc-ds1343.c
++++ b/drivers/rtc/rtc-ds1343.c
+@@ -481,3 +481,4 @@ MODULE_DESCRIPTION("DS1343 RTC SPI Driver");
+ MODULE_AUTHOR("Raghavendra Chandra Ganiga <ravi23ganiga@gmail.com>,"
+ 		"Ankur Srivastava <sankurece@gmail.com>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("spi:ds1343");
+diff --git a/drivers/rtc/rtc-ds1347.c b/drivers/rtc/rtc-ds1347.c
+index a40c1a52df65..babdd35cd82d 100644
+--- a/drivers/rtc/rtc-ds1347.c
++++ b/drivers/rtc/rtc-ds1347.c
+@@ -181,3 +181,4 @@ module_spi_driver(ds1347_driver);
+ MODULE_DESCRIPTION("DS1347 SPI RTC DRIVER");
+ MODULE_AUTHOR("Raghavendra C Ganiga <ravi23ganiga@gmail.com>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("spi:ds1347");
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index c2359eb86bc9..3d61ab23c41c 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -582,3 +582,4 @@ module_i2c_driver(ds1374_driver);
+ MODULE_AUTHOR("Scott Wood <scottwood@freescale.com>");
+ MODULE_DESCRIPTION("Maxim/Dallas DS1374 RTC Driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("i2c:rtc-ds1374");
+diff --git a/drivers/rtc/rtc-ds1672.c b/drivers/rtc/rtc-ds1672.c
+index 6e5314215d00..a2240cd92774 100644
+--- a/drivers/rtc/rtc-ds1672.c
++++ b/drivers/rtc/rtc-ds1672.c
+@@ -158,3 +158,4 @@ module_i2c_driver(ds1672_driver);
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+ MODULE_DESCRIPTION("Dallas/Maxim DS1672 timekeeper driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("i2c:rtc-ds1672");
 -- 
-2.45.1
+2.17.1
 
