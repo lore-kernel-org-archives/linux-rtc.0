@@ -1,72 +1,112 @@
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B108D15749A
-	for <linux-rtc@vger.kernel.org>; Sun, 10 Nov 2024 22:06:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.240
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D2E52B9A9;
+	Sun, 10 Nov 2024 22:20:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731276392; cv=none; b=dP0nYqqoaD1MobsLsOKYsrC6G6f99Aldn/Jm++JhPzdWgF9mybYwVE+hyqesYaHQewU0nZr2HXA2L8UEnbaZyzukQ+6bZTZXyZRQgnlqaWm3s/02NsPmOkM5xRzjXNPIosdaHtXbupi3VJVAt87DyD4LFVwloawK9Xy1IpmWEh4=
+	t=1731277215; cv=none; b=A5Nyur6G4Kdxfi7NWIVpfBK8XAIysQnUTjBvP2q74VBtQC4gzrR0f6Zv09NtOCDPN6NiA6LcvdX6P6PQ3qTEEj6rRAEdGXzn24xn6vCh5AdaYMyz9TIZ1jnOP3LpbPcnQhrNCLTgR7Uq6ia0j7EvDLvQuEAc7a9QwjOIWEDl1E4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731276392; c=relaxed/simple;
-	bh=15oQAKuPz0WmNrTe2CjfiB+Zr1UKINPI3S9UmNI762Y=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o3qfUkOanyB6Fh+l17dUhpfrcfJ2BeKNO/t/tzB1A5PyCgind6+VZ0KtwmxdZ1Wd/Qa1i8uIoBxULtTlRTcP9xkvDucYatRUJ2kmXOUlCieQ/AAHI0V0chJNHZkpHqEKmFVLGrvsUX7c5wIL6ZFWVh7l13uazd7zz67kh63zNOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Sfo4Pljn; arc=none smtp.client-ip=217.70.178.240
+	s=arc-20240116; t=1731277215; c=relaxed/simple;
+	bh=vWiAnPDvzJ7D0NhtAYKIk8U+AVw3hjK1fZbqqvO6PfA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LpGHq7E2eyDUTB2yNjXWv2kZlchjy3aDpE9py8BNhrQJ1YD742rndxEO/vlTsFU4omRYBj6Yk0zI+rZT6PwwZFqd8Ln8rOVb1uqiwfbVdEQbPoB/jl6z6w4XGYn9UP2NysavIvpQrcrqE3Iyefod+1cseVGM/7B2EFQGx90Gfqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=jgvAhVq8; arc=none smtp.client-ip=217.70.183.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Sfo4Pljn"
-Received: from relay7-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::227])
-	by mslow1.mail.gandi.net (Postfix) with ESMTP id 94CBCC10A6
-	for <linux-rtc@vger.kernel.org>; Sun, 10 Nov 2024 22:06:22 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 4138D20003;
-	Sun, 10 Nov 2024 22:06:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="jgvAhVq8"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id AA228240002;
+	Sun, 10 Nov 2024 22:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1731276374;
+	t=1731277204;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zUdaOedIQ8kUg4x9LzwEvFzayNO8i4Q73skUB7XP6nE=;
-	b=Sfo4PljnlqS27SB2PJ9FfKpI2ZiaRbV7otawTkMzyTbtUY0PINozJKZmopnIPKCfOG3uJz
-	yR+6J3euujKK8ebiqYr/Zz1QKLrLAx/J+ow4JaMbuxZqIrd4L6+Ai1HRgqQ6RKV67yBTY6
-	iekNdnPSR4PFWY5YWrT/oEHfbWZPd6GC8teEQpfUMxwYiQ8HOr2B4MW9MvH+cWXm71rAVU
-	ZBeIFS3uZHqJgVgVS6q8YXxlRlcRyM1dUk3AT8eVI386TEiEJhRj1mss9YMBf49xmzIXYi
-	Zv2w58JkepakbW5A0GHD1nfNudjb1jZZ18C9hEBagpCyGRc1P41YNBhmEeb7zg==
-Date: Sun, 10 Nov 2024 23:06:11 +0100
+	bh=9orySFqiLkR/qY+bcxW2Z/J3ieCCiSxmMOqWc/cVx04=;
+	b=jgvAhVq8nz+iOOzk69MseaQRS8fuzamkE0JFjN9bMWZlr0PfZY4POo38flHp15iJLhInar
+	jLKq4Wz5g9h6UB6i+LqJmkAGxjyDIVxRIs16vhSEx6HqVXfINdx6o0zv2cyj3ejuF0ii9S
+	5Uj8z5vdvdD7Ta/QLXNXg3l3QqTLQ3klv7zc6agCNGhLOLkA3DyY2WpPtmMzeJXjhFtY+V
+	GB9g5SoggFvMqkTj50de74DHp8jJOQSsWj9dt5JMWEeEBgtgc0OULDeEH6TRFJKJTckEjw
+	G1QZ9dgGhbsSYUAjxY4LnKvvBYCzFM+OZQY3ufLJFfztzLnXZVsuGU7xAB+TVg==
+Date: Sun, 10 Nov 2024 23:20:03 +0100
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: patrice.chotard@foss.st.com, lee@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	Jinjie Ruan <ruanjinjie@huawei.com>
-Subject: Re: [PATCH] rtc: st-lpc: Use IRQF_NO_AUTOEN flag in request_irq()
-Message-ID: <173127618343.3020900.8341724701726838297.b4-ty@bootlin.com>
-References: <20240912033727.3013951-1-ruanjinjie@huawei.com>
+To: Lee Jones <lee@kernel.org>
+Cc: Stanislav Jakubek <stano.jakubek@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Lars-Peter Clausen <lars@metafoo.de>, Pavel Machek <pavel@ucw.cz>,
+	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+	Sebastian Reichel <sre@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, devicetree@vger.kernel.org,
+	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] dt-bindings: mfd: sprd,sc2731: convert to YAML
+Message-ID: <20241110222003bbcff5ad@mail.local>
+References: <efd200c3b5b75405e4e450d064b026f10ae2f8e0.1730709384.git.stano.jakubek@gmail.com>
+ <20241106090422.GK1807686@google.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20240912033727.3013951-1-ruanjinjie@huawei.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241106090422.GK1807686@google.com>
 X-GND-Sasl: alexandre.belloni@bootlin.com
 
-On Thu, 12 Sep 2024 11:37:27 +0800, Jinjie Ruan wrote:
-> If request_irq() fails in st_rtc_probe(), there is no need to enable
-> the irq, and if it succeeds, disable_irq() after request_irq() still has
-> a time gap in which interrupts can come.
+On 06/11/2024 09:04:22+0000, Lee Jones wrote:
+> On Mon, 04 Nov 2024, Stanislav Jakubek wrote:
 > 
-> request_irq() with IRQF_NO_AUTOEN flag will disable IRQ auto-enable when
-> request IRQ.
+> > Convert the Spreadtrum SC27xx PMIC bindings to DT schema. Adjust the
+> > filename to match the compatible of the only in-tree user, SC2731.
+> > Change #interrupt-cells value to 1, as according to [1] that is the
+> > correct value.
+> > Move partial examples of child nodes in the child node schemas to this new
+> > MFD schema to have one complete example.
+> > 
+> > [1] https://lore.kernel.org/lkml/b6a32917d1e231277d240a4084bebb6ad91247e3.1550060544.git.baolin.wang@linaro.org/
+> > 
+> > Signed-off-by: Stanislav Jakubek <stano.jakubek@gmail.com>
+> > ---
+> > Changes in V3:
+> > - remove $ref to nvmem/sc2731-efuse and list the compatibles with
+> >   additionalProperties: true (Krzysztof)
+> > 
+> > Changes in V2:
+> > - rebase on next-20241029
+> > - drop partial examples in child node schemas, move them here (Rob)
+> > 
+> > Link to V2: https://lore.kernel.org/lkml/ZyExK01iprBHhGm6@standask-GA-A55M-S2HP/
+> > Link to V1: https://lore.kernel.org/lkml/Zr3X1RoQs7ElTnlJ@standask-GA-A55M-S2HP/
+> > 
+> >  .../bindings/iio/adc/sprd,sc2720-adc.yaml     |  17 --
+> >  .../bindings/leds/sprd,sc2731-bltc.yaml       |  31 ---
+> >  .../devicetree/bindings/mfd/sprd,sc2731.yaml  | 252 ++++++++++++++++++
+> >  .../bindings/mfd/sprd,sc27xx-pmic.txt         |  40 ---
+> >  .../bindings/power/supply/sc2731-charger.yaml |  21 +-
+> >  .../bindings/power/supply/sc27xx-fg.yaml      |  38 +--
+> >  .../regulator/sprd,sc2731-regulator.yaml      |  21 --
+> >  .../bindings/rtc/sprd,sc2731-rtc.yaml         |  16 --
 > 
-> [...]
+> Is everyone happy with me merging this through MFD?
+> 
 
-Applied, thanks!
+This is fine for me.
 
-[1/1] rtc: st-lpc: Use IRQF_NO_AUTOEN flag in request_irq()
-      https://git.kernel.org/abelloni/c/b6cd7adec0cf
-
-Best regards,
+> -- 
+> Lee Jones [李琼斯]
+> 
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
