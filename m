@@ -1,103 +1,75 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 851F11D61A2
-	for <linux-rtc@vger.kernel.org>; Fri, 22 Nov 2024 10:14:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D45418133F;
+	Fri, 22 Nov 2024 10:39:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732270503; cv=none; b=UGvFuOk0WRmetg4hEnB9rbdQAjFpIoMtWEgEWxjrGLLyIjO7wocH5kB0a8TlIghEgLXATumK7QxEC5Ebuahf2OHXXd7iW6MEzZU3rt8JvqlArVIuyLs0WR5r+I5oxUDMcm9gpuduCULs+m7/YOjAoXC5e9LJC1N2/dY253i7y1g=
+	t=1732271975; cv=none; b=A6Q03AmeE0oLXrcr+BPe7LZX/JMtpwqzrESl5hn/5b7UlZsRuSpQIbdGLFKKOQSzyzJZUQPdtP93P4E0RcyijBdu3hfR17XEtzQq/WjNFs3KVCBMJ7cUd7nRCbjtJyzz2EItr7wLs+NShqiH4zbvxnJuahQFL7YzYUdJbQBp4/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732270503; c=relaxed/simple;
-	bh=xvEJvPkFwS7eLxUO0bzoxOM7iX8Qgx82k/OqvYB3ghM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=KfsU2xFRXHHleb39mt6PD1AAZyMg5kwbB8O/WYAioR8Cc9TTFufO/F7Abo/n/86OWK/IeadVKUvRePc5OIPkK5QMjLdIUBTIrVrYnnOu4q6JTJPlgPnYinEGaUT8sXOj5HR/XBq8X87dRkwRimFu7NEegv6pW4oZ5gEMZ+Pl6uA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GurcsVsP; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1732271975; c=relaxed/simple;
+	bh=8fifDnFSA75+FxWf9yIkSc1x6x+Sy3nBrkjwA4JtshY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=uZ2B+knlnKUViqXu6Z8eT52/70CD5AleE0GOQL76RKcOtmCFDolsJTIERcPLgxRY1bgy0umTU3I75qKkEFQC5iVxuMM6bKUAouPeVx2ts3G+f/o0Itigo1x42TL+VH47Fgf27dkkzYfR9MoxvRTXS9u7PoNam3X3Dc2l2Myadzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=M27819ws; arc=none smtp.client-ip=217.70.183.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GurcsVsP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=Qr6EkVsJn9046R0PVy7pEK/SF2WpOreaHc3BjBndO9o=; b=GurcsV
-	sPEcCQ+xqd7O3tbLqeWM88fRo01leKUYKIXOlXifQ8eECn/X5ocCjlcU0kSqwuLO
-	3Vrk/oHLK8WtgEzPYw4NZcsy7WP/0+dWaTDjpnTYIuAsEYJmkmYoUh+9jgzaLvc0
-	aFM3hVNhJrLmVPCSaecRCWKBCMv9l5bDjw8NIg9MPQfcJaZtZLr493w5YC0w/lsK
-	NCwQCZQM28wcXRKPttbNRvNBYT/DMN/hXjJQ2hHZucaej/NhTv/4ikRMP8/gadZK
-	ozVQiCr513HyL42ZPaC5UJD13P6oSPm+09FNEwgxABRnobr2AG8RXYUqilaPVNIr
-	2H4xVwpySbKjwqbg==
-Received: (qmail 1555018 invoked from network); 22 Nov 2024 11:14:50 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Nov 2024 11:14:50 +0100
-X-UD-Smtp-Session: l3s3148p1@oVA/p30nrocujntT
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Subject: [RFC PATCH 1/2] rtc: rzn1: drop superfluous wday calculation
-Date: Fri, 22 Nov 2024 11:14:47 +0100
-Message-Id: <20241122101448.4374-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20241122101448.4374-1-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="M27819ws"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id B24F5FF805;
+	Fri, 22 Nov 2024 10:39:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1732271971;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8fifDnFSA75+FxWf9yIkSc1x6x+Sy3nBrkjwA4JtshY=;
+	b=M27819wsY9gEoZOw/7ha/XJQuehzhz4cflnAySZO8M4w901/iL4IqGHPjr5AdwAUENo5PJ
+	c6rGVNYrNR0k+XhDZNozF5g+JCzxO6kCHDP2RvxgFk0BSG/Q68UYz4sXZ9WBbE/gW28Z32
+	7cV7QVBYW/G+AOijAV3FrR3aPJvDjhdue/EmwIxVjgctGey8KyMOcEWUX9aJ2a3n5mLjht
+	OGlI0e+WxNd1HNrmYnB1+zvbjbFiGuQ9D4qT+ksPvGdnIOgYPuqLrx4wnoE2EuQnVOhnd2
+	PJqEmCP3Ty0q7o43dA/3GXiIzDWRJMQgEyzAR7DHXEoJEDDF1uC5z30kQHGHDQ==
+From: Miquel Raynal <miquel.raynal@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org,  Alexandre Belloni
+ <alexandre.belloni@bootlin.com>,  linux-rtc@vger.kernel.org
+Subject: Re: [RFC PATCH 2/2] rtc: rzn1: reduce register access
+In-Reply-To: <20241122101448.4374-3-wsa+renesas@sang-engineering.com> (Wolfram
+	Sang's message of "Fri, 22 Nov 2024 11:14:48 +0100")
 References: <20241122101448.4374-1-wsa+renesas@sang-engineering.com>
+	<20241122101448.4374-3-wsa+renesas@sang-engineering.com>
+User-Agent: mu4e 1.12.7; emacs 29.4
+Date: Fri, 22 Nov 2024 11:39:29 +0100
+Message-ID: <87frnjpn6m.fsf@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-GND-Sasl: miquel.raynal@bootlin.com
 
-The week register simply counts from 0 to 6 where the numbers do not
-even represent a specific weekday. So we can adopt 'tm_wday' numbering
-of the RTC core without converting it.
+On 22/11/2024 at 11:14:48 +01, Wolfram Sang <wsa+renesas@sang-engineering.c=
+om> wrote:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/rtc/rtc-rzn1.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+> This RTC has special 32bit registers which return multiple of the same
+> 8bit registers at once. Use these to minimize register access. Also, do
+> the to/from BCD conversions right away, so 'tm' always contains values
+> as described in time.h.
 
-diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-index b0ea2847e982..4ae6e349faa0 100644
---- a/drivers/rtc/rtc-rzn1.c
-+++ b/drivers/rtc/rtc-rzn1.c
-@@ -75,19 +75,6 @@ static void rzn1_rtc_get_time_snapshot(struct rzn1_rtc *rtc, struct rtc_time *tm
- 	tm->tm_year = readl(rtc->base + RZN1_RTC_YEARC);
- }
- 
--static unsigned int rzn1_rtc_tm_to_wday(struct rtc_time *tm)
--{
--	time64_t time;
--	unsigned int days;
--	u32 secs;
--
--	time = rtc_tm_to_time64(tm);
--	days = div_s64_rem(time, 86400, &secs);
--
--	/* day of the week, 1970-01-01 was a Thursday */
--	return (days + 4) % 7;
--}
--
- static int rzn1_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
-@@ -109,7 +96,6 @@ static int rzn1_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_sec = bcd2bin(tm->tm_sec);
- 	tm->tm_min = bcd2bin(tm->tm_min);
- 	tm->tm_hour = bcd2bin(tm->tm_hour);
--	tm->tm_wday = bcd2bin(tm->tm_wday);
- 	tm->tm_mday = bcd2bin(tm->tm_mday);
- 	tm->tm_mon = bcd2bin(tm->tm_mon) - 1;
- 	tm->tm_year = bcd2bin(tm->tm_year) + 100;
-@@ -126,7 +112,6 @@ static int rzn1_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	tm->tm_sec = bin2bcd(tm->tm_sec);
- 	tm->tm_min = bin2bcd(tm->tm_min);
- 	tm->tm_hour = bin2bcd(tm->tm_hour);
--	tm->tm_wday = bin2bcd(rzn1_rtc_tm_to_wday(tm));
- 	tm->tm_mday = bin2bcd(tm->tm_mday);
- 	tm->tm_mon = bin2bcd(tm->tm_mon + 1);
- 	tm->tm_year = bin2bcd(tm->tm_year - 100);
--- 
-2.39.2
+IIRC it was easier to write the other way, but it is probably more optimized
+like that, so
 
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+
+However I don't feel comfortable commenting on patch 1, I'll let Alex check.
+
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+
+Thanks,
+Miqu=C3=A8l
