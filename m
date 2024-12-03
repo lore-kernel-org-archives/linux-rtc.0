@@ -1,45 +1,47 @@
 Received: from www530.your-server.de (www530.your-server.de [188.40.30.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 362D71E25E6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF6871E2618;
 	Tue,  3 Dec 2024 10:45:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.40.30.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733222758; cv=none; b=D0tUlY2QFgaACd4X/LX5ldGjwjaExjZncYlunyig9ST4UGUnXrRZUt10S+GJ7EtNL7OAN7EEgZnRnfSLc/hAP8s9/NnZqLNM/YKz2wl8fnH9y+fc1045VVXiqZQn1RaWGy6An1lQrefF+C+I8FukJu6Z5PkCn2NrK1W/1CQNbBQ=
+	t=1733222758; cv=none; b=uUHkU2YbZyjOfrdhdmsktNl3QRg5ukxe+ETImdoJjG9Yn1pP0jlsAEUcYFvyoLvdDOMnEhV/BSEjIe5wZE3YWFfO8hJNk6h7huG1SXF905wa+tPSeXR+mZoyNn2DPOIvXCSX5ZGclSrnEH19uMnGjc8gq8bbiAzTLz1GxSy6QYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1733222758; c=relaxed/simple;
-	bh=IsM5qwXmVYbtpLyfbaWedFs/VMNxgxhIv9ZcK9/X2/Y=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=JkfphaGrCvCIcZ16c3sy4hgbMHbltlW9zpRQVASF08ipUHOu52z4Fs81FdMM73pnqFVCrMAMO/MIUA6kGMm4k2FyQoEvitD4PD4tshYHmputMVo9F/a65q71feej+hQxk9vXTUHKq97fFOvxvl0naT/LbEev3+nlOVh+Iy+EtPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=zPA4v7eP; arc=none smtp.client-ip=188.40.30.78
+	bh=aLsSYnYzd0GPXM1Me/YHB+us7IQCUlk6jk1u8U6Lfns=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=CMZPWox1hEbpctRFAm2MS18K+H39x4D846lhrHL1eVow7XaBwBzPemp0iz8zx6tM4iAX2pE4Qm/veFQl4CQ7T6pYsFnGKlxPSD4Or7C1Xar0FvLNc0hUQCVDVLdibIr5pHpBwv3/NBU8cE7+roA/bDN4LuNSBL5/HCiK04PUrZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=SMxnv0KZ; arc=none smtp.client-ip=188.40.30.78
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=geanix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=geanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="zPA4v7eP"
+	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="SMxnv0KZ"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=geanix.com;
-	s=default2211; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
-	Message-Id:Date:Subject:From:Sender:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	In-Reply-To:References; bh=eUOXxza2xZDbeONLJ88WTGExZzUw3RWWcYeyA48yLeY=; b=zP
-	A4v7ePAjjTQxnrQjzUzObzLd3YWI1sYezNf+8pFa3iW4WzerQgFaS6p9WWRS8WvvDhatu/O0UHXwd
-	QpoNH5WEKTxH/0S4XB1J+5CfC0SVoI/hEb9/Dh9BhxY5Lb2DLjIGnTTfTa14TgApRzy2HdgjflJNV
-	cVNRe85XeXKITI3CNsb2pcg5KCqVJhLIdF/3EWG+LZG6BY/dvhk5fuPcjTf0Uv55te0anokbByCx3
-	OMFEOW6YGgd+6Pe4I3S2DIyNM4+iaLg/9wHsIkX6mj9kRgWb7mW/q/YAhWikrvqnptPUD2Yh36EGh
-	WHnqkYmBJxeOHTEfTNw08hhBk7XrRfBQ==;
+	s=default2211; h=Cc:To:In-Reply-To:References:Message-Id:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Subject:Date:From:Sender:
+	Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender
+	:Resent-To:Resent-Cc:Resent-Message-ID;
+	bh=2vJ5gzpYa+APGJDBpuV2gyqdCOt2zO7G8uCRrZjW9y0=; b=SMxnv0KZn0jLSnJChxqT2LPcu2
+	+wnN8N+LoFav+6urlxBrWNkaTklnvJ7hvApd2rCIbsWT21LNHIWq57KeMsRno6e7D+UYw7Q+mJJwT
+	cjl0hYjG+FoLqUGvde1PUteQE/esQU0SDJvuTu/C6g9XvQ3iCXeM2s0fo0rnot5zQctpRZ+NtyZ8Z
+	fARD3fHMsQS/SxDZhgRDZddLznjDNIHCtO8VsmeeLeEi4Ipwi/2hzPimnUMSBPPdwT2KBgSCNs17E
+	9sm8VEmTOFyOZhgTe5x73s3s8r95SHHuzCG4AQ20XLIjAG6NpWED//3b2axW98K44RBCLm2DCVb+G
+	FNcSoolg==;
 Received: from sslproxy06.your-server.de ([78.46.172.3])
 	by www530.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <esben@geanix.com>)
-	id 1tIQPh-0001Oj-46; Tue, 03 Dec 2024 11:45:53 +0100
+	id 1tIQPh-0001Ov-Ro; Tue, 03 Dec 2024 11:45:53 +0100
 Received: from [185.17.218.86] (helo=localhost)
 	by sslproxy06.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
 	(Exim 4.96)
 	(envelope-from <esben@geanix.com>)
-	id 1tIQPg-000L6S-1L;
-	Tue, 03 Dec 2024 11:45:52 +0100
+	id 1tIQPh-000L9W-0p;
+	Tue, 03 Dec 2024 11:45:53 +0100
 From: Esben Haabendal <esben@geanix.com>
-Subject: [PATCH 0/6] rtc: Fix problems with missing UIE irqs
-Date: Tue, 03 Dec 2024 11:45:30 +0100
-Message-Id: <20241203-rtc-uie-irq-fixes-v1-0-01286ecd9f3f@geanix.com>
+Date: Tue, 03 Dec 2024 11:45:32 +0100
+Subject: [PATCH 2/6] rtc: isl12022: Fix initial enable_irq/disable_irq
+ balance
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -48,62 +50,46 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAErhTmcC/x2LQQqAMAzAviI9W5hVcPgV8SDaaS9TOxVB9neLx
- yTkhcQqnKArXlC+JckWDaqygGkd48IoszGQo6YiV6OeE15iWg8M8nDCQL72rafZBQ/27cp/sK0
- fcv4AkCfcgGMAAAA=
-X-Change-ID: 20241203-rtc-uie-irq-fixes-f2838782d0f8
+Message-Id: <20241203-rtc-uie-irq-fixes-v1-2-01286ecd9f3f@geanix.com>
+References: <20241203-rtc-uie-irq-fixes-v1-0-01286ecd9f3f@geanix.com>
+In-Reply-To: <20241203-rtc-uie-irq-fixes-v1-0-01286ecd9f3f@geanix.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>, 
- stable@vger.kernel.org, Patrice Chotard <patrice.chotard@foss.st.com>
+ linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733222752; l=1634;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733222752; l=849;
  i=esben@geanix.com; s=20240523; h=from:subject:message-id;
- bh=IsM5qwXmVYbtpLyfbaWedFs/VMNxgxhIv9ZcK9/X2/Y=;
- b=4m2rQQdcFWIslwIXR8uaXwn9QhTkD+u/aJnbsc9jpodG1R+miZyhebqDjXFK0hnoSwtvJqSE7
- 9r4bEt+i1d/Bjx+kTsuQ7Nc01QvjWyus4rDJ8q5znc+fABJWVbu69NQ
+ bh=aLsSYnYzd0GPXM1Me/YHB+us7IQCUlk6jk1u8U6Lfns=;
+ b=uWTWtCFJ+1XCx6axiciAWY6NQo5kJc0CFu2XxJjYzRM1XOX9JP+ysUOosmQa4MZgpTO7AdLqP
+ /u3wffJpPH5DOdWaMPymcZHBnZFpCiff9tEbSgtJNcokq4fsFxkACtU
 X-Developer-Key: i=esben@geanix.com; a=ed25519;
  pk=PbXoezm+CERhtgVeF/QAgXtEzSkDIahcWfC7RIXNdEk=
 X-Authenticated-Sender: esben@geanix.com
 X-Virus-Scanned: Clear (ClamAV 0.103.10/27476/Tue Dec  3 10:52:11 2024)
 
-This fixes a couple of different problems, that can cause RTC (alarm)
-irqs to be missing when generating UIE interrupts.
+Interrupts are automatically enabled when requested, so we need to
+initialize irq_enabled accordingly to avoid causing an unbalanced enable
+warning.
 
-The first commit fixes a long-standing problem, which has been
-documented in a comment since 2010. This fixes a race that could cause
-UIE irqs to stop being generated, which was easily reproduced by
-timing the use of RTC_UIE_ON ioctl with the seconds tick in the RTC.
-
-The last commit ensures that RTC (alarm) irqs are enabled whenever
-RTC_UIE_ON ioctl is used.
-
-The driver specific commits avoids kernel warnings about unbalanced
-enable_irq/disable_irq, which gets triggered on first RTC_UIE_ON with
-the last commit. Before this series, the same warning should be seen
-on initial RTC_AIE_ON with those drivers.
-
+Fixes: c62d658e5253 ("rtc: isl12022: Add alarm support")
 Signed-off-by: Esben Haabendal <esben@geanix.com>
 ---
-Esben Haabendal (6):
-      rtc: interface: Fix long-standing race when setting alarm
-      rtc: isl12022: Fix initial enable_irq/disable_irq balance
-      rtc: cpcap: Fix initial enable_irq/disable_irq balance
-      rtc: st-lpc: Fix initial enable_irq/disable_irq balance
-      rtc: tps6586x: Fix initial enable_irq/disable_irq balance
-      rtc: interface: Ensure alarm irq is enabled when UIE is enabled
+ drivers/rtc/rtc-isl12022.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/rtc/interface.c    | 27 +++++++++++++++++++++++++++
- drivers/rtc/rtc-cpcap.c    |  1 +
- drivers/rtc/rtc-isl12022.c |  1 +
- drivers/rtc/rtc-st-lpc.c   |  1 +
- drivers/rtc/rtc-tps6586x.c |  1 +
- 5 files changed, 31 insertions(+)
----
-base-commit: 40384c840ea1944d7c5a392e8975ed088ecf0b37
-change-id: 20241203-rtc-uie-irq-fixes-f2838782d0f8
+diff --git a/drivers/rtc/rtc-isl12022.c b/drivers/rtc/rtc-isl12022.c
+index 9b44839a7402c9ab7da634d95152c2520eb8552e..5fc52dc6421305e957a0c3a169009c3f6a6c7320 100644
+--- a/drivers/rtc/rtc-isl12022.c
++++ b/drivers/rtc/rtc-isl12022.c
+@@ -413,6 +413,7 @@ static int isl12022_setup_irq(struct device *dev, int irq)
+ 	if (ret)
+ 		return ret;
+ 
++	isl12022->irq_enabled = true;
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 					isl12022_rtc_interrupt,
+ 					IRQF_SHARED | IRQF_ONESHOT,
 
-Best regards,
 -- 
-Esben Haabendal <esben@geanix.com>
+2.47.1
 
