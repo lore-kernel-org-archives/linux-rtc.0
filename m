@@ -1,40 +1,40 @@
-Received: from out.smtpout.orange.fr (out-67.smtpout.orange.fr [193.252.22.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 761333D68;
-	Thu,  2 Jan 2025 09:04:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.252.22.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F29C190485;
+	Thu,  2 Jan 2025 10:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735808663; cv=none; b=U97s+8IMLWPqow0ZbXopnoSIxNxubu5ZZzDq1+GQ+qn1EyAaCQEXeZrEJtL72dxcT51YTQMz0Qt/gkIX0wAkSUku9y+SKDlL7ghnupOg6Eiio9Ybb1PT/JpXH1tjNIQUrJ8O/OLKkT4GxXdrU7Zm6ZiionrosO1BPB2JsCDI/i0=
+	t=1735813568; cv=none; b=bqQzfxHr886VJ6kpI4ZONV36uqeJvGqaJzm2pfKTYa7vixodOA+B0oNn8aqTNWqy1DgPRVi+kfkUM4qrPg0wrZvEOftoQPXFUc3IRqoZmkBTeym+h8MirZmoVPYFXvUmKlU2PCz0yApG21gk24viVqgGCRxwGMHaumbEsRyy+8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735808663; c=relaxed/simple;
-	bh=zghEmGBMc39NZbTdkZhdcwAKGgolK8rFK+hu7TmAzP0=;
+	s=arc-20240116; t=1735813568; c=relaxed/simple;
+	bh=3GT0ivpU3yT9AFjZTEHywkw0fqTG8Qo34fH2ZWvQSrE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jkvJfshkbABCa1Gn+GcwnWt4K2GkIUAWzWpMkLMtU5Wncd9RcEVLQOBfNpFLKX4LsrftcjkwKkphISAZ6q03BiNrldNsn8icYlRhuIGGwKgb+Nzf329dshRk3qNQ6BgRyyAaWQdeWmg8nAfX9Qk/7YgrJThCo+lHR9FFltwiQhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=to/xHWBC; arc=none smtp.client-ip=193.252.22.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+	 In-Reply-To:Content-Type; b=n3B8JDXfyyrKFXYFNpLalMHDUnrRJpKPPJclyO9yxBcOwR9uw8TOpGEGSsBVmpnUnQKwkMBXdj1a+duJB78Wj3AvGT00Wcw9Vfr3xXLqBYOkfuNcOu0ueI2/1C2Zf66plhDmfmMxMTq8Vt5sH/cK2u9876gCTvnhWNpie2nrL2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=FdBsD+9P; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="to/xHWBC"
-Received: from [172.16.82.72] ([124.33.176.97])
-	by smtp.orange.fr with ESMTPA
-	id TH7UtHho2v8EoTH7ZtzYi9; Thu, 02 Jan 2025 10:04:12 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1735808652;
-	bh=39nmaAXlbtXxpI44yh3hY9JN+QCD/Pdn8DUS9Q3fxLI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From;
-	b=to/xHWBCunZGAPM3qDXj2KMhg9rv0ZHaJ9AdPbNG69HGM5jyjIW6/U9/+NxQuQcmq
-	 Mz7JqqlYDWn/3hGN4UpLLODWsA5EG1Vk3PmG47guje3kKKO/OSw/y+TO4L+xpgjk6D
-	 Iv2lUKbd5rCILZwyx1qtyf8cfzzaKbNomR52QHcdi5hwBYJhIAhRyx3jrRBafaTYEq
-	 4UjYgMVhsEVw64d3/dyX/ip/+RyUHACZ9swuz4zBl5SEg2BtYCcq9EYR0PzkAnU30m
-	 KAgb6kFrgroBU9ZgR8LiUYXpqyaEUZfydeyDcUAALrzeBWfQX2aAcSm++Ee20nwO92
-	 m78dDF/2o2tew==
-X-ME-Helo: [172.16.82.72]
-X-ME-Auth: bWFpbGhvbC52aW5jZW50QHdhbmFkb28uZnI=
-X-ME-Date: Thu, 02 Jan 2025 10:04:12 +0100
-X-ME-IP: 124.33.176.97
-Message-ID: <1fdb892b-a1e9-4199-a538-d5b98f283096@wanadoo.fr>
-Date: Thu, 2 Jan 2025 18:03:55 +0900
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="FdBsD+9P"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1735813564;
+	bh=3GT0ivpU3yT9AFjZTEHywkw0fqTG8Qo34fH2ZWvQSrE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=FdBsD+9P380hWkNn9bHXbcDSUudBTfYl1d1kX+tSRZpea+eqZiieF9N6pYkDqhmek
+	 2J343vp5xN+VyV72GslwlXzLbUAORXEF+XYf61+JrbIiPTT7rtb9iTE2HiW/01m8+x
+	 +LloVK0m9x6TdXOy0hYEnuVwjersrzRAk9hXwBa5Mkar/cP+FglQq8t3fJNHK3LUFf
+	 IuxpklkXQvkxoEHyij8MFPg5eHIRnhSYGtFhvlfxEYliu1mEv5t0GriA3z8Iz4gctp
+	 btj6Hot9wx7BHDpaGyKBhWEt7PHCtFt4C/eyjqcQ0f8px2Oc4Ia1RxYAuoeHT7QK7I
+	 iGSNOnhfLDL3g==
+Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 33D5317E1554;
+	Thu,  2 Jan 2025 11:26:03 +0100 (CET)
+Message-ID: <61df483d-76ae-4974-8410-4888d89a5f3f@collabora.com>
+Date: Thu, 2 Jan 2025 11:25:58 +0100
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -42,73 +42,39 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/7] can: Add Nuvoton NCT6694 CAN support
-To: Ming Yu <a0282524688@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-can@vger.kernel.org,
- netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org, tmyu0@nuvoton.com,
- lee@kernel.org, linus.walleij@linaro.org, brgl@bgdev.pl,
- andi.shyti@kernel.org, mkl@pengutronix.de, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, wim@linux-watchdog.org, linux@roeck-us.net,
- jdelvare@suse.com, alexandre.belloni@bootlin.com
-References: <20241227095727.2401257-1-a0282524688@gmail.com>
- <20241227095727.2401257-5-a0282524688@gmail.com>
- <41f77d39-bce3-4e3b-98c8-f248b723a24c@wanadoo.fr>
- <CAOoeyxU0ex9_-a-uWda9hFbQa3MkFtNdAFan8C-899Z2pGYy7g@mail.gmail.com>
+Subject: Re: [PATCH 2/9] dt-bindings: regulator: add support for MT6392
+To: Val Packett <val@packett.cool>
+Cc: Fabien Parent <parent.f@gmail.com>, Rob Herring <robh@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Eddie Huang <eddie.huang@mediatek.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Javier Carrasco <javier.carrasco.cruz@gmail.com>,
+ Yassine Oudjana <y.oudjana@protonmail.com>,
+ Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+References: <20241226050205.30241-1-val@packett.cool>
+ <20241226050205.30241-3-val@packett.cool>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Content-Language: en-US
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Autocrypt: addr=mailhol.vincent@wanadoo.fr; keydata=
- xjMEZluomRYJKwYBBAHaRw8BAQdAf+/PnQvy9LCWNSJLbhc+AOUsR2cNVonvxhDk/KcW7FvN
- LFZpbmNlbnQgTWFpbGhvbCA8bWFpbGhvbC52aW5jZW50QHdhbmFkb28uZnI+wrIEExYKAFoC
- GwMFCQp/CJcFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AWIQTtj3AFdOZ/IOV06OKrX+uI
- bbuZwgUCZx41XhgYaGtwczovL2tleXMub3BlbnBncC5vcmcACgkQq1/riG27mcIYiwEAkgKK
- BJ+ANKwhTAAvL1XeApQ+2NNNEwFWzipVAGvTRigA+wUeyB3UQwZrwb7jsQuBXxhk3lL45HF5
- 8+y4bQCUCqYGzjgEZx4y8xIKKwYBBAGXVQEFAQEHQJrbYZzu0JG5w8gxE6EtQe6LmxKMqP6E
- yR33sA+BR9pLAwEIB8J+BBgWCgAmFiEE7Y9wBXTmfyDldOjiq1/riG27mcIFAmceMvMCGwwF
- CQPCZwAACgkQq1/riG27mcJU7QEA+LmpFhfQ1aij/L8VzsZwr/S44HCzcz5+jkxnVVQ5LZ4B
- ANOCpYEY+CYrld5XZvM8h2EntNnzxHHuhjfDOQ3MAkEK
-In-Reply-To: <CAOoeyxU0ex9_-a-uWda9hFbQa3MkFtNdAFan8C-899Z2pGYy7g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20241226050205.30241-3-val@packett.cool>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 02/01/2025 at 14:40, Ming Yu wrote:
-> Dear Vincent,
+Il 26/12/24 05:58, Val Packett ha scritto:
+> From: Fabien Parent <parent.f@gmail.com>
 > 
-> Thank you for your comments,
+> Add binding documentation of the regulator for MT6392 SoCs.
 > 
-> Vincent Mailhol <mailhol.vincent@wanadoo.fr> 於 2024年12月30日 週一 下午1:56寫道：
->>
->>> +config CAN_NCT6694
->>> +     tristate "Nuvoton NCT6694 Socket CANfd support"
->>> +     depends on MFD_NCT6694
->>
->> I think it would be better to do a
->>
->>         select MFD_NCT6694
->>
->> here.
->>
->> Then, make MFD_NCT6694 an hidden configuration in a similar fashion as
->> MFD_CORE. Alone, CONFIG_MFD_NCT6694 does nothing, so better to hide it
->> from the end user.
->>
->> The comment also applies to the other patches.
->>
-> 
-> I understand, but I noticed that in the Kconfig files of other
-> modules, the dependency is written in the form:
-> config CAN_NCT6694
->         tristate "Nuvoton NCT6694 Socket CANfd support"
->         depends on MFD_NCT6694
-> (e.g. CAN_JANZ_ICAN3, GPIO_DLN2, ...)
-> Do you think changing it to select MFD_NCT6694 would be better?
+> Signed-off-by: Fabien Parent <parent.f@gmail.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-That's a fair point. Looking at the examples you provided, your approach
-makes sense. Please ignore my comment here.
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-
-Yours sincerely,
-Vincent Mailhol
 
