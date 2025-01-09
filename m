@@ -1,63 +1,64 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9101821CFE2
-	for <linux-rtc@vger.kernel.org>; Thu,  9 Jan 2025 15:30:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8CB121D593
+	for <linux-rtc@vger.kernel.org>; Thu,  9 Jan 2025 15:30:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736436608; cv=none; b=KTztuys6cG0H0f+M9+3K/ekOOHoRFVkMCFuuHOO8uUuHNcpkd5aYS5sHFwuUP6HStj3/K/mJK3v1ScplKGopuGD9UYaAXYA1LsZshV5vtNQbel0njIRnaPfo33im+hzwbOMlCrGbwleK7RwYMBPJooe7DMDnz9VOegVIa0ZnrN0=
+	t=1736436611; cv=none; b=IS6Dg27RAiYb1gWUvl64yIDoTpKCxEiQY1YvR7AYHEDN1CiEiA3JQNBvP5NKgPTwZljS9y2XS41K6wUPXN5gjYg2srF8zyLt+UfONIhyjzbDLw/n26rAx7A5293LGMruomuotx3PI6prkmGeDfENo2rhyAjiRw+yob6DY4o5f4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736436608; c=relaxed/simple;
-	bh=pi3L0TZNyW+gb4rA9VnMXp8LC2gcMzm0O2i5QO+sp+g=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Dgsjk1mAr/ojWX4ZMXnWFAwEEPfG0SbDhwtNvhX4kFRYsve4gKAWZk1upK85L3NpgwpeEhAjeRipPJhSeaTHMvC3CQjyB194hv+6256Lpy0C6LspNv8PDd5oiicEOY2SobBGxJT+oRQEjDGh+8scGm9h/YUZmyECYXJh+1Wkjws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=RLVAkFfN; arc=none smtp.client-ip=209.85.128.50
+	s=arc-20240116; t=1736436611; c=relaxed/simple;
+	bh=8DXsWpDVt7tmuo4MQdFq4zvSAYEr9Hi3ET8gNU0ixjk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=EQGYH+imfJUqkMB9iqQrSxZUr7TPLd7dUlttX0Amimrqa/cdWUGJUvXkux0cBSAkBZ0ti6I76rBAnTE/IhoOoYQk75M3xPYYJXYGtpHYR74AZFzy0elRrzHZyoX0oL2ZC0KYHKqEIdGLRLRo7XuEbpRTUMOysoYrZqKX/6yekB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=sKKWUCzp; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="RLVAkFfN"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4361b6f9faeso7122895e9.1
-        for <linux-rtc@vger.kernel.org>; Thu, 09 Jan 2025 07:30:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="sKKWUCzp"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-435f8f29f8aso8660055e9.2
+        for <linux-rtc@vger.kernel.org>; Thu, 09 Jan 2025 07:30:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1736436603; x=1737041403; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ui++7fz34GKZbY8fJxrOyiw8TD3D7+pRtsyH410bGL4=;
-        b=RLVAkFfNTPRzjdkxOTo+qrWrdrDHCpilcYK8MXahsZsrejw9eOSlx2OTSO4unDxg3c
-         wEhxrdf0JG16IO4jDnPwGPEbkG9et06wsVM8w5nAQCeKUBzA0XVMbV1jIzj7vInPVEWs
-         qGIriMDivxHRopU4f+hJSGTKSs0MQcKYpQATVgJHo4i1csWFXredb5RJZo/uSPh2v192
-         IbddFOluILEEfajeibna/fGXPUGaVVAIZURljNcIcv+JCI+qrf5jXvbnt3iKG3Mn/mVa
-         i10I6ypMsbvhzYXlp2f7H6UeKliyem7QhEFXeY0Ee+KwUbRNg2vZtlHIconzU9D0oEEc
-         Tpzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736436603; x=1737041403;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1736436605; x=1737041405; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Ui++7fz34GKZbY8fJxrOyiw8TD3D7+pRtsyH410bGL4=;
-        b=EunrMZKz3PAZMWbRUhnq4OJvt140xJeqga2JA2i1OmRDhn+Eq+AnBDbfx9OZIf7X1r
-         d0cSFl+esBKjTN2tyG1rCMw105Zz9x6GOf+n0pfe7EHUags36kau+rHv2bDZgVt1lq1Y
-         OsbpIUBzJoWHTH5EbBkd7Lp8lArIn+zYpPf5PRqwEX1+MK91DS1zQjF/wmcIMjkDcxMK
-         WfZ47YO8kw2K8OzAjFR8LICR3g0NlkV2vZx/bauY7ZYqqUbOhZc+Xrlpmu9rpefig6Nw
-         eYNv+QuWa3MOm9eaDFKyKBaxQrx60kUnbQ5YaCK0UH8MfiSdqz484IjkbrcOMZa5+8IJ
-         ANCQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXPPLQVQB8F6Cf20V/fI0IN/fylB/Ma2fiWWIEWCyVHFC76YakbAUNPZR2y/395H4YU9NUL6q0S1v4=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxu3LaZ15jpyJOqz/fzHkwaZmbrE44MZqf869HWpECuUzuyAiak
-	jPUnKbmtAEVw6dvyKoIolqX4DEMp6lONoOKDD4oiBPPcrNlPCTIFltFqIQqfFuQ=
-X-Gm-Gg: ASbGnctp52d6bze916Ev/24FCZY51NbYPg5JuginKGUnWWmZZZjVDRcY6jwotuY7noA
-	riA+gnm8CQx318AbUzHcbcUCwnsH5tO1nr6w3swiNFO1bzJCX7OXkPieBb2lQevDB93Y77nEYeQ
-	ytpT83GgrBfwIIceluUpG6aPXL4YRHl9cAu+euPvatI7KND1mRN05JGe3dE/3mI7/kUQ+2EAJQU
-	axamEYGjSPAawzGiSyGhl5kDVXsEeJxNRWtDLnW/wOmK2gmT2xkvfBWM/w=
-X-Google-Smtp-Source: AGHT+IESEIosHxIgZW6pfGN37jB+1SZ6af3hY/XwSnu7UbwNBffzVz+YXNgg1d15dRMaOLI3zib2aw==
-X-Received: by 2002:a05:600c:4e43:b0:434:fddf:5c06 with SMTP id 5b1f17b1804b1-436e9d686f3mr23854545e9.1.1736436602912;
-        Thu, 09 Jan 2025 07:30:02 -0800 (PST)
+        bh=tva2aDKV+/MDffuSfl+zRdtzIydM4Toy2VF4f9o1/Mk=;
+        b=sKKWUCzpFWff+YCZ+pfAT5i8VFEaXp+xzrOoc9iHv2PxgNAUeXu8/svBHqV1HsMHBz
+         el83Vkf3QiPjwkZF0xroOU8BFA/3yuWbnWslC3Rqc/GlYOuSsWN2dUtr7TDRYSEM5KKd
+         nxkJHQvK1xM2mBp9Z2o7FvLFZvAcAofn132kmzMvi8DUX5Bvu/vTIzz1mFE1s5dg6E+h
+         jzMlsVYZY8lrZ7c1EDX6pM8ODJyG3rNUNGPwINwb8HCYqszE/HGpgOa4eE/cxlk4mLSM
+         xmsVA7sm//wa7yRhOkb2HsOtFQESilyDybMcYXbDmMxnYQ07mIpS1qdLr8r5MZuhS+1j
+         +dDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736436605; x=1737041405;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tva2aDKV+/MDffuSfl+zRdtzIydM4Toy2VF4f9o1/Mk=;
+        b=uDRh77+CuHfdxopvDl5GToQAQ4yMwFXv43HaTGDl+rA+qTm2AvKh2fcpZvFaKtld/S
+         OVf5lnUk68mSBDTRbYHdCTxmrmL+xyFCF84hvKjQbVo9XzJaPxY0zV9bSexpBkWawUiy
+         d+bwnWt7L8QhoFWoaOvp2ODG1Fw/Z0CRQSdQSUuF+T7huNL8YN3C4xNJRLtq7M6fizDO
+         If8pYLfVC3KnDBqaxNM6q3xqXnQiq9/B7dcX+edX23kBlYzaiK1QF+RVSNK1TjBJ59t1
+         6ZLGeb1BnehgOgcDQ96zIL+72p2TIYsNTXzk5qxq+6xrylCq5g5j5lVEp8UTIzJDPGas
+         9FFw==
+X-Forwarded-Encrypted: i=1; AJvYcCU+efR71JAbckccPLa6Oq0B97z3EYpf8ySPyPzd2NS08ZwHCYA7v2ekXpdfDvUqhhNBLJSqMrbOHzc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz9+0/BnmqoYLj/ECCJ578py73x7e533X8aKtpBfxp5Oxqq6BKL
+	/WiFTwmC/f1Ut4zyhvS8lLA+agU/R1rfc0u/0hTgACOyyTn3MIzPCACAyVwumqU=
+X-Gm-Gg: ASbGncu9zVGviGMn9D80J2BIkVBg2DrR+P9xRDn8d4vWWd+vWT7geoLiZlNxQy/pM8J
+	kpI25quSsN2xi7SF4JufintoScRBR+vhUDgdLiroqMSHjpspijYFbIRfiSr1GBCgnClG4vu7gfP
+	W36Ayr1mILTGcKSK9Ytj+vNnYZ3QWK/Z+s1GG5LumnBIcB/jLNqPZwRJh7jFe0E+kfrMX0/euF1
+	oE7xzzbq95eFL+i+jZwdKIHPWiLQY35lbWWjR/X1fMJc7YyM5NtlFlfsvs=
+X-Google-Smtp-Source: AGHT+IFZu92+O1xFBM1o4OIIzCf4RxwxPT44klM4biAbIGEw2EXkTR7f4KbFlUulK4lpC9hB8MpfFA==
+X-Received: by 2002:a05:600c:3b0c:b0:434:fbda:1f36 with SMTP id 5b1f17b1804b1-436e26e51a0mr65752665e9.20.1736436604907;
+        Thu, 09 Jan 2025 07:30:04 -0800 (PST)
 Received: from [127.0.1.1] ([2a01:e0a:5ee:79d0:125:358f:ea05:210e])
-        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-436e2df3610sm58307805e9.20.2025.01.09.07.30.02
+        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-436e2df3610sm58307805e9.20.2025.01.09.07.30.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jan 2025 07:30:02 -0800 (PST)
+        Thu, 09 Jan 2025 07:30:04 -0800 (PST)
 From: Alexandre Mergnat <amergnat@baylibre.com>
-Subject: [PATCH 0/2] Enable RTC for the MT6357
-Date: Thu, 09 Jan 2025 16:29:50 +0100
-Message-Id: <20250109-enable-rtc-v1-0-e8223bf55bb8@baylibre.com>
+Date: Thu, 09 Jan 2025 16:29:52 +0100
+Subject: [PATCH 2/2] rtc: mt6359: fix year issue
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -66,9 +67,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAG7rf2cC/x2NQQqDMBAAvyJ77koSG6H9SvGwiZu6IGnZiAji3
- 40eh2GYHQqrcIF3s4PyKkV+uYJ9NBAnyl9GGSuDM84ba17ImcLMqEvE4FJ6dp6SGz3UIFBhDEo
- 5Tley9q3tUGN/ub9yku0efYbjOAEoLT/8eAAAAA==
+Message-Id: <20250109-enable-rtc-v1-2-e8223bf55bb8@baylibre.com>
+References: <20250109-enable-rtc-v1-0-e8223bf55bb8@baylibre.com>
+In-Reply-To: <20250109-enable-rtc-v1-0-e8223bf55bb8@baylibre.com>
 To: Eddie Huang <eddie.huang@mediatek.com>, 
  Sean Wang <sean.wang@mediatek.com>, 
  Alexandre Belloni <alexandre.belloni@bootlin.com>, 
@@ -79,39 +80,85 @@ Cc: linux-arm-kernel@lists.infradead.org,
  linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Alexandre Mergnat <amergnat@baylibre.com>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=606; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=pi3L0TZNyW+gb4rA9VnMXp8LC2gcMzm0O2i5QO+sp+g=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBnf+t5/shO0hxQN8k02k2mkITZ69XbCGjT/miBkOuz
- GtM49VCJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZ3/reQAKCRArRkmdfjHURZp5D/
- 0TaKWE8eyl/vEG7RaHLANL42Ymep1Hwe4a6NebC/W2NvNncoYaOY94DhnlFGHfg+2F7F2JJRVKxunq
- P12s2mr8NtBdYMPGdC2vAjzQ36YhUFIAHY4Tnxji6aW3UNvLKyF84vy2AGJhkx6nMKCNd0RPGkJiWl
- nqjkrKekSzCZwdDMS68tKAj+w2Y6YcUGV7LDuN0SdCmMMY8JWkseOOtYhAHqw0NcnYF6VayA886LoQ
- Q+Gw+tsP2CaXVOL3tyfywmrolG9ufPcsA4mpZTZBKCYf+zgfDfzB4AZ1s5P3on8rZhz1hnlltPT2yN
- NVcngc8oe9rEYaxXlFCx8vCwJYCh9OOBaCyd5b+H1ptFQZzbMS20MnAer0cF+F69x69cadrfqoTv01
- i5JwxVO1kercx1a8A4DM18shkyhzUV01fOl+lpmCZ869cVnhNiQ5BBhifI6aq70CqCunidVO1CMQsu
- sLlW1gKWZveod4lkQcy/449bn6mjzw+wgNhfjFc+8PqfcHJbqhd7NqskaQGEVClfPAxSELllcUp0vl
- yiYiPqzZWKfybXWt3JkCAuaMhfxnSYPieu2Ib9IAV2BjhwIOWOOeZfEIMe8n6ta7/RIT5kPFBI7GWS
- 6LG1rSv2KDsQ8b67cSa5b/5zd8NTVfJwu8nNyQ3EVVHGX01oRs9+yuWkPLhA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2101; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=8DXsWpDVt7tmuo4MQdFq4zvSAYEr9Hi3ET8gNU0ixjk=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBnf+t6dswjfIEHCOw16BhoepRMqsP3UcnAyvPeeJTX
+ +3PsW1qJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCZ3/regAKCRArRkmdfjHURWq5D/
+ 4yF/Ns7bGrrNmICUNd3lSvbkchkjrbu8Lq6i1dTdPTLlcSHcgDb3j392v31EGvxWxyiunuUgQXlU+A
+ G9jBBc9pdeoKUJo7fOCXYo4cwzmAD5PjxxpFNNVkAS4o6VY2aplaJ0adohCh30xx88Q+B4eBLqI/kh
+ FKAKCTzXzK9RrXUg2MHPW70tcfjkJR1CFd5lOqaWfAUjSHWH4BLLd9/LCH9DF3IqLuujJnql/2zZyU
+ UgmgJvX3kyRNiZlw8Q8YuqahHJ0oei9M37IcGZPQRwQ3KRo/APehxXJZTzEmGhgwVCikjYKlInBJsV
+ ZrX779i4J+SlgOmQeg3ZzbW32/UceHOssj3w2x75lI5oYSvNEwZbvD5XaK7sKsSMSZzap6Oi7wl8ff
+ bBiuF0rsBfnptgR4+SfW39cJ4yGyt6hHl5UYu7AvRQp9G1ESykM2aEut/lelQnowEX1qSt9tVD9q7j
+ BriB+K4hDUMfG8qc90D7rC2xmBleraXwfk43ef6kAGFbbO2t4V+RgNc9liQqljtOWpSahYmFvXZMaP
+ ypWxcobpydIIRi4tgRlllWAA7IC6ddljoKO7g7BADDv9rfhJMLIXkkQVdVFeZnbhIr3JsVMqkOeLEc
+ qCPohlusM48uw+H1+KO4XmL5uRVAo28yfO0tPOntC9c6UPUjLzoLhfUH0pKg==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 
-MT6357 PMIC's RTC use can use the MT6397 drivers with the MT6358 data.
-Also, since kernel 6.6, a regression has been observed. The changes
-responsible for the regression have been reverted.
+Removing the RTC_MIN_YEAR_OFFSET addition and subtraction has
+introduced a regression.
 
+~# hwclock -r --verbose
+hwclock from util-linux 2.37.4
+System Time: 1262312013.143552
+Trying to open: /dev/rtc0
+Using the rtc interface to the clock.
+Assuming hardware clock is kept in UTC time.
+Waiting for clock tick...
+hwclock: select() to /dev/rtc0 to wait for clock tick timed out
+...synchronization failed
+
+Bring back the RTC_MIN_YEAR_OFFSET to fix the RTC.
+
+Fixes: 34bbdc12d04e ("rtc: mt6359: Add RTC hardware range and add support for start-year")
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
-Alexandre Mergnat (2):
-      rtc: mt6359: add mt6357 support
-      rtc: mt6359: fix year issue
+ drivers/rtc/rtc-mt6397.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
- drivers/rtc/rtc-mt6397.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
----
-base-commit: 9d89551994a430b50c4fffcb1e617a057fa76e20
-change-id: 20250109-enable-rtc-b2ff435af2d5
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 55e75712edd4..9930b6bdb6ca 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -96,6 +96,12 @@ static int mtk_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 			goto exit;
+ 	} while (sec < tm->tm_sec);
+ 
++	/* HW register use 7 bits to store year data, minus
++	 * RTC_MIN_YEAR_OFFSET before write year data to register, and plus
++	 * RTC_MIN_YEAR_OFFSET back after read year from register
++	 */
++	tm->tm_year += RTC_MIN_YEAR_OFFSET;
++
+ 	/* HW register start mon/wday from one, but tm_mon/tm_wday start from zero. */
+ 	tm->tm_mon--;
+ 	tm->tm_wday--;
+@@ -110,6 +116,7 @@ static int mtk_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	int ret;
+ 	u16 data[RTC_OFFSET_COUNT];
+ 
++	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
+ 	tm->tm_mon++;
+ 	tm->tm_wday++;
+ 
+@@ -167,6 +174,7 @@ static int mtk_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	tm->tm_mon = data[RTC_OFFSET_MTH] & RTC_AL_MTH_MASK;
+ 	tm->tm_year = data[RTC_OFFSET_YEAR] & RTC_AL_YEA_MASK;
+ 
++	tm->tm_year += RTC_MIN_YEAR_OFFSET;
+ 	tm->tm_mon--;
+ 
+ 	return 0;
+@@ -182,6 +190,7 @@ static int mtk_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	int ret;
+ 	u16 data[RTC_OFFSET_COUNT];
+ 
++	tm->tm_year -= RTC_MIN_YEAR_OFFSET;
+ 	tm->tm_mon++;
+ 
+ 	mutex_lock(&rtc->lock);
 
-Best regards,
 -- 
-Alexandre Mergnat <amergnat@baylibre.com>
+2.25.1
 
