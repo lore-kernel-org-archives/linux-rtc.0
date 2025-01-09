@@ -1,100 +1,135 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4BE320409B;
-	Thu,  9 Jan 2025 09:24:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 628D3215798;
+	Thu,  9 Jan 2025 10:23:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736414676; cv=none; b=LhtLQ5IAEl2/hYsTtQLsnRIV+20p9hRt66ehBY+S7Q1U7jIR+SGPMQ7DcJlylXVq41H42O+5GO8g+ctWYZ4d8frRP/V7bNSnIUUBiX1mKOs6iV7Htq2eVbxfyYf4xEwXJIUGw45XEGviN/hVrsL+PRGCxpamVgbYWiStmxHL2JU=
+	t=1736418229; cv=none; b=CkiB5dvMrh0rpsrdNqbth19xYTQtA01Z+nO7lk5eCumwgOuoq/XrQAcA5AqOC36D7Ji+vNwLbV+i9Mu7rpHA92W3WHIvBf1/u/V2TrSPAWsn1bt0dNO0eabRTfz2n3k23b74tVQv8NwytI8pRUuRXhQYR5xrrMok7XgIM1ekDGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736414676; c=relaxed/simple;
-	bh=zYI5/a4+nQDm4Qrb21GJl+lHZp/djig8Ib4inXwAMOY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EEHZRW30QDbFkzkc5YvjkgnaEyVXSaigeWqSCNezLwxa9DQ1GY+lqGjgyVnDlTUVWIRBAnKwW0nv28F2oWsiYNOB0/iwLtFJO2ThQz0v5ExbX3g5kHANhUzoIYyOOqw2tm2UrdvDz+Jd6pn4bMh+TGmbkgEN5wqdSoBcnksdC1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uoXyB59c; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736418229; c=relaxed/simple;
+	bh=DelX21QKMIdxP+O/jvc4on2/htJfBru+mqcycYq84go=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=vCICcK3BS1sIPkhc3qdedqHapKsuqk/iPdHzUrkcNwud+UYTEctlq9hybhjfogWtzNwpXmXrWhM6OMcmcd/ouMi3H01DgNX3pEmn64/s+Cc/c+ITKKfdv0CWqU9/TO69DTFIqb44J8tF3wyMWrV1nZMPe2ebv7NesQ1UgAJaJ2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IEQ55gq/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uoXyB59c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887A8C4CED2;
-	Thu,  9 Jan 2025 09:24:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IEQ55gq/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 11DB7C4CEE2;
+	Thu,  9 Jan 2025 10:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736414675;
-	bh=zYI5/a4+nQDm4Qrb21GJl+lHZp/djig8Ib4inXwAMOY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uoXyB59clN1btqwzo6+Y9QiuFzUI+eig6LNvziN4YaR2SldPrmJityt8X5f0jqZuL
-	 ib6EtzfQPsgv8Dq+vpekJjJd8BooFL1NqwI5td5TxD1buKRSLmebrlTaipFxmn5NXj
-	 2NSWdic3zThWezhOMoK41ORMFeTiMgiOATeLsHrffXxIveekKaH/zUtF3+9rUSffur
-	 CBOVPvlaUxHjheJTOL0BMsAAKnmKE8YvlMTX3BQMe/e/9guHOWQGEARhPbot5C28JO
-	 cKBsAWEBUy9Hfawp3c/IavJddZmb72sHXuK6M5c4NnSIMdyex8DtI8kU8xKo3FXoDG
-	 BG5qfDcKslkLw==
-Date: Thu, 9 Jan 2025 09:24:29 +0000
-From: Lee Jones <lee@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org, iommu@lists.linux.dev,
-	linux-leds@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-tegra@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Correct indentation and style in DTS example
-Message-ID: <20250109092429.GC6763@google.com>
-References: <20250107131456.247610-1-krzysztof.kozlowski@linaro.org>
+	s=k20201202; t=1736418229;
+	bh=DelX21QKMIdxP+O/jvc4on2/htJfBru+mqcycYq84go=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=IEQ55gq/SE1fFkrpSyVWOHPkYHBI50f9lyBSdYhpeSrjwfYnFTVanGbYFGdhnKbWf
+	 zUYMQ4tVSELxSG0s4Msmi0rD2VEvngSArmMOFuOt02NebwXn9IZDsW7bjBp0jpvNZX
+	 31jlraSvgaRa5MQzfz0X50X75z3byMzUzSxXuc+ObPrQ4LydrDZ3Bsu7X8UrOt1TeX
+	 fQpApJ+mldl8xZzDM7jVVaBbiS67LuEZvX8m5l/ND7H1WCxSvzgLJ/ujlscAfg7xyB
+	 yJa8hKcTHPJyPn2zEECU6FsvzYZWWg74d7GobLvrZTFw2/U7Ix2sew+XH5+AfONLZ4
+	 nd33eRQwgeKrw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 086C7E7719A;
+	Thu,  9 Jan 2025 10:23:49 +0000 (UTC)
+From: PavithraUdayakumar-adi via B4 Relay <devnull+pavithra.u.analog.com@kernel.org>
+Date: Thu, 09 Jan 2025 15:59:57 +0530
+Subject: [PATCH v3 1/2] dt-bindings: rtc: max31335: Add max31331 support
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250107131456.247610-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250109-add_support_max31331_fix_3-v1-1-a74fac29bf49@analog.com>
+References: <20250109-add_support_max31331_fix_3-v1-0-a74fac29bf49@analog.com>
+In-Reply-To: <20250109-add_support_max31331_fix_3-v1-0-a74fac29bf49@analog.com>
+To: Antoniu Miclaus <antoniu.miclaus@analog.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Jean Delvare <jdelvare@suse.com>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+ PavithraUdayakumar-adi <pavithra.u@analog.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1736418610; l=1896;
+ i=pavithra.u@analog.com; s=20241220; h=from:subject:message-id;
+ bh=CSTscMKCGJQV0sJTo05LWTvBCwbI5QwOv/6bQjL/k98=;
+ b=MVUREwDDBzAEkOP2qrqKCJPk/uE6DnHkF4z6YLsKaq6Z+Jgqphj2k94/7x4dqdB5PEK2kYBk6
+ ZhfmV5059f4BbPHp4rZH9u3clqzeSOtNkOz5b7N0aQDwB+4Mu9NRLmY
+X-Developer-Key: i=pavithra.u@analog.com; a=ed25519;
+ pk=RIhZrdpg71GEnmwm1eNn95TYUMDJOKVsFd37Fv8xf1U=
+X-Endpoint-Received: by B4 Relay for pavithra.u@analog.com/20241220 with
+ auth_id=303
+X-Original-From: PavithraUdayakumar-adi <pavithra.u@analog.com>
+Reply-To: pavithra.u@analog.com
 
-On Tue, 07 Jan 2025, Krzysztof Kozlowski wrote:
+From: PavithraUdayakumar-adi <pavithra.u@analog.com>
 
-> DTS example in the bindings should be indented with 2- or 4-spaces and
-> aligned with opening '- |', so correct any differences like 3-spaces or
-> mixtures 2- and 4-spaces in one binding.
-> 
-> No functional changes here, but saves some comments during reviews of
-> new patches built on existing code.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-> 
-> ---
-> 
-> This applies cleanly on v6.13-rc6 and on next-20250107, so I expect no
-> conflicts between Rob's tree and other maintainers' trees.
-> 
-> Rob,
-> Can you apply it to DT tree?
-> ---
->  .../arm/arm,trace-buffer-extension.yaml       |  10 +-
->  .../bindings/arm/stm32/st,mlahb.yaml          |  20 +-
->  .../bindings/dsp/mediatek,mt8195-dsp.yaml     |  42 ++--
->  ...ntel,ixp4xx-network-processing-engine.yaml |  52 ++---
->  .../bindings/fpga/xlnx,versal-fpga.yaml       |   2 +-
->  .../bindings/interconnect/qcom,rpmh.yaml      |  28 +--
->  .../bindings/iommu/riscv,iommu.yaml           |   6 +-
+MAX31331 is an ultra-low-power, I2C Real-Time Clock RTC with flexible
+crystal support. While, MAX31335 offers higher precision, MEMS resonator,
+and integrated temperature sensor. MAX31331 uses I2C address as 0x68
+where as max31335 uses 0x69.
 
->  .../devicetree/bindings/leds/leds-mt6360.yaml | 195 +++++++++---------
+Changes: Added example for max31331 and modified the register address
+for max31335.
 
-Acked-by: Lee Jones <lee@kernel.org>
+Signed-off-by: PavithraUdayakumar-adi <pavithra.u@analog.com>
+---
+ .../devicetree/bindings/rtc/adi,max31335.yaml      | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
->  .../devicetree/bindings/mips/brcm/soc.yaml    |  42 ++--
->  .../misc/intel,ixp4xx-ahb-queue-manager.yaml  |   6 +-
->  .../devicetree/bindings/mmc/renesas,sdhi.yaml |  78 +++----
->  .../bindings/mtd/technologic,nand.yaml        |   2 +-
->  .../bindings/nvmem/amlogic,meson6-efuse.yaml  |   2 +-
->  .../bindings/pci/ti,j721e-pci-ep.yaml         |  34 +--
->  .../bindings/power/reset/qcom,pon.yaml        |  62 +++---
->  .../nvidia,tegra264-bpmp-shmem.yaml           |  15 +-
->  .../bindings/rtc/renesas,rzn1-rtc.yaml        |  22 +-
->  .../amlogic/amlogic,meson-gx-hhi-sysctrl.yaml |  26 +--
->  .../bindings/soc/qcom/qcom,eud.yaml           |  38 ++--
->  .../bindings/soc/ti/wkup-m3-ipc.yaml          |  32 +--
->  20 files changed, 357 insertions(+), 357 deletions(-)
+diff --git a/Documentation/devicetree/bindings/rtc/adi,max31335.yaml b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
+index 0125cf6727cc3d9eb3e0253299904ee363ec40ca..f249313bc485d7a6154ce684726d6a950405ef0e 100644
+--- a/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
++++ b/Documentation/devicetree/bindings/rtc/adi,max31335.yaml
+@@ -18,10 +18,13 @@ allOf:
+ 
+ properties:
+   compatible:
+-    const: adi,max31335
++    enum:
++      - adi,max31331
++      - adi,max31335
+ 
+   reg:
+-    maxItems: 1
++    items:
++      - enum: [0x68, 0x69]
+ 
+   interrupts:
+     maxItems: 1
+@@ -57,9 +60,9 @@ examples:
+         #address-cells = <1>;
+         #size-cells = <0>;
+ 
+-        rtc@68 {
++        rtc@69 {
+             compatible = "adi,max31335";
+-            reg = <0x68>;
++            reg = <0x69>;
+             pinctrl-0 = <&rtc_nint_pins>;
+             interrupts-extended = <&gpio1 16 IRQ_TYPE_LEVEL_HIGH>;
+             aux-voltage-chargeable = <1>;
+@@ -67,4 +70,15 @@ examples:
+             adi,tc-diode = "schottky";
+         };
+     };
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@68 {
++            reg = <0x68>;
++            compatible = "adi,max31331";
++        };
++    };
+ ...
 
 -- 
-Lee Jones [李琼斯]
+2.25.1
+
+
