@@ -1,107 +1,98 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881651E47CD;
-	Mon, 20 Jan 2025 14:42:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F0C1E5738;
+	Mon, 20 Jan 2025 14:51:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737384168; cv=none; b=EFymcAqWMO/wnTNGUBxQf88RVyM831sl43uRmhoMbhhosqDYEOIqO3+q2UhtDHYGY4Qp78BOqqpNAw09NfwdmjkZ7RSxrnutAoWg35U8ato7mdsNJX2d4bW+5eaeaKWHlvnKN5Ol3VZZorU+51j0JrYYM9Ww+Z3B3epGHiui87c=
+	t=1737384684; cv=none; b=jjI1Zm8BwK7I1GA76hZ7F7/J3Eh1FHZWxk5vgJ11kb+hByWvYdFInThtv7N1bydty8YH0mGQSXOt5wQO5ji7hKt7AtHyzB5c8YM9i87/OuPkvNhb6MxCC04tlXawSq6ztEbJyhQAS65AUEckOWm7cf6NebPOqzAKXsSMdBHyY8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737384168; c=relaxed/simple;
-	bh=2xVFRHUWfE9PJ70s7RfpZCcofH/jA5B1CaqMtdHej8A=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e38n3fbnr9HcOXJf7du914TXp+BCN8Y3YP8Q1oiUNsghdrcBRQNR8n0027aApNOARjNCHoGPOM65V9dtPb8eg84psugbSzOOBtbJNBzqxNcg7n8ZyEe7NWlVg+ivUIagdeo1VxyVSvQA+VYfA/pBVSQMwiEzMiZbEO0NSoH8nG4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ivIfR5eb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1737384684; c=relaxed/simple;
+	bh=Cq9uXnbecisUvPYlPRYj++5pXhuwoHDwBi8w9Ktnumk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JXX8+c1FEwFcULpU/4Gsk5Lt+2uQznkm4xsUxZdLoxUBFoDAVl278ARYdYGLYo0nrTxXSF8nTqXtQs3LKn/zQEJfrs6xCqxRxIDKAqrmORW1u30jYOBz4vZv+DSSLBG5srlDDy2bSS3ZH+ZlNRckWNoNKq5bXpsUM3eBVT600es=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ODAIjziA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ivIfR5eb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E46C6C19421;
-	Mon, 20 Jan 2025 14:42:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ODAIjziA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6FEC4CEDD;
+	Mon, 20 Jan 2025 14:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737384168;
-	bh=2xVFRHUWfE9PJ70s7RfpZCcofH/jA5B1CaqMtdHej8A=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ivIfR5ebGw3Nn0sH/Wh9cNZUnDFmXhBR/172Q/KZvHWsBlRxR7BTbQIarE4Id+eWn
-	 3j9SrXbMT1b1nOsD9rZ/OK4HvhpcjYghlespXddADB/kzxWpa4MCPRkPdKGoUND4CZ
-	 qquwFQshBgnsNFE3r05OVWoUTpBg5ICL87zlFNOXXSlG5f71OXrIBLNdHfHD8GvK9r
-	 y9k1K3YiTh+JFR9yGucO+BsmelY03DoHiBNzU1frDYWKrxQbLLXlc1ifHFDeYXxEBf
-	 T0eKMXFPExDYp0tOvcOO1RDLiBlrLHaI+eJc0957dq/7mrXqUGiAI6N93fAE1B2Yr6
-	 8K5aIlkOy6NqQ==
+	s=k20201202; t=1737384683;
+	bh=Cq9uXnbecisUvPYlPRYj++5pXhuwoHDwBi8w9Ktnumk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ODAIjziAkQ8NZFgb91Ky1bkIO3YNrM3AWcFRQgGtb2r9njL7W9vrtdiO3k7qn1Apr
+	 64QX6A7YjlG0uToR4QoyvgKiyck/UElWHCTttOg4SjcN8wCZcEpWBczXUr7BpKBF6U
+	 j3s2SEZ/gzh1bEHxoQI/mqHzeZnx9cEpF0gEfYBFq5CPHGyrX04GNcqDZPKqurq15/
+	 cPPw6MSUoI0e4HsXvKJMEtQNi0kejTWoCSNuPh/KMcwhH/H8EB1EvsZZWOloImqAKk
+	 zM2LX3NgzZBglaQakMsAum37L4IymOCkK974rRiO0jDvofrB8Sl8qenLS5mdthn6RC
+	 3h9IcBTsn9Arg==
 Received: from johan by xi.lan with local (Exim 4.97.1)
-	(envelope-from <johan+linaro@kernel.org>)
-	id 1tZszL-0000000038B-31RF;
-	Mon, 20 Jan 2025 15:42:51 +0100
-From: Johan Hovold <johan+linaro@kernel.org>
+	(envelope-from <johan@kernel.org>)
+	id 1tZt7f-000000003H3-1LWA;
+	Mon, 20 Jan 2025 15:51:27 +0100
+Date: Mon, 20 Jan 2025 15:51:27 +0100
+From: Johan Hovold <johan@kernel.org>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Bjorn Andersson <andersson@kernel.org>
-Cc: Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Jonathan Marek <jonathan@marek.ca>
+Cc: linux-arm-msm@vger.kernel.org, Bjorn Andersson <andersson@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>,
 	Konrad Dybcio <konradybcio@kernel.org>,
-	Jonathan Marek <jonathan@marek.ca>,
-	linux-arm-msm@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 6/7] arm64: dts: qcom: sc8280xp-x13s: switch to uefi rtc offset
-Date: Mon, 20 Jan 2025 15:41:51 +0100
-Message-ID: <20250120144152.11949-7-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20250120144152.11949-1-johan+linaro@kernel.org>
-References: <20250120144152.11949-1-johan+linaro@kernel.org>
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:REAL TIME CLOCK (RTC) SUBSYSTEM" <linux-rtc@vger.kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Satya Priya <quic_c_skakit@quicinc.com>
+Subject: Re: [PATCH v3 0/5] x1e80100 RTC support
+Message-ID: <Z45i7zOsATLzCxYf@hovoldconsulting.com>
+References: <20241015004945.3676-1-jonathan@marek.ca>
+ <202501122335384a545895@mail.local>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202501122335384a545895@mail.local>
 
-On many Qualcomm platforms the PMIC RTC control and time registers are
-read-only so that the RTC time can not be updated. Instead an offset
-needs be stored in some machine-specific non-volatile memory, which a
-driver can take into account.
+Hi Alexandre and Jonathan,
 
-Switch to using the Qualcomm specific UEFI variable that is used by the
-UEFI firmware (and Windows) to store the RTC offset.
+On Mon, Jan 13, 2025 at 12:35:38AM +0100, Alexandre Belloni wrote:
+> Did I miss v4 of this series?
 
-This specifically means that the RTC time will be synchronised between
-the UEFI firmware setup (or UEFI shell), Windows and Linux.
+We are still waiting for Qualcomm to provide a free and safe-to-use
+allocation for the RTC offset in the PMIC.
 
-Note however that Windows stores the RTC time in local time by default,
-while Linux typically uses UTC (i.e. as on X86).
+I got tired of reminding the Qualcomm folks about this and instead
+revived my patches for using the UEFI variable that the firmware (and
+Windows) use for the offset.
 
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- .../boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts   | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+I included Jonathan's v3 series after making the changes that we
+discussed here (and a few more).
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-index 38d911992475..66c39765225f 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-@@ -1090,20 +1090,11 @@ &pmk8280_pon_resin {
- };
- 
- &pmk8280_rtc {
--	nvmem-cells = <&rtc_offset>;
--	nvmem-cell-names = "offset";
-+	qcom,uefi-rtc-info;
- 
- 	status = "okay";
- };
- 
--&pmk8280_sdam_6 {
--	status = "okay";
--
--	rtc_offset: rtc-offset@bc {
--		reg = <0xbc 0x4>;
--	};
--};
--
- &pmk8280_vadc {
- 	channel@144 {
- 		reg = <PM8350_ADC7_AMUX_THM1_100K_PU(1)>;
--- 
-2.45.2
+The result is here:
 
+	https://lore.kernel.org/lkml/20250120144152.11949-1-johan+linaro@kernel.org/
+
+and should allow us to enable the RTC on X1E today (and also avoids
+running into the same SDAM allocation issue for the next platform).
+
+> On 14/10/2024 20:47:25-0400, Jonathan Marek wrote:
+> > x1e80100 needs a workaround because the RTC alarm is not owned by HLOS.
+> > It also needs the same offset workaround as sc8280xp/etc.
+> > 
+> > v2: remove duplicated ops and use RTC_FEATURE_ALARM instead
+> > v3:
+> >  - renamed flag to qcom,no-alarm
+> >  - don't remove alarm registers/interrupt from dts
+> > 
+> > Jonathan Marek (5):
+> >   rtc: pm8xxx: implement qcom,no-alarm flag for non-HLOS owned alarm
+> >   dt-bindings: rtc: qcom-pm8xxx: document qcom,no-alarm flag
+> >   arm64: dts: qcom: x1e80100-pmics: enable RTC
+> >   arm64: dts: qcom: x1e80100-crd: add rtc offset to set rtc time
+> >   arm64: dts: qcom: x1e78100-t14s: add rtc offset to set rtc time
+
+Johan
