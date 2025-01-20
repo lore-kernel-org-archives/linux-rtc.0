@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C4B81E47A9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881651E47CD;
 	Mon, 20 Jan 2025 14:42:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737384168; cv=none; b=aD6p0JAymuWgejJs7Ab+wf/9i3NFUcVKEWRV4oVOQeDL4b6NTcXM67Ib9gvJB67PAgLjRm3RIC5quIQ7fLUNuSym0RHZxyMWvFqjl8WXpMC85q1O6FROL1LVrFkrdKc42/JqSWOwFZEPFzrW6JMKL6Pu/ChSo3POPGDtL/KVJKA=
+	t=1737384168; cv=none; b=EFymcAqWMO/wnTNGUBxQf88RVyM831sl43uRmhoMbhhosqDYEOIqO3+q2UhtDHYGY4Qp78BOqqpNAw09NfwdmjkZ7RSxrnutAoWg35U8ato7mdsNJX2d4bW+5eaeaKWHlvnKN5Ol3VZZorU+51j0JrYYM9Ww+Z3B3epGHiui87c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1737384168; c=relaxed/simple;
-	bh=g5B8wRzRuC7nVNYrPG6OJobEDMTyTs0Bs77db0cnHP0=;
+	bh=2xVFRHUWfE9PJ70s7RfpZCcofH/jA5B1CaqMtdHej8A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jJaz6L0186dji1ze+vUGjfSBqLqMo0adGmxmHRIwd44jd1viEdy1MtPRbn10j5vFz/FW2HDwdvhlxBtP83VQIpq9e1HjEXy6hA+VDHEI2I1nmCPCh8cdGz/ZcH35ptdjOZFQciqQhuda0jV234TbKkMvjRWWHNjfhyrs9tZ6wHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=njpLeZIF; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=e38n3fbnr9HcOXJf7du914TXp+BCN8Y3YP8Q1oiUNsghdrcBRQNR8n0027aApNOARjNCHoGPOM65V9dtPb8eg84psugbSzOOBtbJNBzqxNcg7n8ZyEe7NWlVg+ivUIagdeo1VxyVSvQA+VYfA/pBVSQMwiEzMiZbEO0NSoH8nG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ivIfR5eb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="njpLeZIF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8362C4CEEF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ivIfR5eb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E46C6C19421;
 	Mon, 20 Jan 2025 14:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1737384167;
-	bh=g5B8wRzRuC7nVNYrPG6OJobEDMTyTs0Bs77db0cnHP0=;
+	s=k20201202; t=1737384168;
+	bh=2xVFRHUWfE9PJ70s7RfpZCcofH/jA5B1CaqMtdHej8A=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=njpLeZIF07oARHvgJqP5MnDDJBOPXMlJyzQdQsqnQaqQQSkqYJk/cGLqSyq+NSaKs
-	 WUG/RO1YgX40wJ/NZWsXe0U/E8FDTBxO7p1ZuiDY3t0GFdoCXz90MNQ76oemWhUEvj
-	 3kgCCFHcHmMG3psXbw83fcQnq44dd8i++fg6QUezKzmZGkS6pro9axfDlI0cmrA9D6
-	 2vH5SEbXeeOCWtf8RVSqT7tazmLDytuEZB7N+iRUN7DwUCwv5WU7Ze1Va3CufzRWkJ
-	 q1D6Q7DZTedegahgNKwyL1s0Uo7K+n/ozY7nJSPDbvOHPks43Kw7dMpvOkhtixNmGt
-	 O5K5jjBve0dJw==
+	b=ivIfR5ebGw3Nn0sH/Wh9cNZUnDFmXhBR/172Q/KZvHWsBlRxR7BTbQIarE4Id+eWn
+	 3j9SrXbMT1b1nOsD9rZ/OK4HvhpcjYghlespXddADB/kzxWpa4MCPRkPdKGoUND4CZ
+	 qquwFQshBgnsNFE3r05OVWoUTpBg5ICL87zlFNOXXSlG5f71OXrIBLNdHfHD8GvK9r
+	 y9k1K3YiTh+JFR9yGucO+BsmelY03DoHiBNzU1frDYWKrxQbLLXlc1ifHFDeYXxEBf
+	 T0eKMXFPExDYp0tOvcOO1RDLiBlrLHaI+eJc0957dq/7mrXqUGiAI6N93fAE1B2Yr6
+	 8K5aIlkOy6NqQ==
 Received: from johan by xi.lan with local (Exim 4.97.1)
 	(envelope-from <johan+linaro@kernel.org>)
-	id 1tZszL-00000000380-1V5x;
+	id 1tZszL-0000000038B-31RF;
 	Mon, 20 Jan 2025 15:42:51 +0100
 From: Johan Hovold <johan+linaro@kernel.org>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -43,9 +43,9 @@ Cc: Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 2/7] dt-bindings: rtc: qcom-pm8xxx: document qcom,no-alarm flag
-Date: Mon, 20 Jan 2025 15:41:47 +0100
-Message-ID: <20250120144152.11949-3-johan+linaro@kernel.org>
+Subject: [PATCH 6/7] arm64: dts: qcom: sc8280xp-x13s: switch to uefi rtc offset
+Date: Mon, 20 Jan 2025 15:41:51 +0100
+Message-ID: <20250120144152.11949-7-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20250120144152.11949-1-johan+linaro@kernel.org>
 References: <20250120144152.11949-1-johan+linaro@kernel.org>
@@ -57,38 +57,51 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Jonathan Marek <jonathan@marek.ca>
+On many Qualcomm platforms the PMIC RTC control and time registers are
+read-only so that the RTC time can not be updated. Instead an offset
+needs be stored in some machine-specific non-volatile memory, which a
+driver can take into account.
 
-Qualcomm x1e80100 firmware sets the ownership of the RTC alarm to ADSP.
-Thus writing to RTC alarm registers and receiving alarm interrupts is not
-possible.
+Switch to using the Qualcomm specific UEFI variable that is used by the
+UEFI firmware (and Windows) to store the RTC offset.
 
-Add a qcom,no-alarm flag to support RTC on this platform.
+This specifically means that the RTC time will be synchronised between
+the UEFI firmware setup (or UEFI shell), Windows and Linux.
 
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20241015004945.3676-3-jonathan@marek.ca
-[ johan: move vendor property; use boolean; reword description ]
+Note however that Windows stores the RTC time in local time by default,
+while Linux typically uses UTC (i.e. as on X86).
+
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts   | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-index cdc56dfbfac3..7497dc3ac5b2 100644
---- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-@@ -50,6 +50,11 @@ properties:
-     items:
-       - const: offset
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+index 38d911992475..66c39765225f 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+@@ -1090,20 +1090,11 @@ &pmk8280_pon_resin {
+ };
  
-+  qcom,no-alarm:
-+    type: boolean
-+    description:
-+      RTC alarm is not owned by the OS
-+
-   qcom,uefi-rtc-info:
-     type: boolean
-     description:
+ &pmk8280_rtc {
+-	nvmem-cells = <&rtc_offset>;
+-	nvmem-cell-names = "offset";
++	qcom,uefi-rtc-info;
+ 
+ 	status = "okay";
+ };
+ 
+-&pmk8280_sdam_6 {
+-	status = "okay";
+-
+-	rtc_offset: rtc-offset@bc {
+-		reg = <0xbc 0x4>;
+-	};
+-};
+-
+ &pmk8280_vadc {
+ 	channel@144 {
+ 		reg = <PM8350_ADC7_AMUX_THM1_100K_PU(1)>;
 -- 
 2.45.2
 
