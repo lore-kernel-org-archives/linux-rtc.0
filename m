@@ -1,104 +1,122 @@
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+Received: from mta-65-225.siemens.flowmailer.net (mta-65-225.siemens.flowmailer.net [185.136.65.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2491F149DF0;
-	Mon, 20 Jan 2025 08:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.207.212.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67DD918FDC8
+	for <linux-rtc@vger.kernel.org>; Mon, 20 Jan 2025 09:36:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737362209; cv=none; b=Oj9pPyXsS/K4RNg3zG/F+JISsRj9vE7NT7O07rLjux29PRRIMVbB9WuDBOe/sgbm2fFQJh/+t++8k6fNepwE87rhegkqycDjeSYVjgaLPoQoh0F60hTzPfr72vBkt+cMbMYUqWrWtfVAktms9HQBitPn7wau5DRFhK7hOWrSwRc=
+	t=1737365767; cv=none; b=QjX7N1zRBsGl6Hebo9x30lEibUSrNPHlcZfYXkJ/FBxF0tmrqAxQC0fFNP6BjJWJRKrpmxkz1/F5qM5knluNOYROAUFk1IqZZOb866HMsKPo4/bdKXp3+B3QZVlkqR4o2HR0ZC5GIpZljHW37I/tA49N/ci4p87uMA/aJNIk/CE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737362209; c=relaxed/simple;
-	bh=iPRD2KWoZvbHZFTPohaghCcVvZX1drMbrOqQgWvHJmg=;
-	h=Message-ID:Subject:From:To:CC:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hfbYR/PCm7VOCHnlanjIvo8yEepwBG4gSJfZS+BjtZaoWkPtNk+mb/REk94u0peEB8ZbKoPvgoXYt3CH8/umT5NLXEm5HyPe21Zqh23ZGf6oBUmDANDrM96iKiJRJlDbcesp7OngPzRbqkdEsK0XYvnLqKhRUOQ8k+/Oljm/Ghk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=CXYXMxsV; arc=none smtp.client-ip=91.207.212.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	s=arc-20240116; t=1737365767; c=relaxed/simple;
+	bh=Dunw9sx2J1XWClt+FzU+YMYNH4RtHDDQDIZ7XZZDwvU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WLQcSYz7rbKT9JnjezJMVBLymna1dReZnfLhYMY9lFsu2dJVW9pQcdi0GQGQ3PkEwWj/2F0nDtA19RoBWWVt71FNnjKzK+fos7vbtNAEyzd/RnSpn39mSVhZABfuu2njGR4uYoVQEL5NaegVkqT88apvyrBMkxd7eUkgRIctpfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=ZUZjzwGO; arc=none smtp.client-ip=185.136.65.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="CXYXMxsV"
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50K8VeAT027721;
-	Mon, 20 Jan 2025 09:36:03 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=selector1; bh=
-	iPRD2KWoZvbHZFTPohaghCcVvZX1drMbrOqQgWvHJmg=; b=CXYXMxsVof+3Wz47
-	pE44y6yoapWMYfryXmQmgwWCVrd1MV0ICGv6PCjjCMpIGQttUaApGosIU58zgpIy
-	vfdnQJxX6cGKfRGAp3ZpqnpIE7lZsFFFXHdLnyFbraBYqqeX3+/5oAX1Pbbh1H/g
-	Z1zTGqiGugZk7RQcr0gTqlv93umVokS7DlAb9sFO5hlHNEJSBXw0+ZY+mD6TTi8q
-	wd2UcMwGP0xxMcy1k29Bv3kXT/8msT6uHT/J0WL9iuUCn+QdGxedMk/pXBcccG5m
-	0McvNf2JQUoo1Ch89bbYfGv1cFMej52XR4TunA24staAgIpqHMkvR8bmpyyMAHax
-	nVGU9g==
-Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
-	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 449jdf875u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 09:36:03 +0100 (CET)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 1005640048;
-	Mon, 20 Jan 2025 09:33:58 +0100 (CET)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 17DC127B404;
-	Mon, 20 Jan 2025 09:32:10 +0100 (CET)
-Received: from [192.168.8.15] (10.48.86.148) by SHFDAG1NODE1.st.com
- (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.37; Mon, 20 Jan
- 2025 09:32:09 +0100
-Message-ID: <98652dc2f29b172a9caafe55d04cb965768e2a66.camel@foss.st.com>
-Subject: Re: [Linux-stm32] [PATCH v2 06/12] rtc: stm32: Use resource managed
- API to simplify code
-From: Antonio Borneo <antonio.borneo@foss.st.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>,
-        "Rafael J. Wysocki"
-	<rafael@kernel.org>,
-        Len Brown <len.brown@intel.com>, Pavel Machek
-	<pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Dmitry
- Torokhov" <dmitry.torokhov@gmail.com>,
-        Alexandre Belloni
-	<alexandre.belloni@bootlin.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Linus Walleij
-	<linus.walleij@linaro.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Daire
- McNamara <daire.mcnamara@microchip.com>
-CC: <linux-rtc@vger.kernel.org>, Peng Fan <peng.fan@nxp.com>,
-        <linux-pm@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <linux-riscv@lists.infradead.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>
-Date: Mon, 20 Jan 2025 09:32:07 +0100
-In-Reply-To: <20250103-wake_irq-v2-6-e3aeff5e9966@nxp.com>
-References: <20250103-wake_irq-v2-0-e3aeff5e9966@nxp.com>
-	 <20250103-wake_irq-v2-6-e3aeff5e9966@nxp.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="ZUZjzwGO"
+Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 202501200935528f0a7fa93eb037b459
+        for <linux-rtc@vger.kernel.org>;
+        Mon, 20 Jan 2025 10:35:52 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
+ d=siemens.com; i=alexander.sverdlin@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
+ bh=m9xoW+hKzIxGJalU2/k33M2o3qTUJHxMRN22Fki65ZI=;
+ b=ZUZjzwGO+DxCotEl8iyJZ8aDPO4dOic4gjZZZyWW3GgLDQOSufSObqLMd/5tDauuRO8kBL
+ Az5ALduX9YcCFfNIGLA8iNcr0kGX2QWfYdXRfqqF2mnC9+RoflIk3/N4nTeDuYFvqDAgj80e
+ O+Q/0DVTVgKmugc6nBL4vmhl0JRC1wTWbkYSKjX8nM5YowzPE1YZR9BvT+8aK0uSKxi08vUR
+ 8xYutHIzDL0HQlmDxFbu4JQimpErzU+PTIEijdRH6sabH3ejwJ9aVagd3jOVJeklTNd1I/jH
+ Zes+VT47b4qyYxHQoTTrTgvBvfCrGIGfrSRp3EFP36/Agmrk1jZHq7IA==;
+From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
+To: linux-rtc@vger.kernel.org
+Cc: Lukas Stockmann <lukas.stockmann@siemens.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-kernel@vger.kernel.org,
+	Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Subject: [PATCH v2] rtc: pcf85063: do a SW reset if POR failed
+Date: Mon, 20 Jan 2025 10:34:49 +0100
+Message-ID: <20250120093451.30778-1-alexander.sverdlin@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ClientProxiedBy: EQNCAS1NODE3.st.com (10.75.129.80) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-20_01,2025-01-20_02,2024-11-22_01
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-456497:519-21489:flowmailer
 
-On Fri, 2025-01-03 at 16:41 +0800, Peng Fan (OSS) wrote:
-> From: Peng Fan <peng.fan@nxp.com>
->=20
-> Use devm_pm_set_wake_irq and devm_device_init_wakeup to cleanup the
-> error handling code and 'driver.remove()' hook.
->=20
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> ---
+From: Lukas Stockmann <lukas.stockmann@siemens.com>
 
-Reviewed-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Power-on Reset has a documented issue in PCF85063, refer to its datasheet,
+section "Software reset":
 
-Thanks,
-Antonio
+"There is a low probability that some devices will have corruption of the
+registers after the automatic power-on reset if the device is powered up
+with a residual VDD level. It is required that the VDD starts at zero volts
+at power up or upon power cycling to ensure that there is no corruption of
+the registers. If this is not possible, a reset must be initiated after
+power-up (i.e. when power is stable) with the software reset command"
+
+Trigger SW reset if there is an indication that POR has failed.
+
+Link: https://www.nxp.com/docs/en/data-sheet/PCF85063A.pdf
+Signed-off-by: Lukas Stockmann <lukas.stockmann@siemens.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+---
+v2:
+- clarify commit message and the runtime warning, that it's Power-on Reset
+  issue and not power loss handling during run time
+v1:
+https://patchwork.ozlabs.org/project/rtc-linux/patch/20240227131436.3342807-1-alexander.sverdlin@siemens.com/
+
+ drivers/rtc/rtc-pcf85063.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index fdbc07f14036..edfd75d18e19 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -35,6 +35,7 @@
+ #define PCF85063_REG_CTRL1_CAP_SEL	BIT(0)
+ #define PCF85063_REG_CTRL1_STOP		BIT(5)
+ #define PCF85063_REG_CTRL1_EXT_TEST	BIT(7)
++#define PCF85063_REG_CTRL1_SWR		0x58
+ 
+ #define PCF85063_REG_CTRL2		0x01
+ #define PCF85063_CTRL2_AF		BIT(6)
+@@ -580,7 +581,7 @@ static int pcf85063_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, pcf85063);
+ 
+-	err = regmap_read(pcf85063->regmap, PCF85063_REG_CTRL1, &tmp);
++	err = regmap_read(pcf85063->regmap, PCF85063_REG_SC, &tmp);
+ 	if (err) {
+ 		dev_err(&client->dev, "RTC chip is not present\n");
+ 		return err;
+@@ -590,6 +591,22 @@ static int pcf85063_probe(struct i2c_client *client)
+ 	if (IS_ERR(pcf85063->rtc))
+ 		return PTR_ERR(pcf85063->rtc);
+ 
++	/*
++	 * If a Power loss is detected, SW reset the device.
++	 * From PCF85063A datasheet:
++	 * There is a low probability that some devices will have corruption
++	 * of the registers after the automatic power-on reset...
++	 */
++	if (tmp & PCF85063_REG_SC_OS) {
++		dev_warn(&client->dev,
++			 "POR issue detected, sending a SW reset\n");
++		err = regmap_write(pcf85063->regmap, PCF85063_REG_CTRL1,
++				   PCF85063_REG_CTRL1_SWR);
++		if (err < 0)
++			dev_warn(&client->dev,
++				 "SW reset failed, trying to continue\n");
++	}
++
+ 	err = pcf85063_load_capacitance(pcf85063, client->dev.of_node,
+ 					config->force_cap_7000 ? 7000 : 0);
+ 	if (err < 0)
+-- 
+2.43.2
+
