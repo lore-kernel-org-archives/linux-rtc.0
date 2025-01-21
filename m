@@ -1,33 +1,33 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1153C1B982C;
-	Tue, 21 Jan 2025 06:57:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8D91B041B;
+	Tue, 21 Jan 2025 06:57:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737442658; cv=none; b=oa8YsSOmNomOvgBc1W7VGlv5/J2OkjL9q+2Uz6CDcb6NL1dF7Brw2thfLfXRlZN7KXVSuJd+549LjaHMcKQIbuzy4K8awQh0By++Pft95Li/Ie6VWOypUdro5mnU5BbSOJqsKIwruCEamhgQtU5IHhgzzseo0AtRUuTrVjFHDJM=
+	t=1737442658; cv=none; b=g2PWY6pP6AU5b8XF/UZ6no6M08VKgbA+JTXNrUAU6WWPX8a6epP3bUA41xN5Rx09z0/Ro/p3juM2rdCyS+humBdF+PIW2zyv1rlgfSsenuGlwoS6tmhiKDXU4vQuY6dKJe5KT2Anm68IXU1L7hvSscuuAsrSRkOGhtlsOXN8ppY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1737442658; c=relaxed/simple;
-	bh=EQa6knGNTXwE+k/NBuFUYcjA25b13DYZO9d6G+7TX/k=;
+	bh=MHb9TyuXgUHeuarU9Yir/7RmkDw32ubVkuACnX19mig=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=azWeBdiPGxFgBxp+L45mQfQmxaY2Ou6uX7UGmjobs0DGDgHII2U7+0wRGl+7kp0kTtSzWBbeiMZIF46bVwwc2jY8hlQ++AhG8/4iybmh8bqUxLN0MuEE+AdQsEf/L5BHoEhOaHj1Gq/HcU4tgLsdfMuPwV8UqpudD7hDflf1t/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
+	 MIME-Version:Content-Type; b=j5XtzGt88s/a4zQj/JjShdMXVvYX0f+4TwtpfreSKhYptTwJcfsYPdyzyQ1cm3x93AMlb95SG3t16I78wdZ5SeI+WcS+UYH6ZH946woipur59SFQvxqVLCe6B6MbQdKnUKNkwaHdE18bl0BQVcuQEvg2PAnGbRrjHsUnKuB0zd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4YcdH52006zbp8N;
-	Tue, 21 Jan 2025 14:54:25 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4YcdHq4py9z22lgZ;
+	Tue, 21 Jan 2025 14:55:03 +0800 (CST)
 Received: from dggemv712-chm.china.huawei.com (unknown [10.1.198.32])
-	by mail.maildlp.com (Postfix) with ESMTPS id EA3A0180105;
-	Tue, 21 Jan 2025 14:57:33 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 956551402C3;
+	Tue, 21 Jan 2025 14:57:32 +0800 (CST)
 Received: from kwepemn100009.china.huawei.com (7.202.194.112) by
  dggemv712-chm.china.huawei.com (10.1.198.32) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 21 Jan 2025 14:57:33 +0800
+ 15.2.1544.11; Tue, 21 Jan 2025 14:57:32 +0800
 Received: from localhost.localdomain (10.28.79.22) by
  kwepemn100009.china.huawei.com (7.202.194.112) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Tue, 21 Jan 2025 14:57:30 +0800
+ 15.2.1544.11; Tue, 21 Jan 2025 14:57:22 +0800
 From: Huisong Li <lihuisong@huawei.com>
 To: <linux-hwmon@vger.kernel.org>
 CC: <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
@@ -46,9 +46,9 @@ CC: <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
 	<ilpo.jarvinen@linux.intel.com>, <alexandre.belloni@bootlin.com>,
 	<krzk@kernel.org>, <jonathan.cameron@huawei.com>, <zhanjie9@hisilicon.com>,
 	<zhenglifeng1@huawei.com>, <liuyonglong@huawei.com>, <lihuisong@huawei.com>
-Subject: [PATCH v1 09/21] w1: w1_therm: w1: Use HWMON_CHANNEL_INFO macro to simplify code
-Date: Tue, 21 Jan 2025 14:45:07 +0800
-Message-ID: <20250121064519.18974-10-lihuisong@huawei.com>
+Subject: [PATCH v1 03/21] net: aquantia: Use HWMON_CHANNEL_INFO macro to simplify code
+Date: Tue, 21 Jan 2025 14:45:01 +0800
+Message-ID: <20250121064519.18974-4-lihuisong@huawei.com>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20250121064519.18974-1-lihuisong@huawei.com>
 References: <20250121064519.18974-1-lihuisong@huawei.com>
@@ -67,31 +67,33 @@ Use HWMON_CHANNEL_INFO macro to simplify code.
 
 Signed-off-by: Huisong Li <lihuisong@huawei.com>
 ---
- drivers/w1/slaves/w1_therm.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ .../net/ethernet/aquantia/atlantic/aq_drvinfo.c    | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/w1/slaves/w1_therm.c b/drivers/w1/slaves/w1_therm.c
-index c85e80c7e130..9ccedb3264fb 100644
---- a/drivers/w1/slaves/w1_therm.c
-+++ b/drivers/w1/slaves/w1_therm.c
-@@ -444,18 +444,8 @@ static int w1_read(struct device *dev, enum hwmon_sensor_types type,
- 	}
- }
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_drvinfo.c b/drivers/net/ethernet/aquantia/atlantic/aq_drvinfo.c
+index 414b2e448d59..787ea91802e7 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_drvinfo.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_drvinfo.c
+@@ -113,19 +113,9 @@ static const struct hwmon_ops aq_hwmon_ops = {
+ 	.read_string = aq_hwmon_read_string,
+ };
  
--static const u32 w1_temp_config[] = {
--	HWMON_T_INPUT,
--	0
+-static u32 aq_hwmon_temp_config[] = {
+-	HWMON_T_INPUT | HWMON_T_LABEL,
+-	HWMON_T_INPUT | HWMON_T_LABEL,
+-	0,
 -};
 -
--static const struct hwmon_channel_info w1_temp = {
+-static const struct hwmon_channel_info aq_hwmon_temp = {
 -	.type = hwmon_temp,
--	.config = w1_temp_config,
+-	.config = aq_hwmon_temp_config,
 -};
 -
- static const struct hwmon_channel_info * const w1_info[] = {
--	&w1_temp,
-+	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
- 	NULL
+ static const struct hwmon_channel_info * const aq_hwmon_info[] = {
+-	&aq_hwmon_temp,
++	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT | HWMON_T_LABEL,
++			   HWMON_T_INPUT | HWMON_T_LABEL),
+ 	NULL,
  };
  
 -- 
