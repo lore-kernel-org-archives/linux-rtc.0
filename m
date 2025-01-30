@@ -1,75 +1,374 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C86BB18B48B;
-	Mon, 27 Jan 2025 18:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37421EEA3D;
+	Thu, 30 Jan 2025 17:35:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.154.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738000828; cv=none; b=ERPDbknxl/y1ZYv+ibWOWWNAyVBkv10pEAsXb3xwhuzoAfJ4yMP5IsTEjFh9QqC25qbVMxeD3PPiKi2Q04kXC4A9Jpv7uU6EZk0UVq7Yl9YT3u+uOgHZaXqGME7E9tG/530SHeuuPij1SVhdjTXZfyE540PX3ObcsOzmhpESeiU=
+	t=1738258553; cv=none; b=hkuufYAw3OiHqSAxzLcoReKtqRUTklSbnDIhfr+l1sDr1rzYg8OghYfFAk6SFd52RrU0rOV3ZvOawYpUIE1j8gS1ixJMKka6LYIcgZ/PZu0x9FHk2OrnoL5NWtYcU/IEQ+WCDNq/7SQroJn+N+ULdO3HsifzAI+EHZ8Kj+G+qLs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738000828; c=relaxed/simple;
-	bh=46MM4+5JRn0cpDs6bLnICSZXnvQ6YkR3OrnqzcdZnsg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AAwacv5ZgtufgAoIny5BuxDAJH0knp1L6csvKumYS1Wn+S8Fi6r8bmXARjRXXQwQRiiSS192fqp3HVNw66WITUjn7Ia7KQ0lR2wBPYYHB1c+q/8BN1c8JfoO6oBKrnoL4OWbx7FWAfXtiWvoupSo748DE75FnQCyCtBYWxThv0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kwRBOSpw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738258553; c=relaxed/simple;
+	bh=nZid29reqDR3++ddySt2KOHWm8tGT444s+OSw8Gjkok=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=sjxlWHQ7GgMvcWycAoDU98mnRlW5L2T9kbFcc5pB0Ht3zgFbsHKgDIjjJm/P1l+AEFF4bZnzPmaprjxzkXKt4nq7EvJr2HIUmG4IRljEXflRZFOBf4+/Y+3aZ3HUNlyq7KAIk7J/GPJGOmP+A9lljaX0N8AJfy+DoUY0Tn44UzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=oBoSQjtt; arc=none smtp.client-ip=68.232.154.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kwRBOSpw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AD2DC4CEE0;
-	Mon, 27 Jan 2025 18:00:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738000828;
-	bh=46MM4+5JRn0cpDs6bLnICSZXnvQ6YkR3OrnqzcdZnsg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kwRBOSpwt7hCsv1k1jcYSgAy8tFJL1iDXlvdKOYENfzr/+6PsmmfUEEXTM6xcIc+Y
-	 fSq+37dib1m9fLSymvxt/HZoc2mArT586nOSh+72O3pSzJQyMrPbKdTFOhJcR9UxKG
-	 9/Ze/8XxsVX+OLPuuKPTJetdRPJCNt1tt8KJvdca/pz7PlsZgHaWkRV4zUA90jeSdA
-	 yG1aono+hVgXx4ZmNYFWBnFXa5GNLXMaQgLfnIOmik2YAwC02blYgYQd93gnau+d1w
-	 n9EoYauZOAIxKO3BaA55DUi+0KrQrukm4Gnj5ZSapXX19oKxSBF42OoDKxM+y+K9Hh
-	 lWiFXOxYX6Ldg==
-Date: Mon, 27 Jan 2025 12:00:27 -0600
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Johan Hovold <johan+linaro@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Jonathan Marek <jonathan@marek.ca>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>
-Subject: Re: [PATCH 2/7] dt-bindings: rtc: qcom-pm8xxx: document
- qcom,no-alarm flag
-Message-ID: <173800082586.538050.18039812124468938594.robh@kernel.org>
-References: <20250120144152.11949-1-johan+linaro@kernel.org>
- <20250120144152.11949-3-johan+linaro@kernel.org>
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="oBoSQjtt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1738258551; x=1769794551;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=nZid29reqDR3++ddySt2KOHWm8tGT444s+OSw8Gjkok=;
+  b=oBoSQjttMXFoeoZJnmZbhAkkN+G7D5jBQi4UxRnXqBhhVcTCXD5gjFZW
+   uazlzcg2h/8sTB1MeTyqdW+x7QU1DWsw99avgUsS2DJ/A8/CYKe74tcAY
+   a7m4qMwtn0Jc7g6LsZYz2hS5ejwCoJQjQznIDPQjRBARQkQt9cF7zSuHW
+   B/fdPAqsZisZjN1Lmigt/lVnz117hqO7QgJj8hnGXFhIPb38eDB1GeWYk
+   hGs0dLJfgeiot6Qhil+P1zv4SFmMrp3Wp/o615FcSbLX9zxepslaaP0d4
+   l3sL23LXJ6EG4pWk4j3jLUvUc/7Q/Rd4OOiQNomNrV0Dale9Q+m3XcgWQ
+   g==;
+X-CSE-ConnectionGUID: X8noN3xrSZmPEckyVo5bzw==
+X-CSE-MsgGUID: exe2a/zgRGuLm6QIj8jwtA==
+X-IronPort-AV: E=Sophos;i="6.13,246,1732604400"; 
+   d="scan'208";a="204622972"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa6.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 30 Jan 2025 10:35:45 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 30 Jan 2025 10:35:41 -0700
+Received: from ryan-Precision-3630-Tower.microchip.com (10.10.85.11) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.2507.35 via Frontend Transport; Thu, 30 Jan 2025 10:35:41 -0700
+From: <Ryan.Wanner@microchip.com>
+To: <lee@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+	<conor+dt@kernel.org>, <claudiu.beznea@tuxon.dev>, <sre@kernel.org>,
+	<nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
+	<p.zabel@pengutronix.de>, <linux@armlinux.org.uk>
+CC: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-pm@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-rtc@vger.kernel.org>, Ryan Wanner <Ryan.Wanner@microchip.com>
+Subject: [PATCH 13/16] ARM: at91: pm: Enable ULP0 for SAMA7D65
+Date: Thu, 30 Jan 2025 10:33:53 -0700
+Message-ID: <24544d75175c47e23eb0a89ab4c1783e191747cc.1738257860.git.Ryan.Wanner@microchip.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1738257860.git.Ryan.Wanner@microchip.com>
+References: <cover.1738257860.git.Ryan.Wanner@microchip.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250120144152.11949-3-johan+linaro@kernel.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
+From: Ryan Wanner <Ryan.Wanner@microchip.com>
 
-On Mon, 20 Jan 2025 15:41:47 +0100, Johan Hovold wrote:
-> From: Jonathan Marek <jonathan@marek.ca>
-> 
-> Qualcomm x1e80100 firmware sets the ownership of the RTC alarm to ADSP.
-> Thus writing to RTC alarm registers and receiving alarm interrupts is not
-> possible.
-> 
-> Add a qcom,no-alarm flag to support RTC on this platform.
-> 
-> Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-> Link: https://lore.kernel.org/r/20241015004945.3676-3-jonathan@marek.ca
-> [ johan: move vendor property; use boolean; reword description ]
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
-> ---
->  Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
+New clocks are saved to enable ULP0 for SAMA7D65 because this SoC has a
+total of 10 main clocks that need to be saved for ULP0 mode.
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Add mck_count member to at91_pm_data, this will be used to determine
+how many mcks need to be saved. In the mck_count member will also make
+sure that no unnecessary clock settings are written during
+mck_ps_restore.
+
+Add SHDWC to ULP0 mapping to clear the SHDWC status after exiting low
+power modes.
+
+Signed-off-by: Ryan Wanner <Ryan.Wanner@microchip.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+---
+ arch/arm/mach-at91/pm.c              | 19 +++++-
+ arch/arm/mach-at91/pm.h              |  1 +
+ arch/arm/mach-at91/pm_data-offsets.c |  2 +
+ arch/arm/mach-at91/pm_suspend.S      | 97 ++++++++++++++++++++++++++--
+ 4 files changed, 110 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/mach-at91/pm.c b/arch/arm/mach-at91/pm.c
+index 5e458254e1f1c..e29c44924ac22 100644
+--- a/arch/arm/mach-at91/pm.c
++++ b/arch/arm/mach-at91/pm.c
+@@ -1336,6 +1336,7 @@ struct pmc_info {
+ 	unsigned long uhp_udp_mask;
+ 	unsigned long mckr;
+ 	unsigned long version;
++	unsigned long mck_count;
+ };
+ 
+ static const struct pmc_info pmc_infos[] __initconst = {
+@@ -1343,30 +1344,42 @@ static const struct pmc_info pmc_infos[] __initconst = {
+ 		.uhp_udp_mask = AT91RM9200_PMC_UHP | AT91RM9200_PMC_UDP,
+ 		.mckr = 0x30,
+ 		.version = AT91_PMC_V1,
++		.mck_count = 1,
+ 	},
+ 
+ 	{
+ 		.uhp_udp_mask = AT91SAM926x_PMC_UHP | AT91SAM926x_PMC_UDP,
+ 		.mckr = 0x30,
+ 		.version = AT91_PMC_V1,
++		.mck_count = 1,
+ 	},
+ 	{
+ 		.uhp_udp_mask = AT91SAM926x_PMC_UHP,
+ 		.mckr = 0x30,
+ 		.version = AT91_PMC_V1,
++		.mck_count = 1,
+ 	},
+ 	{	.uhp_udp_mask = 0,
+ 		.mckr = 0x30,
+ 		.version = AT91_PMC_V1,
++		.mck_count = 1,
+ 	},
+ 	{
+ 		.uhp_udp_mask = AT91SAM926x_PMC_UHP | AT91SAM926x_PMC_UDP,
+ 		.mckr = 0x28,
+ 		.version = AT91_PMC_V2,
++		.mck_count = 1,
+ 	},
+ 	{
+ 		.mckr = 0x28,
+ 		.version = AT91_PMC_V2,
++		.mck_count = 5,
++	},
++	{
++		.uhp_udp_mask = AT91SAM926x_PMC_UHP,
++		.mckr = 0x28,
++		.version = AT91_PMC_V2,
++		.mck_count = 10,
+ 	},
+ 
+ };
+@@ -1385,7 +1398,7 @@ static const struct of_device_id atmel_pmc_ids[] __initconst = {
+ 	{ .compatible = "atmel,sama5d2-pmc", .data = &pmc_infos[1] },
+ 	{ .compatible = "microchip,sam9x60-pmc", .data = &pmc_infos[4] },
+ 	{ .compatible = "microchip,sam9x7-pmc", .data = &pmc_infos[4] },
+-	{ .compatible = "microchip,sama7d65-pmc", .data = &pmc_infos[4] },
++	{ .compatible = "microchip,sama7d65-pmc", .data = &pmc_infos[6] },
+ 	{ .compatible = "microchip,sama7g5-pmc", .data = &pmc_infos[5] },
+ 	{ /* sentinel */ },
+ };
+@@ -1456,6 +1469,7 @@ static void __init at91_pm_init(void (*pm_idle)(void))
+ 	soc_pm.data.uhp_udp_mask = pmc->uhp_udp_mask;
+ 	soc_pm.data.pmc_mckr_offset = pmc->mckr;
+ 	soc_pm.data.pmc_version = pmc->version;
++	soc_pm.data.pmc_mck_count = pmc->mck_count;
+ 
+ 	if (pm_idle)
+ 		arm_pm_idle = pm_idle;
+@@ -1658,7 +1672,8 @@ void __init sama7_pm_init(void)
+ 		AT91_PM_STANDBY, AT91_PM_ULP0, AT91_PM_ULP1, AT91_PM_BACKUP,
+ 	};
+ 	static const u32 iomaps[] __initconst = {
+-		[AT91_PM_ULP0]		= AT91_PM_IOMAP(SFRBU),
++		[AT91_PM_ULP0]		= AT91_PM_IOMAP(SFRBU) |
++					  AT91_PM_IOMAP(SHDWC),
+ 		[AT91_PM_ULP1]		= AT91_PM_IOMAP(SFRBU) |
+ 					  AT91_PM_IOMAP(SHDWC) |
+ 					  AT91_PM_IOMAP(ETHC),
+diff --git a/arch/arm/mach-at91/pm.h b/arch/arm/mach-at91/pm.h
+index 53bdc9000e447..ccde9c8728c27 100644
+--- a/arch/arm/mach-at91/pm.h
++++ b/arch/arm/mach-at91/pm.h
+@@ -39,6 +39,7 @@ struct at91_pm_data {
+ 	unsigned int suspend_mode;
+ 	unsigned int pmc_mckr_offset;
+ 	unsigned int pmc_version;
++	unsigned int pmc_mck_count;
+ };
+ #endif
+ 
+diff --git a/arch/arm/mach-at91/pm_data-offsets.c b/arch/arm/mach-at91/pm_data-offsets.c
+index 40bd4e8fe40a5..59a4838038381 100644
+--- a/arch/arm/mach-at91/pm_data-offsets.c
++++ b/arch/arm/mach-at91/pm_data-offsets.c
+@@ -18,6 +18,8 @@ int main(void)
+ 						 pmc_mckr_offset));
+ 	DEFINE(PM_DATA_PMC_VERSION,	offsetof(struct at91_pm_data,
+ 						 pmc_version));
++	DEFINE(PM_DATA_PMC_MCK_COUNT,	offsetof(struct at91_pm_data,
++						 pmc_mck_count));
+ 
+ 	return 0;
+ }
+diff --git a/arch/arm/mach-at91/pm_suspend.S b/arch/arm/mach-at91/pm_suspend.S
+index e5869cca5e791..2bbcbb26adb28 100644
+--- a/arch/arm/mach-at91/pm_suspend.S
++++ b/arch/arm/mach-at91/pm_suspend.S
+@@ -814,17 +814,19 @@ sr_dis_exit:
+ .endm
+ 
+ /**
+- * at91_mckx_ps_enable:	save MCK1..4 settings and switch it to main clock
++ * at91_mckx_ps_enable:	save MCK settings and switch it to main clock
+  *
+- * Side effects: overwrites tmp1, tmp2
++ * Side effects: overwrites tmp1, tmp2, tmp3
+  */
+ .macro at91_mckx_ps_enable
+ #ifdef CONFIG_SOC_SAMA7
+ 	ldr	pmc, .pmc_base
++	ldr	tmp3, .mck_count
+ 
+-	/* There are 4 MCKs we need to handle: MCK1..4 */
++	/* Start at MCK1 and go until MCK_count */
+ 	mov	tmp1, #1
+-e_loop:	cmp	tmp1, #5
++e_loop:
++	cmp	tmp1, tmp3
+ 	beq	e_done
+ 
+ 	/* Write MCK ID to retrieve the settings. */
+@@ -850,7 +852,37 @@ e_save_mck3:
+ 	b	e_ps
+ 
+ e_save_mck4:
++	cmp	tmp1, #4
++	bne	e_save_mck5
+ 	str	tmp2, .saved_mck4
++	b	e_ps
++
++e_save_mck5:
++	cmp	tmp1, #5
++	bne	e_save_mck6
++	str	tmp2, .saved_mck5
++	b	e_ps
++
++e_save_mck6:
++	cmp	tmp1, #6
++	bne	e_save_mck7
++	str	tmp2, .saved_mck6
++	b	e_ps
++
++e_save_mck7:
++	cmp	tmp1, #7
++	bne	e_save_mck8
++	str	tmp2, .saved_mck7
++	b	e_ps
++
++e_save_mck8:
++	cmp	tmp1, #8
++	bne	e_save_mck9
++	str	tmp2, .saved_mck8
++	b	e_ps
++
++e_save_mck9:
++	str	tmp2, .saved_mck9
+ 
+ e_ps:
+ 	/* Use CSS=MAINCK and DIV=1. */
+@@ -870,17 +902,19 @@ e_done:
+ .endm
+ 
+ /**
+- * at91_mckx_ps_restore: restore MCK1..4 settings
++ * at91_mckx_ps_restore: restore MCKx settings
+  *
+  * Side effects: overwrites tmp1, tmp2
+  */
+ .macro at91_mckx_ps_restore
+ #ifdef CONFIG_SOC_SAMA7
+ 	ldr	pmc, .pmc_base
++	ldr	tmp2, .mck_count
+ 
+-	/* There are 4 MCKs we need to handle: MCK1..4 */
++	/* Start from MCK1 and go up to MCK_count */
+ 	mov	tmp1, #1
+-r_loop:	cmp	tmp1, #5
++r_loop:
++	cmp	tmp1, tmp2
+ 	beq	r_done
+ 
+ r_save_mck1:
+@@ -902,7 +936,37 @@ r_save_mck3:
+ 	b	r_ps
+ 
+ r_save_mck4:
++	cmp	tmp1, #4
++	bne	r_save_mck5
+ 	ldr	tmp2, .saved_mck4
++	b	r_ps
++
++r_save_mck5:
++	cmp	tmp1, #5
++	bne	r_save_mck6
++	ldr	tmp2, .saved_mck5
++	b	r_ps
++
++r_save_mck6:
++	cmp	tmp1, #6
++	bne	r_save_mck7
++	ldr	tmp2, .saved_mck6
++	b	r_ps
++
++r_save_mck7:
++	cmp	tmp1, #7
++	bne	r_save_mck8
++	ldr	tmp2, .saved_mck7
++	b	r_ps
++
++r_save_mck8:
++	cmp	tmp1, #8
++	bne	r_save_mck9
++	ldr	tmp2, .saved_mck8
++	b	r_ps
++
++r_save_mck9:
++	ldr	tmp2, .saved_mck9
+ 
+ r_ps:
+ 	/* Write MCK ID to retrieve the settings. */
+@@ -921,6 +985,7 @@ r_ps:
+ 	wait_mckrdy tmp1
+ 
+ 	add	tmp1, tmp1, #1
++	ldr	tmp2, .mck_count
+ 	b	r_loop
+ r_done:
+ #endif
+@@ -1045,6 +1110,10 @@ ENTRY(at91_pm_suspend_in_sram)
+ 	str	tmp1, .memtype
+ 	ldr	tmp1, [r0, #PM_DATA_MODE]
+ 	str	tmp1, .pm_mode
++#ifdef CONFIG_SOC_SAMA7
++	ldr	tmp1, [r0, #PM_DATA_PMC_MCK_COUNT]
++	str	tmp1, .mck_count
++#endif
+ 
+ 	/*
+ 	 * ldrne below are here to preload their address in the TLB as access
+@@ -1132,6 +1201,10 @@ ENDPROC(at91_pm_suspend_in_sram)
+ 	.word 0
+ .pmc_version:
+ 	.word 0
++#ifdef CONFIG_SOC_SAMA7
++.mck_count:
++	.word 0
++#endif
+ .saved_mckr:
+ 	.word 0
+ .saved_pllar:
+@@ -1155,6 +1228,16 @@ ENDPROC(at91_pm_suspend_in_sram)
+ 	.word 0
+ .saved_mck4:
+ 	.word 0
++.saved_mck5:
++	.word 0
++.saved_mck6:
++	.word 0
++.saved_mck7:
++	.word 0
++.saved_mck8:
++	.word 0
++.saved_mck9:
++	.word 0
+ #endif
+ 
+ ENTRY(at91_pm_suspend_in_sram_sz)
+-- 
+2.43.0
 
