@@ -1,96 +1,209 @@
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13BA82C182;
-	Thu, 13 Feb 2025 12:54:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AF89245B1F;
+	Thu, 13 Feb 2025 18:46:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739451294; cv=none; b=N7LK+QcrE/YMaICyjpbLUQ6mAqC1uRpi/Y5br5v74wtHH3ADMp4SoIaWiCyy5wT5c0j1oPYkUDYA3SqngW2QzpKOBtka8DrXb2YDlKGzQGScXs860FxdSoFsRd6S22lug8I2x01U/FQkDMMb2hiLeHZs2ze5/jOBzGQGH66RG00=
+	t=1739472389; cv=none; b=JQwdzg8P5xaeO/v0whrAzxbj8IN9WWkvp7XPm/Lkx5jk9acqlWv6/sCFQ4ETRINmUvt3UDR4N2EgdUe4sRIsl0k59Dr/CLOCb9LRC6dJVFoK+WHLp/NkVTyHyBq49ctw5CsKrD/9ORiPM6Q9sjBZDpANastlw5q8EHnUel8CaBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739451294; c=relaxed/simple;
-	bh=DzyJaxl5fNNUPjjj+azQXDvriPpmXgGSP71PDm8Jdik=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C68csnCRL4foRHxfkGRg/805D8Zq2lE7xvHvgvfz5j03NDQpc14/ZmB0Cz4NGyxtv2zfpw/Peo770dpU6bbWLstNFvdTee94Y1OvRr/C/z9niDM1/e/0RUzwStRCUgEVo1jLRsEKa2x6OK8qMw/fn7V5kXlkO/cNge1FWOX91ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FfC9PGeZ; arc=none smtp.client-ip=217.70.183.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1739472389; c=relaxed/simple;
+	bh=amTtrLAurKKgY2OMwf2io9Cjutnt1tzgel0rAC7bkOk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XXs0SRgiBN7eXX1CF4cC137g2RVNUEN2H65+oG6DNpweCX1Q3yH4t4xPwSZM8BnC9Ne+RrOfzdPazf8FneBpqhqiRwCuLngBQtKXWNn1vhlE9Qd9Mbg/scFqCDzyQMyiZVdloS8GC+KjCSmPmkMPENeBSaRgCTycTC4shA2as8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l3eYG3Wx; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FfC9PGeZ"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 8076F44191;
-	Thu, 13 Feb 2025 12:54:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1739451284;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YBQYwQdRIQ20yozFfxJGyrrPezD83gPdJ94AG2odwmc=;
-	b=FfC9PGeZopcSlMED939jJp01G7c43ji4lIsjeMGMdWf9BzbCs1A2yB+5sz31xizjVHXutY
-	Qa7paCmQ3QlxzcBuYBE4JR9K5Tr7X3wI4bNjZUMkzkZ8xDcahMb9pyduRn+mKtI65+ymL+
-	OYM3VkmT3wf2h0DQVsHYBCqJ3yP54S+LG5x3z2SdZkLJmGQJp1dSfPruDnEMdcWutO7GgZ
-	KUL9T+OD6FgcieBuI9taJNS72yKDVGCkI8J68dBphVqPAdqHnh0CMIqAsRtarlFa5WO8gQ
-	RMT6L7BMK0fvIZHxAbmh+D6RBt4sE5Z2CegRx6RzC1xmOvw0As4m3Ld4EZBsTg==
-Date: Thu, 13 Feb 2025 13:54:42 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Peng Fan <peng.fan@oss.nxp.com>
-Cc: Sudeep Holla <sudeep.holla@arm.com>, Peng Fan <peng.fan@nxp.com>,
-	"cristian.marussi@arm.com" <cristian.marussi@arm.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	"arm-scmi@vger.kernel.org" <arm-scmi@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"imx@lists.linux.dev" <imx@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH 0/4] rtc/scmi: Support multiple RTCs
-Message-ID: <2025021312544202e175b4@mail.local>
-References: <PAXPR04MB8459968DFDE5979802CC034A88E62@PAXPR04MB8459.eurprd04.prod.outlook.com>
- <Z6uCCeG2d395ZGDS@bogus>
- <20250212063532.GB15796@localhost.localdomain>
- <Z6x7TBSjBFBxGo77@bogus>
- <20250212170147ee6863dc@mail.local>
- <20250213033033.GA21937@localhost.localdomain>
- <20250213082032315c4327@mail.local>
- <20250213105257.GA29804@localhost.localdomain>
- <202502131126057bac6f7a@mail.local>
- <20250213133550.GA1208@localhost.localdomain>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l3eYG3Wx"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-aaeec07b705so203295866b.2;
+        Thu, 13 Feb 2025 10:46:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1739472386; x=1740077186; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=aukWBb3CU/4AhOxfmtAmwLpbw3wl3GfTDAoU9wk32Bk=;
+        b=l3eYG3WxKSMAlBB+FlpaJnDTLtjR5NP9kAeFkYTIR1ku2w+BuIGF38+/mGtpXwxvhf
+         rp9ibbYr8x3QnL9JQZUwCBxlfndXu0K20AO4lsR0E0x02gBBqh3uQ7QHq22q2EWe4qNc
+         5GKnTRLnAXgJpVXMfS8QBV7chnRz9TzZJZVKBx4wvrtzuelS+zoD7vrrKptsWJRuX9Rr
+         vsyboIZ95Apm69GilyFmKsPjJcB9Lp3vU1PWaGY7afXJkgEB68MRZOwm8jLye9MAISrp
+         Q8X/KGEtMgzDXs6kzjONN8hLdBIsU1zSkkxpS4Uod8byPXqGC/+2xQzA1LY2B9/mvegI
+         UGZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739472386; x=1740077186;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aukWBb3CU/4AhOxfmtAmwLpbw3wl3GfTDAoU9wk32Bk=;
+        b=Rjds519po0GH0wJJCz0BE9HeXppkW0T9y63/A7BSO8G9EfjspO2zsaVjwcGbsgskml
+         LkKxqY0CER7RU/GUIQEMRxWlKZoJ3dMp/VySQgF+BRuKi9sXiX1wEdxEfhnD8Q9TvHwv
+         idSUXEhaH2ijalhurcPuIgsj1adu0xcBo4aGpc4c6FRpJmyecjIx/oDYeHFCLvTL60yR
+         6Ff1Wi92wyzAx1Dfh2IMaTiJmd5UmR3VYyP7vOhcj4mrEVQlVYTENAn5FULfSF+4ZUVW
+         JfVnApv7MTiNFA/MLTBGeBIV19LTXpeaEThyx26uxgPVE4iSaHxmMQ32HPavnK/SotAI
+         UqBA==
+X-Forwarded-Encrypted: i=1; AJvYcCVKt4XKwTeeq03xrIrNlwGva+dFLXhkvHKzBjWBFvMmGBJTuTp6P54cqXoDvEjXbz/IVMsfLAVNfaggFgA=@vger.kernel.org, AJvYcCVPYWultxBOQT0GBk7q3u7fK1r9t4sFL4/gBvR/zs6IwMjXEdf/K8vbl0iYfwtj/WZjfnogcQPwNGry@vger.kernel.org
+X-Gm-Message-State: AOJu0YyLYRFJ2PBlkgVemKCQHbHEU+7MsMvq0vcwUZExbjD60MZeTuev
+	x5oC42okCjFTaDYvsa8nzE0aXnuwCySZMKvFuphiDa0Dxo/GHdzhdeX9iJKD
+X-Gm-Gg: ASbGnctpcKCR2isPm307fuWIxpSsSnOom1Z+n9RujQURm5Jzz+gSKftA8SC9rOw1741
+	gFuZcAxS6eO0BdqjBTWO14tJ9ItbvEcITPMKSSGFKw+wpI0OG5VkuTy/S9uLUrJ/sZ0Eplf9Si9
+	qYhozdw7hcyqFi36/VjkmCmrUMNYiLutPEq1+LJdAU6xcDz0WLHj5EDNOqrbSD26wiz1LveRZ2j
+	WafdAp6WXO+84M2JSuhbwYF77kjjk6MwZOt2W/5CEXsQdRJQXgEr6YwYUBzhm/ILDd1Bc0VInTG
+	+KGFBde/cVYoIpShfex5u0r0yJnI
+X-Google-Smtp-Source: AGHT+IFLxTwk4ShOCgoBhzCNNIaUWJTERo/NRFQCgSQeLdKFCXmw2TOixkwTdZg2oz22qRZqY5E3Vw==
+X-Received: by 2002:a17:907:da5:b0:ab7:dec1:b34d with SMTP id a640c23a62f3a-ab7f34ac9c2mr820599666b.47.1739472385487;
+        Thu, 13 Feb 2025 10:46:25 -0800 (PST)
+Received: from giga-mm.. ([2a02:1210:861b:6f00:82ee:73ff:feb8:99e3])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aba533998e2sm181360466b.134.2025.02.13.10.46.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Feb 2025 10:46:25 -0800 (PST)
+From: Alexander Sverdlin <alexander.sverdlin@gmail.com>
+To: devicetree@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-rtc@vger.kernel.org
+Cc: Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+	Inochi Amaoto <inochiama@gmail.com>,
+	alexandre.belloni@bootlin.com,
+	robh@kernel.org,
+	krzysztof.kozlowski+dt@linaro.org,
+	conor+dt@kernel.org,
+	unicorn_wang@outlook.com,
+	inochiama@outlook.com,
+	paul.walmsley@sifive.com,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	dlan@gentoo.org,
+	linux-kernel@vger.kernel.org,
+	Jingbao Qiu <qiujingbao.dlmu@gmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v10 0/2] riscv: rtc: sophgo: add rtc support for CV1800
+Date: Thu, 13 Feb 2025 19:46:13 +0100
+Message-ID: <20250213184622.2099324-1-alexander.sverdlin@gmail.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250213133550.GA1208@localhost.localdomain>
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegieekvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomheptehlvgigrghnughrvgcuuegvlhhlohhnihcuoegrlhgvgigrnhgurhgvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeegieduueethefhkeegjeevfefhiedujeeuhffgleejgfejgeekueejuefgheeggfenucffohhmrghinhepsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmegukeejvgemudgsudgsmeeltdekgeemtggtfhgtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmegukeejvgemudgsudgsmeeltdekgeemtggtfhgtpdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpegrlhgvgigrnhgurhgvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedufedprhgtphhtthhopehpvghnghdrfhgrnhesohhsshdrnhigphdrtghomhdprhgtphhtthhopehsuhguvggvphdrhhholhhlrgesrghrmhdrtghomhdprhgtphhtthhopehpvghnghdrf
- hgrnhesnhigphdrtghomhdprhgtphhtthhopegtrhhishhtihgrnhdrmhgrrhhushhsihesrghrmhdrtghomhdprhgtphhtthhopehshhgrfihnghhuoheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepshdrhhgruhgvrhesphgvnhhguhhtrhhonhhigidruggvpdhrtghpthhtohepkhgvrhhnvghlsehpvghnghhuthhrohhnihigrdguvgdprhgtphhtthhopehfvghsthgvvhgrmhesghhmrghilhdrtghomh
-X-GND-Sasl: alexandre.belloni@bootlin.com
+Content-Transfer-Encoding: 8bit
 
-On 13/02/2025 21:35:50+0800, Peng Fan wrote:
-> >Well, yes, you have your answer here, if the firmware knows RTC1 is more
-> >accurate and will be your source of truth, then simply use this one.
-> 
-> But issue is RTC1 is only readable to Linux non-safety, Linux not able
-> to set alarm. Linux could only use RTC0 for alarm with current i.MX95 EVK
-> firmware.
-> 
-> If RTC1 could be exported to linux for control, we could for sure
-> switch to using RTC1 without caring about RTC0. But this is not true.
-> 
-> RTC0 is free for linux to control, RTC1 not. Switching to RTC1 will make
-> us lose RTC alarm to wake up linux feature.
-> 
+Real Time Clock (RTC) is an independently powered module
+within the chip, which includes a 32KHz oscillator and
+a Power On Reset/POR submodule. It can be used for time
+display and timed alarm generation.
 
-This doesn't make any sense, this limitation is on your firmware side,
-either RTC1 has alarm support and the firmware can set the alarm for
-linux or it doesn't and then, the firmware must set the time and alarm
-on RTC0.
+Changes since v9:
+- picked up orphaned series;
+- further simplified bitmask macros;
+- unconditional RTC start (rtc_enable_sec_counter());
+- dropped ANA_CALIB modification;
+- successfully tested on SG2000;
+
+v9: https://lore.kernel.org/linux-riscv/20240428060848.706573-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v8:
+- delete unused macros
+- using 0/1 instead of the DISABLE/ENABLE macro
+- pass in the correct pointer when applying for IRQ
+- convert the incoming pointer into an appropriate
+  structure pointer in the irq handler
+
+v8: https://lore.kernel.org/all/20240204044143.415915-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v7:
+- pass checkpatch.pl --strict
+- using u32 replace uint32
+- using devm_kzalloc(*) replace
+  devm_kzalloc(sizeof())
+- sort header files alphabetically
+- delete unnecessary header files
+- fix wrap error
+- drop dependent description
+- using hardware automatic calibration replace
+  software calibration. see documentation 197 page
+
+v7: https://lore.kernel.org/all/20240122080500.2621-1-qiujingbao.dlmu@gmail.com/
+documentation: https://github.com/milkv-duo/duo-files/blob/main/duo/datasheet/CV1800B-CV1801B-Preliminary-Datasheet-full-en.pdf
+
+Changes since v6:
+- completely delete POR dt node
+- remove syscon tag
+- use devm_regmap_init_mmio() replace
+  syscon_node_to_regmap
+
+v6: https://lore.kernel.org/all/20240115160600.5444-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v5:
+- remove unnecessary lock
+- fix cv1800_rtc_alarm_irq_enable()
+- remove duplicate checks
+- using alrm->enabled instead of unconditionally
+  enabling
+- remove disable alarms on probe
+- using rtc_update_irq() replace mess of alarm
+- remove leak clk
+- useing devm_rtc_allocate_device() and
+  devm_rtc_register_device() instead old way
+- add judgment for rtc_enable_sec_counter()
+- add POR nodes in DTS. This POR device shares
+  the register region with the RTC device
+
+v5: https://lore.kernel.org/all/20240108072253.30183-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v4:
+- remove POR dt-bindings because it empty
+- remove MFD dt-bindings because SoC does
+  not have MFDs
+- add syscon attribute to share registers
+  with POR
+
+v4: https://lore.kernel.org/all/20231229090643.116575-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v3:
+- temporarily not submitting RTC driver code
+  waiting for communication with IC designer
+- add MFD dt-bindings
+- add POR dt-bindings
+
+v3: https://lore.kernel.org/all/20231226100431.331616-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v2:
+- add mfd support for CV1800
+- add rtc to mfd
+- using regmap replace iomap
+- merge register address in dts
+
+v2: https://lore.kernel.org/lkml/20231217110952.78784-1-qiujingbao.dlmu@gmail.com/
+
+Changes since v1
+- fix duplicate names in subject
+- using RTC replace RTC controller
+- improve the properties of dt-bindings
+- using `unevaluatedProperties` replace `additionalProperties`
+- dt-bindings passed the test
+- using `devm_platform_ioremap_resource()` replace
+  `platform_get_resource()` and `devm_ioremap_resource()`
+- fix random order of the code
+- fix wrong wrapping of the `devm_request_irq()` and map the flag with dts
+- using devm_clk_get_enabled replace `devm_clk_get()` and
+  `clk_prepare_enable()`
+- fix return style
+- add rtc clock calibration function
+- use spinlock when write register on read/set time
+
+v1: https://lore.kernel.org/lkml/20231121094642.2973795-1-qiujingbao.dlmu@gmail.com/
+
+Jingbao Qiu (2):
+  dt-bindings: rtc: sophgo: add RTC support for Sophgo CV1800 series SoC
+  rtc: sophgo: add rtc support for Sophgo CV1800 SoC
+
+ .../bindings/rtc/sophgo,cv1800-rtc.yaml       |  53 +++++
+ drivers/rtc/Kconfig                           |  10 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-cv1800.c                      | 223 ++++++++++++++++++
+ 4 files changed, 287 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/sophgo,cv1800-rtc.yaml
+ create mode 100644 drivers/rtc/rtc-cv1800.c
 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.48.1
+
