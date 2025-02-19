@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DFE51EB19C;
-	Wed, 19 Feb 2025 13:43:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E07C1E7C23;
+	Wed, 19 Feb 2025 13:43:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739972597; cv=none; b=ol0SAvBdiPWdunIMv032jSYGR99TfR8BbkVEsR7niNgyECLuIuWZ6ISpwgqBK8US+u5ZpXoZqqJPz4UyuY9VzJikjuw++y3bQH5JrPt0CudwNyqr5qmdDV6SLlZNKICuTm47LWLgqvJsW8cTOCQz1zWj3k9JoJR2KcS/tTTuE4w=
+	t=1739972597; cv=none; b=pHWn0Igwh28VwxrciecMBZCf5JeHbk+SsB9JrK1LDBpp85AXlVHQAXU7izixGELHUeq/+S/QVZcapSzuuJxf8Kk4uq9Ad3Dcwq6WfL1Fw1UMarbVXYN0suPCcfSwO3BkPSUerYYJfyTQuB1ubzrbhKcjSc/qu01WflbM1XG9AIc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739972597; c=relaxed/simple;
-	bh=67YcT/JtMeOJVzv0hcH+YNMQnhqLpKWigz/mRmSfnyY=;
+	bh=nwsj4CidURS/EZrbUuMzdATKYlm1Szt4afCfuzWKh8w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AOkvvxTU2wyMXTbtwpDhVYQlQJWJXotU7tspwQIFIP8yxdM+qqG2UD8E+AF1bavarb+hZlGe9Z0qYj59Ui3efLE5uz3RM2tV2iBZcX/xe8L27j+pthyDEkz+BCseamuRpwqPhO9WkDPkN0FiukvqHU4iOPeIDGQfcPLBx1h11iA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XYMizj9a; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Uq8gkrTlwam+qOowwopUPYvHtaBjILzQuHSFBcQg5LyijcFIbE9Xla3LiXkUode9qsJ/dDzugBXS85H6uGDDtvQyyM4+kSAfoLWFzn8+lQeGk7zkg6sJGFQjnWfvawMPz7tp2SP8wWNCdE5hMwxmp2CTEkvbsV304CQQbFeeQTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V8cTVUV0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XYMizj9a"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D8C3C4CEE7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V8cTVUV0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6BBDC4CEFB;
 	Wed, 19 Feb 2025 13:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1739972596;
-	bh=67YcT/JtMeOJVzv0hcH+YNMQnhqLpKWigz/mRmSfnyY=;
+	bh=nwsj4CidURS/EZrbUuMzdATKYlm1Szt4afCfuzWKh8w=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=XYMizj9aZgRai+1A3oskApPkehmYFChTyqMgZ4iBH3gXiV7Vsr/7Lbg7DSKXV+ADS
-	 V7/VuPaba8gEkvz/q1P7Yr0sCQgipQSCWcuJ2rFxGEpg6bpswc30VTnDunQGJXg5B+
-	 rRf65X24IlhPx4mCrKSvdGWY4+zKiQZgNxBpQVNRCnEGA0ugNLbetFI0Vk5fT0/hGo
-	 Zzu7l1bjskEtNDHJysYYcd4ARbgDXLrC0P56ry/lyD+W5i1ToQqbBWSMK5x+/RwoPE
-	 hJ2xKx1V3RNFD1adId4TGN5ayuCBFBDhIDGSos+YJEErKWzd7j+XPmGHfcprcWMsp5
-	 LkkgMurLS/Edg==
+	b=V8cTVUV0A08OVk8hDrK05zy8mj/oVhFOTq0CCgvqhwMDk7yPJ0QlNezVMSOEnCEkO
+	 I0ta7hG34cnQfg9JlepjjfeDwY6AUXAJLE16UjOpUzk3HFFnVP/zrr6O3KdLDekxve
+	 WDRHiVPjfway0x3VMOK79NErelGvGIv0vYe5YM+NWHUxNil4VB6rbs78ZPJaFo/bTD
+	 JJitjEAvW0/eaeREhFB8y3OJHtSZ1PqG+we58IqK0ItT6Egoh/jH8IBXp2mzmSscZD
+	 8BptSCq6ln6QoXvdMhtlSUnyTF5L8YeQOzwJkIlMb+qArM6/xzUcbfTZOPymSAGbij
+	 xMmuRLsetkDmg==
 Received: from johan by xi.lan with local (Exim 4.97.1)
 	(envelope-from <johan+linaro@kernel.org>)
-	id 1tkkMI-0000000086a-0Upx;
+	id 1tkkMI-0000000086h-1ex3;
 	Wed, 19 Feb 2025 14:43:26 +0100
 From: Johan Hovold <johan+linaro@kernel.org>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -48,10 +48,11 @@ Cc: Rob Herring <robh@kernel.org>,
 	linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 2/6] rtc: pm8xxx: add support for uefi offset
-Date: Wed, 19 Feb 2025 14:41:14 +0100
-Message-ID: <20250219134118.31017-3-johan+linaro@kernel.org>
+	Johan Hovold <johan+linaro@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Subject: [PATCH v2 5/6] arm64: dts: qcom: sc8280xp-x13s: switch to uefi rtc offset
+Date: Wed, 19 Feb 2025 14:41:17 +0100
+Message-ID: <20250219134118.31017-6-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.45.3
 In-Reply-To: <20250219134118.31017-1-johan+linaro@kernel.org>
 References: <20250219134118.31017-1-johan+linaro@kernel.org>
@@ -65,292 +66,49 @@ Content-Transfer-Encoding: 8bit
 
 On many Qualcomm platforms the PMIC RTC control and time registers are
 read-only so that the RTC time can not be updated. Instead an offset
-needs be stored in some machine-specific non-volatile memory, which the
+needs be stored in some machine-specific non-volatile memory, which a
 driver can take into account.
 
-Add support for storing a 32-bit offset from the GPS time epoch in a
-UEFI variable so that the RTC time can be set on such platforms.
+Switch to using the Qualcomm specific UEFI variable that is used by the
+UEFI firmware (and Windows) to store the RTC offset.
 
-The UEFI variable is
+This specifically means that the RTC time will be synchronised between
+the UEFI firmware setup (or UEFI shell), Windows and Linux.
 
-            882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
-
-and holds a 12-byte structure where the first four bytes is a GPS time
-offset in little-endian byte order.
-
-Note that this format is not arbitrary as the variable is shared with
-the UEFI firmware (and Windows).
+Note however that Windows stores the RTC time in local time by default,
+while Linux typically uses UTC (i.e. as on X86).
 
 Tested-by: Jens Glathe <jens.glathe@oldschoolsolutions.biz>
 Tested-by: Steev Klimaszewski <steev@kali.org>
-Tested-by: Joel Stanley <joel@jms.id.au>
-Tested-by: Sebastian Reichel <sre@kernel.org> # Lenovo T14s Gen6
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 156 +++++++++++++++++++++++++++++++++------
- include/linux/rtc.h      |   1 +
- 2 files changed, 133 insertions(+), 24 deletions(-)
+ .../boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts   | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index b2518aea4218..e68b10aa5352 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
-  * Copyright (c) 2023, Linaro Limited
-  */
-+#include <linux/efi.h>
- #include <linux/of.h>
- #include <linux/module.h>
- #include <linux/nvmem-consumer.h>
-@@ -16,9 +17,10 @@
- #include <linux/regmap.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
--
- #include <linux/unaligned.h>
- 
-+#include <asm/byteorder.h>
-+
- /* RTC_CTRL register bit fields */
- #define PM8xxx_RTC_ENABLE		BIT(7)
- #define PM8xxx_RTC_ALARM_CLEAR		BIT(0)
-@@ -46,14 +48,21 @@ struct pm8xxx_rtc_regs {
- 	unsigned int alarm_en;
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+index 38d911992475..8000254f4db5 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+@@ -1090,18 +1090,7 @@ &pmk8280_pon_resin {
  };
  
-+struct qcom_uefi_rtc_info {
-+	__le32	offset_gps;
-+	u8	reserved[8];
-+} __packed;
-+
- /**
-  * struct pm8xxx_rtc -  RTC driver internal structure
-  * @rtc:		RTC device
-  * @regmap:		regmap used to access registers
-  * @allow_set_time:	whether the time can be set
-+ * @use_uefi:		use UEFI variable as fallback for offset
-  * @alarm_irq:		alarm irq number
-  * @regs:		register description
-  * @dev:		device structure
-+ * @rtc_info:		qcom uefi rtc-info structure
-  * @nvmem_cell:		nvmem cell for offset
-  * @offset:		offset from epoch in seconds
-  */
-@@ -61,13 +70,101 @@ struct pm8xxx_rtc {
- 	struct rtc_device *rtc;
- 	struct regmap *regmap;
- 	bool allow_set_time;
-+	bool use_uefi;
- 	int alarm_irq;
- 	const struct pm8xxx_rtc_regs *regs;
- 	struct device *dev;
-+	struct qcom_uefi_rtc_info rtc_info;
- 	struct nvmem_cell *nvmem_cell;
- 	u32 offset;
+ &pmk8280_rtc {
+-	nvmem-cells = <&rtc_offset>;
+-	nvmem-cell-names = "offset";
+-
+-	status = "okay";
+-};
+-
+-&pmk8280_sdam_6 {
+ 	status = "okay";
+-
+-	rtc_offset: rtc-offset@bc {
+-		reg = <0xbc 0x4>;
+-	};
  };
  
-+#ifdef CONFIG_EFI
-+
-+MODULE_IMPORT_NS("EFIVAR");
-+
-+#define QCOM_UEFI_NAME	L"RTCInfo"
-+#define QCOM_UEFI_GUID	EFI_GUID(0x882f8c2b, 0x9646, 0x435f, \
-+				 0x8d, 0xe5, 0xf2, 0x08, 0xff, 0x80, 0xc1, 0xbd)
-+#define QCOM_UEFI_ATTRS	(EFI_VARIABLE_NON_VOLATILE | \
-+			 EFI_VARIABLE_BOOTSERVICE_ACCESS | \
-+			 EFI_VARIABLE_RUNTIME_ACCESS)
-+
-+static int pm8xxx_rtc_read_uefi_offset(struct pm8xxx_rtc *rtc_dd)
-+{
-+	struct qcom_uefi_rtc_info *rtc_info = &rtc_dd->rtc_info;
-+	unsigned long size = sizeof(*rtc_info);
-+	struct device *dev = rtc_dd->dev;
-+	efi_status_t status;
-+	u32 offset_gps;
-+	int rc;
-+
-+	rc = efivar_lock();
-+	if (rc)
-+		return rc;
-+
-+	status = efivar_get_variable(QCOM_UEFI_NAME, &QCOM_UEFI_GUID, NULL,
-+				     &size, rtc_info);
-+	efivar_unlock();
-+
-+	if (status != EFI_SUCCESS) {
-+		dev_dbg(dev, "failed to read UEFI offset: %lu\n", status);
-+		return efi_status_to_err(status);
-+	}
-+
-+	if (size != sizeof(*rtc_info)) {
-+		dev_dbg(dev, "unexpected UEFI structure size %lu\n", size);
-+		return -EINVAL;
-+	}
-+
-+	dev_dbg(dev, "uefi_rtc_info = %*ph\n", (int)size, rtc_info);
-+
-+	/* Convert from GPS to Unix time offset */
-+	offset_gps = le32_to_cpu(rtc_info->offset_gps);
-+	rtc_dd->offset = offset_gps + (u32)RTC_TIMESTAMP_EPOCH_GPS;
-+
-+	return 0;
-+}
-+
-+static int pm8xxx_rtc_write_uefi_offset(struct pm8xxx_rtc *rtc_dd, u32 offset)
-+{
-+	struct qcom_uefi_rtc_info *rtc_info = &rtc_dd->rtc_info;
-+	unsigned long size = sizeof(*rtc_info);
-+	struct device *dev = rtc_dd->dev;
-+	efi_status_t status;
-+	u32 offset_gps;
-+
-+	/* Convert from Unix to GPS time offset */
-+	offset_gps = offset - (u32)RTC_TIMESTAMP_EPOCH_GPS;
-+
-+	rtc_info->offset_gps = cpu_to_le32(offset_gps);
-+
-+	dev_dbg(dev, "efi_rtc_info = %*ph\n", (int)size, rtc_info);
-+
-+	status = efivar_set_variable(QCOM_UEFI_NAME, &QCOM_UEFI_GUID,
-+				     QCOM_UEFI_ATTRS, size, rtc_info);
-+	if (status != EFI_SUCCESS) {
-+		dev_dbg(dev, "failed to write UEFI offset: %lx\n", status);
-+		return efi_status_to_err(status);
-+	}
-+
-+	return 0;
-+}
-+
-+#else	/* CONFIG_EFI */
-+
-+static int pm8xxx_rtc_read_uefi_offset(struct pm8xxx_rtc *rtc_dd)
-+{
-+	return -ENODEV;
-+}
-+
-+static int pm8xxx_rtc_write_uefi_offset(struct pm8xxx_rtc *rtc_dd, u32 offset)
-+{
-+	return -ENODEV;
-+}
-+
-+#endif	/* CONFIG_EFI */
-+
- static int pm8xxx_rtc_read_nvmem_offset(struct pm8xxx_rtc *rtc_dd)
- {
- 	size_t len;
-@@ -110,14 +207,6 @@ static int pm8xxx_rtc_write_nvmem_offset(struct pm8xxx_rtc *rtc_dd, u32 offset)
- 	return 0;
- }
- 
--static int pm8xxx_rtc_read_offset(struct pm8xxx_rtc *rtc_dd)
--{
--	if (!rtc_dd->nvmem_cell)
--		return 0;
--
--	return pm8xxx_rtc_read_nvmem_offset(rtc_dd);
--}
--
- static int pm8xxx_rtc_read_raw(struct pm8xxx_rtc *rtc_dd, u32 *secs)
- {
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -155,7 +244,7 @@ static int pm8xxx_rtc_update_offset(struct pm8xxx_rtc *rtc_dd, u32 secs)
- 	u32 offset;
- 	int rc;
- 
--	if (!rtc_dd->nvmem_cell)
-+	if (!rtc_dd->nvmem_cell && !rtc_dd->use_uefi)
- 		return -ENODEV;
- 
- 	rc = pm8xxx_rtc_read_raw(rtc_dd, &raw_secs);
-@@ -167,7 +256,11 @@ static int pm8xxx_rtc_update_offset(struct pm8xxx_rtc *rtc_dd, u32 secs)
- 	if (offset == rtc_dd->offset)
- 		return 0;
- 
--	rc = pm8xxx_rtc_write_nvmem_offset(rtc_dd, offset);
-+	if (rtc_dd->nvmem_cell)
-+		rc = pm8xxx_rtc_write_nvmem_offset(rtc_dd, offset);
-+	else
-+		rc = pm8xxx_rtc_write_uefi_offset(rtc_dd, offset);
-+
- 	if (rc)
- 		return rc;
- 
-@@ -455,6 +548,30 @@ static const struct of_device_id pm8xxx_id_table[] = {
- };
- MODULE_DEVICE_TABLE(of, pm8xxx_id_table);
- 
-+static int pm8xxx_rtc_probe_offset(struct pm8xxx_rtc *rtc_dd)
-+{
-+	int rc;
-+
-+	rtc_dd->nvmem_cell = devm_nvmem_cell_get(rtc_dd->dev, "offset");
-+	if (IS_ERR(rtc_dd->nvmem_cell)) {
-+		rc = PTR_ERR(rtc_dd->nvmem_cell);
-+		if (rc != -ENOENT)
-+			return rc;
-+		rtc_dd->nvmem_cell = NULL;
-+	} else {
-+		return pm8xxx_rtc_read_nvmem_offset(rtc_dd);
-+	}
-+
-+	/* Use UEFI storage as fallback if available */
-+	if (efivar_is_available()) {
-+		rc = pm8xxx_rtc_read_uefi_offset(rtc_dd);
-+		if (rc == 0)
-+			rtc_dd->use_uefi = true;
-+	}
-+
-+	return 0;
-+}
-+
- static int pm8xxx_rtc_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *match;
-@@ -469,6 +586,9 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 	if (rtc_dd == NULL)
- 		return -ENOMEM;
- 
-+	rtc_dd->regs = match->data;
-+	rtc_dd->dev = &pdev->dev;
-+
- 	rtc_dd->regmap = dev_get_regmap(pdev->dev.parent, NULL);
- 	if (!rtc_dd->regmap)
- 		return -ENXIO;
-@@ -479,20 +599,8 @@ static int pm8xxx_rtc_probe(struct platform_device *pdev)
- 
- 	rtc_dd->allow_set_time = of_property_read_bool(pdev->dev.of_node,
- 						      "allow-set-time");
--
--	rtc_dd->nvmem_cell = devm_nvmem_cell_get(&pdev->dev, "offset");
--	if (IS_ERR(rtc_dd->nvmem_cell)) {
--		rc = PTR_ERR(rtc_dd->nvmem_cell);
--		if (rc != -ENOENT)
--			return rc;
--		rtc_dd->nvmem_cell = NULL;
--	}
--
--	rtc_dd->regs = match->data;
--	rtc_dd->dev = &pdev->dev;
--
- 	if (!rtc_dd->allow_set_time) {
--		rc = pm8xxx_rtc_read_offset(rtc_dd);
-+		rc = pm8xxx_rtc_probe_offset(rtc_dd);
- 		if (rc)
- 			return rc;
- 	}
-diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-index 3f4d315aaec9..95da051fb155 100644
---- a/include/linux/rtc.h
-+++ b/include/linux/rtc.h
-@@ -170,6 +170,7 @@ struct rtc_device {
- /* useful timestamps */
- #define RTC_TIMESTAMP_BEGIN_0000	-62167219200ULL /* 0000-01-01 00:00:00 */
- #define RTC_TIMESTAMP_BEGIN_1900	-2208988800LL /* 1900-01-01 00:00:00 */
-+#define RTC_TIMESTAMP_EPOCH_GPS		315964800LL /* 1980-01-06 00:00:00 */
- #define RTC_TIMESTAMP_BEGIN_2000	946684800LL /* 2000-01-01 00:00:00 */
- #define RTC_TIMESTAMP_END_2063		2966371199LL /* 2063-12-31 23:59:59 */
- #define RTC_TIMESTAMP_END_2079		3471292799LL /* 2079-12-31 23:59:59 */
+ &pmk8280_vadc {
 -- 
 2.45.3
 
