@@ -1,197 +1,120 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00DC3233D87
-	for <linux-rtc@vger.kernel.org>; Thu, 27 Feb 2025 13:43:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3AC32356B5
+	for <linux-rtc@vger.kernel.org>; Thu, 27 Feb 2025 14:18:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740663824; cv=none; b=ZHEyM5ourM+Xl55QOki0KFugyMKnnxmjuW6TCHdBJ+O+TCJSEZ5GUEV4NqworCStASxR+lAAaPiau/mOu1t5+kUUBmlR0cTNkSWl9iE5zS7Y6zuB/4b78MjjYXSLkofi52z8MAMzs91gEnZr670BSKbdwlBEU/OBXpUkGKhtAt0=
+	t=1740665915; cv=none; b=GIPkb4fqC1U/eaB7eTisX2OTfDrCiFaUINVkC+q7owR/pwt/I180IhEBuYMRrAEFpy9RKBtJCu+drL8FTYA/A4Pr26WxWWxGYnXQyEC23jKkS5Eh01ZuCa6Usf7gCiiN5/2PnmIaarStL5nT5v2fjXxUJN2merChAFm5aobMJrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740663824; c=relaxed/simple;
-	bh=U6n/H40musBB5lnG+MWME+/V8NSXjxciFG3PenyFzm0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aqdjej6IW/UNya+sN3kAoeqa9zq8sJWLTIEsrzQ6hbfk3X2ChIQ1s3HfDGR+gReboCqqVkoJyuvfLJZGyLPEF/XN8GglgY2zEp1cMbqUTuxd8sWkDbdFVqnJVsGCQQbCaaq+lH8cSS6kRxtfyBnP+WjyiKuWCIw1Wxu5tkScFWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=iXPWfMd+; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="iXPWfMd+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=PBspQWhBgZsPi9uOPbHH9ZhmabqvDjdep8eQaQ/UPOA=; b=iXPWfM
-	d+dMW3yA4sZFc4tYhBb2RuSewn/n8gP1Lqxlrfe3SEfnIx/QW0Oaywd57UTQoEHr
-	cEIj2uE8DrkQSsPqGCL10fQzF4Je+LN+dE48VtlxYkWnNRkL1UbeomfD55Ia91ms
-	dzI5wsQKaDJqDFL4iwAS1EHjIm/nd0R5tyOa3RVDW2IuBSYoEVDhx5BBEbUHz+oK
-	wkbDAYvE6hyJC2/C3rOpPvoMQ9rL4PL3ZlyaSHPeZqD7+Xqxmwyg3VPc33ErpVAv
-	8PCHCFwDFb6X7BVNDouHIgS11cjV6F8mYmlvkjRx+e4meJrBhgPHVZVAbjKnSF26
-	osVF88Kh00/hdNdA==
-Received: (qmail 962376 invoked from network); 27 Feb 2025 14:43:32 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Feb 2025 14:43:32 +0100
-X-UD-Smtp-Session: l3s3148p1@4+Ay4B8vQQltKPD9
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH 4/8] rtc: sh: remove periodic interrupt handling
-Date: Thu, 27 Feb 2025 14:42:59 +0100
-Message-ID: <20250227134256.9167-14-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20250227134256.9167-10-wsa+renesas@sang-engineering.com>
-References: <20250227134256.9167-10-wsa+renesas@sang-engineering.com>
+	s=arc-20240116; t=1740665915; c=relaxed/simple;
+	bh=LxGqDDciDNPai+yMXfQ6y3up7TsSxsnZOwf8EJYTN8g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DpSle8bG8rm3x9JEoaDRz3In7DxdsntTrmOyENIvdXFXKrM0LCDathVLEC95YvtbhsnpIN3hBYsN9b9olc90OhEWvk8xEyBBNrQuNWI5zGwIepMIJRRyxs+pTeVN/sO2+xH5j/1+dFiQU4NjpF9dlxA7db2zj9+GgMbXJZ3SlBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1tnehz-0003GQ-MD; Thu, 27 Feb 2025 15:17:51 +0100
+Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1tnehw-0038i4-0Z;
+	Thu, 27 Feb 2025 15:17:48 +0100
+Received: from pengutronix.de (p5b164285.dip0.t-ipconnect.de [91.22.66.133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: mkl-all@blackshift.org)
+	by smtp.blackshift.org (Postfix) with ESMTPSA id C00033CD6A6;
+	Thu, 27 Feb 2025 14:17:47 +0000 (UTC)
+Date: Thu, 27 Feb 2025 15:17:47 +0100
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Cc: Ming Yu <a0282524688@gmail.com>, linux-kernel@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org, tmyu0@nuvoton.com, lee@kernel.org, 
+	linus.walleij@linaro.org, brgl@bgdev.pl, andi.shyti@kernel.org, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	wim@linux-watchdog.org, linux@roeck-us.net, jdelvare@suse.com, 
+	alexandre.belloni@bootlin.com
+Subject: Re: [PATCH v8 4/7] can: Add Nuvoton NCT6694 CANFD support
+Message-ID: <20250227-gregarious-garrulous-echidna-ca7975-mkl@pengutronix.de>
+References: <20250225081644.3524915-1-a0282524688@gmail.com>
+ <20250225081644.3524915-5-a0282524688@gmail.com>
+ <a32b4ca1-0bcf-48e4-87ab-61fbd077a3c3@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="i5nv6d7na7xl5d3b"
+Content-Disposition: inline
+In-Reply-To: <a32b4ca1-0bcf-48e4-87ab-61fbd077a3c3@wanadoo.fr>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-rtc@vger.kernel.org
 
-Because periodic interrupts are emulated by the RTC core, the PIE
-handling code can simply go away now. And with it the custom proc-file.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/rtc/rtc-sh.c | 69 --------------------------------------------
- 1 file changed, 69 deletions(-)
+--i5nv6d7na7xl5d3b
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v8 4/7] can: Add Nuvoton NCT6694 CANFD support
+MIME-Version: 1.0
 
-diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 469806604f31..e80d4ae979c9 100644
---- a/drivers/rtc/rtc-sh.c
-+++ b/drivers/rtc/rtc-sh.c
-@@ -72,12 +72,6 @@
- /* ALARM Bits - or with BCD encoded value */
- #define AR_ENB		0x80	/* Enable for alarm cmp   */
- 
--/* Period Bits */
--#define PF_HP		0x100	/* Enable Half Period to support 8,32,128Hz */
--#define PF_COUNT	0x200	/* Half periodic counter */
--#define PF_KOU		0x800	/* Kernel or User periodic request 1=kernel */
--#define PF_MASK		0xf00
--
- /* RCR1 Bits */
- #define RCR1_CF		0x80	/* Carry Flag             */
- #define RCR1_CIE	0x10	/* Carry Interrupt Enable */
-@@ -85,8 +79,6 @@
- #define RCR1_AF		0x01	/* Alarm Flag             */
- 
- /* RCR2 Bits */
--#define RCR2_PEF	0x80	/* PEriodic interrupt Flag */
--#define RCR2_PESMASK	0x70	/* Periodic interrupt Set  */
- #define RCR2_RTCEN	0x08	/* ENable RTC              */
- #define RCR2_ADJ	0x04	/* ADJustment (30-second)  */
- #define RCR2_RESET	0x02	/* Reset bit               */
-@@ -103,7 +95,6 @@ struct sh_rtc {
- 	struct rtc_device	*rtc_dev;
- 	spinlock_t		lock;
- 	unsigned long		capabilities;	/* See asm/rtc.h for cap bits */
--	unsigned short		periodic_freq;
- };
- 
- static int __sh_rtc_alarm(struct sh_rtc *rtc)
-@@ -121,30 +112,6 @@ static int __sh_rtc_alarm(struct sh_rtc *rtc)
- 	return pending;
- }
- 
--static int __sh_rtc_periodic(struct sh_rtc *rtc)
--{
--	unsigned int tmp, pending;
--
--	tmp = readb(rtc->regbase + RCR2);
--	pending = tmp & RCR2_PEF;
--	tmp &= ~RCR2_PEF;
--	writeb(tmp, rtc->regbase + RCR2);
--
--	if (!pending)
--		return 0;
--
--	/* Half period enabled than one skipped and the next notified */
--	if ((rtc->periodic_freq & PF_HP) && (rtc->periodic_freq & PF_COUNT))
--		rtc->periodic_freq &= ~PF_COUNT;
--	else {
--		if (rtc->periodic_freq & PF_HP)
--			rtc->periodic_freq |= PF_COUNT;
--		rtc_update_irq(rtc->rtc_dev, 1, RTC_PF | RTC_IRQF);
--	}
--
--	return pending;
--}
--
- static irqreturn_t sh_rtc_alarm(int irq, void *dev_id)
- {
- 	struct sh_rtc *rtc = dev_id;
-@@ -157,18 +124,6 @@ static irqreturn_t sh_rtc_alarm(int irq, void *dev_id)
- 	return IRQ_RETVAL(ret);
- }
- 
--static irqreturn_t sh_rtc_periodic(int irq, void *dev_id)
--{
--	struct sh_rtc *rtc = dev_id;
--	int ret;
--
--	spin_lock(&rtc->lock);
--	ret = __sh_rtc_periodic(rtc);
--	spin_unlock(&rtc->lock);
--
--	return IRQ_RETVAL(ret);
--}
--
- static irqreturn_t sh_rtc_shared(int irq, void *dev_id)
- {
- 	struct sh_rtc *rtc = dev_id;
-@@ -176,7 +131,6 @@ static irqreturn_t sh_rtc_shared(int irq, void *dev_id)
- 
- 	spin_lock(&rtc->lock);
- 	ret = __sh_rtc_alarm(rtc);
--	ret |= __sh_rtc_periodic(rtc);
- 	spin_unlock(&rtc->lock);
- 
- 	return IRQ_RETVAL(ret);
-@@ -201,18 +155,6 @@ static inline void sh_rtc_setaie(struct device *dev, unsigned int enable)
- 	spin_unlock_irq(&rtc->lock);
- }
- 
--static int sh_rtc_proc(struct device *dev, struct seq_file *seq)
--{
--	struct sh_rtc *rtc = dev_get_drvdata(dev);
--	unsigned int tmp;
--
--	tmp = readb(rtc->regbase + RCR2);
--	seq_printf(seq, "periodic_IRQ\t: %s\n",
--		   (tmp & RCR2_PESMASK) ? "yes" : "no");
--
--	return 0;
--}
--
- static int sh_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	sh_rtc_setaie(dev, enabled);
-@@ -405,7 +347,6 @@ static const struct rtc_class_ops sh_rtc_ops = {
- 	.set_time	= sh_rtc_set_time,
- 	.read_alarm	= sh_rtc_read_alarm,
- 	.set_alarm	= sh_rtc_set_alarm,
--	.proc		= sh_rtc_proc,
- 	.alarm_irq_enable = sh_rtc_alarm_irq_enable,
- };
- 
-@@ -512,16 +453,6 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
- 			goto err_unmap;
- 		}
- 	} else {
--		/* register periodic/carry/alarm irqs */
--		ret = devm_request_irq(&pdev->dev, rtc->periodic_irq,
--				sh_rtc_periodic, 0, "sh-rtc period", rtc);
--		if (unlikely(ret)) {
--			dev_err(&pdev->dev,
--				"request period IRQ failed with %d, IRQ %d\n",
--				ret, rtc->periodic_irq);
--			goto err_unmap;
--		}
--
- 		ret = devm_request_irq(&pdev->dev, rtc->alarm_irq,
- 				sh_rtc_alarm, 0, "sh-rtc alarm", rtc);
- 		if (unlikely(ret)) {
--- 
-2.45.2
+On 27.02.2025 11:08:50, Vincent Mailhol wrote:
+> > +static int nct6694_can_stop(struct net_device *ndev)
+> > +{
+> > +	struct nct6694_can_priv *priv =3D netdev_priv(ndev);
+> > +
+> > +	priv->can.ctrlmode =3D CAN_CTRLMODE_LISTENONLY;
+>=20
+> Hmmm, when Marc asked you to put the device in listen only mode, I think
+> he meant that you set it on the device side (i.e. flag
+> NCT6694_CAN_SETTING_CTRL1_MON) and not on the driver side. If you set
+> CAN_CTRLMODE_LISTENONLY flag, that will be reported in the netlink
+> interface. So you should not change that flag.
 
+ACK
+
+> But before that, did you check the datasheet? Don't you have a device
+> flag to actually turn the device off (e.g. sleep mode)?
+
+Please test that the ifup -> ifdown -> ifup sequence works properly,
+even on a busy bus and on a bus without with a 2nd CAN station that is
+sending and you are the only receiver.
+
+regards,
+Marc
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde          |
+Embedded Linux                   | https://www.pengutronix.de |
+Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
+
+--i5nv6d7na7xl5d3b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEn/sM2K9nqF/8FWzzDHRl3/mQkZwFAmfAdAgACgkQDHRl3/mQ
+kZxjHQf/cl+NPaGA6wNUTa68Le8AS6tbcg6UkzWcAd8AS8/6CWkgPeebGEbmzKvl
+iENWrgc7mfiuy346ubOPufojybeeXMdOHLiwDPEkVgZegMycqUnS+2F/mTCm50fR
+vf9mETJuODrqvL4I265jS9Z+SUA/R/pzTcs0pQItMSzfUwGJ5nv9JQS8mv3MOQhM
+zOqyOMX1bv3+0Ov9ZTpjaV2JoOmTqpDFIYuN2DyqGl+NlJfZyHCp/Z8UJ7MyQykL
+Nzk53OPw0yb1MC6RT8m5ijRnpiVzfV5Et+2/FEXSW0aE/SXBRailPfDqdEmxXFnf
+f4DOoo4Z+H6xhf0L7EUZ1HcmpU+ckA==
+=2o2X
+-----END PGP SIGNATURE-----
+
+--i5nv6d7na7xl5d3b--
