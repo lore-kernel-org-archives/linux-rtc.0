@@ -1,89 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E5CF1624C3;
-	Thu, 27 Feb 2025 15:48:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A66DD1A8F63;
+	Thu, 27 Feb 2025 15:53:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.154.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740671321; cv=none; b=Sb0C+uYqm69kbqBLIYrn57c+0Ss/LNuP9mwQQYGpYEboeAmysE9dCTfav6g5/tVdULPILpRzpPg9EvvHEjsfNKn40FzYrFm9e+0di2mH8NeVuFYz6GJxy0kEweYYnIjtHTwIC4QWsNoiIKh3WzPDc3pSVhGryi0HAKB9VWei70k=
+	t=1740671582; cv=none; b=eTO0t216cR259EHDRTYf2YHLhKyqd8ZJnSSEQJXr801tEkG386jU0VanbB2Y2YFUXG01diJFr/hGIlCyFkMCURcfLyzy1Y4kdRZnLWJdFO4SE9lxLI1qNdGjEz8yB++L6zeftVGaXe003DgwC6Sb7pyd1rC7Bt5ZtIOEf6omAVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740671321; c=relaxed/simple;
-	bh=CLYYqdvqAO/1n/BWxTVd5NjOz2LQ7O10iJ3SeN8ieto=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ogUXIv+9nMUmKeoaNUf0DNgwv7IKagsmHzYxrIhrDHtTpSBE9+2sn5TPglmz18CPLsLeCHMbXXRfqchxUpx/uqpv8rP+pqbbbFfTUM9nIIocBy88daT6htbPDr39SNWl2yXIqSsGMHHaEBblTEXvGdwwW2YN7VPSoQWqpg9waWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ig5dzZ8T; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740671582; c=relaxed/simple;
+	bh=uwvaQhpL/ryj7UfrdD3+qReVR79lU5INxwAw4Zh+LZ8=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bVxo9h7PgaRLMw0Grr/K7lZqW2ul6TD4r46RjQnCftvQdnDr5H7FKZXRGBJYnmqeussOdHjiS1UJ9Kv7XrB/apqvxP1TLzleQ96LIXxbUP0x7plxkLleY0qSRH44EEuF8If9tyTxPEY7EoRX31TFm1tJArbmNHzsLuo8vNIznZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=x5xvjYxb; arc=none smtp.client-ip=68.232.154.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ig5dzZ8T"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C62C4CEDD;
-	Thu, 27 Feb 2025 15:48:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740671320;
-	bh=CLYYqdvqAO/1n/BWxTVd5NjOz2LQ7O10iJ3SeN8ieto=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ig5dzZ8TAwZWWEUogbZOP0QgD1qHUzsLdbmSun7YoUzDjsEP0GthlUE9htneHutDB
-	 VaGxjs5Zrax/HT0PddHlA1xYxsrIoWEPVMGSvtKu8iX8aetP+G/BehmXtmd3VEr4jk
-	 emRqbvQnnJCENiFdXXZsm+8WqTtKpKvlCx8o47TyAoMyuHPGBQYtSqE1aKJZq9RpZ/
-	 WcONZgDt4qBH8kT6NwAjrNzLFHRzpsp4BVFzb/zg/yQf5adlkKhmXNshvNnNtYLZSO
-	 wdn7F9NnUAv9M0iagr6jCpFuQkB1xfD2XJ2VPQrTppcC3fOjc3M70M9VrFwyTk58oY
-	 wxL5i48eqfGSA==
-Date: Thu, 27 Feb 2025 15:48:33 +0000
-From: Lee Jones <lee@kernel.org>
-To: Rob Herring <robh@kernel.org>
-Cc: Val Packett <val@packett.cool>, Fabien Parent <parent.f@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Eddie Huang <eddie.huang@mediatek.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-	Yassine Oudjana <y.oudjana@protonmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
-Subject: Re: (subset) [PATCH 4/9] mfd: mt6397: Add support for MT6392 pmic
-Message-ID: <20250227154833.GF824852@google.com>
-References: <20241226050205.30241-1-val@packett.cool>
- <20241226050205.30241-5-val@packett.cool>
- <173920541986.1887800.1972669785800121190.b4-ty@kernel.org>
- <CAL_Jsq+PPYeFxr=utwZLemUVCzk5iabtMckOJmNy1-LO39cqeQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="x5xvjYxb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1740671581; x=1772207581;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=uwvaQhpL/ryj7UfrdD3+qReVR79lU5INxwAw4Zh+LZ8=;
+  b=x5xvjYxbWgWdqBcxF1C7yb0A1s4ziBVYqJguYRRTNyJe6yL+Yw4VT4Lv
+   Qaoik89HX2tLnDs6lQxnzjj5V3csbDM9jLqe84WAopv+j3cW0/XWKs+ra
+   HeRKYhzJWHA50ZanFd70Ok88XNq1d/GjYphgtt7/iNF5/r57ZiGbFtAxr
+   XrGO6FMJPS3L1zE5w4auIlLfpANTgM78ehVwJBsmIOhP4fFL8qpB+DIeo
+   tFLtfWuMB3QjPlvVcDHIKNOS9+Xe8rNjbUyRX8kT7SkvRxm6OPDSZIGur
+   RewGi2P+Wh6mGzHl2L0EhBeKuP+zn+lwCbh3wGD1UlTPXAdF2dV5bsVFM
+   A==;
+X-CSE-ConnectionGUID: xBkIAngZQVSwQhIMCQbtUA==
+X-CSE-MsgGUID: Nu2RswKDQFOU7TU3XGo13g==
+X-IronPort-AV: E=Sophos;i="6.13,320,1732604400"; 
+   d="scan'208";a="38638160"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa2.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 27 Feb 2025 08:52:54 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 27 Feb 2025 08:52:44 -0700
+Received: from ryan-Precision-3630-Tower.microchip.com (10.10.85.11) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.2507.35 via Frontend Transport; Thu, 27 Feb 2025 08:52:44 -0700
+From: <Ryan.Wanner@microchip.com>
+To: <lee@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+	<conor+dt@kernel.org>, <claudiu.beznea@tuxon.dev>, <sre@kernel.org>,
+	<nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
+	<p.zabel@pengutronix.de>
+CC: <linux@armlinux.org.uk>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-rtc@vger.kernel.org>, "Ryan
+ Wanner" <Ryan.Wanner@microchip.com>, Krzysztof Kozlowski
+	<krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v3 01/21] dt-bindings: mfd: syscon: add microchip,sama7d65-ddr3phy
+Date: Thu, 27 Feb 2025 08:51:48 -0700
+Message-ID: <c5d602b7d4c29333013ef3f75544c2eb7e4b8dab.1740671156.git.Ryan.Wanner@microchip.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1740671156.git.Ryan.Wanner@microchip.com>
+References: <cover.1740671156.git.Ryan.Wanner@microchip.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAL_Jsq+PPYeFxr=utwZLemUVCzk5iabtMckOJmNy1-LO39cqeQ@mail.gmail.com>
+Content-Type: text/plain
 
-On Tue, 25 Feb 2025, Rob Herring wrote:
+From: Ryan Wanner <Ryan.Wanner@microchip.com>
 
-> On Mon, Feb 10, 2025 at 10:37 AM Lee Jones <lee@kernel.org> wrote:
-> >
-> > On Thu, 26 Dec 2024 01:58:04 -0300, Val Packett wrote:
-> > > Update the MT6397 MFD driver to support the MT6392 PMIC.
-> > >
-> > >
-> >
-> > Applied, thanks!
-> >
-> > [4/9] mfd: mt6397: Add support for MT6392 pmic
-> >       commit: 896b1eb4ca771b37ea50feb4d90a78dd4e9cb388
-> 
-> This should be dropped. Missing the sender's S-o-b and the rest of the
-> series has issues still.
+Add SAMA7D65 DDR3phy compatible to DT bindings documentation
 
-Are you sure you're commenting on the correct patch?
+Signed-off-by: Ryan Wanner <Ryan.Wanner@microchip.com>
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ Documentation/devicetree/bindings/mfd/syscon.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> Signed-off-by: Fabien Parent <parent.f@gmail.com>
-
+diff --git a/Documentation/devicetree/bindings/mfd/syscon.yaml b/Documentation/devicetree/bindings/mfd/syscon.yaml
+index 4d67ff26d445..769dcb096186 100644
+--- a/Documentation/devicetree/bindings/mfd/syscon.yaml
++++ b/Documentation/devicetree/bindings/mfd/syscon.yaml
+@@ -90,6 +90,7 @@ select:
+           - microchip,lan966x-cpu-syscon
+           - microchip,mpfs-sysreg-scb
+           - microchip,sam9x60-sfr
++          - microchip,sama7d65-ddr3phy
+           - microchip,sama7g5-ddr3phy
+           - mscc,ocelot-cpu-syscon
+           - mstar,msc313-pmsleep
+@@ -189,6 +190,7 @@ properties:
+           - microchip,lan966x-cpu-syscon
+           - microchip,mpfs-sysreg-scb
+           - microchip,sam9x60-sfr
++          - microchip,sama7d65-ddr3phy
+           - microchip,sama7g5-ddr3phy
+           - mscc,ocelot-cpu-syscon
+           - mstar,msc313-pmsleep
 -- 
-Lee Jones [李琼斯]
+2.43.0
+
