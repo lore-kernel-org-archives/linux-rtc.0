@@ -1,42 +1,42 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3FF023314A
-	for <linux-rtc@vger.kernel.org>; Thu, 27 Feb 2025 13:43:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4022B23315B
+	for <linux-rtc@vger.kernel.org>; Thu, 27 Feb 2025 13:43:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740663822; cv=none; b=oBofsSjzjxHJm0QvXcVR9Hv/38L5h8evCKHB0zcUQJbQbtrawqUkezJ8+5jwpdyW5wohc1a1uRJf9PdecbehrWMXUBpfrOw1zTW7LeeIuN1LSCcDXPRoh5rxVtAsueNxS2uF/F7XCuXNXdBGJ1rqVhnMnsRZ/DFdDYSThBxyolU=
+	t=1740663822; cv=none; b=JQc8iAdkviduHgdhsH1M4ANh3elYlBrQTWr4C7FcuMGStSahtBDdfEDoclZkgN43AVR51+7paTblfEDU+O0MYBKQUpLtraiT5s69ruDViS4VxQ3+ke2a3YmIATij4KJQ2XjddC98raTosVLUxHuAfK4cFhYiU/iLmH6f4KTSUkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1740663822; c=relaxed/simple;
-	bh=vAFzxwkXeTzesQ+x3tdBqDDfeRpINbz2vW0aMsCwE64=;
+	bh=+lEKNSXns2Off88iLN0X5fJz/356oQrWq+GzbGKJ+XY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jZC7fFLpXTFQyWwfcjPzrPOGdM/DynyNWBs5mR/7EVWp1XNdyNJ9CUyfgCsakSOAxTiXC/J90VIU1v2gAUdjWL6XVUwnUyE4DpSc4JOAoyoF/Ayk9RYRTwJ8udho4zQvKIN98HvKi/qC14YOk/E+hOShp2x1G93/gDNZzYD6aks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=S3FUzG8Q; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=iebszNpYnm8BZN2lQ8h31B/KO1+3aGlcYs2jSecmeo4n9JEXWDWVjTPa9XMbDMQI5endB1LE5dQ9Zvw9S8GvzG4XAhQAQXKislLlWYVCHCJ1ZMabnA1nJJJyvSWYtxeeCugkH80RvkhZmiEeQV6frdBYMpe6B9wm6dIUw8MNzPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L2MtVc91; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="S3FUzG8Q"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L2MtVc91"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=/+X4d+2tCAXnFT+wF0nRgsn1iikYvQLvyAR0+y9C9ls=; b=S3FUzG
-	8QIVyI/z2bJomT0FZMsP6m01mRlqp6YxllY87Ddlf84l1QJ6069JE+/75OE3MMf5
-	8YxrqzXy14RQjPipz6FBMNeG41V5ZgvdlMA/ntnEk5Z6avhJ5tLp88H9h7Oc9V7k
-	+Qu4k0jnWCFU8o1LRepzifhjB1fJdE6I8jO/1pC6sL1Cu2DR2NovCoL0f3e63RdF
-	n7CD8wKOiReebW7bEyKdtqcPb/RzhgZX+0HLWksPegSXXIogcFI1Vn6wLhNV4G3b
-	96QWhQvtr3umpS/OIDR06Ou+vIT/jSupp9Se90eJ8Ql8I1hsHgj0kzHcRgmK/tAt
-	oumI4bvqTAfN/eGw==
-Received: (qmail 962451 invoked from network); 27 Feb 2025 14:43:35 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Feb 2025 14:43:35 +0100
-X-UD-Smtp-Session: l3s3148p1@mYtl4B8vPGJtKPD9
+	 s=k1; bh=UOkcpbt2gZQQhOLLvm8OY4HPmFHBF1NYMhttkhTDfLw=; b=L2MtVc
+	9120dwZelJ1Nb3ArvJ1HOZXvXsWy6nlE3muXPHL1tKJ5xkUOnW21TQbEFIEeGz5X
+	J6ALwrqhWo1HL+ZYo0OysekjwRAg3ZKNCRv04TLYeFU+ZokE7iOtx2AJfMEWKFQG
+	Y/iJajMTe4BfjBxkGtg0xFZEfleQaeyzqLXHmZX2JWLd/6Z7YYzjTtg7HhtdYxAd
+	AjsLA6cIh8yggkJpxMw5BuVSnZirj+ht/0d5laHbocj0LgnUO1fxofMmvkLYSA+n
+	3iMkRt+k0PDVl0EsA84rhj35jR/F+L119+lLJNhQuFl6XPpUyQXc795yzqWfCAE9
+	138AhT+6E+yrDvaQ==
+Received: (qmail 962352 invoked from network); 27 Feb 2025 14:43:31 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Feb 2025 14:43:31 +0100
+X-UD-Smtp-Session: l3s3148p1@/cgh4B8vA0RtKPD9
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	linux-rtc@vger.kernel.org
-Subject: [PATCH 7/8] rtc: sh: use local variables in probe() for mapping IO
-Date: Thu, 27 Feb 2025 14:43:02 +0100
-Message-ID: <20250227134256.9167-17-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 3/8] rtc: sh: only disable carry interrupts in probe()
+Date: Thu, 27 Feb 2025 14:42:58 +0100
+Message-ID: <20250227134256.9167-13-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20250227134256.9167-10-wsa+renesas@sang-engineering.com>
 References: <20250227134256.9167-10-wsa+renesas@sang-engineering.com>
@@ -48,68 +48,73 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-No need to store the resource for the registers in the per-device struct
-because we only need it during probe. Remove some unneeded unlikely()
-while here and correct the type of 'regsize'.
+With old, custom UIE handling removed, we can now disable the carry
+interrupt in probe() and leave it like this. No further handling is
+required.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/rtc/rtc-sh.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ drivers/rtc/rtc-sh.c | 26 ++++----------------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/rtc/rtc-sh.c b/drivers/rtc/rtc-sh.c
-index 033bdfc83e42..3bafb2a0659d 100644
+index f8227a71084a..469806604f31 100644
 --- a/drivers/rtc/rtc-sh.c
 +++ b/drivers/rtc/rtc-sh.c
-@@ -86,8 +86,6 @@
+@@ -213,25 +213,6 @@ static int sh_rtc_proc(struct device *dev, struct seq_file *seq)
+ 	return 0;
+ }
  
- struct sh_rtc {
- 	void __iomem		*regbase;
--	unsigned long		regsize;
--	struct resource		*res;
- 	int			alarm_irq;
- 	struct clk		*clk;
- 	struct rtc_device	*rtc_dev;
-@@ -328,10 +326,11 @@ static const struct rtc_class_ops sh_rtc_ops = {
- static int __init sh_rtc_probe(struct platform_device *pdev)
+-static inline void sh_rtc_setcie(struct device *dev, unsigned int enable)
+-{
+-	struct sh_rtc *rtc = dev_get_drvdata(dev);
+-	unsigned int tmp;
+-
+-	spin_lock_irq(&rtc->lock);
+-
+-	tmp = readb(rtc->regbase + RCR1);
+-
+-	if (!enable)
+-		tmp &= ~RCR1_CIE;
+-	else
+-		tmp |= RCR1_CIE;
+-
+-	writeb(tmp, rtc->regbase + RCR1);
+-
+-	spin_unlock_irq(&rtc->lock);
+-}
+-
+ static int sh_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
  {
- 	struct sh_rtc *rtc;
--	struct resource *res;
-+	struct resource *res, *req_res;
+ 	sh_rtc_setaie(dev, enabled);
+@@ -434,6 +415,7 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
+ 	struct resource *res;
  	char clk_name[14];
  	int clk_id, ret;
- 	unsigned int tmp;
-+	resource_size_t regsize;
++	unsigned int tmp;
  
  	rtc = devm_kzalloc(&pdev->dev, sizeof(*rtc), GFP_KERNEL);
  	if (unlikely(!rtc))
-@@ -353,20 +352,18 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
- 	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
- 	if (!res)
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (unlikely(res == NULL)) {
-+	if (!res) {
- 		dev_err(&pdev->dev, "No IO resource\n");
- 		return -ENOENT;
- 	}
+@@ -553,8 +535,9 @@ static int __init sh_rtc_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, rtc);
  
--	rtc->regsize = resource_size(res);
--
--	rtc->res = devm_request_mem_region(&pdev->dev, res->start,
--					rtc->regsize, pdev->name);
--	if (unlikely(!rtc->res))
-+	regsize = resource_size(res);
-+	req_res = devm_request_mem_region(&pdev->dev, res->start, regsize, pdev->name);
-+	if (!req_res)
- 		return -EBUSY;
+ 	/* everything disabled by default */
+-	sh_rtc_setaie(&pdev->dev, 0);
+-	sh_rtc_setcie(&pdev->dev, 0);
++	tmp = readb(rtc->regbase + RCR1);
++	tmp &= ~(RCR1_CIE | RCR1_AIE);
++	writeb(tmp, rtc->regbase + RCR1);
  
--	rtc->regbase = devm_ioremap(&pdev->dev, rtc->res->start, rtc->regsize);
--	if (unlikely(!rtc->regbase))
-+	rtc->regbase = devm_ioremap(&pdev->dev, req_res->start, regsize);
-+	if (!rtc->regbase)
- 		return -EINVAL;
+ 	rtc->rtc_dev->ops = &sh_rtc_ops;
+ 	rtc->rtc_dev->max_user_freq = 256;
+@@ -585,7 +568,6 @@ static void __exit sh_rtc_remove(struct platform_device *pdev)
+ 	struct sh_rtc *rtc = platform_get_drvdata(pdev);
  
- 	if (!pdev->dev.of_node) {
+ 	sh_rtc_setaie(&pdev->dev, 0);
+-	sh_rtc_setcie(&pdev->dev, 0);
+ 
+ 	clk_disable(rtc->clk);
+ }
 -- 
 2.45.2
 
