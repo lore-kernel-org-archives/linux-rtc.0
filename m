@@ -1,68 +1,66 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A04926E17C
-	for <linux-rtc@vger.kernel.org>; Fri, 28 Feb 2025 14:07:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6249526FDBF
+	for <linux-rtc@vger.kernel.org>; Fri, 28 Feb 2025 14:07:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740751652; cv=none; b=dM7QK9pnvgYNwCFy+jmUrrW+7V0Xy4cXGML0o+wBONM2edAFt2O3Q0quNvqNOA4PEjfyBH+vsJvf9oYR7cx2LSrGhjbrj4jMb5pl8crYKSQ0eG3qHzoIsgxRe+qeyDDfhfgpZYJ7CXuH9RUT53gIQONYFXBnQ9hNuOWPSKQOR2w=
+	t=1740751653; cv=none; b=hMYBV793x2CavdpQL0vV9rkH4LMjbrGdaB5gwrhFT2pzmFykS9uN9iEB8PYCf6q+qfU4foLNE3Bl9pLs+7lzinAxUIRjcZI6SGeDkDi5GocNMyesu+6UldpbRo+iRhqert+kQhKp2WZmOz6d4odXoleceVLdqvsWdo8LJdOEB+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740751652; c=relaxed/simple;
-	bh=UGMJ3GCPyVV/uGz6DNqBy2mH3s73qryTRoU1mvi31cQ=;
+	s=arc-20240116; t=1740751653; c=relaxed/simple;
+	bh=+Kph84gyNH2FaYt3N+VrOHuKaKCtB8nOyu2qKHWEIWY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=SPTAX7mNlS+3ST6ItZA6+HOPY/qFZr1qFUc3XU3kdi/j/ZW+B+MPYvzMkKxbO9ZYmxCvCtpSxXlHz3EVm/gzOTqEfkEfzUr2PeorwTZDlWqL8dpYhuRxGmhVIna3jUIN/nLh18uuGXlnlQCsBZk3cp+NkYUUTDTn+YFaID6y7ds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=DdY1jAQ+; arc=none smtp.client-ip=209.85.208.45
+	 In-Reply-To:To:Cc; b=btAaHT4sFTEE9wZXmbGmS1+Yn9BiBNcR+dwDFyOvTL3kX3ldHR+WU4dls1QdixwAp17YFSE7g7LGXf+gOOxkZIys+k2bgh3Ki12mUBwjd16bHccUpnGkJKtwyuIYkrs8SEWCKuQmsNsBeEhVDvYUvu6pFWAa1g5cskpaUU7QyVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=oK3XLD2i; arc=none smtp.client-ip=209.85.208.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="DdY1jAQ+"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5e5050d19e9so1068035a12.3
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="oK3XLD2i"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-5dccaaca646so4075430a12.0
         for <linux-rtc@vger.kernel.org>; Fri, 28 Feb 2025 06:07:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1740751647; x=1741356447; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1740751648; x=1741356448; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=NvWUKPp3Qf/mJMvtGf6kleKwT9jTpA0O53gNmEgl49A=;
-        b=DdY1jAQ+yjUwqYfgqH9cNfvplNpOsyXlmerA6D719DmwyePTExZbTjec/fn9Ijrhd4
-         cRcjrUON4m6KBm2dKUpSGjT0WvUdyVAKRhyWmiOytmXk6z2hYnCUTEALexQSWdjavfmn
-         L0a1do+XcvL//KwWx7wttKuLlPdyKvXmpXrhpieOm7aJnhv2H5+VwimdReXH4SduXWfq
-         IpzNE0YvV0t2vVzJj6xu5b8oyq5Ac0ZyeGcZ/nFqHvP1UnfwH7diE5V6IFJ25v8u9fuJ
-         rimxFS4YUZvidbLulGnGDbep+2CZrriPXO1aK+j4UpgL3YN4t79/jHNJ67zBfflQ1nzi
-         HJYg==
+        bh=7nzHwlkUM09BG0CuM/bA+EpIQxILewT/ffWeXrAz77U=;
+        b=oK3XLD2iq0t/+2Il/MmrTMKGJKRoLUsVfpyx4Ng+GxLv/Kkq4myvUMgB8L2ilRRl6b
+         W5jpg2Q68WdTg68Pxw+Bj66o9d8GG4ybSYTDUAuEexBQbY6M40SdW9l3Xgr+ncoj8i21
+         8dgJk4ir8sqj19cIxHLJ1+ISGioytOnl/G0SrhbyCWc5FRABkTdyeBRhTic5Zu0FQHwd
+         ABZs3zK64OEWUdJQXww7lz7gSTlPHWmMmRTENgZJ+FjZOTxZEPiRKwiiQeWpH1pV4fRc
+         jKVcA3EJaxILEAlKvouxyPPdRrbdlGSnakdV8rfUzrUlBKKu0yLFJMH2pxde+RnEx8F/
+         5cQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740751647; x=1741356447;
+        d=1e100.net; s=20230601; t=1740751648; x=1741356448;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NvWUKPp3Qf/mJMvtGf6kleKwT9jTpA0O53gNmEgl49A=;
-        b=lP1Qx81hbRihuaAd6sz6wHNwq6tMQ6fZjDcfEXtzclgKn3i3yQk4uO8FyEpw+aSByS
-         gh1P0X5sJ0vcD2oLnMNqMCNZlzV4/gjvDq/L5YshUb1qUbbaxtacU3VcOmzFylENIjTT
-         F0YhvhsKURWTb70Xk7Y+Wwk+p8xW63Lglp9obbXoOg834Cg8xzTwuJGrX6h3ZsZxuKGn
-         28/o8E+apRE2b98RudrWYsR5Y3fw3z3SYTCBv4TZ1MpXdaG0oFQ8Gzd32zfa8JxSGNMI
-         QKAgCpQIzAVRkAtQCfsB2rXwnG2Y12Iro6/devlIjZ9of59ZpDyj3Oh7XBW+1rqsFiJ7
-         iNhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUTySZWFdE1q89zrMrB0JULOmRHWqHZkAfU8N1NlFQ1x6xneI383EtK4maW3k47GmCG5+MH67L6ut8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3/ToNF6b5Jf9Ec9HaJ/G/MoWYdZgOiyl8xlEOKkeAK6olHcJV
-	VE//nbuvJWgvIYw1MeOnobzUIag4gBPq9T+MdxBlIscCEQpUtL8Ri0mOAo+nTjnMzfoptziRxMj
-	KlQ4=
-X-Gm-Gg: ASbGncsvC2N5rnzCxY7qt4PIdrNKcGWAz64sfLXxEUFl0xsykA5++RcMBPUym3UCZny
-	yw9v6y/7Ro8ZMGHqz7F55fQfQfDY14qs9K5GvIERRD+yUmxSGFLLsVWZRoDDRNT3hWdnNqYLhgW
-	HGbdk5PfxJOckH2brwMEBVKDZ2IuqbLvNH2jXob26p8UNqDJQfQXp+3dzqGZ1ZJT5PqP3z6+vFa
-	wKCRWBjscOC1VhVZ6g6SDSjj/EGBRQ4Cqy5/O3u/11SCg982I+EJj+l7xj8J2r/SekVyY2PoL8H
-	/f5iKVB9Sc3bNt33f3hKJxm+GE0VVhahL+pr5+dE/lbgsjNy/UsZqfLuouh8mOtclDnOpLp+uwO
-	cpC9Mivzfbg==
-X-Google-Smtp-Source: AGHT+IGZCKi+h7liDGF2k254zFpRo0bnTt6a/BEgRPyIDc7kptNekspya74S4whe/rs/kwdpZDQeGw==
-X-Received: by 2002:a05:6402:27d1:b0:5e0:82a0:50ab with SMTP id 4fb4d7f45d1cf-5e4d6b6240bmr2836488a12.27.1740751647311;
-        Fri, 28 Feb 2025 06:07:27 -0800 (PST)
+        bh=7nzHwlkUM09BG0CuM/bA+EpIQxILewT/ffWeXrAz77U=;
+        b=mTGJy8IBxJoA4vNOrk3939v2spMSCuIHvv86XA9/ggiY32yAIKVup7NztyNjWtj/y2
+         2n6YXTXILe9S5QOUW2UhzbA5l4WDAbOl2sSXALa5+1/7XrG1FI6SF5jF7a5O7q9UGpMI
+         f47KluERuscb2qpRDHs3MeiAD/9jSHxR3DazauP54dTz60sPoA6MFZyoCOPXeZ0yKdl+
+         TexX/ioFITizkc0WFmy6iaStt7it1VYO3BjeVZ6exNY0LZzKfz5Jaffl8Blw67OIJJ8e
+         7liYKvYgAHoz/bsqe7j++ldElXN/bfqd5TfRIr6yvzVkpHYucA1+a2soc4gARWigM1dm
+         O7kw==
+X-Forwarded-Encrypted: i=1; AJvYcCV08yXV2LDk9lTgB9Xgpfh0uDlVfJkKMcxtxx73gW0Iyi/xfQEajYTHKroFgp91qQaLmX1KrjLCgvs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwT9BKXL3D4fwUE/Y0z96a2kBmu14txannN6wNIVUajYeGSDUc5
+	WaWnpWe2RHLsZpxQgu1eASmt//Xgxp84JnIl0PM4esrDPMta1+wZp3zBBBrGBOw=
+X-Gm-Gg: ASbGncuN7dH5IzmjojAubQjCunZKvEB8z04HbHSF5mr7+0m1BekXjoiNuYjzW3zEycY
+	JEVT6PG66s0BqnuwBK6CK4OsJgpGozHz4Bnm1aZZWcIiRdE5OeWJlZEzsw3TxFMGfTVTzbLuWud
+	j8jzKQS4umKEJnmLVw34ichzqbRFCIS+HpR9XQcuou31lT360ZZVzFsbMX2AgxmmnVa20WPqCVm
+	xs2I/xO2JCXCR+q9jMBSZ7NOUB4oRnV9cyWTH3zx63JqLxEm/cN2NQYX0rxWT+unddnmcu3P8FI
+	nA4k/BjIiwhKRny8VUdZuuKw8wTWVHd4EbDtqbyIaVEZrJW0ZMmpulTucFR3NTKq65giVyHBtlT
+	wsQk4cOtC/g==
+X-Google-Smtp-Source: AGHT+IGquByOTAI+pOBsMihZmYnZaIy5p2XitRnKkTWDJg07k5RO868wRYsHEejBUavy8mEmWjqo9Q==
+X-Received: by 2002:a05:6402:13d4:b0:5e0:8a27:cd36 with SMTP id 4fb4d7f45d1cf-5e4bfacb0a8mr8959084a12.8.1740751648271;
+        Fri, 28 Feb 2025 06:07:28 -0800 (PST)
 Received: from puffmais.c.googlers.com (30.171.91.34.bc.googleusercontent.com. [34.91.171.30])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e4c3fb51f9sm2550839a12.55.2025.02.28.06.07.26
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e4c3fb51f9sm2550839a12.55.2025.02.28.06.07.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Feb 2025 06:07:26 -0800 (PST)
+        Fri, 28 Feb 2025 06:07:27 -0800 (PST)
 From: =?utf-8?q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>
-Date: Fri, 28 Feb 2025 14:07:22 +0000
-Subject: [PATCH 09/18] rtc: meson-vrtc: drop needless struct
- meson_vrtc_data::rtc member
+Date: Fri, 28 Feb 2025 14:07:24 +0000
+Subject: [PATCH 11/18] rtc: rx8581: drop needless struct rx8581::rtc member
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -71,7 +69,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250228-rtc-cleanups-v1-9-b44cec078481@linaro.org>
+Message-Id: <20250228-rtc-cleanups-v1-11-b44cec078481@linaro.org>
 References: <20250228-rtc-cleanups-v1-0-b44cec078481@linaro.org>
 In-Reply-To: <20250228-rtc-cleanups-v1-0-b44cec078481@linaro.org>
 To: Chanwoo Choi <cw00.choi@samsung.com>, 
@@ -99,47 +97,61 @@ variable, reducing runtime memory consumption by a few bytes.
 
 Signed-off-by: André Draszik <andre.draszik@linaro.org>
 ---
- drivers/rtc/rtc-meson-vrtc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-rx8581.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-meson-vrtc.c b/drivers/rtc/rtc-meson-vrtc.c
-index 5849729f7d01d7ec7868ff3bbdc5ed599aaa8238..7d38258cbe376e5a1b2af6250cb6d04c313175fb 100644
---- a/drivers/rtc/rtc-meson-vrtc.c
-+++ b/drivers/rtc/rtc-meson-vrtc.c
-@@ -13,7 +13,6 @@
+diff --git a/drivers/rtc/rtc-rx8581.c b/drivers/rtc/rtc-rx8581.c
+index b18c12887bdc3705ea4cee9b8d75086a05b24e71..785ebaca07ac971eee34559f8d1e0a8a872cbba9 100644
+--- a/drivers/rtc/rtc-rx8581.c
++++ b/drivers/rtc/rtc-rx8581.c
+@@ -54,7 +54,6 @@
  
- struct meson_vrtc_data {
- 	void __iomem *io_alarm;
--	struct rtc_device *rtc;
- 	unsigned long alarm_time;
- 	bool enabled;
+ struct rx8581 {
+ 	struct regmap		*regmap;
+-	struct rtc_device	*rtc;
  };
-@@ -65,6 +64,7 @@ static const struct rtc_class_ops meson_vrtc_ops = {
- static int meson_vrtc_probe(struct platform_device *pdev)
- {
- 	struct meson_vrtc_data *vrtc;
+ 
+ struct rx85x1_config {
+@@ -252,6 +251,7 @@ static int rx8581_probe(struct i2c_client *client)
+ 	struct rx8581 *rx8581;
+ 	const struct rx85x1_config *config = &rx8581_config;
+ 	const void *data = of_device_get_match_data(&client->dev);
 +	struct rtc_device *rtc;
+ 	static struct nvmem_config nvmem_cfg[] = {
+ 		{
+ 			.name = "rx85x1-",
+@@ -286,21 +286,21 @@ static int rx8581_probe(struct i2c_client *client)
+ 	if (IS_ERR(rx8581->regmap))
+ 		return PTR_ERR(rx8581->regmap);
  
- 	vrtc = devm_kzalloc(&pdev->dev, sizeof(*vrtc), GFP_KERNEL);
- 	if (!vrtc)
-@@ -78,12 +78,12 @@ static int meson_vrtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, vrtc);
- 
--	vrtc->rtc = devm_rtc_allocate_device(&pdev->dev);
--	if (IS_ERR(vrtc->rtc))
--		return PTR_ERR(vrtc->rtc);
-+	rtc = devm_rtc_allocate_device(&pdev->dev);
+-	rx8581->rtc = devm_rtc_allocate_device(&client->dev);
+-	if (IS_ERR(rx8581->rtc))
+-		return PTR_ERR(rx8581->rtc);
++	rtc = devm_rtc_allocate_device(&client->dev);
 +	if (IS_ERR(rtc))
 +		return PTR_ERR(rtc);
  
--	vrtc->rtc->ops = &meson_vrtc_ops;
--	return devm_rtc_register_device(vrtc->rtc);
-+	rtc->ops = &meson_vrtc_ops;
-+	return devm_rtc_register_device(rtc);
- }
+-	rx8581->rtc->ops = &rx8581_rtc_ops;
+-	rx8581->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+-	rx8581->rtc->range_max = RTC_TIMESTAMP_END_2099;
+-	rx8581->rtc->start_secs = 0;
+-	rx8581->rtc->set_start_time = true;
++	rtc->ops = &rx8581_rtc_ops;
++	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
++	rtc->range_max = RTC_TIMESTAMP_END_2099;
++	rtc->start_secs = 0;
++	rtc->set_start_time = true;
  
- static int __maybe_unused meson_vrtc_suspend(struct device *dev)
+-	ret = devm_rtc_register_device(rx8581->rtc);
++	ret = devm_rtc_register_device(rtc);
+ 
+ 	for (i = 0; i < config->num_nvram; i++) {
+ 		nvmem_cfg[i].priv = rx8581;
+-		devm_rtc_nvmem_register(rx8581->rtc, &nvmem_cfg[i]);
++		devm_rtc_nvmem_register(rtc, &nvmem_cfg[i]);
+ 	}
+ 
+ 	return ret;
 
 -- 
 2.48.1.711.g2feabab25a-goog
