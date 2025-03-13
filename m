@@ -1,46 +1,48 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C885224EF69
-	for <linux-rtc@vger.kernel.org>; Thu, 13 Mar 2025 10:25:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5893226563B
+	for <linux-rtc@vger.kernel.org>; Thu, 13 Mar 2025 10:25:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741861558; cv=none; b=L+Jf0aM23lykmsnxvd8QqAch/Ida/7Gh8x28FUnKuB/AtKNeL0mNjkZ9+//ruRXbxDb4zO0uCsrEbDZ/KLF9+G3bO8zEO4LWDnPFqP43FBBrGu8LlzTW4J/r6Srgh2hjjhPvFHICoVTkzifZlscteYSTSrqHhY9+F/tAvB6KjrQ=
+	t=1741861559; cv=none; b=Jql+JEYmgbsEEDy7IcbtOJrSNtU1P7LJbaRT6pzYr85OHbqOxTiSaJknTYNFF6UDMTNM7nr5PmKCivmBdduSKwxXzmLWltrqI4ITZG8pLXa/n4ZWsB0AX/oxbRE7EE6ZRtryi8puIU4jARopTYJbZ3cg1XB9zmo9fZLNIM1JQn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741861558; c=relaxed/simple;
-	bh=BcuejLNefAxncuo6S8vSmQ9BBKT6ZKvurpXfyud+PnY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HsDg2Rr9sFQZ1EU6LImBhOpY5XMOruK2Uf2MgGdUDbwJYqz8tJjCiEzPgePr7lJyFXOtOsYgAJZW/gofZ6j/ieY+KnPWOQIaTpUXwidggEZrSk4bKqEoyK1SCb9hOUUexVdqb/bEDxSCROc7Tk3CWfqsqfps6mX54iTR8do2pbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Y/9Eob90; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1741861559; c=relaxed/simple;
+	bh=q2m71A/1Uu6Oz7dpB+yBv0X1S4e23idzdzzCe5OxYjA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jveqSLz4GiBCpiISJXDudrUUUdSfZlvmV127dWya3kXMWSnBgjubkAeFSRuDiMBUsMLsboQmIKYrcHlELoEgvbW7RoeX2haC2DIMBhU0Et3P4TrdkrBcz7IXUTNKeIzTRsPWkYYAX6VnuFjupHIiQRLbNMY1fvj32oYenWfe5zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GFOoTSlj; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Y/9Eob90"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GFOoTSlj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=xKR4pR20ZB/9h07gFzI4J+aXKVLxDR3NCiKjedWj45w=; b=Y/9Eob
-	90c3U12GljrlZ64Xgic/faFuI5YuY8DJ39+C42INtg7NeQr7nWhBle8p3EsnniD+
-	P+2WdFaEujkwokQfrulE8FBBC9wTTiBtzjav/U9AUtg9jzoLAwoxYXELZoH3tAW6
-	k6qBEeN4TGziHDmPeQOcTb1Ii3xdNa17JAIE/o8QtEY178NRidJqXjS6NIuPV9t+
-	hbxVapvUSFdLhBe9bcdYl8fENR0c4LHT6DKvaJE8eFWC2krKbPj/pUeju2fjWA+A
-	JaJcuV9t1dJ093S98s5VKTefmHfbp2a9Oh5QxfV/qeINbKBilcKU28MW26+4BaC0
-	KdY8dmDXC67/1ByQ==
-Received: (qmail 1574789 invoked from network); 13 Mar 2025 11:25:54 +0100
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 Mar 2025 11:25:54 +0100
-X-UD-Smtp-Session: l3s3148p1@4jgrvzYwOr0gAwDPXyTHAJp038nK7dx+
+	:mime-version:content-transfer-encoding; s=k1; bh=zfbfFlb1FrJYUq
+	kYysP5yx37Y76BzqPK+ZyoKRd+J/Q=; b=GFOoTSljYy+mILOJx/97gvFhi3H7Ii
+	O98pcFRuDO/4+/CxuvKKk7ZArLflqYNUb5wXsgz8ngbo/egsdUI9ttYZjse4Auuq
+	xB4btRQumAYVJqagNA9J0+Dq7ps8zC58qe1GOYw3oJ5p8okqQlSI34DKVXzNirD0
+	m4KWN4CAUMBKHXaJB8Z2gPE1EBv1qkCZS0kd6BGidolcCqMDyZ5Xjnl/2ib5vQCx
+	iIJqWcFp0TFDwK8FaSc9j7H86KCbeShVlDr9mJ4uBYYaKX3TpuLuP0z8UA5gvc7O
+	SPYmFkweyJUMznq8UXq6T9jdGpSBNt9lYx9sMvrbnFQ9fKeRH5+55QJQ==
+Received: (qmail 1574638 invoked from network); 13 Mar 2025 11:25:51 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 Mar 2025 11:25:51 +0100
+X-UD-Smtp-Session: l3s3148p1@BjICvzYwGL0gAwDPXyTHAJp038nK7dx+
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Subject: [RFC PATCH 3/4] rtc: rzn1: support input frequencies other than 32768Hz
-Date: Thu, 13 Mar 2025 11:25:44 +0100
-Message-ID: <20250313102546.27335-4-wsa+renesas@sang-engineering.com>
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	linux-rtc@vger.kernel.org,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Rob Herring <robh@kernel.org>
+Subject: [RFC PATCH 0/4] rtc: rzn1: support XTAL clk and SCMP method
+Date: Thu, 13 Mar 2025 11:25:41 +0100
+Message-ID: <20250313102546.27335-1-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250313102546.27335-1-wsa+renesas@sang-engineering.com>
-References: <20250313102546.27335-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -49,107 +51,38 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When using the SCMP mode instead of SUBU, this RTC can also support
-other input frequencies than 32768Hz. Also, upcoming SoCs will only
-support SCMP.
+So far, the code and the binding for the RZ/N1D RTC assumed an input
+clock of 32768Hz, so it was not explicitly described. It makes sense to
+do this, though. For one reason, clocks with other frequencies might be
+used which this RTC supports via the SCMP counting method. Also, the
+upcoming R-Car Gen5 have only the SCMP method described, so we need to
+use it there.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/rtc/rtc-rzn1.c | 43 ++++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 10 deletions(-)
+This series is for collecting comments about the approach. I am aware
+that the DTS changes no to go in separately from the code changes. And
+the last patch will be updated and resent once I have tested these
+patches on hardware. That might take a while but I'd like the
+preparational patches to go in earlier. They are benefitial for N1D,
+after all.
 
-diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-index e3733534d409..f8c9308817ae 100644
---- a/drivers/rtc/rtc-rzn1.c
-+++ b/drivers/rtc/rtc-rzn1.c
-@@ -12,6 +12,7 @@
-  */
- 
- #include <linux/bcd.h>
-+#include <linux/clk.h>
- #include <linux/init.h>
- #include <linux/iopoll.h>
- #include <linux/module.h>
-@@ -22,7 +23,6 @@
- #include <linux/spinlock.h>
- 
- #define RZN1_RTC_CTL0 0x00
--#define   RZN1_RTC_CTL0_SLSB_SUBU 0
- #define   RZN1_RTC_CTL0_SLSB_SCMP BIT(4)
- #define   RZN1_RTC_CTL0_AMPM BIT(5)
- #define   RZN1_RTC_CTL0_CE BIT(7)
-@@ -49,6 +49,8 @@
- #define   RZN1_RTC_SUBU_DEV BIT(7)
- #define   RZN1_RTC_SUBU_DECR BIT(6)
- 
-+#define RZN1_RTC_SCMP 0x3c
-+
- #define RZN1_RTC_ALM 0x40
- #define RZN1_RTC_ALH 0x44
- #define RZN1_RTC_ALW 0x48
-@@ -356,19 +358,20 @@ static int rzn1_rtc_set_offset(struct device *dev, long offset)
- 	return 0;
- }
- 
--static const struct rtc_class_ops rzn1_rtc_ops = {
-+static struct rtc_class_ops rzn1_rtc_ops = {
- 	.read_time = rzn1_rtc_read_time,
- 	.set_time = rzn1_rtc_set_time,
- 	.read_alarm = rzn1_rtc_read_alarm,
- 	.set_alarm = rzn1_rtc_set_alarm,
- 	.alarm_irq_enable = rzn1_rtc_alarm_irq_enable,
--	.read_offset = rzn1_rtc_read_offset,
--	.set_offset = rzn1_rtc_set_offset,
- };
- 
- static int rzn1_rtc_probe(struct platform_device *pdev)
- {
- 	struct rzn1_rtc *rtc;
-+	struct clk *xtal;
-+	unsigned long rate;
-+	u32 use_scmp = 0;
- 	int irq;
- 	int ret;
- 
-@@ -402,12 +405,32 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	/*
--	 * Ensure the clock counter is enabled.
--	 * Set 24-hour mode and possible oscillator offset compensation in SUBU mode.
--	 */
--	writel(RZN1_RTC_CTL0_CE | RZN1_RTC_CTL0_AMPM | RZN1_RTC_CTL0_SLSB_SUBU,
--	       rtc->base + RZN1_RTC_CTL0);
-+	/* Only switch to scmp if we have an xtal clock with a valid rate and != 32768 */
-+	xtal = devm_clk_get_optional(&pdev->dev, "xtal");
-+	if (IS_ERR(xtal)) {
-+		ret = PTR_ERR(xtal);
-+		goto dis_runtime_pm;
-+	} else if (xtal) {
-+		rate = clk_get_rate(xtal);
-+
-+		if (rate < 32000 || rate > BIT(22)) {
-+			ret = -EOPNOTSUPP;
-+			goto dis_runtime_pm;
-+		}
-+
-+		if (rate != 32768)
-+			use_scmp = RZN1_RTC_CTL0_SLSB_SCMP;
-+	}
-+
-+	if (use_scmp) {
-+		writel(rate - 1, rtc->base + RZN1_RTC_SCMP);
-+	} else {
-+		rzn1_rtc_ops.read_offset = rzn1_rtc_read_offset;
-+		rzn1_rtc_ops.set_offset = rzn1_rtc_set_offset;
-+	}
-+
-+	/* Ensure clock counter is enabled. Set 24-hour mode and SUBU or SCMP mode */
-+	writel(RZN1_RTC_CTL0_CE | RZN1_RTC_CTL0_AMPM | use_scmp, rtc->base + RZN1_RTC_CTL0);
- 
- 	/* Disable all interrupts */
- 	writel(0, rtc->base + RZN1_RTC_CTL1);
+The series has been tested on a Renesas RZ/N1D board with hacked
+devicetree values.
+
+Looking forward to comments.
+
+
+Wolfram Sang (4):
+  dt-bindings: rtc: rzn1: add optional second clock
+  ARM: dts: renesas: r9a06g032: add second clock input to RTC
+  rtc: rzn1: support input frequencies other than 32768Hz
+  WIP rtc: rzn1: add driver support for R-Car Gen5
+
+ .../bindings/rtc/renesas,rzn1-rtc.yaml        |  8 ++-
+ .../dts/renesas/r9a06g032-rzn1d400-db.dts     |  4 ++
+ arch/arm/boot/dts/renesas/r9a06g032.dtsi      |  4 +-
+ drivers/rtc/rtc-rzn1.c                        | 67 ++++++++++++++++---
+ 4 files changed, 70 insertions(+), 13 deletions(-)
+
 -- 
 2.47.2
 
