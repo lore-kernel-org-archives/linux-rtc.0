@@ -1,42 +1,52 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B507522E3FF
-	for <linux-rtc@vger.kernel.org>; Wed, 12 Mar 2025 10:01:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E148265CA5
+	for <linux-rtc@vger.kernel.org>; Thu, 13 Mar 2025 10:25:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741773673; cv=none; b=GPYfITGkpBRD+05wp7hUCr9vlzYkdy07NMEx0Xw1jdsceRd4Ov84GYiazFioBhgavhXLR9EwvXPmMjkSwpdf2YXKmFFESYOblvNDmV885FVUciUo8gSYIvh2RwhIp0UmBCFWS/gfi4fa4C93mgjh7IRqFRCfytHXcOLqE2EAyyk=
+	t=1741861558; cv=none; b=IG+V11sA+DGJKyeHnHNx7o6puCWOXbatCPeMmErY1grK+QxHESkrAjxm46Hz6NXoYuwyYF39l3fWSCJvaf1HH5mu0HoooUwaYyu5fQhi0Oi9idz4svDDvprKyBSG57FZHs+M/ZWoGEEPuW+J7H3ebMYuXebKoWnwllmc3Qh8yEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741773673; c=relaxed/simple;
-	bh=t9TLKwxeb5RhRXY+BGNp+kk3/V3Ki/trQFFuDfFILkM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=D1leP2mNKCSfYuB/JfuVwbGFvdAub6jtJq0Q7gZPqrC3Nlu82HqqdLNaZTN7Y3d0FiXDAy0G8slTK+85Z1XpvPiqJyCJ6GwMDeCOoQG7ILES///N5vyzqWy7BlcOOye6YXZybybtenaMhWGi0LRYmpnJDlauSj6FfhVxP1ELrOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=a9GDKI7D; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1741861558; c=relaxed/simple;
+	bh=aOBoAFa158+DZ1Y5CGXzLn7a/TYw0ppYHvQVmxseWu4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Bh87fKkdwI9OqUqkh9RVRuIcM+yTCuEajEX2ml72fdwxLkAP1eRAXiMbaT8lYlcyEUl5YOQVwinwc18Oo2B7FRU4cNsrQh9vmNCxm0lGhMDbrKYckPsKUWaD/XsxuVeVSzp8skLCfQpkYfZ6eLiNWVaW9xfczMOf6t+6yx7Mi68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=R6qy0O+u; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="a9GDKI7D"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="R6qy0O+u"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=5Pb+XCGv8YBP4o
-	i4XlOtiB5Od1w6is+KaxtRCZyLdMQ=; b=a9GDKI7DUcRHk2jkK3XnqPskEtpm+H
-	R6diIe0xmALSnT9yBhYik92OdGwsfx/rkgu0SF/ZF4KVS4Xlj7mfGY0TCzzlnYo6
-	CAmUyNCXIkoGn8etTanZRA/Rw0n7HLXAyNBAtg9yuaXHJtpBVC7PZTfhNPQQWxPQ
-	HrdlCSIVnJL9wg0hr46xZWxpdWC2Rrx4UU8F4VQ2SY81uhmlSwAWfIwOH7vBJHS7
-	QU5hLOnxv7nmjXix0im2iT8MU/4Hc3t0ZuV4pp1nEluYwoi9wCL+HA2hWpRHp1vn
-	qJgOTRoxjcrBCACGK9UHMISpxfj7XxKtTL6z+C3PqfHEHB5ZV4UJRRJA==
-Received: (qmail 1184308 invoked from network); 12 Mar 2025 11:01:08 +0100
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Mar 2025 11:01:08 +0100
-X-UD-Smtp-Session: l3s3148p1@SprHSCIwkr0gAwDPXwyXABj42nrU+gpI
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=B3SQQdBAAJ4+ATqU6AH2JyhthbipzujBbX1XSPtF+rI=; b=R6qy0O
+	+uiiwfBzG/gzpTp7nOXiZlf1ENJS0NPwBAatGc/q6Ijpczt/fE0BDzFWJggFICdm
+	/SZZlHAGndYrlL48W7RY7UW+NFwhoQFAEZnZywr1qpcoTyrY4hnssoXIVYNvO3/i
+	S2lR4p826S2Cuc92TrkKnU+bLXOfToXheNAe92YpbcQvjZTNPVjMU/HoxQo4rYQM
+	ZUl0F7GI2K1+LE9nQ+Z2Ebiez9dUNRIJp7TKucCCvYndj+jnW/k99BEZvOdW1kkX
+	kH/GASXjaWE3ra8snGp1ARLPc2JmH/17Ftbq4Qs2io7wvarLlm2Nq9VXVxSnntyS
+	AHI3KxLpBc3PNSEQ==
+Received: (qmail 1574692 invoked from network); 13 Mar 2025 11:25:52 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 Mar 2025 11:25:52 +0100
+X-UD-Smtp-Session: l3s3148p1@ytkPvzYwJr0gAwDPXyTHAJp038nK7dx+
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Miquel Raynal <miquel.raynal@bootlin.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH v2] rtc: rzn1: clear interrupts on remove
-Date: Wed, 12 Mar 2025 11:00:00 +0100
-Message-ID: <20250312100105.36767-2-wsa+renesas@sang-engineering.com>
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [RFC PATCH 1/4] dt-bindings: rtc: rzn1: add optional second clock
+Date: Thu, 13 Mar 2025 11:25:42 +0100
+Message-ID: <20250313102546.27335-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.47.2
+In-Reply-To: <20250313102546.27335-1-wsa+renesas@sang-engineering.com>
+References: <20250313102546.27335-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -45,37 +55,37 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It is good practice to clear running interrupts before removing the
-driver. This is not really a bugfix because on current systems RuntimePM
-will disable the module clock, so interrupts won't be initiated. The
-dependency on that behaviour is subtle, though. Better be self-contained
-and clean up when removing.
+The external crystal can be a second clock input. It is needed for the
+SCMP counting method which allows using crystals different than 32768Hz.
+It is also needed for an upcoming SoC which only supports the SCMP
+method.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+ .../devicetree/bindings/rtc/renesas,rzn1-rtc.yaml         | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Change since v1: fix build failure by adding the 'rtc' variable. Build
-and tested on Renesas RZ/N1D.
-
- drivers/rtc/rtc-rzn1.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-index eeb9612a666f..3c2861983ff1 100644
---- a/drivers/rtc/rtc-rzn1.c
-+++ b/drivers/rtc/rtc-rzn1.c
-@@ -444,6 +444,11 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
+diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+index f6e0c613af67..f6fdcc7090b6 100644
+--- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+@@ -33,10 +33,14 @@ properties:
+       - const: pps
  
- static void rzn1_rtc_remove(struct platform_device *pdev)
- {
-+	struct rzn1_rtc *rtc = platform_get_drvdata(pdev);
-+
-+	/* Disable all interrupts */
-+	writel(0, rtc->base + RZN1_RTC_CTL1);
-+
- 	pm_runtime_put(&pdev->dev);
- }
+   clocks:
+-    maxItems: 1
++    minItems: 1
++    maxItems: 2
  
+   clock-names:
+-    const: hclk
++    minItems: 1
++    items:
++      - const: hclk
++      - const: xtal
+ 
+   power-domains:
+     maxItems: 1
 -- 
 2.47.2
 
