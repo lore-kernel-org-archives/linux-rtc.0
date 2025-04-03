@@ -1,167 +1,115 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12BF924BBF3
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Apr 2025 08:59:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21CB21E5B8B;
+	Thu,  3 Apr 2025 09:13:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743670771; cv=none; b=kWMC1MBgM8dlHV5urpO7KHaUo9OgauE5zoj5fQzmSlAEIYZ+iRsFig05iuKWyDYoKRUhylsXdnu0+wv0kCj/qwWZglAKIF/5R3Mo+t0xsHjODCmznfqKmKJ6IClNJ+4Fkb57imiUYqdSV8V1otDUHCdd4zxN9PCPxTKe09SntV0=
+	t=1743671617; cv=none; b=lj2dLKKEu3ZXZeBH2OCaDOTUKyAeEtrdtWeVOvZiFyfhEqa5qyAUbLdwuSAJGTASwHoVIitZFpabjwNj3Rb4zoHZzQQRpJoNrC2tGDojUMpgu9pQxoEzg7RTsdc8mt6bj7qNjfqZidsaO3HR1kOG5stWvhjHHyMahOtpuAewjXg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743670771; c=relaxed/simple;
-	bh=GESUUSr32C5v+JmyTkWMyaf4NO/174Vzhegyb1L9aRw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iGHnURa2i4E24KK/fJ4XFlGduJqnwuvkrqzt8S0oniZ/EYzDlM2es5egAyTAZbjp+YmI7jLzRliJXy6Uc0segLzgAnaZUziAe2B77Tt4pJrZC6ae17m3rf0+f0IEikf79kGTjDewf0dnSqQqbnv/2YQ/iQF7JHnENvclB0gfMl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=BjAy18u5; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1743671617; c=relaxed/simple;
+	bh=g8Tn9kpxzOYVVMT2sZ0pC2g7fw98Nf18dQr4IvtP60A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e2eltkUVOK9+ZyRSfwdCh1WnfXqDgNsMCiVf8U6HjvRDnH9eoAcNd7c3QiowvMOpAVkQJ0HGv4a2/8TFc8M5BkId98gbDCih3FfSdbUvd+pXYW8vGcvC0WEzboyDoqQbIByR6/tyTuCwXqNH6k42aQY8zeAbYfC0A0mBUIadyIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ilyiNqlL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="BjAy18u5"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5e6167d0536so1282938a12.1
-        for <linux-rtc@vger.kernel.org>; Thu, 03 Apr 2025 01:59:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1743670759; x=1744275559; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=PSEpA1j4+zmEauzOiOoF/mVKhD6CkjV25eyM5OWecNk=;
-        b=BjAy18u5MDej46oSBLQj9uVL1Sf6Rm4PoIgfKOjGinEeCUa9eopc4vUN5LTSw8eQ0O
-         KTh/zspz9CGcOj4RXCBWPauFPj5z3+7caeFdcB3iMMHTiztBuqFll3G82TeCMsHP0uoO
-         gRk/E6nTEEj/R+RXpo6u2RaPjb/3UGgr0PIugrhU4jbkxD1zmJ10jfQU76aLRnMq6liz
-         wnRlZGQfZF47MrHsz/ttO99IjC19HSV+bATLwDazmoLahCcuXevWH71OM259jXhQTN+z
-         UKI15hg7XN9Lf80ZWYNViOMEuCHA2wyOsXw5lVRCisF8y43b2auBJXwzz9Y3lNWV9Np2
-         +wcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743670759; x=1744275559;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PSEpA1j4+zmEauzOiOoF/mVKhD6CkjV25eyM5OWecNk=;
-        b=uNvdixD006ASgkCgn5ByWFw+wj3doJRnPibS1ePLXGpZqrtVIeUY+oIW+b0Ol4ApEO
-         K9Ypawtm3/Cfit52b6ozNdxOK2yapwEBNzaiA8sG2q2EeF8fvaYo29uk28d/Cge/BsAn
-         AHmJofI8Gysv3N5YQ45jR2Ze4gM7dGtBT3eMvDrhW3P469ZgEfbaFL8AdGL7Chq4i3iV
-         k3483N20S/TZxrdb7QwJIMiCH+c6axfn83y3bl7YYJhuQ/2nTF+KyzCHr1SWAElp1krq
-         Qh3q2/iq8wHWeaupFjIRD9TYgLmJcH8MrwbA+XRRyucX/zNbg8BohxZwDS4PbDNv/x5A
-         M3Ng==
-X-Forwarded-Encrypted: i=1; AJvYcCVouyBn4NJLIQfftkMScwHO5OWciML3Z0WQHutG9CYpFfIWBTC8CSgA1k6MsVLDERmLFDRTEuN241w=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDE48gtAgNDcls9wyrTvx3ADfsztttUfZtWdwy+0dHBMSdvf3h
-	gtSm73UcaUi/SmzPLtUIhyo9YG02I7/1dYFx219gQKlJ5O1kYjUWDtto+Hcmhzc=
-X-Gm-Gg: ASbGncvI6ocHKd82sB8+y6uTD0Wa04opFV9SRXPYshwqPrgirWEoCv8398a8FCaSHny
-	1PEUV+0DhhTp6qw+jsnUCZd4hVeEGArQzpL6VWywgM3IFOWU24zMwFIQhU3IGl3VUppxDM7RPSs
-	kwFN1JFS5P2nASX+JM/w8RV+nPih9JjnTCpEMDsRvi144qXxw6mLSGgxZ63mlpj3LQTc1XtED6n
-	wPM8I5oetWtfOUrqI7bSwyy8V6TpRwpy2bNjx0WebCTeJzVlohT0R46YrHc3UBtilLIoODVdkDw
-	jemoGPZqE5d8Oi/3JzMI1B/96hN1+o0o5ShtlIb2+Tk+8pQPjh8jaWbQraEaFGR185YqXAeB11s
-	7TYv4tn+O32vAjDNxKtZOBCWcp/LU
-X-Google-Smtp-Source: AGHT+IH778midZRWwNsQwTegqpsc1cU2/xzEiQMSkFa1kd7UfUZDcEcX+jZvLbDF0curTDRXNPPiPQ==
-X-Received: by 2002:a17:907:3d8f:b0:ac7:81bd:60e3 with SMTP id a640c23a62f3a-ac7c0935350mr136224366b.27.1743670758907;
-        Thu, 03 Apr 2025 01:59:18 -0700 (PDT)
-Received: from puffmais.c.googlers.com (8.239.204.35.bc.googleusercontent.com. [35.204.239.8])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5f0880a535fsm637614a12.80.2025.04.03.01.59.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Apr 2025 01:59:18 -0700 (PDT)
-From: =?utf-8?q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>
-Date: Thu, 03 Apr 2025 09:59:23 +0100
-Subject: [PATCH v3 31/32] rtc: s5m: replace open-coded read/modify/write
- registers with regmap helpers
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ilyiNqlL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E52C4CEE3;
+	Thu,  3 Apr 2025 09:13:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1743671616;
+	bh=g8Tn9kpxzOYVVMT2sZ0pC2g7fw98Nf18dQr4IvtP60A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ilyiNqlLaF8FA1CgMu89NXwNcPBksk2/CKOZLDUMYKW4FiiDiRuqsdOoYnZZwOt38
+	 TbCkyke49U9xVgwoRCx22aM5rHn1qrc1nlrlIS9/RZjIKfZKeRBglGw+k1zEYrdYUT
+	 FPUwEghKsrAlFS+UeF+ME+s11kyxBxrUSGJilJfkErRZiGYuMDuv4W0X586txsk7s3
+	 GutnUcxMH32Y0kjDvHZtBFYquHijYg+onfMu1r4cl76O3MvpQxxPu8Y0/KuGdxsol0
+	 3SsVeID3EUtmW7aG/+QV2T1x1Wf1J4OdpbD25VVua0mq1spDhLaIhZ7lsmpUccbKe7
+	 hv1bED1CdYk9w==
+Message-ID: <c0dc0efd-193b-4441-8971-35eae28b87b4@kernel.org>
+Date: Thu, 3 Apr 2025 11:13:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20250403-s2mpg10-v3-31-b542b3505e68@linaro.org>
-References: <20250403-s2mpg10-v3-0-b542b3505e68@linaro.org>
-In-Reply-To: <20250403-s2mpg10-v3-0-b542b3505e68@linaro.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
- Sylwester Nawrocki <s.nawrocki@samsung.com>, 
- Chanwoo Choi <cw00.choi@samsung.com>, Alim Akhtar <alim.akhtar@samsung.com>, 
- Michael Turquette <mturquette@baylibre.com>, 
- Stephen Boyd <sboyd@kernel.org>, Russell King <linux@armlinux.org.uk>, 
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 00/32] Samsung S2MPG10 PMIC MFD-based drivers
+To: =?UTF-8?Q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>,
+ Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Sylwester Nawrocki <s.nawrocki@samsung.com>,
+ Chanwoo Choi <cw00.choi@samsung.com>, Alim Akhtar <alim.akhtar@samsung.com>,
+ Michael Turquette <mturquette@baylibre.com>, Stephen Boyd
+ <sboyd@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Peter Griffin <peter.griffin@linaro.org>, 
- Tudor Ambarus <tudor.ambarus@linaro.org>, 
- Will McVicker <willmcvicker@google.com>, kernel-team@android.com, 
- linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-clk@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
- =?utf-8?q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>
-X-Mailer: b4 0.14.2
+Cc: Peter Griffin <peter.griffin@linaro.org>,
+ Tudor Ambarus <tudor.ambarus@linaro.org>,
+ Will McVicker <willmcvicker@google.com>, kernel-team@android.com,
+ linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-clk@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+References: <20250403-s2mpg10-v3-0-b542b3505e68@linaro.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 fv0=
+In-Reply-To: <20250403-s2mpg10-v3-0-b542b3505e68@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Instead of the open-coded read/modify/write sequence, we can simply use
-the regmap helpers regmap_set_bits() and regmap_update_bits()
-respectively.
+On 03/04/2025 10:58, André Draszik wrote:
+> This series adds initial support for the Samsung S2MPG10 PMIC using the
+> MFD framework. This is a PMIC for mobile applications and is used on
+> the Google Pixel 6 and 6 Pro (oriole / raven).
+> 
+We are still in merge window and you just posted v3 of this huge patch
+bomb. Basically three versions within the merge window is too much. Give
+reviewers time to actually review your code.
 
-This makes the code easier to read, and avoids extra work in case the
-underlying bus supports updating bits via
-struct regmap_bus::reg_update_bits() directly (which is the case for
-S2MPG10 on gs101 where this driver communicates via ACPM).
-
-Signed-off-by: André Draszik <andre.draszik@linaro.org>
----
- drivers/rtc/rtc-s5m.c | 28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/rtc/rtc-s5m.c b/drivers/rtc/rtc-s5m.c
-index fb65a8e439d72d9070751c00f5826a403ac0b416..2ad01fb3bc72fe9259a8307584c9cf3a839bd492 100644
---- a/drivers/rtc/rtc-s5m.c
-+++ b/drivers/rtc/rtc-s5m.c
-@@ -279,17 +279,9 @@ static int s5m_check_pending_alarm_interrupt(struct s5m_rtc_info *info,
- static int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- {
- 	int ret;
--	unsigned int data;
--
--	ret = regmap_read(info->regmap, info->regs->udr_update, &data);
--	if (ret < 0) {
--		dev_err(info->dev, "failed to read update reg(%d)\n", ret);
--		return ret;
--	}
--
--	data |= info->regs->write_time_udr_mask;
- 
--	ret = regmap_write(info->regmap, info->regs->udr_update, data);
-+	ret = regmap_set_bits(info->regmap, info->regs->udr_update,
-+			      info->regs->write_time_udr_mask);
- 	if (ret < 0) {
- 		dev_err(info->dev, "failed to write update reg(%d)\n", ret);
- 		return ret;
-@@ -303,19 +295,12 @@ static int s5m8767_rtc_set_time_reg(struct s5m_rtc_info *info)
- static int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- {
- 	int ret;
--	unsigned int data;
--
--	ret = regmap_read(info->regmap, info->regs->udr_update, &data);
--	if (ret < 0) {
--		dev_err(info->dev, "%s: fail to read update reg(%d)\n",
--			__func__, ret);
--		return ret;
--	}
-+	unsigned int udr_mask;
- 
--	data |= info->regs->write_alarm_udr_mask;
-+	udr_mask = info->regs->write_alarm_udr_mask;
- 	switch (info->device_type) {
- 	case S5M8767X:
--		data &= ~S5M_RTC_TIME_EN_MASK;
-+		udr_mask |= S5M_RTC_TIME_EN_MASK;
- 		break;
- 	case S2MPG10:
- 	case S2MPS15X:
-@@ -327,7 +312,8 @@ static int s5m8767_rtc_set_alarm_reg(struct s5m_rtc_info *info)
- 		return -EINVAL;
- 	}
- 
--	ret = regmap_write(info->regmap, info->regs->udr_update, data);
-+	ret = regmap_update_bits(info->regmap, info->regs->udr_update,
-+				 udr_mask, info->regs->write_alarm_udr_mask);
- 	if (ret < 0) {
- 		dev_err(info->dev, "%s: fail to write update reg(%d)\n",
- 			__func__, ret);
-
--- 
-2.49.0.472.ge94155a9ec-goog
-
+Best regards,
+Krzysztof
