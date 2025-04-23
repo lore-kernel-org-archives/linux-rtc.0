@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41FA826D4F6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4207E26D4FB;
 	Wed, 23 Apr 2025 07:54:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745394841; cv=none; b=erY9ohq6X0s/74RiB34ehLJ1LxiEod1Z+doGzxUkZKU6MXZhmQmKBd19yRNHm59kWPOlJuxGE+KohrkNm56Pgn1SW/oh1SNmlTR6S5py7isgAL14CbiGeLhR0C8/l8vWBHoKlh8IA8mGl8hiQ9l5qi6fq3rE05zJrmxoWRJiD9s=
+	t=1745394841; cv=none; b=ADFLIyUa50bJ1UtgrbBSm6T6RLtR+H6UcSEaSA8OvewJ7MhCFy6b3tbVHFDmEgVbRZqM48pZof8X1in0X4kWdhXwaSRyXQo7XtrmzxW6l5GgHALul+9Bxb3HRyRlVI1sS87Uj8NqTlp30uBMa66LmQ0j3KoM8Y4Py2BalAGSBmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745394841; c=relaxed/simple;
-	bh=2vwphhkHgVALJXaVfVrnaAzNXFpIgz4zKU/4c4LyDyw=;
+	bh=Ukky07QaiK/F5NoV7jqIANfFkmUJy5PKAuULzk2Aq+s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Jpq47G/imumWu7L7wd6rsumeF50d9+Zf5WAeTGEkS2smDkmUwiuRhYtxHU69NpjE5xIGK3ohLEf3bgURRq78NzfaeMcHT3g1KNsmeFcuHUfpvQUY9vW63zVNQY+cFpnxnDnJEh6OEN82GBnFGk+0ILLIn2uFVZG4gyRb4Rx3MC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sqma4gES; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=TEDUzoDQtnc21K6cKoPVDFF2a9SBREb+oaoIbV2h4tPYSeoUkb32rWEf8s1vBlJnnA0gcDRcn7YN05+FTWx0FdLhR2eGt41n+zzzqWuv8Pf9evcbkDBuCfK2jNd1i1KTdFJK2qqjOJal3ZUZnIqmsxRTykXNm7c6cuKOLLCDTDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jJgexmis; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sqma4gES"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8877C4CEF0;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jJgexmis"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13E1C4AF09;
 	Wed, 23 Apr 2025 07:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1745394840;
-	bh=2vwphhkHgVALJXaVfVrnaAzNXFpIgz4zKU/4c4LyDyw=;
+	bh=Ukky07QaiK/F5NoV7jqIANfFkmUJy5PKAuULzk2Aq+s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Sqma4gESzk15tGVofga9Q03bD/qnLJvWwgHzFPFRbFECvaqnPkyP13kMy5nM1mmJ3
-	 oOD9MpJrB++4qugTHey4jvkYCQH1W15K5ql0Tdmc4lpECDVtZBLO53pVBmJ0iGVQpu
-	 4nKlb0Dd9P4RtRKJBRrIOI0VpaRJ6hh34mUFN9FcqAYgt5N4LsHXb2NLNjtpp/iN0a
-	 60hEbLPgfc5G1qtly/MGHncmHqmVKtK7C764q40JV9OPyfRRmImW/3ZygXprE/+jew
-	 vD7nLtST/evy6Dp4+Bg2oDm3lsasr1xcJj8jmDYuOXdS8GJQacv4wOs01C2lN6VSSU
-	 F0JSWkg1JpEIg==
+	b=jJgexmislfGDHY8SCZBzo52qn9W6DZqU50ME4zPgsTc151AE5OkQ3CvDAxEEYqDnK
+	 JUWww1MO8MMw+infSBZFnX4XOT07dDr11pRfTPuQJ7/+34pkYbgB8j31Dx+lsdby8S
+	 QcXkKQ446gHcPykLiuxRLTgLww7UncJQ4R/rBE8RjTBAvbnGVhcLs11eE7mrAJ6LuM
+	 uE6Yavch5ZbCFIuGg9NfWxTx3hbBDQ/yUhZxdpiY5tpEBaXgw/iCifw7jNkHLnzHyc
+	 sHlIzXRshIPD7iZi2xVSJ/Gq+N1Nz6Nia3ZpBdaPno5n1dEe9yegll1EI2MK2K8JWY
+	 EVF/xe5cLduYg==
 Received: from johan by xi.lan with local (Exim 4.97.1)
 	(envelope-from <johan+linaro@kernel.org>)
-	id 1u7Uvf-000000002xJ-2Y45;
+	id 1u7Uvf-000000002xD-1Ysi;
 	Wed, 23 Apr 2025 09:53:59 +0200
 From: Johan Hovold <johan+linaro@kernel.org>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -42,9 +42,9 @@ Cc: Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 4/4] arm64: dts: qcom: x1e80100: describe uefi rtc offset
-Date: Wed, 23 Apr 2025 09:51:43 +0200
-Message-ID: <20250423075143.11157-5-johan+linaro@kernel.org>
+Subject: [PATCH 1/4] dt-bindings: rtc: qcom-pm8xxx: add uefi-variable offset
+Date: Wed, 23 Apr 2025 09:51:40 +0200
+Message-ID: <20250423075143.11157-2-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250423075143.11157-1-johan+linaro@kernel.org>
 References: <20250423075143.11157-1-johan+linaro@kernel.org>
@@ -66,28 +66,40 @@ variable the variables are also accessed in a non-standard way, which
 means that the OS cannot assume that the variable service is available
 by the time the RTC driver probes.
 
-Use the new 'qcom,uefi-rtc-info' property to indicate that the offset is
-stored in a UEFI variable so that the OS can determine whether to wait
-for it to become available.
+Add a 'qcom,uefi-rtc-info' boolean flag to indicate that the RTC offset
+is stored in a Qualcomm specific UEFI variable so that the OS can
+determine whether to wait for it to become available.
 
-Fixes: b53c2c23d3c2 ("arm64: dts: qcom: x1e80100: enable rtc")
+The UEFI variable is
+
+	882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
+
+and holds a 12-byte structure where the first four bytes is a GPS time
+offset in little-endian byte order.
+
+Link: https://lore.kernel.org/all/aAecIkgmTTlThKEZ@hovoldconsulting.com/
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi b/arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi
-index a59aa8e7642d..5a170238e74d 100644
---- a/arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi
-+++ b/arch/arm64/boot/dts/qcom/x1e80100-pmics.dtsi
-@@ -224,6 +224,7 @@ pmk8550_rtc: rtc@6100 {
- 			reg-names = "rtc", "alarm";
- 			interrupts = <0x0 0x62 0x1 IRQ_TYPE_EDGE_RISING>;
- 			qcom,no-alarm; /* alarm owned by ADSP */
-+			qcom,uefi-rtc-info;
- 		};
+diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+index 68ef3208c886..7497dc3ac5b2 100644
+--- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+@@ -55,6 +55,12 @@ properties:
+     description:
+       RTC alarm is not owned by the OS
  
- 		pmk8550_sdam_2: nvram@7100 {
++  qcom,uefi-rtc-info:
++    type: boolean
++    description:
++      RTC offset is stored as a four-byte GPS time offset in a 12-byte UEFI
++      variable 882f8c2b-9646-435f-8de5-f208ff80c1bd-RTCInfo
++
+   wakeup-source: true
+ 
+ required:
 -- 
 2.49.0
 
