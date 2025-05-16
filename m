@@ -1,38 +1,38 @@
-Received: from mail-106111.protonmail.ch (mail-106111.protonmail.ch [79.135.106.111])
+Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28F0227E99;
-	Fri, 16 May 2025 07:24:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53CD022CBE8
+	for <linux-rtc@vger.kernel.org>; Fri, 16 May 2025 07:24:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.77.79.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747380252; cv=none; b=kbPJ+kwhU2/WkMOMIq4PTSyLfdnZz3398RJU0eGWKilgWZnZDabv31P91ur7geIlqVtK2JdDDO5fGfKT3AsQoAufiHrtUdkcgFlMWC4EfCcdjtqFekl22HDun9Cbdzlt63zlreGlKcXE23qOQP7QkmzZxBUWpQO2mxx/A8HJrzc=
+	t=1747380254; cv=none; b=ZFItxSk8tNv12LHlpP4uqCE59MZwSEcccF8T1tUbcbtGKtKLDOSE3OR9iN4UnFbda8vz4wDAYjl2gnBaquvZEY76UYoD36HQxCAx+s+pLIC+bwbP4zQBWVCzZmKnw4mLmUFb7U2eu5nTYnkPJtlLZbrJjTDxpktVDhQgwtsHWiY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747380252; c=relaxed/simple;
-	bh=IeqH+mmAEu357ujDYHkqkLZyj0ZjtwVZFNzsXZ5Ilns=;
+	s=arc-20240116; t=1747380254; c=relaxed/simple;
+	bh=U/FxXzWBUPkyWbts6DT9nfymDyjSzhYDi8F/JF5C1p0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uy0FXk7ZRLD/l3aGDxQrTrSIa49A4ZdRHsim1+/4Icy1m/h93kL+pqRmgl0PxAxgY9p7fI8F8qcSyxJRylM8GpMpTsmdboMUXvS7KDpZO1hPCqE/AKff+ywq8w2YcLNHrOfizJUad5l9bWGv5bjCoxKS9ShEq/mWgg3Pja2+MdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=Mzrrnk3C; arc=none smtp.client-ip=79.135.106.111
+	 In-Reply-To:To:Cc; b=QtnQOtJDauptUIwiSMgK+9k2Jge5BYv6LnGxv2oLgg3rtHZ3msvFtBKOFJX0P+7yqNWmaqab6AX+wS/On9LxZEuOclRa/BHOjTby8Nd6L9pRZvFOv6Rp25MqsziwdrGkCH/pyRoGWoisH0c5ZZe8M2O00Fqb0fln6n9OlFlLdhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=JS4mAT4P; arc=none smtp.client-ip=51.77.79.158
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=geanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="Mzrrnk3C"
+	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="JS4mAT4P"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=geanix.com;
-	s=protonmail; t=1747380245; x=1747639445;
-	bh=wnEY2KdUknJWBsQjqh8ETTXj2cz9VJWvKOExBU/gttc=;
+	s=protonmail; t=1747380242; x=1747639442;
+	bh=VhSWaEsAxjdDofu9C1BTEf8HD8mJOrdR0IjKvjQ68iM=;
 	h=From:Date:Subject:Message-Id:References:In-Reply-To:To:Cc:From:To:
 	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector:
 	 List-Unsubscribe:List-Unsubscribe-Post;
-	b=Mzrrnk3CfWkzkzECgDBXxTZq0Kq03I4a0SUltZAyau3yoa/chOCyofVyO3COMUkvU
-	 17Lvyh2T1uzVrzZ55dyDjbK9eHXFST5dhCMcb8/erneuGVoFizGpuNg/VuuAm4oN5r
-	 fuPZyySckBn3Ic6V/7Jw1NNdIue135iUtDmA7js97DWUm/DukJxG1rbjGc+pttdtZD
-	 J45lpwM4xo15OC5y6HBf6SIfAsLjnnsbhLllM+c36sbv8eYtBmMv7/rcx5+CclhxWf
-	 QocciOkWxCs1HNNMA7fB/hX4xoZkJofoR3osKAEUYsNGDld8wiRgSjY9AJ8qFVBIRY
-	 C+wQ4whxloZKw==
-X-Pm-Submission-Id: 4ZzJVC4zTqzLb
+	b=JS4mAT4PkG/JB4f7BROfMAPAVOZZcR9sLaP0YhAAIMEeaR7fpxZtD83rSJDzuwyq8
+	 kYjuOTmCeLS9UAe8GTrtGcPN912TDyPWb2pnof4DFRsrxVeaPhQoAua++dMF4+wFxK
+	 aRU+IS8+rjnWKX2WV+T/u2UZleEDIS7haT8KwpHet3BIoDFbXDH5jnsjv0sQ+jUcfn
+	 mHheidtx0jVn7+EckzZMJGABp4W8KYacWtYDff/m1BBTO22rOMYvmirXUxTBWrosJB
+	 LbPpOsnoLMpayuQal28WgFXHydKyfDoEypTDarYTx5fIeLCfkJKH2LXlgCiJWKE042
+	 ZNzWy2opv7taw==
+X-Pm-Submission-Id: 4ZzJV419b7z452
 From: Esben Haabendal <esben@geanix.com>
-Date: Fri, 16 May 2025 09:23:39 +0200
-Subject: [PATCH v2 5/5] rtc: interface: Ensure alarm irq is enabled when
- UIE is enabled
+Date: Fri, 16 May 2025 09:23:38 +0200
+Subject: [PATCH v2 4/5] rtc: tps6586x: Fix initial enable_irq/disable_irq
+ balance
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -41,51 +41,42 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250516-rtc-uie-irq-fixes-v2-5-3de8e530a39e@geanix.com>
+Message-Id: <20250516-rtc-uie-irq-fixes-v2-4-3de8e530a39e@geanix.com>
 References: <20250516-rtc-uie-irq-fixes-v2-0-3de8e530a39e@geanix.com>
 In-Reply-To: <20250516-rtc-uie-irq-fixes-v2-0-3de8e530a39e@geanix.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>, 
- stable@vger.kernel.org
+ linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747380226; l=1227;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747380226; l=791;
  i=esben@geanix.com; s=20240523; h=from:subject:message-id;
- bh=IeqH+mmAEu357ujDYHkqkLZyj0ZjtwVZFNzsXZ5Ilns=;
- b=RrTb8qtv5dYP05zMzXkLxU5u27c2yybG4ipBNvmUZXn+c1CVziXdEP6YOWOHBaVduk77HJF5b
- tScJU+FR9GvBU7Q4gyMOGVGlCzJmIJBV+4kwczh2gYN86zycGwLGvF8
+ bh=U/FxXzWBUPkyWbts6DT9nfymDyjSzhYDi8F/JF5C1p0=;
+ b=RFB+FyPxB1Zn/jZXYG4SbZpVHAX5IN6jkJA2WhR6fZzTG9PyivmIpCHHP/N0uSkd9eVH7SjjN
+ QS+BgAHLdlDD6mDODg7OhH5mGnPJZ5LATO5QuIiBMZG2ijXOWWPou/D
 X-Developer-Key: i=esben@geanix.com; a=ed25519;
  pk=PbXoezm+CERhtgVeF/QAgXtEzSkDIahcWfC7RIXNdEk=
 
-When setting a normal alarm, user-space is responsible for using
-RTC_AIE_ON/RTC_AIE_OFF to control if alarm irq should be enabled.
-
-But when RTC_UIE_ON is used, interrupts must be enabled so that the
-requested irq events are generated.
-When RTC_UIE_OFF is used, alarm irq is disabled if there are no other
-alarms queued, so this commit brings symmetry to that.
+Interrupts are automatically enabled when requested, so we need to
+initialize irq_en accordingly to avoid causing an unbalanced enable
+warning.
 
 Signed-off-by: Esben Haabendal <esben@geanix.com>
-Cc: stable@vger.kernel.org
 ---
- drivers/rtc/interface.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/rtc/rtc-tps6586x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/interface.c b/drivers/rtc/interface.c
-index e365e8fd166db31f8b44fac9fb923d36881b1394..39db12f267cc627febb78e67400aaf8fc3301b0c 100644
---- a/drivers/rtc/interface.c
-+++ b/drivers/rtc/interface.c
-@@ -617,6 +617,10 @@ int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled)
- 		rtc->uie_rtctimer.node.expires = ktime_add(now, onesec);
- 		rtc->uie_rtctimer.period = ktime_set(1, 0);
- 		err = rtc_timer_enqueue(rtc, &rtc->uie_rtctimer);
-+		if (!err && rtc->ops && rtc->ops->alarm_irq_enable)
-+			err = rtc->ops->alarm_irq_enable(rtc->dev.parent, 1);
-+		if (err)
-+			goto out;
- 	} else {
- 		rtc_timer_remove(rtc, &rtc->uie_rtctimer);
- 	}
+diff --git a/drivers/rtc/rtc-tps6586x.c b/drivers/rtc/rtc-tps6586x.c
+index 54c8429b16bfcc692b1f4d5404f0c42f720e93b4..76ecf7b798f0de22aa89a552a263b473ab3065ef 100644
+--- a/drivers/rtc/rtc-tps6586x.c
++++ b/drivers/rtc/rtc-tps6586x.c
+@@ -258,6 +258,7 @@ static int tps6586x_rtc_probe(struct platform_device *pdev)
+ 
+ 	irq_set_status_flags(rtc->irq, IRQ_NOAUTOEN);
+ 
++	rtc->irq_en = true;
+ 	ret = devm_request_threaded_irq(&pdev->dev, rtc->irq, NULL,
+ 				tps6586x_rtc_irq,
+ 				IRQF_ONESHOT,
 
 -- 
 2.49.0
