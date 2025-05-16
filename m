@@ -1,38 +1,36 @@
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
+Received: from mail-0301.mail-europe.com (mail-0301.mail-europe.com [188.165.51.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E05D322756A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB83222592;
 	Fri, 16 May 2025 07:24:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.77.79.158
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.165.51.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747380248; cv=none; b=eYMov683pBd/LbzKM/I/8VFwGj/xvxg5ARGvlO6dlzBGJCtu9YmluxXoz/GsoXwGLN/2R2LwNMfUFWDvwKqjwkbORzecAgBfahYufYDC8NnhjHVXMPOoHerxk3RqrUu5LUmSnxuPD8GHnwWT9Qqy/iKULqW53R39Gqqv28mD86o=
+	t=1747380249; cv=none; b=a/8dR9eBj47fvbIi+BRCTCHegoOUrTtA2wZJCvzse1yZCxpSZYZCPeU6hM3UdRDONXcHLOyJ/elmyGU53QI7IJzHwkY4/mQ/DuNqQmk21Dx5L/nnaMIn6SmkUz+n2NbwcrPHqbUNxh4HmbKvPI/s2wQMXxJ3miWpVjNEVzdm6to=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747380248; c=relaxed/simple;
-	bh=2LUSg7Zdz1NxxCnzMbGgag78qSG7v6rups6Hg9AB3eA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rCL+y1kIqPwC+GD1rVR7wEfljinBSxB6LMibB2SX2bpUudFRjUY3pY/GQaC6boJrldsUn6rx/XkDypj4SsPhJprmpSR92oHTiSCaZ4eqL4yeDYPODiwhN01La5lAHoyRMENlh0yZxRv6W5ForYackCGOCKkPY4HJL4XXIRm4HPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=bpvYxcmy; arc=none smtp.client-ip=51.77.79.158
+	s=arc-20240116; t=1747380249; c=relaxed/simple;
+	bh=Yy3MHZ6ARWN2zLCp0cK5heR+syKaYF14s7J8YWFEFkM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WBH/j7KXsBySW0R8X3Utc66SY+jNE1EDy8RfoYVtLMKR2CLKcQipY/7tY8Ovz6Ibq+5Pk7LGXKQ383TrnE+OXKwa9KdFG8XV/7ym9jD3SOg4Y31mjeq6SOCdFImVWXCgHO/AAnd2XCAR7GpIfG41Fn7JHoXdIK/zKN9mVyAchn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=Wfv0YyVd; arc=none smtp.client-ip=188.165.51.139
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=geanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="bpvYxcmy"
+	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="Wfv0YyVd"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=geanix.com;
-	s=protonmail; t=1747380235; x=1747639435;
-	bh=NoyVE6dpJCpwp1H9KqJqcvA2x5V44zAwPbJ/sKD6YuU=;
-	h=From:Date:Subject:Message-Id:References:In-Reply-To:To:Cc:From:To:
-	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector:
-	 List-Unsubscribe:List-Unsubscribe-Post;
-	b=bpvYxcmyKBKyZtEzTff+rBq5lrNHbd8ut+AbdGyrEOTFWNPX6wt6kZhg0dYJ7xF+O
-	 O4AJnstf6qgXfhbKJ/xhzqsuaK6tqzETplLwPwFZmMbKCQKyyKnm7+zCGxAzuN5o1a
-	 qAcliW8UgZVUKWvo+dWgmUUzB+QUb012o16oov5Hxl5wswCVG1rEcd+NtYrdmQ2t0x
-	 hcfIOkCKGO1fya1RXOt0Z2EGkGqhIdBsZzIZKHdoVHr94wnI5ZO+9TjcKw4K7GpzAK
-	 eXqNHO2ynDkRdhLOwnXohBqFY7JIUjqAUtEzulKoa4zmYSAAQjX86lx3uYfnD+8juk
-	 KP1h7Evv0coCg==
-X-Pm-Submission-Id: 4ZzJV26PJ3z4wx9c
+	s=protonmail; t=1747380229; x=1747639429;
+	bh=I0gaAQiTCyczO3ncCezb5gyuPU+lPv2PjdLi0Zqhbqc=;
+	h=From:Subject:Date:Message-Id:To:Cc:From:To:Cc:Date:Subject:
+	 Reply-To:Feedback-ID:Message-ID:BIMI-Selector:List-Unsubscribe:
+	 List-Unsubscribe-Post;
+	b=Wfv0YyVdLchPkUnIK0M+avpJNvN58EnjNoNpSoEZTOmUCO4mjJPKAiKvi50id2lAX
+	 BY3/5NW5BLOfrYZNmr4gkwqGFe+ookF/EnRmzRbgzphtEY8lTBMPx4fMIfVXXoVIK8
+	 oBeL2/AvEZ7nQsGh3fSXNeyYC9SYh1z4ZpTyBKT62To83iIbjdBmtq0tt+FMHKZu4U
+	 Lgf57C5tCzXtlYrkABFZXNFKTfCe2ZHS7KqkuIbngH8qvd2mk5W4MUtUBew6PKsCaq
+	 HR2yhIR8bNd8wk9aRzzgtm+lcfo/xhGwmDBkWS01CwCM5wUpoARRdrlKf4mePRTzN/
+	 KRurX7U1PXbDQ==
 From: Esben Haabendal <esben@geanix.com>
-Date: Fri, 16 May 2025 09:23:37 +0200
-Subject: [PATCH v2 3/5] rtc: cpcap: Fix initial enable_irq/disable_irq
- balance
+Subject: [PATCH v2 0/5] rtc: Fix problems with missing UIE irqs
+Date: Fri, 16 May 2025 09:23:34 +0200
+Message-Id: <20250516-rtc-uie-irq-fixes-v2-0-3de8e530a39e@geanix.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -41,43 +39,63 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250516-rtc-uie-irq-fixes-v2-3-3de8e530a39e@geanix.com>
-References: <20250516-rtc-uie-irq-fixes-v2-0-3de8e530a39e@geanix.com>
-In-Reply-To: <20250516-rtc-uie-irq-fixes-v2-0-3de8e530a39e@geanix.com>
+X-B4-Tracking: v=1; b=H4sIAPbnJmgC/32NQQ6CMBBFr0Jm7Zh2MFpdcQ/DgpQpzMJWWyQYw
+ t0dOYDL93/e/ysUzsIFbtUKmWcpkqICHSrwYxcHRumVgQydLJka8+TxLRrnFwZZuGAgV7uLo94
+ EB+o9M++FavdWeZQypfzZL2b7S/+tzRYNGkvuzL6/hjo0A3dRlqNPD2i3bfsCK1lv6bMAAAA=
+X-Change-ID: 20241203-rtc-uie-irq-fixes-f2838782d0f8
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>
+ linux-arm-kernel@lists.infradead.org, Esben Haabendal <esben@geanix.com>, 
+ stable@vger.kernel.org
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747380226; l=822;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747380226; l=1695;
  i=esben@geanix.com; s=20240523; h=from:subject:message-id;
- bh=2LUSg7Zdz1NxxCnzMbGgag78qSG7v6rups6Hg9AB3eA=;
- b=llEZBEeeVmLuXVENteg1uyQgrCJd8ICMLUoRycqcWl+NviTZd6eJf03YYUk90h3fGrGZoj/s8
- 0sYqYaQZH9FCNmbB6X6oqC6ECktj4JoVtm8QUj0ljcpW2Y+Vy4Q0e9b
+ bh=Yy3MHZ6ARWN2zLCp0cK5heR+syKaYF14s7J8YWFEFkM=;
+ b=4D5F+hHT3AdVUK968VWXZzzw5RTJxQJ7n9KDgVYY3MaMqB+Na5Bre0xgMOSidQD0dBhHDQdMp
+ o6YY0tSz1NvDJmXcJDheZayCHRFGVTBuYxKXr6V6sbbrtl5mNjB2hNW
 X-Developer-Key: i=esben@geanix.com; a=ed25519;
  pk=PbXoezm+CERhtgVeF/QAgXtEzSkDIahcWfC7RIXNdEk=
 
-Interrupts are automatically enabled when requested, so we need to
-initialize alarm_enabled accordingly to avoid causing an unbalanced enable
-warning.
+This fixes a couple of different problems, that can cause RTC (alarm)
+irqs to be missing when generating UIE interrupts.
+
+The first commit fixes a long-standing problem, which has been
+documented in a comment since 2010. This fixes a race that could cause
+UIE irqs to stop being generated, which was easily reproduced by
+timing the use of RTC_UIE_ON ioctl with the seconds tick in the RTC.
+
+The last commit ensures that RTC (alarm) irqs are enabled whenever
+RTC_UIE_ON ioctl is used.
+
+The driver specific commits avoids kernel warnings about unbalanced
+enable_irq/disable_irq, which gets triggered on first RTC_UIE_ON with
+the last commit. Before this series, the same warning should be seen
+on initial RTC_AIE_ON with those drivers.
 
 Signed-off-by: Esben Haabendal <esben@geanix.com>
 ---
- drivers/rtc/rtc-cpcap.c | 1 +
- 1 file changed, 1 insertion(+)
+Changes in v2:
+- Dropped patch for rtc-st-lpc driver.
+- Link to v1: https://lore.kernel.org/r/20241203-rtc-uie-irq-fixes-v1-0-01286ecd9f3f@geanix.com
 
-diff --git a/drivers/rtc/rtc-cpcap.c b/drivers/rtc/rtc-cpcap.c
-index 568a89e79c11424967d4af239d252a80a073a341..682f85abfa0e9627c8410220c9cebad7371d360b 100644
---- a/drivers/rtc/rtc-cpcap.c
-+++ b/drivers/rtc/rtc-cpcap.c
-@@ -268,6 +268,7 @@ static int cpcap_rtc_probe(struct platform_device *pdev)
- 		return err;
- 
- 	rtc->alarm_irq = platform_get_irq(pdev, 0);
-+	rtc->alarm_enabled = true;
- 	err = devm_request_threaded_irq(dev, rtc->alarm_irq, NULL,
- 					cpcap_rtc_alarm_irq,
- 					IRQF_TRIGGER_NONE | IRQF_ONESHOT,
+---
+Esben Haabendal (5):
+      rtc: interface: Fix long-standing race when setting alarm
+      rtc: isl12022: Fix initial enable_irq/disable_irq balance
+      rtc: cpcap: Fix initial enable_irq/disable_irq balance
+      rtc: tps6586x: Fix initial enable_irq/disable_irq balance
+      rtc: interface: Ensure alarm irq is enabled when UIE is enabled
 
+ drivers/rtc/interface.c    | 27 +++++++++++++++++++++++++++
+ drivers/rtc/rtc-cpcap.c    |  1 +
+ drivers/rtc/rtc-isl12022.c |  1 +
+ drivers/rtc/rtc-tps6586x.c |  1 +
+ 4 files changed, 30 insertions(+)
+---
+base-commit: 82f2b0b97b36ee3fcddf0f0780a9a0825d52fec3
+change-id: 20241203-rtc-uie-irq-fixes-f2838782d0f8
+
+Best regards,
 -- 
-2.49.0
+Esben Haabendal <esben@geanix.com>
 
