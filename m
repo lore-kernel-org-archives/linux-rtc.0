@@ -1,303 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B10286426;
-	Wed, 28 May 2025 12:51:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E39421322F;
+	Wed, 28 May 2025 12:56:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748436714; cv=none; b=urG2aXT7Po3FVg/bI3p1ilhXRO8kEfTkWpIfhTBewVnpK3+/lmDi/O49UXUTbcE1KnRAP635YVpxUyRfLQm6Yqp/euVe6Vu0wnhcCcvdku0j3MAaurjd65J7fpfc/cgPvJhlxvg9eITAxDuysj++HmQqX1Jq0UejOGesacRnP9w=
+	t=1748436964; cv=none; b=cQl/kupMyDYxygt4tezguJF6IgNAMQ3HQ91FlCfxckK4X0N2/GzsoI10VxY5q74BJDUV2lxRZcovm5uJY3BahVo6tLMosM3kRkFvu7QgMDmiT4CpcrHRmT7L5qCPQoph59DGqK8Js7wn3bsu9XedvLTsN86K4WUFb9BzpZ0nSh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748436714; c=relaxed/simple;
-	bh=SnUlBhjo9u7u7RSQrf1KxHe5OU8VLd3rhNPNiG04UYs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iowaPBtb46JBPx0BqR9LJKXCGn6VWwVIEM1usKVQhpTh2O7tV4Vfpx+jxcPZ3ejxeNJD72JUIjobnN1Giw+ARA6+UgDeikoMLjSCBucF6GRBhUm9Tmyvfg1Kkp4FFPSAJEfUgRuWWD8Bkk9qVNZH3TjB5KJ8MjJ64jD+3j44Tko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aEt+GYsq; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aEt+GYsq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A382FC4CEE7;
-	Wed, 28 May 2025 12:51:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748436714;
-	bh=SnUlBhjo9u7u7RSQrf1KxHe5OU8VLd3rhNPNiG04UYs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=aEt+GYsqzE/+UQ/K7Hk/i0gSau9lkAT3hL2R69tTRbqACtYt9VtHrhU5qY0ibd3Xj
-	 EJQ3E8/eVuQ9CMfiomfFvchMrdqbskU2hRlkRmAtm4ZIk8qi0YifCqF9f6QQA6JgtE
-	 p9De0b1FMSRDj/IMgpOUzmtgoo7e4OSxEvq6HLAAHH/hJqFzgGBn4DqT7Lqat/SLZg
-	 i0LTZOqnq5R4P1I+l0r6kgNzamQPvGQG6wa2Lk1zJDGxHNf7he3hgN4ROBnp87OAo+
-	 yqhhzH8qztpN1ghO3+normZFf8fTYF/IPwFkOX9NyZx1nJKPkCY5jmDg9H6VKHkSff
-	 XClTH+H/YL33g==
-Date: Wed, 28 May 2025 14:51:51 +0200
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-	Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Joel Stanley <joel@jms.id.au>, Avi Fishman <avifishman70@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Tali Perry <tali.perry1@gmail.com>,
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
-	Benjamin Fair <benjaminfair@google.com>,
-	Jonathan =?iso-8859-1?Q?Neusch=E4fer?= <j.neuschaefer@gmx.net>,
-	=?utf-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	David Rhodes <david.rhodes@cirrus.com>,
-	Richard Fitzgerald <rf@opensource.cirrus.com>,
-	Charles Keepax <ckeepax@opensource.cirrus.com>,
-	Sean Wang <sean.wang@kernel.org>,
-	Jesper Nilsson <jesper.nilsson@axis.com>,
-	Lars Persson <lars.persson@axis.com>,
-	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Vladimir Zapolskiy <vz@mleia.com>,
-	Michal Simek <michal.simek@amd.com>,
-	Emil Renner Berthing <kernel@esmil.dk>,
-	Jianlong Huang <jianlong.huang@starfivetech.com>,
-	Hal Feng <hal.feng@starfivetech.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-renesas-soc@vger.kernel.org, linux-sound@vger.kernel.org,
-	patches@opensource.cirrus.com, linux-mediatek@lists.infradead.org,
-	linux-arm-kernel@axis.com, linux-riscv@lists.infradead.org,
-	linux-rtc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
-Subject: Re: [PATCH 16/17] pinctrl: Constify static 'pinctrl_desc'
-Message-ID: <aDcG58lXUgtW7pRZ@lore-desk>
-References: <20250528-pinctrl-const-desc-v1-0-76fe97899945@linaro.org>
- <20250528-pinctrl-const-desc-v1-16-76fe97899945@linaro.org>
+	s=arc-20240116; t=1748436964; c=relaxed/simple;
+	bh=+PhLsl6QIi9rIQ0T45j63xL9sX0VWjfxjI9Tcf3ANwo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZZzRc1BJFSWy+1J/9kFUHO6qz2+H1CRuLRf7XjNfBsErEoO8V4m+7nPDs48zli8ryNuqsjWgtecwmx/m62KFkRNmi7cSsr/UEJB9HTm6MzX4oPUMt9WZhPCQR/ncwRtw4VHKYl6EPDNtTuc1pZsFErSyIwGsmHKnKc5HeCc4Qnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.160.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-47692b9d059so57543271cf.3;
+        Wed, 28 May 2025 05:56:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1748436961; x=1749041761;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kpBCbmssZZU2OxX6932Syq4YOVYfQLXpGhSUVPiLHKA=;
+        b=ab6dLn8w6c4GmA3zf/78J4M737G4B/QUoVh9dn1gtnoDGdng+UCBuPnexT8ilI3bJL
+         VItbrTw91zv7kiUDekbCyKKQhjEdVw+aLS9ua/DsQ4qxeCXUpyvu7OhuobfdQSKJbDnE
+         f9FMEKTxQpdQThKdQm3bpLFTDseaJ7xxZ0rXCV+rvSv64T+iBxHPiuULjO7hncf+KV4T
+         sV2WcKA8vhBh/vF92z4S1lQsojxuPbXJCJWdDGEIugAhDno8mQjBHsUtljHQ+XCFb4fa
+         jOY8dieBroDaLwqyglDV1y+TvOdVcn5j7dBNQ1AwaHyrt5OdreEav0NIyF7n4qG9NOOc
+         dbPA==
+X-Forwarded-Encrypted: i=1; AJvYcCUbchEUMvu1435+udPmlc1t7q/NBDQQNqpfLTFQfhYiFBCyvQ6uyKedhgR2cF1NcOZ/i6lxy82U+DTSlX88@vger.kernel.org, AJvYcCUuLHabSiSItSMIdkae9o7ZsMA94meVebHZCXBlRFtoTMQ+EHjjnUsRL+VenVQCZ7kOgw7OoiHo9QU7@vger.kernel.org, AJvYcCVnhUeyf/mb1POKCG/LLnkPEnxl0uA7WxI1reOVtY51+fyPbArS7mlHFXccYkVadZLrd5HA4VZlEy3f@vger.kernel.org, AJvYcCXBp/pNOYFE9Uc1cA/oyijJKjibLKRGDndapGCTqiltba41mfQEXh8SFtdsaxBsIoYce+g59DDLmFdAFgiWtlPq2kQ=@vger.kernel.org, AJvYcCXZLrxo+IhWXKeFae//nGo5g6J7hJZ37Wc93KrVXfli0fh/gsPf5Tl2NteHS8QrjTp7Hx0if5wA6UV/abo=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz+6LVpOayFVC7AcXs2/N1ypEOTaURZe6OxHuCk8j9GyTXH8yZd
+	1wRQlSypjMh8eos+VmGe9oH2PQFEWsPvf4OmY/APabAl8vMRghWj22nmxISMdruc
+X-Gm-Gg: ASbGncvY2bNUqn3kp0nkfZfxv3NF5NkdKn7g73TJo3LA4I/JRFjz2xbJqCHrPpcxABr
+	RzI68JXTnOYVd4R26in8SozRFcupVtsMcBycGsCCwddeDOSuGJMrP+eguaTdlfUZjK/CZJI3EBt
+	QoHWj6mV6hkD1hUlxumGV75PrDeZNgwEEIEEG/oQoBQ+ODnJW575Zr20S40gMH1HogoNvwyCfCe
+	PDh772oKkL+72jGu50pnClyLlo8NOZEQCLssqG3xbhly6kN5qDO0HzS8NzdaGAfH8Y+N7FCqUak
+	66Z85CS4giZ6wSU5EXqwC8sY0rzpGOf3zgeXIAtG1ZpZHFvL6TyidqPjF4LJnjF9Wm/ecW5Ap9G
+	n0EoO+16U7tgYRdZBsA==
+X-Google-Smtp-Source: AGHT+IHfeApnVHkjrZgUpPXzGnPyaya3Y+pEdPNILryJcS1vH+5VauihlFQrd6UcHdUAWv1LoKoerA==
+X-Received: by 2002:a05:622a:4a0b:b0:494:a447:5bbb with SMTP id d75a77b69052e-49f46657f26mr288348621cf.16.1748436961470;
+        Wed, 28 May 2025 05:56:01 -0700 (PDT)
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com. [209.85.222.179])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a3c80d7838sm5582141cf.64.2025.05.28.05.56.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 28 May 2025 05:56:01 -0700 (PDT)
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7c59e7039eeso601643285a.2;
+        Wed, 28 May 2025 05:56:01 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVMDpqNpfAz8+p88Omw201cvmzEYpO1XjThN/vuPN+7W3K/FOWkfsEvhdSkbZWHi4Fjc2L0I+C1PMby@vger.kernel.org, AJvYcCVqqdjRthiBroK1nefAWRIcvbAG3VaN2FQr9KS/OyY9aKm7AaeAOgir4KMAceJfXEUtptFH+5NkKcAk5PE4@vger.kernel.org, AJvYcCX/xa/dM6zXui3njLrJd33Kiy+uXqcj/Z6z15qDDQMHte5yXt15jm7TIPboZ+2OUzxWrm1OhXCHgw5xOky5jT98o6k=@vger.kernel.org, AJvYcCX8IJhVj/32he8yUgKYpzaONeOX/FhphBPw8ftrDMbjFnGlufp3oMapwogFG47huEM/nuEGgj6ZSrQF@vger.kernel.org, AJvYcCXQ55Xh6nybQB6YHiDYOLIbflIMzgH+XR6c2SjuYDElzBLjKUQoI/sHM+1FihDPeQi0aBAYSjMDmzipwj0=@vger.kernel.org
+X-Received: by 2002:a05:6102:3e94:b0:4dd:b9bc:df71 with SMTP id
+ ada2fe7eead31-4e4240b1619mr13395283137.10.1748436481362; Wed, 28 May 2025
+ 05:48:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="/Ro94xiBz0rUYauQ"
-Content-Disposition: inline
-In-Reply-To: <20250528-pinctrl-const-desc-v1-16-76fe97899945@linaro.org>
+References: <20250528-pinctrl-const-desc-v1-0-76fe97899945@linaro.org> <20250528-pinctrl-const-desc-v1-4-76fe97899945@linaro.org>
+In-Reply-To: <20250528-pinctrl-const-desc-v1-4-76fe97899945@linaro.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 28 May 2025 14:47:49 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUWqvHGKHqUWf6xdVBzaungUq1Fq=g_+qFQRO5+fq4=vQ@mail.gmail.com>
+X-Gm-Features: AX0GCFtImpXXWdP8CtUa2VgvQDuwNbZqXjPeWpaGOsf8DlxmYUgiiqknnvQgxJg
+Message-ID: <CAMuHMdUWqvHGKHqUWf6xdVBzaungUq1Fq=g_+qFQRO5+fq4=vQ@mail.gmail.com>
+Subject: Re: [PATCH 04/17] pinctrl: Constify pointers to 'pinctrl_desc'
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Basavaraj Natikar <Basavaraj.Natikar@amd.com>, 
+	Shyam Sundar S K <Shyam-sundar.S-k@amd.com>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
+	Joel Stanley <joel@jms.id.au>, Avi Fishman <avifishman70@gmail.com>, 
+	Tomer Maimon <tmaimon77@gmail.com>, Tali Perry <tali.perry1@gmail.com>, 
+	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>, 
+	Benjamin Fair <benjaminfair@google.com>, =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, 
+	=?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Ray Jui <rjui@broadcom.com>, 
+	Scott Branden <sbranden@broadcom.com>, David Rhodes <david.rhodes@cirrus.com>, 
+	Richard Fitzgerald <rf@opensource.cirrus.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
+	Lorenzo Bianconi <lorenzo@kernel.org>, Sean Wang <sean.wang@kernel.org>, 
+	Jesper Nilsson <jesper.nilsson@axis.com>, Lars Persson <lars.persson@axis.com>, 
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Damien Le Moal <dlemoal@kernel.org>, 
+	Vladimir Zapolskiy <vz@mleia.com>, Michal Simek <michal.simek@amd.com>, 
+	Emil Renner Berthing <kernel@esmil.dk>, Jianlong Huang <jianlong.huang@starfivetech.com>, 
+	Hal Feng <hal.feng@starfivetech.com>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-aspeed@lists.ozlabs.org, 
+	openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, 
+	linux-renesas-soc@vger.kernel.org, linux-sound@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-mediatek@lists.infradead.org, 
+	linux-arm-kernel@axis.com, linux-riscv@lists.infradead.org, 
+	linux-rtc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
+Content-Type: text/plain; charset="UTF-8"
 
-
---/Ro94xiBz0rUYauQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> The local static 'struct pinctrl_desc' is not modified, so can be made
-> const for code safety.
->=20
+On Wed, 28 May 2025 at 12:41, Krzysztof Kozlowski
+<krzysztof.kozlowski@linaro.org> wrote:
+> Pin controller core code only stores the pointer to
+> 'struct pinctrl_desc' and does not modify it anywhere.  The pointer can
+> be changed to pointer to const which makes the code safer, explicit and
+> later allows constifying 'pinctrl_desc' allocations in individual
+> drivers.
+>
 > Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-For airoha bits:
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Gr{oetje,eeting}s,
 
-> ---
->  drivers/pinctrl/berlin/berlin.c                    | 2 +-
->  drivers/pinctrl/cirrus/pinctrl-cs42l43.c           | 2 +-
->  drivers/pinctrl/mediatek/pinctrl-airoha.c          | 2 +-
->  drivers/pinctrl/pinctrl-artpec6.c                  | 2 +-
->  drivers/pinctrl/pinctrl-bm1880.c                   | 2 +-
->  drivers/pinctrl/pinctrl-k210.c                     | 2 +-
->  drivers/pinctrl/pinctrl-lpc18xx.c                  | 2 +-
->  drivers/pinctrl/pinctrl-mlxbf3.c                   | 2 +-
->  drivers/pinctrl/pinctrl-tb10x.c                    | 2 +-
->  drivers/pinctrl/pinctrl-zynq.c                     | 2 +-
->  drivers/pinctrl/starfive/pinctrl-starfive-jh7100.c | 2 +-
->  11 files changed, 11 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/pinctrl/berlin/berlin.c b/drivers/pinctrl/berlin/ber=
-lin.c
-> index c372a2a24be4bb80b1f2475ef8512171c8e1326f..e5a35b803ce66d247c5e5ad78=
-e6677570a1add60 100644
-> --- a/drivers/pinctrl/berlin/berlin.c
-> +++ b/drivers/pinctrl/berlin/berlin.c
-> @@ -283,7 +283,7 @@ static int berlin_pinctrl_build_state(struct platform=
-_device *pdev)
->  	return 0;
->  }
-> =20
-> -static struct pinctrl_desc berlin_pctrl_desc =3D {
-> +static const struct pinctrl_desc berlin_pctrl_desc =3D {
->  	.name		=3D "berlin-pinctrl",
->  	.pctlops	=3D &berlin_pinctrl_ops,
->  	.pmxops		=3D &berlin_pinmux_ops,
-> diff --git a/drivers/pinctrl/cirrus/pinctrl-cs42l43.c b/drivers/pinctrl/c=
-irrus/pinctrl-cs42l43.c
-> index 628b60ccc2b07dc77e36da8919436fa348749e0c..a90beb986f5bb707c54552e13=
-33802943a4b04bc 100644
-> --- a/drivers/pinctrl/cirrus/pinctrl-cs42l43.c
-> +++ b/drivers/pinctrl/cirrus/pinctrl-cs42l43.c
-> @@ -448,7 +448,7 @@ static const struct pinconf_ops cs42l43_pin_conf_ops =
-=3D {
->  	.pin_config_group_set	=3D cs42l43_pin_config_group_set,
->  };
-> =20
-> -static struct pinctrl_desc cs42l43_pin_desc =3D {
-> +static const struct pinctrl_desc cs42l43_pin_desc =3D {
->  	.name		=3D "cs42l43-pinctrl",
->  	.owner		=3D THIS_MODULE,
-> =20
-> diff --git a/drivers/pinctrl/mediatek/pinctrl-airoha.c b/drivers/pinctrl/=
-mediatek/pinctrl-airoha.c
-> index b97b28ebb37a6ec092360f8ea404dd67e6c43eac..ccd2b512e8365b3a5af0bb223=
-329f39119bc7078 100644
-> --- a/drivers/pinctrl/mediatek/pinctrl-airoha.c
-> +++ b/drivers/pinctrl/mediatek/pinctrl-airoha.c
-> @@ -2852,7 +2852,7 @@ static const struct pinctrl_ops airoha_pctlops =3D {
->  	.dt_free_map =3D pinconf_generic_dt_free_map,
->  };
-> =20
-> -static struct pinctrl_desc airoha_pinctrl_desc =3D {
-> +static const struct pinctrl_desc airoha_pinctrl_desc =3D {
->  	.name =3D KBUILD_MODNAME,
->  	.owner =3D THIS_MODULE,
->  	.pctlops =3D &airoha_pctlops,
-> diff --git a/drivers/pinctrl/pinctrl-artpec6.c b/drivers/pinctrl/pinctrl-=
-artpec6.c
-> index 717f9592b28b51737e67aafc93664b1345511908..af67057128ff1e9e766b958fe=
-ce9c71518c89081 100644
-> --- a/drivers/pinctrl/pinctrl-artpec6.c
-> +++ b/drivers/pinctrl/pinctrl-artpec6.c
-> @@ -907,7 +907,7 @@ static const struct pinconf_ops artpec6_pconf_ops =3D=
- {
->  	.pin_config_group_set	=3D artpec6_pconf_group_set,
->  };
-> =20
-> -static struct pinctrl_desc artpec6_desc =3D {
-> +static const struct pinctrl_desc artpec6_desc =3D {
->  	.name	 =3D "artpec6-pinctrl",
->  	.owner	 =3D THIS_MODULE,
->  	.pins	 =3D artpec6_pins,
-> diff --git a/drivers/pinctrl/pinctrl-bm1880.c b/drivers/pinctrl/pinctrl-b=
-m1880.c
-> index b0000fe5b31dfbcd6af6eaf0c01029f00cbd205b..387798fb09be51cabd5cb76e0=
-d90a28b1d363050 100644
-> --- a/drivers/pinctrl/pinctrl-bm1880.c
-> +++ b/drivers/pinctrl/pinctrl-bm1880.c
-> @@ -1298,7 +1298,7 @@ static const struct pinmux_ops bm1880_pinmux_ops =
-=3D {
->  	.set_mux =3D bm1880_pinmux_set_mux,
->  };
-> =20
-> -static struct pinctrl_desc bm1880_desc =3D {
-> +static const struct pinctrl_desc bm1880_desc =3D {
->  	.name =3D "bm1880_pinctrl",
->  	.pins =3D bm1880_pins,
->  	.npins =3D ARRAY_SIZE(bm1880_pins),
-> diff --git a/drivers/pinctrl/pinctrl-k210.c b/drivers/pinctrl/pinctrl-k21=
-0.c
-> index eddb01796a83eb86c8c5bcf6788c999e8bf2926a..66c04120c29deccf53b21cbf8=
-705f1d10c74ace5 100644
-> --- a/drivers/pinctrl/pinctrl-k210.c
-> +++ b/drivers/pinctrl/pinctrl-k210.c
-> @@ -879,7 +879,7 @@ static const struct pinctrl_ops k210_pinctrl_ops =3D {
->  	.dt_free_map =3D pinconf_generic_dt_free_map,
->  };
-> =20
-> -static struct pinctrl_desc k210_pinctrl_desc =3D {
-> +static const struct pinctrl_desc k210_pinctrl_desc =3D {
->  	.name =3D "k210-pinctrl",
->  	.pins =3D k210_pins,
->  	.npins =3D K210_NPINS,
-> diff --git a/drivers/pinctrl/pinctrl-lpc18xx.c b/drivers/pinctrl/pinctrl-=
-lpc18xx.c
-> index 0f5a7bed2f81b731714e3b65908df23f2ffdfd63..5e0201768323521754e7ecd27=
-e878a81925c18a6 100644
-> --- a/drivers/pinctrl/pinctrl-lpc18xx.c
-> +++ b/drivers/pinctrl/pinctrl-lpc18xx.c
-> @@ -1257,7 +1257,7 @@ static const struct pinctrl_ops lpc18xx_pctl_ops =
-=3D {
->  	.dt_free_map		=3D pinctrl_utils_free_map,
->  };
-> =20
-> -static struct pinctrl_desc lpc18xx_scu_desc =3D {
-> +static const struct pinctrl_desc lpc18xx_scu_desc =3D {
->  	.name =3D "lpc18xx/43xx-scu",
->  	.pins =3D lpc18xx_pins,
->  	.npins =3D ARRAY_SIZE(lpc18xx_pins),
-> diff --git a/drivers/pinctrl/pinctrl-mlxbf3.c b/drivers/pinctrl/pinctrl-m=
-lxbf3.c
-> index ffb5dda364dc81808cfd5a168ce3f1e9f119357d..fcd9d46de89fb3e5215784109=
-ba31b171fd15448 100644
-> --- a/drivers/pinctrl/pinctrl-mlxbf3.c
-> +++ b/drivers/pinctrl/pinctrl-mlxbf3.c
-> @@ -231,7 +231,7 @@ static const struct pinmux_ops mlxbf3_pmx_ops =3D {
->  	.gpio_request_enable =3D mlxbf3_gpio_request_enable,
->  };
-> =20
-> -static struct pinctrl_desc mlxbf3_pin_desc =3D {
-> +static const struct pinctrl_desc mlxbf3_pin_desc =3D {
->  	.name =3D "pinctrl-mlxbf3",
->  	.pins =3D mlxbf3_pins,
->  	.npins =3D ARRAY_SIZE(mlxbf3_pins),
-> diff --git a/drivers/pinctrl/pinctrl-tb10x.c b/drivers/pinctrl/pinctrl-tb=
-10x.c
-> index d6bb8f58978df1577db24f96c2174f47962b5520..2d2e9f697ff99b4209dda8d55=
-11f478a18b26a21 100644
-> --- a/drivers/pinctrl/pinctrl-tb10x.c
-> +++ b/drivers/pinctrl/pinctrl-tb10x.c
-> @@ -735,7 +735,7 @@ static const struct pinmux_ops tb10x_pinmux_ops =3D {
->  	.set_mux =3D tb10x_pctl_set_mux,
->  };
-> =20
-> -static struct pinctrl_desc tb10x_pindesc =3D {
-> +static const struct pinctrl_desc tb10x_pindesc =3D {
->  	.name =3D "TB10x",
->  	.pins =3D tb10x_pins,
->  	.npins =3D ARRAY_SIZE(tb10x_pins),
-> diff --git a/drivers/pinctrl/pinctrl-zynq.c b/drivers/pinctrl/pinctrl-zyn=
-q.c
-> index caa8a2ca3e681718fe213921deca8d130371b122..dcde86fed10db3e2dfebc19cb=
-841ea7f63e74989 100644
-> --- a/drivers/pinctrl/pinctrl-zynq.c
-> +++ b/drivers/pinctrl/pinctrl-zynq.c
-> @@ -1143,7 +1143,7 @@ static const struct pinconf_ops zynq_pinconf_ops =
-=3D {
->  	.pin_config_group_set =3D zynq_pinconf_group_set,
->  };
-> =20
-> -static struct pinctrl_desc zynq_desc =3D {
-> +static const struct pinctrl_desc zynq_desc =3D {
->  	.name =3D "zynq_pinctrl",
->  	.pins =3D zynq_pins,
->  	.npins =3D ARRAY_SIZE(zynq_pins),
-> diff --git a/drivers/pinctrl/starfive/pinctrl-starfive-jh7100.c b/drivers=
-/pinctrl/starfive/pinctrl-starfive-jh7100.c
-> index 27f99183d994dccb92aac81ca42228bdb9225e87..aeaa0ded7c1e5ee7f9c5e4113=
-bfd208fb844ba7d 100644
-> --- a/drivers/pinctrl/starfive/pinctrl-starfive-jh7100.c
-> +++ b/drivers/pinctrl/starfive/pinctrl-starfive-jh7100.c
-> @@ -898,7 +898,7 @@ static const struct pinconf_ops starfive_pinconf_ops =
-=3D {
->  	.is_generic =3D true,
->  };
-> =20
-> -static struct pinctrl_desc starfive_desc =3D {
-> +static const struct pinctrl_desc starfive_desc =3D {
->  	.name =3D DRIVER_NAME,
->  	.pins =3D starfive_pins,
->  	.npins =3D ARRAY_SIZE(starfive_pins),
->=20
-> --=20
-> 2.45.2
->=20
+                        Geert
 
---/Ro94xiBz0rUYauQ
-Content-Type: application/pgp-signature; name=signature.asc
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQTquNwa3Txd3rGGn7Y6cBh0uS2trAUCaDcG5wAKCRA6cBh0uS2t
-rABgAQDChqlOupLj8dMgBJtw+ZYSz23faF0MajHN6Bznec2ZxQD/b4iuNIDVxDRu
-w5SyOOU+1pIOKkH9BqiTR31e740csQc=
-=S7ff
------END PGP SIGNATURE-----
-
---/Ro94xiBz0rUYauQ--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
