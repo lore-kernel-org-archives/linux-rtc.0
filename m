@@ -1,100 +1,143 @@
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4358528C5B1;
-	Tue, 15 Jul 2025 14:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.207.212.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7DBF1E833D
+	for <linux-rtc@vger.kernel.org>; Tue, 15 Jul 2025 14:58:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752588526; cv=none; b=qG2B/tmWrS2i2JbALS5/+4TGNP6sKqo/p0dyOxwXZ2kU7988944KUrUGF7VpKjm9pmecK/DexXewbyDeZL0S6IlDLAp5DyydmeZ4Q2TK9YblmldGMkqPpDbbC1keckwOpfCB3BPv3kMcwihVeq5aRvunX2X85kkdGF/cTa6Oyto=
+	t=1752591537; cv=none; b=hR/PU/nBbLB6AiW61uTfJ1oHT7Gc0H6aqRjuByfz0w2QN1VRyVJXuAHPZLFm4yRhQo/4CGbC8C0UE5kasrmGI5D3smmEpVa/bK/4nSPLnjIbcCaSFRBjFoU1PaBa/2VzMveoiDJiUKQ7XdECq2RyrZAyQP0OneJY1MQS2ELLWx4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752588526; c=relaxed/simple;
-	bh=tB8e29HievMYjKK/es76G537t2NjUZppPb+VRwm4WE8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=pS3Jd/cCt5NY+G+SUsprgpnsLeKs3anadjhCpuSFTk2GxDZz8dnvtiDpJaDzYoYtosVR9Xg+mlXjzAmYvXmMQ0nea+uq2KgIllmZizj6j9DBCZkmQOMFmA2vIu+OwqD2XKoRZkY0ZJ5ymQNcrEJMirhIAnaKsUAEmgcRBWYoXhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=uGS0bm18; arc=none smtp.client-ip=91.207.212.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	s=arc-20240116; t=1752591537; c=relaxed/simple;
+	bh=RJgtZNUEZzN9hGx+4AfBFEa2QJOzHnj3a+2Fa0Jy63A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kj7Swc3W7B92uob2yvcgEJg6iXA9egikFOYAfe8+C1Mdne6QUb9HswfzVoLfufXwwcR8wMc3vGutSz6he62486r9h9lZ+prgeKl10cuadZlO2u4mjlAWIwtNAMKpW/wWujf/c5s8WMsHIJoV7RHc9GNS+L+5EZEEtgJZ/9EyYEU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com; spf=pass smtp.mailfrom=ventanamicro.com; dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b=MVqhKI0E; arc=none smtp.client-ip=209.85.210.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ventanamicro.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ventanamicro.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="uGS0bm18"
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 56FDoK8E030276;
-	Tue, 15 Jul 2025 16:08:39 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=selector1; bh=
-	uXGw9WUeFha5lfSOB+Dp3arpnW5I3Ss/rTV2qKNDad4=; b=uGS0bm18zxhCbfyn
-	jIT+2Xi5vbZxfdeskXesd3o4AuPJBoOXN2E2Skz36fv4UB8dFl6NotMRww5Hx4V3
-	v0AcQIy+pCw0zmXfaOiVqtuV+4dWsHSF64XzqrUJ6qEwBayfrR7rhEdwqKOHRBs5
-	qMYbHPom/9E5jiw4sW1SGJFQWSm9oRbMRgkKsNVkJ5J0DzDprnkcquicZTSIw/zP
-	eLpYtgYtBzz+Uj23nsZ9sbq9MEf6hbWpJMLffqSI1YKe6j1/aMNrD7pSdsSmX9We
-	9UcOnMn+xREuCBCwJB7NlLAfscro3CW7n6+fKYHvK9yPNW+SjwMpM+wKZKvdt9Ex
-	PlomMg==
-Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
-	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 47uekgwahs-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Jul 2025 16:08:39 +0200 (MEST)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id B28B240055;
-	Tue, 15 Jul 2025 16:07:49 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node2.st.com [10.75.129.70])
-	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 111D9BA56B7;
-	Tue, 15 Jul 2025 16:07:25 +0200 (CEST)
-Received: from localhost (10.48.86.185) by SHFDAG1NODE2.st.com (10.75.129.70)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Tue, 15 Jul
- 2025 16:07:24 +0200
-From: =?utf-8?q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>
-Date: Tue, 15 Jul 2025 16:07:13 +0200
-Subject: [PATCH 1/3] rtc: rtc-optee: fix memory leak on driver removal
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="MVqhKI0E"
+Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-74801bc6dc5so4547123b3a.1
+        for <linux-rtc@vger.kernel.org>; Tue, 15 Jul 2025 07:58:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google; t=1752591534; x=1753196334; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mvahs9K3Kwf003Xrbc0oMQlkzIbQnUN8rpvZVnAjj48=;
+        b=MVqhKI0EqGwLxsJJYXSJjcwD8KeF1YRS2jGRphp2kEynDAJWzeak0xjSgEGiJNY4JZ
+         cJDU/pkS3gG/M6DgW6RdTFCyiyL+r6bqtCvrcVPIehXCcmcchVVXtagCqfgMIoOThYLu
+         s2YE1Dv9SqRPZFNNe06hd5CSukLAfAhHAwYmKb5GWxhwxXv1gOMyAXRCNzPFyWFd05pM
+         Z4vVUjidVjg4GUXasE7swLMBsiS35dL8qhans6+BR7CNPeLpYgeCecGwhspywguJLoSp
+         gEGY6VQPZLa0agZYgR18P8jp05ikffgy3baTglYt9X8p62CYJ5BM5AOuaIhMgFCymyku
+         soow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752591534; x=1753196334;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mvahs9K3Kwf003Xrbc0oMQlkzIbQnUN8rpvZVnAjj48=;
+        b=PIUdQFU9pxjn9PRVMjXxR9p4yHgdiYoO50MP1vcuGHLZmCn7VyjpJDmNtsVzjC6jIx
+         iMPxOd2+KDZQSWFSomLf0YTmCCbsR06Wgj3EQlFQ1SHJ7o80Z5uNlcdXTiFS+6nWzdqx
+         4qVcLvqO/cn7e5iK5S8y4bUKwonnoDz1+mt7XxhZu0vrmcy6AehZliWp6dirOciLBgCV
+         OCXi+HJ8Lu9XTnEjISB/j1OP6CBuULE8dLgKCMQ71zjJLUbgR/+W7aSLR6bLQgWb3wG5
+         8QHUC95CwmbgGKgJnu2pqHQraayAcDlfmEPzu0wHsJwQPHzsGB2vfLBrG160PyzyLNW8
+         Awzw==
+X-Forwarded-Encrypted: i=1; AJvYcCU5l3oh3a/N/ZqJyYVkirYg8JFUMSrNr3UPZwItaOe/yJe3bb2WXfjE88wzn1U5WoGany9YxAK9u1c=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw+CqSih5UEfOKRV59ZmFGr20sX0O2Ke8VH1od3jHrZ3ILc/G6L
+	ja85ROHxIlfNr0zmlOWk9NfgNziasSDc8HxGCzGYI+6oaO5eLpGoM/Q8Ks0aO6eNBxw=
+X-Gm-Gg: ASbGnctaUcQNYfdan5DSqaTJ7h7yMYiYYd5XAKlvyireLBYG7BzSnJ9VQhru2ZfEpoG
+	OnryqcBU+5DIN9QKm+/aeSPAZX0LslgGdK74PDr5lmgBfkagNT1Vo02fjMmXHR6+xZIBZwbCSIz
+	0WbVZVkQYWWeBUYrbatPZN47cs4UDU/NAbWgg+vsxZiuNaE4ls7FJebX22v6lP40so5X/YC1cIt
+	LLSa9L8b3LTYo+S3BMqqw6fYkUUUYg0Tj8C6ErVMf8KrJ5VdwzC8jHyLEwR7R/7xKG5iZYVS//A
+	KuiUTaK6Z3tYCMtw1EO+ZFGU5AqAHuh9LFgDT1IxQJqZE0W3kPg0Kzdioafz0lAbY1IU7Rlv9z3
+	EIE/9gbp1pMSQ27ZeTshoUmlRUeO3oA==
+X-Google-Smtp-Source: AGHT+IGWqmTNcmPppTn41XmZxoBqwnqg0u0bN/W4bU7UhI4lYpV4O4cn1UsFVwKVvFBue7Ekoyiq4A==
+X-Received: by 2002:a05:6a00:ad0:b0:746:195b:bf1c with SMTP id d2e1a72fcca58-75584eb932emr5340905b3a.10.1752591533903;
+        Tue, 15 Jul 2025 07:58:53 -0700 (PDT)
+Received: from sunil-laptop ([103.97.166.196])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74eb9f1b6fbsm12327709b3a.84.2025.07.15.07.58.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Jul 2025 07:58:53 -0700 (PDT)
+Date: Tue, 15 Jul 2025 20:28:42 +0530
+From: Sunil V L <sunilvl@ventanamicro.com>
+To: Ard Biesheuvel <ardb@kernel.org>
+Cc: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+	Ard Biesheuvel <ardb+git@google.com>,
+	linux-arm-kernel@lists.infradead.org,
+	Feng Tang <feng.tang@linux.alibaba.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	Bibo Mao <maobibo@loongson.cn>, linux-rtc@vger.kernel.org,
+	linux-efi@vger.kernel.org, xen-devel@lists.xenproject.org,
+	x86@kernel.org, linux-riscv@lists.infradead.org,
+	loongarch@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 0/3] Remove unused EFI runtime APIs
+Message-ID: <aHZsohPoxLYML___@sunil-laptop>
+References: <20250714060843.4029171-5-ardb+git@google.com>
+ <422e2a72-972f-41f4-a0b3-d69a6cb0c2e2@canonical.com>
+ <CAMj1kXEXpBF8hPaVMU0sDgNysYT66MDRmr3JHO4Lg1sJB_Yteg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-ID: <20250715-upstream-optee-rtc-v1-1-e0fdf8aae545@foss.st.com>
-References: <20250715-upstream-optee-rtc-v1-0-e0fdf8aae545@foss.st.com>
-In-Reply-To: <20250715-upstream-optee-rtc-v1-0-e0fdf8aae545@foss.st.com>
-To: =?utf-8?q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Alexandre
- Belloni <alexandre.belloni@bootlin.com>,
-        Jens Wiklander
-	<jens.wiklander@linaro.org>
-CC: <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        =?utf-8?q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>,
-        <linux-stm32@st-md-mailman.stormreply.com>
-X-Mailer: b4 0.15-dev-7616d
-X-ClientProxiedBy: SHFCAS1NODE1.st.com (10.75.129.72) To SHFDAG1NODE2.st.com
- (10.75.129.70)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-07-15_03,2025-07-15_01,2025-03-28_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMj1kXEXpBF8hPaVMU0sDgNysYT66MDRmr3JHO4Lg1sJB_Yteg@mail.gmail.com>
 
-Fix a memory leak in case of driver removal.
-Free the shared memory used for arguments exchanges between kernel and
-OP-TEE RTC PTA.
+On Tue, Jul 15, 2025 at 01:29:15PM +1000, Ard Biesheuvel wrote:
+> On Mon, 14 Jul 2025 at 18:11, Heinrich Schuchardt
+> <heinrich.schuchardt@canonical.com> wrote:
+> >
+> > On 7/14/25 08:08, Ard Biesheuvel wrote:
+> > > From: Ard Biesheuvel <ardb@kernel.org>
+> > >
+> > > Using EFI runtime services to program the RTC to wake up the system is
+> > > supported in theory, but rarely works in practice. Fortunately, this
+> > > functionality is rarely [if ever] used to begin with so we can just drop
+> > > it. (Note that the EFI rtc driver is not used by x86, which programs the
+> > > CMOS rtc directly)
+> >
+> > The main problem I see with firmware offering access to the RTC via UEFI
+> > services is that two different drivers, the firmware one and the Linux
+> > one might be trying to access the same busses or registers which might
+> > lead to unexpected results.
+> >
+> > Recently there was a discussion in the RISC-V technical group for the
+> > server platform specification where the same issue was discussed
+> > concerning SetTime().
+> >
+> > As a UEFI firmware should not care which operating system is booted, it
+> > should be up to the OS to disable EFI access to the RTC if it has native
+> > access.
+> >
+> > Could we disable all the EFI services for the RTC in Linux dynamically
+> > when an RTC driver is successfully probed?
+> >
+> 
+> I don't think this would be the right way to do it.
+> 
+> It also depends on whether ACPI or DT is being used to describe the
+> platform to the OS.
+> 
+> ACPI does not support describing the RTC device, so it should provide
+> the EFI services.
+> 
+Hi Ard,
+IIUC, TAD is defined for this purpose, right? 
+https://uefi.org/specs/ACPI/6.6/09_ACPI_Defined_Devices_and_Device_Specific_Objects.html#time-and-alarm-device
 
-Fixes: 81c2f059ab90 ("rtc: optee: add RTC driver for OP-TEE RTC PTA")
-Signed-off-by: Clément Le Goffic <clement.legoffic@foss.st.com>
----
- drivers/rtc/rtc-optee.c | 1 +
- 1 file changed, 1 insertion(+)
+> DT can describe the RTC device directly, so I think it is acceptable
+> for such firmware to mark all RTC routines unsupported in the RT_PROP
+> table, and just expose the RTC device directly.
+> 
+> The OS shouldn't have to reason about these things: it is up to the
+> platform to describe itself unambiguously.
 
-diff --git a/drivers/rtc/rtc-optee.c b/drivers/rtc/rtc-optee.c
-index 9f8b5d4a8f6b..6b77c122fdc1 100644
---- a/drivers/rtc/rtc-optee.c
-+++ b/drivers/rtc/rtc-optee.c
-@@ -320,6 +320,7 @@ static int optee_rtc_remove(struct device *dev)
- {
- 	struct optee_rtc *priv = dev_get_drvdata(dev);
- 
-+	tee_shm_free(priv->shm);
- 	tee_client_close_session(priv->ctx, priv->session_id);
- 	tee_client_close_context(priv->ctx);
- 
+I agree. But I think even with ACPI, EFI GetTime/SetTime can return
+unsupported if there is a TAD exposed with proper _GRT/_SRT and _GCP.
 
--- 
-2.43.0
-
+Thanks,
+Sunil
