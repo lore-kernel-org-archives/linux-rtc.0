@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0573F3208;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0577129D0E;
 	Thu, 17 Jul 2025 09:38:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752745123; cv=none; b=hs2dPUKs1hy8SicO2gFlp9ZQX5qgBzAFOYVkA1k6GKSA2moADN3kXTGONtMIxUUw665FJwEnVKnNrCMJltFH0rYW5FnU4g4WAlC8BktLxoKEo5XEwa4mu3YGwNedS8fb5sDCfUS3UA1iRe5xCikKik62JKlwTHsE/rTWQ0SZ+TQ=
+	t=1752745123; cv=none; b=ZGX4t8uXBUwUE7DoMf6L40Wt5QD1jo9O/SBwLmLzQa7SHYNiUPzHSb1OU7P0CsoK+kFuf1M2XgofSx0Qp56zbu9tuSJhc7ZwBFO41o4v1OKF9IvuJk/mWpMR+rU12ZOs0BchWUIyyJ8C8BDRjduEjRdVw6+6bPArbpysAy8WqFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1752745123; c=relaxed/simple;
-	bh=T3PS9vZhXd87vxsDAEauzZTimunT7qthZYCWoQ0vQGg=;
+	bh=4Ndj+Oe3t4mjo/gbKEf4uPrZCwLkmNZnl7NIMzr58ME=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=WN9Nul6R++m+LzKIZ+y9+AYlJrx3oGWjteJZ4TTx3Msa/ybAJ7OJ44rrAy9rcsKeA62X4f2lyWbneODkSD4Q9KBDKTkq7+d8g8v7uhEBmwwTf+jPfrkr6AlWAB5ckrGiH2+B1z8d5aKYhqbN9NKntknI8mH2B623kjbZ95/rrCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dY8jlF85; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=In+L1ArOLxmHngIRDQd0zqYOXENlYH3FaZUbJUmrhCnRKivz+L3Mgh3kcNMHU/lbnRoyjJDeXVxLaxJ31idA0rdsOC+0p+OUL0OkKZh90YFL4l1ZDjAqRaVXvlVTXsw9la9m9ZL1uxgSV7vDpSiVxAW9QSVfWhBWznQtBNx1K5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I2UQV1ii; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dY8jlF85"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9EB6CC4CEEB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I2UQV1ii"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8E5C5C4CEED;
 	Thu, 17 Jul 2025 09:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1752745122;
-	bh=T3PS9vZhXd87vxsDAEauzZTimunT7qthZYCWoQ0vQGg=;
+	bh=4Ndj+Oe3t4mjo/gbKEf4uPrZCwLkmNZnl7NIMzr58ME=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=dY8jlF8589CoOfmQzB1Qb5DmLLYo9zbe3zX/GrkfrYUX3dUWHp2kgnH3gbJVQV9wr
-	 5K6IuPyADtelQ8T/13/KizgyS5W8F8DoGwc+YD6dEfIS63pxMw9gQmRS6lrmJdFs9f
-	 kncuVm1QY5IvWl9Ch59Sb9y7dj+HIYGUsu+pquDDafkpv9xKNmJQ3/mt/SyiDNw631
-	 +FgHU7Zvhyuaf3F1inWSpbjKy7fZjyG/wtC0cZeAzdBo3hoJht+5sGTnuRu57fcaKc
-	 lVvEC+ycdc90bzOOV6PansgLGJ6SZYwOGMUkTGOCMnp/LbFCHRtL7nUx6dkAPqJ4xu
-	 JaX6IitVq+81g==
+	b=I2UQV1iijEu9OWq1nik7oCNThnCHBzy6i3OTEuMdW0p0c1gy4KR27ihBfVwZ3Mr2n
+	 BR90YQFf3ZgxnZm6NolBb6Kyc3TEWTvJ0lM29+siL4RXGocYVMQgwuiBkZ8wlHeQDo
+	 YeL4ObS4v66vPSLvI2mj1VzvVzzHHnOEhr+7fR0Zb8v/o7/AQUbEvjc5bULQtC6TZx
+	 PqlfwJ585q6MqycUUL9IKhar4oKV/n+Xldd6KHYWCMltAb/I9mi4d3hOXC0oYS+l/D
+	 /zJrzlZ7H3nf7bZ5c8qsqPJH9ee3S3RxkaOdTVHOVjFozFvVXbz3TkI2ZV4oh7QssH
+	 DzizjT82R2hKQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ACB4C83F1B;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DD4CC83F1A;
 	Thu, 17 Jul 2025 09:38:42 +0000 (UTC)
 From: Xianwei Zhao via B4 Relay <devnull+xianwei.zhao.amlogic.com@kernel.org>
-Date: Thu, 17 Jul 2025 17:38:38 +0800
-Subject: [PATCH 2/2] arm64: dts: amlogic: C3: Add RTC controller node
+Date: Thu, 17 Jul 2025 17:38:37 +0800
+Subject: [PATCH 1/2] dt-bindings: rtc: amlogic,a4-rtc: Add compatible
+ string for C3
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250717-rtc-c3-node-v1-2-4f9ae059b8e6@amlogic.com>
+Message-Id: <20250717-rtc-c3-node-v1-1-4f9ae059b8e6@amlogic.com>
 References: <20250717-rtc-c3-node-v1-0-4f9ae059b8e6@amlogic.com>
 In-Reply-To: <20250717-rtc-c3-node-v1-0-4f9ae059b8e6@amlogic.com>
 To: Yiting Deng <yiting.deng@amlogic.com>, 
@@ -55,11 +56,11 @@ Cc: linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, 
  Xianwei Zhao <xianwei.zhao@amlogic.com>
 X-Mailer: b4 0.12.4
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1752745121; l=1224;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1752745121; l=1022;
  i=xianwei.zhao@amlogic.com; s=20231208; h=from:subject:message-id;
- bh=oDscrQnwBWleM1lKXYkem+gVGQrkocRvej4i/VO/Lqk=;
- b=7H03TvHXdNylCWXWrMbEeTI+1PGuh2L1B8KhKOjjIqk3FuLzkDI3KcY81WNs5ECGqlqxiWdfV
- +2Dzk3/7U5AD+mOxUE1rQSUSR9ra0skTfhMbvFoRVyJMmhsKAMqGKaL
+ bh=hzR0ZCHlhb6lBSnaSo2wyYzPsJkwt/jiH2b4zUOXQGs=;
+ b=V19qxhXEYCFJdcPhLmr3zFhQT7TnOpLv6c6lf32Vyc9pC8x2fbEg0uajlnV9BYMTjc7yPC5kI
+ DU6TCgBiRRNCenfVJMYxDrLudHQU9RYjt/AcrE38bnYfmN6uoVPzWxb
 X-Developer-Key: i=xianwei.zhao@amlogic.com; a=ed25519;
  pk=o4fDH8ZXL6xQg5h17eNzRljf6pwZHWWjqcOSsj3dW24=
 X-Endpoint-Received: by B4 Relay for xianwei.zhao@amlogic.com/20231208 with
@@ -69,47 +70,37 @@ Reply-To: xianwei.zhao@amlogic.com
 
 From: Xianwei Zhao <xianwei.zhao@amlogic.com>
 
-Add the RTC controller node for C3 SoC family.
+Amlogic C3 SoCs uses the same rtc controller as A5 SoCs. There is
+no need for an extra compatible line in the driver, but add C3
+compatible line for documentation.
 
 Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
 ---
- arch/arm64/boot/dts/amlogic/amlogic-c3.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/amlogic-c3.dtsi b/arch/arm64/boot/dts/amlogic/amlogic-c3.dtsi
-index cb9ea3ca6ee0..b81bffac7732 100644
---- a/arch/arm64/boot/dts/amlogic/amlogic-c3.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/amlogic-c3.dtsi
-@@ -53,6 +53,13 @@ xtal: xtal-clk {
- 		#clock-cells = <0>;
- 	};
+diff --git a/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml b/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml
+index 5d3ac737abcb..e61f22eca85b 100644
+--- a/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/amlogic,a4-rtc.yaml
+@@ -16,9 +16,14 @@ allOf:
  
-+	xtal_32k: xtal-clk-32k {
-+		compatible = "fixed-clock";
-+		clock-frequency = <32768>;
-+		clock-output-names = "xtal_32k";
-+		#clock-cells = <0>;
-+	};
-+
- 	sm: secure-monitor {
- 		compatible = "amlogic,meson-gxbb-sm";
+ properties:
+   compatible:
+-    enum:
+-      - amlogic,a4-rtc
+-      - amlogic,a5-rtc
++    oneOf:
++      - enum:
++          - amlogic,a4-rtc
++          - amlogic,a5-rtc
++      - items:
++          - enum:
++              - amlogic,c3-rtc
++          - const: amlogic,a5-rtc
  
-@@ -967,6 +974,15 @@ nand: nand-controller@8d000 {
- 				clock-names = "core", "device";
- 				status = "disabled";
- 			};
-+
-+			rtc@9a000 {
-+				compatible = "amlogic,c3-rtc",
-+					     "amlogic,a5-rtc";
-+				reg = <0x0 0x9a000 0x0 0x38>;
-+				interrupts = <GIC_SPI 131 IRQ_TYPE_EDGE_RISING>;
-+				clocks = <&xtal_32k>, <&clkc_periphs CLKID_SYS_RTC>;
-+				clock-names = "osc", "sys";
-+			};
- 		};
- 
- 		ethmac: ethernet@fdc00000 {
+   reg:
+     maxItems: 1
 
 -- 
 2.37.1
