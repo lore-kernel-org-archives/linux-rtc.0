@@ -1,42 +1,44 @@
-Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E173B1FCCF8;
-	Wed, 23 Jul 2025 16:54:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89B2B201278;
+	Wed, 23 Jul 2025 16:54:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753289670; cv=none; b=Pr/zOvQY/HLx1nTruSsE7aejX5qo309cU1ZGTSzppfJtuMoHfPiKaGFX4bC7fcHxV+5Bw8msVjCt58Csbtjo51RWddbSakYB64x7xcclIhX4/xJcs4y1shWAKzWNbxGNY5IZvqg8w5Or0xEnevm97HTNDlA/fxZulqFPC8MAjqc=
+	t=1753289680; cv=none; b=fImNGl1OHpypHw6mj0/K1171O7U0TbZIOpTmriNdbWgIn1dWlhdH575MqCB9GeDIUmF8kb7TTCnTQAnFezpl2lbxeFFYMZj51VeSedmUcDZ/XaSNBjc85mseicmeB8g+Ev58UhYur+vhC1G5HS52qzJAJe4huk4pT5hSyzU2+VI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753289670; c=relaxed/simple;
-	bh=j3bMbT/8WNABuBVIZK1J++bLNl26lsl0etsBPAHw8Ew=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qgj9YuSGXJM/Im44BQ059LndNB/yuWUVODTe2igAk/7sIONOvefx9EBqx4rwtTZ0PnMTKXQkDycdTaR40aQE0Zuay0Jq6B6/34fbDBOcEs0aFkohk3Mmw6AL3JbviqFpKRhydJEPN8AJT5Ug06SQFkoGMjcIVs0HrhrbsLAAizw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=YVOS+KS7; arc=none smtp.client-ip=217.70.183.199
+	s=arc-20240116; t=1753289680; c=relaxed/simple;
+	bh=qnh2o2DhNuYIBkSp7LUf3XJd8d68bR2VCco+1mnXmIc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CmLzECJdBHTuRT+yT9oBmtDDTmxgTwymo0gFxqB9bEEEiSdZQbptzNpNBLabgLaNhxF01qKi7pRZAcurio8i4GkkT7o/zbdNTvpDIsULftk2x7omdH0zngW0HnaBIxVtaGyWNqXf9BoudGw5boKeO2ET9sXr6OMOzffo8YpbMxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ZlIZ/VvH; arc=none smtp.client-ip=217.70.183.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="YVOS+KS7"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 2B30E4421D;
-	Wed, 23 Jul 2025 16:54:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ZlIZ/VvH"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 65AC51F68E;
+	Wed, 23 Jul 2025 16:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1753289666;
+	t=1753289675;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qQ4EIRMa/XjXprVBagGuervLIx7cNFO8ztQE7lLjEhI=;
-	b=YVOS+KS7+8CuPZ6wPmzjjN0jNpAY8rs77ajsIRgPT/E5HyUb6eZ21rhGun3yledkUWuNhT
-	kK0/JRtxtDKTP+WPllO8Uo4tCpTTNHFyhIiO1r8QnZ+9OrvvUDcaxoau/68HFPI29CeCkN
-	YpYLZzmu2c8OjIv9KVrVY1W2dBZLEc0z6D2Y24THbHaudCRkFw7ydvJ98mhL8Tx2YW1F84
-	fac1BEBJj4alYYF+WoObT59Q9wXX9TMqC4gahOidadFGCS5D3a5u4zi4U6Gb5relw9xfWT
-	DZYiepv7DRzdZluqMRcMNNItbw4nsP23fx/ogS4XCn6jEHJ4obLsJ9LAik/dSg==
-Date: Wed, 23 Jul 2025 18:54:25 +0200
+	bh=KbfzRJvW5ulvA/Ta9laMhAujPy5SNsmsl3qxHLs6l0A=;
+	b=ZlIZ/VvHQUwmyP3kCf5I+kecKSpE3PojVoahqplx4VqQxOWglGGJs0ddMY70zvo0zYR06l
+	fdLEOq7zVaL435olpJQbAje1bfLdMpDvZ59wGunkIcpvV2yJcap1JfeVyu9L+2Y2InFvMv
+	Dn87+w1idH4t3ENIp3MEDwUyqmWmGQvBjeIckZx/1bmfBUu4jSxNOqJrLQxgW944RSs56A
+	MZ03lNUvEM3f7OlbPoyf0FBHNR6Dzcxl8reT2Dox6s15rDFPJlClB79ATCKgHoZo/YZPtA
+	bNGkguaxCmA8bzJp0KBeeILeInXunJtgMxQe/Qe1czzblzoWbfL6U+UkNeCRmw==
+Date: Wed, 23 Jul 2025 18:54:35 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] rtc: sysfs: Use sysfs_emit() to instead of
- s*printf()
-Message-ID: <175328962922.785597.6364140181851802840.b4-ty@bootlin.com>
-References: <20250702061534.2670729-1-andriy.shevchenko@linux.intel.com>
+To: krzk+dt@kernel.org, conor+dt@kernel.org, robh@kernel.org,
+	alexander.stein@ew.tq-group.com,
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v4 0/3] add support for RV8063 SPI rtc
+Message-ID: <175328962925.785597.4433646531544130528.b4-ty@bootlin.com>
+References: <20250413130755.159373-1-apokusinski01@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -45,24 +47,31 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250702061534.2670729-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20250413130755.159373-1-apokusinski01@gmail.com>
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdejkeeftdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetlhgvgigrnhgurhgvuceuvghllhhonhhiuceorghlvgigrghnughrvgdrsggvlhhlohhnihessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepuddtgfehteevtedvteelleefffekhfdthfelgeefueelgeeuueeggfehheelvdegnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegvtdgrmegsieehmegsvdhftdemkegsleekmeejledtheemrggsvgelmeduhedvvdenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepihhnvghtpedvrgdtudemvgdtrgemsgeiheemsgdvfhdtmeeksgelkeemjeeltdehmegrsggvleemudehvddvpdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpegrlhgvgigrnhgurhgvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeefpdhrtghpthhtoheplhhinhhugidqrhhttgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrn
- hgvlhdrohhrghdprhgtphhtthhopegrnhgurhhihidrshhhvghvtghhvghnkhhosehlihhnuhigrdhinhhtvghlrdgtohhm
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdejkeeftdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomheptehlvgigrghnughrvgcuuegvlhhlohhnihcuoegrlhgvgigrnhgurhgvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpedtgfehuddtfeduieeljedvgfegtdffffegtdekffejleelffffvdettedtheegvdenucffohhmrghinhepmhhitghrohgtrhihshhtrghlrdgtohhmpdhkvghrnhgvlhdrohhrghdpsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegvtdgrmegsieehmegsvdhftdemkegsleekmeejledtheemrggsvgelmeduhedvvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemvgdtrgemsgeiheemsgdvfhdtmeeksgelkeemjeeltdehmegrsggvleemudehvddvpdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpegrlhgvgigrnhgurhgvrdgsvghllhhonhhisegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeekpdhrtghpthhtohepkhhriihkodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghonhhorhdoughtsehkv
+ ghrnhgvlhdrohhrghdprhgtphhtthhopehrohgshheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghlvgigrghnuggvrhdrshhtvghinhesvgifrdhtqhdqghhrohhuphdrtghomhdprhgtphhtthhopegrphhokhhushhinhhskhhitddusehgmhgrihhlrdgtohhmpdhrtghpthhtoheplhhinhhugidqrhhttgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopeguvghvihgtvghtrhgvvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-GND-Sasl: alexandre.belloni@bootlin.com
 
-On Wed, 02 Jul 2025 09:15:34 +0300, Andy Shevchenko wrote:
-> Follow the advice of the Documentation/filesystems/sysfs.rst that show()
-> should only use sysfs_emit() or sysfs_emit_at() when formatting the value
-> to be returned to user space.
+On Sun, 13 Apr 2025 15:07:52 +0200, Antoni Pokusinski wrote:
+> This patch series adds support for the Microcrystal RV8063 real time
+> clock module with SPI interface. This device is very similar to RV8263
+> (which however uses I2C), so I decided to extend the existing driver instead
+> of creating a new one.
 > 
+> RV8063 datasheet: https://www.microcrystal.com/fileadmin/Media/Products/RTC/App.Manual/RV-8063-C7_App-Manual.pdf
 > 
+> [...]
 
 Applied, thanks!
 
-[1/1] rtc: sysfs: Use sysfs_emit() to instead of s*printf()
-      https://git.kernel.org/abelloni/c/4dda8df717b7
+[1/3] dt-bindings: rtc: pcf85063: add binding for RV8063
+      https://git.kernel.org/abelloni/c/b265cb1d68a9
+[2/3] rtc: pcf85063: create pcf85063_i2c_probe
+      https://git.kernel.org/abelloni/c/29ac4cedb00e
+[3/3] rtc: pcf85063: add support for RV8063
+      https://git.kernel.org/abelloni/c/a3c7f7e16ea8
 
 Best regards,
 
