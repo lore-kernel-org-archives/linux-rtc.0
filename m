@@ -1,54 +1,54 @@
-Received: from fllvem-ot04.ext.ti.com (fllvem-ot04.ext.ti.com [198.47.19.246])
+Received: from fllvem-ot03.ext.ti.com (fllvem-ot03.ext.ti.com [198.47.19.245])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 400A9212561;
-	Thu, 14 Aug 2025 17:36:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.19.246
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD70730E0CA;
+	Thu, 14 Aug 2025 17:36:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.19.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755193016; cv=none; b=VkB7XuOThv9PGoJDwzwtA0VQKEOBgq10JAJcw2e/pgAEKUUOn+xdY3D0IRdSsU74app/aaMIANvoCqj2H0l9Wp03AVpkdplm4GQdDmSC8q/YYzsQCEiiot1q1zdtLs2X4o7gMQmf/9+xyNfUftdYeX3e/BdNSkXANyw2e720Qok=
+	t=1755193019; cv=none; b=exQelbfjE4BFFqK1ofeo0pkoP0Rgf0RTn557ooA72q7FMLMRW5G2Qi5VROQ9ehMVwbrMIU2KEGf+GgHqmn8mSrPTJMKsvkjvfTALf4KFq61nEh5Jm0L2nEleB1a+RRPiRtnw45ucsJ0BHaUPw+Kh7+cGa2VGEHuvd1N4zqxHeCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755193016; c=relaxed/simple;
-	bh=jS1gOZa6ApqbMJWfFq7gcaTf5sA1unmgxlahA120ZTE=;
+	s=arc-20240116; t=1755193019; c=relaxed/simple;
+	bh=/aICm3XzYBjCfzdo5sT3jJKBlpUkoCXXo267zuhYiDc=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=sJ25Q4YBF4pdHm3L5AlUgzpVaI1v7Fy7LcKk87HiNmOrDQSV7XuyXrrgbYnkmMKtJxbveFiccA1E/Bfr0MqxQKVG0/3TtIMpcTfUgeAMcFsaiHAgl2D1vD4VomngEy8mM5oPh/FradZGhTYvA/tkd4iFR17ZcndeKeuOS9U+SdM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=jxM4JA7F; arc=none smtp.client-ip=198.47.19.246
+	 MIME-Version:Content-Type; b=RWdp0HnCYMRiRB8neuIAGW6mhuOK9HldFVmFjh4lYA4fMmVeUJOWz6wE/dw6jayadwNe5e/MPWpNSAWFzX/qiqlsYiLR7I93qZOZQNxpg6/kqAXYvkCtZ04ue0cR9nGPQphxrJwg6oAICNT7s3+61gZcbLA9M1tT4VFIAUCv+GE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=q1mQMJcu; arc=none smtp.client-ip=198.47.19.245
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="jxM4JA7F"
-Received: from fllvem-sh03.itg.ti.com ([10.64.41.86])
-	by fllvem-ot04.ext.ti.com (8.15.2/8.15.2) with ESMTP id 57EHao1p2354218;
-	Thu, 14 Aug 2025 12:36:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1755193010;
-	bh=tu4W1iTqZjh9OuBPLiuUZicGOkCTX1JM20XSWzfs8i8=;
-	h=From:To:CC:Subject:Date:In-Reply-To:References;
-	b=jxM4JA7Fz0kJ8s5hpbNxvAyM2CBoj8F1ffOnwigJqNx6r/3UjXh7I8n39vM2RpSzt
-	 T+NT857ywW03r6cNTLb8rqcgdZ6/bWw5jZPIqilANvfAd0GdGQ4wnGFIX943zcjrD6
-	 +VMm0D1T+lrmgCRObsPJYKRPxwPIpkaoRXw+v7IE=
-Received: from DLEE110.ent.ti.com (dlee110.ent.ti.com [157.170.170.21])
-	by fllvem-sh03.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 57EHao3E1310465
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA256 bits=128 verify=FAIL);
-	Thu, 14 Aug 2025 12:36:50 -0500
-Received: from DLEE115.ent.ti.com (157.170.170.26) by DLEE110.ent.ti.com
- (157.170.170.21) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55; Thu, 14
- Aug 2025 12:36:49 -0500
-Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DLEE115.ent.ti.com
- (157.170.170.26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55 via
- Frontend Transport; Thu, 14 Aug 2025 12:36:49 -0500
-Received: from lelvem-mr05.itg.ti.com ([10.249.42.149])
-	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 57EHamWf075711;
+	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="q1mQMJcu"
+Received: from lelvem-sh02.itg.ti.com ([10.180.78.226])
+	by fllvem-ot03.ext.ti.com (8.15.2/8.15.2) with ESMTP id 57EHansJ1928792;
 	Thu, 14 Aug 2025 12:36:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+	s=ti-com-17Q1; t=1755193009;
+	bh=/n8RfiF8I5dRieB20BqZfXKHiWHvHVsQdG9yliPrCDE=;
+	h=From:To:CC:Subject:Date:In-Reply-To:References;
+	b=q1mQMJcuBdYNuEwvv3CdHYVyqxEgwSiwatAQqxQax5KQtyKkgr8vAIWyLIoGuFott
+	 Yc+noZG2ns4cRZ6pRSmUo5NNBDIVZMWLxXkWi94gcDe7/FgiwcIqPPkXlp4wDYTsGo
+	 KgE5sFvwgFSNd9P1Z8QZrvHR6DNW+PziEYLRcq4I=
+Received: from DFLE110.ent.ti.com (dfle110.ent.ti.com [10.64.6.31])
+	by lelvem-sh02.itg.ti.com (8.18.1/8.18.1) with ESMTPS id 57EHan8B1867969
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA256 bits=128 verify=FAIL);
+	Thu, 14 Aug 2025 12:36:49 -0500
+Received: from DFLE109.ent.ti.com (10.64.6.30) by DFLE110.ent.ti.com
+ (10.64.6.31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55; Thu, 14
+ Aug 2025 12:36:48 -0500
+Received: from lelvem-mr05.itg.ti.com (10.180.75.9) by DFLE109.ent.ti.com
+ (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.55 via
+ Frontend Transport; Thu, 14 Aug 2025 12:36:48 -0500
+Received: from lelvem-mr05.itg.ti.com ([10.249.42.149])
+	by lelvem-mr05.itg.ti.com (8.18.1/8.18.1) with ESMTP id 57EHamWb075711;
+	Thu, 14 Aug 2025 12:36:48 -0500
 From: Andrew Davis <afd@ti.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 CC: <linux-rtc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Andrew Davis
 	<afd@ti.com>
-Subject: [PATCH 6/6] rtc: rx8025: Remove use of i2c_match_id()
-Date: Thu, 14 Aug 2025 12:36:47 -0500
-Message-ID: <20250814173647.712768-6-afd@ti.com>
+Subject: [PATCH 2/6] rtc: m41t80: Remove use of i2c_match_id()
+Date: Thu, 14 Aug 2025 12:36:43 -0500
+Message-ID: <20250814173647.712768-2-afd@ti.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20250814173647.712768-1-afd@ti.com>
 References: <20250814173647.712768-1-afd@ti.com>
@@ -78,31 +78,28 @@ This helper has a couple other benefits:
 
 Signed-off-by: Andrew Davis <afd@ti.com>
 ---
- drivers/rtc/rtc-rx8025.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/rtc/rtc-m41t80.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index aabe62c283a15..397c647a95375 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -522,7 +522,6 @@ static const struct attribute_group rx8025_attr_group = {
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 740cab013f590..b26afef37d9cf 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -924,13 +924,7 @@ static int m41t80_probe(struct i2c_client *client)
+ 		return -ENOMEM;
  
- static int rx8025_probe(struct i2c_client *client)
- {
--	const struct i2c_device_id *id = i2c_match_id(rx8025_id, client);
- 	struct i2c_adapter *adapter = client->adapter;
- 	struct rx8025_data *rx8025;
- 	int err = 0;
-@@ -540,8 +539,7 @@ static int rx8025_probe(struct i2c_client *client)
+ 	m41t80_data->client = client;
+-	if (client->dev.of_node) {
+-		m41t80_data->features = (unsigned long)
+-			of_device_get_match_data(&client->dev);
+-	} else {
+-		const struct i2c_device_id *id = i2c_match_id(m41t80_id, client);
+-		m41t80_data->features = id->driver_data;
+-	}
++	m41t80_data->features = (unsigned long)i2c_get_match_data(client);
+ 	i2c_set_clientdata(client, m41t80_data);
  
- 	i2c_set_clientdata(client, rx8025);
- 
--	if (id)
--		rx8025->model = id->driver_data;
-+	rx8025->model = (uintptr_t)i2c_get_match_data(client);
- 
- 	err = rx8025_init_client(client);
- 	if (err)
+ 	m41t80_data->rtc =  devm_rtc_allocate_device(&client->dev);
 -- 
 2.39.2
 
