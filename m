@@ -1,59 +1,58 @@
 Received: from smtp1.iitb.ac.in (smtpd9.iitb.ac.in [103.21.126.64])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DADCE31065C
-	for <linux-rtc@vger.kernel.org>; Wed,  3 Sep 2025 14:28:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C771A288
+	for <linux-rtc@vger.kernel.org>; Wed,  3 Sep 2025 14:30:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.21.126.64
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756909706; cv=none; b=Y1UPcnJ1HGHsEYZzbH6V8a7I1zf5vYF4COqsJVSD0aVgL6/HPAMiLP43eeeS56XTxhA2ZrdGi3p9ozbSl6Rz4sYGVOgs5fTkUSez0I5mcc85HL2R9CKByZpsmu4RNW+flEhHuQIaQAD5avwctaQP/McKjGUGBSc2Aj9lBhfdrCI=
+	t=1756909834; cv=none; b=UTVFfezLxAWHMdVsxRNoLjxrtXNij76rHQTsKs5GKyYckMQS+quCDnn21qeacr5mwMulWKp/xpCfBDM9OF9njzNEIbszZ1Mt63K607r9HP+68Zg9swSBKZ3ScabWgBRMTMw8c3taddMiMZJO+UVTECkoWweGBmI0LdTaXV96Dw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756909706; c=relaxed/simple;
-	bh=01fhlad7Sny1+XuY2/4ETk3iQQ94e+mlkjWPm0k07Ng=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZTYdkU4iMIf7EecLeje/SuhbOMRgCp1AGilUVkhRi22SFZaLwzO/4ZkpeFC7menexQZ6kdaUEMUI5FymVglA0lxN1bwrJo9hAOk/mhnLf47y51XyWhgJEn+PKVgqV5cdJx/oC0+FJ5H+njcXKWZdYi0D+MRGn6TtumhiGOUw9aY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ee.iitb.ac.in; spf=pass smtp.mailfrom=ee.iitb.ac.in; dkim=pass (1024-bit key) header.d=iitb.ac.in header.i=@iitb.ac.in header.b=pCQMjQNM; arc=none smtp.client-ip=103.21.126.64
+	s=arc-20240116; t=1756909834; c=relaxed/simple;
+	bh=8W3N0rduFyxn66fNF2DYTMrnkR7Rdkbspz+xyu5B9l0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=oRqb9iU0Kfab4AmIKVv4QvJcm2AOTGZIbnQJ5nNnndSfDYFcp6nehKKGp2WSP8WU0LqFZSREoUffwnZSEcz2KENd9C9uSXKBKN7gNv7gaclCYSWJGn+BzyGD8hhHOmShwouBvi8YYns7jFRjTgp5VTC1HcarSrPytr1iqY69nW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ee.iitb.ac.in; spf=pass smtp.mailfrom=ee.iitb.ac.in; dkim=pass (1024-bit key) header.d=iitb.ac.in header.i=@iitb.ac.in header.b=E5Zro3jM; arc=none smtp.client-ip=103.21.126.64
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ee.iitb.ac.in
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ee.iitb.ac.in
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=iitb.ac.in header.i=@iitb.ac.in header.b="pCQMjQNM"
-Received: from ldns2.iitb.ac.in (ldns2.iitb.ac.in [10.200.12.2])
-	by smtp1.iitb.ac.in (Postfix) with SMTP id 64A8E1015C6C
-	for <linux-rtc@vger.kernel.org>; Wed,  3 Sep 2025 19:58:21 +0530 (IST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.iitb.ac.in 64A8E1015C6C
+	dkim=pass (1024-bit key) header.d=iitb.ac.in header.i=@iitb.ac.in header.b="E5Zro3jM"
+Received: from ldns1.iitb.ac.in (ldns1.iitb.ac.in [10.200.12.1])
+	by smtp1.iitb.ac.in (Postfix) with SMTP id 95BFE1015C69
+	for <linux-rtc@vger.kernel.org>; Wed,  3 Sep 2025 19:54:00 +0530 (IST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.iitb.ac.in 95BFE1015C69
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=iitb.ac.in; s=mail;
-	t=1756909701; bh=01fhlad7Sny1+XuY2/4ETk3iQQ94e+mlkjWPm0k07Ng=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pCQMjQNMs1JXU/yElscJEHgWtFni9y5lBozutFrQ55H65Z9snI6UvY51ywN6UqQum
-	 J+0g8suZBXBHl9S6CwoMMHr7WmR5F84G875DSg0PxMaixg25Kb6itu7frp/3nbjSNr
-	 RhbTMvUG6aBChVkzKqojebZUclIDOF299+nC38Fc=
-Received: (qmail 741 invoked by uid 510); 3 Sep 2025 19:58:21 +0530
-X-Qmail-Scanner-Diagnostics: from 10.200.1.25 by ldns2 (envelope-from <akhilesh@ee.iitb.ac.in>, uid 501) with qmail-scanner-2.11
- spamassassin: 3.4.1. mhr: 1.0. {clamdscan: 0.100.0/26337} 
- Clear:RC:1(10.200.1.25):SA:0(0.8/7.0):. Processed in 3.493614 secs; 03 Sep 2025 19:58:21 +0530
+	t=1756909440; bh=8W3N0rduFyxn66fNF2DYTMrnkR7Rdkbspz+xyu5B9l0=;
+	h=Date:From:To:Cc:Subject:From;
+	b=E5Zro3jM2Lc3UVGB2qxb1S7U+eictojxl1doJXJ/uXAsO45XM3nMSeMsoC4d1gIKp
+	 iQUypBSQAapsIBgFnBHx4ULhSr2ezixTU0COBdhF2SlyX8Qnbb4E9r6sz+VP5f+BR8
+	 FKMMw81a63ZN+UKtDb6bgKpA4QLZjg/iUwZj5H2w=
+Received: (qmail 20211 invoked by uid 510); 3 Sep 2025 19:54:00 +0530
+X-Qmail-Scanner-Diagnostics: from 10.200.1.25 by ldns1 (envelope-from <akhilesh@ee.iitb.ac.in>, uid 501) with qmail-scanner-2.11
+ spamassassin: 3.4.1. mhr: 1.0. {clamdscan: 0.101.4/26439} 
+ Clear:RC:1(10.200.1.25):SA:0(0.0/7.0):. Processed in 3.206997 secs; 03 Sep 2025 19:54:00 +0530
 X-Spam-Level: 
 X-Spam-Pyzor: Reported 0 times.
 X-Envelope-From: akhilesh@ee.iitb.ac.in
 X-Qmail-Scanner-Mime-Attachments: |
 X-Qmail-Scanner-Zip-Files: |
-Received: from unknown (HELO ldns2.iitb.ac.in) (10.200.1.25)
-  by ldns2.iitb.ac.in with SMTP; 3 Sep 2025 19:58:17 +0530
+Received: from unknown (HELO ldns1.iitb.ac.in) (10.200.1.25)
+  by ldns1.iitb.ac.in with SMTP; 3 Sep 2025 19:53:57 +0530
 Received: from bhairav.ee.iitb.ac.in (bhairav.ee.iitb.ac.in [10.107.1.1])
-	by ldns2.iitb.ac.in (Postfix) with ESMTP id 30DDB3414F0;
-	Wed,  3 Sep 2025 19:58:17 +0530 (IST)
+	by ldns1.iitb.ac.in (Postfix) with ESMTP id B0CDF360036;
+	Wed,  3 Sep 2025 19:53:56 +0530 (IST)
 Received: from bhairav-test.ee.iitb.ac.in (bhairav.ee.iitb.ac.in [10.107.1.1])
 	(Authenticated sender: akhilesh)
-	by bhairav.ee.iitb.ac.in (Postfix) with ESMTPSA id BFFCD1E8143E;
-	Wed,  3 Sep 2025 19:58:16 +0530 (IST)
-Date: Wed, 3 Sep 2025 19:58:11 +0530
+	by bhairav.ee.iitb.ac.in (Postfix) with ESMTPSA id 1A9531E8143E;
+	Wed,  3 Sep 2025 19:53:56 +0530 (IST)
+Date: Wed, 3 Sep 2025 19:53:49 +0530
 From: Akhilesh Patil <akhilesh@ee.iitb.ac.in>
 To: alexandre.belloni@bootlin.com, krzk+dt@kernel.org, robh@kernel.org,
 	conor+dt@kernel.org
 Cc: skhan@linuxfoundation.org, linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	akhileshpatilvnit@gmail.com
-Subject: [PATCH 7/7] rtc: m41t93: Add watchdog support
-Message-ID: <694706ad8577a36ef8948e0d9ca7ea561900fbc2.1756908788.git.akhilesh@ee.iitb.ac.in>
-References: <cover.1756908788.git.akhilesh@ee.iitb.ac.in>
+Subject: [PATCH 0/7] rtc: m41t93: add new features alarm, clock out, watchdog
+Message-ID: <cover.1756908788.git.akhilesh@ee.iitb.ac.in>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -62,152 +61,54 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1756908788.git.akhilesh@ee.iitb.ac.in>
 
-Implement watchdog feature driver for m41t93 rtc with 1s resolution and
-alarm only mode. Define start, stop, ping, and set_timeout callbacks
-as needed by watchdog framework.
+This patch series adds following to m41t93 rtc driver.
 
-Tested by observing IRQ pin(12) going low after intentionally not pinging
-watchdog.
+Functionalities: 
+- Alarm support (support to configure alarm 1)
+- Square wave output support
+- Watchdog support
 
-Signed-off-by: Akhilesh Patil <akhilesh@ee.iitb.ac.in>
----
- drivers/rtc/rtc-m41t93.c | 93 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 93 insertions(+)
+Code improvements:
+this series migrates existing driver to use standard regmap interface
+for spi instead of direct spi calls and uses regmap for new features.
 
-diff --git a/drivers/rtc/rtc-m41t93.c b/drivers/rtc/rtc-m41t93.c
-index 83cc34c4baae..e549c5f1e11a 100644
---- a/drivers/rtc/rtc-m41t93.c
-+++ b/drivers/rtc/rtc-m41t93.c
-@@ -14,6 +14,7 @@
- #include <linux/spi/spi.h>
- #include <linux/regmap.h>
- #include <linux/clk-provider.h>
-+#include <linux/watchdog.h>
- 
- #define M41T93_REG_SSEC			0
- #define M41T93_REG_ST_SEC		1
-@@ -36,6 +37,10 @@
- #define M41T93_SQW_RS_MASK		0xf0
- #define M41T93_SQW_RS_SHIFT		4
- #define M41T93_BIT_SQWE			BIT(6)
-+#define M41T93_REG_WATCHDOG		0x9
-+#define M41T93_WDT_RB_MASK		0x3
-+#define M41T93_WDT_BMB_MASK		0x7c
-+#define M41T93_WDT_BMB_SHIFT		2
- 
- 
- #define M41T93_REG_ALM_HOUR_HT		0xc
-@@ -52,6 +57,7 @@ struct m41t93_data {
- #ifdef CONFIG_COMMON_CLK
- 	struct clk_hw clks;
- #endif
-+	struct watchdog_device wdd;
- };
- 
- static int m41t93_set_time(struct device *dev, struct rtc_time *tm)
-@@ -409,6 +415,90 @@ static int rtc_m41t93_clks_register(struct device *dev, struct m41t93_data *m41t
- }
- #endif
- 
-+static int m41t93_wdt_ping(struct watchdog_device *wdd)
-+{
-+	u8 resolution, mult;
-+	u8 val = 0;
-+	int ret;
-+	struct m41t93_data *m41t93 = watchdog_get_drvdata(wdd);
-+
-+	/*  Resolution supported by hardware
-+	 *  0b00 : 1/16 seconds
-+	 *  0b01 : 1/4 second
-+	 *  0b10 : 1 second
-+	 *  0b11 : 4 seconds
-+	 */
-+	resolution = 0x2; /* hardcode resolution to 1s */
-+	mult = wdd->timeout;
-+	val = resolution | (mult << M41T93_WDT_BMB_SHIFT &  M41T93_WDT_BMB_MASK);
-+
-+	ret = regmap_write_bits(m41t93->regmap, M41T93_REG_WATCHDOG,
-+				 M41T93_WDT_RB_MASK | M41T93_WDT_BMB_MASK, val);
-+
-+	return ret;
-+}
-+
-+static int m41t93_wdt_start(struct watchdog_device *wdd)
-+{
-+	return m41t93_wdt_ping(wdd);
-+}
-+
-+static int m41t93_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct m41t93_data *m41t93 = watchdog_get_drvdata(wdd);
-+
-+	/* Write 0 to watchdog register */
-+	return regmap_write_bits(m41t93->regmap, M41T93_REG_WATCHDOG,
-+				  M41T93_WDT_RB_MASK | M41T93_WDT_BMB_MASK, 0);
-+}
-+
-+static int m41t93_wdt_set_timeout(struct watchdog_device *wdd,
-+				   unsigned int new_timeout)
-+{
-+	wdd->timeout = new_timeout;
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info m41t93_wdt_info = {
-+	.identity = "m41t93 rtc Watchdog",
-+	.options = WDIOF_ALARMONLY,
-+};
-+
-+static const struct watchdog_ops m41t93_watchdog_ops = {
-+	.owner = THIS_MODULE,
-+	.start = m41t93_wdt_start,
-+	.stop = m41t93_wdt_stop,
-+	.ping = m41t93_wdt_ping,
-+	.set_timeout = m41t93_wdt_set_timeout,
-+};
-+
-+static int m41t93_watchdog_register(struct device *dev, struct m41t93_data *m41t93)
-+{
-+	int ret;
-+
-+	m41t93->wdd.parent = dev;
-+	m41t93->wdd.info = &m41t93_wdt_info;
-+	m41t93->wdd.ops = &m41t93_watchdog_ops;
-+	m41t93->wdd.min_timeout = 0;
-+	m41t93->wdd.max_timeout = 10;
-+	m41t93->wdd.timeout = 3; /* Default timeout is 3 sec */
-+	m41t93->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
-+
-+	watchdog_set_drvdata(&m41t93->wdd, m41t93);
-+
-+	ret = devm_watchdog_register_device(dev, &m41t93->wdd);
-+	if (ret) {
-+		dev_warn(dev, "Failed to register watchdog\n");
-+		return ret;
-+	}
-+
-+	/* Disable watchdog at start */
-+	ret = m41t93_wdt_stop(&m41t93->wdd);
-+
-+	return ret;
-+}
-+
- static struct spi_driver m41t93_driver;
- 
- static const struct regmap_config regmap_config = {
-@@ -470,6 +560,9 @@ static int m41t93_probe(struct spi_device *spi)
- 	if (ret)
- 		dev_warn(&spi->dev, "Unable to register clock\n");
- #endif
-+	ret = m41t93_watchdog_register(&spi->dev, m41t93);
-+	if (ret)
-+		dev_warn(&spi->dev, "Unable to register watchdog\n");
- 
- 	return 0;
- }
+Bug fix: 
+Fixes device probe issue after power-on due to incorrect assumptions of
+reset values of the registers.
+
+Device tree support:
+Adds device tree support to the driver along with binding documentation.
+
+Testing:
+This patch series is validated on TI am62x board with m41t93 rtc chip
+connected to spi0 bus.
+regmap migration is additionally tested by observing spi transfers
+with the help of logic analyzer. Short summary of test flow is added in
+commit message of respective features.
+
+Datasheet:
+https://www.st.com/resource/en/datasheet/m41t93.pdf
+
+patch 4 to 7 depend on patch 3 (regmap patch)
+
+Regards,
+Akhilesh
+
+Akhilesh Patil (7):
+  rtc: m41t93: add device tree support
+  dt-bindings: rtc: add bindings for m41t93
+  rtc: m41t93: migrate to regmap api for register access
+  rtc: m41t93: Add alarm support
+  rtc: m41t93: fix device connection/detection logic during probe
+  rtc: m41t93: Add square wave clock provider support
+  rtc: m41t93: Add watchdog support
+
+ .../devicetree/bindings/rtc/st,m41t93.yaml    |  43 ++
+ drivers/rtc/rtc-m41t93.c                      | 489 ++++++++++++++++--
+ 2 files changed, 479 insertions(+), 53 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/st,m41t93.yaml
+
 -- 
 2.34.1
 
