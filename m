@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0963530DD04;
-	Wed, 24 Sep 2025 15:12:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A807F30C629;
+	Wed, 24 Sep 2025 15:12:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758726721; cv=none; b=UrMp+o6bmJ+txq9Z3MasyOkQYHigory7ek2EbY9ESd4PBwH8Vi0Vj/2MU0ca76Dan9JggwWyRltbHMiwEY1BS1Y93vUeqeauYbN6R3bgkGb/85cF/gN/Z1tmetYErAVL16UWvpx8GeUH21Yjb3P4SXrkTIcns5UzfTrJ5IiMiZw=
+	t=1758726753; cv=none; b=kn/bBLmQXSo2vRX2Gi7iFojfW739qwsC0nkl5zf7yfw/ay0ZeCQ+bd0Xw7zfOd3KXUAZlYnf6sa04y3eiApZfZu+Wcl9NBr2z3FNnRl+2DW6Bo1cCUUVokMKXkJOyvUT6IzjCt2kG87CuDnx0CmXiE67RSfYgi1wGgmXHByfnD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758726721; c=relaxed/simple;
-	bh=SUYVX88sBXmaFKBWXfsMWhfFsGAcZ/n2RLIrnQxMb9c=;
+	s=arc-20240116; t=1758726753; c=relaxed/simple;
+	bh=hwtnYuX4uMKYRP133yb5efSBvaUxFXIPITUkKamP59I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WQ9SZIFVVjl5bO+pCVihRdOiPZyzgzAycwFigDTNb0xGj1xGEHv8dPRxxTpQQDmB1OeXItlh83w/QuYPsAe3uogMWmRAlsJpeNzvLuORT8pWX6908jZtr8YNQJo6REWMeieRJMy5qEaKmvCS31QjA6SU20SGlEVEbW7BkjDFHNI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JNlsZ9wG; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=DFcwnfRPDmT97LZNmPM0UpcL64kiNDCyrnWRXgHgXBJpx+lnatODs9IIkKmSiv+aUvCNResBOm3kYF0/n2ZJAt7ImWk92KELTXXxXv0CLl60zL0gcUAiryiryzK7kISA2lec2SrdFrM9a2K+GMBn09XMzv5QHaKe7OcDzjCJIYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=efL/wNny; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JNlsZ9wG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C17AC4CEE7;
-	Wed, 24 Sep 2025 15:12:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="efL/wNny"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA7DC4CEE7;
+	Wed, 24 Sep 2025 15:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758726720;
-	bh=SUYVX88sBXmaFKBWXfsMWhfFsGAcZ/n2RLIrnQxMb9c=;
+	s=k20201202; t=1758726753;
+	bh=hwtnYuX4uMKYRP133yb5efSBvaUxFXIPITUkKamP59I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=JNlsZ9wGUh76ykwpAXfK/LBUst9rOpbPsD1A8s9sEgz0mDZQmSqrZy3nckKBbaBYs
-	 pDf4N4AlbjyJeBRxbDtqgqNmnl4g54ZYmLSpbFFB8sj35FWx4914yk/Jm6jhmPriMx
-	 Kcl89f8QWx4e6E3CtTib1rqjb9tk+wRFOKVYRObG0DeWGjpFtJj4/r4JouJxya0Gdy
-	 IiOKxy57p2SBhNn1zms9Cd8kBAufC+MaOoLRAjBu9Yz4uI08e9lprR8HKcoHFJHM69
-	 E3De3Q4lNdtNoUwZejNfIChfjIu3coHJwgPehev1a4O6DjBoKneyC7aBbU35NkZBXu
-	 LztfJ/8NeOmig==
-Date: Wed, 24 Sep 2025 10:11:59 -0500
+	b=efL/wNnyu33yMVfSHyMy6eJ+2dtV6thjYoCU3y5LVqBQHgJuytf6RT58cPsNLO/85
+	 0Qc6lRT660ISFlFNK5LFoOPiDGgvBkrJS2I1fQALgffezLMPUFDTu+WXjdHzEw7Vu9
+	 LVOmsPrkMIN6ZWcjbT1tl+nS4WD5RohzTlCpc2M6/JwTsURUUKPPY7NTagtahQ6XnU
+	 r1tZA9g9tm6/r17Tf0HuLdP+W/O1liMwFmoTsdcTnEbIG2nln3yun2XypNMoQD6Nx6
+	 qqwQoW4jEySbKFDmFyfUlbVRPZ/721aBo9eq+APiZHqj4L+BHwlALI5avvUy6H0RaG
+	 f/xybUSP5eUjA==
+Date: Wed, 24 Sep 2025 10:12:32 -0500
 From: Rob Herring <robh@kernel.org>
 To: Ivaylo Ivanov <ivo.ivanov.ivanov1@gmail.com>
 Cc: Krzysztof Kozlowski <krzk@kernel.org>,
@@ -44,7 +44,7 @@ Cc: Krzysztof Kozlowski <krzk@kernel.org>,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v1 1/7] regulator: dt-bindings: add documentation for
  s2mps16-pmic regulators
-Message-ID: <20250924151159.GA1725090-robh@kernel.org>
+Message-ID: <20250924151232.GB1725090-robh@kernel.org>
 References: <20250914124227.2619925-1-ivo.ivanov.ivanov1@gmail.com>
  <20250914124227.2619925-2-ivo.ivanov.ivanov1@gmail.com>
 Precedence: bulk
@@ -62,6 +62,9 @@ On Sun, Sep 14, 2025 at 03:42:21PM +0300, Ivaylo Ivanov wrote:
 > regulators - 38 LDOs, of which 11 are used for CP, and 11 BUCKs, of which
 > 1 is used for CP. Provide documentation for devicetree definitions,
 > regulator naming patterns, etc.
+
+Also, drop 'documentation for' in the subject.
+
 > 
 > Signed-off-by: Ivaylo Ivanov <ivo.ivanov.ivanov1@gmail.com>
 > ---
@@ -102,17 +105,10 @@ On Sun, Sep 14, 2025 at 03:42:21PM +0300, Ivaylo Ivanov wrote:
 > +    $ref: regulator.yaml#
 > +    unevaluatedProperties: false
 > +    description:
-
-You need '>' modifier to preserve paragraphs.
-
 > +      Properties for single LDO regulator.
 > +
 > +      LDOs 14-24 are used for CP, and they're left unimplemented due to lack
 > +      of documentation on them.
-
-What does unimplemented mean? In some driver? If so, that's specific to 
-a driver and not relevant to the binding.
-
 > +
 > +    required:
 > +      - regulator-name
