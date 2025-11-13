@@ -1,145 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f50.google.com (mail-vs1-f50.google.com [209.85.217.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A855133557B;
-	Thu, 13 Nov 2025 10:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D6A6280037
+	for <linux-rtc@vger.kernel.org>; Thu, 13 Nov 2025 14:18:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763031200; cv=none; b=bUx/D5HbEnsni/ysqJXhnhAXhUnywPNzkfy2+EiWy6GCFWv9/RasSHVfZP4TAXchYoTb3RNf5o1urpvLRQ5HmHQElS+jV2qYsPo/bvdbC6RqeYNMbYO96hzKnGfFTIIpxZdotAB1C81WeTQd9YdHBI4pjcIDqgaVU/IbRBzbpGU=
+	t=1763043534; cv=none; b=injUKiICKNj9VdC9/zUEjf6ESD8CMDh3TZgpERO2bSwdiT5gyeaGMVdcuV3flZagVM8t7bKgXKScZ4sKQTpwqqxuAKI3s4ScyXTCdR2JBhampPWiexD0romvaac3HPItWyjf5rfSp/ivT8aWS81cyrhHmrg1iyzGqnIrRPv6ckM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763031200; c=relaxed/simple;
-	bh=WD1eHRZg/E1iJWZJQuMrmEB9JmiKlqDDuLkhtxtaeuw=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=FTOTsrVUAjKbNoRmcEDBZpP+Wwv8RYojyY8G7tr9y62kwI/zFcbrw2PIvhFxuUvqGSz6/pLJPrXpnvfvJlP4uQh6ymNHGLf4cuWIMafYU+fZZPSm7ZIKJRBVUOCtu1Fwjm0GnIc/LQUvS2jRUocWIhHb2rlDmCXtzeO5h1cf5LQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K4uxktny; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K4uxktny"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1729C4CEFB;
-	Thu, 13 Nov 2025 10:53:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763031200;
-	bh=WD1eHRZg/E1iJWZJQuMrmEB9JmiKlqDDuLkhtxtaeuw=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=K4uxktny044y2ZRoFpjOdAB6w7+q0Fr+beZ1F5hnO8pf0gmE1ty6LpOOPW8KScZ5w
-	 zcZVqGvEp+52b07jnKtmqfSP2wQhWL/a/BR19cE7A2AvOu4dPBlh1/nSNHYzlWuyYF
-	 XFOZOliXPWJbsln6oD/2grEEgG0cvSqv3tEULNntfgbRPnRFGpZJdFFKMQGdS1nECq
-	 srwaF232nN5blJmoz71ftmp2jmIJjOGgxFfCyrTn3NTEx+IrU7+zQQK3usm5qEgVYW
-	 XcDQlpCWN2e0EmsPhv9imzlIm09XU1WtCNJEEVBQdCf0FiNHsbtQ1ztgNTRVEyvtK/
-	 mMH93ZCtamiBw==
-Date: Thu, 13 Nov 2025 04:53:18 -0600
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	s=arc-20240116; t=1763043534; c=relaxed/simple;
+	bh=SglwgdJjdXgtbcGuhBd+z1SY8I+c9+nx3fEEJ4chWEg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YtJFecT0AMPcYrVNyD6xAUSwMDOLceHSL4N8rb+cPeG+Yse5Y8LkGvXEkXz/bRCRmU8LFD5m2Km3fOnxLtAMovlUoIBMxTNEiCEMy7NxuyR3/wJU1txBSv1X8hdDYXoMYfS+OCfF3WWXMCK/o024UTq97I/sjyD68qVQMX1pYqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vs1-f50.google.com with SMTP id ada2fe7eead31-5dbde7f4341so1501403137.1
+        for <linux-rtc@vger.kernel.org>; Thu, 13 Nov 2025 06:18:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763043531; x=1763648331;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8lsBSIAEUPRTn5OJ+c8R/u4+S4nJOhGwxwcKm3MB6tI=;
+        b=DCxxNWyvC9qKUFY0PDXhawlapq2YELQYEnZrO8s/F9dVKTVTESp8k2tJtNpo44X20P
+         vCKttTcVsO6Fn61ZFRFT2J1MK58G+e4VM4OvoQCqeLzEErcPjRQ9bsuO8DhASoQduKnj
+         0Lx2xRmbYkaZdomHnyqtdnQt/CMKu5/bdhUqKR0VxXz2VJerBmoX2ZkNnIofXWCSwSPQ
+         nQWBUyarEHwHHK+VWp8Y1j+9N7qihT0FVLP8DI7zOsJex0LIKKLLf0LNZ5a4NdVuHuHf
+         XhyjnK+ZyRV2foNEF+ksT3vNtp/vlj1ucGVIOytbzDrKA8gw0EpTxlVr1b1FvHW0YjSM
+         8W5w==
+X-Forwarded-Encrypted: i=1; AJvYcCX7RlHcL5MzuaN1EdC730Cwf6f4+qdiJ41yvzHeBTPP/MBPFGM4m5Rk6b0DWTwZJabbLPWeJ5s+s2g=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxdapRLJuIE7xEkfp44UDwScm/fTruLe39Pj60lvtJqlEY2N7OM
+	4TGANDX13pToL2KdUVSzByoFamLgUyflvwfspDclqXR+gEY4T+NpSbpQ7BAWWuFkePs=
+X-Gm-Gg: ASbGncv3TouRsp6KzFPTNrxXkm4SufaVhi65ZmaVZumF3DkLEQXT3vDptvWG2qfG/58
+	nojcISZIRoXYrz5PVOBb2SGbdc0GA/R7WwHowV/iNYboxzU3GqF/pz6QXiF9gqUubKTY0/13PGP
+	HueEc+oYckdrqtNDJWnpFW9NxRPEgItu05Sk+N8caaiDOIgIApOVXjsGHtOL6JMsSsi7DRcStVj
+	ZxSWmD+0sGHESMm4rFYCZTOGyQiES7Ngm+4KGa0OYsIJqqjtwP5wwBy4JowL/+j6vUSrrj5XI6o
+	ueS/NLRe6pZDdFFR9FKPDw06IfHNQ3MQYeqtEerPNoi3VsVJMdRZxXgS9/NLeEYGia20s8WN+vD
+	cTV8XBkXBZRbs9PRswUtluCoyTb0RKdH5KBuTEwa6uga5qz69e6mV9CPRuSo0girlFeNcHB4jmk
+	4XOa+FV+nDzLrJXxgxDSrfR4w4P0/sDRcEds6PLT3WyEs5Llir
+X-Google-Smtp-Source: AGHT+IGb4k/91AUYkwxUx+RHhAXMivKr4l5RnAL2F+kTvTK8+/NnrXsDXQ2e+Ba28wEC9uepNdtVDA==
+X-Received: by 2002:a05:6102:4487:b0:5d5:f6ae:3903 with SMTP id ada2fe7eead31-5dfb43a5a9fmr1473451137.20.1763043530980;
+        Thu, 13 Nov 2025 06:18:50 -0800 (PST)
+Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com. [209.85.217.51])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-93761102330sm629909241.4.2025.11.13.06.18.50
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Nov 2025 06:18:50 -0800 (PST)
+Received: by mail-vs1-f51.google.com with SMTP id ada2fe7eead31-5dbde7f4341so1501375137.1
+        for <linux-rtc@vger.kernel.org>; Thu, 13 Nov 2025 06:18:50 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCW3OKc8fO2jFjfHvaQk3yMutoQKsa5NRK7c/lWuoKf+EFEyPucRGC5jqS72yOKbyWCNnIf57MzJKhQ=@vger.kernel.org
+X-Received: by 2002:a05:6102:b0b:b0:5db:dad4:840 with SMTP id
+ ada2fe7eead31-5dfb41e3b61mr1262190137.12.1763043529716; Thu, 13 Nov 2025
+ 06:18:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, 
- linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, 
- Bartosz Golaszewski <brgl@bgdev.pl>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- linux-clk@vger.kernel.org, Michael Turquette <mturquette@baylibre.com>, 
- Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>, 
- linux-leds@vger.kernel.org, Pavel Machek <pavel@kernel.org>, 
- Liam Girdwood <lgirdwood@gmail.com>, linux-gpio@vger.kernel.org, 
- linux-pm@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>, 
- Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org, 
- linux-rtc@vger.kernel.org, Lee Jones <lee@kernel.org>, 
- Stephen Boyd <sboyd@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>
-To: Matti Vaittinen <matti.vaittinen@linux.dev>
-In-Reply-To: <ac5a4e992e4fb9c7bffb1e641a7cd61f74af4cba.1763022807.git.mazziesaccount@gmail.com>
-References: <cover.1763022807.git.mazziesaccount@gmail.com>
- <ac5a4e992e4fb9c7bffb1e641a7cd61f74af4cba.1763022807.git.mazziesaccount@gmail.com>
-Message-Id: <176303119683.3716572.16868393928566655866.robh@kernel.org>
-Subject: Re: [PATCH v4 04/16] dt-bindings: power: supply: BD72720 managed
- battery
+References: <20251107210706.45044-1-ovidiu.panait.rb@renesas.com> <20251107210706.45044-4-ovidiu.panait.rb@renesas.com>
+In-Reply-To: <20251107210706.45044-4-ovidiu.panait.rb@renesas.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 13 Nov 2025 15:18:36 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXr+pdZuYM0b1p+hZAjFMR25t3FV8cGWSbqRnTk118TPw@mail.gmail.com>
+X-Gm-Features: AWmQ_blZmrYQK7IiX68T9lKCtdQnRgn565V-vW-eTn9Sd-DrKbAs0Z8Z3RjSLgE
+Message-ID: <CAMuHMdXr+pdZuYM0b1p+hZAjFMR25t3FV8cGWSbqRnTk118TPw@mail.gmail.com>
+Subject: Re: [PATCH v4 3/4] arm64: dts: renesas: r9a09g057: Add RTC node
+To: Ovidiu Panait <ovidiu.panait.rb@renesas.com>
+Cc: claudiu.beznea.uj@bp.renesas.com, alexandre.belloni@bootlin.com, 
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+	magnus.damm@gmail.com, p.zabel@pengutronix.de, linux-rtc@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+On Fri, 7 Nov 2025 at 22:07, Ovidiu Panait <ovidiu.panait.rb@renesas.com> wrote:
+> Add RTC node to Renesas RZ/V2H ("R9A09G057") SoC DTSI.
+>
+> Signed-off-by: Ovidiu Panait <ovidiu.panait.rb@renesas.com>
 
-On Thu, 13 Nov 2025 10:52:19 +0200, Matti Vaittinen wrote:
-> From: Matti Vaittinen <mazziesaccount@gmail.com>
-> 
-> The BD72720 PMIC has a battery charger + coulomb counter block. These
-> can be used to manage charging of a lithium-ion battery and to do fuel
-> gauging.
-> 
-> ROHM has developed a so called "zero-correction" -algorithm to improve
-> the fuel-gauging accuracy close to the point where battery is depleted.
-> This relies on battery specific "VDR" tables, which are measured from
-> the battery, and which describe the voltage drop rate. More thorough
-> explanation about the "zero correction" and "VDR" parameters is here:
-> https://lore.kernel.org/all/676253b9-ff69-7891-1f26-a8b5bb5a421b@fi.rohmeurope.com/
-> 
-> Document the VDR zero-correction specific battery properties used by the
-> BD72720 and some other ROHM chargers.
-> 
-> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> ---
-> NOTE:
-> Linus' rb-tag holds only if there's no further comments from Rob.
-> 
-> Revision history:
->  v3 =>:
->  - No changes
-> 
->  v2 => v3:
->  - Constrain VDR threshold voltage to 48V
->  - Use standard '-bp' -suffix for the rohm,volt-drop-soc
-> 
->  RFCv1 => v2:
->  - Add units to rohm,volt-drop-soc (tenths of %)
->  - Give real temperatures matching the VDR tables, instead of vague
->    'high', 'normal', 'low', 'very low'. (Add table of temperatures and
->    use number matching the right temperature index in the VDR table name).
->  - Fix typoed 'algorithm' in commit message.
-> 
-> The parameters are describing the battery voltage drop rates - so they
-> are properties of the battery, not the charger. Thus they do not belong
-> in the charger node.
-> 
-> The right place for them is the battery node, which is described by the
-> generic "battery.yaml". I was not comfortable with adding these
-> properties to the generic battery.yaml because they are:
->   - Meaningful only for those charger drivers which have the VDR
->     algorithm implemented. (And even though the algorithm is not charger
->     specific, AFAICS, it is currently only used by some ROHM PMIC
->     drivers).
->   - Technique of measuring the VDR tables for a battery is not widely
->     known. AFAICS, only folks at ROHM are measuring those for some
->     customer products. We do have those tables available for some of the
->     products though (Kobo?).
-> ---
->  .../power/supply/rohm,vdr-battery.yaml        | 80 +++++++++++++++++++
->  1 file changed, 80 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/supply/rohm,vdr-battery.yaml
-> 
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+i.e. will queue in renesas-devel for v6.19.
 
-My bot found errors running 'make dt_binding_check' on your patch:
+Gr{oetje,eeting}s,
 
-yamllint warnings/errors:
+                        Geert
 
-dtschema/dtc warnings/errors:
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/power/supply/rohm,vdr-battery.example.dtb: battery (simple-battery): 'degrade-cycle-microamp-hours', 'rohm,volt-drop-0-microvolt', 'rohm,volt-drop-1-microvolt', 'rohm,volt-drop-2-microvolt', 'rohm,volt-drop-3-temp-microvolt', 'rohm,volt-drop-soc-bp', 'rohm,volt-drop-temperatures-millicelsius', 'rohm,voltage-vdr-thresh-microvolt' do not match any of the regexes: '^ocv-capacity-table-[0-9]+$', '^pinctrl-[0-9]+$'
-	from schema $id: http://devicetree.org/schemas/power/supply/battery.yaml
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.ozlabs.org/project/devicetree-bindings/patch/ac5a4e992e4fb9c7bffb1e641a7cd61f74af4cba.1763022807.git.mazziesaccount@gmail.com
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
