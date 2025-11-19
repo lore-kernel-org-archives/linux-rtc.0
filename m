@@ -1,162 +1,59 @@
-Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
+Received: from mail.novencio.pl (mail.novencio.pl [162.19.155.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AC04325716;
-	Wed, 19 Nov 2025 08:33:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E28A2248B9
+	for <linux-rtc@vger.kernel.org>; Wed, 19 Nov 2025 09:01:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.19.155.164
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763541235; cv=none; b=G58Mj4JnESbE4rnu9klNeWb+vGZz09uY4A+8A2/7yNBVOe3vexcADz8NZ4Qtodu9a4POHIzCZX8/dgDGXSbytUQHiz8NOiD/pX5+wXGiLNr+Iw1rN2BIm3OcgOTDw8YhkAcQrwd9CwM1FEdX0boiJuaQTAoD04Isjh2ByRxtBtU=
+	t=1763542884; cv=none; b=BRMknSNC7mjuh/sFGddeNJz/AIaXF97IWVFc62nzqW3j1iEkWimyeFAkXeovco4byaB6yEotfLyrnoczBXSrY0k25Yqt1R917bvmFq2kwabMNHFjm/cYNsg91ndyrRJAWiV7qHzBjZVabIW/1Ij0sZkpd0w8oz4qnijs/LcyP5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763541235; c=relaxed/simple;
-	bh=jjRQloTU8vYVqzmoMJwFow0TAzVQiCRRuZIEL6qxqoI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Gf5C6PvmtboAnTfkD6IoRH1XYLytjyDojtInZcPXB0+WFtIRVUjflhlcElTKjlVsuxTh2G5tj+L6F/bcoTC3sa7SfLpe1gRoZr28pdPg2oELfLXa0oUrJi0k72Lj0Cu0MkPn43b6ReoHkgNoW1S38aJjoY5JZBECRrHbqdYL4KA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 585A5202A10;
-	Wed, 19 Nov 2025 09:33:45 +0100 (CET)
-Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 23741202A11;
-	Wed, 19 Nov 2025 09:33:45 +0100 (CET)
-Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id D42B01800086;
-	Wed, 19 Nov 2025 16:33:43 +0800 (+08)
-From: Lakshay Piplani <lakshay.piplani@nxp.com>
-To: alexandre.belloni@bootlin.com,
-	linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	devicetree@vger.kernel.org,
-	wim@linux-watchdog.org,
-	linux@roeck-us.net,
-	linux-watchdog@vger.kernel.org
-Cc: vikash.bansal@nxp.com,
-	priyanka.jain@nxp.com,
-	shashank.rebbapragada@nxp.com,
-	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [PATCH v3 4/5] rtc: pcf85363: add oscillator offset calibration support
-Date: Wed, 19 Nov 2025 14:03:35 +0530
-Message-Id: <20251119083336.2241142-4-lakshay.piplani@nxp.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
-References: <20251119083336.2241142-1-lakshay.piplani@nxp.com>
+	s=arc-20240116; t=1763542884; c=relaxed/simple;
+	bh=fIh67CnJs35z4uTVN1yEzBZIG1sWJSjOc8Phu/rB5ug=;
+	h=Message-ID:Date:From:To:Subject:MIME-Version:Content-Type; b=N//TRzhO9BHp+SKOMtDaZgEp6cO+xxnYp6tdRu1/N8tX7/cnnHS8+r9cSNrnhOa4MUv8aV64biTHGQwyesu5XBJJgKM3hbZjdkQrdoNY9oGyZkmSoKttmXNRLlYAUnjZBEt8zxCPj0ICRmcEOMWeLCg9mHfcr5R4W0opH8uhp/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=novencio.pl; spf=pass smtp.mailfrom=novencio.pl; dkim=pass (2048-bit key) header.d=novencio.pl header.i=@novencio.pl header.b=P0ELqoL+; arc=none smtp.client-ip=162.19.155.164
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=novencio.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novencio.pl
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=novencio.pl header.i=@novencio.pl header.b="P0ELqoL+"
+Received: by mail.novencio.pl (Postfix, from userid 1002)
+	id 748C123EE9; Wed, 19 Nov 2025 09:01:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=novencio.pl; s=mail;
+	t=1763542880; bh=fIh67CnJs35z4uTVN1yEzBZIG1sWJSjOc8Phu/rB5ug=;
+	h=Date:From:To:Subject:From;
+	b=P0ELqoL+FOtRZ0e6E5OOnRrJxNyAXuHVKMcdUkbDDcZLpNe7PLyDRjEWEfPB7LNXn
+	 3kKhY3uMO0/U7lJaPlnft1eqMK4VPHuQVAQNVCIw5z1iOsd55NuL7qZLxpjWWTMXSz
+	 +aQqyvQpb/C4/Yx0DIzxXUa4PTgGBLWClrDwCZZysxk42PCQ80ZJsm5bIN/J6pTz+Y
+	 XSlGHXxB1Hk8A/1ii71hvutg09aslmXOhlLjsApzynZsbhiG/q3OQsJCPp3WDkfMJG
+	 EREpXl+NiX5/Euqsg9GFWU9LnWjg2So9QfEuWnKIqoGz+pvuY+skeWiijtRTOHIbZJ
+	 GBQ3u5ka5vpnQ==
+Received: by mail.novencio.pl for <linux-rtc@vger.kernel.org>; Wed, 19 Nov 2025 09:01:03 GMT
+Message-ID: <20251119074742-0.1.5y.z3xz.0.2o1p07qc4l@novencio.pl>
+Date: Wed, 19 Nov 2025 09:01:03 GMT
+From: "Marek Poradecki" <marek.poradecki@novencio.pl>
+To: <linux-rtc@vger.kernel.org>
+Subject: =?UTF-8?Q?Wiadomo=C5=9B=C4=87_z_ksi=C4=99gowo=C5=9Bci?=
+X-Mailer: mail.novencio.pl
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Expose the oscillator offset register of PCF85263/PCF85363 through the
-rtc_class_ops read_offset and set_offset callbacks, allowing userspace
-to apply frequency correction for drift compensation.
+Dzie=C5=84 dobry,
 
-The correction mode defaults to normal mode (OFFM = 0), where each step
-introduces an offset of approximately 2.170 ppm and corrections occur
-every 4 hours.
+pomagamy przedsi=C4=99biorcom wprowadzi=C4=87 model wymiany walut, kt=C3=B3=
+ry minimalizuje wahania koszt=C3=B3w przy rozliczeniach mi=C4=99dzynarodo=
+wych.
 
-Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
----
-V2 -> V3:
-- Split into separate patches as suggested:
-  - Battery switch-over detection.
-  - Timestamp recording for TS pin and battery switch-over events.
-  - Offset calibration.
-  - Watchdog timer (to be reviewed by watchdog maintainers).
-- Dropped Alarm2 support
-- Switched to rtc_add_group() for sysfs attributes
-- Removed failure paths after RTC device registration as per subsystem guidelines.
-V1 -> V2:
-- Watchdog related changes due to removal of vendor specific properties
-  from device tree
-  * remove vendor DT knobs (enable/timeout/stepsize/repeat)
-  * use watchdog_init_timeout (with 10s default)
-  * derive clock_sel from final timeout
-  * default, repeat=true (repeat mode)
-- Fixed uninitalised warning on 'ret' (reported by kernel test robot)
-- Use dev_dbg instead of dev_info for debug related print messages
-- Minor cleanup and comments
+Kiedyv mo=C5=BCemy um=C3=B3wi=C4=87 si=C4=99 na 15-minutow=C4=85 rozmow=C4=
+=99, aby zaprezentowa=C4=87, jak taki model m=C3=B3g=C5=82by dzia=C5=82a=C4=
+=87 w Pa=C5=84stwa firmie - z gwarancj=C4=85 indywidualnych kurs=C3=B3w i=
+ pe=C5=82nym uproszczeniem p=C5=82atno=C5=9Bci? Prosz=C4=99 o propozycj=C4=
+=99 dogodnego terminu.
 
- drivers/rtc/rtc-pcf85363.c | 46 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index a8b4f48d9894..3d733375187b 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -122,6 +122,11 @@
- #define TSR2_SHIFT      2
- #define TSR3_SHIFT      6
- 
-+#define OFFSET_SIGN_BIT 7
-+#define OFFSET_MINIMUM  -128
-+#define OFFSET_MAXIMUM  127
-+#define OFFSET_MASK     0xFF
-+
- struct pcf85363 {
- 	struct rtc_device	*rtc;
- 	struct regmap		*regmap;
-@@ -358,6 +363,45 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- 	return handled ? IRQ_HANDLED : IRQ_NONE;
- }
- 
-+/*
-+ * Read the current RTC offset from the CTRL_OFFSET
-+ * register. This value is an 8-bit signed 2's complement
-+ * value that corrects osciallator drift.
-+ */
-+static int pcf85363_read_offset(struct device *dev, long *offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+	unsigned int val;
-+	int ret;
-+
-+	ret = regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-+
-+	if (ret)
-+		return ret;
-+
-+	*offset = sign_extend32(val & OFFSET_MASK, OFFSET_SIGN_BIT);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Write an oscillator offset correction value to
-+ * the CTRL_OFFSET register. The valid range is
-+ * -128 to 127 (8-bit signed), typically used to fine
-+ * tune accuracy.
-+ */
-+static int pcf85363_set_offset(struct device *dev, long offset)
-+{
-+	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
-+
-+	if (offset < OFFSET_MINIMUM || offset > OFFSET_MAXIMUM) {
-+		dev_warn(dev, "Offset out of range: %ld\n", offset);
-+		return -ERANGE;
-+	}
-+
-+	return regmap_write(pcf85363->regmap, CTRL_OFFSET, offset & OFFSET_MASK);
-+}
-+
- static int pcf85363_rtc_ioctl(struct device *dev,
- 			      unsigned int cmd, unsigned long arg)
- {
-@@ -395,6 +439,8 @@ static const struct rtc_class_ops rtc_ops = {
- 	.read_alarm	= pcf85363_rtc_read_alarm,
- 	.set_alarm	= pcf85363_rtc_set_alarm,
- 	.alarm_irq_enable = pcf85363_rtc_alarm_irq_enable,
-+	.read_offset = pcf85363_read_offset,
-+	.set_offset = pcf85363_set_offset,
- };
- 
- static int pcf85363_nvram_read(void *priv, unsigned int offset, void *val,
--- 
-2.25.1
-
+Pozdrawiam
+Marek Poradecki
