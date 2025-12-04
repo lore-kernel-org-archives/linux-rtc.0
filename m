@@ -1,61 +1,126 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+Received: from r9217.ps.combzmail.jp (r9217.ps.combzmail.jp [160.16.65.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31878398F85
-	for <linux-rtc@vger.kernel.org>; Thu,  4 Dec 2025 01:38:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53D571F1315
+	for <linux-rtc@vger.kernel.org>; Thu,  4 Dec 2025 02:40:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.16.65.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764812336; cv=none; b=HOI5sMXH5iTsXN2YBJynWP1fQ2lco37ikUs8HskjZm6XbW7e711ULU4RvHCxtREAS3kGNjZpDwb3++yjFQnglv2MvbmHp/E3k1HTOn5hWekIia5Mka1pkTR1fRkgTPs7jY+kLQ0UiRWh/oCSN8irAU3+7CQT/x3e2D1JpE2DRzY=
+	t=1764816034; cv=none; b=FtfWXO4mlL6Cz0z2V1v7a/wZ0udbKFlTO7RE+HtKCYeKgj7r3ZyvGy56yS4LizfLmyRHpZdghS3FAfC0flIaDvOfWE+tlfPT7rSV+wXgMpwN32M9s26kDgdwr3SqsiMWHvuxS+WdXgDNraLlq/gdxyky1zUCs6ccm3c3ixHqv1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764812336; c=relaxed/simple;
-	bh=3E+wDMhRqo2KVJXuBApdP3R/emM6xLFrc9V0Xe6i4GE=;
-	h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type; b=WoWoPhqC5eAtWO2en5RXEFWb7I9B8mPQnu/eron69Rm2kyIyt263p38oPV6RHR/qqu/E4f8HVXwZjslNtfBTw9w9XdvAk+1benm/rFG1gJUVrARc4zVQMjQx8MkvizKFsDJ/8vV09+umCFCNY7c0Ru0gFoC2rAxj4Eyd3XhyrjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=GrMDnOOL; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GrMDnOOL"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:Subject:From:To:MIME-Version:Date:Message-ID:Sender:Reply-To:Cc:
-	Content-ID:Content-Description:In-Reply-To:References;
-	bh=XY+cQBbYm6ZQJV8FI32/yuzm6KzFZAVYJTCdXIu05m8=; b=GrMDnOOLTnVpyMXDQZAKQVJuR+
-	DLTr5L7+mf12Hc2eYpY2BHAIPuTkub5e1Y47Rv/voYaku0lJXt8os+oNS9eu1CN7fdH5lQpGmZPfD
-	FgBgk7KddGPTveXWFMwW+wyZEt+hX4SIWhvzXyGsVDyahX0T9LG7imVWdK5h8Ngc7U81kl5qMCYpp
-	Wwz6xf4WMrr8eYPu2lQgKLJFFB7PRfRdTFXRqreDo27zqbJK2HRZQNV83I1tK8AwVahKmqXCHxDLz
-	q0v0SpmwrUKq5HTbRVaeQH9HjBOvkD4RYpj9DouYtwIZJF+Jvql4H5zvpgDb9Y2vsjKeB77438vu+
-	wd/j1Eyg==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vQyJ0-00000007LF5-47El;
-	Thu, 04 Dec 2025 01:38:51 +0000
-Message-ID: <d9782d13-42b0-4dac-84c5-e7d7ce4f93cb@infradead.org>
-Date: Wed, 3 Dec 2025 17:38:49 -0800
+	s=arc-20240116; t=1764816034; c=relaxed/simple;
+	bh=Vu5PrLD4RQ5eWFvr+angYeZXt2Je9sHjY5obgTHQDJE=;
+	h=To:From:Subject:Mime-Version:Content-Type:Message-Id:Date; b=ZK88FE3LmmtT7a7w1Ql3lJPEFfTKRzD1gn2ePPMN8aV3GGFe4Fr1Rdu+aMg4fA5JElbII+yd1H0X3UoX1njv4s/0/6oCVKYL1qpri3erHVUxkm2D9pC3TyRMkMFyBqHnh+HNtBI0ppb2mnaP5plQylMREbtgNzY6vkShjgy5PzY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=k-villageinc.jp; spf=pass smtp.mailfrom=magerr.combzmail.jp; arc=none smtp.client-ip=160.16.65.235
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=k-villageinc.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9217.ps.combzmail.jp (Postfix, from userid 99)
+	id 7F3BC106134; Thu,  4 Dec 2025 11:38:14 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9217.ps.combzmail.jp 7F3BC106134
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCM3Q8MDJxPFIbKEI=?= K Village<info@k-villageinc.jp>
+X-Ip: 2673951918977210
+X-Ip-source: k85gj7ri48dnsax5u0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCMk4hJiVAJXMlOUV5JE4lOSUvITwlazt2GyhC?=
+ =?ISO-2022-JP?B?GyRCNkgbKEIgRkMbJEJAYkxAMnEbKEI=?=
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
- linux-rtc@vger.kernel.org, Antoniu Miclaus <antoniu.miclaus@analog.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: rtc-max31335.c: use of IS_REACHABLE()
-Content-Type: text/plain; charset=UTF-8
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
+X-MagazineId: rix5
+X-uId: 6763334240485968574188171002
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20251204024029.7F3BC106134@r9217.ps.combzmail.jp>
+Date: Thu,  4 Dec 2025 11:38:14 +0900 (JST)
 
-Hi,
+　
+　お世話になります。
+　
+　新たな事業展開をお考えの経営者様へ、
+　幼児から学生、社会人、シニアまで
+　幅広い世代を対象にしたボイトレ・ダンススクール事業の
+　フランチャイズシステム説明会をご案内申し上げます。
 
-Just checking: should these be IS_REACHABLE(CONFIG_HWMON) ?
-If not, what "HWMON" is being referenced here?
+━━━━━━━━━━━━━━━━━━━━━━━━
+　　　
+　　　12月6日（土）13:00〜14:00
+　　　12月10日（水）13:00〜14:00
+　　　12月17日（水）13:00〜14:00
 
-596:#if IS_REACHABLE(HWMON)
-677:#if IS_REACHABLE(HWMON)
-732:#if IS_REACHABLE(HWMON)
+　◆　フランチャイズ説明会
+　　　幼児から学生、社会人、シニアまで！
 
-thanks.
--- 
-~Randy
+　　　ボイトレ・ダンスのマンツーマン制スクール事業
+　　　“　NAYUTAS（ナユタス）　”
 
+　※　オーナー様にボイトレや業界知識などは不要で、
+　　　未経験から開業することができます。
+
+　◆　詳細＆申込はこちら
+　　　https://nayutas-voice.biz/2500/
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+------------------------------------------------
+
+　NAYUTAS（ナユタス）はボイトレをはじめ、
+　楽器やダンス、プログラミング、動画編集など、
+　好きなこと・興味があることを本格的に学べる
+　完全マンツーマン制レッスンのスクール事業です。
+
+------------------------------------------------
+
+　学習塾のように子どもや学生のみが対象になるのではなく、
+　社会人やシニアも含め、3歳〜80歳の方が生徒として通われています。
+
+　収益モデルは「生徒数×月額授業料」が売上になるサブスク型で、
+　生徒数が増えることによって、売上・利益が拡大していきます。
+
+　講師の採用や、開校後の生徒集客の確かなノウハウもあるため、オーナー様に
+　ボイトレや業界知識が無くとも、未経験から開業することが可能です。
+
+　フランチャイズ説明会を開催いたしますので、
+　ご興味がありましたらご参加くださいませ。
+
+━━━━━━━━━━━━━━━━━━━
+
+　■　開催日程
+　　　12月6日（土）13:00〜14:00
+　　　12月10日（水）13:00〜14:00
+　　　12月17日（水）13:00〜14:00
+
+　■　開催方式
+　　　・オンライン開催
+
+　■　コンテンツ
+　　　・入会者数の推移
+　　　・ナユタスの特徴と選ばれる3つの理由
+　　　・フランチャイズシステム詳細
+　　　・開業費用例／収益例
+
+　■　主催
+　　　・株式会社 K Village（ナユタス運営本部）
+
+　■　定員
+　　　・5社／各回
+
+　■　参加費
+　　　・不要です
+
+　■　詳細＆申込はこちら
+　　　https://nayutas-voice.biz/2500/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+本メールが不要の方には大変失礼しました。
+今後ご案内が不要な際は、下記URLにて配信停止を承っています。
+https://nayutas-voice.biz/mail/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+株式会社 K Village（ナユタス運営本部）
+東京都新宿区西新宿2-4-1 新宿NSビル7F
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
