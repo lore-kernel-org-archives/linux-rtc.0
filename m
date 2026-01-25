@@ -1,174 +1,108 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0730A28371
-	for <linux-rtc@vger.kernel.org>; Sun, 25 Jan 2026 15:27:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C818320A37;
+	Sun, 25 Jan 2026 16:28:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769354848; cv=none; b=dDApljLCH90wUJxw6hVGtw4lPd44yUoB9VNTYYcg062JgRgZ2UO9/aZeEDJnWCGojarEI4vaDFHNOid5ibYk32OnFliyPabfvLypNuFWuE5tZpaI7TFJkKgycpw/+YXi5+MRAa+sN4CXGdO62OJWMsTJyPiAAAJNNHY/e2S1DOA=
+	t=1769358491; cv=none; b=Xz9x4klgwc8+E1B/eJ/ovoAoO0vgrF22UU8wYhwjQLUGntbKKx3WXN7vcHMgo97sfB1CditYuoswfMUsgpViXCMWp51BwVFNSmEHBc715sjg2zegJSG43eC7yT1kmAFVTgkyI1Lb40tp9pNMcrn5IDTRYxvp8GVXFckujBrxCy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769354848; c=relaxed/simple;
-	bh=SNf2NU+hs+ZIS4XXchD9gc1LEk0khnpy5wXM0ouJBNM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uhM/J0E6gA0d44OTFPBcAZhEPO0bPhI1tVYTqiFUYVWi02qUonLXsO39HSwgbsZlhJTR2zYNlPPycNrSyERtVRpEVRAJ+r2KlqdxTc6SMZPHmuXeStVuTFz2oTPFHeXm8TyTP2ZqhI8GftwQwBbK2pU87mHLLH6gZjsyYKuTJ8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fcWrduUx; arc=none smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769358491; c=relaxed/simple;
+	bh=/kBVfEeJ/g4AP/VjKN8A4Uzwnf7UltFNduXdvjV67xs=;
+	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
+	 Message-Id:Subject; b=YoAV/iKHsGgQaCq3b9ulzyLkwen8YDJmRNQARTQ72f/ZEANY0+PbuSBZ5wIII+8BRegJLTEMjo3qXIM87jg+0urVSg/I7JoTEH/TKoM6ORJDJUKt73dtotqi911esX1cMrU5/jRISUirtjP5cepTVFRQvj1TjV6FXdz3hxszCyc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ekgsh12L; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fcWrduUx"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-59b6c89d302so3667523e87.1
-        for <linux-rtc@vger.kernel.org>; Sun, 25 Jan 2026 07:27:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769354845; x=1769959645; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fXpwpGUeOVZ6gd5Z9uZtu+VcPr504HYG8KCye/qyxZo=;
-        b=fcWrduUxOMe2K/uUDKcInOttzaFrOLpVafR88X8kMTlTU0GO6NcxiTzoSfP2MVwMTS
-         A+1ceCahAIkXQ5RGl3GRkVXPBcadQycS7+0jMLbPlrfmLt3fxNXogYeFbNNp+mixVcm9
-         F8xmvY/ke9slxyDTFkbKmran+5xoyNxzPxB0aDQNQc6mLMFCsNPViS+66Q1PrhWqIFez
-         GVwptbkbPj/3LCOOVDmqWwQKY+p4a6ITKHz9HFB6If06eij4Hr93WNE97ONN/vhodFKU
-         jNoFWxLSmk0Nxm2PTHTywCvhNw7z4XO1aUFoOrF3XcqvN4Kqhk/8rImXnkxlGodJeM7r
-         xW8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769354845; x=1769959645;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=fXpwpGUeOVZ6gd5Z9uZtu+VcPr504HYG8KCye/qyxZo=;
-        b=BqXt0lX5+jxU12SMhavOpVe7kCJ6Gc32qxKWsOOa/1g2CEm4aBnn8P44Y7Txwsbym2
-         CN6Sb5GEfUO4Siq3xqLUmnnUq56iJ9UB7spUf4NG7X8kM/jij9J4Ubl9K8AdmnfOnxok
-         PzptRJ9tBwgc6h2g5fZJHFv5B7sE9eX9FifiMvCAaUHBsjaZUZMZ+2HcmutpJCL+E10Q
-         MLMYC45i1zNdxoRU97rKHlyHZ8CYVVgO6kcuU3Gx3hlTanUvKws5q9H9KyG8e26SroLZ
-         Kx9WRvKL6rBmlk3mrwFTsY1eYcacPLibJgegj5lh2h/r1vJJZK2SJzoL0Wp31peQxzel
-         4JWw==
-X-Forwarded-Encrypted: i=1; AJvYcCWTJfgQCCtK90GYJDf6b/aBUGW+JyvtIJdJdKLAMQ5aRhsu6VOzg+x5zur+G8bUjcn4QzE0ql3DkMI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwVjBcFcGFnB2dYYLsiKYCnErbJaPiqgYtlo4AHOWl/nzUMQ+3R
-	P1BtiZNDeL+Uze2RBb1dfQ7Mm0vmZGieAvbNNFOY1t69fFCb1wOHkbhB49wCVA==
-X-Gm-Gg: AZuq6aIUU7BOKfxIQ4bo+nISSIvO2e51u5JQiFMZpSXhcmbVlLzDtxzTjF5EW7ZBZsd
-	AvzBusRwbwswj1s1HwK1cu9OtccR0uWv153/dL0cAZnyzYkFZrirDv4k6Z7Tbnr+1yDNhKkSpgX
-	o/afX3ChtVXdKoV6clWYQSd4imRisHOVUuyjhXCDnoB+icye4j7a5xdKD/+eqmVAI+ZYVoahljM
-	XfBbOJfc8cAE3gHu0M7gTK17pCxChwxj4BommOoc6yKtteUruP2gncCjy2U5rFNQ619MISbaF02
-	U1umzLDbwMmrsSES7kFfEU908EPKLyOxMQdhr+gAy3XXIzHEgmVI41xuliJgXJ+j9WDGogs/4xG
-	I6kz7j6NJfrkTxQMv/O8NehVZIr777p+U35zi44ocQyo+RK7XBb78vHoktxD6rXjV4XFwrGQRsf
-	osbfJ0lAPzVQU=
-X-Received: by 2002:a05:6000:2403:b0:430:f97a:6f42 with SMTP id ffacd0b85a97d-435ca39c59bmr3398601f8f.54.1769348598831;
-        Sun, 25 Jan 2026 05:43:18 -0800 (PST)
-Received: from xeon ([188.163.112.49])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1c246ecsm22459688f8f.10.2026.01.25.05.43.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Jan 2026 05:43:18 -0800 (PST)
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-To: Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Svyatoslav Ryhel <clamor95@gmail.com>,
-	Dixit Parmar <dixitparmar19@gmail.com>,
-	Tony Lindgren <tony@atomide.com>
-Cc: linux-iio@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH v1 06/10] dt-bindings: rtc: cpcap-rtc: convert to schema
-Date: Sun, 25 Jan 2026 15:42:58 +0200
-Message-ID: <20260125134302.45958-7-clamor95@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260125134302.45958-1-clamor95@gmail.com>
-References: <20260125134302.45958-1-clamor95@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ekgsh12L"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 153BCC4CEF1;
+	Sun, 25 Jan 2026 16:28:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769358491;
+	bh=/kBVfEeJ/g4AP/VjKN8A4Uzwnf7UltFNduXdvjV67xs=;
+	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
+	b=ekgsh12LUQ3AXmJllmcATFerorX1tckcRHS6TTtIyzOEPAd+aLEf6ngWb3Lg77xLL
+	 QIS8dBXGNCjLK7ggRb+JMW7BmRR10b4mKIPkeI6IoimTs22W9D73TjTHptWvqw93L9
+	 yct82EmEBrkkD4R4U9LXyTzM1xWcaGyYk0npwXpiT4At5Z6le/mAztE70P6tUzNTr7
+	 J4TRdmMOKQH+2QEqfq4OfU9TdznqBeKjLEMg8KOZ2XOnfRHom/6IxO7AE86h9PSIYJ
+	 gDlN+m80IFHrQcDe0BXnhd4FXF40KvQkh/oVTjB/pOyDbL7kDsgX4T7pa/wh4vhRJH
+	 HrcTt0RCDvViQ==
+Date: Sun, 25 Jan 2026 10:28:10 -0600
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-iio@vger.kernel.org, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ devicetree@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>, 
+ Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-leds@vger.kernel.org, 
+ Dixit Parmar <dixitparmar19@gmail.com>, linux-rtc@vger.kernel.org, 
+ Tony Lindgren <tony@atomide.com>, Lee Jones <lee@kernel.org>, 
+ Andy Shevchenko <andy@kernel.org>, Pavel Machek <pavel@kernel.org>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+In-Reply-To: <20260125134302.45958-7-clamor95@gmail.com>
+References: <20260125134302.45958-1-clamor95@gmail.com>
+ <20260125134302.45958-7-clamor95@gmail.com>
+Message-Id: <176935849015.3303521.6335397364292112478.robh@kernel.org>
+Subject: Re: [PATCH v1 06/10] dt-bindings: rtc: cpcap-rtc: convert to
+ schema
 
-Convert RTC devicetree bindings for the Motorola CPCAP MFD from TXT to
-YAML format. This patch does not change any functionality; the bindings
-remain the same.
 
-Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
----
- .../devicetree/bindings/rtc/cpcap-rtc.txt     | 18 -----------
- .../bindings/rtc/motorola,cpcap-rtc.yaml      | 32 +++++++++++++++++++
- 2 files changed, 32 insertions(+), 18 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
- create mode 100644 Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml
+On Sun, 25 Jan 2026 15:42:58 +0200, Svyatoslav Ryhel wrote:
+> Convert RTC devicetree bindings for the Motorola CPCAP MFD from TXT to
+> YAML format. This patch does not change any functionality; the bindings
+> remain the same.
+> 
+> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> ---
+>  .../devicetree/bindings/rtc/cpcap-rtc.txt     | 18 -----------
+>  .../bindings/rtc/motorola,cpcap-rtc.yaml      | 32 +++++++++++++++++++
+>  2 files changed, 32 insertions(+), 18 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+>  create mode 100644 Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml
+> 
 
-diff --git a/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt b/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-deleted file mode 100644
-index 45750ff3112d..000000000000
---- a/Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
-+++ /dev/null
-@@ -1,18 +0,0 @@
--Motorola CPCAP PMIC RTC
-------------------------
--
--This module is part of the CPCAP. For more details about the whole
--chip see Documentation/devicetree/bindings/mfd/motorola-cpcap.txt.
--
--Requires node properties:
--- compatible: should contain "motorola,cpcap-rtc"
--- interrupts: An interrupt specifier for alarm and 1 Hz irq
--
--Example:
--
--&cpcap {
--	cpcap_rtc: rtc {
--		compatible = "motorola,cpcap-rtc";
--		interrupts = <39 IRQ_TYPE_NONE>, <26 IRQ_TYPE_NONE>;
--	};
--};
-diff --git a/Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml b/Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml
-new file mode 100644
-index 000000000000..bf2efd432a23
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml
-@@ -0,0 +1,32 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/motorola,cpcap-rtc.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Motorola CPCAP PMIC RTC
-+
-+maintainers:
-+  - Svyatoslav Ryhel <clamor95@gmail.com>
-+
-+description:
-+  This module is part of the Motorola CPCAP MFD device. For more details
-+  see Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml. The
-+  RTC is represented as a sub-node of the PMIC node on the device tree.
-+
-+properties:
-+  compatible:
-+    const: motorola,cpcap-rtc
-+
-+  interrupts:
-+    items:
-+      - description: alarm interrupt
-+      - description: 1 Hz interrupt
-+
-+required:
-+  - compatible
-+  - interrupts
-+
-+additionalProperties: false
-+
-+...
--- 
-2.51.0
+My bot found errors running 'make dt_binding_check' on your patch:
+
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+
+
+doc reference errors (make refcheckdocs):
+Warning: Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
+Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt references a file that doesn't exist: Documentation/devicetree/bindings/leds/leds-cpcap.txt
+Warning: Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+Warning: Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/regulator/cpcap-regulator.txt
+Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/rtc/cpcap-rtc.txt
+Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentation/devicetree/bindings/leds/leds-cpcap.txt
+Documentation/devicetree/bindings/regulator/motorola,cpcap-regulator.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+Documentation/devicetree/bindings/rtc/motorola,cpcap-rtc.yaml: Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml
+
+See https://patchwork.kernel.org/project/devicetree/patch/20260125134302.45958-7-clamor95@gmail.com
+
+The base for the series is generally the latest rc1. A different dependency
+should be noted in *this* patch.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit after running the above command yourself. Note
+that DT_SCHEMA_FILES can be set to your schema file to speed up checking
+your schema. However, it must be unset to test all examples with your schema.
 
