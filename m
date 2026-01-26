@@ -1,153 +1,74 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05AA01F4CBC;
-	Mon, 26 Jan 2026 19:41:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 909DC38D;
+	Mon, 26 Jan 2026 20:30:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769456496; cv=none; b=tszCGxiEoTzYg61xJlPEzeb6XugsR7Vegh9nw9wQWDnq3YCTQ9DN3Ohl9j9RbNoDTgwyBX/p73KYojGsvA/g9WDUC2MxapSdiXfGho6O4uew3d+OTZvjzVPPyc1m4tk2Q86bom3z62IXsMG0j44HLALPKGc57Cm/syfDPFdm7Hw=
+	t=1769459443; cv=none; b=uyRsnh6cjRb0C+8hj4iBExMtXctcZFXl0fnHkjCr06rPK3iasp6P2JucWuZZ0mxVRwUCBtR+b+ds1iig6a85DoqvnzWgKHyKgbHZjIucM3EqtXi8WtJ1S/qHpVu7Bhe8xm4laydsWVpNjk6dE5Vc5Ivo3VpVZm++NGhet2mXHK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769456496; c=relaxed/simple;
-	bh=uQFMWGnGGz/UkepHe6qNZM7ssltN76ODEap8qFaeK2s=;
+	s=arc-20240116; t=1769459443; c=relaxed/simple;
+	bh=nN000fcvcr3Gsy7MUO2F0yasVBsFUSwrKPZkoByhgcY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MaxGYJjD8+uW8iVU+S8U47p4FCiAG158GQF6LzqqlT0RdjfdzTU4ffibIZ/LJNc8n/AtfYuw8821aoPy/uBcBlLnhWILXJlaYOr+xgvnGWb5IzGLKJ5CNq65qZ9X0zs++m32J7MPAbYLypJ5eJ9ArWZkN5k/sKVDVb2wL9i7gcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=derieL3L; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=VlwOx2Y1ed5anyIT2tEQDI0I4y7bFNnCUfSAUQje+jUZTFrIb8YKvTq6pSbkYGBHm0fouKiiYTEhbKFaDI8KxYJzXqotV7n3TrOVQY3St4hwQeL/RbNbowivtO9WWbWIt+Z1spGp8EkAWg3vsLGSDV4OQ9v6mzScChiPwq4WafU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VdfYPI3z; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="derieL3L"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769456494; x=1800992494;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=uQFMWGnGGz/UkepHe6qNZM7ssltN76ODEap8qFaeK2s=;
-  b=derieL3LLtDdLkKo62F/2aghx7RorjhNNvIFNM3y62aJ5uFizAoBe8iu
-   1At6KcH7MVaWC7f/J+n5FVM/nDFpxINAXVofD5cCafOk34W7ylQgBcjRW
-   YQVSKVx/lor3hPrirIzN3FEn8vcMQ70p81nBdw9hpC4gLSzKew0HVXj/o
-   bcjRpAOnEghYpq3zBCpNZzkICk/a9HgkVNRoeCrocxC/Zd/+Bf4u6aApH
-   3PxnOh6h1iQXCcj3EVp8F7SU9ZyXuzS6x3t3jmXz4+t3gUsNXPhJhhRns
-   ElT6aYmdgP1MDzLOoppsA72Bx99NFD6xO8ARm30znAx8xzKbk6Ht1QXTj
-   Q==;
-X-CSE-ConnectionGUID: iROUj1cSSs2gn1LuTof2hQ==
-X-CSE-MsgGUID: cdogRa0CQ4Gqx2hPytNR1g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11683"; a="70545872"
-X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
-   d="scan'208";a="70545872"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 11:41:33 -0800
-X-CSE-ConnectionGUID: n0esMp9ySU+Mz1YRzxo6RQ==
-X-CSE-MsgGUID: jseCndPdQO2p/ZZbLSbXCg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
-   d="scan'208";a="206992580"
-Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
-  by orviesa010.jf.intel.com with ESMTP; 26 Jan 2026 11:41:28 -0800
-Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1vkSSj-00000000XdK-0FbY;
-	Mon, 26 Jan 2026 19:41:25 +0000
-Date: Tue, 27 Jan 2026 03:41:05 +0800
-From: kernel test robot <lkp@intel.com>
-To: Kaustabh Chakraborty <kauschluss@disroot.org>,
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	MyungJoo Ham <myungjoo.ham@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Sebastian Reichel <sre@kernel.org>,
-	=?iso-8859-1?Q?Andr=E9?= Draszik <andre.draszik@linaro.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-leds@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-samsung-soc@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Kaustabh Chakraborty <kauschluss@disroot.org>
-Subject: Re: [PATCH v2 06/12] mfd: sec: add support for S2MU005 PMIC
-Message-ID: <202601270307.Ds4yus7I-lkp@intel.com>
-References: <20260126-s2mu005-pmic-v2-6-78f1a75f547a@disroot.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VdfYPI3z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E951C116C6;
+	Mon, 26 Jan 2026 20:30:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769459443;
+	bh=nN000fcvcr3Gsy7MUO2F0yasVBsFUSwrKPZkoByhgcY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VdfYPI3z9PdoLpuxJa5LQGVP1u8Wx7m2OiozgRzLjyd285piix29OUJtkqcOb0ADO
+	 ew7AAEddZ8qgLmMNpwFjHwQ5JkX+QxH9diOmpDfjxMMDAvcqM+0e94y2O+aI1+46vn
+	 P02Xoz+OtRcIbR9D++MBxjACpKOWXllbUEZ4TNfgZc1yWqGnqdNqA24vVgmo4Wx/we
+	 ZVXrCvIQ8jCZR6qCgR+W/YzezG2YWnx8dZ8jsJzQRSZOerlEjnCAMGkNyCguRBZqdR
+	 Le5ZD52MVDestPkAfEef6ckYyoiEnYBJsu8GJJYcAI9RekZ8Tm0cebu//+LvmFXHaM
+	 YWOy4eUfOpzGQ==
+Date: Mon, 26 Jan 2026 20:30:37 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Ovidiu Panait <ovidiu.panait.rb@renesas.com>
+Cc: claudiu.beznea.uj@bp.renesas.com, alexandre.belloni@bootlin.com,
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+	geert+renesas@glider.be, magnus.damm@gmail.com,
+	mturquette@baylibre.com, sboyd@kernel.org,
+	prabhakar.mahadev-lad.rj@bp.renesas.com, linux-rtc@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+Subject: Re: [PATCH 3/5] dt-bindings: rtc: renesas,rz-rtca3: Add RZ/V2N
+ support
+Message-ID: <20260126-carried-herbal-7870e3b55b8e@spud>
+References: <20260125192706.27099-1-ovidiu.panait.rb@renesas.com>
+ <20260125192706.27099-4-ovidiu.panait.rb@renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EqZf9g8z11dVC7HO"
+Content-Disposition: inline
+In-Reply-To: <20260125192706.27099-4-ovidiu.panait.rb@renesas.com>
+
+
+--EqZf9g8z11dVC7HO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260126-s2mu005-pmic-v2-6-78f1a75f547a@disroot.org>
 
-Hi Kaustabh,
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
-kernel test robot noticed the following build errors:
+--EqZf9g8z11dVC7HO
+Content-Type: application/pgp-signature; name="signature.asc"
 
-[auto build test ERROR on ca3a02fda4da8e2c1cb6baee5d72352e9e2cfaea]
+-----BEGIN PGP SIGNATURE-----
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Kaustabh-Chakraborty/dt-bindings-leds-document-Samsung-S2M-series-PMIC-flash-LED-device/20260126-031457
-base:   ca3a02fda4da8e2c1cb6baee5d72352e9e2cfaea
-patch link:    https://lore.kernel.org/r/20260126-s2mu005-pmic-v2-6-78f1a75f547a%40disroot.org
-patch subject: [PATCH v2 06/12] mfd: sec: add support for S2MU005 PMIC
-config: riscv-allyesconfig (https://download.01.org/0day-ci/archive/20260127/202601270307.Ds4yus7I-lkp@intel.com/config)
-compiler: clang version 16.0.6 (https://github.com/llvm/llvm-project 7cbf1a2591520c2491aa35339f227775f4d3adf6)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260127/202601270307.Ds4yus7I-lkp@intel.com/reproduce)
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXfO7QAKCRB4tDGHoIJi
+0h9EAQC0McoB0owd4hltuPqbuUKqJ0kfuAPhhvFU2sNcbx8k4wEAgHJq+Sv7epQV
+1JyvmRdHWvIRfxKy4M+VwfoHvpR5iAg=
+=tIT0
+-----END PGP SIGNATURE-----
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202601270307.Ds4yus7I-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
->> drivers/mfd/sec-irq.c:218:7: error: expression is not an integer constant expression
-           case irqf_regs[0]:
-                ^~~~~~~~~~~~
-   drivers/mfd/sec-irq.c:218:7: note: initializer of 'irqf_regs' is not a constant expression
-   drivers/mfd/sec-irq.c:204:21: note: declared here
-           const unsigned int irqf_regs[] = {
-                              ^
-   drivers/mfd/sec-irq.c:220:7: error: expression is not an integer constant expression
-           case mask_regs[0]:
-                ^~~~~~~~~~~~
-   drivers/mfd/sec-irq.c:220:7: note: initializer of 'mask_regs' is not a constant expression
-   drivers/mfd/sec-irq.c:210:21: note: declared here
-           const unsigned int mask_regs[] = {
-                              ^
-   2 errors generated.
-
-
-vim +218 drivers/mfd/sec-irq.c
-
-   200	
-   201	static unsigned int s2mu005_irq_get_reg(struct regmap_irq_chip_data *data,
-   202						unsigned int base, int index)
-   203	{
-   204		const unsigned int irqf_regs[] = {
-   205			S2MU005_REG_CHGR_INT1,
-   206			S2MU005_REG_FLED_INT1,
-   207			S2MU005_REG_MUIC_INT1,
-   208			S2MU005_REG_MUIC_INT2,
-   209		};
-   210		const unsigned int mask_regs[] = {
-   211			S2MU005_REG_CHGR_INT1M,
-   212			S2MU005_REG_FLED_INT1M,
-   213			S2MU005_REG_MUIC_INT1M,
-   214			S2MU005_REG_MUIC_INT2M,
-   215		};
-   216	
-   217		switch (base) {
- > 218		case irqf_regs[0]:
-   219			return irqf_regs[index];
-   220		case mask_regs[0]:
-   221			return mask_regs[index];
-   222		}
-   223	
-   224		return base;
-   225	}
-   226	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--EqZf9g8z11dVC7HO--
