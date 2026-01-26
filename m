@@ -1,97 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FA7732E697;
-	Mon, 26 Jan 2026 10:11:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC42E3064AF;
+	Mon, 26 Jan 2026 10:11:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769422287; cv=none; b=n6ck2NNGsDxpno4ET0t2PIl1CERMJFiBzWRdXozp/q1t+e5WmF9SmqUuFLGAJ+MToAuQyoxzzbH1t0Uszs6AB//pwLzxmXXK3fA6Mda+F0Lyc3+fwXQ0xDqvhiBPTbKnGIEzTSSnN2DbnhVtKTEnPCRSW+VbJYerQLMqYfSqirM=
+	t=1769422288; cv=none; b=ig3pmOQfwogQS1AWyP5FyyO0yj5XGKz7Byl7FJAm6uuML3QkyCS5S57AAsGYvz/N2wPhJ7wvlZR1+NaYz7Q0VRadHVCC68mPrlNeOyfs4RrwRYjD0cyW+gOz/XLlXRMEi77U50ABfVmc3wF541QJ8c7A9gqdXfWPsEMMKFJjxuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769422287; c=relaxed/simple;
-	bh=fBZcq8cvRjheDHCvLXxrccPqA24+Mola9mvDT4gcPLU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=q9VwMyjbclSO3/lCGPNwvs5tHevwPwIPgiSoAl8hHq2Ci3ZmbhBzjRD0HLznwPyANYacf+M1a/jx7vqcFYgLG84vu1e+p14n0fo5oSxjZXP86tzqiiLtePfaC6bskGmQPA1gXcWj12fJDe2ZoxgP0ozAVAV0V5WnCmJ7Ctk89J4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H7dAxoKr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769422288; c=relaxed/simple;
+	bh=Pmr/8bMfIURHj4kvuP+Z5tCsiw6ufGUR1THBYRM6fnI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I2d/K8W0QxkKQaJ6gK9yRl9PLb7yyol4uJ6lFhjHqqT41KCsVcDa4NZVU9CgUZ2YKtNUHdKeuAuMfgrObB1CsBUBf47bAh9Uh7ztqak0KAP2CdK9saxDUu8/FWvszDn+LLbeHi1M6mzB8OYN1pJCUEicYlXRB9X2fERVGLWOumQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=S6PEMxGs; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H7dAxoKr"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5E179C2BC9E;
-	Mon, 26 Jan 2026 10:11:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769422287;
-	bh=fBZcq8cvRjheDHCvLXxrccPqA24+Mola9mvDT4gcPLU=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=H7dAxoKrWDx/HdgM+UecgdSNqUzTLvhYkqidiceXqRYRaRhvMvIo0rJRR+buw45cc
-	 3sht/20iEKBI3IT8JAYmXfHbshRl13FdO/KCXRQVF+Aq21f3/ybE9D0RgpsBa8hebJ
-	 Fgimn0F2UJzo/hCEOgqsh8vi17Kh9nvVbWDjqT9WQwFnQuhnYKPSZKWUgZaSbjeOiH
-	 RcXwTRSwPHn3UGHx7SD8aum7ueTjgZS75ar32/6iQGY5eI3wOhbzd1mlE5QlWCZC/s
-	 O59pC5JdRPdVH/M0hZia7Rmca29prhqeTQUGUdOBZZX96/dQ1JLFKRCTiBJLTNaWLY
-	 gPaSXrVwjZATg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 570C9CF65D2;
-	Mon, 26 Jan 2026 10:11:27 +0000 (UTC)
-From: Rouven Czerwinski via B4 Relay <devnull+rouven.czerwinski.linaro.org@kernel.org>
-Date: Mon, 26 Jan 2026 11:11:26 +0100
-Subject: [PATCH 3/3] rtc: optee: simplify OP-TEE context match
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="S6PEMxGs"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769422287; x=1800958287;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Pmr/8bMfIURHj4kvuP+Z5tCsiw6ufGUR1THBYRM6fnI=;
+  b=S6PEMxGsmuDV5U+XJJSYgEtMgu/LN2KANetS13thAPKaC6kpvz01W9hj
+   wlRjf2NBOQSgbgVmvdp4KORr0RdqS/ESo2AkiPXVELdaP7MEyfGNnc/q2
+   o64jdFDXfXEv+EJSaTqjlhQlpj6a6VGKUJfJ/8MVBPKVGl3tSSsepkvK0
+   q23heSPf2Ta0UB7XMaknaJ39Sy32cs7FxLp7e+5e3bRsLRlNfIp8eN9/i
+   CKpLbouWWyTvwymq3E5Hiut4LP3vfUVBoZb6HK2kplfp1vJ32cEzbwdZp
+   mSMssYMYWYl01Om5u+cKugJ5J9EjdYQeFUuZduy11/Ze185TiL/4b3qYf
+   w==;
+X-CSE-ConnectionGUID: kX6DYKA4RHufK/4IPvoD7Q==
+X-CSE-MsgGUID: JhSWxA2gSY2p0mmRDkScpw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11682"; a="74226710"
+X-IronPort-AV: E=Sophos;i="6.21,254,1763452800"; 
+   d="scan'208";a="74226710"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 02:11:26 -0800
+X-CSE-ConnectionGUID: I6229W/iQKCOPsGa4oMNMQ==
+X-CSE-MsgGUID: a0bMpN71QlKz83jXby+wtg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,254,1763452800"; 
+   d="scan'208";a="206760843"
+Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.122])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 02:11:21 -0800
+Date: Mon, 26 Jan 2026 12:11:18 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Dixit Parmar <dixitparmar19@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v1 04/10] iio: adc: cpcap-adc: add support for Mot ADC
+Message-ID: <aXc9xnUfvLg3diRR@smile.fi.intel.com>
+References: <20260125134302.45958-1-clamor95@gmail.com>
+ <20260125134302.45958-5-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260126-optee-simplify-context-match-v1-3-d4104e526cb6@linaro.org>
-References: <20260126-optee-simplify-context-match-v1-0-d4104e526cb6@linaro.org>
-In-Reply-To: <20260126-optee-simplify-context-match-v1-0-d4104e526cb6@linaro.org>
-To: Jens Wiklander <jens.wiklander@linaro.org>, 
- Sumit Garg <sumit.garg@kernel.org>, Olivia Mackall <olivia@selenic.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- =?utf-8?q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: op-tee@lists.trustedfirmware.org, linux-kernel@vger.kernel.org, 
- linux-crypto@vger.kernel.org, linux-rtc@vger.kernel.org, 
- Rouven Czerwinski <rouven.czerwinski@linaro.org>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769422286; l=831;
- i=rouven.czerwinski@linaro.org; s=20260126; h=from:subject:message-id;
- bh=QLdJDajsDAHZ5Jp/WvnfqKpNSpcj2i8eHxM4elD1BXk=;
- b=hUChSt/PerjC7blQ6RZipCBKxqnlwex+ECe8CfZ0Wb6SYUNshrn+Zn+ndFsgEjw9ve3jh9TQk
- BW08OOTuUhyCZjXixJ0Uk91h8vNM070X6eNfQyVTmMuXGcKhVgSHyg8
-X-Developer-Key: i=rouven.czerwinski@linaro.org; a=ed25519;
- pk=/5pmUK/XIAIIo8JA0axgfy1k8NRhRTQkxVwZYa1ga7U=
-X-Endpoint-Received: by B4 Relay for rouven.czerwinski@linaro.org/20260126
- with auth_id=616
-X-Original-From: Rouven Czerwinski <rouven.czerwinski@linaro.org>
-Reply-To: rouven.czerwinski@linaro.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260125134302.45958-5-clamor95@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-From: Rouven Czerwinski <rouven.czerwinski@linaro.org>
+On Sun, Jan 25, 2026 at 03:42:56PM +0200, Svyatoslav Ryhel wrote:
+> Add support for ADC found in Motorola Mot board, used as a base for
+> Atrix 4G and Droid X2 smartphones.
 
-Simplify the TEE implementor ID match by returning the boolean
-expression directly instead of going through an if/else.
+...
 
-Signed-off-by: Rouven Czerwinski <rouven.czerwinski@linaro.org>
----
- drivers/rtc/rtc-optee.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+> -	{ }
+> +	{ /* sentinel */ },
 
-diff --git a/drivers/rtc/rtc-optee.c b/drivers/rtc/rtc-optee.c
-index 184c6d142801..2f18be3de684 100644
---- a/drivers/rtc/rtc-optee.c
-+++ b/drivers/rtc/rtc-optee.c
-@@ -541,10 +541,7 @@ static int optee_rtc_read_info(struct device *dev, struct rtc_device *rtc,
- 
- static int optee_ctx_match(struct tee_ioctl_version_data *ver, const void *data)
- {
--	if (ver->impl_id == TEE_IMPL_ID_OPTEE)
--		return 1;
--	else
--		return 0;
-+	return (ver->impl_id == TEE_IMPL_ID_OPTEE);
- }
- 
- static int optee_rtc_probe(struct device *dev)
+Stray change.
 
 -- 
-2.52.0
+With Best Regards,
+Andy Shevchenko
 
 
