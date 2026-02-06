@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6CC33DA7FC;
-	Fri,  6 Feb 2026 13:38:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4BA52C1598;
+	Fri,  6 Feb 2026 13:49:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770385118; cv=none; b=ghWgzNVlaKho6h4QF4bF9IkiHz0wUK7MID0t/A/cwiBs5bCP1+GY+oPAmnwXDR0jgfAqiFUbuWpjeTPPou7CVJ8l352PtcfWmfyHMxZgR0c+9m9cKjvYaA2UQ2TnT/noZsljUy1Icy6NEXJ6fJQIwFIdlBG/k7+IaEdh6avpj0U=
+	t=1770385756; cv=none; b=c51Uevslpfr+pC24PhNRuCGA/nBv2yzZyWD3gzfjnwTtnq14sgngwJhQ2m4AJysZdCnE0fd0qjo6uK8rM6RkyVv6CZqtBItWpjp8t/mLfBFs3OMp6hZEjW7M46hfeved7ZfuBii6lTAbRDdI5xIFjoBWOysBKTuP5lpx5nPUcr8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770385118; c=relaxed/simple;
-	bh=TKImgnehvE6Ydt2EXD44DX+FMzv6VK2ZzlRPkbvF1jc=;
+	s=arc-20240116; t=1770385756; c=relaxed/simple;
+	bh=bw8XnN7GAtHbMGWT6c70a57LvKvAaPHKIeczAuOJ/9Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BqVhqfduHcCTQ6Q/tCERTwaWUh1UP5ZOBTJaO48SKOkH9r0zC4aAq25UXiTXWn+nBPozMkF+i0QaIijwRHqGF02gpdYlAtM9iFMwDY1DcigXty69Ezsq+bqB28gPMkSGe55xL9+df1ajN89UzfEhAxxoiV+YmJy53GWMD9o4qIU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mYfsIHvW; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=fg4Th89M/hpyf+ekKdvEJXF5LZwZhnQJQu397euq2H90ZS0GaRVU3PBVGN61eDE9KYYB8FN/To/Fu6HKk1uiix7zpjpN4425OyehXMj9eBac2ebelo61YV6wnlJPvnJugzuAsH8Z/0ESbPWTEOJBAsrnu4E8a4OxcUCPnTfbCXI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A7685P9B; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mYfsIHvW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08282C19421;
-	Fri,  6 Feb 2026 13:38:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A7685P9B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D102C116C6;
+	Fri,  6 Feb 2026 13:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770385118;
-	bh=TKImgnehvE6Ydt2EXD44DX+FMzv6VK2ZzlRPkbvF1jc=;
+	s=k20201202; t=1770385756;
+	bh=bw8XnN7GAtHbMGWT6c70a57LvKvAaPHKIeczAuOJ/9Q=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mYfsIHvW64Omhh6lN3F/YsJGsIAQF+jmA9xWN3Wregpo02nTFLPaiswtE7FcEeBbq
-	 OPvU/kWEkdjesch6VrpCHmbXr9g0dcIY2qQZ/cgX89TGYHt8yndZU4rGft8NdV1Fge
-	 ToMLH1rBFuKfgwAo7Wx197oXISgRLA8A+d11Au92tpWAwAilo7Oro2THyQBJ4pueFq
-	 DIK4j2nIwkNb+MvL5Gbns+YLlhUuJ2iG1Cs+DzUlpvRpvRjr+YyVlKJE7aSXEhwtaz
-	 G28SsuCI23yegEGeNH2t+An37GVhtxpOJA6FPGoTwvuYTY/k5Imt2ahHyroVBbefwy
-	 oRmPeOxNV5/jQ==
-Date: Fri, 6 Feb 2026 07:38:37 -0600
+	b=A7685P9BsDfnk8ytrx5sGjOh/ELz1RZnEH9S3vCMjitXtGWDZ49ZWt7kugs9MVPUR
+	 /AXXuqjOlp97Hjch3Msr0VEEhX6jpL3dZosW2cxbRXUPzUnxC3p9i2cEVo48QwZl9N
+	 sJ8bEN3SuXobnKSt7fxjVKBmusMfEF9IrfJ0twDvs9l7GUgOuFmHan1UxOvBiq112y
+	 9rBV1hu6Rcuk8mzfqcD8+KShCmavmq0eXhaT4MvPryUq1b09xF8fCs+fTF10bPQ0cD
+	 Nw8Jpq0yRrEB2Dfu12wO0Ea+Abwrc5F9dFE/IDAeZ4vlnmIIUP5fhEHbbx8c5EUJ32
+	 vEOHKTMyopw4A==
+Date: Fri, 6 Feb 2026 07:49:15 -0600
 From: Rob Herring <robh@kernel.org>
 To: Kaustabh Chakraborty <kauschluss@disroot.org>
 Cc: Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
@@ -43,11 +43,11 @@ Cc: Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-pm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
 	linux-rtc@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH v2 02/12] dt-bindings: leds: document Samsung S2M series
- PMIC RGB LED device
-Message-ID: <20260206133837.GA157817-robh@kernel.org>
+Subject: Re: [PATCH v2 03/12] dt-bindings: extcon: document Samsung S2M
+ series PMIC extcon device
+Message-ID: <20260206134915.GA171264-robh@kernel.org>
 References: <20260126-s2mu005-pmic-v2-0-78f1a75f547a@disroot.org>
- <20260126-s2mu005-pmic-v2-2-78f1a75f547a@disroot.org>
+ <20260126-s2mu005-pmic-v2-3-78f1a75f547a@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -56,40 +56,42 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260126-s2mu005-pmic-v2-2-78f1a75f547a@disroot.org>
+In-Reply-To: <20260126-s2mu005-pmic-v2-3-78f1a75f547a@disroot.org>
 
-On Mon, Jan 26, 2026 at 12:37:09AM +0530, Kaustabh Chakraborty wrote:
-> Certain Samsung S2M series PMICs have a three-channel LED device with
-> independent brightness control for each channel, typically used as
-> status indicators in mobile phones. Document the devicetree schema from
-> this device.
+On Mon, Jan 26, 2026 at 12:37:10AM +0530, Kaustabh Chakraborty wrote:
+> Certain Samsung S2M series PMICs have a MUIC device which reports
+> various cable states by measuring the ID-GND resistance with an internal
+> ADC. Document the devicetree schema for this device.
 > 
 > Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
 > ---
->  .../bindings/leds/samsung,s2mu005-rgb.yaml         | 34 ++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
+>  .../bindings/extcon/samsung,s2mu005-muic.yaml      | 35 ++++++++++++++++++++++
+>  1 file changed, 35 insertions(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/leds/samsung,s2mu005-rgb.yaml b/Documentation/devicetree/bindings/leds/samsung,s2mu005-rgb.yaml
+> diff --git a/Documentation/devicetree/bindings/extcon/samsung,s2mu005-muic.yaml b/Documentation/devicetree/bindings/extcon/samsung,s2mu005-muic.yaml
 > new file mode 100644
-> index 0000000000000..6806b6d869ff7
+> index 0000000000000..05828b7b5be13
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/leds/samsung,s2mu005-rgb.yaml
-> @@ -0,0 +1,34 @@
+> +++ b/Documentation/devicetree/bindings/extcon/samsung,s2mu005-muic.yaml
+> @@ -0,0 +1,35 @@
 > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 > +%YAML 1.2
 > +---
-> +$id: http://devicetree.org/schemas/leds/samsung,s2mu005-rgb.yaml#
+> +$id: http://devicetree.org/schemas/extcon/samsung,s2mu005-muic.yaml#
 > +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
-> +title: RGB LED Controller for Samsung S2M series PMICs
+> +title: Extcon Device for Samsung S2M series PMICs
 > +
 > +maintainers:
 > +  - Kaustabh Chakraborty <kauschluss@disroot.org>
 > +
 > +description: |
-> +  The Samsung S2M series PMIC RGB LED is a three-channel LED device with
-> +  8-bit brightness control for each channel, typically used as status
-> +  indicators in mobile phones.
+> +  The Samsung S2M series PMIC extcon device is a USB port accessory
+
+extcon is a Linuxism. Use usb-connector binding.
+
+> +  detector. It reports multiple states depending on the ID-GND
+> +  resistance measured by an internal ADC.
 > +
 > +  This is a part of device tree bindings for S2M and S5M family of Power
 > +  Management IC (PMIC).
@@ -97,22 +99,22 @@ On Mon, Jan 26, 2026 at 12:37:09AM +0530, Kaustabh Chakraborty wrote:
 > +  See also Documentation/devicetree/bindings/mfd/samsung,s2mps11.yaml for
 > +  additional information and example.
 > +
-> +allOf:
-> +  - $ref: common.yaml#
-
-This looks a bit lacking. Don't you need 3 child nodes for each or 
-reference to the multi-color schema?
-
-> +
 > +properties:
 > +  compatible:
 > +    enum:
-> +      - samsung,s2mu005-rgb
+> +      - samsung,s2mu005-muic
+> +
+> +  port:
+> +    $ref: /schemas/graph.yaml#/properties/port
+
+What does the port connect to?
+
 > +
 > +required:
 > +  - compatible
+> +  - port
 > +
-> +unevaluatedProperties: false
+> +additionalProperties: false
 > 
 > -- 
 > 2.52.0
