@@ -1,268 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from srv01.abscue.de (abscue.de [89.58.28.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95A4023D2A1;
-	Sun, 22 Feb 2026 12:49:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D2F114884C;
+	Sun, 22 Feb 2026 13:17:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.58.28.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771764582; cv=none; b=OflcIo9JjOl60J8CTTWJNBD6h2H22wOZM2aWttA849cdf3YBkrk9DgqNhN5jujiWghE7HbiQ3YECg8kQ00vm/rq18q3MiL+nnbQMJYe/dXQGmpB3/VqnwAZcbWzPA271dy+OZOWtnmkRPhTftorI/H4TiKqg9MX9sQNQFVMfFEM=
+	t=1771766225; cv=none; b=Df1sHDGHXkV9fY3h+9NCghhGb90p4GThIkixaV1NEh5mn8ox0gDj7d0hmYZ58zVUrYDL1sis2pdvfNOQPXDTzCh6pv/4RB7h7LQgulCMvAEN60olmVzE1nGSYMmyfyLsxYv5okfFppfCKjOEOkxYX9E/KMEBSB1Ngl6fBrJHIc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771764582; c=relaxed/simple;
-	bh=D1vodKIQU5ZPSo6JbgHqudOlGasjt/YqcXS8xQTf+lk=;
-	h=Content-Type:Date:Message-Id:Cc:To:From:Subject:Mime-Version:
-	 References:In-Reply-To; b=mZmkuX6AQUDAw2Vqe7nNtOvvrhlmP4E7CH+GxeUFeKuLOxU+1LTdtrZim6yTCWJILqjuHIpbmCP65+CFoo/g/IhKvHesjm5WYUJc4v+xYQj+5/xkiXsOvcQJ/16TCJji6U7jNy193LUMxiLZBUMzIt+RFeUVwqjnyyyoqOtR5C8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rnfkM8QM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771766225; c=relaxed/simple;
+	bh=AHPZ9Kg9EFIN+ClL/kYY6iSAVzrJSjLABlAe68S0iGM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=aHnP7epO5oKaWtp6Cx0kYrTIwLA9rc87aeuyMnXtvoNUPtmUZGv9OOePLzMxXyTWdpqeASmcqdLw8OZVIJrRP3k1gZ4TI4NqDckf3OgIDGow/DaulQaioqcGTzdOuFODxoB8yMMDtIAIn3Wx4p7tCYO6q50zB5IzhJodTcJGXw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de; spf=pass smtp.mailfrom=abscue.de; dkim=fail (0-bit key) header.d=abscue.de header.i=@abscue.de header.b=AlrVHdRr reason="key not found in DNS"; arc=none smtp.client-ip=89.58.28.240
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=abscue.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rnfkM8QM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C055C116D0;
-	Sun, 22 Feb 2026 12:49:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771764582;
-	bh=D1vodKIQU5ZPSo6JbgHqudOlGasjt/YqcXS8xQTf+lk=;
-	h=Date:Cc:To:From:Subject:References:In-Reply-To:From;
-	b=rnfkM8QMNLb10ntQ6i2xinpRWD5t1T9HsjO8mZWkXlV8/QuhN4rHf43Vxu//KseA/
-	 2nuCk4PIYasHexRzw0810mytwGRg7msK8eotO/uq4dGzRiVo5Re/RbLHX/4WEq0XoB
-	 tMpWGPKaeTUbpWB01e6qFLyXTnG+2QxBLadkavMDHmssxKyp8ksoXw7sF0B1uCk2Ry
-	 Ej/zE1vEAM7FFfAYce49o1Z6uXJ3c5WJ2CAbGrxyG0WDXCAXhcO+ILinTUNPqKWqy8
-	 JLMSR5FoBJ0vR8e2nBZJogC2OjuhoA3EGFcNRDERQwgbuMkCqwN4j2MM8xxWFfXXIH
-	 Z0ykddj3R2rUw==
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 22 Feb 2026 13:49:35 +0100
-Message-Id: <DGLI4H9M0T6D.25RTLDVU5JRBE@kernel.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, "Alvin Sun"
- <alvin.sun@linux.dev>, "Miguel Ojeda" <ojeda@kernel.org>, "Boqun Feng"
- <boqun.feng@gmail.com>, "Gary Guo" <gary@garyguo.net>,
- =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, "Benno Lossin"
- <lossin@kernel.org>, "Andreas Hindborg" <a.hindborg@kernel.org>, "Alice
- Ryhl" <aliceryhl@google.com>, "Trevor Gross" <tmgross@umich.edu>,
- <linux-rtc@vger.kernel.org>, <rust-for-linux@vger.kernel.org>, "Greg
- Kroah-Hartman" <gregkh@linuxfoundation.org>
-To: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-From: "Danilo Krummrich" <dakr@kernel.org>
-Subject: Re: [RFC PATCH v3 1/5] rtc: add device selector for rtc_class_ops
- callbacks
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=abscue.de header.i=@abscue.de header.b="AlrVHdRr"
+Received: from fluffy-mammal.metal.fwg-cag.de (unknown [IPv6:2001:9e8:cde0:3300:edee:770f:8e03:a80])
+	by srv01.abscue.de (Postfix) with ESMTPSA id 1D2671C01B8;
+	Sun, 22 Feb 2026 14:16:56 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abscue.de; s=dkim;
+	t=1771766216;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WlpsFxs1P7Smm7vuYQgOouHaz0DCYqvCEq9UTsUNOYE=;
+	b=AlrVHdRr+rMjHooTQ5epEnGGR8MCMrmIsT0kzYIJT5+PUauqOMWgmpSyVPxfXPx5nwkWww
+	FVl0Vl0WCj4+SOQ82rpbqta4OF1w0AVHVeoVk7Lo/AsYe2B1Z+X2cjzrTh/Rdnbx2krcVu
+	ws5XawwjkeJwulcq7bVRT50+xWb2u7w/Gu3K1mMcd5fN272f/2cZ4qZl7TjDm29i64PbcG
+	KF4NWegXwsffX+d/5cY93cLJoyQanoAQ//M7IkiF8lQs2lTtqGzp8THq5qZ4gp92cVpD4Q
+	Lwnyy4d/6qYmyj32Ghngth0pgLxrRrm3ctoBauq3IPL6aSmlQBTzjsd4f+/Nag==
+From: =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
+Date: Sun, 22 Feb 2026 14:16:46 +0100
+Subject: [PATCH 2/6] dt-bindings: leds: sc2731: Add compatible for SC2730
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-References: <20260116162203.296844-1-sunke@kylinos.cn>
- <20260116162203.296844-2-sunke@kylinos.cn>
- <DFSN0O9RRVD6.1LCI38JKGO1R0@kernel.org>
- <77d373dc-c5f2-4dca-b0d2-b5cee6a21b3b@gmail.com>
- <20260220225341c5eeb835@mail.local>
- <d1c9e33b-e1f3-41c6-af5e-a85fe2b86d10@linux.dev>
- <20260221111619162a41a1@mail.local>
- <CAJZ5v0jo2sLKWVOBJz7QP9x_aMZbaVx+ES7QwYWkTzHp7d2xLQ@mail.gmail.com>
- <DGKPPQI0QE73.S8I1M5NCI2BV@kernel.org> <20260222000556ea1938c0@mail.local>
-In-Reply-To: <20260222000556ea1938c0@mail.local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260222-sc27xx-mfd-cells-v1-2-69526fe74c77@abscue.de>
+References: <20260222-sc27xx-mfd-cells-v1-0-69526fe74c77@abscue.de>
+In-Reply-To: <20260222-sc27xx-mfd-cells-v1-0-69526fe74c77@abscue.de>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Chunyan Zhang <zhang.lyra@gmail.com>, Lee Jones <lee@kernel.org>, 
+ Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
+ linux-pm@vger.kernel.org, 
+ =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
+X-Mailer: b4 0.14.3
 
-On Sun Feb 22, 2026 at 1:05 AM CET, Alexandre Belloni wrote:
-> On 21/02/2026 15:33:48+0100, Danilo Krummrich wrote:
->>   (2) Bus device private data vs. class device private data.
->>=20
->>   The change to pass a struct rtc_device in class device callbacks of RT=
-C,
->>   rather than the base struct device of the corresponding bus device (e.=
-g. AMBA,
->>   platform, etc.) should not aim at storing all data in rtc->dev.private=
-_data
->>   that was previously stored in rtc->dev.parent->private_data.
->>=20
->
-> But what you explain here is that the drive is forbidden to use
-> rtc->dev.parent->private_data at all because the rust core is already
-> using it. What I'm saying is that it won't work because more than half
-> of the drivers currently need it.
+The LED controller found in the SC2730 PMIC is compatible with the one
+found in the SC2731 PMIC.
 
-I think I was explaining the exact opposite, i.e. the driver's bus device
-private data is stored in the exact same way as in C, but it has a defined
-lifetime (from probe() until remove() and all devres callbacks have been
-completed) and is managed by the driver-core.
+Signed-off-by: Otto Pflüger <otto.pflueger@abscue.de>
+---
+ Documentation/devicetree/bindings/leds/sprd,sc2731-bltc.yaml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Look at this example:
+diff --git a/Documentation/devicetree/bindings/leds/sprd,sc2731-bltc.yaml b/Documentation/devicetree/bindings/leds/sprd,sc2731-bltc.yaml
+index 97535d6dc47a..2ae5cc31e623 100644
+--- a/Documentation/devicetree/bindings/leds/sprd,sc2731-bltc.yaml
++++ b/Documentation/devicetree/bindings/leds/sprd,sc2731-bltc.yaml
+@@ -18,7 +18,12 @@ description: |
+ 
+ properties:
+   compatible:
+-    const: sprd,sc2731-bltc
++    oneOf:
++      - items:
++          - enum:
++              - sprd,sc2730-bltc
++          - const: sprd,sc2731-bltc
++      - const: sprd,sc2731-bltc
+ 
+   reg:
+     maxItems: 1
 
-	// The bus device private data.
-	struct SampleDriver {
-	   foo: u32,
-	   bar: u32,
-	}
-=09
-	impl pci::Driver for SampleDriver {
-	    fn probe(pdev: &pci::Device<Core>, info: &Self::IdInfo) -> impl PinIni=
-t<Self, Error> {
-	        // Return the driver's bus device private data. The driver-core
-	        // will do all the work for us and eventually call
-	        // `dev_set_drvdata()` on the base `struct device` of `pdev`.
-	        Ok(Foo {
-	            foo: 42,
-	            bar: 24,
-	        })
-	    }
-=09
-	    fn unbind(pdev: &pci::Device<Core>, self: Pin<&Self>) {
-	        // Use the driver's device private data from the method's `self` a=
-rgument.
-	        dev_info!(pdev, "foo: {}, bar: {}\n", self.foo, self.bar);
-=09
-	        // There's also the `Device<Bound>::drvdata()` accessor, let's
-	        // use that as well.
-=09
-	        // Get a generic `device::Device` from the `pci::Device`.
-	        let dev =3D pdev.as_ref();
-=09
-	        // Get the `drvdata`; we have to assert the type and let the drive=
-r-core
-	        // validate that the asserted type is correct.
-	        let drvdata =3D dev.drvdata::<SampleDriver>()?;
-=09
-	        dev_info!(pdev, "foo: {}, bar: {}\n", drvdata.foo, drvdata.bar);
-	    }
-	}
+-- 
+2.51.0
 
->> This thread seems to contain quite a bit of confusion and misunderstandi=
-ngs --
->> let me try to clarify.
->>=20
->>   (1) How Rust handles bus device private data.
->>=20
->>   In Rust the probe() function of a bus implementation (platform, PCI, e=
-tc.)
->>   returns an initializer (impl PinInit<T, Error>) for the driver's devic=
-e
->>   private data.
->>=20
->>   The bus implementation takes this initializer and passes it (together =
-with the
->>   underlying struct device) to the driver-core. The driver-core allocate=
-s the
->>   required memory, initializes the memory with the given initializer and=
- stores
->>   a pointer to the corresponding object with dev_set_drvdata().
->>=20
->>   So, technically, in Rust all platform drivers call platform_set_drvdat=
-a().
->>=20
->>   (Note that this is also true when the driver's device private data typ=
-e is
->>   empty (i.e. it has no fields). In this case it could still have a dest=
-ructor
->>   that must be called when the device private data structure is destroye=
-d. Of
->>   course there is no real memory allocation when the struct's size is ze=
-ro.)
->>=20
->>   The driver's device private data can only be accessed when the bus dev=
-ice is
->>   bound to the driver, i.e. the driver can only access it with a &Device=
-<Bound>;
->>   it (the driver's device private data) is automatically freed by the
->>   driver-core when remove() and all devres callbacks have been completed=
-.
->>=20
->>   I.e. the rules are - of course - the same as on the C side, but they a=
-re
->>   enforced by the type system and the driver-core code.
->>=20
->
-> This still doesn't explain how you get the class private data that you
-> need when you are in a driver callback that is called from the bus (e.g.
-> suspend/resume) from what you explain, the driver doesn't have any
-> chance to pass it. The whole goal of a device driver is to be the glue
-> between a class device and a bus device as essentially this is the exact
-> physical device, just represented differently.
-
-It is not always as simple as "one bus device corresponds to one class devi=
-ce".
-
-Sometimes drivers have to deal with multiple class devices for a single bus
-device, sometimes they are separated through the auxiliary bus or MFD.
-
-For instance, take struct net_device. In the context of cfg80211 wireless
-drivers may create arbitrary struct net_device instances, depending on how =
-often
-the add_virtual_intf() callback is called (through netlink); example in [1]=
-.
-
-Now, regarding your question "How to access class device private data from =
-bus
-device callbacks?". Nothing prevents a driver from embedding the class devi=
-ce in
-its bus device private data in one or the other way.
-
-In the net device example above, the driver would probably keep a list (or
-xarray, etc.) of net devices in its bus device private data, as they can be
-created and removed at any point of time.
-
-(Note that this is also a good example for when the class device private da=
-ta
-lives shorter than the bus device private data.)
-
-Here is an example of this looks like in code using a DRM device as class
-device.
-
-	struct SampleIrqData;
-
-	// The class device private data.
-	struct SampleDrm {
-	    sched: drm::GpuScheduler,
-	}
-
-	// The bus device private data.
-	#[pin_data]
-	struct SampleDriver {
-	    #[pin]
-	    irq: irq::Registration<SampleIrqData>,
-	    drm: ARef<drm::Device<SampleDrm>, // Refcount of a `drm::Device`.
-	}
-=09
-	impl pci::Driver for SampleDriver {
-	    fn probe(pdev: &pci::Device<Core>, info: &Self::IdInfo) -> impl PinIni=
-t<Self, Error> {
-	        let dev =3D pdev.as_ref();
-
-	        let drm =3D drm::Device::new(dev, SampleDrm::new()?)?;
-	        drm.register();
-
-	        Ok(impl_pin_init!(Self {
-	            irq <- irq::Registration::new(...);
-	            drm,
-	        })
-	    }
-=09
-	    fn unbind(pdev: &pci::Device<Core>, self: Pin<&Self>) {
-	        self.irq.synchronize();
-	        self.drm.flush_scheduler();
-	    }
-	}
-
-Note that the irq::Registration is dropped when the bus device is unbound,
-whereas the GpuScheduler is dropped when the DRM device is dropped.
-
-Of course, depending on the actual class device this difference may be more=
- or
-less important, i.e. absolutely crucial in the net device example, less
-important for RTC apparently. But it is always good to be precise about
-ownership and lifetime of data.
-
-As I already mentioned, I don't think it is good to fold ownership and life=
-time
-for bus and class devices together in cases where it happens that they are
-mostly identical, i.e.:
-
->>   I think it would be good to keep driver authors finding a common patte=
-rn,
->>   where class device callbacks carry the corresponding class device stru=
-ct
->>   (instead of the parent base struct device).
->>
->>   Especially on the Rust side we now have the chance to make the experie=
-nce
->>   of writing drivers as consistent as possible, which should help (new)
->>   driver authors a lot in terms of learning the driver lifetime patterns=
-.
-
-[1] https://elixir.bootlin.com/linux/v6.19.2/source/drivers/net/wireless/mi=
-crochip/wilc1000/netdev.c#L948
