@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2222EAB61;
-	Mon, 23 Feb 2026 15:33:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAEA12ED15D;
+	Mon, 23 Feb 2026 15:33:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771860830; cv=none; b=EztXPDwNrzHpp2iR2yRr0e+rReeRta+VeEHfI7T0VXLiVnIhvFcvWdZfZ1H+Cf7J+LpgEvvmh2zyk+gmQjDuuZtgOabaU2T5UqnMmwRQTrF1gnk+GQbQJ0lF82cRxqedwpnoFATresleKD/ds6V4mgbTBM0YMi52oay1km9AU0s=
+	t=1771860834; cv=none; b=GYa1DDAe+Bhg9JB53XJxJ3zgGOYep7qekA1MeUMC7JsNiJZbOZKbRdzIKp+IaR+/H9plSgwN1nIjM4Ht2s7w33hXnhZSaof+Xv0YiGU8t7OAfK4dl/QeeMJkz7UvC+DpsrjdEtdDrfGs8ustZEqnG4uF93WY89AAb4HRfx2MNTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771860830; c=relaxed/simple;
-	bh=KUh/wdz4o/ak+NTW79FlOzH8EePib+aTr/uBTxCk+IA=;
+	s=arc-20240116; t=1771860834; c=relaxed/simple;
+	bh=Ufzp8Tax/XN6GRzoAArGc4ZHLmHcX/nHrE2dRsFMiuY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XdoaM0ZfsCOxXoEyqofAC61/xwKvZcbpobc9kEDo8xtvzQ3Vz/aDhKruMOHKJjLRCkdJvfY4gK+jstAdanOazz+tLSRwIQWQ0qRZJaCeXD2tO+3/jVebGNXPylu4DDSSW6J9Z12g76qUB7VTA2RrvjU0W+bPdeCOk4TGT716RPA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pf8Md06/; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=iZkA0rS8X/aWXyNNWVs/VrTP2EGGnEqPI6qFTW0S1OLTFdOnQSiultQI6a39tjFqJ1O2DXRjF756P2OgMOOEZNfFHuqZl2WVGuFY91vhZF1UemAq7HoIin2cKh4iOU5AE/laraApPZEWbK1mKeHKjupPJZJfmMLkrnNqEP7YnyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=huqVQ6Ik; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pf8Md06/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3831C116D0;
-	Mon, 23 Feb 2026 15:33:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="huqVQ6Ik"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 892DBC116D0;
+	Mon, 23 Feb 2026 15:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771860830;
-	bh=KUh/wdz4o/ak+NTW79FlOzH8EePib+aTr/uBTxCk+IA=;
+	s=k20201202; t=1771860833;
+	bh=Ufzp8Tax/XN6GRzoAArGc4ZHLmHcX/nHrE2dRsFMiuY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=pf8Md06/Q/l8qVSOoeCOVhy1dRTHrIG1aJ11y2r6uj6BEOdRy/mguEjrB/FvCaNUq
-	 wf0e3+iPhd0DW0eHFscsQPNgRk5yJFf6utdOzXbwDhL4zEsBJY42MUjpLFG0EZq7WG
-	 TnPC8rwTaYDiB6lmM7yeqcbEPyUDSVNe5+tzGW0FDQP45gM/+S1elPD8DneDZuDwAM
-	 3pFiJZMbaBv07nWoPHfvG1FljKX/I6O/TLvO2f8IypJFdiMeoZ8fsBeqVQXiK6Qj1I
-	 ENLdnma+td7XkLxqHBav67DLDIt9PRyF3S0+ws7mVJfLT5Lve666GL5wnppLAUVgMU
-	 ewlhjSuVEaxtw==
+	b=huqVQ6IkcUXhnaTFz9jjV632NlJcUux432SgRYmKPpD4UqNjSkzkk6vXEr2BaakzD
+	 6AsDTp09LVUFnQbu7d5XE2+Lh6jkpcS/SZHZYZIT5xFY3tEU9441d9tlp2twTHPsx1
+	 cUHvF8zUUQGtNVzWCOhIjpJxjoMWrcOw4L7e4VpBMGEJtur+J6fTAjdCiHCIEHVK5w
+	 VoLXn8HRvJgGoYzrSU+aNC3sibbEBcYZKWj4eq6T8Y656xr+yYXG5/Qs57b3I9wn0x
+	 f8i2VxDC2rgNkJHo2uhbT3FDD34IAWP5EGpA3AC4LVwT+YEeomQpW4tVvhbPMM13zj
+	 VMo95vPvSmoGg==
 From: "Rafael J. Wysocki" <rafael@kernel.org>
 To: Linux ACPI <linux-acpi@vger.kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, x86 Maintainers <x86@kernel.org>,
  linux-rtc@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v1 7/8] rtc: cmos: Drop PNP device support
-Date: Mon, 23 Feb 2026 16:32:29 +0100
-Message-ID: <2355012.iZASKD2KPV@rafael.j.wysocki>
+Subject: [PATCH v1 6/8] x86: rtc: Drop PNP device check
+Date: Mon, 23 Feb 2026 16:31:49 +0100
+Message-ID: <8660687.T7Z3S40VBb@rafael.j.wysocki>
 Organization: Linux Kernel Development
 In-Reply-To: <5983325.DvuYhMxLoT@rafael.j.wysocki>
 References: <5983325.DvuYhMxLoT@rafael.j.wysocki>
@@ -56,157 +56,54 @@ one booted with ACPI disabled), such systems were there in the field ~30
 years ago and most likely they would not be able to run a contemporary
 Linux kernel.
 
-For the above reasons, drop the PNP device support from the rtc-cmos
-driver.
+For the above reasons, drop the PNP device check from add_rtc_cmos().
 
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/rtc/rtc-cmos.c | 113 +++--------------------------------------
- 1 file changed, 8 insertions(+), 105 deletions(-)
+ arch/x86/kernel/rtc.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 7457f42fd6f0..9ac5bab846c1 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1370,85 +1370,6 @@ static int __maybe_unused cmos_resume(struct device *dev)
- 
- static SIMPLE_DEV_PM_OPS(cmos_pm_ops, cmos_suspend, cmos_resume);
- 
--/*----------------------------------------------------------------*/
--
--/* On non-x86 systems, a "CMOS" RTC lives most naturally on platform_bus.
-- * ACPI systems always list these as PNPACPI devices, and pre-ACPI PCs
-- * probably list them in similar PNPBIOS tables; so PNP is more common.
-- *
-- * We don't use legacy "poke at the hardware" probing.  Ancient PCs that
-- * predate even PNPBIOS should set up platform_bus devices.
-- */
--
--#ifdef	CONFIG_PNP
--
+diff --git a/arch/x86/kernel/rtc.c b/arch/x86/kernel/rtc.c
+index b112178e8185..314b062a15de 100644
+--- a/arch/x86/kernel/rtc.c
++++ b/arch/x86/kernel/rtc.c
+@@ -6,7 +6,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/export.h>
 -#include <linux/pnp.h>
--
--static int cmos_pnp_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
--{
--	int irq;
--
--	if (pnp_port_start(pnp, 0) == 0x70 && !pnp_irq_valid(pnp, 0)) {
--		irq = 0;
--#ifdef CONFIG_X86
--		/* Some machines contain a PNP entry for the RTC, but
--		 * don't define the IRQ. It should always be safe to
--		 * hardcode it on systems with a legacy PIC.
--		 */
--		if (nr_legacy_irqs())
--			irq = RTC_IRQ;
--#endif
--	} else {
--		irq = pnp_irq(pnp, 0);
--	}
--
--	return cmos_do_probe(&pnp->dev, pnp_get_resource(pnp, IORESOURCE_IO, 0), irq);
--}
--
--static void cmos_pnp_remove(struct pnp_dev *pnp)
--{
--	cmos_do_remove(&pnp->dev);
--}
--
--static void cmos_pnp_shutdown(struct pnp_dev *pnp)
--{
--	struct device *dev = &pnp->dev;
--	struct cmos_rtc	*cmos = dev_get_drvdata(dev);
--
--	if (system_state == SYSTEM_POWER_OFF) {
--		int retval = cmos_poweroff(dev);
--
--		if (cmos_aie_poweroff(dev) < 0 && !retval)
--			return;
--	}
--
--	cmos_do_shutdown(cmos->irq);
--}
--
--static const struct pnp_device_id rtc_ids[] = {
--	{ .id = "PNP0b00", },
--	{ .id = "PNP0b01", },
--	{ .id = "PNP0b02", },
--	{ },
--};
--MODULE_DEVICE_TABLE(pnp, rtc_ids);
--
--static struct pnp_driver cmos_pnp_driver = {
--	.name		= driver_name,
--	.id_table	= rtc_ids,
--	.probe		= cmos_pnp_probe,
--	.remove		= cmos_pnp_remove,
--	.shutdown	= cmos_pnp_shutdown,
--
--	/* flag ensures resume() gets called, and stops syslog spam */
--	.flags		= PNP_DRIVER_RES_DO_NOT_CHANGE,
--	.driver		= {
--			.pm = &cmos_pm_ops,
--	},
--};
--
--#endif	/* CONFIG_PNP */
--
- #ifdef CONFIG_OF
- static const struct of_device_id of_cmos_match[] = {
- 	{
-@@ -1543,45 +1464,27 @@ static struct platform_driver cmos_platform_driver = {
- 	}
- };
  
+ #include <asm/vsyscall.h>
+ #include <asm/x86_init.h>
+@@ -134,19 +133,6 @@ static struct platform_device rtc_device = {
+ 
+ static __init int add_rtc_cmos(void)
+ {
 -#ifdef CONFIG_PNP
--static bool pnp_driver_registered;
--#endif
- static bool platform_driver_registered;
- 
- static int __init cmos_init(void)
- {
--	int retval = 0;
-+	int retval;
- 
--#ifdef	CONFIG_PNP
--	retval = pnp_register_driver(&cmos_pnp_driver);
--	if (retval == 0)
--		pnp_driver_registered = true;
--#endif
-+	if (cmos_rtc.dev)
-+		return 0;
- 
--	if (!cmos_rtc.dev) {
--		retval = platform_driver_probe(&cmos_platform_driver,
--					       cmos_platform_probe);
--		if (retval == 0)
--			platform_driver_registered = true;
+-	static const char * const ids[] __initconst =
+-	    { "PNP0b00", "PNP0b01", "PNP0b02", };
+-	struct pnp_dev *dev;
+-	int i;
+-
+-	pnp_for_each_dev(dev) {
+-		for (i = 0; i < ARRAY_SIZE(ids); i++) {
+-			if (compare_pnp_id(dev->id, ids[i]) != 0)
+-				return 0;
+-		}
 -	}
-+	retval = platform_driver_probe(&cmos_platform_driver, cmos_platform_probe);
-+	if (retval)
-+		return retval;
- 
--	if (retval == 0)
--		return 0;
-+	platform_driver_registered = true;
- 
--#ifdef	CONFIG_PNP
--	if (pnp_driver_registered)
--		pnp_unregister_driver(&cmos_pnp_driver);
 -#endif
--	return retval;
-+	return 0;
- }
- module_init(cmos_init);
+ 	if (cmos_rtc_platform_device_present)
+ 		return 0;
  
- static void __exit cmos_exit(void)
- {
--#ifdef	CONFIG_PNP
--	if (pnp_driver_registered)
--		pnp_unregister_driver(&cmos_pnp_driver);
--#endif
- 	if (platform_driver_registered)
- 		platform_driver_unregister(&cmos_platform_driver);
+@@ -154,8 +140,7 @@ static __init int add_rtc_cmos(void)
+ 		return -ENODEV;
+ 
+ 	platform_device_register(&rtc_device);
+-	dev_info(&rtc_device.dev,
+-		 "registered platform RTC device (no PNP device found)\n");
++	dev_info(&rtc_device.dev, "registered fallback platform RTC device\n");
+ 
+ 	return 0;
  }
 -- 
 2.51.0
