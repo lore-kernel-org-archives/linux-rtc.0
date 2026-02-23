@@ -1,105 +1,179 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6048F2F6918;
-	Mon, 23 Feb 2026 15:34:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A3930EF80;
+	Mon, 23 Feb 2026 16:17:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771860855; cv=none; b=LGuFRnkQYF0XRLJybGE3Qn7L5HifrsL27hcYUx39lIGnpQoQlpzO0EnmmCpz5Tm7gZNdFs/7JfsnFrgyFDPGxt+RfMplGdUdbNaIom1Ce70XmtgbTBM8jsvNPnNEY4xX3WYPJRq3eQBPx4oLhJyUgoB8ROv+TyOJbHVE7QSA/AM=
+	t=1771863433; cv=none; b=qMnzW5lmrOVwNh6ahO0Nps7Imm1JRF5D7IgXfi8bFtlx2+C8i2lNm0hRnnUk5uKkJA+xW5unaIGCmWYyMN8cLcDskjVvcbeQMhYyEkf1uIop/5KkS5czVYFStmb/6aUP7M4cA3dLyHRzxeBRkGKFVCkz6DP/RR4ryCOwn3Vx2rg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771860855; c=relaxed/simple;
-	bh=s6a2z9qba9B+ONUvseftMp8bheho8l6Zjw7fwTs9awU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WPiGkn3llurIGV82zRfuNg4vZxPTtax2IH+o7+T/4RlMj2dE4FE2clsnPEZGBfb/EnhgwNfIWEAwG9OdGOvyjmt1JsAijCTz/Ap4oqRXhN1g5Bg0LlZmHLrtnQdfmznWMeOttIT7zlWfnnAAdl5ut4y4eKzfB9aax6axhD6uzFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JGKA0CmT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771863433; c=relaxed/simple;
+	bh=XK+PXadn+TlLWZTmix1ykoVvNzE32bv+ynARqf+1YAo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=oh/5vC/AyvvL9t4G+zjDo5e2hiwzurtv2qYLweG/21vcmBk+nY7FINs8aZJN1/9/aEKqlN+ZtRFC+i/N4TOPZIKWiLnDzxULV3XogeumrsqXhsTwx3XQul0R+k1lzMixQOwj4FvPNrtzngMl4IiFTuq1pNKATmvTmy8w/myAMlQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hpUNSPJm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JGKA0CmT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1BD3C19424;
-	Mon, 23 Feb 2026 15:34:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hpUNSPJm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA44C19423;
+	Mon, 23 Feb 2026 16:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771860855;
-	bh=s6a2z9qba9B+ONUvseftMp8bheho8l6Zjw7fwTs9awU=;
-	h=From:To:Cc:Subject:Date:From;
-	b=JGKA0CmT49l66gDwUvk4LFy1an0ZHeCCKRXLvYDhJ0Oaln07L4EBSe9obd6hSn38M
-	 5DvSAPnfyqw3yamsJBx3GHRaqSPJvIdChei9PoPD+AsXmHHPHaCE187nlVBDdSeDsr
-	 E7W2R4Onw4e8z1aTocK0qxSoO0/OVWCsd+IxwchshR8VFWa7alDpI6nBDkvDktFZCZ
-	 H6ZnEscQIS8YLb9poDewHy2R0VF4Fo2IS0UA/KkUTLh8/FF8r+lEw3y5JxGwJnHsVI
-	 9bc78k0iyt6YIyhk6xaOIDNaLY7sQEWjJ0J9OxGR3x5KZ2mkSAM0VpbnZ9CXVHDf48
-	 XNOjPeLvXfk0g==
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-To: Linux ACPI <linux-acpi@vger.kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86 Maintainers <x86@kernel.org>,
- linux-rtc@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v1 0/8] ACPI: x86/rtc-cmos: Bind rtc-cmos to platform devices
-Date: Mon, 23 Feb 2026 16:27:16 +0100
-Message-ID: <5983325.DvuYhMxLoT@rafael.j.wysocki>
-Organization: Linux Kernel Development
+	s=k20201202; t=1771863432;
+	bh=XK+PXadn+TlLWZTmix1ykoVvNzE32bv+ynARqf+1YAo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=hpUNSPJmNO7oPx/1iv/Q7WtE3cARfWvR0y2ySUTfgf5bdL2nHfEk+dK/sDhplawEN
+	 J0dCp5+lFXmvytXDBKY4QCSY7Tcd0ZIXIkj8o4JlU0DDJnc97Iejvoe0gn+w8BUeGV
+	 R3C3oOmoj2/rDG3w8G8FypdJa13OWTpyoro/uoTyhNSPBqFrJhquzXNwOU7md11KYk
+	 w4mk0U7uWEI8ph2hqKIMOsW72qsjjpgr0jaFbvMgmkBU7MRQyWGO+AblsbsA9e3jkH
+	 a3BO7HYxCm9D/duUF5PYygBqtHCYnjP208JLJYxKpT1J7buMio5Ye267xQxGwj/WbG
+	 MganSQkzHrk8g==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Tomas Melin <tomas.melin@vaisala.com>,
+	Harini T <harini.t@amd.com>,
+	Michal Simek <michal.simek@amd.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Sasha Levin <sashal@kernel.org>,
+	linux-rtc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.19-6.1] rtc: zynqmp: correct frequency value
+Date: Mon, 23 Feb 2026 11:17:07 -0500
+Message-ID: <20260223161707.2714732-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260223161707.2714732-1-sashal@kernel.org>
+References: <20260223161707.2714732-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.19.3
+Content-Transfer-Encoding: 8bit
 
-Currently, on x86 the CMOS RTC is represented by a PNP device which
-generally works, but the amount of avoidable code entanglement related
-to that is a bit over the top.
+From: Tomas Melin <tomas.melin@vaisala.com>
 
-First of all, in order to create a PNP device for the CMOS RTC, the ACPI
-PNP meta-driver needs to be aware of that device, but adding the CMOS
-RTC device IDs to acpi_pnp_device_ids[] was not sufficient for this
-purpose because of the CMOS RTC ACPI address space driver that added an
-ACPI scan handler for the CMOS RTC.  That scan handler simply installs
-the requisite ACPI address space handler for the CMOS RTC address space,
-but it also claims the CMOS RTC device which prevents the ACPI PNP scan
-handler from taking care of it.  That's why there is is_cmos_rtc_device()
-that needs to be additionally called by acpi_is_pnp_device().
+[ Upstream commit 2724fb4d429cbb724dcb6fa17953040918ebe3a2 ]
 
-Second, add_rtc_cmos() needs to check whether or not the CMOS RTC device
-is present so it knows whether or not to create a fallback platform
-device for the CMOS RTC.  The way it does that is somewhat less than
-elegant.
+Fix calibration value in case a clock reference is provided.
+The actual calibration value written into register is
+frequency - 1.
 
-Finally, the rtc-cmos driver carries a PNP driver interface so it can
-bind to the CMOS RTC device.
+Reviewed-by: Harini T <harini.t@amd.com>
+Tested-by: Harini T <harini.t@amd.com>
+Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Link: https://patch.msgid.link/20260122-zynqmp-rtc-updates-v4-1-d4edb966b499@vaisala.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
 
-Moreover, on some systems the CMOS RTC device is the only PNP device in
-use, so if it is represented by a device of a different type, the PNP
-subsystem can be compiled out entirely on those systems.
+LLM Generated explanations, may be completely bogus:
 
-That can be achieved with the help of the observation that the rtc-cmos
-driver actually can work with platform devices already and the only
-change that needs to be made to it in order to make that happen on x86
-is to add CMOS RTC device IDs to it along with the related
-MODULE_DEVICE_TABLE() declaration, which is done in patch [4/8].
+## Analysis
 
-However, for the above to work, the requisite platform devices actually
-need to be created and patch [3/8] updates the CMOS RTC ACPI scan
-handler used by the CMOS RTC ACPI address space handler to do just that.
-It also adds a bool variable to be used by add_rtc_cmos() to check
-whether or not to add a fallback platform device for the CMOS RTC.
+### What the commit fixes
 
-Before that happens, patches [1-2/8] prepare the CMOS RTC ACPI address
-space handler for the subsequent changes by rearranging it and fixing
-its interactions with the ACPI time and alarm device (TAD) driver.
+This commit fixes an off-by-one error in the RTC calibration value when
+the frequency is obtained from a clock reference (via `clk_get_rate()`).
+The ZynqMP RTC hardware register expects a calibration value of
+`frequency - 1`, but the code was writing the raw frequency value
+directly.
 
-The next three patches, [5-7/8] simply drop some code that is not
-necessary any more.  Patch [5/8] drops CMOS RTC support from the ACPI
-PNP meta-driver, patch [6/8] drops the walk over PNP devices from
-add_rtc_cmos(), and patch [7/8] drops the PNP driver interface from
-the rtc-cmos driver.
+**Evidence:**
+- `RTC_CALIB_DEF` = `0x7FFF` = 32767 = 32768 - 1 (the default is already
+  correctly decremented)
+- The `"calibration"` DT property presumably provides the register-ready
+  value (already freq-1)
+- But `clk_get_rate()` returns the raw clock rate (e.g., 32768), so it
+  needs the `-1` adjustment
+- Without the fix, the RTC counts one extra tick per second, causing
+  time drift
 
-Patch [8/8] is a bonus cleanup adding the ACPI TAD device ID to the
-CMOS RTC ACPI scan handler in the CMOS RTC address space driver, so
-it will create an ACPI TAD platform device after installing the CMOS
-RTC address space handler.  After that change, the ACPI TAD driver
-doesn't need to attempt to install the CMOS RTC ACPI address space
-handler any more and can be simplified quite a bit.
+### Code change assessment
 
-After all of that, the CMOS RTC device IDs are only used in 2 places
-(instead of 5) and well over 100 lines of code that is not super-nice
-go away.
+The fix adds an `else` branch with `xrtcdev->freq--` when the frequency
+comes from `clk_get_rate()` (i.e., when `xrtcdev->freq` is non-zero from
+the clock). This is a 2-line addition, surgically targeted.
 
+### Dependency analysis
 
+The clock name fix `2a388ff22d2cb` ("rtc: zynqmp: Fix optional clock
+name property") was already tagged `Cc: stable@kernel.org` and is
+targeted at v6.14-rc1. Before that fix, the driver was looking for clock
+name "rtc_clk" instead of "rtc" (matching the DT binding), so the clock-
+based frequency path was effectively dead code. With `2a388ff22d2cb`
+being backported to stable, the clock can now actually be found, making
+this off-by-one bug reachable.
+
+The underlying calibration infrastructure was introduced in
+`07dcc6f9c762` (v6.0-rc1), so stable trees v6.1.y and later have the
+affected code.
+
+### Stable criteria evaluation
+
+- **Fixes a real bug:** Yes - incorrect RTC calibration causes time
+  drift
+- **Obviously correct:** Yes - the register needs freq-1, this subtracts
+  1
+- **Small and contained:** Yes - 2 lines in one file
+- **No new features:** Correct - purely fixes calibration logic
+- **Tested:** Yes - has Tested-by and Reviewed-by from AMD engineer,
+  Acked-by from Michal Simek
+
+### Risk assessment
+
+**Very low risk.** The change only affects the path where a clock
+reference provides the frequency. It cannot break the default path
+(`RTC_CALIB_DEF`) or the DT `"calibration"` property path. The worst
+case if something were wrong would be an RTC running at the wrong rate -
+exactly the same as the current bug.
+
+### Verification
+
+- Read the full driver source: confirmed `RTC_CALIB_DEF` = 0x7FFF =
+  32767 (line 40)
+- Verified `clk_get_rate()` returns raw frequency, not register value,
+  per kernel API
+- `git show 85cab027d4e31`: confirmed previous calibration fix changed
+  default from 0x198233 to 0x7FFF (32768-1)
+- `git show 07dcc6f9c762`: confirmed this is the commit that introduced
+  clock-based calibration (v6.0-rc1)
+- `git describe --contains 2a388ff22d2cb`: confirmed clock name fix is
+  in v6.14-rc1, already tagged for stable
+- `git describe --contains 07dcc6f9c762`: confirmed calibration support
+  is in v6.0-rc1, present in all current stable trees
+- The fix directly corresponds to the relationship: `RTC_CALIB_DEF`
+  (default) = 0x7FFF = 32768 - 1, confirming the register semantics
+
+This is a small, well-tested fix for incorrect RTC timekeeping. It's a
+companion to the already-stable-tagged clock name fix. Without this fix,
+any board using the ZynqMP RTC with a clock reference will have
+incorrect time calibration.
+
+**YES**
+
+ drivers/rtc/rtc-zynqmp.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+index 3baa2b481d9f2..856bc1678e7d3 100644
+--- a/drivers/rtc/rtc-zynqmp.c
++++ b/drivers/rtc/rtc-zynqmp.c
+@@ -345,7 +345,10 @@ static int xlnx_rtc_probe(struct platform_device *pdev)
+ 					   &xrtcdev->freq);
+ 		if (ret)
+ 			xrtcdev->freq = RTC_CALIB_DEF;
++	} else {
++		xrtcdev->freq--;
+ 	}
++
+ 	ret = readl(xrtcdev->reg_base + RTC_CALIB_RD);
+ 	if (!ret)
+ 		writel(xrtcdev->freq, (xrtcdev->reg_base + RTC_CALIB_WR));
+-- 
+2.51.0
 
