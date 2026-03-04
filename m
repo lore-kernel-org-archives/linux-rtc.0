@@ -1,63 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 297F23DBD47;
-	Wed,  4 Mar 2026 18:17:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E064C394470
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Mar 2026 22:53:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772648247; cv=none; b=XIPVE1jjBFYw+3M1jovpQZST9s8JN/q6llEkAzXH9XNc0U6ce8GRpUqeFw8PfjSJqLWNm/PJ6WPKLT4S+QBCagArEf7X9WNkvLkYp4ovlS55bwjd6VK3atJKDAh7zbz8cdAk9Y4lS7fJha4vo7yoE0ucrnvr+LMfeLG0cc7sP4I=
+	t=1772664838; cv=none; b=ApPKaYGI7jTHHQfFRzJt6YFQeqIzxzIed8qn+AgKoNXp57gdFIBvuW1arwgVNWlCUOL7cjHKTtaP+23UFndso0b8Cn/X53cqrPgCcB5GcOmRuOos/eeERbVHmsI14Akb5/KKUaq08CGBuPBzHyqHiJ+omMIs9p+PnMqi0nMRZNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772648247; c=relaxed/simple;
-	bh=kYdlAqCsJPZaPGGfRQepzq2wsjHZ5NwYp44Uh/Tep3U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ICE51GkjCkagQRp9udHsSZ3PAo4a70rSpTqxC/7tkY+inZzYejfuAAzi9tNQbp573LoQgk6jMoVQXOeXp3lFgtmycqzq8QNH+lOMp1/GBmHK+RaOQIPZTZjWum678IvgfwwGIq+4r6vbHAyQQEFvOGMizlEEJvy7CjM77oEs0RQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nXlqQN0y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772664838; c=relaxed/simple;
+	bh=nIPc2gFEeOdWe9Jf0FKRk4ka8k1x2+L4/ixApaFAz1U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i2iTNbvGBwICZzVUvWFY9Ew+rl8y8dWBM6UvMOk2VNf1uSm/UnHB4dS5931ACvSQwWqDJyz0hlBAOywz5cmyag6m6PsX8tpdl900fAosBT/eOfYXLUEXvRW2blAzvQtxNGjObWywg+87tRIdySwp8DVqUf/K/DN2jgBq0yrTG9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mhK3uiKg; arc=none smtp.client-ip=209.85.128.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nXlqQN0y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94FA6C19425;
-	Wed,  4 Mar 2026 18:17:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772648246;
-	bh=kYdlAqCsJPZaPGGfRQepzq2wsjHZ5NwYp44Uh/Tep3U=;
-	h=From:To:Cc:Subject:Date:From;
-	b=nXlqQN0yqjANn7UyapY7iwwoFi0VTcEHFZesq8vw4ocC4rSvg0lf4dGW2p8D2EShn
-	 k0EjNCUr3Obj1JgmeKEqWRYyBEFIQRMnqGoZNqrQNxejrBQPSMCY7tiJHOxnFM6jlg
-	 IQhUrbxfVmRQFUXkvjkqfu4IMKZAgwjqFHu9LKimy0l8G6rklVOXWhlsQiBxeZLChe
-	 LLd5TAVRkpK79l9CnRtb6QsbQMduJrZ5WA/MYhNDASnVkhKn+Ut6xhRFeAwEjmkbrB
-	 3iUx/NRteqHe49oH0j/7TAaT2TmgRJF//0DjNpL01+cGcrdW1kTQlRVXtyObimCm6l
-	 96BWNn2dWyOkg==
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-To: Linux ACPI <linux-acpi@vger.kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
- LKML <linux-kernel@vger.kernel.org>, linux-rtc@vger.kernel.org,
- Linux PM <linux-pm@vger.kernel.org>
-Subject:
- [PATCH v1 0/7] ACPI: TAD: Assorted improvements and RTC class device
- interface
-Date: Wed, 04 Mar 2026 19:11:17 +0100
-Message-ID: <5092662.31r3eYUQgx@rafael.j.wysocki>
-Organization: Linux Kernel Development
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mhK3uiKg"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-7986e538decso74354997b3.1
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Mar 2026 14:53:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772664836; x=1773269636; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=E45rulTPCYj9cqd8INLiszMLtxCYsLMuQe08qmhBNqQ=;
+        b=mhK3uiKgffkNhVtXD131R3wV7m6RiFhr8j9QIMgKzvIneIGUexLegMpCplRXok7H4R
+         PC1ru8/ECp2UaRGKbRLdzz773/F+nD7YZgIFsVpjKNNtzlbpEHxos5APSGlYHE5ZHhTA
+         MRpz07XhssoVw0P5f5t3i6CgYJEPUTdNTih+fYO3Iz5Sc5PaaoZTP2VQv+K4IefkLg7h
+         aBq7//3OvgWHsK+i/khCCWXZ//hVFeboSL/mLosXUDZQzwjbg6cvhC2gMz06tR5C0NUI
+         gZrVDTjXt4vU81ttC8auiZPhgDiLyKuPObjkD5WGAdwNft+HC4gec2rlPSqbQKNZ2llQ
+         iKew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772664836; x=1773269636;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E45rulTPCYj9cqd8INLiszMLtxCYsLMuQe08qmhBNqQ=;
+        b=m067jY1IRWKv2iLcj+bmdrDrfmoYlxtVsueN3em4hqUra8NXt2XfMzRffun6HJOSCo
+         KssKU/Z/JIAkOMSBUgbI34M0wUgbx280AhrJ+7xLqmk2ndF6zNJ1L7zsm+JYiEg35kUW
+         y+H5wRqSQH0Bb0URztvH119flQCpapCj7FRrUKRhmYcvq6X8Fxr+hR69JChLGrJYLA8v
+         G5avvjxtUsJLLclYdMdW++wIgs04pwQpEIUTur5MYy0GuP9KeslAXd2ikgl1z2HAyM3w
+         DoobCUhtj22crXke7ggJlaudqnI2JJqnuuWWcZhUWv+IiWD4YUutaDrCIS+oEV/u0Fa+
+         sbWg==
+X-Gm-Message-State: AOJu0YykVzkZY3uMd7BwNnHklyb5LiWUVd9dxT7R6Vq4JVcpU8NoOo87
+	e9WaSitPsb2d0IJpONQXbhTeOR5Co4rUPTQMkSGlMwzVF41JWtjW8jEcNWVYjzxIVRw=
+X-Gm-Gg: ATEYQzzmk9HM+Z5WyRDDTbbwgheb19j0DNSX43zi/NCR13cSNtT8Fd+P0Fvq+M453Hg
+	Z4pArJiHgGZkHNXZ5i5ge7lPdyTpkITyxCkNDtbXytb3VffJANpzwztUDJwv4NDILxf94C5w9mO
+	cajLyg4mcLqaZK2byGEnDx7OYav5OOJJO8o8xmqOa2yCG6F7wgfPj04CiHNprLRsNzMMVgtxA47
+	JAstHW9Q9SPULh3fsPsv24fH2HfPa1WIe3v7Qjgs63d3K4Sr+8ctyJfscUwgAA+SE7bTZSo7CTX
+	RxWgMkZkB/Vsdp4Jwjt89bnvLvTqZSSROfizd6R9aiR6Api7gsZRL82R5hfWilE7jaPTGtSuJRh
+	BVtmLtn1PPtaIolSKstxyL+L6J7DTFaEJRkpOQTjsn90BKEQTRQTXIw/+IX3jgDifJhMn0RGUfs
+	d6u8p0ou093T2mCq6cxUWJfA1NIE/6nGqzIxekGk0L1SEb3ptvytzM2g==
+X-Received: by 2002:a05:690c:46c2:b0:798:58be:3262 with SMTP id 00721157ae682-798c6cff985mr33425647b3.62.1772664835707;
+        Wed, 04 Mar 2026 14:53:55 -0800 (PST)
+Received: from ryzen ([2601:644:8000:56f5::8bd])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-798c97f759asm9454697b3.38.2026.03.04.14.53.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Mar 2026 14:53:55 -0800 (PST)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-rtc@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Marvell Kirkwood and Armada 370, 375, 38x,...),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] rtc: armada38x: zalloc + calloc to single allocation
+Date: Wed,  4 Mar 2026 14:53:29 -0800
+Message-ID: <20260304225329.24510-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi All,
+Use a flexible array member to simplify allocation.
 
-This is a proper v1 of the series posted previously as a prototype:
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/rtc/rtc-armada38x.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-https://lore.kernel.org/linux-acpi/4727679.LvFx2qVVIh@rafael.j.wysocki/
-
-The code has changed somewhat, most importantly the first patch has been
-split and review feedback on patch [6/7] (previously [5/6]) have been
-taken into account.
-
-This series is on top of linux-next.
-
-Thanks!
-
-
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index 713fa0d077cd..245290ae1a8d 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -72,8 +72,8 @@ struct armada38x_rtc {
+ 	spinlock_t	    lock;
+ 	int		    irq;
+ 	bool		    initialized;
+-	struct value_to_freq *val_to_freq;
+ 	const struct armada38x_rtc_data *data;
++	struct value_to_freq val_to_freq[];
+ };
+ 
+ #define ALARM1	0
+@@ -490,18 +490,13 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct armada38x_rtc *rtc;
+ 
+-	rtc = devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
++	rtc = devm_kzalloc(&pdev->dev, struct_size(rtc, val_to_freq, SAMPLE_NR),
+ 			    GFP_KERNEL);
+ 	if (!rtc)
+ 		return -ENOMEM;
+ 
+ 	rtc->data = of_device_get_match_data(&pdev->dev);
+ 
+-	rtc->val_to_freq = devm_kcalloc(&pdev->dev, SAMPLE_NR,
+-				sizeof(struct value_to_freq), GFP_KERNEL);
+-	if (!rtc->val_to_freq)
+-		return -ENOMEM;
+-
+ 	spin_lock_init(&rtc->lock);
+ 
+ 	rtc->regs = devm_platform_ioremap_resource_byname(pdev, "rtc");
+-- 
+2.53.0
 
