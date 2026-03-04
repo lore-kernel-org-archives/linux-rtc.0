@@ -1,149 +1,98 @@
-Received: from mail-oa1-f43.google.com (mail-oa1-f43.google.com [209.85.160.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D676A282F3A
-	for <linux-rtc@vger.kernel.org>; Wed,  4 Mar 2026 09:34:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772616864; cv=pass; b=XMyNB9hmqCCuQd83vkuj9sZsATSvFISSUU1Pe9KWACeSKJmApixqu/LicwOGEjuzsbxlQF6E8duIwQZrga26vzBkQq+4qO7xMpUBoalhzbjr13ZLhF+jAF9ZmkSTpFJiKrs9q47LJssNNUY77+MWH5Zt1pIzqzR65STGKSKTIDg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772616864; c=relaxed/simple;
-	bh=y/IodG72ain56etKDWqgOhWo0kDWmLIz80nuiwZ60Lc=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1075F1A9B46
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Mar 2026 12:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772628151; cv=none; b=cWsrTYN18zWgxK5Ig/miyjcEae6UshkV1kV9Da7S9HtyLsYc+ZQV6poe86npu8Q6ZrHaPb1yv+7Vryi7QIytWsRtfFaHoCL0G0tJKMLJTm4+zt9iYL1zO45dmsLR+//8YOIirCZhqEUl+a3h+CPbHdMrU44Zf4LCf+isI9WP69M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772628151; c=relaxed/simple;
+	bh=qGzZfAit+MSoZwftoZQ85Sg5ltGAW1OtPiex2YPo14E=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=br1jpLkkSTBsUHigjozl68sYE3PB4k09rtBcCqdO4HxpcZOgW2+dJErZv66nxz7pDVI5QL50Rtgow17+NCr69lUwCl42KkM+g+BGYGpZF/2mZWECjEY6Fp9SC9bOhoHP5R1UCsL7/OiJQNUPOS5Bn7Xwgwm6KhpIF4nja1MYEwA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=UuqmGmN5; arc=pass smtp.client-ip=209.85.160.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	 To:Cc:Content-Type; b=dLcab0zIOWoiqkKDrnSJ163h5UNMLhqJTK4D9WPqjljRMzzx3LP1itNeAQdqqOPCHmgc69dKgUwAslYiNhjEBgjA5BqHl/5z9KbYDJnK8pw0JonJwFas4LVbKG9bLqpMWkmRkGg1916kvw+GnqrmcPTpNr/qIkz4eBpOg4l+I+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tyCTvWXz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="UuqmGmN5"
-Received: by mail-oa1-f43.google.com with SMTP id 586e51a60fabf-415b23dd6e5so678841fac.3
-        for <linux-rtc@vger.kernel.org>; Wed, 04 Mar 2026 01:34:22 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772616862; cv=none;
-        d=google.com; s=arc-20240605;
-        b=cv0RzETDIKPGvi3+QxyNXMpkgN5JXaP8+q+Lm6I/udR+Qglzrutmuozn8jNWLk2m2D
-         VewiUefVRnOSEhnIN0ycvc2dlFXr5mrqGi62wSHhUX7hjJ/8j+flMK6vUlSvyUIZGxbG
-         b2uIJcjKN2fdfcza8DVgk/NQjl66/7cfr4ZUdsZjOhgVtEOIjMvX5dnCyTlhMoiUS/02
-         nl6G4hC38Mj3x4X96+X1JMs9XdLgMu0pqaPeq5aaSQW9sxpr3yKy36Mr3DQpI305mixg
-         F6BoMvCBrbFWj0asygEs7YAFNGw89tbFUaA403ROZx24RO3wn3Rckn2CfuANfjMyiQya
-         3gyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=7hb6fY86/FrgvHUqwzAV8MUgbDVO/vkX1bjsm+eW84g=;
-        fh=R2c0PCtQTbs2X6mc2vwxbT+p0a4OqS9eaZz25pRXM5U=;
-        b=Hps9QZf7hBmUqFJxby7Hla1LshtX+gB2hkFUFzhnp0CodrJnpWqdEqQN0fQtb/Yph9
-         atpSZNZhrArVMKOQ2id63oFlmTV0O5CjEUtEnFkMf8WxBDjZW0k1sik786bbOtxiyJ6k
-         xW34mGccOdxwSra79WGdVzG+zgPG3DPyJY6d/ZtmyGVmVrDhEq1uetfq3aXxfsJn4clq
-         Ir8yVrZPyRAgda2eaH3xMzyuDbhapWP5P0UihlgkIQEzqWwmegpuKJzOSU2HVYHX7vs1
-         ClcWTqJGv8FU+4d4M172liebvnb2ewjTU+axaT7NLvWtMeH4fvbRl7S0y6OzNj+dXPK3
-         ECDA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1772616862; x=1773221662; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7hb6fY86/FrgvHUqwzAV8MUgbDVO/vkX1bjsm+eW84g=;
-        b=UuqmGmN519Um9aPROx/g8S+jeBN1tF314VUZy9ssa3PfdszifQDtJhjAJ2y8np6S6G
-         Fd0QWpDbIfDPrGPE/pyl7cIIqe+DJaDMvJYHWZtjmWvvcRHe6cNNeG1JkaCA8LiB+AuO
-         n3NNWNthW2QlwzCpsX99pm+HtA23ayfPuvojIySqM+ccXK1IFHDxDPeKPkmyu+I9wnWL
-         VySncUA8bV6E9S/PyqzH/Is7MMIum3ztli15jPs6XI49gzsI+NVuOhAasFHgz8bf+nlW
-         XHFoqQnxM4xmOEvCrk69MC0t5m87o8YeMMdrr7zJcovhQ1f9XpisXQRGxYEIR594lt+R
-         Q11Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772616862; x=1773221662;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7hb6fY86/FrgvHUqwzAV8MUgbDVO/vkX1bjsm+eW84g=;
-        b=NfmIcdn/p+VCyAa6zhvSWtAy+8zpcSG9DrHPKWg3KwBNmu0ACCIuKRs7eKtR5OA9Iq
-         3q3kQb17O3prT6C3l+LGjVDMx2FCseVwzjbBnWecK102r9wB2/UnjhhZIXFyIjGgORCc
-         ikyWPdeWk1WIVN0UQ7vlun/bP6nZXK+cI3LH5Cmq33Uq3ulx0k7SrK506/lJL7kgY/p2
-         Y8dCRsbwZQB3ycSv6o7UtvA8hPeBMwid+m4ixZo1lQKAI9wnYWWAhBQsOYzfyMnA6R8Z
-         AtRgPHHfOGqooMMS+rGJ6qjinlcbXcw2YxHaeQKs9PlBHJj1f+GaYZ1b+Fr7AEoLsJrZ
-         5MMg==
-X-Forwarded-Encrypted: i=1; AJvYcCV1DuL1veZ2Osqb5DcTZAofrcKKlLjiBv4H9YtJVuJXegsLxyqWg7QQLtu+VgjcLjsYz2Bm8JAiRug=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw17c5y5rBnk9iKJkVNrNpXTR655ayHI8q4dNyI/ymnM/M6ZEej
-	hHnYnR1Dwe+kpv0TNkG302e4AvpQr9pSceWMNcTtYBcyPVfwn1nZ2feen8GuZdF/qpXEUW2f41i
-	Z4NvZlmF3DsJ/C1vQixdaW2xFGbzRIVwVA3P+1AJjOA==
-X-Gm-Gg: ATEYQzzmqvVw79CofhFcGNaQML2cECoTfYO5RHBALyWideRtllrPFi8H9FFlTmBFQ3O
-	uPu+z219WslXCT6hfaK8TSh2ogrW9IMeGlYEINvia403U4r+RJNKuf35bDcyB31ty8Hdfd/ZFq2
-	nlIX2YK7zRIaUuE6SL4D7hXjlPIXYYgPjXLrYAr5AtleynmOn9wLblZjAl4/3H7lp1uk2+awSlN
-	AXwUFNZFDQXpZCmIckoyXO3uxoiLGw9ZO9nHhFLMpx+AkPsrA/2Hz7ZlSH0UJbWamjJjpAhzhrG
-	X+htHHy9Kn4IIlXC4nZP+hi1345WQjpbHyXqudbJXa+kQ0eG
-X-Received: by 2002:a05:6871:112:b0:3e8:8e56:671e with SMTP id
- 586e51a60fabf-416abc3c442mr740209fac.54.1772616861704; Wed, 04 Mar 2026
- 01:34:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tyCTvWXz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2718C2BCAF
+	for <linux-rtc@vger.kernel.org>; Wed,  4 Mar 2026 12:42:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772628150;
+	bh=qGzZfAit+MSoZwftoZQ85Sg5ltGAW1OtPiex2YPo14E=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=tyCTvWXzkvTWmkBtJM042Bdk/jeEAxgzQ0LoJgINdC95oAGM7qCZT5xWtzPhmnwt8
+	 vZZA+9rc/TPHZubNL7t7OjFRtB+qByRlwTpgDywNdKuY3lw4nfImOVjpBV9bBoSY/F
+	 O1Sq/hPkWPlS6Ug7SbOg/rDc9QYIyK9oBm0ioBPAYOI33gmw5YSPnXFG+TsCE5hrwS
+	 lzlhDyyMxuImXwn0oaaFoFTE1OFQIqo3bKaDQKULdGlmcm4r8ppA9Y7yVD9OnfBoRf
+	 0g9EE2JoXskU77ToCeO/bq35N0GxZxHRm+bWaQko0ZhXQO7zinwEhaAqW63hQa9t2W
+	 jZJu+E0GsZCbw==
+Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-40974bf7781so1321803fac.0
+        for <linux-rtc@vger.kernel.org>; Wed, 04 Mar 2026 04:42:30 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUOUmd+yIIdP2PHgKBO9gklUFWCn1BPP0ZkLBzC26N7OgzHjCFBHFpQDzmow3oofwlOKHnRg4zy/IQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwKkGFiBpwiBUxEYSICgDLEtkhZIxqgqW2HbD59k9i93b07CVBk
+	e4CE5RKPF3Tpg6ioea2BKA9BR8ghVsfxPK6AMBi5uQZoXg8yDB0QpfcJMSQ0jZ+Dsa25UBkr7yw
+	G8GvDog58n8RSIzv+MEpfu9pyoBZ8+uA=
+X-Received: by 2002:a05:6870:7020:b0:3d3:1fc3:c0c6 with SMTP id
+ 586e51a60fabf-41691d7a8e9mr3409458fac.1.1772628149894; Wed, 04 Mar 2026
+ 04:42:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260126-optee-simplify-context-match-v1-0-d4104e526cb6@linaro.org>
- <20260126-optee-simplify-context-match-v1-1-d4104e526cb6@linaro.org> <aYrAeEiqG7iwXm_w@sumit-xelite>
-In-Reply-To: <aYrAeEiqG7iwXm_w@sumit-xelite>
-From: Jens Wiklander <jens.wiklander@linaro.org>
-Date: Wed, 4 Mar 2026 10:34:10 +0100
-X-Gm-Features: AaiRm52FcW-OAyIi-wAaObIfx0MwPHh0zbRqzlqQxviphSbb0F7X9gKg8pS94SE
-Message-ID: <CAHUa44G1+C47KY8UCV5+ype-NCjYPfgxFs_tivmsOA=R-H1C8g@mail.gmail.com>
-Subject: Re: [PATCH 1/3] optee: simplify OP-TEE context match
-To: Sumit Garg <sumit.garg@kernel.org>
-Cc: rouven.czerwinski@linaro.org, Olivia Mackall <olivia@selenic.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, op-tee@lists.trustedfirmware.org, 
-	linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	linux-rtc@vger.kernel.org
+References: <5983325.DvuYhMxLoT@rafael.j.wysocki> <13969123.uLZWGnKmhe@rafael.j.wysocki>
+ <20260303060752.GA2749263@ax162> <5087839.31r3eYUQgx@rafael.j.wysocki>
+ <20260303175237.GB1114907@ax162> <CAJZ5v0jgLU_87cESzySAQhP31L83u-sd2xAHFiJmeqrw0NdOhg@mail.gmail.com>
+ <20260303211725.GA2374171@ax162>
+In-Reply-To: <20260303211725.GA2374171@ax162>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Wed, 4 Mar 2026 13:42:18 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0gzEp9UG74G76ohFa0gp2ii+hxUiU_kPGyWdbmSXLmQKg@mail.gmail.com>
+X-Gm-Features: AaiRm51LgxcGpx2YLr8Zqh_VMeB5JV1oFN0UmgabxBy1Q-PsWcjzfqpOarh5azk
+Message-ID: <CAJZ5v0gzEp9UG74G76ohFa0gp2ii+hxUiU_kPGyWdbmSXLmQKg@mail.gmail.com>
+Subject: Re: [PATCH v1 4/8] ACPI: x86/rtc-cmos: Use platform device for driver binding
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Linux ACPI <linux-acpi@vger.kernel.org>, 
+	LKML <linux-kernel@vger.kernel.org>, x86 Maintainers <x86@kernel.org>, linux-rtc@vger.kernel.org, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 10, 2026 at 6:22=E2=80=AFAM Sumit Garg <sumit.garg@kernel.org> =
-wrote:
+On Tue, Mar 3, 2026 at 10:17=E2=80=AFPM Nathan Chancellor <nathan@kernel.or=
+g> wrote:
 >
-> On Mon, Jan 26, 2026 at 11:11:24AM +0100, Rouven Czerwinski via B4 Relay =
-wrote:
-> > From: Rouven Czerwinski <rouven.czerwinski@linaro.org>
+> On Tue, Mar 03, 2026 at 07:47:54PM +0100, Rafael J. Wysocki wrote:
+> > On Tue, Mar 3, 2026 at 6:52=E2=80=AFPM Nathan Chancellor <nathan@kernel=
+.org> wrote:
+> > >
+> > > On Tue, Mar 03, 2026 at 01:51:37PM +0100, Rafael J. Wysocki wrote:
+> > > > On Tuesday, March 3, 2026 7:07:52 AM CET Nathan Chancellor wrote:
+> > > > > After this change in -next as commit 2a78e4210444 ("ACPI: x86/rtc=
+-cmos:
+> > > > > Use platform device for driver binding"), I am seeing
+> > > > >
+> > > > >   rtc_cmos PNP0B00:00: error -ENXIO: IRQ index 0 not found
+> > > > >
+> > > > > on a few of my test machines. Is this expected?
+> > > >
+> > > > Not really, thanks for reporting!
+> > > >
+> > > > Please send me a dmesg boot log from one of the affected systems.
+> > >
+> > > Attached.
+> > >
+> > > > The patch below should make the message go away.
+> > >
+> > > Can confirm, thanks! If it is helpful:
+> > >
+> > > Tested-by: Nathan Chancellor <nathan@kernel.org>
 > >
-> > Simplify the TEE implementor ID match by returning the boolean
-> > expression directly instead of going through an if/else.
+> > Thank you!
 > >
-> > Signed-off-by: Rouven Czerwinski <rouven.czerwinski@linaro.org>
-> > ---
-> >  drivers/tee/optee/device.c | 5 +----
-> >  1 file changed, 1 insertion(+), 4 deletions(-)
-> >
+> > Can you please also send me a dmesg boot log from the same system with
+> > this patch applied?
 >
-> Reviewed-by: Sumit Garg <sumit.garg@oss.qualcomm.com>
+> Attached. Let me know if you need anything else.
 
-I'm picking up this.
-
-Thanks,
-Jens
-
->
-> -Sumit
->
-> > diff --git a/drivers/tee/optee/device.c b/drivers/tee/optee/device.c
-> > index 950b4661d5df..4c85b04d6004 100644
-> > --- a/drivers/tee/optee/device.c
-> > +++ b/drivers/tee/optee/device.c
-> > @@ -13,10 +13,7 @@
-> >
-> >  static int optee_ctx_match(struct tee_ioctl_version_data *ver, const v=
-oid *data)
-> >  {
-> > -     if (ver->impl_id =3D=3D TEE_IMPL_ID_OPTEE)
-> > -             return 1;
-> > -     else
-> > -             return 0;
-> > +     return (ver->impl_id =3D=3D TEE_IMPL_ID_OPTEE);
-> >  }
-> >
-> >  static int get_devices(struct tee_context *ctx, u32 session,
-> >
-> > --
-> > 2.52.0
-> >
-> >
-> >
+All is fine now AFAICS, thanks!
