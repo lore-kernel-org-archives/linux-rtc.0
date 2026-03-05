@@ -1,193 +1,118 @@
 Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54A6530B53A;
-	Thu,  5 Mar 2026 07:48:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4873123C516;
+	Thu,  5 Mar 2026 08:41:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772696888; cv=none; b=KlAHGN6+X0SDfwrF+ux3sHPK6V3covoDgIqEED31AzaBOrJgUA6QcU2DaPg7Nk8mAsdNZzwMqv6Rj/cAbFI9BLKYqjqWeQEfdTvVoQGueP9OIKH20CdOYuSFiHmZXJfeMfSWPi24dH7WEy8XYRDk5xKjDEh+M/fDy+KfcoYKEOs=
+	t=1772700070; cv=none; b=o8cCafgOo1wBLCQc5M3UiA2mQ9cQG9qMpJD8ovlsSaxmTCnbp9e6hdqvDYBw0XMp2riB7cqW2HCelmt4OQ6bXrDsOLf/t9LELOgz4AyW+S/tsfYzi8eb6VyhwGoUGCV+kE7ldfYOTaKOP/ST6fCRW/fCZcvZIN4LrId77LVEgcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772696888; c=relaxed/simple;
-	bh=Ovvh/6MYV2WSyqHB9xbSPCaYhmlv1JQ0NQT+k21dghI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TPi5ypm7NV+9gU9u38tfec4y54wvPXGuvAr3USuixAVVANGXUu71hSP1u9/twRpuaasKHuf0CG+HYuNYFWC9PlpXUf7/TKS4wZZRQzrtB02ITe7W6rgmJAD9WsDbRJ6FfJa4HXPKVH1s7wMT49fsiF1vqmuR22fZmOQ29xpoKr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=pHaZPZDn; arc=none smtp.client-ip=185.171.202.116
+	s=arc-20240116; t=1772700070; c=relaxed/simple;
+	bh=iF3PUHEKjIk76nJLd5hZsDXnu6qURJKhmmHfQ+wGcE0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=BufFIjta2rVIMYLxd8LOOrxAZdenMrax+BLKPzzfy0gn6cOkLVF4AzHp3koolYEgrVQKkofh48CJhO9fSd2fp6b1QkMhPIPczyxNxN4Oq1hwyDFD7ADubtKVnDgdxq+qU4bxoJrVHONsUHBMe5V0uy6fJSma0AzpxSzM/iza13I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=UGHpfrqc; arc=none smtp.client-ip=185.171.202.116
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="pHaZPZDn"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="UGHpfrqc"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id E963FC40404;
-	Thu,  5 Mar 2026 07:48:21 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id DC4EBC40404;
+	Thu,  5 Mar 2026 08:41:24 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 5F2A25FDEB;
-	Thu,  5 Mar 2026 07:48:03 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 289351036981A;
-	Thu,  5 Mar 2026 08:48:01 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 652745FDEB;
+	Thu,  5 Mar 2026 08:41:06 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D69A210369535;
+	Thu,  5 Mar 2026 09:41:03 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1772696882; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=hsyLDW4nJEH6PPZ0/VDK4H6ENav77uqw47Wi4VxY1J0=;
-	b=pHaZPZDnb7mfsmgbqkqNhzzem8M6VyZFj3UsRfACQ8vnMcmpS6z5nolKpCw1+E1OWD3vlB
-	SxEWRQbOeR22zWMd9uetQyHlCnm1yaI6aACAmbLK7rxFBAhszqmkgooVeFDYWMfU/UaigD
-	yPIiitmqH+W7ssYSFE6DHQUsSCsu85o95g/P2CQ0YTQrSCR7Dr4YOhoPepM6tX+1EUZrFS
-	EV31NWCs72eWs3hpg1gUqQ1kEiqk6KkC4eHJ2sF4TX6PiHnyFh22990+EI/sBOJ5a9W8m6
-	mjNlIvR0A2LYLKQ4eAxvmvGPEHTXTkg01CzDMDdA93AgGUHcIk0v84lu7nI5Ow==
-Date: Thu, 5 Mar 2026 08:48:01 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
-	LKML <linux-kernel@vger.kernel.org>, linux-rtc@vger.kernel.org,
-	Linux PM <linux-pm@vger.kernel.org>
-Subject: Re: [PATCH v1 6/7] ACPI: TAD: Add RTC class device interface
-Message-ID: <20260305074801a04117a7@mail.local>
-References: <5092662.31r3eYUQgx@rafael.j.wysocki>
- <2352027.iZASKD2KPV@rafael.j.wysocki>
+	t=1772700065; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=BhfVEWF9EotYdDAuGOeZFsZqpxjQ+hginmFnoYV66/A=;
+	b=UGHpfrqcv0lxYln2H1MPd18cC0Cdw+hs6OoXLQR7DzwZDlIQVPS1q6PquJFtL2WPJF2K94
+	f+/jHe0rMRKoEaEyOkmrXjXFNBuzcSWLlsD9mvnFE6wlQOf3Kmm7CEN3x5+jW726ZNVeHb
+	jtiZDh5bemxcztr2JFdKLgI0Teij7+mMHKzyN3qVVKh15s6KhmBurCytEj15NMgrnVAjTv
+	zzZRJhAjTdaBL35lrCDMESfU/xbD3LtjxVeipser4QMWUfaL4x8LCiBhzvTG4+JUGcpoy/
+	AOTIArULIe14c1YrM0KCICSQUQO8EdVvnmLcEaazZlfE80JqIK6pbj2LA8lJgg==
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
+To: Rosen Penev <rosenp@gmail.com>, linux-rtc@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth
+ <sebastian.hesselbarth@gmail.com>, Alexandre Belloni
+ <alexandre.belloni@bootlin.com>, "moderated list:ARM/Marvell Kirkwood and
+ Armada 370, 375, 38x,..." <linux-arm-kernel@lists.infradead.org>, open
+ list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rtc: armada38x: zalloc + calloc to single allocation
+In-Reply-To: <20260304225329.24510-1-rosenp@gmail.com>
+References: <20260304225329.24510-1-rosenp@gmail.com>
+Date: Thu, 05 Mar 2026 09:41:03 +0100
+Message-ID: <871phyfz34.fsf@BLaptop.bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2352027.iZASKD2KPV@rafael.j.wysocki>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 04/03/2026 19:16:01+0100, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> 
-> Add an RTC class device interface allowing to read and set the real time
-> value to the ACPI TAD driver.
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Rosen Penev <rosenp@gmail.com> writes:
 
+> Use a flexible array member to simplify allocation.
+>
+
+I must admit that I didn't know struct_size(), it is a nice helper!
+
+Reviewed-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+
+Thanks,
+
+Gregory
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
 > ---
->  drivers/acpi/acpi_tad.c |   78 ++++++++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 76 insertions(+), 2 deletions(-)
-> 
-> --- a/drivers/acpi/acpi_tad.c
-> +++ b/drivers/acpi/acpi_tad.c
-> @@ -25,6 +25,7 @@
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
->  #include <linux/pm_runtime.h>
-> +#include <linux/rtc.h>
->  #include <linux/suspend.h>
->  
->  MODULE_DESCRIPTION("ACPI Time and Alarm (TAD) Device Driver");
-> @@ -51,6 +52,7 @@ MODULE_AUTHOR("Rafael J. Wysocki");
->  
->  /* ACPI TAD RTC */
->  #define ACPI_TAD_TZ_UNSPEC	2047
-> +#define ACPI_TAD_TIME_ISDST	3
->  
->  struct acpi_tad_driver_data {
->  	u32 capabilities;
-> @@ -164,6 +166,8 @@ static int acpi_tad_get_real_time(struct
->  	return 0;
->  }
->  
-> +/* sysfs interface */
-> +
->  static char *acpi_tad_rt_next_field(char *s, int *val)
->  {
->  	char *p;
-> @@ -579,6 +583,71 @@ static const struct attribute_group acpi
->  	.is_visible = acpi_tad_attr_is_visible,
+>  drivers/rtc/rtc-armada38x.c | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+> index 713fa0d077cd..245290ae1a8d 100644
+> --- a/drivers/rtc/rtc-armada38x.c
+> +++ b/drivers/rtc/rtc-armada38x.c
+> @@ -72,8 +72,8 @@ struct armada38x_rtc {
+>  	spinlock_t	    lock;
+>  	int		    irq;
+>  	bool		    initialized;
+> -	struct value_to_freq *val_to_freq;
+>  	const struct armada38x_rtc_data *data;
+> +	struct value_to_freq val_to_freq[];
 >  };
->  
-> +#ifdef CONFIG_RTC_CLASS
-> +/* RTC class device interface */
-> +
-> +static int acpi_tad_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct acpi_tad_rt rt;
-> +
-> +	rt.year = tm->tm_year + 1900;
-> +	rt.month = tm->tm_mon + 1;
-> +	rt.day = tm->tm_mday;
-> +	rt.hour = tm->tm_hour;
-> +	rt.minute = tm->tm_min;
-> +	rt.second = tm->tm_sec;
-> +	rt.tz = ACPI_TAD_TZ_UNSPEC;
-> +	rt.daylight = ACPI_TAD_TIME_ISDST * !!tm->tm_isdst;
-> +
-> +	return acpi_tad_set_real_time(dev, &rt);
-> +}
-> +
-> +static int acpi_tad_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct acpi_tad_rt rt;
-> +	int ret;
-> +
-> +	ret = acpi_tad_get_real_time(dev, &rt);
-> +	if (ret)
-> +		return ret;
-> +
-> +	tm->tm_year = rt.year - 1900;
-> +	tm->tm_mon = rt.month - 1;
-> +	tm->tm_mday = rt.day;
-> +	tm->tm_hour = rt.hour;
-> +	tm->tm_min = rt.minute;
-> +	tm->tm_sec = rt.second;
-> +	tm->tm_isdst = rt.daylight == ACPI_TAD_TIME_ISDST;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct rtc_class_ops acpi_tad_rtc_ops = {
-> +	.read_time = acpi_tad_rtc_read_time,
-> +	.set_time = acpi_tad_rtc_set_time,
-> +};
-> +
-> +static void acpi_tad_register_rtc(struct device *dev)
-> +{
-> +	struct rtc_device *rtc;
-> +
-> +	rtc = devm_rtc_allocate_device(dev);
-> +	if (IS_ERR(rtc))
-> +		return;
-> +
-> +	rtc->range_min = mktime64(1900,  1,  1,  0,  0,  0);
-> +	rtc->range_max = mktime64(9999, 12, 31, 23, 59, 59);
-> +
-> +	rtc->ops = &acpi_tad_rtc_ops;
-> +
-> +	devm_rtc_register_device(rtc);
-> +}
-> +#else /* !CONFIG_RTC_CLASS */
-> +static inline void acpi_tad_register_rtc(struct device *dev) {}
-> +#endif /* !CONFIG_RTC_CLASS */
-> +
-> +/* Platform driver interface */
-> +
->  static int acpi_tad_disable_timer(struct device *dev, u32 timer_id)
+>=20=20
+>  #define ALARM1	0
+> @@ -490,18 +490,13 @@ static __init int armada38x_rtc_probe(struct platfo=
+rm_device *pdev)
 >  {
->  	return acpi_tad_wake_set(dev, "_STV", timer_id, ACPI_TAD_WAKE_DISABLED);
-> @@ -660,10 +729,15 @@ static int acpi_tad_probe(struct platfor
->  	pm_runtime_suspend(dev);
->  
->  	ret = sysfs_create_group(&dev->kobj, &acpi_tad_attr_group);
-> -	if (ret)
-> +	if (ret) {
->  		acpi_tad_remove(pdev);
-> +		return ret;
-> +	}
->  
-> -	return ret;
-> +	if (caps & ACPI_TAD_RT)
-> +		acpi_tad_register_rtc(dev);
-> +
-> +	return 0;
->  }
->  
->  static const struct acpi_device_id acpi_tad_ids[] = {
-> 
-> 
-> 
+>  	struct armada38x_rtc *rtc;
+>=20=20
+> -	rtc =3D devm_kzalloc(&pdev->dev, sizeof(struct armada38x_rtc),
+> +	rtc =3D devm_kzalloc(&pdev->dev, struct_size(rtc, val_to_freq, SAMPLE_N=
+R),
+>  			    GFP_KERNEL);
+>  	if (!rtc)
+>  		return -ENOMEM;
+>=20=20
+>  	rtc->data =3D of_device_get_match_data(&pdev->dev);
+>=20=20
+> -	rtc->val_to_freq =3D devm_kcalloc(&pdev->dev, SAMPLE_NR,
+> -				sizeof(struct value_to_freq), GFP_KERNEL);
+> -	if (!rtc->val_to_freq)
+> -		return -ENOMEM;
+> -
+>  	spin_lock_init(&rtc->lock);
+>=20=20
+>  	rtc->regs =3D devm_platform_ioremap_resource_byname(pdev, "rtc");
+> --=20
+> 2.53.0
+>
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
+--=20
+Gr=C3=A9gory CLEMENT, Bootlin
 Embedded Linux and Kernel engineering
 https://bootlin.com
