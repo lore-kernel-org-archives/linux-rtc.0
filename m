@@ -1,85 +1,103 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC6235E956
-	for <linux-rtc@vger.kernel.org>; Fri,  6 Mar 2026 11:13:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C949F257845
+	for <linux-rtc@vger.kernel.org>; Fri,  6 Mar 2026 12:35:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772795621; cv=none; b=hM5ubELO9vTOIFWpXrtrg1Xq2nGf+qyhWVQd1GUSZTv6gKsUquWu8y+J9Oaof1pJ7a3QRQWKygQjwsJUDEs0//2L4AYRsuTHTCbPZn9S/Pyq8LOLNPnboACP5lFqGs5uDfG5BZeuLYtvOEiFGo0hsIzGjg3jxn2UYxzWijYtDUM=
+	t=1772800543; cv=none; b=iRWJ4a8JZ6ZweWIu/adWShm+4yEF0Rry+5so5hcKERS+R7h66woB536b+LzWnXtskilTGU+ndsmSW7FfpYpjvRwyKcbmF3nG67deDXtN29w0PMaGo40X7qiawFPS5ym0fPllTcSysRVCHxUb5g/S9wynoKzunbmY9DVKMxWL4tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772795621; c=relaxed/simple;
-	bh=LIxxnkCVnwmzVwLUuMjpH7s98wmieqmeVyh1MUQKaJg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nfeW4KwmtQSyD7hKmhZ9uZQHbUWjFhawDIROk2c04cZ4ZdCl2wvP3gniFAbviRRZX5yA8fP3iw8U4NHYhqInANcBh5DhgfnahyDmgHsEv2kuxJq/ctabphd4Iepnd5Ze14b792DWXW30ig93BjHVaGvUtX1hLC0Eivxg94KvnsY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Ol+MiP5p; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Ol+MiP5p"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 06E6A4E4258A;
-	Fri,  6 Mar 2026 11:13:32 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id BC0525FF92;
-	Fri,  6 Mar 2026 11:13:31 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1F4BF10369377;
-	Fri,  6 Mar 2026 12:13:29 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1772795611; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=pCDWa/n78XXMhf61ch4T8hjleXLcBp1wJMK7/c7pOl4=;
-	b=Ol+MiP5pOzc/N49N6/414dKpNQ7PmnF8fGe1Oivksxkuzq/JYtVkaTTH8d1KAA9U1HMHWX
-	UBkrC5Ca10HqOytH+6MYYoKpKf08suS6t4whdFGXtosnLIcl6U3Z8HiMXbrTEMte7mxUmi
-	zfL1SkLstQilEQGsOFhDpdqTKJVREfX2F+L4i4eY5eoxN4MtVxC0FDCHdhVOQa1aUfxjFb
-	mH2Ic6blFC0qsXR89kQEreL5x4w3cP11/ZzfYJUnV2LkMthWiB5vJg5rb5Rs7iwU7lCstG
-	nTNSoHIfWNjo2dKyBdqr+HuHSFrkaow27u5OiodfPyvhrN5RyWWYWZVJBaoSEQ==
-Date: Fri, 6 Mar 2026 12:13:29 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Tomas Melin <tomas.melin@vaisala.com>
-Cc: Takumi Ando <takumi@spacecubics.com>, linux-rtc@vger.kernel.org,
-	michal.simek@amd.com, Yasushi SHOJI <yashi@spacecubics.com>,
-	kanta tamura <kanta@spacecubics.com>
-Subject: Re: [QUESTION] rtc: zynqmp: CALIB_RD reset behavior differs between
- ZynqMP and Versal
-Message-ID: <202603061113298cbba29d@mail.local>
-References: <CAJACUaoFK-GiBN_hfkNajDUygnSZc29U_jdeQ_rKtXS7P1f-nw@mail.gmail.com>
- <9ed6823e-b381-4de5-b1cf-98f5dc54bb7c@vaisala.com>
+	s=arc-20240116; t=1772800543; c=relaxed/simple;
+	bh=t+zhrRtHdxJ0egPar6qDHLUgu1o7nIbY/t2grbrBnTw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jjm24uzbnDzHs7dv75ztGJxxUJrw6SHKPoF6QnR3QfcHYIDdtfykS1h/Z4wZOwKJsyIp0ajUBShTz9NBHBQMUNJwzWTBfz2M18pPTljrbJZd/w9RsD4OMbcRDaJf5qRvcqIfvQLWpxjVGhBDv97PvkogN6yMcrjPA8tiBe6uWZc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-94dcf70af41so2068320241.1
+        for <linux-rtc@vger.kernel.org>; Fri, 06 Mar 2026 04:35:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772800541; x=1773405341;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=96m0o8Clxl4fOeYKH2P2MIwu6gx/EjFZuUHZ+Kn4U/g=;
+        b=GJRcK84iPdTGPhg2GY4nPqAbIG8lTYkMYuCWLMgNFAWu4ZvztBZ25AAGR6STT01wu9
+         U1PB8ZAUBNIQiGoNGySFL19cvDjaWYwFmaHGLmn6YOpsPMrAQIEjP6qzGzRpAGjXUN7w
+         h7nolqWA1kz+9JPHH4T5CrGILo59TUmcW4p8Pl8AiY3QSf3Qk1WF3qB5fN495tHlenvH
+         cQeOjrUELzClem2mm+axPyhBzV66SC6NosScofTLMbSBuWwGUGMrPVoIrqDgQezXTCRO
+         5RJgEght8/DQVYdKGcbDbYeHjNEHIdGi2YhBy9FePShdEB8QqNAvkKonlXgaRkhKsXWC
+         Z1ew==
+X-Forwarded-Encrypted: i=1; AJvYcCU62+hE6pMlVjdfTOckUtnEiC1PSkd09zl51N2m/0DOW176n2pk/j+bXc0+tLwv1Usg9iWUCcKLF5k=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTcT6z8IzB4GakNVMqFkex6jneMTa2OfQDenZpmqp5e2UtJ1tT
+	4Df4yA0Cc3BU9Y6gpOQljuvmcZ7oQ4HlwdYoD5hDpVXjINZ09uu+04S4QbyPO7JCOxY=
+X-Gm-Gg: ATEYQzwgVfDvEe0JcSojpWv/NOoHweq82R1v/YtNXz/nPtEJ9xmulYughD6VOr9MZs9
+	9X7R/BGbpCW3OY+SivxvVQlt3r81I8N+i2jK3k/zNtU3SgI0elG37+4u1RA67WtD0gwDUHF3Ozq
+	Wgm0pM/tX4AA1jhTi4DnHE6z0HPo32A+OFsJctinnUx2eSRXRlSUBw+7Cv9kFwlp6DyfLTag16u
+	vkDwfjnQLxu9h55ltpuVu1UVZzvixAPsSBJ5qnt/71xil/W8YnNWZJNHPlxfhUbh6JTPalNiexz
+	y3YuGj8GLf2itYe1qv6X/bY1fSUY0u16Ki5cT5PwsQBcT/HNej3LP0XSZdyvim9yCunfBprfoz/
+	qh3QMvKs5thP6iNaYUrY2upDMeh4g38ZLa8i7WCzlVKO4s2iMqL9xjH5ygwKu128kmJeiKPLuNe
+	2HYao7+gslM35N3RKhBgnC5RI3dG0ukV81refS/XxxPHx2zw4odMSo8Eix3emNXzXX7Rgd+JU=
+X-Received: by 2002:a05:6102:b10:b0:5f5:503e:c76d with SMTP id ada2fe7eead31-5ffe5ee685amr571057137.4.1772800540783;
+        Fri, 06 Mar 2026 04:35:40 -0800 (PST)
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com. [209.85.222.47])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-94e7b57031fsm1193903241.13.2026.03.06.04.35.40
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Mar 2026 04:35:40 -0800 (PST)
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-94dddb3c3f0so2422656241.2
+        for <linux-rtc@vger.kernel.org>; Fri, 06 Mar 2026 04:35:40 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVeEEwSphvYCwHYYh5HGhHM/AO3dItQPRKU56bBXZ7FrDNiLIYRLNIkPrkLDktBBPs9eFphLfLVAGQ=@vger.kernel.org
+X-Received: by 2002:a05:6102:2908:b0:5fd:ee19:8b30 with SMTP id
+ ada2fe7eead31-5ffe632e0d7mr598649137.35.1772800540255; Fri, 06 Mar 2026
+ 04:35:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9ed6823e-b381-4de5-b1cf-98f5dc54bb7c@vaisala.com>
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20260125192706.27099-1-ovidiu.panait.rb@renesas.com>
+ <20260125192706.27099-2-ovidiu.panait.rb@renesas.com> <CAMuHMdWZKUjptQCqe_DK3C_g5d9Zhp3r3j6+dAfE1g==NH+ofw@mail.gmail.com>
+In-Reply-To: <CAMuHMdWZKUjptQCqe_DK3C_g5d9Zhp3r3j6+dAfE1g==NH+ofw@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 6 Mar 2026 13:35:29 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdXyo3hYbWYzdYUUzk=OQJzKn4Q4DdxXZi_0C2zH_goK3w@mail.gmail.com>
+X-Gm-Features: AaiRm526yeK4Pkoal5L7g4NriLGd-kQ5uifyBQ0CVN8Qd9yNZfzNgOUcuHaBmPw
+Message-ID: <CAMuHMdXyo3hYbWYzdYUUzk=OQJzKn4Q4DdxXZi_0C2zH_goK3w@mail.gmail.com>
+Subject: Re: [PATCH 1/5] clk: renesas: r9a09g056: Fix ordering of module
+ clocks array
+To: Ovidiu Panait <ovidiu.panait.rb@renesas.com>
+Cc: claudiu.beznea.uj@bp.renesas.com, alexandre.belloni@bootlin.com, 
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+	magnus.damm@gmail.com, mturquette@baylibre.com, sboyd@kernel.org, 
+	prabhakar.mahadev-lad.rj@bp.renesas.com, linux-rtc@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 06/03/2026 12:09:40+0200, Tomas Melin wrote:
-> > On Zynq UltraScale+ Devices Register Reference (UG1087) [2],
-> > CALIB_RD resets to 0, so the current logic works correctly there.
-> > However, this assumption does not appear to hold for Versal.
-> 
-> For Ultrascale+ the calibration register also gives random values after
-> reset, perhaps you have noticed this:
-> https://adaptivesupport.amd.com/s/article/000036886?language=en_US. Maybe
-> the same can occur also on Versal.
-> 
-> AFAIK there is no way of knowing if the value is correct or not after reset,
-> so user space helpers might be needed to maintain the calibration value at a
-> desired value.
-> 
+On Mon, 26 Jan 2026 at 16:27, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> On Sun, 25 Jan 2026 at 20:27, Ovidiu Panait
+> <ovidiu.panait.rb@renesas.com> wrote:
+> > The r9a09g056_mod_clks array is sorted by CPG_CLKON register number and
+> > bit position. Move the RSPI 0/1/2 module clock entries to their correct
+> > position to restore the array sort order.
+> >
+> > Fixes: 1f76689d1715 ("clk: renesas: r9a09g056: Add entries for RSCIs")
+> > Signed-off-by: Ovidiu Panait <ovidiu.panait.rb@renesas.com>
+>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> i.e. will queue in renesas-clk for v6.21.
 
-Userspace is always needed to put the proper calibration, there is no
-way for the kernel to know what value to put there. In the support case
-above, the crystal will never be exactly 32768Hz and this value will
-change over time and also depends on the temperature. The value always
-needs to be computed, if your device can do NTP, chrony will provide the
-proper offsets. If you don't have a way to measure the deviation, then
-userspace can always forcefully set /sys/class/rtc/rtcX/offset if it
-doesn't hold the correct value.
-There is no need for devmem here.
+Promoting to renesas-clk-fixes for v7.0, as I have other fixes.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
