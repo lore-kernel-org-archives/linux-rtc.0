@@ -1,108 +1,70 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3F5B13C8E8
-	for <linux-rtc@vger.kernel.org>; Sat,  7 Mar 2026 00:09:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BB0254B03;
+	Sat,  7 Mar 2026 12:42:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772842187; cv=none; b=k4O7uvobz8XL7comNEczgRRV47VL1iR8k1r/lQg2nxD+BfEYM4Y6LcCk0tf1w3vAh5+f6wUtqbj3kvgEf9II1ThxzBpaoLT3VkRr0uxlbxCk4Y8Jv9i5qakNSEZDlttL5R2vGT/3qvTvkAdArd4JlgjKsRSjft3FdPWLF8Opvrk=
+	t=1772887379; cv=none; b=Ixq7zrPL6sRdJxhzjIoQ6YgCT4Bts55ZBq7VpXGy9bsGzbVbGBcw/XVraiJ8Z8EbsYP1bQX9fXGUJ/XM3SUhYgO2DK5I7h3Io1dMLtBRiRUy/CoV7hyJilsyUKiVcOEx7wnlImjbD+rWWSJC4Blv6yKp4brgs9ko3eqWG4UmTik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772842187; c=relaxed/simple;
-	bh=Xod5TDatpNosX+9dF6j3RGrf8F9ANdZwsWtNdwJuEPA=;
+	s=arc-20240116; t=1772887379; c=relaxed/simple;
+	bh=Zbp/1tKW7RdZIEVwOqkjlXeDgopQQuK16aXFYV3scKw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e0teVNNiya2XX1+ieqpaNd8qsvI+mDVDr3mJt5BgIrsjLWETcyva//x+3UhgdIHQSeQb/YwW/6cY893GedcBV1r2tLHw92vTB5a3NnMoNDo5odp1NyUTi+pUO7zfJl0tozCzBh/zuKKvB+ow5RgCEYfYq49O9xNObyfYMHUlYjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ujM/C0iu; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=fJyvWaS6E/J9VzZuvNv2jGK28KqxzTcOnYuoR6Kqwuoltojo0HgxGhmERjdP3ihKtD6bY1KGqL0GWzmVk2qn4qwy9EM4a8WXI4Zv/wquCzTf/zpN7CbQ/HJ7+DQ4kFJxUElFB8dlzb2GQdX95rQDPuBWQ5uDr8QFYguZcKWwUdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tPfy6gCJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ujM/C0iu"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 43ACDC4043D
-	for <linux-rtc@vger.kernel.org>; Sat,  7 Mar 2026 00:10:02 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id DE68F5FF92;
-	Sat,  7 Mar 2026 00:09:42 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B82CC102F0D91;
-	Sat,  7 Mar 2026 01:09:40 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1772842182; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=C8rLGybudffOtHeoP9RDP82rOfmMQgZBlyUmz5V3v6Q=;
-	b=ujM/C0iupxOzfvG4KWhYPGkUW0Y5TaI+a03hVTj2qH4falN0idH/7CO8Q6jo5hyTSq9lCB
-	YKIKdobmR1V9x115fHEpjWc1k6fa/2sImLguVy/ldAuxdBQwKQJcEfbmf+ZK73P4mQgv/j
-	+ifogFXtVFz1vYonWrA7X5S7RbHw+yJfbYwORgpOF06IgzM0qKcYgBHP6bWGztOEhjYDC+
-	a7l8Zj44MN+3Ku5hahu1KB+l+dXboUaVTt/ul2XdldAMeUyKU3eDLR5oFAEbBkBTX80tKI
-	yQrFJNZlZXYDIdECJwr6GUXgTXA4FhJ186i15y8vdXGVjxruLrtbSOLHoui1sQ==
-Date: Sat, 7 Mar 2026 01:09:39 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Andrew Davis <afd@ti.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] Remove use of i2c_match_id in RTC
-Message-ID: <202603070009395a8a4173@mail.local>
-References: <20260305193545.796294-1-afd@ti.com>
- <20260305230725ffa875be@mail.local>
- <5c4c2470-70ee-4dd4-b769-9f26206145d4@ti.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tPfy6gCJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73C4C19422;
+	Sat,  7 Mar 2026 12:42:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772887379;
+	bh=Zbp/1tKW7RdZIEVwOqkjlXeDgopQQuK16aXFYV3scKw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=tPfy6gCJyWZndvwqzULnhpVg+BqOWDvzhyYaNGMuCfCYvRRhvofF2KZ3vxxasqTYj
+	 FemoMMm2rX40+Mm/3vRYF2Iw4CRTUkLLEB9rYpfqoeiHEz6Cm3On4+9hZMqVV+rw9S
+	 0P+UZbRofU1M54rPrwpEzEH7k/bLqwm65cdqrBQtCowBmem6LKvENMTE/TFzoCfHrZ
+	 TQAsSLRtzEOGa/isnjnknC27LVIm/G+2ZF1u5G5PU2Kd/o381NRZnlDaYrP0zmvuRu
+	 8WJMD8sKU4wfrwyuZdKpYvRM8xTga3ARR/c0amojQQ8dSMSd5lDAtQIg4zZklcTIX8
+	 tVYTgl2x18epQ==
+Date: Sat, 7 Mar 2026 13:42:56 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Chanwoo Choi <cw00.choi@samsung.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v3 3/6] dt-bindings: gpio: trivial-gpio: remove max77620
+ compatible
+Message-ID: <20260307-azure-quokka-of-abracadabra-cebde4@quoll>
+References: <20260306133351.31589-1-clamor95@gmail.com>
+ <20260306133351.31589-4-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <5c4c2470-70ee-4dd4-b769-9f26206145d4@ti.com>
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <20260306133351.31589-4-clamor95@gmail.com>
 
-On 06/03/2026 09:01:00-0600, Andrew Davis wrote:
-> On 3/5/26 5:07 PM, Alexandre Belloni wrote:
-> > On 05/03/2026 13:35:39-0600, Andrew Davis wrote:
-> > > Hello all,
-> > > 
-> > > RTC subsystem is one of the last still using i2c_match_id().
-> > > This is a v2 but nothing is changed from last time. If I'm
-> > > not sending this to the right folks let me know.
-> > 
-> > Do you mean that you intend to remove i2c_match_id from the kernel?
-> > 
+On Fri, Mar 06, 2026 at 03:33:48PM +0200, Svyatoslav Ryhel wrote:
+> Binding for MAX77620 GPIO function is covered by the MAX77620 schema. GPIO
+> controller function in MAX77620 has no dedicated node and is folded into
+> the parent node itself.
 > 
-> Yes, once I remove all users in the various subsystems (like RTC),
-> I'll remove it from the I2C headers.
-> 
-> It should be replaced with functions like i2c_get_match_data()
-> for reasons given in the commit messages.
+> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/gpio/trivial-gpio.yaml | 2 --
+>  1 file changed, 2 deletions(-)
 
-Ok, this should have been made clear in the original cover letter, the
-series would have looked a bit less like unnecessary churn.
+This should be squashed with the converting patch for this compatible.
 
-> 
-> Andrew
-> 
-> > > 
-> > > Thanks,
-> > > Andrew
-> > > 
-> > > Andrew Davis (6):
-> > >    rtc: abx80x: Remove use of i2c_match_id()
-> > >    rtc: m41t80: Remove use of i2c_match_id()
-> > >    rtc: pcf2127: Remove use of i2c_match_id()
-> > >    rtc: rs5c372: Remove use of i2c_match_id()
-> > >    rtc: rv8803: Remove use of i2c_match_id()
-> > >    rtc: rx8025: Remove use of i2c_match_id()
-> > > 
-> > >   drivers/rtc/rtc-abx80x.c  |  3 +--
-> > >   drivers/rtc/rtc-m41t80.c  |  8 +-------
-> > >   drivers/rtc/rtc-pcf2127.c | 23 +++++++----------------
-> > >   drivers/rtc/rtc-rs5c372.c |  7 +------
-> > >   drivers/rtc/rtc-rv8803.c  |  8 +-------
-> > >   drivers/rtc/rtc-rx8025.c  |  4 +---
-> > >   6 files changed, 12 insertions(+), 41 deletions(-)
-> > > 
-> > > -- 
-> > > 2.39.2
-> > > 
-> > 
-> 
+Best regards,
+Krzysztof
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
