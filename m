@@ -1,130 +1,191 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDB6E378D74;
-	Wed, 11 Mar 2026 22:11:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773267077; cv=none; b=V3+IBEeHq79t6BaE6eMtaq1e8Ov51cSEf/7Q8mbPbvtN3Bt26p8qnpGnHKnD1zNTww6ypwFEaaS1oU5UnsVO/sJjaXQ4mEr9CpN4blPCGOSa1zgFZirBHZsvidKvYFQaI5DeL/XWBJn6/+eZSDVwWknt/zbQiu7m2WcB+lrVWGc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773267077; c=relaxed/simple;
-	bh=khlI1DVyLEdkGQTJL55L84uDojA4mCd8tZUSWPV72Fo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OrcTjMKIc1mBdDbEb1U1kvV5lvpP6JUQMPFJNtyHTOVZHH3bNPE/UajgvovuivJd0elM3P+UiOcViWVMLlFogRTJWga2y9Kz+HHJr+XxSiXBeVO3BWolMujgfRGJqa0QL3Y23etDbu25uWeLL/J1CFhXAZ3iHhsxEWLh9//06GI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t88SZAwC; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64E2E2E718B
+	for <linux-rtc@vger.kernel.org>; Thu, 12 Mar 2026 08:03:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773302586; cv=pass; b=A1seshan8kflDPy0ffAzjGFrx7C4wvHjubuFu+Mi9sbmtCSnU0T+bPWuRZEtflCWXnuThhyLzfwPKsbfoYVxXIXzr+jMkOaexPnqcm7GeMk/Z/8UT0JtilTYPrtaAP3HKLhMm+nUUkxYpxHBPsOw047O+ZJV0hbnzXbTGNCcSoU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773302586; c=relaxed/simple;
+	bh=cTzeAB37F6kJZZPNQk3PO+7uyQzPvuQGhnO4B+D7ZFY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Vk2L4F3wds0ZpXEMn+upoS64ibH6GBzx5Zc3XaLdyE4qIMqHFQ+L+D7er4auaMam9yxx0ZDYyhO0CwHdOEhcf56SWb5xFB4fkRIs60r4xAWjcaCJ/zUiQCnnVxIX+l5ARClzOfBvmBSw+UiSM7CW3IhhmESSxZtKtVZXIBGKcvA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JeOb9bJl; arc=pass smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t88SZAwC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F0C0C4CEF7;
-	Wed, 11 Mar 2026 22:11:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773267076;
-	bh=khlI1DVyLEdkGQTJL55L84uDojA4mCd8tZUSWPV72Fo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=t88SZAwCQTdLx7TVG9wnCq2c0qzcjkLnjKP6bQiTn8teXv7+/3ZX34lqOVPp3AGn9
-	 sA8Nj7NwCitdaiO7m+i2UWk3AOtldBQt6kyDkBK8AhrFsMAV9jtBmRRuNJtFJImsgd
-	 UJZ3HuWpjKZpnx3mD9MoJ6oQyYOjwu9mpZQ7AnhmJYBdsypLwDH4MfS6n4LKmzquLp
-	 Wfb2lFY3cfEcFAR90wHwTI+fBjB0Byyp4bWmAhdm6gDopKFnn5mTocApEhxrfH0fbL
-	 nUZRYtr4LSLNR6fJdFWoAWe0n6uoQ/mSsTTdoqDA+6iqJDuHvB8JiLYYQrLjwQ/05B
-	 GGtgZS54UoneA==
-Date: Wed, 11 Mar 2026 17:11:15 -0500
-From: Rob Herring <robh@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v3 2/6] dt-binding: pinctrl: pinctrl-max77620: convert to
- DT schema
-Message-ID: <20260311221115.GA775894-robh@kernel.org>
-References: <20260306133351.31589-1-clamor95@gmail.com>
- <20260306133351.31589-3-clamor95@gmail.com>
- <20260307-smiling-coyote-of-economy-317afe@quoll>
- <CAPVz0n2QXSFnrkLPFVDbUjNAkp2_dTumeXh4EsB11ca0jHEC-g@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JeOb9bJl"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4852fdb36a8so7482625e9.2
+        for <linux-rtc@vger.kernel.org>; Thu, 12 Mar 2026 01:03:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773302583; cv=none;
+        d=google.com; s=arc-20240605;
+        b=HTD1pi4hYg1JQs+zdv9wzlg76ybtLvFqt2J/j/Bdr3Suv7yAG7xK0lle4htkq/1Gw7
+         6CwX1Mu/M99mjTu7wLK2ZjmcAukpP8QbEWwghptSivdzLP545aWrFFlDSIfBEnvgs7sb
+         29CZhbmKDiHyzTykfCiItrRUZtxjR7zvOyyyONGbq5aNLgFX7R9enhSUSnUn0hNOQRLL
+         DYzh79obk4q4mHzFtV3p7FywTtYyA50Tu0Yns2cdrP12qqc5oii5SdQQD26mlf5gUwJ3
+         A59eeJ1xBGlpzYZMbB28wsWLI2H7AaGWm7OnXbSIymqCW9q9v3+i05F9adPNWeH38LTv
+         qDIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=BbjJ+SQCghaY61mjkEDxh0STs+H8xDE7U50HeqsZzCU=;
+        fh=+vSP9x+gkDIs71GJ/YXFKIsSQ6tvELF9MQbx4RA8SGM=;
+        b=Gt0CeU6NRAa2rcnHLch0nXL0ce8CqQxn8yw4/4feba/rDq8Opy/JLW1zvUyy++B1kk
+         RXIHwB/mzwOIui8KFdToMqYvi87P2C/8Wsp1uOi2IU+a/T1HXfOgL2ydjdfCQejVKU7T
+         Coh8x8tJZVWZl0Tsg521kfmJi9KuM7bcu0LUs3SiG84g0C9NKotS1VbBV0RWqg4TiByT
+         P7BfQnyFgtTI9gKYWdPboE7wBrTJ5upsGIIBcg2HSd/DkqM9VBf8uHdJp0Ueva80nw45
+         bE7obUExK3IAZQfdBzcoxEwNCmvkpUfRNk6YMJ6dAFarOC3dau30C59fb6xTBDTXNyhT
+         6Cjg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773302583; x=1773907383; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BbjJ+SQCghaY61mjkEDxh0STs+H8xDE7U50HeqsZzCU=;
+        b=JeOb9bJl7R4Nw7fBOtqp42jO8+A23nm4z+KCV7CrJA1w8dvfd0sbGTtTtzUFCWxZ/j
+         79zlX21vEln7wZpd4ukmmfdlYZ7Ql2m/M2PLyVo7cQammvkkP+WN3D/mJEsewzNZHaZm
+         9ayg9+tBlT/6Wvvma/ey81v3MU0c0dlczjkxBCP4MNIMXKy5epu0wqj8NKkZf3B4FmEo
+         xsvW8zgL+dP8JIkWaldZQpSKfC+1xKuq3f29lJymfwQmLJNsR6SIyTDLUArkHqLVSH+U
+         T0TbW1OZ0Yl2mGYTISq/I6hN0aDxYUJxHUFUzqtqnlhDLoy7LBlxn3osgynLiIZgrh50
+         wCYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773302583; x=1773907383;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=BbjJ+SQCghaY61mjkEDxh0STs+H8xDE7U50HeqsZzCU=;
+        b=enrT3dhVVp5JikHPQwanimV/Rkse8qZ0dhbqooAC4A4fTz5v0HRy6BgQiZEzM1TuAA
+         HThecN4u7xexLCL2eO/nJwRxv4MqfuUug1wJ1KdiUy0zmFJh5TusD6S3ak/i3+jV2iuA
+         oMf8McJi4e47iJr/J/HofpxtDpY6cp9US9L4psaWD7uULgFq5IkBYk19mLB4XmRN2xGB
+         qXeTwqVY9UJmPQoGFQ/a3oi3euJwVhPozPUfIe4Z9DtaXBXgDOFNR01cL6etRwP0Gt/k
+         i7PvoZhSuMV/gPfqm3lcolIoOXLHFkaBwmmZO048UlL91qUmFaqsDrg7nvftAI/Cs+OG
+         aNHg==
+X-Forwarded-Encrypted: i=1; AJvYcCWt/rIX5J1+XrzLbG9oYg70MH5mZN6VmjKRwvbcoTYfSz6ljy6ULGSTpEWQxg/v1LfDums45999B24=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXPnI+1npVJctn5rP5JpXevw/hZYh8QVLv1P6JLliawvwCyTpK
+	shzzotY4rLOj6mtqB5IS1bOmyMlmjQLRqAHt4PQta4PTVPUrhyqNp2VBwNIvm/+0HFcY78hOALJ
+	bhSutjZzGyW31yBQmesdC/8jz57iB1Ag=
+X-Gm-Gg: ATEYQzw3j/Q6JnkrZonAI+rKBsOqGubdt8B9JRFag/oqImEDUrnX3IEQ5Q3cSYs5+9K
+	Ay6I7XzVN9j7EVycJKEZQwKjKqEF/1lJ+JmbgJHypdjF5xoEV4EaPcGJ2AE1hAHzjBRxtt7fAXf
+	G0FEYsohThy1HZTgaX3TJjRfN7teQglsTPqaem9IGoAvOlZeBtoNOXZAyE+r7wVgwYQsC9dstG9
+	DKNAFW3HCOaKLrTtjhSTwYoWkKvMML+1+REM3y6PhvWqEmYHRpIb4vRsWb0qIcP8urKNBYVqThV
+	gt0B4o98
+X-Received: by 2002:a05:600c:3551:b0:485:3f1c:d8a4 with SMTP id
+ 5b1f17b1804b1-4854b0d6c1amr95772455e9.9.1773302582414; Thu, 12 Mar 2026
+ 01:03:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPVz0n2QXSFnrkLPFVDbUjNAkp2_dTumeXh4EsB11ca0jHEC-g@mail.gmail.com>
+References: <20260306133351.31589-1-clamor95@gmail.com> <20260306133351.31589-3-clamor95@gmail.com>
+ <20260307-smiling-coyote-of-economy-317afe@quoll> <CAPVz0n2QXSFnrkLPFVDbUjNAkp2_dTumeXh4EsB11ca0jHEC-g@mail.gmail.com>
+ <20260311221115.GA775894-robh@kernel.org>
+In-Reply-To: <20260311221115.GA775894-robh@kernel.org>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Thu, 12 Mar 2026 10:02:51 +0200
+X-Gm-Features: AaiRm50s9En6lGf1tMoouVyxB599AhlUh5nfjiGhsXtzzsxYNq4Fz7mN4wRsVQQ
+Message-ID: <CAPVz0n3pFzWUV7g_AcigRDSQJP4Hr6Ya=M_Zi+538XczR4ahtQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/6] dt-binding: pinctrl: pinctrl-max77620: convert to
+ DT schema
+To: Rob Herring <robh@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Lee Jones <lee@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Chanwoo Choi <cw00.choi@samsung.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 07, 2026 at 03:30:21PM +0200, Svyatoslav Ryhel wrote:
-> сб, 7 бер. 2026 р. о 14:48 Krzysztof Kozlowski <krzk@kernel.org> пише:
-> >
-> > On Fri, Mar 06, 2026 at 03:33:47PM +0200, Svyatoslav Ryhel wrote:
-> > > Convert pinctrl-max77620 devicetree bindings for the MAX77620 PMIC from
-> > > TXT to YAML format. This patch does not change any functionality; the
-> > > bindings remain the same.
+=D1=87=D1=82, 12 =D0=B1=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 00:11 Rob =
+Herring <robh@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> On Sat, Mar 07, 2026 at 03:30:21PM +0200, Svyatoslav Ryhel wrote:
+> > =D1=81=D0=B1, 7 =D0=B1=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 14:48 K=
+rzysztof Kozlowski <krzk@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
 > > >
-> > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > ---
-> > >  .../pinctrl/maxim,max77620-pinctrl.yaml       |  97 +++++++++++++
-> > >  .../bindings/pinctrl/pinctrl-max77620.txt     | 127 ------------------
-> > >  2 files changed, 97 insertions(+), 127 deletions(-)
-> > >  create mode 100644 Documentation/devicetree/bindings/pinctrl/maxim,max77620-pinctrl.yaml
-> > >  delete mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-max77620.txt
+> > > On Fri, Mar 06, 2026 at 03:33:47PM +0200, Svyatoslav Ryhel wrote:
+> > > > Convert pinctrl-max77620 devicetree bindings for the MAX77620 PMIC =
+from
+> > > > TXT to YAML format. This patch does not change any functionality; t=
+he
+> > > > bindings remain the same.
+> > > >
+> > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > > ---
+> > > >  .../pinctrl/maxim,max77620-pinctrl.yaml       |  97 +++++++++++++
+> > > >  .../bindings/pinctrl/pinctrl-max77620.txt     | 127 --------------=
+----
+> > > >  2 files changed, 97 insertions(+), 127 deletions(-)
+> > > >  create mode 100644 Documentation/devicetree/bindings/pinctrl/maxim=
+,max77620-pinctrl.yaml
+> > > >  delete mode 100644 Documentation/devicetree/bindings/pinctrl/pinct=
+rl-max77620.txt
+> > > >
+> > > > diff --git a/Documentation/devicetree/bindings/pinctrl/maxim,max776=
+20-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/maxim,max77620-=
+pinctrl.yaml
+> > > > new file mode 100644
+> > > > index 000000000000..7364a8bdd7d3
+> > > > --- /dev/null
+> > > > +++ b/Documentation/devicetree/bindings/pinctrl/maxim,max77620-pinc=
+trl.yaml
+> > > > @@ -0,0 +1,97 @@
+> > > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > > > +%YAML 1.2
+> > > > +---
+> > > > +$id: http://devicetree.org/schemas/pinctrl/maxim,max77620-pinctrl.=
+yaml#
+> > > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > > > +
+> > > > +title: Pinmux controller function for Maxim MAX77620 Power managem=
+ent IC
+> > > > +
+> > > > +maintainers:
+> > > > +  - Svyatoslav Ryhel <clamor95@gmail.com>
+> > > > +
+> > > > +description:
+> > > > +  Device has 8 GPIO pins which can be configured as GPIO as well a=
+s the
+> > > > +  special IO functions.
+> > > > +
+> > > > +allOf:
+> > > > +  - $ref: /schemas/pinctrl/pincfg-node.yaml
+> > > > +  - $ref: /schemas/pinctrl/pinmux-node.yaml
+> > > > +
+> > > > +patternProperties:
+> > > > +  "^(pin_gpio|gpio)[0-7_]+$":
 > > >
-> > > diff --git a/Documentation/devicetree/bindings/pinctrl/maxim,max77620-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/maxim,max77620-pinctrl.yaml
-> > > new file mode 100644
-> > > index 000000000000..7364a8bdd7d3
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/pinctrl/maxim,max77620-pinctrl.yaml
-> > > @@ -0,0 +1,97 @@
-> > > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > > +%YAML 1.2
-> > > +---
-> > > +$id: http://devicetree.org/schemas/pinctrl/maxim,max77620-pinctrl.yaml#
-> > > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > > +
-> > > +title: Pinmux controller function for Maxim MAX77620 Power management IC
-> > > +
-> > > +maintainers:
-> > > +  - Svyatoslav Ryhel <clamor95@gmail.com>
-> > > +
-> > > +description:
-> > > +  Device has 8 GPIO pins which can be configured as GPIO as well as the
-> > > +  special IO functions.
-> > > +
-> > > +allOf:
-> > > +  - $ref: /schemas/pinctrl/pincfg-node.yaml
-> > > +  - $ref: /schemas/pinctrl/pinmux-node.yaml
-> > > +
-> > > +patternProperties:
-> > > +  "^(pin_gpio|gpio)[0-7_]+$":
+> > > Underscores are not allowed in general, so pattern needs fixes. Does
+> > > anything actually rely on this name? Is this ABI? I don't see old
+> > > binding and driver using the name, thus this should be just ^pin-[0-7=
+]$
+> > > (+ is also not correct if you have max 8 gpios)
+> > >
 > >
-> > Underscores are not allowed in general, so pattern needs fixes. Does
-> > anything actually rely on this name? Is this ABI? I don't see old
-> > binding and driver using the name, thus this should be just ^pin-[0-7]$
-> > (+ is also not correct if you have max 8 gpios)
+> > Old txt schema uses pin_gpio[0-7] hence it is here, but greping trees
+> > did not reveal use of pin_gpio so it may be dropped.
 > >
-> 
-> Old txt schema uses pin_gpio[0-7] hence it is here, but greping trees
-> did not reveal use of pin_gpio so it may be dropped.
-> 
-> No this is not ABI, name may be any. Including gpio0-1-2-3, gpio2-4
-> etc which is why + is there. or maybe you know better way to cover
-> those names?
-> 
-> There are device trees which use gpio5_6 with the underscore
-> (tegra210-smaug.dts; tegra210-p2894.dtsi for example). Should the
-> schema account for those?
+> > No this is not ABI, name may be any. Including gpio0-1-2-3, gpio2-4
+> > etc which is why + is there. or maybe you know better way to cover
+> > those names?
+> >
+> > There are device trees which use gpio5_6 with the underscore
+> > (tegra210-smaug.dts; tegra210-p2894.dtsi for example). Should the
+> > schema account for those?
+>
+> Defining a specific pattern looks like an endorsement of the name. I
+> would just do the minimum you need. Something like '^(pin|gpio).' unless
+> you have a pinctrl-* property.
+>
 
-Defining a specific pattern looks like an endorsement of the name. I 
-would just do the minimum you need. Something like '^(pin|gpio).' unless 
-you have a pinctrl-* property. 
+It does fit nicely. Thank you!
 
-Rob
+> Rob
