@@ -1,40 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A7A517BA2;
-	Sat, 14 Mar 2026 12:12:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6614C17BA2;
+	Sat, 14 Mar 2026 12:13:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773490377; cv=none; b=YZDO/dl64+TOMV9ktQz4ek/yXc+ZlcaMG086C2gW8DYIT9xivxTBQ7YTmViU7jAUdNsks5i6bCP6Ijc46swKG69B4haAxxSygq18Gc3TS+4J1tVD03R8I73bBXIf3AnfFPygWpcoOBAon6yLbwVUa0glTbb9n6/iY+aCTdq9LcE=
+	t=1773490380; cv=none; b=WlGhTXeGQ/xfdv5aboLBi7pyYs8+skptj3S2dm28pwcHonRD14+be56O9Vb0wkMRMf90xdAKrNWgs2DD7/x+owXjCytzNHj8VhKrzmT8Lr/iHsv71IR+HGuQkBWJCHg74tjIVpwWh+hSxxiJUrlq8nL/AXX+lrKuW8ZUgFrO4LA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773490377; c=relaxed/simple;
-	bh=MgnzSi2O40TkVkf3IA+ouB7bdnyDgrYLAeBVXp+Ohh0=;
+	s=arc-20240116; t=1773490380; c=relaxed/simple;
+	bh=s+9pzKZUNJo/fFOmmNEGV6HBpqHsc/pBMHJQwvs2TRg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fHTTelueckYG8gRZWmSp1V6bIj3IwvxyTy4wCgydgfrltN3joHjAi36eYyiK9JWUsuvfYlX2CGTDD2pfkSClQHi3F/xMO8c1cqtqiEj56HgOg38aZRwHji/ypWd3DogdVXVdU76vbrlbNL1qK/drCuwWJM6IcpZoC8OL3gYDICs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DEUKhBWd; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=eVll7urPNmZO8gKzN1FUoaJr+HWUfH8zOh0/d6lmZCR9zRcKRpd939xRK1RB+y2VDoNnqaBbzBXYPjaHwJdf2Orxr7qAWwvW05ihLD6pAwfOHleQXUmu57r2ecsJQXtsr0Weznj1sOqhoVb09Nt7+wj+hlDMIaVLhna6Idml4I0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NR01Byvi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DEUKhBWd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7B9C116C6;
-	Sat, 14 Mar 2026 12:12:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NR01Byvi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B5EC116C6;
+	Sat, 14 Mar 2026 12:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773490376;
-	bh=MgnzSi2O40TkVkf3IA+ouB7bdnyDgrYLAeBVXp+Ohh0=;
+	s=k20201202; t=1773490380;
+	bh=s+9pzKZUNJo/fFOmmNEGV6HBpqHsc/pBMHJQwvs2TRg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DEUKhBWdSyu1Equ25k1GBsl6QKUrFOLahjeM9orTtoSxyACEjiOATXGE8s0Y+2uTA
-	 obaZ/Z+5wfC2jxH+bSaF/8LOeHE0vK1qFsHjtnrI7SmrR+MXH+NlsvxumwmQJESTMT
-	 6SBYc27HXYDrlCoDtUKwlRNf4Ly2UQZzh/HeCoYXCTU+WtUOLf8xC+GQ/FYmUTxQc7
-	 /C5JztQO7ezyEbGFsOjq2MXvXxeJqpo4H5FcyQLF5sRPuCVbE5ozj84E+d6ANlkRWV
-	 tZOBAmrAtri91fOy+6KXPzaMjJasqjbEF38gCZJj3xlsOW46KxBXKFXsrAXrddFiB8
-	 jM1gmvba8OphQ==
+	b=NR01Byvir5A8/r8HnWge3+QVOfU9c58Z1joVngYWQElFESmhUHWGpa39w/emCEooc
+	 4qWg1x6pRIn8OEhDbt3amP5didv7jJZ1LVMjKj1XE+HyMIwCyaKGPdtDxY6mQXNziY
+	 JSeR/bPd+Q6RoTVZqUtNdNzljDpm5JmnEt+2DU4ZIKVMAsVUP0nfVq1TQDyKG5DdBj
+	 LH/aMFSaLcVlzGfrm2YwVp9p9oyQO2wPbLlp676aSB3BXKbsts2DDHpRBkx0461/S7
+	 DkvtXlopH76g8MaH8lO4eUDd4EvxmT3YGaD2bzVtsu/xBekklyR+ulkpoxnKSzcGSE
+	 G8LC5FPSJ72mQ==
 From: "Rafael J. Wysocki" <rafael@kernel.org>
 To: linux-rtc@vger.kernel.org
 Cc: LKML <linux-kernel@vger.kernel.org>,
  Linux ACPI <linux-acpi@vger.kernel.org>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>,
  Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH v1 2/2] rtc: cmos: Do not require IRQ if ACPI alarm is used
-Date: Sat, 14 Mar 2026 13:12:44 +0100
-Message-ID: <6168746.MhkbZ0Pkbq@rafael.j.wysocki>
+Subject:
+ [PATCH v1 1/2] rtc: cmos: Enable ACPI alarm if advertised in ACPI FADT
+Date: Sat, 14 Mar 2026 13:11:20 +0100
+Message-ID: <9618535.CDJkKcVGEf@rafael.j.wysocki>
 Organization: Linux Kernel Development
 In-Reply-To: <3964452.kQq0lBPeGt@rafael.j.wysocki>
 References: <3964452.kQq0lBPeGt@rafael.j.wysocki>
@@ -49,73 +50,52 @@ Content-Type: text/plain; charset="UTF-8"
 
 From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-If the ACPI RTC fixed event is used, a dedicated IRQ is not required
-for the CMOS RTC alarm to work, so allow the driver to use the alarm
-without a valid IRQ in that case.
+If the ACPI_FADT_FIXED_RTC flag is unset, the platform is declaring that
+it supports the ACPI RTC fixed event which should be used instead of a
+dedicated CMOS RTC IRQ.  However, the driver only enables it when
+is_hpet_enabled() returns true, which is questionable because there is
+no clear connection between enabled HPET and signaling wakeup via the
+ACPI RTC fixed event (for instance, the latter can be expected to work
+on systems that don't include a functional HPET).
+
+Moreover, since use_hpet_alarm() returns false if use_acpi_alarm is set,
+the ACPI RTC fixed event is effectively used instead of the HPET alarm
+if the latter is functional, but there is no particular reason why it
+could not be used otherwise.
+
+Accordingly, on x86 systems with ACPI, set use_acpi_alarm if
+ACPI_FADT_FIXED_RTC is unset without looking at whether or not HPET is
+enabled.
+
+Also, do the ACPI FADT check in use_acpi_alarm_quirks() before the DMI
+BIOS year checks which are more expensive and it's better to skip them
+if ACPI_FADT_FIXED_RTC is set.
 
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/rtc/rtc-cmos.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-cmos.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/drivers/rtc/rtc-cmos.c
 +++ b/drivers/rtc/rtc-cmos.c
-@@ -216,6 +216,11 @@ static inline void cmos_write_bank2(unsi
- 
- /*----------------------------------------------------------------*/
- 
-+static bool cmos_no_alarm(struct cmos_rtc *cmos)
-+{
-+	return !is_valid_irq(cmos->irq) && !cmos_use_acpi_alarm();
-+}
+@@ -817,6 +817,9 @@ static void rtc_wake_off(struct device *
+ #ifdef CONFIG_X86
+ static void use_acpi_alarm_quirks(void)
+ {
++	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
++		return;
 +
- static int cmos_read_time(struct device *dev, struct rtc_time *t)
- {
- 	int ret;
-@@ -287,7 +292,7 @@ static int cmos_read_alarm(struct device
- 	};
- 
- 	/* This not only a rtc_op, but also called directly */
--	if (!is_valid_irq(cmos->irq))
-+	if (cmos_no_alarm(cmos))
- 		return -ETIMEDOUT;
- 
- 	/* Basic alarms only support hour, minute, and seconds fields.
-@@ -520,7 +525,7 @@ static int cmos_set_alarm(struct device
- 	int ret;
- 
- 	/* This not only a rtc_op, but also called directly */
--	if (!is_valid_irq(cmos->irq))
-+	if (cmos_no_alarm(cmos))
- 		return -EIO;
- 
- 	ret = cmos_validate_alarm(dev, t);
-@@ -1096,7 +1101,7 @@ cmos_do_probe(struct device *dev, struct
- 			dev_dbg(dev, "IRQ %d is already in use\n", rtc_irq);
- 			goto cleanup1;
- 		}
--	} else {
-+	} else if (!cmos_use_acpi_alarm()) {
- 		clear_bit(RTC_FEATURE_ALARM, cmos_rtc.rtc->features);
+ 	switch (boot_cpu_data.x86_vendor) {
+ 	case X86_VENDOR_INTEL:
+ 		if (dmi_get_bios_year() < 2015)
+@@ -830,8 +833,6 @@ static void use_acpi_alarm_quirks(void)
+ 	default:
+ 		return;
  	}
+-	if (!is_hpet_enabled())
+-		return;
  
-@@ -1121,7 +1126,7 @@ cmos_do_probe(struct device *dev, struct
- 		acpi_rtc_event_setup(dev);
- 
- 	dev_info(dev, "%s%s, %d bytes nvram%s\n",
--		 !is_valid_irq(rtc_irq) ? "no alarms" :
-+		 cmos_no_alarm(&cmos_rtc) ? "no alarms" :
- 		 cmos_rtc.mon_alrm ? "alarms up to one year" :
- 		 cmos_rtc.day_alrm ? "alarms up to one month" :
- 		 "alarms up to one day",
-@@ -1147,7 +1152,7 @@ cleanup0:
- static void cmos_do_shutdown(int rtc_irq)
- {
- 	spin_lock_irq(&rtc_lock);
--	if (is_valid_irq(rtc_irq))
-+	if (!cmos_no_alarm(&cmos_rtc))
- 		cmos_irq_disable(&cmos_rtc, RTC_IRQMASK);
- 	spin_unlock_irq(&rtc_lock);
+ 	use_acpi_alarm = true;
  }
 
 
