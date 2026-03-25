@@ -1,161 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from srv01.abscue.de (abscue.de [89.58.28.240])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D50473BE623;
-	Wed, 25 Mar 2026 11:22:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C2E3D333A;
+	Wed, 25 Mar 2026 13:55:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.58.28.240
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774437755; cv=none; b=QACSnGOucT5g1QJ+8Fv1xhX6hRbmwhUzCtftZ/LHuNgteGw1VkVNCB74VgRehuDlwkjYDsq4CmiEUs41lp2V1v1LGsacGzpfHGIl2EDv30sCx/iIxBtoPjk42GCyUWDs3kbjbZTMrv7B6pv7HmBaF0Zpj6yoMAc5fWWdWCl7WMg=
+	t=1774446903; cv=none; b=CKodrxgJAKTp92zYEKeOCYeuXv/YlijuDtr7incZ7HKnpT6eIJCiDBQArvAf6d31PRbyRMPuMZH7b6kvdl+QfnpLMu+4cpp4hLoLJv3/f5VFPq4A0pRhYdMX9qrUB9cWWiqMNMri/8lAruJmcirLFToAwTcuk0/qCtdo0Ed1vXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774437755; c=relaxed/simple;
-	bh=O6d0BGiBXFmx8FooLw5bLabbLInDXePEHVkVIeZrTSY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pgmPVTCHjdeRB1LOiBAYyohLlRX01GO9VA5xL8bUg7pg6/QcKOoXT088G0Mxm5ksa5VdXdy5go5KLvtyLlrmch631bUVsJFvsqniVLYyDsgRyRaHdg6A8T56dQJKYGMdTkxfAKA0pQ4ixpHHVSoFKOxx0PxPXk5gOGqe7bRqIfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uRRg3P8r; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774446903; c=relaxed/simple;
+	bh=zOiHRiD7dxKBfhbPbB4OMZm22V5rmCiucuIOzalEXSY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=bQrWE/xlM1nJgMHzqXH9FMMyKfpGvqrzqQPLNoECT2xpZ7pSCBh6NfZ81FqLW16gN+b/pUmXsnA6VNKvDL/CnVm/Ve+IB9HaQsOcQ5cOU7YJEZcV0hMWVtGctxsElIAdL8VspgTURJoERlJE090RBpdhtYFCqMYj3sG0zLvulj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de; spf=pass smtp.mailfrom=abscue.de; dkim=pass (2048-bit key) header.d=abscue.de header.i=@abscue.de header.b=fquBHHCz; arc=none smtp.client-ip=89.58.28.240
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=abscue.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uRRg3P8r"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD94FC2BC9E;
-	Wed, 25 Mar 2026 11:22:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774437755;
-	bh=O6d0BGiBXFmx8FooLw5bLabbLInDXePEHVkVIeZrTSY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uRRg3P8rXQ70MgQZPJRGO5qWoPsq0GPMlKJC1zMfMw/q90eAVc4KwYvMn83N7apeA
-	 2HEwC6UcEZbNG4t6Q+sndvaqdgbgLslDuuaB2u+1qDPOq2S384D5UcHJrxYD/RdX7o
-	 t8YSFuv+IaSqUBS/AKJmjCD3ZqITrMr+GZXU4wgx5EKnNCHcvxXFyRwVUNRc8MpgHN
-	 cFjxNzBPpdza8AyE3dCrYUPLhIW9G+SkiG+PFn9Ja+7eDXGlBKpSUCiYeh3eEeFuUS
-	 8plv/u+U5NfoBY3LSWuyNi4U5LV/6I8vmGBFj934eNhwWw3iffHNiFWVjQXhI15awr
-	 xscZetLxYKQGw==
-Date: Wed, 25 Mar 2026 11:22:28 +0000
-From: Lee Jones <lee@kernel.org>
-To: Otto =?iso-8859-1?Q?Pfl=FCger?= <otto.pflueger@abscue.de>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Orson Zhai <orsonzhai@gmail.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Pavel Machek <pavel@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH 4/6] mfd: sprd-sc27xx: Switch to devm_mfd_add_devices()
-Message-ID: <20260325112228.GF2902881@google.com>
-References: <20260222-sc27xx-mfd-cells-v1-0-69526fe74c77@abscue.de>
- <20260222-sc27xx-mfd-cells-v1-4-69526fe74c77@abscue.de>
- <20260309185856.GZ183676@google.com>
- <ab2i6i2D5q0t0xZ5@abscue.de>
+	dkim=pass (2048-bit key) header.d=abscue.de header.i=@abscue.de header.b="fquBHHCz"
+Received: from fluffy-mammal.metal.fwg-cag.de (unknown [IPv6:2001:9e8:cde0:9600:8d27:ae39:1dce:2212])
+	by srv01.abscue.de (Postfix) with ESMTPSA id AE0491C006F;
+	Wed, 25 Mar 2026 14:54:52 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abscue.de; s=dkim;
+	t=1774446893;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KDZ5Sh45takfz5M+ly8guwVTBtTFzIYC7hXhR2y5yk4=;
+	b=fquBHHCzMBq4Q3M0HbwDIjI3Q71S+GRI93VLNHcNmV0QeO7+/Cifjxod3Gi1IGoH3EI9Ws
+	d3ggCEgPGiv/y96pVM/8BHTdbC6YC1TVandAtyml56JXuIn8MDItEk5JjR+/ohvxTeSuJc
+	gG2WBdU460oDuzV2FXjDeYylftBTqEM7z8VgbniFjS5t6+lZCy2ys8oqjsd8AMHltjx5Jc
+	WO8DaBtisKMMHmm1JoXJ6/6CdUpC9LSwOVKNHLk+4aro7k2hNvXN8ei3jhYbgyjjmsRWGY
+	BhXG+mzfoy1X/Kee5gDjpkIMobuljbxt3tC1iwIGQtULVCtmGd9jw8/fN/h2YQ==
+From: =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
+Date: Wed, 25 Mar 2026 14:53:43 +0100
+Subject: [PATCH v2 1/5] dt-bindings: rtc: sc2731: Add compatible for SC2730
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ab2i6i2D5q0t0xZ5@abscue.de>
+Message-Id: <20260325-sc27xx-mfd-cells-v2-1-d0ebb60aa4a7@abscue.de>
+References: <20260325-sc27xx-mfd-cells-v2-0-d0ebb60aa4a7@abscue.de>
+In-Reply-To: <20260325-sc27xx-mfd-cells-v2-0-d0ebb60aa4a7@abscue.de>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Chunyan Zhang <zhang.lyra@gmail.com>, Lee Jones <lee@kernel.org>, 
+ Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
+ linux-pm@vger.kernel.org, 
+ =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
+X-Mailer: b4 0.14.3
 
-> Could you clarify what should be changed?
+The RTC block found in the SC2730 PMIC is compatible with the one found
+in the SC2731 PMIC.
 
-Sure.
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
+Signed-off-by: Otto Pflüger <otto.pflueger@abscue.de>
+---
+ Documentation/devicetree/bindings/rtc/sprd,sc2731-rtc.yaml | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> On Mon, Mar 09, 2026 at 06:58:56PM +0000, Lee Jones wrote:
-> > On Sun, 22 Feb 2026, Otto Pflüger wrote:
-> > 
-> > > To allow instantiating subdevices such as the regulator and poweroff
-> > > devices that do not have corresponding device tree nodes with a
-> > > "compatible" property, use devm_mfd_add_devices() with MFD cells instead
-> > > of devm_of_platform_populate(). Since different PMICs in the SC27xx
-> > > series contain different components, use separate MFD cell tables for
-> > > each PMIC model. Define cells for all components that have upstream
-> > > drivers at this point.
-> > 
-> > We're not passing one device registration API's data (MFD)
-> > through another (Device Tree).
-> > 
-> > Pass an identifier through and match on that instead.
-> > 
-> > Look at how all of the other drivers in MFD do it.
-> >
-> > [...]
-> > > +static const struct mfd_cell sc2730_devices[] = {
-> > > +	MFD_CELL_OF("sc2730-adc", NULL, NULL, 0, 0, "sprd,sc2730-adc"),
-> > > +	MFD_CELL_OF("sc2730-bltc", NULL, NULL, 0, 0, "sprd,sc2730-bltc"),
-> > > +	MFD_CELL_OF("sc2730-efuse", NULL, NULL, 0, 0, "sprd,sc2730-efuse"),
-> > > +	MFD_CELL_OF("sc2730-eic", NULL, NULL, 0, 0, "sprd,sc2730-eic"),
-> > > +	MFD_CELL_OF("sc2730-fgu", NULL, NULL, 0, 0, "sprd,sc2730-fgu"),
-> > > +	MFD_CELL_OF("sc2730-rtc", NULL, NULL, 0, 0, "sprd,sc2730-rtc"),
-> > > +	MFD_CELL_OF("sc2730-vibrator", NULL, NULL, 0, 0, "sprd,sc2730-vibrator"),
-> > > +};
-> > > +
-> > > +static const struct mfd_cell sc2731_devices[] = {
-> > > +	MFD_CELL_OF("sc2731-adc", NULL, NULL, 0, 0, "sprd,sc2731-adc"),
-> > > +	MFD_CELL_OF("sc2731-bltc", NULL, NULL, 0, 0, "sprd,sc2731-bltc"),
-> > > +	MFD_CELL_OF("sc2731-charger", NULL, NULL, 0, 0, "sprd,sc2731-charger"),
-> > > +	MFD_CELL_OF("sc2731-efuse", NULL, NULL, 0, 0, "sprd,sc2731-efuse"),
-> > > +	MFD_CELL_OF("sc2731-eic", NULL, NULL, 0, 0, "sprd,sc2731-eic"),
-> > > +	MFD_CELL_OF("sc2731-fgu", NULL, NULL, 0, 0, "sprd,sc2731-fgu"),
-> > > +	MFD_CELL_NAME("sc2731-poweroff"),
-> > > +	MFD_CELL_NAME("sc2731-regulator"),
-> > > +	MFD_CELL_OF("sc2731-rtc", NULL, NULL, 0, 0, "sprd,sc2731-rtc"),
-> > > +	MFD_CELL_OF("sc2731-vibrator", NULL, NULL, 0, 0, "sprd,sc2731-vibrator"),
-> > >  };
-> 
-> Assuming that these tables are the "registration API's data", I don't
-> see where it is being passed through the device tree. The device tree
-> contains nodes for some of these MFD components, and I've listed their
-> compatibles here so that the MFD core finds these nodes and registers
-> them with the corresponding devices (which was previously done
-> automatically by devm_of_platform_populate).
-> 
-> > >  
-> > >  /*
-> > > @@ -59,12 +84,16 @@ static const struct sprd_pmic_data sc2730_data = {
-> > >  	.irq_base = SPRD_SC2730_IRQ_BASE,
-> > >  	.num_irqs = SPRD_SC2730_IRQ_NUMS,
-> > >  	.charger_det = SPRD_SC2730_CHG_DET,
-> > > +	.cells = sc2730_devices,
-> > > +	.num_cells = ARRAY_SIZE(sc2730_devices),
-
-Remove these from here.
-
-Either replace them with an ID that you can match on or stop passing
-'sc2730_data' through .data and pass an ID through there instead.  Then
-choose 'sc2730_data' and 'sc2730_devices' in an switch() statement
-instead, just like the vast majority of existing MFD drivers do.
-
-> > >  };
-> > >  
-> > >  static const struct sprd_pmic_data sc2731_data = {
-> > >  	.irq_base = SPRD_SC2731_IRQ_BASE,
-> > >  	.num_irqs = SPRD_SC2731_IRQ_NUMS,
-> > >  	.charger_det = SPRD_SC2731_CHG_DET,
-> > > +	.cells = sc2731_devices,
-> > > +	.num_cells = ARRAY_SIZE(sc2731_devices),
-> > >  };
-> 
-> Here I am simply referencing the tables above in the device-specific
-> MFD data. These structs containing device-specific data already exist,
-> they are private to the MFD driver, and I wouldn't consider them part
-> of the device tree.
-> 
-> I've looked at mt6397-core.c and it seems to be doing the exact same
-> thing with its "struct chip_data".
-
-That was a momentary oversight.  It's also passing a driver-level
-call-back which I despise.  However, past mistakes are not good
-justifications for new ones.
-
-> Some other drivers use a numeric ID
-> for this purpose, but how would that be different from a pointer as long
-> as it identifies the same data within the MFD driver?
-
-The point is that sc2731_data->cells would be passed through the Device
-Tree's .data attribute, which is not allowed.
+diff --git a/Documentation/devicetree/bindings/rtc/sprd,sc2731-rtc.yaml b/Documentation/devicetree/bindings/rtc/sprd,sc2731-rtc.yaml
+index 5756f617df36..1deae2f4f09d 100644
+--- a/Documentation/devicetree/bindings/rtc/sprd,sc2731-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/sprd,sc2731-rtc.yaml
+@@ -13,7 +13,12 @@ maintainers:
+ 
+ properties:
+   compatible:
+-    const: sprd,sc2731-rtc
++    oneOf:
++      - items:
++          - enum:
++              - sprd,sc2730-rtc
++          - const: sprd,sc2731-rtc
++      - const: sprd,sc2731-rtc
+ 
+   reg:
+     maxItems: 1
 
 -- 
-Lee Jones [李琼斯]
+2.51.0
+
