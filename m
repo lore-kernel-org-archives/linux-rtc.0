@@ -1,223 +1,198 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3773C2DECC6
-	for <linux-rtc@vger.kernel.org>; Sat, 28 Mar 2026 15:48:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5FF40DFA9;
+	Sun, 29 Mar 2026 02:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774712927; cv=none; b=NdieSzBH6IGVNHoPq3kq7IV3JZtdffnYFIw3b2zcuAiS8ubErOpai8zIAcJEeclhRAvBjgDQpxxn1l082KrYmWsaX3vMcpD8fwGsNq584PssfKB9maptX5a2vbrODsTBmBG+2+y5CsVXwOTT2zqCb08NL0mCv9+tIimsRxaw9fs=
+	t=1774752268; cv=none; b=XP7zEIhKCfBER6YYHYW++oQVazt7zOnxjU1BMmgK5eEfaQRjk78MigEwur/Ek0H4L7EqG5vdXR7E0dtqQygkP+ny097CAIPczs2P8jZ3AOJ21B+jSnYe+fuILMQrC8QphoFBDl6IU2guJuzKLkYRJ8Mzq5b8qg06CzBKm4Jm4nY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774712927; c=relaxed/simple;
-	bh=J97nhqd19Owfth49YYD2VgMcKu6wbx/SAYjRjMlEcXA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EO1El6JgWoJ6u971DU+IUsxPnyoS4Sbd/za0nmH6iC0QTOB/6Q/8rGfEvs4Gz2rWNGl65Aid334PwgJFBf1Oz2XYe4XnUZ07M97al/pb9+cQXUcuTNSPCwVSvlsYdePt41cRiaepbRR+to5W5uPc1KEdlAGQdMZ28fPsU0Sax2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xqfzu90H; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774752268; c=relaxed/simple;
+	bh=zP8pKciSR07cE+zE4CuckNxlz1naeSv/P8AgYFY+L+0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gLYtwKSSZWt1ledKCaCiy/yyzO10aSX3HyLnjTSNOAG2bX2y2Pe65d+Mf/V9DOilkKvr1UBc+f8nQtPMDXZxV5Kl0NRL6VMi6s9ipgQ9lSRwuD0akWVJ0erWSUNA/uOV/PKIHcJQBtCrjhmU5maiPhyndw72YaFvYhCZSffdp7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lJWFP9vO; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xqfzu90H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AF8C4CEF7
-	for <linux-rtc@vger.kernel.org>; Sat, 28 Mar 2026 15:48:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774712926;
-	bh=J97nhqd19Owfth49YYD2VgMcKu6wbx/SAYjRjMlEcXA=;
-	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc:From;
-	b=Xqfzu90HNRsDNu77XSTNabpVyEWWAccCxz9VxsdiPMR5m3YsXMiz/bcBpOU+N+ead
-	 7UwZqdhYRbjetasu/27+KwQNzmjpWQ6exDWbwYMCA7jpho5G2YMHwlp5jk5w3abBrW
-	 AFPLfwuPmifO6t5hO02DUiK6xfl4K0r1EQvvzyD6tOoDtwKuNBsBLJAkaCMZoQ5XOs
-	 SQ0G4Io9/I2xBw4apIUfG+5qkGt1/HfWdOxf5RVRNDMQztr7jTMjDqYs8oJymsXzRL
-	 IrXHTCeIWZALPZ2xTQg9MWhT8vyoJDukXJHVYM8XxJOanqcUGEBzBS+sqUI2mh7TBF
-	 YMiTeJYuiLV0g==
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-386b553c70eso24712701fa.0
-        for <linux-rtc@vger.kernel.org>; Sat, 28 Mar 2026 08:48:46 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVVhevRBKLNvn2q2B/FgSCMZ+khQYRPOh/KcgQc7ws2R0bDUFtuZPYLmHv4g5sW9cwFiKYltCUAGnk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxlVYSp1C3Rdm0RUd96Yf9bXhAx8ZaguVtkAvaD4a8qR99NCce3
-	VNcgE3az3PqB1Lg437xbeUjegkO/kwgftRTyW8aPE+mMMVq7+2shQAdBijXIMdYX013GBx1Q/Rw
-	skNGz2EdlzMNc2Rw9HmXG8DiPLye8j2o=
-X-Received: by 2002:ac2:482b:0:b0:5a2:a1aa:2b8a with SMTP id
- 2adb3069b0e04-5a2ab92b48dmr1928277e87.31.1774701460967; Sat, 28 Mar 2026
- 05:37:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lJWFP9vO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774752266; x=1806288266;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=zP8pKciSR07cE+zE4CuckNxlz1naeSv/P8AgYFY+L+0=;
+  b=lJWFP9vOPi5B8ij+TirJ1RfGtpFn6xCB76oo7hfifZMHJoQhF4YR8MVW
+   6tNSR15i+UzUwSRySedtAIs8P7JFqz/uqQIq8h3kYBliN/4PqHWZ6AwEq
+   trWPnIEqXhMP0eKhK7ZGwmVPKSJg4jvZ9lOd695/SXfqn2lbabOFMJAY/
+   vgYepJGigPl0AUAwPL+uLKtAuNR13BBtMLKlftnDTw/3gH0AW7AA8LvrH
+   +pokTqnVGG0FD7Z4LcyXmZEBjTHrk7ifRwaCgYfT1+1n+i0XlEfIsQ2ZS
+   7WdKHNDfKqYk09taY5vYBG35rK/EraQiVWa1emwackQY3cBm3zjpnOwPn
+   g==;
+X-CSE-ConnectionGUID: P2/rlQQSQNmcRVVys6UmGg==
+X-CSE-MsgGUID: 0lQYCxcmQMSqs0nqI1FF+Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11742"; a="93165221"
+X-IronPort-AV: E=Sophos;i="6.23,147,1770624000"; 
+   d="scan'208";a="93165221"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2026 19:44:25 -0700
+X-CSE-ConnectionGUID: /GOkUf93RbSK9TYX5Vm+Zw==
+X-CSE-MsgGUID: PiBYSUfHRqK2zAYwZmdP0g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,147,1770624000"; 
+   d="scan'208";a="224730212"
+Received: from lkp-server01.sh.intel.com (HELO 3905d212be1b) ([10.239.97.150])
+  by orviesa006.jf.intel.com with ESMTP; 28 Mar 2026 19:44:21 -0700
+Received: from kbuild by 3905d212be1b with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w6g8P-00000000C1B-46D9;
+	Sun, 29 Mar 2026 02:44:17 +0000
+Date: Sun, 29 Mar 2026 10:43:38 +0800
+From: kernel test robot <lkp@intel.com>
+To: Otto =?iso-8859-1?Q?Pfl=FCger?= <otto.pflueger@abscue.de>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>, Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	Otto =?iso-8859-1?Q?Pfl=FCger?= <otto.pflueger@abscue.de>
+Subject: Re: [PATCH v2 3/5] mfd: sprd-sc27xx: Switch to devm_mfd_add_devices()
+Message-ID: <202603291013.6DnmGjG3-lkp@intel.com>
+References: <20260325-sc27xx-mfd-cells-v2-3-d0ebb60aa4a7@abscue.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260121-a733-rtc-v1-0-d359437f23a7@pigmoral.tech> <20260121-a733-rtc-v1-1-d359437f23a7@pigmoral.tech>
-In-Reply-To: <20260121-a733-rtc-v1-1-d359437f23a7@pigmoral.tech>
-Reply-To: wens@kernel.org
-From: Chen-Yu Tsai <wens@kernel.org>
-Date: Sat, 28 Mar 2026 20:37:26 +0800
-X-Gmail-Original-Message-ID: <CAGb2v67844OPwE6VJ0PAs5LsmCa2h0FvXOBUomZ50dM5tZ0Zow@mail.gmail.com>
-X-Gm-Features: AQROBzAjNUlKB5AcxIrVhPiEv-8viiXBsmIlq5_4UPHivayPQSg3rbcnxOKBQII
-Message-ID: <CAGb2v67844OPwE6VJ0PAs5LsmCa2h0FvXOBUomZ50dM5tZ0Zow@mail.gmail.com>
-Subject: Re: [PATCH 1/7] dt-bindings: rtc: sun6i: Add Allwinner A733 support
-To: Junhui Liu <junhui.liu@pigmoral.tech>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Maxime Ripard <mripard@kernel.org>, linux-clk@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	devicetree@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260325-sc27xx-mfd-cells-v2-3-d0ebb60aa4a7@abscue.de>
 
-On Wed, Jan 21, 2026 at 7:03=E2=80=AFPM Junhui Liu <junhui.liu@pigmoral.tec=
-h> wrote:
->
-> The RTC module in the Allwinner A733 SoC is functionally compatible with
-> the sun6i RTC, but its internal Clock Control Unit (CCU) has significant
-> changes.
->
-> The A733 supports selecting the oscillator between three frequencies:
-> 19.2MHz, 24MHz, and 26MHz. The RTC CCU relies on hardware to detect
-> which frequency is actually used on the board. By defining all three
-> frequencies as fixed-clocks in the device tree, the driver can identify
-> the hardware-detected frequency and expose it to the rest of the system.
+Hi Otto,
 
-No. The board device tree shall have the exact and correct frequency
-defined in the external crystal device node. The operating system can
-use the hardware-detected frequency to "fix" the in-system representation
-if it is off.
+kernel test robot noticed the following build warnings:
 
-> Additionally, the A733 RTC CCU provides several new DCXO gate clocks for
-> specific modules, including SerDes, HDMI, and UFS.
->
-> Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
-> ---
->  .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml      | 38 ++++++++++++++++=
-++++--
->  include/dt-bindings/clock/sun60i-a733-rtc.h        | 16 +++++++++
->  2 files changed, 52 insertions(+), 2 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rt=
-c.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> index 9df5cdb6f63f..b18431955783 100644
-> --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
-> @@ -26,6 +26,7 @@ properties:
->            - allwinner,sun50i-h6-rtc
->            - allwinner,sun50i-h616-rtc
->            - allwinner,sun50i-r329-rtc
-> +          - allwinner,sun60i-a733-rtc
->        - items:
->            - const: allwinner,sun50i-a64-rtc
->            - const: allwinner,sun8i-h3-rtc
-> @@ -46,11 +47,11 @@ properties:
->
->    clocks:
->      minItems: 1
-> -    maxItems: 4
-> +    maxItems: 6
->
->    clock-names:
->      minItems: 1
-> -    maxItems: 4
-> +    maxItems: 6
->
->    clock-output-names:
->      minItems: 1
-> @@ -156,6 +157,38 @@ allOf:
->          - clocks
->          - clock-names
->
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          contains:
-> +            const: allwinner,sun60i-a733-rtc
-> +
-> +    then:
-> +      properties:
-> +        clocks:
-> +          minItems: 5
-> +          items:
-> +            - description: Bus clock for register access
+[auto build test WARNING on 85964cdcad0fac9a0eb7b87a0f9d88cc074b854c]
 
-> +            - description: 19.2 MHz oscillator
-> +            - description: 24 MHz oscillator
-> +            - description: 26 MHz oscillator
+url:    https://github.com/intel-lab-lkp/linux/commits/Otto-Pfl-ger/dt-bindings-rtc-sc2731-Add-compatible-for-SC2730/20260327-162827
+base:   85964cdcad0fac9a0eb7b87a0f9d88cc074b854c
+patch link:    https://lore.kernel.org/r/20260325-sc27xx-mfd-cells-v2-3-d0ebb60aa4a7%40abscue.de
+patch subject: [PATCH v2 3/5] mfd: sprd-sc27xx: Switch to devm_mfd_add_devices()
+config: sparc64-allmodconfig (https://download.01.org/0day-ci/archive/20260329/202603291013.6DnmGjG3-lkp@intel.com/config)
+compiler: clang version 23.0.0git (https://github.com/llvm/llvm-project 054e11d1a17e5ba88bb1a8ef32fad3346e80b186)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260329/202603291013.6DnmGjG3-lkp@intel.com/reproduce)
 
-No. There is only one input. As in there is only one set of pins for the
-DCXO. The inputs are the same as on R329 / A523. Just use that list.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603291013.6DnmGjG3-lkp@intel.com/
 
-> +            - description: AHB parent for internal SPI clock
-> +            - description: External 32768 Hz oscillator
-> +
-> +        clock-names:
-> +          minItems: 5
-> +          items:
-> +            - const: bus
-> +            - const: osc19M
-> +            - const: osc24M
-> +            - const: osc26M
-> +            - const: ahb
-> +            - const: ext-osc32k
-> +
-> +      required:
-> +        - clocks
-> +        - clock-names
-> +
->    - if:
->        properties:
->          compatible:
-> @@ -164,6 +197,7 @@ allOf:
->                - allwinner,sun8i-r40-rtc
->                - allwinner,sun50i-h616-rtc
->                - allwinner,sun50i-r329-rtc
-> +              - allwinner,sun60i-a733-rtc
->
->      then:
->        properties:
-> diff --git a/include/dt-bindings/clock/sun60i-a733-rtc.h b/include/dt-bin=
-dings/clock/sun60i-a733-rtc.h
-> new file mode 100644
-> index 000000000000..8a2b5facad73
-> --- /dev/null
-> +++ b/include/dt-bindings/clock/sun60i-a733-rtc.h
-> @@ -0,0 +1,16 @@
-> +/* SPDX-License-Identifier: GPL-2.0-only OR MIT */
-> +
-> +#ifndef _DT_BINDINGS_CLK_SUN60I_A733_RTC_H_
-> +#define _DT_BINDINGS_CLK_SUN60I_A733_RTC_H_
-> +
-> +#define CLK_IOSC               0
-> +#define CLK_OSC32K             1
-> +#define CLK_HOSC               2
+All warnings (new ones prefixed by >>):
 
-The DCXO enable control has been present since at least the H6. We just
-never added it, as we would never disable it anyway.
-
-If you compare the RTC clock trees of the A733 and A523, the only addition
-besides the new gates seems to be the LOSC auto selection. But even that
-is just an illusion, as the A523 has the same registers for that.
-
-One could say the A733 RTC is almost backward compatible to the A523, if
-not for the two fastboot registers the A523 has at 0x120 and 0x124.
-
-So I ask that you try to integrate the differences into the existing
-driver and bindings. You can tweak and export internal clks if you
-need.
-
-> +#define CLK_RTC_32K            3
-
-AFAICT besides being an internal clock, this is also fed to GPIO for
-debounce? We probably need to expose this on the A523 as well.
+>> drivers/mfd/sprd-sc27xx-spi.c:188:14: warning: cast to smaller integer type 'enum sprd_pmic_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+     188 |         pmic_type = (enum sprd_pmic_type)of_device_get_match_data(&spi->dev);
+         |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   1 warning generated.
 
 
-Thanks
-ChenYu
+vim +188 drivers/mfd/sprd-sc27xx-spi.c
 
+   179	
+   180	static int sprd_pmic_probe(struct spi_device *spi)
+   181	{
+   182		struct sprd_pmic *ddata;
+   183		enum sprd_pmic_type pmic_type;
+   184		const struct sprd_pmic_data *pdata;
+   185		const struct mfd_cell *cells;
+   186		int ret, i, num_cells;
+   187	
+ > 188		pmic_type = (enum sprd_pmic_type)of_device_get_match_data(&spi->dev);
+   189	
+   190		switch (pmic_type) {
+   191		case PMIC_TYPE_SC2730:
+   192			pdata = &sc2730_data;
+   193			cells = sc2730_devices;
+   194			num_cells = ARRAY_SIZE(sc2730_devices);
+   195			break;
+   196		case PMIC_TYPE_SC2731:
+   197			pdata = &sc2731_data;
+   198			cells = sc2731_devices;
+   199			num_cells = ARRAY_SIZE(sc2731_devices);
+   200			break;
+   201		default:
+   202			dev_err(&spi->dev, "Invalid device ID\n");
+   203			return -EINVAL;
+   204		}
+   205	
+   206		ddata = devm_kzalloc(&spi->dev, sizeof(*ddata), GFP_KERNEL);
+   207		if (!ddata)
+   208			return -ENOMEM;
+   209	
+   210		ddata->regmap = devm_regmap_init(&spi->dev, &sprd_pmic_regmap,
+   211						 &spi->dev, &sprd_pmic_config);
+   212		if (IS_ERR(ddata->regmap)) {
+   213			ret = PTR_ERR(ddata->regmap);
+   214			dev_err(&spi->dev, "Failed to allocate register map %d\n", ret);
+   215			return ret;
+   216		}
+   217	
+   218		spi_set_drvdata(spi, ddata);
+   219		ddata->dev = &spi->dev;
+   220		ddata->irq = spi->irq;
+   221		ddata->pdata = pdata;
+   222	
+   223		ddata->irq_chip.name = dev_name(&spi->dev);
+   224		ddata->irq_chip.status_base =
+   225			pdata->irq_base + SPRD_PMIC_INT_MASK_STATUS;
+   226		ddata->irq_chip.unmask_base = pdata->irq_base + SPRD_PMIC_INT_EN;
+   227		ddata->irq_chip.ack_base = 0;
+   228		ddata->irq_chip.num_regs = 1;
+   229		ddata->irq_chip.num_irqs = pdata->num_irqs;
+   230	
+   231		ddata->irqs = devm_kcalloc(&spi->dev,
+   232					   pdata->num_irqs, sizeof(struct regmap_irq),
+   233					   GFP_KERNEL);
+   234		if (!ddata->irqs)
+   235			return -ENOMEM;
+   236	
+   237		ddata->irq_chip.irqs = ddata->irqs;
+   238		for (i = 0; i < pdata->num_irqs; i++)
+   239			ddata->irqs[i].mask = BIT(i);
+   240	
+   241		ret = devm_regmap_add_irq_chip(&spi->dev, ddata->regmap, ddata->irq,
+   242					       IRQF_ONESHOT, 0,
+   243					       &ddata->irq_chip, &ddata->irq_data);
+   244		if (ret) {
+   245			dev_err(&spi->dev, "Failed to add PMIC irq chip %d\n", ret);
+   246			return ret;
+   247		}
+   248	
+   249		ret = devm_mfd_add_devices(&spi->dev, PLATFORM_DEVID_AUTO,
+   250					   cells, num_cells, NULL, 0,
+   251					   regmap_irq_get_domain(ddata->irq_data));
+   252		if (ret) {
+   253			dev_err(&spi->dev, "Failed to populate sub-devices %d\n", ret);
+   254			return ret;
+   255		}
+   256	
+   257		ret = devm_device_init_wakeup(&spi->dev);
+   258		if (ret)
+   259			return dev_err_probe(&spi->dev, ret, "Failed to init wakeup\n");
+   260	
+   261		return 0;
+   262	}
+   263	
 
-> +#define CLK_OSC32K_FANOUT      4
-> +#define CLK_HOSC_SERDES1       5
-> +#define CLK_HOSC_SERDES0       6
-> +#define CLK_HOSC_HDMI          7
-> +#define CLK_HOSC_UFS           8
-> +
-> +#endif /* _DT_BINDINGS_CLK_SUN60I_A733_RTC_H_ */
->
-> --
-> 2.52.0
->
->
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
