@@ -1,123 +1,165 @@
-Received: from srv01.abscue.de (abscue.de [89.58.28.240])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ECBD2DA749;
-	Sun, 29 Mar 2026 07:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.58.28.240
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0945640DFD1
+	for <linux-rtc@vger.kernel.org>; Sun, 29 Mar 2026 18:46:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774769283; cv=none; b=Unl1RzPV3dW9suABDyEZC65gWDl15T8Rma+u/iu4gwEBQB2+5OYuvO0qOvohMpTNyZKfO3SPQxiSbwa9fiKce8JbLX4y+sIDO2LHXoOY01GauBE1wQihzjpGGwRFJ2FuscgRPTfuDqzoE/dVzEIeivW9525MAL9imgdRwDOz19M=
+	t=1774809981; cv=none; b=fjudopLtyLRh/5+GgO6ecVKWqvD4+CABuiiTwCMiisgHI10qrIA2gy8S+Tbh7DVCncFTZpz/a+wr1dLwiGsIji6f9GnEpxHZzJ6kAuKMWvMqtOFtsqDcMuwMaQu2K+Hnzj3BDPS+FZr87DZu9EZX18YRDt2erRqy+Ps7xZQF50U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774769283; c=relaxed/simple;
-	bh=iDKvaeDvnMyZNEDCO+iH5La4SPaeOS8gVVZsISM+/78=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=diyexcfx8Vqprtr7o/VZ5gIdAeAS0xiFKTVox00dwl1zK2oQuK02kqvIX/yAjv+vmXanC7i0IloqNYC43i89+68LqmzkU9Bb6YCStx2w9817jEuMxkzTTutqSsQjVPBbgw9bbSBTIX6irnj0psz+PqH5+NZ6GXXArSWEoa6sgW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de; spf=pass smtp.mailfrom=abscue.de; dkim=pass (2048-bit key) header.d=abscue.de header.i=@abscue.de header.b=A5L7Y0Df; arc=none smtp.client-ip=89.58.28.240
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=abscue.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=abscue.de
+	s=arc-20240116; t=1774809981; c=relaxed/simple;
+	bh=SjQizlVvoQlwYx7WQTarbRGMK4rgnbozJXcZZjxmjDE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B+P//cngZ/NJZzPCKrNc9Pu6gDkjeHQiz0e0aWHuZaoNT+AGuxG2Mk0t7rKqeb1X/ChM2HvU6IimlRr1Us+OWomSN9GnFkHcgh2NhJyFfIUQk6ni9zH+s0Sqpv9tiQvHGL/rncOUM1OKaZHCrndqtyfg9AOFZXVx/jXL+kiZPLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eFyqRICL; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=abscue.de header.i=@abscue.de header.b="A5L7Y0Df"
-Received: from fluffy-mammal.metal.fwg-cag.de (87-94-78-46.co.dnainternet.fi [87.94.78.46])
-	by srv01.abscue.de (Postfix) with ESMTPSA id AFACD1C264D;
-	Sun, 29 Mar 2026 09:27:54 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abscue.de; s=dkim;
-	t=1774769275;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4Vvz9BBCdCjmAKX3x6b5LHDmFkQb7BZeGItD0dshHTs=;
-	b=A5L7Y0Df3dXJXLFLiWXtYgDZNnYKLUGKTe3f9C6TKHrCFqlu6/9NjjXsCKRAuMPK5nbBXe
-	a2+ITl7jSeoEyj4a/MUVaADh1x/rRcICKMEJZaowzSLO/EyZyFFcLZ+3rcB/yyaXqw+4JM
-	szhMZy8NhTS10P6QMMJwjHrgkIPosrP2/wC98XBdu0tcXzogMR5neLVLnYT+OP0b0u+n5j
-	KkTrlFkb8PiNfABjoyFGwII4beDjwSb/FN2WzcWBr2ro6anpdC680EJ1mRF7QXRfb7rQee
-	iicPwT3PLfp5yHA3OyvrV6/7jXYyFbttN2mLQ6lt98lQRwoX7YLuwb17/cH+5A==
-From: =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
-Date: Sun, 29 Mar 2026 09:27:49 +0200
-Subject: [PATCH v3 5/5] regulator: sc2731: Add platform_device_id table
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eFyqRICL"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-439d8dc4ae4so3697398f8f.2
+        for <linux-rtc@vger.kernel.org>; Sun, 29 Mar 2026 11:46:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774809977; x=1775414777; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=SsRmU/z4QacokfzYWB3dzaQ/5a9aPH0r69IbOen0x0Y=;
+        b=eFyqRICL2RR6+ZBIdYiQzPQr7+b9lS4liImcwnxBQTw9Jdis7Aja/JXyYlyumc3Qfr
+         N2elW/EhcdCUxNTeKOPMQudtHfvMxQxbi2dIpOCxGSGDyFR/QYN9dqKejq7onEKk+Zq3
+         0aAMUOp4gK5/2bempGvdX9whghMs/Vvs2w2okAII5RwO+Ej28/LSZgRy65jZ4U8Niz0w
+         FeG8L3qD/1A4XNXfU2pmrM/BK2tAR8A7gK4uVnkqX5mzyFoVN838bJissHPgIU11ruUn
+         gBq16t9RGMMd6nASF5AWLRd7cFkJ90SS7Ar4GKi8kkH266gtcVYHFJHUxjIBTU7y3QDa
+         QTtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774809977; x=1775414777;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SsRmU/z4QacokfzYWB3dzaQ/5a9aPH0r69IbOen0x0Y=;
+        b=Zy0+QLLd4EU2vvxbUK+ocoXtO+L//rBWjggcAkkJpmhxOhL+cm8jQvLtaBCo+QFDP2
+         oSO5c+5yR8dG4MEaYzIcobxPqTlZIR7F8dLakLFprzruN+wH/mnH/MHOBsPIq9JGjKzq
+         MAvaXQVyDnEnHd58Gsr59fXESF4eP3APGFyZTV37zPVSSE2ZJGkchPxgUl9OY8oiwy3f
+         VK2GfM3rwJGC7xmPdc0YI0vDAaJRW2DddfXzw4HFUvgQvK7MZW/+a+Z5b71Agt/SgjfY
+         qeujsla5Lx8ndN+Gt7bKhTKOJ6NfbVGm8+tRbs5sabArvhesfWtZzELeaXCk82V26Fkn
+         BW4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCX/j3C6g4i/Ez7SipiyYTqO1EIlzkPmqBkO5qnQU8xSE0aPKnJQMUp+yYedPTq9yXypMwCwsSrpmTU=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz11JWFqG5nsIRnbEin/46z8yengfSjbrleZhj0Y2ShP+D0kM3h
+	PVPfxeyfjmFbFbXObgE0k99OqOxc/0M+bkhmCrfD4I5NJOb8JFdQpjpZ
+X-Gm-Gg: ATEYQzwEq8/PjW2Iw6rfcpgIeZZKqid29iHdpCUTlImoQ64QSlDN1+4VtL6TE2q8C3B
+	/03gWVCmZM22/axCsCgGOjJDyua0DrZFYm+GcA7ZPG714iIalBYEQBF7MqBJBaYsvsrkurl4Q1W
+	tJUwgqcf8Fz/GEEzQDwoSf9YS/5kd4JAVBBCbZT0vOjIdH8QUmBwvzD+7SAmArN9sK1YqSwKQeB
+	KnqrpUTyLLJGythW8MWr/TrfXhA6uvZxLAo7HFGJqWJd1Y7vAvibCTtp034ndq0bjNtvK+vvmoC
+	fQKW96WFCxsViK0Uy9HZ3rMlBOFZBsIVVISv+nO07Kd0/HkCajDJ3eJwfd9shts+GMXAb1W8rwU
+	vmbD43/TCjyJf8c9E0t5ZbZ9wrJPeT1AAf7aYuS67PVTBLPMrHWtkCnen8mo/b4XMEwiP7O4pWB
+	+ZbGKXMub8Ympe3kv+O+jV5k+s06LVXVst9jVCKUHjUyG0OurcfQg=
+X-Received: by 2002:a05:6000:420b:b0:43b:3d80:b0b9 with SMTP id ffacd0b85a97d-43b9e99734dmr16186904f8f.12.1774809977231;
+        Sun, 29 Mar 2026 11:46:17 -0700 (PDT)
+Received: from DESKTOP-IHE0QGF.localdomain ([86.121.12.60])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43cf257cbc3sm13108290f8f.35.2026.03.29.11.46.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 29 Mar 2026 11:46:16 -0700 (PDT)
+From: Serban-Pascu Robert <robyserbanpascu06@gmail.com>
+To: alexandre.belloni@bootlin.com
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	daniel.baluta@nxp.com,
+	Serban-Pascu Robert <robyserbanpascu06@gmail.com>
+Subject: [PATCH] dt-bindings: rtc: moxa,moxart-rtc: convert to json-schema
+Date: Sun, 29 Mar 2026 21:46:15 +0300
+Message-ID: <20260329184615.454887-1-robyserbanpascu06@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260329-sc27xx-mfd-cells-v3-5-9158dee41f74@abscue.de>
-References: <20260329-sc27xx-mfd-cells-v3-0-9158dee41f74@abscue.de>
-In-Reply-To: <20260329-sc27xx-mfd-cells-v3-0-9158dee41f74@abscue.de>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Chunyan Zhang <zhang.lyra@gmail.com>, Lee Jones <lee@kernel.org>, 
- Pavel Machek <pavel@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
- linux-pm@vger.kernel.org, 
- =?utf-8?q?Otto_Pfl=C3=BCger?= <otto.pflueger@abscue.de>
-X-Mailer: b4 0.14.3
 
-Make the regulator driver for the SC2731 PMIC probe automatically. Using
-a platform_device_id table instead of DT compatible matching avoids the
-need for a separate compatible property in the "regulators" node, which
-simplifies the DT bindings and makes the parent MFD device responsible
-for selecting the correct regulator driver for the PMIC.
+Convert the MOXA ART real-time clock text binding to DT schema.
 
-However, this means that the regulator device is not automatically
-associated with the "regulators" node. Tell the regulator core to
-perform device tree lookups using the parent MFD device instead of
-the regulator sub-device and set the .regulators_node member in all
-regulator definitions so that the "regulators" sub-node is used.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Otto Pflüger <otto.pflueger@abscue.de>
+Signed-off-by: Serban-Pascu Robert <robyserbanpascu06@gmail.com>
 ---
- drivers/regulator/sc2731-regulator.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../bindings/rtc/moxa,moxart-rtc.txt          | 17 --------
+ .../bindings/rtc/moxa,moxart-rtc.yaml         | 43 +++++++++++++++++++
+ 2 files changed, 43 insertions(+), 17 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.yaml
 
-diff --git a/drivers/regulator/sc2731-regulator.c b/drivers/regulator/sc2731-regulator.c
-index 5447e1a47d15..93c8156c5110 100644
---- a/drivers/regulator/sc2731-regulator.c
-+++ b/drivers/regulator/sc2731-regulator.c
-@@ -131,6 +131,7 @@ static const struct regulator_ops sc2731_regu_linear_ops = {
- 			  vstep, vmin, vmax) {			\
- 	.name			= #_id,				\
- 	.of_match		= of_match_ptr(#_id),		\
-+	.regulators_node	= of_match_ptr("regulators"),	\
- 	.ops			= &sc2731_regu_linear_ops,	\
- 	.type			= REGULATOR_VOLTAGE,		\
- 	.id			= SC2731_##_id,			\
-@@ -226,7 +227,7 @@ static int sc2731_regulator_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	config.dev = &pdev->dev;
-+	config.dev = pdev->dev.parent;
- 	config.regmap = regmap;
- 
- 	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
-@@ -242,12 +243,19 @@ static int sc2731_regulator_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct platform_device_id sc2731_regulator_id_table[] = {
-+	{ "sc2731-regulator" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, sc2731_regulator_id_table);
+diff --git a/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt b/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
+deleted file mode 100644
+index 1374df7bf9d6..000000000000
+--- a/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-MOXA ART real-time clock
+-
+-Required properties:
+-
+-- compatible : Should be "moxa,moxart-rtc"
+-- rtc-sclk-gpios : RTC sclk gpio, with zero flags
+-- rtc-data-gpios : RTC data gpio, with zero flags
+-- rtc-reset-gpios : RTC reset gpio, with zero flags
+-
+-Example:
+-
+-	rtc: rtc {
+-		compatible = "moxa,moxart-rtc";
+-		rtc-sclk-gpios = <&gpio 5 0>;
+-		rtc-data-gpios = <&gpio 6 0>;
+-		rtc-reset-gpios = <&gpio 7 0>;
+-	};
+diff --git a/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.yaml b/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.yaml
+new file mode 100644
+index 000000000000..6b8f6e5f99e9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/moxa,moxart-rtc.yaml
+@@ -0,0 +1,43 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/moxa,moxart-rtc.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- static struct platform_driver sc2731_regulator_driver = {
- 	.driver = {
- 		.name = "sc27xx-regulator",
- 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
- 	},
- 	.probe = sc2731_regulator_probe,
-+	.id_table = sc2731_regulator_id_table,
- };
- 
- module_platform_driver(sc2731_regulator_driver);
-
++title: MOXA ART Real-time Clock
++
++maintainers:
++  - Serban-Pascu Robert <robyserbanpascu06@gmail.com>
++
++properties:
++  compatible:
++    const: moxa,moxart-rtc
++
++  rtc-sclk-gpios:
++    maxItems: 1
++    description: GPIO line for the RTC clock signal.
++
++  rtc-data-gpios:
++    maxItems: 1
++    description: GPIO line for the RTC data signal.
++
++  rtc-reset-gpios:
++    maxItems: 1
++    description: GPIO line for the RTC reset signal.
++
++required:
++  - compatible
++  - rtc-sclk-gpios
++  - rtc-data-gpios
++  - rtc-reset-gpios
++
++additionalProperties: false
++
++examples:
++  - |
++    rtc {
++        compatible = "moxa,moxart-rtc";
++        rtc-sclk-gpios = <&gpio 5 0>;
++        rtc-data-gpios = <&gpio 6 0>;
++        rtc-reset-gpios = <&gpio 7 0>;
++    };
 -- 
-2.51.0
+2.43.0
 
