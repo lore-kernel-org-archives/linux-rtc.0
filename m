@@ -1,141 +1,80 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F89C3563EB
-	for <linux-rtc@vger.kernel.org>; Fri,  3 Apr 2026 04:46:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775191563; cv=pass; b=bXq0C+7z6LOPBwJjjw6at6bmqPPSes93K3rs78R+AlYN1Df47ifesVswm8OGg5Zf4zW1EU17LLccQsgse3DYX0ww6ATVCuF55x+YTQlkIrIGpdhHh8VxRcVmDHTZjvZHsVyP0xmPaLmWLboZJUMTg7O8myqo+l2w23jNkFPqOLg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775191563; c=relaxed/simple;
-	bh=groc3VAnH15CVUVhNhE5OtlEsDNXM/uA7VeW8vaOMTY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ACKaTnYAYBS/uu9YyUTU+ecdfLe7YBKDq3PjSyb2EROa0xzcLAq3phmJ13Nq6Pxux0f45eHXaOf3kHY3vG/nauUOxQ5vrO9PmQzMHvDfTPFboLV+v9GxpMopFBdHxozB+H5EvvWu/whn4l+13uYk2nLQeF7pB7ejVcEXaej8I5s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DidQGWOK; arc=pass smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E4E73C554E;
+	Fri,  3 Apr 2026 14:53:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775228023; cv=none; b=XjS1i93e7E18Ux7XXS4zarLW/odur4Dyh2yz0IBaTH9v2TUCgdVtCRDrM3Y4J/ezlbweZzM2Gmyd+Itew8UIljMsKWpw9jqwxPRAeWDgXYkedyJwsjwg34yRa2FzJ/sHUNl+avZF8AmFzlY5Kw5CoIS8v1IAh0cJCtsUQgAYvSc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775228023; c=relaxed/simple;
+	bh=ne70ucsZwaszEpPz21eEwyg9qhaY3KQE8B3fi/F6ero=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ThZ9lWyjBH66O314NLTWE+EyENDbMEIHis5am2MwSfcNyPu+uFUWqTPnVAPj1+ajfq8dpoj1algLuzfPdkwZk/S6I/tADVJBDzW7Inp7beKTw/S5mBJTfbbtCIUQFEWJpZt1RlqczvA2AvvXoLIex+l6+HVZ9GeUbS3I56LRK40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=TalprS8E; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DidQGWOK"
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-78fc4425b6bso15626487b3.1
-        for <linux-rtc@vger.kernel.org>; Thu, 02 Apr 2026 21:46:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775191561; cv=none;
-        d=google.com; s=arc-20240605;
-        b=OcS85+3x0MzDqQ3ccGwnQPeF5xH8NQtwMQ7Es7f1wO/U++pHMjKCXXYCSuibiXEf1b
-         0F3Vo0Ykn3X0A9Kk1hIa/fPdJyhYUj0ZQ5ShP1fTukhWpcKOuaGMjAuHgsjWSZ+9q1rp
-         Q/8uQkpoWsSfsJyKwU7QC+r7Z8MsYAPVFtQnfLXhjnmN7Mlmoj/NVDl9XDCNlmACzORB
-         WSvpULhk0pJw8H3I14zkQnDpmEdJyQU2MGx8A++VD7xp6uWSzuw6lfM1OEN51bX0NLZE
-         OC22gl7V08HGLwUys89l9zL/4+p/xA1oZoCPAT4qjvvKjaBm/PFv9o8GHhA27DWW4YoP
-         IvJg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        fh=rOeqQfAv9WIAnogC0wWrAo8LMYfJ1A4Q+UCiu6RAXmI=;
-        b=ULes1FLewc7ZF81pz5cZYJDX47MVeLgEpfx4oKbBr4swfyY1KstxSeB0K2TKQ3jb2M
-         eSx0pTzXL2gvhsq6cfQuteDWV20IPJao8NXuO45cZ8VUC3xyzGeRPJzsP3e3V+rhTKcZ
-         QXqjXim7hh9M3505vPFpRkOTDOrQi6KTncYQT8bXxCoX+sKTT86XDXRaGf7oM0OyFwHf
-         wcSdfqkc5R7lQ60BSiYilCadA6hzZBDxKSxC5GR8cVD2dZkq/BCQ6Uzed+yHaPgIGM0g
-         A8OOoAaTc6+GkZ8+2gPEopPegsQ6NkmnxDfu9oAV609AY2x6upVoPBSEfRSkLZzcyblD
-         8swQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775191561; x=1775796361; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        b=DidQGWOKrm72zYGNfTnKQ9IcnJWZNioKN73o236MElVFzyQKQ8qb/l+soctZqFpFYR
-         KhdKkKO4KWfPBZssLoFqJJaoQDXfr0ubxMRtcYnbkp4Aw6n+hEGhzMD/e6M1vs9Vctn7
-         F7uzUA9y1Hc8Am0AiyTcsudzX2bQmqDVaIRAHRwR1H1Mdwqeulzb+nkNolrXNE6n+lnA
-         5zZ6mhLg+931xo6+ZY56HBf57G3FpKAkbPbK1guAlEH/oool84UFse8KKG4/MulU3zjW
-         kOZ0D+JZfXdmrH7t4ojZVoyu6NPL6R7//xVc/4ow33xoSCayriKVfXDNF+A2xeU4fM2L
-         OvxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775191561; x=1775796361;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        b=fe1rS9HM+wqxJ8wBeXbmJ7mp99AeAsnvURwJJEcG2vSUuAfoAfZX8PppOtZjWi8rLe
-         +BBv1GxpvRs8kFzFoSiSnJXWWAghofHOnZOFq9MXOHqwN5DDfTht8DjZ66nUoNL+ousA
-         0ZHBg/lMSIiQh4DPMB8yEudr8tvdrsBVo0kzkg6JquwXYJEsBAO8GCUYqrQok4jByySs
-         Ghf9lc6MphFgrBh2+loJ6EiFIlEdc8IHIwiDWI/NIyd8klM0axM2Jr3bl/wvIbFD5/NJ
-         vyUGAlSdLk3MqbOoq/cownefikaOFuQ35cBgrH15njsf30RVHiOm5/WqO4kP3SLZTknB
-         1Veg==
-X-Forwarded-Encrypted: i=1; AJvYcCVJz6g5xi+Dqn1wG1URUmBSlBQ+kP+t7fjykPKKp7X7BFSK1YJ54/HdLmX9McqQLZ6Owsn1LduYcCc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy0U8ltygF0nXzWZphgex0EYK2A96vUxbB7m2CqzgMLeyj8RygW
-	RNrTUYv9T5fdqEoqm0HUs0iXunGVpljhaNj/RR2mbE4AxLvGuwMqDhrgtbioPaUGzjOHFgYhH3S
-	0DwQwGBpkMN9nNpiVleHh4DSn5Pd/w7c=
-X-Gm-Gg: AeBDiesKIngrkgVySBS0oSeafk9iyz38e3UuqBFItGGYOjDqKpQDOmqDc2UnHsi9FAB
-	E2uPJUkd/YhKxT5/nXaIX0KrxPCbVbGT10YXVkCb81kLqlK6gYiKOSJ+LLcdvM1Ul2ggmTW/hpc
-	mn91Lu+wUEMzTXRRq8QRYMtyRrI/c2mFAMieSqtG9u9dZDiaRi4VCppsajUhawIdeQq+nW9soUG
-	ixhNzFKpoatRF2oBitgzNE72ZV+H19MHsAVaUFIc+jOEslAWu9ks1vy5vJVFsGN0mOcUAUM4pu0
-	j7VJaA==
-X-Received: by 2002:a05:690c:6987:b0:799:198d:8c5a with SMTP id
- 00721157ae682-7a4d585f69dmr19958067b3.34.1775191561252; Thu, 02 Apr 2026
- 21:46:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="TalprS8E"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 0D54A1A3120;
+	Fri,  3 Apr 2026 14:53:38 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id D55D6603C1;
+	Fri,  3 Apr 2026 14:53:37 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6A26710450008;
+	Fri,  3 Apr 2026 16:53:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1775228016; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=KWvfunppyIOvyGREm1xxzLD+klThqSaXmNASBIweIZU=;
+	b=TalprS8EMCX1+Y62VESHZ3Ux69z+51F0COOk7t4e7pOL1qSxmTgSZNcJleEZfeDEcnuLsC
+	z51ekYC2GVCVr2mauP3cMIkV1xHyInx8xQ0QVQp2Q/WpNdo6HwvfHy18SdKtIfNUraKHhq
+	gf1AVqyci3T0QF868NZaFm9zYnvQk3Q2YeBP64kvOhIcijrsd/P2MpdJdcZMDlJPYmxKzT
+	tiCEAyGtFyc6osXe6EBLDqqXstWqZlGmbLPjpUseS6/acAknGu1ZRXREDdwWQib1Bkf6zm
+	i0mod5Vd6QmKekJFQ5B4bwzfEPuUhz2qbGB2afai+cQVH9LBqhK6qLQUB7wQoQ==
+Date: Fri, 3 Apr 2026 16:53:28 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>, Lee Jones <lee@kernel.org>,
+	Pavel Machek <pavel@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+	Otto =?iso-8859-1?Q?Pfl=FCger?= <otto.pflueger@abscue.de>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: Re: (subset) [PATCH v3 1/5] dt-bindings: rtc: sc2731: Add compatible
+ for SC2730
+Message-ID: <177522795589.1505278.15029729729753708134.b4-ty@b4>
+References: <20260329-sc27xx-mfd-cells-v3-1-9158dee41f74@abscue.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260402051442.1426672-1-a0282524688@gmail.com>
- <20260402051442.1426672-3-a0282524688@gmail.com> <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
-In-Reply-To: <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
-From: Ming Yu <a0282524688@gmail.com>
-Date: Fri, 3 Apr 2026 12:46:22 +0800
-X-Gm-Features: AQROBzC_c6Pz91vTEwJZ5AXR_5dXzfojiP7V5Wmo6LnqG_6F9RBzJL09w08myjU
-Message-ID: <CAOoeyxVp2dY=XrujkCbWHjX4bVu4-H2=k0JHxL6akC6KwY+rVA@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
-To: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: tmyu0@nuvoton.com, linusw@kernel.org, brgl@kernel.org, linux@roeck-us.net, 
-	andi.shyti@kernel.org, lee@kernel.org, mailhol@kernel.org, 
-	alexandre.belloni@bootlin.com, wim@linux-watchdog.org, 
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260329-sc27xx-mfd-cells-v3-1-9158dee41f74@abscue.de>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Dear Marc,
+On Sun, 29 Mar 2026 09:27:45 +0200, Otto Pflüger wrote:
+> The RTC block found in the SC2730 PMIC is compatible with the one found
+> in the SC2731 PMIC.
 
-Thanks for the review.
+Applied, thanks!
 
-Marc Kleine-Budde <mkl@pengutronix.de> =E6=96=BC 2026=E5=B9=B44=E6=9C=882=
-=E6=97=A5=E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=887:05=E5=AF=AB=E9=81=93=EF=BC=
-=9A
->
-> > +struct nct6694_sio_data {
-> > +     enum nct6694_chips chip;
-> > +     int sioreg;     /* Super-I/O index port */
-> > +
-> > +     /* Super-I/O access functions */
-> > +     int (*sio_enter)(struct nct6694_sio_data *sio_data);
-> > +     void (*sio_exit)(struct nct6694_sio_data *sio_data);
-> > +     void (*sio_select)(struct nct6694_sio_data *sio_data, int ld);
-> > +     int (*sio_inb)(struct nct6694_sio_data *sio_data, int reg);
-> > +     int (*sio_inw)(struct nct6694_sio_data *sio_data, int reg);
-> > +     void (*sio_outb)(struct nct6694_sio_data *sio_data, int reg, int =
-val);
->
-> The signatures of the function look a bit strange. I expect functions
-> reading/writing bytes use u8 not int, register offsets should probably
-> be an unsigned int.
->
-> Why do you have pointers to the access functions? Why not use them
-> directly?
->
+[1/5] dt-bindings: rtc: sc2731: Add compatible for SC2730
+      https://git.kernel.org/abelloni/c/b2b0dcaa28d2
 
-These helpers were originally meant to be used by sub-drivers for SIO
-access, but the implementation later converged so that all SIO access
-is done in the MFD driver itself. In the next version, I will remove
-the function pointers and simplify the interface accordingly.
+Best regards,
 
-I will also adjust the types as suggested.
-
-
-Regards,
-Ming
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
