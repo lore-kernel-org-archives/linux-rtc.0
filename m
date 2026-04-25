@@ -1,125 +1,172 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from TY3P286CU002.outbound.protection.outlook.com (mail-japaneastazon11010068.outbound.protection.outlook.com [52.101.229.68])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55F33332637
-	for <linux-rtc@vger.kernel.org>; Fri, 24 Apr 2026 21:37:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777066641; cv=none; b=Nl9rH2raql3v8FQLayf02aLFchkjZmdOKuliouqzE6s69P3uBD+gBeh6c+0gabLi+sYEafUbbojf0s374fMnMz+bWNvGXvO8mM5yCz8XWqSbhokj5K3liXsXsn9unbQruU+lDk3UxFJ43tzN5wWQiqRq+9PSopdnZ41UOyxLo98=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777066641; c=relaxed/simple;
-	bh=id1+Z0RiZnu9fcpdygHTv8Hyka13BoEKIX1ryJU4/AU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LWgOttN8iAyDeGUDxa9MRISTEd7NqL58aSZuB0VqJOu8HIZ8nfEGh6lssiedju0GXogdOiJRkMWHasn5XLANVHEfrQM1jd3jRZssUjWMH5aEr5GCK1zIALzfPdZCDoLP/crIO5twTxRfqIwqJC9OD3be7txlsT2xdU5+b5Be3K0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=elJ7JsCX; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABC0B14F70;
+	Sat, 25 Apr 2026 15:51:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.229.68
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777132306; cv=fail; b=bQxrjJLmqYC+A6+Xz+V+kWuIAbyvvg4zJ/4hmGzpvvlVXtUfa7QWJ53voUvcVxpyC+hoslXCPFl8JfqvLpTE+fAceKMh4hfyRlpwnFsQ66GYxSxQ52IhUOmOX0Y9/537WfIcqEW50WERghsHRa0YUIP5LlIJcI86BAoRmrT6qjA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777132306; c=relaxed/simple;
+	bh=gUxeMeW4Hfw1f8k8xWKVHEqwLKy/QKjZhZydgZfYiOQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Kr9axot3XX3gyOWqpACO+3253sT9Y5SwSrCekmgiUeJSAM8m21cyExpeLg6wrWGwjo+GD1pk4GhQVvNuf6hfxEa3CVqoDvl5MTRk5kYt9K7xMX4pSYxdBvwFdtsTXm1ARgDQjNE0+AvqSuZmMUPRB6osvwa31RsMLbdoeyBOXFs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com; spf=pass smtp.mailfrom=bp.renesas.com; dkim=pass (1024-bit key) header.d=bp.renesas.com header.i=@bp.renesas.com header.b=CX3smKdd; arc=fail smtp.client-ip=52.101.229.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bp.renesas.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bp.renesas.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="elJ7JsCX"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-48909558b3aso78431735e9.0
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Apr 2026 14:37:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777066639; x=1777671439; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1ykeieCQiiUZi3J/2eeufITWyJmr5d8BX3l3RZUjInI=;
-        b=elJ7JsCXqJWdvJle66uJiCMSLgrZivJZQPqvHT4akq6ynIrF3JAgq4mnxu4Uldqux4
-         o3I/nDQBUtCVvt/YtDSGFbETohJ2ZKIonzDsMw9xgSt8kO+SzM2fWx0LjlOUr3kIj2bI
-         4sVcyluttCkHiI0LgAq2e6JWRgrZOA7/u98ec6iic+yaYZo76QRDrYhwrNHAGgYj01pG
-         oZ2caMsOXZdOic6AzK/dGarNuw2sMbil2PLjwEw/Jp05/QMgNPdjWS7mf9smswjbZ0z7
-         F7vNG3QDUs4jgo9/EXZWksIJO1YeqOJbBuBmr68UjYC5LQrSwPvwQ6I5lykr0uVEtJU/
-         RlOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777066639; x=1777671439;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1ykeieCQiiUZi3J/2eeufITWyJmr5d8BX3l3RZUjInI=;
-        b=nt2HFXRCXmg91X+QMMH9LRiKuGZUd0nf2crrbaiHIU2t8sXxUQvgGgi8iXaD+zsnHC
-         vuJFA3/FkZ21jLvZwhWS+DuvGfmpWAvKEKZdftV4/9VaiY8Z/sfA4yaDZqrexLW5nm+J
-         01Hs+F8Ejctm05v/N/y40PnwfMKQG41Vj8NXo+G04fwoYBLazqEuiH6apv/F6AfSVhbi
-         q0Rblsso/aPqX2m+03+LLTvLPoHpgEj9va5GSMAaVA/46pPq++I5gX1gCFxn0MGY/KuS
-         5wn4CVCMlkVPBWfeSYZiU4KG8bWCq6/KJ2rZEbbcfvc4M1se1WJ3lFcBfJ24peCwdha9
-         dAXw==
-X-Forwarded-Encrypted: i=1; AFNElJ/mm7eyKUy7REHHIcNBCsoB/+yUHhNJ8/Z/HB24JYx/JSkJko4qPMFR2Kx74MbT9TY04lWwoS6Rens=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwpAf0jGMh1aGJ7efLv8jYWaVPPQ8aOIFC2jzxEfZ0xHeJfArm/
-	FMz5JQsl/aFwdpW+WiZT/fXfd0mBW30CDIdfzVBDedBxcHzMtZqYr8bL
-X-Gm-Gg: AeBDieut2rCUoKlfe2BiiVFM5+6LN6AHKrncCMq+k4FjvkVUavv99t2pYi4uDGlLKWX
-	1Glx8+19WsnWPbaTNLDwDl3GHMkTUnXsEXWhBA6fKmHDHRWOayZzt31b7XFBfcMuiccMaIwZ/FS
-	NbPjb/+NuavbR6FYy8EJXg3YL2pY6/0ilxtWTnasRuqpv237/uqWSKtcwheD2dJyYbntNprUiR3
-	AkJ9dVPgLNjyaajSt49vZoYPp5aar4/8w0TlGE6F+Gbn+Eg8U5htZJEwmYBL9bDK6ddESttc07s
-	0hPxnaDERYyEjOYmWfWae10cP92NUjxaKFUMvpfT4RkPaD6qjMimxp5vV9fHe+cGRK1xQc/Vr1R
-	7AVmRJ6LgPn5HT9qVYOWWWUMG+6AOkPJrgAkgFb75WY0nus9NYl1b50N/W9NY+Mx2CBMwnYLhmy
-	CK+uY2icE6w6svax3F/CHER8uFcpt6xwrT5+nFaAEB/NF9hBBhf1qnab+Xn+cGymlGGANvu+6pM
-	YU=
-X-Received: by 2002:a05:600c:37c4:b0:48a:5501:7995 with SMTP id 5b1f17b1804b1-48a55017b71mr283475335e9.18.1777066638544;
-        Fri, 24 Apr 2026 14:37:18 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a5aa3ae83sm424493425e9.12.2026.04.24.14.37.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2026 14:37:18 -0700 (PDT)
-Date: Fri, 24 Apr 2026 22:37:15 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Yury Norov <ynorov@nvidia.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>, Thomas Gleixner
- <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
- <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter
- Zijlstra <peterz@infradead.org>, Jonathan Cameron <jic23@kernel.org>, David
- Lechner <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Ping-Ke Shih
- <pkshih@realtek.com>, Richard Cochran <richardcochran@gmail.com>, Andrew
- Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>, Yury Norov <yury.norov@gmail.com>, Rasmus
- Villemoes <linux@rasmusvillemoes.dk>, Hans de Goede <hansg@kernel.org>,
- Linus Walleij <linusw@kernel.org>, Sakari Ailus
- <sakari.ailus@linux.intel.com>, Salah Triki <salah.triki@gmail.com>, Achim
- Gratz <Achim.Gratz@stromeko.de>, Ben Collins <bcollins@watter.com>,
- linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
- linux-rtc@vger.kernel.org
-Subject: Re: [PATCH 1/9] bitfield: add FIELD_GET_SIGNED()
-Message-ID: <20260424223715.077288e8@pumpkin>
-In-Reply-To: <aeub59FBHbCy-KKP@yury>
-References: <20260417173621.368914-1-ynorov@nvidia.com>
-	<20260417173621.368914-2-ynorov@nvidia.com>
-	<6170788fcab2ec835597e3d7411928d36850c20a.camel@sipsolutions.net>
-	<aeub59FBHbCy-KKP@yury>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=bp.renesas.com header.i=@bp.renesas.com header.b="CX3smKdd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WB8UvyNMDDzR5pPiK31BCqsH/7g5nJx8x+C844WiIcW1IMNpqUCYpmG2EYfONA8aP/Y+NS0ub2bbx519FJPdtJ0zRSr6ZPkIO+iItYi3Q6BCDnnW3I1rQgkuOT+MhZrYnyiTlHUPNW3AgKc+ZzVI4PlZ83wLfyzT6dmLwGGjWvpHIKK8TWspK3UsI1DZWW9oWNyws5Hxna91iqaTmaqfGk3gTPZ4fTrJvYnXhsNx1xmc2HyTOgWfx6TJFRjbPWlNOXpWaNObS3Z8MLDOCirE603e3ZxIx9bFcjkLvYCS6Hlo7AZ2YLcaRF9vQF7tTQOQOapVuwTPSa4xB3H648Li7g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SgLPNY1mwTRtNHDgct6ujuu84+CN1chjenKtp8sAv2A=;
+ b=iPB89I3GvhCu1Lk2Zg7ofJHVgGdVHTFe2Dn1LurGICFdRQ0Z9k+F0RtyfF9BtZF19B98Hl72Oq1vGTbW+/jvLTk6VjP7M7MbEUkjEe3bpr5QXhpb4K1PnNxHGYR5w/nG/eX0eRmg09or3qjI2ksHfEiPIQ4ggKz0svvrs4FcD7LJ5sD6VNk7dveAxSqNZAzPuwr8yM/5Ssccv8G/hpmJOkXGTcLkQU0ppl6ymqkAHXxJgKCoV7oiKeBo3gVcV9F3rfCo53p7TVPdjzQmuUam5rzzsMs9ewNWwtOnxEKXih1ehD21mjZ1KY5V2jSslBuLiPVhkorpX1TOT+fQ+l9qCQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=bp.renesas.com; dmarc=pass action=none
+ header.from=bp.renesas.com; dkim=pass header.d=bp.renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bp.renesas.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SgLPNY1mwTRtNHDgct6ujuu84+CN1chjenKtp8sAv2A=;
+ b=CX3smKddvxnV9iMlvrGKPZGJtKlQtLvT4U9bNAd8QGa3CN0yRI0BiEWtZ0FYGQPApCPJ6E1Mf4i4TuO6CFaybzUdFCkJeWtmmwoaSrhTYaZ+XeVwJhKHySe7jYmyjhQZsPRj8WYxiHo9Pr8c61PA7mrjxKTbG19d6YdCXsglWaU=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=bp.renesas.com;
+Received: from TY6PR01MB17377.jpnprd01.prod.outlook.com (2603:1096:405:35b::6)
+ by TYCPR01MB7315.jpnprd01.prod.outlook.com (2603:1096:400:f1::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9846.24; Sat, 25 Apr
+ 2026 15:51:42 +0000
+Received: from TY6PR01MB17377.jpnprd01.prod.outlook.com
+ ([fe80::f373:26d6:86c4:6aa3]) by TY6PR01MB17377.jpnprd01.prod.outlook.com
+ ([fe80::f373:26d6:86c4:6aa3%6]) with mapi id 15.20.9846.022; Sat, 25 Apr 2026
+ 15:51:42 +0000
+From: John Madieu <john.madieu.xa@bp.renesas.com>
+To: alexandre.belloni@bootlin.com
+Cc: ryan@bluewatersys.com,
+	akpm@linux-foundation.org,
+	m.grzeschik@pengutronix.de,
+	Denis.Osterland@diehl.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	biju.das.jz@bp.renesas.com,
+	john.madieu@gmail.com,
+	John Madieu <john.madieu.xa@bp.renesas.com>
+Subject: [PATCH 1/2] rtc: isl1208: Fix returning errno as irqreturn_t in IRQ handler
+Date: Sat, 25 Apr 2026 15:49:58 +0000
+Message-Id: <20260425154959.2796261-2-john.madieu.xa@bp.renesas.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20260425154959.2796261-1-john.madieu.xa@bp.renesas.com>
+References: <20260425154959.2796261-1-john.madieu.xa@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: PA7P264CA0117.FRAP264.PROD.OUTLOOK.COM
+ (2603:10a6:102:34c::20) To OS7PR01MB17371.jpnprd01.prod.outlook.com
+ (2603:1096:604:43e::6)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TY6PR01MB17377:EE_|TYCPR01MB7315:EE_
+X-MS-Office365-Filtering-Correlation-Id: 815cc159-34af-43be-c21f-08dea2e28aaf
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|52116014|376014|1800799024|366016|38350700014|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	jbB6D8ia+7GbxYfHVVEf8E1KT1tFnE8wjImGlkGPLqcKV+RKcFxcBAbEReH7PwkaK+GDhy/0QRmYr4E2uuALI3RZ3vqei8SvORHGDsqWf6r/s/PpOiBe1FPjvTjC1rsG+XAJyomeiB9kY9mIpIrsg2Sz33nGdn2nkKyL6FHWXoft0T0MZ3NlSY7/lrxQTnR9Iewo4gJDiX+urAUJBTMm/ULBgMj2pV3f7g/1jlQkfDuGvKj0PSCunKmwVO/fAGcVoE8Q2BSokJ44mwMK9/AxSI8I3c7KpjmtcVPF7SmTrJdtD0p03WI+9AL2DHi2csFmR4bOdFqIg/Y+wPBjOnsVTOeXY/riFYv0Qqmm2nJWk/LjZOtOv2sZ6QYyswHm6CDRlqfOISjt9bO/k1+njVXTJR4rwRcmE17gwCoCxNFN/tffix6wnn5ONvbC1hz6sWiE2EiDaqqn+/Daj3Nkaz+yoxT5QEEOx3tCEGgRf80j6tr+u0IkxDFl1izriVweM9wqyl6kW3Skf5Keb+9cCagAukksEsaUdqm2mslEoAywY5jCNdXhEhUIVdaS9OHR2/K0gk5HglzhMgRvwMoKPyR6Ex52g4gRIxQkjTgflxCpRsjGBPrwtY23If21xrP8Wvjvk5oVxSAlDiaCUaJ8REWeVhgPO/zhUyJj1VvRl88vO77klOM6z57tDvcJQiMhp2JSwwfdqXIwoXQT3/5sQIbnhzHsobh9SiZVHuUwsC22q4KdSPjkq3uV37tgIUvAjR1UtlVU22Kyq+zxPBy7I9+bq9sjRKVGFiffZCOGmfkW6LQ=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY6PR01MB17377.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(52116014)(376014)(1800799024)(366016)(38350700014)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?xaEPHCtH43QuVrFZGIH5QqweIoL1mW/vF1CGwQXp9cEwMKFEIkbS+NmNubC0?=
+ =?us-ascii?Q?xGMGzXKNkxGbBzqT3TuRcl13yJkbn5dEcddK9ZPZ1Lna9NGkwEIduQgp+St4?=
+ =?us-ascii?Q?09L4EQzkpUIS8QdIT4WFdx8rpty9qd2X6/Pd2zvOKC73S/Fv8+DUfaI5ENTw?=
+ =?us-ascii?Q?nhWHM0hgFc175OblndBlSP+Q2f3+yunMB+Aa8TeWXTxCk4BXiD/8aYMf02fD?=
+ =?us-ascii?Q?ajKZWehF0VITkVlACY+p/YQ4jOwqJLuUjud1g4alyCVOMBd9SHKGu5il6ubZ?=
+ =?us-ascii?Q?CykIkQinR0fmkzgmJAr6UI3JeejcKZZW31LgUNvK3YeWJw7WJZAjqZlVXWg3?=
+ =?us-ascii?Q?cUtv/nT7hLhvRJScztoUWty0ey2pn3GCvVpLdX7MpyJzNvuYD79gyivRNW6F?=
+ =?us-ascii?Q?6QwyCA4YZVd1rc/9zxMyQf+EGBI1xujno176zh/7yFwX3/AP1nL1LqBBzIYL?=
+ =?us-ascii?Q?XziYWKfVpMHAU5fB7aEam3w249KuYQBeEqG85NKWfan3PathLLp96crfEUng?=
+ =?us-ascii?Q?X1hv6MThn4RHg74CvXoqT1+FAMy/yYj+v+UIf30EqN4a18BaYBnCnzO9us41?=
+ =?us-ascii?Q?2Fw1wxX//cbxCUJxg0sGgUweoxCMNtQJOBtP0W2pqS6A8Ozho40DjKx2n3XH?=
+ =?us-ascii?Q?En1i+Gc+X1gbEer7WDXIkkLxEKZGXyh84B69Wekl2HeBKWT28deDNQpeQnyT?=
+ =?us-ascii?Q?Ldw6WGyn4/xVNb9ZvKqhGQNGBBunQQnqNHKFE5wsBHL+OaGov7zG7WmC0S2T?=
+ =?us-ascii?Q?NuCBlyIS2/RE/5mjVKFqWrLuUcscXPMCzXoqcdmzphAYc52EwOP7VTKYF2cM?=
+ =?us-ascii?Q?9Ml5fcRwQxqjs+Z5SE3HxcHfCJzviCh/8C9DU2doAskhPLEAnbWeXiHMBbls?=
+ =?us-ascii?Q?al4M0gwL5uejhdCfyDVekbu9bNIdR8t9abmT6i8L+539Hwi2JERuMLurDOSN?=
+ =?us-ascii?Q?U+eUGl0dkhd/4jRjSHF9YGVC/SDyniboAN6U3VQD5OGmNP2Lv0KO/AYvcaK3?=
+ =?us-ascii?Q?4V0SnvmEi9OsG7hjIPlKvDvur7T55BmaN2uBHKi5ZPw1n6NDQgMQoPJJVIiE?=
+ =?us-ascii?Q?dglna/xoQX+LIBAzuq6rj3yC7NXnCP6+Lwx8AFIMNzudFvE+wx4d5LgF/mLX?=
+ =?us-ascii?Q?NsNK9irvNQZA8ce3HZT9jS9OyQGo8G8BORV7zIHsZUoIHDevEBRZbNFaCIsL?=
+ =?us-ascii?Q?MagNWiS0EfTDipfVUdQY26hQQ6zsnxb1grNetGXdPG0TeXHPQQCobxVU2W5s?=
+ =?us-ascii?Q?rozOcUhwz38ljAD4/xHY1wsC9jkqhNqwcQhabn/69m8vAxNkMNmNVW6E07C1?=
+ =?us-ascii?Q?o2A5u1z/reaDOIcBxbsRCjnm1359WUIAtpOrAL8SLuWduDf/O8dIuMfnGtsp?=
+ =?us-ascii?Q?vFlaVj2ZsXx4Kw1lRDYpCbIdlv/L2sZg0cdJHtSqcDpuPo80D5ubXAjm+SJ/?=
+ =?us-ascii?Q?XIIKQUElyFtF2jNhWfWfMjUyXJKBuuvvnEj6dHi3qaA7JqYT+Whg8f8dRRY7?=
+ =?us-ascii?Q?DHi11SERsc4WvYLS1bPaCsrtZwnQbhlwEGsrHI1GWk2WewlzLzwfnEaoCiPU?=
+ =?us-ascii?Q?ulJIP8kYl8g8GhD2oZwxypEAB2nek6zGd7IbyvHAZxw2SK3DhI4SWQtHS1Hk?=
+ =?us-ascii?Q?S3wcxtRgy57eAeUVUQ4AkMu0bLbBSFwrLIbCZEys23Zj9ddWAONKQdJ0Wba/?=
+ =?us-ascii?Q?73qx0sry6dpIuIR/TAQTu9gJiNXgPqryRulsK6YiFIutIabQ65nsMsd4U6nA?=
+ =?us-ascii?Q?oN89pFOeIeGGDa4PgDUVeF5QIvRsuo8=3D?=
+X-OriginatorOrg: bp.renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 815cc159-34af-43be-c21f-08dea2e28aaf
+X-MS-Exchange-CrossTenant-AuthSource: OS7PR01MB17371.jpnprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Apr 2026 15:51:40.8113
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: qxm8JCLCo/7NcN9hdN683tkcS3BtKqOnjNrrq1dXZ2v+QKskkxhnHgM1regGNbuUvpHqEDolOHvHY54fej0ETobni5hrJKhlc9TPzX9ZZR0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYCPR01MB7315
 
-On Fri, 24 Apr 2026 12:35:51 -0400
-Yury Norov <ynorov@nvidia.com> wrote:
+isl1208_rtc_interrupt() is of irqreturn_t type but two paths
+return a negative i2c errno instead of an IRQ_* value:
 
-...
-> > Any chance it'd be simple to generate u32_get_bits_signed() etc.? Could
-> > be especially useful for le32_get_bits_signed() for example, to have the
-> > endian conversion built-in unlike FIELD_GET_SIGNED().  
-> 
-> Maybe this:
-> 
->         x = FIELD_GET_SIGNED(mask, le32_to_cpu(reg))
+  - The SR-poll loop on timeout: `return sr;`
+  - The post-alarm cleanup path: `return err;`
 
-But if you are going to follow it by:
-	  x1 = FIELD_GET_SIGNED(mask1, le32_to_cpu(reg))
+genirq's note_interrupt() casts the return to unsigned int and
+flags any value above IRQ_HANDLED|IRQ_WAKE_THREAD as a bogus
+return, logging "irq event N: bogus return value X" each time it
+happens.
 
-you really want to to the byteswap once, best as:
-	reg = le32_to_cpu(struct->member);
+Return IRQ_NONE when the SR read failed (no progress, can't claim
+the interrupt) and IRQ_HANDLED when toggle_alarm failed.
 
-	David
-	
-> 
-> Thanks,
-> Yury
-> 
+Fixes: cf044f0ed526 ("drivers/rtc/rtc-isl1208.c: add alarm support")
+Signed-off-by: John Madieu <john.madieu.xa@bp.renesas.com>
+---
+ drivers/rtc/rtc-isl1208.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index f71a6bb77b2a..c93998c53e7a 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -654,7 +654,7 @@ isl1208_rtc_interrupt(int irq, void *data)
+ 		if (time_after(jiffies, timeout)) {
+ 			dev_err(&client->dev, "%s: reading SR failed\n",
+ 				__func__);
+-			return sr;
++			return IRQ_NONE;
+ 		}
+ 	}
+ 
+@@ -666,7 +666,7 @@ isl1208_rtc_interrupt(int irq, void *data)
+ 		/* Disable the alarm */
+ 		err = isl1208_rtc_toggle_alarm(client, 0);
+ 		if (err)
+-			return err;
++			return IRQ_HANDLED;
+ 
+ 		fsleep(275);
+ 
+-- 
+2.25.1
 
