@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A391363C53;
-	Mon,  1 Jun 2026 11:43:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE71371888;
+	Mon,  1 Jun 2026 11:44:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780314182; cv=none; b=rwBbP5unJ16TQ8Hr9JOMDtTGwbLnMSQDKrD8iec8yBcJj9oQrCMFMjJ31pMKRBDHywL3nJlKzvh2DV6Sbhd6UgiAM6AwUlhSEznYW+Hfa+REruBy93PL9XW4V0CpShDHffaUsdJ7OkTFmMIeNMedoLvyw47r5TI1n4XwHh3VVFc=
+	t=1780314261; cv=none; b=RbVzfdFh0FxgnruIkoFM0YP5F1TlhlToGg12sHECaTcUX21tm2kSnp3YUSzuZ4bIk/yfsksIsOJ9pjnJ2MIcOuMepCArFKZ5ZlOniP+daYU8luQKkkO+i+CZ7m0Fg+YLlYVvnv3TUg2ZFBAmCPvfh9gLaPBeOqr7J5szrhWW5tQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780314182; c=relaxed/simple;
-	bh=WwTMlmFtuAgiZKmyF7AQMdP6/QDvdtwL2QfOFrx4s3I=;
+	s=arc-20240116; t=1780314261; c=relaxed/simple;
+	bh=Mc7HO4pv5VSTx3/AHqd1sbM/NO8LJj93nB/wxin7H14=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iwG4gN/gTt9TQhpzx1O70O3TQ8/cNNb7c/iAzV/6xXVV8+MKURBWs+V3JsgIoFhTRO4T3e+rAgb8dLJYXsV28seztLrT2Xb0UyVldiTNKZoy1RgupOGy8SB69Bg1TH4TdTNOuU1jAlLto56a0iHmJ5vsem7MO5wHUywxhQ6Cg4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TMEGOS2b; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Ir0AvfM4usDm7w05RKL7QCwwg2VZrbSotaqhZiINHJHEiMNbYVIlarrCZEz/vuoVFottvq5EVpPVKy5qxWAR/uECRljyxSA3NAIpCUTHgoA5/gQehsXJ30lj/7AkF8dQVMCVMXP4zT3J9cn+qGWGDnnz6exgFTFahMOOJ1B3VlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pf46fETA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TMEGOS2b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635311F00893;
-	Mon,  1 Jun 2026 11:42:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pf46fETA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49701F00893;
+	Mon,  1 Jun 2026 11:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780314181;
-	bh=OGsiOpHkkAn8U2JBhAjRKXv+f+ncPCsV7XY3NzM6Pns=;
+	s=k20260515; t=1780314260;
+	bh=oDouDsrX2tMApB09VtpLdRio+XtVvmO2XBI27bkSnzk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=TMEGOS2bL/SJyESj+bOKSZwcHm25n+BJ48IUOY5eoLlFo7DmvFpR/hIz98zl0LM0u
-	 5f2Jr/JmKzhS4F1cBCnQ3/fmdNm/+xZ/53U52U8iN5Aqgv3N4NFSo/OlOdweWSCQLT
-	 MuSnTJYpqf0iHoXo9ZEeudRpk+fqxivyXsyzokukQSkF0/+Geowj8sRdSjZYeFUAgL
-	 8yirH6snsXZYnJ8Awb8g4TSEYmo98c7e51TlaNmTxGo2hJLGYXCd3EXsZSeb/NRaND
-	 2ktfqe8mUkQ3pH1gERKK8bLeCLVLgkOUH0MXfrbJt7ZcU53ZhFc80Oeayuq33t8F4G
-	 hdIenwrCp/cmw==
-Message-ID: <0c698377-fbe5-44cb-866a-23a0afc6de24@kernel.org>
-Date: Mon, 1 Jun 2026 13:42:55 +0200
+	b=Pf46fETAs9+wyR+n6TriqzKq6rL3gBF0jbi8YKwh94BgXGRCXWTymY0Q6YD1X0wPj
+	 /mYTH4/a2M8a20BfIzf8t7IRueT43BpeCjfiDgLpKfsxa0MVfedS+CSboD827QXRTG
+	 BMdXEP1u9iKnTMcCMg8dVetMQF4tazc8zagTayeHB6iz7pMf1b5v/UvQAnMQxgLcpr
+	 OO1AnLouRZsLSVLtcnFdry06z+dIe8Jozw5UJHYHN7zjTb5PfkKMf9n1A3g4pAbOBC
+	 vwYmDpR9w9MGBSLWWXp5HWj5wJvx5g+4P9Nrz5M+hBf0RA+iHqokoI5lDsWj4CpCaA
+	 REOFBjErH6HAA==
+Message-ID: <7fb5412f-cdde-4cd6-bc38-aad91903ee36@kernel.org>
+Date: Mon, 1 Jun 2026 13:44:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -35,16 +35,15 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: arm: vt8500: via,vt8500-pmc: Convert to DT
- Schema
+Subject: Re: [PATCH v4] dt-bindings: clock: via,vt8500: Convert to DT Schema
 To: Uday Kiran <challauday369@gmail.com>
-Cc: linux@prisktech.co.nz, robh@kernel.org, krzk+dt@kernel.org,
- conor+dt@kernel.org, skhan@linuxfoundation.org, me@brighamcampbell.com,
- linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260524110047.37590-1-challauday369@gmail.com>
- <20260530-devious-magnificent-jackdaw-cc48c1@quoll>
- <CAAj-GBnDiiKPwCQz1KDp6kMx9mQzmxSJpAuanbWsjt4iSzoZQQ@mail.gmail.com>
+Cc: mturquette@baylibre.com, sboyd@kernel.org, robh@kernel.org,
+ krzk+dt@kernel.org, conor+dt@kernel.org, skhan@linuxfoundation.org,
+ me@brighamcampbell.com, linux-rtc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260524151110.21277-1-challauday369@gmail.com>
+ <20260530-academic-aspiring-sawfly-7dcfab@quoll>
+ <CAAj-GBmNXvTNbnQ8hOzsjnQd0Oi4a17LY8yjb8HTbD4PpTXH3Q@mail.gmail.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,14 +89,72 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <CAAj-GBnDiiKPwCQz1KDp6kMx9mQzmxSJpAuanbWsjt4iSzoZQQ@mail.gmail.com>
+In-Reply-To: <CAAj-GBmNXvTNbnQ8hOzsjnQd0Oi4a17LY8yjb8HTbD4PpTXH3Q@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 31/05/2026 18:51, Uday Kiran wrote:
+On 31/05/2026 18:49, Uday Kiran wrote:
+>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>> +%YAML 1.2
+>>> +---
+>>> +$id: http://devicetree.org/schemas/clock/via,vt8500-clock.yaml#
+>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>>> +
+>>> +title: VIA/Wondermedia VT8500 Clock Controller
+>>
+>> How PMC is a clock controller? Really?
+> 
+> No Krzysztof, actually that was a wrong direction in v4.
+> 
+>>> +
+>>> +maintainers:
+>>> +  - Michael Turquette <mturquette@baylibre.com>
+>>> +  - Stephen Boyd <sboyd@kernel.org>
+>>
+>>
+>> Subsystem maintainers do not care about PMC. This can be platform
+>> maintainer.
+> 
+> I agree with you. I changed maintainers accordingly.
+> 
+>>> +
+>>> +description:
+>>> +  Clock controller bindings for VIA/Wondermedia VT8500 and Wondermedia WM8xxx
+>>> +  series SoCs.
+>>> +
+>>> +select:
+>>> +  properties:
+>>> +    compatible:
+>>> +      const: via,vt8500-pmc
+>>> +
+>>> +  required:
+>>> +    - compatible
+>>
+>> Why do you have select?
+>>
+>> I don't understand your changes. This was not at v2 and I did not ask to
+>> change that.
+> 
+> The select: block with via,vt8500-pmc and the clocks: type: object were
+> mistakenly added to via,vt8500-clock.yaml in v4 — leftover confusion from
+> trying to handle the PMC node's clock container in the same schema. In v5 these
+> are removed from the clock schema entirely. The PMC binding is now a separate
+> patch (via,vt8500-pmc.yaml) which is the right place for the clock container
+> node description.
+> 
+>>> +
 >>> +properties:
 >>> +  compatible:
 >>> +    const: via,vt8500-pmc
+>>
+>>
+>> So via,vt8500-clock.yaml or pmc? Why aren't you removing the pmc file?
+>> Why is this located at clocks?
+> 
+> In the next revision, this patch is scope only to the clock provider bindings
+> (via,vt8500-device-clock, via,vt8500-pll-clock, wm,*-pll-clock). It no longer
+> models PMC/top-level node properties and does not modify PMC binding files.
+> 
 >>> +
 >>> +  reg:
 >>> +    maxItems: 1
@@ -106,16 +163,11 @@ On 31/05/2026 18:51, Uday Kiran wrote:
 >>> +    type: object
 >>> +    additionalProperties: true
 >>
->> No, binding must be constrained. See writing-bindings or any other
->> binding. If you are unsure how to do something - open other existing
->> bindings. Do you see anywhere such syntax?
+>> No, this cannot be "true".
 > 
-> Agreed. The clocks child node is now fully constrained: #address-cells and
+> Agreed, I dropped that structure and kept strict schema validation.
 
-No, it is not. What are you speaking about? Open this patch and look -
-how anything "IS" there constrained?
-
-
+So open v5 and tell me how did you solve "this cannot be 'true'", part?
 
 Best regards,
 Krzysztof
