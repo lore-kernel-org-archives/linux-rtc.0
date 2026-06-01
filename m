@@ -1,79 +1,63 @@
-Received: from twmbx01.aspeedtech.com (mail.aspeedtech.com [211.20.114.72])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15A0038F629;
-	Mon,  1 Jun 2026 09:14:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.20.114.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AFE136C0CA;
+	Mon,  1 Jun 2026 11:40:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780305264; cv=none; b=HBq9ZxbviWXhAfvNexbTPKr9rnweVJUq1tx0VjelpsCt24j8ns2jp+yedRdqk4EWvATODga1pGLdA9bbm9G9zu3QT2DqYsxiSp9NcboLIdqN1ZHI6mWGiCWsp8Bj6ZRIJvU4sn2V7bsUi6Gr/DT9/ZWCo0T+N7YJsbxcm7OoMMo=
+	t=1780314020; cv=none; b=CF7SQMiMNnazj1udLfHvNYCTv7g/Tn1ad1QRBFTZpPyrR/qUy2h25EsaVkTGevwKk0WUL/hllokSZaXkObOvpUaxOGgmYViXwHWeUPEp8XxNtwnqj84IvxzFhnTtf2hb/Crs8Ub8MxNvJHfL3XWKLCRx8IKCOlGmHEUoZJB3ctg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780305264; c=relaxed/simple;
-	bh=aHhrVFZ3S8/5xrq3jTdAdtMy/mbRjfnoMz8ic9XvQtQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=BwUPT0k+WlBkYN8mmB29+fZx3p7bB1WzmVbr423An4W7EEuSmiV9lucwgzDqtBV8l6xMQgs4XTaOpsuo7T471ygwvQyBVBq5r0akReRCq9/wXiQfQMtPhrW592PDu3JfR6Vd8cXLGW+rtyrmNXMLv/AByoC8zLYWXlbbk8N1Fws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; arc=none smtp.client-ip=211.20.114.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
-Received: from TWMBX01.aspeed.com (192.168.0.62) by TWMBX01.aspeed.com
- (192.168.0.62) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1748.10; Mon, 1 Jun
- 2026 17:14:10 +0800
-Received: from [127.0.1.1] (192.168.10.13) by TWMBX01.aspeed.com
- (192.168.0.62) with Microsoft SMTP Server id 15.2.1748.10 via Frontend
- Transport; Mon, 1 Jun 2026 17:14:10 +0800
-From: Tommy Huang <tommy_huang@aspeedtech.com>
-Date: Mon, 1 Jun 2026 17:14:07 +0800
-Subject: [PATCH 2/2] rtc: aspeed: add AST2700 compatible
+	s=arc-20240116; t=1780314020; c=relaxed/simple;
+	bh=g5n+pNpfqd7ObkQPa0mLolvaWZlGhlLZ5dvu3tVOjo0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=F9m8UaoyRsIYt8fX4ebMmVFRtgDsjpdcFig1fJpNabwrTQH1d9Bkygrlsig6N9GBk6gkrnWDeDFDIxpCW4uZIm6y52gjYvwmesJ6NfRuCPsvgaZ7f36MO+rxsjpw0UNCjdadDNxFwQlCR4nmrc0qUmGPsuGyY4ppcluxqsmnUiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hlSgHH3S; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hlSgHH3S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9892B1F00893;
+	Mon,  1 Jun 2026 11:40:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780314018;
+	bh=vyO2Y39ojBF2Rd5PpuF4upTFPXdvxVq0+p7BtDjiWjE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=hlSgHH3Ssq0wt13AoXpWDUx2wFK63ZYexLOEWgB8YgbERbReMXKi8qgbNEettabIB
+	 QeYg+4RLzI6bfBLxwxadQHgajwLKgwsHXHmBLxrm0Ay8mCuvTctcH+SbtZIyrC++BT
+	 zyDzMUijidysVHB9b+PEVMImEUK4ijkgZY70o7thpj9nzRJzF6IsprUAzvtY4JuDQM
+	 ckgIVtpkK2bt4lykPl3wxHyj+N6YYz3qo9RYZcwUGl0is6bwCEz6DGDrZGQ5Zhhwlk
+	 C4V2p4L/MVU6nDSAKoSG6p9IbbLUM24tBhR8xDuhHwIYOGykekdxP77PDt6YYrPBW+
+	 IaN25kRDO5tUw==
+Date: Mon, 1 Jun 2026 13:40:14 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Udaya Kiran Challa <challauday369@gmail.com>
+Cc: alchark@gmail.com, robh@kernel.org, krzk+dt@kernel.org, 
+	conor+dt@kernel.org, skhan@linuxfoundation.org, me@brighamcampbell.com, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5] dt-bindings: clock: via,vt8500: Convert to DT Schema
+Message-ID: <20260601-zealous-loutish-termite-ccfc8f@quoll>
+References: <20260531171041.4149-1-challauday369@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-ID: <20260601-ast2700-rtc-v1-2-15d4ca46500a@aspeedtech.com>
-References: <20260601-ast2700-rtc-v1-0-15d4ca46500a@aspeedtech.com>
-In-Reply-To: <20260601-ast2700-rtc-v1-0-15d4ca46500a@aspeedtech.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring
-	<robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
-	<conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery
-	<andrew@codeconstruct.com.au>
-CC: <linux-rtc@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	<linux-aspeed@lists.ozlabs.org>, Tommy Huang <tommy_huang@aspeedtech.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1780305250; l=793;
- i=tommy_huang@aspeedtech.com; s=20260601; h=from:subject:message-id;
- bh=aHhrVFZ3S8/5xrq3jTdAdtMy/mbRjfnoMz8ic9XvQtQ=;
- b=3ClSMOEGtvnQTW0wY5ZFVHalJ0/8PbuusrkEJc6fZ/Hf8aoHJdmjjwhFNhlvplZY4tSWuECS/
- NMtBcIz4nsuAAio4hyG68661FlHWVOz6nVeETYoeNpKoCqhG3eqEMf3
-X-Developer-Key: i=tommy_huang@aspeedtech.com; a=ed25519;
- pk=/SRU8iPtlyPCtlX7hXjYJhOTpCUdfEZ9pIVVyCQOjLE=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260531171041.4149-1-challauday369@gmail.com>
 
-Add support for matching the RTC controller on ASPEED AST2700 SoCs.
+On Sun, May 31, 2026 at 10:39:55PM +0530, Udaya Kiran Challa wrote:
+> Convert the VIA/Wondermedia VT8500 and Wondermedia WM8xxx series SoCs clock
+> controller binding from the legacy text format to DT schema.
+> 
+> Signed-off-by: Udaya Kiran Challa <challauday369@gmail.com>
+> ---
+> Changelog:
+> Changes since v4:
 
-The AST2700 RTC controller is compatible with the existing ASPEED
-RTC driver implementation.
+My comments from v2 still apply. Almost all of them.
 
-Signed-off-by: Tommy Huang <tommy_huang@aspeedtech.com>
----
- drivers/rtc/rtc-aspeed.c | 1 +
- 1 file changed, 1 insertion(+)
+You a PMC binding and preferrably all this goes to that binding.
 
-diff --git a/drivers/rtc/rtc-aspeed.c b/drivers/rtc/rtc-aspeed.c
-index 0d0053b52f9b..8f5b440f8c0a 100644
---- a/drivers/rtc/rtc-aspeed.c
-+++ b/drivers/rtc/rtc-aspeed.c
-@@ -111,6 +111,7 @@ static const struct of_device_id aspeed_rtc_match[] = {
- 	{ .compatible = "aspeed,ast2400-rtc", },
- 	{ .compatible = "aspeed,ast2500-rtc", },
- 	{ .compatible = "aspeed,ast2600-rtc", },
-+	{ .compatible = "aspeed,ast2700-rtc", },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, aspeed_rtc_match);
-
--- 
-2.34.1
+Best regards,
+Krzysztof
 
