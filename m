@@ -1,41 +1,41 @@
 Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E68E3CAA48;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 807413C9894;
 	Tue,  2 Jun 2026 09:04:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780391047; cv=none; b=LJZXazI6SDU9dU49pRoR43B6JOqsKK2akquoKOq1pfooPXNpUEWuTgLAIsunucO3PovG6b5ZXvDTljJ8ninZAMI9qBnZgn7qOi/hnhkp+UDZ4NlV9aV+tmDuk5wEqsLPL67d3JaM0yfSEgC7F6ydAx4XT2O3COttyqtlPrE422I=
+	t=1780391048; cv=none; b=Es4mD08js+imEw1+GPxAkckbykNlW8gA9Tuvmtxdi2Sw7GEm2pKyULDt9finAxJ25ain8+KUR/0o2xGy/dMdLzv45hT6YqXYjtjIz1QR4MNPT8ID/TJy1+vLiAndB0Vh4Ao3F1PPH97VFLkk92j+8JjQo92Ha/cUWsFn7AVJyY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780391047; c=relaxed/simple;
-	bh=TmwNvRU5JGmuk7QhxlzVsKnPW8fkOD3xhGVhBTM2hrQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qIaBERD2iNmSj6Zr4/lmRKZIUmSiFp5vrP3lw+vIOH1g4NgP28MTeQfJCRNvpiN49XAoe0q9tAn0uOke9upJMNbRqDf4rcj4EbKJHvM8l6WR17Lll2msIwhGcISLmbl6jGCuBLwxE3uHb4gKumx3yfYOC2F5ZNjJuUWyUlG4618=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yoseli.org; spf=pass smtp.mailfrom=yoseli.org; dkim=pass (2048-bit key) header.d=yoseli.org header.i=@yoseli.org header.b=EI0Za1s5; arc=none smtp.client-ip=217.70.178.249
+	s=arc-20240116; t=1780391048; c=relaxed/simple;
+	bh=BGfRpCziLoFkxXw1IWBGIjETJmsIEuWBg7unSPf5Keg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=gEQ08dfVyHmEnI5Ws9QdEjb5TzIIrNZtvckv21xrNtFrNCw0JViUWFwJc4Qz/7E9agNfzhc9AYUNLVNApQuVRsez/g3jBDNK4rFF0R6u9LUryRDY6Xnp2DYHJ42+9RrbeXyG7L9VWWvIkvxIvoBXDJV948cZKSPiPzo2XiU28+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yoseli.org; spf=pass smtp.mailfrom=yoseli.org; dkim=pass (2048-bit key) header.d=yoseli.org header.i=@yoseli.org header.b=ADqK8bKI; arc=none smtp.client-ip=217.70.178.249
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yoseli.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yoseli.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yoseli.org header.i=@yoseli.org header.b="EI0Za1s5"
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
-	by mslow3.mail.gandi.net (Postfix) with ESMTP id 8382C58307D;
-	Tue,  2 Jun 2026 08:36:45 +0000 (UTC)
-Received: by mail.gandi.net (Postfix) with ESMTPSA id BACF53E9F5;
-	Tue,  2 Jun 2026 08:36:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=yoseli.org header.i=@yoseli.org header.b="ADqK8bKI"
+Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::224])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id 87CFB583063;
+	Tue,  2 Jun 2026 08:36:42 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id B0E1A3EB1D;
+	Tue,  2 Jun 2026 08:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yoseli.org; s=gm1;
-	t=1780389397;
+	t=1780389395;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2StCb0XxuWRTxii1OsJ7SwSKkwi3VYbBfMK9IvuOBs8=;
-	b=EI0Za1s539XXcbzJBV91lODyBEe427IGklIpvTyJBmiT6Xpuq8gGFmwRbNaQpFmN30t64E
-	l0WROorbefEcDtSLiZmpBz1a0HY8pddHrkFDuZCgci7xdXJSqFRZVyrQaWngumJbD3yquc
-	h748jn7nxk2gtxhqC7rpH9aYnYY4EKYEG1rtFwTlEdx2JrKQTFLzBueHyYEjZf7MRNWxrI
-	jdKNiY2y+yveyJgeVva+HKSaIqH9bmCI7b3AHXQt8O0D/dmkRbbHFlpFVEsj3cCimat49b
-	QtewVgfxXfM/2QQaz16k+0SFitKl4MuXpWLEIzJftlR5WEDkn3kY5le9fS+Ujg==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=d/l5rvA/a40QIu3rhbiP/pZ1jgz6zGNVh6aFboZ+MYw=;
+	b=ADqK8bKIMGw1pZtEWhnOgHmFdfE4n+DtB6Kj4LHTb9A78iwLsPTwNXG28JcwWmH71TjV0/
+	XfCsR1GYKre0J1xcPQWVgao2Znz8y4OXVK/iRot+APfoM6zbinPZgLmvaKpC7wiA3xzQ1A
+	Y7M51zgtwtba+30A3c97TeYQTaUND1QT2vxRoKo8wct+JZNE8A4hDpo3clcc62ADVOOjlR
+	kkf2Ou8A7j4h2ILHL+2ildZ331LhfcfqXEflQVfj2aQGG//+DzHInXzBSCF5j5AIITlWlM
+	ej5+BHfMKmv6EH3MhfK5DMRtFxOGpnA+KaYulA/LegsEDcPw7ebSykwUPsW1vA==
 From: Jean-Michel Hautbois <jeanmichel.hautbois@yoseli.org>
-Date: Tue, 02 Jun 2026 10:36:18 +0200
-Subject: [PATCH 2/2] m68k: coldfire/m5441x: register the on-chip RTC
+Subject: [PATCH 0/2] rtc: add a driver for the Freescale MCF5441x on-chip
+ RTC
+Date: Tue, 02 Jun 2026 10:36:16 +0200
+Message-Id: <20260602-jmh-upstream-coldfire-rtc-v1-0-1e129a177d2f@yoseli.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -44,9 +44,10 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260602-jmh-upstream-coldfire-rtc-v1-2-1e129a177d2f@yoseli.org>
-References: <20260602-jmh-upstream-coldfire-rtc-v1-0-1e129a177d2f@yoseli.org>
-In-Reply-To: <20260602-jmh-upstream-coldfire-rtc-v1-0-1e129a177d2f@yoseli.org>
+X-B4-Tracking: v=1; b=H4sIAACWHmoC/yXMTQqDQAxA4atI1g1MA5axVyldODFTI/WHzFgK4
+ t072uW3eG+DJKaS4F5tYPLRpPNUcL1UwH07vQS1KwZydHM1NTiMPa5LyibtiDy/u6gmaJnR++C
+ aOhBH8lD6xSTq93w/nn+nNQzC+RjCvv8AKxSxM30AAAA=
+X-Change-ID: 20260529-jmh-upstream-coldfire-rtc-88b095b2cf28
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
  Greg Ungerer <gerg@linux-m68k.org>, 
  Geert Uytterhoeven <geert@linux-m68k.org>
@@ -54,75 +55,56 @@ Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
  linux-m68k@lists.linux-m68k.org, 
  Jean-Michel Hautbois <jeanmichel.hautbois@yoseli.org>
 X-Mailer: b4 0.15-dev-47773
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1780389394; l=1672;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1780389394; l=1832;
  i=jeanmichel.hautbois@yoseli.org; s=20240925; h=from:subject:message-id;
- bh=TmwNvRU5JGmuk7QhxlzVsKnPW8fkOD3xhGVhBTM2hrQ=;
- b=+ZMktkeaBEl4mUAlWw8z2OCWI9g1nhRUCzhSy/1Bg1zdW3dXlHeA+j9FtM6/IradO5loOavKJ
- FHYu7r7xqywCYq8uqeZ9N2l5pJpN0PBv8e+Ha40GkRs1C5YG5OVGCz6
+ bh=BGfRpCziLoFkxXw1IWBGIjETJmsIEuWBg7unSPf5Keg=;
+ b=1tTsRXbKifjj5ZG5IuOSmeVX5O+RxaNkhnId8yDKf3k3EM0pmoGkXUmuRoMYsuqfOaSWv08mM
+ 7XyjFCZ4eNWAJmgqwq2xNnVgldkhjEtqAczTKbt6Ir/06Y23jREzI5H
 X-Developer-Key: i=jeanmichel.hautbois@yoseli.org; a=ed25519;
  pk=MsMTVmoV69wLIlSkHlFoACIMVNQFyvJzvsJSQsn/kq4=
 X-GND-Sasl: jeanmichel.hautbois@yoseli.org
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: dmFkZTEsnfONNs296jSZuB3SroO9mv8NDw0zsJVF00UexSuwOsMW85G0//OCxbGa+0b/Pc7F4frE2obwOtkyy7cUUtBCoxR+DtZRV3KYgq2nWJ61fO6JvHVMcGwfQQlPQ61H1g2ybjvkwfHtAbn4BFLjC2BgSkmClKA1Rq4RPH2qUXuAxpvXhVzQ8X0e9oPyFovYzOvj/+M/CUiboM+bPWlKwEgSHrSG5ifeFVfOSPTUEBE7yKrZPV62zERrnZUgX1kb3rWcYUP1GNs/AC9rz/7bUsBd0iZyWWDYLCqLCx2e9wi6/iDBJjPZnhyGnVKh3l/A3uf7s4roGFRW068pQYd2jgHbs26YItc8h1n4gzSRAKtxinCFFaR8slG+4ei8dlxyz6M28mR8zso+Mmi3thRxX/IbnFVUbVjfWHl0QezXlJsCM207nqPiIRo7aqaV7Mzm963Z4rwTeUeBMIxbYPQRAXNedsGxWDRTvSY7VEEwtJ3fMDwkPmNxKvEZOWkIQsJAEBm35ybfUJbLzC4qYSMwqlGclONU2XJjM58FshqrmRPv0YIVz2QlWUVoqwsduYkVKL+I3yOwvToWYF8wvaOy/rqM/NFhg+nIIrLVvGNb24Wp+BdA7se2Ss5yXGDgttDm0OWm4yTJHwM+enc2NiwGVMYI0tdJdflMGCFgvzU3jq33CA
+X-GND-Cause: dmFkZTE29EoZmkXhu/xQtkxQaa0kHijKM01RTghUKVBKBIcVlzcrYFVuyXUNxNf9FZmwubASaLi7n+lgMYv0R7A8AAkNTqQDRMNAzlT42sG40ar65UhwE1PMc6GbyDclX4g0QQsp9UOpLIHqyaUXWl+Ds0VavrEAU3rRZ/CpKAR+upsKqaNRihcn9EiAMU/7mtmAf3zEXLoWPGjaw1Nd5NePFYgEO1OxtC0twdNpfB6VoEHWlwHDNukueX+wkoWk+o1YsiT5zloIKqufFaDRfVlAxuIb72Xc+MaGa2xW168G2Ky1HzFXPPeYPevmMkIoTtTiMkPWIlSOBAZ0dZVY/rzfqmDnqGETg+yL1xs5YVIWF9Xk5a3cPnG3FjSzIsKv2UeKIW2HZdy5BEtfaBjk09cuGMVyoTxLoj4wX2MtuirSboO4unJJ5vr6dtOITnSIcjrEekWqH6FJyIeK3b9Svl2oG99jXRh5r805fIvDMXUAIvPSQ8IMY5E7oiRN7hM3MU/iMGxRzru6ie7vOo+SdVrSN+a7mjqIQbFAwYLIK9lMAuSp4DxAEkMiBDds1O7WababosQ0WU0Zh8qf53oDThqxEKAjKgVtjb4B/C/kO0OpzN5Alj6HqJ4f3yA0nY7jDDuXAZIcMXArxj01hAYRl5ljv/LFoa0BKR45nwGZJECFyi0IIA
 
-Register the MCF5441x on-chip RTC platform device from the SoC code so
-every MCF5441x board gets the rtc-m5441x driver (time/calendar plus the
-battery-backed standby RAM via nvmem) without a per-board file.
+This series adds support for the "robust" real time clock found on the
+Freescale MCF5441x family of ColdFire SoCs.
+
+Patch 1 adds the rtc-class driver. Besides the usual time/calendar and a
+one-shot alarm, the block contains 2KB of battery-backed standby RAM that
+survives a main-power loss while VSTBY_RTC is supplied; the driver exposes
+it through the nvmem framework so userspace can persist data (for example a
+reset/reboot counter) across power cycles. Register and standby-RAM writes
+go through the RTC_CR[WE] knock sequence, the time counters are read under
+the RTC_SR[INVAL] guard described in the reference manual, and the time/date
+encoding is forced to binary at probe.
+
+Patch 2 registers the platform device from the m5441x ColdFire SoC support
+code so that every MCF5441x board gets the RTC. The MCFRTC_BASE, MCFRTC_SIZE
+and MCF_IRQ_RTC definitions it relies on already exist in
+arch/m68k/include/asm/m5441xsim.h.
+
+The driver has been exercised on an MCF54418-based board: it registers
+as an rtc device, exposes the standby RAM as an nvmem device, and a value
+written to the standby RAM survives a mains power-cycle.
 
 Signed-off-by: Jean-Michel Hautbois <jeanmichel.hautbois@yoseli.org>
 ---
- arch/m68k/coldfire/m5441x.c | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+Jean-Michel Hautbois (2):
+      rtc: m5441x: add MCF5441x on-chip RTC driver
+      m68k: coldfire/m5441x: register the on-chip RTC
 
-diff --git a/arch/m68k/coldfire/m5441x.c b/arch/m68k/coldfire/m5441x.c
-index 7a25cfc7ac07..b79aebdfd567 100644
---- a/arch/m68k/coldfire/m5441x.c
-+++ b/arch/m68k/coldfire/m5441x.c
-@@ -10,6 +10,7 @@
- #include <linux/param.h>
- #include <linux/init.h>
- #include <linux/io.h>
-+#include <linux/platform_device.h>
- #include <linux/clk.h>
- #include <asm/machdep.h>
- #include <asm/coldfire.h>
-@@ -239,6 +240,34 @@ static void __init m5441x_fec_init(void)
- 	__raw_writeb(0x03, MCFGPIO_PAR_FEC);
- }
- 
-+/*
-+ * On-chip "robust" RTC. Exposes the time/calendar and the 2KB
-+ * battery-backed standby RAM (rtc-m5441x driver).
-+ */
-+static struct resource m5441x_rtc_resource[] = {
-+	{
-+		.start	= MCFRTC_BASE,
-+		.end	= MCFRTC_BASE + MCFRTC_SIZE - 1,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+	{
-+		.start	= MCF_IRQ_RTC,
-+		.end	= MCF_IRQ_RTC,
-+		.flags	= IORESOURCE_IRQ,
-+	},
-+};
-+
-+static int __init m5441x_rtc_init(void)
-+{
-+	struct platform_device *pdev;
-+
-+	pdev = platform_device_register_simple("rtc-m5441x", -1,
-+					       m5441x_rtc_resource,
-+					       ARRAY_SIZE(m5441x_rtc_resource));
-+	return PTR_ERR_OR_ZERO(pdev);
-+}
-+arch_initcall(m5441x_rtc_init);
-+
- void __init config_BSP(char *commandp, int size)
- {
- 	m5441x_clk_init();
+ MAINTAINERS                 |   6 +
+ arch/m68k/coldfire/m5441x.c |  29 +++
+ drivers/rtc/Kconfig         |  12 +
+ drivers/rtc/Makefile        |   1 +
+ drivers/rtc/rtc-m5441x.c    | 582 ++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 630 insertions(+)
+---
+base-commit: 6f3ed7fec72fc8979b2a8c7219c0a9fcfc8d07b5
+change-id: 20260529-jmh-upstream-coldfire-rtc-88b095b2cf28
 
--- 
-2.39.5
+Best regards,
+--  
+Jean-Michel Hautbois <jeanmichel.hautbois@yoseli.org>
 
