@@ -1,21 +1,21 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D92E53B38B7;
-	Tue,  2 Jun 2026 08:32:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AF1B3BED27;
+	Tue,  2 Jun 2026 08:32:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780389154; cv=none; b=LTYNL7+grPC1281z6vOuZextq1p/ydGmGuhl6EInt0jjriAV9Ou0w++7G6b9sn8ELfCw9d2bvgOhRsOKgPoYnesgfjbILlSKn4+EtO0IzvYHw6pB0q8oVxqVbbN8yoMVoSk3qiBUS7vBCQ/p+Av9wEk3RhSo0sT6LM1erCzYNdw=
+	t=1780389169; cv=none; b=jsKadxZDj5TMliOPuUDx7GKjNzvJsxXpjzia4qAzxeo27DzkOL4BC0FgW5YnxmZ/tta/RT3ZolZgXXR5mLwGJjmBcuZdrKLP3QUbQxlyVAE4TB8OUtSduxoePlWBVWVB0LqqPzi3+oIdULTnRam5pnPL82PCXit0gZEh/IB0npY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780389154; c=relaxed/simple;
-	bh=ndHGN0UXh11XcWnTob2TUzx8bQhOe3x9CAkDAynTgZ8=;
+	s=arc-20240116; t=1780389169; c=relaxed/simple;
+	bh=qqNCKMAaLr1HTwbzbmS2abAsUQROgPJ8wtz5nvzKm1c=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NJySaSFtN4FEJ9vyPcCQTXmhoUjZpcpezAHo7ZIy35r63UVrA3muQkGrjYo1qtMl9ygt4peC6KxZ6cShAzg0WN8yhe0ih4ONFeHj97cmiuAJO8jWsNA5tuHrL3RO8ylVFTJ9FrgdV9HKb2Sx89p5dhaZLzuIB7MVZ/3dF/N+8sU=
+	 In-Reply-To:Content-Type; b=AbHkfvjyHOJkYI3BVggxYwIS3jbVsfr97oGKw0KAEaxVbXfP7v3iDjdr+mQokHGGTlvqMUWt4LknuhRvMy44DkCO6Gn55j4AKGFYxAZX7GdmugexKKeJWuV8A5++RDDFAwbhuYi8LERPOeHT18IYdp1T+6xL6vP8KwYqslfcVNA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D7731F00893;
-	Tue,  2 Jun 2026 08:32:31 +0000 (UTC)
-Message-ID: <4fc2bc34-18c9-48ea-bf7e-fc12117f6ed3@tuxon.dev>
-Date: Tue, 2 Jun 2026 11:32:30 +0300
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E2D1F00893;
+	Tue,  2 Jun 2026 08:32:45 +0000 (UTC)
+Message-ID: <6f5be8ea-f89a-496d-a285-11a7cd3e42c7@tuxon.dev>
+Date: Tue, 2 Jun 2026 11:32:44 +0300
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -23,8 +23,8 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/5] rtc: renesas-rtca3: Fix incorrect error message for
- reset assert
+Subject: Re: [PATCH 4/5] rtc: renesas-rtca3: Fix typo in rtca3_ppb_per_cycle
+ documentation
 To: Prabhakar <prabhakar.csengg@gmail.com>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>,
  Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>,
@@ -34,10 +34,10 @@ Cc: linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
  Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
  Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260506164914.3987293-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260506164914.3987293-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260506164914.3987293-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Language: en-US
 From: Claudiu Beznea <claudiu.beznea@tuxon.dev>
-In-Reply-To: <20260506164914.3987293-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260506164914.3987293-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -46,8 +46,8 @@ Content-Transfer-Encoding: 7bit
 On 5/6/26 19:49, Prabhakar wrote:
 > From: Lad Prabhakar<prabhakar.mahadev-lad.rj@bp.renesas.com>
 > 
-> Update the message to "assert reset" to accurately reflect the
-> operation being performed.
+> Correct a typo in the kernel-doc comment for struct
+> rtca3_ppb_per_cycle by fixing "adjutment" to "adjustment".
 > 
 > Signed-off-by: Lad Prabhakar<prabhakar.mahadev-lad.rj@bp.renesas.com>
 
