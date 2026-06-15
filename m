@@ -1,63 +1,63 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CF1940758E
-	for <linux-rtc@vger.kernel.org>; Mon, 15 Jun 2026 15:48:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A074071D0
+	for <linux-rtc@vger.kernel.org>; Mon, 15 Jun 2026 15:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781538504; cv=none; b=S7TA5AoHK2PkntNFOsemW1DKhVHkW5v+zoGp8D0qdWfagGgWFRdAGHSLIMcVBNtN1aLR06ZHnm/9GCELxwIbAn27Dnzq07N3ua4YiiDDd4BAF0Rnx1AIj2QrQahIDzw/O0NEN/1R7jitpwQrraE1e7AncJle+/zg2Vn0ZQ31iCI=
+	t=1781538509; cv=none; b=k3kw4sT+cHJgzSzJp0tLn67zgFBMbiyRiPTMEcui8rkvldIGhJrVys5UfD9PNYfwLuosy3H4159CLZNBrZM7reXf2VEmhfBDIQ/MdnC1+vE/xXKUfd4t9SWrOzCdYgQ4Qa9bP7vP0Z326UtD4jEC0EFu9LrCmpm3Ge33NbOGu0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781538504; c=relaxed/simple;
-	bh=m4MDgDNJGJh6NUsFNjQqW0yFQBUw3oV+QM5zFXmcAFc=;
+	s=arc-20240116; t=1781538509; c=relaxed/simple;
+	bh=3VaIy9lYxPseySDhvgtPJEdtxb7eyDUqidR6PRSBZYU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qgpA7W8QtR47lr49nrn+5u6FbJOeoBjoASc5Br1RJ0laDYRmCI30EOG/MDfoyHxhukwsScR6gaNjpTKzFQ7AUvVYGtp4DqrPlFp0Vqwz68WaCrMmxwwZVfA6VQxV27J7dSONz6w/aJoxb9jleSwRLONxuIppWgXrDRJ1tUbrILg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sEsX57p3; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=dGOTo1Vpo13Q/aWnf2O8mgo3q8nmjXNemVp1GCrZGkACe4Fjs8wOcsrKUyJBKY5xjZtdd6sPHQ3/xSWOOPLrh+IWp92AiMKO1MQ3kkJkU5T9bbW7o78uM5AWGJzZfjCWZwbkgTdCYJ+AMnMqYqF4SS5fZY55Tc7XFGH5SNm7y7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MgDiRWRi; arc=none smtp.client-ip=209.85.221.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sEsX57p3"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-45eeba68948so2621402f8f.1
-        for <linux-rtc@vger.kernel.org>; Mon, 15 Jun 2026 08:48:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MgDiRWRi"
+Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-45eeea039ebso1978876f8f.1
+        for <linux-rtc@vger.kernel.org>; Mon, 15 Jun 2026 08:48:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781538500; x=1782143300; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781538506; x=1782143306; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=N45xHGzaBC8uEBeOLmM+IjqfOYO20BdZazBFDqO07Kg=;
-        b=sEsX57p3U6qbYGqJ9E/t8LNvHVaYFPySd3BrjbvOdlHbS6KegTJCunI2kmHNoqf+1f
-         VES6I+9A5YcOLxQnWalGVyUPbnXhFFCdtejT9SCDCPyYrIwj0XOkk61BOkrJ4Xwm20ir
-         G07mTbYKaw1IY0Oi7t1RzXo8nHTAN8xTFvkKrdBPd+Iyg3GLi70QQ9mdO8DSNIB45wZ4
-         xwRIbWTtXZ/00I70ZbQl5PGF+VuUi+9V3govbkIIsswprxfV76nJECgXp+4HDIe+Ejj4
-         986kFFdeu56hjltso4Rd5x8Bca/bbjTtjnyhTifPz3wCGJjr1i6fKnXYR+8CRbdXKLHL
-         GG0w==
+        bh=U9HWytDa9V2PZ0L29istICZrF1ai/UsBjTqPqnYxQeA=;
+        b=MgDiRWRi1oDaK6TYLJY2M8uTd7BJ6NLg2IYN/Zx/EbgI4RiG/7fO5fAuUTmHOUMkFC
+         NlOcucG9LfBXa7MIGz0X96/88VoCFHSbRc0dr8qsPP4jNCFpBn0d2IQlvz/2alU2Qj7l
+         vswSTh7Qd1l7tzjpcXwwAV90GVfW07+TxIuoPtyrEq20rMuQF/CY20stp/LBwZLx1WCU
+         SCAoZrqXuPQLYQktOPFWFbQwjz7jQjphJpwG4c1G8JYx2c7FWhGCUNkFCxnnUmm93HoR
+         feundSfJFhKUlVdOTG+IC7Rsb9xFhzA+NFC7R30ANtSb/Tv/myCFfzfhgDjTNq0T2b77
+         EP2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781538500; x=1782143300;
+        d=1e100.net; s=20251104; t=1781538506; x=1782143306;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=N45xHGzaBC8uEBeOLmM+IjqfOYO20BdZazBFDqO07Kg=;
-        b=UW/ERwa/8GyZ5HNFEuMyED+KsLNN2noCM17d5Te79ZeDwDEEg9zoaPiekukW9bNH+M
-         4uIhG3bml17y4QIsTG8WLEl8zIb/qlSRQSMtK/wjc/BMv5o320m/Y22wq3DJBhy9FpMd
-         0zoqo7jSvmRXIagfHeZ20xh6TzmtNxIdxjRw9DJ+WoObW/LdZjqrYHw0LYn7pnZZwQla
-         lC0ypLl6Fgqaovm+KHgDyWX89RDsTFPfihnHFety6p5FIAsjleEeSrOR1U62t1PiXZK+
-         rTDSL0FAnywS8y0gB1xJJA5uU4lsPxhSDTlz1bY8OYBFw2uuHygn3sAJQobyIibrYlJ9
-         fVHQ==
-X-Gm-Message-State: AOJu0YylKCqso33WhRF7E/oi98CtG3IEC5eyEmGPkmHgpN5jLipoEsQJ
-	vuvoPOHBPn4eFdz1tltVOVOQ03vqicRg7J8TFksrZGqGROj48VWYmL6y
-X-Gm-Gg: Acq92OGrCXyhe/9nrMDUyAB0Real6dNtDucHkLjcYtJvo4FrLEI//1hTkngKD0L3w1h
-	0nmnAtly5tp2oWEk9fLRhKhH2kgYUqn1KEM2Z+f0V7HwjBZ/Fl805pRaWgcQJJPEeXjWgKVIssN
-	zI+xgEUZCrscQ4En8F4uiWvi1546U+MenYQY+GXIcBxMkowjseOP1jshCjMun1UkblsVwvVj23X
-	98Kvio3nBMdXPbDWYMp7sXvV+oqgTEiHi1soRVwEEOO2C+6I16kHZKAqPS4vo/he5BpB10RWyyW
-	Dog534M1RaEZrALzWG3maOXeZTzT5QP0JjsesChqwQoQmXdpHN8yW8mrUEDYUyF4ML9xB/HQY07
-	RIlpfR9pqi/S95QHPg6sTo6BXT3MWFCF5WZ8OUL52Gbbl67TDVhuF47V4GLUbtIq31BqCn+dHu+
-	g5cJ4+QcKWdnV9VnR9I/qofosb5QG7QjeW4yLtsQAAP/VjdLFHoV2GzSrs56VUH9uDrv23nadGZ
-	Z+OndO7Nk8ItpVG2Fs2Xgeq/G6aLPE6HyuB
-X-Received: by 2002:a05:6000:46dc:b0:460:18cc:dcfe with SMTP id ffacd0b85a97d-4606dbba5dfmr12896535f8f.34.1781538500271;
-        Mon, 15 Jun 2026 08:48:20 -0700 (PDT)
+        bh=U9HWytDa9V2PZ0L29istICZrF1ai/UsBjTqPqnYxQeA=;
+        b=CsYhYaAOZCU24GCJGWh5iKGZUBiWBf4TyYXGZdGEuXaAzL4kX6z28hT5LsPcHzgql8
+         YAw8d3iX34H1xK9iQ7quEgddg5Vde7XkY1Lm/tyBSTe31zr5qaSfOqLBiuMhsph3uAF3
+         NbA9STjoAEfJBtaQ9cjYCr+qt5e6a+bEguqGgWVe9O/+6BSjykYzA+8Z5lcBJ2U7WIgD
+         0ahc3m6FjXejL0oBtLiFPpRwiBkwMIe4xL6ZpUGI1bQmoY9c4P1a6XPf6a5T/pAgiv4P
+         xOX7wNuIQ8R3lerBHHxM2Hwpq0Ia2bjf/P8nouCUsK8Aoet3yiZHuc0Ke+JFRBz3hp9e
+         sUyA==
+X-Gm-Message-State: AOJu0YzzLcpKTROnoyCV4euaJWlPKv3Pjfoh55bB3DRHfSJrmMGxDFFW
+	iL9V5/rQmx5TeGXn1FBQH9qizCFeaFyJtf3ZN/eDKtCQt02YnrcoEhlf
+X-Gm-Gg: Acq92OFiMu2BvPc4i/0Z60rMsuCkPo4pqpqZvEtMp0Nc7UYQ66y59XxCyyYJpMSV/aR
+	QxAgfOrstb0yeEZ+lZG1Rqgnx7Ff1yPN7KW5Tzf44s5aKh1Htgvp31R+gjDSvAnmAw2cBBUlH2W
+	5ilmsrtdGa6JIRotzeeavK1vG0B8B1tuGghsBebz4JJ1IEbcD49F8PVOgX5l+xGZWl4QZ3BYfsQ
+	LT5qeECLL9CXxbqnSrKhYZzmYvK3xzuAupds81vZNXOnEnmGsjqpiENeja9bTltWu4Bd9u7wBjt
+	XW9T77HvSWVPAk7yL4bZrhPNqWKsQMjOLBf5zE6KO3fuGC2xAIk8xtaBl+sdw/oP3FVyN+qsgHb
+	t3Xjo5FexRCw4XZF3kyNVHelsiyiKzUtLVNJSCaC7hYBL6IV/JRPGYu6nvvID2YkZlhB1mjk2Au
+	tqO+DYlsXF5IFpIxT6HSPykSYGyhCtXAVzlysw/B9/Q3l2/A28HX+S0wybVjLlsW5NuRJPcrbwN
+	/WKUjxb92n9AsrkhqVsia3R9FaYP1AJGwvB
+X-Received: by 2002:a05:6000:18a4:b0:45e:f68d:e791 with SMTP id ffacd0b85a97d-46074a38ce1mr15429804f8f.0.1781538506394;
+        Mon, 15 Jun 2026 08:48:26 -0700 (PDT)
 Received: from iku.Home ([2a06:5906:61b:2d00:1e4:992f:3ad2:4f2b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f26434dsm36010995f8f.1.2026.06.15.08.48.18
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f26434dsm36010995f8f.1.2026.06.15.08.48.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2026 08:48:19 -0700 (PDT)
+        Mon, 15 Jun 2026 08:48:25 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Miquel Raynal <miquel.raynal@bootlin.com>,
@@ -75,11 +75,10 @@ Cc: linux-rtc@vger.kernel.org,
 	Prabhakar <prabhakar.csengg@gmail.com>,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	stable@vger.kernel.org
-Subject: [PATCH 02/12] rtc: rzn1: Handle EPROBE_DEFER for optional pps interrupt
-Date: Mon, 15 Jun 2026 16:47:55 +0100
-Message-ID: <20260615154805.1619693-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH 07/12] rtc: rzn1: fix alarm range check truncation on 32-bit systems
+Date: Mon, 15 Jun 2026 16:48:00 +0100
+Message-ID: <20260615154805.1619693-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -93,36 +92,51 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Check for -EPROBE_DEFER from platform_get_irq_byname_optional() and handle
-the deferred probe request properly.
+alarm and farest were declared as unsigned long, but
+rtc_tm_to_time64() returns time64_t (s64). On 32-bit systems where
+unsigned long is 32 bits, the assignment silently truncates the upper
+32 bits of the timestamp.
 
-Although the "pps" interrupt is optional, an error code of -EPROBE_DEFER
-indicates that the interrupt subsystem is not yet ready. Intercept this
-specific error condition, assign it to the return value, and jump to the
-dis_runtime_pm label to avoid ignoring a valid probe deferral.
+Fix by declaring alarm and farest as time64_t and replacing
+time_after() with a direct signed comparison, which is correct for
+time64_t values that will never realistically overflow.
 
-Fixes: eea7791e00f33 ("rtc: rzn1: implement one-second accuracy for alarms")
-Cc: stable@vger.kernel.org
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 ---
- drivers/rtc/rtc-rzn1.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/rtc/rtc-rzn1.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-index c4ed43735457..f81d691c8b9a 100644
+index fe21fa624288..06339adae71f 100644
 --- a/drivers/rtc/rtc-rzn1.c
 +++ b/drivers/rtc/rtc-rzn1.c
-@@ -465,6 +465,10 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
- 	}
+@@ -21,6 +21,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/rtc.h>
+ #include <linux/spinlock.h>
++#include <linux/time64.h>
  
- 	irq = platform_get_irq_byname_optional(pdev, "pps");
-+	if (irq == -EPROBE_DEFER) {
-+		ret = irq;
-+		goto dis_runtime_pm;
-+	}
- 	if (irq >= 0)
- 		ret = devm_request_irq(&pdev->dev, irq, rzn1_rtc_1s_irq, 0, "RZN1 RTC 1s", rtc);
+ #define RZN1_RTC_CTL0 0x00
+ #define   RZN1_RTC_CTL0_SLSB_SCMP BIT(4)
+@@ -265,8 +266,8 @@ static int rzn1_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct rzn1_rtc *rtc = dev_get_drvdata(dev);
+ 	struct rtc_time *tm = &alrm->time, tm_now;
+-	unsigned long alarm, farest;
+ 	unsigned int days_ahead, wday;
++	time64_t alarm, farest;
+ 	int ret;
  
+ 	ret = rzn1_rtc_read_time(dev, &tm_now);
+@@ -276,7 +277,7 @@ static int rzn1_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	/* We cannot set alarms more than one week ahead */
+ 	farest = rtc_tm_to_time64(&tm_now) + rtc->rtcdev->alarm_offset_max;
+ 	alarm = rtc_tm_to_time64(tm);
+-	if (time_after(alarm, farest))
++	if (alarm > farest)
+ 		return -ERANGE;
+ 
+ 	/* Convert alarm day into week day */
 -- 
 2.54.0
 
