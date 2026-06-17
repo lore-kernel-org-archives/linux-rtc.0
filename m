@@ -1,113 +1,235 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A8453D1A82
-	for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 10:04:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D11EE2EEE68
+	for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 10:10:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781690677; cv=none; b=BtzW9oaY3U0aF1sQyHs9WfC6i5bZ2ANzp/PtN/HHKvr6SBGTcy2lhtlczMWD0DVTKbbegpKBsU2S6hAPW5NOrYfpfyh/kyuo+/E8ue2hfQK1Xct0dB7FCcGmPBGGrKh/4NdfXw1wA/XCX18WZ62BIuOX6g/IVjRcVPTshQeb1jk=
+	t=1781691021; cv=none; b=cGvx8IeC6CV1H8GLuJOccY5YA33ajJTkDxqD32Bhp0gVJKUYL1rmvBCHZLAdcttwRoqsycyQYB5h2AvKDMmcMw92yoHukFN628TgnkuwMex6b52RvFUKPGbbS5aL0DrgS5JaNRWTLQjUs/minusNIMqT5qsfcqo0J0YZ4uG4nBU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781690677; c=relaxed/simple;
-	bh=lPh//dIkKPE6lFC5XUMt84P/FROdrRxTL//Ir3Bd/jM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K6TkMIieZuv+C5Iw17QzXE1nFfkz5wLrVBQwuFA4NgANoOQb4Y8VcLFeoZ9MjCzb+KFCInjcRKirpWee6Ttr+2npHvdVc6SZjRstCtJ6i9Jpb2Y5WL9bBxNgwBQWaFYrNYHqQ27sgvz8jBfCiezjZmPB05mmiqTl7ZnfO9UITLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Sd4rtzZf; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1781691021; c=relaxed/simple;
+	bh=oo2RMmYDDGAoMzh4h5N1TaRg09MMeeFSF6+LCAZqaPE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hdCOW48pfzNtouxgknIEBwcA7IQKNxb6lk8LJu1GFOHjSf8o3+XGT+Cj89hOGxS4RhbRPr/vqwUEKJcnwI3vbdXc1e4wz49OI62yW1wwoWENmOSYQ1UV1+78382cVhHJxQEHK6MJxCMmzZybpS2mqKmeDq77aGnmPQW40TWCG4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p1cCfdDG; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Sd4rtzZf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=61sb
-	l/w908/xJRNyWlqomqFd7S40v9pzQvZmcXhPkyA=; b=Sd4rtzZf3/l88azECl/p
-	nI/zMolWXG4sccUe4/xrPA8xVZq9Ow3L5iEAcLTrrJwF1swDxQ12LI8/u3LhDM+U
-	xh1hTxhLBTlS9eP5ZkfH3XvHO1nT3+3Rb+ueoC0bqD0NnoWHAeqft4rYM4Wlkei+
-	qgcsm8RCOAQ2eGkA84KVp4VHwJ6BrLhh7zr+CuWUH52aoPYjTGxOVwAsYx2JhjUk
-	6fh2/1rtaRMq6DtEnymy4xNYdW66qPxFRn/z5QZbcrSpMOZcv1M/cbfS7Buw0okE
-	XSanzbuUwO2SRTgdQ+luTuXFIkxzoI25RTM3BRMqJOP0ofW8mDdvIkZTRDgMumwQ
-	3g==
-Received: (qmail 115458 invoked from network); 17 Jun 2026 12:04:31 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Jun 2026 12:04:31 +0200
-X-UD-Smtp-Session: l3s3148p1@2tqJL3BU7LIujnvI
-Date: Wed, 17 Jun 2026 12:04:30 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Prabhakar <prabhakar.csengg@gmail.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH 06/12] rtc: rzn1: Sort headers alphabetically
-Message-ID: <ajJxLmDOCMfmf8Ct@shikoro>
-References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260615154805.1619693-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <CAMuHMdXg16frnn88_P_jHRH+HPy00wWfoqNKdOv8teSWNpMEGg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p1cCfdDG"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8423efad617so3422982b3a.0
+        for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 03:10:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781691019; x=1782295819; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GfxOJ/wQsZ6xNUFAjtEqeEErjs+UMQ+M9yh0ZUlY/kE=;
+        b=p1cCfdDGhI0uuxbfvfNS9SKgAQVtuZ5l/eWoFl5jqLFDCk3wX5oncea8UiUDIDBbeH
+         +MUIpdAjEroin1G4UssdeQo26qOwY+x/KxRlaR8pYMq9lVl1xfV3QLiMALKYUqvdCJFP
+         ZciuO6ahVbab9e0cuxEu7YkcXOhVg8EMtKFQBtweyg4hs37gkXgQiSoE2u3m9z9cpyl5
+         rRGuxziJOjD3mH8lfch/kure/fphUAzuHBFai2ijH/fIxkdo1mYwVIAdu0NNsRdHHCpg
+         tfhuqv4S6SAaB3Jn/iUoQKsy9cYxmsDKpDzslF/zGl5VFwAyJDfSQnI5w00As9V4Zdkg
+         OWyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781691019; x=1782295819;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GfxOJ/wQsZ6xNUFAjtEqeEErjs+UMQ+M9yh0ZUlY/kE=;
+        b=FCAaMAuokj+F/3E9lzkB2uBPk03t2+nAoaLB/6sHWPwxqF2Rpj3Hla9VFKdBXBskIx
+         G8hsbN/0r4nqRDUQo6WMbj/pMtcAkjyKesO1XyLvQACrMfBS3bgyqS4U2AjCSTX1QII4
+         Drdqj+2Whnoezw9vgE4Pqa7SGKxtJswEQknJ/HvIhdFeuwI/QLUx+9ZwFrYNYBsi+R3w
+         XxYWNDqy5qTyhyKukCj7oJW0VGJ0vNBlRQmGpLj5lmgh2eJEf2BP4JfynL2E5P3eoq7h
+         8nqtpkmSk0lFbS6Q9sRw1vMQ6vT5Xs0Q+r7RTRn1x8L60LH+6wxB/tU6wtIsxd8RceB8
+         Blrw==
+X-Forwarded-Encrypted: i=1; AFNElJ+mti4U3FLvcz141rMIoPqFq4lXMePl4HSx48wOUu6/cbJip6+BIVDA5kTSn3bFHZ+V+siJv/Xn5zg=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxsQExnOxp7bmg+wxZQJ8tWLHF0DkX4Cu7XVVArmnioqXbV59eU
+	enkfC9b/VrwtpET5mQlWrofGFRU3AKuFVOj3EQBOlEwDCvWoDuzBGaCQAWEQnv/J
+X-Gm-Gg: Acq92OEzGBy3t652+pCURtGhEfBxkV9xTV+za/tbZdWEL5uMLL2cuyr35VWuVzd7OAQ
+	ip67fKWs7dOwggIUMMTyufFGp5VN/cf+I2xSiFnkHLooUeFuw6WjY4Or+kMfxz6rD5IBLRH+ove
+	41du+rSipXA47TfWIf/RY0FFxoI28kQUhCg42v5q7/fdGnLwjtPNi72tE+EgaZfjbiN1Je/Jjz/
+	sKNACFSVr1G1hefB4H9fgd0D6i/j5Dca1khZaBTg2mmtV/j4NNs3zBDH25gmbhze+DXF4gvtEg3
+	KTmIWF20B/L3shRpE3qL9QnBQN63MWZeO21Tl9Is1IfnmGgAxC2lv4d3700AHJTL83tk/3gnJ6B
+	Hxo3Cv/T3TZCwxMZNvJ8cKDMZosFODBqNVFWgahJ1iyIISlBXLHOxa8JCSzh5fx4+DdS1Odew/z
+	6/OMx8G2SULD46N8OJnxyyxjp6Zm6Lxw==
+X-Received: by 2002:a05:6a00:17a9:b0:842:6004:3fd9 with SMTP id d2e1a72fcca58-84524556a81mr3266186b3a.29.1781691019007;
+        Wed, 17 Jun 2026 03:10:19 -0700 (PDT)
+Received: from inhnjlux1020.ls.ege.ds ([49.204.164.56])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434b011288sm14026257b3a.44.2026.06.17.03.10.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 03:10:18 -0700 (PDT)
+From: Udaya Kiran Challa <challauday369@gmail.com>
+To: tsbogend@alpha.franken.de,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: skhan@linuxfoundation.org,
+	me@brighamcampbell.com,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Udaya Kiran Challa <challauday369@gmail.com>
+Subject: [PATCH v3] spi: dt-bindings: microchip,pic32mzda-spi: Convert to DT schema
+Date: Wed, 17 Jun 2026 15:40:09 +0530
+Message-Id: <20260617101009.148851-1-challauday369@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="hBtgEMc2jtrv0zQU"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXg16frnn88_P_jHRH+HPy00wWfoqNKdOv8teSWNpMEGg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
+Convert Microchip PIC32 SPI controller devicetree binding
+from legacy text format to DT schema.
 
---hBtgEMc2jtrv0zQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Udaya Kiran Challa <challauday369@gmail.com>
+---
+Changelog:
+Changes since v2:
+- Add cs-gpios to required property
 
+Link to v2: https://lore.kernel.org/all/20260615115311.515404-1-challauday369@gmail.com/
 
-> > --- a/drivers/rtc/rtc-rzn1.c
-> > +++ b/drivers/rtc/rtc-rzn1.c
-> > @@ -15,8 +15,8 @@
-> >  #include <linux/clk.h>
-> >  #include <linux/init.h>
-> >  #include <linux/iopoll.h>
-> > -#include <linux/module.h>
-> >  #include <linux/mod_devicetable.h>
-> > +#include <linux/module.h>
->=20
-> Sorting of special characters w.r.t. alphanumericals is always
-> a bit fuzzy...
+Changes since v1:
+- Rename schema file to microchip,pic32mzda-spi.yaml
+- Update subject prefix to match SPI DT binding conventions
 
-I rely on the 'sort' utility which gives the same output, so:
+Link to v1:https://lore.kernel.org/all/20260614175005.435826-1-challauday369@gmail.com/
+---
+ .../bindings/spi/microchip,pic32mzda-spi.yaml | 82 +++++++++++++++++++
+ .../bindings/spi/microchip,spi-pic32.txt      | 34 --------
+ 2 files changed, 82 insertions(+), 34 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/spi/microchip,pic32mzda-spi.yaml
+ delete mode 100644 Documentation/devicetree/bindings/spi/microchip,spi-pic32.txt
 
-> >  #include <linux/platform_device.h>
-> >  #include <linux/pm_runtime.h>
-> >  #include <linux/rtc.h>
->=20
-> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+diff --git a/Documentation/devicetree/bindings/spi/microchip,pic32mzda-spi.yaml b/Documentation/devicetree/bindings/spi/microchip,pic32mzda-spi.yaml
+new file mode 100644
+index 000000000000..4669b521fa1f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/spi/microchip,pic32mzda-spi.yaml
+@@ -0,0 +1,82 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/spi/microchip,pic32mzda-spi.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Microchip PIC32MZDA SPI Controller
++
++maintainers:
++  - Thomas Bogendoerfer <tsbogend@alpha.franken.de>
++
++allOf:
++  - $ref: spi-controller.yaml#
++
++properties:
++  compatible:
++    const: microchip,pic32mzda-spi
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    items:
++      - description: Fault interrupt
++      - description: Receive interrupt
++      - description: Transmit interrupt
++
++  interrupt-names:
++    items:
++      - const: fault
++      - const: rx
++      - const: tx
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: mck0
++
++  cs-gpios:
++    maxItems: 1
++
++  dmas:
++    items:
++      - description: RX DMA channel
++      - description: TX DMA channel
++
++  dma-names:
++    items:
++      - const: spi-rx
++      - const: spi-tx
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - interrupt-names
++  - clocks
++  - clock-names
++  - cs-gpios
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++
++    spi@1f821000 {
++        compatible = "microchip,pic32mzda-spi";
++        reg = <0x1f821000 0x200>;
++        interrupts = <109 IRQ_TYPE_LEVEL_HIGH>,
++                     <110 IRQ_TYPE_LEVEL_HIGH>,
++                     <111 IRQ_TYPE_LEVEL_HIGH>;
++        interrupt-names = "fault", "rx", "tx";
++        clocks = <&PBCLK2>;
++        clock-names = "mck0";
++        cs-gpios = <&gpio3 4 GPIO_ACTIVE_LOW>;
++        dmas = <&dma 134>, <&dma 135>;
++        dma-names = "spi-rx", "spi-tx";
++    };
+diff --git a/Documentation/devicetree/bindings/spi/microchip,spi-pic32.txt b/Documentation/devicetree/bindings/spi/microchip,spi-pic32.txt
+deleted file mode 100644
+index 79de379f4dc0..000000000000
+--- a/Documentation/devicetree/bindings/spi/microchip,spi-pic32.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-Microchip PIC32 SPI Master controller
+-
+-Required properties:
+-- compatible: Should be "microchip,pic32mzda-spi".
+-- reg: Address and length of register space for the device.
+-- interrupts: Should contain all three spi interrupts in sequence
+-              of <fault-irq>, <receive-irq>, <transmit-irq>.
+-- interrupt-names: Should be "fault", "rx", "tx" in order.
+-- clocks: Phandle of the clock generating SPI clock on the bus.
+-- clock-names: Should be "mck0".
+-- cs-gpios: Specifies the gpio pins to be used for chipselects.
+-            See: Documentation/devicetree/bindings/spi/spi-bus.txt
+-
+-Optional properties:
+-- dmas: Two or more DMA channel specifiers following the convention outlined
+-        in Documentation/devicetree/bindings/dma/dma.txt
+-- dma-names: Names for the dma channels. There must be at least one channel
+-             named "spi-tx" for transmit and named "spi-rx" for receive.
+-
+-Example:
+-
+-spi1: spi@1f821000 {
+-        compatible = "microchip,pic32mzda-spi";
+-        reg = <0x1f821000 0x200>;
+-        interrupts = <109 IRQ_TYPE_LEVEL_HIGH>,
+-                     <110 IRQ_TYPE_LEVEL_HIGH>,
+-                     <111 IRQ_TYPE_LEVEL_HIGH>;
+-        interrupt-names = "fault", "rx", "tx";
+-        clocks = <&PBCLK2>;
+-        clock-names = "mck0";
+-        cs-gpios = <&gpio3 4 GPIO_ACTIVE_LOW>;
+-        dmas = <&dma 134>, <&dma 135>;
+-        dma-names = "spi-rx", "spi-tx";
+-};
+-- 
+2.34.1
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-
---hBtgEMc2jtrv0zQU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoycS4ACgkQFA3kzBSg
-KbbG1A//dQW0VHQWEcQ5TptO3NyqdAqaLXWtXdhzo4vEUmiRcyAkUZmDoOX3MCph
-eCjUZsMopEduFl1QmpB+YuRFhN4mYGwcz8NJzGr/efgEr08IBiX4F7Vt6xSpCdDj
-pu4I4UruaUhrN0yReZ5JeXrJCNZ+wAdtmcS2T/kONe1RRhvRZTNbtiRaWQzMFFGg
-yLerqk08+dsXq3iMHITRCQ504A58o4DmYm5QsIIQ+bG7KGpct02vpVAaFexGAZNV
-oCOCPrnT2K6llmUzPhRLvuMymUC3cLlik48fPNVLjpo517RQup9S/O5+FJ9y9qo9
-CsEkzsVRYRfUWNQD2PvAyN4bnUw36kamlHBwYwgo6KWT1JX3Z5Dgz3BMD+Y62dM+
-A9hlhyp5/Hs+pzaxh2JLvDlrbVdZW/lKHFwsSAO0nQLBWbU1y8uUfy8SY3/77kua
-OviyHRjDs5v0K1/ZQw5jmaOhgTwMyNPN6mqo6kZLkG+BsxF69knoYVRb6w3/J6Gg
-0f2pwMV4ocus/hXvP8h3pZxJjjOGxL3z7E5piBCn/RNgzB+vAjZugjKbmgqFjWO3
-tOkWk6ObcJ1arFTf3GO5XfdrajEgCx2sDwZxxAq3mhLavOR89SJcH879RVunLfxG
-KEFrGLag688orRQ4yb2okU2Tg3BGX9zG1FAkUL9LhhefmQ6Er/o=
-=JLdM
------END PGP SIGNATURE-----
-
---hBtgEMc2jtrv0zQU--
