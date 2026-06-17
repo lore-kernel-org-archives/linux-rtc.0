@@ -1,116 +1,68 @@
-Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62F023BE644
-	for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 07:30:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDE43343888;
+	Wed, 17 Jun 2026 07:35:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781681415; cv=none; b=njpZyOLGNNr4hhz3Ze8bRxBKYKuYDqRQ4fu8UIl8oUwuo6aPDsc+5dbRELYFX2hwsLMFS4rtBy19drBPRVqp+0GUHpJ6UN5lLFTHa1lmWQERZgaac929bQTGdMXZiSlfBTu0IzjCmPm6MMCYlnhW1fla47Zpb/qHh3prapP8udk=
+	t=1781681761; cv=none; b=CbxQZPD3JCAR3sQYhc3vX8CXWyq7TQgPHJavCX8jmCilrFs6ZJx9ZCNJF6rkEgBkxinUEpZwZG9b2Sgzucf6MjhJjb0KkOYw/NxAEbRv+wfeo79HsmL5jouPF3wNypZmN5UB0R2X4TcwQtq11ccKUVnJKF4GlIs4l/bBn5FEo24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781681415; c=relaxed/simple;
-	bh=zqRNRewoBpmHTp7Xk3UHetwxFmtfNMdTc5mpQ80sxZo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=udYanqlnlt+3LEsEePAD0frqPt6IDSi8KSB+Xd1duZTo1EEv/cxGvqNI+HDMSpixwNQlpNyHnMG4zLow0ifbqX3vpLjbYGW1LC6vgvqb+ZkY57hufNlUMOge9iW3dDz/fsx7G0kK1bpBywVbiTTDxIQ3suK3SicuiNZ1u4vW8cg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.161.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-69e4a083687so4035719eaf.3
-        for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 00:30:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781681413; x=1782286213;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JJJv1PNEf0VpJ/XXPLmaxN61dHusNzB2ydX0p6N48v8=;
-        b=HXWN7KCg9sxaECxzEt1qv0qGCaExYA3wGYWTr6FAWPHVBkWruS4y76sRz3vn+OdS0H
-         ZVTo77GGwj4y1635dQ80pI0QeKe24qumXO6uMM5qFSj5gnvOjDZf3fIFprGiYzW8Dec6
-         sUzlWdGVAzJ6UBpw4u75Ndt5nPKCPZpQLbZDc6koXzbUphoVvQjjNYmpdnnd35SSEMxV
-         5sF/3Sk6R1Kj2h65VXz4fHUn2iPUK5w9kW3GdsLEX1rrEXz9cTu4kHYX8WoaIswz8ZKx
-         DWU6so35dPt4A8AKLhBQg7biXcvSReZ6pUqiNvOOB0Yk6NMaHDlQ1qwnpyLs4+qKpVqT
-         ckxQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+PKenOYDV4cBr03lbtVjRn1mEkGOH7L5hJHwiwv0WscIa50OWNL5y6iBtiBHqUZvXxxdcelaBxNb4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyTC4DQf120YvsweAhaJuUqTrrKk1u1AMOPbDGpEUZbrJzqbEGF
-	h7SmVA2Xx+sO/pPLp6cLsND7D/1d+iyCNYvyj5fVwzS+t5A+VqgugFPBw5pvh+Nv
-X-Gm-Gg: Acq92OFXwYV2J+SZaZFU2lcezoQXaUqbaT0vgplxAULxpgJcj8Egi+UW1Ega0WKepgx
-	DJrudVQlE/s/9di+HO1P7WZS4ChpIn3e+E0/MHVVo1U5fuITPbiH/mFLVwX+VZA2EGECjcmWgI5
-	bXr14T5mCxEU4tC8DZFwBhy+ynC2imXv7ROmXrmpRm9sj99YxIVpHsgsbpoCG6QzCtLK8PXmtUe
-	AXyeBGpZJwdM5F8+6QckvlrVcrT32BFkHoOzNxT7evncv9a0J6oJ41rh2ldrITOPVixMRO+b/xZ
-	GCb9lPQcUNVBer55scDklCZbnBeJcQRbl7YL5LCaOuaW86laiz/lx1oW0j7sABXHvY+oVcBcHwy
-	Uqf8AZ8K4cQZ2nNAXdrJbMAOaDAEL3Zi6kZ1JPW5s7Udldmv8LfFsiCVyMRNBoGHAg6JSJPiMad
-	qbKa7+mDc9Y6djupTd9kbexfRhcXSy/4NaH4fyGIvxl8Sg3Q1yww==
-X-Received: by 2002:a05:6820:221c:b0:69e:56d1:3ca6 with SMTP id 006d021491bc7-6a0b5e42e9emr1946490eaf.10.1781681413279;
-        Wed, 17 Jun 2026 00:30:13 -0700 (PDT)
-Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com. [209.85.161.46])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-44308f1a2a6sm4023116fac.10.2026.06.17.00.30.13
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Jun 2026 00:30:13 -0700 (PDT)
-Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-69e32df92c1so3208202eaf.0
-        for <linux-rtc@vger.kernel.org>; Wed, 17 Jun 2026 00:30:13 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/HgBMDFCnx8oQlrZdvgkRI5FHm/mJqROw3uiffYnP3SRxytqLfkbuPO4GwG000DVlFHweVgbhKaaQ=@vger.kernel.org
-X-Received: by 2002:a05:6102:2b9a:b0:62f:2d04:db5b with SMTP id
- ada2fe7eead31-7246d42dc41mr1280153137.24.1781680950072; Wed, 17 Jun 2026
- 00:22:30 -0700 (PDT)
+	s=arc-20240116; t=1781681761; c=relaxed/simple;
+	bh=q4q1F0NNpI77rXiBXg5zU6lXgWiTEcYn1LrobGbCeT8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=O7hXi1gghIi0KlByAv2hOrU0KYBfDFoHzxfvQucnl3kvbJz0K+juLleeSRxobnp8/WEpBANkkGbDoWxCixzKmT5PUlBskeb/Tf5hiVLkDwWEdMuTDSLR+cEDzDEEbuGDlONSSQrkzW3MJNd/xkV0dl2TYTdm+njmNbu17LccEzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UMY3aLD8; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UMY3aLD8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1B61F00A3F;
+	Wed, 17 Jun 2026 07:35:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781681756;
+	bh=o7nW/o13W7aX/64mvZuviZ5KnGOMo+uuiOYrlIZO+ro=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=UMY3aLD8K0BbqTJyqZYJ7BoEeT0KK3JJECqpdBRCxM2Ysbyk1pToRl/GfLqRw+9Ev
+	 GLStl8TyTcKx2Sn6A/kpLxn4QgyYUkPH/3BbkCAkzPo2BxBrWvcLugRKMyJbwdxj+S
+	 W4zF+ekff14WcMH5IbiT1gwSa1qAabVmLCiR5i7a05U3S8bSoJxKWjT4qakBjK0q42
+	 6tIJhId+NuC88RIykxR6WPjV+v63Upu5SLRHLg83gXFaGn2dyCKby4ibe6yVMiXlz7
+	 8XRd1amdbJxAbKl56SLLZDfo4B0bEUI0bB8VwhxvJuET3fUaKHElN5ns5dSus7po1R
+	 c1AgASXbJyjqQ==
+Date: Wed, 17 Jun 2026 09:35:52 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Udaya Kiran Challa <challauday369@gmail.com>
+Cc: tsbogend@alpha.franken.de, robh@kernel.org, krzk+dt@kernel.org, 
+	conor+dt@kernel.org, skhan@linuxfoundation.org, me@brighamcampbell.com, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] spi: dt-bindings: microchip,pic32mzda-spi: Convert to
+ DT schema
+Message-ID: <20260617-sturdy-silver-bison-bfb6ba@quoll>
+References: <20260615115311.515404-1-challauday369@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com> <20260615154805.1619693-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
-In-Reply-To: <20260615154805.1619693-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 17 Jun 2026 09:22:19 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXg16frnn88_P_jHRH+HPy00wWfoqNKdOv8teSWNpMEGg@mail.gmail.com>
-X-Gm-Features: AVVi8Cf4OglYcZCFMrrSmgF7E4807IU6wsvfZGr3kR7N8sXGY6lLU3UyPN82lAM
-Message-ID: <CAMuHMdXg16frnn88_P_jHRH+HPy00wWfoqNKdOv8teSWNpMEGg@mail.gmail.com>
-Subject: Re: [PATCH 06/12] rtc: rzn1: Sort headers alphabetically
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Magnus Damm <magnus.damm@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260615115311.515404-1-challauday369@gmail.com>
 
-On Mon, 15 Jun 2026 at 17:48, Prabhakar <prabhakar.csengg@gmail.com> wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->
-> Sorting headers alphabetically helps locating duplicates, and make it
-> easier to figure out where to insert new headers.
->
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+On Mon, Jun 15, 2026 at 05:23:11PM +0530, Udaya Kiran Challa wrote:
+> Convert Microchip PIC32 SPI controller devicetree binding
+> from legacy text format to DT schema.
 
-> --- a/drivers/rtc/rtc-rzn1.c
-> +++ b/drivers/rtc/rtc-rzn1.c
-> @@ -15,8 +15,8 @@
->  #include <linux/clk.h>
->  #include <linux/init.h>
->  #include <linux/iopoll.h>
-> -#include <linux/module.h>
->  #include <linux/mod_devicetable.h>
-> +#include <linux/module.h>
+Please mention here that you dropped requirement of 'cs-gpios' because
+it is not a mandatory in hardware design nor in current Linux driver...
+and then CHECK it actually against drivers, which will lead you to
+conclusion that maybe it is wrong decision...
 
-Sorting of special characters w.r.t. alphanumericals is always
-a bit fuzzy...
+> 
+> Signed-off-by: Udaya Kiran Challa <challauday369@gmail.com>
+> ---
+> Changelog:
+> Changes since v1:
+> - Rename schema file to microchip,pic32mzda-spi.yaml
+> - Update subject prefix to match SPI DT binding conventions
 
->  #include <linux/platform_device.h>
->  #include <linux/pm_runtime.h>
->  #include <linux/rtc.h>
+Best regards,
+Krzysztof
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
