@@ -1,81 +1,81 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04CAC3B2FE4
-	for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 13:26:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0A7A3B27C1
+	for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 13:29:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781789197; cv=pass; b=L2OKjbQcuSn1Pc8OVblxkfVUROayNGRMkF5eaeNBn3QpWLzUxVTwAfltzu5BFjuAXBQyq5VhH7nxB+n4YC9cQP3me7QGSgg4Sxzq3L3djaHSFv3JtZ61gnPmbueBMzWLR7aiBH0fhe+X3ZBg6RxwZdQuoC1FfuYGf6Zx4SUyEK4=
+	t=1781789349; cv=pass; b=TOkwPenmHK+zjHATzRKbbSH7JjGWeJbu3A9OMMGydU8Yyp4c3CjGT+8N4Q9b6qanCpouM+PpHqcESxaRPAhRKdU7LnK9GXdZ2QFYc38FsBPVMkWmJXB/s86UkpSmBbN+7xUwB9t2NfnZzeHGMr3pI8gRUlVSle3oECm32Hp2ajo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781789197; c=relaxed/simple;
-	bh=rwavQHNR5vCqgAC2vGU4xALCWjqvGo2uf7/b/yg58XQ=;
+	s=arc-20240116; t=1781789349; c=relaxed/simple;
+	bh=Odn8V4Jyj7HSHR6zsb+AXJEMe1hlNU8CNhlMB76w9UI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sZkFmSQmaZ56v7nqtYkcS1ak4Gny3/OWbjDUzjs9Fdj/vCGS0CrR01rLC92sGSYeQBJgWrV1cqpwCvTe8bWNtAf4vBNtywaFomKQD5x/5CuPunXMat1G2XqL0kI8FDZDj5CcLheFVBcxx4TzCPDi935i6wZnFOPhCo/NPRn+xGw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LCE9Ut8n; arc=pass smtp.client-ip=209.85.221.41
+	 To:Cc:Content-Type; b=RxRD8ulHvtQC2FyMdfQtY1ewwGyXJNkT9ICBMrpsRodeoTiOWh/zuNPH7A+e05Cxz4ma38robKJ3U2Pn0YngmoxLwgh6vizgWaJ3e4FmKwZxb/hYkxOhOQauvNCPngGvh2WBlbj54mW5HxPWm6v17yGc1Szsl4bA08VfIRePFIE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cV2EXpNN; arc=pass smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LCE9Ut8n"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-4645995069bso394956f8f.1
-        for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 06:26:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781789194; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cV2EXpNN"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-490ace40f4bso9554075e9.3
+        for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 06:29:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781789346; cv=none;
         d=google.com; s=arc-20240605;
-        b=EqFDBLk3XRY9mtQrLqN9M9C2nCFrHBkT50CwsEhPyBxus/r39J7nPHik3n+3e5wTSH
-         fRXBG7BnRzhp3TtIu4xvWPLahy/TbbpfFTjHfmRZ80A5TRPi6q3Y7Fri7EW3ZqibKiTu
-         RDX/OwBJ013jm2O39ft/FOIeShP7wx0/hyYWAcgMKwB1OrEWwsnLljCptkvtd5QO3MJH
-         20AdoI2X3yhTl0tDxJOOKxkGS6qZdk3k+GavnGKMF0h9pxoYBT9c3eqqiwsbAd1fY+GU
-         CQ4/FR8qROYp1WCj9a4qyRlo7tT9P978QSg2MWO6lmrQ4VDkmr69VmkBZxgbmziKx2XI
-         vEYg==
+        b=hhTZsXAtE5NARGHCJY7NXrOL01Mv1kOQhCohIfjuQXTfQdAKKMH7z4w/v9ezYzjvO7
+         8xbPgIQnu3WahwH9k+37iqCqpaV91vQiD1tyxqJpH1IqxgUSdszO32xn579fvN1nHChv
+         9+tZckeCiQq61eXlVQL1HXUwcocfc7JkEoSkDUyCyFgyJPfs4Mwl1iWMKKdxacbPiaPO
+         SVhBRpwqUaf5UWArbLC7X5r2IhxO6Uh0V8c87mOwnGS+svKjO+3iN0Nrdog0f/JRZ2dN
+         gA5NEhlofLzs1SNUNtKy+s+Rb8kGVv38Mb1cPqNBanGr5c7UILGExG/TOaquNz7Lyjte
+         kecg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=zPwka4rh++Oi4jW6U/0Wwv1+lcJvYpPIzYXrVw3cc/g=;
-        fh=NvacCdzFAj4Pfi/9AIjuqKrlnHU6J6BX2VUJ3N6BsQk=;
-        b=b5O67ZbfZdEpQU2yqIUM53NNWOyhUbcKG5FBSh6MFF/POKQLOo5p3UnbwD8s4F3qex
-         kXpefAp1L7fvkKnVoi2zf14fXkuuNFe+WgF92QD8aW+l2hFKSjhG3dErn5PCwZQy8jt4
-         9GToMg1ArMV7WlGzK3luVFF39EyggWy77B1/ZxOjuryo9tC+c8GYx9WdvzTT61cCVTP8
-         hqPP998lekaW3Yg5bWhcuTu881gOUVOvNxFCt1VlSu4nErZkqywCFboTj7GXstkKFVyM
-         Jm9r1FFzisWzXf4pU9S3m93KcFU74OGolEEMU9jQS8lacIUnS3SuPBx0btdkv4JxMfO0
-         N2eg==;
+        bh=r3QY9vRVEn5lFujWnbDukyrJMoT8zbIIk0s1XIR+6sY=;
+        fh=ePg4DQ3MMros8U6L+yvlr+2GFYtno6tLbEBV7/MYlQ8=;
+        b=LiD6Eden8WdCvYqHdLOxpLP7GQBVxy7mYstj9aRQRXJUW3/OOd/pKc5H5Eu+erdOHb
+         CfxnSvsYdUlqLOYKZ22r8hEfNCpCWjdyjoAjgIgkwGcPAWgPKirF1tEXVbzlgwGWPNY2
+         M8xsddpMfAYxm5MUxXZMeleQsaDcNXDiAHxp6vEoCUmeCcpYTeVu2ysM+HdY9TUzsgpA
+         aptqaxYKt0DzpFsB1WZlUp6i3qgkcrccrMPNkfE6uibCuJu5jFLQb2Q09i9Od9y0fkCS
+         zW+hY8s7ji55QcLeOw6KWbM6bwRy2uwdh6jDNXeIY9mxlNzedAEou9mo6oWctVu+FTDF
+         C1ZA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781789194; x=1782393994; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781789346; x=1782394146; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zPwka4rh++Oi4jW6U/0Wwv1+lcJvYpPIzYXrVw3cc/g=;
-        b=LCE9Ut8nr5XQKA9mqz0RAx1uXSQ6iSs9JYchrR0t2lU6Rm25vLWFv743kzSDdlsSx4
-         szJSCkKdQvMlx2xZccpyTWCEUTbQ/sliF1So2SegEOMtECdlypU7Yv/OEGJqgaCSmOJW
-         5qq6tE3AZN0HeJYE3WSysGISHE5/BCV4pBOIDO04l0Fem6Ovqoc3QFMW3zKAFCvNEsqA
-         25DEgTgSFD3Mxi2VYHvSBzaXH3eRGjFRsgBamwWjL8ASGJSfi0x2o+CI1z4TeBRwWBCx
-         bBgWyeoXgf8+Sr4MXqU7H0A/ZXhR5Nbt24dUhrjaZFHuMUUEDPy/wlkiWVB5/dYsCaaB
-         xmSw==
+        bh=r3QY9vRVEn5lFujWnbDukyrJMoT8zbIIk0s1XIR+6sY=;
+        b=cV2EXpNNI4ws6wXdj7IVEfDHEHkFelEga4rqKEfuAoHNVuUel+PqNbZa0Sd9ugPXHS
+         nGrUge/8C+1u/UZgN51JUMuT0jej9wLa1FCIMClEf+G42AEA0SsigrXUOav3CrkykmKE
+         HX2EdTq3hbpWY7nqsM0kwF+ug9AmC/tI7q4O5Hnr+KnWcx7jSV7Ppe+UV33goRubKnwC
+         a8IcRDHC6JwhFc/0ugLK1OxcnRMuX2HIbeizWRe9fjN7wqOAaR+YMgoGpeg7yWqzD+/L
+         vGHHoPYIlpMrTJ+2LW5/fyPVOoQ7cKMQgxUKTMORF5KcE05a1iyLiOu+O6yzj3XCvCeh
+         8e4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781789194; x=1782393994;
+        d=1e100.net; s=20251104; t=1781789346; x=1782394146;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=zPwka4rh++Oi4jW6U/0Wwv1+lcJvYpPIzYXrVw3cc/g=;
-        b=DkyLJKz7IgjJ9gM/Hni9ZqmKTktTfKY1HZxTHNlPugwi9wUvuXmiMNRUSlpOsauw3O
-         1zT9yVI7Dw6CN2A8ASp9NezPPXvwmfAqVr179jgFJ0WqKrba7K3T9/qvo+0nz5PVh3lU
-         Y07eb8CrhE6TQVxuofE5sDMmCDJWAFxuujmucbBJG/sLPQWSPljSnt7ZUA4EnFaQlp51
-         vR791xeyKQAohgC/gTLXHuMNlVp1HLQAp3gCHQHYgZEUR0LsEhT/eajp1V/ffuczNnYA
-         LM+3bjA9/ZbObdY0KpXZrhZ1JPdRYETAp98zvKEHyIrmr1i5y/xCw8sFzyfzWq5Wbmt5
-         4EzQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9FNxGtKM900FNZ2c2Qk58YzNOZi8FGxRsic7wfuADBClKYWfT3KNgsiNemwsLSiyh5469AnMojd6A=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxj+RbZzv7BqUiR3PDZgiYjWHKsTjUy6u7QVGaiAQ1Ng7mpVxUX
-	20eAGzaKq9CwyP+hYZ1eqakLXpebw3WwOBBKa0yh3DT3p5Vkl5QLmqm+YZB/VWOc06bFz4iXa4J
-	QSa8Qcgi8XZJeWxhIfALfOoKnwlaYE/0=
-X-Gm-Gg: AfdE7cl42LFOz89Qmv+ndJgWqCuKc7zdHGlPdMgo4YrayZmmsos8JE57aR30THGs419
-	yeD4+Co2b/w8o2p9Q7dJBQJ03ClqRtNzqx5piQaNC/8t29nUGNLVWLYuUkHPMGe52Xw6MItVfLz
-	/JRHd1zndRTD7CCR31kgYhKnEzHrU0uOlYqkeaVFxtRazLSUq8PiCR8btP+rev/CtzOqGZSxE6Q
-	mBF2+3hxLGhB10EXyXYgI+SZJD+BIN9ulApirEVEp4mdf/nB23jw7sehRYAwflJhiL9njenpKsa
-	WhgOZeXm8lB0emnXBioT1W+qVqCCEXDqDXuBFNR69/tTXg2DEeMXfIf9id5vNxkkO9JZECN3p/D
-	5WfApbxPq9HjS+ic=
-X-Received: by 2002:a5d:5091:0:b0:45e:eec6:500c with SMTP id
- ffacd0b85a97d-463ad9aeb84mr4495060f8f.39.1781789194279; Thu, 18 Jun 2026
- 06:26:34 -0700 (PDT)
+        bh=r3QY9vRVEn5lFujWnbDukyrJMoT8zbIIk0s1XIR+6sY=;
+        b=Q9PgTbljL5UFnhd+2pRPF9DNQaoN6nSiOmAlANH4FXCSiNL2V260C4Y4w3CJrLo2bX
+         i4HYQHiDxeKrekAjveuYJ1PYX2UzssS3xlJ87WKhXjxVg3AaGNu4ctIw0YbgK3n3ac4W
+         KRBFFILpgAA+W9NAe0FWMl4kZEgw9AnmYV0Z4Q+uNxtAF2BZPEq85uMKVbP52YTQ6tE+
+         5a0NSUGQClcp5bj7LeWGzZPy6O8Lrt91Kb7u8y8d9JnSdZmlhbRG13UlSBjpyaseLnlR
+         RT7bJI335ZTbzqNTS8GkvNKtPhCofD5S2xiUa2saVO9AiC8xorReTSRRXXe0CDfRlfWj
+         vTUw==
+X-Forwarded-Encrypted: i=1; AFNElJ+CIukA1fVNAYzQlxjEql0PiRfybgRYQeVSulX4ElZTiIq9D+DWGBQv4FRr6ABFTdwZm86/G4L/iO8=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyqYou0l6mi2qYwOU3f98JnMl6Ty4IOV+307SenYqN+I+cczsF7
+	EkYaB1HZ1WDsxHnljRy8TtITO/MUHJ9nrdfyg6zwbDJ572GBF70WK5YN11xCgFStPj6/WrmYzRi
+	pn4EyZ3W2Pa3UgFIKak7FHeIMWOmEWUU=
+X-Gm-Gg: AfdE7ckEXp/hrqY49YhOXoHtDS2u7hpxw4Cx1WFfuqIOoA7wc3EYoyd0/IEncto3Y8v
+	6askMBkYglXofm+ify1q1q9c5MImo9xACiuqwJ75Hh68ICnfTRXwxw014FbJF71PrLliRWxLWfI
+	G7X9FbQ2D9CoLR6m2Mvk/s04wrJk1cXNbiESIQ5Y+Q+ZDckTF3NatjBcUQN/VOBt5mNp3KDp1Qs
+	lNFS51siMnFhfFZSNvHw5z1t8rPvFx5YCXR1nmZ+QEGE2zChT1RkZngUOw35rg+Ot0BLnWk/BZ9
+	y4WBwen/qzYpiqgESI2rYsO4l2MbeiliszS5DTjjUW1ju4XjNY+J0JD7NIJ+77Vr2v1vu0bzcyi
+	fWugYJRVKwgPgVmDUOkUREItiDQ==
+X-Received: by 2002:a05:600c:4f84:b0:48f:d1b8:9ab1 with SMTP id
+ 5b1f17b1804b1-492381f0ed0mr59299565e9.9.1781789345605; Thu, 18 Jun 2026
+ 06:29:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -83,14 +83,14 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260615154805.1619693-12-prabhakar.mahadev-lad.rj@bp.renesas.com> <ajJ_qwXhJbKB3Xli@shikoro>
-In-Reply-To: <ajJ_qwXhJbKB3Xli@shikoro>
+ <20260615154805.1619693-13-prabhakar.mahadev-lad.rj@bp.renesas.com> <ajKAqn1F074JJazF@shikoro>
+In-Reply-To: <ajKAqn1F074JJazF@shikoro>
 From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Thu, 18 Jun 2026 14:26:08 +0100
-X-Gm-Features: AVVi8CdXToo6cMOBg12R_0ExFj-dio5Daw5TR9InAuTm1Ov-5-tnr0T-5nBIcxA
-Message-ID: <CA+V-a8uhjm2Pmgb0VNinHJXKhxfbXJvqFMxG0rWeaBdWnSTWrQ@mail.gmail.com>
-Subject: Re: [PATCH 11/12] rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for
- register access
+Date: Thu, 18 Jun 2026 14:28:39 +0100
+X-Gm-Features: AVVi8CfPiYA_UbaiFhMeEgi8lZFPPJfpzknvE_2jphmqJ4vHnB1AeT84dC8Do0Y
+Message-ID: <CA+V-a8uaNXhqMvw+SqiV5D-EsGGCjeu3Qz9e_RRrnJOqqE2g_Q@mail.gmail.com>
+Subject: Re: [PATCH 12/12] rtc: rzn1: Add support for Renesas RZ/T2H and
+ RZ/N2H SoCs
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
 	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
@@ -106,83 +106,44 @@ Content-Transfer-Encoding: quoted-printable
 
 Hi Wolfram,
 
-On Wed, Jun 17, 2026 at 12:06=E2=80=AFPM Wolfram Sang
+Thank you for the review.
+
+On Wed, Jun 17, 2026 at 12:10=E2=80=AFPM Wolfram Sang
 <wsa+renesas@sang-engineering.com> wrote:
 >
-> Hi,
+> On Mon, Jun 15, 2026 at 04:48:05PM +0100, Prabhakar wrote:
+> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> >
+> > Add a new compatible string "renesas,r9a09g077-rtc" to the OF match tab=
+le
+> > to support the RTC IP variant found on the RZ/T2H and RZ/N2H SoCs.
+> >
+> > These newer SoCs integrate a closely related variant of the RZ/N1 RTC I=
+P.
+> > The RZ/T2H and RZ/N2H variants lack the RTCA0SUBU and RTCA0TCR  registe=
+rs,
 >
-> Sashiko found issues with your patch. I curated the list and left only th=
-ose
-> which I see as valid. Please have a look at these issues.
+> The RTCA0TCR is also not on RZ/N1.
 >
-Agreed, I will replace the 0x3f with RZN1_RTC_SUBU_RTCA0FX macro in
-the next version.
+Ah, right I missed "Not available in this LSI.", I will update the
+description accordingly in v2.
 
 Cheers,
 Prabhakar
 
-> Thank you and happy hacking,
+> > those registers are not accessed or used when operating under the
+> > rzn1_rtc_ops_scmp configurations, making the current infrastructure
+> > compatible.
+> >
+> > The RZ/T2H RTC variant also supports a 1 Hz output signal on the
+> > RTCAT1HZ pin, controlled by the RTCA0CTL1[RTCA01HZE] bit. This bit is
+> > marked as reserved in the RZ/N1 hardware manual, making RZ/T2H a
+> > distinct RTC variant despite its overall compatibility with the RZ/N1
+> > implementation.
+> >
+> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
->    Wolfram
+> With that fixed:
 >
-> > Thank you for your contribution! Sashiko AI review found 1 potential is=
-sue(s) to consider:
-> > - [Low] Incomplete refactoring: open-coded logic remains for RZN1_RTC_S=
-UBU_RTCA0FX
-> > --
-> >
-> > commit 2e16f66c80c483d619655d20fbb859a42e9d1b6d
-> > Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> >
-> > rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for register access
-> >
-> > This commit replaces open-coded shift and mask operations with the bitf=
-ield
-> > API in the rzn1 RTC driver to improve readability and match the hardwar=
-e
-> > manual.
-> >
-> > > diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> > > index c7ef3c81180f4..9f9cf9882fc49 100644
-> > > --- a/drivers/rtc/rtc-rzn1.c
-> > > +++ b/drivers/rtc/rtc-rzn1.c
-> > [ ... ]
-> > > @@ -306,7 +312,7 @@ static int rzn1_rtc_read_offset(struct device *de=
-v, long *offset)
-> > >     val =3D readl(rtc->base + RZN1_RTC_SUBU);
-> > >     ppb_per_step =3D val & RZN1_RTC_SUBU_DEV ? 1017 : 3051;
-> > >     subtract =3D val & RZN1_RTC_SUBU_DECR;
-> > > -   val &=3D 0x3F;
-> > > +   val =3D FIELD_GET(RZN1_RTC_SUBU_RTCA0FX, val);
-> > >
-> > >     if (!val)
-> > >             *offset =3D 0;
-> >
-> > [Severity: Low]
-> > Since the stated goal of this patch is to replace open-coded masks with=
- the
-> > bitfield API, should the remaining 0x3F masks for this register be upda=
-ted as
-> > well?
-> >
-> > In rzn1_rtc_read_offset() just below this change, there is still an exp=
-licit
-> > mask used when calculating the offset:
-> >
-> >       *offset =3D -(((~val) & 0x3F) + 1) * ppb_per_step;
-> >
-> > Additionally, it looks like the write path in rzn1_rtc_set_offset() was=
- missed
-> > entirely during the refactoring. It continues to use open-coded logic r=
-ather
-> > than FIELD_PREP when constructing the RZN1_RTC_SUBU register:
-> >
-> >       subu |=3D RZN1_RTC_SUBU_DECR;
-> >       subu |=3D (~(-steps - 1)) & 0x3F;
-> >
-> > Would it make sense to update these locations so the bitfield access is
-> > consistent across the driver?
-> >
-> > --
-> > Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260615154805.=
-1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D11
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
