@@ -1,87 +1,130 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 784AB466B79;
-	Wed, 17 Jun 2026 16:55:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781715349; cv=none; b=QBXkBzeNStFyPlY3cNoi02oRNerY8a6xO3iFy6FKgYAhyiszOxHQeaMDLHdXqyvTQilvqme/R+86TDRJNWilJVed9cC0E/vl5h8iIY1D/PNJKO5u1UNqB18eciY7IDper5j34CRGrzpCP1jDs8DGBdtq8O8VmmY5rm6mXeNHeXU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781715349; c=relaxed/simple;
-	bh=9vGdkw/aGhNbVXeunHlKe0fNy+NzRG8qPyNsujXL9qs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=m3IuEN+lPqH6xUBKLCERlUslXKgV7tO6kCnt5LeNUzHjKXsgPq+Xpcdi9cbwoCwBsmHl3Q/+dN2aog/qm8MsXkTSJe/Qp84MzNm7EVwICt8a1S6oLmnMblFZupOYQAFBMiuQpqj6EbzyudNreMtR8Ny26DUcs45YwpP0m0JAilM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=wWXCFRxD; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 805463C73DE
+	for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 10:18:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781777886; cv=pass; b=kVZuK3iQU7E+E8Fy+8w/UeeM4Ws7WqJFoiNMzVxADlGI522ThDTIiS6V07Ek12dJgpJLyuA6WpskTMv9WSI/YehyjnLX3g4t21wLYFZgUnihp1N6Ww3Ev+a5Jf4P2ecnjdRe6CA8tgDapfcTSXMzmiprkbo21eZQ53y1Iy/alUU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781777886; c=relaxed/simple;
+	bh=d3UI51xhDccu7qrMqr31ZRLTAiml8TgixkPl2atEXVM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=UBqsJ001wKsGXUa3DiV84gFOylDM4MFGuJ7np6OZgS03yNX8glV8IM747fR3xMaP9I/nj1I9THlqFhfknDSQU5tF0wplua7HUo93GB55IOboWYD3vh/l00dZUvBaRpoq6MJt4Sj4x7oro3/j4RbDhmaVR/HzSoDBJ+svjIkMsDE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ID4/kqZ8; arc=pass smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="wWXCFRxD"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 7C76BC2B9E0;
-	Wed, 17 Jun 2026 16:55:47 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 54818601AA;
-	Wed, 17 Jun 2026 16:55:42 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 34AD3106C81DF;
-	Wed, 17 Jun 2026 18:55:38 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1781715341; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=sy6hwesGGOgjk2y/HCTHs1UinrRCEe2r5WLpgpf9Wt8=;
-	b=wWXCFRxDuJt47+WQAowlZGS29/iGnukVp+hTJ5wuexBJaBfToi3eMeMbR4hDffdgdxh8aF
-	pF2xI8KrunRQJAT27IYzKtIMujinvTmQfYrSsUDjab4MSLyaGbNH2DIkga4BshhWCSz7y8
-	NpgO6e6zqJnfDcm/PDLLoW10GyD9me/U4nTWroq5UWkKcND3GN48Q/DdYoAwgy4HvNGMSv
-	mkvdYD7o2fxEvuoWEpMDUmCzaFTdremOkzUHwpDSyuZ0vWt0TwW09haBZrsZDuUHyMN2qL
-	vQZsetHfbYpDM5FAwyF6qzYRbTWlvYbq8M52BQbNoSXG0eACA7uNYHCLw/bcnA==
-Date: Wed, 17 Jun 2026 18:55:38 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH 07/12] rtc: rzn1: fix alarm range check truncation on
- 32-bit systems
-Message-ID: <20260617165538dad7e36b@mail.local>
-References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260615154805.1619693-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ID4/kqZ8"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-4633193af19so582176f8f.2
+        for <linux-rtc@vger.kernel.org>; Thu, 18 Jun 2026 03:18:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781777884; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Syb9ldVnbxnZxFUmd5s/hM33wQakc+IdW3vVMgeTITCrRy4aRNS8ikp7zhT6kP7vjC
+         kAzNcBptNsrqPPTbN0ll+wTIyECyAkYkT3nCuia2AI4on/Yis0aOsMpmh8yfvFyNnqXa
+         PJ6N3UoaFuNKEPo6e7Y711B5CzIdhp4DYF1TzG1Ub6ZY59lC4Y5R3oItMB7Ke3obIoSw
+         XmPZsQgGmFGEYeen3hlxmpkCBF9CHlD9XSqZYa+p7gg2lwwCpCQelQyd2UNfDqd/y+6g
+         SGLNdPoSbWQSFMJeC6n6YIvx0bu3DRWKrZCLd7xFv8VUAKO1CkBZs46Dgq5GYYgczcYJ
+         8UCQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=gmshtDYoyJi3az2OMgVxmco1OYRSd0HgGniKLz30q/M=;
+        fh=mzPqe1krbNp7pFs3UbHf2PE2KiTGpsqtvMypr25qnis=;
+        b=DmqnDVFn5NR4KewJeTsCeELjWrffO3sBIqfW1Wg6lCmYO4JeuqREpxtzgDSMvzDJxv
+         RXTwI8QKpFfWoxPNnGR4SJmkDwcoODGZEHpouI7fQBVP2fiyoyIKz2CvhucxVLEJ3vRF
+         aZW07AJfoNk/COf5AYgEgVZPVoA+EGIz2u8zZCZu568FetqH1IyjnqFsy6xcPj7WpPHq
+         Y7SFnZSry4itxVnFM2UbNG+De0VRhqrBbyuHpdvhM7FpS1u1iLcvj8lNo8Q28ABaTG/U
+         /CGZtAca0lzstFgQPMGCKGsoSSWGsSUx2sVeNcri8FPHqv6JhF9vPDEn4DfFJDn/T8hJ
+         EvDg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781777884; x=1782382684; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gmshtDYoyJi3az2OMgVxmco1OYRSd0HgGniKLz30q/M=;
+        b=ID4/kqZ8vADaM1lJqaiaYShy3/fKugrn9Q7rHcWSf43WT00yhafJZMc5Ckhd9OMnQW
+         VMa5O9snDlmfgAa2HFIE3h6R08cgFcNDz0x0PifG+Rby2aBimayCp9qbbqd0Eg0aLygp
+         CYSTu2kVBNriIpIBn2mm6HkOA24sskW3nwQ2XAEXWl7BdcOm+SmqP9mW8nKAVIH9iA5V
+         wD6pkZvwj7v9ixyEziF4Kg6ipISsHu5QOd6JAdWJ7SSaQre4mq+pNqIrZ1r8O1ErR4Jp
+         MZVWxBpzUJTm0/3h/v12FRgwTPTG0FONamTFanoSCPES+CZBUxY8R/D6omDJqiblGqWn
+         sIdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781777884; x=1782382684;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=gmshtDYoyJi3az2OMgVxmco1OYRSd0HgGniKLz30q/M=;
+        b=tOTTM7oYbaOBi8MUFDCXXio359XS3dRt4YWN8pgNmCWtGwHilTPsrzzmbFoYJ3ngjQ
+         mGvrMYIdoxdfl1dM65PltftYLvACcqupzkJB8GYAV6qwIHN1mZOqw/TTZh8OM0uHoTFv
+         SR1nIiurA/yC0w3rdl7ISM3s+PKALkMoosq5CFblzsn1JTMmWs2y4DuFwjJgDxTq1KpO
+         2KrcxkY37AVxr3CchVAgmxnvGHmeHUg7wVJL3axERo4EhmedxaN91ijIVaruP4WE4PMM
+         pA0rDsykZKKU1Vh9bOsmDzufQh1Y5cj3XvqStt+e7XHlNzDbX02RT2I0i4w0NsBn0vf4
+         eBwg==
+X-Forwarded-Encrypted: i=1; AFNElJ/ZdoPC6Yh8sEkY7+CseTt09NhVMhd15WejFhjHF8fDlnt3piESrGBHcBuT3Kp3RBHCiUkAU/ek9ro=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmAJG26jymviNzuVyao90LSSwNqjJWqV2HffQOQovezqfPrvMl
+	zUxDDba4lv1b3D9LAKqokfyBWkrP/0nLhlAV9rBQVmqB93tkZHjg4Ex9rZngC4+v0lJyDegO2GC
+	sR70NeO9oaKUxS4ERLsbiSXKU2Ug4SD0=
+X-Gm-Gg: AfdE7ck86J8yleo4zyDWePCq4bwCMvg4wADl+p9HetZKuqLtiROfpLpVYfiJGA/quVr
+	ORHrpJ1e4FGi2edX5SWNLflAkN6O1o/baecX2T69TjV6XeC2Apr2SxqOBzTsrooCphyDBe0lOt5
+	GoC2jU0zJeDMswvYWcBJd/932kN515krTgbkqRpNuA0ha4+pGX3VRQou/2+sbxx3Zxc6J7F19NG
+	Bn2DfjZ/H+1800jMwlUCaojOxoEZ5DNSSzYLqKt7a9IsNGLYZ8d7ZLbKtwr+FZx5V6fzQF8SkDv
+	5cZPZxnGeanfCGfGCnS9RYSWpHP5VEMJRU3IWjBfWReZzJh4z6+3IoxaGzXNcEdcafP1h+k1DJ8
+	AqujV15EI2zge33ZyXneRE4jj2g==
+X-Received: by 2002:a05:600c:1395:b0:490:e5c1:b8b9 with SMTP id
+ 5b1f17b1804b1-4923a8c402emr24573155e9.0.1781777883721; Thu, 18 Jun 2026
+ 03:18:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260615154805.1619693-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260615154805.1619693-5-prabhakar.mahadev-lad.rj@bp.renesas.com> <ajJvn2YkaspTYx9M@shikoro>
+In-Reply-To: <ajJvn2YkaspTYx9M@shikoro>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Thu, 18 Jun 2026 11:17:37 +0100
+X-Gm-Features: AVVi8CejmAUnxV28-Nv-iRPPqNanTzOmym7-UH_9-4KCncFioQAXLRdjmh4wMqM
+Message-ID: <CA+V-a8uKW6QSOjhW0NW3pp4d0+mVh19rYUKKexqCjdD-WThNDQ@mail.gmail.com>
+Subject: Re: [PATCH 04/12] rtc: Kconfig: Broaden RTC_DRV_RZN1 dependency to ARCH_RENESAS
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 15/06/2026 16:48:00+0100, Prabhakar wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> 
-> alarm and farest were declared as unsigned long, but
-> rtc_tm_to_time64() returns time64_t (s64). On 32-bit systems where
-> unsigned long is 32 bits, the assignment silently truncates the upper
-> 32 bits of the timestamp.
-> 
-> Fix by declaring alarm and farest as time64_t and replacing
-> time_after() with a direct signed comparison, which is correct for
-> time64_t values that will never realistically overflow.
-> 
+Hi Wolfram,
 
-I'd argue that this is never going to overflow ever as unsigned long
-gets you to 2106 which is way past the usable range of the RTC so there
-is a trade off between the size you are going to take on the stack and
-the actual usefulness of the fix.
+Thank you for the review.
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+On Wed, Jun 17, 2026 at 10:57=E2=80=AFAM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+>
+>
+> > -     depends on ARCH_RZN1 || COMPILE_TEST
+> > +     depends on ARCH_RENESAS || COMPILE_TEST
+>
+> Yes, this helps X5H also :)
+>
+> > -       If you say yes here you get support for the Renesas RZ/N1 RTC.
+> > +       If you say yes here you get support for the RTC found on Renesa=
+s RZ/N1,
+> > +       RZ/N2H, and RZ/T2H SoCs.
+>
+> Such lists are easy to get stale IMHO. What about "initially found on
+> Renesas RZ/N1 SoCs."?
+>
+Ok, I will update it as above.
+
+Cheers,
+Prabhakar
