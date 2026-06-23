@@ -1,102 +1,150 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B0A21A92F;
-	Tue, 23 Jun 2026 10:09:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C59FD3D8901
+	for <linux-rtc@vger.kernel.org>; Tue, 23 Jun 2026 15:23:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782209368; cv=none; b=QZNVW1uNOMNCw/GKaXZg6zet1N3ZooMU5y3BhZNFxJgzpcx+QKFZgUnT8hJyIYXOy70x3H7lYuYdwbDJphCBjApKjnKAwDQ2hlesJw2hrFxwfSl8Gm3v81IuSZVu7cYsqijkIJNd/QSyCBQd0cJwBDPggftL05r3UIOJcGWaafU=
+	t=1782228213; cv=none; b=E/iBbg2BREkd4d6306NxEAsjShiTcqh9Z6z4DL9YSxsI0xzWw8lgxR2neAlGBDHGrE3hYnTKxFhZPE620ge4kZMslSfbUde91I4bxr2fzgbdyva/RfgGoYVr6ftR6rfEunEgizInbMsS6itELQk2VFN6N0FZvW1fjTZKwssscUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782209368; c=relaxed/simple;
-	bh=1hhTCQCjqwvG71DABL1oLSts8WcvngCyVK5FZ2xMDrg=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hruohm4Wk9u0gG7nVIre1juz8IkuEm3Wkb5GKrE6NMUfBPkm62wIbg39BOC8gBTO+gES+OP2lXU7mcNWKAWzhG5eSPdvOMg9XqW13d8uDvo+a1GPHiSrd1DC2lyk0XC2WsDadmy8P7ixikA6zfc8adr8svc/DIR+cA2PKwSVVY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=EHdpT5ha; arc=none smtp.client-ip=117.135.210.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1782228213; c=relaxed/simple;
+	bh=4p9ogReYCHAd+egcOA36NoDqlwt3YUJ5zaJ9i2O5URQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=J3mcwrrnpbfi0WooHtBsQgS3Vcv6A5emrf0RW+7ClLI5r393ZPUpi65MpkwT8zTU9vc9ulwF+O8svtOarlHA12vAocm7dbMVNWng1sWOWVx35lMexg06m6P1H1tJTKV9s/mOtBaIdY3CuG+AWwyypjLxzV3Dncj3h07li6WueeM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hki6YJhi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="EHdpT5ha"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=pr
-	rZVqeAdymGUf+J6Qq11p4VnhLZAsuhJO+K9UWj9Ss=; b=EHdpT5hatVTO3Xjnu8
-	G5RYHfUNluUE+vs5zvVM+og8uu65nz7Ycx+YFNeJkP8RPYRGEo2Si3Bc/1soum3Q
-	FjAxrNGsB52SeXz6RvawXbn/mUGQqmo1SHgeC/qFIhhLSs+DKICjNbkydpVxyKJE
-	vvwmiyech92JKr0Y4Jz7vtC/8=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp4 (Coremail) with SMTP id PygvCgD3HzMxWzpq54TPDg--.18142S2;
-	Tue, 23 Jun 2026 18:08:50 +0800 (CST)
-From: Haoxiang Li <haoxiang_li2024@163.com>
-To: alexandre.belloni@bootlin.com,
-	bwalle@suse.de,
-	akpm@linux-foundation.org
-Cc: linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Haoxiang Li <haoxiang_li2024@163.com>
-Subject: [PATCH] rtc: cmos: unregister HPET IRQ handler on probe failure
-Date: Tue, 23 Jun 2026 18:08:48 +0800
-Message-Id: <20260623100848.2127281-1-haoxiang_li2024@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hki6YJhi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77F511F00AC4
+	for <linux-rtc@vger.kernel.org>; Tue, 23 Jun 2026 15:23:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782228212;
+	bh=KTQndh5EWhkqDmZmwB0OKhZyQvnI7PXjv9A+hnMrJew=;
+	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
+	b=Hki6YJhi28GASZHqwwCkhhXl3skcmPrBO9cxVQXJyt0GTu8NZ3ld1tHZV5uAcHFrH
+	 PBW1IT/3SPjJIdgE2Abt3y4ywURZuNjtb3VwUBL1SEspfjUbA0nXXQqEg1Ip4ZBqh0
+	 VTmcZdEqRm9JiqF6perVrk8acOQwPQD/FfluKIP7zylSA5m/8Rl6cgztYYOVAntNbG
+	 VlZeBMLZzRhgCGFx6SbhVvCcy1Enre6GVOSAgVTiAJmwfYpTT4gGBxf+2aUAjMftL3
+	 BOJhy1bkUBgq9V7aoF/qhk3JiEY4wrGGEYhWW/xa9KFgXm/2jkYd3eB/CZ6LL1+jBY
+	 Fm13Neg9+4MZQ==
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-396775c2720so54156421fa.2
+        for <linux-rtc@vger.kernel.org>; Tue, 23 Jun 2026 08:23:32 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8uE2/GUTrMq+Sjiard29HsK5p2P69qx03f5sIDOmrZHRHeGV3ZHIxKPpX51Dr1sPsIIQzlugIB0SM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfUOR7MWlqIE2VIbcStfNzimlt3ZFk3qc8QSmD7Vr8doFjwhTi
+	ZA1S1qtpkjGWCelGZ95bY4BvA/YOOHisvbdKcqwaDqhQy0yr4jah5rRFcFu+urNYofUS4AhZao7
+	uhBPTUI1Eof3iKjYDxi187YLS1+2Fci4=
+X-Received: by 2002:a05:6512:4388:b0:5a8:86a8:2e09 with SMTP id
+ 2adb3069b0e04-5ae3616553amr944685e87.7.1782228210964; Tue, 23 Jun 2026
+ 08:23:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PygvCgD3HzMxWzpq54TPDg--.18142S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7AFW5WryrGrWUCr47JryfCrg_yoW8Aw17p3
-	Z3ua4DAr4qqr409a1UGa4jkFW8Wr18WrW3Arn3K3yagw48Jry0qFyqkasrAF45CryrZF1a
-	gr1Dtw4fCFs8AFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0piVOJUUUUUU=
-X-CM-SenderInfo: xkdr5xpdqjszblsqjki6rwjhhfrp/xtbC7RIMemo6WzKojAAA3U
+References: <20260121-a733-rtc-v1-0-d359437f23a7@pigmoral.tech>
+ <20260121-a733-rtc-v1-7-d359437f23a7@pigmoral.tech> <CAGb2v64euL+QNXiJdTn0JygYLXg0WoguPSprKT4sKGZGVZbwug@mail.gmail.com>
+ <1jv7bjd6wi.fsf@starbuckisacylon.baylibre.com>
+In-Reply-To: <1jv7bjd6wi.fsf@starbuckisacylon.baylibre.com>
+Reply-To: wens@kernel.org
+From: Chen-Yu Tsai <wens@kernel.org>
+Date: Tue, 23 Jun 2026 23:23:17 +0800
+X-Gmail-Original-Message-ID: <CAGb2v67eqHz3LxyLwk2_+RR_ucc8hxBLfk=iLcSN3hdsnsmPXQ@mail.gmail.com>
+X-Gm-Features: AVVi8Cd45Q12_JEAbrGeRNR4K9bnBVwQtAKYrj4bVtPHJ3Sm3pX_iR5U5sy4IUU
+Message-ID: <CAGb2v67eqHz3LxyLwk2_+RR_ucc8hxBLfk=iLcSN3hdsnsmPXQ@mail.gmail.com>
+Subject: Re: [PATCH 7/7] clk: sunxi-ng: Add Allwinner A733 RTC CCU support
+To: Jerome Brunet <jbrunet@baylibre.com>
+Cc: Junhui Liu <junhui.liu@pigmoral.tech>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Samuel Holland <samuel@sholland.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Maxime Ripard <mripard@kernel.org>, linux-clk@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org, =?UTF-8?Q?Andr=C3=A9_Przywara?= <andre.przywara@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-cmos_do_probe() registers cmos_interrupt() as the HPET RTC IRQ
-handler before requesting the RTC IRQ and registering the RTC
-device. If either request_irq() or devm_rtc_register_device()
-fails afterwards, the error path leaves the HPET RTC IRQ handler
-installed. This leaves a stale handler behind and make a later
-hpet_register_irq_handler() fail with -EBUSY.
+On Tue, Jun 16, 2026 at 1:56=E2=80=AFAM Jerome Brunet <jbrunet@baylibre.com=
+> wrote:
+>
+> On sam. 28 mars 2026 at 22:41, Chen-Yu Tsai <wens@kernel.org> wrote:
+>
+> > On Wed, Jan 21, 2026 at 7:04=E2=80=AFPM Junhui Liu <junhui.liu@pigmoral=
+.tech> wrote:
+> >>
+> >> Add support for the internal CCU found in the RTC module of the Allwin=
+ner
+> >> A733 SoC. While the basic 16MHz (IOSC) and 32kHz logic remains compati=
+ble
+> >> with older SoCs like the sun6i, the A733 introduces several new featur=
+es.
+> >>
+> >> The A733 RTC CCU supports choosing one of three external crystal
+> >> frequencies: 19.2MHz, 24MHz, and 26MHz. It features hardware detection
+> >> logic to automatically identify the frequency used on the board and
+> >> exports this DCXO signal as the "hosc" clock.
+> >>
+> >> Furthermore, the driver implements logic to derive a 32kHz reference
+> >> from the HOSC. This is achieved through a muxed clock path using fixed
+> >> pre-dividers to normalize the different crystal frequencies to ~32kHz.
+> >
+> > Have you tested whether the actually normalizes the frequency, i.e.
+> > selects a different divider based on the DCXO frequency? Otherwise
+> > we're just lying about the frequency.
+> >
+> >> This path reuses the same hardware mux registers as the HOSC clock.
+> >>
+> >> Additionally, this CCU provides several gate clocks for specific
+> >> peripherals, including SerDes, HDMI, and UFS. The driver is implemente=
+d
+> >> as an auxiliary driver to be bound to the sun6i-rtc driver.
+> >>
+> >> Signed-off-by: Junhui Liu <junhui.liu@pigmoral.tech>
+> >> ---
+>
+> [...]
+>
+> >> +};
+> >> +
+> >> +static const struct clk_parent_data hosc_parents[] =3D {
+> >> +       { .fw_name =3D "osc24M" },
+> >> +       { .fw_name =3D "osc19M" },
+> >> +       { .fw_name =3D "osc26M" },
+> >> +       { .fw_name =3D "osc24M" },
+> >> +};
+> >
+> > As mentioned in my reply to the binding, this is wrong. There is only
+> > one input.
+> >
+> > The most you can do is check the rate of the parent clock against the
+> > detected one, and _scream_ that the DT is wrong. And maybe override
+> > the reported frequency.
+> >
+> > If you want to do the latter, you could add a new fixed rate gated
+> > clock type to our library. You would fill in the rate before the
+> > clocks get registered. I probably wouldn't go that far. We want people
+> > to have correct hardware descriptions.
+> >
+> > Funnily enough Allwinner's BSP actually implements a fixed rate gate
+> > for the next 24M-to-32k divider clock.
+>
+> What about implementing the register bellow as a read-only (and
+> non-cached) divider using the factors provided by Junhui ? That would be
+> an accurate description of the HW I think.
+>
+> The oscillator gets set in DT and if the output reported past the
+> divider is not 32728Hz, you know you've got a problem (bad DT or HW gone
+> bad)
+>
+> With a fixed-rate gate, you may actually end up lying about what
+> actually happen, if the HW does not behave as expected.
+>
+> Do you prefer a fixed-rate gate still or should I try the RO divider
+> approach ?
 
-Track whether the HPET handler was registered successfully and
-undo the registration on the probe error path. Also mask the HPET
-RTC IRQ bits to match the normal shutdown cleanup.
+I think either one would work. The RO divider is probably more accurate.
 
-Fixes: 9d8af78b0797 ("rtc: add HPET RTC emulation to RTC_DRV_CMOS")
-Signed-off-by: Haoxiang Li <haoxiang_li2024@163.com>
----
- drivers/rtc/rtc-cmos.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Sorry for the late reply.
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index f89ab58f5048..fa04ece151b8 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -934,6 +934,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 	unsigned char			rtc_control;
- 	unsigned			address_space;
- 	u32				flags = 0;
-+	bool				hpet_registered = false;
- 	struct nvmem_config nvmem_cfg = {
- 		.name = "cmos_nvram",
- 		.word_size = 1,
-@@ -1091,6 +1092,7 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 						" failed in rtc_init().");
- 				goto cleanup1;
- 			}
-+			hpet_registered = true;
- 		} else
- 			rtc_cmos_int_handler = cmos_interrupt;
- 
-@@ -1140,6 +1142,10 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
- 	if (is_valid_irq(rtc_irq))
- 		free_irq(rtc_irq, cmos_rtc.rtc);
- cleanup1:
-+	if (hpet_registered) {
-+		hpet_mask_rtc_irq_bit(RTC_IRQMASK);
-+		hpet_unregister_irq_handler(cmos_interrupt);
-+	}
- 	cmos_rtc.dev = NULL;
- cleanup0:
- 	if (RTC_IOMAPPED)
--- 
-2.25.1
 
+ChenYu
