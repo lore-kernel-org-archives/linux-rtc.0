@@ -1,101 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C05F433A03A;
-	Wed, 24 Jun 2026 16:48:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E345F37EFE7
+	for <linux-rtc@vger.kernel.org>; Wed, 24 Jun 2026 20:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782319721; cv=none; b=Gr+2CfIt0gdGQIVNquy5k7OTT7n9idfhb5ESm2ZbPw2fYVEZLa5yBF8MENj9m4Zotts9F/hOuQkRG8sIlOH+J4vkO8MCfs+yn+11wTI0MoxbanzyOQQ6FQT7R9RyB31KEjXx/9tgYEhopLVuSxwZqjPkn/yeux04MQF9wj5F/aQ=
+	t=1782333759; cv=none; b=cIWyP6A0Fg1kkWC0+ECWCVD9y6+Byg/N7b03B5bPzQmb45YC/Gvdmr/blr7nKlrnqGOGqVq8jp0t9pNPHAHJ8Eru2djqhxQ+KYD27tvLQE1xV47PDKeEsEPWV+KFvfit0r6UiMiH38QRlDTcu1NMzXdsyUoe/x/jhbYZs4QEvZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782319721; c=relaxed/simple;
-	bh=r8SUQcCp3oOUGeXzp1ud6Kg1CzU0/PkvrDS3xpYQuSY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kSa5PMtzJw8BEn3JbfuZ0A7xijKQBaerIk4Upy5KhoYmiLXhY0YcW1LUZsuNtkn2wCZGQ+986atVo3thcu5vsVUs98xsImfX/Fz2qW25bJd2MRTHTu+cUOCn7RXpNtbo887WuUQZmKU3Dce2fnyL/dLvLy86AlJNINFLGsZ6fnI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gXuoHKe4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782333759; c=relaxed/simple;
+	bh=eV3RLdwrYpvnRxpaT7ykifbtaMmBU4By71Qjae+DnaI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MbgbXaCj5ydx1DBLPbqbggdbgVqrWrbfLnJVaQIK7CAjX+cln31G3WhTtptvJ/pJYpHDfO/CXcv61L3ItdgWFhCCtpgwVQtd79w4U5X9gIs09RNZtvVAu7D11Srqy/Gz3gLHmuYgQ5DicqlzpnQN+zJo7BIhN6ElmQFg5L009T8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=GGRZPFGt; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gXuoHKe4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09641F000E9;
-	Wed, 24 Jun 2026 16:48:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782319720;
-	bh=B16ZfGRW2FDD4EalRw6jbRvtQww1cSDj03208KZHuAg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gXuoHKe4o9cHfmCPOeJIPd1HCF7c1/UjlzpQL7H5m4AZNo2rIZuqTHGtvNX/IroLs
-	 oxS96QhkGJLEImOSPlzezHJV30pvDhWBfEsCRXXN0g4DSbmTdnN6tU08pUXCOBI4+2
-	 BuZyUPAgpe93gslNOdfPPuR9CSeoaz55eIxjMG0DsxaUlyhTZvC1lq3ZTEXToz2nvA
-	 ajfLPg0DlEiGQI/cxOqNPOHzTBHdFsRursT+Tg3gpEx/MSevawtbMP7HFmewelIa+F
-	 3KdE84bWJHlgWiY2AXuF+7B09pIucISZBNZsz+eb8Q/c3WBLOCA4wNnvNLwV1ZPoGq
-	 IOnbiqJwShVag==
-Date: Wed, 24 Jun 2026 17:48:36 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Udaya Kiran Challa <challauday369@gmail.com>
-Cc: tsbogend@alpha.franken.de, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, skhan@linuxfoundation.org,
-	me@brighamcampbell.com, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] spi: dt-bindings: microchip,pic32mzda-sqi: Convert to DT
- schema
-Message-ID: <20260624-charter-footless-9752837b15f3@spud>
-References: <20260624061329.130468-1-challauday369@gmail.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="GGRZPFGt"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 148D5C6B3B8
+	for <linux-rtc@vger.kernel.org>; Wed, 24 Jun 2026 20:42:37 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C8C05601C5;
+	Wed, 24 Jun 2026 20:42:28 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id ABD0C106C8077;
+	Wed, 24 Jun 2026 22:42:27 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1782333748; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=56nkf3YR2UqkxmwO0BUlPlKpHtNTQ2Vrg6oNoaamskY=;
+	b=GGRZPFGtgRS+cmtDWbmI6iiBKdzcjHA1dwZ2ow7OLIj5D7hoCI6NWTnWw4NVa9gXjB8eTl
+	KD/C24XZtnKE++JnQh2jz4Bz/7RgHgzKeFUZSLo3Dpwz8tHR1yCZ1KCM2gKORQ0HVMGvKr
+	spWmxwrpzClWSQx693YBlpEFugABz+mqFjBRKz/8aNDveAdF+1cnhWJXRcXarV3qQWYSlc
+	FMGdMU1D/J/2MyCNhRCBfh4+hyhp36B/xmkJmijXzaJV9vavW5aTuHGtNbPqYB2fnJabxI
+	KthtbcKF20xnsaSf/H+fkf1xnHrgOylA9mE7UJOhb8P8usVt7QDxslVEtvSIZQ==
+From: alexandre.belloni@bootlin.com
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: s35390a: fix typo in comment
+Date: Wed, 24 Jun 2026 22:42:22 +0200
+Message-ID: <20260624204223.1479003-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="kJnnb0MVSAAFGHi3"
-Content-Disposition: inline
-In-Reply-To: <20260624061329.130468-1-challauday369@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
---kJnnb0MVSAAFGHi3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Fix trivial typo
 
-On Wed, Jun 24, 2026 at 11:43:29AM +0530, Udaya Kiran Challa wrote:
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-s35390a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> +  clocks:
-> +    maxItems: 2
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index 31394f34fb70..b72eef4fb099 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -297,7 +297,7 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	else
+ 		sts = S35390A_INT2_MODE_NOINTR;
+ 
+-	/* set interupt mode*/
++	/* set interrupt mode*/
+ 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+ 	if (err < 0)
+ 		return err;
+-- 
+2.54.0
 
-Please make this an items list too (and drop the maxItems while you're
-doing so).
-pw-bot: changes-requested
-
-> +
-> +  clock-names:
-> +    items:
-> +      - const: spi_ck
-> +      - const: reg_ck
-
-> +examples:
-> +  - |
-> +    #include <dt-bindings/clock/microchip,pic32-clock.h>
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +    sqi1: spi@1f8e2000 {
-
-And remove the unused label here.
-
-Thanks,
-Conor.
-
-> +        compatible = "microchip,pic32mzda-sqi";
-> +        reg = <0x1f8e2000 0x200>;
-> +        interrupts = <169 IRQ_TYPE_LEVEL_HIGH>;
-> +        clocks = <&rootclk REF2CLK>, <&rootclk PB5CLK>;
-> +        clock-names = "spi_ck", "reg_ck";
-> +    };
-
---kJnnb0MVSAAFGHi3
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCajwKZAAKCRB4tDGHoIJi
-0lbZAQDKDnqx+ZFA3ZbN+nQW+roXEoYvmzMt1ukqFJxMyQdgzgEAh0lyj2De4ZOH
-mSzxJOJN3m7u5GZrxUqJi8l+vd/bGAQ=
-=ElHG
------END PGP SIGNATURE-----
-
---kJnnb0MVSAAFGHi3--
