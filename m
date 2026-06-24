@@ -1,47 +1,48 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 299A73E5A30
-	for <linux-rtc@vger.kernel.org>; Wed, 24 Jun 2026 21:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D3803E5A34;
+	Wed, 24 Jun 2026 21:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782335748; cv=none; b=gqQQKzQczqJg5IQC0KTD4wecDjkxQKWAKfGG3scAGRRU4A8+tSL9mdJQJilrpDPhm/tsHRjx+n51mWli8HFEAVjTSw42Z759rzB8KuDcodu8G9Scn41RXuheYFaMNJbvgRYPDheYVS0kv00wVMy+ccHxTIZpzIobZt/ve6WvjhI=
+	t=1782335755; cv=none; b=eQ8fKxHEWfULeA0MgLYH6T0nKKmNn8naoC+KmHGw52J5ZHjFY0dts/jaTk7ZnQTYvxF3GKLneh9Wl2iRacrM+aNKr0sI4JXFAaY6rJMZxmRXdV8+1aeGvBHx9LYljmaPqmgetJsNyV8ghtaGLkgTDd0c5yTFBzRjZvw+I6UfiWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782335748; c=relaxed/simple;
-	bh=XKZWxuNeA28dfVCe7wZUWLIx4+atL2irYBOP17Cfaio=;
+	s=arc-20240116; t=1782335755; c=relaxed/simple;
+	bh=z72s8fIxCDisst4GzRRp+ispJwc9yaF19tGtV/DZqn0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oUsKOr4oH+aK0HdJj0Az+GJKb9gXYtcHkO22RjdHGqA4g+1WvrwtZX7VoqHQnIdX78M0AKBAEomnqGQtn1BW0pKXqXFOJUrU8OPlhKoyDqzChdX0ZdoXMQ6suPhMKlx4rIC2tZCHEBv0LphL0yAcks4jJ7u2c1fei9BHyrp7XOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=A13nZ6Os; arc=none smtp.client-ip=185.246.84.56
+	 Content-Type:Content-Disposition:In-Reply-To; b=h0ZodjiE903RpkiiEev+rUeQwan7Jji5ZjEcpDKuwo8Jg6sjHHuciufCdwvpu5H0PpTILUMkwLfJWR60O8R9gJTAa7EnIl8XCgiXF2d6zmwmR7UMMGPjIpn9uAAXBtCqho5k73M3UOwugPmP5lBi7qbPLfEYXxg5997nApeef0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=1IqN3vJu; arc=none smtp.client-ip=185.171.202.116
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="A13nZ6Os"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="1IqN3vJu"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id C06AB1A094C;
-	Wed, 24 Jun 2026 21:15:45 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 3C93DC6B3B8;
+	Wed, 24 Jun 2026 21:16:01 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 94EE7601C5;
-	Wed, 24 Jun 2026 21:15:45 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1A6A8106C8468;
-	Wed, 24 Jun 2026 23:15:43 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 22AE2601C5;
+	Wed, 24 Jun 2026 21:15:53 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9FD5B106C85A3;
+	Wed, 24 Jun 2026 23:15:50 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1782335745; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=JYNVb3iyAzsQp26XZiaX43GwZ4bhM070s2F68aaiHHE=;
-	b=A13nZ6OshjjcHVpIWLWQX2BnuR9Z8gOZgpC9roAV/gM4/EZcRrHtWTAIIP9gEBuJTDs9f0
-	djoCp8RN8nKaVoX0w+dscotNUtwR1l+/4lra7svZAYdMGawodoWMVHjQkc/1v/tyEKkKuf
-	pqmYqwxpEu7CCN047+4mvYP/+ly/kHRepc20lgFUVtM8jXIfBbS3xKf38B75vTLkFQw9xi
-	G9GdSvdkx/MObj2e3//uFHzfQOWj5WsZG4k/GEVLGqUw9p2AfkHqDoYN3lGa/63AuNxauw
-	i10nSLVWM/Pq7jkSzCauacXluEgyNGFYmVBKoM712xnBbh2KFp59KhRMPIRakA==
-Date: Wed, 24 Jun 2026 23:15:43 +0200
+	t=1782335752; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=fzEyUAkdtwsDGWDcus0Rb/IDW3je9WE2eQGLEcegO3Y=;
+	b=1IqN3vJuyb0vKPDjR6RvttBzaJHyuUdItXuVk6MTrKEkqdYKb4IDWCH730jgPu66k2vCJM
+	7WnZLUEHmWvXUm68RwV52L2dkTGHlTX/5UN0JdppUalyjkeJxQvLnY2ueTkRNyG1wch0Ne
+	LrqA1NflR8Vg89yEXp9GVHYF2zSoPHiwuMGuP/ThMURWKcD7OurpXawK1SkMsPrgkLdLcy
+	IZrguBaj34xdDRW3l1mffKUgNd0RGbzlerLVjV2oDcsewlf5wcKnGeKQHDVjvSuH7qU4X2
+	WKKObQOw74wir9Ydm0rrO35atzWEcnlMGJWHihhn+ZEMO7OtytdjkEO4wizk3A==
+Date: Wed, 24 Jun 2026 23:15:50 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-riscv@lists.infradead.org, Conor Dooley <conor@kernel.org>
-Cc: Conor Dooley <conor.dooley@microchip.com>, stable@vger.kernel.org,
-	Valentina.FernandezAlanis@microchip.com,
-	Daire McNamara <daire.mcnamara@microchip.com>,
-	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] rtc: mpfs: fix counter upload completion condition
-Message-ID: <178233558792.1517260.5634581783722495256.b4-ty@b4>
-References: <20260513-panhandle-ashy-70c6abf84d59@spud>
+To: John Madieu <john.madieu.xa@bp.renesas.com>
+Cc: ryan@bluewatersys.com, akpm@linux-foundation.org,
+	m.grzeschik@pengutronix.de, Denis.Osterland@diehl.com,
+	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	biju.das.jz@bp.renesas.com, john.madieu@gmail.com
+Subject: Re: (subset) [PATCH 2/2] rtc: isl1208: Balance enable_irq_wake()
+ with disable_irq_wake() on cleanup
+Message-ID: <178233558810.1517260.13463842390127591656.b4-ty@b4>
+References: <20260425154959.2796261-3-john.madieu.xa@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -50,30 +51,26 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260513-panhandle-ashy-70c6abf84d59@spud>
+In-Reply-To: <20260425154959.2796261-3-john.madieu.xa@bp.renesas.com>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Wed, 13 May 2026 18:55:55 +0100, Conor Dooley wrote:
-> The condition that needs to be checked for upload completion is the
-> UPLOAD bit in the completion register going low. The original iterations
-> of this driver used a do-while and this was converted to a
-> read_poll_timeout() during upstreaming without the condition being
-> inverted as it should have been.
+On Sat, 25 Apr 2026 15:49:59 +0000, John Madieu wrote:
+> isl1208_setup_irq() calls enable_irq_wake() after a successful
+> IRQ request, but the driver has no remove path that balances it.
+> The driver is devm-only, so on unbind devm releases the IRQ -
+> but enable_irq_wake() is not undone by IRQ release, so the wake
+> count for that IRQ stays incremented.
 > 
-> I suspect that this went unnoticed until now because a) the first read
-> was done when the bit was still set, immediately completing the
-> read_poll_timeout() and b) because the RTC doesn't hold time when power
-> is removed from the SoC reducing its utility (I for one keep it
-> disabled). If my first suspicion was true when the driver was
-> upstreamed, it's not true any longer though, hence the detection of the
-> problem.
+> Each rebind therefore leaks one wake reference; the leak doubles
+> for the chip variant that has a separate evdet IRQ, since
+> isl1208_setup_irq() is then called twice during probe.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/1] rtc: mpfs: fix counter upload completion condition
-      https://git.kernel.org/abelloni/c/9792ff8afa90
+[2/2] rtc: isl1208: Balance enable_irq_wake() with disable_irq_wake() on cleanup
+      https://git.kernel.org/abelloni/c/1afe4f19d6ad
 
 Best regards,
 
