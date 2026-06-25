@@ -1,101 +1,78 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE6C3C2BA4;
-	Thu, 25 Jun 2026 10:08:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87B933E172E;
+	Thu, 25 Jun 2026 12:43:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782382129; cv=none; b=cNRcyrZsQx0ooQ2lvRA8NZ3m+AXhnKlrOB0APadmWef1OUCXFfoXFQB3eBqsWR1llGHdrgqfNMRTQhwSAML0lSObWED1u/LY/SpNoyuU1Dlh7kBNBR9MctXNBCjXI1etvPPa3kVqex3Is+B4XL1UcsNlrQMoMU3b4jA9FX9zQJM=
+	t=1782391433; cv=none; b=HZsFAg7c756SlH3AZOMOxF804e19eolJjZkcf1s8EeALJDiFta6XvngMw9cyA289o0Y//6zuvJDP7cADam+Hhwt0oIwAJTtgkQKe9zPH/Bck3iZKhcjessI0VJZooa1FxNdbvxzu0CbTKoax2fwV3R8qllB+GRe4YKEDK7W/jKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782382129; c=relaxed/simple;
-	bh=SQBp1/yV1ekWdS6nTZnnRLDYKd2I+3byYL5QANtkNHg=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=mVrgEbcu1WYGt3JHhdGCWJc3xf6F5usHTSImuBxfYjoA2KBMWSkbXWOK4sxkP5IFi4Gd3o+sSpvsNA1pZl9yenttilUBTcRc6dSOQimK2iSJNq8HjH2TfUYJAWmPDmgBFFHBQelAKiZYejeeU6ntKFT9Iojj2QyX0ejlGJ8iYvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VMQtoI1a; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1782391433; c=relaxed/simple;
+	bh=7Ht0CHhlya6/viuKJgJ+qOX9L4qYHbHXPYw+ZSlYgjs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I8iVUXGuuEk07IENR64De3hMNlXHj3CScd0V3lCVbWXB1o+LTHr/MxhDaiwwyYJjjsaqJp3qH8lamyyhT/FJNwIfCZMUVxXbVLX+x/MyZOw6Fu/7VXyz5kPScUR0DWKIVKGWRwxVE8Uzqhe99JTwrX2xtS2Ju8vtA2B79nBkIko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=NAuZKHz5; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VMQtoI1a"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782382129; x=1813918129;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=SQBp1/yV1ekWdS6nTZnnRLDYKd2I+3byYL5QANtkNHg=;
-  b=VMQtoI1auc2e+1fxiIZzteqHkV2INnjmnFQiBKpB56E0qJo9Fb0mP70z
-   wUmOFgOuN1oLxHFWktMctmPmv5Pyl2yyo+yWDYC5Fw0hN2Qiwt8Th5UAX
-   5Ql2Cw6DW0pjb2QMWIFxgA9EmIjHFiOkSD3hpE1O6R6lfmhv8cwiqguqx
-   1a2cCXWsix56HxoUQanAa42SiZ9ZKjXaZDzOSokhH1iNKBe4NJijPWtxD
-   9UvOUzbOcMiVJlL8L7nQsPZpXLNL1Nn3HgZHhWOoffguNVnXlMMRPnpRw
-   T3rH4HE2JbflHXH/ScumrlAwBhiWMx8tPzfFnn4g1HELl5wO77e2S75e3
-   g==;
-X-CSE-ConnectionGUID: v1Y4xKOhSP+0jC1Prj9+Mg==
-X-CSE-MsgGUID: +/FkZLilTr2TOjrnDN7IbA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11827"; a="82276680"
-X-IronPort-AV: E=Sophos;i="6.24,224,1774335600"; 
-   d="scan'208";a="82276680"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jun 2026 03:08:48 -0700
-X-CSE-ConnectionGUID: XWgTOkmjTHSllxAY9JmTuA==
-X-CSE-MsgGUID: MbtkjO3uQXGUFTFe6b4glQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,224,1774335600"; 
-   d="scan'208";a="250697879"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.153])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jun 2026 03:08:45 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Thu, 25 Jun 2026 13:08:42 +0300 (EEST)
-To: Mario Limonciello <mario.limonciello@amd.com>
-cc: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>, 
-    Hans de Goede <hansg@kernel.org>, platform-driver-x86@vger.kernel.org, 
-    LKML <linux-kernel@vger.kernel.org>, linux-rtc@vger.kernel.org, 
-    Thomas Gleixner <tglx@kernel.org>, 
-    Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: (subset) [PATCH v2 1/2] rtc: Add rtc_read_next_alarm() to read
- next expiring timer
-In-Reply-To: <9415b405-ec6c-425b-8abb-42964f5a2b3a@amd.com>
-Message-ID: <f9a3520d-fdf1-25c8-66d1-d5b06d9f73b8@linux.intel.com>
-References: <20260521043714.1022930-2-mario.limonciello@amd.com> <178233558814.1517260.7453046865036017375.b4-ty@b4> <9415b405-ec6c-425b-8abb-42964f5a2b3a@amd.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="NAuZKHz5"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id E28271A09A8;
+	Thu, 25 Jun 2026 12:43:42 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B53945FF03;
+	Thu, 25 Jun 2026 12:43:42 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 48F29104C973C;
+	Thu, 25 Jun 2026 14:43:40 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1782391422; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=tuVo9EOR9f+Ioh0VbmHAcwroaayMdh8xeHIayvllSUU=;
+	b=NAuZKHz5XphfLMtNUvm8EFcxIHNTZnJNimDsy2xs/DIYqqV/rONXteJySUvock05Frakp7
+	x/rB3/+wmyFKST2/ljz9g94fThO7Apm36Ne1lCWbGDNInnOeHhEXvY7GW0c7ZenTvLtqZH
+	M69kcgIPmvb3q9FGjiEo2k6+lx8f35mhVHCnmeTPdqGz/lpDBBLVeVBCc0DtbSZDAsjlh1
+	OX/BPCa6DK6b99zkXumZS2Vt2EVhoiH1COFHWj+/7IbC2U+F9Gxj7AiobJTcTjqGYE42U0
+	8Gd6Lkdie3tb76t5CFwsDlmPlOWtgpCAiODYC3UKshBJIjtqu+1NC70hMAmTAw==
+Date: Thu, 25 Jun 2026 14:43:39 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>
+Cc: Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>
+Subject: Re: (subset) [PATCH v2 0/2] Fix S0i3 wakeup with alarmtimer
+Message-ID: <178239140188.1613320.1695497134037536107.b4-ty@b4>
+References: <20260521043714.1022930-1-mario.limonciello@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260521043714.1022930-1-mario.limonciello@amd.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Wed, 24 Jun 2026, Mario Limonciello wrote:
-> On 6/24/26 14:15, Alexandre Belloni wrote:
-> > On Wed, 20 May 2026 23:37:13 -0500, Mario Limonciello wrote:
-> > > Add a new function rtc_read_next_alarm() that reads the next expiring
-> > > alarm from the RTC timerqueue. This is different from rtc_read_alarm(),
-> > > which only reads the aie_timer.
-> > > 
-> > > The wakealarm sysfs file programs the rtc->aie_timer, whereas the
-> > > alarmtimer suspend routine programs its own timer into the RTC timerqueue.
-> > > Both timers end up in the RTC's timerqueue, and the first expiring timer
-> > > is what gets armed in the hardware.
-> > > 
-> > > [...]
-> > 
-> > Applied, thanks!
-> > 
-> > [1/2] rtc: Add rtc_read_next_alarm() to read next expiring timer
-> >        https://git.kernel.org/abelloni/c/947d7ea6f60b
-> > 
-> > Best regards,
-> > 
+On Wed, 20 May 2026 23:37:12 -0500, Mario Limonciello wrote:
+> It was reported that suspend-then-hibernate stopped working with modern
+> systemd versions on AMD Cezanne systems. The reason for this breakage
+> was because systemd switched to using alarmtimer instead of the wakealarm
+> sysfs file.
 > 
-> Thanks!
+> But really it uncovered deeper problems with how these timers work.  Adjust
+> the code accordingly.
 > 
-> Ilpo, Shyam,
-> 
-> How do you want to handle patch 2/2?  Immutable branch and come through pdx86?
-> Or would you rather it go through Alexandre's tree?
+> [...]
 
-It would be easier if it too goes through Alexandre's tree and I don't 
-expect conflicts on that area. I've replied with my Ack to 2/2.
+Applied, thanks!
+
+[2/2] platform/x86: amd-pmc: Fix S0i3 wakeup with alarmtimer
+      https://git.kernel.org/abelloni/c/f7ecfc3fe575
+
+Best regards,
 
 -- 
- i.
-
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
