@@ -1,59 +1,96 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44CBB202F71;
-	Tue, 30 Jun 2026 19:28:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E299A202F71;
+	Tue, 30 Jun 2026 19:30:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782847725; cv=none; b=LBxvTaE5fy9RZfGv9PfA3tkqlah8NQdfitu2L9lUmmbjRTJHkPacnEpiG1QOkdscHh8/05DZapuS39BJsOWsqp1qX4ZgnYSiBLRjXNMi/sGeJ+vEseFavbACgZDu0Y2qFxEr9bHUbqfHdUE4DwiZZeaHxRXqtMUxZu5MgbLAfgY=
+	t=1782847832; cv=none; b=bB+4ihwdYhnrlrU3s1FiXMJhXMfUleKuWieovxrDnjzmub+qIqVxaeSSfqp67aG6aP6n4UqPXbMFCZ2Fn5UQR8VKGEzWp6tcJ8EgEfOPiajyOcdI9qNk7YxveeHEG1tMjVsXcgcbk+iGjb/H+zRXAhriPDvqI+lxk+XSZZhU6Y0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782847725; c=relaxed/simple;
-	bh=6vivW5XDH+zbeSdDI3Q94cMlRFbgFu+Ah9jxDnyVH6g=;
+	s=arc-20240116; t=1782847832; c=relaxed/simple;
+	bh=pVwxjc4k12YI/GvQufu+3Nu5mliK1CVmuGrEGYCs7lI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SMwAIN5s01nOX0ozU7hFf/EvUf7HTdykOkWz7PzMl6EQxKFEdbmyRM+0IqZKINufkmsOc5vssHMXzwqwCzPs9AzyI76EBWZAvYoAwcUYqgN0WMQ8Hp1cxBmPYHi//oW2G0W/Y8EyBUaZiWXazg2/nwWrnzSCRFJLeRKWnFgBRbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V3kByLAh; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ecbHgXKYX2mUNnL+NJi/OKzksCmiPTSPgUvg3yBhMTYWx6rYAIyAZETqiC47rgFhDfzhWXrwU6mLJ07BaTWfXrFR/NbQG+SXUFuLu27UsJJn8aq8EUitjy+8C/pw3ckIfznell5G5Bxf3VrkuDyRAwgrh55dcTjztO4fYikdl8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V6wBAcSx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V3kByLAh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29CF1F000E9;
-	Tue, 30 Jun 2026 19:28:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V6wBAcSx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 471AB1F00A3A;
+	Tue, 30 Jun 2026 19:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782847724;
-	bh=6vivW5XDH+zbeSdDI3Q94cMlRFbgFu+Ah9jxDnyVH6g=;
+	s=k20260515; t=1782847831;
+	bh=APVqnV/9U1mbZyK4JxBintbbRuaK/ninax4qiLIaDaM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V3kByLAhldM2wz9DqQ6RvL5rUxnzYOo1tWRZ01CfGI7uaX1hRodejD62+LUvJVPwD
-	 +Dvn27DFvY/PXdvsuAFPzvcpXB5nz5q4HP860hpDV51tD3nkcCLhU7jGAYBZlVdilu
-	 4QNZ8gyy/wsiE8l7KXYPqPehk3fN17vHx/2J69YuMfSlqHgDj7GqUlVKLyHHMWIaCt
-	 PJt4kr9Y9ezMp7PdByoIdGyrxC4JG3/P74QIDpHhYhJ3m6Y8Jztr/0+AmF12fDPTtl
-	 bXdVV/TDbh4ZmKL1mn+2LrkgvZT4175RoCGIyfFFqm5Uj1aUBo4XINjVJCJmvl3ob+
-	 TwdKUc+51bCaA==
+	b=V6wBAcSxMjCcQUTpV0+1RF78g7e0dRSINMd/QmYE39/6yWWNhzRZD0bGiRTmzXsmQ
+	 rha7rcG0/vLdScyJil9M7LS4dUtnFi8IqWtg4HROorYZtTeeYr/8fu3x062PhPW7jq
+	 6HJ/mNDzh8J3iWVvUqpcRFQn0rPOCq2NTNwQcT4r77LVr4kaNa0iapFXq0OA2zK3ED
+	 B1foSSlWjissIAePqgCiVfgtCmc+VuMO4qgWfx7Zv4bnX6wc+youiMe+f0cSS6+w7/
+	 YfLBcKIePvgWLW4tQELwdX81HtFbcYx77fgEv55tMrz1Swvy/VsmXl+WEzQLW6JyPe
+	 7h0SvAjr8xTFQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/3] rtc: s35390a: make use of interrupt signal 1
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add sii,wakealarm-output-pin
+ property for S35390A
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Markus Probst" <markus.probst@posteo.de>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260630-rtc_s35390a_int1-v1-3-1b2239e16be2@posteo.de>
+Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
 References: <20260630-rtc_s35390a_int1-v1-0-1b2239e16be2@posteo.de>
- <20260630-rtc_s35390a_int1-v1-3-1b2239e16be2@posteo.de>
+ <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 30 Jun 2026 19:28:42 +0000
-Message-Id: <20260630192843.B29CF1F000E9@smtp.kernel.org>
+Date: Tue, 30 Jun 2026 19:30:30 +0000
+Message-Id: <20260630193031.471AB1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> If configured, use output pin for interrupt signal 1 for the wake alarm.
->=20
-> Successfully Tested on a Synology DS923+.
->=20
-> Signed-off-by: Markus Probst <markus.probst@posteo.de>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The newly extracted `sii,s35390a.yaml` binding omits the `interrupt=
+s` property definition, causing device trees that wire the RTC's interrupt =
+to fail schema validation.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit da1782a5913222ef5662be378a08ff2b2b0c13fa
+Author: Markus Probst <markus.probst@posteo.de>
+
+dt-bindings: rtc: Add sii,wakealarm-output-pin property for S35390A
+
+Synology NAS devices use the output pin for interrupt signal 1 to wake up
+the system. This commit moves the devicetree bindings for sii,s35390a into
+its own file and adds the sii,wakealarm-output-pin property to configure
+the alarm.
+
+> diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Doc=
+umentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> new file mode 100644
+> index 0000000000000..31a5786738700
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+[ ... ]
+> +allOf:
+> +  - $ref: rtc.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: sii,s35390a
+> +
+> +  reg:
+> +    maxItems: 1
+
+[Severity: Low]
+Does moving this binding out of trivial-rtc.yaml and setting
+unevaluatedProperties to false without defining the interrupts property
+break schema validation for existing device trees?
+
+Previously, the interrupts property was allowed when the compatible string
+resided in trivial-rtc.yaml. Without an interrupts property definition here,
+device trees that wire the RTC's interrupt will fail dt_binding_check.
+
+Should the interrupts property be explicitly added to this properties block?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260630-rtc_s35390=
-a_int1-v1-0-1b2239e16be2@posteo.de?part=3D3
-
+a_int1-v1-0-1b2239e16be2@posteo.de?part=3D1
