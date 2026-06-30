@@ -1,53 +1,53 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6C853C7E1D;
-	Mon, 29 Jun 2026 21:11:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090BC303A04;
+	Tue, 30 Jun 2026 02:07:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782767482; cv=none; b=i32G93zRTq5SIxplZg5eT6JNNMycQnhCUxU+UQH/wMJJbZYGta1zF1mW+nzG4+p5rwnMkqnpRv2aU109eSjqEuKqq40B0eaMUYHHvl+hggqCedMeXfbSk2FkQpw97VreCz1cE1I2kpSxHkRguvM4tUlU+6kpbItmOev0ySnfNYk=
+	t=1782785263; cv=none; b=NoHktF4vkXM09wzZBKTK4q6AgCxpiK1CLau5Bn5fwKDU7+CEllNDjb9pZcLXIupZ4q8Jt7hHuDney0gVz98ivsqQ/v7+A6yAPWmIEL9nhOsDY0yflQnnf0CJlfuWbDBWQw3nO6DpyMozkqVhcQhzs5AR8EH47yRNfsM9eRaJQfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782767482; c=relaxed/simple;
-	bh=MjMuyiEiT7hz3Zll61O2Dlr8UrFTewEY5kUnhavfLC0=;
+	s=arc-20240116; t=1782785263; c=relaxed/simple;
+	bh=bsaQeydx4C2N10MOz6Ofq25jf7K69Ag2f4vGgmrP6/A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t3xGw8+pK0qRQYsXxXlOOr3hSN5V9Bqt2xEKh+45Wv9eX5ZdByZ/JZfCRbc8AjHRKTEP3O2h/bwMHloTUqjxdjOFI+WlVF+8siYrTGoAqL6BjWN2/Pftn4DoApLou+0WOFlV9KRqNbMyWzpNAnWlataq7tsRbowphOdEIksOKqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NJmPRkeL; arc=none smtp.client-ip=198.175.65.17
+	 Content-Type:Content-Disposition:In-Reply-To; b=tIRsvk0tRbHefUIf32isntk0Dsu2zI4SDHpjqu1FJU1VdKLXLbx2Pl7mokOIzVV/IqKKMxSdCrPkzieQqUAZOW+5d0y0DqWm+nqyxQ5txlkq6nXjXO6xrmgXv5m0XIrwkA54cQILCgz8JG7rAtH2gFJRUoNzkmdZPdTICZtxlY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=L2ahhYv1; arc=none smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NJmPRkeL"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="L2ahhYv1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782767470; x=1814303470;
+  t=1782785263; x=1814321263;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=MjMuyiEiT7hz3Zll61O2Dlr8UrFTewEY5kUnhavfLC0=;
-  b=NJmPRkeLEJCqDXUfXsqZfE2+OOObpgegoUuh4iJzUnEYDsN16j/pDDxr
-   Rt9cXE8YDf8hbAIAcri1Ge0afbRefYBvzrR9Nemz8nVsucAw0Lvt5zsxc
-   /hctJCFET8IcIuqJiSVQGwCDGWiXz/2vvsve49OTQnsBpEcVu+ichVXha
-   +ZMbZFARJS/s4qDqVutY357sJzyse14wQBf+0BYg41pWy3R2SSeaURFvj
-   xehquJk66sYXBE8Zgjq2AItMBWErDHTPPRQS8HaR3m3pjJD07p11SRHcm
-   nLcKtktMfaBEL82QEO0AqVRGbCedWWWq0gS86QYuyv6Z0s6JNQhjbmd+P
-   g==;
-X-CSE-ConnectionGUID: UPXr0D8mQ+eP/en9XKEi1Q==
-X-CSE-MsgGUID: lzkkAuUNQdKnwd7gpzw3Bw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="83502820"
-X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="83502820"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 14:10:56 -0700
-X-CSE-ConnectionGUID: /Xic7++iRh2P5K14e+woKg==
-X-CSE-MsgGUID: inGOC2mNSVu5491mi9hXYA==
+  bh=bsaQeydx4C2N10MOz6Ofq25jf7K69Ag2f4vGgmrP6/A=;
+  b=L2ahhYv1M3/L1i6cQgWvCkC39FOozvRXOeSsfrnxzNewRXTKD8mkFMMi
+   TVGR3+j/oiaViF1Nnt3ZbeU2AIekszc5fALWxgcb0hA7sswkGAq7HbQK8
+   W4VgfMzDOMVlgmYHrW/zEJhgrMglZ8baMKA7T3lckEhkQd6fgfkeLD9+s
+   +GMsKc/dP21KGB5nRXUmKrFXJwRJkU5MeeR7ltq1AcH3SoZ/EDyyakkwk
+   TrQnqy+dgBjgWLcYJtK8iYi/g9xDcTMbw3YDQduqVHdEVcqdu5iTr2HS3
+   7NPTDo/dmCXSgBrJ9zQExHULEGqy0r8wGvCPsyVPhwygKdlyyvg4kvYmV
+   A==;
+X-CSE-ConnectionGUID: igtIUlGCQ12yP2C6XGSGIQ==
+X-CSE-MsgGUID: WKCXNUriSZ6ThR0NmKx5uQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11832"; a="83488911"
+X-IronPort-AV: E=Sophos;i="6.24,233,1774335600"; 
+   d="scan'208";a="83488911"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2026 19:07:42 -0700
+X-CSE-ConnectionGUID: Rao15yA3QHuA07SUBzg52w==
+X-CSE-MsgGUID: A9aG38TVRUaSUKkSeKiRBA==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,232,1774335600"; 
-   d="scan'208";a="250375617"
+X-IronPort-AV: E=Sophos;i="6.24,233,1774335600"; 
+   d="scan'208";a="252268543"
 Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
-  by orviesa006.jf.intel.com with ESMTP; 29 Jun 2026 14:10:53 -0700
+  by orviesa007.jf.intel.com with ESMTP; 29 Jun 2026 19:07:39 -0700
 Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1weJFi-000000007lX-13zX;
-	Mon, 29 Jun 2026 21:10:50 +0000
-Date: Tue, 30 Jun 2026 05:10:36 +0800
+	id 1weNsu-000000007x3-0GgA;
+	Tue, 30 Jun 2026 02:07:36 +0000
+Date: Tue, 30 Jun 2026 10:07:03 +0800
 From: kernel test robot <lkp@intel.com>
 To: Fredrik M Olsson <fredrik.m.olsson@axis.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
@@ -55,12 +55,11 @@ To: Fredrik M Olsson <fredrik.m.olsson@axis.com>,
 	Krzysztof Kozlowski <krzk@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Nobuhiro Iwamatsu <nobuhiro.iwamatsu.x90@mail.toshiba>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel@axis.com,
-	Fredrik M Olsson <fredrik.m.olsson@axis.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kernel@axis.com, Fredrik M Olsson <fredrik.m.olsson@axis.com>
 Subject: Re: [PATCH v3] rtc: ds1307: Add driver for Epson RX8901CE
-Message-ID: <202606300521.DkMaPRKi-lkp@intel.com>
+Message-ID: <202606301024.GdcSNC79-lkp@intel.com>
 References: <20260629-ds1307-rx8901-add-v3-1-302dc3cbb71e@axis.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
@@ -82,22 +81,18 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Fredrik-M-Olsson/rtc-ds13
 base:   dc59e4fea9d83f03bad6bddf3fa2e52491777482
 patch link:    https://lore.kernel.org/r/20260629-ds1307-rx8901-add-v3-1-302dc3cbb71e%40axis.com
 patch subject: [PATCH v3] rtc: ds1307: Add driver for Epson RX8901CE
-config: hexagon-allmodconfig (https://download.01.org/0day-ci/archive/20260630/202606300521.DkMaPRKi-lkp@intel.com/config)
-compiler: clang version 23.0.0git (https://github.com/llvm/llvm-project 6cc609bb250b21b47fc7d394b4019101e9983597)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260630/202606300521.DkMaPRKi-lkp@intel.com/reproduce)
+config: loongarch-randconfig-r132-20260630 (https://download.01.org/0day-ci/archive/20260630/202606301024.GdcSNC79-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 16.1.0
+sparse: v0.6.5-rc1
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260630/202606301024.GdcSNC79-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202606300521.DkMaPRKi-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202606301024.GdcSNC79-lkp@intel.com/
 
-All warnings (new ones prefixed by >>):
-
->> drivers/rtc/rtc-ds1307.c:2332:2: warning: label at end of compound statement is a C23 extension [-Wc23-extensions]
-    2332 |         }
-         |         ^
-   1 warning generated.
-
+sparse warnings: (new ones prefixed by >>)
+>> drivers/rtc/rtc-ds1307.c:2332:9: sparse: sparse: statement expected after case label
 
 vim +2332 drivers/rtc/rtc-ds1307.c
 
