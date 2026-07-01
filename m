@@ -1,60 +1,54 @@
 Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 849C63793CE
-	for <linux-rtc@vger.kernel.org>; Wed,  1 Jul 2026 17:09:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D09257824
+	for <linux-rtc@vger.kernel.org>; Wed,  1 Jul 2026 17:34:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782925743; cv=none; b=AJ9aJ0z9+RVms1R3Pi9m0b8IqEx75hcr50lJGsOkv/c/ry+r3R6ei/XkxRY6uDGkPJG3efj5WhAJdIVGIE9dDmQR9124vOkFQTAaICkszq8UFHw7sdgE7lqs7CJTsFd9bpa+a5I14JSwSfhxOqEV+VzOyyWGibTsI/WT3jqTWPU=
+	t=1782927279; cv=none; b=Ok1CVDsH+TURqIm9gvajk9eCqS28tEcNoe6A1T4p65UAexlz6kYMyepwP7PD1g77718nuzl4VUoInYvkhgrLH/VcKb6nFfHQlJB6XWPF/ZNecrMrgKbMpmGY/tvBCeptqgmJfWqBPjrvrWaOB18vm5YA3zMVca/vRKydac7UNso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782925743; c=relaxed/simple;
-	bh=KeqIksPkf1S9u6PJ/z83GgnBLHjifhdxyoIseGrykwg=;
+	s=arc-20240116; t=1782927279; c=relaxed/simple;
+	bh=eHGNBE2w8Y2zj+A2WcojaLqI1MnU7Rum4rNO8bnYQno=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=StGr8maYz+QdAy9zZjpP3umt2W47uiFID0S5POMqPZ05ovy5AIZSFQ0eCPSS/gXU37ht4mIUhTxo8jOMDV0zSARPn7FoDrpr31lZ5MY4nYiswz1YokP65F8eB+OYMkipQ7CHsMzZxZ3oZ+jm2CAsk7dCtcLGdVQ+Z81Ge5OH87I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=ZXVNBLCW; arc=none smtp.client-ip=185.67.36.66
+	 Content-Type:MIME-Version; b=jyfsUtM0za7MWRYCgEfvuMeRMGzWv2cJ2gqsqVuIweIZlPahxOpVHY0Kv9aqkZqAq3JBtqnjwklHf35h0aXaz2UKW6CCMQKoZ5zt0pkLUzvN3TMr0dCiaEP8np9pqLMmCrKtc7GZkPBhYbmv9Rdz55ozkoUE/76f18+F4zSb8Po=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=jLZaxhpB; arc=none smtp.client-ip=185.67.36.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="ZXVNBLCW"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="jLZaxhpB"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id AA83E240104
-	for <linux-rtc@vger.kernel.org>; Wed,  1 Jul 2026 19:08:59 +0200 (CEST)
+	by mout02.posteo.de (Postfix) with ESMTPS id 9C247240105
+	for <linux-rtc@vger.kernel.org>; Wed,  1 Jul 2026 19:34:35 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de; s=2017;
-	t=1782925739; bh=4PWNFl6ZQByziaVhB18vyfYMIONrw43O1wXv6AV4AJI=;
+	t=1782927275; bh=sFnduIEfzTelI/qGOJcaAiSoi1cQ4sBh6Iidu4lwHVM=;
 	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
 	 MIME-Version:OpenPGP:From;
-	b=ZXVNBLCWMy3t4/CaP7U0StQrTQ62R+/4rkV7cwtzwQ+lgmZtB5CPrDUhZ+4WEGRTH
-	 e/RieupFb5+zExVdJuJeIIBsEk89/vNgdhaah/7dgMQnUOU7auAXpyU78wTlOYgh9a
-	 cY3MZrhKyXmq112N9m5ZCSKyYksWGKMKyXBHQQAPF7iFGcHw0QKng0LJcjXxQASGSv
-	 wOGPeiEYr1RbTFhejDTYQh7nv3TRMVLw5AUxGnZ/xqjxrzonCzpRvQ3JymFjUqqny5
-	 kw3B57GteqYwL6cC7SpSiauRRhaqUub2TnbYiNmCkNq/td+9l+NROGnwxYnIbgTnjB
-	 qeVohwwEwg3zQ==
+	b=jLZaxhpBkB2C+nX53mkmVQQ1cLHk2n0MumxeYnYmF45PSydMvivtn3flsJuJ8yFAA
+	 GVu/LP8uQy62Zy+fJQ60lM20kgiB7pxCmw3AqgSo3asDRS7s86j/XOOnoprqU+OQQE
+	 2Xai7dCch2NHSHy+LW2sJODVuZJCFm6SIpe7NFjbAV6ilMhLH1466ytYGrTQa3DP+Q
+	 X2KcFfPvx/PR1QQ2uzOMvmgbs+caVAhTZtqZCA6jFq/gFC7wRJxaezvFKw/Vfc0Vtz
+	 bVWbd2rL9pUXWNIJlJDGNVBoiZAwbI6H+vUmc3F4gsdMip+vQPd3F8zIxtWnGZSsTZ
+	 G0ZR7lXyVbbfw==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4gr61P69jzz9rxM;
-	Wed,  1 Jul 2026 19:08:57 +0200 (CEST)
-Message-ID: <74b32ed0a700e3900c0f34d730b2b5b69eb2ca19.camel@posteo.de>
+	by submission (posteo.de) with ESMTPSA id 4gr6Zy27LVz9rxD;
+	Wed,  1 Jul 2026 19:34:34 +0200 (CEST)
+Message-ID: <c2b910e58bc523f2cb83df28400a675385ef65d2.camel@posteo.de>
 Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add sii,wakealarm-output-pin
  property for S35390A
 From: Markus Probst <markus.probst@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski
-	 <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Uwe
- =?ISO-8859-1?Q?Kleine-K=F6nig?=
-	 <uwe@kleine-koenig.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement
-	 <gregory.clement@bootlin.com>, Sebastian Hesselbarth
-	 <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, 
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+  Conor Dooley <conor+dt@kernel.org>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
+ <uwe@kleine-koenig.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement
+ <gregory.clement@bootlin.com>, Sebastian Hesselbarth	
+ <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, 
 	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
-Date: Wed, 01 Jul 2026 17:08:59 +0000
-In-Reply-To: <20260701164821b7492eac@mail.local>
+Date: Wed, 01 Jul 2026 17:34:35 +0000
+In-Reply-To: <202607011506045358209c@mail.local>
 References: <20260630-rtc_s35390a_int1-v1-0-1b2239e16be2@posteo.de>
 	 <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
-	 <20260701-bronze-jaguar-of-perfection-028bac@quoll>
-	 <45e8157be53c3d8827fcccece7f706968bc056d3.camel@posteo.de>
-	 <7de66163-369e-4118-af51-6913b565fa4b@kernel.org>
-	 <d06dd0726aa3795ae99df5fa8a9c05d6e2001efd.camel@posteo.de>
-	 <20260701164821b7492eac@mail.local>
+	 <202607011506045358209c@mail.local>
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  keydata=mQINBGiDvXgBEADAXUceKafpl46S35UmDh2wRvvx+UfZbcTjeQOlSwKP7YVJ4JOZrVs93
  qReNLkOWguIqPBxR9blQ4nyYrqSCV+MMw/3ifyXIm6Pw2YRUDg+WTEOjTixRCoWDgUj1nOsvJ9tVA
@@ -100,7 +94,7 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  dQNGrZ91M9nlIBKw8Y7c7xZ4098qX2b8JX/CxD+gC1r4C8vuA3GkhFLx+KlkON7LyiJPkrePp6Qky
  jfGillcaQOqFZ3WwVqyzG1BUfTow==
 Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-QMgkZ3jnmlt4sJFDDbT9"
+	protocol="application/pgp-signature"; boundary="=-/2u+iIun9SPxCmVGLVKh"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -110,106 +104,106 @@ MIME-Version: 1.0
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
 
---=-QMgkZ3jnmlt4sJFDDbT9
+--=-/2u+iIun9SPxCmVGLVKh
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2026-07-01 at 18:48 +0200, Alexandre Belloni wrote:
-> On 01/07/2026 16:43:07+0000, Markus Probst wrote:
-> > On Wed, 2026-07-01 at 17:14 +0200, Krzysztof Kozlowski wrote:
-> > > On 01/07/2026 15:25, Markus Probst wrote:
-> > > > > > +
-> > > > > > +maintainers:
-> > > > > > +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
-> > > > >=20
-> > > > > This should be someone caring about this hardware.
-> > > > He does have the majority of commits on this driver (excluding merg=
-e
-> > > > commits and commits not exclusive to this driver), although most of
-> > > > them are pretty tiny.
-> > > >=20
-> > > > Who would you suggest instead?
-> > >=20
-> > > Someone adding features for this driver, maybe driver maintainers. Bu=
-t
-> > > if Alexandre is fine, you can leave him.
-> > >=20
-> > > > >=20
-> > > > > > +
-> > > > > > +description:
-> > > > > > +  The S-35390A is a CMOS 2-wire real-time clock IC which opera=
-tes with the
-> > > > > > +  very low current consumption in the wide range of operation =
-voltage.
-> > > > > > +
-> > > > > > +allOf:
-> > > > > > +  - $ref: rtc.yaml#
-> > > > > > +
-> > > > > > +properties:
-> > > > > > +  compatible:
-> > > > > > +    const: sii,s35390a
-> > > > > > +
-> > > > > > +  reg:
-> > > > > > +    maxItems: 1
-> > > > > > +
-> > > > > > +  sii,wakealarm-output-pin:
-> > > > > > +    $ref: /schemas/types.yaml#/definitions/uint32
-> > > > > > +    enum: [1, 2]
-> > > > > > +    description: |
-> > > > > > +      The output pin to wake up the system.
-> > > > > > +      Default will use the output pin for interrupt signal 2.
-> > > > > > +        <S35390A_OUTPUT_PIN_INT1> : Output pin for interrupt s=
-ignal 1
-> > > > > > +        <S35390A_OUTPUT_PIN_INT2> : Output pin for interrupt s=
-ignal 2
-> > > > >=20
-> > > > > Does that mean device generates the interrupts?
-> > > > Yes.
-> > > >=20
-> > >=20
-> > >=20
-> > > Then I think you miss interrupts property.
-> > From what I can tell the line is used to generate a system wakeup
-> > event.
+On Wed, 2026-07-01 at 17:06 +0200, Alexandre Belloni wrote:
+> On 30/06/2026 19:22:21+0000, Markus Probst wrote:
+> > Synology NAS devices use the output pin for interrupt signal 1 to wake =
+up
+> > the system.
 > >=20
-> > There would be no obvious benefit of connecting it to an interrupt
-> > controller, so this property would be obsolete?
+> > Move devicetree bindings for sii,s35390a into its own file.
+> > Add sii,wakealarm-output-pin property to enable the use of the output
+> > pin for interrupt signal 1 for the wake alarm, which makes it possible =
+to
+> > set an wake alarm on Synology NAS devices.
 > >=20
+> > Signed-off-by: Markus Probst <markus.probst@posteo.de>
+> > ---
+> >  .../devicetree/bindings/rtc/sii,s35390a.yaml       | 54 ++++++++++++++=
+++++++++
+> >  .../devicetree/bindings/rtc/trivial-rtc.yaml       |  3 --
+> >  MAINTAINERS                                        |  1 +
+> >  include/dt-bindings/rtc/s35390a.h                  |  9 ++++
+> >  4 files changed, 64 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/D=
+ocumentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> > new file mode 100644
+> > index 000000000000..31a578673870
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> > @@ -0,0 +1,54 @@
+> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: S-35390A 2-WIRE REAL-TIME CLOCK
+> > +
+> > +maintainers:
+> > +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+> > +
+> > +description:
+> > +  The S-35390A is a CMOS 2-wire real-time clock IC which operates with=
+ the
+> > +  very low current consumption in the wide range of operation voltage.
+> > +
+> > +allOf:
+> > +  - $ref: rtc.yaml#
+> > +
+> > +properties:
+> > +  compatible:
+> > +    const: sii,s35390a
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  sii,wakealarm-output-pin:
+> > +    $ref: /schemas/types.yaml#/definitions/uint32
+> > +    enum: [1, 2]
+> > +    description: |
+> > +      The output pin to wake up the system.
+> > +      Default will use the output pin for interrupt signal 2.
+> > +        <S35390A_OUTPUT_PIN_INT1> : Output pin for interrupt signal 1
+> > +        <S35390A_OUTPUT_PIN_INT2> : Output pin for interrupt signal 2
+> > +
 >=20
-> Then you need proper wakeup-source support
-Wouldn't that break existing devicetrees?
-
-The current driver allows to wake up the system, even without
-having=C2=A0wakeup-source set.
-
-As an example: arch/arm/boot/dts/marvell/kirkwood-ts219.dtsi
+> Ideally, we'd get a proper pinctrl driver part for this because what
+> happens if you want interrupts on both pin or clock output on both pins
+> or any combination of interrupts and clocks?
+>=20
+Yes.
 
 Thanks
 - Markus Probst
 
->=20
->=20
 
---=-QMgkZ3jnmlt4sJFDDbT9
+
+
+--=-/2u+iIun9SPxCmVGLVKh
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmpFSaEbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSq/oQAI/3MjA8ZT7kUcnfTCD3
-U1Usgjef9N4VmZAXdwcBaCBCNeZMz877e4BDi/Hmuelpwd+xdKJfnhmBz2mtYf0Z
-MJdICoVnztQlRWs0eS79ZwuyWNKjI/p9OIfvSZHKOHUHMfs4FIo73TkQP8T1WYtW
-g1Zs5nXDniGeVGPutSYQD6Ji/JTh7iY6wXr1oBf9p4ZH5ff0ibHz4hj+6ILt8RJO
-3a1Pg/62AYUgs3WJHNJx52nudk0PmR0MCleiRWr0BQE+2PMAgl7m4Fxo0e23wejs
-faAp2dDgu1KY4xHls+7WYLiulf+dBPYccURhTyinOPZep2yuXbO1kMT0H+Xtp7MA
-I+y3pPIc7sjOEcYwiIv5n7PuRoW5Fcpcv0EDfCc9aDC8fcfPQj1LWUNatreJ38vt
-ZOFntozKWWkr/pFgfGcQCJrwg2mW/5Ifp3rH0B0YKjPIAkeFIXkj+dKgMek7n02z
-2wlBS/94T2BXBQlWP7vRv+g3++BIEFruIOAQKGHCi7Bw4UtS1qbhNDImBtlGeVtr
-PxOm1lhzh5R8zFm2M/zGoaaU6xaXp387n7W+1BOnC+nJhL4Mwn2HkpD30AtDuWm5
-XUu30EdMAj5rJnB9y70rbXXKG9S/ioLg6+OdZ+CwGIxM7dLVlZGthUX5sKR3IEx8
-g2PP+n0rJOEfSblcwGqLnHVs
-=MVyr
+iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmpFT6IbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSS/EP/0InCbRWpPfmdYxplz+y
+bKjJSHRM3BwQuvuXPYfYS5+tMDRqz4uvEY8hZg64argZ409I7EKKqqD7oX6Cczk2
+kYW8fOI0Cskw8CqB299LPx0KwrI7iwW9tSoKK4NGOlYX11Cjq2OJSqnE2Ft+fpy7
+Fz0ji9bvl3RAyUCamxbWJTRrdtIMiW2Y6PhHFBVoE4FWLIDBTkuV4MftrkUOWt2S
+1o2jgOiOG1vqzOvg5INJOoDC5LoPagqqkBXxxTutMvz5qHJRUun7VXecZ2bVi7It
+7cm9rTtv0iUNke5jTsLPzOAhk8GkPNlIK0Bt21eM/Q5Xfo3pyz5ATCo8+7l83SGe
+5sEyB8jOYG4xTg1d55sndZZUG36z2Z+Jtfr8h+lT+P4q6oz2RMbeAeHeQZ8SgzSA
+G0R1qtvysseC61tvLbnCd06VKPIilTVgyLMPR7jXwwu7QOieoJz2mM5HgWXyguoO
+DnbifMSazYmqcIGm7oGiK06wYJ3/tG7j1kxQ2I2wEOr5wPzMkW5ehsR+t3tBDWXr
+DdSW+iFL56mzzTy+Nq+tbOfw8UzWR4dYXIbE0Wg77Lv/570yYPPnomOA5SBrZzag
+U+MfPCtxGLxADbH8hZPcF+KaqLg+tRW5a2BcLFI83gCuBlYUkGdlPLmA5OCqG6O3
+WhhPPl0fGrF7P8YX0aIMahbw
+=ITFG
 -----END PGP SIGNATURE-----
 
---=-QMgkZ3jnmlt4sJFDDbT9--
+--=-/2u+iIun9SPxCmVGLVKh--
