@@ -1,150 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 976F134D90D;
-	Wed,  1 Jul 2026 14:54:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91B435F191
+	for <linux-rtc@vger.kernel.org>; Wed,  1 Jul 2026 15:06:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782917696; cv=none; b=Iad02pwdUK22XmVMYAwxBdJ8p0BXsT7oRSclBZ9cRQaUGuxKI/eqd9JCEUWRg2YnknAy52dYNPU9dcxigVK4AhzxxmVg00X9F7Fz6+ijwbvub4x04F1DhiVMJ10Wo0nTr/7pSjTI8u8Ly5mzXJ6zOOVvtgY32QLqMAC8H8W9F8s=
+	t=1782918375; cv=none; b=o+Tp/dzsQaIb9IO2HaSoU6UetMflZJtNKA7FcsMwGNT97E0bkMabk5jnV7zXFpLzoYO6PXUqFU9jThCNIRoPL/Mu/zwhWRAwXWH4wHzLxqCcpi2G3ywyB68LviZ3qOpV9GHrctFNol+sn1xNIK1oIaPIMiSobXEkKlaXCrqahm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782917696; c=relaxed/simple;
-	bh=gOB6MCVt61sAymgIqsQEgtwiydK+N8TrTVRMuQ1j7Ek=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KJmoVJryYxmCyskPM1JSb7JkVc/dnWX4luZNqHYDBTMeOFWikF27WY6w8gb/ix1R75u7OA3IfRs2QdGyKqqk0vZuyM5EULMQzII+1V5uOEQwgSKRYRkdM1TL7fdhtcjw3StBgZJ45NolyRcanXn96FTrmXfNEac9L03L2ulytys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=owKcthBT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782918375; c=relaxed/simple;
+	bh=40DAFIKcf6IQceQcuuDpe4FoxoaNob9uttMJyD75Zbo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rD7LhzayRqmV4abYB32ufq/0XTBSPJWvK4O/CxkbF0rOVEF1tEOfzi10rRxi3VBk/JO5rokCzoQkJg3ueglXM5C6xMJy4W/bxxvH6EYLd9RYW+cU9m/b+Ys4e8hXEG7Mn1pbCV7jQOjCY7PylBo1z7R+AsTxmqIxxQRSLaDwt5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=JLv7Ai2y; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="owKcthBT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B451F000E9;
-	Wed,  1 Jul 2026 14:54:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782917695;
-	bh=SDR3KQw9qtIa5D9+VfKzhnvqQCKPssYPjRfAjZS0Jq0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=owKcthBT8KfImP7ppFbeEpd++V8mdALHFfA1kFZQB895D73tcfNTm371VhfBF0E6d
-	 zxQDHd3EPMflYFkOpIHvuGxRz4SqfQfbrOb/U6dXKjxeu5+GzmOUauY1TfcgFfHzcE
-	 Of567sU5Pnlx8oDGDFYU9OULzzal9sQ09NPUSjM0053NOxOCrg5d5GCmAuETAANXle
-	 mhsCrVKP7ii58UFDYcI9svSnVv7R+3vxcUEtjzXP5bQoTf5gvxnPZ90C9PDnXtsIPF
-	 e7aKC9/blzFN3eeHZp361PDFAMCawu7NH3AMRrTY3D53YxV62WvZCWa4YaLIk9tExS
-	 21o309jBfpDgQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/10] rtc: rzn1: Add support for Renesas RZ/T2H and
- RZ/N2H SoCs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: robh@kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260701142953.2014895-11-prabhakar.mahadev-lad.rj@bp.renesas.com>
-References: <20260701142953.2014895-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260701142953.2014895-11-prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 01 Jul 2026 14:54:54 +0000
-Message-Id: <20260701145455.02B451F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="JLv7Ai2y"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 3D2964E40BEF;
+	Wed,  1 Jul 2026 15:06:09 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 0A64460288;
+	Wed,  1 Jul 2026 15:06:09 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 89E6C104C9645;
+	Wed,  1 Jul 2026 17:06:05 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1782918368; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=BjhULqYYe7aqWqvOdN5jU6JmlKc3RFwCqnUuIsbeyD4=;
+	b=JLv7Ai2yY6blvstUvW3ztpWuaqzlMgb1OZsGbyufFN0tuKY8MF14/EhvfK0iqJTIXYxXlC
+	iMcc82BsKs1eFYCi64PUIyx/sgXkAePL9LOu99ZRKfga6KlmHwH2aAnm3C7Et2GJATOKU8
+	baSQvvz2LReir8Hs+pjfJ0l7W2Vnv3cZT6azWlATwKH0gIsABHhGjZBjPL2qexVbZoTjUg
+	ooOYoyhyobJJHbxIKLSPAKArlZlbBwMgNk6k0osnpkyLmMpRPGM8NDM9FIHsvs6Pk9ZJQA
+	K/ChPLWTCUx4tc+MLKzOS+tVJE0cgRDIxwgB8LulUCm3txoxgRX73ne7mtMbgA==
+Date: Wed, 1 Jul 2026 17:06:04 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Markus Probst <markus.probst@posteo.de>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add sii,wakealarm-output-pin
+ property for S35390A
+Message-ID: <202607011506045358209c@mail.local>
+References: <20260630-rtc_s35390a_int1-v1-0-1b2239e16be2@posteo.de>
+ <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] The driver does not enforce SCMP mode for the new RZ/T2H compatibl=
-e, allowing an unsafe fallback to SUBU mode that accesses the unimplemented=
- RTCA0SUBU register.
-- [Medium] The driver clears the entire `RZN1_RTC_CTL1` register to disable=
- interrupts, which inadvertently destroys the state of the RZ/T2H-specific =
-1 Hz output control bit.
---
+On 30/06/2026 19:22:21+0000, Markus Probst wrote:
+> Synology NAS devices use the output pin for interrupt signal 1 to wake up
+> the system.
+> 
+> Move devicetree bindings for sii,s35390a into its own file.
+> Add sii,wakealarm-output-pin property to enable the use of the output
+> pin for interrupt signal 1 for the wake alarm, which makes it possible to
+> set an wake alarm on Synology NAS devices.
+> 
+> Signed-off-by: Markus Probst <markus.probst@posteo.de>
+> ---
+>  .../devicetree/bindings/rtc/sii,s35390a.yaml       | 54 ++++++++++++++++++++++
+>  .../devicetree/bindings/rtc/trivial-rtc.yaml       |  3 --
+>  MAINTAINERS                                        |  1 +
+>  include/dt-bindings/rtc/s35390a.h                  |  9 ++++
+>  4 files changed, 64 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> new file mode 100644
+> index 000000000000..31a578673870
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> @@ -0,0 +1,54 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: S-35390A 2-WIRE REAL-TIME CLOCK
+> +
+> +maintainers:
+> +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+> +
+> +description:
+> +  The S-35390A is a CMOS 2-wire real-time clock IC which operates with the
+> +  very low current consumption in the wide range of operation voltage.
+> +
+> +allOf:
+> +  - $ref: rtc.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: sii,s35390a
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  sii,wakealarm-output-pin:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    enum: [1, 2]
+> +    description: |
+> +      The output pin to wake up the system.
+> +      Default will use the output pin for interrupt signal 2.
+> +        <S35390A_OUTPUT_PIN_INT1> : Output pin for interrupt signal 1
+> +        <S35390A_OUTPUT_PIN_INT2> : Output pin for interrupt signal 2
+> +
 
-commit a19c5bdab6f846898749c84cf9743ad18017cdd8
-Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Ideally, we'd get a proper pinctrl driver part for this because what
+happens if you want interrupts on both pin or clock output on both pins
+or any combination of interrupts and clocks?
 
-rtc: rzn1: Add support for Renesas RZ/T2H and RZ/N2H SoCs
-   =20
-Add support for the RTC block found on the Renesas RZ/T2H (R9A09G077)
-and RZ/N2H (R9A09G087) SoCs by matching the new
-renesas,r9a09g077-rtc compatible string.
 
->     These SoCs integrate a closely related variant of the RZ/N1 RTC IP.
->     Unlike the RZ/N1 implementation, the RZ/T2H and RZ/N2H variants lack
->     the RTCA0SUBU register. However, this register is not accessed when
->     operating in SCMP mode using the existing rzn1_rtc_ops_scmp
->     configuration, allowing the current driver infrastructure to be reused
->     without modification.
-
-[Severity: High]
-Does the current driver infrastructure guarantee SCMP mode is always used?
-
-If the xtal clock is missing (since devm_clk_get_optional() is used) or
-if its rate is exactly 32768 Hz, scmp_val remains 0:
-
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_probe() {
-	...
-	xtal =3D devm_clk_get_optional(dev, "xtal");
-	if (IS_ERR(xtal)) {
-		...
-	} else if (xtal) {
-		rate =3D clk_get_rate(xtal);
-		...
-		if (rate !=3D 32768)
-			scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
-	}
-	...
-
-This causes the driver to fall back to the SUBU ops:
-
-	if (scmp_val) {
-		writel(rate - 1, rtc->base + RZN1_RTC_SCMP);
-		rtc->rtcdev->ops =3D &rzn1_rtc_ops_scmp;
-	} else {
-		rtc->rtcdev->ops =3D &rzn1_rtc_ops_subu;
-	}
-
-If this happens, the SUBU ops will access the missing RTCA0SUBU register,
-which can trigger a synchronous external abort. Should the driver use OF ma=
-tch
-data to identify variants lacking the SUBU register and explicitly prevent
-assigning rzn1_rtc_ops_subu?
-
->     The RZ/T2H RTC variant also supports a 1 Hz output signal on the
->     RTCAT1HZ pin, controlled by the RTCA0CTL1[RTCA01HZE] bit. This bit is
->     marked as reserved in the RZ/N1 hardware manual, making RZ/T2H a
->     distinct RTC variant despite its overall compatibility with the RZ/N1
->     implementation.
-
-[Severity: Medium]
-Will this 1 Hz output signal be inadvertently disabled during probe and rem=
-oval?
-
-During probe and removal, the driver unconditionally clears the entire
-RZN1_RTC_CTL1 register to disable interrupts:
-
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_probe() {
-	...
-	/* Disable all interrupts */
-	writel(0, rtc->base + RZN1_RTC_CTL1);
-	...
-
-If the bootloader or firmware previously configured the 1 Hz output signal,
-won't this unconditional write to 0 destroy that state? Could the driver
-perform a read-modify-write operation to clear only the interrupt enable bi=
-ts
-instead?
-
-> diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> index e77b7e7bcd5bd..26a5cde41c6b2 100644
-> --- a/drivers/rtc/rtc-rzn1.c
-> +++ b/drivers/rtc/rtc-rzn1.c
-> @@ -518,6 +518,7 @@ static void rzn1_rtc_remove(struct platform_device *p=
-dev)
->  }
-> =20
->  static const struct of_device_id rzn1_rtc_of_match[] =3D {
-> +	{ .compatible	=3D "renesas,r9a09g077-rtc" },
->  	{ .compatible	=3D "renesas,rzn1-rtc" },
->  	{},
->  };
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260701142953.2014=
-895-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D10
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
