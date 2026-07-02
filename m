@@ -1,55 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AD6949690E
-	for <linux-rtc@vger.kernel.org>; Thu,  2 Jul 2026 13:23:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14084A2E34
+	for <linux-rtc@vger.kernel.org>; Thu,  2 Jul 2026 13:23:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782998607; cv=none; b=hTppAmZSkV6+dGAxbj6hbDciE/rACSaeio4msF0NSAxzjULzpD2imPxun2PH0LHxxFSW5Cmrg5Ekh24kT82UtvViNQ0GrRKhAkPYJWSIKkgrMx10JhwsACG9u86Y6XDqeSSY46WxDyJhkcUXoaVgMiYITaBKUq5Gok4Njp7VMA0=
+	t=1782998625; cv=none; b=eQutotDtSy2wOSfESW/aCVtfdv9QT1XwIEVTudkiZewPCfw7rOKfPfiAx4q6ff0tokMnUlv/5JBRnDbV1kCaaJgQOfdplcBW6IhaWHEakR5hz8+Y78oxyEHsIzScc+K8oK1YZu5dhTY+cT+NhOarlkOglAOm1sUmhXGn9N2Qomo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782998607; c=relaxed/simple;
-	bh=O/+xDYMCTDVOyhlY3bdOgfogvDZjRIBQUbYt9QjBRk0=;
+	s=arc-20240116; t=1782998625; c=relaxed/simple;
+	bh=Ftfht9dESKSAPnwFSJWWBdA4NbYVeXe2TbeMTZhp/yw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CCKH9Ai5dg8bLQ7+ZW0drBF5TsViU/gFXKrtVyT4rJKnsXBg8UdDzXHXK105i0nVAXO/OVa/70xE8hIk/t0zyABfC2jw+GRx1AUSZXm6oNc2qjYE++uO1inuQeau5bg1hQl3ZTaxJUzSwQMQDWDLGJkGFEZNV6JG3ozTnRyycig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lqbaxj3f; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=ME1NFVDIwWSuIN3NI4ekMXtB8gfkAkQbHwxrl9jkUVxXEDXr0djy9mX6BI/GU8IF+rUaA9UNbJ3K8V65Cmy/t5s+Orv83G7+UvnCl0oEVv6Qmr4HBKaDe61I4gv1hBr7l1ttPWYPW2SQLmb1dFUS1jA2mZvy/dlTi+VswGumZSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kyB1Hces; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lqbaxj3f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234021F00A3D
-	for <linux-rtc@vger.kernel.org>; Thu,  2 Jul 2026 13:23:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kyB1Hces"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86D621F00ACF
+	for <linux-rtc@vger.kernel.org>; Thu,  2 Jul 2026 13:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782998606;
-	bh=O/+xDYMCTDVOyhlY3bdOgfogvDZjRIBQUbYt9QjBRk0=;
+	s=k20260515; t=1782998624;
+	bh=Ftfht9dESKSAPnwFSJWWBdA4NbYVeXe2TbeMTZhp/yw=;
 	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
-	b=lqbaxj3f3sxqz5zXLRjl2SjXgVF2ARha+OAma9+j1biQ+VwgoG5UBa4YwqGIrw3uS
-	 1qXzdt/kY8BGNTq0nRffGkovhq/FPQcFGuitj/QOQh4EVlvdOZjtgdCwAMXR3crPKv
-	 a9p3F2iAwPgNyMfH9exKu+FoPlltpsyR9b9tti3TCPhqnPtCTm3FBQ4s0qsXadd0xT
-	 Yy0vWhz0rVsw4Hnhvys4WT4ssEcGUKzRkUD0kWUCf4Vd1poFUxp4OZI0dSRrN36wIG
-	 WSKkFehInXE4OnsbaDnNoqkgYFelTo+mIqZMKTkCgNTC+Qjl40HI5eZ7o/QPdhhjNJ
-	 hc25E3eOqDpOg==
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-39b1eb7bde5so15596981fa.2
-        for <linux-rtc@vger.kernel.org>; Thu, 02 Jul 2026 06:23:26 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RqxT+Q++98k3WKsjk+CNta3XLcSYxGWD9syjpfbU5jtScVAhy/oNNlvsFhoa2fi9HGKG0ibMeCXF+E=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzb/+0QcKbqtmrhaOaNlPS4+tO1NSFAhcDSNzlGgbdktxSWxpI+
-	7aVWujZNw17cgK+FkZOC+SC+2hSr9m37j7hKSbN8Q1gFUARpL4920aDz1DuF6LjRJB7Xd5xEseW
-	meP+WoUSHWQb/O+JTK5HwucU37zpKetA=
-X-Received: by 2002:a05:651c:993:b0:39b:4231:8b85 with SMTP id
- 38308e7fff4ca-39b42318d0dmr2458931fa.40.1782998604620; Thu, 02 Jul 2026
- 06:23:24 -0700 (PDT)
+	b=kyB1Hces0wWh7ITVH83tofR1cvz9azT2RIgKhMZiUHOLi76dxMGG4pz4f4qxpNFFl
+	 YW+ZD1uKlxOMP03k5feVx2bhrvLpKyiPOl3rkc6UXDAGAmZ8AKsVtnS96fvY+ZeKq3
+	 9BBZnsysjR5jMg8Vxsr/LsUJ0mkMwOTFsqN60/IB0ELV95lgjUAfrytOd60+Ubhl97
+	 axTfYyy6qBtwXCaxQKpIIIcFlytA7UJhzTfo0xVlYDFFoo6HxiKR2rgfOXj+HODlE7
+	 SnVjsX0vfhO99nYiUtak/RjJCwtQxjmaYcpnCU8Wq0VoFU+VaLpDW7Z8ZI41yqfXqS
+	 SMkdtLYVGmo8w==
+Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-39b1eb7bd9bso17416731fa.2
+        for <linux-rtc@vger.kernel.org>; Thu, 02 Jul 2026 06:23:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RoXbZUKSRQiUmasaa98c/YCVr/0udOSr0NylTDW/1qBu+JU4r2KAIPsL1h2g4r+OyABQS05s4+sRrM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzglkKRa2MbneJYy2PCQfKRLuTYp7UirmtAkoUIkOJAjCRtxoYX
+	9UoofcwwU72LL3sZaxeI0g1/N1sZ+ZEMWUJTKhaETLbNjwWWUMILO6B22jstc3OyOlSpf1u+RIX
+	qfLuU40b/cOEE78zESwIigWiK5Mw0Qr8=
+X-Received: by 2002:a2e:ad13:0:b0:393:a31a:ab3c with SMTP id
+ 38308e7fff4ca-39b34044d9cmr12431061fa.25.1782998622933; Thu, 02 Jul 2026
+ 06:23:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260702-a733-rtc-v3-0-eb2580374de6@baylibre.com> <20260702-a733-rtc-v3-3-eb2580374de6@baylibre.com>
-In-Reply-To: <20260702-a733-rtc-v3-3-eb2580374de6@baylibre.com>
+References: <20260702-a733-rtc-v3-0-eb2580374de6@baylibre.com> <20260702-a733-rtc-v3-1-eb2580374de6@baylibre.com>
+In-Reply-To: <20260702-a733-rtc-v3-1-eb2580374de6@baylibre.com>
 Reply-To: wens@kernel.org
 From: Chen-Yu Tsai <wens@kernel.org>
-Date: Thu, 2 Jul 2026 21:23:11 +0800
-X-Gmail-Original-Message-ID: <CAGb2v66KapepNOPf7ef5dd_AqDQdVBo-cFOJrR_Deu0zA0xWaQ@mail.gmail.com>
-X-Gm-Features: AVVi8CeV6-IjWgsA2LmKA_98iO6chNHg3C1q7oOyJiDDAU0-Mdj71gMQi3ZmkpE
-Message-ID: <CAGb2v66KapepNOPf7ef5dd_AqDQdVBo-cFOJrR_Deu0zA0xWaQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/8] clk: sunxi-ng: fix ccu probe clock unregister on error
+Date: Thu, 2 Jul 2026 21:23:30 +0800
+X-Gmail-Original-Message-ID: <CAGb2v66YUmQNwRG_WtL_2NQTOyLFQD8=q0bZ+Gs_-aKQ4FhsDg@mail.gmail.com>
+X-Gm-Features: AVVi8CdgR5HOst5qEMn_2lQsiwLdv5IzTcHwmWkZLAYWxm6nynDQErb8y43I3bQ
+Message-ID: <CAGb2v66YUmQNwRG_WtL_2NQTOyLFQD8=q0bZ+Gs_-aKQ4FhsDg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/8] dt-bindings: rtc: sun6i: no clock-output-names on h616/r329
 To: Jerome Brunet <jbrunet@baylibre.com>
 Cc: Junhui Liu <junhui.liu@pigmoral.tech>, 
 	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
@@ -66,20 +66,13 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jul 2, 2026 at 4:10=E2=80=AFPM Jerome Brunet <jbrunet@baylibre.com>=
  wrote:
 >
-> When registering clocks with sunxi_ccu_probe(), the number of ccu_clocks
-> and the number of hw clocks might be different, eventhough they usually a=
-re
-> the same.
->
-> If they are different, it could lead to out-of-bound access or registered
-> clock left behind on error.
->
-> Use a different variable when iterating on hw clocks so every registered
-> clock, and only those, gets unregistered on error.
+> On h616 and r329 chips, clock output names are never defined through DT a=
+nd
+> are not meant to be. Just disallow the property for those chips.
 >
 > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://lore.kernel.org/r/20260629131254.7E34C1F00A3A@smtp.kernel=
-.org
+> Closes: http://lore.kernel.org/r/20260629125305.0DF981F000E9@smtp.kernel.=
+org
 > Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 
 Reviewed-by: Chen-Yu Tsai <wens@kernel.org>
