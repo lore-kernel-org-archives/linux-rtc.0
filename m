@@ -1,62 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60ADD38AC6A;
-	Thu,  2 Jul 2026 08:29:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E35342A798;
+	Thu,  2 Jul 2026 08:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782980989; cv=none; b=fwCpkvUX2DVc5YAencK6evYKUEicrf6qHlS6Tlr0lFfBel11VsE6Y2ifzqM8poknIrIoKyZZ4OMh4ZwjlqI1cglRyBmZtrCPJjNxYd0v4DRanZ8uynkqTlVbGKS2LuDATmL8VNvoP3buR96EGldqmQG3J8yGbYWYkpfB8T7JZpw=
+	t=1782981326; cv=none; b=E8pwrMJbRGYVo5i5m3CaTxmsDXvbqVPUK3D5C2A9lQoAl/9SrbFf+GTS0mRl8dqr4+WVxunfqnL56QFY0h8VaAxWtC0d7A/XSQLT8b7JjmK6bYcyjvNr0Z1lh/tDz9za3pHezIoNANIzYE9hyDFbw46EJcVD36zHB8R1fJWub3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782980989; c=relaxed/simple;
-	bh=yrMEMX3OmVYWzrymBeazAOguz3dnpqyzjY713ncy3ys=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U4oUne2Cw/whV11qM9unBs9mCJSIwQWmbXnPMjfytDI5r5DrYUDyBETFQx7YGsxab5pgG0Eayq9tgCXVZ320H7vUysckzvD3lKvTARvmHLp1kvTJS+tTw/YqmJQxaFctN+4qxZBheKdTva5+h8n2naOlF3O8Qh1767OO09F4BbM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NWybdUAA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782981326; c=relaxed/simple;
+	bh=Ui5nKZ9kIlm2Qxi2QG/TTlT978eJ07IL4k6NbZcpY2c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uM8M5r6vjXBymwxYafXUu01Jcd9QnPOd13TYp9Ugrwk2Rpv1eZz0LlfQ/WKiPRljKzm0Pxbn4WTi96dn8EtIM/JSaT0hT/9OuYWhgu4fca+gxsntUd7Xrx1uwK8A376LgfXRw1glstIKmJWrCxRx1xZfhYAoy1nixJqnhGwXtjk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=saszGIV/; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NWybdUAA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B5AD1F000E9;
-	Thu,  2 Jul 2026 08:29:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782980988;
-	bh=yrMEMX3OmVYWzrymBeazAOguz3dnpqyzjY713ncy3ys=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NWybdUAA8Gk8TKPgckOmu36dFMAi3epklCMSRAu2v6/p3OAN7t3MTMc/WuMAgxI9X
-	 0E4PcKROHhCE5bYUfsl8vNvXPJ1anMFY56vYv27VhWOkRdBNOVz73SnnHQU4aGA+Hk
-	 APqxbfvAZobKs3eTyuYDJtnjN3NA3TDwren5C3DNG6CSZu914xV8I4gsU0HjRHh8oT
-	 YIHp6rq8YNTIlhUcBqScRQGUEPCmtb+DzytqnDXEzetFvOTxjU+/WU/JAI/vGpljC3
-	 2SikaoCikKUEVQJAjNfIV5O412CGwAKOSLvCLcPNUll/HnXTATbJwrkP58qw+6vxdR
-	 x47OyoUzFWThw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 8/8] clk: sunxi-ng: sun6i-rtc: add a733 support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jerome Brunet" <jbrunet@baylibre.com>
-Cc: conor+dt@kernel.org, robh@kernel.org, linux-sunxi@lists.linux.dev, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260702-a733-rtc-v3-8-eb2580374de6@baylibre.com>
-References: <20260702-a733-rtc-v3-0-eb2580374de6@baylibre.com>
- <20260702-a733-rtc-v3-8-eb2580374de6@baylibre.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 02 Jul 2026 08:29:47 +0000
-Message-Id: <20260702082947.9B5AD1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="saszGIV/"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id DC97B4E40C29;
+	Thu,  2 Jul 2026 08:35:22 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B12185FF03;
+	Thu,  2 Jul 2026 08:35:22 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 486C3104C960E;
+	Thu,  2 Jul 2026 10:35:18 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1782981321; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=v3XoWcvCU8wzeGoOynPkYxwnAByrmkOU41swl4JF6g4=;
+	b=saszGIV/t7Y7j0JCiRiMUZrrUjHgBxZCHRP9SZrxi6DyLprb0yS0sqEUUCgbVRd1j2kDc0
+	mmV+Laa54Jw23TXNMja9633XtjD8NiBsMe3Kp2lBv2d+oAdyoaAQaSjr/yx/Rw3AXjVS48
+	/7gmJKz2k6Xxff3YAjAbIvnU7lUZF9MhDwYr/j0imQtjLeJiPpaCC0fbG5OYSbto/VEO02
+	MwGmNXVAzg2tf90MBY0RClJyont9a5FyoivIAuz6GiJYx8vrtvTv3ImtWQwrkR/i5SPe0F
+	XNqBBcQuTOxaC+xM5I56CdSoyn18G8woFKkwT49z17GjmweTSDTvd+qX8fls7w==
+Date: Thu, 2 Jul 2026 10:35:17 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Markus Probst <markus.probst@posteo.de>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add sii,wakealarm-output-pin
+ property for S35390A
+Message-ID: <20260702083517a6b67a86@mail.local>
+References: <20260630-rtc_s35390a_int1-v1-1-1b2239e16be2@posteo.de>
+ <20260701-bronze-jaguar-of-perfection-028bac@quoll>
+ <45e8157be53c3d8827fcccece7f706968bc056d3.camel@posteo.de>
+ <7de66163-369e-4118-af51-6913b565fa4b@kernel.org>
+ <d06dd0726aa3795ae99df5fa8a9c05d6e2001efd.camel@posteo.de>
+ <20260701164821b7492eac@mail.local>
+ <74b32ed0a700e3900c0f34d730b2b5b69eb2ca19.camel@posteo.de>
+ <187099d0-5e09-49c2-b67d-8bd4366ff1a0@kernel.org>
+ <202607020817017cde494f@mail.local>
+ <887cb4e9-d60d-47b5-9110-e00d18e9e46c@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <887cb4e9-d60d-47b5-9110-e00d18e9e46c@kernel.org>
+X-Last-TLS-Session-Version: TLSv1.3
 
-> Add support for the sun60i a733 CCU RTC.
->=20
-> Compared to the a523, this SoC has a different input oscillator divider
-> which auto-detects the oscillator rate and select a divider to provide
-> a fixed 32768Hz clock. It also provides several phy reference clocks
-> with dedicated clock gates.
->=20
-> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+On 02/07/2026 10:20:20+0200, Krzysztof Kozlowski wrote:
+> On 02/07/2026 10:17, Alexandre Belloni wrote:
+> > On 02/07/2026 08:09:55+0200, Krzysztof Kozlowski wrote:
+> >>>> Then you need proper wakeup-source support
+> >>> Wouldn't that break existing devicetrees?
+> >>
+> >> How?
+> >>
+> >>>
+> >>> The current driver allows to wake up the system, even without
+> >>> having wakeup-source set.
+> >>
+> >> Anyway, wakeup-source is already there in rtc, so this would be done. I
+> >> don't get though, why there is no benefit of routing it to interrupt
+> >> controller (interrupt controllers do wake up the system). Additionally,
+> >> if you do not connect it to any interrupt, then how does it wake up the
+> >> system?
+> >>
+> > 
+> > Some systems are routing the interrupt output of the RTC directly to the
+> > PMIC and the PMIC is the one responsible for waking the rest of the
+> > system, including the SoC.
+> 
+> Yeah, then the PMIC has interrupt line to the SoC and the PMIC is the
+> wakeup-source, not RTC.
+> 
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+This would be case 3 of Documentation/devicetree/bindings/power/wakeup-source.txt
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260702-a733-rtc-v=
-3-0-eb2580374de6@baylibre.com?part=3D8
+> Best regards,
+> Krzysztof
 
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
