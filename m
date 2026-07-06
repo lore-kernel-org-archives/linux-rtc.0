@@ -1,64 +1,66 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E39873FF88C
-	for <linux-rtc@vger.kernel.org>; Mon,  6 Jul 2026 09:32:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C824252D3
+	for <linux-rtc@vger.kernel.org>; Mon,  6 Jul 2026 09:32:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783330352; cv=none; b=Jw20xNbNDnfnih6o+IRo/6PlSF1t5Our9NZrlVyfZjI7xZk+ON8BxjdBX0QOBdYi5sJkv6btKaQygelKKLJylmpea+CegVYNoPNbGSdHTTUjE+XG1XBpVv44A8+lnrAsQlabMMktbRGh2aLmemDHQkSM3V6Kfwyj4jjz/NdqZys=
+	t=1783330355; cv=none; b=ZRcBMQVtuO9xiXG9NCTIRHIsRVEGPfjVv098ix4ZbKBo2yJrmlB+0EZ0wKj3k/n/sT35z3frFPwCf7lXAOz5dFZ3fMTOPPQNHBkwEOW3uclvxf7Mm56LHhZlxMO635Fp4GkPIDXfhzm1+TvNbWQVVlsb8fXrKRuWYK/sXWLFQBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783330352; c=relaxed/simple;
-	bh=7r6e0BxSzZOlBZqjxDeJNnpI3oGS8Amus0XcLy8TcCE=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=FIgQHpTBiCej/+xPnEGEo57GTZ74+07E7lckboor5b5t38HK9vJ6AbeR4uq6Xvg4YKyRWMYqlJtxpOse8X93sKoLFz+AUUf7sQGTmYBdy/yPWvzcBO5Dt/XM4LLtXjsJy77CzYTMV3SHFdM1GmIF8eyQL+2MZ+aqAq/RCCyMUNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=T3Jl8/R4; arc=none smtp.client-ip=209.85.221.41
+	s=arc-20240116; t=1783330355; c=relaxed/simple;
+	bh=WTrYWpPBbp5/IQCt79i6cOc1+cJ+5cUXj7Xxnm4AgUM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=LxwP/87toYgZMi59MxrWflF+EjGwdmzuZ5M5NFB/yi440KFeMdLdap9pXygA2BvLzEHsnvC2jwd6FiXzG7SCZBhYyFzHzw78OyKyO8rTpdVkAcdqpL8L8FXQf+UF5dQRcgmODaGgN3+7zpTdBXKGUewJ6ye+T3yTgecknuHkbMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=KGVSC1tN; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="T3Jl8/R4"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-4798bea72f9so1676433f8f.1
-        for <linux-rtc@vger.kernel.org>; Mon, 06 Jul 2026 02:32:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="KGVSC1tN"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-493c52cde9eso28947095e9.3
+        for <linux-rtc@vger.kernel.org>; Mon, 06 Jul 2026 02:32:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1783330347; x=1783935147; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=CGWHjLvseR49oiYZ4VJv8W2FD9SlQLrFTs2lm2K5pds=;
-        b=T3Jl8/R4IPLr5Tw+3SBVP77UpW250ACk3oHQtzsolpf2a+aEmQtMNsNMf+5PKtbsmh
-         7CrcL02SJ9Rtvp8zdUk9XEY9tV6GPadfOQXSfjxoaBYeyTUQlnU8DYHm7LOJqEt1H/od
-         rZM1jkv7xDeX05VjEX84f6yynGHLucnFlDptsYtCeBkl4fP2RIlEMADGuOFufqpJr3Jm
-         r1Kxne6QHNy9KvS8OlpDFNxwSS48hAittmSQ0Hv/YWZRQXM6LgcGZZ2lH3jkwSgFsHlw
-         PeBG03fvkKfdGGHMmcFWDPt02ezf7/xKIsrCCWG1FMfJtKgMuI0Z8nX3DGC/PbNR3Qzz
-         uU6Q==
+        d=baylibre.com; s=google; t=1783330349; x=1783935149; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rHNoM5YOqmuEFsBCD4vOioHygdVjHI2mw0dlIWWfPx0=;
+        b=KGVSC1tN+8gP10+03qB+OMQ6eQux1yX3pR80elByKlQTEWvRb+UZfw+/h5oCKPCAfO
+         LUeFkNS5HiUPFiRN6XLYd0fWgRjv43LqHtOHkdy9m+XtHPthcwXdO6hyBNDK0KvBWJ8x
+         P1B9xWXS1RF1s/Qiow4AwEdgfEfV97qLo7ZzroDXd0Kuie1xwDAvbBxHYYMOyojdzBr9
+         u68WcC1H1KVqLz6jF5Gvl3ETXj1Q1h9LB9RgFrRul+1BkiFUXFhKQo5izMJn/HPgiDwa
+         qPbkQiLLjf7Tqni5afJJsUvYCk92gQR3yaI6m1j8m8aou9iGmbnjxBxEtnpDQDRdEFTb
+         +Qng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783330347; x=1783935147;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CGWHjLvseR49oiYZ4VJv8W2FD9SlQLrFTs2lm2K5pds=;
-        b=ic3SBFjJLT5uXWb6o3cUbE2XqY85nihE+vrsESaf+7Va7dkNK+JDfrxxGfxsDDfLab
-         Zz7RdmeuPJjw69RSqRmd+jSjc6H7BrA/cVLkdLslgLsLQXFFpLCoDBOp8oavrqAcMjVM
-         YZTNDDwY/Y4nfxl23GZwI/CGsr7Q0KcPDhHvEKFz2BdJfSAYR9kEBCrTcfBPsF8JnTBn
-         dhfgxTO6zyE5/swsfiNKgM7QttbgSwwjoh9ZWo8VNcyWFCMcYeimt5ZIzwFjdcsTGRbg
-         Y3yf9LR7QtrnN7mR2v2Uu/5hwDuy0FXrH16LgLz7Yfnngqxg339xCucr9ECYbY5qG55s
-         yIOw==
-X-Gm-Message-State: AOJu0Yy3A7cnYUcAfDtSriB/FYreqVZtKE5hyR7Vmwsd3tBDktrn8tbt
-	zpjbBwzNR2BBADSlWC3QkYWa2uLlTDRVrd0XLm8lBG62rlzCsGWzdzpgDBmwEJTkdm4=
-X-Gm-Gg: AfdE7cnjPKO06iZxKRb05qTf1vzcIn4cSblbvn4quIoxG7HFMiZ+ZBfFkOFyNEbNWYC
-	RbqZvhgWuaWJhdxGQs1blNc0F/blixCF44DHch0Lv2y7Vg91S1a5pRWCta4fI5ccpRpexpG5Wq+
-	0uk4lABXwaDed+s+GLI4XWjqSHrsS7EiFvayQeN/j6zRXPG9mIOHXQ5rvuZ1exqDUEp+Wcrq3lr
-	vzcbvG56gA1XjHLdq53wBTM8eTyQhFOUFPqalEbRjGksphpPPv9EihfML68ZTZ7hB/vz9h/Ho+G
-	scN7RJGEg6AvFPGYPbDQoqIza6H4D76siX5toqJMiFyaaHE7Z3Ks59ydYZxQcYHtHddNBWqXrMD
-	8VRyX/+AUrDFI7nZATmYKrS+6qz0yoZ4DVAiiq6H4tcPPncqQTD9lKwlLwY22ai6eeS5W40kji1
-	17rrgIFI+BJtk=
-X-Received: by 2002:a05:6000:4288:b0:462:6aa1:4393 with SMTP id ffacd0b85a97d-47aaa60fb9emr9104104f8f.4.1783330346835;
-        Mon, 06 Jul 2026 02:32:26 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783330349; x=1783935149;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=rHNoM5YOqmuEFsBCD4vOioHygdVjHI2mw0dlIWWfPx0=;
+        b=GeNa6eD84Al996QbY9gWeEx/UZNr40W4+DTOXea3AJLdzaN+j6mnt008JcJE1ax4JL
+         7vUN+DEaZVMOJzU7G6bCXYs+92/WdaLa4/dhDx9F3dfch3LA8nebBaNk1rXs1IgHQERq
+         iulOgQJhNwh5Dv+ja6GqAI0ttywEe8SeYnFMjv4l/Va6Pj/RCQVQIcDar7glhcxkOXGj
+         IJ1CzeS/utuoDUlF5/LuEz43vHe/ojGJUuLVQqaD538PV2+scNoI61JkayGg1zii64Wn
+         MWjA5DpJSn1VsOnWmO1ljmAY3pg3tTZSkkRYsZbZftm16eJFEg9UbY63dAEcSVM2V26j
+         2VYQ==
+X-Gm-Message-State: AOJu0Yyrbw4fbOnqBFXxqMIGnzUT2Idb4F3kG/uxY3XHY/U0es3VwJqf
+	iAP3tMpH0mYlDZNQLyIeBUFJfJHji2kN7zbTZSNGp4kf3oKC7kYsW5ey5tvEYLZIGYM=
+X-Gm-Gg: AfdE7cknJ4mRsxxlmdgQpJSj0Z4JcT9YmGX5SXsYiMnPv/USAAnyQoXBUrh943hkjvW
+	PvKgrkUVjKKMrFYycIUwnuvrrIbC7QrtgpOG2QFXhERz1M3D3hU7f0YPmSK7qeRSsOI0k3N1e0l
+	UkFtKFQ3giPSw+eD2crARACvzCfB4+h3Jhd9HRcU/3DMjvSrjfdeX1Dilk6aksaoxNca14wz/Vj
+	pwyZ63BDSgpVzakWujpOxAbDdN5Kfr03aL6dUy/Ly77PZbQXb9KyrpeYOhlrExEyXHoKnaZgowE
+	5Cn1tk26Eoleob1ItiuzPsa/rLw8UPBqwnb05nIsk29TYz1en8UKVxxD1u3OGBhVNXsntCUXnsg
+	gGHQQlj3feacgEzssUTP1KNrjHTGZJFklvFGbSH+X9lCFGShsPJX2EyRnuZ/+gnAt/A66kmf3zQ
+	07XHPenMUFH40=
+X-Received: by 2002:a05:600c:524a:b0:493:bcba:3d5f with SMTP id 5b1f17b1804b1-493d11d7fecmr118661335e9.13.1783330348753;
+        Mon, 06 Jul 2026 02:32:28 -0700 (PDT)
 Received: from localhost ([2a01:e0a:3c5:5fb1:1495:8c97:96f4:dff8])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47a9de1d91bsm27289985f8f.4.2026.07.06.02.32.26
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47aa0f213e8sm20505835f8f.34.2026.07.06.02.32.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Jul 2026 02:32:26 -0700 (PDT)
+        Mon, 06 Jul 2026 02:32:28 -0700 (PDT)
 From: Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH v4 0/9] clk: sun6i-rtc: Add support for Allwinner A733 SoC
-Date: Mon, 06 Jul 2026 11:32:08 +0200
-Message-Id: <20260706-a733-rtc-v4-0-f330728db3d3@baylibre.com>
+Date: Mon, 06 Jul 2026 11:32:09 +0200
+Subject: [PATCH v4 1/9] dt-bindings: rtc: sun6i: no clock-output-names on
+ h616/r329
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -67,11 +69,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIABl2S2oC/12MwQ6CMBAFf4X0bE27LS168j+MB1oW2USBtKSRE
- P7dwgXjcV7ezMIiBsLIrsXCAiaKNPQZ9Klgvqv7J3JqMjMQUEoAw2urFA+T576Uxjat1GiQ5fs
- YsKXPnro/MncUpyHMeznBtm4RIwxcjkgCLrh1FqQEW+m2url6fpELePbDm22dpA7XCvhxVXbRQ
- VkJZXWD5s9d1/UL1Jg0Qt8AAAA=
-X-Change-ID: 20251226-a733-rtc-c5167df14e6e
+Message-Id: <20260706-a733-rtc-v4-1-f330728db3d3@baylibre.com>
+References: <20260706-a733-rtc-v4-0-f330728db3d3@baylibre.com>
+In-Reply-To: <20260706-a733-rtc-v4-0-f330728db3d3@baylibre.com>
 To: Junhui Liu <junhui.liu@pigmoral.tech>, 
  Alexandre Belloni <alexandre.belloni@bootlin.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -86,88 +86,60 @@ Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
  Sashiko <sashiko-bot@kernel.org>, Conor Dooley <conor.dooley@microchip.com>, 
  Jerome Brunet <jbrunet@baylibre.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3103; i=jbrunet@baylibre.com;
- h=from:subject:message-id; bh=7r6e0BxSzZOlBZqjxDeJNnpI3oGS8Amus0XcLy8TcCE=;
- b=owEBbQKS/ZANAwAKAeb8Dxw38tqFAcsmYgBqS3Yc0UHOfsE1Xd7pmqULYPfQpfhgD9Q5xOmEN
- 5uHJa5XDD6JAjMEAAEKAB0WIQT04VmuGPP1bV8btxvm/A8cN/LahQUCakt2HAAKCRDm/A8cN/La
- hYKDD/43rfDQ7Hhrw7gxzzrVsf1tZVz4a7BRQskWh9hyhtC2hSRxXyIZWkwuVHLY5ADWStB5wqu
- J8ZdQoEyZ3h7XAW1X49mRdaOQNwtXrI7tBgpAE1diKd23we1YKiala5pNFLlz54QG6q/h22M7zh
- tUt0eX+na3K+FvaOQq78QJyoMC3+egZZ+szZdBu5DdbwxoFwM4bw5TgfNQ6pLO5h/sPpDv4nAtS
- /Se293weQK5PdqjxPKtEqThTC5H8G5tLkxNj9cQr9/VT0c1Ix+5H/wyrBWpxrHs5FyO10BKp9Xf
- zogld4MWweZ17X8TsyHqcT/DnUmvgMHze520cGE7pliJYnv9cwlZfMy2hYwFh+a6KSUyYUWB7pH
- +KR4ju6NGz5rrad0bKpFXuc53E1KG34PwP/N4fAjnT6c9vTat4VOrwLZMGACEzCS0bnv1ecEfKw
- PTCfEeJVG7FYr6SXJzdBoEjm5gsy4DYWk2PBq+23Oid71hbBjv2nCnkwLOM2SOPLOuLjvNfx3gd
- 71+MnfTMoI8RDBbl487hTBn4i66guUOJ+uOL61VDlcVdtPPzYTIH5rx/GrnNTGL0NxA5+25+uvE
- rVpm4ZQXHLxU3w/IVvdTUaNw/igOiuR1bqg+pmGW5bSQBbNlvghzwsHg1JNwDu5ohWx+c5gvS0G
- RBMfGm+SxJt4caQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1343; i=jbrunet@baylibre.com;
+ h=from:subject:message-id; bh=WTrYWpPBbp5/IQCt79i6cOc1+cJ+5cUXj7Xxnm4AgUM=;
+ b=owEBbQKS/ZANAwAKAeb8Dxw38tqFAcsmYgBqS3YgZ1kmVhbAFJg++nhyvscPyVSYf6qHpsfzf
+ Q5jILv6M+OJAjMEAAEKAB0WIQT04VmuGPP1bV8btxvm/A8cN/LahQUCakt2IAAKCRDm/A8cN/La
+ hS2yD/9JC6LOTzoSad/DXBsiHV19K0GF3iopYtiTD2yka1JwfFAt56fW4Ql6js+tCDHjIR/8dNl
+ ZCcQ37QX7+/ncxfGw35t5noFVL4eEv+HD0mAHkuiruSHXdtTQcc3TtTCtFdxRdg0WfjEIPUjCVl
+ ecRZ3eMUxmbWUPEsSh6keNgpfZbmb+fow923az1r05IuTJZPvHCrp+h7kMHfAUfQv3jBW+Jitn2
+ z1mXPL3Gp3GYRKAlruc7+fiwvN2dTZyzAH3v1Yzz+fLxz37C+XyK0djx/bbXdr1fLifB5rkCDSB
+ 14rD40d8cmUaKNROMLYfXMRTclaPfpxDyXldQLSn+0monEBssPO/tacKg32NUKJZ60Pc6oEKfYc
+ tYxLDc0BE6z5jWxIC77CfkVuWwZULNDFT2BJPAKuj71gyThxusvr9rMIHlRu80ZFQY1xnZnOv52
+ PBXVB9zZvmQkdbA7vZPwVVF7Rokh16UAHovkwZe+qOU99rQlDp+VaJSqXqYYqvxZTl4YE9Yf3N2
+ AHiykcCHHT5HwgOsR/UlVThdLgH3dAvBJVF+7dnb+/e6T46AhEnI8WmeR66G8k+XgfXFh2ot6Lz
+ wxebV68uC56VToYtAcrpAYtv9FpCPDy3HxCM8xErN232vbr9iAZPYICXQbCYACoOJTgIwdI/WY5
+ /pSukiBC+wiN44Q==
 X-Developer-Key: i=jbrunet@baylibre.com; a=openpgp;
  fpr=F29F26CF27BAE1A9719AE6BDC3C92AAF3E60AED9
 
-Add support for the Allwinner A733 RTC and its internal Clock Control
-Unit (CCU). Reuse the rtc-sun6i rtc driver while introducing a new
-SoC-specific RTC CCU driver to handle the hardware's evolved clock
-structure.
+On h616 and r329 chips, clock output names are never defined through DT and
+are not meant to be. Just disallow the property for those chips.
 
-The A733 implementation supports hardware detection of three external
-crystal frequencies (19.2MHz, 24MHz and 26MHz), which is represented in
-the driver via read-only divider operations. Implement logic to derive a
-normalized 32kHz reference from these DCXO sources using fixed
-pre-dividers. Additionally, provide several new DCXO gate clocks for
-peripherals, including SerDes, HDMI, and UFS.
-
-This was tested on a Raxda Cubie A7A.
-
-Changes in v4:
-- Remove unneeded export of mux prediv helpers
-- Link to v3: https://patch.msgid.link/20260702-a733-rtc-v3-0-eb2580374de6@baylibre.com
-
-Changes in v3:
-- Disallow clock-output-names DT property for h616/r329 chips
-- Fix ccu probe helper to properly unregister clocks on error
-- Implement .determine_rate for ccu divider RO ops
-- Drop unused DCXO_CTRL_REG_EN define
-- Link to v2: https://patch.msgid.link/20260629-a733-rtc-v2-0-7b72112784f8@baylibre.com
-
-Changes in v2:
-* Changed DT bindings as suggested. Those have changed significantly
-  since v1 so I did not pick up Rob's review trailer
-* Support added in the existing RTC CCU driver rather than a separate driver
-* Added DT parsing clean up of the existing driver
-* Xtal detection exposed by RO divider rather than a MUX.
-* Dropped conversion to aux device for now. This is not strictly related
-  the a733 support and will submitted again later on.
-* Link to v1: https://lore.kernel.org/r/20260121-a733-rtc-v1-0-d359437f23a7@pigmoral.tech
-
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: http://lore.kernel.org/r/20260629125305.0DF981F000E9@smtp.kernel.org
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Chen-Yu Tsai <wens@kernel.org>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 ---
-Jerome Brunet (8):
-      dt-bindings: rtc: sun6i: no clock-output-names on h616/r329
-      dt-bindings: rtc: sun6i: add sun60i-a733 support
-      clk: sunxi-ng: fix ccu probe clock unregister on error
-      clk: sunxi-ng: sun6i-rtc: clean up DT usage
-      clk: sunxi-ng: div: add read-only operation support
-      clk: sunxi-ng: mux: remove unneeded export
-      clk: sunxi-ng: sun6i-rtc: split main oscillator div and gate.
-      clk: sunxi-ng: sun6i-rtc: add a733 support
+ .../devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml     | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-Junhui Liu (1):
-      clk: sunxi-ng: sun6i-rtc: Add feature bit for IOSC calibration
+diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+index 9df5cdb6f63f..959a012c626f 100644
+--- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+@@ -175,6 +175,18 @@ allOf:
+         interrupts:
+           minItems: 2
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - allwinner,sun50i-h616-rtc
++              - allwinner,sun50i-r329-rtc
++
++    then:
++      properties:
++        clock-output-names: false
++
+ required:
+   - "#clock-cells"
+   - compatible
 
- .../bindings/rtc/allwinner,sun6i-a31-rtc.yaml      |  13 +++
- drivers/clk/sunxi-ng/ccu-sun6i-rtc.c               | 123 +++++++++++++++------
- drivers/clk/sunxi-ng/ccu-sun6i-rtc.h               |   3 +-
- drivers/clk/sunxi-ng/ccu_common.c                  |  12 +-
- drivers/clk/sunxi-ng/ccu_common.h                  |   1 +
- drivers/clk/sunxi-ng/ccu_div.c                     |  42 +++++++
- drivers/clk/sunxi-ng/ccu_div.h                     |   1 +
- drivers/clk/sunxi-ng/ccu_mux.c                     |   3 +-
- drivers/clk/sunxi-ng/ccu_mux.h                     |   4 +
- include/dt-bindings/clock/sun6i-rtc.h              |   4 +
- 10 files changed, 162 insertions(+), 44 deletions(-)
----
-base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
-change-id: 20251226-a733-rtc-c5167df14e6e
-
-Best regards,
---  
-Jerome
+-- 
+2.47.3
 
