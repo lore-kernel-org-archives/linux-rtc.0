@@ -1,133 +1,160 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from luna.linkmauve.fr (82-65-109-163.subs.proxad.net [82.65.109.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B62390231
-	for <linux-rtc@vger.kernel.org>; Wed, 15 Jul 2026 02:29:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05AE492180;
+	Wed, 15 Jul 2026 17:52:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.65.109.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784082564; cv=none; b=lQQN/0sVw50gPDROlxC2FUHe5NtGRnp3O7ygTS0YSy/L+YtZyDgig5MP4eMYxOwD2I64yew0d0yhYPsFbV+gOZixBhkSgXRN/vLZDT/6b5amFOAN5GB6Jy7EyVl53LLxOS/VUpZwTfegpcE+2jNLNg+kygHfd1JqkuBpateIkhw=
+	t=1784137980; cv=none; b=NUY/ezLr3HSaIRlrSNEKrHWHPczVSvMgJrD0d2k9vNCb4TIfz+ja1VxdutrtwKGvAmkpg2ptlJMXYu+qpOmTVrhRwcLevWfRKTtXJLJ5PTf+9R7ZXwegIrgpqmWx4FzL0lK3iJ27lhoPtqHsF+0zm/XZuKO/Y4UPnJS7wvfJPrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784082564; c=relaxed/simple;
-	bh=yTeuFGFVBZGYk5/ZRgVlpkcwyL2uMGxdjRMxnnTFmP4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=VHwn81bDUx75Gf7sl96+LDEHAtVUwh5vlb0V9CwKMqxYTWMKCXtr2f/dXILPxr3hB+BHruGjpO0XFwN7YIf6Ire53KN8eBQPXIdoaQ3WC/GKMPWlknXAfslhQfV+RdR/SUBv6trwEea3bO0o/f8vnwUQIgMobIoKKMMy/kgnwXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iVNVJ0Do; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iVNVJ0Do"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843FB1F000E9;
-	Wed, 15 Jul 2026 02:29:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784082563;
-	bh=2AOsIv6yry7gh9KfxDUue3Xt8TLJGyAlByGbXbwaOjs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iVNVJ0DoEO8zGS/wlfJQK1EGiHMjRwtntuJVj5/VjFokc7SRpo1gJTF804cD+UrU6
-	 cynd3h1ehi4qNTGo+GQZID+ZuMVbAfl7/hD5amdKo4mATQrfZSqp0nyzdDPTKqJEZ6
-	 Vvvxe6SGOek83V7bSSENTDLyoz50+C3o9vwq8yMEaFvu9Teuxly/tkMwEvLUSlwiQ5
-	 znhSlg22VSWR21Wk50Bo7d2DAFYoVQITrkJOTWjp0zGplepPLKARk42nHGr0xM91Z7
-	 EDBqVcebRl/HtXHUjslhXjVTFWM3qBv1loKpUdzzDtF+UNZhv8aW3KN6ZAaimTJeBO
-	 6p6su81fYIpew==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: stmp3xxx: use devm_platform_ioremap_resource()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rosen Penev" <rosenp@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260715021933.1551663-1-rosenp@gmail.com>
-References: <20260715021933.1551663-1-rosenp@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 02:29:23 +0000
-Message-Id: <20260715022923.843FB1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1784137980; c=relaxed/simple;
+	bh=e2X4aAIB35tnuNFFrR/sMDVNB8hl9ij7Uv+uzc+FvF0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=av9vGnhkGI02PA8xsG38ojIRNrcF4KLJgWG3Mg58GvaJGfxMxs/TIVntlOgQ9/y9y0XspK4GT+q+b3FdZGflBQZiITlMe94JGns7TXKwGFfvfjsg2mrC4uP3mJ3ndPYys2S0AThkiMpUkJHXQtuHF5FJDYVNcTWtf4OomjQFewQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr; spf=pass smtp.mailfrom=linkmauve.fr; arc=none smtp.client-ip=82.65.109.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linkmauve.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linkmauve.fr
+Received: by luna.linkmauve.fr (Postfix, from userid 1000)
+	id D52EEF40D22; Wed, 15 Jul 2026 19:52:45 +0200 (CEST)
+From: Link Mauve <linkmauve@linkmauve.fr>
+To: Srinivas Kandagatla <srini@kernel.org>
+Cc: Link Mauve <linkmauve@linkmauve.fr>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Tianshu Qiu <tian.shu.qiu@intel.com>,
+	Bingbu Cao <bingbu.cao@intel.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Roger Quadros <rogerq@kernel.org>,
+	Tony Lindgren <tony@atomide.com>,
+	Lee Jones <lee@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	"Vaibhaav Ram T.L" <vaibhaavram.tl@microchip.com>,
+	Kumaravel Thiagarajan <kumaravel.thiagarajan@microchip.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>,
+	=?UTF-8?q?Andr=C3=A9=20Draszik?= <andre.draszik@linaro.org>,
+	Orson Zhai <orsonzhai@gmail.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Praveen Teja Kundanala <praveen.teja.kundanala@amd.com>,
+	Kalyani Akula <kalyani.akula@amd.com>,
+	Michal Simek <michal.simek@amd.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Joshua Kinard <linux@kumba.dev>,
+	Antoniu Miclaus <antoniu.miclaus@analog.com>,
+	Chen-Yu Tsai <wens@kernel.org>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Gary Guo <gary@garyguo.net>,
+	=?UTF-8?q?Bj=C3=B6rn=20Roy=20Baron?= <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>,
+	Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Tamir Duberstein <tamird@kernel.org>,
+	Alexandre Courbot <acourbot@nvidia.com>,
+	=?UTF-8?q?Onur=20=C3=96zkan?= <work@onurozkan.dev>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Johan Hovold <johan@kernel.org>,
+	Ronald Claveau <linux-kernel-dev@aliel.fr>,
+	Salah Triki <salah.triki@gmail.com>,
+	Yury Norov <ynorov@nvidia.com>,
+	David Carlier <devnexen@gmail.com>,
+	Achim Gratz <Achim.Gratz@Stromeko.DE>,
+	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Patrick Wicki <patrick.wicki@siemens.com>,
+	Markus Heidelberg <m.heidelberg@cab.de>,
+	Markus Perkins <markus@notsyncing.net>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Abd-Alrhman Masalkhi <abd.masalkhi@gmail.com>,
+	Chen Ni <nichen@iscas.ac.cn>,
+	Kees Cook <kees@kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-amlogic@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-omap@vger.kernel.org,
+	mfd@lists.linux.dev,
+	linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-msm@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-rtc@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	rust-for-linux@vger.kernel.org
+Subject: [PATCH 5/8] iio: pressure: bmp280: make reg_write callback take const void *
+Date: Wed, 15 Jul 2026 19:52:21 +0200
+Message-ID: <20260715175229.24672-6-linkmauve@linkmauve.fr>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260715175229.24672-1-linkmauve@linkmauve.fr>
+References: <20260715175229.24672-1-linkmauve@linkmauve.fr>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+The previous commit switched from a pointer to mutable data to a pointer
+to immutable data, so let’s fix all users of the nvmem_config API.
 
-Pre-existing issues:
-- [High] The return value of `platform_get_irq()` is not checked for errors=
-, breaking deferred probing and unnecessarily disrupting hardware state.
-- [High] The child watchdog platform device is never unregistered when the =
-RTC driver is unbound, leading to a leaked device and potential Use-After-F=
-ree.
---
-
---- Patch [1]: [PATCH] rtc: stmp3xxx: use devm_platform_ioremap_resource() =
+Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
 ---
-commit eb7d944b8c0d01b4294ccf13b092d4f30d47bb4e
-Author: Rosen Penev <rosenp@gmail.com>
+ drivers/iio/pressure/bmp280-core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-    rtc: stmp3xxx: use devm_platform_ioremap_resource()
-   =20
-    Replace the open-coded platform_get_resource() plus devm_ioremap()
-    sequence with a single devm_platform_ioremap_resource() call, which fol=
-ds
-    the resource lookup and mapping into one step and returns an ERR_PTR on
-    failure, checked with IS_ERR() and propagated via PTR_ERR().
+diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
+index 990340a9b10c..0a39c5f39378 100644
+--- a/drivers/iio/pressure/bmp280-core.c
++++ b/drivers/iio/pressure/bmp280-core.c
+@@ -2261,11 +2261,11 @@ static int bmp580_nvmem_read(void *priv, unsigned int offset, void *val,
+ 	return ret;
+ }
+ 
+-static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, void *val,
++static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, const void *val,
+ 				   size_t bytes)
+ {
+ 	struct bmp280_data *data = priv;
+-	u16 *buf = val;
++	const u16 *buf = val;
+ 	int ret, addr;
+ 
+ 	guard(mutex)(&data->lock);
+@@ -2322,7 +2322,7 @@ static int bmp580_nvmem_write_impl(void *priv, unsigned int offset, void *val,
+ 	return ret;
+ }
+ 
+-static int bmp580_nvmem_write(void *priv, unsigned int offset, void *val,
++static int bmp580_nvmem_write(void *priv, unsigned int offset, const void *val,
+ 			      size_t bytes)
+ {
+ 	struct bmp280_data *data = priv;
+-- 
+2.55.0
 
-> diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
-> index 7afcd14aeee56..05f128ccf8277 100644
-> --- a/drivers/rtc/rtc-stmp3xxx.c
-> +++ b/drivers/rtc/rtc-stmp3xxx.c
-> @@ -245,28 +245,21 @@ static void stmp3xxx_rtc_remove(struct platform_dev=
-ice *pdev)
-
-[Severity: High]
-This is a pre-existing issue, but I noticed that stmp3xxx_rtc_remove() does=
-n't
-unregister the dynamically added child platform device created by
-stmp3xxx_wdt_register() during probe.
-
-If the RTC driver is unbound, the child watchdog device remains registered.
-A subsequent watchdog operation like stmp3xxx_wdt_set_timeout() will call
-dev_get_drvdata(dev->parent), which returns NULL because the parent's drvda=
-ta
-is cleared during unbind. This leads to a NULL pointer dereference when
-accessing rtc_data->io.
-
-Could this be fixed by saving the child device pointer and unregistering it
-in the remove function?
-
->  static int stmp3xxx_rtc_probe(struct platform_device *pdev)
->  {
->  	struct stmp3xxx_rtc_data *rtc_data;
-
-[ ... ]
-
-> -	rtc_data->io =3D devm_ioremap(&pdev->dev, r->start, resource_size(r));
-> -	if (!rtc_data->io) {
-> -		dev_err(&pdev->dev, "ioremap failed\n");
-> -		return -EIO;
-> -	}
-> -
-> +	rtc_data->io =3D io;
->  	rtc_data->irq_alarm =3D platform_get_irq(pdev, 0);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this lack of error chec=
-king
-break deferred probing?
-
-If platform_get_irq() returns -EPROBE_DEFER, it is assigned directly to
-rtc_data->irq_alarm. Later, this negative error code is passed to
-devm_request_irq() in stmp3xxx_rtc_probe():
-
-    err =3D devm_request_irq(&pdev->dev, rtc_data->irq_alarm,
-            stmp3xxx_rtc_interrupt, 0, "RTC alarm", &pdev->dev);
-
-Since devm_request_irq() expects an unsigned int for the IRQ number, the
-negative value is cast and fails with -EINVAL. The driver then returns
--EINVAL instead of -EPROBE_DEFER, which permanently prevents the RTC and
-watchdog from probing on systems that require deferred probing for the
-interrupt controller.
-
-Should we add a check for negative error codes from platform_get_irq() here?
-
-> =20
->  	rtc_stat =3D readl(rtc_data->io + STMP3XXX_RTC_STAT);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715021933.1551=
-663-1-rosenp@gmail.com?part=3D1
