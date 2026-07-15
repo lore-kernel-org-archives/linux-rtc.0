@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001922FDC57;
-	Wed, 15 Jul 2026 18:08:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62BF341F5DD;
+	Wed, 15 Jul 2026 18:08:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784138934; cv=none; b=JHeeR0OVGXYNnfe+XzXSgWHjELGGxuXNOyW3x+YWHQgeXYzCZ3XYrcYjmy3BYSOL30/UT18RG77EbB8Af1tjX0SRd7FI0YrBG1bGeqY7mbDsuvAfBXePBh5xeRM45sPRJo3who817h47BLJWUyE4qtf3/ROiXHtu0KdcfGj8zG0=
+	t=1784138940; cv=none; b=Vusr25grZKJ3ENjEkxbaVVxeumfVkJszGuX4GqsL5IJ9tSDO6skkAWbsLHol56wElrUn4O/HdWNQDijkb6uFKkMQCvrXhjP99qlf+lzCAAcPTt6vH+BXlrxDPFaotSi8xk1n+8Bx0Cpbkr/4M5TBeXyreEyOEpOR8kaxrDtcYpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784138934; c=relaxed/simple;
-	bh=LkP/9mSlabI0OjN9PGpwk1y6aGJzhjkKmy8j6xfrZAo=;
+	s=arc-20240116; t=1784138940; c=relaxed/simple;
+	bh=HPaEd3alxnd78b+P7ZccisPYvTe80C6W4pU5K9w/bD4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YuL8SGj5bP2Hx4LqgaAPB3ehB+UJVC/ANxnj8H5PzoNUMLBzYOegPbJhWq+6ORVOA6LdDzipuC+BKTsUvxm3aliapntieiOLtbdL1iqWFoQLqkUDKSeNZdZb+RK3WqRQG9DcXJcISOkvyGTxsH7MfMWyEgHCukzzmMf62Wh/hXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gTclVIiK; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=lX1b+nuSYVxZ9hmAAb+ghgTGna0rSvjMZHf2f8/jypx9gpe4Mng2Hk4NWDQrmkHcOhstHUNuSAH3snrIFaxz0tzdanU27cMp0/QoVEh7I0PsEiLFV6IHDGMEia+joOHok/WqhtnmyXNGDnr5ro9ehY+6ogQ1g5AMH5hr/A3KO0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WNqO+nw8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gTclVIiK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6951F00A3A;
-	Wed, 15 Jul 2026 18:08:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WNqO+nw8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE5671F000E9;
+	Wed, 15 Jul 2026 18:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784138929;
-	bh=qLVMs8B/gmr0UI3ooxeeE+f9lVRysNVAG6rFR/DuA8E=;
+	s=k20260515; t=1784138935;
+	bh=az6A+r5sV1xM8anb9eU0+PGR2wIcnyNZ2dPn/ThWLL0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gTclVIiKSIHjLg72d2o7caOz1gFEtQBjmwqtTQ7X260itzA9VuR8+EpaY0jNjBtBF
-	 SEcYLJTdKKXZcztUrGoSRNn26ZyVYpm/PA9gCZXRraYDZLRzPc86s6GxnlxUV38R6f
-	 DABnGqEXc2QSkrebl5sXbeQXspBRqxPAJAZU3D4D3ncECj+jvNvg6qd1haLtYGO4bb
-	 belVsCsgbVUK4bg89nwnZdWakI9cyH91CCrkuUvcnEccyEXEcLCgVgYNuq08hiLZNF
-	 SQAjci7kVnZOjr2wLAS+QZ3WsaI0rbWtxLIb10RuRJYbB7SFzBft5Pk8LgHX+nOyaa
-	 Sa2cS9aKIbieg==
+	b=WNqO+nw8Bkk2TpyUjJ7VhYmd+ZjPfelOhKRWosJrECDZ84XrANXi2OnBIKDebUn8w
+	 J2eQrKXxoC9mOWTmvHCwxAM5ms2bWzCHGgfvr1y4u9IC1hSZSEtciHbkjgkYYLmdSU
+	 o8qB+/3RI3En/zS8aanRMcx4thoh8JFVkeF5dhD3JasbsXebwWjbSkthdij7zZEmA6
+	 BAsEozCI+7Jq+uaj9MibgI0hHUqzg9rgLqU2/+aZSRLAeCraRjK9Sz9ralmShoxN1r
+	 il/T+MIJEOySTvoWINhAI2NN0X8UtuX5D1vC7JP7KyP6gH8Mw/mLZ89xIluBXemwU0
+	 Cs+FUMDcEM+vQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/8] nvmem: make all reg_write callbacks take const void
- *
+Subject: Re: [PATCH 7/8] mfd: twl-core: make reg_write callback take const
+ void *
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Link Mauve" <linkmauve@linkmauve.fr>
-Cc: Frank.Li@kernel.org, ojeda@kernel.org, imx@lists.linux.dev, linux-rtc@vger.kernel.org, linux-sunxi@lists.linux.dev, lee@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, linux-amlogic@lists.infradead.org, mfd@lists.linux.dev, neil.armstrong@linaro.org
-In-Reply-To: <20260715175229.24672-3-linkmauve@linkmauve.fr>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, ojeda@kernel.org, neil.armstrong@linaro.org, linux-rtc@vger.kernel.org, imx@lists.linux.dev, mfd@lists.linux.dev, Frank.Li@kernel.org, lee@kernel.org, linux-sunxi@lists.linux.dev, linux-amlogic@lists.infradead.org
+In-Reply-To: <20260715175229.24672-8-linkmauve@linkmauve.fr>
 References: <20260715175229.24672-1-linkmauve@linkmauve.fr>
- <20260715175229.24672-3-linkmauve@linkmauve.fr>
+ <20260715175229.24672-8-linkmauve@linkmauve.fr>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 15 Jul 2026 18:08:48 +0000
-Message-Id: <20260715180848.BD6951F00A3A@smtp.kernel.org>
+Date: Wed, 15 Jul 2026 18:08:54 +0000
+Message-Id: <20260715180854.EE5671F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -48,60 +47,58 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Low] Syntax error in `qfprom_reg_write` signature causing compilation fa=
-ilure
-- [Low] Incomplete API migration causing widespread incompatible-pointer-ty=
-pes build errors across other subsystems
+
+New issues:
+- [Low] The commit message description is not capitalized, violating MFD su=
+bsystem guidelines.
+
+Pre-existing issues:
+- [High] Probe failure during MFD device registration skips manual resource=
+ cleanup, causing resource leaks.
 --
 
---- Patch [2]: [PATCH 2/8] nvmem: make all reg_write callbacks take const v=
-oid * ---
-commit 7e2f42ea4c9950738972bc60aeca19f14bd93ce4
+--- Patch [7]: [PATCH 7/8] mfd: twl-core: make reg_write callback take cons=
+t void * ---
+commit 5525fd3bfa73424e942892bd1e1fb2d2e9554159
 Author: Link Mauve <linkmauve@linkmauve.fr>
 
-nvmem: make all reg_write callbacks take const void *
+mfd: twl-core: make reg_write callback take const void *
 
-This patch updates the reg_write callbacks in the nvmem subsystem to take a
-const void pointer instead of a mutable void pointer for the value buffer.
+This commit updates the reg_write callback to use a const void pointer for
+its data argument. It fixes all users of the nvmem_config API to accommodate
+this change.
 
->     nvmem: make all reg_write callbacks take const void *
->    =20
->     The previous commit switched from a pointer to mutable data to a poin=
-ter
->     to immutable data, so let=E2=80=99s fix all users of this API.
+> mfd: twl-core: make reg_write callback take const void *
 
 [Severity: Low]
-Are there users of this API outside of the drivers/nvmem/ directory that we=
-re
-missed during this migration?
+This isn't a bug, but should the description after the subsystem prefix be
+capitalized (i.e., "Make reg_write...") to match the MFD subsystem guidelin=
+es?
 
-For example, when building drivers like drivers/rtc/rtc-cmos.c or
-drivers/misc/eeprom/at24.c, will assigning their unupdated callbacks to
-nvmem_config.reg_write trigger incompatible-pointer-types build errors?
+[Severity: High]
+This is a pre-existing issue, but I noticed a potential resource leak in
+twl_probe(). If devm_mfd_add_devices() fails, the code jumps directly to
+the 'free' label, skipping the 'fail' label:
 
-> diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
-> index a872c640b8c5a..bacdcb5610bae 100644
-> --- a/drivers/nvmem/qfprom.c
-> +++ b/drivers/nvmem/qfprom.c
-[ ... ]
-> @@ -253,13 +253,13 @@ static int qfprom_enable_fuse_blowing(const struct =
-qfprom_priv *priv,
->   *
->   * Return: 0 or -err.
->   */
-> -static int qfprom_reg_write(void *context, unsigned int reg, void *_val,
-> +static int qfprom_reg_write(void *context, unsigned int reg, void void *=
-_val,
->  			    size_t bytes)
->  {
+drivers/mfd/twl-core.c:twl_probe() {
+    ...
+		status =3D devm_mfd_add_devices(&client->dev, PLATFORM_DEVID_NONE,
+					      cells, num_cells, NULL, 0, NULL);
+		if (status < 0)
+			goto free;
+    ...
+fail:
+	if (status < 0)
+		twl_remove(client);
+free:
+	if (status < 0)
+		platform_device_unregister(pdev);
+    ...
+}
 
-[Severity: Low]
-Does this cause a compilation failure?
-
-The double void void declaration appears to be a syntax error that will bre=
-ak
-the build when the Qualcomm QFPROM driver is enabled.
+Does this bypass leak manually requested IRQ domains and unmanaged dummy I2C
+devices by skipping twl_remove()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260715175229.2467=
-2-1-linkmauve@linkmauve.fr?part=3D2
+2-1-linkmauve@linkmauve.fr?part=3D7
