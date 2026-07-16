@@ -1,101 +1,123 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 737482749ED;
-	Thu, 16 Jul 2026 12:56:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4BE5414A1F
+	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 13:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784206586; cv=none; b=Uvk2u5Gpn/+1N+uoAVYy4q/Jl/dzcAoSiL5ktxiWvx0PgAOkAe0jsPv4xMw/yYxp7nYgExqSTruwQEXFx/y5suSBlF2g62Crx4nXbzvJ40njvEGc0QS6kcA00yHezc8682SGyevCY6lioY24vjvYls/26IsYiE3TRrIujpA9Wcs=
+	t=1784206812; cv=none; b=plT030fKBJRxQA1WnaX70jSE8CVVCCQ6qYRnyk61WE5nq7QpYjxv7KbGNd+eVSobAhMKWLOcIOwMyJ4WGcyhT4L/xoTGfaSbxZBXMT+zeIRfuWtqYSzTqGHLB+eY9ElShhASy/vS2yQu5PMEvKWD2FRJ7iTruHR0n8P4OookXek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784206586; c=relaxed/simple;
-	bh=DtSWxolWzsTjVB/fjDhvXlXwJ3RsPXk5TusbpfQ30cw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Hv/QX0NSkzg8Cc6qGHtVY79vjzV1is6y+A/rjbnoGin+QtlvD8Zf6J5swK+YViAh8R2w7NrmUj5iBkv7RWSoZl+z9reGmg6NVkYopjLo/pOOPGxThJ4Oq4Hjsi9t3y3jpplnNMKAvX74PT92qPyOJ9zQ8sLGwhmQwjnNSSkVoJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=eXioyMst; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1784206812; c=relaxed/simple;
+	bh=HbH6JXU5BdCZwLeEhk7WdbdqPjZRA9yLpHXpv9FF6fo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=qw+NIc5el791L3Ig/CaJQSbq8bjKUD5vguC4nXZRrDmIdNNmH5rfbKpcREg4ZtJzUV2B8Opj9x4bFGWsRZJnz4xFWLLnfF1G/DrqWDFkB/PQE0db8CUjJ6dFP2L36NtiSvfmwL9AxYuwKD11LxmJa1T+cYklZ0u4HI/VSF3TcIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EWx6Egyr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="eXioyMst"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id B935B1A1020;
-	Thu, 16 Jul 2026 12:56:20 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 7E662602B8;
-	Thu, 16 Jul 2026 12:56:20 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 428FA11BD3CBE;
-	Thu, 16 Jul 2026 14:56:17 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1784206579; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=Aw28TY7UZCwFlSvNxjaA1mVh5PejDKMaVVBoxdrFQg0=;
-	b=eXioyMstS9M7/jD5rwZ3ivRZPDNLannlRWCBWp6OpVdutsqrLdl33gMBxhmk29I3ddqEkq
-	igWpE1LQc9NNOY7D6SgM52JH73TaDBcQ1Escs+F1sgKoMws+xQQcDm53rXVTNQn77Z9G3w
-	TFreqhyLXHy3NLCSbWPBZn+fYrjjFtVi/+O581HwSeRUm+lvejq00D2z21/jGR8ttSijWz
-	4gFmmOvae+4NgoALh79xEeaHVulaU85twtJREOWhiQf601kgznp1ZPWSVXOIFAdbTro7b3
-	enBAqya1v76/ZdeAfZ/gyRwTr88beydRElKmdPQxoK+ah358yg3FQMseV998hw==
-Date: Thu, 16 Jul 2026 14:56:17 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Cosmo Chou <chou.cosmo@gmail.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	cosmo.chou@quantatw.com
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EWx6Egyr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BB61F000E9;
+	Thu, 16 Jul 2026 13:00:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784206811;
+	bh=YhwDXXPCDt6mCJSyHf4sYs1K6iKP0eoDDObYkAlec/U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=EWx6EgyrWegc09Ra07uw778UVVZrYRbd7BHcjmRlPV2hAL9L2TjM4tboeihxcVLp+
+	 XIdj5ZH4onUqRU247Vr/ukHta8NXXmHLhOL06A1AqwmVKc1CrToFPLKKa0CbTHbNjl
+	 RyUbPeEfKLIAR1cqY69NIT+9wp7wX7LwkQg9B//pwlMbftyi15FF/hzpTMZ+rCsKWJ
+	 rxtMiIaTqNGSZKB772K5dOlwGaC3rgoNEYqywRUGWK0HAjeTI8uyz03RdRLIiIPrIu
+	 AAauTcggomG9eKScCAX1lUlv+mPVBFuZPX5yxw3N+ilJscEWWsqsKZcix4F3e8W1Nm
+	 lOLct+V4SQc/A==
+From: sashiko-bot@kernel.org
 Subject: Re: [PATCH] rtc: pcf85363: Fix phantom device registration on
  missing hardware
-Message-ID: <20260716125617ee5cdf09@mail.local>
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Cosmo Chou" <chou.cosmo@gmail.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+In-Reply-To: <20260716125142.1801599-1-chou.cosmo@gmail.com>
 References: <20260716125142.1801599-1-chou.cosmo@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 16 Jul 2026 13:00:10 +0000
+Message-Id: <20260716130011.66BB61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260716125142.1801599-1-chou.cosmo@gmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
 
-On 16/07/2026 20:51:42+0800, Cosmo Chou wrote:
-> During probe, pcf85363_load_capacitance() writes the oscillator load
-> capacitance configuration to the device. However, if the device is
-> not physically present on the bus (returning -ENXIO), the driver
-> only emits a warning and continues to execute the probe.
-> 
-> This results in the successful registration of a phantom RTC device
-> via devm_rtc_register_device() and its associated nvmem regions.
-> Consequently, userspace may attempt to bind to a non-functional
-> /dev/rtc node.
-> 
-> Propagate the I2C error back to the driver core using dev_err_probe()
-> to properly abort the probe and prevent phantom device registration.
-> 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-No, there is no point in this, simply remove the RTC node from you
-device tree.
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but the `nvmem_cfg` =
+array in `pcf85363_probe()` is declared `static`, causing all instances of =
+the device to share the same configuration. Because its `.id` field is not =
+explicitly initialized, it defaults to 0 rather than `NVMEM_DEVID_AUTO`. Th=
+e NVMEM core will assign ID 0 for the first instance (e.g., "pcf85x63-0"), =
+but any subsequent PCF85363 device on the same system will cause a sysfs du=
+plicate name collision and fail to register. Furthermore, the driver mutate=
+s this shared static structure during probe by assigning `nvmem_cfg[i].priv=
+ =3D pcf85363`, and the `devm_rtc_nvmem_register()` helper further mutates =
+it by assigning `nvmem_config->dev =3D dev`. If two PCF85363 devices are pr=
+obed concurrently, a data race occurs where one thread may overwrite the `p=
+riv` or `dev` pointers of the other before registration completes, causing =
+NVMEM operations to access the wrong I2C device.
+--
 
-> Fixes: fd9a6a13949a ("rtc: pcf85363: add support for the quartz-load-femtofarads property")
-> Signed-off-by: Cosmo Chou <chou.cosmo@gmail.com>
-> ---
->  drivers/rtc/rtc-pcf85363.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
+--- Patch [1]: [PATCH] rtc: pcf85363: Fix phantom device registration on mi=
+ssing hardware ---
+commit ad427522054996520ae92d70a7e73f66bf7ac5a8
+Author: Cosmo Chou <chou.cosmo@gmail.com>
+
+rtc: pcf85363: Fix phantom device registration on missing hardware
+
+This patch prevents phantom RTC device registration if the PCF85363 device
+is missing. It propagates the error back to the driver core using
+dev_err_probe() to properly abort the probe instead of continuing.
+
 > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 540042b9eec8..5612330aff40 100644
 > --- a/drivers/rtc/rtc-pcf85363.c
 > +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -426,8 +426,8 @@ static int pcf85363_probe(struct i2c_client *client)
->  
->  	err = pcf85363_load_capacitance(pcf85363, client->dev.of_node);
->  	if (err < 0)
-> -		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
-> -			 err);
-> +		return dev_err_probe(&client->dev, err,
-> +				     "failed to set xtal load capacitance\n");
->  
->  	pcf85363->rtc->ops = &rtc_ops;
->  	pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-> -- 
-> 2.43.0
-> 
+> @@ -382,21 +382,21 @@ static int pcf85363_probe(struct i2c_client *client)
+>  {
+>  	struct pcf85363 *pcf85363;
+>  	const struct pcf85x63_config *config =3D &pcf_85363_config;
+>  	const void *data =3D of_device_get_match_data(&client->dev);
+>  	static struct nvmem_config nvmem_cfg[] =3D {
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+[Severity: High]
+This is a pre-existing issue, but since nvmem_cfg is declared static, all
+instances of the device share this configuration.
+
+Because its .id field is not explicitly initialized, it defaults to 0
+rather than NVMEM_DEVID_AUTO. Doesn't this cause sysfs duplicate name
+collisions if multiple PCF85363 devices are present on the system?
+
+Furthermore, doesn't this shared static array cause a data race during
+concurrent probes? The driver mutates this array later in pcf85363_probe():
+
+drivers/rtc/rtc-pcf85363.c:pcf85363_probe() {
+    ...
+    for (i =3D 0; i < config->num_nvram; i++) {
+        nvmem_cfg[i].priv =3D pcf85363;
+        devm_rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
+    ...
+}
+
+And devm_rtc_nvmem_register() further mutates it by assigning
+nvmem_config->dev =3D dev.
+
+If two PCF85363 devices are probed concurrently, could one thread overwrite
+the priv or dev pointers of the other before registration completes, causing
+NVMEM operations to access the wrong I2C device? Should this configuration
+be dynamically allocated or copied per-device instead of being static?
+
+>  		{
+>  			.name =3D "pcf85x63-",
+>  			.word_size =3D 1,
+>  			.stride =3D 1,
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716125142.1801=
+599-1-chou.cosmo@gmail.com?part=3D1
