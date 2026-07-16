@@ -1,123 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4BE5414A1F
-	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 13:00:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784206812; cv=none; b=plT030fKBJRxQA1WnaX70jSE8CVVCCQ6qYRnyk61WE5nq7QpYjxv7KbGNd+eVSobAhMKWLOcIOwMyJ4WGcyhT4L/xoTGfaSbxZBXMT+zeIRfuWtqYSzTqGHLB+eY9ElShhASy/vS2yQu5PMEvKWD2FRJ7iTruHR0n8P4OookXek=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784206812; c=relaxed/simple;
-	bh=HbH6JXU5BdCZwLeEhk7WdbdqPjZRA9yLpHXpv9FF6fo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qw+NIc5el791L3Ig/CaJQSbq8bjKUD5vguC4nXZRrDmIdNNmH5rfbKpcREg4ZtJzUV2B8Opj9x4bFGWsRZJnz4xFWLLnfF1G/DrqWDFkB/PQE0db8CUjJ6dFP2L36NtiSvfmwL9AxYuwKD11LxmJa1T+cYklZ0u4HI/VSF3TcIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EWx6Egyr; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3631F42A16C
+	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 14:56:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784213772; cv=pass; b=Md0DpsNIw1wUQVpMCpra4jMyiwtTBIQMRSNRpZ7UEAZY1kFkZtkgOlcPkBagG1utxjHk3lL3bD7GHU0KFQV5U62EqJIjxkhrD6wBFst0BHN/oc6uqpWzpACj6XpS6hlsgFywMGht6T0n5/Vl1bmLWAMXvgv+0xa+m380DO2wDx8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784213772; c=relaxed/simple;
+	bh=CY4i+VwyWYtJkkh5aNDcKsviuaCmzuqsMTJz18jEYUo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jMY0xemC/qPJ4gTJrt4gFjLLNb9ME7JA31cI0TQzPCZr+CE4UDXYmi4A5ne7d1+ySoz6AySXvrallUqloO0WSCmxeiO0+0zEnZ5FzReTXnp/1cxgYsXHgZ4ASIW+Omyead8ZwtLgwgq8nID8bvO3bi5iYcVTcwKCVy7UBAudO9U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BY955dLL; arc=pass smtp.client-ip=209.85.160.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EWx6Egyr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BB61F000E9;
-	Thu, 16 Jul 2026 13:00:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784206811;
-	bh=YhwDXXPCDt6mCJSyHf4sYs1K6iKP0eoDDObYkAlec/U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EWx6EgyrWegc09Ra07uw778UVVZrYRbd7BHcjmRlPV2hAL9L2TjM4tboeihxcVLp+
-	 XIdj5ZH4onUqRU247Vr/ukHta8NXXmHLhOL06A1AqwmVKc1CrToFPLKKa0CbTHbNjl
-	 RyUbPeEfKLIAR1cqY69NIT+9wp7wX7LwkQg9B//pwlMbftyi15FF/hzpTMZ+rCsKWJ
-	 rxtMiIaTqNGSZKB772K5dOlwGaC3rgoNEYqywRUGWK0HAjeTI8uyz03RdRLIiIPrIu
-	 AAauTcggomG9eKScCAX1lUlv+mPVBFuZPX5yxw3N+ilJscEWWsqsKZcix4F3e8W1Nm
-	 lOLct+V4SQc/A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: pcf85363: Fix phantom device registration on
- missing hardware
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Cosmo Chou" <chou.cosmo@gmail.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260716125142.1801599-1-chou.cosmo@gmail.com>
-References: <20260716125142.1801599-1-chou.cosmo@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 16 Jul 2026 13:00:10 +0000
-Message-Id: <20260716130011.66BB61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BY955dLL"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51bfa429aa6so2277611cf.0
+        for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 07:56:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784213770; cv=none;
+        d=google.com; s=arc-20260327;
+        b=hMQLiRini6AssUoCG4AoJ7I8M6fpXb7RaMl5rFQ+kBbdNKgVzm5wElJexTtyUaBDfP
+         JBZZSGFquIH0OKZyOmrJiSoGKmUFABw+53svgDd2kdKMhloNZ0sKiukUcwaQJGbxFuME
+         /mnV6fgcY3KbOPqUdNkrQLERyHx5jDatf4ao4ZkXpSq9aNNVqd+0IcjtcHfzJnlOnVMo
+         hImPIuT7xF9qI7RE4hnkULAfTAr8kWZ+ZQ8RFntXc+RhZ7jEOSdAhVdT5byPifTfh75I
+         dyrPhOwNgCyRn1cNj2PTITINskTJN7AoS2mONxO6Ygtc9wtuao6Ai5qmpRInDxQRZjBN
+         4uBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
+        fh=nzUQWoA9vWXFkLEMWk2BAxfDVlDMLNwpFs2Y5onRy/0=;
+        b=RmAHNhHe8LvyB9baA9T1DD137QHEDVFN6g8YlL/VZfoSvRMoW4AefYDoOzC3HFtSfF
+         wChlLd9gO0JPdm0PaYcHhxnil6xwy/KDRI8WyZn5CMVeal571PBc039IseyHCwsEU8AI
+         npSp/1pQD2pT30+QLVWgv2eZZtMo0vONEZ+XhakFg9oUTNx5V1YJQg42DSCrW7D1RozZ
+         T71we8Yw+SX80HEomt9HmLG9LnxumFFnE/9fVUy4CdcZirKgD7iVE/zC1dtIHK3g++tc
+         rAM6rABn2maPt4ah/DmKaehjNInhqvAQS8oOREDber9A04hkCKryLStMMFGJ8RxYv5Ug
+         b5aQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784213770; x=1784818570; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
+        b=BY955dLLOeI3GrJzbLKMUPxTmUL1j4Flr0C1AJ/H9NkknmYVRcOWZ7YdDlOdcv5A0S
+         gcM5VC07qwudQ/12WtYovHw9h8KSkYVpnLdpQc+s5xtiWycHH625OZRp9Fym+FEL6iuK
+         bmFcqlBoYVyk1uL2igD0fhNv7MdqAElGR+DL3SMYHI+3BlbJny3CWOZV5zsvGvrWwBI9
+         DJPc1GhAfpl9CNwPml/DZfjOwNUKHzxhFVj2uJFWUo62IZlYj2q37G8Q74wPcm659GMH
+         PcJdd4QDu4MkHMKORSiyxT6DZcOznxgN8gKrSUmnGNW07EOfWk0wpAIft+fqu5HyYO1Y
+         uNXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784213770; x=1784818570;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
+        b=OYrrvidknBiIg+nRs+FJF9wPKprxh8a2FVEwsVcYa7kgcu7Am2bgOTw1ZyIxrrzA6a
+         vZvWAoS6eC4uquxEz+LhzQWbc6792uvAayrPB05B4KKHWklURoasYJ/Gfq7j9ZfLEmWZ
+         RwDi6DNKY1P119wobrw4UVQkmhhxV1z2SCDgkOSFEZ4UVX/9Dzhx5JnCuvVm87ERKn9K
+         RI90eF20EIY17URMxz9nRUe5jQSJ12ayvtIflNCr/R8JNn344fatdKuW2ElLIpJ+yWH5
+         5McbauPyiB+IvR8Tq++as/DyLQAWuEGVyNc3RTkGM2+d7G8FX3UyhORVnZ4EqmvazTKS
+         zyeQ==
+X-Gm-Message-State: AOJu0Yyfx3vRf6ZZYEUTZYIJxIwvUPwz8FZkuy/Ma7h3+0RHqxKJsPIV
+	DSf9hCyuKMNMfaTXMjcNxLLsNoReLd+1OussyoCGyCqaHTixlFcUDse6OSK8kC+DV8GcdDT3VcS
+	o6GZPZqh65eQh/D237BjOf5jm5Fv6Kao=
+X-Gm-Gg: AfdE7cm8yXu/uUDKCdA0TzWmtxvZ3K8jh8f0UREIuPl0wdM0e8ZeWW6Uw3kzlOeVvgs
+	GCPHCqKlS8IJNCZpkS20bigzSQrTLHMKyOKcullfQwht5Ic9ZSRIzW16Cv9pPIKF49bqCVlxW5I
+	S3FvaQNV+RyVAcZY6+8oEebqUpHI9HWDd3gTDBvm3+wdGh/W90ICwezjmPs0JCsmhYDl/o4VkNq
+	i/u4dyY5z3GqIeuBciuPv85+P77/HB3ClMfD+bEjbv09SnxYFk8l1/QyooEY1g=
+X-Received: by 2002:a05:622a:1b23:b0:516:d83d:b28 with SMTP id
+ d75a77b69052e-51fbf8ba886mr28344101cf.17.1784213770032; Thu, 16 Jul 2026
+ 07:56:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260716125142.1801599-1-chou.cosmo@gmail.com> <20260716125617ee5cdf09@mail.local>
+In-Reply-To: <20260716125617ee5cdf09@mail.local>
+From: Cosmo Chou <chou.cosmo@gmail.com>
+Date: Thu, 16 Jul 2026 22:56:04 +0800
+X-Gm-Features: AUfX_mywOXT0UrVub0Y5huFmvkjvi36CrRVvqgUoPDbK9Oni8vfvSkc2ZpzDkPM
+Message-ID: <CAOeEDysWcPR+BdjrFGE89dwsQNWFG1ihf0q4kiWzRHVRzOtcyA@mail.gmail.com>
+Subject: Re: [PATCH] rtc: pcf85363: Fix phantom device registration on missing hardware
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	cosmo.chou@quantatw.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Thu, Jul 16, 2026 at 8:56=E2=80=AFPM Alexandre Belloni
+<alexandre.belloni@bootlin.com> wrote:
+>
+> On 16/07/2026 20:51:42+0800, Cosmo Chou wrote:
+> > During probe, pcf85363_load_capacitance() writes the oscillator load
+> > capacitance configuration to the device. However, if the device is
+> > not physically present on the bus (returning -ENXIO), the driver
+> > only emits a warning and continues to execute the probe.
+> >
+> > This results in the successful registration of a phantom RTC device
+> > via devm_rtc_register_device() and its associated nvmem regions.
+> > Consequently, userspace may attempt to bind to a non-functional
+> > /dev/rtc node.
+> >
+> > Propagate the I2C error back to the driver core using dev_err_probe()
+> > to properly abort the probe and prevent phantom device registration.
+> >
+>
+> No, there is no point in this, simply remove the RTC node from you
+> device tree.
+>
 
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the `nvmem_cfg` =
-array in `pcf85363_probe()` is declared `static`, causing all instances of =
-the device to share the same configuration. Because its `.id` field is not =
-explicitly initialized, it defaults to 0 rather than `NVMEM_DEVID_AUTO`. Th=
-e NVMEM core will assign ID 0 for the first instance (e.g., "pcf85x63-0"), =
-but any subsequent PCF85363 device on the same system will cause a sysfs du=
-plicate name collision and fail to register. Furthermore, the driver mutate=
-s this shared static structure during probe by assigning `nvmem_cfg[i].priv=
- =3D pcf85363`, and the `devm_rtc_nvmem_register()` helper further mutates =
-it by assigning `nvmem_config->dev =3D dev`. If two PCF85363 devices are pr=
-obed concurrently, a data race occurs where one thread may overwrite the `p=
-riv` or `dev` pointers of the other before registration completes, causing =
-NVMEM operations to access the wrong I2C device.
---
+Hi Alexandre,
 
---- Patch [1]: [PATCH] rtc: pcf85363: Fix phantom device registration on mi=
-ssing hardware ---
-commit ad427522054996520ae92d70a7e73f66bf7ac5a8
-Author: Cosmo Chou <chou.cosmo@gmail.com>
+You are right, fixing the DT is the correct solution for missing
+hardware. My commit message was misleading.
 
-rtc: pcf85363: Fix phantom device registration on missing hardware
+However, the current code ignores actual I2C transport errors (e.g.,
+-ENXIO due to physical bus issues) from pcf85363_load_capacitance()
+and continues probing.
 
-This patch prevents phantom RTC device registration if the PCF85363 device
-is missing. It propagates the error back to the driver core using
-dev_err_probe() to properly abort the probe instead of continuing.
+Should I send a v2 with an updated commit message focusing solely on
+properly handling these transport errors?
 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -382,21 +382,21 @@ static int pcf85363_probe(struct i2c_client *client)
->  {
->  	struct pcf85363 *pcf85363;
->  	const struct pcf85x63_config *config =3D &pcf_85363_config;
->  	const void *data =3D of_device_get_match_data(&client->dev);
->  	static struct nvmem_config nvmem_cfg[] =3D {
+Thanks,
+Cosmo
 
-[Severity: High]
-This is a pre-existing issue, but since nvmem_cfg is declared static, all
-instances of the device share this configuration.
-
-Because its .id field is not explicitly initialized, it defaults to 0
-rather than NVMEM_DEVID_AUTO. Doesn't this cause sysfs duplicate name
-collisions if multiple PCF85363 devices are present on the system?
-
-Furthermore, doesn't this shared static array cause a data race during
-concurrent probes? The driver mutates this array later in pcf85363_probe():
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_probe() {
-    ...
-    for (i =3D 0; i < config->num_nvram; i++) {
-        nvmem_cfg[i].priv =3D pcf85363;
-        devm_rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
-    ...
-}
-
-And devm_rtc_nvmem_register() further mutates it by assigning
-nvmem_config->dev =3D dev.
-
-If two PCF85363 devices are probed concurrently, could one thread overwrite
-the priv or dev pointers of the other before registration completes, causing
-NVMEM operations to access the wrong I2C device? Should this configuration
-be dynamically allocated or copied per-device instead of being static?
-
->  		{
->  			.name =3D "pcf85x63-",
->  			.word_size =3D 1,
->  			.stride =3D 1,
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260716125142.1801=
-599-1-chou.cosmo@gmail.com?part=3D1
+> > Fixes: fd9a6a13949a ("rtc: pcf85363: add support for the quartz-load-fe=
+mtofarads property")
+> > Signed-off-by: Cosmo Chou <chou.cosmo@gmail.com>
+> > ---
+> >  drivers/rtc/rtc-pcf85363.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+> > index 540042b9eec8..5612330aff40 100644
+> > --- a/drivers/rtc/rtc-pcf85363.c
+> > +++ b/drivers/rtc/rtc-pcf85363.c
+> > @@ -426,8 +426,8 @@ static int pcf85363_probe(struct i2c_client *client=
+)
+> >
+> >       err =3D pcf85363_load_capacitance(pcf85363, client->dev.of_node);
+> >       if (err < 0)
+> > -             dev_warn(&client->dev, "failed to set xtal load capacitan=
+ce: %d",
+> > -                      err);
+> > +             return dev_err_probe(&client->dev, err,
+> > +                                  "failed to set xtal load capacitance=
+\n");
+> >
+> >       pcf85363->rtc->ops =3D &rtc_ops;
+> >       pcf85363->rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
+> > --
+> > 2.43.0
+> >
+>
+> --
+> Alexandre Belloni, co-owner and COO, Bootlin
+> Embedded Linux and Kernel engineering
+> https://bootlin.com
