@@ -1,165 +1,133 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3631F42A16C
-	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 14:56:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784213772; cv=pass; b=Md0DpsNIw1wUQVpMCpra4jMyiwtTBIQMRSNRpZ7UEAZY1kFkZtkgOlcPkBagG1utxjHk3lL3bD7GHU0KFQV5U62EqJIjxkhrD6wBFst0BHN/oc6uqpWzpACj6XpS6hlsgFywMGht6T0n5/Vl1bmLWAMXvgv+0xa+m380DO2wDx8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784213772; c=relaxed/simple;
-	bh=CY4i+VwyWYtJkkh5aNDcKsviuaCmzuqsMTJz18jEYUo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jMY0xemC/qPJ4gTJrt4gFjLLNb9ME7JA31cI0TQzPCZr+CE4UDXYmi4A5ne7d1+ySoz6AySXvrallUqloO0WSCmxeiO0+0zEnZ5FzReTXnp/1cxgYsXHgZ4ASIW+Omyead8ZwtLgwgq8nID8bvO3bi5iYcVTcwKCVy7UBAudO9U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BY955dLL; arc=pass smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0467726159E
+	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 15:31:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784215874; cv=none; b=UR3wUrcEr0+cuQnMNZdOMh7ugdbpwRvpIz96hppOsaPFPIwPprMrHNyqeVoh6Wmoh3j74DKLkBXmIVo/MYVrBpQXlH0u1gZzfS+B0eUVlIIYYyS6AzqsCQ3K+9H49ft2Ri/VdpDS/6hzGM/ZCj6IqLJro1c/xaSPTJEZbSI8xAk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784215874; c=relaxed/simple;
+	bh=X5zUvxbRmUaYFKtcEZAwdj17ik1w/+Kt+iS+eYvTFsk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Pv90sQelYccIB1vME9e+bk1CZ52zEljoa4ITSFq6Zh+XTrsB1JzG72Vi7w2NhB7HC6x9pD/i9DKwEfXL5cU4aUxxl61+VrWJ5DlNqM/5dt3QRIzu26nTEOHc42Q/Amj/o03yVvtDTJ0PuIYTxpR7u8uOt4eWFp3xxFYNiHovtF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kNrNUcS+; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BY955dLL"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51bfa429aa6so2277611cf.0
-        for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 07:56:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784213770; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hMQLiRini6AssUoCG4AoJ7I8M6fpXb7RaMl5rFQ+kBbdNKgVzm5wElJexTtyUaBDfP
-         JBZZSGFquIH0OKZyOmrJiSoGKmUFABw+53svgDd2kdKMhloNZ0sKiukUcwaQJGbxFuME
-         /mnV6fgcY3KbOPqUdNkrQLERyHx5jDatf4ao4ZkXpSq9aNNVqd+0IcjtcHfzJnlOnVMo
-         hImPIuT7xF9qI7RE4hnkULAfTAr8kWZ+ZQ8RFntXc+RhZ7jEOSdAhVdT5byPifTfh75I
-         dyrPhOwNgCyRn1cNj2PTITINskTJN7AoS2mONxO6Ygtc9wtuao6Ai5qmpRInDxQRZjBN
-         4uBQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
-        fh=nzUQWoA9vWXFkLEMWk2BAxfDVlDMLNwpFs2Y5onRy/0=;
-        b=RmAHNhHe8LvyB9baA9T1DD137QHEDVFN6g8YlL/VZfoSvRMoW4AefYDoOzC3HFtSfF
-         wChlLd9gO0JPdm0PaYcHhxnil6xwy/KDRI8WyZn5CMVeal571PBc039IseyHCwsEU8AI
-         npSp/1pQD2pT30+QLVWgv2eZZtMo0vONEZ+XhakFg9oUTNx5V1YJQg42DSCrW7D1RozZ
-         T71we8Yw+SX80HEomt9HmLG9LnxumFFnE/9fVUy4CdcZirKgD7iVE/zC1dtIHK3g++tc
-         rAM6rABn2maPt4ah/DmKaehjNInhqvAQS8oOREDber9A04hkCKryLStMMFGJ8RxYv5Ug
-         b5aQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784213770; x=1784818570; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
-        b=BY955dLLOeI3GrJzbLKMUPxTmUL1j4Flr0C1AJ/H9NkknmYVRcOWZ7YdDlOdcv5A0S
-         gcM5VC07qwudQ/12WtYovHw9h8KSkYVpnLdpQc+s5xtiWycHH625OZRp9Fym+FEL6iuK
-         bmFcqlBoYVyk1uL2igD0fhNv7MdqAElGR+DL3SMYHI+3BlbJny3CWOZV5zsvGvrWwBI9
-         DJPc1GhAfpl9CNwPml/DZfjOwNUKHzxhFVj2uJFWUo62IZlYj2q37G8Q74wPcm659GMH
-         PcJdd4QDu4MkHMKORSiyxT6DZcOznxgN8gKrSUmnGNW07EOfWk0wpAIft+fqu5HyYO1Y
-         uNXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784213770; x=1784818570;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pyfIk61STcvItwvowpvAaF6YjNonLMnEmUnl6F/dljM=;
-        b=OYrrvidknBiIg+nRs+FJF9wPKprxh8a2FVEwsVcYa7kgcu7Am2bgOTw1ZyIxrrzA6a
-         vZvWAoS6eC4uquxEz+LhzQWbc6792uvAayrPB05B4KKHWklURoasYJ/Gfq7j9ZfLEmWZ
-         RwDi6DNKY1P119wobrw4UVQkmhhxV1z2SCDgkOSFEZ4UVX/9Dzhx5JnCuvVm87ERKn9K
-         RI90eF20EIY17URMxz9nRUe5jQSJ12ayvtIflNCr/R8JNn344fatdKuW2ElLIpJ+yWH5
-         5McbauPyiB+IvR8Tq++as/DyLQAWuEGVyNc3RTkGM2+d7G8FX3UyhORVnZ4EqmvazTKS
-         zyeQ==
-X-Gm-Message-State: AOJu0Yyfx3vRf6ZZYEUTZYIJxIwvUPwz8FZkuy/Ma7h3+0RHqxKJsPIV
-	DSf9hCyuKMNMfaTXMjcNxLLsNoReLd+1OussyoCGyCqaHTixlFcUDse6OSK8kC+DV8GcdDT3VcS
-	o6GZPZqh65eQh/D237BjOf5jm5Fv6Kao=
-X-Gm-Gg: AfdE7cm8yXu/uUDKCdA0TzWmtxvZ3K8jh8f0UREIuPl0wdM0e8ZeWW6Uw3kzlOeVvgs
-	GCPHCqKlS8IJNCZpkS20bigzSQrTLHMKyOKcullfQwht5Ic9ZSRIzW16Cv9pPIKF49bqCVlxW5I
-	S3FvaQNV+RyVAcZY6+8oEebqUpHI9HWDd3gTDBvm3+wdGh/W90ICwezjmPs0JCsmhYDl/o4VkNq
-	i/u4dyY5z3GqIeuBciuPv85+P77/HB3ClMfD+bEjbv09SnxYFk8l1/QyooEY1g=
-X-Received: by 2002:a05:622a:1b23:b0:516:d83d:b28 with SMTP id
- d75a77b69052e-51fbf8ba886mr28344101cf.17.1784213770032; Thu, 16 Jul 2026
- 07:56:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kNrNUcS+"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 0B1124E40DFB
+	for <linux-rtc@vger.kernel.org>; Thu, 16 Jul 2026 15:22:37 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id D1A20602B8;
+	Thu, 16 Jul 2026 15:22:36 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 50B9311BD3D1F;
+	Thu, 16 Jul 2026 17:22:34 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1784215356; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=YaPX/D630TdemNvpNqZNhOT8i02uW0eFRaBQFxknDoY=;
+	b=kNrNUcS+VAmDK8hrmCuqGfPRT2IQAVppZu2OVeQT0/Q5yfZ4W+udvYJvc0QY6JZoorJGPK
+	UCtZ0GTztUfa0U0kIAHrGmaNp9JF6BK7ERD8XHUXK0+kVNbnezbR4136vXsUvFQ320baBQ
+	jy9eHmly1gR18XM/4mkK9Oq2jn6ub1K/kwHkw8WUHQ83y2mKTGar7yItxISB3u49dyo8eh
+	iZgsxU2Pe6GA2gMjXxmj4/8zB/h96p11eBOxw4Z1Sx+1hOUuAx0K3NZDKK4XwELRgSwzQS
+	/ITRolDCyw6M8zYZ/Gb4+CFT6EyRadE+Su0Gq0VHlZiScQMxBBcpwEMobc9b7A==
+Date: Thu, 16 Jul 2026 17:22:33 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Cosmo Chou <chou.cosmo@gmail.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	cosmo.chou@quantatw.com
+Subject: Re: [PATCH] rtc: pcf85363: Fix phantom device registration on
+ missing hardware
+Message-ID: <2026071615223327bdc046@mail.local>
+References: <20260716125142.1801599-1-chou.cosmo@gmail.com>
+ <20260716125617ee5cdf09@mail.local>
+ <CAOeEDysWcPR+BdjrFGE89dwsQNWFG1ihf0q4kiWzRHVRzOtcyA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260716125142.1801599-1-chou.cosmo@gmail.com> <20260716125617ee5cdf09@mail.local>
-In-Reply-To: <20260716125617ee5cdf09@mail.local>
-From: Cosmo Chou <chou.cosmo@gmail.com>
-Date: Thu, 16 Jul 2026 22:56:04 +0800
-X-Gm-Features: AUfX_mywOXT0UrVub0Y5huFmvkjvi36CrRVvqgUoPDbK9Oni8vfvSkc2ZpzDkPM
-Message-ID: <CAOeEDysWcPR+BdjrFGE89dwsQNWFG1ihf0q4kiWzRHVRzOtcyA@mail.gmail.com>
-Subject: Re: [PATCH] rtc: pcf85363: Fix phantom device registration on missing hardware
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	cosmo.chou@quantatw.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOeEDysWcPR+BdjrFGE89dwsQNWFG1ihf0q4kiWzRHVRzOtcyA@mail.gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Thu, Jul 16, 2026 at 8:56=E2=80=AFPM Alexandre Belloni
-<alexandre.belloni@bootlin.com> wrote:
->
-> On 16/07/2026 20:51:42+0800, Cosmo Chou wrote:
-> > During probe, pcf85363_load_capacitance() writes the oscillator load
-> > capacitance configuration to the device. However, if the device is
-> > not physically present on the bus (returning -ENXIO), the driver
-> > only emits a warning and continues to execute the probe.
+On 16/07/2026 22:56:04+0800, Cosmo Chou wrote:
+> On Thu, Jul 16, 2026 at 8:56 PM Alexandre Belloni
+> <alexandre.belloni@bootlin.com> wrote:
 > >
-> > This results in the successful registration of a phantom RTC device
-> > via devm_rtc_register_device() and its associated nvmem regions.
-> > Consequently, userspace may attempt to bind to a non-functional
-> > /dev/rtc node.
+> > On 16/07/2026 20:51:42+0800, Cosmo Chou wrote:
+> > > During probe, pcf85363_load_capacitance() writes the oscillator load
+> > > capacitance configuration to the device. However, if the device is
+> > > not physically present on the bus (returning -ENXIO), the driver
+> > > only emits a warning and continues to execute the probe.
+> > >
+> > > This results in the successful registration of a phantom RTC device
+> > > via devm_rtc_register_device() and its associated nvmem regions.
+> > > Consequently, userspace may attempt to bind to a non-functional
+> > > /dev/rtc node.
+> > >
+> > > Propagate the I2C error back to the driver core using dev_err_probe()
+> > > to properly abort the probe and prevent phantom device registration.
+> > >
 > >
-> > Propagate the I2C error back to the driver core using dev_err_probe()
-> > to properly abort the probe and prevent phantom device registration.
+> > No, there is no point in this, simply remove the RTC node from you
+> > device tree.
 > >
->
-> No, there is no point in this, simply remove the RTC node from you
-> device tree.
->
+> 
+> Hi Alexandre,
+> 
+> You are right, fixing the DT is the correct solution for missing
+> hardware. My commit message was misleading.
+> 
+> However, the current code ignores actual I2C transport errors (e.g.,
+> -ENXIO due to physical bus issues) from pcf85363_load_capacitance()
+> and continues probing.
+> 
+> Should I send a v2 with an updated commit message focusing solely on
+> properly handling these transport errors?
 
-Hi Alexandre,
+Then you should add error checking to all the regmap calls in probe()
 
-You are right, fixing the DT is the correct solution for missing
-hardware. My commit message was misleading.
-
-However, the current code ignores actual I2C transport errors (e.g.,
--ENXIO due to physical bus issues) from pcf85363_load_capacitance()
-and continues probing.
-
-Should I send a v2 with an updated commit message focusing solely on
-properly handling these transport errors?
-
-Thanks,
-Cosmo
-
-> > Fixes: fd9a6a13949a ("rtc: pcf85363: add support for the quartz-load-fe=
-mtofarads property")
-> > Signed-off-by: Cosmo Chou <chou.cosmo@gmail.com>
-> > ---
-> >  drivers/rtc/rtc-pcf85363.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> Thanks,
+> Cosmo
+> 
+> > > Fixes: fd9a6a13949a ("rtc: pcf85363: add support for the quartz-load-femtofarads property")
+> > > Signed-off-by: Cosmo Chou <chou.cosmo@gmail.com>
+> > > ---
+> > >  drivers/rtc/rtc-pcf85363.c | 4 ++--
+> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+> > > index 540042b9eec8..5612330aff40 100644
+> > > --- a/drivers/rtc/rtc-pcf85363.c
+> > > +++ b/drivers/rtc/rtc-pcf85363.c
+> > > @@ -426,8 +426,8 @@ static int pcf85363_probe(struct i2c_client *client)
+> > >
+> > >       err = pcf85363_load_capacitance(pcf85363, client->dev.of_node);
+> > >       if (err < 0)
+> > > -             dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
+> > > -                      err);
+> > > +             return dev_err_probe(&client->dev, err,
+> > > +                                  "failed to set xtal load capacitance\n");
+> > >
+> > >       pcf85363->rtc->ops = &rtc_ops;
+> > >       pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> > > --
+> > > 2.43.0
+> > >
 > >
-> > diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> > index 540042b9eec8..5612330aff40 100644
-> > --- a/drivers/rtc/rtc-pcf85363.c
-> > +++ b/drivers/rtc/rtc-pcf85363.c
-> > @@ -426,8 +426,8 @@ static int pcf85363_probe(struct i2c_client *client=
-)
-> >
-> >       err =3D pcf85363_load_capacitance(pcf85363, client->dev.of_node);
-> >       if (err < 0)
-> > -             dev_warn(&client->dev, "failed to set xtal load capacitan=
-ce: %d",
-> > -                      err);
-> > +             return dev_err_probe(&client->dev, err,
-> > +                                  "failed to set xtal load capacitance=
-\n");
-> >
-> >       pcf85363->rtc->ops =3D &rtc_ops;
-> >       pcf85363->rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
 > > --
-> > 2.43.0
-> >
->
-> --
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+> > Alexandre Belloni, co-owner and COO, Bootlin
+> > Embedded Linux and Kernel engineering
+> > https://bootlin.com
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
