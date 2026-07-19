@@ -1,177 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CB2939021C
-	for <linux-rtc@vger.kernel.org>; Sun, 19 Jul 2026 10:59:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9699324DCF9
+	for <linux-rtc@vger.kernel.org>; Sun, 19 Jul 2026 13:29:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784458789; cv=none; b=Oq149TlO2Hfdot/ZCkF9h6/ptfhUbtIBGuBHZknG6lEb2wzaa4j5z8tSKRUoutcpRfga2yHQuFsv1Vcwkw5MP8SOn0WgSgPdy0LfKxWrUkrC9EtIWhRMqX3mH8cy3WQXhn4Apcuv7sY49z5WLrfQ+qzsgaIDZmsgcna3nnUloQU=
+	t=1784467790; cv=none; b=tgjBbG+tfibDMbIWzgU1cApgX66R+Qp7U95fHLtCBHJSSlyzyf+iZGvAp2Y5/DtVJ6oHYOcxCvRhn10CJdtKJ2Sxxloxu+9bnVQBdNKSK3teUnOKopS3mwhR3qgf7Jm96+NhgkoFyXsIExYPzkYy9aGsefst3PuEhaTrqZu8Lkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784458789; c=relaxed/simple;
-	bh=4JnNKMHEgbNPLyqtTuirt9mnHKvZBNPnvgWzS8OMrko=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kIUzZZH8+mu6GvYgQ0m8m59qzh+LTRwgVgiejE2+Mku0CkJ5dq/E9ALG+V7Z/nyoabvVzkZs6THP88oeCJYyAevFy6G4V5i7+THXFBuLwh5zHdc1LeVLbULdRyUNm/qaDmtwRF8kGW4ZjQYsmoQ5GMfAZv2NxPMwOK8eqB/FQ+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=boAymyLW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784467790; c=relaxed/simple;
+	bh=Xaq7RQ3DmIHqyyvVvwMjeuLuuIAP7Ugenr1ER60EbtM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=YrO1Jof2WQZK3MYwT0T7AJmhMk52mmNX5ACicrjgKW9ASqo9LzaIqUutZ5CNBTcdYG5WhISKVr3QSWmgh1NkopIUPWGSswiWhxlLqUIR5429+sV6BfLdEJP5CduZsV6S8Ar2gxWX1blFariD1xheELybaoud/7kYhWXW1k3oJRs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=njfPPkRB; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="boAymyLW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E8F1F000E9
-	for <linux-rtc@vger.kernel.org>; Sun, 19 Jul 2026 10:59:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784458787;
-	bh=kT5fQKydHb0o/kmDIhHcIiX0lFZIcFPyW/gk+fnkOGg=;
-	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
-	b=boAymyLWEaSHndgHTo/eu2acHzPYH1hDazg+SPic0YVrSScebokmsQZoNJjFMmNpw
-	 s0eDCL4DX6jXdH8cm0iToVLP7nGd+iYQ8W/Cv7n6J+HaZmhKd5lhApK6zw6v/zrWdI
-	 8ELk3oNnOFdJQC2mTvj8pG1gWlaWwbTzI/2SbI3cTkwYcWadZdIpEj3lOUsOx7ipQw
-	 qxdeB2vhcggDYIiwlwZLemUMYBxt6ezlHhgRwuOm4aP+oiso7LmOz8AGlcmbOTKlYm
-	 7XvXoPCcK8jnknln+EBMpeqjZmq8LQ9hLqDNoJey55/9Umm1SCn0C4Xi217TRADQ/D
-	 xVpXPY+Kb562g==
-Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-39c94fccf3eso55763601fa.0
-        for <linux-rtc@vger.kernel.org>; Sun, 19 Jul 2026 03:59:47 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RpTzVAjTwKeiJuBbeW6zbVanTFN46IL0DbpYBabP50QDUGO4LyhLLDlHzKgLtTZaRsAUqw4XLsAkgs=@vger.kernel.org
-X-Gm-Message-State: AOJu0YytMatvV25xo5FsbapbmpytQa+pyGsZm2QspfDSqTdAwli2f1iM
-	6ys63yX15Tc6GDhHeqYcur59MgjhW4+8CAjPrlBRYdDJyz5yKHZhWf2hE0aMWLtLhvZKj7OzXZl
-	OPg4Zc6Iy6FkrxMLwI+vbC5L7gpdOtSk=
-X-Received: by 2002:a05:651c:18c6:b0:39c:6d3a:2dd7 with SMTP id
- 38308e7fff4ca-39eb27cae55mr18285731fa.17.1784458786357; Sun, 19 Jul 2026
- 03:59:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="njfPPkRB"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-490cf322ed0so64348635e9.1
+        for <linux-rtc@vger.kernel.org>; Sun, 19 Jul 2026 06:29:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1784467787; x=1785072587; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :user-agent:references:in-reply-to:subject:cc:to:from:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=oTTnLvB5EKr1ilWHZeKrVDJrENmEbx/nOStJCKmeMiQ=;
+        b=njfPPkRBoGlVv2ArYuZPZR2D3wW8m5WWYQduo+n5egLfyRUZUEu/K/cQmmvuavdWpo
+         uYAACsGS5yCvnI+wk059pRgWihoUvLN6mixIjmHp5p0U1eHgHQCYPN/xlLT06ukXsFdN
+         Y0uI/6CpWCBOBfeL7ZOUDHlGI711QdUm0iucH+JzWFKrcQdLIcTpQ0kCIuJ0CkAC/DUh
+         LT+HcNYxfGvUurAh1gTc1WW7UNpBZhYMds0rMNG1+Fq8rCjC/AwuLZ9aMlt8xoBKCu7I
+         nzKjMAW70ieALOWlrTk/7QHK3GJlDakpgThf6slLtX3KLbV0Yf7juMxE2YhAIch5PHQg
+         bj8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784467787; x=1785072587;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :user-agent:references:in-reply-to:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=oTTnLvB5EKr1ilWHZeKrVDJrENmEbx/nOStJCKmeMiQ=;
+        b=E+rvV0ni5wifrVojnGmkFPEg33X0kaLqID0wTcM1Dqc+kv7MS2is+AxJMd95d+uzVn
+         upxEpRREjkvOA79P8P+rWrdBdvm6E1cMSAZ1zLZ6E9DziwnmWpHBS0KBN+uq7W05zeZQ
+         AWNa5lVoPlop8NiGRRl3Djt+89rOK+aeW2h/gjb59Fb8GwmT9QYi8/Osuu1u1NQmSFym
+         BQIJrd2GZ0vC5ReCm//hDS/u9GWjdPfLdn6xeAipXb+4F3BswitGEYPfmm1qUfUe29o/
+         9BwENS5YDSMzB38EkCj1pPUkjuJfBlloWmEBrgNKXt1QAVkPnacaUHKUuaITuQzn+dij
+         ReNA==
+X-Forwarded-Encrypted: i=1; AHgh+RqDiLGbW87tABvAvEBEFqZXQZxitMHuYUNzUUtUFEGm/5+glnoc55PwyWKOoifSOyZRQe51mjZSwYM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzDA0YhPQzBotUF7VJSqaxbSDoIwJpZCCmp2BF3VwjG8Bski7DF
+	L/hDLVLSvrO77rzfXrrxDYBtgjnmwhc9dvrj7kggc22lCP7LNjhEnEyptvucR7Hj9U8=
+X-Gm-Gg: AfdE7cnuK6+AfsZO/0UdxYafGmBjTuHZ8KqHjET5XAe+pB9TxawovUsMZMXm4/+IObd
+	0na+M1jeeQX8WRPnTWSMJWZCnkKKGRn2hwkzK+nWwSDtFcLhpXU0ZWmh3pAaLjAhgsWonhpoIUR
+	7OBaKFtffoomu7R91peeAGuD/t5dspbsSVQ8SeH8NZFQQGd0cXw1+H4GEihqhHf8VQ7fETbbc0P
+	Ac++2rVrisjXYM574YOtmxItACta+/EIF3xoOf07KfCR93YEqRu1yeyCGtmi4FnQd/u3gUZwhER
+	V4+HQqkQmoJl840ZPfgAVfd+WIePHz9NR5ItVeCXeC0ZeoqoWuXW7eXYKhhlessJggo+qTFyStW
+	6mQl7lieHtYRMjPCQbk7j3tofmN6bS/CQjssjCVJR7FLyi6UkNiHOhPv3nFXNSx6BKW6yC5n10R
+	g=
+X-Received: by 2002:a05:600c:4743:b0:493:bc4a:fb55 with SMTP id 5b1f17b1804b1-4954a508d60mr115272795e9.38.1784467786385;
+        Sun, 19 Jul 2026 06:29:46 -0700 (PDT)
+Received: from localhost ([2a01:e0a:3c5:5fb1:9a7:ef90:b513:8cdd])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4954a2b87c6sm353074595e9.7.2026.07.19.06.29.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2026 06:29:45 -0700 (PDT)
+From: Jerome Brunet <jbrunet@baylibre.com>
+To: Chen-Yu Tsai <wens@kernel.org>
+Cc: sashiko-reviews@lists.linux.dev,  robh@kernel.org,
+  linux-rtc@vger.kernel.org,  conor+dt@kernel.org,
+  devicetree@vger.kernel.org,  linux-sunxi@lists.linux.dev,  Alexandre
+ Belloni <alexandre.belloni@bootlin.com>,  linux-clk
+ <linux-clk@vger.kernel.org>
+Subject: Re: [PATCH v5 2/4] clk: sunxi-ng: div: add read-only operation support
+In-Reply-To: <CAGb2v65PmMnm=gusbVRJqwHkMFAdKpFyk8coXK=pf0-dBgv8kw@mail.gmail.com>
+	(Chen-Yu Tsai's message of "Sun, 19 Jul 2026 18:59:33 +0800")
+References: <20260717-a733-rtc-v5-0-3874cc26abf7@baylibre.com>
+	<20260717-a733-rtc-v5-2-3874cc26abf7@baylibre.com>
+	<20260717154005.444E41F000E9@smtp.kernel.org>
+	<CAGb2v65PmMnm=gusbVRJqwHkMFAdKpFyk8coXK=pf0-dBgv8kw@mail.gmail.com>
+User-Agent: mu4e 1.12.9; emacs 30.1
+Date: Sun, 19 Jul 2026 15:29:43 +0200
+Message-ID: <1jqzkzds54.fsf@starbuckisacylon.baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260717-a733-rtc-v5-0-3874cc26abf7@baylibre.com>
- <20260717-a733-rtc-v5-2-3874cc26abf7@baylibre.com> <20260717154005.444E41F000E9@smtp.kernel.org>
-In-Reply-To: <20260717154005.444E41F000E9@smtp.kernel.org>
-Reply-To: wens@kernel.org
-From: Chen-Yu Tsai <wens@kernel.org>
-Date: Sun, 19 Jul 2026 18:59:33 +0800
-X-Gmail-Original-Message-ID: <CAGb2v65PmMnm=gusbVRJqwHkMFAdKpFyk8coXK=pf0-dBgv8kw@mail.gmail.com>
-X-Gm-Features: AUfX_mymMBCpHipsNNhAnYECDp1Z2HGesriBpzKuCW5vwQp793h1LgYos6np7vY
-Message-ID: <CAGb2v65PmMnm=gusbVRJqwHkMFAdKpFyk8coXK=pf0-dBgv8kw@mail.gmail.com>
-Subject: Re: [PATCH v5 2/4] clk: sunxi-ng: div: add read-only operation support
-To: sashiko-reviews@lists.linux.dev
-Cc: Jerome Brunet <jbrunet@baylibre.com>, robh@kernel.org, linux-rtc@vger.kernel.org, 
-	conor+dt@kernel.org, devicetree@vger.kernel.org, linux-sunxi@lists.linux.dev, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-clk <linux-clk@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 17, 2026 at 11:40=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 2 potential issu=
-e(s) to consider:
->
-> New issues:
-> - [High] Missing `.set_parent` in `ccu_rodiv_ops` leads to silent softwar=
-e-hardware clock tree desynchronization during reparenting.
->
-> Pre-existing issues:
-> - [High] Unvalidated hardware register read passed to `divider_ro_determi=
-ne_rate()` can cause a divide-by-zero kernel panic.
-> --
->
-> --- Patch [2]: [PATCH v5 2/4] clk: sunxi-ng: div: add read-only operation=
- support ---
-> commit d732b1bc291c593bb4873ef5f04edb2855137f30
-> Author: Jerome Brunet <jbrunet@baylibre.com>
->
-> clk: sunxi-ng: div: add read-only operation support
->
-> This commit adds support for read-only dividers in the sunxi-ng clock
-> driver. It introduces a new ccu_rodiv_ops structure and updates the rate
-> determination helper to handle the read-only flag.
->
-> > diff --git a/drivers/clk/sunxi-ng/ccu_div.c b/drivers/clk/sunxi-ng/ccu_=
-div.c
-> > index 62d680ccb524b..93cb4cb93abe8 100644
-> > --- a/drivers/clk/sunxi-ng/ccu_div.c
-> > +++ b/drivers/clk/sunxi-ng/ccu_div.c
-> > @@ -20,8 +20,22 @@ static int ccu_div_determine_rate_helper(struct ccu_=
-mux_internal *mux,
-> >       if (cd->common.features & CCU_FEATURE_FIXED_POSTDIV)
-> >               req->rate *=3D cd->fixed_post_div;
-> >
-> > -     ret =3D divider_determine_rate(&cd->common.hw, req, cd->div.table=
-,
-> > -                                  cd->div.width, cd->div.flags);
-> > +     if (cd->div.flags & CLK_DIVIDER_READ_ONLY) {
-> > +             unsigned long val;
-> > +             u32 reg;
-> > +
-> > +             reg =3D readl(cd->common.base + cd->common.reg);
-> > +             val =3D reg >> cd->div.shift;
-> > +             val &=3D (1 << cd->div.width) - 1;
-> > +
-> > +             ret =3D divider_ro_determine_rate(&cd->common.hw, req, cd=
-->div.table,
-> > +                                             cd->div.width, cd->div.fl=
-ags, val);
->
-> [Severity: High]
-> This is a pre-existing issue, but could this unvalidated register read ca=
-use
-> a divide-by-zero kernel panic?
->
-> In ccu_div_determine_rate_helper(), the raw register value is read and
-> passed as 'val' to divider_ro_determine_rate(). If the register contains
-> an unexpected value from the bootloader (or 0 when CLK_DIVIDER_ONE_BASED
-> is set) that _get_div() maps to 0, divider_ro_determine_rate() lacks a
-> zero-check before calculating:
->
->     req->rate =3D DIV_ROUND_UP_ULL((u64)req->best_parent_rate, div);
+On dim. 19 juil. 2026 at 18:59, Chen-Yu Tsai <wens@kernel.org> wrote:
 
-Well that would be either an invalid hardware state or unpowered / gated
-hardware. Neither is correct and should never happen and blowing up is
-the correct response.
-
-In any case we don't have CLK_DIVIDER_ONE_BASED dividers so we are fine.
-
-> > +
-> > +     } else {
 >
-> [ ... ]
+>> > +
+>> > +     } else {
+>>
+>> [ ... ]
+>>
+>> > @@ -143,3 +157,15 @@ const struct clk_ops ccu_div_ops =3D {
+>> >       .set_rate       =3D ccu_div_set_rate,
+>> >  };
+>> >  EXPORT_SYMBOL_NS_GPL(ccu_div_ops, "SUNXI_CCU");
+>> > +
+>> > +const struct clk_ops ccu_rodiv_ops =3D {
+>> > +     .disable        =3D ccu_div_disable,
+>> > +     .enable         =3D ccu_div_enable,
+>> > +     .is_enabled     =3D ccu_div_is_enabled,
+>> > +
+>> > +     .get_parent     =3D ccu_div_get_parent,
+>> > +
+>> > +     .determine_rate =3D ccu_div_determine_rate,
+>> > +     .recalc_rate    =3D ccu_div_recalc_rate,
+>> > +};
+>>
+>> [Severity: High]
+>> Could the missing .set_parent callback in ccu_rodiv_ops lead to a silent
+>> desynchronization between the software clock tree and the hardware?
+>>
+>> The struct provides reparenting capabilities via .get_parent and
+>> .determine_rate, but omits .set_parent. If a rate request causes
+>> ccu_mux_helper_determine_rate() to evaluate and select a new parent, the
+>> Common Clock Framework will apply this new parent in software but skip
+>> updating the hardware since .set_parent is NULL.
 >
-> > @@ -143,3 +157,15 @@ const struct clk_ops ccu_div_ops =3D {
-> >       .set_rate       =3D ccu_div_set_rate,
-> >  };
-> >  EXPORT_SYMBOL_NS_GPL(ccu_div_ops, "SUNXI_CCU");
-> > +
-> > +const struct clk_ops ccu_rodiv_ops =3D {
-> > +     .disable        =3D ccu_div_disable,
-> > +     .enable         =3D ccu_div_enable,
-> > +     .is_enabled     =3D ccu_div_is_enabled,
-> > +
-> > +     .get_parent     =3D ccu_div_get_parent,
-> > +
-> > +     .determine_rate =3D ccu_div_determine_rate,
-> > +     .recalc_rate    =3D ccu_div_recalc_rate,
-> > +};
->
-> [Severity: High]
-> Could the missing .set_parent callback in ccu_rodiv_ops lead to a silent
-> desynchronization between the software clock tree and the hardware?
->
-> The struct provides reparenting capabilities via .get_parent and
-> .determine_rate, but omits .set_parent. If a rate request causes
-> ccu_mux_helper_determine_rate() to evaluate and select a new parent, the
-> Common Clock Framework will apply this new parent in software but skip
-> updating the hardware since .set_parent is NULL.
+> This is an issue. I'm not sure if what Sashiko says actually happens.
 
-This is an issue. I'm not sure if what Sashiko says actually happens.
-But 1. this is "read-only divider", not "read-only mux & divider",
-so the .set_parent callback should be provided. And 2. this is using
-the ccu_mux_determine_rate_helper, so it's possible a clk_set_rate()
-call is going to cause a reparent.
+I think it could. I've defenitely made a mistake here.
 
-I can add it while applying if there are no other issues.
+> But 1. this is "read-only divider", not "read-only mux & divider",
 
-ChenYu
+The correct way to choose between the 2 is CLK_SET_RATE_NO_REPARENT I think.
 
-> This would leave all downstream clock rate calculations incorrect.
+> so the .set_parent callback should be provided. And 2. this is using
+> the ccu_mux_determine_rate_helper, so it's possible a clk_set_rate()
+> call is going to cause a reparent.
 >
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717-a733-rtc=
--v5-0-3874cc26abf7@baylibre.com?part=3D2
+> I can add it while applying if there are no other issues.
+
+As you prefer, I don't mind sending another version in a few days
+(giving some review time to patch #1)
+
 >
+> ChenYu
+>
+>> This would leave all downstream clock rate calculations incorrect.
+>>
+>> --
+>> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260717-a733-rt=
+c-v5-0-3874cc26abf7@baylibre.com?part=3D2
+>>
+
+--=20
+Jerome
