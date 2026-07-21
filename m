@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96C63B42CB;
-	Tue, 21 Jul 2026 22:13:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27244347BC6;
+	Tue, 21 Jul 2026 22:45:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784671996; cv=none; b=JZUKdIKQlyKnxJL6Lxe94XyzUUisavkwHf3oWl4rjtl133kjPOFPrgER1nhrgoaqqNiotp1u287Ra8B8kOjQuuvhmND/Cuvk5eUfNzmp62ffam5ifg7hYNPU+SM+dKFLUF96gmyqmaAykAzxD3Uk3lzt9FuesG962EMagCy7cn0=
+	t=1784673947; cv=none; b=uLt1PGufwav50v18hCqKj92tgEdVDAtp/E8b2Mb0zL+TjmP2bmUdwCV79pb1n/KMjUtUik4W8Iymne98nsXbvRwp2r321LBlTHSG6fV6c3LPCU9Ql6uz8GnL11XUstnEYNh8akIQoDrOvFB7v8RQtTzvcmbjxvqou5oUGuVhO44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784671996; c=relaxed/simple;
-	bh=5S2jZ62oJtQawez2leT63yFCFPTRCjY8PL7UWjsbxC4=;
+	s=arc-20240116; t=1784673947; c=relaxed/simple;
+	bh=m/zkTFfwwz4tmG9tn3YzXMUWLIOCqupoYuHgwwWDDZY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CfZwAzfLv0FK8M/ry4bXiq1U1FNGMfyKRBGtur3Yl5xJuwN5sYyUwUcGfRrhMhZoBrWaQGwubRNm82r3BSaYu6ELEPYOYakNAJUO5Wy5CTr+vcJqiQFRF30/cSjAxpEKs1ezLNNMvrWoVPBOCp4/4xodLO7boiQs5lrf6b17nM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=P2wuDOPb; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=Rgx4iiAh3ojb8EUBuEB3XECohRVYm/ueVXIGLr/gccetG/4m40Za+1X1xkth64V3sMx0juN1fhAgzGozqpMA6cmoGChZj1LnATVqn9EkMNrztlRRyO9t75mKnEZKFMx7xeNivNdqj5fglltEo7Rulqw+yDYTvHPpBYPX8RJzs88=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=xqOxMQa2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="P2wuDOPb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA091F000E9;
-	Tue, 21 Jul 2026 22:13:14 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="xqOxMQa2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A371F000E9;
+	Tue, 21 Jul 2026 22:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1784671994;
-	bh=BfX5wrya8xUT3rsNtHci0VUBWWpX/CWelmAlDDJFB04=;
+	s=korg; t=1784673946;
+	bh=NZr/c7cQBdVtOAE9fUlQQ3eOK91smf2E6Z2dOZRDTAQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=P2wuDOPby3imwO5zQE+yE/nBYRIQOazd3R7jmPzMgTkhZ6kdN6IXs75VYzFIp0RGg
-	 Oio3VQRpk4pZjIKhvj8C9rNSVai6fyDuY5daXp5MpGQjIvXByNcfH0CPXlKalGouL8
-	 obvB+mByJ2bnoxZmr/UMq13mYCQHBKrOqpJGIc6o=
+	b=xqOxMQa2oIkgCakCjAcDbuO0J3mVr2g5OTpBMrUK/699bzljqClVG9/tlf0Mp9vIS
+	 voFjRDFJePjiF3sm3br2bOE8Unupvo+iAFFF3XE+G/TQfyMR7Hz3vbeHEgN+dF4FEO
+	 PtCRBOGqEnTAICnPIPxfpPscdi+MDbfEk16E5ACw=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Meagan Lloyd <meaganlloyd@linux.microsoft.com>,
 	Rodolfo Giometti <giometti@enneenne.com>,
 	Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH 5.15 458/843] rtc: ds1307: handle oscillator stop flag for ds1337/ds1339/ds3231
-Date: Tue, 21 Jul 2026 17:21:33 +0200
-Message-ID: <20260721152416.334343058@linuxfoundation.org>
+Subject: [PATCH 5.10 353/699] rtc: ds1307: handle oscillator stop flag for ds1337/ds1339/ds3231
+Date: Tue, 21 Jul 2026 17:21:52 +0200
+Message-ID: <20260721152403.656599907@linuxfoundation.org>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260721152405.946368001@linuxfoundation.org>
-References: <20260721152405.946368001@linuxfoundation.org>
+In-Reply-To: <20260721152355.667394603@linuxfoundation.org>
+References: <20260721152355.667394603@linuxfoundation.org>
 User-Agent: quilt/0.69
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-5.15-stable review patch.  If anyone has any objections, please let me know.
+5.10-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -112,10 +112,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index e02bc2a2e77f79..d01c420bc229a0 100644
+index ecfd6c27ba542c..27073898c9c3d7 100644
 --- a/drivers/rtc/rtc-ds1307.c
 +++ b/drivers/rtc/rtc-ds1307.c
-@@ -263,6 +263,16 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+@@ -265,6 +265,16 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
  		if (tmp & DS1338_BIT_OSF)
  			return -EINVAL;
  		break;
@@ -132,7 +132,7 @@ index e02bc2a2e77f79..d01c420bc229a0 100644
  	case ds_1340:
  		if (tmp & DS1340_BIT_nEOSC)
  			return -EINVAL;
-@@ -273,13 +283,6 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+@@ -275,13 +285,6 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
  		if (tmp & DS1340_BIT_OSF)
  			return -EINVAL;
  		break;
@@ -146,7 +146,7 @@ index e02bc2a2e77f79..d01c420bc229a0 100644
  	case ds_1388:
  		ret = regmap_read(ds1307->regmap, DS1388_REG_FLAG, &tmp);
  		if (ret)
-@@ -374,14 +377,17 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+@@ -376,14 +379,17 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
  		regmap_update_bits(ds1307->regmap, DS1307_REG_CONTROL,
  				   DS1338_BIT_OSF, 0);
  		break;
