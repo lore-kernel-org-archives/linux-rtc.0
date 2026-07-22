@@ -1,223 +1,102 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D7B3439F63
-	for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 16:28:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD7AB403AE0
+	for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 20:00:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784737733; cv=none; b=Cvq745ggsdIBjDaNugkXtCCvbQ0qILtjaOstfYbEER80NSZE5t2w3iVdiPvek7fYWnZMAlDC7PDqbbj4+02AlbZk8HLofrYeDPSNokQV9hviau/NHXz/+OantfuJAQOqKKSg/qmKgYxJgX8pdyU/rnVRwUN9XZ45ZU+SeQi8nfg=
+	t=1784750436; cv=none; b=tOIVX1h+QP2b0nOVVt4lDUl6K/ZvobcV8E5I7tSooT7lPC4KfLG71dPxdG6feGZDVO1DXm+GuH7WJTQ77StFRRP3fIL8BfzhtgYL1wAmZ2DUPNkBjCU37kbSwXKiU1gXUIdgmTgXppah2V0qHrQvkP13S82B3p6TTU80ur5e3TA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784737733; c=relaxed/simple;
-	bh=SgrI06VkRvOUZZO0DVjTQu+oEWa6QEs25v+7RLbBZmk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=KVDS48cspU9tQpuZ6duNn9WLrG/uo0PEVslNYq5LVzfYa374E9LNNSr7N2au9JIZhHZbged2eUFmtWFZVvO6248QEFcM/5vf+V890yhgEP/QKG7jsg2kFFz48O5UtsRgFlRrW5Xb2pFrnPkO+6DGPNofGux/v8cFMFuY7obyGRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=UfuUQ8wh; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1784750436; c=relaxed/simple;
+	bh=pEkIRxRWvYHz+dz3NpwZqKpLPS9hkD79MDfEkwAeZf4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tDRxHrSZbdiERjBZ62u/0/sdYcXxw6/JhnWi+Cc2KVrlplnOSLpR0Xt/OmzL3DBcRO+DRGpsssHAoVhIAfMD3ox9DNUAxuUuA2wxSYOEwbhxizoGXJlQIfe8qTg/qNRSKd7OY7rwHbKjtDYDIVGRn5yzD2PwxGBz0IXT8E/ZgJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gh+M1znx; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="UfuUQ8wh"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-47de008b020so4778035f8f.1
-        for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 09:28:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gh+M1znx"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-47f633e6058so5374868f8f.0
+        for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 13:00:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1784737727; x=1785342527; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :user-agent:references:in-reply-to:subject:cc:to:from:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=0VgoN131mpCFDGVLEaTpJh9JaIowTJ3l5BSSOdIVGp0=;
-        b=UfuUQ8whqYe7NpyuoRx+Ng2DMxZFzskibozxrSTWyf9a//k45i+60ciBqta7WfG5P4
-         AyalqTZ5A0ZSSJBYujhkQqwPZiB4LMpRc274Y+iqIuHV8eaHiWhMIcDChnqESG2+tNGd
-         jKG6K2dorhfL/nshV94A4h8f4qHQkP22J4xt+Hbu1hy7dVukX6rSGOMpqrKZtCW+5/GA
-         fGL8GSzmWm9zaccA5f9D3gv0UFofpAPyMLYrOLqkN7Uqi3MXzgeaIYbXoZEm1jaJSZbC
-         Y0h/DWlYZNwvobOL6wz0yOU2qpB9NfoTkVEN5l6kluNnK5hb7CUcMHDMCaRwV0IuieL2
-         dtwQ==
+        d=gmail.com; s=20251104; t=1784750430; x=1785355230; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=5mORs65Yll7OpCDVibb83AtzmBXkayu+8iC2S0zkHp8=;
+        b=Gh+M1znxjfE7LPSzSb4ODyw4g16NjjZPV0Ge94iee2jC1vQZ/r97iW+7HVYmbg3Oes
+         kqavOYquPi+AwO2s1aWh2lPZUL6z6d2Al8cK1vAEp47elLdoIUAGBTcWTFutUgfnh6Jz
+         LxHAjiuBdPqB0UuMe5tNpgj1fBObJcFt7GhiWdOVfSFiVZuYzu49vXrgFCEx7386JWbY
+         LHBh76xk1HrJ3kX2hq7vb17gum/6zLnCHLqicrtqtc/gP+eefpKxYHN3MtaVfhbxuoK6
+         kHHiXzNQ2J4yT1TxnJ5wvrt91llZqBzsele+nu7LoX/7W+m3nJgyOSGZVWOaTwdHQ8h0
+         KXNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784737727; x=1785342527;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :user-agent:references:in-reply-to:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0VgoN131mpCFDGVLEaTpJh9JaIowTJ3l5BSSOdIVGp0=;
-        b=BHANS3anQ4KPdhnDsy24a2UJD9WW7HfSiTt2VMGaaD8ZxsYFsLjsikB4XCsY55qqw+
-         RBm+ZE4aNAsq+4zZkkpBYEDIu6UDE7W6vHS1zh4EIi4o12gDT+I1JKWxKzzhfrWvOTYu
-         gF/G4iSNgxyLfYmXhxvLfr/hwBBtaFjf/HHp4Zler8ayWYjj1jCjeQiShtFB+nK//LY0
-         T8PmTdkDNT//snnntVMNk5UK14goViXBuJdc5iLD5f81I9LCCL3WZ7EVQcPrYyli2wYP
-         yuheqH0YU5nxyejErLkyvzCNR2KO98EEzOx2zMiRstY/YzUYtlvpcpTUhS7z6bwT6Gx0
-         S9tg==
-X-Forwarded-Encrypted: i=1; AHgh+RqGf2/R7uemiP7D5t4cqpSaIBALlUFlmjwr9XXwd4NuhXfgp92iDp1UIRnDXnCaKY3MHWyQK7oWRlU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyvsDL+zLPsk1Kk8DtpWOVoVfodjkmXvQFSQdamKXvEP6VuC7JF
-	28cCmVpNwLLHACy/woOE4QtSrgDRgWoxkzNpNoew6/wyBNhDLCHClrmNfOuo6F8RBtw=
-X-Gm-Gg: AR+sD13fTaGjY4uL6NKZrz6/PavMEJKtLxZ0HZqxwxEUXx3VYWP96rVaxKIDwszWW26
-	wAtdlNRHgw+wiU1gvghWTNQWs7V3zcE9wxCJTUAeHL+XPCxiRDva1WT/TPWSxaiCVfr4/iatC2O
-	TV9qlGCTfuuhcsRIM3TlM7UKDX01qHbq9SPQyMR+QFm5yickfak0hqxVMHXiFmG2PmJLND2B4UP
-	YLHtkOIf2w3BfA7UoKbNzd7jtaUIF0TsE1QXO2Yr2Jln3la/IRYWtxXGsJuKElKeVnKmC3Mr5Kf
-	Kz8QQcNlSZ6mGqyjqFKO6pjgcUTqTu9BFwK3c7Qqwrt91EKs6TWiBVaFb8kWgXfhsUwEBJY0UYQ
-	2ilG/4l1mUelO1HDkvdi8mNnU0hQbXYarB9L+25oUGpXwc8x1z/tSoXCZmzFVA9tp+/DbHaiQhf
-	M/
-X-Received: by 2002:a05:6000:4383:b0:47f:8a78:e814 with SMTP id ffacd0b85a97d-47f8a78e864mr1966333f8f.9.1784737727656;
-        Wed, 22 Jul 2026 09:28:47 -0700 (PDT)
-Received: from localhost ([2a01:e0a:3c5:5fb1:3382:6663:1606:b6ac])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47f85c6d277sm7563000f8f.32.2026.07.22.09.28.46
+        d=1e100.net; s=20251104; t=1784750430; x=1785355230;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=5mORs65Yll7OpCDVibb83AtzmBXkayu+8iC2S0zkHp8=;
+        b=cV5tnS/zVUUvlAqmkd72xnNTCWU7xN4ppQJD+SW0fC5DUfeEEka+8lWq54yle9Pjr1
+         FNZ/gBxZ2Z5Ze4pmaBC8OYOjhm0PI0Kncuvg0wFDjaaQ+iOO7LTnO/MrtpvUQnCazpkM
+         zlvCGN5vfwfGWH1QfhXBiwM7jg57a0IySaUEP26Mziq8bOX6cV1bWcx4TKWPcIUtDd97
+         qHiUvvSYf4Mz99VFAEs0m8sZGVyh8GxU6xuMMX6I/XTyS8IGOKm1N0sHvrk/7s2ZLqPt
+         ONBaRdD1jVBUumk6ng0T+Ua7Ea0HL/4rM9bAR0ED4OVM9fm3HxQIhJ+2bYPgjFiisqHj
+         U9Nw==
+X-Gm-Message-State: AOJu0YwD5XhxLkyZd4izwZtasT7mEN5KwM+TSIvq+mjCTSTTT7/brbx1
+	vdy0+ajzMor4Qf2jzUgM/tgpH/QqJZDHzNpS/Fe9hL2UTMOapnyLJXhB
+X-Gm-Gg: AR+sD11Aq1Ob5l2r5x7elw8NksPXywpr9axdh4RmPgXUtJAU7W+E/E7naGrRF3T9Vau
+	4IKheBma1ToBLgcsklVwt8UenSOOxJ+O8jnlHpshx8xjGfPrPCFlFt/4kZWJNqCKHJVQpzLmB2S
+	pVTgH1eoDg7iUWpk3mckjhcfQ9hLITXMJNX0TKL/qk3MpfDtDn91zf5vyTg6iIFhCkUPp7J9LDX
+	bDtCb5r1LrldODW3wGi3TDrrhw2U1VijB0595pCHTC0hblIsbh38hp11gJW/kh4ufq5H62Q4+Cq
+	SNgRU5XggXggmBdi96XCrKX4xlWvuARUIRGfg76H7TZYxpNMaelflc/WOM9WTUr2l/KKhkO2bVD
+	1N0siWkp6+ov3J/c+8JpU+QUrBw0ueYAtZmHtT4tTgrz4xQaWc1czS+5BXDULHSvndiGjdH/Jqy
+	IinWaJdw==
+X-Received: by 2002:a05:6000:2509:b0:47d:fc45:8589 with SMTP id ffacd0b85a97d-47f8d4b6b89mr380482f8f.0.1784750430345;
+        Wed, 22 Jul 2026 13:00:30 -0700 (PDT)
+Received: from antoniarch ([78.210.252.218])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c52fa9sm9532851f8f.20.2026.07.22.13.00.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 09:28:47 -0700 (PDT)
-From: Jerome Brunet <jbrunet@baylibre.com>
-To: Chen-Yu Tsai <wens@kernel.org>
-Cc: Junhui Liu <junhui.liu@pigmoral.tech>,  Alexandre Belloni
- <alexandre.belloni@bootlin.com>,  Rob Herring <robh@kernel.org>,
-  Krzysztof Kozlowski <krzk+dt@kernel.org>,  Conor Dooley
- <conor+dt@kernel.org>,  Jernej Skrabec <jernej.skrabec@gmail.com>,  Samuel
- Holland <samuel@sholland.org>,  Michael Turquette
- <mturquette@baylibre.com>,  Stephen Boyd <sboyd@kernel.org>,  Maxime
- Ripard <mripard@kernel.org>,  linux-rtc@vger.kernel.org,
-  devicetree@vger.kernel.org,  linux-arm-kernel@lists.infradead.org,
-  linux-sunxi@lists.linux.dev,  linux-kernel@vger.kernel.org,
-  linux-clk@vger.kernel.org
-Subject: Re: [PATCH v6 2/4] clk: sunxi-ng: div: add read-only operation support
-In-Reply-To: <CAGb2v64HjXygw76zaNi9KaG-zfc+hZoeyp4EHyz68fcdK-AXNw@mail.gmail.com>
-	(Chen-Yu Tsai's message of "Wed, 22 Jul 2026 23:40:07 +0800")
-References: <20260722-a733-rtc-v6-0-631cca28cc9a@baylibre.com>
-	<20260722-a733-rtc-v6-2-631cca28cc9a@baylibre.com>
-	<CAGb2v64HjXygw76zaNi9KaG-zfc+hZoeyp4EHyz68fcdK-AXNw@mail.gmail.com>
-User-Agent: mu4e 1.12.9; emacs 30.1
-Date: Wed, 22 Jul 2026 18:28:45 +0200
-Message-ID: <1jse5bc7k2.fsf@starbuckisacylon.baylibre.com>
+        Wed, 22 Jul 2026 13:00:29 -0700 (PDT)
+From: Antoni Pokusinski <apokusinski01@gmail.com>
+To: alexandre.belloni@bootlin.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: [PATCH 0/6] rtc: abx80x: add support for ABX81X
+Date: Wed, 22 Jul 2026 21:58:08 +0200
+Message-ID: <20260722195814.298552-1-apokusinski01@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On mer. 22 juil. 2026 at 23:40, Chen-Yu Tsai <wens@kernel.org> wrote:
+Hello,
+This patch series adds support for the ABX81X RTCs, which are essentially
+SPI versions of the ABX80X RTCs. The first patches contain cleanup and
+reorganization changes (converting the driver to use the regmap API was
+needed for this), followed by the actual ABX81X support.
 
-> On Wed, Jul 22, 2026 at 10:48=E2=80=AFPM Jerome Brunet <jbrunet@baylibre.=
-com> wrote:
->>
->> Add support for sunxi-ng read-only dividers. This will be
->> useful to the a733 oscillator detection logic.
->>
->> Reviewed-by: Chen-Yu Tsai <wens@kernel.org>
->> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
->> ---
->>  drivers/clk/sunxi-ng/ccu_div.c | 31 +++++++++++++++++++++++++++++--
->>  drivers/clk/sunxi-ng/ccu_div.h |  1 +
->
->>  drivers/clk/sunxi-ng/ccu_mux.c |  2 +-
->>  drivers/clk/sunxi-ng/ccu_mux.h |  4 ++++
->
-> Left over stuff?
->
+Kind regards,
+Antoni Pokusinski
 
-Argh indeed, that's no longer necessary=20
+Antoni Pokusinski (6):
+  dt-bindings: rtc: abx80x: document ABX81X RTCs
+  rtc: abx80x: add irq to struct abx80x_priv
+  rtc: abx80x: use regmap instead of I2C specific API
+  rtc: abx80x: replace read-modify-write pattern with regmap helpers
+  rtc: abx80x: create abx80x_i2c_probe()
+  rtc: abx80x: add support for ABX81X
 
->
->>  4 files changed, 35 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/clk/sunxi-ng/ccu_div.c b/drivers/clk/sunxi-ng/ccu_d=
-iv.c
->> index 62d680ccb524..c385e0160f13 100644
->> --- a/drivers/clk/sunxi-ng/ccu_div.c
->> +++ b/drivers/clk/sunxi-ng/ccu_div.c
->> @@ -20,8 +20,22 @@ static int ccu_div_determine_rate_helper(struct ccu_m=
-ux_internal *mux,
->>         if (cd->common.features & CCU_FEATURE_FIXED_POSTDIV)
->>                 req->rate *=3D cd->fixed_post_div;
->>
->> -       ret =3D divider_determine_rate(&cd->common.hw, req, cd->div.tabl=
-e,
->> -                                    cd->div.width, cd->div.flags);
->> +       if (cd->div.flags & CLK_DIVIDER_READ_ONLY) {
->> +               unsigned long val;
->> +               u32 reg;
->> +
->> +               reg =3D readl(cd->common.base + cd->common.reg);
->> +               val =3D reg >> cd->div.shift;
->> +               val &=3D (1 << cd->div.width) - 1;
->> +
->> +               ret =3D divider_ro_determine_rate(&cd->common.hw, req, c=
-d->div.table,
->> +                                               cd->div.width, cd->div.f=
-lags, val);
->> +
->> +       } else {
->> +               ret =3D divider_determine_rate(&cd->common.hw, req, cd->=
-div.table,
->> +                                            cd->div.width, cd->div.flag=
-s);
->> +       }
->> +
->>         if (ret)
->>                 return ret;
->>
->> @@ -143,3 +157,16 @@ const struct clk_ops ccu_div_ops =3D {
->>         .set_rate       =3D ccu_div_set_rate,
->>  };
->>  EXPORT_SYMBOL_NS_GPL(ccu_div_ops, "SUNXI_CCU");
->> +
->> +const struct clk_ops ccu_rodiv_ops =3D {
->> +       .disable        =3D ccu_div_disable,
->> +       .enable         =3D ccu_div_enable,
->> +       .is_enabled     =3D ccu_div_is_enabled,
->> +
->> +       .get_parent     =3D ccu_div_get_parent,
->> +       .set_parent     =3D ccu_div_set_parent,
->> +
->> +       .determine_rate =3D ccu_div_determine_rate,
->> +       .recalc_rate    =3D ccu_div_recalc_rate,
->> +};
->> +EXPORT_SYMBOL_NS_GPL(ccu_rodiv_ops, "SUNXI_CCU");
->> diff --git a/drivers/clk/sunxi-ng/ccu_div.h b/drivers/clk/sunxi-ng/ccu_d=
-iv.h
->> index be00b3277e97..a30a92780a05 100644
->> --- a/drivers/clk/sunxi-ng/ccu_div.h
->> +++ b/drivers/clk/sunxi-ng/ccu_div.h
->> @@ -300,5 +300,6 @@ static inline struct ccu_div *hw_to_ccu_div(struct c=
-lk_hw *hw)
->>  }
->>
->>  extern const struct clk_ops ccu_div_ops;
->> +extern const struct clk_ops ccu_rodiv_ops;
->>
->>  #endif /* _CCU_DIV_H_ */
->> diff --git a/drivers/clk/sunxi-ng/ccu_mux.c b/drivers/clk/sunxi-ng/ccu_m=
-ux.c
->> index 4503c9780c39..12bfc99c9172 100644
->> --- a/drivers/clk/sunxi-ng/ccu_mux.c
->> +++ b/drivers/clk/sunxi-ng/ccu_mux.c
->> @@ -67,7 +67,7 @@ unsigned long ccu_mux_helper_apply_prediv(struct ccu_c=
-ommon *common,
->>         return parent_rate / ccu_mux_get_prediv(common, cm, parent_index=
-);
->>  }
->>
->> -static unsigned long ccu_mux_helper_unapply_prediv(struct ccu_common *c=
-ommon,
->> +unsigned long ccu_mux_helper_unapply_prediv(struct ccu_common *common,
->>                                             struct ccu_mux_internal *cm,
->>                                             int parent_index,
->>                                             unsigned long parent_rate)
->> diff --git a/drivers/clk/sunxi-ng/ccu_mux.h b/drivers/clk/sunxi-ng/ccu_m=
-ux.h
->> index c94a4bde5d01..272a2c36a8f2 100644
->> --- a/drivers/clk/sunxi-ng/ccu_mux.h
->> +++ b/drivers/clk/sunxi-ng/ccu_mux.h
->> @@ -134,6 +134,10 @@ unsigned long ccu_mux_helper_apply_prediv(struct cc=
-u_common *common,
->>                                           struct ccu_mux_internal *cm,
->>                                           int parent_index,
->>                                           unsigned long parent_rate);
->> +unsigned long ccu_mux_helper_unapply_prediv(struct ccu_common *common,
->> +                                           struct ccu_mux_internal *cm,
->> +                                           int parent_index,
->> +                                           unsigned long parent_rate);
->>  int ccu_mux_helper_determine_rate(struct ccu_common *common,
->>                                   struct ccu_mux_internal *cm,
->>                                   struct clk_rate_request *req,
->>
->> --
->> 2.47.3
->>
+ .../bindings/rtc/abracon,abx80x.yaml          |  15 +-
+ drivers/rtc/Kconfig                           |  25 +-
+ drivers/rtc/rtc-abx80x.c                      | 595 +++++++++++-------
+ 3 files changed, 384 insertions(+), 251 deletions(-)
 
---=20
-Jerome
+-- 
+2.55.0
+
