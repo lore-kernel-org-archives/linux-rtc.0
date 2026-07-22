@@ -1,62 +1,62 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C49840DB42
-	for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 20:00:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A02EB40E8E7
+	for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 20:00:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784750455; cv=none; b=VSuQDM8LPcpF4YGj0v3kGtIbfsyuH33W821Ny5+59Ig50K3QQ0UEFoWXZ2Uz8M7omkZWiOzN3tE5DwbjOTIWKkdwE2TE6ZfG4f/FhmqbO2ARNz0AjziIC8rZWEq5gDjthMgg51NKm7Q+sY7N3BDkOLLSiat5HTorA53pjkPfQk8=
+	t=1784750460; cv=none; b=nmx1BvRM4iRexEeKHhqIrV/2n7lJ5HeOI26FFT5S5TF5stgn4nsM0S/2mj1/Q22xjRh/00hO1z+k1sSOQBAeUbKkQOmb5p7l5hDZXjJ/Htmy4lEDLifc5xHTDUdOX6wGMaYfcMKQpx7h/mkfs9b7wXNxwPV5YtQdrHtlNRTTwtg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784750455; c=relaxed/simple;
-	bh=qMJGANLLeJN5aJYGLw3k+K4atK9jwtSuuysXt9++2WU=;
+	s=arc-20240116; t=1784750460; c=relaxed/simple;
+	bh=+FNQ6n1imGfvLZaaJ0gYvCsqPfIIGV34Q1tWzoRYnzs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jZPhww5xBrkpDHLyUEe/SP+AMKBsOGDXpMfFa5VC5GA21JNtyxWgLZrxf3PMovRqUis68O74YQ38FqIZBpM++GlO7+KlkuQtdreaNmE6Y6S0qWYzG45ZmXmQf+K0LzE+8YT4mZ8CrCZjb5x3xXbNPaL7nFjFflCIM/EYUI2l7Rg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GtKiIsoS; arc=none smtp.client-ip=209.85.221.41
+	 MIME-Version; b=dlPPtky2jDJ+on9F8yZFmR1KDGR1lOGK3CqTF5DtgLUjYiLeK++CqPaI1VSHciB0gwOaerEzPtuakX5hN26bp6IBAAM89VoSv7xuj/2n0UgohmeAVNXyfg86uHdoB9QJyvWCknaFiFE6Ubf8TIn3Nz0tR+DYMzEljdjEBvXWVFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A4hm1FFV; arc=none smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtKiIsoS"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-476a130c138so9454002f8f.0
-        for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 13:00:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A4hm1FFV"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-47f633e6058so5375223f8f.0
+        for <linux-rtc@vger.kernel.org>; Wed, 22 Jul 2026 13:00:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784750450; x=1785355250; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1784750452; x=1785355252; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=OTMGum6yp7PCDuuQ58Six53iQI5SthybixPx4tQNUyI=;
-        b=GtKiIsoSwQU4V7vvJ3Uv238aAEHPaZpT9FoY9Obif9nBkLrQ6RrvxYzEqNechKzqYo
-         JIJmthMh6BI/enf+uGcSmrrsRsUrNWJ7rar7dbpCPw2cj7/0/aWkWziDMwsSOuiAcVj7
-         OPp+8CbjWii+TF8F1yWJowvkN17d8Kr+XiACRcYVsKzRR2E6UMkUlSABvfiVeDnmcnR+
-         MXxvbIM4raqkvuBYosQ2djcUQ1HeVXBEmR430EPFUyDi5M12jXdhz8/p0iBY4cK/JQou
-         CqPhsRcx/HsU5wahe/LboAi8zEVSUtbTWiEeJ6QD1SRZPn6BLx3mAtmnN6pDRW4w/B90
-         reig==
+        bh=s29qcbdL5lOTVW/MJURIjCxSBqBwRZtgjPoJbiMT+oo=;
+        b=A4hm1FFVlxZjKQPk5SqoGoSzFSUVJ65UVtgJ42apisEAW4Iv4kJcGcoQ7KT3g90NbS
+         0LKYGKCp30PmQZCZjfXRSMm5xr1TT81Y9crJlYkzlI+pDWVeIJC8vb468DkBQnbnHrY3
+         iij5VY4ZCfNC72gVMbbMuzFnNRNzxmpz1szRqPbCX66w20WVazVdemL8ogTCZK2TYQjS
+         1OZbgZ2cpIwqXbyx9+HeY+dKgVAU7rq0d6+1/c3VSPilyFsYQdiaa/qFO6uomYCMqsE0
+         Yxgu6yffdymqu806r/md0nhAd/8zHFngl69u83fviUKr8lrx66qVL3t7AZindhDG1fnz
+         zDQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784750450; x=1785355250;
+        d=1e100.net; s=20251104; t=1784750452; x=1785355252;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OTMGum6yp7PCDuuQ58Six53iQI5SthybixPx4tQNUyI=;
-        b=NkJpkgeS2ClpLQ0gsd+PmQZEVX0YCZTSw3zbEKwXa3xWgy+Q99IG/acbBAlJD7gWBY
-         A6JO7uot3LH9sp4V7Ka+lWGm0QVlzt3+Wkp/6dcKbgaP9Jw7ciOiw4RSo/JyDGYCafAB
-         jrMJCHVPKxL58y97V52bn8j93ipKSByrLrRmBcssO1/Z6NTKreYkhEAm/k2LV6DkeBHK
-         mS5am8Dhowal+2uwLGGuukl4ble3KfMBZICjLN4zHFrN56n/jc1SS53dfCXMWB5FfE76
-         aWpf8s1PgX5eVDWWaasbPi48A2FnfL+o+GvHPm5k0o14MtiEEhhounr/1X0ABdpJOlUo
-         ePBg==
-X-Gm-Message-State: AOJu0YyorVgsK4CRSQqvSEj18Op7fs9G3L9ft7SDwqlpPaHccx1G/yDs
-	ar6cuW0JtKRm5c7Ys5XnvdcZoAmufzy6PaQB1tdVeahrGJi9TQXUQIZ1
-X-Gm-Gg: AR+sD13Z803YIcbiyyCUQ21dDF2R9KM/gVtyYc5+WdxjXAZQKCsJuKJj2IPThTgyZgf
-	XoXI7QBvk9/7FQoaWeoWBpvNLpB6SRibvS75zzXJ0amEyCvEc7kWSi2Jivwrk4kqJDoDLrY7FoY
-	oXZ/U9ythiYfOqyL4i5nc8nngthfTjJFpiU8j9GjDaQfXywV3WJ2htpzv/uCJtOyJ1KTwMX33wL
-	tLISfNEP3Re083owSopI7jenr1aKAlsHMsXMoYSFWluIYV40KXv82Kuwuurj7Sh28WudsLucAju
-	Gf+QLjgKvbDq3lpX0DS9VBARnxVj77QDY28MjAPunzC3IEbFjWZRkVcbbdKilnPNWV54EtiyDuW
-	jDhiUIx1ENxR6GKH51t+RyKzX5iIrkZDe42AUmtvWa9U2HWbdbHjEF7fTaIQ3QdA+zEA3XabjZe
-	hWnO00Mw==
-X-Received: by 2002:a05:6000:18a2:b0:47f:7531:3e6d with SMTP id ffacd0b85a97d-47f8dc8cc77mr289835f8f.38.1784750449660;
-        Wed, 22 Jul 2026 13:00:49 -0700 (PDT)
+        bh=s29qcbdL5lOTVW/MJURIjCxSBqBwRZtgjPoJbiMT+oo=;
+        b=gQeL57c93GQ5NJuLlUh/8mCc4HgYbKWHHPOe9d1RafsrzxHxBN9u9zg0d1v/8FV95Q
+         SMokD/avlXnT8z6hCuil132FNQ8YhjUK0UwqhxE/dXnBeReGz9xRH3JnY9plRFp0oz5x
+         xVs0hFEE6rkQc4uP9YdBo/aDoNY4MthSIPjUG6i/CR6TbHoKielVMxU0739cBg6ltkVV
+         5bGHZUY/byLe+2kpwvQnNIBmZuGAI6sIPwTCNdcuxFAncEwtQtQMQ+si9XKs3Q3KKj6l
+         hFLvGrjo16N1lUFhbZleePtNOkh1aAv3orpJ8+d3j05y7b/LPPWcx34ccLAbg6FLn7qp
+         lpyA==
+X-Gm-Message-State: AOJu0YxP1sOtrLBUqwY+RxcFfvegBCvtw/qPI+wCoXNTDNyXKd2IALur
+	XpXRF+kz/r1BKxh+JGCLwQW6heNCRYAVp4ymGQDldN4PKlFyWCo8pT07
+X-Gm-Gg: AR+sD11xni787JVWSQvGE+HYRo6JCQ60w1Tg9qHTOm8V9uq1tY7OcHxnJF/0eNylmHb
+	wXfjUTdZNXr3692qkhe7oIq12wglGCKJCHSq9ayy7WHqc7F/gVyU0oQStQ7016PMX0egbAhJvyQ
+	YDrpsqnKBdqB79EFL4j1pqGDvUWXSA77wSI8fYZbkS0d4a/xf03Dwm04Id5buMDqDHL+ugay6rt
+	Dkt0yFJFZmxw1VngILPz8jBzUMWtgLKhyqEBqw2iaRooN+HAVpP8mnzu1YBGHdof+FzCGpF96ER
+	B+DBw4OyJtzLeQIswuvDHE1AT1mrD3kwUfwMl4G0279CZeL9nFv0lfiuo1WAubb2qDEIx5j0L0D
+	9NSgQTpLCWqDSAjx3dTdGwgxS+yzO773XefFdyQ16PDBhptF8rFWvYZiI1julSvDBVIiKA14KUL
+	4F9mQuTd44QFm2NpTl6LeUhpKsn+I=
+X-Received: by 2002:a05:6000:4282:b0:47f:7fda:6c7b with SMTP id ffacd0b85a97d-47f8d76ce8emr355468f8f.49.1784750451925;
+        Wed, 22 Jul 2026 13:00:51 -0700 (PDT)
 Received: from antoniarch ([78.210.252.218])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c52fa9sm9532851f8f.20.2026.07.22.13.00.48
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c52fa9sm9532851f8f.20.2026.07.22.13.00.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Jul 2026 13:00:49 -0700 (PDT)
+        Wed, 22 Jul 2026 13:00:51 -0700 (PDT)
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: alexandre.belloni@bootlin.com,
 	robh@kernel.org,
@@ -65,9 +65,9 @@ To: alexandre.belloni@bootlin.com,
 Cc: linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH 4/6] rtc: abx80x: replace read-modify-write pattern with regmap helpers
-Date: Wed, 22 Jul 2026 21:58:12 +0200
-Message-ID: <20260722195814.298552-5-apokusinski01@gmail.com>
+Subject: [PATCH 5/6] rtc: abx80x: create abx80x_i2c_probe()
+Date: Wed, 22 Jul 2026 21:58:13 +0200
+Message-ID: <20260722195814.298552-6-apokusinski01@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260722195814.298552-1-apokusinski01@gmail.com>
 References: <20260722195814.298552-1-apokusinski01@gmail.com>
@@ -79,218 +79,313 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Before introducing the regmap usage in the driver, updating specific
-bits of a register was performed using the read-modify-write pattern.
-Now, the functions regmap_update_bits() and regmap_write_bits() can
-be used to simplify the code.
+Move the I2C-specific code from abx80x_probe() to the newly created
+function. This is a preparation for introducing the support for
+ABX81X RTCs which use SPI interface.
 
 Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
 ---
- drivers/rtc/rtc-abx80x.c | 105 +++++++++++----------------------------
- 1 file changed, 28 insertions(+), 77 deletions(-)
+ drivers/rtc/rtc-abx80x.c | 165 ++++++++++++++++++++++++---------------
+ 1 file changed, 102 insertions(+), 63 deletions(-)
 
 diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index e5ba821a6768..7761cb353994 100644
+index 7761cb353994..6e0c14695bdf 100644
 --- a/drivers/rtc/rtc-abx80x.c
 +++ b/drivers/rtc/rtc-abx80x.c
-@@ -222,7 +222,7 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -740,70 +740,35 @@ static const struct regmap_access_table abx80x_write_table = {
+ 	.n_no_ranges = ARRAY_SIZE(abx80x_no_write_ranges),
+ };
+ 
+-static const struct regmap_config abx80x_regmap_config_i2c = {
+-	.reg_bits = 8,
+-	.val_bits = 8,
+-	.max_register = ABX8XX_SRAM_BASE + ABX8XX_SRAM_WIN_SIZE - 1,
+-
+-	.rd_table = &abx80x_read_table,
+-	.wr_table = &abx80x_write_table,
+-};
+-
+-static const struct i2c_device_id abx80x_id[] = {
+-	{ .name = "abx80x", .driver_data = ABX80X },
+-	{ .name = "ab0801", .driver_data = AB0801 },
+-	{ .name = "ab0803", .driver_data = AB0803 },
+-	{ .name = "ab0804", .driver_data = AB0804 },
+-	{ .name = "ab0805", .driver_data = AB0805 },
+-	{ .name = "ab1801", .driver_data = AB1801 },
+-	{ .name = "ab1803", .driver_data = AB1803 },
+-	{ .name = "ab1804", .driver_data = AB1804 },
+-	{ .name = "ab1805", .driver_data = AB1805 },
+-	{ .name = "rv1805", .driver_data = RV1805 },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(i2c, abx80x_id);
+-
+-static int abx80x_probe(struct i2c_client *client)
++static int abx80x_probe(struct device *dev, struct regmap *regmap, int irq,
++			struct device_node *np, unsigned int part)
  {
- 	struct abx80x_priv *priv = dev_get_drvdata(dev);
- 	unsigned char buf[8];
--	int err, flags;
-+	int err;
- 
- 	if (tm->tm_year < 100)
- 		return -EINVAL;
-@@ -244,18 +244,11 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	}
- 
- 	/* Clear the OF bit of Oscillator Status Register */
--	err = regmap_read(priv->regmap, ABX8XX_REG_OSS, &flags);
-+	err = regmap_update_bits(priv->regmap, ABX8XX_REG_OSS, ABX8XX_OSS_OF, 0);
- 	if (err < 0)
--		return err;
--
--	err = regmap_write(priv->regmap, ABX8XX_REG_OSS,
--			   flags & ~ABX8XX_OSS_OF);
--	if (err < 0) {
- 		dev_err(dev, "Unable to write oscillator status register\n");
--		return err;
--	}
- 
--	return 0;
-+	return err;
- }
- 
- static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
-@@ -352,7 +345,7 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
- 					  int autocalibration)
- {
- 	struct abx80x_priv *priv = dev_get_drvdata(dev);
--	int retval, flags = 0;
-+	int flags = 0;
- 
- 	if ((autocalibration != 0) && (autocalibration != 1024) &&
- 	    (autocalibration != 512)) {
-@@ -360,10 +353,6 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
- 		return -EINVAL;
- 	}
- 
--	retval = regmap_read(priv->regmap, ABX8XX_REG_OSC, &flags);
--	if (retval < 0)
--		return retval;
--
- 	if (autocalibration == 0) {
- 		flags &= ~(ABX8XX_OSC_ACAL_512 | ABX8XX_OSC_ACAL_1024);
- 	} else if (autocalibration == 1024) {
-@@ -379,9 +368,9 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
- 	if (abx80x_write_config_key(dev, ABX8XX_CFG_KEY_OSC) < 0)
- 		return -EIO;
- 
--	retval = regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
--
--	return retval;
-+	return regmap_write_bits(priv->regmap, ABX8XX_REG_OSC,
-+				 ABX8XX_OSC_ACAL_1024 | ABX8XX_OSC_ACAL_512,
-+				 flags);
- }
- 
- static int abx80x_rtc_get_autocalibration(struct device *dev)
-@@ -443,7 +432,7 @@ static ssize_t oscillator_store(struct device *dev,
- 				const char *buf, size_t count)
- {
- 	struct abx80x_priv *priv = dev_get_drvdata(dev->parent);
--	int retval, flags, rc_mode = 0;
-+	int retval, rc_mode = 0;
- 
- 	if (strncmp(buf, "rc", 2) == 0) {
- 		rc_mode = 1;
-@@ -454,24 +443,14 @@ static ssize_t oscillator_store(struct device *dev,
- 		return -EINVAL;
- 	}
- 
--	retval = regmap_read(priv->regmap, ABX8XX_REG_OSC, &flags);
--	if (retval < 0)
--		return retval;
--
--	if (rc_mode == 0)
--		flags &= ~(ABX8XX_OSC_OSEL);
--	else
--		flags |= (ABX8XX_OSC_OSEL);
--
- 	/* Unlock write access on Oscillator Control register */
- 	if (abx80x_write_config_key(dev->parent, ABX8XX_CFG_KEY_OSC) < 0)
- 		return -EIO;
- 
--	retval = regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
--	if (retval < 0) {
-+	retval = regmap_write_bits(priv->regmap, ABX8XX_REG_OSC, ABX8XX_OSC_OSEL,
-+				   rc_mode == 0 ? 0 : (ABX8XX_OSC_OSEL));
-+	if (retval < 0)
- 		dev_err(dev, "Failed to write Oscillator Control register\n");
--		return retval;
--	}
- 
- 	return retval ? retval : count;
- }
-@@ -537,17 +516,8 @@ static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 		return put_user(tmp, (unsigned int __user *)arg);
- 
- 	case RTC_VL_CLR:
--		err = regmap_read(priv->regmap, ABX8XX_REG_STATUS, &status);
--		if (err < 0)
--			return err;
--
--		status &= ~ABX8XX_STATUS_BLF;
--
--		err = regmap_write(priv->regmap, ABX8XX_REG_STATUS, status);
--		if (err < 0)
--			return err;
--
--		return 0;
-+		return regmap_update_bits(priv->regmap, ABX8XX_REG_STATUS,
-+					  ABX8XX_STATUS_BLF, 0);
- 
- 	default:
- 		return -ENOIOCTLCMD;
-@@ -799,7 +769,7 @@ static int abx80x_probe(struct i2c_client *client)
- 	struct regmap *regmap;
- 	struct device_node *np = client->dev.of_node;
+-	struct regmap *regmap;
+-	struct device_node *np = client->dev.of_node;
  	struct abx80x_priv *priv;
--	int i, data, err, trickle_cfg = -EINVAL;
-+	int i, err, trickle_cfg = -EINVAL;
+ 	int i, err, trickle_cfg = -EINVAL;
  	char buf[7];
- 	unsigned int part = (uintptr_t)i2c_get_match_data(client);
+-	unsigned int part = (uintptr_t)i2c_get_match_data(client);
  	unsigned int partnumber;
-@@ -846,14 +816,9 @@ static int abx80x_probe(struct i2c_client *client)
- 	dev_info(&client->dev, "model %04x, revision %u.%u, lot %x, wafer %x, uid %x\n",
- 		 partnumber, majrev, minrev, lot, wafer, uid);
+ 	unsigned int majrev, minrev;
+ 	unsigned int lot;
+ 	unsigned int wafer;
+ 	unsigned int uid;
  
--	err = regmap_read(regmap, ABX8XX_REG_CTRL1, &data);
--	if (err < 0) {
--		dev_err(&client->dev, "Unable to read control register\n");
+-	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+-		return -ENODEV;
+-
+-	regmap = devm_regmap_init_i2c(client, &abx80x_regmap_config_i2c);
+-	if (IS_ERR(regmap)) {
+-		dev_err(&client->dev, "Unable to allocate regmap\n");
 -		return -EIO;
 -	}
 -
--	err = regmap_write(regmap, ABX8XX_REG_CTRL1,
--			   (data & ~(ABX8XX_CTRL_12_24 | ABX8XX_CTRL_ARST)) | ABX8XX_CTRL_WRITE);
-+	err = regmap_update_bits(regmap, ABX8XX_REG_CTRL1,
-+				 ABX8XX_CTRL_12_24 | ABX8XX_CTRL_ARST | ABX8XX_CTRL_WRITE,
-+				 ABX8XX_CTRL_WRITE);
+-	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (priv == NULL)
+ 		return -ENOMEM;
+ 
+-	priv->rtc = devm_rtc_allocate_device(&client->dev);
++	priv->rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(priv->rtc))
+ 		return PTR_ERR(priv->rtc);
+ 
+ 	priv->rtc->ops = &abx80x_rtc_ops;
+-	priv->irq = client->irq;
++	priv->irq = irq;
+ 	priv->regmap = regmap;
+ 
+-	dev_set_drvdata(&client->dev, priv);
++	dev_set_drvdata(dev, priv);
+ 
+ 	err = regmap_bulk_read(regmap, ABX8XX_REG_ID0, buf, sizeof(buf));
  	if (err < 0) {
- 		dev_err(&client->dev, "Unable to write control register\n");
+-		dev_err(&client->dev, "Unable to read partnumber\n");
++		dev_err(dev, "Unable to read partnumber\n");
  		return -EIO;
-@@ -867,30 +832,10 @@ static int abx80x_probe(struct i2c_client *client)
- 		 * register is set. RV-1805-C3 datasheet indicates that
- 		 * the bit should be cleared in section 11h - Control2.
- 		 */
--		err = regmap_read(regmap, ABX8XX_REG_CTRL2, &data);
--		if (err < 0) {
--			dev_err(&client->dev,
--				"Unable to read control2 register\n");
--			return -EIO;
--		}
--
--		err = regmap_write(regmap, ABX8XX_REG_CTRL2,
--				   data & ~ABX8XX_CTRL2_RSVD);
--		if (err < 0) {
--			dev_err(&client->dev,
--				"Unable to write control2 register\n");
--			return -EIO;
--		}
--
--		/*
--		 * Avoid extra power leakage. The RV1805 uses smaller
--		 * 10pin package and the EXTI input is not present.
--		 * Disable it to avoid leakage.
--		 */
--		err = regmap_read(regmap, ABX8XX_REG_OUT_CTRL, &data);
-+		err = regmap_update_bits(regmap, ABX8XX_REG_CTRL2,
-+					 ABX8XX_CTRL2_RSVD, 0);
+ 	}
+ 
+@@ -813,14 +778,14 @@ static int abx80x_probe(struct i2c_client *client)
+ 	lot = ((buf[4] & 0x80) << 2) | ((buf[6] & 0x80) << 1) | buf[3];
+ 	uid = ((buf[4] & 0x7f) << 8) | buf[5];
+ 	wafer = (buf[6] & 0x7c) >> 2;
+-	dev_info(&client->dev, "model %04x, revision %u.%u, lot %x, wafer %x, uid %x\n",
++	dev_info(dev, "model %04x, revision %u.%u, lot %x, wafer %x, uid %x\n",
+ 		 partnumber, majrev, minrev, lot, wafer, uid);
+ 
+ 	err = regmap_update_bits(regmap, ABX8XX_REG_CTRL1,
+ 				 ABX8XX_CTRL_12_24 | ABX8XX_CTRL_ARST | ABX8XX_CTRL_WRITE,
+ 				 ABX8XX_CTRL_WRITE);
+ 	if (err < 0) {
+-		dev_err(&client->dev, "Unable to write control register\n");
++		dev_err(dev, "Unable to write control register\n");
+ 		return -EIO;
+ 	}
+ 
+@@ -835,7 +800,7 @@ static int abx80x_probe(struct i2c_client *client)
+ 		err = regmap_update_bits(regmap, ABX8XX_REG_CTRL2,
+ 					 ABX8XX_CTRL2_RSVD, 0);
  		if (err < 0) {
--			dev_err(&client->dev,
--				"Unable to read output control register\n");
-+			dev_err(&client->dev, "Unable to write control2 register\n");
+-			dev_err(&client->dev, "Unable to write control2 register\n");
++			dev_err(dev, "Unable to write control2 register\n");
  			return -EIO;
  		}
  
-@@ -901,8 +846,14 @@ static int abx80x_probe(struct i2c_client *client)
- 		if (abx80x_write_config_key(&client->dev, ABX8XX_CFG_KEY_MISC) < 0)
+@@ -843,7 +808,7 @@ static int abx80x_probe(struct i2c_client *client)
+ 		 * Write the configuration key register to enable access to
+ 		 * the config2 register
+ 		 */
+-		if (abx80x_write_config_key(&client->dev, ABX8XX_CFG_KEY_MISC) < 0)
++		if (abx80x_write_config_key(dev, ABX8XX_CFG_KEY_MISC) < 0)
  			return -EIO;
  
--		err = regmap_write(regmap, ABX8XX_REG_OUT_CTRL,
--				   data | ABX8XX_OUT_CTRL_EXDS);
-+		/*
-+		 * Avoid extra power leakage. The RV1805 uses smaller
-+		 * 10pin package and the EXTI input is not present.
-+		 * Disable it to avoid leakage.
-+		 */
-+		err = regmap_write_bits(regmap, ABX8XX_REG_OUT_CTRL,
-+					ABX8XX_OUT_CTRL_EXDS,
-+					ABX8XX_OUT_CTRL_EXDS);
+ 		/*
+@@ -855,7 +820,7 @@ static int abx80x_probe(struct i2c_client *client)
+ 					ABX8XX_OUT_CTRL_EXDS,
+ 					ABX8XX_OUT_CTRL_EXDS);
  		if (err < 0) {
- 			dev_err(&client->dev,
+-			dev_err(&client->dev,
++			dev_err(dev,
  				"Unable to write output control register\n");
+ 			return -EIO;
+ 		}
+@@ -867,26 +832,24 @@ static int abx80x_probe(struct i2c_client *client)
+ 			if (partnumber == abx80x_caps[i].pn)
+ 				break;
+ 		if (abx80x_caps[i].pn == 0) {
+-			dev_err(&client->dev, "Unknown part: %04x\n",
+-				partnumber);
++			dev_err(dev, "Unknown part: %04x\n", partnumber);
+ 			return -EINVAL;
+ 		}
+ 		part = i;
+ 	}
+ 
+ 	if (partnumber != abx80x_caps[part].pn) {
+-		dev_err(&client->dev, "partnumber mismatch %04x != %04x\n",
++		dev_err(dev, "partnumber mismatch %04x != %04x\n",
+ 			partnumber, abx80x_caps[part].pn);
+ 		return -EINVAL;
+ 	}
+ 
+ 	if (np && abx80x_caps[part].has_tc)
+-		trickle_cfg = abx80x_dt_trickle_cfg(&client->dev);
++		trickle_cfg = abx80x_dt_trickle_cfg(dev);
+ 
+ 	if (trickle_cfg > 0) {
+-		dev_info(&client->dev, "Enabling trickle charger: %02x\n",
+-			 trickle_cfg);
+-		abx80x_enable_trickle_charger(&client->dev, trickle_cfg);
++		dev_info(dev, "Enabling trickle charger: %02x\n", trickle_cfg);
++		abx80x_enable_trickle_charger(dev, trickle_cfg);
+ 	}
+ 
+ 	err = regmap_write(regmap, ABX8XX_REG_CD_TIMER_CTL, BIT(2));
+@@ -894,7 +857,7 @@ static int abx80x_probe(struct i2c_client *client)
+ 		return err;
+ 
+ 	if (abx80x_caps[part].has_wdog) {
+-		err = abx80x_setup_watchdog(&client->dev);
++		err = abx80x_setup_watchdog(dev);
+ 		if (err)
+ 			return err;
+ 	}
+@@ -904,14 +867,14 @@ static int abx80x_probe(struct i2c_client *client)
+ 		return err;
+ 
+ 	if (priv->irq > 0) {
+-		dev_info(&client->dev, "IRQ %d supplied\n", priv->irq);
+-		err = devm_request_threaded_irq(&client->dev, priv->irq, NULL,
++		dev_info(dev, "IRQ %d supplied\n", priv->irq);
++		err = devm_request_threaded_irq(dev, priv->irq, NULL,
+ 						abx80x_handle_irq,
+ 						IRQF_SHARED | IRQF_ONESHOT,
+ 						"abx8xx",
+-						&client->dev);
++						dev);
+ 		if (err) {
+-			dev_err(&client->dev, "unable to request IRQ, alarms disabled\n");
++			dev_err(dev, "unable to request IRQ, alarms disabled\n");
+ 			priv->irq = 0;
+ 		}
+ 	}
+@@ -920,14 +883,39 @@ static int abx80x_probe(struct i2c_client *client)
+ 
+ 	err = rtc_add_group(priv->rtc, &rtc_calib_attr_group);
+ 	if (err) {
+-		dev_err(&client->dev, "Failed to create sysfs group: %d\n",
+-			err);
++		dev_err(dev, "Failed to create sysfs group: %d\n", err);
+ 		return err;
+ 	}
+ 
+ 	return devm_rtc_register_device(priv->rtc);
+ }
+ 
++#if IS_ENABLED(CONFIG_I2C)
++
++static const struct regmap_config abx80x_regmap_config_i2c = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = ABX8XX_SRAM_BASE + ABX8XX_SRAM_WIN_SIZE - 1,
++
++	.rd_table = &abx80x_read_table,
++	.wr_table = &abx80x_write_table,
++};
++
++static const struct i2c_device_id abx80x_id[] = {
++	{ .name = "abx80x", .driver_data = ABX80X },
++	{ .name = "ab0801", .driver_data = AB0801 },
++	{ .name = "ab0803", .driver_data = AB0803 },
++	{ .name = "ab0804", .driver_data = AB0804 },
++	{ .name = "ab0805", .driver_data = AB0805 },
++	{ .name = "ab1801", .driver_data = AB1801 },
++	{ .name = "ab1803", .driver_data = AB1803 },
++	{ .name = "ab1804", .driver_data = AB1804 },
++	{ .name = "ab1805", .driver_data = AB1805 },
++	{ .name = "rv1805", .driver_data = RV1805 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, abx80x_id);
++
+ #ifdef CONFIG_OF
+ static const struct of_device_id abx80x_of_match[] = {
+ 	{
+@@ -975,16 +963,67 @@ static const struct of_device_id abx80x_of_match[] = {
+ MODULE_DEVICE_TABLE(of, abx80x_of_match);
+ #endif
+ 
++static int abx80x_i2c_probe(struct i2c_client *client)
++{
++	unsigned int part = (uintptr_t)i2c_get_match_data(client);
++	struct regmap *regmap;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	regmap = devm_regmap_init_i2c(client, &abx80x_regmap_config_i2c);
++	if (IS_ERR(regmap)) {
++		dev_err(&client->dev, "Unable to allocate regmap\n");
++		return -EIO;
++	}
++
++	return abx80x_probe(&client->dev, regmap, client->irq,
++			    client->dev.of_node, part);
++}
++
+ static struct i2c_driver abx80x_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-abx80x",
+ 		.of_match_table = of_match_ptr(abx80x_of_match),
+ 	},
+-	.probe		= abx80x_probe,
++	.probe		= abx80x_i2c_probe,
+ 	.id_table	= abx80x_id,
+ };
+ 
+-module_i2c_driver(abx80x_driver);
++static int abx80x_register_driver(void)
++{
++	return i2c_add_driver(&abx80x_driver);
++}
++
++static void abx80x_unregister_driver(void)
++{
++	i2c_del_driver(&abx80x_driver);
++}
++
++#else
++
++static int abx80x_register_driver(void)
++{
++	return 0;
++}
++
++static void abx80x_unregister_driver(void)
++{
++}
++
++#endif /* IS_ENABLED(CONFIG_I2C) */
++
++static int __init abx80x_init(void)
++{
++	return abx80x_register_driver();
++}
++module_init(abx80x_init);
++
++static void __exit abx80x_exit(void)
++{
++	abx80x_unregister_driver();
++}
++module_exit(abx80x_exit);
+ 
+ MODULE_AUTHOR("Philippe De Muyter <phdm@macqel.be>");
+ MODULE_AUTHOR("Alexandre Belloni <alexandre.belloni@bootlin.com>");
 -- 
 2.55.0
 
