@@ -1,173 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8BF742A160;
-	Wed, 22 Jul 2026 20:11:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB7942669E;
+	Wed, 22 Jul 2026 20:13:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784751120; cv=none; b=S9dpFs7rF7W4VEdMTmfAbK02V4nlolCnG+H6eI9GsNgzSPi4x6VDjcuDcHSa8/uCr8RZ33xHSGReKT+KK4yqcr3/F7B/h8EOiB5VIO4WdNXrY2aJyT9o0ZgGzJhuMBA2fnpNM6oJ0y+n2sLy7gScQc1Bvl6H7Rrq/FWILsKmIrg=
+	t=1784751235; cv=none; b=CSG57A39bKgBOjKHg2/mtUAKORYlZ01xlj+pvUPQmMv3XZxyji+lsOXIV4w+BsOQ+hUZbRYQ5HMJv8UMMKqBXzgGykHY7xbDuO5jIwqQ4v41YM1h0tRu6Yi9LWdSg3GYtrOM2Qi2EsfhLdCSIczMGa5jhKaApcsxjF7xxgkOvGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784751120; c=relaxed/simple;
-	bh=htsgLIgb0niogrRZGpaj90SVaK2NA7ZEAF7U1dP9dq4=;
+	s=arc-20240116; t=1784751235; c=relaxed/simple;
+	bh=ZmAYaHQ9iDHh+GcjRMXyAlaRyu0IcIMTI8hhsqmgkZY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LcymUXupjAGnfVUsCJYL1Y5RN0z1gpIjt8oaSrN80nBUsg6hdMKgYspTcS6kGVCVl5++OAK0+YesSXHx7FOEqT0PLWxX1npA66iI7ak3etKFuq/p4xbE9YWbX/RjX6Svqm1NBytEv31R2EQct/zfbHPMSUUF9BQROR2mZx9qYa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NxS716fB; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CTicX6hYtZ2XZX2co0CD9tuAcz3SJ/xZwXozP++7TNZcHnYntppslNRnaocu/SpWQ18baCdfaf53j4pP8PXw29WRN9WhDjxCQFHdeJV1FJXfPaHzTNSttEC92Sq4y+SM/yCkNs+MzNULzJue88UrlWrvBNmqVDm+qSm9OaorFzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UapRAq61; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NxS716fB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB0A1F000E9;
-	Wed, 22 Jul 2026 20:11:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UapRAq61"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BDA11F000E9;
+	Wed, 22 Jul 2026 20:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784751118;
-	bh=Qo0IDwWvQGBxHi3kJU4g+Bfr2P0ICPjq8CKBIxjzc18=;
+	s=k20260515; t=1784751234;
+	bh=ylUR6OIduykRQkdadb/51xcyO42K82iV/6FKoGeuMKo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NxS716fBXkx7uRjv255Gby0ctNkGNb2kG5BMqhnqMlMfAzqw+4mFW2UdcQqSKAggX
-	 5pk4I+fRnKIJWrAet70IXaHRqth3krmBuMwtUrx4VKNxlRJ/RzlSVuYfvXtqIEdugA
-	 Xca1wpf+XAlAdDOpjHYKMcFT+cbWSLBSZcgPA2kWUIYy/MrPmz2MUKKsijaOs4mA/Q
-	 r1lScCLqVYD1GU0CQm6cPqemiloH9Bskcd3dYE7+RHO7iha6LNcjgCCNRC0Ipfxn8p
-	 Lb9oxNjf+YD1eZ+RRMcKDcZkxzPM9R7sSLPcXVjWhOWcRw0OjEdTvfoGAktBK/U3Z0
-	 Z90T3W4A6pgag==
+	b=UapRAq61G8PEMOUPtDeauCenlevzKIOLNd/4m7815XaWPJ2zXntjDn97eV4UA9Rx2
+	 8WTCLibRvGJxHO51ebTiGkAyaidv4DLvTmyn7KoWRMlm5AqfKEdJDOv9MEPMVOnaU4
+	 YgAeXLxCUjywx5P1Khz4YDZHY8QYSlM68cLXD4lu7XdvI8vUJpBOwUd04ogojhfm9g
+	 Pie0gNzfVzpZszz42b4dazYKcMW9c05PAZRFY3Yvc5uOOpbJjDWtLdSZ3HEMO42Afs
+	 2b6k9ZUwwbQTRoEE+YFaNmtHTExS22X6UiNttxuzt+oMiqbbWuZO1hmQlGQLZZ1rhT
+	 v0itu4nEskxyQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/6] rtc: abx80x: replace read-modify-write pattern with
- regmap helpers
+Subject: Re: [PATCH 2/6] rtc: abx80x: add irq to struct abx80x_priv
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260722195814.298552-5-apokusinski01@gmail.com>
+Cc: robh@kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260722195814.298552-3-apokusinski01@gmail.com>
 References: <20260722195814.298552-1-apokusinski01@gmail.com>
- <20260722195814.298552-5-apokusinski01@gmail.com>
+ <20260722195814.298552-3-apokusinski01@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 20:11:57 +0000
-Message-Id: <20260722201158.3FB0A1F000E9@smtp.kernel.org>
+Date: Wed, 22 Jul 2026 20:13:53 +0000
+Message-Id: <20260722201354.3BDA11F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Replacing manual read-modify-write patterns with `regmap_write_bit=
-s()` or `regmap_update_bits()` breaks the hardware's unlock sequence becaus=
-e they inject an implicit I2C read between unlocking the configuration key =
-and the actual write, causing the hardware to re-lock the register.
+
+Pre-existing issues:
+- [High] The shared IRQ handler unconditionally returns IRQ_HANDLED and ina=
+dvertently clears all status bits.
+- [High] The `abx80x_read_alarm` function fails unconditionally on success =
+due to incorrect error checking.
 --
 
---- Patch [4]: [PATCH 4/6] rtc: abx80x: replace read-modify-write pattern w=
-ith regmap helpers ---
-commit ac40d4eea0cf607d67d28eb1332803662646f9c2
+--- Patch [2]: [PATCH 2/6] rtc: abx80x: add irq to struct abx80x_priv ---
+commit ccef71986338cc749e8440b88d073968d465ea5c
 Author: Antoni Pokusinski <apokusinski01@gmail.com>
 
-rtc: abx80x: replace read-modify-write pattern with regmap helpers
+rtc: abx80x: add irq to struct abx80x_priv
    =20
-This patch refactors the driver to use regmap_update_bits() and
-regmap_write_bits() instead of manually reading, modifying, and writing
-registers. The goal is to simplify the codebase.
+This patch moves the irq number into struct abx80x_priv so that it
+is no longer tied to the i2c_client. This allows the irq number to
+be accessed in the case of ABX81X SPI clocks.
 
 > diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index e5ba821a67689..7761cb353994e 100644
+> index 5486d9d0b1e5d..9b0e1d48d9ba3 100644
 > --- a/drivers/rtc/rtc-abx80x.c
 > +++ b/drivers/rtc/rtc-abx80x.c
 [ ... ]
-> @@ -379,9 +368,9 @@ static int abx80x_rtc_set_autocalibration(struct devi=
-ce *dev,
->  	if (abx80x_write_config_key(dev, ABX8XX_CFG_KEY_OSC) < 0)
->  		return -EIO;
+> @@ -285,11 +286,12 @@ static irqreturn_t abx80x_handle_irq(int irq, void =
+*dev_id)
+>  static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+>  {
+>  	struct i2c_client *client =3D to_i2c_client(dev);
+> +	struct abx80x_priv *priv =3D i2c_get_clientdata(client);
+>  	unsigned char buf[7];
 > =20
-> -	retval =3D regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
-> -
-> -	return retval;
-> +	return regmap_write_bits(priv->regmap, ABX8XX_REG_OSC,
-> +				 ABX8XX_OSC_ACAL_1024 | ABX8XX_OSC_ACAL_512,
-> +				 flags);
-
-[Severity: High]
-Does replacing regmap_write() with regmap_write_bits() here break the hardw=
-are's
-unlock sequence?
-
-The regmap_write_bits() function performs an implicit read before writing.
-Because it is called immediately after abx80x_write_config_key(), this inje=
-cts
-an I2C read between unlocking the configuration key and the actual write.
-
-Since the AB08XX/RV1805 RTC requires the protected register write to be the
-very next transaction after the configuration key write, won't this read
-clear the unlock state and cause the hardware to silently discard the write?
-
->  }
+>  	int irq_mask, err;
 > =20
->  static int abx80x_rtc_get_autocalibration(struct device *dev)
-[ ... ]
-> @@ -454,24 +443,14 @@ static ssize_t oscillator_store(struct device *dev,
+> -	if (client->irq <=3D 0)
+> +	if (priv->irq <=3D 0)
 >  		return -EINVAL;
->  	}
 > =20
-> -	retval =3D regmap_read(priv->regmap, ABX8XX_REG_OSC, &flags);
-> -	if (retval < 0)
-> -		return retval;
-> -
-> -	if (rc_mode =3D=3D 0)
-> -		flags &=3D ~(ABX8XX_OSC_OSEL);
-> -	else
-> -		flags |=3D (ABX8XX_OSC_OSEL);
-> -
->  	/* Unlock write access on Oscillator Control register */
->  	if (abx80x_write_config_key(dev->parent, ABX8XX_CFG_KEY_OSC) < 0)
->  		return -EIO;
-> =20
-> -	retval =3D regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
-> -	if (retval < 0) {
-> +	retval =3D regmap_write_bits(priv->regmap, ABX8XX_REG_OSC, ABX8XX_OSC_O=
-SEL,
-> +				   rc_mode =3D=3D 0 ? 0 : (ABX8XX_OSC_OSEL));
+>  	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
 
 [Severity: High]
-Could the implicit read introduced by regmap_write_bits() cause the
-hardware to re-lock the register?
+This is a pre-existing issue, but doesn't i2c_smbus_read_i2c_block_data()=20
+return the number of bytes read on success?
 
-As with abx80x_rtc_set_autocalibration(), the injected read operation occurs
-after unlocking the configuration key with abx80x_write_config_key(), which
-disrupts the sequence required to successfully write to the Oscillator Cont=
-rol
-register.
+Looking at drivers/rtc/rtc-abx80x.c:abx80x_read_alarm():
 
-> +	if (retval < 0)
->  		dev_err(dev, "Failed to write Oscillator Control register\n");
-> -		return retval;
-> -	}
-> =20
->  	return retval ? retval : count;
->  }
+	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
+					    sizeof(buf), buf);
+	if (err)
+		return err;
+
+Since it returns 7 on success, will this unconditionally fail and return
+early with an error code, leaving the alarm structure uninitialized?
+
 [ ... ]
-> @@ -901,8 +846,14 @@ static int abx80x_probe(struct i2c_client *client)
->  		if (abx80x_write_config_key(&client->dev, ABX8XX_CFG_KEY_MISC) < 0)
->  			return -EIO;
+> @@ -921,19 +925,19 @@ static int abx80x_probe(struct i2c_client *client)
+>  	if (err)
+>  		return err;
 > =20
-> -		err =3D regmap_write(regmap, ABX8XX_REG_OUT_CTRL,
-> -				   data | ABX8XX_OUT_CTRL_EXDS);
-> +		/*
-> +		 * Avoid extra power leakage. The RV1805 uses smaller
-> +		 * 10pin package and the EXTI input is not present.
-> +		 * Disable it to avoid leakage.
-> +		 */
-> +		err =3D regmap_write_bits(regmap, ABX8XX_REG_OUT_CTRL,
-> +					ABX8XX_OUT_CTRL_EXDS,
-> +					ABX8XX_OUT_CTRL_EXDS);
+> -	if (client->irq > 0) {
+> -		dev_info(&client->dev, "IRQ %d supplied\n", client->irq);
+> -		err =3D devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> +	if (priv->irq > 0) {
+> +		dev_info(&client->dev, "IRQ %d supplied\n", priv->irq);
+> +		err =3D devm_request_threaded_irq(&client->dev, priv->irq, NULL,
+>  						abx80x_handle_irq,
+>  						IRQF_SHARED | IRQF_ONESHOT,
 
 [Severity: High]
-Is it possible that the OUT_CTRL EXDS bit configuration silently fails here?
+This isn't a bug introduced by this patch, but since the IRQ is registered
+here with IRQF_SHARED, does abx80x_handle_irq() correctly handle shared
+interrupts?
 
-Since regmap_write_bits() performs a read under the hood, placing it direct=
-ly
-after the abx80x_write_config_key() unlock command interrupts the required
-write sequence, causing the hardware to discard the write operation.
+Looking at drivers/rtc/rtc-abx80x.c:abx80x_handle_irq():
 
->  		if (err < 0) {
->  			dev_err(&client->dev,
->  				"Unable to write output control register\n");
+static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
+{
+	[ ... ]
+	status =3D i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+	if (status < 0)
+		return IRQ_NONE;
+	[ ... ]
+	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
+
+	return IRQ_HANDLED;
+}
+
+If no relevant interrupt flags are set for this device, it still returns
+IRQ_HANDLED and writes 0 to ABX8XX_REG_STATUS, clearing all status bits
+including non-IRQ bits like BLF. Can this break other devices sharing the
+interrupt line and silently drop hardware status flags?
+
+>  						"abx8xx",
+>  						client);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722195814.2985=
-52-1-apokusinski01@gmail.com?part=3D4
+52-1-apokusinski01@gmail.com?part=3D2
