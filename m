@@ -1,283 +1,177 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5FA742E8E6;
-	Wed, 22 Jul 2026 20:16:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F959433E82
+	for <linux-rtc@vger.kernel.org>; Thu, 23 Jul 2026 09:40:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784751408; cv=none; b=ksPerKf0ibUY11z+pPNUUoKNKwKUe9DfleOJE7CuaV+jKTa+yR5Euabt4qaXpqDoVzuWA+FkLtBa8+ena6BKAgcRjDu/2ULfGDoXgby+BGkziXQ9QqV7JjxJWNs6f715Z7a04h4j7QyxKLFyjpvwAYDEmkfnfV45F6MNmRrSDyU=
+	t=1784799609; cv=none; b=WovDxP9uJ73urmtLMMOJJdxBab7ELyuBCSJDk24rdo7zw+6EYBL99XpZohnZ420YLo/MTF7HdAEHi1te+Vh/0SzLr3S7gA1XWpgTq0tl8m2qE+uxPuNvMU54h+zIr/MdB1zU+VyN7ZDnpeVujRM8kGOU0zES8sHqQdly1tzs1I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784751408; c=relaxed/simple;
-	bh=7RdMja2o6aBE8DMCKT/IytXIlBaoZGD/c/87vnXI0zQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=c6vaX7Zgsw/XvHKpmoQyuAmAPj/y1IsV4Rgu6yGLroBhddQSz/tnu7NNZlco6cho+ySvGiDW5HoUr9BAYJsw4fGrSokIR1ZyOfYlJ/zf6TSDU1auhIQMTO3LcNUi1LX/vGMhB0iv9/9yvVJRdlyiC5h4WDtT8u4aI+exkDM5YCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GJ8jMgsE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784799609; c=relaxed/simple;
+	bh=UwKYr+Iv5dMT6tWpdeFOQMRQvOl5qP3zdBgmD8sSnM8=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Zz84O1XKt8PgM5dNW4LAWUBrxU+Jpz6IsGmvrwu/6XQWNi0g1IMpT5oXB5S3JBTafup1A1udou9XrlcPpvv4IDXuGaMRdkRJDEKABkfCjSL9v3aeEaeMswf1dBY8gnARwSDOmHAFu8BiP7aDdS8i9t/8bT5heKmowgDh3bLJYuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=hhmRhMMD; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GJ8jMgsE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 115101F000E9;
-	Wed, 22 Jul 2026 20:16:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784751406;
-	bh=AggazJ/29P+kNP3VWSeM7VIpedUdMOM0/kipo+bGSac=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GJ8jMgsE324LDCBcEcPCyF4N+r2RmMd7yoqUDpsUKV3cG8mvy2LsCkBIje5XkSOn6
-	 xoyDTNUU1N3bo25Hkp++vaP/nD5/bop2K0GkGfO6nrLdbUJ27qQi8A7wkk5+rNoUaT
-	 PYndSKWOdoSTsYJ5PJsyu2k9uRnBH/2263lfkBiPJAEs0+uYUOarqz16c7zaPiZU89
-	 5nMsuUd3XbBNHnQkqxF52ptT6miIPa41gfYm/gBk8pJXUZBa2snz+nsdpQn4ekJHpv
-	 94NTBb5vSYvCUxUt8d/zikJrUHL+c4FdM7FRMplt/AVI9a6lr8rWgP+wq8B3PKX8K6
-	 3Bs/rtgnEapAQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/6] rtc: abx80x: use regmap instead of I2C specific API
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
-In-Reply-To: <20260722195814.298552-4-apokusinski01@gmail.com>
-References: <20260722195814.298552-1-apokusinski01@gmail.com>
- <20260722195814.298552-4-apokusinski01@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 22 Jul 2026 20:16:45 +0000
-Message-Id: <20260722201646.115101F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="hhmRhMMD"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-47de008b020so237613f8f.1
+        for <linux-rtc@vger.kernel.org>; Thu, 23 Jul 2026 02:40:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1784799604; x=1785404404; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=VabuyjMdW/OYetURnHhfMAPevEDNCPNf66QdnXGjvRE=;
+        b=hhmRhMMDtIcWKgB00b6WwzDfuYmsjh0cDSDzsuUFx+tyCG+E/YS45rBW4MNGWEP78N
+         ve2kmfIi0S2keh3slLqObe9DUQ3yM6bd+wDLl0+ALADuLuVQe4lqdLuDL5K3bW47RxzJ
+         ax2reF/z8GEAOoBTCJXqu5EEM3jgRN2GcRd2wRqg9iT6zNyuhGV1FszfeHgBbpyF+AvG
+         kG7qTbAtWJ+Y0q4lycGArJITDTflCRdK4QUR6ewoxpy1TvUEjaJmW48ksgzFz/8HuZuV
+         Q70c3glwavROzUUmADCrZKQ43qHf6LIEfYtIHD33XVhDtMmFdY39UYKl93usZ2d9RTjs
+         CQ/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784799604; x=1785404404;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=VabuyjMdW/OYetURnHhfMAPevEDNCPNf66QdnXGjvRE=;
+        b=cu0b6NFec6S606KeuuZ3yajyU+t5zSVmWoORYAsw/M3eA73TMkJPFXMXw9L0mSiKi9
+         Nd7HUk2u9/Ot7sZ0W0ZERD9+Cgw0Rn4RYEyWyHzdRtcyTyOEADVMvzo3GV08qLXkhtzy
+         YHzuID4uQC7B6BOfPj4ylarmCt9ehfRcbHDNSY/vcY33Cxq0vgIS2q+o3fTi7G9YFtPi
+         IO5eIeFm461qWudrYERFvi8GKQlPovz49RfwZg2CSOjicLzOz+mQaPn5+3uo0SuZZX8p
+         9JO2kWVL85/2MrVuryRrK8JNpzcHiokZ1mFTsZsUDX2v+PGRHilQH1k2c8TFbOomAvo/
+         m9Dg==
+X-Gm-Message-State: AOJu0YzKYdSN8d2VvLIagVHJQ1E8y8Z8gqcpYVXk1Pd3aKD3QgB1mCq2
+	xl3IFwvyL6Br47oVXSVtPupAfdgur46NxPRBKRzdvF9NqN7rvMW9TepCqe70IAnfl5w=
+X-Gm-Gg: AR+sD13nS/khlFdBhbK07py3gsv+Eb/T/gb+sasSiktADbQtlg6Y+ZJnxRAS5HHxKQb
+	iq/i4+nTg8xLRubyCcbkky9y6otE0TD9nndaWvNy7xkse5wYfX/UoUX0Iysfsjb2uX7jiPmSV/x
+	ycLeolO7/m4yuGw6pbRdvwai4whuEUXLLuvoveraiQSh0ZSc/rdEA3S2xJqDXSNEpB+AWKdJLdC
+	bClgnvCOeLPhjTvZCAXtjhdEzOOfNPUxuUZr9EErgvUhznegTJ1iZJCpvGeHUvfr5n7e6T/2Ygl
+	pVrsxvsF+Z2nuh2nVM2uuDb//smWNKb2+1PntkE1BihXnYaRg0ypvahOBOH8wFIZ72cxm/CSshe
+	Wlv9IC4xuChGlKxW9HtoxLY4uvGDgUQ0Jq8ff6M9PxkdpD3liwsirnvR/e9VHJTszlHSRs34Lw1
+	T3
+X-Received: by 2002:a5d:5885:0:b0:475:f0c2:75b2 with SMTP id ffacd0b85a97d-47f9029dcf1mr2238623f8f.29.1784799603785;
+        Thu, 23 Jul 2026 02:40:03 -0700 (PDT)
+Received: from localhost ([2a01:e0a:3c5:5fb1:3274:dbb5:2710:802b])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47f85a2573csm13114936f8f.0.2026.07.23.02.40.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 02:40:02 -0700 (PDT)
+From: Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH v7 0/4] clk: sun6i-rtc: Add support for Allwinner A733 SoC
+Date: Thu, 23 Jul 2026 11:39:50 +0200
+Message-Id: <20260723-a733-rtc-v7-0-8fd68aab94ae@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAGbhYWoC/23Oz2oDIRDH8VcJnmvRGZ0xPfU9Sg/+20Zos8EN0
+ hD23evmEil7/ImfL3MXS64lL+LtcBc1t7KU+dwHvxxEPPnzV5Yl9S1AgdUAJD0jynqNMlpNnCZ
+ tMmXRv19qnsrvI/Xx2fepLNe53h7lBtvrFiFFcHxGGkglOTBoDezM5N6Dv32XUPNrnH/E1mn4t
+ KxgsNhtDmCdQjYp0441ox2Ob6bbCVExuBQw4Y61g9U8WNstOjYxAvkw8Y6lwcJ4M3VLqGP04GI
+ 8+n92Xdc/UdA6iZMBAAA=
+X-Change-ID: 20251226-a733-rtc-c5167df14e6e
+To: Junhui Liu <junhui.liu@pigmoral.tech>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Chen-Yu Tsai <wens@kernel.org>, 
+ Jernej Skrabec <jernej.skrabec@gmail.com>, 
+ Samuel Holland <samuel@sholland.org>, 
+ Michael Turquette <mturquette@baylibre.com>, 
+ Stephen Boyd <sboyd@kernel.org>, Maxime Ripard <mripard@kernel.org>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, 
+ Jerome Brunet <jbrunet@baylibre.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3065; i=jbrunet@baylibre.com;
+ h=from:subject:message-id; bh=UwKYr+Iv5dMT6tWpdeFOQMRQvOl5qP3zdBgmD8sSnM8=;
+ b=owEBbQKS/ZANAwAKAeb8Dxw38tqFAcsmYgBqYeFqim8dihHV4JlgFGkOuF4DXC+e1/OfG8SJ6
+ h6ae6F1xnKJAjMEAAEKAB0WIQT04VmuGPP1bV8btxvm/A8cN/LahQUCamHhagAKCRDm/A8cN/La
+ hVrcD/9KTm8iu7kzukjjHIcuYjzHlD5oNQm0eiKqiSyv56YgpS17Q51om3A+QwhEA+EylMs3fqx
+ 0LwyNjwjEY0HxcXjK2bLuIE8LH1Sng3QCWH46izGMfa53Lb8Qgk4zyQWpURoRDnVJHpKQBcVHCd
+ ZwuOvyTf27LTuQ/fLOKacIKoyjfXdZwXIz39iQO0IhccvD8JX/rPpd6zlQJyQu8Uwdv6fgz36hd
+ 5sNbfeFSAWPxQuBb6HkVup45RQbx/U3ZbDlFMOSQzPtTf8fo19EY+BiWT+XxnKYOMTzfsTiS5tf
+ 5ZbkILJKCphRx3Qi3uKZfKoBc/STq/DVc8TWLaF8Ysw48N2NaPaG1LyabMvprL0/z1sKwEYqkzI
+ pbI/7Ujy02Mr26uWUZUDvOndyr5FoM6/ijeRcJlqa21wNeyTozfvvVMciwT6RQtTGenq8wnb8cl
+ Iv3J2WNp0YOUNXHo5VB4AdE3NUmGFj5YdwM7O1acQ4i542ZHX3qP+uhxQ4uYZax8oU6Rfefnpyf
+ smmIjST47TLAQMsjDkAfXnbW0fRpLt0KDyGJxHeQcwaMxCiI844R0ZQauPfu1/AhSM9C7r//GGX
+ /rtCGNdzjo+oAZ03Yl4shKRlxbWEIvY/l+HkZAfJTrauu+wsip+kDtfz6Sk3doOZDy+7L1R7DGR
+ oRFkUMgxfDmJIQw==
+X-Developer-Key: i=jbrunet@baylibre.com; a=openpgp;
+ fpr=F29F26CF27BAE1A9719AE6BDC3C92AAF3E60AED9
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Hardware unlock sequence is broken by read-modify-write inversion
-- [Low] Incompatible pointer types passed to regmap_read()
---
+Add support for the Allwinner A733 RTC and its internal Clock Control
+Unit (CCU). Reuse the rtc-sun6i rtc driver while introducing a new
+SoC-specific RTC CCU driver to handle the hardware's evolved clock
+structure.
 
---- Patch [3]: [PATCH 3/6] rtc: abx80x: use regmap instead of I2C specific =
-API ---
-commit 97cd1f33d168c96f848a8f59ba284bfe9c5f89fe
-Author: Antoni Pokusinski <apokusinski01@gmail.com>
-Date:   Wed Jul 22 19:58:11 2026 +0000
+The A733 implementation supports hardware detection of three external
+crystal frequencies (19.2MHz, 24MHz and 26MHz), which is represented in
+the driver via read-only divider operations. Implement logic to derive a
+normalized 32kHz reference from these DCXO sources using fixed
+pre-dividers. Additionally, provide several new DCXO gate clocks for
+peripherals, including SerDes, HDMI, and UFS.
 
-    rtc: abx80x: use regmap instead of I2C specific API
-   =20
-    Rework the driver so that it uses regmap_* functions for communication
-    with the device instead of the i2c_smbus_* API. This way the support for
-    ABX81X RTCs which use SPI can be added later.
+This was tested on a Raxda Cubie A7A.
 
-> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 9b0e1d48d9ba3..e5ba821a67689 100644
-> --- a/drivers/rtc/rtc-abx80x.c
-> +++ b/drivers/rtc/rtc-abx80x.c
-> @@ -125,52 +126,53 @@ static struct abx80x_cap abx80x_caps[] =3D {
-[ ... ]
-> -static int abx80x_is_rc_mode(struct i2c_client *client)
-> +static int abx80x_is_rc_mode(struct device *dev)
->  {
-> -	int flags =3D 0;
-> +	struct abx80x_priv *priv =3D dev_get_drvdata(dev);
-> +	int err, flags =3D 0;
-> =20
-> -	flags =3D  i2c_smbus_read_byte_data(client, ABX8XX_REG_OSS);
-> -	if (flags < 0) {
-> -		dev_err(&client->dev,
-> -			"Failed to read autocalibration attribute\n");
-> -		return flags;
-> +	err =3D regmap_read(priv->regmap, ABX8XX_REG_OSS, &flags);
+Changes in v7:
+- Droped left over unneeded change to ccu_mux_helper_unapply_prediv()
+- Link to v6: https://patch.msgid.link/20260722-a733-rtc-v6-0-631cca28cc9a@baylibre.com
 
-[Severity: Low]
-Does this pass an incompatible pointer type to regmap_read()?
+Changes in v6:
+- Add .set_parent callback to the divider RO ops
+- Link to v5: https://patch.msgid.link/20260717-a733-rtc-v5-0-3874cc26abf7@baylibre.com
 
-The API signature of regmap_read() expects an unsigned int * for its third
-argument, but the address of a local int variable (&flags) is passed here.
-While this may not cause memory corruption since int and unsigned int are
-the same size, it violates the function signature and generates
--Wincompatible-pointer-types warnings, which can break builds compiling with
--Werror.
+Changes in v5:
+- Droped already applied changes
+- Fix determine rate mux helper calculation
+- Changed clock split commit description
+- Added a macro for the clock number without gates
+- Link to v4: https://patch.msgid.link/20260706-a733-rtc-v4-0-f330728db3d3@baylibre.com
 
-> +	if (err < 0) {
-> +		dev_err(dev, "Failed to read autocalibration attribute\n");
-> +		return err;
->  	}
-[ ... ]
-> @@ -259,13 +260,13 @@ static int abx80x_rtc_set_time(struct device *dev, =
-struct rtc_time *tm)
-> =20
->  static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
->  {
-> -	struct i2c_client *client =3D dev_id;
-> -	struct abx80x_priv *priv =3D i2c_get_clientdata(client);
-> +	struct device *dev =3D dev_id;
-> +	struct abx80x_priv *priv =3D dev_get_drvdata(dev);
->  	struct rtc_device *rtc =3D priv->rtc;
-> -	int status;
-> +	int err, status;
-> =20
-> -	status =3D i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
-> -	if (status < 0)
-> +	err =3D regmap_read(priv->regmap, ABX8XX_REG_STATUS, &status);
+Changes in v4:
+- Remove unneeded export of mux prediv helpers
+- Link to v3: https://patch.msgid.link/20260702-a733-rtc-v3-0-eb2580374de6@baylibre.com
 
-[Severity: Low]
-Does this pass an incompatible pointer type to regmap_read()?
+Changes in v3:
+- Disallow clock-output-names DT property for h616/r329 chips
+- Fix ccu probe helper to properly unregister clocks on error
+- Implement .determine_rate for ccu divider RO ops
+- Drop unused DCXO_CTRL_REG_EN define
+- Link to v2: https://patch.msgid.link/20260629-a733-rtc-v2-0-7b72112784f8@baylibre.com
 
-Similar to abx80x_is_rc_mode() above, this passes an int pointer (&status)
-instead of an unsigned int pointer.
+Changes in v2:
+* Changed DT bindings as suggested. Those have changed significantly
+  since v1 so I did not pick up Rob's review trailer
+* Support added in the existing RTC CCU driver rather than a separate driver
+* Added DT parsing clean up of the existing driver
+* Xtal detection exposed by RO divider rather than a MUX.
+* Dropped conversion to aux device for now. This is not strictly related
+  the a733 support and will submitted again later on.
+* Link to v1: https://lore.kernel.org/r/20260121-a733-rtc-v1-0-d359437f23a7@pigmoral.tech
 
-> +	if (err < 0)
->  		return IRQ_NONE;
-[ ... ]
-> @@ -294,14 +294,13 @@ static int abx80x_read_alarm(struct device *dev, st=
-ruct rtc_wkalrm *t)
->  	if (priv->irq <=3D 0)
->  		return -EINVAL;
-> =20
-> -	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
-> -					    sizeof(buf), buf);
-> +	err =3D regmap_bulk_read(priv->regmap, ABX8XX_REG_ASC, buf, sizeof(buf)=
-);
->  	if (err)
->  		return err;
-> =20
-> -	irq_mask =3D i2c_smbus_read_byte_data(client, ABX8XX_REG_IRQ);
-> -	if (irq_mask < 0)
-> -		return irq_mask;
-> +	err =3D regmap_read(priv->regmap, ABX8XX_REG_IRQ, &irq_mask);
+---
+Jerome Brunet (4):
+      clk: sunxi-ng: mux: fix determine helper rate propagation
+      clk: sunxi-ng: div: add read-only operation support
+      clk: sunxi-ng: sun6i-rtc: split main oscillator div and gate
+      clk: sunxi-ng: sun6i-rtc: add a733 support
 
-[Severity: Low]
-Does this pass an incompatible pointer type to regmap_read()?
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.c | 89 ++++++++++++++++++++++++++++++++----
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.h |  3 +-
+ drivers/clk/sunxi-ng/ccu_div.c       | 31 ++++++++++++-
+ drivers/clk/sunxi-ng/ccu_div.h       |  1 +
+ drivers/clk/sunxi-ng/ccu_mux.c       | 57 ++++++++++++-----------
+ 5 files changed, 141 insertions(+), 40 deletions(-)
+---
+base-commit: c52b5090bf1e3b88745f8a81f264f34100ecde42
+change-id: 20251226-a733-rtc-c5167df14e6e
 
-This passes an int pointer (&irq_mask) instead of an unsigned int pointer.
+Best regards,
+--  
+Jerome
 
-> +	if (err < 0)
-> +		return err;
-[ ... ]
-> @@ -379,22 +376,22 @@ static int abx80x_rtc_set_autocalibration(struct de=
-vice *dev,
->  	}
-> =20
->  	/* Unlock write access to Oscillator Control Register */
-> -	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_OSC) < 0)
-> +	if (abx80x_write_config_key(dev, ABX8XX_CFG_KEY_OSC) < 0)
->  		return -EIO;
-> =20
-> -	retval =3D i2c_smbus_write_byte_data(client, ABX8XX_REG_OSC, flags);
-> +	retval =3D regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
-
-[Severity: High]
-Does this hardware unlock sequence get broken by read-modify-write inversio=
-n?
-
-According to the datasheet, any subsequent I2C access (read or write) resets
-the configuration key to zero. If this sequence uses a read-modify-write
-operation (such as regmap_write_bits()), a hardware read is performed after
-the unlock key is written. This read resets the configuration key, causing =
-the
-hardware to ignore the subsequent write and breaking features like
-autocalibration.
-
-> =20
->  	return retval;
->  }
-> =20
->  static int abx80x_rtc_get_autocalibration(struct device *dev)
->  {
-> -	struct i2c_client *client =3D to_i2c_client(dev);
-> -	int flags =3D 0, autocalibration;
-> +	struct abx80x_priv *priv =3D dev_get_drvdata(dev);
-> +	int flags =3D 0, autocalibration, err;
-> =20
-> -	flags =3D  i2c_smbus_read_byte_data(client, ABX8XX_REG_OSC);
-> -	if (flags < 0)
-> -		return flags;
-> +	err =3D regmap_read(priv->regmap, ABX8XX_REG_OSC, &flags);
-
-[Severity: Low]
-Does this pass an incompatible pointer type to regmap_read()?
-
-This passes an int pointer (&flags) instead of an unsigned int pointer.
-
-> +	if (err < 0)
-> +		return err;
-[ ... ]
-> @@ -467,10 +464,10 @@ static ssize_t oscillator_store(struct device *dev,
->  		flags |=3D (ABX8XX_OSC_OSEL);
-> =20
->  	/* Unlock write access on Oscillator Control register */
-> -	if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_OSC) < 0)
-> +	if (abx80x_write_config_key(dev->parent, ABX8XX_CFG_KEY_OSC) < 0)
->  		return -EIO;
-> =20
-> -	retval =3D i2c_smbus_write_byte_data(client, ABX8XX_REG_OSC, flags);
-> +	retval =3D regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
-
-[Severity: High]
-Does this hardware unlock sequence get broken by read-modify-write inversio=
-n?
-
-As noted in abx80x_rtc_set_autocalibration() above, a hardware read perform=
-ed
-after the unlock key is written clears the key. This resets the key before =
-the
-protected write if a read-modify-write operation like regmap_write_bits() is
-used.
-
->  	if (retval < 0) {
->  		dev_err(dev, "Failed to write Oscillator Control register\n");
-[ ... ]
-> @@ -513,45 +509,43 @@ static const struct attribute_group rtc_calib_attr_=
-group =3D {
-> =20
->  static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enab=
-led)
->  {
-[ ... ]
->  static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned l=
-ong arg)
->  {
-> -	struct i2c_client *client =3D to_i2c_client(dev);
-> -	int status, tmp;
-> +	struct abx80x_priv *priv =3D dev_get_drvdata(dev);
-> +	int err, status, tmp;
-> =20
->  	switch (cmd) {
->  	case RTC_VL_READ:
-> -		status =3D i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
-> -		if (status < 0)
-> -			return status;
-> +		err =3D regmap_read(priv->regmap, ABX8XX_REG_STATUS, &status);
-
-[Severity: Low]
-Does this pass an incompatible pointer type to regmap_read()?
-
-This passes an int pointer (&status) instead of an unsigned int pointer.
-
-> +		if (err < 0)
-> +			return err;
-[ ... ]
-> @@ -856,11 +898,11 @@ static int abx80x_probe(struct i2c_client *client)
->  		 * Write the configuration key register to enable access to
->  		 * the config2 register
->  		 */
-> -		if (abx80x_write_config_key(client, ABX8XX_CFG_KEY_MISC) < 0)
-> +		if (abx80x_write_config_key(&client->dev, ABX8XX_CFG_KEY_MISC) < 0)
->  			return -EIO;
-> =20
-> -		err =3D i2c_smbus_write_byte_data(client, ABX8XX_REG_OUT_CTRL,
-> -						data | ABX8XX_OUT_CTRL_EXDS);
-> +		err =3D regmap_write(regmap, ABX8XX_REG_OUT_CTRL,
-> +				   data | ABX8XX_OUT_CTRL_EXDS);
-
-[Severity: High]
-Does this hardware unlock sequence get broken by read-modify-write inversio=
-n?
-
-For RV1805, the key is written, but if a read-modify-write operation like
-regmap_write_bits() is used here, it performs a read before writing the EXTI
-disable bit. This read clears the key, leaving the write ineffective and
-defeating the extra power leakage workaround.
-
->  		if (err < 0) {
->  			dev_err(&client->dev,
->  				"Unable to write output control register\n");
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260722195814.2985=
-52-1-apokusinski01@gmail.com?part=3D3
