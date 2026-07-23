@@ -1,75 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9A403655D4;
-	Thu, 23 Jul 2026 16:27:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB164377AB4;
+	Thu, 23 Jul 2026 16:44:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784824094; cv=none; b=slt6Dfun2X7PDeOwJDK0hMz8ptbq23FsMGCFCp+cMLmMGSOHR3ojWw2PwqInJi3nyr+SIbsSh3PhPz5TRDG2+PlrGhbW8lR96AFVQKthg+gdcPvf/IgjtDkuxyCAE7RaerjKcB1NQb2EtIqL3i/ja8MPSe7LHGSiY8BjGoHfS50=
+	t=1784825048; cv=none; b=lzPiHM3soClAXZ3DnjXx7En/k9v9o1NqvI9vtVWO1ohlwavfDBzLxUbKxSp5618+yKUYtoT4M4av12XiStupCvCjiRKL5zA1vdzmzemgpCdBomiWDxfgmLyQE1f4+mpT406y+FNljmdJ1ophb++jNY5hiHwkrIx0ZxfVxlyBZto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784824094; c=relaxed/simple;
-	bh=mgxu4Mi03LvYU1K7vYFWqNCS/c8LXlLZt7NndVDDaPc=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=KFtwOK6ahYTJo2qQb1mxOPWSblwO+SSUz0KDJw8gmO6LH2Dw7iaT8LN2YZCkcwFxuUMwGQT65k8Fe3z0ko9dJl3RPSJfcs5norufDUBkZCU2Gz5ZeOf1nQ4b0ko2Jgo/BJcdTIzGOZGdkZdb9RGT8ERIpO7Ff2MtyQcByQ8m+HE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A6B1F000E9;
-	Thu, 23 Jul 2026 16:27:53 +0000 (UTC)
-From: Chen-Yu Tsai <wens@kernel.org>
-To: Junhui Liu <junhui.liu@pigmoral.tech>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Jernej Skrabec <jernej.skrabec@gmail.com>, 
- Samuel Holland <samuel@sholland.org>, 
- Michael Turquette <mturquette@baylibre.com>, 
- Stephen Boyd <sboyd@kernel.org>, Maxime Ripard <mripard@kernel.org>, 
- Jerome Brunet <jbrunet@baylibre.com>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, 
- linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
-In-Reply-To: <20260723-a733-rtc-v7-0-8fd68aab94ae@baylibre.com>
-References: <20260723-a733-rtc-v7-0-8fd68aab94ae@baylibre.com>
-Subject: Re: [PATCH v7 0/4] clk: sun6i-rtc: Add support for Allwinner A733
- SoC
-Message-Id: <178482407296.3641802.877710077713530621.b4-ty@kernel.org>
-Date: Fri, 24 Jul 2026 00:27:52 +0800
+	s=arc-20240116; t=1784825048; c=relaxed/simple;
+	bh=daEFPkrJnPUX4ZZzTUErWA/RGKPEyVhycOAfpN4WBoU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tEqBl//rAM96Qd4oRnAtjvO6OJwyv2lxoNkwmeeoO4fVZdhWR69/WjFDpbOx9CKcVamUaI2sjTvIvIYCbJW5HvfLx7fl3A+a8E4FZ1xNspOVvMh38ePew5+AlUd63zDlhsDtnlSLke8cAWmGq3FKYUzx3bldunW2LddTKjlksHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hXdrrg4I; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hXdrrg4I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E93EC1F00A3A;
+	Thu, 23 Jul 2026 16:44:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784825047;
+	bh=8fPgBcFHZliTnkOApB7ME4wVie3VHagCNULw0zykUqA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=hXdrrg4I55YY4lUlhqys3Q76CJ3c9xsidpY3eL81ZSQIen1vXAUQS6i/GN9BvrK4Q
+	 hW+epgt3OkycGHP5Kg+WNgcQBZUlv1yK1Hi0DTFn1zM7TjLrrHxpBnVNfJj4qgVBE2
+	 7lmr8D28Y6ZRIyxbIBYwLX2zBJXZU0UcmWt+08a1jFdOsc7aFHVKo8znr9TwBgTCJZ
+	 tWWb7itys2GWeXJr5yXiVfzmPSl/KcR/Zy0cBMxTHit3fj2+IyuErsGdon/79VJwmj
+	 VLKEKbMc71mpfSw2ngNwi8JWq7rhIBCw8shY2wzuf080WYtErOXmfpuUHEIm6tPoqJ
+	 4nUTlTl+C8fRA==
+Date: Thu, 23 Jul 2026 17:44:03 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Antoni Pokusinski <apokusinski01@gmail.com>
+Cc: alexandre.belloni@bootlin.com, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/6] dt-bindings: rtc: abx80x: document ABX81X RTCs
+Message-ID: <20260723-briar-hut-82e980e9996a@spud>
+References: <20260722195814.298552-1-apokusinski01@gmail.com>
+ <20260722195814.298552-2-apokusinski01@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.2
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="AXUglInnSkybAVCO"
+Content-Disposition: inline
+In-Reply-To: <20260722195814.298552-2-apokusinski01@gmail.com>
 
-On Thu, 23 Jul 2026 11:39:50 +0200, Jerome Brunet wrote:
-> Add support for the Allwinner A733 RTC and its internal Clock Control
-> Unit (CCU). Reuse the rtc-sun6i rtc driver while introducing a new
-> SoC-specific RTC CCU driver to handle the hardware's evolved clock
-> structure.
-> 
-> The A733 implementation supports hardware detection of three external
-> crystal frequencies (19.2MHz, 24MHz and 26MHz), which is represented in
-> the driver via read-only divider operations. Implement logic to derive a
-> normalized 32kHz reference from these DCXO sources using fixed
-> pre-dividers. Additionally, provide several new DCXO gate clocks for
-> peripherals, including SerDes, HDMI, and UFS.
-> 
-> [...]
+--AXUglInnSkybAVCO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied to sunxi/clk-for-7.3 in sunxi, thanks!
+On Wed, Jul 22, 2026 at 09:58:09PM +0200, Antoni Pokusinski wrote:
+> Abracon AB0815 and AB1815 are RTC modules with SPI interface.
+>=20
+> Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
+> ---
+>  .../devicetree/bindings/rtc/abracon,abx80x.yaml   | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml b/=
+Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
+> index 355b0598411a..234a103724b5 100644
+> --- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
+> @@ -4,7 +4,7 @@
+>  $id: http://devicetree.org/schemas/rtc/abracon,abx80x.yaml#
+>  $schema: http://devicetree.org/meta-schemas/core.yaml#
+> =20
+> -title: Abracon ABX80X I2C ultra low power RTC/Alarm chip
+> +title: Abracon ABX80X (I2C) and ABX81X (SPI) ultra low power RTC/Alarm c=
+hips
+> =20
+>  maintainers:
+>    - linux-rtc@vger.kernel.org
+> @@ -21,10 +21,12 @@ properties:
+>        - abracon,ab0803
+>        - abracon,ab0804
+>        - abracon,ab0805
+> +      - abracon,ab0815
+>        - abracon,ab1801
+>        - abracon,ab1803
+>        - abracon,ab1804
+>        - abracon,ab1805
+> +      - abracon,ab1815
+>        - microcrystal,rv1805
 
-[1/4] clk: sunxi-ng: mux: fix determine helper rate propagation
-      https://git.kernel.org/sunxi/linux/c/4bcba49984ff
-[2/4] clk: sunxi-ng: div: add read-only operation support
-      https://git.kernel.org/sunxi/linux/c/7bbbfcd4e495
-[3/4] clk: sunxi-ng: sun6i-rtc: split main oscillator div and gate
-      https://git.kernel.org/sunxi/linux/c/176184e7f799
-[4/4] clk: sunxi-ng: sun6i-rtc: add a733 support
-      https://git.kernel.org/sunxi/linux/c/0a136efc0fc2
+No ref to spi-peripheral-properties.yaml? Do you not need any spi
+properties, e.g. spi-max-frequency?
 
-Best regards,
--- 
-Chen-Yu Tsai <wens@kernel.org>
+> =20
+>    reg:
+> @@ -96,3 +98,14 @@ examples:
+>              interrupts =3D <44 IRQ_TYPE_EDGE_FALLING>;
+>          };
+>      };
+> +
+> +  - |
+> +    spi {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +
+> +        rtc@0 {
+> +            compatible =3D "abracon,ab1815";
+> +            reg =3D <0>;
+> +        };
+> +    };
+> --=20
+> 2.55.0
+>=20
 
+--AXUglInnSkybAVCO
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCamJE0wAKCRB4tDGHoIJi
+0kD+AP4rRplYTl6FtHCdqfzTegZODKR9vG2wW5ep67EQtdMYdwD+MxtBQk4ZKDDv
+cQaJM6fWp1quzsoHo88Cz6OIoGW4Cgw=
+=gHFn
+-----END PGP SIGNATURE-----
+
+--AXUglInnSkybAVCO--
