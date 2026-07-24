@@ -1,74 +1,74 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581674DA559
-	for <linux-rtc@vger.kernel.org>; Thu, 23 Jul 2026 18:47:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26F9B2931C8
+	for <linux-rtc@vger.kernel.org>; Fri, 24 Jul 2026 02:42:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784832437; cv=none; b=V+xmSANh4t8eaEL8DPrGF1lcj/snSTAnh+7Z1ku1pwihCLUZx5HoGpTwprCFtyMfn6AhK2w7rj2r8aO3TTa1GvGWSFKYmgIJ2UR92aGROMjOoyi8EW2b+MGti3H9Iuem8C8bmzZ3RnTWLxtrPN2qjuiAbIkeBGsk5chPk0DM/1g=
+	t=1784860952; cv=none; b=MNmreywIZJ2mQW1pCLc9WGmiJ6h5HbKP6ghPmEi4PIldsB4DV275Pgk1tsU7Si/sJ/HF/6SdQ3nHFl1NDZyGnrHsRjLkOYFa/LLgVSID6XUCQA7EdtyJkdczIagV2WUfh+HFqlZiZJFkEXe3Pqt30qeD+xmtugWWG8lchX6id6w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784832437; c=relaxed/simple;
-	bh=34ZFRB+t5TBTN8y4CUuvqqvfbV1iOyh2tVj2zJDSmAs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eMcdF+gaAMG9oef1q/H1TuG93ytu9tdjMDydWQf7+czQS+HQXvXbzxDmeQsrC/ycqqhzitvQ89JDjs9OI3mw2Ig8bzUBn0tpHtrJy1Rjx4qaQ9A5YgNGhdTSNdR14U9Jd0WVjrPD/OuFe2bIdfpSgTxHWEs7tiWdoFroSk2dOWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TD/1Pkc1; arc=none smtp.client-ip=209.85.216.54
+	s=arc-20240116; t=1784860952; c=relaxed/simple;
+	bh=Kcyf6DRHa971EXj2kBZ35LGhRul4erajhh5T/3cAz7E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z5idSCEswwPQ03YhQY9i6AkD8QQiILf2om3MjsL8Wl38sHne6baWRqHKP05tw2MeKEU8+uEPnfaVo1y4l22JmqO43SKBfMua4oOHZoX3LdEPLM22XFLHPsEi+uoJF4bREp3OYEMC+GPjv5Ta/lormBfXg3n10WD3WCfUWWdkhXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kW4rnlco; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TD/1Pkc1"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-3810c5d691bso819304a91.1
-        for <linux-rtc@vger.kernel.org>; Thu, 23 Jul 2026 11:47:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kW4rnlco"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cc97653887so15753715ad.1
+        for <linux-rtc@vger.kernel.org>; Thu, 23 Jul 2026 19:42:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784832430; x=1785437230; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=SS85S9k55fKh3CHy42qY+ZLh5U3vliQxWiJO6SqlhjU=;
-        b=TD/1Pkc1wq8iwAQ6o1mNDtpMuoZuvSkiuGwfhUneJRw1HzYJ5qGaenT5rbJhCPlkMk
-         R/8P0GeILLaYJBuBLIkNvrunADMq40IVULA3BKz9G2K/rmUPWQzPoOAbjNYYXTlixg/4
-         QOw2LsB0nNGeEId9vQ/SPB9KLPBhRJp+ejGxLsb0Jpi11z4RB4xfIBiULLYoMcsGwjZo
-         zQBzcZN/GB3uSFV0WmiUyaW3mK06FdQOm7FVDt6aMoLbQjF2OWSg8FF9aWJBMV9pIejL
-         2ixwjIBGwGPQX80PfBWJxl/dfv/8Bu7jzSBfrbthCE8L5rjPA2T6Lf15a3dXmbwi/n8a
-         v/xQ==
+        d=gmail.com; s=20251104; t=1784860950; x=1785465750; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=z4bvXbXayEnCzzJXqVJPK7lahyeIFGKn1fz42KqQtbg=;
+        b=kW4rnlcoCvyHLcKcVSePDjQzwVRSaajovPfh7DjIUy05NodyhWmwQ0OIkULCH5Ff5z
+         7nw3LhbuEnVP0XuEHiMX6oddSmrd/j6aeHbzWxzBEd8rlB6zTo0KkFEDmAX2YsyVEi5K
+         RLmvy1QY5HZ0esXZmvq50r2BcdmQPtRCKCid9ud2Z+8yHQVDNULN790D5x+3PsInyau3
+         Jw3/Vp3jhrnVhKDf4kiJmwcqK78lirSXmZ69Z+NgmGSev3/mwNuqUyxYBM0LUVJsIJSv
+         E1UR5CNV0rhoKZySc7VdiAQuet4A9tz3jXisqvQEIKXWGIz3OKtgvjNE3tLH7/emEJcp
+         wOhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784832430; x=1785437230;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SS85S9k55fKh3CHy42qY+ZLh5U3vliQxWiJO6SqlhjU=;
-        b=nrHrX2Xue5EkREJKFgQ+B6uFr9Cums/l3dIkqkDzCWAxb6/o5wBLilocWubAwqu1Fc
-         nGdDSRNQKH62rMrh/IYZomr0jGbr28yE13Gmo0ByLVGcRaNAOnJnPNvCsLbTTY+wabEK
-         Udpttm3N+hS1BGBIw7HtWzvuDaH2tm87H540XbWcLdn46zxSFt35iQXKr6EVEe1ocSYM
-         nqUrcEl+7an7aFV/bsjzrAQJIlTFlzwmq9Nnh9vVktEp/8FfKfRKaQEF83HjFnh6XNHu
-         9ZtfkDW5T1V7YK+d8zfYMi782VHr6174z7Yfxxu/RNbWn7vFJk0BUCU3wkQuRU0e6HGK
-         A3fA==
-X-Forwarded-Encrypted: i=1; AHgh+RqKD5gGlyqxwR+SFGKM4moiKZczCPVi5gXlTyQhBmWlcyNL2NgaPtLbPAPHq7iYSuhRDSGBy8wV/nw=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy+MwPMVzP8z+bNuTqeCcBfShQ8PBWkA6Kk68IIiKeKEFrW8QdN
-	NO9BPRvLj8/+3CLbe5ySybMZ1GfwpbFVDBOAi3Ud3a8NqfdbNsdgrD5i
-X-Gm-Gg: AR+sD13v65isluHpWhVlcGBaQ7nx+YachB/8JgVg1oSHIDaaK3BBrz9cTvisZowwlnz
-	ISFrLSEIVBNnXTdCpKvxSJHfrtPFiDHAQEsFTYaemSqJpxQQHt+LzHBNp7TVSLJbVyHXTlohinE
-	ByM1wTft1ZAQfUQyHQdhecJo7kUqXdvi0rKBXbpL56DEu5q30VnVQxn17nDHmEO+UbUtO2kupiq
-	y1BL/QlSd12MJ8MVecwyMklR8LSWriiuNgeN+qkntswyp6INtN3BFF8Pvh+fzvbBti+MJPD7916
-	fOO0cbzZFaiv7fwsoUIpeAr8HYRh81/aC0wBqqB/awM5Upfru8lyxRsLCxG+P6ljmeOo0EcQzMN
-	UGqflK8TIXf3ZrtRjF7v8HJVV3aNd6IdIFs3zS+msyEBx4FgI2RO8C0yP3bLaoYOlI1aqRiRe
-X-Received: by 2002:a17:90b:3b4f:b0:387:e0bb:57f1 with SMTP id 98e67ed59e1d1-38ec6a7a591mr4120286a91.34.1784832429331;
-        Thu, 23 Jul 2026 11:47:09 -0700 (PDT)
-Received: from ubuntu.. ([110.9.142.4])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38f03af8a45sm308155a91.10.2026.07.23.11.47.07
+        d=1e100.net; s=20251104; t=1784860950; x=1785465750;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=z4bvXbXayEnCzzJXqVJPK7lahyeIFGKn1fz42KqQtbg=;
+        b=AVcrdmZTaxxmY7tVLUmvmZGlzaXMgT46SE5mt5WVjlrjR/wVV6WPInt3UiWqCmTKbj
+         JNNzMHr9x9jvPjxndFPl6wuw03NqTS2B40L+egqOwVNgiIZ8FWT9tCx4COCleO5AfAgN
+         VB8ehdVouOsL2TUfuXrzH5ZW66de09XLNkapU9AmwrygZZIFZrLNXR099/GUkltXXf+x
+         2/NoFDq3/CcjTctQxvBnRuaXh7VGaglETHtjYwTaqn8qOjMxAWlG7HXfEGlI3BV/5Tz3
+         U+eoz4AMAaClr11qbqJH9XlRozvI0bcltFhyGw/1in/dwG/BfWSMIjdHWZ+qyjzQtGbT
+         iqAg==
+X-Forwarded-Encrypted: i=1; AHgh+Rohn8fjHv3Yp4A/+5jrxQfqDVE9ZmFC5IIoIAH71wltafEoJxdbuB8gQk3kt7TZUPttpkJukqC1lTY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyuo91p00JmKOt+szrUXA+z1J4MLqtZLiQ8Ryu7+8cq9/lIMT5N
+	4XQfdVguTZPXW6xlUJy+BfOAAQhKzdN/qNke/wRMfGz4zG8kXyalmg0NdRiHVLw=
+X-Gm-Gg: AR+sD11H53HSY7RW1pxNt/XZlbRe4jDnn1Y0R6of1XEO2XEJWYndhN66YwuLTjnTrJM
+	rYlQil6g6OWQ03zJaoPVWD3nLspq9qOpG2VUWHBpOK5Rs5yttyo/ztCgp9swffhMNjZTzqp8UNC
+	l3qgNOnQA+yei6ZtwFdYFw6/531dAV0thEaiNvwtGojdkBGbyCKETE8G3IkWmjgJdmGPW3Y5j3N
+	rx2QAH2FZZTPYwdtmRDPkWTCgjm5yXgMhWQkTelC/aQ79z5qQPzNhN5HWcAjzbp5bld/uCniAg3
+	44ni+cbuGS2gPZVzxrJednPQnVBcTyO7E9BOClSjF2yaDhSLpjmM0EKJ0cy+7CFzC66fw4Zkicd
+	BUoq4kakA28NXEjVFNLtdRi/stIZoltRctoF9n3KKrgfD+zAu4ypVFrayU2/eu4Iz0pOL7kaz2T
+	6HHy5qc7AR59NKNXzGiqZwmdL5HHw=
+X-Received: by 2002:a17:903:2b0d:b0:2ca:f8ef:33e4 with SMTP id d9443c01a7336-2cfa71d9468mr61759585ad.17.1784860950411;
+        Thu, 23 Jul 2026 19:42:30 -0700 (PDT)
+Received: from t-rex ([2401:4900:7b1c:a30e:8622:dbfc:dd30:d90d])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3147e1b6a45sm24761728eec.28.2026.07.23.19.42.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 11:47:08 -0700 (PDT)
-From: Sang-Heon Jeon <ekffu200098@gmail.com>
-To: Julia.Lawall@inria.fr,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: cocci@inria.fr,
+        Thu, 23 Jul 2026 19:42:29 -0700 (PDT)
+From: kr494167@gmail.com
+To: alexandre.belloni@bootlin.com,
+	dlan@kernel.org
+Cc: elder@riscstar.com,
+	linux-rtc@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	spacemit@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH 29/36] rtc: pcf2127: remove conditional return with no effect
-Date: Fri, 24 Jul 2026 03:45:31 +0900
-Message-ID: <20260723184538.3888637-30-ekffu200098@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+	Surendra Singh Chouhan <kr494167@gmail.com>
+Subject: [PATCH] rtc: spacemit: handle regmap_test_bits() error return
+Date: Fri, 24 Jul 2026 08:12:20 +0530
+Message-ID: <20260724024220.10113-1-kr494167@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -77,35 +77,42 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Both branches of the check return the same value, so the check has
-no effect. Remove it and return the value directly.
+From: Surendra Singh Chouhan <kr494167@gmail.com>
 
-This is the result of running the Coccinelle script from
-scripts/coccinelle/misc/cond_return_no_effect.cocci.
+p1_rtc_read_time() called if (!regmap_test_bits(regmap, RTC_CTRL, RTC_EN))
+to check if the RTC was enabled.
 
-Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
+regmap_test_bits() returns 1 if the bit is set, 0 if not set, and a
+negative error code (e.g. -EIO) if reading the control register fails.
+Using !regmap_test_bits(...) evaluates a negative error code as boolean
+false, causing I2C/regmap read failures to be ignored and incorrectly
+proceeding to read time registers from a failing device.
+
+Fix this by capturing the return value of regmap_test_bits() and returning
+the error code if negative, or -EINVAL if the RTC is disabled.
+
+Fixes: a6de182daa2b ("rtc: spacemit: support the SpacemiT P1 RTC")
+Signed-off-by: Surendra Singh Chouhan <kr494167@gmail.com>
 ---
- drivers/rtc/rtc-pcf2127.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/rtc/rtc-spacemit-p1.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 1995e9f2756d..ff2023908f5a 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -1184,12 +1184,7 @@ static int pcf2127_configure_interrupt_pins(struct device *dev)
+diff --git a/drivers/rtc/rtc-spacemit-p1.c b/drivers/rtc/rtc-spacemit-p1.c
+index 43ab62494bb4..c1820c920ba3 100644
+--- a/drivers/rtc/rtc-spacemit-p1.c
++++ b/drivers/rtc/rtc-spacemit-p1.c
+@@ -57,8 +57,9 @@ static int p1_rtc_read_time(struct device *dev, struct rtc_time *t)
+ 	u8 time[6];
+ 	int ret;
+ 
+-	if (!regmap_test_bits(regmap, RTC_CTRL, RTC_EN))
+-		return -EINVAL;		/* RTC is disabled */
++	ret = regmap_test_bits(regmap, RTC_CTRL, RTC_EN);
++	if (ret <= 0)
++		return ret ? ret : -EINVAL;	/* RTC is disabled or error */
+ 
+ 	ret = regmap_bulk_read(regmap, RTC_TIME, time, sizeof(time));
  	if (ret)
- 		return ret;
- 
--	ret = regmap_write(pcf2127->regmap,
--			   PCF2131_REG_INT_A_MASK2, 0);
--	if (ret)
--		return ret;
--
--	return ret;
-+	return regmap_write(pcf2127->regmap, PCF2131_REG_INT_A_MASK2, 0);
- }
- 
- static int pcf2127_probe(struct device *dev, struct regmap *regmap,
 -- 
-2.43.0
+2.55.0
 
