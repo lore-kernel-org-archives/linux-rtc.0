@@ -1,67 +1,68 @@
-Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5644C339387
-	for <linux-rtc@vger.kernel.org>; Fri, 24 Jul 2026 21:02:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7769353A6C
+	for <linux-rtc@vger.kernel.org>; Fri, 24 Jul 2026 21:02:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784926935; cv=none; b=QTvnT8AehG6kS8+RFJD0MIepsWOcTvJ+MFV5QA7Mkbr1kJiGGBVGckfErAeWjXG1I3LgZNcR908wwDGlrp5PlrxlNEB92+gcLg4Boqscj+bll1oMIwz2J3Qhf5GYRBBpdz6em0Rk/mp7+x/neVYW3u0DNIbN2FNeADWlN5Z+ByQ=
+	t=1784926946; cv=none; b=K6ZzWAk5tlhvB0wJA3ym/MY4/r95GT04t2+VZlJnbY3qP0yL6aoq+x5vUMOQyy7tvmVS5nk8REAja7B96R49rAO3L170xB67QbIZCHLsvCZJT+WcVq2vShjdW2zzEsqqc+yuZxTolzRoezlSFTh7crHQQ05rs7Tdi3uEJfxFMrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784926935; c=relaxed/simple;
-	bh=oiezVeKcRlTe1PqOfCSipMo+Ro5s/wiQve6Jzg9tiMU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=gBwiseHc2MpjB5l1x4+K9cPJwwbMhrEphkivTEWI616/9e8fHxLcL+obdVNl7djNS/gPHEOf9C82lwTqk999/vgYHkzGgywnyyEmLZiQ/tT4P/+k6i/XkC5GRqQFL22wGXH0dPFtDOS+25ODjQOVRIyvoqSpGratEputwa7E7DA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ckaD+4du; arc=none smtp.client-ip=209.85.215.178
+	s=arc-20240116; t=1784926946; c=relaxed/simple;
+	bh=BP5isHWJVSgsQc7eHb27miIKkXny1ILGVxUFS9gjsgw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=XjbrBM7j931qbTYB+kHcMQ5Hwxg7tGcQkvRNHP4IszEfWpfR8DmmLoUL3DtMy3fD25Qm0pE53A8QoGwdksdNRujnqXqiMz0DXP08+v3L9VA7JYDL/7Sw9tM0+NQXF94J+94OaY3yks62zG+PTtx6QCBKtiU8FSUohVegdBdaiWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KAaQkehJ; arc=none smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ckaD+4du"
-Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-ca6bda96134so76804a12.3
-        for <linux-rtc@vger.kernel.org>; Fri, 24 Jul 2026 14:02:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KAaQkehJ"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-384c94c9423so115535a91.2
+        for <linux-rtc@vger.kernel.org>; Fri, 24 Jul 2026 14:02:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784926934; x=1785531734; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=YG/Q8uWJXgAMBnQ0HDciH4ZFOI8e9N+pTkNtrhEgb1E=;
-        b=ckaD+4duOP2LsCnJA8YAbUx8D62dEpfcdTTrzdJ2QWojyOjIDU2bVA33rGeF7/gRTx
-         jYPnKbto/i9AQJkWoqE6hiSpWXj6GVWvAfWKyAnN+OzsX2a9hBagrei91cEnLZ1WoXHJ
-         vlOlpicXh5EjAyN/ix9bVBECwF3b3Q6FIhRNdkNm9dfN/DY4oRqif72nbILYTRaOSx8E
-         wicDVZeVpSfG2JL4Hi29C0ymGsvkLCtAFTHyTfoHBwjVgA14fHyeqhjuNmjwFx5FTAfk
-         NAP703FNOMOvE+rAzaCwqvZu9gcvWHYJxKGlYdgFM7CDmBVKIOB9ejLkKGpH/gxvklSo
-         IECw==
+        d=gmail.com; s=20251104; t=1784926944; x=1785531744; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VjB+Pa1McUr4XyZZTJgTh82TNmXCDaoM/UdBX+H7SC8=;
+        b=KAaQkehJ3bkez/cewHZmwzD3268RHAuXVh9QTKDgq6ggmeJnSg/AjhRGVdpKFlMtdt
+         i6oGaWtWN8zHxggfAVomNLYYh+A30lEq8rd452cNNdYEk9elCnW2AhsIbLug8tyLQWYx
+         p164558eFWoDvz/JEr7cguAiBVcsILazPVX1gIHfm0G0VyugqMs89cF3m6XAJ321foBI
+         qouPnX8VclQBJXhUvZYG2pcCZQmuy2JW3N48zvWIbF1B4X3f2j+X896LLBflTY5mnnRS
+         h3KrjYrAMP88LyvVJJE5XMv6YuMPDIYWzRVSyld9o6Yrzq60mpY6zwpDUv6mYKsga5Rp
+         5ICg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784926934; x=1785531734;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=YG/Q8uWJXgAMBnQ0HDciH4ZFOI8e9N+pTkNtrhEgb1E=;
-        b=R1FSXaCpkFr4zELJgIB2nADJ/NdQAxGqVSa4EzJQxeQzehzHRtaY773k0lk6Smta9s
-         7872kvKaMkzxea3a32qUvNXvA31MGwIP5y3oV1PHsm+YZAVUHa0+90cXYLlTFjQ6wYdp
-         J8pKsteuVaSbW13PnYeGN5pBx9Cc/veViMnEgrbKXqQaCC8J5Bje95ndkScUhhL3pTo6
-         xbksqucV5fnZyjUEIawcLSV7phve23dHxwiE+Aq+gg+wz5P0IGgKMDOsPtC1GnHDZJE1
-         KUPZY6d9h/wmFa5mL8xW38rAbM8OWBVkw9VLEIaNJA9U2CKhbcbe/74aBf3HH1ORSZNi
-         l45A==
-X-Forwarded-Encrypted: i=1; AHgh+RoiaLmTr1sbRLERapJfRV+8jgJglObs+Xy5GbVv5YvxDckzzXHkhtEqHQQuAkxQ52sZ0lQTjr2NPGc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDU8qJY667l3Ne86YiOguCS9r/COQIYfcn6TSBpi4GnPVcoXiZ
-	tslrrAO8tcEUkha/YnqZ7jW8pX5V8TQK9cjsXfin/2yb0Ukqxo/k2AhHVreNOw==
-X-Gm-Gg: AR+sD11s/mUVYfsfUs9rr0T9w6XT1p4FR0CvGAhUzODw3U1Co7GvmWY9QinLvswy8CT
-	wz9uIsp4K3L5NaLCDgOOYGFjHIXCN9YXiXz2vQcDHzPKFOZoosCmFMUUIvTu5UlVzVTsCBPprUa
-	+terSmCjglnCCOScSfOGwoNuGVUD7NVbNIP2Bwwk4N0AdyEMMAJloFn30m6pfDkt8og8PgDvtnT
-	tTTXAjvIL3HyjG7Q1pc8SBvsZCi5xHSuIoQGmmaTW8nVzakdZ7XGzoVcQ6IxawLyfTu2u4YxC40
-	ObU6rMIZgeow4BIEqEHajzed1lmwy6Yu8aUwSRdUzsTRX+evjQMTwkQ2ngXkwZoj4l9eD+L6Y/c
-	uenelxjxB4kzl5N+tV1sSMr2sathb2GAPsQ7g7NnJQkxa2nBIMzb688p4K+cNz+P/9q47WQWIHu
-	J80AWNobcoCfy9Hpw=
-X-Received: by 2002:a17:903:468d:b0:2c9:99be:f011 with SMTP id d9443c01a7336-2cfde8941b5mr333455ad.6.1784926933449;
-        Fri, 24 Jul 2026 14:02:13 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784926944; x=1785531744;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=VjB+Pa1McUr4XyZZTJgTh82TNmXCDaoM/UdBX+H7SC8=;
+        b=r1mW19QI693i9CNJWaveEKkXrn80Zb4uvVnDgVnkZ2c7asMVP0p6kZ2wYQEQtEtIqY
+         juEkZMTQY0IEt3XQDMGqWpyJGlFs8sQQo3sWvwWjOnfbVaI3IUVrT8n13JQe/SozAGVL
+         fBIhaxenphhsM43k1FypLlSTyxlaXqxaFqRbmetaHoA+fV7fZfGCyKw0d7UZNgCBSGvh
+         2R65ou19TbYaD1sGItUszBbyk6fVIFDvBZkpehBy0WQlYM6ZXCNubtBWUPKb1nYbGnaa
+         X/RUPEZg9m3buGF4FDIu7Xiemd300xbgOOoKNmzvy/NsesHCTeuywZdRmVjIlYyn3Qxo
+         P6tQ==
+X-Forwarded-Encrypted: i=1; AHgh+RofeqhAMzXZyPeBiZgNBWUSU5S3Em3Y8Nu9BKo9peuePgfR1Kn5P91tiNU58b7YeaFxESMfwpDrxd4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyPgiU/0Bnwec0XEe7So4UoO6/WvmflOnHZaO+3npEmJhonf1Dl
+	NMLwtR2sLUre2J3THGTyAM/7x+PgXpEUQXODK2lmmXotrll+46gkTmaJ
+X-Gm-Gg: AR+sD11wc5+yIQbrqzsmOFRJSJshxfsbhPY2G8l0hfi+8KWZOnJpyL1e+9mrByyzNJM
+	LOXFulL7Cg+hdeLYc2/Uk4Bq2X1cH3bpvald45BgwBXw7v1MsctSC4G9Wxwi4ffU20VLJiCpA1/
+	APynbK8Ahzy+LtQLceoE7CP4ecyQ5vG+EOwrwGeved0pZ7YDmAF7F/7YmcYhLqHtY18sctXq8o7
+	drIQmwyEBaiUD/wuRXgVpw6vJabUkTEz6O8RhNsZ95cDeR49MY0wuo6ZvhhQbnBPGOhXFgxaWC2
+	34hCajIva6t39n4USWv0bdX4dEmSzla0HHHgVuhNHCyGvEa9nIFpnRsE6uKVSwNY8JjziDxOnsd
+	0TwShcC4VVdnAJ0/9L3Rej5SdAmStEJ+HnrlhZXaoJ6/Ow5JNxUivBUVIhvwDuiq7gDlnHzm0w1
+	A6mNJi6owa831ndV8=
+X-Received: by 2002:a17:90b:5707:b0:38d:90c1:2485 with SMTP id 98e67ed59e1d1-38f2963f507mr38503a91.5.1784926944335;
+        Fri, 24 Jul 2026 14:02:24 -0700 (PDT)
 Received: from [172.28.140.252] ([2409:40c2:505f:3320:3d54:c6f0:368a:d94b])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc548e63sm2485324eec.19.2026.07.24.14.02.03
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc548e63sm2485324eec.19.2026.07.24.14.02.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2026 14:02:12 -0700 (PDT)
+        Fri, 24 Jul 2026 14:02:23 -0700 (PDT)
 From: Bhargav Joshi <j.bhargav.u@gmail.com>
-Subject: [PATCH v2 0/3] dt-bindings: rtc: ti,omap-rtc: Convert to DT schema
- and cleanups
-Date: Sat, 25 Jul 2026 02:31:55 +0530
-Message-Id: <20260725-ti-omap-rtc-v2-0-13f765ca96b3@gmail.com>
+Date: Sat, 25 Jul 2026 02:31:56 +0530
+Subject: [PATCH v2 1/3] ARM: dts: ti: am57xx-idk-common: Remove unused
+ ext-clk-src property
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -70,11 +71,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/22NQQ6CMBBFr0Jm7RgoQhtX3MOwqGUKY4SSthIN4
- e5S3Lp8yfvvrxDIMwW4Zit4Wjiwm3YQpwzMoKeekLudQeSizqW4YGR0o57RR4O1rkyllCJJJey
- L2ZPl91G7tT8Or/uDTEyJZAwcovOf424pkve/vBSYo7VkpVJVabq66UfNz7NxI7Tbtn0Bqa5ga
- bgAAAA=
-X-Change-ID: 20260724-ti-omap-rtc-6a5c5888e7e3
+Message-Id: <20260725-ti-omap-rtc-v2-1-13f765ca96b3@gmail.com>
+References: <20260725-ti-omap-rtc-v2-0-13f765ca96b3@gmail.com>
+In-Reply-To: <20260725-ti-omap-rtc-v2-0-13f765ca96b3@gmail.com>
 To: Aaro Koskinen <aaro.koskinen@iki.fi>, 
  Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>, 
  Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, 
@@ -87,52 +86,39 @@ Cc: linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
  goledhruva@gmail.com, m-chawdhry@ti.com, daniel.baluta@gmail.com, 
  simona.toaca@nxp.com, j.bhargav.u@gmail.com
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1784926923; l=1583;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1784926923; l=818;
  i=j.bhargav.u@gmail.com; h=from:subject:message-id;
- bh=oiezVeKcRlTe1PqOfCSipMo+Ro5s/wiQve6Jzg9tiMU=;
- b=uxL1i3VF9gRymvQeuoapoNvahdEpP7fouKUw9bWexjYWd3CnT6hBRO/nNfA/3vEzij0TyBumX
- nB9P+HwP/eICgWWFglzshKkiuxRWC60rW+Iidog2TC6mtN0lv4LMgdV
+ bh=BP5isHWJVSgsQc7eHb27miIKkXny1ILGVxUFS9gjsgw=;
+ b=GZPjhTALNqNqEfqW7quMWgJj2Rh1x7yZRa6ZgyLobMt9wQ45rj6S/AMJuNBFY0uPEXflzMmHC
+ MO5HSWxDxNbAVzCaPd/+kBztjYa5zlH0RyLkbkVIyWoItqadOrd4R2S
 X-Developer-Key: i=j.bhargav.u@gmail.com; a=ed25519;
  pk=IqNDwUZKECEA+n8wXctFLBbYL9NhFstZNbOznm/nX1k=
 
-This series converts the Texas Instruments OMAP Real Time Clock (RTC) 
-binding from the legacy format to dt-schema.
+The 'ext-clk-src' property is a legacy, undocumented boolean property
+that is entirely unhandled by the rtc-omap driver. The driver instead
+determines the clock source natively by checking the presence of the
+"ext-clk" clock via devm_clk_get().
 
-During the conversion process, two legacy, undocumented properties 
-were discovered in the upstream device trees:
- - 'ext-clk-src' in am57xx-idk-common.dtsi
- - 'ti,no-init' in am335x-shc.dts
-
-Both properties are completely unhandled by the rtc-omap driver. Patches
-1 and 2 remove them from the device trees. Patch 3 then introduces the
-new YAML schema.
+Remove this unnecessary property.
 
 Signed-off-by: Bhargav Joshi <j.bhargav.u@gmail.com>
 ---
-Changes in v2:
-- Patch 1: unchanged
-- Patch 2: unchanged
-- Patch 3: Removed left out legacy text binding and Added constraint
-  block restricting 'system-power-controller' and 'ext-wakeup' subnodes
-  strictly to hardware variants that support PMIC mode
-- Link to v1: https://lore.kernel.org/r/20260724-ti-omap-rtc-v1-0-ffef78853cd6@gmail.com
+ arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
----
-Bhargav Joshi (3):
-      ARM: dts: ti: am57xx-idk-common: Remove unused ext-clk-src property
-      ARM: dts: ti: am335x-shc: Remove unused ti,no-init property
-      dt-bindings: rtc: ti,omap-rtc: Convert to DT schema
+diff --git a/arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi b/arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi
+index 43e3623f079c..ef4bd554e92b 100644
+--- a/arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi
++++ b/arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi
+@@ -445,7 +445,6 @@ &uart3 {
+ 
+ &rtc {
+ 	status = "okay";
+-	ext-clk-src;
+ };
+ 
+ &mac_sw {
 
- Documentation/devicetree/bindings/rtc/rtc-omap.txt |  53 --------
- .../devicetree/bindings/rtc/ti,omap-rtc.yaml       | 149 +++++++++++++++++++++
- arch/arm/boot/dts/ti/omap/am335x-shc.dts           |   4 -
- arch/arm/boot/dts/ti/omap/am57xx-idk-common.dtsi   |   1 -
- 4 files changed, 149 insertions(+), 58 deletions(-)
----
-base-commit: 48a5a7ab8d6ab7090564339e039c421f315de912
-change-id: 20260724-ti-omap-rtc-6a5c5888e7e3
-
-Best regards,
 -- 
-Bhargav
+2.55.0
 
