@@ -1,104 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80EED43B6EA;
-	Fri, 24 Jul 2026 21:08:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C04B3CFF4F;
+	Fri, 24 Jul 2026 21:11:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784927313; cv=none; b=XQM5+8JUUSaCNaUZ5GfhezVUqrTZxfoHq25HOlNUuz/rTHYnf4rMLg5mb9OCQVTZEpI9vG4Ts7YV+1/2RgOTXuK+tM9B534jU/s2cWKibfWFl3AbisD1guJIixZPv0mkXXWG4Q26P2YvOxt7HDHRycKOzCcViBeRmpg7VfZbBmU=
+	t=1784927507; cv=none; b=gaf9xIyKv474dOkKJANoMZ5preQXHTpJuGarur+JCBaTmyzs3ghziO/nG3PyUA2eDcttq2/JlEKGWFhywtzASoI9UqWAeE7Qr/jy1OZO3S1WrzL44oyBGNnuglHWSOkYiOH6nV4Qbwj4QkccGY8A6/fN2tzRY6WwbeCWxo/uHAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784927313; c=relaxed/simple;
-	bh=r38CSkXMhc7JzTstBXGvkIsZq0oVoI+AirSFK5TNxWQ=;
+	s=arc-20240116; t=1784927507; c=relaxed/simple;
+	bh=0qfl00PGE4mAJ/4fYCxpR2hWyycMjGVUJRW2pNZY3tw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=LI5DSUE8kaJM/mesRS220/BUcZyK/H67Yml8LwC07+CrGFAqjVlYoSUeEho0lcIEkehVdvZa5dmQsylRwplbEgNdmgNiSz9LAQN9uNSkk4uKZFyCGtsViXSewh1tukRMsK726Ob0GjTrMxZqEMDGjmv4KMiinF1noB5o3sP49vQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oTVLeyQY; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=bos+1k5A+UWzObvYxRESRjcQFIsGJ4hXAAVETQJ2L+E2sygNhAx6J4RFiwUxOr0nH5cWKu7h97IY7cy3RcAeinp0G/pUn1+IdHsaXspCpjeFBFFKoiSCDeSgmaRYHWMPon+/7n4WPkPYT45vgilgBRWMjvxDskZgJfYPfqMXdUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fROllaWH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oTVLeyQY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC1171F000E9;
-	Fri, 24 Jul 2026 21:08:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fROllaWH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3171F000E9;
+	Fri, 24 Jul 2026 21:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784927307;
-	bh=cdqdwvdWkIPPXx4+Y4PQ6RW4FvkOPbE3GX7mHC/v/hQ=;
+	s=k20260515; t=1784927506;
+	bh=0qfl00PGE4mAJ/4fYCxpR2hWyycMjGVUJRW2pNZY3tw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oTVLeyQYgdTdyK/0VsGzYDdNrhZBwbNzoxhE+PdyIZpSInLCeIysrD4nVG6DMYauo
-	 OUXmYOGrKjh4WbE4P63Yi4w+vY63RqxZ0mijK3pu8Fs1YdJ3qy1g94GEIWUoNnKQCD
-	 gIVaSJteueqkyeYl1/NhX1Oi2MA0+8YjTqhziZS+QcNlhtxmAMN194uZWs8X/XSfx2
-	 T17vch4cNboLv1bP5e+k/+QR62Ujvl1nB63Vqa9rrO/KHpvok3S/CXArx8OcoPTFo6
-	 hA9MJvkqrosST9pjpNO6kDEyZHpVzF9p5wWFgAVPHM+sRZ9wtNw7/eyBhS4DEOJGex
-	 VUjLDRsT5kysg==
+	b=fROllaWHtmURynlhJEImfLV7AgaWWOFf39i34w4fqGyTYWaHtzA9DG3QcTVR9s51K
+	 GWwzzsAOcRUZz5lqSOHpKffrmxIwKXrJCMek/d+vuzqxIGcpjyC0QPr8nJcNYZSeP4
+	 CqF5TYAtWPlKzWQVVoMv5JOqJScgPaFoPAyaSufQGqIWDBcIPr7/5hH2NfqlkB0J0L
+	 K0+8Nw0DUwjsg/hK4QeRXpAtYPqZNRnxqUhm1c3RBwBmel91M/oLkP1mqLqkni2EHp
+	 GoB+VZ4ZUZkocYgtjOPq/b314vK6LKWeyKnLaXe6+adMSaFsvv87jk7SbEbtN+uGwO
+	 VbbxLlkFNRoNA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] dt-bindings: rtc: ti,omap-rtc: Convert to DT
- schema
+Subject: Re: [PATCH v2 1/3] ARM: dts: ti: am57xx-idk-common: Remove unused
+ ext-clk-src property
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bhargav Joshi" <j.bhargav.u@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260725-ti-omap-rtc-v2-3-13f765ca96b3@gmail.com>
+Cc: conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260725-ti-omap-rtc-v2-1-13f765ca96b3@gmail.com>
 References: <20260725-ti-omap-rtc-v2-0-13f765ca96b3@gmail.com>
- <20260725-ti-omap-rtc-v2-3-13f765ca96b3@gmail.com>
+ <20260725-ti-omap-rtc-v2-1-13f765ca96b3@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 24 Jul 2026 21:08:26 +0000
-Message-Id: <20260724210826.EC1171F000E9@smtp.kernel.org>
+Date: Fri, 24 Jul 2026 21:11:45 +0000
+Message-Id: <20260724211145.CE3171F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Missing phandle label in the YAML example causing a dtc compilation=
- error.
---
+> The 'ext-clk-src' property is a legacy, undocumented boolean property
+> that is entirely unhandled by the rtc-omap driver. The driver instead
+> determines the clock source natively by checking the presence of the
+> "ext-clk" clock via devm_clk_get().
+>=20
+> Remove this unnecessary property.
+>=20
+> Signed-off-by: Bhargav Joshi <j.bhargav.u@gmail.com>
 
---- Patch [3]: [PATCH v2 3/3] dt-bindings: rtc: ti,omap-rtc: Convert to DT =
-schema ---
-commit 0cee4f860a851104188182b49417909d1f275491
-Author: Bhargav Joshi <j.bhargav.u@gmail.com>
-
-dt-bindings: rtc: ti,omap-rtc: Convert to DT schema
-
-Convert the Texas Instruments OMAP Real Time Clock (RTC) binding from the
-legacy text format to the DT schema. It also marks 'ti,hwmods' as deprecated
-since it is no longer used.
-
-> diff --git a/Documentation/devicetree/bindings/rtc/ti,omap-rtc.yaml b/Doc=
-umentation/devicetree/bindings/rtc/ti,omap-rtc.yaml
-> new file mode 100644
-> index 0000000000000..326d5ad972922
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/ti,omap-rtc.yaml
-
-[ ... ]
-
-> +  - |
-> +    rtc@0 {
-> +        compatible =3D "ti,am3352-rtc", "ti,da830-rtc";
-> +        reg =3D <0x0 0x1000>;
-> +        interrupts =3D <75>, <76>;
-> +        system-power-controller;
-> +        clocks =3D <&clk_32k_rtc>, <&clk_32768_ck>;
-> +        clock-names =3D "ext-clk", "int-clk";
-> +
-> +        pinctrl-0 =3D <&ext_wakeup>;
-> +        pinctrl-names =3D "default";
-> +
-> +        ext-wakeup {
-
-[Severity: Low]
-Will this cause a dtc compilation error during make dt_binding_check?=20
-
-The pinctrl-0 property above references <&ext_wakeup>, but it appears the=20
-label "ext_wakeup:" was dropped from this child node during the conversion=
-=20
-from the text binding.
-
-> +            pins =3D "ext_wakeup0";
-> +            input-enable;
-> +            ti,active-high;
-> +        };
-> +    };
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260725-ti-omap-rt=
-c-v2-0-13f765ca96b3@gmail.com?part=3D3
+c-v2-0-13f765ca96b3@gmail.com?part=3D1
+
