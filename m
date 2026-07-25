@@ -1,79 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47DB78635D
-	for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 00:33:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40C0625B0A2
+	for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 07:28:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784939619; cv=none; b=ehAnN33eoE1aNmDpuYwSREqMFumj8zjmveSilzgHf5H+sW3tRWLq9Rr1xN9Q0aaXpQEACOEUvo9oYpojB+fa7cwQsG2gfrGmp5tF+3nhO46xPTmayiZA3U6XnllizH28ijvtys6iu5zMNtiB3iE5k/IaGYrKAImZhcTGt+ux9Sg=
+	t=1784964538; cv=none; b=eIPERZ5aYwdLfraAlS26n/4ouXwL1kSXr/pHX8xJEOeJcke1eHbtpKQCXVVRH9ci4f/J1Dk/XXnqcg5YuE3en1JZytTMQ2i28M6zH5nECp9JGwzjxXxEwKWUZ44E+hloLdxipinR6p2mEoPRyjJ1Y1o5BOkw7Q6tj4S5yKbu2fE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784939619; c=relaxed/simple;
-	bh=RYpQnPZ5JbcDrzitp6TUiNDLzCM36ewNt/7wyz7r6hc=;
+	s=arc-20240116; t=1784964538; c=relaxed/simple;
+	bh=kYoxpbSS4R66jnuWc+g54U2haFzkxEUdb++YJbPZ0mI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=M4rKlAAUXGhnlkt/6pT1LNn/K5wrdAqkkFGJ4r+LjF1bUNd/HJyiUm/HxB8q/1U8ooXHCA7oLohaME150Y963fugQhziDZctbDJzXeE/UoaEsNg3goxO8+9PbvKD+xD8bOBk1ke4ey1romlQk/aG/JB+3tZ1IQsY55Io2x2El9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oiRl8Z8M; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=C4u5uAdNM+vUFFqV2solbca+Isri4q+V6EveuFUWZPNrEydu6M7GTb/ONbmWFClNFHOhPF+q0583qWChcnIJPjgK151hIJg9yeXsYQPeT9skSOX3DuLLAzTIkiV/j9qx/qk83hgtXASZQebK0wXFzkIc756udKNhcCUKeAHNACU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNEYRCYq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oiRl8Z8M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA871F000E9;
-	Sat, 25 Jul 2026 00:33:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNEYRCYq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3861F000E9;
+	Sat, 25 Jul 2026 07:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784939617;
-	bh=b/ArlgT3d2AFhTrgwc8YotjdCFUbqo+wCJZWIFITHOk=;
+	s=k20260515; t=1784964537;
+	bh=kYoxpbSS4R66jnuWc+g54U2haFzkxEUdb++YJbPZ0mI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oiRl8Z8MHGBqhseUfQm4XPQI96biaV+3Nnaz+b0P09GWG8M3nrcV9Ay5aD4MZdRpk
-	 TD+QDNq4zmNo8PEzNt5POcjEp96vCim4uzmjqwkTcdIMsZ6kpNY2Q36fLSSDKsZRep
-	 xzmFv0W2eiRmd9h4sHnbwV00EPnzb5cPjL4WVlsaYF40h+ojOZOyfITjHipABvNbCi
-	 eW3JgLitgRFqZ0+RwYMl48vdGdQhlrpe1K9nYwjUCb3UmXmdcQbg7mHk31yw0Cox/e
-	 SQI6AWiWMeViXEjBe/7gK7pRcwUnaATWqwVrL6KGuqac8mNMv0KQG7TGd2BTHovtdY
-	 txIjSn8vA64bQ==
+	b=LNEYRCYq+ZcyNSBJd5RPJrr28wYf4PhyKVdUe/xpanTQWDoZA7yI6FOXzAg+2poCf
+	 HhxpfJs5s7oe3YJUVMS3DrAzjMIp1N08UOodFO/qWI+D38DO59QBF68ZWMl1tayzC5
+	 o/v94HNP6Pg0FH8KgWHDEM5X/v+sGdCoc8xnIJIofuuYgxqLWqn5poyk7ajrkqeqfK
+	 dzzdv+YljrW4PChDRdavPfPiznv6MU2oknDQ2WleKy2ERb4vre+pChc7JiCen2LAM3
+	 BztznMx76JVSpmmVfSfKza7NHWT0pw5RTLJb95Re8Rc5T1EIb32blRRS0DQ3lrWyOs
+	 P6VZN7FQTHSsA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4] rtc: abx80x: Don't warn about oscillator failure
- after POR
+Subject: Re: [PATCH 29/36] rtc: pcf2127: remove conditional return with no
+ effect
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fabio Estevam" <festevam@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260725002320.96660-1-festevam@gmail.com>
-References: <20260725002320.96660-1-festevam@gmail.com>
+To: "Sang-Heon Jeon" <ekffu200098@gmail.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+In-Reply-To: <20260723184538.3888637-30-ekffu200098@gmail.com>
+References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+ <20260723184538.3888637-30-ekffu200098@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 25 Jul 2026 00:33:37 +0000
-Message-Id: <20260725003337.AEA871F000E9@smtp.kernel.org>
+Date: Sat, 25 Jul 2026 07:28:56 +0000
+Message-Id: <20260725072856.CB3861F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> From: Sean Anderson <sean.anderson@seco.com>
+> Both branches of the check return the same value, so the check has
+> no effect. Remove it and return the value directly.
 >=20
-> According to the datasheet, the "oscillator failure" bit is set
+> This is the result of running the Coccinelle script from
+> scripts/coccinelle/misc/cond_return_no_effect.cocci.
 >=20
->   ...on a power on reset, when both the system and battery voltages have
->   dropped below acceptable levels. It is also set if an Oscillator Failure
->   occurs....
->=20
-> From testing, this bit is also set if a software reset is initiated.
->=20
-> This bit has a confusing name; it really tells us whether the time data
-> is valid. We clear it when writing the time. If it is still set, that
-> means there is a persistent issue, such as an oscillator failure,
-> instead of a transient one, such as power loss.
->=20
-> Because there are several other reasons which might cause this bit to be
-> set, including booting for the first time or a battery failure, do not
-> warn about oscillator failures unconditionally. This may cause system
-> integrators to waste time investigating the wrong issue.
->=20
-> Continue printing a message about invalid time data before the time has
-> been set. Only report an oscillator failure after the driver has
-> successfully written the time and cleared the flag.
->=20
-> Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-> Signed-off-by: Fabio Estevam <festevam@nabladev.com>
+> Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260725002320.9666=
-0-1-festevam@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260723184538.3888=
+637-1-ekffu200098@gmail.com?part=3D29
 
