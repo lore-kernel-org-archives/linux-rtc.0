@@ -1,58 +1,117 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B576232B135;
-	Sat, 25 Jul 2026 15:13:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A737C18D636;
+	Sat, 25 Jul 2026 15:14:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784992412; cv=none; b=dHjvXIVzUStYGuw0oJLTAHYH3ZmsFYyBhLnl+nIYir6gDwCutKENN1WOdNYmZGIiP+17oWICtKfW4N31f8/FcJNuLVE8u/xcUvq2vLKGaT8dJwrFRubBFSDIjFW5k3272xh/W1Gt8+5AkR7QlODFmkipzcH4RFKsK7Ab1nORs9I=
+	t=1784992487; cv=none; b=kapgWh2OBT12fvmIUFS9HPZuO0PI6Eeq4QlWCeTU4yQuRuXo+jOxvkt5zPSKXKT4BloESGrWUbns/SnaH8qVnr2GQzsl+8bXcCqFKPkcZJ13+CkZUEeLYc2E6GwQhM5JFdTRHthl5aLBwDKiJQyClmjRRtbAy3RmL/iDt++8Xbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784992412; c=relaxed/simple;
-	bh=yvhfp/SHp31IC6sXZ4nWlFtB8vfKGy7QkXmYR88LilA=;
+	s=arc-20240116; t=1784992487; c=relaxed/simple;
+	bh=Pd5+gZ916x4UoYwMUSBK1X9hHU3kpd6+8DKd3ddiB3M=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=htAxcyBgbBtWueN/NRLns5KeHDxzgVZd1MOlCXEfkv+hdldSshpw1dYihAJT7RpDYFLzErgZfVDwzWp/1D0WJtD1eOcB/sBHIsUkqmarekh8D5/d0StjxJjlAvn0x7HSOySdWQOCZt9T8GbC9KYohdaRNPdvvZKHxrxCYZx89dE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gIgJRhGL; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BRKkp2urjQJfQRDCnRZ/H7qE2D6dYHu3XGHw45/FUyMBeb3vSov0ebnWqgQ5SMFyjAio9Vtt3tL6Gex2Py41WzGkFam+MhtP9Pkbw0swbqSeWGaxdgObSYm2ZS4jcljrc7uWzEYh7mHXGBxIShBZxqwv1Ye+LCN2hYClOg62/nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qs8VJcit; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gIgJRhGL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F055B1F000E9;
-	Sat, 25 Jul 2026 15:13:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qs8VJcit"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E854E1F000E9;
+	Sat, 25 Jul 2026 15:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784992410;
-	bh=yvhfp/SHp31IC6sXZ4nWlFtB8vfKGy7QkXmYR88LilA=;
+	s=k20260515; t=1784992486;
+	bh=0M+yE6prQ2OKvNbO+KreUV7CnRFCglGHnMiB1NRoSSU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gIgJRhGL/PytxYm5VQN1/e3vpGwlClTpgOVuG7EpiHGEyZ8J/4D1Kk0H3flui6bwE
-	 OD8SqJk4E2sspbWGsSh19DqK68J14HFE6+dCO2OBQvzz0IbFblLKEINVgrOfloD+fV
-	 qZA54t8icmnWM0tsGBIZ+D7B8pBNsYpOhdM2P0m2yspTZ5sxh9A+09ujbjsHT5/KY+
-	 SMPKO/RaYBEsuK9zrxKtuWQ1BscZN7lrfY6W/NLHmA7r5oBmIJwpZ6DP3Uvm7mm+QZ
-	 IWU6V7Rq4cWsAv9Zx4r/Cho26NsS2Ufoi+54sFf8RQ7XYctI0XLQs3nWovVijwdUUy
-	 jdBICk3I6z6rg==
+	b=Qs8VJcitSlfSx7SaCq70xOpBgS3cIy0UjVAuOarFnkbeqXGsJLp4kUApHMx7p8otr
+	 jDiyXUU6kw2Vr8ab4M+m84o/jk/+OzelU0yYfCtPdUGsQpxXDKzI7Reslu5NuDrWQH
+	 G+NY0GmOMs1ML5elKv9J+/ycpzfhD/RgF7lPX6XXM2d1x/K217DoKAMC9dE3wy1jOo
+	 vRPF4irDUwaMNcytJM++c3sZdkiAi8FrkMDELIPk7EkdSD9mYo4TOw8Utg59wObYXp
+	 CXfuyo+E5iZv0EnHaAv+zSeh0VkMKVobt7Af2TXvItviGZ7Tn2a/7zq4v43og+O+fY
+	 tW2AIzSmskSHA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 7/8] rtc: abx80x: create abx80x_i2c_probe()
+Subject: Re: [PATCH v2 3/8] rtc: abx80x: properly handle shared IRQs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260725145718.14733-8-apokusinski01@gmail.com>
+Cc: conor+dt@kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
+In-Reply-To: <20260725145718.14733-4-apokusinski01@gmail.com>
 References: <20260725145718.14733-1-apokusinski01@gmail.com>
- <20260725145718.14733-8-apokusinski01@gmail.com>
+ <20260725145718.14733-4-apokusinski01@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 25 Jul 2026 15:13:29 +0000
-Message-Id: <20260725151329.F055B1F000E9@smtp.kernel.org>
+Date: Sat, 25 Jul 2026 15:14:45 +0000
+Message-Id: <20260725151445.E854E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> Move the I2C-specific code from abx80x_probe() to the newly created
-> function. This is a preparation for introducing the support for
-> ABX81X RTCs which use SPI interface.
->=20
-> Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Read-Modify-Write race condition causes lost hardware interrupts o=
+n a Write-0-to-Clear (W0C) register.
+- [High] Returning IRQ_NONE for unhandled RTC interrupts causes a hard inte=
+rrupt storm.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+--- Patch [3]: [PATCH v2 3/8] rtc: abx80x: properly handle shared IRQs ---
+commit 3fccf3aa21cff336c32ceacf1b3d453203dbb5b8
+Author: Antoni Pokusinski <apokusinski01@gmail.com>
+
+rtc: abx80x: properly handle shared IRQs
+
+The abx80x RTC driver registers its interrupt handler with IRQF_SHARED,
+but previously always returned IRQ_HANDLED and cleared the status register
+even when no interrupt source from the RTC was active. This patch updates
+the handler to only handle the interrupt when alarm or watchdog flags are
+set, clearing only those handled bits. It returns IRQ_NONE when the
+interrupt was not generated by the RTC.
+
+> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+> index ca3af91c29977..fd9e887bb9c56 100644
+> --- a/drivers/rtc/rtc-abx80x.c
+> +++ b/drivers/rtc/rtc-abx80x.c
+> @@ -261,25 +261,32 @@ static irqreturn_t abx80x_handle_irq(int irq, void =
+*dev_id)
+
+[ ... ]
+
+> -	i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS, 0);
+> +	if (handled =3D=3D IRQ_HANDLED)
+> +		i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS,
+> +					  status & ~(ABX8XX_STATUS_AF | ABX8XX_STATUS_WDT));
+
+[Severity: High]
+Does this read-modify-write operation introduce a regression by creating a
+race condition that could lose hardware interrupts?
+
+The ABX8XX_REG_STATUS register has Write-0-to-Clear (W0C) semantics, meaning
+writing 0 clears a bit and writing 1 preserves it. Because this writes
+status & ~(ABX8XX_STATUS_AF | ABX8XX_STATUS_WDT), it writes 0 to any bit
+that was 0 at the time of the earlier i2c_smbus_read_byte_data() call.
+
+If a new status event is asserted by the hardware between the read and the
+write, won't this write of 0 unintentionally clear it?
+
+> =20
+> -	return IRQ_HANDLED;
+> +	return handled;
+>  }
+
+[Severity: High]
+Could returning IRQ_NONE here without clearing the status register cause a
+regression where an interrupt storm occurs if an unhandled RTC interrupt fi=
+res?
+
+Since abx80x_probe() does not initialize the interrupt mask register
+(ABX8XX_REG_IRQ), a bootloader could leave an unknown interrupt enabled.=20
+If one of these unhandled interrupts fires, handled remains IRQ_NONE.
+
+Because the register is only cleared when handled =3D=3D IRQ_HANDLED, the
+unhandled interrupt is never cleared from the RTC. Returning IRQ_NONE
+would then cause the IRQ core to re-trigger the handler in an infinite
+loop until the spurious IRQ detector permanently disables the shared IRQ
+line.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260725145718.1473=
-3-1-apokusinski01@gmail.com?part=3D7
-
+3-1-apokusinski01@gmail.com?part=3D3
