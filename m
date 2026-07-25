@@ -1,294 +1,107 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D78A5322527
-	for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 14:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D4A23BCF7;
+	Sat, 25 Jul 2026 15:04:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784991552; cv=none; b=e52E7GSj5Nv4w6ITGcY8gnpcK+QyBpXJakIveGUpT7QnLKOOcPrCth+NR/tDCwug3ElU7i3C7B0ZIWqGoYUHqnTswDoeZa9fSVgZbXQ/iZRKZ0hPI5wjKj7DODVAqLQWAdjjPzNBEspbYqCmISNruPdqvxEGN3C1ij2F+a7pdEM=
+	t=1784991854; cv=none; b=r6lEG1BzAgvSu1GKVL3TBkNR91HzPaSUcTwELJqNlPb5qAnMrxO9NgeYTLuNHEWjQiYHP0nGqEFuFSVonl1khejjpR/06lYUbG1TGS84wqsSm8YBL54UiBMiSGis5pyy7FBWD9Pvg6QR9I32CZCAEInz2l6xkjYFLYTsOtmPaJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784991552; c=relaxed/simple;
-	bh=m12o7eVW8dThPSS4OtjUJzB8n/5ew0XJ/QsFak5h5zM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YOGspu6KlEFenwvQtwyNTyq0ULvUaPPyPcEuwudU4QWCCGYsakH0MuZ4Kr/zrNzdQBGbKE0BWX+7j+/760jDgP1DtCxWZtWG63ECqwruZJkXGXbROSDA7TcOdyiSIjGPMc4mXIvo58+ByKMc5SSJD0ZsqLIVQL8r3i1CDq6YhHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NJCBxnbn; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784991854; c=relaxed/simple;
+	bh=N3PLdRgC8sK0J95on+Lz20ghu9NS25BMZY62VHR3xuM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fHtC/0JBDeVzjfulp7cqr4+j2a0HU0KTgBuIPSPqpGNxbYmbxPq59b+OhVzKZ3BPuC/KymnOS/qGGBCtc6lktkfvpgiau2EDKyOfHsjiV9Xwh9EsRe+oFb43WZC1ZTi1HJncGLvdYJvy8Xa7OiZ4VdfnrN8YOIYQwTDGnX+A+HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Etnc40Yx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NJCBxnbn"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-495437bb891so12617555e9.1
-        for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 07:59:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784991549; x=1785596349; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=YQ/fBWDw5Qf66Xo/6BCDYwxfdQSmisar2wJZtORK7eM=;
-        b=NJCBxnbnah0eQ9HkD+rqmUfOEp/yeprapA5BYi+MA4PQ1mwYveXaV5wtF0dGHdyU7n
-         YuZK2m7FhWfh9BMLZ+ZO16a9QDr+W5MJ25zvRqe/YlN4kEGFeGz1K1IUmZfkn8auvrDx
-         bwZAdYLBJ3CDLJ+eOAaxTlMTFhRcEbeDE88SipICxYRN6HWW8R+TS39b/BRjrKHSdgmd
-         5WhKoS0hOHUR3y9NhqOBUf5OSTjBH1ulZkW5g5IyjRDvGvvGhvWlU5csGwiDf5kDjqiK
-         FbTYLI/p9OSGKO51Wmfrlyzt/oD9aqwZYLcF1IUmfnlOhHzYPWFKLZ5GnCCHZlcNGuO1
-         HoPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784991549; x=1785596349;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YQ/fBWDw5Qf66Xo/6BCDYwxfdQSmisar2wJZtORK7eM=;
-        b=m7QSFFQCFttAIzJ9XKCPCwNTvuSA+6XA/pkq0SXU9pHj4LfIhx9ulMQuTgfrZuK3sz
-         jXYafOFXO2mgPVq403W26B49UG4u/U3GXaG5KuT6vAs1fXsjDiV6496DAWC+BxWUOT6h
-         J7JzH7pfLegD8Z7fEQgLodPzXpi3t4WnIGg5YlQKbS6dHMWNUfTE/lwtOdbWBsNVulUf
-         CDlvt26Qq1Xlh3hw3Xt9PVPIbkzEwgDPmBGxqCUZb7S+cszPt3cgdZJpdoiC+yrz7yX4
-         67tuDEEHviWS3sPQGDlrod8bLfsAieYr7U9wrNJmyFhHRzgdZsiHIERg3nUlcMM4+uOa
-         GQ/A==
-X-Forwarded-Encrypted: i=1; AHgh+RqK+oCxgJX1zcd7TSENEo/ye1z7LhHsf5mrJ0/G1m66PPu3egUh2KuVEVZMMu7F7yvX+Qxbee9yg2w=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxO0lFjp/6zHS1UvcY0JXrGLbhr2yM4/vRF6v+LbIUEneJ/uRW6
-	7pRnnFTIjXE74Pw8/mymVwEPM8Oiy8BlBs4ei/g4crxzyT2PGd7xnkHt
-X-Gm-Gg: AR+sD12fFd3R670Kfy9mfkV/F1d3zoGsEZB77hljOgDYXPDLcI0YPUlYDKT55D8i7Nv
-	qvMYMMtFFl86DkVL68t5cN80iDdAU/Ic9PlsCb6pVKapXxfgfT1LH1rcIbYEwhS/1MZSruToUXq
-	tTXTd4Fn2h7+zQ0Zjp8Ku6+jcryr49QOePgqYuwbW1ay0DC1VbONtxgo6dNP0Y+naC5xLrtnkfs
-	Qr/ooVjL+vXNobTxt3qk+djJBYrq8PiA4G93nb5TDFgHetBpK83vKOdeNscZWfb+MLm6gSSawBQ
-	qEYA0uDJfHGSDyvQJX0nhisz/uDT1FHhFXEfPS7fuGoOYFNLGh40eSLAtaEgKsRhjriC++wALTW
-	COuz74T2kPilaig8RfP/WiBdrGD3dVYecIx9a+uL1C/oMMe+tUkBqogTiiZ++yBY3ose2qKU87u
-	Dbxx2qMIP179fC
-X-Received: by 2002:a05:600c:4585:b0:495:69eb:27d3 with SMTP id 5b1f17b1804b1-496b5b59658mr29692425e9.8.1784991549011;
-        Sat, 25 Jul 2026 07:59:09 -0700 (PDT)
-Received: from antoniarch ([78.212.96.5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b4f24a93sm79704435e9.11.2026.07.25.07.59.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2026 07:59:08 -0700 (PDT)
-From: Antoni Pokusinski <apokusinski01@gmail.com>
-To: alexandre.belloni@bootlin.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: marex@denx.de,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH v2 8/8] rtc: abx80x: add support for ABX81X
-Date: Sat, 25 Jul 2026 16:57:18 +0200
-Message-ID: <20260725145718.14733-9-apokusinski01@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260725145718.14733-1-apokusinski01@gmail.com>
-References: <20260725145718.14733-1-apokusinski01@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Etnc40Yx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE6F71F000E9;
+	Sat, 25 Jul 2026 15:04:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784991853;
+	bh=9uefu2bGhA8AI/1woyDjPdF7GNAzA6hAVHJTF7B/zT4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Etnc40YxQ8PRHK/9Att9zLsBiIm74Q6htC7AirRBDolc8naVraQQ25nArweHlSDNT
+	 fORlVTjHrzcLRjuEXTiHrx+YIa3Er/1mPnFDQJSrrfmOK/Cw0WHk5LnprcfbiXODEU
+	 Rxcf9e5s2e+dkkWdnHSb7r/n4heg8J2trDTi4oxAvx2LPqOOC5rNO0jzbKXK/AS0qu
+	 fB2HU6WyhggwmAMolrxIqJChLHnirh9rdKvEl58ui+Wrw0KC0LNDyurPiPWtLyZ626
+	 xFtoRHVrAqjI4LkpEE9SURP+zJxzvY4cke2VNK/kb6PJZtEkPkF6m0tw5EQQLslbo7
+	 T1L8G4rstcI+A==
+Message-ID: <79e13086-9c61-4de2-9fd7-96702411d081@kernel.org>
+Date: Sat, 25 Jul 2026 17:04:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/8] dt-bindings: rtc: abx80x: document ABX81X RTCs
+To: Antoni Pokusinski <apokusinski01@gmail.com>,
+ alexandre.belloni@bootlin.com, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org
+Cc: marex@denx.de, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
+References: <20260725145718.14733-1-apokusinski01@gmail.com>
+ <20260725145718.14733-2-apokusinski01@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260725145718.14733-2-apokusinski01@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Abracon ABX81X is a family of RTCs with SPI interface featuring
-the same functionalities as the ABX80X I2C clocks.
+On 25/07/2026 16:57, Antoni Pokusinski wrote:
+> Abracon AB0815 and AB1815 are RTC modules with SPI interface.
+> 
+> Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
+> ---
+>  .../bindings/rtc/abracon,abx80x.yaml           | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+> 
 
-Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
----
- drivers/rtc/Kconfig      |  26 +++++-----
- drivers/rtc/rtc-abx80x.c | 106 +++++++++++++++++++++++++++++++++++++--
- 2 files changed, 115 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 4d14bcba616e..d35221f81024 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -212,18 +212,6 @@ config RTC_DRV_ABEOZ9
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ab-e0z9.
- 
--config RTC_DRV_ABX80X
--	tristate "Abracon ABx80x"
--	select WATCHDOG_CORE if WATCHDOG
--	select REGMAP_I2C
--	help
--	  If you say yes here you get support for Abracon AB080X and AB180X
--	  families of ultra-low-power  battery- and capacitor-backed real-time
--	  clock chips.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-abx80x.
--
- config RTC_DRV_AC100
- 	tristate "X-Powers AC100"
- 	depends on MFD_AC100
-@@ -955,6 +943,20 @@ config RTC_I2C_AND_SPI
- 
- comment "SPI and I2C RTC drivers"
- 
-+config RTC_DRV_ABX80X
-+	tristate "Abracon ABx80x"
-+	depends on RTC_I2C_AND_SPI
-+	select WATCHDOG_CORE if WATCHDOG
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
-+	help
-+	  If you say yes here you get support for Abracon AB080X, AB180X,
-+	  AB081X and AB181X families of ultra-low-power  battery- and
-+	  capacitor-backed real-time clock chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-abx80x.
-+
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232/DS3234"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 7cba72656d09..46434f05a1f7 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- * A driver for the I2C members of the Abracon AB x8xx RTC family,
-- * and compatible: AB 1805 and AB 0805
-+ * A driver for the I2C and SPI members of the Abracon AB x8xx RTC family,
-+ * and compatible: AB 1805, AB 0805, AB 1815 and AB 0815
-  *
-  * Copyright 2014-2015 Macq S.A.
-  *
-@@ -18,6 +18,7 @@
- #include <linux/of.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
-+#include <linux/spi/spi.h>
- #include <linux/watchdog.h>
- 
- #define ABX8XX_REG_HTH		0x00
-@@ -102,8 +103,8 @@
- 
- static u8 trickle_resistors[] = {0, 3, 6, 11};
- 
--enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
--	AB1801, AB1803, AB1804, AB1805, RV1805, ABX80X};
-+enum abx80x_chip {AB0801, AB0803, AB0804, AB0805, AB0815,
-+	AB1801, AB1803, AB1804, AB1805, AB1815, RV1805, ABX80X};
- 
- struct abx80x_cap {
- 	u16 pn;
-@@ -116,10 +117,12 @@ static struct abx80x_cap abx80x_caps[] = {
- 	[AB0803] = {.pn = 0x0803},
- 	[AB0804] = {.pn = 0x0804, .has_tc = true, .has_wdog = true},
- 	[AB0805] = {.pn = 0x0805, .has_tc = true, .has_wdog = true},
-+	[AB0815] = {.pn = 0x0815, .has_tc = true, .has_wdog = true},
- 	[AB1801] = {.pn = 0x1801},
- 	[AB1803] = {.pn = 0x1803},
- 	[AB1804] = {.pn = 0x1804, .has_tc = true, .has_wdog = true},
- 	[AB1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
-+	[AB1815] = {.pn = 0x1815, .has_tc = true, .has_wdog = true},
- 	[RV1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
- 	[ABX80X] = {.pn = 0}
- };
-@@ -1026,14 +1029,107 @@ static void abx80x_unregister_driver(void)
- 
- #endif /* IS_ENABLED(CONFIG_I2C) */
- 
-+#if IS_ENABLED(CONFIG_SPI_MASTER)
-+
-+static const struct regmap_config abx80x_regmap_config_spi = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = ABX8XX_SRAM_BASE + ABX8XX_SRAM_WIN_SIZE - 1,
-+
-+	.rd_table = &abx80x_read_table,
-+	.wr_table = &abx80x_write_table,
-+
-+	.write_flag_mask = BIT(7),
-+};
-+
-+static const struct spi_device_id abx81x_id[] = {
-+	{ "ab0815", AB0815 },
-+	{ "ab1815", AB1815 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, abx81x_id);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id abx81x_of_match[] = {
-+	{
-+		.compatible = "abracon,ab0815",
-+		.data = (void *)AB0815
-+	},
-+	{
-+		.compatible = "abracon,ab1815",
-+		.data = (void *)AB1815
-+	},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, abx81x_of_match);
-+#endif
-+
-+static int abx81x_spi_probe(struct spi_device *spi)
-+{
-+	unsigned int part = (uintptr_t)spi_get_device_match_data(spi);
-+	struct regmap *regmap;
-+
-+	regmap = devm_regmap_init_spi(spi, &abx80x_regmap_config_spi);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&spi->dev, "Unable to allocate regmap\n");
-+		return -EIO;
-+	}
-+
-+	return abx80x_probe(&spi->dev, regmap, spi->irq,
-+			    spi->dev.of_node, part);
-+}
-+
-+static struct spi_driver abx81x_driver = {
-+	.driver		= {
-+		.name	= "rtc-abx81x",
-+		.of_match_table = of_match_ptr(abx81x_of_match),
-+	},
-+	.probe		= abx81x_spi_probe,
-+	.id_table	= abx81x_id,
-+};
-+
-+static int abx81x_register_driver(void)
-+{
-+	return spi_register_driver(&abx81x_driver);
-+}
-+
-+static void abx81x_unregister_driver(void)
-+{
-+	spi_unregister_driver(&abx81x_driver);
-+}
-+
-+#else
-+
-+static int abx81x_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void abx81x_unregister_driver(void)
-+{
-+}
-+
-+#endif /* IS_ENABLED(CONFIG_SPI_MASTER) */
-+
- static int __init abx80x_init(void)
- {
--	return abx80x_register_driver();
-+	int ret;
-+
-+	ret = abx80x_register_driver();
-+	if (ret)
-+		return ret;
-+
-+	ret = abx81x_register_driver();
-+	if (ret)
-+		abx80x_unregister_driver();
-+
-+	return ret;
- }
- module_init(abx80x_init);
- 
- static void __exit abx80x_exit(void)
- {
-+	abx81x_unregister_driver();
- 	abx80x_unregister_driver();
- }
- module_exit(abx80x_exit);
--- 
-2.55.0
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
+Best regards,
+Krzysztof
