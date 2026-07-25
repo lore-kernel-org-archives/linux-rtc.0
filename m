@@ -1,73 +1,76 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98EAE353A60
-	for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 18:42:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A8762FFF9D
+	for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 19:21:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785004977; cv=none; b=kA1gzl/BQOcgIJUQ/XXcpia0Vmdu3gJt+wCEeR3RDz9A7OFEIqe38lAj21H/jRSDyqCAXVkuT+zOqKL0PPGCAc7F9yPFoiIDynRn9/XPa+HH3oCEt7Gte4gs6jYDUnWU9hP7XAPiVO2lnaj0aa5A4BdmKGawpgqAaMfL9M82MWQ=
+	t=1785007266; cv=none; b=B9pwlLRz+03HLsC4/IEX54kx2BK6w4VgmnQRGqzqxeDrMCRcrXtTedw1mRDeA39qnWm63iSXisX/cqMiVf7s5RWcq7mdudypGW8wUsTaD2kvMmrOxsO2A9hVS6Y3IXqVjft0shx3oCT0kyzZeE7uWCeyzSfbuF9rkA4myPLKuDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785004977; c=relaxed/simple;
-	bh=srUUvtKEX0/HxmoZoGJMkwyUOLS18ex6QG639b0h75A=;
+	s=arc-20240116; t=1785007266; c=relaxed/simple;
+	bh=bbXKsLmsWgE5qcfQH6W3dtcu7Nl3Mn1hAuZTK1MZ9JM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lUZTkPlb07pcUN6pk0tthaUN3BS3+fwwcJ+mgDEZ08tlNBbQsIh3uxT/tJZMn4KZJJfyn6VcTcUEf/K32uv7mWbemsIH+5G+Uw6X3st+aiB84rbumqtYoB7aJYHcNBifUTZS7srgUR9vzempuJjbSTwXFq87aCdyODsqkZ03PaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OQQ+6tA5; arc=none smtp.client-ip=209.85.128.50
+	 Content-Type:Content-Disposition:In-Reply-To; b=OB7azZxwts7sJUYE5mEpvO882UeqpMn9US0gcJQkwk5UCk8nE50F9N739cH918ptC7fSwmtwNaBf7ouwyhk+Nf4PvCt2CSMo3WZFA6cA/OTde4CX+G4eCA/hT8z//lywzycbFEF6GTcv3XYMLoZUoKOOCkhmooUxFK4pp7fEbwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fj0/w/RQ; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OQQ+6tA5"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4955aa106b1so15662115e9.0
-        for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 11:42:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fj0/w/RQ"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4954c0833b4so11222155e9.1
+        for <linux-rtc@vger.kernel.org>; Sat, 25 Jul 2026 12:21:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785004974; x=1785609774; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1785007262; x=1785612062; darn=vger.kernel.org;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Yim8vL4SATQPCHdmJdo+DTQlfgUOkNLfDRGu6BOoAio=;
-        b=OQQ+6tA5K/Q6ibtSWEV6IggOcGSaDrqLu8ghqXk9ucbUtC8SfsSj41F/dymC9jHd2o
-         x2e6lJpCb+r1kMVstAdsH8yVFyB3g5JeyCC9tocLYSkD6YdJ9nqBQ057rk+jzMFMjgJY
-         NMToioIQeP8/esnn0UgQJzyzw8Ki9GSz2lijTeJHIJ8hmNnyhzuWo7yVJpui9DFeqbKW
-         Ihkg4Ar8vLUkjQjXM+Q/PyswFJSb0DCm1a/M2438lqSao7uxXYUxrUYJeycDIcvNIbUF
-         RexOSG5G+otuZgZ37TzdIWKSfOk85TneKUw7f8ZaXnw94prqoMoEDdQs41r3IkBxJCsf
-         J1ww==
+        bh=BGq1MYuzS+pjKAqXa5uKrnlzlVFHDeU8OLo2EF6piLs=;
+        b=fj0/w/RQ//N/B6UvsHwYlD2aDOL05Vlw8YO0L/nIkfgecUZiA/tJgKBwqpi46caBnl
+         vOETKUghK3o5Un/rkn4Bd/ve9vyW9OvJUtPTCJ8OzJ7i4vOEwU6NJWytMd/aCHINCEPC
+         xDQVZwjqsnPY7ORSmXs+XkGVe5c+6F7Cg31d1xLI8K/Wj6XvsTfZvp7ura6HFZFNdvLQ
+         c+HtqOK9kmO5cwiYeO3CoM7X2rIPwL+5Z2Dpja48frlpGwGCnJrQ5gljVBnmOMFVj+xg
+         WkiKgN4IhUJXeKMuIJa8hbf19nE2YcpQuiAM1WzaOMkFaOq2K9R1EoegsobdQs3oardO
+         0zbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785004974; x=1785609774;
+        d=1e100.net; s=20251104; t=1785007262; x=1785612062;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=Yim8vL4SATQPCHdmJdo+DTQlfgUOkNLfDRGu6BOoAio=;
-        b=Gy361Db6HobYazFjtGuaOZBp8w8jaxCJ0zadXtK/vDpHPLFAzJWv6soKHDzd9mmSJc
-         HKNwYLEBYccfjPiga0NnH6RxKUKxpUA58usl1uFtL1+RLrA3YQJ2Dqx9a1cONteHdztS
-         uQPQEeQjjuvWh9nOXlLyykDO3WS1zrfrHnc+WIDnHLtBraSXhEW77NwnCxN60hY3HEei
-         agXFOATcHgCODiUXCixSOIl1HhcritqjUWe9E9KRPtnR7B/fTUtcwTJMjwj6XzW/IF9+
-         Us4bdeVO/dMqdcdt9D7UGuUqK7t3OJi+F1kwBfIMVtmvg/s9vt4UI+LdOpfBAdkNKIv8
-         45hQ==
-X-Gm-Message-State: AOJu0YwDMnubAKE0qDjINq1HKYHdhfF/iEAPaw7xTXym3krJNrXASLVD
-	KYKN0uMjICC61x73gJm97f+1ae50FBamPVDzQYBt0X6aF9zfqJ1oHtUUmMxfkx0J
-X-Gm-Gg: AR+sD12+LX7FCBfFMoVmuvPqjMPmqE6EBfS1HhuhAnngq+hFCwZ8ZsIcFv6YndHBSiP
-	GE3C0PEv+xy/aTSfMkktDmTBe5u3IZ9AEj/old9wLhgTFW3JsIXe7y1vI784F/oSLTH8dwyX3Qk
-	sC7/5AqSXofSGBvigahFb4lRBn1z8vOStxE2El4yy9C7OVsJSoEacBXYXzcAfmurJsq/zaI8WVx
-	XT+GPOhrkyz634gkJAzZpAM41GmU0HjKV97oldo/SF5QXiQXyE6uxfcpBr5joLpN+Y71KPKvE6z
-	ewv8JDEkEL3brwrjU5TyOygqWEB6rzRftf1z1DTOoMqpNyxHjeE0PZPAJ4xfrbP2RH5LLwdLDK9
-	WbprdzZ1lif3yVsQ02Hm2F5JZtyU+wI4rnBCjHZSPUsEkGG/XcgHw/SI5VMSZhQrKXvyej5aMea
-	JE2Q==
-X-Received: by 2002:a05:600c:354f:b0:495:5062:17f9 with SMTP id 5b1f17b1804b1-496b5702398mr44354255e9.30.1785004973580;
-        Sat, 25 Jul 2026 11:42:53 -0700 (PDT)
+        bh=BGq1MYuzS+pjKAqXa5uKrnlzlVFHDeU8OLo2EF6piLs=;
+        b=pe3gdVGEfn7gPDMAdzAkBSUTr0T/QEHPt216Nodyg3U5jyU6QC2ov081SrKAZfx6mK
+         /X+mb75FGN65RIjcbme5cm03B0EzkbO2Im/viPQbxWDrHeQfNjpzWA/CToEbUBJnzRXt
+         id4meuC6hbKqgY/eWx8K3p1h8I33gzFTeVqgJsG5//xJeGEhwUQvUsDEFEoqDbj5D6xU
+         dEtvr1OMAX1Q+D6SVcwnNOPVXB2tBDREgDioldSPqAGgY+RjYClTiOcbwgo/nusjqf6x
+         K/wxKQxfasJxc0lovVjrCrNTcdr9UAO/HYFxYD0K13+ABojnip4nLEAFlsU2sWDnQk41
+         1eeQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rr7PbkLuc8tTfTmFKIjKSlZykdJVIHQw4tXKzOs4Pn654hwEgoMJdD3G+BagDcmvRi+f2uC3SPAcrU=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx8p0+Kq/yPlKQMBi87lm9EmPvVqCG3VMUg5a6Baq6i/XMc6nPh
+	L10ByI4jhJ0CejieH0djvNcXr8BuTJZ0LCMjjOWvtnvbzJFK4+oKHO0D
+X-Gm-Gg: AR+sD10PfYSGQBNfx46MooFgFhwx6Qb57CkCAwpnXZ2ZqRxB4BTUCW0YG1iNWPCouOa
+	ksG6KwyM3XngcEonO3OA/656g6WfaQazXmG2sVB0+6+ATFoCS5LVDH1klvOx+nqrBQxdb9CGmm2
+	ocnZ7XmJFMEFQQ8q3oKlO5rqbFmeLSCMxNuZxnjh/DbSGpxqZoQOCnVkfQhdI/ihUUoiGPyAzYo
+	cL0fqaBWTI5VsDf/S9X6OIzYEbF5tpHWtcu1Dl53YU1qU6iKJ8DzYem3taJqPRBVGaAxGcQUP+h
+	U+i+o3L8PvO9NsGVdaVLxlvgPDFclDTCUlyNxWDlPEKmil3So76usCoi05EFqwGg2k81jStkwD8
+	O4ZpicoJECJwAYrpR1Gd/aKvity+4mAJCsCMKVyQzECDhvXjrxd8VuzXEoqJV2+N4cnVAOkC/ke
+	tmIA==
+X-Received: by 2002:a05:600c:5487:b0:495:7287:293f with SMTP id 5b1f17b1804b1-496b690a85dmr29215635e9.35.1785007261955;
+        Sat, 25 Jul 2026 12:21:01 -0700 (PDT)
 Received: from antoniarch ([78.212.96.5])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b49a5f98sm88482475e9.12.2026.07.25.11.42.52
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b49b2ffdsm86513875e9.15.2026.07.25.12.21.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2026 11:42:53 -0700 (PDT)
-Date: Sat, 25 Jul 2026 20:41:27 +0200
+        Sat, 25 Jul 2026 12:21:01 -0700 (PDT)
+Date: Sat, 25 Jul 2026 21:19:36 +0200
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: sashiko-reviews@lists.linux.dev
-Cc: linux-rtc@vger.kernel.org, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 8/8] rtc: abx80x: add support for ABX81X
-Message-ID: <amUBF4oc3YhFRUYO@antoniarch>
+Cc: conor+dt@kernel.org, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	robh@kernel.org
+Subject: Re: [PATCH v2 2/8] rtc: abx80x: move part autodetection before
+ RV1805 configuration
+Message-ID: <amUI6JY3BFTrbdqp@antoniarch>
 References: <20260725145718.14733-1-apokusinski01@gmail.com>
- <20260725145718.14733-9-apokusinski01@gmail.com>
- <20260725153032.874311F000E9@smtp.kernel.org>
+ <20260725145718.14733-3-apokusinski01@gmail.com>
+ <20260725150753.325271F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -77,74 +80,81 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260725153032.874311F000E9@smtp.kernel.org>
+In-Reply-To: <20260725150753.325271F000E9@smtp.kernel.org>
 
-On Sat, Jul 25, 2026 at 03:30:32PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [Medium] Incorrect SPI read/write flag masks invert SPI commands.
-> - [Medium] Masking of valid error codes from `devm_regmap_init_*()`.
+On Sat, Jul 25, 2026 at 03:07:52PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Medium] The patch fails to resolve the issue it describes because part autodetection for the RV1805 incorrectly resolves to AB1805.
 > --
 > 
-> --- Patch [8]: [PATCH v2 8/8] rtc: abx80x: add support for ABX81X ---
-> commit f05e60a6ab0d5bdeb5665a7f2de3be7428abd444
+> --- Patch [2]: [PATCH v2 2/8] rtc: abx80x: move part autodetection before RV1805 configuration ---
+> commit e37ea6c1257442ff3423e6bacb742916beb85bbb
 > Author: Antoni Pokusinski <apokusinski01@gmail.com>
-> Subject: rtc: abx80x: add support for ABX81X
 > 
-> This commit adds SPI support for the Abracon ABX81X family of RTCs. It
-> introduces the required regmap configuration and SPI driver probe logic.
+> rtc: abx80x: move part autodetection before RV1805 configuration
+> 
+> This commit moves the part autodetection logic before the RV1805
+> configuration block. The intention is to ensure the RV1805 specifics are
+> applied even when the driver is bound using a generic compatible string.
 > 
 > > diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> > index 7cba72656d094..46434f05a1f7a 100644
+> > index 5486d9d0b1e5d..ca3af91c29977 100644
 > > --- a/drivers/rtc/rtc-abx80x.c
 > > +++ b/drivers/rtc/rtc-abx80x.c
-> [ ... ]
-> > @@ -1026,14 +1029,107 @@ static void abx80x_unregister_driver(void)
+> > @@ -814,6 +814,25 @@ static int abx80x_probe(struct i2c_client *client)
+> >  		return -EIO;
+> >  	}
 > >  
-> >  #endif /* IS_ENABLED(CONFIG_I2C) */
-> >  
-> > +#if IS_ENABLED(CONFIG_SPI_MASTER)
-> > +
-> > +static const struct regmap_config abx80x_regmap_config_spi = {
-> > +	.reg_bits = 8,
-> > +	.val_bits = 8,
-> > +	.max_register = ABX8XX_SRAM_BASE + ABX8XX_SRAM_WIN_SIZE - 1,
-> > +
-> > +	.rd_table = &abx80x_read_table,
-> > +	.wr_table = &abx80x_write_table,
-> > +
-> > +	.write_flag_mask = BIT(7),
-> > +};
+> > +	/* part autodetection */
+> > +	if (part == ABX80X) {
+> > +		for (i = 0; abx80x_caps[i].pn; i++)
+> > +			if (partnumber == abx80x_caps[i].pn)
+> > +				break;
 > 
 > [Severity: Medium]
-> Does the hardware expect MSB=1 for writes and MSB=0 for reads? Since
-> .read_flag_mask is omitted, regmap defaults it to 0. If the device expects
-> the opposite (MSB=1 for reads), the SPI commands could be inverted.
-Everything ok here. According to the datasheet, the MSB of the register
-indicates read (if 0) or write (if 1).
-
+> Does this code introduce a regression by preventing the RV1805 configuration
+> from running during autodetection?
 > 
-> [ ... ]
-> > +static int abx81x_spi_probe(struct spi_device *spi)
-> > +{
-> > +	unsigned int part = (uintptr_t)spi_get_device_match_data(spi);
-> > +	struct regmap *regmap;
-> > +
-> > +	regmap = devm_regmap_init_spi(spi, &abx80x_regmap_config_spi);
-> > +	if (IS_ERR(regmap)) {
-> > +		dev_err(&spi->dev, "Unable to allocate regmap\n");
-> > +		return -EIO;
+> Since AB1805 and RV1805 share the same part number (0x1805), and AB1805
+> appears earlier in the abx80x_caps array, it appears this loop will always
+> match AB1805 first.
+> 
+> If the driver is bound using the generic abracon,abx80x compatible string,
+> part will be set to AB1805 instead of RV1805.
+> 
+Ok so I missed the fact that "AB1805 and RV1805 share the same part number".
+Hence, I see no way to make the driver run the RV1805 configuration when
+it is bound using the generic ABX80X, because it may happen that the
+detected part is RV1805 even though the real one is AB1805 or the
+reverse (depending on the order that we define in `abx80x_caps[]`).
+Therefore, I'll drop this patch in v3 and leave things as they were
+(i.e. autodetecton after the `if (part == RV1805)` ).
+ 
+> > +		if (abx80x_caps[i].pn == 0) {
+> > +			dev_err(&client->dev, "Unknown part: %04x\n",
+> > +				partnumber);
+> > +			return -EINVAL;
+> > +		}
+> > +		part = i;
 > > +	}
+> > +
+> > +	if (partnumber != abx80x_caps[part].pn) {
+> > +		dev_err(&client->dev, "partnumber mismatch %04x != %04x\n",
+> > +			partnumber, abx80x_caps[part].pn);
+> > +		return -EINVAL;
+> > +	}
+> > +
+> >  	/* Configure RV1805 specifics */
+> >  	if (part == RV1805) {
 > 
 > [Severity: Medium]
-> Should this return PTR_ERR(regmap) instead of a hardcoded -EIO? Returning
-> -EIO here masks the true error code from devm_regmap_init_spi() (like -ENOMEM
-> or -EPROBE_DEFER), which could disrupt probe deferral logic. (It looks like
-> the existing abx80x_i2c_probe() might have the same behavior.)
+> Will this check now evaluate to false due to the autodetection resolving to
+> AB1805 above?
 > 
-> [ ... ]
+> If part is overwritten with AB1805 during autodetection, the RV1805 specifics
+> will continue to be silently skipped. This leaves the device vulnerable to
+> accidentally entering test mode and leaking extra power, meaning the patch
+> might not resolve the issue it describes.
 > 
-Yes, this should return PTR_ERR(), not sure why I added -EIO here...
-Will change this in v3.
-
 > -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20260725145718.14733-1-apokusinski01@gmail.com?part=8
+> Sashiko AI review · https://sashiko.dev/#/patchset/20260725145718.14733-1-apokusinski01@gmail.com?part=2
