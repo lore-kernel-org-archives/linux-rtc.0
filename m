@@ -1,132 +1,140 @@
-Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F3924DD17
-	for <linux-rtc@vger.kernel.org>; Sun, 26 Jul 2026 15:16:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785078972; cv=pass; b=ujINyPfohgtTvXvN1WcogTLb2s/MkJrLv0AjR92w4iGs4G/ej2ltS87moR3mMppoz5eHgjlSsg1+dEDtEwLED5TX1cYllx9V4TO4CqyV3JmHsD//d3zobYk05nVTFdC0wBYjN4oZjCiYL/h91pVZUkQrV9VK01zKe35hlyPzCqw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785078972; c=relaxed/simple;
-	bh=TWerGqVdBjEBG1N0LmaVsGNSMTfvwB+N7AwXE1/zGGY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YT9fhJYXdGurpuKjulcj4rlvcXHgstmfqj3Ns4Y7uOdzEqwAqPdK9Hz2Pl+K6NafZaymE1zPAwWJ/0kW60nFLN8Rc5ZpH2FjgZuHK4agX4xw6DhM4Ngvsj9xEmAdYO5Ka/hHCPsM4UM+re7ZbtcFSEIQ4lbhaZxve/f+4snRWk8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kH7oGc5L; arc=pass smtp.client-ip=209.85.161.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8DC137B00E;
+	Mon, 27 Jul 2026 08:30:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785141041; cv=none; b=VKI5bW6DwjrdrPlLz+R1G58m3Jg+vjdxNOOKhEQ5z1ySQ+rhzzgh+DCSrN7sihfFjvfkO1DqECWSvcKw7oMJCCygguMXpTS8SNkAy/d/w9orowKIjpZqqHtdqo6dr9QbBSuToy2nyjc7rtB3y+PtStaEGaH7OwOPSLfIoPS/8jo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785141041; c=relaxed/simple;
+	bh=qWnqu6VCUiwZWG189ixa/W9uGeC6PMG4tY9t7kvdnXI=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=h8LKZ8EVsai8wMrYj/fT0xVSgPTrl6DOh04/nUgZtFoRkGUPmdEqBdwE+VdRVHNKYYPYr8u+qMLJeJGWgH7glJdNWS6Amw1ytL7A1XMPHxgDaVTsiau46edgGKidGiYhptvON8UGHYeJRIfP1yJhpgmVpJCTvFCOacKBXdHd9K4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bn7dLIip; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kH7oGc5L"
-Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-6aaf2f9ce3dso749672eaf.1
-        for <linux-rtc@vger.kernel.org>; Sun, 26 Jul 2026 08:16:11 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785078970; cv=none;
-        d=google.com; s=arc-20260327;
-        b=MkmA44eNNX58GDa1pwv1DlStNtbhrfJzwmSPlkOqlVXbAFQc47rE/mdkfVnvh3ksF2
-         ZD5ZZjGT0qZQfwCmy4BPTxi5RFL+eItjdA4pDzjqgHr5NCQAkNIpiZBHiMW2aRR+xIKU
-         HqXTc75pWBLJYx1AHwWzBlfExzS1JQPiiFSVYAcgWB/uO2aMhTRh4SCtBMJNOaoRldvB
-         iZ+5gGS8IZ7LzKbe6F7QIrTMbjKuREDV6WITknMuIvCCPFveOD05zPDguRvSY9Sea+My
-         RIPC+MSt7x2l0o64NvuaTEhX3VbO9QcIIP5455WCg7la5TQ2/RBQQIZyFtC8MinY0MI2
-         +ROQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=jMIou7laWwsLhO0AMdNsLPcQONV9DUMoZ+TZ+5bQCzI=;
-        fh=ly/oP7gsWj30DZHabpg9K5+Ra02z21e9aqNtGIzDCuI=;
-        b=ikb2MIf0HN9svEw6CuRuPEFV84+yjTcFe6Oc7kQ2RumpqJ9Q+MzO0MzJqJKB6wmY54
-         X9YCFDa5C2tNUT6Ae1B12BGyJxxwW5SNNNT3tzuz5WtKk+nL/AGY74lUQkasMu7C6rcW
-         ICvodSCj4RpQtclHSs+rf27CFTXjlpMyBXWQpjoFuwyJV/iYQBAp0tgayuf7x0MNDjGY
-         p2LrjaTcJhbgMNft+/FdUFp6Vtg5v/VZRbU0cAnxAtxEcK6viqPWD2lyVamhTwThjxXf
-         4LsJxxxoE5PFItSCQ1uCUWT8okGw2npeZYp0whrVLrN+f6S+hAXOdDPjxsLzdRih8Fjz
-         K7NQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785078970; x=1785683770; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=jMIou7laWwsLhO0AMdNsLPcQONV9DUMoZ+TZ+5bQCzI=;
-        b=kH7oGc5LIaZaRVhze5Hw0Cbye2jLI55ocMzz72DFegf4/LQBX7du7paOtL1s2nsVVl
-         RiB6kkzkJAiDM8HcMoznHVYkU314Qu5iTC7AzikISCrMXId/XGl73/zYPioGcqWd7rwa
-         ynLEizaYhljDE6oI0TmB7+ZCAPuxn1pCf5juLvzTVCge5iXF8fHOjIVYjSq5aoWYA5++
-         ZR2clBN8u6fbpYjMlMWEqsgLWeLKBDM/aDDX/VysSz98qyB0oM1tPqG/AYxHLgXbcmsz
-         OHtJgJvyvKDgOp09zOPDhnonTA+jSspUFu17HsKToP4evtreQ5DeKdcBVofrPalKmqqc
-         //tQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785078970; x=1785683770;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=jMIou7laWwsLhO0AMdNsLPcQONV9DUMoZ+TZ+5bQCzI=;
-        b=RtNumqqafIe8/y/u0bJUWpKnqAsO/lIfoKdYzcsChiyMpInbb+re8sIItXXa44LFrK
-         ikOnGEklDspP2I87sJBO/udmwwB71z3KzClbxDnbniNu5nCjRMywQtRPH0sZRqt1Z2wt
-         TxdDwamN7G55391hEk9OiOygp0eWZD3Nd3ZUztIALGPbGBA8DxJu4e/4mSBbYxV0hVcO
-         ruyMErjwD52MKqPAZEoT0zy2B2Rj25h9M0b7B3t5ywv03v12BCZwg5JH4vL0gCNpkfzq
-         2uxXifu97Xzg3Vo0DtEftMsr745UA3emM1vSWb60X/ditgyiWARFiCYwx6605yqVQV9W
-         o3vg==
-X-Forwarded-Encrypted: i=1; AHgh+RptFgxMM6wteSvPkwqYzCzPQ3Fui+abW+GDOnNNHgK8fht1nC1vA8GpUyx5ppu+r6RbBPiOblyzNdw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyyjemI6uTnIwmlFQdRYZKgwCIGvTCVkWa0RyfPt2APHRCl16pM
-	uu4cXSruM0eO6OevOhc04oxVpyXbx1yWGFjvxG/c52hM/qC/y5/MLlxIsg52PlNj6AxQ/yz4LOn
-	P37/MEU83zbtOB2R0AXgAx17AYSOG7yY=
-X-Gm-Gg: AR+sD12ymAwG9aQBlLBeV3LUkUOLr9xJqv/4jWe/Z9qGtTZH74cpCsQgCUiIj8UkogC
-	BASWjdidNKqOglhz4BiT/JNMo46od3Si9x4DN3NwrkRrORxTNbqdDIqs4wZ/a4hHA+vz0Ufed79
-	2h78kMpD7Orqoa13+gTCBpZFRR3FFsFdAhS3wnyWWR+86oqNuPdRGj0KCPrnaJa656OwjMZtmLC
-	zEplHEgQ9tEP1SGKfqHkbtsEBrSx2V+fLfOPhgBjKHhC6T7P8MN6A9qubRX+Q==
-X-Received: by 2002:a05:6820:f008:b0:6aa:e436:9930 with SMTP id
- 006d021491bc7-6aaff99f310mr3935654eaf.21.1785078970497; Sun, 26 Jul 2026
- 08:16:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bn7dLIip"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1785141039; x=1816677039;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=qWnqu6VCUiwZWG189ixa/W9uGeC6PMG4tY9t7kvdnXI=;
+  b=bn7dLIipZCNqvW289b61vT4b6u+LiCajh52WIL+tFfRrmJloKWtUXBG+
+   ZVDoonEWBjxGTWB+TpaP1dMgq905yih2+PZN8ueg2IgP/evaSIknEaQAL
+   sOKMLvBHqFYLDjGevHnwVch9P4Ys6B6dOm9LdKPySPt8mEYMMGnH2QoJC
+   aF5JBvyQDaYcJ0j4N4y7zOns8t8E4CNEzASqkc1P8xkX3THpp4bsMdc1r
+   4+3C/8LmINhYo2vRvUxZOSY6tooBcFJdahJfewgCAoBHpOnR3ol8IO/Kg
+   t6VRYs0MkffinszzXhu5i2/2b1QBE07PokaNo3Am7W/dJ1Y/8SCMhSsNn
+   Q==;
+X-CSE-ConnectionGUID: mgZgOQ5BQgGfhlx+0PVe4w==
+X-CSE-MsgGUID: I0V/57TmQ1qX9+TI9szaWA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11857"; a="85573917"
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="85573917"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 01:30:34 -0700
+X-CSE-ConnectionGUID: zuBRshsISau4U4oJl9pq1g==
+X-CSE-MsgGUID: S6JnVra9Qs26laDkF7yO1A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,188,1779174000"; 
+   d="scan'208";a="259417611"
+Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.197])
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jul 2026 01:30:04 -0700
+From: Jani Nikula <jani.nikula@linux.intel.com>
+To: Jakub Kicinski <kuba@kernel.org>, Sang-Heon Jeon <ekffu200098@gmail.com>
+Cc: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, Alexandre Belloni
+ <alexandre.belloni@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, Andrew
+ Morton <akpm@linux-foundation.org>, Arkadiusz Kubalewski
+ <arkadiusz.kubalewski@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Christian =?utf-8?Q?K=C3=B6nig?= <christian.koenig@amd.com>, Daniel Lezcano
+ <daniel.lezcano@kernel.org>, David Airlie <airlied@gmail.com>, "David S.
+ Miller" <davem@davemloft.net>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian
+ Westphal <fw@strlen.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Hans de Goede <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>,
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>, Herbert Xu
+ <herbert@gondor.apana.org.au>, Ilpo =?utf-8?Q?J=C3=A4rvinen?=
+ <ilpo.jarvinen@linux.intel.com>, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, Jaroslav Kysela <perex@perex.cz>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, "Joerg
+ Roedel
+ (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, Jonathan Cameron
+ <jic23@kernel.org>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, Liam
+ Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, Maarten
+ Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown
+ <broonie@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Matthew Sakai <msakai@redhat.com>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Maxime Ripard <mripard@kernel.org>, Michael
+ Turquette <mturquette@baylibre.com>, Mike Rapoport <rppt@kernel.org>, Miri
+ Korenblit <miriam.rachel.korenblit@intel.com>, Nicolas Palix
+ <nicolas.palix@imag.fr>, Pablo Neira Ayuso <pablo@netfilter.org>, Paolo
+ Abeni <pabeni@redhat.com>, Ping-Ke Shih <pkshih@realtek.com>, "Rafael J.
+ Wysocki" <rafael@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, Simona
+ Vetter <simona@ffwll.ch>, Simon Horman <horms@verge.net.au>, Stephen Boyd
+ <sboyd@kernel.org>, Steve French <sfrench@samba.org>, Takashi Iwai
+ <tiwai@suse.com>, Thomas Renninger <trenn@suse.com>, Thomas Zimmermann
+ <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, Vinod
+ Koul <vkoul@kernel.org>, Will
+ Deacon <will@kernel.org>, Yazen Ghannam <Yazen.Ghannam@amd.com>,
+ cocci@inria.fr, amd-gfx@lists.freedesktop.org, dmaengine@vger.kernel.org,
+ dm-devel@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org,
+ iommu@lists.linux.dev, linux-cifs@vger.kernel.org,
+ linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-edac@vger.kernel.org, linux-gpio@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-rtc@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-sound@vger.kernel.org,
+ linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+ lvs-devel@vger.kernel.org, netdev@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, nouveau@lists.freedesktop.org,
+ platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 00/36] treewide: remove conditional returns with no effect
+In-Reply-To: <20260724144822.6af8213f@kernel.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park,
+ 6 krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
+References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+ <20260724144822.6af8213f@kernel.org>
+Date: Mon, 27 Jul 2026 11:30:01 +0300
+Message-ID: <0ee1ef4aa7daa908bf28397ccc639c89b6aabd9c@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260723184538.3888637-1-ekffu200098@gmail.com> <20260723184538.3888637-30-ekffu200098@gmail.com>
-In-Reply-To: <20260723184538.3888637-30-ekffu200098@gmail.com>
-From: Bruno Thomsen <bruno.thomsen@gmail.com>
-Date: Sun, 26 Jul 2026 17:15:54 +0200
-X-Gm-Features: AUfX_mwuTyvufEEqfV1DrvXKVeoz07p2bdZcc-g6WVPL3BiLOG5iAxIUoLYwBi0
-Message-ID: <CAH+2xPB1CQ=_FgBFUZ7dg=R3wKYwu27ndybWeX8XwsKtvYFsQw@mail.gmail.com>
-Subject: Re: [PATCH 29/36] rtc: pcf2127: remove conditional return with no effect
-To: Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: Julia.Lawall@inria.fr, Alexandre Belloni <alexandre.belloni@bootlin.com>, cocci@inria.fr, 
-	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 
-Den tors. 23. jul. 2026 kl. 21.02 skrev Sang-Heon Jeon <ekffu200098@gmail.com>:
+On Fri, 24 Jul 2026, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Fri, 24 Jul 2026 03:45:02 +0900 Sang-Heon Jeon wrote:
+>> Patch 1 adds a Coccinelle script that matches the pattern, including
+>> negation and constant-comparison variants. Where a local variable is
+>> assigned right before the check, the assignment and the two returns
+>> turn into a single return of the assigned expression.
 >
-> Both branches of the check return the same value, so the check has
-> no effect. Remove it and return the value directly.
->
-> This is the result of running the Coccinelle script from
-> scripts/coccinelle/misc/cond_return_no_effect.cocci.
->
-> Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
-> ---
->  drivers/rtc/rtc-pcf2127.c | 7 +------
->  1 file changed, 1 insertion(+), 6 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> index 1995e9f2756d..ff2023908f5a 100644
-> --- a/drivers/rtc/rtc-pcf2127.c
-> +++ b/drivers/rtc/rtc-pcf2127.c
-> @@ -1184,12 +1184,7 @@ static int pcf2127_configure_interrupt_pins(struct device *dev)
->         if (ret)
->                 return ret;
->
-> -       ret = regmap_write(pcf2127->regmap,
-> -                          PCF2131_REG_INT_A_MASK2, 0);
-> -       if (ret)
-> -               return ret;
-> -
-> -       return ret;
-> +       return regmap_write(pcf2127->regmap, PCF2131_REG_INT_A_MASK2, 0);
->  }
+> Huh, I thought we already had such script. Various script children have
+> been sending such "cleanups" in the past.
 
-Reviewed-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+We did, and it was removed, I believe in 1a617a8475e8 ("coccinelle:
+misc: remove "complex return code" warnings"), because people just don't
+want this constant churn.
 
->
->  static int pcf2127_probe(struct device *dev, struct regmap *regmap,
-> --
-> 2.43.0
->
->
+It's perfectly fine to have the error case and happy day scenario
+separated.
+
+
+BR,
+Jani.
+
+
+-- 
+Jani Nikula, Intel
