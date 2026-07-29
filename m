@@ -1,121 +1,175 @@
-Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40B54477E37;
-	Wed, 29 Jul 2026 15:19:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FCB3CB562
+	for <linux-rtc@vger.kernel.org>; Wed, 29 Jul 2026 22:52:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785338353; cv=none; b=Rc8915P/EdTeBJXK4P5wnnkncxldg0i8wP1mLUEFAavfL9p25NR7Vccsi38BPzmUBPCJtp6fb/UJckPjpZ8E6D/oU1vOEIlQctCK4nqNQUqxX9ls3sbAqxxcnBsHuRMexXFfPbP7fBHUwdKPvOclnJSt/flcFs6kFZlz1QFtyVg=
+	t=1785365526; cv=none; b=X/po3iWWeQHgzTo2PvIAMNC6l29psX8Y8ceXCwRreHmvvd0d9R2wnUCOfn+HB/YiBYHl0HS73Lzp0crkgHurE2j47RJvfvGS8yPvFPHWU1G990S3HMA4Z+038UoCG+ge+1tWtvqIFZLTJWF8jz/PKjDfRc18KvIzMN0pealLK+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785338353; c=relaxed/simple;
-	bh=wdG/QuiF0F1aohE/BcpMiBjHXxPDfEu/iLNid2wvN2o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZlkDrYotEJ4A6X+ewMMgkzgGTdHZWOCrDLmVKMu9nFk5/nnCPzcs3VUNIfoalt1O3Gh/K+DukcivmMC3WhfMOviriWsVt5y1lXh4ec5w51Qh2VA0fc9pJqtGAz78MwHpRyCSy8A1t91JaPxFgMWuXtqolOkF0r2ZSfXYERGUx1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
-	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
-	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id B5397201C96;
-	Wed, 29 Jul 2026 17:19:00 +0200 (CEST)
-Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=[IPV6:::1])
-	by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.96)
-	(envelope-from <s.kerkmann@pengutronix.de>)
-	id 1wp63g-001u5h-1r;
-	Wed, 29 Jul 2026 17:19:00 +0200
-Message-ID: <84b6915f-328f-49b4-8466-1ea27a839cf3@pengutronix.de>
-Date: Wed, 29 Jul 2026 17:18:59 +0200
+	s=arc-20240116; t=1785365526; c=relaxed/simple;
+	bh=ASpKDerMW5kqehvGMv2OZhWmr6QNCaKZJSuku7fWJAg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uDeqq89ypv9bdxfvo8Jn4PAz9h1sGjhT310bJDCRzZYDQPUj3ICBq6W85i6IRGg6LXiDIBo/xozzHWQXXM2Fsc1L3zNS6sTqt7TaN6ynbZN8tOu7NaKjW8cJ7oKMTNJ4DT7yNO5M4hD+xgs3tkfUpGE+cMPXIDXicb7i+9zIYP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AG4bdx/D; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AG4bdx/D"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38101f85591so149604a91.1
+        for <linux-rtc@vger.kernel.org>; Wed, 29 Jul 2026 15:52:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785365523; x=1785970323; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=WLq+7wmGJnDVqRzy/9WiaGXniOfQxglk1F1iJbCO8zQ=;
+        b=AG4bdx/DMuAIt/uJ2NcMn5HrKR9xWUyCLVmQuthnY2hAWezV+tYCwu94d0XFImVsSX
+         jLlBKx03wl+1zIcb4n8pt/pceNMWTZUotgGg09JdQnJ6pQ0Xv52NXJ6fon8+B/h4Qwjq
+         M/32HM2H40S/+VH45vu4r4Xa3s5/w7twnmLGuRZwiWYiXui83VVC0I4MMc6cDbpYnUJt
+         JC9nI8To3TdyZ1gUblemuPSbQQxRHDMZ0yCbhDHc986sSturxS79DwIhb96jFjKf5asq
+         TFY+MmhTF8Qn96LwqkD6D0VDaw0N1qoBz4XEht+yEmHI93+E1pLp3yznO3CfxeO0AYgO
+         wcOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785365523; x=1785970323;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=WLq+7wmGJnDVqRzy/9WiaGXniOfQxglk1F1iJbCO8zQ=;
+        b=RrNoyeAm8OHMwI5dv0oE0aRsvsDzHifHtshAnoy2FUnYwjQo8S3N/PGN8YWvZGbgxA
+         21vgv4Ieg1CHkovghHcJHpHVQC71gMlVWJgFngP7sh3AhKwwmC226pm/GcPdsr45WcS6
+         5BZHCfAK7VC1xf0MESohf/3VB37DN3ogk4FYYD9Kk2BsAFUnk1OQI5ACPSaRBq+/rbDt
+         m8DT8bPPWbFc+brJpjemba+JpO3RrXJgyqrHKgUbK70Jay3gIKvXdenZMtmRdiYmu8U5
+         50X1vrxP5k+oG5biPVsVpJRvk9/TaZiftTuH2y08QipAO65qABKpuLEXFg9i8m4A0CpR
+         hoTA==
+X-Gm-Message-State: AOJu0Yw9yUQEYt6HrPx9nxyhaAtg5q4nI2AF9nPoT8e93j2Zeu1q9HXF
+	THS3leNgVbPWEwT9TVUdokXivx4Pi0q+hfYlEJL3/hRma+qTMN/a8aanrvHsRvlD
+X-Gm-Gg: AR+sD11aqzKRJsrndtYclBJK209c+pBoNIriFTKe5asb+PAo7EN+FLz48AUKaPK5xrP
+	eacqoVAw9Uo1z4kvvQNxtTlvZu3cYTBO/R1oIJqrWDXU9YlXS/F35h4A4KI6JJm5utRftQeYBVi
+	oG5iK0wkvv/u/VclTcMa0Ly+OIfUNYo99wmQUKxrFW44/X9HXK35F7H8g8OyZyGLEAVDnqlRzyc
+	yuF5/yVQ+frp7hdtmMdx1ytMYW21bw/Grf4WB9zBOm5zMQ/WmfzGLq4cvw6+JyRguO3yYDWDDuk
+	Ppet3M0Q1WQcLWd7M294yefdKaw3yAyNxgrNYAdk5WBO2eTRZQbkl6do9Yu+UjyGa97HP+rcuSN
+	Y2ZSFIkRdpLE0+szxQeUBHtvs6z/m3AuhZj1b9rBBT6Z+4p8uuLcMAO71/2agAU7OYh2Db2cdDz
+	DES1MfdDGBHB5UCH+sUxJX5yhlXVsd8gESgS8vZoTu+c9kX8Yhg68LcfbVhKNvz6WAl0JXiUBpz
+	e5d7NCJc4eAMnLMYuNf0WnUSfqZ7pxCoOnw79geb+bMDSS28KsDGhL4mETkEeqk3b9WpQZm+e7F
+	olMlUGs8v+Xk03bcmf0y49sRa9UGIgXshzxuVw==
+X-Received: by 2002:a17:90b:39a6:b0:38e:5828:a446 with SMTP id 98e67ed59e1d1-38f9bb8b861mr157860a91.19.1785365523272;
+        Wed, 29 Jul 2026 15:52:03 -0700 (PDT)
+Received: from ryzen.lan ([2601:644:8000:7a86::e35])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38f9b770e3esm58567a91.0.2026.07.29.15.52.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 15:52:02 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-rtc@vger.kernel.org
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	linux-stm32@st-md-mailman.stormreply.com (moderated list:ARM/STM32 ARCHITECTURE),
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/STM32 ARCHITECTURE),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCHv3] rtc: stmp3xxx: use devm_platform_ioremap_resource()
+Date: Wed, 29 Jul 2026 15:51:59 -0700
+Message-ID: <20260729225159.775183-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] rtc: pcf2127: add support for battery low voltage
- detection
-To: Hugo Villeneuve <hugo@hugovil.com>, alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
- bruno.thomsen@gmail.com, giampiero@sferalabs.cc, p.rosenberger@kunbus.com,
- antonio@amsobr.com, Hugo Villeneuve <hvilleneuve@dimonoff.com>
-References: <20260311200237.3531981-1-hugo@hugovil.com>
-From: Stefan Kerkmann <s.kerkmann@pengutronix.de>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260311200237.3531981-1-hugo@hugovil.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hello Hugo,
+Replace the open-coded platform_get_resource() plus devm_ioremap()
+sequence with a single devm_platform_ioremap_resource() call, which folds
+the resource lookup and mapping into one step and returns an ERR_PTR on
+failure, checked with IS_ERR() and propagated via PTR_ERR().
 
-On 3/11/26 21:02, Hugo Villeneuve wrote:
-> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-> 
-> Hello,
-> this patch series adds support for battery low voltage detection configuration
-> for RTC devicesm, with specifc changes targeted at the pcf2127/2131 devices.
-> 
-> The origin of this patch goes back to the initial commit to add support for the
-> PCF2131 device. On the PCF2131, the battery low voltage detection is disabled by
-> default at the hardware level, contrary to the PCF2127 where it is enabled by
-> default. Because of that, a lot of people are stuck with a PCF2131 RTC device
-> using a battery backup, but unable to use it!
-> 
-> A lot of people are writing to me in private emails to report this as a bug
-> in the PCF2131 driver. Others (and me) have proposed to implement device tree
-> properties to enable these functions, but this was rejected [1][2][3].
-> 
-> It is important to note that some projects do not have the luxury to modify
-> the bootloder to enable that function at boot, and for these having a DT
-> property that could be put in a DT overlay would simplify a lot their life.
-> Also having to rely on a userspace application to configure the RTC is also
-> not ideal, as some projects use stock Debian distros (for example), and
-> adding a new application to their repository is not trivial or easy.
-> 
-> So as the next best thing, this patch aims to add what is missing in the driver,
-> the ability to enable/disable the battery low voltage detection with ioctls,
-> similarly to what is done with the BSM.
-> 
+Move the mapping ahead of the devm_kzalloc() so that an error or deferred
+probe is handled before the rtc_data allocation, avoiding needless work.
 
-Thank you for the series. We have customer that has this exact use case:
+The fsl,stmp3xxx-rtc nodes in imx23.dtsi (reg = <0x8005c000 0x2000>) and
+imx28.dtsi (reg = <0x80056000 0x2000>) each provide a single
+non-overlapping IORESOURCE_MEM window, so the region reservation now
+performed by devm_platform_ioremap_resource() introduces no conflict.
 
-Enabling the backup battery switch-over and low battery detection on a pcf2131 
-rtc. With util-linux's hwclock the former can already be enabled e.g. hwclock 
---param-set bsm <xyz> and for the later this patch series would enable it as well.
+Remove irq_alarm from private struct. It's only used in _probe. Also add
+check for platform_get_irq() errors.
 
-> This patch has been tested on a custom board with a PCF2131 and using my
-> userspace application:
-> 
->      git clone -b batlow_param git@git.hugovil.com:repos/hvrtc.git
-> 
+Assisted-by: opencode:hy3-free
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ v3: add missing variable in probe
+ v2: add platform_get_irq error check
+ drivers/rtc/rtc-stmp3xxx.c | 33 +++++++++++++--------------------
+ 1 file changed, 13 insertions(+), 20 deletions(-)
 
-If this series gets merged I can sent a PR to util-linux to enable the low 
-battery detection via hwclock as well.
-
-> Thank you.
-> 
-> Link: https://lore.kernel.org/linux-rtc/20190910143945.9364-1-bruno.thomsen@gmail.com/ [1]
-> Link: https://lore.kernel.org/linux-rtc/20191211163354.GC1463890@piout.net/ [2]
-> Link: https://lore.kernel.org/linux-rtc/20230123170731.6064430c50f5fb7b484d8734@hugovil.com/ [3]
-> 
-> Hugo Villeneuve (4):
->    rtc: pcf2127: remove redundant break statement in switch-case
->    rtc: pcf2127: add pcf2127_pwrmng_get/set
->    rtc: add battery low voltage detection feature
->    rtc: pcf2127: support battery low voltage detection function
-> 
->   drivers/rtc/rtc-pcf2127.c | 94 ++++++++++++++++++++++++++++++---------
->   include/uapi/linux/rtc.h  |  7 ++-
->   2 files changed, 80 insertions(+), 21 deletions(-)
-> 
-> 
-> base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
-
-Best regards,
-Stefan
-
+diff --git a/drivers/rtc/rtc-stmp3xxx.c b/drivers/rtc/rtc-stmp3xxx.c
+index 7afcd14aeee5..a8ca681b574f 100644
+--- a/drivers/rtc/rtc-stmp3xxx.c
++++ b/drivers/rtc/rtc-stmp3xxx.c
+@@ -56,7 +56,6 @@
+ struct stmp3xxx_rtc_data {
+ 	struct rtc_device *rtc;
+ 	void __iomem *io;
+-	int irq_alarm;
+ };
+ 
+ #if IS_ENABLED(CONFIG_STMP3XXX_RTC_WATCHDOG)
+@@ -245,29 +244,26 @@ static void stmp3xxx_rtc_remove(struct platform_device *pdev)
+ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+ {
+ 	struct stmp3xxx_rtc_data *rtc_data;
+-	struct resource *r;
++	void __iomem *io;
+ 	u32 rtc_stat;
+ 	u32 pers0_set, pers0_clr;
+ 	u32 crystalfreq = 0;
++	int irq_alarm;
+ 	int err;
+ 
++	irq_alarm = platform_get_irq(pdev, 0);
++	if (irq_alarm < 0)
++		return irq_alarm;
++
++	io = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(io))
++		return PTR_ERR(io);
++
+ 	rtc_data = devm_kzalloc(&pdev->dev, sizeof(*rtc_data), GFP_KERNEL);
+ 	if (!rtc_data)
+ 		return -ENOMEM;
+ 
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!r) {
+-		dev_err(&pdev->dev, "failed to get resource\n");
+-		return -ENXIO;
+-	}
+-
+-	rtc_data->io = devm_ioremap(&pdev->dev, r->start, resource_size(r));
+-	if (!rtc_data->io) {
+-		dev_err(&pdev->dev, "ioremap failed\n");
+-		return -EIO;
+-	}
+-
+-	rtc_data->irq_alarm = platform_get_irq(pdev, 0);
++	rtc_data->io = io;
+ 
+ 	rtc_stat = readl(rtc_data->io + STMP3XXX_RTC_STAT);
+ 	if (!(rtc_stat & STMP3XXX_RTC_STAT_RTC_PRESENT)) {
+@@ -354,13 +350,10 @@ static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rtc_data->rtc))
+ 		return PTR_ERR(rtc_data->rtc);
+ 
+-	err = devm_request_irq(&pdev->dev, rtc_data->irq_alarm,
++	err = devm_request_irq(&pdev->dev, irq_alarm,
+ 			stmp3xxx_rtc_interrupt, 0, "RTC alarm", &pdev->dev);
+-	if (err) {
+-		dev_err(&pdev->dev, "Cannot claim IRQ%d\n",
+-			rtc_data->irq_alarm);
++	if (err)
+ 		return err;
+-	}
+ 
+ 	rtc_data->rtc->ops = &stmp3xxx_rtc_ops;
+ 	rtc_data->rtc->range_max = U32_MAX;
 -- 
-Pengutronix e.K.                       | Stefan Kerkmann             |
-Steuerwalder Str. 21                   | https://www.pengutronix.de/ |
-31137 Hildesheim, Germany              | Phone: +49-5121-206917-128  |
-Amtsgericht Hildesheim, HRA 2686       | Fax:   +49-5121-206917-9    |
+2.55.0
 
