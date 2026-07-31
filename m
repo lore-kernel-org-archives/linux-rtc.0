@@ -1,22 +1,22 @@
 Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C76231E1E16;
-	Fri, 31 Jul 2026 08:03:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B6E43A48F6;
+	Fri, 31 Jul 2026 08:05:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785484987; cv=none; b=HyEg2xK7lmYwbyww2m3mMamNjQX/uCJzuMreloKcaJ1V7g1iOHvnICOZFH85FEOsI8KguDrTa9VzTXS5scn1WINulMbTU4iyjbROhFTbvpD8RUycIZgDGLNOsaoLZFd6QNiO0PwaZIuZ3Z95pZqAA7US16PRe/PCnergSkdrESg=
+	t=1785485111; cv=none; b=ghme2GrXeYR7lLAf0X+2wYwI8mQVq4R//9SOUkYOMs6waRVW37QbjahK8nbnGpUKPcAS1LzcTrb1mljlEs9TTZL3KLH7cbA2KiN7s914KlGM5yO4WYzwKwZvZ0SpzR+ZiX+BOFMMhBkDUvNJiOmIPOs4h72jm9TpN1Zp/4TRDvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785484987; c=relaxed/simple;
+	s=arc-20240116; t=1785485111; c=relaxed/simple;
 	bh=UsnT39TT2zTmlbKn/908UDXfZ7cbsvLxDK2sxCM92IM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Qm53Aj/9cdDIm1VkCX/q8c2IKLkAHpZ2ahlYi1GDUoTx2gL5uSe6So0BA7203USKV6F22/OruCN+9whfI+Ar8mx7U5O0KK2yL0AS2qGoIk2SplbRe0O6ANe+rE5nbEVRHfGqln+GahBSrUehukh8TXwdaii9YA3Y+UfhgqI2/8o=
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g1otBAr8ZlBB0MvDLpimN2DL7Cdf2uOiPQB2JV+CDUf1TEOPQF+r5ehy+zP2k40l29uQV1pj4qfHnKeouJlmYzdgM98IilukZw4+VJRI7EKa/ro3HFhQ0lYWvsUQzFOxnUv+iHTsJnCuvQCEvHoO2tX+qXtEzpuBpRe8cpxgwo4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 3f2e92428cb611f1aa26b74ffac11d73-20260731
-X-CID-CACHE: Type:Local,Time:202607311602+08,HitQuantity:1
+X-UUID: 88b691e48cb611f1aa26b74ffac11d73-20260731
+X-CID-CACHE: Type:Local,Time:202607311602+08,HitQuantity:2
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:bebd742d-9bee-4ac0-945a-1621fb3b1aff,IP:0,U
+X-CID-O-INFO: VERSION:1.3.12,REQID:3a75800b-6e70-41da-b0cf-cc16a248337b,IP:0,U
 	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
 	:release,TS:25
 X-CID-META: VersionHash:e7bac3a,CLOUDID:1c371c63bb67442e506e582bee36bfeb,BulkI
@@ -27,12 +27,12 @@ X-CID-BVR: 2,SSN|SDN
 X-CID-BAS: 2,SSN|SDN,0,_
 X-CID-FACTOR: TF_CID_SPAM_SNR
 X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 3f2e92428cb611f1aa26b74ffac11d73-20260731
+X-UUID: 88b691e48cb611f1aa26b74ffac11d73-20260731
 X-User: gonglinkai@kylinos.cn
 Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
 	(envelope-from <gonglinkai@kylinos.cn>)
 	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 695521506; Fri, 31 Jul 2026 16:02:59 +0800
+	with ESMTP id 1346168160; Fri, 31 Jul 2026 16:05:03 +0800
 From: Linkai Gong <gonglinkai@kylinos.cn>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
@@ -41,8 +41,8 @@ Cc: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
 	linux-kernel@vger.kernel.org,
 	Linkai Gong <gonglinkai@kylinos.cn>
 Subject: [PATCH] rtc: gamecube: check return value of devm_rtc_register_device()
-Date: Fri, 31 Jul 2026 16:02:55 +0800
-Message-Id: <20260731080255.387419-1-gonglinkai@kylinos.cn>
+Date: Fri, 31 Jul 2026 16:04:58 +0800
+Message-Id: <20260731080458.417532-1-gonglinkai@kylinos.cn>
 X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
