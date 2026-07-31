@@ -1,154 +1,58 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0B4D235C01;
-	Fri, 31 Jul 2026 19:01:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 723F335C6B0;
+	Fri, 31 Jul 2026 19:02:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785524499; cv=none; b=TWqnCD3ph6HeM+mJEi9/rv84aDbcyMxORFCUjmjQog/0z4wC8QxSOMKsEPr3CdlN4ou8UAw1DdaTpt/3HsRrKGxQAYvrB6WvAWuxJPYO3mH9aSOWA0ldvuWUtkQBOT0VxmiQc6rBHGGxkKg18ciWMtOPaEqnpUsewEfV0P+l+1g=
+	t=1785524561; cv=none; b=esXTloyeLndnaqluXSuoVA5UAE6kgOMzgC6Dea299oRt6iuXPdm35Z3zP8E8fFqIEKQqQblCGEWSTtrdEB2O6WH7omGxsQxxsRNbuHv5yy7XiE4N2f/oDqGO94MCH+YGYuPK9SqtEvM+I7ITYhfGeUf01205J3k5OJmGgTIWhSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785524499; c=relaxed/simple;
-	bh=9GLLHzsTfJigUS0zqfCNf+86JZyFFYopOd2tGdliGtg=;
+	s=arc-20240116; t=1785524561; c=relaxed/simple;
+	bh=Fiip5B9ApPpFUAp8SJewEL99QrL5Ln+vU+kzOTObLHE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eA6QY2+1oM7llsrr6J34auj2x2flPVJLchcXLmswtfUQDLw2MDkuHqYdeAXSfckfDhvjp0WBYlhrQMYOCKP8E71qLF4NnRqfefOWwpgTRfiGpgaR5oAfeCNkJlxF998IrbtBLgssqepOT12tdDnqrceWRj724pUA8X79TyTCT1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dfktNlKO; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ga1td56vAcziZnUILOPT666tC8j08ZAActouyzlzCwShjjL1d6XgMOk5eKRm6r/wLCL6UarUEfmW6MrJHci4op4mkpaERzsL9xp0oiTYf4bWScApF3pEREDBAPIpqWOJkHUJBvcxtLpzxK9u0P2h56WnsT9ST12t7HOS1Bc7Kv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WPtHjtyV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dfktNlKO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A701F00AC4;
-	Fri, 31 Jul 2026 19:01:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WPtHjtyV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 355011F00AC4;
+	Fri, 31 Jul 2026 19:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785524498;
-	bh=pZ1Skw9pKfCEbi7HOBKopma+0u9toGNjtMTUYYh/IkI=;
+	s=k20260515; t=1785524560;
+	bh=Fiip5B9ApPpFUAp8SJewEL99QrL5Ln+vU+kzOTObLHE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dfktNlKOzlI5oMoLVmwJtdErXSybwrCzTbu+tBKkMu1roL4us85Wq0oqphTAQX7+T
-	 zXiC31RL85lBrJ7VIaC3O94wrLe4I5UVRofvAObJN7isQHtoMwVJ0RHSdfXZuUYRdq
-	 GlaYAU3vnXES7SnvQzGUTZXVODP1oRJZhxg4YAwddx0AIfqN6YrzUrb1injG0p8vrg
-	 YDtY6IQ1wYuqkBXf/6PKrynFlTp5Z5wtAMIEL/2ODKnOBa7WX1FWI2mhplR9X+PLid
-	 uJPZvTpFEBGj8qwTYDux2yq8C7+eavlTk8COHn0PmkvTfCtoTORDH1whjGTbOcuQ79
-	 9F6PDj8g5YahQ==
+	b=WPtHjtyVcTQvKixuEVIpipxjQSdoS5YAHDk/E/B++wdYIdu62LR1BU3ph91ZYVIZC
+	 v6J3WeRku05mZfRywZfY6AX1e4jVaX5QvDEkRXIuTTmAStDJbQtiuJhuqOW/ZY1po/
+	 /UClZisFtYgF9b0r/LLus+/8SfgIOl5fTGd/ymA6GSnlVnnNHwC2YZozTWGaxnD0hT
+	 evCqdv3lSpH5UIxScur7s1MJq1l5xvo6N+OPOlg4XZTcTRiA7FVtIIIXB/BB4tkh9L
+	 /YVh+celSmElrmsZxQN1kdX+XDSsd5Oh5fSlUUaWom7bt880vt9c8CU/aZg6o+GILC
+	 DvZYkxpHZ/CjA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 6/8] rtc: abx80x: replace read-modify-write pattern
- with regmap helpers
+Subject: Re: [PATCH v3 7/8] rtc: abx80x: create abx80x_i2c_probe()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: robh@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org
-In-Reply-To: <20260731184831.44037-7-apokusinski01@gmail.com>
+Cc: robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org
+In-Reply-To: <20260731184831.44037-8-apokusinski01@gmail.com>
 References: <20260731184831.44037-1-apokusinski01@gmail.com>
- <20260731184831.44037-7-apokusinski01@gmail.com>
+ <20260731184831.44037-8-apokusinski01@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 31 Jul 2026 19:01:37 +0000
-Message-Id: <20260731190137.E8A701F00AC4@smtp.kernel.org>
+Date: Fri, 31 Jul 2026 19:02:38 +0000
+Message-Id: <20260731190239.355011F00AC4@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Using `guard(mutex)` inside a `switch` statement case without an e=
-nclosing block causes a compilation failure (or uninitialized cleanup execu=
-tion).
-- [High] Configuration Key unlock sequence is broken by unprotected concurr=
-ent reads and newly introduced read-modify-write regmap helpers.
---
+> Move the I2C-specific code from abx80x_probe() to the newly created
+> function. This is a preparation for introducing the support for
+> ABX81X RTCs which use SPI interface.
+>=20
+> Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
 
---- Patch [6]: [PATCH v3 6/8] rtc: abx80x: replace read-modify-write patter=
-n with regmap helpers ---
-commit 68e1add63890d6b130ad7ce142d172f06e590b90
-Author: Antoni Pokusinski <apokusinski01@gmail.com>
-
-rtc: abx80x: replace read-modify-write pattern with regmap helpers
-
-This commit replaces manual read-modify-write register operations in the=20
-rtc-abx80x driver with regmap_update_bits() and regmap_write_bits()=20
-functions to simplify the code.
-
-> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 23823fc2f5458..52f958e2aecd2 100644
-> --- a/drivers/rtc/rtc-abx80x.c
-> +++ b/drivers/rtc/rtc-abx80x.c
-[ ... ]
-> @@ -371,7 +364,7 @@ static int abx80x_rtc_set_autocalibration(struct devi=
-ce *dev,
->  					  int autocalibration)
->  {
-[ ... ]
->  	/* Unlock write access to Oscillator Control Register */
->  	if (abx80x_write_config_key(dev, ABX8XX_CFG_KEY_OSC) < 0)
->  		return -EIO;
-> =20
-> -	retval =3D regmap_write(priv->regmap, ABX8XX_REG_OSC, flags);
-> -
-> -	return retval;
-> +	return regmap_write_bits(priv->regmap, ABX8XX_REG_OSC,
-> +				 ABX8XX_OSC_ACAL_1024 | ABX8XX_OSC_ACAL_512,
-> +				 flags);
->  }
-
-[Severity: High]
-Does switching to regmap_write_bits() break the configuration key unlock
-sequence here?
-
-The hardware requires writing the configuration key immediately before=20
-writing a protected register. If any other register is accessed in between,=
-=20
-the unlock state is cleared.=20
-
-Because regmap_write_bits() performs a read operation internally before=20
-writing, does that read happen after the configuration key is written,
-causing the hardware to relock itself before the write can execute?
-
-Additionally, can an unlocked concurrent read sequence interleave here and
-clear the unlock state? Looking at abx80x_rtc_read_time(), it performs I2C=
-=20
-reads without taking priv->lock:
-
-abx80x_rtc_read_time() {
-    ...
-    err =3D regmap_bulk_read(priv->regmap, ABX8XX_REG_HTH, buf, sizeof(buf)=
-);
-    ...
-}
-
-[ ... ]
-> @@ -566,17 +545,8 @@ static int abx80x_ioctl(struct device *dev, unsigned=
- int cmd, unsigned long arg)
->  	case RTC_VL_CLR:
->  		guard(mutex)(&priv->lock);
-> =20
-> -		err =3D regmap_read(priv->regmap, ABX8XX_REG_STATUS, &status);
-> -		if (err < 0)
-> -			return err;
-> -
-> -		status &=3D ~ABX8XX_STATUS_BLF;
-> -
-> -		err =3D regmap_write(priv->regmap, ABX8XX_REG_STATUS, status);
-> -		if (err < 0)
-> -			return err;
-> -
-> -		return 0;
-> +		return regmap_update_bits(priv->regmap, ABX8XX_REG_STATUS,
-> +					  ABX8XX_STATUS_BLF, 0);
-> =20
->  	default:
->  		return -ENOIOCTLCMD;
->  	}
-
-[Severity: High]
-Will this cause a compiler error or undefined behavior?
-
-The guard(mutex) is declared inside the case block, but without an=20
-enclosing scope. If cmd is an unhandled ioctl, the switch statement jumps=20
-to the default label, bypassing the initialization of the guard(mutex)=20
-variable.=20
-
-Does this require adding braces around the RTC_VL_CLR case to restrict the=
-=20
-lifetime of the guard?
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260731184831.4403=
-7-1-apokusinski01@gmail.com?part=3D6
+7-1-apokusinski01@gmail.com?part=3D7
+
