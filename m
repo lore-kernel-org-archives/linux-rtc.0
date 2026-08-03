@@ -1,255 +1,230 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755DD2F90C9
-	for <linux-rtc@vger.kernel.org>; Mon,  3 Aug 2026 05:49:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44F7036403A;
+	Mon,  3 Aug 2026 09:56:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785736145; cv=none; b=DFaGEuB3KIFit8Kw+5qGh8HScUjNWUX+WZ3rPZF9awl3ZUsrdEIZLP0QTJKr2xVFWn2REqrkJwobwinPzsTIhH3ymGmMn8rq4MOSkHetwB/Mpg0/NxcRxAZ76C7HqxyAQdMiiBQJRRtDiWswIPTRmFnbHN1avrhCW1Vzem0DsEo=
+	t=1785750973; cv=none; b=MGBbuq1VLZrr/T+xoIwKjeDxdj7uGUxywIgOJjKB24KLf0pSjeRszFxg9478Dav15gfNP1RcwpNoGXvh0D6uHU539GXmK1913PhUGPxhjap9de4qR10kd3YqTghcxnIBK93XY+Ewleo6YmDmPypH14i35tJqDYJ7cvQHNRwAHps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785736145; c=relaxed/simple;
-	bh=x1Z4nUqvVtCWJiVWeGWzCEKbiZv0wMWpiYwZdmMU34k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=D5LTtrGILSgjCUHsmfAc84GnmZan4+4sb1HjLaB+CPOtPw9cMspEXtp2Yt2jGOLcTvO0zyl6JFJe792YqDUJEtyNtOvcmJQjQIIcrGdO4MsTy+jz/pjasB6eZXCDpxxsQ2JJ75FOsGmj1wlrHvsvMHhoXIqlGmShI91kk5FS5sg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qcNL7HwG; arc=none smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785750973; c=relaxed/simple;
+	bh=iofpqrdqGxD7B/vi7lwImKJzxEFJD7KzwC1MT2y+g14=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dg/Rg1Pvy9co0P5dFBCkHH/VCGEQ7he/TQLautVMsOt0V76kYJGWIwb5bsw+gDjg33IFcdZ4YWo++0WjUcF0cSAAxZcK90vGtOyS8+6VlkmFWSX0WmUJdpn8uFDpdD09vBPMMxjDEZLMoLWEsb8CD/Lm0hS1zLx5rapcSjBo3Gk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g9TJgROj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qcNL7HwG"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5b2a22c52c1so3219824e87.3
-        for <linux-rtc@vger.kernel.org>; Sun, 02 Aug 2026 22:49:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785736141; x=1786340941; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+Z8jXZAUhcjKTtPoIZ4/epKb5xdLnKYJzAnB3Lfizgk=;
-        b=qcNL7HwG00+Ui84qD0786CouAT5q6Fwv392Lrn0nX8l4oULWsE1nbACCco/+cq3qnG
-         Xm8t5vkQ9sl+ejHH7GQrZKy6HqAJwm/1AIA3hlgm0PbNBXdOss6HqMX1yCycRPPwI9kB
-         uXxI5A0jcIJmm6Sj8AdsWe7JXT60dEen+yZN2DAfnmhufcDmu9Cr+S3d/QWUp0e1BsgA
-         /CEDB55XQbpCI2lNU7+tb2PNon8RTqS9CtVyEVrKJLaujMBWl+BYZbMBO+0gs61wScdA
-         Z4bQXrBz6SAeLz2T4eZ7Wuw3Hnsl1DQY6qItdbqwMyEnoqbnUCRAAyujN+nPI237XWkw
-         mmbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785736141; x=1786340941;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+Z8jXZAUhcjKTtPoIZ4/epKb5xdLnKYJzAnB3Lfizgk=;
-        b=Jen6sFENi0u8ZKMTZo80bie0MbiyJoxjGpxK4h/Fev7laSjjnR6orH6sXAEz2ULrCQ
-         dhv9JBVg4+Q/VbS05Hd1ZINBeCKMLo4c/VnL4Ms++IIpAeJJtWsoYwxuSz7iTk/1sIM+
-         miKf7gqMoYDxgnmMS2qGDPpXZIlR78u7ru4ZwgjFjBSrR6EtpY5qvxuyP4l/3IzeMTM9
-         +yBplvjbhPEMxNzk9CI8vOw8iKW4YAUCIZe7CrJSfuDkMevyqqdovMTM9v2YfWy84trf
-         /N9/EvJhEbtea0j2wdFh+NzV1Q13uEAQD7QbgkpQORjmrDDOeyvGpoJbnHnKk+4PumrE
-         Bvzg==
-X-Forwarded-Encrypted: i=1; AHgh+RpaiRJIB3T6Bl9udzZgPymYe0gUy1AWog4R52F8zziPYx3Hz1C6t3sNoGNBsPgz5yGxQXdzIYRQ+Ps=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyfIUEk5TebbKI3SLnMhURPje1u5yu6wRY1E4Ew9a9hwvDI43xs
-	ta6SSUtniDLszh4+wgauRaFRXgoi6hQsA/t8CTj5WYt3/f1QOWkqnJfC
-X-Gm-Gg: AR+sD13s9qjisiHN4b8L0Yks6VdQUGluiG0ikKD76dRqrBwi3j3IMNckUdgQ4C4TSeH
-	eDbxnpp18BacDPRH+2ntjbCvoWKEiENEqyc2PtX+NVpv8dDSzvTCillbD+hYGaDC5WIy0qpfT0P
-	OWdVNn4xX6F7Ej33pASU+N4wvMbjsHSIay3v/oadk3/iVe+2lbJxPpBnEaXJLPiBqQfzzYdyid+
-	Npl20napaxzVllz90e+QihOY3bxAAewJvcpoR/1OFLeE0hNhZXu7OWWbP0TtyiOK/+IhmI2TlKq
-	wcu4UUDkDxF02x6kqulVykUPktqFxYCHezxRgldMEpShVjODzfQzUr4XVWIS/s63LEjVvPGTtd4
-	7xu4H6F7hvKtfSiKOnOAH/4Rz6bP9KtT70MTaf/WHBtk7+XpyTUlmUQdDxovHNn1Lv9N9hjmANi
-	XRFF3zHiNbsUS60vmD+jACfp7W5xsuL8dquIH73ASkxtOntJDyPOkFNSHNJDMfF2whEqbHxYq7X
-	si3d3KwnqwU9dV6gj52NYPIiyDJSpKfUW1sqIwsJxwApIqYxFO8OxLNSw==
-X-Received: by 2002:ac2:41c3:0:b0:5ae:b130:1e1 with SMTP id 2adb3069b0e04-5b2e4f3b5c0mr1164615e87.28.1785736141209;
-        Sun, 02 Aug 2026 22:49:01 -0700 (PDT)
-Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b2e23cb4e6sm1832235e87.22.2026.08.02.22.48.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 02 Aug 2026 22:49:00 -0700 (PDT)
-Message-ID: <db4a8ecc-65c2-4965-bb53-bd637e3765df@gmail.com>
-Date: Mon, 3 Aug 2026 08:48:59 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g9TJgROj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C491F000E9;
+	Mon,  3 Aug 2026 09:56:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785750971;
+	bh=n0aB7qGBLZyAd1fXd3wTUVGSroPtec55ZWHXPynR+mg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=g9TJgROjkZFESO6T8yl5X6xkRwQmBwdIoX748rbmcVPRlawHMV/F2UO11mBC/e9TU
+	 Pr0vbB5es1YS11qONg8QWpT5WnTq1oVjPUqBULbZoK08477uJjbN2VMfQy3BnVi5Fe
+	 sSqbhPqf3CGO6u6nC4h2HmTB2S3ynRgFua+RMIRhIq3j3+lWlagvSliEM1eYzLf5G/
+	 BC7vXII39Oz8ucBxOp1FGwdt9EwuNvR6a97O38tYp38rp4iF1ohnZ7JlxSgMnGGPPn
+	 ftU8r3QAzJINM5RqbuydnlR2g0yntS29vo/2fe2VCLXoLjFDrtb0JCKFPXvIJHB2se
+	 rfeVWu9PDon9A==
+Date: Mon, 3 Aug 2026 11:56:07 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Markus Probst <markus.probst@posteo.de>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, 
+	Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Michael Langer <michael.brainbug.langer@googlemail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/5] dt-bindings: rtc: Add pinctrl for S35390A
+Message-ID: <20260803-mottled-pretty-sloth-bf7dbd@quoll>
+References: <20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de>
+ <20260801-rtc_s35390a_int1-v2-1-f10c99ad1d6c@posteo.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/8] dt-bindings: mfd: ROHM BD73800 PMIC
-To: Linus Walleij <linusw@kernel.org>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
- Matti Vaittinen <matti.vaittinen@linux.dev>, Lee Jones <lee@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Michael Turquette
- <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney@redhat.com>, Bartosz Golaszewski <brgl@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-rtc@vger.kernel.org
-References: <cover.1782909323.git.mazziesaccount@gmail.com>
- <3e700a3fa7872a96257ff25a77670ec05cfd239c.1782909323.git.mazziesaccount@gmail.com>
- <CAD++jLnaOOoLsLxzib4d1XXLxRpWBPrqCdRwqVVEUmKYS4ad6g@mail.gmail.com>
-Content-Language: en-US, en-AU, en-GB, en-BW
-From: Matti Vaittinen <mazziesaccount@gmail.com>
-In-Reply-To: <CAD++jLnaOOoLsLxzib4d1XXLxRpWBPrqCdRwqVVEUmKYS4ad6g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260801-rtc_s35390a_int1-v2-1-f10c99ad1d6c@posteo.de>
 
-Hi dee Ho Linus,
+On Sat, Aug 01, 2026 at 06:43:00PM +0000, Markus Probst wrote:
+> +  wakeup-parent: true
+> +
+> +  wakeup-source: true
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +
+> +patternProperties:
 
-The way too short summer holiday is now gone, so I am back at this :) 
-Thanks again for the comments, I am trying to improve for v2 ;)
+This goes after "properties:" block.
 
-On 03/07/2026 23:46, Linus Walleij wrote:
-> On Wed, Jul 1, 2026 at 2:41 PM Matti Vaittinen
-> <matti.vaittinen@linux.dev> wrote:
+
+> +  "^pins":
+> +    type: object
+> +    patternProperties:
+> +      "-pins$":
+> +        type: object
+> +        properties:
+> +          pins:
+> +            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
+> +
+> +          sii,mode:
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+
+Use simple string. See pinmux bindings.
+
+> +            description: |
+> +              Modes for the specific pin:
+> +              - S35390A_MODE_IGNORE: Preserve the previous state.
+> +              - S35390A_MODE_DISABLE: Disable all interrupts.
+> +              - S35390A_MODE_WAKEUP: Used for waking up the system.
+> +              - S35390A_MODE_ALARM: Userspace defined alarm.
+> +              - S35390A_MODE_FREQ: Periodical at configurable frequency.
+> +              - S35390A_MODE_PMIN1: Minute periodical output with 50% duty.
+> +              - S35390A_MODE_PMIN2: Minute periodical output L for 7.81 ms.
+> +                                    Can only be used with pin INT1.
+> +              - S35390A_MODE_32768KHZ: Raw 32.768 kHz output.
+> +                                       Can only be used with pin INT1.
+> +            minimum: 0
+> +            maximum: 7
+> +
+> +          sii,frequency:
+
+Frequency needs -hz, but anyway if this is becoming a clock, then you
+must have clocks property and this is simply not needed... unless this
+is some periodical wakeup call, not a clock? Then simply -hz and
+property must be more descriptive (frequency of what? pulse?).
+
+
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+> +            description: Frequency in Hz to be used with mode S35390A_MODE_FREQ.
+> +            minimum: 1
+> +            maximum: 31
+> +
+> +        required:
+> +          - sii,mode
+> +
+> +        if:
+> +          properties:
+> +            sii,mode:
+> +              const: 4
+> +        then:
+> +          required:
+> +            - sii,frequency
+> +        else:
+> +          properties:
+> +            sii,frequency: false
+> +
+> +        additionalProperties: false
+> +
+> +    additionalProperties: false
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/rtc/s35390a.h>
+> +
+> +    i2c {
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +
+> +        rtc: rtc@30 {
+
+Drop unused label
+
+> +            compatible = "sii,s35390a";
+> +            reg = <0x30>;
+> +            pinctrl-0 = <&rtc_pins_default>;
+> +            pinctrl-names = "default";
+> +
+> +            wakeup-parent = <&int>;
+> +
+> +            rtc_pins_default: pins {
+> +              int1-pins {
+> +                pins = S35390A_PIN_INT1;
+> +                sii,mode = <S35390A_MODE_WAKEUP>;
+> +              };
+> +              int2-pins {
+> +                pins = S35390A_PIN_INT2;
+> +                sii,mode = <S35390A_MODE_DISABLE>;
+> +              };
+> +            };
+> +        };
+> +    };
+> diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> index f4d0eed98a08..7b3f682ef4d5 100644
+> --- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> @@ -81,8 +81,6 @@ properties:
+>        - ricoh,rv5c386
+>        # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+>        - ricoh,rv5c387a
+> -      # 2-wire CMOS real-time clock
+> -      - sii,s35390a
+>        # ST SPEAr Real-time Clock
+>        - st,spear600-rtc
+>        # VIA/Wondermedia VT8500 Real-time Clock
+> @@ -105,5 +103,4 @@ required:
+>    - reg
+>  
+>  additionalProperties: false
+> -
+>  ...
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 716acfc3d7c1..c85be1eefdb1 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -22696,6 +22696,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+>  F:	Documentation/admin-guide/rtc.rst
+>  F:	Documentation/devicetree/bindings/rtc/
+>  F:	drivers/rtc/
+> +F:	include/dt-bindings/rtc/
+>  F:	include/linux/rtc.h
+>  F:	include/linux/rtc/
+>  F:	include/uapi/linux/rtc.h
+> diff --git a/include/dt-bindings/rtc/s35390a.h b/include/dt-bindings/rtc/s35390a.h
+> new file mode 100644
+> index 000000000000..dcd0ca15f9e9
+> --- /dev/null
+> +++ b/include/dt-bindings/rtc/s35390a.h
+> @@ -0,0 +1,23 @@
+> +/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
+> +
+> +#ifndef __DT_BINDINGS_RTC_S35390A_H
+> +#define __DT_BINDINGS_RTC_S35390A_H
+> +
+> +#define S35390A_MODE_IGNORE		0x0
+> +#define S35390A_MODE_DISABLE		0x1
+> +#define S35390A_MODE_WAKEUP		0x2
+> +#define S35390A_MODE_ALARM		0x3
+> +#define S35390A_MODE_FREQ		0x4
+> +#define S35390A_MODE_PMIN1		0x5
+> +#define S35390A_MODE_PMIN2		0x6
+> +#define S35390A_MODE_32768KHZ		0x7
+> +
+> +#define S35390A_MODE_INT1_MAX		0x7
+> +#define S35390A_MODE_INT2_MAX		0x5
+> +
+> +#define S35390A_FREQ_MASK		0x1F
+
+ don't get why this grew. None of these look like bindings.
+
+
+> +
+> +#define S35390A_PIN_INT1		"int1"
+> +#define S35390A_PIN_INT2		"int2"
+
+Drop entire header.
+
+> +
+> +#endif /* __DT_BINDINGS_RTC_S35390A_H */
 > 
->> +  # The GPIO1, CLKOUT (GPIO2), FAULT_B and EXTEN_OUT pins can be
->> +  # configured to interrupt pins by OTP.
+> -- 
+> 2.54.0
 > 
-> Maybe move this helpful comment into the top description: instead?
-> It's kind of generic helpful info.
-> 
->> +# The GPIO1, CLKOUT, FAULT_B and EXTEN_OUT pins may be configured for a
->> +# specific purpose (like ADC input, 32.768 clk output, fault indicator or
->> +# delivering power sequence to a companion PMIC when multiple PMICs are
->> +# used) - but also to be either a GPO or GPI. (When used as a GPI the pin
->> +# can also be used as an IRQ source). The pin purpose is determined by
->> +# OTP (One Time Programmable memory), typically during device manufacturing.
->> +# The OTP can't be read at runtime so device-tree should describe the pins.
->> +  rohm,pin-gpio1:
->> +    $ref: /schemas/types.yaml#/definitions/string
->> +    description:
->> +      Indicate if the GPIO1 pin has been set to GPI or GPO at manufacturing.
->> +    enum: [gpi, gpo]
->> +
->> +  rohm,pin-clkout:
->> +    $ref: /schemas/types.yaml#/definitions/string
->> +    description:
->> +      Indicate if the CLKOUT pin has been set to GPI or GPO at manufacturing.
->> +    enum: [gpi, gpo]
->> +
->> +  rohm,pin-fault-b:
->> +    $ref: /schemas/types.yaml#/definitions/string
->> +    description:
->> +      Indicate if the FAULT_B pin has been set to GPI or GPO at manufacturing.
->> +    enum: [gpi, gpo]
->> +
->> +  rohm,pin-exten:
->> +    $ref: /schemas/types.yaml#/definitions/string
->> +    description:
->> +      Indicate if the EXTEN_OUT pin has been set to GPI or GPO at
->> +      manufacturing.
->> +    enum: [gpi, gpo]
-> 
-> Can we explain what "GPI" and "GPO" means in this context?
-> 
-> I read it as "general purpose input" and "general purpose output", but...
-> you just describe the exact purpose? So what is "general purpose"
-> about them in that case?
-
-These property names (pin-gpio1, pin-clkout, pin-fault-b, pin-exten) do 
-not define the purpose of the pin, but they match the pin name in the 
-data-sheet. The idea is indeed to be able to say "the fault-b -pin is 
-not a fault signal, but a general purpose input" - if the IC we are 
-describing here has OTP configuration enabling this.
-
-I am re-using the approach from the BD72720 here. I think I will add a 
-common binding file with these, which can then be referred by multiple 
-rohm ICs (in same fashion I added the 
-Documentation/devicetree/bindings/regulator/rohm,pmic-states.yaml for 
-commonly used ROHM regulator properties). I'll see if it looks Ok (to 
-me), and send it in v2 :)
-
-> I would re-use "input-enable" and "output-enable" from:
-> Documentation/devicetree/bindings/pinctrl/pincfg-node.yaml
-> (I mean don't $rf that, just use these strings).
-> 
-> I suppose:
-> enum: [input-enable, output-enable]
-> 
->> +  rohm,clkout-open-drain:
->> +    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
->> +    $ref: /schemas/types.yaml#/definitions/uint32
->> +    minimum: 0
->> +    maximum: 1
-> 
-> Here I would also reuse the generic pinconf properties,
-> something like;
-> 
-> rohm,clkout-drive-type:
->    enum: [drive-push-pull, drive-open-drain]
-
-As I mentioned in my very hasty original reply, this is also an existing 
-binding used in quite a few PMIC device-trees. Changing it now sounds 
-like asking for problems, for (in my opinion) little benefit. Yet, since 
-it is used by a few PMICs, I could perhaps put it in a common rohm 
-binding file as well. Then it would be more obvious it is an existing 
-property if new models re-use this.
-
-> (Push-pull is what is colloquially referred to as "cmos".)
-
-I will at least add a.k.a "push-pull" to the description :)
-
-> 
->> +            rohm,pin-gpio1 = "gpo";
->> +            rohm,pin-exten = "gpi";
-> 
-> If you instead use nodes with properties you can do this:
-> 
-> rohm,pin-clkout {
->      output-enable;
->      drive-push-pull;
-> };
-> 
-> This collects the clkout config in one place and make
-> it obvious what is going on. But I don't know what the DT
-> maintainers think about this idea.
-
-I believe you mean I could translate:
-
-rohm,pin-clkout = "gpo";
-rohm,clkout-open-drain = <0>;
-
-to
-rohm,pin-clkout {
-	output-enable;
-	drive-push-pull;
-};
-right?
-
-I am actually not sure if this would work. The data-sheet made me to 
-assume it might not. There is separate "OUT32K" register, which controls 
-the clock gate. This, as far as I understand, is not usable when the OTP 
-variant sets the CLKOUT -pin to GPO. The mode (open-drain / cmos) 
-configuration resides in this clock gate register.
-
-[Just to complete picture, when OTP is set to GPO, the pin output is 
-controlled by GPIO_OUT register instead. When OTP has set the pin to clk 
-output (or to GPI), then the GPIO_OUT register writes have no impact.]
-
-Thus, in case of the BD73800, the:
-
-rohm,pin-clkout = "gpo";
-rohm,clkout-open-drain = <0>;
-
-might actually be contradicting.
-
-...
-
-Now, I will make a side-note... The data-sheet front page says:
-> 4 GPIOs
-> - OTP Option for GPIOs instead of I/F signals:
-> EXTEN_OUT, FAULT_B, CLKOUT, GPIO1
-> - GPO Supports Open Drain and CMOS Output
-
-I, however, see no register control for the GPO output types. I _assume_ 
-the output type (when pins are used for GPO) depends on OTP again. I 
-will see if I can clarify this.
-
-Yours,
-	-- Matti
-
--- 
-Matti Vaittinen
-Linux kernel developer at ROHM Semiconductors
-Oulu Finland
-
-~~ When things go utterly wrong vim users can always type :help! ~~
