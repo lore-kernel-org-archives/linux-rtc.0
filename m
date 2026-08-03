@@ -1,230 +1,182 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44F7036403A;
-	Mon,  3 Aug 2026 09:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785750973; cv=none; b=MGBbuq1VLZrr/T+xoIwKjeDxdj7uGUxywIgOJjKB24KLf0pSjeRszFxg9478Dav15gfNP1RcwpNoGXvh0D6uHU539GXmK1913PhUGPxhjap9de4qR10kd3YqTghcxnIBK93XY+Ewleo6YmDmPypH14i35tJqDYJ7cvQHNRwAHps=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785750973; c=relaxed/simple;
-	bh=iofpqrdqGxD7B/vi7lwImKJzxEFJD7KzwC1MT2y+g14=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dg/Rg1Pvy9co0P5dFBCkHH/VCGEQ7he/TQLautVMsOt0V76kYJGWIwb5bsw+gDjg33IFcdZ4YWo++0WjUcF0cSAAxZcK90vGtOyS8+6VlkmFWSX0WmUJdpn8uFDpdD09vBPMMxjDEZLMoLWEsb8CD/Lm0hS1zLx5rapcSjBo3Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g9TJgROj; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D678E408031
+	for <linux-rtc@vger.kernel.org>; Mon,  3 Aug 2026 12:48:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785761303; cv=pass; b=nSp39GM6m19Ji8LX4PuhgF5pkzrtWqL27eyYo1DkAyFEIodEUzzFhyvtYQ2dfXV9oPfOGZKBGDl9nQCTCbeXg7IxvbBp+vOs+f/TCS+4IsqseAopKP0RUkGXP6OR+Giw3YQar/sFLoOFVJWZzW41Hut2PZyYxm3YchuIDLAtgnM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785761303; c=relaxed/simple;
+	bh=FqG7OmGKUyU4sbv1V0oLUSK9uJRSuOp1aPGEqAPuBwE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=n3jqloeQ6qUp0QMoGpUExPgTxJt5WPGuRatfzeSvOFwosNia5nFmikUEJprlpPhpe5PMh6hT9nYEcPxOV0kIbBMDC697gZ90h2D1hrqBUaZSpYy/OPBlu1OwGXEgO0S/o2MHnnVqIh/DB2SKrR9fAaFdcXZUtXjwQg4etRfI5as=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=muX0k9Av; arc=pass smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g9TJgROj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2C491F000E9;
-	Mon,  3 Aug 2026 09:56:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785750971;
-	bh=n0aB7qGBLZyAd1fXd3wTUVGSroPtec55ZWHXPynR+mg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=g9TJgROjkZFESO6T8yl5X6xkRwQmBwdIoX748rbmcVPRlawHMV/F2UO11mBC/e9TU
-	 Pr0vbB5es1YS11qONg8QWpT5WnTq1oVjPUqBULbZoK08477uJjbN2VMfQy3BnVi5Fe
-	 sSqbhPqf3CGO6u6nC4h2HmTB2S3ynRgFua+RMIRhIq3j3+lWlagvSliEM1eYzLf5G/
-	 BC7vXII39Oz8ucBxOp1FGwdt9EwuNvR6a97O38tYp38rp4iF1ohnZ7JlxSgMnGGPPn
-	 ftU8r3QAzJINM5RqbuydnlR2g0yntS29vo/2fe2VCLXoLjFDrtb0JCKFPXvIJHB2se
-	 rfeVWu9PDon9A==
-Date: Mon, 3 Aug 2026 11:56:07 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Markus Probst <markus.probst@posteo.de>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, 
-	Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Michael Langer <michael.brainbug.langer@googlemail.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] dt-bindings: rtc: Add pinctrl for S35390A
-Message-ID: <20260803-mottled-pretty-sloth-bf7dbd@quoll>
-References: <20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de>
- <20260801-rtc_s35390a_int1-v2-1-f10c99ad1d6c@posteo.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="muX0k9Av"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-47fde295992so977373f8f.0
+        for <linux-rtc@vger.kernel.org>; Mon, 03 Aug 2026 05:48:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785761299; cv=none;
+        d=google.com; s=arc-20260327;
+        b=LNK6R4nQum5SMotBagClhBqcEeiB+vTk1JSgK8URXt7qMso9miP0KnSTsK4TER1k7x
+         AXI4idat8DtfRBb3cNkyEEoIkSJlDJNvhw50mxT8L19SRsihV+75NeiLI4pzYantbgap
+         FXbQ1CEKi8kMWJzgrDAXEqjRrcRtLfrNpZUmPqN1CXR7ad/BlpmKEuA+m9IYGwYSqJwx
+         tTZywGmgMGQWSvMC1ZcRbSIezUt5n66PibO/7ifIvjSNFL+N2FwZLqT+GG6Q+l3ftzyU
+         Ru2VbUUoqiavn7D69PA+NkTVFYndU9uLNvgKRR7BcaBekI8ZxqlPYxZE+CigKB1+Cd9s
+         bA5A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=5fax5mU2nzN+Aiq0QARQ+H5w0Gibs6bj0/RcHVBZ+sM=;
+        fh=oum+O0IF6Dt+lH49vN0yCBEL4k4g9ItcWtCvAzdj7ZY=;
+        b=EZrxLAoKFIn40/xfqq2AV3Pj537FVwPQlWLbvmfOm5kkyuHU1fZT/kGuLBtacH9OjQ
+         Sj/iPSUDbPQbAlnkjPo6TWkW4miRQTMcURcF1c4mJIX/Ziaa/SVfVfZulfZHR+jTX7e8
+         XtQTkllrzLWqYVPXzfGwOHoh50kdWf8JEln+ItVd+xjnlWLxmkuIjAle5oBc67CX6kso
+         iR+/penvoJRPw1/dt3X8H2K/E7PXro4JFjnnbZiK0aazuOmIyrhLAz9RKw4dG5HhWda3
+         RH+KDXC+UGKn8sG5B2uarOLEc0LNlpUZN4mv2wRxOZuQdOHqdHHh89NuMhcRVtgd9Veg
+         zGfw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785761299; x=1786366099; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=5fax5mU2nzN+Aiq0QARQ+H5w0Gibs6bj0/RcHVBZ+sM=;
+        b=muX0k9AvrH7b+PBR7pwMnntSIKbMKrMW7Lkzi46y36VJR4SapVqccU5iXzMcjJ3rlu
+         mS9T4ZuWf5LlPkgZu6QLkjFj7EfGC7Yx/uNdN3sr9oZLdI3fnfnNXk8WVxq21Fe4bJWx
+         pxnpIrhZwywwjpH8AS3UxlsH3rmGBJDpLwMzpMcaM/EzqSVIdZH2prrnddIg4hZ9LyYj
+         x+8jgFin9wTAfoHzqWe/GJ+rP9fKLe9/7tuwbx7gOko1sNgZuvl5asD90b4jlQYJfp/Y
+         HX+6mJ7cTOcR36q6VoTr2lWIiGXd3sEjdAXx8ZGA2qjzdYxJTqtdg0MmYJ2sdCzliC07
+         r6Aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785761299; x=1786366099;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5fax5mU2nzN+Aiq0QARQ+H5w0Gibs6bj0/RcHVBZ+sM=;
+        b=TfMUhB/ZPKnpgTyi9XIkuUnmF6R2VCwqZubn+N/s1m0yV/wF1padIJqOua5y7dZBje
+         nTPh5xfFPuVEAynpxfkDUEX1yDzTwgFnIa8A3oENRSjeDN9N4m03BivXHr+6mrd2dNeO
+         xTlTKedPmZH1H+fVKu7JpwvziwshIs4JGXSBBRMlulqROC5aXTjNPKaUdyRosTkQIW1r
+         59H7tMo6VXAEfQ7Y3q8TOnpKvNR4nyGiYfpgtUgcQ3HrAg4ZNIR7xLX1BowRZHlfPY0M
+         i38XkkgROAzn/jx0LobEri35h+gNt6ET5L4GoiKQdT4qLs+KLLUEPb0DU9l5D7ZpUz3P
+         u1ig==
+X-Forwarded-Encrypted: i=1; AHgh+RoaDfctPm+RejHCnKIAmlgkzrQTLMqo780AYVQ8lcSZDu4AomMwlCEaEuo3O7SHftJ8z3V9iQHSUIY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzvnDeMiaCIkVp0oRSSbEbFZsz/i8dkLaKPkzSCUm7VhtY5YI2Y
+	Wdj/pQHb2gH3NBxbd6uCOynVFLMoM3KzK0OWNmbDcEuwesrlhM1cRt70MshXOn02v1ZJLN9vFFJ
+	MXQfm0F5bLuXggaat/2PQPdiOiH1LoMU=
+X-Gm-Gg: AR+sD11z8ZhhsTEYghE8EMaFnXHsg51wSCCCLSPyBa0nuIsVbJE56SAtqlE0NzNJ6zN
+	Y4XJYr9DXen6XrIal+8890ZS/aEqH6miQA0KVz3zvmhKEeovzZnS+NFH307JgSqPktJK3Rrqp1w
+	Wi8EjV4rVWkRbAvPyhJuRHMyXNWClbv8s3GqhqC4PrQ2O5haJLKqMw+BmACIah2UhUabVdztzcb
+	wdiuOTWM5mc2+qbzC7OY2LIx8/NQXqx1plc+2fCyaFkU9cBjCdezmxEhvs3lWokOOWLcWMaaKiV
+	t5KDl9/ukQOu7Yi/WVl077koDh5soExIVCRF54JYOxmXRm6wf7jqzWICu8bBwYYoe3SPVwmVVpm
+	rpiU4flEe75xvrvTuwDxJSLDn2XJ75NvzAJX6zU9ef4htrfhUSRfD1w6DA/mStSk=
+X-Received: by 2002:a5d:6f0b:0:b0:47f:95cf:26a3 with SMTP id
+ ffacd0b85a97d-47fd32e1f41mr28059514f8f.14.1785761298926; Mon, 03 Aug 2026
+ 05:48:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260801-rtc_s35390a_int1-v2-1-f10c99ad1d6c@posteo.de>
+References: <20260706175138.12587-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260706175138.12587-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Mon, 3 Aug 2026 13:47:52 +0100
+X-Gm-Features: AUfX_mz8pwuAO_YEZl6wI79Yl2xndxoZy1e642I1E-oM4Ny4k409h84jPMs-axQ
+Message-ID: <CA+V-a8vohu9Sswp9jrmUkZ3SUVhVJzf0=9MdU_1S7h6aMShT0g@mail.gmail.com>
+Subject: Re: [PATCH v3 00/12] Add RTC support for Renesas RZ/T2H and RZ/N2H SoCs
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>, Magnus Damm <magnus.damm@gmail.com>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Conor Dooley <conor+dt@kernel.org>, linux-rtc@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Prabhakar <prabhakar.csengg+renesas@gmail.com>, 
+	Biju Das <biju.das.jz@bp.renesas.com>, 
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 01, 2026 at 06:43:00PM +0000, Markus Probst wrote:
-> +  wakeup-parent: true
-> +
-> +  wakeup-source: true
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +patternProperties:
+On Mon, Jul 6, 2026 at 6:51=E2=80=AFPM Prabhakar <prabhakar.csengg@gmail.co=
+m> wrote:
+>
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+>
+> Hi all,
+>
+> This series adds support for the RTC IP found on the Renesas RZ/T2H and
+> RZ/N2H SoCs.
+>
+> The RTC block is closely related to the RZ/N1 implementation and can
+> reuse the existing driver infrastructure when operating in SCMP mode,
+> which is required on these SoCs due to their 195.3 kHz RTC input clock.
+>
+> While the RZ/T2H and RZ/N2H variants do not implement the RTCA0SUBU
+> register present on RZ/N1, this register is not accessed by the driver
+> in SCMP mode, allowing support to be added with minimal changes.
+>
+> The RZ/T2H RTC variant also supports a 1 Hz output signal on the
+> RTCAT1HZ pin, controlled by the RTCA0CTL1[RTCA01HZE] bit. This bit is
+> marked as reserved in the RZ/N1 hardware manual, making RZ/T2H a
+> distinct RTC variant despite its overall compatibility with the RZ/N1
+> implementation.
+>
+> Patches have been rebased on top of next-20260706.
+>
+> v2->v3:
+> - Added new patch to fix weekday underflow when alarm crosses month
+>   boundary.
+> - Make use of devm_add_action_or_reset() to simplify driver teardown
+>   and remove the .remove() callback.
+>
+> v1->v2:
+> - Dropped wakeup capability support patch.
+> - Dropped header sort patch as it was already fixed upstream.
+> - Updated commit message to drop reference about RTCA0TCR register.
+> - Added Acked-by and Reviewed-by tags.
+> - Updated Kconfig help text to keep it generic and not specific to
+>   RZ/N1 SoCs.
+> - Initialized rate variable to 32768 to avoid timeout_us of 0.
+> - Made use of RZN1_RTC_SUBU_RTCA0FX mask for SUBU register access
+>   instead of 0x3F.
+>
+> v1: https://lore.kernel.org/all/20260615154805.1619693-1-prabhakar.mahade=
+v-lad.rj@bp.renesas.com/
+>
+> Cheers,
+> Prabhakar
+>
+> Lad Prabhakar (12):
+>   dt-bindings: rtc: renesas,rzn1-rtc: Add RZ/T2H and RZ/N2H support
+>   rtc: rzn1: Handle EPROBE_DEFER for optional pps interrupt
+>   rtc: rzn1: fix weekday underflow when alarm crosses month boundary
+>   rtc: rzn1: Fix malformed MODULE_AUTHOR string
+>   rtc: Kconfig: Broaden RTC_DRV_RZN1 dependency to ARCH_RENESAS
+>   rtc: rzn1: Fix alarm range check truncation on 32-bit systems
+>   rtc: rzn1: Replace remove callback with devm_add_action_or_reset()
+>   rtc: rzn1: Dynamically calculate synchronization delay based on clock
+>     rate
+>   rtc: rzn1: Use temporary variable for struct device
+>   rtc: rzn1: Consistently use dev_err_probe()
+>   rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for register access
+>   rtc: rzn1: Add support for Renesas RZ/T2H and RZ/N2H SoCs
+>
+Gentle ping.
 
-This goes after "properties:" block.
+Cheers,
+Prabhakar
 
-
-> +  "^pins":
-> +    type: object
-> +    patternProperties:
-> +      "-pins$":
-> +        type: object
-> +        properties:
-> +          pins:
-> +            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
-> +
-> +          sii,mode:
-> +            $ref: /schemas/types.yaml#/definitions/uint32
-
-Use simple string. See pinmux bindings.
-
-> +            description: |
-> +              Modes for the specific pin:
-> +              - S35390A_MODE_IGNORE: Preserve the previous state.
-> +              - S35390A_MODE_DISABLE: Disable all interrupts.
-> +              - S35390A_MODE_WAKEUP: Used for waking up the system.
-> +              - S35390A_MODE_ALARM: Userspace defined alarm.
-> +              - S35390A_MODE_FREQ: Periodical at configurable frequency.
-> +              - S35390A_MODE_PMIN1: Minute periodical output with 50% duty.
-> +              - S35390A_MODE_PMIN2: Minute periodical output L for 7.81 ms.
-> +                                    Can only be used with pin INT1.
-> +              - S35390A_MODE_32768KHZ: Raw 32.768 kHz output.
-> +                                       Can only be used with pin INT1.
-> +            minimum: 0
-> +            maximum: 7
-> +
-> +          sii,frequency:
-
-Frequency needs -hz, but anyway if this is becoming a clock, then you
-must have clocks property and this is simply not needed... unless this
-is some periodical wakeup call, not a clock? Then simply -hz and
-property must be more descriptive (frequency of what? pulse?).
-
-
-> +            $ref: /schemas/types.yaml#/definitions/uint32
-> +            description: Frequency in Hz to be used with mode S35390A_MODE_FREQ.
-> +            minimum: 1
-> +            maximum: 31
-> +
-> +        required:
-> +          - sii,mode
-> +
-> +        if:
-> +          properties:
-> +            sii,mode:
-> +              const: 4
-> +        then:
-> +          required:
-> +            - sii,frequency
-> +        else:
-> +          properties:
-> +            sii,frequency: false
-> +
-> +        additionalProperties: false
-> +
-> +    additionalProperties: false
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/rtc/s35390a.h>
-> +
-> +    i2c {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        rtc: rtc@30 {
-
-Drop unused label
-
-> +            compatible = "sii,s35390a";
-> +            reg = <0x30>;
-> +            pinctrl-0 = <&rtc_pins_default>;
-> +            pinctrl-names = "default";
-> +
-> +            wakeup-parent = <&int>;
-> +
-> +            rtc_pins_default: pins {
-> +              int1-pins {
-> +                pins = S35390A_PIN_INT1;
-> +                sii,mode = <S35390A_MODE_WAKEUP>;
-> +              };
-> +              int2-pins {
-> +                pins = S35390A_PIN_INT2;
-> +                sii,mode = <S35390A_MODE_DISABLE>;
-> +              };
-> +            };
-> +        };
-> +    };
-> diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> index f4d0eed98a08..7b3f682ef4d5 100644
-> --- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> @@ -81,8 +81,6 @@ properties:
->        - ricoh,rv5c386
->        # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
->        - ricoh,rv5c387a
-> -      # 2-wire CMOS real-time clock
-> -      - sii,s35390a
->        # ST SPEAr Real-time Clock
->        - st,spear600-rtc
->        # VIA/Wondermedia VT8500 Real-time Clock
-> @@ -105,5 +103,4 @@ required:
->    - reg
->  
->  additionalProperties: false
-> -
->  ...
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 716acfc3d7c1..c85be1eefdb1 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -22696,6 +22696,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
->  F:	Documentation/admin-guide/rtc.rst
->  F:	Documentation/devicetree/bindings/rtc/
->  F:	drivers/rtc/
-> +F:	include/dt-bindings/rtc/
->  F:	include/linux/rtc.h
->  F:	include/linux/rtc/
->  F:	include/uapi/linux/rtc.h
-> diff --git a/include/dt-bindings/rtc/s35390a.h b/include/dt-bindings/rtc/s35390a.h
-> new file mode 100644
-> index 000000000000..dcd0ca15f9e9
-> --- /dev/null
-> +++ b/include/dt-bindings/rtc/s35390a.h
-> @@ -0,0 +1,23 @@
-> +/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
-> +
-> +#ifndef __DT_BINDINGS_RTC_S35390A_H
-> +#define __DT_BINDINGS_RTC_S35390A_H
-> +
-> +#define S35390A_MODE_IGNORE		0x0
-> +#define S35390A_MODE_DISABLE		0x1
-> +#define S35390A_MODE_WAKEUP		0x2
-> +#define S35390A_MODE_ALARM		0x3
-> +#define S35390A_MODE_FREQ		0x4
-> +#define S35390A_MODE_PMIN1		0x5
-> +#define S35390A_MODE_PMIN2		0x6
-> +#define S35390A_MODE_32768KHZ		0x7
-> +
-> +#define S35390A_MODE_INT1_MAX		0x7
-> +#define S35390A_MODE_INT2_MAX		0x5
-> +
-> +#define S35390A_FREQ_MASK		0x1F
-
- don't get why this grew. None of these look like bindings.
-
-
-> +
-> +#define S35390A_PIN_INT1		"int1"
-> +#define S35390A_PIN_INT2		"int2"
-
-Drop entire header.
-
-> +
-> +#endif /* __DT_BINDINGS_RTC_S35390A_H */
-> 
-> -- 
+>  .../bindings/rtc/renesas,rzn1-rtc.yaml        |  35 +++-
+>  drivers/rtc/Kconfig                           |   5 +-
+>  drivers/rtc/rtc-rzn1.c                        | 159 ++++++++++--------
+>  3 files changed, 116 insertions(+), 83 deletions(-)
+>
+> --
 > 2.54.0
-> 
+>
