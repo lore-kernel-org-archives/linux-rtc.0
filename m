@@ -1,137 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f177.google.com (mail-vk1-f177.google.com [209.85.221.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC88A3290B7;
-	Tue,  4 Aug 2026 12:31:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D08DD3FA5E9
+	for <linux-rtc@vger.kernel.org>; Tue,  4 Aug 2026 14:31:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785846696; cv=none; b=E8xlIHnmF7AYApC16DYVZX9Cp4+dKEY9WA/oASZPzIDlxuxJClJA19MKHOkYiHDPrhHCokq0BZbc9qmK1lJaUMb1itmKoOMYx1wjfYqvZTYowzAkLOUnRlZMH0mKn2MtwZkIIfobFDLhmHtRTB+ERjZ8TF1ha60X+eLpJYLFAyI=
+	t=1785853881; cv=none; b=NFCLVbNSWaAtQENrtvicFmdLii4TGTr4r8O+kKjV3HFdJDuOo7Vp89kR8fortHb6drggk9vcN0QLSffz6JznFfyVoddiA1ZOWhKk3aKDiGOKAb3tX7h7CdQEE6lshe1NYTnRHNl+iP6HGUzfk0Wp4Sd+rCkMD6RAK3lS30mjZkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785846696; c=relaxed/simple;
-	bh=oP8YS5Y4Prbf7fMbNjvr+fz0EC6STQbBZaUUgpU2AYQ=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=TnHzWkg1JtqnbDZrISXbiVn+e58Tt2+sG/TSfg86NnwZE+1LZsmz/86/4hBuZmwCgpBbe+MPBqk+7YTO1VReEG0mKdADxMu4gTUqcaYd2gvHFV5n0RVKNc8hWw9QhqzB4DAI1tqYGJ677AyAu9gEalu/d81Ub5JpcOhtIGIwv8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dh5Hh+HB; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dh5Hh+HB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C9B31F00A3A;
-	Tue,  4 Aug 2026 12:31:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785846694;
-	bh=EdsnwoIbN4QAiRauL90Wp1ACQDxjp0zDCuF3xMG1hxg=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject;
-	b=Dh5Hh+HBL8S3SHifzCAAStTiOe9FBAolFNC3rTzESlBcjetsyJqH2j+Arox48d3H8
-	 SL9qXu0Q27K1jMiIFGZBC3FgR9lWxD3v+DKjgJcqCX4nReD5nUpVrx5j+imYmqOqZU
-	 L1Y7BjpCAvp4GFgeHZWJ/yLWRoQeRinQ6aGS1844tihB/MEZO9DyvRps+W+wNuyscs
-	 kXJHw+fnqHqo7ksEqT/6tNen4+EcjKyRLFOLuzwQ+d78z7YMRotqr3RhcC0rw5/1sC
-	 f/7PN4drDo/249tWcnrPTqmGgW6kqSgiebLt7QOq4RJOvWR4m440gs0Sz7c2ML82lK
-	 PNDr/NyGki4Lg==
-Date: Tue, 04 Aug 2026 07:31:32 -0500
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	s=arc-20240116; t=1785853881; c=relaxed/simple;
+	bh=QiJCNRyg0hPZ2mI4Gjma0OFzO/BLvZ2oUgJygGTgQGU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=C23LB8TxmefM8dHwk2GlYrn7xsFa4UNolPwwtAdlEVuFaxJ9I98ui7MIIlc7MzGH9oym2JnxxwFleYVNUmS7kI3t44zSgM07dE9pQL68ybLnHV3JjJhbiMJDLGubGv+HmrnUyOgw9F6ilVGP/b76/QPLP9+pTMNhVC+VNPgqicw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vk1-f177.google.com with SMTP id 71dfb90a1353d-5c3163a88a1so1391987e0c.3
+        for <linux-rtc@vger.kernel.org>; Tue, 04 Aug 2026 07:31:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785853874; x=1786458674;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=WfbQ4y5yUdy2TJAvCiAC8jxLj5JOJo3d5fP3Tj0QSMo=;
+        b=H1/zCfVlNYRlqEY6Q1hnF5ztLg/cYQC/SZnTWC2qH1ixW814LTsXDaYn4nch6tlr0i
+         driWVK7UO94FKgXxkRy5p1aTEpQIRu3cUhIBMpAQawuX+iKh5vH+Zvjk5GHX0cNYHB99
+         wlSdzZTTYKkLkpvv+Lv9nJcUxUHgxm+BfnvJf5YqGVx15xVkP6Vtuuu6n1rsgStUPE4d
+         kE/SabUIL44niF9GNED4ywPL96SQom00zfl29B3yb7eH+1goxPxPQiwg9g7OeoPVB6T5
+         E7NO5hRcoQGwV9LTVBil+vS44xrI0/xYAWEdyU8p7gBNpn9ajOtksH1uzy9RxZ56L9yQ
+         NCvA==
+X-Gm-Message-State: AOJu0Yzlj6eRfZ0glZY/fz079vkt2QdQHwtzhvwGqQpHswTSqTUjkYZO
+	iIIFQGMXp5cQmQjj/8TkujP/9QYyYSqmVnMn/Gwj13dIjHAEe1GdrjS0k105loGF
+X-Gm-Gg: AR+sD10K+I1/XgIYU5Us0eI1bN717fYk7YBM7jOfBWp98NCVKHvt7IFDduqHkDuJoxP
+	In5UKakiv7alOzQxHzwDSfJgxSEquAEaiviK3TLe+jxrNFVl6JVKxj5kEj2dGWoUSL4d2yJULuq
+	x12RoC7EOS5KvoiionY1hUuOUwFzqsQ9d4fkETpEtEV2pU7XhClBXkI1Rt7FJyqm00HzhXXMx8Z
+	4blG4kv+z5/Hw15Mz8+pVYiVypk+ncFXuM1uoH/SrD+Ko9YjzUjSccmmyb6YqUJhsXzSTjVdfSI
+	NOicCuRNH/9VJrVL+2UQohbt0+LBL3TBTRs6jfAV32u/r+eIAwJoNQf20pE0UvA+NXD4/CadRWX
+	28Yl/7q+cigyziDUe2Fmni1p7TVbhBsE41i64iJ4XzBjBYu4rcS2fmWbPj5ao5QpvF1sPqRVfCP
+	xwPMNtrAvo/cZQyL0nYFHmyVBL4jhVoZQhDYHMYdRkyWuquAwKFpwAuDdBfjQSQkrwoC4+lqnd1
+	vXYZJEKKURXDA/swBXnJs4dHbp6gRXEwm5jdp0uOA==
+X-Received: by 2002:a05:6122:d26:b0:5bf:bb66:414f with SMTP id 71dfb90a1353d-5c3877e01f0mr4717520e0c.11.1785853874155;
+        Tue, 04 Aug 2026 07:31:14 -0700 (PDT)
+Received: from mail-vk1-f169.google.com (mail-vk1-f169.google.com. [209.85.221.169])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-9782c8ea85bsm189175241.8.2026.08.04.07.31.13
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Aug 2026 07:31:13 -0700 (PDT)
+Received: by mail-vk1-f169.google.com with SMTP id 71dfb90a1353d-5c3163a88a1so1391971e0c.3
+        for <linux-rtc@vger.kernel.org>; Tue, 04 Aug 2026 07:31:13 -0700 (PDT)
+X-Received: by 2002:a05:6122:4687:b0:5c2:ac92:eb18 with SMTP id
+ 71dfb90a1353d-5c387704235mr3498906e0c.7.1785853873478; Tue, 04 Aug 2026
+ 07:31:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Linus Walleij <linusw@kernel.org>, Brian Masney <bmasney@redhat.com>, 
- linux-kernel@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>, 
- Matti Vaittinen <mazziesaccount@gmail.com>, 
- Liam Girdwood <lgirdwood@gmail.com>, 
- Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>, 
- Bartosz Golaszewski <brgl@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Michael Turquette <mturquette@baylibre.com>, devicetree@vger.kernel.org, 
- linux-gpio@vger.kernel.org, linux-clk@vger.kernel.org, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Stephen Boyd <sboyd@kernel.org>, Lee Jones <lee@kernel.org>, 
- Mark Brown <broonie@kernel.org>, mfd@lists.linux.dev, 
- linux-rtc@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@linux.dev>
-In-Reply-To: <74468853a2c82091dfcdb2193c4eaa67f6191e05.1785838585.git.mazziesaccount@gmail.com>
-References: <cover.1785838584.git.mazziesaccount@gmail.com>
- <74468853a2c82091dfcdb2193c4eaa67f6191e05.1785838585.git.mazziesaccount@gmail.com>
-Message-Id: <178584669046.3596669.1414001628924966753.robh@kernel.org>
-Subject: Re: [PATCH v2 04/10] dt-bindings: mfd: ROHM BD73800 PMIC
+References: <20260728005610.575268-1-rosenp@gmail.com>
+In-Reply-To: <20260728005610.575268-1-rosenp@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 4 Aug 2026 16:31:02 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUmAd0dba9_EPdJkqw4kQubtKms03Ws8P-WfY__yxTEjA@mail.gmail.com>
+X-Gm-Features: AUfX_mzx-BRg1E-s4SG7HkbYeAMYP1kt95Rsysb98ELpkM0oLgUWl-DNPpZmMiA
+Message-ID: <CAMuHMdUmAd0dba9_EPdJkqw4kQubtKms03Ws8P-WfY__yxTEjA@mail.gmail.com>
+Subject: Re: [PATCH] rtc: msm6242: use devm_platform_ioremap_resource()
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-rtc@vger.kernel.org, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, open list <linux-kernel@vger.kernel.org>, 
+	linux-m68k <linux-m68k@lists.linux-m68k.org>
+Content-Type: text/plain; charset="UTF-8"
 
+CC linux-m68k
 
-On Tue, 04 Aug 2026 13:21:32 +0300, Matti Vaittinen wrote:
-> From: Matti Vaittinen <mazziesaccount@gmail.com>
-> 
-> The ROHM BD73800 is a power management IC which integrates 8 BUCKs and 4
-> LDOs. There is also an ADC and operation amplifier intended for current
-> / temperature measurement and accumulation. RTC and 32.768 kHz clock
-> gate are also included. The PMIC can be customized via OTP and it has
-> options for operating as a main PMIC in multi-PMIC installation. Some
-> of the pins can also be used for GPO or GPI (including interrupt support).
-> 
-> There are also ROHM BD71851 and BD71885 PMICs out there. These are, from
-> the SW-perspective, similar to the BD73800. There is only some different
-> default values and OTP settings. The driver should be able to handle them
-> just fine.
-> 
-> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-> 
-> ---
-> Revision history:
-> v1 => v2:
->  - Reference commonly used ROHM bindings from a common binding file
->  - Simplify compatible list
->  - Move relevant comments to description so they can be shown in
->    generated human-readable doc.
->  - Allow other clock-output-names besides "bd73800-32k-out"
-> ---
->  .../bindings/mfd/rohm,bd73800-pmic.yaml       | 218 ++++++++++++++++++
->  1 file changed, 218 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.yaml
-> 
+On Tue, 28 Jul 2026 at 02:56, Rosen Penev <rosenp@gmail.com> wrote:
+> Replace the open-coded platform_get_resource() plus devm_ioremap()
+> sequence with a single devm_platform_ioremap_resource() call, which folds
+> the resource lookup and mapping into one step and returns an ERR_PTR on
+> failure, checked with IS_ERR() and propagated via PTR_ERR().
 
-My bot found errors running 'make dt_binding_check' on your patch:
+Thanks for your patch!
 
-yamllint warnings/errors:
+> The rtc-msm6242 platform device (arch/m68k/amiga/platform.c) provides a
+> single IORESOURCE_MEM window (0x00dc0000-0x00dcffff). It shares that
+> resource definition with rtc-rp5c01, but the two are registered under the
+> mutually exclusive A2000_CLK and A3000_CLK hardware flags, so only one
+> RTC device exists on a given machine. The region reservation now
+> performed by devm_platform_ioremap_resource() therefore introduces no
+> conflict.
 
-dtschema/dtc warnings/errors:
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck1: False schema does not allow {'regulator-name': ['buck1'], 'regulator-min-microvolt': [[800000]], 'regulator-max-microvolt': [[2000000]], 'regulator-always-on': True, 'regulator-ramp-delay': 1250, 'rohm,dvs-run-voltage': 1150000, 'rohm,dvs-suspend-voltage': 950000}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck2: False schema does not allow {'regulator-name': ['buck2'], 'regulator-min-microvolt': [[800000]], 'regulator-max-microvolt': [[2000000]], 'regulator-always-on': True, 'regulator-ramp-delay': 1250, 'rohm,dvs-run-voltage': 1150000, 'rohm,dvs-suspend-voltage': 950000}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck3: False schema does not allow {'regulator-name': ['buck3'], 'regulator-min-microvolt': [[1200000]], 'regulator-max-microvolt': [[2700000]], 'rohm,dvs-run-voltage': 1150000, 'rohm,dvs-idle-voltage': 1100000, 'rohm,dvs-suspend-voltage': 950000, 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck4: False schema does not allow {'regulator-name': ['buck4'], 'regulator-min-microvolt': [[1100000]], 'regulator-max-microvolt': [[1850000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck5: False schema does not allow {'regulator-name': ['buck5'], 'regulator-min-microvolt': [[1800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck6: False schema does not allow {'regulator-name': ['buck6'], 'regulator-min-microvolt': [[1800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck7: False schema does not allow {'regulator-name': ['buck7'], 'regulator-min-microvolt': [[1800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:buck8: False schema does not allow {'regulator-name': ['buck8'], 'regulator-min-microvolt': [[500000]], 'regulator-max-microvolt': [[1300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:ldo1: False schema does not allow {'regulator-name': ['ldo1'], 'rohm,ldo-range-high': True, 'regulator-min-microvolt': [[800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:ldo2: False schema does not allow {'regulator-name': ['ldo2'], 'regulator-min-microvolt': [[800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:ldo3: False schema does not allow {'regulator-name': ['ldo3'], 'regulator-min-microvolt': [[800000]], 'regulator-max-microvolt': [[3300000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
-Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.example.dtb: pmic@4b (rohm,bd73800): regulators:ldo4: False schema does not allow {'regulator-name': ['ldo4'], 'regulator-min-microvolt': [[650000]], 'regulator-max-microvolt': [[1750000]], 'regulator-always-on': True}
-	from schema $id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml
+Any patches adding seemingly safe region reservations need testing on
+actual hardware.
 
-doc reference errors (make refcheckdocs):
+> Assisted-by: opencode:hy3-free
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
 
-See https://patchwork.kernel.org/project/devicetree/patch/74468853a2c82091dfcdb2193c4eaa67f6191e05.1785838585.git.mazziesaccount@gmail.com
+> --- a/drivers/rtc/rtc-msm6242.c
+> +++ b/drivers/rtc/rtc-msm6242.c
+> @@ -188,21 +188,20 @@ static const struct rtc_class_ops msm6242_rtc_ops = {
+>
+>  static int __init msm6242_rtc_probe(struct platform_device *pdev)
+>  {
+> -       struct resource *res;
+>         struct msm6242_priv *priv;
+>         struct rtc_device *rtc;
+> +       void __iomem *regs;
+>
+> -       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -       if (!res)
+> -               return -ENODEV;
+> +       regs = devm_platform_ioremap_resource(pdev, 0);
+> +       if (IS_ERR(regs))
+> +               return PTR_ERR(regs);
+>
+>         priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>         if (!priv)
+>                 return -ENOMEM;
+>
+> -       priv->regs = devm_ioremap(&pdev->dev, res->start, resource_size(res));
+> -       if (!priv->regs)
+> -               return -ENOMEM;
+> +       priv->regs = regs;
+> +
+>         platform_set_drvdata(pdev, priv);
+>
+>         rtc = devm_rtc_device_register(&pdev->dev, "rtc-msm6242",
 
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
+Gr{oetje,eeting}s,
 
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
+                        Geert
 
-pip3 install dtschema --upgrade
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
