@@ -1,169 +1,153 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-170.mta1.migadu.com (out-170.mta1.migadu.com [95.215.58.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D270D43FD28
-	for <linux-rtc@vger.kernel.org>; Tue,  4 Aug 2026 09:55:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785837356; cv=pass; b=UL/FusP4tnb28iwXRNLZHINxpEyLNf1/WVzIi+dQuUHzLlCdzZLgaVLRyT4Qy2AAR6R/jTWjXCmXIKytkdf42I0fND5CPgggCqjtlzvbrp/1AHzLDZuQuaR2dwqeLQHCqRAdSfv/y7+xAAJtGpxYHyQiR8SZOjP6W9nm/2scG7k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785837356; c=relaxed/simple;
-	bh=j7O+z9nzDpUwwckyXi6LRsSRL6wEHAJaX6lcrRRNg2U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YW3NxoXTsNaFRscB10p2FdEOStyIM5P/bovvLgBdhqoD7HpIw6cwE2JKi2U4wV0Eixa2LeR9RscZ2FMlMcs4vrKIY5QD38vExcR4MpdUqb8XA2iUO9wJnQzY8xpMg6dPTs2cC0BFqN3I7GNRewdOqB5IQxHrDNvM4JxPn1EVhdM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OESaFem2; arc=pass smtp.client-ip=209.85.222.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A98446823;
+	Tue,  4 Aug 2026 10:20:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785838803; cv=none; b=n9ra1sBX1ggloKiCohrcybELYiuemGba7in4MNk749J+IptbJZQrOELXrk74jIAOZS7W/mWR9YKPRYs+z+zH2UUpFD/rT6H8bFNJBc4M75Zpo/Idodu8yhyeqVrlnFXOE/JLwn/1eI5iPXOjaXIvTXjZNhXTAyIyY5H7KYNjQOw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785838803; c=relaxed/simple;
+	bh=W0VsvBw4erS62StCAwFbLIw6VY59rs3FwUtxsXp2c1k=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=tIPUqY2V3UUlYrrrH7VRBb+8Pk5B/q9ZVfcRK/bcxB1cVTVasXTLvc+6vqQlUpj10mB4S3oUvLlbAlYZwmd3z2NrgAdpmAfKTXWVbjD6R0JUortdNHCmqqFiFreSYBmjIcQLfbL2sXdKmRQWFI1/c1yjQvxUOgag30T1kg8q/ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=MQajXf89; arc=none smtp.client-ip=95.215.58.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OESaFem2"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-934a3d14924so270642985a.2
-        for <linux-rtc@vger.kernel.org>; Tue, 04 Aug 2026 02:55:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785837347; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VvwAeVxf/JuueYtWjUGJCM7/yaKhOcyI5cPTpYI68Yh/M506LDZj5duitW/Hr3ypq9
-         EWZrUQ0NHa2skttjsiVIFgD+xqS398FU8Ol7GC7Y4nvyFoJ/ZuOz3D4CIHEDV/w56j+B
-         1tQUeHs0BF32oxK1EHylwECez0+Nkmz/eTQJMLSDhR8CuZFo2xbVvr/ZdKNqgP43pcmp
-         5mZdK27gcIdjUobB6AEOV2c8E/5SNe755BaL0SP0VZOLHqe4aojBdayRrC8IdvRPuHeY
-         YJwe/WOE9cJrTB7NQ1iVM6lMXDqoaul9N3e2+l7kMZ0tuhzZMz7JULHXcoPnSBNl/8r+
-         7oAw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NnhmDRT06ITuyvp+mWlf/TkIY2Vt+EFGGG1J+QsbmWA=;
-        fh=AjLmnvecYsPEySN3yFBgEpVz07QSYQ32qXcddzqelR8=;
-        b=lgr0PuuIAfGOY1UDMcoWj8tpoaL35gKz93wuCspsd5ewCcGHYSyeZo3bdqQAPEIvP+
-         s1x/XiwAt/so6cnf9MWfsvkOmIAeIAqDuRLgtMJJ7l6apdmKdPUICNji2EZy4CtEcxgZ
-         /gFBgOiV09sSAodL4kBtmV0svTwm3vNvIuarUoG2hVgeH+Z/x+fwmEgiVQ5U0TaDkJDh
-         f+CxviDSJ/gN898+QT1JrCptvTLAlz5054tJt7pKMzcIlRxVaxQqk0s6HAJTetVL/rhd
-         MU4LknWaUEMrDCunIxBQA8GHrEpUtVEF5f6mqv82vijINn7eu4arJAi/Q8rbVWVHS2YE
-         f+Gg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785837347; x=1786442147; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=NnhmDRT06ITuyvp+mWlf/TkIY2Vt+EFGGG1J+QsbmWA=;
-        b=OESaFem2lgmW/P388D39yuBam2SUvhp1VAFj0QCws8nOLJf19dJq1qWumMf3/1MnMD
-         2JWqp0PjodzAtzZyFvdlEwF7cnZaWHIqxCMGWhR5w59jQRZZxLd8nWf0wMQ2mhQzoF7D
-         b/G77S4DorXNYgfZEl+czMlrD4GNcorJI5om4RcMK5pdajVqn44p+wQZLtBzV7wmNFUK
-         H2goI9Y6GQDezYTclAoNUoLv3oCmDHFzKo1dJP3fuy6U4kiSeGkMdA6K1gpXlJpRyGRM
-         NIGZSwPEsF9PM5Kz968HXSYTlALLqRFHWxFxHizw/XOlsPO+5dCP7n9wJCj1nrbFtzP3
-         aSYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785837347; x=1786442147;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=NnhmDRT06ITuyvp+mWlf/TkIY2Vt+EFGGG1J+QsbmWA=;
-        b=BDGssUl1tRo6QZTajyGGia731TFRbG567FsfCY254TKX2yKa9gMPQGdZBJwJok1GDA
-         wzWIwAbx5t+MFVA06unx/fL2AVZbmBuTAVPjfqgH5TTkRWlKZkCiQLEXUoRpGss1zmUg
-         6Ujkt+250J7Qlqe6sbtt5KBkxwiWGiXnl6Dz4+os8xTm043ypqC0tBtExO7dqIL+M0du
-         Rqko9LZQhkJS4cZPH5r9z2wVSP6VOfUf/lxA6SoobDSb6LUQDX9ssJXAUSKB+rYVb3Hv
-         FjvuaAKpdJEnL1Jf3AGOozdtirZasXNfMv3LXsfqDVr1NPTws0E7gHwsScO6oIlGugmz
-         Bfuw==
-X-Gm-Message-State: AOJu0Yz3nG7IeecLosFbLsfj1oPFgJckT6w95vT/6pGBcWKx+OP9R7nz
-	pr9Ftf0sieBiQ7TdwFOwfE1aH8Ij6jCsv8UQVQIRd56DZMglGJE2HwQniSEAeF8zDNt1bk9vvov
-	uGF61XgOIKJXRuwgNySt9ORqhKbKJ1JA=
-X-Gm-Gg: AR+sD11y04guJ5lfQhmKxxny3pGAvowY9gVByYaUE1EaAMPH7YsUuktT8+NrkaqZ+JF
-	yzjth4aGfiRtAXfSBdiPhvaP5wixV/ISaZkkY5dq1R5npKIOyWFXl780lPFyOlw19ukeY57GB/F
-	X5RWI7/e1mRSA4qouHIoDSkvQjDrDvMUcT/0p154mmgCm2VHL0EPQI2J0xYvztxA9zZSSaT4X1n
-	FvL2zzSOIaad8v4KzI1PHIjiFZqZmLd2/w8Jjc4PxzoyeLJ7+CyTMNhMoCfKhx0KenvIzcg2Zay
-	vdgt/clEzULOJYonpuf71FZP38gf2yInD5KK/kfLqKiMwck=
-X-Received: by 2002:a05:620a:4488:b0:92e:305a:d729 with SMTP id
- af79cd13be357-934a070de9emr2437255385a.7.1785837346669; Tue, 04 Aug 2026
- 02:55:46 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="MQajXf89"
+Date: Tue, 4 Aug 2026 13:19:43 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1785838799; h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type; bh=59bV0VTFOGjwq0yxRhupbuwjdHtO+zfKFhfxls/eC1w=;
+	b=MQajXf89w0T5db6AJd9zx//7rK725ZHKv5Ok+6Bjr62pPw7N17z3N5RCH0aPmCPXoJVyu+
+	NlBiKSyGDQ3ZaGHIvY4YbkDVMDiqwZSq6qEyCkomAIabtYiXScS3prTWPVYTg3NpdPmNtD
+	DMfwz52CyuLOzwJb9MUA2Ko0LJLzDy0=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Matti Vaittinen <matti.vaittinen@linux.dev>
+To: Matti Vaittinen <mazziesaccount@gmail.com>,
+	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+	Matti Vaittinen <matti.vaittinen@linux.dev>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	mfd@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: [PATCH v2 00/10] Support ROHM BD73800
+Message-ID: <cover.1785838584.git.mazziesaccount@gmail.com>
+Reply-To: Matti Vaittinen <mazziesaccount@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260717193705.2003175-1-chou.cosmo@gmail.com>
-In-Reply-To: <20260717193705.2003175-1-chou.cosmo@gmail.com>
-From: Cosmo Chou <chou.cosmo@gmail.com>
-Date: Tue, 4 Aug 2026 17:55:53 +0800
-X-Gm-Features: AUfX_mwscCkjU5sW6MOPcNIegOVOjnuMxQwdSyZ9np5ngRKwNXG5dHWcx0vZHOA
-Message-ID: <CAOeEDysuwsFcHZb77zRCEQb2k-o_zKPR9Efet2QbzOgzbVvS6A@mail.gmail.com>
-Subject: Re: [PATCH v2] rtc: pcf85363: Add error checking to regmap calls in probe()
-To: alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	cosmo.chou@quantatw.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="VHhze1AYksE9JiYU"
+Content-Disposition: inline
+X-Migadu-Flow: FLOW_OUT
+
+--VHhze1AYksE9JiYU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Alexandre,
+Add support for the ROHM BD73800 PMIC and compatibles.
 
-Friendly ping on this patch.
+The ROHM BD73800 is a power management IC which integrates 8 BUCKs and 4
+LDOs. There is also an ADC and operation amplifier intended for current
+/ temperature measurement and accumulation. RTC and 32.768 kHz clock
+gate are also included. The PMIC can be customized via OTP and it has
+options for operating as a main PMIC in multi-PMIC installation. Some
+of the pins can also be used for GPO or GPI (including interrupt support).
 
-Thanks,
-Cosmo
+There are also ROHM BD71851 and BD71885 PMICs out there. These are, from
+the SW-perspective, similar to the BD73800. There is only some different
+default values and OTP settings. The driver should be able to handle them
+just fine.
 
-On Sat, Jul 18, 2026 at 3:37=E2=80=AFAM Cosmo Chou <chou.cosmo@gmail.com> w=
-rote:
->
-> The probe() function ignores errors returned by regmap operations.
-> If an I2C transport error occurs (e.g., -ENXIO), the driver continues
-> probing and may register a non-functional RTC device.
->
-> Propagate errors from all unchecked regmap calls in probe() using
-> dev_err_probe().
->
-> Fixes: fd9a6a13949a ("rtc: pcf85363: add support for the quartz-load-femt=
-ofarads property")
-> Signed-off-by: Cosmo Chou <chou.cosmo@gmail.com>
-> ---
-> Changes in v2 [1]:
-> - Update commit message to reflect the new scope of the fix
-> - Add error checking to all remaining regmap calls in probe()
->   (regmap_write to CTRL_FLAGS and regmap_update_bits to CTRL_PIN_IO)
->
-> [1] https://lore.kernel.org/linux-rtc/20260716125142.1801599-1-chou.cosmo=
-@gmail.com/
->
->  drivers/rtc/rtc-pcf85363.c | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 540042b9eec8..ccc7834e5759 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -426,8 +426,8 @@ static int pcf85363_probe(struct i2c_client *client)
->
->         err =3D pcf85363_load_capacitance(pcf85363, client->dev.of_node);
->         if (err < 0)
-> -               dev_warn(&client->dev, "failed to set xtal load capacitan=
-ce: %d",
-> -                        err);
-> +               return dev_err_probe(&client->dev, err,
-> +                                    "failed to set xtal load capacitance=
-\n");
->
->         pcf85363->rtc->ops =3D &rtc_ops;
->         pcf85363->rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
-> @@ -436,9 +436,16 @@ static int pcf85363_probe(struct i2c_client *client)
->         wakeup_source =3D device_property_read_bool(&client->dev,
->                                                   "wakeup-source");
->         if (client->irq > 0 || wakeup_source) {
-> -               regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
-> -               regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
-> -                                  PIN_IO_INTAPM, PIN_IO_INTA_OUT);
-> +               err =3D regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
-> +               if (err)
-> +                       return dev_err_probe(&client->dev, err,
-> +                                            "failed to clear flags\n");
-> +
-> +               err =3D regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
-> +                                        PIN_IO_INTAPM, PIN_IO_INTA_OUT);
-> +               if (err)
-> +                       return dev_err_probe(&client->dev, err,
-> +                                            "failed to set interrupt pin=
- mode\n");
->         }
->
->         if (client->irq > 0) {
-> --
-> 2.43.0
->
+Revision history:
+
+v1 =3D> v2:
+ - Rebased on regulator/for-7.3 as it carries dependency:
+   f29a8bf6fde1 ("regulator: dt-bindings: ROHM PMIC state-machine voltages")
+ - dt-bindings: Various fixes, split generic stuff to own files.
+ - gpio: Styling, return -ENODEV if no GPIOs found
+ - MFD: Styling
+ - regulator: Simplify dt-reading
+ More accurate change-log in individual patches.
+
+---
+
+Matti Vaittinen (10):
+  dt-bindings: mfd: common ROHM PMIC properties
+  dt-bindings: rohm,bd*: Ref common ROHM bindings
+  dt-bindings: regulator: ROHM BD73800 regulators
+  dt-bindings: mfd: ROHM BD73800 PMIC
+  mfd: Support for ROHM BD73800 PMIC core
+  rtc: bd70528: Support RTC on ROHM BD73800
+  regulator: bd71828: Support ROHM BD73800
+  clk: bd718x7: Support ROHM BD73800
+  gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
+  MAINTAINERS: Add ROHM BD73800 PMIC files
+
+ .../bindings/mfd/rohm,bd71815-pmic.yaml       |   9 +-
+ .../bindings/mfd/rohm,bd71828-pmic.yaml       |   9 +-
+ .../bindings/mfd/rohm,bd72720-pmic.yaml       |  29 +-
+ .../bindings/mfd/rohm,bd73800-pmic.yaml       | 218 +++++++
+ .../bindings/mfd/rohm,pmic-pins.yaml          |  72 +++
+ .../regulator/rohm,bd73800-regulator.yaml     |  99 ++++
+ MAINTAINERS                                   |   2 +
+ drivers/clk/clk-bd718x7.c                     |   8 +
+ drivers/gpio/Kconfig                          |  11 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-bd73800.c                   | 227 +++++++
+ drivers/mfd/Kconfig                           |  15 +-
+ drivers/mfd/rohm-bd71828.c                    | 147 ++++-
+ drivers/regulator/Kconfig                     |   4 +-
+ drivers/regulator/bd71828-regulator.c         | 558 +++++++++++++++++-
+ drivers/rtc/rtc-bd70528.c                     |   8 +
+ include/linux/mfd/rohm-bd73800.h              | 307 ++++++++++
+ include/linux/mfd/rohm-generic.h              |   1 +
+ 18 files changed, 1679 insertions(+), 46 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic=
+=2Eyaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/rohm,pmic-pins.ya=
+ml
+ create mode 100644 Documentation/devicetree/bindings/regulator/rohm,bd7380=
+0-regulator.yaml
+ create mode 100644 drivers/gpio/gpio-bd73800.c
+ create mode 100644 include/linux/mfd/rohm-bd73800.h
+
+
+base-commit: 36c3ea84289913d16dd2ed783534193c957055b9
+--=20
+2.55.0
+
+
+--VHhze1AYksE9JiYU
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmpxvLYACgkQeFA3/03a
+ocW5HQgAlH75SLN8BaghMw7rYf5U9E5OPedQFEdQAj2bvP6pi2a0oh763U9YtSRZ
+QfAyxQwz7oEW7rvDT9sMY5A1DcNAo5rTCxeyFKJ1KeBiimdmB277fU2cpMzJ0Noh
+zYrxA2ttWRKa4vGfhxraIK0Z4IAHiL0wSOkH6bvDagXjaUVflGVSShS9xGur5hhY
+udrdU6DX1VAiphwBais1772pxrPuDYtx048OL1TZb9KmKyMX6XY5zEOi1LpvWfhL
+cXGA50TcS3+PLDDGGZF2n0+AYxdc2sL8IEYDJZwo5eWsJ19MdysbX4xWDzCz+NHY
+2G4KMK/9ZJxdjPekEoDWrzyH1P7AnQ==
+=+2F/
+-----END PGP SIGNATURE-----
+
+--VHhze1AYksE9JiYU--
