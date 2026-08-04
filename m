@@ -1,42 +1,41 @@
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A792E29ACCD;
-	Tue,  4 Aug 2026 22:16:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F04729ACCD;
+	Tue,  4 Aug 2026 22:20:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785881788; cv=none; b=HFNxKPcRewjkvRnFCXggd/Aob0SSFwxTPQGhNRzYhcmKacaw9/GdXUtET+LzxF7TeLGNhFfpr81VMRJCCs0R3I+jV2fOOh2JLNMbNebS/oGm55LVbVFDDjZszywZfAq4uPX2ApI1iZz3KpGe9D0NzkYRKDwfENy7fvL0X2+3bOk=
+	t=1785882025; cv=none; b=HdGxetjdbmTI01ubgEljFfdORRVzyHLZahh4qA03vNtZWuB3DiGYt7EwXDmRI1UF+rX1SgNOxusM5DAqe7O5zNRkA4FrXHB+m+7EvRWC0jfn4UZUH9dVA/tXCJtJqW/HsrxwHx+XIqR+4bhPtm/natxbWhj4qoMP/aifcFrbtq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785881788; c=relaxed/simple;
-	bh=MIrL2Q424FnFDUgj4IlZijmLlPKvRwstqYlFmpraFMw=;
+	s=arc-20240116; t=1785882025; c=relaxed/simple;
+	bh=Ne5loAQ13itRw7wzbWT7hlShFWvAQxB612puaga+0Kg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RKcw2G7lQL0umBd9z0sho5SFh96CbdVlzAxw/iUMFjUl9JE6Xgv7JxnNoQDhTXVnqNCPb6Xa+U9n1Rbnky9nxGcQPy1179BE28klKRKpERKHi9LH2Q7htKx5EvopxkosPz4jhBoNRJVyT+1vHtyST8vroHXdn6uQ6R36Xiibuwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=hl60HZvx; arc=none smtp.client-ip=185.246.85.4
+	 Content-Type:Content-Disposition:In-Reply-To; b=rhmQ0ZGNM8dnYz7C4gZp0Z9Ye10HAYOAki6U2a7ScwQORHJXdoTHYqJ8IA2YTQU7bJWV7bNuF7Jti8KmsSY5Z3TJ/QXmz0Cyoju/3Xr2r/5mBrRxHQW2jwUtp0QrbVelvvlZpQnpVLEXKojG0Wju3Ivzj0GNv9It1d136RG/r2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=XAYfL2wX; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="hl60HZvx"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="XAYfL2wX"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id CB5CF4E410E9;
-	Tue,  4 Aug 2026 22:16:22 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 173D04E410E9;
+	Tue,  4 Aug 2026 22:20:20 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 6A0626029E;
-	Tue,  4 Aug 2026 22:16:22 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 129F111C33B27;
-	Wed,  5 Aug 2026 00:16:13 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C29906029E;
+	Tue,  4 Aug 2026 22:20:19 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EABD411C33B27;
+	Wed,  5 Aug 2026 00:20:12 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1785881777; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=b5nbb2wT0veFcsSJ3ebk5cldgs5P7RafDN+qnPOZdx8=;
-	b=hl60HZvxSebbdFP8LFwxLnRTC+FS0DsaEnKLu7FcpeH1H54P8NxeNlp77Fs5cZhpl5v414
-	MAOgH54JjLL+Ytq8D3nKuQo8wFfkHXXPaa145xBueuh2lzzVU+flqfffZLd1x3gvh0PR0C
-	2FiCZRaFYvnNStLI3qid5KdKKNbExmNts4yoSiaq10GH/RPpjxRgYL8vxrDV6/pxG6fnt3
-	jigga/J7ZXX9ZaHAHyK1+Mg/OR9BeXALLyByBQLAPdzJ8/x8tU8wFUvIjJuGPNt7YBddUh
-	GL7u13YiAMBBcuqBQROuM4XPFj2QwqkVhd5N2dgycDfEOc3E/wGAwjFVrBHegw==
-Date: Wed, 5 Aug 2026 00:16:12 +0200
+	t=1785882014; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=hEHN7Q6DvzLp/gSdB+yy83IXHC9wc+QPCe7F+A+2eMI=;
+	b=XAYfL2wXpCX1sL/rcEwGcJprw/YT7GTkqp3Ya4hZzXCrl/f/ooGE7H2XNZj7h49DgU0Jhb
+	eS4rN/wFvSzXj+Tw6Mjts4nFUxHbIBXIuWX6oT+q6gDxDE72v5VWx5bbDXiLZtiwQWwTto
+	um5vbRoJug/IOwBdnC8XmcjxkCtQ6oaWaPXYAqXLjcvKR6+GKTq354CQ7d7UFE/HG0xpug
+	uClcOA2z/oBVth9v6aDyzTYjo/pj7ViRNxCa/QXbVzMvoojPE9v3iBfE1LW3t75kPcGzXu
+	M4KsSmRLaiQQPOGQs45xw1N7gscbxZ0wdGbM0d4rTbBhYdhaAz/L/iMl1XbG6g==
+Date: Wed, 5 Aug 2026 00:20:12 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: Markus Probst <markus.probst@posteo.de>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
 	Andrew Lunn <andrew@lunn.ch>,
@@ -46,12 +45,10 @@ Cc: Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>,
 	Andrew Morton <akpm@linux-foundation.org>,
 	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/5] dt-bindings: rtc: Add pinctrl for S35390A
-Message-ID: <20260804221612c7cc21ac@mail.local>
+Subject: Re: [PATCH v2 4/5] rtc: s35390a: Add pinctrl
+Message-ID: <2026080422201232a44ff0@mail.local>
 References: <20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de>
- <20260801-rtc_s35390a_int1-v2-1-f10c99ad1d6c@posteo.de>
- <20260803-mottled-pretty-sloth-bf7dbd@quoll>
- <7af047ae0fae27e8bef3d8decdc97a21ee9bf520.camel@posteo.de>
+ <20260801-rtc_s35390a_int1-v2-4-f10c99ad1d6c@posteo.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -60,165 +57,607 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7af047ae0fae27e8bef3d8decdc97a21ee9bf520.camel@posteo.de>
+In-Reply-To: <20260801-rtc_s35390a_int1-v2-4-f10c99ad1d6c@posteo.de>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 03/08/2026 23:33:05+0000, Markus Probst wrote:
-> > Frequency needs -hz, but anyway if this is becoming a clock, then you
-> > must have clocks property and this is simply not needed... unless this
-> > is some periodical wakeup call, not a clock? Then simply -hz and
-> > property must be more descriptive (frequency of what? pulse?).
-> Yes, it would become a clock if configured. But in this case, the
-> "clocks" property seems to be a clock consumer property. It would be
-> providing the clock signal.
+On 01/08/2026 18:43:04+0000, Markus Probst wrote:
+> Allow configuration of other output modes than wake alarm, including:
+> - keeping the previous configured mode
+> - disabling output
+> - custom frequency
+> - minute periodical interrupt (1: 50% duty, 2: 7.81 ms)
+> - raw 32.768 kHz output
 > 
-> Anyway, it was added since it was only ~10 lines of code. Looking
-> through documentation, using the clock subsystem might be a bit more
-> driver work.
-> Since I don't have a specific use for it, I will drop it in the next
-> revision.
+> Allow use of interrupt signal 1.
 
-Usually, the clock is registered in the CCF so it is disabled
-automatically when not used.
-
-You can simply add #clock-cells in the bindings and leave out the
-implementation in the driver.
+There are a lot of checkpatch --strict warnings taht can be fixed. This
+patch also needs to be reviewed by the pinctrl maintainers.
 
 > 
-> Thanks
-> - Markus Probst
-> > 
-> > 
-> > > +            $ref: /schemas/types.yaml#/definitions/uint32
-> > > +            description: Frequency in Hz to be used with mode S35390A_MODE_FREQ.
-> > > +            minimum: 1
-> > > +            maximum: 31
-> > > +
-> > > +        required:
-> > > +          - sii,mode
-> > > +
-> > > +        if:
-> > > +          properties:
-> > > +            sii,mode:
-> > > +              const: 4
-> > > +        then:
-> > > +          required:
-> > > +            - sii,frequency
-> > > +        else:
-> > > +          properties:
-> > > +            sii,frequency: false
-> > > +
-> > > +        additionalProperties: false
-> > > +
-> > > +    additionalProperties: false
-> > > +
-> > > +unevaluatedProperties: false
-> > > +
-> > > +examples:
-> > > +  - |
-> > > +    #include <dt-bindings/rtc/s35390a.h>
-> > > +
-> > > +    i2c {
-> > > +        #address-cells = <1>;
-> > > +        #size-cells = <0>;
-> > > +
-> > > +        rtc: rtc@30 {
-> > 
-> > Drop unused label
-> > 
-> > > +            compatible = "sii,s35390a";
-> > > +            reg = <0x30>;
-> > > +            pinctrl-0 = <&rtc_pins_default>;
-> > > +            pinctrl-names = "default";
-> > > +
-> > > +            wakeup-parent = <&int>;
-> > > +
-> > > +            rtc_pins_default: pins {
-> > > +              int1-pins {
-> > > +                pins = S35390A_PIN_INT1;
-> > > +                sii,mode = <S35390A_MODE_WAKEUP>;
-> > > +              };
-> > > +              int2-pins {
-> > > +                pins = S35390A_PIN_INT2;
-> > > +                sii,mode = <S35390A_MODE_DISABLE>;
-> > > +              };
-> > > +            };
-> > > +        };
-> > > +    };
-> > > diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> > > index f4d0eed98a08..7b3f682ef4d5 100644
-> > > --- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> > > +++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> > > @@ -81,8 +81,6 @@ properties:
-> > >        - ricoh,rv5c386
-> > >        # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
-> > >        - ricoh,rv5c387a
-> > > -      # 2-wire CMOS real-time clock
-> > > -      - sii,s35390a
-> > >        # ST SPEAr Real-time Clock
-> > >        - st,spear600-rtc
-> > >        # VIA/Wondermedia VT8500 Real-time Clock
-> > > @@ -105,5 +103,4 @@ required:
-> > >    - reg
-> > >  
-> > >  additionalProperties: false
-> > > -
-> > >  ...
-> > > diff --git a/MAINTAINERS b/MAINTAINERS
-> > > index 716acfc3d7c1..c85be1eefdb1 100644
-> > > --- a/MAINTAINERS
-> > > +++ b/MAINTAINERS
-> > > @@ -22696,6 +22696,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
-> > >  F:	Documentation/admin-guide/rtc.rst
-> > >  F:	Documentation/devicetree/bindings/rtc/
-> > >  F:	drivers/rtc/
-> > > +F:	include/dt-bindings/rtc/
-> > >  F:	include/linux/rtc.h
-> > >  F:	include/linux/rtc/
-> > >  F:	include/uapi/linux/rtc.h
-> > > diff --git a/include/dt-bindings/rtc/s35390a.h b/include/dt-bindings/rtc/s35390a.h
-> > > new file mode 100644
-> > > index 000000000000..dcd0ca15f9e9
-> > > --- /dev/null
-> > > +++ b/include/dt-bindings/rtc/s35390a.h
-> > > @@ -0,0 +1,23 @@
-> > > +/* SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause) */
-> > > +
-> > > +#ifndef __DT_BINDINGS_RTC_S35390A_H
-> > > +#define __DT_BINDINGS_RTC_S35390A_H
-> > > +
-> > > +#define S35390A_MODE_IGNORE		0x0
-> > > +#define S35390A_MODE_DISABLE		0x1
-> > > +#define S35390A_MODE_WAKEUP		0x2
-> > > +#define S35390A_MODE_ALARM		0x3
-> > > +#define S35390A_MODE_FREQ		0x4
-> > > +#define S35390A_MODE_PMIN1		0x5
-> > > +#define S35390A_MODE_PMIN2		0x6
-> > > +#define S35390A_MODE_32768KHZ		0x7
-> > > +
-> > > +#define S35390A_MODE_INT1_MAX		0x7
-> > > +#define S35390A_MODE_INT2_MAX		0x5
-> > > +
-> > > +#define S35390A_FREQ_MASK		0x1F
-> > 
-> >  don't get why this grew. None of these look like bindings.
-> > 
-> > 
-> > > +
-> > > +#define S35390A_PIN_INT1		"int1"
-> > > +#define S35390A_PIN_INT2		"int2"
-> > 
-> > Drop entire header.
-> > 
-> > > +
-> > > +#endif /* __DT_BINDINGS_RTC_S35390A_H */
-> > > 
-> > > -- 
-> > > 2.54.0
-> > > 
+> Signed-off-by: Markus Probst <markus.probst@posteo.de>
+> ---
+>  drivers/rtc/Kconfig       |   3 +
+>  drivers/rtc/rtc-s35390a.c | 403 +++++++++++++++++++++++++++++++++++++++-------
+>  2 files changed, 349 insertions(+), 57 deletions(-)
 > 
-
-
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 01def8231873..054ff134d84e 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -668,7 +668,10 @@ config RTC_DRV_RC5T619
+>  
+>  config RTC_DRV_S35390A
+>  	tristate "Seiko Instruments S-35390A"
+> +	depends on OF
+> +	depends on PINCTRL
+>  	select BITREVERSE
+> +	select GENERIC_PINCONF
+>  	help
+>  	  If you say yes here you will get support for the Seiko
+>  	  Instruments S-35390A.
+> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+> index fbf5471eb3d0..fc0dbce0e8f4 100644
+> --- a/drivers/rtc/rtc-s35390a.c
+> +++ b/drivers/rtc/rtc-s35390a.c
+> @@ -12,11 +12,18 @@
+>  #include <linux/bcd.h>
+>  #include <linux/slab.h>
+>  #include <linux/delay.h>
+> +#include <linux/pinctrl/pinctrl.h>
+> +#include <linux/pinctrl/pinconf.h>
+> +#include <linux/pinctrl/pinconf-generic.h>
+> +#include <dt-bindings/rtc/s35390a.h>
+> +
+> +#define DRIVER_NAME "rtc-s35390a"
+>  
+>  #define S35390A_CMD_STATUS1	0
+>  #define S35390A_CMD_STATUS2	1
+>  #define S35390A_CMD_TIME1	2
+>  #define S35390A_CMD_TIME2	3
+> +#define S35390A_CMD_INT1_REG1	4
+>  #define S35390A_CMD_INT2_REG1	5
+>  #define S35390A_CMD_FREE_REG    7
+>  
+> @@ -36,19 +43,31 @@
+>  #define S35390A_FLAG_POC	BIT(0)
+>  #define S35390A_FLAG_BLD	BIT(1)
+>  #define S35390A_FLAG_INT2	BIT(2)
+> +#define S35390A_FLAG_INT1	BIT(3)
+>  #define S35390A_FLAG_24H	BIT(6)
+>  #define S35390A_FLAG_RESET	BIT(7)
+>  
+>  /* flag for STATUS2 */
+>  #define S35390A_FLAG_TEST	BIT(0)
+>  
+> +
+> +#define S35390A_INT_MODE_NOINTR	0x00
+> +
+>  /* INT2 pin output mode */
+>  #define S35390A_INT2_MODE_MASK		0x0E
+> -#define S35390A_INT2_MODE_NOINTR	0x00
+>  #define S35390A_INT2_MODE_ALARM		BIT(1) /* INT2AE */
+>  #define S35390A_INT2_MODE_PMIN_EDG	BIT(2) /* INT2ME */
+>  #define S35390A_INT2_MODE_FREQ		BIT(3) /* INT2FE */
+> -#define S35390A_INT2_MODE_PMIN		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
+> +#define S35390A_INT2_MODE_PMIN1		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
+> +
+> +/* INT1 pin output mode */
+> +#define S35390A_INT1_MODE_MASK		0xF0
+> +#define S35390A_INT1_MODE_ALARM		BIT(5) /* INT1AE */
+> +#define S35390A_INT1_MODE_PMIN_EDG	BIT(6) /* INT1ME */
+> +#define S35390A_INT1_MODE_FREQ		BIT(7) /* INT1FE */
+> +#define S35390A_INT1_MODE_PMIN1		(BIT(7) | BIT(6)) /* INT1FE | INT1ME */
+> +#define S35390A_INT1_MODE_PMIN2		(BIT(7) | BIT(6) | BIT(5)) /* INT1FE | INT1ME | INT1AE */
+> +#define S35390A_INT1_MODE_32768KHZ	BIT(4) /* 32kE */
+>  
+>  static const struct i2c_device_id s35390a_id[] = {
+>  	{ .name = "s35390a" },
+> @@ -64,8 +83,15 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
+>  
+>  struct s35390a {
+>  	struct i2c_client *client[8];
+> -	struct rtc_time tm_alarm;
+> +	struct rtc_device *rtc;
+> +	struct pinctrl_dev *pinctrl;
+> +	struct rtc_wkalrm alarm;
+>  	int twentyfourhour;
+> +
+> +	struct mutex mode_lock;
+> +	bool mode_init;
+> +	int mode[2];
+> +	u8 freq[2];
+>  };
+>  
+>  static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf, int len)
+> @@ -283,33 +309,33 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
+>  		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
+>  
+> -	/* disable interrupt (which deasserts the irq line) */
+> -	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+> -	if (err < 0)
+> -		return err;
+> +	guard(mutex)(&s35390a->mode_lock);
+>  
+> -	/* clear pending interrupt (in STATUS1 only), if any */
+> -	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &sts, sizeof(sts));
+> +	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+>  	if (err < 0)
+>  		return err;
+>  
+> -	if (alm->enabled)
+> -		sts = S35390A_INT2_MODE_ALARM;
+> -	else
+> -		sts = S35390A_INT2_MODE_NOINTR;
+> +	/* disable interrupt (which deasserts the irq line) */
+> +	if (s35390a->mode[0] == S35390A_MODE_WAKEUP)
+> +		sts = (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT_MODE_NOINTR;
+> +
+> +	if (s35390a->mode[1] == S35390A_MODE_WAKEUP)
+> +		sts = (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT_MODE_NOINTR;
+>  
+> -	/* set interrupt mode*/
+>  	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+>  	if (err < 0)
+>  		return err;
+>  
+> +	if (!alm->enabled)
+> +		goto end;
+> +
+>  	if (alm->time.tm_wday != -1)
+>  		buf[S35390A_ALRM_BYTE_WDAY] = bin2bcd(alm->time.tm_wday) | 0x80;
+>  	else
+>  		buf[S35390A_ALRM_BYTE_WDAY] = 0;
+>  
+>  	buf[S35390A_ALRM_BYTE_HOURS] = s35390a_hr2reg(s35390a,
+> -			alm->time.tm_hour) | 0x80;
+> +						      alm->time.tm_hour) | 0x80;
+>  	buf[S35390A_ALRM_BYTE_MINS] = bin2bcd(alm->time.tm_min) | 0x80;
+>  
+>  	if (alm->time.tm_hour >= 12)
+> @@ -318,13 +344,33 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  	for (i = 0; i < 3; ++i)
+>  		buf[i] = bitrev8(buf[i]);
+>  
+> -	err = s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf,
+> -								sizeof(buf));
+> +	/* set interrupt mode */
+> +	if (s35390a->mode[0] == S35390A_MODE_WAKEUP)
+> +		sts = (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT1_MODE_ALARM;
+> +
+> +	if (s35390a->mode[1] == S35390A_MODE_WAKEUP)
+> +		sts = (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT2_MODE_ALARM;
+> +
+> +	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+> +	if (err < 0)
+> +		return err;
+> +
+> +	if (s35390a->mode[0] == S35390A_MODE_WAKEUP) {
+> +		err = s35390a_set_reg(s35390a, S35390A_CMD_INT1_REG1, buf, sizeof(buf));
+> +		if (err)
+> +			return err;
+> +	}
+> +
+> +	if (s35390a->mode[1] == S35390A_MODE_WAKEUP) {
+> +		err = s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf));
+> +		if (err)
+> +			return err;
+> +	}
+>  
+> -	if (!err)
+> -		s35390a->tm_alarm = alm->time;
+> +end:
+> +	s35390a->alarm = *alm;
+>  
+> -	return err;
+> +	return 0;
+>  }
+>  
+>  static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+> @@ -332,24 +378,35 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	struct s35390a *s35390a = i2c_get_clientdata(client);
+>  	u8 buf[3], sts;
+> -	int i, err;
+> +	int i, err, reg;
+> +
+> +	guard(mutex)(&s35390a->mode_lock);
+>  
+>  	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
+>  	if (err < 0)
+>  		return err;
+>  
+> -	if ((sts & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
+> +	if (s35390a->mode[1] == S35390A_MODE_WAKEUP
+> +		&& (sts & S35390A_INT2_MODE_MASK) == S35390A_INT2_MODE_ALARM) {
+> +
+> +		reg = S35390A_CMD_INT2_REG1;
+> +	} else if (s35390a->mode[0] == S35390A_MODE_WAKEUP
+> +		&& (sts & S35390A_INT1_MODE_MASK) == S35390A_INT1_MODE_ALARM) {
+> +
+> +		reg = S35390A_CMD_INT1_REG1;
+> +	} else {
+>  		/*
+>  		 * When the alarm isn't enabled, the register to configure
+>  		 * the alarm time isn't accessible.
+>  		 */
+>  		alm->enabled = 0;
+> +		alm->time = s35390a->alarm.time;
+>  		return 0;
+> -	} else {
+> -		alm->enabled = 1;
+>  	}
+>  
+> -	err = s35390a_get_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf));
+> +	alm->enabled = 1;
+> +
+> +	err = s35390a_get_reg(s35390a, reg, buf, sizeof(buf));
+>  	if (err < 0)
+>  		return err;
+>  
+> @@ -358,7 +415,7 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+>  		buf[i] = bitrev8(buf[i]);
+>  
+>  	/*
+> -	 * B0 of the three matching registers is an enable flag. Iff it is set
+> +	 * B0 of the three matching registers is an enable flag. If it is set
+>  	 * the configured value is used for matching.
+>  	 */
+>  	if (buf[S35390A_ALRM_BYTE_WDAY] & 0x80)
+> @@ -388,10 +445,10 @@ static int s35390a_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled
+>  	struct s35390a *s35390a = dev_get_drvdata(dev);
+>  	struct rtc_wkalrm alm;
+>  
+> -	alm.enabled = enabled;
+> -
+>  	if (enabled)
+> -		alm.time = s35390a->tm_alarm;
+> +		alm = s35390a->alarm;
+> +
+> +	alm.enabled = enabled;
+>  
+>  	return s35390a_rtc_set_alarm(dev, &alm);
+>  }
+> @@ -452,13 +509,241 @@ static int s35390a_nvmem_write(void *priv, unsigned int offset, void *val,
+>  	return s35390a_set_reg(s35390a, S35390A_CMD_FREE_REG, val, bytes);
+>  }
+>  
+> +static int s35390a_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
+> +{
+> +	return 0;
+> +}
+> +
+> +static const char *s35390a_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
+> +						  unsigned int group)
+> +{
+> +	return NULL;
+> +}
+> +
+> +static const struct pinctrl_pin_desc s35390a_pins_desc[] = {
+> +	PINCTRL_PIN(0, "int1"),
+> +	PINCTRL_PIN(1, "int2"),
+> +};
+> +
+> +static const struct pinctrl_ops s35390a_pinctrl_ops = {
+> +	.get_groups_count = s35390a_pinctrl_get_groups_count,
+> +	.get_group_name = s35390a_pinctrl_get_group_name,
+> +	.dt_node_to_map = pinconf_generic_dt_node_to_map_pin,
+> +	.dt_free_map = pinconf_generic_dt_free_map,
+> +};
+> +
+> +#define PIN_CONFIG_MODE		(PIN_CONFIG_END + 1)
+> +#define PIN_CONFIG_FREQ		(PIN_CONFIG_END + 2)
+> +
+> +static const struct pinconf_generic_params s35390a_pinconf_params[] = {
+> +	{"sii,mode", PIN_CONFIG_MODE},
+> +	{"sii,frequency", PIN_CONFIG_FREQ},
+> +};
+> +
+> +static int s35390a_set_freq(struct s35390a *s35390a, int pin, int freq)
+> +{
+> +	int err, reg;
+> +	u8 buf;
+> +
+> +	reg = pin == 0 ? S35390A_CMD_INT1_REG1 : S35390A_CMD_INT2_REG1;
+> +
+> +	buf = bitrev8(freq);
+> +
+> +	err = s35390a_set_reg(s35390a, reg, &buf, 1);
+> +	if (err < 0)
+> +		return err;
+> +	return 0;
+> +}
+> +
+> +static int s35390a_update_mode(struct s35390a *s35390a, int pin, int mode, int freq)
+> +{
+> +	int err;
+> +	u8 buf, status1, flag, mask;
+> +	bool update_irq = false;
+> +
+> +	mask = pin == 0 ? S35390A_INT1_MODE_MASK : S35390A_INT2_MODE_MASK;
+> +
+> +	s35390a->mode_init = true;
+> +
+> +	guard(mutex)(&s35390a->mode_lock);
+> +
+> +	dev_dbg(&s35390a->client[0]->dev, "%s: pin=%d mode=%d\n",
+> +			__func__, pin, mode);
+> +
+> +	if (mode == S35390A_MODE_FREQ) {
+> +		if (freq & ~S35390A_FREQ_MASK) {
+> +			dev_err(&s35390a->client[0]->dev, "Unsupported frequency %u\n", freq);
+> +			return -EINVAL;
+> +		}
+> +	} else
+> +		freq = 0;
+> +
+> +	if (mode == s35390a->mode[pin] && freq == s35390a->freq[pin])
+> +		return 0;
+> +
+> +	s35390a->mode[pin] = mode;
+> +	s35390a->freq[pin] = freq;
+> +
+> +	if (mode == S35390A_MODE_IGNORE)
+> +		return 0;
+> +
+> +	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+> +	if (err < 0) {
+> +		dev_err(&s35390a->client[0]->dev, "error reading status\n");
+> +		return err;
+> +	}
+> +
+> +	switch (mode) {
+> +	case S35390A_MODE_DISABLE:
+> +	case S35390A_MODE_ALARM: /* not implemented */
+> +		buf = (buf & ~mask) | S35390A_INT_MODE_NOINTR;
+> +		break;
+> +	case S35390A_MODE_WAKEUP:
+> +		flag = pin == 0 ? S35390A_INT1_MODE_ALARM : S35390A_INT2_MODE_ALARM;
+> +		if ((buf & mask) != flag) {
+> +			buf = (buf & ~mask) | S35390A_INT_MODE_NOINTR;
+> +			break;
+> +		}
+> +
+> +		err = s35390a_read_status(s35390a, &status1);
+> +		if (err < 0) {
+> +			dev_err(&s35390a->client[0]->dev, "error reading status\n");
+> +			return err;
+> +		}
+> +
+> +		flag = pin == 0 ? S35390A_FLAG_INT1 : S35390A_FLAG_INT2;
+> +
+> +		/* disable alarm */
+> +		if (status1 & flag) {
+> +			buf = (buf & ~mask) | S35390A_INT_MODE_NOINTR;
+> +			update_irq = true;
+> +		}
+> +
+> +		break;
+> +	case S35390A_MODE_FREQ:
+> +		flag = pin == 0 ? S35390A_INT1_MODE_FREQ : S35390A_INT2_MODE_FREQ;
+> +		buf = (buf & ~mask) | flag;
+> +		break;
+> +	case S35390A_MODE_PMIN1:
+> +		flag = pin == 0 ? S35390A_INT1_MODE_PMIN1 : S35390A_INT2_MODE_PMIN1;
+> +		buf = (buf & ~mask) | flag;
+> +		break;
+> +
+> +	/* INT1 only modes */
+> +	case S35390A_MODE_PMIN2:
+> +		buf = (buf & ~mask) | S35390A_INT1_MODE_PMIN2;
+> +		break;
+> +	case S35390A_MODE_32768KHZ:
+> +		buf = (buf & ~mask) | S35390A_INT1_MODE_32768KHZ;
+> +		break;
+> +	}
+> +
+> +	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+> +	if (err < 0) {
+> +		dev_err(&s35390a->client[0]->dev, "error setting interrupts\n");
+> +		return err;
+> +	}
+> +
+> +	if (freq) {
+> +		err = s35390a_set_freq(s35390a, pin, freq);
+> +		if (err < 0) {
+> +			dev_err(&s35390a->client[0]->dev, "error setting frequency\n");
+> +			return err;
+> +		}
+> +	}
+> +
+> +	if (update_irq)
+> +		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
+> +
+> +	return 0;
+> +}
+> +
+> +static int s35390a_pinconf_get(struct pinctrl_dev *pctldev,
+> +			       unsigned int pin, unsigned long *config)
+> +{
+> +	struct s35390a *s35390a = pinctrl_dev_get_drvdata(pctldev);
+> +	unsigned int param = pinconf_to_config_param(*config);
+> +	u16 arg;
+> +
+> +	switch (param) {
+> +	case PIN_CONFIG_MODE:
+> +		arg = s35390a->mode[pin];
+> +		break;
+> +	case PIN_CONFIG_FREQ:
+> +		arg = s35390a->freq[pin];
+> +		break;
+> +	default:
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+> +	*config = pinconf_to_config_packed(param, arg);
+> +
+> +	return 0;
+> +}
+> +
+> +static int s35390a_pinconf_set(struct pinctrl_dev *pctldev,
+> +			       unsigned int pin, unsigned long *configs,
+> +			       unsigned int num_configs)
+> +{
+> +	struct s35390a *s35390a = pinctrl_dev_get_drvdata(pctldev);
+> +	unsigned int param;
+> +	u32 param_val;
+> +	int i, mode, freq = 0;
+> +
+> +	mode = pin == 0 ? S35390A_MODE_IGNORE : S35390A_MODE_WAKEUP;
+> +
+> +	for (i = 0; i < num_configs; i++) {
+> +		param = pinconf_to_config_param(configs[0]);
+> +		param_val = pinconf_to_config_argument(configs[0]);
+> +
+> +		switch (param) {
+> +		case PIN_CONFIG_MODE:
+> +			if (param_val <= (pin == 0 ? S35390A_MODE_INT1_MAX : S35390A_MODE_INT2_MAX))
+> +				mode = param_val;
+> +			else {
+> +				dev_err(&s35390a->client[0]->dev, "Unsupported pin mode %u\n",
+> +					param_val);
+> +				return -EINVAL;
+> +			}
+> +			break;
+> +		case PIN_CONFIG_FREQ:
+> +			freq = param_val;
+> +			break;
+> +		default:
+> +			dev_err(&s35390a->client[0]->dev, "Property %u not supported\n",
+> +				param);
+> +			return -EOPNOTSUPP;
+> +		}
+> +	}
+> +
+> +	return s35390a_update_mode(s35390a, pin, mode, freq);
+> +}
+> +
+> +
+> +static const struct pinconf_ops s35390a_pinconf_ops = {
+> +	.is_generic = true,
+> +	.pin_config_get = s35390a_pinconf_get,
+> +	.pin_config_set = s35390a_pinconf_set,
+> +};
+> +
+> +static struct pinctrl_desc s35390a_pinctrl_desc = {
+> +	.name = DRIVER_NAME,
+> +	.pins = s35390a_pins_desc,
+> +	.npins = ARRAY_SIZE(s35390a_pins_desc),
+> +	.pctlops = &s35390a_pinctrl_ops,
+> +	.confops = &s35390a_pinconf_ops,
+> +	.custom_params = s35390a_pinconf_params,
+> +	.num_custom_params = ARRAY_SIZE(s35390a_pinconf_params),
+> +	.owner = THIS_MODULE,
+> +};
+> +
+>  static int s35390a_probe(struct i2c_client *client)
+>  {
+>  	int err, err_read;
+>  	unsigned int i;
+>  	struct s35390a *s35390a;
+>  	struct rtc_device *rtc;
+> -	u8 buf, status1;
+> +	u8 status1;
+>  	struct device *dev = &client->dev;
+>  	struct nvmem_config nvmem_cfg = {
+>  		.name = "s35390a_nvram",
+> @@ -477,7 +762,10 @@ static int s35390a_probe(struct i2c_client *client)
+>  	if (!s35390a)
+>  		return -ENOMEM;
+>  
+> +	mutex_init(&s35390a->mode_lock);
+> +
+>  	s35390a->client[0] = client;
+> +
+>  	i2c_set_clientdata(client, s35390a);
+>  
+>  	/* This chip uses multiple addresses, use dummy devices for them */
+> @@ -492,10 +780,37 @@ static int s35390a_probe(struct i2c_client *client)
+>  		}
+>  	}
+>  
+> +	err = s35390a_disable_test_mode(s35390a);
+> +	if (err < 0) {
+> +		dev_err(dev, "error disabling test mode\n");
+> +		return err;
+> +	}
+> +
+>  	rtc = devm_rtc_allocate_device(dev);
+>  	if (IS_ERR(rtc))
+>  		return PTR_ERR(rtc);
+>  
+> +	rtc->ops = &s35390a_rtc_ops;
+> +	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> +	rtc->range_max = RTC_TIMESTAMP_END_2099;
+> +
+> +	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->features);
+> +	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
+> +
+> +	s35390a->rtc = rtc;
+> +
+> +	err = devm_pinctrl_register_and_init(dev, &s35390a_pinctrl_desc, s35390a,
+> +					     &s35390a->pinctrl);
+> +	if (err)
+> +		return err;
+> +
+> +	/* If no pinctrl config is defined in DT, fallback to previous behaviour */
+> +	if (!s35390a->mode_init) {
+> +		err = s35390a_update_mode(s35390a, 1, S35390A_MODE_WAKEUP, 0);
+> +		if (err)
+> +			return err;
+> +	}
+> +
+>  	err_read = s35390a_read_status(s35390a, &status1);
+>  	if (err_read < 0) {
+>  		dev_err(dev, "error resetting chip\n");
+> @@ -507,34 +822,8 @@ static int s35390a_probe(struct i2c_client *client)
+>  	else
+>  		s35390a->twentyfourhour = 0;
+>  
+> -	if (status1 & S35390A_FLAG_INT2) {
+> -		/* disable alarm (and maybe test mode) */
+> -		buf = 0;
+> -		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+> -		if (err < 0) {
+> -			dev_err(dev, "error disabling alarm\n");
+> -			return err;
+> -		}
+> -	} else {
+> -		err = s35390a_disable_test_mode(s35390a);
+> -		if (err < 0) {
+> -			dev_err(dev, "error disabling test mode\n");
+> -			return err;
+> -		}
+> -	}
+> -
+>  	device_set_wakeup_capable(dev, 1);
+>  
+> -	rtc->ops = &s35390a_rtc_ops;
+> -	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+> -	rtc->range_max = RTC_TIMESTAMP_END_2099;
+> -
+> -	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->features);
+> -	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
+> -
+> -	if (status1 & S35390A_FLAG_INT2)
+> -		rtc_update_irq(rtc, 1, RTC_AF);
+> -
+>  	nvmem_cfg.priv = s35390a;
+>  	err = devm_rtc_nvmem_register(rtc, &nvmem_cfg);
+>  	if (err)
+> @@ -545,7 +834,7 @@ static int s35390a_probe(struct i2c_client *client)
+>  
+>  static struct i2c_driver s35390a_driver = {
+>  	.driver		= {
+> -		.name	= "rtc-s35390a",
+> +		.name	= DRIVER_NAME,
+>  		.of_match_table = of_match_ptr(s35390a_of_match),
+>  	},
+>  	.probe		= s35390a_probe,
+> 
+> -- 
+> 2.54.0
+> 
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
