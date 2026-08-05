@@ -1,171 +1,285 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013042.outbound.protection.outlook.com [40.107.162.42])
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B833603F6;
-	Wed,  5 Aug 2026 07:58:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785916721; cv=fail; b=osonrm2tVSss/yygyQt1Xggak7/CZmF78ncTD1VDO8VJgJgYMvJbREME3Z5OObz8KEME0sYLuTCK4pES7qP5BEvnX9/fT4V9OxjZyUXpgBtdqmmwsBb4R45cvIGkFZMi1N74ytPz8WZgX9DbPdjLo89nTw54xOY+GvI6GmCmSdo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785916721; c=relaxed/simple;
-	bh=5EQPN3y4yBOvP2KI0nVequKfuxjJGydQJR30veaVpdw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=kehuwyGwLRLm4pBdOqXr+gVwUoCZ2AHxY/zmMJWjbdvUC2AID8Okg4hTCVxsUAj7tnXzdCrw+l+iDNZF9qFOc9hheWSVZvKLSv9krb6pDK0xAycs6Sq3d8LTtCues4arr5K9H3aNEt+LxQmuMpqfCXJFuz79E1EzT9KIcGPlBvc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=NxTGkVC2; arc=fail smtp.client-ip=40.107.162.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 617B93CC7CE
+	for <linux-rtc@vger.kernel.org>; Wed,  5 Aug 2026 19:32:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785958351; cv=none; b=KwsfuMLS51v4OM8kNu2hxvDfREtwSg7DAL4nrzbrzfAbcOLlhN3/QUBE51fXJQfup/7ngVc0ou8cEJDSyDvdtW5oOO4zlf65rRXrjAvM8ON1ciOgu2vWtKQIQV/1c7UOvzB27YY7QteljnvhQwy9mCyBuwInyrSPCcJCZH6dAdw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785958351; c=relaxed/simple;
+	bh=ipSRT20Aft1lwNt8pGJiWIzMDKcRjF8APfy0A6t7JtE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=RvvY6ayoYX9J/DksfnK5oyAiLm5x935/LNu/lLmZ6b/6+F4vuSkM3f2PklYiOLDWdIPXHkQw0Z+Nczme+Cv950DR8UwhN3h5XmWD0mIqybc2vsdT0t9iGse+tLLNTyGQsRhHzcbYdDsjxbgCvh83C+lf67Wgq0qm1TXencgMLKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=ZpI2V5KA; arc=none smtp.client-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="NxTGkVC2"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KzSTlkjE7BQxlBMrtuS1hcH2TTKXaQ2OagC0JQwU3hiLJYxjeoO9cgQPPMn4lDAdyztvFv909dbNflFYEFosR+vCwN4y301a/pT9UF9Wg2GGl0pqCkv+GixNvr3hml8vY70b4LGQkfiF05tgLKKcU+cQDpzyzjIj4riTB/NDnvXhNUen+voYQ23QzeyoIw37CAwG7Wqck5Vo4bymobeCXpRB5VKqkpcgzERQTNpjvg/C0S39YAnaTS76/vMUq32i9HqQMg86HbuVrhnwrR/1ybkmU1/4eY0tXJviTel6u4w4mXgWaxD8ikT/sm8kjnhHm4aX79MKqRAJrpaRnxMmZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SOyil/NGwg0VaSdflx14NVa9rgx+efKsRRVNMmH6kEY=;
- b=NUyZGqSDOgo1gHTREadjJ5mWNY4OUVnZLf6vdenEnPHCSJg+eB/9XuVCoohBWsenE+Oo2Wp36xXktw8Kla+fIq2IgMEq4IRlK8aO1d9Z62iQtxnLDU/1YAr4KHDM4Cd10RUE3eUxhqV4UTkhKLuc7biQor7SYkWepDAI9opG7NHJuqkW4ay43wHT2h0qu9yuRN4viON4c6KrhhEpb4vrYmnrh3TY0sFRIMyTgiOdAFqJT+JVfuF/1f5t5L9DO1QRhQb2l65yC4Z/Er1eZnmKDyLkubHs6LQ7R0ldRy5B5bDYC6NJvo1tMwUpm/RV0mGK1B/Pb/Xb65l+nZXfNTxeZw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 164.130.1.59) smtp.rcpttodomain=gmail.com smtp.mailfrom=foss.st.com;
- dmarc=fail (p=none sp=none pct=100) action=none header.from=foss.st.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SOyil/NGwg0VaSdflx14NVa9rgx+efKsRRVNMmH6kEY=;
- b=NxTGkVC2SBUyE/gMzqgu00Mcx0aAljaa8ZpXHNx81yM/hepzj/+OOyd7x4yYSo+dP+MeFqmzJISwLqMpmO6kpSij+9B6MQCcxLk5iNOcWy/l054Rx0zOwyWWrYgjrnjLSPtaa27LNDtpqsv6TWWD02rjFHx3ayRQf6DqTdCA4OasZZnfFeD4HakDkhff5rCcaTUrj1GrZa5T1Jfeaa8dLNKc6pXfpnWPxZKn+BOEcT1SHuU5ul/Piz0bz+X189KpZw/cVwq8wzL6BlUNfba1NC+m3s7rOonidQqKHF1JiyshogT/LpIuuVPW+U0x/4W1CjF4H6FxwH6Dd3c4iWjYqg==
-Received: from AS9PR06CA0294.eurprd06.prod.outlook.com (2603:10a6:20b:45a::22)
- by PR3PR10MB3914.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:102:43::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.15; Wed, 5 Aug
- 2026 07:58:35 +0000
-Received: from AMS0EPF00000198.eurprd05.prod.outlook.com
- (2603:10a6:20b:45a:cafe::91) by AS9PR06CA0294.outlook.office365.com
- (2603:10a6:20b:45a::22) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.20 via Frontend Transport; Wed, 5
- Aug 2026 07:58:35 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 164.130.1.59)
- smtp.mailfrom=foss.st.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=none header.from=foss.st.com;
-Received-SPF: Fail (protection.outlook.com: domain of foss.st.com does not
- designate 164.130.1.59 as permitted sender) receiver=protection.outlook.com;
- client-ip=164.130.1.59; helo=smtpO365.st.com;
-Received: from smtpO365.st.com (164.130.1.59) by
- AMS0EPF00000198.mail.protection.outlook.com (10.167.16.244) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.292.8 via Frontend Transport; Wed, 5 Aug 2026 07:58:35 +0000
-Received: from STKDAG1NODE1.st.com (10.75.128.132) by smtpo365.st.com
- (10.250.44.71) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Wed, 5 Aug
- 2026 10:04:00 +0200
-Received: from [10.48.87.93] (10.48.87.93) by STKDAG1NODE1.st.com
- (10.75.128.132) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Wed, 5 Aug
- 2026 09:58:34 +0200
-Message-ID: <493ce8b0-0d4f-474f-9194-d16299ee2296@foss.st.com>
-Date: Wed, 5 Aug 2026 09:58:33 +0200
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="ZpI2V5KA"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id D033B240108
+	for <linux-rtc@vger.kernel.org>; Wed,  5 Aug 2026 21:32:27 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1785958347;
+	bh=uv9tpj0u3TV1pFJXvO27WgfoME45rFUWLiaBnkzAOVg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:To:Cc:Autocrypt:OpenPGP:From;
+	b=ZpI2V5KANcZ98l00rTt/YRVt0pPbruhiTu4goB7664UwFp9VaXu63feYbVRHTtqsk
+	 m5aRKA000WeL9pesKSqaXshuHi/KpVBauMhEvMsb824m0+UufbBnOYStBO8h5Ud0i+
+	 h/bg1fXl08/r15AmtLF8WjvSmi/Mm0pjrckQ6DwGB7kWeE26lZZPjkf7BfubifX6MI
+	 OOexGP3zZVtfQqPyDuhxhOrV1eSRb4NtnXQRfgmAA2Y2omBe3C8U9e4li0pw/g+cJs
+	 R+GDBpP2V7GNw+WVVE/XkM+a/N6D4GvvKyF+uJ6yElGr19txsS/8X8PekVTb3WJqu2
+	 uZtlPKQmHiWoA==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4hFgXn6D8cz6tsf;
+	Wed,  5 Aug 2026 21:32:25 +0200 (CEST)
+From: Markus Probst <markus.probst@posteo.de>
+Date: Wed, 05 Aug 2026 19:32:27 +0000
+Subject: [PATCH v3 1/5] dt-bindings: rtc: Add pinctrl for S35390A
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] rtc: st-lpc: get IRQ via platform_get_irq()
-To: Rosen Penev <rosenp@gmail.com>, <linux-rtc@vger.kernel.org>
-CC: Alexandre Belloni <alexandre.belloni@bootlin.com>, Nathan Chancellor
-	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, "Bill
- Wendling" <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
-	"moderated list:ARM/STI ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
-	open list <linux-kernel@vger.kernel.org>, "open list:CLANG/LLVM BUILD
- SUPPORT:Keyword:b(?i:clang|llvm)b" <llvm@lists.linux.dev>
-References: <20260714002259.1392655-1-rosenp@gmail.com>
-Content-Language: en-US
-From: Patrice CHOTARD <patrice.chotard@foss.st.com>
-In-Reply-To: <20260714002259.1392655-1-rosenp@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ENXCAS1NODE2.st.com (10.75.128.138) To STKDAG1NODE1.st.com
- (10.75.128.132)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AMS0EPF00000198:EE_|PR3PR10MB3914:EE_
-X-MS-Office365-Filtering-Correlation-Id: 514cb983-0744-4647-9795-08def2c759e2
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|23010399003|376014|7416014|82310400026|1800799024|10067099003|56012099006|18002099003|22082099003|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	yACAWsGaAs5m4VCQxeHigXrIZbp89fNaU9ULnhxW+zOZRsKJNpN5N+ZsQBS0tWwbSci3fqGEBlbJfAQj22CbJ94b5oIdbCs4wXnTyddyh3JTJ5GBKzAu9qChVc6L5HqtLSpeFRg1WVpi5znooEWbmJIk7ruI+2x0ja4T8Tq0j1d6KTpb54f/npqh72pybigu7jJEDwtdz2UdsrPCeuun56fe3+f+XJ/xIDoRGxRky6qtMKg6I8dT+ey9cd7owcHQlJbc+/7juyIiWwTJjqrfRvGZbe82TE2QPrBaqZ1PjXiSYZ9oW/wnCXys0Zw8p8GqYCLC4yRJKM/sVbZaKkfh+ZHk2uDY3FkYhayylnVmH/wFw1OVNKlIpBxJ9lhOEh0nuRw6swXk36Mk7/2R0KIptVgwzV27bAk/zzS3BSYfEv/wGj/rIPfI6oQnrTP/bYfgLgM72t6aeism6TZO5VPrHFwecUPMIDR2qGH5W05enrvzqKFFg8dhhTmk19pGO/ixsLsaQBSlIvVtU+1GiIC9apepRv85ellS26yB7g18gfVD87P4m+/MKuhmFjZAhp2qRNswUvVntb5YLdlG2QzytEFfOTG6mexQt5fSvXNcdjtaShAGPBg0r27a24NBrffI4ojhMegEjYz852D2u/QM1k2ovlzY2Kc31BB6H9HWO7m7vQW/lK8z0gTxAzP1pSLwQJvcJC0cYPfGmKpQipsYiw==
-X-Forefront-Antispam-Report:
-	CIP:164.130.1.59;CTRY:IT;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpO365.st.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(376014)(7416014)(82310400026)(1800799024)(10067099003)(56012099006)(18002099003)(22082099003)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	89oXGZYSMIEtBDbCZZEVlPRuYLlT3GvVGngOEJEWKXh7DEN141MaeL++2opKJXnd2IQYIcqNlVdLmbsATFE6U25UBuJAiFouA3eTSZT7JzcLuZxYjVdDumwRGTs1SstTOyYILXHRrUoywFaLP2wxaRsZb1COkOrINA8mBcjoDqypMdkT5c43gkJ0kdFPVhRmT/RlV/I0b28jBobNmL42TfK0DzRC+/sHR/kpIkoLlWc8HLlt0lLwV4qIfTJp4/REwfGOdbyIe9Wz4ddqS320jOhPN5SkIgHsaNtTvngX00SURY4jDBHC5IBK/rkpekkeI290HXsXh8PZnK+kTblSt9jCwm962E/zaSZLYt4mQhUMIqx5U8qtS2J+XGIOF6Ddpy3KCSIrXRdxiL7qr/lsOq/4uifvF4+8+fvdT13cW/xLXZALbn3SBf5l5JaO8m6h
-X-OriginatorOrg: foss.st.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 07:58:35.2803
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 514cb983-0744-4647-9795-08def2c759e2
-X-MS-Exchange-CrossTenant-Id: 75e027c9-20d5-47d5-b82f-77d7cd041e8f
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=75e027c9-20d5-47d5-b82f-77d7cd041e8f;Ip=[164.130.1.59];Helo=[smtpO365.st.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	AMS0EPF00000198.eurprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR10MB3914
+Message-Id: <20260805-rtc_s35390a_int1-v3-1-e836faba3e25@posteo.de>
+References: <20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de>
+In-Reply-To: <20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, 
+ Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+ Michael Langer <michael.brainbug.langer@googlemail.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Linus Walleij <linusw@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4709;
+ i=markus.probst@posteo.de; h=from:subject:message-id;
+ bh=ipSRT20Aft1lwNt8pGJiWIzMDKcRjF8APfy0A6t7JtE=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqc4/GvRHM9pIroPXsxpkEUdnzHAaOYRPl4VqRN
+ wrJ3dUFkfSJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCanOPxhsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9L3Mw/+OeXDQ+lfWx7YJjH8kh3pj4JnXJDeX6f
+ IC5mPjJ2TuhMdSZBeimNV/IOf0IdR47D76gkxJHG83uo0HBuXxijHMQW459jUE52nv0vkJefL6b
+ QMSMChjK4cj0EMppNUEKf3aOY+UENAVeZDUEv9n4k3OjRCQ+e3vMPQV+Lj5Dy10Cwz9cAXePEfx
+ ihaIVgNDF1ZnAFjfS9FI43a5EJYL5pdoxUDXERYbUkoRsTsFj2DHfq2jDpDJerKxQI45cg9+zUX
+ QvaK1pd5PH+TSkwPq+AIKhKqu0tX0S4poS43VSZWcZp1wntXzkOW3sCcKWIoctX/OAa1z33x0Bn
+ NLkGaK0VSVfBJcaqXZxMaBXkxu9drtELVZf26PH/5eJqUrOpuOj3MSCzsKcG4LkkcToHaXX9oPc
+ ASW6Gz494Jd9ddr5o7NnHfc5dBGK2lFQAsX5oMars99aemPkDu2eXSR9AP9/LKjcCLJHLFc+E0L
+ 9/Qp6X3wPWb1o8sPkYyqPOYGDs1RCXk5kx+wjYIYo2VVsELqq2lO0NtkrZELqclWJ71m9wJytyv
+ BMHCdLlGceMrRcWTsnNET21jKcqGKz6PTMGPdTn8Y8zpVx2Ej9m3s+7dsHan1vzSlRW8wEPxWSK
+ IYAqVpEMx3tveN054wFUEdXJNfrGnkFQmmy02fLtxgKkx0d574HU=
+X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
+ fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
+Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
+  keydata=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
+  aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
+OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
+Synology NAS devices use the output pin for interrupt signal 1 to wake up
+the system.
 
+Move devicetree bindings for sii,s35390a into its own file.
+Add necessary properties to configure the individual pins via pinctrl,
+which allows the interrupt signal 1 to be used for wakeup alarm.
 
-On 7/14/26 02:22, Rosen Penev wrote:
-> Replace irq_of_parse_and_map() with platform_get_irq(), which resolves
-> the interrupt from pdev->dev.of_node directly and returns a positive IRQ
-> or a negative errno (it never returns 0). Propagate the error on failure
-> instead of the previous open-coded "IRQ missing or invalid" / -EINVAL
-> message, so -EPROBE_DEFER is handled correctly. The rtc->irq field is a
-> signed short, so the negative error code is preserved.
-> 
-> np is still used by of_property_read_u32() for "st,lpc-mode", so it is
-> not removed.
-> 
-> Built for ARM (multi_v7_defconfig + CONFIG_RTC_DRV_ST_LPC) with LLVM=1;
-> drivers/rtc/rtc-st-lpc.o compiles cleanly.
-> 
-> Assisted-by: opencode:hy3-free
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> ---
->  drivers/rtc/rtc-st-lpc.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
-> index c6d4522411b3..ae79ddf24f37 100644
-> --- a/drivers/rtc/rtc-st-lpc.c
-> +++ b/drivers/rtc/rtc-st-lpc.c
-> @@ -18,7 +18,6 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
-> -#include <linux/of_irq.h>
->  #include <linux/platform_device.h>
->  #include <linux/rtc.h>
->  
-> @@ -212,11 +211,9 @@ static int st_rtc_probe(struct platform_device *pdev)
->  	if (IS_ERR(rtc->ioaddr))
->  		return PTR_ERR(rtc->ioaddr);
->  
-> -	rtc->irq = irq_of_parse_and_map(np, 0);
-> -	if (!rtc->irq) {
-> -		dev_err(&pdev->dev, "IRQ missing or invalid\n");
-> -		return -EINVAL;
-> -	}
-> +	rtc->irq = platform_get_irq(pdev, 0);
-> +	if (rtc->irq < 0)
-> +		return rtc->irq;
->  
->  	ret = devm_request_irq(&pdev->dev, rtc->irq, st_rtc_handler,
->  			       IRQF_NO_AUTOEN, pdev->name, rtc);
+Signed-off-by: Markus Probst <markus.probst@posteo.de>
+---
+ .../devicetree/bindings/rtc/sii,s35390a.yaml       | 109 +++++++++++++++++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
+ MAINTAINERS                                        |   1 +
+ 3 files changed, 110 insertions(+), 3 deletions(-)
 
-Hi Rosen
+diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+new file mode 100644
+index 000000000000..0355f17f233a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+@@ -0,0 +1,109 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: S-35390A 2-WIRE REAL-TIME CLOCK
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++
++description:
++  The S-35390A is a CMOS 2-wire real-time clock IC which operates with the
++  very low current consumption in the wide range of operation voltage.
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    const: sii,s35390a
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    minItems: 1
++    maxItems: 2
++    description: Supports up to 2 interrupt lines via the INT1 and INT2 pins.
++
++  wakeup-parent: true
++
++  wakeup-source: true
++
++  "#clock-cells":
++    const: 1
++
++patternProperties:
++  "^pins":
++    type: object
++    patternProperties:
++      "-pins$":
++        type: object
++        properties:
++          pins:
++            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
++            items:
++              enum:
++                - int1
++                - int2
++
++          function:
++            $ref: /schemas/types.yaml#/definitions/string
++            description: |
++              Pin function:
++              - ignore:  Preserve the previous state.
++              - disable: Disable pin output.
++              - wakeup:  Output wakes up the system.
++              - clock:   Output clock pulse.
++              - pmin1:   Minute periodical output with 50% duty.
++              - pmin2:   Minute periodical output L for 7.81 ms.
++                         Can only be used with pin int1.
++            enum:
++              - ignore
++              - disable
++              - wakeup
++              - clock
++              - pmin1
++              - pmin2
++
++        required:
++          - function
++
++        additionalProperties: false
++
++    additionalProperties: false
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@30 {
++            compatible = "sii,s35390a";
++            reg = <0x30>;
++            pinctrl-0 = <&rtc_pins_default>;
++            pinctrl-names = "default";
++
++            wakeup-parent = <&int>;
++
++            rtc_pins_default: pins {
++              int1-pins {
++                pins = "int1";
++                function = "wakeup";
++              };
++              int2-pins {
++                pins = "int2";
++                function = "disable";
++              };
++            };
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index f4d0eed98a08..7b3f682ef4d5 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -81,8 +81,6 @@ properties:
+       - ricoh,rv5c386
+       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+       - ricoh,rv5c387a
+-      # 2-wire CMOS real-time clock
+-      - sii,s35390a
+       # ST SPEAr Real-time Clock
+       - st,spear600-rtc
+       # VIA/Wondermedia VT8500 Real-time Clock
+@@ -105,5 +103,4 @@ required:
+   - reg
+ 
+ additionalProperties: false
+-
+ ...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5114e6db7307..4c8bc35cfe55 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -22695,6 +22695,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
+ F:	Documentation/admin-guide/rtc.rst
+ F:	Documentation/devicetree/bindings/rtc/
+ F:	drivers/rtc/
++F:	include/dt-bindings/rtc/
+ F:	include/linux/rtc.h
+ F:	include/linux/rtc/
+ F:	include/uapi/linux/rtc.h
 
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-
-Thanks
-Patrice
+-- 
+2.54.0
 
