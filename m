@@ -1,785 +1,171 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013042.outbound.protection.outlook.com [40.107.162.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEBC43932F9
-	for <linux-rtc@vger.kernel.org>; Tue,  4 Aug 2026 22:32:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785882737; cv=none; b=jOmuopcRotzJxgmtSZ0FBwsUXcPsN/qvOtCDYmDUkMjzjfYfNNNb/Y9ZG9isPE8fWAApHR3nFdXvERCMrsIpDhT0nB7i3v+mCN7wIFYBjy9uAxnDBQ3DvW2kS1mcDE6kxqi6GO+cI1V7XT2JqU0tWr1fCWcKFl7YaSqofrMPU5g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785882737; c=relaxed/simple;
-	bh=ia69ebwsJ1DsdZlSuEP06O1nz4zgCm7tARgTvZjnc8c=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=peAzVe22eanmmqTbOJLidhVYj+G7m3MRktWShonk4Zco5De/ZpabKDvGQOigVqejNE+Ua5MJGa1ESxxABL1Bo2FjPBCY6Hf3SVPla57a5A4V/ltrSwC4p5HDwl6egxUnXtlYNZWqX9uB5J/pS1UtTIEcE9pGXZ7DYi2zmxJoChk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=REt4egoc; arc=none smtp.client-ip=185.67.36.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B833603F6;
+	Wed,  5 Aug 2026 07:58:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785916721; cv=fail; b=osonrm2tVSss/yygyQt1Xggak7/CZmF78ncTD1VDO8VJgJgYMvJbREME3Z5OObz8KEME0sYLuTCK4pES7qP5BEvnX9/fT4V9OxjZyUXpgBtdqmmwsBb4R45cvIGkFZMi1N74ytPz8WZgX9DbPdjLo89nTw54xOY+GvI6GmCmSdo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785916721; c=relaxed/simple;
+	bh=5EQPN3y4yBOvP2KI0nVequKfuxjJGydQJR30veaVpdw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=kehuwyGwLRLm4pBdOqXr+gVwUoCZ2AHxY/zmMJWjbdvUC2AID8Okg4hTCVxsUAj7tnXzdCrw+l+iDNZF9qFOc9hheWSVZvKLSv9krb6pDK0xAycs6Sq3d8LTtCues4arr5K9H3aNEt+LxQmuMpqfCXJFuz79E1EzT9KIcGPlBvc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=NxTGkVC2; arc=fail smtp.client-ip=40.107.162.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="REt4egoc"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id D2F53240029
-	for <linux-rtc@vger.kernel.org>; Wed,  5 Aug 2026 00:32:12 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1785882732;
-	bh=90/Zpc+1pZjM+SsoWmbfz0zmvMaRbeUbFlKQojBOftY=;
-	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
-	 MIME-Version:OpenPGP:From;
-	b=REt4egoct876dOQK8/skwZj7O12uD7IxDvx5D51Hlzkphvya96pWWy/c1S8KCrWHP
-	 IlLlbQnN7rkfDBNpM0osgUJXsW82YXRuGcygXS7Th6IXzcRbRfL+sJUfh2zAkH3yKu
-	 tP0oOgi3nG48E/5FmqlA0x+7ZMRoDDR3w1FG/C1SeqA8ckfyBoSYKMF4seHvGPq3dL
-	 lfJ7kS1k+S5O0t3tSVvCR8tPKfX5cBYsZNakATy9ZusiyeML2IdNXaqkV2O+VvU3n9
-	 bpS++ZkRCXh1TrqWTd8WpyA8fLyC17wZX/cQm2WkutaXUomoqFv8N+bi0LGT+KiJ8e
-	 eX55+iQLNoGjw==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hF7Zf0Nmsz9rxB;
-	Wed,  5 Aug 2026 00:32:10 +0200 (CEST)
-Message-ID: <42763e1ed91d8d37b1ab914633f1e3525237e2d2.camel@posteo.de>
-Subject: Re: [PATCH v2 4/5] rtc: s35390a: Add pinctrl
-From: Markus Probst <markus.probst@posteo.de>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-  Conor Dooley <conor+dt@kernel.org>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
- <uwe@kleine-koenig.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement
- <gregory.clement@bootlin.com>, Sebastian Hesselbarth	
- <sebastian.hesselbarth@gmail.com>, Michael Langer	
- <michael.brainbug.langer@googlemail.com>, Andrew Morton	
- <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Date: Tue, 04 Aug 2026 22:32:12 +0000
-In-Reply-To: <2026080422201232a44ff0@mail.local>
-References: <20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de>
-	 <20260801-rtc_s35390a_int1-v2-4-f10c99ad1d6c@posteo.de>
-	 <2026080422201232a44ff0@mail.local>
-Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
- keydata=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
- jfGillcaQOqFZ3WwVqyzG1BUfTow==
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-EiC9+BFaK8j2Yw0xY8df"
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="NxTGkVC2"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=KzSTlkjE7BQxlBMrtuS1hcH2TTKXaQ2OagC0JQwU3hiLJYxjeoO9cgQPPMn4lDAdyztvFv909dbNflFYEFosR+vCwN4y301a/pT9UF9Wg2GGl0pqCkv+GixNvr3hml8vY70b4LGQkfiF05tgLKKcU+cQDpzyzjIj4riTB/NDnvXhNUen+voYQ23QzeyoIw37CAwG7Wqck5Vo4bymobeCXpRB5VKqkpcgzERQTNpjvg/C0S39YAnaTS76/vMUq32i9HqQMg86HbuVrhnwrR/1ybkmU1/4eY0tXJviTel6u4w4mXgWaxD8ikT/sm8kjnhHm4aX79MKqRAJrpaRnxMmZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SOyil/NGwg0VaSdflx14NVa9rgx+efKsRRVNMmH6kEY=;
+ b=NUyZGqSDOgo1gHTREadjJ5mWNY4OUVnZLf6vdenEnPHCSJg+eB/9XuVCoohBWsenE+Oo2Wp36xXktw8Kla+fIq2IgMEq4IRlK8aO1d9Z62iQtxnLDU/1YAr4KHDM4Cd10RUE3eUxhqV4UTkhKLuc7biQor7SYkWepDAI9opG7NHJuqkW4ay43wHT2h0qu9yuRN4viON4c6KrhhEpb4vrYmnrh3TY0sFRIMyTgiOdAFqJT+JVfuF/1f5t5L9DO1QRhQb2l65yC4Z/Er1eZnmKDyLkubHs6LQ7R0ldRy5B5bDYC6NJvo1tMwUpm/RV0mGK1B/Pb/Xb65l+nZXfNTxeZw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
+ 164.130.1.59) smtp.rcpttodomain=gmail.com smtp.mailfrom=foss.st.com;
+ dmarc=fail (p=none sp=none pct=100) action=none header.from=foss.st.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SOyil/NGwg0VaSdflx14NVa9rgx+efKsRRVNMmH6kEY=;
+ b=NxTGkVC2SBUyE/gMzqgu00Mcx0aAljaa8ZpXHNx81yM/hepzj/+OOyd7x4yYSo+dP+MeFqmzJISwLqMpmO6kpSij+9B6MQCcxLk5iNOcWy/l054Rx0zOwyWWrYgjrnjLSPtaa27LNDtpqsv6TWWD02rjFHx3ayRQf6DqTdCA4OasZZnfFeD4HakDkhff5rCcaTUrj1GrZa5T1Jfeaa8dLNKc6pXfpnWPxZKn+BOEcT1SHuU5ul/Piz0bz+X189KpZw/cVwq8wzL6BlUNfba1NC+m3s7rOonidQqKHF1JiyshogT/LpIuuVPW+U0x/4W1CjF4H6FxwH6Dd3c4iWjYqg==
+Received: from AS9PR06CA0294.eurprd06.prod.outlook.com (2603:10a6:20b:45a::22)
+ by PR3PR10MB3914.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:102:43::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.15; Wed, 5 Aug
+ 2026 07:58:35 +0000
+Received: from AMS0EPF00000198.eurprd05.prod.outlook.com
+ (2603:10a6:20b:45a:cafe::91) by AS9PR06CA0294.outlook.office365.com
+ (2603:10a6:20b:45a::22) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.20 via Frontend Transport; Wed, 5
+ Aug 2026 07:58:35 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 164.130.1.59)
+ smtp.mailfrom=foss.st.com; dkim=none (message not signed)
+ header.d=none;dmarc=fail action=none header.from=foss.st.com;
+Received-SPF: Fail (protection.outlook.com: domain of foss.st.com does not
+ designate 164.130.1.59 as permitted sender) receiver=protection.outlook.com;
+ client-ip=164.130.1.59; helo=smtpO365.st.com;
+Received: from smtpO365.st.com (164.130.1.59) by
+ AMS0EPF00000198.mail.protection.outlook.com (10.167.16.244) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.292.8 via Frontend Transport; Wed, 5 Aug 2026 07:58:35 +0000
+Received: from STKDAG1NODE1.st.com (10.75.128.132) by smtpo365.st.com
+ (10.250.44.71) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Wed, 5 Aug
+ 2026 10:04:00 +0200
+Received: from [10.48.87.93] (10.48.87.93) by STKDAG1NODE1.st.com
+ (10.75.128.132) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.43; Wed, 5 Aug
+ 2026 09:58:34 +0200
+Message-ID: <493ce8b0-0d4f-474f-9194-d16299ee2296@foss.st.com>
+Date: Wed, 5 Aug 2026 09:58:33 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
-
-
---=-EiC9+BFaK8j2Yw0xY8df
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] rtc: st-lpc: get IRQ via platform_get_irq()
+To: Rosen Penev <rosenp@gmail.com>, <linux-rtc@vger.kernel.org>
+CC: Alexandre Belloni <alexandre.belloni@bootlin.com>, Nathan Chancellor
+	<nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, "Bill
+ Wendling" <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+	"moderated list:ARM/STI ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>,
+	open list <linux-kernel@vger.kernel.org>, "open list:CLANG/LLVM BUILD
+ SUPPORT:Keyword:b(?i:clang|llvm)b" <llvm@lists.linux.dev>
+References: <20260714002259.1392655-1-rosenp@gmail.com>
+Content-Language: en-US
+From: Patrice CHOTARD <patrice.chotard@foss.st.com>
+In-Reply-To: <20260714002259.1392655-1-rosenp@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: ENXCAS1NODE2.st.com (10.75.128.138) To STKDAG1NODE1.st.com
+ (10.75.128.132)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AMS0EPF00000198:EE_|PR3PR10MB3914:EE_
+X-MS-Office365-Filtering-Correlation-Id: 514cb983-0744-4647-9795-08def2c759e2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700016|23010399003|376014|7416014|82310400026|1800799024|10067099003|56012099006|18002099003|22082099003|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	yACAWsGaAs5m4VCQxeHigXrIZbp89fNaU9ULnhxW+zOZRsKJNpN5N+ZsQBS0tWwbSci3fqGEBlbJfAQj22CbJ94b5oIdbCs4wXnTyddyh3JTJ5GBKzAu9qChVc6L5HqtLSpeFRg1WVpi5znooEWbmJIk7ruI+2x0ja4T8Tq0j1d6KTpb54f/npqh72pybigu7jJEDwtdz2UdsrPCeuun56fe3+f+XJ/xIDoRGxRky6qtMKg6I8dT+ey9cd7owcHQlJbc+/7juyIiWwTJjqrfRvGZbe82TE2QPrBaqZ1PjXiSYZ9oW/wnCXys0Zw8p8GqYCLC4yRJKM/sVbZaKkfh+ZHk2uDY3FkYhayylnVmH/wFw1OVNKlIpBxJ9lhOEh0nuRw6swXk36Mk7/2R0KIptVgwzV27bAk/zzS3BSYfEv/wGj/rIPfI6oQnrTP/bYfgLgM72t6aeism6TZO5VPrHFwecUPMIDR2qGH5W05enrvzqKFFg8dhhTmk19pGO/ixsLsaQBSlIvVtU+1GiIC9apepRv85ellS26yB7g18gfVD87P4m+/MKuhmFjZAhp2qRNswUvVntb5YLdlG2QzytEFfOTG6mexQt5fSvXNcdjtaShAGPBg0r27a24NBrffI4ojhMegEjYz852D2u/QM1k2ovlzY2Kc31BB6H9HWO7m7vQW/lK8z0gTxAzP1pSLwQJvcJC0cYPfGmKpQipsYiw==
+X-Forefront-Antispam-Report:
+	CIP:164.130.1.59;CTRY:IT;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:smtpO365.st.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(376014)(7416014)(82310400026)(1800799024)(10067099003)(56012099006)(18002099003)(22082099003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	89oXGZYSMIEtBDbCZZEVlPRuYLlT3GvVGngOEJEWKXh7DEN141MaeL++2opKJXnd2IQYIcqNlVdLmbsATFE6U25UBuJAiFouA3eTSZT7JzcLuZxYjVdDumwRGTs1SstTOyYILXHRrUoywFaLP2wxaRsZb1COkOrINA8mBcjoDqypMdkT5c43gkJ0kdFPVhRmT/RlV/I0b28jBobNmL42TfK0DzRC+/sHR/kpIkoLlWc8HLlt0lLwV4qIfTJp4/REwfGOdbyIe9Wz4ddqS320jOhPN5SkIgHsaNtTvngX00SURY4jDBHC5IBK/rkpekkeI290HXsXh8PZnK+kTblSt9jCwm962E/zaSZLYt4mQhUMIqx5U8qtS2J+XGIOF6Ddpy3KCSIrXRdxiL7qr/lsOq/4uifvF4+8+fvdT13cW/xLXZALbn3SBf5l5JaO8m6h
+X-OriginatorOrg: foss.st.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 07:58:35.2803
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 514cb983-0744-4647-9795-08def2c759e2
+X-MS-Exchange-CrossTenant-Id: 75e027c9-20d5-47d5-b82f-77d7cd041e8f
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=75e027c9-20d5-47d5-b82f-77d7cd041e8f;Ip=[164.130.1.59];Helo=[smtpO365.st.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	AMS0EPF00000198.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR10MB3914
 
-On Wed, 2026-08-05 at 00:20 +0200, Alexandre Belloni wrote:
-> On 01/08/2026 18:43:04+0000, Markus Probst wrote:
-> > Allow configuration of other output modes than wake alarm, including:
-> > - keeping the previous configured mode
-> > - disabling output
-> > - custom frequency
-> > - minute periodical interrupt (1: 50% duty, 2: 7.81 ms)
-> > - raw 32.768 kHz output
-> >=20
-> > Allow use of interrupt signal 1.
->=20
-> There are a lot of checkpatch --strict warnings taht can be fixed. This
-> patch also needs to be reviewed by the pinctrl maintainers.
-Sashiko found quite a lot of issues too.
 
-I also wrongfully used pinconf instead of pinmux, for the pin function
-assignment.
 
-I will try to create a new revision today/tomorrow (depending on the
-timezone).
+On 7/14/26 02:22, Rosen Penev wrote:
+> Replace irq_of_parse_and_map() with platform_get_irq(), which resolves
+> the interrupt from pdev->dev.of_node directly and returns a positive IRQ
+> or a negative errno (it never returns 0). Propagate the error on failure
+> instead of the previous open-coded "IRQ missing or invalid" / -EINVAL
+> message, so -EPROBE_DEFER is handled correctly. The rtc->irq field is a
+> signed short, so the negative error code is preserved.
+> 
+> np is still used by of_property_read_u32() for "st,lpc-mode", so it is
+> not removed.
+> 
+> Built for ARM (multi_v7_defconfig + CONFIG_RTC_DRV_ST_LPC) with LLVM=1;
+> drivers/rtc/rtc-st-lpc.o compiles cleanly.
+> 
+> Assisted-by: opencode:hy3-free
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> ---
+>  drivers/rtc/rtc-st-lpc.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-st-lpc.c b/drivers/rtc/rtc-st-lpc.c
+> index c6d4522411b3..ae79ddf24f37 100644
+> --- a/drivers/rtc/rtc-st-lpc.c
+> +++ b/drivers/rtc/rtc-st-lpc.c
+> @@ -18,7 +18,6 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+> -#include <linux/of_irq.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/rtc.h>
+>  
+> @@ -212,11 +211,9 @@ static int st_rtc_probe(struct platform_device *pdev)
+>  	if (IS_ERR(rtc->ioaddr))
+>  		return PTR_ERR(rtc->ioaddr);
+>  
+> -	rtc->irq = irq_of_parse_and_map(np, 0);
+> -	if (!rtc->irq) {
+> -		dev_err(&pdev->dev, "IRQ missing or invalid\n");
+> -		return -EINVAL;
+> -	}
+> +	rtc->irq = platform_get_irq(pdev, 0);
+> +	if (rtc->irq < 0)
+> +		return rtc->irq;
+>  
+>  	ret = devm_request_irq(&pdev->dev, rtc->irq, st_rtc_handler,
+>  			       IRQF_NO_AUTOEN, pdev->name, rtc);
+
+Hi Rosen
+
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
 
 Thanks
-- Markus Probst
+Patrice
 
->=20
-> >=20
-> > Signed-off-by: Markus Probst <markus.probst@posteo.de>
-> > ---
-> >  drivers/rtc/Kconfig       |   3 +
-> >  drivers/rtc/rtc-s35390a.c | 403 ++++++++++++++++++++++++++++++++++++++=
-+-------
-> >  2 files changed, 349 insertions(+), 57 deletions(-)
-> >=20
-> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > index 01def8231873..054ff134d84e 100644
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -668,7 +668,10 @@ config RTC_DRV_RC5T619
-> > =20
-> >  config RTC_DRV_S35390A
-> >  	tristate "Seiko Instruments S-35390A"
-> > +	depends on OF
-> > +	depends on PINCTRL
-> >  	select BITREVERSE
-> > +	select GENERIC_PINCONF
-> >  	help
-> >  	  If you say yes here you will get support for the Seiko
-> >  	  Instruments S-35390A.
-> > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> > index fbf5471eb3d0..fc0dbce0e8f4 100644
-> > --- a/drivers/rtc/rtc-s35390a.c
-> > +++ b/drivers/rtc/rtc-s35390a.c
-> > @@ -12,11 +12,18 @@
-> >  #include <linux/bcd.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/delay.h>
-> > +#include <linux/pinctrl/pinctrl.h>
-> > +#include <linux/pinctrl/pinconf.h>
-> > +#include <linux/pinctrl/pinconf-generic.h>
-> > +#include <dt-bindings/rtc/s35390a.h>
-> > +
-> > +#define DRIVER_NAME "rtc-s35390a"
-> > =20
-> >  #define S35390A_CMD_STATUS1	0
-> >  #define S35390A_CMD_STATUS2	1
-> >  #define S35390A_CMD_TIME1	2
-> >  #define S35390A_CMD_TIME2	3
-> > +#define S35390A_CMD_INT1_REG1	4
-> >  #define S35390A_CMD_INT2_REG1	5
-> >  #define S35390A_CMD_FREE_REG    7
-> > =20
-> > @@ -36,19 +43,31 @@
-> >  #define S35390A_FLAG_POC	BIT(0)
-> >  #define S35390A_FLAG_BLD	BIT(1)
-> >  #define S35390A_FLAG_INT2	BIT(2)
-> > +#define S35390A_FLAG_INT1	BIT(3)
-> >  #define S35390A_FLAG_24H	BIT(6)
-> >  #define S35390A_FLAG_RESET	BIT(7)
-> > =20
-> >  /* flag for STATUS2 */
-> >  #define S35390A_FLAG_TEST	BIT(0)
-> > =20
-> > +
-> > +#define S35390A_INT_MODE_NOINTR	0x00
-> > +
-> >  /* INT2 pin output mode */
-> >  #define S35390A_INT2_MODE_MASK		0x0E
-> > -#define S35390A_INT2_MODE_NOINTR	0x00
-> >  #define S35390A_INT2_MODE_ALARM		BIT(1) /* INT2AE */
-> >  #define S35390A_INT2_MODE_PMIN_EDG	BIT(2) /* INT2ME */
-> >  #define S35390A_INT2_MODE_FREQ		BIT(3) /* INT2FE */
-> > -#define S35390A_INT2_MODE_PMIN		(BIT(3) | BIT(2)) /* INT2FE | INT2ME *=
-/
-> > +#define S35390A_INT2_MODE_PMIN1		(BIT(3) | BIT(2)) /* INT2FE | INT2ME =
-*/
-> > +
-> > +/* INT1 pin output mode */
-> > +#define S35390A_INT1_MODE_MASK		0xF0
-> > +#define S35390A_INT1_MODE_ALARM		BIT(5) /* INT1AE */
-> > +#define S35390A_INT1_MODE_PMIN_EDG	BIT(6) /* INT1ME */
-> > +#define S35390A_INT1_MODE_FREQ		BIT(7) /* INT1FE */
-> > +#define S35390A_INT1_MODE_PMIN1		(BIT(7) | BIT(6)) /* INT1FE | INT1ME =
-*/
-> > +#define S35390A_INT1_MODE_PMIN2		(BIT(7) | BIT(6) | BIT(5)) /* INT1FE =
-| INT1ME | INT1AE */
-> > +#define S35390A_INT1_MODE_32768KHZ	BIT(4) /* 32kE */
-> > =20
-> >  static const struct i2c_device_id s35390a_id[] =3D {
-> >  	{ .name =3D "s35390a" },
-> > @@ -64,8 +83,15 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
-> > =20
-> >  struct s35390a {
-> >  	struct i2c_client *client[8];
-> > -	struct rtc_time tm_alarm;
-> > +	struct rtc_device *rtc;
-> > +	struct pinctrl_dev *pinctrl;
-> > +	struct rtc_wkalrm alarm;
-> >  	int twentyfourhour;
-> > +
-> > +	struct mutex mode_lock;
-> > +	bool mode_init;
-> > +	int mode[2];
-> > +	u8 freq[2];
-> >  };
-> > =20
-> >  static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf,=
- int len)
-> > @@ -283,33 +309,33 @@ static int s35390a_rtc_set_alarm(struct device *d=
-ev, struct rtc_wkalrm *alm)
-> >  		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
-> >  		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
-> > =20
-> > -	/* disable interrupt (which deasserts the irq line) */
-> > -	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> > -	if (err < 0)
-> > -		return err;
-> > +	guard(mutex)(&s35390a->mode_lock);
-> > =20
-> > -	/* clear pending interrupt (in STATUS1 only), if any */
-> > -	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &sts, sizeof(st=
-s));
-> > +	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> >  	if (err < 0)
-> >  		return err;
-> > =20
-> > -	if (alm->enabled)
-> > -		sts =3D S35390A_INT2_MODE_ALARM;
-> > -	else
-> > -		sts =3D S35390A_INT2_MODE_NOINTR;
-> > +	/* disable interrupt (which deasserts the irq line) */
-> > +	if (s35390a->mode[0] =3D=3D S35390A_MODE_WAKEUP)
-> > +		sts =3D (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-> > +
-> > +	if (s35390a->mode[1] =3D=3D S35390A_MODE_WAKEUP)
-> > +		sts =3D (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-> > =20
-> > -	/* set interrupt mode*/
-> >  	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> >  	if (err < 0)
-> >  		return err;
-> > =20
-> > +	if (!alm->enabled)
-> > +		goto end;
-> > +
-> >  	if (alm->time.tm_wday !=3D -1)
-> >  		buf[S35390A_ALRM_BYTE_WDAY] =3D bin2bcd(alm->time.tm_wday) | 0x80;
-> >  	else
-> >  		buf[S35390A_ALRM_BYTE_WDAY] =3D 0;
-> > =20
-> >  	buf[S35390A_ALRM_BYTE_HOURS] =3D s35390a_hr2reg(s35390a,
-> > -			alm->time.tm_hour) | 0x80;
-> > +						      alm->time.tm_hour) | 0x80;
-> >  	buf[S35390A_ALRM_BYTE_MINS] =3D bin2bcd(alm->time.tm_min) | 0x80;
-> > =20
-> >  	if (alm->time.tm_hour >=3D 12)
-> > @@ -318,13 +344,33 @@ static int s35390a_rtc_set_alarm(struct device *d=
-ev, struct rtc_wkalrm *alm)
-> >  	for (i =3D 0; i < 3; ++i)
-> >  		buf[i] =3D bitrev8(buf[i]);
-> > =20
-> > -	err =3D s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf,
-> > -								sizeof(buf));
-> > +	/* set interrupt mode */
-> > +	if (s35390a->mode[0] =3D=3D S35390A_MODE_WAKEUP)
-> > +		sts =3D (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT1_MODE_ALARM;
-> > +
-> > +	if (s35390a->mode[1] =3D=3D S35390A_MODE_WAKEUP)
-> > +		sts =3D (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT2_MODE_ALARM;
-> > +
-> > +	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	if (s35390a->mode[0] =3D=3D S35390A_MODE_WAKEUP) {
-> > +		err =3D s35390a_set_reg(s35390a, S35390A_CMD_INT1_REG1, buf, sizeof(=
-buf));
-> > +		if (err)
-> > +			return err;
-> > +	}
-> > +
-> > +	if (s35390a->mode[1] =3D=3D S35390A_MODE_WAKEUP) {
-> > +		err =3D s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(=
-buf));
-> > +		if (err)
-> > +			return err;
-> > +	}
-> > =20
-> > -	if (!err)
-> > -		s35390a->tm_alarm =3D alm->time;
-> > +end:
-> > +	s35390a->alarm =3D *alm;
-> > =20
-> > -	return err;
-> > +	return 0;
-> >  }
-> > =20
-> >  static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalr=
-m *alm)
-> > @@ -332,24 +378,35 @@ static int s35390a_rtc_read_alarm(struct device *=
-dev, struct rtc_wkalrm *alm)
-> >  	struct i2c_client *client =3D to_i2c_client(dev);
-> >  	struct s35390a *s35390a =3D i2c_get_clientdata(client);
-> >  	u8 buf[3], sts;
-> > -	int i, err;
-> > +	int i, err, reg;
-> > +
-> > +	guard(mutex)(&s35390a->mode_lock);
-> > =20
-> >  	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> >  	if (err < 0)
-> >  		return err;
-> > =20
-> > -	if ((sts & S35390A_INT2_MODE_MASK) !=3D S35390A_INT2_MODE_ALARM) {
-> > +	if (s35390a->mode[1] =3D=3D S35390A_MODE_WAKEUP
-> > +		&& (sts & S35390A_INT2_MODE_MASK) =3D=3D S35390A_INT2_MODE_ALARM) {
-> > +
-> > +		reg =3D S35390A_CMD_INT2_REG1;
-> > +	} else if (s35390a->mode[0] =3D=3D S35390A_MODE_WAKEUP
-> > +		&& (sts & S35390A_INT1_MODE_MASK) =3D=3D S35390A_INT1_MODE_ALARM) {
-> > +
-> > +		reg =3D S35390A_CMD_INT1_REG1;
-> > +	} else {
-> >  		/*
-> >  		 * When the alarm isn't enabled, the register to configure
-> >  		 * the alarm time isn't accessible.
-> >  		 */
-> >  		alm->enabled =3D 0;
-> > +		alm->time =3D s35390a->alarm.time;
-> >  		return 0;
-> > -	} else {
-> > -		alm->enabled =3D 1;
-> >  	}
-> > =20
-> > -	err =3D s35390a_get_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(b=
-uf));
-> > +	alm->enabled =3D 1;
-> > +
-> > +	err =3D s35390a_get_reg(s35390a, reg, buf, sizeof(buf));
-> >  	if (err < 0)
-> >  		return err;
-> > =20
-> > @@ -358,7 +415,7 @@ static int s35390a_rtc_read_alarm(struct device *de=
-v, struct rtc_wkalrm *alm)
-> >  		buf[i] =3D bitrev8(buf[i]);
-> > =20
-> >  	/*
-> > -	 * B0 of the three matching registers is an enable flag. Iff it is se=
-t
-> > +	 * B0 of the three matching registers is an enable flag. If it is set
-> >  	 * the configured value is used for matching.
-> >  	 */
-> >  	if (buf[S35390A_ALRM_BYTE_WDAY] & 0x80)
-> > @@ -388,10 +445,10 @@ static int s35390a_rtc_alarm_irq_enable(struct de=
-vice *dev, unsigned int enabled
-> >  	struct s35390a *s35390a =3D dev_get_drvdata(dev);
-> >  	struct rtc_wkalrm alm;
-> > =20
-> > -	alm.enabled =3D enabled;
-> > -
-> >  	if (enabled)
-> > -		alm.time =3D s35390a->tm_alarm;
-> > +		alm =3D s35390a->alarm;
-> > +
-> > +	alm.enabled =3D enabled;
-> > =20
-> >  	return s35390a_rtc_set_alarm(dev, &alm);
-> >  }
-> > @@ -452,13 +509,241 @@ static int s35390a_nvmem_write(void *priv, unsig=
-ned int offset, void *val,
-> >  	return s35390a_set_reg(s35390a, S35390A_CMD_FREE_REG, val, bytes);
-> >  }
-> > =20
-> > +static int s35390a_pinctrl_get_groups_count(struct pinctrl_dev *pctlde=
-v)
-> > +{
-> > +	return 0;
-> > +}
-> > +
-> > +static const char *s35390a_pinctrl_get_group_name(struct pinctrl_dev *=
-pctldev,
-> > +						  unsigned int group)
-> > +{
-> > +	return NULL;
-> > +}
-> > +
-> > +static const struct pinctrl_pin_desc s35390a_pins_desc[] =3D {
-> > +	PINCTRL_PIN(0, "int1"),
-> > +	PINCTRL_PIN(1, "int2"),
-> > +};
-> > +
-> > +static const struct pinctrl_ops s35390a_pinctrl_ops =3D {
-> > +	.get_groups_count =3D s35390a_pinctrl_get_groups_count,
-> > +	.get_group_name =3D s35390a_pinctrl_get_group_name,
-> > +	.dt_node_to_map =3D pinconf_generic_dt_node_to_map_pin,
-> > +	.dt_free_map =3D pinconf_generic_dt_free_map,
-> > +};
-> > +
-> > +#define PIN_CONFIG_MODE		(PIN_CONFIG_END + 1)
-> > +#define PIN_CONFIG_FREQ		(PIN_CONFIG_END + 2)
-> > +
-> > +static const struct pinconf_generic_params s35390a_pinconf_params[] =
-=3D {
-> > +	{"sii,mode", PIN_CONFIG_MODE},
-> > +	{"sii,frequency", PIN_CONFIG_FREQ},
-> > +};
-> > +
-> > +static int s35390a_set_freq(struct s35390a *s35390a, int pin, int freq=
-)
-> > +{
-> > +	int err, reg;
-> > +	u8 buf;
-> > +
-> > +	reg =3D pin =3D=3D 0 ? S35390A_CMD_INT1_REG1 : S35390A_CMD_INT2_REG1;
-> > +
-> > +	buf =3D bitrev8(freq);
-> > +
-> > +	err =3D s35390a_set_reg(s35390a, reg, &buf, 1);
-> > +	if (err < 0)
-> > +		return err;
-> > +	return 0;
-> > +}
-> > +
-> > +static int s35390a_update_mode(struct s35390a *s35390a, int pin, int m=
-ode, int freq)
-> > +{
-> > +	int err;
-> > +	u8 buf, status1, flag, mask;
-> > +	bool update_irq =3D false;
-> > +
-> > +	mask =3D pin =3D=3D 0 ? S35390A_INT1_MODE_MASK : S35390A_INT2_MODE_MA=
-SK;
-> > +
-> > +	s35390a->mode_init =3D true;
-> > +
-> > +	guard(mutex)(&s35390a->mode_lock);
-> > +
-> > +	dev_dbg(&s35390a->client[0]->dev, "%s: pin=3D%d mode=3D%d\n",
-> > +			__func__, pin, mode);
-> > +
-> > +	if (mode =3D=3D S35390A_MODE_FREQ) {
-> > +		if (freq & ~S35390A_FREQ_MASK) {
-> > +			dev_err(&s35390a->client[0]->dev, "Unsupported frequency %u\n", fre=
-q);
-> > +			return -EINVAL;
-> > +		}
-> > +	} else
-> > +		freq =3D 0;
-> > +
-> > +	if (mode =3D=3D s35390a->mode[pin] && freq =3D=3D s35390a->freq[pin])
-> > +		return 0;
-> > +
-> > +	s35390a->mode[pin] =3D mode;
-> > +	s35390a->freq[pin] =3D freq;
-> > +
-> > +	if (mode =3D=3D S35390A_MODE_IGNORE)
-> > +		return 0;
-> > +
-> > +	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
-> > +	if (err < 0) {
-> > +		dev_err(&s35390a->client[0]->dev, "error reading status\n");
-> > +		return err;
-> > +	}
-> > +
-> > +	switch (mode) {
-> > +	case S35390A_MODE_DISABLE:
-> > +	case S35390A_MODE_ALARM: /* not implemented */
-> > +		buf =3D (buf & ~mask) | S35390A_INT_MODE_NOINTR;
-> > +		break;
-> > +	case S35390A_MODE_WAKEUP:
-> > +		flag =3D pin =3D=3D 0 ? S35390A_INT1_MODE_ALARM : S35390A_INT2_MODE_=
-ALARM;
-> > +		if ((buf & mask) !=3D flag) {
-> > +			buf =3D (buf & ~mask) | S35390A_INT_MODE_NOINTR;
-> > +			break;
-> > +		}
-> > +
-> > +		err =3D s35390a_read_status(s35390a, &status1);
-> > +		if (err < 0) {
-> > +			dev_err(&s35390a->client[0]->dev, "error reading status\n");
-> > +			return err;
-> > +		}
-> > +
-> > +		flag =3D pin =3D=3D 0 ? S35390A_FLAG_INT1 : S35390A_FLAG_INT2;
-> > +
-> > +		/* disable alarm */
-> > +		if (status1 & flag) {
-> > +			buf =3D (buf & ~mask) | S35390A_INT_MODE_NOINTR;
-> > +			update_irq =3D true;
-> > +		}
-> > +
-> > +		break;
-> > +	case S35390A_MODE_FREQ:
-> > +		flag =3D pin =3D=3D 0 ? S35390A_INT1_MODE_FREQ : S35390A_INT2_MODE_F=
-REQ;
-> > +		buf =3D (buf & ~mask) | flag;
-> > +		break;
-> > +	case S35390A_MODE_PMIN1:
-> > +		flag =3D pin =3D=3D 0 ? S35390A_INT1_MODE_PMIN1 : S35390A_INT2_MODE_=
-PMIN1;
-> > +		buf =3D (buf & ~mask) | flag;
-> > +		break;
-> > +
-> > +	/* INT1 only modes */
-> > +	case S35390A_MODE_PMIN2:
-> > +		buf =3D (buf & ~mask) | S35390A_INT1_MODE_PMIN2;
-> > +		break;
-> > +	case S35390A_MODE_32768KHZ:
-> > +		buf =3D (buf & ~mask) | S35390A_INT1_MODE_32768KHZ;
-> > +		break;
-> > +	}
-> > +
-> > +	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
-> > +	if (err < 0) {
-> > +		dev_err(&s35390a->client[0]->dev, "error setting interrupts\n");
-> > +		return err;
-> > +	}
-> > +
-> > +	if (freq) {
-> > +		err =3D s35390a_set_freq(s35390a, pin, freq);
-> > +		if (err < 0) {
-> > +			dev_err(&s35390a->client[0]->dev, "error setting frequency\n");
-> > +			return err;
-> > +		}
-> > +	}
-> > +
-> > +	if (update_irq)
-> > +		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int s35390a_pinconf_get(struct pinctrl_dev *pctldev,
-> > +			       unsigned int pin, unsigned long *config)
-> > +{
-> > +	struct s35390a *s35390a =3D pinctrl_dev_get_drvdata(pctldev);
-> > +	unsigned int param =3D pinconf_to_config_param(*config);
-> > +	u16 arg;
-> > +
-> > +	switch (param) {
-> > +	case PIN_CONFIG_MODE:
-> > +		arg =3D s35390a->mode[pin];
-> > +		break;
-> > +	case PIN_CONFIG_FREQ:
-> > +		arg =3D s35390a->freq[pin];
-> > +		break;
-> > +	default:
-> > +		return -EOPNOTSUPP;
-> > +	}
-> > +
-> > +	*config =3D pinconf_to_config_packed(param, arg);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int s35390a_pinconf_set(struct pinctrl_dev *pctldev,
-> > +			       unsigned int pin, unsigned long *configs,
-> > +			       unsigned int num_configs)
-> > +{
-> > +	struct s35390a *s35390a =3D pinctrl_dev_get_drvdata(pctldev);
-> > +	unsigned int param;
-> > +	u32 param_val;
-> > +	int i, mode, freq =3D 0;
-> > +
-> > +	mode =3D pin =3D=3D 0 ? S35390A_MODE_IGNORE : S35390A_MODE_WAKEUP;
-> > +
-> > +	for (i =3D 0; i < num_configs; i++) {
-> > +		param =3D pinconf_to_config_param(configs[0]);
-> > +		param_val =3D pinconf_to_config_argument(configs[0]);
-> > +
-> > +		switch (param) {
-> > +		case PIN_CONFIG_MODE:
-> > +			if (param_val <=3D (pin =3D=3D 0 ? S35390A_MODE_INT1_MAX : S35390A_=
-MODE_INT2_MAX))
-> > +				mode =3D param_val;
-> > +			else {
-> > +				dev_err(&s35390a->client[0]->dev, "Unsupported pin mode %u\n",
-> > +					param_val);
-> > +				return -EINVAL;
-> > +			}
-> > +			break;
-> > +		case PIN_CONFIG_FREQ:
-> > +			freq =3D param_val;
-> > +			break;
-> > +		default:
-> > +			dev_err(&s35390a->client[0]->dev, "Property %u not supported\n",
-> > +				param);
-> > +			return -EOPNOTSUPP;
-> > +		}
-> > +	}
-> > +
-> > +	return s35390a_update_mode(s35390a, pin, mode, freq);
-> > +}
-> > +
-> > +
-> > +static const struct pinconf_ops s35390a_pinconf_ops =3D {
-> > +	.is_generic =3D true,
-> > +	.pin_config_get =3D s35390a_pinconf_get,
-> > +	.pin_config_set =3D s35390a_pinconf_set,
-> > +};
-> > +
-> > +static struct pinctrl_desc s35390a_pinctrl_desc =3D {
-> > +	.name =3D DRIVER_NAME,
-> > +	.pins =3D s35390a_pins_desc,
-> > +	.npins =3D ARRAY_SIZE(s35390a_pins_desc),
-> > +	.pctlops =3D &s35390a_pinctrl_ops,
-> > +	.confops =3D &s35390a_pinconf_ops,
-> > +	.custom_params =3D s35390a_pinconf_params,
-> > +	.num_custom_params =3D ARRAY_SIZE(s35390a_pinconf_params),
-> > +	.owner =3D THIS_MODULE,
-> > +};
-> > +
-> >  static int s35390a_probe(struct i2c_client *client)
-> >  {
-> >  	int err, err_read;
-> >  	unsigned int i;
-> >  	struct s35390a *s35390a;
-> >  	struct rtc_device *rtc;
-> > -	u8 buf, status1;
-> > +	u8 status1;
-> >  	struct device *dev =3D &client->dev;
-> >  	struct nvmem_config nvmem_cfg =3D {
-> >  		.name =3D "s35390a_nvram",
-> > @@ -477,7 +762,10 @@ static int s35390a_probe(struct i2c_client *client=
-)
-> >  	if (!s35390a)
-> >  		return -ENOMEM;
-> > =20
-> > +	mutex_init(&s35390a->mode_lock);
-> > +
-> >  	s35390a->client[0] =3D client;
-> > +
-> >  	i2c_set_clientdata(client, s35390a);
-> > =20
-> >  	/* This chip uses multiple addresses, use dummy devices for them */
-> > @@ -492,10 +780,37 @@ static int s35390a_probe(struct i2c_client *clien=
-t)
-> >  		}
-> >  	}
-> > =20
-> > +	err =3D s35390a_disable_test_mode(s35390a);
-> > +	if (err < 0) {
-> > +		dev_err(dev, "error disabling test mode\n");
-> > +		return err;
-> > +	}
-> > +
-> >  	rtc =3D devm_rtc_allocate_device(dev);
-> >  	if (IS_ERR(rtc))
-> >  		return PTR_ERR(rtc);
-> > =20
-> > +	rtc->ops =3D &s35390a_rtc_ops;
-> > +	rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
-> > +	rtc->range_max =3D RTC_TIMESTAMP_END_2099;
-> > +
-> > +	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->features);
-> > +	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
-> > +
-> > +	s35390a->rtc =3D rtc;
-> > +
-> > +	err =3D devm_pinctrl_register_and_init(dev, &s35390a_pinctrl_desc, s3=
-5390a,
-> > +					     &s35390a->pinctrl);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	/* If no pinctrl config is defined in DT, fallback to previous behavi=
-our */
-> > +	if (!s35390a->mode_init) {
-> > +		err =3D s35390a_update_mode(s35390a, 1, S35390A_MODE_WAKEUP, 0);
-> > +		if (err)
-> > +			return err;
-> > +	}
-> > +
-> >  	err_read =3D s35390a_read_status(s35390a, &status1);
-> >  	if (err_read < 0) {
-> >  		dev_err(dev, "error resetting chip\n");
-> > @@ -507,34 +822,8 @@ static int s35390a_probe(struct i2c_client *client=
-)
-> >  	else
-> >  		s35390a->twentyfourhour =3D 0;
-> > =20
-> > -	if (status1 & S35390A_FLAG_INT2) {
-> > -		/* disable alarm (and maybe test mode) */
-> > -		buf =3D 0;
-> > -		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
-> > -		if (err < 0) {
-> > -			dev_err(dev, "error disabling alarm\n");
-> > -			return err;
-> > -		}
-> > -	} else {
-> > -		err =3D s35390a_disable_test_mode(s35390a);
-> > -		if (err < 0) {
-> > -			dev_err(dev, "error disabling test mode\n");
-> > -			return err;
-> > -		}
-> > -	}
-> > -
-> >  	device_set_wakeup_capable(dev, 1);
-> > =20
-> > -	rtc->ops =3D &s35390a_rtc_ops;
-> > -	rtc->range_min =3D RTC_TIMESTAMP_BEGIN_2000;
-> > -	rtc->range_max =3D RTC_TIMESTAMP_END_2099;
-> > -
-> > -	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->features);
-> > -	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
-> > -
-> > -	if (status1 & S35390A_FLAG_INT2)
-> > -		rtc_update_irq(rtc, 1, RTC_AF);
-> > -
-> >  	nvmem_cfg.priv =3D s35390a;
-> >  	err =3D devm_rtc_nvmem_register(rtc, &nvmem_cfg);
-> >  	if (err)
-> > @@ -545,7 +834,7 @@ static int s35390a_probe(struct i2c_client *client)
-> > =20
-> >  static struct i2c_driver s35390a_driver =3D {
-> >  	.driver		=3D {
-> > -		.name	=3D "rtc-s35390a",
-> > +		.name	=3D DRIVER_NAME,
-> >  		.of_match_table =3D of_match_ptr(s35390a_of_match),
-> >  	},
-> >  	.probe		=3D s35390a_probe,
-> >=20
-> > --=20
-> > 2.54.0
-> >=20
-
---=-EiC9+BFaK8j2Yw0xY8df
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmpyaFsbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSPSUP/i1sMVN8LXjlIo3cEML/
-F5L4EuM90g7rNgK4GlOxfvjtR6/0ftW4Svic0J+n3oi1JiBmBPfSe2cJhkf42Cac
-yRS4ONqoJw07GqwOQa1pG19i42ZTe7Oe2mXiVpgotoZ850L0YZ7ohQMQ3UE0SgDU
-p59Jxvi0kYudW61R55HWar0FnUKNA3xO17LjqKoAapKDGNBl9s0qvds68QZrDUsp
-jo1RFaG0FK4sRs3R7qLH6blpkxV9X+WdnBMM+TTDHH26i753EGHFMCB+KdBULBM4
-KDgk7kn+cds9J+Opo+PdC763qrxpzmjrKObVzHbY9kNB2GF1VoGkAV7glVQjEPev
-+wQNTmpra60nz24HSj1PNwzhPOeNTS9MSdvv3yYQvrq466s42kQaAFu0PdNxpyLI
-fHb7dQBVJ3M4+abVuA6rebBwSYt0ERvQGNm6UhHs2V+3pj15FELwNghRwbC+8jOw
-pRUvEE9+LeGnD2n1Sc3rRKqPtoj0i5o9JVNU4qnuGxsssHw1lhRCkT7OCAeH8mun
-RUOCxr3wnQkND5HyQXmc5kzq1psW8Z5fPnnH51YHLnthkhk4SkP8qwPEJIxe2eIF
-PUNTcnu6x427FV8NxHE+DromARKQdH9WsKjL3Vi+qEBKum9H6/w8KsZtn73spNVu
-Y0DU0nEbuv49onf1ZnQTPqTy
-=E267
------END PGP SIGNATURE-----
-
---=-EiC9+BFaK8j2Yw0xY8df--
