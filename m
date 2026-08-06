@@ -1,70 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01ED634AB19;
-	Wed,  5 Aug 2026 21:18:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D15C82C15BB;
+	Thu,  6 Aug 2026 12:53:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.200.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785964687; cv=none; b=N/UuJPH//1IX4MmuaiBqzDpfSIYe0YVfXd2/hVJUtVO1ENpeXFKQRWK7NLc5h1l5AExIKNjDQomjrGkOyAMJ69uIjwzxZ/oXBUKSvdn7A9kpnniJj4djSadwG0h8UoK8OfR3quYqg9nc7pLT9jW/rxDlPoXJJ731xG0aKxxv8WU=
+	t=1786020818; cv=none; b=AHVKkJuX9yMsk+XD3TaD4rbT/k/cLRub0QOgG6uLRKk1N12wgKmkbyEdUdmk+gdvlFRJysqr4npwAMfuT+aPpySapRjRUPwg8f+JSZf843CSJKuBA28tVeeme0WqjnyPOHQkIg16IoemwX3rkFL2O5OGhG9wSplSJw/zjIkKRCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785964687; c=relaxed/simple;
-	bh=4GLvRlLi4q8Grvdog0DaP2fDBRcmhDzccrZBZ3fJK8Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mI79Zhf9iZt6zhmXagE+g2ltzFFs128zsUYawudlcBg/MeVyCuMjWt3JDhDKkIIh1dKjtqZ9UnsbiE6d6fqDr7k59FeWeeXtaQHmSSFpG/I2JNG8YXmAwkxynWpJE/KrZzX4ek49dWQ5NyS91pw/QiQhzaIJePlUSOb88V6NvHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XzVDeWf6; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XzVDeWf6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C68B41F000E9;
-	Wed,  5 Aug 2026 21:17:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785964678;
-	bh=Ih4CY4loRfiDz+HhU7oDKDGbRZnNGt6ynExU5jVOQBU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=XzVDeWf6pBGX46ux0XWzaR8sUPE3l7vCwP55FklFMecTN44+0Ah6S/TLsZNfrRu6r
-	 oDW7mfS/iEqRCyUEus4B8pNr8yp6YOYVjoLpzn2FDy3hlbKYgwzDmd5bsze7Vd26Pe
-	 wGHU01WyAQSi/NRZHGvmEkFMuJ5O8HIUWDRYGUdxEH2wK5GpQaitb4kTC34fm4h2FY
-	 eynjndQUG0sR0lHqjZn4ARVtfESDDY8LFSie9e7VEiy5gPANKSQGDWET8yPSSDKnLN
-	 uWKTan2BlBozUDvj6Tz6BfbRjsTY2mbAJ0ivIsGs7ToMPzDtFQrdM7aJsBOIjr24Bp
-	 7tv4M0bdkWNgw==
-Date: Wed, 5 Aug 2026 16:17:57 -0500
-From: Rob Herring <robh@kernel.org>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: alexandre.belloni@bootlin.com, krzk+dt@kernel.org, conor+dt@kernel.org,
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, paul@crapouillou.net,
-	Peng Fan <peng.fan@nxp.com>
-Subject: Re: [PATCH] dt-bindings: rtc: ingenic,rtc: Use generic
- power-controller schema
-Message-ID: <20260805211716.GA1799400-robh@kernel.org>
-References: <20260804144553.2518722-1-peng.fan@oss.nxp.com>
+	s=arc-20240116; t=1786020818; c=relaxed/simple;
+	bh=+xIefjwf8ssk5cRcoO/lIskGPHUwLSnyJiIYe+sXnCI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tHPciS3+uztRnV4PivILNKGmLacUO5SYomETGFDDCPU8KFHDN8sagQIiJsMP7+ZN0dnEqBGROhefTWOTq2tKxkOQtTS8eiJ7hHGP/uvghzR//bdwIAeWqZu21MPKbpVxnLqq3Y122QYIu8xLiAIqzlB66+XndDIr4phD8KSDvzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.200.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de (drehscheibe.grey.stw.pengutronix.de [IPv6:2a0a:edc0:0:c01:1d::a2])
+	(Authenticated sender: relay-from-drehscheibe.grey.stw.pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 766C82020FE;
+	Thu, 06 Aug 2026 14:53:28 +0200 (CEST)
+Received: from ptz.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::77] helo=[IPV6:::1])
+	by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.96)
+	(envelope-from <s.kerkmann@pengutronix.de>)
+	id 1wrxbE-0005ni-18;
+	Thu, 06 Aug 2026 14:53:28 +0200
+Message-ID: <4b1effd0-3081-4d37-aaf2-3dad8788faff@pengutronix.de>
+Date: Thu, 6 Aug 2026 14:53:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260804144553.2518722-1-peng.fan@oss.nxp.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/4] rtc: pcf2127: add pcf2127_pwrmng_get/set
+To: Hugo Villeneuve <hugo@hugovil.com>, alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ bruno.thomsen@gmail.com, giampiero@sferalabs.cc, p.rosenberger@kunbus.com,
+ antonio@amsobr.com, Hugo Villeneuve <hvilleneuve@dimonoff.com>
+References: <20260311200237.3531981-1-hugo@hugovil.com>
+ <20260311200237.3531981-3-hugo@hugovil.com>
+From: Stefan Kerkmann <s.kerkmann@pengutronix.de>
+Content-Language: en-US, de-DE
+In-Reply-To: <20260311200237.3531981-3-hugo@hugovil.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Aug 04, 2026 at 10:45:53PM +0800, Peng Fan (OSS) wrote:
-> From: Peng Fan <peng.fan@nxp.com>
+
+
+On 3/11/26 21:02, Hugo Villeneuve wrote:
+> From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 > 
-> Convert the binding to use the generic power-controller schema instead by
-> referencing power-controller.yaml and removing the local
-> `system-power-controller` property definition.
+> Add common functions to get/set the pwrmng field in the CTRL3 register,
+> used by pcf2127_param_get() and pcf2127_param_set().
 > 
-> Acked-by: Paul Cercueil <paul@crapouillou.net>
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 > ---
+> These functions will also be used in the following patch
+> to add battery low detection.
+> ---
+>   drivers/rtc/rtc-pcf2127.c | 42 +++++++++++++++++++++++++++------------
+>   1 file changed, 29 insertions(+), 13 deletions(-)
 > 
-> V1:
->  The power-controller.yaml has been merged in dt-schema, so
->  resend this patch picked from link [1]. A-b tag is kept, since
->  no changes.
->  [1] https://lore.kernel.org/all/20260316-power-controller-v1-5-92c80e5e1744@nxp.com/
+> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
+> index e2e9746027348..0605295026564 100644
+> --- a/drivers/rtc/rtc-pcf2127.c
+> +++ b/drivers/rtc/rtc-pcf2127.c
+> @@ -213,6 +213,30 @@ struct pcf2127 {
+>   	bool ts_valid[PCF2127_MAX_TS_SUPPORTED];  /* Timestamp valid indication. */
+>   };
+>   
+> +static int pcf2127_pwrmng_get(struct device *dev, u8 *pwrmng)
+> +{
+> +	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+> +	u32 value;
+> +	int ret;
+> +
+> +	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL3, &value);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	*pwrmng = FIELD_GET(PCF2127_CTRL3_PM, value);
+> +
+> +	return 0;
+> +}
+> +
+> +static int pcf2127_pwrmng_set(struct device *dev, u8 pwrmng)
+> +{
+> +	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+> +
+> +	return regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL3,
+> +				  PCF2127_CTRL3_PM,
+> +				  FIELD_PREP(PCF2127_CTRL3_PM, pwrmng));
+> +}
+> +
+>   /*
+>    * In the routines that deal directly with the pcf2127 hardware, we use
+>    * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
+> @@ -337,18 +361,15 @@ static int pcf2127_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>   
+>   static int pcf2127_param_get(struct device *dev, struct rtc_param *param)
+>   {
+> -	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+> -	u32 value;
+> +	u8 value;
+>   	int ret;
+>   
+>   	switch (param->param) {
+>   	case RTC_PARAM_BACKUP_SWITCH_MODE:
+> -		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL3, &value);
+> +		ret = pcf2127_pwrmng_get(dev, &value);
+>   		if (ret < 0)
+>   			return ret;
+>   
+> -		value = FIELD_GET(PCF2127_CTRL3_PM, value);
+> -
+>   		if (value < 0x3)
+>   			param->uvalue = RTC_BSM_LEVEL;
+>   		else if (value < 0x6)
+> @@ -367,19 +388,16 @@ static int pcf2127_param_get(struct device *dev, struct rtc_param *param)
+>   
+>   static int pcf2127_param_set(struct device *dev, struct rtc_param *param)
+>   {
+> -	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
+>   	u8 mode = 0;
+> -	u32 value;
+> +	u8 value;
+>   	int ret;
+>   
+>   	switch (param->param) {
+>   	case RTC_PARAM_BACKUP_SWITCH_MODE:
+> -		ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL3, &value);
+> +		ret = pcf2127_pwrmng_get(dev, &value);
+>   		if (ret < 0)
+>   			return ret;
+>   
+> -		value = FIELD_GET(PCF2127_CTRL3_PM, value);
+> -
+>   		if (value > 5)
+>   			value -= 5;
+>   		else if (value > 2)
+> @@ -400,9 +418,7 @@ static int pcf2127_param_set(struct device *dev, struct rtc_param *param)
+>   			return -EINVAL;
+>   		}
+>   
+> -		return regmap_update_bits(pcf2127->regmap, PCF2127_REG_CTRL3,
+> -					  PCF2127_CTRL3_PM,
+> -					  FIELD_PREP(PCF2127_CTRL3_PM, mode + value));
+> +		return pcf2127_pwrmng_set(dev, mode + value);
+>   
+>   	default:
+>   		return -EINVAL;
 
-This needs to wait a cycle as the dtschema dependency is not yet in a 
-release.
+Reviewed-by: Stefan Kerkmann <s.kerkmann@pengutronix.de>
 
-Rob
+-- 
+Pengutronix e.K.                       | Stefan Kerkmann             |
+Steuerwalder Str. 21                   | https://www.pengutronix.de/ |
+31137 Hildesheim, Germany              | Phone: +49-5121-206917-128  |
+Amtsgericht Hildesheim, HRA 2686       | Fax:   +49-5121-206917-9    |
+
