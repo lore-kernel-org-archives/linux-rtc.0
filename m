@@ -1,206 +1,236 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mta-65-225.siemens.flowmailer.net (mta-65-225.siemens.flowmailer.net [185.136.65.225])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5261D35F5E7;
-	Fri,  7 Aug 2026 08:52:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8D5942FCB7
+	for <linux-rtc@vger.kernel.org>; Fri,  7 Aug 2026 12:58:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.225
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786092732; cv=none; b=aSFJjsLT7SfvYFI4OK0mTUCAeFJy3iPzJQhC/PkG1Oi7A+2MqOswcSt9pctZRhl4l2EjlLHdWX39xs6FGG4ZOQ0hAkY43adGAx+p5yyRcwvmFVWeF6QblF7r9qr/qxQnSuVwFMq+Th0PCEOtILuz9cbtPSgQopHmODuvmN/LXT4=
+	t=1786107506; cv=none; b=RiI1KXVp/PREP+U+TGABiGhmNi0aTabM1bvS14LDJCWBmtUDWd1uFqoWgRj0ixXCegISuH3O3r90C2eJbwdZ9LVLF+KgARkMjtf//6zk8buhJtg8bKGmB8tcOaEi1CCmwH6gPZXmDmBIgvCZCsiWgxr3DkeTd5umos/yN4kLTEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786092732; c=relaxed/simple;
-	bh=VGRsE+iQ7oewd9lj9RxyMgqujBDDpsJ7YPQchYHmw6E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OmcLFE5YRk3imqS/WjdwaKjVf/MoOapbizGBMUAvIb6qJCXH1nEu6FYPksZL6n/wc2Mk8jBDI1Gh1euBnY+oiItZ3hZ901nVCAlTUs+9JmTK2UlhffSok/jnqPqGsDhqBsRCaQLfCgauQrPpcNEBLdNJ0muF1tfN/dHkMhAO5zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CkwcruE5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786107506; c=relaxed/simple;
+	bh=6UIFMuAWn+MOW/yWn5Z1SIDBs5DoTk2T2BrB8ro/0Jo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OR0JhjkFg4n6vl3pL9rqPybcuH5V7N8AQ20oaVl0zDQgO52Dmvau4Gj3J3V/fbExMGiXX2qnuZuK6uduNMk1XZD9w9Qti52EjfQti2fdpQEIvbv1HdypB0oT08kZUiAWxCIiyA30FjpJPj6BmS8wrxLJ2sd4QccF9cptXBKprec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=DLJ7E1nR; arc=none smtp.client-ip=185.136.65.225
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CkwcruE5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0AD71F000E9;
-	Fri,  7 Aug 2026 08:52:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786092730;
-	bh=N9OXTHZSPFkQMBVvuhrPMUP5AX/jU01HoRETO+4Hy/k=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CkwcruE5IgC8fpeOskfEnUYSCETGc9AGZJ7Yt+0h0ifzagP/rgHHSoky7wxk0t48I
-	 UlJ8l/lqlIIwbNhQAQ7Qv2a6OLA/tUbyUeT6ai9aKQkYfno3kP7s2d49aL4Turov4p
-	 4kIZD6X01UVkDF8hKJDh0GCd/P/kcu4eFqKERlnJq6uzkj5+t0Jf8k5HVaKNSJ6IXo
-	 E4EoUSiao+wy+AVrobH8iWb15C3WGBZtJfo+2R02jODffT54F+pOZKP9DmN3nmiJ60
-	 k+YopPFcl8cJZsG6n1Cc18LHCDgIzk1LYuNAV368Xr6ZL0DWE7gvQMNYHymgM0iTrp
-	 wVM0s3UfM2CbQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] rtc: pcf8525: Add watchdog support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-watchdog@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, linux-hwmon@vger.kernel.org
-In-Reply-To: <20260807082855.3762394-4-shivprakash.gupta@nxp.com>
-References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
- <20260807082855.3762394-4-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 08:52:09 +0000
-Message-Id: <20260807085209.B0AD71F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="DLJ7E1nR"
+Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 202608071258053aa2c025af000207a9
+        for <linux-rtc@vger.kernel.org>;
+        Fri, 07 Aug 2026 14:58:05 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
+ d=siemens.com; i=alexander.sverdlin@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
+ bh=iKfVzn8Vftj6bw2MSm/OU4HW96AhumUBAC182UHvreQ=;
+ b=DLJ7E1nR2xb2LDsM9HGSVNirGBA+6cnr8GxwegGqWCWqp5o2C5dhzwXU5jnAtOtKEBeK7x
+ lb1eyd/Gc+gpAf1V7bD72TEOOEyU0jxJYvzM0xVRw1MlmZymG5TS622q1xVFdUbGNg8tA6oF
+ rJ0C9smnyKXhl1KiA5WlYDm4iohjLc3EfnWhNNXrXFakVGXD/x0+4RHSpRaDlJhHq6ny53kD
+ 8oCzPhfVhQhCYcL+TqyhFHHTic+LU6XIUgfoq8nn/h6Oyd15jIEPnDsKbXp6ZUBQQRmXDirX
+ nVLJZwQuHC9qwHP3sFMr5cl2LIyVsCvTquFH8xx5N+f52D2dr98S52dA==;
+From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
+To: linux-rtc@vger.kernel.org
+Cc: Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-kernel@vger.kernel.org,
+	Adrian Freihofer <adrian.freihofer@siemens.com>
+Subject: [PATCH] rtc: pcf85063: add 1 Hz update interrupt (UIE) support
+Date: Fri,  7 Aug 2026 14:57:52 +0200
+Message-ID: <20260807125757.2908175-1-alexander.sverdlin@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-456497:519-21489:flowmailer
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 
-New issues:
-- [Critical] Unmasking watchdog interrupt without clearing persistent WDTF =
-flag causes inescapable boot loop.
-- [High] Watchdog IRQ handler silently clears timeout flag, aborting hardwa=
-re resets and defeating the watchdog.
-- [High] Missing WDOG_HW_RUNNING reporting causes spurious system resets if=
- the watchdog is armed by the bootloader.
-- [High] Requesting INTB without IRQF_SHARED breaks probe on boards tying I=
-NTA and INTB together.
-- [Medium] Watchdog initialization occurs after RTC registration, creating =
-a race condition exposing the uninitialized device.
+The PCF85063A/RV8263 have no dedicated 1 Hz update interrupt, but their
+countdown timer can be sourced from a 1 Hz clock (TCF = 1 Hz, T = 1) to
+generate a periodic interrupt on the INT pin. Use it to offload UIE to
+the hardware, following the pattern of other RTC drivers: the timer is
+enabled from set_alarm()/alarm_irq_enable() whenever uie_rtctimer is
+active, and the IRQ handler reports RTC_UF when the timer flag (TF) is
+set.
 
-Pre-existing issues:
-- [High] Read-modify-write on CTRL2 causes lost hardware interrupts for RTC=
- alarm and watchdog.
---
+RTC_FEATURE_UPDATE_INTERRUPT is now only cleared when no usable interrupt
+is wired, preserving the polling emulation for those configurations.
 
---- Patch [3]: [PATCH 3/4] rtc: pcf8525: Add watchdog support ---
-commit 3cb38601cbc74987657b19d7480456e2da5babc7
-Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Co-developed-by: Adrian Freihofer <adrian.freihofer@siemens.com>
+Signed-off-by: Adrian Freihofer <adrian.freihofer@siemens.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+---
+ drivers/rtc/rtc-pcf85063.c | 97 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 89 insertions(+), 8 deletions(-)
 
-rtc: pcf8525: Add watchdog support
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 01e209d88f5f3..76675b75388e4 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -44,6 +44,7 @@
+ #define PCF85063_REG_CTRL2		0x01
+ #define PCF85063_CTRL2_AF		BIT(6)
+ #define PCF85063_CTRL2_AIE		BIT(7)
++#define PCF85063_CTRL2_TF		BIT(3)
+ 
+ #define PCF85063_REG_OFFSET		0x02
+ #define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
+@@ -63,6 +64,14 @@
+ #define PCF85063_REG_ALM_S		0x0b
+ #define PCF85063_AEN			BIT(7)
+ 
++#define PCF85063_REG_TIMER_VALUE	0x10
++#define PCF85063_REG_TIMER_MODE		0x11
++#define PCF85063_TIMER_MODE_TI_TP	BIT(0)
++#define PCF85063_TIMER_MODE_TIE		BIT(1)
++#define PCF85063_TIMER_MODE_TE		BIT(2)
++#define PCF85063_TIMER_MODE_TCF_MASK	GENMASK(4, 3)
++#define PCF85063_TIMER_MODE_TCF_1HZ	(2 << 3)
++
+ struct pcf85063_config {
+ 	struct regmap_config regmap;
+ 	unsigned has_alarms:1;
+@@ -188,12 +197,64 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	return 0;
+ }
+ 
++/*
++ * The chip has no dedicated 1 Hz update interrupt. Drive the countdown timer
++ * at 1 Hz to emulate it, so the RTC core can offload UIE to the hardware
++ * instead of polling. A free-running timer is left untouched to preserve its
++ * phase across the per-second re-arming done by the core.
++ */
++static int pcf85063_set_timer_1hz(struct pcf85063 *pcf85063, bool enable)
++{
++	unsigned int mask = PCF85063_TIMER_MODE_TCF_MASK |
++			    PCF85063_TIMER_MODE_TIE |
++			    PCF85063_TIMER_MODE_TI_TP |
++			    PCF85063_TIMER_MODE_TE;
++	unsigned int mode = 0;
++	unsigned int cur;
++	int ret;
++
++	if (enable)
++		mode = PCF85063_TIMER_MODE_TCF_1HZ | PCF85063_TIMER_MODE_TIE |
++		       PCF85063_TIMER_MODE_TI_TP | PCF85063_TIMER_MODE_TE;
++
++	ret = regmap_read(pcf85063->regmap, PCF85063_REG_TIMER_MODE, &cur);
++	if (ret)
++		return ret;
++
++	if ((cur & mask) == mode)
++		return 0;
++
++	/* Stop the counter before changing its reload value. */
++	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
++				 PCF85063_TIMER_MODE_TE, 0);
++	if (ret)
++		return ret;
++
++	if (enable) {
++		ret = regmap_write(pcf85063->regmap, PCF85063_REG_TIMER_VALUE, 1);
++		if (ret)
++			return ret;
++
++		ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
++					 PCF85063_CTRL2_TF, 0);
++		if (ret)
++			return ret;
++	}
++
++	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
++				  mask, mode);
++}
++
+ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
+ 	u8 buf[5];
+ 	int ret;
+ 
++	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
++	if (ret)
++		return ret;
++
+ 	buf[0] = bin2bcd(alrm->time.tm_sec);
+ 	buf[1] = bin2bcd(alrm->time.tm_min);
+ 	buf[2] = bin2bcd(alrm->time.tm_hour);
+@@ -212,22 +273,32 @@ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+ 				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+-				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
++				  pcf85063->rtc->aie_timer.enabled ?
++				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
+ }
+ 
+ static int pcf85063_rtc_alarm_irq_enable(struct device *dev,
+ 					 unsigned int enabled)
+ {
+ 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
++	if (ret)
++		return ret;
+ 
+ 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+ 				  PCF85063_CTRL2_AIE,
+-				  enabled ? PCF85063_CTRL2_AIE : 0);
++				  pcf85063->rtc->aie_timer.enabled ?
++				  PCF85063_CTRL2_AIE : 0);
+ }
+ 
+ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
+ {
+ 	struct pcf85063 *pcf85063 = dev_id;
++	unsigned long events = RTC_IRQF;
++	irqreturn_t ret = IRQ_NONE;
++	unsigned int mask = 0;
+ 	unsigned int val;
+ 	int err;
+ 
+@@ -236,14 +307,23 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	if (val & PCF85063_CTRL2_AF) {
+-		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
+-		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+-				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+-				   0);
+-		return IRQ_HANDLED;
++		events |= RTC_AF;
++		mask |= PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF;
++		ret = IRQ_HANDLED;
++	}
++
++	if (val & PCF85063_CTRL2_TF) {
++		events |= RTC_UF;
++		mask |= PCF85063_CTRL2_TF;
++		ret = IRQ_HANDLED;
++	}
++
++	if (ret == IRQ_HANDLED) {
++		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2, mask, 0);
++		rtc_update_irq(pcf85063->rtc, 1, events);
+ 	}
+ 
+-	return IRQ_NONE;
++	return ret;
+ }
+ 
+ static int pcf85063_read_offset(struct device *dev, long *offset)
+@@ -607,6 +687,7 @@ static int pcf85063_probe(struct device *dev, struct regmap *regmap, int irq,
+ 			dev_warn(&pcf85063->rtc->dev,
+ 				 "unable to request IRQ, alarms disabled\n");
+ 		} else {
++			set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf85063->rtc->features);
+ 			set_bit(RTC_FEATURE_ALARM, pcf85063->rtc->features);
+ 			device_init_wakeup(dev, true);
+ 			err = dev_pm_set_wake_irq(dev, irq);
+-- 
+2.55.0
 
-This commit adds watchdog support for the NXP PCF8525 real time clock devic=
-e.
-
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> index 7dfb4f0f64047..4ef648bdfc5b9 100644
-> --- a/drivers/rtc/rtc-pcf8525.c
-> +++ b/drivers/rtc/rtc-pcf8525.c
-[ ... ]
-> +static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
-> +{
-> +	struct device *dev =3D data;
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-> +	unsigned int ctrl2;
-> +	int ret;
-> +
-> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-> +	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
-> +		return IRQ_NONE;
-> +
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_WDTF, 0);
-
-[Severity: High]
-Does returning IRQ_HANDLED here without notifying the watchdog core or
-invoking panic() silently abort the hardware reset? If INTB is routed to
-a reset controller, de-asserting it before the reset cycle completes might
-leave the system in a hung state rather than resetting it.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but this read-modify-write
-on the CTRL2 register extends a pre-existing race condition to the
-watchdog handler thread.
-
-CTRL2 contains write-0-to-clear flags like AF, MSF, and WDTF. Because
-regmap_update_bits() reads the register and writes it back, if a hardware
-flag asserts after the read but before the write, could this write back
-a 0 and accidentally clear the newly asserted flag?
-
-This same pattern exists in pcf8525_irq() when clearing AF, which could
-cause lost hardware interrupts.
-
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-> +	return IRQ_HANDLED;
-> +}
-[ ... ]
-> +static int pcf8525_watchdog_config(struct device *dev,
-> +				   struct pcf8525 *pcf8525)
-> +{
-[ ... ]
-> +	m1 |=3D PCF8525_MASK1_BIE |
-> +	      PCF8525_MASK1_AIE |
-> +	      PCF8525_MASK1_OSIE |
-> +	      PCF8525_MASK1_SI |
-> +	      PCF8525_MASK1_MI;
-> +	m1 &=3D ~PCF8525_MASK1_WD_CD;
-> +
-> +	ret =3D regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-
-[Severity: Critical]
-If the watchdog resets the system, the battery-backed RTC retains the WDTF
-(Watchdog Timeout Flag) set to 1. On reboot, when this unmasks the watchdog
-interrupt on the INTB pin, will it immediately assert INTB since WDTF is
-still 1? This regression could trigger the hardware reset again and cause
-an inescapable boot loop.
-
-> +	if (ret)
-> +		return ret;
-[ ... ]
-> +static int pcf8525_watchdog_init(struct device *dev,
-> +				 struct pcf8525 *pcf8525)
-> +{
-> +	int ret;
-> +
-> +	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
-> +	    !device_property_read_bool(dev, "reset-source"))
-> +		return 0;
-> +
-> +	if (pcf8525->irq_intb > 0) {
-> +		ret =3D devm_request_threaded_irq(dev, pcf8525->irq_intb,
-> +						NULL, pcf8525_wdt_irq,
-> +						IRQF_ONESHOT,
-> +						"pcf8525-wdt", dev);
-
-[Severity: High]
-Many hardware designs tie open-drain I2C interrupts (INTA and INTB) to a
-single SoC GPIO. If they are mapped to the same IRQ, will this request fail
-because it lacks IRQF_SHARED and uses the same dev_id token (dev)?
-This could result in a -EBUSY error and cause the entire device probe
-to fail.
-
-[ ... ]
-> +	pcf8525->wdd.timeout =3D PCF8525_WD_DEFAULT_TIMEOUT_S;
-> +	watchdog_init_timeout(&pcf8525->wdd, 0, dev);
-> +	pcf8525->wdd.min_hw_heartbeat_ms =3D PCF8525_WD_MIN_HW_HEARTBEAT_MS;
-> +	pcf8525->wdd.status =3D WATCHDOG_NOWAYOUT_INIT_STATUS;
-> +
-> +	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
-> +	watchdog_stop_on_reboot(&pcf8525->wdd);
-> +
-> +	return devm_watchdog_register_device(dev, &pcf8525->wdd);
-
-[Severity: High]
-If the bootloader starts the watchdog, does unconditionally setting the
-status without checking if the hardware timer is active cause issues?
-Because it fails to set WDOG_HW_RUNNING, the watchdog core will not
-initiate the ping worker, which might allow the timer to expire and
-cause a spurious system reboot during boot.
-
-[ ... ]
-> @@ -902,6 +1139,10 @@ static int pcf8525_probe(struct i2c_client *client)
->  	if (ret)
->  		return ret;
-> =20
-> +	ret =3D pcf8525_watchdog_init(dev, pcf8525);
-> +	if (ret)
-> +		return ret;
-> +
->  	return 0;
->  }
-
-[Severity: Medium]
-Could initializing the watchdog after RTC registration expose the RTC
-device to userspace prematurely? If pcf8525_watchdog_init() fails,
-probe will return an error and devres will unregister the RTC,
-which might cause operations on the opened device to fail.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807082855.3762=
-394-1-shivprakash.gupta@nxp.com?part=3D3
