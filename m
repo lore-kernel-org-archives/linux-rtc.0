@@ -1,230 +1,417 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E935712B94
-	for <linux-rtc@vger.kernel.org>; Fri,  7 Aug 2026 01:57:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90CC3AFB0C;
+	Fri,  7 Aug 2026 08:29:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786067836; cv=none; b=mf8TmkqeyoDsj8Fd3qPhXXTG9CAdwOoeLHbYb8r3l6vYIsSidO4PJZrQoIPIBlm7YRpnrZ0WOLUrEG1WDLEavhVKIjIzpeS5NPlH5gtWrGGeJsZAwmchcsfybrsSn1OjbmAcTI062B407bzaNTqGK5tggK0firAQROIPUOKZdcQ=
+	t=1786091381; cv=none; b=S3i79eOCCAEDgaRC2x08vYxU6ETeTgeTVl2bfLx9AoaA/6YaFCVIKDvok5FSNbDUjCTCrg7OYinQ/A/0XZ2fCXwJTqW5gGujIgRcIwPYm7+GMqPMBIxxUonuOAdN6kRrnssm7jKF4ce9qZKU9uoHk7KPSY4bCS1ejt5sCOVd1Ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786067836; c=relaxed/simple;
-	bh=f2c5LrSvye+pNG26ziPqb0Z58UO90Vo58/+ObRnCru4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hk/c3o1wSwuoK18psXHnY8m2ykyl+MHpZEFvNziGh9mIVyMxHa0MKlWGkIP2bZYWqKBB5FsWllCfyYXFVpN8j6lEX2uOLCITxI9A8h3bNZYH+EAAb6PiyQvu5thJNXWOP6Ae5fGqnklORgGwgNpI6U5qXVQmHA9JAcdAHD+8L+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mLfKozXZ; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mLfKozXZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EC31F000E9;
-	Fri,  7 Aug 2026 01:57:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786067834;
-	bh=VCud6eO3w3Te48Zgg+8tQTVhF/Vksaa+Lqfr67CEdWg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mLfKozXZ2RkRIiYByWO4UmQxREMhdcl7FtwFDFrtStLx146NqIA/rgYe8KRDt2vlg
-	 f2vi3fGH5bMbCg04TZQq/FcgJK8fJnZn9K+MQF2HFxhZFLfW/qwT9N5ncT56DuKOQA
-	 J8b/gzwrpTnTWzaPOYDFgiFGG2uhqsB8QZVVphe6OyrJbCKdThxQE6e38MFw3XGLa/
-	 q79SfNv7/9Mky1wRifJCjLOAaxs0kjTFZ5VGXl9zE0EOqVpw9BDD9wwUSliVyWTiC7
-	 xCVDiUaRbnb/gl4M7JwrASRbAv+QQ08wAL4ETRBhjr4BRp6j9PPpg+nISx0R6cb5lh
-	 7Yh2hfGyLDRPA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] rtc: m41t80: use watchdog core for watchdog support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yuho Choi" <dbgh9129@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260807013915.907604-1-dbgh9129@gmail.com>
-References: <20260807013915.907604-1-dbgh9129@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 01:57:13 +0000
-Message-Id: <20260807015714.47EC31F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1786091381; c=relaxed/simple;
+	bh=noGE6QGqkNK5BLekT03L2goLhgphH9QldjWjx2WnuwU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=S32TtQZywO+wRn8GEOYBE+JZ5XdcNRm610hb2VcYnpMzSQAwwIXnRnt4Gz1aSfmJy0UOxnMAlR0K5NWMo39hAcM1l+omxaFaNjQUdVh4LrkPwGkNwTtNrq/9BUI4Z80xOMzb/43BYUN2IojcYJOgSuWuYkF4TmsiVfMvdWVN8x0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id CC95D1A003B;
+	Fri,  7 Aug 2026 10:29:36 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 946C91A0008;
+	Fri,  7 Aug 2026 10:29:36 +0200 (CEST)
+Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 5DF7718000B5;
+	Fri,  7 Aug 2026 16:29:33 +0800 (+08)
+From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+To: linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org
+Cc: alexandre.belloni@bootlin.com,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	conor+dt@kernel.org,
+	linux@roeck-us.net,
+	wim@linux-watchdog.org,
+	vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	lakshay.piplani@nxp.com,
+	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Subject: [PATCH 3/4] rtc: pcf8525: Add watchdog support
+Date: Fri,  7 Aug 2026 13:58:54 +0530
+Message-Id: <20260807082855.3762394-4-shivprakash.gupta@nxp.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
+References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+Add watchdog support for NXP PCF8525 real time clock(RTC) device
 
-New issues:
-- [High] m41t80_wdt_set_timeout() modifies the watchdog timeout before vali=
-dating the hardware transfer, and unconditionally starts the hardware timer.
-- [Medium] The watchdog device's parent pointer is not assigned before regi=
-stration, breaking sysfs topology.
-- [Medium] The wdt_margin module parameter's default value shadows the Devi=
-ce Tree timeout-sec property.
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+---
+ drivers/rtc/Kconfig       |   1 +
+ drivers/rtc/rtc-pcf8525.c | 245 +++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 244 insertions(+), 2 deletions(-)
 
-Pre-existing issues:
-- [High] The square-wave clock and OF provider registered during probe are =
-never unregistered, causing a Use-After-Free.
-- [High] Stack buffers are passed to i2c_transfer, violating DMA constraint=
-s.
---
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 3c22c7253aae..6c1c7b3d27b6 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -516,6 +516,7 @@ config RTC_DRV_PCF8523
+ config RTC_DRV_PCF8525
+         tristate "NXP PCF8525"
+         select REGMAP_I2C
++	select WATCHDOG_CORE if WATCHDOG
+         help
+           If you say yes here you get support for the NXP PCF8525 RTC
+           chips.
+diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
+index 7dfb4f0f6404..4ef648bdfc5b 100644
+--- a/drivers/rtc/rtc-pcf8525.c
++++ b/drivers/rtc/rtc-pcf8525.c
+@@ -45,6 +45,8 @@
+ #include <linux/slab.h>
+ #include <linux/bitfield.h>
+ #include <linux/uaccess.h>
++#include <linux/kernel.h>
++#include <linux/watchdog.h>
+ 
+ /* Registers */
+ #define PCF8525_REG_CTRL1		0x00
+@@ -94,6 +96,8 @@
+ #define PCF8525_REG_INTB_MASK1		0x2A
+ #define PCF8525_REG_INTB_MASK2		0x2B
+ 
++#define PCF8525_REG_WD_CTL              0x2C
++#define PCF8525_REG_WD_VAL              0x2D
+ #define PCF8525_REG_TEMP		0x2E
+ 
+ /* CTRL1 */
+@@ -104,6 +108,7 @@
+ /* CTRL2 */
+ #define PCF8525_CTRL2_MSF		BIT(7)
+ #define PCF8525_CTRL2_TI_TP		BIT(6)
++#define PCF8525_CTRL2_WDTF              BIT(5)
+ #define PCF8525_CTRL2_AF		BIT(4)
+ #define PCF8525_CTRL2_OSFE_MASK		GENMASK(3, 2)
+ #define PCF8525_CTRL2_AIE		BIT(1)
+@@ -120,6 +125,9 @@
+ #define PCF8525_CTRL5_CL		BIT(1)
+ #define PCF8525_CTRL5_XTL_TYP		BIT(0)
+ 
++/* CLKOUT_ctl */
++#define PCF8525_CLKOUT_CLKOE            BIT(3)
++
+ /* Timestamp control */
+ #define PCF8525_TS_CTL1_TSM             BIT(7)
+ #define PCF8525_TS_CTL1_TSOFF           BIT(6)
+@@ -138,6 +146,7 @@
+ #define PCF8525_RESET_SR_CMD		0x2C /* software reset */
+ 
+ /* Interrupt masks (mask bit = 1 means masked/disabled) - INTA_MASK1 bits */
++#define PCF8525_MASK1_WD_CD            BIT(0)
+ #define PCF8525_MASK1_BIE		BIT(1)
+ #define PCF8525_MASK1_AIE		BIT(2)
+ #define PCF8525_MASK1_OSIE		BIT(3)
+@@ -148,6 +157,14 @@
+ 
+ #define PCF8525_ALM_AE_MONTH		BIT(7)
+ #define PCF8525_ALM_AE_YEAR		BIT(6)
++#define PCF8525_WD_CTL_WD_CD            BIT(7)
++#define PCF8525_WD_CTL_TF0              BIT(0)
++#define PCF8525_WD_CTL_TF1              BIT(1)
++
++#define PCF8525_WD_CLOCK_HZ_X1000       250 /* 1/4 Hz */
++#define PCF8525_WD_MIN_HW_HEARTBEAT_MS  4000
++#define PCF8525_WD_VAL_STOP             0
++#define PCF8525_WD_DEFAULT_TIMEOUT_S    60
+ 
+ #define PCF8525_REG_AGING_OFFSET_HI	0x26
+ #define PCF8525_REG_AGING_OFFSET_LO	0x27
+@@ -163,10 +180,13 @@
+ 
+ struct pcf8525 {
+ 	struct rtc_device *rtc;
++	struct watchdog_device wdd;
+ 	struct regmap *regmap;
+ 	bool irq_enabled;
+ 	time64_t ts[2];
+ 	bool ts_valid[2];
++	int irq_inta;
++	int irq_intb;
+ };
+ 
+ static const struct regmap_config pcf8525_regmap_cfg = {
+@@ -175,6 +195,218 @@ static const struct regmap_config pcf8525_regmap_cfg = {
+ 	.max_register = PCF8525_REG_TEMP,
+ };
+ 
++static unsigned int pcf8525_wdt_timeout_to_val(unsigned int timeout)
++{
++	unsigned int val;
++
++	val = DIV_ROUND_UP(timeout * PCF8525_WD_CLOCK_HZ_X1000, 1000) + 1;
++
++	if (val < 2)
++		return 2;
++	if (val > 255)
++		return 255;
++
++	return val;
++}
++
++static int pcf8525_wdt_ping(struct watchdog_device *wdd)
++{
++	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
++	unsigned int wd_val;
++
++	wd_val = pcf8525_wdt_timeout_to_val(wdd->timeout);
++
++	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL, wd_val);
++}
++
++static int pcf8525_wdt_active_ping(struct watchdog_device *wdd)
++{
++	if (watchdog_active(wdd))
++		return pcf8525_wdt_ping(wdd);
++
++	return 0;
++}
++
++static int pcf8525_wdt_start(struct watchdog_device *wdd)
++{
++	return pcf8525_wdt_ping(wdd);
++}
++
++static int pcf8525_wdt_stop(struct watchdog_device *wdd)
++{
++	struct pcf8525 *pcf8525 = watchdog_get_drvdata(wdd);
++
++	return regmap_write(pcf8525->regmap, PCF8525_REG_WD_VAL,
++				    PCF8525_WD_VAL_STOP);
++}
++
++static int pcf8525_wdt_set_timeout(struct watchdog_device *wdd,
++				   unsigned int timeout)
++{
++	wdd->timeout = timeout;
++
++	return pcf8525_wdt_active_ping(wdd);
++}
++
++static const struct watchdog_info pcf8525_wdt_info = {
++	.identity = "NXP PCF8525 Watchdog",
++	.options = WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++};
++
++static const struct watchdog_ops pcf8525_watchdog_ops = {
++	.owner = THIS_MODULE,
++	.start = pcf8525_wdt_start,
++	.stop = pcf8525_wdt_stop,
++	.ping = pcf8525_wdt_ping,
++	.set_timeout = pcf8525_wdt_set_timeout,
++};
++
++static int pcf8525_watchdog_get_period(int n, int f1000)
++{
++	return (1000 * (n - 1)) / f1000;
++}
++
++static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
++{
++	struct device *dev = data;
++	struct pcf8525 *pcf8525 = dev_get_drvdata(dev);
++	unsigned int ctrl2;
++	int ret;
++
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
++	if (ret)
++		return IRQ_NONE;
++
++	if (!(ctrl2 & PCF8525_CTRL2_WDTF))
++		return IRQ_NONE;
++
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
++				 PCF8525_CTRL2_WDTF, 0);
++	if (ret)
++		return IRQ_NONE;
++
++	return IRQ_HANDLED;
++}
++
++static int pcf8525_watchdog_config(struct device *dev,
++				   struct pcf8525 *pcf8525)
++{
++	unsigned int m1, m2;
++	int ret;
++
++	/* Configure nINTB/CLKOUT as nINTB open-drain interrupt output. */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_CLKOUT,
++				 PCF8525_CLKOUT_CLKOE, 0);
++	if (ret)
++		return ret;
++
++	/* Enable watchdog interrupt and select 1/4 Hz source: TF[1:0] = 10. */
++	ret = regmap_update_bits(pcf8525->regmap, PCF8525_REG_WD_CTL,
++				 PCF8525_WD_CTL_WD_CD |
++				 PCF8525_WD_CTL_TF1 |
++				 PCF8525_WD_CTL_TF0,
++				 PCF8525_WD_CTL_WD_CD |
++				 PCF8525_WD_CTL_TF1);
++	if (ret)
++		return ret;
++
++	/* Keep watchdog masked on INTA. */
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTA_MASK1, &m1);
++	if (ret)
++		return ret;
++
++	m1 |= PCF8525_MASK1_WD_CD;
++	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTA_MASK1, m1);
++	if (ret)
++		return ret;
++
++	/* Route watchdog only to INTB, and keep RTC interrupts masked on INTB. */
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
++	if (ret)
++		return ret;
++
++	m1 |= PCF8525_MASK1_BIE |
++	      PCF8525_MASK1_AIE |
++	      PCF8525_MASK1_OSIE |
++	      PCF8525_MASK1_SI |
++	      PCF8525_MASK1_MI;
++	m1 &= ~PCF8525_MASK1_WD_CD;
++
++	ret = regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
++	if (ret)
++		return ret;
++
++	ret = regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK2, &m2);
++	if (ret)
++		return ret;
++
++	m2 |= PCF8525_MASK2_TSIE;
++
++	return regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK2, m2);
++}
++
++static int pcf8525_watchdog_init(struct device *dev,
++				 struct pcf8525 *pcf8525)
++{
++	int ret;
++
++	if (!IS_ENABLED(CONFIG_WATCHDOG_CORE) ||
++	    !device_property_read_bool(dev, "reset-source"))
++		return 0;
++
++	if (pcf8525->irq_intb > 0) {
++		ret = devm_request_threaded_irq(dev, pcf8525->irq_intb,
++						NULL, pcf8525_wdt_irq,
++						IRQF_ONESHOT,
++						"pcf8525-wdt", dev);
++		if (ret)
++			return ret;
++	}
++
++	ret = pcf8525_watchdog_config(dev, pcf8525);
++	if (ret)
++		return ret;
++
++	pcf8525->wdd.parent = dev;
++	pcf8525->wdd.info = &pcf8525_wdt_info;
++	pcf8525->wdd.ops = &pcf8525_watchdog_ops;
++	pcf8525->wdd.min_timeout = pcf8525_watchdog_get_period(2,
++							       PCF8525_WD_CLOCK_HZ_X1000);
++	pcf8525->wdd.max_timeout = pcf8525_watchdog_get_period(255,
++							       PCF8525_WD_CLOCK_HZ_X1000);
++	pcf8525->wdd.timeout = PCF8525_WD_DEFAULT_TIMEOUT_S;
++	watchdog_init_timeout(&pcf8525->wdd, 0, dev);
++	pcf8525->wdd.min_hw_heartbeat_ms = PCF8525_WD_MIN_HW_HEARTBEAT_MS;
++	pcf8525->wdd.status = WATCHDOG_NOWAYOUT_INIT_STATUS;
++
++	watchdog_set_drvdata(&pcf8525->wdd, pcf8525);
++	watchdog_stop_on_reboot(&pcf8525->wdd);
++
++	return devm_watchdog_register_device(dev, &pcf8525->wdd);
++}
++
++static int pcf8525_get_irqs(struct i2c_client *client, struct pcf8525 *pcf8525)
++{
++	struct device *dev = &client->dev;
++	int irq;
++
++	irq = fwnode_irq_get_byname(dev_fwnode(dev), "inta");
++	if (irq == -ENOENT || irq == -EINVAL)
++		irq = client->irq;
++	else if (irq < 0)
++		return irq;
++	pcf8525->irq_inta = irq;
++
++	irq = fwnode_irq_get_byname(dev_fwnode(dev), "intb");
++	if (irq == -ENOENT || irq == -EINVAL)
++		irq = 0;
++	else if (irq < 0)
++		return irq;
++	pcf8525->irq_intb = irq;
++
++	return 0;
++}
++
+ /*
+  * Configure only the crystal fields explicitly provided by firmware.
+  * If a property is absent, preserve the current hardware setting.
+@@ -809,6 +1041,7 @@ static int pcf8525_unmask_irqs_intA(struct pcf8525 *pcf8525)
+ 	if (ret)
+ 		return ret;
+ 
++	m1 |= PCF8525_MASK1_WD_CD;
+ 	m1 &= ~PCF8525_MASK1_AIE;    /* unmask alarm interrupt on INTA */
+ 	m2 &= ~PCF8525_MASK2_TSIE;   /* unmask timestamp interrupt on INTA */
+ 
+@@ -836,6 +1069,10 @@ static int pcf8525_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, pcf8525);
+ 
++	ret = pcf8525_get_irqs(client, pcf8525);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to get IRQs\n");
++
+ 	pcf8525->rtc = devm_rtc_allocate_device(dev);
+ 	if (IS_ERR(pcf8525->rtc))
+ 		return dev_err_probe(dev, PTR_ERR(pcf8525->rtc),
+@@ -877,8 +1114,8 @@ static int pcf8525_probe(struct i2c_client *client)
+ 		return ret;
+ 
+ 	/* Optional IRQ */
+-	if (client->irq > 0) {
+-		ret = devm_request_threaded_irq(dev, client->irq,
++	if (pcf8525->irq_inta > 0) {
++		ret = devm_request_threaded_irq(dev, pcf8525->irq_inta,
+ 						NULL, pcf8525_irq,
+ 						IRQF_ONESHOT,
+ 						dev_name(dev), dev);
+@@ -902,6 +1139,10 @@ static int pcf8525_probe(struct i2c_client *client)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = pcf8525_watchdog_init(dev, pcf8525);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
+ 
+-- 
+2.34.1
 
---- Patch [1]: [PATCH v2] rtc: m41t80: use watchdog core for watchdog suppo=
-rt ---
-commit 71ede3ba0b7d96a1d64a82ae64e6033a3aa277f9
-Author: Yuho Choi <dbgh9129@gmail.com>
-
-rtc: m41t80: use watchdog core for watchdog support
-
-The M41T80 watchdog uses a global misc device, reboot notifier, and
-save_client pointer. This patch converts the driver to use the watchdog cor=
-e,
-embedding the watchdog_device in m41t80_data and relying on devres for
-registration and cleanup.
-
-> diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
-> index 3c8c379392c14..ec2238d9170e0 100644
-> --- a/drivers/rtc/rtc-m41t80.c
-> +++ b/drivers/rtc/rtc-m41t80.c
-
-[ ... ]
-
-> -static int wdt_margin =3D WD_TIMO;
-> +static int wdt_margin =3D M41T80_WDT_DEFAULT_TIMEOUT;
->  module_param(wdt_margin, int, 0);
->  MODULE_PARM_DESC(wdt_margin, "Watchdog timeout in seconds (default 60s)"=
-);
-> =20
-> -static unsigned long wdt_is_open;
-> -static int boot_flag;
-> +static const struct watchdog_info m41t80_wdt_info =3D {
-> +	.options =3D WDIOF_POWERUNDER | WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
-> +	.firmware_version =3D 1,
-> +	.identity =3D "M41T80 Watchdog",
-> +};
-
-[Severity: Medium]
-Since wdt_margin is statically initialized to M41T80_WDT_DEFAULT_TIMEOUT (6=
-0),
-will watchdog_init_timeout() interpret this non-zero value as an explicit
-driver override and completely ignore the Device Tree timeout-sec property?
-
-It seems this renders the DT configuration unreachable unless the user
-explicitly passes wdt_margin=3D0 at boot.
-
-[ ... ]
-
-> +static int m41t80_wdt_ping(struct watchdog_device *wdt)
->  {
-> +	struct m41t80_data *m41t80 =3D watchdog_get_drvdata(wdt);
-> +	struct i2c_client *client =3D m41t80->client;
->  	unsigned char i2c_data[2];
-> -	struct i2c_msg msgs1[1] =3D {
-> -		{
-> -			.addr	=3D save_client->addr,
-> -			.flags	=3D 0,
-> -			.len	=3D 2,
-> -			.buf	=3D i2c_data,
-> -		},
-> +	struct i2c_msg msg =3D {
-> +		.addr =3D client->addr,
-> +		.flags =3D 0,
-> +		.len =3D 2,
-> +		.buf =3D i2c_data,
->  	};
-
-[Severity: High]
-This is a pre-existing issue, but are these stack-allocated buffers safe for
-I2C transfers?
-
-In modern kernels with VMAP_STACK, the stack is not physically contiguous. =
-If
-the underlying I2C adapter relies on DMA for transfers, passing stack memory
-(like i2c_data here, and i2c_buf in m41t80_wdt_stop) directly to i2c_transf=
-er()
-could cause memory corruption or kernel panics.
-
-[ ... ]
-
-> +static int m41t80_wdt_set_timeout(struct watchdog_device *wdt, unsigned =
-int timeout)
->  {
-> +	wdt->timeout =3D timeout;
-> =20
-> -	mutex_lock(&m41t80_rtc_mutex);
-> -	ret =3D wdt_ioctl(file, cmd, arg);
-> -	mutex_unlock(&m41t80_rtc_mutex);
-> -
-> -	return ret;
-> +	return m41t80_wdt_ping(wdt);
->  }
-
-[Severity: High]
-If the underlying I2C transfer fails in m41t80_wdt_ping(), won't the hardwa=
-re
-retain its old timeout while the watchdog core and driver retain the new,
-unapplied wdt->timeout, causing an inconsistent state?
-
-Also, if the watchdog was previously stopped, wouldn't unconditionally
-calling m41t80_wdt_ping() here activate the hardware timer without setting
-WDOG_ACTIVE in the watchdog core? This could lead to an unexpected system
-reboot since the core won't ping an inactive watchdog.
-
-[ ... ]
-
-> @@ -1011,19 +842,26 @@ static int m41t80_probe(struct i2c_client *client)
->  	if (rc)
->  		return rc;
-> =20
-> -	return 0;
-> -}
-> -
-> -static void m41t80_remove(struct i2c_client *client)
-> -{
->  #ifdef CONFIG_RTC_DRV_M41T80_WDT
-> -	struct m41t80_data *clientdata =3D i2c_get_clientdata(client);
-> -
-> -	if (clientdata->features & M41T80_FEATURE_HT) {
-> -		misc_deregister(&wdt_dev);
-> -		unregister_reboot_notifier(&wdt_notifier);
-> +	if (m41t80_data->features & M41T80_FEATURE_HT) {
-> +		m41t80_data->wdt.info =3D &m41t80_wdt_info;
-> +		m41t80_data->wdt.ops =3D &m41t80_wdt_ops;
-> +		m41t80_data->wdt.timeout =3D M41T80_WDT_DEFAULT_TIMEOUT;
-> +		m41t80_data->wdt.min_timeout =3D M41T80_WDT_MIN_TIMEOUT;
-> +		m41t80_data->wdt.max_timeout =3D M41T80_WDT_MAX_TIMEOUT;
-
-[Severity: Medium]
-Is it intentional to omit setting the watchdog device's parent pointer
-(m41t80_data->wdt.parent =3D &client->dev)?
-
-Failing to set this will cause the watchdog core to create the device at the
-root of the virtual sysfs hierarchy rather than nesting it under the physic=
-al
-I2C client device, which can break sysfs topology and power management
-ordering.
-
-> +
-> +		watchdog_init_timeout(&m41t80_data->wdt, wdt_margin, &client->dev);
-> +		watchdog_stop_on_reboot(&m41t80_data->wdt);
-> +		watchdog_stop_on_unregister(&m41t80_data->wdt);
-> +		watchdog_set_drvdata(&m41t80_data->wdt, m41t80_data);
-> +
-> +		rc =3D devm_watchdog_register_device(&client->dev, &m41t80_data->wdt);
-> +		if (rc)
-> +			return rc;
->  	}
->  #endif
-
-[Severity: High]
-This is a pre-existing issue, but if devm_watchdog_register_device() fails =
-and
-returns an error, won't this leak Common Clock Framework pointers?
-
-Earlier in probe, m41t80_sqw_register_clk() registers a clock and an OF
-provider using non-managed APIs:
-
-	clk =3D clk_register(&client->dev, &m41t80->sqw);
-	if (!IS_ERR(clk))
-		of_clk_add_provider(node, of_clk_src_simple_get, clk);
-
-Neither the probe error paths nor the device unbind mechanism unregisters
-these. If probe fails here, devres will automatically free the m41t80_data
-struct, leaving CCF with dangling pointers to the embedded m41t80_data->sqw
-and causing a use-after-free on subsequent clock accesses.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807013915.9076=
-04-1-dbgh9129@gmail.com?part=3D1
