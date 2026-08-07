@@ -1,236 +1,174 @@
-Received: from mta-65-225.siemens.flowmailer.net (mta-65-225.siemens.flowmailer.net [185.136.65.225])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8D5942FCB7
-	for <linux-rtc@vger.kernel.org>; Fri,  7 Aug 2026 12:58:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.225
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A4F8481246
+	for <linux-rtc@vger.kernel.org>; Fri,  7 Aug 2026 13:05:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786107506; cv=none; b=RiI1KXVp/PREP+U+TGABiGhmNi0aTabM1bvS14LDJCWBmtUDWd1uFqoWgRj0ixXCegISuH3O3r90C2eJbwdZ9LVLF+KgARkMjtf//6zk8buhJtg8bKGmB8tcOaEi1CCmwH6gPZXmDmBIgvCZCsiWgxr3DkeTd5umos/yN4kLTEk=
+	t=1786107957; cv=none; b=uAXeC8OTx/G7/R9PMutqt/0nBB4HZW21yuYzIkeVrLydfzIt4D5oaPvDvq8TsQcLta+Z8E5VnGiG5iRHKAeXCezInIx2v5zFSYBXM7ZdHRrGAFp1Me0nkgyrXvB3iaz3F+0qHd9S7K8NSI4NzMMloFiEmKX0vVP5fzVDEvwKRNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786107506; c=relaxed/simple;
-	bh=6UIFMuAWn+MOW/yWn5Z1SIDBs5DoTk2T2BrB8ro/0Jo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OR0JhjkFg4n6vl3pL9rqPybcuH5V7N8AQ20oaVl0zDQgO52Dmvau4Gj3J3V/fbExMGiXX2qnuZuK6uduNMk1XZD9w9Qti52EjfQti2fdpQEIvbv1HdypB0oT08kZUiAWxCIiyA30FjpJPj6BmS8wrxLJ2sd4QccF9cptXBKprec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=DLJ7E1nR; arc=none smtp.client-ip=185.136.65.225
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
+	s=arc-20240116; t=1786107957; c=relaxed/simple;
+	bh=n0Vn19nqj/lB2ugZp0+zOqsjg/7ogGYsadcpngMRmHY=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=geMUKThiKPRVtF6YrkbnUMSkHF4DUBo3dY28N2HIkWIfHBUvgyEpuqqwXoANDizPadpDqjnXJrYa6uFXroFimqMJZ6pvVfTlGhuqgHtsHthjKTLysEs2D+uwCbj6eWsg6WNroxXP64ddW/tNSfs6pMGCwoXDll7hrTz0Mlg8aNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dt9WZvly; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="DLJ7E1nR"
-Received: by mta-65-225.siemens.flowmailer.net with ESMTPSA id 202608071258053aa2c025af000207a9
-        for <linux-rtc@vger.kernel.org>;
-        Fri, 07 Aug 2026 14:58:05 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm1;
- d=siemens.com; i=alexander.sverdlin@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
- bh=iKfVzn8Vftj6bw2MSm/OU4HW96AhumUBAC182UHvreQ=;
- b=DLJ7E1nR2xb2LDsM9HGSVNirGBA+6cnr8GxwegGqWCWqp5o2C5dhzwXU5jnAtOtKEBeK7x
- lb1eyd/Gc+gpAf1V7bD72TEOOEyU0jxJYvzM0xVRw1MlmZymG5TS622q1xVFdUbGNg8tA6oF
- rJ0C9smnyKXhl1KiA5WlYDm4iohjLc3EfnWhNNXrXFakVGXD/x0+4RHSpRaDlJhHq6ny53kD
- 8oCzPhfVhQhCYcL+TqyhFHHTic+LU6XIUgfoq8nn/h6Oyd15jIEPnDsKbXp6ZUBQQRmXDirX
- nVLJZwQuHC9qwHP3sFMr5cl2LIyVsCvTquFH8xx5N+f52D2dr98S52dA==;
-From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
-To: linux-rtc@vger.kernel.org
-Cc: Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-kernel@vger.kernel.org,
-	Adrian Freihofer <adrian.freihofer@siemens.com>
-Subject: [PATCH] rtc: pcf85063: add 1 Hz update interrupt (UIE) support
-Date: Fri,  7 Aug 2026 14:57:52 +0200
-Message-ID: <20260807125757.2908175-1-alexander.sverdlin@siemens.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dt9WZvly"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-47f633e6058so2832668f8f.0
+        for <linux-rtc@vger.kernel.org>; Fri, 07 Aug 2026 06:05:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786107947; x=1786712747; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=c1a7P4jiviNU6oOtgbodYFwN4kHdnf0MCA2I2A5Ygzo=;
+        b=Dt9WZvly3eyYjgmlfJO/HbzDz8YuJ7ZoVjab1/vpFWs6Xo+W9k/+yMxIqDJtK+Yx90
+         E97c95yxO2H4ShfmYhY+QhisIGxBEaP1CFfTeLE0AfrCoaq0OMqBNQsL2jgC7JAGXwqp
+         vSeRdK4pbM6xpLZ0K6U12koE6xJWJQ6lLk1v6aUUZkZMepqj4ysOicGrgkoxJdFHd65h
+         Or7BBkec0AeQGDNriqkGz3Sliwn5TxT6kW5z6p2XiWdQuOhm4smni5SGTSb/L5Erw8Eg
+         QWoaZODfkbl8PDIQDRPbh+EN+vSSLZ+6EU3v4B5OCMTBzs8usCyYO493jwRatuXYTdqf
+         tJzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786107947; x=1786712747;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=c1a7P4jiviNU6oOtgbodYFwN4kHdnf0MCA2I2A5Ygzo=;
+        b=syVeJMuvO37qOAI6/AJTy4a7r5JpM88GmzAAdvmUqXjsEIZpx13pqpExpts2muwrRM
+         ogbtU4gCBF0HJP4UooS5o8lsth5v1UNuXRmza+57eF1/cVbqoMoWGPHYZx45IlvFIpsp
+         SI4GfHFi+C+QIjR5zQjTCZEqEU6Xhy8npIJ1O6w6d2XiFlr9iIa7gabw3DrOivQxQ+MB
+         b37sRlFAqd0eaCxDKsL60Moif21UhDko9GYPDUCGxclQ4qJpKdsUiA+/pQFJ3iblT5Vo
+         sPdTUKJzLZuIb/hd2rNRDiDGP2ilhax66yJ+nT8q+k9MtqlDspg/baLdH/wdoa+VEl34
+         0UDQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrAt6IM8lXF5CMcOxM0AyvOLDqB7eSX2sxNG/KTL/3s8jE9gVEq6Gpe9NZ3z/ZQyAp2BdCoU4OSEVc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyN6NgZ5pmiDxKnCiI4U4kwNmGDz8sqOz8t6uDnROryMzMuRBCB
+	lQaR3AQGJyriOC2BUYJ5sNH5zBlns3A+xxNP4m9S6qljjqGknUXl+o2b
+X-Gm-Gg: AR+sD13ajKOmFQaAVzP72qlHlAl0cr79SUOCSXpWwSotp5Ca/quAhRWSZJq3i/r+7tS
+	iuZ5GYF3XlX/v+YrYf3ghRkmH8dqRaNk927RQFVuz56st5W2CJj5J34WVwwA2AQ2vp+FCIbMFYS
+	xwnGN2hOlY2qq5Am4I8mlCK9Lyf2yuR1X4ENQPE1gBL1eAakWRQiFmcznxLOfB5ocq1e4aFe7cy
+	VotQ6b3x/k1UeYR1GtlUCi4ZNxZjlx7b+La3FENLlo2L4gxQoE4onfMzx2rthAYBggS7bI6CWQQ
+	TQueI4Ja56rbLKX6yU0yXfBrMqqJ7aC2u3XgvFR9EFl2iWXTTIfi9cTLjvBs2Y6SKfaehlOuN4A
+	NMqm7FaKCZ474ZOm44VXSQnmkxSiRAn5z9Qs8lYTV+2gvXlCs01OCqA4rAcGO76qdTJOr+gRBMw
+	WoRUD+wmsRJQb9ilXcSBXdKtLGOUyqrK9OsxAo/cEjeCu0UCnhOjibWzj/uN4dDonVrhM=
+X-Received: by 2002:a05:6000:188f:b0:472:fe1a:1ee9 with SMTP id ffacd0b85a97d-47fec6334aemr37259511f8f.20.1786107947415;
+        Fri, 07 Aug 2026 06:05:47 -0700 (PDT)
+Received: from localhost ([2c0f:3d00:6be:8900:ce5e:9212:ea4b:f30])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4800220ab04sm5132001f8f.37.2026.08.07.06.05.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Aug 2026 06:05:46 -0700 (PDT)
+Date: Fri, 7 Aug 2026 16:05:43 +0300
+From: Dan Carpenter <error27@gmail.com>
+To: oe-kbuild@lists.linux.dev, Elad Nachman <enachman@marvell.com>,
+	alexandre.belloni@bootlin.com, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev, enachman@marvell.com
+Subject: Re: [PATCH] drivers: rtc: handle OTF clock changes
+Message-ID: <202608072059.hZ2oY5u0-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-456497:519-21489:flowmailer
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260624123103.3523728-1-enachman@marvell.com>
 
-From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Hi Elad,
 
-The PCF85063A/RV8263 have no dedicated 1 Hz update interrupt, but their
-countdown timer can be sourced from a 1 Hz clock (TCF = 1 Hz, T = 1) to
-generate a periodic interrupt on the INT pin. Use it to offload UIE to
-the hardware, following the pattern of other RTC drivers: the timer is
-enabled from set_alarm()/alarm_irq_enable() whenever uie_rtctimer is
-active, and the IRQ handler reports RTC_UF when the timer flag (TF) is
-set.
+kernel test robot noticed the following build warnings:
 
-RTC_FEATURE_UPDATE_INTERRUPT is now only cleared when no usable interrupt
-is wired, preserving the polling emulation for those configurations.
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Co-developed-by: Adrian Freihofer <adrian.freihofer@siemens.com>
-Signed-off-by: Adrian Freihofer <adrian.freihofer@siemens.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
----
- drivers/rtc/rtc-pcf85063.c | 97 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 89 insertions(+), 8 deletions(-)
+url:    https://github.com/intel-lab-lkp/linux/commits/Elad-Nachman/drivers-rtc-handle-OTF-clock-changes/20260806-231215
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
+patch link:    https://lore.kernel.org/r/20260624123103.3523728-1-enachman%40marvell.com
+patch subject: [PATCH] drivers: rtc: handle OTF clock changes
+config: i386-randconfig-141 (https://download.01.org/0day-ci/archive/20260807/202608072059.hZ2oY5u0-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+smatch: v0.5.0-9187-g5189e3fb
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 01e209d88f5f3..76675b75388e4 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -44,6 +44,7 @@
- #define PCF85063_REG_CTRL2		0x01
- #define PCF85063_CTRL2_AF		BIT(6)
- #define PCF85063_CTRL2_AIE		BIT(7)
-+#define PCF85063_CTRL2_TF		BIT(3)
- 
- #define PCF85063_REG_OFFSET		0x02
- #define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
-@@ -63,6 +64,14 @@
- #define PCF85063_REG_ALM_S		0x0b
- #define PCF85063_AEN			BIT(7)
- 
-+#define PCF85063_REG_TIMER_VALUE	0x10
-+#define PCF85063_REG_TIMER_MODE		0x11
-+#define PCF85063_TIMER_MODE_TI_TP	BIT(0)
-+#define PCF85063_TIMER_MODE_TIE		BIT(1)
-+#define PCF85063_TIMER_MODE_TE		BIT(2)
-+#define PCF85063_TIMER_MODE_TCF_MASK	GENMASK(4, 3)
-+#define PCF85063_TIMER_MODE_TCF_1HZ	(2 << 3)
-+
- struct pcf85063_config {
- 	struct regmap_config regmap;
- 	unsigned has_alarms:1;
-@@ -188,12 +197,64 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return 0;
- }
- 
-+/*
-+ * The chip has no dedicated 1 Hz update interrupt. Drive the countdown timer
-+ * at 1 Hz to emulate it, so the RTC core can offload UIE to the hardware
-+ * instead of polling. A free-running timer is left untouched to preserve its
-+ * phase across the per-second re-arming done by the core.
-+ */
-+static int pcf85063_set_timer_1hz(struct pcf85063 *pcf85063, bool enable)
-+{
-+	unsigned int mask = PCF85063_TIMER_MODE_TCF_MASK |
-+			    PCF85063_TIMER_MODE_TIE |
-+			    PCF85063_TIMER_MODE_TI_TP |
-+			    PCF85063_TIMER_MODE_TE;
-+	unsigned int mode = 0;
-+	unsigned int cur;
-+	int ret;
-+
-+	if (enable)
-+		mode = PCF85063_TIMER_MODE_TCF_1HZ | PCF85063_TIMER_MODE_TIE |
-+		       PCF85063_TIMER_MODE_TI_TP | PCF85063_TIMER_MODE_TE;
-+
-+	ret = regmap_read(pcf85063->regmap, PCF85063_REG_TIMER_MODE, &cur);
-+	if (ret)
-+		return ret;
-+
-+	if ((cur & mask) == mode)
-+		return 0;
-+
-+	/* Stop the counter before changing its reload value. */
-+	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
-+				 PCF85063_TIMER_MODE_TE, 0);
-+	if (ret)
-+		return ret;
-+
-+	if (enable) {
-+		ret = regmap_write(pcf85063->regmap, PCF85063_REG_TIMER_VALUE, 1);
-+		if (ret)
-+			return ret;
-+
-+		ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+					 PCF85063_CTRL2_TF, 0);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
-+				  mask, mode);
-+}
-+
- static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
- 	u8 buf[5];
- 	int ret;
- 
-+	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
-+	if (ret)
-+		return ret;
-+
- 	buf[0] = bin2bcd(alrm->time.tm_sec);
- 	buf[1] = bin2bcd(alrm->time.tm_min);
- 	buf[2] = bin2bcd(alrm->time.tm_hour);
-@@ -212,22 +273,32 @@ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
- 				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
--				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
-+				  pcf85063->rtc->aie_timer.enabled ?
-+				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
- }
- 
- static int pcf85063_rtc_alarm_irq_enable(struct device *dev,
- 					 unsigned int enabled)
- {
- 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
-+	if (ret)
-+		return ret;
- 
- 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
- 				  PCF85063_CTRL2_AIE,
--				  enabled ? PCF85063_CTRL2_AIE : 0);
-+				  pcf85063->rtc->aie_timer.enabled ?
-+				  PCF85063_CTRL2_AIE : 0);
- }
- 
- static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
- {
- 	struct pcf85063 *pcf85063 = dev_id;
-+	unsigned long events = RTC_IRQF;
-+	irqreturn_t ret = IRQ_NONE;
-+	unsigned int mask = 0;
- 	unsigned int val;
- 	int err;
- 
-@@ -236,14 +307,23 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
- 		return IRQ_NONE;
- 
- 	if (val & PCF85063_CTRL2_AF) {
--		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
--		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
--				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
--				   0);
--		return IRQ_HANDLED;
-+		events |= RTC_AF;
-+		mask |= PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF;
-+		ret = IRQ_HANDLED;
-+	}
-+
-+	if (val & PCF85063_CTRL2_TF) {
-+		events |= RTC_UF;
-+		mask |= PCF85063_CTRL2_TF;
-+		ret = IRQ_HANDLED;
-+	}
-+
-+	if (ret == IRQ_HANDLED) {
-+		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2, mask, 0);
-+		rtc_update_irq(pcf85063->rtc, 1, events);
- 	}
- 
--	return IRQ_NONE;
-+	return ret;
- }
- 
- static int pcf85063_read_offset(struct device *dev, long *offset)
-@@ -607,6 +687,7 @@ static int pcf85063_probe(struct device *dev, struct regmap *regmap, int irq,
- 			dev_warn(&pcf85063->rtc->dev,
- 				 "unable to request IRQ, alarms disabled\n");
- 		} else {
-+			set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf85063->rtc->features);
- 			set_bit(RTC_FEATURE_ALARM, pcf85063->rtc->features);
- 			device_init_wakeup(dev, true);
- 			err = dev_pm_set_wake_irq(dev, irq);
--- 
-2.55.0
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <error27@gmail.com>
+| Closes: https://lore.kernel.org/r/202608072059.hZ2oY5u0-lkp@intel.com/
+
+smatch warnings:
+drivers/rtc/interface.c:163 rtc_set_time() warn: variable dereferenced before check 'rtc' (see line 135)
+
+vim +/rtc +163 drivers/rtc/interface.c
+
+ab6a2d70d18edc David Brownell    2007-05-08  126  int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
+0c86edc0d49706 Alessandro Zummo  2006-03-27  127  {
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  128  	int err, uie;
+37b82b16c5f104 Elad Nachman      2026-06-24  129  	struct rtc_time new_tm;
+0c86edc0d49706 Alessandro Zummo  2006-03-27  130  
+0c86edc0d49706 Alessandro Zummo  2006-03-27  131  	err = rtc_valid_tm(tm);
+0c86edc0d49706 Alessandro Zummo  2006-03-27  132  	if (err != 0)
+0c86edc0d49706 Alessandro Zummo  2006-03-27  133  		return err;
+0c86edc0d49706 Alessandro Zummo  2006-03-27  134  
+4c4e5df1f346f7 Baolin Wang       2018-01-08 @135  	err = rtc_valid_range(rtc, tm);
+4c4e5df1f346f7 Baolin Wang       2018-01-08  136  	if (err)
+4c4e5df1f346f7 Baolin Wang       2018-01-08  137  		return err;
+71db049e7355f3 Alexandre Belloni 2018-02-17  138  
+989515647e7832 Baolin Wang       2018-01-08  139  	rtc_subtract_offset(rtc, tm);
+989515647e7832 Baolin Wang       2018-01-08  140  
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  141  #ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  142  	uie = rtc->uie_rtctimer.enabled || rtc->uie_irq_active;
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  143  #else
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  144  	uie = rtc->uie_rtctimer.enabled;
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  145  #endif
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  146  	if (uie) {
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  147  		err = rtc_update_irq_enable(rtc, 0);
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  148  		if (err)
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  149  			return err;
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  150  	}
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  151  
+0c86edc0d49706 Alessandro Zummo  2006-03-27  152  	err = mutex_lock_interruptible(&rtc->ops_lock);
+0c86edc0d49706 Alessandro Zummo  2006-03-27  153  	if (err)
+b68bb2632453a9 David Brownell    2008-07-29  154  		return err;
+0c86edc0d49706 Alessandro Zummo  2006-03-27  155  
+0c86edc0d49706 Alessandro Zummo  2006-03-27  156  	if (!rtc->ops)
+0c86edc0d49706 Alessandro Zummo  2006-03-27  157  		err = -ENODEV;
+bbccf83f6c4e1a Alessandro Zummo  2009-01-06  158  	else if (rtc->ops->set_time)
+cd9662094edf41 David Brownell    2007-05-08  159  		err = rtc->ops->set_time(rtc->dev.parent, tm);
+606cc43c720bde Alexandre Belloni 2019-03-20  160  	else
+bbccf83f6c4e1a Alessandro Zummo  2009-01-06  161  		err = -EINVAL;
+0c86edc0d49706 Alessandro Zummo  2006-03-27  162  
+37b82b16c5f104 Elad Nachman      2026-06-24 @163  	if (rtc && rtc->ops && rtc->ops->read_time) {
+                                                            ^^^
+There is no point in checking "rtc" after we have already dereferenced
+it.
+
+37b82b16c5f104 Elad Nachman      2026-06-24  164  		if (!rtc->ops->read_time(rtc->dev.parent, &new_tm)) {
+37b82b16c5f104 Elad Nachman      2026-06-24  165  			pr_debug("new rtc time secs %d mins %d hours %d mday %d mon %d year %d way %d yday %d dst %d\n",
+37b82b16c5f104 Elad Nachman      2026-06-24  166  					new_tm.tm_sec, new_tm.tm_min,
+37b82b16c5f104 Elad Nachman      2026-06-24  167  					new_tm.tm_hour, new_tm.tm_mday,
+37b82b16c5f104 Elad Nachman      2026-06-24  168  					new_tm.tm_mon, new_tm.tm_year,
+37b82b16c5f104 Elad Nachman      2026-06-24  169  					new_tm.tm_wday, new_tm.tm_yday,
+37b82b16c5f104 Elad Nachman      2026-06-24  170  					new_tm.tm_isdst);
+37b82b16c5f104 Elad Nachman      2026-06-24  171  		}
+37b82b16c5f104 Elad Nachman      2026-06-24  172  	}
+37b82b16c5f104 Elad Nachman      2026-06-24  173  
+14d0e347ea2db5 Zoran Markovic    2013-06-26  174  	pm_stay_awake(rtc->dev.parent);
+0c86edc0d49706 Alessandro Zummo  2006-03-27  175  	mutex_unlock(&rtc->ops_lock);
+5f9679d29c7959 NeilBrown         2011-12-09  176  	/* A timer might have just expired */
+5f9679d29c7959 NeilBrown         2011-12-09  177  	schedule_work(&rtc->irqwork);
+29a1f599c0cc37 Baolin Wang       2017-12-14  178  
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  179  	if (uie) {
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  180  		err = rtc_update_irq_enable(rtc, 1);
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  181  		if (err)
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  182  			return err;
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  183  	}
+7e7c005b4b1f1f Alexandre Belloni 2019-10-21  184  
+29a1f599c0cc37 Baolin Wang       2017-12-14  185  	trace_rtc_set_time(rtc_tm_to_time64(tm), err);
+0c86edc0d49706 Alessandro Zummo  2006-03-27  186  	return err;
+0c86edc0d49706 Alessandro Zummo  2006-03-27  187  }
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
