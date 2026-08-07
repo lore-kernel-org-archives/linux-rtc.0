@@ -1,118 +1,256 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F00936F90C;
-	Fri,  7 Aug 2026 08:48:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53AEF32B112;
+	Fri,  7 Aug 2026 08:49:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786092489; cv=none; b=jpRO1gA0GS9eyF7WpY2iR6RPnB4B34ksckt9sA5dIpORGWHVpzqqDth6l+FA5ujxWzgQKjZRWldSc7OcKb12kKp4vM+qnGR1CMxlMqj6YQhuzuL+lUKFS45v4jZMLGtgnusKxI6y+o0uhEvn/Swuv3rtgpaFFTfZpGcPQtvdTH0=
+	t=1786092560; cv=none; b=gAhM5OiGzyn92RjFzCDY/OOsAN/6GZ2aqvcTaWFmVncD+TWUO44uQKBv9QYchx1VQHuYQa6j7Ygx98p34r1GKe8d71jiOLFYKl3l5pxEDIgI+OZvfqMRATd2zscjrWTZBmFmF0tn56izhzxq5uHIWR8Xn53q+kGqQk8srmbrfFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786092489; c=relaxed/simple;
-	bh=uFvpqfmdeJLdg0olSWYlfI5CRikkWCpik7xUxScVdB8=;
+	s=arc-20240116; t=1786092560; c=relaxed/simple;
+	bh=RyZjzD+NcR7wVGrDrS4z+XaFA+UQOah81d0FG6LHGVs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=sg0xYk6XdbN+M00bjNC+qMrok/dfAxVXtmxYV4dEEN9mIm429pZzo7QJcQAESgjDv18i5oA3gZfklwYlsBWw7gyCxoFQDe1jzJb9GaDsOa4MHJoXUH8SLR7U3sAXlc9aRkw7oKEKZx9tpDV2eyHjnzchygsJdx+VC2XH55zF7ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QVdICjNc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q/+bNAl50jXvCkKDUdwdjdH+8aQJhDRxpskoES3tpXqiXgp7MyBsTpdRw4+e/8fvORMFUgy9WP7zRnDbo7jqGC5sKA/XB5rZ1uu74FuvdA6ScHCsXAzCKmmLRa6dXhRp61n6GOIwTPyX/6osIWl2JXUHqixCZP6uCEI+xlgXKWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h5fqZ5eU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QVdICjNc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 458CF1F000E9;
-	Fri,  7 Aug 2026 08:48:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h5fqZ5eU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DACBA1F000E9;
+	Fri,  7 Aug 2026 08:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786092485;
-	bh=YHq7GJ0rbEnxt1snqFZ9uWSjmxMsre2HPEgm3axyDLM=;
+	s=k20260515; t=1786092559;
+	bh=MhO8LfYtzsQC9Iw0QG2WWmZwg2fB4XF9MtdjEHyOu8k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QVdICjNcg9BjxpbLNv20LxsxMlnJ0yqM0xeW4nebhIllF3hq9oyT+AaKGqMZ+bCoQ
-	 TdVWzEqmEyDBBOoJoH/ai0BYqrSz+yB+0Fn100kL72uMYcKSANENKgV9zCG8FDpu/g
-	 mYqLAmwjWcbu0xlv3Rg44hR3aM4sQBV7ctTPZhxMoWfmuAUNmoRXT5n3HEn9enOCtG
-	 KvwQNYwX3XIU+H8rlTxsKfJSgcU7b1zMXLo5JQm1UteHp0OVzjFvRxAmDUck5kdEVq
-	 kqToqIESIYR5RA4178+j0iJNBx4lTtbKtC8AcJPhXE35UGs0o1m9QQ+C0b8Ac1ekXX
-	 PgRL7SMHAddLQ==
+	b=h5fqZ5eUd/9bnsbvwJwcaZ0uWvV9ZCPUMqN7aVx1r1wrQQlLSNJPvJswtSni//nkL
+	 ejVITxFp3Rz977GudFxRAeTAAwQkMuJHLJgWbjg0Gwssax+2Foz4Xf2rRq7GydQwDW
+	 8DiZAXhGj70KG5TNFapyYcoXRshtarXbqtU9WgNOMvq6nWzdvAKSB00SaQDhRr0Vjw
+	 lvmCnkTMwGIuoE3VC2f6+7B+KR4mX3wkiPxCXVAcyRXUAQ+zL+wwY7uqyuQ84D3mqV
+	 ElyGY/Ufj3Q+g6zifFOfTg6ZTgBf/D2tgyVXV7PRDS3AQQtI7VdbC0E5DlgmZ5C21Z
+	 7uP1OcMs/cUsg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] rtc: pcf8525: Add temperature sensor support via
- hwmon
+Subject: Re: [PATCH 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-watchdog@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, linux-rtc@vger.kernel.org
-In-Reply-To: <20260807082855.3762394-5-shivprakash.gupta@nxp.com>
+Cc: linux-hwmon@vger.kernel.org, robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, linux-rtc@vger.kernel.org, linux-watchdog@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260807082855.3762394-3-shivprakash.gupta@nxp.com>
 References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
- <20260807082855.3762394-5-shivprakash.gupta@nxp.com>
+ <20260807082855.3762394-3-shivprakash.gupta@nxp.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 07 Aug 2026 08:48:04 +0000
-Message-Id: <20260807084805.458CF1F000E9@smtp.kernel.org>
+Date: Fri, 07 Aug 2026 08:49:18 +0000
+Message-Id: <20260807084918.DACBA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Medium] Subsystem Layering Violation: Registering hwmon functionality di=
-rectly from the RTC driver.
-- [Medium] Missing hardware state rollback when hwmon registration fails.
+- [High] Unsynchronized concurrent access to the shared timestamp state (`t=
+s` and `ts_valid`) between the threaded IRQ handler and sysfs callbacks.
+- [High] Read-modify-write on Write-0-to-Clear (W0C) interrupt flags drops =
+concurrent interrupts.
+- [High] Hardware timestamp engine freezes after the first event in IRQ mod=
+e due to missing CTS command.
+- [High] The alarm interrupt is not properly configured as a system wake so=
+urce, preventing the RTC alarm from waking the system from suspend.
+- [Low] The I2C device ID array uses positional initializers rather than na=
+med initializers.
 --
 
---- Patch [4]: [PATCH 4/4] rtc: pcf8525: Add temperature sensor support via=
- hwmon ---
-commit 36335f5669e8a341626815565d14236fae935a84
+--- Patch [2]: [PATCH 2/4] rtc: pcf8525: Add NXP PCF8525 RTC driver ---
+commit b181a191f404e5910be38077d8059abeffe4a95b
 Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
 
-rtc: pcf8525: Add temperature sensor support via hwmon
-   =20
-Register the PCF8525 internal temperature sensor through the hwmon
-interface when CONFIG_RTC_DRV_PCF8525_HWMON is enabled.
+rtc: pcf8525: Add NXP PCF8525 RTC driver
 
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> index 4ef648bdfc5b9..92bab3231ce7f 100644
-> --- a/drivers/rtc/rtc-pcf8525.c
-> +++ b/drivers/rtc/rtc-pcf8525.c
+Add support for time and date, alarms, timestamp capture, backup
+switch-over configuration, external crystal configuration and clock
+offset correction.
+
+--- a/drivers/rtc/rtc-pcf8525.c
++++ b/drivers/rtc/rtc-pcf8525.c
 [ ... ]
-> +static void pcf8525_hwmon_register(struct device *dev,
-> +				   struct pcf8525 *pcf8525)
+> +static ssize_t timestamp_show_common(struct device *dev, char *buf, int =
+id)
 > +{
-> +	struct device *hwmon_dev;
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
+> +	unsigned int ctrl4;
+> +	time64_t ts;
 > +	int ret;
 > +
-> +	if (!IS_ENABLED(CONFIG_RTC_DRV_PCF8525_HWMON))
-> +		return;
+> +	if (id < 0 || id > 1)
+> +		return 0;
 > +
-> +	/* Enable only the digital readout; preserve TSIE, CL and XTL_TYP. */
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL5,
-> +				 PCF8525_CTRL5_TEMP_RD_EN,
-> +				 PCF8525_CTRL5_TEMP_RD_EN);
-> +	if (ret) {
-> +		dev_warn(dev, "failed to enable temperature readout: %d\n", ret);
-> +		return;
+> +	if (pcf8525->irq_enabled) {
+> +		if (!pcf8525->ts_valid[id])
+> +			return 0;
+> +		ts =3D pcf8525->ts[id];
+> +		return sysfs_emit(buf, "%llu\n", (unsigned long long)ts);
+
+[Severity: High]
+Is it possible for the threaded IRQ handler to update the timestamp state
+concurrently with this sysfs read?
+
+If a user-space process reads the sysfs timestamp attribute at the same time
+an RTC timestamp interrupt is being processed in pcf8525_ts_snapshot(),
+this could result in a torn read on 32-bit platforms where time64_t requires
+two 32-bit memory accesses.
+
+Should a mutex or memory barrier be used to synchronize access to the
+timestamp state?
+
+> +	}
+[ ... ]
+> +static ssize_t timestamp_store_common(struct device *dev, const char *bu=
+f,
+> +				      size_t count, int id)
+> +{
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev->parent);
+> +	int ret;
+> +
+> +	if (id < 0 || id > 1)
+> +		return -EINVAL;
+> +
+> +	if (pcf8525->irq_enabled) {
+> +		pcf8525->ts_valid[id] =3D false;
+> +		return count;
+> +	}
+
+[Severity: High]
+When in IRQ mode, this function returns early without sending the Clear
+Timestamp (CTS) command to the hardware.
+
+Since the hardware is configured in freeze mode (PCF8525_TS_CTL1_TSM), it
+will ignore new events until the CTS command is issued. The interrupt handl=
+er
+pcf8525_irq() only clears the TSF interrupt flag.
+
+Will this cause the timestamp engine to stop capturing events after the fir=
+st
+one in IRQ mode?
+
+> +
+> +	/*
+> +	 * Clear timestamp via RESET CTS command.
+[ ... ]
+> +static irqreturn_t pcf8525_irq(int irq, void *data)
+> +{
+> +	struct device *dev =3D data;
+> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
+> +	unsigned int ctrl2, ctrl4;
+> +	int ret;
+> +
+> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL2, &ctrl2);
+> +	if (ret)
+> +		return IRQ_NONE;
+> +
+> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_CTRL4, &ctrl4);
+> +	if (ret)
+> +		return IRQ_NONE;
+> +
+> +	if (!(ctrl2 & (PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF)) &&
+> +	    !(ctrl4 & PCF8525_CTRL4_TSF))
+> +		return IRQ_NONE;
+> +
+> +	/* Timestamp */
+> +	if (ctrl4 & PCF8525_CTRL4_TSF) {
+> +		pcf8525_ts_snapshot(dev);
+> +		/* Clear TSF */
+> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL4, PCF8525_CTRL4_T=
+SF, 0);
 > +	}
 > +
-> +	hwmon_dev =3D devm_hwmon_device_register_with_info(dev, "pcf8525",
-> +							 pcf8525,
-> +							 &pcf8525_hwmon_chip_info,
-> +							 NULL);
+> +	/* Alarm */
+> +	if (ctrl2 & PCF8525_CTRL2_AF) {
+> +		rtc_update_irq(pcf8525->rtc, 1, RTC_IRQF | RTC_AF);
+> +		/* Clear AF */
+> +		regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2, PCF8525_CTRL2_A=
+F, 0);
 
-[Severity: Medium]
-Is it permitted to register the hwmon device directly from this RTC driver?
+[Severity: High]
+Does using regmap_update_bits() here risk dropping concurrent interrupts?
 
-The hwmon subsystem guidelines specify that if the main functionality of a
-device is not hardware monitoring, the hwmon features should be implemented
-as an auxiliary device driver residing in drivers/hwmon/.
+This function performs a read-modify-write. If it writes 0 to clear AF or M=
+SF,
+it writes back 0 for any other Write-0-to-Clear flag that was 0 at the time
+of the read. If a new hardware event sets another W0C flag between the read
+and write, the write of 0 will inadvertently clear the new event before it =
+can
+be handled.
 
-> +	if (IS_ERR(hwmon_dev))
-> +		dev_warn(dev, "failed to register HWMON device: %ld\n",
-> +			 PTR_ERR(hwmon_dev));
-
-[Severity: Medium]
-If devm_hwmon_device_register_with_info() fails, should the hardware state
-be rolled back?
-
-The code sets the PCF8525_CTRL5_TEMP_RD_EN bit in the register before
-calling the registration function. If registration fails, the error path
-logs a warning and returns, leaving the temperature sensor enabled in the
-hardware. Could this cause unnecessary power consumption?
-
+> +	}
+> +
+> +	if (ctrl2 & PCF8525_CTRL2_MSF) {
+> +		ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2, PCF8525=
+_CTRL2_MSF, 0);
+> +		if (ret)
+> +			return IRQ_NONE;
+> +	}
+> +
+> +	return IRQ_HANDLED;
 > +}
+[ ... ]
+> +static int pcf8525_probe(struct i2c_client *client)
+> +{
+[ ... ]
+> +	/* Optional IRQ */
+> +	if (client->irq > 0) {
+> +		ret =3D devm_request_threaded_irq(dev, client->irq,
+> +						NULL, pcf8525_irq,
+> +						IRQF_ONESHOT,
+> +						dev_name(dev), dev);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret,
+> +					     "failed to request INTA IRQ\n");
+> +
+> +		pcf8525->irq_enabled =3D true;
+> +
+> +		/* Route/unmask alarm + timestamp to INTA by default */
+> +		ret =3D pcf8525_unmask_irqs_intA(pcf8525);
+> +		if (ret)
+> +			return ret;
+> +
+> +		device_init_wakeup(dev, true);
+> +		set_bit(RTC_FEATURE_ALARM, pcf8525->rtc->features);
+
+[Severity: High]
+This declares wakeup capability, but is the IRQ ever connected as a wake
+source?
+
+Without calling dev_pm_set_wake_irq() or implementing suspend/resume
+callbacks with enable_irq_wake(), the IRQ controller is never instructed to
+keep the interrupt armed during suspend.
+
+Could this prevent the RTC alarm from waking the system from suspend?
+
+> +	}
+> +
+> +	/* Register device */
+> +	ret =3D devm_rtc_register_device(pcf8525->rtc);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id pcf8525_of_match[] =3D {
+> +	{ .compatible =3D "nxp,pcf8525" },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(of, pcf8525_of_match);
+> +
+> +static const struct i2c_device_id pcf8525_i2c_id[] =3D {
+> +	{ "pcf8525", 0 },
+> +	{ }
+> +};
+
+[Severity: Low]
+Could this use named initializers?
+
+The I2C subsystem guidelines require initialized arrays of type
+struct i2c_device_id to use named initializers.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260807082855.3762=
-394-1-shivprakash.gupta@nxp.com?part=3D4
+394-1-shivprakash.gupta@nxp.com?part=3D2
