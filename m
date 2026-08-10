@@ -1,113 +1,158 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE32391E4E
-	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 05:15:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0410637F8DD
+	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 05:29:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786338924; cv=none; b=NOyB4yS2JaBssCLHLwEHs8s/+oqxvvEz9mcR0WVZCD9RbYu84Ypzt5TP/8dX/oYD1oK/+bcgEeu0FEXa3A2WzNMeLo4kFu4CurILhyzbykDWN769bvzbhkda1LSBm4xrbYq8U3IbUHYhjxTrDAU06qUAHr8sbhQpOKbtarXYCa0=
+	t=1786339795; cv=none; b=Lfg3fFSqNLQVfR9RSvYsH72A8ta2SnL4P+Z7DCNLOmHtbby93ttgGWYZLZMrq9YHh203TTQEvANvmOs0sTIClyKNl6Frr1rub+1cArNzRlybsR+xYj60p3UxvRjtadkU4lKskkN3cSMBvmGy6lEemFO+3MMbnQNlEP9Qx69pEq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786338924; c=relaxed/simple;
-	bh=XQFgdJTsK21cZVw0y27VhQen6GqemFyvLkypXTh462Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YLiENi27/VTbMSCiOLPX/+m6i2pdPtZA4AL05F8amtIetxRM2A2icHnGOH7O7GV+HpS79OrHCy5YbMq6IyoKiqC7OPevSIgari1nzuGNTXKgCPrSt6OCuXjpH/8heyc5NpH+rJgYaxfEN0QRIv5cXFzrT5Y/NlGlOQbMedssF4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KAaGgVYZ; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786339795; c=relaxed/simple;
+	bh=px7PhzZk14y2oLYzJBwYCwdKeI5mmQ4d6U9GkmstzpA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=PTcZdgri/EmX0pLw2Fz6840VPSkT3RZjT+9TTg8IP7JkZ7kXTtBYuuqxPcc3fDH6C5nk/fXnkIg6hMI5hrwwu7mXbaA/RjkUj0MIELeJcs6/2BW3WMcZwTdVoBUGBOdk1HVbFlidNgpIIPr0YJmVT8nMNMqBEO0mEvqyGqHwoHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nqtj6Be+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KAaGgVYZ"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-38dfe7eb825so1078423a91.0
-        for <linux-rtc@vger.kernel.org>; Sun, 09 Aug 2026 22:15:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786338923; x=1786943723; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qIj4njjd+RWYh4JFURNyp7igH7Cxj0yRhELgL29odk4=;
-        b=KAaGgVYZSQwxRz4oTbaibRJKbhgatuFbg64uib0A6SNdsFRh7Qj1tkSIgeyXixQM8I
-         NrxYoXgTDMBFcbN04fNRKtHR1DzA4Ijx7HWq+ZZXHaJWwclby5dD1tXjfyDwKmY9rVp7
-         69yTZWXCC4Nz0ZWzR/eUOrW8cepuF9LmUWvQsSLXDPuuL+5kqIJQutIKfK4e4OkbFs1H
-         hlmvsgkGjbx6FFZWTTgbaKQHxbz4c1ZW4lhVi7ciLEqQgqdJO5hOK6ng9YvYe5ybrv88
-         XPdFaxy5SKKnDlmtFJzCGo5CCehc3FgU23DVnZNxcvwwtoqGObnW66I/k7sKU6IJMePE
-         cj6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786338923; x=1786943723;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qIj4njjd+RWYh4JFURNyp7igH7Cxj0yRhELgL29odk4=;
-        b=omk99bHlHRphvHIuQkPHdNGxoyeZORB49ONBt+UpaD5DH1PTHMxLDrztXOaBAPsNMr
-         lxS02Njbjs10ikiX4aZhOA4DgF833mXBDKbNatDGuH6DKuCNwMfqe6gH++rnhf288Jdb
-         9a9kNvkZbL/ugbcxk3csaWOj3UAoiWkoDzwzpTd7A+qdJs1MVNj2L89kkpvJFDI5Ks4Y
-         CKat36pkdQ8WlvT9BgALlrBAktht3u5NJvbWJPm2MkgA86ue4ShK1b55QpDDhxJelSqT
-         Acr+Tx/UpC6FRPxHqr/pUM+3Ew1SfZsa/wf0EZcUOiGxuIKrEhJ/mFXRTiCPoTJ2O4pT
-         CDGA==
-X-Gm-Message-State: AOJu0YztysXvpaqVIPEiaHVnKn/Rta7pbyKtB1VohI/veYBasqxh1722
-	nNLS7Elv5dlK+/CfukM6daSYommLFlqUGOdHY6eIy0lR2Z11QKdIqbox
-X-Gm-Gg: AR+sD13qHfsxK9xAeXN8xJghrZAck/6OMNF13KcPDgWIhJV3c1QAV6O0arv6RnDRrcE
-	JTaSd4cJQGBvtMmVa2aAlYrPgdAWMBs0WQh0C2mbglfkM5Kn3i4tkx9DmNQv/OqiyrAHC1lfYwC
-	M+Tr9nRWxuMt/2z87WVHmHpU+Z0lmz3FTgWaPI7n5JLKz1uWhJL5RPdzP7YI2uqJUDf36PA28Cp
-	E8srbPrwqfVBzf92zVCg5mh8N/+uy9/yO5500+YqG8gjh2nxBNqCJmnKFcQ/dRzNowdjfJ91EKH
-	p4SfXW03/0T1dKPj1r4F0uYyd5uDgvpWTwngygg8i5vT6YqfgCXIJ9hVckXxsGwfxHCpsCG+1Ai
-	+5JPOYXWn6Qzgymjc+CmC0XQA4GyZWGvVYGbl6MTKfCiO6x8g1o4Vb4x8cy/cPGvOpgz4T/Dkws
-	dhbxIxt5H8NBQH2TfTOEtDF2CbIRwyf7iITWw6v07eQZzi8rGIWAUL4u7SZ8Ih89l4SWqlko4z/
-	f4abzjXAa/FJ9TA1FTixDT3PSODCIMWcLBybVCDAKRfbY77ZkVE0aB8K1Mcl9C3CbPKSPWUA7Dp
-	f4o1
-X-Received: by 2002:a17:90b:448b:b0:38e:524:8797 with SMTP id 98e67ed59e1d1-3909d8c3b9cmr22968988a91.13.1786338922770;
-        Sun, 09 Aug 2026 22:15:22 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-390b13b0c74sm4719672a91.0.2026.08.09.22.15.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Aug 2026 22:15:22 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH 2/2] rtc: cmos: Propagate errors from optional IRQ lookup
-Date: Mon, 10 Aug 2026 12:15:04 +0700
-Message-ID: <20260810051504.26912-2-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nqtj6Be+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C521F000E9;
+	Mon, 10 Aug 2026 05:29:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786339793;
+	bh=ngSstLs5JOsSEokHgnwnkwL7GgaQe2LP7GlRiR1S1JQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=nqtj6Be+SbJo+Z8fuIV2NMOIx0QtNlVqVstrZZY5C6r5OMlA2OKajrZh712UA5wBJ
+	 SwbyD3F45Mifv8SUVwoRLVdDhd0LkV1ZWgx52m3SagobTF/LzH148rbniYujZfkKLl
+	 5w84xvBPWgnwiMS66ZcRLNjQfKyMcqWr1YqZhnU+hah20ovmDsdsQF3euams4bONzs
+	 RnI3zwDxjz3VuQnqVENxW/lT88o3wVZ4my2fbu56oHuYbKBgQsQO2ood+3+r5DPedL
+	 hszp/qNkwgmlXCkmebl0XmESWKbf4m/OMsFFvBi5n74Zf7DGSYHIxkj9oL8trcLizZ
+	 /ljF8I0Yu0dXA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] rtc: m48t59: Propagate errors from optional IRQ
+ lookup
+Reply-To: sashiko-reviews@lists.linux.dev
+To: phucduc.bui@gmail.com
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
 In-Reply-To: <20260810051504.26912-1-phucduc.bui@gmail.com>
 References: <20260810051504.26912-1-phucduc.bui@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 10 Aug 2026 05:29:52 +0000
+Message-Id: <20260810052953.32C521F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-platform_get_irq_optional() returns a positive IRQ number on success or
-a negative error code on failure. For an optional IRQ, -ENXIO indicates
-that no optional IRQ is available, while other errors should be propagated.
+Pre-existing issues:
+- [High] Improper use of devm_kzalloc for pdev->dev.platform_data leads to =
+Use-After-Free on deferred probe.
+- [High] The shared IRQ handler is registered before its required context (=
+drvdata, spinlock) is initialized, risking a NULL pointer dereference.
+--
 
-Propagate all error codes returned by platform_get_irq_optional() other
-than -ENXIO, while preserving -1 for the case where no optional IRQ is
-available.
+--- Patch [1]: [PATCH 1/2] rtc: m48t59: Propagate errors from optional IRQ =
+lookup ---
+commit 9d48ac67a0a6bc0aac19eba1f8852bc6afa6e0da
+Author: bui duc phuc <phucduc.bui@gmail.com>
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
- drivers/rtc/rtc-cmos.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+rtc: m48t59: Propagate errors from optional IRQ lookup
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index fa04ece151b8..0a2c7383c8cd 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -1436,7 +1436,9 @@ static int __init cmos_platform_probe(struct platform_device *pdev)
- 	else
- 		resource = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	irq = platform_get_irq_optional(pdev, 0);
--	if (irq < 0) {
-+	if (irq < 0 && irq != -ENXIO)
-+		return irq;
-+	if (irq == -ENXIO) {
- 		irq = -1;
- #ifdef CONFIG_X86
- 		/*
--- 
-2.43.0
+This commit updates m48t59_rtc_probe() to propagate error codes other than
+-ENXIO from platform_get_irq_optional(). Previously, these errors were igno=
+red
+and the driver fell back to polling mode.
 
+> diff --git a/drivers/rtc/rtc-m48t59.c b/drivers/rtc/rtc-m48t59.c
+> index 4e608bc8bbd36..1150f3f6b0084 100644
+> --- a/drivers/rtc/rtc-m48t59.c
+> +++ b/drivers/rtc/rtc-m48t59.c
+> @@ -404,15 +404,17 @@ static int m48t59_rtc_probe(struct platform_device =
+*pdev)
+>  	 * the mode without IRQ.
+>  	 */
+>  	m48t59->irq =3D platform_get_irq_optional(pdev, 0);
+> -	if (m48t59->irq <=3D 0)
+> -		m48t59->irq =3D NO_IRQ;
+> +	if (m48t59->irq < 0 && m48t59->irq !=3D -ENXIO)
+> +		return m48t59->irq;
+
+[Severity: High]
+This is a pre-existing issue, but this new error return path exposes it: if
+this returns -EPROBE_DEFER, will it lead to a use-after-free on the next pr=
+obe
+attempt?
+
+Earlier in m48t59_rtc_probe(), if the device is memory-mapped and platform
+data is not provided, pdata is allocated with devm_kzalloc() and assigned to
+the device:
+
+drivers/rtc/rtc-m48t59.c:m48t59_rtc_probe() {
+	...
+	pdata =3D devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+	if (!pdata)
+		return -ENOMEM;
+	/* Ensure we only kmalloc platform data once */
+	pdev->dev.platform_data =3D pdata;
+	...
+}
+
+When the probe fails and returns -EPROBE_DEFER here, devres will free the
+pdata allocation. However, pdev->dev.platform_data is not cleared. On the n=
+ext
+probe attempt, dev_get_platdata() will return this dangling pointer, bypass=
+ing
+reallocation and causing the driver to dereference freed memory.
+
+> =20
+> -	if (m48t59->irq !=3D NO_IRQ) {
+> +	if (m48t59->irq > 0) {
+>  		ret =3D devm_request_irq(&pdev->dev, m48t59->irq,
+>  				m48t59_rtc_interrupt, IRQF_SHARED,
+>  				"rtc-m48t59", &pdev->dev);
+>  		if (ret)
+>  			return ret;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but since we are modifying the I=
+RQ
+setup, is it safe to request a shared interrupt here before the driver data
+and spinlocks are initialized?
+
+If another device shares this interrupt line and triggers an interrupt
+immediately after devm_request_irq(), the handler m48t59_rtc_interrupt() wi=
+ll
+execute before m48t59_rtc_probe() has finished setting up:
+
+drivers/rtc/rtc-m48t59.c:m48t59_rtc_probe() {
+	...
+	spin_lock_init(&m48t59->lock);
+	platform_set_drvdata(pdev, m48t59);
+	...
+}
+
+Because platform_set_drvdata() hasn't been called yet, dev_get_drvdata() in
+the interrupt handler will return null, resulting in a null pointer
+dereference when it tries to lock it:
+
+drivers/rtc/rtc-m48t59.c:m48t59_rtc_interrupt() {
+	struct m48t59_private *m48t59 =3D dev_get_drvdata(dev);
+	...
+	spin_lock(&m48t59->lock);
+	...
+}
+
+Could this cause a crash on platforms with a shared interrupt?
+
+> +	} else {
+> +		m48t59->irq =3D NO_IRQ;
+>  	}
+> =20
+>  	m48t59->rtc =3D devm_rtc_allocate_device(&pdev->dev);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810051504.2691=
+2-1-phucduc.bui@gmail.com?part=3D1
