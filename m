@@ -1,62 +1,63 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F6E7440A37
-	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F21D6416CF3
+	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786390808; cv=none; b=YcvK22pQSGoYW+E8dnxLfC4uBuvu6+aQd67iaJprmmuGq9RDnCEidOlRz7JXa2NquE8aMDWZDFdUJ2Jq+UtscBe6A7UrKIH9ed3H9KUxNd/QNi0+oDQkdNWfsC2jy6G1yAfHhxqlHb3hIQ+P00j8nAgSFyGaRrnfJWe0fRfGfFY=
+	t=1786390809; cv=none; b=jjFVxOC8JEIRW1pZ2IeMbRtoxuKBykNMHOpFrih+jXhCVgjWChPjC60CCUF8GfUxr9W+MmkOKg/gi3A/A7hImRI8QF6B5aaxxO3DVyumgcR8Zd6mLM8lOZI8O//TC5RLVnfqf57bBi9tIwkvHH17hKKuUMFds7UzZb4zGUaRXMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786390808; c=relaxed/simple;
-	bh=JzPmVao8FK9SYW6EqLoAZ+WBysafs2v13tUyYWLjmGk=;
+	s=arc-20240116; t=1786390809; c=relaxed/simple;
+	bh=iymtdZbAVDC4szK+VL2vsDv4Um3gp/9GnkovC0TOf7E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Jh2TsnePmSdjaawRqo1PTeQNUUZfgVGorEx9wgoG8k1xVyDwjOgCiuZ45mwccjtXp3PHcKcRzsGd66kL1B8uZpOD48OchCAuWF1mllpiu4ZwEB3ocAK8k9B+B277FCOkfLkJPnc5IhTkn1napXam/HBS7AqmGnN6fM7bB5qm4dw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oRiqn32k; arc=none smtp.client-ip=209.85.221.41
+	 MIME-Version; b=PkbCNKPJKuQ/IkEHxli7AP2FRGgXVKblLm3j0Ao3s4qblziMOGMAF7Euso3lbrDFLSW1Jrx5TbImfguUX4tG749sa90w3+WvwYmXSgs2sV2CEJJsVcXVHDFGPv7qmkoPKZAMois0bxV2WBqb1nHN2b79BUBMCoFSUA6yfhKtBOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FEM3ErQZ; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oRiqn32k"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47fecbb7000so1128186f8f.2
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FEM3ErQZ"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4980fe6b3beso1840975e9.0
+        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786390803; x=1786995603; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786390805; x=1786995605; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=uWcBC68WNKLZwVwv+eWu33G6o/TkwBMc1Uo2TtiwMQM=;
-        b=oRiqn32k6oLtpfvasTlQQ94vOJYKgcPdhfEYrxUlQUEQXwDOUW1CD7dSjEppgzm6AE
-         sMrMbymsS7WkWZwNer0MMKpdvW0mOfuoMUXNHL59uBDw8jYB5Aqk7vcuMoVUB01p880f
-         GGAJNKu5SkEAxr0QpNOWyWnImU8sWbA8viLdRlGvN5zlPB/hE7wJBNO3qOADh6N0SF54
-         ZrHkTnacQ3RgOCABQfthwuDD5qDeNNTupGbxouP537tTYNoiu6p1nSBTs1eyZSCnSmUg
-         iMRZ55UJBAjqyofDRVz6/hdiEFWxf6UUNgmcLdjb7Xc9VRB6AD8htbrynT2amj/+SYdL
-         yvOA==
+        bh=+Lv+zt/h7dKa8TuGsaFOLj9Yjn5OU7W3HW8p5oLwNPc=;
+        b=FEM3ErQZv/iFI2wk3UMNOzwUqmp69J7Ox/rfTj46W83fpT8fRiJSr5CPXXVhOSWLWK
+         DuF/CS3bm/ADH0rajbZcuexCYPDTwCWNo2iPU1FBav7fvUEtaZ1cwVC2LiTDeLdPnMFo
+         Ar2k2r+WoH0W9nXjUBbscIenAzy7AmEwAxCTxBRgfI/G8OzIZQPYBydsLQz6M92RQEq5
+         6ezcSYVsv0W1dk9GNBZgUK1za6DlT0gdZSmBn7L5rdP97u38q58KIDUvGLWTmylf/QGK
+         WrXxHmIniK48Cmk90p+7A9uTP6MZdtJCwr3ZNYk0IBuq458QHBUM0JojxKEo7pj/2kOP
+         gN/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786390803; x=1786995603;
+        d=1e100.net; s=20251104; t=1786390805; x=1786995605;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uWcBC68WNKLZwVwv+eWu33G6o/TkwBMc1Uo2TtiwMQM=;
-        b=SdVti510XyY3hPrPEqV0pNt+rAZaRTTKqDRG/EEhk+4TqPVF4pIEbvevrL5jsyJSbV
-         a/sEvTBGKUGe9xloTInioG4IWQi4veJHVXw+xSkgWNQTj6A/x2bAe44RSEHgsoYk8RRj
-         ws4q1GaP+4CVAXCIqIMIL9Pa3S70vSlL8nckxpxvOsLHlmi71SDn5ZPPyc9W0KNw/f+r
-         ly8zkKuQU1PsttyBPI0Y4Y6Xdvm7m+1nITsoW1vL+geS2Aib1cc+Ziweh29cTnIShZGp
-         jcsWt897N2yOqDUs1h8+yyItV4CtG9mBnbcUkw33TcrXb+9VdGFCmwHuINdNF68fZRK5
-         F12A==
-X-Gm-Message-State: AOJu0Yx4a4XusuJ/cr6JH2JVo9v0I9bny22eTes+0Q7r6AZpCFJbqPfp
-	oJsdjFN3B/3TcJJYhNuEPDuUUuhZdj96hUAj/2oTiGVCfSOVtnuPyaz0
-X-Gm-Gg: AR+sD13IqXT1oZcWaOY6csF5i9i18VKDE8qVKbOvFsK+DvrXKw28Cg3N85PdBY+OCTi
-	hAAOgJae14NU+Yt/zm395wpnxE7OSbv30ovhmlaglrSmw/ryajsyGR9pl+ZKY9KLYExkFYgwHXE
-	cdPbSgq4T67M1B3MJCkmvicPT1GiDMpJNqwZcORLlYKdmhP9XfMW9BgsHxiwteH0HtZ2ajaI/ff
-	B3iT9HEI4AYvc92QBCfx6YTv0O29cIJhcWXSmqhLH4Ixv8XjwN6CigTVhfLHWsDW9PuKt0Jqlgl
-	mOlntJHQW8Ro/l9DgNyS42/6tMyD5l3wqyFBVT0+Dr76MJxAB6idhrWumCmANxFZVdv0AJKeJRU
-	xQvWlj9rXH9oibJM6dw/jVSPwLrbtQJ2ccjPIINFjbYXDZysVWZZNQO2SX+yDT7QuqFdYy6DphJ
-	3kHEPkhleUjgrgvqn9Ixy2H2SFg51IReyTAqbzPbTmMzFP/+bx2xDhUp9T/3MQuQA=
-X-Received: by 2002:a5d:5985:0:b0:47f:b452:49f1 with SMTP id ffacd0b85a97d-48130e7e7dbmr33227089f8f.2.1786390803210;
-        Mon, 10 Aug 2026 12:40:03 -0700 (PDT)
+        bh=+Lv+zt/h7dKa8TuGsaFOLj9Yjn5OU7W3HW8p5oLwNPc=;
+        b=SGGsub4M1cme/jCjRAzzGyLgnCKsYAtb6mpjL3naspemJZg7LBU83zQbyA5yqyEO1x
+         APJ+HGIpkyLd11yHZxDnHmN9T74IySdHOy3yRj7osGH48KhtizXS1YL6grUMji3ATu2/
+         mApYwstAoH04DAricBA4UM2tHSwno1Os46hx+WEBenZtErIVYgPlQt1kl+T1E5aTG2Np
+         Tq75gh0TDgM1snkY0N7Z9KJqu2Urj2vVpuvoKeMQA9qg3xkBQ5a0Zi0VkrJOywo8iCGS
+         6DuSe5FeWfLX4/QpuN7WXT6EBVASfyzhSUjdROL+U+6W5VWtmsrc5i7Nz+SVmOsugdwt
+         e9eQ==
+X-Gm-Message-State: AOJu0Yybb3WcOqBgeTEJ4mDOTArrdhVXbQ6ZRXdrEs8RRdiI+YhjsEZ9
+	CgbiMVQp5kTN1qVC+Eo1aARikVQCQNiebGVimUGbV7S4/B8yyJT54qiG
+X-Gm-Gg: AR+sD10QHRSpXRarQPfVoSvluS8w5MsQ4DZ2iI6s0ccpo9rVPk6MbjUtiOqby50h3mM
+	MZz4FIkiasPKTgTt3Jzs0nWPTYqfjV70cgzc6Lhj7Gi79mdD/VitU6vYbga2wGl7Vs1Uc4MWSSE
+	Hf029d0AkLDPauF2ikesDv4vo0ulPJy7BQRfKxkCSknyRpbYu64ihP2B7DY7i9msOt5fPWjnFpg
+	Oh/UjDld+KNZKTf+bYhfjmOGJ4hfJ+0xGcNp+tIE/P70BdD+w6NJ84ST9LQPhok5sLrby/eYfFl
+	z1cRVgiMvAayrWR0dJ5fMxpnQwInS8Tkm+ijcghA2/KYAEVHbS18r9tU9kGrOmrp3LkxxqLUrjy
+	d0jerWWFBeSs+B3ziDTXKZndXI5SXXwznLb3sw6kTEfcnGduGFDhSISP/a/yTOob1d33TJKhGNP
+	TqGe8e9cn9fTYw7qDnKxnBAulibem1jnqjNIoCNtrdBD1aEKhXVJm8DesXz/k4W0TBrf0M9fHi7
+	t8=
+X-Received: by 2002:a05:600c:8287:b0:499:5f81:8ca1 with SMTP id 5b1f17b1804b1-49974667332mr8638055e9.6.1786390804533;
+        Mon, 10 Aug 2026 12:40:04 -0700 (PDT)
 Received: from antoniarch ([78.213.94.207])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.01
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 12:40:02 -0700 (PDT)
+        Mon, 10 Aug 2026 12:40:04 -0700 (PDT)
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: alexandre.belloni@bootlin.com,
 	robh@kernel.org,
@@ -65,11 +66,10 @@ To: alexandre.belloni@bootlin.com,
 Cc: linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Antoni Pokusinski <apokusinski01@gmail.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: [PATCH v4 1/9] dt-bindings: rtc: abx80x: document ABX81X RTCs
-Date: Mon, 10 Aug 2026 21:38:18 +0200
-Message-ID: <20260810193826.210683-2-apokusinski01@gmail.com>
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: [PATCH v4 2/9] rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
+Date: Mon, 10 Aug 2026 21:38:19 +0200
+Message-ID: <20260810193826.210683-3-apokusinski01@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260810193826.210683-1-apokusinski01@gmail.com>
 References: <20260810193826.210683-1-apokusinski01@gmail.com>
@@ -81,72 +81,31 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Abracon AB0815 and AB1815 are RTC modules with SPI interface.
+i2c_smbus_read_i2c_block_data() returns the number of bytes read on
+success and a negative error code on failure. The existing code treated
+any non-zero return value as an error.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Fix the error handling by checking only for negative return values.
+
+Fixes: 718a820a303c ("rtc: abx80x: add alarm support")
 Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
 ---
- .../bindings/rtc/abracon,abx80x.yaml           | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-abx80x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml b/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
-index 355b0598411a..d105570bcd5a 100644
---- a/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
-+++ b/Documentation/devicetree/bindings/rtc/abracon,abx80x.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/rtc/abracon,abx80x.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index 5486d9d0b1e5..fdf9664ebb6f 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -294,7 +294,7 @@ static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
  
--title: Abracon ABX80X I2C ultra low power RTC/Alarm chip
-+title: Abracon ABX80X (I2C) and ABX81X (SPI) ultra low power RTC/Alarm chips
+ 	err = i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
+ 					    sizeof(buf), buf);
+-	if (err)
++	if (err < 0)
+ 		return err;
  
- maintainers:
-   - linux-rtc@vger.kernel.org
-@@ -21,10 +21,12 @@ properties:
-       - abracon,ab0803
-       - abracon,ab0804
-       - abracon,ab0805
-+      - abracon,ab0815
-       - abracon,ab1801
-       - abracon,ab1803
-       - abracon,ab1804
-       - abracon,ab1805
-+      - abracon,ab1815
-       - microcrystal,rv1805
- 
-   reg:
-@@ -61,6 +63,7 @@ required:
-   - reg
- 
- allOf:
-+  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-   - $ref: rtc.yaml#
-   - if:
-       properties:
-@@ -73,6 +76,8 @@ allOf:
-                 - abracon,ab1804
-                 - abracon,ab0805
-                 - abracon,ab1805
-+                - abracon,ab0815
-+                - abracon,ab1815
-     then:
-       properties:
-         abracon,tc-diode: false
-@@ -96,3 +101,14 @@ examples:
-             interrupts = <44 IRQ_TYPE_EDGE_FALLING>;
-         };
-     };
-+
-+  - |
-+    spi {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@0 {
-+            compatible = "abracon,ab1815";
-+            reg = <0>;
-+        };
-+    };
+ 	irq_mask = i2c_smbus_read_byte_data(client, ABX8XX_REG_IRQ);
 -- 
 2.55.0
 
