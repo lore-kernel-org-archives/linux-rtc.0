@@ -1,72 +1,73 @@
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010052.outbound.protection.outlook.com [52.101.84.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E99C3C1974
-	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 13:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786367157; cv=fail; b=KON2DwwE3SkD5BdmEiFaj0hs8Sp7204Pp3ny0cqzmjRTS7zcok41m8058kJIEzsWZ+cQ2QOBKyesZ5d/wCLwlw989I7dSEgx33+McK5O2TU1yFNzXPfHRunHKxWS9UkhIbme950u1KPBETxcjZLw9cPyRDXz42eXQK7SaSpUvMA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786367157; c=relaxed/simple;
-	bh=/Csfq9rYTEO0mHwdIcmwY8kOzD6J4hvAcp4/bkr3ytA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EwaKvgWlGoB5K1UhG/SbE+59E+QI8Jo76Uw9AXtHJlkp4or2p61bt+em+EPOeRRcsq+BwJCMrIiQ51Q7iBT0UjDHJHME72IG00aweqalqlxhXajCHNM9iqkTI1PuW//DfgkIAKyY96onjVGhdFV2qz6ZhOqgvTH9+erI9PAtnD0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=leica-geosystems.com; spf=fail smtp.mailfrom=leica-geosystems.com; dkim=pass (1024-bit key) header.d=leica-geosystems.com header.i=@leica-geosystems.com header.b=LIojmVSr; arc=fail smtp.client-ip=52.101.84.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=leica-geosystems.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=leica-geosystems.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862E0442111
+	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786390807; cv=none; b=QD2RTFI/f6s120C8QpIvF5yol00HpiDdMNEh8icO2MVmow+Q6c2VkkrsU0+SPPXCXw3dLi0b6ZDGDxUURHKjrE/PCxp5bYmPJDc7AVlbbdvhZ0tu8qLsQ5eno5sIAHc3+VFeCG/1KWZwRpG5z9qWy3yVh47qJbiS7moljwLeIVw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786390807; c=relaxed/simple;
+	bh=TaWewZmZdiyyYEvO4QXn387rDKrFrS1EPnJDYMrcQhQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M/dgU9OynpVaK/QGZPxVdUDbgNGX86nINQgZ70vtOn6Tzl/f1OqKUrH5jgaBq7s7ROW46aI8u+DQWLjtLqXzfpYc8cM1zdJLY5vra9JozCf5Np6kMh9Uraac37KmKeDtbjq3jPkfoEKqUI8+iDXlbTsVd0LoJ8TZbhGm6JGZdb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BKlg5tMj; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=leica-geosystems.com header.i=@leica-geosystems.com header.b="LIojmVSr"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ODMP1sB0huliuVtdvwj0vZhFRpLTDZ8jN0++GAKnyn5ZiuczfXWFZK63bK07cNu93eUnzeKWYKtSGXVHXfFRbEiQwAcC1a1rawxJ87RX4avwyM1ChmEpuRLWGy1+CtevgOJBlqYcCBaFANs4nBlPSK1sJ1P4X1Rk99ZbMDck1y+DU7dS/AaPDLGzM3Hkd4WBQ0/TqHiOuuLbP430EYvSKuBCuYQ+wp9p1YhvCKLsKj2DcT5TCtUF+ReBOsTakFiMqi4LxV33Q5tnLe6RhhUcL5quToYMOv04N2PiiQNqNos4RDChflJpzJQ26W4kdDW2D0xDe/Hb0lueo4Bk7Onmng==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/Csfq9rYTEO0mHwdIcmwY8kOzD6J4hvAcp4/bkr3ytA=;
- b=Au3qG4NUdcoi/HVL2RdItioueLWv9WvMy8ffPXsEYphwK0750EbiKgIGe5eOmtkT8kfH1r8ZqfCyLl24A7w3R4yr5zI5z9n8NUtISpJ5hFepTgtQr4qB3phVzSzVMPP9H9DCVa/S8ohfBtFWLyVT1b5G+/N0ZFOEMHLWYoZi91GZeMhTt52ZDzNL5CVzp03E7hz8UwbK/5Bb3yqhBxVXm9h35KeyOJ83XeLbxkSZZtcfJHAO4C5oJPZkItLAmtcVOe6ig/xaMjy0qMSh62cibowsQ38MJgtrS5BoaAdNMaZbGolcdl8RRl7qGRGTu2tzUUVVKhqoY78jDARqoAjZ7A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 193.8.40.99) smtp.rcpttodomain=vger.kernel.org
- smtp.mailfrom=leica-geosystems.com; dmarc=pass (p=reject sp=reject pct=100)
- action=none header.from=leica-geosystems.com; dkim=none (message not signed);
- arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=leica-geosystems.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/Csfq9rYTEO0mHwdIcmwY8kOzD6J4hvAcp4/bkr3ytA=;
- b=LIojmVSrkwkkqgWQjSJrFZa0mQZHW7oeMEu07W/NjwVdmUDk7HGVK0NgJHOHXVrMX0z5S6aHwL5RUdg9ARtsgVpzZd+V9Hajz/AMpjT4wPIv8ElS+irbuq38n4+2lEdDDZjKgxWKo6uBvmtIhBisLdWmjQo2zKYYYwNwIeWZn40=
-Received: from DUZPR01CA0265.eurprd01.prod.exchangelabs.com
- (2603:10a6:10:4b9::15) by PR3PR06MB6732.eurprd06.prod.outlook.com
- (2603:10a6:102:62::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.25; Mon, 10 Aug
- 2026 13:05:51 +0000
-Received: from DB1PEPF000509F0.eurprd03.prod.outlook.com
- (2603:10a6:10:4b9:cafe::3c) by DUZPR01CA0265.outlook.office365.com
- (2603:10a6:10:4b9::15) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.292.25 via Frontend Transport; Mon,
- 10 Aug 2026 13:05:51 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 193.8.40.99)
- smtp.mailfrom=leica-geosystems.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=leica-geosystems.com;
-Received-SPF: Pass (protection.outlook.com: domain of leica-geosystems.com
- designates 193.8.40.99 as permitted sender) receiver=protection.outlook.com;
- client-ip=193.8.40.99; helo=hexagon.com; pr=C
-Received: from hexagon.com (193.8.40.99) by
- DB1PEPF000509F0.mail.protection.outlook.com (10.167.242.74) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.292.8 via Frontend Transport; Mon, 10 Aug 2026 13:05:51 +0000
-Received: from aherlnxbspsrv01.lgs-net.com ([10.61.228.61]) by hexagon.com with Microsoft SMTPSVC(10.0.17763.1697);
-	 Mon, 10 Aug 2026 15:05:50 +0200
-From: Robert Leussler <robert.leussler@leica-geosystems.com>
-To: sashiko-bot@kernel.org
-Cc: alexandre.belloni@bootlin.com,
-	linux-rtc@vger.kernel.org,
-	robert.leussler@leica-geosystems.com,
-	sashiko-reviews@lists.linux.dev
-Subject: Re: [PATCH] rtc: ds1307: fix RX8130 wakeup alarm WADA bit for day-of-month mode
-Date: Mon, 10 Aug 2026 13:05:29 +0000
-Message-ID: <20260810130544.3551013-1-robert.leussler@leica-geosystems.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260721083021.7D2921F000E9@smtp.kernel.org>
-References: <20260721083021.7D2921F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BKlg5tMj"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47f703a9d05so1685362f8f.0
+        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786390802; x=1786995602; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Sg0u8jIY3RdcCncNxYq4+4NKxyzf6tm+h7D9IVK82fo=;
+        b=BKlg5tMjWLiVi9FOvm3y97U8uzf0AWuwDQE6pshs9iyngJp305+damhIhBUM41cBgJ
+         4TLc7dVgv1LgHGUAEjx8nq6JT1HiYhiyS22eLF4GDWPA6KZRcqQmxHodYLL7s1EVzmVT
+         VnUONPmJglLQM5BQZk5di0tU4JMWgbQfVw+Vk9jqNYpHbaO+TAiJUWsp+BdYaC7hBLXT
+         qoXwmsbIGtmuVh86RfBlv9YfUfayzubC/Ckau2JLc0KgtJ1RCYnoeWIHyf4VswzKozzX
+         v48AQE1L30lr7tTVEpLcbXrOc1N+kmcMdNSMEIhLKwu+XuJV6af1eIYXNBNgeSx+VsGh
+         tb6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786390802; x=1786995602;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Sg0u8jIY3RdcCncNxYq4+4NKxyzf6tm+h7D9IVK82fo=;
+        b=KB4E2pkcJdEH4Ry8h+1g98Hiq3zDpRtStvwOFq33k0o0+304s5IhV5tur3LAp4JFGf
+         fmNkfi1YuSaKQp4nu6imoRk5+VP/clA+xw0HxHgNijB/vqMD5U62f7rm7dDH4IuDn82C
+         ncPn56T13zvtqNdMJtegEvGmvi3SqhOK7gtXDuwdFqtacTtbig1eTaUSEK4uSDZ5NG61
+         KtE6gwGZPGkq1ARHM7OKS0+uDRlgrqSmqQNAb1fFXG1d20KWii5Zj/x4ckHDpXXujgQ4
+         22/yczJQnX/bxGApDhfWh4Gm2V1SDrnB2bCEa/18/rWf5T1H2N369RQq8CxCPTEAJlf6
+         3Xgg==
+X-Gm-Message-State: AOJu0YwN4NX/SeVv4y3JYtaYi9wsUjcRyXCpJoDcKytvCWxwrJWuyQWb
+	d5aRvg1eZT1zX3fPPye/UWxYEnCs14yWqN1uvPkEu5ZNFoWAnkAfW/l8
+X-Gm-Gg: AR+sD138O874LNsfPGTlBUUsxAhtRunXm3vQexs9xLXfYUXpFVT2nvtZrEdID21udVD
+	hvpUZWUrLOXhlhn7LAcHN6zaxcsKiVd3AN/+PJ9V3zqe1A7X2HvsFBIcU+gtjHzNIyCJAebQ6fX
+	Q7eflKsvAt8fP0tybvquLEG/apKp9W6D4lSH9Nsrx5LhqrTkqE0T3BKYb3Q5kgMWo1Aw5/vRvAF
+	1BxmP3V7l2HdAVgR08jVpEUjyCutyoo5P+D5zdbDMz6/skr+Xzul4Et9iNUJC+VrLqTkaV6thsw
+	T0nDMF0f26Fsjtff/gY9lrvlhFEs/jzUHevUws4Gt2ajistBIckEX852o6qs5MFbcxveW6YqN0v
+	Kq5wAulAiypWRz7l4iCVl3rhyWE5RhKiJzZJKNU3off4e5YecygJTVBQaRXTgd2Rez7MC/VHiI3
+	UWpIgTHCMRvkWo6Lzk3HYkLOwz2xDnWV8uDR3rMdob54NhMibpg62H1LOXTgEEmBg=
+X-Received: by 2002:a05:6000:2588:b0:47f:91f0:9a8 with SMTP id ffacd0b85a97d-480026d7a50mr37788215f8f.23.1786390801677;
+        Mon, 10 Aug 2026 12:40:01 -0700 (PDT)
+Received: from antoniarch ([78.213.94.207])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 12:40:01 -0700 (PDT)
+From: Antoni Pokusinski <apokusinski01@gmail.com>
+To: alexandre.belloni@bootlin.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: [PATCH v4 0/9] rtc: abx80x: add support for abx81x
+Date: Mon, 10 Aug 2026 21:38:17 +0200
+Message-ID: <20260810193826.210683-1-apokusinski01@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -74,46 +75,66 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 10 Aug 2026 13:05:51.0012 (UTC) FILETIME=[F7FD3640:01DD28C8]
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB1PEPF000509F0:EE_|PR3PR06MB6732:EE_
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 5504d03d-4bd1-4317-5469-08def6e01ab4
-X-SET-LOWER-SCL-SCANNER: YES
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|23010399003|376014|1800799024|82310400026|10067099003|56012099006|11063799006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	iQgqe54B9J1aRHvkrRCsz3LkghgU2LWrx5tzOUJ8CHp47fRJHH4jc4FzvFP0IYbNzpKveWNoIC3/d281GYpZUaWffIOjH1sqndYBtbj0eQ1O4rtqY9RG+Eyjo+FqAfp+9u8fu+El/01b0OY2lzyLZDh2wP26NDdkrBnB+R5hPKTvc0rW9CDRGhIDAblPI3p8Uu1MuIZVqiNZVWZF0+1EkWIwH6quLF1BAMPAdkVSde/2r9f+A31e8sVemlhxY5WsdxNMta0ojLEsUMT9mRMiITVk8g9NzYReUDy2kLeAoLQujDTZOKIMbY1vbjsebfAaEG9HQVQuc95stHEHou6dbwfBR+EadnlzjQzrOa0OjtqtxhUXfLWfUw52wnpoFcImgBmVAT+D8SWttTVQV5/yunj/EiamcX3UB5JBFhmra0D7WcnxXqZk/UmQMJkh2VaW/6qXZFQ/xgmKmy6XqoAKl3xTKc9cPEwsrQxwPcNDfPTU1WdHtj30HWchn+KWHxXFfe6lSHPSoFFxEt7QMP3sU8x0d1GBupsZkgDLcqm6ZEnElctZBd6AVrwiVYxmkfH6H3Mk+OJvtlxmgXJ/2qrD9ZNvXNSnETBSR1ARSsz8X27t0TRepOb54JKFxxos2KsCtMKddTigvCYFJZblrZADLjlNqtCEJGPmxcGUEmiwi1ZT/e2DSXbhxwnSKZiKtudM/hascuzkS67URE71zTREGA==
-X-Forefront-Antispam-Report:
-	CIP:193.8.40.99;CTRY:CH;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:hexagon.com;PTR:ahersrvdom51.leica-geosystems.com;CAT:NONE;SFS:(13230040)(36860700016)(23010399003)(376014)(1800799024)(82310400026)(10067099003)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	QuxGPOUzc+s876o4F6sCVYf1+l7YkaJCpGXVurbpvPB5c4qlvKD8nDC9DJEbCHhhwK2B6LRiT3+1fUHk77hMCH37TuE7nk+ouf+pxzjV26FYQS6BJXdlnk5yLJNmpCpy44qlZAZTxCPR9BnLlTZYW5NugwlN6biXsZr7hWfxtD9os22gOFp7qT2lkcQj0bQ8lGkM5hnn9+tsCteh6mkLk7L5AnJOXjZx5TyoctwcYUikr3DgDNULPuq00G6JD6gnZIWmtRKVx6mrvI5WfWxpDCP8/JPEy/HhZEh1FI5Zp6HRTnoFk4jB65APsJQvlWDhYeoIbU+qOe87plN+RbZsGxoC74/FmvWCOdvNeztBOeABJL5uiYI9hZhIy2ciIERSbKkpTZwqIiyFMbtZjs0uKbzUkJ8bqCcrNetQ5qAgJ02FhPXQ66uDGtdnNXP/RiPO
-X-OriginatorOrg: leica-geosystems.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2026 13:05:51.2863
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5504d03d-4bd1-4317-5469-08def6e01ab4
-X-MS-Exchange-CrossTenant-Id: 1b16ab3e-b8f6-4fe3-9f3e-2db7fe549f6a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=1b16ab3e-b8f6-4fe3-9f3e-2db7fe549f6a;Ip=[193.8.40.99];Helo=[hexagon.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DB1PEPF000509F0.eurprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR06MB6732
 
-Hi,
+Hello,
+This patch series adds support for the ABX81X RTCs, which are essentially
+SPI versions of the ABX80X RTCs. The first patches (P2-P4) contain bug fixes 
+(added after sashiko's review in v1-v3), then (P5-P8) we have some cleanup and
+reorganization changes (converting the driver to use the regmap API was
+needed for this), followed by the actual ABX81X support.
 
-Thanks for the review.
+Kind regards,
+Antoni Pokusinski
 
-This appears to be a pre-existing issue in the RX8130 FLAG register
-handling. However, it is unrelated to the WADA bit fix introduced by
-this patch.
 
-I'd prefer to keep this patch focused on the WADA fix and address any
-FLAG register handling issues separately.
+---
+Changes since v3:
+* PATCH 2 ("rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()")
+  New patch
+* PATCH 3 ("rtc: abx80x: add mutex protection for register writes")
+  Replaced "guard()" with "scoped_guard()" in "abx80x_ioctl()"
+* PATCH 4 ("rtc: abx80x: properly handle shared IRQs")
+  Disable all the unused interrupts in "probe()"
+* PATCH 6 ("rtc: abx80x: use regmap instead of I2C specific API")
+  Changed the type of "flag" arguments in "regmap_read()" from "int" to "unsigned int"
+---
+Changes since v2:
+* dropped patch "rtc: abx80x: move part autodetection before RV1805 configuration"
+* PATCH 2 ("rtc: abx80x: add mutex protection for register writes")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - return PTR_ERR(regmap) on I2C regmap init error
+* PATCH 8 ("rtc: abx80x: add support for ABX81X")
+  - return PTR_ERR(regmap) on SPI regmap init error
+---
+Changes since v1:
+* PATCH 1 ("dt-bindings: rtc: abx80x: document ABX81X RTCs")
+  - added missing "spi-peripherals-props" reference
+  - added abx815 compatible strings to the trickle charger enum list
+* PATCH 2 ("rtc: abx80x: move part autodetection before RV1805 configuration")
+  New patch
+* PATCH 3 ("rtc: abx80x: properly handle shared IRQs")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - changed regmap_read() argument types from `int` to `unsigned int`
+---
 
-Thanks,
-Robert
+Antoni Pokusinski (9):
+  dt-bindings: rtc: abx80x: document ABX81X RTCs
+  rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
+  rtc: abx80x: add mutex protection for register writes
+  rtc: abx80x: properly handle shared IRQs
+  rtc: abx80x: add irq to struct abx80x_priv
+  rtc: abx80x: use regmap instead of I2C specific API
+  rtc: abx80x: replace read-modify-write pattern with regmap helpers
+  rtc: abx80x: create abx80x_i2c_probe()
+  rtc: abx80x: add support for ABX81X
+
+ .../bindings/rtc/abracon,abx80x.yaml          |  18 +-
+ drivers/rtc/Kconfig                           |  25 +-
+ drivers/rtc/rtc-abx80x.c                      | 663 +++++++++++-------
+ 3 files changed, 451 insertions(+), 255 deletions(-)
+
+-- 
+2.55.0
+
