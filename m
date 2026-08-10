@@ -1,63 +1,62 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F21D6416CF3
-	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 628B2437450
+	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786390809; cv=none; b=jjFVxOC8JEIRW1pZ2IeMbRtoxuKBykNMHOpFrih+jXhCVgjWChPjC60CCUF8GfUxr9W+MmkOKg/gi3A/A7hImRI8QF6B5aaxxO3DVyumgcR8Zd6mLM8lOZI8O//TC5RLVnfqf57bBi9tIwkvHH17hKKuUMFds7UzZb4zGUaRXMU=
+	t=1786390814; cv=none; b=o+DbE+Z5ywtfW+BvWiZQX0eqI5lfTDPCx+tuuk4dZXKvqW/w81949KI98Px9Vu9P+fIc0wDNmNrJ7TzuhhilcQnjTTkgW2RY2B0Qa/It1G7fi8fcV6HLa1nDPwJwlnw/eIxfzSzAOmprOSpwqL2lio/7FQiAfcu9je7M/bAqS68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786390809; c=relaxed/simple;
-	bh=iymtdZbAVDC4szK+VL2vsDv4Um3gp/9GnkovC0TOf7E=;
+	s=arc-20240116; t=1786390814; c=relaxed/simple;
+	bh=p25ogiM2Sa8dkypvVtSH6kxWkficJn5eIY7C0S2Bxg4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PkbCNKPJKuQ/IkEHxli7AP2FRGgXVKblLm3j0Ao3s4qblziMOGMAF7Euso3lbrDFLSW1Jrx5TbImfguUX4tG749sa90w3+WvwYmXSgs2sV2CEJJsVcXVHDFGPv7qmkoPKZAMois0bxV2WBqb1nHN2b79BUBMCoFSUA6yfhKtBOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FEM3ErQZ; arc=none smtp.client-ip=209.85.128.43
+	 MIME-Version; b=VLqFgyugaCAnzRFIHIlROZ/JkIsbvkPekpVuXQ6TnTtP0x8xjfZpAxDHOdupxRkGyv/M5tl4j2inNL8l4I3jRw+8hly6p0XeMLQrXe93gAi2k0imzMgXiSuAjXXIQ+KQP+mkDZg2dBTwfCyRS4xu0XBeJZ7xXCggk7BvvCfOCOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YaAbUBiJ; arc=none smtp.client-ip=209.85.221.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FEM3ErQZ"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4980fe6b3beso1840975e9.0
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YaAbUBiJ"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-48000c5d6d3so1011345f8f.1
+        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786390805; x=1786995605; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786390806; x=1786995606; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+Lv+zt/h7dKa8TuGsaFOLj9Yjn5OU7W3HW8p5oLwNPc=;
-        b=FEM3ErQZv/iFI2wk3UMNOzwUqmp69J7Ox/rfTj46W83fpT8fRiJSr5CPXXVhOSWLWK
-         DuF/CS3bm/ADH0rajbZcuexCYPDTwCWNo2iPU1FBav7fvUEtaZ1cwVC2LiTDeLdPnMFo
-         Ar2k2r+WoH0W9nXjUBbscIenAzy7AmEwAxCTxBRgfI/G8OzIZQPYBydsLQz6M92RQEq5
-         6ezcSYVsv0W1dk9GNBZgUK1za6DlT0gdZSmBn7L5rdP97u38q58KIDUvGLWTmylf/QGK
-         WrXxHmIniK48Cmk90p+7A9uTP6MZdtJCwr3ZNYk0IBuq458QHBUM0JojxKEo7pj/2kOP
-         gN/w==
+        bh=cJn7ePOsurTlt5ccE+gZ6P4uZZ4odFFp/lRiM7gv8dM=;
+        b=YaAbUBiJ2QwKZR0xUqPtjo9HB3fSEIgI6VIU6yCbjFNGnx5Z056rB3Jdvnil8eZayN
+         0yhqTfxhw51P5iescM/68oaDgrEE9YT9dN/GySm9mstKBRxkoQzeSsj+5Xfyy6zicPLG
+         J1MbYcGn+sIP9veBhQVFlOznjkjqPu7qyRaju9C7ReDNzbdidAWoXPZQogy/OoksCpPb
+         JRsy8LtdtPSOfvrEgKvbYK8kd2vxFLx1Bgf+ix2dbhwsK81dKKGGzPRrIjrnZ/KFmRRW
+         ZLYz8WtFI9VwKO81tBLYRUoRbKD33XttOHnUCPI6145WUjr4AeLay4sr3R6F+dDoE7mB
+         UEwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786390805; x=1786995605;
+        d=1e100.net; s=20251104; t=1786390806; x=1786995606;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+Lv+zt/h7dKa8TuGsaFOLj9Yjn5OU7W3HW8p5oLwNPc=;
-        b=SGGsub4M1cme/jCjRAzzGyLgnCKsYAtb6mpjL3naspemJZg7LBU83zQbyA5yqyEO1x
-         APJ+HGIpkyLd11yHZxDnHmN9T74IySdHOy3yRj7osGH48KhtizXS1YL6grUMji3ATu2/
-         mApYwstAoH04DAricBA4UM2tHSwno1Os46hx+WEBenZtErIVYgPlQt1kl+T1E5aTG2Np
-         Tq75gh0TDgM1snkY0N7Z9KJqu2Urj2vVpuvoKeMQA9qg3xkBQ5a0Zi0VkrJOywo8iCGS
-         6DuSe5FeWfLX4/QpuN7WXT6EBVASfyzhSUjdROL+U+6W5VWtmsrc5i7Nz+SVmOsugdwt
-         e9eQ==
-X-Gm-Message-State: AOJu0Yybb3WcOqBgeTEJ4mDOTArrdhVXbQ6ZRXdrEs8RRdiI+YhjsEZ9
-	CgbiMVQp5kTN1qVC+Eo1aARikVQCQNiebGVimUGbV7S4/B8yyJT54qiG
-X-Gm-Gg: AR+sD10QHRSpXRarQPfVoSvluS8w5MsQ4DZ2iI6s0ccpo9rVPk6MbjUtiOqby50h3mM
-	MZz4FIkiasPKTgTt3Jzs0nWPTYqfjV70cgzc6Lhj7Gi79mdD/VitU6vYbga2wGl7Vs1Uc4MWSSE
-	Hf029d0AkLDPauF2ikesDv4vo0ulPJy7BQRfKxkCSknyRpbYu64ihP2B7DY7i9msOt5fPWjnFpg
-	Oh/UjDld+KNZKTf+bYhfjmOGJ4hfJ+0xGcNp+tIE/P70BdD+w6NJ84ST9LQPhok5sLrby/eYfFl
-	z1cRVgiMvAayrWR0dJ5fMxpnQwInS8Tkm+ijcghA2/KYAEVHbS18r9tU9kGrOmrp3LkxxqLUrjy
-	d0jerWWFBeSs+B3ziDTXKZndXI5SXXwznLb3sw6kTEfcnGduGFDhSISP/a/yTOob1d33TJKhGNP
-	TqGe8e9cn9fTYw7qDnKxnBAulibem1jnqjNIoCNtrdBD1aEKhXVJm8DesXz/k4W0TBrf0M9fHi7
-	t8=
-X-Received: by 2002:a05:600c:8287:b0:499:5f81:8ca1 with SMTP id 5b1f17b1804b1-49974667332mr8638055e9.6.1786390804533;
-        Mon, 10 Aug 2026 12:40:04 -0700 (PDT)
+        bh=cJn7ePOsurTlt5ccE+gZ6P4uZZ4odFFp/lRiM7gv8dM=;
+        b=CG1FGxSxBw+uj3n5zQLP5cJwgPrdGKIUT1aiOFe0SHyLoqFycyRNZFVlam2MAIfbsS
+         2F8JLGd2QBZKJ0D9FItqxPU3DrQp1qhPVGWBtFktaq9p70JuFadEgTM2IbDNIKg8s9HG
+         efoU3NvGAdtGQC8Ji6ri54+D7wMWetPCatKF+MFxC3n2tkcssPyOfgJXm/PYTdMppNRF
+         rFyZ9BUb4Y7mpu66pKXhllDKjHAV2MeNtEBOwJRCIk5ShZcIbpTpvSr2bYX0RFw9IIwY
+         9YiBA4WivSsqfNjDAl4OZWOrbIfeVME2ZpeO2Q/urIxdwFLcLfWvNsdh9kS+ScxU/rcS
+         BCIw==
+X-Gm-Message-State: AOJu0YzRHnAnfftpsiRIpuY4LqBSSptbIaZrQ4Paq1dXXpySYzKahXvE
+	mrHoTquA/iOtvIN7tQv8pJMLW8CfH1aNxUSuuyCUiGYZCYephQtZ0uLr
+X-Gm-Gg: AR+sD12WcTaZrufO3ra+x/apQGDB1IL8DB5q5hd8q/ju9FupLF+wqwAw9tsaGtluki+
+	dDtToIEp4hW+wvkBJrUiMhFJ8eeya1coEqHVTPAyAOZv2/Wv7eP8WaQKtDRC+Fp1c9GCItUqKd0
+	UMVRloXKMrP/oGRB/ztsPKNNDqIDu+ShYAQArluAhtCYTKuoy79QQE1u/wNk6hlQ67QRZ0h7byC
+	8TiMdxeqDI5OYmVRw1/Ko0y3xlpYmZ+IxsDNEZjBYGzWWYwLFIX8KCEEUGsWbqgktfMJ/PyDlQF
+	qmsrMia/j6LrcM2lPEbQoi5K6VgZx6gIM750lsq8cbBztqOd8IWh8O/M/gWZge8EKA39eczAOns
+	+ytbI+XBj3G0Qz31iHDDSbiAeacP7bYvbGNMCQB+646xPrYNi5/xLMwacVv/jxgsHJsh6o8m+dy
+	IU3RTzUhnOF+Q/XQ5mvTkovX6b+dFqbnZM+crLQ4ktk7wi/faKonDo1Q1NUli3ixM=
+X-Received: by 2002:a05:6000:608:b0:47f:9662:85fe with SMTP id ffacd0b85a97d-480026c8757mr35222263f8f.16.1786390806060;
+        Mon, 10 Aug 2026 12:40:06 -0700 (PDT)
 Received: from antoniarch ([78.213.94.207])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.03
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 12:40:04 -0700 (PDT)
+        Mon, 10 Aug 2026 12:40:05 -0700 (PDT)
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: alexandre.belloni@bootlin.com,
 	robh@kernel.org,
@@ -67,9 +66,9 @@ Cc: linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH v4 2/9] rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
-Date: Mon, 10 Aug 2026 21:38:19 +0200
-Message-ID: <20260810193826.210683-3-apokusinski01@gmail.com>
+Subject: [PATCH v4 3/9] rtc: abx80x: add mutex protection for register writes
+Date: Mon, 10 Aug 2026 21:38:20 +0200
+Message-ID: <20260810193826.210683-4-apokusinski01@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260810193826.210683-1-apokusinski01@gmail.com>
 References: <20260810193826.210683-1-apokusinski01@gmail.com>
@@ -81,31 +80,188 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-i2c_smbus_read_i2c_block_data() returns the number of bytes read on
-success and a negative error code on failure. The existing code treated
-any non-zero return value as an error.
+The ABX80X RTC driver performs multi-step register operations such as
+NVMEM transfers or register writes preceded by a configuration key
+write. Add a mutex to serialize all the register writes to protect
+these sequences against race conditions.
 
-Fix the error handling by checking only for negative return values.
-
-Fixes: 718a820a303c ("rtc: abx80x: add alarm support")
 Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
 ---
- drivers/rtc/rtc-abx80x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-abx80x.c | 45 +++++++++++++++++++++++++++++++++-------
+ 1 file changed, 37 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 5486d9d0b1e5..fdf9664ebb6f 100644
+index fdf9664ebb6f..0c8d3416fd5a 100644
 --- a/drivers/rtc/rtc-abx80x.c
 +++ b/drivers/rtc/rtc-abx80x.c
-@@ -294,7 +294,7 @@ static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+@@ -15,6 +15,7 @@
+ #include <linux/i2c.h>
+ #include <linux/kstrtox.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/rtc.h>
+ #include <linux/watchdog.h>
+@@ -127,6 +128,7 @@ struct abx80x_priv {
+ 	struct rtc_device *rtc;
+ 	struct i2c_client *client;
+ 	struct watchdog_device wdog;
++	struct mutex lock;
+ };
  
- 	err = i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
- 					    sizeof(buf), buf);
--	if (err)
-+	if (err < 0)
- 		return err;
+ static int abx80x_write_config_key(struct i2c_client *client, u8 key)
+@@ -219,6 +221,7 @@ static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int err, flags;
  
- 	irq_mask = i2c_smbus_read_byte_data(client, ABX8XX_REG_IRQ);
+@@ -234,6 +237,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[ABX8XX_REG_YR] = bin2bcd(tm->tm_year - 100);
+ 	buf[ABX8XX_REG_WD] = tm->tm_wday;
+ 
++	guard(mutex)(&priv->lock);
++
+ 	err = i2c_smbus_write_i2c_block_data(client, ABX8XX_REG_HTH,
+ 					     sizeof(buf), buf);
+ 	if (err < 0) {
+@@ -263,6 +268,8 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
+ 	struct rtc_device *rtc = priv->rtc;
+ 	int status;
+ 
++	guard(mutex)(&priv->lock);
++
+ 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+ 	if (status < 0)
+ 		return IRQ_NONE;
+@@ -317,6 +324,7 @@ static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+ static int abx80x_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	u8 alarm[6];
+ 	int err;
+ 
+@@ -330,6 +338,8 @@ static int abx80x_set_alarm(struct device *dev, struct rtc_wkalrm *t)
+ 	alarm[4] = bin2bcd(t->time.tm_mday);
+ 	alarm[5] = bin2bcd(t->time.tm_mon + 1);
+ 
++	guard(mutex)(&priv->lock);
++
+ 	err = i2c_smbus_write_i2c_block_data(client, ABX8XX_REG_AHTH,
+ 					     sizeof(alarm), alarm);
+ 	if (err < 0) {
+@@ -352,6 +362,7 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
+ 					  int autocalibration)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	int retval, flags = 0;
+ 
+ 	if ((autocalibration != 0) && (autocalibration != 1024) &&
+@@ -360,6 +371,8 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
+ 		return -EINVAL;
+ 	}
+ 
++	guard(mutex)(&priv->lock);
++
+ 	flags = i2c_smbus_read_byte_data(client, ABX8XX_REG_OSC);
+ 	if (flags < 0)
+ 		return flags;
+@@ -443,6 +456,7 @@ static ssize_t oscillator_store(struct device *dev,
+ 				const char *buf, size_t count)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev->parent);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	int retval, flags, rc_mode = 0;
+ 
+ 	if (strncmp(buf, "rc", 2) == 0) {
+@@ -454,6 +468,8 @@ static ssize_t oscillator_store(struct device *dev,
+ 		return -EINVAL;
+ 	}
+ 
++	guard(mutex)(&priv->lock);
++
+ 	flags =  i2c_smbus_read_byte_data(client, ABX8XX_REG_OSC);
+ 	if (flags < 0)
+ 		return flags;
+@@ -511,8 +527,11 @@ static const struct attribute_group rtc_calib_attr_group = {
+ static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	int err;
+ 
++	guard(mutex)(&priv->lock);
++
+ 	if (enabled)
+ 		err = i2c_smbus_write_byte_data(client, ABX8XX_REG_IRQ,
+ 						(ABX8XX_IRQ_IM_1_4 |
+@@ -526,6 +545,7 @@ static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enabled)
+ static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	int status, tmp;
+ 
+ 	switch (cmd) {
+@@ -539,16 +559,18 @@ static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 		return put_user(tmp, (unsigned int __user *)arg);
+ 
+ 	case RTC_VL_CLR:
+-		status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
+-		if (status < 0)
+-			return status;
++		scoped_guard(mutex, &priv->lock) {
++			status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
++			if (status < 0)
++				return status;
+ 
+-		status &= ~ABX8XX_STATUS_BLF;
++			status &= ~ABX8XX_STATUS_BLF;
+ 
+-		tmp = i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS,
+-						status);
+-		if (tmp < 0)
+-			return tmp;
++			tmp = i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS,
++							status);
++			if (tmp < 0)
++				return tmp;
++		}
+ 
+ 		return 0;
+ 
+@@ -617,6 +639,8 @@ static int __abx80x_wdog_set_timeout(struct watchdog_device *wdog,
+ 	struct abx80x_priv *priv = watchdog_get_drvdata(wdog);
+ 	u8 val = ABX8XX_WDT_WDS | timeout_bits(timeout);
+ 
++	guard(mutex)(&priv->lock);
++
+ 	/*
+ 	 * Writing any timeout to the WDT register resets the watchdog timer.
+ 	 * Writing 0 disables it.
+@@ -701,6 +725,8 @@ static int abx80x_nvmem_xfer(struct abx80x_priv *priv, unsigned int offset,
+ 		len = min(lower + bytes, (size_t)ABX8XX_SRAM_WIN_SIZE) - lower;
+ 		len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
+ 
++		guard(mutex)(&priv->lock);
++
+ 		ret = i2c_smbus_write_byte_data(priv->client, ABX8XX_REG_EXTRAM,
+ 						extram);
+ 		if (ret)
+@@ -908,6 +934,9 @@ static int abx80x_probe(struct i2c_client *client)
+ 
+ 	priv->rtc->ops = &abx80x_rtc_ops;
+ 	priv->client = client;
++	err = devm_mutex_init(&client->dev, &priv->lock);
++	if (err)
++		return err;
+ 
+ 	i2c_set_clientdata(client, priv);
+ 
 -- 
 2.55.0
 
