@@ -1,49 +1,50 @@
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB17459AF9
-	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 17:39:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5014033DEDF
+	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 18:03:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786469994; cv=none; b=aLyn4B/HbfD22EFg7DQkoOzhjCVi0A9MD3F29f27aU6ji9MuzlG9S/leXO+zTKh1Fr9BrSzHPJkdpdNVPanyOwfzyPtLWp3Rt1iCdT6yu4mZlBDVHPh+LFX0ups+9R/lqM/XD+pT9fTd3qV+qJtLXd3bSjOBZETE8ZkW//kBOvM=
+	t=1786471442; cv=none; b=t0kMedcUZdNx3OPLznE+mFkTGYdqWxxNyuNnKY2kYgChO2lKIT0uOmcesBoBdcGRYyFFgQZDIFSkFOo3z3SWqumUfsySs8FYOBXT0UGK8T5mz9Z6eiBbpy2Sg69FHaCOyYzU5bSIA5d8OL0ciH4xDVX7Ort6GVphoQz6i2HeHmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786469994; c=relaxed/simple;
-	bh=gdxAJWXAXm8vC2GYzmDIecnbeUyLLEflYFnHKLZUbuA=;
+	s=arc-20240116; t=1786471442; c=relaxed/simple;
+	bh=7DFhAXUVgj9JF2prx27/2JFtAO9oDV+94cL3B8WgpqY=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=B/5jkKw+crU20cKLGN+Ll5HaVkWh0kklkv3tIkOoJGGftVoNa61AY9pSiUsW5x7Gl0nC1XZpwkUrcYgZLza41HdwOhXO5y7gVk1/EGO8SazZulwzx+/v4gCxS61RtZkVnm337QRKBltVtoCrs0Km4BFF8pqno88qOgJYr4StyEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=l4vx5laG; arc=none smtp.client-ip=185.67.36.66
+	 Content-Type:MIME-Version; b=lZOxK+QGhCw7AeCro8pqbne5uNLIfuTX1SVI6dkUTyTWPeNa1wWASXnIuvWpfk1H7IDxk9d39lryWAbf7W3PkLK2Bg5MbB0dF8lcuFKjLZKjf/LR5cTUyWEmijixHcB50EKT3ZKLbFS/8ifxqGwRugCAN57E/7P42OMLYcNjTfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=JpZibyMZ; arc=none smtp.client-ip=185.67.36.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="l4vx5laG"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="JpZibyMZ"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id B435D240101
-	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 19:39:49 +0200 (CEST)
+	by mout01.posteo.de (Postfix) with ESMTPS id 735BD24002A
+	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 20:03:57 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1786469989;
-	bh=VzbJi0W45vM9k6SDfgIZUxnSMp1CK4LGKfLqzBNaI54=;
+	s=1984.8680eb; t=1786471437;
+	bh=y3+z+tsbACfa+Yw+MQefzdiQfWOqt812EOh0FeS7toU=;
 	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
 	 MIME-Version:OpenPGP:From;
-	b=l4vx5laGcDYajeCrweJ1sJ3lWwjD1NW2MGY52pxsnr+eof5hiQXL5fqYnlnzXSr4j
-	 GYVG+QS3heUa5xR6G3910qXS4ZUrBLeIFM1djyC9XO6l192Br9afYC+RrmgNYWUI7U
-	 XMM0FeWsI7DYHuTLHqJNSznxtxfg7sRvJFYLVg9pb8RJU2JLBD3OSmQuRRBwk1TPjo
-	 lNfScpLD30hwkzG2XT4qGeK9v+8Z8EmFXIkN2G+xdWDh6StKiss6bIMGDWOF4fC7XC
-	 /ZXfXmLMjxeWIoTnE39bkZJw3WmSHIk/DQwhPqXIb0jirUhWljZBZKtSS0KA0LB6cJ
-	 dVi9KWAqVzMvw==
+	b=JpZibyMZUvOWfEntQoJVcYSL5lgK1ueoM1aovUNhaVFSOkMcQg5nM5aKkHuVLiI9Q
+	 M3J4vR2H/8SthF/DYfTH3XPSThCh/6L9sXFhQG3VWohO1SeovA94XekjDn+HvAMkMX
+	 2HClLOa338WrlXGX0Natjzgsw8FGXxGkheGIuKlgKk5cQoj/JazfQlyXOMb5e61gsc
+	 xh57U7uPpwztqyiqRkMJNNLR66tTEOD3wEBM+RgoBHEPkgPOPE/Y90D5gav0/Q96fq
+	 OtcT4X3ozLg+L1AiOSMFFDJhtsTxEnt8ilXMYRKg6iYcS4dGPkb/YFjOlp/xkJf53y
+	 RrccqjK1GAiEw==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hKJm46CRtz9rxV;
-	Tue, 11 Aug 2026 19:39:48 +0200 (CEST)
-Message-ID: <1d76e37a92549a0c131fa8a1b7075a1475ac5bdb.camel@posteo.de>
-Subject: Re: [PATCH v3 4/5] rtc: s35390a: Add pinctrl
+	by submission (posteo.de) with ESMTPSA id 4hKKHw5TNXz9rxX;
+	Tue, 11 Aug 2026 20:03:56 +0200 (CEST)
+Message-ID: <7548ea70cb73f744dd313722211daa9a5cc49d70.camel@posteo.de>
+Subject: Re: [PATCH v3 2/5] rtc: s35390a: Add missing newline to dev_err
 From: Markus Probst <markus.probst@posteo.de>
 To: sashiko-reviews@lists.linux.dev
-Cc: devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-Date: Tue, 11 Aug 2026 17:39:49 +0000
-In-Reply-To: <20260805205149.E9F3A1F000E9@smtp.kernel.org>
+Cc: robh@kernel.org, devicetree@vger.kernel.org, Alexandre Belloni	
+ <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org,
+ conor+dt@kernel.org
+Date: Tue, 11 Aug 2026 18:03:57 +0000
+In-Reply-To: <20260805203037.E9A341F000E9@smtp.kernel.org>
 References: <20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de>
-	 <20260805-rtc_s35390a_int1-v3-4-e836faba3e25@posteo.de>
-	 <20260805205149.E9F3A1F000E9@smtp.kernel.org>
+	 <20260805-rtc_s35390a_int1-v3-2-e836faba3e25@posteo.de>
+	 <20260805203037.E9A341F000E9@smtp.kernel.org>
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  keydata=mQINBGiDvXgBEADAXUceKafpl46S35UmDh2wRvvx+UfZbcTjeQOlSwKP7YVJ4JOZrVs93
  qReNLkOWguIqPBxR9blQ4nyYrqSCV+MMw/3ifyXIm6Pw2YRUDg+WTEOjTixRCoWDgUj1nOsvJ9tVA
@@ -89,7 +90,7 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  dQNGrZ91M9nlIBKw8Y7c7xZ4098qX2b8JX/CxD+gC1r4C8vuA3GkhFLx+KlkON7LyiJPkrePp6Qky
  jfGillcaQOqFZ3WwVqyzG1BUfTow==
 Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-r+aTSHgWGy8cfSgWm06J"
+	protocol="application/pgp-signature"; boundary="=-bH8OtN9TdEHa5Hw2HTUT"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -99,183 +100,124 @@ MIME-Version: 1.0
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
 
---=-r+aTSHgWGy8cfSgWm06J
+--=-bH8OtN9TdEHa5Hw2HTUT
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2026-08-05 at 20:51 +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 4 potential issu=
+On Wed, 2026-08-05 at 20:30 +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issu=
 e(s) to consider:
-> - [High] The driver initiates I2C communication with the hardware before =
-honoring the required Power-On Circuit (POC) delay, violating the initializ=
-ation sequence.
-> - [High] The pinctrl driver cannot parse device tree pin configuration no=
-des because it is missing the `dt_node_to_map` callback.
-> - [High] Reading the `STATUS1` register to check or clear pending alarms =
-inadvertently clears the alarm flags for both pins, causing lost wakeup eve=
-nts.
-> - [Medium] The driver introduces a hard dependency on `CONFIG_PINCTRL`, b=
-reaking existing kernel configurations.
+>=20
+> Pre-existing issues:
+> - [High] Desynchronization between software state and hardware 24-hour mo=
+de after initialization causes time corruption.
+> - [High] Alarm hour formatting erroneously adds PM bit in 24-hour mode, c=
+ausing PM alarms to permanently fail.
 > --
 >=20
-> --- Patch [4]: [PATCH v3 4/5] rtc: s35390a: Add pinctrl ---
-> commit f348aaf86d41faa0c844cc513c01b349d5a5d4e3
+> --- Patch [2]: [PATCH v3 2/5] rtc: s35390a: Add missing newline to dev_er=
+r ---
+> commit 60df926a63720bd3dbdd3b4991c3149af682d4b0
 > Author: Markus Probst <markus.probst@posteo.de>
-> Subject: rtc: s35390a: Add pinctrl
 >=20
-> Allow configuration of pin functions, including keeping previous config,
-> disabling output, waking up, and minute periodical interrupt. Fallback to
-> previous behavior if not configured.
+> rtc: s35390a: Add missing newline to dev_err
 >=20
-> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > index 01def82318731..4e0374129a4ed 100644
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -668,6 +668,7 @@ config RTC_DRV_RC5T619
-> > =20
-> >  config RTC_DRV_S35390A
-> >  	tristate "Seiko Instruments S-35390A"
-> > +	depends on PINCTRL
->=20
-> [Severity: Medium]
-> Since the kernel pinctrl subsystem provides dummy stubs when CONFIG_PINCT=
-RL is
-> disabled, should this be a hard dependency? This will prevent building th=
-e
-> driver on platforms without pinctrl support, breaking existing configurat=
-ions.
-It does not provide dummy stubs.
-
+> This commit fixes a missing newline character in the dev_err call
+> within s35390a_probe() when alarm disabling fails.
 >=20
 > > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> > index 575bb256eb258..d63bdeff8cdbc 100644
+> > index b72eef4fb0997..4cfe7034c5165 100644
 > > --- a/drivers/rtc/rtc-s35390a.c
 > > +++ b/drivers/rtc/rtc-s35390a.c
-> [ ... ]
-> > @@ -343,33 +343,35 @@ static int s35390a_rtc_set_alarm(struct device *d=
-ev, struct rtc_wkalrm *alm)
-> [ ... ]
-> > +	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> > +	if (err < 0)
-> > +		return err;
-> > +
-> > +	/* clear pending interrupt (in STATUS1 only), if any */
-> > +	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &tmp, sizeof(tm=
-p));
-> > +	if (err < 0)
-> > +		return err;
+> > @@ -494,7 +494,7 @@ static int s35390a_probe(struct i2c_client *client)
+> >  		buf =3D 0;
+> >  		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+> >  		if (err < 0) {
+> > -			dev_err(dev, "error disabling alarm");
+> > +			dev_err(dev, "error disabling alarm\n");
+> >  			return err;
+> >  		}
+> >  	} else {
+>=20
+> While reviewing this driver, I noticed a couple of pre-existing issues.
 >=20
 > [Severity: High]
-> Since reading STATUS1 acts as a clear-on-read for both INT1 and INT2 inte=
-rrupt
-> flags, won't this unconditional read wipe out any pending interrupts for =
-the
-> other pin?
-The only pending interrupt supported by the driver should be the wakeup
-alarm, which needs to be cleared in this function in order to set
-another alarm.
-
+> This isn't a bug introduced by this patch, but looking at s35390a_init(),
+> is it possible for the software state to become desynchronized from the
+> hardware 24-hour mode?
 >=20
-> [ ... ]
-> > @@ -453,13 +528,181 @@ static int s35390a_nvmem_write(void *priv, unsig=
-ned int offset, void *val,
-> [ ... ]
-> > +	case S35390A_FUNC_WAKEUP:
-> > +		flag =3D group =3D=3D 0 ? S35390A_INT1_MODE_ALARM : S35390A_INT2_MOD=
-E_ALARM;
-> > +		if ((buf & mask) !=3D flag) {
-> > +			buf =3D (buf & ~mask) | S35390A_INT_MODE_NOINTR;
-> > +			break;
-> > +		}
-> > +
-> > +		err =3D s35390a_read_status(s35390a, &status1);
+> drivers/rtc/rtc-s35390a.c:s35390a_init() {
+>     ...
+>     initialize:
+> 	buf =3D S35390A_FLAG_RESET | S35390A_FLAG_24H;
+> 	ret =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
+>     ...
+> }
 >=20
-> [Severity: High]
-> Similarly, if s35390a_pinctrl_set_mux() is called twice during initializa=
-tion
-> (once for each pin), won't the first call to s35390a_read_status() clear =
-the
-> flags for both pins, causing the second call to lose any pending wakeup e=
-vent?
+> When this reset is triggered (for instance, via the RTC_VL_CLR ioctl or w=
+hen
+> a brownout is detected), the hardware is explicitly switched to 24-hour m=
+ode
+> by setting S35390A_FLAG_24H.
+>=20
+> However, s35390a->twentyfourhour is not updated to 1.
+>=20
+> Does this mean subsequent calls to rtc_set_time() will incorrectly use th=
+e
+> 12-hour formatting rules if twentyfourhour was previously 0, sending inva=
+lid
+> BCD formats to the chip and corrupting the timekeeping for PM hours?
 Yes.
-
 >=20
-> [ ... ]
-> > +static const struct pinctrl_ops s35390a_pinctrl_ops =3D {
-> > +	.get_groups_count =3D s35390a_pinctrl_get_groups_count,
-> > +	.get_group_name =3D s35390a_pinctrl_get_group_name,
-> > +	.get_group_pins =3D s35390a_pinctrl_get_group_pins,
-> > +};
 >=20
 > [Severity: High]
-> Is this struct missing the dt_node_to_map callback (e.g.,
-> pinconf_generic_dt_node_to_map_all)? Without it, the pinctrl subsystem wi=
-ll fail
-> with -ENODEV during pinctrl_dt_to_map(), which ignores any custom pin
-> multiplexing requested via device tree.
-Possibly.
+> This is a pre-existing issue, but I have a question about how the alarm h=
+our
+> is formatted when the chip is operating in 24-hour mode:
 >=20
-> [ ... ]
-> > @@ -493,39 +741,16 @@ static int s35390a_probe(struct i2c_client *clien=
-t)
-> [ ... ]
-> > +	err =3D s35390a_disable_test_mode(s35390a);
-> > +	if (err < 0) {
-> > +		dev_err(dev, "error disabling test mode\n");
-> > +		return err;
-> > +	}
-> [ ... ]
-> > +	err =3D devm_pinctrl_register_and_init(dev, &s35390a_pinctrl_desc, s3=
-5390a, &pctl);
-> > +	if (err)
-> > +		return dev_err_probe(dev, err, "pinctrl register failed\n");
-> > +
-> > +	err =3D pinctrl_enable(pctl);
-> > +	if (err)
-> > +		return dev_err_probe(dev, err, "pinctrl enable failed\n");
-> [ ... ]
-> > +	err =3D s35390a_read_status(s35390a, &status1);
-> > +	if (err < 0) {
-> > +		dev_err(dev, "error resetting chip\n");
-> > +		return err;
-> > +	}
+> drivers/rtc/rtc-s35390a.c:s35390a_rtc_set_alarm() {
+>     ...
+> 	buf[S35390A_ALRM_BYTE_HOURS] =3D s35390a_hr2reg(s35390a,
+> 			alm->time.tm_hour) | 0x80;
+> 	buf[S35390A_ALRM_BYTE_MINS] =3D bin2bcd(alm->time.tm_min) | 0x80;
 >=20
-> [Severity: High]
-> Does moving the s35390a_read_status() call to later in the probe sequence=
- violate
-> the Power-On Circuit delay?
+> 	if (alm->time.tm_hour >=3D 12)
+> 		buf[S35390A_ALRM_BYTE_HOURS] |=3D 0x40;
+>     ...
+> }
 >=20
-> The s35390a_disable_test_mode() and pinctrl_enable() calls both trigger I=
-2C
-> communication. If the hardware is still in the 0.5-second POC delay perio=
-d,
-> communicating with it before checking the POC flag in s35390a_read_status=
-()
-> might lead to I2C bus hangs or silent failures on cold boot.
-Yes.
+> If the chip is in 24-hour mode, s35390a_hr2reg() will already return the
+> standard 24-hour BCD value (e.g., 0x15 for 15:00).
+>=20
+> Could the unconditional bitwise-OR with 0x40 (the PM bit) corrupt the ala=
+rm
+> time value in 24-hour mode, causing PM alarms to permanently fail because=
+ the
+> hardware comparator expects a standard 24-hour BCD value?
+No. AM/PM bit gets ignored in 24-hour mode.
 
 
---=-r+aTSHgWGy8cfSgWm06J
+
+--=-bH8OtN9TdEHa5Hw2HTUT
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmp7XmQbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSZaQQAKF1UXCV4vQUOL4tchZe
-AWdACO/L0PKwMWYOxiKTf4c4JyxfrfYpWroWFlL3jzIVGfiKG1CK2zFMLPJQ1Vvj
-BJid4SyfQjhvzLcI0BAD5bxanViZXBgemvupPPriuhbL54oNpJSZoDYSVRADXB4T
-52fY7KHGPZluaq6N/Mk3VF/fEGO6EkUqoNfVjL/bvWE0DOO24pl21pHkWP32U2I/
-LOhGwtdUd1eQXv0xRN7+KtsBpWZXgA1GlIePDipOqHb2d92B+C25CvLa+2fwh0+a
-QIPomvjlOJM72ALuB/cdENmF9PsMEwIv/vE0lDtpeu6C0JIZgUpBnk/U06XV/s7v
-Y73JU60qRW+6BcYnEWtIVxjh9AIDm/wDN9JecA9d6MrrHucQuarjSQG5J0HI7NxZ
-Hu649ehxe3yRvBgL64TMM9dJTqeASBX25cz9vv2IaNFnhdUmMtgt1ZfJHdsYuiyN
-t2lKHyByg95EwAdgKQ9OKJOHL+wlnuGQPNgAm7M6aFYg8qZad9DkWs6sY7nzlqsE
-aIhTpT+uBaSi18UBXdStE0LnBFcUh/5fOnrxfA+dFI04AhXASjXCS05wKdPCrXJT
-5q/JZ3b55tGlnWt5HpIEStguScq9hNKY9CBJ7TXhk49ehb7UOHByX96qHvoc2g3J
-ofsRMTZ02dY2qcXSR/jVRaTq
-=EGaF
+iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmp7ZAcbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSpfEP/jRZ+MH9v/Z+yMa5vJHY
+79OSrDJDyjGRJpk/g7Iq/fjh3li0EY9J5BBmWZl4wSUItpUN9Z0QVPNxZQNShXPT
+03N5QavT701BN6GRe4B+zxDLq/CxkjFAILiJD+l2SIbKDsae+OhpZ43CP93d8mg1
+g6AaW9S+FJsMGgm3u+SJOR4YiFHzc3+j2fHSM4tFh7fRs4lNoagd+0E2qdD7d5t3
+sy3RcJs4q6VNg91R4dFlnzKa+Pi1FXKNxQ83j4CeaiGinskv11qr7o+Ey3GUcAx1
+0tFX6y5jf7UDGPGStQlc1x1u9gPsIHqPRuj+sXS0fvQywU12eADiuTBDmpWT1+0e
+TTDAoAKZl0MNufUnKjuvSEydF0tmh4fdQuzZi1HQsnNHFtqZkqs3txrS0l0qnY8F
+CVxuy6fXxp/AdQ60VYfl55U5uP9SgO2mHscmaA63p8p+prUJfG4i2AlUXnShWZZ1
+nZksB6rcwBwZaY0SI9ND9BiqF724tFl9zbF+ynKGcn3HI+5G3relzKCDzb90EOVV
+EeE/LAXGPlqdTDFtivB0jYXn3/KuksF1sQ6kfgYfge6YOQrvbk7pvkhb/6NYMd8o
+DULu5wuw6fBOJ87+kjergTfkgUEYt7YpB7ZzEsOVfRs/GZhUCu9EKSc/llQ3Y1po
+AB0LLhj4ja7DHN9l4dtmrn/H
+=hu7G
 -----END PGP SIGNATURE-----
 
---=-r+aTSHgWGy8cfSgWm06J--
+--=-bH8OtN9TdEHa5Hw2HTUT--
