@@ -1,77 +1,82 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57F8F443A8E
-	for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 19:40:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB5B430CD1
+	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 12:10:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786390829; cv=none; b=mCKNRu9YMf+NXkiuCkSUfnbWq+lJxeyPvKHFiL07Gn0YrkwBkPgpHQjGd4hPXNT1knhn+2LwScMh6A4PDofyqvLVLpZKJJuQul0m3AO+WFwFC2tpRWh2LyYOCPfaRnfI5r+u1rjY3XF5PBJHCisXNnVL0v1swf5PgD3sQE09gAo=
+	t=1786450218; cv=none; b=VO8OCWuc4bBVEfS09vzkxBLpVr6OQMFXiZnYmue2ziZIzKMm1jSolxzPqkSNStJzRbvY+o7+U7uqnJSwpnmHV9FxJJsCz+yxnZ7gKDs4tntaP4INvDaJFTFMGp5Vbt0x3H5vtzOKGyyR8KOKhEMpy6/r1DAUlfI7CyU8mLdyKJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786390829; c=relaxed/simple;
-	bh=L/Xi+O03EBynElRL7L0vL8qcfN7hIjPo8s3prz4BfVc=;
+	s=arc-20240116; t=1786450218; c=relaxed/simple;
+	bh=M0klPbpMKSDb83aeDRUr2B8G3YjIwJhy28xYU7z8QLE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EPCfToKrbt97N+PCJw2EtBXVHb3Yz922OlWVbPoWyO2i5EA4xh+zv3UPWhfZmhdE9ec1Fpu49lxQec4MdtB9TF9Egu0ox5QwuWvhVoClBi4KtfZ6ZtWeWymBN9H0qY8SwpsJGa/PM9Lbo4kE+2sj5y3reECpZmMoKy/xqXDDEQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sh2BVM3M; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=bEFGMHCs0lm9ms2/ITnxNudGpUqmrcWq23uV2UlaClc32PQA4caSQZA5tWbEeDN0AzqPbXxOP9+E5NQla+Nn558NnvmT03ujfvl1XuWA3RLHB81uu457pHupBYBnTJvMyy52bfnkCrRMfGylybOvZ+gB9hLA528U+XImDLOIyWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A3zRSSBr; arc=none smtp.client-ip=209.85.167.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sh2BVM3M"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47f7027ca11so1450346f8f.3
-        for <linux-rtc@vger.kernel.org>; Mon, 10 Aug 2026 12:40:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A3zRSSBr"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5aec201b582so3146722e87.1
+        for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 05:10:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786390815; x=1786995615; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1786450214; x=1787055014; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=yR/4hjRVD3BKmEkJnBlwxN5TsqF/X+OQ8T6Cq6656R0=;
-        b=sh2BVM3MbZ1TpQenwhNDkrzOa//eZtU1WZ3d7nCrM5624be2/XsGn18J/Z3ddz4ewS
-         krMJ63rASnjP23p8K3zCdYPwfl2yllg16OdnFv4ikckH5UDG/MuG8LC8pJWK7AqRXbS8
-         4NKVCLk+O/Zf39WvP5lp7f9RAJk6KMzwq7G13fRVaoazVi/LhCSX06tSq4+dBYCMcOTi
-         o/aoQRMVHWPgQBZhqlVR//W9eK/zpcBx3TNF29U+1jQGuQ8/Bjkc4b5qnWp7k/FM+56+
-         lunxS0jjOMxZek6mmK0AB9UIvgfq2bf4FQER3PbKJwJ8T3FM6lta0pHcIF4io7p6hSXt
-         bvSQ==
+        bh=DJUUpA+u/X+Mw8WGuh26FuT0SdK7L1t8Py4ith47VDM=;
+        b=A3zRSSBriVNhHHC0kVcqmyAKY5sdk+rlxwdl6FoVzDAPXcv1S/a+Dss3LK3UsxT+pQ
+         T0w7R5AncVRO/FaiyZ73sIrs4MqwjE41wc6k1tV5CdHjzmHH2MCvRfl73osAoeorSs04
+         91iHNga5qv4xsU3hOP15zTI7piojNLwi9K0C4lK8m4Mx0VDmrWpmDHS9X5D3/Sszp2NK
+         XDNIr3IdCMfaPpAAK7DKf4GubNZz+pRqksYeMF9gMiz2LiG+t9yW1nCftAH1Wph316Tp
+         iT6l1X948JRzDe5H+ayWnZmrpSe/LqFQwOPwp7Sorq5tJgHDxfNm63egnIzVnSgYVmcV
+         0QQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786390815; x=1786995615;
+        d=1e100.net; s=20251104; t=1786450214; x=1787055014;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=yR/4hjRVD3BKmEkJnBlwxN5TsqF/X+OQ8T6Cq6656R0=;
-        b=QQkjZoHPAmwsLz9mBfTMJoWoAsT0K2n1IX3MTNGgIHgNowyHT/7Q7H1XwkUQ9p89T4
-         qXHwaVCH2AH3+SeAlQZqrTYNLtNu1bOAAyiC23AulVpL5EilgGZ6V+TDwJf0FzIUDFCN
-         946WLG0rG/YnACMkWQuHoyntIZGAywmw+zx2lPJ931qKiUHDUmEoHaL9n+OqdUO0RTBY
-         bEjlceN/6NSyxp8ZQ4jhQ/tR06ASg3DlutcQTg5wrxWy0wTgErC/aBIa4rmudNMNTTEg
-         YCs8hhwtpBZod9HWYJIqeeoU7mmHtQRb4kymOOxkcp6WuZ+Kh0TJsCTh5F18M7P7ZZJf
-         Z8lA==
-X-Gm-Message-State: AOJu0YyrAXFGAPVBKXWgloiQK+iph3Jnkgvcd9NiyiCHPUeDe9oXubtq
-	gGwnoTD+fyXNMMLv5j/6LvaKnvuCV/B3Bi4WjDJPq0GXlkLeYZCDExJK
-X-Gm-Gg: AR+sD11syNUSgJSAhdhqgzgAGZjsa8WTxVrwjEur+5+1rQ/yhdBat9An7Obp7Wk6D7g
-	Pvw6HjVg602lESEYKTa33mjrf2X2XIVMO57xvkKBMWR7lUxN6jXJ9m4UR9XtziDitoXzTE7evvv
-	ZBkVKLOGvlNrMcxIDjyyg0v6emFFtATbq6St8dbGpSBeBJtd5zRiejWyuYq2jD41ka8oiJzwHf5
-	vI7xCF40/aubmHs9anO2e6+WEfV3mn2vlHqCv/EUyXNKW3M3pbtV2Io1kICopkHfsZ8r8YOODVX
-	C87Qg+mLke9qOzuCGhTgSrO3oNjkFNBa0K8+xxzQbmbqDmTZB9EsbP0+nvzkxHUk0IeElL/y1Iv
-	QZay/OyHlDLHsrHewb/lSTm6mLnKZ8DJ1tpT/9IU+PiB2rH70WLOb+SouvxaZWan9AjJTdWozSd
-	kAxS3T+yhIJwaFVC0LiJzxHs7XHs9qpU/xQby8WerKssc2FbpUVK6ghDSkkRXYRu8=
-X-Received: by 2002:a05:6000:611:b0:47f:756f:9a8f with SMTP id ffacd0b85a97d-480026edbbcmr34391910f8f.26.1786390815397;
-        Mon, 10 Aug 2026 12:40:15 -0700 (PDT)
-Received: from antoniarch ([78.213.94.207])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021506cbsm39291689f8f.14.2026.08.10.12.40.14
+        bh=DJUUpA+u/X+Mw8WGuh26FuT0SdK7L1t8Py4ith47VDM=;
+        b=K1o0OYb+nOzhW9cTdb7x8dF/fhRk0JeOgYQIoje9eW0V8E2ggd7Wlw7NG+rZpEBWYl
+         r3zBKlz925/o+W8GDG/set3Tb9pUZQN3Kv7CJIp4wuE09kW8wPBKD5ekmDwztbBd9bw6
+         g0cL8aTRS4ycdWYpvNh3mVPfrQcVktQ2OhQmBJ41IxgFxhj2rn3uKnPR1Z5aQmkBfbTR
+         qaee9aIGfu4bOL/RryZ0sg+VLxTg9hW6EYIEZg62hoPg0dRve4kV5w2bBIiaVF+5ZlPy
+         3bJActriTASEpNybfED2QnBuACn2NaLJCccBVRUB6evICGkilxTll1gLMpkPYvor2RJB
+         NPpQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rq2zXLchpHS05D8vOkf8LuKYZEu7hCHpo+HAg35jLbVmEstc+uERkxFjwmJpLPpdAxnN/ka1DMlh5Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnaYwZDLhCKTtEAD5SdWsn/Y8DR3SZQiXN4BGVxgzeIJu/JRdX
+	8NSN535w78mVxAmQoJ1r1F2GsouDJHoDNTOLYXK4EgmeO9+yJnJ4cpJZ
+X-Gm-Gg: AR+sD132nBliIMFfgJyraAikcbpjLpf9RMBjBvEbkSCeCVWmlhQGw7H1RjIe066v81N
+	qjDCAmJud7/NvRyNqxLOYQNpZa8ekm5v95JYXvUjJzpZ8OoADDUFzI1atQihHKnNSopInfh9oDp
+	uj5aGAGXE6HXdY/Zy4/Z3fVnuZKAdPqdZmXwerkF2E+2Bdqt+qs9VFMa4QdlCeOFpU0ns/7Ze+E
+	E1jPZBDgZuK8XLtQdG+AInnIbtQmtgafFnAaDtiVsz4e7c8kB5WY0X9z8HpbyFitXarnTbjAEMC
+	dBuFF2jydBUDbYG3SQGNfNlOWy9RKow4O2nQE6R7VWIE5ph1tYKfPM+7rP5cdYfBXFCiQRIZUks
+	P/fkfngOr8XHKEfa/V2sGsm17TQpgVCU/3lqd/Ff02jkBdvjbLlFzj0wxB/m5Y8dridLaVnXQyg
+	8CTJVndN2t1jFKe3byLDoGVWo8xh7w6c2my6XN/zFV/sReXj7rIReCYB5im6/c3bmyqznIuzY=
+X-Received: by 2002:a05:6512:12cc:b0:5b0:1b78:4962 with SMTP id 2adb3069b0e04-5b44866ef23mr489653e87.50.1786450213825;
+        Tue, 11 Aug 2026 05:10:13 -0700 (PDT)
+Received: from hekasnap ([2a00:fd01:82a4:d100:739c:a0f5:97b3:63a7])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b4486c0a14sm238919e87.1.2026.08.11.05.10.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Aug 2026 12:40:15 -0700 (PDT)
-From: Antoni Pokusinski <apokusinski01@gmail.com>
-To: alexandre.belloni@bootlin.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org
-Cc: linux-rtc@vger.kernel.org,
+        Tue, 11 Aug 2026 05:10:13 -0700 (PDT)
+From: Troels Vognbjerg <hekatombe@gmail.com>
+To: kamal.wadhwa@oss.qualcomm.com
+Cc: alexandre.belloni@bootlin.com,
+	andersson@kernel.org,
+	conor+dt@kernel.org,
 	devicetree@vger.kernel.org,
+	konradybcio@kernel.org,
+	krzk+dt@kernel.org,
+	linux-arm-msm@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH v4 9/9] rtc: abx80x: add support for ABX81X
-Date: Mon, 10 Aug 2026 21:38:26 +0200
-Message-ID: <20260810193826.210683-10-apokusinski01@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260810193826.210683-1-apokusinski01@gmail.com>
-References: <20260810193826.210683-1-apokusinski01@gmail.com>
+	linux-rtc@vger.kernel.org,
+	raryan@qti.qualcomm.com,
+	robh@kernel.org
+Subject: re: [PATCH 0/2] rtc: Add Qualcomm PMIC RTC-GLINK support for Glymur
+Date: Tue, 11 Aug 2026 14:10:12 +0200
+Message-ID: <20260811121012.7046-1-hekatombe@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260807-rtc-glink-cleanup-v1-0-7801e4d69c4f@oss.qualcomm.com>
+References: <20260807-rtc-glink-cleanup-v1-0-7801e4d69c4f@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -80,214 +85,52 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Abracon ABX81X is a family of RTCs with SPI interface featuring
-the same functionalities as the ABX80X I2C clocks.
+Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com> wrote on Fri, 07 Aug 2026 02:26:29 +0530:
+> On some targets like Glymur, the permission for receving the RTC
+> alarms is routed to charger firmware running on remote subsystem.
+> 
+> This is because Glymur boards have to  support MSFT's `TAD feature`
+> on the windows OS devices.
+> 
+> So rtc-pm8xxx.c driver cannot recieve RTC alarm IRQs via SPMI on
+> Glymur. So in order to make the IRQ available on the Linux kernel,
+> the PMIC RTC Alarm IRQ must be routed to APPS via remote subsystem.
+> 
+> To implement this, add support for a New Qualcomm PMIC GLINK RTC
+> client, which will request for RTC set/get calls for time/alarm IRQ
+>  via the existing pmic_glink interface to the charger firmware.
+> 
+> Also, add a DT property to explicily support enabling the RTC
+> writes, keep RTC writes disabled by default to align behaviour
+> with the existing rtc-pm8xxx.c driver.
 
-Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
----
- drivers/rtc/Kconfig      |  26 +++++-----
- drivers/rtc/rtc-abx80x.c | 106 +++++++++++++++++++++++++++++++++++++--
- 2 files changed, 115 insertions(+), 17 deletions(-)
+You mentioned this patch series applies to targets like Glymur. Does that include
+the ASUS Zenbook A16 UX3607OA, or did ASUS do something different on this
+laptop?
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 4d14bcba616e..d35221f81024 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -212,18 +212,6 @@ config RTC_DRV_ABEOZ9
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ab-e0z9.
- 
--config RTC_DRV_ABX80X
--	tristate "Abracon ABx80x"
--	select WATCHDOG_CORE if WATCHDOG
--	select REGMAP_I2C
--	help
--	  If you say yes here you get support for Abracon AB080X and AB180X
--	  families of ultra-low-power  battery- and capacitor-backed real-time
--	  clock chips.
--
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-abx80x.
--
- config RTC_DRV_AC100
- 	tristate "X-Powers AC100"
- 	depends on MFD_AC100
-@@ -955,6 +943,20 @@ config RTC_I2C_AND_SPI
- 
- comment "SPI and I2C RTC drivers"
- 
-+config RTC_DRV_ABX80X
-+	tristate "Abracon ABx80x"
-+	depends on RTC_I2C_AND_SPI
-+	select WATCHDOG_CORE if WATCHDOG
-+	select REGMAP_I2C if I2C
-+	select REGMAP_SPI if SPI_MASTER
-+	help
-+	  If you say yes here you get support for Abracon AB080X, AB180X,
-+	  AB081X and AB181X families of ultra-low-power  battery- and
-+	  capacitor-backed real-time clock chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-abx80x.
-+
- config RTC_DRV_DS3232
- 	tristate "Dallas/Maxim DS3232/DS3234"
- 	depends on RTC_I2C_AND_SPI
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index 08b22c067699..7145de876b50 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- * A driver for the I2C members of the Abracon AB x8xx RTC family,
-- * and compatible: AB 1805 and AB 0805
-+ * A driver for the I2C and SPI members of the Abracon AB x8xx RTC family,
-+ * and compatible: AB 1805, AB 0805, AB 1815 and AB 0815
-  *
-  * Copyright 2014-2015 Macq S.A.
-  *
-@@ -19,6 +19,7 @@
- #include <linux/of.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
-+#include <linux/spi/spi.h>
- #include <linux/watchdog.h>
- 
- #define ABX8XX_REG_HTH		0x00
-@@ -109,8 +110,8 @@
- 
- static u8 trickle_resistors[] = {0, 3, 6, 11};
- 
--enum abx80x_chip {AB0801, AB0803, AB0804, AB0805,
--	AB1801, AB1803, AB1804, AB1805, RV1805, ABX80X};
-+enum abx80x_chip {AB0801, AB0803, AB0804, AB0805, AB0815,
-+	AB1801, AB1803, AB1804, AB1805, AB1815, RV1805, ABX80X};
- 
- struct abx80x_cap {
- 	u16 pn;
-@@ -123,10 +124,12 @@ static struct abx80x_cap abx80x_caps[] = {
- 	[AB0803] = {.pn = 0x0803},
- 	[AB0804] = {.pn = 0x0804, .has_tc = true, .has_wdog = true},
- 	[AB0805] = {.pn = 0x0805, .has_tc = true, .has_wdog = true},
-+	[AB0815] = {.pn = 0x0815, .has_tc = true, .has_wdog = true},
- 	[AB1801] = {.pn = 0x1801},
- 	[AB1803] = {.pn = 0x1803},
- 	[AB1804] = {.pn = 0x1804, .has_tc = true, .has_wdog = true},
- 	[AB1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
-+	[AB1815] = {.pn = 0x1815, .has_tc = true, .has_wdog = true},
- 	[RV1805] = {.pn = 0x1805, .has_tc = true, .has_wdog = true},
- 	[ABX80X] = {.pn = 0}
- };
-@@ -1073,14 +1076,107 @@ static void abx80x_unregister_driver(void)
- 
- #endif /* IS_ENABLED(CONFIG_I2C) */
- 
-+#if IS_ENABLED(CONFIG_SPI_MASTER)
-+
-+static const struct regmap_config abx80x_regmap_config_spi = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+	.max_register = ABX8XX_SRAM_BASE + ABX8XX_SRAM_WIN_SIZE - 1,
-+
-+	.rd_table = &abx80x_read_table,
-+	.wr_table = &abx80x_write_table,
-+
-+	.write_flag_mask = BIT(7),
-+};
-+
-+static const struct spi_device_id abx81x_id[] = {
-+	{ "ab0815", AB0815 },
-+	{ "ab1815", AB1815 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, abx81x_id);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id abx81x_of_match[] = {
-+	{
-+		.compatible = "abracon,ab0815",
-+		.data = (void *)AB0815
-+	},
-+	{
-+		.compatible = "abracon,ab1815",
-+		.data = (void *)AB1815
-+	},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, abx81x_of_match);
-+#endif
-+
-+static int abx81x_spi_probe(struct spi_device *spi)
-+{
-+	unsigned int part = (uintptr_t)spi_get_device_match_data(spi);
-+	struct regmap *regmap;
-+
-+	regmap = devm_regmap_init_spi(spi, &abx80x_regmap_config_spi);
-+	if (IS_ERR(regmap)) {
-+		dev_err(&spi->dev, "Unable to allocate regmap\n");
-+		return PTR_ERR(regmap);
-+	}
-+
-+	return abx80x_probe(&spi->dev, regmap, spi->irq,
-+			    spi->dev.of_node, part);
-+}
-+
-+static struct spi_driver abx81x_driver = {
-+	.driver		= {
-+		.name	= "rtc-abx81x",
-+		.of_match_table = of_match_ptr(abx81x_of_match),
-+	},
-+	.probe		= abx81x_spi_probe,
-+	.id_table	= abx81x_id,
-+};
-+
-+static int abx81x_register_driver(void)
-+{
-+	return spi_register_driver(&abx81x_driver);
-+}
-+
-+static void abx81x_unregister_driver(void)
-+{
-+	spi_unregister_driver(&abx81x_driver);
-+}
-+
-+#else
-+
-+static int abx81x_register_driver(void)
-+{
-+	return 0;
-+}
-+
-+static void abx81x_unregister_driver(void)
-+{
-+}
-+
-+#endif /* IS_ENABLED(CONFIG_SPI_MASTER) */
-+
- static int __init abx80x_init(void)
- {
--	return abx80x_register_driver();
-+	int ret;
-+
-+	ret = abx80x_register_driver();
-+	if (ret)
-+		return ret;
-+
-+	ret = abx81x_register_driver();
-+	if (ret)
-+		abx80x_unregister_driver();
-+
-+	return ret;
- }
- module_init(abx80x_init);
- 
- static void __exit abx80x_exit(void)
- {
-+	abx81x_unregister_driver();
- 	abx80x_unregister_driver();
- }
- module_exit(abx80x_exit);
--- 
-2.55.0
+The reason I am asking is because when I build this as a kernel module,
+I get the following error message:
+[    2.241461] rtc-pm8xxx c426000.spmi:pmic@0:rtc@6100: probe with driver rtc-pm8xxx failed with error -2
+[    2.499556] Modules linked in: rtc_pm8xxx aes_ce_blk ghash_ce gf128mul sm4_ce_gcm sm4_ce_ccm sm4_ce sm4_ce_cipher sm4 qcom_battmgr rtc_qcom_glink(+) simple_bridge display_connector
+[    3.277788] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[    4.318666] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[    4.319085] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: registered as rtc0
+[    5.359404] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[    6.400331] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[    6.400496] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: hctosys: unable to read the hardware clock
+[   25.447761] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[   26.488271] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[   27.517573] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[   28.560114] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[   29.609224] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[   30.638629] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[   31.677524] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[   32.720749] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[   33.757662] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+[   34.808360] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+[   35.837651] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
 
+And the error message keeps repeating every second or so.
+
+--
+Troels Vognbjerg
