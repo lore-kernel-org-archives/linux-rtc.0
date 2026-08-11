@@ -1,128 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9FC345EBF;
-	Tue, 11 Aug 2026 18:52:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 761684766A5
+	for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 19:42:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786474330; cv=none; b=Pj6/64Q2VQS3MkjT9kau/RWQJbtptxfMqpHJArWkLIKaiUfmvmud+/i3tzsWUZQFaGqntXXh8oaMAD7Iws/4Pot7rRwe4Dt9IG+jquTkF1M9rsilwO1pU6P9NV9m4mwLf3HlIa6TVPkgSVcvT9CutUy3QxDfS2nKYuj9csqGS1w=
+	t=1786477341; cv=none; b=bLMWLfhjBG9PEDjWYaUjCaHESJsqlsuuHYwhNZ6OScxJEucoWK16RXlzQUZW+jSltUTJN/xGoobB97r7bPTy3tshQs5gNT8dwlji8rQOX5wd70o9OmPbn654FcR57RQgadGvQt9rtR7MxXhBWf7vCuCrHlAuPp2qQKSAsOk8kn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786474330; c=relaxed/simple;
-	bh=iG6kolHVo+LhrokzkJn9oo8OafaqsBYZtLW62gK7dbY=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=VhFZrjSH07ikb62SMZR70+VlVvcVEDiOHme77qSfitUFPGpXtqnvdWE9P8rdbbBneIIennFPN/bTW+3u5dxgMoDGpxv+o71fLw1iw88qISexVbrujOl5ycWQwgxarkrU29ZVkazVzy09kXi5siDugI+8ImqF+A1vynkHjhwgrN0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f9fcK+NV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786477341; c=relaxed/simple;
+	bh=9jLxGPmQdjY7gophUedDuJ2AuFWVcIwvtw1u92qrHVc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SOdoPgEaLC7iaEEttqpWIu0M6/AhIrzQYDWs0JMEb1lOR6xsljYVefAF5V6ujqcEnj4bAAhXkfJ1tcJwERLMYRSHy+yQKFGW2k7FRvmA02vcnuoV002NwxXFNxL4jjKnkTbZxCJNgEqv2JBYMZwdipLnOO95063DPLOvfO3vK9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dPdzFfGd; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f9fcK+NV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C9D1F00A3A;
-	Tue, 11 Aug 2026 18:51:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786474329;
-	bh=L0HTQS1LYVWSdc3RimfvMueRkxBKnov+tJfBP1Nzenc=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=f9fcK+NVNWrvcSOcKHy6zfAbJxAzV4H4fy8MVkzolSHyhTXevNA14uYiezSHzn6pQ
-	 ycpaMxR2NK5BhnYOlevG/IFGX9tQA5Zq59bExZRq8ebTHdeuBPIJKdmorpcmlYiJYN
-	 enPNXmLxCznd3cawK4k1uWZ7ls5UQ+kBsVAJbZyI9ASkk1wotZU4MuXOcOSURRiwqg
-	 sT65TPpe9rPAxYbWb9c4r08z7q71qyz1ECpgE74A6BnSnCI7mMzF6uQjafv+S2Jyy3
-	 tECe4u8tzT2Nvo9T8WlyH+ZxIb0wNqskL4SGoz+McXb9NEhgBdQAaCdq0Vli+in/qH
-	 jqXBcNxLA7xiA==
-From: Vinod Koul <vkoul@kernel.org>
-To: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>, 
- Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
- Alexandre Belloni <alexandre.belloni@bootlin.com>, 
- Andrew Lunn <andrew@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, 
- Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, 
- Borislav Petkov <bp@alien8.de>, 
- =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, 
- David Airlie <airlied@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Hans de Goede <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>, 
- Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- Jani Nikula <jani.nikula@linux.intel.com>, Jaroslav Kysela <perex@perex.cz>, 
- Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, 
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, 
- Jonathan Cameron <jic23@kernel.org>, 
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
- Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, 
- Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Mark Brown <broonie@kernel.org>, 
- "Martin K. Petersen" <martin.petersen@oracle.com>, 
- Matthew Sakai <msakai@redhat.com>, 
- Mauro Carvalho Chehab <mchehab@kernel.org>, 
- Maxime Ripard <mripard@kernel.org>, 
- Michael Turquette <mturquette@baylibre.com>, 
- Mike Rapoport <rppt@kernel.org>, 
- Miri Korenblit <miriam.rachel.korenblit@intel.com>, 
- Nicolas Palix <nicolas.palix@imag.fr>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
- Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, 
- Shuah Khan <shuah@kernel.org>, Simona Vetter <simona@ffwll.ch>, 
- Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
- Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, 
- Thomas Renninger <trenn@suse.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Tony Luck <tony.luck@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, 
- Vadim Fedorenko <vadim.fedorenko@linux.dev>, Will Deacon <will@kernel.org>, 
- Yazen Ghannam <Yazen.Ghannam@amd.com>, 
- Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
- dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
- dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
- intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
- linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
- linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
- linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
- linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
- linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
- netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
- nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
-In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
-References: <20260723184538.3888637-1-ekffu200098@gmail.com>
-Subject: Re: (subset) [PATCH 00/36] treewide: remove conditional returns
- with no effect
-Message-Id: <178647430099.1113716.2263974283705757692.b4-ty@kernel.org>
-Date: Wed, 12 Aug 2026 00:21:40 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dPdzFfGd"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-495635a85d2so678595e9.0
+        for <linux-rtc@vger.kernel.org>; Tue, 11 Aug 2026 12:42:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786477336; x=1787082136; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=QD+8mdn/ihWEyfoj8EZu5dauxKHrsP3QtiGEL9IzKhM=;
+        b=dPdzFfGdprY3Wp1x6P/E7SU5UPRnWIvagalniuNyq2IWoRYtQSKekajzB0oT1OcGwl
+         2YAP3cXFbe1LMOBYpRqN1pVvR4T3nktX3f1OTVkLVMV4TiqmyDcnd14XuXJQvIkxxRuf
+         vPoC/kizprfyCxQnHbrOpHr+0RYeTBCb6DtGWruCCAz67YTjbqH7lWYOMr+E5p4bf7Tb
+         MhLg1MsLGXZOOvWzRHNCTxmiNI4cNo/mnAi730gOoAqrFEZTF6LE5GkTDTKb0uN+N26z
+         2xVWTsl19gwdzaRV403SP4nyS0D/6ey3IeggIib96ycRi5LiI5QJo2LByM1Yx/jVXuq5
+         phIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786477336; x=1787082136;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=QD+8mdn/ihWEyfoj8EZu5dauxKHrsP3QtiGEL9IzKhM=;
+        b=stQMq5ondyJmXosEpDXG1mD1tnADGM1rH32oH6bhXryj76nNHEoYhtRzhfgnCTcu13
+         f8sj3ieJfv54IebEm2IFaLm5cEr9StY/RuCdYaN5pg8ErriQ9ESzISYLEFtp7OjBCvYn
+         HdvgJ+VEmE6y+ogFK1e+2Kb4Z3RyfUvyfckYI3ZZFYPePgznZJTnA+yIi2AbKrtvCTS9
+         bfgPTRHNMc8g1vZ3B8qiey/FQ/qkGcoDAwymjNqkhZFN6GEffqu+D5JwuuZNAV75ahaT
+         3+Vr//p8jQ9fQYFImr7JXRxtOJ6iAnvHa/m9qvWZYzx+5qLms+D7QudETDhBa1RLHqdY
+         jiRA==
+X-Gm-Message-State: AOJu0YxJAmO7kJrhkDKmvX2oIoNSg0i4CO6a+Lj5Ji7gcS6fpEHZMAcG
+	sBCTEzqQkJQ6WWIOk5890pwynyJip+JboiKhc0ZJoXX3/3KhO49np3kt
+X-Gm-Gg: AR+sD129KU4+uIZWkQSFSqIDqAoqAbeYVpEIHUhUAwdcP8r/j4sVK04kz4w0Ew2Zj10
+	WyKQ2TOnGjOrXbexARC6gQYLsPieMlXvbLi2AdrGVwoJqCq0WG0rChL/yVvui/XPtc9/rRm5Vy7
+	xTwdOobFWpfQJ45M5+TgzpIJ3MN5O8YlBD/+7tIGXZCH3iel0ZUl9Nmna1ACOi4T1JFm8IF20pH
+	yxUyj++j4Q2kGBSU52C7z48HUBO5L2YsTmpNnMvTUBbdVbGbw5dbroO/OHTu/UP7QmHhg3EvJyc
+	Cwb0cJFkDQURYtpKCNdLCZYFM5VQReeAVUGB4vpKrgZIlFxIl+oPoWEHkYya/V1ILE6cKCcrtOu
+	x3m8qs9xfphNTEJz+G00kIOM59Wwdkitt+DZ7TNBusbbmAfkG+jWcNG5m46Q+c1ohON1iJiopvy
+	8fPvHMh5vOO8xPZx+OnJqIRwEsOhK/IJIgMQqsBYAIHhjjm8ZHo9hUplmUMz1nFB6z
+X-Received: by 2002:a05:600c:46ca:b0:495:52a5:8829 with SMTP id 5b1f17b1804b1-4997a65397amr28604315e9.11.1786477336477;
+        Tue, 11 Aug 2026 12:42:16 -0700 (PDT)
+Received: from antoniarch ([78.213.143.159])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4997b22784fsm2606535e9.2.2026.08.11.12.42.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Aug 2026 12:42:16 -0700 (PDT)
+From: Antoni Pokusinski <apokusinski01@gmail.com>
+To: alexandre.belloni@bootlin.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org
+Cc: linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: [PATCH v5 0/9] rtc: abx80x: add support for abx81x
+Date: Tue, 11 Aug 2026 21:40:25 +0200
+Message-ID: <20260811194034.28937-1-apokusinski01@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13.0
+Content-Transfer-Encoding: 8bit
 
+Hello,
+This patch series adds support for the ABX81X RTCs, which are essentially
+SPI versions of the ABX80X RTCs. The first patches (P2-P4) contain bug fixes 
+(added after sashiko's review in v1-v3), then (P5-P8) we have some cleanup and
+reorganization changes (converting the driver to use the regmap API was
+needed for this), followed by the actual ABX81X support.
 
-On Fri, 24 Jul 2026 03:45:02 +0900, Sang-Heon Jeon wrote:
-> While reading mm/memblock, I found a conditional return where both
-> branches return the same value:
-> 
-> 	err = do_something();
-> 	if (err)
-> 		return err;
-> 	return err;
-> 
-> [...]
+The v5 is identical as v4, I send it like this because sashiko failed to
+apply the patch series for some reason:
+https://sashiko.dev/#/patchset/20260810193826.210683-1-apokusinski01%40gmail.com
+I have no idea why it happened, the patches apply cleanly on v7.2-rc1,
+sashiko's report is not helpful unfortunately.
 
-Applied, thanks!
+Kind regards,
+Antoni Pokusinski
 
-[19/36] dmaengine: qcom_hidma: remove conditional return with no effect
-        commit: 04b8c3de13871653a8ecbd9f1adfea4d0694ecfe
+---
+Changes since v4:
+  None
+Changes since v3:
+* PATCH 2 ("rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()")
+  New patch
+* PATCH 3 ("rtc: abx80x: add mutex protection for register writes")
+  Replaced "guard()" with "scoped_guard()" in "abx80x_ioctl()"
+* PATCH 4 ("rtc: abx80x: properly handle shared IRQs")
+  Disable all the unused interrupts in "probe()"
+* PATCH 6 ("rtc: abx80x: use regmap instead of I2C specific API")
+  Changed the type of "flag" arguments in "regmap_read()" from "int" to "unsigned int"
+---
+Changes since v2:
+* dropped patch "rtc: abx80x: move part autodetection before RV1805 configuration"
+* PATCH 2 ("rtc: abx80x: add mutex protection for register writes")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - return PTR_ERR(regmap) on I2C regmap init error
+* PATCH 8 ("rtc: abx80x: add support for ABX81X")
+  - return PTR_ERR(regmap) on SPI regmap init error
+---
+Changes since v1:
+* PATCH 1 ("dt-bindings: rtc: abx80x: document ABX81X RTCs")
+  - added missing "spi-peripherals-props" reference
+  - added abx815 compatible strings to the trickle charger enum list
+* PATCH 2 ("rtc: abx80x: move part autodetection before RV1805 configuration")
+  New patch
+* PATCH 3 ("rtc: abx80x: properly handle shared IRQs")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - changed regmap_read() argument types from `int` to `unsigned int`
+---
 
-Best regards,
+Antoni Pokusinski (9):
+  dt-bindings: rtc: abx80x: document ABX81X RTCs
+  rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
+  rtc: abx80x: add mutex protection for register writes
+  rtc: abx80x: properly handle shared IRQs
+  rtc: abx80x: add irq to struct abx80x_priv
+  rtc: abx80x: use regmap instead of I2C specific API
+  rtc: abx80x: replace read-modify-write pattern with regmap helpers
+  rtc: abx80x: create abx80x_i2c_probe()
+  rtc: abx80x: add support for ABX81X
+
+ .../bindings/rtc/abracon,abx80x.yaml          |  18 +-
+ drivers/rtc/Kconfig                           |  25 +-
+ drivers/rtc/rtc-abx80x.c                      | 663 +++++++++++-------
+ 3 files changed, 451 insertions(+), 255 deletions(-)
+
 -- 
-~Vinod
-
+2.55.0
 
