@@ -1,125 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECF0837E5DE;
-	Tue, 11 Aug 2026 20:03:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76CCF36C5B2;
+	Wed, 12 Aug 2026 01:42:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786478637; cv=none; b=gX3FWStL6XzOIlyB2iEkgrgnFYF2An4n4TgC3C2W97VtGtdYPrNv5PodUL86/q6L9BT+BjozeKdPwHTHkmkbeLHI9an0vKrBnFfQpottSWHWV0Kf2yktvPJO76Jb0gTBaiDbha7tec1PSvAwZyBhWtqlPeqPVCkf4Ec5JhkYNdU=
+	t=1786498965; cv=none; b=gCtd4q4yLeAf5klIuXpEuzHDVC1mqdPDLdaHDQMvfA9WgQH+VfPXYJrlBl1PDKo9mn33cSNhPPZWnEOC+Z24sS84spDA+dj7MzWObj2VSO8yrvyCB/CmXL3omIk0d2wryNNixjdUp1R02l3YsDp8MD6ZoaBRIGIG2/TU+XO38qE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786478637; c=relaxed/simple;
-	bh=dCzIU7ojE8D3UmzNibeyd975Rw86O5ZtsP9WH4rx9+k=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cdp0Wu4/Qyf9LB4aHpr4sxG7SnPnQQoCPHKxF1cPz9SvR2LgevD2w43geycGX2Dh6nc66bpe8i+bguV9CePV5P6Q4Fwtgm+KtFusSvuB7UPtok9UOKasSjfM8K5oEVB+nZld+17VYSXqzVMDbD+kvt6P5xG5+R5d88vz9FlY6rs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ibaORHt2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786498965; c=relaxed/simple;
+	bh=zuQhurCsfWxdvg9zqWCHnLnAH5PZOQZQx/7vnIyAyJU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pQSxFXCo7alASs9/HH8V2Tyzq72fsFwuVTi5AETEbA80JdPgvOgbDWglHXIerAJnQ0eAfLovBIZq+FJDwJxbbgA9aLERD2MoejkLt6wZiQ7D6JuYICqw9Cjaa9VYtjFnLmMDqBVKAnv1WA90wJciJbH/fOidozxGzS3K5lIw8j8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nf1a3Qh3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ibaORHt2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B981F000E9;
-	Tue, 11 Aug 2026 20:03:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nf1a3Qh3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F2D1F00A3A;
+	Wed, 12 Aug 2026 01:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786478635;
-	bh=6GNUxbGg84bFvNfezGSzVaWY/WwMbCtxfyu0mf+DJfk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ibaORHt2RqE13gkr6prwxcXP2CPvw+SarpAqNC5mvtCW0GW/Ap8yoWQ9IAH8eDAU1
-	 yh0QAOPuH/qbO4t8XokLxNz2sMQ6qyCbVIysrngqnKeAeaQoVbjQJjF4qdAwPQre0s
-	 jjtMOu+KHyagZ+6xpejm5q7fSJpyV8yYHsTC4v1wWm9H1MIR8W87k8W0n/mBPk3/Fd
-	 rC7uAgzo4A9yy1frJM7dC1aXrD7WXw1w+nxqlelIyBYggpfwWwyz2rzviG60oABC8B
-	 7FGPDhW8ggLxsEV6HTFgzwthwquaMbzBs8CbP8fFR3yezsvrZt+h51tfZxndlKEkjW
-	 BxjGNAqn7/cVA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 9/9] rtc: abx80x: add support for ABX81X
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: linux-rtc@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260811194034.28937-10-apokusinski01@gmail.com>
-References: <20260811194034.28937-1-apokusinski01@gmail.com>
- <20260811194034.28937-10-apokusinski01@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 11 Aug 2026 20:03:54 +0000
-Message-Id: <20260811200355.40B981F000E9@smtp.kernel.org>
+	s=k20260515; t=1786498963;
+	bh=3Gmxd11Q4KbmcVTQRRbhyX8PuGieLvmY8yQOB2QE//4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nf1a3Qh3X0Rz+9RNU/1Kkvsy2D1TkQyPyjk3fGR4fIH/JCdofWAXi55uwPVUZpySo
+	 ndlgdeLVu0EkKXsamkh9miBo6nShMH5Pmx2M8U5GL5mM1qzmWQ4amw92E9cPoZ2P8P
+	 FgabNDmRuoAhL0rp4g+ca5zms1ouJzrRmJIqTP3a5QNO5U5MDzK6gYZcCfKcB1lznn
+	 mCildU5tHOCWz2q+ZjI2X0UWGR3w8+QjtRJUiPba6felOhBQYhxXVXSom4IcKBBesA
+	 tAR2j984YYHUKzIGrfi9xhkSMtmdA4SfCAaru9SUoOnBOYM+/eccqThFJnn/AIZ5GN
+	 xfZwe3CKP6DDw==
+Date: Tue, 11 Aug 2026 20:42:43 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Matti Vaittinen <matti.vaittinen@linux.dev>
+Cc: linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Mark Brown <broonie@kernel.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Brian Masney <bmasney@redhat.com>,
+	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+	Stephen Boyd <sboyd@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+	linux-rtc@vger.kernel.org, linux-gpio@vger.kernel.org,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Linus Walleij <linusw@kernel.org>, linux-clk@vger.kernel.org,
+	Lee Jones <lee@kernel.org>, devicetree@vger.kernel.org,
+	Michael Turquette <mturquette@baylibre.com>, mfd@lists.linux.dev
+Subject: Re: [PATCH v2 01/10] dt-bindings: mfd: common ROHM PMIC properties
+Message-ID: <178649896215.484116.4065648692098277062.robh@kernel.org>
+References: <cover.1785838584.git.mazziesaccount@gmail.com>
+ <838486b443af9188410d8b802a818dc0af20ea9d.1785838585.git.mazziesaccount@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <838486b443af9188410d8b802a818dc0af20ea9d.1785838585.git.mazziesaccount@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [High] Read-modify-write (RMW) operations on the W0C (write-zero-to-clear=
-) status register cause lost interrupts.
---
+On Tue, 04 Aug 2026 13:20:20 +0300, Matti Vaittinen wrote:
+> From: Matti Vaittinen <mazziesaccount@gmail.com>
+> 
+> ROHM PMICs keep having similar functionalities from one generation to the
+> next. Keeping the device-trees describing these functionalities similar
+> helps users because:
+>   1. They can re-use existing device-tree properties when switching from
+>      one project, using a ROHM PMIC, to next project using newer
+>      variant.
+>   2. The users can find and re-use examples from old projects - even if
+>      they never worked with ROHM PMICs before.
+> Similarly, introducing new and different properties for same
+> functionality previous variant had, will be adding confusion.
+> 
+> Sometimes the existing properties aren't 100% what reviewers would
+> prefer. When issues are minor or just cosmetic, changing the existing
+> properties is not feasible. Reviewers can't be expected to know which
+> properties are new, and which are existing - and this can lead to
+> unnecessary review discussion wasting time and energy from everyone.
+> 
+> Adding a common file for re-used ROHM PMIC properties should make it
+> clearly visible that a property is re-used, when a new PMIC binding
+> refers to this file instead of (re-)describing all the existing
+> bindings. This will also help keeping the common properties identical
+> across the variants.
+> 
+> Add new file listing commonly used ROHM PMIC properties.
+> 
+> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+> 
+> ---
+> Revision history:
+>  v2:
+>   - New patch
+> ---
+>  .../bindings/mfd/rohm,pmic-pins.yaml          | 72 +++++++++++++++++++
+>  1 file changed, 72 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml
+> 
 
---- Patch [9]: [PATCH v5 9/9] rtc: abx80x: add support for ABX81X ---
-commit de21e840f75a86e42ad746c99077b6acf5f3e1fb
-Author: Antoni Pokusinski <apokusinski01@gmail.com>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
-rtc: abx80x: add support for ABX81X
-   =20
-Abracon ABX81X is a family of RTCs with SPI interface featuring
-the same functionalities as the ABX80X I2C clocks.
-
-> diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 08b22c0676995..7145de876b50b 100644
-> --- a/drivers/rtc/rtc-abx80x.c
-> +++ b/drivers/rtc/rtc-abx80x.c
-> @@ -1,7 +1,7 @@
->  // SPDX-License-Identifier: GPL-2.0
->  /*
-> - * A driver for the I2C members of the Abracon AB x8xx RTC family,
-> - * and compatible: AB 1805 and AB 0805
-> + * A driver for the I2C and SPI members of the Abracon AB x8xx RTC famil=
-y,
-> + * and compatible: AB 1805, AB 0805, AB 1815 and AB 0815
-
-[ ... ]
-
-While reviewing this patch, I noticed a pre-existing issue in the driver
-that might cause lost interrupts.
-
-drivers/rtc/rtc-abx80x.c:abx80x_handle_irq() {
-[ ... ]
-	if (handled =3D=3D IRQ_HANDLED)
-		regmap_write(priv->regmap, ABX8XX_REG_STATUS,
-			     status & ~(ABX8XX_STATUS_AF | ABX8XX_STATUS_WDT));
-[ ... ]
-}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this write inadvertently
-clear newly-asserted interrupts?
-
-The ABX8XX_REG_STATUS register uses a 'Write 0 to Clear' (W0C) mechanism,
-where writing 0 clears a bit and writing 1 preserves it. Because the code
-bitwise-ANDs the previously read status, it writes 0 to any bit that was
-0 during the read.
-
-If a hardware event asserts a flag between the read and this write, the
-write of 0 will clear the new event before it is handled.
-
-[ ... ]
-
-drivers/rtc/rtc-abx80x.c:abx80x_ioctl() {
-[ ... ]
-	case RTC_VL_CLR:
-		scoped_guard(mutex, &priv->lock) {
-			err =3D regmap_update_bits(priv->regmap, ABX8XX_REG_STATUS,
-						 ABX8XX_STATUS_BLF, 0);
-		}
-[ ... ]
-}
-
-[Severity: High]
-This is also a pre-existing issue, but does this read-modify-write operation
-expose all other W0C flags to the exact same race condition?
-
-Using regmap_update_bits to clear the BLF bit performs a read-modify-write
-and writes 0 to all other unasserted bits, which could cause them to be lost
-if they were asserted right after the read phase.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260811194034.2893=
-7-1-apokusinski01@gmail.com?part=3D9
