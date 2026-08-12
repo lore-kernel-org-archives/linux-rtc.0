@@ -1,230 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCF92366045;
-	Wed, 12 Aug 2026 02:08:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD2439B489;
+	Wed, 12 Aug 2026 07:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786500527; cv=none; b=c4MwjRg50kUPISEr7P11poIEg6FuE5D1wCn32uT09YVFETYkzydl3qsfF2Ttm/pyOiiZAK91XAO58RE7vVEMryPrOknX1vS7i7k1ouftexUPwOAEkvG4PcZCUKb4SE4CiEWUtBSJPiCUxsqRDDj7swayL8DH7mJh3tck7z8RJ2Q=
+	t=1786520558; cv=none; b=CzGT+50YhjPxOrYCkYm2GNgvt41f6vKJO585yw2huAcoijthJ73L9m1XEQObM3DDPxHs7nrfXU0DFlMt0NZjQf70001QtmtwQrH2hrfBoS2Eq8UDGA1K2DiC7oH4FRnc9HB2o+H8sdEhfPKOu3KdkF8Zw2F0RdD75hJalzb7yiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786500527; c=relaxed/simple;
-	bh=zuAY5sGnax7vbTOE3qK3+Djt4L1YQTypycBHJ/2hfqQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BsYXD+pKlo6z2oeSh9PxMzk8BnAmq9mRS9bkKBMVnRjHQEf3+Ff4SQ1POsAd1ljPmCT8IF9MM4684uyK34JSogTvaazPiVC0MFdSZvMiIP6CSje6emWFqSc9TLIcUPdDXskuNC8KpSwrH9V+WJLx0+MhLHk5GytSU41aRqbPOok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E+lSZ9Ga; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E+lSZ9Ga"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 720EF1F000E9;
-	Wed, 12 Aug 2026 02:08:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786500525;
-	bh=nVgFwLKZ08mOWlcHPlqu5YKlBl/DsPDL5zxH+opF2WA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=E+lSZ9Gagy1Q+bTDShS7BuLvLVi1e78bIjRifse9h37GvSWYZSt2OB/WQQfKBPhoz
-	 oRan2ZXk8BLRK5PZ81ma2jVjBaOPex9wb9iMZ1EF6wMAimSkfqjIz0jjk5ev70G8Lp
-	 bja5cIITXCmBHQYoqT0VZk/UvJ4ksUKXm6FIG/2oXBJv57SeD60DLKHU3RE7f7gHE5
-	 EFRekL6D3ggDu9dhcnxRr07AXk1MGDxMwG2LL1tEWvUIda+dmHvlMFb0zlMYNdmq7h
-	 oHMDRSthd98pxcZgfyDoLPk/GPazfym4ut9ZM1q0YYP4Ki9IIuaTvPTKwWjDbEwkcU
-	 i6ejE5FkDp+9Q==
-Date: Tue, 11 Aug 2026 21:08:44 -0500
-From: Rob Herring <robh@kernel.org>
-To: Markus Probst <markus.probst@posteo.de>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Michael Langer <michael.brainbug.langer@googlemail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Walleij <linusw@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/5] dt-bindings: rtc: Add pinctrl for S35390A
-Message-ID: <20260812020844.GA520945-robh@kernel.org>
-References: <20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de>
- <20260805-rtc_s35390a_int1-v3-1-e836faba3e25@posteo.de>
+	s=arc-20240116; t=1786520558; c=relaxed/simple;
+	bh=eQcaX7QQGRbichX5g121DxRcToGnuFmjTqFeqxFEnpE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XVJFWF4rx7rGWNBnQ8V4UKH0IuXbySuav7ULmszyomq9Xeqs0o/sf6UFx+QG8eqtoNVyCSb0oGYerNC0Qv7x64ZfAwH5xCVfBHA9PdrCRLlopHHiRNU85KwOQc5LXRRKmqxItW274KJ7PofhMrNDDT6zHM4PWv9esQvBZCcQ4u4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 4875F2002C9;
+	Wed, 12 Aug 2026 09:36:21 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 125072002CB;
+	Wed, 12 Aug 2026 09:36:21 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id D91C31800088;
+	Wed, 12 Aug 2026 15:36:19 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>,
+	Pankit Garg <pankit.garg@nxp.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [RESEND v7 1/2] dt-bindings: rtc: Add pcf85053 support
+Date: Wed, 12 Aug 2026 13:05:51 +0530
+Message-Id: <20260812073552.3542956-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260805-rtc_s35390a_int1-v3-1-e836faba3e25@posteo.de>
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-On Wed, Aug 05, 2026 at 07:32:27PM +0000, Markus Probst wrote:
-> Synology NAS devices use the output pin for interrupt signal 1 to wake up
-> the system.
-> 
-> Move devicetree bindings for sii,s35390a into its own file.
-> Add necessary properties to configure the individual pins via pinctrl,
-> which allows the interrupt signal 1 to be used for wakeup alarm.
-> 
-> Signed-off-by: Markus Probst <markus.probst@posteo.de>
-> ---
->  .../devicetree/bindings/rtc/sii,s35390a.yaml       | 109 +++++++++++++++++++++
->  .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
->  MAINTAINERS                                        |   1 +
->  3 files changed, 110 insertions(+), 3 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> new file mode 100644
-> index 000000000000..0355f17f233a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> @@ -0,0 +1,109 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: S-35390A 2-WIRE REAL-TIME CLOCK
-> +
-> +maintainers:
-> +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+Add device tree bindings for NXP PCF85053 RTC chip.
 
-This should be someone with the h/w, not subsystem maintainer.
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+---
+V6 -> V7: - no changes
+	  - Added Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+V5 -> V6: - Dropped driver-specific commentary from property descriptions.
+	  - Simplified and clarified descriptions for better readability.
+V4 -> V5: - Updated schema validation logic to enforce correct combinations of
+            'nxp,interface' and 'nxp,write-access' using oneOf clauses.
+          - Refined property descriptions for clarity and hardware alignment.
+V3 -> V4: Add dedicated nxp,pcf85053.yaml.
+          Remove entry from trivial-rtc.yaml.
+V2 -> V3: Moved MAINTAINERS file changes to the driver patch
+V1 -> V2: Handled dt-bindings by trivial-rtc.yaml
 
-> +
-> +description:
-> +  The S-35390A is a CMOS 2-wire real-time clock IC which operates with the
-> +  very low current consumption in the wide range of operation voltage.
-> +
-> +allOf:
-> +  - $ref: rtc.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: sii,s35390a
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    minItems: 1
-> +    maxItems: 2
-> +    description: Supports up to 2 interrupt lines via the INT1 and INT2 pins.
-> +
-> +  wakeup-parent: true
-> +
-> +  wakeup-source: true
-> +
-> +  "#clock-cells":
-> +    const: 1
-> +
-> +patternProperties:
-> +  "^pins":
+ .../devicetree/bindings/rtc/nxp,pcf85053.yaml | 114 ++++++++++++++++++
+ 1 file changed, 114 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
 
-Do you need wild cards here? Wouldn't just 'pins' for the node name be 
-fine?
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+new file mode 100644
+index 000000000000..81cfceabc04c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+@@ -0,0 +1,114 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright 2025 NXP
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf85053.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF85053 Real Time Clock
++
++maintainers:
++  - Pankit Garg <pankit.garg@nxp.com>
++  - Lakshay Piplani <lakshay.piplani@nxp.com>
++
++properties:
++  compatible:
++    enum:
++      - nxp,pcf85053
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  nxp,interface:
++    $ref: /schemas/types.yaml#/definitions/string
++    enum: [ primary, secondary ]
++    description: |
++      Identifies this host's logical role in a multi-host topology for the
++      PCF85053 RTC. The device exposes a "TWO" ownership bit in the CTRL
++      register that gates which host may write time/alarm registers.
++        - "primary": Designated host that *may* claim write ownership (set
++          CTRL.TWO=1) **if** write-access is explicitly requested.
++        - "secondary": Peer host that writes only when CTRL.TWO=0 (default).
++
++      This property determines the intended role of the host in relation to
++      the write ownership.
++
++      The actual role depends on whether 'nxp,write-access' is also specified.
++      Supported configurations are:-
++        1. Primary with 'nxp,write-access' -> primary claims write ownership.
++        2. Primary without 'nxp,write-access' -> primary is ready only; secondary may write.
++        3. Secondary (must not specify 'nxp,write-access') -> Secondary writes only
++           when no primary claims ownership.
++
++  nxp,write-access:
++    type: boolean
++    description: |
++      Indicates that write ownership of the PCF85053 RTC should be claimed by setting
++      CTRL.TWO=1. This property is only valid when acting as the primary interface
++      (nxp,interface="primary").
++
++required:
++  - compatible
++  - reg
++  - nxp,interface
++
++additionalProperties: false
++
++allOf:
++  - $ref: rtc.yaml#
++  - if:
++      properties:
++        nxp,interface:
++          const: secondary
++    then:
++      not:
++        required: [ "nxp,write-access" ]
++
++examples:
++  # Single host example.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
++      };
++    };
++
++  # Dual-host example: one primary that claims writes; one secondary that never claims writes.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c0 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
++      };
++    };
++
++    i2c1 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "secondary";
++      };
++    };
+-- 
+2.25.1
 
-> +    type: object
-> +    patternProperties:
-> +      "-pins$":
-> +        type: object
-> +        properties:
-> +          pins:
-> +            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
-> +            items:
-> +              enum:
-> +                - int1
-> +                - int2
-> +
-> +          function:
-> +            $ref: /schemas/types.yaml#/definitions/string
-> +            description: |
-> +              Pin function:
-> +              - ignore:  Preserve the previous state.
-> +              - disable: Disable pin output.
-> +              - wakeup:  Output wakes up the system.
-> +              - clock:   Output clock pulse.
-> +              - pmin1:   Minute periodical output with 50% duty.
-> +              - pmin2:   Minute periodical output L for 7.81 ms.
-> +                         Can only be used with pin int1.
-> +            enum:
-> +              - ignore
-> +              - disable
-> +              - wakeup
-> +              - clock
-> +              - pmin1
-> +              - pmin2
-> +
-> +        required:
-> +          - function
-> +
-> +        additionalProperties: false
-> +
-> +    additionalProperties: false
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        rtc@30 {
-> +            compatible = "sii,s35390a";
-> +            reg = <0x30>;
-> +            pinctrl-0 = <&rtc_pins_default>;
-> +            pinctrl-names = "default";
-> +
-> +            wakeup-parent = <&int>;
-> +
-> +            rtc_pins_default: pins {
-> +              int1-pins {
-> +                pins = "int1";
-> +                function = "wakeup";
-> +              };
-> +              int2-pins {
-> +                pins = "int2";
-> +                function = "disable";
-> +              };
-> +            };
-> +        };
-> +    };
-> diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> index f4d0eed98a08..7b3f682ef4d5 100644
-> --- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-> @@ -81,8 +81,6 @@ properties:
->        - ricoh,rv5c386
->        # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
->        - ricoh,rv5c387a
-> -      # 2-wire CMOS real-time clock
-> -      - sii,s35390a
->        # ST SPEAr Real-time Clock
->        - st,spear600-rtc
->        # VIA/Wondermedia VT8500 Real-time Clock
-> @@ -105,5 +103,4 @@ required:
->    - reg
->  
->  additionalProperties: false
-> -
->  ...
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 5114e6db7307..4c8bc35cfe55 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -22695,6 +22695,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git
->  F:	Documentation/admin-guide/rtc.rst
->  F:	Documentation/devicetree/bindings/rtc/
->  F:	drivers/rtc/
-> +F:	include/dt-bindings/rtc/
->  F:	include/linux/rtc.h
->  F:	include/linux/rtc/
->  F:	include/uapi/linux/rtc.h
-> 
-> -- 
-> 2.54.0
-> 
