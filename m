@@ -1,240 +1,334 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D8403AAF7E;
-	Wed, 12 Aug 2026 08:00:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 409024334C3
+	for <linux-rtc@vger.kernel.org>; Wed, 12 Aug 2026 12:27:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786521606; cv=none; b=YTIdRXwpZrXV2PbrUuR+zhMEpB8y9MJQMDS5CVmcfZP/SrQSey0medkMoV/znkQl/doHkBf588Yu1issXdzisKtYwTMfmkjgGEE7skHQzbRhl6QwhrYZlnVayuHfpFehmM4gAx/mmNLx61MyKQlpNrMH4G5iXUtL00Cml+O2nbI=
+	t=1786537675; cv=none; b=sYK/IEO65SOXoriEtraf4qjtmfz2zmgtCxWCtQXCDqr7O4t8rySm3eXjrJq4buXrENO6JOD4rg60/ibjIbQhDkCnSUpqYX34zBioZQSBpYQ6bte72tQMfUM8IBOPP8euLcnxJFeNerG93HpQpsFS91b4SV9X8eGPtYuP62efP+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786521606; c=relaxed/simple;
-	bh=V1bR+lv9vHR4uWey7+t2FdSvzlHBRifMFz2tVuzCNr4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=evVmcRlqFiWCEM2ZE90B3sOq7N94qsxu004uLKW77Azeu+fk4uLxJsblnap8PT+4jLHtPbZMRMCxNzUj44WAKQjnKcSLSFCtKUUaFHleGvpYEaCX80XjYflg0l4W3BCSDdvngXWrKiHxYhKg+8kxznoiiqQlDb7T/gkLstD+7E4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtCtV3k5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786537675; c=relaxed/simple;
+	bh=fVndBBv7ikb7RZ/HhSWVt/pvp9S/iwlFnBU247K7KxE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=YtywRkAPQpkdOk5OJN//efZW9tugJFyyaNKrj2ZVCATxle3YN5EUtteOZ552O6prbg/Kt8bjxWGuvh+FzJK1eB6FunrM4pNLg7tUu/1xKirZ+5vVz+stGJuFqASD0HM6bk1JBq6TSify2qB9REnKQGRC8fq5+GViCCgrRVlUGVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=k8ORjwBL; arc=none smtp.client-ip=185.67.36.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtCtV3k5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDBC1F00A3A;
-	Wed, 12 Aug 2026 08:00:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786521604;
-	bh=RueXxDO8rpcYTaWieb0wx+9yFfdBJhk0TVUeLnH8Cc8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KtCtV3k5pcvMtIIBm8IvyUIYS+K603m0CNv4dJW04slofSvbpPD5Sq+Ilre25TzFN
-	 Jnvh+xB30heXucHdVpOXc/52OPlz4PFF/pFbsHNI3TTkhwsS5eaYXQN8mI/Iciij1v
-	 bKu3TDJoXXKNOSAAQsfZjesBiI+IuTjyksUFbSJS9z0px9NhTac2MdV1RsTYkzi0nv
-	 YVauk4nfI6/7xdey84RhV8fIlKAWNFk6P9HXr7gXrsNwMyYEQ/+0hDMVFydiwQa8Fs
-	 wJeBdCKM2BXIaE4met0Oe/AKA+c9q0m4a39QWkXBQjWbYCBZplNa1BQwkt1tcu6LGd
-	 dJffVGHxDiCtg==
-From: sashiko-bot@kernel.org
-Subject: Re: [RESEND v4 4/5] rtc: pcf85363: add oscillator offset
- calibration support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: conor+dt@kernel.org, linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
-In-Reply-To: <20260812074533.3545058-4-lakshay.piplani@nxp.com>
-References: <20260812074533.3545058-1-lakshay.piplani@nxp.com>
- <20260812074533.3545058-4-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 08:00:03 +0000
-Message-Id: <20260812080004.4DDBC1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="k8ORjwBL"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout01.posteo.de (Postfix) with ESMTPS id 0178724002D
+	for <linux-rtc@vger.kernel.org>; Wed, 12 Aug 2026 14:27:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1786537665;
+	bh=ElBNO9EPvHuirVGnvX/nkoBxhVDqF0yWtKSEwWHqacU=;
+	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
+	 MIME-Version:OpenPGP:From;
+	b=k8ORjwBL4dmgDkL9eeLnbysZ4wah0ShBmjBQ+UnhFTXcHkPtvA7tUC77Do0pG4461
+	 YKFxqXmXcfCxL+zUtOVmzKJfjid6iXY0bFm4fxPX7r4tjzBspCupFgnjT/p3w0rzhl
+	 l085WVlPGjKM6eze7eueyScGa27qRR/akAv36V1+nQKoX7g+oQs7rTs1g5lp/u/07Q
+	 r/1swFxqg0nm7TOdzdmMSJ6llfBRA+BKqloF7BuQ1G9mR0YzsC04FBTq2Hvb9vpaTi
+	 egWE9v47Cw4qh4p7SIwlIj/F3RMV/NzgD2wvMLXQf+zDMAbwF9plWrj/W9UydD3J1o
+	 uiA5ORUeGV89g==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4hKnnV5CDfz9rxB;
+	Wed, 12 Aug 2026 14:27:42 +0200 (CEST)
+Message-ID: <053e901c9145d57c01078df6febe8b22fd79b850.camel@posteo.de>
+Subject: Re: [PATCH v3 1/5] dt-bindings: rtc: Add pinctrl for S35390A
+From: Markus Probst <markus.probst@posteo.de>
+To: Rob Herring <robh@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Krzysztof Kozlowski
+	 <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Uwe
+ =?ISO-8859-1?Q?Kleine-K=F6nig?=
+	 <uwe@kleine-koenig.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement
+	 <gregory.clement@bootlin.com>, Sebastian Hesselbarth
+	 <sebastian.hesselbarth@gmail.com>, Michael Langer
+	 <michael.brainbug.langer@googlemail.com>, Andrew Morton
+	 <akpm@linux-foundation.org>, Linus Walleij <linusw@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Date: Wed, 12 Aug 2026 12:27:44 +0000
+In-Reply-To: <20260812020844.GA520945-robh@kernel.org>
+References: <20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de>
+	 <20260805-rtc_s35390a_int1-v3-1-e836faba3e25@posteo.de>
+	 <20260812020844.GA520945-robh@kernel.org>
+Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
+ keydata=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
+ jfGillcaQOqFZ3WwVqyzG1BUfTow==
+Content-Type: multipart/signed; micalg="pgp-sha256";
+	protocol="application/pgp-signature"; boundary="=-4FzxRt0vSudbgFRbezTj"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
 
-New issues:
-- [High] The offset callbacks operate in raw register steps instead of part=
-s per billion (ppb), violating the RTC subsystem API.
-- [High] The offset value is wrongly treated as an 8-bit signed integer, wh=
-ich stomps on the OFFM (mode) bit and silently triggers Fast Mode.
-- [High] The IRQ handler clears the timestamp interrupt flags before the ti=
-mestamp data is read, creating a hardware race condition.
-- [Low] User space can trigger unratelimited dev_warn() by writing out-of-b=
-ounds offset values.
-- [Low] The `ts_valid_flags` variable is modified and read concurrently wit=
-hout appropriate lockless access annotations.
+--=-4FzxRt0vSudbgFRbezTj
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Pre-existing issues:
-- [High] The static `nvmem_cfg` array is modified concurrently during devic=
-e probe, risking corruption of private data pointers.
---
+On Tue, 2026-08-11 at 21:08 -0500, Rob Herring wrote:
+> On Wed, Aug 05, 2026 at 07:32:27PM +0000, Markus Probst wrote:
+> > Synology NAS devices use the output pin for interrupt signal 1 to wake =
+up
+> > the system.
+> >=20
+> > Move devicetree bindings for sii,s35390a into its own file.
+> > Add necessary properties to configure the individual pins via pinctrl,
+> > which allows the interrupt signal 1 to be used for wakeup alarm.
+> >=20
+> > Signed-off-by: Markus Probst <markus.probst@posteo.de>
+> > ---
+> >  .../devicetree/bindings/rtc/sii,s35390a.yaml       | 109 +++++++++++++=
+++++++++
+> >  .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
+> >  MAINTAINERS                                        |   1 +
+> >  3 files changed, 110 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/D=
+ocumentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> > new file mode 100644
+> > index 000000000000..0355f17f233a
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> > @@ -0,0 +1,109 @@
+> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: S-35390A 2-WIRE REAL-TIME CLOCK
+> > +
+> > +maintainers:
+> > +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+>=20
+> This should be someone with the h/w, not subsystem maintainer.
+There has been a discussion about this before.
+See
+https://lore.kernel.org/all/20260701-bronze-jaguar-of-perfection-028bac@quo=
+ll/
+and replies.
 
---- Patch [4]: [RESEND v4 4/5] rtc: pcf85363: add oscillator offset calibra=
-tion support ---
-commit cf1f1a013f4f67e8c4a20b8646213cc7ca971733
-Author: Lakshay Piplani <lakshay.piplani@nxp.com>
+If desired I can use my own name.
 
-rtc: pcf85363: add oscillator offset calibration support
+>=20
+> > +
+> > +description:
+> > +  The S-35390A is a CMOS 2-wire real-time clock IC which operates with=
+ the
+> > +  very low current consumption in the wide range of operation voltage.
+> > +
+> > +allOf:
+> > +  - $ref: rtc.yaml#
+> > +
+> > +properties:
+> > +  compatible:
+> > +    const: sii,s35390a
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  interrupts:
+> > +    minItems: 1
+> > +    maxItems: 2
+> > +    description: Supports up to 2 interrupt lines via the INT1 and INT=
+2 pins.
+> > +
+> > +  wakeup-parent: true
+> > +
+> > +  wakeup-source: true
+> > +
+> > +  "#clock-cells":
+> > +    const: 1
+> > +
+> > +patternProperties:
+> > +  "^pins":
+>=20
+> Do you need wild cards here? Wouldn't just 'pins' for the node name be=
+=20
+> fine?
+Pin control by itself supports multiple states.
+I am not sure if this has a usecase with this device though.
 
-This commit adds oscillator offset calibration support to the PCF85363 RTC
-driver. It exposes the read_offset and set_offset callbacks, allowing
-userspace to apply frequency correction for drift compensation.
+>=20
+> > +    type: object
+> > +    patternProperties:
+> > +      "-pins$":
+> > +        type: object
+> > +        properties:
+> > +          pins:
+> > +            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
+> > +            items:
+> > +              enum:
+> > +                - int1
+> > +                - int2
+> > +
+> > +          function:
+> > +            $ref: /schemas/types.yaml#/definitions/string
+> > +            description: |
+> > +              Pin function:
+> > +              - ignore:  Preserve the previous state.
+> > +              - disable: Disable pin output.
+> > +              - wakeup:  Output wakes up the system.
+> > +              - clock:   Output clock pulse.
+> > +              - pmin1:   Minute periodical output with 50% duty.
+> > +              - pmin2:   Minute periodical output L for 7.81 ms.
+> > +                         Can only be used with pin int1.
+> > +            enum:
+> > +              - ignore
+> > +              - disable
+> > +              - wakeup
+> > +              - clock
+> > +              - pmin1
+> > +              - pmin2
+> > +
+> > +        required:
+> > +          - function
+> > +
+> > +        additionalProperties: false
+> > +
+> > +    additionalProperties: false
+> > +
+> > +required:
+> > +  - compatible
+> > +  - reg
+> > +
+> > +unevaluatedProperties: false
+> > +
+> > +examples:
+> > +  - |
+> > +    i2c {
+> > +        #address-cells =3D <1>;
+> > +        #size-cells =3D <0>;
+> > +
+> > +        rtc@30 {
+> > +            compatible =3D "sii,s35390a";
+> > +            reg =3D <0x30>;
+> > +            pinctrl-0 =3D <&rtc_pins_default>;
+> > +            pinctrl-names =3D "default";
+> > +
+> > +            wakeup-parent =3D <&int>;
+> > +
+> > +            rtc_pins_default: pins {
+> > +              int1-pins {
+> > +                pins =3D "int1";
+> > +                function =3D "wakeup";
+> > +              };
+> > +              int2-pins {
+> > +                pins =3D "int2";
+> > +                function =3D "disable";
+> > +              };
+> > +            };
+> > +        };
+> > +    };
+> > diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/D=
+ocumentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> > index f4d0eed98a08..7b3f682ef4d5 100644
+> > --- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> > +++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+> > @@ -81,8 +81,6 @@ properties:
+> >        - ricoh,rv5c386
+> >        # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+> >        - ricoh,rv5c387a
+> > -      # 2-wire CMOS real-time clock
+> > -      - sii,s35390a
+> >        # ST SPEAr Real-time Clock
+> >        - st,spear600-rtc
+> >        # VIA/Wondermedia VT8500 Real-time Clock
+> > @@ -105,5 +103,4 @@ required:
+> >    - reg
+> > =20
+> >  additionalProperties: false
+> > -
+> >  ...
+> > diff --git a/MAINTAINERS b/MAINTAINERS
+> > index 5114e6db7307..4c8bc35cfe55 100644
+> > --- a/MAINTAINERS
+> > +++ b/MAINTAINERS
+> > @@ -22695,6 +22695,7 @@ T:	git git://git.kernel.org/pub/scm/linux/kerne=
+l/git/abelloni/linux.git
+> >  F:	Documentation/admin-guide/rtc.rst
+> >  F:	Documentation/devicetree/bindings/rtc/
+> >  F:	drivers/rtc/
+> > +F:	include/dt-bindings/rtc/
+> >  F:	include/linux/rtc.h
+> >  F:	include/linux/rtc/
+> >  F:	include/uapi/linux/rtc.h
+> >=20
+> > --=20
+> > 2.54.0
+> >=20
 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index e10e58f690127..665bbbb169b05 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-> @@ -123,6 +123,11 @@
->  #define TSR2_SHIFT      2
->  #define TSR3_SHIFT      6
-> =20
-> +#define OFFSET_SIGN_BIT 7
-> +#define OFFSET_MINIMUM  -128
-> +#define OFFSET_MAXIMUM  127
-> +#define OFFSET_MASK     0xFF
+Thanks
+- Markus Probst
 
-[Severity: High]
-Does treating this as an 8-bit signed integer stomp on the OFFM (mode) bit?
 
-The PCF85363 CTRL_OFFSET register uses bit 7 as the OFFM (mode) bit and bits
-6-0 as a 7-bit two's complement offset (range -64 to +63). Writing a negati=
-ve
-8-bit integer sets bit 7 to 1, silently reconfiguring the chip into Fast Mo=
-de,
-while a positive integer switches it to Normal Mode.
+--=-4FzxRt0vSudbgFRbezTj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-Should the driver explicitly preserve the OFFM bit and restrict the offset =
-to
-a 7-bit value?
+-----BEGIN PGP SIGNATURE-----
 
-[ ... ]
-> @@ -359,6 +364,45 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, =
-void *dev_id)
->  	return handled ? IRQ_HANDLED : IRQ_NONE;
->  }
-> =20
-> +/*
-> + * Read the current RTC offset from the CTRL_OFFSET
-> + * register. This value is an 8-bit signed 2's complement
-> + * value that corrects osciallator drift.
-> + */
-> +static int pcf85363_read_offset(struct device *dev, long *offset)
-> +{
-> +	struct pcf85363 *pcf85363 =3D dev_get_drvdata(dev);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	ret =3D regmap_read(pcf85363->regmap, CTRL_OFFSET, &val);
-> +
-> +	if (ret)
-> +		return ret;
-> +
-> +	*offset =3D sign_extend32(val & OFFSET_MASK, OFFSET_SIGN_BIT);
-> +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Write an oscillator offset correction value to
-> + * the CTRL_OFFSET register. The valid range is
-> + * -128 to 127 (8-bit signed), typically used to fine
-> + * tune accuracy.
-> + */
-> +static int pcf85363_set_offset(struct device *dev, long offset)
-> +{
-> +	struct pcf85363 *pcf85363 =3D dev_get_drvdata(dev);
-> +
-> +	if (offset < OFFSET_MINIMUM || offset > OFFSET_MAXIMUM) {
+iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmp8ZrUbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSGhsP/0FkoRbcsk5+7zV5xzR+
+CIA/ua0L0QQzESlsroGrtiXxmjAjC/URYmYg8V9x66J2G43ubBMowXp1cm0PLXEs
+Fh2zKPYQEA6T4vxjSGyBXrBg+F3mQ5j2XWu+qny0h5IyPcuAg5PetYQaNl0UAFbL
+41Outw5xs+pKwwAVd+0WkxA3fGPYmayOt48QW+4Qt0r8UvpbG019CHzpLJyeesQn
+6gSnKXs2Vtlad/mlEyDNKXWQeilyCjZttyrQVa8Ospg0KCTyAsJ8bouK6wSsH7IP
+JH+GhYmuAs7ljbeyRjnIyeN6eADayJjDg7Z45Zo+RC838Kct7rLToFP9AsEJLTCd
+KOVIN4a0YZltuZHOsXHdqpc6Br819G2r6TSUOxGNFg+zXqoc9PDyfvkYQWW6GMbw
+PrybeiDp3Q2cIJ4FYaIsflhoXJ8P9OnH7BjMDx9XEa26jfqmuR70ESllkjlL44bE
+KvwBXAMV+fadhl0S4AhexuyWducvyx/bfwnGPNcZl5uqt1PQyuTqci5Bjctu28TQ
+EDTAXzPtzEWmjZYZzVPW7jGOuac+/GdokHWpPxpDiJb+grio5sIthzD5le/JmNTA
+UtbNQODBuxm4Chldw0w+IxUJjhOeRn+oFLFYTSX/oqPUGlQzXx1Ckqf2Ocv/nM3T
+eYmi/LCAVi48JEIml31MLULy
+=Y5gm
+-----END PGP SIGNATURE-----
 
-[Severity: High]
-Does this code reject valid ppb offsets from userspace?
-
-The rtc_read_offset and rtc_set_offset kernel API expects offset values in
-parts per billion (ppb), but this implementation appears to operate directly
-in raw register values.
-
-Consequently, if userspace passes a valid offset like 4340 ppb, wouldn't it=
- be
-bounds-checked against [-128, 127] and rejected with -ERANGE, rendering the
-API unusable?
-
-> +		dev_warn(dev, "Offset out of range: %ld\n", offset);
-
-[Severity: Low]
-Can this unratelimited warning log be triggered directly by userspace?
-
-It appears an out-of-bounds write to the sysfs offset node will spam the
-kernel log, which could be avoided by simply returning -ERANGE.
-
-> +		return -ERANGE;
-> +	}
-> +
-> +	return regmap_write(pcf85363->regmap, CTRL_OFFSET, offset & OFFSET_MASK=
-);
-> +}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does clearing the timestamp
-interrupt flags before reading the timestamp data create a hardware race
-condition?
-
-In pcf85363_rtc_handle_irq():
-
-    if (flags & FLAGS_TSR1F) {
-        regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_TSR1F, 0);
-        pcf85363->ts_valid_flags |=3D FLAGS_TSR1F;
-        handled =3D true;
-    }
-
-The driver exposes timestamp registers via sysfs which performs a lockless
-regmap_bulk_read over I2C in pcf85363_read_timestamp(). According to the
-PCF85363 behavior, clearing FLAGS_TSR1F rearms the hardware latch.
-
-If a new timestamp event occurs while userspace is in the middle of reading
-the timestamp registers, couldn't the hardware update the registers
-concurrently and result in a torn read?
-
-[Severity: Low]
-This is a pre-existing issue, but is the lockless access to ts_valid_flags
-missing necessary concurrency annotations?
-
-The flag is modified in the threaded IRQ handler:
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_rtc_handle_irq() {
-...
-    pcf85363->ts_valid_flags |=3D FLAGS_TSR1F;
-...
-}
-
-And read locklessly in sysfs:
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_timestamp_show() {
-...
-    if (!(pcf85363->ts_valid_flags & timestamp_flag))
-...
-}
-
-While it's a 1-byte read/write that won't practically tear on supported
-architectures, missing READ_ONCE() and WRITE_ONCE() annotations violates
-kernel concurrency standards and could trigger KCSAN warnings.
-
-[Severity: High]
-This is a pre-existing issue, but does modifying the static nvmem_cfg array
-during device probe risk corrupting private data pointers?
-
-drivers/rtc/rtc-pcf85363.c:pcf85363_probe() {
-...
-    static struct nvmem_config nvmem_cfg[] =3D {
-...
-    for (i =3D 0; i < config->num_nvram; i++) {
-        nvmem_cfg[i].priv =3D pcf85363;
-        devm_rtc_nvmem_register(pcf85363->rtc, &nvmem_cfg[i]);
-    }
-...
-}
-
-If multiple PCF85363 instances are probed on the system, wouldn't the later
-probe overwrite the priv pointer of the earlier instances in the shared
-static array? This would cause subsequent NVRAM reads/writes for the first
-RTC device to incorrectly target the last probed device's regmap.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812074533.3545=
-058-1-lakshay.piplani@nxp.com?part=3D4
+--=-4FzxRt0vSudbgFRbezTj--
