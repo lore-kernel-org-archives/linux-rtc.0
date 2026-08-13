@@ -1,73 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49CF2345CAB;
-	Wed, 12 Aug 2026 20:53:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A580338B7D1
+	for <linux-rtc@vger.kernel.org>; Thu, 13 Aug 2026 06:35:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786567984; cv=none; b=qufea8whnknULtgEUMtzfzV0OoUwgLcD88hhBFyVzg3z166Vgs90XZ6q6d2f8/pFvH6iUO1U7XAkHRg4CmFu5CNupHFbp1VATiEqb13hGXmBGu3wyCyt9YNj/XAXDEw/6arwNRCamp9hz0n9oeDYLcA/fxLGhn5lTKSAOsBTM9k=
+	t=1786602906; cv=none; b=j4d3bM2HomofPQXxqrf2hsWBnYXEGgoriJZJgV2upOetXHkqu4/VydAL1yWYM/gKaCmH88AXgT0N40xrm3Onrz8ZRZDU9fkirEEuqpTv8O7xH1NHy0gq8x3iVVGBiA1FstsuaIjc7zSvkUGG64pc0uPtPcujrRaMFXzQ6Bw0xtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786567984; c=relaxed/simple;
-	bh=S7hrZyfdok/BVxOpijpFSBR4DTsdabyznj4EEMVgZOY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V4tVT6QpPHKzV2mj7PTY0WCYYveCnsKazMbeDSn7g4eyp+/EHLrt5a2LqryBNUSPijS4rnHpwUlTHSQ0nYGZsISCTu/cB2gOMfXrWJzL2ZsjQxwQfIYh6xu4n1hT2cYK6zMjzU5lb+wintjkdsUT5mqU4BsZwSRshi33STIqLkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HTVb1oQM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786602906; c=relaxed/simple;
+	bh=xQUgyJLWEUo8rNSfcs9RsMhAZwGlUEbBjVggc4DxqJQ=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=fzPXDUmf6fQ+CNlAb6VNDGhZJVTx35C93qiSbyqyMvkgjvHJRFAQSa2RPmaj9iPnOL7SzTtlwezwUIzgGvfobpHT4YOFqEbZa7taTTStnS8QoZGCSSSJ/Oc2+mQk2Eug5Q9Y9jTE2Nca8Csy+2dZ7NzPTiOzJtMClKIrtxvR8Y0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NMz0yblI; arc=none smtp.client-ip=209.85.216.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HTVb1oQM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A59B81F000E9;
-	Wed, 12 Aug 2026 20:53:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786567982;
-	bh=PZTHBcpuKzlrB64SfsnV/GeHK7Iy5+hrZaeFB8HDzYQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HTVb1oQMw95Z0j77m8GUWBBIYQuZfbfv12WyLQbl9Evh9mmYO0M/Kh5uJ9yzuHZbK
-	 458AbkhjTazwMHr2dFuco+aaSObKG46ZyeDRs1t1eNMvgpus2mcSP/JK6zz5r5a1v9
-	 kPTpSG+t1+ELWQq7zF3uR+1QGZw3fGG/XiKTnAETtNegZsS/Bjh9YCjxP5hO0GuoJf
-	 aoJcHsykRR8yfN6ObMtITtB3UE31ATFOvaB7H1bEMSoNPnQ+8MnoGv04I9qeeZxikL
-	 00tiXKeYrCLaKqU8pKsVz4mjpqV47h32nIV5NAW1fRKWqMFbDnA54rAVFW1iipkKIK
-	 IPqrTZDPxg9YA==
-Date: Wed, 12 Aug 2026 15:53:02 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-Cc: krzk+dt@kernel.org, lakshay.piplani@nxp.com,
-	linux-watchdog@vger.kernel.org, conor+dt@kernel.org,
-	wim@linux-watchdog.org, priyanka.jain@nxp.com,
-	vikash.bansal@nxp.com, linux-hwmon@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux@roeck-us.net,
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	alexandre.belloni@bootlin.com
-Subject: Re: [PATCH 1/4] dt-bindings: rtc: Add NXP PCF8525 RTC
-Message-ID: <178656798141.967972.14133767418236331657.robh@kernel.org>
-References: <20260807082855.3762394-1-shivprakash.gupta@nxp.com>
- <20260807082855.3762394-2-shivprakash.gupta@nxp.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NMz0yblI"
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3931cd2e4cbso947750a91.2
+        for <linux-rtc@vger.kernel.org>; Wed, 12 Aug 2026 23:35:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786602905; x=1787207705; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xQUgyJLWEUo8rNSfcs9RsMhAZwGlUEbBjVggc4DxqJQ=;
+        b=NMz0yblIPKIm7aZMNWEGvWvjp6BBkZZPO5iGXeN7cXvjzVWQ3ZXm+WmIwUsYm+gB2E
+         SEU2ybIYUsjOrSKgX9T1zswD5E2ajSFI8VRZYsEGe/pxGMjSMdUqlpeIKMgp+PY+VWIZ
+         x1oLgKfOsTU22bqeu345IuZCNzmVT/31ddFqSSwV5jeIF0SCD0Jx50Jr0JhwiCsVMk+L
+         UswmGbOnZzrn2HqjVYInsrn0rPpY3TxtVarX/fo8IAbfY04t5fmkole3+4Mv6AifR/53
+         CMJlGOUWuwXDRk/3mgBPBWDYVfQuUY4tX0ieZfx/Bk62guETDNZ4xrI6AlDcnNFnxiB9
+         Z1zA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786602905; x=1787207705;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xQUgyJLWEUo8rNSfcs9RsMhAZwGlUEbBjVggc4DxqJQ=;
+        b=DERM61Yw42rgdRNi7Tn9WQ2jHYi1z9keaTbihmMaQ0O9Aljh0WxClbEnK0bKwnqXgz
+         ZozFqAtwwcmYKIviIL3vKbd25UouJ+UObiHo12o1SGuU/4htPSMxYATPL/lrGYPToluc
+         nWkkfctBIMMZQqHidd4790ySGKTYNmOz1e+jsypdKT8QEimGsL3c08qG+Pmfv5Bfgg7T
+         zhtyL9XtAgfJaIAWTjCrHkXX6BezD7290Hs3tDTgZu0t+1HWebEbhu59FWOLKPUMcQGE
+         CyIpzJ9NrDYecA09rmJv3hE2fscpNXjWLnf+zsd3MaeBP0lVgmKpV+UTrdMx43KRLSDC
+         4WUQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rp/SvANX6wbRe9dMTacEfWBfk8r1xUI7EF1wHpsjyqBykGbFZ71FCKWYmQdgEV2Rp/Zve3qQWQklLs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPujgYYrD0oVWYB0CgkM+aG2JKFV6LdghG5prqzVwOCNgyI1A3
+	GicBIVVYE6LCCeRWOJTsWrtWYg9f+6E80E7VAZAq+FBZBppYhDcWff/ZvF6gjifA9IwWF22UNjv
+	+cQ==
+X-Received: from pjbft2.prod.google.com ([2002:a17:90b:f82:b0:381:1eec:b454])
+ (user=wakel job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:17ca:b0:38e:6bd7:fbbf
+ with SMTP id 98e67ed59e1d1-3931e29a12fmr3604505a91.20.1786602904812; Wed, 12
+ Aug 2026 23:35:04 -0700 (PDT)
+Date: Thu, 13 Aug 2026 06:35:02 +0000
+In-Reply-To: <20260615150119ee47a1aa@mail.local>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260807082855.3762394-2-shivprakash.gupta@nxp.com>
+Mime-Version: 1.0
+References: <20260615150119ee47a1aa@mail.local>
+X-Mailer: git-send-email 2.55.0.691.gc56d675ccc-goog
+Message-ID: <20260813063503.4023719-1-wakel@google.com>
+Subject: Re: [PATCH] selftests: rtc: fix flaky date_read_loop test
+From: Wake Liu <wakel@google.com>
+To: Shuah Khan <shuah@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+Hi Shuah,
 
-On Fri, 07 Aug 2026 13:58:52 +0530, Shiv Prakash Gupta wrote:
-> Add a Devicetree binding for the NXP PCF8525 I2C RTC. Describe the
-> optional INTA interrupt used for RTC alarm and timestamp events, and
-> the INTB interrupt used by the watchdog.
-> 
-> Add properties to select the external crystal load capacitance and
-> temperature-compensation crystal model. Also allow the common
-> start-year, wakeup-source and reset-source properties, with
-> reset-source enabling watchdog registration
-> 
-> Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
-> Signed-off-by: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
-> ---
->  .../devicetree/bindings/rtc/nxp,pcf8525.yaml  | 86 +++++++++++++++++++
->  1 file changed, 86 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
-> 
+A gentle ping on this patch. Alexandre has already provided his Acked-by:
+https://lore.kernel.org/linux-kselftest/20260615150119ee47a1aa@mail.local/
 
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Could you please consider picking this up for kselftest/next when you have time?
 
+Thanks,
+Wake
