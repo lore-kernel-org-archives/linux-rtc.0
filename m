@@ -1,147 +1,152 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+Received: from mail-yx1-f54.google.com (mail-yx1-f54.google.com [74.125.224.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BDAE47A879
-	for <linux-rtc@vger.kernel.org>; Thu, 13 Aug 2026 12:55:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786625718; cv=none; b=Hg/ja/3IjchKEL1ZLWOg6qG/BgI1+HnNi5r5cWKC2MRyl3/OFQu6J0hsxaUC399m3KS/uymmcZMa6bftiAfjKCYUedxXZfcv6rj4KOfM+K4vRJeDrdWVmog0JbW+UH+HxaW3qtG0KZseNnw3ikBY3qRoV/G3RzH/FQperrph94w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786625718; c=relaxed/simple;
-	bh=HrpuHtXRs3lkzPV2KF4jr4RPVBEPyIUfTr35gw5M1iI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nQklAOVtX6DFjMLaE4yF97Emk4ErRDjPIqUPhDFSYmBCh+gUS7GIx0Sg7nLLWaYXDZKoLURfUZ4Eigja1FrYbnMCVBv6ZCfl/7HVITf58sU25nTBAUgUt7Cc2EfZA6XGzhWzdlG5IPnjYfQK9/xUMh3mLaUhn8ahIaaQQ3Bal0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BOn0wESQ; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361863C660C
+	for <linux-rtc@vger.kernel.org>; Thu, 13 Aug 2026 17:48:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786643308; cv=pass; b=Q3zIzYynQ/OIMOJXvzUGYVP38UvrStPBn8CVfu6nlmYWM3LJufDxZ/wdEdBxiSl/XHRvfbyg6eji8W/KrJpf3tO8C1Xo8DqpEQ4jdtJFXc4n7KwryhmPxrGioVF3CRuiXSJNIhvdyZsUdEOsVFI0gR5CpMsgGMx/bK5XdjreVI4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786643308; c=relaxed/simple;
+	bh=fJN0yajHdbKNJg/Sb8r8Ae8JV9wC/JHTUgtXKZ3D0bI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XXlBubSUBPKRLG33lvywh1c8/k7VV2mj0ZNXjEiQzTjjX71y85QwSUiQ2rfieWDQgVNAXv6G7gaPZ6G17tWKMLurARJz0/LiAVYqQmwLhmtOKrnn+VqJZ2ozJ6Jr2JVM/SLxn+FvWW6xQdsHTmheaFf7FnnbY7QuYu3oydxTjb0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YZ9NO7AS; arc=pass smtp.client-ip=74.125.224.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BOn0wESQ"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5b2aab18795so726883e87.2
-        for <linux-rtc@vger.kernel.org>; Thu, 13 Aug 2026 05:55:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YZ9NO7AS"
+Received: by mail-yx1-f54.google.com with SMTP id 956f58d0204a3-6679d88abdcso213059d50.2
+        for <linux-rtc@vger.kernel.org>; Thu, 13 Aug 2026 10:48:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786643290; cv=none;
+        d=google.com; s=arc-20260327;
+        b=psJNE+cUHldHO5vSTtplEIh0T8XHPvRtJqXgDN2/KDhEjgtg4blUSJ2h5HRv/EgKKg
+         uRwvGk07tzxA0E2B+0W1AE/8uAkkjw+BwHK51K8vXtJ9lFgqD3JsEfBQKNYUbFBcA8oZ
+         qoW91pf+tfBp4VK3n93PUk6OqtawxNxyKwPNA/ngh666VyWwQuN/ft0u9jRlSJMQC2Ih
+         JSGkeWWC9WjsBWwXCNmU3TURYQxZEFmPf/xXPEiHyCCMCNFVdhKsPZv8wUHu8hQvhRXM
+         g5uqUxw7Whv2UgsFNfDlaSgMf0w5LsKCXUwY0gmxl2nFNYEzcHRRlXgkCOWI6lkEHc56
+         tYxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=xKBoZsKQChWoyWTHFeaA8fhBCl9pWtBCM4FH4MsoEI8=;
+        fh=kjDTLwogGK5RDWlm2g+AbDGk8fHbdBNa8oK9sKsLO98=;
+        b=JZiTcyTZAKG94zOgN5U73IoJN/u6uz+gs7EJEBB69T00UVW1fa0ogvKd7ph8ZFN72C
+         JoBqJuzdJhPXY0C5ErVKC7gb5HTpkBKqC6q/liipnjwuMoicu7+rLwzRqP5pyz/n+o9j
+         /nOuiPL6sK9AkNAPqcY3IDnp84DdiHB0+skvavw9mBiULsXqkc2NOmgMfvZ5fT6/XN8A
+         Zg2VhlfR82InK0XcjAXmu7VAva0hMpLx/3Yl9K1xwDzSG6T14rJDm1/vTWWnlN9mhl2Y
+         RaWqzhy8siQXCyUdwl2OAUyS5xY9iK/fW3kFswqsDhCAzKEyQFJIcMSRwNZArpJFyO8R
+         0Hng==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786625714; x=1787230514; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9jhcvNWSwuNAllGIhB4lzw/CqsOc6VTmvp2k274Uc3o=;
-        b=BOn0wESQ+2KXUfLqYEyKA7tfVWjGL0NzreOazkA7IAImC5ucSAw39LOMfRQ3UEcvEv
-         wj3Rna02ifbHSVQffk3mukJmy+YYpoaa1kKKstx2j81X7rSSEANTzC1U7rUJ9qNm3JCN
-         ommatv8rgP5qeRD+TuT52BSwfgkz4UnOZDUQZZHDnlp2gasjvEI9GaikuWeBbHJUdBkg
-         63J+xha/o4O8sN6tQHm/SAMjYzHtNjd1AEVkpWnAEMIxjx6oFhZLntwfUERovklFT7bX
-         SlcSo2AMaJjObiH5DpfPlcGQYwuub9X//jvfJXCsQewrat1qAnynTf9H7PPT++REqjBR
-         x1uw==
+        d=gmail.com; s=20251104; t=1786643290; x=1787248090; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=xKBoZsKQChWoyWTHFeaA8fhBCl9pWtBCM4FH4MsoEI8=;
+        b=YZ9NO7ASaOX4Gj9lC9QUFWE3Rt1OeX8dMJ7V7HoqrLD6LiMWrjz/Z394NlJZGmFg1M
+         Hj80QBvUCyQj8hQhDprlKVKsS37baIlbq/PAC8fYYq1U3/PgHFeQ/zJbJYYbBRHId9Dj
+         53VEfG3l6Zsxt+xmcrhshQwTHQ3Sw+1uCluzXZwBpxix3KV25YxYvzvbCoV7J7+vdYP2
+         LjXBXaYNVx+XtWm4U4Dzb5A8nCig65YNj06WMauEZX926U6hp0ZgG62o2MbfB3V8qfgR
+         V8O/CTua0Qyzd8CtG3HLATSUTuZt4ExrFCRljdo/ouoBlqj9O6xhtRRd8wulYD/TdJoP
+         1CyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786625714; x=1787230514;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=9jhcvNWSwuNAllGIhB4lzw/CqsOc6VTmvp2k274Uc3o=;
-        b=PxftRnbrOHPNd/OED16pvbxLVhuruetopySJOwfkF+3gxZn20ueBG61hMzQcqtQCbD
-         nk8arNvxT1SIAC3VKOfWvmaRdnVRqCzQhBJD9BeNOiuKCRCeFN78/BPQOCueVl9xeYOg
-         Ohr5M9/LI7CARP4TVIQAJrTgI1+gSptaWsRJWsbLNH73bWUvF4giRv5+6jTChLjfxl0/
-         Rcdy0Z/uP5dV66KzeLmVPrO03al5Ky/GBLpd33Hon3zzwPQpV0OApMFTQccgBY4EwBdF
-         27O/OugeGiTSjSn6b2hPunjhbJ9SEDWMDZVpkK8lcBmHm0/xsx4g9wQDLGPDBq6gMDHa
-         gBrA==
-X-Forwarded-Encrypted: i=1; AHgh+Rpnnh+xUCMhtg1m/UQVYYy4MFAW/ASscM33pcEPgUe6eAFqqYzDXlTmWrg/EIw5pyoOcRdzMMstKqY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxV+6VH/Q3m4yT707hbD28hUyzIJMvT1Af+3d/EtSOksmuiPPqt
-	ERvL6BWHJ/UpeIqDCWLZz1IUKturdRYpuE/vckl9aL4825W5D7rXahAD
-X-Gm-Gg: AR+sD10sB5uPBFyhqLiQcmVFx3JEA44zo61/pSywN0EuSdlW5KQBQ1Bev+GmHxxvjjt
-	fX8p+Y13+fWnOBbc4vezjvm8cOdVjrEBQmvWq7UZLc/oXkl7NfdCkcgaMX//5Dx14nsF3Wpd+ar
-	P4wrP5hj9OKDGqk5VKxp2NMT4ec/yRwgbGr9cG1/H5a2htNdcdWoNhuVPN5PD8gFJAHvzVFbp4B
-	voX+DMclTuJKEKIH4CAht6WeZ9FULXdw4IMdygQQZwJjv3pkT++Ne+AAaxNU4Oj7UBrWpw/j09A
-	4bAfxzu6qqnoSKcY9Bu/gc4PSqbeiYzwZ2dKcS+m41CQv7siLr3/9Kjl/3dtDWmEL1IjK6Fwv8w
-	rSmKmSoK9+BrRZO24FECUv/HkdTXpD8G80aU6QbXi4F4OSR3IrLzl2p9UMshlYlEGBuq/U4wAgf
-	GzPZIeDhUY527Qdkn3+QxK5LTo4qIYaLGhXL+JNehnfzHB2H4bm3IiYFsGBqR0QOHWulgdwaVpA
-	KtT7ACIZeOttXNmhtf3EXX+vo61a8tnOMxCB9jPEEQVCwQbyDt1BN3H
-X-Received: by 2002:a05:6512:1284:b0:5ae:b0c0:16bc with SMTP id 2adb3069b0e04-5b453f77a1dmr809693e87.27.1786625714101;
-        Thu, 13 Aug 2026 05:55:14 -0700 (PDT)
-Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b4539ea237sm456405e87.18.2026.08.13.05.55.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Aug 2026 05:55:13 -0700 (PDT)
-Message-ID: <12f70e0f-5cef-4035-9b44-e2cb252932cf@gmail.com>
-Date: Thu, 13 Aug 2026 15:55:12 +0300
+        d=1e100.net; s=20251104; t=1786643290; x=1787248090;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=xKBoZsKQChWoyWTHFeaA8fhBCl9pWtBCM4FH4MsoEI8=;
+        b=TwXeBNX8b+5yYCCRdmELEELjL3TO67rASdBPOj2ufTdsOvLzCkXUPQOvK6AtELWQAM
+         FkhuOiySVLuclxDmGNLpaRNCdg14ibuxk/WX71luB+PyAaSOVQzBDy3VDcwXy80CEeeX
+         TJwxMsd7Wm0hyDEwfGsF5B3Zsf5Qja5KJ8qW0iYlm48F56+r8oLoBRei01WlTMyzQ4TB
+         3iNTPGSv9srbHqSuMVDlvnDogeG5u2lCcn3id8vcf4mTLOJMoCfEt1LOa3yop+CaBuOO
+         7rTQ+6V+8Xiw9v54Sw+a59gA58dkwsQuPD+XK+j0dfEdJwq46Xuzr1Z5hmrismxnltqQ
+         mY4A==
+X-Gm-Message-State: AOJu0YzfiHMbGK+kYklKN9rPCJoIwq5Z5smMOuicY2m6Vqo/fLukkkW3
+	C7b/j8YuhE3RlTpt1YKAFTuu9YSZIzJQnshGGb+6esuDEmRkuUa3HNDkPJFNPub/qL9PLbDpiqi
+	5aBrQyKESOIOzOWdtQW6XimtMqIh/gr4=
+X-Gm-Gg: AR+sD12OCH21m4tkP8zEUmAfos6JJCP3CoPzzKgYpM36MSF+FWPqGrrXnb/+25Zm/Xu
+	o8YdOrao/OvhgYhwiGOOTDzYX4viqJYOUQFDYJQ/iunGwocQ010gTAevQTCq5jsWT4ES6g6Y8Q6
+	eqo3DDUFst17fM0yHIUSbgz7KUx+VQYK51nYUf0wkvsp2REgZiLiw9OEjVvmElTJEX0hF50JOnF
+	QVKxfTDixUUgrf76sxT0I6B4D6CLQv67Lu5suFBFRiilh4WCeKNBC1I7aOtnQjCT0in87tb3wPb
+	cL7n8CQkvRdj7F1Sf+yoqj4AgGqjcvdxio9bVOYSCd574CPV5Hf18C6PGMIqjftlIt7sT2AZf9K
+	b
+X-Received: by 2002:a05:690e:4091:b0:66c:486c:aa1b with SMTP id
+ 956f58d0204a3-66c72d2719bmr59581d50.38.1786643289594; Thu, 13 Aug 2026
+ 10:48:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 09/10] gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
-To: Linus Walleij <linusw@kernel.org>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
- Matti Vaittinen <matti.vaittinen@linux.dev>, Lee Jones <lee@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Michael Turquette
- <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney@redhat.com>, Bartosz Golaszewski <brgl@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>, mfd@lists.linux.dev,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-rtc@vger.kernel.org
-References: <cover.1785838584.git.mazziesaccount@gmail.com>
- <9774b8d6663ea55b1682b32f825ec5689be3e1d8.1785838585.git.mazziesaccount@gmail.com>
- <CAD++jLmatJFfqhNWfgx=qUW2fEwuatxmJR7NyJLAv45LfLHZnw@mail.gmail.com>
- <f5c241a2-00a8-4a32-bad5-3c89fb204b25@gmail.com>
-Content-Language: en-US, en-AU, en-GB, en-BW
-From: Matti Vaittinen <mazziesaccount@gmail.com>
-In-Reply-To: <f5c241a2-00a8-4a32-bad5-3c89fb204b25@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20260624055648.127399-1-challauday369@gmail.com> <178406687202.3036881.4468660016404184803.robh@kernel.org>
+In-Reply-To: <178406687202.3036881.4468660016404184803.robh@kernel.org>
+From: Uday Kiran <challauday369@gmail.com>
+Date: Thu, 13 Aug 2026 23:17:56 +0530
+X-Gm-Features: AUfX_mzsIi5SDyWoPwPYp7HUoDgTG5O7YDFhgh4xYm4uaptfNPMewu0uSRvCY6M
+Message-ID: <CAAj-GBnn8rGD6o5HmVfYtEksXsL8ZPKcc_AbfKUEHtTsN1pN-A@mail.gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: watchdog: microchip,pic32mzda-wdt:
+ Convert to DT schema
+To: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+	skhan@linuxfoundation.org, tsbogend@alpha.franken.de, krzk+dt@kernel.org, 
+	linux-kernel@vger.kernel.org, conor+dt@kernel.org, 
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, me@brighamcampbell.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 13/08/2026 11:34, Matti Vaittinen wrote:
-> On 07/08/2026 23:29, Linus Walleij wrote:
+On Wed, Jul 15, 2026 at 3:37=E2=80=AFAM Rob Herring (Arm) <robh@kernel.org>=
+ wrote:
+>
+>
+> On Wed, 24 Jun 2026 11:26:48 +0530, Udaya Kiran Challa wrote:
+> > Convert Microchip PIC32 Watchdog Timer devicetree binding
+> > from legacy text format to DT schema.
+> >
+> > Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> > Signed-off-by: Udaya Kiran Challa <challauday369@gmail.com>
+> > ---
+> > Changelog:
+> >
+> > Changes since v1:
+> > - Fix example indentation
+> > - Correct example clock specifier from REF2CLK to LPRCCLK
+> >
+> > Link to v1:https://lore.kernel.org/all/20260620172354.155565-1-challaud=
+ay369@gmail.com/
+> > ---
+> >  .../bindings/watchdog/microchip,pic32-wdt.txt | 18 --------
+> >  .../watchdog/microchip,pic32mzda-wdt.yaml     | 44 +++++++++++++++++++
+> >  2 files changed, 44 insertions(+), 18 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/watchdog/microchi=
+p,pic32-wdt.txt
+> >  create mode 100644 Documentation/devicetree/bindings/watchdog/microchi=
+p,pic32mzda-wdt.yaml
+> >
+>
+> Applied, thanks!
+>
 
-...
+Thank you, Rob. There are similar microchip, pic32mzda patches related to s=
+pi,
+sqi & rtc which are reviewed/acknowledged.
 
->>   * @fixed_direction_output:
->>   *                      (Optional) Bitmap representing the fixed 
->> direction of
->>   *                      the GPIO lines. Useful when there are GPIO 
->> lines with a
->>   *                      fixed direction mixed together in the same 
->> register.
->>
->> It seems you can set up the fixed_direction_output mask from OTP
->> and just use the library, right?
-> 
-> The BD73800 uses different registers for 'out' and 'in'. So there aren't 
-> really "GPIO lines with a fixed direction mixed together in the same 
-> register".
+1. microchip,pic32mzda-spi.yaml
+https://lore.kernel.org/all/20260622-ingenious-finch-of-fantasy-7bafaf@quol=
+l/
 
-...
+2. microchip,pic32mzda-sqi.yaml
+https://lore.kernel.org/all/20260625-omen-stark-6bb827ebcc43@spud/
 
-> I think the BD73800 can indeed use the gpio-regmap, by keeping the pin 
-> direction information in private data and adding a custom xlate, which 
-> errors out if get is requested for output pin, or set is requested for 
-> input. I am not sure how much of an improvement it is compared to the 
-> patch v2, but I'll give it a shot :) I believe the new -rc1 isn't that 
-> far away, and hopefully the gpio-regmap -stuff from the next will be in 
-> it together with the regulator stuff bindings depended.
+3. microchip,pic32mzda-rtc.yaml
+https://lore.kernel.org/all/20260703-identify-cringe-ef88079923cd@spud/
 
-Gah. Please, ignore the erroring-out part. I don't know where I picked 
-the idea that the hardware would always return '0' when reading the 
-GPO_OUT register. I think this might have been something I have 
-experienced on a setup where the pin was _not_ set to GPO by OTP. 
-Furthermore, the xlate will never get called if user tries to set value 
-for a GPI pin.
+Please let me know if any further action is required from my end to
+merge in the
+mainline.
 
-Anyways, implementing xlate with op-check allows me to support this 
-PMIC, even though the register to read for pin status depends on OTP.
-
-So yes, v3 should be able to use gpio-regmap. I will probably delay 
-sending it until v7.3-rc1 is out so I get (all?) dependencies in.
-
-Yours,
-	-- Matti
-
--- 
-Matti Vaittinen
-Linux kernel developer at ROHM Semiconductors
-Oulu Finland
-
-~~ When things go utterly wrong vim users can always type :help! ~~
+Regards,
+Udaya Kiran Challa
