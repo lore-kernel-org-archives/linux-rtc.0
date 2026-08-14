@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4528B361DAE;
-	Fri, 14 Aug 2026 01:44:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8955F3C9EDD;
+	Fri, 14 Aug 2026 01:57:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786671878; cv=none; b=P6seiuQDmxMCB2sJKXlr48MzTiuQOaVEBDS7c/+k7qElauo9KO4Vu5slvxrfPE9KEzc5CrrJa6sQ6qCGxY81NR17fCsW2iSh4JbnBjsqZ/nE7xfWB+n+WpUoNYHUqRYtwM5yGN5E74kvwUCRAaF53pyBn6HXL48tte4wp/wMQr4=
+	t=1786672641; cv=none; b=tI+0EHq4kbCa2j90yyE+nTgm5S4hI3byeXxpPAOnXmzvWTfuZPrBG6dUkQtir4WUI0OPx8NkUpGDbnRprrBmp1y99njzP0IF5FQtv5CMa1fw47QoBe1cmz55p3eFRsRpg2D2Fd17kTgpMJPmFhIp3cOC5d8yuvInToU+jBk2e9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786671878; c=relaxed/simple;
-	bh=v59VheVSCt+jH3mp1k0ic2aNX/TxxMJXT0fA8lUuw+8=;
+	s=arc-20240116; t=1786672641; c=relaxed/simple;
+	bh=j20M0Oua+6LQWMnCacxrzHwMX4t9YOY90fkinzTw7a8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QqR6mY+k4M+9ndBDwTGL4RwqeS0evTkh4eFSpGJ6j2ok2BFmZIZojm9KTVZIuZ1B78Bp1oeROqnFatTZ1A38zVcwpcJ9MUSZRJwnv958QFV4J+x0OxT6JK/ouQ5D0aEf3d3fnCDkS1SYwpD7htd49FRSnFsSpNYf4lySTRAPNa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b8SSVybs; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ty/7xrVP5AXVhQ12e6xev17ULwrNvKRybgEPSVctAHFsCISzMXEWS5qXxia6l6Gn4Yk2fRGHG6y755i7YuPQr/QPThIt2AOloVLBnBhmgrHqHyqegGwzy++jqIKtf8wOG12Naxps2NGJslbeXIYwvJLsO4Hf8xzFcSLNOJfebBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lQ6bmwM/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b8SSVybs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82D8C1F000E9;
-	Fri, 14 Aug 2026 01:44:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lQ6bmwM/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7101F000E9;
+	Fri, 14 Aug 2026 01:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786671876;
-	bh=Z5x8Ib9GQfE7DxkYErfqFDplZ5qD9IHtBho26SZXAOE=;
+	s=k20260515; t=1786672640;
+	bh=PGKzsdsZVW4zqkgNvmuAyW55mO8VOa3XQ+TY4FW8cdM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b8SSVybscKf63zH5aVqcEno/trNTvry2tPzYAtsvIjsPmlt5/yq97KIsZi/1ExyeR
-	 k7PY3GYQu7Z+F/7I6qeEan0lCveYGuOzFWZP+UmAeU/JhR/ODerKg4Vo+iHzc1nTR+
-	 UPjHp2kn+PCXguHRqSygQQhroBF1r6jCKJitUNEcyqx9vEwL/gzHbI7WSYu4hDc1gZ
-	 OzGenticG5lN235jA0TNjAXNMZBTuAdyW1DhXXdPv0c1SX/FgbCSme2q8frVhUSOUd
-	 eqk9UGUZingSbJjKUpcmoPijZ+QIBaRKCDphCE1MZIsV5426C4LUTJDJX+6+sNiLwY
-	 R0KZtvhIlqTEw==
+	b=lQ6bmwM/g1UH6yOW2aSEsMJXRqaY4Al8GZuhnARoGK+10OTKPQvrd/kuuq5z8qpBq
+	 bNv6HsCEdERRFlAejgGWMcWNmetQxQB9r2klHNB08m+JLJhV6LAkXT9G+IZLFSFsB0
+	 5vBFiurK5GTZfT/9RczeawFeLJ00WYVH1/JEz9RzWlpvIoXGy4A9p7roP5vrs3G48b
+	 6BAqTZ6BUFPVMyNG8tGqJ8yCyzqaO7uWevaEFVmMVXo9TAKhov2BLvg3ievf1wVFKx
+	 UIr1I6wKy3k7aE8Y11MP+/EeWqGXEHJD/o4/Z0tLMSI0EPyPm1oUeYHS78XnzstNzn
+	 A1uTYcD24umVQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/9] rtc: abx80x: add irq to struct abx80x_priv
+Subject: Re: [PATCH v4 6/9] rtc: abx80x: use regmap instead of I2C specific
+ API
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Antoni Pokusinski" <apokusinski01@gmail.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org
-In-Reply-To: <20260810193826.210683-6-apokusinski01@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, robh@kernel.org
+In-Reply-To: <20260810193826.210683-7-apokusinski01@gmail.com>
 References: <20260810193826.210683-1-apokusinski01@gmail.com>
- <20260810193826.210683-6-apokusinski01@gmail.com>
+ <20260810193826.210683-7-apokusinski01@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 01:44:36 +0000
-Message-Id: <20260814014436.82D8C1F000E9@smtp.kernel.org>
+Date: Fri, 14 Aug 2026 01:57:14 +0000
+Message-Id: <20260814015720.2C7101F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -46,80 +48,73 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Short reads from I2C block transfers leave stack buffers partially=
- uninitialized, leading to a kernel information leak.
+- [Low] Pointer target signedness mismatch due to passing `int *` to `regma=
+p_read()`.
 --
 
---- Patch [5]: [PATCH v4 5/9] rtc: abx80x: add irq to struct abx80x_priv ---
-commit efc6d887b1cb64fa6fee7b2ea258d8477f65792a
+--- Patch [6]: [PATCH v4 6/9] rtc: abx80x: use regmap instead of I2C specif=
+ic API ---
+commit 2c13ab934066f6ede54c1bee1c9c8966213b138d
 Author: Antoni Pokusinski <apokusinski01@gmail.com>
+Subject: rtc: abx80x: use regmap instead of I2C specific API
 
-rtc: abx80x: add irq to struct abx80x_priv
-   =20
-This way the irq number is not tied to the i2c_client and can be
-easily accessed also in the case of ABX81X SPI clocks.
+This commit converts the ABX80x RTC driver to use regmap instead of i2c_smb=
+us
+functions. This enables future support for ABX81X SPI-based variants.
 
 > diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-> index 485d1ea08030d..12a4dbfec6396 100644
+> index 12a4dbfec6396..5d41882f3c704 100644
 > --- a/drivers/rtc/rtc-abx80x.c
 > +++ b/drivers/rtc/rtc-abx80x.c
 [ ... ]
-> @@ -305,11 +306,12 @@ static irqreturn_t abx80x_handle_irq(int irq, void =
-*dev_id)
->  static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
+> @@ -227,8 +230,7 @@ static int abx80x_rtc_read_time(struct device *dev, s=
+truct rtc_time *tm)
+> =20
+>  static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
 >  {
->  	struct i2c_client *client =3D to_i2c_client(dev);
-> +	struct abx80x_priv *priv =3D i2c_get_clientdata(client);
->  	unsigned char buf[7];
+> -	struct i2c_client *client =3D to_i2c_client(dev);
+> -	struct abx80x_priv *priv =3D i2c_get_clientdata(client);
+> +	struct abx80x_priv *priv =3D dev_get_drvdata(dev);
+>  	unsigned char buf[8];
+>  	int err, flags;
+
+[ ... ]
+
+> @@ -246,22 +248,22 @@ static int abx80x_rtc_set_time(struct device *dev, =
+struct rtc_time *tm)
 > =20
->  	int irq_mask, err;
+>  	guard(mutex)(&priv->lock);
 > =20
-> -	if (client->irq <=3D 0)
-> +	if (priv->irq <=3D 0)
->  		return -EINVAL;
+[ ... ]
 > =20
->  	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ASC,
+>  	/* Clear the OF bit of Oscillator Status Register */
+> -	flags =3D i2c_smbus_read_byte_data(client, ABX8XX_REG_OSS);
+> -	if (flags < 0)
+> -		return flags;
+> +	err =3D regmap_read(priv->regmap, ABX8XX_REG_OSS, &flags);
 
-[Severity: High]
-Does the error check following this read adequately handle short reads?
+[Severity: Low]
+This isn't a bug, but could passing a pointer to the signed int flags into
+regmap_read() trigger a pointer target signedness mismatch warning?=20
 
-Because i2c_smbus_read_i2c_block_data() returns the number of bytes read on
-success, a short read will return a positive value less than sizeof(buf).
-With the error check changed to if (err < 0) in this patch series, it fails
-to catch short reads.
+Since regmap_read() expects an unsigned int pointer for its value parameter,
+would it be better to change the declaration of flags in abx80x_rtc_set_tim=
+e()
+to unsigned int to avoid cluttering the build output?
 
-This bypasses the check and leaves the stack-allocated buf partially
-uninitialized. When this uninitialized memory is parsed and eventually expo=
-sed
-to userspace via RTC ioctls, it introduces a kernel information leak.
-
-This is a pre-existing issue in other functions as well, but I wanted to
-point it out since it affects this code path now:
-
-drivers/rtc/rtc-abx80x.c:abx80x_rtc_read_time() {
-    ...
-	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_HTH,
-					    sizeof(buf), buf);
-	if (err < 0) {
-		dev_err(&client->dev, "Unable to read date\n");
-		return -EIO;
-	}
-    ...
-}
-
-and:
-
-drivers/rtc/rtc-abx80x.c:abx80x_probe() {
-    ...
-	err =3D i2c_smbus_read_i2c_block_data(client, ABX8XX_REG_ID0,
-					    sizeof(buf), buf);
-	if (err < 0) {
-		dev_err(&client->dev, "Unable to read partnumber\n");
-		return -EIO;
-	}
-    ...
-}
+> +	if (err < 0)
+> +		return err;
+> =20
+> -	err =3D i2c_smbus_write_byte_data(client, ABX8XX_REG_OSS,
+> -					flags & ~ABX8XX_OSS_OF);
+> +	err =3D regmap_write(priv->regmap, ABX8XX_REG_OSS,
+> +			   flags & ~ABX8XX_OSS_OF);
+>  	if (err < 0) {
+> -		dev_err(&client->dev, "Unable to write oscillator status register\n");
+> +		dev_err(dev, "Unable to write oscillator status register\n");
+>  		return err;
+>  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260810193826.2106=
-83-1-apokusinski01@gmail.com?part=3D5
+83-1-apokusinski01@gmail.com?part=3D6
