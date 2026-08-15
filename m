@@ -1,190 +1,249 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED73D3C1D73;
-	Fri, 14 Aug 2026 23:10:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B981A8F84;
+	Sat, 15 Aug 2026 21:10:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786749028; cv=none; b=Weg6/4XyLlVgQUlf09SAF+enYUlpAqxlyoP01SokF37lmxbV4kR9VMveP2Zwt0WBc8V+DE1hAGUqJajq+airo3Sf+hGZbg/21q+gNlDUcMR2vS6u1fI8Jjjp99ZIHl2Src3YOxBaqcPHn5YJq/w74UkssdKCBQ4kRM1Ea3YG/Rc=
+	t=1786828233; cv=none; b=ZuxpI/Rvpyu4h8SnLZNwFAArVbKy3fPc2CSnc0twNnfaFshTbmg7NmOll17rIUd0vra1RQ2pbaOY51Px84U+0ZCYnsMs/ta9mdVJeEAmYhT9xOeQnRgB6tg6cTTD+oIBI4T5NIUHWm5oY4ou0Si+vvExsrNh1w6QE4i1zEPw4Bg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786749028; c=relaxed/simple;
-	bh=2H8/OkLkWbkww1eyhym1RxClUsi2YLshgz2dyZR1XjQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V8zY4+WplkMqA8a5C0GwgFhTen6QT/XpQRtS3t1fOdtPdLR6LfSxgLPkrsLlJV5igg6Hn1Ged/wwCMIph6/xXEHg+sFiSw5wxCpkjq4MH2MTfcGd0qEz+tIj1YwEyD4VomCsyQWdW6WfeWowPXya6IGhT3fTqKjcfMhJAy0A5hM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VFxWwhAm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786828233; c=relaxed/simple;
+	bh=zGE7sbSEsg1VL/+akG79tvki9HQ5qphIDuggPzeAIWo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DjlfPJq7queWoZr8iYpFF8uXzRRqRLeqnXZ7VIOVzvJOSMTsxr4f9HfaKAdt6KsQOL5W+pDGOjv+alY4hX2AT7EaT0DUs7ah4fTWpCVjFpRbpGxLm9JjulMy6q/nxV1yW8yx0Qmfyeo03YVCcb+WXRLdsMzDdqPtNE8qpF5QxKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HfaVKCqU; arc=none smtp.client-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VFxWwhAm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB151F000E9;
-	Fri, 14 Aug 2026 23:10:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786749026;
-	bh=7aG6KceIRFAzwd4MERgf+iTci1Sfz/9h5xr5EHwEII0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VFxWwhAmVLSmGtB2mA+jb5tg8KsrdC2COdH6NPW+bate9F0JAM3W0OzhW7TdOfUsd
-	 bIiKwwgW9Rt4i0+M3tcn9/DSPXSjJ0t7U2td43+YDARdqyTxzAvPBkJ2tU+f9X6E1w
-	 eFsCyrZxDxCTkbijNZTr33+HNl/l8DeceuNBQD2RezyRkSm3xohwzysE3B2XgQKNJG
-	 7AbjbeGZphit9yYo4FC13wKzR7JJpppAZpw//sbGVyBcaDXHdDmTpo3oYmXNqtJeI3
-	 EQzoqj75fcR+74vQ1ic32VTYb2VjfFJeAjnM8Kq2OinQAw+vcWGY7zZ788zMD9UECI
-	 1hIHudfKExOIg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/6] rtc: s35390a: Add pinctrl
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Markus Probst" <markus.probst@posteo.de>
-Cc: linux-rtc@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260815-rtc_s35390a_int1-v4-5-3133309c365f@posteo.de>
-References: <20260815-rtc_s35390a_int1-v4-0-3133309c365f@posteo.de>
- <20260815-rtc_s35390a_int1-v4-5-3133309c365f@posteo.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 23:10:25 +0000
-Message-Id: <20260814231026.1EB151F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HfaVKCqU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1786828231; x=1818364231;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=zGE7sbSEsg1VL/+akG79tvki9HQ5qphIDuggPzeAIWo=;
+  b=HfaVKCqU97T+6GHFUvI1b7+/R2vZQr8AnIgb05m4Dr5vULcgKGhrvtU3
+   9BeBDUzllOhNqtEACBMM6B1T3okSV4hGqW0W24MoYTpjbyG4L45fSEFMK
+   nYraos0ax7vhIGG3ClYt5127dgVmPGTzA38uO1x41sg+91aJj2d/f6P6L
+   Z9R2Kf8vVupwHnaXvVUaFMuxzCpWvVhI8q0AY7BWkBdIzvfkeBh3/m7hC
+   ZkZE/a11JdHj3ZEDVeB8cNMYe2f2eEUhScbxS1K9g1xVV6ql6WdQGNTqX
+   Y5rhj9C/+1QJ5QArLSOj9fM/prmMN6HAIq4dB4e6C8tm6eodvzM3rFSPr
+   A==;
+X-CSE-ConnectionGUID: Ju0FkalxS+iS3VroYn906g==
+X-CSE-MsgGUID: j++y0ff5Q7eE14mu1NyqLg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11876"; a="104898572"
+X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
+   d="scan'208";a="104898572"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Aug 2026 14:10:30 -0700
+X-CSE-ConnectionGUID: s1iV41BjQlKhDgs8UDS6lw==
+X-CSE-MsgGUID: 0Xle1gCrRMKGXYfYIDIszg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,225,1779174000"; 
+   d="scan'208";a="268388448"
+Received: from lkp-server01.sh.intel.com (HELO 6eda058d650d) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 15 Aug 2026 14:10:28 -0700
+Received: from kbuild by 6eda058d650d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wvLe5-00000000cUc-0hmV;
+	Sat, 15 Aug 2026 21:10:25 +0000
+Date: Sun, 16 Aug 2026 05:10:01 +0800
+From: kernel test robot <lkp@intel.com>
+To: Rosen Penev <rosenp@gmail.com>, linux-rtc@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2] rtc: stmp3xxx: use devm_platform_ioremap_resource()
+Message-ID: <202608160528.nJ2vs2QU-lkp@intel.com>
+References: <20260728005303.574936-1-rosenp@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260728005303.574936-1-rosenp@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] Adding a hard dependency on `PINCTRL` silently breaks the build fo=
-r existing platforms that do not use the pin control subsystem.
-- [High] The driver references `pinconf_generic_dt_node_to_map_all` without=
- selecting `GENERIC_PINCONF`, causing link errors on some configurations.
-- [High] The `s35390a->pinfunction[i]` array is accessed without holding `p=
-infunction_lock` during the probe fallback loop, leading to a TOCTOU race w=
-ith concurrent pinmux requests.
-- [Medium] The 'clock' pin function is advertised to pinctrl consumers but =
-is unimplemented and silently disables the pin.
-- [Low] The driver calls `dmi_match()` without including `<linux/dmi.h>`.
+Hi Rosen,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on abelloni/rtc-next]
+[also build test ERROR on linus/master v7.2-rc7 next-20260814]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Rosen-Penev/rtc-stmp3xxx-use-devm_platform_ioremap_resource/20260814-172225
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
+patch link:    https://lore.kernel.org/r/20260728005303.574936-1-rosenp%40gmail.com
+patch subject: [PATCHv2] rtc: stmp3xxx: use devm_platform_ioremap_resource()
+config: um-randconfig-r071-20260815 (https://download.01.org/0day-ci/archive/20260816/202608160528.nJ2vs2QU-lkp@intel.com/config)
+compiler: clang version 22.1.3 (https://github.com/llvm/llvm-project e9846648fd6183ee6d8cbdb4502213fcf902a211)
+smatch: v0.5.0-9187-g5189e3fb
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260816/202608160528.nJ2vs2QU-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608160528.nJ2vs2QU-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from drivers/rtc/rtc-stmp3xxx.c:14:
+   In file included from include/linux/io.h:12:
+   In file included from arch/um/include/asm/io.h:24:
+   include/asm-generic/io.h:1209:55: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+    1209 |         return (port > MMIO_UPPER_LIMIT) ? NULL : PCI_IOBASE + port;
+         |                                                   ~~~~~~~~~~ ^
+>> drivers/rtc/rtc-stmp3xxx.c:253:2: error: use of undeclared identifier 'irq_alarm'
+     253 |         irq_alarm = platform_get_irq(pdev, 0);
+         |         ^~~~~~~~~
+   drivers/rtc/rtc-stmp3xxx.c:254:6: error: use of undeclared identifier 'irq_alarm'
+     254 |         if (irq_alarm < 0)
+         |             ^~~~~~~~~
+   drivers/rtc/rtc-stmp3xxx.c:255:10: error: use of undeclared identifier 'irq_alarm'
+     255 |                 return irq_alarm;
+         |                        ^~~~~~~~~
+   drivers/rtc/rtc-stmp3xxx.c:352:37: error: use of undeclared identifier 'irq_alarm'
+     352 |         err = devm_request_irq(&pdev->dev, irq_alarm,
+         |                                            ^~~~~~~~~
+   1 warning and 4 errors generated.
+
+
+vim +/irq_alarm +253 drivers/rtc/rtc-stmp3xxx.c
+
+   243	
+   244	static int stmp3xxx_rtc_probe(struct platform_device *pdev)
+   245	{
+   246		struct stmp3xxx_rtc_data *rtc_data;
+   247		void __iomem *io;
+   248		u32 rtc_stat;
+   249		u32 pers0_set, pers0_clr;
+   250		u32 crystalfreq = 0;
+   251		int err;
+   252	
+ > 253		irq_alarm = platform_get_irq(pdev, 0);
+   254		if (irq_alarm < 0)
+   255			return irq_alarm;
+   256	
+   257		io = devm_platform_ioremap_resource(pdev, 0);
+   258		if (IS_ERR(io))
+   259			return PTR_ERR(io);
+   260	
+   261		rtc_data = devm_kzalloc(&pdev->dev, sizeof(*rtc_data), GFP_KERNEL);
+   262		if (!rtc_data)
+   263			return -ENOMEM;
+   264	
+   265		rtc_data->io = io;
+   266	
+   267		rtc_stat = readl(rtc_data->io + STMP3XXX_RTC_STAT);
+   268		if (!(rtc_stat & STMP3XXX_RTC_STAT_RTC_PRESENT)) {
+   269			dev_err(&pdev->dev, "no device onboard\n");
+   270			return -ENODEV;
+   271		}
+   272	
+   273		platform_set_drvdata(pdev, rtc_data);
+   274	
+   275		/*
+   276		 * Resetting the rtc stops the watchdog timer that is potentially
+   277		 * running. So (assuming it is running on purpose) don't reset if the
+   278		 * watchdog is enabled.
+   279		 */
+   280		if (readl(rtc_data->io + STMP3XXX_RTC_CTRL) &
+   281		    STMP3XXX_RTC_CTRL_WATCHDOGEN) {
+   282			dev_info(&pdev->dev,
+   283				 "Watchdog is running, skip resetting rtc\n");
+   284		} else {
+   285			err = stmp_reset_block(rtc_data->io);
+   286			if (err) {
+   287				dev_err(&pdev->dev, "stmp_reset_block failed: %d\n",
+   288					err);
+   289				return err;
+   290			}
+   291		}
+   292	
+   293		/*
+   294		 * Obviously the rtc needs a clock input to be able to run.
+   295		 * This clock can be provided by an external 32k crystal. If that one is
+   296		 * missing XTAL must not be disabled in suspend which consumes a
+   297		 * lot of power. Normally the presence and exact frequency (supported
+   298		 * are 32000 Hz and 32768 Hz) is detectable from fuses, but as reality
+   299		 * proves these fuses are not blown correctly on all machines, so the
+   300		 * frequency can be overridden in the device tree.
+   301		 */
+   302		if (rtc_stat & STMP3XXX_RTC_STAT_XTAL32000_PRESENT)
+   303			crystalfreq = 32000;
+   304		else if (rtc_stat & STMP3XXX_RTC_STAT_XTAL32768_PRESENT)
+   305			crystalfreq = 32768;
+   306	
+   307		of_property_read_u32(pdev->dev.of_node, "stmp,crystal-freq",
+   308				     &crystalfreq);
+   309	
+   310		switch (crystalfreq) {
+   311		case 32000:
+   312			/* keep 32kHz crystal running in low-power mode */
+   313			pers0_set = STMP3XXX_RTC_PERSISTENT0_XTAL32_FREQ |
+   314				STMP3XXX_RTC_PERSISTENT0_XTAL32KHZ_PWRUP |
+   315				STMP3XXX_RTC_PERSISTENT0_CLOCKSOURCE;
+   316			pers0_clr = STMP3XXX_RTC_PERSISTENT0_XTAL24MHZ_PWRUP;
+   317			break;
+   318		case 32768:
+   319			/* keep 32.768kHz crystal running in low-power mode */
+   320			pers0_set = STMP3XXX_RTC_PERSISTENT0_XTAL32KHZ_PWRUP |
+   321				STMP3XXX_RTC_PERSISTENT0_CLOCKSOURCE;
+   322			pers0_clr = STMP3XXX_RTC_PERSISTENT0_XTAL24MHZ_PWRUP |
+   323				STMP3XXX_RTC_PERSISTENT0_XTAL32_FREQ;
+   324			break;
+   325		default:
+   326			dev_warn(&pdev->dev,
+   327				 "invalid crystal-freq specified in device-tree. Assuming no crystal\n");
+   328			fallthrough;
+   329		case 0:
+   330			/* keep XTAL on in low-power mode */
+   331			pers0_set = STMP3XXX_RTC_PERSISTENT0_XTAL24MHZ_PWRUP;
+   332			pers0_clr = STMP3XXX_RTC_PERSISTENT0_XTAL32KHZ_PWRUP |
+   333				STMP3XXX_RTC_PERSISTENT0_CLOCKSOURCE;
+   334		}
+   335	
+   336		writel(pers0_set, rtc_data->io + STMP3XXX_RTC_PERSISTENT0 +
+   337				STMP_OFFSET_REG_SET);
+   338	
+   339		writel(STMP3XXX_RTC_PERSISTENT0_ALARM_EN |
+   340				STMP3XXX_RTC_PERSISTENT0_ALARM_WAKE_EN |
+   341				STMP3XXX_RTC_PERSISTENT0_ALARM_WAKE | pers0_clr,
+   342			rtc_data->io + STMP3XXX_RTC_PERSISTENT0 + STMP_OFFSET_REG_CLR);
+   343	
+   344		writel(STMP3XXX_RTC_CTRL_ONEMSEC_IRQ_EN |
+   345				STMP3XXX_RTC_CTRL_ALARM_IRQ_EN,
+   346			rtc_data->io + STMP3XXX_RTC_CTRL + STMP_OFFSET_REG_CLR);
+   347	
+   348		rtc_data->rtc = devm_rtc_allocate_device(&pdev->dev);
+   349		if (IS_ERR(rtc_data->rtc))
+   350			return PTR_ERR(rtc_data->rtc);
+   351	
+   352		err = devm_request_irq(&pdev->dev, irq_alarm,
+   353				stmp3xxx_rtc_interrupt, 0, "RTC alarm", &pdev->dev);
+   354		if (err)
+   355			return err;
+   356	
+   357		rtc_data->rtc->ops = &stmp3xxx_rtc_ops;
+   358		rtc_data->rtc->range_max = U32_MAX;
+   359	
+   360		err = devm_rtc_register_device(rtc_data->rtc);
+   361		if (err)
+   362			return err;
+   363	
+   364		stmp3xxx_wdt_register(pdev);
+   365		return 0;
+   366	}
+   367	
+
 --
-
---- Patch [5]: [PATCH v4 5/6] rtc: s35390a: Add pinctrl ---
-commit 6a8ad7f9ce8fcaad7659431462d18b19a8eded67
-Author: Markus Probst <markus.probst@posteo.de>
-
-rtc: s35390a: Add pinctrl
-
-Allow configuration of pin functions, including:
-- keeping the previous configured function
-- disabling output
-- waking up the system
-- minute periodical interrupt (1: 50% duty, 2: 7.81 ms)
-
-If no function has been configured, fallback to previous behaviour.
-
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 01def82318731..4e0374129a4ed 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -668,6 +668,7 @@ config RTC_DRV_RC5T619
-> =20
->  config RTC_DRV_S35390A
->  	tristate "Seiko Instruments S-35390A"
-> +	depends on PINCTRL
-
-[Severity: High]
-Will adding this hard dependency on PINCTRL silently break the build or
-drop the driver for existing platforms that do not use the pin control
-subsystem? Since the driver worked previously without it, should the pin
-control features be optional or structured to avoid dropping the driver
-entirely on existing configurations?
-
->  	select BITREVERSE
->  	help
->  	  If you say yes here you will get support for the Seiko
-
-[ ... ]
-
-> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index 4d7fecfbe38e8..80e5413289ac0 100644
-> --- a/drivers/rtc/rtc-s35390a.c
-> +++ b/drivers/rtc/rtc-s35390a.c
-
-[ ... ]
-
-> +static int s35390a_pinctrl_set_mux(struct pinctrl_dev *pctldev, unsigned=
- int function,
-> +				   unsigned int group)
-> +{
-
-[ ... ]
-
-> +	switch (function) {
-> +	case S35390A_FUNC_DISABLE:
-> +	case S35390A_FUNC_CLOCK: /* not implemented */
-> +		status2 =3D (status2 & ~mask) | S35390A_INT_MODE_NOINTR;
-> +		break;
-
-[Severity: Medium]
-Does this silently intercept the unimplemented clock function, configure the
-hardware incorrectly, and then return success? If a device tree requests the
-clock function, shouldn't this return an error instead of falling through
-to the disable case?
-
-[ ... ]
-
-> +static const struct pinctrl_ops s35390a_pinctrl_ops =3D {
-> +	.get_groups_count =3D s35390a_pinctrl_get_groups_count,
-> +	.get_group_name =3D s35390a_pinctrl_get_group_name,
-> +	.get_group_pins =3D s35390a_pinctrl_get_group_pins,
-> +#if IS_ENABLED(CONFIG_OF)
-> +	.dt_node_to_map =3D pinconf_generic_dt_node_to_map_all,
-> +	.dt_free_map =3D pinconf_generic_dt_free_map
-> +#endif
-> +};
-
-[Severity: High]
-Does this cause link errors when CONFIG_OF is enabled but CONFIG_GENERIC_PI=
-NCONF
-is not?
-
-pinconf_generic_dt_node_to_map_all calls pinconf_generic_dt_node_to_map(),
-which does not provide an empty inline stub in
-include/linux/pinctrl/pinconf-generic.h.
-
-Should the driver Kconfig select GENERIC_PINCONF and PINMUX to prevent this?
-
-[ ... ]
-
-> +	err =3D pinctrl_enable(pctl);
-> +	if (err)
-> +		return dev_err_probe(dev, err, "pinctrl enable failed\n");
-> +
-> +	/* If no pinmux function is defined in DT, fallback to previous behavio=
-ur */
-
-[Severity: Low]
-Does the fallback logic here (or added in a later commit) use dmi_match()
-without including <linux/dmi.h>? If so, could this cause an implicit
-declaration build failure depending on the architecture and include order?
-
-> +	fallback[0] =3D S35390A_FUNC_IGNORE;
-> +	fallback[1] =3D S35390A_FUNC_WAKEUP;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(s35390a_pin_groups); i++) {
-> +		if (s35390a->pinfunction[i] =3D=3D -1) {
-> +			err =3D s35390a_pinctrl_set_mux(pctl, fallback[i], i);
-
-[Severity: High]
-Is there a race condition here since pinctrl_enable() has already exposed
-the pin controller to consumers?
-
-If a concurrent consumer requests a pin and securely updates the hardware
-and s35390a->pinfunction[i] under pinfunction_lock in
-s35390a_pinctrl_set_mux(), couldn't this fallback loop read a stale -1
-because it accesses s35390a->pinfunction[i] without holding the lock?
-
-If it reads the stale -1, won't it invoke s35390a_pinctrl_set_mux() and
-overwrite the consumer's established hardware state?
-
-> +			if (err)
-> +				return err;
-> +		}
-> +	}
-> +
->  	nvmem_cfg.priv =3D s35390a;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260815-rtc_s35390=
-a_int1-v4-0-3133309c365f@posteo.de?part=3D5
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
