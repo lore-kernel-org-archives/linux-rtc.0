@@ -1,82 +1,82 @@
 Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F6651C2AA
-	for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 14:35:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33386360ED6
+	for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 14:37:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787063756; cv=pass; b=WuUND3kwJvhYX0UIKj5VM1iYul7SxbEobEF6cAHvCQioZs+rkrNaD6RvJEZG5iU43fRoaqmn5hDZjYZcAM0aQwIf5YPaTzm0omjtJhP31z3VRr1O40wFsh6xzl8ysfgcCIySQfQcXLpmeJgu0JTfDsypgdvfkMvZ4HAfbdpJ9g8=
+	t=1787063864; cv=pass; b=MsVQvos7AhvjGgn0ZxEVyqY9UocioiFUala8wd872RurqwTsBqIB399YdGCyjrIIrhbIHQkTemRkttg+83zZC2kDWJVcRrNtwBecilbKIJWCghWu/PmkyGr53r301RjiAN3vWOJsMyXSuKV3WS1vsJK1ZtegpOllkurfAHWhg5s=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787063756; c=relaxed/simple;
-	bh=eK/OAvD5T3nAKg67fnkrfSipcDgxi3KnfRYcdUcekeU=;
+	s=arc-20240116; t=1787063864; c=relaxed/simple;
+	bh=IBSqBa5sZuE5sG2ci2wFJ2FoiGRJLttrL4EX81T6A7c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bPnACdMmWnGcNVFV778dBKagPyRUHc5JOzflC5bJQ9RRC5XrnrbI2+PeXPdmzRYOQ/eskHagqmx11eor7Y5hhkYrd9nSWF39HFOCqHbEQAFV1svnoYaA+M7/xzV60Uomd3U4oAKR4zexl8FfnQGdkDFLxp7jv+++YsAMPS/5Q9g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DlqfDp57; arc=pass smtp.client-ip=209.85.221.49
+	 To:Cc:Content-Type; b=YI5BZOGNB2HZdzvNtOS1e/0MBfaMXo8CgoNsVFHbY5U1fUOGbx/6pFug3o87Bi452kcDMUz5yFV0JMq0oYyOuJwkhQewIIS9U6s04DT1geaR0hJj8X61IurNmPnagIZL/KUOcAmZnv30GighjEFLCmKnKCSlzCWgR5hBrwevuAA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E24Sqg3O; arc=pass smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DlqfDp57"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-482938466a7so3088258f8f.1
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 07:35:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787063753; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E24Sqg3O"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-47f904e80eeso4575094f8f.1
+        for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 07:37:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787063861; cv=none;
         d=google.com; s=arc-20260327;
-        b=l7kctP2Wgo9X/q/ZK6cZnm0++4TXUF878oFJIfKFjFCUcezsXNRCfFSbDxHptmAT6Q
-         l058rMnln7843OLN4PVAah7wNGDfJJzPwdrmyBFxPWI4hIN660nhXSAkiGE9cNaQuBCh
-         vg5dP3lXe4p49DrU2eljGdTTufUcsNZJoq7DtqBkuWXE5BlIEtd/rqJQrW2rLSWnfnTu
-         rwEb9v+hYtwMYNq5PRsPfDGJ/NrD7SLncBtevz8wLFIHfxYSYzKz92rD5Uw5mMMpTzvd
-         HxTSZxPV/AVYmt2ZY8SRpAyfUlWU53vGkGAEhFxOhdqW+CU9bbYtamMFEaPgZHGibIFh
-         LTaQ==
+        b=CRYxHxZc5uBbqw1LB3TaYQ0JB9hdqa7Lr2HsjW+cXaqkTnn3XtJii3EYcd+/WAgJ1P
+         lt/Uwr+1xtGN2jxS3qz1g56HCwnVY5im4/LZ2dHORVu3mq+/5xe14Sqyqe0NouK7Ssgx
+         f6xa+dBNtNMPZQNJjD7maruPuCyWUQbyxMB4s+JG/ENBd0rsZ538GoQrcs36JvOqXNKa
+         WHfJ2NrA62/yGfoWUSnzzK9auV1/6e23ZKlUzi7V+pFRBr5s9TnhsTBKO/bxXzzsnNJI
+         WmYf1IELf4N9BCZzErIAk6uDFdPXa+kgWQIGIvZ4kU998lUEiQXipeiysVr5VV8dZUhJ
+         MOxA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=MVCvZ3mYxT1SbXEXSshkIkro7sM7s+vt95nIOeUmgDs=;
-        fh=sjQWCRsSuZNjapFJQUsst/TipjqvC6CRfnPBp85lHc4=;
-        b=sg9xiSSzXmZ44LwuhE4q4Sty00XXkOS92HDgHEIuVYlhSARG1c6aS4lIfCaaHI8Hu0
-         rWtzXFc0B30gwG5Uk3trPfuXsAMPRN3gT3AZywtR5cLF0e56OMImkw2Ty0MnFYAbeZPe
-         OOwk3MeYOkYWaHRzNuZ2ZbNkYB2BudwUfdfm9MdBG3QNXazbYsseBFLS7r5mhtuG8bB5
-         nw/7QbmBaHlsAEzTStLeZbTJU5h3gl95mYqX5+b3igln+7ICMjIVd+Ovblhygl/fpiA/
-         ElJYHLeF3glU+8C1WQQyyOcoSH0wpNTjnwpWkuY+WRauGQBVAJLcxo/MJcIb+SPV3Y3T
-         +Mvg==;
+        bh=neKK3Po+sGuDPlDODHxSwX7bifhtt0H9rpNkrMSfYKI=;
+        fh=NsBedscNuy8CcXc7aJAMICmS2ljAblWw7emkDsM79PA=;
+        b=nbTfrT6974vBvcCWpS2JXTu0axjtps8S7435J7NzhYrKxzBWJNhSSfcffo2xj9LPFJ
+         KgSHeomssvzUxMt/e5f6bMqSAtnDpS1lx6qVSTkkdrUa6jHD0n8YjqwgrRkU51B1eAQq
+         uiJxa+muFMV4rKV9VCEUUTNtLQIsP7R00CU0IdwOPSwIQGB8jvUb2SYGxB0VvlGv9gHD
+         VZO24oxQJlkv4qxQtgWQ/TNFQfFHONKq+JRkFQSfe4e3NFAtamhZQEMhfUcBZkgkGPqX
+         JUZZTZcqdiuy4A/jm3NPlK23XNbCuDUcAJ9fmxS+KQqtmif+JJdUft2sP058xhemMJD7
+         rQtg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787063753; x=1787668553; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787063861; x=1787668661; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=MVCvZ3mYxT1SbXEXSshkIkro7sM7s+vt95nIOeUmgDs=;
-        b=DlqfDp57i/lLeOaBqF9kekje2l/CW/2I3oNPwNIjDtKLctzc5RlpZkKpQs7BSSr/AE
-         BcIDqRmiveEeUcq9iMDhkrllYmw4AEePUazKMJA5vG8eBgMPhMvzKd/io9XjkCexZFJM
-         IvG7+Bjw5edbntqftIjRmveoMay0sMuhJbadM4cAvdqZC1tU5mee64GUwT3tt1Vj5Vdd
-         6tsGI3Dn2f73dnwC5R1qdUQz0UDjGrxMoYaqH/HYDjKxlKW7xm9ToO4enu8MfZlfAsi1
-         aXMaWksIPCPARWgzJP2vxy1F9Ur+QeJv4l1UHX1MWdwzQIPhxq5M5qxphWnDjfQLmbFL
-         y+LA==
+        bh=neKK3Po+sGuDPlDODHxSwX7bifhtt0H9rpNkrMSfYKI=;
+        b=E24Sqg3O+3Jd511y+cKzRx3tpy+SZNq5wIYMFN30s9983UipPXlGuoABWRLSZHDwxw
+         fAF3+DcsWsDH2A/u2h2jRfig7k8XGzCQM26JijOY2pnsTxaHEQAkdFcxqBUsBIdUARK6
+         4P9Ce2+n/MRCT+IaMTMVjlo7VhveSu1c1pA2X+mez474R+4q7RRIMjLRJ/Yrj713b0b3
+         fTF/+OjHOypaPn33buMGLoYU2rLbjpFH73WrzhfbxinHBbzJKWayznwhN1Ls1Tayz+Zp
+         vTxdzPy41cqg+wK3OoxgSJVh/0ZBTnn5VaKa0cKih4v+RO71dbh96XjuJX1I2s9e8N8n
+         uOvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787063753; x=1787668553;
+        d=1e100.net; s=20251104; t=1787063861; x=1787668661;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=MVCvZ3mYxT1SbXEXSshkIkro7sM7s+vt95nIOeUmgDs=;
-        b=s4i30BNeLRdnbJ6dYCPHYMaJkYkqypEmtWgyfuWm3vyswnETWuMHSV8kdPyGdvQ0g6
-         71UWJMfYvxMrForKcFPPqi2E+jAGLmwK++j4RgUguGxiku4mUBClOYirFfGQk2AK9FLi
-         Sae+wlwLz/x4x6tu5w8NJblhhf33o1ZsariA/T7cQsi5BJM/5MFxMf30YgI16Hdl4doB
-         Itb7+5PFLzdg0ObNrXCSS1NwnvLVXxBnluaRwmfldJVz3meVpi0h0dkwn+KJht8BcEl5
-         +/Ab/GOPqW74ffB4WBB40JHNH0jQMVIzorU7HPU0zf6wJNhYiTWCCu64T/E5h8kioqKw
-         lJBw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp9T25g+A1/6oSiLfAWR4wiNWKQdtMYR9TLCKjAa9qhuzPJNzL+hrkQJUDGA1fg1Udm6AI1d219n1Q=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyDQyc8K27AqD1BezhkELtBQHGeJlHtIzTGjBi80yzM2K0ZnuC1
-	T5Fymrxz+31ICZytJ7A3WOijf5O8wvvQ3UUaXaREZVnWRSwnc5ZodgJqbGwZkF66X/CgB1V62Ia
-	P4rtEAPHKHKp+PJ7nXhZAEkY37dyPiR8=
-X-Gm-Gg: AR+sD11DhSwx7OESL52pBlpSHj9fDbIqnFayBAWdNzcPokHz0M5HwWe0TvR+k9Iq7Xi
-	W68QDOpI2+DWqod16K0FWztS3CKNCLyV2Y5WdB72DblFRM1XIJQ5A6fHunCHAojhARosk27P2ML
-	4O5jbcra3NfyOCV0xH8engctpb4WFttaVcakqVMdaFuBd+feV8j1sER011zLMg6RhGOs6enyBqh
-	6N+rZgspS8V3TkehUNHq8/1MnGyhQ8N88DIo10w0TCJ8ZlkDnxf33LJQ43x4tdtY3O/6F6jI6PA
-	f5xH1a6ZZ4Ot+Rhw344vdViz3AeZYUPOXBG1lM6ZlJL1S6l+xV8DIG45BNbnyCSSOC0GgBTAc0Z
-	uAp21UpaluLw72B+hbizDA2eezLr2lPWgpt2Jp8Uu/cqBonmYNMMzAtD8BXgnn4o=
-X-Received: by 2002:a05:6000:3109:b0:47f:e748:3ae3 with SMTP id
- ffacd0b85a97d-4816070bf1fmr51894142f8f.3.1787063752390; Tue, 18 Aug 2026
- 07:35:52 -0700 (PDT)
+        bh=neKK3Po+sGuDPlDODHxSwX7bifhtt0H9rpNkrMSfYKI=;
+        b=EhZyOq/0A9YNF9eM+Xp52dwHOweOZOaFQ84U5+lbyMhb67iPlqwYmG6qY4Q/vgNn4G
+         rKiTqB0cfgHu51d4xMM5uRXwtcIY9MiQhwdgu82Yxrx38YFBj2au1myEAS7xBIV7CX8u
+         pfjmRqqRDcWlHVN/y9ipXrfwUFQnXas5tBX5FvXU2L51TXgL24ePTicu/piJr5nFFqQX
+         W9ZQTL3jblY+Mub3D+mvm8qLUMKV4dAQc6EDQB97hzX5Mkh8p5K5d1PdS3O4rKhCzrLF
+         1erT13ajUqe/jgDrkGqe2rWKduf64WrN7tENpTheHGqQl2z4Kg7khnrlGUW5l7A8LGqZ
+         r+mA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr/8Mjc8aRPDdTc3mm7zf5B/F4chi2SVqO04VhEcm8480xlepOA3iGSn+crvF5dWu17HEkWSxWLhok=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxC85qr79lIowAZZpT/DesDezsYAfaF2DoVATqJA8i9s7TACvTd
+	ylllNV7Wc048kb9EkTwtOm0NWGEClX0r28JEFtBg0F54xj9CoABKIwatO9PQLyZuc/kpeFdl4DB
+	AqT+fO5nqiu5zyV3gKunWOtVZGceobSo=
+X-Gm-Gg: AR+sD10FxKoAhE2LO/9VChpg9utl0DPKUZWe6QSv4ODjrwX1FtqAyGoKaFFHgRUylha
+	VEm6e4cHdEUYqKQ6q/V2MYrVVj7xIb7TzRiyw6afRkKeCtEJrPQA7grNlFT/MEjie33C2e4Uxvz
+	/TXq+bDD5gjn2KRO6oGiKkNComaz0/D2Qun4PU/qXPez3lgx3DMjX9N1g4Pv109pBhICfg/o+vw
+	ek/3TMaNTZDqzPP6dU+HwNrLx+3oTj7mRYQgce+5X1TTfGz2Q1cZBpdCKMfcOLakqA8xC5JLv/0
+	TJk17qYb657hP9Fy4Sv4nusGkDvzoKk9VjwxPBqiUsKxH6mEjpqCO6sncwZuKwCgcvEcmxI+xaM
+	9yzk/3Ln9xhHoIozP68KRBiiOP5TQ77L2OBZK+hi2D4V+HbDqwUZk0YsnCZ++dUA=
+X-Received: by 2002:a05:6000:4387:b0:482:abaa:fbc8 with SMTP id
+ ffacd0b85a97d-482abaafd4bmr9687806f8f.2.1787063861449; Tue, 18 Aug 2026
+ 07:37:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -84,14 +84,14 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260706175138.12587-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260706175138.12587-4-prabhakar.mahadev-lad.rj@bp.renesas.com> <aoQvrL8cnnK7uxqw@ninjato>
-In-Reply-To: <aoQvrL8cnnK7uxqw@ninjato>
+ <20260706175138.12587-9-prabhakar.mahadev-lad.rj@bp.renesas.com> <aoQ4nMR-NeV3FFz9@ninjato>
+In-Reply-To: <aoQ4nMR-NeV3FFz9@ninjato>
 From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Tue, 18 Aug 2026 15:35:25 +0100
-X-Gm-Features: AcwNN1XrTnnWQE0HKkObvyxUFu7X0N_3i8zbJm_vjvyoQd8C8mij4hA0jhrhrcM
-Message-ID: <CA+V-a8sG47PCuKTR-K=sci2SOEWjYRDOWRWeamYysvNO0XAuNQ@mail.gmail.com>
-Subject: Re: [PATCH v3 03/12] rtc: rzn1: fix weekday underflow when alarm
- crosses month boundary
+Date: Tue, 18 Aug 2026 15:37:14 +0100
+X-Gm-Features: AcwNN1XTiorvtf8oIvzxJNwW0UUvL1-YI7zD4R4i88syKxl9raPTSpiWlkJvKJc
+Message-ID: <CA+V-a8uCt2_Vc7A4iFuiCKmkcrbFCi+0_uoWe_Xx=aT9=Fz79g@mail.gmail.com>
+Subject: Re: [PATCH v3 08/12] rtc: rzn1: Dynamically calculate synchronization
+ delay based on clock rate
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
 	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
@@ -101,7 +101,7 @@ Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, stable@vger.kernel.org
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
@@ -109,74 +109,41 @@ Hi Wolfram,
 
 Thank you for the review.
 
-On Tue, Aug 18, 2026 at 11:10=E2=80=AFAM Wolfram Sang
+On Tue, Aug 18, 2026 at 11:49=E2=80=AFAM Wolfram Sang
 <wsa+renesas@sang-engineering.com> wrote:
 >
-> On Mon, Jul 06, 2026 at 06:51:29PM +0100, Prabhakar wrote:
-> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> >
-> > In rzn1_rtc_set_alarm(), the driver attempts to calculate the weekday
-> > for an alarm by computing the day delta between the alarm time and the
-> > current time:
-> >
-> >     days_ahead =3D tm->tm_mday - tm_now.tm_mday;
-> >     wday =3D (tm_now.tm_wday + days_ahead) % 7;
-> >
-> > However, if an alarm is scheduled for the beginning of the next month
-> > while the current time is at the end of the month (e.g., current day is
-> > 31, alarm day is 1), `tm->tm_mday - tm_now.tm_mday` results in a negati=
-ve
-> > value (-30). Since `days_ahead` is an unsigned int, this underflows to =
-a
-> > large positive number, leading to an incorrect `wday` being written to
-> > the RZN1_RTC_ALW register. As a result, the alarm fails to fire.
-> >
-> > Fix this by utilizing the already computed `alarm` time64_t timestamp.
-> > Convert it back into an rtc_time struct via rtc_time64_to_tm(), which
-> > automatically handles month boundaries and correctly populates the
-> > `tm_wday` field.
-> >
-> > Fixes: b5ad1bf00d2c4 ("rtc: rzn1: Add alarm support")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> These messages look a bit LLM-generated. Is this true? What about the
-> code?
+> > -             /* Wait for the counter to stop: two 32k clock cycles */
+> > -             usleep_range(61, 100);
+> > +             /* Wait for the counter to stop: two RTC_PCLK clock cycle=
+s */
+> > +             usleep_range(rtc->sync_time, rtc->sync_time + 100);
 >
-Yes the commit message was fine tuned by an LLM, but not the code.
+> Hmm, 100 seems more arbitrary here than in the original code? Maybe 2 *
+> sync_time like below?
+>
+Ok, and I will also update the comment.
 
-> > -     days_ahead =3D tm->tm_mday - tm_now.tm_mday;
-> > -     wday =3D (tm_now.tm_wday + days_ahead) % 7;
-> > +     rtc_time64_to_tm(alarm, &alarm_tm);
->
-> This conversion is superfluous, we already have 'tm'? So, I think we can
-> skip the whole conversion block here and use?
->
->         writel(BIT(tm->tm_wday), rtc->base + RZN1_RTC_ALW);
->
-> Only lightly tested, please double check.
->
-Yes it does the trick. I tested with the below script:
+ /* Wait 2-4 RTC_PCLK clock cycles for the counter to stop */
+ usleep_range(rtc->sync_time, rtc->sync_time * 2);
 
-#!/bin/sh
-set -x
-DEV=3D/dev/rtc0
-
-for d in "2026-08-31 23:58:00" "2026-04-30 23:58:00" "2028-02-28
-23:58:00" "2027-02-27 23:58:00"; do
-    echo "=3D=3D=3D Testing boundary at: $d =3D=3D=3D"
-    hwclock --set --date=3D"$d" -f $DEV
-    hwclock -f $DEV --hctosys
-
-    # -m mem/standby would actually suspend the board, which is disruptive
-    # in an automated test loop. Instead, block on the alarm IRQ directly
-    # via select(2) on the rtc fd -- this is what confirms the alarm
-    # actually asserts, not just that it was armed.
-    timeout 150 rtcwake -m on -d $DEV -s 130
-    echo "exit: $?"
-done
-
-Without the fix I get timeouts as expected.
+> > @@ -444,12 +445,20 @@ static int rzn1_rtc_probe(struct platform_device =
+*pdev)
+> >                       scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
+> >       }
+> >
+> > +     /*
+> > +      * The internal clock counter operates in synchronization with th=
+e
+> > +      * RTC_PCLK clock. Calculate the duration of two RTC_PCLK clock
+> > +      * cycles in microseconds required for operations to complete.
+> > +      */
+>
+> Too wordy, this is enough IMHO:
+>
+> /* Calculate the duration of two RTC_PCLK clock cycles */
+>
+Ok.
 
 Cheers,
 Prabhakar
