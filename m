@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C19442B06;
-	Wed, 19 Aug 2026 10:47:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A685E442B06;
+	Wed, 19 Aug 2026 10:47:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787136430; cv=none; b=EyA9cXFbbvjq0AcbbirX69GQpe+xV1HTZMzG9EZLYzgdKldkuIc7Dujmq69Vn2voAPnoU2pJOslgDT5Vfkns1g8N0w2tErIkIG5gQqQQOBXjqlsuuj9voi06npbw5zyw+HyUvGNaz7Ar9xjigSX7Q4hdCdQuaTnqh1vi6x7p79Y=
+	t=1787136446; cv=none; b=czqOvv4Bc/02OxxNoG9PEuxojE33zJ5wQxmxELtVkDhTunH/Qk2fLngAwl/9/m5MWyXQp2tqzqSyCK/2N9CC8jOIam6q2O/hOSZvZ1Tm03vEWSz2PgrmIqsBeJXg0tQjf8U4KJcVnSJ8VoveTMWvNGQeLsEDxqXQWP4n2Idtbz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787136430; c=relaxed/simple;
-	bh=T0WDUHyc9ztuKNXiu8lDwUqjOFjcL3VEoAjp2djGjWQ=;
+	s=arc-20240116; t=1787136446; c=relaxed/simple;
+	bh=gHUX87I1NcwfL2/eHmmpV5xncLHdrmxcqmJGfJkZ+lg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=R8fNOGqLZ7VBFWpF/CcP7S4HILJgfcWhkZMfW5OMoE71tWVUASuJhhDsWVbNwfmim6QNGBJMEKHddwaVYQ9UaGHUiRfyn++0evbV1iF/uJCIdvOpHGGvJS/HP+H7K0k3/Qy0K+w+8UAbN62dV6Rpeyhtq3xl/qkvl6DPOoGy2Pw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kIb6K7z8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Gx7JXYpxguisFPmF+rtYf+bQPh/oVEv2o7ZffQ8YTE+UxBZIHj96f1wOWmdNCjEpvQpcqaFdsImyKqQTmmtTnPye/N5kt2mNMLYr5QlU/cdHIgrqKFxdSsLS0uiD4q0u01SNqT5EyOXEHMwam4dglLdvdXZdvNR8KYsu1t4ovMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QkSUdUmJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kIb6K7z8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0476D1F00A3A;
-	Wed, 19 Aug 2026 10:47:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QkSUdUmJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E04EA1F000E9;
+	Wed, 19 Aug 2026 10:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787136429;
-	bh=T0WDUHyc9ztuKNXiu8lDwUqjOFjcL3VEoAjp2djGjWQ=;
+	s=k20260515; t=1787136445;
+	bh=gHUX87I1NcwfL2/eHmmpV5xncLHdrmxcqmJGfJkZ+lg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kIb6K7z8ed4Nc0bC3A/HXSZJfzOvv931x/DmWu6XXDrPJ+hWlQWdEmEzJbl4s123s
-	 TiZLwwBO2omo761aDnDHzVr/j3RDjQu3BRwOgKoHK/rZZGLgatFKiFKUiQQ+wZmnky
-	 HRW2bf2hVJqHJ1crAw4Oxg0qRhG16qvboj6fw/W8yNxeGmLl0Ob1buDgQlzqMEbB61
-	 FHcUxqLQ2iYI4H1KXRSaAoc3Mf3gAgv9DX0CkXpf5Ph1n/WSamsMpo4/fLai8K3b04
-	 SxF2nENXQO5gIRKXdPlGlWJmaOKYbhuWahjv5f9O1SMujoG6BdI9EL5aY1rgVUe4mI
-	 rx1hGRxA9nSfQ==
+	b=QkSUdUmJLYvji2lOVkrKmSOm00VwjLpy1Owj5svHppaP6PNQcc2HC4djQyYGejkI7
+	 TEUGKCQ0wtF7eXlDsXfSyUWh9IApzJfT1OfWzVd2qaTBQWvniQrvmA474StoKnOCUx
+	 J1yL96a2LdwI1b1B2vbAAeNvmL3KnicatIRFbv0kuUXraaQUyFM2WHfO/17QLxLQxI
+	 Qd67b4K+tAhMx3rZ9JAYYout7+B4NOVbLpVfs7X/6bEDVAWb0KhBDp5MeI3tCztvTX
+	 MV3WII7+8XAGuIYY4cwqA63jqtJMNpibNBM1IEsKocWTO4IZ6QgfGYCUIeWstEmtud
+	 1xEhAfspHXtVg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 09/15] rtc: rzn1: Dynamically calculate
- synchronization delay based on clock rate
+Subject: Re: [PATCH v4 13/15] rtc: rzn1: Add OF match data to gate SUBU
+ register access
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: wsa+renesas@sang-engineering.com, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260819103926.2136712-10-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260819103926.2136712-10-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 10:47:08 +0000
-Message-Id: <20260819104709.0476D1F00A3A@smtp.kernel.org>
+Date: Wed, 19 Aug 2026 10:47:24 +0000
+Message-Id: <20260819104724.E04EA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -48,20 +47,18 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >=20
-> Replace the hardcoded hardware synchronization delays with a calculated
-> time window derived from the operating sub-clock frequency.
+> The RZ/N1 RTC driver selects SCMP mode only when an optional xtal clock
+> is provided at a valid rate other than 32768 Hz. Without an xtal clock,
+> or when it runs at 32768 Hz, the driver uses SUBU mode.
 >=20
-> The driver currently hardcodes microsecond ranges assuming a fixed
-> sub-clock frequency of 32.768 kHz. Newer SoC variants, such as the
-> RZ/T2H, drive this hardware block using a much faster clock rate
-> (~195.3 kHz). Hardcoding these wait windows forces faster blocks to
-> over-sleep, introducing unnecessary delays during clock initialization
-> and register configuration.
+> However, the RTCA0SUBU register used by SUBU mode is not present on all
+> SoCs that integrate a similar variant of the RTC block. Allowing SUBU
+> mode on those variants would expose RTC offset operations that access a
+> non-existent register.
 >=20
-> Calculate the duration of the required clock cycles in microseconds based
-> on the runtime clock rate, and store this value in the driver private
-> structure to adjust the usleep_range() and readl_poll_timeout() boundaries
-> dynamically.
+> Add OF match data to describe whether the RTC supports the SUBU register.
+> Reject probe with -EOPNOTSUPP when SUBU mode would be selected on a
+> variant without SUBU support.
 >=20
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
@@ -69,5 +66,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819103926.2136=
-712-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D9
+712-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D13
 
