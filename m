@@ -1,40 +1,40 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 789253E3C7B
-	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 22:29:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5AE5391853
+	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 22:57:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787178561; cv=none; b=MoKF+t9UUcAJOYWMmNYZKF/n2BAzHaZvBMzvrbmsRItO/min+JvHPdiTVvXXq4Q884IUwiuTKRfGSlf1ePGkzT7O0dWrZGSyjnEMaVKQwvhpgs5o4qF1DYmEGXBIFAkc2DwqwLL+gbB/uss0MBL16N+rXS4Frax3d0FUzARdnf8=
+	t=1787180238; cv=none; b=QVAOBu3sGBGLaZXKRw1714uH7UNJ9HOtOHxqSGg9oXLhhM+Rj8vUwm7GzEaGtoxrTEpwnAyHyVGafwb9s16BDTqFtKWnhVnHH5bi5feM4ikyB/jUNnZVVqeTsFuVs7f0Q71/ttymvDRhx9oZULFSwauXPfq6eTKv4/9U4VWHx9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787178561; c=relaxed/simple;
-	bh=eVCnRZfdUGhEaaw2yU6XnZfo6LWCG08pzLe8OhjZ3rQ=;
+	s=arc-20240116; t=1787180238; c=relaxed/simple;
+	bh=J49B1AZ0OVw/KiksVkRxGAVMK9Ri8L4loxZoxHlI4SQ=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=h7M4zytV/sJM9YtxeeZNkX39sSWQmIU+gZMhJbE5g4r7lL6iTNrRBeNCRhzqAI6URPfJQOyzAo42blR83BsRc6V9S6HUOgxq3nxZAIXniITpjoB98xapzfYpYKEBkVgm4Q7jCA97s9U4mlOk80A1ldj0ymjkOU7r0MP0GX6MVy0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=n0CAOt6N; arc=none smtp.client-ip=185.67.36.65
+	 Content-Type:MIME-Version; b=PqIbHip4ppo47qNLVZUyTH6mDuneEkhdxKVkxIKkY/h2QluqosLjYBeRl00KM4rpUF5bW8GKL2nCNtSbbzV5ZwQ+hEfiHn9GYTldmEhIU73fnJqRLQVBL1lGf9RTSgW1PRqKdE7nlfSgUPQQCcii9+R2zu82b8N6MmXT027JQcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=QeZb5bZ2; arc=none smtp.client-ip=185.67.36.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="n0CAOt6N"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="QeZb5bZ2"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 5490624002E
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 00:29:16 +0200 (CEST)
+	by mout02.posteo.de (Postfix) with ESMTPS id 010A4240104
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 00:57:14 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1787178556;
-	bh=8Ni0WKTRve59PhC0qUiAxPMcwTPxD/jTYtX/EjsbPbI=;
+	s=1984.8680eb; t=1787180234;
+	bh=35HTvJnNYf+Y6yPGlSnbtku71ctHu0ZAU5ecuv7uRts=;
 	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
 	 MIME-Version:OpenPGP:From;
-	b=n0CAOt6NkSwKgwBYIBiS3GnCnfOTe7IOyIpFNBeX0JP0eeZpJM3bWTGmRVieaabhM
-	 yI7GzoJgMwIP/mWbCWoyYm9FViZWJzy5IPBE8LXNYjlkhfUTJ5A/dS99+RbWi+AGZh
-	 Pp1d9R9xHtoADBf9Zo+kLGmS4Cq7qo0six0WMUvFrV1yXOuHRA/Tx4FwDvggl/koPm
-	 o1WNpFisPFuUgJhF7gA4YO1ytDlpBcWhuDkCBrGG/nY8I/FRdPQ+nAuFeAShysIPWg
-	 8tFOw38lw4u4dBSaiDmxvdH8NYf1/zExJ2Qhjfkacsw9aISxOumV3nhbKLoEEm+vaU
-	 JZR1hseKsw1mg==
+	b=QeZb5bZ2BUq9EJg7E1/rb8+r5w4G4hME68p20+oQop1hGkzZP3cBM9hoRWLh8bk6l
+	 2Mb0es3Ec37z4ur/FX1VpQNeX8Vr6bjdI8c5IYNULsg6yOF3hm4vIqm6Rb3zou3B9S
+	 5pdgNzwuGTt9IOLYAC1AJjYJBztd5XYhwbKZ2lPpqflvolzINZ/+LgZXfT5kSUK812
+	 uapoClzHPTDdvwmbVTt6MMa6c2OtCbVFLQtIL6nh1o2iPGbNeXRKO2DDK5J4mO0gYi
+	 vL4bqMQwWQbxAbMhQgi+c+kPEcfbdvmXJaKnLGBWkjpnaU+B52quiAXlGku+4SAy3o
+	 vDku2RG+YLroA==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hQLpL5GyDz9rxF;
-	Thu, 20 Aug 2026 00:29:14 +0200 (CEST)
-Message-ID: <63144348d306ae5c5723df553477f90f6f1030b7.camel@posteo.de>
-Subject: Re: [PATCH v5 3/6] rtc: s35390a: Fix alarm not disabling
+	by submission (posteo.de) with ESMTPSA id 4hQMQb42wVz6trs;
+	Thu, 20 Aug 2026 00:57:11 +0200 (CEST)
+Message-ID: <da52511e1257d1a3d01ad78b53eb983162c66003.camel@posteo.de>
+Subject: Re: [PATCH v5 4/6] rtc: s35390a: force 24-hour mode
 From: Markus Probst <markus.probst@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -47,11 +47,11 @@ Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
 	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
-Date: Wed, 19 Aug 2026 22:29:15 +0000
-In-Reply-To: <2026081922254172956b52@mail.local>
+Date: Wed, 19 Aug 2026 22:57:13 +0000
+In-Reply-To: <202608192220436c9c7207@mail.local>
 References: <20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de>
-	 <20260820-rtc_s35390a_int1-v5-3-5eb4ef85c6a9@posteo.de>
-	 <2026081922254172956b52@mail.local>
+	 <20260820-rtc_s35390a_int1-v5-4-5eb4ef85c6a9@posteo.de>
+	 <202608192220436c9c7207@mail.local>
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  keydata=mQINBGiDvXgBEADAXUceKafpl46S35UmDh2wRvvx+UfZbcTjeQOlSwKP7YVJ4JOZrVs93
  qReNLkOWguIqPBxR9blQ4nyYrqSCV+MMw/3ifyXIm6Pw2YRUDg+WTEOjTixRCoWDgUj1nOsvJ9tVA
@@ -97,7 +97,7 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
  dQNGrZ91M9nlIBKw8Y7c7xZ4098qX2b8JX/CxD+gC1r4C8vuA3GkhFLx+KlkON7LyiJPkrePp6Qky
  jfGillcaQOqFZ3WwVqyzG1BUfTow==
 Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-1/4lpCggRhx0JyaVAfDd"
+	protocol="application/pgp-signature"; boundary="=-+m6o0kZ90Z5oSoDP9C6X"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -107,118 +107,212 @@ MIME-Version: 1.0
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
 
---=-1/4lpCggRhx0JyaVAfDd
+--=-+m6o0kZ90Z5oSoDP9C6X
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2026-08-20 at 00:25 +0200, Alexandre Belloni wrote:
-> On 19/08/2026 22:05:55+0000, Markus Probst wrote:
-> > Implement alarm_irq_enable callback.
+On Thu, 2026-08-20 at 00:20 +0200, Alexandre Belloni wrote:
+> On 19/08/2026 22:05:56+0000, Markus Probst wrote:
+> > Instead of trying to remember the current 12/24-hour mode, which could
+> > result in time corruption if out of sync, we force the use of the 24-ho=
+ur
+> > mode. Set to 24-hour mode if in 12-hour mode on startup and assume
+> > 24-hour mode. The 24-hour mode is already forced on reset.
 > >=20
-> > Fixes: 542dd33a4925 ("drivers/rtc/rtc-s35390a.c: add wakealarm support =
-for rtc-s35390A rtc chip")
 > > Signed-off-by: Markus Probst <markus.probst@posteo.de>
 > > ---
-> >  drivers/rtc/rtc-s35390a.c | 29 ++++++++++++++++++++++++-----
-> >  1 file changed, 24 insertions(+), 5 deletions(-)
+> >  drivers/rtc/rtc-s35390a.c | 67 +++++++++++++++++++++------------------=
+--------
+> >  1 file changed, 30 insertions(+), 37 deletions(-)
 > >=20
 > > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> > index 4cfe7034c516..575bb256eb25 100644
+> > index 575bb256eb25..b34a3f7e8476 100644
 > > --- a/drivers/rtc/rtc-s35390a.c
 > > +++ b/drivers/rtc/rtc-s35390a.c
-> > @@ -270,6 +270,24 @@ static int s35390a_rtc_read_time(struct device *de=
-v, struct rtc_time *tm)
-> >  	return 0;
+> > @@ -64,7 +64,6 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
+> > =20
+> >  struct s35390a {
+> >  	struct i2c_client *client[8];
+> > -	int twentyfourhour;
+> >  };
+> > =20
+> >  static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf,=
+ int len)
+> > @@ -181,31 +180,6 @@ static int s35390a_disable_test_mode(struct s35390=
+a *s35390a)
+> >  	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf)=
+);
 > >  }
 > > =20
-> > +static int s35390a_rtc_alarm_irq_enable(struct device *dev, unsigned i=
-nt enabled)
-> > +{
-> > +	struct s35390a *s35390a =3D dev_get_drvdata(dev);
-> > +	u8 sts;
-> > +	int err;
+> > -static char s35390a_hr2reg(struct s35390a *s35390a, int hour)
+> > -{
+> > -	if (s35390a->twentyfourhour)
+> > -		return bin2bcd(hour);
+> > -
+> > -	if (hour < 12)
+> > -		return bin2bcd(hour);
+> > -
+> > -	return 0x40 | bin2bcd(hour - 12);
+> > -}
+> > -
+> > -static int s35390a_reg2hr(struct s35390a *s35390a, char reg)
+> > -{
+> > -	unsigned hour;
+> > -
+> > -	if (s35390a->twentyfourhour)
+> > -		return bcd2bin(reg & 0x3f);
+> > -
+> > -	hour =3D bcd2bin(reg & 0x3f);
+> > -	if (reg & 0x40)
+> > -		hour +=3D 12;
+> > -
+> > -	return hour;
+> > -}
+> > -
+> >  static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *t=
+m)
+> >  {
+> >  	struct i2c_client *client =3D to_i2c_client(dev);
+> > @@ -225,7 +199,7 @@ static int s35390a_rtc_set_time(struct device *dev,=
+ struct rtc_time *tm)
+> >  	buf[S35390A_BYTE_MONTH] =3D bin2bcd(tm->tm_mon + 1);
+> >  	buf[S35390A_BYTE_DAY] =3D bin2bcd(tm->tm_mday);
+> >  	buf[S35390A_BYTE_WDAY] =3D bin2bcd(tm->tm_wday);
+> > -	buf[S35390A_BYTE_HOURS] =3D s35390a_hr2reg(s35390a, tm->tm_hour);
+> > +	buf[S35390A_BYTE_HOURS] =3D bin2bcd(tm->tm_hour);
+> >  	buf[S35390A_BYTE_MINS] =3D bin2bcd(tm->tm_min);
+> >  	buf[S35390A_BYTE_SECS] =3D bin2bcd(tm->tm_sec);
+> > =20
+> > @@ -256,7 +230,7 @@ static int s35390a_rtc_read_time(struct device *dev=
+, struct rtc_time *tm)
+> > =20
+> >  	tm->tm_sec =3D bcd2bin(buf[S35390A_BYTE_SECS]);
+> >  	tm->tm_min =3D bcd2bin(buf[S35390A_BYTE_MINS]);
+> > -	tm->tm_hour =3D s35390a_reg2hr(s35390a, buf[S35390A_BYTE_HOURS]);
+> > +	tm->tm_hour =3D bcd2bin(buf[S35390A_BYTE_HOURS] & 0x3f);
+> >  	tm->tm_wday =3D bcd2bin(buf[S35390A_BYTE_WDAY]);
+> >  	tm->tm_mday =3D bcd2bin(buf[S35390A_BYTE_DAY]);
+> >  	tm->tm_mon =3D bcd2bin(buf[S35390A_BYTE_MONTH]) - 1;
+> > @@ -325,8 +299,7 @@ static int s35390a_rtc_set_alarm(struct device *dev=
+, struct rtc_wkalrm *alm)
+> >  	else
+> >  		buf[S35390A_ALRM_BYTE_WDAY] =3D 0;
+> > =20
+> > -	buf[S35390A_ALRM_BYTE_HOURS] =3D s35390a_hr2reg(s35390a,
+> > -			alm->time.tm_hour) | 0x80;
+> > +	buf[S35390A_ALRM_BYTE_HOURS] =3D bin2bcd(alm->time.tm_hour) | 0x80;
+> >  	buf[S35390A_ALRM_BYTE_MINS] =3D bin2bcd(alm->time.tm_min) | 0x80;
+> > =20
+> >  	if (alm->time.tm_hour >=3D 12)
+> > @@ -381,8 +354,7 @@ static int s35390a_rtc_read_alarm(struct device *de=
+v, struct rtc_wkalrm *alm)
+> > =20
+> >  	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
+> >  		alm->time.tm_hour =3D
+> > -			s35390a_reg2hr(s35390a,
+> > -				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
+> > +			bcd2bin(buf[S35390A_ALRM_BYTE_HOURS] & 0x3f);
+> > =20
+> >  	if (buf[S35390A_ALRM_BYTE_MINS] & 0x80)
+> >  		alm->time.tm_min =3D bcd2bin(buf[S35390A_ALRM_BYTE_MINS] & ~0x80);
+> > @@ -459,7 +431,7 @@ static int s35390a_probe(struct i2c_client *client)
+> >  	unsigned int i;
+> >  	struct s35390a *s35390a;
+> >  	struct rtc_device *rtc;
+> > -	u8 buf, status1;
+> > +	u8 buf, status1, time[7];
+> >  	struct device *dev =3D &client->dev;
+> >  	struct nvmem_config nvmem_cfg =3D {
+> >  		.name =3D "s35390a_nvram",
+> > @@ -503,10 +475,31 @@ static int s35390a_probe(struct i2c_client *clien=
+t)
+> >  		return err_read;
+> >  	}
+> > =20
+> > -	if (status1 & S35390A_FLAG_24H)
+> > -		s35390a->twentyfourhour =3D 1;
+> > -	else
+> > -		s35390a->twentyfourhour =3D 0;
+> > +	if (!(status1 & S35390A_FLAG_24H) && err_read !=3D 1) {
+> > +		unsigned int hour;
 > > +
-> > +	if (enabled)
-> > +		sts =3D S35390A_INT2_MODE_ALARM;
-> > +	else
-> > +		sts =3D S35390A_INT2_MODE_NOINTR;
+> > +		status1 |=3D S35390A_FLAG_24H;
 > > +
-> > +	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(st=
-s));
-> > +	if (err < 0)
-> > +		return err;
+> > +		err =3D s35390a_get_reg(s35390a, S35390A_CMD_TIME1, time, sizeof(tim=
+e));
+> > +		if (err < 0)
+> > +			return dev_err_probe(dev, err, "reading 12-hour time failed\n");
 > > +
-> > +	return 0;
-> > +}
+> > +		/* converting to 24-hour time */
+> > +		time[S35390A_BYTE_HOURS] =3D bitrev8(time[S35390A_BYTE_HOURS]);
+> > +		hour =3D bcd2bin(time[S35390A_BYTE_HOURS] & 0x3f);
+> > +		if (time[S35390A_BYTE_HOURS] & 0x40)
+> > +			hour +=3D 12;
+> > +
+> > +		time[S35390A_BYTE_HOURS] =3D bitrev8(bin2bcd(hour));
+> > +
+> > +		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &status1, size=
+of(status1));
+> > +		if (err < 0)
+> > +			return dev_err_probe(dev, err, "setting 24-hour mode failed\n");
+> > +
+> > +		err =3D s35390a_set_reg(s35390a, S35390A_CMD_TIME1, time, sizeof(tim=
+e));
+> > +		if (err < 0)
+> > +			return dev_err_probe(dev, err, "setting 24-hour time failed\n");
 >=20
+> No, don't do this, this will break existing users as your conversion may
+> happen after a minute rollover. The only function in which you are
+> allowed to change the time registers is set_time. You definitively need
+> to be able to read 12H mode time but you are allowed to only support
+> writing 24h time.
 >=20
-> You can definitively call this from s35390a_rtc_set_alarm instead of
-> duplicating code.
-At this stage yes.
+> Also, this is super verbose, adding strings to the kernel makes it
+> bloated.
+>=20
+> To avoid any desync, simply test for the S35390A_FLAG_24H bit in status
+> in s35390a_rtc_read_time as the register is already read anyway.
+>=20
+I think that would defeat the whole point of the patch, that the rtc is
+always in 24-hour mode. If this driver was always used with the rtc, it
+already should be in 24-hour mode, as thats the mode this driver does
+initialize the rtc.
 
-With the pinctrl patch, it needs to be considered that the other pin
-might be used as well, so the state needs to be preserved.
+Your idea would work for the time, but not in combination with alarms.
+If the rtc could be in 12-hour mode, then this would need to be
+considered in setting and reading alarm. Also setting 24-hour mode
+inside set_time would then also require to convert the alarm time.
+Effectively making it less maintainable than before.
 
-This will be done by reading the S35390A_CMD_STATUS2 register first.
-
-This function will not be called in set_alarm, because this would
-introduce additional read operations, as the current
-S35390A_CMD_STATUS2 reg is already read inside set_alarm.
+Currently s35390a_init does initialize the rtc in 24-hour mode, while
+not updating s35390a->twentyfourhour. So some change needs to be made.
+Just setting s35390a->twentyfourhour inside s35390a_init might now be
+the simplest solution here.
 
 Thanks
 - Markus Probst
 
->=20
-> > +
-> >  static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm=
- *alm)
-> >  {
-> >  	struct i2c_client *client =3D to_i2c_client(dev);
-> > @@ -410,11 +428,12 @@ static int s35390a_rtc_ioctl(struct device *dev, =
-unsigned int cmd,
-> >  }
-> > =20
-> >  static const struct rtc_class_ops s35390a_rtc_ops =3D {
-> > -	.read_time	=3D s35390a_rtc_read_time,
-> > -	.set_time	=3D s35390a_rtc_set_time,
-> > -	.set_alarm	=3D s35390a_rtc_set_alarm,
-> > -	.read_alarm	=3D s35390a_rtc_read_alarm,
-> > -	.ioctl          =3D s35390a_rtc_ioctl,
-> > +	.read_time		=3D s35390a_rtc_read_time,
-> > +	.set_time		=3D s35390a_rtc_set_time,
-> > +	.set_alarm		=3D s35390a_rtc_set_alarm,
-> > +	.read_alarm		=3D s35390a_rtc_read_alarm,
-> > +	.alarm_irq_enable	=3D s35390a_rtc_alarm_irq_enable,
-> > +	.ioctl			=3D s35390a_rtc_ioctl,
-> >  };
-> > =20
-> >  static int s35390a_nvmem_read(void *priv, unsigned int offset, void *v=
-al,
-> >=20
-> > --=20
-> > 2.54.0
-> >=20
 
---=-1/4lpCggRhx0JyaVAfDd
+--=-+m6o0kZ90Z5oSoDP9C6X
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmqGLjUbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPShlUQALffJ/72tdeDsOjzYA1p
-48AIGvY9/qJxcV+JpHYIVl1+QHRUzB8t/J66OmKwspy2q/LszXvaRyYD2d+Loq9E
-eBHh9fO+xJgRhOw0btUhAtn5cXBGt9hx3h5eVutDCiRYJZaW+gACYHkNjHNUTsft
-7HOtWxd1x/h8cR8jOsazVNPpPxbdk+PdhwIAw0SxCxoCFtjUMJFsWWERHX5HwZsg
-rWwCNW6b9cfFDTaNqxM3LjistbAvM/+AV4r8qnBoKHlzB1JkX/J/v+kGRyvnlYEw
-JR2Q97W2MXLrcae/Fucw0cixmax/vJppyGHZSdP4eUwhs3CWUoqKEWYH2ej0ujBM
-SWAr5A6HZ0upczQ2gRUDIcwX7dt+JEU+0nD2Q82Xpm36A9YruukX2QtBlivU8cB+
-GQfbD4OxO+eQlBr5hegPxObs0Mbeb/5GD9MYcnHeb1DkJ/1GbqXTeAQNvsXmIaMg
-bHZHMfsHb5X9Qqn7bqlglPMVMPx6HMnETd1k5Gf9wF4dcGaHqU2RO0jC38GAYGzm
-lUmO/83Q3q5ZnP601B9zaDOMOHnIx6UhK/gxy8n3AHO83V2xmu6DA5YS1i0DDjWu
-UnasGV0WdbGrAwHjPr50FNIgoTg8lJWYegUrrAf5GoDAVcoCnCZsuwV8mjZRcLWD
-EjLKxioAGZ+OiENl6SktwAm1
-=fwjU
+iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmqGNMcbFIAAAAAABAAO
+bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSwWQP/1H0JfUVKMKNAvbONPU9
+YHttL3PSOx76DK0KlUnmyfS3oNQX9O6B65uSNWS2sLi3Au2kY5m1hhXMouyzqpi7
+SAm/ubM2aj4LeUZDjn/HBztXYNGdYNMAADf1y+tM7m+ixuS02dLGXYO1WUm2sAop
+rgr555O1g/HDUuXWAcfia4QSSHGUZXVmLTzn4PQIKdcD2AdtyUki8sucDNWTGUSm
+csZhTEb8mrjg2Dg3uQZXKu02vkehAVx2TfctepMkwo4kWK+oBz8nV/KnAcl1doas
+6xASHjjqv3tD8CBTVgO9Ga/0bz08PXQ2MLMEbwKcFACRmBaJLQinKbvRTSTdKirJ
+iVsAuK4dhgHm13u0B1O6dvFvKO4Fm2wS+lK6Wk+oj60nhOg4+VJ4qH1FcydiA/2p
+47FT/hcsD9vMtp5RSwqzcp/dFVZsabrWln/QMDz2Qn/S1CeMOo7MYjezEUTp/EMB
+n4mQcp7k8o5sZeM6MZZVt8JglrgzgCn1Vda8SSCu+TEyc++TR7kdUAPInnVKjKAI
+BkCs6HWbPnosTCRO5xfbTdn3KwMu3+Ty8XqWngQHzzXe+I5xs7w43438pkp202R5
+Xm1jeOiVCtCuHesDfIyCIEZ1wL+HZZjtMPRhTr8e3sucMIwkEOmfeiyjEs5D5Gsj
++6M075JfnhslxZ/9xcQydqaU
+=fSXF
 -----END PGP SIGNATURE-----
 
---=-1/4lpCggRhx0JyaVAfDd--
+--=-+m6o0kZ90Z5oSoDP9C6X--
