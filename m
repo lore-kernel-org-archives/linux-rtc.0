@@ -1,42 +1,41 @@
 Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5261F27A47F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27BB3A5449
 	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 22:05:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787177157; cv=none; b=PfgT8McjNUqrtWHV/DeTh9lfjnd8kyFQykQmh2iN7qtxmFBk0udqNaq9w0VCnIbpRcScsgOKH2BnumClqbOAL9B1Sj5FCm152ByrRPEXN90VD/RzxWKYUVZf+JzCMjam8/Ce1udD/ZD9Pa83B4Ooj/T8PnfmW1b5pqgQdKn2umw=
+	t=1787177157; cv=none; b=uuuq9shyEFsE7tW2dTcAlE+ywot9J9KFzYUxdGlOwPL1hwbwhe3g4cE46RifUia2/tg5luyMcg2wQQ9HCwQK5VevjnX4YNI0/ffdvCiOcgERX73kcMWEYebU75I1rEsjZ99S5eF+7gz3tTSlZRqzvpeKF+ZG6MIg4MVbhGbPYag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787177157; c=relaxed/simple;
-	bh=/JoW2r/vfN6UPOp7Ouog4Hq71VxFmryEXDtxGJwM8pU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=j1fyclLvzrSLT4GM12V2kp4VmM9bE8SW08zc/53d/pqv5j55fT+oCwSUKHJ7iyxCzq+EkV/2WV8hOPKea1C4e9bC6+ZGL6pvlH9Xo1I58I+11w9o2c1PWsd/en+JNfdConhCF31x0FpQo0+QinUW/P6eh5xPVs07j3M330ZrODM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=nAATdfTe; arc=none smtp.client-ip=185.67.36.65
+	bh=/RN4bcc6JZOueMRQ2yaP4BUuLLpjTzlr7/VSEGCklNo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=QjmlLNcFyHNlGlhFvwNVgm9Ldk9eI0bZsV2gHPzgq81mARrP3rqPqiFOx6uKxtqWlmyNTBHMM/xpOJeaa1VCc+H3Z2EXIfRkxy+DOiHf7BAcm7FGetUsA/FLyPVy2JwicMCej2M41apzaLq8RAT12iOY4p63XaGNePIGLDTeiLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=B7hCpQg8; arc=none smtp.client-ip=185.67.36.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="nAATdfTe"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="B7hCpQg8"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 32E2C24002A
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 00:05:53 +0200 (CEST)
+	by mout01.posteo.de (Postfix) with ESMTPS id 1597224002F
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 00:05:54 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1787177153;
-	bh=u+k2AwEC23sjNQuIvkCi+R+S7m0b6XdKSePPElKl4s0=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:To:Cc:Autocrypt:OpenPGP:From;
-	b=nAATdfTef6czJXsLh5wYYjruSBxFcL+Z+rMZn601GfXypHxa+n/Lr+v3/WWVT4jVY
-	 yY6tOWKkkJyKdmNvQ6ESC3HQxBUYxiJbXalkAV3Hbtopsiw6xx8ZoiyHg6z8sh2BFB
-	 3bJwnpoSfz/6jbD44bzHsb0D58I3lSrBGLNJIBE0E9F2IpZSkV78YCmHNW1TYO69To
-	 mYq0E93xRhfeDtqYByMwZ/ooioCY8jqm0HU6On/JP24iy4A5JD9ZMfRpOjV3JRGnUx
-	 N7PNa6BJTq+ddaky7bF6c9taXMtDz6WT0QnYtsYLoNrChIAu3c34Utq/Y9l76aUvm6
-	 qQM/AqwoOU80A==
+	s=1984.8680eb; t=1787177154;
+	bh=ELtl4sHgY9Ch4KYBqdzaGVJ+wwPAgLu5Sies0dF8+Lg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:To:Cc:Autocrypt:OpenPGP:From;
+	b=B7hCpQg8Ugg/JQfhJw98lW8JRtxQlNeZOBTnF1YSNlvMnP+xz+/Bl5sPf2xGMijQl
+	 hN8UCLpCL0XuH9wBwPjW7tMheEUINygJutsUvGgSxKDmq3v38AnVQaIP7lAtgburoX
+	 lcTm1in0PhlU0sfq+fU7e0GBeKN5E+CwnjYq0qNS58/0NsbX92qvsQxw0Hip8+Av+q
+	 4FETHbVlVorYepD4VrWjjQsLy54Ym8eid185rXG5UuKT4Z+Dqj3TXX7cvtf/q5N8md
+	 W9jruZKz3OQGj8PWDoSwR/6WlWloKc6YCmAh4CVzvCKySyHLF2xVMu6dHg2CJtK/vS
+	 auQ6RcNIhgoCw==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hQLHL0cT5z9rxG;
-	Thu, 20 Aug 2026 00:05:49 +0200 (CEST)
+	by submission (posteo.de) with ESMTPSA id 4hQLHN3gmPz9rxL;
+	Thu, 20 Aug 2026 00:05:52 +0200 (CEST)
 From: Markus Probst <markus.probst@posteo.de>
-Subject: [PATCH v5 0/6] rtc: s35390a: Allow use of output pin for interrupt
- signal 1 for wakealarm
-Date: Wed, 19 Aug 2026 22:05:52 +0000
-Message-Id: <20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de>
+Date: Wed, 19 Aug 2026 22:05:53 +0000
+Subject: [PATCH v5 1/6] dt-bindings: rtc: Add pinctrl for S35390A
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -45,12 +44,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XO3WoDIRAF4FdZvK5BnWh3c9X3KCX4MzYWsqZqJ
- CHsu9dsCl3C9vLAOd/MjWRMATPZdTeSsIYc4tiCfOmIPejxE2lwLRPBhGIKGE3F7jNIGJjeh7F
- wKqWy1gDrHXjSZqeEPlxm8v3jkfPZfKEtd+e3kfD73G6VR40YnZHaeDyGsuvq60aQ+/IQconpO
- v9W+Vz8/43KKaPcCAEDcmVQvJ1iLhg3Dmesij+gZ3wFEA3wnNlh0I47ZZ8BWAJyBYAGYA/Ka6M
- BhXwGtguArwHbBgAHADZYUNIvgWmafgC3fpn0rQEAAA==
-X-Change-ID: 20260630-rtc_s35390a_int1-556ccb308d3f
+Message-Id: <20260820-rtc_s35390a_int1-v5-1-5eb4ef85c6a9@posteo.de>
+References: <20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de>
+In-Reply-To: <20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -63,21 +59,21 @@ To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4498;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4267;
  i=markus.probst@posteo.de; h=from:subject:message-id;
- bh=/JoW2r/vfN6UPOp7Ouog4Hq71VxFmryEXDtxGJwM8pU=;
- b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqhii8cR/3FTYbjznUqvA1JsuBYmQO0ZrTwzl3y
- STqtYJNxz2JAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCaoYovBsUgAAAAAAEAA5t
- YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9J2kg//d6XuK7Z1jxVv7vn6TzhdugZYB+UL+/Z
- 9a+fr9TjS0SoIWnnpjs6mPVFQeKZFQt50jF2A2jwbNq8g+Y/zpKVcbkcftCibikyvkA/8BwQEwX
- OeEgQVctz0w+iJlWh53TEC/KI9Uya04T2CpRjJLAmNO1XoStDa1tJLoW7iGK25QQszAV+Z4tTe5
- xam0iBiUKr7bVnUkrwaeN/OixJ6A3OAxdnHDuqDgLTEV2aB1H4ix/yPfojkE1LN2PwliVBE1+rk
- MZtgND6y7aGfdkQUDKUXH/IVtAiQC+pRk0vPL1V/ttAWx5IQfwNrPUSnv0en3QTWMdDRMUGYDTS
- /245r/11ArAz1DzSLBgdg1urbVonlgJ8mfy+1TxPJqd1LUZ2L4jSF7eDVYelyZiI4S1VYKu1qOr
- EB7uuATDq87KOrEPG+q4Rx2yZEFcbqRs+OPVIT2WCXhCbqBb//q77hc8lD7qFJ7xhVWQIx6BbcB
- EMTCWmu64ZWRIhixc0jHGCu5iUpOIf5KV4Pjugi//pEopCSwtk9WMUF0JuiLVOsuKcnSpF4+UY0
- 66+OnSywL0ysY59qQCj5LuAEBSAYAVzqDCZEdkIem9/1mEv4NOfwJjnDbXuPs90g2Msir4TscNy
- 8e4Odcly91qfF1vUsFQGu0KpL+/dyQBNP1XXydNqt2FKXLOJHeNY=
+ bh=/RN4bcc6JZOueMRQ2yaP4BUuLLpjTzlr7/VSEGCklNo=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqhii8D7IaVVkAhB9EUWXeIteCdgpVafSwGHZ+n
+ n53JN5ecyWJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCaoYovBsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9JQog/+PFx0uR5U2uVc7m1HEiY1bEsjeXupbhP
+ NYU9bZCYBFGJ2B7lsOtfv5CSOyGWJ9lFByLB2r4OEArh+CpuCtZ8vAc3R+C2xW+8U2su1wetW6T
+ fVBD7E1D4oN8kET+CDAGXg/qgtVqHMdM/igHS7OvTx3ocwjttsM4zEKA/PvaNVf/+FS7a+jlwpF
+ RCMj4BsRGQbLFKE/nyTf/2gUOROO8ZQIK+sApFn3Wa6Zb/Tq9EivlbXQERG/2GxGVkzehvw23RX
+ nrsTPm/JqJpQr+crLhmkgu6AEli4MOCna2374RrCSpl9zgqxr3XHNx3mRPpsi9YryT8S4/nztmA
+ DExpjs6HuqYEDKEgPc92+AVEwPQYFnVSYxsnFKyFrK6JHj/lLFHXm5iZN1egFXn+IrSJXIXgShy
+ QtG1YOSdVp03Bizrl4Bv/TA4P3O79BCk+spVqu0tFuJ/U0wJl71hfiMlEZ4SMO6Q5QMwzsR+PCm
+ UUPxjLlrogPalAcatrVu5Zvf6pUxMEjR3mgjntnIyopJ6s1kwrd6L+Z3+FS1DOXSLE99qlEdhdd
+ yaOIdtZaIJF122RQqsERYFIBJk675nYCmC8O3KE+k0DlufG672A7I1MO5jvmM9tHXKn3peqKNZ3
+ IZgUWkJWU74iwsL4qUmEdKUnmTVq24qjvL2yxndpiEZsaM0UdXr4=
 X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
  fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
@@ -123,111 +119,156 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
   aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Add pinctrl to allow the use of output pin for interrupt signal 1
-for wakealarm. This is needed for wakealarms to work on Synology NAS
-devices.
+Synology NAS devices use the output pin for interrupt signal 1 to wake up
+the system.
 
-I could only partially test the pinctrl patch. My testing system runs
-ACPI, which makes it impossible for me to configure pinctrl there. I did
-however verify that with missing pinctrl configuration in the devicetree,
-the register were correctly set. So there should be no regressions.
-Every other function than ignore, disable and wakeup should also be
-considered untested.
-
-Also If I am not mistaken, wake alarms on these systems are currently broken:
-(not tested, judged by looking at the devicetrees).
-
-- arch/arm/boot/dts/marvell/armada-370-synology-ds213j.dts
-- arch/arm/boot/dts/marvell/armada-xp-synology-ds414.dts
-- arch/arm/boot/dts/marvell/kirkwood-synology.dtsi
-- arch/arm/boot/dts/marvell/kirkwood-ds110jv10.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds111.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds112.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds210.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds212.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds212j.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds411.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds411j.dts
-- arch/arm/boot/dts/marvell/kirkwood-ds411slim.dts
-- arch/arm/boot/dts/marvell/kirkwood-rs212.dts
-- arch/arm/boot/dts/marvell/kirkwood-rs411.dts
-
-If thats the case it can be fixed by using this patch series and adding
-the example in the devicetree to the s35390a devicetree.
-
-If somebody still runs one of these systems, please test.
-
-Thanks
-- Markus Probst
+Move devicetree bindings for sii,s35390a into its own file.
+Add necessary properties to configure the individual pins via pinctrl,
+which allows the interrupt signal 1 to be used for wakeup alarm.
 
 Signed-off-by: Markus Probst <markus.probst@posteo.de>
 ---
-Changes in v5:
-- fix issues reported by Sashiko
-  - fix time corruption on setting 24-hour mode
-  - fix setting 24-hour even if uninitialized
-- Link to v4: https://patch.msgid.link/20260815-rtc_s35390a_int1-v4-0-3133309c365f@posteo.de
-
-Changes in v4:
-- fix issues reported by Sashiko
-  - require "pins" property in dt
-  - remove maintainers entry for include/dt-bindings/rtc (which only
-    existed in previous iterations)
-  - fix multiple reads to status1, which clears interrupt flags
-  - fix not waiting for Power-On Circuit check
-  - fix missing pinctrl dt callbacks
-- enforce minimum length of "pins" property in dt
-- fix pmin2 on int2 affecting int1
-- force use of 24-hour mode
-- Link to v3: https://patch.msgid.link/20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de
-
-Changes in v3:
-- fix issues reported by Sashiko
-  - fix use of uninitialized time data
-  - remove dependence on `CONFIG_OF`
-  - add missing `pinctrl_enable` call
-  - fix wrong index used in `s35390a_pinconf_set`
-  - fix interrupt not cleared
-  - fix `device_set_wakeup_capable` called to late in probe
-  - fix mode caching even on failure
-  - fix failure on synology quirk mode update ignored
-- only set irq in alarm_irq_enable callback
-- fix alarm time not set if set_alarm is called with alarm disabled
-- use pinmux instead of pinconf
-- move patternProperties below properties in dt
-- remove dt-bindings header
-- add '#clock-cells' dt property
-- merge 32768khz and user frequency mode into "clock"
-- remove alarm mode
-- refer to mode now as function in the code, to match phrasing in pinmux
-- resolve checkpatches --strict warnings
-- remove mode_init bool and instead set initial function to -1
-- remove err_read probe variable and reuse err
-- rebase onto v6.2-rc6
-- Link to v2: https://patch.msgid.link/20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de
-
-Changes in v2:
-- remove sii,wakealarm-output-pin property
-- add pinctrl
-- add fix to allow disabling of wake alarms
-- add synology quirk
-- Link to v1: https://patch.msgid.link/20260630-rtc_s35390a_int1-v1-0-1b2239e16be2@posteo.de
-
----
-Markus Probst (6):
-      dt-bindings: rtc: Add pinctrl for S35390A
-      rtc: s35390a: Add missing newline to dev_err
-      rtc: s35390a: Fix alarm not disabling
-      rtc: s35390a: force 24-hour mode
-      rtc: s35390a: Add pinctrl
-      rtc: s35390a: Add synology quirk
-
- .../devicetree/bindings/rtc/sii,s35390a.yaml       | 111 +++++
+ .../devicetree/bindings/rtc/sii,s35390a.yaml       | 111 +++++++++++++++++++++
  .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
- drivers/rtc/Kconfig                                |   2 +
- drivers/rtc/rtc-s35390a.c                          | 478 ++++++++++++++++-----
- 4 files changed, 488 insertions(+), 106 deletions(-)
----
-base-commit: 237a1c39e8dfd3e1c6f1f023eea37a48ec04cc63
-change-id: 20260630-rtc_s35390a_int1-556ccb308d3f
+ 2 files changed, 111 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+new file mode 100644
+index 000000000000..d9da3abbbd51
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+@@ -0,0 +1,111 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: S-35390A 2-WIRE REAL-TIME CLOCK
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++
++description:
++  The S-35390A is a CMOS 2-wire real-time clock IC which operates with the
++  very low current consumption in the wide range of operation voltage.
++
++allOf:
++  - $ref: rtc.yaml#
++
++properties:
++  compatible:
++    const: sii,s35390a
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    minItems: 1
++    maxItems: 2
++    description: Supports up to 2 interrupt lines via the INT1 and INT2 pins.
++
++  wakeup-parent: true
++
++  wakeup-source: true
++
++  "#clock-cells":
++    const: 1
++
++patternProperties:
++  "^pins":
++    type: object
++    patternProperties:
++      "-pins$":
++        type: object
++        properties:
++          pins:
++            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
++            minItems: 1
++            items:
++              enum:
++                - int1
++                - int2
++
++          function:
++            $ref: /schemas/types.yaml#/definitions/string
++            description: |
++              Pin function:
++              - ignore:  Preserve the previous state.
++              - disable: Disable pin output.
++              - wakeup:  Output wakes up the system.
++              - clock:   Output clock pulse.
++              - pmin1:   Minute periodical output with 50% duty.
++              - pmin2:   Minute periodical output L for 7.81 ms.
++                         Can only be used with pin int1.
++            enum:
++              - ignore
++              - disable
++              - wakeup
++              - clock
++              - pmin1
++              - pmin2
++
++        required:
++          - pins
++          - function
++
++        additionalProperties: false
++
++    additionalProperties: false
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        rtc@30 {
++            compatible = "sii,s35390a";
++            reg = <0x30>;
++            pinctrl-0 = <&rtc_pins_default>;
++            pinctrl-names = "default";
++
++            wakeup-parent = <&int>;
++
++            rtc_pins_default: pins {
++              int1-pins {
++                pins = "int1";
++                function = "wakeup";
++              };
++              int2-pins {
++                pins = "int2";
++                function = "disable";
++              };
++            };
++        };
++    };
+diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+index f4d0eed98a08..7b3f682ef4d5 100644
+--- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
+@@ -81,8 +81,6 @@ properties:
+       - ricoh,rv5c386
+       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
+       - ricoh,rv5c387a
+-      # 2-wire CMOS real-time clock
+-      - sii,s35390a
+       # ST SPEAr Real-time Clock
+       - st,spear600-rtc
+       # VIA/Wondermedia VT8500 Real-time Clock
+@@ -105,5 +103,4 @@ required:
+   - reg
+ 
+ additionalProperties: false
+-
+ ...
+
+-- 
+2.54.0
 
