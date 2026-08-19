@@ -1,96 +1,104 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0721356761
-	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 13:15:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 109953B4E8B;
+	Wed, 19 Aug 2026 13:36:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787145357; cv=none; b=t5h31Ka2Ih6Mo2jzG2hUqc/QyoMRzX7CH24FopFZNfl3DUBlgKiIVpahBW5YQdaWlVGedqnYLzXC5DCH23HlTSFHkBKwXWgWhZHAmjQ56cScd7Hd1ZuVb9y8pyUkbHeQdSqimG/6gju40EkUf7OMlXksqzKd+yFY57FXsj2SOy0=
+	t=1787146573; cv=none; b=cSYzUwcHlLUkwgV3fP3LcAZT7BF3n4EfNoH9+aLDELMXKu/whWVC93kVoKLsfeg4KEX/a8xeFj9rqjNEG2TemACjAhDFycNf9V93Xldba1D5MwmWvPjuhkOKB96tbl2rppjx28IEIHf6Q2w1eqCgkQIWM8NVRid8kNj9p4VMFs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787145357; c=relaxed/simple;
-	bh=qucgUuO73zR3boZqMIQx7OkvbyaS9W7Gr9SqQ9EnCJA=;
+	s=arc-20240116; t=1787146573; c=relaxed/simple;
+	bh=4Z1j0j1UD3aCRnzp0jJ3gO79cTv6IxfKV9MKfqUk1x0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NVsHUBAF/VEFZRLuqOp44jgGf4pTIo4PQ1B9V5+r6WfjA4/r+tPCBPBHpvfedm/LDj6OH/gzVsfW3TvDk7eDtyMy+ZsON/Ma6do+Iyq6jImmXn/EvhFNS7bhBFRqidI5OGwoewwtxoJLgBn3MTEvzlGYLCgY3kMkPYIZdhE/Ass=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=OhSodnPa; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=MZc/FV5egJuVFbdAZor1V+aSy/Xjrl+TrO85xmn7nUBdXf9C/oyeHr/P60GFDj6DyDIyoADH51VMer03BQcVPN9Cek6aPtDDDJw0O1uUHEKlS1fDgrf1W04mBYWtqN5iv+0w/O8VO85/3vEoA1Zeu7S00f6R5/dBbEwHR/ufVxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=0rG0l2pH; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="OhSodnPa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=qucg
-	UuO73zR3boZqMIQx7OkvbyaS9W7Gr9SqQ9EnCJA=; b=OhSodnPaq2BooRYwSeRB
-	vYKaF84itHBsfX4K2Ky/Sj3HA8qnxpVYUHBh8ENNPyuzwOmM+tUg079DeP+qgPEk
-	7YeJSXCTu3HDZeFK7PYnrdp8B1hK79mHZR8RVsimSRnovbser90oCQt94MJt5MqO
-	Z0UepgHuGxe7UDitsTAx5TSjJtVA36PEs7+BCOu1Xn2BtaVjYvrBzBR+TBwnPFdO
-	aeuXq6cHIFIyE3Tpaa6W1u/3oJLX17rW2DUPgPe5PZbiLu/+2XKI5uiAccbPbg/x
-	qriH8gDsr33n1AgTg6aMM0Ozio+RI1cTFvSdz2Za2UTLATNW5fKqtngtt2BXVcjv
-	ew==
-Received: (qmail 4150694 invoked from network); 19 Aug 2026 15:15:49 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Aug 2026 15:15:49 +0200
-X-UD-Smtp-Session: l3s3148p1@hC6SM2ZZwgVtKXGR
-Date: Wed, 19 Aug 2026 15:15:46 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH v4 00/15] Add RTC support for Renesas RZ/T2H and RZ/N2H
- SoCs
-Message-ID: <aoWsgnsw5gC6TCj5@shikoro>
-References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="0rG0l2pH"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 611AB4E412D6;
+	Wed, 19 Aug 2026 13:36:08 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 2D8445FF42;
+	Wed, 19 Aug 2026 13:36:08 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 2EB8311C7570C;
+	Wed, 19 Aug 2026 15:36:02 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1787146563; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=5+UmtWGq+oMHHux+0HehZ/aRCJpMZvziH7JNziGQsos=;
+	b=0rG0l2pHk+fEH/o1XxAD807Q9uWBMCC267HhjJmkCgNYcR7MZBcnWh0MsPxvJ2jCfC3jXa
+	vO1LLHRjMSmgkdX89YAwrUA/jaKzr66jGgmn+ZPZUQfjUa/fNc+h3Zb/tD0f6IO08TYJXn
+	0riNe2Y7A+FFzW30gPoZTaVHSlKaS5lEXpTP8Pgwpk0cvG9i9ZjNpuHTlSdce6YG6cvtkR
+	PgRimfCBsrTRbnwalsI43HknSqPYn9GP7zetPfOq5dtIJKAoKqRIuo0VmulZPcNSNMdAlT
+	KSderBxcRtXb8YGP5Shgx3LSI9RQUOUYuztT6WnIt/KMfrZr00yLXvIqW41cWQ==
+Date: Wed, 19 Aug 2026 15:36:02 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: xianwei.zhao@amlogic.com
+Cc: Yiting Deng <yiting.deng@amlogic.com>,
+	linux-amlogic@lists.infradead.org, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: amlogic-a4: clear unsupported update interrupt
+ feature
+Message-ID: <20260819133602f197f6b5@mail.local>
+References: <20260624-rtc-feature-v1-1-42dccd22c0ee@amlogic.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="UTfPJjRsmDMyP0vk"
-Content-Disposition: inline
-In-Reply-To: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
-
-
---UTfPJjRsmDMyP0vk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260624-rtc-feature-v1-1-42dccd22c0ee@amlogic.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
+Hello,
 
-> v3->v4:
+On 24/06/2026 07:24:34+0000, Xianwei Zhao via B4 Relay wrote:
+> From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+> 
+> The Amlogic A4 RTC does not support update interrupt. Clear
+> RTC_FEATURE_UPDATE_INTERRUPT before registering the RTC device to
+> prevent userspace from enabling an unsupported RTC UIE function.
+> 
 
-Thanks for the quick update. I have done the review now, but still need
-to test it on my N1D board. I can do this maybe this evening, but surely
-tomorrow somewhen.
+Because the driver supports alarms, it should support UIE. Is there any
+reason the RTC can't handle arming alarms every seconds?
+There are some that would only support alarms avery 2s, in that case,
+please set RTC_FEATURE_ALARM_RES_2S.
 
+> Signed-off-by: Xianwei Zhao <xianwei.zhao@amlogic.com>
+> ---
+> Clear RTC_FEATURE_UPDATE_INTERRUPT before registering the RTC device.
+> ---
+>  drivers/rtc/rtc-amlogic-a4.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/rtc/rtc-amlogic-a4.c b/drivers/rtc/rtc-amlogic-a4.c
+> index 50938c35af36..116cf095a9e9 100644
+> --- a/drivers/rtc/rtc-amlogic-a4.c
+> +++ b/drivers/rtc/rtc-amlogic-a4.c
+> @@ -379,6 +379,7 @@ static int aml_rtc_probe(struct platform_device *pdev)
+>  	rtc->rtc_dev->ops = &aml_rtc_ops;
+>  	rtc->rtc_dev->range_min = 0;
+>  	rtc->rtc_dev->range_max = U32_MAX;
+> +	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtc_dev->features);
+>  
+>  	return devm_rtc_register_device(rtc->rtc_dev);
+>  }
+> 
+> ---
+> base-commit: 851d961ff248218f681c53cf0f7f08cf8201a117
+> change-id: 20260624-rtc-feature-03ce3f3843a9
+> 
+> Best regards,
+> -- 
+> Xianwei Zhao <xianwei.zhao@amlogic.com>
+> 
+> 
 
---UTfPJjRsmDMyP0vk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqFrIIACgkQFA3kzBSg
-KbYgeQ//dM6icDPuT24f9XL7tmzttwB1K5abNRCZT8c5ACliy9vfCoiti3RrpJB8
-oDBT9Xd+ZQwDTLNXCjMttWKJefs3jBmzpENra4Ef+g0Y4bSWj9jg+20A+QIkNLUp
-sxMgIZwj87r3WY2ChNj7tss2T6KlzYQlLvWtda61qgj/rZ9g39Mzf0mb97g55K0h
-hCdb2NZOpLR1HTsoyEtUvcHhMdsNdgrVdpnuEUnG0xRth5LE8FBd217Kg9ygEfDt
-cDLIir4NecrOwmsrEc7zYaJFRr49Hv/KATSFRak47EJks2pHTHjsS/8bLK8Y9dPl
-AgpxLr6m+2/jiNvZ/8KXrbbNO4qoLzQfYPtvGo7/hiEb/hDV4W2Uq/mJ3XMV1cCC
-bZ0n2Z0gb8poAl2vEAWls7Cx/vdha+76w69xBynDAcnW4njNe6U1uxndg7ccT4w3
-6baAN/1hQr1jF5p9vSig9YeNzrw7D1wCWGtO1vSS+dZTNX91z+gTv/U2RL5ALyHQ
-iDfOyBfsoeWuoOZVVdPElGhxTaiVQ3r1PAEIF++ugWj9oHCmKIPtkqaIc/CDVO/F
-8/0wuRPlrydYNmmsIb9FewbfaxZ6upvV3H7cNsSbNZylko/qsCyvXZFATAC8lJWe
-8tquVAOdJTsGfE4GnkUhw/Tw7TazUds+g7q2XLijxt+gFsNESqU=
-=4P92
------END PGP SIGNATURE-----
-
---UTfPJjRsmDMyP0vk--
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
