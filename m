@@ -1,56 +1,47 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE345327BF8
-	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 12:57:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B88029D291
+	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 13:01:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787144279; cv=none; b=ouBGldB8btg9bU42c3OUebOpDQ/GP7RTLx1EDiWhdbpZNiiF8JHkKtDTjueknjZ5vEEX47tseBrpluvNH6lOmg38QiM0P/2yVUeSVuOwiaMA8K29MtvGSDX6qX55+aqZ2SfQ0gOIUz5xxeh+p7iXC4GcUEkiTZxWhgMkKTEHRiA=
+	t=1787144505; cv=none; b=m9UsUDnqRJXZQCwAZVpqive7wNO73XbWhBR+rZa2Vt8IuIootGE/R44rmCMTWGK4L7OiipwZ8fFGd+i9zufLn+apxrJjYR9SKb6EMBHv6P0SaWns9JZb7sjppLZulwreK9/Ra0x3rK0IDAPmABTRtBKmZLmYvHLUim4A3aPY09s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787144279; c=relaxed/simple;
-	bh=vDwo+C54SuWUO4NiG+y+TLv77E9F6XwxwcQUknLWuQ4=;
+	s=arc-20240116; t=1787144505; c=relaxed/simple;
+	bh=wp8TGbisRW8gW+kdJD0RAvTV+2ZP24fjbMV6UB0mk1g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=McP4miFQ2VKibwB3f11AS0l7iux2QdD4fzFF1oUxxeNSQXhDNTowIErDlU8eFGkJjxTKCuFGHXRBEnNh20/iMsRr7TM+lwCx0R5fMv2yBJ/JYKVdNSb/wlTp1Z1Qq9xNBkFCTkFk/66U+HPghl8F99zjEDKugzsD2BhUF+EC7jw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=SZf4pOJ7; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=d+GJZ3SCofYXZqX6GmRcWJSgmfbu3dD1W9FmMSzVpBmk4Ng42jnLdMgLNarKn0aAHSWbDwt1FUybtf134cDzKd31ZewtMZNc60RRYVRAQ93EPBgVDok/ibAyR9Pe2dpaCKSX1qdP6S3PZ26wJPmbrHeS15Yom2iziCFr7stCjVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=fIAdq57+; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="SZf4pOJ7"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="fIAdq57+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=vDwo
-	+C54SuWUO4NiG+y+TLv77E9F6XwxwcQUknLWuQ4=; b=SZf4pOJ7e7RGaCuw3k/E
-	P2BHw2lhtM3AeLjqVYpX1dccivn7ps//DY9yniHwYP9MYnd3cTiBLyDi3rab/nDe
-	oytez1+EuLt9sTS9TkmVb0OgP1jxTKq6+f2ZuXmMamv7kSAtnH4lYK0fC0JMEja4
-	1cw5QvluRRsl9eGDCLRZQMyu9p2Do99NFIuF6addgPfzSwHTmd0+SgGBuvM678B0
-	pE4sMbYdubtjIdBW3zZKKf4GNjm6YFHoRaryaM4VuVTb1G5Xqc/TfT5PMl4hGiVV
-	RFnC7/jv4OD6QYvPeD9sqyrHXfAEO88OmJyvg9m7WFJEsBiALxM44RVaWTrqSQyz
-	2w==
-Received: (qmail 4144100 invoked from network); 19 Aug 2026 14:57:46 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Aug 2026 14:57:46 +0200
-X-UD-Smtp-Session: l3s3148p1@HvAp82VZOjBtKbIV
-Date: Wed, 19 Aug 2026 14:57:48 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=wp8T
+	GbisRW8gW+kdJD0RAvTV+2ZP24fjbMV6UB0mk1g=; b=fIAdq57+X4ZBpmxtZzEn
+	fDLkyOcc+Zy7BDZDtKwFiI2bOp2j4AmiSMEKywNA9pJwY+gmedx8pe5HHCjndFry
+	jT5jKIV6hEyQXCAI2Nmz8i390/yUs4ym9ein5MTqbzvx64o+2yL+2cUrGPdYDd4y
+	vMicr/U97JIQ3bwf3ZiddZ6vBPomJJIJ+km22VJNIx1nS02r0T395yt+U8njjXiw
+	+vyYZZulQChvv1SU9VD66gAX/inaOGfbDr2JtuULPEJ5emTN9baKzD8/5/YqM+op
+	SUwLcGa1BHREKzkW5Gans1/y2/K0F088NpXncV28+panoP12zU/fY8yzNWq9xavA
+	RQ==
+Received: (qmail 4145528 invoked from network); 19 Aug 2026 15:01:42 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Aug 2026 15:01:42 +0200
+X-UD-Smtp-Session: l3s3148p1@yYQuAWZZjWJtKXGR
+Date: Wed, 19 Aug 2026 15:01:43 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	stable@vger.kernel.org
+To: sashiko-reviews@lists.linux.dev
+Cc: Prabhakar <prabhakar.csengg@gmail.com>, conor+dt@kernel.org,
+	linux-rtc@vger.kernel.org, robh@kernel.org,
+	devicetree@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
 Subject: Re: [PATCH v4 03/15] rtc: rzn1: Fix weekday underflow when alarm
  crosses month boundary
-Message-ID: <aoWoTOTbl-ewHeUY@shikoro>
+Message-ID: <aoWpLvrNGHBPvFY5@shikoro>
 References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
  <20260819103926.2136712-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260819105356.BD7731F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -58,58 +49,56 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="KqL/t5WDF2qYolTu"
+	protocol="application/pgp-signature"; boundary="SMyub7+rJAR37Ee9"
 Content-Disposition: inline
-In-Reply-To: <20260819103926.2136712-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20260819105356.BD7731F000E9@smtp.kernel.org>
 
 
---KqL/t5WDF2qYolTu
+--SMyub7+rJAR37Ee9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 19, 2026 at 11:39:14AM +0100, Prabhakar wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->=20
-> rzn1_rtc_set_alarm() calculates the alarm weekday from the difference
-> between the alarm day and the current day of the month. When the alarm
-> crosses a month boundary, this difference can become negative. Since
-> days_ahead is unsigned, it underflows and results in an incorrect
-> weekday being programmed into RZN1_RTC_ALW.
->=20
-> The RTC core already provides a fully populated struct rtc_time for
-> the alarm, including the correct tm_wday. Use tm->tm_wday directly
-> instead of recalculating the weekday from the day-of-month.
->=20
-> This avoids the underflow and ensures alarms scheduled across a month
-> boundary use the correct weekday.
->=20
-> Fixes: b5ad1bf00d2c4 ("rtc: rzn1: Add alarm support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> [Severity: High]
+> This is a pre-existing issue, but does this time_after() comparison
+> allow bypassing the 1-week hardware limit on 32-bit systems?
+
+This is fixed later.
+
+> [Severity: Medium]
+> This is a pre-existing issue, but what happens if the RZN1_RTC_ALW regist=
+er
+> is uninitialized and wday is 0?
+>=20
+> Calling fls(0) - 1 would evaluate to -1. If the current time is a Saturday
+> (tm_now.tm_wday =3D=3D 6), delta_days evaluates to 0, which bypasses
+> the if (delta_days) block and leaves tm->tm_wday =3D -1.
+>=20
+> Since the core function rtc_valid_tm() does not check tm_wday, would this
+> propagate a bogus alarm date to the caller?
+
+This looks worth investigating to me. On RZN1, ALW is default 0.
 
 
---KqL/t5WDF2qYolTu
+--SMyub7+rJAR37Ee9
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqFqEgACgkQFA3kzBSg
-KbZmMhAAocPEAcPVS9Q5+xg5+1T2F0qy5PbXo/vuqmLBIcj68Ms6O3s8ScViXTcB
-tKvNbQ6bn+Vt5/TwYw3zyvmvRwBzAsJxGFDd3fkVQLIGwYWmEYH1ca2BaS7GSu1R
-cTndE8BIf3zq0/f3TGz6MKOL6K8MitPpmmXHrTC+ulC/sPbwAuyBgbjgaqtXQJFe
-0OLudvJTSj3qTv/3V7J8DDliNHI/2IeUlBOB/TYl2uNxUBhmocd330fzdE5KrKXa
-OmWwTK6V0AUILbnhgssYK63KKFIhymTR7CWPj0KDoUPPlPjRbSZJBEJ4tkjkY5bu
-sawFrTz/3UJSecFU9UZzy2g5ZQSMPVHtq8DNCyEWo6b5g64haNIvMkJ3LzJUFsh8
-SQW5RI9EbIymXXfrah5ooAWO6XDpm0YQwoDFua0IVGmON9aiGA5yxAq66Q8AQ2qR
-xy8SR4PjHUD7yJEXIqVrOrvJDC2eLouh8I0M2/kbz99BE2SAnhnWiMP+0dITuaml
-jqv30ZXuuHsgC6ZNwTqH6/N9v/k5zhhcMdg1s9+Yv7dJ4Oqw/f9Lcz4UquCf2elf
-1M7aAyiN7nolcJd4zyehmnyivXwse6mucvd0H0KXZzfXUM5cV8LvEx09MVmthdgi
-wZcHUk97lRfCbwJ943OSwNyk7dael+R9Hzu6TrvpOfzVPW8nYG0=
-=xr9R
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqFqTcACgkQFA3kzBSg
+Kbag4RAAsMRHDOpMNLJabJXwBAWJUK2mWCnzfDSIETzpqGyx1frm+t8YpZXjOxIT
+RRKRx+dk539yoAwSv2Bz50yReL8UKMt2orjSx+UpdDhD4npHRX/llRvyITsT9mUj
+p0LwMqTuc3TTXJrWLo0hi5DARDbx5oYlT76urMRIJXNhI4MOt6h/IpC98VD3bZio
+X+wn7nfFCB7dalElBZ/lQsdm8WQliyjfi8HpjPzhQmIsv8D5qIzgh2i20XQB2ydR
+WkA3yUn3/Li/scou0NJjrgUwsHb+O+BsHU6e0P0BDQOXU/L44V98DOqrcw7BM9bQ
+F2jfCMlqxPM9Bu2GjS6k4SWfLjze8uUu1X1zpiqVMZ47w3oCgmVllQsq/+9YfO3z
+Uyq5Uq/lf+hgkMIkftkuVM6rWhyEf0Lanl2jB18N5coqiwQLDcblZBjTgDEwb8yx
+2EChf0IxabWZjXSFUy2skVCdC/qZ0WzvyAgYZOZZRbNBb619ukQSmR1sR+RKVz66
+wPXC4qqAMDAVM/bYJVOdvWyfdwLmQyg3cgE5e1oXhJVDMEsJo8jUXE6xMKk6RWV0
+tqgV0qr+yVgEncnCJQWh0L3cHD2ay5LKnWBcitoPRfxmbLatKQqzo0tNDNGRR5RW
+PTvL9ChDJdz3yuTORyyH39N3IRNwsbxwiaCyXOXQyipQXC7RMo8=
+=xS2V
 -----END PGP SIGNATURE-----
 
---KqL/t5WDF2qYolTu--
+--SMyub7+rJAR37Ee9--
