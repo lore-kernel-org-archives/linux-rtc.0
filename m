@@ -1,135 +1,173 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 290553515DB
-	for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 19:26:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787081166; cv=pass; b=KYYRJYMQnIjpvuebNCOOZMqbUI+oABcGq20ERQqfHRX7+7DHT9Fg8Aw2ojqFAKT5Vg44POvkDGNaknMfOXAtCWPVqIGTTRDBA4Axlw5swZb4fxQV9LFqOfHRX5c8Pi2DvGGDdgZfZPk6se8wDFsw9R0cnUq6BDNbhsnty465uxU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787081166; c=relaxed/simple;
-	bh=xD+DTq3vAUF/JATmwOhJZ4DPUbk6IOr1mBsW453i8Qk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RC1ZL/qqWvOvb8quFJHw2kgBh0PURyp5IN7rjFHLD/RvknCmxFjX3Spp2adIROXVSanAM0LG2kugEbsSCHo605jJjyY2nZsQsbFAvDeJJ1zPFNrMkj/cx92mjSeC5dhSgwylL3jLlS7mQGjcd+0UPEaQgCc9jeVNtqQTptvXmqg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZB+r/Pw/; arc=pass smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FD23D349F
+	for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 10:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787135987; cv=none; b=GkMQtwZ/n/TuNZA/wYZ7I52oa4/v7o2B1ZkkOENXZNzd3xDZIfU+pfZJuLc7t9befzq1BowdExujXYdXMCIx/fK8G8hXkVJjM39eu6b5s+6IiuRKa1WgaBHX3xFkAhFDres+Wd+eQnwLHAfLvzGx6Iksp0L3C6KUr9lwNEFLQcg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787135987; c=relaxed/simple;
+	bh=X/eM8N+ZiWpG1k9EW2SG6VSJGAC5cgZXhhGFpGB3Nqg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q7PXGUrGXGTXUuxvgsRDclWOvPAeBW5mqq/zCGbLAV0pS5Km5n06HV9k4liCXXc295snsZ9Td597QgvaiQMQEyIEVsuZJuWdiW4WlKz50SD1znWjj8ajWKOlgNBC8qXLxxXVOZoBV6Bu2MlT7OnyjilrsvvCn1lQCqkKvuvtrBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PVGbRlAL; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZB+r/Pw/"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-47de008b020so59642f8f.1
-        for <linux-rtc@vger.kernel.org>; Tue, 18 Aug 2026 12:26:04 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787081163; cv=none;
-        d=google.com; s=arc-20260327;
-        b=s4jh6cJiHnhIo1ZVnwWNBevA29t5fpNmtJdDr6wT2bsqJHSebHFq6Hjhh3nFEs6IR2
-         FnStNyhz/sc7G2aOqApCyoRzC2D9MYVvUcS5bMHrSlcfqzLxa1/It6K/1silcHje5LZb
-         KiWVQKUSUqpllEkOOmJLUhOr9svMePBCex+4rFc5s6U5xFp16RH2DuHfaSqN5rMdaYRl
-         ZgsuqNpRVsXq5wL0W5OJpyHIZd/34aqbpX/BA+xjd2JoEJh659ixS1FGNdVuhS95rhpO
-         xnioNXDUh88s63T26nDGtOs81nQXATYJCugmtWK5icyKXfx1HvPHJ78Uif0AhZVo0OyV
-         xmCQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=si7KMVjebKUIdClbZKZkuqtNOVYTxZqvVqmzIewFdCU=;
-        fh=Il9jsBE6mPJtXXOdl7DBUrLRLnsIgBJHszUy9RUrtvk=;
-        b=diMatr6A6oI9jOL7nRFaIbEFLL6XEJwI6KK0ylP5OjE3UR+EV5t1vXpdLb5KIflBz+
-         cNTb2xHkClgin8OKQggAn++nl+jMAPaF/DZHyOi4qVwyHOJqnJ9SIVokZzVB7ScqF2VJ
-         9VeegERVGakY6RvgABJdshmmn3tvgo823X1aO6P3poVSZh2+L8x/UNr1+5pMEgXsmede
-         KPjBHU3i9ALdprXkHlJf5nrkhAlU8YPEDlAM10PLAu40oJOVjUUtKI37el5Y2WsU3L7R
-         HTlSth2zaR0juKeRxds9szXtTJ+LQplLih3bB66vyoeYrMYIYNrW8urs3tWXaprCBQtx
-         Zx3w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PVGbRlAL"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2d53197d8b5so7927025ad.3
+        for <linux-rtc@vger.kernel.org>; Wed, 19 Aug 2026 03:39:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787081163; x=1787685963; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=si7KMVjebKUIdClbZKZkuqtNOVYTxZqvVqmzIewFdCU=;
-        b=ZB+r/Pw/UkVy8Jj9GPs7DrWnXh15rWQNW/Iz7wlrQawJf4W30/1ZgwDvWVdzylKS4s
-         9z5ocxBfC2JnxpiRnxZvGTE6khJb7RpOBsmeUtwVU3EVd39qvqOaIYxoxas5FIVfhRWF
-         kpoWfjMkHMlTjgcYx0WqaryOIdiUmMaiMIvyLKDnPEdJAiZGwdo+NZ0drN7Fk8u0Foo2
-         7CR46I6R4SO4EskWjMaJsrxReIDQXclpqjVViHEND2QEN+MGyXyPwDpYqRh6op0dtVtQ
-         ixwZusHXnILXKOCjZY2JUurhUFC8JbDiDjpbko7yH2dKRF8W+jJ8iLQZHjuEqLq0/Dre
-         IE4w==
+        d=gmail.com; s=20251104; t=1787135985; x=1787740785; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+wGjeeNszQHWmnGaEh/6lnk77mM0dthBmjem3skz/pc=;
+        b=PVGbRlALISkuZT8EhdD22Z7sLMR7t8x08k4js9oBznxkqEo85H8t39lkVGNFYfmNgq
+         P+xE41x2iS4jgaLtHfP+Y4uNd4MPBQOCrivPsRo/mOD9TqovGr6CQJW/yVfzmlcNtDn8
+         SeozlVOiZXUe5tloSFdOSCPKUiY6WuEhoMFr8mpjoMmD+ImcNxSBUXcTyBNWaor/7UXn
+         6gcTiJ134HbDfvnvSMSkeKnANGDCtQyEYGKbEIwBgRgEVd34ZgpS5zuSWG4ti8SngN52
+         a3nBd7CS994SBORSO12MYIZbtQJ6aX9az0S74cdv4jXMaQStsWnVmvm+vKXIhLF0KYAB
+         CkWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787081163; x=1787685963;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=si7KMVjebKUIdClbZKZkuqtNOVYTxZqvVqmzIewFdCU=;
-        b=gCCWOt5XQ3R+Ksz+wQn/LXzE+EZ1uzbUJ+yxqhinxfCSFoWOwdW39vTQCrdiZdzaSq
-         o5nmzJVhqYsVSQyE0KJ6yn48mDe8hRKRJiJPS/DNt2Z6dCG/yuJGYrHERS4LNtR6Ktlj
-         +coHl70Tu3T6g1rcVaZlO+CRafJQBmrUbmDdsmc0FFwsuX5YKY3MEaLp48axVXYQTF4E
-         7ArUdmQl60tC+uorYJLllm9fvyUwek1PRYgDpvdjrfRWHhXQvdzRgF8wXhje64VytXpw
-         J6XRblX4cItJsxpt+Za250q3hQ99c1UqZXNM9FjMj4PgAuh8OW/Cl+azQyVtqDVHeQ42
-         CEtQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpA+f8XkgpPbP7rS5TX2C2l9pjHIyG25KCenBrKahHqfY47TiRMn8Dybxp9t+4rGmRG06D/C6isMVw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwMcyN7SdPn8HYULPINg1y5KvQ2UmTTB1679ZN5EnopD6lePqgd
-	m6tw8ocFLYcXl3BesXQR2hh1015RYu8CXpjyC8lAlqfW9pSSonnOq/o9QvYQ38ejRV0qsauSJvQ
-	krK8c4JPYFS29QV8wKOzQ5DmiANWScJuNK//H
-X-Gm-Gg: AR+sD12MS8BX+9LxtqyMP46qELVZs63FLhIKwRSCGrl0QnweZRBMhCSCSU56xGxPLJb
-	6eRTilBbshhClmFbcQYKfCruIm+/F+G6kpHxq+ZA6mmaSWADGFuNr9IDV95N/zkiYFsCztAzr8b
-	nhuDiWyQSKqigPGLFiv8a0j1vPMWD4eHqsfiwn+QontFjXI+To8H4hNSel+v/IYCofzm/c9U/hk
-	7Y0Dh77EJDuTfsedH9gMAvTEAkrWC7XTgll4P4zWg129QBHuTBFm4ofhem5Hi42LYh7QbkNNTHC
-	u5vUzRzeaiCA9reQTAWyTV1JFmqTBtE3XY4K3H1hyzLh6rq7gMiHTaxLlHE3/ZlRwFvyuhkvtn2
-	WeHrtdqPSDaQVEWaBvnFatNMmov3qRRBhuRKOlH97qTac5Qrw4QoBWl+HELNnnKk=
-X-Received: by 2002:adf:e50c:0:b0:482:a9a4:91e7 with SMTP id
- ffacd0b85a97d-482a9ede2f3mr11527757f8f.15.1787081163046; Tue, 18 Aug 2026
- 12:26:03 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1787135985; x=1787740785;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+wGjeeNszQHWmnGaEh/6lnk77mM0dthBmjem3skz/pc=;
+        b=IVhnvjbuBs+JYgMMVpn8yg3T3AyUMtnGIIR92kngE1au9BOaVNpyVOudDUIkKfS8DS
+         2HofPir3NnMjBsZ+C3yb02EtSGP/15wMlrBPJc41OwBARSL8fXa8DQ2zlnsj5bCi2Nto
+         BOTJMEy1v5QAkS3WB1UuWyPtay1W4p1g0s8OuY2IuscGMThRRs38OG85OVHQ8whxBNVA
+         wdajwzYGiODb3T+Q9WelFDs0dvUPBcGdPGuy4hocgfxPdfR+SgzTKZrrbs5jrM1W9PS2
+         xUBLh1i5oyci5fPI+A8POhadUmhSiKqUdWKO7Z1S42w7p2UGg0oyy5adc/JoNL6pJETM
+         XWMg==
+X-Gm-Message-State: AOJu0YxTwuOewnWHJu/PXDw8vGCijf2P7yim85crCn6jUs91CQkXAbLQ
+	UEfKy1c62v8kYjDNTwPD19k0ij8R5pm+4/8uP8jMW1iaNvq02KQQGWqU
+X-Gm-Gg: AR+sD11Nw4ud0y56aJk/FnUuHIc0+DhyWKdGNeKF6K6jiLJeYkCZUQzZpKA0PBVr2DH
+	yvyzkAZSvpp3431scK9jmKLptLLZVA2lHmwwDDq00v6I2KBI25aHIYAXlaQO8W5mPHVIYZtSMn8
+	TL1VFQpDJ359XorUvnDAgvg3y3bdoQuQ7XCZPf6HxpgtXnBrVJT3r8O23ul0YEOlDyaqNMVFu2Z
+	c2Izzd+WOe4TlF4yqpKof6RfxsH6S0g/3zNOpdOoUP2jFl5aOn+JrukXebto8+a3ftqhzqliOWv
+	vJTTUD6qaogh74WKaVvaryp4u+6E8w4j9gq6Ua6mrdAWi5P6sw1/EwKl0DUaanThRa3/fyPbJGz
+	DxEjY3dFbg1lWkm2LKpPdWk/XdkkjF/j4vbpcGsbhyQfFBcVNlk8F01kLtsJZes7u9aA2wVNUAw
+	k/B+6caYiTR082z5SC/JcHvz0xWPZaz3lvFXJB7SHUhiGjEt8LKja+Op1nC0xq36MS/efSw9OYG
+	6rX2zR/DmN6DRjFkDjv/Go7ykP0W5QZsL8+TZj7eLgs8/BnjITcXlfkmazxlhZWzw1i79VD4IRG
+	/RgTLWvglaoMDfmRshN4
+X-Received: by 2002:a17:903:b4e:b0:2d5:ea01:429d with SMTP id d9443c01a7336-2d60197e7b6mr71176115ad.14.1787135984648;
+        Wed, 19 Aug 2026 03:39:44 -0700 (PDT)
+Received: from iku.example.org ([2401:4900:1c07:efb3:a897:a9b5:e171:c935])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-327bef77fc0sm11169630eec.8.2026.08.19.03.39.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Aug 2026 03:39:44 -0700 (PDT)
+From: Prabhakar <prabhakar.csengg@gmail.com>
+X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Miquel Raynal <miquel.raynal@bootlin.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-rtc@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v4 00/15] Add RTC support for Renesas RZ/T2H and RZ/N2H SoCs
+Date: Wed, 19 Aug 2026 11:39:11 +0100
+Message-ID: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260706175138.12587-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260706175138.12587-13-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260706180331.3AD811F000E9@smtp.kernel.org> <aoRB8CrV7ECOG33Y@ninjato>
-In-Reply-To: <aoRB8CrV7ECOG33Y@ninjato>
-From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Tue, 18 Aug 2026 20:25:34 +0100
-X-Gm-Features: AcwNN1XvqpNfeUIyYJ22liaTzQ5Arj1acbogU-h1r2Q7CoLl1dfoF0q-qvhOhnA
-Message-ID: <CA+V-a8tJAStSKfsESoEE8vUjgnR+P1yKeYKTnpN43+=MtgbCBw@mail.gmail.com>
-Subject: Re: [PATCH v3 12/12] rtc: rzn1: Add support for Renesas RZ/T2H and
- RZ/N2H SoCs
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: sashiko-reviews@lists.linux.dev, linux-rtc@vger.kernel.org, 
-	robh@kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, 
-	conor+dt@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Wolfram,
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Thank you for the review.
+Hi all,
 
-On Tue, Aug 18, 2026 at 12:28=E2=80=AFPM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
->
-> > Should we add match data to this compatible string to identify the vari=
-ant
-> > and explicitly reject probe with -EOPNOTSUPP if the clock configuration
-> > would require the unsupported SUBU mode?
->
-> Correct. Matches also my notes which say that this code
->
-> 445                 if (rate !=3D 32768)
-> 446                         scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
->
-> is wrong when we have a variant which has no SUBU support. Because in
-> that case, we need to enable SCMP even for 32768Hz.
->
-> So, yes, it is needed to mark which variant has SUBU (RZ/N1 only, likely
-> forever) and bail out if no SUBU and no 'xtal'. The above code needs to
-> check SUBU support, too.
->
-Ok I will introduce OF data to handle this.
+This series adds support for the RTC IP found on the Renesas RZ/T2H and
+RZ/N2H SoCs.
 
-struct rzn1_rtc_data {
-        bool has_subu;
-};
+The RTC block is closely related to the RZ/N1 implementation and can
+reuse the existing driver infrastructure when operating in SCMP mode,
+which is required on these SoCs due to their 195.3 kHz RTC input clock.
+
+While the RZ/T2H and RZ/N2H variants do not implement the RTCA0SUBU
+register present on RZ/N1, this register is not accessed by the driver
+in SCMP mode, allowing support to be added with minimal changes.
+
+The RZ/T2H RTC variant also supports a 1 Hz output signal on the
+RTCAT1HZ pin, controlled by the RTCA0CTL1[RTCA01HZE] bit. This bit is
+marked as reserved in the RZ/N1 hardware manual, making RZ/T2H a
+distinct RTC variant despite its overall compatibility with the RZ/N1
+implementation.
+
+Patches have been rebased on top of next-20260818.
+
+v3->v4:
+- Added Reviewed-by tags from Wolfram.
+- Made use of tm->tm_wday directly instead of recalculating the weekday
+  from the day-of-month.
+- Updated commit message in patch #3
+- Shortened the comment describing the calculation of RTC_PCLK.
+- Updated usleep_range() value to use 2 * rtc->sync_time.
+- Added new patch to gate SUBU register access based on OF match data.
+- Added new patch to make use of pm_runtime_put_sync() in rzn1_rtc_disable_hardware().
+- Added new patch to drop trailing comma from OF match table sentinel.
+- Added OF rzt2h_data for OF data
+- Updated commit message for patch #15
+
+v2->v3:
+- Added new patch to fix weekday underflow when alarm crosses month
+  boundary.
+- Make use of devm_add_action_or_reset() to simplify driver teardown
+  and remove the .remove() callback.
+
+v1->v2:
+- Dropped wakeup capability support patch.
+- Dropped header sort patch as it was already fixed upstream.
+- Updated commit message to drop reference about RTCA0TCR register.
+- Added Acked-by and Reviewed-by tags.
+- Updated Kconfig help text to keep it generic and not specific to
+  RZ/N1 SoCs.
+- Initialized rate variable to 32768 to avoid timeout_us of 0.
+- Made use of RZN1_RTC_SUBU_RTCA0FX mask for SUBU register access
+  instead of 0x3F.
+
+v1: https://lore.kernel.org/all/20260615154805.1619693-1-prabhakar.mahadev-lad.rj@bp.renesas.com/
 
 Cheers,
 Prabhakar
+
+Lad Prabhakar (15):
+  dt-bindings: rtc: renesas,rzn1-rtc: Add RZ/T2H and RZ/N2H support
+  rtc: rzn1: Handle EPROBE_DEFER for optional pps interrupt
+  rtc: rzn1: Fix weekday underflow when alarm crosses month boundary
+  rtc: rzn1: Fix malformed MODULE_AUTHOR string
+  rtc: Kconfig: Broaden RTC_DRV_RZN1 dependency to ARCH_RENESAS
+  rtc: rzn1: Fix alarm range check truncation on 32-bit systems
+  rtc: rzn1: Replace remove callback with devm_add_action_or_reset()
+  rtc: rzn1: Use pm_runtime_put_sync() in rzn1_rtc_disable_hardware()
+  rtc: rzn1: Dynamically calculate synchronization delay based on clock
+    rate
+  rtc: rzn1: Use temporary variable for struct device
+  rtc: rzn1: Consistently use dev_err_probe()
+  rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for register access
+  rtc: rzn1: Add OF match data to gate SUBU register access
+  rtc: rzn1: Drop trailing comma from OF match table sentinel
+  rtc: rzn1: Add support for Renesas RZ/T2H and RZ/N2H SoCs
+
+ .../bindings/rtc/renesas,rzn1-rtc.yaml        |  35 +++-
+ drivers/rtc/Kconfig                           |   5 +-
+ drivers/rtc/rtc-rzn1.c                        | 175 ++++++++++--------
+ 3 files changed, 129 insertions(+), 86 deletions(-)
+
+-- 
+2.43.0
+
