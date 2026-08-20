@@ -1,45 +1,47 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5819A355048;
-	Thu, 20 Aug 2026 21:28:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D95E48551E
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 21:29:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787261330; cv=none; b=mZ6XdkUSJi/dY6ZHKyCRVEEYsPbTugY4wb71Cl2IzS6v10APgLU+13Cd7DABXop/7zk+3FtA/nqbf2BQD+4abJTDAqWivFax98PwB2bwQbMRSYBKPKtAf80B959Osd3Em1P+IpAtafFR2Fn6Z4mCvj8mmUEYX5q0Cnt7ftYGL9g=
+	t=1787261343; cv=none; b=KXmd9VaRERvPfokDHf+5TVX4vV96no+pK2o4BHsXmFFHELyxMH8z2VwesmB83tuQihsfo0JKo3PflHuS1V9v/e5TW4dxDV6rHuAxi2BqNQDKeQwfMsjlKtH71YE07tiDLhh9vH9XgLdjf0K/PLn6gB2LHHopEFWWi4+qJwHh+Tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787261330; c=relaxed/simple;
-	bh=M9KxGATqbPp8ussVdujbZJZTABgQ56rUmd/+TIs1aOk=;
+	s=arc-20240116; t=1787261343; c=relaxed/simple;
+	bh=ovHe4uJbfswGxytSwu5Eklbh+3TLPEoDJIYwYMGVEC4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sR3uKn6+bUAzlLPJxEF274UGeSWikPD2HEGXpwCOuoMVZRujVMzzA1gTO006bmkCgSP/qAkOg6mu1Ud9huTZOXa1W+qXSNvPPfqRrSGzeVJIqvLicOxh0p2X3oaMmxEbt/ty3XerE5cnlqxqQBVhXmlXZgwN6YOOd8mzk2WsvjM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=bBGVMBpL; arc=none smtp.client-ip=185.246.85.4
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZFKp5sr8fPgqAn8pAd7OLxCkq5kvyH06vvuKh5GJ9oe7Mwg6e174hqBZGvblhTGJz3w3DgjlAEN51CZr11dNc68rQx1yrUyBhi+CVuTHAYoC/rYgkIOB684wTvJEQKr4NmfiNhiVAYNNhIASRYTgZWYr6tTSw/pwbnZMGdINquM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FkLVE+bn; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="bBGVMBpL"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FkLVE+bn"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id C65314E4130C;
-	Thu, 20 Aug 2026 21:28:47 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 99CAA1A1778;
+	Thu, 20 Aug 2026 21:29:00 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 92F025FF59;
-	Thu, 20 Aug 2026 21:28:47 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5544B11C7687F;
-	Thu, 20 Aug 2026 23:28:41 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 6E2D05FF59;
+	Thu, 20 Aug 2026 21:29:00 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E48EC11C76885;
+	Thu, 20 Aug 2026 23:28:53 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787261323; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=2RRzTf15BWKNMGMt8MDiUuiFNGiUIoGkX1Ztk/Dh/Ck=;
-	b=bBGVMBpLdEfWHqaHi2z/uo+r9reVl7kvZw1oMwkKKjwgc492Jid9t2UDYWOAhxQcetVbgz
-	GbjyL8xzQvK4+96qa7A8qxSJxmZQRfAGFc/4lkV57pm6LWMfYyvpjWGfMbBGJjbUv8nLYa
-	Ypv+dKAt/+sffLUee6HwmpRLhSLlWOn4evRWQJFy/Y2jcpdZTsN4yiWqAOyjxiuokbLH1Z
-	G4FFKKzMzt5L9b8r50Lt+XbCQ4CIMBc9MwrEFxlmMVMya0y53RrIpb4qz0WfatCXiAAx3b
-	emIL2qp3hjMY1fRMxNzJRd2a7qQMPsfZT8FBNT+s7xA1hO/Nym26j6QvM1mGIA==
-Date: Thu, 20 Aug 2026 23:28:41 +0200
+	t=1787261335; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=RY0imCgnCA9nd0UROR1fRhHdSfXZEWvh9y0SXRPkVJc=;
+	b=FkLVE+bnbPvYltDk/4lQFd/2hY1ldmVFuUadKNig0lTLqZxVdFnKPCUBO+WyRQuZy1sNrC
+	nUoqMAhKJVO8LgRG9kilhMrvAX2E0aI5XbKGILb6+EYgp5yWvpMI4WqzPrRgRMZc8V8YJm
+	RGi7CM/HDl6tD18VaFAnXXAbpNCP+DX3xuepdOpzcOnS0XPbBk0Q6/ESMP1ijgq+jvlq+I
+	ZmOD+JW9q8X5HFmb1Dts0F5vulRDj4c8tt/rth6zXoCsLeeOxdLqu+fmJbMsrTOCNOiquR
+	nz7umQCqoAL8gExzz4FudP/J/rvAhDK7HYbFpJzJix0ETN2zdWFb6qcJ3ErSsQ==
+Date: Thu, 20 Aug 2026 23:28:53 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Julia.Lawall@inria.fr, Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: cocci@inria.fr, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: (subset) [PATCH 29/36] rtc: pcf2127: remove conditional return
- with no effect
-Message-ID: <178726066531.423710.3877565026736920974.b4-ty@b4>
-References: <20260723184538.3888637-30-ekffu200098@gmail.com>
+To: Linkai Gong <gonglinkai@kylinos.cn>
+Cc: Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
+	Michael Ellerman <mpe@ellerman.id.au>, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: gamecube: check return value of
+ devm_rtc_register_device()
+Message-ID: <178726066535.423710.16548526114827195430.b4-ty@b4>
+References: <20260731080458.417532-1-gonglinkai@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -48,23 +50,18 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260723184538.3888637-30-ekffu200098@gmail.com>
+In-Reply-To: <20260731080458.417532-1-gonglinkai@kylinos.cn>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Fri, 24 Jul 2026 03:45:31 +0900, Sang-Heon Jeon wrote:
-> Both branches of the check return the same value, so the check has
-> no effect. Remove it and return the value directly.
-> 
-> This is the result of running the Coccinelle script from
-> scripts/coccinelle/misc/cond_return_no_effect.cocci.
-> 
-> 
-> [...]
+On Fri, 31 Jul 2026 16:04:58 +0800, Linkai Gong wrote:
+> gamecube_rtc_probe() ignored the return value of
+> devm_rtc_register_device() and always returned success. Propagate the
+> error so probe fails when RTC registration fails.
 
 Applied, thanks!
 
-[29/36] rtc: pcf2127: remove conditional return with no effect
-        https://git.kernel.org/abelloni/c/b1407862fb57
+[1/1] rtc: gamecube: check return value of devm_rtc_register_device()
+      https://git.kernel.org/abelloni/c/ca45cfa74370
 
 Best regards,
 
