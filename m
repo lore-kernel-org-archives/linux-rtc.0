@@ -1,59 +1,94 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93F5374E5A;
-	Thu, 20 Aug 2026 15:26:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14D2545FFAD
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:38:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787239572; cv=none; b=lBEtJ7AS10jKJjutyPpsESVoKwpFltTmHdHZAoGSC6mp148WpCUC4pc+MPqXNerMeUS3BKTEz/C3W6/VtEoyGEGG68+zMWrc173YeWuWCKImodC7zyeCHzyUw/6Wy0Vfc7DOLdiBbl9UylPoy93i1hh+g7UX/pxWH+ZQUiL+9Dg=
+	t=1787243907; cv=none; b=sFLBy+MEGQdBxzyYhfCKu3CYkDQv4l296+dodd12aowV6xFm9RKP5iCjKgDR4BacceQdLoPkqkSYRw0q9/lgHg67ISsEHsa6Yrs0a1zDMSmrj00Qo2t5asZuZQBZHjgzqX89d0vrwBgoT5ei0xnlhg514ebgfPnQkNzKve8EvV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787239572; c=relaxed/simple;
-	bh=G0rceW7w6TAVdtNFD4gqmf2tKvMwU7ZVw8UUnGrP6w8=;
+	s=arc-20240116; t=1787243907; c=relaxed/simple;
+	bh=3wJW98XflLtaOT9jCkfJCEzdj2hb2N4cu5BJxkHFG68=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JcbgZBso4oADb9QovOxdCEjnnwSwUBOo5F8tU+4UlLMdt4jp1Bj7E1+mSQjJENdFfg6jwdA6lkz9quQsyTn1D9R0JVO07tGNs28zQ1fQdft0mj1UCGiLZ6CS4MFBY+U5EQyzUjUTf+GSUiP3SKTmu1XT7vMVrMaAY1RtwAWKCGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=qWRLjnEH; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=K7TIgmORORkUpCpRYHbkR2CPtjS5gJtTHJbGmS4LmPZBl0ZYycAg6gfojebt/phrfMeQjb53nJYPYPoQ8k3nDoeNwG1G0tAnnby2ceX2oblONapy/QNnB41D3AAcwaG/9W3xPACy+nfmtJYfrwRYwOnSlmPstfZY8xLvoXcZBKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=bK3uWMI2; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=SHVRrOS9; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="qWRLjnEH"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 0B11B4E41301;
-	Thu, 20 Aug 2026 15:26:06 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id C83DA602B8;
-	Thu, 20 Aug 2026 15:26:05 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5D9AC11C76488;
-	Thu, 20 Aug 2026 17:25:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787239560; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=MT5cE37vNNATMSK/0ATPIPek355Lvu0hwGnVbzvXZEc=;
-	b=qWRLjnEHXjBvqPygZo7VeE3craVfVvnakFesBdtkzMMH+jtYTOIln/7LdaxPkJsYiVO3OT
-	29gG2ohut3IepXPCD9JgLK8qfjrrO/JvXp8mNqwj2CKudEgKIgBLacDxGyLFYaJqhw9HYz
-	KLjAtWZ7+xx+YgKyeGJ9q9fh4oMwo//qncLbgNmDA5mCIsgCpOHuMuTH60HgIE850HR8Hm
-	94H/n7IeitBOje4Ye6A0hSlPpYDy6CrINwOrhhw5KGKfg5Kby4Cuphp2HCVop8ZCNxK5L3
-	dRcnW2GYv/hsIeys9ZC23Mk/tlFRkAYzQBH87qmvtDvHN5r2PMrICEZpTVlhEA==
-Date: Thu, 20 Aug 2026 17:25:56 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Markus Probst <markus.probst@posteo.de>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Michael Langer <michael.brainbug.langer@googlemail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Linus Walleij <linusw@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 4/6] rtc: s35390a: force 24-hour mode
-Message-ID: <20260820152556c6da4fce@mail.local>
-References: <20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de>
- <20260820-rtc_s35390a_int1-v5-4-5eb4ef85c6a9@posteo.de>
- <202608192220436c9c7207@mail.local>
- <da52511e1257d1a3d01ad78b53eb983162c66003.camel@posteo.de>
- <20260819232634fd70f621@mail.local>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="bK3uWMI2";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="SHVRrOS9"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67KG74od062675
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:38:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=Ql67hRddUguykUiSPbDbJEU5
+	3SdkjDitCjeD5xqABPU=; b=bK3uWMI2izKg1W79iJxY6edtpZnHtmgjevQzRz5t
+	0DENnDWqwBGch6HBkYfnhH82DduA8Uzf3GqZjpbhvti67Fev562RkHVDCzhTPkpK
+	ULkR1kYz3qTL9UhwO8y+9dMxHn7NxKCVSH9UoDIQgWNMdrWqMfZ5K3DpJhDa39hz
+	K2zBfV5rhlDDgOBnwEsRco0DotXc3D9wi/GhdZLTej5J9yTTDCpN8S1T9n4FU6PL
+	OOULQMso6tD8fsVJ35Xhfqr8GAkgfKgKmbhfRR7Y88cw3sRRqH5RbF/rxm9EPSlT
+	hFQmRoTO+7WUkBAsy5dwbIj7QM0V532VaFLxsWex7w3vBQ==
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g5yg89q4b-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:38:23 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-3931cd2e4cbso3097663a91.2
+        for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 09:38:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1787243903; x=1787848703; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Ql67hRddUguykUiSPbDbJEU53SdkjDitCjeD5xqABPU=;
+        b=SHVRrOS9+DEup+j9p5VPDUccWXYy0GmArBXfEDnNg8TY3p+orfQXxbwCmdZDM7lXAF
+         fdprAVJDBSePZlwg5XaYEyelrgDKXXQ8gsEAxPcsfYwM25+vr12veoTwT0RhRV97wHsd
+         XcNon/AnJvTQeRyYdOGgayA27IObVIIBoecPKMYAiMqlK1utXFtr1S+xJ81kWyf4bGx5
+         HXZV9sDpZp5snBf2qAbfk4F7nZllmL25RMtQtayaLLeZDZB1hSO7RUQiRjSViCNRs5/1
+         tQBEuI9iWGIKCODY1Jh0dcorQLyAOINvt6CSF5KxPMx4qR7aUlwPXkIkmQbf7CxKR37w
+         lGcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787243903; x=1787848703;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Ql67hRddUguykUiSPbDbJEU53SdkjDitCjeD5xqABPU=;
+        b=WNSgdOQHufjHkpfQj3IXSvJtQq7SnimnPswNmXJ8+bMdjng47Cdd0NnbPFDjgXHczL
+         N5pnArxorw8sKFNpmc6UbXl2bHWDTck9/sFe21O0f6iWJH509Kmpxp7VJ8E8SkhZYPdb
+         g2t/ere4zCfkyjCDJP5+6mQ5lnbYk1uKtjZSFIA7Z59xCLotMSDg1lOeCr8ncgQeHg0i
+         lhRHsdZtaMdZxYgYsR2weemphCrMwIQCydhXQNSjOWkGWSSBrPK1S1Q6MJJWlC8J+Mkk
+         D5e8BEWVxwXSxL/6OT7ea6VvmrcIilPt78SiDOVgmvqcIEjCBQqT2MAzUdlOLSpQl37r
+         MMaA==
+X-Forwarded-Encrypted: i=1; AHgh+RrbtKoEgnv97XxIzc4Gn/c5Huyu7QwGnE/8kbIZoF2tcDQizlqwHsK76w0wNpkJymFZJ4BR+K4YW5U=@vger.kernel.org
+X-Gm-Message-State: AFuF++mZCa15bhpRiMp+G75Z8gFXJcA9g2JaTB7AMBvEqW2mL5Qo0oFb
+	IQ0I81zo+uIjX41Zwxp/KUm0IvDyFx2hdRsO8k11nR4DugWjulu8Lk5DWrl8gmlySSKCKKIIsiD
+	tLoPGn6pNzYMFlO5I1Ndkcxm6Pb2WqAEyQti5PPsnRQuny5ZKruQMHZHxMcMOwgo=
+X-Gm-Gg: AR+sD133XUrOoNEDKWqU84TrI2RCM0C1j7K3RsJ41h+DDzhLjs4t9+g7jkgX6tpW8Zc
+	d2pzLR+ZhxNuJprViBaUDbYi2GHwaZOLREge0ZijM0P0+T8CJO9cd9ZZcOhMP3zItfAFmedFHd/
+	d+ujvqWpULGmvyfFgNviCmIh3q73FfXNOoXX9Q4YdfOsMReg0rd/SqrFobZa65/6soRb9s3kRpT
+	kRTOc09Q7z1N0Hge1wJY8qxFYS/5+3zFZxwjHPAAJOob0dJLHjiTpWymYVkLYFtOyH95UQlgXz4
+	ndsG1kfrUOp2qBNK0SJkDQg2q2Ceb41K+t3dGM9/4ftGAr90raL/7+l7Lm8IwLP1uPD5qFWSYrD
+	M8zBWBTjct0NajBAziqRLl+fWli2cKg==
+X-Received: by 2002:a17:90b:3145:b0:395:4de5:1054 with SMTP id 98e67ed59e1d1-395810af13bmr22648328a91.16.1787243902689;
+        Thu, 20 Aug 2026 09:38:22 -0700 (PDT)
+X-Received: by 2002:a17:90b:3145:b0:395:4de5:1054 with SMTP id 98e67ed59e1d1-395810af13bmr22648206a91.16.1787243902175;
+        Thu, 20 Aug 2026 09:38:22 -0700 (PDT)
+Received: from hu-kamalw-hyd.qualcomm.com ([202.46.22.19])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957fb4ffb4sm6972093a91.5.2026.08.20.09.38.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2026 09:38:21 -0700 (PDT)
+Date: Thu, 20 Aug 2026 22:08:15 +0530
+From: Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>
+To: Troels Vognbjerg <hekatombe@gmail.com>
+Cc: alexandre.belloni@bootlin.com, andersson@kernel.org, conor+dt@kernel.org,
+        devicetree@vger.kernel.org, konradybcio@kernel.org, krzk+dt@kernel.org,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-rtc@vger.kernel.org, raryan@qti.qualcomm.com, robh@kernel.org
+Subject: Re: [PATCH 0/2] rtc: Add Qualcomm PMIC RTC-GLINK support for Glymur
+Message-ID: <hb3jvyuf2j6sl7pjimnccoj4hsmqtxdq6s7w626sbmpbcqw7t3@wzyo563dmcle>
+References: <20260807-rtc-glink-cleanup-v1-0-7801e4d69c4f@oss.qualcomm.com>
+ <20260811121012.7046-1-hekatombe@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -62,199 +97,102 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260819232634fd70f621@mail.local>
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <20260811121012.7046-1-hekatombe@gmail.com>
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDEyNSBTYWx0ZWRfXzj94PedrazTi
+ kxtWRft2jS1y0io3e5vOavT4Jmz3+ACnhtMnip4UCiUFkRQl4yqadWjVcCfI+hPJjdV8AVic2MT
+ BBlkW3O6FCxPY9qivK+d1gzQQuIMQmc=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDEyNSBTYWx0ZWRfX/v7YUL7wRni3
+ p1/zjJDfqQoXR4siIKzbfXwNrevTyO3MjR74KRkxqfv+VFWpfC5PPSIGvbr5ZAzaHyF7KLPASy1
+ WSiXF+DEvMqaX5GJALFYmcKZYkWM/+cnVFOJiy9Lu8pnfJXCsfthEtv2TayHDcylBs/i3vDV3Zz
+ 8rgZ4+86EFS7uz/XWq9FZERjrxxRF1wUmKS7tB+byxhe9c4tpKznle7TStBbGDSHO5asG3US+Mu
+ bSFK73Ti3kewgLJhQKELMGY7AlWKVIQD9mIb98FBInt29SdoSSLy7pg1JrWaiNVr/p4o0CFJTek
+ TetKD0bVona+Qkt/ks4Q9i9NVewXBDl42XUD4cscsLp8c3mP2teV02oTj49YdxatokFIJbYo9xr
+ 1UJhyFGlAIsnd+IyppDpqPVWQImg7fR88qWF7eIzXPR4HS/ibiWbwkFUenFc1yYQgQmGLv8RuVv
+ BY7lPQEZ0ZCbe5nzRWw==
+X-Authority-Analysis: v=2.4 cv=Y7/IdBeN c=1 sm=1 tr=0 ts=6a872d7f cx=c_pps
+ a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=3WHJM1ZQz_JShphwDgj5:22
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=hkoF_9UkUv8IWmCfoxQA:9 a=CjuIK1q_8ugA:10
+ a=rl5im9kqc5Lf4LNbBjHf:22
+X-Proofpoint-GUID: GHM_x2PXPf1CgqIszhgBWwhJSev-v0GY
+X-Proofpoint-ORIG-GUID: GHM_x2PXPf1CgqIszhgBWwhJSev-v0GY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-20_01,2026-08-20_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0 priorityscore=1501 malwarescore=0 adultscore=0
+ clxscore=1015 phishscore=0 impostorscore=0 lowpriorityscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608200125
 
-On 20/08/2026 01:26:34+0200, Alexandre Belloni wrote:
-> On 19/08/2026 22:57:13+0000, Markus Probst wrote:
-> > On Thu, 2026-08-20 at 00:20 +0200, Alexandre Belloni wrote:
-> > > On 19/08/2026 22:05:56+0000, Markus Probst wrote:
-> > > > Instead of trying to remember the current 12/24-hour mode, which could
-> > > > result in time corruption if out of sync, we force the use of the 24-hour
-> > > > mode. Set to 24-hour mode if in 12-hour mode on startup and assume
-> > > > 24-hour mode. The 24-hour mode is already forced on reset.
-> > > > 
-> > > > Signed-off-by: Markus Probst <markus.probst@posteo.de>
-> > > > ---
-> > > >  drivers/rtc/rtc-s35390a.c | 67 +++++++++++++++++++++--------------------------
-> > > >  1 file changed, 30 insertions(+), 37 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> > > > index 575bb256eb25..b34a3f7e8476 100644
-> > > > --- a/drivers/rtc/rtc-s35390a.c
-> > > > +++ b/drivers/rtc/rtc-s35390a.c
-> > > > @@ -64,7 +64,6 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
-> > > >  
-> > > >  struct s35390a {
-> > > >  	struct i2c_client *client[8];
-> > > > -	int twentyfourhour;
-> > > >  };
-> > > >  
-> > > >  static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf, int len)
-> > > > @@ -181,31 +180,6 @@ static int s35390a_disable_test_mode(struct s35390a *s35390a)
-> > > >  	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf));
-> > > >  }
-> > > >  
-> > > > -static char s35390a_hr2reg(struct s35390a *s35390a, int hour)
-> > > > -{
-> > > > -	if (s35390a->twentyfourhour)
-> > > > -		return bin2bcd(hour);
-> > > > -
-> > > > -	if (hour < 12)
-> > > > -		return bin2bcd(hour);
-> > > > -
-> > > > -	return 0x40 | bin2bcd(hour - 12);
-> > > > -}
-> > > > -
-> > > > -static int s35390a_reg2hr(struct s35390a *s35390a, char reg)
-> > > > -{
-> > > > -	unsigned hour;
-> > > > -
-> > > > -	if (s35390a->twentyfourhour)
-> > > > -		return bcd2bin(reg & 0x3f);
-> > > > -
-> > > > -	hour = bcd2bin(reg & 0x3f);
-> > > > -	if (reg & 0x40)
-> > > > -		hour += 12;
-> > > > -
-> > > > -	return hour;
-> > > > -}
-> > > > -
-> > > >  static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> > > >  {
-> > > >  	struct i2c_client *client = to_i2c_client(dev);
-> > > > @@ -225,7 +199,7 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> > > >  	buf[S35390A_BYTE_MONTH] = bin2bcd(tm->tm_mon + 1);
-> > > >  	buf[S35390A_BYTE_DAY] = bin2bcd(tm->tm_mday);
-> > > >  	buf[S35390A_BYTE_WDAY] = bin2bcd(tm->tm_wday);
-> > > > -	buf[S35390A_BYTE_HOURS] = s35390a_hr2reg(s35390a, tm->tm_hour);
-> > > > +	buf[S35390A_BYTE_HOURS] = bin2bcd(tm->tm_hour);
-> > > >  	buf[S35390A_BYTE_MINS] = bin2bcd(tm->tm_min);
-> > > >  	buf[S35390A_BYTE_SECS] = bin2bcd(tm->tm_sec);
-> > > >  
-> > > > @@ -256,7 +230,7 @@ static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> > > >  
-> > > >  	tm->tm_sec = bcd2bin(buf[S35390A_BYTE_SECS]);
-> > > >  	tm->tm_min = bcd2bin(buf[S35390A_BYTE_MINS]);
-> > > > -	tm->tm_hour = s35390a_reg2hr(s35390a, buf[S35390A_BYTE_HOURS]);
-> > > > +	tm->tm_hour = bcd2bin(buf[S35390A_BYTE_HOURS] & 0x3f);
-> > > >  	tm->tm_wday = bcd2bin(buf[S35390A_BYTE_WDAY]);
-> > > >  	tm->tm_mday = bcd2bin(buf[S35390A_BYTE_DAY]);
-> > > >  	tm->tm_mon = bcd2bin(buf[S35390A_BYTE_MONTH]) - 1;
-> > > > @@ -325,8 +299,7 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-> > > >  	else
-> > > >  		buf[S35390A_ALRM_BYTE_WDAY] = 0;
-> > > >  
-> > > > -	buf[S35390A_ALRM_BYTE_HOURS] = s35390a_hr2reg(s35390a,
-> > > > -			alm->time.tm_hour) | 0x80;
-> > > > +	buf[S35390A_ALRM_BYTE_HOURS] = bin2bcd(alm->time.tm_hour) | 0x80;
-> > > >  	buf[S35390A_ALRM_BYTE_MINS] = bin2bcd(alm->time.tm_min) | 0x80;
-> > > >  
-> > > >  	if (alm->time.tm_hour >= 12)
-> > > > @@ -381,8 +354,7 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
-> > > >  
-> > > >  	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
-> > > >  		alm->time.tm_hour =
-> > > > -			s35390a_reg2hr(s35390a,
-> > > > -				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
-> > > > +			bcd2bin(buf[S35390A_ALRM_BYTE_HOURS] & 0x3f);
-> > > >  
-> > > >  	if (buf[S35390A_ALRM_BYTE_MINS] & 0x80)
-> > > >  		alm->time.tm_min = bcd2bin(buf[S35390A_ALRM_BYTE_MINS] & ~0x80);
-> > > > @@ -459,7 +431,7 @@ static int s35390a_probe(struct i2c_client *client)
-> > > >  	unsigned int i;
-> > > >  	struct s35390a *s35390a;
-> > > >  	struct rtc_device *rtc;
-> > > > -	u8 buf, status1;
-> > > > +	u8 buf, status1, time[7];
-> > > >  	struct device *dev = &client->dev;
-> > > >  	struct nvmem_config nvmem_cfg = {
-> > > >  		.name = "s35390a_nvram",
-> > > > @@ -503,10 +475,31 @@ static int s35390a_probe(struct i2c_client *client)
-> > > >  		return err_read;
-> > > >  	}
-> > > >  
-> > > > -	if (status1 & S35390A_FLAG_24H)
-> > > > -		s35390a->twentyfourhour = 1;
-> > > > -	else
-> > > > -		s35390a->twentyfourhour = 0;
-> > > > +	if (!(status1 & S35390A_FLAG_24H) && err_read != 1) {
-> > > > +		unsigned int hour;
-> > > > +
-> > > > +		status1 |= S35390A_FLAG_24H;
-> > > > +
-> > > > +		err = s35390a_get_reg(s35390a, S35390A_CMD_TIME1, time, sizeof(time));
-> > > > +		if (err < 0)
-> > > > +			return dev_err_probe(dev, err, "reading 12-hour time failed\n");
-> > > > +
-> > > > +		/* converting to 24-hour time */
-> > > > +		time[S35390A_BYTE_HOURS] = bitrev8(time[S35390A_BYTE_HOURS]);
-> > > > +		hour = bcd2bin(time[S35390A_BYTE_HOURS] & 0x3f);
-> > > > +		if (time[S35390A_BYTE_HOURS] & 0x40)
-> > > > +			hour += 12;
-> > > > +
-> > > > +		time[S35390A_BYTE_HOURS] = bitrev8(bin2bcd(hour));
-> > > > +
-> > > > +		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &status1, sizeof(status1));
-> > > > +		if (err < 0)
-> > > > +			return dev_err_probe(dev, err, "setting 24-hour mode failed\n");
-> > > > +
-> > > > +		err = s35390a_set_reg(s35390a, S35390A_CMD_TIME1, time, sizeof(time));
-> > > > +		if (err < 0)
-> > > > +			return dev_err_probe(dev, err, "setting 24-hour time failed\n");
-> > > 
-> > > No, don't do this, this will break existing users as your conversion may
-> > > happen after a minute rollover. The only function in which you are
-> > > allowed to change the time registers is set_time. You definitively need
-> > > to be able to read 12H mode time but you are allowed to only support
-> > > writing 24h time.
-> > > 
-> > > Also, this is super verbose, adding strings to the kernel makes it
-> > > bloated.
-> > > 
-> > > To avoid any desync, simply test for the S35390A_FLAG_24H bit in status
-> > > in s35390a_rtc_read_time as the register is already read anyway.
-> > > 
-> > I think that would defeat the whole point of the patch, that the rtc is
-> > always in 24-hour mode. If this driver was always used with the rtc, it
-> > already should be in 24-hour mode, as thats the mode this driver does
-> > initialize the rtc.
-> 
-> This assumption may not be true, the RTC may have been initialized by a
-> bootloader or a different system in the factory.
-> 
-> > Your idea would work for the time, but not in combination with alarms.
-> > If the rtc could be in 12-hour mode, then this would need to be
-> > considered in setting and reading alarm. Also setting 24-hour mode
-> > inside set_time would then also require to convert the alarm time.
-> > Effectively making it less maintainable than before.
-> 
-> Note that while setting the time when an alarm has been set is not
-> forbidden, it is never guaranteed to work anyway. I guess something we
-> could do in the core is that whenever the time is set we go over the
-> timerqueue and set the alarm again.
-
-Actually this is already what we do so this is not an issue.
-
-
->This would allow to remove the UIE
-> disabling/enabling dance.
-> 
+On Tue, Aug 11, 2026 at 02:10:12PM +0200, Troels Vognbjerg wrote:
+> Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com> wrote on Fri, 07 Aug 2026 02:26:29 +0530:
+> > On some targets like Glymur, the permission for receving the RTC
+> > alarms is routed to charger firmware running on remote subsystem.
 > > 
-> > Currently s35390a_init does initialize the rtc in 24-hour mode, while
-> > not updating s35390a->twentyfourhour. So some change needs to be made.
-> > Just setting s35390a->twentyfourhour inside s35390a_init might now be
-> > the simplest solution here.
+> > This is because Glymur boards have to  support MSFT's `TAD feature`
+> > on the windows OS devices.
+> > 
+> > So rtc-pm8xxx.c driver cannot recieve RTC alarm IRQs via SPMI on
+> > Glymur. So in order to make the IRQ available on the Linux kernel,
+> > the PMIC RTC Alarm IRQ must be routed to APPS via remote subsystem.
+> > 
+> > To implement this, add support for a New Qualcomm PMIC GLINK RTC
+> > client, which will request for RTC set/get calls for time/alarm IRQ
+> >  via the existing pmic_glink interface to the charger firmware.
+> > 
+> > Also, add a DT property to explicily support enabling the RTC
+> > writes, keep RTC writes disabled by default to align behaviour
+> > with the existing rtc-pm8xxx.c driver.
 > 
-> Or maybe simply stop caching the value.
+> You mentioned this patch series applies to targets like Glymur. Does that include
+> the ASUS Zenbook A16 UX3607OA, or did ASUS do something different on this
+> laptop?
 > 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-> 
+> The reason I am asking is because when I build this as a kernel module,
+> I get the following error message:
+> [    2.241461] rtc-pm8xxx c426000.spmi:pmic@0:rtc@6100: probe with driver rtc-pm8xxx failed with error -2
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+This is a different driver error, this is for the one which works on the SPMI bus.
+While the driver that i have posted in the current series is based on pmic_glink interface, which relays the
+RTC alarm requests to charger firmware running in remote processor (which implements the Windows TAD feature)
+
+do you have this `qcom,no-alarm` prop defined?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/glymur-crd.dtsi?h=v7.2#n565
+
+
+> [    2.499556] Modules linked in: rtc_pm8xxx aes_ce_blk ghash_ce gf128mul sm4_ce_gcm sm4_ce_ccm sm4_ce sm4_ce_cipher sm4 qcom_battmgr rtc_qcom_glink(+) simple_bridge display_connector
+> [    3.277788] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [    4.318666] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [    4.319085] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: registered as rtc0
+> [    5.359404] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [    6.400331] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [    6.400496] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: hctosys: unable to read the hardware clock
+> [   25.447761] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [   26.488271] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [   27.517573] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [   28.560114] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [   29.609224] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [   30.638629] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [   31.677524] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [   32.720749] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [   33.757662] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> [   34.808360] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: all time sources failed
+> [   35.837651] rtc_qcom_glink.qcom_pmic_rtc_glink pmic_glink.rtc-glink.0: 0x68 failed (-110), falling back
+> 
+> And the error message keeps repeating every second or so.
+
+Sorry for this, i think the firmware needs to be updated for this feature, I will fix this by existing cleanly
+if the firmware doesnt support it. To avoid repeated messages.
+
+Also will check internally how you can get new firmware (if you want to use it?)
+
+Again sorry for the trouble.
+
+> 
+> --
+> Troels Vognbjerg
+
+Regards,
+Kamal
