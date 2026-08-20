@@ -1,243 +1,244 @@
-Received: from mta-65-227.siemens.flowmailer.net (mta-65-227.siemens.flowmailer.net [185.136.65.227])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E620442A15C
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 11:24:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.227
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E117443711D
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 11:39:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787225089; cv=none; b=n519M/uR71qH5JA/VXPDHzaJnA6+YkhRuweDVxNlbmk4ePwOhJcMGqZR1GfMirE7MNEp4t9T259XA7uqd5WdTR2nN5P0VIX4EFDZ3h+ruhT+gHmPDAPEXGHJ7mrwbEA1klIzpstYCPSrE0hrvlD31CC5fOTIIPgGtOoWn/OZ888=
+	t=1787225948; cv=none; b=BY2c7hS4U75X6Z7xackwk8A5g66m1htXja/7NgY5wSQdX/kPXq0mZZ+yxFN9fHSYwELeBaIWLqNYXLFD2HKT/aOWubTinG+cV2WeTPdmIZpbSseNUws2bdI01NmQrS1CRbabvjQ/2Ev3p5gZiAONsWoMGY77vOpO8CUSRHck9Ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787225089; c=relaxed/simple;
-	bh=QvPrTyRUxpT5Ko4BRW/xtMybx/yQT6cE7mPgUfuIYiU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MHodSJ8HaR1mreOQh74INe8nwRqds2avn/UTM93CXl1nvNitatW/z+pZqF+cqgS38IzD8cp598jNNkr/1W8myrYBpB+6OU83fpL4Jug6YTe99LAY/YeSNkw4zOWmHCM24Dm6XCwfq0gh88I7vrSLJZZoJpRlTqOv606FaY0nN7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=AoMGh1yM; arc=none smtp.client-ip=185.136.65.227
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
+	s=arc-20240116; t=1787225948; c=relaxed/simple;
+	bh=EiOiqIcqiUe976EE7fvSDs0Zo+bkPq8VqiPQ5c6UvlY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=PZqLB7dZzqDPJJJ6cG+7qyz8K0jhOomY1X0xdM5ToqRuWDG+UrwZVOUEWMATGNPGL3vKv5uPAL+Z2PMEWwlil/9GBE5RIatFHCKuVRlNRLVIpWua+B7ZSO2szXEbuPKpAI6UHokkH3UrEX5KvtWrMArDfHOvUWTHjGMhgBBDsvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JuD9/8Jv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="AoMGh1yM"
-Received: by mta-65-227.siemens.flowmailer.net with ESMTPSA id 202608201124412c82c459060002071d
-        for <linux-rtc@vger.kernel.org>;
-        Thu, 20 Aug 2026 13:24:42 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
- d=siemens.com; i=alexander.sverdlin@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
- bh=OatxJyygaql0HoMqS6F78jQWSQvpRPQ1GtRa0JOfUs4=;
- b=AoMGh1yMBn3A4fLmuroPD3tVZr/l4hZx4NzOxzqOtLX+U2rIMc7osYYPriMCnFkNhjTjbv
- XDb4RoLnhNix41WJzbFXFvGyByW3teKVOjMznXdb1eT3lOCArTRKAmHe4QfHttDls07oDFtk
- FBinGtWOHi7b7393pSIfqBdxgKm9Cb4ETfMJwQ4hbo8BoDYWOLCsB5nqWKbfW+HzONUqHW+y
- J2lEEyb1DugIdnBS52dNkT7qVjZ68mE+ICpfECAtZKw1n14mirrpcMBEe9V9C32kxVfS6Lmw
- ILf0vB9HLrLBUbuObv0pYYJXtGWXDc5B4MQblKNFgwlcZ/r8h7U1Pneg==;
-From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
-To: linux-rtc@vger.kernel.org
-Cc: Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-kernel@vger.kernel.org,
-	Adrian Freihofer <adrian.freihofer@siemens.com>
-Subject: [PATCH v2] rtc: pcf85063: add 1 Hz update interrupt (UIE) support
-Date: Thu, 20 Aug 2026 13:24:33 +0200
-Message-ID: <20260820112437.3715237-1-alexander.sverdlin@siemens.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JuD9/8Jv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD991F00A3A;
+	Thu, 20 Aug 2026 11:39:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787225946;
+	bh=6t7qksiiTdDquXtVd0EnOpZJGDAlNmRAhBXS3Qc/eCc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JuD9/8JvoGZ9DFXC1z/+ijgVWESXm/zh9ly/kdKGkCn+ojZj0E8mqOtDldgYADlkf
+	 QT0u1bYd/LcRiY/z3iaeuK3WLj8zCl23in6+DvIp76AfXP2HLgHbkA3YcV0I60jQs+
+	 lom8aaTd2VEZoZf4oy2NFbOPfRcoNWGcFppRfuQ27Y2Cz3fQB7GCxiAKAlB7uPbFP0
+	 MSFALqeobQvJV/IpPAWNk5XKX8qHjTMsnh+5YaEp6V8oA/ML4DKo/XYix4M3tNUtAu
+	 pQJx8Ta6FT4ONdFDgBgVOl3QwpkisWlEXdRXuFU/oIoPJN7jWl6ul41Org+YAZsFpU
+	 oIHyzZ7YsULlw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] rtc: pcf85063: add 1 Hz update interrupt (UIE)
+ support
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "A. Sverdlin" <alexander.sverdlin@siemens.com>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260820112437.3715237-1-alexander.sverdlin@siemens.com>
+References: <20260820112437.3715237-1-alexander.sverdlin@siemens.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 11:39:06 +0000
+Message-Id: <20260820113906.9BD991F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-456497:519-21489:flowmailer
 
-From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
+New issues:
+- [High] Read-modify-write operations on CTRL2 inadvertently clear Write-0-=
+to-Clear (W0C) TF and AF interrupt flags, causing dropped interrupts.
+- [High] A non-atomic read-modify-write sequence in the IRQ handler causes =
+a data race that overwrites concurrent register updates.
+
+Pre-existing issues:
+- [High] Requesting the threaded IRQ before registering the RTC device crea=
+tes a devres ordering inversion leading to a Use-After-Free.
+- [High] Missing of_clk_del_provider() cleanup causes a Use-After-Free of t=
+he OF clock provider on driver unbind.
+--
+
+--- Patch [1]: [PATCH v2] rtc: pcf85063: add 1 Hz update interrupt (UIE) su=
+pport ---
+commit 79dacfbe2c0fd3c5e8261fd4569fedb1fe4b32a5
+Author: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+
+rtc: pcf85063: add 1 Hz update interrupt (UIE) support
+   =20
 The PCF85063A/RV8263 have no dedicated 1 Hz update interrupt, but their
-countdown timer can be sourced from a 1 Hz clock (TCF = 1 Hz, T = 1) to
-generate a periodic interrupt on the INT pin. Use it to offload UIE to
-the hardware, following the pattern of other RTC drivers: the timer is
-enabled from set_alarm()/alarm_irq_enable() whenever uie_rtctimer is
-active, and the IRQ handler reports RTC_UF when the timer flag (TF) is
-set.
+countdown timer can be sourced from a 1 Hz clock to generate a periodic
+interrupt. This patch offloads UIE to the hardware by enabling this timer
+when uie_rtctimer is active, reporting RTC_UF when the timer flag is set.
 
-RTC_FEATURE_UPDATE_INTERRUPT is now only cleared when no usable interrupt
-is wired, preserving the polling emulation for those configurations.
+> diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> --- a/drivers/rtc/rtc-pcf85063.c
+> +++ b/drivers/rtc/rtc-pcf85063.c
 
-Co-developed-by: Adrian Freihofer <adrian.freihofer@siemens.com>
-Signed-off-by: Adrian Freihofer <adrian.freihofer@siemens.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
----
-Changelog (addressed Sashiko comments):
-- preserve AF bit in pcf85063_set_timer_1hz()
-- faster and less racy (regarding AF flag) pcf85063_rtc_handle_irq()
+[ ... ]
 
- drivers/rtc/rtc-pcf85063.c | 100 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 92 insertions(+), 8 deletions(-)
+> @@ -212,22 +274,31 @@ static int pcf85063_rtc_set_alarm(struct device *de=
+v, struct rtc_wkalrm *alrm)
+> =20
+>  	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+>  				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+> -				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_=
+CTRL2_AF);
+> +				  pcf85063->rtc->aie_timer.enabled ?
+> +				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
+>  }
 
-diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
-index 01e209d88f5f3..e10e6aaa37d52 100644
---- a/drivers/rtc/rtc-pcf85063.c
-+++ b/drivers/rtc/rtc-pcf85063.c
-@@ -44,6 +44,7 @@
- #define PCF85063_REG_CTRL2		0x01
- #define PCF85063_CTRL2_AF		BIT(6)
- #define PCF85063_CTRL2_AIE		BIT(7)
-+#define PCF85063_CTRL2_TF		BIT(3)
- 
- #define PCF85063_REG_OFFSET		0x02
- #define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
-@@ -63,6 +64,14 @@
- #define PCF85063_REG_ALM_S		0x0b
- #define PCF85063_AEN			BIT(7)
- 
-+#define PCF85063_REG_TIMER_VALUE	0x10
-+#define PCF85063_REG_TIMER_MODE		0x11
-+#define PCF85063_TIMER_MODE_TI_TP	BIT(0)
-+#define PCF85063_TIMER_MODE_TIE		BIT(1)
-+#define PCF85063_TIMER_MODE_TE		BIT(2)
-+#define PCF85063_TIMER_MODE_TCF_MASK	GENMASK(4, 3)
-+#define PCF85063_TIMER_MODE_TCF_1HZ	(2 << 3)
-+
- struct pcf85063_config {
- 	struct regmap_config regmap;
- 	unsigned has_alarms:1;
-@@ -188,12 +197,65 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 	return 0;
- }
- 
-+/*
-+ * The chip has no dedicated 1 Hz update interrupt. Drive the countdown timer
-+ * at 1 Hz to emulate it, so the RTC core can offload UIE to the hardware
-+ * instead of polling. A free-running timer is left untouched to preserve its
-+ * phase across the per-second re-arming done by the core.
-+ */
-+static int pcf85063_set_timer_1hz(struct pcf85063 *pcf85063, bool enable)
-+{
-+	unsigned int mask = PCF85063_TIMER_MODE_TCF_MASK |
-+			    PCF85063_TIMER_MODE_TIE |
-+			    PCF85063_TIMER_MODE_TI_TP |
-+			    PCF85063_TIMER_MODE_TE;
-+	unsigned int mode = 0;
-+	unsigned int cur;
-+	int ret;
-+
-+	if (enable)
-+		mode = PCF85063_TIMER_MODE_TCF_1HZ | PCF85063_TIMER_MODE_TIE |
-+		       PCF85063_TIMER_MODE_TI_TP | PCF85063_TIMER_MODE_TE;
-+
-+	ret = regmap_read(pcf85063->regmap, PCF85063_REG_TIMER_MODE, &cur);
-+	if (ret)
-+		return ret;
-+
-+	if ((cur & mask) == mode)
-+		return 0;
-+
-+	/* Stop the counter before changing its reload value. */
-+	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
-+				 PCF85063_TIMER_MODE_TE, 0);
-+	if (ret)
-+		return ret;
-+
-+	if (enable) {
-+		ret = regmap_write(pcf85063->regmap, PCF85063_REG_TIMER_VALUE, 1);
-+		if (ret)
-+			return ret;
-+
-+		/* Clear TF but preserve AF */
-+		ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
-+					 PCF85063_CTRL2_TF | PCF85063_CTRL2_AF, PCF85063_CTRL2_AF);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
-+				  mask, mode);
-+}
-+
- static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
- 	u8 buf[5];
- 	int ret;
- 
-+	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
-+	if (ret)
-+		return ret;
-+
- 	buf[0] = bin2bcd(alrm->time.tm_sec);
- 	buf[1] = bin2bcd(alrm->time.tm_min);
- 	buf[2] = bin2bcd(alrm->time.tm_hour);
-@@ -212,22 +274,31 @@ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- 
- 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
- 				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
--				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
-+				  pcf85063->rtc->aie_timer.enabled ?
-+				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
- }
- 
- static int pcf85063_rtc_alarm_irq_enable(struct device *dev,
- 					 unsigned int enabled)
- {
- 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
-+	if (ret)
-+		return ret;
- 
- 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
- 				  PCF85063_CTRL2_AIE,
--				  enabled ? PCF85063_CTRL2_AIE : 0);
-+				  pcf85063->rtc->aie_timer.enabled ?
-+				  PCF85063_CTRL2_AIE : 0);
- }
- 
- static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
- {
- 	struct pcf85063 *pcf85063 = dev_id;
-+	unsigned long events = RTC_IRQF;
-+	irqreturn_t ret = IRQ_NONE;
- 	unsigned int val;
- 	int err;
- 
-@@ -236,14 +307,26 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
- 		return IRQ_NONE;
- 
- 	if (val & PCF85063_CTRL2_AF) {
--		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
--		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
--				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
--				   0);
--		return IRQ_HANDLED;
-+		events |= RTC_AF;
-+		val &= ~(PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF);
-+		ret = IRQ_HANDLED;
-+	} else {
-+		/* Preserve AF if it comes after the above regmap_read() */
-+		val |= PCF85063_CTRL2_AF;
-+	}
-+
-+	if (val & PCF85063_CTRL2_TF) {
-+		events |= RTC_UF;
-+		val &= ~PCF85063_CTRL2_TF;
-+		ret = IRQ_HANDLED;
-+	}
-+
-+	if (ret == IRQ_HANDLED) {
-+		regmap_write(pcf85063->regmap, PCF85063_REG_CTRL2, val);
-+		rtc_update_irq(pcf85063->rtc, 1, events);
- 	}
- 
--	return IRQ_NONE;
-+	return ret;
- }
- 
- static int pcf85063_read_offset(struct device *dev, long *offset)
-@@ -607,6 +690,7 @@ static int pcf85063_probe(struct device *dev, struct regmap *regmap, int irq,
- 			dev_warn(&pcf85063->rtc->dev,
- 				 "unable to request IRQ, alarms disabled\n");
- 		} else {
-+			set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf85063->rtc->features);
- 			set_bit(RTC_FEATURE_ALARM, pcf85063->rtc->features);
- 			device_init_wakeup(dev, true);
- 			err = dev_pm_set_wake_irq(dev, irq);
--- 
-2.55.0
+[Severity: High]
+Does this code inadvertently drop the TF interrupt flag when updating the
+alarm?
 
+If PCF85063_CTRL2_TF is a write-0-to-clear bit, excluding it from the
+regmap_update_bits() mask means it will be written back as 0 if it was
+already set in the register, clearing any pending timer interrupt.
+
+[ ... ]
+
+> @@ -274,22 +287,31 @@ static int pcf85063_rtc_alarm_irq_enable(struct dev=
+ice *dev,
+>  					 unsigned int enabled)
+>  {
+>  	struct pcf85063 *pcf85063 =3D dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret =3D pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.en=
+abled);
+> +	if (ret)
+> +		return ret;
+> =20
+>  	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+>  				  PCF85063_CTRL2_AIE,
+> -				  enabled ? PCF85063_CTRL2_AIE : 0);
+> +				  pcf85063->rtc->aie_timer.enabled ?
+> +				  PCF85063_CTRL2_AIE : 0);
+>  }
+
+[Severity: High]
+Could this function also clear pending interrupts?
+
+Similar to pcf85063_rtc_set_alarm(), both AF and TF are excluded from the
+mask here. If they are write-0-to-clear flags, regmap_update_bits() will
+write them back as read (0), neutralizing any concurrent assertions.
+
+[ ... ]
+
+> @@ -236,14 +307,26 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq,=
+ void *dev_id)
+>  {
+>  	struct pcf85063 *pcf85063 =3D dev_id;
+> +	unsigned long events =3D RTC_IRQF;
+> +	irqreturn_t ret =3D IRQ_NONE;
+>  	unsigned int val;
+>  	int err;
+> =20
+>  	err =3D regmap_read(pcf85063->regmap, PCF85063_REG_CTRL2, &val);
+>  	if (err)
+>  		return IRQ_NONE;
+> =20
+>  	if (val & PCF85063_CTRL2_AF) {
+> -		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
+> -		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+> -				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+> -				   0);
+> -		return IRQ_HANDLED;
+> +		events |=3D RTC_AF;
+> +		val &=3D ~(PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF);
+> +		ret =3D IRQ_HANDLED;
+> +	} else {
+> +		/* Preserve AF if it comes after the above regmap_read() */
+> +		val |=3D PCF85063_CTRL2_AF;
+> +	}
+> +
+> +	if (val & PCF85063_CTRL2_TF) {
+> +		events |=3D RTC_UF;
+> +		val &=3D ~PCF85063_CTRL2_TF;
+> +		ret =3D IRQ_HANDLED;
+> +	}
+
+[Severity: High]
+Does this code risk clearing an unhandled UIE interrupt if TF asserts
+after the register read?
+
+If TF asserts post-read, the read value will have it as 0. Because there is
+no else branch to preserve TF (like the one preserving AF), the subsequent
+regmap_write() will commit a 0 for TF, clearing the flag before it is
+handled.
+
+> +	if (ret =3D=3D IRQ_HANDLED) {
+> +		regmap_write(pcf85063->regmap, PCF85063_REG_CTRL2, val);
+> +		rtc_update_irq(pcf85063->rtc, 1, events);
+>  	}
+> =20
+> -	return IRQ_NONE;
+> +	return ret;
+>  }
+
+[Severity: High]
+Is there a data race in this read-modify-write sequence?
+
+pcf85063_rtc_handle_irq() drops the regmap lock between regmap_read() and
+regmap_write(). If a process-context change happens in this unlocked window,
+such as AIE toggling via pcf85063_rtc_alarm_irq_enable(), will it be
+overwritten and lost when the IRQ handler commits its stale read data?
+
+[ ... ]
+
+> @@ -607,6 +690,7 @@ static int pcf85063_probe(struct device *dev, struct =
+regmap *regmap, int irq,
+>  		err =3D devm_request_threaded_irq(dev, irq,
+>  						NULL, pcf85063_rtc_handle_irq,
+>  						irqflags | IRQF_ONESHOT,
+>  						"pcf85063", pcf85063);
+>  		if (err) {
+>  			dev_warn(&pcf85063->rtc->dev,
+>  				 "unable to request IRQ, alarms disabled\n");
+>  		} else {
+> +			set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf85063->rtc->features);
+>  			set_bit(RTC_FEATURE_ALARM, pcf85063->rtc->features);
+
+[Severity: High]
+This is a pre-existing issue, but does the devres allocation order here cau=
+se
+a use-after-free on teardown?
+
+Earlier in pcf85063_probe(), devm_request_threaded_irq() is called before
+devm_rtc_register_device(). During teardown, rtc_device_unregister() runs
+first, but the IRQ remains active.
+
+If the timer fires at this time, pcf85063_rtc_handle_irq() executes and
+rtc_update_irq() re-schedules the irqwork. Devres will subsequently free the
+rtc structure, leaving the system workqueue to dereference freed memory.
+
+[ ... ]
+
+>  	nvmem_cfg.priv =3D pcf85063->regmap;
+>  	devm_rtc_nvmem_register(pcf85063->rtc, &nvmem_cfg);
+> =20
+>  #ifdef CONFIG_COMMON_CLK
+>  	/* register clk in common clk framework */
+>  	pcf85063_clkout_register_clk(pcf85063);
+>  #endif
+> =20
+>  	return devm_rtc_register_device(pcf85063->rtc);
+>  }
+
+[Severity: High]
+This is a pre-existing issue, but is there a missing cleanup for the OF clo=
+ck
+provider?
+
+In pcf85063_clkout_register_clk(), of_clk_add_provider() is invoked but the=
+re
+appears to be no matching of_clk_del_provider(). When devres frees the clock
+structure during driver unbind, does the global OF list retain a dangling
+pointer, triggering a use-after-free on the next device tree clock
+resolution?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820112437.3715=
+237-1-alexander.sverdlin@siemens.com?part=3D1
