@@ -1,131 +1,83 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cpanel10.indieserve.net (cpanel10.indieserve.net [199.212.143.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5390C3CA487
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 09:53:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787219618; cv=pass; b=hUcbbBKQHuujaozu9hkeYzS71LdP9RUMgLvFdJp30sIq0temSdEcUVzNsTHi6tfIVSRsl1KNT+bdaS0Jbc7sdaLuJhVipQhXY0uE7p3b3H6upMUoIzte+cVf8AsG7MNgtvtfNZMMYeNgaoTIowoK6Ts5lP7XRYr0jNix/Ouq/DQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787219618; c=relaxed/simple;
-	bh=4uFua/1SLZPtH58HJboPUy8UA2xsPzLVyw6OMpvii0M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nBLNCEcRlfr1L4d3x908vqkX7eXJUyrxYpyAEHLNdCwrFBO7g97KIZaD/I/9pg99rsAc5Y0d3RQjuoO+tGQ9/ojstx6xDges39NZ0q6bDa7ISEi6eiG0ppEggU8vOjmplCbOQZOHJ4hGvAu0S8vWPOcGLZ6CSrLBYZHc/WXxde4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OCeuOq8L; arc=pass smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C01C40B102;
+	Thu, 20 Aug 2026 10:03:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.212.143.9
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787220238; cv=none; b=cD6xBSvfYPsW8d+utVCBHhHeOAmQs2eDyISCxqxXEr6jigW57ffPVWt25t+Wt0MdYr9uchOi1tf1V+xHJXdXBCByqgCsG//zLY209SWL/ifYCT2pRrD678pAWVmoy7oyIkPFsM4JPo8HBsZGyBysxi12SfyGELemTwFHXfYX5Ic=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787220238; c=relaxed/simple;
+	bh=YfWkLiaz9ZHV2GrHzLsP9+QGQNner8OTb18Wa83n6NE=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=INVlXDx08PytJ2iJZbII5QiRhGSEOo+XIjacNOGuon1fQ5ch3HcPbBlchD8miqFleDVdQ0xSVYf4cRQFnHn99a/cqFHXss7yGzWWe8+5KOSYIb0dIotZhiVwYuYOwOvVmN0QVc08kNYIoSXCJozPbqTf1FjLttvu12F2d16Knl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crashcourse.ca; spf=pass smtp.mailfrom=crashcourse.ca; dkim=pass (2048-bit key) header.d=crashcourse.ca header.i=@crashcourse.ca header.b=YDONABm+; arc=none smtp.client-ip=199.212.143.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crashcourse.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crashcourse.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OCeuOq8L"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-471eeac43bfso1625799f8f.3
-        for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 02:53:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787219612; cv=none;
-        d=google.com; s=arc-20260327;
-        b=U4Eaw0rMzkWlHAXoSoQj1YSnx9c//6hRkBvpd1KXutS3l2XW/TAF6j5QpsywE6Ij5s
-         TnMwXQenIq4YZFEMC/NRfEE465OKGc3+5AdHcL6nj8YsClWjI69QYlgYzbv7FcTbq1//
-         O2UQ3lrBA3ssXN5K0TP4C+Udr3dLXIwoWI4ZJ1LgnW9PBOvHZy+RU1E18qjud1hM1mP6
-         kxb3z3l09bNLBnkfP834UozMuXKgkmSGl5PpbxKD/yl3FuRMBwclxd+y7Q2J8boqhZaP
-         N5wUOtHPOoGcthC2szy/L5C1BZ4oeWa59O/TkaQ5oz4ZjpPYELJphlp382akDhN8fM/T
-         Knxw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=4uFua/1SLZPtH58HJboPUy8UA2xsPzLVyw6OMpvii0M=;
-        fh=zTgeMjcZt51uTQDzrGAzKOAzJg4sOKDG2HhBl8st0c4=;
-        b=W8D7BjMJiVtp7dvGaYkocL+NvIkeEvSIqUTAqGNx976z4apiIA5GQ8kwCDWye3CqQ/
-         jX/Z28oQJyjAB+WQHeu1ZrQ4CRM2Cg9re9XGaMXEcHede3viC02mGxvPUEhZmGuF8VHB
-         y216zwLoNhvZ0XtL4ySDbJDJqsE/IFAyuFY3WDacqJ3/ydHswhj1wVdOqSTNfILvCWUk
-         DNbmWA2riPos5FKPBFwwdK1uNopM/OEmC9FlQHgeoqYFBfVqL75JXaPiRMaV+O5xrikT
-         LkY1aBpXvmDq5I8UWSDuSmVGFs8fl0rSfL3Y1PTLjoMUY1y9P3izkbejLcYbYZ4jg0By
-         6/5w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787219612; x=1787824412; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4uFua/1SLZPtH58HJboPUy8UA2xsPzLVyw6OMpvii0M=;
-        b=OCeuOq8L/hFALKirAgzAB5gMVR/19MbuNtrhrKETJYScT+IL8ayv8329DgBIz+ls/n
-         bu4NXfj0gtbTyPNl/AeSLyiXeFbfeToSzOkUxITeMFwlqd1kvK9vLhWNKnHmxvw3M2q6
-         FHPUGAJ0DY16BhgSIGjlXXpYxmBQyGHJSU2zliyF9TpZ8zBwzKO///UYKey3yfXAdeUd
-         xOvKSpKVgAtbVn2qn5p/G6BROqYqT/Y+5aFaFrIatt67FB0iKaTnOVCeHyvQ+DTHVd9H
-         sltPZksCfpKrVYz4I0TF9+UrP7KDClcWufICY4tPtQTZzAXlJgjerH9HlgnD4MZgLKky
-         pe5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787219612; x=1787824412;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4uFua/1SLZPtH58HJboPUy8UA2xsPzLVyw6OMpvii0M=;
-        b=iDzUtqGfSAruILYmhyKTCZlxfg8p8jULBZ5Xp4c3+9PC6jAReuiGpdYmuhihzZVQyG
-         UUnvrjP3FUv+cTia64ht8yN6issIYQd1t/qtF0WGzFJrDfpQ9Eajz9Bn34kScFL7spYu
-         XnqPnaMXCD6ltx0jVGUceKuelBSMKGoLkTrgIt/4ebY5nVkhLfGpypDgKj3Unl8rIBxW
-         DFgIAcMm9iSiEOAL8I40kY7/7oxGQaoaYpXtPg2sYmm9xwnWD/Cw4+RKSIS8p/ckosmf
-         S1yryWNhySMwKcaYAh7K0yvmyjvvfrAJdvpvi+gQmB0SxNszQIjJShmrwLb04whs4r2V
-         I/RQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqUbEVVDxsIa6jeixg82QLXi9K4sVRC4mMWcAjhY3EOH5kYtt37e+F5NCdsUh8OsgmZBNk+4GKqxk4=@vger.kernel.org
-X-Gm-Message-State: AFuF++l+vvcSv4zjMo8dUIqCOAA7LSugbXjFxGGaiLMyFm96bAlU8wqZ
-	YzyuyYIUP7NhBIJNEO233+egpCqmBdEtJ7h63SGKlZxmj/zoxTJhDiBZhz4QyWc9okbZwbF7uaS
-	vw5CqWBtLcU1KlyKNI6IHG00huhvvyh8=
-X-Gm-Gg: AR+sD13+4Jv0RFgDlt4xeCqpvwsGHy6LkMc5cHrhK3wlFp/RT+hIs0Tk07X8Ip63jwO
-	tQagS5I4gj0jjynV4A6AsZjr8aYVeSOCCwmJNCkPGIZbFmgc2uViehsrHdvQgexb6zJqUd66UEB
-	/tlBwOk5HllFTw3NQNIBv+iJsTxfXA4kBJfa/jTiGFwujOeW2DB5Pc4/WyVwajenLOpYkMqv6Br
-	rQkZX6I7KInFin1ANWac/jlP6TBWsAs/u+7EwVo3w0Ubuc+hD8Jt9swMmglHyWVqCTZ2RS5bm4I
-	FTL9WSvtEkEOaa+zgYKcYT41VzoKQxDelb7zxdiTtkqILGQNClT3DzqxhcpKOddWu19kglelB6N
-	OXo4jFJ/r3/hMg4WkrnYZjl9PlUddd7m0F8ELzkEwRg==
-X-Received: by 2002:a5d:59a7:0:b0:47d:fc20:e7ab with SMTP id
- ffacd0b85a97d-482b1e844b5mr20227184f8f.4.1787219612250; Thu, 20 Aug 2026
- 02:53:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=crashcourse.ca header.i=@crashcourse.ca header.b="YDONABm+"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=crashcourse.ca; s=default; h=Content-Type:MIME-Version:References:
+	Message-ID:In-Reply-To:Subject:cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=wvqozRFiykwItQSaDE5EmngGOaM91IggubIq/e4GQB8=; b=YDONABm+c3b0mfHeWroEfYN5ho
+	NLo0kQK/UfPlEZr7Xsq+1lb0ToSJ5DkoUyTipG1blzXI1ZTskhXLGw+soBodsCPvuHC16DqtmabiX
+	VqUF8xzIfRLplSGrhF+UWFut2t4fsm9rr+mYKNTzFAimjZGEO8WOedUz17OoRwdYGi3jYIZZb3uAo
+	ILS0IwlMffO2U0oVSrscaKV83qXgdgDkvpLmB9ahTN/M/w838xoU9BnrbzePDSbd1sGMOdb/vYdQM
+	cOP8k56Pw9fjLGdEFq9oItrp0/mpqZngoUGnnCseHjYUSJLUgX4Kwxt+J0eFXp5IXx9FfVNKe7Cji
+	ygxc8Tbw==;
+Received: from pool-174-114-114-5.cpe.net.cable.rogers.com ([174.114.114.5]:57000 helo=sheena)
+	by cpanel10.indieserve.net with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+	(Exim 4.99.5)
+	(envelope-from <rpjday@crashcourse.ca>)
+	id 1wwzGo-0000000GkRY-3uE3;
+	Thu, 20 Aug 2026 05:41:11 -0400
+Date: Thu, 20 Aug 2026 05:39:29 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@crashcourse.ca>
+To: Markus Elfring <Markus.Elfring@web.de>
+cc: 1298662399@qq.com, linux-rtc@vger.kernel.org, 
+    Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+    LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH] rtc: rtc-pic32: handle clock enable failure
+In-Reply-To: <1f67f9ed-3e84-426e-a671-4baa3c0d6173@web.de>
+Message-ID: <66852c50-85fc-f5ff-46a4-5bd65e087c9d@crashcourse.ca>
+References: <tencent_7FCEEF77654C7D6B110DE49D2E98531A2006@qq.com> <1f67f9ed-3e84-426e-a671-4baa3c0d6173@web.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260819103926.2136712-15-prabhakar.mahadev-lad.rj@bp.renesas.com> <aoWsDIfmFgkRpDje@shikoro>
-In-Reply-To: <aoWsDIfmFgkRpDje@shikoro>
-From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Thu, 20 Aug 2026 10:53:05 +0100
-X-Gm-Features: AcwNN1WOm3KalsDKNgN_Ouo-4r3cQno4NAzdUolNyABXgRrO98d1tOFgxu9R-9E
-Message-ID: <CA+V-a8sZ5nf21z6Ku-3xUaG98=ZwJ-4Z4OcVkkzL8+pg1w1r0w@mail.gmail.com>
-Subject: Re: [PATCH v4 14/15] rtc: rzn1: Drop trailing comma from OF match
- table sentinel
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
-	linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>, Biju Das <biju.das.jz@bp.renesas.com>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="8323329-1731101118-1787218794=:3239356"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cpanel10.indieserve.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - crashcourse.ca
+X-Get-Message-Sender-Via: cpanel10.indieserve.net: authenticated_id: rpjday+crashcourse.ca/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: cpanel10.indieserve.net: rpjday@crashcourse.ca
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 
-Hi Wolfram,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Thank you for the review.
+--8323329-1731101118-1787218794=:3239356
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-On Wed, Aug 19, 2026 at 2:13=E2=80=AFPM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
+On Thu, 20 Aug 2026, Markus Elfring wrote:
+
+> …
+> > Check early clk_prepare_enable(pdata->clk) return in pic32_rtc_probe.
 >
-> On Wed, Aug 19, 2026 at 11:39:25AM +0100, Prabhakar wrote:
-> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> >
-> > Drop the trailing comma from the final empty entry in the RZN1 RTC OF
-> > match table and mark it explicitly as the sentinel.
-> >
-> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->
-> Could be folded into patch 13 in my book, but not insisting on that:
->
-I'll keep this as is for now.
+> I find such a wording approach improvable.
+> How do you think about to add any tags (like “Fixes” and “Cc”) accordingly?
 
-Cheers,
-Prabhakar
+  How many times are you going to ask this same question?
 
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
->
+rday
+--8323329-1731101118-1787218794=:3239356--
