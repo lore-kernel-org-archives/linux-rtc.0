@@ -1,56 +1,45 @@
 Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA95B486629;
-	Thu, 20 Aug 2026 21:29:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97532486629;
+	Thu, 20 Aug 2026 21:29:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787261358; cv=none; b=XSYTghZV8JYb3XRf1WPblNcx1m5fmIzC0zn7Vmp5nU64ojAGoon7TD5wWiCuj6Rj4pG9jaXDBAaRGS3usrGg7j+zv+Yy70bzQyoLw6L4oG3qp+XHaMqA0o6vhkfyQDb8eTL3R6F87zKksjnrmQWqcDcZr4weN9rDfQbbWoirT7I=
+	t=1787261366; cv=none; b=J2qRyRd6BoHDL7aFt5+02qbm3j/5KLKrttVI0tunh9K0WaB3Tldj3PxIbYNbOUWYe1LXcXXjMItC+G+MQVxeXB1HZE+WXY5zJSDeftzN+8um5oNdkZGrGFRd1jL0eIKh+jRZO2VxtRcAfRVDK+Y88f03OPLybEBaikfwFhON2+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787261358; c=relaxed/simple;
-	bh=nToP8MbRyodpnrRnfHIqTKLw5JFil0/Z1otBRiKF/5I=;
+	s=arc-20240116; t=1787261366; c=relaxed/simple;
+	bh=ZD5ehMjdulQ+jMYga38IHhpkuLsHW82c3o84ONfGcTM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KI0NsanDpbDm3WSXPga94MbvRF68kTpOyDmP8WXKjxewF/u5sXycvWeOQ8aq00AwNvVIDaHc5jFTjiWo4neLAv2qn3QL8Bjc1KmqAby620DxiXthFDgfxBZvXbVao0WhjvGe04adMdcEZDzBjpOGTBaiIW6A0Sr1LBwXIJNtFWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=f0e+3KfG; arc=none smtp.client-ip=185.246.84.56
+	 Content-Type:Content-Disposition:In-Reply-To; b=DgdjJsAgaLTT5Bb1Wr3UfLOevzquOV1vfjGhyaCawJHveXcw4F8gk2au522gghpmwWJGlVcAIL+lAxG567AZ7pddMe43HRQYPViT3bxt+ufV3505NJdWIZfHdxtIr3HXWW8oJtu8vtGQ8v2EgdfSR0+YIIFTQyNqYTFGDfChqRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=DxJW9yc9; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="f0e+3KfG"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="DxJW9yc9"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 16A341A171E;
-	Thu, 20 Aug 2026 21:29:14 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 00EA81A171E;
+	Thu, 20 Aug 2026 21:29:24 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D62BC5FF59;
-	Thu, 20 Aug 2026 21:29:13 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 605B011C76888;
-	Thu, 20 Aug 2026 23:29:06 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C8D5A5FF59;
+	Thu, 20 Aug 2026 21:29:23 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 2D75711C76888;
+	Thu, 20 Aug 2026 23:29:18 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787261348; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=hqsLOQTWk90qEMSQoOVqPkHcFL6LQMglZju7qPgRnLM=;
-	b=f0e+3KfGkvOGou5KTW4Lzwv4KUTnUf0B1+G8PBGCJskF3dqXKk7a4PT0wOliUNF4jonAef
-	siwZFu248X2gQEoreSWBNBIJ+1cq4x56l98+2brDl3FDpY4Rs59NBuUgkHaQUccI0HxaIG
-	JVh+UlWLQ4ma5b42ye7p8/6IghibHWiiLa4bWQ0B/0j4SXv305HQXvE2b+KrO/2mLnQ0Pr
-	KW5+rMj3YPF68hU4Iy6bgXUA+qCTumQ2rgbrvIPgvW+UOAegjXoEfcNkV0rMLxeBfXdtHw
-	GPV177kbDLC0LxQFsjkB/miQCkrvPgGggs+oPVuE8jwF2/DvQoZQ6KTNXJ8mGg==
-Date: Thu, 20 Aug 2026 23:29:05 +0200
+	t=1787261359; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=jsZ9hF6tLgubo/tix2wxrJXWD2kBowyO8vCSVK1lpTs=;
+	b=DxJW9yc9Ls7OZmKWZlB90iiqwn99srR9fI2VISYiMXgDMiEgGd1T7F0t/LT0E+6JYus0IO
+	qcQopMGGpysnIcajpV4OPnQzV9rCWJ1zww564HqqnQ/4u3+c/qmVAy8O9VQd1LlsrMJmaD
+	9jPXt5GdlNZZN24qv8wq60+NxyVVmcHVPI3xewaRU/IRvlpRIBCoMnjuCDWsaH/JlwIYL7
+	uiEkMjFNiS4PosdMjGOxYKwdKTE7yZo1+Dv47eGhVGj/ea8x51fqGsrloUwGRU/RwfRGNJ
+	yxApEIc25eaVFlp1X165mAEKzr+U2SrxJP2ts1bBkAzU5PBiTrymoNLHeewXzQ==
+Date: Thu, 20 Aug 2026 23:29:18 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Keerthy <j-keerthy@ti.com>,
-	Afzal Mohammed <afzal@ti.com>,
-	Bhargav Joshi <j.bhargav.u@gmail.com>
-Cc: linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
-	goledhruva@gmail.com, m-chawdhry@ti.com, daniel.baluta@gmail.com,
-	simona.toaca@nxp.com
-Subject: Re: (subset) [PATCH v3 4/4] dt-bindings: rtc: ti,omap-rtc: Convert
- to DT schema
-Message-ID: <178726066521.423710.8101825585816095804.b4-ty@b4>
-References: <20260804-ti-omap-rtc-v3-4-ba3bbd8af570@gmail.com>
+To: Robert Leussler <robert.leussler@leica-geosystems.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds1307: fix RX8130 wakeup alarm WADA bit for
+ day-of-month mode
+Message-ID: <178726066533.423710.8157866801445479034.b4-ty@b4>
+References: <20260721081907.3518648-1-robert.leussler@leica-geosystems.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -59,18 +48,25 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260804-ti-omap-rtc-v3-4-ba3bbd8af570@gmail.com>
+In-Reply-To: <20260721081907.3518648-1-robert.leussler@leica-geosystems.com>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Tue, 04 Aug 2026 22:35:08 +0530, Bhargav Joshi wrote:
-> Convert the Texas Instruments OMAP Real Time Clock (RTC) binding from
-> the legacy text format to the DT schema. Mark 'ti,hwmods' as deprecated
-> as it is no longer used, it is kept to support legacy boards.
+On Tue, 21 Jul 2026 08:19:07 +0000, Robert Leussler wrote:
+> The RX8130 wakeup alarm never fired when set via
+> /sys/class/rtc/rtc0/wakealarm. The root cause is that the WADA bit
+> (bit 3) in the Extension register (0x1c) was never set before
+> programming the alarm registers.
+> 
+> Per the RX8130 datasheet:
+> WADA=0 - Week alarm: register 0x19 is compared against day-of-week
+> WADA=1 - Day alarm:  register 0x19 is compared against day-of-month
+> 
+> [...]
 
 Applied, thanks!
 
-[4/4] dt-bindings: rtc: ti,omap-rtc: Convert to DT schema
-      https://git.kernel.org/abelloni/c/315d11a89147
+[1/1] rtc: ds1307: fix RX8130 wakeup alarm WADA bit for day-of-month mode
+      https://git.kernel.org/abelloni/c/878d93aaa596
 
 Best regards,
 
