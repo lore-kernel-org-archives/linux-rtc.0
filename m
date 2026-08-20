@@ -1,123 +1,243 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mta-65-227.siemens.flowmailer.net (mta-65-227.siemens.flowmailer.net [185.136.65.227])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA9B424652
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 11:20:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E620442A15C
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 11:24:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787224850; cv=none; b=XMOiVJSk3rzECOJrb4mks74RzmAZfOKQp9kU4QpB2ZWbFboMkIVST+HtDthvrS6Gniny5Gw9ZROF9l7ebnHSSH/zefwocaaTfDBGsjWsHoSGusJXQVFRuqrDU20j2z7xAsyf/C+p9qGRQMJDuOrbsGCyt7IBRjnlm7jIifh+RsI=
+	t=1787225089; cv=none; b=n519M/uR71qH5JA/VXPDHzaJnA6+YkhRuweDVxNlbmk4ePwOhJcMGqZR1GfMirE7MNEp4t9T259XA7uqd5WdTR2nN5P0VIX4EFDZ3h+ruhT+gHmPDAPEXGHJ7mrwbEA1klIzpstYCPSrE0hrvlD31CC5fOTIIPgGtOoWn/OZ888=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787224850; c=relaxed/simple;
-	bh=rNIcni1lpx8sulgXqfDqfqazBSoFacL6NoG1fGR/mvw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VdWmE5Ygn6IU3fKynKywYQ3zpLMXApN5vRXRcT9vc8B5J9Iu+Yag5IB8cBecUPL11UiJfLAi4RaLWHsalW+eaocCM2iB0dqbElc8z8SGlGK0pk1/70mqu3/LFnmFhqQo8oXLKCq7KUpb9SjQXq88VXQcNBpu0cBIlkZV7dKu8N4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=IFvCHdX1; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1787225089; c=relaxed/simple;
+	bh=QvPrTyRUxpT5Ko4BRW/xtMybx/yQT6cE7mPgUfuIYiU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MHodSJ8HaR1mreOQh74INe8nwRqds2avn/UTM93CXl1nvNitatW/z+pZqF+cqgS38IzD8cp598jNNkr/1W8myrYBpB+6OU83fpL4Jug6YTe99LAY/YeSNkw4zOWmHCM24Dm6XCwfq0gh88I7vrSLJZZoJpRlTqOv606FaY0nN7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=AoMGh1yM; arc=none smtp.client-ip=185.136.65.227
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="IFvCHdX1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Jspu
-	ba05LjL6CBKgMcIeeBbhf0TMfLnZJ0Fd2rSTpU8=; b=IFvCHdX1OIeh2lP84d8c
-	t4zJ5DgqfwoAOCO84BtxIr2ES/iDEmg4AslaFJp0hh8MhhSDB6NKGeYZnmSByfYl
-	m87oz8v69ug/eHstPr4BIj2P95ti+2EXGPvbT73mIQbSSzNPkWoHMEz/RPmLvTiv
-	sSlZgWYsXf68nggI4URuhRdL1k6zKoztXZxoibsAZEWxE808PsFGZIWzWMIND/qM
-	YXq1R9lZrHd0MlhnZXkPL2QmxN6qsdGmwAn+TuwK6OAso8rVFCyRobsuLeGPBOaD
-	oEBYMe5w2gZOGp1NYr+PKJezM2jirPAtX7OrZl0P7xGCOCfCNC4IrZ0eTcF3+e7+
-	mQ==
-Received: (qmail 277534 invoked from network); 20 Aug 2026 13:20:43 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Aug 2026 13:20:43 +0200
-X-UD-Smtp-Session: l3s3148p1@MnTitXhZQNIujnuE
-Date: Thu, 20 Aug 2026 13:20:42 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="AoMGh1yM"
+Received: by mta-65-227.siemens.flowmailer.net with ESMTPSA id 202608201124412c82c459060002071d
+        for <linux-rtc@vger.kernel.org>;
+        Thu, 20 Aug 2026 13:24:42 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
+ d=siemens.com; i=alexander.sverdlin@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc;
+ bh=OatxJyygaql0HoMqS6F78jQWSQvpRPQ1GtRa0JOfUs4=;
+ b=AoMGh1yMBn3A4fLmuroPD3tVZr/l4hZx4NzOxzqOtLX+U2rIMc7osYYPriMCnFkNhjTjbv
+ XDb4RoLnhNix41WJzbFXFvGyByW3teKVOjMznXdb1eT3lOCArTRKAmHe4QfHttDls07oDFtk
+ FBinGtWOHi7b7393pSIfqBdxgKm9Cb4ETfMJwQ4hbo8BoDYWOLCsB5nqWKbfW+HzONUqHW+y
+ J2lEEyb1DugIdnBS52dNkT7qVjZ68mE+ICpfECAtZKw1n14mirrpcMBEe9V9C32kxVfS6Lmw
+ ILf0vB9HLrLBUbuObv0pYYJXtGWXDc5B4MQblKNFgwlcZ/r8h7U1Pneg==;
+From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
+To: linux-rtc@vger.kernel.org
+Cc: Alexander Sverdlin <alexander.sverdlin@siemens.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH v4 13/15] rtc: rzn1: Add OF match data to gate SUBU
- register access
-Message-ID: <aobjCr7ZtpLmL3VP@ninjato>
-References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	Adrian Freihofer <adrian.freihofer@siemens.com>
+Subject: [PATCH v2] rtc: pcf85063: add 1 Hz update interrupt (UIE) support
+Date: Thu, 20 Aug 2026 13:24:33 +0200
+Message-ID: <20260820112437.3715237-1-alexander.sverdlin@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="8FWAH1+rAwdn2nVp"
-Content-Disposition: inline
-In-Reply-To: <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-456497:519-21489:flowmailer
 
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 
---8FWAH1+rAwdn2nVp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The PCF85063A/RV8263 have no dedicated 1 Hz update interrupt, but their
+countdown timer can be sourced from a 1 Hz clock (TCF = 1 Hz, T = 1) to
+generate a periodic interrupt on the INT pin. Use it to offload UIE to
+the hardware, following the pattern of other RTC drivers: the timer is
+enabled from set_alarm()/alarm_irq_enable() whenever uie_rtctimer is
+active, and the IRQ handler reports RTC_UF when the timer flag (TF) is
+set.
 
-On Wed, Aug 19, 2026 at 11:39:24AM +0100, Prabhakar wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->=20
-> The RZ/N1 RTC driver selects SCMP mode only when an optional xtal clock
-> is provided at a valid rate other than 32768 Hz. Without an xtal clock,
-> or when it runs at 32768 Hz, the driver uses SUBU mode.
->=20
-> However, the RTCA0SUBU register used by SUBU mode is not present on all
-> SoCs that integrate a similar variant of the RTC block. Allowing SUBU
-> mode on those variants would expose RTC offset operations that access a
-> non-existent register.
->=20
-> Add OF match data to describe whether the RTC supports the SUBU register.
-> Reject probe with -EOPNOTSUPP when SUBU mode would be selected on a
-> variant without SUBU support.
->=20
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+RTC_FEATURE_UPDATE_INTERRUPT is now only cleared when no usable interrupt
+is wired, preserving the polling emulation for those configurations.
 
-Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Co-developed-by: Adrian Freihofer <adrian.freihofer@siemens.com>
+Signed-off-by: Adrian Freihofer <adrian.freihofer@siemens.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+---
+Changelog (addressed Sashiko comments):
+- preserve AF bit in pcf85063_set_timer_1hz()
+- faster and less racy (regarding AF flag) pcf85063_rtc_handle_irq()
 
-I still think, this code needs a change:
+ drivers/rtc/rtc-pcf85063.c | 100 ++++++++++++++++++++++++++++++++++---
+ 1 file changed, 92 insertions(+), 8 deletions(-)
 
-454                 if (rate !=3D 32768)
-455                         scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 01e209d88f5f3..e10e6aaa37d52 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -44,6 +44,7 @@
+ #define PCF85063_REG_CTRL2		0x01
+ #define PCF85063_CTRL2_AF		BIT(6)
+ #define PCF85063_CTRL2_AIE		BIT(7)
++#define PCF85063_CTRL2_TF		BIT(3)
+ 
+ #define PCF85063_REG_OFFSET		0x02
+ #define PCF85063_OFFSET_SIGN_BIT	6	/* 2's complement sign bit */
+@@ -63,6 +64,14 @@
+ #define PCF85063_REG_ALM_S		0x0b
+ #define PCF85063_AEN			BIT(7)
+ 
++#define PCF85063_REG_TIMER_VALUE	0x10
++#define PCF85063_REG_TIMER_MODE		0x11
++#define PCF85063_TIMER_MODE_TI_TP	BIT(0)
++#define PCF85063_TIMER_MODE_TIE		BIT(1)
++#define PCF85063_TIMER_MODE_TE		BIT(2)
++#define PCF85063_TIMER_MODE_TCF_MASK	GENMASK(4, 3)
++#define PCF85063_TIMER_MODE_TCF_1HZ	(2 << 3)
++
+ struct pcf85063_config {
+ 	struct regmap_config regmap;
+ 	unsigned has_alarms:1;
+@@ -188,12 +197,65 @@ static int pcf85063_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 	return 0;
+ }
+ 
++/*
++ * The chip has no dedicated 1 Hz update interrupt. Drive the countdown timer
++ * at 1 Hz to emulate it, so the RTC core can offload UIE to the hardware
++ * instead of polling. A free-running timer is left untouched to preserve its
++ * phase across the per-second re-arming done by the core.
++ */
++static int pcf85063_set_timer_1hz(struct pcf85063 *pcf85063, bool enable)
++{
++	unsigned int mask = PCF85063_TIMER_MODE_TCF_MASK |
++			    PCF85063_TIMER_MODE_TIE |
++			    PCF85063_TIMER_MODE_TI_TP |
++			    PCF85063_TIMER_MODE_TE;
++	unsigned int mode = 0;
++	unsigned int cur;
++	int ret;
++
++	if (enable)
++		mode = PCF85063_TIMER_MODE_TCF_1HZ | PCF85063_TIMER_MODE_TIE |
++		       PCF85063_TIMER_MODE_TI_TP | PCF85063_TIMER_MODE_TE;
++
++	ret = regmap_read(pcf85063->regmap, PCF85063_REG_TIMER_MODE, &cur);
++	if (ret)
++		return ret;
++
++	if ((cur & mask) == mode)
++		return 0;
++
++	/* Stop the counter before changing its reload value. */
++	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
++				 PCF85063_TIMER_MODE_TE, 0);
++	if (ret)
++		return ret;
++
++	if (enable) {
++		ret = regmap_write(pcf85063->regmap, PCF85063_REG_TIMER_VALUE, 1);
++		if (ret)
++			return ret;
++
++		/* Clear TF but preserve AF */
++		ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
++					 PCF85063_CTRL2_TF | PCF85063_CTRL2_AF, PCF85063_CTRL2_AF);
++		if (ret)
++			return ret;
++	}
++
++	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_TIMER_MODE,
++				  mask, mode);
++}
++
+ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ {
+ 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
+ 	u8 buf[5];
+ 	int ret;
+ 
++	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
++	if (ret)
++		return ret;
++
+ 	buf[0] = bin2bcd(alrm->time.tm_sec);
+ 	buf[1] = bin2bcd(alrm->time.tm_min);
+ 	buf[2] = bin2bcd(alrm->time.tm_hour);
+@@ -212,22 +274,31 @@ static int pcf85063_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+ 
+ 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+ 				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+-				  alrm->enabled ? PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
++				  pcf85063->rtc->aie_timer.enabled ?
++				  PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF : PCF85063_CTRL2_AF);
+ }
+ 
+ static int pcf85063_rtc_alarm_irq_enable(struct device *dev,
+ 					 unsigned int enabled)
+ {
+ 	struct pcf85063 *pcf85063 = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pcf85063_set_timer_1hz(pcf85063, pcf85063->rtc->uie_rtctimer.enabled);
++	if (ret)
++		return ret;
+ 
+ 	return regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+ 				  PCF85063_CTRL2_AIE,
+-				  enabled ? PCF85063_CTRL2_AIE : 0);
++				  pcf85063->rtc->aie_timer.enabled ?
++				  PCF85063_CTRL2_AIE : 0);
+ }
+ 
+ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
+ {
+ 	struct pcf85063 *pcf85063 = dev_id;
++	unsigned long events = RTC_IRQF;
++	irqreturn_t ret = IRQ_NONE;
+ 	unsigned int val;
+ 	int err;
+ 
+@@ -236,14 +307,26 @@ static irqreturn_t pcf85063_rtc_handle_irq(int irq, void *dev_id)
+ 		return IRQ_NONE;
+ 
+ 	if (val & PCF85063_CTRL2_AF) {
+-		rtc_update_irq(pcf85063->rtc, 1, RTC_IRQF | RTC_AF);
+-		regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+-				   PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF,
+-				   0);
+-		return IRQ_HANDLED;
++		events |= RTC_AF;
++		val &= ~(PCF85063_CTRL2_AIE | PCF85063_CTRL2_AF);
++		ret = IRQ_HANDLED;
++	} else {
++		/* Preserve AF if it comes after the above regmap_read() */
++		val |= PCF85063_CTRL2_AF;
++	}
++
++	if (val & PCF85063_CTRL2_TF) {
++		events |= RTC_UF;
++		val &= ~PCF85063_CTRL2_TF;
++		ret = IRQ_HANDLED;
++	}
++
++	if (ret == IRQ_HANDLED) {
++		regmap_write(pcf85063->regmap, PCF85063_REG_CTRL2, val);
++		rtc_update_irq(pcf85063->rtc, 1, events);
+ 	}
+ 
+-	return IRQ_NONE;
++	return ret;
+ }
+ 
+ static int pcf85063_read_offset(struct device *dev, long *offset)
+@@ -607,6 +690,7 @@ static int pcf85063_probe(struct device *dev, struct regmap *regmap, int irq,
+ 			dev_warn(&pcf85063->rtc->dev,
+ 				 "unable to request IRQ, alarms disabled\n");
+ 		} else {
++			set_bit(RTC_FEATURE_UPDATE_INTERRUPT, pcf85063->rtc->features);
+ 			set_bit(RTC_FEATURE_ALARM, pcf85063->rtc->features);
+ 			device_init_wakeup(dev, true);
+ 			err = dev_pm_set_wake_irq(dev, irq);
+-- 
+2.55.0
 
-	if (rate !=3D 32768 || !data->has_subu)
-
-otherwise having a xtal with 32768 on a SCMP-only device will not be
-accepted despite it should work.
-
-Haven't checked if that could simplify your later has_subu-check or not.
-
-
---8FWAH1+rAwdn2nVp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqG4wYACgkQFA3kzBSg
-KbbT3g//eDPd2vocikzCHllx9NDlhDYNBdNzSLAnbdJV+Fyazo96+R+WS5lQG13X
-Du2S1c+EWvJzzAwhM2shDnJBTsWAl1RLkRhDsP7XQ+CyRygbrVV8vvCxvtwZGQVG
-oIFHhZd0srm6lHKQJZvyHUz8su37Gib2rbuQMH6720GuVqU2b6sNuLnc1VoCgV2U
-n1v6ooNrVoEoHgccI7b6j/+DVcSHWWP0Qigj/R23yQ3Jzt5Jvz0aV828yRXk9KHX
-taiw1xHhIjDZnCwKNQ8ymTXk/lX92Cj0c1JUhy4LJMpeaB/7u5VQpcWkGFryR7bU
-iuUIEZFIpV+fhCYFQZqrDM/R10nX6Scnf1eIHPzz55GoAjP4YSUbIspOZuSeg2nS
-gOCO/uribzeQvTObAFpfr0AHWW1Q4p+Ki+/jY8NlJpc9u+cJmBL70d/0/3OhvrLs
-S9U6eBDZn6wnxrfG8MYYs1ZQh9tcFVpFdOXO9spdZD9Z80zC4Fk+/DtHdBF/jqgv
-SWdyHguq74w/SnSxKVkfv9VSU9CHFrBofWtRj4kwxKdOaZ+a+70DTMwIvFPzM/Ye
-tqfHWApbIfPykcm29F0X37ctaLL3jyZ02/gYgJytMUCXKX4RmHblE5vrQT7evice
-eBIwObAKldiHzKY6yZ7nAky/R0n26To/KTwy/IOTYqD+OgU+yeM=
-=Nnnz
------END PGP SIGNATURE-----
-
---8FWAH1+rAwdn2nVp--
