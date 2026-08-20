@@ -1,87 +1,87 @@
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB47747D461
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:49:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF7B481AA6
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 17:59:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787244573; cv=none; b=p6DBilgFbq15BtJKI7r3yPVKoHeVzfZ//u1xbPlOxzhm9VNzUFkyEoJxT0boEAbLiG39LWYDEvvED0LZC6ag8T3J1uZQmefhCHihy3Abj3/ftjh4Bu9foex0FerYwOX19aiV7khTf+9hSF/GRoF8idihH591IDtPjn76QYK22Y4=
+	t=1787248784; cv=none; b=karGrj15sWBqWv5s5AUgp8Vds3j4T1eo3w70503KwMh9xD2nSgjG9JKTy/aNDxs+0xaQOxMk63VjtoA0eeKWUQaTOEx8IdzV8haD4TXxc54oSNKGGtPWUgbB757qVI+yBsP9f9zfLLC8otvcvFe8Lmklik//5lq0Vt3h06RftlY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787244573; c=relaxed/simple;
-	bh=h4CTY+d9wEtomhKJCnr8biLp5+RUII7D1e7j+ve1TlI=;
+	s=arc-20240116; t=1787248784; c=relaxed/simple;
+	bh=I2orlm4o8wdGllOSCWWVe+QrQdgYfxPqcxjYoHq1VKA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WBqARSMo6S+zUGEj4HEMaxAdvOygBV4x0zdcITgItU3eviiKu43rJadt83WmEVBjVsuk2qk9lC4P2g9Cm7tCXTrMi5wO8M4nDnt+Q6OByT/6cG/Nm+chlEDyVP1X2lUQ7fNNfDwyvI06ejC99l8TbZRBDb7D6nbnRXSpOvyrVLQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=fKBPNyCR; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=CIc4Y2Gr; arc=none smtp.client-ip=205.220.168.131
+	 Content-Type:Content-Disposition:In-Reply-To; b=uTC+CVyLcFRaVb6rbHpW0Xb4j6lBoIA4Bv1/lyoaiyfuUWJatWj7D2NLiMNdhsbPso12iiwNKPHuG4O0aHxLJSuUa+62sv+RyUwxgux2gjfuqx2SztKgygUo6lVdpJKRfEaARY4qlfE6R/v4n939e0t1GFJh4BTYtWUtq8q86uA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=oJGkYBCO; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bncfQUHT; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="fKBPNyCR";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="CIc4Y2Gr"
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="oJGkYBCO";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bncfQUHT"
 Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67KG6oTE3415012
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:49:29 GMT
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67KG6oLk3415067
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 17:59:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=6EECnriWX5YW5pZTkr75zc0m
-	wwB/aeSRu/+86vpiqtY=; b=fKBPNyCRrHPAxjttRM8MzNmsKMLqzckJZH64N64H
-	N0rLN9pXsDqIf1U3vDoHpFz32uSE24KtD2dwkKv6rk2fBKUBfrowB0RWuLJnMoJD
-	Uqsx1oQUf6Wz0HYz6dIJpZvdM5DagAwNjVKgqG0jicr3ExqqzaXKyckKso9ycN1P
-	mUr30wxEWmSF3YdvMVSknJXEkrHbDvu5/zqW9dCJlY+DlppjxreC6yOdAOMy26Jr
-	EchpaYJ1m+JAoDL8hXpOxaqra/dhossS5QUgoAnPWXwLwSf+2uCwp9O6+7kVBmzf
-	6piKSq+Quuc5oPMBPCeia/e5GqGNCCmekPt81t6OePeiAA==
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g5vh7thct-1
+	:references:subject:to; s=qcppdkim1; bh=mtUXCTXCpsqToeZJ38HsCFcx
+	GpbVv2LIwfYutq6/GE4=; b=oJGkYBCOq4xCNegCtP7JHh+BCwR8E6O7j5uXwqra
+	Eem5ESOBiTDso4W1kE1Mx0Am5S+/JJNGTR+C8yM4H/Kap+wWMc8DtIdtro76OFFL
+	qe1VoSAPyYPWF52lknRFqh9p3Li7KUeywAnwCbbV9GeBfDGm5OgJhWAsVVhs1iFm
+	+p2UCtzdZce2Q6+DgkM71np8N9x/64S65LymGKvnhpz2ENnqwJh5dcwGL/eIwP/T
+	LnlgT6r6l1xRiD4JIT6WlI+pgOczkfFX8L+SyW2R6dW1BCqZfKyq6Mei1TgI8TFc
+	LnbxQrPfLcmnOilHJZb8jx8ea2XhevVfeT6DpuRkZRXqPA==
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4g5vh7twbp-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 16:49:28 +0000 (GMT)
-Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2ccb6f6a3f4so19787835ad.1
-        for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 09:49:28 -0700 (PDT)
+	for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 17:59:40 +0000 (GMT)
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e54b6556aso67204a91.2
+        for <linux-rtc@vger.kernel.org>; Thu, 20 Aug 2026 10:59:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1787244568; x=1787849368; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1787248779; x=1787853579; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=6EECnriWX5YW5pZTkr75zc0mwwB/aeSRu/+86vpiqtY=;
-        b=CIc4Y2Grbuvn/MaT25ixGNkmpWxVXuipFAh/dw62NPEd1G7KLufVFclXvb3xHUQSk0
-         L6sS8ogaBYCZeyMIsAPcRm+L8RtNPvcmFAGsY/CtAfDSO02jI08JMCmjPWeS/NXSTFnz
-         BMX01grTECxc1ECUhbPixI2QXUGfpNASftoLFAyZ/MiogDCgPWfIwcoGKq6YM2mTDxYW
-         XDmid/bxDFs4EoOdUC3iVahVCI4pXRp2o58bxvzyWfAn8+MyiU7vbS2aaAHwCpnJaLYI
-         o7R5DSe6TZqYElPivE7Gkk9Ih8xYkxMM0RgHNoszpRsOzxR9vVyZKhWKRGf0JkbNeDIT
-         YJxw==
+        bh=mtUXCTXCpsqToeZJ38HsCFcxGpbVv2LIwfYutq6/GE4=;
+        b=bncfQUHTUJjweG5uK8H8WjkUxqzhbyiekbJt29nJ/IFgSiGFVqKpN174DiCijSz8wV
+         1gEjsmdiSMWKCSsjrC/yKFkgK4Nv2P00aAlMEweUCGDsCfun+pOeFJ0uF0doiCEYOvZR
+         1L6k+HG1mhLkHxaxgU+Y/+Ex+VX/AVsI1Tw2QTH8Kgjk6aTsqbm7H8uV15UMc/Ijpu55
+         fxsIiEhPJ2A5TRiRCUeodj0l1EB1WSB58Y8OTqPZbOEdFFeSSuYnugDqKxgV/cNb1A2q
+         Cnvd1CeS+Y3DXi9F0N5qPrUfjvKts4pN25LPBLmkWkhp7gLEx8htomBciErISnwwxuqF
+         yXdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787244568; x=1787849368;
+        d=1e100.net; s=20251104; t=1787248779; x=1787853579;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6EECnriWX5YW5pZTkr75zc0mwwB/aeSRu/+86vpiqtY=;
-        b=DK/HEBQz83NxD0YvgorU+qKddiYsL3lFdbk4oJOVk+bLKdZl8wa+VQk36ynnaxIsm/
-         SXk+ynIVPt0JKVs5CjWdpjcv0RwSvmLLMVu5rGhxEzLx0H7kAEGmpRvjgz2fOm9KO8pq
-         X9kiModc25DndpCHL/5wS6qFxdX9rfD1nN0CLEwlIG5lDNJ7Eegb/Py2LbiztVWNSqoH
-         zl37THjzq2IFit0JX1Kp+cG1ck4+Ahka507QoaFbNeT3A4U3OZFz/3Imdqk9leRvNd5+
-         hoW/TZdy2HCQ3NUizFYWcqrwG/Ms404Xw3iJweyteOHOibv7DtXaeq3xz2O0Ued5VFeF
-         /vow==
-X-Forwarded-Encrypted: i=1; AHgh+RogV9H8XPgr37/hceQJKJ4+uaNPgOtE7360RbTgRQE6UEnG9p47WGMIaMHhCLQvB6qs6pUWVg1DelM=@vger.kernel.org
-X-Gm-Message-State: AFuF++m92FXuq73ig1Qoe/lbdWrxuCeAW9T/9kHXkWNmXe3ns2BwC5bU
-	+BzCNScKAHjt/Q+rXZSPGNeOWgXzQgXdoxvY6Cl3oAeFKDuiSR/OiOJ7cXnAIKDRIweK0HP3cA1
-	5/M0PpsFK3MNcczOVH14jelxZvsHb5csvW2VgB8ilsQ6FlRK26IGFRkdTZsFxSQw=
-X-Gm-Gg: AR+sD12A/QpTc3prKKltet+ichBqUAIO1ZM5zIvqR42SxlUql9PkMikfHahkZTUZeVm
-	ZklSnTVFwx72lCnVY20z45w/8NGRnOsb+rKm02NpSV356CioXW1mKGRYGXJ3UePNYqqypUrBtf1
-	iF/Rc/kXt1csihsk0rRWNbkyOjtaNakV5LAgT6C+B2VatWyil8likkz9aQ8cnajZvTQLC24YYT9
-	ipNWAa9SkxUnJ1L6IFOxwGOMEoOA3LE9fWqVj4KXaKOi/CRzAw3txeCusaipXKwDAH11T9PPziV
-	l/oNkIPrCwChE2IkH/zNTWMcEG5OYn7WsZfLHqrXBF/Q6QrAdsBkVF+JHiw7YTLzguWR/jSUZDJ
-	deZTGTFTGOdZn6gJ4QTY+tqZjK7Yk3w==
-X-Received: by 2002:a17:903:1b27:b0:2cf:8aa7:7810 with SMTP id d9443c01a7336-2d61a03da23mr103161705ad.2.1787244567198;
-        Thu, 20 Aug 2026 09:49:27 -0700 (PDT)
-X-Received: by 2002:a17:903:1b27:b0:2cf:8aa7:7810 with SMTP id d9443c01a7336-2d61a03da23mr103160885ad.2.1787244566452;
-        Thu, 20 Aug 2026 09:49:26 -0700 (PDT)
+        bh=mtUXCTXCpsqToeZJ38HsCFcxGpbVv2LIwfYutq6/GE4=;
+        b=HbNpCLWshjajy0eEuoGKZ0NRZ/CuqSLWdrwWj+iYVp5wkmRWR+D6k65l7FcS7OVsWI
+         dtpCNQ3rokjahIQq2M2713mxbQ5xrg+QhR6smXvxsAdtdTXNEiW5NFAM82yTem2QbrMF
+         WkwOmBZVs3eq0meJaiP6lsvH+e0wQxukHOM6ERfo9j10TZbeyNKswHIfcW596uuNZzHe
+         6esWzydYWMhf9/b0LnWm8nmc4TUlPubyjTNn8/n1XEJ6B5C7pu33LJhx4WDyK/lDt1jb
+         DCgSbcObKpvL9rD1xF/bGXFYZrLiOb6mRtU1mF6SSR+UMUQTsdA4GR12QAv4KbuLzSJ6
+         lZdA==
+X-Forwarded-Encrypted: i=1; AHgh+RoICWni3frj3BnoLZtPsmoRA4l9Lycdtk4SJUocChBeQHbiP/APRXUFRsADPVwf0HGJed85v8/v3TE=@vger.kernel.org
+X-Gm-Message-State: AFuF++naq4lEg71PFE8zNbyl4p4+GUkZhD/IqilUWWvxSQv1mq5yDsz2
+	uWa8HZ+GHDTvgSMiq24QFSSUyxeR88MMgGcsr2usQbgBBZXTjB3wWyjlS69A5+Q5rc6yPv46tTz
+	i7+FBrHPw4b2mzpn7oKUeCl1E60RB2VQrnVIBHchAlQeZnMUUbdQPicZro1/BblE=
+X-Gm-Gg: AR+sD128bDkCmBgHbARJEAZL2eJpiWW+1P0OhpUJ0v6iqfL2GU58gyoKbTRsklUdzdO
+	51OFR6i6KxrXvd9JInXA61Fyj03B08gNf0oVXGMnwhhFDJSAoapVvESHvSbe8zWW214vd2AGQCA
+	dBaQWZCzp3niEw4z3y33W1YS6cL4Q+81thwSeEQ9hlX5NmXL11KGThVl2PJ7EA+kNzVpqRJCCy6
+	oOtEYSrpPGfm9VGebscTyR1GTcKLea2jTFGXkQoVK3zwHzVoMR/JMr3hkl68QO8FK9DSKnnPDLj
+	lHek7uxJEMMgCE1xbZKfgz/5P0zmyeVYKzZGaS5vBY6vwu6yTw/e4sImQAhHE9KfugcGDU+ZvgJ
+	WQeW0kZvO/XKhiAl5WbzdTcbfVvflxQ==
+X-Received: by 2002:a17:90b:55cd:b0:38e:97f0:aa4b with SMTP id 98e67ed59e1d1-395c35f0a85mr480365a91.13.1787248778971;
+        Thu, 20 Aug 2026 10:59:38 -0700 (PDT)
+X-Received: by 2002:a17:90b:55cd:b0:38e:97f0:aa4b with SMTP id 98e67ed59e1d1-395c35f0a85mr480231a91.13.1787248778194;
+        Thu, 20 Aug 2026 10:59:38 -0700 (PDT)
 Received: from hu-kamalw-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d62e3c0a7bsm9658045ad.66.2026.08.20.09.49.22
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3957fbbb8d5sm8069074a91.14.2026.08.20.10.59.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2026 09:49:25 -0700 (PDT)
-Date: Thu, 20 Aug 2026 22:19:20 +0530
+        Thu, 20 Aug 2026 10:59:37 -0700 (PDT)
+Date: Thu, 20 Aug 2026 23:29:32 +0530
 From: Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Bjorn Andersson <andersson@kernel.org>,
+To: Bjorn Andersson <andersson@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
         Conor Dooley <conor+dt@kernel.org>, linux-kernel@vger.kernel.org,
@@ -89,10 +89,10 @@ Cc: Bjorn Andersson <andersson@kernel.org>,
         devicetree@vger.kernel.org, Raj Aryan <raryan@qti.qualcomm.com>
 Subject: Re: [PATCH 2/2] rtc: qcom: rtc-glink: Add PMIC GLINK RTC driver and
  extend pmic_glink
-Message-ID: <w3yxosn4wvcqcmcmweb4pdi2vsvr5wnh2agwou3anpmxzqvqls@liefdb26jj56>
+Message-ID: <4sj5t42zbxcy4ynlt4gg2z274hmk7m5huezfzncouk27v5pgai@dnzopmclvu3s>
 References: <20260807-rtc-glink-cleanup-v1-0-7801e4d69c4f@oss.qualcomm.com>
  <20260807-rtc-glink-cleanup-v1-2-7801e4d69c4f@oss.qualcomm.com>
- <2026080720584407a4d82d@mail.local>
+ <anUTc79xyUZthaB6@baldur>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -101,26 +101,26 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2026080720584407a4d82d@mail.local>
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDEyNyBTYWx0ZWRfX+P+71vCbDuSI
- ixmiFOJYTHnOh1ESypfwGM3czdC86N2F4NEDeKTn+i9uF7zNepmcqola98VWBJZKk9M+IJOf+o8
- JOEIAqNGHoXNbSTQkYnRIxIBoW3h/9ftj7lTzm1M/mzeUZr2Vaf5gzETkbOHzl21lQ8l7tppkvh
- MBVVjls0ICTi5eaZMDAWzwcAu+sephe978kRmuiqXP/f5/uU3U+BjS8hBuIuZHISXbsaINya627
- YJOoiKB8I/U6jURP5CLa67G588tfr5QqEcvz1NWeizKr23senY0CJAzc9Kd4E7edkzKGqmxwhy/
- RmQRdrICBzvGZL7PpfXyTtk9lgWyZS13GZW2xY3lg3bPb0cP9A+LhRUP1xXiWPkNq3m8aMDZnoC
- 25VCzlamIKeGALYofkVgAHMWjpwzWJN8NIIg7mzqjsaC5DBDu7s2JG549yDHJaoSPzHZdd5IabT
- 2UYE45oJfsTqZ1AoyAA==
-X-Proofpoint-ORIG-GUID: HkwFEunoJcQYo3_UutPz4n-gLdbiR5Ps
-X-Authority-Analysis: v=2.4 cv=Y7fIdBeN c=1 sm=1 tr=0 ts=6a873019 cx=c_pps
- a=cmESyDAEBpBGqyK7t0alAg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+In-Reply-To: <anUTc79xyUZthaB6@baldur>
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDEzNSBTYWx0ZWRfXziAaF7/3qezK
+ SFXjjImd9yYLq7dwQWJED7XJXT6il5qsH5BYmzRM6yKlMqxYMumFbESILpozBKfXC+aQqx5XiQT
+ AskNRXvBqGQtjHdJCJOuG20VXj/H/WKy7b7IjBTEHIXuFyJjFqPCLU8Q7RrEkX4JDy1eus6iZEf
+ Vy9/1xaQuG9JDp3YPolSwP30/fCOgog80TJj7CWU8kkrGhNHWVls7V5GVpgc2ydMPEXU0EblB1r
+ bkMAHDnexss9PhNnRS6063zHRNb7toJ1D3RW8sI4nset2URuvcEVCSrkrHzYaAnZP2KENH8OaZH
+ a97Pi5zBvLVmnnHFSrHzoRgkPntC15f7PJ1E+XKmQNffmcJnkE/JmW5g9e9wfFbpJENFAxpNE6q
+ 9Es2zMjO0Thu7Cvx6aR/pAuY1+2KQ+d/eh/0bVGt3ls/FsUUyGWb/w1p8BEhXgR1YmZcbphcoNN
+ QbpSoR4OFJ29QY75HFQ==
+X-Proofpoint-ORIG-GUID: JhaWhawtjSq9BIf-I9IoFT2W60HyXW69
+X-Authority-Analysis: v=2.4 cv=Y7fIdBeN c=1 sm=1 tr=0 ts=6a87408c cx=c_pps
+ a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=s4-Qcg_JpJYA:10
  a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
- a=P-IC7800AAAA:8 a=EUspDBNiAAAA:8 a=VwQbUJbxAAAA:8 a=WCpGfyg5o2W2mbwI7u8A:9
- a=CjuIK1q_8ugA:10 a=1OuFwYUASf3TG4hYMiVC:22 a=d3PnA9EDa4IxuAV0gXij:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDEyNyBTYWx0ZWRfX7wyfrETiW8Jd
- e/PWPEf9SJIV3WBa5EvaUGb8/7PGK2QTNKfL8Wn9Ho1n27+awCDSopp/Jzjy178dW9zcKNsgYzy
- kYNBqlm+mEO+c3aIxKI9PQN6l7o7fOk=
-X-Proofpoint-GUID: HkwFEunoJcQYo3_UutPz4n-gLdbiR5Ps
+ a=VwQbUJbxAAAA:8 a=EUspDBNiAAAA:8 a=SSKMhI25BTbiUwBZhbEA:9 a=CjuIK1q_8ugA:10
+ a=rl5im9kqc5Lf4LNbBjHf:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDEzNSBTYWx0ZWRfX5/eswKuev4xf
+ 2ZlaJa43xu4pvry7YUKXJ0mLieJ8SwOqiYNnFAXIkGZ74mrxzTNr9EOZIz2PEaY2Ze5/UUlf9TP
+ 4aatpNrZYGmCxoJvVAvFNPgHSYisLAo=
+X-Proofpoint-GUID: JhaWhawtjSq9BIf-I9IoFT2W60HyXW69
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-20_01,2026-08-20_01,2025-10-01_01
@@ -128,29 +128,85 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  suspectscore=0 bulkscore=0 clxscore=1015 malwarescore=0 impostorscore=0
  lowpriorityscore=0 spamscore=0 adultscore=0 phishscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608200127
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608200135
 
-On Fri, Aug 07, 2026 at 10:58:44PM +0200, Alexandre Belloni wrote:
-> On 07/08/2026 02:26:31+0530, Kamal Wadhwa wrote:
+On Thu, Aug 06, 2026 at 06:53:54PM -0500, Bjorn Andersson wrote:
+> On Fri, Aug 07, 2026 at 02:26:31AM +0530, Kamal Wadhwa wrote:
 > > Add a new RTC driver that communicates with the PMIC firmware over
 > > the GLINK transport layer. The driver supports reading time and
 > > alarm functionality via GET_PROPERTY and SET_PROPERTY opcodes.
+> 
+> Please review the second sentence here, it doesn't match the
+> implementation.
+> 
+> In fact,
+> https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
+> says that your commit message should "describe your problem" and nowhere
+> in this commit message is it described why this patch exists. This is
+> just regurgitating the code.
+> 
+> N.B. There are no valid problem descriptions that starts with the word
+> "Add"...
+
+Extremely sorry for this, will corrrect it in next version.
+
+> 
 > > 
 > > Time is read via GET_PROPERTY (opcode 0x62) using QCOM_RTC_GLINK_TIME
 > > property (0x00). Alarm set and enable are handled via SET_PROPERTY
 > > (opcode 0x63) using QCOM_RTC_GLINK_ALARM and QCOM_RTC_GLINK_ALARM_ENABLE
 > > properties respectively.
 > > 
+> 
+> In both of these paragraphs you talk about reading time (and presumably
+> set/get alarm) - but you do implement rtc_class_ops::set_time, what's up
+> with that?
+
+`set_time()` is not supported on qcom platforms by default, as this can impact
+time service which uses rtc time change during off state, incase network time
+is not available after reboot.
+
+Even rtc-pm8xxx also uses a DT prop to explicitly allow writes. by default
+its disabled.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-pm8xxx.c?h=v7.2#n622
+
+sorry i should explain this properly here.
+
+> 
 > > GET_PROPERTY and SET_PROPERTY responses share the same firmware message
 > > layout, with the firmware echoing back the property value. Both opcodes
 > > are handled by a common callback path accordingly.
 > > 
+> 
+> That's true, but it's capturing one detail of the implementation. I
+> don't think it's relevant in the commit message.
+
+Ack (sorry)
+
+> 
 > > Also extend pmic_glink to register the RTC as a PMIC GLINK client and
 > > add PMIC GLINK RTC client support for glymur.
 > > 
+> 
+> The fact that those 22 lines of code is for a complete separate
+> subsystem/maintainer and that there isn't a build-time dependency means
+> that it would be much nicer if it came as separate commits.
+> 
+> The PMIC_GLINK_OWNER_RTC define can be carried in the rtc driver.
+
+Ack, will move to new commit.
+
+> 
 > > Assisted-by: Claude:claude-sonnet-5
 > > Signed-off-by: Raj Aryan <raryan@qti.qualcomm.com>
 > > Signed-off-by: Kamal Wadhwa <kamal.wadhwa@oss.qualcomm.com>
+> 
+> Who wrote this driver? The author seems to be you Kamal, but the first
+> one to sign off on the work was Raj?
+
+I made the initial working copy, and Raj helped me with cleanup and review.
+
+> 
 > > ---
 > >  MAINTAINERS                         |   7 +
 > >  drivers/rtc/Kconfig                 |  10 +
@@ -248,6 +304,13 @@ On Fri, Aug 07, 2026 at 10:58:44PM +0200, Alexandre Belloni wrote:
 > > +	QCOM_RTC_GLINK_ALARM_TIME,
 > > +	QCOM_RTC_GLINK_ALARM_ENABLE,
 > > +};
+> 
+> This isn't an enumeration, these are protocol-level constants. Please
+> use #define to make that clear.
+
+Ack. will fix it.
+
+> 
 > > +
 > > +struct qcom_rtc_glink_msg {
 > > +	struct pmic_glink_hdr	hdr;
@@ -288,13 +351,6 @@ On Fri, Aug 07, 2026 at 10:58:44PM +0200, Alexandre Belloni wrote:
 > > +
 > > +	/* Serializes requests: only one may be in flight at a time */
 > > +	struct mutex		lock;
-> 
-> This mutex is useless as all the RTC operations are already serialized.
-> Simply rtc_lock/rtc_unlock in qcom_rtc_glink_alarm_work.
-
-Ack. will remove it.
-
-> 
 > > +	struct completion	ack;
 > > +	struct work_struct	alarm_work;
 > > +
@@ -342,6 +398,13 @@ Ack. will remove it.
 > > +		rtc_glink->request_pending = false;
 > > +		spin_unlock_irqrestore(&rtc_glink->state_lock, flags);
 > > +		return ret;
+> 
+> These 4 lines are effectively duplicated after the
+> wait_for_completion_timeout(), please refactor this with a goto.
+
+Ack. will fix it in v3
+
+> 
 > > +	}
 > > +
 > > +	left = wait_for_completion_timeout(&rtc_glink->ack, HZ);
@@ -392,6 +455,29 @@ Ack. will remove it.
 > > +	mutex_lock(&rtc_glink->lock);
 > > +	ret = qcom_rtc_glink_request(rtc_glink, &msg, sizeof(msg));
 > > +	if (!ret) {
+> 
+> The idiomatic form in the Linux kernel is to handle the error. I'd find
+> the following form more natural to read:
+> 
+> 	ret = qcom_rtc_glink_request(rtc_glink, &msg, sizeof(msg));
+> 	if (ret < 0) {
+> 		goto out_unlock;
+> 	} else if (!rtc_glink->resp_valid) {
+> 		ret = -EIO;
+> 		goto out_unlock;
+> 	}
+> 	
+> 	*value = rtc_glink->resp_value;
+> 
+> out_unlock:
+> 	mutex_unlock(&rtc_glink->lock);
+> 	return ret;
+> 
+> 
+> 
+
+Ack. will fix it everywhere.
+
 > > +		if (!rtc_glink->resp_valid)
 > > +			ret = -EIO;
 > > +		else
@@ -420,6 +506,12 @@ Ack. will remove it.
 > > +		else
 > > +			*ticks = rtc_glink->resp_value;
 > > +	}
+> 
+> Ditto
+
+Ack.
+
+> 
 > > +	mutex_unlock(&rtc_glink->lock);
 > > +	return ret;
 > > +}
@@ -443,6 +535,12 @@ Ack. will remove it.
 > > +		else
 > > +			*tm = rtc_glink->resp_tm;
 > > +	}
+> 
+> Ditto.
+
+Ack.
+
+> 
 > > +	mutex_unlock(&rtc_glink->lock);
 > > +	return ret;
 > > +}
@@ -457,6 +555,16 @@ Ack. will remove it.
 > > +	w0 = ((tm->tm_year + 1900) & 0xffff) |
 > > +	     (((tm->tm_mon + 1) & 0xff) << 16) |
 > > +	     ((tm->tm_mday & 0xff) << 24);
+> 
+> Can't this be written as:
+> 
+> 	w0 = FIELD_PREP(0x0000ffff, tm->tm_year + 1900) |
+> 	     FIELD_PREP(0x00ff0000, tm->tm_mod + 1) |
+> 	     FIELD_PREP(0xff000000, tm->tm_mday);
+> 
+
+Ack. will use FEILD_PREP().
+
 > > +	w1 = (tm->tm_hour & 0xff) |
 > > +	     ((tm->tm_min & 0xff) << 8) |
 > > +	     ((tm->tm_sec & 0xff) << 16) |
@@ -475,6 +583,13 @@ Ack. will remove it.
 > > +	ret = qcom_rtc_glink_request(rtc_glink, &msg, sizeof(msg));
 > > +	mutex_unlock(&rtc_glink->lock);
 > > +	return ret;
+> 
+> It certainly wouldn't be bad to insert one or two empty lines in this 28
+> line block.
+
+Ack(sorry).
+
+> 
 > > +}
 > > +
 > > +static int qcom_rtc_glink_get_time(struct qcom_rtc_glink *rtc_glink,
@@ -488,9 +603,10 @@ Ack. will remove it.
 > > +		return 0;
 > > +	dev_warn(rtc_glink->dev, "0x68 failed (%d), falling back\n", ret);
 > 
-> This message is useless, either fail or fallback silently
+> 0x68 failed you say...how about writing an error message that a human
+> can read?
 
-Ack. will fix in v3
+Ack. sorry.
 
 > 
 > > +
@@ -502,18 +618,19 @@ Ack. will fix in v3
 > > +
 > > +	ret = qcom_rtc_glink_get_property(rtc_glink, QCOM_RTC_GLINK_TIME,
 > > +					  &ticks);
+> 
+> Don't wrap lines when they are easier to read in their unwrapped form
+> and still less than 100 characters.
+
+Ack.
+
+> 
 > > +	if (!ret && ticks != U32_MAX) {
 > > +		rtc_time64_to_tm((time64_t)ticks + rtc_glink->offset, time);
 > > +		return 0;
 > > +	}
 > > +
 > > +	dev_err(rtc_glink->dev, "all time sources failed\n");
-> 
-> Ditto
-
-Ack. will fix in v3
-
-> 
 > > +	return -EIO;
 > > +}
 > > +
@@ -531,11 +648,11 @@ Ack. will fix in v3
 > > +	if (ret)
 > > +		dev_warn(rtc_glink->dev, "0x69 failed (%d)\n", ret);
 > 
-> Ditto
+> Write English error messages.
+
+Ack. sorry.
+
 > 
-
-Ack. will fix in v3
-
 > > +
 > > +	ret = qcom_rtc_glink_set_property(rtc_glink, QCOM_RTC_GLINK_TIME, (u32)t);
 > > +	if (ret)
@@ -544,15 +661,15 @@ Ack. will fix in v3
 > > +	ret = qcom_rtc_glink_get_ticks(rtc_glink, &ticks);
 > > +	if (!ret && ticks != U32_MAX) {
 > > +		rtc_glink->offset = (u32)t - ticks;
+> 
+> There's no reason to if (success) { dostuff(); } else {return -EIO; }.
+> Handle the error and then continue with the successful case.
+
+Ack.
+
+> 
 > > +	} else {
 > > +		dev_warn(rtc_glink->dev, "no tick source for offset\n");
-> 
-> This is also probably useless. No one is going to read those messages or
-> do anything about them.
-
-Ack. will fix in v3
-
-> 
 > > +		return -EIO;
 > > +	}
 > > +
@@ -584,6 +701,15 @@ Ack. will fix in v3
 > > +	dev_dbg(rtc_glink->dev,
 > > +		"set_alarm: now_real=%lld alarm_t=%lld delta=%lld\n",
 > > +		now_real, alarm_t, secs_until_alarm);
+> 
+> Here's 12 lines that get the time and calculate now and calculate alarm
+> time and print a debug message and checks for invalid value.
+> 
+> If you really need the debug print in here, give it a space before and
+> after to separate it from the actual logic.
+
+Ack. will drop it. 
+> 
 > > +	if (secs_until_alarm < 0)
 > > +		return -EINVAL;
 > > +	if (secs_until_alarm > U32_MAX)
@@ -591,6 +717,12 @@ Ack. will fix in v3
 > > +
 > > +	ret = qcom_rtc_glink_get_property(rtc_glink, QCOM_RTC_GLINK_TIME,
 > > +					  &fw_current);
+> 
+> Again, don't unnecessarily wrap lines that aren't too long.
+
+Ack.
+
+> 
 > > +	if (ret)
 > > +		return ret;
 > > +	if (fw_current == U32_MAX)
@@ -663,15 +795,6 @@ Ack. will fix in v3
 > > +	if (ret)
 > > +		dev_err(rtc_glink->dev,
 > > +			"failed to disable alarm after expiry (%d)\n", ret);
-> 
-> So what is the user supposed to do with this message? Also, do you
-> actually have to disable the alarm? I guess it is not going to fire again.
-
-it seems less likely that it will fire again, it just seemed safe to disable it
-before sending the RTC irq. but fine i will remove the print and also the
-disable call.
-
-> 
 > > +	rtc_update_irq(rtc_glink->rtc, 1, RTC_IRQF | RTC_AF);
 > > +}
 > > +
@@ -689,13 +812,21 @@ disable call.
 > > +		"RX opcode=0x%x type=0x%x owner=0x%x len=%zu\n",
 > > +		le32_to_cpu(hdr->opcode), le32_to_cpu(hdr->type),
 > > +		le32_to_cpu(hdr->owner), len);
+> 
+> I don't fancy all your debug prints, but I love the fact that this isn't
+> crammed into logical chunks of code.
+
+Ack. will remove it.
+
+> 
 > > +
 > > +	if (le32_to_cpu(hdr->opcode) == RTC_GLINK_ALARM_EXPIRED) {
 > > +		dev_info(rtc_glink->dev, "alarm expired\n");
 > 
-> This is just noise
+> Is this useful to the end user?
 
-Ack. will fix in v3
+sorry this was a debug print, that should have removed.
+
 > 
 > > +		schedule_work(&rtc_glink->alarm_work);
 > > +		return;
@@ -728,6 +859,7 @@ Ack. will fix in v3
 > > +	case RTC_GLINK_SET_PROPERTY: {
 > > +		const struct qcom_rtc_glink_msg *msg = data;
 > > +
+
 > > +		if (len < sizeof(struct pmic_glink_hdr) + sizeof(__le32)) {
 > > +			rtc_glink->error = -EINVAL;
 > > +			break;
@@ -779,6 +911,11 @@ Ack. will fix in v3
 > > +		rtc_glink->resp_tm.tm_hour = w1 & 0xff;
 > > +		rtc_glink->resp_tm.tm_min = (w1 >> 8) & 0xff;
 > > +		rtc_glink->resp_tm.tm_sec = (w1 >> 16) & 0xff;
+> 
+> Can't you FIELD_GET() these?
+> 
+Ack.
+
 > > +		rtc_glink->resp_valid = true;
 > > +		rtc_glink->error = 0;
 > > +		dev_dbg(rtc_glink->dev,
@@ -812,12 +949,6 @@ Ack. will fix in v3
 > > +		dev_warn(rtc_glink->dev,
 > > +			 "unhandled RX opcode=0x%x len=%zu\n",
 > > +			 le32_to_cpu(hdr->opcode), len);
-> 
-> Useless message
-
-Ack. will fix in v3
-
-> 
 > > +		return;
 > > +	}
 > > +
@@ -890,6 +1021,18 @@ Ack. will fix in v3
 > > +
 > > +	if (!of_match_device(qcom_rtc_glink_of_variants, dev->parent))
 > > +		return -ENXIO;
+> 
+> So in order to support this on a new target we should update both the
+> client_mask and qcom_rtc_glink_of_variants[]?
+> 
+> Why is this needed?
+> 
+
+Its not i guess, pmic_glink.c already only instantiates the "rtc-glink" aux
+device for platforms whose pmic_glink_data has
+BIT(PMIC_GLINK_CLIENT_RTC) set, so this check is redundant dead
+weight. Dropping it and qcom_rtc_glink_of_variants[] entirely in v3.
+
 > > +
 > > +	rtc_glink = devm_kzalloc(dev, sizeof(*rtc_glink), GFP_KERNEL);
 > > +	if (!rtc_glink)
@@ -898,6 +1041,17 @@ Ack. will fix in v3
 > > +	rtc_glink->dev            = dev;
 > > +	rtc_glink->allow_set_time = device_property_read_bool(dev->parent,
 > > +							      "allow-set-time");
+> 
+> Why do we have this property? Why would we not allow time to be set?
+
+This is same as the rtc-pm8xxx.c on Qcom targets rtc time is used by time service
+to have a relative sense of time, and not absolute time. 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/rtc/rtc-pm8xxx.c?h=v7.2#n622
+
+> 
+> Regards,
+> Bjorn
+> 
 > > +
 > > +	mutex_init(&rtc_glink->lock);
 > > +	spin_lock_init(&rtc_glink->state_lock);
@@ -923,14 +1077,6 @@ Ack. will fix in v3
 > > +		return dev_err_probe(dev, PTR_ERR(rtc_glink->rtc),
 > > +				     "failed to allocate RTC device\n");
 > > +
-> 
-> Useless message, there is no failure path without a message in
-> devm_rtc_allocate_device.
-
-Ack. will fix in v3
-
-> 
-> 
 > > +	rtc_glink->rtc->ops      = &qcom_rtc_glink_rtc_ops;
 > > +	rtc_glink->rtc->range_min = 0;
 > > +	rtc_glink->rtc->range_max = U32_MAX;
@@ -1056,8 +1202,3 @@ Ack. will fix in v3
 > > -- 
 > > 2.43.0
 > > 
-> 
-> -- 
-> Alexandre Belloni, co-owner and COO, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
