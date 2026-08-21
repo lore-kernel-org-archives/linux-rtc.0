@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A9F2C21C5;
-	Fri, 21 Aug 2026 14:10:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 195D23254AE;
+	Fri, 21 Aug 2026 14:10:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787321412; cv=none; b=dy3Ne8jHnrf7vinbQN2m2wrfwEPA9hhmj+emTuSftR19syewfEAIqkspQbhkqJqG2pZpfYHoQA12oFnhdbWxYkMbLrqDfrx0co3Oxpvuk4zmlcU+rqOYNI8lcXEmD+pBefgUQP1WwFSq4eWXXg5ajkDZZGGIoPXMX0J7hCv4mkU=
+	t=1787321443; cv=none; b=LxFvwsz24Ab81DRiOE5/vOzdwCuDX79/aGByYEuXwHnPvFU5WxDgpql+jb8aKBagOqYsH9ee0TiO3kV9eDIxhOgKz2Vk3alX7A16j/v9rt0FrUZoubz6DdPtQ1mT2ZxfBsqQESWtXetbH2cHuO/IhE/KPfae3rE/C+RZWnc167M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787321412; c=relaxed/simple;
-	bh=DcX7y6KCV3o7jNXzRjtp+OHytEp/FbUii6KgZEJB8bM=;
+	s=arc-20240116; t=1787321443; c=relaxed/simple;
+	bh=hofLw2x6F8EOYhtoS3gZM7upWG85KV3BxKmdHhbkVLc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=oDkz49zu99R1nqnmFMUqHj7CGqvm0dsn0hN3I+w3CoivpQgoFwYoF9nyz5vBSveitU5/P6qRFKwIp/K01DwjldKdhjs6pHb6pqvIeN270oOm3+86uw4dT1MahvZiT2mUUiDGW5e1Sx17fI/f8mZ+yz8NgDSzci9IGNGi7pwW5zU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XeZiE6mQ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ilZMp95b19E9ooOELDJ5SBHBpy78LJpmV5xSyi2+BEO3jGN8BvE6wUEzqB02DKNZdChMOiODKbOerUTiUOi00pNwFMaraKVBQ0ORk/Z+TwIe30VWTTYhLxinclejUpsgsay/0VUbHfUSuJH2AxRm2plvZ6fdf8/sd3HGh1QDK1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b8ojpd15; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XeZiE6mQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDB11F000E9;
-	Fri, 21 Aug 2026 14:10:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b8ojpd15"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A191F000E9;
+	Fri, 21 Aug 2026 14:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787321410;
-	bh=loP5chJ+lTLLwZVUzfv8lGaMZcx9mQkM5iUDVl7hwkI=;
+	s=k20260515; t=1787321441;
+	bh=MzhgVVZX9i9qT4UOJCGe1rI1bGZSTsjv5P/rX4JoZU8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XeZiE6mQNnllMVw6oSRvey5UGvgr2+ZnvU7L6FMiznqXR9WhnB9/Ye1ReSTWJwF0h
-	 R7J52UnPALlZVQCeFA8pFALoxkMtuQA/iSPiTLHttgfgvflAg9FDOxD0evqiHwpH1a
-	 27UweNVXHHPXnHgw4q6pVOvJPp6bXyqf9LA+tf9Asaus4N/M34XMEPdRj9clGfCN+0
-	 tiiAOhBQq/FYB1phCScHz6CFn23vvDKHD5mT12pQMA/nWv3bqBzXwIJ6uN7nBtsD46
-	 RMyPsP5STz1LleQnpW4YQhS6oTJuLqyqp5yTq9wmQhl61GUQdOBAy64OqMQrC6mqUa
-	 4pyXuRLKqXBpA==
+	b=b8ojpd15+6EDONRUSn4jUVEscrQQZ79VRlvkG3mv57EvD16AV7LoV2teR5U4YVfTP
+	 YFllLPK4iGkUCqEqDCXwDlP8zGLbfIa9UWqfH3A0g4YVMHnpGhy4x1M94vn5yV6TGp
+	 47fcmlH+6BkW9E08odaFddO/enJxPwT20c13hgbrgRaArPxfjucPu17X4TkmzTiMsQ
+	 N2jAANaeaApzTCsrtJ4t0P+W9N5IKLeLXFCeypHF4wiQ9Kya/KBGV0/OSc7JgcoX/p
+	 I+M0sO2Q/WYvT3cuZpZpv1SnFyayNxouV5NJpqg3G2Ro6Tc0gari+EYm+A5J1JPREk
+	 4tx8gBrAaYvjg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 04/17] rtc: rzn1: Handle unset alarm weekday in
- rzn1_rtc_read_alarm
+Subject: Re: [PATCH v5 06/17] rtc: rzn1: Disable alarm interrupt before
+ reprogramming alarm registers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: wsa+renesas@sang-engineering.com, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260821135608.275233-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: wsa+renesas@sang-engineering.com, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org
+In-Reply-To: <20260821135608.275233-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260821135608.275233-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260821135608.275233-5-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260821135608.275233-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 14:10:10 +0000
-Message-Id: <20260821141010.6EDB11F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 14:10:40 +0000
+Message-Id: <20260821141041.57A191F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -50,60 +49,69 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Medium] The RTC calibration offset cannot be reset to 0 once configured =
-because `rzn1_rtc_set_offset()` returns early without updating the hardware.
+- [High] Concurrent lockless read and write of `rtc->tm_alarm` and a race w=
+ith delayed IRQ handlers can cause a newly configured alarm to be silently =
+disabled.
 --
 
---- Patch [4]: [PATCH v5 04/17] rtc: rzn1: Handle unset alarm weekday in rz=
-n1_rtc_read_alarm ---
-commit 03655d07aa4a099ff33de67c8c707b707a119002
+--- Patch [6]: [PATCH v5 06/17] rtc: rzn1: Disable alarm interrupt before r=
+eprogramming alarm registers ---
+commit 6227942d78d91abfb1648a64bce64f0011716b61
 Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-rtc: rzn1: Handle unset alarm weekday in rzn1_rtc_read_alarm
+rtc: rzn1: Disable alarm interrupt before reprogramming alarm registers
 
-This commit handles the case where the alarm weekday register is unset by
-returning early to avoid fabricating an invalid alarm date. It also moves
-the control register read before this check so that the enabled flag is
-updated properly.
-
-Cc: stable@vger.kernel.org
+This commit updates rzn1_rtc_set_alarm() to disable the alarm interrupt
+before reprogramming the alarm registers. This prevents the interrupt from
+firing while the alarm registers contain a mixture of old and newly written
+values.
 
 > diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
+> index 44e8db466cb78..09631a3a51345 100644
 > --- a/drivers/rtc/rtc-rzn1.c
 > +++ b/drivers/rtc/rtc-rzn1.c
+> @@ -280,6 +280,11 @@ static int rzn1_rtc_set_alarm(struct device *dev, st=
+ruct rtc_wkalrm *alrm)
+>  	if (alarm > farest)
+>  		return -ERANGE;
+> =20
+> +	/* Disable alarm interrupts before reprogramming the alarm. */
+> +	ret =3D rzn1_rtc_alarm_irq_enable(dev, 0);
+> +	if (ret)
+> +		return ret;
+> +
+>  	writel(bin2bcd(tm->tm_min), rtc->base + RZN1_RTC_ALM);
+>  	writel(bin2bcd(tm->tm_hour), rtc->base + RZN1_RTC_ALH);
+>  	writel(BIT(tm->tm_wday), rtc->base + RZN1_RTC_ALW);
 
-[ ... ]
+[Severity: High]
+This is a pre-existing issue, but does this fully protect against a race
+with a delayed IRQ handler?
 
-This is a pre-existing issue, but I noticed a potential logic flaw in the
-RTC offset configuration while reviewing this file:
+If a previous alarm fires and the IRQ handler rzn1_rtc_alarm_irq() is
+delayed on CPU1, and concurrently CPU0 runs rzn1_rtc_set_alarm():
 
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_set_offset() {
-...
-	if (stepsh >=3D -0x3E && stepsh <=3D 0x3E) {
-		/* 1017 ppb per step */
-		steps =3D stepsh;
-		subu |=3D RZN1_RTC_SUBU_DEV;
-	} else if (stepsl >=3D -0x3E && stepsl <=3D 0x3E) {
-		/* 3051 ppb per step */
-		steps =3D stepsl;
-	} else {
-		return -ERANGE;
-	}
+CPU0 completes rzn1_rtc_set_alarm(), updating the lockless rtc->tm_alarm
+and re-enabling the alarm by setting ALME in CTL1.
 
-	if (!steps)
-		return 0;
-...
-}
+CPU1 then resumes in rzn1_rtc_alarm_irq():
 
-[Severity: Medium]
-Does this early return prevent the hardware register from being updated to
-clear the calibration offset when steps evaluates to zero?
+	if (rtc->tm_alarm.tm_sec =3D=3D 0)
+		...
+	else
+		set_irq_bits =3D RZN1_RTC_CTL1_1SE;
 
-If a process attempts to reset the RTC offset to 0 ppb, this early return
-prevents the hardware register (RZN1_RTC_SUBU) from being written. This
-seems to leave the old calibration value applied in hardware, which would
-result in persistent clock drift since the offset cannot be cleared.
+	guard(spinlock)(&rtc->ctl1_access_lock);
+
+	ctl1 =3D readl(rtc->base + RZN1_RTC_CTL1);
+	ctl1 &=3D ~RZN1_RTC_CTL1_ALME;
+	ctl1 |=3D set_irq_bits;
+	writel(ctl1, rtc->base + RZN1_RTC_CTL1);
+
+Could CPU1 read the newly updated rtc->tm_alarm locklessly, and then
+unconditionally clear ALME in CTL1? This sequence appears to silently
+disable the newly configured alarm, which could result in missed wakeups.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821135608.2752=
-33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D4
+33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D6
