@@ -1,82 +1,82 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 788104137BD
-	for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 07:52:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A018D415B7A
+	for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 08:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787298738; cv=pass; b=pZXNPW4SWamv5eo0me7WNTI6YFS7nh53NI3DJ+XfWykN7iBd8UQSUxhSWIFEbmuLK2f7tQlJBd8lS5SYYUQ8IO842eAzwg2k2PvcQggOJKFsMiX06Tk9CR7wzEzA7E/6NezC2JYgZEvqmw2h6WCAkQc79T6prqAgbCaGkZVdyOk=
+	t=1787299277; cv=pass; b=j4pW1GEVbFi0yn3np3YhlHgQaR760z+fGig3pr/HHifmV2AGJFMTNzYfqfzDTqgEpfou+SDnSPSzFD/STqx0jo1B/3LH3qrjMkyEzpO1KmBI9/T3b7KN6HASmJAkusrIz+WoFRKuMjMiyWRi+ggxBiQbTt83TlqEXF6I3n673dk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787298738; c=relaxed/simple;
-	bh=iCkxqhNZxgEtFomtEu7YxBIX5x1KY9BNtJroquO1XxI=;
+	s=arc-20240116; t=1787299277; c=relaxed/simple;
+	bh=U9fW2jiIlgiy2XPNBkMcmqoyzd/7xupfaic+yOZJQF0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ic4CD7E/RAkcJ3Xh3V41rSPD6PGa/VcwA5UBaxPXDbE0EFCcjxCgo5or6jIFj7ZlhIp9laSUSdGksTFCmbtMQlvkz0lEABauFoOmVXs/dCcrtINNLJvo1Pm6lArjET3+g4gniTWeSzfrDJfm2fqQQnTHnbw66FXzZl0AVVlh/aI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SmaYIegP; arc=pass smtp.client-ip=209.85.221.43
+	 To:Cc:Content-Type; b=iJm3s6yHj5Ftf6BVSEiRDAv+QCzII2uFEgBhTH+bIz9G3sNRXVsuQlSiWeE/wQRo3tpJkUUaLu3J6FcclI9mwfdIWTnGYSg7ikZRTjCkNUMkUoqXYoTAPK3DxiPiS3EYIqmRyMgGpMNIJZr425M9T4TyqKaXcMxzmWCl7h+ErUE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PRalVaau; arc=pass smtp.client-ip=209.85.128.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SmaYIegP"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-47fecbbafdaso253854f8f.0
-        for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 00:52:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1787298735; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PRalVaau"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-495437bb891so3642255e9.1
+        for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 01:01:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787299272; cv=none;
         d=google.com; s=arc-20260327;
-        b=B4cZVCclItUbMgmtYcFYoqZn27wsrUwq67v7gRzPTR7ztGY0nfy0p7NkQVjL6kldHJ
-         gL4S/aN7QQA9Rtah6QnPlinS9+hJNGjLf+cBA/ppaN2WLm0lT37MftrAHt83M9Yd9sWf
-         tfL3Czl3xf7uiiNFVVZxAcBzSQXTJsGZXPlKcJzxeX67NfCkpaG/DQsq1mG5hxGqYeYd
-         KBuhinU/AF5lLdUfMNLUNW68ha/hq+83nJvGfSHORWzIeJ99rauSP05O6CwwFfVIZvyM
-         wCFgwMMT8ELBiqtpnHARqVvEQW7lwFZh7Zv8/iXcsWJK5+6oTmicnI/dXRUnxRDkVuvE
-         SJWQ==
+        b=hfzyrfqDN+LYHEfzLWsfme03tXtHcvI4Jo2kPYVx47GwXwo2EW8z2f+0ZkE+B3uXMu
+         KRIxEfsmBoHrD9RKz5Y/6m+oKJRksq88aVCU7Gf6ennumCQc78mugU5wOcvNTq9LeZuc
+         9IMV1oTdzLtO9ynFrB8mJkqwDHrypY6Tpc7ZqKhqknspZV7HLK2u1AGGgZhQe2CB1wCL
+         f43iRL+AjElCDEFCoZtZJwppJ5APhWudGTVetSyLOpRtgFfupCD0ZC3N2ZqSB67Vv+9g
+         A5tP82iVBiL/hb9L3vs5nrmgiX5vDfWgmN/djDtqtnGHxAXzqgcZLSxDjhdb1WDnAk5w
+         wwZw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=WXVNR4kHchxo+dOC1K7o47R8p3Nbe2lAn3hnL/xdjqw=;
-        fh=HVTuxqztHFMGlnmIb85297CEgRLQn/hJ5hBnmss7oNY=;
-        b=mKBocFkikeUWYSLDE8h3ROdf0VDuZWB6kNubAWBr5ZH3cWhnq1OA8jo0VygRwznHc3
-         cGKdbCbFjosfnMyYqFs3qqY4teAXnJAOPxyd5lIUj7PkXBMWj//CQ0juPuKyqQVURKpD
-         5zJbdtlU2XObUZ5uhqSNBCOECDkz11o5YQ3UlCm87zjbbPrKydM3Tls7fKgKAhe+Fc6N
-         DLYoKIP8hA9ZSNKQppau/OzxKL2ZJMT2CAiqc6t+HVDLWJyiH8Io2VeVYT28s8VVt8An
-         +IrZ+CjVkFTyIE6MihHLmNaiL6S6ahUNg9Q9QNexjbCHH0Xc0sFw+dHrAAcvQ+CUNw67
-         +3uA==;
+        bh=QKPWxLRibVTkF5iNiz5OZvS7ih6dW481F+oBUIMZp1Y=;
+        fh=64XjEW2XhgodvD1sOfMcdZEdjxFO29rW0niXZhCiQJg=;
+        b=VXcHE2bqTXYJhACDEPWHgK3OxWH/FDhiNtXCUzsWSqz9PQdNY2KMnzJ527fVxybV1g
+         NSyMUfKdPQmFAFTXru89GpDkgPClI7NpbPbdRVbdMsxZa1xOCspN6aFbl41oU3cuKMKx
+         JlQeALxfUcQByJNrfSqhYVVvoaZXACbe3vgplC8wFcM4OfCfoVmcO5QE9h/N+zAdf2Fj
+         /6f0djRGFHtuwys8fA9IMyZnjeE3OnymA1EyzpeHbDvCtkEsQ/bxmJfZt54M+5exhet0
+         PeTxJvF7mO9SYuYoG56OcRLz9sKS2fduBtRJalVYHS+XKJEi0T4ACj4Pp/Kpfejuxqe/
+         Dmgw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787298735; x=1787903535; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1787299272; x=1787904072; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=WXVNR4kHchxo+dOC1K7o47R8p3Nbe2lAn3hnL/xdjqw=;
-        b=SmaYIegPGvowGAWTdIAVIQyyixhEpKqghPDCzlHFKWV+OLmkyg2JBGoIMOW0FDPH+S
-         8hMX6EDqZJZqJsW8daZUL1d7yFVP6Qf4rLRmyBYj2y+5LK6Ie5HOi6Bg0X/J1kzIB3vJ
-         8p3a79EozxMPxbFrfpSktMYnPtFbO48MKqT/XsUopwsVuHnJyJbbZgHXxQf6+rG3n8VR
-         x5GykVVoRatG+Id5LeKS2g3jC8Cj5dHePa0uCk28ckFydh2UIbAuYLtZoLkSD/D6EopN
-         gDvu+SRgfuXTAhxzOasZq3AzvNhieww0bEKpaSXwOIP1taFwEoAUMoCEjFUY6vdpRl/X
-         ZkAw==
+        bh=QKPWxLRibVTkF5iNiz5OZvS7ih6dW481F+oBUIMZp1Y=;
+        b=PRalVaauxqYvmik87uJ22HYTJ5PVuJtJr1516MKaZhkGQgmzk2hieAoH3YiPKzF529
+         0AMK+/LZAc5hELwACRj/riNzJxj1Rr/BhpDxQTtDvzzyh1I9bg0OsFUQXFtncIUd2NQc
+         1FC6IYHD3fMUDNr1xJyEb0FGdhTkAjB7UD2L5dy2xjwL/FbeXdxsk/DHJQqH7y/3/bdN
+         0V2cS8Q3cif9w78iKi5o/BN+NsgdLpdBtXuqkkuHdzsRlpc9VS8f/mZpdtBbkGe86hfw
+         GemE84N4fVlbefBg934ONbL5iJJsR5jLZEif/lad+DlEHcQxvgiTa0tpXCjGl+Y33ae5
+         qL2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787298735; x=1787903535;
+        d=1e100.net; s=20251104; t=1787299272; x=1787904072;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=WXVNR4kHchxo+dOC1K7o47R8p3Nbe2lAn3hnL/xdjqw=;
-        b=UyKVO/J1/ra8FH1Wguy3mBxvCwxcjY0PRMB/LyWw9hYgcRYtg8C4B8HCPnNxbZDhcu
-         peTRbbOTV1txopLN0sHKgUuFibiAZ8PYwHMqW98UUcE/AzOANuJeUvD2X+Fj8w/awPqw
-         zahIt/OUQo+KeRKY9Dz9zoNsxv+k+6v98XbdT0rz6ymgWge8OM7QUH4+yyEBvfjZk2nI
-         TS292bEWDjn2sGAEEPpmGj3A1KfA28hBWrYYrSOHBq85drVXb3elcx2ohFcxL0ZqG+X9
-         ngXjAGFnU2z0Cd5VHNhW0QC01NI/12Jkfv7EuTBRmwN9kS4Mzy92ce3m9cwhB2MimrMO
-         /ysw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp0GTO0UW0/jYMefongwSALEr4Z2FD0eTK4WW/IoVnbbyxTqQ+Jc5mfdVsixrhskA/r5/D+linxN2Y=@vger.kernel.org
-X-Gm-Message-State: AFuF++lhg77LUFwggxrwWENGxLXln+v8E/5XWwRuiejwNyFkJaWRL/8/
-	q0gsGVg3yUki/f90nnp2cSFa9EpeH3vSwUtGuTPQWE7u1bAS+g8y+zMOZRgHRtvG3HH05dELf+W
-	DMeCSLVzRkeapkqcup+huo0FCMo6wkqE=
-X-Gm-Gg: AR+sD11kt5mHGlolUnfgJc/uTok6vEXchie0uZDgYhkwwLtdNnU/5fpQS/4eYxiOaFy
-	vYI2imZxqf0Opu/cUh3JrcCS/WczLKyAo5/2adQgeyr7M+x6HzREj+4lmldjmokijKN5XfGLrdj
-	EdEXQT5H9DDt9GDGC8ao1aonhLwkRBlpcJIynSym5ihyIbsHka2tRHVESKhOzAoBUONZsl1iH9K
-	acFtQMGauL9sTkmyimd+VWHwVUyEv9x3u/RDXdgrco1UwTiRjRELP2Trtmv9XAHmpOrpCngPhit
-	n84SwrAXzmlxQJrFHcS2ox77+mcOTQ2tLrPV0KvJdM0+lu7hqNw2CBvKjqS3o2lhnEGQOgl4r5w
-	KvsWg6wzleaj92NUCsFIFu77TeTuqSchRtsg=
-X-Received: by 2002:a5d:5886:0:b0:481:568e:11b5 with SMTP id
- ffacd0b85a97d-482c0b4207emr6296886f8f.5.1787298734749; Fri, 21 Aug 2026
- 00:52:14 -0700 (PDT)
+        bh=QKPWxLRibVTkF5iNiz5OZvS7ih6dW481F+oBUIMZp1Y=;
+        b=rtCQVLy9uFkI9Qjl/QkgQA/Yi9kGpJ/NPtreLyh8+oOjCd2CZ5BZJrqWAQBnDG/rQG
+         /kLcWaG5X4d2rgJbL3Nr1gsSVTFts6SWoTp6PQI2ZZfNgKJ+cMj8olq5LN/qykj+kBJk
+         yJ5LTySBDIusCq4XWtDEAQbWYKBbtYdWDEO7+0AqyCJud7/YRNIQ6l/X1RAJU+eCIF+9
+         hIuuCWq1Pm7o3xjHPDUew26b55jz2oQGQyKaAuaPMI8v3qloRuJJRfpwlkMhxOYAoBdX
+         2Mk+1OAmOBgyFKOhaGXKpJrV+kUttQYNtE6l2wwgGjmyeLgXfGCs3nZzxRyApm4/MFxp
+         IsVA==
+X-Forwarded-Encrypted: i=1; AHgh+RojrE8PgVvA32xSEIern0F3/Q/869GeUBiiyC1WLN3e9R6/UvDtTtchR5opDITBSlLOc1AsUVkMYtM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yykk9b887Lm91PNdB/1r4J5LJDJvCQ1ESD5csEQ9cpbW+6ekU+E
+	KWrC5yQpxUOzBNrXQlnJinaSnlY8iTDe3xsXHOaHUMWpivOeuyQrh7F747xhbtsI6Cwaa9tOZ0U
+	ZcpM6NrPT1tWECkR//OKA6PyoIe91Pwc=
+X-Gm-Gg: AR+sD13vNlYhry1KwwN81RR4qs5wdJBQdydoj63FZ1pQCiBEbNKDq9YucUvyyMKmU63
+	7Lffn/lcm0Vag1tAiEHbRrMCrd45HWmwViib70a8e0SrkECZmW3DRJMMt0RJw0tmxZBcoB15EAB
+	xn+J6OdINdoTRkxWHrZIX3iX25mLKBjGWDvgH4j6UCG7uETSn4+Vbv0dfS4yiDCTO0vEl1NK5Is
+	5OHJU2DsNcyiWR+oIGRpObute57CR6XjFVSQnocA9jbFYlviFSyeVQk+ExF6D9f1KkGSlw1S4VP
+	e7wxMZFrqsjvS59gOVx8WzQt70nYNdCLjQYFIZzgMQ8kLwPShAXd9fQUi7qFe+VAeARIV9Gdmmf
+	GvsN2t88rjCgMJ8HataP6xHVxCYExyw==
+X-Received: by 2002:a05:600c:8b63:b0:499:7f37:cb74 with SMTP id
+ 5b1f17b1804b1-499b06a36demr106804725e9.1.1787299271891; Fri, 21 Aug 2026
+ 01:01:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -84,12 +84,12 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260819103926.2136712-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com> <aoWr0gfN6sQmgUie@shikoro>
-In-Reply-To: <aoWr0gfN6sQmgUie@shikoro>
+ <20260819103926.2136712-14-prabhakar.mahadev-lad.rj@bp.renesas.com> <aobjCr7ZtpLmL3VP@ninjato>
+In-Reply-To: <aobjCr7ZtpLmL3VP@ninjato>
 From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date: Fri, 21 Aug 2026 08:51:48 +0100
-X-Gm-Features: AcwNN1XlRNqpAUbeTUrYnSgdpHgWqQlabT6nhqi5ctC444iuectwmXZSSzZ0vF0
-Message-ID: <CA+V-a8vwNHm+KZs74ktpuvxKjOcqLtcxGRFi8i-_g9jcPs_3yQ@mail.gmail.com>
+Date: Fri, 21 Aug 2026 09:00:45 +0100
+X-Gm-Features: AcwNN1XaqV7v4Jl4yl1cAvUjpTPOAGoBa_Le3wz-UFXRDSKArINsOqo29E76N9s
+Message-ID: <CA+V-a8tpo2Rc9xsvsj9LLqD2ZjoHzRAVsox=7xURAtwA-GYVEw@mail.gmail.com>
 Subject: Re: [PATCH v4 13/15] rtc: rzn1: Add OF match data to gate SUBU
  register access
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -109,26 +109,64 @@ Hi Wolfram,
 
 Thank you for the review.
 
-On Wed, Aug 19, 2026 at 2:12=E2=80=AFPM Wolfram Sang
+On Thu, Aug 20, 2026 at 12:20=E2=80=AFPM Wolfram Sang
 <wsa+renesas@sang-engineering.com> wrote:
 >
+> On Wed, Aug 19, 2026 at 11:39:24AM +0100, Prabhakar wrote:
+> > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> >
+> > The RZ/N1 RTC driver selects SCMP mode only when an optional xtal clock
+> > is provided at a valid rate other than 32768 Hz. Without an xtal clock,
+> > or when it runs at 32768 Hz, the driver uses SUBU mode.
+> >
+> > However, the RTCA0SUBU register used by SUBU mode is not present on all
+> > SoCs that integrate a similar variant of the RTC block. Allowing SUBU
+> > mode on those variants would expose RTC offset operations that access a
+> > non-existent register.
+> >
+> > Add OF match data to describe whether the RTC supports the SUBU registe=
+r.
+> > Reject probe with -EOPNOTSUPP when SUBU mode would be selected on a
+> > variant without SUBU support.
+> >
+> > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >
-> > +     if (!scmp_val && !data->has_subu)
-> > +             return -EOPNOTSUPP;
+> Suggested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >
-> I'd think here a helpful comment for the user is justified. Maybe "No
-> valid XTAL provided and SUBU mode not supported"?
+> I still think, this code needs a change:
 >
-Ok I will add a dev_err_probe().
+> 454                 if (rate !=3D 32768)
+> 455                         scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
+>
+>         if (rate !=3D 32768 || !data->has_subu)
+>
+> otherwise having a xtal with 32768 on a SCMP-only device will not be
+> accepted despite it should work.
+>
+Agreed.
 
-> > +static const struct rzn1_rtc_data rzn1_data =3D {
-> > +     .has_subu =3D true,
-> > +};
+> Haven't checked if that could simplify your later has_subu-check or not.
 >
-> 'rzn1_data' is maybe too generic? rzn1_rtc_rzn1_data? Yeah, looks a bit
-> weird but I personally still like it better.
->
-Ok I will rename this to rzn1_rtc_rzn1_data.
+To reduce the checks I can add a else if check like below:
+
+/* Only switch to scmp if we have an xtal clock with a valid rate and
+!=3D 32768 */
+xtal =3D devm_clk_get_optional(dev, "xtal");
+if (IS_ERR(xtal)) {
+        return PTR_ERR(xtal);
+} else if (xtal) {
+        rate =3D clk_get_rate(xtal);
+
+        if (rate < 32000 || rate > BIT(22))
+                return -EOPNOTSUPP;
+
+        if (rate !=3D 32768 || !data->has_subu)
+                scmp_val =3D RZN1_RTC_CTL0_SLSB_SCMP;
+} else if (!data->has_subu) {
+        return dev_err_probe(dev, -EOPNOTSUPP,
+                             "No valid XTAL provided and SUBU mode not
+supported\n");
+}
 
 Cheers,
 Prabhakar
