@@ -1,19 +1,19 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2559D474263;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC8D472F62;
 	Fri, 21 Aug 2026 10:09:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787306968; cv=none; b=nrQ7v7ESSW5fmmchrnGdfmFhg1ax1eZWJvCLsaptMQUzBNKvqbEMAcdzCddzswoi4CmHm5SyAxgF8BnRQHvmjgnXZswT8nC5JwJi9m7TONVn36OAW8/H70acIyimarBqFE3uhehJ3jG4yh4YgvDmca2PwZltPxRhlORRrvZDR1M=
+	t=1787306969; cv=none; b=DvsRgv6YF2vbapq3NC/Q9z5yf7gP1PCP3ssIFxZqtczYFptZTr80EEoD8Sxo1EHZkIZ8gGztCYxuO//IgQXCPo3cIF/IML2k3/dxRmysmE0JynDeDBkqiA3SaaaCZbnHKMQw27O4FqU3ZcXGF+r7LbA0E9c6HXpvtRRuW0+RBdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787306968; c=relaxed/simple;
-	bh=Y1cnM13DbNn478LytvpG9P7pye30E44hNwfIROfSdrc=;
+	s=arc-20240116; t=1787306969; c=relaxed/simple;
+	bh=+vuvfem57GnYXZHGUo2wzBaedj/h7//ZRCreSnrqwuM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NpccFJamR3LY64GUJu+gKY2fT8XNAlfANrEj/AQV8gE/Km2IOdFmwXwu/g9OV0F1/eVjIN+ARLJbzUvLi9JyU/BFiMr7KCDrdeqH6n2+mPsaJUDFZcOSWXfTF2TtpKreTXY85bC1Xxx7WPb0pwyJ96X9j8bXTSiIEe3vfeb6sWo=
+	 MIME-Version; b=cpXjDN2lJZGN0svrgRBR1skjXxDp4iPai9o/V35j9M4IjSVE6Np0k9UwQOjzS37FPtg8Rezz+/ye1msqWgkdDr4D9Ilw+MFLcu+yrA4dbWbSRJ/KCC1Yi2wBcbONRcZViQOnrR+M6PsVSw+dhFlT/Uen6ZI8GuJEDkgvnj55blw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A26911F00A3F;
-	Fri, 21 Aug 2026 10:09:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C170E1F00A3D;
+	Fri, 21 Aug 2026 10:09:16 +0000 (UTC)
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	Andrew Jeffery <andrew@codeconstruct.com.au>,
@@ -27,9 +27,9 @@ Cc: linux-rtc@vger.kernel.org,
 	openbmc@lists.ozlabs.org,
 	linux-clk@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 3/5] rtc: nct3018y: Make sure clk_init_data is fully initialized
-Date: Fri, 21 Aug 2026 12:09:04 +0200
-Message-ID: <6dba18b645aeea279a67f4625d5ec48037c76f0c.1787241693.git.geert+renesas@glider.be>
+Subject: [PATCH 2/5] rtc: m41t80: Make sure clk_init_data is fully initialized
+Date: Fri, 21 Aug 2026 12:09:03 +0200
+Message-ID: <c5290fb9a28b45d6bcec724d5897f8bcbf96ea50.1787241693.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1787241693.git.geert+renesas@glider.be>
 References: <cover.1787241693.git.geert+renesas@glider.be>
@@ -56,23 +56,23 @@ Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
 Compile-tested only.
 ---
- drivers/rtc/rtc-nct3018y.c | 2 +-
+ drivers/rtc/rtc-m41t80.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-nct3018y.c b/drivers/rtc/rtc-nct3018y.c
-index 700a395fad3a63b6..2f7ad57057a4b8a1 100644
---- a/drivers/rtc/rtc-nct3018y.c
-+++ b/drivers/rtc/rtc-nct3018y.c
-@@ -459,8 +459,8 @@ static struct clk *nct3018y_clkout_register_clk(struct nct3018y *nct3018y)
- {
- 	struct i2c_client *client = nct3018y->client;
+diff --git a/drivers/rtc/rtc-m41t80.c b/drivers/rtc/rtc-m41t80.c
+index 3c8c379392c14078..ec86ca3f2c4c85f8 100644
+--- a/drivers/rtc/rtc-m41t80.c
++++ b/drivers/rtc/rtc-m41t80.c
+@@ -574,8 +574,8 @@ static struct clk *m41t80_sqw_register_clk(struct m41t80_data *m41t80)
+ 	struct i2c_client *client = m41t80->client;
  	struct device_node *node = client->dev.of_node;
+ 	struct device_node *fixed_clock;
 +	struct clk_init_data init = {};
  	struct clk *clk;
 -	struct clk_init_data init;
+ 	int ret;
  
- 	init.name = "nct3018y-clkout";
- 	init.ops = &nct3018y_clkout_ops;
+ 	fixed_clock = of_get_child_by_name(node, "clock");
 -- 
 2.43.0
 
