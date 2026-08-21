@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 729413B14DE;
-	Fri, 21 Aug 2026 14:07:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B42042BEBA;
+	Fri, 21 Aug 2026 14:07:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787321241; cv=none; b=RYQ3SCPjkw7Mn7fUacywi4lBiT7exSoDY+dUCbLLugakkO9YJNGq9vn8+7Q+VEy2ycBfQSKlXQmoza2lJcMoDbM1tODhqaiC06B8jc/SZwdkVNuDNWMl8h79tb9LZBgSU0yvZh/bKWpIqNTNOC8vfDn6SE9kxwNtGDPZHmD75dc=
+	t=1787321247; cv=none; b=Bm0d+RZ+jTjK7gWZ/yeoJPqdB7dkcbnBrdqvPTtWvWLbaBDhJjyRsFuw1Ry2i1SYQwuKcj++zHiEJKy8iP0Z8EliOeM1Ur9swA4bcit1zfhOG9gGS8p95RoxSHq08sBtorplOs0wpCbYtxahtg/Tm0YeufvsLU9FdT1GK5/NasQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787321241; c=relaxed/simple;
-	bh=/a3vOpQ+FYB0VRRsfB5KVK5M9idYesqVhzJ5JGOhOGs=;
+	s=arc-20240116; t=1787321247; c=relaxed/simple;
+	bh=ROLpHdy12nLF4bqt2FtQBEE75+JHbKi9chXHDv+/DTg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=omZF+oZiscXjQfIUMqTC5oLoBfqlC9m9XsB0zbkcPm4M3RDcsDo3XM24GALN8p+wvKjDN25C2VfAMwF6a/YLKCrpsKRzFsIDRvQZw0Ib0I+eUpxJJZ0nrAfNqqfnnpfT8RK4AmIWJNefZM7t6zHwd1O4Z9myZz/tDu7x0E0mfgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZoSi4unW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=pbfZQ7VqYPfD4CFFRMKpHJDfjUmZMDueoyf85VQvHUGoXvrJ0RU6r3S7ygdr9OgQbM2qlhPxPDiPEVa4EjuMQ4/7KJCn4eOchyzkEkv9JR5IXMhLq7Np5m4NE/psX2goaBMtObrxY92Cy0vFFkDKbmz9SKiyUvHkyd+3KmlB6y4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P47uTTH+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZoSi4unW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEDC1F000E9;
-	Fri, 21 Aug 2026 14:07:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P47uTTH+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D39CB1F000E9;
+	Fri, 21 Aug 2026 14:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787321240;
-	bh=eARIYZJHCKusRDXQcBA45ZIvEa2g3+hFJrU6yrXgbyI=;
+	s=k20260515; t=1787321246;
+	bh=YmhcKRbwRCWEwkSIviYv00n+dEI2VdqcUUcIN3iyiE4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZoSi4unWZ/4kL8PjACIk+57IyO8ON+hhlh25UeoawySIgyDYOeNEBycD3tApbnTV1
-	 B7cZ57MAHilIBHIYXLj8yDxgLxZ0OJMHwITw6/YJZ+tZ0h5atDEp8xYAyKRJ6SUihr
-	 5uM6fiQF5oz2OEZMcIaJnki98/lXHC45svSFz0SLNQaRfc23l2fkqhN//usZEYFqLP
-	 7TDscrilrNQul0PYnE2zxk8k0ZQzaiWYRfbQ0JcdPx4R0VctqkwCnY3duJfLWV6wPC
-	 cW4CyEL2h57Clt7fnF8OqtmPJXA1YF1XyG0ix8qoBxn1/O5gvg4PkF6vbnO+zrtEXK
-	 0SHY5OtigK+LQ==
+	b=P47uTTH+5EigAryuQSI9OhlCVi2lUrr2V6cdwjfCHPQNyYO5T9IO7rPeD072zkfMD
+	 Pu0tsvioU0V9wZ3fiSx7Pc+qpuTr/IjIyIhgKfwg01ePNMDq5cT5AzBI+UtlC+i2Q7
+	 uw+QfvfesD9fUPVYWFH18iIuOnVjgQUGDZz5SoVeXuW0zjQN/epoUEggBKyUL++rbp
+	 +U6Yv5JsFzwsLA1zkvoVDbquJBjciySs52B6i9SG17eRBxt2zFWw1JMqSP4qiOqs8a
+	 cCYgEIy4GtnXZrG6F0MDHzHykEEcyLB+qhHBKsSMBw6qPguYRpdm3/yaqIhX6AeJz3
+	 LqZuKcX/Y0QtA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 16/17] rtc: rzn1: Drop trailing comma from OF match
- table sentinel
+Subject: Re: [PATCH v5 10/17] rtc: rzn1: Replace remove callback with
+ devm_add_action_or_reset()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org
-In-Reply-To: <20260821135608.275233-17-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com, conor+dt@kernel.org, robh@kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260821135608.275233-11-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260821135608.275233-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260821135608.275233-17-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260821135608.275233-11-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 14:07:19 +0000
-Message-Id: <20260821140719.EBEDC1F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 14:07:25 +0000
+Message-Id: <20260821140725.D39CB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -47,41 +48,64 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] The commit message claims to 'mark it explicitly as the sentinel', =
-but no explicit marker (such as a `/* sentinel */` comment) is added to the=
- code.
+- [High] Hardware interrupts are disabled after the IRQ handlers are freed =
+during driver unbind, creating a window for spurious, unhandled interrupts.
 --
 
---- Patch [16]: [PATCH v5 16/17] rtc: rzn1: Drop trailing comma from OF mat=
-ch table sentinel ---
-commit 6102085fc7a0622a82be53791f34e44f2573ec8b
+--- Patch [10]: [PATCH v5 10/17] rtc: rzn1: Replace remove callback with de=
+vm_add_action_or_reset() ---
+commit 473179016e2cef4b0d0185760b5e14362f0eadc1
 Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-rtc: rzn1: Drop trailing comma from OF match table sentinel
+rtc: rzn1: Replace remove callback with devm_add_action_or_reset()
 
-This commit drops the trailing comma from the final empty entry in the RZN1
-RTC OF match table.
+This patch simplifies the driver teardown by replacing the explicit remove
+callback and probe error paths with a managed cleanup action. It registers
+rzn1_rtc_disable_hardware via devm_add_action_or_reset.
 
 > diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> index 35770bff129ff..75713e7b045b0 100644
+> index 6a434cb418cd0..02d720e95a7f9 100644
 > --- a/drivers/rtc/rtc-rzn1.c
 > +++ b/drivers/rtc/rtc-rzn1.c
-> @@ -528,7 +528,7 @@ static const struct rzn1_rtc_data rzn1_rtc_rzn1_data =
-=3D {
+> @@ -421,18 +432,19 @@ static int rzn1_rtc_probe(struct platform_device *p=
+dev)
+>  	if (ret < 0)
+>  		return ret;
 > =20
->  static const struct of_device_id rzn1_rtc_of_match[] =3D {
->  	{ .compatible	=3D "renesas,rzn1-rtc", .data =3D &rzn1_rtc_rzn1_data },
-> -	{},
-> +	{}
+> +	ret =3D devm_add_action_or_reset(&pdev->dev, rzn1_rtc_disable_hardware,=
+ &pdev->dev);
+> +	if (ret)
+> +		return ret;
+> +
 
-[Severity: Low]
-This isn't a bug, but the commit message claims to mark it explicitly as the
-sentinel. Should there be a /* sentinel */ comment added here to match the
-description in the commit message?
+[Severity: High]
+Since devres executes teardown actions in LIFO order, will registering the
+hardware disable action here early in rzn1_rtc_probe cause it to run last
+during driver unbind?
 
->  };
->  MODULE_DEVICE_TABLE(of, rzn1_rtc_of_match);
+[ ... ]
+
+> @@ -468,14 +480,12 @@ static int rzn1_rtc_probe(struct platform_device *p=
+dev)
+>  	ret =3D devm_request_irq(&pdev->dev, irq, rzn1_rtc_alarm_irq, 0, "RZN1 =
+RTC Alarm", rtc);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "RTC alarm interrupt not available\n");
+> -		goto dis_runtime_pm;
+> +		return ret;
+>  	}
+
+[Severity: High]
+If devm_request_irq is called after the hardware disable action is
+registered, won't the IRQ handlers be freed before the hardware is disabled
+during teardown?
+
+If an RTC alarm or 1-second interrupt is active when the driver unbinds,
+could an interrupt fire in the devres teardown window where the handler is
+gone but the hardware is still active? This might trigger the generic IRQ
+subsystem's spurious interrupt detector, which could permanently disable the
+IRQ line.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821135608.2752=
-33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D16
+33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D10
