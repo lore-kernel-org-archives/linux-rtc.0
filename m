@@ -1,69 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC7A3B14DE;
-	Fri, 21 Aug 2026 14:07:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 729413B14DE;
+	Fri, 21 Aug 2026 14:07:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787321235; cv=none; b=KCLLVKedvsZwQnC8B2gVtFinQrZwwLR13YeDE97OybQb2sqvd3KuRUH6alYmz7rvqrlfqwq+3aQGbLtFL90MVyceRS5ytwVRUP/xc6h8QiG9gNn0g7q7KRZEuAl+R6lCN1NUkLq5axL5PoP/Mc1IuWGtnQFIy/BAzsuB9HCKP4U=
+	t=1787321241; cv=none; b=RYQ3SCPjkw7Mn7fUacywi4lBiT7exSoDY+dUCbLLugakkO9YJNGq9vn8+7Q+VEy2ycBfQSKlXQmoza2lJcMoDbM1tODhqaiC06B8jc/SZwdkVNuDNWMl8h79tb9LZBgSU0yvZh/bKWpIqNTNOC8vfDn6SE9kxwNtGDPZHmD75dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787321235; c=relaxed/simple;
-	bh=F7FPBHA9VBdiciRpMG69GcdeQk9NurG8gjny/jTPE3w=;
+	s=arc-20240116; t=1787321241; c=relaxed/simple;
+	bh=/a3vOpQ+FYB0VRRsfB5KVK5M9idYesqVhzJ5JGOhOGs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NULPG1vX0hBOPhPsYor39iuoINxKXfswjWFUbltBiy+wPv+BTUX3D54B1Z0MdcEEeDywJ4b6JDh7PjvT7afXbcF1e4yle3TOa5rAStSsa2YZS6Ui1XxSlPAYaH5CfYvmtr04fWRnt75gdZL+L0vlbwU7xri3/UnULWWyAJEIfJ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JsjQs1Dq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=omZF+oZiscXjQfIUMqTC5oLoBfqlC9m9XsB0zbkcPm4M3RDcsDo3XM24GALN8p+wvKjDN25C2VfAMwF6a/YLKCrpsKRzFsIDRvQZw0Ib0I+eUpxJJZ0nrAfNqqfnnpfT8RK4AmIWJNefZM7t6zHwd1O4Z9myZz/tDu7x0E0mfgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZoSi4unW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JsjQs1Dq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F208A1F00A3A;
-	Fri, 21 Aug 2026 14:07:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZoSi4unW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEDC1F000E9;
+	Fri, 21 Aug 2026 14:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787321234;
-	bh=F7FPBHA9VBdiciRpMG69GcdeQk9NurG8gjny/jTPE3w=;
+	s=k20260515; t=1787321240;
+	bh=eARIYZJHCKusRDXQcBA45ZIvEa2g3+hFJrU6yrXgbyI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JsjQs1DqJNcGtMAmq/s41wYVOISh4v2m0OSNZlfkwwY9wMdRHVM6Tt/5zM4Hqg+pG
-	 OpG16x+eUdSQCbDqzK3J8k8QSaaHtz1GXcDqEnPf1StQqjT4SBR/SGxqsPwkJbCHk0
-	 cfJdfT7XEIeY/bRdig1/PJNVCDrXUDKvTnqwwlPinUPWRR7Q3FyLjQbS98aLt0L8rA
-	 1gl1l+MJQYZOYMLF6QtbXI4zaw5Gs3smcYAc2uByrtiddiNXaxWsZKiDfIN3fchuDF
-	 WwZcoHbeZB4Qtu5jq1PwIat4Zkc0cgbcvAeL7Y5y0Hw2Ie53lBALt4jeDY3i3YaZ8N
-	 8/bWXTekbBc5Q==
+	b=ZoSi4unWZ/4kL8PjACIk+57IyO8ON+hhlh25UeoawySIgyDYOeNEBycD3tApbnTV1
+	 B7cZ57MAHilIBHIYXLj8yDxgLxZ0OJMHwITw6/YJZ+tZ0h5atDEp8xYAyKRJ6SUihr
+	 5uM6fiQF5oz2OEZMcIaJnki98/lXHC45svSFz0SLNQaRfc23l2fkqhN//usZEYFqLP
+	 7TDscrilrNQul0PYnE2zxk8k0ZQzaiWYRfbQ0JcdPx4R0VctqkwCnY3duJfLWV6wPC
+	 cW4CyEL2h57Clt7fnF8OqtmPJXA1YF1XyG0ix8qoBxn1/O5gvg4PkF6vbnO+zrtEXK
+	 0SHY5OtigK+LQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 02/17] rtc: rzn1: Handle EPROBE_DEFER for optional
- pps interrupt
+Subject: Re: [PATCH v5 16/17] rtc: rzn1: Drop trailing comma from OF match
+ table sentinel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org
-In-Reply-To: <20260821135608.275233-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, devicetree@vger.kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org
+In-Reply-To: <20260821135608.275233-17-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260821135608.275233-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260821135608.275233-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260821135608.275233-17-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 14:07:13 +0000
-Message-Id: <20260821140713.F208A1F00A3A@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 14:07:19 +0000
+Message-Id: <20260821140719.EBEDC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
->=20
-> Check for -EPROBE_DEFER from platform_get_irq_byname_optional() and handle
-> the deferred probe request properly.
->=20
-> Although the "pps" interrupt is optional, an error code of -EPROBE_DEFER
-> indicates that the interrupt subsystem is not yet ready. Intercept this
-> specific error condition, assign it to the return value, and jump to the
-> dis_runtime_pm label to avoid ignoring a valid probe deferral.
->=20
-> Fixes: eea7791e00f33 ("rtc: rzn1: implement one-second accuracy for alarm=
-s")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] The commit message claims to 'mark it explicitly as the sentinel', =
+but no explicit marker (such as a `/* sentinel */` comment) is added to the=
+ code.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+--- Patch [16]: [PATCH v5 16/17] rtc: rzn1: Drop trailing comma from OF mat=
+ch table sentinel ---
+commit 6102085fc7a0622a82be53791f34e44f2573ec8b
+Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+
+rtc: rzn1: Drop trailing comma from OF match table sentinel
+
+This commit drops the trailing comma from the final empty entry in the RZN1
+RTC OF match table.
+
+> diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
+> index 35770bff129ff..75713e7b045b0 100644
+> --- a/drivers/rtc/rtc-rzn1.c
+> +++ b/drivers/rtc/rtc-rzn1.c
+> @@ -528,7 +528,7 @@ static const struct rzn1_rtc_data rzn1_rtc_rzn1_data =
+=3D {
+> =20
+>  static const struct of_device_id rzn1_rtc_of_match[] =3D {
+>  	{ .compatible	=3D "renesas,rzn1-rtc", .data =3D &rzn1_rtc_rzn1_data },
+> -	{},
+> +	{}
+
+[Severity: Low]
+This isn't a bug, but the commit message claims to mark it explicitly as the
+sentinel. Should there be a /* sentinel */ comment added here to match the
+description in the commit message?
+
+>  };
+>  MODULE_DEVICE_TABLE(of, rzn1_rtc_of_match);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821135608.2752=
-33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D2
-
+33-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D16
