@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1BE9352008;
-	Fri, 21 Aug 2026 21:20:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8FFB352008;
+	Fri, 21 Aug 2026 21:22:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787347259; cv=none; b=RVkpg3rmiPpERD9jvvMly0Krl8pUJF8GB9GNE60PS/X5yhBL4EDUEwIKGqvyE+WGE3kxsqR/IRlO8vtzZ7Lw8Cjrzo2XJkq64xR+GwYa21+qYHp+GE3Iuj684J2ZSyw2Jw9XqS1sEEu7KaxrA3JFDw5mO0tGajJtWZC/PxF4IrU=
+	t=1787347350; cv=none; b=DvnuBapbBXCP/bEE2Z9GwGmtPgg+MpFSerMd2ZCti+t8Pa8qeMVBcWd7UaGk2gS4G18wUV87x0V9KesaFnq6694zq6jUFDTWEFIZbT8x69uRXP9PkM7NKG5/ADvfVSOr67wMd8FYofe3HGj8zO2UUiz/lHvXybkBDz3LMm+L3sE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787347259; c=relaxed/simple;
-	bh=IjMfXBrf16NuDMDO7gzxuvHbUdH7Trg9b4LJBB07ic8=;
+	s=arc-20240116; t=1787347350; c=relaxed/simple;
+	bh=NlP7Mv9d9BHe8IU9g1TB7Ezni5NUuvNpP+BIEo/vRMc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=p4Rqx91i8DV+BQbubxOdvq3YdwK/rwdVXOxPWJizqfBHrDVhSIcc7KkKpTuZTglp5k9uFr5t23hGLhFBcIzPXDFcz1yqUazIZ5oOnYkthtQuRs68iYqy/gg75Rdht2nY7LjOyhsOMb3K6x/28P79wFia54cnd8To1ugDpu9ob6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l+3F4h3t; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MNpdO8Me+wurkQMjGMNQ9kGlrSb8uQ9kZE9I37FtUwqwJh/IeH/T3BW57fjar8DqC38hG7A1bTgw7vNXD/tatTIH47Zqa4n1JHTBc7MJ2LykiTZjbGbegWbMljeVCMcDuHkZA9FyGA8nPZvfyKxUolwkXHd5e/HmfJXE+DSxv2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iX5w2w+F; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l+3F4h3t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C3C1F000E9;
-	Fri, 21 Aug 2026 21:20:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iX5w2w+F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C9B81F000E9;
+	Fri, 21 Aug 2026 21:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787347258;
-	bh=IjMfXBrf16NuDMDO7gzxuvHbUdH7Trg9b4LJBB07ic8=;
+	s=k20260515; t=1787347349;
+	bh=NlP7Mv9d9BHe8IU9g1TB7Ezni5NUuvNpP+BIEo/vRMc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l+3F4h3tAnLpbesw8jmCIEoyntSUQ6+3i4QmXxsumUB0InTJMIrCrVlNyJKNOJSDB
-	 NVH0A1hrbLRVeWF2+J3xa6iTwprD5gdvkxoa3hLyWz5YhPNmdSl993hvhCiLt8U7Gr
-	 bP7VGnGRtT29e3+ZLQ/RqxALxcGcL7DGdYN9AP7ylytTs5Se+OjTLQxoCtrxng9Aii
-	 Dv567jLg65FlEVwiSJSuAEx5parMlXWUjHO4GxUZ0ejsd9MY5F5tJhAVgU1AA1bhRA
-	 19UhXRbo9Orwr9X2Wsl+AEQAoFr0t9MyHbATPvS9SITM/8VIMC/dPUXC6l1p4hpBdW
-	 Yfgx+nAPW584Q==
+	b=iX5w2w+FGm/e3BHISFHffT2RBRaDLUXv7kKY11fzUscKNSazXyNJUvaly6yiK+5Cr
+	 Z8I0w7PhpOGYHd30LqRcbwI0oomYBCv1SNdy6Ig6g7H7g2iXyXuBhO1jZwSPqdCo4L
+	 ZnyTjEfpUJd1Mm7zWV4yXWAw+KAWID0P2HeAmGPxDrAthgq+fveBo3/s8k5hVpaE+u
+	 9sCmXOdyranVQrxE/0qqN+j6eog0JwLI3FAjbrwrGL1qNSxwwN6jcRKBAF1P5httax
+	 7FacIV7fVUsrmQ460nw3wqCRMR776buyNI7bG2TAoCYVtn7xitAtcs15Ex6vwAFy/e
+	 UEFw12NBb59Gg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 15/17] rtc: rzn1: Add OF match data to gate SUBU
- register access
+Subject: Re: [PATCH v6 05/17] rtc: rzn1: Fix alarm range check truncation on
+ 32-bit systems
 Reply-To: sashiko-reviews@lists.linux.dev
 To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260821211032.13554-16-prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: wsa+renesas@sang-engineering.com, robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260821211032.13554-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260821211032.13554-16-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20260821211032.13554-6-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 21:20:57 +0000
-Message-Id: <20260821212057.F0C3C1F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 21:22:28 +0000
+Message-Id: <20260821212229.2C9B81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -47,18 +48,14 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >=20
-> The RZ/N1 RTC driver selects SCMP mode only when an optional xtal clock
-> is provided at a valid rate other than 32768 Hz. Without an xtal clock,
-> or when it runs at 32768 Hz, the driver uses SUBU mode.
+> alarm and farest were declared as unsigned long, but
+> rtc_tm_to_time64() returns time64_t (s64). On 32-bit systems where
+> unsigned long is 32 bits, the assignment silently truncates the upper
+> 32 bits of the timestamp.
 >=20
-> However, the RTCA0SUBU register used by SUBU mode is not present on all
-> SoCs that integrate a similar variant of the RTC block. Allowing SUBU
-> mode on those variants would expose RTC offset operations that access a
-> non-existent register.
->=20
-> Add OF match data to describe whether the RTC supports the SUBU register.
-> Reject probe with -EOPNOTSUPP when SUBU mode would be selected on a
-> variant without SUBU support.
+> Fix by declaring alarm and farest as time64_t and replacing
+> time_after() with a direct signed comparison, which is correct for
+> time64_t values that will never realistically overflow.
 >=20
 > Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
@@ -66,5 +63,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821211032.1355=
-4-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D15
+4-1-prabhakar.mahadev-lad.rj@bp.renesas.com?part=3D5
 
