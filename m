@@ -1,47 +1,56 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27854C957C
-	for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 15:10:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18BFB4CA297
+	for <linux-rtc@vger.kernel.org>; Fri, 21 Aug 2026 15:11:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787325018; cv=none; b=bJMiftPuIpIFlRAwKAwM0sXEjS71paGSe9qtMtvAHq1ttnZDsC7EYkMfPrRS/tIMdvP50QhCIirp0+x0CxJ3jeH0/86D29eG0gBWMasvHN3uOTwga96Z6ddY1JA4G7ivxUqo1/R8itjqFQo5CPS+wB9BDE9kCao6/HuMrHnEjhQ=
+	t=1787325068; cv=none; b=O+kKTv78R+6sBE4fhP09KAagdnCe3W/pk69TZ+OzJms3dOIghgtF39OeSiBiq3EwgDS4vFl2GSyhVK3G3ROKL6kWj2/aRD3T9QR7BVl/ogPPKcDY+uG1Y0aA6ryzYSweASEONC4I/cI7Dxw/II8EjXDpTgTTBz5V1gG37U/GZc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787325018; c=relaxed/simple;
-	bh=dqRxGkSTo1VRrIDe73RnVqLS9vGMNpCP950CHgyosts=;
+	s=arc-20240116; t=1787325068; c=relaxed/simple;
+	bh=SYGc0HufZChba7XCVRP4aOeYT6ZDRVJb+zmJY4VDLEM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VIGWMl6n6Rhl/1kWP/gi/xSKeIqAWNLG+PGF5xZrxsd3SyPqu4TWlgS0ImBF6iZ+kFAlSrFLYZ1u2K76+KSptroPjrhHfyTCZjM+jPONxNm52ZOSPNe4HpJrJOKC/KY7rDs47l2PPss8S7y/vVo7nRg5dDf6bjc9YV11oyRo3Ug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=aoAUH7WB; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=VK5IuJaAJ2r4CbXKOQ8RNxKCvcL5OVEbgLD9yBXC6BlwgpJF1rWBHNrLmZyMj9aNPdL9UQGk4coHAJ4Aocd41zXf2ksYOZ3Ens/vk9+5uRtP3Z/6uYe+jCyRJgukFQbCSenbwdaIbsC2OitprIjb2zlk5PFet17Y+bqCbx1lfoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=KH8S/cuu; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="aoAUH7WB"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="KH8S/cuu"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=EUBr
-	8qIIL+olxH5I1RSEZWrEOi7bz6A5QbneJ9LGZK4=; b=aoAUH7WBJ+VU1Y6t7lAd
-	JNIUm63MKtBJXlFoUrnFl/WYEsOAe8dasVQ07t7hdauYUJ0SrFjADHS2V7EG8jV+
-	9WKuf/HA4u5P0M1ecG5uI0XCvaJqQVoXbJxO831/EeLJcRQbsgygSV2551kkZamw
-	9B2Fx4y1LnMgULWyKb86y1slKQWxM79uOuDOKvzET4yEFxBjc3p12I3df1/Ug2bs
-	pGoEPjajNwSiKB9tvoMzLi7oCBwQgDKA3mXw7L/LKlEqH91PjYW7cbHuKn7517jV
-	UlcOvNECHGjb78eqwEZcBin4Ur4l+MGhtPqqLVuaYvkB/eqwxxxaQEHeOLvOdRcC
-	Qg==
-Received: (qmail 689046 invoked from network); 21 Aug 2026 17:10:14 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Aug 2026 17:10:14 +0200
-X-UD-Smtp-Session: l3s3148p1@WgqVCJBZ8M0ujnuu
-Date: Fri, 21 Aug 2026 17:10:14 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=SYGc
+	0HufZChba7XCVRP4aOeYT6ZDRVJb+zmJY4VDLEM=; b=KH8S/cuu+JeJPUiUMiM8
+	POA3IGtnCcGO59CiQw6O8jgHAQaJqfDs8UCSnbr0DzI8sAYD16TufR+u76GnvYon
+	iwdnEjRm0hiWpUp/FXWzPGXGn3nFcl0iVLJ2gxBX/QWhmMaXyVDLsKC9G9DD9Z92
+	+bNgXIBI49jkzgvGF5boLHwt5lhZUfmpNAhAGO50CJ1gTeCuylRu7syzuLG3KMll
+	AkPgTUFbjFm0ciKc+vFJljM43RfmmWz9v3FBxFYccvrLZ28PLviZgPSG1KBKQBfo
+	MEtBJnBBjKGOt+auulH3QpOFgmuZj+M2iGu4s8xkIy4EzBiZ5GhH2CqrJJVM/K7j
+	uw==
+Received: (qmail 689322 invoked from network); 21 Aug 2026 17:11:00 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Aug 2026 17:11:00 +0200
+X-UD-Smtp-Session: l3s3148p1@UYZTC5BZZtQujnuu
+Date: Fri, 21 Aug 2026 17:11:00 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: Prabhakar <prabhakar.csengg@gmail.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, robh@kernel.org,
-	conor+dt@kernel.org, devicetree@vger.kernel.org,
-	linux-rtc@vger.kernel.org
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
+	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	stable@vger.kernel.org
 Subject: Re: [PATCH v5 06/17] rtc: rzn1: Disable alarm interrupt before
  reprogramming alarm registers
-Message-ID: <aohqVrJV5hiZoWXd@ninjato>
+Message-ID: <aohqhMZ2nhJObwnz@ninjato>
 References: <20260821135608.275233-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
  <20260821135608.275233-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20260821141041.57A191F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -49,83 +58,54 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ahu/JitMwqTsonzY"
+	protocol="application/pgp-signature"; boundary="qb0y5Wtqi7m2jdR4"
 Content-Disposition: inline
-In-Reply-To: <20260821141041.57A191F000E9@smtp.kernel.org>
+In-Reply-To: <20260821135608.275233-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
 
 
---ahu/JitMwqTsonzY
+--qb0y5Wtqi7m2jdR4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 21, 2026 at 02:10:40PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
+On Fri, Aug 21, 2026 at 02:55:57PM +0100, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >=20
-> Pre-existing issues:
-> - [High] Concurrent lockless read and write of `rtc->tm_alarm` and a race=
- with delayed IRQ handlers can cause a newly configured alarm to be silentl=
-y disabled.
-> --
+> rzn1_rtc_set_alarm() updates RZN1_RTC_ALM, RZN1_RTC_ALH and
+> RZN1_RTC_ALW using separate MMIO writes without first disabling the
+> alarm interrupt. If a previous alarm is still enabled, the interrupt
+> can fire while the alarm registers contain a mixture of old and newly
+> written values.
 >=20
-> --- Patch [6]: [PATCH v5 06/17] rtc: rzn1: Disable alarm interrupt before=
- reprogramming alarm registers ---
-> commit 6227942d78d91abfb1648a64bce64f0011716b61
-> Author: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Fix this by disabling the alarm interrupt before reprogramming ALM, ALH
+> and ALW with a call to rzn1_rtc_alarm_irq_enable().
 >=20
-> rtc: rzn1: Disable alarm interrupt before reprogramming alarm registers
->=20
-> This commit updates rzn1_rtc_set_alarm() to disable the alarm interrupt
-> before reprogramming the alarm registers. This prevents the interrupt from
-> firing while the alarm registers contain a mixture of old and newly writt=
-en
-> values.
->=20
-> > diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> > index 44e8db466cb78..09631a3a51345 100644
-> > --- a/drivers/rtc/rtc-rzn1.c
-> > +++ b/drivers/rtc/rtc-rzn1.c
-> > @@ -280,6 +280,11 @@ static int rzn1_rtc_set_alarm(struct device *dev, =
-struct rtc_wkalrm *alrm)
-> >  	if (alarm > farest)
-> >  		return -ERANGE;
-> > =20
-> > +	/* Disable alarm interrupts before reprogramming the alarm. */
-> > +	ret =3D rzn1_rtc_alarm_irq_enable(dev, 0);
-> > +	if (ret)
-> > +		return ret;
-> > +
-> >  	writel(bin2bcd(tm->tm_min), rtc->base + RZN1_RTC_ALM);
-> >  	writel(bin2bcd(tm->tm_hour), rtc->base + RZN1_RTC_ALH);
-> >  	writel(BIT(tm->tm_wday), rtc->base + RZN1_RTC_ALW);
->=20
-> [Severity: High]
-> This is a pre-existing issue, but does this fully protect against a race
-> with a delayed IRQ handler?
+> Fixes: b5ad1bf00d2c4 ("rtc: rzn1: Add alarm support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-I'll leave it to you but I think this should also be handled
-incrementally.
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---ahu/JitMwqTsonzY
+--qb0y5Wtqi7m2jdR4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqIalYACgkQFA3kzBSg
-KbbYtRAAmBGBeeUfZjCYLQm2Y/O2Zm3wN4Y9jZLcWjJoBiOiwkJ4IkZG+BdvhT4k
-1JG2HaD5oGj4PmKgpIYhTI22cgocQIgeBmsP+V3ETtHOt+eVD8j1oBU+gsFLzYX8
-3HRoOV8yPlRCVgm4pvxmFluxHnKcmJUYW2vxRngE1MMLhtnMG7Tvk6i84TFbpaX9
-o32KOtCsySA3WSohFhlyDU5AW1bzh+7ZRNswe4uWi4OoBxW4gCna7iCUVJihLb7u
-1rucfrTj6Wn+amBSd1gm+R3ASZ8uJN9gc7RGSK/FfQyYeYJBCy6H7M77BIwthn5E
-Y23xbcrrFP4gl6JjIsxQ/n6SNltELkMlpfiP4HKiBNJ6+JsC0RkLcX0y6zQUpb7F
-LI117lIRoHk3RJ36y9Pcb91Np6nztMn/ltJL49YKCrM9GXQ2OjeQrGvBqYvzQqwj
-uSfXPdJ3yvHQlSCnHa+CULC4FCEsC5TEOCwScezzRwlyVErcKj/6g163PG2vuvs3
-kURrj6+SZGnVde8pO0GSKKk6RnzOFalCA06jX462LyTcLEUM2hoXkfUrdd1w9s44
-I4LyAIuEnf8f99+6cv3GjiU1m1sBtWUeHxQXo4tJUCfdZDIqswUK+C5C8amMf0Ki
-irPk4cRg15vk1HhVcvUY+CNgcHaFze0qkA4OjmCE7stfK18/MBg=
-=SSbb
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqIaoQACgkQFA3kzBSg
+KbZ5wg//W9uPmECk315BxyjWnIHrFTKRLybDiHtyVUOQ3zSuIyRhBGBvlZE3Kj/I
+IZ3+VHx9ieAps9NGlTrES8NCL6bHkNwFZQ4KhQXdwWk1sCQnZTXCuofZyU0h5Ojf
+VUwiaSHFO9dDmbOdJ9NfXMnzUJOw8bpdY3zvUQwOOIR42m3S0pXCrRYS9ywj8IMM
+zPXogefpi3x8fwC9rtvs/eyNOL7Y4y2LlIweSuQC8/nziMH4jCM0wXktc4xRcJqo
+qqHcfdwkUmaIvcAok50Z7uNBU/8N/h9b9dMe0dqILEk/WqqTIq/dyvWl9lowlvD4
+98af32FLGWaKaoj7VTDZ7wnRj3YPtVRucffNUrfsn8TGUE1h0FxiU55GXtX44ZbQ
+BPLyAIE7xdmYKMKCy0DDoSJRiCpztR/L9MQxhJyPXBJqVtTRGhTt62Te7ZeuhYf2
+OFOKnbsRJBGP6G1EOJRQSCv5i9gVIWiSetGL4lduiNOUOohF5PFp6cOgeVQk9pnT
+SHAgIvx7KQ/WdmZ23LfUlJerMJmQf4kLnpAd5jVPjYRrZeEgOjBOKd9JXxdlfgn7
+8ZYEPm4FlrmrlfN1f3pRkPcECP8RKdAYyKvOj5D0KwFM1UWHYYdp5wVv7u/iAmqs
+2PR67W5O7+B54b8dPvOtYleUnuYxNp/XNWSVXQm1IzyKesNp+Jw=
+=MMen
 -----END PGP SIGNATURE-----
 
---ahu/JitMwqTsonzY--
+--qb0y5Wtqi7m2jdR4--
