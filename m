@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A802798F8;
-	Sun, 23 Aug 2026 22:20:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D55F49365A;
+	Sun, 23 Aug 2026 22:22:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787523610; cv=none; b=pFy3wpGfM5+QZ2/wbagZk8Hdik11o37gvcdfD/cvOQvCYKBQKSln6f0OVpoTqXJmoEySjfUw6WCNUDxbXg5QnLXQfY88r1Z5vXG0Dn+H4EsjbNjiBjx+KddV6GghlsH9nQx5mtYGDgYiofvnimm8t8mO09bdNCBvWMdezvVWc0A=
+	t=1787523721; cv=none; b=Idp/1pjdnry3ZnYeWAOU+fX5o4aEHILnOHcdEEJ6OyfKTkdrD6NigMU2xteKQ75V6USOmMs9c49/ABXa/oTe4Dbu+qpnmSWf+EqUWYSXu+advW7u0B2VSgB3r4148CGjtUO1ENjy/ZBD/qUeyd51eJSIt03jKg3WZGgNznVjTMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787523610; c=relaxed/simple;
-	bh=oe3uxbueFnOxXn5DyAY4bff4mjmkD52AG/Wm/vEsMq8=;
+	s=arc-20240116; t=1787523721; c=relaxed/simple;
+	bh=uuPGaHYov7+PkPtInXDEjee/W7KmjVQCjf6Ih66IufI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eh8ZOjvll4nrsFRYuae6ptMndEdT6VhQ9nxTrQ1b50pfvHLpqzbH+E3yZrF1hGRoMM02sRI5vuhHB3qDJYEK74rNgQ+8NmGlDddOadV2BUY+85+zvERqnk1KK+IeRsHxB21EUXWI9+lkzzXePSpSpV5FdrQomTNnQFB8lVtst3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OYJPLhJW; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=N9TY8QocD25UdERbRRr6WNqcqRBUSBHVKfxD3rD6i8d692DY55zrX6ibEBa1KCZGH9kccCJCdLculJf9KmvdOG8e6RhAHhqOGqqfwHdro2RjG6Nma+CZT5rIUr42lEcspQpTzRydkVkB6EnTJ+MMsndJkdMkpNJXRWA4WUpjc9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IA7bI3Lc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OYJPLhJW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C182C1F000E9;
-	Sun, 23 Aug 2026 22:20:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IA7bI3Lc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7671F000E9;
+	Sun, 23 Aug 2026 22:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787523609;
-	bh=3wjth4t5+rG70prfNgDMRjKRpkAMWVpBAz+H9G+zNvY=;
+	s=k20260515; t=1787523720;
+	bh=sAKgo+kc8fgXH+phEHJsbUgm+0NTkbxe/iECeJEt1Qw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OYJPLhJWURcrQ0FAsKSJyOlDC/nKKUOyY8+vVdIfwAqExvwSDddNP139OFAHUmXiv
-	 JTrsAipSyEG42cX53X5Q+Lcdr/83NOwZHZSEnafTbIxO4oFx4RF79x7vlGexGy8F1i
-	 xjKnL4tXokTvRGdvHmXcmTBXKPlCp1cQTaxhZbfPcuW5rThEO6yHk7KrsR7WSp3zIi
-	 lpdBF4e+mwPbmY7jlvQgtHWb64vOOVG/yq260aO1tFCMxqLA1jSwhCOvL+BVcuK/o6
-	 czgYlA/35/szjDpwFiv398GU9Ul/NKsaLoMLwiKAN7+2eS10AZbswOUv+Lnr0/HgJ/
-	 soLPYirUB/S6Q==
+	b=IA7bI3LcurCe4FvwTHSP8dhi/TvxVZxOlwqiQJS7qp4IkaILVgxKjLlIMB8I+bfAB
+	 J1ZMObNEvK3eJzwjPnUKzzyTI5iGYm6BafqhXrAsESgw+TsUfmgk70v9LbxxD0dm6c
+	 F/wxFxbwFG3/reo73e1kco5EQFG6AQ9lOWtqQL/7j3Yp1sQukdmSNMNXS/qEiyMtMr
+	 LnbQeice/OeucWo7gp8PSmucXThuqY1aCH/gIyLbzyIQX5SdG6AGo0tAZDQmLC3ILL
+	 KpvRfVqHRaY+n4GJCLY01wV6V8j3YWRax4WPmrI8xuoTKILa16vMsis8hIbumAANd2
+	 pyFguwg9+6yIg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/6] dt-bindings: rtc: Add pinctrl for S35390A
+Subject: Re: [PATCH v6 2/6] rtc: s35390a: Add missing newline to dev_err
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Markus Probst" <markus.probst@posteo.de>
-Cc: robh@kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260824-rtc_s35390a_int1-v6-1-df96569e3412@posteo.de>
+Cc: robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
+In-Reply-To: <20260824-rtc_s35390a_int1-v6-2-df96569e3412@posteo.de>
 References: <20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de>
- <20260824-rtc_s35390a_int1-v6-1-df96569e3412@posteo.de>
+ <20260824-rtc_s35390a_int1-v6-2-df96569e3412@posteo.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 23 Aug 2026 22:20:08 +0000
-Message-Id: <20260823222008.C182C1F000E9@smtp.kernel.org>
+Date: Sun, 23 Aug 2026 22:21:59 +0000
+Message-Id: <20260823222159.BC7671F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -47,86 +47,86 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] The binding adds a clock provider capability (`#clock-cells`) bu=
-t fails to list it in the `required` properties and include it in the `exam=
-ples` section.
-- [Medium] The schema fails to enforce the documented constraint that the `=
-pmin2` function can only be used with pin `int1`.
+
+Pre-existing issues:
+- [High] Probe clears power-on clear (POC) and battery low (BLD) flags with=
+out acting on them, causing silent data corruption.
+- [High] RTC_VL_CLR ioctl performs a full hardware reset, destructively era=
+sing the RTC time.
 --
 
---- Patch [1]: [PATCH v6 1/6] dt-bindings: rtc: Add pinctrl for S35390A ---
-commit ed4fe5fd689ace047dd6fd7d73cbfef4879078ec
+--- Patch [2]: [PATCH v6 2/6] rtc: s35390a: Add missing newline to dev_err =
+---
+commit f317b10535ad5028ddd5cbe785ad735c87f43819
 Author: Markus Probst <markus.probst@posteo.de>
 
-dt-bindings: rtc: Add pinctrl for S35390A
+rtc: s35390a: Add missing newline to dev_err
 
-This commit moves the devicetree bindings for sii,s35390a into its own file.
-It also adds properties to configure pins via pinctrl to allow the interrupt
-signal 1 to be used for the wakeup alarm.
+This commit adds a missing newline character to a dev_err() message in the
+probe function. It fixes the log output format when disabling the alarm fai=
+ls.
 
-> diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Doc=
-umentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> new file mode 100644
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
+> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+> index b72eef4fb0997..4cfe7034c5165 100644
+> --- a/drivers/rtc/rtc-s35390a.c
+> +++ b/drivers/rtc/rtc-s35390a.c
+> @@ -494,7 +494,7 @@ static int s35390a_probe(struct i2c_client *client)
+>  		buf =3D 0;
+>  		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+>  		if (err < 0) {
+> -			dev_err(dev, "error disabling alarm");
+> +			dev_err(dev, "error disabling alarm\n");
+>  			return err;
+>  		}
+>  	} else {
 
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed a potential problem
+in how the probe function handles power-loss flags:
+
+drivers/rtc/rtc-s35390a.c:s35390a_probe() {
 [ ... ]
-
-> +          function:
-> +            $ref: /schemas/types.yaml#/definitions/string
-> +            description: |
-> +              Pin function:
-> +              - ignore:  Preserve the previous state.
-> +              - disable: Disable pin output.
-> +              - wakeup:  Output wakes up the system.
-> +              - clock:   Output clock pulse.
-> +              - pmin1:   Minute periodical output with 50% duty.
-> +              - pmin2:   Minute periodical output L for 7.81 ms.
-> +                         Can only be used with pin int1.
-> +            enum:
-> +              - ignore
-> +              - disable
-> +              - wakeup
-> +              - clock
-> +              - pmin1
-> +              - pmin2
-
-[Severity: Medium]
-The documentation specifies that pmin2 can only be used with pin int1. Shou=
-ld
-the schema include an allOf/if conditional block to logically enforce this
-restriction, preventing pmin2 from being used with int2?
-
+	err_read =3D s35390a_read_status(s35390a, &status1);
+	if (err_read < 0) {
+		dev_err(dev, "error resetting chip\n");
+		return err_read;
+	}
 [ ... ]
+}
 
-> +required:
-> +  - compatible
-> +  - reg
+Does the driver silently discard the power-loss or battery-low indicators?
 
-[Severity: Medium]
-Does #clock-cells need to be added to this list of required properties?
+When the RTC loses power, reading STATUS1 clears the hardware flags, but
+s35390a_read_status() returns 1 to indicate the invalid state. Since this c=
+ode
+doesn't check if err_read =3D=3D 1, won't it just continue and serve garbag=
+e time
+data to userspace as if it were valid?
 
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +        #address-cells =3D <1>;
-> +        #size-cells =3D <0>;
-> +
-> +        rtc@30 {
-> +            compatible =3D "sii,s35390a";
-> +            reg =3D <0x30>;
-> +            pinctrl-0 =3D <&rtc_pins_default>;
-> +            pinctrl-names =3D "default";
-> +
-> +            wakeup-parent =3D <&int>;
+[Severity: High]
+This is a pre-existing issue, but there is also a destructive behavior in t=
+he
+ioctl handler:
 
-[Severity: Medium]
-Should the examples section include the #clock-cells property to ensure it
-passes validation checks?
+drivers/rtc/rtc-s35390a.c:s35390a_rtc_ioctl() {
+[ ... ]
+	case RTC_VL_CLR:
+		/* update flag and clear register */
+		err =3D s35390a_init(s35390a);
+		if (err < 0)
+			return err;
+		break;
+[ ... ]
+}
+
+Could this ioctl destructively erase the configured RTC time?
+
+Calling s35390a_init() writes S35390A_FLAG_RESET, which resets the chip and
+erases the currently programmed time. Since RTC_VL_CLR is only meant to cle=
+ar
+low-voltage warnings, is it safe to let this UAPI call wipe the main time d=
+ata?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824-rtc_s35390=
-a_int1-v6-0-df96569e3412@posteo.de?part=3D1
+a_int1-v6-0-df96569e3412@posteo.de?part=3D2
