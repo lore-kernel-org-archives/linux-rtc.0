@@ -1,53 +1,56 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1867C36A36C
-	for <linux-rtc@vger.kernel.org>; Sat, 22 Aug 2026 19:27:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228642D739C;
+	Sun, 23 Aug 2026 19:28:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787426876; cv=none; b=lpxcNkhVH/eNxVnExHL3bcRzEkeJCQPCyLpbHNAzZfqr7Jb64Iv/kLin5ISlBGO5vV8HSZVO2DLrKN1gcVziFYyjAmieafYtWUHxBso9bOHIbaP5IeHvnKNvmg635GBAtdHdwcs8aByKvgJugp16MBS3kt4+79sa1KgpM+dBo30=
+	t=1787513292; cv=none; b=hGb3RbmjWX4QnTmXHusuGMBWucJchji0OwRkusw1dxrR+O10eF+FhmsFqsuHsWyo1kepnF5ZEazVpqan+Hj7Yw19BaBJ0YNE8I3jlFdS+Q+QTbgWYomoJMBByo4YC8kbU+85QV5Cn64VvfQEfhMAKrnAcqq5AJzz2XLgRI+GqxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787426876; c=relaxed/simple;
-	bh=NCDgIlNU8dGld25uFKFLAlU0K4xTaQqVrOx+t1/cY9Q=;
+	s=arc-20240116; t=1787513292; c=relaxed/simple;
+	bh=Xyu++SJOi+a3aYTtKVgNn4xmzspRA5cr1q25ZYCu4L8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h3nTPPK28Sr120DDBI6x/AHFaWwlXBM/Q35odkIfkBUa6q55rhox8gZoq9gDnfUMCxw0ayc4p6+cu6osneDSCUKR31ySaXcgGxs1yT0Y+6YUuszy97fcSCaT2AQVUd8qgTC2Bc2GjUjTQQNQ+TsXnfeRWnJUeK4yisNlkQslbCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=KPgPt9xV; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=mORLYC1KdJjThrSB8qxpsDEFns3KTnwrZdG2nVY5Ojm65wielpm42+nYEnqeNMJB1Hx6tbypAAKBaXeYz+5S6hn6802PqfDSQu1q3lis5phEoAUMw6/QOIiumqI0UzWSbDz7Mrgdh7pxJFYO6cHlWn57FUTAfbrO4HR/9fzxAMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=tQHIIO09; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="KPgPt9xV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=NCDg
-	IlNU8dGld25uFKFLAlU0K4xTaQqVrOx+t1/cY9Q=; b=KPgPt9xVRkaK82BrXooQ
-	K/GglPKLVOeXW4DvAFamXdBtFdV4/1d+OEB5pzn/UlD+vq0zSz+o42z0Vo6harAz
-	FpP7o3SnXhNPorhs4efXhZFTXWQXQKWQtTdOmJoJxwnBM49J9F8IUQfx0Re1K2By
-	R54Ah5GHKqmQrmNn4FsFMae6TzVZLJ2CX+a/urFK8OJvhuPSj2oatLRCk24/XGYd
-	ZK4cEdTIg7KklsJBYnax26VBPKQ2ptwNyjbj/2MPnxZw2whYm22awRJaKqxihwrC
-	yObr4VJnLMq7t6sBABdT33+0ZGonbSsJUCWnmigqMAOTSjPYqekIhUNylBbcfMbr
-	4w==
-Received: (qmail 1016217 invoked from network); 22 Aug 2026 21:27:51 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Aug 2026 21:27:51 +0200
-X-UD-Smtp-Session: l3s3148p1@qlyyv6dZ+oQujnv+
-Date: Sat, 22 Aug 2026 21:27:50 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Prabhakar <prabhakar.csengg@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="tQHIIO09"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 5AEF11A17D2;
+	Sun, 23 Aug 2026 19:28:00 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 0E3C460378;
+	Sun, 23 Aug 2026 19:28:00 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EEE4411C78552;
+	Sun, 23 Aug 2026 21:27:51 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1787513274; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=X/CY+Q5KwPD7iPjdJOTwPbS6HjELxq+ezGaZFw25SNM=;
+	b=tQHIIO09m6AuJtcW0Ov/zMHW+6/6fsHvQ13a6MPWgozDIH4BVaY/YAyg8Pjbp6OkdcbSzD
+	5aamc2+69S645w1MF1xCRi2M788VaxPJP9pcojH9Hsjnz7x3UIx6Y8+s4nGQoClhcE13IM
+	XB979omXqgQcJ/3Kc10wo7rLq9mGHXhpYofVnAtPKX1PPcFnvhrThBwU/JBNoiMCufK+9o
+	qwHxk0EFEvIs/jCM+HcKYzpbiTUR4WaDn1SSO3Lxh9pzMmz8Jmqj9UB9HP9uNpUbsj7jy3
+	MHujLukUnzQahuFvwBuMWNt3304kwr5VUXZYepH0W10pSm9tf0+6CtGMewFDHw==
+Date: Sun, 23 Aug 2026 21:27:51 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Miquel Raynal <miquel.raynal@bootlin.com>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Prabhakar <prabhakar.csengg@gmail.com>
+Cc: linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Subject: Re: [PATCH v6 00/17] Add RTC support for Renesas RZ/T2H and RZ/N2H
  SoCs
-Message-ID: <aon4NrmlVumUVrrM@ninjato>
+Message-ID: <178751320985.803208.13800880301925482074.b4-ty@b4>
 References: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
@@ -55,48 +58,61 @@ List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="HQyQI4l/MOzh8UsR"
-Content-Disposition: inline
-In-Reply-To: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
-
-
---HQyQI4l/MOzh8UsR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
+On Fri, 21 Aug 2026 22:10:15 +0100, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> 
+> Hi all,
+> 
+> This series adds support for the RTC IP found on the Renesas RZ/T2H and
+> RZ/N2H SoCs.
+> 
+> [...]
 
-> v5->v6:
-> - Dropped the output log from commit message.
-> - Added missing sentinel comment
-> - Collected Reviewed-by and Tested-by tags from Wolfram
+Applied, thanks!
 
-I have no more review comments and re-testing the series was also
-successful. It is really good to go from my side.
+[01/17] dt-bindings: rtc: renesas,rzn1-rtc: Add RZ/T2H and RZ/N2H support
+        https://git.kernel.org/abelloni/c/1ffb5be3e4be
+[02/17] rtc: rzn1: Handle EPROBE_DEFER for optional pps interrupt
+        https://git.kernel.org/abelloni/c/708546aa3956
+[03/17] rtc: rzn1: Fix weekday underflow when alarm crosses month boundary
+        https://git.kernel.org/abelloni/c/022a2839a520
+[04/17] rtc: rzn1: Handle unset alarm weekday in rzn1_rtc_read_alarm
+        https://git.kernel.org/abelloni/c/457b5dbce312
+[05/17] rtc: rzn1: Fix alarm range check truncation on 32-bit systems
+        https://git.kernel.org/abelloni/c/c3e735e9f620
+[06/17] rtc: rzn1: Disable alarm interrupt before reprogramming alarm registers
+        https://git.kernel.org/abelloni/c/51458d5b0a1c
+[07/17] rtc: rzn1: Fix malformed MODULE_AUTHOR string
+        https://git.kernel.org/abelloni/c/cd54d8f09d9b
+[08/17] rtc: Kconfig: Broaden RTC_DRV_RZN1 dependency to ARCH_RENESAS
+        https://git.kernel.org/abelloni/c/960987abe58d
+[09/17] rtc: rzn1: Use pm_runtime_put_sync()
+        https://git.kernel.org/abelloni/c/ea0ef2e7f83b
+[10/17] rtc: rzn1: Replace remove callback with devm_add_action_or_reset()
+        https://git.kernel.org/abelloni/c/6e0d7d480f2d
+[11/17] rtc: rzn1: Dynamically calculate synchronization delay based on clock rate
+        https://git.kernel.org/abelloni/c/afb8972b9e36
+[12/17] rtc: rzn1: Use temporary variable for struct device
+        https://git.kernel.org/abelloni/c/b587001387c1
+[13/17] rtc: rzn1: Consistently use dev_err_probe()
+        https://git.kernel.org/abelloni/c/0e1ae8c654f0
+[14/17] rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for register access
+        https://git.kernel.org/abelloni/c/5ae93269d3e5
+[15/17] rtc: rzn1: Add OF match data to gate SUBU register access
+        https://git.kernel.org/abelloni/c/38a3a3b09958
+[16/17] rtc: rzn1: Drop trailing comma from OF match table sentinel
+        https://git.kernel.org/abelloni/c/8af6331c6e7a
+[17/17] rtc: rzn1: Add support for Renesas RZ/T2H and RZ/N2H SoCs
+        https://git.kernel.org/abelloni/c/b418fa370ea6
 
-Thank you for keeping at it and especially for carefully adding the
-"change since last version" information. That made the review a lot
-easier. Good work!
+Best regards,
 
-
---HQyQI4l/MOzh8UsR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqJ+DYACgkQFA3kzBSg
-KbbZWhAAhyd5aqmJAc857L/fqRQVPGTva/BRnco26gMT/nJ0OtRjCi/uRqYQMHQC
-HM2ix/rLd14idRQ01W7W/ECvjnJbemQDIdzyovkejCSdNtEfPTXoE71lhV7hLchE
-Uq9BM2cE9HXd4HbJdWUbwEEIH+tseNLeUM8KilSe1bub8dBxOG15HzUe8lDXSzTd
-wx3X3QEb7WNqoHj9oc8ipmMV6Kw8prlXYIH8J9KVUbjhytoO6++OY7vYsN+/dBZY
-kTPHuUZzomMmxOOCbheFxgbSnKq2ZPncx7ww5pSjJ40cIDKuDif7rEnmMODgrBEs
-7/HjM7KonKiMOi2jrsZI2e+3CD5hgeab2R+GkSa2U4oOj5sUlKbd6aqQS6Ajl4DV
-oH81ZBB8GugvW+RqGSeHzlffxd2/JLGggDlf1YSdBHWd6n1hZuxT18thwhwkmquZ
-NFrUVCtkJpPoN6qYANYEPGJJiJKIc+kcwQG4+gTsRvAbtgz+BgoViwvMTqV6AO4W
-dUfyRi2NIKHybX66NamuH6SBYhg12HUoQJXu4TOHc4nAfvpx5AXhQAOcayqJd4VN
-s4KlwwfVG92Ke97EW/1k19c9zcZbgC/cgWK7+12J7X4CMg3F7ZMsd4O2w3iIfTXv
-o9i4fW2aGm0+w/Sg1ImSsNPAJnAnnXYVLsc6tUuB3mQYAHlGmbk=
-=PKEI
------END PGP SIGNATURE-----
-
---HQyQI4l/MOzh8UsR--
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
