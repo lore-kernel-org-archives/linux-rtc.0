@@ -1,132 +1,135 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D55F49365A;
-	Sun, 23 Aug 2026 22:22:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 492A649365A;
+	Sun, 23 Aug 2026 22:24:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787523721; cv=none; b=Idp/1pjdnry3ZnYeWAOU+fX5o4aEHILnOHcdEEJ6OyfKTkdrD6NigMU2xteKQ75V6USOmMs9c49/ABXa/oTe4Dbu+qpnmSWf+EqUWYSXu+advW7u0B2VSgB3r4148CGjtUO1ENjy/ZBD/qUeyd51eJSIt03jKg3WZGgNznVjTMU=
+	t=1787523882; cv=none; b=D6QvfqmuOuYwKluHfD+C7CyIJ2bZwjoxF/f3iU5DDUTW2pX6i/7CX9z6ACCVJjK43WhNoo44+SPUggHns/Qw3S3t0OJY95G7E98EdRvx2vBi38UpTgVLWq47oop2M/o8VYgSgkBKXFQIy6U4DoIfAp+DT2aR46psvoQSeiudhsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787523721; c=relaxed/simple;
-	bh=uuPGaHYov7+PkPtInXDEjee/W7KmjVQCjf6Ih66IufI=;
+	s=arc-20240116; t=1787523882; c=relaxed/simple;
+	bh=Ic67LUXNCeBsl4gruyjfmmqoecx3tV5LfZzO7op09Vo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N9TY8QocD25UdERbRRr6WNqcqRBUSBHVKfxD3rD6i8d692DY55zrX6ibEBa1KCZGH9kccCJCdLculJf9KmvdOG8e6RhAHhqOGqqfwHdro2RjG6Nma+CZT5rIUr42lEcspQpTzRydkVkB6EnTJ+MMsndJkdMkpNJXRWA4WUpjc9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IA7bI3Lc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=g+U6Q3hqhhf9SHA+esZbqmo+VyHhqSz/MaW80w82NSg/BbzORltvwDheLaNF77LsnDeIp0lIDLuQzoIdhPAhlH98y4vRyJn3cjFyWKCu7bbOQ8VxczH0JLGdsYClKumRpN8m6DWviSrE58MNJmJz+hBl+76ippsvnB/PM1TlgK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eEA5gsm/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IA7bI3Lc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7671F000E9;
-	Sun, 23 Aug 2026 22:21:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eEA5gsm/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF1541F000E9;
+	Sun, 23 Aug 2026 22:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787523720;
-	bh=sAKgo+kc8fgXH+phEHJsbUgm+0NTkbxe/iECeJEt1Qw=;
+	s=k20260515; t=1787523881;
+	bh=H7tMTnH3aIdx9u4OJX7+nhgbm1pnW2xh4P0FZ+t37Qk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IA7bI3LcurCe4FvwTHSP8dhi/TvxVZxOlwqiQJS7qp4IkaILVgxKjLlIMB8I+bfAB
-	 J1ZMObNEvK3eJzwjPnUKzzyTI5iGYm6BafqhXrAsESgw+TsUfmgk70v9LbxxD0dm6c
-	 F/wxFxbwFG3/reo73e1kco5EQFG6AQ9lOWtqQL/7j3Yp1sQukdmSNMNXS/qEiyMtMr
-	 LnbQeice/OeucWo7gp8PSmucXThuqY1aCH/gIyLbzyIQX5SdG6AGo0tAZDQmLC3ILL
-	 KpvRfVqHRaY+n4GJCLY01wV6V8j3YWRax4WPmrI8xuoTKILa16vMsis8hIbumAANd2
-	 pyFguwg9+6yIg==
+	b=eEA5gsm/kPv3pDAoKEQlKO258E47aY4zg/fhfnOj1MYix/PERaRzwerFwyVMKmEq/
+	 JRxZ0fzKRqb7DrsPLSVe8rgI+DpiM6UjT/tA5lJpewpPAaFUO8zTXlG3X4/WnTNwR6
+	 v43/VLmytiCkHU8l8wCuUbqQBTxx+okCWiDnBZxsuowWuIbzprGtIuNZ11bwCkhh5V
+	 kfYanvi3whuyQyTXaBP5ltJpmjJWqvXVAB1+z6J+e3zLh9k16on5U1VPJik9mBCFFH
+	 9WO+EZnjJ2Losc01unXFs1e6v61Kbcwqez9T/dq2xDGn6J5BdLXpGz7n7/Cs6dBvtR
+	 oS0nUPnB2ElKw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/6] rtc: s35390a: Add missing newline to dev_err
+Subject: Re: [PATCH v6 4/6] rtc: s35390a: Read 24-hour mode on access
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Markus Probst" <markus.probst@posteo.de>
-Cc: robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org
-In-Reply-To: <20260824-rtc_s35390a_int1-v6-2-df96569e3412@posteo.de>
+Cc: devicetree@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260824-rtc_s35390a_int1-v6-4-df96569e3412@posteo.de>
 References: <20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de>
- <20260824-rtc_s35390a_int1-v6-2-df96569e3412@posteo.de>
+ <20260824-rtc_s35390a_int1-v6-4-df96569e3412@posteo.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 23 Aug 2026 22:21:59 +0000
-Message-Id: <20260823222159.BC7671F000E9@smtp.kernel.org>
+Date: Sun, 23 Aug 2026 22:24:40 +0000
+Message-Id: <20260823222440.BF1541F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Probe clears power-on clear (POC) and battery low (BLD) flags with=
-out acting on them, causing silent data corruption.
-- [High] RTC_VL_CLR ioctl performs a full hardware reset, destructively era=
-sing the RTC time.
+- [High] Uninitialized stack variable usage due to missing error check for =
+negative return values from s35390a_read_status.
 --
 
---- Patch [2]: [PATCH v6 2/6] rtc: s35390a: Add missing newline to dev_err =
----
-commit f317b10535ad5028ddd5cbe785ad735c87f43819
+--- Patch [4]: [PATCH v6 4/6] rtc: s35390a: Read 24-hour mode on access ---
+commit d45935347291ea27eb3558322c8f56d965fd15e6
 Author: Markus Probst <markus.probst@posteo.de>
 
-rtc: s35390a: Add missing newline to dev_err
+rtc: s35390a: Read 24-hour mode on access
 
-This commit adds a missing newline character to a dev_err() message in the
-probe function. It fixes the log output format when disabling the alarm fai=
-ls.
+This commit reads the 24-hour mode on access instead of only on probe. It
+fixes time corruption when resetting the chip in 12-hour mode, as
+s35390a_init did not update the cached value.
 
 > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index b72eef4fb0997..4cfe7034c5165 100644
+> index 575bb256eb258..8e3616c65d2c0 100644
 > --- a/drivers/rtc/rtc-s35390a.c
 > +++ b/drivers/rtc/rtc-s35390a.c
-> @@ -494,7 +494,7 @@ static int s35390a_probe(struct i2c_client *client)
->  		buf =3D 0;
->  		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
->  		if (err < 0) {
-> -			dev_err(dev, "error disabling alarm");
-> +			dev_err(dev, "error disabling alarm\n");
->  			return err;
->  		}
->  	} else {
+[ ... ]
+> @@ -256,7 +258,7 @@ static int s35390a_rtc_read_time(struct device *dev, =
+struct rtc_time *tm)
+> =20
+>  	tm->tm_sec =3D bcd2bin(buf[S35390A_BYTE_SECS]);
+>  	tm->tm_min =3D bcd2bin(buf[S35390A_BYTE_MINS]);
+> -	tm->tm_hour =3D s35390a_reg2hr(s35390a, buf[S35390A_BYTE_HOURS]);
+> +	tm->tm_hour =3D s35390a_reg2hr(buf[S35390A_BYTE_HOURS], status & S35390=
+A_FLAG_24H);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential problem
-in how the probe function handles power-loss flags:
+Earlier in s35390a_rtc_read_time(), the code calls
+s35390a_read_status(s35390a, &status).
 
-drivers/rtc/rtc-s35390a.c:s35390a_probe() {
+If this call fails with a negative error code (e.g. -EIO due to a transient
+I2C error), the check if (s35390a_read_status(s35390a, &status) =3D=3D 1) e=
+valuates
+to false, and the function proceeds without returning an error.
+
+Will this cause the uninitialized status stack variable to be evaluated her=
+e,
+potentially corrupting the time calculation?
+
 [ ... ]
-	err_read =3D s35390a_read_status(s35390a, &status1);
-	if (err_read < 0) {
-		dev_err(dev, "error resetting chip\n");
-		return err_read;
-	}
+> @@ -345,14 +347,17 @@ static int s35390a_rtc_read_alarm(struct device *de=
+v, struct rtc_wkalrm *alm)
+>  {
+>  	struct i2c_client *client =3D to_i2c_client(dev);
+>  	struct s35390a *s35390a =3D i2c_get_clientdata(client);
+> -	u8 buf[3], sts;
+> +	u8 buf[3], status1, status2;
+>  	int i, err;
+> =20
+> -	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts)=
+);
+> +	if (s35390a_read_status(s35390a, &status1) =3D=3D 1)
+> +		return -EINVAL;
+> +
+> +	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(=
+status2));
+>  	if (err < 0)
+>  		return err;
+
 [ ... ]
-}
 
-Does the driver silently discard the power-loss or battery-low indicators?
-
-When the RTC loses power, reading STATUS1 clears the hardware flags, but
-s35390a_read_status() returns 1 to indicate the invalid state. Since this c=
-ode
-doesn't check if err_read =3D=3D 1, won't it just continue and serve garbag=
-e time
-data to userspace as if it were valid?
+> @@ -381,8 +386,8 @@ static int s35390a_rtc_read_alarm(struct device *dev,=
+ struct rtc_wkalrm *alm)
+> =20
+>  	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
+>  		alm->time.tm_hour =3D
+> -			s35390a_reg2hr(s35390a,
+> -				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
+> +			s35390a_reg2hr(buf[S35390A_ALRM_BYTE_HOURS] & ~0x80,
+> +				       status1 & S35390A_FLAG_24H);
 
 [Severity: High]
-This is a pre-existing issue, but there is also a destructive behavior in t=
-he
-ioctl handler:
+Similarly to s35390a_rtc_read_time(), if s35390a_read_status() returns a
+negative error code, the check above will pass and the status1 stack variab=
+le
+will remain uninitialized.
 
-drivers/rtc/rtc-s35390a.c:s35390a_rtc_ioctl() {
-[ ... ]
-	case RTC_VL_CLR:
-		/* update flag and clear register */
-		err =3D s35390a_init(s35390a);
-		if (err < 0)
-			return err;
-		break;
-[ ... ]
-}
-
-Could this ioctl destructively erase the configured RTC time?
-
-Calling s35390a_init() writes S35390A_FLAG_RESET, which resets the chip and
-erases the currently programmed time. Since RTC_VL_CLR is only meant to cle=
-ar
-low-voltage warnings, is it safe to let this UAPI call wipe the main time d=
-ata?
+Could this allow the uninitialized status1 variable to be used here to dete=
+rmine
+the alarm hour calculations?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824-rtc_s35390=
-a_int1-v6-0-df96569e3412@posteo.de?part=3D2
+a_int1-v6-0-df96569e3412@posteo.de?part=3D4
