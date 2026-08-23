@@ -1,57 +1,51 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228642D739C;
-	Sun, 23 Aug 2026 19:28:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102FC277CA5;
+	Sun, 23 Aug 2026 19:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787513292; cv=none; b=hGb3RbmjWX4QnTmXHusuGMBWucJchji0OwRkusw1dxrR+O10eF+FhmsFqsuHsWyo1kepnF5ZEazVpqan+Hj7Yw19BaBJ0YNE8I3jlFdS+Q+QTbgWYomoJMBByo4YC8kbU+85QV5Cn64VvfQEfhMAKrnAcqq5AJzz2XLgRI+GqxY=
+	t=1787514642; cv=none; b=kci7i7KpUfjGWG5BrWrFuzvbDivmTazGHmlK4LrirPN+aO3GrR3QpYlgg01D7CoIv7pIuOUWmNqJ5H3c9HHGK38Ej4LZeIcHfxXUcTTaWs7mX1Gj3DRm4j/7NRdmAjQVakST0WkcCN67d6dAxJyOL/QPNVUHSI7DWF/eF+MH5s8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787513292; c=relaxed/simple;
-	bh=Xyu++SJOi+a3aYTtKVgNn4xmzspRA5cr1q25ZYCu4L8=;
+	s=arc-20240116; t=1787514642; c=relaxed/simple;
+	bh=5w7/RMbc/STrPAtBYUdnaxXihsHr+6L1l3qYPU5FER0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mORLYC1KdJjThrSB8qxpsDEFns3KTnwrZdG2nVY5Ojm65wielpm42+nYEnqeNMJB1Hx6tbypAAKBaXeYz+5S6hn6802PqfDSQu1q3lis5phEoAUMw6/QOIiumqI0UzWSbDz7Mrgdh7pxJFYO6cHlWn57FUTAfbrO4HR/9fzxAMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=tQHIIO09; arc=none smtp.client-ip=185.246.84.56
+	 Content-Type:Content-Disposition:In-Reply-To; b=myve11DaXCLpMERp4dhDbKI91HpbF+KbagcFpLhC0qnLklrNz77QDiSkUzW4fY+LYj+r+u7g+SFdUKmbwvXx6zMrhRa+TEEf3OD/rz9oCRg471OVztyQIjBNU8paTurPK5cdr2yTZiQsSAeuvcOBN7tE8JVIP5ruQ0CwdS6rOwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=zT0+RV6X; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="tQHIIO09"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="zT0+RV6X"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 5AEF11A17D2;
-	Sun, 23 Aug 2026 19:28:00 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id E96704E41372;
+	Sun, 23 Aug 2026 19:50:34 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 0E3C460378;
-	Sun, 23 Aug 2026 19:28:00 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EEE4411C78552;
-	Sun, 23 Aug 2026 21:27:51 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 9767C60378;
+	Sun, 23 Aug 2026 19:50:34 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 2A0C311C78576;
+	Sun, 23 Aug 2026 21:50:26 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787513274; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=X/CY+Q5KwPD7iPjdJOTwPbS6HjELxq+ezGaZFw25SNM=;
-	b=tQHIIO09m6AuJtcW0Ov/zMHW+6/6fsHvQ13a6MPWgozDIH4BVaY/YAyg8Pjbp6OkdcbSzD
-	5aamc2+69S645w1MF1xCRi2M788VaxPJP9pcojH9Hsjnz7x3UIx6Y8+s4nGQoClhcE13IM
-	XB979omXqgQcJ/3Kc10wo7rLq9mGHXhpYofVnAtPKX1PPcFnvhrThBwU/JBNoiMCufK+9o
-	qwHxk0EFEvIs/jCM+HcKYzpbiTUR4WaDn1SSO3Lxh9pzMmz8Jmqj9UB9HP9uNpUbsj7jy3
-	MHujLukUnzQahuFvwBuMWNt3304kwr5VUXZYepH0W10pSm9tf0+6CtGMewFDHw==
-Date: Sun, 23 Aug 2026 21:27:51 +0200
+	t=1787514629; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=FI8iZwkb9AvvBWAVl1SifeWOG9uPTOrrRE1ZW7PiES0=;
+	b=zT0+RV6X0lDfRVw2+6MB1Vq6VeJNkBZiZJ4CTJrFwV6lYaB2LqE90RriDutE0RSnPUZDqH
+	7FmKvvsO8/Gmv1cIcQYTNTWKPXhIQTlZYJpZGvoa+wiZBHh3tc5+5xIABv/Pka7HigYBBS
+	BPl7XytZcj+lhP5sZddnYmRS8/BWwAYV4Ef01PEgjEBFI1yCBwDNlUg9xTEAAao8Qxx/DX
+	vJz8WgtU1qnh/T4JSjAYnvaN25SowSFJVEIcqgBdaSIM1aIOcfvpUf7eYuOyUCaEt1tFWG
+	3aGIFVhOls7QE8Ma4JZv8sqWC8jFpp/3yFZf11oXbxE02ZDAjHxRvt5Cky4u7Q==
+Date: Sun, 23 Aug 2026 21:50:25 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Miquel Raynal <miquel.raynal@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-rtc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Prabhakar <prabhakar.csengg+renesas@gmail.com>,
-	Biju Das <biju.das.jz@bp.renesas.com>,
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: Re: [PATCH v6 00/17] Add RTC support for Renesas RZ/T2H and RZ/N2H
- SoCs
-Message-ID: <178751320985.803208.13800880301925482074.b4-ty@b4>
-References: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+To: Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Avi Fishman <avifishman70@gmail.com>,
+	Tomer Maimon <tmaimon77@gmail.com>,
+	Tali Perry <tali.perry1@gmail.com>,
+	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
+	Benjamin Fair <benjaminfair@google.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: linux-rtc@vger.kernel.org, openbmc@lists.ozlabs.org,
+	linux-clk@vger.kernel.org
+Subject: Re: [PATCH 0/5] rtc: Make sure clk_init_data is fully initialized
+Message-ID: <178751460908.816082.16865012450264727395.b4-ty@b4>
+References: <cover.1787241693.git.geert+renesas@glider.be>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -60,55 +54,33 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260821211032.13554-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <cover.1787241693.git.geert+renesas@glider.be>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Fri, 21 Aug 2026 22:10:15 +0100, Prabhakar wrote:
-> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+On Fri, 21 Aug 2026 12:09:01 +0200, Geert Uytterhoeven wrote:
+> 	Hi all,
 > 
-> Hi all,
-> 
-> This series adds support for the RTC IP found on the Renesas RZ/T2H and
-> RZ/N2H SoCs.
+> The clk_init_data structure contains several mutually-exclusive members
+> for different methods to specify the possible parents of a clock,
+> prompting drivers to initialize only the members they need.  However,
+> not initializing all members may cause subtle issues, which are only
+> exposed when CONFIG_INIT_STACK_ALL_PATTERN or CONFIG_INIT_STACK_NONE is
+> enabled.
 > 
 > [...]
 
 Applied, thanks!
 
-[01/17] dt-bindings: rtc: renesas,rzn1-rtc: Add RZ/T2H and RZ/N2H support
-        https://git.kernel.org/abelloni/c/1ffb5be3e4be
-[02/17] rtc: rzn1: Handle EPROBE_DEFER for optional pps interrupt
-        https://git.kernel.org/abelloni/c/708546aa3956
-[03/17] rtc: rzn1: Fix weekday underflow when alarm crosses month boundary
-        https://git.kernel.org/abelloni/c/022a2839a520
-[04/17] rtc: rzn1: Handle unset alarm weekday in rzn1_rtc_read_alarm
-        https://git.kernel.org/abelloni/c/457b5dbce312
-[05/17] rtc: rzn1: Fix alarm range check truncation on 32-bit systems
-        https://git.kernel.org/abelloni/c/c3e735e9f620
-[06/17] rtc: rzn1: Disable alarm interrupt before reprogramming alarm registers
-        https://git.kernel.org/abelloni/c/51458d5b0a1c
-[07/17] rtc: rzn1: Fix malformed MODULE_AUTHOR string
-        https://git.kernel.org/abelloni/c/cd54d8f09d9b
-[08/17] rtc: Kconfig: Broaden RTC_DRV_RZN1 dependency to ARCH_RENESAS
-        https://git.kernel.org/abelloni/c/960987abe58d
-[09/17] rtc: rzn1: Use pm_runtime_put_sync()
-        https://git.kernel.org/abelloni/c/ea0ef2e7f83b
-[10/17] rtc: rzn1: Replace remove callback with devm_add_action_or_reset()
-        https://git.kernel.org/abelloni/c/6e0d7d480f2d
-[11/17] rtc: rzn1: Dynamically calculate synchronization delay based on clock rate
-        https://git.kernel.org/abelloni/c/afb8972b9e36
-[12/17] rtc: rzn1: Use temporary variable for struct device
-        https://git.kernel.org/abelloni/c/b587001387c1
-[13/17] rtc: rzn1: Consistently use dev_err_probe()
-        https://git.kernel.org/abelloni/c/0e1ae8c654f0
-[14/17] rtc: rzn1: use FIELD_PREP/FIELD_GET and GENMASK for register access
-        https://git.kernel.org/abelloni/c/5ae93269d3e5
-[15/17] rtc: rzn1: Add OF match data to gate SUBU register access
-        https://git.kernel.org/abelloni/c/38a3a3b09958
-[16/17] rtc: rzn1: Drop trailing comma from OF match table sentinel
-        https://git.kernel.org/abelloni/c/8af6331c6e7a
-[17/17] rtc: rzn1: Add support for Renesas RZ/T2H and RZ/N2H SoCs
-        https://git.kernel.org/abelloni/c/b418fa370ea6
+[1/5] rtc: hym8563: Make sure clk_init_data is fully initialized
+      https://git.kernel.org/abelloni/c/db005bdaa5ff
+[2/5] rtc: m41t80: Make sure clk_init_data is fully initialized
+      https://git.kernel.org/abelloni/c/bdcedfee8b87
+[3/5] rtc: nct3018y: Make sure clk_init_data is fully initialized
+      https://git.kernel.org/abelloni/c/096c7ef4ef66
+[4/5] rtc: philips: Make sure clk_init_data is fully initialized
+      https://git.kernel.org/abelloni/c/5ef3d51a3aaa
+[5/5] rtc: microcrystal: Make sure clk_init_data is fully initialized
+      https://git.kernel.org/abelloni/c/a12eac458814
 
 Best regards,
 
