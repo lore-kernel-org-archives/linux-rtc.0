@@ -1,171 +1,74 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDEE140DB28
-	for <linux-rtc@vger.kernel.org>; Mon, 24 Aug 2026 12:14:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EE3C407CEF
+	for <linux-rtc@vger.kernel.org>; Mon, 24 Aug 2026 13:14:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787573683; cv=none; b=uZmyu92HOTWqC3RVeDFV5U/Ip8xnBs7IWaqT+Jh8hDECkURPxbQ5cqpDGgr64fXdFWCocK2POpo/VrJ/oeiHEbXw/RjSmKp2U3jiAFY65xHmVYrGIVPYQmHW68PPAw6FsEzU+7yKjbErPDi7SyMT9vThsqN+ToaUkYjYXBHhPZI=
+	t=1787577302; cv=none; b=stS6co0MQc/f/lhAymoHfeMugytfFRgtX/yHG+QCB6fvK8HOZssZVYw3XBEoaSy/4EepqpIiiiSB8KYM31G+gXCjJp8y8JQRD6QVi5hhrs/NjpmdoFuIyMTC8jYffv7QJn8yCEFovVuFzmDeVYsPL5b+GXTM84H+/Rr6/SBf/OU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787573683; c=relaxed/simple;
-	bh=eiBo1yduJHaXAj53sijSuIC7kmal8T2Qf0O1edtX+Zc=;
+	s=arc-20240116; t=1787577302; c=relaxed/simple;
+	bh=0qSC25jBlLVjs7F7Xd9aCh9GTcTDSoodZQfRePCSF/M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hlQwIavEj7fTPYnTFfebB/lzmgfLSJ6FwgUydcRUdQenJXjxKLq9/v+7CJL9a44VCcr1Xi872BEl/vxwsjiKso+5TYPi8JCQwINiybFjN35l9cP+6jJscntvHcmmz9dDmFYEISCS+ibAHrx10wHZ11Zw1nDVJYwi3pfskXSSs58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=ak5bNc39; arc=none smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=FIiqgk6mNkfVlkK6SzAqvihFwr7CCBQjxAiAKMn1DCs8m1QJb77C3SH/wIWUl34Q2Wo3cSFHRZPR72SunT9DIM9JPM7yCGWvh4E/QO4WMsT+MCPDAOnCRbNorAfT5O8kjrsnDcGICJ9jg4aZ40ygPgP1yB4QdWAuNGW5pN0Lkrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=MDOe3Doq; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="ak5bNc39"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-69c108fee7fso5431227a12.3
-        for <linux-rtc@vger.kernel.org>; Mon, 24 Aug 2026 05:14:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1787573679; x=1788178479; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=IJ2S2NN5RmqVB8PHkfxAhd8Zl5dVEhVpefrqaDYB2O0=;
-        b=ak5bNc396c9nI3LQikLj+knbykk1XtzUDJ7bNWAGhrX5w0pfWO1C37kPAJRwdUtj1h
-         sslNEKNO3hPYWl3Yb1w8pXlcDevqqR+63cfLaN6ZokSWN0SD+XGGtZgcdYCNFwOJMEWD
-         KNVew/vQPLsMyNHNeCFgy/GebeEhhSusKESZsjs+wE23sAwvrhMMNhONhjI6xgXgrucb
-         M0/PfaLb0QNn7gqGmuf1HomtPB8ek16E6xIjCnhGZaATooZZnf3eUIIH3ClON7Y8F2b+
-         7QSmXVMODEK3WeYqOVQKw5SFuxYZhD2cNkK6uewInDHJMil0PEr/XeCJG54jGm7wjX8Q
-         +KDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787573679; x=1788178479;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IJ2S2NN5RmqVB8PHkfxAhd8Zl5dVEhVpefrqaDYB2O0=;
-        b=VCwcT1Mb5Cb5r5HoaDyOh8fHWZ5KXgOImSEznrXpSItrz/nCm/lvIJGAWx+pJkZmeD
-         ib6z2RybLBU5UZqUUk59wnOsHoH1HF8envdbNtNk0QHeughsF+ZqUYOHalrDSx4uRfGU
-         zFikVAo/QDj0hjJmzRtC4fsNRaZ5h+nI1mYjGwvQf8Ky8LMK2lCD3eguMIRSrUtH4xbU
-         iehY5SFTHqjMPVVGXBPyAZlzw/c8DHnVElKSfiSzKpoc62VWtz8pOsBGtqdEEtZyH0rM
-         6ZRbV9QwM1OVxZZqxc1jMbOwe4QVHsbfkfDVb7G6aCqsZ0e8g8DH/ShqvZJDU4I75qDA
-         XKrw==
-X-Forwarded-Encrypted: i=1; AHgh+Rr4niYkdRGrLk+fGX0/9LvzQ6EbOsANrZxbbpWzwURlQKQL/XR1INpedLB+63ie1F6k3toGGE9ywa4=@vger.kernel.org
-X-Gm-Message-State: AFuF++lqXKdrxvad5xldvUCaxQvWo5AjyTC8ARH3YNgDiCWL/VXdq/UN
-	gAYMvDwkJFGUX4ji8XU/apNrzTCoorvgFZgmtmzAolpu2vddu3pDTbAnxMjRcXGFvsU=
-X-Gm-Gg: AR+sD13lzg9dDdEWFh5JUt0CZxVzGDIMJPXP+lSoQsUpMQJ+gAk3+TMfi2H/ztxkGE1
-	BMCpdO12M8vEh4IA0+a/Gm9SHnPPpOWLRfHelz0pgg5i/T4qsGzix1dc73NixZ6MoC8eJKMsTq1
-	AUaHye08aqJsqMeIPxJInfx3hRjsK+1cX2GcB74CaJVH+JIqjX0QGZ24b4fO85cbSlaPlLroYke
-	I6JfA3uUkHk/Wls4CtsLJEmXLP1CfvRtfSfhM+6sNljhxy+oO+qMGN3V6w66kDSdHq6mGtevC+r
-	SV66PQa3JOnfQjpisBGeBZV3DDDTc8fHmhswHSr/pEyxIc1y6gFN8s/EaxUk9QOPdhAyJvSVdAQ
-	C3XTdauYNsfx8KAXI7PWR2cUrqXMvpleDPVcfUD7rg5Tt5eRHfybu1pO6Ne1G45kgM0cwUwGtj6
-	ZOBv9Gfv93huVhjGfxi7FT/xGgKQrAgOGEPAdo6h2RVvqg5zgMfVqgzKZMXsP8yRgyfXZX9zgjB
-	Dbm497RuHBNLLwLnKrR2HFX6/g13+KGoIePIr/5tY5paEXlWWt7
-X-Received: by 2002:a05:6402:2b98:b0:6a3:6d6d:2296 with SMTP id 4fb4d7f45d1cf-6a582b0cfe9mr21318328a12.5.1787573679054;
-        Mon, 24 Aug 2026 05:14:39 -0700 (PDT)
-Received: from localhost (p200300f65f19a904efa8a94b704adaa2.dip0.t-ipconnect.de. [2003:f6:5f19:a904:efa8:a94b:704a:daa2])
-        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-6a59e00129fsm10155492a12.1.2026.08.24.05.14.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2026 05:14:38 -0700 (PDT)
-Date: Mon, 24 Aug 2026 14:14:37 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>
-Cc: Sudeep Holla <sudeep.holla@kernel.org>, 
-	Cristian Marussi <cristian.marussi@arm.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nsc@kernel.org>, Michael Turquette <mturquette@baylibre.com>, 
-	arm-scmi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
-	Hans de Goede <johannes.goede@oss.qualcomm.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney@redhat.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Guenter Roeck <linux@roeck-us.net>, 
-	Jyoti Bhayana <jbhayana@google.com>, Jonathan Cameron <jic23@kernel.org>, 
-	David Lechner <dlechner@baylibre.com>, Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Ulf Hansson <ulfh@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, Philipp Zabel <p.zabel@pengutronix.de>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-clk@vger.kernel.org, linux-pm@vger.kernel.org, 
-	imx@lists.linux.dev, linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] module: add SCMI device table alias support
-Message-ID: <aowz8Tcf-ZvVf38m@monoceros>
-References: <20260618-scmi-modalias-v2-0-8c7547c1be21@oss.qualcomm.com>
- <20260618-scmi-modalias-v2-1-8c7547c1be21@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="MDOe3Doq"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 9465C1A17FE;
+	Mon, 24 Aug 2026 13:14:56 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 67C565FFC1;
+	Mon, 24 Aug 2026 13:14:56 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3545111C794D1;
+	Mon, 24 Aug 2026 15:14:54 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1787577296; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=gGYCE53B7et3Ka3weKyk90919WO7s82jxuO+tQX46M8=;
+	b=MDOe3Doqb9buNbp0ad+L98/lppIv3BAHYTImy8FsxBBUsWAGC96HYCpC0SnsCbocy2th8h
+	ACej1C58J181jw6fHQlImtNgSAwZ6wlThoIgYKinkdKZxTZG7UZ92q9UwF8/T/Ogi4gj7m
+	18VXVOAzGqO0/a/rnVgISsapuo91TuTB0CyKh3Kbq3FxehXHIJPyyK/khc0zXU137chhSc
+	ip7IJ7Vv/70+8oIvtf2ZJ1bj0fuKGNk6UEVOMCN16f76ybPYSq3Kr5kj5nG3+xWF78+QTz
+	TBtqj+TLvgF5xSszA7ROqNx00bVFOTUF3aJeth+qWcvXFja1iFu07zjnxqlGJw==
+Date: Mon, 24 Aug 2026 15:14:53 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Daniel Palmer <daniel@thingy.jp>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Daniel Palmer <daniel@0x0f.com>
+Subject: Re: [PATCH] rtc: msc313: Select by default on MSTARV7
+Message-ID: <178757728674.951153.1665005289125961391.b4-ty@b4>
+References: <20260713133919.1356748-1-daniel@thingy.jp>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="2dhawfj2mm2jx7wk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260618-scmi-modalias-v2-1-8c7547c1be21@oss.qualcomm.com>
+In-Reply-To: <20260713133919.1356748-1-daniel@thingy.jp>
+X-Last-TLS-Session-Version: TLSv1.3
 
+On Mon, 13 Jul 2026 22:39:19 +0900, Daniel Palmer wrote:
+> All of the ARCH_MSTARV7 chips have this RTC so it's more likely
+> ARCH_MSTARV7 wants it than doesn't.
+> 
+> At the same time fix up the indent on the depends on line that looks
+> like it got converted from a tab to spaces at some point.
+> 
+> 
+> [...]
 
---2dhawfj2mm2jx7wk
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v2 1/2] module: add SCMI device table alias support
-MIME-Version: 1.0
+Applied, thanks!
 
-Hello,
+[1/1] rtc: msc313: Select by default on MSTARV7
+      https://git.kernel.org/abelloni/c/c9e17e381e02
 
-On Thu, Jun 18, 2026 at 03:56:34PM +0000, Bjorn Andersson wrote:
-> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_deviceta=
-ble.h
-> index 3b0c9a251a2e..769382f2eadd 100644
-> --- a/include/linux/mod_devicetable.h
-> +++ b/include/linux/mod_devicetable.h
-> @@ -473,6 +473,17 @@ struct rpmsg_device_id {
->  	kernel_ulong_t driver_data;
->  };
-> =20
-> +/* scmi */
-> +
-> +#define SCMI_NAME_SIZE		32
-> +#define SCMI_MODULE_PREFIX	"scmi:"
-> +
-> +struct scmi_device_id {
-> +	__u8 protocol_id;
-> +	char name[SCMI_NAME_SIZE];
-> +	kernel_ulong_t driver_data;
-> +};
-> +
+Best regards,
 
-Note this won't apply since commit ad428f5811bd ("mod_devicetable.h:
-Split into per subsystem headers"). Please create a header below
-include/device-id for scmi similar to what was done in ad428f5811bd.
-(And don't add an #include for it to mod_devicetable.h, but to the
-modpost program only.)
-
-Also please only add a driver_data member if you need it. And if you do,
-consider using
-
-	union {
-		kernel_ulong_t driver_data;
-		const void *driver_data_ptr;
-	};
-
-instead of a plain kernel_ulong_t driver_data member. I'm working (less
-than part-time) on changing the existing device-id members accordingly.
-
-See e.g.
-https://lore.kernel.org/all/cover.1780048925.git.u.kleine-koenig@baylibre.c=
-om
-for an extended rationale.
-
-Best regards
-Uwe
-
---2dhawfj2mm2jx7wk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqMNaoACgkQj4D7WH0S
-/k4jGgf/c9brV06dZI0ixNsgSDxInOAAwxzw0Va6pEilBFWeD/1x8NZxQxIb86eu
-ERFi9ET7K8J1CkEXpSDumSzKSUdfMylIEURvojgjfnQEsYGjKUB3lgyc6ZMvZJE8
-KVGIQQhfXJzgdOen9ivFrmp13avoOEZecODfflOtBiCVBT9yqo9G8cB98iPlfN0n
-/20yUKuCi9BVxfitySRFAt3h5YGf8mWqJYyRGszONcDeatlQ3hYxcZRc6nWohvA6
-Pj79A4QISdBE4jbZiuZ4B7Tqk88TXQ1mLTCo6WZ0jaoWxESWjauNoBJPyj55WW4m
-FOrbj1Kew7KV7tsLQ07HGfCNIJuI9A==
-=DfdU
------END PGP SIGNATURE-----
-
---2dhawfj2mm2jx7wk--
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
