@@ -1,83 +1,179 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D40367293;
-	Mon, 24 Aug 2026 16:27:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF2243921ED;
+	Mon, 24 Aug 2026 23:05:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787588824; cv=none; b=ZMBic/pnY2qxW0Udf4NmZemeDJ+A0hO3k5yWuQ58ypcvt+ruSnejV0zAn7+U45rZZ7GCxO06aWIZl8A4oi7HxlvkoKVQoLtbywXCS3lOCAA6e5fxfeGV2Ke5V2t6nJ5Ut0EHgDrSp4Oe95V7WIPKIAuqU9rUEHEz9DeQJR//0eE=
+	t=1787612733; cv=none; b=tPxvUTUIPfA/37DZGZ9IpVEFVwv2meLerCFONg+DfTkKRM05bnPJFFcHOT5N7vXalqVnHt9c0m5uiJaFWDQPUkKi8k1cMHUt1qjY+ZdcpfbKNKxuv+I6jIlL+Kcmr8SNqGLOwnFpeqDWodVxzg2hZKNeV+0Tg+lifzZ14lhWgJ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787588824; c=relaxed/simple;
-	bh=94+lDHt9R/t/J0611CwVkFZ/l8fzcQUcjYYCUB/FgEk=;
+	s=arc-20240116; t=1787612733; c=relaxed/simple;
+	bh=RPMin46s/2o5TeU3lBd/qSu4yH3eLmz5bhC/SMiMKz0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rXLYrKQikz2FusOkspdpWPHQ/B8nMB45fjP9bmp+sZnZ8UsPwnOumvrY8RG5uXAAQS7Uym+N9nnY9+K5hqKT3Te51Dl7/vd+1bVywtatvdtUMUEpXofJcEvah9bhwxLmLT3gW0Je0pvj1VHg/QYZ3tE4eJ1sIfDaJPAMviNkRCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ko4SL4N0; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=t3ovDIgYWOYE+9ZUUsrQHrGj01sKlej5Uz6jya9gpe+HvXVUOUSZXiVEWscUgOm1Czy6RN9zTjInomLuzKg6Hk/+CFoeLsosyMb3UJgTV/gu11XMkwKSEJC52+4d7FScIlWCPFWlBEkAUtyANvtixSeNd0+jxYBiEpYXaUls/Qw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HL31/Ko0; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ko4SL4N0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 988F01F000E9;
-	Mon, 24 Aug 2026 16:27:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787588823;
-	bh=94+lDHt9R/t/J0611CwVkFZ/l8fzcQUcjYYCUB/FgEk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ko4SL4N0LCl6y4KP14gPoil4SO/JdcZq1o2kOJsrWfe7KprTye0ogTWQUn6cKXop1
-	 9TNgTDuQrlNK5Hp8sRGX5RfjrEQrN3KottypVxCVv8VBHsZHtowmpvQOq1eUHzw361
-	 ViK1df4Uvhg2TObNL0616o2l+KMkRczUEf7Z+uLVboNLeDNYQXspMnA5fqdKgUPi1/
-	 n7ipxOsdwfbd+FtZa3mA0ISRxP43hw7UkGyngSlV8V4n2vyAjk10U6Zigx55BOraQm
-	 zlJlVv/mGxmpIdhx8Pnn3CY7Ahlk7jdfq5SXMs4ofjwBHL2PAvvZlQy021q/kKF0KB
-	 /ZAcpe5JJbacA==
-Date: Mon, 24 Aug 2026 17:26:59 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Heiko Schocher <hs@nabladev.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
-Subject: Re: [PATCH v1 1/3] dt-bindings: rtc: add ricoh,r2223x binding
-Message-ID: <20260824-endorphin-gotten-f1271d46ab93@spud>
-References: <20260824110452.4038870-1-hs@nabladev.com>
- <20260824110452.4038870-2-hs@nabladev.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HL31/Ko0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1787612730; x=1819148730;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=RPMin46s/2o5TeU3lBd/qSu4yH3eLmz5bhC/SMiMKz0=;
+  b=HL31/Ko0W9YsQb+CHQv32S41cSi/LaY3YrDkQVIL0gzMDW1dYwcUxOJn
+   BZQj/FKvvlmpuDF2N1Xe+HbnNIwP0g8mcdMmDQFx3EQLc/LzwAFDfobZx
+   WzkUb/NEMKbyjL3b3bvRJng4q+fJcF76Rs06QndYAKVjoARNc2fblSpZP
+   PPwOQd1lVj+8ddfh7n76cITmD6l5wwbDPxbCQ7jb78+gFEzWBn0zKPag/
+   Fj46koUBtp3VGQy8NnP+dY/m0cgekbiQKTii0ihu62EZWSidjVNigXbmm
+   uZn9r8dNW+EV/Lp4oenMxCoEWkWr5GWRYA5sQxE3WXLIfpUdXX5V/TiSZ
+   Q==;
+X-CSE-ConnectionGUID: lqzzlnPIR/CyHUHo2Yp7EA==
+X-CSE-MsgGUID: vjFkipIrTzG7io21z7biIw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11885"; a="98412275"
+X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
+   d="scan'208";a="98412275"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2026 16:05:30 -0700
+X-CSE-ConnectionGUID: MqAOTc8tRiG515kiIfa8mQ==
+X-CSE-MsgGUID: uISPeVioS5KBuo2IMDJi2Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
+   d="scan'208";a="271332667"
+Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
+  by orviesa005.jf.intel.com with ESMTP; 24 Aug 2026 16:05:28 -0700
+Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wydjE-000000004Pf-1JkK;
+	Mon, 24 Aug 2026 23:05:21 +0000
+Date: Tue, 25 Aug 2026 07:05:14 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
+	alexandre.belloni@bootlin.com
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
+	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: rv3028: configure backup switch mode from device
+ tree
+Message-ID: <202608250645.zcZhAAz1-lkp@intel.com>
+References: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="MDtuG3WHdW6qOPUW"
-Content-Disposition: inline
-In-Reply-To: <20260824110452.4038870-2-hs@nabladev.com>
-
---MDtuG3WHdW6qOPUW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
 
-On Mon, Aug 24, 2026 at 01:04:24PM +0200, Heiko Schocher wrote:
-> The Ricoh R2223x is an I2C RTC of the same family as the r2025sd and
-> r2221tl which the rtc-rs5c372 already supports. It drives a clock output
-> and can be put into an eco mode that lowers its current consumption from
-> the backup supply, so it needs #clock-cells and a property for the eco
-> mode.
->=20
-> The trivial-rtc binding does not cover this, so give the device its
-> own binding.
->=20
-> Signed-off-by: Heiko Schocher <hs@nabladev.com>
+Hi Dhaval,
 
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-pw-bot: not-applicable
+kernel test robot noticed the following build warnings:
 
---MDtuG3WHdW6qOPUW
-Content-Type: application/pgp-signature; name=signature.asc
+[auto build test WARNING on abelloni/rtc-next]
+[also build test WARNING on linus/master v7.2 next-20260821]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
------BEGIN PGP SIGNATURE-----
+url:    https://github.com/intel-lab-lkp/linux/commits/Dhaval-Shiroya/rtc-rv3028-configure-backup-switch-mode-from-device-tree/20260822-145911
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
+patch link:    https://lore.kernel.org/r/20260822092911.318342-1-dhaval.shiroya%40siliconsignals.io
+patch subject: [PATCH] rtc: rv3028: configure backup switch mode from device tree
+config: arm64-randconfig-002-20260825 (https://download.01.org/0day-ci/archive/20260825/202608250645.zcZhAAz1-lkp@intel.com/config)
+compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 935bfc708590c60147a79c7df145bb6e68b1d388)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260825/202608250645.zcZhAAz1-lkp@intel.com/reproduce)
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaoxw0wAKCRB4tDGHoIJi
-0iFSAP9xTCtBh/DkUDp1g502KMP2YY6Y2eXl3dPbRl5WpI6eiQEAmoW5ThaaHxUD
-S6tnyqZ0oIgFxiiDsMedsRippOW5PAg=
-=wXmE
------END PGP SIGNATURE-----
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608250645.zcZhAAz1-lkp@intel.com/
 
---MDtuG3WHdW6qOPUW--
+All warnings (new ones prefixed by >>):
+
+>> drivers/rtc/rtc-rv3028.c:908:4: warning: format specifies type 'unsigned int' but the argument has type 'unsigned long' [-Wformat]
+     906 |                  "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
+         |                                                                           ~~~~
+         |                                                                           %02lx
+     907 |                  bsm_dt, val_old,
+     908 |                  (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
+         |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     909 |                  bsm_bits | RV3028_BACKUP_FEDE);
+         |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/dev_printk.h:160:67: note: expanded from macro 'dev_info'
+     160 |         dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
+         |                                                                  ~~~     ^~~~~~~~~~~
+   include/linux/dev_printk.h:110:23: note: expanded from macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                              ~~~    ^~~~~~~~~~~
+   1 warning generated.
+
+
+vim +908 drivers/rtc/rtc-rv3028.c
+
+   857	
+   858	/*
+   859	 * Configure backup switchover mode from device tree.
+   860	 *   0 = disabled
+   861	 *   1 = DSM (Direct Switching Mode)  - switch when VDD < VBACKUP
+   862	 *   3 = LSM (Level Switching Mode)   - switch when VDD < 2.0V
+   863	 */
+   864	static int rv3028_set_bsm_from_dt(struct rv3028_data *rv3028,
+   865					  struct i2c_client *client)
+   866	{
+   867		u32 val_old, bsm_dt, bsm_bits;
+   868		int ret;
+   869	
+   870		if (device_property_read_u32(&client->dev, "backup-switch-mode",
+   871					     &bsm_dt))
+   872			return 0;
+   873	
+   874		/* Validate and convert DT value to register bits */
+   875		switch (bsm_dt) {
+   876		case 0:
+   877			bsm_bits = 0;
+   878			break;
+   879		case 1:
+   880			bsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_DSM);
+   881			break;
+   882		case 3:
+   883			bsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_LSM);
+   884			break;
+   885		default:
+   886			dev_warn(&client->dev,
+   887				 "invalid backup-switch-mode %u (use 0, 1, or 3)\n",
+   888				 bsm_dt);
+   889			return 0;
+   890		}
+   891	
+   892		/* Read current BACKUP register */
+   893		ret = regmap_read(rv3028->regmap, RV3028_BACKUP, &val_old);
+   894		if (ret < 0)
+   895			return ret;
+   896	
+   897		/* Check if BSM and FEDE already match desired values */
+   898		if ((val_old & (RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) ==
+   899		    (bsm_bits | RV3028_BACKUP_FEDE)) {
+   900			dev_dbg(&client->dev,
+   901				"backup switch mode already set to %u\n", bsm_dt);
+   902			return 0;
+   903		}
+   904	
+   905		dev_info(&client->dev,
+   906			 "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
+   907			 bsm_dt, val_old,
+ > 908			 (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
+   909			 bsm_bits | RV3028_BACKUP_FEDE);
+   910	
+   911		/* Set BSM and always enable FEDE as recommended by datasheet */
+   912		return rv3028_update_cfg(rv3028, RV3028_BACKUP,
+   913					 RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE,
+   914					 bsm_bits | RV3028_BACKUP_FEDE);
+   915	}
+   916	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
