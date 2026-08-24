@@ -1,32 +1,32 @@
 Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A27D394E91;
-	Mon, 24 Aug 2026 11:05:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0800240910F;
+	Mon, 24 Aug 2026 11:05:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787569517; cv=none; b=Na2xqqizRtXzGKS/kGXVWmxtarpL0dEs2o/xxEeZYfj7PvX8bceqBH/tgk9M8KASHJizl8z1Rf7HULPVNxbF5eLQ/YlPZl4beFDTSVPezjoyvK4hgGBINKSQ3WwHif8mS/mriGw+uTfpKzeWIT6+KNP4zjj0V74QBppl0QAAwdI=
+	t=1787569523; cv=none; b=MExitnVl4/7uxu7PVx4IE1erxx7moIHFuaHjxIPH5djn5OxckqdsEzpHaZWWyvZDJ0wdTSgfCUtsYv0aThPchOOhgIDm6glIr42akGEjdJ47mGhoqQYyr4USO0PduPYLv1n43yJ345x3WAoDy65oq1QDyNJRdnGvCLJgJknbJpo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787569517; c=relaxed/simple;
-	bh=Oq3NsSA4NN6MjvOTatj4i1UIMVp23zTNnlUvUpUs8rQ=;
+	s=arc-20240116; t=1787569523; c=relaxed/simple;
+	bh=GcuzZzMgXlZr7Ml9+AjMGUPaMcuUnnrgM239rBKAJvA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JyLVs9xTlE640RO1BHVbb+GNz0KqgS+e4V9ARgss87P0RPUDC2qMqKXm4EGydqaeM3miBuAuRUGvqv0Jedx8daVWWPwb8aV4HMVx0Ir0E9V7CI8dY8z98mPQntJE5OYKifGnvdSyF/9nIb352E7PAhsjCYdqg6zb9ZaHg2AYNRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=DRkDWX+x; arc=none smtp.client-ip=178.251.229.89
+	 MIME-Version; b=AyPqOCsh3XylS1L86VLvvm0tB4fGNlAg50bonfGj4JP1/XScJ0b9pUctwRTS/aNVDx3B/GtvP+ow6FRNJCA9yHKAUfBHlJNQkOK/S60ZD5OnUunBC8xZJy4HfM4hSwxTHowCAjW+xtFNPI/P8T/mzopsYCoMTeQGIv5y7Nq5AWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=Lw/0z+Ht; arc=none smtp.client-ip=178.251.229.89
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="DRkDWX+x"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B8DF611C96E;
-	Mon, 24 Aug 2026 13:05:08 +0200 (CEST)
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="Lw/0z+Ht"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 711F411C977;
+	Mon, 24 Aug 2026 13:05:13 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1787569509; h=from:subject:date:message-id:to:cc:mime-version:
+	s=dkim; t=1787569513; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=k/9cjy93SNiS59rdLj9Zd1G22nyWLEUw0GqoGpbSyTU=;
-	b=DRkDWX+xRO8GGI0F00/I5br54ISXeo+iARYz3vEZ1BrZpvBEiNKSH9tFife9WFeR1nl8NB
-	vQhUzazhES83vnsJE7YsZoyAfjq7iA1CRawqwv+9AVmvT70BpObcLeekUutIX8mnSOwW2r
-	97V4+vW7bITUAMAEYggMXzBxwDIMsvAfDnt6DZkZkBhcW2TRoAgM9+N7SbXP94AyZ3iTZx
-	DOD0o4V/rBTNIT5GGmVPlb316/ksZEU4m3AJUFHzI76Ah3ESfAMpJRCVtJy2vQ7AxKLD2E
-	7c+fbBQimH+duTn3uZwIh1gA74fCE5CzBA7ALB9s6plnHIfXf5hGB5e30vNwlw==
+	bh=QPTqfBjTjo/ZWOB0b3uKN9Svl/mVme7DBSerj9nAyI0=;
+	b=Lw/0z+HtvZSy8g9TvvQEYk8jikzozYyeFMFewaXQ5TSKCeg4ejxwBYBvXUsDCUj0KQuu+N
+	Gv6CxKjTKr7iaKhN5uwh4JsuV3CC3NSLzBzu0IvKZVUal+Jyvj2CpgSYMUo15q+RfLlvh2
+	as3g60xhFS09ugEM4Kb2P/Bv+K1jDKDFugWS7VaN+6wS/SUSYksr69HNUy3ltWKBQ0DCsj
+	eVWqFObfD4+FMSmhaL8OAOZtPu/6rjyjCL4TcvkkAj7Cmw25nVlqwLQkUd9pkXG1F0ERUM
+	tJsilKZ+w0h1Gkj5rOp+v3/qeaDkrSi1QBgbitw028TeSF+NvMg64VfHO4MtJw==
 From: Heiko Schocher <hs@nabladev.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: linux-rtc@vger.kernel.org,
@@ -36,9 +36,9 @@ Cc: linux-rtc@vger.kernel.org,
 	Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org,
 	Heiko Schocher <hs@nabladev.com>
-Subject: [PATCH v1 1/3] dt-bindings: rtc: add ricoh,r2223x binding
-Date: Mon, 24 Aug 2026 13:04:24 +0200
-Message-ID: <20260824110452.4038870-2-hs@nabladev.com>
+Subject: [PATCH v1 2/3] rtc: rs5c372: add support for Ricoh R2223x
+Date: Mon, 24 Aug 2026 13:04:25 +0200
+Message-ID: <20260824110452.4038870-3-hs@nabladev.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260824110452.4038870-1-hs@nabladev.com>
 References: <20260824110452.4038870-1-hs@nabladev.com>
@@ -51,86 +51,107 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-The Ricoh R2223x is an I2C RTC of the same family as the r2025sd and
-r2221tl which the rtc-rs5c372 already supports. It drives a clock output
-and can be put into an eco mode that lowers its current consumption from
-the backup supply, so it needs #clock-cells and a property for the eco
-mode.
-
-The trivial-rtc binding does not cover this, so give the device its
-own binding.
+The R2223x is an I2C RTC from the same family as the r2025sd and r2221tl
+that this driver already handles. It shares the R2x2x control register
+layout, so treat it like the r2221tl. The oscillator interrupt flag is
+reported through XSTP, and the 24 hour mode bit lives in CTRL1.
 
 Signed-off-by: Heiko Schocher <hs@nabladev.com>
 ---
+checkpatch reports on this patch
 
- .../devicetree/bindings/rtc/ricoh,r2223x.yaml | 58 +++++++++++++++++++
- 1 file changed, 58 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/rtc/ricoh,r2223x.yaml
+  ERROR: trailing statements should be on next line
+  +                     case rtc_r2223x:        s = "r2223x"; break;
 
-diff --git a/Documentation/devicetree/bindings/rtc/ricoh,r2223x.yaml b/Documentation/devicetree/bindings/rtc/ricoh,r2223x.yaml
-new file mode 100644
-index 000000000000..e64a1ee378e6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/ricoh,r2223x.yaml
-@@ -0,0 +1,58 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/ricoh,r2223x.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Ricoh R2223x Real-Time Clock
-+
-+maintainers:
-+  - Heiko Schocher <hs@nabladev.com>
-+
-+allOf:
-+  - $ref: rtc.yaml#
-+
-+properties:
-+  compatible:
-+    const: ricoh,r2223x
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  "#clock-cells":
-+    const: 0
-+
-+  ricoh,eco-mode:
-+    type: boolean
-+    description:
-+      Put the RTC into eco mode, which lowers its current consumption while
-+      running from the backup supply. Set this on boards where the RTC is
-+      expected to keep time on a small backup cell.
-+
-+  start-year: true
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@32 {
-+            compatible = "ricoh,r2223x";
-+            reg = <0x32>;
-+            interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
-+            #clock-cells = <0>;
-+            ricoh,eco-mode;
-+        };
-+    };
+I did not fix this checkpatch error, as the whole switch statement uses
+this format.
+
+ drivers/rtc/rtc-rs5c372.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+index 24bd795d9d95..30e272d65021 100644
+--- a/drivers/rtc/rtc-rs5c372.c
++++ b/drivers/rtc/rtc-rs5c372.c
+@@ -68,6 +68,7 @@ enum rtc_type {
+ 	rtc_undef = 0,
+ 	rtc_r2025sd,
+ 	rtc_r2221tl,
++	rtc_r2223x,
+ 	rtc_rs5c372a,
+ 	rtc_rs5c372b,
+ 	rtc_rv5c386,
+@@ -77,6 +78,7 @@ enum rtc_type {
+ static const struct i2c_device_id rs5c372_id[] = {
+ 	{ .name = "r2025sd", .driver_data = rtc_r2025sd },
+ 	{ .name = "r2221tl", .driver_data = rtc_r2221tl },
++	{ .name = "r2223x", .driver_data = rtc_r2223x },
+ 	{ .name = "rs5c372a", .driver_data = rtc_rs5c372a },
+ 	{ .name = "rs5c372b", .driver_data = rtc_rs5c372b },
+ 	{ .name = "rv5c386", .driver_data = rtc_rv5c386 },
+@@ -94,6 +96,10 @@ static const __maybe_unused struct of_device_id rs5c372_of_match[] = {
+ 		.compatible = "ricoh,r2221tl",
+ 		.data = (void *)rtc_r2221tl
+ 	},
++	{
++		.compatible = "ricoh,r2223x",
++		.data = (void *)rtc_r2223x
++	},
+ 	{
+ 		.compatible = "ricoh,rs5c372a",
+ 		.data = (void *)rtc_rs5c372a
+@@ -221,8 +227,10 @@ static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	switch (rs5c->type) {
+ 	case rtc_r2025sd:
+ 	case rtc_r2221tl:
++	case rtc_r2223x:
+ 		if ((rs5c->type == rtc_r2025sd && !(ctrl2 & R2x2x_CTRL2_XSTP)) ||
+-		    (rs5c->type == rtc_r2221tl &&  (ctrl2 & R2x2x_CTRL2_XSTP))) {
++		    ((rs5c->type == rtc_r2221tl || rs5c->type == rtc_r2223x) &&
++		     (ctrl2 & R2x2x_CTRL2_XSTP))) {
+ 			dev_warn(&client->dev, "rtc oscillator interruption detected. Please reset the rtc clock.\n");
+ 			return -EINVAL;
+ 		}
+@@ -292,6 +300,7 @@ static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	switch (rs5c->type) {
+ 	case rtc_r2025sd:
+ 	case rtc_r2221tl:
++	case rtc_r2223x:
+ 		ctrl2 &= ~(R2x2x_CTRL2_VDET | R2x2x_CTRL2_PON);
+ 		if (rs5c->type == rtc_r2025sd)
+ 			ctrl2 |= R2x2x_CTRL2_XSTP;
+@@ -750,6 +759,7 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
+ 			return ret;
+ 		break;
+ 	case rtc_r2221tl:
++	case rtc_r2223x:
+ 		if (!(buf[1] & R2x2x_CTRL2_XSTP))
+ 			return ret;
+ 		break;
+@@ -768,6 +778,7 @@ static int rs5c_oscillator_setup(struct rs5c372 *rs5c372)
+ 		break;
+ 	case rtc_r2025sd:
+ 	case rtc_r2221tl:
++	case rtc_r2223x:
+ 	case rtc_rv5c386:
+ 	case rtc_rv5c387a:
+ 		buf[0] |= RV5C387_CTRL1_24;
+@@ -847,6 +858,7 @@ static int rs5c372_probe(struct i2c_client *client)
+ 		break;
+ 	case rtc_r2025sd:
+ 	case rtc_r2221tl:
++	case rtc_r2223x:
+ 	case rtc_rv5c386:
+ 	case rtc_rv5c387a:
+ 		if (rs5c372->regs[RS5C_REG_CTRL1] & RV5C387_CTRL1_24)
+@@ -876,6 +888,7 @@ static int rs5c372_probe(struct i2c_client *client)
+ 			({ char *s; switch (rs5c372->type) {
+ 			case rtc_r2025sd:	s = "r2025sd"; break;
+ 			case rtc_r2221tl:	s = "r2221tl"; break;
++			case rtc_r2223x:	s = "r2223x"; break;
+ 			case rtc_rs5c372a:	s = "rs5c372a"; break;
+ 			case rtc_rs5c372b:	s = "rs5c372b"; break;
+ 			case rtc_rv5c386:	s = "rv5c386"; break;
 -- 
 2.55.0
 
