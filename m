@@ -1,158 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27C9015C14F;
-	Sun, 23 Aug 2026 22:26:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B14C25B099;
+	Mon, 24 Aug 2026 06:55:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787523973; cv=none; b=qi4uz4M4nAzBhpgCYbtgN84XCvq2qVx1QTO4JJt3UKwkH2HrPCjZoRsA02kAIMWvvChB2rIZL4wUNe4LYxdA3DSQ/aIDfKFQqdOeQZ/XxPlHV5I04HGuhAs9V3ZEmGkPr7prHKSx27qAfiu+Tf1I35eJ9xVa2eiIisuonczpDn0=
+	t=1787554529; cv=none; b=hdsoySqLiW+sw2F2S2V597hJWUiWBRxucotvJcrOqYi+Ltn5UQrDmXSsBO+bzrn1oY+NlGFyyZdVv+Wpme1EZO1arjYj/x/ui1qRrIN9Ms7oSXEsA/s6Jtd2ek3AeS/0/fZNXzgfzO/Kdxsp3to6Ue2Yhp+cTQyCK12i8iULZiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787523973; c=relaxed/simple;
-	bh=fUe415RR23MHXIp5/fjmdp8ZELdAlSWnF5D0QvAa+4s=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NEi35bfl+gePDZf+Be531thSKibfJcqONBIcx2g2/4+BY/kwEfoDo9t1gQ0XJyyGX+y63kxmYS0+vc04M6zrD65J50j9eVFPByaNE9Xlsb9yKaOnKqlx90BUv/Ii+oBVuGEO+PGzOpFGEoywkOX1yA8hM2wSOpdSy+VjREv0Hc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DWMy+vMf; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DWMy+vMf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B176B1F000E9;
-	Sun, 23 Aug 2026 22:26:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787523972;
-	bh=q+ODLCHyap1XWKH3/xYI3rzmya17lA2xHmMYSQJ/2fA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DWMy+vMfJJLNHcao2QBWlkmMAbqwYTbSz7+5rNG+QllwEDuJl9PztY3egwkcejBuf
-	 TRW8Sc1G4dl9QWYpl43My/5UUfsEveftoXSWWQzsTPMg742L8bGeb38AMvoErQqc6u
-	 WwqplhUVIrWkTHZxRHqtRW3hq/0mvTwbhJYbGw8q2X4QvW2uC6aMxbi6RFc1/AiGoo
-	 gJWaCZxlowCPaIsoo09n+lD1F0r5cTL4j/BKGQQEcjUdoCYwSOV4y42LcWjNAtI8JC
-	 jWO3PjITC2veLyjW4fjONz4Nmg3ZEXLjokv/gU9p5An3Dy+crt8yR1VIA9SwIarV/n
-	 1Mka9/Ky7iRvA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 5/6] rtc: s35390a: Add pinctrl
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Markus Probst" <markus.probst@posteo.de>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
-In-Reply-To: <20260824-rtc_s35390a_int1-v6-5-df96569e3412@posteo.de>
-References: <20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de>
- <20260824-rtc_s35390a_int1-v6-5-df96569e3412@posteo.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 23 Aug 2026 22:26:11 +0000
-Message-Id: <20260823222611.B176B1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1787554529; c=relaxed/simple;
+	bh=CrSd4vQsDBsfapTgoZ+7Rx7OBf13qzd0b6oDvme5D0A=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=d5fMBVGPViFu/GzY1Q8sR4rJXJNuJEAZ6u8/tTw3NBw+KvKSWFicimJsusTwClxM+9kXzbqg/0wyme5SP4PJEw8AgyZDh9ffWwGXeprWFFyWtcsubxNkGS5zX4Ei0O+rHQ5YEiG0qxskZgWl9ZAGUoUi9bqyLWnnc+VXg+OkP3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 8FFA11A0071;
+	Mon, 24 Aug 2026 08:55:21 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 59C7F1A0053;
+	Mon, 24 Aug 2026 08:55:21 +0200 (CEST)
+Received: from lsv031125.swis.in-blr01.nxp.com (lsv031125.swis.in-blr01.nxp.com [10.12.177.172])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 2804C18000B6;
+	Mon, 24 Aug 2026 14:55:18 +0800 (+08)
+From: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+To: linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	alexandre.belloni@bootlin.com,
+	krzk+dt@kernel.org,
+	robh@kernel.org,
+	conor+dt@kernel.org,
+	linux@roeck-us.net,
+	wim@linux-watchdog.org
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	lakshay.piplani@nxp.com,
+	Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Subject: [PATCH v2 0/4] Add driver for NXP PCF8525 RTC
+Date: Mon, 24 Aug 2026 12:25:08 +0530
+Message-Id: <20260824065512.693377-1-shivprakash.gupta@nxp.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] Unconditional dependency on PINCTRL removes the RTC driver on non-=
-pinctrl platforms.
-- [Medium] The 'clock' pin function is advertised but silently falls back t=
-o disabling the pin rather than returning an error.
-- [Medium] TOCTOU race in `s35390a_probe` when reading `pinfunction` withou=
-t lock after `pinctrl_enable`.
---
+The PCF8525 is an NXP I2C real-time clock with integrated crystal
+oscillator, dual timestamp capture inputs, backup battery switch-over,
+a windowed watchdog, and an on-chip temperature sensor.
 
---- Patch [5]: [PATCH v6 5/6] rtc: s35390a: Add pinctrl ---
-commit 73fe5a984406c6bfdc0258a390d1f790625e1082
-Author: Markus Probst <markus.probst@posteo.de>
+This series adds:
+  - DT binding (YAML schema)
+  - Core RTC driver: timekeeping, alarms, dual timestamps, crystal
+    configuration, backup switch-over, and clock offset correction
+  - Watchdog support via the Linux watchdog framework
+  - Temperature sensor support via the hwmon framework
 
-rtc: s35390a: Add pinctrl
+Changes in v2:
+- Fix include: use <linux/pm_wakeirq.h> instead of <pm_wakeup.h>
+- Add spinlock_t ts_lock to protect ts[]/ts_valid[] from IRQ/sysfs race
+- Fix W0C ordering: clear AF/TSF flags before acting on alarm/timestamp
+  events
+- Use dev_pm_set_wake_irq() for suspend wakeup wiring
+- Clear stale WDTF before unmasking watchdog interrupt on INTB to prevent
+  boot loop when battery-backed flag persists across resets
+- Add watchdog_notify_pretimeout() call in INTB IRQ handler
+- Set WDOG_HW_RUNNING if bootloader left watchdog running at probe time
+- Register hwmon device first, then enable PCF8525_CTRL5_TEMP_RD_EN only
+  after successful registration
 
-This commit adds pinctrl support to the S35390A RTC driver, allowing
-configuration of pin functions like wake up, disabled, and periodic
-interrupts. If no function is configured, it falls back to the previous
-behavior.
+Shiv Prakash Gupta (4):
+  dt-bindings: rtc: Add NXP PCF8525 RTC
+  rtc: pcf8525: Add NXP PCF8525 RTC driver
+  rtc: pcf8525: Add watchdog support
+  rtc: pcf8525: Add temperature sensor support via hwmon
 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 01def82318731..2d79710c48375 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -668,7 +668,9 @@ config RTC_DRV_RC5T619
-> =20
->  config RTC_DRV_S35390A
->  	tristate "Seiko Instruments S-35390A"
-> +	depends on PINCTRL
+ .../devicetree/bindings/rtc/nxp,pcf8525.yaml  |   86 +
+ drivers/rtc/Kconfig                           |   26 +
+ drivers/rtc/Makefile                          |    1 +
+ drivers/rtc/rtc-pcf8525.c                     | 1422 +++++++++++++++++
+ 4 files changed, 1535 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf8525.yaml
+ create mode 100644 drivers/rtc/rtc-pcf8525.c
 
-[Severity: High]
-Will this unconditional dependency cause the RTC driver to be silently drop=
-ped
-on platforms without PINCTRL enabled?
-
-This could break backwards compatibility for existing driver users by chang=
-ing
-an optional feature into a hard dependency.
-
->  	select BITREVERSE
-> +	select GENERIC_PINCONF
->  	help
->  	  If you say yes here you will get support for the Seiko
-
-> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index 8e3616c65d2c0..a2ddce91ef7ac 100644
-> --- a/drivers/rtc/rtc-s35390a.c
-> +++ b/drivers/rtc/rtc-s35390a.c
-[ ... ]
-> @@ -458,13 +520,170 @@ static int s35390a_nvmem_write(void *priv, unsigne=
-d int offset, void *val,
-[ ... ]
-> +static int s35390a_pinctrl_set_mux(struct pinctrl_dev *pctldev, unsigned=
- int function,
-> +				   unsigned int group)
-> +{
-[ ... ]
-> +	switch (function) {
-> +	case S35390A_FUNC_DISABLE:
-> +	case S35390A_FUNC_CLOCK: /* not implemented */
-> +		status2 =3D (status2 & ~mask) | S35390A_INT_MODE_NOINTR;
-> +		break;
-
-[Severity: Medium]
-Since the clock function is not implemented, should this return an error
-instead of silently disabling the pin?
-
-Users specifying the 'clock' function in the device tree might assume the p=
-in
-is outputting a clock signal, but it will be disabled instead.
-
-> +	case S35390A_FUNC_WAKEUP:
-> +		flag =3D group =3D=3D 0 ? S35390A_INT1_MODE_ALARM : S35390A_INT2_MODE_=
-ALARM;
-[ ... ]
-> @@ -533,9 +758,33 @@ static int s35390a_probe(struct i2c_client *client)
-[ ... ]
-> +	err =3D pinctrl_enable(pctl);
-> +	if (err)
-> +		return dev_err_probe(dev, err, "pinctrl enable failed\n");
-> +
-> +	/* If no pinmux function is defined in DT, fallback to previous behavio=
-ur */
-> +	fallback[0] =3D S35390A_FUNC_IGNORE;
-> +	fallback[1] =3D S35390A_FUNC_WAKEUP;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(s35390a_pin_groups); i++) {
-> +		if (s35390a->pinfunction[i] =3D=3D -1) {
-
-[Severity: Medium]
-Is there a data race here since the pinfunction array is accessed locklessly
-after pinctrl_enable() has made the pinctrl device available?
-
-If another consumer requests the pins concurrently right after pinctrl_enab=
-le()
-modifying pinfunction, could their configuration be overwritten by this
-fallback logic?
-
-> +			err =3D s35390a_pinctrl_set_mux(pctl, fallback[i], i);
-> +			if (err)
-> +				return err;
-> +		}
-> +	}
-> +
->  	nvmem_cfg.priv =3D s35390a;
->  	err =3D devm_rtc_nvmem_register(rtc, &nvmem_cfg);
->  	if (err)
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824-rtc_s35390=
-a_int1-v6-0-df96569e3412@posteo.de?part=3D5
+-- 
+2.34.1
