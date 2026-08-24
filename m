@@ -1,96 +1,46 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80C41377566
-	for <linux-rtc@vger.kernel.org>; Mon, 24 Aug 2026 15:24:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B92A43BDDA;
+	Mon, 24 Aug 2026 16:03:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787585083; cv=none; b=hI18sG9PaBsB4U76/zj2uRBZf9zM4QkU4FE9QULMzbEv1Pe+0ErdRV7dlZsh/YD+reCNkkDNdQI8444duAFe/swzamyKvwLTD2n6LKAtr4UR05DMAe57xSS1FQZovffU46mfoWAEdFnUZjXU35v1ek4drw6/ZvQb+DSwwyzMK9M=
+	t=1787587391; cv=none; b=MD1lHiaw6jc/Yj9myo5Ck+zvkEfkFD1qi498+cWbQVdbVQn9NtnCe3LF9BUm17dF+Bn1+wFCK9pdXTpEgfXFoxTa5iv7Dpa63zJJYWRTWyW2J6aBx1blccTxRBEA4kQnAq/MD0RG6WFVdsgSPH6vQezqtOTl0nEKkeR5nXNtw7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787585083; c=relaxed/simple;
-	bh=Nz42ld06ZmUMKxPkpK7pbX5ItyujKNMQPU25WEZj9Ak=;
+	s=arc-20240116; t=1787587391; c=relaxed/simple;
+	bh=AG6+ddTypEUlHRreNr0P6PVfHH0YA5sAtB1O6uw5j5E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=O6xORT8rsSQvLoGzsLysR9oOT3FqfSI/VhEXUkBQqD/XHewd6R88EMA1rVKf+/NMPCewwR915sfJm70AN4K5QYtzjiXABxZP/GXPrhpFPQUubOS0hrIdnZJTMUtmeyG0wrU1Tses9OLyDL5OZIEtySSbQUK6WHsh4r/KunOfSBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aBUNrFBS; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=LeD5HDQR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=CCHjvV3j3A80fOfdeWtNACL64ZbkGq4m4Hv9GhrU8PrmB+P1AiREK6aDkabpUhbtWQgsf4fmyOOjwLq4NvWorSdqFQZKyhkGKkN6BX/TFIl5y8a7pCH32TcoHWiVlmeCJV5QWfTyQu1hy+6kGW5I8dinriv6RoUEDJOlCPSwVW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h20F1q+s; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aBUNrFBS";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="LeD5HDQR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1787585079;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=T6uhUYk0fm9prQbHJW3arjOgDFYSVu5qZ/5zgxqVB10=;
-	b=aBUNrFBS6AXK9zwLIE8gM/gBx965+g0XQ6TWfJ9xsuEHMNDMRPm2s0DIqhCOd1AbY/BZX9
-	EWvCFof9nQMSVzzRB3oAGtpScOyz3B/FQOWzt8msvDenTA7a9txDPGl6G6jbu5r639Sk9x
-	2OX4Usju1BGOT0Fd92fhX/hVJawEyVw=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-438-omfVecXVOX-O-1n37LZCLg-1; Mon, 24 Aug 2026 11:24:38 -0400
-X-MC-Unique: omfVecXVOX-O-1n37LZCLg-1
-X-Mimecast-MFC-AGG-ID: omfVecXVOX-O-1n37LZCLg_1787585078
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-934979ee9f1so392993885a.2
-        for <linux-rtc@vger.kernel.org>; Mon, 24 Aug 2026 08:24:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1787585078; x=1788189878; darn=vger.kernel.org;
-        h=user-agent:in-reply-to:content-disposition:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=T6uhUYk0fm9prQbHJW3arjOgDFYSVu5qZ/5zgxqVB10=;
-        b=LeD5HDQRGih9ybQggndLq4spqS3WAx2S9HnP0jEOH74m06Bc6PRxMeJxZvzKiBpj7S
-         Zp5+RAwAMW8JNFyEkFSp6JNA4ti2mFnRXL20DJYBzy3ebXlH5MhrfpgeKX/3NPoVS2AW
-         +LvkoDYV1YPOZcOuzG6E9c1uSMWyycD/Od5Kk0kXqQiFd0W95ayZbVDH670vJP8dkZi9
-         MHyK3xRydlyFRdJ2vwi8vcbEzfm0zRx0P+hm/il3vrnG/yo2gT8XDV02YlFtCD2tQ4Tj
-         6jtphE9gTufvvZgZcgcsSkM7MkCMN4Bhx4LEx98ySkc8kK2pyLHmRjZYuJH5UwM+JJsS
-         yz6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787585078; x=1788189878;
-        h=user-agent:in-reply-to:content-disposition:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=T6uhUYk0fm9prQbHJW3arjOgDFYSVu5qZ/5zgxqVB10=;
-        b=mhBsnf9Mx8MCg80RrCiYeLFVgyB5/8w7TBtHhExZCW6wyelpzLp7We2eYiIaV5Srir
-         EBoGxA/kczRNMFWdp1K+UrNPp1sN2BfqJzk/3KaDKByS8KbAy6Heh3GwkVu1iTHpbfH3
-         Vxz+IfkSoXHZFke8UZx63axikJEfEQDiVKgqV+2lj0aZvFLUHfA87XW9VOkFf5U+94cD
-         sH/mqCdn4XMGRzXQ/zIexHS0hwOXqyH4goRCN3GFVCwcNa5E/NNIqwEzG22UB8idG0PZ
-         dMAW7DUdDZo0XAyzGcMfgAvMol0RQaVQ8XQQtQ6kOS6uEjSsygU2kr9MBMrAM0LgGvEP
-         ZdkA==
-X-Forwarded-Encrypted: i=1; AHgh+Ro7c9M4TXPhpuBi4iT85oiQgIIvoNj13Bt+SdHIMo5zqQQ4T6WXaAx0Ce+kn4eYScJOIrDFAR9bRnQ=@vger.kernel.org
-X-Gm-Message-State: AFuF++ln2Hqskdwt0LXDz5RZCcuPH6Zcthq/xlwTOiHJ+4IV74GWOHNb
-	WXLu9fZaPii2WMzSU9Ff6wxAWmBkonGm7bOkMZMuoE7GiqmUCh7mxW0Q9omodPYBJ2f+hQePPK6
-	5Axd16OHGxLnJLOqaZJfsMno2/VbCkSynINcslfE1pa4vXiCx1sH8XensMtEixQ==
-X-Gm-Gg: AR+sD10un+PeSBFxrTep2ZtmUk9haSsOr6JCi4lQPcQ76OZlf3j/8s5YAjWy68fJ5Ja
-	fU8quxsrCT0fJ4VM/50Fh1R32/HlKLc+o6LRoRNz2fCYji7BMO3z8oa+be+3CakDadGrI3i+QCo
-	nFAxA/zTqRRRWQ1zZ5wb+xDpAQPQR/gTOOhWHqIcKGkG3wfiT7FBi/slM5zCerCsTb014oFh1kB
-	RJG09LnNAw5suORCCx2aMCeMy61AUJ+Zos+eCDGiqxOKkthQaqSOfNHkoKUgnFbjoRLCuRyDipy
-	/RQeQnIvKf20kKAQZ2dqLhShl9iye88NuRXjb/PabPM7bP9qsF/vUP7MoeXuFxOhfYQ2TwuDvx2
-	8OPq0nGNv8LmGFnByhBy9R444pTsiFL8ZED8=
-X-Received: by 2002:a05:620a:4148:b0:92e:7cc9:a888 with SMTP id af79cd13be357-9373942e4b0mr2548674785a.2.1787585077805;
-        Mon, 24 Aug 2026 08:24:37 -0700 (PDT)
-X-Received: by 2002:a05:620a:4148:b0:92e:7cc9:a888 with SMTP id af79cd13be357-9373942e4b0mr2548668185a.2.1787585077349;
-        Mon, 24 Aug 2026 08:24:37 -0700 (PDT)
-Received: from redhat.com (c-73-183-53-213.hsd1.pa.comcast.net. [73.183.53.213])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93749eb15f4sm522227985a.42.2026.08.24.08.24.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2026 08:24:36 -0700 (PDT)
-Date: Mon, 24 Aug 2026 11:24:35 -0400
-From: Brian Masney <bmasney@redhat.com>
-To: Geert Uytterhoeven <geert+renesas@glider.be>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h20F1q+s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFB91F000E9;
+	Mon, 24 Aug 2026 16:03:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787587388;
+	bh=RCjgHPB1JH7XWcCeQw9/7Cj3OkRUTR5GrMqvgGXxgB4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=h20F1q+sQ9eDnw6kKYtK6k4bqjqlzqASvCd2XfkYNgvzsQ8ZsxQ7QSNb+y01IhNaL
+	 k/6AFU82DE2dIWQD+fneAQQfYrcqUQbQh9vO3gAxttOc82/kTuHoQ15QsbEwycNcrv
+	 vf18dm4vGI+Cf6eRXvUK0HESW8UcYn4BplmUEhsfUMP3uJK5rcxl8wn1hvc7CDC4Td
+	 wWqbaxKb7aFiqZqCKln5vwRC7hFHBpM8g1Vyf/9LWK1v42aX6ORTtsErecmUB8AXVF
+	 LASbQYjPWcoOf8Hh6tEPGVHYAQzRIHhxlT1Z/fEiVGkEhJnIYGHlA1eksy1IkIHBU0
+	 U67IBVt+nSbYA==
+Received: from johan by xi.lan with local (Exim 4.99.4)
+	(envelope-from <johan@kernel.org>)
+	id 1wyX8b-00000001q4R-47X6;
+	Mon, 24 Aug 2026 18:03:05 +0200
+Date: Mon, 24 Aug 2026 18:03:05 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Greg Ociepka <greg@ferrisoft.com>
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Avi Fishman <avifishman70@gmail.com>,
-	Tomer Maimon <tmaimon77@gmail.com>,
-	Tali Perry <tali.perry1@gmail.com>,
-	Patrick Venture <venture@google.com>, Nancy Yuen <yuenn@google.com>,
-	Benjamin Fair <benjaminfair@google.com>, linux-rtc@vger.kernel.org,
-	openbmc@lists.ozlabs.org, linux-clk@vger.kernel.org
-Subject: Re: [PATCH 0/5] rtc: Make sure clk_init_data is fully initialized
-Message-ID: <aoxiM3te751QfPJn@redhat.com>
-References: <cover.1787241693.git.geert+renesas@glider.be>
+	linux-rtc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>
+Subject: Re: [PATCH] rtc: pm8xxx: do not fail probe when UEFI offset variable
+ is missing
+Message-ID: <aoxrOaY7RIFEqVr2@hovoldconsulting.com>
+References: <20260821181148.1642208-1-greg@ferrisoft.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -99,38 +49,105 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <cover.1787241693.git.geert+renesas@glider.be>
-User-Agent: Mutt/2.4.0 (2026-06-19)
+In-Reply-To: <20260821181148.1642208-1-greg@ferrisoft.com>
 
-On Fri, Aug 21, 2026 at 12:09:01PM +0200, Geert Uytterhoeven wrote:
-> 	Hi all,
-> 
-> The clk_init_data structure contains several mutually-exclusive members
-> for different methods to specify the possible parents of a clock,
-> prompting drivers to initialize only the members they need.  However,
-> not initializing all members may cause subtle issues, which are only
-> exposed when CONFIG_INIT_STACK_ALL_PATTERN or CONFIG_INIT_STACK_NONE is
-> enabled.
-> 
-> Hence this series aims to make sure all members are fully initialized,
-> to avoid such bugs, and to prevent future breakage when converting
-> drivers to a different method for specifying the parents.
-> 
-> Part One[1] fixed all cases that I identified to be real bugs, in
-> response to a crash I saw on BeagleBone Black.
-> 
-> This series is the RTC subpart of Part Two, which fixes remaining cases
-> that are currently harmless.  These are still fragile, and may cause
-> future breakage when converting drivers to a different method for
-> specifying the parents.
-> 
-> Thanks for your comments!
-> 
-> [1] "[PATCH treewide 0/5] clk: Make sure clk_init_data is fully
->      initialized (part 1)"
->     https://lore.kernel.org/cover.1787165329.git.geert+renesas@glider.be
+[ +CC: Konrad and Bjorn ]
 
-For the series:
+On Fri, Aug 21, 2026 at 06:11:48PM +0200, Greg Ociepka wrote:
+> On machines using "qcom,uefi-rtc-info" the Unix epoch offset for the
+> read-only PMIC RTC counter lives in the RTCInfo UEFI variable. The
+> driver reads it at probe time and treats every failure as fatal,
+> including EFI_NOT_FOUND.
 
-Reviewed-by: Brian Masney <bmasney@redhat.com>
+This is intentional as "qcom,uefi-rtc-info" should not be set unless the
+offset *is* stored (by the firmware) in said UEFI variable as documented
+in the binding.
 
+> That turns a merely-uninitialized clock into a permanently absent one
+> on firmware that never creates the variable. The ASUS Zenbook A16
+> (UX3607OA, Snapdragon X2 Elite Extreme "Glymur", InsydeH2O UEFI) is
+> such a machine: qseecom and uefisecapp come up fine, other variables
+> in the same Qualcomm vendor GUID (882f8c2b-9646-435f-8de5-f208ff80c1bd)
+> exist and are readable, but among the 110 variables exposed through
+> efivarfs there is no RTCInfo -- and Windows on the same machine does
+> not create one either. Probe then fails:
+
+Then the devicetree added by e8fbbca94db7 ("arm64: dts: qcom: glymur:
+Add Asus Zenbook A16 (UX3607OA)") for 7.3 is incorrect and you should
+drop the corresponding DT property.
+
+>   rtc-pm8xxx c426000.spmi:pmic@0:rtc@6100: probe with driver rtc-pm8xxx
+>       failed with error -2
+> 
+> This is a chicken-and-egg failure: pm8xxx_rtc_write_uefi_offset()
+> would create the variable (the set path uses EFI_VARIABLE_NON_VOLATILE
+> attributes and efivar_set_variable() creates missing variables), but
+> it can only run from the RTC set_time path -- and the RTC device never
+> registers because probe failed. The variable can never come into
+> existence.
+
+No, it's not. If your firmware doesn't use the EFI variable for the
+offset then you need to figure out how the RTC is supposed to work on
+these platforms (e.g. if you can set the time using some other measure
+and should not be using an external offset all).
+
+> Treat a missing variable like an unset clock instead: warn, keep the
+> zero offset, and register the RTC. Reads expose the raw counter until
+> the first clock set (typically the NTP-triggered RTC synchronization)
+> computes the offset and creates the variable; from then on the machine
+> keeps time across reboots. Userspace already copes with an implausible
+> RTC value at boot -- systemd only steps the clock forward from its
+> persistent timestamp.
+
+No, this is a hack. And it, for example, prevents you from having the
+RTC provide the same time in BIOS, Windows and Linux.
+
+> Other read errors still fail the probe as before.
+> 
+> Verified on the Zenbook A16 across consecutive boots: on the first
+> boot the driver warns, registers rtc0 and sets the system clock from
+> the raw counter (1970-01-04 here -- the counter had been running for
+> three days); the first NTP-triggered clock set creates RTCInfo; every
+> following boot restores correct wall time from the RTC before any
+> network is up.
+> 
+> Fixes: bba38b874886 ("rtc: pm8xxx: add support for uefi offset")
+
+The current driver is not buggy, it's working as intended so there
+should be no Fixes tag.
+
+> Signed-off-by: Greg Ociepka <greg@ferrisoft.com>
+> Assisted-by: Claude:fable-5
+> ---
+>  drivers/rtc/rtc-pm8xxx.c | 16 +++++++++++++++-
+>  1 file changed, 15 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
+> index e624f84..4627f4e 100644
+> --- a/drivers/rtc/rtc-pm8xxx.c
+> +++ b/drivers/rtc/rtc-pm8xxx.c
+> @@ -589,7 +589,21 @@ static int pm8xxx_rtc_probe_offset(struct pm8xxx_rtc *rtc_dd)
+>  		rtc_dd->use_uefi = false;
+>  	}
+>  
+> -	return pm8xxx_rtc_read_uefi_offset(rtc_dd);
+> +	rc = pm8xxx_rtc_read_uefi_offset(rtc_dd);
+> +	if (rc == -ENOENT) {
+> +		/*
+> +		 * The variable does not exist until something stores an
+> +		 * offset: pm8xxx_rtc_write_uefi_offset() creates it on the
+> +		 * first clock set. Keep probing with a zero offset instead
+> +		 * of failing -- otherwise the RTC never registers and the
+> +		 * variable can never come into existence.
+> +		 */
+> +		dev_warn(rtc_dd->dev,
+> +			 "UEFI offset variable not found, will be created on first clock set\n");
+> +		return 0;
+> +	}
+> +
+> +	return rc;
+>  }
+>  
+>  static int pm8xxx_rtc_probe(struct platform_device *pdev)
+
+Johan
