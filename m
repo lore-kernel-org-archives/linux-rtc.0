@@ -1,174 +1,272 @@
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 285D63B4EA4
-	for <linux-rtc@vger.kernel.org>; Tue, 25 Aug 2026 19:39:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF5B9387359
+	for <linux-rtc@vger.kernel.org>; Tue, 25 Aug 2026 21:07:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787686753; cv=none; b=XuypGOtahL6/bjqlfYO5eyjRBxhlPJGw1LLYduq9jS1/STwENpUCBQJgERnBPZti5hUY9EjVCHbghAd8AIY/Cjnbc+6GdpJ4ZJ1qdaEDC8P73yl6qYDc4neItGrPL5DBzCGnAp4S55kzc+KsYiXyaN9AZj8fgjUKKlmE8EiE0uE=
+	t=1787692064; cv=none; b=vBFh4WuHlg31nXTt3XJyc2w1hDK/ybYkzSFVRVZ5XGC+9hYmgJuqswFJI3q+Ip9uKn4BIQo7sRRGrVb5xemC9iky/mlENSiUN8rjznlA5j47y7ZrlpdcQJRp2PDfUXSurfQueZdzcHs/TZSoVDfnSOLcdLW2wsQltZ6ZOWRMThU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787686753; c=relaxed/simple;
-	bh=wJlIrnPa1ELGKttibf10LQqW1x5icmf3RZbUmWgO0eE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=U51W7TYts5Asi/Gj3D3nxRbwwxZFcqt056QQJCrFeJj1uk7t4sNp1aOR6XLd3VDjaLZLIUPkzxAvSVdKIz1pVRb/kwtLHucj8r95j647mZOqGllMS+TMHoNj6399FLR297Z4grEpNDFftTwXO6IlxKyHiH/UFV5VDC5MrQ2XrUg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=ZjV769av; arc=none smtp.client-ip=185.67.36.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	s=arc-20240116; t=1787692064; c=relaxed/simple;
+	bh=IhnnVWDYYFxJJZfBWcFAlyCWw8xy9QcXYHNO6upP9ho=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=apFLOQ+qzPM504MCkDVZQGZiXjlBD3MlqGjMVsZ0g4OVdCiItaE8Ywz7RzM6/IyVFpPDRo5vmyFoH6UreIaxHN/pD1kf81GhOk1OQq12P8wJuh8p7kg7o2NprnkKgw49mhbuNb8uxX2aidlSXTjtblAUBfjqAzcgdMLDvIzPjx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FrkI1YRm; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="ZjV769av"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id E0A0D240104
-	for <linux-rtc@vger.kernel.org>; Tue, 25 Aug 2026 21:39:09 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1787686749;
-	bh=u8kvdAmzPEum42wdXGKSH8TfZE8hg9/yVfvI2oRJMLA=;
-	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
-	 MIME-Version:OpenPGP:From;
-	b=ZjV769avtv2aKu/6SniJd1+SrDT332Xx5cS87vedsN5uH0w7HJ6uQskpcNH0a9/vD
-	 tkm14i1KYL58gbEOIsKOYXoZatkgH8ZD4oc/bynbbTD7Dstf/y3sMPdz6bS9R+uJwm
-	 Yf7zbRqk07oVT892vRUZysMEesu1ri8xDXk9ucgtFryUNFM3whQZsusbVrpXNwLSSf
-	 jMqf8aqvhWEi2lniyz0QSNMWc0puoFxcE46h56vg8FubFiZgAhta4fcLxQci9PZPzW
-	 Nrpfw5iE5n48bEHCf7ao9saKY6kkZRxvCgkWsU7z3IUcrTvzvJMH6R50g23mpZPpRN
-	 Y7rmDEhQej2EA==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hTylJ6cG7z9rxL;
-	Tue, 25 Aug 2026 21:39:08 +0200 (CEST)
-Message-ID: <b40173948eb2150fcac0983b13781a3f7690488b.camel@posteo.de>
-Subject: Re: [PATCH v6 5/6] rtc: s35390a: Add pinctrl
-From: Markus Probst <markus.probst@posteo.de>
-To: Linus Walleij <linusw@kernel.org>, sashiko-reviews@lists.linux.dev
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org,
- 	robh@kernel.org
-Date: Tue, 25 Aug 2026 19:39:09 +0000
-In-Reply-To: <CAD++jLnpzMs5h-k49HQ_asppECRMm1wGQK8X+vTmiC+S70fZgw@mail.gmail.com>
-References: <20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de>
-	 <20260824-rtc_s35390a_int1-v6-5-df96569e3412@posteo.de>
-	 <20260823222611.B176B1F000E9@smtp.kernel.org>
-	 <CAD++jLnpzMs5h-k49HQ_asppECRMm1wGQK8X+vTmiC+S70fZgw@mail.gmail.com>
-Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
- keydata=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
- jfGillcaQOqFZ3WwVqyzG1BUfTow==
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-b4D/z1X2q9gJ4181j8By"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FrkI1YRm"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 205F94E413B2;
+	Tue, 25 Aug 2026 21:07:39 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id D137F604C4;
+	Tue, 25 Aug 2026 21:07:38 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C789A11C7A806;
+	Tue, 25 Aug 2026 23:07:33 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1787692054; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=jVZHMDAXLrogXoO+LvxaZMG/rdPayNSs2X+MOCykLxA=;
+	b=FrkI1YRmY8Mf80Cjrm9HQ/nW/93M07fDeeFglJ5C9N+yKGnCycvECi7SGphKtt8P1dsiQd
+	cz/5FlD7zl1ZIo6I6yRo4vHQyBzeqGvHFs5AkmUoUKeH68bt6i/FzvWefKie9qFBjIS/6I
+	TLTyUpdHTdDzieoU8Zb39AMoqbwZ6EMAZ6TQHX0QZRqg/QlyxHjWRFMmYk8mMQZbFASZrT
+	JN/lsgLs2d/yHt63Z+nWhAxe7zSnHdcdip3dVBQWyX4+YDLDFf3A7HdMhqHek5hLvTXEmk
+	g3YzlLtNLB51HCFEtaPFnrmB59UkdJ6SMT/K/E3q/6dQTdDPjKx7Q213PPLcGA==
+Date: Tue, 25 Aug 2026 23:07:33 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: "Sverdlin, Alexander" <alexander.sverdlin@siemens.com>
+Cc: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rtc: pcf85063: disable the clkout output by default
+Message-ID: <202608252107336920b1e4@mail.local>
+References: <20260824080801.709764-1-alexander.sverdlin@siemens.com>
+ <20260824082456e0edd7c6@mail.local>
+ <2ce03d3b4cd9cce8e32fe1fe1ffbea5760bf9ef3.camel@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
+Content-Type: multipart/mixed; boundary="B1kxVD8HOxRY8rij"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2ce03d3b4cd9cce8e32fe1fe1ffbea5760bf9ef3.camel@siemens.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
+--B1kxVD8HOxRY8rij
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
---=-b4D/z1X2q9gJ4181j8By
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 24/08/2026 09:58:16+0000, Sverdlin, Alexander wrote:
+> Hi Alexandre,
+> 
+> On Mon, 2026-08-24 at 10:24 +0200, Alexandre Belloni wrote:
+> > > From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+> > > 
+> > > The PCF85063 powers up with its CLKOUT pin driving the 32.768 kHz. While
+> > > it's possible to request a specific default frequency in the DT via
+> > > assigned-clocks/assigned-clock-rates on the RTC node itself, even without
+> > > a real consumer referencing the clock, there is no such possibility to
+> > > disable the clock output by default.
+> > 
+> > Are you sure about this? The CCF should disable the clock if it is not
+> > used.
+> 
+> There is late_initcall_sync(clk_disable_unused) (marked __init), but for the
+> clock providers registered later, say, via modules, there is no such mechanism.
+> And I double-checked this putting some debug prints into the driver,
+> nothing from struct clk_ops is being called without a consumer in DT.
+> 
 
-On Tue, 2026-08-25 at 21:28 +0200, Linus Walleij wrote:
-> On Mon, Aug 24, 2026 at 12:26=E2=80=AFAM <sashiko-bot@kernel.org> wrote:
->=20
-> > >  config RTC_DRV_S35390A
-> > >       tristate "Seiko Instruments S-35390A"
-> > > +     depends on PINCTRL
-> >=20
-> > [Severity: High]
-> > Will this unconditional dependency cause the RTC driver to be silently =
-dropped
-> > on platforms without PINCTRL enabled?
->=20
-> Maybe just select PINCTRL then, it's a valid point.
-There are no stubs in the include headers for this case, so then it
-would be a linking error on build.
+Right, so what about the patch attached which seems to work fine with my
+rv3032.
 
-Thanks
-- Markus Probst
-
-
->=20
-> > > +     err =3D pinctrl_enable(pctl);
-> > > +     if (err)
-> > > +             return dev_err_probe(dev, err, "pinctrl enable failed\n=
-");
+> > > Therefore gate CLKOUT in the driver before registering the OF provider,
+> > > mirroring the pcf8563 and hym8563 siblings which already force an off state
+> > > at registration. Doing it before devm_of_clk_add_hw_provider() leaves the
+> > > real consumers in the device tree free to re-enable the output afterwards,
+> > > while an otherwise unused CLKOUT now stays off.
+> > > 
+> > > In practice it means that with CLKOUT disabled the RTC consumes around
+> > > 250nA at 25°C and 6-10uA with CLKOUT enabled (5v Vdd). Which means days vs
+> > > hours on a supercapacitor.
+> > > 
+> > > Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+> > > ---
+> > >  drivers/rtc/rtc-pcf85063.c | 6 ++++++
+> > >  1 file changed, 6 insertions(+)
+> > > 
+> > > diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+> > > index 01e209d88f5f3..0b6d8083b6456 100644
+> > > --- a/drivers/rtc/rtc-pcf85063.c
+> > > +++ b/drivers/rtc/rtc-pcf85063.c
+> > > @@ -523,6 +523,12 @@ static struct clk *pcf85063_clkout_register_clk(struct pcf85063 *pcf85063)
+> > >  	/* optional override of the clockname */
+> > >  	of_property_read_string(node, "clock-output-names", &init.name);
+> > >  
+> > > +	/* power-on default is the 32768 Hz output on; gate it until claimed */
+> > > +	ret = regmap_update_bits(pcf85063->regmap, PCF85063_REG_CTRL2,
+> > > +				 PCF85063_REG_CLKO_F_MASK, PCF85063_REG_CLKO_F_OFF);
+> > > +	if (ret)
+> > > +		return ret;
 > > > +
-> > > +     /* If no pinmux function is defined in DT, fallback to previous=
- behaviour */
-> > > +     fallback[0] =3D S35390A_FUNC_IGNORE;
-> > > +     fallback[1] =3D S35390A_FUNC_WAKEUP;
-> > > +
-> > > +     for (i =3D 0; i < ARRAY_SIZE(s35390a_pin_groups); i++) {
-> > > +             if (s35390a->pinfunction[i] =3D=3D -1) {
-> >=20
-> > [Severity: Medium]
-> > Is there a data race here since the pinfunction array is accessed lockl=
-essly
-> > after pinctrl_enable() has made the pinctrl device available?
->=20
-> That's a valid concern.
->=20
-> Yours,
-> Linus Walleij
+> > >  	/* register the clock */
+> > >  	clk = devm_clk_register(&pcf85063->rtc->dev, &pcf85063->clkout_hw);
+> > >  
+> > > -- 
+> > > 2.55.0
+> > > 
+> 
+> -- 
+> Alexander Sverdlin
+> Siemens AG
+> www.siemens.com
 
---=-b4D/z1X2q9gJ4181j8By
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
------BEGIN PGP SIGNATURE-----
+--B1kxVD8HOxRY8rij
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment;
+	filename=0001-clk-disable-unused-clocks-registered-after-boot.patch
 
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmqN71wbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSotgP/0t6GCyBRcvR4JG1E8nA
-zLnCL9t73syLikqCQJ0Dnbevg9ZZmxDK8lF7jDtccRgcTtAE1oyZJtClVQdwCb0y
-AMjBsZ+QncibPk3h8Yzt7XU4BTjo/2bqMGBVACZ7Ega/5v6cE+HfmU2rK9zHsTX+
-/5jGBGHmtplraVO4Dr7G3hz4d49bTlHN7mTEaRhR3qb4656v773J+fmOCLLAGW5F
-YbuLfwlWDx77bsTrFaRczU76PWHMcKI8hqztY0P/2twKUq+MIp9SblwyOfrtg9sU
-sNlDjP3S2S++78QJ0z7CrN/7kb9NuK5hnQFF/66gIj+AgzsWqy09YUKPKruzn09F
-q11dIvGfBTvZur/+zag6lVGcMl0xpO6N2h0DMmXLY2ShLrmr8MGnjoUa8xp1qugX
-Yupu4b739T4OQq1PFB+S3jFwKQ4tQkf++lYuteDtz8IzNEDe6/9xRb7uKew1VsMb
-aFs1twZKV0LRyjZvFpzWiGLzdzVHitO2aBg3e4kBKZLENS+37WWBCmKGxRVvyqIp
-PJeuGrtODe4CadALNwQJDEU8QAbeuMACmfWFRmwsaBlohNwWzHGYmrqnsfI3qKzk
-WWOFNgsEaDVvaLafdklcKa7mbnIcIknYxhKYynY44RGB22Aexcw9ZKjmvtMtwz+X
-vMw50eiQ54ajl+qW6GP0hm2B
-=uZf/
------END PGP SIGNATURE-----
+From 68b91c1d8b64b0b9fc88b9036f9a4340e7a0a98f Mon Sep 17 00:00:00 2001
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Tue, 25 Aug 2026 22:54:06 +0200
+Subject: [PATCH] clk: disable unused clocks registered after boot
 
---=-b4D/z1X2q9gJ4181j8By--
+clk_disable_unused() only runs once as a late_initcall, so clocks
+registered afterwards by loading a module are never checked and may be left
+running needlessly.
+
+So record when clk_disable_unused has run and afterwards, schedule a
+delayed work to run the scan when new clocks are registered.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/clk/clk.c | 50 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 37 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 048adfa86a5d..817f916192ac 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -24,6 +24,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/string.h>
+ #include <linux/stringhash.h>
++#include <linux/workqueue.h>
+ 
+ #include "clk.h"
+ 
+@@ -47,6 +48,10 @@ static LIST_HEAD(clk_notifier_list);
+ static HLIST_HEAD(clk_rpm_list);
+ static DEFINE_MUTEX(clk_rpm_list_lock);
+ 
++static bool clk_disable_unused_done;
++
++#define CLK_DISABLE_UNUSED_DELAY	(HZ / 2)
++
+ static const struct hlist_head *all_lists[] = {
+ 	&clk_root_list,
+ 	&clk_orphan_list,
+@@ -1442,7 +1447,7 @@ static void clk_core_disable_unprepare(struct clk_core *core)
+ 	clk_core_unprepare_lock(core);
+ }
+ 
+-static void __init clk_unprepare_unused_subtree(struct clk_core *core)
++static void clk_unprepare_unused_subtree(struct clk_core *core)
+ {
+ 	struct clk_core *child;
+ 
+@@ -1467,7 +1472,7 @@ static void __init clk_unprepare_unused_subtree(struct clk_core *core)
+ 	}
+ }
+ 
+-static void __init clk_disable_unused_subtree(struct clk_core *core)
++static void clk_disable_unused_subtree(struct clk_core *core)
+ {
+ 	struct clk_core *child;
+ 	unsigned long flags;
+@@ -1516,21 +1521,14 @@ static int __init clk_ignore_unused_setup(char *__unused)
+ }
+ __setup("clk_ignore_unused", clk_ignore_unused_setup);
+ 
+-static int __init clk_disable_unused(void)
++static void clk_disable_unused(void)
+ {
+ 	struct clk_core *core;
+ 	int ret;
+ 
+-	if (clk_ignore_unused) {
+-		pr_warn("clk: Not disabling unused clocks\n");
+-		return 0;
+-	}
+-
+-	pr_info("clk: Disabling unused clocks\n");
+-
+ 	ret = clk_pm_runtime_get_all();
+ 	if (ret)
+-		return ret;
++		return;
+ 	/*
+ 	 * Grab the prepare lock to keep the clk topology stable while iterating
+ 	 * over clks.
+@@ -1552,10 +1550,31 @@ static int __init clk_disable_unused(void)
+ 	clk_prepare_unlock();
+ 
+ 	clk_pm_runtime_put_all();
++}
++
++static void clk_disable_unused_workfn(struct work_struct *work)
++{
++	clk_disable_unused();
++}
++
++static DECLARE_DELAYED_WORK(clk_disable_unused_work, clk_disable_unused_workfn);
++
++static int __init clk_disable_unused_init(void)
++{
++	if (clk_ignore_unused) {
++		pr_warn("clk: Not disabling unused clocks\n");
++		return 0;
++	}
++
++	pr_info("clk: Disabling unused clocks\n");
++
++	clk_disable_unused();
++
++	WRITE_ONCE(clk_disable_unused_done, true);
+ 
+ 	return 0;
+ }
+-late_initcall_sync(clk_disable_unused);
++late_initcall_sync(clk_disable_unused_init);
+ 
+ static int clk_core_determine_round_nolock(struct clk_core *core,
+ 					   struct clk_rate_request *req)
+@@ -4366,8 +4385,13 @@ __clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
+ 	clk_core_link_consumer(core, hw->clk);
+ 
+ 	ret = __clk_core_init(core);
+-	if (!ret)
++	if (!ret) {
++		if (READ_ONCE(clk_disable_unused_done))
++			mod_delayed_work(system_power_efficient_wq,
++					 &clk_disable_unused_work,
++					 CLK_DISABLE_UNUSED_DELAY);
+ 		return hw->clk;
++	}
+ 
+ 	clk_prepare_lock();
+ 	clk_core_unlink_consumer(hw->clk);
+-- 
+2.55.0
+
+
+--B1kxVD8HOxRY8rij--
