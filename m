@@ -1,62 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF2243921ED;
-	Mon, 24 Aug 2026 23:05:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8497E2DCF67;
+	Tue, 25 Aug 2026 01:35:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787612733; cv=none; b=tPxvUTUIPfA/37DZGZ9IpVEFVwv2meLerCFONg+DfTkKRM05bnPJFFcHOT5N7vXalqVnHt9c0m5uiJaFWDQPUkKi8k1cMHUt1qjY+ZdcpfbKNKxuv+I6jIlL+Kcmr8SNqGLOwnFpeqDWodVxzg2hZKNeV+0Tg+lifzZ14lhWgJ0=
+	t=1787621736; cv=none; b=XiUdsuvU6zBlI5+ieB6pBhhhqRk6Ml+HC+gIWRnuWMeNQnVODZiwsEphmUEIhBz07ls64+OBnVDWdAAGpCHbPTcmIbyZGZH+pA1ZlxJsTgmMkugZ1YJag67J0zEGeOYoU8xsHTEcSJYSzmmSOElYl3XUtwSoRVnjRw8KQWNlU80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787612733; c=relaxed/simple;
-	bh=RPMin46s/2o5TeU3lBd/qSu4yH3eLmz5bhC/SMiMKz0=;
+	s=arc-20240116; t=1787621736; c=relaxed/simple;
+	bh=KZiXTwpEBkXFrvDBOhOzm3cqE6D6cAorNpq39mn0cHY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t3ovDIgYWOYE+9ZUUsrQHrGj01sKlej5Uz6jya9gpe+HvXVUOUSZXiVEWscUgOm1Czy6RN9zTjInomLuzKg6Hk/+CFoeLsosyMb3UJgTV/gu11XMkwKSEJC52+4d7FScIlWCPFWlBEkAUtyANvtixSeNd0+jxYBiEpYXaUls/Qw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HL31/Ko0; arc=none smtp.client-ip=198.175.65.11
+	 Content-Type:Content-Disposition:In-Reply-To; b=avpPjVkHdp/kt9ktwlfe1wyDfp9PpJU2az05cDEcbzOEHgh7QUasue2vUmqub3udMKVYIWiG+xbPfH7Oy55CU+RlogmehrsSR3CnqHO8wyrT/ZtAGd5QmTPyPiguVxugC6vLthl45ttwb7Ni5UFBLY6y677OsoZ3M4c8G7/a0UQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SfEaXzGC; arc=none smtp.client-ip=192.198.163.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HL31/Ko0"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SfEaXzGC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787612730; x=1819148730;
+  t=1787621735; x=1819157735;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=RPMin46s/2o5TeU3lBd/qSu4yH3eLmz5bhC/SMiMKz0=;
-  b=HL31/Ko0W9YsQb+CHQv32S41cSi/LaY3YrDkQVIL0gzMDW1dYwcUxOJn
-   BZQj/FKvvlmpuDF2N1Xe+HbnNIwP0g8mcdMmDQFx3EQLc/LzwAFDfobZx
-   WzkUb/NEMKbyjL3b3bvRJng4q+fJcF76Rs06QndYAKVjoARNc2fblSpZP
-   PPwOQd1lVj+8ddfh7n76cITmD6l5wwbDPxbCQ7jb78+gFEzWBn0zKPag/
-   Fj46koUBtp3VGQy8NnP+dY/m0cgekbiQKTii0ihu62EZWSidjVNigXbmm
-   uZn9r8dNW+EV/Lp4oenMxCoEWkWr5GWRYA5sQxE3WXLIfpUdXX5V/TiSZ
+  bh=KZiXTwpEBkXFrvDBOhOzm3cqE6D6cAorNpq39mn0cHY=;
+  b=SfEaXzGCiDzTLxeP++tzNpkl4+sm8bntRsAdC03QrV4MMJZBRPfME26J
+   Df9KlXrfZCW/yesKyJkYoDSSvV2KGv8NQ7ROkXfnhiImrtXy8KQpYvYtU
+   xrxVgYvnitJlSJuEvQkilHWAvywsemFCSvrDXGCEGOJez2d9KOb+5I8B0
+   5Wc8ZY/dYs3CkRh3om6kLup//7XkYsG6xO2cAxBUmM4hpQ6m6QR6CUAdb
+   +QmMEKyLb5qUt+i+xhTrDRE3HCxfiZoLKByuUw350LG+ZlieTarcNsJfa
+   QOIKBokDWrM3Z7MrJpsUfMOZYPTRPA3TRABr1k8OkcUQIB9LRIOKli3iW
    Q==;
-X-CSE-ConnectionGUID: lqzzlnPIR/CyHUHo2Yp7EA==
-X-CSE-MsgGUID: vjFkipIrTzG7io21z7biIw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11885"; a="98412275"
+X-CSE-ConnectionGUID: H0dX94JLS5exEtXWfKax8A==
+X-CSE-MsgGUID: bqUg40wTQWq23+/V3nUw9w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11885"; a="75620698"
 X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="98412275"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2026 16:05:30 -0700
-X-CSE-ConnectionGUID: MqAOTc8tRiG515kiIfa8mQ==
-X-CSE-MsgGUID: uISPeVioS5KBuo2IMDJi2Q==
+   d="scan'208";a="75620698"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2026 18:35:34 -0700
+X-CSE-ConnectionGUID: 107CCkufRCGaHWykDk4BIg==
+X-CSE-MsgGUID: BKl37O5tSaSkH30giCMKZA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="271332667"
+   d="scan'208";a="269102837"
 Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
-  by orviesa005.jf.intel.com with ESMTP; 24 Aug 2026 16:05:28 -0700
+  by fmviesa004.fm.intel.com with ESMTP; 24 Aug 2026 18:35:32 -0700
 Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1wydjE-000000004Pf-1JkK;
-	Mon, 24 Aug 2026 23:05:21 +0000
-Date: Tue, 25 Aug 2026 07:05:14 +0800
+	id 1wyg4R-000000004lf-2PMl;
+	Tue, 25 Aug 2026 01:35:25 +0000
+Date: Tue, 25 Aug 2026 09:34:32 +0800
 From: kernel test robot <lkp@intel.com>
 To: Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
 	alexandre.belloni@bootlin.com
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+Cc: oe-kbuild-all@lists.linux.dev,
 	Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
 	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] rtc: rv3028: configure backup switch mode from device
  tree
-Message-ID: <202608250645.zcZhAAz1-lkp@intel.com>
+Message-ID: <202608250920.y0Rb4vg9-lkp@intel.com>
 References: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
@@ -82,36 +82,43 @@ url:    https://github.com/intel-lab-lkp/linux/commits/Dhaval-Shiroya/rtc-rv3028
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
 patch link:    https://lore.kernel.org/r/20260822092911.318342-1-dhaval.shiroya%40siliconsignals.io
 patch subject: [PATCH] rtc: rv3028: configure backup switch mode from device tree
-config: arm64-randconfig-002-20260825 (https://download.01.org/0day-ci/archive/20260825/202608250645.zcZhAAz1-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 935bfc708590c60147a79c7df145bb6e68b1d388)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260825/202608250645.zcZhAAz1-lkp@intel.com/reproduce)
+config: nios2-allmodconfig (https://download.01.org/0day-ci/archive/20260825/202608250920.y0Rb4vg9-lkp@intel.com/config)
+compiler: nios2-linux-gcc (GCC) 11.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260825/202608250920.y0Rb4vg9-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608250645.zcZhAAz1-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202608250920.y0Rb4vg9-lkp@intel.com/
 
 All warnings (new ones prefixed by >>):
 
->> drivers/rtc/rtc-rv3028.c:908:4: warning: format specifies type 'unsigned int' but the argument has type 'unsigned long' [-Wformat]
+   In file included from include/linux/device.h:15,
+                    from include/linux/acpi.h:15,
+                    from include/linux/i2c.h:13,
+                    from drivers/rtc/rtc-rv3028.c:15:
+   drivers/rtc/rtc-rv3028.c: In function 'rv3028_set_bsm_from_dt':
+>> drivers/rtc/rtc-rv3028.c:906:18: warning: format '%x' expects argument of type 'unsigned int', but argument 5 has type 'long unsigned int' [-Wformat=]
      906 |                  "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
-         |                                                                           ~~~~
-         |                                                                           %02lx
-     907 |                  bsm_dt, val_old,
-     908 |                  (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
-         |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     909 |                  bsm_bits | RV3028_BACKUP_FEDE);
-         |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:160:67: note: expanded from macro 'dev_info'
-     160 |         dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                                  ~~~     ^~~~~~~~~~~
-   include/linux/dev_printk.h:110:23: note: expanded from macro 'dev_printk_index_wrap'
+         |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
      110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ~~~    ^~~~~~~~~~~
-   1 warning generated.
+         |                              ^~~
+   include/linux/dev_printk.h:160:58: note: in expansion of macro 'dev_fmt'
+     160 |         dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
+         |                                                          ^~~~~~~
+   drivers/rtc/rtc-rv3028.c:905:9: note: in expansion of macro 'dev_info'
+     905 |         dev_info(&client->dev,
+         |         ^~~~~~~~
+   drivers/rtc/rtc-rv3028.c:906:78: note: format string is defined here
+     906 |                  "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
+         |                                                                           ~~~^
+         |                                                                              |
+         |                                                                              unsigned int
+         |                                                                           %02lx
 
 
-vim +908 drivers/rtc/rtc-rv3028.c
+vim +906 drivers/rtc/rtc-rv3028.c
 
    857	
    858	/*
@@ -162,9 +169,9 @@ vim +908 drivers/rtc/rtc-rv3028.c
    903		}
    904	
    905		dev_info(&client->dev,
-   906			 "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
+ > 906			 "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
    907			 bsm_dt, val_old,
- > 908			 (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
+   908			 (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
    909			 bsm_bits | RV3028_BACKUP_FEDE);
    910	
    911		/* Set BSM and always enable FEDE as recommended by datasheet */
