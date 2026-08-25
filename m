@@ -1,186 +1,120 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8497E2DCF67;
-	Tue, 25 Aug 2026 01:35:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25ED3381E88;
+	Tue, 25 Aug 2026 07:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787621736; cv=none; b=XiUdsuvU6zBlI5+ieB6pBhhhqRk6Ml+HC+gIWRnuWMeNQnVODZiwsEphmUEIhBz07ls64+OBnVDWdAAGpCHbPTcmIbyZGZH+pA1ZlxJsTgmMkugZ1YJag67J0zEGeOYoU8xsHTEcSJYSzmmSOElYl3XUtwSoRVnjRw8KQWNlU80=
+	t=1787642378; cv=none; b=n4IyT4sW5HF6ZEANbMceDuZXkE1SFGsui+3fyWkwhFQ3efBZkU7YcljQQSJWZXkGKkYFhP+5X/ZEKfEsVrWFNwW9Ic6cno+kSDG+EJhyX5lpMs8I9JXj6ALl6HCfxP6zXsuGnWw6g9cjf0iJjJFPpFIU3+m/rL400gD/wgt3je8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787621736; c=relaxed/simple;
-	bh=KZiXTwpEBkXFrvDBOhOzm3cqE6D6cAorNpq39mn0cHY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=avpPjVkHdp/kt9ktwlfe1wyDfp9PpJU2az05cDEcbzOEHgh7QUasue2vUmqub3udMKVYIWiG+xbPfH7Oy55CU+RlogmehrsSR3CnqHO8wyrT/ZtAGd5QmTPyPiguVxugC6vLthl45ttwb7Ni5UFBLY6y677OsoZ3M4c8G7/a0UQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SfEaXzGC; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1787642378; c=relaxed/simple;
+	bh=dlC/Ek5EP/2kZcYmlKPUIlAhRIuJKkz4m41PgrxDrs0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OCXS76MtZmN8H1CHoLDsKUcY3gtDX77DgR881MhvPmVoR2r+Zc796C354gEskO1SyZ7ebTPmR6Xy3COukHQC0ox5GfB5Prefx3DVrFN+4FSYkxU+J8tFMU16cIEcOX7ZC1EBMr9ISyAPVnaEdZ5EUoihFhhqHN2gReciIETAgL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=Q3kPndtb; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SfEaXzGC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1787621735; x=1819157735;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=KZiXTwpEBkXFrvDBOhOzm3cqE6D6cAorNpq39mn0cHY=;
-  b=SfEaXzGCiDzTLxeP++tzNpkl4+sm8bntRsAdC03QrV4MMJZBRPfME26J
-   Df9KlXrfZCW/yesKyJkYoDSSvV2KGv8NQ7ROkXfnhiImrtXy8KQpYvYtU
-   xrxVgYvnitJlSJuEvQkilHWAvywsemFCSvrDXGCEGOJez2d9KOb+5I8B0
-   5Wc8ZY/dYs3CkRh3om6kLup//7XkYsG6xO2cAxBUmM4hpQ6m6QR6CUAdb
-   +QmMEKyLb5qUt+i+xhTrDRE3HCxfiZoLKByuUw350LG+ZlieTarcNsJfa
-   QOIKBokDWrM3Z7MrJpsUfMOZYPTRPA3TRABr1k8OkcUQIB9LRIOKli3iW
-   Q==;
-X-CSE-ConnectionGUID: H0dX94JLS5exEtXWfKax8A==
-X-CSE-MsgGUID: bqUg40wTQWq23+/V3nUw9w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11885"; a="75620698"
-X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="75620698"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2026 18:35:34 -0700
-X-CSE-ConnectionGUID: 107CCkufRCGaHWykDk4BIg==
-X-CSE-MsgGUID: BKl37O5tSaSkH30giCMKZA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.25,241,1779174000"; 
-   d="scan'208";a="269102837"
-Received: from lkp-server01.sh.intel.com (HELO 3532383e6126) ([10.239.97.150])
-  by fmviesa004.fm.intel.com with ESMTP; 24 Aug 2026 18:35:32 -0700
-Received: from kbuild by 3532383e6126 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wyg4R-000000004lf-2PMl;
-	Tue, 25 Aug 2026 01:35:25 +0000
-Date: Tue, 25 Aug 2026 09:34:32 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
-	alexandre.belloni@bootlin.com
-Cc: oe-kbuild-all@lists.linux.dev,
-	Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>,
-	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: rv3028: configure backup switch mode from device
- tree
-Message-ID: <202608250920.y0Rb4vg9-lkp@intel.com>
-References: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="Q3kPndtb"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 50A8A11CBFD;
+	Tue, 25 Aug 2026 09:19:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1787642369; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=2CbjXARxxC+IvwNS/3iRUtHjs69OcKoxnN9624Q/9t4=;
+	b=Q3kPndtbqfQl3CTJuFaNlYFIk4cwfgmj7rpNRxsmXGnDrIy9ezdk9rEqrGePk0ZgB36jvI
+	mtWIioxwY7pzM4G12IQxdyGPGTH268AWS4rzHhDuR6imgiALE3MFc7GeagMgOItQDLr7wv
+	2r+XZ1ld38YaCF4B2s69fETqgT9FOPxqBnyW7DhaL97PNAsFrqwLk/ZcStm32fPJcn+3x9
+	9OZ2SUqGaluqdNyPFRqm5SieLeCo7DUgPJe3eZNb1Ytum1q15dw/glu25qwojmq7YOIRSM
+	78XK5o1CjFVEiDAJ2VbGa7CMJ3mJvDIUKw0rAijs7K/ocUo66W20Zifl0QLCJg==
+From: Heiko Schocher <hs@nabladev.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Rob Herring <robh@kernel.org>,
+	linux-rtc@vger.kernel.org,
+	Heiko Schocher <hs@nabladev.com>
+Subject: [PATCH v2 0/3] rtc: rs5c372: add Ricoh R2223x support
+Date: Tue, 25 Aug 2026 09:19:15 +0200
+Message-ID: <20260825071927.4090460-1-hs@nabladev.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Dhaval,
+The Ricoh R2223x is an I2C RTC from the same family as the r2025sd and
+r2221tl which the rtc-rs5c372 already supports. It shares the R2x2x
+control register layout, so only the new type must be added to the driver.
 
-kernel test robot noticed the following build warnings:
+The ricoh R2223x drives a clock output and offers an eco mode that
+lowers its current consumption while running from the backup supply.
 
-[auto build test WARNING on abelloni/rtc-next]
-[also build test WARNING on linus/master v7.2 next-20260821]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+The trivial-rtc binding does not cover this, so give the device its
+own binding in patch 1. Patch 2 adds the R2223x to the rs5c372 rtc
+driver, and patch 3 implements the eco-mode setting.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Dhaval-Shiroya/rtc-rv3028-configure-backup-switch-mode-from-device-tree/20260822-145911
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git rtc-next
-patch link:    https://lore.kernel.org/r/20260822092911.318342-1-dhaval.shiroya%40siliconsignals.io
-patch subject: [PATCH] rtc: rv3028: configure backup switch mode from device tree
-config: nios2-allmodconfig (https://download.01.org/0day-ci/archive/20260825/202608250920.y0Rb4vg9-lkp@intel.com/config)
-compiler: nios2-linux-gcc (GCC) 11.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260825/202608250920.y0Rb4vg9-lkp@intel.com/reproduce)
+v2 answers the sashiko review of v1 and a local run of the same review
+prompts. This resulted in 2 changes:
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202608250920.y0Rb4vg9-lkp@intel.com/
+Patch 2 now handles the new type in rs5c372_ioctl(), where RTC_VL_READ
+read CTRL2 bit 4 as XSTP although the R2x2x parts have PON there and
+RTC_VL_CLR did nothing at all, and in the two offset helpers, where the
+R2223x fell back to the coarse trim resolution.
 
-All warnings (new ones prefixed by >>):
+Patch 3 now applies the device tree setting in both directions. V1 only
+set the eco bit before, so a board that dropped the property kept running
+in eco mode, because CTRL2 is backed by the backup supply.
 
-   In file included from include/linux/device.h:15,
-                    from include/linux/acpi.h:15,
-                    from include/linux/i2c.h:13,
-                    from drivers/rtc/rtc-rv3028.c:15:
-   drivers/rtc/rtc-rv3028.c: In function 'rv3028_set_bsm_from_dt':
->> drivers/rtc/rtc-rv3028.c:906:18: warning: format '%x' expects argument of type 'unsigned int', but argument 5 has type 'long unsigned int' [-Wformat=]
-     906 |                  "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
-         |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                              ^~~
-   include/linux/dev_printk.h:160:58: note: in expansion of macro 'dev_fmt'
-     160 |         dev_printk_index_wrap(_dev_info, KERN_INFO, dev, dev_fmt(fmt), ##__VA_ARGS__)
-         |                                                          ^~~~~~~
-   drivers/rtc/rtc-rv3028.c:905:9: note: in expansion of macro 'dev_info'
-     905 |         dev_info(&client->dev,
-         |         ^~~~~~~~
-   drivers/rtc/rtc-rv3028.c:906:78: note: format string is defined here
-     906 |                  "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
-         |                                                                           ~~~^
-         |                                                                              |
-         |                                                                              unsigned int
-         |                                                                           %02lx
+Not touched sashiko reviews (some from local run):
 
+- #clock-cells stays out of the required list. Requiring it would
+  reject every node that does not use the clock output; the other
+  discrete I2C RTC bindings with a clock output keep it optional too.
+  Also the clock output can be disabled per hardware pin CLKC. So
+  #clock-cells is optional.
 
-vim +906 drivers/rtc/rtc-rv3028.c
+  https://sashiko.dev/#/patchset/20260824110452.4038870-1-hs@nabladev.com?part=1
 
-   857	
-   858	/*
-   859	 * Configure backup switchover mode from device tree.
-   860	 *   0 = disabled
-   861	 *   1 = DSM (Direct Switching Mode)  - switch when VDD < VBACKUP
-   862	 *   3 = LSM (Level Switching Mode)   - switch when VDD < 2.0V
-   863	 */
-   864	static int rv3028_set_bsm_from_dt(struct rv3028_data *rv3028,
-   865					  struct i2c_client *client)
-   866	{
-   867		u32 val_old, bsm_dt, bsm_bits;
-   868		int ret;
-   869	
-   870		if (device_property_read_u32(&client->dev, "backup-switch-mode",
-   871					     &bsm_dt))
-   872			return 0;
-   873	
-   874		/* Validate and convert DT value to register bits */
-   875		switch (bsm_dt) {
-   876		case 0:
-   877			bsm_bits = 0;
-   878			break;
-   879		case 1:
-   880			bsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_DSM);
-   881			break;
-   882		case 3:
-   883			bsm_bits = FIELD_PREP(RV3028_BACKUP_BSM, RV3028_BACKUP_BSM_LSM);
-   884			break;
-   885		default:
-   886			dev_warn(&client->dev,
-   887				 "invalid backup-switch-mode %u (use 0, 1, or 3)\n",
-   888				 bsm_dt);
-   889			return 0;
-   890		}
-   891	
-   892		/* Read current BACKUP register */
-   893		ret = regmap_read(rv3028->regmap, RV3028_BACKUP, &val_old);
-   894		if (ret < 0)
-   895			return ret;
-   896	
-   897		/* Check if BSM and FEDE already match desired values */
-   898		if ((val_old & (RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) ==
-   899		    (bsm_bits | RV3028_BACKUP_FEDE)) {
-   900			dev_dbg(&client->dev,
-   901				"backup switch mode already set to %u\n", bsm_dt);
-   902			return 0;
-   903		}
-   904	
-   905		dev_info(&client->dev,
- > 906			 "setting backup switch mode to %u (reg 0x37: 0x%02x -> 0x%02x)\n",
-   907			 bsm_dt, val_old,
-   908			 (val_old & ~(RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE)) |
-   909			 bsm_bits | RV3028_BACKUP_FEDE);
-   910	
-   911		/* Set BSM and always enable FEDE as recommended by datasheet */
-   912		return rv3028_update_cfg(rv3028, RV3028_BACKUP,
-   913					 RV3028_BACKUP_BSM | RV3028_BACKUP_FEDE,
-   914					 bsm_bits | RV3028_BACKUP_FEDE);
-   915	}
-   916	
+- additionalProperties: false together with $ref: rtc.yaml# means the
+  properties from rtc.yaml are not allowed here unless they are listed.
+  Only start-year is, the others can be added once a board needs them.
+  microcrystal,rv3032.yaml is built the same way.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+- ricoh,eco-mode is a vendor boolean. Whether the RTC may run in eco
+  mode depends on the backup cell the board is fitted with, so it
+  describes the board and not a runtime policy.
+
+Changes in v2:
+- Added Reviewed-by from Conor, no code change in patch 1
+- Fixed the sashiko review of v1: handle the new type in
+  rs5c372_ioctl(), rs5c372_read_offset() and rs5c372_set_offset()
+  https://sashiko.dev/#/patchset/20260824110452.4038870-1-hs@nabladev.com?part=2
+- Added sashiko review for patch 3 in this patch, as it fits better here
+  https://sashiko.dev/#/patchset/20260824110452.4038870-1-hs@nabladev.com?part=3
+- Fixed results of a local run of the sashiko review prompts: apply the
+  device tree setting in both directions. v1 only set the eco bit, so
+  the mode stayed on when a board dropped the property.
+- Leave rs5c372_probe() through goto exit like its other error paths,
+  instead of returning directly.
+
+Heiko Schocher (3):
+  dt-bindings: rtc: add ricoh,r2223x binding
+  rtc: rs5c372: add support for Ricoh R2223x
+  rtc: rs5c372: support eco mode on R2223x
+
+ .../devicetree/bindings/rtc/ricoh,r2223x.yaml | 58 +++++++++++++++++++
+ drivers/rtc/rtc-rs5c372.c                     | 52 ++++++++++++++++-
+ 2 files changed, 107 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/rtc/ricoh,r2223x.yaml
+
+---
+base-commit: 2709dd5ae32f0828f386327c76bba9f39f63a1c6
+
+-- 
+2.55.0
+
