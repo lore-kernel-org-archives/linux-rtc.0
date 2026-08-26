@@ -1,49 +1,48 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C0B37F742;
-	Wed, 26 Aug 2026 06:46:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F3531E857;
+	Wed, 26 Aug 2026 06:57:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787726766; cv=none; b=Olhwd18a8uV80BiH2FjgmPHGwV6T+l97ihlvy0UfBY+6PMa5Oa53sGVXT+nw8A+UTn9e56pPuAuIWq4MCfS3g6ej+yZfSfURdUE6R7JYvVXgM3Kf/OeDNG5lOV/LtIbkSYDoKfDo2pKF9rfyAZQ1Ub1duxZ3sb1nmjdQ4Z6Z1HY=
+	t=1787727465; cv=none; b=NUUMHXkC/gRgr2bp3cAtiFPgR4xOS+XfqXFzVy/BbFI2g20UMwcPzbIBqCRgyk+TtKumgBGB5IxyZsAg74e++L18uCPYwYltIJAIM2ClHpplrB2XLntmtQm2nC/6JqzdneO16bQlEIKa3LgTzvda/Jg41fXLzw/ffNv2ntwsQoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787726766; c=relaxed/simple;
-	bh=FV8nAQQf9XGAZ7fW/KRtDG/2KL8tonOaC4OTpUFNiq4=;
+	s=arc-20240116; t=1787727465; c=relaxed/simple;
+	bh=10YQsE319fWD+kPVnACaWP3iv8GP+tJneaCptJzvKk0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d9AKnnoc5SHMNbnG1GiNWzATq20T4/EfhIive3V71bNBHVhkj9kDBPSe+kjZIpZO+d2XKx6t6Kq8VR7bCFpFfqPL9tEvOjHiy7OIQAlmL2jPM5tZAOVFGYrf1LukMl+sGmOirgLQ+MREIA0V/EeCPyzn7ZQ65bgXv6J4X3Me0E4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=lXnRxukq; arc=none smtp.client-ip=185.246.85.4
+	 Content-Type:Content-Disposition:In-Reply-To; b=hNdnysczNS899e2XT8zAwrYUXVMg5ceaDCFtkE+uKVWNsUxSqptrwE1BSAgVEyQI5BooX9PvNtD6PQA6v1+TJn3sohR85ViENzH1+hm1b1RY4hup33wZggqMT19n4CpVWv9wALh91KSiwueqLa/2klQozDc5DeLgIYUwWe1xADc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kCXn9AoC; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="lXnRxukq"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kCXn9AoC"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 2E0E84E413B5;
-	Wed, 26 Aug 2026 06:45:58 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 94C0D1A1838;
+	Wed, 26 Aug 2026 06:57:40 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 01AE8604EC;
-	Wed, 26 Aug 2026 06:45:58 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4150011C7935E;
-	Wed, 26 Aug 2026 08:45:57 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 6256D604EC;
+	Wed, 26 Aug 2026 06:57:40 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A731711C79F5F;
+	Wed, 26 Aug 2026 08:57:35 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787726757; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=IB6/QwYl4GvFtzDIDE6HFpYYu3oj3RZwFwpdgGywhQM=;
-	b=lXnRxukqEssFDprmV0gJ9VBaR9ipZn8lageBwU1nZVpTc9z3to4TSle35w9RiVO6KsHQE4
-	nnBydW/MwFcaay1JVKPr1bLen5nBj3S4MhStvuC/UEIde0k9deuAHCx3aS0d1U6HBPYWI+
-	3kqduTN3I8MzUFP//QvW996UGn5Zla3WURpd3s7FR73iDkmBJGf6RijUGDYjdFJmU3d7xd
-	kNB1JjeQRc994STkb7JNR1vxt6M0noTlLXqMdpG1rDOY1H4LyfONAf/fqjZIXw8lDHUl0V
-	qNtiM9+iX/g+QsAS7OWvMksSRLWHbQdBoe2ZM9PMOZTyqSCXcJloIaLSDH21Og==
-Date: Wed, 26 Aug 2026 08:45:56 +0200
+	t=1787727456; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=izTG9C0uNDXkzQQV3WtCXDfk3h+dFQ+wL+/QiCG9XKY=;
+	b=kCXn9AoC+7PDREYwiY5NLtR6KM2hRKCYASiHPW0LMhgSunUGXQfJUUF2W3vqoNVFdkbRQ3
+	LiinmXn4PwdfJINNSfpDlk5ebCzKWGGBpp1pBGffgy/n7L0OlbcaRCSSpqLYAysJpbx2yl
+	Zs74oCb644O1S92XG3EWoBfOX4Ujk+bq2HT6LeYM77aEwmPXq0L89ewezG13kbMSY0r0DS
+	Vg4WfjWnS7cGiK5L801Zz/VcA/hLuKmHKakINXiVD6NBbYG24sgwygvya4y5hcvfPwhciL
+	vt/CyBGT5e5tM3BP0yG4aJUD7ArTeHNtrWTbR+N6/xkIBmo6vZP8fSISU1hJZw==
+Date: Wed, 26 Aug 2026 08:57:35 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: "Sverdlin, Alexander" <alexander.sverdlin@siemens.com>
+To: Dhaval Shiroya <dhaval.shiroya@siliconsignals.io>
 Cc: "linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rtc: pcf85063: disable the clkout output by default
-Message-ID: <20260826064556dda469fe@mail.local>
-References: <20260824080801.709764-1-alexander.sverdlin@siemens.com>
- <20260824082456e0edd7c6@mail.local>
- <2ce03d3b4cd9cce8e32fe1fe1ffbea5760bf9ef3.camel@siemens.com>
- <202608252107336920b1e4@mail.local>
- <f4ae12f3fba06fc00c74f76555d684c1fa706179.camel@siemens.com>
+Subject: Re: [PATCH] rtc: rv3028: configure backup switch mode from device
+ tree
+Message-ID: <20260826065735b7e92466@mail.local>
+References: <20260822092911.318342-1-dhaval.shiroya@siliconsignals.io>
+ <2026082213092838377a26@mail.local>
+ <PN2P287MB289211E7C870D80EC2F7603F8DAE2@PN2P287MB2892.INDP287.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -52,54 +51,28 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f4ae12f3fba06fc00c74f76555d684c1fa706179.camel@siemens.com>
+In-Reply-To: <PN2P287MB289211E7C870D80EC2F7603F8DAE2@PN2P287MB2892.INDP287.PROD.OUTLOOK.COM>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 26/08/2026 06:13:08+0000, Sverdlin, Alexander wrote:
+On 26/08/2026 06:37:48+0000, Dhaval Shiroya wrote:
 > Hi Alexandre,
 > 
-> On Tue, 2026-08-25 at 23:07 +0200, Alexandre Belloni wrote:
-> > > > > The PCF85063 powers up with its CLKOUT pin driving the 32.768 kHz. While
-> > > > > it's possible to request a specific default frequency in the DT via
-> > > > > assigned-clocks/assigned-clock-rates on the RTC node itself, even without
-> > > > > a real consumer referencing the clock, there is no such possibility to
-> > > > > disable the clock output by default.
-> > > > 
-> > > > Are you sure about this? The CCF should disable the clock if it is not
-> > > > used.
-> > > 
-> > > There is late_initcall_sync(clk_disable_unused) (marked __init), but for the
-> > > clock providers registered later, say, via modules, there is no such mechanism.
-> > > And I double-checked this putting some debug prints into the driver,
-> > > nothing from struct clk_ops is being called without a consumer in DT.
-> > > 
-> > 
-> > Right, so what about the patch attached which seems to work fine with my
-> > rv3032.
+> >On 22/08/2026 14:59:11+0530, Dhaval Shiroya wrote:
+> >> Enable and set the backup switch mode directly from the device tree at
+> >> probe, instead of requiring a userspace RTC_PARAM_BACKUP_SWITCH_MODE
+> >> ioctl on every unit.
+> >> 
+> >
+> >No, just use the ioctl.
 > 
-> The patch would work for me as well, will you publish it officially?
+> Thanks for the reply.
 > 
+> Instead, can we enable the FEDE bit, as the datasheet recommends enabling it when switching to RTC Backup Switchover Mode?
+> 
+> Could you please share your thoughts on this?
 
-Yes, that's the plan.
-
-> BTW, it's racy, if __clk_register() would be called between
-> 
-> 	clk_disable_unused();
-> 
-> ... and...
-> 
-> 	WRITE_ONCE(clk_disable_unused_done, true);
-> 
-> ... the workqueue will not be scheduled. But overall it's a nice idea!
-
-I'm not sure you can actually load modules before late_initcall_sync
-finishes.
-
-> 
-> Maybe we just need to drop late_initcall_sync() entirely, this would simplify
-> the things a bit?
-
-I'll let this to the (new) clk maintainers.
+It is never disabled and so it is always enabled unless someone disabled
+it on purpose.
 
 
 -- 
