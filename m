@@ -1,29 +1,29 @@
-Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
+Received: from smtpbg151.qq.com (smtpbg151.qq.com [18.169.211.239])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B2E73BED2D
-	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 08:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD4503C277B
+	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 08:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.169.211.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787818023; cv=none; b=P+SLrPZTU7WmuvawxSdpxA5579cjyurZcfovY/1xcPHoK31L7JbE99RLEVWMAjepwyK2Si65G0I+h1fr2dRjNrhRTYugJqFLK1srJsLLzihD6xX8Je6XbmiWoTq4ptH4FiCpbFqdW5E+FHCmrbOwSMfI063Np8uEGRf9eUWQWus=
+	t=1787818082; cv=none; b=A/4KJVilin6qjO7h6pjFZdM6tSufNF5Qf6SdlnviGWBJgEHNj3DaINT6e59rdpuuZZ4l9cm9UjAyU/GIzBO4Kf4q07RVZZbByEN3RLqKxJbV/ruuaADKHJHtQpkAsUTHo/o8dnkWuajNWAc8L0EruwaKiSV+VpScblBnSSxBdpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787818023; c=relaxed/simple;
-	bh=aKacfkQHn6PL7k3vf0TxcUTw91KGSpbeSvFMs4E+mmg=;
+	s=arc-20240116; t=1787818082; c=relaxed/simple;
+	bh=OmI6SkkcPYSYjkgVU0gPuuOLO58LVFJH4UPNHkXXev4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jN6N1RCMwhWJDZxKT7NwvxiFUsEM5K6wrU5Uy2fNXQV+Vkri5zHOjCde/k9tjb9xfVmDy9wjL272g5spitl43uOplnmOpCti2kEddHHvNfx9cpvDul3sqjzDcIgpT7R1H7kRTfdYaXSNK4KXxWfbi22n5d3Y1bqJOFv0pfdyrDs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=52.59.177.22
+	 In-Reply-To:Content-Type; b=L5IJqAR4EThAzQ9i7rWspBNq+iwLcgmTf6fKvJYQDKR7OCJ7DiJm1uwfpc8uithC2VsqfEPYgGu2CcZTpF5fc7+R+4ah7PqYtOxGcmN7XByjDyn1iCKFcNhrTz+xLOck4rH0prS84jnlu8vEMiSleF9mlgqAFG+NPARBiUTzGSQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=18.169.211.239
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
-X-QQ-mid: esmtpgz11t1787817997t4487356d
-X-QQ-Originating-IP: eP/vieI/zvw5fjLxklvmI+Hxnc8LaZ0DE7sXI8nhbYM=
+X-QQ-mid: zesmtpgz7t1787818048t73969d49
+X-QQ-Originating-IP: 26/NJi8eHhdKqI2rx/1uAQmiNBDl3cY1AZulyYou38w=
 Received: from [192.168.64.241] ( [111.8.45.130])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 27 Aug 2026 16:06:34 +0800 (CST)
+	id ; Thu, 27 Aug 2026 16:07:26 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 655855182742176943
-Message-ID: <0B2B828ACEF8E81C+387077bf-b850-4c7e-bb38-9c031e4ee429@kylinsec.com.cn>
-Date: Thu, 27 Aug 2026 16:06:33 +0800
+X-BIZMAIL-ID: 14659579519580919907
+Message-ID: <1DEB0773A8C9D6DD+0de3c2e3-2201-4670-a899-5bcc89b35cb5@kylinsec.com.cn>
+Date: Thu, 27 Aug 2026 16:07:23 +0800
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -31,225 +31,181 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/3] rtc: ftrtc010: use devm clock APIs to fix
- use-after-disable in remove
+Subject: Re: [PATCH v1 3/3] rtc: ftrtc010: fix integer overflow in time
+ calculation
 To: sashiko-reviews@lists.linux.dev
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
  linux-rtc@vger.kernel.org
 References: <20260827021054.0963C1F000E9@smtp.kernel.org>
  <20260827063019.3342085-1-liudalin@kylinsec.com.cn>
- <17C4ADB7B3B875B8+20260827063019.3342085-3-liudalin@kylinsec.com.cn>
- <20260827064300.7825B1F000E9@smtp.kernel.org>
+ <B06A3E7BF268E081+20260827063019.3342085-4-liudalin@kylinsec.com.cn>
+ <20260827065312.CECC11F000E9@smtp.kernel.org>
 Content-Language: en-US
 From: liudalin <liudalin@kylinsec.com.cn>
-In-Reply-To: <20260827064300.7825B1F000E9@smtp.kernel.org>
+In-Reply-To: <20260827065312.CECC11F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: MmIUUz9KGMMdJyglVnQA0/ljZryFt+6wzKhqy2MSYfinuj1RY5+bykdE
-	ZHQEIfRxJTTG/vMkptmFQsFCyshYswCrUBeoEN53bIwWdKbVn7oi+m89p5rF09LoMJ1QFLT
-	4f8t68A67+ClXH90ARX7uBBx3sH8WDjPRcRwfUwh0Baoql7zH93wEiQgKNewHOUTNNG5dBX
-	rqs5SJsazd9tLMsBJ7tHmbEGLV2r04VZ8i+Fa8JTvdzJMAY1gaTTx4NxojESO5WgFX1K74l
-	XReZeDwCv7RrCRJYTTxNK4yam8lu8xmtTRoqnPy/1J6DAnr9+xoBJZ04hmI0I8iHMcBrjWp
-	G8wnKShiiq9MO3+RpbRiHEbb8jwkEttTDqbAOnRl2JnFCOJTGpQ1XaUxhhoY2GWEVqMvK5s
-	nIo1yXwZfXHpr9R/6Dqy6ZCJcTHSni2c5HpDAX5En1WPUKsL3PXD7SeDTmbg6uePA0fpJNV
-	rPaQBQKXGLdo4UEv7kWU2I+Uq5q012wEduEJ/BKlaC/FVfOZ4nwLZN+hEqeU0WZi9kayjEA
-	KeqEDaqAkpTWH8zuh0jz+gAINglxWRS9vYBFXyeKWaVs/dilVSSEH4bukzFWHfK49TRoe3c
-	ZWSJLWvPcUkW2z+u0Q/4qT4fGfwU4N1DrqhyEyhPvdADVn/wvmZSvkhk85ur9BPv0FFs3Gr
-	DAkHm2Mqmi+3x8QBGSF5o2cOwqZDLKCd7cXjKLigXdVyFkAaD1kuEvO3RnMIQzzI03xTQgq
-	WJmRJquqPwf1XNn6l8AAst5UrsPuIAcG9BDR8n8lQBOQHUUSfwZjYUhY9PjFDzzS+8yzN90
-	Dja/ubW1H9LgNPJjGydg2ppKXiNFI2yLq2A18SexoPzwqvrnVIOWwjLHtIbajD2GIYkn4R/
-	mUhKgQ6ixoSyfaeGinGT0M+k+EXK18s+gKUI3NkWhQ4+YmihG+s9zU/B5ne0VXBHwhVaJ2s
-	mwbTaRhDH9Nv/ByY9UV8Ji9oGZzk8Yo3USQjkde2KwYLA7n0PWXM11gt0W8n8fnk24VjhSo
-	TrJAT8nb/neivj3ihhnIIWcHwYmFo=
-X-QQ-XMRINFO: NyFYKkN4Ny6FzEd1DoGtcfjSGHs6P4K7Vw==
+Feedback-ID: zesmtpgz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: MmpliBmRb3iCf/gg9VH2OFmiM+0zxG3gub41txy8rh+FeBWUceTds6+2
+	RyqDvws+tkYNpOi2kVBOzUjNFTr1vnbNN6DWPZO6OHAIs5AmYinmY5v6x7H2uQApdxJpDHS
+	D1D7YhL833LMPfPyLiKO2vXIdZDDib3njLMa9KDQnhKVksY4O6DjCLPCbuQclZG3n3huQY0
+	w5cuOhiij8VuuALFjTa+iuz7anPfNDcL5M9u46i9jMxExGqh3lnkXmKQ546uKizrzt2bf8b
+	ySxYgs2fJplu06b8vEa17YEfK4nE6+zQzY8uKJtdVpEYR77/V0plaodD+UyTuf0HAD5yF3i
+	A/fjHp2dg1IYBBhHDVlWXzWDOnkXrDlUWXNmMzXv5IzR5vI3IAEXymyapIXMkop6j54GwTH
+	92qQezLVjywKkObL2Qy6+WpBusSzWN7FfRnnkgXzPeHBKFWCY1qVnZ6pTP0TELXa/eWFFHN
+	WggXrdrGVt3c+Hc1Q0gsbaKkK47mGif8RRT0LomCBdtXRaYS3CIc6CjguwbJM2P8NnXrK20
+	nE3fPCYqb4iuo6cZbnve99VUK/q0zvQ3zMh4dITzTgPBCsIxuq5wHbHEvwliP98eyCY3Qw1
+	29b6r80biVjuK8BKH03jC+qzF7EvjxPv4TMIoZh2DFQwzkLrM/tLmvWEqfAnJeBApuYyB0v
+	Ac9H/Kyz1c20w0P9IeglTacUkvJ8gbesaKg6twP7CkEU449DsKEbFe8mGevKUQ3jJtbgXZO
+	uBDI8fAi3b92nW4i1q4t3nA9emipHSlrDeM5R+zSchNrWyfkV7Hpg5YMZXacppi18/Vgcpz
+	XhnQc3jf4hRksWx2O57FGdxheC4dSH8U1am2S/qW+t2+TLYPstmWh6S+KvjtIAgQwRQkGJg
+	buwMXLT2oozccW8QG+uRTHMSbEpM0BhtN/kbCSdOMPP0TNX2lTJWT1T3PV38X0yl0qsiSZt
+	8s7i9XKBgJh+wSuxj/sLnZkODR5dAer7YHAbSgKgAs8DsBU7dEBDaOKij1NRkXKC3pygpvQ
+	7pj2QtOtw5PvLXA+e3LomlpPb8Qek=
+X-QQ-XMRINFO: Mp0Kj//9VHAxGvRtF542+ONDzknxnUqv0w==
 X-QQ-RECHKSPAM: 0
 
 On Thu, 27 Aug 2026, Sashiko AI wrote:
 
  > [Severity: High]
- > If CONFIG_HAVE_CLK is disabled, devm_clk_get_enabled() returns NULL.
- > Doesn't PTR_ERR_OR_ZERO(NULL) evaluate to 0, which would cause
- > ftrtc010_rtc_probe() to silently return 0 and exit prematurely
- > before mapping memory or registering the RTC device?
+ > Does this transition to 64-bit arithmetic zero-extend negative time
+ > offsets? If the offset is negative, casting it directly to timeu64_t
+ > breaks the two's complement modulo arithmetic required to correctly
+ > decode negative time differences, which could cause the clock to
+ > erroneously jump about 136 years into the future.
 
-This is correct behavior, not a bug:
+Thank you for the thorough analysis. This is a valid issue and has been
+fixed in v2.
 
-1. When CONFIG_HAVE_CLK is disabled, the entire clock framework is
-    compiled out. devm_clk_get_enabled() returning NULL indicates
-    "no clock management needed", and PTR_ERR_OR_ZERO(NULL) = 0
-    correctly allows probe to proceed.
+The original code cast each operand individually to timeu64_t:
+   time = (timeu64_t)offset + (timeu64_t)days * 86400 + ...
 
-2. The Gemini SoC (the only user of this driver) always enables
-    CONFIG_HAVE_CLK via ARCH_GEMINI in its defconfig.
+When offset is a negative time difference stored as u32 (e.g.,
+0xFFFFFFFE for -2), zero-extension produces 0x00000000FFFFFFFE,
+causing a ~136-year forward jump.
 
-3. This is the standard pattern used throughout the kernel for
-    optional clock handling (see devm_clk_get_optional_enabled()
-    documentation in include/linux/clk.h).
+The fix is to perform the addition in 32-bit arithmetic first,
+then cast the result to 64-bit:
+   time = (timeu64_t)(offset + days * 86400 + hour * 3600 + min * 60 + sec);
 
- > [Severity: High]
- > Additionally, since the old code treated PCLK as optional (only logging
- > an error if it failed), what happens if the clock is omitted from the
- > Device Tree? devm_clk_get_enabled() returns -ENOENT, which
- > PTR_ERR_OR_ZERO() will propagate as an error. Could this break
- > backward compatibility with older device trees that omit this clock?
+The u32 addition naturally wraps using two's complement, and the
+final cast to timeu64_t preserves the correct value.
 
-The old code's "optional" treatment was itself a bug, not a feature:
-
-1. The hardware requires both PCLK and EXTCLK to function. Without
-    PCLK, the RTC registers cannot be accessed. The old code would
-    continue probe, map memory, and register the device, leading to
-    synchronous external aborts on the first register read.
-
-2. The devicetree binding (Documentation/devicetree/bindings/rtc/
-    faraday,ftrtc010.yaml) lists both clocks as required properties.
-
-3. Both compatible strings ("cortina,gemini-rtc" and
-    "faraday,ftrtc010") reference devicetrees that always include
-    both clocks. There are no known device trees that omit them.
-
-4. Failing probe is strictly better than the old behavior: the
-    error is reported clearly, and the driver can be retried or
-    unloaded cleanly.
+For ftrtc010_rtc_set_time(), no change is needed -- the offset is
+assigned to a u32 variable, which automatically truncates to 32 bits,
+preserving the correct two's complement result.
 
  > [Severity: High]
- > Does this have the same silent probe truncation or Device Tree
- > compatibility issues as the PCLK conversion above?
+ > This isn't a bug introduced by this patch, but can these unsynchronized,
+ > non-atomic reads of consecutive RTC time registers produce corrupted
+ > timestamps?
 
-Same answer as above -- the behavior is correct and the old code
-was buggy. Both clocks are required by the hardware and the
-devicetree binding.
-
- > [Severity: High]
- > This is a pre-existing issue, but I noticed the driver requests a
- > shared interrupt with IRQF_SHARED. Looking at ftrtc010_rtc_interrupt(),
- > it returns IRQ_HANDLED unconditionally...
-
-Please see the response to the same concern on patch 1. The RTC
-hardware is never configured to generate interrupts, and IRQ 17 is
-not shared with other devices on the Gemini SoC. This is outside
-the scope of this patch.
-
- > [Severity: High]
- > This isn't a bug introduced by this patch, but looking through the
- > driver, is there a race condition against the hardware ticking in both
- > ftrtc010_rtc_read_time() and ftrtc010_rtc_set_time()?
-
-Please see the response to the same concern on patch 1. The 1 Hz
-tick rate makes this negligible in practice, and the hardware
+Please see the response to the same concern on patches 1 and 2. The
+1 Hz tick rate makes this negligible in practice, and the hardware
 provides no latching mechanism. This is outside the scope of this
 patch.
+
+ > [Severity: High]
+ > This isn't a bug introduced by this patch, but can this sequential read
+ > result in computing an improperly desynchronized offset?
+
+Same as above -- outside the scope of this patch.
+
+ > [Severity: High]
+ > Does this calculation incorrectly wrap offset into a large 32-bit
+ > integer? If the target Unix time is numerically smaller than the
+ > hardware's internal uptime counters, the difference becomes negative.
+
+The offset variable is u32, which stores the negative difference as
+a two's complement value. When read back in ftrtc010_rtc_read_time(),
+the u32 addition wraps correctly. This is the intended behavior of
+the driver's offset-based timekeeping design.
 
 --
 2.43.0
 
-在 2026/8/27 14:43, sashiko-bot@kernel.org 写道:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+在 2026/8/27 14:53, sashiko-bot@kernel.org 写道:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
 >
 > New issues:
-> - [High] Incorrect clock API usage and error handling truncates probe on missing or optional clocks.
+> - [High] Transition to 64-bit arithmetic zero-extends negative time offsets, causing the clock to erroneously jump ~136 years into the future.
 >
 > Pre-existing issues:
-> - [High] Time-of-Check to Time-of-Use (TOCTOU) race against hardware ticking causes time corruption.
-> - [High] Unconditional IRQ_HANDLED on a shared interrupt line defeats the spurious interrupt detector.
+> - [High] Unsynchronized, non-atomic reads of consecutive RTC time registers can produce severely corrupted timestamps if a hardware tick and rollover occurs during the read sequence.
 > --
 >
-> commit 289123a8d46a85463292da46c4edfed7ee0a88db
+> commit 0451b19111beae8b1f5abde3e58d176d4ad642f2
 > Author: Liu Dalin <liudalin@kylinsec.com.cn>
 >
-> rtc: ftrtc010: use devm clock APIs to fix use-after-disable in remove
+> rtc: ftrtc010: fix integer overflow in time calculation
 >
-> This commit replaces manual clock management with devm_clk_get_enabled()
-> to tie the clock lifecycle to devres, fixing a use-after-disable window
-> during device removal. It also cleans up the probe error handling path
-> and removes the manual remove callback.
+> This commit addresses an integer overflow in ftrtc010_rtc_read_time and
+> ftrtc010_rtc_set_time. It casts the 32-bit time variables to timeu64_t before
+> multiplication to ensure 64-bit arithmetic, preventing overflow for dates
+> beyond year 2106.
 >
 >> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+>> index 2f610a0fc6e9b..6fff537cad27e 100644
 >> --- a/drivers/rtc/rtc-ftrtc010.c
 >> +++ b/drivers/rtc/rtc-ftrtc010.c
->> @@ -120,51 +120,33 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
->>   		return -ENOMEM;
->>   	platform_set_drvdata(pdev, rtc);
->>   
->> -	rtc->pclk = devm_clk_get(dev, "PCLK");
->> -	if (IS_ERR(rtc->pclk)) {
->> +	rtc->pclk = devm_clk_get_enabled(dev, "PCLK");
->> +	if (IS_ERR_OR_NULL(rtc->pclk)) {
->>   		dev_err(dev, "could not get PCLK\n");
->> -	} else {
->> -		ret = clk_prepare_enable(rtc->pclk);
->> -		if (ret) {
->> -			dev_err(dev, "failed to enable PCLK\n");
->> -			return ret;
->> -		}
->> +		return PTR_ERR_OR_ZERO(rtc->pclk);
->>   	}
+>> @@ -73,7 +73,8 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+>>   	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+>>   	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
 > [Severity: High]
-> If CONFIG_HAVE_CLK is disabled, devm_clk_get_enabled() returns NULL. Doesn't
-> PTR_ERR_OR_ZERO(NULL) evaluate to 0, which would cause ftrtc010_rtc_probe()
-> to silently return 0 and exit prematurely before mapping memory or registering
-> the RTC device?
+> This isn't a bug introduced by this patch, but can these unsynchronized,
+> non-atomic reads of consecutive RTC time registers produce corrupted
+> timestamps?
 >
-> Additionally, since the old code treated PCLK as optional (only logging an
-> error if it failed), what happens if the clock is omitted from the Device
-> Tree? devm_clk_get_enabled() returns -ENOENT, which PTR_ERR_OR_ZERO() will
-> propagate as an error. Could this break backward compatibility with older
-> device trees that omit this clock?
+> If a hardware tick and rollover occurs during the read sequence:
 >
->> -	rtc->extclk = devm_clk_get(dev, "EXTCLK");
->> -	if (IS_ERR(rtc->extclk)) {
->> +	rtc->extclk = devm_clk_get_enabled(dev, "EXTCLK");
->> +	if (IS_ERR_OR_NULL(rtc->extclk)) {
->>   		dev_err(dev, "could not get EXTCLK\n");
->> -	} else {
->> -		ret = clk_prepare_enable(rtc->extclk);
->> -		if (ret) {
->> -			dev_err(dev, "failed to enable EXTCLK\n");
->> -			goto err_disable_pclk;
->> -		}
->> +		return PTR_ERR_OR_ZERO(rtc->extclk);
->>   	}
+> ftrtc010_rtc_read_time()
+>      sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+>      min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+>      ...
+>
+> It appears possible to read desynchronized values, which could result in
+> permanent time corruption up to 1 day.
+>
+>> -	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
+>> +	time = (timeu64_t)offset + (timeu64_t)days * 86400 +
+>> +	       (timeu64_t)hour * 3600 + (timeu64_t)min * 60 + sec;
 > [Severity: High]
-> Does this have the same silent probe truncation or Device Tree compatibility
-> issues as the PCLK conversion above?
+> Does this transition to 64-bit arithmetic zero-extend negative time offsets?
 >
-> [ ... ]
+> If the offset is negative, casting it directly to timeu64_t breaks the two's
+> complement modulo arithmetic required to correctly decode negative time
+> differences, which could cause the clock to erroneously jump about 136 years
+> into the future.
 >
->> @@ -179,29 +161,13 @@ static int ftrtc010_rtc_probe(struct platform_device *pdev)
->>   	ret = devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
->>   			       IRQF_SHARED, pdev->name, dev);
+>> @@ -93,7 +94,8 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
+>>   	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
+>>   	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
 > [Severity: High]
-> This is a pre-existing issue, but I noticed the driver requests a shared
-> interrupt with IRQF_SHARED. Looking at ftrtc010_rtc_interrupt(), it returns
-> IRQ_HANDLED unconditionally:
+> This isn't a bug introduced by this patch, but can this sequential read
+> result in computing an improperly desynchronized offset?
 >
-> static irqreturn_t ftrtc010_rtc_interrupt(int irq, void *dev)
-> {
->          return IRQ_HANDLED;
-> }
+> If a tick occurs between reads:
 >
-> If another device sharing this IRQ line asserts an interrupt and gets stuck,
-> would this unconditional return prevent the kernel's spurious interrupt
-> detector from disabling the broken IRQ line, potentially leading to an
-> interrupt storm and a system hang?
+> ftrtc010_rtc_set_time()
+>      sec = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+>      min = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+>      ...
 >
-> [ ... ]
+> It seems this could permanently corrupt the stored RTC offset and skew the
+> time until it is reset.
 >
+>> -	offset = time - (day * 86400 + hour * 3600 + min * 60 + sec);
+>> +	offset = time - ((timeu64_t)day * 86400 + (timeu64_t)hour * 3600 +
+>> +			 (timeu64_t)min * 60 + sec);
 > [Severity: High]
-> This isn't a bug introduced by this patch, but looking through the driver,
-> is there a race condition against the hardware ticking in both
-> ftrtc010_rtc_read_time() and ftrtc010_rtc_set_time()?
+> Does this calculation incorrectly wrap offset into a large 32-bit integer?
 >
-> In ftrtc010_rtc_read_time():
+> If the target Unix time is numerically smaller than the hardware's internal
+> uptime counters, the difference becomes negative. This can happen on offline
+> embedded devices where the initial OS time defaults to 1970-01-01.
 >
-> 	sec  = readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
-> 	min  = readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
-> 	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
-> 	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
->
-> If the hardware clock rolls over (for example, incrementing the minute from
-> 59 seconds to 00 seconds) between the reads of two registers, could the
-> software combine the old value of one register with the newly incremented
-> value of another, resulting in wildly corrupted time calculations?
+> Casting this negative 32-bit offset to timeu64_t zero-extends it instead of
+> allowing the required 32-bit modulo arithmetic. This could lead to a massive
+> forward jump when ftrtc010_rtc_read_time is subsequently called.
 >
