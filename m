@@ -1,187 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpbg151.qq.com (smtpbg151.qq.com [18.169.211.239])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA364381AE7
-	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 02:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60ECF35C684;
+	Thu, 27 Aug 2026 06:31:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.169.211.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787796656; cv=none; b=HU9fAMFjVBX7HLqHThT/+d53puk3KxFksQypyP2etMffgSvzndn+aA7TaIGr74+5FQBpD0kx82tCI+Yy1QLXyUpg1/wwBSjFVIS8+EDqcvuPp9xwFiUQyfkoDMUekrJ9AOOxkC0B+dhQOGzE+Hn4tpOdkkD+u1TxLb4uZZ235Tg=
+	t=1787812299; cv=none; b=QuZQJMPVi9mR5z2vD9VtNvtSr9pW7RQyPMSNZllI+6UD09sbXZzCPBtOwPqni9NNaOrxnVcu0TcT5qbxsMt7tQ9F8KeHVTmE2llsqQqHhRQ7DJD2lExAyE3CSWBUul8lrsjdztKm7K2iunrEu2ujXW1F5kv5vmqE62h9B0evSyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787796656; c=relaxed/simple;
-	bh=gOhpJMpJF9XN1Cqrvusoc04kySNXS0nUloeOVqHNSl4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=s01iLozYW0B1mZ7mUQQlD9nN1UusG6JvUxykwfKsUgNGdO+WdgcoAOTzJk8AQsQHQbiGD0EYc81Rxo5xu2IeKGx+n6/f4ZSaPD0LYEVrf71TjxZp/TFQBYlYnPNuIthB2Pb1SwuYmHUUCxPa0Viwik12JJHYfZOto8a6RYbAQ8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J5RnG0fm; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J5RnG0fm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0963C1F000E9;
-	Thu, 27 Aug 2026 02:10:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787796654;
-	bh=+tTBAehgwWk7RAcaNjykDoBNYRHB29XrYvcp6XxwMh0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J5RnG0fmvCtMe645JKe5X3d4y+ykz/pvXmOHKR4st3dmU442x+nUxMB6W4lTqT6j8
-	 XWy6rmmJq1mnITuIYilK/wezFdnya9+i/hyGsAKfjOqYPlVpQj+9TffTQiZyOuc6ET
-	 PfD72G1LSEbOrdYBa8XnqCrAcaeEu8JLs8fpbvUBUZr/ZTC4ktljA3+4NkUiw8z4P2
-	 wB04v+WEbkFWaGD3Ennfm+FfQDuspytyD/SJkvgMeSKzDV/sIyEiPBacteSobsuCSN
-	 fK+3dyaX0isIjPC3rlXIABUkS41n+FBYkmMu4AaCo62TaSLldNCeEoV50lQGV1lIxr
-	 fsEOsTpuM8Pzg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: ftrtc010: fix clock resource leak on probe failure
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Liu Dalin" <liudalin@kylinsec.com.cn>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <6A7910FC22A9FEF1+20260827015739.3314298-1-liudalin@kylinsec.com.cn>
-References: <6A7910FC22A9FEF1+20260827015739.3314298-1-liudalin@kylinsec.com.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 27 Aug 2026 02:10:53 +0000
-Message-Id: <20260827021054.0963C1F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1787812299; c=relaxed/simple;
+	bh=jU0wmN+cyHRaZG/2BiVEi2Q+aOWoghNIaccFzWzul44=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=k3mnD67dOgeAvhGz42Bco2AHYO2D5C/krZ7OHpqv0oE3kj8IGIMjIfMJ+4YtjHY+ApfXm50KJBeprDqRJgpuMPTkZ+P7sEeGtYbcbisPD3LKrQgPXfKbrU0ZBybH4ygoYudYWLj7XUqFfLrw7zL2Yz+24Ezdx92ovuFsCho3mlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=18.169.211.239
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
+X-QQ-mid: esmtpsz20t1787812230t591c1c45
+X-QQ-Originating-IP: Zqc5Xjwkq0I5LO6JE8j/1Sdq6iru3r0BaEOLrkUubYs=
+Received: from localhost.localdomain ( [111.8.45.130])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Thu, 27 Aug 2026 14:30:25 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 13255790985149150608
+EX-QQ-RecipientCnt: 10
+From: Liu Dalin <liudalin@kylinsec.com.cn>
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Liu Dalin <liudalin@kylinsec.com.cn>,
+	Deng Yingchao <dengyingchao@kylinsec.com.cn>,
+	Qin Yungao <qinyungao@kylinsec.com.cn>,
+	Luo Qiu <luoqiu@kylinsec.com.cn>
+Subject: [PATCH v1 0/3] rtc: ftrtc010: fix resource management and integer overflow
+Date: Thu, 27 Aug 2026 14:30:16 +0800
+Message-ID: <8C319CEAD84EF35B+20260827063019.3342085-1-liudalin@kylinsec.com.cn>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260827021054.0963C1F000E9@smtp.kernel.org>
+References: <20260827021054.0963C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpsz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: NyMcZNLslEFVN2hywhQ5lbXEjSbYI7YF3lRiDgS5tk/vdFSgrAUzoxti
+	/JJb2iKwJESCksZwGcP60Y5cLda+soEjIbCr7N53WAdLYKYyB/8NDUzfQaaW4m8td9gZmVe
+	tJUNuDCEIo8/f1ck+rI7yX3YHrLrslsmwQTjYofeZx7mDDZum96hIwqUkXBKdUprcGsQhBh
+	aopaclyu28W/FIo/7723WXCPuWm0egTCFEvqqtnnTfD7TtX5vSC7nEQAhGYGb7K9U8KXuZJ
+	HWLODf6+VebPlA28EdkgEEMSR26ULxMxooHjlEeQtuqt3Fv5N1hjfuJWxvGlWjBw7r/xNfM
+	glpTDWt4lmcUL40UElgva9Orp5ByKuL4OH0Vb16nPMM0ChTQpEKOQbRS/S5tnhEZ0oq2CYc
+	v2FRRTeC2MbZfueNflIprENpIzqXH0juvGmhx4yYqQFA6b5SFOmbEgvMbHw3VBTARkWCNq3
+	TucOwKxEEgLv1SV4mzunb/fe6qmeE3tnHotMxwULcA20rqFAab2b2UVwEMMcSz78HbNPKYx
+	YyW+TxFSqz7apKh943Ga/PFWsWjfKrL86cgufvjc8AdrqXik0kuHe0yZT53b+Sb51RwooNw
+	oF18CuzxEpuDx5ezazkjjRlXMshuruJ6R9EsBWEbEFa1n1yPTOmINftaPQgsgRwVlq/nI92
+	bTqJkI0y8YDkwaF22Y5csc6+h+OFs8DWsAWkOHnIAEYNYcF2nmqcNT5iyVrpOV7I1TXhhL4
+	iVIfk5LdPA+Thm3NFSF3xdz0UYEa/+h5Vw3d6l2fYyAHats3maOZUBpWlUoIEZNIMeUI8ri
+	79yVJH3RGm8nzyw2s+FywzbVCHhQuQ0zSzPRRNIt9eSBhvKDQQ8gfsK2KQB1FudvdIh0BMp
+	0GF8YBS7yAbCAd4OsfmeV/14YexydTaDvzfdvVNGsEB4vyiJbGAw3DH9sw77QrQg9PQ7vek
+	tkaQXNjkC2g1Snxqx2AP1S6jKkN7XfTjPcyp9/i1TwT7fhHlwXe2/ehDTQt+Pt8K8IYGIwS
+	DiOtdIH1RseG9Ckz/QYdX7BcoXvsP6iykm4d1LUEaWK7w3ZBeZxOlqBSIjv5ZGkGXcT9+Lr
+	vyJOQ9+eE5HEkFkN+lqpuI=
+X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
+X-QQ-RECHKSPAM: 0
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+This series fixes three issues in the Faraday FTRTC010 RTC driver
+found by Sashiko AI static analysis:
 
-Pre-existing issues:
-- [High] Mixing devm_rtc_register_device() with manual clock disabling in .=
-remove causes a use-after-disable vulnerability.
-- [High] Shared interrupt handler unconditionally returns IRQ_HANDLED witho=
-ut checking hardware registers.
-- [High] Integer overflow in `ftrtc010_rtc_read_time` due to 32-bit arithme=
-tic wrapping.
+Patch 1: Fixes a clock resource leak when devm_rtc_register_device()
+fails in ftrtc010_rtc_probe().
+
+Patch 2: Replaces manual clock management with devm APIs to fix a
+use-after-disable vulnerability in ftrtc010_rtc_remove(). The RTC
+device is registered via devm_rtc_register_device() but clocks are
+manually disabled in .remove() before devres cleanup, creating a
+window where MMIO reads on clock-gated hardware can cause a
+synchronous external abort.
+
+Patch 3: Fixes integer overflow in ftrtc010_rtc_read_time() and
+ftrtc010_rtc_set_time() where u32 arithmetic wraps for dates
+beyond year 2106.
+
+All three patches are based on v7.2-rc2 and have been verified
+with checkpatch.pl --strict.
+
+Liu Dalin (3):
+  rtc: ftrtc010: fix clock resource leak on probe failure
+  rtc: ftrtc010: use devm clock APIs to fix use-after-disable in remove
+  rtc: ftrtc010: fix integer overflow in time calculation
+
+ drivers/rtc/rtc-ftrtc010.c | 72 ++++++++++++++------------------------
+ 1 file changed, 25 insertions(+), 47 deletions(-)
+
 --
-
-commit 7252ea4ab6d10cb6ebbf156a3c7aa20a2dbb7aa7
-Author: Liu Dalin <liudalin@kylinsec.com.cn>
-
-rtc: ftrtc010: fix clock resource leak on probe failure
-
-When devm_rtc_register_device() fails, ftrtc010_rtc_probe() returns the err=
-or
-directly without releasing clocks obtained via clk_prepare_enable(). This
-patch captures the return value and jumps to the error handling path to
-properly release clocks via clk_disable_unprepare().
-
-> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-> index 02608d3784958..f398d6dc85ae4 100644
-> --- a/drivers/rtc/rtc-ftrtc010.c
-> +++ b/drivers/rtc/rtc-ftrtc010.c
-> @@ -181,7 +181,11 @@ static int ftrtc010_rtc_probe(struct platform_device=
- *pdev)
->  	if (unlikely(ret))
->  		goto err_disable_extclk;
-> =20
-> -	return devm_rtc_register_device(rtc_dev);
-> +	ret =3D devm_rtc_register_device(rtc_dev);
-> +	if (ret)
-> +		goto err_disable_extclk;
-> +
-> +	return 0;
-> =20
->  err_disable_extclk:
->  	clk_disable_unprepare(rtc->extclk);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but mixing
-devm_rtc_register_device() with manual clock disabling in ftrtc010_rtc_remo=
-ve()
-causes a use-after-disable issue.
-
-In ftrtc010_rtc_remove(), the hardware clocks are manually disabled before
-devres cleans up the RTC character device:
-
-drivers/rtc/rtc-ftrtc010.c:ftrtc010_rtc_remove() {
-    ...
-	if (!IS_ERR(rtc->extclk))
-		clk_disable_unprepare(rtc->extclk);
-	if (!IS_ERR(rtc->pclk))
-		clk_disable_unprepare(rtc->pclk);
-}
-
-Because the RTC device was registered with devm_rtc_register_device(), it
-remains registered until devres cleanup runs after the .remove callback
-returns.
-
-Could an unprivileged process with an open file descriptor to /dev/rtc0 iss=
-ue
-an ioctl(RTC_RD_TIME) during this window?  Wouldn't this invoke
-ftrtc010_rtc_read_time() which performs MMIO reads on the clock-gated
-hardware, resulting in a synchronous external abort and crashing the system?
-
-Should the clocks be managed with devm_clk_get_enabled() or
-devm_add_action_or_reset(), tying their lifecycle to devres and eliminating
-the need for manual teardown in ftrtc010_rtc_remove()?
-
-[Severity: High]
-This is a pre-existing issue, but the shared interrupt handler unconditiona=
-lly
-returns IRQ_HANDLED without checking hardware registers.
-
-The driver explicitly registers the interrupt as shared in
-ftrtc010_rtc_probe():
-
-drivers/rtc/rtc-ftrtc010.c:ftrtc010_rtc_probe() {
-    ...
-	ret =3D devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
-			       IRQF_SHARED, pdev->name, dev);
-    ...
-}
-
-However, the handler blindly claims the interrupt, masking 'nobody cared'
-warnings for the shared line:
-
-drivers/rtc/rtc-ftrtc010.c:ftrtc010_rtc_interrupt() {
-	return IRQ_HANDLED;
-}
-
-If another device shares this IRQ line and asserts an interrupt, the IRQ co=
-re
-calls all registered handlers.  Since ftrtc010_rtc_interrupt() unconditiona=
-lly
-returns IRQ_HANDLED without checking device-specific registers, won't the
-IRQ core incorrectly assume the interrupt was legitimately handled?
-
-If the actual interrupting device is level-triggered and its driver is
-unbound or fails to clear the interrupt, couldn't this cause an endless
-interrupt loop that completely freezes the system because the IRQ line
-remains asserted and the IRQ core will not disable it?
-
-Should the interrupt handler read a status register to verify if the RTC
-actually generated the interrupt and return IRQ_NONE if it did not?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but there is an integer overflow=
- in
-ftrtc010_rtc_read_time() due to 32-bit arithmetic wrapping.
-
-In ftrtc010_rtc_read_time(), the calculation for time evaluates entirely in
-32-bit math:
-
-drivers/rtc/rtc-ftrtc010.c:ftrtc010_rtc_read_time() {
-    ...
-	u32 days, hour, min, sec, offset;
-	timeu64_t time;
-    ...
-	time =3D offset + days * 86400 + hour * 3600 + min * 60 + sec;
-    ...
-}
-
-Since offset, days, hour, min, and sec are all 32-bit unsigned integers,
-won't this silently overflow and wrap around U32_MAX before being assigned =
-to
-the 64-bit result?
-
-If a privileged user sets the RTC time to a value near or beyond
-the year 2106 (U32_MAX seconds), wouldn't the reported time wrap around
-incorrectly, causing data corruption and contradicting the driver's
-rtc_dev->range_max configuration?
-
-Should one of the operands be cast to u64 before the arithmetic operations?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/6A7910FC22A9FEF1+20=
-260827015739.3314298-1-liudalin@kylinsec.com.cn?part=3D1
+2.43.0
