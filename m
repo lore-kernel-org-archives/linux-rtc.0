@@ -1,117 +1,177 @@
-Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B97F3659FD;
-	Thu, 27 Aug 2026 06:31:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.16.166
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C593D367B72
+	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 06:43:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787812310; cv=none; b=TgIJW32baVCxBB1Nf1R4NEOWRwyT6rSN0OjroSfhhOXShjg7GQfuM6EBiL8dqBHem9bmZ8Q1bBVI8vV+YUf8oz8DaSc6coy3v6Gwc+7rW1Q3V+EHp4MXJX/k0VpsCN1FnXZlaTeN1URHFECNiU++x3ikY2MJDvcj9knb12HvOR4=
+	t=1787812982; cv=none; b=RXmAYwd5lFo1vs4j0YWpjgXz5ErsrdZ57bHUyHSVz07GnOO6mSHKfIV/MquGVhr2i9dOwgTMc+tOYjojUMZ0sJ5FDkeWmrC/YhNujhc2FsTTyzf8lqiJAdF4XiCInCeTt+/kVLb3iPlZ90xn1Tyge2OIKkJuVhKy4k8od7AgG2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787812310; c=relaxed/simple;
-	bh=RCH0/4E+ybPOMoKfy7Gtrb7P4jrw0rsJxxBlf5cdD3I=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KXKjoUWHMWHdn/EZSKGevUGhHVSWm5Yrc+D5ChGPftawtWJvbircj0CIqhjqn3dZmdk04uuTGHzHHQnITPxlLoBnHqBf5rskGCojFi4X9AAiyutp0yMiCp01i4XPdhQQ7AHY56R1AJbMiTrOD3EdNYXf4cnH8cs211VWA9fvd2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=54.206.16.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
-X-QQ-mid: esmtpsz20t1787812256tb4f00064
-X-QQ-Originating-IP: 82KkePapeeneOtk0IMx8EA6E5nujxXT5q/ttGDpvGkE=
-Received: from localhost.localdomain ( [111.8.45.130])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 27 Aug 2026 14:30:48 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 1738464052093361708
-EX-QQ-RecipientCnt: 10
-From: Liu Dalin <liudalin@kylinsec.com.cn>
-To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Liu Dalin <liudalin@kylinsec.com.cn>,
-	Deng Yingchao <dengyingchao@kylinsec.com.cn>,
-	Qin Yungao <qinyungao@kylinsec.com.cn>,
-	Luo Qiu <luoqiu@kylinsec.com.cn>
-Subject: [PATCH v1 3/3] rtc: ftrtc010: fix integer overflow in time calculation
-Date: Thu, 27 Aug 2026 14:30:19 +0800
-Message-ID: <B06A3E7BF268E081+20260827063019.3342085-4-liudalin@kylinsec.com.cn>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260827063019.3342085-1-liudalin@kylinsec.com.cn>
+	s=arc-20240116; t=1787812982; c=relaxed/simple;
+	bh=T7mXHfd4pFHOjEcP/39ZU7VYfQkvysSFtMbAnKl3kiU=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mjrrk4e6S7lvdk2svtv6GOzqH5tLygZugvPebXakZ9wPVz4EAZ6Imy65WN+p7vIpS/bjGMw9vY8TyVwr808rMWd94exglsLystzbGGOEgIvqduymIVAG3MANqVrwzZ/+xJ1Yj8x1bcOSwvXFftxDzcVY8ojkPjm79tMVY6jObnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YPyUM89p; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YPyUM89p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7825B1F000E9;
+	Thu, 27 Aug 2026 06:43:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787812980;
+	bh=IiFDFAeNnP1TBxGwBOJ7+wAe8jhZOTPffwZm1iPmyss=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YPyUM89pDbi8EAedp2vE/Uo+ZVXxOA2DOhSQufhU5To8X/J8NxHbcjOhDOye3B+k8
+	 F7ZVz3eEn4cGihz2yHF+uRcTiJN8RoE4SulzexG15Bzw3oaeNLgI/f53mOs5BeGlZ1
+	 /MUJMLN6SheUhMjGZsdm1SiuEpXGSs/YLCbyK55BVCtefZuJXX9mFV3YbNeUyglG8m
+	 z3Oa++aOtVFZS/yVJS2qfiDr0L/J7iXcBafFxQJbuIlIC3jJYwlnKFkk8QYAAlhuwj
+	 NoCJaDPOtc7tzzGf4VhJccia/Riobkr75gUHOp0mFq+zLgKxGLnSJp4ioYcJeLSKEY
+	 pluQf18vq+FTw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1 2/3] rtc: ftrtc010: use devm clock APIs to fix
+ use-after-disable in remove
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Liu Dalin" <liudalin@kylinsec.com.cn>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+In-Reply-To: <17C4ADB7B3B875B8+20260827063019.3342085-3-liudalin@kylinsec.com.cn>
 References: <20260827021054.0963C1F000E9@smtp.kernel.org>
  <20260827063019.3342085-1-liudalin@kylinsec.com.cn>
+ <17C4ADB7B3B875B8+20260827063019.3342085-3-liudalin@kylinsec.com.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 27 Aug 2026 06:43:00 +0000
+Message-Id: <20260827064300.7825B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpsz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: MC+jTyq9xFiavOkJydzmFxGopX3cNGRIoDYvJmoAyBZlS6YgA/qvVlpw
-	sdCU6/KJdrwazq/XRsagvq7v5QyOYSlQtahojb6AUG9cMVzZHYl9SC/pgmNMl/vHfW3JqrE
-	suEyvXH/qydnTg1pGdLlmeID6rgL9zzFZktToDNS4IDg6GtmS2n+uEAZFCSGhVd4nX7DHrC
-	YvsThm/j5LZa3jIjHIhVVbJJmlcpp1J1X94kxjVCIdWyCbKBbTei1vvgLHzCoVNMvGPUQDP
-	IQoLRThkvFuEvXNsx0sY5C4krHjGXQRJ+/Rg1bHzryfHW06LnoETDWcx8y53CUGUL12cFGm
-	74PQeTYBSkj5SV87OzuUxnJMG4nz3N2fxVk7o34iuF6z58OC9gveB/gHtDNE3+/033q2WBj
-	syiwP0dANqul6OiZ4YX/JNx4yIGyDAqMBBNjyKGGKfXUN8ULf6tMKaLJYQ3nKa34ia1PB1w
-	73RWnu59H8Pr9Tj7toTAyOkbJDi1k69SkWQcVKuZRu45/1Se3SqjUbQRSgoVNAe7LFTWw4L
-	wQ9Vniz4KKesXM/uIRluhEN/yv3VrUUoU6EyUpYdhk4J39kvjwqGLsgZJZ/ihC0bEVl3LBZ
-	aYf9ZcUtwaOC6E3YN9VhlYsGWbCdsff1EKamDipltukjInspsQf/G3zItmpmcsXCZBG9hkO
-	8bep+Milbf4AhGxvtlhSrp5MdkrnemZQKs+wvbgTpw7E/hN6jEqSfs/UNEabXok6+HOR1th
-	q3Hz2TOHN+RxTctgj3qWtsqdyiGE7fl/B5ylxwpBm1a/azf7S3M4BecOdOSkQ0GF2D0ik/q
-	o9JBGWV/pCN1TB34HJpHOvKHIU89gl4Ovlf3Zomzt78feWHHZaWi0sB271mIoKhePqHsItW
-	zvJaPVLERp622Uc+46+EzYWasX4TOd2qUbqTI/9KWYzUTfqXo0wIhSh35GYIWVLINzWv9RR
-	yBaqKRRkkQMXySQzfCL15vfQUjGsLGxi6AqRX26FbF7bIZ2zzDhEaEcFTaufSe7Wr+OEpLv
-	QYn+ybT1yOcwePM+eF4hXCKdyosCZniF7uCK3kWnHR9mX21tzEP7iBF8CHAthjtwjgHTB6i
-	/igb3uBwG996yZyLuDX1KJxuXfQKejdn0bYV4xF3ODp
-X-QQ-XMRINFO: M/715EihBoGS47X28/vv4NpnfpeBLnr4Qg==
-X-QQ-RECHKSPAM: 0
 
-In ftrtc010_rtc_read_time() and ftrtc010_rtc_set_time(), all
-variables (offset, days, hour, min, sec) are u32. The expression
-"days * 86400 + hour * 3600 + min * 60 + sec" is evaluated in
-32-bit arithmetic, which silently wraps around for dates beyond
-approximately year 2106 (U32_MAX / 86400 ≈ 49710 days).
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Cast the u32 operands to timeu64_t before multiplication to ensure
-the arithmetic is performed in 64-bit, preventing overflow and
-matching the driver's rtc_dev->range_max configuration.
+New issues:
+- [High] Incorrect clock API usage and error handling truncates probe on mi=
+ssing or optional clocks.
 
-Fixes: 1d61d2592c1f ("rtc: ftrtc010: Rename to Faraday FTRTC010")
-Assisted-by: Sashiko AI [static analysis]
-Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
----
- drivers/rtc/rtc-ftrtc010.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Pre-existing issues:
+- [High] Time-of-Check to Time-of-Use (TOCTOU) race against hardware tickin=
+g causes time corruption.
+- [High] Unconditional IRQ_HANDLED on a shared interrupt line defeats the s=
+purious interrupt detector.
+--
 
-diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-index 19e6333bfbab..8f2652132400 100644
---- a/drivers/rtc/rtc-ftrtc010.c
-+++ b/drivers/rtc/rtc-ftrtc010.c
-@@ -72,7 +72,8 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
- 	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
- 	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
- 
--	time = offset + days * 86400 + hour * 3600 + min * 60 + sec;
-+	time = (timeu64_t)offset + (timeu64_t)days * 86400 +
-+	       (timeu64_t)hour * 3600 + (timeu64_t)min * 60 + sec;
- 
- 	rtc_time64_to_tm(time, tm);
- 
-@@ -92,7 +93,8 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
- 	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
- 
--	offset = time - (day * 86400 + hour * 3600 + min * 60 + sec);
-+	offset = time - ((timeu64_t)day * 86400 + (timeu64_t)hour * 3600 +
-+			 (timeu64_t)min * 60 + sec);
- 
- 	writel(offset, rtc->rtc_base + FTRTC010_RTC_RECORD);
- 	writel(0x01, rtc->rtc_base + FTRTC010_RTC_CR);
--- 
-2.43.0
+commit 289123a8d46a85463292da46c4edfed7ee0a88db
+Author: Liu Dalin <liudalin@kylinsec.com.cn>
 
+rtc: ftrtc010: use devm clock APIs to fix use-after-disable in remove
+
+This commit replaces manual clock management with devm_clk_get_enabled()
+to tie the clock lifecycle to devres, fixing a use-after-disable window
+during device removal. It also cleans up the probe error handling path
+and removes the manual remove callback.
+
+> diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+> --- a/drivers/rtc/rtc-ftrtc010.c
+> +++ b/drivers/rtc/rtc-ftrtc010.c
+> @@ -120,51 +120,33 @@ static int ftrtc010_rtc_probe(struct platform_devic=
+e *pdev)
+>  		return -ENOMEM;
+>  	platform_set_drvdata(pdev, rtc);
+> =20
+> -	rtc->pclk =3D devm_clk_get(dev, "PCLK");
+> -	if (IS_ERR(rtc->pclk)) {
+> +	rtc->pclk =3D devm_clk_get_enabled(dev, "PCLK");
+> +	if (IS_ERR_OR_NULL(rtc->pclk)) {
+>  		dev_err(dev, "could not get PCLK\n");
+> -	} else {
+> -		ret =3D clk_prepare_enable(rtc->pclk);
+> -		if (ret) {
+> -			dev_err(dev, "failed to enable PCLK\n");
+> -			return ret;
+> -		}
+> +		return PTR_ERR_OR_ZERO(rtc->pclk);
+>  	}
+
+[Severity: High]
+If CONFIG_HAVE_CLK is disabled, devm_clk_get_enabled() returns NULL. Doesn't
+PTR_ERR_OR_ZERO(NULL) evaluate to 0, which would cause ftrtc010_rtc_probe()=
+=20
+to silently return 0 and exit prematurely before mapping memory or register=
+ing=20
+the RTC device?
+
+Additionally, since the old code treated PCLK as optional (only logging an=
+=20
+error if it failed), what happens if the clock is omitted from the Device=20
+Tree? devm_clk_get_enabled() returns -ENOENT, which PTR_ERR_OR_ZERO() will=
+=20
+propagate as an error. Could this break backward compatibility with older=20
+device trees that omit this clock?
+
+> -	rtc->extclk =3D devm_clk_get(dev, "EXTCLK");
+> -	if (IS_ERR(rtc->extclk)) {
+> +	rtc->extclk =3D devm_clk_get_enabled(dev, "EXTCLK");
+> +	if (IS_ERR_OR_NULL(rtc->extclk)) {
+>  		dev_err(dev, "could not get EXTCLK\n");
+> -	} else {
+> -		ret =3D clk_prepare_enable(rtc->extclk);
+> -		if (ret) {
+> -			dev_err(dev, "failed to enable EXTCLK\n");
+> -			goto err_disable_pclk;
+> -		}
+> +		return PTR_ERR_OR_ZERO(rtc->extclk);
+>  	}
+
+[Severity: High]
+Does this have the same silent probe truncation or Device Tree compatibilit=
+y=20
+issues as the PCLK conversion above?
+
+[ ... ]
+
+> @@ -179,29 +161,13 @@ static int ftrtc010_rtc_probe(struct platform_devic=
+e *pdev)
+>  	ret =3D devm_request_irq(dev, rtc->rtc_irq, ftrtc010_rtc_interrupt,
+>  			       IRQF_SHARED, pdev->name, dev);
+
+[Severity: High]
+This is a pre-existing issue, but I noticed the driver requests a shared=20
+interrupt with IRQF_SHARED. Looking at ftrtc010_rtc_interrupt(), it returns=
+=20
+IRQ_HANDLED unconditionally:
+
+static irqreturn_t ftrtc010_rtc_interrupt(int irq, void *dev)
+{
+        return IRQ_HANDLED;
+}
+
+If another device sharing this IRQ line asserts an interrupt and gets stuck=
+,=20
+would this unconditional return prevent the kernel's spurious interrupt=20
+detector from disabling the broken IRQ line, potentially leading to an=20
+interrupt storm and a system hang?
+
+[ ... ]
+
+[Severity: High]
+This isn't a bug introduced by this patch, but looking through the driver,=
+=20
+is there a race condition against the hardware ticking in both=20
+ftrtc010_rtc_read_time() and ftrtc010_rtc_set_time()?
+
+In ftrtc010_rtc_read_time():
+
+	sec  =3D readl(rtc->rtc_base + FTRTC010_RTC_SECOND);
+	min  =3D readl(rtc->rtc_base + FTRTC010_RTC_MINUTE);
+	hour =3D readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
+	days =3D readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+
+If the hardware clock rolls over (for example, incrementing the minute from=
+=20
+59 seconds to 00 seconds) between the reads of two registers, could the=20
+software combine the old value of one register with the newly incremented=20
+value of another, resulting in wildly corrupted time calculations?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260827063019.3342=
+085-1-liudalin@kylinsec.com.cn?part=3D2
