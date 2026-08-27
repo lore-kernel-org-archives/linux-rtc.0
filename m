@@ -1,91 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpbgau2.qq.com (smtpbgau2.qq.com [54.206.34.216])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D45093AA19B
-	for <linux-rtc@vger.kernel.org>; Wed, 26 Aug 2026 07:31:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099831ABEDE;
+	Thu, 27 Aug 2026 01:55:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.34.216
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787729479; cv=none; b=Udd/pOcZiMCjC5CKkCXuPhpNvJrtcVS0SEf7LE3A19A5Z8/UxONfPR5F2RFB8PpMAVHdHwAlqIo2Wo5B44hPODItkiMSM6A5ShwJptL2zJm5b7SMs6mnQ72GfI4+NA+r3qs6MY7AmNJQ94n6dfFZHmWnPtqJQ2te68I9s8EJSO8=
+	t=1787795723; cv=none; b=oLaYpQ5Ng9Pa7/vj6j7KSk7RybXkOGdccuW9Djo9F+d88d85ppJ/qxfEntSWxvn2JmLN76eBDU74UQfq2saAo1nljTP/u4Xpnyx7Yv2qOj/57Kaq8vKGXaUVnHFJfhRQr15f72VkEFA09RhFmJrzW6efFIT6sIxFjqKkgqUgvnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787729479; c=relaxed/simple;
-	bh=UohQG3YwY7lOUlVvLWVbLdpHlpUH7ltj2uEVv6bI+M8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D+LR9Q9CPma3hfWZC1C0rvxi1ozpQmFXJGQ2kAo3k5hEHtCXHLXn3y7l3qFGZcosqPGlnrdjMEysR/dX45/xkQE+z9Zjes217z6JoXTg1q7dasnTrRyGqQkN+zW3blD0zw5WbX7evWAGKYPWulqoQZenBtowJvPK0bQdRZTV3sw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GSd6aJ6j; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GSd6aJ6j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66A261F00A3A
-	for <linux-rtc@vger.kernel.org>; Wed, 26 Aug 2026 07:31:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787729475;
-	bh=UohQG3YwY7lOUlVvLWVbLdpHlpUH7ltj2uEVv6bI+M8=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=GSd6aJ6jPiK9yOmuMVBRtHLJnMkTQMo7Z2Lkdpr7VUKDR/IgoIiETza0DlIcd4yPY
-	 bd+pq1Cz+XdmZOCqKXNxRw/LRnF2H7PPGiX1pJjH/V801dPBhcWmkdQJZBi2BPGlM4
-	 yxItF9F/wezIF6j3tUnrbPDdQxXSqvJDZOZutIyaFA4CF4WdFtvIT+zZ32LuOSVsWE
-	 +EVRnQHZk/3GL80kOMxH4DrcN6RKYKWhDvwSnysvg0XuS/ue8R57nLr2KOoZZ/Qe4E
-	 vbOirOf/lF8KOo+WyunYkHzhqAY97G+alrjTvfVZTwPZmFYTn2kKXch5VR7GeFlMDX
-	 tKznCI8uuV1QA==
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5b29599b81cso577531e87.1
-        for <linux-rtc@vger.kernel.org>; Wed, 26 Aug 2026 00:31:15 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RoL2Q2VO7F0kbbp86znFnPzjajfgxQ/xt3QxyoxG+mhxiLaYlWLqD0mzsTNFHwhZCQozaF6PLswAdo=@vger.kernel.org
-X-Gm-Message-State: AFuF++mCb/Mx+rXiz06l442vU1yyLWFWchYPvHY/hK1xIAr6aDbIE420
-	aZVol6ZLb2/l+tWkAKA98m8Bnul6qIuByvVScwWsWTKvJTW1igjVSS0ScXusgCMVVdE0lxLpfa+
-	24b6OolSsSg+yk1ajkpyVhM79gHUmpd8=
-X-Received: by 2002:a05:6512:3b29:b0:5ae:a0b4:5013 with SMTP id
- 2adb3069b0e04-5b4a8d700fcmr1189934e87.0.1787729474161; Wed, 26 Aug 2026
- 00:31:14 -0700 (PDT)
+	s=arc-20240116; t=1787795723; c=relaxed/simple;
+	bh=+vSiDmfesHteRofWu9YnnJphCrUSSUwaHMRRfgYOmTE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QOjTo7jWS7Ap8M7BopAgi8ebROijMKmEQwucZqeqdZ+CMpwgsosmr+b9cyaQ/ATXNLhiQTPBVQ+2f2zA4I2FrXRYMrcSbCwaQbWEsn2CuPqaFs2CQZpcGrIlx9uw+ywZqiZNjq1Uh+3kueWaMaSC90nAkwzqDXwxsMJVAyaxvfo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=54.206.34.216
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
+X-QQ-mid: zesmtpgz4t1787795693t5ca7b669
+X-QQ-Originating-IP: oycE74GwGx4odGFUwygfHSfIm2zwZaPcCTkmglsnPSs=
+Received: from localhost.localdomain ( [111.8.45.130])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Thu, 27 Aug 2026 09:54:48 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 4192742800306822609
+EX-QQ-RecipientCnt: 7
+From: Liu Dalin <liudalin@kylinsec.com.cn>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Liu Dalin <liudalin@kylinsec.com.cn>,
+	Deng Yingchao <dengyingchao@kylinsec.com.cn>,
+	Qin Yungao <qinyungao@kylinsec.com.cn>,
+	Luo Qiu <luoqiu@kylinsec.com.cn>
+Subject: [PATCH] rtc: dev: zero-initialize struct rtc_wkalrm to prevent information leak
+Date: Thu, 27 Aug 2026 09:54:44 +0800
+Message-ID: <B28B7DE18F3A9447+20260827015444.3314227-1-liudalin@kylinsec.com.cn>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de>
- <20260824-rtc_s35390a_int1-v6-5-df96569e3412@posteo.de> <20260823222611.B176B1F000E9@smtp.kernel.org>
- <CAD++jLnpzMs5h-k49HQ_asppECRMm1wGQK8X+vTmiC+S70fZgw@mail.gmail.com> <3827a4e6be868e8726c140281a140a85e706aacc.camel@posteo.de>
-In-Reply-To: <3827a4e6be868e8726c140281a140a85e706aacc.camel@posteo.de>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 26 Aug 2026 09:31:00 +0200
-X-Gmail-Original-Message-ID: <CAD++jLm1fU41_gY+CUZpS+woURECAqdy3PEiV+_+g4cnL7rciw@mail.gmail.com>
-X-Gm-Features: AcwNN1U59KN6awAelPsuYmcuHtZlNIrj9X52ZAxwkc3wLZaZ-UfIl-H65G2LfEw
-Message-ID: <CAD++jLm1fU41_gY+CUZpS+woURECAqdy3PEiV+_+g4cnL7rciw@mail.gmail.com>
-Subject: Re: [PATCH v6 5/6] rtc: s35390a: Add pinctrl
-To: Markus Probst <markus.probst@posteo.de>
-Cc: sashiko-reviews@lists.linux.dev, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpgz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: MDGUoPnBmw7sh4jokFVIlVI5f0X6NI/omEJGwdQWURBo6uLB+0pVJtI0
+	t+Jmyy6h2XOXsP5XrrbFGC59Cylb9vCjliVAqqn1dOAlIvlRDKBFqtKu3qhLMtLYUz/hN76
+	kheBlpQvpPdYexsHSJ8c4ihO0xqROGpGeu/MI0JEnmCfxKvmWmrwvGzBawro+xh1LTyJjJY
+	lVDpycu4iniAiF046Mt1NKWMAjiyPqUgNPzseSuMuREki4gYp/6pxxRWnzGwlruorjN9Kzo
+	RgQV8Kd7ZZKcWJRex2g4RhydQ9c1IKFCA9N0FKQG9vQ2sfCU/jZ5RwGdbP2j/tEvrGnfONP
+	vYzCFWUjKSV6i/GjYyTwDbU/naItGob/+MJgNjzpDjwlDus527Ckexh4NAV0y7UFFjZSZYq
+	EJc87NztSyVfuwGqRx/pRVwH103j2l08WM5dHmNfhO02nkmyC/gWwdddjegUIaREcwnDP91
+	q48KYF07+hevrar0udPsFKjg8tmp1jzPzQGdOHYZXFuDXuQt92U6hvmWzxnZBA0AiwrfDb4
+	R8W0hR27KzzccYqotpQ/SM3D70IWRkR5YlrfOWyFlf8Z8qjRYt0PvsYNYTrc/iKHIjRd2Zu
+	6yrChjfUO7HAld7AB/7r7bmr/+yOk1kUqE3DZt5Ed3cZtvMHjNTNQqE9BNvjcslFv7FmNPQ
+	e/iFRvjJfTu9W/8JUCQuTHVaqz/7pYyMy+I05fQto2JkTdihKUe2YcMhvzxf/1yESPeJjCp
+	YdqhU2lXSdZWcbUQT+bnJk9NpHMTerd0JPl8vJO0xBaFgFH46tXz55liieCbIvvIX/ECgw/
+	Ct7BvfHhOTI9cXSFWbTH9Zj7j/5gHeIKmr/KbT+cE3Py3gdr2pIaNrRRus8IiZdcvQvkrno
+	OnIkBD1vF/bPDow8bel1Wy37lEN+WVJWGs8VSb/K5Ls6Tr9ZdEuuuxGWWrpTikWthexjGi8
+	CjCsyOs5Up9Rvp1cROehcLbImejg8iTErazYGTECLWp1VDZlM0ZtN2WKd/K/YtttIJkk69U
+	Mop8FMJ+AJ2fDc+RYzXgjFN6Wt4GBxsOY3NbVrPA==
+X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+X-QQ-RECHKSPAM: 0
 
-On Tue, Aug 25, 2026 at 9:37=E2=80=AFPM Markus Probst <markus.probst@posteo=
-.de> wrote:
+The struct rtc_wkalrm has padding holes after the 'pending' member.
+When returned to userspace via the RTC_WKALRM_RD ioctl, uninitialized
+kernel stack data residing in these holes may be leaked.
 
-> > > [Severity: Medium]
-> > > Is there a data race here since the pinfunction array is accessed loc=
-klessly
-> > > after pinctrl_enable() has made the pinctrl device available?
-> >
-> > That's a valid concern.
-> I don't think so.
->
-> `s35390a_pinctrl_set_mux` itself will take a lock for the operation.
->
-> `pinfunction[i]` is a 32-bit integer, so there should be no load
-> tearing.
->
-> If we take a lock here, it shouldn't change anything. In a normal
-> condition this shouldn't happen anyway, as `pinctrl_enable` should
-> block until the default state is selected. If another driver is
-> concurrently selecting a pinctrl state of this device while we probe
-> (which is the only time pinfunction should be modified here
-> concurrently), it is still a race condition whether the fallback
-> applies or not.
+Zero-initialize the struct at declaration to eliminate this information
+leak risk.
 
-I buy that.
+Fixes smatch warnings:
+- drivers/rtc/dev.c:392 rtc_dev_ioctl() warn: check that 'alarm' doesn't
+  leak information (struct has a hole after 'pending')
 
-Once there is a solution for the Kconfig business I think
-this is good to go!
+Fixes: 36e14f5fdfdf ("rtc: rename core files")
+Assisted-by: smatch:2.0 [static analysis]
+Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
+---
+ drivers/rtc/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/dev.c b/drivers/rtc/dev.c
+index 8ba7c25d2565..be173c9511fa 100644
+--- a/drivers/rtc/dev.c
++++ b/drivers/rtc/dev.c
+@@ -216,7 +216,7 @@ static long rtc_dev_ioctl(struct file *file,
+ 	struct rtc_device *rtc = file->private_data;
+ 	const struct rtc_class_ops *ops = rtc->ops;
+ 	struct rtc_time tm;
+-	struct rtc_wkalrm alarm;
++	struct rtc_wkalrm alarm = { 0 };
+ 	struct rtc_param param;
+ 	void __user *uarg = (void __user *)arg;
+ 
+-- 
+2.43.0
+
