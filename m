@@ -1,68 +1,67 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A85B82DE6E3
-	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 02:03:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C3CD2DE6E3
+	for <linux-rtc@vger.kernel.org>; Thu, 27 Aug 2026 02:04:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787796201; cv=none; b=D0vCTJLVFjYLYKP2nunOfbrav5cot8hS6mKkdRne5bqF4jZkQjjHJr+KXyVUQTSpaxZmjs1SwlWuR2/Np7uL9W7xTeLdYtFRWCXjp06w7tJ/YO0X+2tiruoHgGFGUlG61U5ii18T3CqHWkcS5Mxux6WL7Dxchbumw8BrUiKYy7k=
+	t=1787796247; cv=none; b=ufRUXj+YWzvf51ymhyEaa2rCJy53EY3PwBN2SAwtmMhmsxwPioPzblOMN631RWAehqyto21iM8tnJmlSZC8D/MgSd7xc+NSawt/4Uc/qBDYZBri+ZZcwYbMr6WZMpStCZ5l3UA0k0rEVCfmdSvDyjGNaSVOwgfNUkPRilyL+mQo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787796201; c=relaxed/simple;
-	bh=zBoNggVcZWiFg1A+2QAbkTu2082EwoxAjOiYqpJSq10=;
+	s=arc-20240116; t=1787796247; c=relaxed/simple;
+	bh=if8BNexsKmNUYHDyphaDJYq10SwKpoWiwzD3uvXtBYE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gnfuZYt60B80ui5QR2iI+tY8CsLqlEdM2+HYVMpxgNG091gkykKQILA2wcDlU94vuh+PQ5xLpSfhYvW3gVvHIsEnzbVQS+nqNpJ9oOyhVtVzbIQFY5mjabz1k1i9wbDZUEs/euw/aLR9JJ/e/M9IdM8KS5x5I7UqaYJUf+0tShY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EstRQV03; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CNZmB8ROQfxNktDrdzq8bmVPLnjWxtORGSw+VhkHsUS3YYX6axf5gPHNuY6AjXp9Ejaqd/LFG1/Fu+TUE7bzLS4xHlNR+701FkmRxSokkCk5I0bKplsGNtuVvlnqZQelLNYWEOg4e/bWNdpAbWVggVuHEUbmjdpYE4DmJjQmIDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mPoK+3md; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EstRQV03"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA361F000E9;
-	Thu, 27 Aug 2026 02:03:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mPoK+3md"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64D91F000E9;
+	Thu, 27 Aug 2026 02:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787796200;
-	bh=j6P1Kzj5pVgzpda/iTxeyeSW5XS+MFuHKsHyhNPxvU8=;
+	s=k20260515; t=1787796246;
+	bh=pIb7pkSUP7vfQMeQNMAr5kAQSyV01UWX3yO70L5LBKw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EstRQV03TDRVZSDwsM/zFM3s3P7wCmn2YLdAbON39+WUpK2Uvy/icG4+6s8hNG2Fm
-	 KkfDc3JLFxdH6PhYGghtN+Nwoj83s8slfeWW713MHQPPfNpDK1qBmpSQCR+YeMWMEM
-	 9C8BzcANuyyZUBLUFZlH2zUhVlSjAMnSc20r2ZNHuE3PBvSa5RY9pDtWCVLmLuN9ed
-	 C+chGeqBp/ODCIFInWrCz5dHJqCOopUFbychNq3tVdUwu104xOKRlycAoYdcDTvhon
-	 BhnfXIOxu+luUmZg3tERw4HEhiW+6kvVEQV6tfxTJoz9Jha+lHIvhc7SIna+ek4SWG
-	 zYrBKomUUYUmQ==
+	b=mPoK+3md8oMXGQUd3MVDbFIP6nTCRFks/RRJK/nbztn6XEYsgt/vOf5AJqVGHGIGo
+	 2DGfR5vCgMMnzeNZPKHsfgJC9OH3aWBFckwsw4tjBEciVNdF4OSFkWNkJh+dl8X5WH
+	 cT2cr9ECvujoCx/qzecToAsee52FBphdZhZVLA+U+qRkkYy8a7bShFu3hj5pHoSf2+
+	 mh1xGGz8EYgvd/ulTKRAJW6VEzOiJWd5JX6QtKsvh+QnX1EY9KIVbAWOXLiADYjmv0
+	 1zsBGCEke1YP7WI+iRB4A7cZ3FYkMOqjeJxloxJ3ZUU1VuyVn6cW6dCdQkRfmhWp7T
+	 RwCw7GhxbhHJg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: rs5c372: add missing error code for unknown RTC
- type
+Subject: Re: [PATCH] rtc: dev: zero-initialize struct rtc_wkalrm to prevent
+ information leak
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Liu Dalin" <liudalin@kylinsec.com.cn>
 Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <C18300C5767FC690+20260827015846.3314353-1-liudalin@kylinsec.com.cn>
-References: <C18300C5767FC690+20260827015846.3314353-1-liudalin@kylinsec.com.cn>
+In-Reply-To: <B28B7DE18F3A9447+20260827015444.3314227-1-liudalin@kylinsec.com.cn>
+References: <B28B7DE18F3A9447+20260827015444.3314227-1-liudalin@kylinsec.com.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 27 Aug 2026 02:03:19 +0000
-Message-Id: <20260827020320.1AA361F000E9@smtp.kernel.org>
+Date: Thu, 27 Aug 2026 02:04:05 +0000
+Message-Id: <20260827020405.D64D91F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> In rs5c372_probe(), when an unknown RTC type is encountered in the
-> switch default case, the local variable 'err' is still 0 from its
-> initialization. The subsequent goto to the exit label then returns
-> success, even though probe has failed.
+> The struct rtc_wkalrm has padding holes after the 'pending' member.
+> When returned to userspace via the RTC_WKALRM_RD ioctl, uninitialized
+> kernel stack data residing in these holes may be leaked.
 >=20
-> Set err =3D -ENODEV before jumping to exit to properly report the
-> failure to the caller.
+> Zero-initialize the struct at declaration to eliminate this information
+> leak risk.
 >=20
 > Fixes smatch warnings:
-> - drivers/rtc/rtc-rs5c372.c:860 rs5c372_probe() warn: missing error
->   code 'err'
+> - drivers/rtc/dev.c:392 rtc_dev_ioctl() warn: check that 'alarm' doesn't
+>   leak information (struct has a hole after 'pending')
 >=20
-> Fixes: cb26b572dc394 ("[PATCH] Update the rtc-rs5c372 driver")
+> Fixes: 36e14f5fdfdf ("rtc: rename core files")
 > Assisted-by: smatch:2.0 [static analysis]
 > Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/C18300C5767FC690+20=
-260827015846.3314353-1-liudalin@kylinsec.com.cn?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/B28B7DE18F3A9447+20=
+260827015444.3314227-1-liudalin@kylinsec.com.cn?part=3D1
 
