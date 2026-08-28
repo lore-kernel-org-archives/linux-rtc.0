@@ -1,81 +1,82 @@
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA01440622
-	for <linux-rtc@vger.kernel.org>; Fri, 28 Aug 2026 11:38:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCC6C3C1D6A;
+	Fri, 28 Aug 2026 12:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787917130; cv=none; b=AcNSr9cR2K114xH9kEe/G2RVgsLvGVfk+YUXYT0hzLd2lr5/Hheqbm//PNIdLFjXzgE03EhrO01BMSIyKZRnKR5aA1AABoaHwCeFiV0Tm22FEtkTBSlHfKe+Ia/dZV5Za4d9ECOLA7uZmbWPlHShJbst0GEW69Aal3v3u5SRhgw=
+	t=1787921328; cv=none; b=Lr8Wf+lQQbP3JjzBheqnIMpyOON81Nh1jIkoGWVQJ1/wRrdZGaJH18uwJ8VMPXmVWXaWTJFDa5QzwYZacKbwJx90V6dJP9OJdG0ZtEKRJZHQqSDne6nQsk3oX17o61/M+xopIADkL2O1fJSvx5ssoeNVCpIYCjw5KwDWxg38A/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787917130; c=relaxed/simple;
-	bh=Yolc/DBb3H0lcmB9LTt9clnWPPbQNHzwg7stvh1CO/g=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=E+IQpCNY7w0s2OhEbptFlQl3C1l1DrzLMCvGNBaDh0EtF5OnZ4uVHlL0XDrvy4Gea2fkShD31co1qasaOEmde7N7S4xY80J4GDuMRcz7qK2BX8MDoHgbDXtxEy7vbjbkEiexo7M4+GPkuX9E6D4zLTFw+c+sSazvwKZwSu0PX6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Cim7Eezp; arc=none smtp.client-ip=209.85.214.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com
+	s=arc-20240116; t=1787921328; c=relaxed/simple;
+	bh=EVGzS04FnYNDpEdfPtxzk+aqLuXej0sZ/rUGua+x9yU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o8vbqVo5HFDdtp17F4AjrANSJnArmPVZD/wU3hPqiylTuqZI8HR6fbi2a6FxiPh5qT6Gqvk2nP2NQsliDM8vft62k/MGB7OOmDq3GMIfq8+zh2RJwpXTKLThgkZtRuGhiXAODR9X+fRBqRCQxkEoNensEJZWIZZpEohWKoGup7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=rbc4c+vX; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Cim7Eezp"
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2d6fb956002so12569145ad.1
-        for <linux-rtc@vger.kernel.org>; Fri, 28 Aug 2026 04:38:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1787917117; x=1788521917; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Yolc/DBb3H0lcmB9LTt9clnWPPbQNHzwg7stvh1CO/g=;
-        b=Cim7EezptqYRRqLgpi2gscDTmc5D5L5GW3uzdkqTkKgglm/VMUpwzfndCQpouJSkp6
-         5h0sAQ1Ak2JKR6FszUWQiUL3Us8SNqUuGLbaddOmY+MBTr92aAd664RJvSg5x00qmUsJ
-         uJoN+A2T/9byn9hXGIdExH/iI1/MSF7hHAqvk8SGbZieT5pWO7vooSHa7l9CQQY+JFCC
-         nUHalXY8IpFIHYTS193umK3aNYtNDI548bzsZsU4hl16olCaGyd8q9IJd5zK65sS4FBU
-         gV+thcp7UBDrqicet/tXHx8xJqGVBcG1pzy5HCAniTvoZG9rdm7pTqZnIpS+6AT02Ct4
-         jpew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787917117; x=1788521917;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Yolc/DBb3H0lcmB9LTt9clnWPPbQNHzwg7stvh1CO/g=;
-        b=cY4K1ScEMVuYcuoSCdoptNrZxzV+heZbsDeNAIGwLovMkdUtD9Kpg/2ieqEF8O08co
-         KxpkOIh5EKVGZDqlgXMaLoqyfBqLTHZXRuLZGI78LteCpBtze6Qa7TZtfQ5SwtZcPzdK
-         xubTB6/4E6AlsF55qApDL5IyEr2YpSOUw8oc3XS41qRQ0o7ae/cda3VbP8aMPfVEw5l0
-         b8EYclbApvKtLHj2+sW3Z0XAprJJ2e2HkXfBoVXDV+tUj7ZCxBHLicVVQPAqSeIHYIrF
-         idSCZnYqnQzXeSSFki4pg+cvgjCHikvc9qajmK6ZUj5UbkHw3X/H0NcUjVKcPuNWfHuD
-         tkLg==
-X-Forwarded-Encrypted: i=1; AHgh+Ro+OQb+5Er/ly1VzTUioErb46D4Lunxso24E3GjfZfubaZx51i0vsfOsJhq6RS+37OsGFjCx2N5jyc=@vger.kernel.org
-X-Gm-Message-State: AFuF++n9VL0uMAsxeNkKOjoF7kq0qk1Ab8VYKSSVkLllK2I5PqtbBBp+
-	mek0k8SlQwvDeru2eD8ocE+NmgbSkdStqI7mNAu5giHlqcFvHoNGC+7W/rOtD1o4vS37qkyKJt1
-	9Bg==
-X-Received: from pleo10.prod.google.com ([2002:a17:903:210a:b0:2ce:d12d:d6f5])
- (user=wakel job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:4b08:b0:2ca:e62c:9e96
- with SMTP id d9443c01a7336-2d74dc51c7cmr135512585ad.5.1787917116239; Fri, 28
- Aug 2026 04:38:36 -0700 (PDT)
-Date: Fri, 28 Aug 2026 11:38:34 +0000
-In-Reply-To: <20260813063503.4023719-1-wakel@google.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="rbc4c+vX"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 1571A4E413FF;
+	Fri, 28 Aug 2026 12:48:40 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C7DB660537;
+	Fri, 28 Aug 2026 12:48:39 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7978D11C7810C;
+	Fri, 28 Aug 2026 14:48:32 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1787921314; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=scK/I2cjqVO0vAjV26ZyyTKaHsFuHcj/vb04vGRyhvc=;
+	b=rbc4c+vXpW+zJUQPRtSaghanGQ5BU2T++ZCNiSeeQcySif1qD9bGOODSq5UoTt5fTD7q6U
+	cwIA1Kq+KfDkkL3XyyVfc3W15S6oZsNDK1Ijcqi4hL9HMUE9Qkbd8GpE5tF4YhpY9jvz4S
+	wncNvg/MPB8AqEcGixoBDCZ8O2WJ6mqcrTciwA8gLcBqoObWekGu62ZfnsYDl5ciV4SmA/
+	TpMer7v36/pduI/rPGUo9SgSLnBJB/QsEVjdEBOrEm+00ZdZAKYljaPG69WjRnvgX/cvwd
+	ujcFlT/n6pqDeMMytwzpuEXj0t3edRhMPLhcERb2+wYR8u+97SKbbg5hXZwHsw==
+Date: Fri, 28 Aug 2026 14:48:32 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Ard Biesheuvel <ardb@kernel.org>
+Cc: "Johnny.Fan" <johnny.fan@cixtech.com>, linux-rtc@vger.kernel.org,
+	Feng Tang <feng.tang@linux.alibaba.com>, linux-efi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, cix-kernel-upstream@cixtech.com,
+	bob.zhang@cixtech.com, jie.fu@cixtech.com
+Subject: Re: [PATCH] rtc: efi: restore alarm support with runtime capability
+ probe
+Message-ID: <202608281248326784a354@mail.local>
+References: <20260828031519.2749354-1-johnny.fan@cixtech.com>
+ <549999fa-4b1a-4f53-872a-9036a377f8cf@app.fastmail.com>
+ <apFHoVVdhJsmBXDR@JohnnyFan>
+ <6adfa384-d232-4e80-a6f1-fa51780107d3@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260813063503.4023719-1-wakel@google.com>
-X-Mailer: git-send-email 2.55.0.897.gb25b4bd76c-goog
-Message-ID: <20260828113834.2354953-1-wakel@google.com>
-Subject: Re: [PATCH] selftests: rtc: fix flaky date_read_loop test
-From: Wake Liu <wakel@google.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Shuah Khan <shuah@kernel.org>, linux-rtc@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Wake Liu <wakel@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6adfa384-d232-4e80-a6f1-fa51780107d3@app.fastmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Alexandre,
+Hello Ard,
 
-Since Shuah might be busy and hasn't had a chance to pick up this patch,
-would it be possible for you to take it directly through the rtc-next tree?
+On 28/08/2026 12:13:10+0200, Ard Biesheuvel wrote:
+> 
+> On Fri, 28 Aug 2026, at 10:32, Johnny Fan wrote:
+> > On Fri, Aug 28, 2026 at 09:26:42AM +0200, Ard Biesheuvel wrote:
+> > Hi Ard,
+> >
+> > One additional data point: this is not a hypothetical requirement
+> > -- multiple CIX customers have explicitly requested RTC wakeup
+> > support (both suspend-to-RAM and power-off wakeup) on these
+> > platforms, which is part of why we are motivated to restore the
+> > alarm functionality rather than work around it.
+> >
+> 
+> Fair enough - I'll queue this as a fix.
 
-Original patch & your Acked-by:
-https://lore.kernel.org/all/20260430120313.4078185-1-wakel@google.com/
+I can take care of this if you are happy with the patch.
 
-Thanks,
-Wake
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
