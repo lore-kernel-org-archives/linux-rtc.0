@@ -1,82 +1,130 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from mta-64-226.siemens.flowmailer.net (mta-64-226.siemens.flowmailer.net [185.136.64.226])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCC6C3C1D6A;
-	Fri, 28 Aug 2026 12:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBE89377541
+	for <linux-rtc@vger.kernel.org>; Fri, 28 Aug 2026 16:44:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.64.226
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787921328; cv=none; b=Lr8Wf+lQQbP3JjzBheqnIMpyOON81Nh1jIkoGWVQJ1/wRrdZGaJH18uwJ8VMPXmVWXaWTJFDa5QzwYZacKbwJx90V6dJP9OJdG0ZtEKRJZHQqSDne6nQsk3oX17o61/M+xopIADkL2O1fJSvx5ssoeNVCpIYCjw5KwDWxg38A/g=
+	t=1787935495; cv=none; b=KDOFbxBBiN5NlR4tUBn8fKPIxjh4Iv6GvF7K1RxhGMJI36ULt+j/gG26oTtlwiNT4bKnLokW231LjYSSyd/lRxpPn4T8ibKBMEh1TdpmdqghsoZo6TUeB94KhYQagycPyGXe7S8rkoVqq7Di623Dk3drf3VtIG+zYtAOjsjbgE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787921328; c=relaxed/simple;
-	bh=EVGzS04FnYNDpEdfPtxzk+aqLuXej0sZ/rUGua+x9yU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o8vbqVo5HFDdtp17F4AjrANSJnArmPVZD/wU3hPqiylTuqZI8HR6fbi2a6FxiPh5qT6Gqvk2nP2NQsliDM8vft62k/MGB7OOmDq3GMIfq8+zh2RJwpXTKLThgkZtRuGhiXAODR9X+fRBqRCQxkEoNensEJZWIZZpEohWKoGup7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=rbc4c+vX; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1787935495; c=relaxed/simple;
+	bh=a2Z5JjwNxud3x1Fk4ilxgstYmDcVs6aSO2HZ5JIEbIE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YnYSqET7WS0BU/hoE3rFvLVJEHzZeRmvKmIFkGIlq8sRUOeD0arvMLzl3yanzqedRFoYjC0itSYsCPsFVUem6IU/VsewyXfm67vmamQTj12eOaH/QzQ+Jymn8v8GHD14FmjqvHNOXLbNIu/5kvyZX4cYIqMyDFkGeJTDk+uirKg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b=der95ZNv; arc=none smtp.client-ip=185.136.64.226
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="rbc4c+vX"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 1571A4E413FF;
-	Fri, 28 Aug 2026 12:48:40 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id C7DB660537;
-	Fri, 28 Aug 2026 12:48:39 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7978D11C7810C;
-	Fri, 28 Aug 2026 14:48:32 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1787921314; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=scK/I2cjqVO0vAjV26ZyyTKaHsFuHcj/vb04vGRyhvc=;
-	b=rbc4c+vXpW+zJUQPRtSaghanGQ5BU2T++ZCNiSeeQcySif1qD9bGOODSq5UoTt5fTD7q6U
-	cwIA1Kq+KfDkkL3XyyVfc3W15S6oZsNDK1Ijcqi4hL9HMUE9Qkbd8GpE5tF4YhpY9jvz4S
-	wncNvg/MPB8AqEcGixoBDCZ8O2WJ6mqcrTciwA8gLcBqoObWekGu62ZfnsYDl5ciV4SmA/
-	TpMer7v36/pduI/rPGUo9SgSLnBJB/QsEVjdEBOrEm+00ZdZAKYljaPG69WjRnvgX/cvwd
-	ujcFlT/n6pqDeMMytwzpuEXj0t3edRhMPLhcERb2+wYR8u+97SKbbg5hXZwHsw==
-Date: Fri, 28 Aug 2026 14:48:32 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Ard Biesheuvel <ardb@kernel.org>
-Cc: "Johnny.Fan" <johnny.fan@cixtech.com>, linux-rtc@vger.kernel.org,
-	Feng Tang <feng.tang@linux.alibaba.com>, linux-efi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, cix-kernel-upstream@cixtech.com,
-	bob.zhang@cixtech.com, jie.fu@cixtech.com
-Subject: Re: [PATCH] rtc: efi: restore alarm support with runtime capability
- probe
-Message-ID: <202608281248326784a354@mail.local>
-References: <20260828031519.2749354-1-johnny.fan@cixtech.com>
- <549999fa-4b1a-4f53-872a-9036a377f8cf@app.fastmail.com>
- <apFHoVVdhJsmBXDR@JohnnyFan>
- <6adfa384-d232-4e80-a6f1-fa51780107d3@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=alexander.sverdlin@siemens.com header.b="der95ZNv"
+Received: by mta-64-226.siemens.flowmailer.net with ESMTPSA id 20260828164448e59846eb30000207bd
+        for <linux-rtc@vger.kernel.org>;
+        Fri, 28 Aug 2026 18:44:48 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
+ d=siemens.com; i=alexander.sverdlin@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=BZcCro/FSTR14TT7n6Isl1Irs+JM+nnMtBgNPo3XYiE=;
+ b=der95ZNvtlPWTgIUUun2SOCyEiPO5yNDYTRXwyqOLuVuWHiVOi8WBskQmUkzDCONGlmGIv
+ 6afTbDlxsYq12OM9x5LPPUqJWTVhCCKhQHJlh5K3E8jAOUPBmrwv3NBEsLGkc66cx+y9Jwof
+ kz4hI1I1QIGMtdWf9/YPfjWSLUDq4aQ3z6I4cHgOmsqXC37VWgL60V37oD2yxx+P2Vuw6Ugj
+ fa1sBg6QYKtUxpPEtSVSfY+1queMwSUdO3anWmWVSPvaPAE3CDF5nib/pjHRhzmqXN1TvZtm
+ OAn/oyAdZkFkDuLdG9zwrQBgmKD7a7ZB6jq7UzWdu31i3/0gXrxC+yzQ==;
+From: "A. Sverdlin" <alexander.sverdlin@siemens.com>
+To: linux-rtc@vger.kernel.org
+Cc: Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 1/4] rtc: pcf85063: use devm_of_clk_add_hw_provider() for clkout
+Date: Fri, 28 Aug 2026 18:44:39 +0200
+Message-ID: <20260828164445.3907839-2-alexander.sverdlin@siemens.com>
+In-Reply-To: <20260828164445.3907839-1-alexander.sverdlin@siemens.com>
+References: <20260828164445.3907839-1-alexander.sverdlin@siemens.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6adfa384-d232-4e80-a6f1-fa51780107d3@app.fastmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: 8bit
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-456497:519-21489:flowmailer
 
-Hello Ard,
+From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
 
-On 28/08/2026 12:13:10+0200, Ard Biesheuvel wrote:
-> 
-> On Fri, 28 Aug 2026, at 10:32, Johnny Fan wrote:
-> > On Fri, Aug 28, 2026 at 09:26:42AM +0200, Ard Biesheuvel wrote:
-> > Hi Ard,
-> >
-> > One additional data point: this is not a hypothetical requirement
-> > -- multiple CIX customers have explicitly requested RTC wakeup
-> > support (both suspend-to-RAM and power-off wakeup) on these
-> > platforms, which is part of why we are motivated to restore the
-> > alarm functionality rather than work around it.
-> >
-> 
-> Fair enough - I'll queue this as a fix.
+pcf85063_clkout_register_clk() registered the OF clock provider with the
+deprecated of_clk_add_provider() and never removed it, so the provider
+kept pointing at freed data after unbind, leading to a use-after-free the
+next time the device-tree clock was resolved.
 
-I can take care of this if you are happy with the patch.
+Switch to devm_clk_hw_register() and devm_of_clk_add_hw_provider(): both
+the clock and its OF provider are managed resources now, and the provider
+is torn down before the clock on unbind.
 
+Register the clock on the parent i2c device instead of the rtc device.
+devm_of_clk_add_hw_provider() must use the parent, which owns the
+of_node, and the clkout_hw it points at lives in the driver data
+allocated on the parent. Tying both to the parent releases them together
+on unbind, before the driver data is freed, and keeps their teardown
+ordering guaranteed by a single devres list. Registering the clock on the
+rtc device instead could defer its unregistration past unbind (e.g. while
+a /dev/rtcN fd is open), after clkout_hw has already been freed.
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
+---
+Changelog:
+v3:
+- new patch (pre-exising issue found by Sashiko)
+
+ drivers/rtc/rtc-pcf85063.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+index 8cb9ffc73f6d9..ac9ab1c376c0b 100644
+--- a/drivers/rtc/rtc-pcf85063.c
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -495,12 +495,13 @@ static const struct clk_ops pcf85063_clkout_ops = {
+ 	.set_rate = pcf85063_clkout_set_rate,
+ };
+ 
+-static struct clk *pcf85063_clkout_register_clk(struct pcf85063 *pcf85063)
++static int pcf85063_clkout_register_clk(struct pcf85063 *pcf85063)
+ {
+-	struct clk *clk;
++	struct device *dev = pcf85063->rtc->dev.parent;
+ 	struct clk_init_data init = {};
+-	struct device_node *node = pcf85063->rtc->dev.parent->of_node;
++	struct device_node *node = dev->of_node;
+ 	struct device_node *fixed_clock;
++	int ret;
+ 
+ 	fixed_clock = of_get_child_by_name(node, "clock");
+ 	if (fixed_clock) {
+@@ -510,7 +511,7 @@ static struct clk *pcf85063_clkout_register_clk(struct pcf85063 *pcf85063)
+ 		 * registered automatically when being referenced.
+ 		 */
+ 		of_node_put(fixed_clock);
+-		return NULL;
++		return 0;
+ 	}
+ 
+ 	init.name = "pcf85063-clkout";
+@@ -524,12 +525,12 @@ static struct clk *pcf85063_clkout_register_clk(struct pcf85063 *pcf85063)
+ 	of_property_read_string(node, "clock-output-names", &init.name);
+ 
+ 	/* register the clock */
+-	clk = devm_clk_register(&pcf85063->rtc->dev, &pcf85063->clkout_hw);
+-
+-	if (!IS_ERR(clk))
+-		of_clk_add_provider(node, of_clk_src_simple_get, clk);
++	ret = devm_clk_hw_register(dev, &pcf85063->clkout_hw);
++	if (ret)
++		return ret;
+ 
+-	return clk;
++	return devm_of_clk_add_hw_provider(dev, of_clk_hw_simple_get,
++					   &pcf85063->clkout_hw);
+ }
+ #endif
+ 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.55.0
+
