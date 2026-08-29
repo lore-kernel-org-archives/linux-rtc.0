@@ -1,41 +1,41 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852392F0661
-	for <linux-rtc@vger.kernel.org>; Sat, 29 Aug 2026 14:23:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84F53ABD80
+	for <linux-rtc@vger.kernel.org>; Sat, 29 Aug 2026 14:23:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788013388; cv=none; b=XI5j81a9LbPFkA4qXKKSexIZnVtfoGnz4B4Ukv8/HY5zbpL9eBKWN2iJadibv8FE3Y0V3n0+Q0ojOXTq5hRfRh+etZHhyHOe/VZDt+SV39Ny5whNbcA8/ad7hPkUE8MCHbSoNzFi4LJU2ZNYlgZtyuWJEnk03ZJjgCvFlnASHy4=
+	t=1788013389; cv=none; b=gpvIti4FGeNyNGDXZTiuqvW7AiVOYNwP64tEe7Y+NkTtdEo/kovZSKtC1QqfT68P28Hzz1pplH5Usqhx/Uv3ar2t5W1l3bi3E6AY4RG1f2MpxIVlGpbJhUqF/Zbg00XhPJVtmEeBXMe4PyouZisKCsnnSD4MQZRBNi26rnI1DAY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788013388; c=relaxed/simple;
-	bh=/RN4bcc6JZOueMRQ2yaP4BUuLLpjTzlr7/VSEGCklNo=;
+	s=arc-20240116; t=1788013389; c=relaxed/simple;
+	bh=QV/D+X9L6iHtWxf2FTb2FsPSMVe+HAIVh5ovcaU9Yq0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=BSPMob0uMAsNX5qiae0D45kIK2zwcxyenVI1mVL0fbFv8a9opkQfCowGHln+f/jFPORNrcdvLWkqMS4+I/2Xz3Ku2bo+xxbtV++sxoNYzajeEbf3tmw9x/Z5F/v4vFnXC1YCtQHBQ5SUjhsRtbXnmri7wTW6X2pY11U8wEtp0y4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=N/XKxvDF; arc=none smtp.client-ip=185.67.36.65
+	 In-Reply-To:To:Cc; b=ljgVkPNI/eFBBaszFwzmswpwZWG3F9CkfI7cc61edjfYvgKn0hjS31e1LrHmfrUUf3zoyrF3S6uhloSI/O6/rWZJxvbP5qe9Kwxe4wzfRbg5tuzccHKzXlfR+YYt3pFvUXGdr5tqm0WBQZx76yepasBb4+iZShLJ7lH/QZklrT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=XrJqeiGe; arc=none smtp.client-ip=185.67.36.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="N/XKxvDF"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="XrJqeiGe"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id C2237240029
-	for <linux-rtc@vger.kernel.org>; Sat, 29 Aug 2026 16:22:57 +0200 (CEST)
+	by mout02.posteo.de (Postfix) with ESMTPS id ABD79240109
+	for <linux-rtc@vger.kernel.org>; Sat, 29 Aug 2026 16:22:58 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1788013377;
-	bh=ELtl4sHgY9Ch4KYBqdzaGVJ+wwPAgLu5Sies0dF8+Lg=;
+	s=1984.8680eb; t=1788013378;
+	bh=RGGhD71B+UtcIgYaLVJcbUJD2ZD+NnVvBK4/H22TbeY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:To:Cc:Autocrypt:OpenPGP:From;
-	b=N/XKxvDFrn7svP+/Wa7WvghhqVn647PL1mZHue9FNZ7Q2h3hpYFGhlS6RqMAqSF0R
-	 AsMbgVOUyTbD8ZPn3J0HrwWOrVcLULQ9u436T3RgLDWNpriGG5FstKKPI5a1mN3vCA
-	 9O01TCgtV5YmhkfJ8eWS9PmmJH3qYRNT+fbefNL0paBFtKJFFtBHUCwBEjI2Ty8/tl
-	 /xWqafocdSTMQNROlv4CVG7QRMvrUjYbZePUwcqaOxnz/2fXxf/NXgBR/YnQItXSih
-	 G6vUGaR4s4fqvuPPTdLpMlXcJgRsTcBBWV6OSQvt7QWywar0oNdJTlPpJYQGvbYD/B
-	 5pLlfz58FRf9w==
+	b=XrJqeiGeSauEgqwMwGoRM231q0cC1cTuyfmzOynjY1nA0uYu7LxfQGgXR1iQMIfsb
+	 mIJzKgs46sdopQQD1MHV2X/Q7+Tg/gjk53T8jEQvRk8OvJ0dfHE0Fj8YmqJ9BFN3+V
+	 fQOensOvOzDKHANgKk0j+6wbRjjSf5wSEPK7UX/FUJG/oCTgSd0NPPS40zw+ibLOKh
+	 OcWz7DVdm7lIFF3EelrSnUSdTlu0+NSV+VjywK0/2Nw2YRi9qU5oQTcvfAkyFDDeYX
+	 YnKy1oNUf/UxhsKciMFmUjWzdvqkZYsRalC1raaOR27dyF6TyggpKtAIE+vV+2KYTW
+	 1mdWt9IXfzYIw==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hXHXc01Xsz6twP;
-	Sat, 29 Aug 2026 16:22:55 +0200 (CEST)
+	by submission (posteo.de) with ESMTPSA id 4hXHXc478hz6tyt;
+	Sat, 29 Aug 2026 16:22:56 +0200 (CEST)
 From: Markus Probst <markus.probst@posteo.de>
-Date: Sat, 29 Aug 2026 14:22:56 +0000
-Subject: [PATCH v7 1/6] dt-bindings: rtc: Add pinctrl for S35390A
+Date: Sat, 29 Aug 2026 14:22:57 +0000
+Subject: [PATCH v7 2/6] rtc: s35390a: Add missing newline to dev_err
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -44,7 +44,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260829-rtc_s35390a_int1-v7-1-debcd31143ae@posteo.de>
+Message-Id: <20260829-rtc_s35390a_int1-v7-2-debcd31143ae@posteo.de>
 References: <20260829-rtc_s35390a_int1-v7-0-debcd31143ae@posteo.de>
 In-Reply-To: <20260829-rtc_s35390a_int1-v7-0-debcd31143ae@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
@@ -59,21 +59,21 @@ To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4267;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=693;
  i=markus.probst@posteo.de; h=from:subject:message-id;
- bh=/RN4bcc6JZOueMRQ2yaP4BUuLLpjTzlr7/VSEGCklNo=;
- b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqkus9bFHovYHAvRJxUO5QGxGw0CAGgblrM1B2E
- CrwHG4Jm+mJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCapLrPRsUgAAAAAAEAA5t
- YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9KfFxAAjsdnTSagvASzLO1BSMWUo8xoyZTqzDw
- Nt+2mXyozaGMe5LKZ69Gl+MUN5hFVD+cnKFfsiXeT2NA/4TnbgP0u0YQeBEQl95JZExiSbvJ6Ci
- 3t3bijhkYCqQXItNkdUFiG8xZI8yHRC7l2Y8vQPl5TPvtDslkgwl+rXa+Tu/fy61abnTBbNdIlg
- bzerjXWQ5kdk5BAa8hOTrmBKZiUTdcOYCnZw+Fgm6qRwpJfUeL/n0FvRRXXWNddpvmQCf7VoYLz
- hzOPbuzoLAXa9h7h6f43GMHTQH3TP9sfi4syrNj8lV683npNccWn9ioGzzUHIkBOrUuYH+T1XgP
- 3TNWTtzC7YGd6qGYOWr07wt75Mh694m1D2pF0JBrW5kfMBZHtz8/sMY4GV4LoDS/Snhht68Teg7
- smGoygUAwF5uiemici7qVxAYm1btgASXb6yBC6jcOHdoMJA4JE9K9nq1oJSvBs6+WvXSQg5f33R
- GtXYYxZAK+PnBbSogpwZ0j/KbfEhCbZ0nRZkVvfdhoKbkHws21X1xC6O1fqwtxK9pClsIeaqgJk
- lmNl9dQGXP/OUKQYT+pAcPvgDgFnODC4d8Jq9AYCD9G7XLrdcylXq8oe2NJ3Lpj5OeZgcQ9ctKQ
- V8Wu9uemPTPiH2v7mSOE+S2hOmbUpq0Wz6JBIUB9wLeYYYkd4DmA=
+ bh=QV/D+X9L6iHtWxf2FTb2FsPSMVe+HAIVh5ovcaU9Yq0=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqkus9ayjSwkOWvAgIFz9ahtG3Ars5u5zti/gsR
+ W+IP79Cv0mJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCapLrPRsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9JfPxAAnpDmuia4lri84YYl2AhNRgOR/guyMGO
+ GaK4GAKyW8uT6gXJpaf844b5oYcGxl7sJli0nGCqHvs4EuY9JPlxpJAgwAKIDN8ehzvbbeS4E1l
+ 5fL44q6UOZmf3U1DzIvR85j0jsrOlCosWICppqRkjRdTf0UgB4Qcn8AHNRfsOCCBKsbzsdnNKGb
+ mqXQK+XPC3K6lO//nvrKA/ddlyU+QgWwUQsXof6yIy5lNeGrnpAIZ2e1jc6ajeIOtHG0vp57WNs
+ vozvjlyoVb3wRO40/QMobP4ADSDLgB94e80UQhRE642LxEetnePRcgPcByOXtq48Y1+KCXh2Rd5
+ tvIIP8rtgt/ydNPYMwQQvkjggqFbRmeuXgW3dxlCKvQZMTONwReAslDVH6ewuzNk3aaJddU0Ltx
+ wjq+8hqMe/9IcODm7ok7hR8L6qnwnEptbbwHCZxAWgASxuMguqPfKszvTipJvA+rt+e6siwEf2u
+ NqJFpePhuD8Q2Pnu18KALcmCklkNiAGr0/KTsrO+Dd00tNrhLqDCg6+DT0DW6hja0g6CzGsTeL1
+ 1MOxm9aeRCPN24oZ8kmodYdurQN1wKwNrfJ5lkF9kBab+cxqhC7Awp2BMx7WaI/XkPDT13qPs8c
+ 49I28D2s/AkzbYztDnJtDFAJNUqAdVSsiiHybdllVLXIVL0W6j0M=
 X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
  fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
@@ -119,155 +119,25 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
   aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Synology NAS devices use the output pin for interrupt signal 1 to wake up
-the system.
-
-Move devicetree bindings for sii,s35390a into its own file.
-Add necessary properties to configure the individual pins via pinctrl,
-which allows the interrupt signal 1 to be used for wakeup alarm.
-
+Fixes: 3bd32722c827d ("rtc: s35390a: improve irq handling")
 Signed-off-by: Markus Probst <markus.probst@posteo.de>
 ---
- .../devicetree/bindings/rtc/sii,s35390a.yaml       | 111 +++++++++++++++++++++
- .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
- 2 files changed, 111 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-s35390a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-new file mode 100644
-index 000000000000..d9da3abbbd51
---- /dev/null
-+++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-@@ -0,0 +1,111 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: S-35390A 2-WIRE REAL-TIME CLOCK
-+
-+maintainers:
-+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
-+
-+description:
-+  The S-35390A is a CMOS 2-wire real-time clock IC which operates with the
-+  very low current consumption in the wide range of operation voltage.
-+
-+allOf:
-+  - $ref: rtc.yaml#
-+
-+properties:
-+  compatible:
-+    const: sii,s35390a
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    minItems: 1
-+    maxItems: 2
-+    description: Supports up to 2 interrupt lines via the INT1 and INT2 pins.
-+
-+  wakeup-parent: true
-+
-+  wakeup-source: true
-+
-+  "#clock-cells":
-+    const: 1
-+
-+patternProperties:
-+  "^pins":
-+    type: object
-+    patternProperties:
-+      "-pins$":
-+        type: object
-+        properties:
-+          pins:
-+            $ref: /schemas/pinctrl/pinmux-node.yaml#/properties/pins
-+            minItems: 1
-+            items:
-+              enum:
-+                - int1
-+                - int2
-+
-+          function:
-+            $ref: /schemas/types.yaml#/definitions/string
-+            description: |
-+              Pin function:
-+              - ignore:  Preserve the previous state.
-+              - disable: Disable pin output.
-+              - wakeup:  Output wakes up the system.
-+              - clock:   Output clock pulse.
-+              - pmin1:   Minute periodical output with 50% duty.
-+              - pmin2:   Minute periodical output L for 7.81 ms.
-+                         Can only be used with pin int1.
-+            enum:
-+              - ignore
-+              - disable
-+              - wakeup
-+              - clock
-+              - pmin1
-+              - pmin2
-+
-+        required:
-+          - pins
-+          - function
-+
-+        additionalProperties: false
-+
-+    additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        rtc@30 {
-+            compatible = "sii,s35390a";
-+            reg = <0x30>;
-+            pinctrl-0 = <&rtc_pins_default>;
-+            pinctrl-names = "default";
-+
-+            wakeup-parent = <&int>;
-+
-+            rtc_pins_default: pins {
-+              int1-pins {
-+                pins = "int1";
-+                function = "wakeup";
-+              };
-+              int2-pins {
-+                pins = "int2";
-+                function = "disable";
-+              };
-+            };
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-index f4d0eed98a08..7b3f682ef4d5 100644
---- a/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/trivial-rtc.yaml
-@@ -81,8 +81,6 @@ properties:
-       - ricoh,rv5c386
-       # I2C bus SERIAL INTERFACE REAL-TIME CLOCK IC
-       - ricoh,rv5c387a
--      # 2-wire CMOS real-time clock
--      - sii,s35390a
-       # ST SPEAr Real-time Clock
-       - st,spear600-rtc
-       # VIA/Wondermedia VT8500 Real-time Clock
-@@ -105,5 +103,4 @@ required:
-   - reg
- 
- additionalProperties: false
--
- ...
+diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+index b72eef4fb099..4cfe7034c516 100644
+--- a/drivers/rtc/rtc-s35390a.c
++++ b/drivers/rtc/rtc-s35390a.c
+@@ -494,7 +494,7 @@ static int s35390a_probe(struct i2c_client *client)
+ 		buf = 0;
+ 		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
+ 		if (err < 0) {
+-			dev_err(dev, "error disabling alarm");
++			dev_err(dev, "error disabling alarm\n");
+ 			return err;
+ 		}
+ 	} else {
 
 -- 
 2.54.0
