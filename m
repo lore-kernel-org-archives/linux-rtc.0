@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82CB53ABD80;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5D21C5D72;
 	Sat, 29 Aug 2026 14:32:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788013940; cv=none; b=nyZrplHrtL/jymjAjom0FA2zG4baf2ikVt8e2Xg/oODc9JFxQC78OqfRguPvIzN9mFNU+25Lc6ZCdr47kduQTSh9gey5Qh69HOEjl91dK57oIoT3PQSLAykNffelkc0utt8lll0eHq2H/MggmerExaG8GQEZZyUvKWgdTjaMfYQ=
+	t=1788013940; cv=none; b=AzRXfPI+b/DiDl0dRAd+MJ38/Lhe2pV7LbqKdUhWe5I1JfaJWKCkvYOZD0EtrhZweURAvsk2yCRm4E+mqc30thLD4mEK7q0TMC1s+9y+S61Mb9P+eXoa/H5in+ojSIbwwkHRn8c9UO8rNUs6xOBHQNxhVqQ/RbUG00t+Xokt1kU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788013940; c=relaxed/simple;
-	bh=qjjEDy4ITR3035lHjKds+INeoiX8UIMAGC2B4Bwjvvw=;
+	bh=p/mwdg1J6VVqYZrQqeKXegT8s2sG/WHA9h4a2Pdnups=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=PK1/jhttKa26/kGd5UsbFKHPhHgnV258SzNJOFabn1p4cCQptL14yz2M61GvyvNPakoHVw0I8sHYLPipH51zGDScQFxLGf+XzULWX2CXZLwCBn39bWY6MwxYmWbUB3CHgs5Zmon/3Oo5kXYe4rPsBAhK7AO6r3km9xUDbwPmu+k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R8urLXSc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=q8inYoH1pxOZ8nuWz4P5FkQMs0O84K+eYPBzg3KphfK2HDie4VMQJNh6ycxbMVBCNFIV48KZTHvw3PAPucR4EKGqkAIPuaeC5X/4wTHk5Fu458x9GlbC4/p72EfPw4bDK6ZZkmAc6glLeHXAG7jdvzcCNx1GBRrS88I+iiT8jcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M6Qis4Ep; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R8urLXSc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55DC11F00A3D;
-	Sat, 29 Aug 2026 14:32:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M6Qis4Ep"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AB181F000E9;
+	Sat, 29 Aug 2026 14:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788013937;
-	bh=GPGk9ZXQQTGsIDscmLvAorN0XqWaRLlg7zuFO/W0Qbo=;
+	s=k20260515; t=1788013938;
+	bh=vznTKrvyOuiMnauVQeeBzySeYn0LqTMOgbecjVKB96o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=R8urLXScoMZ/Befol4Q1BPvpp2BQsZ98yhLcb9badfydpJxdrZOzVJFDnJcMviENC
-	 hjUqmcej/0QxeXXCwK/08q/adnk1QtUsU2OpWU/BLZPsk7TTnUlfV3Zd5gv34tem59
-	 nIYVN4cLPfntrjAmw6ZHMbgmsXm8+dwuMCny/falpl6XMzCGw1XJV3ce6yoJ/gEv53
-	 aSvFhqfbVFhLhu9jn+PXoYgmqukMGQdb+PW64PAXfowXVJcAJshbOKgzcLJDJM9vok
-	 g1+xh2hIihXLePVdNqYKQ66Ko434cWlkdKje4B4/Dtr4PgjCfj2iOep7wypq3szWGq
-	 N/7wAXUMv2Rnw==
+	b=M6Qis4Epic93KjDwCjc7hohxN1Tv7unWv7Jyr7s1YUUP8hdTSY2pTbBqQjD3T8Zas
+	 CxZ6/ZzHHM9B25h/cQDeDWg740vft7Q0nrvpW4kSMpBsj4EXEomy0plCacTVJ30Luw
+	 gTbsT9zyarUWHKGwUb6hIQpVEo0rKWWGSJDQUSKaA7FWxfByjIpaXsn8lSwvjKjQPI
+	 dFfXMbS+ZX3XJgDLpQtAcmnG5TXKBIADrWP5UeuKH+pJxO5VuAsPQnM/wK0DJdkLVl
+	 BjAcfGAKsu5JlvPhIOY1rAchdwFDWGSLCwTvGWgvojRA9h0bDsY5ZTvDzfJJizCgV6
+	 dZaQ5FK4o29LA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 2/6] rtc: s35390a: Add missing newline to dev_err
+Subject: Re: [PATCH v7 5/6] rtc: s35390a: Add pinctrl
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Markus Probst" <markus.probst@posteo.de>
-Cc: devicetree@vger.kernel.org, robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260829-rtc_s35390a_int1-v7-2-debcd31143ae@posteo.de>
+Cc: robh@kernel.org, devicetree@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260829-rtc_s35390a_int1-v7-5-debcd31143ae@posteo.de>
 References: <20260829-rtc_s35390a_int1-v7-0-debcd31143ae@posteo.de>
- <20260829-rtc_s35390a_int1-v7-2-debcd31143ae@posteo.de>
+ <20260829-rtc_s35390a_int1-v7-5-debcd31143ae@posteo.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 29 Aug 2026 14:32:16 +0000
-Message-Id: <20260829143217.55DC11F00A3D@smtp.kernel.org>
+Date: Sat, 29 Aug 2026 14:32:17 +0000
+Message-Id: <20260829143218.3AB181F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -47,63 +46,64 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] RTC_VL_READ ioctl clears low-voltage hardware flags without cachin=
-g them, silently masking time corruption for subsequent reads.
+- [Low] Mixing goto-based control flow with guard() cleanup in the same fun=
+ction.
 --
 
-commit d2afec77b76a14e1c30b1da14673de2795a5f488
+commit dd254d343ff68630c82771ba28746846db1164dd
 Author: Markus Probst <markus.probst@posteo.de>
 
-rtc: s35390a: Add missing newline to dev_err
+rtc: s35390a: Add pinctrl
 
-This commit adds a missing newline character to a dev_err() message
-in the probe function of the s35390a RTC driver.
+Allow configuration of pin functions, including keeping the previous=20
+configured function, disabling output, waking up the system, or=20
+minute periodical interrupt.
 
 > diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index b72eef4fb0997..4cfe7034c5165 100644
+> index 12ed504db94d8..66ae58ac06ddd 100644
 > --- a/drivers/rtc/rtc-s35390a.c
 > +++ b/drivers/rtc/rtc-s35390a.c
-> @@ -494,7 +494,7 @@ static int s35390a_probe(struct i2c_client *client)
->  		buf =3D 0;
->  		err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
->  		if (err < 0) {
-> -			dev_err(dev, "error disabling alarm");
-> +			dev_err(dev, "error disabling alarm\n");
->  			return err;
->  		}
->  	} else {
 
-[Severity: High]
-This isn't a bug introduced by this patch, but while reviewing this file,
-I noticed a potential issue with how power-loss events are handled.
+[ ... ]
 
-Does the RTC_VL_READ ioctl clear the low-voltage hardware flags without cac=
-hing
-them?
+> +static int s35390a_pinctrl_set_mux(struct pinctrl_dev *pctldev, unsigned=
+ int function,
+> +				   unsigned int group)
+> +{
+> +	int err;
+> +	u8 status2, flag, mask;
+> +	struct s35390a *s35390a =3D pinctrl_dev_get_drvdata(pctldev);
+> +
+> +	mask =3D group =3D=3D 0 ? S35390A_INT1_MODE_MASK : S35390A_INT2_MODE_MA=
+SK;
+> +
+> +	guard(mutex)(&s35390a->pinfunction_lock);
+> +
+> +	dev_dbg(&s35390a->client[0]->dev, "%s: function=3D%d group=3D%d\n",
+> +		__func__, function, group);
+> +
+> +	if (function =3D=3D s35390a->pinfunction[group])
+> +		return 0;
+> +
+> +	if (function =3D=3D S35390A_FUNC_IGNORE)
+> +		goto end;
 
-Looking at s35390a_rtc_ioctl() in drivers/rtc/rtc-s35390a.c:
+[Severity: Low]
+Does mixing goto-based control flow with guard() cleanup in the same functi=
+on
+violate the cleanup subsystem guidelines?
 
-	case RTC_VL_READ:
-		/* s35390a_reset set lowvoltage flag and init RTC if needed */
-		err =3D s35390a_read_status(s35390a, &sts);
-		if (err < 0)
-			return err;
-		if (copy_to_user((void __user *)arg, &err, sizeof(int)))
+The cleanup subsystem explicitly discourages mixing goto statements with
+scope-based cleanups like guard() in the same function to prevent ownership
+ambiguity.
 
-It appears s35390a_read_status() reads the hardware status register, which=
-=20
-automatically clears the low voltage flags in the hardware upon reading.
+While the lock will still be correctly released here when going out of scope
+at the target label, would it be better to avoid the goto and rely complete=
+ly
+on scope-based returns?
 
-Because the driver does not cache this state or reinitialize the chip to a =
-known
-state, the hardware permanently forgets that a power loss occurred.
-
-Will a subsequent call to read the time via s35390a_rtc_read_time() read
-the status register, receive no error, and silently return corrupted or=20
-uninitialized time data to userspace instead of returning an error?
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260829-rtc_s35390=
-a_int1-v7-0-debcd31143ae@posteo.de?part=3D2
+a_int1-v7-0-debcd31143ae@posteo.de?part=3D5
