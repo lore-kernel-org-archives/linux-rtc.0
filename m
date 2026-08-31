@@ -1,41 +1,41 @@
 Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDBF043E487
-	for <linux-rtc@vger.kernel.org>; Mon, 31 Aug 2026 17:42:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F179837B00F
+	for <linux-rtc@vger.kernel.org>; Mon, 31 Aug 2026 17:42:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788198156; cv=none; b=hChrR63TJQdCDlYBJkh7wbWoIj/lSjSPWGO1U+xpEP6dCB/4aTjLMzNcA72GawyEPtgX8rYICF1Bodr5Q04nBiiuSM98rnuwyBdKGsRLZ/2jo6vDTxcdUhv2ic4l8tyxZN74q56Z2Z2nlToDwwRb5knYKvA+DlVue7d5oEGoGIg=
+	t=1788198157; cv=none; b=lUO+Ptk+OySOa1JJ6U5FOhTDbsvUpQ2tr54YmOGESd49QkmaGjoaEml0qEQ+pcM4xew1SpYq5PXp3T/vEwf/LSMt1adV40AG8FyZezMQUJ/QEodUItuYh9boFwROw5TdWOKy438nKeDPhow3MaKPeIE+edPuIKos67I6zH61wS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788198156; c=relaxed/simple;
-	bh=2SQmS1BEAnLIMbljFkQwkOS3WcPm6gHQujWPW1XjW4I=;
+	s=arc-20240116; t=1788198157; c=relaxed/simple;
+	bh=6wArxx1l8Hm9Dqx4mugbk8wsFGsXoxVI7ksSr89OEeg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qtXer+HVzHLAOp0IX5BlM66N/jEmP06Up0M1sXmhd2E33zWBRzlyyufEXafsD2Ku0WXjdowrfPaa7nuClFgKGaGa0ozRunnN8qBGWHfW13SJprfNYaw9OUE4uaQZz/gHvyWofexK5eo9uVO63mvaE+PR/48O7Z/KKvB6FdPLzMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=gRyJSczy; arc=none smtp.client-ip=185.67.36.65
+	 In-Reply-To:To:Cc; b=Ffl6DCqDEDWIV16XZgsyR69uUAgLizaCv6LWSYYgnptgOBKSIUXipS5LIojkqLRQvjXcgDlgbfqkSdrHdeh9HE3AB1Yh2uGNxlUcruExxN9YErG6WpO+NAKmdT/eJVGyqME6dDvFxGti5tmiXuPbnb99lP27RsdHdaNmvXwaUmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=gMSEYcDz; arc=none smtp.client-ip=185.67.36.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="gRyJSczy"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="gMSEYcDz"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id D518424002D
-	for <linux-rtc@vger.kernel.org>; Mon, 31 Aug 2026 19:42:31 +0200 (CEST)
+	by mout01.posteo.de (Postfix) with ESMTPS id 3299C24002D
+	for <linux-rtc@vger.kernel.org>; Mon, 31 Aug 2026 19:42:27 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1788198151;
-	bh=fzSUA8jz+o+v6OONQ0mLxZOh2EV6BUjpJKgJbuUiqx8=;
+	s=1984.8680eb; t=1788198147;
+	bh=/IrZMEnYMWz3cHmLNm2dkUh37mtplEA3JG88ye8+6jg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:To:Cc:Autocrypt:OpenPGP:From;
-	b=gRyJSczyeSj+HvBtHLg4gtbWWgdUUsdQqD6a0JpBscdXJlFCo3ce8aNp6fEXjujgk
-	 nmAm8AYkw/OnZj32psL6fV7VBOhWpRfnuP2NX1RDmsGZrWvAm+gSx69d9ZI7V1YOCV
-	 pqPjnSOlYrL65Ufm/C1bUVudl5x6UilorvfY8Vn3dhIIiCM4LIXGxbAgQwVdUi1OLd
-	 vMwUi6jfKiAscRrXhminLa2H0VkM0NY+ScsRKS3hBZOMXDs+HXhJanmgkBTthhtvki
-	 7sYCxXm5P4WWGRFaH2nH3W9vKKc1Rx/Sw9iHMIvy3OshCy+o6Zxzd/TmYA/8wdTB3J
-	 /q34DC0ny8v0A==
+	b=gMSEYcDzr+5YYsRLfPjkvUm+isbBsA5OCXpAW2haQnBaHWjGs7k+JZG9+7lJI0fkL
+	 mJcJijPOKrb3BOQb8YG6KJ4RhH4dw2KltgzTUH2xSw5My0BQBqTA7yCbZznURFyGiQ
+	 RHyG8+OM0Cx6BDFZxn76RkLvrAmmove5YU+WmC79H/zZR2OMpcHSH2BMUUditebMAe
+	 FNDb3nY4J8TaJ3pcp9DjCn2+ORWpy2zlWt4CLieD6SWk43ZCRo8G0vNUjqszq6og0a
+	 xQbSxo9uSmteoXst47kipvFxnFuW5ZBY0qZiJP61Rd6wzPEnczFrsJWWJJTLZWBbgL
+	 GgKWpWvpKp/qw==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hYbsx41R2z9rxK;
-	Mon, 31 Aug 2026 19:42:29 +0200 (CEST)
+	by submission (posteo.de) with ESMTPSA id 4hYbsr3qg6z9rxM;
+	Mon, 31 Aug 2026 19:42:24 +0200 (CEST)
 From: Markus Probst <markus.probst@posteo.de>
-Date: Mon, 31 Aug 2026 17:42:31 +0000
-Subject: [PATCH v8 6/6] rtc: s35390a: Add synology quirk
+Date: Mon, 31 Aug 2026 17:42:26 +0000
+Subject: [PATCH v8 3/6] rtc: s35390a: Fix alarm not disabling
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -44,7 +44,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260831-rtc_s35390a_int1-v8-6-dac1dc86ce1f@posteo.de>
+Message-Id: <20260831-rtc_s35390a_int1-v8-3-dac1dc86ce1f@posteo.de>
 References: <20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de>
 In-Reply-To: <20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
@@ -59,21 +59,21 @@ To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1557;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1828;
  i=markus.probst@posteo.de; h=from:subject:message-id;
- bh=2SQmS1BEAnLIMbljFkQwkOS3WcPm6gHQujWPW1XjW4I=;
- b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqlbz5V5J0ZvNJiT/2zbcSdjPgf7G6vwjwCAyxx
- hRnegQxoc6JAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCapW8+RsUgAAAAAAEAA5t
- YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9LYvRAAoNhAfPowmr/c/5UB1G2hNYc/9sTdc2v
- 7Hg4isgQffaXAFU1H/9qWEG4O9am9Xi4gRS+2TGw7Dd8lpp4A+ZWJ9bSvFY8dmPN1WW7lmaS4KK
- JXoVavLr3CxYVOS3D7ZaUvcLtMtPZ1m9y5IituTbZ24cW0vcpgvGJ2NplGkT1BbsynOy0IR9Ox0
- p1Mi/eXkkBZUoLyD8IJT+X5yJhGxvfYjRTMrXko8CLDKdvBpaxRdlosBA8lqjZxKZfUUTDS/QC4
- 9QSvRAwTsy3iffFRJsVu2hgKSO8ovUoUNyeKCAu80r16gnfkdTrVjP6FozeGEuUS0eD6d55OmMi
- qKleQpEKjRXopSymMLvCaF/SsokraVF62XQoFV7w16bAsVAziN3KG4jT4otK2EGAuyI6tIksS8N
- A0K6XlzG58haxKeJEhEY4ITBsuH7+2n/xPgOS8UZYeLxTS8k6DSvrCGQ8cVBzxwp1Mdu7ODGV0D
- 2arFG0mVgg4oE+tm1IwsL/9QDJlYpOkwvEsp68SR1Md0BLkMpP/XILZ/PRVmiWC1JqRqKCaIY8D
- 9bcqZNsN1fccx7tZU/fxnqrqLIWkPdpM4/KgmC8xaXmaFXUlBBF6DJW1cBBWW9QNRqbfJ0SBnf6
- 3/xwXxyGmNPOfry4/biIxFnbhi8NdXAXG2QKPOejlPtxxbs1jgbI=
+ bh=6wArxx1l8Hm9Dqx4mugbk8wsFGsXoxVI7ksSr89OEeg=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqlbz5sTLuBYf+NIWgiqnEk5XzLpu8/y7rS6eip
+ z+qs/Mg4YSJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCapW8+RsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9Jqtw//WmEI6sp8XAyVvXllG1kGWsORWKmjp2a
+ Zpw2xMI0O5RrDLb09X/JnryXPyydf8zhrWdekwnKQkU1VQWv+2WQaZwseG2Me+QHWyCzO56FJbQ
+ wnKDDVXZsX4/V0asbvyCgySsTKcPUKDY0JfrsRCbYM5YajACYCg/35AxPITlzsqGr6CdVX00gg6
+ kJJD+jiezQDFnWAM7AO03qwb6VZaygN0baELfkcYGoMO7lBmGs4wwDYu+KnG+3zguzmd9axPOLN
+ w2lx49qQtL6ib1DSKOKZ6nCZsoDfQNQqaA1IyDhsKTbDmxIvisWiCcsRLKpJ2KL+wt7lC/Eg7P0
+ U2nMFBFFHH/UXi1VTbH8uw9WS3RTjmyvUo1jv5E2uhW6eEmAq8HkAYE1VrLl2x/U7geiBbHeIQy
+ VdEgcveoDmOPl5u2npD4/WPDpk4nEbWUnbGnqqY+dq7vHjE8oZcsbZKzMFrFHfeIB0pRlqbqWJD
+ brKlqJq1eEEW1BW0mZpwOfUUyflflkNJoFaSKIE46WRd9FuyRnZnsB556bPifbtbcm1fBzBdUql
+ MjMbW4KtIm+7w2ttdfXMHU84w9BR8CYD2yapZAtmc73rtwmG9VKdGAEQIDyIyqXnkJarbM+D8Ur
+ jeoVeRO49dFfvIhK9z3q7icCQpU3O7J3osZWq17tR1nbJLdl8ZJY=
 X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
  fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
@@ -119,50 +119,61 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
   aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Synology NAS devices use interrupt signal 1 for wakeup alarms. On ACPI
-it is not possible to configure pinctrl.
+Implement alarm_irq_enable callback.
 
-Use interrupt signal 1 for wakeup if no pinmux function has been
-configured in devicetree and dmi sys vendor matches "Synology Inc.".
-
+Fixes: 542dd33a4925 ("drivers/rtc/rtc-s35390a.c: add wakealarm support for rtc-s35390A rtc chip")
 Signed-off-by: Markus Probst <markus.probst@posteo.de>
 ---
- drivers/rtc/rtc-s35390a.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-s35390a.c | 29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 649d36d37f1f..d3e829052927 100644
+index 4cfe7034c516..575bb256eb25 100644
 --- a/drivers/rtc/rtc-s35390a.c
 +++ b/drivers/rtc/rtc-s35390a.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2007 Byron Bradley
-  */
+@@ -270,6 +270,24 @@ static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	return 0;
+ }
  
-+#include <linux/dmi.h>
- #include <linux/module.h>
- #include <linux/rtc.h>
- #include <linux/i2c.h>
-@@ -778,8 +779,18 @@ static int s35390a_probe(struct i2c_client *client)
- 		return dev_err_probe(dev, err, "pinctrl enable failed\n");
- 
- 	/* If no pinmux function is defined in DT, fallback to previous behaviour */
--	fallback[0] = S35390A_FUNC_IGNORE;
--	fallback[1] = S35390A_FUNC_WAKEUP;
++static int s35390a_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
++{
++	struct s35390a *s35390a = dev_get_drvdata(dev);
++	u8 sts;
++	int err;
 +
-+	if (dmi_match(DMI_SYS_VENDOR, "Synology Inc.")) {
-+		/*
-+		 * Synology uses interrupt signal 1 for wakeup. Since pinctrl cannot be
-+		 * configured on ACPI, we check against the dmi sys vendor.
-+		 */
-+		fallback[0] = S35390A_FUNC_WAKEUP;
-+		fallback[1] = S35390A_FUNC_DISABLE;
-+	} else {
-+		fallback[0] = S35390A_FUNC_IGNORE;
-+		fallback[1] = S35390A_FUNC_WAKEUP;
-+	}
++	if (enabled)
++		sts = S35390A_INT2_MODE_ALARM;
++	else
++		sts = S35390A_INT2_MODE_NOINTR;
++
++	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
++	if (err < 0)
++		return err;
++
++	return 0;
++}
++
+ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+@@ -410,11 +428,12 @@ static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
+ }
  
- 	for (i = 0; i < ARRAY_SIZE(s35390a_pin_groups); i++) {
- 		if (s35390a->pinfunction[i] == -1) {
+ static const struct rtc_class_ops s35390a_rtc_ops = {
+-	.read_time	= s35390a_rtc_read_time,
+-	.set_time	= s35390a_rtc_set_time,
+-	.set_alarm	= s35390a_rtc_set_alarm,
+-	.read_alarm	= s35390a_rtc_read_alarm,
+-	.ioctl          = s35390a_rtc_ioctl,
++	.read_time		= s35390a_rtc_read_time,
++	.set_time		= s35390a_rtc_set_time,
++	.set_alarm		= s35390a_rtc_set_alarm,
++	.read_alarm		= s35390a_rtc_read_alarm,
++	.alarm_irq_enable	= s35390a_rtc_alarm_irq_enable,
++	.ioctl			= s35390a_rtc_ioctl,
+ };
+ 
+ static int s35390a_nvmem_read(void *priv, unsigned int offset, void *val,
 
 -- 
 2.54.0
