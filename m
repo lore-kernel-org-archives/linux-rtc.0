@@ -1,35 +1,35 @@
-Received: from mta1.migadu.com (out-73.mta1.migadu.com [95.215.58.73])
+Received: from mta1.migadu.com (out-87.mta1.migadu.com [95.215.58.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6CE466B09
-	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 11:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99FAD46D566
+	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 11:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.87
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788347026; cv=none; b=RcUlo8eyCBZ+PvLL9lQwhnHf2x7zkCEu6XYdmW4yYVKjGhx1oS09LPTpxXP3nyTUXK+3sIK1j8lHVU7mfrQsG3aF98IR5EdzqTL6KY3On68Cetlg5Hf6/Mn4oHUrrZhmvUtQPAWTTHiSNXv8jaZu9KaKl5/tcUAp/TX/ZgEER+g=
+	t=1788347051; cv=none; b=XfPGotVcftX7HSQnryALsNEiv+0OCJo1utznesk+Tu3LlBynlwVZZJD1VS/ZSjLqGmJrsLRdOh7/DVziSbpVtcIUf8YqKiR7bo+WIm1qilOjQSTEfuwlb3fnG3x6Sjch6nwlO9zN1Y3vI64q70NkBivVHJGco+Cb1SexDQIqqPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788347026; c=relaxed/simple;
-	bh=fGZT7zNeGmflVJxOVQMCTUZjEBSrvoWj/XRw3c0yCrw=;
+	s=arc-20240116; t=1788347051; c=relaxed/simple;
+	bh=boIFzYTONzPjf+AA8M8c6ELFTdsgpE88c0fvNdrnXTM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gMRdpk6aNwLMZrjGANV5sd6oliHLwiEamm1wQmpoQ7GVNGUDgWB63loYWOreZuQFQHJX/hyz7DCnv+gOZ/s6j7CLP27STdgQ/LgH/g7czb8Kup2rBn09LI2AUNNfyWYwDoUcLE1JMpxwHyMGlxdIY2hNMY18xSHyAKE9+NSU0kM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=kK7ukstL; arc=none smtp.client-ip=95.215.58.73
+	 Content-Type:Content-Disposition:In-Reply-To; b=g4TSVwvtFRmsBP+H9OP5pVeKShI03wfk7EmEDWLbsSr7bDoc+RThWZKvY44Wbnkeojj7pLdX5J4xQfnntRP9lyYgCLfSYU002eBSpL9OFGXa3thgDEk+J9LxCPNRNgYQ46s/K2a/e8Xpcow8e0cMxMY6RKLy0fTcOIDFlv+BZno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=HMZvCZ5e; arc=none smtp.client-ip=95.215.58.87
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="kK7ukstL"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="HMZvCZ5e"
 X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=fGZT7zNeGmflVJxOVQMCTUZjEBSrvoWj/XRw3c0yCrw=;
+DKIM-Signature: a=rsa-sha256; bh=boIFzYTONzPjf+AA8M8c6ELFTdsgpE88c0fvNdrnXTM=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788347020; v=1; x=1788951820;
- b=kK7ukstLN0ADSdHwHB0YWJtzTymUX7YZaibG2PM56oCp2W3456Cz5NXQmOIZzYEHuXkea4Uf
- YRX8gIiiPU6OWBYjAQOJqvPFqdE2AKauXNoKFaTpSj/KWaEFJ2nyqwAHVuMezJjX6DOdpHw6E7N
- 1cTSFZ/ZrQYW8rK47bUfzHng=
+ t=1788347045; v=1; x=1788951845;
+ b=HMZvCZ5eEeU1lUVybsBVcRqPH1B7HD2NidZv1OwcsnAlvhP3THSDZMv/JiCIeCAmJl4Yicl4
+ GNkY4HaQ27zrh/jo8ASGLeiPdThVFafsYmO9iL8zecKx5/TDec+VeYSrap9g72dOrMNBLC82QtZ
+ 9ygp/Q2WYJaHf/Hg0x7l50Qk=
 X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by mta12.migadu.com with ESMTPS id 848de4a5cb6d0df7;
-	Wed, 02 Sep 2026 11:03:40 +0000
-X-Mizu-Trace-ID: 848de4a5cb6d0df7
+Received: by mta12.migadu.com with ESMTPS id 1656e6b9af72c2cb;
+	Wed, 02 Sep 2026 11:04:05 +0000
+X-Mizu-Trace-ID: 1656e6b9af72c2cb
 X-Migadu-Flow: FLOW_OUT
-Date: Wed, 2 Sep 2026 14:03:35 +0300
+Date: Wed, 2 Sep 2026 14:04:00 +0300
 From: Matti Vaittinen <matti.vaittinen@linux.dev>
 To: Matti Vaittinen <mazziesaccount@gmail.com>,
 	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
@@ -50,8 +50,8 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
 	linux-rtc@vger.kernel.org
-Subject: [PATCH v3 01/10] dt-bindings: mfd: common ROHM PMIC properties
-Message-ID: <dd3dce1f7dcc53aa3b8c3537f02e28957f5f8a11.1788346553.git.mazziesaccount@gmail.com>
+Subject: [PATCH v3 02/10] dt-bindings: rohm,bd*: Ref common ROHM bindings
+Message-ID: <14c3341d84941e13a4b41420e115e016f377d662.1788346553.git.mazziesaccount@gmail.com>
 Reply-To: Matti Vaittinen <mazziesaccount@gmail.com>
 References: <cover.1788346553.git.mazziesaccount@gmail.com>
 Precedence: bulk
@@ -61,41 +61,25 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="LIWGryBFmZ4MVgCn"
+	protocol="application/pgp-signature"; boundary="NafCu4dhMD20aIpu"
 Content-Disposition: inline
 In-Reply-To: <cover.1788346553.git.mazziesaccount@gmail.com>
 
---LIWGryBFmZ4MVgCn
+--NafCu4dhMD20aIpu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 =46rom: Matti Vaittinen <mazziesaccount@gmail.com>
 
-ROHM PMICs keep having similar functionalities from one generation to the
-next. Keeping the device-trees describing these functionalities similar
-helps users because:
-  1. They can re-use existing device-tree properties when switching from
-     one project, using a ROHM PMIC, to next project using newer
-     variant.
-  2. The users can find and re-use examples from old projects - even if
-     they never worked with ROHM PMICs before.
-Similarly, introducing new and different properties for same
-functionality previous variant had, will be adding confusion.
+The commonly used ROHM PMIC bindings were added into
+rohm,pmic-pins.yaml. Keeping commonly used properties in one file can
+ease both the maintaining the bindings and the reviewing process.
 
-Sometimes the existing properties aren't 100% what reviewers would
-prefer. When issues are minor or just cosmetic, changing the existing
-properties is not feasible. Reviewers can't be expected to know which
-properties are new, and which are existing - and this can lead to
-unnecessary review discussion wasting time and energy from everyone.
-
-Adding a common file for re-used ROHM PMIC properties should make it
-clearly visible that a property is re-used, when a new PMIC binding
-refers to this file instead of (re-)describing all the existing
-bindings. This will also help keeping the common properties identical
-across the variants.
-
-Add new file listing commonly used ROHM PMIC properties.
+Reference the common bindings from rohm,pmic-pins.yaml, instead of
+declaring them from the scratch for every PMIC using them. Keep the PMIC
+variant specific information (like supported pin functions) in PMIC the
+specific files, so unsupported values won't be allowed.
 
 Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
@@ -108,107 +92,156 @@ Revision history:
  v2:
   - New patch
 ---
- .../bindings/mfd/rohm,pmic-pins.yaml          | 72 +++++++++++++++++++
- 1 file changed, 72 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/rohm,pmic-pins.ya=
-ml
+ .../bindings/mfd/rohm,bd71815-pmic.yaml       |  9 +++---
+ .../bindings/mfd/rohm,bd71828-pmic.yaml       |  9 +++---
+ .../bindings/mfd/rohm,bd72720-pmic.yaml       | 29 +++----------------
+ 3 files changed, 12 insertions(+), 35 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml b/Do=
-cumentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml
-new file mode 100644
-index 000000000000..0d1082804f5a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml
-@@ -0,0 +1,72 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/rohm,pmic-pins.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml b=
+/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
+index 4fc78efaa550..0a67de054674 100644
+--- a/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
++++ b/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
+@@ -15,6 +15,9 @@ description: |
+   for LED and a 500 mA single-cell linear charger. Also included is a Coul=
+omb
+   counter, a real-time clock (RTC), and a 32.768 kHz clock gate and two GP=
+Os.
+=20
++allOf:
++  - $ref: rohm,pmic-pins.yaml#
 +
-+title: ROHM PMICs' OTP configured pin descriptions
+ properties:
+   compatible:
+     const: rohm,bd71815
+@@ -44,11 +47,7 @@ properties:
+   clock-output-names:
+     const: bd71815-32k-out
+=20
+-  rohm,clkout-open-drain:
+-    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
+-    $ref: /schemas/types.yaml#/definitions/uint32
+-    minimum: 0
+-    maximum: 1
++  rohm,clkout-open-drain: true
+=20
+   rohm,charger-sense-resistor-micro-ohms:
+     minimum: 10000
+diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml b=
+/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
+index 09e7d68e92bf..e5043dec990d 100644
+--- a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
++++ b/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
+@@ -15,6 +15,9 @@ description: |
+   single-cell linear charger. Also included is a Coulomb counter, a real-t=
+ime
+   clock (RTC), and a 32.768 kHz clock gate.
+=20
++allOf:
++  - $ref: rohm,pmic-pins.yaml#
 +
-+maintainers:
-+  - Matti Vaittinen <mazziesaccount@gmail.com>
+ properties:
+   compatible:
+     oneOf:
+@@ -49,11 +52,7 @@ properties:
+   clock-output-names:
+     const: bd71828-32k-out
+=20
+-  rohm,clkout-open-drain:
+-    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
+-    $ref: /schemas/types.yaml#/definitions/uint32
+-    minimum: 0
+-    maximum: 1
++  rohm,clkout-open-drain: true
+=20
+   rohm,charger-sense-resistor-micro-ohms:
+     minimum: 10000
+diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml b=
+/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
+index b094542339e8..52d0f6e4ef0f 100644
+--- a/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
++++ b/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
+@@ -15,6 +15,9 @@ description:
+   and a 3000 mA switching charger. ICs also include a Coulomb counter,
+   a real-time clock (RTC), GPIOs and a 32.768 kHz clock gate.
+=20
++allOf:
++  - $ref: rohm,pmic-pins.yaml#
 +
-+description:
-+  Collection of properties which are commonly used to describe various
-+  ROHM PMIC's pins.
-+
-+properties:
-+  rohm,clkout-open-drain:
-+    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos"
-+      a.k.a "push-pull".
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    maximum: 1
-+
-+  rohm,pin-clkout:
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      The IC has different OTP options to use clkout-pin for different
-+      purposes. Set this property to indicate the OTP variant.
-+
-+      Many of the ROHM ICs have pins, which function can be defined in
-+      OTP. Some of them provide no means to detect the pin configuration
-+      at run-time, leaving software unaware of which features the IC
-+      really has. These properties can be used to inform which pins
-+      provide which functionality. IOW, these properties aren't used to
-+      configure pin, they are used to tell what functionality pins on
-+      this specific IC have.
-+
-+    # Supported functionalities depend on the exact IC model. Following
-+    # values are already defined: gpi, gpo.
-+    # Please, re-use them when adding new ICs.
-+
-+  rohm,pin-fault_b:
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      The IC has different OTP options to use fault_b-pin for different
-+      purposes. Set this property to indicate the OTP variant.
-+
-+    # Supported functionalities depend on the exact IC model. Following
-+    # values are already defined: gpi, gpo, faultb, readyind, pwrseq.
-+    # Please, re-use them when adding new ICs.
-+
-+patternProperties:
-+  "^rohm,pin-dvs[0-1]$":
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      The IC has different OTP options to use dvs<X>-pins for different
-+      purposes. Set this property to indicate the OTP variant.
-+    # Supported functionalities depend on the exact IC model. Following
-+    # values are already defined: dvs-input, gpi, gpo, pwrseq.
-+    # Please, re-use them when adding new ICs.
-+
-+  "^rohm,pin-exten([0-1])?$":
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      The IC has an OTP option to use exten -pin(s) for different purposes.
-+      Set this property to indicate the OTP variant.
-+    # Supported functionalities depend on the exact IC model. Following
-+    # values are already defined: gpi, gpo, pwrseq.
-+    # Please, re-use them when adding new ICs.
-+
-+# The schema is expected to be reference by IC schemas, which may introduce
-+# other properties that must be allowed.
-+additionalProperties: true
+ # In addition to the properties found from the charger node, PMICs
+ # use properties from a static battery node. Please see the:
+ # Documentation/devicetree/bindings/power/supply/battery.yaml
+@@ -80,10 +83,7 @@ properties:
+   clock-output-names:
+     const: bd71828-32k-out
+=20
+-  rohm,clkout-open-drain:
+-    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
+-    $ref: /schemas/types.yaml#/definitions/uint32
+-    maximum: 1
++  rohm,clkout-open-drain: true
+=20
+   rohm,charger-sense-resistor-micro-ohms:
+     minimum: 10000
+@@ -103,14 +103,6 @@ properties:
+     $ref: /schemas/leds/rohm,bd71828-leds.yaml
+=20
+   rohm,pin-fault_b:
+-    $ref: /schemas/types.yaml#/definitions/string
+-    description:
+-      PMIC has an OTP option to use fault_b-pin for different
+-      purposes. Set this property accordingly. OTP options are
+-      OTP0 - bi-directional FAULT_B or READY indicator depending on a
+-      'sub option'
+-      OTP1 - GPO
+-      OTP2 - Power sequencer output.
+     enum:
+       - faultb
+       - readyind
+@@ -119,14 +111,6 @@ properties:
+=20
+ patternProperties:
+   "^rohm,pin-dvs[0-1]$":
+-    $ref: /schemas/types.yaml#/definitions/string
+-    description:
+-      PMIC has 4 different OTP options to determine the use of dvs<X>-pins.
+-      OTP0 - regulator RUN state control.
+-      OTP1 - GPI.
+-      OTP2 - GPO.
+-      OTP3 - Power sequencer output.
+-      This property specifies the use of the pin.
+     enum:
+       - dvs-input
+       - gpi
+@@ -134,11 +118,6 @@ patternProperties:
+       - pwrseq
+=20
+   "^rohm,pin-exten[0-1]$":
+-    $ref: /schemas/types.yaml#/definitions/string
+-    description: PMIC has an OTP option to use exten0-pin for different
+-      purposes. Set this property accordingly.
+-      OTP0 - GPO
+-      OTP1 - Power sequencer output.
+     enum:
+       - gpo
+       - pwrseq
 --=20
 2.55.0
 
 
---LIWGryBFmZ4MVgCn
+--NafCu4dhMD20aIpu
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqYAocACgkQeFA3/03a
-ocXNKQf7BCBsapKSYb0p4RgN8PZ5U+BoP7d5dpvO7ov6WTU6pQS1IkqJ5nKKyOrL
-XIwhMgl1DUjWpQZR9iukb/TOoBTD+gO0iMIcQixBUWbW7cstt/v5OnjkSmw32exR
-G0YybNBbSIfpb/7FZyOUP9l8wkGw1cozyo6IE9OlMgwwVikmtCbYmQTc1jY38IUr
-lk9hkBtz2Vyf5ML2pGzBjhGnYCzUTUj7j5ApVpyJeSn0VSseYdVJzRkoKZCM2QrC
-YGHn2Mw+9zJjbVPkX41a5aRR/47C/i3SKXCAEXU//n3hj8SA4HbJ4LskSafxa3LW
-xkj6MuuJobJyw5qsoftn5j/sTrbZcg==
-=CMo7
+iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqYAqAACgkQeFA3/03a
+ocXAbQf/Qhh2rVBCFE5RSUkIKcIrGJuDA7vzUcILuYXekdV4WthPMndaoCU7iMji
+yUd8cxeWsL9j2v6LspHDsIdKjcAR+y6tnW/1uOSSjsTIL1w6e8LprJAmXfwkKcgq
+npON08qeC56A0+HGpfP37G9fmhj45cC9Z7EZ9t+2p/jcQOntm2NhLIm81OAPJeQy
+k/rOtBCkBaWDIABHf4tIyj6kq7Q+SXzED0HpWaONdwGLf6l45LJrUpLS3YobNK7O
+iapYdgvyPWi4oQMlgoOWOcu5Lc6Z9P2X6vJkJtV498jeXtPVcWCm9HtPCrMR170/
+cKZX6c6aVPwJaLYt5j5HgVQKxl66gg==
+=T/Zy
 -----END PGP SIGNATURE-----
 
---LIWGryBFmZ4MVgCn--
+--NafCu4dhMD20aIpu--
