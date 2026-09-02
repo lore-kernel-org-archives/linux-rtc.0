@@ -1,35 +1,35 @@
-Received: from mta0.migadu.com (out-40.mta0.migadu.com [91.218.175.40])
+Received: from mta1.migadu.com (out-120.mta1.migadu.com [95.215.58.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DE1C43F096
-	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 11:04:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.40
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72484470EB9
+	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 11:05:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788347084; cv=none; b=b7PRU8dGvAqgDc2jKnB2jpRdZ6cmBYFc0BWEjuKlx0oX3zMCnaNjMjEDUzLsBiK9RcxXJv30kbp+n9xdqrzpI6gXvREDufIWiUa/Pw4cowvLTPRT5cef5cauzJ0W6KrWNudUkvbQs4t3wzlVT0LkMBxum1GUcYQ80Al/Mb4B8uE=
+	t=1788347107; cv=none; b=P/NDiz4Q65smCOeM/v+PSfboctbSAFi5wmywCYHJ2VRTS3q1VPj3UkhIKiO7QBKPALN3+/gjV/jcGruHb28UE2NabmrkMsDyoAju016d0b2OfAA3x/zqS+JS/pCHzx3L+lOQACblDRjKwUx/cNtB4hN2U49JDltxPEXqawcP5FA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788347084; c=relaxed/simple;
-	bh=fmI4DOuv9++hl02BcBWeRz5c2pa1UczaZyxWJbJ7/XM=;
+	s=arc-20240116; t=1788347107; c=relaxed/simple;
+	bh=koU+W1IQMvxptp8N4suQFLzKTL1IGFulcSSj9cro7Kg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bWGy49hR+GOloAj5E5mt9p4C2FdZfIy0kaM7XMQSmyGB4rAtZcyjDXtXiEualohJEf6/4tZTizIJgYIhowthTDzuidEcd9ZdtnZyoyUJzT66vr17P8BtX1CBfsi5D3VNyIud1hpWmlsiH90A28GKZtkRSLeLMFt01axQpvdZIc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=ocu+AuKH; arc=none smtp.client-ip=91.218.175.40
+	 Content-Type:Content-Disposition:In-Reply-To; b=hke7PwaGOHXsaCo7WdaCcAOBXprLkVvVCLBcTShaFmD736wJybjDBBHd/MWTTUJE2B4eLQbuYG8GoRGP1vGzW2/ApJF4u7mOv6iGPbSw/G+r96/SSBAmm9B0gwNahUqj5Tf7h/bhckqNX/4Kob5bJFH6IYHCSEmV3yelS4gMFYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=e7DrEv3G; arc=none smtp.client-ip=95.215.58.120
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="ocu+AuKH"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="e7DrEv3G"
 X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=fmI4DOuv9++hl02BcBWeRz5c2pa1UczaZyxWJbJ7/XM=;
+DKIM-Signature: a=rsa-sha256; bh=koU+W1IQMvxptp8N4suQFLzKTL1IGFulcSSj9cro7Kg=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788347079; v=1; x=1788951879;
- b=ocu+AuKHsmu+luxgTCaPiFT5+MZkPdhYgvsxqwPZ9iqCPIQvizu0NdtCckQf+f0GaKCEWK8s
- JoKQAxWO20m5bQAw55qmRfUu9/jkSXh5oCdFT5HJYPsx+rMXpceeOx2zv4NOTBdpT6u00eFbIgM
- pJZTDLtS6N67jEQ6ZFg+FYaI=
+ t=1788347102; v=1; x=1788951902;
+ b=e7DrEv3GsEOKyhn77VXMWEbi8go+c63Y1DcnPSS4hkES0L3V3LF5KfSs4Nq+vFY1nUQp5EMt
+ 7o37u4ndqPqjqKMf1mX/1PDP/zaJ46/y1DmI8507AZKKz6YUo2XMlknMw3T037eTQa2OJS2qaI8
+ jUs6YTeryduNqUXEQfy4aUOs=
 X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by mta10.migadu.com with ESMTPS id ff7c205f4979509a;
-	Wed, 02 Sep 2026 11:04:39 +0000
-X-Mizu-Trace-ID: ff7c205f4979509a
+Received: by mta12.migadu.com with ESMTPS id 779074de3f4e75e8;
+	Wed, 02 Sep 2026 11:05:00 +0000
+X-Mizu-Trace-ID: 779074de3f4e75e8
 X-Migadu-Flow: FLOW_OUT
-Date: Wed, 2 Sep 2026 14:04:30 +0300
+Date: Wed, 2 Sep 2026 14:04:55 +0300
 From: Matti Vaittinen <matti.vaittinen@linux.dev>
 To: Matti Vaittinen <mazziesaccount@gmail.com>,
 	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
@@ -50,8 +50,8 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
 	linux-rtc@vger.kernel.org
-Subject: [PATCH v3 04/10] dt-bindings: mfd: ROHM BD73800 PMIC
-Message-ID: <bcb75af1ca9c030df83846528e896640f53eaa5b.1788346553.git.mazziesaccount@gmail.com>
+Subject: [PATCH v3 05/10] mfd: Support for ROHM BD73800 PMIC core
+Message-ID: <d48b55173c74410389ca5c863220370e38e4fc49.1788346553.git.mazziesaccount@gmail.com>
 Reply-To: Matti Vaittinen <mazziesaccount@gmail.com>
 References: <cover.1788346553.git.mazziesaccount@gmail.com>
 Precedence: bulk
@@ -61,294 +61,676 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="4bLmcPpxB6m05oMv"
+	protocol="application/pgp-signature"; boundary="jE1SHM7zvqDYiC9s"
 Content-Disposition: inline
 In-Reply-To: <cover.1788346553.git.mazziesaccount@gmail.com>
 
---4bLmcPpxB6m05oMv
+--jE1SHM7zvqDYiC9s
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 =46rom: Matti Vaittinen <mazziesaccount@gmail.com>
 
-The ROHM BD73800 is a power management IC which integrates 8 BUCKs and 4
-LDOs. There is also an ADC and operation amplifier intended for current
-/ temperature measurement and accumulation. RTC and 32.768 kHz clock
-gate are also included. The PMIC can be customized via OTP and it has
-options for operating as a main PMIC in multi-PMIC installation. Some
-of the pins can also be used for GPO or GPI (including interrupt support).
+The BD73800 integrates regulators, ADC (intended for accumulating current /
+voltage / power values), a real-time clock (RTC), clock gate and GPIOs.
 
-There are also ROHM BD71851 and BD71885 PMICs out there. These are, from
-the SW-perspective, similar to the BD73800. There is only some different
-default values and OTP settings. The driver should be able to handle them
-just fine.
+Add core support for ROHM BD73800 Power Management IC.
 
 Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Acked-by: Lee Jones <lee@kernel.org>
 
 ---
 Revision history:
-v3:
- - No changes
-v1 =3D> v2:
- - Reference commonly used ROHM bindings from a common binding file
- - Simplify compatible list
- - Move relevant comments to description so they can be shown in
-   generated human-readable doc.
- - Allow other clock-output-names besides "bd73800-32k-out"
+ v3:
+  - Translated this:
+    https://lore.kernel.org/all/20260813105955.GA1820248@google.com/
+    to an ack. Please, let me know if this isn't ok.
+ v1 =3D> v2:
+  - styling
+  - update copyright years
 ---
- .../bindings/mfd/rohm,bd73800-pmic.yaml       | 218 ++++++++++++++++++
- 1 file changed, 218 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic=
-=2Eyaml
+ drivers/mfd/Kconfig              |  15 +-
+ drivers/mfd/rohm-bd71828.c       | 147 ++++++++++++++-
+ include/linux/mfd/rohm-bd73800.h | 307 +++++++++++++++++++++++++++++++
+ include/linux/mfd/rohm-generic.h |   1 +
+ 4 files changed, 462 insertions(+), 8 deletions(-)
+ create mode 100644 include/linux/mfd/rohm-bd73800.h
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.yaml b=
-/Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.yaml
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index e4fd4572472f..439dbf5ee110 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -2226,7 +2226,7 @@ config MFD_ROHM_BD718XX
+ 	  and emergency shut down as well as 32,768KHz clock output.
+=20
+ config MFD_ROHM_BD71828
+-	tristate "ROHM BD718[15/28/79], BD72720 and BD73900 PMICs"
++	tristate "ROHM BD718[15/28/79], BD72720 and BD73[8/9]00 PMICs"
+ 	depends on I2C=3Dy
+ 	depends on OF
+ 	select REGMAP_I2C
+@@ -2235,14 +2235,17 @@ config MFD_ROHM_BD71828
+ 	select MFD_ROHM_PWRBUTTON
+ 	help
+ 	  Select this option to get support for the ROHM BD71815, BD71828,
+-	  BD71879, BD72720 and BD73900 Power Management ICs (PMICs). These are
+-	  single-chip Power Management ICs (PMIC), mainly for battery-powered
+-	  portable devices.
++	  BD71879, BD72720, BD73800 and BD73900 Power Management ICs (PMICs).
++	  These are single-chip Power Management ICs (PMIC), mainly for
++	  battery-powered portable devices.
+ 	  The BD71815 has 5 bucks, 7 LDOs, and a boost for driving LEDs.
+ 	  The BD718[28/79] have 7 buck converters and 7 LDOs.
+ 	  The BD72720 and the BD73900 have 10 bucks and 11 LDOs.
+-	  All ICs provide a single-cell linear charger, a Coulomb counter,
+-	  a Real-Time Clock (RTC), GPIOs and a 32.768 kHz clock gate.
++	  All the above ICs provide a single-cell linear charger, and a Coulomb
++	  counter.
++	  The BD73800 has 8 bucks, 4 LDOs and ADC for power/current
++	  accumulation but no charging logic. All these PMICs integrate also a
++	  Real-Time Clock (RTC), GPIOs and a 32.768 kHz clock gate.
+=20
+ config MFD_ROHM_BD957XMUF
+ 	tristate "ROHM BD9576MUF and BD9573MUF Power Management ICs"
+diff --git a/drivers/mfd/rohm-bd71828.c b/drivers/mfd/rohm-bd71828.c
+index bf4df8e1b34c..46faef7058f8 100644
+--- a/drivers/mfd/rohm-bd71828.c
++++ b/drivers/mfd/rohm-bd71828.c
+@@ -1,8 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (C) 2019 ROHM Semiconductors
++ * Copyright (C) 2019, 2026 ROHM Semiconductor
+  *
+- * ROHM BD718[15/28/79] and BD72720 PMIC driver
++ * ROHM BD718[15/28/79], BD72720 and BD73[8/9]00 PMIC driver
+  */
+=20
+ #include <linux/i2c.h>
+@@ -14,6 +14,7 @@
+ #include <linux/mfd/rohm-bd71815.h>
+ #include <linux/mfd/rohm-bd71828.h>
+ #include <linux/mfd/rohm-bd72720.h>
++#include <linux/mfd/rohm-bd73800.h>
+ #include <linux/mfd/rohm-generic.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -56,6 +57,12 @@ static const struct resource bd72720_rtc_irqs[] =3D {
+ 	DEFINE_RES_IRQ_NAMED(BD72720_INT_RTC2, "bd70528-rtc-alm-2"),
+ };
+=20
++static const struct resource bd73800_rtc_irqs[] =3D {
++	DEFINE_RES_IRQ_NAMED(BD73800_INT_RTC0, "bd70528-rtc-alm-0"),
++	DEFINE_RES_IRQ_NAMED(BD73800_INT_RTC1, "bd70528-rtc-alm-1"),
++	DEFINE_RES_IRQ_NAMED(BD73800_INT_RTC2, "bd70528-rtc-alm-2"),
++};
++
+ static const struct resource bd71815_power_irqs[] =3D {
+ 	DEFINE_RES_IRQ_NAMED(BD71815_INT_DCIN_RMV, "bd71815-dcin-rmv"),
+ 	DEFINE_RES_IRQ_NAMED(BD71815_INT_CLPS_OUT, "bd71815-dcin-clps-out"),
+@@ -230,6 +237,17 @@ static const struct mfd_cell bd72720_mfd_cells[] =3D {
+ 	/* Power button is registered separately */
+ };
+=20
++static const struct mfd_cell bd73800_mfd_cells[] =3D {
++	{ .name =3D "bd73800-pmic", },
++	{ .name =3D "bd73800-clk", },
++	{ .name =3D "bd73800-gpio", },
++	{
++		.name =3D "bd73800-rtc",
++		.num_resources =3D ARRAY_SIZE(bd73800_rtc_irqs),
++		.resources =3D bd73800_rtc_irqs,
++	},
++};
++
+ static const struct regmap_range bd71815_volatile_ranges[] =3D {
+ 	regmap_reg_range(BD71815_REG_SEC, BD71815_REG_YEAR),
+ 	regmap_reg_range(BD71815_REG_CONF, BD71815_REG_BAT_TEMP),
+@@ -339,6 +357,17 @@ static const struct regmap_range bd72720_volatile_rang=
+es_4c[] =3D {
+ 	BD72720_UNWRAP_REG_RANGE(BD72720_REG_IMPCHK_CTRL, BD72720_REG_IMPCHK_CTRL=
+),
+ };
+=20
++static const struct regmap_range bd73800_volatile_ranges[] =3D {
++	regmap_reg_range(BD73800_REG_POR_REASON, BD73800_REG_POW_STATE),
++	regmap_reg_range(BD73800_REG_PS_CTRL_1, BD73800_REG_PS_CTRL_2),
++	regmap_reg_range(BD73800_REG_RCVNUM, BD73800_REG_RCVNUM),
++	regmap_reg_range(BD73800_REG_RTC_SEC, BD73800_REG_RTC_YEAR),
++	regmap_reg_range(BD73800_REG_RTC_CONF, BD73800_REG_RTC_CONF),
++	regmap_reg_range(BD73800_REG_ADC_ACCUM_KICK, BD73800_REG_ADC_TEMP_VAL0),
++	regmap_reg_range(BD73800_REG_INT_MAIN_STAT, BD73800_REG_INT_5_STAT),
++	regmap_reg_range(BD73800_REG_INT_MAIN_SRC, BD73800_REG_INT_5_SRC),
++};
++
+ static const struct regmap_access_table bd71815_volatile_regs =3D {
+ 	.yes_ranges =3D &bd71815_volatile_ranges[0],
+ 	.n_yes_ranges =3D ARRAY_SIZE(bd71815_volatile_ranges),
+@@ -364,6 +393,24 @@ static const struct regmap_access_table bd72720_volati=
+le_regs_4c =3D {
+ 	.n_yes_ranges =3D ARRAY_SIZE(bd72720_volatile_ranges_4c),
+ };
+=20
++static const struct regmap_access_table bd73800_volatile_regs =3D {
++	.yes_ranges =3D bd73800_volatile_ranges,
++	.n_yes_ranges =3D ARRAY_SIZE(bd73800_volatile_ranges),
++};
++
++static const struct regmap_range bd73800_read_only_ranges[] =3D {
++	regmap_reg_range(BD73800_REG_PRODUCT_ID, BD73800_REG_NVMVERSION),
++	regmap_reg_range(BD73800_REG_POW_STATE, BD73800_REG_POW_STATE),
++	regmap_reg_range(BD73800_REG_ADC_ACCUM_CNT2, BD73800_REG_ADC_TEMP_VAL0),
++	regmap_reg_range(BD73800_REG_INT_MAIN_STAT, BD73800_REG_INT_MAIN_STAT),
++	regmap_reg_range(BD73800_REG_INT_MAIN_SRC, BD73800_REG_INT_5_SRC),
++};
++
++static const struct regmap_access_table bd73800_ro_regs =3D {
++	.no_ranges =3D bd73800_read_only_ranges,
++	.n_no_ranges =3D ARRAY_SIZE(bd73800_read_only_ranges),
++};
++
+ static const struct regmap_config bd71815_regmap =3D {
+ 	.reg_bits =3D 8,
+ 	.val_bits =3D 8,
+@@ -448,6 +495,15 @@ static const struct regmap_config bd72720_regmap_4c =
+=3D {
+ 	.cache_type =3D REGCACHE_MAPLE,
+ };
+=20
++static const struct regmap_config bd73800_regmap =3D {
++	.reg_bits =3D 8,
++	.val_bits =3D 8,
++	.wr_table =3D &bd73800_ro_regs,
++	.volatile_table =3D &bd73800_volatile_regs,
++	.max_register =3D BD73800_MAX_REGISTER - 1,
++	.cache_type =3D REGCACHE_MAPLE,
++};
++
+ /*
+  * Mapping of main IRQ register bits to sub-IRQ register offsets so that w=
+e can
+  * access corect sub-IRQ registers based on bits that are set in main IRQ
+@@ -779,6 +835,60 @@ static int bd72720_set_type_config(unsigned int **buf,=
+ unsigned int type,
+ 	return regmap_irq_set_type_config_simple(buf, type, irq_data, idx, irq_dr=
+v_data);
+ }
+=20
++static const struct regmap_irq bd73800_irqs[] =3D {
++	/* INT_STAT_1 register IRQs, ADC and RTC */
++	REGMAP_IRQ_REG(BD73800_INT_ADC_ACCUM_DONE, 0, BD73800_INT_ADC_ACCUM_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_ADC_ACCUM_OVF, 0, BD73800_INT_ADC_ACCUM_OVF_MA=
+SK),
++	REGMAP_IRQ_REG(BD73800_INT_ADC_ACCUM_VAL, 0, BD73800_INT_ADC_ACCUM_VAL_MA=
+SK),
++	REGMAP_IRQ_REG(BD73800_INT_ADC_ACCUM_TW, 0, BD73800_INT_ADC_ACCUM_TW_MASK=
+),
++	REGMAP_IRQ_REG(BD73800_INT_ADC_POW_VAL, 0, BD73800_INT_ADC_POW_VAL_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_RTC0, 0, BD73800_INT_RTC0_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_RTC1, 0, BD73800_INT_RTC1_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_RTC2, 0, BD73800_INT_RTC2_MASK),
++
++	/* BUCK reg interrupts */
++	/* INT_STAT_2 IRQs */
++	REGMAP_IRQ_REG(BD73800_INT_BUCK1_DVS_DONE, 1, BD73800_INT_BUCK1_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK2_DVS_DONE, 1, BD73800_INT_BUCK2_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK3_DVS_DONE, 1, BD73800_INT_BUCK3_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK4_DVS_DONE, 1, BD73800_INT_BUCK4_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK5_DVS_DONE, 1, BD73800_INT_BUCK5_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK6_DVS_DONE, 1, BD73800_INT_BUCK6_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK7_DVS_DONE, 1, BD73800_INT_BUCK7_DVS_DONE_=
+MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK8_DVS_DONE, 1, BD73800_INT_BUCK8_DVS_DONE_=
+MASK),
++	/* INT_STAT_3 IRQs */
++	REGMAP_IRQ_REG(BD73800_INT_BUCK1_OCP, 2, BD73800_INT_BUCK1_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK2_OCP, 2, BD73800_INT_BUCK2_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK3_OCP, 2, BD73800_INT_BUCK3_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK4_OCP, 2, BD73800_INT_BUCK4_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK5_OCP, 2, BD73800_INT_BUCK5_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK6_OCP, 2, BD73800_INT_BUCK6_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK7_OCP, 2, BD73800_INT_BUCK7_OCP_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_BUCK8_OCP, 2, BD73800_INT_BUCK8_OCP_MASK),
++
++	/* INT_STAT_4 IRQs, power-button, WDG and reset */
++	REGMAP_IRQ_REG(BD73800_INT_PBTN_LONG_PRESS, 3, BD73800_INT_PBTN_LONG_PRES=
+S_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_PBTN_MID_PRESS, 3, BD73800_INT_PBTN_MID_PRESS_=
+MASK),
++	/*
++	 * The SHORT_PUSH is generated when button is first pressed (longer
++	 * than configured time limit), and then released before the MID_PRESS
++	 * time limit. The SHORT_PRESS is generated immediately when button is
++	 * pressed for longer than configured limit, whether it is released or
++	 * not.
++	 */
++	REGMAP_IRQ_REG(BD73800_INT_PBTN_SHORT_PUSH, 3, BD73800_INT_PBTN_SHORT_PUS=
+H_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_PBTN_SHORT_PRESS, 3, BD73800_INT_PBTN_SHORT_PR=
+ESS_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_WDG, 3, BD73800_INT_WDG_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_SWRESET, 3, BD73800_INT_SWRESET_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_SEQ_DONE, 3, BD73800_INT_SEQ_DONE_MASK),
++
++	/* INT_STAT_5 IRQs, GPIO */
++	REGMAP_IRQ_REG(BD73800_INT_GPIO1, 4, BD73800_INT_GPIO1_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_GPIO2, 4, BD73800_INT_GPIO2_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_GPIO3, 4, BD73800_INT_GPIO3_MASK),
++	REGMAP_IRQ_REG(BD73800_INT_GPIO4, 4, BD73800_INT_GPIO4_MASK),
++};
++
+ static const struct regmap_irq_chip bd71828_irq_chip =3D {
+ 	.name =3D "bd71828_irq",
+ 	.main_status =3D BD71828_REG_INT_MAIN,
+@@ -833,6 +943,25 @@ static const struct regmap_irq_chip bd72720_irq_chip =
+=3D {
+ 	.irq_reg_stride =3D 1,
+ };
+=20
++static const struct regmap_irq_chip bd73800_irq_chip =3D {
++	.name =3D "bd73800_irq",
++	.main_status =3D BD73800_REG_INT_MAIN_STAT,
++	.irqs =3D bd73800_irqs,
++	.num_irqs =3D ARRAY_SIZE(bd73800_irqs),
++	.status_base =3D BD73800_REG_INT_1_STAT,
++	.unmask_base =3D BD73800_REG_INT_1_EN,
++	.ack_base =3D BD73800_REG_INT_1_STAT,
++	.init_ack_masked =3D true,
++	.num_regs =3D 5,
++	.num_main_regs =3D 1,
++	/*
++	 * Ignore mirrored bits [7:5]. They are handled as part of normal INT_4
++	 * handling.
++	 */
++	.num_main_status_bits =3D 5,
++	.irq_reg_stride =3D 1,
++};
++
+ static int set_clk_mode(struct device *dev, struct regmap *regmap,
+ 			int clkmode_reg)
+ {
+@@ -971,6 +1100,17 @@ static int bd71828_i2c_probe(struct i2c_client *i2c)
+ 		main_lvl_val =3D BD72720_MASK_LVL1_EN_ALL;
+ 		break;
+ 	}
++	case ROHM_CHIP_TYPE_BD73800:
++		mfd =3D bd73800_mfd_cells;
++		cells =3D ARRAY_SIZE(bd73800_mfd_cells);
++		regmap_config =3D &bd73800_regmap;
++		irqchip =3D &bd73800_irq_chip;
++		clkmode_reg =3D BD73800_REG_OUT32K;
++		button_irq =3D BD73800_INT_PBTN_SHORT_PUSH;
++		main_lvl_mask_reg =3D BD73800_REG_INT_MAIN_EN;
++		main_lvl_val =3D BD73800_INT_MAIN_EN_ALL;
++		break;
++
+ 	default:
+ 		dev_err(&i2c->dev, "Unknown device type");
+ 		return -EINVAL;
+@@ -1051,6 +1191,9 @@ static const struct of_device_id bd71828_of_match[] =
+=3D {
+ 	}, {
+ 		.compatible =3D "rohm,bd72720",
+ 		.data =3D (void *)ROHM_CHIP_TYPE_BD72720,
++	}, {
++		.compatible =3D "rohm,bd73800",
++		.data =3D (void *)ROHM_CHIP_TYPE_BD73800,
+ 	 },
+ 	{ },
+ };
+diff --git a/include/linux/mfd/rohm-bd73800.h b/include/linux/mfd/rohm-bd73=
+800.h
 new file mode 100644
-index 000000000000..8371e7f2ab84
+index 000000000000..107cc9a5a2be
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.yaml
-@@ -0,0 +1,218 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/rohm,bd73800-pmic.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/include/linux/mfd/rohm-bd73800.h
+@@ -0,0 +1,307 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Copyright 2026 ROHM Semiconductors.
++ *
++ * Author: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
++ */
 +
-+title: ROHM BD73800 Power Management Integrated Circuit
++#ifndef _MFD_BD73800_H
++#define _MFD_BD73800_H
 +
-+maintainers:
-+  - Matti Vaittinen <mazziesaccount@gmail.com>
++#include <linux/regmap.h>
 +
-+description:
-+  BD73800GW is a single-chip power management IC for battery-powered
-+  portable devices. It integrates 8 buck converters, 4 LDOs and a current
-+  sense amplifier with ADC. Also included is a Real Time Clock (RTC) and a
-+  32.768 kHz clock gate. Depending on the OTP configuration the BD73800
-+  may also have interrupt controller and GPIOs.
++enum {
++	BD73800_BUCK1	=3D	0,
++	BD73800_BUCK2,
++	BD73800_BUCK3,
++	BD73800_BUCK4,
++	BD73800_BUCK5,
++	BD73800_BUCK6,
++	BD73800_BUCK7,
++	BD73800_BUCK8,
++	BD73800_LDO1,
++	BD73800_LDO2,
++	BD73800_LDO3,
++	BD73800_LDO4,
++};
 +
-+  There are also different variants called BD71851 and BD71885 which are
-+  almost identical from the software point of view.
++/*
++ * All regulators except BUCK 5 have full 8-bit register of valid voltage
++ * values, including 0.
++ */
++#define BD73800_NUM_VOLTS	(0xff + 1)
++/*
++ * BUCK 5 has two sets of voltage ranges, both having valid voltage select=
+ors
++ * from 0x0 to 0x7f
++ */
++#define BD73800_BUCK5_VOLTS	(0x80 + 0x80)
 +
-+allOf:
-+  - $ref: rohm,pmic-pins.yaml#
++/* BD73800 interrupts */
++enum {
++	/* INT_STAT_1 register IRQs, ADC and RTC */
++	BD73800_INT_ADC_ACCUM_DONE,
++	BD73800_INT_ADC_ACCUM_OVF,
++	BD73800_INT_ADC_ACCUM_VAL,
++	BD73800_INT_ADC_ACCUM_TW,
++	BD73800_INT_ADC_POW_VAL,
++	BD73800_INT_RTC0,
++	BD73800_INT_RTC1,
++	BD73800_INT_RTC2,
 +
-+properties:
-+  compatible:
-+    oneOf:
-+      - const: rohm,bd73800
++	/* BUCK reg interrupts */
++	/* INT_STAT_2 IRQs */
++	BD73800_INT_BUCK1_DVS_DONE,
++	BD73800_INT_BUCK2_DVS_DONE,
++	BD73800_INT_BUCK3_DVS_DONE,
++	BD73800_INT_BUCK4_DVS_DONE,
++	BD73800_INT_BUCK5_DVS_DONE,
++	BD73800_INT_BUCK6_DVS_DONE,
++	BD73800_INT_BUCK7_DVS_DONE,
++	BD73800_INT_BUCK8_DVS_DONE,
++	/* INT_STAT_3 IRQs */
++	BD73800_INT_BUCK1_OCP,
++	BD73800_INT_BUCK2_OCP,
++	BD73800_INT_BUCK3_OCP,
++	BD73800_INT_BUCK4_OCP,
++	BD73800_INT_BUCK5_OCP,
++	BD73800_INT_BUCK6_OCP,
++	BD73800_INT_BUCK7_OCP,
++	BD73800_INT_BUCK8_OCP,
 +
-+      - items:
-+          - enum:
-+              - rohm,bd71851
-+              - rohm,bd71885
-+          - const: rohm,bd73800
++	/* INT_STAT_4 IRQs, power-button, WDG and reset */
++	BD73800_INT_PBTN_LONG_PRESS,
++	BD73800_INT_PBTN_MID_PRESS,
++	/*
++	 * The SHORT_PUSH is generated when button is first pressed (longer
++	 * than configured time limit), and then released before the MID_PRESS
++	 * time limit. The SHORT_PRESS is generated immediately when button is
++	 * pressed for longer than configured limit, whether it is released or
++	 * not.
++	 */
++	BD73800_INT_PBTN_SHORT_PUSH,
++	BD73800_INT_PBTN_SHORT_PRESS,
++	BD73800_INT_WDG,
++	BD73800_INT_SWRESET,
++	BD73800_INT_SEQ_DONE,
 +
-+  reg:
-+    maxItems: 1
++	/* INT_STAT_5 IRQs, GPIO */
++	BD73800_INT_GPIO1,
++	BD73800_INT_GPIO2,
++	BD73800_INT_GPIO3,
++	BD73800_INT_GPIO4,
++};
 +
-+  interrupts:
-+    maxItems: 1
++#define BD73800_MASK_RUN_EN		BIT(2)
++#define BD73800_MASK_SUSP_EN		BIT(1)
++#define BD73800_MASK_IDLE_EN		BIT(0)
++#define BD73800_MASK_VOLT		GENMASK(7, 0)
++#define BD73800_MASK_BUCK5_VOLT		GENMASK(6, 0)
++#define BD73800_MASK_RAMP_DELAY		GENMASK(2, 1)
++#define BD73800_BUCK5_RANGE_MASK	BIT(7)
 +
-+  # The GPIO1, CLKOUT (GPIO2), FAULT_B and EXTEN_OUT pins can be
-+  # configured to interrupt pins by OTP.
-+  interrupt-controller: true
++/* BD73800 registers */
++enum {
++	BD73800_REG_PRODUCT_ID	=3D 0x0,
++	BD73800_REG_MANUFACTURER_ID,
++	BD73800_REG_REVISION,
++	BD73800_REG_NVMVERSION,
++	BD73800_REG_POR_REASON,
++	BD73800_REG_RESET_REASON1,
++	BD73800_REG_RESET_REASON2,
++	BD73800_REG_RESET_REASON3,
++	BD73800_REG_POW_STATE,
++	BD73800_REG_WRST_SEL,
++	BD73800_REG_PS_CTRL_1,
++	BD73800_REG_PS_CTRL_2,
++	BD73800_REG_RCVCFG,
++	BD73800_REG_RCVNUM,
++	BD73800_REG_CRDCFG, /* 0x0f, followed by undocumented reg */
 +
-+  "#interrupt-cells":
-+    const: 1
-+    description:
-+      The IRQ number. 0 is GPIO1, 1 CLKOUT (GPIO2), 2 FAULT_B and 3 EXTEN_=
-OUT.
-+      NOTE, A pin can operate as IRQ source only when the OTP
-+      configuration for it has been set to GPI.
++	BD73800_REG_BUCK1_ON =3D 0x11,
++	BD73800_REG_BUCK1_MODE,
++	BD73800_REG_BUCK1_VOLT_RUN,
++	BD73800_REG_BUCK1_VOLT_IDLE,
++	BD73800_REG_BUCK1_VOLT_SUSP, /* 0x15, followed by undocumented reg */
 +
-+  gpio-controller: true
++	BD73800_REG_BUCK2_ON =3D 0x17,
++	BD73800_REG_BUCK2_MODE,
++	BD73800_REG_BUCK2_VOLT_RUN,
++	BD73800_REG_BUCK2_VOLT_IDLE,
++	BD73800_REG_BUCK2_VOLT_SUSP, /* 0x1b */
 +
-+  "#gpio-cells":
-+    const: 2
++	BD73800_REG_BUCK3_ON =3D 0x1d,
++	BD73800_REG_BUCK3_MODE,
++	BD73800_REG_BUCK3_VOLT_RUN,
++	BD73800_REG_BUCK3_VOLT_IDLE,
++	BD73800_REG_BUCK3_VOLT_SUSP, /* 0x21 */
 +
-+  rohm,pin-gpio1:
-+    $ref: /schemas/types.yaml#/definitions/string
-+    description:
-+      Indicate if the GPIO1 pin has been set to GPI or GPO at manufacturin=
-g.
-+      The GPIO1, CLKOUT, FAULT_B and EXTEN_OUT pins may be configured for a
-+      specific purpose (like ADC input, 32.768 clk output, fault indicator=
- or
-+      delivering power sequence to a companion PMIC when multiple PMICs are
-+      used) - but also to be either a GPO or GPI. (When used as a GPI the =
-pin
-+      can also be used as an IRQ source). The pin purpose is determined by
-+      OTP (One Time Programmable memory), typically during device
-+      manufacturing. The OTP can't be read at runtime so device-tree should
-+      describe the GPIO pins.
-+    enum: [gpi, gpo]
++	BD73800_REG_BUCK4_ON =3D 0x23,
++	BD73800_REG_BUCK4_MODE,
++	BD73800_REG_BUCK4_VOLT_RUN,
++	BD73800_REG_BUCK4_VOLT_IDLE,
++	BD73800_REG_BUCK4_VOLT_SUSP, /* 0x27 */
 +
-+  rohm,pin-clkout:
-+    enum: [gpi, gpo]
++	BD73800_REG_BUCK5_ON =3D 0x29,
++	BD73800_REG_BUCK5_MODE,
++	BD73800_REG_BUCK5_VOLT_RUN,
++	BD73800_REG_BUCK5_VOLT_IDLE,
++	BD73800_REG_BUCK5_VOLT_SUSP, /* 0x2d */
 +
-+  rohm,pin-fault_b:
-+    enum: [gpi, gpo]
++	BD73800_REG_BUCK6_ON =3D 0x2f,
++	BD73800_REG_BUCK6_MODE,
++	BD73800_REG_BUCK6_VOLT_RUN,
++	BD73800_REG_BUCK6_VOLT_IDLE,
++	BD73800_REG_BUCK6_VOLT_SUSP, /* 0x33 */
 +
-+  rohm,pin-exten:
-+    enum: [gpi, gpo]
++	BD73800_REG_BUCK7_ON =3D 0x35,
++	BD73800_REG_BUCK7_MODE,
++	BD73800_REG_BUCK7_VOLT_RUN,
++	BD73800_REG_BUCK7_VOLT_IDLE,
++	BD73800_REG_BUCK7_VOLT_SUSP, /* 0x39 */
 +
-+  clocks:
-+    description:
-+      The CLKOUT pin may have its purpose overridden by OTP configuration.=
- It
-+      is possible the BD73800 does not output a clock signal. Hence the clk
-+      properties are optional.
-+    maxItems: 1
++	BD73800_REG_BUCK8_ON =3D 0x3b,
++	BD73800_REG_BUCK8_MODE,
++	BD73800_REG_BUCK8_VOLT_RUN,
++	BD73800_REG_BUCK8_VOLT_IDLE,
++	BD73800_REG_BUCK8_VOLT_SUSP, /* 0x3f */
 +
-+  "#clock-cells":
-+    const: 0
++	BD73800_REG_LDO1_ON =3D 0x41,
++	BD73800_REG_LDO1_VOLT,
++	BD73800_REG_LDO1_MODE,
++	BD73800_REG_LDO2_ON,
++	BD73800_REG_LDO2_VOLT,
++	BD73800_REG_LDO2_MODE,
++	BD73800_REG_LDO3_ON,
++	BD73800_REG_LDO3_VOLT,
++	BD73800_REG_LDO3_MODE,
++	BD73800_REG_LDO4_ON,
++	BD73800_REG_LDO4_VOLT,
++	BD73800_REG_LDO4_MODE, /* 0x4c */
 +
-+  clock-output-names:
-+    maxItems: 1
++	BD73800_REG_GPO_OUT =3D 0x4e,
++	BD73800_REG_OUT32K =3D 0x50,
++	BD73800_REG_RTC_SEC,
++	BD73800_REG_RTC_MIN,
++	BD73800_REG_RTC_HOUR,
++	BD73800_REG_RTC_WEEK,
++	BD73800_REG_RTC_DAY,
++	BD73800_REG_RTC_MONTH,
++	BD73800_REG_RTC_YEAR,
++	BD73800_REG_RTC_ALM0_SEC,
++	BD73800_REG_RTC_ALM0_MIN,
++	BD73800_REG_RTC_ALM0_HOUR,
++	BD73800_REG_RTC_ALM0_WEEK,
++	BD73800_REG_RTC_ALM0_DAY,
++	BD73800_REG_RTC_ALM0_MONTH,
++	BD73800_REG_RTC_ALM0_YEAR,
++	BD73800_REG_RTC_ALM1_SEC,
++	BD73800_REG_RTC_ALM1_MIN,
++	BD73800_REG_RTC_ALM1_HOUR,
++	BD73800_REG_RTC_ALM1_WEEK,
++	BD73800_REG_RTC_ALM1_DAY,
++	BD73800_REG_RTC_ALM1_MONTH,
++	BD73800_REG_RTC_ALM1_YEAR,
++	BD73800_REG_RTC_ALM2,
++	BD73800_REG_RTC_CONF, /* 0x69 */
 +
-+  rohm,clkout-open-drain: true
++	BD73800_REG_ADC_CTRL_1 =3D 0x6b,
++	BD73800_REG_ADC_CTRL_2,
++	BD73800_REG_ADC_ACCUM_NUM2,
++	BD73800_REG_ADC_ACCUM_NUM1,
++	BD73800_REG_ADC_ACCUM_NUM0,
++	BD73800_REG_ADC_ACCUM_KICK,
++	BD73800_REG_ADC_ACCUM_CNT2,
++	BD73800_REG_ADC_ACCUM_CNT1,
++	BD73800_REG_ADC_ACCUM_CNT0,
++	BD73800_REG_ADC_ACCUM_VAL2,
++	BD73800_REG_ADC_ACCUM_VAL1,
++	BD73800_REG_ADC_ACCUM_VAL0,
++	BD73800_REG_ADC_VOL_VAL1,
++	BD73800_REG_ADC_VOL_VAL0,
++	BD73800_REG_ADC_CUR_VAL1,
++	BD73800_REG_ADC_CUR_VAL0,
++	BD73800_REG_ADC_POW_VAL1,
++	BD73800_REG_ADC_POW_VAL0,
++	BD73800_REG_ADC_TEMP_VAL1,
++	BD73800_REG_ADC_TEMP_VAL0,
++	BD73800_REG_ADC_ACCUM_VAL_INT_TH4,
++	BD73800_REG_ADC_ACCUM_VAL_INT_TH3,
++	BD73800_REG_ADC_ACCUM_VAL_INT_TH2,
++	BD73800_REG_ADC_ACCUM_VAL_INT_TH1,
++	BD73800_REG_ADC_ACCUM_VAL_INT_TH0,
++	BD73800_REG_ADC_WARN_TEMP_INT_TH1,
++	BD73800_REG_ADC_WARN_TEMP_INT_TH0,
++	BD73800_REG_ADC_POW_VAL_INT_TH1,
++	BD73800_REG_ADC_POW_VAL_INT_TH0, /* 0x89 */
 +
-+  regulators:
-+    $ref: /schemas/regulator/rohm,bd73800-regulator.yaml
-+    description:
-+      List of child nodes that specify the regulators.
++	BD73800_REG_PBTN_CONF =3D 0x8b,
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - regulators
++	BD73800_REG_INT_MAIN_EN =3D 0x8f,
++	BD73800_REG_INT_1_EN,
++	BD73800_REG_INT_2_EN,
++	BD73800_REG_INT_3_EN,
++	BD73800_REG_INT_4_EN,
++	BD73800_REG_INT_5_EN, /* 0x94 */
 +
-+additionalProperties: false
++	BD73800_REG_INT_MAIN_STAT =3D 0x96,
++	BD73800_REG_INT_1_STAT,
++	BD73800_REG_INT_2_STAT,
++	BD73800_REG_INT_3_STAT,
++	BD73800_REG_INT_4_STAT,
++	BD73800_REG_INT_5_STAT, /* 0x9b */
 +
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/leds/common.h>
-+    i2c {
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+        pmic: pmic@4b {
-+            compatible =3D "rohm,bd73800";
-+            reg =3D <0x4b>;
++	BD73800_REG_INT_MAIN_SRC =3D 0x9d,
++	BD73800_REG_INT_1_SRC,
++	BD73800_REG_INT_2_SRC,
++	BD73800_REG_INT_3_SRC,
++	BD73800_REG_INT_4_SRC,
++	BD73800_REG_INT_5_SRC, /* 0xa2 */
 +
-+            interrupt-parent =3D <&gpio1>;
-+            interrupts =3D <29 IRQ_TYPE_LEVEL_LOW>;
++	BD73800_REG_RST_MASK =3D 0xaf,
++	BD73800_MAX_REGISTER,
++};
 +
-+            clocks =3D <&osc 0>;
-+            #clock-cells =3D <0>;
-+            clock-output-names =3D "bd73800-32k-out";
++#define BD73800_REG_RTC_START			BD73800_REG_RTC_SEC
++#define BD73800_REG_RTC_ALM_START		BD73800_REG_RTC_ALM0_SEC
 +
-+            gpio-controller;
-+            #gpio-cells =3D <2>;
++/* BD73800 IRQ register masks */
 +
-+            rohm,pin-gpio1 =3D "gpo";
-+            rohm,pin-exten =3D "gpi";
++#define BD73800_INT_MAIN_EN_ALL			GENMASK(4, 0)
++#define BD73800_INT_ADC_ACCUM_DONE_MASK		BIT(0)
++#define BD73800_INT_ADC_ACCUM_OVF_MASK		BIT(1)
++#define BD73800_INT_ADC_ACCUM_VAL_MASK		BIT(2)
++#define BD73800_INT_ADC_ACCUM_TW_MASK		BIT(3)
++#define BD73800_INT_ADC_POW_VAL_MASK		BIT(4)
++#define BD73800_INT_RTC0_MASK			BIT(5)
++#define BD73800_INT_RTC1_MASK			BIT(6)
++#define BD73800_INT_RTC2_MASK			BIT(7)
++#define BD73800_INT_BUCK1_DVS_DONE_MASK		BIT(0)
++#define BD73800_INT_BUCK2_DVS_DONE_MASK		BIT(1)
++#define BD73800_INT_BUCK3_DVS_DONE_MASK		BIT(2)
++#define BD73800_INT_BUCK4_DVS_DONE_MASK		BIT(3)
++#define BD73800_INT_BUCK5_DVS_DONE_MASK		BIT(4)
++#define BD73800_INT_BUCK6_DVS_DONE_MASK		BIT(5)
++#define BD73800_INT_BUCK7_DVS_DONE_MASK		BIT(6)
++#define BD73800_INT_BUCK8_DVS_DONE_MASK		BIT(7)
++#define BD73800_INT_BUCK1_OCP_MASK		BIT(0)
++#define BD73800_INT_BUCK2_OCP_MASK		BIT(1)
++#define BD73800_INT_BUCK3_OCP_MASK		BIT(2)
++#define BD73800_INT_BUCK4_OCP_MASK		BIT(3)
++#define BD73800_INT_BUCK5_OCP_MASK		BIT(4)
++#define BD73800_INT_BUCK6_OCP_MASK		BIT(5)
++#define BD73800_INT_BUCK7_OCP_MASK		BIT(6)
++#define BD73800_INT_BUCK8_OCP_MASK		BIT(7)
++#define BD73800_INT_PBTN_LONG_PRESS_MASK	BIT(0)
++#define BD73800_INT_PBTN_MID_PRESS_MASK		BIT(1)
++#define BD73800_INT_PBTN_SHORT_PUSH_MASK	BIT(2)
++#define BD73800_INT_PBTN_SHORT_PRESS_MASK	BIT(3)
++#define BD73800_INT_WDG_MASK			BIT(4)
++#define BD73800_INT_SWRESET_MASK		BIT(5)
++#define BD73800_INT_SEQ_DONE_MASK		BIT(6)
++#define BD73800_INT_GPIO1_MASK			BIT(0)
++#define BD73800_INT_GPIO2_MASK			BIT(1)
++#define BD73800_INT_GPIO3_MASK			BIT(2)
++#define BD73800_INT_GPIO4_MASK			BIT(3)
 +
-+            regulators {
-+                buck1: buck1 {
-+                    regulator-name =3D "buck1";
-+                    regulator-min-microvolt =3D <800000>;
-+                    regulator-max-microvolt =3D <2000000>;
-+                    regulator-always-on;
-+                    regulator-ramp-delay =3D <1250>;
-+                    rohm,dvs-run-voltage =3D <1150000>;
-+                    rohm,dvs-suspend-voltage =3D <950000>;
-+                };
-+                buck2: buck2 {
-+                    regulator-name =3D "buck2";
-+                    regulator-min-microvolt =3D <800000>;
-+                    regulator-max-microvolt =3D <2000000>;
-+                    regulator-always-on;
-+                    regulator-ramp-delay =3D <1250>;
-+                    rohm,dvs-run-voltage =3D <1150000>;
-+                    rohm,dvs-suspend-voltage =3D <950000>;
-+                };
-+                buck3: buck3 {
-+                    regulator-name =3D "buck3";
-+                    regulator-min-microvolt =3D <1200000>;
-+                    regulator-max-microvolt =3D <2700000>;
-+                    rohm,dvs-run-voltage =3D <1150000>;
-+                    rohm,dvs-idle-voltage =3D <1100000>;
-+                    rohm,dvs-suspend-voltage =3D <950000>;
-+                    regulator-always-on;
-+                };
-+                buck4: buck4 {
-+                    regulator-name =3D "buck4";
-+                    regulator-min-microvolt =3D <1100000>;
-+                    regulator-max-microvolt =3D <1850000>;
-+                    regulator-always-on;
-+                };
-+                buck5: buck5 {
-+                    regulator-name =3D "buck5";
-+                    regulator-min-microvolt =3D <1800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                buck6: buck6 {
-+                    regulator-name =3D "buck6";
-+                    regulator-min-microvolt =3D <1800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                buck7: buck7 {
-+                    regulator-name =3D "buck7";
-+                    regulator-min-microvolt =3D <1800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                buck8: buck8 {
-+                    regulator-name =3D "buck8";
-+                    regulator-min-microvolt =3D <500000>;
-+                    regulator-max-microvolt =3D <1300000>;
-+                    regulator-always-on;
-+                };
-+                ldo1: ldo1 {
-+                    regulator-name =3D "ldo1";
-+                    rohm,ldo-range-high;
-+                    regulator-min-microvolt =3D <800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                ldo2: ldo2 {
-+                    regulator-name =3D "ldo2";
-+                    regulator-min-microvolt =3D <800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                ldo3: ldo3 {
-+                    regulator-name =3D "ldo3";
-+                    regulator-min-microvolt =3D <800000>;
-+                    regulator-max-microvolt =3D <3300000>;
-+                    regulator-always-on;
-+                };
-+                ldo4: ldo4 {
-+                    regulator-name =3D "ldo4";
-+                    regulator-min-microvolt =3D <650000>;
-+                    regulator-max-microvolt =3D <1750000>;
-+                    regulator-always-on;
-+                };
-+            };
-+        };
-+    };
++#endif /* _MFD_BD73800_H */
++
+diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-gene=
+ric.h
+index 0a284919a6c3..3ec87428ee97 100644
+--- a/include/linux/mfd/rohm-generic.h
++++ b/include/linux/mfd/rohm-generic.h
+@@ -17,6 +17,7 @@ enum rohm_chip_type {
+ 	ROHM_CHIP_TYPE_BD71837,
+ 	ROHM_CHIP_TYPE_BD71847,
+ 	ROHM_CHIP_TYPE_BD72720,
++	ROHM_CHIP_TYPE_BD73800,
+ 	ROHM_CHIP_TYPE_BD96801,
+ 	ROHM_CHIP_TYPE_BD96802,
+ 	ROHM_CHIP_TYPE_BD96805,
 --=20
 2.55.0
 
 
---4bLmcPpxB6m05oMv
+--jE1SHM7zvqDYiC9s
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqYAr4ACgkQeFA3/03a
-ocXs9Qf/RJmOo/uKfYyBt7PGL5qwR4BMsWDhQDZWnZl135xWK9IOHx58Bp347fi9
-DHijPhTgXBiDYiD5R6r7NB3XyfN+FS8z6q69nxn5TBAg9+0rVRStcWkjzHb26ahy
-rSS6gQDao/hZxq+dqbiAorhCkVmgVg4+u6CnLVSlOXNgDNP1/qlLdQJh8UiXjw+D
-CBFvNPZ0hj/Zh4q+zliAgnVzt/LqjEqQ9Em1z2CqbJDVa9u3m/rcWlKVON/W4xKm
-c6qwNFNB+fS10EMHkijfQN25LFGxzEilnVNZAAgpgdRm3hPau4YpyrJTJsr5I6gt
-jd8sKm0lVrae0I+swQaUDudssvEHgg==
-=WgI8
+iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqYAtcACgkQeFA3/03a
+ocXYvQf9EVkH8WKGXloaEboHEeHzNUp+2M2AoUri9Zlj7uvovrxnjFUaR50lUViO
+ishzRl8J+zEgFyyHD4Cm/yzizNcCQK4vGMDWjED3cwYV6rFEpfuyo/mP9TAvv3j1
+HKHUSqG6nIKVJ5Ty5wD4VjfT7zq0WljxxFzERDCvmbGctd6OR54eawPIymb8/x4x
+1wWkM79IvsQcAK4d3+Hn5DjVUPbCKxd+tngVf56eDEArMDeqLpEedPiOSKHnxZzW
+oSjJawyUcC2LjG7gw1hUQbzlTqm1aFAOZ7udFbss1T5MfrIG+CrzC89pIUVqAdT8
+6d3ZewkWITYL3OQc5Ow7LN0NW+zIuA==
+=7zKK
 -----END PGP SIGNATURE-----
 
---4bLmcPpxB6m05oMv--
+--jE1SHM7zvqDYiC9s--
