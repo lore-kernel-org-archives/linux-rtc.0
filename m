@@ -1,99 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3164947277C
-	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 12:40:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7251D4949F1
+	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 12:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788352810; cv=none; b=kCKrGB6Nua/0KlqH5wXz7I6qLxSoz1IAZLLiuhEg8Bo5Z7wekKwZE4CjlSANzs4havxXQ+K4t4QmtO+x0K03uyHN8Vq6xybt3jHkczhyMxsdGx5wVWJBBQfPu/yiJR8a4r2iZkpMuDRHbzAHHD+qFnox+kvpWgkCv8wuWVcpCk4=
+	t=1788353585; cv=none; b=pAm5l1XSVU+rzTXtfEwJANiF5QdJgo8NdUhHCE5m5U2stSfkSqNPm3UUIZpxLhhZZBuNmeHRsBSahF2v94QUdcP+ERI5t7Kwo3B3K9QQkqIae/4t0Iu33NlB2xv80nVxUZdMe/UMQqoDei/7pSeZNOqNnFixmwxHjV5dX5lm5ik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788352810; c=relaxed/simple;
-	bh=Klpe8gBA+2PNCx51bSzo/EuN3LxVCEYUTgBKdo6fIh8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ccxXFjj+YPGI76XVgBAfYCMpT9xfugHq8TLn/dlODnF0GwVdyy19BKmvmwywC2gsAu8hVp1gwgbB8DoTooV7dzwJ/f4TyeY0zhThRSJYr8G2d43u8QBSQPfhUIOIzVjL4wt3yeAsGAH1MEpaNH9NvZFhpOkC/hyZwLQgZd7KCAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MJz0oPUx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788353585; c=relaxed/simple;
+	bh=bycekPtl5Yv5sfnZvp7QGmwQ9kv0yG5u09D9Dw1haJU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NkYTPexh03nyv0+EJkTx3ep4XJ/6Sok/T9PLkskXaL8KCVu2NyC6+7lgt6LNfHDwT9Z6+71nXMJEGQ60218qKY3OnvmR2TGCUvulNQwVpcFJJ4feKxyajh3t8Lk3xC8N7r0zspdCaeE3smHwJp0Tkb828yLuCqY5UcAL1MXBbss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BgFOYM4V; arc=none smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MJz0oPUx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C2961F00A3E
-	for <linux-rtc@vger.kernel.org>; Wed,  2 Sep 2026 12:40:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788352807;
-	bh=Klpe8gBA+2PNCx51bSzo/EuN3LxVCEYUTgBKdo6fIh8=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=MJz0oPUxfO3QSEwUNGtpXHy+HuBfTpqV/zHYyEX7j08CkMxlewomCO4Q3E2RbN1Wp
-	 wEULcFHD710w/brCMoAevkIUzaZQIzAmn2JqiJ8GUKI8XPwwXQ+ZYbeJGczKCa7Ssp
-	 AMyYuc4AKZ/PpLDJH4JzWPivCY5C9eE1wJNsE2AfDJ7BxB/zR0leoCMApSuFA0S8mI
-	 JA0AEhQm8gaAW7SvhWlN4/Z2yt0Xy13B2JtwzI1s8fAslrUUp9e/XIW1ZQtMSI2KZG
-	 Cgm1TMpNWaZgecR+SQvDHgVINgZYSPrR/A0EeQLFUDY9BjHmKGgxzVOVQvDhsq/KW1
-	 I13nLOmrw4TJw==
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5b4ab4b4179so903370e87.0
-        for <linux-rtc@vger.kernel.org>; Wed, 02 Sep 2026 05:40:07 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBykaVd4lK8CfdOwMHqPN+pul/FSPsv0hWWX4j0X1nBGYOhM09PFthRpfBytcAfw8mPNgDyRn9Nsrgc=@vger.kernel.org
-X-Gm-Message-State: AFuF++lHN1G0DmsPeChyZihpSESYAd4Re2j24EME6qC62aHTAibLu8bt
-	XnlZ3ZhauV7epC0jDD3tsxV7nGC41zdLdKJNESbwvl3flMVjhjING8tgSyjPE5W7nZBYuoSmW1Q
-	FZUvy/4VvPjUp+mad3BXRYmQhZfSouJM=
-X-Received: by 2002:a05:6512:1252:b0:5b4:ab2f:5bd5 with SMTP id
- 2adb3069b0e04-5b608347bb7mr1568323e87.8.1788352806105; Wed, 02 Sep 2026
- 05:40:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BgFOYM4V"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-cc328b43a56so716958a12.2
+        for <linux-rtc@vger.kernel.org>; Wed, 02 Sep 2026 05:53:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788353584; x=1788958384; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XmX6sFpdUAlYRd9J5eKdhxq0FmddY0lx44K8Gkw8ysA=;
+        b=BgFOYM4V1O29GEGUEsxHEXyEqqoxgPWYFcOI1922D1nGHQDK+PTVGFhHn4DzCovsHj
+         cJ9WAeCUm0WwqDjonrZDsygDU+3RHSHlCvcVlqPORMHkwSgrvaGP+ibhuEGIekhwQh7l
+         s66S7nhLHxxtUEAdyBklP4G7Wb9Xj2SQN5ynjrerMBchru02xwp4eGH/v0lRDl+KCEz5
+         yK4qxZBjLvrrmQ91OQzrZiun/lF2lGIDIYpWdIXRaqjWunvPN7zSLkm4UBqgaJ2jSSu/
+         3vzlOz6A/Tvhd/MUZ2R/If8EcssxqpIPgqIV0bIIGmR9ScUK6+DyIi0NXdU2F0uDU6Ov
+         E9GQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788353584; x=1788958384;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XmX6sFpdUAlYRd9J5eKdhxq0FmddY0lx44K8Gkw8ysA=;
+        b=DVtbBI7L0RwzzajD3ubfZQqJJbawvjiQ93yblFnpf+nPzZQgoBSU/HVdbWZm/SM6Mj
+         hKqnFKg9VmktU4CPAZuwtvM2OMS+nqKZjj5pI6ECPx+Plwx5zwgEA1zSKe2xVleqiFb8
+         gjFoJdKzi/W3O+FtViMTuEhc557fwQ2Zt3jmuHquI7mgvsVOAmJtn0tzkdy4UKgGpVvj
+         VBZ8CiHLIVc69w2uBRYCbDpeE/9wvIByhNZygk809QKXs4dSufcFx8MFBaPGkgTeA7i+
+         m1vED/Gq9Ct57SJl0HwF/sPmZgLTKSCXIW9xtG5sFQptjN8J9arnD+4lhbL0UVR8WJrM
+         vvZw==
+X-Gm-Message-State: AFuF++lUH+WJCXx3928SQReZXzj4YodafjKRiT44DetIjctgLNBmzeA1
+	GZwk5n4aE4Tzi8+TB9p+IFsguMGgo4jn2qk9bLBz4nAHtvP1lH61m8xb
+X-Gm-Gg: AYBFou1RUbIsybJ+Hjw0TangdfxUhHoK+Kwbmb5SNgLrA0aEayNgZ5rFAYBEEl9bc/s
+	nQFZ46vQi6+R3cp9wyWNE2giKHoqEIO3jlRMoyoIiQH95DtmwperU9nzKZatQZB2xGduIlgVtGk
+	qU9KPonD5X5VUGRamQIDIUfpCP1zU/FUS83WXK3ywABpmESi+qwdn75tUvLrmZvQJIvqGQpfKnC
+	AMZopS7mhjJkvD0RRbjskMKyeGKeXytdpJkuuREE7e+XVCYPKpg/oizoqg4gnkdp19+iGm4mZBT
+	VZC8BXzouRN2oHAtmJphUdj9m3YYwiN5n/eXeDuDTBv82cfCsgYVBJZ0h4ROild7BembnNudmO0
+	hBPHxRfRPON60WeKrO19Fz3sWkSY31xAhlj/qtlNdVDzdiuf9vzF5/Nx7IzRMH2s1xEWQBiuXU+
+	PnCiYtGC9B/6JhEn+JhnQP/9sqSKwLz+keOckMddW884QiBK7Av7TRsf6d4309A015Lzy+F5zhG
+	dWxZi0ginAtb0RJzO5bgXo+QdGdlmbVp+cP
+X-Received: by 2002:a17:90a:cf88:b0:38e:fea2:df53 with SMTP id 98e67ed59e1d1-39aee9b4d19mr5123439a91.4.1788353583502;
+        Wed, 02 Sep 2026 05:53:03 -0700 (PDT)
+Received: from fabio-X870-EAGLE-WIFI7.. ([2804:1b3:a802:ffb2:9cb4:2d4:75ee:cd63])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-32f07beb704sm7099975eec.30.2026.09.02.05.53.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Sep 2026 05:53:02 -0700 (PDT)
+From: Fabio Estevam <festevam@gmail.com>
+To: alexandre.belloni@bootlin.com
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	seanga2@gmail.com,
+	Sean Anderson <sean.anderson@seco.com>,
+	Fabio Estevam <festevam@nabladev.com>
+Subject: [PATCH RESEND v4] rtc: abx80x: Don't warn about oscillator failure after POR
+Date: Wed,  2 Sep 2026 09:52:57 -0300
+Message-ID: <20260902125257.9882-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1788346553.git.mazziesaccount@gmail.com> <5eb294e68b8d5d2c1d3a12b14a55dd2a9c075a09.1788346553.git.mazziesaccount@gmail.com>
-In-Reply-To: <5eb294e68b8d5d2c1d3a12b14a55dd2a9c075a09.1788346553.git.mazziesaccount@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 2 Sep 2026 14:39:52 +0200
-X-Gmail-Original-Message-ID: <CAD++jLkvELVwVD2B-OPF=mV8-F5xi7RZWJ7cvuyg2srnrJ2HLQ@mail.gmail.com>
-X-Gm-Features: AcwNN1XLITgbm1aOFoVQnd28TjU_0cWWW0RJDEA68aIrbre66YkBVpUmqod9dXc
-Message-ID: <CAD++jLkvELVwVD2B-OPF=mV8-F5xi7RZWJ7cvuyg2srnrJ2HLQ@mail.gmail.com>
-Subject: Re: [PATCH v3 09/10] gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
-To: Matti Vaittinen <mazziesaccount@gmail.com>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>, 
-	Matti Vaittinen <matti.vaittinen@linux.dev>, Lee Jones <lee@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
-	Jerome Brunet <jbrunet+clk@baylibre.com>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Michael Walle <mwalle@kernel.org>, mfd@lists.linux.dev, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Matti,
+From: Sean Anderson <sean.anderson@seco.com>
 
-thanks for your patch!
+According to the datasheet, the "oscillator failure" bit is set
 
-On Wed, Sep 2, 2026 at 1:07=E2=80=AFPM Matti Vaittinen
-<matti.vaittinen@linux.dev> wrote:
+  ...on a power on reset, when both the system and battery voltages have
+  dropped below acceptable levels. It is also set if an Oscillator Failure
+  occurs....
 
-> From: Matti Vaittinen <mazziesaccount@gmail.com>
->
-> The ROHM BD73800 PMIC has 4 pins (named GPIO1, CLKOUT, FAULT_B and
-> EXTEN_OUT) which might have been set to operate as a GPI or GPO when OTP
-> (One Time Programmable memory) is written at device manufacturing.
-> Support the GPI/GPO use-case via GPIO framework.
->
-> The default OTP for these pins is to not use any of them as GPI or GPO.
-> (The GPIO1 defaults as an ADC input regardless the naming). Hence the
-> driver assumes none of these pins is a GPI/GPO unless explicitly pointed
-> as GPI or GPO via device tree.
->
-> Furthermore, pin's direction can't be changed after OTP configuration is
-> done. Also the default drive type for a GPO (CMOS / Open Drain) is set
-> by the OTP configuration. The BD73800 has a set of undocumented test
-> registers which should allow changing the drive type. Access to the test
-> register area or the test registers aren't documented and so this driver
-> does not support configuring the drive type even though it might be
-> doable.
->
-> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+From testing, this bit is also set if a software reset is initiated.
 
-Pretty neat with gpio-regmap isn't it? :)
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+This bit has a confusing name; it really tells us whether the time data
+is valid. We clear it when writing the time. If it is still set, that
+means there is a persistent issue, such as an oscillator failure,
+instead of a transient one, such as power loss.
 
-Yours,
-Linus Walleij
+Because there are several other reasons which might cause this bit to be
+set, including booting for the first time or a battery failure, do not
+warn about oscillator failures unconditionally. This may cause system
+integrators to waste time investigating the wrong issue.
+
+Continue printing a message about invalid time data before the time has
+been set. Only report an oscillator failure after the driver has
+successfully written the time and cleared the flag.
+
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Signed-off-by: Fabio Estevam <festevam@nabladev.com>
+---
+Changes since v3:
+- Rebase onto current mainline.
+- Fix commit message wording and typos.
+
+ drivers/rtc/rtc-abx80x.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+index 5486d9d0b1e5..2525ecb7fb6b 100644
+--- a/drivers/rtc/rtc-abx80x.c
++++ b/drivers/rtc/rtc-abx80x.c
+@@ -127,6 +127,7 @@ struct abx80x_priv {
+ 	struct rtc_device *rtc;
+ 	struct i2c_client *client;
+ 	struct watchdog_device wdog;
++	bool wrote_time;
+ };
+ 
+ static int abx80x_write_config_key(struct i2c_client *client, u8 key)
+@@ -179,6 +180,7 @@ static int abx80x_enable_trickle_charger(struct i2c_client *client,
+ static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int err, flags, rc_mode = 0;
+ 
+@@ -193,7 +195,18 @@ static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 			return flags;
+ 
+ 		if (flags & ABX8XX_OSS_OF) {
+-			dev_err(dev, "Oscillator failure, data is invalid.\n");
++			/*
++			 * The OF bit can be set either because of a reset
++			 * (POR/Software reset) or because of an oscillator
++			 * failure. Effectively, it indicates that the stored
++			 * time is invalid. When we write the time, we clear
++			 * this bit. If it stays set, then this indicates an
++			 * oscillator failure.
++			 */
++			if (priv->wrote_time)
++				dev_err(dev, "Oscillator failure\n");
++			else
++				dev_info(dev, "Time data invalid\n");
+ 			return -EINVAL;
+ 		}
+ 	}
+@@ -219,6 +232,7 @@ static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct abx80x_priv *priv = i2c_get_clientdata(client);
+ 	unsigned char buf[8];
+ 	int err, flags;
+ 
+@@ -252,6 +266,7 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		dev_err(&client->dev, "Unable to write oscillator status register\n");
+ 		return err;
+ 	}
++	priv->wrote_time = true;
+ 
+ 	return 0;
+ }
+-- 
+2.43.0
