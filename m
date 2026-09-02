@@ -1,298 +1,180 @@
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11023098.outbound.protection.outlook.com [40.107.44.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A92047ECE7
-	for <linux-rtc@vger.kernel.org>; Tue,  1 Sep 2026 13:28:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788269321; cv=none; b=WSuPgqjDCxfYFFKbWA4cR/vwZm0pQcS8KzCk2tZa8iH20Vi+ppfJkPHyND3SxqXaYjX3tD83oLDIDnndZDDlkIqA71yNLPWztidsnh/DkdeoYtLn/KiA0EkqxVgjIJX96pT7QP19noYKUP1STQdMqa9JmOuICrwjdA8tcw7r8Uw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788269321; c=relaxed/simple;
-	bh=MUq/5ZoiCfWabfKDlFl7q+tz6E/EDZ9wlA4CyFJOWNk=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=To5yFCY5EAAoNaH63yZ6A6XIsqirs+z91InF6SMnW5vIlEUPJzmxbgZo9yCL5lrI6JPWYN3EnDeAcuUvO/H2QW4gnKLKzoFUsx1MdZoI2lTo/Z9rDuuf++c36ccJcat2i5UY4ilN8iPdCDhLiBTj/45RIGPjwqrbp8NLc6jRBTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=EAgluykf; arc=none smtp.client-ip=185.67.36.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FC8D2BB17;
+	Wed,  2 Sep 2026 03:29:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.98
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788319749; cv=fail; b=j3LQFRlwjp450ejhcG/qUx82nBj4gDV299NUnHduVipOWC3iwlizzlTeqsKnZPphYkdDITfnC1amXX01BkNd3secHrtouZR9lh4bo5AmHznD1nkZJEtbpvCHKsQcayjN6m0ljzwgbpaUVlPFUsbUJ13fMhTV/PahfjmcGNJC2mE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788319749; c=relaxed/simple;
+	bh=XZT5W+kqK1ut+pqORPRb126eqp8fRfCsJdTJPvoq3oI=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=bu5/iM3jdNT6nEgIFll/khl13jeNE12bEmCG1jxVoR6tsjP3KDCs01VouYcpX6T6QC0x2pRd9ZOT5qjYloexR5F8TYQIk9pcu7MRCRNOURMIULtA70NxfSlR0XdY9JPyKU+/6rbJOeQCCkJ1ktS5tg0wx1xonM5V+fK01hjWHqE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amlogic.com; spf=pass smtp.mailfrom=amlogic.com; dkim=pass (2048-bit key) header.d=amlogic.com header.i=@amlogic.com header.b=GPBESyjd; arc=fail smtp.client-ip=40.107.44.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amlogic.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amlogic.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="EAgluykf"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id 37CF7240107
-	for <linux-rtc@vger.kernel.org>; Tue,  1 Sep 2026 15:28:37 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1788269317;
-	bh=vUM+yN+wV2Rum2NOiWGNEq7ms74eqAhRWAUvws9oiXc=;
-	h=Message-ID:Subject:From:To:Cc:Date:Autocrypt:Content-Type:
-	 MIME-Version:OpenPGP:From;
-	b=EAgluykfAjkRXM1DT8Typ2YUTHMMjJyBZEaJWN25o3SPept1PGpq6pWpAyGgRNYm+
-	 ITCZaWPgb7aeAHVrS12l2xZy/FJbEZtPgvlE+ahrNMW7/kcHM8ayN1LaqRtga9xGlE
-	 /oQ/UkGQwwKfNUtbZNFnCE2xjaCANnqeib+ot6DPAhZySVjAXZWKJUurPWJsaxrgNK
-	 lnRlAYqZaNpe50gCz+kSArDkCavOODkJaCeJH6m7yFf1JPyXCPF8v2xwuye78LIn/c
-	 1HZ4S//1N9A34INu/OiVg64XZmipGdhLO8M6fwe+ddIySzSCOGjUpq49qsVsacztrq
-	 /FY7gkAc6Yefg==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hZ6BV3xF4z6tyW;
-	Tue,  1 Sep 2026 15:28:34 +0200 (CEST)
-Message-ID: <c4b9b6c6033774a02be50cf07a6729a6b1e9e5ba.camel@posteo.de>
-Subject: Re: [PATCH v8 1/6] dt-bindings: rtc: Add pinctrl for S35390A
-From: Markus Probst <markus.probst@posteo.de>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring
-	 <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
-	 <conor+dt@kernel.org>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
-	 <uwe@kleine-koenig.org>, Andrew Lunn <andrew@lunn.ch>, Gregory Clement
-	 <gregory.clement@bootlin.com>, Sebastian Hesselbarth
-	 <sebastian.hesselbarth@gmail.com>, Michael Langer
-	 <michael.brainbug.langer@googlemail.com>, Andrew Morton
-	 <akpm@linux-foundation.org>, Linus Walleij <linusw@kernel.org>, 
-	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Date: Tue, 01 Sep 2026 13:28:36 +0000
-In-Reply-To: <20260901-proud-furious-bison-0edeec@quoll>
-References: <20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de>
-	 <20260831-rtc_s35390a_int1-v8-1-dac1dc86ce1f@posteo.de>
-	 <20260901-proud-furious-bison-0edeec@quoll>
-Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
- keydata=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
- jfGillcaQOqFZ3WwVqyzG1BUfTow==
-Content-Type: multipart/signed; micalg="pgp-sha256";
-	protocol="application/pgp-signature"; boundary="=-iRkZX+HtzAjTofklDxni"
+	dkim=pass (2048-bit key) header.d=amlogic.com header.i=@amlogic.com header.b="GPBESyjd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=dkOURdDbss6HWZk+xLDekNDEVmx+e0IzCLnUY8svzhFKMgkIrw+57R9NWhzc/mEjbIWIbscnKvtoZyVwDZ3AAyHfQZzRbvXIrYbWInFzMNcJ1X/3LCZIwD2e4fVkSv8h3V6gO7BKSfYc4blsA4xKCLBWjTy43OaS7RSGIVjTFVICL8+6ziCwa2qO+ukM5gFjQbYC+bbAXVY0Kx25z7T508Mfmt1s1vSN5tG6fi3ecuUWK3r+l66ZOPZZlXAadvXXFqRwky13xrA0+AhRp7iGOAgD1fnf951d5LCV91pVIy0Lsmtuybc0oUf/6VuPj7Ft/pBCpLyWqv5ZoYTgtF15XQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+VIHzRMEqLra/NYhZB7lgnjz5/c1uVV0eumWn6BXXXQ=;
+ b=le06MI9Vr75D1lQrqugFPhxvUwb59hLB4PB0DFhTO3zxUj/D1ZRTKjZZ3hwLg3lEyjbpECMMCAPJ9cSrYCGS9y7AIcQILULMtW9RpJRG55Kb/Bp1+FFBi9J7V4uyCFUDHbpt3y2RXnfukhWk/3jpCQShFFlmk00Erm6Kn4FTpmNcR4njeV9YllJh7CMhvBk8k+JKdMoAJHz1/WHjzNRA4TWjCjfDi/rQ10tYe9dipbwzml21YdMRqcwO5h7dAS663s0NEEFcNxnW49MQiJ9mW/1UDgfVg1i8tBa5Qf4MPW7q7RfBkMa3zP3oGHsPGrhfDYl80eR6nEmUOYjZHRCT6g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amlogic.com; dmarc=pass action=none header.from=amlogic.com;
+ dkim=pass header.d=amlogic.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amlogic.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+VIHzRMEqLra/NYhZB7lgnjz5/c1uVV0eumWn6BXXXQ=;
+ b=GPBESyjdLkEFQLJrdhpUbtOJvskUTGPPfVgiCCvveTYkwpPiYbPxzvzONd3RI9PUb0LWm/Va23SyyHXUD64TO+oA0atqyUWiMjmFfJTlNtMz08STcEVz3yDLp3tLKpNNZkkGSb8QhtNuVHysUIslWAfE/CKTTMlk2sWzpLbcQ/SsdXtRNXDzVLn7/MVD8A/hgI5Gcrfz7drSXmoa6ufIu1XpxDT5YwIePnD34i3lvZgcZZ8Uskv+TrzUAJRK5C93ty1bkoiJNHs8LxJEfcjMcbYfKf16pklCfaEaFyDNs2veVDTg3yVfCdUZ+S2iZEst+6OWCL0xwauSs3Lx5pwAEw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amlogic.com;
+Received: from TYZPR03MB6896.apcprd03.prod.outlook.com (2603:1096:400:289::14)
+ by SE3PR03MB10557.apcprd03.prod.outlook.com (2603:1096:101:31e::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Wed, 2 Sep
+ 2026 03:29:04 +0000
+Received: from TYZPR03MB6896.apcprd03.prod.outlook.com
+ ([fe80::78d4:9dee:2e32:d1e4]) by TYZPR03MB6896.apcprd03.prod.outlook.com
+ ([fe80::78d4:9dee:2e32:d1e4%7]) with mapi id 15.21.0360.008; Wed, 2 Sep 2026
+ 03:29:04 +0000
+Message-ID: <01df64f7-2993-44ce-96b5-b119c4dd20cf@amlogic.com>
+Date: Wed, 2 Sep 2026 11:28:58 +0800
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] rtc: amlogic-a4: clear unsupported update interrupt
+ feature
+Content-Language: en-US
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Yiting Deng <yiting.deng@amlogic.com>, linux-amlogic@lists.infradead.org,
+ linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260624-rtc-feature-v1-1-42dccd22c0ee@amlogic.com>
+ <20260819133602f197f6b5@mail.local>
+From: Xianwei Zhao <xianwei.zhao@amlogic.com>
+In-Reply-To: <20260819133602f197f6b5@mail.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SI1PR02CA0045.apcprd02.prod.outlook.com
+ (2603:1096:4:1f6::16) To TYZPR03MB6896.apcprd03.prod.outlook.com
+ (2603:1096:400:289::14)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: TYZPR03MB6896:EE_|SE3PR03MB10557:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9132d98f-c760-4af6-658f-08df08a25692
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|23010399003|376014|1800799024|10067099003|6133799003|4143699003|56012099006|22082099003|11063799006|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	MbIiSakGGRLAiOkJV1CXsLsXVxcIxn46svIztEzoGKbh2PpsKDMQ6CZTXSuaglBnnhNLijFbHu36CI5bOrSJIGezDQFoRRnVzTiI/UU8iLO1pD6yJIAaowZbrhHlNRpjT1RQDL1mJ0pbCfnicCUETYEsKLySgnTnRUewB3CUisXcQKDfDwxf7/mguQtW08SSbo9vJMw2K1GAPyRLYl8GR30w1PdfvrQ+edS01S4qX3xuzednmTaxZXx+6h66k7J88mFLjEbeUX5e73Tn3wH5yIVU/eqaltj+7AFl1McOJIASNE70JHpZUJ+PBc0yzI20NhE/vOZ62aivwNvYuTqDTUjm6y6vMNGAAgk+HDT+GQ6MH9Xp0JbwUJwUeB+Eu6GZFXZQBxwpaoOETiCuceN6DkPikEDWLZPxY2WRSs3HfQQkA9x4hqQ7qxYbcN3a9Cibi5YMCP6R8fShH+qUMjirBqcyyWBULOlg8SLhxKhf7cRGHDDqBiCncm9Ar6ykEkkFLrgtKuO6vJCeMj8p4Clf9Azg6OD5YivUzNe3f4q2OyzEMnCp/CKJFQuZK9sak9qIlHUTXdDubSfjpvfyEgxDAOverYgNMcQVVE/caILBshlTd7ZI8jcuVBgp949sN5yPEN2qNeVLoL4SQHY9EOD26sYRKh7FQX9Dlsev5SEU0Og=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TYZPR03MB6896.apcprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(1800799024)(10067099003)(6133799003)(4143699003)(56012099006)(22082099003)(11063799006)(18002099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?VmJPVFdRckZiU0dIL1k2RkNUK1g5Q3BNU1JCbjFSZUpkeTJRck56MEFUVFJB?=
+ =?utf-8?B?SkJWMlY0ODFFZ0dmY3JWT3hhWklrSzFOWmtjYTdVbklVZnFZemZ4bFZiRlJX?=
+ =?utf-8?B?SHQ1UHlaeTJYR0laajZyWTdJSVpZZnpzZDNhRENJTDltQm0rck5HNTZ1bXd1?=
+ =?utf-8?B?M2tNZ0orV3N0MVgrMXpFaURPM1MxcjRiS1duYy96ZHNLZFhoUy91NklJWDZj?=
+ =?utf-8?B?bGZiTDJWY0gxbVZYWUhkVHVHTjBLR1FxcExIWE9MczQ1TWR3T1Z0aXF0VHRp?=
+ =?utf-8?B?ZWR2QkZ0YmtEaXo3cnNiekZWM2FPV3BrZkt6VHFabjlwQ0IwV1FqZWVpVXBQ?=
+ =?utf-8?B?OUJQYy9ZdU1VeXZ1N0dwbXNWbWE3aXM5ZG1ZVmtjMlhtVm9aTERNVkdkWnpJ?=
+ =?utf-8?B?c2FwWE9LTXpCemhzb2FCOVdieEczbUdQOFpyZERZRG5DMkNuSVl4U1liK0ZH?=
+ =?utf-8?B?WWFwdWVSWitNR1AyOE1JUjlhaWxrK1F4YVBCSjdVUFd0Y0plT1ZrM3Bma1Bv?=
+ =?utf-8?B?WVVNa3QybnBuZWE1T2wyNG1VUWZRTjk3Ti9lQm5GMnlBcHpWNTlQanlwYUNS?=
+ =?utf-8?B?OVNqaFJYQjdGelBEalNoS1ZqUmxDSmVFRkU5NkU2T2ZOdmlBMnB5OE1lSThK?=
+ =?utf-8?B?Mi8wNVo1TXFOUU1YYmpHWkNwWjJPV04zeUVMSVVGb0JpQXVkTjJUYkQzSUV2?=
+ =?utf-8?B?SzlEMllSRUhyN0NpR3RFVi9zM3VyblZNT3h2dVA3THJNaWlXdEpSeUZYMU1H?=
+ =?utf-8?B?RGorYld6OW5vS3l3OEpRYWxrejAycnZWd3VuSG94Wlg1RFdkOWZoQUJCUDlq?=
+ =?utf-8?B?aE9kUmwrTGhHai9heXNIK0NrckZzMnMraXlOV0g4S2d6QTA0LzNnaklURVpp?=
+ =?utf-8?B?NEorR3ZYMUxVS0ZXbm9lb1BZNytIcDJORUNrNG9rQTFsMTk0UmgxMHhYMHdt?=
+ =?utf-8?B?MEVnWUdsYWRKRDlwano3bUVQRUpiRHAvVit0d2JaNTlWVmEyZWlwTDVPeGo0?=
+ =?utf-8?B?dnlETXIyenRZQ2g0TjlPM3dmMkhkUTFEanN6OXFGZEpCdGs3eVI5SGl6SGtn?=
+ =?utf-8?B?RThqYUFhd2tlZ1VJN1I0K2lXYUpWRnkrTFVFU0hVZGlUZFphL0Q2RWo0Wllx?=
+ =?utf-8?B?dzVhZ0RNbG1IY2M2NUNxNFordVQwRDNYRHBRand2MjhSZVhzRi9aSEJFWTg1?=
+ =?utf-8?B?cVgwM2U3N29rTVIyMGxsVHRFeHk3YktmTWRMNFMzVzY3NmgreThwdnIyZmQ0?=
+ =?utf-8?B?RVRrMXFGUEgrNTIwb0REQ3dQRXVpVkVuQTREMXpHK0d6S3J6N3FDVmZIaUdW?=
+ =?utf-8?B?dnkvdm5uc1U5S25od0NqbThIVGVsemNURjdvTnlnRGtWRUdlejMzbm8yMnpt?=
+ =?utf-8?B?V3lhbjl5eHNCVGFIVHFIWk5OYmNPMVNyL3c1ZEp3UUN5OUJpRTlQZ1d1OEtr?=
+ =?utf-8?B?dzZ1bGtYSlU4cUswL1VWdnZTWlZWTEo0UkdiNzBZWDdaZ05JOXdrS0VXWTh3?=
+ =?utf-8?B?WGV6c2hVWjUycVY4K29vS1ZxckxoQ3dVSjNvM0VMRzhYbXk3SDZyVHRzem9t?=
+ =?utf-8?B?OEdxV2N0RUQrazc4OVVUMGh1cmRjM1pHcDBYcGp4WG8vcG1UUWZoUlQ0TTh0?=
+ =?utf-8?B?MkxucVYxU2I2bzUwOTB5TzdmNjJuUjRoaFVFOWI1ZjBSNEhqMVJ5UWxhNGpX?=
+ =?utf-8?B?Um5VWVNtOFpzcCtrZWh2aGZFNkdtWjFqcU9PYXZXeVJxMFNmWEV2NkZGWkVz?=
+ =?utf-8?B?cTgrOFdtZFhaQXNvek9SYjluTFdHN0VaNEs5dDZneGx0R0hEK3QrKzA2RzF6?=
+ =?utf-8?B?elFTVlk0YytsakY2bmIzc1NqcFllVzcvZ2d2ZzRWOHBlSEd2WlRxS1l1Ky9E?=
+ =?utf-8?B?ajB1VW5aOWZXc29OVUg3R3VZaWVVcGtaSjliVnFvWlFpczVteGdaaDZxV1ZO?=
+ =?utf-8?B?Y0FhcGdDQ2RxQVh0R01GTDVIOUxXd1JrQlZuYXBJQ2F5Z0VaRWQ2MTQzYXcy?=
+ =?utf-8?B?Z0toS1VLR0Z3S2g1VlA1WFMzbWYrRG1ZTG12VGpEQlFpNkVoaDFqSzNjdk80?=
+ =?utf-8?B?R3FMeUFVa2MrdkVFUEk1MlZPRkw1QTYyMFpqMDhtdzgvS3NPbG9Sb1BFQlNK?=
+ =?utf-8?B?ZzFJQnBBci9TK1EvTFJ2MW4wMDVERGdFWmh1c0FqVWIrZy85QU5YT1VpSlNZ?=
+ =?utf-8?B?eEZ6TmJBUlV3TjhXNUVNWXFtUFQ2VThkSTB0bmp1VGNITUVRTnQ4cndwSUtE?=
+ =?utf-8?B?VGhjb2F4djl6bTVES2p3TDVhcmN4N3dSU3U5RStWQkpSQnJKbVduSmU0Y1Nj?=
+ =?utf-8?B?dXpHNFdlU1RCSXVCNXY0L041UndNSVlJWVZYOVlSRXJjYmpsT0VRQT09?=
+X-OriginatorOrg: amlogic.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9132d98f-c760-4af6-658f-08df08a25692
+X-MS-Exchange-CrossTenant-AuthSource: TYZPR03MB6896.apcprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2026 03:29:04.1426
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0df2add9-25ca-4b3a-acb4-c99ddf0b1114
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fUYRUCBMXF2IQ4qdUmi73bEHWhFkFXG03tzovPPEMyrxWkldIgCwiP56qUb39NtbfGtWUUDgqiUvrny5L/YIjTxFKOPUKHX4iHo8EX4xxgQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SE3PR03MB10557
 
+Hi Alexandre,
+    Thanks for your review.
 
---=-iRkZX+HtzAjTofklDxni
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 2026/8/19 21:36, Alexandre Belloni wrote:
+> Hello,
+> 
+> On 24/06/2026 07:24:34+0000, Xianwei Zhao via B4 Relay wrote:
+>> From: Xianwei Zhao<xianwei.zhao@amlogic.com>
+>>
+>> The Amlogic A4 RTC does not support update interrupt. Clear
+>> RTC_FEATURE_UPDATE_INTERRUPT before registering the RTC device to
+>> prevent userspace from enabling an unsupported RTC UIE function.
+>>
+> Because the driver supports alarms, it should support UIE. Is there any
+> reason the RTC can't handle arming alarms every seconds?
+> There are some that would only support alarms avery 2s, in that case,
+> please set RTC_FEATURE_ALARM_RES_2S.
+> 
 
-On Tue, 2026-09-01 at 12:05 +0200, Krzysztof Kozlowski wrote:
-> On Mon, Aug 31, 2026 at 05:42:22PM +0000, Markus Probst wrote:
-> > Synology NAS devices use the output pin for interrupt signal 1 to wake =
-up
-> > the system.
-> >=20
-> > Move devicetree bindings for sii,s35390a into its own file.
-> > Add necessary properties to configure the individual pins via pinctrl,
-> > which allows the interrupt signal 1 to be used for wakeup alarm.
-> >=20
-> > Signed-off-by: Markus Probst <markus.probst@posteo.de>
-> > ---
-> >  .../devicetree/bindings/rtc/sii,s35390a.yaml       | 117 +++++++++++++=
-++++++++
-> >  .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
-> >  2 files changed, 117 insertions(+), 3 deletions(-)
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/D=
-ocumentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> > new file mode 100644
-> > index 000000000000..dfe632c4b2c8
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> > @@ -0,0 +1,117 @@
-> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/rtc/sii,s35390a.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: S-35390A 2-WIRE REAL-TIME CLOCK
-> > +
-> > +maintainers:
-> > +  - Markus Probst <markus.probst@posteo.de>
-> > +
-> > +description:
-> > +  The S-35390A is a CMOS 2-wire real-time clock IC which operates with=
- the
-> > +  very low current consumption in the wide range of operation voltage.
-> > +
-> > +allOf:
-> > +  - $ref: rtc.yaml#
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: sii,s35390a
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  interrupts:
-> > +    minItems: 1
-> > +    maxItems: 2
-> > +    description: Supports up to 2 interrupt lines via the INT1 and INT=
-2 pins.
-> > +
-> > +  interrupt-names:
-> > +    items:
-> > +      - const: int1
-> > +      - const: int2
-> > +
-> > +  wakeup-parent: true
-> > +
-> > +  wakeup-source: true
-> > +
-> > +  "#clock-cells":
-> > +    const: 1
-> > +
-> > +patternProperties:
-> > +  "^pins":
-> > +    type: object
-> > +    additionalProperties: false
-> > +
-> > +    patternProperties:
-> > +      "-pins$":
-> > +        type: object
-> > +        additionalProperties: false
-> > +
-> > +        allOf:
-> > +          - $ref: /schemas/pinctrl/pinmux-node.yaml#
-> > +
-> > +        properties:
-> > +          pins:
-> > +            minItems: 1
-> > +            items:
-> > +              enum:
-> > +                - int1
-> > +                - int2
-> > +
-> > +          function:
-> > +            description: |
-> > +              Pin function:
-> > +              - ignore:  Preserve the previous state.
-> > +              - disable: Disable pin output.
-> > +              - wakeup:  Output wakes up the system.
-> > +              - clock:   Output clock pulse.
-> > +              - pmin1:   Minute periodical output with 50% duty.
-> > +              - pmin2:   Minute periodical output L for 7.81 ms.
-> > +                         Can only be used with pin int1.
-> > +            enum:
-> > +              - ignore
-> > +              - disable
-> > +              - wakeup
-> > +              - clock
-> > +              - pmin1
-> > +              - pmin2
-> > +
-> > +        required:
-> > +          - pins
-> > +          - function
-> > +
-> > +required:
-> > +  - compatible
-> > +  - reg
-> > +
-> > +unevaluatedProperties: false
-> > +
-> > +examples:
-> > +  - |
-> > +    i2c {
-> > +        #address-cells =3D <1>;
-> > +        #size-cells =3D <0>;
-> > +
-> > +        rtc@30 {
-> > +            compatible =3D "sii,s35390a";
-> > +            reg =3D <0x30>;
-> > +            pinctrl-0 =3D <&rtc_pins_default>;
-> > +            pinctrl-names =3D "default";
-> > +
-> > +            wakeup-parent =3D <&int>;
->=20
-> I don't understand this need. Device does not generate interrupts - no
-> interrupts property - thus how can it wakeup?
-It is just an example.
+Got it, Amlogic RTC support every seconds. Please ignore this patch.
 
->=20
-> As explained in commit msg, the signal at int1 goes to the SoC, right?
-I assume.
-
-> So where does it go? To which pin of which device? &int?
-For my Synology DS923+ NAS, I do not have schematics. I only know for
-sure from source code that INT1 is used for wakeup and I can confirm
-that this does indeed wake the device up.=20
-
->=20
-> Can you show complete upstream DTS using this?
-There is arch/arm/boot/dts/ti/omap/am3517-som.dtsi, which has the pin
-output of INT1 routed to a gpio pin. INT2 isn't connected at all.
-According to the public schematic [1], this looks accurate.
-
-
-Thanks
-- Markus Probst
-
-[1] https://www.scribd.com/doc/60133698/SOM-M2-Schematic
-
->=20
->=20
-> Best regards,
-> Krzysztof
-
---=-iRkZX+HtzAjTofklDxni
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQJPBAABCAA5FiEEgnQYxPSsWOdyMMRzNHYf+OetQ9IFAmqW0vQbFIAAAAAABAAO
-bWFudTIsMi41KzEuMTIsMiwyAAoJEDR2H/jnrUPSb7EP/0A6hImyam3AZT6bEy9e
-tqPzzX/4eg90lRdFBoC07xjNdZy9zEF7/SN1jeWxIssdBIm70G5PqQ4ovL8BN5uy
-4h/06BGhT0JxIYlTUiaJNye1ro3B8TquZJUCWr2s3DYLuim3sGAr366rL2Py6U8D
-VooNcKXa68474yEi/cJKQfqF5E5m6pwDaISAKfJcrd0rQA9MitLaLu8iFK+vfKPF
-vfM1fdZnMJEiRU1juNsqz1asfpqKOxX+Jn8u9ZEpZfBErnsCpM+sX2MEw7DbD6xw
-WpETOiFat1weVALHkGE/seTEasfVJdJcNeAJ51RBpPmva5Yz63wKPugl4siz/WRI
-0ECRDwpWQI2567MQOOpk2RtXByYq5sc8TDB/rofz+0sUB4ck5jHyv9eHK72rObbv
-EHsK/HcJ0+i/YlFqUqBS8LsjAdZAlvLw0jdBdsUS09p50gLUtAsr4vrFSz/sd21C
-bba9qkI+Pz4YvrLvno72CES7EQ7PAt1eFNT/Waudu8Rp/tKWdTbn/1sMOYdZmxLR
-ysKzIu6tTTtbL8VPbixjhVo3lAZyB7EteAVPctpnP+w2/UrLW47qP30nP2OJsr+J
-AFJoL9Y6j+iW8j7H7utpdRHacuKHEnazT5YeR3wla2h6LWJnrpynsRKCtIgJDs9E
-AcViFv6GY9IYjEqxwEnLwuwe
-=fvHI
------END PGP SIGNATURE-----
-
---=-iRkZX+HtzAjTofklDxni--
+>> Signed-off-by: Xianwei Zhao<xianwei.zhao@amlogic.com>
+>> ---
+>> Clear RTC_FEATURE_UPDATE_INTERRUPT before registering the RTC device.
+>> ---
+>>   drivers/rtc/rtc-amlogic-a4.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/rtc/rtc-amlogic-a4.c b/drivers/rtc/rtc-amlogic-a4.c
+>> index 50938c35af36..116cf095a9e9 100644
+>> --- a/drivers/rtc/rtc-amlogic-a4.c
+>> +++ b/drivers/rtc/rtc-amlogic-a4.c
+>> @@ -379,6 +379,7 @@ static int aml_rtc_probe(struct platform_device *pdev)
+>>        rtc->rtc_dev->ops = &aml_rtc_ops;
+>>        rtc->rtc_dev->range_min = 0;
+>>        rtc->rtc_dev->range_max = U32_MAX;
+>> +     clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtc_dev->features);
+>>
+>>        return devm_rtc_register_device(rtc->rtc_dev);
+>>   }
+>>
+>> ---
+>> base-commit: 851d961ff248218f681c53cf0f7f08cf8201a117
+>> change-id: 20260624-rtc-feature-03ce3f3843a9
+>>
+>> Best regards,
+>> --
+>> Xianwei Zhao<xianwei.zhao@amlogic.com>
