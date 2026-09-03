@@ -1,144 +1,96 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A53238886A
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 05:02:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD99A249EB;
+	Thu,  3 Sep 2026 07:46:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788411764; cv=none; b=YV1Y8zQmws2UUzFWHqeOa8M7mb4I94Cmq8qrWKROQ5C+nQ+FedPw2zb1MH9tBhqTz4hkqcFDueyMC5WbBYBADs3FgJfxmzmO1F5TGiVDB6zY+JeeAYL2PR3M+0iw0UEn9COi+AxAjcXIXMoBExtbzVbmaKVLfIlbdzhq9ViASo4=
+	t=1788421618; cv=none; b=oUS8UD6P6EizrLl5//z1qJn3MGphvDf44dnMRMFijmDT/n3mlAUO297bqbae9l6oU2hl+jdXppipOH2gUuAxCEBzPDHZL5vKLFfyc9pnHnEsXu4JXrJKFNzngY90hhdsSMpmWsVMUdKMS3SfkPA1580u4Zw598d5bTT/7q58RL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788411764; c=relaxed/simple;
-	bh=j8QMTNW8XDHV+BH8mGTNiSJbNMOrQ1E2SamlbJ3guog=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RqijMbP8sieiBS5dK3nqQOCjA/ldv43ttSDMvG7RE/z6FJic2TFdulR6s3bgjapmsUhLzEIvteStAPT1snqEPjVeFUzkh2n7iVMAB1HtZENkzaq61NCzRMoAM3qfV0hvevaP9k4hoVOn48MQn7zIjPNTWEvaD4OTgOWTiFpWxdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hS9TovMd; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788421618; c=relaxed/simple;
+	bh=0alexXOhZ3pe8wwcPjr1HedjSmNCRv9G8JVAkGbb1Pk=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=RMyY/kRw1+kb7mAUQSO++19NYduo/WbuDQoJARKvAJbvTNDr4A1QxI13TuIMKeih52E+Xu9FdZ1k7PpQcjfwTNf0q25cJ2Z6Y/kPATRglpy5f4p2YeLH4b4hYvxjE7WfMWS53/yHC/ONjCQlpmps3CCMuiNRTSU+bW6x0HXrQwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=n6VXsavR; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=w+UmEGJu; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hS9TovMd"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5b4a0e5aefeso2084110e87.3
-        for <linux-rtc@vger.kernel.org>; Wed, 02 Sep 2026 22:02:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788411760; x=1789016560; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LwFiTvSfOdYmNglr5FoVqN597kWfjGSwy7pj4LDNId8=;
-        b=hS9TovMd5QZKIZNyOpwAJtQ57wR6xsF0NLxpWkjJu4Exxer+y0BAmxudl2pCbJZXB0
-         s8wHmZdgs62nqz5HLUL8CikyKRTmtWfxKYvHQpbvhMT4M9eLIt+xPStnUfjqImeyY8SJ
-         6BfRq71N/EKv1qxb6BGEorOvJAVGsuoE20AcBf1vmIhTfDld8Du7XIA/k2Qfr/1v6CQ7
-         fcg2ew6rq46UtaOg5tCt/aKdd75BMIzPLjM6FrbuTgenT7XvaTGqCYcjuul229whmLRU
-         sjs8OSK2lBQzCpQLt7bziAF2kArm6eWxxTC+Rt+UXE/DgVU0c1XWAQcTmJi4ONiTSP/P
-         tUMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788411760; x=1789016560;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=LwFiTvSfOdYmNglr5FoVqN597kWfjGSwy7pj4LDNId8=;
-        b=p4Mbl+IpqSAh/qMqFYweZKD1HuR6vMw5lxiWfTWbYiRC37caI1NV5EwqUu7Nf1EP2N
-         tuv1VGpUmqmsYmGEfDBEyDc1+soVcS+fSCKVxOJ+eEz0HHKAie3AdR759KCQX6J/Sh4+
-         r2/hhdFuSmddrIpBLLc0TNmQjJ0JnFNUfCy9vHFITOZv2T/lC97Vosp6sEFG0XETYRDL
-         J6I0k1CEmUQzaGCWB1jCvUR+6qeIqHjR4FUmikPntE9+REsQic0X+F8kB1cPcTnxt+fN
-         mdtEPhDs155MMK72vSQAQxY03e++MXvyLKLb8aYr3Y2MLmcn9pat2FQiicOtZch0dmBJ
-         H6jA==
-X-Forwarded-Encrypted: i=1; AKwUvBxKli1st9sQZUj8ZfPtKotI9MUxnb32ycZJqiFHnUKADEDkhtR2MqM9E6+hENVRsXWyizJw1PiI7E4=@vger.kernel.org
-X-Gm-Message-State: AFuF++nWXESnrtPsQUPbRXEhQJNfIc+YWsTzmmqUtbYPJUwmSXQbFuU3
-	jl4TIfIB6U7THjd8IMOfau6YcNwvNZ0qAy0w/bYQ06/jgT5iJWtkTD3a+db0O90Q
-X-Gm-Gg: AYBFou0Ztc18gbrfU4yz0G89ld0DIKcQQ5oFHpyPKip7cu08mn10fEukPVRDytUYBfN
-	oNR4az3n0ZZ9NThIu6ovQjOpG82ojtn1DYMybsCoX7ZcGi6mBJxG9rxuRdnV+gYWqoQQzuKJIHI
-	9fzbBaUdtNg28ivsUXFfYLdMQIvf6sHltB2imh2qsZ/uUN3OlwdHDBu1iNbABqhv2WtT/ppbSvc
-	uZjsCer1xl7L3qK77WmBgEV4O6IaMQ+b9SCo6aM+nZNIHfRHxw4WLrXLTz8U2VLZnvDbfEJtkTc
-	/As+D6dszP1DBjyxUwb4LUOCfWtEfqMQVUKJ11c+kX576fkqI1ulqRGODsmOBalSZJWBcplefIs
-	KF2pmWSNwc43GVVTeYbeEUafWRK5UfaNkXpHVJoZ0pEBWrjhcMSymAHQ29weTTdvbtEedRaBzTG
-	qs4+jQMlBp65Bwq69Nnk0u0eFiUgcHh2jsV3Cu8DiE5R17qau2Q+33qsupWzEpPqjUv0PeZkkxg
-	Wwn0yNLCJtjUxXAm0mHMv7u2yx+aiE5i+Mhk0sF4s5K
-X-Received: by 2002:a05:6512:110d:b0:5b5:fae5:b241 with SMTP id 2adb3069b0e04-5b608559ac7mr3146149e87.14.1788411760490;
-        Wed, 02 Sep 2026 22:02:40 -0700 (PDT)
-Received: from ?IPV6:2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703? ([2a10:a5c0:800d:dd00:8fdf:935a:2c85:d703])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b606b1cd21sm1021897e87.29.2026.09.02.22.02.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2026 22:02:39 -0700 (PDT)
-Message-ID: <c2d07f77-1fe1-4d5c-af6b-703d4d767a83@gmail.com>
-Date: Thu, 3 Sep 2026 08:02:39 +0300
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="n6VXsavR";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="w+UmEGJu"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=28Schneider_Electric=29?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1788421614;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=xol/V+/hywJjcXli4Mhoxh/JGosWE3k6n8FZuFhDHPM=;
+	b=n6VXsavRSqljJ+gYz5Z/HOJECVFMmfmZWjJWUh63VMG8uBZ5qqB1MvaOUnAmC/Ptxn5yVI
+	NRoQF2REwmFImiBjSt/sRwon2O55DTR4kYJqArMnHcr0/KJfdnUzblKzBkk7ykrrlDB4bH
+	xoFbOQJP761eFDE7wGgPNFgWiwiN6PlzofbTSRjilSj0D93Q4nAZqKCAI0xAhHpxJkWj/i
+	Gtmf8on6GtMT/nYq4eO6eHztiTNNNi/uTici7gruSrgczYHZCtoTdQ9GID3MtrqiDkCqvS
+	kLLSIUMEq1ykN+qrEx3F7ftXJ0ZMV9MYYv19YxxTsblveUsvPy5ahV+2TecEkA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1788421614;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=xol/V+/hywJjcXli4Mhoxh/JGosWE3k6n8FZuFhDHPM=;
+	b=w+UmEGJuonaTsrz29FDKj0Voj8v82wHlaa2v0j9D86vK/JMpdpNTKJLU2U9EctJGCpmsHn
+	FZLtJjzTEZC8tnAw==
+Subject: [PATCH 0/4] time: time64_to_tm() cleanups
+Date: Thu, 03 Sep 2026 09:46:49 +0200
+Message-Id: <20260903-time-time64-to-tm-v1-0-660be972adfc@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 09/10] gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
-To: Linus Walleij <linusw@kernel.org>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
- Matti Vaittinen <matti.vaittinen@linux.dev>, Lee Jones <lee@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>,
- Bartosz Golaszewski <brgl@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Michael Walle <mwalle@kernel.org>, mfd@lists.linux.dev,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
- linux-rtc@vger.kernel.org
-References: <cover.1788346553.git.mazziesaccount@gmail.com>
- <5eb294e68b8d5d2c1d3a12b14a55dd2a9c075a09.1788346553.git.mazziesaccount@gmail.com>
- <CAD++jLkvELVwVD2B-OPF=mV8-F5xi7RZWJ7cvuyg2srnrJ2HLQ@mail.gmail.com>
-Content-Language: en-US, en-AU, en-GB, en-BW
-From: Matti Vaittinen <mazziesaccount@gmail.com>
-In-Reply-To: <CAD++jLkvELVwVD2B-OPF=mV8-F5xi7RZWJ7cvuyg2srnrJ2HLQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDC2ND3ZLM3FQwYWaiW5KvW5Kra2lmkJhskZScYm6YpgTUV1CUmpZZATY
+ zOra2FgCqd0B+YwAAAA==
+X-Change-ID: 20260831-time-time64-to-tm-960ac8bcd71f
+To: John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>, 
+ Stephen Boyd <sboyd@kernel.org>, Miroslav Lichvar <mlichvar@redhat.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788421614; l=1158;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=0alexXOhZ3pe8wwcPjr1HedjSmNCRv9G8JVAkGbb1Pk=;
+ b=j0JPZ6MToVAa8JONORlC+2a2H2bW576vTZQYxIz6pC3844++UjNG8fKupPKikaizIoHgYa3Ep
+ zIxeYIsUBW7DNrCGHr6t5IzYJc5WSQM6cGrIy//fEGiJo5/5Yq88+tn
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On 02/09/2026 15:39, Linus Walleij wrote:
-> Hi Matti,
-> 
-> thanks for your patch!
-> 
-> On Wed, Sep 2, 2026 at 1:07 PM Matti Vaittinen
-> <matti.vaittinen@linux.dev> wrote:
-> 
->> From: Matti Vaittinen <mazziesaccount@gmail.com>
->>
->> The ROHM BD73800 PMIC has 4 pins (named GPIO1, CLKOUT, FAULT_B and
->> EXTEN_OUT) which might have been set to operate as a GPI or GPO when OTP
->> (One Time Programmable memory) is written at device manufacturing.
->> Support the GPI/GPO use-case via GPIO framework.
->>
->> The default OTP for these pins is to not use any of them as GPI or GPO.
->> (The GPIO1 defaults as an ADC input regardless the naming). Hence the
->> driver assumes none of these pins is a GPI/GPO unless explicitly pointed
->> as GPI or GPO via device tree.
->>
->> Furthermore, pin's direction can't be changed after OTP configuration is
->> done. Also the default drive type for a GPO (CMOS / Open Drain) is set
->> by the OTP configuration. The BD73800 has a set of undocumented test
->> registers which should allow changing the drive type. Access to the test
->> register area or the test registers aren't documented and so this driver
->> does not support configuring the drive type even though it might be
->> doable.
->>
->> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-> 
-> Pretty neat with gpio-regmap isn't it? :)
+Speed up time64_to_tm() and its tests a bit.
+Also simplify drop the custom implementation of rtc_time64_to_tm()
+and the test for it.
 
-Yep. I like the added flexibility now that it has got those callbacks a 
-driver can register... ;)
+The series could be split. Then patches 1 and 2 go through timekeeping
+while 3 and 4 go through RTC.
 
-> Reviewed-by: Linus Walleij <linusw@kernel.org>
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Thomas Weißschuh (Schneider Electric) (4):
+      time: Avoid 64-bit by 64-bit division in time64_to_tm()
+      time: test: Avoid unnecessary divisions in time64_to_tm() test
+      rtc: lib: Implement time64_to_tm() in terms of time64_to_tm()
+      rtc: test: Remove test_rtc_lib.c
 
-Thanks!
+ drivers/rtc/Kconfig        |   9 ----
+ drivers/rtc/Makefile       |   2 -
+ drivers/rtc/lib.c          | 117 ++++++---------------------------------------
+ drivers/rtc/test_rtc_lib.c | 106 ----------------------------------------
+ kernel/time/time_test.c    |   6 +--
+ kernel/time/timeconv.c     |   4 +-
+ 6 files changed, 20 insertions(+), 224 deletions(-)
+---
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+change-id: 20260831-time-time64-to-tm-960ac8bcd71f
 
-Yours,
-	-- Matti
+Best regards,
+--  
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
--- 
-Matti Vaittinen
-Linux kernel developer at ROHM Semiconductors
-Oulu Finland
-
-~~ When things go utterly wrong vim users can always type :help! ~~
