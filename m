@@ -1,85 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC73E42122C
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:53:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42A8F3914EB
+	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:54:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788421985; cv=none; b=BLIgkTLVfeEQBz3AmMT9JEVx93+2kUkc/LZvxaUvcqDs7zC7nHuMehjZ46ZcXtmV8Bbblp2VKqTfu+jg+TphlmisQqsXIFqwo6ONDVLBtbINDnVuYJTXTyuDMvzOxhA1H4sBiRwqZdR0zOVKEcNo+SQulSrZNBoESL++dkHPQw0=
+	t=1788422048; cv=none; b=XooG6j/AQ9ATB7caqeKtM59BG0wiazIKIUaStdC5rYFGlaYkwaMx0Uq9q6j1TTQ3sjaps/eTEX6S+95LPd+IPFSkhJLQ13KKk4S+UmGX4ofu7+36YMMLo6NGxSCdeS6QZh8LdQ7uNvw2K6iZA+oVSRfP5/Deopwq8ut5OhPCSFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788421985; c=relaxed/simple;
-	bh=WFDqwfiLhzlLAxGgLTojwoFhRArb9ZzqLhJka+qIiuk=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=k1ZWxv340ecf6QwD+yTxTZzJxFoFNSDgY2q/CsegQLRqpJDezQo4hzWkbqCNdTiB3Icyy9my/d3/yZ56cwNUXMiN8YpLih2v1rvhcu9kBb2xuyLYxCGJtzZbAvg6QsNxqXsmBENvySMPQUYoRKgh/hXD7evllEIcIR99TCk+vbY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IF0Jy4lg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788422048; c=relaxed/simple;
+	bh=PWWspcTTLVUBDN6KjOgaWtlHsgJRjZhB8e3FQq8g33U=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mgRZOiUNBGgKrAs2umJNCCqiscy4cg8Da6+Daj01RUV4V8ZTHJ5fvVkDOo3X6zhaJAXvkK+EiSp0XP9p1W5bgcXI+WQ+cYm5/MsVVJYRUU7EtG5sRdL6jpLG35PpJ+eKA9e2mMcTkyWZQBt0YbM1ooWl9MCsKbLZ/b9mRmtrgic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZKEwGmKl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IF0Jy4lg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14811F01559
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:53:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZKEwGmKl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D9481F000E9;
+	Thu,  3 Sep 2026 07:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788421984;
-	bh=WFDqwfiLhzlLAxGgLTojwoFhRArb9ZzqLhJka+qIiuk=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=IF0Jy4lggG3pPTXJSNQn+Rwh3TEOTpmyYfE+DktBqwRfZizfuvky4VwQFHfIeBC9g
-	 1Nvf13iOUS0CPr1zHbrJNiAOxeOk7imw4esLbQkd7NNdIgJdl08bL1c2MuCMyv9MOt
-	 b8QgYJYpmquHHzxgaPdO3fmLu7DnkxCUXCtwzimGit5homuLPZhJYrnheqV6fAWKwx
-	 33isIPhWeQksPDx4G+0QmVXUiiBzMDajY+Y6nETg4Xg1apQi3keNH5aO3+Umy+WZ89
-	 OXZTXQPMGegc+JM8/erWgWF50CS+s7ayA3nQcK3i978tPyKVMJdNXyPXYBlS6RWH4w
-	 r5xFkQxPMOmSg==
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-39c86945164so18947441fa.1
-        for <linux-rtc@vger.kernel.org>; Thu, 03 Sep 2026 00:53:04 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxJ/yTqNkM4FNW13O15hTencsoE6TD+9IIGUFX5426vHeXrZUfFSZ0ZfgxuWdPrICRfA0/3qFpNw7s=@vger.kernel.org
-X-Gm-Message-State: AFuF++lPfFSXtlGJ4P2+OKE+xbTPxvSjv1Lx/8z/QRLiBq4IwTX41vBj
-	nzzjCeuAKk+Bo3OxdflN3+7thihrD2CAssdW3rS8SWjGbIthGP+yeSL9fOHzKNvBpbKqswocyue
-	YKpMiLDIo+hv2rrXiFfW2UM5wWfe5+tpNk0ojk2VIVg==
-X-Received: by 2002:a05:651c:2117:b0:3a3:52a7:3a1c with SMTP id
- 38308e7fff4ca-3a352a73adfmr18741561fa.4.1788421983258; Thu, 03 Sep 2026
- 00:53:03 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 3 Sep 2026 00:53:01 -0700
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 3 Sep 2026 00:53:01 -0700
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <57832670-6066-424d-a75f-4eb1f1f0cf73@gmail.com>
+	s=k20260515; t=1788422046;
+	bh=PWWspcTTLVUBDN6KjOgaWtlHsgJRjZhB8e3FQq8g33U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZKEwGmKlzIU4kCmpT9TwBkchOpJUQ29Vvuw+dj4XfJj+KpP6IHan0wFXHMNf/6FK4
+	 dSjhC+yGHCiKsWKekG4GG762X8GnMqAlbSrWBMqUq3eNR/zozABzrlKeInRgfGI+eZ
+	 5Qqtm0f/xExDMej8FYzagaXd7AGpOwybfzBQblBOisI7aJISC6DNHAXjTiH/N+jMCM
+	 42t7owBKXisXIpLCJSOj+N/0icJSm6R5fAMvKu2ZqNc/nFphvfpJrFBQMZKo2mF/4k
+	 zbm1f4q9fM+BJtlYJpZygySWZYyoRhUg8KiYojxvI61rEF5tqlt6zNVlIk8ch8okC1
+	 1s2sVLmzfU0lQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/4] rtc: test: Remove test_rtc_lib.c
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWggKFNjaG5laWRlciBFbGVjdHJpYyk=?= <thomas.weissschuh@linutronix.de>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+In-Reply-To: <20260903-time-time64-to-tm-v1-4-660be972adfc@linutronix.de>
+References: <20260903-time-time64-to-tm-v1-0-660be972adfc@linutronix.de>
+ <20260903-time-time64-to-tm-v1-4-660be972adfc@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 03 Sep 2026 07:54:05 +0000
+Message-Id: <20260903075406.1D9481F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <cover.1788346553.git.mazziesaccount@gmail.com>
- <5eb294e68b8d5d2c1d3a12b14a55dd2a9c075a09.1788346553.git.mazziesaccount@gmail.com>
- <CAMRc=MchpaOib+jgMniG7=BBYwB1yqLvJG1sMkjXfRaMFPodgA@mail.gmail.com> <57832670-6066-424d-a75f-4eb1f1f0cf73@gmail.com>
-Date: Thu, 3 Sep 2026 00:53:01 -0700
-X-Gmail-Original-Message-ID: <CAMRc=McED871rSf-_3Ahjjxg7QO56cZRuf_2=Xc7+Q4kwMGqnQ@mail.gmail.com>
-X-Gm-Features: AcwNN1W51dTT611YKOF8alZj0OVA9lXPGK61Ff-vrlum5Ji76Da9N2L8zMOMPh4
-Message-ID: <CAMRc=McED871rSf-_3Ahjjxg7QO56cZRuf_2=Xc7+Q4kwMGqnQ@mail.gmail.com>
-Subject: Re: [PATCH v3 09/10] gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
-To: Matti Vaittinen <mazziesaccount@gmail.com>
-Cc: Matti Vaittinen <matti.vaittinen@linux.dev>, Lee Jones <lee@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
-	Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
-	Jerome Brunet <jbrunet+clk@baylibre.com>, Linus Walleij <linusw@kernel.org>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Michael Walle <mwalle@kernel.org>, mfd@lists.linux.dev, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, 
-	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>, Bartosz Golaszewski <brgl@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 3 Sep 2026 07:00:24 +0200, Matti Vaittinen
-<mazziesaccount@gmail.com> said:
->>
->> Why not return PTR_ERR_OR_ZERO(devm_gpio_regmap_register())?
->
-> How strongly do you feel about it? It's not a big deal, but I always
-> find it a bit harder to read when functions / macros are called inside a
-> parameter list. Thus I'd rather keep it like this, just for the sake of
-> my own eyes :)
->
+> Now that rtc_time64_to_tm() is only a thin wrapper around time64_to_tm()
+> the dedicated test is not necessary anymore. time64_to_tm() is already
+> tested with a similar test in kernel/time/time_test.c
+>=20
+> Remove it.
+>=20
+> Signed-off-by: Thomas Wei=C3=9Fschuh (Schneider Electric) <thomas.weisssc=
+huh@linutronix.de>
 
-If you need to respin, please change it, if not, I've given my Ack and LGTM.
-Same above.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Bart
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903-time-time6=
+4-to-tm-v1-0-660be972adfc@linutronix.de?part=3D4
+
