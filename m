@@ -1,64 +1,151 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436AF42E42D
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:55:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7496A3ECBE5;
+	Thu,  3 Sep 2026 09:35:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788422104; cv=none; b=HIMdaPTKmj2m2hU0r/jLNi+2/FfSTIZlDg9+V6oR+INgXpkWmu9SZLoeV45yaOoylEWxbB1utrNKtQ6M182smYlLhQiHgzb2Ud09LZx5iapFWcbfjtNlqas9Ye//j6UiO88MrMSqJ0N08jvRHvFSF5Dgem4EpW6c9pOlK2H/wew=
+	t=1788428118; cv=none; b=mXjMhwbNqQ74ancpjkTcXML8xXkYs9vmTm+LoxC435HgOtWyqAOG2Zw9lLXJWlCM7gBpmkM6Wyb7M58h9DvVvMuU8SOgvBfVmWq8GQ5uP5RTgvbhjJNmiqecT0GZsoSfV5xbMpLUoWx1APIECtMYRNJcqCeQ31if4SQc6X5KmTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788422104; c=relaxed/simple;
-	bh=+Mb6iZQrjF+ZdWQ8lTjFBvamDuhCehH4y0dLEeatRY0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Lea1Aedbq4Wfws1EKSgtrP8pECgjM+2bWBktdi0GhbW2u9McF0avl9vIzp/TPNaaeIrFteCiqi20NjHQZbBsz+KfbmxtyLbeX5A3Z6W2SLvYK2T4kAeblReSrPXjymgIlc0IAOpQFoz/H3GqWrspjAwDW291wL3cGdcmoWf09Yw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C3yfuWNa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788428118; c=relaxed/simple;
+	bh=1pAFp0CsNyg9TAuh/LqWDr7GMY++gjQpVaVi0spcReA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=d9UZOf9A3m3DWn+wGiuvWPw+/cKN/WVkXLrxCwM61b5E18eEq8D1v/A5Pn6DpGtNQxIuh+wKI5LbvNnw8kUg5NJJWC7RxydV9CMna8PMAtc2+EwseGUVNg9m7Fr1Weg7e+9jsCSW+aH5U3OjKqZEylGlm8Ome80BLo+snXfpko4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UU/t6hzX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C3yfuWNa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CBC1F000E9;
-	Thu,  3 Sep 2026 07:55:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UU/t6hzX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 395BD1F00A3A;
+	Thu,  3 Sep 2026 09:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788422103;
-	bh=+Mb6iZQrjF+ZdWQ8lTjFBvamDuhCehH4y0dLEeatRY0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=C3yfuWNamI0gZsuPIialRI7nstTik5h0U1oItL8HevN8XOm6spdoRH0PrC5GWl5m8
-	 D7oFdjvaQNO3jQjtYSaEyQeO5LUYThKSU2ycrCK5pv+4DFXGZ/blV6inINMOqEPLH5
-	 Ml2oYdZzmkvETXkEt3aTnoYbSmHCee1UJP6yg4ObYWFQ18lvWcS/b2GaDiT4okZDPy
-	 XE8/NNkHQ9r3gQKVsCFyt9YvKF/+j57wbm7jPDz2Ranv2P4qYDto1/GG9iT5f4+uwH
-	 kyiDd/5tCgq/9koK5b+zL06FHdsh2FqCOOHX3/qUL2DftpHt6HenyKxRZZSN4HMz66
-	 hura2MEIl/QoQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] rtc: lib: Implement time64_to_tm() in terms of
- time64_to_tm()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWggKFNjaG5laWRlciBFbGVjdHJpYyk=?= <thomas.weissschuh@linutronix.de>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260903-time-time64-to-tm-v1-3-660be972adfc@linutronix.de>
-References: <20260903-time-time64-to-tm-v1-0-660be972adfc@linutronix.de>
- <20260903-time-time64-to-tm-v1-3-660be972adfc@linutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 03 Sep 2026 07:55:02 +0000
-Message-Id: <20260903075502.E9CBC1F000E9@smtp.kernel.org>
+	s=k20260515; t=1788428116;
+	bh=e4MqcvwfSek3Uh8sK+hGYqBTyKKqy+6qL3osBo5IZyQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=UU/t6hzXnpRkQcrdXubrgSCptBhgXKgc89Lf2kykuVir48C9US3P0/7/+W3SyGe9F
+	 IuuOBgoZ9R7nnsAoZwEhUOl9EcPWoytwnsR3RiwbPF1jU5ktFY96+nW9Y0XkSuuXFG
+	 mpzijgIMLDeVkWyNJEtCTy44Vdus/P/9ijSfI4fQ78cA9/xQZQP1Al6J5FpLSh7ovK
+	 89UDuaUaGDz6s7vrJ99mheOY7p5AqB/6ALgb/2nfqZH+nrkY3l2OkBH0P1Da8Ysjxl
+	 eHwn2hZ1FFoiK9m5DNAlzM4Q7SA8YcxHcta3NLNnhTRYk57DqCR9JmjeuOFOR8sdkk
+	 mSYpT7YQ5zVgA==
+Date: Thu, 3 Sep 2026 11:35:13 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Markus Probst <markus.probst@posteo.de>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, 
+	Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Michael Langer <michael.brainbug.langer@googlemail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Linus Walleij <linusw@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v8 1/6] dt-bindings: rtc: Add pinctrl for S35390A
+Message-ID: <20260903-honest-pink-poodle-a3f64a@quoll>
+References: <20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de>
+ <20260831-rtc_s35390a_int1-v8-1-dac1dc86ce1f@posteo.de>
+ <20260901-proud-furious-bison-0edeec@quoll>
+ <c4b9b6c6033774a02be50cf07a6729a6b1e9e5ba.camel@posteo.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <c4b9b6c6033774a02be50cf07a6729a6b1e9e5ba.camel@posteo.de>
 
-> The core timekeeping code already provides a function to convert seconds
-> since the epoch to a 'struct tm'. This can be reused for a the
-> 'struct rtc_time' conversion.
->=20
-> time64_to_tm() can handle a larger range of dates. It is also
-> 20% slower, but this function is not a hot-path anyways.
-> On the other hand this saves ~600 bytes of .text.
->=20
-> Signed-off-by: Thomas Wei=C3=9Fschuh (Schneider Electric) <thomas.weisssc=
-huh@linutronix.de>
+On Tue, Sep 01, 2026 at 01:28:36PM +0000, Markus Probst wrote:
+> On Tue, 2026-09-01 at 12:05 +0200, Krzysztof Kozlowski wrote:
+> > > +patternProperties:
+> > > +  "^pins":
+> > > +    type: object
+> > > +    additionalProperties: false
+> > > +
+> > > +    patternProperties:
+> > > +      "-pins$":
+> > > +        type: object
+> > > +        additionalProperties: false
+> > > +
+> > > +        allOf:
+> > > +          - $ref: /schemas/pinctrl/pinmux-node.yaml#
+> > > +
+> > > +        properties:
+> > > +          pins:
+> > > +            minItems: 1
+> > > +            items:
+> > > +              enum:
+> > > +                - int1
+> > > +                - int2
+> > > +
+> > > +          function:
+> > > +            description: |
+> > > +              Pin function:
+> > > +              - ignore:  Preserve the previous state.
+> > > +              - disable: Disable pin output.
+> > > +              - wakeup:  Output wakes up the system.
+> > > +              - clock:   Output clock pulse.
+> > > +              - pmin1:   Minute periodical output with 50% duty.
+> > > +              - pmin2:   Minute periodical output L for 7.81 ms.
+> > > +                         Can only be used with pin int1.
+> > > +            enum:
+> > > +              - ignore
+> > > +              - disable
+> > > +              - wakeup
+> > > +              - clock
+> > > +              - pmin1
+> > > +              - pmin2
+> > > +
+> > > +        required:
+> > > +          - pins
+> > > +          - function
+> > > +
+> > > +required:
+> > > +  - compatible
+> > > +  - reg
+> > > +
+> > > +unevaluatedProperties: false
+> > > +
+> > > +examples:
+> > > +  - |
+> > > +    i2c {
+> > > +        #address-cells = <1>;
+> > > +        #size-cells = <0>;
+> > > +
+> > > +        rtc@30 {
+> > > +            compatible = "sii,s35390a";
+> > > +            reg = <0x30>;
+> > > +            pinctrl-0 = <&rtc_pins_default>;
+> > > +            pinctrl-names = "default";
+> > > +
+> > > +            wakeup-parent = <&int>;
+> > 
+> > I don't understand this need. Device does not generate interrupts - no
+> > interrupts property - thus how can it wakeup?
+> It is just an example.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+But examplep should be complete and represent some real thing, not just
+stiched random properties.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903-time-time6=
-4-to-tm-v1-0-660be972adfc@linutronix.de?part=3D3
+> 
+> > 
+> > As explained in commit msg, the signal at int1 goes to the SoC, right?
+> I assume.
+> 
+> > So where does it go? To which pin of which device? &int?
+> For my Synology DS923+ NAS, I do not have schematics. I only know for
+> sure from source code that INT1 is used for wakeup and I can confirm
+> that this does indeed wake the device up. 
+> 
+> > 
+> > Can you show complete upstream DTS using this?
+> There is arch/arm/boot/dts/ti/omap/am3517-som.dtsi, which has the pin
+> output of INT1 routed to a gpio pin. INT2 isn't connected at all.
+> According to the public schematic [1], this looks accurate.
+
+And INT1 is part of the interrupts.
+
+What I do not get, how this can wakeup anything without generating
+an interrupt?
+
+Best regards,
+Krzysztof
 
