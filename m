@@ -1,54 +1,57 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42A8F3914EB
-	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:54:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 436AF42E42D
+	for <linux-rtc@vger.kernel.org>; Thu,  3 Sep 2026 07:55:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788422048; cv=none; b=XooG6j/AQ9ATB7caqeKtM59BG0wiazIKIUaStdC5rYFGlaYkwaMx0Uq9q6j1TTQ3sjaps/eTEX6S+95LPd+IPFSkhJLQ13KKk4S+UmGX4ofu7+36YMMLo6NGxSCdeS6QZh8LdQ7uNvw2K6iZA+oVSRfP5/Deopwq8ut5OhPCSFA=
+	t=1788422104; cv=none; b=HIMdaPTKmj2m2hU0r/jLNi+2/FfSTIZlDg9+V6oR+INgXpkWmu9SZLoeV45yaOoylEWxbB1utrNKtQ6M182smYlLhQiHgzb2Ud09LZx5iapFWcbfjtNlqas9Ye//j6UiO88MrMSqJ0N08jvRHvFSF5Dgem4EpW6c9pOlK2H/wew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788422048; c=relaxed/simple;
-	bh=PWWspcTTLVUBDN6KjOgaWtlHsgJRjZhB8e3FQq8g33U=;
+	s=arc-20240116; t=1788422104; c=relaxed/simple;
+	bh=+Mb6iZQrjF+ZdWQ8lTjFBvamDuhCehH4y0dLEeatRY0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mgRZOiUNBGgKrAs2umJNCCqiscy4cg8Da6+Daj01RUV4V8ZTHJ5fvVkDOo3X6zhaJAXvkK+EiSp0XP9p1W5bgcXI+WQ+cYm5/MsVVJYRUU7EtG5sRdL6jpLG35PpJ+eKA9e2mMcTkyWZQBt0YbM1ooWl9MCsKbLZ/b9mRmtrgic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZKEwGmKl; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Lea1Aedbq4Wfws1EKSgtrP8pECgjM+2bWBktdi0GhbW2u9McF0avl9vIzp/TPNaaeIrFteCiqi20NjHQZbBsz+KfbmxtyLbeX5A3Z6W2SLvYK2T4kAeblReSrPXjymgIlc0IAOpQFoz/H3GqWrspjAwDW291wL3cGdcmoWf09Yw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C3yfuWNa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZKEwGmKl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D9481F000E9;
-	Thu,  3 Sep 2026 07:54:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C3yfuWNa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9CBC1F000E9;
+	Thu,  3 Sep 2026 07:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788422046;
-	bh=PWWspcTTLVUBDN6KjOgaWtlHsgJRjZhB8e3FQq8g33U=;
+	s=k20260515; t=1788422103;
+	bh=+Mb6iZQrjF+ZdWQ8lTjFBvamDuhCehH4y0dLEeatRY0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZKEwGmKlzIU4kCmpT9TwBkchOpJUQ29Vvuw+dj4XfJj+KpP6IHan0wFXHMNf/6FK4
-	 dSjhC+yGHCiKsWKekG4GG762X8GnMqAlbSrWBMqUq3eNR/zozABzrlKeInRgfGI+eZ
-	 5Qqtm0f/xExDMej8FYzagaXd7AGpOwybfzBQblBOisI7aJISC6DNHAXjTiH/N+jMCM
-	 42t7owBKXisXIpLCJSOj+N/0icJSm6R5fAMvKu2ZqNc/nFphvfpJrFBQMZKo2mF/4k
-	 zbm1f4q9fM+BJtlYJpZygySWZYyoRhUg8KiYojxvI61rEF5tqlt6zNVlIk8ch8okC1
-	 1s2sVLmzfU0lQ==
+	b=C3yfuWNamI0gZsuPIialRI7nstTik5h0U1oItL8HevN8XOm6spdoRH0PrC5GWl5m8
+	 D7oFdjvaQNO3jQjtYSaEyQeO5LUYThKSU2ycrCK5pv+4DFXGZ/blV6inINMOqEPLH5
+	 Ml2oYdZzmkvETXkEt3aTnoYbSmHCee1UJP6yg4ObYWFQ18lvWcS/b2GaDiT4okZDPy
+	 XE8/NNkHQ9r3gQKVsCFyt9YvKF/+j57wbm7jPDz2Ranv2P4qYDto1/GG9iT5f4+uwH
+	 kyiDd/5tCgq/9koK5b+zL06FHdsh2FqCOOHX3/qUL2DftpHt6HenyKxRZZSN4HMz66
+	 hura2MEIl/QoQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/4] rtc: test: Remove test_rtc_lib.c
+Subject: Re: [PATCH 3/4] rtc: lib: Implement time64_to_tm() in terms of
+ time64_to_tm()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWggKFNjaG5laWRlciBFbGVjdHJpYyk=?= <thomas.weissschuh@linutronix.de>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260903-time-time64-to-tm-v1-4-660be972adfc@linutronix.de>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260903-time-time64-to-tm-v1-3-660be972adfc@linutronix.de>
 References: <20260903-time-time64-to-tm-v1-0-660be972adfc@linutronix.de>
- <20260903-time-time64-to-tm-v1-4-660be972adfc@linutronix.de>
+ <20260903-time-time64-to-tm-v1-3-660be972adfc@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 03 Sep 2026 07:54:05 +0000
-Message-Id: <20260903075406.1D9481F000E9@smtp.kernel.org>
+Date: Thu, 03 Sep 2026 07:55:02 +0000
+Message-Id: <20260903075502.E9CBC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> Now that rtc_time64_to_tm() is only a thin wrapper around time64_to_tm()
-> the dedicated test is not necessary anymore. time64_to_tm() is already
-> tested with a similar test in kernel/time/time_test.c
+> The core timekeeping code already provides a function to convert seconds
+> since the epoch to a 'struct tm'. This can be reused for a the
+> 'struct rtc_time' conversion.
 >=20
-> Remove it.
+> time64_to_tm() can handle a larger range of dates. It is also
+> 20% slower, but this function is not a hot-path anyways.
+> On the other hand this saves ~600 bytes of .text.
 >=20
 > Signed-off-by: Thomas Wei=C3=9Fschuh (Schneider Electric) <thomas.weisssc=
 huh@linutronix.de>
@@ -57,5 +60,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903-time-time6=
-4-to-tm-v1-0-660be972adfc@linutronix.de?part=3D4
+4-to-tm-v1-0-660be972adfc@linutronix.de?part=3D3
 
