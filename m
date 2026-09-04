@@ -1,105 +1,218 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B921A38333F
-	for <linux-rtc@vger.kernel.org>; Fri,  4 Sep 2026 08:24:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77A08438029
+	for <linux-rtc@vger.kernel.org>; Fri,  4 Sep 2026 10:48:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788510250; cv=none; b=rv3S5k/9U81Ms9Lhhiq++DavrKXrXbfIx+oH70+WtdDmnLz9W2WglXbGm01MDHkN9Ek6Z66St6vb5nLwrVlAGSm2APQCOV8ewi0Ro9a+MrLvOLJGk8d3874+HnwAy8bKJYxzcWniKjb0pPOEtqoKPGO9Ofx9JsUQrExHQsBz4iY=
+	t=1788518888; cv=none; b=Oo1LIrBF6Gqb2JDBN761VCQEAeBK7QqYDaOmhvUVLZ03TCBo1NV1ZOuvNRprkvIf8Zs1ekYjA/VAbNfzJVLx2jVemxDtkyRTWhyaYzOz4+Q0GNEdvOoP4C2izZxKOi1xEvdQ7U5VF7Q/MSDHVDvvnYAg6E1TrfcuyNWAZ0fpSbU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788510250; c=relaxed/simple;
-	bh=bOFX6B1cMLWK/8rdWZyVjQRxmhZreHCtlJQd0747/0g=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=td6X3IZCrD/VydsgizD4/F+1ify2bV+EqumDBUdQ0DWC/KQZbw74nh3Agg+sMmRBK6+sevAtYJf+360RbmEr8oY/UIxApNQeipzfsJXNYOr4BESEIc0I/o1aXIgkMTr6HgINyFcWdFE/NrpKwQEqWXO2VN8nKs6ohBq3ng6D54o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=RZT2XFGa; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1788518888; c=relaxed/simple;
+	bh=8Pwg7mAyZQOld8TWfdbWMimIhOeca8eZ59WqtIuVCEQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OtLjMYhfbAdjgadaPzpNDKIahykTG0kD0SAILiRuUXEK7yPnwz2JKE52JtuN3UMJS6qW5to+qbFscgpZZWIaxiTUqr4ledH8l2MEmQL7FUwn5eGr60cIbEGONEYFwyhtEiFsR7NvJ9QSYSuxz6Yv56MjHDzPV++JWrjrUPqPVUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YKk3/YyB; arc=none smtp.client-ip=209.85.161.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="RZT2XFGa"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4956869750eso5614965e9.2
-        for <linux-rtc@vger.kernel.org>; Fri, 04 Sep 2026 01:24:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YKk3/YyB"
+Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-6b12942ed04so651345eaf.1
+        for <linux-rtc@vger.kernel.org>; Fri, 04 Sep 2026 03:48:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1788510246; x=1789115046; darn=vger.kernel.org;
-        h=content-type:mime-version:message-id:date:references:in-reply-to
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bOFX6B1cMLWK/8rdWZyVjQRxmhZreHCtlJQd0747/0g=;
-        b=RZT2XFGabeGVMYnYuvbApCELKeWCwlHJ7lJ6KrQziN9fgyhdIvkR2XBo8FB+9O/j9K
-         txor+j0jFmjyAs51yleBFwGr3x1C53w2WPWPpZUK5tphVzsn6ty8xAz54bkohQgLzxgr
-         gzQzpiVnhNF6Ckntq5i2mdVGVxuUPUHg7iO+CCstjqAO6U+xeoJwsrov1RlpSVDc4JId
-         cYDPl+BppRR12QBd6HVdiAPWBVguDj+/7xRZZ+UawR9CudjeTm1NCxPj0jAVjDNvPcM1
-         1pcg0JE+xooZ1PI1wjH/8cbUB/XMO/yyqsnllSQvJhvwEjMOHlLldTLUw4D0vofurr6N
-         aQwQ==
+        d=gmail.com; s=20251104; t=1788518885; x=1789123685; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=V2A0zeO3ugV0JUUNHg2Amdc4tuaijpGdF0pZT16CH0g=;
+        b=YKk3/YyBdVcfdC1Rwy3GkOTpp/UmfGDckmpxeLBFkzzSopXSMZyq1+Co62F1Ss+23e
+         XiA0uWpspcEQhzt2T7zkM1fEpFny64xhPBflThHOiRYL9SbfNy5Xx3ZRnKsyDk1O1WYd
+         8k4Tw2h0gPs3BKN8nJqgQ9FJwt5Cpr40WkQJSQkaDJIogunbfCxXpLEFQLXHCgGjfwlK
+         KeqwNWXZi/56MzZx/TUxY7ZGQhN3NuzOg2etY62ZevTFUDEZImN+3LACOfqF2/w2phPH
+         Q5yORmsDRkkzRo/8fIghPEVwAi0xJNAqa3NThtd9hrAFvALKCPvtcii7O8Mtlwx9h89u
+         b9ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788510246; x=1789115046;
-        h=content-type:mime-version:message-id:date:references:in-reply-to
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=bOFX6B1cMLWK/8rdWZyVjQRxmhZreHCtlJQd0747/0g=;
-        b=p37PPAMmXVvi6aTl+1iZdegTF0OsSNWFJInaZA8nhfIVD3GJJIN0rDcA7hlvWM5PTx
-         fP9Y+6cq6LJDrujQG6Lrq9Xj8+GfCvQBap1QDElV3CkIxrvCYIsvE5OvPf6IheKTrn6+
-         QQf0u5K+LZ+BQE2Ah0p3eJBIjWBH7pinbBIQR+zTEU1YTKGs3l99IZ7HrFStftFWGNWC
-         4fPeJC5hjqo2dzObLGuTG0p1XE8a8PAMNhkt3P1q265v9icwRL05xkrOOnoFxtE5W3B7
-         hum3qAfabRNnewAmAebFO0KitTA0So+B0R1JGWERsxHEnPQu7PUL1Ctan3cckktSoDdy
-         XQyA==
-X-Forwarded-Encrypted: i=1; AKwUvBwupopwA0w+1IMo2IELIuyORKcHNjwhIHOCVwlmDH6iW0ivS+uhkpwWxZMV6hy1Ott1n8kz5D5Z/8Q=@vger.kernel.org
-X-Gm-Message-State: AFuF++kSc1KslXQLnd0oHNykVoYw1grkwnAHLcVBh9G7ZAqwdC/Ifzxn
-	Rl7ISWGgEIQmg4uKUJ/w4BqnwAg/s2EeWsafwzixE5uWKTJ+HXI2lzwS5/AYjwwzq88=
-X-Gm-Gg: AYBFou1kbFVqJnIHYeu1HqYNoBpBh3ulwP6kf6XHDgbKVey0FPg0jc7fphhy6US679/
-	U0wOmNLeuS9wgWwXzcMXgkzsAc6qi5uEUdxrAxo0uNDWFyxJj7QncFME4JrhjNVALxbVKboncem
-	Q0UveDy252RWKlWH3ny2ipoXUZJW/tCXAPbuadGcyKRN+o75PFYOzAQBBriIMDY7VYk3Cpannrz
-	qXjWJNX8t+F+mc0I9W+uhv3g2afQhmfJEUQYAtp2Nn5w2uAm+Vr/QqS5TxJKunFg9qqcBzx4P4O
-	wJ46OyDkVKHL6KHrK9ZCGICqtyKSHoNq3L5gPHhC/+BYvPCx3EqvX1rs7TQreqV6zRTlZmlQrBt
-	35mk6DbSIWOCtsE1EI2vgoLMMRE0zHuFdPScGz5zcfFyVD6UJjq8725p4AUfWk2eykiCFXLVYon
-	IfO6H6+1Edg/LHx8CPOQPTTe00QrHabMISYcrrDFSGL6HaNs0FnHFjGnMlpisAgNwBANtHGMnlH
-	8Lach11zfhchElnEA==
-X-Received: by 2002:a05:600c:a44:b0:49c:dcec:bd27 with SMTP id 5b1f17b1804b1-49cf821e7a5mr40764145e9.8.1788510246002;
-        Fri, 04 Sep 2026 01:24:06 -0700 (PDT)
-Received: from localhost (82-67-6-57.subs.proxad.net. [82.67.6.57])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485885bfe14sm4632933f8f.35.2026.09.04.01.24.04
+        d=1e100.net; s=20251104; t=1788518885; x=1789123685;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=V2A0zeO3ugV0JUUNHg2Amdc4tuaijpGdF0pZT16CH0g=;
+        b=eF6Ptj/Sc5BFJmd8mT7xuUVf0quFvmjsDDAzlF60JiQsG5mW8T5rGt/h8c+f+ghSq6
+         1IwgN2vT8o5DuNTlznfXnN+8jZM+cDt2Dhx2Jc3vUVMxcACaO4H73pFR9p77a2hKpZuZ
+         eKzJNbuKkKTEA/ksYGuHwOlbgm5tyGN0tBQUdDleQLjHl5LY5lxD0gdVX4CgXgBjXvj3
+         CbtYpAy/ZiPNf1jD0Zbv4D6MElxejg5pAQP5zI/x1i3vC7XUGKKf+Miea0zehY4+2iqU
+         1EACt86bewntWK/rfufPphJ0qeV9HzUkD4G/lZ2kl7+gEg+rVT+snolF4/lZthgrE9d5
+         vuYw==
+X-Forwarded-Encrypted: i=1; AKwUvByRnjJJEMfPt/CemgsAIEys3R1+mq4AWpXfMIXrFFNdAGMAthKU6qgMSK3Xub+s5c8JnIkVTJO6+bI=@vger.kernel.org
+X-Gm-Message-State: AFuF++lMdFg7JEmKu9+K5w/tpaqFLDE+ZiS5j9iGwyVdX1Slu4c6zwDM
+	wKiSdln2mksFN43rwpy/mXqOUAucsHptyMCUmWyc89zLEx9mp1oLNxZ1
+X-Gm-Gg: AYBFou3krcJWtjgNMCHkHUcfArM0N0fVBBudHftdwc5X1eBb2VP3qzrpbM32jgrn72T
+	X6OaSe+Fbw61wrwhyjgGiV2htR02AsaSoFHeD8H9NfrzqE+V8lvi9Wa4r1qYGXOq2C08Kp28dWB
+	YNaUABlQuRBkFs9+X8W+eMuMxmrUXB1lOX3HS7NrAK6NJAvzXyjBM0kpQEHzkQXVp+Hq0omIzUf
+	AQIDp9BiWYv/k8KMo5K7vY/ZMDWDbMB29H3o0igZKzBKQAVB6PXJ4DwnnzsxkU/cnnXQVEoeQuM
+	3pyLLv4ewmEVxvlfA2fqlAxYZQsElVwuphZvLc05ozhFe07jgHBBnjLElcavq+YHNT7uS4L0zac
+	JQX2mWK2x9FFU7/monw8TcMlOk59dWKSE1pq9AJ5RVWL53mclJtqCL1baZpKgfibTAxouqLYoGZ
+	mXdD7rw4NRhM24/+smbAW57nVlUJ8VI0sXwW1ncTohSUnb8urbUKjO1J9HxLlM4FZAIelI8+8WE
+	R/87CfWUcfyXoE=
+X-Received: by 2002:a05:6820:809:b0:6b7:83c5:fde9 with SMTP id 006d021491bc7-6b783c6033amr1231122eaf.42.1788518885125;
+        Fri, 04 Sep 2026 03:48:05 -0700 (PDT)
+Received: from volcano9f6e-hostos.amd.com ([165.204.217.251])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-143243bfbe3sm5858825c88.11.2026.09.04.03.48.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2026 01:24:05 -0700 (PDT)
-From: Jerome Brunet <jbrunet@baylibre.com>
-To: Matti Vaittinen <matti.vaittinen@linux.dev>, Matti Vaittinen
- <mazziesaccount@gmail.com>, Matti Vaittinen
- <matti.vaittinen@fi.rohmeurope.com>, Matti Vaittinen
- <matti.vaittinen@linux.dev>
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Liam
- Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti
- Vaittinen <mazziesaccount@gmail.com>, Stephen Boyd <sboyd@kernel.org>,
- Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet
- <jbrunet+clk@baylibre.com>, Linus Walleij <linusw@kernel.org>, Bartosz
- Golaszewski <brgl@kernel.org>, Alexandre Belloni
- <alexandre.belloni@bootlin.com>, Michael Walle <mwalle@kernel.org>,
- mfd@lists.linux.dev, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v3 08/10] clk: bd718x7: Support ROHM BD73800
-In-Reply-To: <2a74fea679420d147ab1029943ff071628dc8c5a.1788346553.git.mazziesaccount@gmail.com>
-References: <cover.1788346553.git.mazziesaccount@gmail.com>
- <2a74fea679420d147ab1029943ff071628dc8c5a.1788346553.git.mazziesaccount@gmail.com>
-Date: Fri, 04 Sep 2026 10:24:03 +0200
-Message-ID: <1jik4ll90c.fsf@starbuckisacylon.baylibre.com>
+        Fri, 04 Sep 2026 03:48:04 -0700 (PDT)
+From: Hemanth Selam <hemanth.selam@gmail.com>
+To: Joshua Kinard <linux@kumba.dev>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-amlogic@lists.infradead.org
+Subject: [PATCH] rtc: fix typos in comments
+Date: Fri,  4 Sep 2026 16:17:54 +0530
+Message-ID: <20260904104758.23905-1-hemanth.selam@gmail.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On mer. 02 sept. 2026 at 14:05, Matti Vaittinen <matti.vaittinen@linux.dev> wrote:
+Fix typos in comments, reported by scripts/checkpatch.pl using the
+misspelling list in scripts/spelling.txt.  Only touches comments, no code
+changes.
 
-> From: Matti Vaittinen <mazziesaccount@gmail.com>
->
-> The ROHM BD73800 PMIC has a 32.768 kHz clock gate. Add support for
-> controlling this clock.
->
-> NOTE: The CLKOUT pin can be muxed by an OTP option. On some OTP
-> configurations the CLKOUT is not outputting the clk signal.
->
-> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
->
+Assisted-by: Cursor:claude-opus-5
+Signed-off-by: Hemanth Selam <hemanth.selam@gmail.com>
+---
+ drivers/rtc/rtc-ds1685.c   | 6 +++---
+ drivers/rtc/rtc-meson.c    | 2 +-
+ drivers/rtc/rtc-pcf8583.c  | 2 +-
+ drivers/rtc/rtc-rk808.c    | 2 +-
+ drivers/rtc/rtc-sa1100.c   | 2 +-
+ drivers/rtc/rtc-spear.c    | 2 +-
+ include/linux/rtc/ds1685.h | 4 ++--
+ 7 files changed, 10 insertions(+), 10 deletions(-)
 
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
+index 5fc8e36b1abf..beb987b76f24 100644
+--- a/drivers/rtc/rtc-ds1685.c
++++ b/drivers/rtc/rtc-ds1685.c
+@@ -1231,7 +1231,7 @@ ds1685_rtc_probe(struct platform_device *pdev)
+ 		dev_warn(&pdev->dev,
+ 			 "Main battery is exhausted! RTC may be invalid!\n");
+ 
+-	/* Check the auxillary battery.  It is optional. */
++	/* Check the auxiliary battery.  It is optional. */
+ 	if (!(rtc->read(rtc, RTC_EXT_CTRL_4A) & RTC_CTRL_4A_VRT2))
+ 		dev_warn(&pdev->dev,
+ 			 "Aux battery is exhausted or not available.\n");
+@@ -1395,7 +1395,7 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
+ 		rtc->write(rtc, RTC_CTRL_A, ctrla);
+ 
+ 		/*
+-		 * Read Control 4A and check the status of the auxillary
++		 * Read Control 4A and check the status of the auxiliary
+ 		 * battery.  This must be present and working (VRT2 = 1)
+ 		 * for wakeup and kickstart functionality to be useful.
+ 		 */
+@@ -1407,7 +1407,7 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
+ 			rtc->write(rtc, RTC_EXT_CTRL_4A, ctrl4a);
+ 
+ 			/*
+-			 * The auxillary battery is present and working.
++			 * The auxiliary battery is present and working.
+ 			 * Enable extended functions (ABE=1), enable
+ 			 * wake-up (WIE=1), and enable kickstart (KSE=1)
+ 			 * in Control 4B.
+diff --git a/drivers/rtc/rtc-meson.c b/drivers/rtc/rtc-meson.c
+index 21eceb9e2e13..44bcc0678dee 100644
+--- a/drivers/rtc/rtc-meson.c
++++ b/drivers/rtc/rtc-meson.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * RTC driver for the interal RTC block in the Amlogic Meson6, Meson8,
++ * RTC driver for the internal RTC block in the Amlogic Meson6, Meson8,
+  * Meson8b and Meson8m2 SoCs.
+  *
+  * The RTC is split in to two parts, the AHB front end and a simple serial
+diff --git a/drivers/rtc/rtc-pcf8583.c b/drivers/rtc/rtc-pcf8583.c
+index df5e20cbc26c..d0ebf4fd227b 100644
+--- a/drivers/rtc/rtc-pcf8583.c
++++ b/drivers/rtc/rtc-pcf8583.c
+@@ -7,7 +7,7 @@
+  *
+  *  Driver for PCF8583 RTC & RAM chip
+  *
+- *  Converted to the generic RTC susbsystem by G. Liakhovetski (2006)
++ *  Converted to the generic RTC subsystem by G. Liakhovetski (2006)
+  */
+ #include <linux/module.h>
+ #include <linux/i2c.h>
+diff --git a/drivers/rtc/rtc-rk808.c b/drivers/rtc/rtc-rk808.c
+index 59b8e9a30fe6..718f19b5911f 100644
+--- a/drivers/rtc/rtc-rk808.c
++++ b/drivers/rtc/rtc-rk808.c
+@@ -295,7 +295,7 @@ static int rk808_rtc_alarm_irq_enable(struct device *dev,
+ 
+ /*
+  * We will just handle setting the frequency and make use the framework for
+- * reading the periodic interupts.
++ * reading the periodic interrupts.
+  *
+  * @freq: Current periodic IRQ freq:
+  * bit 0: every second
+diff --git a/drivers/rtc/rtc-sa1100.c b/drivers/rtc/rtc-sa1100.c
+index 26b2f4184ecc..144bb6fd8f6b 100644
+--- a/drivers/rtc/rtc-sa1100.c
++++ b/drivers/rtc/rtc-sa1100.c
+@@ -228,7 +228,7 @@ int sa1100_rtc_init(struct platform_device *pdev, struct sa1100_rtc *info)
+ 	 * initialization is unknown and could in principle happen during
+ 	 * normal processing.
+ 	 *
+-	 * Notice that clearing bit 1 and 0 is accomplished by writting ONES to
++	 * Notice that clearing bit 1 and 0 is accomplished by writing ONES to
+ 	 * the corresponding bits in RTSR. */
+ 	writel_relaxed(RTSR_AL | RTSR_HZ, info->rtsr);
+ 
+diff --git a/drivers/rtc/rtc-spear.c b/drivers/rtc/rtc-spear.c
+index 959acff8faff..74d4aa96826a 100644
+--- a/drivers/rtc/rtc-spear.c
++++ b/drivers/rtc/rtc-spear.c
+@@ -43,7 +43,7 @@
+ #define YEARS_UNITS		(0xf<<16)	/* years units position */
+ #define YEARS_TENS		(0xf<<20)	/* years tens position */
+ #define YEARS_HUNDREDS		(0xf<<24)	/* years hundereds position */
+-#define YEARS_MILLENIUMS	(0xf<<28)	/* years millenium position */
++#define YEARS_MILLENIUMS	(0xf<<28)	/* years millennium position */
+ 
+ /* MASK SHIFT TIME_REG & ALARM_TIME_REG*/
+ #define SECOND_SHIFT		0x00		/* seconds units */
+diff --git a/include/linux/rtc/ds1685.h b/include/linux/rtc/ds1685.h
+index 8ec0ebfaef04..55d3edc7e972 100644
+--- a/include/linux/rtc/ds1685.h
++++ b/include/linux/rtc/ds1685.h
+@@ -200,7 +200,7 @@ struct ds1685_rtc_platform_data {
+  * access to the extended NV-SRAM by automatically incrementing the address
+  * register when they are read from or written to.
+  */
+-#define RTC_CTRL_4A_VRT2	BIT(7)	/* Auxillary Battery Status */
++#define RTC_CTRL_4A_VRT2	BIT(7)	/* Auxiliary Battery Status */
+ #define RTC_CTRL_4A_INCR	BIT(6)	/* Increment-in-Progress Status */
+ #define RTC_CTRL_4A_PAB		BIT(3)	/* Power-Active Bar Control */
+ #define RTC_CTRL_4A_RF		BIT(2)	/* RAM-Clear Flag */
+@@ -215,7 +215,7 @@ struct ds1685_rtc_platform_data {
+ /*
+  * Bit names in Extended Control Register 4B.
+  */
+-#define RTC_CTRL_4B_ABE		BIT(7)	/* Auxillary Battery Enable */
++#define RTC_CTRL_4B_ABE		BIT(7)	/* Auxiliary Battery Enable */
+ #define RTC_CTRL_4B_E32K	BIT(6)	/* Enable 32.768Hz on SQW Pin */
+ #define RTC_CTRL_4B_CS		BIT(5)	/* Crystal Select */
+ #define RTC_CTRL_4B_RCE		BIT(4)	/* RAM Clear-Enable */
+-- 
+2.48.1
+
