@@ -1,76 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284601ABEDE
-	for <linux-rtc@vger.kernel.org>; Sun,  6 Sep 2026 11:18:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9790D449B26
+	for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2026 08:43:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788693538; cv=none; b=Az7dfDWPVb5D+getLB5IyXX2f67J++Nmtmc+YeZ1ZJa8H8z72syqxFfGtG9tuuBdaydfLD10nvwV1+mP7SWSZtDoFJ7Ex8EHqxa/RwMn+hEq11dg+B6fPjlZXFh2U/7Pe6aneoMqwP5wnFsTZfmgiNkrSSQJKcdZYqRAX4TBrTU=
+	t=1788770606; cv=none; b=ZhJonY7wv8+rqssAJEDdgOYVkm/xW0JJzVG5A09lZ/XNCkz9VpPEKCyGbjjn+Ix4ImK1RR2423lxQ0LDMfAphbfxLZsc48sZrwHTWUSDai5Ohs+4t0LAzOZbs+f+lIohRqWm4ZfXAG38bWxZ4MK0IulBSKkfIarluag3iV+I13Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788693538; c=relaxed/simple;
-	bh=taL0hFucwvwBeXtHgz+Phya0iNPQnVIj7EgLcrMXbR0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jNhPpIvLTk+1Lmox7TuYJSwsXKmpS9cOEGMuAAzyEzGrn8HRGsNIodUIu2QYQP0xyVcLvxk9UHM441yz7dwF37bcZyUo+2wcuKnmV5Ye1Y8q8GBEVPVSunpz0Of09yM6pA7Umw/s+uwwCpr+FfPr/A4coOJL3MYDffSTD5pyn3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m1bT4/hm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788770606; c=relaxed/simple;
+	bh=wqD3L5ETpmXLY61fNf9tbmIx8tKHrD1eyJ6hs/UN+1k=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=h0HMr4xnfee/k7iUsqkWIdKxzTbcfAsLFcKnB9Cw/SXaeDogiNS5DW/9FokRSxsuL+OHvaBQseqYmfaJ4SVu5MML8tgWgaqxNhE4k30m/CAItwlT5v8hB6XLo2z49dc5wqMnZM/q292CPxP8TpW6sJT+OmbD0aAQrMLAaGVVxUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TQdzGMuW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m1bT4/hm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C6E01F00A3A;
-	Sun,  6 Sep 2026 11:18:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TQdzGMuW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CABE1F00A3A
+	for <linux-rtc@vger.kernel.org>; Mon,  7 Sep 2026 08:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788693536;
-	bh=Xau3BSCGziruM3TRULtqftxae3nuKAX1sKi7BmwqP2A=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m1bT4/hm28Bu2XXzo4OlV/gt221OlvrIKm8j2nLeNyoGqdFSUn16Py8ma0yoVcnUq
-	 KXZOFqf2mSU8eFvX4TbAVVIp3dMDLqWiTuoLaKLyvyKPYxgpMN6MKjwtgRdpeqgdHp
-	 CDQxytaxoIRDV0E6A1kwVxZSJ0yd5sWapRd5F6YXD2gY+d21IguUvbbW49zG0AdnQy
-	 CVEgoSiOCuua/hdJWMjh6cGI7aWVYVxFnHtCGquyCAq65dbjcEsAs5M+w08dharb1y
-	 CREiuKSKv6p7AmVpaEqkQrwxqJ+dJe57ASEEN0k4r9IDmKPeS/3vHNxxNfLmu04x/P
-	 2iRwlU+XkNKzQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: mpfs: fix unchecked devm_clk_get() error pointer
- in probe()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Manush Prajwal" <manushprajwal555@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <6a9d4b02.7d74b517.206c4c.75f8@mx.google.com>
-References: <6a9d4b02.7d74b517.206c4c.75f8@mx.google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 06 Sep 2026 11:18:56 +0000
-Message-Id: <20260906111856.9C6E01F00A3A@smtp.kernel.org>
+	s=k20260515; t=1788770604;
+	bh=/cp7Z8L9xcZp/d1RqZXXokpGijRN5pnwajmH6ZGZLfk=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=TQdzGMuWupfOnFZ5Ejns3FrQuPmmzlZMSdcFgg0tqRKfD6iKk+vrge1LFElX8f3QL
+	 AbO479hTJ3Ea89nqmgyJTzW5TbtYYqf40qb34j+Bjv1lSSTl2CocIOD6MdNN9+w2Cb
+	 IFCy/rItdY1Z1RjJ1Z1Zpwhj/wRxyC2fhpczv4EB5z1Fefs7VJzm0ov0rE+/BaDg/z
+	 Q7o+FUkdys1oeXUYJpwve2qBz8oLzP8xMWyWcjq82vfX3THUk0UDJdXhd/WNrAZZ86
+	 G751uoppNj1J3aza2bIDLw426Y7/vxFEzbBSn/44LHpKqjs4TYu4cCYVJBM9rQFMf9
+	 J20rn/UsaschA==
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5b2b92065ffso2637032e87.1
+        for <linux-rtc@vger.kernel.org>; Mon, 07 Sep 2026 01:43:24 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvByFPqHJCUYc47tgk+kO4mREhwQXj+P7NHlXQItRyiKy7xxDtoxmjusvrAbMGfdXaT5Iuc/K3nZEZaE=@vger.kernel.org
+X-Gm-Message-State: AFuF++k6oHeCLmjtY/H7nzDMsYH3MNzLYyBNRlvmjCvRCi+Pgc3Sx3Ew
+	tlSXDX5GCy7UodzjKXYNA91qtOGOwVCqCCyYX08FBCZ/Xc9UVnliKJ0qVmBaNROMp7Iwb4HsRJx
+	5McDp5FUlIR8qTiQARN1k+hQn8QS2Te5qX2CJ6nZYng==
+X-Received: by 2002:a05:651c:19a9:b0:3a3:462f:329a with SMTP id
+ 38308e7fff4ca-3a371be7d52mr26263091fa.13.1788770603019; Mon, 07 Sep 2026
+ 01:43:23 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 7 Sep 2026 01:43:21 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 7 Sep 2026 01:43:21 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
+Date: Mon, 7 Sep 2026 01:43:21 -0700
+X-Gmail-Original-Message-ID: <CAMRc=Mcpv9yCh4BcrwoQZ-Fw3BmbuG5UxgDA=WXFw=pyHMNK8Q@mail.gmail.com>
+X-Gm-Features: AcwNN1XfLFrscctqYnZFhzB1Dbhyy6GHbjHTE23CqhUqVhfHqZNS949POzD3naE
+Message-ID: <CAMRc=Mcpv9yCh4BcrwoQZ-Fw3BmbuG5UxgDA=WXFw=pyHMNK8Q@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx: Document PMM8654AU RTC
+To: Shawn Guo <shengchao.guo@oss.qualcomm.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Satya Priya <quic_c_skakit@quicinc.com>, 
+	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Dhruvin Rajpura <dhruvin.rajpura@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
+Content-Type: text/plain; charset="UTF-8"
 
-> devm_clk_get(&pdev->dev, "rtcref")'s return value was passed straight
-> into clk_get_rate() without checking it for an error first, unlike the
-> "rtc" clock a few lines above which is correctly checked with
-> IS_ERR(). clk_get_rate() only guards against a NULL clk, not an error
-> pointer:
->=20
-> 	if (!clk)
-> 		return 0;
-> 	...
-> 	rate =3D clk_core_get_rate_recalc(clk->core);
->=20
-> so if devm_clk_get() ever returns an error pointer here (for example
-> ERR_PTR(-EPROBE_DEFER), which is the normal, expected outcome if the
-> clkcfg clock-provider this RTC depends on has not registered its
-> clocks yet by the time this driver probes), clk_get_rate() dereferences
-> that error pointer instead of returning 0, crashing instead of letting
-> probe defer.
->=20
-> Capture the clock in the existing 'clk' local and check it with
-> IS_ERR() before calling clk_get_rate(), matching the handling already
-> used for the "rtc" clock in this same function.
->=20
-> Signed-off-by: Manush Prajwal <manushprajwal555@gmail.com>
+On Fri, 4 Sep 2026 09:45:41 +0200, Shawn Guo
+<shengchao.guo@oss.qualcomm.com> said:
+> Document Qualcomm PMM8654AU PMIC RTC which is compatible with PMK8350
+> RTC.
+>
+> Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
+> ---
+>  Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+> index 7497dc3ac5b2..78fa1d5ed028 100644
+> --- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
+> @@ -17,6 +17,9 @@ properties:
+>            - qcom,pm8921-rtc
+>            - qcom,pm8941-rtc
+>            - qcom,pmk8350-rtc
+> +      - items:
+> +          - const: qcom,pmm8654au-rtc
+> +          - const: qcom,pmk8350-rtc
+>        - items:
+>            - enum:
+>                - qcom,pm8018-rtc
+> --
+> 2.43.0
+>
+>
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/6a9d4b02.7d74b517.2=
-06c4c.75f8@mx.google.com?part=3D1
-
+Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
