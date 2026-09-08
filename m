@@ -1,133 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819435A5131;
-	Tue,  8 Sep 2026 19:06:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DD3048E0D0;
+	Tue,  8 Sep 2026 20:14:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788894384; cv=none; b=Ch5C2eQiM1/DxGp6HAIJ7IwmTm81H0mAOp/Gir0bTfmGuvgDef9GEnW+EB7azMVmrCThYaZEnl/FmwNa8LEZjCO9AUXhrPI/OlOEBp1yN9C9gMI+tVZfysdCl5RjRsN8BfIeQUFjgID0xN8Mkr/MfzSsZgAkNWS5uuJvxuZ4EGU=
+	t=1788898490; cv=none; b=G3jvNEHbH0yV/0AwdncoIsTtaDYr2Ssd9yQ+AXwr7F+8mZoWti7NtzhR6lbNorXtyX34zwPHnNhWPBpkvNZYV+vj8hOIG4bN9iBbuHMa6uEEXovJPwJeyqGwqANgnabOSScSxt8EY/60GLlC5MflJX2iUkvDOZ7/BrXzW0OCCpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788894384; c=relaxed/simple;
-	bh=fViLGx/9MvVKD74qWjWa0+YbBrjhT8B0nMMeb53Z95E=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AIcQVJd/7JsrgvL7eT59NVe0USzGPZdJia6VICqaiuTqElH/o+oxLmQeXY9AFxTE0rz/K2CmwrkyAgob2+HLZkbqHBTF/H6QjVcEvU+qWop02ccc03ioKzn6pXuoMt/iGjL7Jd8XQ+IZiHzMA3o69HwKx+B2We075fi+mUzSfP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MP2UYmI/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788898490; c=relaxed/simple;
+	bh=rs2nnj7/rcK0lkhFmSUcJ0s9rK51aF20FxE81IRAhl0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KhSntrPokk0gjZX7wtULPx0PU+oIXsUl9YXD0TPu0KXSIyUYp0I3/EOgLcVznTCo1FiJaMMz+ZdGoOJhvTur8Z7jpEGcIQLDlw52CiBvENXJTBxVDjw5XA2TBTGkKJxWBQZ57s8Prrbq1/ozZmGDQ/fnjZldQvPOJPVv1vs+/14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TBmvOZei; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MP2UYmI/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6FD61F00A3A;
-	Tue,  8 Sep 2026 19:06:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TBmvOZei"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA0C1F00A3A;
+	Tue,  8 Sep 2026 20:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788894383;
-	bh=YIqTcSA+AXu0Tj9KdjRHU1rvVOzldf73AMr/cfV9FB0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MP2UYmI/CWmr5D4BBqLozzvkc+oQf/cjgnqaZYMlUeH5VQF6M7PCb6804rvI5J1LN
-	 9+CwAKwQ13EWsSUWQgPXRhQcX4cWVBYQJ0G926eb7wtH7ZWaiZkeNGIpm2TSr+fsdC
-	 z/D9IDIiC0/mwrHl9tqJZEYCNKiILPrjjh1Xu7Gdp/bU78jFmknE8u8hmpi1ZwNjju
-	 H3Vma5ZZUPiqyoiGVb/tT0paDhFunE04Gixt0vRN5iAC5MbCyf1DmASLaZ0814xuc7
-	 0ZFsxPDDmjCGTy+RY/rr4tPSZhwhwCxhkzghSDo96i9YCuOpFd+mFBzSJwQy2ZStiY
-	 RFIO8NE7caiog==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 - dt-bindings: maxim-ds1302: Convert to dt schema v2]
-  dt-bindings: maxim-ds1302: Convert to dt schema
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sudheendra Sampath" <giveback4fun@gmail.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, linux-rtc@vger.kernel.org
-In-Reply-To: <20260908190137.1168904-1-giveback4fun@gmail.com>
-References: <20260908190137.1168904-1-giveback4fun@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 19:06:22 +0000
-Message-Id: <20260908190622.B6FD61F00A3A@smtp.kernel.org>
+	s=k20260515; t=1788898489;
+	bh=sj1Ha1RkFOVatFTL0DjQ7FjrTJ+tvbpy4aDhxc56Hwo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=TBmvOZei/F87+VrsJyz2vLSx4drrq+Mo2AyIhty6cnRWIx4xEqumVspwWndJKSPla
+	 6bMz5NXp5wbwncBfC8OJ69by04CAyE0ysmm/Hfyb83eri0dazwKp6awDk1uYtKhNhK
+	 bia0zqfuijbS2QwURH5RTd3UO6dyGRANca8dhKinrJSe4azNDnzunPnSErNlO2bvXJ
+	 obCaF4h0H8/c25PoD629aySuZRlZdiY4vrn64G4UQOFbtG4iQQqZSNkv/C8t1IjKyg
+	 /mNxbPmXNpiB6q5J1a+Xscrw/s+O3Bxsrxdy9Q/7YkHiBfg3Ilc2hUzKM9PpPI0w/3
+	 k357snXzlA3ng==
+Date: Tue, 8 Sep 2026 22:14:33 +0200
+From: Niklas Cassel <cassel@kernel.org>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Drew Fustini <fustini@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Rob Herring <robh@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+	Liviu Dudau <liviu.dudau@arm.com>,
+	Sudeep Holla <sudeep.holla@kernel.org>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Vladimir Zapolskiy <vz@mleia.com>, Stefan Agner <stefan@agner.ch>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Nicolas Ferre <nicolas.ferre@microchip.com>,
+	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Robert Jarzmik <robert.jarzmik@free.fr>,
+	Kristoffer Ericson <kristoffer.ericson@gmail.com>,
+	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Karl Mehltretter <kmehltretter@gmail.com>,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Nicolas Pitre <npitre@baylibre.com>, linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	devicetree@vger.kernel.org, imx@lists.linux.dev,
+	linux-stm32@st-md-mailman.stormreply.com,
+	linux-omap@vger.kernel.org, Alexander Clouter <alex@digriz.org.uk>,
+	"Jeremy J. Peper" <jeremy@jeremypeper.com>,
+	Damien Le Moal <dlemoal@kernel.org>, Ulf Hansson <ulfh@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>, Vinod Koul <vkoul@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>, Mark Brown <broonie@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Thomas Weissschuh <thomas.weissschuh@linutronix.de>,
+	linux-ide@vger.kernel.org, linux-mmc@vger.kernel.org,
+	linux-pci@vger.kernel.org, linux-phy@lists.infradead.org,
+	linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-watchdog@vger.kernel.org, linux-sound@vger.kernel.org,
+	linux-gpio@vger.kernel.org
+Subject: Re: [PATCH 05/13] ARM: orion/dove/mv78xx0: remove all board files
+Message-ID: <aqBsqaftroGc0Mfb@ryzen>
+References: <20260908152808.3928630-1-arnd@kernel.org>
+ <20260908152808.3928630-6-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260908152808.3928630-6-arnd@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Medium] spi-max-frequency is incorrectly restricted to an enum of exact =
-values, preventing valid lower frequencies.
-- [Medium] spi-cs-high is unconditionally required, breaking setups with in=
-verted hardware CS.
-- [Medium] The binding defines an SPI peripheral and RTC but fails to refer=
-ence standard core schemas.
-- [Low] The YAML conversion silently removes the device tree example sectio=
-n.
---
+On Tue, Sep 08, 2026 at 05:27:55PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> The 'orion' platform is the predecessor to what linux now calls the
+> 'mvebu' line of Marvell SoCs, and originally covered orion5x,
+> mv78xx0, kirkwood, dove and a few others that do not have any
+> upstream support at the moment.
+> 
+> Only a few board files remain here, these are the ones left
+> in 2022 board file purge because they had some level of support
+> in Debian or OpenWRT, mostly for commercial NAS or router boxes.
+> This distro support is now gone, and nobody has converted the
+> board files to devicetree, though the orion5x and dove platforms
+> also come with devicetree support for some other machines.
+> 
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+> Cc: Gregory Clement <gregory.clement@bootlin.com>
+> Cc: Alexander Clouter <alex@digriz.org.uk>
+> Cc: Jeremy J. Peper <jeremy@jeremypeper.com>
+> Cc: Damien Le Moal <dlemoal@kernel.org>
+> Cc: Niklas Cassel <cassel@kernel.org>
+> Cc: Ulf Hansson <ulfh@kernel.org>
+> Cc: Lorenzo Pieralisi <lpieralisi@kernel.org>
+> Cc: "Krzysztof Wilczyński" <kwilczynski@kernel.org>
+> Cc: Manivannan Sadhasivam <mani@kernel.org>
+> Cc: Rob Herring <robh@kernel.org>
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: Vinod Koul <vkoul@kernel.org>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: Daniel Lezcano <daniel.lezcano@kernel.org>
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Linus Walleij <linusw@kernel.org>
+> Cc: Bartosz Golaszewski <brgl@kernel.org>
+> Cc: Thomas Weissschuh <thomas.weissschuh@linutronix.de>
+> Cc: linux-ide@vger.kernel.org
+> Cc: linux-mmc@vger.kernel.org
+> Cc: linux-pci@vger.kernel.org
+> Cc: linux-phy@lists.infradead.org
+> Cc: linux-rtc@vger.kernel.org
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-watchdog@vger.kernel.org
+> Cc: linux-sound@vger.kernel.org
+> Cc: linux-gpio@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-commit 4b0cc4e2d5ae6befdb10a7457cde3f6698ee83c7
-Author: Sudheendra Sampath <giveback4fun@gmail.com>
-
-dt-bindings: maxim-ds1302: Convert to dt schema
-
-This commit converts the Maxim DS1302 real-time clock text binding to the DT
-schema format based on code review comments.
-
-> diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml b/Do=
-cumentation/devicetree/bindings/rtc/maxim-ds1302.yaml
-> new file mode 100644
-> index 0000000000000..54a2fcf7f8e7b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
-> @@ -0,0 +1,50 @@
-[ ... ]
-> +  spi-max-frequency:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    description: DS-1302 has 500 kHz if powered at 2.2V, and 2MHz if pow=
-ered at 5V
-> +    enum:
-> +      - 500000
-> +      - 2000000
-
-[Severity: Medium]
-Does this restrict spi-max-frequency too strictly? Schema validation might
-fail for perfectly valid device trees that specify frequencies other than
-500kHz or 2MHz (e.g., 250000) to ensure signal integrity.
-
-Should this use a constraint like maximum: 2000000 rather than an exact enu=
-m?
-
-[ ... ]
-> +required:
-> +  - compatible
-> +  - reg
-> +  - spi-max-frequency
-> +  - spi-3wire
-> +  - spi-lsb-first
-> +  - spi-cs-high
-
-[Severity: Medium]
-Will this unconditionally require spi-cs-high and break backwards
-compatibility for existing setups?
-
-The original text binding noted that this property is required unless inver=
-ted
-in hardware. Forcing it globally in the required list might reject legitima=
-te
-hardware configurations where the chip select is hardware-inverted.
-
-> +
-> +additionalProperties: false
-
-[Severity: Medium]
-Does additionalProperties: false incorrectly reject standard SPI peripheral
-properties here?
-
-If a device tree uses properties like spi-cs-setup-delay-ns or
-spi-rx-delay-us, dt_binding_check will throw an error. Should the schema
-include references to /schemas/spi/spi-peripheral-props.yaml# and rtc.yaml#,
-and then use unevaluatedProperties: false instead to properly inherit stand=
-ard
-capabilities?
-
-[Severity: Low]
-Is the examples block missing from the end of the schema file?
-
-The original text file included an example demonstrating node placement.
-Without it, dt_binding_check cannot validate the schema against a concrete
-instance, and the usage documentation is lost.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908190137.1168=
-904-1-giveback4fun@gmail.com?part=3D1
+Acked-by: Niklas Cassel <cassel@kernel.org> # ata parts
