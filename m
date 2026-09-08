@@ -1,145 +1,203 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f7.google.com (mail-pj2-f7.google.com [74.125.227.135])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23FA8479871;
-	Tue,  8 Sep 2026 18:22:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52F755A0ADB
+	for <linux-rtc@vger.kernel.org>; Tue,  8 Sep 2026 19:00:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.135
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788891726; cv=none; b=ToGIKQxDoonUXrOJxIpBlSbYSEh7OLH6h9tqgFym/n/EEoN6bNiBjw28FIXwFgRjjPOFIMlE0M26PtXPkrUcvH1f25wS0Yv1DpWQwkU+Q8PM+HA0F1DlBbBhqlJxzQRiWwER/h/4jxN8Wsl2Oeh3g67mVTrkexQKQxU09NuZ468=
+	t=1788894053; cv=none; b=kZemgzq2Neyv1umHPfAw86bKtveKYC/ITqRHkDyGKJGk0n2Hhspz3SGv04SwOmZb+mWi8ntuJPPqK59EQt3QW1y4ZWH197rxVbrXlmiKWWX/bD1TfqsQb032XV+V4rlDS+a3SlrlVVJqQO46kEv5B2ToVpW9DNO2Dx8vMmxV/hg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788891726; c=relaxed/simple;
-	bh=pZUGW3mxkjzlt6qWdkhwhkzsYVZmmQwBD7ygtdVa8ck=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=AEBTaqlWQ8h11lY1vO1AVYRdP+Y14U1BrtDLx1eg/DQ0uaMzxDV/lTQhtMajFENzWkeFlHdbt2xOh+zU3Cz3nGzvQYKyM0inZvG8pSGlWvIuW+U5jbrl4/dLlfU153Po6G3LhIfi1NFh4jTBGzCLj8NQ6sU8CFZb/lgFzEKDH+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hf49itJu; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788894053; c=relaxed/simple;
+	bh=ESLv5L+E1+ggTkF51IFY+k17qh7UMpZrmc1b1Q4Bu8Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a5wuNT5fE5ji2lQl5GVEUH5n68Kw/46qGvS4PGMjqHMRBn3YYk6sbA9Zq4d2xeqGjkp0SMwHjQ1N3Axe4TuSt47PHIL9CQxRS0YJtP0/nxLSuRX7U1uHHTk5qJPJtMz9ZijTI5MfuoJWsiSitXZK0dkwdUwmueeV/PyXRFfdsuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GJVwXV0L; arc=none smtp.client-ip=74.125.227.135
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hf49itJu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF5F11F00A3D;
-	Tue,  8 Sep 2026 18:22:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788891724;
-	bh=KOkqH9+KsQ/pfEOXoQXs/QBpMjFn4xAHhMmlbJfXtIs=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=hf49itJuKZZrVDgFz/OBI02KhpJ0w85fKm5+GcHhZZO9DUUMkUtM0OL5cPa0qunOV
-	 j3D+g0J8HacUPC2VbeSltqqF9GTW4YwMGy1Q++steJYUBFf9dOlMFi89D0BWos/on8
-	 GBjv0u1OQPeyr/u1kFiTKyrZh/mwDkKCaAXhVq6i/NOJoy0JMD+U9rlFOnpMFK8BQM
-	 wAUMYQwcYK2d44gcVBdVpxKuBtxlt2hiKn0nBAXP7gAk0PY3cidGkCPT7BXP6fx+Ax
-	 WOmZ7vdKj2YCU4ciLpxFotS8jS+CmE26U7L9+hlDzDE+nscpMfatkhiZlVvEnHDCUq
-	 CYl+giRfxEbNQ==
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 62F16198003A;
-	Tue,  8 Sep 2026 14:22:02 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Tue, 08 Sep 2026 14:22:02 -0400
-X-ME-Sender: <xms:R1KganhWojexTaEkcE9JNG2cPj7XgDgOFoXrGK4XmayHCNKPiO9VaQ>
-    <xme:R1Kgau10_SvGPB3yfP4vC7fFqFw7CFxNWNHyAOuKkR1D3WdEFe3_l1bs_81OVeuT-
-    TvpIP0I9YyFC9FtFqLdEAVy259vPupVkwojcM3tDj-Ur1n7W8HVZA>
-X-ME-Proxy-Cause: dmFkZTF3Xbdz07cy4boaCVQHFkenJCqc2sn4pb294JKVq2iAU/ryEnJrbS5rHRz/45kLdP
-    XWVPpmR29IIAjw31EDFDOoChR5dpk7oDeztrPOMK6Ck6rUZyoBVx+gU/Dj+v2ezibRn/3Z
-    6copKQyaHQTnzkXFaRPpL+YsGtqzZF8KdZn0FKgRlMOihu7MmoU83A9qIw5BuKzEDvlTFC
-    hkYrh2QdS2qnv5wk8D0+zIgWAi+fdBqzJoR6DSey3OStD8Far5kE1hHrAv5MW+cSE92604
-    C0JRxb+rlMAsR5nZZHdab1pbHPOU2NsD1PcNS9z4aUCnOnSHzZzNZWET46rcpd7ZG3n6Zp
-    23NB5BYR9Bd2vlT99ZOgkZynr7E8I3RD8qiC3VJf7Vwao2PfWxTnJpoGsqCAkB7VUl2RiA
-    iFQniTW0DmVYGD4YR/R1+UC0pImIplV9uP1J5d8ZROiVKPwGAQyS2/iK42Fmxof1ON/y7c
-    8HYLyRpBRPmYiSuAw8UZ7v+MaAJjjPcBzs4AGz7ScKQdHquEMdlRoBfggT0viLHZSI7dey
-    6sGEL6e5OCUhAEgk0wFO/27J+MEfYUkM3vdmBLb5bFJgJ2CA3jtJ7Yeo5xke8uESS3zrAl
-    /pg3sPxHGz8QeYtfQ6nR+fsf9bPOlUF4X3Z7E/Zv5bzYrIY2S3/tLiBS4wOw
-X-ME-Proxy: <xmx:SlKgakKMyflVPzT2IaiVNPoit3F_v_SjIGgTR7F9CFExNsQVJHhdWg>
-    <xmx:SlKgasG6ovtp0PxJslZBsEexayDxOMD1Ftz_o4s2LvqKcOfBVP1pMA>
-    <xmx:SlKgar7zpPWvSZN0h6Z3E1JiiiuQfAWt1u4bCGJuv8NIIDx0iClvNw>
-    <xmx:SlKgan3ZQ1aVDog9cCn7AS2QRAKeDXuh--6GdSSWbM_NUMzrG7ow7A>
-    <xmx:SlKgang6dUc9NvIN_N5Ch2nIpi01dqxYKTTh1R4UYO_yWH9JD0MboRxU>
-Feedback-ID: i36794607:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 8F55A32A0078; Tue,  8 Sep 2026 14:21:59 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GJVwXV0L"
+Received: by mail-pj2-f7.google.com with SMTP id 98e67ed59e1d1-398da2bdcb9so1976117a91.0
+        for <linux-rtc@vger.kernel.org>; Tue, 08 Sep 2026 12:00:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788894031; x=1789498831; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=O/3+KCQzTKA9dA4hix+BprsbxqkXn39e4T080FI7K0o=;
+        b=GJVwXV0Lr2HnAFeEGbYWgg+kN0NpJEWcxJ0wjVuzd9tZP2XxfnTg5KmPPxCnkjX3Ca
+         9pzEYuXfrp78dPzSKI/Y3iI6tKNjzqtK+vs6OWXYuzi8DbEH0uRqCdnGt2VhHW4RmPaH
+         3KH1+349GoxyT9OSivAlDZ2yWgkuhVnBRWwj/QjaqfaAFvcOCv5teCqCPxAwayOF3ik4
+         /yjH9OhX4HD/36EkddsJgijx3qARYKPY8Ib9ewH0Sti0YsI5qOfyURkCbYfLs/DXUwy+
+         5XRN8V3uPfpZ36WvOLifmoWeybvwiJufI/qOoovW6YqVHkME6i/Ie2TdR0+FCC/ZJzzH
+         JNAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788894031; x=1789498831;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=O/3+KCQzTKA9dA4hix+BprsbxqkXn39e4T080FI7K0o=;
+        b=r7/XazGtto10BcNIPoHc1y9p+ZmWsHnK4hYXwuvRIlpTZAzit6gt29AKXb8mwBQTXE
+         x5cWGGVYG5GS465z8W3BbPWM/4TST0cSpSGq4PS7oABX8DXVyyV6PEI7dvNwOZyg5z1/
+         HmJxyXKtwCM1rqeAmFQ3TwRu5TUSnsV3ScWq8rCkF0YMykc73Ag0pgXHMVEZEXcTAsFD
+         bteTOHxRn+HHy+xlhW9AcrDv8A94gOL026dw5uUeFpDzQ9Npe0RMqVrkZyjODeinlIbD
+         vtBOaw0T4zl7mlIjijMkemRAohWIEpg9xkEzDPaDUOvw0v+J3MqhZ0cRpDNuBN+qWPzs
+         dG4g==
+X-Forwarded-Encrypted: i=1; AKwUvBwpU/hm3XOiiHzcwWNPZnDD7pOywgRQXwnVpDllfORLpLC8muVBboU+p/bUDQ79ZACytbjlCI3J+UU=@vger.kernel.org
+X-Gm-Message-State: AFuF++k5eX5s24egWIR8hBRvvsZ2223KI1ITFW/pkBc1Qqv7aPspILVt
+	Fgvh/sKZFrNpKgvDIY9R/DXj9kR0PlRkYpbXc3qyQICSV6fn+Q4MxGH3E6zMMoN4ULo=
+X-Gm-Gg: AYBFou0CbppIbh4goTI1rfdUQsGAr38djnrGD70jRUAJ2JJPqbIZm+rll5ovxn7Jwwo
+	A9kiQXHseWnjctR5zT2LPJaRodnjIssP8LoRe6ihEl4A3E3YGRIjFHM4fKjeta1zyYR3p2RaY3q
+	p98dTSwr3VYDRrWseKXgTM3Xuz1uV+b3xYzP3H+xfUOY6t8bbBdliJrDmdV/DTw1/+T5dZPMOoQ
+	hu9N9AimNBq8YGeJ+CSIzyN+lawDt2lOIf45PXScm6yov4Pl9V4muC7bIy07yUbveT9NYqjieox
+	HMr7/39bvUr5qO8E8QPF2fwqVJuzCrjP1MS9DfR/nW4d7M0OXQqGvJ3jOwIpZSVZDZo0oP7QXMt
+	JtfC2YEQP6XaY8W85YA5nMIUp2mVZbTNpSkoGUFSlKQ3R2RqdtS+zP8t89BSLrUNl2klNRVdoBT
+	R3I7drCByKQIdyFZS6lWjZwCDobahhmU/wcJgBm7VHwihl8ILy7MWjO+I/QxsY9HtAsTr9qgMvv
+	pMoRE8RwcVuaVSxdBneS8p8HJ51Z0otEsU6kmVs0Z/FwxS5tmS8XVP5HGGL2HTaNqOlhSIo+Q==
+X-Received: by 2002:a17:90b:3804:b0:366:3517:1aa2 with SMTP id 98e67ed59e1d1-39b25f4397emr46524869a91.0.1788894030484;
+        Tue, 08 Sep 2026 12:00:30 -0700 (PDT)
+Received: from samlap.tailb86931.ts.net (c-24-5-101-44.hsd1.ca.comcast.net. [24.5.101.44])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33688cfc714sm19730135eec.20.2026.09.08.12.00.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 12:00:30 -0700 (PDT)
+From: Sudheendra Sampath <giveback4fun@gmail.com>
+To: alexandre.belloni@bootlin.com,
+	ynvich@gmail.com
+Cc: devicetree@vger.kernel.org,
+	skhan@linuxfoundation.org,
+	me@brighamcampbell.com,
+	jkoolstra@xs4all.nl,
+	linux-kernel@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	Sudheendra Sampath <giveback4fun@gmail.com>
+Subject: [PATCH v2 - dt-bindings: maxim-ds1302: Convert to dt schema v2]  dt-bindings: maxim-ds1302: Convert to dt schema
+Date: Tue,  8 Sep 2026 12:01:37 -0700
+Message-ID: <20260908190137.1168904-1-giveback4fun@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ANqE0jO8KCPJ
-Date: Tue, 08 Sep 2026 20:21:39 +0200
-From: "Arnd Bergmann" <arnd@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-phy@lists.infradead.org, devicetree@vger.kernel.org,
- "Damien Le Moal" <dlemoal@kernel.org>, linux-rtc@vger.kernel.org,
- "Neil Armstrong" <neil.armstrong@linaro.org>,
- "Vinod Koul" <vkoul@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Vladimir Oltean" <olteanv@gmail.com>, "Frank Li" <Frank.Li@kernel.org>,
- linux-pci@vger.kernel.org, "Rob Herring" <robh@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, imx@lists.linux.dev,
- "Niklas Cassel" <cassel@kernel.org>, linux-ide@vger.kernel.org,
- linux-watchdog@vger.kernel.org
-Message-Id: <71266564-7be5-4621-ab03-29cf9ec49287@app.fastmail.com>
-In-Reply-To: <20260908161125.E4A331F00A3A@smtp.kernel.org>
-References: <20260908152808.3928630-1-arnd@kernel.org>
- <20260908152808.3928630-6-arnd@kernel.org>
- <20260908161125.E4A331F00A3A@smtp.kernel.org>
-Subject: Re: [PATCH 05/13] ARM: orion/dove/mv78xx0: remove all board files
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 8, 2026, at 18:11, sashiko-bot@kernel.org wrote:
-> [Severity: Low]
-> Since all the board files like arch/arm/mach-orion5x/ts78xx-setup.c are
-> removed in this patch, should the MAINTAINERS entry for the TS-78xx platform
-> further down in this file also be removed?
->
-> The pattern F: arch/arm/mach-orion5x/ts78xx-* now points to deleted files,
-> which leaves an orphaned entry for Alexander Clouter.
+Convert Maxim DS1302 real-time clock binding to DT schema.
+Changes based on code review comments.
 
-I fixed this instance now. I tried to automate this with a script
-but could not figure out how to deal with wildcard matches and
-only did the ones that have an exact file match.
+Signed-off-by: Sudheendra Sampath <giveback4fun@gmail.com>
+---
+ .../devicetree/bindings/rtc/maxim-ds1302.txt  | 46 -----------------
+ .../devicetree/bindings/rtc/maxim-ds1302.yaml | 50 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 46 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+ create mode 100644 Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
 
-If anyone has suggestions for doing this better, please let me know,
-or run your script on 
-https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove-7.3
-and send me the results.
+diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+deleted file mode 100644
+index ba470c56cdec..000000000000
+--- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
++++ /dev/null
+@@ -1,46 +0,0 @@
+-* Maxim/Dallas Semiconductor DS-1302 RTC
+-
+-Simple device which could be used to store date/time between reboots.
+-
+-The device uses the standard MicroWire half-duplex transfer timing.
+-Master output is set on low clock and sensed by the RTC on the rising
+-edge. Master input is set by the RTC on the trailing edge and is sensed
+-by the master on low clock.
+-
+-Required properties:
+-
+-- compatible : Should be "maxim,ds1302"
+-
+-Required SPI properties:
+-
+-- reg : Should be address of the device chip select within
+-  the controller.
+-
+-- spi-max-frequency : DS-1302 has 500 kHz if powered at 2.2V,
+-  and 2MHz if powered at 5V.
+-
+-- spi-3wire : The device has a shared signal IN/OUT line.
+-
+-- spi-lsb-first : DS-1302 requires least significant bit first
+-  transfers.
+-
+-- spi-cs-high: DS-1302 has active high chip select line. This is
+-  required unless inverted in hardware.
+-
+-Example:
+-
+-spi@901c {
+-	#address-cells = <1>;
+-	#size-cells = <0>;
+-	compatible = "icpdas,lp8841-spi-rtc";
+-	reg = <0x901c 0x1>;
+-
+-	rtc@0 {
+-		compatible = "maxim,ds1302";
+-		reg = <0>;
+-		spi-max-frequency = <500000>;
+-		spi-3wire;
+-		spi-lsb-first;
+-		spi-cs-high;
+-	};
+-};
+diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml b/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
+new file mode 100644
+index 000000000000..54a2fcf7f8e7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
+@@ -0,0 +1,50 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/maxim-ds1302.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Maxim/Dallas Semiconductor DS-1302 RTC
++
++maintainers:
++  - Alexandre Belloni <alexandre.belloni@bootlin.com>
++  - Sergey Yanovich <ynvich@gmail.com>
++
++description: |
++  Simple device which could be used to store date/time between reboots.
++
++  The device uses the standard MicroWire half-duplex transfer timing.
++  Master output is set on low clock and sensed by the RTC on the rising
++  edge. Master input is set by the RTC on the trailing edge and is sensed
++  by the master on low clock.
++
++properties:
++  compatible:
++    items:
++      - const: maxim,ds1302
++
++  reg:
++    maxItems: 1
++
++  spi-max-frequency:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description: DS-1302 has 500 kHz if powered at 2.2V, and 2MHz if powered at 5V
++    enum:
++      - 500000
++      - 2000000
++
++  spi-3wire: true
++
++  spi-lsb-first: true
++
++  spi-cs-high: true
++
++required:
++  - compatible
++  - reg
++  - spi-max-frequency
++  - spi-3wire
++  - spi-lsb-first
++  - spi-cs-high
++
++additionalProperties: false
+-- 
+2.47.3
 
-> [ ... ]
->
->> diff --git a/arch/arm/mach-orion5x/Makefile b/arch/arm/mach-orion5x/Makefile
->> index 6f54d7fef27a7..7e9634e043185 100644
->> --- a/arch/arm/mach-orion5x/Makefile
->> +++ b/arch/arm/mach-orion5x/Makefile
->> @@ -2,15 +2,6 @@
->>  ccflags-y := -I$(srctree)/arch/arm/plat-orion/include
->>  
->>  obj-y				+= common.o pci.o irq.o mpp.o
->> -obj-$(CONFIG_MACH_KUROBOX_PRO)	+= kurobox_pro-setup.o
->> -obj-$(CONFIG_MACH_TERASTATION_PRO2)	+= terastation_pro2-setup.o
->
-> [Severity: Low]
-> Are irq.o and mpp.o now completely unreachable code?
->
-> Since all the board files that called into these APIs have been removed,
-> it appears these objects are now unnecessarily compiled into the kernel
-> image. Should they be removed from obj-y here?
-
-Added this to the patch, removing the two files and recursively
-seven more that become orphaned afterwards:
-
- arch/arm/mach-orion5x/Makefile                |   2 +-
- arch/arm/mach-orion5x/irq.c                   |  51 ---
- arch/arm/mach-orion5x/irqs.h                  |   9 -
- arch/arm/mach-orion5x/mpp.c                   |  41 --
- arch/arm/mach-orion5x/mpp.h                   | 130 ------
- arch/arm/plat-orion/Makefile                  |   4 +-
- arch/arm/plat-orion/gpio.c                    | 616 --------------------------
- arch/arm/plat-orion/include/plat/irq.h        |  15 -
- arch/arm/plat-orion/include/plat/mpp.h        |  34 --
- arch/arm/plat-orion/include/plat/orion-gpio.h |  38 --
- arch/arm/plat-orion/irq.c                     |  39 --
- arch/arm/plat-orion/mpp.c                     |  82 ----
- 13 files changed, 2 insertions(+), 1066 deletions(-)
-
-This leaves only pcie.{c,h} in arch/arm/plat-orion/, which
-should be folded into arch/arm/mach-orion5x/pci.c, along
-with parts of arch/arm/kernel/bios32.c that nothing else
-uses any more. I don't have a patch for that yet.
-
-      Arnd
