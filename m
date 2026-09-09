@@ -1,90 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DD3048E0D0;
-	Tue,  8 Sep 2026 20:14:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D75A45562D;
+	Wed,  9 Sep 2026 09:37:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788898490; cv=none; b=G3jvNEHbH0yV/0AwdncoIsTtaDYr2Ssd9yQ+AXwr7F+8mZoWti7NtzhR6lbNorXtyX34zwPHnNhWPBpkvNZYV+vj8hOIG4bN9iBbuHMa6uEEXovJPwJeyqGwqANgnabOSScSxt8EY/60GLlC5MflJX2iUkvDOZ7/BrXzW0OCCpA=
+	t=1788946663; cv=none; b=F4A7OCiSaALWzLO9Z56ZpdYAkBuNFvHipeM5Y8ZJx/Kvl866n0rpdkC70Fda4yFO6+2w+rvDrg+7KsNjhB0yqpwxV+Eh0tcGWiI6AEnW8atAJGiz1/T+McV+qYqCsvSnKnZKmUMrPcjx6lDPZuZL3uMeUwPlGkyLeNTYE3aeXUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788898490; c=relaxed/simple;
-	bh=rs2nnj7/rcK0lkhFmSUcJ0s9rK51aF20FxE81IRAhl0=;
+	s=arc-20240116; t=1788946663; c=relaxed/simple;
+	bh=XLfiaUN+IsoblzHsO0Rd8fDCWzeG9H+ooBzq4gcWhM4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KhSntrPokk0gjZX7wtULPx0PU+oIXsUl9YXD0TPu0KXSIyUYp0I3/EOgLcVznTCo1FiJaMMz+ZdGoOJhvTur8Z7jpEGcIQLDlw52CiBvENXJTBxVDjw5XA2TBTGkKJxWBQZ57s8Prrbq1/ozZmGDQ/fnjZldQvPOJPVv1vs+/14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TBmvOZei; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=AHlidnb76Td1KgjQXKRwFNlMugeW0Xs+MIY6DFORJlE3kClK9PzwVyIXuI8JOaUpMnuE8uraNTFmMCfGCeUl+Othbf5/vGUXjBh7Kro4fSqdvQ3KsbyjQD5HVaIMMsuK3gxVsoiGQtHv1cJwsvydAz4h9D8d5uUo5tFGNMeroyY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mUn0wz/g; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TBmvOZei"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA0C1F00A3A;
-	Tue,  8 Sep 2026 20:14:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mUn0wz/g"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92E861F00A3D;
+	Wed,  9 Sep 2026 09:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788898489;
-	bh=sj1Ha1RkFOVatFTL0DjQ7FjrTJ+tvbpy4aDhxc56Hwo=;
+	s=k20260515; t=1788946657;
+	bh=XLno3g6uhiwWTum5jTYIroUE3LdxlAsOrOGC6V+6vCc=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TBmvOZei/F87+VrsJyz2vLSx4drrq+Mo2AyIhty6cnRWIx4xEqumVspwWndJKSPla
-	 6bMz5NXp5wbwncBfC8OJ69by04CAyE0ysmm/Hfyb83eri0dazwKp6awDk1uYtKhNhK
-	 bia0zqfuijbS2QwURH5RTd3UO6dyGRANca8dhKinrJSe4azNDnzunPnSErNlO2bvXJ
-	 obCaF4h0H8/c25PoD629aySuZRlZdiY4vrn64G4UQOFbtG4iQQqZSNkv/C8t1IjKyg
-	 /mNxbPmXNpiB6q5J1a+Xscrw/s+O3Bxsrxdy9Q/7YkHiBfg3Ilc2hUzKM9PpPI0w/3
-	 k357snXzlA3ng==
-Date: Tue, 8 Sep 2026 22:14:33 +0200
-From: Niklas Cassel <cassel@kernel.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Drew Fustini <fustini@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Rob Herring <robh@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
-	Liviu Dudau <liviu.dudau@arm.com>,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Vladimir Zapolskiy <vz@mleia.com>, Stefan Agner <stefan@agner.ch>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
-	Nicolas Ferre <nicolas.ferre@microchip.com>,
-	Claudiu Beznea <claudiu.beznea@tuxon.dev>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Gregory Clement <gregory.clement@bootlin.com>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Kristoffer Ericson <kristoffer.ericson@gmail.com>,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Karl Mehltretter <kmehltretter@gmail.com>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Nicolas Pitre <npitre@baylibre.com>, linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, imx@lists.linux.dev,
-	linux-stm32@st-md-mailman.stormreply.com,
-	linux-omap@vger.kernel.org, Alexander Clouter <alex@digriz.org.uk>,
-	"Jeremy J. Peper" <jeremy@jeremypeper.com>,
-	Damien Le Moal <dlemoal@kernel.org>, Ulf Hansson <ulfh@kernel.org>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>, Vinod Koul <vkoul@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>, Mark Brown <broonie@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Thomas Weissschuh <thomas.weissschuh@linutronix.de>,
-	linux-ide@vger.kernel.org, linux-mmc@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-phy@lists.infradead.org,
-	linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-watchdog@vger.kernel.org, linux-sound@vger.kernel.org,
-	linux-gpio@vger.kernel.org
-Subject: Re: [PATCH 05/13] ARM: orion/dove/mv78xx0: remove all board files
-Message-ID: <aqBsqaftroGc0Mfb@ryzen>
-References: <20260908152808.3928630-1-arnd@kernel.org>
- <20260908152808.3928630-6-arnd@kernel.org>
+	b=mUn0wz/gZMvzsv0+SmKyPTQtB5x1jf0j4O6OGGdSSKpAI4sIMbPAngKjsi92eKrmo
+	 7axdOQPFskm9PlRZBa+V47rjJBs6e/SX5ZMcKpZw+TBJks2lXZhp/2eta5OQccqdiA
+	 Z4lfxtyLThxcBvShFJH1rTa7F6DUdRa96QilUeLpwggaxHv1Vy44BwL+Fhw92JnMqM
+	 9GIT8yj3w7t3M/64OnHsCIg3+Pfz5IizVQGj5Qv3/D7hUiCr/mF56dj2VB/Rf9kZgc
+	 trj+OBLADE0FwLODEmbsXQYjVcEO9MoYTqr5YlMCZ0pM7hEclXwVKEGtOU25qTBkX/
+	 6RbHd85cNfH+g==
+Date: Wed, 9 Sep 2026 11:37:33 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Sudheendra Sampath <giveback4fun@gmail.com>
+Cc: alexandre.belloni@bootlin.com, ynvich@gmail.com, 
+	devicetree@vger.kernel.org, skhan@linuxfoundation.org, me@brighamcampbell.com, 
+	jkoolstra@xs4all.nl, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 - dt-bindings: maxim-ds1302: Convert to dt schema v2]
+ dt-bindings: maxim-ds1302: Convert to dt schema
+Message-ID: <20260909-pastel-dove-of-mathematics-1ee5f7@quoll>
+References: <20260908190137.1168904-1-giveback4fun@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -93,55 +44,146 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260908152808.3928630-6-arnd@kernel.org>
+In-Reply-To: <20260908190137.1168904-1-giveback4fun@gmail.com>
 
-On Tue, Sep 08, 2026 at 05:27:55PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Tue, Sep 08, 2026 at 12:01:37PM -0700, Sudheendra Sampath wrote:
+> Convert Maxim DS1302 real-time clock binding to DT schema.
+> Changes based on code review comments.
 > 
-> The 'orion' platform is the predecessor to what linux now calls the
-> 'mvebu' line of Marvell SoCs, and originally covered orion5x,
-> mv78xx0, kirkwood, dove and a few others that do not have any
-> upstream support at the moment.
-> 
-> Only a few board files remain here, these are the ones left
-> in 2022 board file purge because they had some level of support
-> in Debian or OpenWRT, mostly for commercial NAS or router boxes.
-> This distro support is now gone, and nobody has converted the
-> board files to devicetree, though the orion5x and dove platforms
-> also come with devicetree support for some other machines.
-> 
-> Cc: Andrew Lunn <andrew@lunn.ch>
-> Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-> Cc: Gregory Clement <gregory.clement@bootlin.com>
-> Cc: Alexander Clouter <alex@digriz.org.uk>
-> Cc: Jeremy J. Peper <jeremy@jeremypeper.com>
-> Cc: Damien Le Moal <dlemoal@kernel.org>
-> Cc: Niklas Cassel <cassel@kernel.org>
-> Cc: Ulf Hansson <ulfh@kernel.org>
-> Cc: Lorenzo Pieralisi <lpieralisi@kernel.org>
-> Cc: "Krzysztof Wilczyński" <kwilczynski@kernel.org>
-> Cc: Manivannan Sadhasivam <mani@kernel.org>
-> Cc: Rob Herring <robh@kernel.org>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Vinod Koul <vkoul@kernel.org>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Daniel Lezcano <daniel.lezcano@kernel.org>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Linus Walleij <linusw@kernel.org>
-> Cc: Bartosz Golaszewski <brgl@kernel.org>
-> Cc: Thomas Weissschuh <thomas.weissschuh@linutronix.de>
-> Cc: linux-ide@vger.kernel.org
-> Cc: linux-mmc@vger.kernel.org
-> Cc: linux-pci@vger.kernel.org
-> Cc: linux-phy@lists.infradead.org
-> Cc: linux-rtc@vger.kernel.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-watchdog@vger.kernel.org
-> Cc: linux-sound@vger.kernel.org
-> Cc: linux-gpio@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Sudheendra Sampath <giveback4fun@gmail.com>
+> ---
 
-Acked-by: Niklas Cassel <cassel@kernel.org> # ata parts
+Your subject PATCH prefix is odd. Please use git format-patch -v2 or b4.
+
+
+>  .../devicetree/bindings/rtc/maxim-ds1302.txt  | 46 -----------------
+>  .../devicetree/bindings/rtc/maxim-ds1302.yaml | 50 +++++++++++++++++++
+>  2 files changed, 50 insertions(+), 46 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+>  create mode 100644 Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt b/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> deleted file mode 100644
+> index ba470c56cdec..000000000000
+> --- a/Documentation/devicetree/bindings/rtc/maxim-ds1302.txt
+> +++ /dev/null
+> @@ -1,46 +0,0 @@
+> -* Maxim/Dallas Semiconductor DS-1302 RTC
+> -
+> -Simple device which could be used to store date/time between reboots.
+> -
+> -The device uses the standard MicroWire half-duplex transfer timing.
+> -Master output is set on low clock and sensed by the RTC on the rising
+> -edge. Master input is set by the RTC on the trailing edge and is sensed
+> -by the master on low clock.
+> -
+> -Required properties:
+> -
+> -- compatible : Should be "maxim,ds1302"
+> -
+> -Required SPI properties:
+> -
+> -- reg : Should be address of the device chip select within
+> -  the controller.
+> -
+> -- spi-max-frequency : DS-1302 has 500 kHz if powered at 2.2V,
+> -  and 2MHz if powered at 5V.
+> -
+> -- spi-3wire : The device has a shared signal IN/OUT line.
+> -
+> -- spi-lsb-first : DS-1302 requires least significant bit first
+> -  transfers.
+> -
+> -- spi-cs-high: DS-1302 has active high chip select line. This is
+> -  required unless inverted in hardware.
+> -
+> -Example:
+> -
+> -spi@901c {
+> -	#address-cells = <1>;
+> -	#size-cells = <0>;
+> -	compatible = "icpdas,lp8841-spi-rtc";
+> -	reg = <0x901c 0x1>;
+> -
+> -	rtc@0 {
+> -		compatible = "maxim,ds1302";
+> -		reg = <0>;
+> -		spi-max-frequency = <500000>;
+> -		spi-3wire;
+> -		spi-lsb-first;
+> -		spi-cs-high;
+> -	};
+> -};
+> diff --git a/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml b/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
+> new file mode 100644
+> index 000000000000..54a2fcf7f8e7
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/maxim-ds1302.yaml
+
+Filename should match compatible.
+
+> @@ -0,0 +1,50 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/rtc/maxim-ds1302.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Maxim/Dallas Semiconductor DS-1302 RTC
+> +
+> +maintainers:
+> +  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+> +  - Sergey Yanovich <ynvich@gmail.com>
+> +
+> +description: |
+> +  Simple device which could be used to store date/time between reboots.
+> +
+> +  The device uses the standard MicroWire half-duplex transfer timing.
+> +  Master output is set on low clock and sensed by the RTC on the rising
+> +  edge. Master input is set by the RTC on the trailing edge and is sensed
+> +  by the master on low clock.
+> +
+> +properties:
+> +  compatible:
+> +    items:
+
+No need for items.
+
+> +      - const: maxim,ds1302
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  spi-max-frequency:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+
+Why do you need the type? Please look at other bindings.
+
+> +    description: DS-1302 has 500 kHz if powered at 2.2V, and 2MHz if powered at 5V
+> +    enum:
+> +      - 500000
+> +      - 2000000
+> +
+> +  spi-3wire: true
+> +
+> +  spi-lsb-first: true
+> +
+> +  spi-cs-high: true
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - spi-max-frequency
+> +  - spi-3wire
+> +  - spi-lsb-first
+> +  - spi-cs-high
+> +
+> +additionalProperties: false
+
+Missing example. Please follow standard rules, expressed in writing
+bindings and writing schema docs, DTS101 slides or just look how other
+people do it. Otherwise explain why doing this differently?
+
+Best regards,
+Krzysztof
+
