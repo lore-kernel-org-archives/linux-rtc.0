@@ -1,72 +1,78 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326F949BD76
-	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 22:51:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3282633F8B2
+	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 22:51:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788994320; cv=none; b=RPLdxHPUtyIN5nn0DD1eYG6VgpdXJ5Hc8zuhH7TLIFbeK+yB4FxzlEXHTVMY/8zrow5GzmTh4RP5dt9duf0UlQCetDZHKO/RUvY0SIooHeEUrY+aPMcSenxCtY1olUdhWWfDrFwHq1+gltXqM8m1P2O/awxBWMP13J/wfFb3b34=
+	t=1788994320; cv=none; b=r2PpozdlulZgq3h1dWk429yYS0LWHR9rZj1fVtu0gYbe7cyGsZ4QzmlHwNzeijaCHc1R8C6Ww0WecdRd22McpMhJWGdqAER4/5Vt8DHtl7g5E1W18le3BHGIp46H91My2MglOnbeeYJwjfiOJdY1X5beTLwF8bpOTDn97oYOymM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788994320; c=relaxed/simple;
-	bh=+zx0Es27kLaPv59lhsle3IxCZWQ7rYW77UlTXnD4G34=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hn6hSqd5npkoBAAAet4YViYlCGKxI3JaTBkZOHOvvrjGiKrG2vAx6/g1NNsRnvTL1dA8ay7Qpk0jmMFxZwsrmmvP0YAIG4ybm+lTy3a44aQHIcRl+hf5eucPBRtOlDdXhbL9YlHb35WdeT9D6GA8N37yNanm86bpEdqvMDLZ8wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=MZlDiNzx; arc=none smtp.client-ip=209.85.219.41
+	bh=w61WNGoIZA/H9B+0UvBqxIy2Jaep+YUPmNtGA17Z5/s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=R2rLMwjgPwaMOy3P+43QmnT2jPlO2QRYBoZHM+9C0F8EsIaf7vrbo2FeMnJ1B1Uvi+EbXPLeYV//TcRQUXyIsy0NvJvmcog7Rw3B7Oo4KBrfwqIhQQYM8CtEHtN9NbihRdIiZOSNsxh17Yzb0vinU+AQkW57wpdwkeA7kX1qGEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=MeBpc7kw; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="MZlDiNzx"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-90e8e70fa02so68478646d6.3
-        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 15:51:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="MeBpc7kw"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-52ff0b7c98aso58819941cf.0
+        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 15:51:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1788994309; x=1789599109; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1pvaMPa6UbQ5WwIuJKDQQUXZykQOh5nAfFmGb0Yzfs8=;
-        b=MZlDiNzxvb0c2UOvhdsXcAfiYdyPi7CZlYHZ0CgMwqY0V99V3Ck1KRjReQdXPT4MzV
-         nAdl7x3vaHNMTMAkpr6kO2YJ4DX+kpIofzAIheZ16AQ2LqmBUgqWJ/DMtdaUB3bySDpa
-         3IR33pIFDN+z53Xp8z5CIhzmy8OumatPRa1JhohRKv2RXtDf8TbAVHg2B9VgCTZqJAme
-         +MW0K33r6rfUIzU9vs+9nXgh85UsBCWeiBvM3qQ4Zw2ry6I9vh4NrU9yHBFCkTwG36IA
-         g1HTfDJbI4xtZeSordQ9Mq1N1UPaA+GTw+jofbBMHTY9K0kq4akhYMsghy/egfCJxZAt
-         tSEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788994309; x=1789599109;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gourry.net; s=google; t=1788994311; x=1789599111; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=1pvaMPa6UbQ5WwIuJKDQQUXZykQOh5nAfFmGb0Yzfs8=;
-        b=B3SGFZsQWdr031ZXE6xBLx4KZDr2DeYcSV1sCJbyEYb//gzaNASVHFY0EgAbKTLyr6
-         xyjj58wghKOS7lWmwlIY+G6aihj87CIg4IM20JUGhFiS8fV6cTu+RkFFfeKTWn6+UCd/
-         64eSJtrLUgoflm3i6HPgxmJ3tv0M0esOIr9aqqzyzaIE1p2CveWXX24oe7pA1oDwhObR
-         STqaVab4muGnga+9trbHXSD38OrWUyXqABdJO+7cmHz7ud2HcAVu+Y1+oZbtUYiDtBtm
-         6Pn24K+6Arvdo2/uCMb9pPcm1ioIrX5OeJJ3IOvroRX/hBT5cJQA1KAI2Uo4Y/Fdvu7z
-         1xrw==
-X-Gm-Message-State: AFuF++nO9WyAx7Z1jsi2Ik9Hat4SfOpsw76R9K1Lky1Kzs6JpwlQ78w4
-	+skUPXl/CpMvffrL6/wFfFVUCPug20abaSo6bvB8G6MzFXwW6FoMEN4plbQxa9hqczVV5zWAdJT
-	o8PKr
-X-Gm-Gg: AYBFou3V9O09GiaftAkuxn6Uv2NcrxhkASQG+LT8UDih42hO8aNWBb3FIXzUMArlGov
-	ofVj5k0Q2XNve1uKRqqSr/GucuVFKtDA2WdvpzHyWs8ZkDXTN/DvE/psA0S2QprB6To4J7gVbHe
-	FxLtIcz3I8iaEOMFz/9j7gqNmXjivTbgsVh826n49RBo36mz8Rh5eat8UjuwCj+bSCLPtn4CN1b
-	j/DKoEuy5w4hgY7LQboYzN8f4BQbIIBtYbi9twmDFEwgHbzSKhkR/s5adjWyiAy2k/ddCJ2v8Mb
-	fb8DPsoSTxHE15X3UWGBIchHlkW07H31FLRtEO3oKolf8TEQ8cgIn6ZmV2jJppxx4I7n75Ktzif
-	UuZhuiYscrX666IRnM9FGe3zEKtFQrB5EYi+FTpjhL8Jgfz1Ws3XjsLGEgBqTRwXrfEwu93/Z5V
-	OdEqNvumtMIEsv3iIQL/7adI4HM7dBeEiExPf7zY/6pdVdI0Mq986kXjwYKN8SXa8xWxACcUtj3
-	mt9NGikw1xgeP6hmkDf80auq3xJ9SOS4bTvt9nP/6yxIJFSeynX6ratfyMF
-X-Received: by 2002:a05:6214:448e:b0:910:44e8:e643 with SMTP id 6a1803df08f44-91044e8ef30mr441664476d6.15.1788994308771;
-        Wed, 09 Sep 2026 15:51:48 -0700 (PDT)
+        bh=v83isyAjdugdAGxxYVFRPX3ygevFsOMhNoKrO0tFt3Q=;
+        b=MeBpc7kwl8MqLB5z6n5iVHzQx1veQ4IM9toLUmhGA9TK0cfX3xwiLG1duwcROB5WWV
+         3t8SJ1UpJGFjz0VXzPg6jTVGK1wTgmj+j4POwyViHI4ijP2CcjiAtIP7SorPKiZ0mCDc
+         6BET0Oc74wQmklv7fW3R53fsvaveV+uTIKhv8oVG6vD/2+vJBWtn9sOCfFbqcR6ts3de
+         P//tvGElRAsCY/BjUMQ0hU0RH9M5EO0CMWccNDF6r4pj9gaNBMPec1sGRSe94TWO03IJ
+         +U9OLQCSDRovEQ10YsM31o0Y7NNJ+/60enrsA/x2UIeDAkJ/1b56aIuKG1aDF9ta43TD
+         x0jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788994311; x=1789599111;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=v83isyAjdugdAGxxYVFRPX3ygevFsOMhNoKrO0tFt3Q=;
+        b=oFMi0yRKzvHPKLeDy8sqFgGSZScOvc/qMfMmhiRg3O1BewUPy9Z50NiE/p1hRlAT7q
+         rIJzJLUTdkW89Vq2yd1hEATQI/lqCH42DntKPZ7UGF0Oq0VA+qozeDZBehtjMlfz6cHp
+         14MzEVzzxzVN6r4goi1UllldNtntdpLvIRMHKlK+kj7/0X4Gtzhrk0tDwmuAgpHQVzok
+         +O5VR663Xg3p9S5yDYB+nmMl0XxQ4I865W57CKI6u6GX01KA2rZw7j1qe2C4mHcRBAHc
+         S0CLEBMVxgnhEW9hSEThwu4m3Uriz8A6/PISWn85IonfqWZLNf38d/abhKLnOrrAAlFb
+         25sQ==
+X-Gm-Message-State: AFuF++nDGXLU3hIkJdnTstg5P/sypXS+AGVa+aRvBaUMP57VDka1SN6M
+	nXNqtQ+fBdgP1KOJUToceX52RcKzPAJ1+FZsPO9/CXGUaH9Vnw4AwzwrrlfMXer3HRE5BKvydgQ
+	Yh6fA
+X-Gm-Gg: AYBFou0E4tHIH0QHwJdrTvwXUwu7nQqbX8H3PnPdQO7q/EPnz36sKkXsGUCuSp6JRFT
+	wCQ4GG9VpkQUfsdFKje9oDWN2X6YXK/6bYXp7T1XJwGPN/QaNpN6ZPZdFkXEX5oZ9nXTzYyTxue
+	2hsx27ZSq05sSdIPkpbScJMK7qrThj7aoQll9GlrcylYKgGgyMBtD7lF21Dh6IYy3cutnZJ9M5z
+	2VQAyJxc9JfPOXD50krJ3BsW00Vd424ef+ytXQ8dcqebROn0qnxvfDXw73ULwwqvCUWe2a1j3f5
+	/qjcc7CXVnyQXrsmzLD6FfwKBt0fapZ2Wpsaze2Vyli1CKNmaUEkygPfFHsGn9i9PEsAgqvozpG
+	WMqHYXnwXCQu+tctJLYvEqfoQuvJlBIFKvUo/1WQhro3tcGp7n0Wx4A4Hd2WxQOwlMs8zjbBCAV
+	CaGY6F+kWP0ShXDQ0lrv+NcarHj7jQwUTRJbfbaz14A//Im4XFyp1TKlBH3W+5JgrcaqHNlhxUH
+	Hu2E4TnlIyjLkYgh9wCQvfPdP+HPPqie2Mxlji07d27p++i/JCShuD+QtNO
+X-Received: by 2002:a05:622a:90a:b0:52e:1e5:4754 with SMTP id d75a77b69052e-53054944d66mr394518201cf.24.1788994311148;
+        Wed, 09 Sep 2026 15:51:51 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F.lan (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm59976696d6.20.2026.09.09.15.51.47
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm59976696d6.20.2026.09.09.15.51.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 15:51:47 -0700 (PDT)
+        Wed, 09 Sep 2026 15:51:49 -0700 (PDT)
 From: Gregory Price <gourry@gourry.net>
 To: linux-rtc@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org,
 	kernel-team@meta.com,
 	alexandre.belloni@bootlin.com,
-	rui.zhang@intel.com
-Subject: [PATCH 0/2] rtc: cmos: Fix ACPI RTC alarm handling
-Date: Wed,  9 Sep 2026 18:51:30 -0400
-Message-ID: <20260909225132.1392883-1-gourry@gourry.net>
+	rui.zhang@intel.com,
+	stable@vger.kernel.org,
+	"Gregory Price (Meta)" <gourry@gourry.net>
+Subject: [PATCH 1/2] rtc: cmos: Disable ACPI RTC event before handling it
+Date: Wed,  9 Sep 2026 18:51:31 -0400
+Message-ID: <20260909225132.1392883-2-gourry@gourry.net>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260909225132.1392883-1-gourry@gourry.net>
+References: <20260909225132.1392883-1-gourry@gourry.net>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -75,39 +81,69 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RTC update interrupt emulation can stop delivering events when rtc-cmos
-uses the ACPI RTC fixed event. On an affected system, a test that waits
-for five one-second update events completed only 40 of 50 runs. The ACPI
-ff_rt_clk counter stopped at 218, exactly matching the number of events
-delivered to userspace, with the event status set but delivery disabled.
+Users of RTC_UIE_ON can stop receiving update interrupts when rtc-cmos
+handles alarms through ACPI. In one 50-run test, 40 runs passed and 10
+timed out after receiving between one and four of five expected events.
 
-The ACPI SCI handler disables the fixed event after dispatching the RTC
-interrupt. Because dispatch queues work that rearms the next alarm, the
-handler can disable an event that the worker has already enabled. Move
-the clear and disable operations before dispatch so that rearming always
-wins the race.
+The ACPI ff_rt_clk counter stopped at 218, exactly matching the number
+of events delivered to userspace, and reported:
 
-During diagnosis, an explicit rtc_cmos.use_acpi_alarm=0 argument was also
-found to be ineffective. The automatic platform selection runs after
-parameter parsing and overwrites the explicit false value. Record whether
-the parameter was supplied and skip automatic selection in that case.
+    218     STS disabled     unmasked
 
-On the affected system, ACPI mode completed 150 of 150 runs after the
-ordering fix and delivered all 750 requested events. With
-rtc_cmos.use_acpi_alarm=0, sysfs reported N, HPET emulation was active,
-and 100 of 100 runs passed without using the ACPI RTC event.
+rtc_handler() runs in the threaded ACPI SCI handler and calls
+cmos_interrupt(), which schedules rtc->irqwork. The work can run before
+rtc_handler() returns:
 
-The in-tree RTC selftest also passed all 8 tests under VNG with
-rtc_cmos.use_acpi_alarm=0. VNG does not deliver ACPI RTC fixed events, so
-the ACPI ordering fix was tested on hardware.
+    ACPI SCI thread          rtc->irqwork
 
-Gregory Price (2):
-  rtc: cmos: Disable ACPI RTC event before handling it
-  rtc: cmos: Honor explicit use_acpi_alarm parameter value
+    cmos_interrupt()
+      schedule_work()
+                             __rtc_set_alarm()
+                               rtc_wake_on()
+    acpi_clear_event()
+    acpi_disable_event()
 
- drivers/rtc/rtc-cmos.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
+The SCI thread then disables the event that the worker enabled for the
+next alarm. That alarm sets its status while delivery remains disabled,
+so no update interrupt reaches userspace.
 
+Clear and disable the current ACPI RTC event before cmos_interrupt()
+schedules the work. The worker can then enable the next event without
+the handler undoing it. With this ordering, 150 runs delivered all 750
+events without a stall.
+
+Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM
+Signed-off-by: Gregory Price (Meta) <gourry@gourry.net>
+---
+ drivers/rtc/rtc-cmos.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index f89ab58f5048a..462799667aa18 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -758,7 +758,9 @@ static u32 rtc_handler(void *context)
+ 	unsigned char rtc_intr;
+ 	unsigned long flags;
+ 
+-
++	/* Quiesce this event before rtc->irqwork can arm the next one. */
++	acpi_clear_event(ACPI_EVENT_RTC);
++	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ 	/*
+ 	 * Always update rtc irq when ACPI is used as RTC Alarm.
+ 	 * Or else, ACPI SCI is enabled during suspend/resume only,
+@@ -781,8 +783,6 @@ static u32 rtc_handler(void *context)
+ 	}
+ 
+ 	pm_wakeup_hard_event(dev);
+-	acpi_clear_event(ACPI_EVENT_RTC);
+-	acpi_disable_event(ACPI_EVENT_RTC, 0);
+ 	return ACPI_INTERRUPT_HANDLED;
+ }
+ 
 -- 
 2.53.0-Meta
 
