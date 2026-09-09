@@ -1,144 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC6705540AE
-	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 15:37:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03688233722;
+	Wed,  9 Sep 2026 15:44:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788968257; cv=none; b=PQbPDw5jo/vPyzGO/790rhZPGCYHck3Ms3On/nmZ8sN8/VF8fSoIz+S3VH41Neigv7jsXFqV6eUJ4ciAyZ6kcLzJvqH6K39OLEGZXAiodhWdHEnKMyGPbtO7qFNX1zVzUVsdjr091LtyGOP1VqkJkInIV++gTJAsgUb97b+lcas=
+	t=1788968653; cv=none; b=RckKHCsGwCkI29yk4nF7TVno6p06acKlcmfXfnqBFdRAiHBWcMG6APya38gyXQPCsd3AgZJrJ5sYdN+G9ME5D3P4rNsYB8WaFjaADulk0TDMqtbDC9MkjMceY9ySbdSZUkWAq3L7wyxNalrCp/Eb2T7cEKsix7knldGtKXDATkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788968257; c=relaxed/simple;
-	bh=SLl2etl7vOwFDFB6JF6O7Ujsn6kZIHsMbPF1okbApmo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gRDfc6BTIzzQmnsYz2Utf2KFqGCblYAZC2YID80WVgDBgYA31Ns9TJ0fA93eHtdc/3GGqReGp9AlbFDLYFcMgSFAzmUieFrXympsbjknLPOGzO9De3oZ2XNj6zKvDTj7D0uJrks19PRaFi1Pjktuu06sjmdlkRnbrriiqgegNjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gjUOQWX4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788968653; c=relaxed/simple;
+	bh=Wj09sKyTRCKjkTl8JmCPFGvQ+O9q9IEj6LI/xvNO+ek=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tiK2fRsckw5DX5IDgc3PDJiiwELur532gjnlsc7+csnWA15i7byA2En3IVGhdm9dw1kK6a3px00mb/9SMNMWKFdt15ak+YYTffhfnmRD4MSUFn9XFRlvUNz4Avp9ZJm0eEh2qnN7x1ymmpRS62Uc051yjuJQ0MbqnTwefOnklUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gj0I3XLS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gjUOQWX4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 554F71F00A3A;
-	Wed,  9 Sep 2026 15:37:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gj0I3XLS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 064E01F00A3A;
+	Wed,  9 Sep 2026 15:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788968255;
-	bh=IQBD3h3uOX05x7h3ABTq6ghPbvH92CNkqmKsqwjzQ1s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gjUOQWX41xYSW9ntbN8XlBHI12qJHkzJ2rvHxsITGhXTMxZEQtpbWa57noguZcUfx
-	 PjKN28oLp+GlJxVhVSrnyJZ7s4o+6W5FjyEL+f9jQamR8IBWgnQ+Yh+kzOzCOba4NF
-	 EhS0gcdNDEUJ3nJUN9vyc3K7esVb098xHiZHlc1xLThnN3PQrvOvjKp/Wd0zb59EF4
-	 ef45gK3fvYCOCr0ZWJb1JjbhOHBDiD8GJf+rchMxecWmOq9F1tug+5w81Z697KJwjT
-	 JzXvUlP9zrwihtNT90Q6CV0dJ1l+jL8S/cvG5/ZWlra5nCAGmhlIgGzswtlq3/3y/A
-	 8+tKI1c8/nFJQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: atcrtc100: cancel alarm work on remove
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fan Wu" <fanwu01@zju.edu.cn>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260909152651.712614-1-fanwu01@zju.edu.cn>
-References: <20260909152651.712614-1-fanwu01@zju.edu.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 15:37:34 +0000
-Message-Id: <20260909153735.554F71F00A3A@smtp.kernel.org>
+	s=k20260515; t=1788968651;
+	bh=9dceEoNIh2+YjlMK4p7/VnK13/vaJXd7fdS/ZghERkQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=gj0I3XLS/ZYJ487TAzrDsx4sc5EU7PvIJerKIlKIl0buRDLAlEadq4rhq6IR2UA1s
+	 +r88kNp2+pFM+l36Ot2MBXaLW+EduH02WjBvkZI/rQfHJvBoQno7bf3H96Zi80RwVh
+	 ju5cnBHMFtfGBSFnu4T2PxC2WNrtJnHFhnQOj1kdrDLlLlbtthELR+Ol43aCq5zd9a
+	 HOCM7v3RQKmAQejstwXFxEUzEEugBtobaPCA6iL3BiL8qKu8AlGHUeQaqFgHU4f1ss
+	 qdGKNjIJrzqBseKttQIZ0D8RmBdIUsvUShvhsQrL3tv9ZkkNdLxC36Rzj0Uof6hsjY
+	 6+qfszA/YR5LA==
+Message-ID: <b9f589c5-bec9-4526-a4ea-15b94db23920@kernel.org>
+Date: Wed, 9 Sep 2026 17:44:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] rtc: Add Raspberry Pi 5 RTC driver
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Sander Speetjens <sander.speetjens@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonathan Bell <jonathan@raspberrypi.com>, Stefan Wahren <wahrenst@gmx.net>,
+ linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ Dom Cobley <popcornmix@gmail.com>
+References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
+ <20260909141300.1368790-3-sander.speetjens@gmail.com>
+ <202609091522031352f96b@mail.local>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
+ cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
+ JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
+ gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
+ J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
+ NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
+ BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
+ vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
+ Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
+ TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
+ S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGPBBMBCgA5AhsDBgsJCAcDAgYVCAIJCgsE
+ FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJp2mE8AAoJEBuTQ307QWKbeaIP
+ /ihHTkTW4KsN/DQ945JJbyu5tI0J80Wue7QyyLPglyKfhgb5cLLNPpOC8cCIJsc7+W3i2P38
+ s2c1cOH6CYGE7E9ur3Vfme8NW2S2I/Z8VC7bZnzyS23wT17LrsdS/qCpx4o8U+pt/xdXDKph
+ EGRYrIEmMpUWvyYzyYKGIe25FtaayIIKpq8eZYyFcp2f/sG5IkOW5uZzHPMPdcm87jU7fyuQ
+ rAU2vx9r+ulUfQ/q9Z2roC/ode3l7t2pN7BCBCsUDp6JCrUyZrtT1e7EbA0ZRP3aOBNk2P2E
+ DQOgJGjGdO5Yx2Y9LFtltu6JbsBJHi1syGRX3AtQYOMc4Y1WGoeZJmMlvKj2ZqqXNkcWi2DS
+ IQEWB0uW6CqFsBBIMGDa+6OzdaVO/uAVXWDWml02Men3CILdI1MbVjoh8ECqYUY7OQ+JJvNN
+ vnliuq5WM3Ghd3jg/LZZrxXjdIginRHFQCjIJYLKpLZWm1/iDFedcfzqRNYmTtqscdCNHW41
+ oT3Z7BmO9xwdjuwBS6nmS6JJwkbf5Ot2QR4pB/DRU7ZwjT1qHe+9r9gF32wXVQatHNGK/VVu
+ sfwOnkdxCWkp/qb2gdQRmZh+SedStWshigH6sNfuHBloF/q+hjMRc8b2m326OZdrbSHwY1Sz
+ vti8Hn7n8NjdHO9LKB7BIdjkA9DA5WsqOuVCzsFNBFVDXDQBEADNkrQYSREUL4D3Gws46JEo
+ Z9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLueMNsWLJBv
+ BaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6eiOMheesVS
+ 5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wAGldWsRxb
+ f3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA6z6lBZn0
+ WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9YegxWKvX
+ XHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt91pFzBSO
+ IpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gUBLHFTg2h
+ YnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/JoFzZ4B0
+ p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu4vXVFBYI
+ GmpyNPYzRm0QPwARAQABwsF2BBgBCgAgAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtBYpsFAmna
+ YUkACgkQG5NDfTtBYptX+BAApg32CkxwNucNEi8WfWA8oKkW0y8YDuY6ORMo9FWNGiT/OTy0
+ vyJrLocrpn86zwfjVp+eCrssPYh8eqJfnWqmYv6ACQtHPYzPZQ3mSo8H97Z01oUxITzCxpXm
+ ZkLgPIqtDPcC2E3dPM/fVxcyowM8XsaMA9wcsaUYrta8toOq2b9tKcjleKMfMrm0gQ9u7wUc
+ QbLkwj6TCLOwucb07GXzLTNF9PZmaDUpKAZjMjmrW+le+SFvQbhamx0rxLWPR0NWntXpbCn+
+ +ACch03p/JyTBVktxFsFyCt7pTPE1kEaeuXBTe/a2D9iQvRxRW19LvuO2e59/u1wYUiH/orz
+ wbIC2S4dBsPAPihL3ztOU1yE86GPyQtSE0kU+/7snnLt4QGi6PChf3t5gnNjAzjUUovO8rgI
+ c+5yN5heq5loYHgK6OQ9OlHzsPHO9e9MOQcKlFycs1pyijFGzDwdNUm/SchK8iWT2QApTx4A
+ K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
+ n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
+ qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
+In-Reply-To: <202609091522031352f96b@mail.local>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On 09/09/2026 17:22, Alexandre Belloni wrote:
+> On 09/09/2026 16:12:59+0200, Sander Speetjens wrote:
+>> From: Jonathan Bell <jonathan@raspberrypi.com>
+>>
+>> Upstreaming the downstream Raspberry Pi 5 RTC driver.
+>> This driver supports the custom DA9091, which is accessed through the firmware mailbox.
+>>
+>> Co-developed-by: Dom Cobley <popcornmix@gmail.com>
+>> Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
+> 
+> This is missing the SoB from Jonathan Bell
 
-Pre-existing issues:
-- [High] CRASH: NULL pointer dereference and uninitialized memory execution=
-. The alarm IRQ is requested prematurely in probe before the required struc=
-tures are initialized.
-- [High] LEAK AND UAF: The probe function's error path for devm_rtc_registe=
-r_device() fails to clean up newly configured wake capabilities and the wor=
-kqueue.
---
+It's missing two SoB. Also from Dom.
 
-commit 913e1e349945d1e573a4b95047a974a86f29a566
-Author: Fan Wu <fanwu01@zju.edu.cn>
-
-rtc: atcrtc100: cancel alarm work on remove
-
-This commit adds a remove callback to the atcrtc100 RTC driver to properly
-clean up resources. It clears the wake IRQ, disables wakeup, frees the
-interrupt, and cancels the alarm work to prevent use-after-free and -EEXIST
-issues on rebinding.
-
-> diff --git a/drivers/rtc/rtc-atcrtc100.c b/drivers/rtc/rtc-atcrtc100.c
-> index 9808fc2c5a492..3c7313218da51 100644
-> --- a/drivers/rtc/rtc-atcrtc100.c
-> +++ b/drivers/rtc/rtc-atcrtc100.c
-> @@ -337,6 +337,16 @@ static int atcrtc_probe(struct platform_device *pdev)
->  	return devm_rtc_register_device(atcrtc_dev->rtc_dev);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this error path leak
-resources or risk a use-after-free?
-
-If devm_rtc_register_device() fails in atcrtc_probe(), it returns the error
-immediately:
-
-atcrtc_probe() {
-    ...
-    return devm_rtc_register_device(atcrtc_dev->rtc_dev);
-}
-
-However, earlier in atcrtc_probe(), device_init_wakeup() and
-dev_pm_set_wake_irq() are called, which are not devres-managed. Do these wa=
-ke
-configurations leak on this error path?
-
-Also, if the alarm IRQ fired and scheduled rtc_work, wouldn't returning wit=
-hout
-cancel_work_sync() leave the work pending? Once devres frees atcrtc_dev,
-couldn't this lead to a use-after-free when the system workqueue eventually
-executes the uncancelled work?
-
-[Severity: High]
-This is also a pre-existing issue, but is there a race condition when the a=
-larm
-IRQ is requested earlier in atcrtc_probe()?
-
-The IRQ is requested via devm_request_irq() before atcrtc_dev->rtc_dev is
-allocated and before INIT_WORK() initializes rtc_work:
-
-atcrtc_probe() {
-    ...
-    ret =3D devm_request_irq(&pdev->dev, atcrtc_dev->alarm_irq, ...);
-    ...
-    atcrtc_dev->rtc_dev =3D devm_rtc_allocate_device(&pdev->dev);
-    ...
-    INIT_WORK(&atcrtc_dev->rtc_work, atcrtc_alarm_clear);
-}
-
-If the hardware interrupt fires immediately after devm_request_irq(), the
-handler atcrtc_alarm_isr() will execute:
-
-atcrtc_alarm_isr() {
-    ...
-    schedule_work(&rtc->rtc_work);
-    rtc_update_irq(rtc->rtc_dev, 1, RTC_AF | RTC_IRQF);
-    ...
-}
-
-Will this cause schedule_work() to operate on uninitialized memory and
-rtc_update_irq() to dereference a NULL pointer? Should the IRQ request be m=
-oved
-until after these structures are fully initialized?
-
->  }
-> =20
-> +static void atcrtc_remove(struct platform_device *pdev)
-> +{
-> +	struct atcrtc_dev *atcrtc_dev =3D platform_get_drvdata(pdev);
-> +
-> +	dev_pm_clear_wake_irq(&pdev->dev);
-> +	device_init_wakeup(&pdev->dev, false);
-> +	devm_free_irq(&pdev->dev, atcrtc_dev->alarm_irq, atcrtc_dev);
-> +	cancel_work_sync(&atcrtc_dev->rtc_work);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909152651.7126=
-14-1-fanwu01@zju.edu.cn?part=3D1
+Best regards,
+Krzysztof
