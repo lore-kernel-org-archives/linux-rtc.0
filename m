@@ -1,122 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B866457EDB4;
-	Wed,  9 Sep 2026 15:54:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C060637BE9C
+	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 17:27:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788969280; cv=none; b=SyQAR3bmAZmMFSZlXGcbsqcHAyHIWq+sNmk2xKcYaQNQXdPXWxl9xbjcOFdyS0zhcxP2w/I0ERtE9AhzMDycYcFqeNCHRcVtKiKoWzkHUlZwsxHJhsdUcX+07BOAlENAR7nVkfoidG2OImm3m0lfERa8qwx9k5KaymAil9ofMC4=
+	t=1788974824; cv=none; b=RVmJn37EcdhrIj/9zJzOhegS21ytmcXPe2g48J4dnMpaHy8ZRloZdSlP3nbShR32xTw50IBbQy9ygSvpALt1a7NtWuPyuWFlYs+E2Sa9J873U11jKWmVfikcxMLbUCsApMEG5i7twxc6XAuBBWjeFqiFyU4GRn6huJ+/mlFT/OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788969280; c=relaxed/simple;
-	bh=2O4bp2dCphjd9ogFWvhKoK09J5wvAq/ZRfk7YrNlwmI=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=HpC16DYEvuKaiLItO4v5/VFTbVv54KHqG/IQd2V5uqJIZK5V9k2PELz1T8gk1KmqKcQTeixg/x2TmVU6rgMbxZaf8jafT0uplxYIrwO5tJRgVEWO6W+CRsHkcjE3mjRTf2nzAaAwbxTlSwhzXjVPvWZTRUc1BUqv8wa5V54hPpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TfxpT0YW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788974824; c=relaxed/simple;
+	bh=SUxP5gT1ZaOy4mmgP6chw0Cr8VRY83cgnbGtN/GeIrM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LMyQ3CaPJmCZNkOB2qodaMH+vD9YsJzx47q46GV+Act0QWR/udvWtzcwtzttFmqLJaitqd6Udk1gc3D1z8L69bwqaF13y0G2rEwtk+L16cHSxMQSMHCIyfydh21Zs9s/zE2wBjpWS4gGJ1trMkRWsnY+07qvSyC1DZDNezfrQsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jI6Ly9NO; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TfxpT0YW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5161F1F00A3D;
-	Wed,  9 Sep 2026 15:54:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788969279;
-	bh=TrTrHhq6LKWrqznN5k5C4xPSm0M3re/iz5bwLgcI6nw=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=TfxpT0YWPOoZ3UD815z0a1kWBaA/oqCfdW2aiDOAozGd+EjcekoyC+D3ZNeDZjOzc
-	 AnvUZTWjOv7zvBDyg60qwONE166WmUCun0vh3XluMEsyhCZ6rRGx/PK74tO/WJnJ+j
-	 QKmXEpvM7/h/BEajQNipsuSJddL+/4p/lqh8BfIHgqzfkxk1q2f56qx3CCY8Ky6Feg
-	 fmpc/QCdon4ElxtdE4wIWiOWL8Rr5mFZxsWZ9sxjmmWqxGqEwdM5bp44Id4bEqn1CY
-	 TUt/7NeV6Nxz1Fzybu7OShL2+OTM+R5PT6s0EUwghwlDkOcd1q4cvOu2pCr2Gfbx9h
-	 pVVxx1Ap1GJGg==
-Message-ID: <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
-Date: Wed, 9 Sep 2026 17:54:32 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jI6Ly9NO"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-869ac301739so106723b3a.1
+        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 10:27:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788974821; x=1789579621; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
+        b=jI6Ly9NOhS1CJVDcDoKjwgjST/iQVlVpolh/hifxBJGV2nz6t+8GlFWLZ4bzANtEHt
+         /Gubm7aHSBwsXnEHDwS28/J38FGObVki5RAT4+MKtWxDxCzdeulLhOlDre6S80gl/1TC
+         7EygHVvY8rB9EzbY4vuEGBvLIXgnThM7ofFVrmOOyUnxK3+Cw8/lUB1Qrw2zcQyD28sq
+         aOwfF4Jak4nLrwlBRcrBmxMV3zq77fRSSDlQwIxXNAn/g3MvLudGjEbIzxRGELLjSs75
+         zSMaaTiP34sWBjEuq0+gSjLhjHao2DyO1AI08J/NXT1fTMGf7TSzj1Dp3m+TJmQDgi3k
+         TF6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788974821; x=1789579621;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
+        b=rcXHh9t3EUQqAmZ5JwrZfdiHNvDG3a3ZaxT86dzJEKKEFwnbbQjwudeYhoWnmS809p
+         gkoDt56tCC1p10VNYcijc5xitv6RpFYlMqX/Br6ShNYKMwblwc5NCbFq1VAdK0vf6O5d
+         Oy1PhTlwz9KkC7FKJLsft7AoxjZHMUHKmqgrJbNmdW7Szd3WLimFPOUDkQ86l0061tuM
+         irset80btCYO24xBTshYWBHqqbqpknPgbwCV8i44oUeWf2XwBQecIPHwyKivcIcMiLq5
+         jHtw6bvMUnRYJwqjCPcwc3EtT3DWtHy/tPPP8sQ7QhCciGD2OaaLjQnwSX8QAz/5m+EA
+         gPJg==
+X-Forwarded-Encrypted: i=1; AKwUvBxhKAmuW/tqJJx1Ojl05gPCDdWEENPEsJ1YhFIwvxY5+Aw9tUHWMTmcE2Mug765ubJa3FREB30N3tE=@vger.kernel.org
+X-Gm-Message-State: AFuF++mhPKpb5yjomyQvRUSz0uMW1E+39sQflhxI6O9pwPALLSugkjt8
+	fUk+/qAzfcJIN7/74d31Q3uUVKy2In13DnayemOYktVSg79rZjVw/2jp
+X-Gm-Gg: AYBFou0nPZqDnkFrPHJmy3dD4mFY4PC+QyODFkyue9u3G12nWKuEn+YSSi3x1XuKC3u
+	nQcAbPt7L5dJoK/s0AhCwwc89Zb1eIlvzItvwXGRFFf8izPsUxpnZ1GNHknXPV8cjW4jX80dV96
+	hh+mplBZx2/9uMtVkqPbeTV84JV3faETncn7U1YKzOOP3v8HAz/elIQKjk0UbIJTkcHSsCJ7/R0
+	E+vD4LBu11jaKarImUFi7MYs9OUpeR8nuGF2LJVwqJDOlS45UC79R+AIsqGjUJM+HKfVUdxlfpZ
+	fWN0wXWl8aLu5URCOriFX+uDebjL8GaUIzkodpx8a+GcMX3TvD2w9aHH0yONmcmzIm+nPLkbJon
+	J2diXx/7Gq3nDYwLHYxQsFlXwQT8HqcOQanYL3h0ePXIrDBtWCSXPUDfC2iGzM3o1vHPooqH72k
+	BZt2H+RGGJr9so8xifNi7w7NjgJXdX3LfYzkEH4dcu8dEfIY+2izQP9/nKdE/b1baYV7L/vbLYr
+	gsljrTh5GSSkJNEhPHiO56YvLfTr1qL7ERxI9w2mKTHbRZegiL7
+X-Received: by 2002:a05:6a21:9d84:b0:3d3:af85:eb98 with SMTP id adf61e73a8af0-3da3a16a579mr57975715637.26.1788974820346;
+        Wed, 09 Sep 2026 10:27:00 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:2d43:5153:5c50:643e])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339a534df1sm52422943eec.7.2026.09.09.10.26.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2026 10:26:59 -0700 (PDT)
+Date: Wed, 9 Sep 2026 10:26:55 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	Arnd Bergmann <arnd@arndb.de>, Daniel Thompson <danielt@kernel.org>, 
+	Jingoo Han <jingoohan1@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org, 
+	linux-doc@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	llvm@lists.linux.dev
+Subject: Re: [PATCH 00/14] mfd: unused driver purge
+Message-ID: <aqGWjAuGXq_JHvxk@google.com>
+References: <20260909132153.1596191-1-arnd@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Sander Speetjens <sander.speetjens@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonathan Bell <jonathan@raspberrypi.com>, Stefan Wahren <wahrenst@gmx.net>,
- linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
- linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
- <20260909141300.1368790-2-sander.speetjens@gmail.com>
- <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260909132153.1596191-1-arnd@kernel.org>
 
-On 09/09/2026 17:47, Krzysztof Kozlowski wrote:
-> On 09/09/2026 16:12, Sander Speetjens wrote:
->> +
->> +  firmware:
+On Wed, Sep 09, 2026 at 03:21:37PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> There is no such generic property. You need vendor prefix. Wasn't this
-> already discussed for Rpi? I feel like every time contributors send
-> downstream DTS ignoring what was discussed upstream.
+> As part of my cleanup of old platforms, I had a look at all drivers that
+> may have become unused because the last platform_data or DT definition
+> was removed, or because of unmet Kconfig dependencies.
 > 
+> These are all the mfd drivers I found. The first ten in the list
+> actually turned out to have been unusable long before my series, and
+> I have added explanations on how I determined this in each patch. The
+> last four patches are still in use in linux-7.3 but become unused after
+> my series [1] that I hope to get merged for 7.4.
 > 
->> +    $ref: /schemas/types.yaml#/definitions/phandle
->> +    description:
->> +      Phandle to the Raspberry Pi firmware device.
+> Somewhat unorthodox, I took a shortcut here and remove both the mfd drivers
+> and the corresponding subsystem drivers (gpio, hwmon, iio, input, led,
+> media, power, regulator, rtc, video, watchdog, asoc) in a combined patch,
+> to simplify the interdependencies: removing just the mfd driver would
+> leave unselectable or broken drivers in other subsystems.  I also have
+> additional patches for each of the other subsystems, currently a total
+> of 300 patches, many of which still need better testing or proper
+> changelog texts.
 > 
-> You said nothing more than property name and type. Explain what for.
-> 
+> Please let me know if you all think this approach is ok, or if I should
+> explode this further and turn these 14 patches into 70 individual ones
+> by splitting them per subsystem.
 
-And more important, where is any interface to actually control the RTC?
-I see nothing, so your firmware is? Then this is not a separate device
-and you just added DTS for your driver, which is a no go (see writing
-bindings).
+Sounds good to me, especially if Lee makes an immutable branch from this
+pull so we can all pull it in...
 
-Best regards,
-Krzysztof
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
+
+Thanks.
+
+-- 
+Dmitry
