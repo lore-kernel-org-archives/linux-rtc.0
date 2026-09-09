@@ -1,130 +1,145 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C060637BE9C
-	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 17:27:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32555395D98
+	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 18:03:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788974824; cv=none; b=RVmJn37EcdhrIj/9zJzOhegS21ytmcXPe2g48J4dnMpaHy8ZRloZdSlP3nbShR32xTw50IBbQy9ygSvpALt1a7NtWuPyuWFlYs+E2Sa9J873U11jKWmVfikcxMLbUCsApMEG5i7twxc6XAuBBWjeFqiFyU4GRn6huJ+/mlFT/OM=
+	t=1788977008; cv=none; b=BUKBu3acKtJayy5v/GR7Bu01S+K2VuHf5Y97inSyztSyZ21q7VZr2Ri+qdvvEzd3eCWdFWcCc/qHhcTn0zl4nc2b2b0arSyXCXmlwVmHzsq/16ny7BbLgH279JfQd5mF/m3TIf3W3d24TABKD18Z8IUROqrMeTglVoDRq58t49w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788974824; c=relaxed/simple;
-	bh=SUxP5gT1ZaOy4mmgP6chw0Cr8VRY83cgnbGtN/GeIrM=;
+	s=arc-20240116; t=1788977008; c=relaxed/simple;
+	bh=h0+O/uLPWOX80ES9M0XKdB5md+a2oSQUnkWr/gWIyaY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LMyQ3CaPJmCZNkOB2qodaMH+vD9YsJzx47q46GV+Act0QWR/udvWtzcwtzttFmqLJaitqd6Udk1gc3D1z8L69bwqaF13y0G2rEwtk+L16cHSxMQSMHCIyfydh21Zs9s/zE2wBjpWS4gGJ1trMkRWsnY+07qvSyC1DZDNezfrQsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jI6Ly9NO; arc=none smtp.client-ip=209.85.210.182
+	 Content-Type:Content-Disposition:In-Reply-To; b=j/N/Z4+moUwCACh44SsAtyVPnMZAHV4uy2bB6ywPQbYdbCzS2M/HwITxMFWpvFI7uInxRuvynnX0Oa4PAh7dQcURJc+gr9MKelygzXJo41BCHDxufrjN0I0Z1EANvWPWMQbM0AM1KvnR0vANVBCw01cy9+XlMhDut6zs57g3dZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sSuSjSAv; arc=none smtp.client-ip=74.125.225.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jI6Ly9NO"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-869ac301739so106723b3a.1
-        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 10:27:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sSuSjSAv"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e2406so10804505e9.1
+        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 11:03:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788974821; x=1789579621; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
-        b=jI6Ly9NOhS1CJVDcDoKjwgjST/iQVlVpolh/hifxBJGV2nz6t+8GlFWLZ4bzANtEHt
-         /Gubm7aHSBwsXnEHDwS28/J38FGObVki5RAT4+MKtWxDxCzdeulLhOlDre6S80gl/1TC
-         7EygHVvY8rB9EzbY4vuEGBvLIXgnThM7ofFVrmOOyUnxK3+Cw8/lUB1Qrw2zcQyD28sq
-         aOwfF4Jak4nLrwlBRcrBmxMV3zq77fRSSDlQwIxXNAn/g3MvLudGjEbIzxRGELLjSs75
-         zSMaaTiP34sWBjEuq0+gSjLhjHao2DyO1AI08J/NXT1fTMGf7TSzj1Dp3m+TJmQDgi3k
-         TF6A==
+        d=gmail.com; s=20251104; t=1788977004; x=1789581804; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bjvBiyvh/g8+fag4d0kfWnymDoayXnCGlAJvwIriZP8=;
+        b=sSuSjSAvW8G2BiaFjsjQTtHpBnXuK45djz92Q9LkrjJF0eLYfXK5ORDPxf1bLn6zL3
+         YJ2X6HCYZJxZV8UHdllvGXuNgyAUpiFgmJBFB0u9t4Xzjr2e+oc6A4M7WHeMz7NdxTII
+         CKrvrQexlLxFuMUkdB2/6i/bpZzDk3OgZZfU+T64Brce7xRpJamNgA8cym6f/1u1MHDE
+         nWZBsOlUiaIpXxmm3vW5ZG0UpKyoch37Ewz6+H+VvumF/vNAHvW2eM3VGFC0w8A4B1j3
+         uoEhVMBfdLKk+K4PcVTUfuJnuGsqctxjt7mb44UlW4Bo4Ge7pG7rzPt9cm/drMKazaZX
+         L5aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788974821; x=1789579621;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BxkJmMQiuFGLIVhYvP7iekSRoJyyqxrT2LFSLJP0a4Q=;
-        b=rcXHh9t3EUQqAmZ5JwrZfdiHNvDG3a3ZaxT86dzJEKKEFwnbbQjwudeYhoWnmS809p
-         gkoDt56tCC1p10VNYcijc5xitv6RpFYlMqX/Br6ShNYKMwblwc5NCbFq1VAdK0vf6O5d
-         Oy1PhTlwz9KkC7FKJLsft7AoxjZHMUHKmqgrJbNmdW7Szd3WLimFPOUDkQ86l0061tuM
-         irset80btCYO24xBTshYWBHqqbqpknPgbwCV8i44oUeWf2XwBQecIPHwyKivcIcMiLq5
-         jHtw6bvMUnRYJwqjCPcwc3EtT3DWtHy/tPPP8sQ7QhCciGD2OaaLjQnwSX8QAz/5m+EA
-         gPJg==
-X-Forwarded-Encrypted: i=1; AKwUvBxhKAmuW/tqJJx1Ojl05gPCDdWEENPEsJ1YhFIwvxY5+Aw9tUHWMTmcE2Mug765ubJa3FREB30N3tE=@vger.kernel.org
-X-Gm-Message-State: AFuF++mhPKpb5yjomyQvRUSz0uMW1E+39sQflhxI6O9pwPALLSugkjt8
-	fUk+/qAzfcJIN7/74d31Q3uUVKy2In13DnayemOYktVSg79rZjVw/2jp
-X-Gm-Gg: AYBFou0nPZqDnkFrPHJmy3dD4mFY4PC+QyODFkyue9u3G12nWKuEn+YSSi3x1XuKC3u
-	nQcAbPt7L5dJoK/s0AhCwwc89Zb1eIlvzItvwXGRFFf8izPsUxpnZ1GNHknXPV8cjW4jX80dV96
-	hh+mplBZx2/9uMtVkqPbeTV84JV3faETncn7U1YKzOOP3v8HAz/elIQKjk0UbIJTkcHSsCJ7/R0
-	E+vD4LBu11jaKarImUFi7MYs9OUpeR8nuGF2LJVwqJDOlS45UC79R+AIsqGjUJM+HKfVUdxlfpZ
-	fWN0wXWl8aLu5URCOriFX+uDebjL8GaUIzkodpx8a+GcMX3TvD2w9aHH0yONmcmzIm+nPLkbJon
-	J2diXx/7Gq3nDYwLHYxQsFlXwQT8HqcOQanYL3h0ePXIrDBtWCSXPUDfC2iGzM3o1vHPooqH72k
-	BZt2H+RGGJr9so8xifNi7w7NjgJXdX3LfYzkEH4dcu8dEfIY+2izQP9/nKdE/b1baYV7L/vbLYr
-	gsljrTh5GSSkJNEhPHiO56YvLfTr1qL7ERxI9w2mKTHbRZegiL7
-X-Received: by 2002:a05:6a21:9d84:b0:3d3:af85:eb98 with SMTP id adf61e73a8af0-3da3a16a579mr57975715637.26.1788974820346;
-        Wed, 09 Sep 2026 10:27:00 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:2d43:5153:5c50:643e])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339a534df1sm52422943eec.7.2026.09.09.10.26.57
+        d=1e100.net; s=20251104; t=1788977004; x=1789581804;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=bjvBiyvh/g8+fag4d0kfWnymDoayXnCGlAJvwIriZP8=;
+        b=LB/6lv9qNIy6FUDwGNo8FMHXri2QXp5sd8jvd7LyuBJW4EoCcWugaK6PmbvU7IZDdX
+         HvUM1Q4Mm1NXuLfAz3UM/fRpjj2DyAnAJwo8KdZaiXqKY8lt8z+WmjrR013c7HYcjGb1
+         HQbTzYW3hSDAdUGzANi6iF56Pysnmq75QzKjmV/GC561/8IG5PrImBx9z/ZPBHXiEMG2
+         bMklmYNnvBjE9Cbh29FbSDP/fN5M337uD9dMhQ3pzkmVHOJuP4L2eAZcN5doYxQ0uG2B
+         yfNV0TlKCc3KvSG4XxVi2uhK01nhMYjYbSvx/6rz5D4ZSg9UqfI6XYPawZXIHYkLKOI4
+         FG4w==
+X-Gm-Message-State: AFuF++lgim/Ixfsor4og7Zsbs4mcO4Pmt3WxVa+zjlXfSAeeDQSLvZGA
+	xMsIOV41TeKAQXpPy/OEsdiT3uLKwhfkaA5xKevqtJSZ09Katjjdcb+J
+X-Gm-Gg: AYBFou1xtkPF7d+Fhcb9qKFIfIJO3K7FcrDHXJvrCfyNxXNtwebDLhXmYK83rSoKLmx
+	jDnCGQMelUrTU0sUguMQCg6c+WJieXprVYIPMVBTCuio27pqGOTuIrbyaL+p8sHAgaUHYn1+Et0
+	4xv6eH8H27NLuwUy+MOjpSum8//aEGPgyGhY+Gj0yjL4SBjAUJBhiXKmIduI+IsubowC5hb3rGz
+	2USGsfSf5Z8HQFN2n+jgw63Bz4nb72YrT976j5HCt1FqMKrSk3yaT4DRyyAdtsMKfrtdAdrutFA
+	ZeDFmCFcDpiZfHQj7VaFAqUpeCWnq4V4qbA9k/iWBn2/XhNaCw35nO6+lWyE9WO3F65xneg6/Nf
+	Jr8UX2s4R/wK7BawQ4JkKKERsQqX7+CVqaiwSy5LK4Y4r/QvIgVs1ZwOgC89oR8nRoRXQLa4x2V
+	r/3/ozSL4J1v+dv1LkZc1n/ePPs09OiT0UwNmy98GhMBAUVpQQTyxVQp9uoJvnNVRHKX0RakaY
+X-Received: by 2002:a05:600d:8647:10b0:499:59fd:dbfc with SMTP id 5b1f17b1804b1-49d26d863famr4558255e9.1.1788977004041;
+        Wed, 09 Sep 2026 11:03:24 -0700 (PDT)
+Received: from antoniarch ([37.163.183.38])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20db6e76sm76460505e9.3.2026.09.09.11.03.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 10:26:59 -0700 (PDT)
-Date: Wed, 9 Sep 2026 10:26:55 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	Arnd Bergmann <arnd@arndb.de>, Daniel Thompson <danielt@kernel.org>, 
-	Jingoo Han <jingoohan1@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
-	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, dri-devel@lists.freedesktop.org, 
-	linux-doc@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, linux-watchdog@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	llvm@lists.linux.dev
-Subject: Re: [PATCH 00/14] mfd: unused driver purge
-Message-ID: <aqGWjAuGXq_JHvxk@google.com>
-References: <20260909132153.1596191-1-arnd@kernel.org>
+        Wed, 09 Sep 2026 11:03:23 -0700 (PDT)
+Date: Wed, 9 Sep 2026 20:01:39 +0200
+From: Antoni Pokusinski <apokusinski01@gmail.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-rtc@vger.kernel.org, robh@kernel.org, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v6 3/9] rtc: abx80x: add mutex protection for register
+ writes
+Message-ID: <aqGeyGaUriVsueZ2@antoniarch>
+References: <20260907203216.53192-1-apokusinski01@gmail.com>
+ <20260907203216.53192-4-apokusinski01@gmail.com>
+ <20260907204634.2A7C11F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260909132153.1596191-1-arnd@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260907204634.2A7C11F00A3A@smtp.kernel.org>
 
-On Wed, Sep 09, 2026 at 03:21:37PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Sep 07, 2026 at 08:46:33PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
 > 
-> As part of my cleanup of old platforms, I had a look at all drivers that
-> may have become unused because the last platform_data or DT definition
-> was removed, or because of unmet Kconfig dependencies.
+> Pre-existing issues:
+> - [High] Incomplete mutex protection allows concurrent I2C reads to break configuration key sequences.
+> --
 > 
-> These are all the mfd drivers I found. The first ten in the list
-> actually turned out to have been unusable long before my series, and
-> I have added explanations on how I determined this in each patch. The
-> last four patches are still in use in linux-7.3 but become unused after
-> my series [1] that I hope to get merged for 7.4.
+> commit c33d071aef97a2d9a731cf3e557a1cf0fbf7c50c
+> Author: Antoni Pokusinski <apokusinski01@gmail.com>
 > 
-> Somewhat unorthodox, I took a shortcut here and remove both the mfd drivers
-> and the corresponding subsystem drivers (gpio, hwmon, iio, input, led,
-> media, power, regulator, rtc, video, watchdog, asoc) in a combined patch,
-> to simplify the interdependencies: removing just the mfd driver would
-> leave unselectable or broken drivers in other subsystems.  I also have
-> additional patches for each of the other subsystems, currently a total
-> of 300 patches, many of which still need better testing or proper
-> changelog texts.
+> rtc: abx80x: add mutex protection for register writes
 > 
-> Please let me know if you all think this approach is ok, or if I should
-> explode this further and turn these 14 patches into 70 individual ones
-> by splitting them per subsystem.
-
-Sounds good to me, especially if Lee makes an immutable branch from this
-pull so we can all pull it in...
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
-
-Thanks.
-
--- 
-Dmitry
+> The ABX80X RTC driver performs multi-step register operations such as
+> NVMEM transfers or register writes preceded by a configuration key
+> write. Add a mutex to serialize all the register writes to protect
+> these sequences against race conditions.
+> 
+> > diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
+> > index e4fd7b5d4b110..44de234efecf7 100644
+> > --- a/drivers/rtc/rtc-abx80x.c
+> > +++ b/drivers/rtc/rtc-abx80x.c
+> [ ... ]
+> > @@ -445,6 +458,7 @@ static ssize_t oscillator_store(struct device *dev,
+> >  				const char *buf, size_t count)
+> >  {
+> >  	struct i2c_client *client = to_i2c_client(dev->parent);
+> > +	struct abx80x_priv *priv = i2c_get_clientdata(client);
+> >  	int retval, flags, rc_mode = 0;
+> >  
+> >  	if (strncmp(buf, "rc", 2) == 0) {
+> > @@ -456,6 +470,8 @@ static ssize_t oscillator_store(struct device *dev,
+> >  		return -EINVAL;
+> >  	}
+> >  
+> > +	guard(mutex)(&priv->lock);
+> > +
+> 
+> [Severity: High]
+> This isn't a bug introduced by this patch, but since this commit aims to
+> protect configuration key sequences from race conditions, does this leave a
+> similar race open for concurrent I2C reads?
+>
+> If Thread A executes a protected write sequence (like oscillator_store), and
+> Thread B executes an RTC read operation, can Thread B's I2C read interleave
+> and reset the configuration key?
+>
+No, becasue reads do not cause configuration key reset
+> For example, abx80x_rtc_read_time() does not take priv->lock while reading
+> the ABX8XX_REG_HTH registers.
+> 
+> Similarly, abx80x_is_rc_mode() (called from sysfs and read_time) performs an
+> unlocked read of the ABX8XX_REG_OSS register.
+> 
+> The ABX8XX chip specification dictates that any intervening I2C read resets
+> the configuration key. This would leave the register locked, causing Thread
+> A's subsequent protected register write to silently fail without returning
+> an error to userspace.
+> 
+> Should priv->lock be taken during these read paths as well to fully prevent
+> I2C interleaving from aborting configuration key writes?
+> 
+> -- 
+> Sashiko AI review · https://sashiko.dev/#/patchset/20260907203216.53192-1-apokusinski01@gmail.com?part=3
