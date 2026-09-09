@@ -1,115 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E3FD5867DB;
-	Wed,  9 Sep 2026 20:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326F949BD76
+	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 22:51:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788987530; cv=none; b=a6ZeqQfxLcZGeBCeiH51A/4wC5sLSEMt2P6dT/8l77BDauupIO5b6LQHIromk+cZY2jP0r2E/o5pMOyjWONVc3fkvYjPFCJbgXVKKXElhtMp1kSFtlcN9cgGXs2sMR30Qk8ACwc3PNYxcfrX6Uij7ZabNTELgbQras4JSL5crXw=
+	t=1788994320; cv=none; b=RPLdxHPUtyIN5nn0DD1eYG6VgpdXJ5Hc8zuhH7TLIFbeK+yB4FxzlEXHTVMY/8zrow5GzmTh4RP5dt9duf0UlQCetDZHKO/RUvY0SIooHeEUrY+aPMcSenxCtY1olUdhWWfDrFwHq1+gltXqM8m1P2O/awxBWMP13J/wfFb3b34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788987530; c=relaxed/simple;
-	bh=T4YX0/YeQKFu1n2aj/247Lr1iHLs459EJU1boZffqjM=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=AHkdqaCoHHnE36OP18PJWoJcgFSmutWUd9Fx7LU4eR4/WBgxjRCkgrOYzKAgNbXq1o9GiV9O2CQ8Ig2WEfQx4RKguAPpl0LrAYuWqoYWit35BDfdjTlNCuqte3kTBQ40BWO+jlcLWEJcBxKwqND46HMiVCPGROHGUHNmO2b1B0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bUySngUE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788994320; c=relaxed/simple;
+	bh=+zx0Es27kLaPv59lhsle3IxCZWQ7rYW77UlTXnD4G34=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hn6hSqd5npkoBAAAet4YViYlCGKxI3JaTBkZOHOvvrjGiKrG2vAx6/g1NNsRnvTL1dA8ay7Qpk0jmMFxZwsrmmvP0YAIG4ybm+lTy3a44aQHIcRl+hf5eucPBRtOlDdXhbL9YlHb35WdeT9D6GA8N37yNanm86bpEdqvMDLZ8wg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=MZlDiNzx; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bUySngUE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EEBC1F00893;
-	Wed,  9 Sep 2026 20:58:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788987521;
-	bh=WLf3bD3M9fRfofQ2lgVpxSYxYNW4K7cyzG/C6m0f6Os=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=bUySngUElKIVPPaeTsPeuasSjPmvMwFvrL4fRY+oiz2Wl3PQfKeDyzDhLyLLvT7Rj
-	 94WzEjIKOMh4BEymKPe+/31nvX0Bl9tj6E2KamIN4PIYlQszRuTnLMsCEbmWMr4j2d
-	 jiUhuY/rzes8whqR+VYRU5WmVU0gqgWXOWMQAp3JUIajiUsOqWXlqlnIOnNGk7+VA4
-	 McJtZLrzfHS75zp7QAaLUXQrdI32oU+mJ69AtOA3mFjWSZKUoQ1B0sDpmUeASUZmup
-	 8XrEH+Yk7rUsGxCTnYXlcmAgaCeg9MTPnLDxo1AdF3EUYDp+mO7mtCRPMpd/aBDvyJ
-	 5PWnoNuJWMxLg==
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id A408E198003A;
-	Wed,  9 Sep 2026 16:58:38 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:58:38 -0400
-X-ME-Sender: <xms:fMihalj6z86RbPxvjDox6iD5bH0aV2RlX6LrnphgQyijY6BsngWvQQ>
-    <xme:fMihak17J95UeADfFCejG71IZoWTCZMfnHSsb2KBT3IQgNKZWQbpMudbb2HQ2TOD7
-    -6ZBP_JE5z4aDZ5C7zzA3gSFqAm3dWBKwqpE4wJH1o4y5HzVgD2RoUx>
-X-ME-Proxy-Cause: dmFkZTEI0PP4Scmd59mEKuYPT6WYIAftppxw0Cj0RtyYPVhFKLGQ6ZQ4za+D8viqR+5YWb
-    o0cbMra2wRzr1pAXHSzJkGhZFez5/oSm+iAvmk+3h85Tw4naH3TaedqTiKJSMx9+Hjw14j
-    FS7Aadri1gFiGJffqeMrNoC5Z88Befo+G/vxIh3QrnPD7Ekyywl7SaBXt1wt//+VaoKfZc
-    0MRq1SmAgFPC8r+2+i4AHH2Hk2GuTLsR1GMnsBjUlzji1oH7HxSg/MBYyp88HjmjvI7VOY
-    c64EhYKOPh2PycyCMH4Jn4WScLwzrup1UJKoow8FZMfFzEpMQgZxHRp+Q2rHWFjUiD/sTI
-    3EsQS/WKKn0b9/4zUQsJSPQyiWBz8Xi38OPH++J8VZMhP7thapItUFUuW1a9IeOxABSAWr
-    4fJW7HMh+FwD3Y2y72ImuE5tcw4vKqg1wCzBG0JSYUZETyL4ucSIMDNy4TgUweGW7xBRHl
-    HwM5kcnNn2d6ykTsQSNKs1lLm0Iz4TKR9GURzgarxhRh5Nvze8lNuU269Q3wHTqAmD7qSc
-    0/0YbHbk4IqvvUqYY4HwH7+RK9I8c+B1eUcqsD+ALGBH2bPEzVicZWdIJy7JLSgnhJ91+D
-    2D5vWn0QL9blWAKKe+FvV+hESeNM4pKPva7KPl1TvAgvIShdvLORULj/nWsw
-X-ME-Proxy: <xmx:fsihaggEPEQCHOd8lC1odW-IPQOygNL7XpZ5RrHQRyKknY8vw_x50Q>
-    <xmx:fsihalWxDk5Z4HrO9WtnzaVwFsb89o8jn9M_v7Cuxxmx6Dbn-fSsTw>
-    <xmx:fsihapuB5Vn8cDP_balfG5dTsVmCHpkXiCmM_BioR2DmFrR1dVBHVg>
-    <xmx:fsihauYvUqcyWCYejcMu4PKDy0-q_tGJ25JfIB_wzvFXHv5n9siWsQ>
-    <xmx:fsihai6l8HNDuvTZEN9Uc9PpKXSn9m0KY62mtSjJU7iTiDyeLvYXg3Lj>
-Feedback-ID: i36794607:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 5362D32A007B; Wed,  9 Sep 2026 16:58:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="MZlDiNzx"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-90e8e70fa02so68478646d6.3
+        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 15:51:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1788994309; x=1789599109; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1pvaMPa6UbQ5WwIuJKDQQUXZykQOh5nAfFmGb0Yzfs8=;
+        b=MZlDiNzxvb0c2UOvhdsXcAfiYdyPi7CZlYHZ0CgMwqY0V99V3Ck1KRjReQdXPT4MzV
+         nAdl7x3vaHNMTMAkpr6kO2YJ4DX+kpIofzAIheZ16AQ2LqmBUgqWJ/DMtdaUB3bySDpa
+         3IR33pIFDN+z53Xp8z5CIhzmy8OumatPRa1JhohRKv2RXtDf8TbAVHg2B9VgCTZqJAme
+         +MW0K33r6rfUIzU9vs+9nXgh85UsBCWeiBvM3qQ4Zw2ry6I9vh4NrU9yHBFCkTwG36IA
+         g1HTfDJbI4xtZeSordQ9Mq1N1UPaA+GTw+jofbBMHTY9K0kq4akhYMsghy/egfCJxZAt
+         tSEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788994309; x=1789599109;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1pvaMPa6UbQ5WwIuJKDQQUXZykQOh5nAfFmGb0Yzfs8=;
+        b=B3SGFZsQWdr031ZXE6xBLx4KZDr2DeYcSV1sCJbyEYb//gzaNASVHFY0EgAbKTLyr6
+         xyjj58wghKOS7lWmwlIY+G6aihj87CIg4IM20JUGhFiS8fV6cTu+RkFFfeKTWn6+UCd/
+         64eSJtrLUgoflm3i6HPgxmJ3tv0M0esOIr9aqqzyzaIE1p2CveWXX24oe7pA1oDwhObR
+         STqaVab4muGnga+9trbHXSD38OrWUyXqABdJO+7cmHz7ud2HcAVu+Y1+oZbtUYiDtBtm
+         6Pn24K+6Arvdo2/uCMb9pPcm1ioIrX5OeJJ3IOvroRX/hBT5cJQA1KAI2Uo4Y/Fdvu7z
+         1xrw==
+X-Gm-Message-State: AFuF++nO9WyAx7Z1jsi2Ik9Hat4SfOpsw76R9K1Lky1Kzs6JpwlQ78w4
+	+skUPXl/CpMvffrL6/wFfFVUCPug20abaSo6bvB8G6MzFXwW6FoMEN4plbQxa9hqczVV5zWAdJT
+	o8PKr
+X-Gm-Gg: AYBFou3V9O09GiaftAkuxn6Uv2NcrxhkASQG+LT8UDih42hO8aNWBb3FIXzUMArlGov
+	ofVj5k0Q2XNve1uKRqqSr/GucuVFKtDA2WdvpzHyWs8ZkDXTN/DvE/psA0S2QprB6To4J7gVbHe
+	FxLtIcz3I8iaEOMFz/9j7gqNmXjivTbgsVh826n49RBo36mz8Rh5eat8UjuwCj+bSCLPtn4CN1b
+	j/DKoEuy5w4hgY7LQboYzN8f4BQbIIBtYbi9twmDFEwgHbzSKhkR/s5adjWyiAy2k/ddCJ2v8Mb
+	fb8DPsoSTxHE15X3UWGBIchHlkW07H31FLRtEO3oKolf8TEQ8cgIn6ZmV2jJppxx4I7n75Ktzif
+	UuZhuiYscrX666IRnM9FGe3zEKtFQrB5EYi+FTpjhL8Jgfz1Ws3XjsLGEgBqTRwXrfEwu93/Z5V
+	OdEqNvumtMIEsv3iIQL/7adI4HM7dBeEiExPf7zY/6pdVdI0Mq986kXjwYKN8SXa8xWxACcUtj3
+	mt9NGikw1xgeP6hmkDf80auq3xJ9SOS4bTvt9nP/6yxIJFSeynX6ratfyMF
+X-Received: by 2002:a05:6214:448e:b0:910:44e8:e643 with SMTP id 6a1803df08f44-91044e8ef30mr441664476d6.15.1788994308771;
+        Wed, 09 Sep 2026 15:51:48 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F.lan (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-9106412e038sm59976696d6.20.2026.09.09.15.51.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Sep 2026 15:51:47 -0700 (PDT)
+From: Gregory Price <gourry@gourry.net>
+To: linux-rtc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	kernel-team@meta.com,
+	alexandre.belloni@bootlin.com,
+	rui.zhang@intel.com
+Subject: [PATCH 0/2] rtc: cmos: Fix ACPI RTC alarm handling
+Date: Wed,  9 Sep 2026 18:51:30 -0400
+Message-ID: <20260909225132.1392883-1-gourry@gourry.net>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A9f0ba5DxpVF
-Date: Wed, 09 Sep 2026 22:58:16 +0200
-From: "Arnd Bergmann" <arnd@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: media-ci@linuxtv.org, "Lee Jones" <lee@kernel.org>,
- "Rob Herring" <robh@kernel.org>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, linux-rtc@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-input@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org,
- mfd@lists.linux.dev, "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Conor Dooley" <conor+dt@kernel.org>, linux-hwmon@vger.kernel.org,
- devicetree@vger.kernel.org
-Message-Id: <786e24af-cf9b-452b-9ef4-4cc8952d4c8c@app.fastmail.com>
-In-Reply-To: <20260909134355.5ED151F00A3A@smtp.kernel.org>
-References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-15-arnd@kernel.org>
- <20260909134355.5ED151F00A3A@smtp.kernel.org>
-Subject: Re: [PATCH 14/14] mfd: remove unused iPaq micro driver
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, Sep 9, 2026, at 15:43, sashiko-bot@kernel.org wrote:
+RTC update interrupt emulation can stop delivering events when rtc-cmos
+uses the ACPI RTC fixed event. On an affected system, a test that waits
+for five one-second update events completed only 40 of 50 runs. The ACPI
+ff_rt_clk counter stopped at 218, exactly matching the number of events
+delivered to userspace, with the event status set but delivery disabled.
 
-> For example, arch/arm/mach-sa1100/Kconfig still selects this symbol for
-> SA1100_H3600:
->
->     select MFD_IPAQ_MICRO
->
-> This causes unmet dependency warnings during the build.
->
-> Additionally, child drivers like KEYBOARD_IPAQ_MICRO in
-> drivers/input/keyboard/Kconfig still depend on it:
->
->     depends on MFD_IPAQ_MICRO
->
-> which turns them into unselectable dead code.
+The ACPI SCI handler disables the fixed event after dispatching the RTC
+interrupt. Because dispatch queues work that rearms the next alarm, the
+handler can disable an event that the worker has already enabled. Move
+the clear and disable operations before dispatch so that rearming always
+wins the race.
 
-The platform patch has to come first, yes.
+During diagnosis, an explicit rtc_cmos.use_acpi_alarm=0 argument was also
+found to be ineffective. The automatic platform selection runs after
+parameter parsing and overwrites the explicit false value. Record whether
+the parameter was supplied and skip automatic selection in that case.
 
-> Should the child driver source files and headers be removed as well?
-> In drivers/leds/leds-ipaq-micro.c, micro_leds_brightness_set() attempts to
-> call a function from the MFD core that has just been removed:
+On the affected system, ACPI mode completed 150 of 150 runs after the
+ordering fix and delivered all 750 requested events. With
+rtc_cmos.use_acpi_alarm=0, sysfs reported N, HPET emulation was active,
+and 100 of 100 runs passed without using the ACPI RTC event.
 
-I have separate patches for the other ones in this case but could fold
-them in here if necessary.
+The in-tree RTC selftest also passed all 8 tests under VNG with
+rtc_cmos.use_acpi_alarm=0. VNG does not deliver ACPI RTC fixed events, so
+the ACPI ordering fix was tested on hardware.
 
->     return ipaq_micro_tx_msg_sync(micro, &msg);
->
-> The header include/linux/mfd/ipaq-micro.h also remains, declaring APIs like
-> ipaq_micro_tx_msg() that no longer have an implementation.
+Gregory Price (2):
+  rtc: cmos: Disable ACPI RTC event before handling it
+  rtc: cmos: Honor explicit use_acpi_alarm parameter value
 
-Removing that file as well now.
+ drivers/rtc/rtc-cmos.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-    Arnd
+-- 
+2.53.0-Meta
+
