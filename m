@@ -1,117 +1,126 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B0C56C649
-	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 14:13:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2240D581221;
+	Wed,  9 Sep 2026 14:23:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788963203; cv=none; b=rsccgb2VQIDnFx7igZH/pHnusVRCL4l1fTn+nf41nYk6ZC5ud4Oi1BX+uJE8QuPKEFbCpsMWg8tBODRllx+y2BpkFu3J7GKiRO0Z6lE+DWnbm23/fZtNmv/2hfR4/Z0xQLqxc3DbiYL5rWJNRmmmIFlTOfzQDM3Qp2HSgt5JStM=
+	t=1788963837; cv=none; b=VcsGFXh0l4snudy3FxsAL7I9uu9zUmRBDWDc1sfKPcd/9L5uynCMixlw/+9GFZty/zlW/jAeYxqoAe0wR4KENLujn8Aw2EOUr8UEK106WswGCbF5u/Y6GkP+Qsd23RW+147Ch1973pJiDj0SeaMvi34Rd750rdCD6pFGLlrRa3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788963203; c=relaxed/simple;
-	bh=Ij+KDQ9ZJ0rGUT12NkS8OoDHwq87Qone0frg892tmiw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IXrQO+IgMwNACwZQVb3m/GXH/8OPbsykhhO3yqNdB9oZMy0L7hRsxqz9c7RVmrjlYP//Kz7CPyWdRNrPo/6KdcGLiS9FDtZphVcNZi8RFCUWhQs0P2txru5wtR6zO1+EhsHEALNdH+TgrJQ3TFlShWPXAI162TbBtDFU3xMzzjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQ+/3YdJ; arc=none smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788963837; c=relaxed/simple;
+	bh=4fKzO26/DXaoFcqRpKkVT4WzcAtUofxQPMhPWJLPH28=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=cdPavF+kHQFhvhoF2MYqu+qIflIYdLPBQMII57pOmumOeuAXr7Oao9qB3s7QVjBkulHNiLFepBZYuRErQY/dbk5a+LYRhdLOvj3Uc2DNNs21tEKbR4dcFR62fyiYlI10Bjo1Yjc5smPtb8yV+Uul4OxL7vBaEYfiQLTc7DoQ+UA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mzVnvyIH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQ+/3YdJ"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-482f62ccdb1so790696f8f.1
-        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 07:13:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788963200; x=1789568000; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=L0V4HMy1CvezDYDqr9F6ZiS7h+RxgWvbBNQx5to/HBw=;
-        b=WQ+/3YdJjiuw/ZgUjhgZc/rqGmrf8MjZfTAnULC8ICrpjDaqSh2ZrPS3Jv8ACSAnmg
-         /Y+wGpleD349jAT5xSx1HfF0jfukQnxDJTa705NKx3UXyC7/nNfDeHH52WiJHdfWUPPw
-         PQb/nOYR+FrhzgWxNUO9+WpYZNky0szWrHvFnm+joQUjoEfJjUhu127lL8hq+P8dFMKj
-         88oZSBtoRkxqp7V07MOtlADbcxGhjwtz3Cr4qgUIZMyqDvxzr4I7CvCkv5sptkaTMDY4
-         R75RgKRMwu+k7hMHJ1EptEBdrpXFKQKAErha4bc2xGXWYdhoqlZYdug+D1s3K3uPz+YG
-         FD2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788963200; x=1789568000;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=L0V4HMy1CvezDYDqr9F6ZiS7h+RxgWvbBNQx5to/HBw=;
-        b=f+jkBeBXAh4Qr2tDnauRoyz7xKgaDwJoY3vM1W95uhSK4BGkB7B4wOwmnXXaB8+/Gn
-         ygflc9DRlqOsLK0ix8hjgUEjl/eMq+yWTg9y4kSO4otzVSbc0yUc8fUluzNbYgirOYmk
-         iRsA9Mti4uHFYvaV2N335yf7oMVSB34k5kS8kICTNQPGOK5tam1MLSW2/ZO6SEH2qKs9
-         SMkuFMc1wLqE+tVkztt2p/oyub/J/jwzi2/8jFp/w0zoCgLAppRkUlKkjiBpnKEFA8On
-         VqMiv2KC1GOT59qvzyW1U/uLjIn//3/rdGVHckCkJ8u60VE63zR5ydkEW38rW7ZR164V
-         Iizg==
-X-Forwarded-Encrypted: i=1; AKwUvByXLgosywYu7+kdcyWpRH6kvndKKdE3FK9NTKRuQJBiIkLgDcocLe/yem8RcaDHTmovyMQWmhWOItw=@vger.kernel.org
-X-Gm-Message-State: AFuF++krVYXgpoTJiIeUPCkMFO/cXTrzK+0dQJ6DLilIOywlJk46uPjC
-	pfQpgf1PNWVY1wIghvGikLUmyRkU1SLDXkKaLql6dJVTxYjqDYuWqP5e
-X-Gm-Gg: AYBFou3k+0jI0ctGlhCSYaYpE+83VU9DlrTUJBI3sH4KbvqrkjSF3Z1zEJ/LyEsxhZZ
-	wnSCyDogoXDMw5iP3sbYx46O4TCLpoSdyFVCI+vgJehPw9ZBMgCw4Q75eBxJVWGkFv2gSTx8YCd
-	Q7plJiqsFKGSFWKAzNytDl1DfWT/43uPZuWvWIyeC9dNlDO/sNJtVYORRLynGyUjTl/BSCnbg5E
-	a1IOgMQCmomgKbOd8YoHx9pZD0voAuVFUGKlHKA1GBV7wF91Bcp2mxQycIWANvsADeVeOm43oYN
-	VE3im6ULSMJL/25FC7dQASUV9xPvMg68d208va0lY+ujKA0dyc/NfDZmlhd5v4favu2ef76Fkit
-	mZ58hqpiEmk3SS1mKzkgKx++17JuUhQETO6xTqEy+c4djPVSIvR8uRQIvYK1vfFyx4HATDNGLt2
-	ObPvfBIyJrKFsGUAI6jKVKoB44/nfPYY2LtuPpPtE+DvKRkdCzdQgvm4iUAoVK7WPaFHdQ65yjT
-	wUw/4z6gFHNJ/Gqcy2jTbBCUoaMs4eO+UbXdVlrBolqKg==
-X-Received: by 2002:adf:e944:0:b0:485:8ea0:da8c with SMTP id ffacd0b85a97d-485a242f46cmr12481535f8f.16.1788963199968;
-        Wed, 09 Sep 2026 07:13:19 -0700 (PDT)
-Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485883c074asm43273521f8f.23.2026.09.09.07.13.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 07:13:19 -0700 (PDT)
-From: Sander Speetjens <sander.speetjens@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Jonathan Bell <jonathan@raspberrypi.com>,
-	Stefan Wahren <wahrenst@gmx.net>,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	sander.speetjens@gmail.com
-Subject: [PATCH 3/3] arm64: dts: broadcom: Add RTC to Raspberry Pi 5 B
-Date: Wed,  9 Sep 2026 16:13:00 +0200
-Message-ID: <20260909141300.1368790-4-sander.speetjens@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260909141300.1368790-1-sander.speetjens@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mzVnvyIH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A7B1F00A3D;
+	Wed,  9 Sep 2026 14:23:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788963835;
+	bh=EwEJ+GRjqxejQfZU0Yavr7Ed90Mmv8ee9kgNW4K6QuE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mzVnvyIHim8yZzeRzjrax1IdyyFShOZio5ztGc7X+9e3xOldNzHV5BOnNFT9IahiR
+	 T+bkYqv/9o6ShdKFSSz8VhFBe1CYaVGpjGQDMoKYDnXX6ddBTEM7hYpj+SJyRWoEfu
+	 3E3ImNYpY7Rxu7e6lOM6dZHmtQ8QUAJMZCceRC/J+rPD+Ra78EjtY86QX9TP/ivx87
+	 CJf1NyEhRu/FxYhkfQsXWUShqiYrz0plfOXjaaIgnTNwCGHQoUTmtK//atUG42L6yC
+	 smDugRXyqf3b7LkEEc3ejcpn/RY3O2VllgCxMfVTCT8+5LuK3qw5/gWzRebYKRCZoo
+	 bbstVPCATVwlA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sander Speetjens" <sander.speetjens@gmail.com>
+Cc: devicetree@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org
+In-Reply-To: <20260909141300.1368790-2-sander.speetjens@gmail.com>
 References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
+ <20260909141300.1368790-2-sander.speetjens@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 09 Sep 2026 14:23:55 +0000
+Message-Id: <20260909142355.73A7B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The Raspberry Pi 5 contains a RTC on a custom DA9091 PMIC that is accesed trought the firware mailbox.
-This so we have a battery backed RTC, so the OS does not need network to get the time.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [Medium] The binding introduces a custom, un-prefixed `trickle-charge-mic=
+rovolt` property instead of using the standard `trickle-voltage-millivolt` =
+property, and fails to reference the common RTC schema.
+- [Low] The YAML filename does not match the primary compatible string it d=
+efines.
+- [Low] Spelling errors in the commit message.
+--
 
-Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
----
- arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b-base.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+commit 425dd29b0a89a2c3ccab5825c325cf7042fb52e4
+Author: Sander Speetjens <sander.speetjens@gmail.com>
 
-diff --git a/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b-base.dtsi b/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b-base.dtsi
-index b7a6bc34ae1a..5a82dd585f32 100644
---- a/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b-base.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b-base.dtsi
-@@ -102,6 +102,13 @@ wl_on_reg: wl-on-reg {
- 		startup-delay-us = <150000>;
- 		enable-active-high;
- 	};
-+
-+	rpi_rtc: rpi-rtc {
-+		compatible = "raspberrypi,rpi-rtc";
-+		firmware = <&firmware>;
-+		status = "okay";
-+		trickle-charge-microvolt = <0>;
-+	};
- };
- 
- &pinctrl {
--- 
-2.55.0
+dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
 
+This commit adds device tree bindings for the Raspberry Pi 5 RTC, which is
+located in a custom DA9091 PMIC and accessed through the firmware mailbox
+interface.
+
+> Add device tree bindings for the Raspberry Pi 5 RTC.
+> Located in a custom DA9091 PMIC and accesed trough the firmware mailbox.
+
+[Severity: Low]
+This isn't a bug, but there are spelling mistakes in the commit message.
+"accesed trough" should be "accessed through".
+
+> diff --git a/Documentation/devicetree/bindings/rtc/raspberrypi,rtc-rpi.ya=
+ml b/Documentation/devicetree/bindings/rtc/raspberrypi,rtc-rpi.yaml
+> new file mode 100644
+> index 0000000000000..93430048355a8
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/rtc/raspberrypi,rtc-rpi.yaml
+> @@ -0,0 +1,48 @@
+
+[ ... ]
+
+> +properties:
+> +  compatible:
+> +    const: raspberrypi,rpi-rtc
+
+[Severity: Low]
+Does this compatible string intentionally differ from the filename? The YAML
+filename (raspberrypi,rtc-rpi.yaml) does not match the defined primary
+compatible string (raspberrypi,rpi-rtc), which goes against standard binding
+naming conventions.
+
+> +
+> +  firmware:
+> +    $ref: /schemas/types.yaml#/definitions/phandle
+> +    description:
+> +      Phandle to the Raspberry Pi firmware device.
+> +
+> +  trickle-charge-microvolt:
+> +    description:
+> +      RTC backup battery trickle-charge voltage. A value of 0 disables
+> +      trickle charging.
+
+[Severity: Medium]
+Should this property use the standard trickle-voltage-millivolt property
+name instead? If a custom property is strictly required here, shouldn't it
+have a vendor prefix?
+
+[ ... ]
+
+> +required:
+> +  - compatible
+> +  - firmware
+> +
+> +additionalProperties: false
+
+[Severity: Medium]
+Should this binding reference the common RTC schema? Setting
+additionalProperties: false without including an $ref to rtc.yaml# will
+strictly reject generic RTC properties. Any device tree developer attempting
+to use standard RTC properties (like wakeup-source) on this node will
+encounter schema validation failures.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909141300.1368=
+790-1-sander.speetjens@gmail.com?part=3D1
