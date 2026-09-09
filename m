@@ -1,109 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B8F3B7742;
-	Wed,  9 Sep 2026 20:28:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E96C958B6AC
+	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 20:38:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788985728; cv=none; b=Bpv0xUCwiI+eCFj8l3/rjPqL6W588906nVJO5x1QbRhR2yEJhZs1mZSA8RRBgwgBY5MW3OpSUlgChhLSVEDrm4CApwkmRg5hfqE9IbDSP8FpfJOEvPD/1vvMHHmf4ztJrQQrFMEEVSSvJjvlMjlEihYnUreUSDzoC1QIFsLKVSs=
+	t=1788986299; cv=none; b=U3hloVss3iBUqO18pwIgiakGAm0ub07a+WbAIPnpVYe7i1uwaAXrEllQTvzXpBJbjz6TrtgaQFLZJFO4on6sBSvkXDeoAlEsoFBKq1uT0z/Vgfv3AsRgBGWG1Y4RFibRimR3/AyPWBPR2eoNALXisEQkFn4Qt1OggAZTbZ2jaD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788985728; c=relaxed/simple;
-	bh=QISU5wQMrvMhMtMCIZ/TuxNbQ2q9R16Gc79aX5NAMQM=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=NSUHhL1W2ykJBwOKt1tCk178OhJtH4tHjelFNiFo2cX5s1mdNepgRA5J3D6FZULflzWlif3YK4+9FdW43YVl4UulCA7empWLNGRG0eoFoVF42SOPorCDmGwvrXe/OCBbBAI1hPhzpmzpmsD1vwdzWhXHKiz5aUud2Q76Q7clLsM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fols19Bh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788986299; c=relaxed/simple;
+	bh=8AbxnatoXUifDGjwqaRizi+Qr5E765H8Y73G5gm5o0w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bdPKFc4HlWmXx2vLDxfpBU6+38u/EkGjYMVT72ZO4Jvobq/bfmg5CYQi50d9krtj16yDfYeIE+2zxzUBodJs/mhnDcuJejpDXC4FWcqxhfpVmaPy+ZIzDMyQdaXSwoPHB8+Xfrq3hrZx9VbM0A+KmrvkRyNf+KAGGfQLo+EvMcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j1ZUVrBC; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fols19Bh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5A61F00893;
-	Wed,  9 Sep 2026 20:28:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788985722;
-	bh=I+kxnJhecEnYspOixEfBiX1GOqSVXXYgliBU2I5h0UY=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=fols19BhcnoVFViG7MRlm/xSNYoyZW1iUzGGvPPwTBEPkTAoSSDv4SWvZA/wSMuOs
-	 Rn8a48x7FXHOzBkJUYC46B3E1dvcqiJK/P9wBxeIhQCIW9t0X7K1PXod5IYEUfWzSw
-	 gho00p+xVU1Jm7hG3YI2JldJRvJRKAkPkRN1KAW0GYHY/NIxCK/05NP144A3mZo40G
-	 o3hC2yk39TenVB/UXIk/z9zlM7TDYIfLYecA1pUabso6O/1ELgcN8uFp/k7+jR/E57
-	 IQAZ/nu5Zm9g5G7fwYP+aPOXeQSEe+LsE7GQUAcT9oDvXt1Af7Aa+RKcY7AS2z89Z6
-	 sXWah7Cm11ssg==
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 59E75198003A;
-	Wed,  9 Sep 2026 16:28:39 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:28:39 -0400
-X-ME-Sender: <xms:dMGhakZrAgTBnlBqFftocUXviR0J2l7Sre8N_hkU3bm99NdIDpI_vQ>
-    <xme:dMGhaqNkf1UVpBqqwwAIKZGe6ZLR5887KxkWzxjdQYI3lCGrl43WgdmPSAAxnQHsP
-    Uox-U9EzoXttS4S5-47rSz-rZ2uAoCXuXOQors4CntR1dH4NInHP8jwKQ>
-X-ME-Proxy-Cause: dmFkZTE8Kd/+IGN7zwsPgDLBZ7Pw2HSIlU3e1eyy66uQrsX01THEP44sRyzEQVpoW8v+S7
-    UUKed+8n4cu4eeFtESaBbopZLJ6LrBTdCRAync7iQXnwkzKgdYbtZFutVSF81TSkj5oLHm
-    r580h0FhuAildnT6ONm+KzGew4F0SEbuCQV4nqvUhYlCrVwT9UfknvcS497JIK7cA13NaY
-    9Ud5IRKSG/vIwSogDRhoQkRzAa3SDHKuqOM0bM1KH7FXh9QDZUTCQwPNYTXC9RwyKnmJDH
-    V7+T/rFge4J+gL6ogMK86+6wii7xZ1h6OLfZj9KgnGZLdocmKJaNmoyXFpo/+mxxaiEdkT
-    jlWHsCaLqv1TGspZZq12xA8euHVb7zvVRyb2MXaU3xRe5DtA//BGIKLrgLh+dmhrsOl0Zr
-    LhWH2PfvgXrEg28p9yDwL50pLFysJbkseor7mYCo6kqWkSeWAqQTWUlbSkBwY2s5Tn9yji
-    zYbo1j/RT1XLUpGjwAmSZuYwovSpvRBA32oYRPXhVGksgdotjvcV8f5mqReuuUuAW9l67w
-    /etZ6hRhJ7BppXSfmCE1NW0Z51mYf/ZYPGj3MzO3OLBodhCqoMiydyYfetnuz+QZbRmWXG
-    6DUPUYvLLxpKQYFcX8kN926mmi5lo/AquurTUISnXbXY9XE75EuEaMhb2KlQ
-X-ME-Proxy: <xmx:d8Ghas_AlNDs4o4m4hmLeopgBHxFnbofTtd53FIHx00SNOdAX09wmA>
-    <xmx:d8GhatetjFIRC8dRHihv3Rdu5cMWoC3ft1F1tCAIAUNioBHRZa6oIw>
-    <xmx:d8GhagtO6IjNdv5Jht6BhK6wRORMmcDzfx-4GiJr1UkH7c_qnHCeLw>
-    <xmx:d8Ghau2zRd_Qf-XFQel1Ar1hzUadP-wn0PBMyD9aurfsjithUavzxA>
-    <xmx:d8GhalBJh7CQ2Q4n7PDcU-vbkiGbQPaVyavFhkAYmhgNTQLesx-lqTph>
-Feedback-ID: i36794607:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id CB1DB32A007B; Wed,  9 Sep 2026 16:28:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j1ZUVrBC"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-49b392ccaacso91720005e9.2
+        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 13:38:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788986287; x=1789591087; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=c7afDL+31SJFMeOGNst+LXN4XK7ERQT0EAu5rJfALKU=;
+        b=j1ZUVrBCTUr6ssVDgFsnNBe/bfoX4Pw/ntRyU86Ka+7BQgDqExaYZsFnJ71vGkU770
+         aDf+Ggl3HQ6RGoIe+G3SDbDA6U9+EKVDCcrNU/qczhMSqQmsNJxH3CwfDEQQNUpuS5kt
+         hAoxDWyvxavJqBphdjER72rTUhC+MtKIBbus4VCnc/Wv/Tw9S+7LjFf11mO5F3GporlR
+         eBaGy1wy6k+cdUYUHqB8ZqfjRxr3j0DbR705v70GpJ76dELf9vx3waYJBOC0Y+lcCphC
+         TspCInNgabfcYsVIlIcH0liZhbxQ4dAv2DPa+hSar3G91sJD0E/TDX0EGD/Su2Q9HHf0
+         RXMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788986287; x=1789591087;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=c7afDL+31SJFMeOGNst+LXN4XK7ERQT0EAu5rJfALKU=;
+        b=HH+EaqXqzZ7vqs82jAx6bz6lrEhlfaYKwO7egIWHeuva5aBuKxuqu/05XIbMszFgd+
+         e2R6l/uzNCQRCbCapdS3M9wWUnBd+HZeYA283tRcd+exMPGqcIvTcqp0TG+Apr9M/BtP
+         5mhId6zP3z1I6ISylP2FOzty3ZAo+qRTrjHu0FmbSX+zsQsCqzFg8LCd/WxPidjYJxuN
+         Qxk0zFf53OEzN0kv0aRGAoBCZhg+YeyxkOLrPoy7uGUrFt4MR152El9fBk7D+dkls9vR
+         MiJQvLUOqAnXZgq8ygcKGfKlY+7/2Rlx8UVHpbFaU52WEPkdwO2O5EghekMbmDzJU1ur
+         z1UQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwIWvI43fNRTKJAT+TUScviHoaIQNSZNFno2Q6rR3tR+FPCXFsV2N272+6C4LTrL6Q5j0mi9esQLI8=@vger.kernel.org
+X-Gm-Message-State: AFuF++llQzFi3bOQEYKCdSs5pz19fjQO+GYGRVJb9YXbmKgsrJS5A9cc
+	I1S9njdvUtR/HacjkQ8UKayUzFqcckKlpa1mGP93fzW/yUp/NeaMBb7S
+X-Gm-Gg: AYBFou2pQMNg4BApnd10C4i0GDA4HWelBU03EnSvTLdWDEbikxp1jjkJIW0DrXybvnC
+	RTNUYNh2r5IEi87NJva7hJmRg0KM/tda6+zRyTG/E3v9qYa8RjLo+9U7A/90/W84tuMQGHi1FrE
+	o+D6cszMNtqLyd41SO3hn/u7eA/60JhjHWsiMU0lrUsOJ3kxqRLpTwcG5D/g7k9qC8JoRZa4nbP
+	F/pg3Mv5B7wNrVyrnfa0Z6rNNMHTQX1wBMmWfF4U2BoKmYwOT6QAIDFs6mM2OmwVCWCCnPvUkRp
+	r6diEPc2+JWy8sKE8hzRC4qJ3tCUSnhcl8Pog2TQEa8C96rbju3iGycFjMoLGHI6t/3rj+b3alw
+	FEK0KWsMfZWmGQfoX4uE757C1vkEb4H+UuoaKmmkZwjTZReA35bW20AfpvtECxv9ii+dgjabW7q
+	TSf00kWBqwO/JF3YcPH1q5HppJ1qbsYxrDDJoRtmY4+8G+8a/u5lhnsgaT6pmiyjhEP6W5TQPPw
+	i8LG11hqDEawthue38W1EgrHIQOr5UiwIhW9v9HdRM=
+X-Received: by 2002:a05:600c:3b02:b0:49c:fa21:1c7d with SMTP id 5b1f17b1804b1-49cfa211d76mr359028785e9.18.1788986286889;
+        Wed, 09 Sep 2026 13:38:06 -0700 (PDT)
+Received: from [192.168.0.40] (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20daed90sm6913595e9.2.2026.09.09.13.38.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Sep 2026 13:38:06 -0700 (PDT)
+Message-ID: <af6cf493-c84e-41a1-a4d0-0460101f33a6@gmail.com>
+Date: Wed, 9 Sep 2026 22:38:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A6VsXwS0CIh3
-Date: Wed, 09 Sep 2026 22:28:16 +0200
-From: "Arnd Bergmann" <arnd@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
- media-ci@linuxtv.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org,
- dri-devel@lists.freedesktop.org, "Rob Herring" <robh@kernel.org>,
- linux-input@vger.kernel.org,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
- "Conor Dooley" <conor+dt@kernel.org>,
- "Florian Fainelli" <florian@openwrt.org>, "Lee Jones" <lee@kernel.org>
-Message-Id: <098645b4-afea-47db-9c43-ecd5ef61c68a@app.fastmail.com>
-In-Reply-To: <20260909133956.E4DD51F00A3D@smtp.kernel.org>
-References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-3-arnd@kernel.org>
- <20260909133956.E4DD51F00A3D@smtp.kernel.org>
-Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
+To: Krzysztof Kozlowski <krzk@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonathan Bell <jonathan@raspberrypi.com>, Stefan Wahren <wahrenst@gmx.net>,
+ linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
+ <20260909141300.1368790-2-sander.speetjens@gmail.com>
+ <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
+ <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
+Content-Language: en-US
+From: Sander Speetjens <sander.speetjens@gmail.com>
+In-Reply-To: <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On Wed, Sep 9, 2026, at 15:39, sashiko-bot@kernel.org wrote:
->> Remove this driver, as there is no way to run Linux any more on the
->> older chips after i486 support has been removed.
->> 
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ > And more important, where is any interface to actually control the RTC?
+ > I see nothing, so your firmware is? Then this is not a separate device
+ > and you just added DTS for your driver, which is a no go (see writing
+ > bindings).
+
+The RTC is a physical, battery-backed RTC, but the Raspberry Pi
+firmware exposes its register interface exclusively through the
+firmware mailbox.
+
+I initially used a firmware phandle so that the RTC driver could obtain
+the existing rpi_firmware instance.
+
+Based on your comment, I think it would be more appropriate to model
+the RTC as a child device of rpi-firmware. The driver could then obtain
+the firmware interface from its parent, rather than adding a phandle
+solely for driver plumbing.
+
+This would also mean moving the binding to
+arm/bcm/raspberrypi,bcm2835-firmware.yaml.
+
+Best regards,
+Sander
+
+On 9/9/26 17:54, Krzysztof Kozlowski wrote:
+> On 09/09/2026 17:47, Krzysztof Kozlowski wrote:
+>> On 09/09/2026 16:12, Sander Speetjens wrote:
+>>> +
+>>> +  firmware:
+>> There is no such generic property. You need vendor prefix. Wasn't this
+>> already discussed for Rpi? I feel like every time contributors send
+>> downstream DTS ignoring what was discussed upstream.
+>>
+>>
+>>> +    $ref: /schemas/types.yaml#/definitions/phandle
+>>> +    description:
+>>> +      Phandle to the Raspberry Pi firmware device.
+>> You said nothing more than property name and type. Explain what for.
+>>
+> And more important, where is any interface to actually control the RTC?
+> I see nothing, so your firmware is? Then this is not a separate device
+> and you just added DTS for your driver, which is a no go (see writing
+> bindings).
 >
-> [Severity: Low]
-> Since the entire platform and driver support is being removed, should we
-> also clean up the remaining dead references to the RDC321x platform?
->
-> Specifically, the reboot fixup code in arch/x86/kernel/reboot_fixups_32.c
-> has a rdc321x_reset() function and an associated entry in fixups_table that
-> appear to be left behind now that the hardware is no longer supported.
->
-> Additionally, the PCI_DEVICE_ID_RDC_R6030 definition in include/linux/pci_ids.h
-> is no longer used by any active driver.
-
-This sounds like something that should go through the x86 tree, but probably
-not this patch.
-
-> Finally, there is a stale "RDC R-321X SoC" entry in MAINTAINERS that might
-> need to be removed to complete the cleanup.
-
-Removed this now, and added Florian to Cc here and in the changelog.
-
-     Arnd
+> Best regards,
+> Krzysztof
