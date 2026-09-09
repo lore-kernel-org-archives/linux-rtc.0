@@ -1,136 +1,141 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E96C958B6AC
-	for <linux-rtc@vger.kernel.org>; Wed,  9 Sep 2026 20:38:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0807E5867CC;
+	Wed,  9 Sep 2026 20:47:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788986299; cv=none; b=U3hloVss3iBUqO18pwIgiakGAm0ub07a+WbAIPnpVYe7i1uwaAXrEllQTvzXpBJbjz6TrtgaQFLZJFO4on6sBSvkXDeoAlEsoFBKq1uT0z/Vgfv3AsRgBGWG1Y4RFibRimR3/AyPWBPR2eoNALXisEQkFn4Qt1OggAZTbZ2jaD8=
+	t=1788986840; cv=none; b=rOjDhH/kkPXJGni2OwIb855vYIAlv+z6d0uTe5jXUpfSlNX22o9yxKaac/ZkYsUYHMIQ/cb5rFca4dMvlugwgeaqxi6UeaZ6f4e4gVlzulXB+EG6cmvJgQdHc2jxPwFSKGYZw/sMrMH+NeOz8Wmwl8jsdFAmhNqR8clWr3gZYJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788986299; c=relaxed/simple;
-	bh=8AbxnatoXUifDGjwqaRizi+Qr5E765H8Y73G5gm5o0w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bdPKFc4HlWmXx2vLDxfpBU6+38u/EkGjYMVT72ZO4Jvobq/bfmg5CYQi50d9krtj16yDfYeIE+2zxzUBodJs/mhnDcuJejpDXC4FWcqxhfpVmaPy+ZIzDMyQdaXSwoPHB8+Xfrq3hrZx9VbM0A+KmrvkRyNf+KAGGfQLo+EvMcE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j1ZUVrBC; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788986840; c=relaxed/simple;
+	bh=fV6iXWX0mmB/G468K7hvnWQ54p4s/YlWu1AvqhaLGjM=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=aTMT+J23rFpJNq+y1ogRT68rGYWwrwQWhikgK6/03O2Z4GmxCsSwLQ3LL3qOFpPtB1OaqWpGTswhb3dV6vfTM7Woiq0MzwxSb8HgNL0VOlddOJEsn22tWDAW6hIzHksAXTdUen9REexPCTSAqbUtAnwZJC+NkAenMs8HX7tBnAw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YkfRjdju; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j1ZUVrBC"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-49b392ccaacso91720005e9.2
-        for <linux-rtc@vger.kernel.org>; Wed, 09 Sep 2026 13:38:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788986287; x=1789591087; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=c7afDL+31SJFMeOGNst+LXN4XK7ERQT0EAu5rJfALKU=;
-        b=j1ZUVrBCTUr6ssVDgFsnNBe/bfoX4Pw/ntRyU86Ka+7BQgDqExaYZsFnJ71vGkU770
-         aDf+Ggl3HQ6RGoIe+G3SDbDA6U9+EKVDCcrNU/qczhMSqQmsNJxH3CwfDEQQNUpuS5kt
-         hAoxDWyvxavJqBphdjER72rTUhC+MtKIBbus4VCnc/Wv/Tw9S+7LjFf11mO5F3GporlR
-         eBaGy1wy6k+cdUYUHqB8ZqfjRxr3j0DbR705v70GpJ76dELf9vx3waYJBOC0Y+lcCphC
-         TspCInNgabfcYsVIlIcH0liZhbxQ4dAv2DPa+hSar3G91sJD0E/TDX0EGD/Su2Q9HHf0
-         RXMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788986287; x=1789591087;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=c7afDL+31SJFMeOGNst+LXN4XK7ERQT0EAu5rJfALKU=;
-        b=HH+EaqXqzZ7vqs82jAx6bz6lrEhlfaYKwO7egIWHeuva5aBuKxuqu/05XIbMszFgd+
-         e2R6l/uzNCQRCbCapdS3M9wWUnBd+HZeYA283tRcd+exMPGqcIvTcqp0TG+Apr9M/BtP
-         5mhId6zP3z1I6ISylP2FOzty3ZAo+qRTrjHu0FmbSX+zsQsCqzFg8LCd/WxPidjYJxuN
-         Qxk0zFf53OEzN0kv0aRGAoBCZhg+YeyxkOLrPoy7uGUrFt4MR152El9fBk7D+dkls9vR
-         MiJQvLUOqAnXZgq8ygcKGfKlY+7/2Rlx8UVHpbFaU52WEPkdwO2O5EghekMbmDzJU1ur
-         z1UQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwIWvI43fNRTKJAT+TUScviHoaIQNSZNFno2Q6rR3tR+FPCXFsV2N272+6C4LTrL6Q5j0mi9esQLI8=@vger.kernel.org
-X-Gm-Message-State: AFuF++llQzFi3bOQEYKCdSs5pz19fjQO+GYGRVJb9YXbmKgsrJS5A9cc
-	I1S9njdvUtR/HacjkQ8UKayUzFqcckKlpa1mGP93fzW/yUp/NeaMBb7S
-X-Gm-Gg: AYBFou2pQMNg4BApnd10C4i0GDA4HWelBU03EnSvTLdWDEbikxp1jjkJIW0DrXybvnC
-	RTNUYNh2r5IEi87NJva7hJmRg0KM/tda6+zRyTG/E3v9qYa8RjLo+9U7A/90/W84tuMQGHi1FrE
-	o+D6cszMNtqLyd41SO3hn/u7eA/60JhjHWsiMU0lrUsOJ3kxqRLpTwcG5D/g7k9qC8JoRZa4nbP
-	F/pg3Mv5B7wNrVyrnfa0Z6rNNMHTQX1wBMmWfF4U2BoKmYwOT6QAIDFs6mM2OmwVCWCCnPvUkRp
-	r6diEPc2+JWy8sKE8hzRC4qJ3tCUSnhcl8Pog2TQEa8C96rbju3iGycFjMoLGHI6t/3rj+b3alw
-	FEK0KWsMfZWmGQfoX4uE757C1vkEb4H+UuoaKmmkZwjTZReA35bW20AfpvtECxv9ii+dgjabW7q
-	TSf00kWBqwO/JF3YcPH1q5HppJ1qbsYxrDDJoRtmY4+8G+8a/u5lhnsgaT6pmiyjhEP6W5TQPPw
-	i8LG11hqDEawthue38W1EgrHIQOr5UiwIhW9v9HdRM=
-X-Received: by 2002:a05:600c:3b02:b0:49c:fa21:1c7d with SMTP id 5b1f17b1804b1-49cfa211d76mr359028785e9.18.1788986286889;
-        Wed, 09 Sep 2026 13:38:06 -0700 (PDT)
-Received: from [192.168.0.40] (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20daed90sm6913595e9.2.2026.09.09.13.38.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Sep 2026 13:38:06 -0700 (PDT)
-Message-ID: <af6cf493-c84e-41a1-a4d0-0460101f33a6@gmail.com>
-Date: Wed, 9 Sep 2026 22:38:05 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YkfRjdju"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C14841F00893;
+	Wed,  9 Sep 2026 20:47:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788986827;
+	bh=v2JjZ/AR3wGVNWpMfGkri5D4yVOiJejXVZCAAY3Mv1w=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=YkfRjdjubgsAOzVOp4piJ6yw3LjAf8bzx4ZQmFYhNWAl2B3UyW6ctAdr2j6VS4cCD
+	 azvPT+JQi+ePCvnbKCb5nO8fsI8eNISlU+o9bQrwIRGr3Hyf+mydTpi/O/jR8UU8yS
+	 BGM7ktN5FJTMRmDZ2n2rmiVUFdb0LSetW59/wv/Zx+S47t85ebMD00UE9zFoqipnGv
+	 ZCDXMBqGLDw6qFSIOrFmLy85gUg3QLGXH9oWuywD7izNYQ9kf9ikxP2cVFMsAF4WR5
+	 hK7VJayrf52JBubYEowtbxu7ynGOy+Bgx/3dwOLqF9n9iYvBuu8aIpJOPup0ribah6
+	 yl/pghTkZz/fQ==
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 39968198003A;
+	Wed,  9 Sep 2026 16:47:04 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:47:04 -0400
+X-ME-Sender: <xms:xcWhaq8_Q61kXo0IMDQ58fPAqQTZ8tf5kHPD1cbQysphdJirlfmWmw>
+    <xme:xcWhalgrvIMf_6LUwFUkeHmkL_iOofTXxLXCkcPPpenSv6I1RHHFkRCKG2VtbIPmK
+    EbGq-zKwVvlSDAnl4MuU9IeLvxKf63PszZ43lnehBRZDMepx531apmWGw>
+X-ME-Proxy-Cause: dmFkZTFqb0S1UKeED46t7V7AaDZQOyNUriK9lNpweq+oFuFsncA5u/n+amUPWXVGSZwRp0
+    aoA/8/u8xfnY7DjRsbI2Jns+nH3zbzBghMPk0AMvv+HCAV1xtzlgjq12QYSqN1X88VeN/A
+    pym+2CmbNo0bNNwmFK6AeRvLW7Lf3NSnfmAyULhcp0dZ93rt6kdDUZJIXfZ8gmVGnEo6tx
+    gKfs3a3Pus8LjknyRCpkJUQWOFxNv6HOJ0tLWp4tDej+BdccpbNL7qVfwWpDSbo3xgP0ZV
+    +LhwuibAxpRy+AXBwU9SB7e4fILZ2mtX+VJdpi7tO54CsxcxGrO2+30XpZGxL4aqy3X/Nl
+    1gPfo82LOa75pb29VtCYbi7hbSrE+I1bAkEgEiiv2NahNkgB1t4s7Ewp80829rozxNkfJK
+    KPwFlhghrb1eG05pdm2MzE0XUZYdOwfxlVP9q5OXPtjel2gMm8pti3W78nBqyKf/o4lflK
+    Qpu/bK2jlU6URCRZGWhIu30fo/vdFe2DLJPa4pZ9W5XyvsRkq1mBMPdz24wkDsMeQQjwYu
+    LXKft9xGEeRQQBdbwdQBtdkNf5QlHj+uDZGeqt6FOmrz1v6RH+XgsibxEKPcfw1OJB9ctn
+    msCK7eigEkKHrI2i4qJjI3ns5yxsfUgtgsVG9ygdlwAVs/BRSBsJvb7egJ8w
+X-ME-Proxy: <xmx:yMWhageO8A4LP83Jmioohhfjwe6thY3V70kJBRBqQyIe5itMVwFwcw>
+    <xmx:yMWhauiM_Cnexb6zkCeq4RHXfTjukjG049orpmNjHE6TSxnRQfpsEw>
+    <xmx:yMWhajIR9pbTPc4bsQ2f6KyOLxYZShCrER8pNrzwIuSZqnWfJ1y0GQ>
+    <xmx:yMWhajH9lNnB7WpxdL9cthPnoEJ8jc-F-aFDyzTqIhmNVfechJ_aaw>
+    <xmx:yMWhah1w9ymXahoKekUZ7b_C32f4SemT7T4BKD4Q17lhnEtTf0Wjs4Z->
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id BB78832A007B; Wed,  9 Sep 2026 16:47:01 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
-To: Krzysztof Kozlowski <krzk@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonathan Bell <jonathan@raspberrypi.com>, Stefan Wahren <wahrenst@gmx.net>,
- linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
- linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
- <20260909141300.1368790-2-sander.speetjens@gmail.com>
- <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
- <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
-Content-Language: en-US
-From: Sander Speetjens <sander.speetjens@gmail.com>
-In-Reply-To: <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+X-ThreadId: AlHo1ocPbBlo
+Date: Wed, 09 Sep 2026 22:46:41 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-rtc@vger.kernel.org, "Conor Dooley" <conor+dt@kernel.org>,
+ media-ci@linuxtv.org, linux-leds@vger.kernel.org,
+ "Rob Herring" <robh@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, mfd@lists.linux.dev,
+ dri-devel@lists.freedesktop.org
+Message-Id: <5c169e15-45a5-46dc-bfdc-84228eb773a5@app.fastmail.com>
+In-Reply-To: <20260909134910.33A1C1F00A3D@smtp.kernel.org>
+References: <20260909132153.1596191-1-arnd@kernel.org>
+ <20260909132153.1596191-14-arnd@kernel.org>
+ <20260909134910.33A1C1F00A3D@smtp.kernel.org>
+Subject: Re: [PATCH 13/14] mfd: remove unused menelaus driver
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
- > And more important, where is any interface to actually control the RTC?
- > I see nothing, so your firmware is? Then this is not a separate device
- > and you just added DTS for your driver, which is a no go (see writing
- > bindings).
-
-The RTC is a physical, battery-backed RTC, but the Raspberry Pi
-firmware exposes its register interface exclusively through the
-firmware mailbox.
-
-I initially used a firmware phandle so that the RTC driver could obtain
-the existing rpi_firmware instance.
-
-Based on your comment, I think it would be more appropriate to model
-the RTC as a child device of rpi-firmware. The driver could then obtain
-the firmware interface from its parent, rather than adding a phandle
-solely for driver plumbing.
-
-This would also mean moving the binding to
-arm/bcm/raspberrypi,bcm2835-firmware.yaml.
-
-Best regards,
-Sander
-
-On 9/9/26 17:54, Krzysztof Kozlowski wrote:
-> On 09/09/2026 17:47, Krzysztof Kozlowski wrote:
->> On 09/09/2026 16:12, Sander Speetjens wrote:
->>> +
->>> +  firmware:
->> There is no such generic property. You need vendor prefix. Wasn't this
->> already discussed for Rpi? I feel like every time contributors send
->> downstream DTS ignoring what was discussed upstream.
->>
->>
->>> +    $ref: /schemas/types.yaml#/definitions/phandle
->>> +    description:
->>> +      Phandle to the Raspberry Pi firmware device.
->> You said nothing more than property name and type. Explain what for.
->>
-> And more important, where is any interface to actually control the RTC?
-> I see nothing, so your firmware is? Then this is not a separate device
-> and you just added DTS for your driver, which is a no go (see writing
-> bindings).
+On Wed, Sep 9, 2026, at 15:49, sashiko-bot@kernel.org wrote:
+> [Severity: Low]
+> Is the omap24xx platform completely removed?
 >
-> Best regards,
-> Krzysztof
+> It looks like arch/arm/mach-omap2/board-n8x0.c and 
+> arch/arm/mach-omap2/common-board-devices.h still exist and unconditionally
+> include the deleted header, which breaks the build for OMAP2 configurations:
+>
+> arch/arm/mach-omap2/board-n8x0.c:
+>     #include <linux/mfd/menelaus.h>
+>
+> arch/arm/mach-omap2/common-board-devices.h:
+>     #include <linux/mfd/menelaus.h>
+>     extern struct menelaus_platform_data n8x0_menelaus_platform_data;
+
+As mentioned in the cover letter, this is one of the four drivers
+that are only orphaned after the series I sent yesterday to remove
+omap2 and other platforms.
+
+>> diff --git a/drivers/mfd/menelaus.c b/drivers/mfd/menelaus.c
+>> deleted file mode 100644
+>> index a125d40fa121b..0000000000000
+>> --- a/drivers/mfd/menelaus.c
+>> +++ /dev/null
+>> @@ -1,1251 +0,0 @@
+>
+> [Severity: Low]
+> Should the reference to this file in MAINTAINERS also be removed?
+>
+> MAINTAINERS:
+>     F: drivers/mfd/menelaus.c
+
+This was accidentally removed in the omap2 patch, moving it to this
+patch now.
+
+> [ ... ]
+>
+>> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+>> index ec73533703f72..9dfe1ea08c250 100644
+>> --- a/drivers/rtc/Kconfig
+>> +++ b/drivers/rtc/Kconfig
+>> @@ -570,15 +570,6 @@ config RTC_DRV_BQ32K
+>>  	  This driver can also be built as a module. If so, the module
+>>  	  will be called rtc-bq32k.
+>>  
+>> -config RTC_DRV_TWL92330
+>> -	bool "TI TWL92330/Menelaus"
+>
+> [Severity: Low]
+> Does this leave an orphaned defconfig entry?
+>
+> arch/arm/configs/omap2plus_defconfig still references the removed config:
+>
+> arch/arm/configs/omap2plus_defconfig:
+>     CONFIG_RTC_DRV_TWL92330=y
+
+This is now removed in the omap2 removal patch as well.
+
+      Arnd
