@@ -1,209 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC8E3806DC;
-	Thu, 10 Sep 2026 06:24:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C347D399352;
+	Thu, 10 Sep 2026 07:08:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789021500; cv=none; b=IwZcUNuPjArA10kEdXSrQs8VjQZcVSdFcTZCTYKwkW6tyj0gcMY/QtSTa4bdRZ1b2wBjdg2AU3o5d2auY8NjxTbVEjTM9qbcW7I6pg4lN96v+xGfzZqPr1ePhgNCKbWfprl7I999rrlvlYdaCrmh0Sba98Di5pB89dauFYHgqSQ=
+	t=1789024131; cv=none; b=d4q8iKffhJJtu+zrO1mFU5wnPKnAyXDpE3O/3EbWF19NcFDZbXwIk5EvSPf1MHx46CTtEkj3JjEwjQgPE7HABkD6kvqzckoabdlvTD9HnaJqfaP9hsGGaudXW0NNXrHKZjftb0eu/NDj7KBI7JRv1hK5jyGkK8mojboj3JPX5WU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789021500; c=relaxed/simple;
-	bh=aMzSKd5Mjcg+xCD5zfLPnt/B0PBjyFuywkDtpKKyT2k=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QQPLoJ9O1JGld4U+PV5+4ppeeQ7utvfX3aGZbY/L0ilqzmHALQlwLK4oYHIyln5jshiNFcLglq4pW51E0PlGxptYPX5AnMrJlK3oCCdZzhgqvKLC0D7Aor15ukt0SWLQBnIWu163W2m8lfiLkmMG5UBHgEIL5rwYMPL2jWZFAE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cbx49SVm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789024131; c=relaxed/simple;
+	bh=84XklZDqCadcFYTuu9xAS7nr1fwKozlO+iA/y46y3fM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=c+2iWBISSJz+EE3cIGWdC00fSLY3Lw7ydCPY5+0t+dOrksK4Kv76vjwe6VsOKj5+7ciD6ndPM+e7NzMycIi39S3Ho3HYEp+Oidz3lvUzaPvJuMZHQwcBSh8peogKA7MyEVXzRnrEl5Yb9X4QtYY5FVEkbN/icBmiHZnsYeSq5xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kn3TV6sH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cbx49SVm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A99421F000FF;
-	Thu, 10 Sep 2026 06:24:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kn3TV6sH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1BA1F000FF;
+	Thu, 10 Sep 2026 07:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789021498;
-	bh=LfGd0fsd+J7Xvr0/mRFblxaRUqfrTJwOa4VroBqvA9s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cbx49SVmMm4LKgtjz2MFCgn2X4W6r5WdPV3/sMaGMrzUMnZxPx8IqDDdxMtVNFDv2
-	 EawAGOxv1lOIuWpSIqsUdOPY0WeFRwfHvUvd6ECdqdPaw1BsgzgyDNnNzGnbf0psnY
-	 dBy1dzT4FqkuZ4JHfSPt106pkq6tjeqySbiSfnQB+MlRslSLhQdsXV7nnuyoW6yjzo
-	 J2rWdx6DaQLN0AIgg+dxVHKreW4bFL9b87BenhqSgVicTmW4v42ysuSZzQkRz5iN0j
-	 xuXbcO8hwzEzm1vZn7337DrUQxcOiM0uutnYIrw5l+z7u97K7XkNCkfpX1VVFXPpCX
-	 5i2qrsQ+trhvQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/4] rtc: pcf8525: Add watchdog support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Shiv Prakash Gupta" <shivprakash.gupta@nxp.com>
-Cc: linux-rtc@vger.kernel.org, conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, robh@kernel.org, linux-hwmon@vger.kernel.org
-In-Reply-To: <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
-References: <20260910060912.2443551-1-shivprakash.gupta@nxp.com>
- <20260910060912.2443551-4-shivprakash.gupta@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 06:24:57 +0000
-Message-Id: <20260910062457.A99421F000FF@smtp.kernel.org>
+	s=k20260515; t=1789024129;
+	bh=1iAtv2unCZuRSKay79DiZYrgZPynv4zWBTNGjY3xYd4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Kn3TV6sHwqFYbruJ8kjg0KQ90hYJiR7ApbX5/uTVmWQVCxD4jgO2hzofkmI293v0J
+	 /w7gW8SwP71ls7Pq5d49C2Lm5/wMiKGS77D7/2It38k9A3zgKAJ5LM6SBjr1cRgGrF
+	 6KZuweQ/5IwsbrpaUuFw0BlTbi74C5ImDwtuqTDlv8HNNRhrOFZhoQVYCW1o5CgAnj
+	 9m4Z7QB2bukAA5WzHv2ab00T2DSL4B64L956do+bX37b/JcX68C9i0DcukbJGqVnn1
+	 8lBjhWwJ1h/pINv5ODNcmLGjiK0GpS4XbJtdXkSa2/YvcQh6XGl89teHXhAYUMFCe0
+	 hXx7tiZHnLcUg==
+Message-ID: <718e88b8-3f3b-410e-8e76-90c370ff920a@kernel.org>
+Date: Thu, 10 Sep 2026 09:08:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
+To: Sander Speetjens <sander.speetjens@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonathan Bell <jonathan@raspberrypi.com>, Stefan Wahren <wahrenst@gmx.net>,
+ linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
+ <20260909141300.1368790-2-sander.speetjens@gmail.com>
+ <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
+ <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
+ <CAAOJLPHNGgC7B=7ESCifZ1FPcR6V=Hcg-q-aaVg_9M_-d6Fh2A@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
+ cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
+ JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
+ gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
+ J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
+ NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
+ BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
+ vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
+ Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
+ TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
+ S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGPBBMBCgA5AhsDBgsJCAcDAgYVCAIJCgsE
+ FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJp2mE8AAoJEBuTQ307QWKbeaIP
+ /ihHTkTW4KsN/DQ945JJbyu5tI0J80Wue7QyyLPglyKfhgb5cLLNPpOC8cCIJsc7+W3i2P38
+ s2c1cOH6CYGE7E9ur3Vfme8NW2S2I/Z8VC7bZnzyS23wT17LrsdS/qCpx4o8U+pt/xdXDKph
+ EGRYrIEmMpUWvyYzyYKGIe25FtaayIIKpq8eZYyFcp2f/sG5IkOW5uZzHPMPdcm87jU7fyuQ
+ rAU2vx9r+ulUfQ/q9Z2roC/ode3l7t2pN7BCBCsUDp6JCrUyZrtT1e7EbA0ZRP3aOBNk2P2E
+ DQOgJGjGdO5Yx2Y9LFtltu6JbsBJHi1syGRX3AtQYOMc4Y1WGoeZJmMlvKj2ZqqXNkcWi2DS
+ IQEWB0uW6CqFsBBIMGDa+6OzdaVO/uAVXWDWml02Men3CILdI1MbVjoh8ECqYUY7OQ+JJvNN
+ vnliuq5WM3Ghd3jg/LZZrxXjdIginRHFQCjIJYLKpLZWm1/iDFedcfzqRNYmTtqscdCNHW41
+ oT3Z7BmO9xwdjuwBS6nmS6JJwkbf5Ot2QR4pB/DRU7ZwjT1qHe+9r9gF32wXVQatHNGK/VVu
+ sfwOnkdxCWkp/qb2gdQRmZh+SedStWshigH6sNfuHBloF/q+hjMRc8b2m326OZdrbSHwY1Sz
+ vti8Hn7n8NjdHO9LKB7BIdjkA9DA5WsqOuVCzsFNBFVDXDQBEADNkrQYSREUL4D3Gws46JEo
+ Z9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLueMNsWLJBv
+ BaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6eiOMheesVS
+ 5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wAGldWsRxb
+ f3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA6z6lBZn0
+ WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9YegxWKvX
+ XHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt91pFzBSO
+ IpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gUBLHFTg2h
+ YnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/JoFzZ4B0
+ p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu4vXVFBYI
+ GmpyNPYzRm0QPwARAQABwsF2BBgBCgAgAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtBYpsFAmna
+ YUkACgkQG5NDfTtBYptX+BAApg32CkxwNucNEi8WfWA8oKkW0y8YDuY6ORMo9FWNGiT/OTy0
+ vyJrLocrpn86zwfjVp+eCrssPYh8eqJfnWqmYv6ACQtHPYzPZQ3mSo8H97Z01oUxITzCxpXm
+ ZkLgPIqtDPcC2E3dPM/fVxcyowM8XsaMA9wcsaUYrta8toOq2b9tKcjleKMfMrm0gQ9u7wUc
+ QbLkwj6TCLOwucb07GXzLTNF9PZmaDUpKAZjMjmrW+le+SFvQbhamx0rxLWPR0NWntXpbCn+
+ +ACch03p/JyTBVktxFsFyCt7pTPE1kEaeuXBTe/a2D9iQvRxRW19LvuO2e59/u1wYUiH/orz
+ wbIC2S4dBsPAPihL3ztOU1yE86GPyQtSE0kU+/7snnLt4QGi6PChf3t5gnNjAzjUUovO8rgI
+ c+5yN5heq5loYHgK6OQ9OlHzsPHO9e9MOQcKlFycs1pyijFGzDwdNUm/SchK8iWT2QApTx4A
+ K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
+ n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
+ qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
+In-Reply-To: <CAAOJLPHNGgC7B=7ESCifZ1FPcR6V=Hcg-q-aaVg_9M_-d6Fh2A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] Fake WDIOF_PRETIMEOUT support breaks pretimeout functionality and =
-watchdog reset guarantees.
-- [High] Watchdog is not stopped during system suspend if it is running but=
- not actively opened.
-- [High] Unconditionally masking the INTB pin on driver unbind defeats the =
-hardware watchdog reset guarantees.
-- [High] Read-modify-write operations in pre-existing RTC handlers accident=
-ally clear the newly-enabled watchdog flag (WDTF).
---
+On 09/09/2026 22:24, Sander Speetjens wrote:
+> Thanks for your response
+> 
+>> And more important, where is any interface to actually control the RTC?
+>> I see nothing, so your firmware is? Then this is not a separate device
+>> and you just added DTS for your driver, which is a no go (see writing
+>> bindings).
+> 
+> The RTC is a physical, battery-backed RTC, but the Raspberry Pi firmware
+> exposes its register interface exclusively through the firmware mailbox.
+> I initially used a firmware phandle so the RTC driver could obtain the
+> existing rpi_firmware instance.
+> 
+> Based on your comment, I think it is more appropriate to model
+> the RTC as a child device of rpi-firmware,
+> referencing to the existing firmware clock/reset/power services,
+> and have the driver obtain the firmware interface from its parent
+> rather than adding a phandle solely for driver plumbing.
+> Which also means moving this to arm/bcm/raspberrypi,bcm2835-firmware.yaml
+> 
 
-commit 64b260e0a56bf2f53534b37b3e23d2d66162de37
-Author: Shiv Prakash Gupta <shivprakash.gupta@nxp.com>
+Whether device has separate node, depends on it having dedicated
+resources. I don't see such here, so unlikely it should have a node in
+the first place (see writing bindings or DTS101 where exactly this
+question is asked).
 
-rtc: pcf8525: Add watchdog support
-
-Adds watchdog support for NXP PCF8525 real time clock (RTC) device.
-
-> diff --git a/drivers/rtc/rtc-pcf8525.c b/drivers/rtc/rtc-pcf8525.c
-> --- a/drivers/rtc/rtc-pcf8525.c
-> +++ b/drivers/rtc/rtc-pcf8525.c
-[ ... ]
-> @@ -879,6 +901,296 @@ static const struct rtc_class_ops pcf8525_rtc_ops =
-=3D {
-[ ... ]
-> +static const struct watchdog_info pcf8525_wdt_info =3D {
-> +	.identity =3D "NXP PCF8525 Watchdog",
-> +	.options =3D WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_PRETIMEOUT,
-> +};
-
-[Severity: High]
-Does advertising WDIOF_PRETIMEOUT here prevent the core from falling back to
-hrtimer-based software pretimeout, despite the driver having no native
-pretimeout support?
-
-[ ... ]
-> +static irqreturn_t pcf8525_wdt_irq(int irq, void *data)
-> +{
-[ ... ]
-> +	/*
-> +	 * W0C: clear WDTF. Include AF and MSF in the mask and write 1 to them
-> +	 * so the RMW does not accidentally clear a concurrently asserted alarm
-> +	 * or minute/second interrupt flag.
-> +	 */
-> +	ret =3D regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-> +				 PCF8525_CTRL2_WDTF | PCF8525_CTRL2_AF |
-> +				 PCF8525_CTRL2_MSF,
-> +				 PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF);
-> +	if (ret)
-> +		return IRQ_NONE;
-> +
-
-[Severity: High]
-This isn't a bug introduced by this patch, but adding the WDTF flag exposes=
- a
-pre-existing issue in other handlers.
-
-In pre-existing code like pcf8525_irq() and pcf8525_set_alarm(),
-read-modify-write operations on PCF8525_REG_CTRL2 accidentally clear this
-newly-enabled WDTF flag.
-
-For example, in pcf8525_irq():
-
-    regmap_update_bits(pcf8525->regmap, PCF8525_REG_CTRL2,
-                       PCF8525_CTRL2_AF | PCF8525_CTRL2_MSF,
-                       PCF8525_CTRL2_MSF);
-
-If WDTF asserts between the read and write, will writing 0 to it accidental=
-ly
-clear the watchdog flag and lose the interrupt?
-
-> +	watchdog_notify_pretimeout(&pcf8525->wdd);
-> +	return IRQ_HANDLED;
-> +}
-
-[Severity: High]
-If the final hardware timeout is unconditionally treated as a pretimeout he=
-re,
-will a subsequent hardware reset ever occur if wired as an interrupt?
-
-Without a secondary timer to perform the actual reset, deployments relying =
-on
-this watchdog for system recovery might silently fail to reboot.
-
-[ ... ]
-> +static void pcf8525_mask_intb(void *data)
-> +{
-> +	struct pcf8525 *pcf8525 =3D data;
-> +	unsigned int m1;
-> +	int ret;
-> +
-> +	ret =3D regmap_read(pcf8525->regmap, PCF8525_REG_INTB_MASK1, &m1);
-> +	if (!ret) {
-> +		m1 |=3D PCF8525_MASK1_WD_CD;
-> +		regmap_write(pcf8525->regmap, PCF8525_REG_INTB_MASK1, m1);
-> +	}
-> +}
-> +
-> +static int pcf8525_watchdog_init(struct device *dev,
-> +				 struct pcf8525 *pcf8525)
-> +{
-[ ... ]
-> +	/* Register a cleanup action to re-mask INTB on driver unbind. */
-> +	ret =3D devm_add_action_or_reset(dev, pcf8525_mask_intb, pcf8525);
-
-[Severity: High]
-Does unconditionally masking the INTB pin on driver unbind defeat the hardw=
-are
-watchdog reset guarantees?
-
-If the watchdog is configured with the nowayout feature, or closed without
-the magic character, the core watchdog subsystem intentionally leaves the
-hardware timer running on driver unbind to ensure the system is eventually
-reset.
-
-Will silencing the physical reset line here prevent the hardware from
-asserting the reset?
-
-[ ... ]
-> +static int pcf8525_suspend(struct device *dev)
-> +{
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-> +
-> +	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
-> +	    device_property_read_bool(dev, "reset-source") &&
-> +	    watchdog_active(&pcf8525->wdd))
-> +		return pcf8525_wdt_stop(&pcf8525->wdd);
-> +
-> +	return 0;
-> +}
-
-[Severity: High]
-If the hardware watchdog was started by the bootloader (meaning
-WDOG_HW_RUNNING is set), will this fail to pause the watchdog during suspen=
-d?
-
-Since watchdog_active() is only true when userspace has opened the device,
-this fails to stop the HW if it is only running in the background. If the
-ping worker is frozen during suspend, could the hardware timer reset the
-system while sleeping?
-
-> +
-> +static int pcf8525_resume(struct device *dev)
-> +{
-> +	struct pcf8525 *pcf8525 =3D dev_get_drvdata(dev);
-> +
-> +	if (IS_ENABLED(CONFIG_WATCHDOG_CORE) &&
-> +	    device_property_read_bool(dev, "reset-source") &&
-> +	    watchdog_active(&pcf8525->wdd))
-> +		return pcf8525_wdt_ping(&pcf8525->wdd);
-> +
-> +	return 0;
-> +}
-
-[Severity: High]
-Similarly, does this fail to resume a hardware-running watchdog on wake sin=
-ce
-it also relies on watchdog_active()?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910060912.2443=
-551-1-shivprakash.gupta@nxp.com?part=3D3
+Best regards,
+Krzysztof
