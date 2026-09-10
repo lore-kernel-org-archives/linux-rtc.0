@@ -1,213 +1,481 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+Received: from flow-b3-smtp.messagingengine.com (flow-b3-smtp.messagingengine.com [202.12.124.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3775130FF1D;
-	Thu, 10 Sep 2026 16:33:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC8572602;
+	Thu, 10 Sep 2026 18:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789058006; cv=none; b=t827zmfVv5lK9NFm0huekIZUTBfcPV1TeH1Dz78kadisMQAQakV9y+XCwuRwu+VOKVfA2yWRyLayiV0ykkxGQLUiOgD1y78KGAbvme3kxFpT8dVEZzkIk/85wt9XyvnTE1/P4L2QhhWgnwdioGbeuoaPdvD6tqNlXWLTK5xJ/Ww=
+	t=1789064154; cv=none; b=Tgql8rdM9c7qULav0ZjowGDScZN5XBD+QmZUKyH1bP+Kgh9REnhQL6yJ1RHWNG0R46YdM/PaaD1/YBJ+8A8vPcdaGn203hPFPqRaQYLmQJbQAS1ybxhG2iqF/hmlNdccu4+poZgDtEnzFQ8Q+ksFNhpMcm6mfsTyHQx2EAC5cMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789058006; c=relaxed/simple;
-	bh=+ayH1FX3kVunzMh8TkCRg4WHR+LOdAedYf19O/irScE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iJFTnvvSX/dyJv2VOGhnAFtVsn7I8yxP9hU69q9wEE1UKFaJFYmnVyXSzzvTbXb6l7UIzhfBn7mt0eByba23OwdghHfCpeXBW7GFOkTy6ytV3tQyuwsRABXqwaJ1709xjVSlm3Da/ygYhYngXKjbfCs9RkZKjLzx3GMv/aJDksM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net; spf=pass smtp.mailfrom=gmx.net; dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b=CsALhKGH; arc=none smtp.client-ip=212.227.17.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.net
+	s=arc-20240116; t=1789064154; c=relaxed/simple;
+	bh=lT86y8eYD42UWCQykU9l8k3TRTmz09BEhcZq790S+yU=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=oCXq/HFbeT3dApjncZZg4C+vZ6S26rwWTroAeBaorAISH9rXJdokawrJFJYexjyePcGlcH8KweKcbQ3d8SgAcG5QgHCCcZp/hMEjdTCejvG3hosNC7CMym3SVJhl2CWhyTT2Z6SKe6Dfv7YQIk3rCDlbvp51+09aTRF4tWmgPE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ijVxd0jv; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CdXwC7Fv; arc=none smtp.client-ip=202.12.124.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b="CsALhKGH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.net;
-	s=s31663417; t=1789057996; x=1789662796; i=wahrenst@gmx.net;
-	bh=+ayH1FX3kVunzMh8TkCRg4WHR+LOdAedYf19O/irScE=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=CsALhKGHgv1DMNVdAsHxGUQOKEbAyMAuYzAVafXOfp+iyx3rC1uqCCPysCHjbiPl
-	 BN8OPKUltuTiNBHXWSKe2wbHdx8aBB9Z+CGlHg7gscyl8eey1+2ZCzpieWxCiOusx
-	 01QUqoQVzrY/kudRT/ik3IU2DikLRR2Nzz1NVC0TSz+h/i5pR7K9KHLeOYrLpSHU0
-	 apJe5HhLHA3Wjsgqq3iRG3ZkIksNgVLJVW2t05grXdo8kVWXJOiwko4lzEaeXlN2x
-	 AS2DTYMbca6MiDW5BzKKjVF2RhEZJzq57fJ7db4t11zpn+uzmplrSIA89EvTPk2Z7
-	 maONeKfBUoW5DLt/Bw==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from client.hidden.invalid by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MCKBm-1wvO3S2SW2-00Gw1q; Thu, 10
- Sep 2026 18:33:16 +0200
-Message-ID: <cae27e7c-1903-4a0c-aa80-b05f9f3d1d2c@gmx.net>
-Date: Thu, 10 Sep 2026 18:33:15 +0200
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ijVxd0jv";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CdXwC7Fv"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.stl.internal (Postfix) with ESMTP id 90062130016B;
+	Thu, 10 Sep 2026 14:15:45 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 10 Sep 2026 14:15:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1789064144;
+	 x=1789071344; bh=VtH5i260XLRsxy4HROM4Zf+emhgdsSBynbPgRNN9ky8=; b=
+	ijVxd0jvXkU6jHQGr5fM6K6ZY5mG4P1W/ROxqWDRxQKmS7rDY2TzR/Z9bwY1LnG4
+	qhxnwwW+p7mr5baW9Pijze8t8yetIb0/SyG82k6avP6YdqPRurILIhZOvJZ0jVS7
+	yuZzjczGOmYe0TdR5am6uZPHFVhqzlIhndDLY5yOGCTat8lCdJWga95rLTXAcD7Y
+	y2BP65oml+M4FSZGVvSVZvVc6G6xDLFdHriq9fjtNWufrpAu1Pt1pmK3n0kZsAEH
+	o84Z+NQp4QEp1YixNZ9GTVri9wBYq2b5VYYrrcVt1y3W8+i2RmywBqNyjIJkXjNU
+	5Dh3FQeLYs5lgwxjxgIwig==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789064144; x=
+	1789071344; bh=VtH5i260XLRsxy4HROM4Zf+emhgdsSBynbPgRNN9ky8=; b=C
+	dXwC7FvnpzHQOwXZAZv8vR74hPfItTYyxz5967sqrsM/xTHSSi0kGNo+lFmwq+7S
+	W845DpcmpYxxETQOFBsKvu0uW4SkumfFaBZJH4ObFBSVJZCx0uNpU+AB782OiT3l
+	WE73oVpFO+Sd8+Xf8GF916mYCBmrtJnLUUeqLnqA3BHL1hOzrk4a4ZH3/SGiFE+E
+	S/BDhjG2cwYNEXo7GP40HV9R9vY3p4B8Sb0vAYorN+uOW+5dC8M0X5XjWb7OTm9I
+	tGfg2g6FnLkrLZ185tkn0yt7cX1DUB9f9VfRuTbNNSfIIqGxrGt34StI5NOSBkVH
+	zSnSNYF9VkOVIcPxte8Tw==
+X-ME-Sender: <xms:x_OiavVvbr2xnD9wDDhPiFU-KeJWaEabWJ3dElLfZaFitBOJpwaEBw>
+    <xme:x_OiaiadBmhSw9JyA5Rfb18thN8_V3LDyZq4rXuV1Fs7T6DPuZ43-BbwDFHXBHFcN
+    VaQdnxfmj_y2U34ME3lhf0xITinNd6xSzg5la84VMY9-tKZtbYANDAr>
+X-ME-Proxy-Cause: dmFkZTG2zztKY4aY0N6GYcaHAoENgkA+3D96x+eHqiTNn9gGT9TiczF7nfZBC70+NZGtjG
+    gOWis8vMPs43LIeXkE/30hpkkXxPPbvx8y0eJJlkwZzwpaCPsz8tw1dAuT1QWG/qmoESU9
+    RSye3dODySNw+rAC8PMd3UB4nTQbLiKjSR1Xmrfl2Nk22KezpXEvPy+iofUb4YwImdfpcF
+    X4lReQPYtR0S4wkI8Ox8Cju7zDDn9p7XY2AIVvARmOOleGHx265Ru16ZJD/nokaGsgDFdH
+    Ej0wlnjScirCb92k5MIvpT+EIHPs5u8nWum9d/ff9WO+VYt2XYdqpD8kw7yl6DEnvCVBPC
+    62fzoJfrs+rnLhl6F707QA3hIC92X/DpSQF42LmUnR/YwkQQs2yyF6tvs4ph/PyjBW9QQD
+    SJcfJfvnk4TPiBJMIadgpVacsEeumhVQFh0uBN8pTzJNZY6tCkxMUyCGTVbE0wpi841Own
+    QFamreyp+xUwfuIXrHssyjIQQjMU6phEtEN9eTAe9h3CF8YCpg1YJbdfSGOZR8H5CUZZwf
+    HA1Eq907uoR9mlUBcEFTE9z6OB8eh9OQXEDpz0zBjk7v93TjidKKdVBlo1+n6gpZakl9lz
+    IACe3ohu5UE6o48Y5bLcXtfTLRwqaRevknsM/XKoJezWWoAdutP9pLq3uecw
+X-ME-Proxy: <xmx:zfOiamBNqfysXndRRgMiCY7NBQ43FZSbFLDO5__pMi3DVjuH4RJEAg>
+    <xmx:zfOianeBZmje1IXxldxRji_qyPUrW_hrUuiBzdPBxrH-PduRBPfQ6w>
+    <xmx:zfOiauslcdlMubignkweR-Oig-HcA94Is7ov3vgNbVXHT0vzPqCfDg>
+    <xmx:zfOiapLV-rCRVSNrKaXhOzFg-AGXz8zlLD1yFZCUJp2vjVjwbS-r_A>
+    <xmx:0POiarGOLRgBpdCk7akkQdCfV8pfABe6Zb6bnwPbJu0wyJHblTYq1PZn>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id B0D6332A007B; Thu, 10 Sep 2026 14:15:35 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] dt-bindings: rtc: Add Raspberry Pi 5 RTC binding
-To: Krzysztof Kozlowski <krzk@kernel.org>,
- Sander Speetjens <sander.speetjens@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Jonathan Bell <jonathan@raspberrypi.com>, linux-rtc@vger.kernel.org,
- devicetree@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org
-References: <20260909141300.1368790-1-sander.speetjens@gmail.com>
- <20260909141300.1368790-2-sander.speetjens@gmail.com>
- <4c237cd8-024f-405e-a00e-e22ff9529d08@kernel.org>
- <8cd19ae8-372b-444b-bd2a-dc01221b5896@kernel.org>
- <CAAOJLPHNGgC7B=7ESCifZ1FPcR6V=Hcg-q-aaVg_9M_-d6Fh2A@mail.gmail.com>
- <718e88b8-3f3b-410e-8e76-90c370ff920a@kernel.org>
-Content-Language: en-US
-From: Stefan Wahren <wahrenst@gmx.net>
-Autocrypt: addr=wahrenst@gmx.net; keydata=
- xjMEZ1dOJBYJKwYBBAHaRw8BAQdA7H2MMG3q8FV7kAPko5vOAeaa4UA1I0hMgga1j5iYTTvN
- IFN0ZWZhbiBXYWhyZW4gPHdhaHJlbnN0QGdteC5uZXQ+wo8EExYIADcWIQT3FXg+ApsOhPDN
- NNFuwvLLwiAwigUCZ1dOJAUJB4TOAAIbAwQLCQgHBRUICQoLBRYCAwEAAAoJEG7C8svCIDCK
- JQ4BAP4Y9uuHAxbAhHSQf6UZ+hl5BDznsZVBJvH8cZe2dSZ6AQCNgoc1Lxw1tvPscuC1Jd1C
- TZomrGfQI47OiiJ3vGktBc44BGdXTiQSCisGAQQBl1UBBQEBB0B5M0B2E2XxySUQhU6emMYx
- f5QR/BrEK0hs3bLT6Hb9WgMBCAfCfgQYFggAJhYhBPcVeD4Cmw6E8M000W7C8svCIDCKBQJn
- V04kBQkHhM4AAhsMAAoJEG7C8svCIDCKJxoA/i+kqD5bphZEucrJHw77ujnOQbiKY2rLb0pE
- aHMQoiECAQDVbj827W1Yai/0XEABIr8Ci6a+/qZ8Vz6MZzL5GJosAA==
-In-Reply-To: <718e88b8-3f3b-410e-8e76-90c370ff920a@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:dkbTynnLTZUsNIb4c9Q3WO41pMr8iiv7drOofwBgIYYXeYY9UYg
- nfBGblnKFxb5oZ++ZY4Y+OSFLxcDvKvINKp3QIs+UWiibTd3OpMsckPOOJVsR6PpiBlzVPX
- lImEZ4XPkCMn39HpeniisSsyB6b45SUIR7/1VA+xDC1JBMF2uYzGuZmuyqta1Kbg/Ugfo0y
- 6lo3rcKgzGFhJnLd7b+mQ==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:28hUPTmvF8o=;Lvawf45V1FHTBBTIqqDAiBKatLA
- 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
+X-ThreadId: AK-jVwBtQCQR
+Date: Thu, 10 Sep 2026 20:14:15 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Svyatoslav Ryhel" <clamor95@gmail.com>, "Arnd Bergmann" <arnd@kernel.org>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Mark Brown" <broonie@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
+ "Daniel Thompson" <danielt@kernel.org>, "Helge Deller" <deller@gmx.de>,
+ devicetree@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, "Jonathan Cameron" <jic23@kernel.org>,
+ "Jingoo Han" <jingoohan1@gmail.com>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ "Liam Girdwood" <lgirdwood@gmail.com>,
+ "Linus Walleij" <linusw@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
+ llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
+ mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
+ "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
+ "Support Opensource" <support.opensource@diasemi.com>
+Message-Id: <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+In-Reply-To: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+References: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Am 10.09.26 um 09:08 schrieb Krzysztof Kozlowski:
-> On 09/09/2026 22:24, Sander Speetjens wrote:
->> Thanks for your response
->>
->>> And more important, where is any interface to actually control the RTC=
-?
->>> I see nothing, so your firmware is? Then this is not a separate device
->>> and you just added DTS for your driver, which is a no go (see writing
->>> bindings).
->> The RTC is a physical, battery-backed RTC, but the Raspberry Pi firmwar=
-e
->> exposes its register interface exclusively through the firmware mailbox=
-.
->> I initially used a firmware phandle so the RTC driver could obtain the
->> existing rpi_firmware instance.
-FWIW Based on the official announcement [1], the Renesas DA9091 is a=20
-PMIC which has been customized for Raspberry Pi. So currently there is=20
-no datasheet available (yet).
-But it's very likely that the GPU firmware of the BCM2712 communicate=20
-via I2C with this PMIC. Also this IC offers additional features like RTC=
-=20
-and power button. So this driver only handles the RTC part.
+On Thu, Sep 10, 2026, at 18:40, Svyatoslav Ryhel wrote:
+> __ 
+> Hello Arnd! May you please spare AAT2870 from being removed? I have a 
+> device which uses aat2870 (LG Optimus 2X P990 Tegra 2, not upstreamed 
+> yet, but in process as well) and atm I am working on converting this 
+> driver to use OF. Thank you!
 
-Best regards
+Sure, I have removed this patch from my series now.
 
-[1] - https://www.raspberrypi.com/news/introducing-raspberry-pi-5/
->>
->> Based on your comment, I think it is more appropriate to model
->> the RTC as a child device of rpi-firmware,
->> referencing to the existing firmware clock/reset/power services,
->> and have the driver obtain the firmware interface from its parent
->> rather than adding a phandle solely for driver plumbing.
->> Which also means moving this to arm/bcm/raspberrypi,bcm2835-firmware.ya=
-ml
->>
-> Whether device has separate node, depends on it having dedicated
-> resources. I don't see such here, so unlikely it should have a node in
-> the first place (see writing bindings or DTS101 where exactly this
-> question is asked).
->
-> Best regards,
-> Krzysztof
+> P. S. If you are planning to remove more old drivers, please CC me in 
+> since I may be interested in some additional driver upgrades for 
+> devices I own.
 
+Please have a look at
+
+https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove-7.3
+
+I tried to be careful about figuring out exactly which drivers are
+unused, but I'm sure there are still a few false positive and false
+negative ones in there. I've added the current list of driver files below,
+let me know if you see something that shouldn't be there.
+
+     Arnd
+
+drivers/ata/pata_icside.c
+drivers/ata/pata_pxa.c
+drivers/char/ds1620.c
+drivers/char/hw_random/mxc-rnga.c
+drivers/char/nwbutton.c
+drivers/char/nwbutton.h
+drivers/char/nwflash.c
+drivers/clk/clk-axm5516.c
+drivers/clk/clk-stm32f4.c
+drivers/clk/clk-stm32h7.c
+drivers/clk/imx/clk-imx31.c
+drivers/clk/imx/clk-imxrt1050.c
+drivers/clk/nxp/clk-lpc18xx-ccu.c
+drivers/clk/nxp/clk-lpc18xx-cgu.c
+drivers/clk/nxp/clk-lpc18xx-creg.c
+drivers/clk/ti/clk-2xxx.c
+drivers/clocksource/armv7m_systick.c
+drivers/clocksource/mps2-timer.c
+drivers/cpufreq/sa1110-cpufreq.c
+drivers/dma/lpc18xx-dmamux.c
+drivers/dma/sa11x0-dma.c
+drivers/gpio/gpio-adp5520.c
+drivers/gpio/gpio-htc-egpio.c
+drivers/gpio/gpio-lpc18xx.c
+drivers/gpio/gpio-rc5t583.c
+drivers/gpio/gpio-rdc321x.c
+drivers/gpio/gpio-reg.c
+drivers/gpio/gpio-sa1100.c
+drivers/gpio/gpio-wm8350.c
+drivers/hwmon/ds620.c
+drivers/hwmon/f75375s.c
+drivers/hwmon/max1111.c
+drivers/hwmon/max197.c
+drivers/hwmon/wm8350-hwmon.c
+drivers/i2c/busses/i2c-acorn.c
+drivers/i2c/busses/i2c-axxia.c
+drivers/i2c/busses/i2c-lpc2k.c
+drivers/i2c/busses/i2c-stm32f4.c
+drivers/iio/adc/ad7266.c
+drivers/iio/adc/ad7791.c
+drivers/iio/adc/ad7793.c
+drivers/iio/adc/ad7887.c
+drivers/iio/adc/lp8788_adc.c
+drivers/iio/adc/lpc18xx_adc.c
+drivers/iio/dac/lpc18xx_dac.c
+drivers/iio/frequency/ad9523.c
+drivers/input/joystick/as5011.c
+drivers/input/keyboard/adp5520-keys.c
+drivers/input/keyboard/ipaq-micro-keys.c
+drivers/input/keyboard/jornada720_kbd.c
+drivers/input/keyboard/lm8323.c
+drivers/input/keyboard/lm8333.c
+drivers/input/keyboard/locomokbd.c
+drivers/input/misc/88pm80x_onkey.c
+drivers/input/misc/ad714x-i2c.c
+drivers/input/misc/ad714x-spi.c
+drivers/input/misc/ad714x.c
+drivers/input/misc/ad714x.h
+drivers/input/misc/adxl34x-i2c.c
+drivers/input/misc/adxl34x-spi.c
+drivers/input/misc/adxl34x.c
+drivers/input/misc/adxl34x.h
+drivers/input/misc/bma150.c
+drivers/input/misc/cma3000_d0x.c
+drivers/input/misc/cma3000_d0x.h
+drivers/input/misc/cma3000_d0x_i2c.c
+drivers/input/misc/kxtj9.c
+drivers/input/misc/max8997_haptic.c
+drivers/input/misc/mc13783-pwrbutton.c
+drivers/input/mouse/rpcmouse.c
+drivers/input/serio/rpckbd.c
+drivers/input/serio/sa1111ps2.c
+drivers/input/touchscreen/ad7877.c
+drivers/input/touchscreen/da9034-ts.c
+drivers/input/touchscreen/ipaq-micro-ts.c
+drivers/input/touchscreen/jornada720_ts.c
+drivers/input/touchscreen/mc13783_ts.c
+drivers/input/touchscreen/tps6507x-ts.c
+drivers/irqchip/irq-nvic.c
+drivers/irqchip/irq-sa11x0.c
+drivers/irqchip/irq-stm32-exti.c
+drivers/leds/leds-adp5520.c
+drivers/leds/leds-bd2802.c
+drivers/leds/leds-da903x.c
+drivers/leds/leds-ipaq-micro.c
+drivers/leds/leds-lm3530.c
+drivers/leds/leds-lm3532.c
+drivers/leds/leds-lm355x.c
+drivers/leds/leds-lm3642.c
+drivers/leds/leds-locomo.c
+drivers/leds/leds-lp3944.c
+drivers/leds/leds-lp8788.c
+drivers/leds/leds-wm8350.c
+drivers/media/i2c/ths7303.c
+drivers/media/platform/samsung/s3c-camif/Kconfig
+drivers/media/platform/samsung/s3c-camif/Makefile
+drivers/media/platform/samsung/s3c-camif/camif-capture.c
+drivers/media/platform/samsung/s3c-camif/camif-core.c
+drivers/media/platform/samsung/s3c-camif/camif-core.h
+drivers/media/platform/samsung/s3c-camif/camif-regs.c
+drivers/media/platform/samsung/s3c-camif/camif-regs.h
+drivers/media/platform/st/stm32/dma2d/dma2d-hw.c
+drivers/media/platform/st/stm32/dma2d/dma2d-regs.h
+drivers/media/platform/st/stm32/dma2d/dma2d.c
+drivers/media/platform/st/stm32/dma2d/dma2d.h
+drivers/media/radio/radio-si476x.c
+drivers/mfd/88pm800.c
+drivers/mfd/88pm805.c
+drivers/mfd/88pm80x.c
+drivers/mfd/adp5520.c
+drivers/mfd/da903x.c
+drivers/mfd/ipaq-micro.c
+drivers/mfd/lp8788-irq.c
+drivers/mfd/lp8788.c
+drivers/mfd/mcp-core.c
+drivers/mfd/mcp-sa11x0.c
+drivers/mfd/menelaus.c
+drivers/mfd/rc5t583-irq.c
+drivers/mfd/rc5t583.c
+drivers/mfd/rdc321x-southbridge.c
+drivers/mfd/si476x-cmd.c
+drivers/mfd/si476x-i2c.c
+drivers/mfd/si476x-prop.c
+drivers/mfd/ucb1x00-assabet.c
+drivers/mfd/ucb1x00-core.c
+drivers/mfd/ucb1x00-ts.c
+drivers/mfd/wm8350-core.c
+drivers/mfd/wm8350-gpio.c
+drivers/mfd/wm8350-i2c.c
+drivers/mfd/wm8350-irq.c
+drivers/mfd/wm8350-regmap.c
+drivers/mfd/wm8400-core.c
+drivers/misc/bh1770glc.c
+drivers/mtd/maps/dc21285.c
+drivers/mtd/maps/pxa2xx-flash.c
+drivers/mtd/maps/sa1100-flash.c
+drivers/mtd/nand/raw/sharpsl.c
+drivers/mtd/parsers/sharpslpart.c
+drivers/mtd/spi-nor/controllers/Kconfig
+drivers/mtd/spi-nor/controllers/Makefile
+drivers/mtd/spi-nor/controllers/hisi-sfc.c
+drivers/mtd/spi-nor/controllers/nxp-spifi.c
+drivers/net/can/bxcan.c
+drivers/net/ethernet/8390/etherh.c
+drivers/net/ethernet/i825xx/ether1.c
+drivers/net/ethernet/i825xx/ether1.h
+drivers/net/ethernet/lantiq_etop.c
+drivers/net/ethernet/samsung/Kconfig
+drivers/net/ethernet/samsung/Makefile
+drivers/net/ethernet/samsung/sxgbe/Makefile
+drivers/net/ethernet/samsung/sxgbe/sxgbe_common.h
+drivers/net/ethernet/samsung/sxgbe/sxgbe_core.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_desc.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_desc.h
+drivers/net/ethernet/samsung/sxgbe/sxgbe_dma.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_dma.h
+drivers/net/ethernet/samsung/sxgbe/sxgbe_ethtool.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_mdio.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_mtl.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_mtl.h
+drivers/net/ethernet/samsung/sxgbe/sxgbe_platform.c
+drivers/net/ethernet/samsung/sxgbe/sxgbe_reg.h
+drivers/net/ethernet/seeq/ether3.c
+drivers/net/ethernet/seeq/ether3.h
+drivers/net/ethernet/stmicro/stmmac/dwmac-lpc18xx.c
+drivers/net/wireless/marvell/libertas/if_spi.c
+drivers/net/wireless/marvell/libertas/if_spi.h
+drivers/net/wireless/st/Kconfig
+drivers/net/wireless/st/Makefile
+drivers/net/wireless/st/cw1200/Kconfig
+drivers/net/wireless/st/cw1200/Makefile
+drivers/net/wireless/st/cw1200/bh.c
+drivers/net/wireless/st/cw1200/bh.h
+drivers/net/wireless/st/cw1200/cw1200.h
+drivers/net/wireless/st/cw1200/cw1200_sdio.c
+drivers/net/wireless/st/cw1200/cw1200_spi.c
+drivers/net/wireless/st/cw1200/debug.c
+drivers/net/wireless/st/cw1200/debug.h
+drivers/net/wireless/st/cw1200/fwio.c
+drivers/net/wireless/st/cw1200/fwio.h
+drivers/net/wireless/st/cw1200/hwbus.h
+drivers/net/wireless/st/cw1200/hwio.c
+drivers/net/wireless/st/cw1200/hwio.h
+drivers/net/wireless/st/cw1200/main.c
+drivers/net/wireless/st/cw1200/pm.c
+drivers/net/wireless/st/cw1200/pm.h
+drivers/net/wireless/st/cw1200/queue.c
+drivers/net/wireless/st/cw1200/queue.h
+drivers/net/wireless/st/cw1200/scan.c
+drivers/net/wireless/st/cw1200/scan.h
+drivers/net/wireless/st/cw1200/sta.c
+drivers/net/wireless/st/cw1200/sta.h
+drivers/net/wireless/st/cw1200/txrx.c
+drivers/net/wireless/st/cw1200/txrx.h
+drivers/net/wireless/st/cw1200/wsm.c
+drivers/net/wireless/st/cw1200/wsm.h
+drivers/nvmem/lpc18xx_eeprom.c
+drivers/nvmem/lpc18xx_otp.c
+drivers/pcmcia/max1600.c
+drivers/pcmcia/max1600.h
+drivers/pcmcia/pxa2xx_base.c
+drivers/pcmcia/pxa2xx_base.h
+drivers/pcmcia/pxa2xx_sharpsl.c
+drivers/pcmcia/sa1100_generic.c
+drivers/pcmcia/sa1100_generic.h
+drivers/pcmcia/sa1100_h3600.c
+drivers/pcmcia/sa1111_generic.c
+drivers/pcmcia/sa1111_generic.h
+drivers/pcmcia/sa1111_jornada720.c
+drivers/pcmcia/sa1111_neponset.c
+drivers/pcmcia/sa11xx_base.c
+drivers/pcmcia/sa11xx_base.h
+drivers/pcmcia/soc_common.c
+drivers/pcmcia/soc_common.h
+drivers/phy/phy-lpc18xx-usb-otg.c
+drivers/pinctrl/freescale/pinctrl-imxrt1050.c
+drivers/pinctrl/freescale/pinctrl-imxrt1170.c
+drivers/pinctrl/pinctrl-lpc18xx.c
+drivers/pinctrl/stm32/pinctrl-stm32f429.c
+drivers/pinctrl/stm32/pinctrl-stm32f469.c
+drivers/pinctrl/stm32/pinctrl-stm32f746.c
+drivers/pinctrl/stm32/pinctrl-stm32f769.c
+drivers/pinctrl/stm32/pinctrl-stm32h743.c
+drivers/power/reset/axxia-reset.c
+drivers/power/supply/collie_battery.c
+drivers/power/supply/da9030_battery.c
+drivers/power/supply/ipaq_micro_battery.c
+drivers/power/supply/lp8788-charger.c
+drivers/power/supply/twl4030_madc_battery.c
+drivers/power/supply/wm8350_power.c
+drivers/pwm/pwm-lpc18xx-sct.c
+drivers/regulator/88pm800-regulator.c
+drivers/regulator/da903x-regulator.c
+drivers/regulator/lp3971.c
+drivers/regulator/lp3972.c
+drivers/regulator/lp8788-buck.c
+drivers/regulator/lp8788-ldo.c
+drivers/regulator/max8649.c
+drivers/regulator/rc5t583-regulator.c
+drivers/regulator/wm8350-regulator.c
+drivers/regulator/wm8400-regulator.c
+drivers/reset/reset-lpc18xx.c
+drivers/rtc/rtc-88pm80x.c
+drivers/rtc/rtc-lp8788.c
+drivers/rtc/rtc-lpc24xx.c
+drivers/rtc/rtc-rc5t583.c
+drivers/rtc/rtc-wm8350.c
+drivers/scsi/arm/Kconfig
+drivers/scsi/arm/Makefile
+drivers/scsi/arm/acornscsi-io.S
+drivers/scsi/arm/acornscsi.c
+drivers/scsi/arm/acornscsi.h
+drivers/scsi/arm/arm_scsi.h
+drivers/scsi/arm/arxescsi.c
+drivers/scsi/arm/cumana_1.c
+drivers/scsi/arm/cumana_2.c
+drivers/scsi/arm/eesox.c
+drivers/scsi/arm/fas216.c
+drivers/scsi/arm/fas216.h
+drivers/scsi/arm/msgqueue.c
+drivers/scsi/arm/msgqueue.h
+drivers/scsi/arm/oak.c
+drivers/scsi/arm/powertec.c
+drivers/scsi/arm/queue.c
+drivers/scsi/arm/queue.h
+drivers/spi/spi-tle62x0.c
+drivers/tty/serial/21285.c
+drivers/tty/serial/8250/8250_acorn.c
+drivers/tty/serial/8250/8250_lpc18xx.c
+drivers/tty/serial/mps2-uart.c
+drivers/tty/serial/sa1100.c
+drivers/usb/host/ohci-sa1111.c
+drivers/usb/host/sl811-hcd.c
+drivers/usb/host/sl811.h
+drivers/usb/host/sl811_cs.c
+drivers/usb/musb/tusb6010.c
+drivers/usb/musb/tusb6010.h
+drivers/usb/musb/tusb6010_omap.c
+drivers/usb/phy/phy-mv-usb.h
+drivers/video/backlight/adp5520_bl.c
+drivers/video/backlight/adp8860_bl.c
+drivers/video/backlight/adp8870_bl.c
+drivers/video/backlight/ams369fg06.c
+drivers/video/backlight/bd6107.c
+drivers/video/backlight/corgi_lcd.c
+drivers/video/backlight/da903x_bl.c
+drivers/video/backlight/ep93xx_bl.c
+drivers/video/backlight/ipaq_micro_bl.c
+drivers/video/backlight/jornada720_bl.c
+drivers/video/backlight/jornada720_lcd.c
+drivers/video/backlight/lm3639_bl.c
+drivers/video/backlight/lms501kf03.c
+drivers/video/backlight/locomolcd.c
+drivers/video/backlight/lp8788_bl.c
+drivers/video/backlight/tdo24m.c
+drivers/video/fbdev/acornfb.c
+drivers/video/fbdev/acornfb.h
+drivers/video/fbdev/arcfb.c
+drivers/video/fbdev/broadsheetfb.c
+drivers/video/fbdev/core/fb_notify.c
+drivers/video/fbdev/ep93xx-fb.c
+drivers/video/fbdev/hecubafb.c
+drivers/video/fbdev/metronomefb.c
+drivers/video/fbdev/mmp/Kconfig
+drivers/video/fbdev/mmp/Makefile
+drivers/video/fbdev/mmp/core.c
+drivers/video/fbdev/mmp/fb/Kconfig
+drivers/video/fbdev/mmp/fb/Makefile
+drivers/video/fbdev/mmp/fb/mmpfb.c
+drivers/video/fbdev/mmp/fb/mmpfb.h
+drivers/video/fbdev/mmp/hw/Kconfig
+drivers/video/fbdev/mmp/hw/Makefile
+drivers/video/fbdev/mmp/hw/mmp_ctrl.c
+drivers/video/fbdev/mmp/hw/mmp_ctrl.h
+drivers/video/fbdev/mmp/hw/mmp_spi.c
+drivers/video/fbdev/mmp/panel/Kconfig
+drivers/video/fbdev/mmp/panel/Makefile
+drivers/video/fbdev/mmp/panel/tpo_tj032md01bw.c
+drivers/video/fbdev/n411.c
+drivers/video/fbdev/pxa168fb.c
+drivers/video/fbdev/pxa168fb.h
+drivers/video/fbdev/s1d13xxxfb.c
+drivers/video/fbdev/sa1100fb.c
+drivers/video/fbdev/sa1100fb.h
+drivers/watchdog/lpc18xx_wdt.c
+drivers/watchdog/rdc321x_wdt.c
+drivers/watchdog/wdt285.c
+drivers/watchdog/wdt977.c
+drivers/watchdog/wm8350_wdt.c
+sound/soc/codecs/si476x.c
+sound/soc/codecs/wm8350.c
+sound/soc/codecs/wm8350.h
+sound/soc/codecs/wm8400.c
+sound/soc/codecs/wm8400.h
+sound/soc/pxa/pxa2xx-i2s.c
+sound/soc/pxa/pxa2xx-i2s.h
+sound/soc/pxa/spitz.c
+sound/soc/ti/n810.c
+sound/spi/Kconfig
+sound/spi/Makefile
+sound/spi/at73c213.c
+sound/spi/at73c213.h
