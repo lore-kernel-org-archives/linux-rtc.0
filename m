@@ -1,110 +1,82 @@
-Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5420D40F73B;
-	Mon, 14 Sep 2026 09:13:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.92
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB24541BA69
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 09:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789377213; cv=none; b=uPz88iCossYqQ73iVM3BchK7OTbpC0PA7DrnRnAdEmP5/RIvUVao7sP9TcLzLtwcvnq1EEPa/sILgt9ITBG1wPENUgNWHvUWctHgM4bnjXHW+akzyUaRJj6hLUEzxjSyf5f8iRXddNQWoLFqTNclLGAwhKh2grpDQP/l7x9MzEg=
+	t=1789377244; cv=none; b=W1ufZiF2NbF6dRN7EsfIPiWA9okt66paA2VXjK7li6vIHt2tyywrmZIn73K9WZuWtNj8NMLA1JGXs9vlcu8sfr2PkLnhncEGw0JdWLtlgovUtJv8kq4TttWMBvuOdEndoGGcjUGogHy9jX8fcMiV2xC10RNPtz42PxqJ0iyfkrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789377213; c=relaxed/simple;
-	bh=a+fAaJ5qkCaQLPuEmfau0ZxQbepwRl0/kqTfAwPSAgY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HancZ2/Nilu7Tj1WB0YOGLTPhmRgmf5CsR830Um6hZ/WBLj8sTSPmyE5ZkosHqxhp6eYBqCuMJfzqQss5sIuJ5uKB4UyxqYpt2lVQi831rqDHwU0y/UyDkZhvGpx8Rk1bga/UCRNUvLywi6iPRTiktppwGB+3huX5T0jL2/p4QA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=54.254.200.92
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
-X-QQ-mid: zesmtpgz6t1789377140tc3f78b20
-X-QQ-Originating-IP: LDMhUITzf0XHH8szfl2GgtewjXa1MG6TG/bhQ9ClylI=
-Received: from [192.168.21.56] ( [111.8.45.130])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Mon, 14 Sep 2026 17:12:18 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 9772511462456153291
-EX-QQ-RecipientCnt: 9
-Message-ID: <A3EDECF27FC3B14D+76412d42-a289-48ea-a505-4eb06c8ded85@kylinsec.com.cn>
-Date: Mon, 14 Sep 2026 17:12:18 +0800
+	s=arc-20240116; t=1789377244; c=relaxed/simple;
+	bh=E60LrvOv4D6snvC45CyzXp/jFjIhoVrxockG8xseI20=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CFr+fVv2ZmjF/Pb7uhx50SStWpK0lP8tMktXxjzjpi8x5U5goZ1ZN37IASurV859qoctsoDla8FY2Qdm0fJ3fcEm3iJeIxBoXoIBSXLIafmxnolDghy3iGwXfQnD1ZmYmcy84DAVycKiziv3nvFhrpTduhD5jE1U0UAEqQ+kLfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fm2MzbI8; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fm2MzbI8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CEAB1F00893
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 09:14:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789377242;
+	bh=E60LrvOv4D6snvC45CyzXp/jFjIhoVrxockG8xseI20=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=fm2MzbI8O1p1YDT3P0pO9ERFq9dng0XQGb1URkQIreCUz+GolSrzbqubj1wPAhYYQ
+	 KCmLdva0sbLLsw2QTIc9UYRbzCBsZjFbb7ieHJO6YoEiznFrsBOR/lV7laaC/h7wNQ
+	 iFRk9jAqSWA9ilZVtHJkG5Z94tgYd0KZhlqY8wxmjlemK4cw85ZeasApQ6AQRVO8+x
+	 gI1lA70L0Jz+bfIGcaiWZREdzxcYnRog4cbFQmNV2qCO1vNQ8jl7biu7IRI1uC6ew7
+	 7P+jWWvenF5dU5lghhzlbuVjEIWish3MJPbQG491CbVODTPinhVrAk0+6OgFHMblAn
+	 BTp0ajrc95hAw==
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f13d77so2013229e87.0
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 02:14:02 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxPgPz5JYE/6frxCV8RDXIzDxaKrSr3lHmbTTqmdRXYcqeb6sYwJ0bMQm7G+f+6QobDFVQ+UZX323U=@vger.kernel.org
+X-Gm-Message-State: AFuF++n0SW+2VOD2IiANfJk4QXnr+qvcKZwzCBVFonQXYAwXxaB2Dyp9
+	GNeCr+xas8UftBkSNMJsolDcmqQ9qVRESRXvt7yPpgAzbOuBs+8MNYONcm65eFbz5bCGzHg017+
+	sd9v9dHzrwIN2Mc3NDBMYTgoLaZ4c0pQ=
+X-Received: by 2002:a05:6512:3d0d:b0:5b6:1a7c:2c with SMTP id
+ 2adb3069b0e04-5b8ae6a0873mr414530e87.47.1789377241283; Mon, 14 Sep 2026
+ 02:14:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] rtc: ftrtc010: fix resource management and integer
- overflow
-To: Linus Walleij <linusw@kernel.org>
-Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org,
- linux-kernel@vger.kernel.org, Deng Yingchao <dengyingchao@kylinsec.com.cn>,
- Qin Yungao <qinyungao@kylinsec.com.cn>, Luo Qiu <luoqiu@kylinsec.com.cn>
-References: <20260827021054.0963C1F000E9@smtp.kernel.org>
- <B61B30904C7ACEEF+20260827080320.3351155-1-liudalin@kylinsec.com.cn>
- <CAD++jL=s_dyCyaPCHhQttukZ7m8hFMpCGm5hATrHUBirEG+RxQ@mail.gmail.com>
-Content-Language: en-US
-From: liudalin <liudalin@kylinsec.com.cn>
-In-Reply-To: <CAD++jL=s_dyCyaPCHhQttukZ7m8hFMpCGm5hATrHUBirEG+RxQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpgz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
-X-QQ-XMAILINFO: NmVMiHSBBXNG0AXGKKMYx1VaGNtAmVkZxv2b/5TlinN4UT72DDIVkAvN
-	ETWwBWa0zWNbx7QgIJepSfIKM2zc52A0mCPRvJCtUE/d2NBMugz3hIv6Jsc+ZyBrJye0ZIH
-	STs3z4S8PCHbc4m0N57kHVd36XdFWDWZpL/i7WXeC5sIylmO8DtZpC3PlNa9OJkB6T7u2t5
-	itfvZt6GGJqu2wjiuU9vXCl/vXGZF0BpWIJ0RpzyGXKMsCA2qUCkmwL97zN9iPut86mFCdI
-	oM+cwzzbPp4Za1cvisfbh+TWuHIcxICeA/biekEMw9+KQ3WKUXTGYBIxepAAbjQyssWXCUs
-	/OOc1KtK1gTrOTDeWXabczBmNkeVRjF6firvgldTGsb8Z2WVhKmWUbz1jCVB+5qHPaWtDC6
-	n2uSTX31ECrM1YtgblJT5Zr33wskDjnPO4EosAXmQMD3UxkehVFZUCT2HNgPQxae1wIxjyJ
-	q2Ik3KbkY+YypMPLSFtahO+9LzOR2dSoHDlHL/En/wZz4GynByJXJoQz3zQ3XjApiDEOOf9
-	lx4LsYi8foxPDoDAVKUOkDfw3hTyTb/Y/5HtFU6dxkhhl6OwUqVteTw+y9btLa1HRauP/yi
-	BSLhg9swKj/CTiRiPVw2icLyvFT7k/J8PAElXFxmIO61jid/hqA4zfWpafJBiZrQlnwXsS2
-	wpjotjFQdHoFKOUK1JC+iYDWE/RbAOzbpXc2CAxAFtITf+KKv2ZVaMf+gzZabu8Z5LQQs3U
-	p4ya6rLvgGQkYOkfEsuqbQqw7zZ4VSA6pb38muDfpSrY7iVJ42LIUR8W7L97j5lZt7TeOmW
-	LZAD2nnAOVRt7I9chhvT7aSLmyMvj9dN7kgYHgBLu4As8r6v6t5Ge/gWwkoCXpU2NUKuZSH
-	mOG3+AS4QiDen7/3LwXAEWuk1c0Cew5cQxak8Pyks/0m5kDwBTyBvpzCl+NsBqvIAi2Cx+k
-	n/DHMk4HnJ0c/viwrptcc+TfYGbPZF7G0P2THAGotPZykIqF48Jd35axo1I7+Po+tZEQjiV
-	0QDaTWiW8j/ohy2RY4eWg4kBYMMuK2yhnNpEUDJINhTmLvNN1JEv4TMRZ8MfD322CNSQjFQ
-	GqlkN3LFBFLftX9eRaiP5DfFKWrMFSmlX6w/lf6kfzMzwrRhbUcwpw=
-X-QQ-XMRINFO: OD9hHCdaPRBwTrk1PRwzX5abbeVq+9uevw==
-X-QQ-RECHKSPAM: 0
+References: <20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de> <20260831-rtc_s35390a_int1-v8-5-dac1dc86ce1f@posteo.de>
+In-Reply-To: <20260831-rtc_s35390a_int1-v8-5-dac1dc86ce1f@posteo.de>
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 14 Sep 2026 11:13:48 +0200
+X-Gmail-Original-Message-ID: <CAD++jLkBYVGL+oXXXMq+5F2WF31xiGD5FoxDGuNFgd5fawEQOA@mail.gmail.com>
+X-Gm-Features: AcwNN1X_Dc3msIppmUpYmdtPkP3lWlbat9n-DuEEQJTnY1Fsv98a0DOXarp0_cs
+Message-ID: <CAD++jLkBYVGL+oXXXMq+5F2WF31xiGD5FoxDGuNFgd5fawEQOA@mail.gmail.com>
+Subject: Re: [PATCH v8 5/6] rtc: s35390a: Add pinctrl
+To: Markus Probst <markus.probst@posteo.de>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <uwe@kleine-koenig.org>, 
+	Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+	Michael Langer <michael.brainbug.langer@googlemail.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Aug 31, 2026 at 7:42=E2=80=AFPM Markus Probst <markus.probst@posteo=
+.de> wrote:
 
-在 2026/9/14 16:38, Linus Walleij 写道:
-> On Thu, Aug 27, 2026 at 10:03 AM Liu Dalin <liudalin@kylinsec.com.cn> wrote:
+> Allow configuration of pin functions, including:
+> - keeping the previous configured function
+> - disabling output
+> - waking up the system
+> - minute periodical interrupt (1: 50% duty, 2: 7.81 ms)
 >
->> This series fixes three issues in the Faraday FTRTC010 RTC driver
->> found by Sashiko AI static analysis:
->>
->> Patch 1: Fixes a clock resource leak when devm_rtc_register_device()
->> fails in ftrtc010_rtc_probe().
->>
->> Patch 2: Replaces manual clock management with devm APIs to fix a
->> use-after-disable vulnerability in ftrtc010_rtc_remove(). The RTC
->> device is registered via devm_rtc_register_device() but clocks are
->> manually disabled in .remove() before devres cleanup, creating a
->> window where MMIO reads on clock-gated hardware can cause a
->> synchronous external abort.
->>
->> Patch 3: Fixes integer overflow in ftrtc010_rtc_read_time() and
->> ftrtc010_rtc_set_time() where u32 arithmetic wraps for dates
->> beyond year 2106.
->>
->> All three patches are based on v7.2-rc2 and have been verified
->> with checkpatch.pl --strict.
-> All patches:
-> Reviewed-by: Linus Walleij <linusw@kernel.org>
+> If no function has been configured, fallback to previous behaviour.
 >
-> Maybe they need rebasing on v7.3-rc1 or maybe they will just
-> apply cleanly (I think so).
->
-> Yours,
-> Linus Walleij
-Hi Linus,
+> Signed-off-by: Markus Probst <markus.probst@posteo.de>
 
-Confirmed: all three patches apply cleanly on v7.3-rc2 using git am.
+This looks fine to me.
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Tested-by: Liu Dalin <liudalin@kylinsec.com.cn>
-
-
+Yours,
+Linus Walleij
