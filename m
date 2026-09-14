@@ -1,66 +1,86 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C623313E21;
-	Mon, 14 Sep 2026 06:36:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0BAE35F16C
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 08:35:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789367770; cv=none; b=YkayzkUGInbaBv18xPYd6Q5hBguh9zMuPuEl2yU5L6Oz8ZjDRzBR78RIaacEarqZ8plpYXtuqbSjwhoXE2iJYJhmtCL2b67p9uN43Lws379+gH8vseKdQrogPaMLsJOA429Y7TB0FM6xMANyX+Z8pvsLO8rT6xdgNyieIc+Balw=
+	t=1789374946; cv=none; b=rR042WPT0ont5tnKR9sVMfC56ppeOi08SQSTRhT7lA/NzDuRHuqRAxXoRLWWVDRz9/HQtCi1mWNB5IMgNGqHawwaycH6AbXbr3KGXbOHWlFsM78O/jPHv1e2afDtr9r4YQm8PXASFWfrWIL2SjuJsp7dDQseLf2YWhHxqkynH0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789367770; c=relaxed/simple;
-	bh=yFhqYGpQfv75SCqBqvlbQYEKnesajVnGR2kqp3Gos/Q=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SUSNvwEu6kshAxCqVzIVen9R4R0cfc/HFIm+BBnn5yXSTQBnjtyLId3NxW29bxTNLw/HEwT9z4LXS6zsqzsqSSZXclIZqS6TYzxbM83ef9znnwniXDt6U/x+xYOExDNnOFJs4viA7QPOqv5HLJ1+Q0Yw/A9mGoN0sNEJVoRcJEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lj8wTcHX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789374946; c=relaxed/simple;
+	bh=Li73VYRhWbKmsxVeXEnSH3QkPyObARZNy6ZrbbFDRHg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MN4g3BPd0pR9Vl/EVABTkdaq5p4mNtdoiaxcTiSndZZZcrU0YccJG/rtw0A/juibiLsOcHmfg3tdx3o2ahS5uuZO5HbxtCk72eHENiZ0pjrL0IDR8sCe8HoIaNvAOG6dod72G1mNQE9aHtXYVLonBHbqBpopzxEJfFaZpNWm2AM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DrXx02p/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lj8wTcHX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 679A51F000FF;
-	Mon, 14 Sep 2026 06:36:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DrXx02p/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 911101F0089C
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 08:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789367768;
-	bh=yFhqYGpQfv75SCqBqvlbQYEKnesajVnGR2kqp3Gos/Q=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Lj8wTcHXh1evQi1j7BSnCIqIZyAt6uAvzZQ3/ReDxsQvCrTLqeOYzpTHzXDiGcj+0
-	 CSPh4XUM4pSi1D+94VpaojgAJL90Qf87SoAGVH6iPtkkLHczgw3oN+dGOMgJ0+sQt2
-	 pQwVdBVAAZ+GIQmJpvmqLZIb+CyLbDMT185tsyAlPwJsz+OrK6/4alD25LSdxaC7nW
-	 10+gCdR5gV6St7x3SAJEy6G99rIJop2yltBU/ilH8oztNgou7SaFHPxkgxvfgPqgEs
-	 lKxx0SPWkKlt0QVGMSLYolKhsQc2QUBM2eWgh/8qINe51IjsKyvnWM8vixf0O88rKG
-	 ng6WYlVGYb6CQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 2/2] rtc: Add NXP PCF85053 driver support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260914062048.3704059-2-lakshay.piplani@nxp.com>
-References: <20260914062048.3704059-1-lakshay.piplani@nxp.com>
- <20260914062048.3704059-2-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 06:36:07 +0000
-Message-Id: <20260914063608.679A51F000FF@smtp.kernel.org>
+	s=k20260515; t=1789374944;
+	bh=JCVjDkbQLFPdmT42ieE/D9gwThDVlwRuyUtdsBm7ClE=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=DrXx02p/lFBEhSn7NH0u38TVYG9WuR+dxmCWZcuPsVfVnDzR/7hsmOzbSmChbM14A
+	 gkufea8hSg+N+K+fyspiEnn/DX39Rbgcx1XVu1HU2RNdVrNLramMC8ySTkv404kryz
+	 XdH56e8XihY6CZYtxPUtKvcxJjqGgMeiVlbpBirvDS9RxzarWYi0ILoH39xVJoEKfW
+	 30Fz8yhbWMIBLDDWWiqDluWDffgHxG08QMuZUfO5armfZ9bDpnuYc1/nftke/Iz8N5
+	 3gSd9V14ONvXEGLro3UebOz9G5ZtOQ/gn7ttRaFgrmImCYxHe8hJG/dDs5H8dZPHNk
+	 nT9MSC1bwceyw==
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f1744fso2292296e87.2
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 01:35:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBwb8RPgFhfAk87YVNPmxfnE6YLF1mXlLAb5RFxmIoAemJQQR+7hi2JA5qy04nLr9K1uN4kD6lNDdh0=@vger.kernel.org
+X-Gm-Message-State: AFuF++mbMV+GcrnkSWmoJO44uE5nFrvkpkC2bTDD/bXWs7NTV1qma/AU
+	tgLpFvHitxFzSgOHML+GTRMVrXAk0oKIA/LJmzVuSHcnNwFDWloQwgWBJjbIn6FLEPHRlos1YH1
+	4f+1X0GxolyT7YoUP2Im77C7lNfwQAO8=
+X-Received: by 2002:a05:6512:3d0b:b0:5b8:9b7e:4941 with SMTP id
+ 2adb3069b0e04-5b8ae69f2f1mr385616e87.45.1789374943281; Mon, 14 Sep 2026
+ 01:35:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <6A7910FC22A9FEF1+20260827015739.3314298-1-liudalin@kylinsec.com.cn>
+In-Reply-To: <6A7910FC22A9FEF1+20260827015739.3314298-1-liudalin@kylinsec.com.cn>
+From: Linus Walleij <linusw@kernel.org>
+Date: Mon, 14 Sep 2026 10:35:31 +0200
+X-Gmail-Original-Message-ID: <CAD++jL=qWv14873iDQ7vvGPtdHosZarEY2XG4r7jaBeMZU2nTA@mail.gmail.com>
+X-Gm-Features: AcwNN1VO1mJUgmGkmDzeoood-mB4SIA0XA3D3cl5tdifQfTtvKGhkdNV6v0UL-4
+Message-ID: <CAD++jL=qWv14873iDQ7vvGPtdHosZarEY2XG4r7jaBeMZU2nTA@mail.gmail.com>
+Subject: Re: [PATCH] rtc: ftrtc010: fix clock resource leak on probe failure
+To: Liu Dalin <liudalin@kylinsec.com.cn>
+Cc: Hans Ulli Kroll <ulli.kroll@googlemail.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-arm-kernel@lists.infradead.org, 
+	linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Deng Yingchao <dengyingchao@kylinsec.com.cn>, Qin Yungao <qinyungao@kylinsec.com.cn>, 
+	Luo Qiu <luoqiu@kylinsec.com.cn>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> PCF85053 is i2c based RTC which supports timer and calendar
-> functionality.
->=20
-> Features supported:
-> 1. Read/Write time
-> 2. Get/Set Alarm
-> 3. Wakeup Source
-> 4. Generate up to 32768Hz clock output
-> 5. Primary/Secondary i2c bus
->=20
-> Signed-off-by: Daniel Aguirre <daniel.aguirre@nxp.com>
-> Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
-> Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+On Thu, Aug 27, 2026 at 3:58=E2=80=AFAM Liu Dalin <liudalin@kylinsec.com.cn=
+> wrote:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+> When devm_rtc_register_device() fails, ftrtc010_rtc_probe() returns
+> the error directly without releasing clocks obtained via
+> clk_prepare_enable(). This leaks both extclk and pclk resources,
+> which may prevent subsequent probe attempts or module removal.
+>
+> Capture the return value and jump to the error handling path to
+> properly release clocks via clk_disable_unprepare().
+>
+> Fixes smatch warnings:
+> - drivers/rtc/rtc-ftrtc010.c:189 ftrtc010_rtc_probe() warn:
+>   'rtc->extclk' from clk_prepare_enable() not released on lines: 183.
+> - drivers/rtc/rtc-ftrtc010.c:189 ftrtc010_rtc_probe() warn:
+>   'rtc->pclk' from clk_prepare_enable() not released on lines: 183.
+>
+> Fixes: fdcfd854333b ("rtc: rework rtc_register_device() resource manageme=
+nt")
+> Assisted-by: smatch:2.0 [static analysis]
+> Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914062048.3704=
-059-1-lakshay.piplani@nxp.com?part=3D2
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
+Yours,
+Linus Walleij
