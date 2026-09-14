@@ -1,166 +1,236 @@
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
+Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF46427FD43
-	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 05:46:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.89.44.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 514D33E1D02;
+	Mon, 14 Sep 2026 06:27:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789364816; cv=none; b=HpFEs/Wc/TTnDSg9QxmojFlKMYENHQv1+fGfbwSzbRRE1M4sF0m48U4ai00q2ZsYzMSal0G2W6tr+NCPOVM1728DV8SfcBcMYqGCVBn0s0hwV3fVAy0oJOf2Pjw3MKxomS+las0caA7yewRfi3XcaZTd3Kd0wlECAFPN5+XwtX4=
+	t=1789367263; cv=none; b=K3Xojp0sxURfS8yQITD/D86+e9qovCa4E4D/LNsAxHAoXLqizbErBzg+jWx55DqNCX6sUbATJWGgkqHOZygmbrXIejSlHb6VohEDvq9I1y0kI84yh54bFOz3EZgDzraSxTJjxtvW0qTskyv2PIG6INHc5qt4fUKmlBEcmgFOSoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789364816; c=relaxed/simple;
-	bh=k/jLuXN0egJkl+RuDIoVDRcHVwABb4ahl7sxOPoZDY0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MyqLB5wuTAZBdDGGMbtYW1T+ueebssHabxMF5I8B8+VU9lSQzYdWUyLZ+Gz20CfHGYRoVWEjT4wM9lU8C/GzydI9dRD45Zb2BcOqHSzt16kxlKEe2aVxBk1TMTs1EFFR5/uS1Rv6IN2vNjbmDLiCoanKe+V+zE6haj0RqnpznX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com; spf=pass smtp.mailfrom=embeddedor.com; dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b=GX5YH3eo; arc=none smtp.client-ip=35.89.44.39
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedor.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="GX5YH3eo"
-Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
-	by cmsmtp with ESMTPS
-	id 5v6WxH8inc3Xs5zWfxu1PF; Mon, 14 Sep 2026 05:46:45 +0000
-Received: from gator4166.hostgator.com ([108.167.190.91])
-	by cmsmtp with ESMTPS
-	id 5zWdxsPImY4rX5zWex0abY; Mon, 14 Sep 2026 05:46:44 +0000
-X-Authority-Analysis: v=2.4 cv=CI8qXQrD c=1 sm=1 tr=0 ts=6aa78a44
- a=vY9Mjuda9oMEc2E4Cx1x2A==:117 a=vY9Mjuda9oMEc2E4Cx1x2A==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=7T7KSl7uo7wA:10 a=VwQbUJbxAAAA:8
- a=Zo5euW2OAAAA:8 a=Eac8uTGAbMeodF28N9oA:9 a=QEXdDO2ut3YA:10
- a=2aFnImwKRvkU0tJ3nQRT:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=FKmISGsBCPqJ53Kvp3Q4p2bWngpj+u3FfgcCqvkQWbo=; b=GX5YH3eoc5y/
-	cIesr7qjeO2tIfaqFjj6d1sF0xR44ShbNkFI8PDImBXqgziH08CaPo+M8fnTYBQvv+fzeZa4oBGZ9
-	FPD8S5jZ4V3CXuM0XwDScfFj0G2P/xMMs8nsr/yNRmphZRVUR3ZNSdVUROlU9OQRwCKZ03Oi2aiWH
-	w3frKEQRDd2iyIchvu1TtsmcwYmYTDQHGIWglhq1Yt7OvaLLo+Z5KohHEGP3WYi4KZyLWOf7ez/dd
-	W0GAebSuhYsTu1kPJ/n9nxxt540C91zhp7mxHS6ofEkQ51VgDM/sOZ/fc3brDZRl2k/qCiezDRm44
-	YLyOKTdjDfmjB9wxyE0ixg==;
-Received: from flh4-125-195-69-90.tky.mesh.ad.jp ([125.195.69.90]:40280 helo=[10.203.100.11])
-	by gator4166.hostgator.com with esmtpsa  (TLS1.3) tls TLS_AES_128_GCM_SHA256
-	(Exim 4.100)
-	(envelope-from <gustavo@embeddedor.com>)
-	id 1x5zWd-00000003pDO-1F9C;
-	Mon, 14 Sep 2026 00:46:43 -0500
-Message-ID: <0ed541fe-5583-4cd2-a794-6890478ad7de@embeddedor.com>
-Date: Mon, 14 Sep 2026 14:46:39 +0900
+	s=arc-20240116; t=1789367263; c=relaxed/simple;
+	bh=D56GPCGahKLDuXttiSiC3Exxa+dmfpPG4N2rp8tO3zw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=AMu2feQDyNQ+NngL/F+Hg+8ZBABryHBpO9W3u7jKiCXT+np4ce/4K4s2uJ8TKiThzp7LKULUoZ4i0SWc+1J1684Op8CFCYNG9e0TpN/1urfQ8q52qjcErPKaM5nc0xMRKjaShkXd4zhkZ62aYG0KgVPS9DPqhYx3YrkSvHHe8sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 53379200201;
+	Mon, 14 Sep 2026 08:20:59 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 1CA9F200209;
+	Mon, 14 Sep 2026 08:20:59 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id D84341800068;
+	Mon, 14 Sep 2026 14:20:57 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org
+Cc: pankit.garg@nxp.com,
+	vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v9 1/2] dt-bindings: rtc: Add pcf85053 support
+Date: Mon, 14 Sep 2026 11:50:47 +0530
+Message-Id: <20260914062048.3704059-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] rtc: ac100: Assign .num before accessing .hws
-To: Aamir Ahmed <elb12345@hotmail.co.uk>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
- Chen-Yu Tsai <wens@kernel.org>, linux-sunxi@lists.linux.dev,
- Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org,
- stable@vger.kernel.org
-References: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-Content-Language: en-US
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-In-Reply-To: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 125.195.69.90
-X-Source-L: No
-X-Exim-ID: 1x5zWd-00000003pDO-1F9C
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: flh4-125-195-69-90.tky.mesh.ad.jp ([10.203.100.11]) [125.195.69.90]:40280
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 24
-X-Org: HG=hgshared;ORG=hostgator;
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfDkoWZP3DxlY7Fm9poLIlZ1hX4l6s4GA7+/aUGxnYh8bXl2IgNZ0WilqS15EKuJ1MbW/aw7TcTr3eWe3W2FUc78A5/tmtx32hsJUWozHjQkDl1LumjdP
- pR2LXxZMT/gzwCmoOAXD/SbITP/n62sf0JDQZyOjzRQLSOcPU2jbhHODDkIk86ybpxBSW0v3kwVQhDnc+iZndpymALgQMmmstp0=
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
+Add device tree bindings for NXP PCF85053 RTC chip.
 
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+---
+V8 -> V9: - Document optional CLKOUT clock provider and add it to the example.
+	  - Disallow interrupts and nxp,write-access on the secondary interface.
+	  - Describe the alarm interrupt as active-low level triggered.
+	  - Use 'const' for the single compatible string.
+V7 -> V8: - Use 'unevaluatedProperties: false' instead of 'additionalProperties:
+	    false'.
+	  - Fix typo in 'nxp,interface' description ("ready only" -> "read only").
+V6 -> V7: - no changes
+	  - Added Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+V5 -> V6: - Dropped driver-specific commentary from property descriptions.
+	  - Simplified and clarified descriptions for better readability.
+V4 -> V5: - Updated schema validation logic to enforce correct combinations of
+            'nxp,interface' and 'nxp,write-access' using oneOf clauses.
+          - Refined property descriptions for clarity and hardware alignment.
+V3 -> V4: Add dedicated nxp,pcf85053.yaml.
+          Remove entry from trivial-rtc.yaml.
+V2 -> V3: Moved MAINTAINERS file changes to the driver patch
+V1 -> V2: Handled dt-bindings by trivial-rtc.yaml
 
-On 9/6/26 03:38, Aamir Ahmed wrote:
-> Commit f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with
-> __counted_by") annotated the hws member of 'struct clk_hw_onecell_data'
-> with __counted_by, which informs the bounds sanitizer (UBSAN_BOUNDS)
-> about the number of elements in .hws[], so that it can warn when .hws[]
-> is accessed out of bounds. As noted in that change, the __counted_by
-> member must be initialized with the number of elements before the first
-> array access happens, otherwise there will be a warning from each access
-> prior to the initialization because the number of elements is zero.
-> This occurs in ac100_rtc_register_clks() due to .num being assigned only
-> after every clkout clock has been stored in .hws[]. With
-> CONFIG_UBSAN_BOUNDS and a compiler that implements __counted_by (GCC
-> 15.1+ or Clang 20.1+), this triggers an array-index-out-of-bounds report
-> during probe, and with CONFIG_UBSAN_TRAP the first store traps.
-> 
-> Initialize .num with AC100_CLKOUT_NUM, the number of elements .hws[] was
-> allocated with, right after the allocation. That is the value the loop
-> counter ends up at on the success path anyway, so the provider's
-> behaviour is unchanged.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with __counted_by")
-> Assisted-by: LLM
-> Signed-off-by: Aamir Ahmed <elb12345@hotmail.co.uk>
+ .../devicetree/bindings/rtc/nxp,pcf85053.yaml | 129 ++++++++++++++++++
+ MAINTAINERS                                   |   7 +
+ 2 files changed, 136 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
 
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-
-Thanks
--Gustavo
-
-> ---
-> Found while auditing the remaining clk_hw_onecell_data users that assign
-> .num only after touching .hws[], following the fixes already merged for
-> clk-s2mps11 (3e14c7207a97), exynos-clkout (cf33f0b7df13) and
-> clk-raspberrypi (6dc445c19050). The audit, the fix and this changelog
-> were drafted with an LLM assistant and reviewed by hand.
-> 
-> Compile-tested only (W=1, no warnings) on x86_64 with GCC 13.3, with
-> CONFIG_RTC_DRV_AC100=m forced on the make command line because the
-> driver has no COMPILE_TEST option. GCC 13.3 does not implement
-> __counted_by (CC_HAS_COUNTED_BY needs GCC 15.1+ or Clang 20.1+), so the
-> build only confirms that the change compiles; the sanitizer path was not
-> exercised. I do not have the hardware, so this is not runtime-tested and
-> no UBSAN report was captured.
-> 
-> Based on v7.3-rc1.
-> 
->   drivers/rtc/rtc-ac100.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
-> index bba7115ff3a..a2f465438fd 100644
-> --- a/drivers/rtc/rtc-ac100.c
-> +++ b/drivers/rtc/rtc-ac100.c
-> @@ -317,6 +317,8 @@ static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
->   	if (!chip->clk_data)
->   		return -ENOMEM;
->   
-> +	chip->clk_data->num = AC100_CLKOUT_NUM;
-> +
->   	chip->rtc_32k_clk = clk_hw_register_fixed_rate(chip->dev,
->   						       AC100_RTC_32K_NAME,
->   						       NULL, 0,
-> @@ -360,7 +362,6 @@ static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
->   		chip->clk_data->hws[i] = &clk->hw;
->   	}
->   
-> -	chip->clk_data->num = i;
->   	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, chip->clk_data);
->   	if (ret)
->   		goto err_unregister_rtc_32k;
-> 
-> base-commit: 654ae5d73c05bd2943d65636ce6cd0aa46e62f18
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+new file mode 100644
+index 000000000000..1a5dbe7f02d3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+@@ -0,0 +1,129 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright 2025-2026 NXP
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf85053.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF85053 Real Time Clock
++
++maintainers:
++  - Pankit Garg <pankit.garg@nxp.com>
++  - Lakshay Piplani <lakshay.piplani@nxp.com>
++
++properties:
++  compatible:
++    const: nxp,pcf85053
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  "#clock-cells":
++    const: 0
++    description: |
++      Present when the CLKOUT pin is exposed as a clock provider. In a
++      dual-host configuration, only one PCF85053 interface node should
++      expose CLKOUT as a clock provider.
++
++  clock-output-names:
++    maxItems: 1
++
++  nxp,interface:
++    $ref: /schemas/types.yaml#/definitions/string
++    enum: [ primary, secondary ]
++    description: |
++      Identifies this host's logical role in a multi-host topology for the
++      PCF85053 RTC. The device exposes a "TWO" ownership bit in the CTRL
++      register that gates which host may write the time registers.
++        - "primary": Designated host that *may* claim write ownership (set
++          CTRL.TWO=1) **if** write-access is explicitly requested.
++        - "secondary": Peer host that writes only when CTRL.TWO=0 (default).
++
++      This property determines the intended role of the host in relation to
++      the write ownership.
++
++      The actual role depends on whether 'nxp,write-access' is also specified.
++      Supported configurations are:
++        1. Primary with 'nxp,write-access' -> primary claims write ownership.
++        2. Primary without 'nxp,write-access' -> secondary owns time-register writes.
++        3. Secondary (must not specify 'nxp,write-access') -> secondary may write
++           the time registers when CTRL.TWO=0.
++
++  nxp,write-access:
++    type: boolean
++    description: |
++      Indicates that write ownership of the PCF85053 RTC should be claimed by setting
++      CTRL.TWO=1. This property is only valid when acting as the primary interface
++      (nxp,interface="primary").
++
++required:
++  - compatible
++  - reg
++  - nxp,interface
++
++unevaluatedProperties: false
++
++allOf:
++  - $ref: rtc.yaml#
++  - if:
++      properties:
++        nxp,interface:
++          const: secondary
++    then:
++      properties:
++        # The secondary interface has read-only access to the control and
++        # status registers, so it cannot service or clear the alarm IRQ and
++        # cannot claim write ownership.
++        interrupts: false
++        nxp,write-access: false
++
++examples:
++  # Single host example.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        #clock-cells = <0>;
++        clock-output-names = "pcf85053-clkout";
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++      };
++    };
++
++  # Dual-host example: one primary that claims writes; one secondary that never claims writes.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c0 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++      };
++    };
++
++    i2c1 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "secondary";
++      };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3a19da74d00c..01b4f7157f36 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19793,6 +19793,13 @@ S:	Maintained
+ F:	Documentation/devicetree/bindings/extcon/extcon-ptn5150.yaml
+ F:	drivers/extcon/extcon-ptn5150.c
+ 
++NXP RTC PCF85053 DRIVER
++M:	Pankit Garg <pankit.garg@nxp.com>
++M:	Lakshay Piplani <lakshay.piplani@nxp.com>
++L:	linux-rtc@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
++
+ NXP SGTL5000 DRIVER
+ M:	Fabio Estevam <festevam@gmail.com>
+ L:	linux-sound@vger.kernel.org
+-- 
+2.25.1
 
