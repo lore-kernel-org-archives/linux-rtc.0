@@ -1,72 +1,75 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18B2D46AA81
-	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 13:18:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74FCA3BE144
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 13:25:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789391940; cv=none; b=nZ0BA6ak+u8hU7jaASA3Bdun+Ckvhrj+zDOlapremgY82VnWc6t/BzFK44ujKoRBcUoseEG1AI30ZEXuFEZsOGhXte8kMGvXCBgIMP9sOojYd3DbRrzHCh5TCHv4bMTbN/T0tAisew9KBKcuG3QFaKVhZrXk5/cE6XL0h+72qKI=
+	t=1789392315; cv=none; b=SjdCQJw6yUPFo287TXnMroU2q/QNhcW/yJcyKyuq7o/W+7HzAQNArybSf85SoJFlST5aEz0xbt84bTL5KecPv0C3c5w9y5WV0o6lOXwrfIO7LP/iOv872yuWwRCxfp1HMqRwdX4UiDoZAtYk/AfbOZ5kRcu4eR0j7n6msRoGFk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789391940; c=relaxed/simple;
-	bh=KdKxNSK2EqzOJkxmWBpgLJOR0R0yxWfK4EduhOCNn/U=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sZwHZ8bOukWhORc7dPCp4I15W43ifYgx92bw1Bqj/y5zTedqbnuKE7k2P9UBz1h9uiN4xDUYYMPQhwDJNeP6z5QEZqjOlmkptOxwB5O9he3k+vwngR2T6MS39o/j0TwyyT1Bj35ImoBJxsXX5fX5qqd6YkD+aLEgplYGkDsLTHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KDCfSrOS; arc=none smtp.client-ip=74.125.228.12
+	s=arc-20240116; t=1789392315; c=relaxed/simple;
+	bh=ieGOto/Lmqnuw6XZHi4NqzamoYlK1PHnKIFnRsx1XIA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=nCTrNrubvsySE7nl1T2XCK8BtyVRnDgEeEqMXMnl+1+qiAI9ER8pmyMV8sp08fkX6FDVBxdV9/KSSQ9J3SY/XwciOWgDySBErYczzZsMSt4+J8urgX1ngpcFZLi5RAx5xMgdnmEV3wS9m6Dl6TtVjrCU/RjZilNZB0mqQoQjpp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JNkjnJIO; arc=none smtp.client-ip=209.85.216.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KDCfSrOS"
-Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc1cebcb8d7so396130a12.0
-        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 06:18:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JNkjnJIO"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-38ec1402b05so3220164a91.2
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 06:25:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789391938; x=1789996738; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789392314; x=1789997114; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+CtYN0tgKPETVlmb678BLgBAA4im2S7f1euATyuMTj0=;
-        b=KDCfSrOSQ//Xg3o3nxSj+DFByzN8ywv2juXCbxy/6m8sURpOxDB4hOeYTKmqw15w5u
-         6UQZlHxNlQtik8GYKeQfdoXnvhbC0yom1cL/A5ToPd6hlehj82qsHnV1FzwTT5dvrJIW
-         5TmAk9+Bv+WYzMXYCvLSt73O4Pf53cD+zWaCm4wOLhlTWJgXxTJXgq2DdfE6U4/3APCp
-         wMqegRCVpZGiafYisp/fBYHPEe+/WfWj05PU8489F6xiyzy3ea5yIl/iv4RTLlJfgaFo
-         zTElNEJwmb52arj4HQJw794S4r6zMlHKMtqNxRs5apq/XRO1wZKbz6GhJRjbgNTTCVEw
-         vkHQ==
+        bh=a6EI5rX+MYKMYU0UnF1Il4E9mul776cfp5306LOEsvs=;
+        b=JNkjnJIOv95RnFF7OQqjfRcWVxjkyBQLp1hJfZni/yHbA7/vwIh4dtqjfaQENxE5bD
+         nzgDKGB5IxFdZTP9njwZZ2f4d9LArJklDUBu4WbZYsIHrG2qi8M9YWFxVkLYQrIy3EO7
+         1E9OUi7aNR7/wyhXcLTtbFtnfMRJk3m3yejrjPbB/pqhAlyrVgXyvYz+lYn32zSjMghM
+         pmlmxVo/+jNHcro2MJVHE78NCaeH4zomtWvCCZAAFNjcHcEY/9YHYs8nT5BJVkyP5GpI
+         Hesc7WU0vj0Ol2wkWjUMEqFiWCKxBQptbjwORZlqq+e3UsXWnaNUh/Rft5FsSR2VBcuw
+         rqhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789391938; x=1789996738;
+        d=1e100.net; s=20251104; t=1789392314; x=1789997114;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+CtYN0tgKPETVlmb678BLgBAA4im2S7f1euATyuMTj0=;
-        b=A8WokXAuG1SF8mGAbAqFLMf75SexzB0D7W6pkqP3foX+5dOxM/XCu2NpVXBIhMY6KG
-         w3t/Y4HFSdxMLWUx8gDyshyVdUMXEDQhIcgOWsLEVt22f8V0bqs5OnJdR+xSWMXkVy2s
-         ebP+G/n6RXs6jlXp4ay7uaOB/QChP0+00g4wC9OcUiu1OSWUI9PnOx4QBXHEs/4zUw9y
-         TxyILMrQmhy9UKW9WZNHnO2Wlq+JA4EN2OJvXr5+O1cEsDqficZuyNFvIpxrDtgIvxcz
-         i5jFqu7atlo4OfU5beiN/lzXgnm/fhqtj7J4LMDcNbWIFwyZtzYW9Ilv/0DCXM3lU0X0
-         EfaA==
-X-Forwarded-Encrypted: i=1; AKwUvBzeFUexmXxQcxo2NRwRicq3wNhUsHBABeAWaLVIXWnjhVqZl72rZl4I8jYZnyPphhgqEFYPY309ouA=@vger.kernel.org
-X-Gm-Message-State: AFuF++lMy0l7CdGvPh6l2zQsZikozJe/1z+k0WCPipBQ0CAQNh88F8DD
-	Sw7qtn+vj5eoLqfomjXml+5f6JI3cXY/KNtOtNG+BKGyZ/HL1ehqzeFH
-X-Gm-Gg: AYBFou2S3el5FuAb1gfdFpzmmAM0K4Yona/YwQVFkYwSJOjLHbyzFuAXCAWXNME+zw3
-	X7TvrJPcLV6eoJVKY1d+UD/hVROJrWqjMaWOxgZb6hr7b3/vXxSTHO9dqQKmIRbH/6Wm4HgxDa5
-	b5jL8sYWl7Gz757Zlnp2iyb+ZqmAt2U7xpzDH3L6CEhBzLmlDvQ/7LXpD4ypYb5ZLknCUj6mpo8
-	Tn+CgUZuFIfGQsmK0uXt6dmRaID7yTp61BtJRsudAJyeledpZxKeaO1uT/9fmU8dul4BSlBvEcv
-	/PkTV/1RqQkFEMA+lqdnTK71UeesrnxUzMfOPjSv+6BRqs/dQlig0Qpl3n1hAQnvNdYFstBymIN
-	x13kdZ+XsAuErmi+Xqf6nvkgb9LnsiFVEc8Ej5GM1VI33yCGlaDahl21lpRdvq7+TvZaMz3ur2w
-	0mL3DSTdAEw4CPDTjPtq3LA+ahm9iF5AfraTFTnZLBwdn4NhKqpvUvVjx7cBs7qiCAGIe5CujiE
-	Xle31YBIEFcyvI9
-X-Received: by 2002:a17:902:f791:b0:2dd:7370:e19e with SMTP id d9443c01a7336-2dd7370e21dmr12996905ad.16.1789391938060;
-        Mon, 14 Sep 2026 06:18:58 -0700 (PDT)
+        bh=a6EI5rX+MYKMYU0UnF1Il4E9mul776cfp5306LOEsvs=;
+        b=Y3mbJqt3RCJ+//0Qx7e7emeHEGIu09okiDyK9GPzCxwGDsqXv+wPuVqHG/ew+9fIt+
+         QbDBTdabbxltyZYVHFonEt3a6Pgo4fph5xJOyHetyahWrr0BuDFZ8U2DOeAbkbp1DICx
+         UNRjHZ/NB8jeIf+lszWayW6XZ9N5P6Sa47qKCqIP8aaGyemCz44muS80dsV4zHCfonou
+         zUE4g7OwKT7q4sBz6P/z3/J17mWPGwYflQpWl1y3xgKvIqrrGK0K58LtmGj351EqsuLc
+         NkPa73JAIqbwU7v8SnSYc56V+n1xxT5uMEPvHFZwl8sYxtvtqLfcp9Th89kJMhXMZzxu
+         dfCw==
+X-Forwarded-Encrypted: i=1; AKwUvByu4ltMNxjggoi2mke5xsZPN5quoH1TeTjocWimJ8c4FR27RCSrU8YOpNQ1t5ojFR46T70bOhp4vTY=@vger.kernel.org
+X-Gm-Message-State: AFuF++m3ZPPT0gLsAvbON9+mycEw3ZZ0tVi/xuMRYmx9hErbqHb7QMN6
+	v9Qyhp/B6DS0za6g9C+H33Glrq9HvBFfVV+2QY0odjH/wvNZaxou/F9ancCKXg==
+X-Gm-Gg: AYBFou3bxSoyTDncRYdJFON3ZZSx1oMnVq1jGPIvNbUMzDGkqBZ6wijNI+V+xVD8YTj
+	0KkeXRoRHvtQHd32sTAHydshGXh3SMElfrNw2aA5JqANuytZxBwfSaE7NvICULyprijGrwf9kB3
+	uvPkas/lV/2BG5qpGn7e1KSwNuwqvwQm16YUktbIKqip7i2MI2h+f2SY4QtGIx70PbbumEMAnJN
+	ypGLNl9US/0InczP6BO1w742u3+UMhey2+218Kupf04L7fJhaQC25RCn8nm/9jtB3VXvqHZHQN7
+	r4s+UXRRBE1RYhTezxkF9aPkMGpfUpRcRUZWVc9EP73K2o6cTtWpe2hzZpAFmPj9xUi8l1Pnk3w
+	sIC3MGHRe3BdriRaM1P6jE4ejRoVVQ4LSqhD4HfiGXORoHJPu2N8SWeORuTjoHs5A/ok3y1NSYP
+	UY8HjgX1W0WhR1y+pDqTyjA6TZaYwz4yDiBOaECNcx1laTV+N4l4uEp64YMgkzxiYXfDo4TjCjZ
+	2qUD4vrCKszaW23
+X-Received: by 2002:a17:90b:3b42:b0:398:d6e8:f84e with SMTP id 98e67ed59e1d1-39debfa6792mr5368605a91.9.1789392312963;
+        Mon, 14 Sep 2026 06:25:12 -0700 (PDT)
 Received: from SGN-LDSENG.tasernet.com ([2405:4800:5cc3:11a:1ac0:4dff:fe8b:4a69])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd4007bd4dsm40753855ad.4.2026.09.14.06.18.55
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d95713602sm20872894a91.11.2026.09.14.06.25.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 06:18:57 -0700 (PDT)
+        Mon, 14 Sep 2026 06:25:12 -0700 (PDT)
 From: Cong Nguyen <congnt264@gmail.com>
-To: Jacky Huang <ychuang3@nuvoton.com>
-Cc: Shan-Chun Hung <schung@nuvoton.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-arm-kernel@lists.infradead.org,
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
 	linux-rtc@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] rtc: ma35d1: fix permanent clock reference/enable-count leak in probe
-Date: Mon, 14 Sep 2026 20:18:50 +0700
-Message-Id: <20260914131850.2331670-1-congnt264@gmail.com>
+Subject: [PATCH] rtc: mxc_v2: fix clk enable-count underflow warning in remove()
+Date: Mon, 14 Sep 2026 20:25:05 +0700
+Message-Id: <20260914132505.2356970-1-congnt264@gmail.com>
 X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
@@ -76,46 +79,34 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ma35d1_rtc_probe() gets the RTC clock via of_clk_get() and enables it
-via clk_prepare_enable(), but the struct clk * is a local variable --
-never stored anywhere, and the driver has no .remove. So on every
-probe, success or failure, there's no way to ever call
-clk_disable_unprepare()/clk_put() on it -- a permanent leak, and since
-CONFIG_RTC_DRV_MA35D1 is tristate, each module load/unload leaks
-another one.
+After probe, pdata->clk is left prepared but disabled -- every RTC
+callback enables/disables it transiently around register access.
+mxc_rtc_remove() calls clk_disable_unprepare(), which disables it
+again and hits clk_core_disable()'s "already disabled" WARN().
 
-Replace of_clk_get() + clk_prepare_enable() with
-devm_clk_get_enabled() -- same clock (both route through
-__of_clk_get(np, 0, ...)) but devm-managed, so it's released
-automatically on unbind or any probe-failure return.
+Use plain clk_unprepare() instead, matching the probe-failure paths
+which already do this correctly.
 
-Fixes: dc0684adf3b6 ("rtc: Add driver for Nuvoton ma35d1 rtc controller")
+Fixes: 83c880f79e88 ("rtc: add mxc driver for i.MX53 SRTC")
 Assisted-by: Claude:claude-opus-4
 Signed-off-by: Cong Nguyen <congnt264@gmail.com>
 ---
- drivers/rtc/rtc-ma35d1.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/rtc/rtc-mxc_v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ma35d1.c b/drivers/rtc/rtc-ma35d1.c
-index cfcfc28060f6..43358d68565a 100644
---- a/drivers/rtc/rtc-ma35d1.c
-+++ b/drivers/rtc/rtc-ma35d1.c
-@@ -221,14 +221,10 @@ static int ma35d1_rtc_probe(struct platform_device *pdev)
- 	if (IS_ERR(rtc->rtc_reg))
- 		return PTR_ERR(rtc->rtc_reg);
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index a07acbbcfaeb..93dcf18abde2 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -365,7 +365,7 @@ static void mxc_rtc_remove(struct platform_device *pdev)
+ {
+ 	struct mxc_rtc_data *pdata = platform_get_drvdata(pdev);
  
--	clk = of_clk_get(pdev->dev.of_node, 0);
-+	clk = devm_clk_get_enabled(&pdev->dev, NULL);
- 	if (IS_ERR(clk))
- 		return dev_err_probe(&pdev->dev, PTR_ERR(clk), "failed to find rtc clock\n");
+-	clk_disable_unprepare(pdata->clk);
++	clk_unprepare(pdata->clk);
+ }
  
--	ret = clk_prepare_enable(clk);
--	if (ret)
--		return ret;
--
- 	if (!(rtc_reg_read(rtc, MA35_REG_RTC_INIT) & RTC_INIT_ACTIVE)) {
- 		ret = ma35d1_rtc_init(rtc, RTC_INIT_TIMEOUT);
- 		if (ret)
+ static const struct of_device_id mxc_ids[] = {
 -- 
 2.25.1
 
