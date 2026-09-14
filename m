@@ -1,65 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 114C1369D59
-	for <linux-rtc@vger.kernel.org>; Sun, 13 Sep 2026 15:46:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF46427FD43
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 05:46:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.89.44.39
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789314371; cv=none; b=BvZplJGG4bopAAVZmFECzTecBwHtwKKGubOOP7EcNg/fb9tucwXjpL6auZ6TgIXBPvKfuXKHuX+/O/8yaTK6e/z9nDR2ter3nXnZMJL0pc3fKxAeq6UhnhEPNY8y6zTEC+/4k4nSEBYEVRqGC6PUbJlSmvp+yjrfoYnu76/shyY=
+	t=1789364816; cv=none; b=HpFEs/Wc/TTnDSg9QxmojFlKMYENHQv1+fGfbwSzbRRE1M4sF0m48U4ai00q2ZsYzMSal0G2W6tr+NCPOVM1728DV8SfcBcMYqGCVBn0s0hwV3fVAy0oJOf2Pjw3MKxomS+las0caA7yewRfi3XcaZTd3Kd0wlECAFPN5+XwtX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789314371; c=relaxed/simple;
-	bh=eHhbJBJEScMwwOpFI03/WBevKc+GD/HGfdsXGV2CSB0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M5JbauNeeL++6D2ir7tWzPt24C63T0Cf4k+1NZ36ViUmXfX5izrJKnIx3smyg3E+gZZabyJCRiIM9VBmAjkZmxnuLGLlFb7/4JMO10bGrYaaLqC8WY3VFkKZppVavz4r0O08Y2QLYEGWHsOVFBgJ8p5SQVQ5gCA/kkooPBEM7SE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PGIUutvf; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789364816; c=relaxed/simple;
+	bh=k/jLuXN0egJkl+RuDIoVDRcHVwABb4ahl7sxOPoZDY0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MyqLB5wuTAZBdDGGMbtYW1T+ueebssHabxMF5I8B8+VU9lSQzYdWUyLZ+Gz20CfHGYRoVWEjT4wM9lU8C/GzydI9dRD45Zb2BcOqHSzt16kxlKEe2aVxBk1TMTs1EFFR5/uS1Rv6IN2vNjbmDLiCoanKe+V+zE6haj0RqnpznX8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com; spf=pass smtp.mailfrom=embeddedor.com; dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b=GX5YH3eo; arc=none smtp.client-ip=35.89.44.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=embeddedor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PGIUutvf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BAFE1F0089C
-	for <linux-rtc@vger.kernel.org>; Sun, 13 Sep 2026 15:46:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789314369;
-	bh=eHhbJBJEScMwwOpFI03/WBevKc+GD/HGfdsXGV2CSB0=;
-	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
-	b=PGIUutvfasqf3X86OXbWO408i0ZRBduh3L0fHOKpdN3JPF5lUC3Pc6ZTu9d/pyPo+
-	 o/p0BHyE0QM55LbAdPX6IhbOixR5wC0DqNQfF6NLq4GxYWXIbDDrhDqiQAfw6TzxME
-	 hUe+oFg7s9hwXZzEkTwD+qDiZqUsHYtxi/Z94Du69oRS4cixoViodqgHn1rh/ApQDf
-	 46JFO1Ytkfa1eEzPHeQufrAs2T1Fs0t8XQ/YxeKtjoNFvXHvUEinDcNc6gzTdK0Cxi
-	 eqSkbaI8xSvG+A2Oz6FmM6fRwpBJn+rZEbsDWeqfM6yFt4nb3xf6gI7xdpvOxG0CUR
-	 G3lRNygsNzzfQ==
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3a20367cf82so20007471fa.1
-        for <linux-rtc@vger.kernel.org>; Sun, 13 Sep 2026 08:46:09 -0700 (PDT)
-X-Gm-Message-State: AFuF++nDf5txVMLaINYbR+nLSnws4k4U2uSkpcq1NYaFa80jMnMKvf6c
-	FnUGIMJ6MePtiT5/aaMhsPutpPlUHQw/WowVZwTlvnOSW5jFwHno3jf0TWzdYGCtJsZZIyzkgZg
-	4yozqdJ6xK96SrIUAJtZpTZl/I2Eo054=
-X-Received: by 2002:a05:651c:19a0:b0:3a4:d4de:bad0 with SMTP id
- 38308e7fff4ca-3a5a5022d47mr17692041fa.19.1789314367478; Sun, 13 Sep 2026
- 08:46:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.b="GX5YH3eo"
+Received: from eig-obgw-6006b.ext.cloudfilter.net ([10.0.30.211])
+	by cmsmtp with ESMTPS
+	id 5v6WxH8inc3Xs5zWfxu1PF; Mon, 14 Sep 2026 05:46:45 +0000
+Received: from gator4166.hostgator.com ([108.167.190.91])
+	by cmsmtp with ESMTPS
+	id 5zWdxsPImY4rX5zWex0abY; Mon, 14 Sep 2026 05:46:44 +0000
+X-Authority-Analysis: v=2.4 cv=CI8qXQrD c=1 sm=1 tr=0 ts=6aa78a44
+ a=vY9Mjuda9oMEc2E4Cx1x2A==:117 a=vY9Mjuda9oMEc2E4Cx1x2A==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=7T7KSl7uo7wA:10 a=VwQbUJbxAAAA:8
+ a=Zo5euW2OAAAA:8 a=Eac8uTGAbMeodF28N9oA:9 a=QEXdDO2ut3YA:10
+ a=2aFnImwKRvkU0tJ3nQRT:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=FKmISGsBCPqJ53Kvp3Q4p2bWngpj+u3FfgcCqvkQWbo=; b=GX5YH3eoc5y/
+	cIesr7qjeO2tIfaqFjj6d1sF0xR44ShbNkFI8PDImBXqgziH08CaPo+M8fnTYBQvv+fzeZa4oBGZ9
+	FPD8S5jZ4V3CXuM0XwDScfFj0G2P/xMMs8nsr/yNRmphZRVUR3ZNSdVUROlU9OQRwCKZ03Oi2aiWH
+	w3frKEQRDd2iyIchvu1TtsmcwYmYTDQHGIWglhq1Yt7OvaLLo+Z5KohHEGP3WYi4KZyLWOf7ez/dd
+	W0GAebSuhYsTu1kPJ/n9nxxt540C91zhp7mxHS6ofEkQ51VgDM/sOZ/fc3brDZRl2k/qCiezDRm44
+	YLyOKTdjDfmjB9wxyE0ixg==;
+Received: from flh4-125-195-69-90.tky.mesh.ad.jp ([125.195.69.90]:40280 helo=[10.203.100.11])
+	by gator4166.hostgator.com with esmtpsa  (TLS1.3) tls TLS_AES_128_GCM_SHA256
+	(Exim 4.100)
+	(envelope-from <gustavo@embeddedor.com>)
+	id 1x5zWd-00000003pDO-1F9C;
+	Mon, 14 Sep 2026 00:46:43 -0500
+Message-ID: <0ed541fe-5583-4cd2-a794-6890478ad7de@embeddedor.com>
+Date: Mon, 14 Sep 2026 14:46:39 +0900
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-In-Reply-To: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
-Reply-To: wens@kernel.org
-From: Chen-Yu Tsai <wens@kernel.org>
-Date: Sun, 13 Sep 2026 23:45:52 +0800
-X-Gmail-Original-Message-ID: <CAGb2v642g_vRUmsaM-G+VP=e1ePmKnNGxXpp6ns475FVBN_WQQ@mail.gmail.com>
-X-Gm-Features: AcwNN1XRBaNDhEEGFuvJdFg63n6MOjJUU82Ly2PgZqYal3wEqs83Cf8POQRGn38
-Message-ID: <CAGb2v642g_vRUmsaM-G+VP=e1ePmKnNGxXpp6ns475FVBN_WQQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] rtc: ac100: Assign .num before accessing .hws
-To: Aamir Ahmed <elb12345@hotmail.co.uk>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-sunxi@lists.linux.dev, Kees Cook <kees@kernel.org>, 
-	linux-hardening@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Aamir Ahmed <elb12345@hotmail.co.uk>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Chen-Yu Tsai <wens@kernel.org>, linux-sunxi@lists.linux.dev,
+ Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org,
+ stable@vger.kernel.org
+References: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
+Content-Language: en-US
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+In-Reply-To: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 125.195.69.90
+X-Source-L: No
+X-Exim-ID: 1x5zWd-00000003pDO-1F9C
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: flh4-125-195-69-90.tky.mesh.ad.jp ([10.203.100.11]) [125.195.69.90]:40280
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 24
+X-Org: HG=hgshared;ORG=hostgator;
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfDkoWZP3DxlY7Fm9poLIlZ1hX4l6s4GA7+/aUGxnYh8bXl2IgNZ0WilqS15EKuJ1MbW/aw7TcTr3eWe3W2FUc78A5/tmtx32hsJUWozHjQkDl1LumjdP
+ pR2LXxZMT/gzwCmoOAXD/SbITP/n62sf0JDQZyOjzRQLSOcPU2jbhHODDkIk86ybpxBSW0v3kwVQhDnc+iZndpymALgQMmmstp0=
 
-On Sun, Sep 6, 2026 at 2:40=E2=80=AFAM Aamir Ahmed <elb12345@hotmail.co.uk>=
- wrote:
->
+
+
+On 9/6/26 03:38, Aamir Ahmed wrote:
 > Commit f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with
 > __counted_by") annotated the hws member of 'struct clk_hw_onecell_data'
 > with __counted_by, which informs the bounds sanitizer (UBSAN_BOUNDS)
@@ -73,17 +104,63 @@ On Sun, Sep 6, 2026 at 2:40=E2=80=AFAM Aamir Ahmed <elb12345@hotmail.co.uk>=
 > CONFIG_UBSAN_BOUNDS and a compiler that implements __counted_by (GCC
 > 15.1+ or Clang 20.1+), this triggers an array-index-out-of-bounds report
 > during probe, and with CONFIG_UBSAN_TRAP the first store traps.
->
+> 
 > Initialize .num with AC100_CLKOUT_NUM, the number of elements .hws[] was
 > allocated with, right after the allocation. That is the value the loop
 > counter ends up at on the success path anyway, so the provider's
 > behaviour is unchanged.
->
+> 
 > Cc: stable@vger.kernel.org
-> Fixes: f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with __cou=
-nted_by")
+> Fixes: f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with __counted_by")
 > Assisted-by: LLM
 > Signed-off-by: Aamir Ahmed <elb12345@hotmail.co.uk>
 
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-Reviewed-by: Chen-Yu Tsai <wens@kernel.org>
+Thanks
+-Gustavo
+
+> ---
+> Found while auditing the remaining clk_hw_onecell_data users that assign
+> .num only after touching .hws[], following the fixes already merged for
+> clk-s2mps11 (3e14c7207a97), exynos-clkout (cf33f0b7df13) and
+> clk-raspberrypi (6dc445c19050). The audit, the fix and this changelog
+> were drafted with an LLM assistant and reviewed by hand.
+> 
+> Compile-tested only (W=1, no warnings) on x86_64 with GCC 13.3, with
+> CONFIG_RTC_DRV_AC100=m forced on the make command line because the
+> driver has no COMPILE_TEST option. GCC 13.3 does not implement
+> __counted_by (CC_HAS_COUNTED_BY needs GCC 15.1+ or Clang 20.1+), so the
+> build only confirms that the change compiles; the sanitizer path was not
+> exercised. I do not have the hardware, so this is not runtime-tested and
+> no UBSAN report was captured.
+> 
+> Based on v7.3-rc1.
+> 
+>   drivers/rtc/rtc-ac100.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/rtc/rtc-ac100.c b/drivers/rtc/rtc-ac100.c
+> index bba7115ff3a..a2f465438fd 100644
+> --- a/drivers/rtc/rtc-ac100.c
+> +++ b/drivers/rtc/rtc-ac100.c
+> @@ -317,6 +317,8 @@ static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
+>   	if (!chip->clk_data)
+>   		return -ENOMEM;
+>   
+> +	chip->clk_data->num = AC100_CLKOUT_NUM;
+> +
+>   	chip->rtc_32k_clk = clk_hw_register_fixed_rate(chip->dev,
+>   						       AC100_RTC_32K_NAME,
+>   						       NULL, 0,
+> @@ -360,7 +362,6 @@ static int ac100_rtc_register_clks(struct ac100_rtc_dev *chip)
+>   		chip->clk_data->hws[i] = &clk->hw;
+>   	}
+>   
+> -	chip->clk_data->num = i;
+>   	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, chip->clk_data);
+>   	if (ret)
+>   		goto err_unregister_rtc_32k;
+> 
+> base-commit: 654ae5d73c05bd2943d65636ce6cd0aa46e62f18
+
