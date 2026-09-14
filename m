@@ -1,123 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA76847798A;
-	Mon, 14 Sep 2026 13:48:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19F3476070
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 13:54:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789393709; cv=none; b=jKYYTsqCO8tNq5gswtYUVg9YZffQEtXhfl4F4SvE9a29/MhIMbf6ZEjb1xH5a6Q3TehdWmxPn0hZEoh4sUwpeiypibZLt+XN6rZ6VM8tLMKtm/SzzXdLRZlzc1DTECmVtCGZpSEmF8UgnZY/vTe6j0JqWzA7yJkKXXvQQK8J52c=
+	t=1789394043; cv=none; b=nIHjvsiIp27u08NIAJjpywxGe8bROEzfug72B7jEzadw92+USivqlUE4Fn3ex6FQYUV0qPU2a3cGANRZQuCMxJkBnlPfOPkaLUDIZ57xV77b+0HXKZn7vyvHiO8RoB9VSFSq3Th2aJqo8s0Tlae+8L/c3wdMN0Z+9orEVXLYiqs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789393709; c=relaxed/simple;
-	bh=7l8418HHcwfLELCMgIPWtH7XfymmUReWSdO0peU4+lE=;
+	s=arc-20240116; t=1789394043; c=relaxed/simple;
+	bh=CuIrv8U5RqGwzc+zzCPko4kogfl4lPlA313QaL1Y9Go=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rKnLiw7zVuJiONu+NeEOtK3kcdC0FOXU7CJ1yPI3oTXPgMXZiAVHYyU8/m0j94W426oC03BircschJGmDzaQJUR3uWxZ5QMYFEFqs8ut/dPJc7oVb936Nj1wTz6xBJ7745zr+lUtnJqgDmqxnjM8YD6LK2Dxz5wUzeUANnzXSWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QLEIx9Gg; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=TPI10xogGI6z8SrK+isl68i+dTPFiohj5poBjOraqC4r/gZ7ZQ7Kj5eu7X89dP5k75loauIGjNRCtTkBy4euiVMEyEBfym2U3rXfD3Yiq8KWC05ByHiPCJqT6PptPLyiFhWw4v/RJOdXceugC2DuHZU60lcEwhT7UJpXzKkvuds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mxa7FvHX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QLEIx9Gg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC26D1F000FF;
-	Mon, 14 Sep 2026 13:48:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mxa7FvHX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 373D91F000FF;
+	Mon, 14 Sep 2026 13:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789393707;
-	bh=4vvoJR1/lgkKcx8/sHEEFwMZ6ot2QFP3SPh6At6AiVY=;
+	s=k20260515; t=1789394041;
+	bh=I/XPbv6u+aC4PDikKr9HCzSv2EbFkDaURfdo1X6O/TM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QLEIx9GggMUgHydmpuMuM08l2JoB84ncZynzIpvsaAovCeimBmBeoqJtLo1xIhquk
-	 0ZR76gJJcHnfAQcEmGWNbD6h8oXlRnnxlFy3ZPnjjDPvRn5bmudeydkOC4RCV3cdep
-	 O83hSSxbHfz5Srua81KjHOReET+qjDyVdthy2MlFmawXI95iAnLn2QKSB7/fcY9LOS
-	 pX/fo3aZ+5+XV3phBSmnKJ9dUnRrRfSruBap1OU2AVqHtEOxgvUc+nP8dJXOayDPQC
-	 0I5cmsBocrGAKBoFjX6rxlSr0igXW8pVJvpHGxP/g1IhORR0HEwcHhIPKQjCNc6EHv
-	 sfZ53uDsnQyAA==
+	b=Mxa7FvHXgqgz1ExjAhgHMnzKyOBhQAl3FYEqWy3TOsI8xFPthxgYm/vKRxVO8RTyI
+	 uhyUZaiwZO7MuJzOFQSLJtq1VXV2EvRaeWMGU6vNycQ1qjYW5YvQbZ0TiAPndEApVc
+	 7utaoS1lTybneePuwQ/KlzuUTsjDT82yx9v7KtSrSNVGbytyHi6kGmh5tJ7iUu8Psi
+	 6v625M4LzP5XgO68RwIh1D8rG1vABq9W6l2liXgc5NloF5K1UiGvY2c32dkfrcqRC0
+	 EVMZuFUgi0But/6ojS5EAPFKbPFZ5Mt3bj57t8f0i2FBQ2oEXNYN2bzZNEYrdcAR+v
+	 QlY2/nzsZ8sGg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: mxc_v2: fix clk enable-count underflow warning in
- remove()
+Subject: Re: [PATCH] rtc: stm32: fix clock leak on pinctrl probe failure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Cong Nguyen" <congnt264@gmail.com>
-Cc: linux-rtc@vger.kernel.org, Frank.Li@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, imx@lists.linux.dev
-In-Reply-To: <20260914132505.2356970-1-congnt264@gmail.com>
-References: <20260914132505.2356970-1-congnt264@gmail.com>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260914132914.2371788-1-congnt264@gmail.com>
+References: <20260914132914.2371788-1-congnt264@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 13:48:26 +0000
-Message-Id: <20260914134826.EC26D1F000FF@smtp.kernel.org>
+Date: Mon, 14 Sep 2026 13:54:00 +0000
+Message-Id: <20260914135401.373D91F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Missing cleanup for dev_pm_set_wake_irq() leading to a memory leak=
- and dangling wake IRQ on probe failure or device removal.
-- [High] Premature unprepare of the clock in remove() causes a use-after-di=
-sable race with devres-managed resources.
+- [High] Routing pinctrl failures to the manual clock cleanup path creates =
+a critical window where devm-managed resources (IRQ, RTC device) remain act=
+ive while hardware clocks are disabled, risking a synchronous external abor=
+t (bus fault).
 --
 
-commit 3311fdd80d87e5108fcbeddc8974c58c3e0da127
+commit 813d70ca28c122c9814bc7903a9c96494f127aea
 Author: Cong Nguyen <congnt264@gmail.com>
 
-rtc: mxc_v2: fix clk enable-count underflow warning in remove()
+rtc: stm32: fix clock leak on pinctrl probe failure
 
-After probe, the clock is left prepared but disabled, so calling
-clk_disable_unprepare() in remove() hits an already disabled warning.
-This commit changes it to clk_unprepare() to match the probe-failure paths.
+This commit addresses a clock leak during pinctrl probe failure. It updates
+the error handling paths for devm_pinctrl_register_and_init() and
+pinctrl_enable() to route through the existing err label, ensuring rtc_ck
+and pclk are unwound properly.
 
-> diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-> index 570f27af4732e..ab2ab61017f57 100644
-> --- a/drivers/rtc/rtc-mxc_v2.c
-> +++ b/drivers/rtc/rtc-mxc_v2.c
-> @@ -366,7 +366,7 @@ static void mxc_rtc_remove(struct platform_device *pd=
-ev)
->  {
->  	struct mxc_rtc_data *pdata =3D platform_get_drvdata(pdev);
+> diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+> index d4ebf3eb54aa9..e7a942f6c1906 100644
+> --- a/drivers/rtc/rtc-stm32.c
+> +++ b/drivers/rtc/rtc-stm32.c
+
+[ ... ]
+
+> @@ -1175,12 +1175,16 @@ static int stm32_rtc_probe(struct platform_device=
+ *pdev)
+>  	stm32_rtc_clean_outs(rtc);
 > =20
-> -	clk_disable_unprepare(pdata->clk);
-> +	clk_unprepare(pdata->clk);
+>  	ret =3D devm_pinctrl_register_and_init(&pdev->dev, &stm32_rtc_pdesc, rt=
+c, &pctl);
+> -	if (ret)
+> -		return dev_err_probe(&pdev->dev, ret, "pinctrl register failed");
+> +	if (ret) {
+> +		dev_err_probe(&pdev->dev, ret, "pinctrl register failed");
+> +		goto err;
 
 [Severity: High]
-This is a pre-existing issue, but does unpreparing the clock here cause a
-use-after-disable race with devres-managed resources?
+Does this new error path create a window for a synchronous external abort?
 
-The IRQ handler is registered via devm_request_irq() in mxc_rtc_probe(),
-which means it stays active after mxc_rtc_remove() returns. If an RTC
-interrupt fires after the clock is unprepared (for example, during the
-devres cleanup window), the interrupt handler mxc_rtc_interrupt() calls
-clk_enable() on an unprepared clock:
+When pinctrl initialization fails (for example, returning -EPROBE_DEFER),
+this now jumps to the err label where rtc_ck and pclk are manually disabled.
 
-drivers/rtc/rtc-mxc_v2.c:mxc_rtc_interrupt() {
-    ...
-    if (clk_enable(pdata->clk)) {
-        spin_unlock(&pdata->lock);
-        return IRQ_NONE;
-    }
-    ...
-}
+However, the RTC device and the alarm IRQ were registered earlier in the
+probe function using devres-managed functions:
 
-This can trigger a kernel warning for enabling an unprepared clock, and
-cause the interrupt handler to return IRQ_NONE without clearing the hardware
-status, which could lead to an interrupt storm.
+stm32_rtc_probe()
+    rtc->rtc_dev =3D devm_rtc_device_register(...);
+    ret =3D devm_request_threaded_irq(..., stm32_rtc_alarm_irq, ...);
 
-[Severity: High]
-This is a pre-existing issue, but is there a missing cleanup for the wake I=
-RQ
-when removing the device?
+Because devres resources are not released until after the probe function
+returns, there is a window where the clocks are disabled but the IRQ handler
+and RTC device remain active.
 
-The unmanaged wake IRQ is allocated and attached in mxc_rtc_probe():
+Could the still-registered IRQ fire during this cleanup window? If that
+happens, or if userspace accesses the RTC device, driver callbacks like
+stm32_rtc_alarm_irq() might attempt to access hardware registers without
+the APB clock enabled, resulting in a bus fault.
 
-drivers/rtc/rtc-mxc_v2.c:mxc_rtc_probe() {
-    ...
-    ret =3D dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
-    ...
-}
+> +	}
+> =20
+>  	ret =3D pinctrl_enable(pctl);
+> -	if (ret)
+> -		return dev_err_probe(&pdev->dev, ret, "pinctrl enable failed");
+> +	if (ret) {
+> +		dev_err_probe(&pdev->dev, ret, "pinctrl enable failed");
+> +		goto err;
+> +	}
 
-However, mxc_rtc_remove() completes without clearing the wake IRQ. This can
-lead to a memory leak and leave a dangling wake IRQ on driver unbind.
-Subsequent probe attempts could hit an -EEXIST error and trigger a warning
-if probe is retried after a failure or during a rebind.
-
->  }
+[ ... ]
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914132505.2356=
-970-1-congnt264@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914132914.2371=
+788-1-congnt264@gmail.com?part=3D1
