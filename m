@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C9F242122C
-	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 21:28:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040B838B7A6;
+	Mon, 14 Sep 2026 21:29:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789421313; cv=none; b=uDfBVapRRNHoI6KIsqtQJ7VzYYObqgrpkmuKLjl3954dFaTm2DrgovreMCQ9Ipiy+T/KuDouFiWuBzYC8l9oV0S0P9KuFR9n+HDQiU5n7hujAhg0ngclgN8tObIkQ0GNiGcFyjSths/ZMdEWQhaapgwa2C8YlC40IsTe25Ki8WM=
+	t=1789421378; cv=none; b=MXM2Twx09ov1Ui/hNUtKT7rw8viwBMRjUsRscflN8AYAQDG9s8bJpRJXDiVbC+cn/p9adETwmzuTlft9zBuJEokClryUKt9ZyJXQ0YnkpHqL7gWZEzEIU39iPBttSctN1xb7ZkjLn65H60wV5w4f2pv6tHHlS5PrgSFzVR+U8fw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789421313; c=relaxed/simple;
-	bh=zj4WGTJjsYVxmkgNqdl+23LNcAOz9ns08BPXAa1BjLo=;
+	s=arc-20240116; t=1789421378; c=relaxed/simple;
+	bh=FTOlaPKBzrfLHwVJg60o08uCOppfYItlAcBpECkbVe4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=A3U0XbwAfeDm0m50rGM7KDuF0QaHEiAeuLgsiowvUctBlTfcPqfLcBic2COwN+GstWQcCnzmVVk3BKjQNkCgGVB64mznwE7BOlms0Lc6gRPsRpdwCa/oG0i+D9WAlXzgZZnZhPKBD2VIHgS77/oYnv9+JL+e23v48/AJi2w6JB0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MojN9BHj; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=rUH4yw0PRJXWy2nLH5VU35V6LixRUGEpfXrgPUEIMdCGxlZLePDJFcDG+gQcOQQpTkD6QKB9eIfNkvWZwsJTM3CC7BvAij001MCA5tb/6eJQIsGGSFoCQ5QR2IRkDVYauf5tdVqaiz6DTtgpVjVyIjecOQmMWI5oivuNsi0zcLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YH88T+9d; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MojN9BHj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65031F000FF;
-	Mon, 14 Sep 2026 21:28:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YH88T+9d"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C56B1F000FF;
+	Mon, 14 Sep 2026 21:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789421310;
-	bh=tny8S7+hpRLCFBplV45rDwfhwwfs+mTzlpWPTRECK5o=;
+	s=k20260515; t=1789421376;
+	bh=/U4fM2akW0kipN4DMQEfvBEPra533m9MNRA2EHmFwRc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MojN9BHjgC9nOEZUV9MEcprchl989NLQSjS6aJ24IWsXVMJqZe3mky4+4PRT1VCmD
-	 tcxRZpRmq9Gc1+NauYt56KWhyjhEMAMP4vFqYQDT5DwTXHZtjbQ520xxCAo5tFTHak
-	 hlMMxBUt75PLwn6sVEfSv063CyquZx632HXFyEd+nlYJdzKhAAPsvBLlF8sszj4DVE
-	 IUll2NUnVjbB8giWVrEfHnO8sfx2N9095OREnXeL6PL7XCpVkpvsXN/loei/DHykBI
-	 irGW1r0EF/VPtt+4Q97OyX2OU9G3XvK2GTt2Eqh0ERefOadYPptO5hehiw54ahR4EU
-	 bpYINwX0j85xg==
+	b=YH88T+9dsWgMOSgli+DEPAyABWjMzzAthSKSbw1eo2JCLmI1eTHNedPaTICGu+gYz
+	 qd81SHJ3bbzpg2t1mqlYfpCQXglJF0zTScZkpodMsrOc1FOYIh4Pl7tKgOU7H6iYHf
+	 JjW6wJk5e96lvH9UNnsz4F4qzsqeO0sZQOpqKeJr3qe7SYi74pRoQPDKBbSSLdRv3U
+	 Xe/XAgEn3U5OhIrP9UPmVB+kV9cEuju8bwl1kOiV2uzBMuioxLBjj1eX3QC6BdqO78
+	 RW8Psvc+d+thqhENIPDYEcqnqxE7InCdByoLJemC4rJzpN380fNwUwtaFnz4dAzVaB
+	 HpbnVQrGjst0g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6/6] rtc: rzn1: add R-Car X5H support
+Subject: Re: [PATCH 3/6] dt-bindings: rtc: rzn1: interrupts are not required
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260914211826.73727-14-wsa+renesas@sang-engineering.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, wsa+renesas@sang-engineering.com, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, linux-rtc@vger.kernel.org
+In-Reply-To: <20260914211826.73727-11-wsa+renesas@sang-engineering.com>
 References: <20260914211826.73727-8-wsa+renesas@sang-engineering.com>
- <20260914211826.73727-14-wsa+renesas@sang-engineering.com>
+ <20260914211826.73727-11-wsa+renesas@sang-engineering.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 21:28:30 +0000
-Message-Id: <20260914212830.A65031F000FF@smtp.kernel.org>
+Date: Mon, 14 Sep 2026 21:29:36 +0000
+Message-Id: <20260914212936.6C56B1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -46,84 +46,59 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [High] rzn1_rtc_probe() dynamically modifies the static global rzn1_rtc_o=
-ps struct, which causes state corruption if the driver is unbound and rebou=
-nd or if multiple device instances exist.
-
-Pre-existing issues:
-- [High] rzn1_rtc_set_offset() fails to clear the hardware offset when the =
-requested offset is 0, leaving the previous offset stuck in hardware.
+- [Medium] Globally removing `interrupts` and `interrupt-names` from `requi=
+red` weakens schema validation for existing SoCs.
+- [Medium] Making `interrupts` and `interrupt-names` optional without addin=
+g a schema dependency allows incomplete interrupt specifications.
 --
 
-commit c04fb139b5ae435fea49907420111efaa4083c83
+commit 963405de649fb7157801d57b7a47cf959108ca2c
 Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-rtc: rzn1: add R-Car X5H support
+dt-bindings: rtc: rzn1: interrupts are not required
 
-This commit adds the compatible string for the Renesas R-Car X5H RTC to
-the rzn1 driver.
+This commit drops the interrupts and interrupt-names properties from the
+required list in the rzn1-rtc binding. This change is made to support an
+upcoming SoC where interrupts are not wired to the RTC.
 
-> diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> index 583ce12b052d9..5860ecef428a6 100644
-> --- a/drivers/rtc/rtc-rzn1.c
-> +++ b/drivers/rtc/rtc-rzn1.c
-> @@ -527,6 +527,7 @@ static const struct rzn1_rtc_data rzn1_rtc_rzn1_data =
-=3D {
-> =20
->  static const struct of_device_id rzn1_rtc_of_match[] =3D {
->  	{ .compatible	=3D "renesas,r9a09g077-rtc", .data =3D &rzn1_rtc_rzt2h_da=
-ta },
-> +	{ .compatible	=3D "renesas,rcar-gen5-rtc", .data =3D &rzn1_rtc_rzt2h_da=
-ta },
+> diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml =
+b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> index 7ea77cd0bee15..b426a34958d6d 100644
+> --- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> @@ -52,8 +52,6 @@ properties:
+>  required:
+>    - compatible
+>    - reg
+> -  - interrupts
+> -  - interrupt-names
 
-[Severity: High]
-Does dynamically modifying the static global rzn1_rtc_ops struct in
-rzn1_rtc_probe() cause a regression where state is corrupted if multiple
-device instances exist or if the driver is unbound and rebound?
+[Severity: Medium]
+Does globally removing these properties weaken schema validation for existi=
+ng
+SoCs? Device trees for existing SoCs where interrupts are physically wired
+could now incorrectly omit the interrupts and silently pass the schema
+checker, resulting in incomplete hardware descriptions.
 
-If a device with alarms is probed, the global struct is modified:
+To accommodate the new SoC without affecting existing ones, should we
+conditionally require these properties for the older compatible strings
+using an allOf -> if -> then block?
 
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_probe() {
-    ...
-    if (irq >=3D 0) {
-        ...
-        rzn1_rtc_ops.read_alarm =3D rzn1_rtc_read_alarm;
-        rzn1_rtc_ops.set_alarm =3D rzn1_rtc_set_alarm;
-        rzn1_rtc_ops.alarm_irq_enable =3D rzn1_rtc_alarm_irq_enable;
-    }
-    ...
-}
+[Severity: Medium]
+By making these properties optional independently, could this allow
+incomplete interrupt specifications? If a device tree specifies interrupts
+but omits interrupt-names, schema validation will pass. However, the driver
+uses platform_get_irq_byname_optional(), which will fail with -EINVAL at
+runtime if names are missing, silently disabling alarm functionality.
 
-If the driver is subsequently bound to a device without alarms (like R-Car
-X5H, as introduced by this patch), the global struct incorrectly retains
-the alarm callbacks. The RTC subsystem will then expose non-existent alarm
-capabilities to userspace.
+Would it be better to include a dependencies block (e.g.,
+interrupts: [ interrupt-names ]) to ensure complete descriptions when
+interrupts are provided?
 
-[Severity: High]
-This is a pre-existing issue, but does rzn1_rtc_set_offset() fail to clear
-the hardware offset when the requested offset is 0?
-
-If a user configures a non-zero offset and subsequently attempts to clear
-it by setting it to 0, the function exits before updating the hardware
-register:
-
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_set_offset() {
-    ...
-    if (!steps)
-        return 0;
-    ...
-    writel(subu, rtc->base + RZN1_RTC_SUBU);
-    ...
-}
-
-This early return leaves the previous offset permanently active in hardware.
-
->  	{ .compatible	=3D "renesas,rzn1-rtc", .data =3D &rzn1_rtc_rzn1_data },
->  	{ /* sentinel */ }
->  };
+>    - clocks
+>    - clock-names
+>    - power-domains
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914211826.7372=
-7-8-wsa+renesas@sang-engineering.com?part=3D6
+7-8-wsa+renesas@sang-engineering.com?part=3D3
