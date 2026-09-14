@@ -1,136 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo2-f40.google.com (mail-oo2-f40.google.com [74.125.231.168])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C15F941F344;
-	Mon, 14 Sep 2026 09:37:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D5A046C821
+	for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 12:40:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789378623; cv=none; b=fq9TK4TFGrlyvSUkPJCtY5BNh+I+MNzTJaBw+AHRAostjnbPLj0mZB2AfQfWmVa6ySCc/gsfRqfN/sXQFyaZCmFXy+ZX4kxF+drfprAGnpYWsk+on8I8ZmRC7p7ml9mI9IAxtp+YluGyIiREVBzWcGtzyLIioq8gTvsKmtz6vpo=
+	t=1789389647; cv=none; b=qN0sAV8CRdedBkbmNLnsYGxlFDTOMnUc9SgbrrUsTOcHdQQbk/1f8ezVWpjxSjkSezbn3WTxTckB90sxbBNX6LGCaVM6w782rAY8JxNTUfMp8w0UlYqvZ5uFEpMlLhjJ9tx7lE5FIl0U1pp3pj1G4O+xRwqPN+eDrMpf/1UZ71E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789378623; c=relaxed/simple;
-	bh=hMldSWroWGP/S+eEz+iRvaMa9EjagfN9teuKYm2j7xk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dKwsOAgbAsMMYvRTc2Cua/kLZpSpF60uzIyxncsefFbPZYhY5rVJEXBSBcPcyKqSwGrW/uorEs3cA2leNF73PZZlPTG2NiWEmcVVIaFwRkyu3Bdv5IGQu5nM8rJq0h3sS4HGfTf/iK85Eb8XoL3hI0Ck13epgOF6RdW1KVkdlZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ivfswI2j; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789389647; c=relaxed/simple;
+	bh=q8bwhVOS2Q2tpx89t9Vl5SDienAaREAdOX3DiRJmeU4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MJmIA6STTC9WkVGspIML0/FsE19ziTNANq5YuOGeGLsMmkjdVQ+qAK9dwHGvo/GJBygFma9AjwPqxl77usUDxnhifsPRrYShWjdTpgrjLEdlhnZtQsugPxADprhBYfkDHis09+hnQ258Lv12l9nstb3ENIAEdz4x0BbTeeYbqaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UFuc6nvk; arc=none smtp.client-ip=74.125.231.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ivfswI2j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C09ED1F00898;
-	Mon, 14 Sep 2026 09:37:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789378621;
-	bh=Fb3Gbu63WdRcm3l/BT5yDQ+d6ojJvsJYU6utwkkkNyA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ivfswI2jhPu3PsLCc2jLEhL+3TGjEiKZcUv193mZaPdq6wTS2tKwPWHkkQpSXozZx
-	 Lr2Xt3geTW207OMwsaGMIUpERvvipzrxS3CoDWJvOYBku3bOqnL4qp+t/aANsldFFQ
-	 ulB8PbGRiQ4sa7gUJIAPET/WpBNTNQzMKbzckOAWW7TCy+6+2II0PXneTZFAZsO9Cz
-	 PK9VwfbsHtZA58vInJsVuc5fyp9ay4M1F1afdhoxDCqh2ECKHcC/y2zuzbbGRvo9Wk
-	 prwTF6wHupWXeifPFkZOWojok3rDI29sWPPDihmFuJaeUXsTLeHJv011RGwkgxSljd
-	 UnX2zayycrgug==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 5/5] rtc: pcf85363: add watchdog support with
- configurable step size
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-watchdog@vger.kernel.org, robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260914092126.3757418-5-lakshay.piplani@nxp.com>
-References: <20260914092126.3757418-1-lakshay.piplani@nxp.com>
- <20260914092126.3757418-5-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 09:37:00 +0000
-Message-Id: <20260914093700.C09ED1F00898@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UFuc6nvk"
+Received: by mail-oo2-f40.google.com with SMTP id 46e09a7af769-804e42309a5so567252a34.2
+        for <linux-rtc@vger.kernel.org>; Mon, 14 Sep 2026 05:40:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789389644; x=1789994444; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=718Ayf180iqV39sL4SEKsU5v63hqKWeZ6vfIuYMZ+CA=;
+        b=UFuc6nvk0usc0NYbQvNXEb/3/R0WYKXvobdpHyAmqBGfymIMLZZUyl1b8ppPDyfOtt
+         DprP/QB8sG3nJS0g/r/LCCR7OsLXxUPy+EvJzlk786HoBdHBzFDrdlatpFfFetcW+X0i
+         IfBdWMxQKUtGHsErygAo1bN8yQpljpcxwsFFuBXAwpyiYXMJSwjL0GaXzdH+SABrYHUk
+         bcIm1trXMrgcLQxhl95AatItVvAB2DkE4QrZARbAdYy7DNewgAcAhwb3IDck6GBL/wsD
+         W2FNWOBUeeInrB6CT/Yti+DMLxfPMKscMPaEOejPaaCYWxOq6f+YyAXPGf70/dOpqkSu
+         fosA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789389644; x=1789994444;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=718Ayf180iqV39sL4SEKsU5v63hqKWeZ6vfIuYMZ+CA=;
+        b=ogQPfaQ9C60hFO5eOyQnXDX85633Tjbp3GcFnyvxOfxamV4c+2J78Eq76uRc95yy43
+         ZwtW/g3Qb/MqK4KrDlCd5py6m4tCYb69bvhMjLrqcfMVYJ1PeZeiFWGalQC7aXHPI7Gz
+         MZ3FBHB4M66ZgnYXGBe8TSFIJ6ujtNJVlsEwUo8bzZqa6jSzOy0nBd4vAlbhcTUQwp3x
+         qAqpmchCsZY9Yi6EYZG5NH2V6i/p+6BV6vpy8unz9iDs/KmfsqtJjDYyiqDdSomqIfzO
+         8O31Iv2BXnipZ7grjS9r3ktM0YIDXt+IHDGaNxhEpP6UVsZInK1zNWe9IZCOqeS/e12f
+         JzMg==
+X-Forwarded-Encrypted: i=1; AKwUvBxMNTidRiUq0PA1D5Wb21cTCyUov5bb73tPwN3jBmgrXX5e60EPpX+4NDGA7DZWtYKHkXjsSRdVu0I=@vger.kernel.org
+X-Gm-Message-State: AFuF++mqtn7XMIM42x1Xzn11Cooov/EQEctx0+Jm/xjMoiNBTnLsyZ9+
+	Y1zlXwHskmKoMEZksMXTm+RbPVZkhRDokbOgLYfwgGvXxATWqf9rf9tE
+X-Gm-Gg: AYBFou3M1i4csI0iWTsm7WT6Hn6jjHjsKKyvBPnQlw6DhRFej06OxZzO3RXKN6pctae
+	J2freSye+q9lxfC1VOwslGW4/tUA1GcUMoAXD6ZhcZAej+k807Q/vQ1OFM9E+i22BTFLMNCKnW5
+	YR6UdakRfezM4EB8q+z+dYbvVaQMqmyl5WD7nk84ENgU+QOu41mic4FsigSOcziA6bCLFCxE5hs
+	Z5YOwBuJ7Lt6kVpoO8dbg6CZniQ6Ayd1ytWHOzCD+F7XpggzuMR4s7xaxEX4SyeTKH0tyiPzblL
+	f9zXRyh2X/dXiRa5izNyr3gZL2sZFjBhLb807oG+H5dqKBKVIKl3oxSqU6+NU8riWQH6mn7QjaG
+	Z31mxFLAJFUJhkl67bPvEmucTX4dH+FAx6s8EUyd1jRzOa3jltnLXeXcGNuGmWs3ezgIgrfSgqu
+	tllqItOlLS780Do1yJYV67MUkkxW/8HljCYzOZZEGzO9hwjRpxhuAHcDB3AKcvnBlLz8/CKQXsz
+	xAiAqIUUOtl+wu3
+X-Received: by 2002:a05:6830:380f:b0:7fa:5c68:d053 with SMTP id 46e09a7af769-8089a453a04mr1442257a34.29.1789389644050;
+        Mon, 14 Sep 2026 05:40:44 -0700 (PDT)
+Received: from SGN-LDSENG.tasernet.com ([2405:4800:5cc3:11a:1ac0:4dff:fe8b:4a69])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-805cb5ba734sm6527788a34.0.2026.09.14.05.40.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Sep 2026 05:40:43 -0700 (PDT)
+From: Cong Nguyen <congnt264@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: pxa: fix IRQ leak on probe failure after pxa_rtc_open()
+Date: Mon, 14 Sep 2026 19:40:37 +0700
+Message-Id: <20260914124037.2204337-1-congnt264@gmail.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] The watchdog is left running on driver unbind without an IRQ handl=
-er, leading to an unhandled interrupt storm.
-- [High] The watchdog timer is left running during system suspend, which wi=
-ll cause spurious wakeups.
-- [Medium] Un-ratelimited dev_err() in the threaded IRQ handler can cause a=
- log storm and consume 100% of a CPU core if clearing the watchdog flag fai=
-ls.
---
+pxa_rtc_probe() calls pxa_rtc_open(dev), discarding its return value.
+On success that requests both the 1Hz and alarm IRQs. If a later step
+fails (sa1100_rtc_init() or devm_rtc_device_register()), probe returns
+without releasing them -- and pxa_rtc_irq() then dereferences the
+devm-freed pxa_rtc on any pending/spurious interrupt, plus a retry
+fails with -EBUSY since the IRQs are never released. Not theoretical:
+commit 34127b3632b2 ("rtc: pxa: fix null pointer dereference") documents
+sa1100_rtc_init() failing this way on a real Zaurus SL-C1000.
 
-commit 5bad6cdbd177d2e1690c8afe67f641dfa821a364
-Author: Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: rtc: pcf85363: add watchdog support with configurable step size
+Check pxa_rtc_open()'s return, and route both later failures through
+pxa_rtc_release() via a new err_release label, mirroring the existing
+remove() cleanup.
 
-This commit adds watchdog support to PCF85263/PCF85363 using the watchdog=20
-subsystem. The chip has no reset output, so expiry is only signalled via=20
-the WDF flag routed to INTA as an alarm-only watchdog.
+Fixes: 3cdf4ad9633e ("rtc: pxa: convert to use shared sa1100 functions")
+Assisted-by: Claude:claude-opus-4
+Signed-off-by: Cong Nguyen <congnt264@gmail.com>
+---
+ drivers/rtc/rtc-pxa.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 22661abd9ebb5..aa45d71e6ab58 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-[ ... ]
-> @@ -512,6 +539,15 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, =
-void *dev_id)
->  		handled =3D true;
->  	}
-> =20
-> +	if (flags & FLAGS_WDF) {
-> +		dev_warn_ratelimited(&pcf85363->rtc->dev,
-> +				     "watchdog timer expired\n");
-> +		if (pcf85363_clear_flags(pcf85363, FLAGS_WDF))
-> +			dev_err(&pcf85363->rtc->dev,
-> +				"failed to clear watchdog flag\n");
-> +		handled =3D true;
-> +	}
-> +
+diff --git a/drivers/rtc/rtc-pxa.c b/drivers/rtc/rtc-pxa.c
+index 62ee6b8f9bcd..e01e683c2f61 100644
+--- a/drivers/rtc/rtc-pxa.c
++++ b/drivers/rtc/rtc-pxa.c
+@@ -338,7 +338,9 @@ static int __init pxa_rtc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	pxa_rtc_open(dev);
++	ret = pxa_rtc_open(dev);
++	if (ret)
++		return ret;
+ 
+ 	sa1100_rtc->rcnr = pxa_rtc->base + 0x0;
+ 	sa1100_rtc->rtsr = pxa_rtc->base + 0x8;
+@@ -347,7 +349,7 @@ static int __init pxa_rtc_probe(struct platform_device *pdev)
+ 	ret = sa1100_rtc_init(pdev, sa1100_rtc);
+ 	if (ret) {
+ 		dev_err(dev, "Unable to init SA1100 RTC sub-device\n");
+-		return ret;
++		goto err_release;
+ 	}
+ 
+ 	rtsr_clear_bits(pxa_rtc, RTSR_PIALE | RTSR_RDALE1 | RTSR_HZE);
+@@ -357,12 +359,16 @@ static int __init pxa_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pxa_rtc->rtc)) {
+ 		ret = PTR_ERR(pxa_rtc->rtc);
+ 		dev_err(dev, "Failed to register RTC device -> %d\n", ret);
+-		return ret;
++		goto err_release;
+ 	}
+ 
+ 	device_init_wakeup(dev, true);
+ 
+ 	return 0;
++
++err_release:
++	pxa_rtc_release(dev);
++	return ret;
+ }
+ 
+ static void __exit pxa_rtc_remove(struct platform_device *pdev)
+-- 
+2.25.1
 
-[Severity: Medium]
-If the I2C write inside pcf85363_clear_flags() fails (e.g., due to a=20
-transient bus error), this path prints a non-ratelimited error and=20
-returns IRQ_HANDLED.
-
-Because the physical level-triggered INTA line would remain asserted in=20
-hardware, won't the IRQ immediately re-fire and loop infinitely? Could=20
-this result in a CPU lockup and a log storm from the un-ratelimited=20
-dev_err()?=20
-
-Should the error log be rate-limited, or the interrupt disabled if it=20
-cannot be successfully cleared?
-
-[ ... ]
-> +static int pcf85363_watchdog_init(struct device *dev, struct pcf85363 *p=
-cf85363)
-> +{
-> +	struct pcf85363_watchdog *wd;
-[ ... ]
-> +	watchdog_set_drvdata(&wd->wdd, wd);
-> +
-> +	return devm_watchdog_register_device(dev, &wd->wdd);
-> +}
-
-[Severity: High]
-If a user unbinds the driver via sysfs while the watchdog is running,=20
-will the devm-managed IRQ handler be freed while the hardware watchdog=20
-continues to count down?=20
-
-When the hardware timer subsequently expires and asserts the INTA line,=20
-could this cause an unhandled interrupt storm that disables the shared=20
-IRQ line?=20
-
-Should WDOG_STOP_ON_UNREGISTER be set on the watchdog device, or a=20
-custom devm cleanup action be registered to halt the hardware timer=20
-on unbind?
-
-[Severity: High]
-Does the watchdog timer continue running during system suspend?=20
-
-Since INTA is configured as a system wakeup source earlier in the driver,=20
-if the watchdog is active when the system goes to sleep, won't it=20
-eventually expire and cause an unexpected, spurious system wakeup?=20
-
-Should dev_pm_ops be provided to halt the hardware timer during suspend=20
-and resume it upon waking up?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914092126.3757=
-418-1-lakshay.piplani@nxp.com?part=3D5
