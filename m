@@ -1,124 +1,187 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C61AD39E18E;
-	Mon, 14 Sep 2026 21:30:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7078E3F9A16;
+	Tue, 15 Sep 2026 03:45:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=92.121.34.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789421402; cv=none; b=GGhNy98y8585zyE3bJD7PBC8+HgHD9dMeMAX+63u7xEyFabOtRbra0l0VlUer+W8TZTq1zYMS07kNGS1AELmt0nz9n/8WtH4vvNFKf1fpfvrmprH/alVtYXxQUJI/vKAp/4OqSGnplY8TpEuy3jTw3PY9/TE8Zir1TgXfzytjT4=
+	t=1789443906; cv=none; b=ss4YxsAK/s+uRuCc+53oCja/oQaFcSSOAzswnNINyz5MfiRpiUfGSTxdczide1k8ubXIRJdHEExCtiJ+6fGTpwp11+dboYkV3I4zWPRqvTJMXMu4rhuYqpqisPrEA4TPaC+f/XtDziTP075BXesJeHBfWLDXnPq/qlv8K5C/WyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789421402; c=relaxed/simple;
-	bh=sffVtv5DgPeAsJoPREIVlxQbySHZZICD8U4V8HuXI/A=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=s+Hag9+4zEjDGe5beZmW1TCO3yvUrw85AkjOgUMZgu5sJoygAwV2skJ6g6kN2vUvNcNw/4VwO8mVxPRNhlvqhZVsmlxm5Y1ismPBGAqm/3uXC45qGPwvCChzED7/DTrppQ42RbFxboWPFzt/QaPtI8oXXyRdKZvBhb9RIbo3YUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Te7edimY; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Te7edimY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E10C1F000FF;
-	Mon, 14 Sep 2026 21:29:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789421399;
-	bh=Yy0ZQ8tQWhX4ISt0LGUcQ0fRpgj97EM9WaJBBFr2Eng=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Te7edimY7jeUNx2GDDicXQzdnllg8arCM4zojaYdUJrOkZcnLwBxdUWIO8/xuEtto
-	 yNKwT8eZNL2Mgyc9TsHaq0HIVrhiWCnqG6ZWBSz7FW3cbm2Ebi+9bpgZtfArPOYifD
-	 /pbkdkq1z/Jz1Luc7is+QGlTba6GUVOmt0A6/ctGqxaxqlcV6V/iIRbOJ36e4f7dz0
-	 Z4ThEhy1kehxQ01/mT4MZTMEpMFk9vZnMtLchJ6jC5r7PUM2W0I/8fFW5ghIJWOFIP
-	 I67zsTt2pgZDViVMYTPhL0puN34rFcCRFW/sgm+H5jLAbM5qcS+GE0VSam3ssmH5Rg
-	 xFbYfMqwaXj1A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/6] dt-bindings: rtc: rzn1: add R-Car X5H support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: wsa+renesas@sang-engineering.com, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org
-In-Reply-To: <20260914211826.73727-13-wsa+renesas@sang-engineering.com>
-References: <20260914211826.73727-8-wsa+renesas@sang-engineering.com>
- <20260914211826.73727-13-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 21:29:59 +0000
-Message-Id: <20260914212959.7E10C1F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1789443906; c=relaxed/simple;
+	bh=21sIjn1CMCwVWRosJesInKPw67AAh9ENicYWDDsZe28=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mIRmRtZ2DpMhhH3HMcf+4ZteBcAnMZYpAAKgcrm8JWW6/8ufCRZMkHi0qs3A7OLzZTv5sa5SspM7wJWBlHWwIVeAfHCDfCei0j89mW1TVJRrf57abuimCQIaA7sPDTlNVSYcYYroLysgAQonaM4J74lpDwoZXrtdpp87JH+x6Nk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; arc=none smtp.client-ip=92.121.34.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B9E541A00AF;
+	Tue, 15 Sep 2026 05:45:02 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7D4541A00AC;
+	Tue, 15 Sep 2026 05:45:02 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 92049180006C;
+	Tue, 15 Sep 2026 11:44:59 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	wim@linux-watchdog.org,
+	linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>
+Subject: [PATCH v7 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode config
+Date: Tue, 15 Sep 2026 09:14:48 +0530
+Message-Id: <20260915034452.4086683-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
+which latch the current time when a selected event occurs. Add a
+vendor specific property, nxp,timestamp-mode, to select the event
+source for each register.
 
-New issues:
-- [Medium] The R-Car X5H compatible string is missing an `if-then` conditio=
-nal block to explicitly disallow interrupts.
+Also introduce a new header 'pcf85363-tsr.h' to expose
+macros for timestamp mode fields, improving readability
+of device tree file.
 
-Pre-existing issues:
-- [High] The driver dynamically modifies a global static `rtc_class_ops` st=
-ructure during probe, causing operations to be incorrectly shared and corru=
-pted across all device instances.
---
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-commit a9257218efe4782b04de9171568942363749f822
-Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+V6 -> V7:
+- No change.
 
-    dt-bindings: rtc: rzn1: add R-Car X5H support
+V5 -> V6:
+- No change
 
-This patch adds support for the R-Car X5H hardware variant to the RZ/N1 RTC
-device tree binding schema. The commit message explicitly notes that this
-hardware is identical to RZ/T2H except that interrupts are not wired.
+V4 -> V5:
+- No change
 
-> diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml =
-b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-> --- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-[ ... ]
-> @@ -66,6 +71,7 @@ allOf:
->              enum:
->                - renesas,r9a09g077-rtc
->                - renesas,r9a09g087-rtc
-> +              - renesas,rcar-gen5-rtc
->      then:
->        properties:
->          clocks:
+V3 -> V4:
+- Added Reviewed-by tag in commit message (previously only in changelog) 
 
-[Severity: Medium]
-Since the commit message states that interrupts are not wired for R-Car X5H,
-should there be another if-then block added to the allOf section to
-explicitly restrict the interrupts property for renesas,rcar-gen5-rtc?
+V2 -> V3:
+- No changes in v3
+- Added Reviewed-by: Rob Herring <robh@kernel.org>
 
-Without this conditional check, a device tree incorrectly defining an
-interrupts property for this compatible string would silently pass schema
-validation despite the hardware limitation.
+V1 -> V2:
+- Addressed review comments from Rob Herring:
+  * use $ref: /schemas/types.yaml#/definitions/uint32-array
+  * tuple form with exactly 3 items (TSR1/TSR2/TSR3), per items decimal enums
+  * define 'nxp,timestamp-mode' clearly
+  * drop watchdog related vendor properties
+  * remove watchdog related vendor properties from i2c example
+---
+---
+ .../devicetree/bindings/rtc/nxp,pcf85363.yaml | 23 ++++++++++++++-
+ include/dt-bindings/rtc/pcf85363-tsr.h        | 28 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/rtc/pcf85363-tsr.h
 
-While reviewing the associated driver code, I noticed a separate issue:
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+index 52aa3e2091e9..cf9c155162d6 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/rtc/nxp,pcf85363.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Philips PCF85263/PCF85363 Real Time Clock
++title: NXP PCF85263/PCF85363 Real Time Clock
+ 
+ maintainers:
+   - Alexandre Belloni <alexandre.belloni@bootlin.com>
+@@ -39,6 +39,24 @@ properties:
+   start-year: true
+   wakeup-source: true
+ 
++  nxp,timestamp-mode:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    items:
++      - enum: [0, 1, 2] # TSR1: NONE, FE, LE
++        description: TSR1 mode
++      - enum: [0, 1, 2, 3, 4, 5] # TSR2: NONE, FB, LB, LV, FE, LE
++        description: TSR2 mode
++      - enum: [0, 1, 2, 3] # TSR3: NONE, FB, LB, LV
++        description: TSR3 mode
++    description: |
++      Defines timestamp modes for TSR1, TSR2, and TSR3.
++      Use macros from <dt-bindings/rtc/pcf85363-tsr.h>.
++
++      Each value corresponds to a mode constant:
++        - TSR1: NONE, FE, LE
++        - TSR2: NONE, FB, LB, LV, FE, LE
++        - TSR3: NONE, FB, LB, LV
++
+ required:
+   - compatible
+   - reg
+@@ -47,6 +65,7 @@ additionalProperties: false
+ 
+ examples:
+   - |
++    #include <dt-bindings/rtc/pcf85363-tsr.h>
+     i2c {
+         #address-cells = <1>;
+         #size-cells = <0>;
+@@ -56,5 +75,7 @@ examples:
+             reg = <0x51>;
+             #clock-cells = <0>;
+             quartz-load-femtofarads = <12500>;
++            wakeup-source;
++            nxp,timestamp-mode = <PCF85363_TSR1_FE PCF85363_TSR2_LB PCF85363_TSR3_LV>;
+         };
+     };
+diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-bindings/rtc/pcf85363-tsr.h
+new file mode 100644
+index 000000000000..1fb5b9b3601e
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363-tsr.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
++/*
++ * Copyright 2025 NXP
++ */
++
++#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H
++#define _DT_BINDINGS_RTC_PCF85363_TSR_H
++
++/* TSR1 modes */
++#define PCF85363_TSR1_NONE 0x00
++#define PCF85363_TSR1_FE 0x01
++#define PCF85363_TSR1_LE 0x02
++
++/* TSR2 modes */
++#define PCF85363_TSR2_NONE 0x00
++#define PCF85363_TSR2_FB 0x01
++#define PCF85363_TSR2_LB 0x02
++#define PCF85363_TSR2_LV 0x03
++#define PCF85363_TSR2_FE 0x04
++#define PCF85363_TSR2_LE 0x05
++
++/* TSR3 modes */
++#define PCF85363_TSR3_NONE 0x00
++#define PCF85363_TSR3_FB 0x01
++#define PCF85363_TSR3_LB 0x02
++#define PCF85363_TSR3_LV 0x03
++
++#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
 
-drivers/rtc/rtc-rzn1.c:rzn1_rtc_probe() {
-[ ... ]
-	if (scmp_val) {
-		writel(rate - 1, rtc->base + RZN1_RTC_SCMP);
-	} else {
-		rzn1_rtc_ops.read_offset =3D rzn1_rtc_read_offset;
-		rzn1_rtc_ops.set_offset =3D rzn1_rtc_set_offset;
-	}
-[ ... ]
-		rzn1_rtc_ops.read_alarm =3D rzn1_rtc_read_alarm;
-		rzn1_rtc_ops.set_alarm =3D rzn1_rtc_set_alarm;
-		rzn1_rtc_ops.alarm_irq_enable =3D rzn1_rtc_alarm_irq_enable;
-	}
+base-commit: 704340f1cd0dcef829eb62f5b48ae95a2ce17bdf
+-- 
+2.25.1
 
-	return devm_rtc_register_device(rtc->rtcdev);
-}
-
-[Severity: High]
-This is a pre-existing issue, but does mutating the global static rzn1_rtc_=
-ops
-structure during probe cause state corruption across device instances?
-
-If multiple RTC instances exist, devices probed subsequently that lack
-certain capabilities (like no SUBU register or no alarm interrupt) will
-incorrectly inherit the callbacks set by previously probed devices. Could
-this lead to unhandled behavior if unsupported operations are invoked?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914211826.7372=
-7-8-wsa+renesas@sang-engineering.com?part=3D5
