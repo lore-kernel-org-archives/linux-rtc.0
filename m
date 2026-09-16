@@ -1,170 +1,262 @@
-Received: from mail-vs2-f12.google.com (mail-vs2-f12.google.com [74.125.227.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475CE5013CD
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 13:33:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C63393B7746
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 16:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789565601; cv=none; b=aRKTA3mVzBnzDqMHSoZQRNH48rxvpMzz37defhwPTUVzmmKEMA943R+bI6Wr7o3q3pMwMphdP2iUH9s2kKJ5w/dwWnRtmrvozdZ8WjLvWPDWG5J7AP+3riFVHbnqm6IyQqiSCzCmJea/tOzUpaO/sFFJ/8Tv6/kSgl4VSg44700=
+	t=1789574450; cv=none; b=hFOPcsERFnmy18UF8v/7iuq4Yu6RtSwM62265v3nRXoeL7cp/CuxdBCOKGrG3Yn2fuDv5jtef83oBkof+qaK6i3WGSdV83UaZ98U9WkIHoxQL/dYXI8Y5Nq/5NaCWQEEIoNhXzBfE+tZxM5Eie9wAeQKBbc+yX4ACWxBn0cWyr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789565601; c=relaxed/simple;
-	bh=mb2XQ1KGNSPMgyuxBLUyXCoX4VmOMT1Nq+RjhXhPzMY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hwPKnD4AkrlPEFgbjHUpSIE1TmzydqZtC8nmLNERh/m9Li7AfvGjy8aNvfLANCH7zU54lCwYt0NW159RRsCzMTUUmW+kyH2nQ8loqo+oAxIr1H6NsKxvWr+Cg9huJFGeyP0wH9driq3Tr8ZwwizHQwOr+xiDDHC+bIoGH26pK2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs2-f12.google.com with SMTP id 71dfb90a1353d-5c82bb05ddaso607909e0c.3
-        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:33:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789565594; x=1790170394;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=KZim0+JELLYTz16Ra4InawCH9gXGh4ZTsyUS8+i0IEA=;
-        b=Z1hcfAz7fO9d723KAOZ9oqwxUwjhEc7zfDB7HHmNsm5LGu1BIqwYP3oUFNK8P9E+/4
-         tb5eHYhbzLcLuyDFzNSU6oSti1qnPpA9V7aluGR37CDLvugmH4l69I7VcMuaIT5TKBvh
-         szHE9xoPgWdd0V0lLcn6fDzUuzPNCl/VJtTP/YoTz5/SCzqjnZIf4j3Kqz3geQs0KQpd
-         ZvpkqT6DzAQvs2hrXNuaarRK8USfE6/YWRDIkgXD0b6S5+yxOYPJN14DKhRgWqK5KuSt
-         D983OHJRyjQsZbVGN9oM3DRELPAorlulowCnR6JBlHoljE0x6dQMNfUkchnYBcG+Hesv
-         kLyQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxldBTfQVCV5jBwwdT2O8T1p3Wl1GqAiy3+JWKNFylB7L3g7Y2Iei25ou6cIThTX2ZBtK3N4ZVFePs=@vger.kernel.org
-X-Gm-Message-State: AFuF++nil3n5Tw5+rI888ihNNtnJU2TYQiWUL1R/A04zrQZASwz9dzUq
-	RTE6gkeHv+TOpo2UDuNbZId/VN4fmm9fmzDhCgjffgaxpW1ByuPHXKiSURl1U3vA2TE=
-X-Gm-Gg: AYBFou2jphQ0QJP7P6oK/aN+5OJTAp3WtMm4te6zTyd5z5MFWnbKB3ppFC6Q/1sN4Af
-	PP0Lf8zFhOSwSXO3q36FPMob4D2qMRs2eRKg2dmGucjjXWcG2tZ8yq6Li6GvzcAIAphFyGqKJmL
-	2KBXXMhPXYdu8x7mB23dHshwsNvrVLdYdmYIrN9eR3Hoy6dhc3QhfV2OBB9MNfa+iB35NZJS6NY
-	vBoEmAYoezozW21zhR7MaUbXeh72Rf1/yjCI/RcJFMNJOLVhwV1b1NAk5AxafmXyB0jCdd5c/FX
-	XMstsAb729nuJFTzSnRcV3BpnRiB4p2SzkgbSGF75QfeZV6egdm5IntfyplMow6oy8b9PHR2V9w
-	5JbKkJw8BmPh/ml3K6Y8tywGysYkN1KNlC5jw5btrafNRqPg1KJuaA61fLAL2qJcDeuY3DnFWrv
-	BINyWpQANc1QzM7AlZGzTmfGe5rj0rP49teb3AzORpCMOvqqAVDeE4t6t9so1f/UHdXuEydvlJU
-	mTvcrR3q4YzFTrTzlJn6v9ecQrlljGdbTBh3Q==
-X-Received: by 2002:a05:6122:2907:b0:5c5:ad20:1fc3 with SMTP id 71dfb90a1353d-5c99ac4d654mr2841395e0c.5.1789565593755;
-        Wed, 16 Sep 2026 06:33:13 -0700 (PDT)
-Received: from mail-ua2-f12.google.com (mail-ua2-f12.google.com. [74.125.226.204])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-9831521c86csm2542130241.6.2026.09.16.06.33.13
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Sep 2026 06:33:13 -0700 (PDT)
-Received: by mail-ua2-f12.google.com with SMTP id a1e0cc1a2514c-97e7c7b4ed2so532097241.2
-        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:33:13 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxO3tE+m/PbkiG+uaULP6QqVEcjCftZvISu2CgYc4wQ86Kh2mmm+5UverJblQXtp+BXK0SGGMcbfMA=@vger.kernel.org
-X-Received: by 2002:a05:6122:1349:b0:5bf:8c77:e89a with SMTP id
- 71dfb90a1353d-5c99ab375f3mr2670104e0c.2.1789565592896; Wed, 16 Sep 2026
- 06:33:12 -0700 (PDT)
+	s=arc-20240116; t=1789574450; c=relaxed/simple;
+	bh=F1V9qPfh/Z489zNdFuWl5f8K14vwiw3088Qv1FpfNpw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=uMFL6RB25JJfkiw/E5Y3tMBwPAJDqeZTOF/XVNFq6jpp+EnloRl6FlPIFBaAqdaZNqUzRmBCB3uT6TyUFn/qyT2t1Jhe4ejLvv8kDdam19Guk4goakbUdi7z7IJa8Fxx7tgqqtqd/LE2BzGdWqgbvYVleiB5UOTjxErkLHruT8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=KSUT6zBr; arc=none smtp.client-ip=185.67.36.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="KSUT6zBr"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout01.posteo.de (Postfix) with ESMTPS id B1B1E24002D
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 18:00:35 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1789574435;
+	bh=HAQW6KRGamkNE8GFrImTx3/qb2ek8JZZBd6FUgbP4vE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:To:Cc:Autocrypt:OpenPGP:From;
+	b=KSUT6zBrmpV6MXDj0RI1VFXqtt2qmgydfTdUD1dSBt86Fitt6UlFWv5sTdKNS3cgJ
+	 gAOiRZAKGm6aTMtS63C+7FZsxYIWwHeaaKQMMSpqj7JjMqj1uY1AMRJxrQG6lAHihm
+	 YHT9lgoldX6fS+cMJ7Wlrk3lP06qJiiIW5/+R+eSs4b9kqU6/ga9AGqpN3oLIqUsAk
+	 xkxryIAu1Do3/cKmcsjYCoAXXy1Hnhex6bfsLNdkw28sJTLE9fVTvNZ8NXW98+n6uY
+	 IyiKNb/ETQ2IJ5+gm7SuI2uC6x66E0pQTyacHaLnXergDzdzmVWDcW2gC+iKE1SS5r
+	 36RTcu9mh70mQ==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4hlNrw3PM8z9rxG;
+	Wed, 16 Sep 2026 18:00:32 +0200 (CEST)
+From: Markus Probst <markus.probst@posteo.de>
+Subject: [PATCH v9 0/6] rtc: s35390a: Allow use of output pin for interrupt
+ signal 1 for wakealarm
+Date: Wed, 16 Sep 2026 16:00:35 +0000
+Message-Id: <20260916-rtc_s35390a_int1-v9-0-b2567a3e4959@posteo.de>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260916102520.24288-1-wsa+renesas@sang-engineering.com> <20260916102520.24288-5-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20260916102520.24288-5-wsa+renesas@sang-engineering.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 16 Sep 2026 15:33:01 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdUzvSZUiS9JK2R7doct+NFEFmFy4sZNqerOwER-6wnJ4Q@mail.gmail.com>
-X-Gm-Features: AcwNN1XvSPah2oUTqePVUlnZa47A7Wxsz425P1ob6Q-7r15waklaFxMMFfTjinM
-Message-ID: <CAMuHMdUzvSZUiS9JK2R7doct+NFEFmFy4sZNqerOwER-6wnJ4Q@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] rtc: rzn1: add R-Car Gen5 support
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, 
-	Lad Prabhakar <prabhakar.csengg@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Magnus Damm <magnus.damm@gmail.com>, 
-	linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XR0U7DMAwF0F+Z8kynOG6yZk/8B0JT4rgsSKyj6
+ SrQtH8n7ZAoJTxe6frEcq4icR85if3mKnoeY4rdKQf7sBF0dKcXrmLIWSipjDQoq36gQ0KNVrp
+ DPA1QaW2IPMomYCvy2LnnNn7M5NPzPaeLf2UaJue70fP7Jb813GvCu8QVdW9vcdhvxt0Wq55QT
+ NPHmIau/5z3G2Eu/7/KCJWswCuFlsF4Vo/nLg3cbQPP2Kh+gEZCAVAZaEGStS5AMLQGcAnoAoA
+ Z4AZN67xDVnoN1AsASkCdAQRElJbQ6HYN6AWgSjfQGdDsa24bTcbZNWCWQF0ATAZCa402lrGGP
+ 0fcLQFbAHYTwJ4CAtToeA00CwBLv9BMgCMI1Bhi+HWD2+32BWn1+uG1AgAA
+X-Change-ID: 20260630-rtc_s35390a_int1-556ccb308d3f
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, 
+ Andrew Lunn <andrew@lunn.ch>, Gregory Clement <gregory.clement@bootlin.com>, 
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+ Michael Langer <michael.brainbug.langer@googlemail.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Linus Walleij <linusw@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5693;
+ i=markus.probst@posteo.de; h=from:subject:message-id;
+ bh=F1V9qPfh/Z489zNdFuWl5f8K14vwiw3088Qv1FpfNpw=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqqr0eCnOHAoKr5Pp7QEVEEcDtea0bSKaecdk61
+ Kas0UEQFeeJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCaqq9HhsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9J2Qw//Wb2Ar+8CBgwoLlsPZuSoa8XHWTO1/oh
+ GtRpZQts6O7Js+AjdsFIGNiqBnsNiwGsfdER/s18apwNg4zKXzftnWRgK0BthQ4XJJ4KWhfBSOZ
+ BS7X7nNZqx7Cb1oM93h0sXJQCWB2k7TK95Hb0y5Rc61dtxlCeitBDCBYUOHHu9oAjMwU2j4eUCa
+ v6WiZnFHwyNz/X1tw0dis1cZepppmTyiekn7R3qtGWgEqiRG0O/VF6vbJMpzNvKmVVAFieRMtdr
+ M2oEs8OKbvCS4valxJ81jJmzf4ZVU5TQoaUKdHUUt2UvOvwd5nz8yYbq173+ERIDP2bt84F3Kqo
+ CFEKQy6XOtpg0CNyGm1H0xhIVJeMeClo98jdv7xQtDFh4QDZ45uxb7Y+2RunoP5crn3ww0YdG45
+ ofdFV0bbq5DrhsXmpG4JpUzWjt9o4yCTTxxNxlKn42TSSgpVn42lZw8bCjv6KDskJ3KBinNjls/
+ c4E3z8wp3vPv2lFeQ3YXRDgUCRDeY3j/FOHP8UC8SPqvhmFl8kQ6y9i91llTcHF7sbc9gfks/oV
+ hYxVuPRKLVNKKQjqVtlxLh4YAT+R1VEPnfLgpDURPI9CDANCXufk4tRVsQRpAJjGBwQjJtpuEar
+ HCR/0XRNDu9KJQHqtXzOql2J+E0qHhm8K72Bf9V/7sm2gMXrqjhA=
+X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
+ fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
+Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
+  keydata=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
+  aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
+OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Hi Wolfram,
+Add pinctrl to allow the use of output pin for interrupt signal 1
+for wakealarm. This is needed for wakealarms to work on Synology NAS
+devices.
 
-On Wed, 16 Sept 2026 at 12:25, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> In general, the RTC on R-Car Gen5 is identical to RZ/T2H. X5H is an
-> exception, though, because interrupts are not wired. X5H2 will have them
-> wired again. So, skip alarm setup for the X5H case.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+I could only partially test the pinctrl patch. My testing system runs
+ACPI, which makes it impossible for me to configure pinctrl there. I did
+however verify that with missing pinctrl configuration in the devicetree,
+the register were correctly set. So there should be no regressions.
+Every other function than ignore, disable and wakeup should also be
+considered untested.
 
-Thanks for your patch!
+Also If I am not mistaken, wake alarms on these systems are currently broken:
+(not tested, judged by looking at the devicetrees).
 
-> --- a/drivers/rtc/rtc-rzn1.c
-> +++ b/drivers/rtc/rtc-rzn1.c
+- arch/arm/boot/dts/marvell/armada-370-synology-ds213j.dts
+- arch/arm/boot/dts/marvell/armada-xp-synology-ds414.dts
+- arch/arm/boot/dts/marvell/kirkwood-synology.dtsi
+- arch/arm/boot/dts/marvell/kirkwood-ds110jv10.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds111.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds112.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds210.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds212.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds212j.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds411.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds411j.dts
+- arch/arm/boot/dts/marvell/kirkwood-ds411slim.dts
+- arch/arm/boot/dts/marvell/kirkwood-rs212.dts
+- arch/arm/boot/dts/marvell/kirkwood-rs411.dts
 
-> @@ -503,25 +505,39 @@ static int rzn1_rtc_probe(struct platform_device *pdev)
->
->         spin_lock_init(&rtc->ctl1_access_lock);
->
-> -       ret = devm_request_irq(dev, irq, rzn1_rtc_alarm_irq, 0, "RZN1 RTC Alarm", rtc);
-> -       if (ret)
-> -               return dev_err_probe(dev, ret, "RTC alarm interrupt not available\n");
-> -
-> -       irq = platform_get_irq_byname_optional(pdev, "pps");
-> -       if (irq == -EPROBE_DEFER)
-> -               return irq;
-> -       if (irq >= 0)
-> -               ret = devm_request_irq(dev, irq, rzn1_rtc_1s_irq, 0, "RZN1 RTC 1s", rtc);
-> -
-> -       if (irq < 0 || ret) {
-> -               set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
-> -               clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
-> -               dev_warn(dev, "RTC pps interrupt not available. Alarm has only minute accuracy\n");
-> +       if (data->broken_irqs) {
-> +               /* All known broken irqs are on SCMP only variants */
-> +               rtc->rtcdev->ops = &rzn1_rtc_ops_scmp_no_alarm;
-> +       } else {
-> +               irq = platform_get_irq_byname(pdev, "alarm");
-> +               if (irq < 0)
-> +                       return irq;
+If thats the case it can be fixed by using this patch series and adding
+the example in the devicetree to the s35390a devicetree.
 
-As the DT bindings declare "renesas,r8a78000-rtc" to be compatible with
-"renesas,rcar-gen5-rtc" (which does not set the broken_irqs flag),
-a missing interrupt must not be fatal?
+If somebody still runs one of these systems, please test.
 
-> +
-> +               ret = devm_request_irq(dev, irq, rzn1_rtc_alarm_irq, 0, "RZN1 RTC Alarm", rtc);
-> +               if (ret)
-> +                       return dev_err_probe(dev, ret, "RTC alarm interrupt not available\n");
-> +
-> +               irq = platform_get_irq_byname_optional(pdev, "pps");
-> +               if (irq == -EPROBE_DEFER)
-> +                       return irq;
-> +               if (irq >= 0)
-> +                       ret = devm_request_irq(dev, irq, rzn1_rtc_1s_irq, 0, "RZN1 RTC 1s", rtc);
-> +
-> +               if (irq < 0 || ret) {
-> +                       set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
-> +                       clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
-> +                       dev_warn(dev, "RTC pps interrupt not available. Alarm has only minute accuracy\n");
-> +               }
->         }
->
->         return devm_rtc_register_device(rtc->rtcdev);
->  }
->
-> +static const struct rzn1_rtc_data rzn1_rtc_r8a78000_data = {
-> +       .has_subu = false,
-> +       .broken_irqs = true,
-> +};
-> +
->  static const struct rzn1_rtc_data rzn1_rtc_rzt2h_data = {
->         .has_subu = false,
->  };
-> @@ -531,7 +547,9 @@ static const struct rzn1_rtc_data rzn1_rtc_rzn1_data = {
->  };
->
->  static const struct of_device_id rzn1_rtc_of_match[] = {
-> +       { .compatible   = "renesas,r8a78000-rtc", .data = &rzn1_rtc_r8a78000_data },
->         { .compatible   = "renesas,r9a09g077-rtc", .data = &rzn1_rtc_rzt2h_data },
-> +       { .compatible   = "renesas,rcar-gen5-rtc", .data = &rzn1_rtc_rzt2h_data },
->         { .compatible   = "renesas,rzn1-rtc", .data = &rzn1_rtc_rzn1_data },
->         { /* sentinel */ }
->  };
+Thanks
+- Markus Probst
 
-Gr{oetje,eeting}s,
+Signed-off-by: Markus Probst <markus.probst@posteo.de>
+---
+Changes in v9:
+- fix issues reported by Sashiko
+  - fix interrupt-names in dt
+- use interrupts in dt example (there is a known dts in the kernel that has
+  one)
+- add Reviewed-By trailer from Linus Walleij
+- Link to v8: https://patch.msgid.link/20260831-rtc_s35390a_int1-v8-0-dac1dc86ce1f@posteo.de
 
-                        Geert
+Changes in v8:
+- fix issues reported by Sashiko
+  - avoid usage of cleanup helper and goto in one function
+- replace dt binding maintainer with self
+- use allOf instead of manually referencing the properties in
+  pinmux-node.yaml in dt binding
+- move additionalProperties up for readability
+- Link to v7: https://patch.msgid.link/20260829-rtc_s35390a_int1-v7-0-debcd31143ae@posteo.de
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Changes in v7:
+- fix issues reported by Sashiko
+  - check return value of `s35390a_read_status` for errors
+  - select PINCTRL instead of depend to avoid silently dropping the
+    driver on platforms without PINCTRL
+- Link to v6: https://patch.msgid.link/20260824-rtc_s35390a_int1-v6-0-df96569e3412@posteo.de
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Changes in v6:
+- instead of forcing 24-hour mode, check on rtc access
+- Link to v5: https://patch.msgid.link/20260820-rtc_s35390a_int1-v5-0-5eb4ef85c6a9@posteo.de
+
+Changes in v5:
+- fix issues reported by Sashiko
+  - fix time corruption on setting 24-hour mode
+  - fix setting 24-hour even if uninitialized
+- Link to v4: https://patch.msgid.link/20260815-rtc_s35390a_int1-v4-0-3133309c365f@posteo.de
+
+Changes in v4:
+- fix issues reported by Sashiko
+  - require "pins" property in dt
+  - remove maintainers entry for include/dt-bindings/rtc (which only
+    existed in previous iterations)
+  - fix multiple reads to status1, which clears interrupt flags
+  - fix not waiting for Power-On Circuit check
+  - fix missing pinctrl dt callbacks
+- enforce minimum length of "pins" property in dt
+- fix pmin2 on int2 affecting int1
+- force use of 24-hour mode
+- Link to v3: https://patch.msgid.link/20260805-rtc_s35390a_int1-v3-0-e836faba3e25@posteo.de
+
+Changes in v3:
+- fix issues reported by Sashiko
+  - fix use of uninitialized time data
+  - remove dependence on `CONFIG_OF`
+  - add missing `pinctrl_enable` call
+  - fix wrong index used in `s35390a_pinconf_set`
+  - fix interrupt not cleared
+  - fix `device_set_wakeup_capable` called to late in probe
+  - fix mode caching even on failure
+  - fix failure on synology quirk mode update ignored
+- only set irq in alarm_irq_enable callback
+- fix alarm time not set if set_alarm is called with alarm disabled
+- use pinmux instead of pinconf
+- move patternProperties below properties in dt
+- remove dt-bindings header
+- add '#clock-cells' dt property
+- merge 32768khz and user frequency mode into "clock"
+- remove alarm mode
+- refer to mode now as function in the code, to match phrasing in pinmux
+- resolve checkpatches --strict warnings
+- remove mode_init bool and instead set initial function to -1
+- remove err_read probe variable and reuse err
+- rebase onto v6.2-rc6
+- Link to v2: https://patch.msgid.link/20260801-rtc_s35390a_int1-v2-0-f10c99ad1d6c@posteo.de
+
+Changes in v2:
+- remove sii,wakealarm-output-pin property
+- add pinctrl
+- add fix to allow disabling of wake alarms
+- add synology quirk
+- Link to v1: https://patch.msgid.link/20260630-rtc_s35390a_int1-v1-0-1b2239e16be2@posteo.de
+
+---
+Markus Probst (6):
+      dt-bindings: rtc: Add pinctrl for S35390A
+      rtc: s35390a: Add missing newline to dev_err
+      rtc: s35390a: Fix alarm not disabling
+      rtc: s35390a: Read 24-hour mode on access
+      rtc: s35390a: Add pinctrl
+      rtc: s35390a: Add synology quirk
+
+ .../devicetree/bindings/rtc/sii,s35390a.yaml       | 121 ++++++
+ .../devicetree/bindings/rtc/trivial-rtc.yaml       |   3 -
+ drivers/rtc/Kconfig                                |   2 +
+ drivers/rtc/rtc-s35390a.c                          | 473 ++++++++++++++++-----
+ 4 files changed, 501 insertions(+), 98 deletions(-)
+---
+base-commit: c2cd463d6ee7d55a3ec0719d93c49ff99022d58f
+change-id: 20260630-rtc_s35390a_int1-556ccb308d3f
+
