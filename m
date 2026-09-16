@@ -1,63 +1,60 @@
 Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3D9C4E06EE
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 20:53:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B26A4DA9C8
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 20:53:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789592021; cv=none; b=fQeKaKtJmRi9jV/MpCKtZD9YLYAPnUYGh7S1JnMRTLeHjVOfh7/8UYAofw9fbX1nXf8OuY78zgMAaO/6aUcB3COyqx2WqC5bnTIJNwC/UXRQ3UFWcmyqf70AXSBvyJz3QjNOTzIkaFXof4aMQWW9IS+HWVb3xPHM0+ZcvzFuTso=
+	t=1789592025; cv=none; b=mkHmesrlaY2qKpg7dNfB7AtIv5FYqs/JhYbL5TWHxG1QkeonOlqgA+yJ2Y27hKeLqssefHxIkTWEA3Zs427Ukid5pmVxcPsApvHigEJNcbdikbkkyo1UmMWNKAl4CSkC9+WAmWCAsZkkbhWt0JTCI8MYi7nVMvzz0G80735+qQY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789592021; c=relaxed/simple;
-	bh=mIOAFf4/mkVnKyy9Pr2ub9EN7il/hC4uxGNZV5cUVr0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VvvKr1fdVdU4DFGAe9LBkwzFqKV5rZ6f/91CpphXDDS9HrCJur0ypGrfY0XjwVBDHkjuPbzDXus5/R7XerqC2XDXYF7QHNv9UPSFeK8dyUAxFFeHh59S2Gme6epCuUODr5C4yRurjxTkkaFR5CghTdk2nDNPzLa30lBkWRF/kac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H3h0h6Lc; arc=none smtp.client-ip=74.125.225.76
+	s=arc-20240116; t=1789592025; c=relaxed/simple;
+	bh=XPHm3b8/rIzDZZ4STJ5Xi89X9+v39OyO2AgXiID+OyU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QFMu8M7VHzDxN3UA3Yp6f2QT/kiehjClsKj8HfQA2pIrhihhYKsS4zFl9JszA4xJZsLXi/hVnvAosfjvyE6SD4qjbL7rXeo9vRzhVK+YR07TiFJb0ixboTBP4zW+3yeaV8w1zac1PlqJA5tEwmPYcthxFHYS8G6z4WHRaP7aL18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tFW1PcAv; arc=none smtp.client-ip=74.125.225.76
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H3h0h6Lc"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-48583cc7ab1so74330f8f.2
-        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 13:53:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tFW1PcAv"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843378fb37so74464f8f.3
+        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 13:53:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789592012; x=1790196812; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Dxoel9GdpZ6JK+POFcZ8n3vlkVi/jnVPwLg6Nkmyd+g=;
-        b=H3h0h6Lc63jiNBevHaISkPTVX92bnMBJSyRn13yOkBXkzVtU0FEqUI8m3G7g/4MG5/
-         NUvHvqexcjibBKse6wWRZym4JCqo+B2JY5b2/PLbpMZG21I5EpHKuo76Fa7X/qCqESZ6
-         dcILIt3xZN4xvHwRfMR8mPfVd/sCKf3QyI8GIUhLKF04mNu6nhh1ohERBvgehKzXc9ot
-         zt6da4JNvH0oH4vU4liqHwYetvSSs0h9Ss2bFH9WPKS3mV9fbYJ+CW8Pa26qsQu3XTt8
-         pgeGC+10/VVJLZ1GIXsepy40zFdPtWB9wr6RPeN/tziraiRRvU7OpUZKf3OS+Uijy/ni
-         fZeA==
+        d=gmail.com; s=20251104; t=1789592008; x=1790196808; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KzAo6Eq/l+nsylIXF7K1e1k88qd5mp1HvFUw+KqVPy4=;
+        b=tFW1PcAvmDc95YkuSdhRz5SoYlfkeaRaKKgZcDOHyDWV/OiIUX393yutYIZpGnVs5M
+         q9XjG4tPqaqL5UfWmJZParl1QNwUjS8tYk96aJdfJGfq/PIvrADcJcq6p0puRNPdTuuR
+         sozCTcbShDVNLOP0HUhfnA4dCd3qbuCDu1tM0pU5DB3Sm9FaPLOGbPV9KbpRVCZ5X0EA
+         6xBgBjugDHSQUQgklN4kK7p9oMO5HjAM17dNbIl6WI/NogiFOfBDDb2uJsDSEtf4pBkw
+         uCv0aQIdoGq2b4Poyj6NqQxt4U5ZbHSrJo2UvGduLhNhe1exH489+QgkWoDxDSJQi7d6
+         +lQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789592012; x=1790196812;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Dxoel9GdpZ6JK+POFcZ8n3vlkVi/jnVPwLg6Nkmyd+g=;
-        b=Gd8UWJbPGIjtpqRY2etTMUgpttTos9EIFHb6S/JWYSdJuewpgcZcOZS8FPs0vgJybt
-         etV8J7U1wwRnEucQNY8a5EzR7uOPVs3SHvRB9nWcrq7NS+5B7o4o5cHI3verUaTCXpSE
-         O5gcKIZlIUJ/KfRPQqxNeWsmTnUt7uY1BOXtiYe4DfI2w/tqiOmL+grSdX72+pCLt1AO
-         A5y/yit97g+MR7YUpVR+mDOArD7lHFsMv+2hLgO4kc6tlWHwwe66UXtr9jIJqjr3Oo54
-         zhXReCJ5LUprE2EKElqOV7AA2u6gN0QL++TO+2DSNwx3shaub2f2X2P8V+QY2S7DiQgu
-         fR7w==
-X-Gm-Message-State: AFuF++m1xxq8buAxtQIhW9PpOJyurE6ms/COoePD6ubYr3J5ksQ5uuP3
-	gmhrxXUCAabpBQdhDleQTs+09eiEueLUM211WEY+o2Sq0/S0n9YpiJax
-X-Gm-Gg: AYBFou35XwbEiyw4BjKGSrQF8TWU1RoC9nmYRtEsusvO5/sk7mM5Qs4SmotMArJlLnY
-	tUcDLYnSJKa83dpU+c47xerWFkuVkScdKHxPekWSFiZurLcRlBIDX5C+0OovfpaYb25PeCxGYOy
-	vtezB5QYPz4vLqQUEr/BWxchTdQ4uhzDIK8X+voGl8ly0uQ/DxTwvNVeG38303RPhA8EiVmRPM2
-	muU/rC48J/wfYi0EPY4yZqEXJjIYSLTwBGJccDeSzKUgUOijHQGdoEywvEJed/vjBd2mULMYbhG
-	R8NsxHNhnUZ1kyvq5GozSC3y6Q1sXi9Wh2zSTavFQi9GcClpedipaejxBn82sd9C6G52LbIQI7b
-	I5EhEEU8ywqgvtuElKBFlss7poYZ3vcNUho31HzNXyHuuh8+oub7V8wLWw2nw6talyxj5IXX1/Z
-	BuQnqOU8HQaR53LriqJPxkcGbX8UYGu3rSQ2anQf3L1MEmcpW6dq0AEZPua15yB9aiVYn49bXga
-	E1FCk0H
-X-Received: by 2002:a5d:5f96:0:b0:484:3647:d977 with SMTP id ffacd0b85a97d-4870d05a4b1mr5667003f8f.27.1789592011657;
-        Wed, 16 Sep 2026 13:53:31 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789592008; x=1790196808;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KzAo6Eq/l+nsylIXF7K1e1k88qd5mp1HvFUw+KqVPy4=;
+        b=mVN3QQ5yVBiwis9FTTjbwlux0A/ZYmJ+32XLcqvQrBDUpgS+fWXauHd+7BzYylqCMF
+         9nalu2e75x6IE+VoJHeKRFpSYN6PF8GnREDG6jEyBOxdR9GpSxV9mR6vO4N+kgBq4T8D
+         QFuZTmopH9S3RsmAoGhudhrY2WC42DYLTp9rSaI7y+CZTeXFqy6sAmv/ZkBjHHD/2iSq
+         ijYBlq7jlSK7Yc40OUDKi0QzF3QqluPas1zfTVvldkkgrdaVtoXUIS8Z2H3fdOvJjEvv
+         2RLX0jxQWOjejoWXslLYkTwUI54g81aNCMHQjZx69/rQIwbzVIN05PyawZjb5YtRkrvn
+         pHBQ==
+X-Gm-Message-State: AFuF++li1MAhEDGZovpslMD7/IK4sIq+HZ3vna/wb0Y5fqIsCiBzt8wD
+	AHb+4a1SA7MZNNsvFe9vJS0qG3S4kj1LIRWWm3VwuEFgDBjSSE7x3hFg
+X-Gm-Gg: AYBFou2+NU5qlP9QEcLDDkJsKiRtmeUtLdOsq7xQrHRlF7gmYilqov0gfB0l4KjW1Yq
+	1RJMZM7gBlRMFvooiMFQtg5mNclg2V37WNc7CiU0+Q5dwF+bdzamEoEWDgwy87BON+moaug7N6m
+	UfFKaUn6CZVRyIBRCx590bfYnHEafb1+ifpcA1qghn6xnbZMrRBBGza/PxTUSX9Ms+Z4pEXhnP1
+	xL/jv9JtaNfJsTeG1ax/6YKJ50NYUleMdWHkXkO6W9hdYIzutHcVteyODqI9TlvwJ5sWqG9hers
+	Zj3T61xV4Tu67po4bfYo6XY54ry1Iop0fwj3zUx04cP2N78sjKayjgUnzpEydPG8s0IRdNNU2NZ
+	KA7oDykDlVz8qHLLaZp/NnBoUcwwS8ve6/5tsz6UJEid0fTxPwxFTf9f/hTEzFYv4xYav0LceEG
+	QzJU8ghmu1MQIrvXPVMsxFbCl5Ek2YK1ZpHg8uHI8oNo1qvJaykKRSZkt2PblUCvb8d5IhVw==
+X-Received: by 2002:a05:6000:41d3:b0:486:f767:8be0 with SMTP id ffacd0b85a97d-4870cee660fmr4802574f8f.12.1789592007595;
+        Wed, 16 Sep 2026 13:53:27 -0700 (PDT)
 Received: from antoniarch ([78.210.41.3])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bef7678sm11086166f8f.2.2026.09.16.13.53.30
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bef7678sm11086166f8f.2.2026.09.16.13.53.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 13:53:31 -0700 (PDT)
+        Wed, 16 Sep 2026 13:53:27 -0700 (PDT)
 From: Antoni Pokusinski <apokusinski01@gmail.com>
 To: alexandre.belloni@bootlin.com,
 	robh@kernel.org,
@@ -67,12 +64,10 @@ Cc: linux-rtc@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Antoni Pokusinski <apokusinski01@gmail.com>
-Subject: [PATCH v7 3/9] rtc: abx80x: add mutex protection for register writes
-Date: Wed, 16 Sep 2026 22:51:32 +0200
-Message-ID: <20260916205138.16771-4-apokusinski01@gmail.com>
+Subject: [PATCH v7 0/9] rtc: abx80x: add support for abx81x
+Date: Wed, 16 Sep 2026 22:51:29 +0200
+Message-ID: <20260916205138.16771-1-apokusinski01@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260916205138.16771-1-apokusinski01@gmail.com>
-References: <20260916205138.16771-1-apokusinski01@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -81,188 +76,82 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The ABX80X RTC driver performs multi-step register operations such as
-NVMEM transfers or register writes preceded by a configuration key
-write. Add a mutex to serialize all the register writes to protect
-these sequences against race conditions.
+Hello,
+This patch series adds support for the ABX81X RTCs, which are essentially
+SPI versions of the ABX80X RTCs. The first patches (P2-P4) contain bug fixes 
+(added after sashiko's review in v1-v5), then (P5-P8) we have some cleanup and
+reorganization changes (converting the driver to use the regmap API was
+needed for this), followed by the actual ABX81X support.
 
-Signed-off-by: Antoni Pokusinski <apokusinski01@gmail.com>
+Kind regards,
+Antoni Pokusinski
+
 ---
- drivers/rtc/rtc-abx80x.c | 45 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 37 insertions(+), 8 deletions(-)
+Changes since v6:
+* PATCH 4 ("rtc: abx80x: properly handle shared IRQs")
+  - handle_irq: write `status & ~status_flags_clear` instead of `~status_flags_clear`
+  - probe: setup watchdog right after register writes
+* PATCH 6 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - removed the `return -EIO` case
+---
+Changes since v5:
+* PATCH 2 ("rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()")
+  Handle the case of 0<=err<7
+* PATCH 4 ("rtc: abx80x: properly handle shared IRQs")
+  - probe: added missing configuration key unlock before writing REG_OSC
+  - handle_irq: fixed the value being written to REG_STATUS
+* PATCH 6 ("rtc: abx80x: use regmap instead of I2C specific API")
+  Changed the type of "flag" argument of "regmap_read()" from "int" to
+  "unsigned int" in "set_time()"
+Changes since v4:
+  None
+Changes since v3:
+* PATCH 2 ("rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()")
+  New patch
+* PATCH 3 ("rtc: abx80x: add mutex protection for register writes")
+  Replaced "guard()" with "scoped_guard()" in "abx80x_ioctl()"
+* PATCH 4 ("rtc: abx80x: properly handle shared IRQs")
+  Disable all the unused interrupts in "probe()"
+* PATCH 6 ("rtc: abx80x: use regmap instead of I2C specific API")
+  Changed the type of "flag" arguments in "regmap_read()" from "int" to "unsigned int"
+---
+Changes since v2:
+* dropped patch "rtc: abx80x: move part autodetection before RV1805 configuration"
+* PATCH 2 ("rtc: abx80x: add mutex protection for register writes")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - return PTR_ERR(regmap) on I2C regmap init error
+* PATCH 8 ("rtc: abx80x: add support for ABX81X")
+  - return PTR_ERR(regmap) on SPI regmap init error
+---
+Changes since v1:
+* PATCH 1 ("dt-bindings: rtc: abx80x: document ABX81X RTCs")
+  - added missing "spi-peripherals-props" reference
+  - added abx815 compatible strings to the trickle charger enum list
+* PATCH 2 ("rtc: abx80x: move part autodetection before RV1805 configuration")
+  New patch
+* PATCH 3 ("rtc: abx80x: properly handle shared IRQs")
+  New patch
+* PATCH 5 ("rtc: abx80x: use regmap instead of I2C specific API")
+  - changed regmap_read() argument types from `int` to `unsigned int`
+---
 
-diff --git a/drivers/rtc/rtc-abx80x.c b/drivers/rtc/rtc-abx80x.c
-index e4fd7b5d4b11..44de234efecf 100644
---- a/drivers/rtc/rtc-abx80x.c
-+++ b/drivers/rtc/rtc-abx80x.c
-@@ -15,6 +15,7 @@
- #include <linux/i2c.h>
- #include <linux/kstrtox.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/of.h>
- #include <linux/rtc.h>
- #include <linux/watchdog.h>
-@@ -127,6 +128,7 @@ struct abx80x_priv {
- 	struct rtc_device *rtc;
- 	struct i2c_client *client;
- 	struct watchdog_device wdog;
-+	struct mutex lock;
- };
- 
- static int abx80x_write_config_key(struct i2c_client *client, u8 key)
-@@ -219,6 +221,7 @@ static int abx80x_rtc_read_time(struct device *dev, struct rtc_time *tm)
- static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	unsigned char buf[8];
- 	int err, flags;
- 
-@@ -234,6 +237,8 @@ static int abx80x_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	buf[ABX8XX_REG_YR] = bin2bcd(tm->tm_year - 100);
- 	buf[ABX8XX_REG_WD] = tm->tm_wday;
- 
-+	guard(mutex)(&priv->lock);
-+
- 	err = i2c_smbus_write_i2c_block_data(client, ABX8XX_REG_HTH,
- 					     sizeof(buf), buf);
- 	if (err < 0) {
-@@ -263,6 +268,8 @@ static irqreturn_t abx80x_handle_irq(int irq, void *dev_id)
- 	struct rtc_device *rtc = priv->rtc;
- 	int status;
- 
-+	guard(mutex)(&priv->lock);
-+
- 	status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
- 	if (status < 0)
- 		return IRQ_NONE;
-@@ -319,6 +326,7 @@ static int abx80x_read_alarm(struct device *dev, struct rtc_wkalrm *t)
- static int abx80x_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	u8 alarm[6];
- 	int err;
- 
-@@ -332,6 +340,8 @@ static int abx80x_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	alarm[4] = bin2bcd(t->time.tm_mday);
- 	alarm[5] = bin2bcd(t->time.tm_mon + 1);
- 
-+	guard(mutex)(&priv->lock);
-+
- 	err = i2c_smbus_write_i2c_block_data(client, ABX8XX_REG_AHTH,
- 					     sizeof(alarm), alarm);
- 	if (err < 0) {
-@@ -354,6 +364,7 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
- 					  int autocalibration)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	int retval, flags = 0;
- 
- 	if ((autocalibration != 0) && (autocalibration != 1024) &&
-@@ -362,6 +373,8 @@ static int abx80x_rtc_set_autocalibration(struct device *dev,
- 		return -EINVAL;
- 	}
- 
-+	guard(mutex)(&priv->lock);
-+
- 	flags = i2c_smbus_read_byte_data(client, ABX8XX_REG_OSC);
- 	if (flags < 0)
- 		return flags;
-@@ -445,6 +458,7 @@ static ssize_t oscillator_store(struct device *dev,
- 				const char *buf, size_t count)
- {
- 	struct i2c_client *client = to_i2c_client(dev->parent);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	int retval, flags, rc_mode = 0;
- 
- 	if (strncmp(buf, "rc", 2) == 0) {
-@@ -456,6 +470,8 @@ static ssize_t oscillator_store(struct device *dev,
- 		return -EINVAL;
- 	}
- 
-+	guard(mutex)(&priv->lock);
-+
- 	flags =  i2c_smbus_read_byte_data(client, ABX8XX_REG_OSC);
- 	if (flags < 0)
- 		return flags;
-@@ -513,8 +529,11 @@ static const struct attribute_group rtc_calib_attr_group = {
- static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enabled)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	int err;
- 
-+	guard(mutex)(&priv->lock);
-+
- 	if (enabled)
- 		err = i2c_smbus_write_byte_data(client, ABX8XX_REG_IRQ,
- 						(ABX8XX_IRQ_IM_1_4 |
-@@ -528,6 +547,7 @@ static int abx80x_alarm_irq_enable(struct device *dev, unsigned int enabled)
- static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct abx80x_priv *priv = i2c_get_clientdata(client);
- 	int status, tmp;
- 
- 	switch (cmd) {
-@@ -541,16 +561,18 @@ static int abx80x_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
- 		return put_user(tmp, (unsigned int __user *)arg);
- 
- 	case RTC_VL_CLR:
--		status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
--		if (status < 0)
--			return status;
-+		scoped_guard(mutex, &priv->lock) {
-+			status = i2c_smbus_read_byte_data(client, ABX8XX_REG_STATUS);
-+			if (status < 0)
-+				return status;
- 
--		status &= ~ABX8XX_STATUS_BLF;
-+			status &= ~ABX8XX_STATUS_BLF;
- 
--		tmp = i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS,
--						status);
--		if (tmp < 0)
--			return tmp;
-+			tmp = i2c_smbus_write_byte_data(client, ABX8XX_REG_STATUS,
-+							status);
-+			if (tmp < 0)
-+				return tmp;
-+		}
- 
- 		return 0;
- 
-@@ -619,6 +641,8 @@ static int __abx80x_wdog_set_timeout(struct watchdog_device *wdog,
- 	struct abx80x_priv *priv = watchdog_get_drvdata(wdog);
- 	u8 val = ABX8XX_WDT_WDS | timeout_bits(timeout);
- 
-+	guard(mutex)(&priv->lock);
-+
- 	/*
- 	 * Writing any timeout to the WDT register resets the watchdog timer.
- 	 * Writing 0 disables it.
-@@ -703,6 +727,8 @@ static int abx80x_nvmem_xfer(struct abx80x_priv *priv, unsigned int offset,
- 		len = min(lower + bytes, (size_t)ABX8XX_SRAM_WIN_SIZE) - lower;
- 		len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
- 
-+		guard(mutex)(&priv->lock);
-+
- 		ret = i2c_smbus_write_byte_data(priv->client, ABX8XX_REG_EXTRAM,
- 						extram);
- 		if (ret)
-@@ -910,6 +936,9 @@ static int abx80x_probe(struct i2c_client *client)
- 
- 	priv->rtc->ops = &abx80x_rtc_ops;
- 	priv->client = client;
-+	err = devm_mutex_init(&client->dev, &priv->lock);
-+	if (err)
-+		return err;
- 
- 	i2c_set_clientdata(client, priv);
- 
+Antoni Pokusinski (9):
+  dt-bindings: rtc: abx80x: document ABX81X RTCs
+  rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
+  rtc: abx80x: add mutex protection for register writes
+  rtc: abx80x: properly handle shared IRQs
+  rtc: abx80x: add irq to struct abx80x_priv
+  rtc: abx80x: use regmap instead of I2C specific API
+  rtc: abx80x: replace read-modify-write pattern with regmap helpers
+  rtc: abx80x: create abx80x_i2c_probe()
+  rtc: abx80x: add support for ABX81X
+
+ .../bindings/rtc/abracon,abx80x.yaml          |  18 +-
+ drivers/rtc/Kconfig                           |  25 +-
+ drivers/rtc/rtc-abx80x.c                      | 656 +++++++++++-------
+ 3 files changed, 449 insertions(+), 250 deletions(-)
+
 -- 
 2.55.0
 
