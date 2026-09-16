@@ -1,35 +1,35 @@
-Received: from mta0.migadu.com (out-187.mta0.migadu.com [91.218.175.187])
+Received: from mta0.migadu.com (out-235.mta0.migadu.com [91.218.175.235])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65B2A3E16B9
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:07:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884973E5A26
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:08:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.235
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789538870; cv=none; b=Br4Cce+OhRqEGw7L0zNlS4IlkbKiWmt/EcqPutrl80v86u3aG01MyzrbFEEOckk3Nn9lftnob6Yv9iUzVAnqtPoVEZ2YO/1WhQNYhBf0ye8MgEJj0rEXVOA1uc28Lft9b4YIiYlmbhuN7zVYMRxrXl1OW0dsgTvAX1rUzWydzmM=
+	t=1789538907; cv=none; b=ZAduRyxJJ0HagO0LFoC2Ib5Y65n5Rh6o/+s94WAzRkAJ4Wc2ddxdmDEtCmDl0pTGGrA+pu99vAESxwL8lrKcZRjdSWStfpPC2J8XCae19KRMbyLIYnwkZiGIkPi1JImyBpzxFi34VvkigC7N/jue+3gDBqr2IkdovwufdAq06hM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789538870; c=relaxed/simple;
-	bh=Upb7fT52apWjvHoBWvo7REZj2hvpKQlKFSELhYivXVA=;
+	s=arc-20240116; t=1789538907; c=relaxed/simple;
+	bh=7VjykBkVhrKbVISaKhKJkklICiGQ3evRpVCEkcfhlbs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JfrTVLdysesmc5DvSJOFaeI33bgkrNCHG3L22JLrlB2ZPaa0vRNwuUShOmh7YtRdaNVOSzvobXl/bY9qAhHiBS1VRhziongU0Tjdt1bv/KLccoEiQmMxApaEnFhLhkzDKHuC2KQmZWJfW3BsPVfCyCoxQWv0ScaPMJ0hzE4zj+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Y2+B9Kxl; arc=none smtp.client-ip=91.218.175.187
+	 Content-Type:Content-Disposition:In-Reply-To; b=fLUKv1xD8/S5NwmD7+qgskROZDmkbGq4oPsp//dGCkmJh32rbeGK2CFkPNvlxTRxOzymNqkvMKd+8tXq4cr3RnnwWJ3Uu4hMZMUlPLLVUMRr43Z1jBaRyzmndux96XVIniKw+sGbCfIjfVKZAW+G95dq+RzkjVxL3CzYudV0c8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=nziQmkQm; arc=none smtp.client-ip=91.218.175.235
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Y2+B9Kxl"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="nziQmkQm"
 X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=Upb7fT52apWjvHoBWvo7REZj2hvpKQlKFSELhYivXVA=;
+DKIM-Signature: a=rsa-sha256; bh=7VjykBkVhrKbVISaKhKJkklICiGQ3evRpVCEkcfhlbs=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1789538865; v=1; x=1790143665;
- b=Y2+B9KxlkH+zmzRYIEye9AQ9nX6ij9HMIb+/pS6h7nVpKJ/GeWv5xagxg2TgDTvnZCxYVdby
- y1PBiEjl29ipzXORwXkxyV1sH18mt5KqmRwO3uJJHNL4Fh5fHWLJ2KrnhPqowUuJ+uLCdkcbKPD
- LLE1tPV5mpbwhjqKGyxJAGcM=
+ t=1789538903; v=1; x=1790143703;
+ b=nziQmkQmSwIyjmdEVHGO6WWO0J1CmCeRZBFFTVWRFcRJGamfStgZ+5sayX9VoIen2nuaBYAS
+ AcMo+Ji8h/ssHyjo2sQivH/jkJ2Zx4YNwyjQlALlDNjEaUr07tIwJLm9w/YapTccBN6OBihE5bD
+ xUORMtlleimFvTkYT9ULgg4k=
 X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by mta12.migadu.com with ESMTPS id 6188b57fbf076545;
-	Wed, 16 Sep 2026 06:07:45 +0000
-X-Mizu-Trace-ID: 6188b57fbf076545
+Received: by mta10.migadu.com with ESMTPS id 799ead47db7bb98f;
+	Wed, 16 Sep 2026 06:08:23 +0000
+X-Mizu-Trace-ID: 799ead47db7bb98f
 X-Migadu-Flow: FLOW_OUT
-Date: Wed, 16 Sep 2026 09:07:36 +0300
+Date: Wed, 16 Sep 2026 09:08:13 +0300
 From: Matti Vaittinen <matti.vaittinen@linux.dev>
 To: Matti Vaittinen <mazziesaccount@gmail.com>,
 	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
@@ -51,8 +51,8 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
 	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
 	linux-rtc@vger.kernel.org, Sverdlin@mva-rohm,
 	Alexander <alexander.sverdlin@siemens.com>
-Subject: [PATCH v4 02/10] dt-bindings: rohm,bd*: Ref common ROHM bindings
-Message-ID: <3cf6bb01a3a129f2b0b1d6418049dbdb1711873a.1789538455.git.mazziesaccount@gmail.com>
+Subject: [PATCH v4 03/10] dt-bindings: regulator: ROHM BD73800 regulators
+Message-ID: <0f001ca0d7463cd66777d8ad723212fadb199ce1.1789538455.git.mazziesaccount@gmail.com>
 Reply-To: Matti Vaittinen <mazziesaccount@gmail.com>
 References: <cover.1789538455.git.mazziesaccount@gmail.com>
 Precedence: bulk
@@ -62,187 +62,180 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="malQGX+h/gVqItxd"
+	protocol="application/pgp-signature"; boundary="d8ClUxv5zQvSyuf5"
 Content-Disposition: inline
 In-Reply-To: <cover.1789538455.git.mazziesaccount@gmail.com>
 
---malQGX+h/gVqItxd
+--d8ClUxv5zQvSyuf5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 =46rom: Matti Vaittinen <mazziesaccount@gmail.com>
 
-The commonly used ROHM PMIC bindings were added into
-rohm,pmic-pins.yaml. Keeping commonly used properties in one file can
-ease both the maintaining the bindings and the reviewing process.
+Add bindings for the BUCKs and LDOs on ROHM BD73800. The PMIC state
+specific voltages can be set in same fashion as with a few other ROHM
+PMICs (for example with BD718[15,28,37,47,50,79]). Same properties are
+recycled :)
 
-Reference the common bindings from rohm,pmic-pins.yaml, instead of
-declaring them from the scratch for every PMIC using them. Keep the PMIC
-variant specific information (like supported pin functions) in PMIC the
-specific files, so unsupported values won't be allowed.
+The LDOs 1 and 4 can use different voltage ranges depending on the OTP
+configuration.
 
 Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 ---
 Revision history:
- v3 =3D> :
-  - No changes
- v2:
-  - New patch
----
- .../bindings/mfd/rohm,bd71815-pmic.yaml       |  9 +++---
- .../bindings/mfd/rohm,bd71828-pmic.yaml       |  9 +++---
- .../bindings/mfd/rohm,bd72720-pmic.yaml       | 29 +++----------------
- 3 files changed, 12 insertions(+), 35 deletions(-)
+v3 =3D> :
+ - No changes
+v1 =3D> v2:
+ - Description of the state specific voltages moved to own file and
+   referenced from it (because multiple PMIC bindings used them).
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml b=
-/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
-index 4fc78efaa550..0a67de054674 100644
---- a/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd71815-pmic.yaml
-@@ -15,6 +15,9 @@ description: |
-   for LED and a 500 mA single-cell linear charger. Also included is a Coul=
-omb
-   counter, a real-time clock (RTC), and a 32.768 kHz clock gate and two GP=
-Os.
-=20
-+allOf:
-+  - $ref: rohm,pmic-pins.yaml#
+The dt checker's documentation reference checker warns about the link to
+the MFD binding - which will be introduced in next commit. These commits
+have kind of a chicken and egg issue as MFD is referencing regulator
+properties introduced in this patch.
+
+I could squash these but IMO, this is clearer for the reviewers. AFAICS,
+Both MFD and regulator subsystems tend to be busy. I could also split
+adding the MFD comment reference to own patch which would be after the
+patch adding the MFD binding, but having own patch for just adding the
+comment is a bit meh.
+
+So, I decided to live with the broken doc-link between these two
+patches.
+---
+ .../regulator/rohm,bd73800-regulator.yaml     | 99 +++++++++++++++++++
+ 1 file changed, 99 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/regulator/rohm,bd7380=
+0-regulator.yaml
+
+diff --git a/Documentation/devicetree/bindings/regulator/rohm,bd73800-regul=
+ator.yaml b/Documentation/devicetree/bindings/regulator/rohm,bd73800-regula=
+tor.yaml
+new file mode 100644
+index 000000000000..2db4585272c5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/regulator/rohm,bd73800-regulator.ya=
+ml
+@@ -0,0 +1,99 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/regulator/rohm,bd73800-regulator.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- properties:
-   compatible:
-     const: rohm,bd71815
-@@ -44,11 +47,7 @@ properties:
-   clock-output-names:
-     const: bd71815-32k-out
-=20
--  rohm,clkout-open-drain:
--    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
--    $ref: /schemas/types.yaml#/definitions/uint32
--    minimum: 0
--    maximum: 1
-+  rohm,clkout-open-drain: true
-=20
-   rohm,charger-sense-resistor-micro-ohms:
-     minimum: 10000
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml b=
-/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-index 09e7d68e92bf..e5043dec990d 100644
---- a/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd71828-pmic.yaml
-@@ -15,6 +15,9 @@ description: |
-   single-cell linear charger. Also included is a Coulomb counter, a real-t=
-ime
-   clock (RTC), and a 32.768 kHz clock gate.
-=20
-+allOf:
-+  - $ref: rohm,pmic-pins.yaml#
++title: ROHM BD73800 Power Management Integrated Circuit regulators
 +
- properties:
-   compatible:
-     oneOf:
-@@ -49,11 +52,7 @@ properties:
-   clock-output-names:
-     const: bd71828-32k-out
-=20
--  rohm,clkout-open-drain:
--    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
--    $ref: /schemas/types.yaml#/definitions/uint32
--    minimum: 0
--    maximum: 1
-+  rohm,clkout-open-drain: true
-=20
-   rohm,charger-sense-resistor-micro-ohms:
-     minimum: 10000
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml b=
-/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
-index b094542339e8..52d0f6e4ef0f 100644
---- a/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd72720-pmic.yaml
-@@ -15,6 +15,9 @@ description:
-   and a 3000 mA switching charger. ICs also include a Coulomb counter,
-   a real-time clock (RTC), GPIOs and a 32.768 kHz clock gate.
-=20
-+allOf:
-+  - $ref: rohm,pmic-pins.yaml#
++maintainers:
++  - Matti Vaittinen <mazziesaccount@gmail.com>
 +
- # In addition to the properties found from the charger node, PMICs
- # use properties from a static battery node. Please see the:
- # Documentation/devicetree/bindings/power/supply/battery.yaml
-@@ -80,10 +83,7 @@ properties:
-   clock-output-names:
-     const: bd71828-32k-out
-=20
--  rohm,clkout-open-drain:
--    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos".
--    $ref: /schemas/types.yaml#/definitions/uint32
--    maximum: 1
-+  rohm,clkout-open-drain: true
-=20
-   rohm,charger-sense-resistor-micro-ohms:
-     minimum: 10000
-@@ -103,14 +103,6 @@ properties:
-     $ref: /schemas/leds/rohm,bd71828-leds.yaml
-=20
-   rohm,pin-fault_b:
--    $ref: /schemas/types.yaml#/definitions/string
--    description:
--      PMIC has an OTP option to use fault_b-pin for different
--      purposes. Set this property accordingly. OTP options are
--      OTP0 - bi-directional FAULT_B or READY indicator depending on a
--      'sub option'
--      OTP1 - GPO
--      OTP2 - Power sequencer output.
-     enum:
-       - faultb
-       - readyind
-@@ -119,14 +111,6 @@ properties:
-=20
- patternProperties:
-   "^rohm,pin-dvs[0-1]$":
--    $ref: /schemas/types.yaml#/definitions/string
--    description:
--      PMIC has 4 different OTP options to determine the use of dvs<X>-pins.
--      OTP0 - regulator RUN state control.
--      OTP1 - GPI.
--      OTP2 - GPO.
--      OTP3 - Power sequencer output.
--      This property specifies the use of the pin.
-     enum:
-       - dvs-input
-       - gpi
-@@ -134,11 +118,6 @@ patternProperties:
-       - pwrseq
-=20
-   "^rohm,pin-exten[0-1]$":
--    $ref: /schemas/types.yaml#/definitions/string
--    description: PMIC has an OTP option to use exten0-pin for different
--      purposes. Set this property accordingly.
--      OTP0 - GPO
--      OTP1 - Power sequencer output.
-     enum:
-       - gpo
-       - pwrseq
++description: |
++  This module is part of the ROHM BD73800 MFD device. For more details
++  see Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic.yaml.
++
++  The regulator controller is represented as a sub-node of the PMIC node
++  on the device tree.
++
++  Regulator nodes should be named to buck<number> and ldo<number>.
++  The valid names for BD73800 regulator nodes are
++  buck1, buck2, buck3, buck4, buck5, buck6, buck7, buck8
++  ldo1, ldo2, ldo3, ldo4
++
++patternProperties:
++  "^buck[1-8]$":
++    type: object
++    description:
++      Properties for a single BUCK regulator.
++    allOf:
++      - $ref: regulator.yaml#
++      - $ref: rohm,pmic-states.yaml#
++
++    properties:
++      regulator-name:
++        pattern: "^buck[1-8]$"
++        description:
++          should be "buck1", ..., "buck8"
++
++      rohm,dvs-run-voltage:
++        minimum: 0
++        maximum: 3500000
++
++      rohm,dvs-idle-voltage:
++        minimum: 0
++        maximum: 3500000
++
++      rohm,dvs-suspend-voltage:
++        minimum: 0
++        maximum: 3500000
++
++        # BUCKs 1,2,3,4 and 8 support voltages 0.5 - 1.3V
++        # BUCK 5 supports voltages 0.3 - 1.3V
++        # BUCKs 6 and 7 support voltages 1.5 - 3.5V
++
++    required:
++      - regulator-name
++
++    unevaluatedProperties: false
++
++  "^ldo[1-4]$":
++    type: object
++    description:
++      Properties for single LDO regulator.
++    allOf:
++      - $ref: regulator.yaml#
++      - $ref: rohm,pmic-states.yaml#
++
++    properties:
++      regulator-name:
++        pattern: "^ldo[1-4]$"
++        description:
++          should be "ldo1", ..., "ldo4"
++
++      rohm,dvs-run-voltage:
++        minimum: 0
++        maximum: 1
++
++      rohm,dvs-idle-voltage:
++        minimum: 0
++        maximum: 1
++
++      rohm,dvs-suspend-voltage:
++        minimum: 0
++        maximum: 1
++
++      rohm,ldo-range-high:
++        type: boolean
++        description:
++          LDO1 and LDO3 voltage ranges can be "high" or "low" depending on
++          OTP. Indicate that the "high" range is used. See comment below
++          for voltages.
++
++        # LDOs 2 and 4 support voltages 0.75 - 3.3V
++        # LDOs 1 and 3 may support different ranges depending on OTP.
++        # either 0.6 - 1.8V or 0.75 - 3.3V.
++
++    unevaluatedProperties: false
++
++additionalProperties: false
 --=20
 2.55.0
 
 
---malQGX+h/gVqItxd
+--d8ClUxv5zQvSyuf5
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqqMigACgkQeFA3/03a
-ocUXYAgAhEaj8NCKJON+bDhs7SLujY4Xr5unO/R2V7msAYOwEOyXjmInpIXi6yul
-PUlUAI6wxSqyBObmkKsjHZx6BcIJndr74mFEmSY81P8dMcZXApk22ix7mzTf1BNT
-Ze+2CMOvMRLLExvJRCfQv71GtmRIG3+Wgbe7SOy3ME+fdVz0K4xBSN9QPNDXxzs2
-zcpo1XwqdIp+/t9iuwJt7FcCFoFijMilDHBogFf1S5Ph3bcJdUy/Ql4700o7MVaa
-evUQmzJgh7twd0mdrNJn0Gy0ROO1Q3F3rbV+27wUKcZYUQrEFJMLsNtv6+bgHHz9
-AXVjJL3b9HBOSlz5Yjz1PgkPfHmWFQ==
-=u1UN
+iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqqMk0ACgkQeFA3/03a
+ocXxTgf/ShxaiSNJVBUbTG0KQq2b9kKIaqnXHZe0pHm2IRhT7Nvb5PX9TpuvLWVE
+BIDd49vtD4DAp4VVRM5LbQ//eEwm0rnmw0+0RJ9HWYnxPfc2nGI/raZPSLwuXYYC
+U0EvNxSX7rrZsdDRksYuE+0RzuhytuGbPYxDhhmZcej3rnT6hWjSjg8kSR8xAFyb
+wCdAMbhAuStANcOpDiCSIl5eDbQJITYcs7lqM46qiL0x0Xe6lSh82NDAJMpuOtV6
+a0vasePo7dyT/F4JHCuALhH+FU1RQPZMQ/hC7IGuwJWqCbZNkxoTBRwrZCcqdTZV
+4KziWzwrk35YgB+KncgYkFMUK2bTsA==
+=vNpu
 -----END PGP SIGNATURE-----
 
---malQGX+h/gVqItxd--
+--d8ClUxv5zQvSyuf5--
