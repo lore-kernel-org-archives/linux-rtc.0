@@ -1,86 +1,58 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DBE248F833
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 21:31:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BCFB46D562
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 21:32:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789594314; cv=none; b=uiIZgOAvI+/nsukHc43Zj4xEuGLWvqnrbzV7wsRcJ3BfBjsazrLmWAKWLyxG6wI+09qx64Rr4r8Us/ZFSoU4Nnm1IXrXhY5XhURAhVp5gVd7BR7xwB8Zz/rvae7C4gNl4PhJnCvEd0PfWlZbKseP2hQa6UbzCnykP8LVT78hK+0=
+	t=1789594368; cv=none; b=LWhQJCllgiKcV3E4NpdF6aQEPfD0WTt3wi+EAPOr0yNtnvaypyJ+7YWblubRfH9pW8J2Hi9pmXj6dibj+8H1WN91AiW/AZLODjO/RSGPNujCcQ8YCIz2UuIfh/A4lRQqEA3ATrYyjoWnTZWGpGohbo9sI4OMJobLnKeJ7v3Z/vo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789594314; c=relaxed/simple;
-	bh=1DHSr8bh4abwlIz0FoHBbbLkBEesDe6+96WV7AzDtCA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lTsu71DffF9rFgHXH4zJBp/s6r9/i/OdEu9qh7sFSij5ZNr7l/ZjojblnjbjUkcELbj6slxt5v2ejy0GV965EmN3uHkEIRvSGt5ErP6iHp2FL9KVp1Rj11DfXKmnJ3Rw402GW3lWuB+5xXMcwZPNry+yaWALxeyHoyzIMjHDaE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L0JJBdG2; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1789594368; c=relaxed/simple;
+	bh=0fFsQEDtDGd0qa8Ivu+nOwWT5Hxm7gWAEwuHMLpp5ko=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FwukX2oub/7hfgNANPqoPu+nNwbORztG7A5fj5zDP9sG6/0Qj2+ZAhmh0sZdiv4jF1N6r7nuFG5hMtg+Mf+WTpiLbfwz4MQ1zla7f/VKzZf0KbwHMyXW84THejmYC06H4hvzBk6eBZ2i4SZYjYe1Rk8EnjhCOWyo9cRnx7d0olk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L9Uze6QH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L0JJBdG2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=spZ5aNvOpiG/e94c8K+wmvSJl9kN3mWTpFV4sJ0UNh0=; b=L0JJBd
-	G2bMpiN92U8ptFTAXiDskOudT/gxtb9jOmRdrgUwdAgXA63wwsXC9PEoCwhh2sAy
-	8ud++UZYHAja8XHFiOuwXSa//x7Ip3o1ZFGnO1yT8P+QJ9AYGRaB4T+48B7P9l5o
-	+/KpUJAig+wEpT7jq+K2cT3s85hH80sN7tQ4Fw5WwSSWpiJnOxfOTxt0zYH0TE5b
-	z3C4GwNUnEV6+0enlJdijQlxf2vz/ht1kO1H+BpOj2fnzZp0re26fLC4RZ1Rgd8w
-	gflBrfXN2iRir1NHGW6OUlL9kIqedoB2JTb/OCDE6csq757dAwkTyoy6REDi3qft
-	FS9E4wGeAzRVSKcg==
-Received: (qmail 1715372 invoked from network); 16 Sep 2026 23:31:40 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 16 Sep 2026 23:31:40 +0200
-X-UD-Smtp-Session: l3s3148p1@MPeVZKBb4sQujnt4
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-rtc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Shuah Khan <shuah@kernel.org>,
-	linux-kselftest@vger.kernel.org
-Subject: [PATCH 2/3] selftest: rtc: rtctest: make missing UIEs really skip
-Date: Wed, 16 Sep 2026 23:31:10 +0200
-Message-ID: <20260916213108.9234-7-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260916213108.9234-5-wsa+renesas@sang-engineering.com>
-References: <20260916213108.9234-5-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L9Uze6QH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7B91F000FF;
+	Wed, 16 Sep 2026 21:32:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789594358;
+	bh=0fFsQEDtDGd0qa8Ivu+nOwWT5Hxm7gWAEwuHMLpp5ko=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=L9Uze6QH/OGK5SPBP9ESOz2FQdMmT7V7KusCm8bga0VOv4uALa+sjfnMlwkkj6CNB
+	 ogkRLuz3KCwmMdPEK1U6cB4WXMCIrirs/rbj+t2lvquAbiD7ILHifQgU9OkBnfwGyr
+	 OcP1631yySRosaVZ3tkwGhKvHaeTwAY51VVbjWvM7EhQn8eqou/VuT/BA3TmLZQqMp
+	 rKxszbV3pl1OhGeezN/eO/4U8mQ+ivbhgnoD6mZT+uNyY/UpTFNw6IJ9TNijPRob9G
+	 BD7Xaot0DIScOjnC5xJHVcikLVxQH2GE8PHVYHgXuxddNSK2sar62fGvhZ5tVQ2uaw
+	 fKKZPUyOo+NsA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] rtc: bd70528: properly enable wakeup
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Andreas Kemnade" <andreas@kemnade.info>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260916-rtc-bd-v2-1-ee5c15937d25@kemnade.info>
+References: <20260916-rtc-bd-v2-1-ee5c15937d25@kemnade.info>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 16 Sep 2026 21:32:37 +0000
+Message-Id: <20260916213238.1C7B91F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Use the proper framework call to mark a test as skipped. Currently, the
-test is considered good, only the printout mentions the skip.
+> Wakeup on RTC alarm now only accidentially works when wakeup for the power
+> button connected to the same PMIC is also enabled. Fix that by properly
+> specifying the wakeup irq.
+>=20
+> Reviewed-by: Matti Vaittinen <mazziesaccount@gmail.com>
+> Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- tools/testing/selftests/rtc/rtctest.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
-index 077cdc2c6f87..962050a32985 100644
---- a/tools/testing/selftests/rtc/rtctest.c
-+++ b/tools/testing/selftests/rtc/rtctest.c
-@@ -163,8 +163,7 @@ TEST_F_TIMEOUT(rtc, uie_read, NUM_UIE + 2) {
- 	rc = ioctl(self->fd, RTC_UIE_ON, 0);
- 	if (rc == -1) {
- 		ASSERT_EQ(EINVAL, errno);
--		TH_LOG("skip update IRQs not supported.");
--		return;
-+		SKIP(return, "update IRQs are not supported.");
- 	}
- 
- 	for (i = 0; i < NUM_UIE; i++) {
-@@ -192,8 +191,7 @@ TEST_F(rtc, uie_select) {
- 	rc = ioctl(self->fd, RTC_UIE_ON, 0);
- 	if (rc == -1) {
- 		ASSERT_EQ(EINVAL, errno);
--		TH_LOG("skip update IRQs not supported.");
--		return;
-+		SKIP(return, "update IRQs are not supported.");
- 	}
- 
- 	for (i = 0; i < NUM_UIE; i++) {
--- 
-2.53.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-rtc-bd-v2-=
+1-ee5c15937d25@kemnade.info?part=3D1
 
