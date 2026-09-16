@@ -1,74 +1,77 @@
-Received: from mail-vs2-f12.google.com (mail-vs2-f12.google.com [74.125.227.12])
+Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D314A261D
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 13:25:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 388CC33936A
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 13:28:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789565133; cv=none; b=U8+GvtoEfRRFcbq/fHThUAWCNtdVMOorT6aRQTjKgIL3aGrVaHvE+3l2Jtar2zsf+9I8TccawlrntCtn1ssxzGjt/xsBxQBaK7cGUFGHe5/dmfAWzBbBje7ispU7kGiXKct04BGbq5IqIDNcEzOppH/ovJ2Efg6+9DKH+LfPby0=
+	t=1789565323; cv=none; b=u8mUbQLKjSk0+/sLdhNfmnupDzEYYs5sTWO8cbpAyrwYSa1ogj3gDI87RZyEgTdTEjSOZYKG1fGebeVep1lpMP8js13WI4LsEDMIlafCSeLOw3kQVOvc5Kr7Va287rVK/qosCEvRiLQ+2ygz1ThoYYWxp9uZjKU02nmPM6s+LQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789565133; c=relaxed/simple;
-	bh=VaZO6FpC/C798PMj+SstywprO1Bb9VWpsfjFhN0hby4=;
+	s=arc-20240116; t=1789565323; c=relaxed/simple;
+	bh=LzoyAvXtOW79D7k60hO8Y0fmEyA6rZBKfdqsZ74qXdM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XuFlFOcAW9PRIQMLpdY720p67qfx/eSFtEfPIZmawMjkNDh6mrju+t6tys+IDEO/eprBfVJaJXbs8zI5oRKoC9YPfpbr+rIPqzpBaUE0YBA3P+2kEQN+1gdOasMPM+a7zzg6A1s14gtS/dlWg5mmCZtmmbOxZoo0wW5OXPMnUeI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.12
+	 To:Cc:Content-Type; b=QQPNjxnShlqj5d5T4B80kLEVgIVM7/Jp5qv6km5UDq2zBvEc8GntV9fiELNcBuFmNAZDORFpCAdRLQiGLmO9FdiApK2ghSnGH+OQcQF92H8VaU1A7OJ9hYjB0B/zJFSRSXVA1HGebhblnN6isXTz9/mTjOcfuOAGrhW67rxb9do=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.224.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs2-f12.google.com with SMTP id 71dfb90a1353d-5c8319dd4a5so348760e0c.1
-        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:25:30 -0700 (PDT)
+Received: by mail-yx2-f13.google.com with SMTP id 956f58d0204a3-66e4ab20a32so936467d50.2
+        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:28:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789565129; x=1790169929;
+        d=1e100.net; s=20260707; t=1789565321; x=1790170121;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=70KfOfVtjXROnDjC5Hg+f4UYV3SMq76n+6MTLdlSG2E=;
-        b=lrEBzN72zMewGyQdQgZgyLzrcvimXd6mJ5TZoIlfCj7VelKpJl5afPivQ7TmtRhlp/
-         0Ac0ypHakyztMW44eQ5u4+7b9s+wtCL91jVYSOA1ZJicS+y+bYJhI4FYo7T1Q8oQoFzV
-         vgjScyuZOA9sGZBbLyMRAxQqBwYm8MPRyacUTS6tBoxyhyVqxw3D4Vd60ygLOYkzd0mO
-         slbV+jDjVky3cNpbxtsd52UyJWRH2uGTwK0ioPiRdiK/MwsFusm3Co26+/KpOUCKnYZ7
-         uS8XuJBwyWC61tBX7YKJbiab41/WQBfCCyk2ZnOJkzGga+wFlFs1tYT5PWYXwxSqEDpA
-         M7hw==
-X-Forwarded-Encrypted: i=1; AKwUvBxdySP27YQpXf/+Xup2Vv5nJws5xY7oQopUkcQAfKG/7G1k8DYUWC3rvR6hi0I5dr4Jb+koA2LwNVE=@vger.kernel.org
-X-Gm-Message-State: AFuF++lOHk5igg0tZSMemGyIICfD/6kJntljbsz160mydxclWxode3Q9
-	FInE0tbFT5yglM6rQ9pA0hccYJLSaTsenZ6JR2KxsQZVTiEH5+db8ptbFZyZs6qo61M=
-X-Gm-Gg: AYBFou3/37r6dUwhBJUOrBAyq4GZw+roEOG96UfN6nIhgRqeBJcuz1MxNWz5PsML+rR
-	wFJCARDGfuU3WRFpoIaD3BsCY0a+aM+FaYFSc9ylhU4qheW+6mLxdY1PCORE0g++H3YfpMJ8XHY
-	JwaQcK4uyhh6LN+4vCH9lu/vZR9vfkxdrvMX1wBBvgWxddfcWY7H5nCQx+lD19gj3XC2qlX2cPP
-	YS1P6R9VvCzpKRuVC3fmR2qmw8fxp+4nxlUKYDdbBlHcJpXPt9nSSvto6RG7VCDg9DJbblFHpR8
-	h769Z6stlKidLJ1LBGXE60by7RZw9rEC2sbLSfHQbaBqvRR5RHD1KsMEHfAJlWjI9c79DGN5MTN
-	SpEqLvBTgOBGFm/BpPlz3k0HUB14FDtqjce/NgaevszsuNbMPCOac3S6jfp/4uwdXvtU0Paf8CG
-	yCxS8xoYKsJwVcKZYHSia0OPS5Iex6Zu0N16KcIiAvxvAz5MIGHZUozr4hRb3A1qkXpm2BBVyXl
-	qV8zXogx1XPsPTTAxy9jfUZs6QA58T93LXK
-X-Received: by 2002:a05:6122:f8b:b0:5c6:58df:5826 with SMTP id 71dfb90a1353d-5c99ac9815amr2827035e0c.5.1789565128844;
-        Wed, 16 Sep 2026 06:25:28 -0700 (PDT)
-Received: from mail-vs2-f42.google.com (mail-vs2-f42.google.com. [74.125.227.42])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c998aa36cfsm2671966e0c.12.2026.09.16.06.25.28
+        bh=VjFBIrCXQf4je5+QLhXlwhCeUMvFdhymcKdGZkZgOg4=;
+        b=dQx8ITMALYhPDOoOR5SeeLSCV+GW6fdSLg6UmZvKqHAo+3XoVN+T+5fAoFe6FcjyEa
+         9E60k+WPTBZFcTK3wsKRboW/QXsTccWkBJGZmpX+Kux6k/El5FpQ+4LPOsH4p+tFlx4+
+         ZtMbH2DBcBKE+h2hzj58BQPsjiMYbc7hduD9fyneIRftWP3vNx4O00LmL5HMcXhtVTSy
+         YEMYX2ReQ2TayHJ6UxQseXqlKHgfcGKfm4NZftqv25o3+QpvGIeSgyyCflhBKUSMpkDV
+         JES8cKtmvwXX9Q9ESYWe+TcqgEyViUNKJH0CDvs+TgH1Z9j87tD8BVDOtgNVnJOVs5A/
+         H40w==
+X-Forwarded-Encrypted: i=1; AKwUvBxRu/1xbD916ve1c3/8RzH3Mm4x3eukoiAtcD+7kbj8ZKqr0C7Rgk7eivPaqaQyHb7Y/VGMh8jp/rI=@vger.kernel.org
+X-Gm-Message-State: AFuF++n8EVqAdcKKIl0zfqsvoR1ymhOI9Rc0fTjwiETFsjPVa44o45sL
+	S0huurhxub5mTceFh5iRyRbflrrCb/ErCgYV7Dpk938snNVSbzrcm/XFUDA9RE5O5lc=
+X-Gm-Gg: AYBFou0q2XTwA2dzmFm52Db6tOLjZ6ZueZO4ip1FlbNmlmDwyWJlCdGlQ3TVCPqkClR
+	yNQzNzOZzdq4Svtmwvg8z7hpe+zU9vkJxEOlYh5n5wmcOtfnzzKHH5qF2q44Ra9X895sbCeEQeQ
+	ev3lHtEq+Q+BS+VEd87YMoUyvJw7YD0k2PdN2gD2rITz64AuQMmhZfv8w20csAGaFloBry5M8Zt
+	EaNDfvf4ASwwZ4PhqdzGWC9j1kmm8PL4SV46MDYUbJEEZTpV10n1S4TKLlLJfzzpGgzspvfg5/u
+	lDChtjTrP6ZOUECtZ9sPcAAGIZw/acj7h6BHTTpYudS2IejKouPp3odkpjMh0yU/kGyj840AWKF
+	ckHo212SOR4bgU69yS+wBz/ZNT0qVg4OiMesWZGi07vvV9eKEDWqyHwfSyZwAZmbP+bBARAFHdu
+	ll9qJ6N8I2JmeKPKdodCqVCEHB4hETjQwTGxLxDdUFp+bJZlRN086Mp6lSRo8MLA9Eu5kR4qT7P
+	BLhJRbEjhOdNsGnBpvHtXQUsV7Yjo0RM/Ve1A==
+X-Received: by 2002:a05:690e:130b:b0:671:4db0:90b6 with SMTP id 956f58d0204a3-671632b51d0mr917429d50.62.1789565321028;
+        Wed, 16 Sep 2026 06:28:41 -0700 (PDT)
+Received: from mail-yx2-f12.google.com (mail-yx2-f12.google.com. [74.125.224.140])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-891f192d6f6sm6984207b3.44.2026.09.16.06.28.40
         for <linux-rtc@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Sep 2026 06:25:28 -0700 (PDT)
-Received: by mail-vs2-f42.google.com with SMTP id 71dfb90a1353d-5c963a787c9so342014e0c.2
-        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:25:28 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvByJD/uToOonWKWv6KKaTc/TCV7GchUb+Jd+oHf/N6++qdr9exiyym+5BDlrIpK1yLelSXJ8gxoy7X4=@vger.kernel.org
-X-Received: by 2002:a05:6122:4f99:b0:5c9:8bbb:3f13 with SMTP id
- 71dfb90a1353d-5c99acfb6bamr2956169e0c.7.1789565128380; Wed, 16 Sep 2026
- 06:25:28 -0700 (PDT)
+        Wed, 16 Sep 2026 06:28:40 -0700 (PDT)
+Received: by mail-yx2-f12.google.com with SMTP id 956f58d0204a3-66e4ab20a32so936446d50.2
+        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:28:40 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBwEbd2kNg2YDu9wO4JaW3RV2PcuEInZRlGC4t1k5hYM2Ttw0VBqRed0OMkc9M68fRokK1jK4SwQkj4=@vger.kernel.org
+X-Received: by 2002:a05:6122:8c5:b0:5c7:a3a3:a4bd with SMTP id
+ 71dfb90a1353d-5c99abf1d57mr2593491e0c.4.1789565009279; Wed, 16 Sep 2026
+ 06:23:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260916102520.24288-1-wsa+renesas@sang-engineering.com> <20260916102520.24288-4-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20260916102520.24288-4-wsa+renesas@sang-engineering.com>
+References: <20260916102520.24288-1-wsa+renesas@sang-engineering.com> <20260916102520.24288-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20260916102520.24288-2-wsa+renesas@sang-engineering.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 16 Sep 2026 15:25:17 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdX4kdESvFx5WSx4-YaTOY7jSFLQccmdwO34ThBfcKkcMg@mail.gmail.com>
-X-Gm-Features: AcwNN1XaFS6p2vYEAlcQENUeFmrdt2wF7zxOMeCmx7cdZwqbLkrcHjWXnlR9UCM
-Message-ID: <CAMuHMdX4kdESvFx5WSx4-YaTOY7jSFLQccmdwO34ThBfcKkcMg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/4] dt-bindings: rtc: rzn1: add R-Car Gen5 support
+Date: Wed, 16 Sep 2026 15:23:17 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdW1Yad-jV9z47ivY02WAYtOcgnCWVfjynv=zNy+Xcw36A@mail.gmail.com>
+X-Gm-Features: AcwNN1XUKmQ2TuuLF52Q7gsi4LkQkjc8o93Y7AoWlIWPEwf6hN5sIOrfKevHtU4
+Message-ID: <CAMuHMdW1Yad-jV9z47ivY02WAYtOcgnCWVfjynv=zNy+Xcw36A@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] dt-bindings: rtc: rzn1: drop unneeded 'start-year'
+ from example
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-renesas-soc@vger.kernel.org, 
-	Lad Prabhakar <prabhakar.csengg@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Lad Prabhakar <prabhakar.csengg@gmail.com>, 
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, 
+	Conor Dooley <conor.dooley@microchip.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
 	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
 	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
 	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org, 
@@ -77,11 +80,13 @@ Content-Type: text/plain; charset="UTF-8"
 
 On Wed, 16 Sept 2026 at 12:25, Wolfram Sang
 <wsa+renesas@sang-engineering.com> wrote:
-> In general, the RTC on R-Car Gen5 is identical to RZ/T2H. X5H is an
-> exception, though, because interrupts are not wired. X5H2 will have them
-> wired again.
+> We don't use 'start-year' in upstream DTs because the driver does the
+> right thing by default, ranging from 2000 to 2099. So, drop it from the
+> example, too.
 >
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Acked-by: Conor Dooley <conor.dooley@microchip.com>
 
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
