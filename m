@@ -1,113 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70714C651F;
-	Wed, 16 Sep 2026 16:13:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10A3652ED28
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 16:49:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789575191; cv=none; b=Fe796Gr5/QvhAcFDeBdwCBxGTYIt/oStUeEzBjiqhc45NFu8cTipAGCNHp7LjgtRwcdMjGPJxSy5oS5UqJQUzdRzHUB9IvwNRplapB/Je3osP8sopubl2iIa6bTLopp5hT0qF6+vi8WQEkMedK8SCs0z/MqdP/CSkx+Za41Dgww=
+	t=1789577406; cv=none; b=pchB6mlS4zQ3a7hQcp7bVkZxQAXrVYl1kUAX0vIlFSgxMda1z4thMfbN6cPkiPl33g0CuKYG8syP/4m9mlEtKgvKBLdYOUTqhAxTGf5LJnjMf944y/Lbz0LhMQyQ0WGGch5FrwVUTBCw2SZiNxXOsDJAs1KcmgAA/5LyTA+mB3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789575191; c=relaxed/simple;
-	bh=P9poBzXZp6k6mgEmJyozofTgAiKQ0w9pHYRy5uQeXe4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WsvdMAiwR6W3+Lb8965bzj9LmW32msnsra+KhDdn3j3Rya9eGLm2L7mKjoHFgQPmEJgLhbst8O8HznGM0Z7skq9N2cE9zo2aLr/ThgkBm+Z5GvknsJum6pI/a429VWuSetxIyrPzFQu8x6UdpG11v6hgy2tiFB2i1h3XJIa5RL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WsKn0hWI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789577406; c=relaxed/simple;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AZwPjdmQaCVv+Tg59qlOYhyCVv4TVTy3BQHuDae5mQd94AN5U+2OUPDz/gtJJFB069nR6cppalNPJI1jislbMIzqF1YHu1EfFgWQKBrMKKNoNoLR9lERpKw0IECXWdZTzXYuUBkMOce5ACk9kxsW+PUJQBh5m1swJonGRfsX1LQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cd4r1GHC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WsKn0hWI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE1051F00893;
-	Wed, 16 Sep 2026 16:13:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cd4r1GHC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 033A31F0089D
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 16:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789575189;
-	bh=jh/cDQCoDzbpTlJ51Vo/1euSnX1DBTZ9IQj1GutpsTg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WsKn0hWIRz0g94upZ994iO7n9h795bFqLthSP3UWrl6aEtTAx3RKFNhvlfbmciWd+
-	 yFLRvFMpMeD5QSjSX8PYhgGcVlIosIL4gKT5fBsdkcNToVzzOmucHLC/M08cxi1qqv
-	 oH2gdnnfil1YOyAPcpJl/j1yXhhc46H1W43ihVxnw0aS6q4gjMblK0IFALLgqHx7un
-	 7hNE7xBg/IxjGwjHiicV7ullMZ4ad+/nFAKrc5HhivPzNiYjkDxs9A31SQcwqRFUHM
-	 AJFkwYh7TwtV5SmERoWx9vW9V+sz1+CX7EKguxAcP6aXNnZVABL2DR559Eo5RIRhvN
-	 0nIlxHBA2PaEQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 3/6] rtc: s35390a: Fix alarm not disabling
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Markus Probst" <markus.probst@posteo.de>
-Cc: linux-rtc@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260916-rtc_s35390a_int1-v9-3-b2567a3e4959@posteo.de>
-References: <20260916-rtc_s35390a_int1-v9-0-b2567a3e4959@posteo.de>
- <20260916-rtc_s35390a_int1-v9-3-b2567a3e4959@posteo.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 16:13:08 +0000
-Message-Id: <20260916161308.EE1051F00893@smtp.kernel.org>
+	s=k20260515; t=1789577392;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=Cd4r1GHCl9wIrSqnqjtWDezktEP7YxzsTF995HOslNxGGx8emoYeghjU88ngoQ8la
+	 ODIi7iiXnwbLDy8NJzUKHUppA/yjwI8DTg4k6INkkeC/k5tkWXRtz8SF3iCERMkKnq
+	 NJRgf58SYKgDnJEvzG835+jYXRNfIaOA4gUAmk7WEAfG///8y94nPPLFEzOWOxFLJU
+	 P6VzaI7S9n7heLTKA5eMBQiy3AsnTOvEaiacnjt1UmASV9EM88p+9yquXHLKwLs4Po
+	 YqwY6p5IoBFOHSIzZDdhx+dmIDaP6H0oeP3LS1r0cUjRkq4oJLBsys+oQQPvYQSEMw
+	 tNNcU+93CV5UA==
+Received: by mail-lf2-f13.google.com with SMTP id 2adb3069b0e04-5b5e4f16f12so1219546e87.1
+        for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 09:49:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBy7FBXVjqOhI4LJuHIWclB2AnKwRybCimx1oxCPvLl/WQ22stGgMoOG0eyfJO0S5P+Ef4kEL2QklHw=@vger.kernel.org
+X-Gm-Message-State: AFuF++m5759HCAhPzkOP58NeObHawDC1r7YbBsv/vInNElzVH4AJSSQB
+	6yiPO05RpRkQSupJSgCx1Qq9Ylrq0Nimzxg6pCN9K1PWp+pfccE/3c8gjdna5M/UKhs1TDmOJeJ
+	3NCCxKhC2YOPX9nlFBx+1aUfsgGX8oDg=
+X-Received: by 2002:a05:6512:1595:b0:5b6:422:a61c with SMTP id
+ 2adb3069b0e04-5b8b666eb43mr1907989e87.28.1789577390371; Wed, 16 Sep 2026
+ 09:49:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260909132153.1596191-1-arnd@kernel.org> <20260909132153.1596191-3-arnd@kernel.org>
+In-Reply-To: <20260909132153.1596191-3-arnd@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Wed, 16 Sep 2026 18:49:37 +0200
+X-Gmail-Original-Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+X-Gm-Features: AcwNN1Whb6PQ06lQN_GxsWNtotsS8LqxjoSrqgaYpOWlLWlGsW2D5EFYiCtujyY
+Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, 
+	dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
+	linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, 
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] rtc: s35390a: unhandled interrupt storm in alarm_irq_enable()
---
+On Wed, Sep 9, 2026 at 3:22=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wrot=
+e:
 
-commit f08c593edb80ced466b342983365673dd8bdb4ee
-Author: Markus Probst <markus.probst@posteo.de>
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The rdc321x was a 486-class SoC developed by RDC. While RDC's later
+> products closely resemble the DM&P Vortex86 product line and are still
+> sold under both names, I checked the datasheets for those and found that
+> the GPIO and WDT blocks on them are incompatible with the rtc321x.
+>
+> Remove this driver, as there is no way to run Linux any more on the
+> older chips after i486 support has been removed.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-rtc: s35390a: Fix alarm not disabling
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Implement alarm_irq_enable callback.
-
-> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index 4cfe7034c5165..575bb256eb258 100644
-> --- a/drivers/rtc/rtc-s35390a.c
-> +++ b/drivers/rtc/rtc-s35390a.c
-> @@ -270,6 +270,24 @@ static int s35390a_rtc_read_time(struct device *dev,=
- struct rtc_time *tm)
->  	return 0;
->  }
-> =20
-> +static int s35390a_rtc_alarm_irq_enable(struct device *dev, unsigned int=
- enabled)
-> +{
-> +	struct s35390a *s35390a =3D dev_get_drvdata(dev);
-> +	u8 sts;
-> +	int err;
-> +
-> +	if (enabled)
-> +		sts =3D S35390A_INT2_MODE_ALARM;
-> +	else
-> +		sts =3D S35390A_INT2_MODE_NOINTR;
-> +
-> +	err =3D s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts)=
-);
-
-[Severity: High]
-Does this code risk causing an unhandled interrupt storm if a previous alarm
-was pending?
-
-The S-35390A hardware holds the alarm interrupt flag in STATUS1 until it is
-explicitly read. If a previous alarm fired and STATUS1 was not read, the fl=
-ag
-remains set.
-
-When userspace calls ioctl(RTC_AIE_ON), the RTC core directly invokes
-s35390a_rtc_alarm_irq_enable(1) without calling .set_alarm(). Writing to
-STATUS2 enables the INT2 alarm output, but without first reading STATUS1 to
-clear any pending interrupt, the hardware will immediately assert the INT2 =
-pin
-if the flag is still set.
-
-Because the driver has no runtime ISR to acknowledge the interrupt, could t=
-he
-pin remain asserted indefinitely and prevent the system from sleeping or
-disable shared IRQ lines?
-
-> +	if (err < 0)
-> +		return err;
-> +
-> +	return 0;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-rtc_s35390=
-a_int1-v9-0-b2567a3e4959@posteo.de?part=3D3
+Yours,
+Linus Walleij
