@@ -1,35 +1,35 @@
-Received: from mta0.migadu.com (out-4.mta0.migadu.com [91.218.175.4])
+Received: from mta0.migadu.com (out-106.mta0.migadu.com [91.218.175.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3AE3E1CFB
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:04:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 621353B42C5
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 06:06:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789538653; cv=none; b=jELhhVWXs7rapnfM/9UOVeMSLxdkSIkHPUle9hPfoIUjI9QPXnRjocSbs9NrybzuRi1hoiHXqF3viPvGnlYtU4xMpWwpEotQkrWknfhaed+N/ZuGI6NiZ7F40jqZtjvjK8aENkYePUyWhziYG0WJo/m5RYeDZaY1f6EjycDYa8M=
+	t=1789538778; cv=none; b=HDRHUc01sayRgo6iZiP/i8//ylEQlUGlXJCPryx/TA568pATo9chfJ7ftqcVjLZxK8lyclpnln57MnLxrSvZ0m45R3iO9pWkVsEGlLNag5ZO8/sGHssL+Rv91skzRHHZZfflH/0x35uFbqtAsPWy0gHeYWySO3w3wKn/G1c+lYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789538653; c=relaxed/simple;
-	bh=Wjxk7Nkbncmp1+ATMZ2lzO7C1dQkbRu3+K8tHlPDmXk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=GU3l8N2ZqNa0c5Gfd8j2KY37zG5+zdG8L7blU8xq2ZoEqG0l7Pnmjf5CZtS+QhYGRA8XKFsI5t1qradXi8kiTJHVde512L4iiTiD5xnaqlTSpJVLjsEhN+5EHQbanrQ9n0qSSIoc75EK3RsDn/S97pwrYz97Vyeqnc2G+hRv2Xc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=hRLl4N7X; arc=none smtp.client-ip=91.218.175.4
+	s=arc-20240116; t=1789538778; c=relaxed/simple;
+	bh=Ukr6y4XLfKUlxOmqpgrmjGL0z7vvmtgskLrrpGGW1XM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kNj33SWYjUcfB6/Z9TiC5lk8HnBObZvRMPrpX4jLxfq/jIHE6QF1Go1NEwFgz0f51mkaXNi2PYWNbN56i0hEjovXNCTwjJtVDYqsdQUb67oIUj3nuAnuEtZxF+7Zg4+lrZropcrUxUdAQ6dJQiD00B7p5nzIlUCnWnQCyOtGURA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=VEzYs5Ae; arc=none smtp.client-ip=91.218.175.106
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hRLl4N7X"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="VEzYs5Ae"
 X-Envelope-To: linux-rtc@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=Wjxk7Nkbncmp1+ATMZ2lzO7C1dQkbRu3+K8tHlPDmXk=;
+DKIM-Signature: a=rsa-sha256; bh=Ukr6y4XLfKUlxOmqpgrmjGL0z7vvmtgskLrrpGGW1XM=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1789538649; v=1; x=1790143449;
- b=hRLl4N7XdRohK/q0vgsb62X/bioqxaKPMgI1uejN0dj+a51QKxh0v89ZjFyqWr2ykVm0NAAn
- DKr+5piBu6j3OxnN1Eeegvrl1y48Yg2SH/8SrSQB0MGbl7QFVl1sSULduofyUSiGgmrCswBLzIt
- xaLoIxPCJ2NC17BBn4oVzGyE=
+ t=1789538774; v=1; x=1790143574;
+ b=VEzYs5AehOWRykZRE/24hpEG3Wyt7wDtoG5DJ4LwVoauOVhYy7J8CTpaccD6dCVIY7KM4O9T
+ KD/0cfKIJGtDQKru+VVzlMA6y5f+MW+lbqGdCT24mFRAQDDSAlwPOM0AY+AEzvh3W+R2sZYhTE6
+ gLYbE1mcuZh1Te7zaafZowVk=
 X-Envelope-To: linux-rtc@vger.kernel.org
-Received: by mta12.migadu.com with ESMTPS id b599e5e885e3c597;
-	Wed, 16 Sep 2026 06:04:08 +0000
-X-Mizu-Trace-ID: b599e5e885e3c597
+Received: by mta12.migadu.com with ESMTPS id f56b5d1fb3a96d43;
+	Wed, 16 Sep 2026 06:06:14 +0000
+X-Mizu-Trace-ID: f56b5d1fb3a96d43
 X-Migadu-Flow: FLOW_OUT
-Date: Wed, 16 Sep 2026 09:04:04 +0300
+Date: Wed, 16 Sep 2026 09:06:05 +0300
 From: Matti Vaittinen <matti.vaittinen@linux.dev>
 To: Matti Vaittinen <mazziesaccount@gmail.com>,
 	Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
@@ -51,9 +51,10 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
 	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
 	linux-rtc@vger.kernel.org, Sverdlin@mva-rohm,
 	Alexander <alexander.sverdlin@siemens.com>
-Subject: [PATCH v4 00/10] Support ROHM BD73800
-Message-ID: <cover.1789538455.git.mazziesaccount@gmail.com>
+Subject: [PATCH v4 01/10] dt-bindings: mfd: common ROHM PMIC properties
+Message-ID: <114ad461ace2f76e6a04a482d3c31ee0b372e672.1789538455.git.mazziesaccount@gmail.com>
 Reply-To: Matti Vaittinen <mazziesaccount@gmail.com>
+References: <cover.1789538455.git.mazziesaccount@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -61,109 +62,154 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="XojVb7aV+M6rXB30"
+	protocol="application/pgp-signature"; boundary="9Y22RcnxLJMQzg0o"
 Content-Disposition: inline
+In-Reply-To: <cover.1789538455.git.mazziesaccount@gmail.com>
 
---XojVb7aV+M6rXB30
+--9Y22RcnxLJMQzg0o
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Add support for the ROHM BD73800 PMIC and compatibles.
+=46rom: Matti Vaittinen <mazziesaccount@gmail.com>
 
-The ROHM BD73800 is a power management IC which integrates 8 BUCKs and 4
-LDOs. There is also an ADC and operation amplifier intended for current
-/ temperature measurement and accumulation. RTC and 32.768 kHz clock
-gate are also included. The PMIC can be customized via OTP and it has
-options for operating as a main PMIC in multi-PMIC installation. Some
-of the pins can also be used for GPO or GPI (including interrupt support).
+ROHM PMICs keep having similar functionalities from one generation to the
+next. Keeping the device-trees describing these functionalities similar
+helps users because:
+  1. They can re-use existing device-tree properties when switching from
+     one project, using a ROHM PMIC, to next project using newer
+     variant.
+  2. The users can find and re-use examples from old projects - even if
+     they never worked with ROHM PMICs before.
+Similarly, introducing new and different properties for same
+functionality previous variant had, will be adding confusion.
 
-There are also ROHM BD71851 and BD71885 PMICs out there. These are, from
-the SW-perspective, similar to the BD73800. There is only some different
-default values and OTP settings. The driver should be able to handle them
-just fine.
+Sometimes the existing properties aren't 100% what reviewers would
+prefer. When issues are minor or just cosmetic, changing the existing
+properties is not feasible. Reviewers can't be expected to know which
+properties are new, and which are existing - and this can lead to
+unnecessary review discussion wasting time and energy from everyone.
 
-Revision history:
+Adding a common file for re-used ROHM PMIC properties should make it
+clearly visible that a property is re-used, when a new PMIC binding
+refers to this file instead of (re-)describing all the existing
+bindings. This will also help keeping the common properties identical
+across the variants.
 
-v3 =3D> v4:
- - Minor styling
- More accurate change-log in individual patches.
+Add new file listing commonly used ROHM PMIC properties.
 
-v2 =3D> v3:
- - Rebased on v7.3-rc1.
- - gpio: Use gpio-regmap as was suggested by Linus W.
- More accurate change-log in individual patches.
-
-v1 =3D> v2:
- - Rebased on regulator/for-7.3 as it carries dependency:
-   f29a8bf6fde1 ("regulator: dt-bindings: ROHM PMIC state-machine voltages")
- - dt-bindings: Various fixes, split generic stuff to own files.
- - gpio: Styling, return -ENODEV if no GPIOs found
- - MFD: Styling
- - regulator: Simplify dt-reading
- More accurate change-log in individual patches.
+Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 ---
-
-Matti Vaittinen (10):
-  dt-bindings: mfd: common ROHM PMIC properties
-  dt-bindings: rohm,bd*: Ref common ROHM bindings
-  dt-bindings: regulator: ROHM BD73800 regulators
-  dt-bindings: mfd: ROHM BD73800 PMIC
-  mfd: Support for ROHM BD73800 PMIC core
-  rtc: bd70528: Support RTC on ROHM BD73800
-  regulator: bd71828: Support ROHM BD73800
-  clk: bd718x7: Support ROHM BD73800
-  gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
-  MAINTAINERS: Add ROHM BD73800 PMIC files
-
- .../bindings/mfd/rohm,bd71815-pmic.yaml       |   9 +-
- .../bindings/mfd/rohm,bd71828-pmic.yaml       |   9 +-
- .../bindings/mfd/rohm,bd72720-pmic.yaml       |  29 +-
- .../bindings/mfd/rohm,bd73800-pmic.yaml       | 218 +++++++
- .../bindings/mfd/rohm,pmic-pins.yaml          |  72 +++
- .../regulator/rohm,bd73800-regulator.yaml     |  99 ++++
- MAINTAINERS                                   |   2 +
- drivers/clk/clk-bd718x7.c                     |   8 +
- drivers/gpio/Kconfig                          |  12 +
- drivers/gpio/Makefile                         |   1 +
- drivers/gpio/gpio-bd73800.c                   | 209 +++++++
- drivers/mfd/Kconfig                           |  15 +-
- drivers/mfd/rohm-bd71828.c                    | 147 ++++-
- drivers/regulator/Kconfig                     |   4 +-
- drivers/regulator/bd71828-regulator.c         | 558 +++++++++++++++++-
- drivers/rtc/rtc-bd70528.c                     |   8 +
- include/linux/mfd/rohm-bd73800.h              | 306 ++++++++++
- include/linux/mfd/rohm-generic.h              |   1 +
- 18 files changed, 1661 insertions(+), 46 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd73800-pmic=
-=2Eyaml
+Revision history:
+ v3 =3D> :
+  - No changes
+ v2:
+  - New patch
+---
+ .../bindings/mfd/rohm,pmic-pins.yaml          | 72 +++++++++++++++++++
+ 1 file changed, 72 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,pmic-pins.ya=
 ml
- create mode 100644 Documentation/devicetree/bindings/regulator/rohm,bd7380=
-0-regulator.yaml
- create mode 100644 drivers/gpio/gpio-bd73800.c
- create mode 100644 include/linux/mfd/rohm-bd73800.h
 
-
-base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+diff --git a/Documentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml b/Do=
+cumentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml
+new file mode 100644
+index 000000000000..0d1082804f5a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/rohm,pmic-pins.yaml
+@@ -0,0 +1,72 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/rohm,pmic-pins.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: ROHM PMICs' OTP configured pin descriptions
++
++maintainers:
++  - Matti Vaittinen <mazziesaccount@gmail.com>
++
++description:
++  Collection of properties which are commonly used to describe various
++  ROHM PMIC's pins.
++
++properties:
++  rohm,clkout-open-drain:
++    description: clk32kout mode. Set to 1 for "open-drain" or 0 for "cmos"
++      a.k.a "push-pull".
++    $ref: /schemas/types.yaml#/definitions/uint32
++    maximum: 1
++
++  rohm,pin-clkout:
++    $ref: /schemas/types.yaml#/definitions/string
++    description:
++      The IC has different OTP options to use clkout-pin for different
++      purposes. Set this property to indicate the OTP variant.
++
++      Many of the ROHM ICs have pins, which function can be defined in
++      OTP. Some of them provide no means to detect the pin configuration
++      at run-time, leaving software unaware of which features the IC
++      really has. These properties can be used to inform which pins
++      provide which functionality. IOW, these properties aren't used to
++      configure pin, they are used to tell what functionality pins on
++      this specific IC have.
++
++    # Supported functionalities depend on the exact IC model. Following
++    # values are already defined: gpi, gpo.
++    # Please, re-use them when adding new ICs.
++
++  rohm,pin-fault_b:
++    $ref: /schemas/types.yaml#/definitions/string
++    description:
++      The IC has different OTP options to use fault_b-pin for different
++      purposes. Set this property to indicate the OTP variant.
++
++    # Supported functionalities depend on the exact IC model. Following
++    # values are already defined: gpi, gpo, faultb, readyind, pwrseq.
++    # Please, re-use them when adding new ICs.
++
++patternProperties:
++  "^rohm,pin-dvs[0-1]$":
++    $ref: /schemas/types.yaml#/definitions/string
++    description:
++      The IC has different OTP options to use dvs<X>-pins for different
++      purposes. Set this property to indicate the OTP variant.
++    # Supported functionalities depend on the exact IC model. Following
++    # values are already defined: dvs-input, gpi, gpo, pwrseq.
++    # Please, re-use them when adding new ICs.
++
++  "^rohm,pin-exten([0-1])?$":
++    $ref: /schemas/types.yaml#/definitions/string
++    description:
++      The IC has an OTP option to use exten -pin(s) for different purposes.
++      Set this property to indicate the OTP variant.
++    # Supported functionalities depend on the exact IC model. Following
++    # values are already defined: gpi, gpo, pwrseq.
++    # Please, re-use them when adding new ICs.
++
++# The schema is expected to be reference by IC schemas, which may introduce
++# other properties that must be allowed.
++additionalProperties: true
 --=20
 2.55.0
 
 
---XojVb7aV+M6rXB30
+--9Y22RcnxLJMQzg0o
 Content-Type: application/pgp-signature; name=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqqMVQACgkQeFA3/03a
-ocU6agf/erXoYpeXBfdNklLVkEaEgEF0ZxTUMKmzxvgR8WMZK1v8pTOKFx6Kyv0e
-caZgMbTSHqxiYvVIEkLR4tc4Shm1ER9i/Pz6xGPjjrru7UrIZxpXJ+LfHFFvbR0t
-N+Bw+MqwvNIXEMx8BuPYNnHj0UgFbXNA2hJmgXbS4RGGh3qCkr2Lumuj/4syAUUf
-tm6mPxFbzMcFu5lPky9W3bTLWPKgM2ZeppMq5xI9jlEOwETeitUHS2Cc2rhCoXcF
-y3K1Qdswxn+aWBP7bg+bWFCk3mMqakx3oKN8S5C49ssRA24OsXhAaMGsZ7OPniJe
-S93wHr4rphPHzhT7Mw16tyirnAhZxg==
-=qCdj
+iQEzBAEBCgAdFiEEIx+f8wZb28fLKEhTeFA3/03aocUFAmqqMc0ACgkQeFA3/03a
+ocXgGwgAlBpf2U0tTAkwpJNB2SxZksXew8Nx09U+kcDTD3jKIUlm2tq6makBLhjf
+Q2jBXbM0DiJZQUNkOsKIDk2aKU88YSIy1TSs6Y9BFnoW8IKSD5MEWeumMvnq0C8y
+Goxsvr67h1q77eQZOxaoMpxN8CeGgvmjc6V8+arSqp5DyhaTSfymcs8x3VAelBK/
+xfYvf+bGEGpifUPfnCnRvVFuJM6+fTLWTcrF+p5qB+EKoVIgGBhjVXzfruvup5+R
+1xVURmqrwrRSTFViCDMG2mCPFubNpcoiBsMhDuZ1nr6anAEIBR45T0Xfyx5Eihzk
+mMoriQj/L1zLUkAaypfpM0a8jfmmJw==
+=SM9Z
 -----END PGP SIGNATURE-----
 
---XojVb7aV+M6rXB30--
+--9Y22RcnxLJMQzg0o--
