@@ -1,108 +1,65 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCA5842E01B;
-	Wed, 16 Sep 2026 21:25:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E1046EC6B
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 21:31:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789593916; cv=none; b=F5yezGZwi6+e25kfRjErdt5RJE6VvJf95rnIx/gB+eAEEu29azXDgdl1ztT44t2EmLGKUHuiLd3u2mTTouAPg2/zheAjSBs67n3CkH9RV26M32Pnz0zCXLyoerFobNw1oaRKIM2pzopCIFA/WFWEDtWEzHyu5OPzetaAIcaFyP8=
+	t=1789594311; cv=none; b=R2LjVaMIYundWDUWum6SyG1xwD7+co7pso80XwSGF4+pHH3aOYRKS+tPcDN1xY4OxtNEbrfvHsReJ9qiBBd0F/L/8I0Oc7wT8Xpjj1QM6hxatYVu/hu90CA3fwMoa4MkmU66dZOZsrr+plX3XDhzMEtKiY1ypMK1BdVMH/imQpQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789593916; c=relaxed/simple;
-	bh=uL8D4YQOwuPQBcSuHvK9GC7klfT/e6+cXJGsjlIAGFU=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uVL4dstUG7wY09PGm3Fjq7fYK79Y09jmiObeFooupN66JphQwrUihgIH60DAktHXwW+XkGZjD3cgLWvDA4f/eOrkN++D3ccdJadav6m36LCXgfU8yFce/LtWhbEHw0ReWxYIRClgq/OU0SPDhXUZRc4x/0y+xbdJkbzrXifox9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=Ich+XNCC; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1789594311; c=relaxed/simple;
+	bh=ZsvSXiqNsLfAr4LFp0pHrZUCYOdwEgL7ci7xfjV8a/k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nLf3/VGtuzGteI69TRlkrNf1iIDbUM72Qxx6mITF21offjnkL3N4Y9cX4K8lKF2I6+6NspxVTMBje2tPr06EjmSQQ9XBf0fTVWx894PtYRDaKyYGlN6ib36g3b8ECeM8GMmVgcpSGc06WythgnlvHW6ehOzY/ScNfv8ud6e8qUo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=F89/2q7y; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="Ich+XNCC"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=Cc:To:Subject:From:Reply-To:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=a2NMuympqAJ88QIJlO2+SRts9zW7eK9cF0Oh91CkijE=; t=1789593910; x=1790803510; 
-	b=Ich+XNCC4Slz/5JDgr5ACbPs5JEmK+HCWm3x393kub2dxWtjnbx+gQkRlR9eJ7m0SPGSDaua4Yw
-	qA+7cJhryOtdmO/pcpcc84Yt2bMe2qoIQgMbxaqhuvOyvaKwA/CEmmzm487ZBKhkUm4cUjgbxEk5d
-	H5XOuJpqUf/OppjpsB+9K2Zb8GM0PEDR1UWtynMXpkhbnQxeXSnJkvGI7+aD7RtzIY+0czblY/Fs1
-	uXdCcPC7AxzgpHmiz9UbC+f4yyazTPcA5kwrCRImVbGe14obhRR6i12K2M/5DJH4C5EQi0nTC75bQ
-	nECnslEKTjNCggSWPWhB+oHh0PymyOQlLf6A==;
-From: Andreas Kemnade <andreas@kemnade.info>
-Date: Wed, 16 Sep 2026 23:24:15 +0200
-Subject: [PATCH v2] rtc: bd70528: properly enable wakeup
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="F89/2q7y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:mime-version:content-transfer-encoding; s=k1; bh=pt82lu3/+jIj3w
+	zczHyzszgf1Ot58wJ9a0yknfQ7aTI=; b=F89/2q7y9kgdmQwyGm7GdCQ5XcrONU
+	q/qBCNFtrtP8KwMfwtJFLfyPCuTZx5Nk/9SG6QbN80rCDrwuBBdLMn5xroxofGyP
+	EBRJUOUdzhIXbuetICt6D05Q7JbjavUObqxl37MZaBElMx8x+r46i7IO06S6rujb
+	XTfPpX3+RXD+ZzjHgEDFqap+ZoFcSjsZyF7holThd6q+md/uC/9BE9xiPdg5og21
+	4s/qDYcIVPV7gvUJwvAgAJKYWsSpaybJqf2GwZN+bHgFUncVQl3YQizl7m4cqT2P
+	81KR2P19wvqH87IW9QAL5CWR1WhcLlS/n47wPYjeLRPg8AQy9vt8cn7A==
+Received: (qmail 1715316 invoked from network); 16 Sep 2026 23:31:39 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 16 Sep 2026 23:31:39 +0200
+X-UD-Smtp-Session: l3s3148p1@4wx9ZKBb1sQujnt4
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-rtc@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-kselftest@vger.kernel.org,
+	Shuah Khan <shuah@kernel.org>
+Subject: [PATCH 0/3] selftest: rtc: rtctest: improve handling of skipped tests
+Date: Wed, 16 Sep 2026 23:31:08 +0200
+Message-ID: <20260916213108.9234-5-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260916-rtc-bd-v2-1-ee5c15937d25@kemnade.info>
-X-B4-Tracking: v=1; b=H4sIAP4Iq2oC/zWNywrCMBREf6XctSlJpI+48j+kizxu7VVMJIlFK
- f1304q7OXBmZoGEkTDBqVog4kyJgi8gDxXYSfsrMnKFQXLZciVaFrNlxrHOdYajsEdhOBT5GXG
- k9z50GX6cXuaGNm/tzZgo5RA/+9MsNu8/yrmSTdPXJfRK9Uww7V1Enc53fHjtsCY/BhjWdf0C8
- hoHmbAAAAA=
-X-Change-ID: 20260916-rtc-bd-7d7b0e1c31b0
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-kernel@vger.kernel.org, 
- Matti Vaittinen <mazziesaccount@gmail.com>, 
- Andreas Kemnade <andreas@kemnade.info>, linux-rtc@vger.kernel.org
-X-Mailer: b4 0.16.1-dev-53874
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1575; i=andreas@kemnade.info;
- h=from:subject:message-id; bh=uL8D4YQOwuPQBcSuHvK9GC7klfT/e6+cXJGsjlIAGFU=;
- b=owGbwMvMwCUm/rzkS6lq2x3G02pJDFmrOcUCDJvLzDTs05Se1h+rO3hI+sZ0b+Xys/Lz/rAHP
- ZO+9KW2o5SFQYyLQVZMkeWXtYLbJ5VnucFTI+xh5rAygQxh4OIUgImIbWdkmCLh9OUAf8wt/Y2L
- XnvPqW/y5kpbYqLx7bacf6V03FSzRQz/PV7MKm7l3NjBEJ6x3v59smxh4E4fnvADsw8fPDxj1rU
- lDAA=
-X-Developer-Key: i=andreas@kemnade.info; a=openpgp;
- fpr=EEC0DB858E66C0DA70620AC07DBD6AC74DE29324
+Content-Transfer-Encoding: 8bit
 
-Wakeup on RTC alarm now only accidentially works when wakeup for the power
-button connected to the same PMIC is also enabled. Fix that by properly
-specifying the wakeup irq.
+Here are some fixes for issues I found in 'rtctest' while checking RTC
+drivers. Details are in the patch descriptions. Patches 1+2 have been
+tested on HW. Patch 3 has not been tested, just follows the pattern of
+patch 2, but may need more discussion in general. Please read there.
+Looking forward to comments!
 
-Reviewed-by: Matti Vaittinen <mazziesaccount@gmail.com>
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
-Changes in v2:
-- add error check
-- Link to v1: https://patch.msgid.link/20260910092558.1008998-1-andreas@kemnade.info
 
-To: Matti Vaittinen <mazziesaccount@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/rtc/rtc-bd70528.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Wolfram Sang (3):
+  selftest: rtc: rtctest: don't mention skipping twice
+  selftest: rtc: rtctest: make missing UIEs really skip
+  RFC selftest: rtc: rtctest: skip properly if setting alarm fails
 
-diff --git a/drivers/rtc/rtc-bd70528.c b/drivers/rtc/rtc-bd70528.c
-index 482810b61495d..a58cf85bc1beb 100644
---- a/drivers/rtc/rtc-bd70528.c
-+++ b/drivers/rtc/rtc-bd70528.c
-@@ -11,6 +11,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/regmap.h>
- #include <linux/rtc.h>
- 
-@@ -321,6 +322,10 @@ static int bd70528_probe(struct platform_device *pdev)
- 	device_set_wakeup_capable(&pdev->dev, true);
- 	device_wakeup_enable(&pdev->dev);
- 
-+	ret = devm_pm_set_wake_irq(&pdev->dev, irq);
-+	if (ret)
-+		return ret;
-+
- 	rtc = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(rtc)) {
- 		dev_err(&pdev->dev, "RTC device creation failed\n");
+ tools/testing/selftests/rtc/rtctest.c | 49 ++++++++++++---------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
----
-base-commit: df2908090cda368b01ff43709f51890076c56157
-change-id: 20260916-rtc-bd-7d7b0e1c31b0
-
-Best regards,
---  
-Andreas Kemnade <andreas@kemnade.info>
+-- 
+2.53.0
 
