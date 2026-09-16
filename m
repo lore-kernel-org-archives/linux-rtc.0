@@ -1,58 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0C750EC04
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 10:31:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66BF4EBAE1
+	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 11:45:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789554709; cv=none; b=tEbnEoixvVWhhsN//RsR3n0CFpSVV5AxYUyMHbSoDsX1CZXnxL4EyhdUeVlHMAXvMkx77x1zV9ol+qwAOkD09tMrrZyQlbH4TWDhWUzet+6/mhPlUH5AAM71DglQpu4UGH8l7nHhGgWe+WoqUf9NzEKmCC7QhL7HhXXoqXRu11s=
+	t=1789559146; cv=none; b=GX/XmUhpi+Nh2Yew7nLFODJv2P0TobI0XNDBFVcweBLZuu+dQ31f6w43wwHOFd5egxpzprj6YKmyybmzA23PNQEiL5p+ptJr5LOvLmGOF9I2IZFLMrsgnLCTPYP3KkYqKTkNhimz3W981WIRsWOYMHH6WPFVOmtuvcxzIhmqQ60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789554709; c=relaxed/simple;
-	bh=y6lRcSbwjZE56PiQWSaavloPX9JiSUHdsGHJeTPvx7o=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=L89uJu79i/D7bGLY9EGxntDQVUXZt1jCl57Y7Q4HHXMyIX4Y4UwxpdaCW6BZDE71Zypck7teEmIakFMfurUWHybWOCjrcnsXlimUFjV7fm7wF5ApxdnJt2lfumNUT9cCKR64vOIv8nP/LOxyEiJLLegXm237j94tEMLuFb6nyUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RYgcXaS6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789559146; c=relaxed/simple;
+	bh=IW/yCPvFmk7YCDWqjNr9MDKFoJwkZ9AZ+1tRZDknPnE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MzNu+m/ZnP+KIhjGr2I+UwJ2BudozKqv+9lp5ZbucPp+F7CPZVzUu/WbLUa23l84GzCtjXdQwC5r7isaZ08j4xY2i7w0/QCug4Wg5loygNyytmSgOICO/hZoDsV+xgPZWaPukOZ2itpMSdvZZys1KIsJB8icuZAKRG5OhmVJuj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=lq5ndQNN; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RYgcXaS6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E6831F000FF;
-	Wed, 16 Sep 2026 10:31:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789554688;
-	bh=y6lRcSbwjZE56PiQWSaavloPX9JiSUHdsGHJeTPvx7o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RYgcXaS6ip7diAMXoG9xgDdrxFcINfnjbdAHdRwa8OA5op9j90nASyuLdsS4GVRtd
-	 Srjvinogy4guNNch6g1sZ0VqbJv1sn3kHZcqdNFnszkJdy4Zz2J+Ni35SYBrxKd3t8
-	 g5ixi45BVS6KRqT08PCq6CFH5WRo09BM4IxRiIZTRoS5B/tAI9IR41CYA+aPWT0nEX
-	 yZZwwZK/6H+4F2A97smuU2haGDOueJYngUm1/MgyrefiQy7HDDGiuAyJyAS7+cG3Sa
-	 lh6gvZh20x7jSCCO+0onOsv8IFCv0WlCc7Xem+lQaEpIEtDgLd1o4dB4rJW7rhSOgF
-	 G5SKfqgCjuu3g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/4] rtc: rzn1: add R-Car Gen5 support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260916102520.24288-5-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="lq5ndQNN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=IW/y
+	CPvFmk7YCDWqjNr9MDKFoJwkZ9AZ+1tRZDknPnE=; b=lq5ndQNNTdMy/a+Huu+y
+	8YQliLZLtw83RL8kn2FMiN/oTWkG8OxKCHN5BGj4bi62dBO1ijHadUuVvg4jO5M+
+	3PTailTMw3Mezs9J+tMEsHi6/wHTt0EIEWlBpFGWD5Qd1KmTkeP2/QonZkEDEhTb
+	BbS6C5C7KhBv0Mdc+0rAU7g2xigot29mf4O5BWuFo7Sgg3M+EffliwIZTDlEdK/3
+	o6k+Qqv4Mz3c11CkOtalh1OFqlCjN6ICpq5mNQXh8z3OqgSvMr4aPGkxfVn0LUlp
+	HdiBLIxGMAXoWytBDAMWqEYnsQIIg8szvWe5r6xXwSGuNGJeHqU4Jd0b8bKYLVGY
+	sg==
+Received: (qmail 1525226 invoked from network); 16 Sep 2026 13:45:27 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 16 Sep 2026 13:45:27 +0200
+X-UD-Smtp-Session: l3s3148p1@AusONJhbaLoujnt4
+Date: Wed, 16 Sep 2026 13:45:25 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Lad Prabhakar <prabhakar.csengg@gmail.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-rtc@vger.kernel.org,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 0/4] rtc: rzn1: cleanups, R-Car Gen5 enablement
+Message-ID: <aqqBUexfsgjESI7d@ninjato>
 References: <20260916102520.24288-1-wsa+renesas@sang-engineering.com>
- <20260916102520.24288-5-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 10:31:28 +0000
-Message-Id: <20260916103128.6E6831F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="wFfC8QQzar0Ogem8"
+Content-Disposition: inline
+In-Reply-To: <20260916102520.24288-1-wsa+renesas@sang-engineering.com>
 
-> In general, the RTC on R-Car Gen5 is identical to RZ/T2H. X5H is an
-> exception, though, because interrupts are not wired. X5H2 will have them
-> wired again. So, skip alarm setup for the X5H case.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+--wFfC8QQzar0Ogem8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+> Looking forward to comments.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916102520.2428=
-8-1-wsa+renesas@sang-engineering.com?part=3D4
+Wow, Sashiko is happy and did not find any pre-existing issues? I am
+amazed...
 
+Anyhow, I wanted to repeat my thanks to previous reviewers. I think this
+outcome is in deed cleaner and easier to understand / maintain.
+
+
+--wFfC8QQzar0Ogem8
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmqqgVEACgkQFA3kzBSg
+KbYGRw/7B1zAAIwwga/qRXVTKs2kD1+doUePo154EoNTwLp/YyGf65OTUWBoY+Me
+KWx8GM2HNSAMLI0I6s9t+Ak/LhM2C7FApbEw+NpSwJPRGT0WYBjZ48i5HDyNXhjm
+g/RgcQm5YiYDHk4H0xjAwzx9TFIq1k5YRLx9Tm6xebDPmyXAppRnocJrXPMZ7X0x
+x+I8nAq3DMzBjFAFAOKCYCST1J79k4l99lSkHVRmFnONM5iebu5bRW+Hs5+dgPal
+i+4POSFnb0iaKzlYsuNwPuZxh0MAz5t3tgwkpff/znwhFjhLOFArwuo1wGWNXzQE
+NmhnKRXPZg6fzLWLeP0apbJ+mrpNEGfYnJNtfSaVyiHzYKMIs/RbweaHpaRwYbox
+bsBGX9l1Iyyr0ygfFC+dXcxT8QSDUiPts++jY4/8UueFfMuxK5H2Pkh4Be8TBZ+O
+mwkOXzY55AbqnaiTkSmYJcfHaVnSkCPM/+zKyJrY8oJoBNAm90SlHMLVO2BcQXKl
+XenbhKLRAiwfwumPL33cPPv7hBw0dNXsXrhmzIAf69V4KxxaZAYIy9xr9zBt8c9W
+ayVyVMlhQVxvP2kCIBISTvCdtCpLD9kXYZCvNBTcpYtseUUBf+jdz0Xf+p9psTyz
+e5xgBQPaSIvdbzpFHEWWX1RnguCpkbkNkYr9wRxwdhNWO0T87cs=
+=uFp9
+-----END PGP SIGNATURE-----
+
+--wFfC8QQzar0Ogem8--
