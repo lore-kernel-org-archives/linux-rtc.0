@@ -1,157 +1,120 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 056644AB3CD;
-	Wed, 16 Sep 2026 16:07:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77D394A64FD;
+	Wed, 16 Sep 2026 16:10:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789574852; cv=none; b=EPNf3vyqQdiKyxzYouUKRDNK+/WKW+6ymo3AJ+vZFQYGCui28fq8INCXCCI27L5oz17Hf2P/dFKxdD0EkIrr8L4xK6Aorb/BTjRTZpZDMpZjR+1kHvIDSpo+yhMZtFpzztczBecT8PVs9peuTdbYW2nCw8mPz+N+riBoSzX91Kg=
+	t=1789575024; cv=none; b=Yct5stQvCqJtga4Wg0s2YcPFQECZ0UkYoc5LGDIgtDaAG1ey8oTitQCDmo610/SJBFhZZ7XOhTYY4ZA73hBJ0QlHzVo8MLQ3RtQPeTHrTtLYGBxGDz6f4O3zHPOL6/RemuhFWcBgOAS4OSY1HU/PT+dY2j+xcTCKlG5sWcbGtP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789574852; c=relaxed/simple;
-	bh=aGzuLYPDCpXK0M5HfGSJxNfFipimzq4mYLNze+ilki8=;
+	s=arc-20240116; t=1789575024; c=relaxed/simple;
+	bh=9C03tr5HlKFL7WQRGrV/NyjexuAhFWr4l25Fb3O+pUs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OjYdzFPPRbZtAUo2VvWSI/tcKPB0CefSji7cEk7jnu8S/clPoZUhCF3Bof9o9ZFvq0cyFvXxgwYijf7LWX1Kr3RKDYi/CYn3DxfUDkZ3pcLctUJYJkEd9GQ8uIaly0FGaxQEdYEBprPkRgkGkApX/Z1Va7ZoWYB9jp3u8evgLng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VmI4FiQR; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uYts0ywf2RpKILhFA7EMQt5HSQiR8ltQPFMVuoFs/Y2wdQAwgJdmL2WCt7hYyGqcr7FV4EnHhgjf7kWEzzJDXmVuJOHFLT+tbRusMCEd5MJ8hIi1DK7tvkk+ZOwnVkIXcOnAxkvCefQUC/QoKP2aJGSfu5hbiA0vmfRSmtcr9WI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=euENMWAV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VmI4FiQR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578441F0089C;
-	Wed, 16 Sep 2026 16:07:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="euENMWAV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9C4E1F00899;
+	Wed, 16 Sep 2026 16:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789574850;
-	bh=l6UMESz1jbAJCven7/MHBVmDoywo/JuZk2FkkYPxzJo=;
+	s=k20260515; t=1789575022;
+	bh=OpPgCuAnd7XFLGWSnxUe7rt5rjbsvv2b1Rx7/nrx/80=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VmI4FiQRE84aQvf8JtfzvVpzWaJi84xS/5L4+iHjlGfSVxMaj2Omxlx+N+p8y5MFm
-	 dGB343MoARYULmYXQOnFCjy7nOYR5guNHK3BeiznaWfo6opn84C5H86VBbHaovzZrC
-	 gW/jRzZLz1pYNhOF2JdvzO718A3oTZKDcdGrKa197SSmrTQogWG/7vc5rzylpgkcEQ
-	 V16NkCMTHXMLe7ltnuH+JCtaVU6lgBwTePilI6JnE2e9uIsCy/qPhzguHxmat49AQL
-	 tdvX7+TDrs+6ivvklueqVLITCrEgjEnQ3cXSvmhml9WbTVzILO1clTCpzL6vnZ4LfH
-	 bRxgjORc8iXVw==
+	b=euENMWAVS0zeQO9t/LGUDWFjkkZXRKWhcbmqsUJxET945V7ptns0/4ISdS9SVTcwj
+	 jRamcMIq9Hv9+hbS1epjd09s7AJGgz9H2wzpXdvxL6DXpaEL/LBPcJcoXXrndLakbb
+	 GGkxwX6rbm/3F7KtzR2sxDkt3bDf9PG1n4AZyaLVpyt5C1ktaRtvjz6qGxpl9q3mGQ
+	 +ZPbgMTiMb+kE47QfxwRhHt37RUN6tWhF7eUQRr2Mjo51w579nnrE3dBDdX4L/6z53
+	 rBOLl/cOhMxNlzVOww42dwhmWB3uKwCHtmgbqY8tWAUP0zbVZk1c+YCQhwTx54BJ2+
+	 rhExvyHxBLFvw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 1/6] dt-bindings: rtc: Add pinctrl for S35390A
+Subject: Re: [PATCH v9 4/6] rtc: s35390a: Read 24-hour mode on access
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Markus Probst" <markus.probst@posteo.de>
-Cc: robh@kernel.org, linux-rtc@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20260916-rtc_s35390a_int1-v9-1-b2567a3e4959@posteo.de>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260916-rtc_s35390a_int1-v9-4-b2567a3e4959@posteo.de>
 References: <20260916-rtc_s35390a_int1-v9-0-b2567a3e4959@posteo.de>
- <20260916-rtc_s35390a_int1-v9-1-b2567a3e4959@posteo.de>
+ <20260916-rtc_s35390a_int1-v9-4-b2567a3e4959@posteo.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 16:07:29 +0000
-Message-Id: <20260916160730.578441F0089C@smtp.kernel.org>
+Date: Wed, 16 Sep 2026 16:10:21 +0000
+Message-Id: <20260916161021.D9C4E1F00899@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] dt-bindings: missing #clock-cells in required list
-- [Medium] dt-bindings: undocumented clock provider capability
-- [Medium] dt-bindings: missing constraint for pmin2 pin function
+- [High] rtc: s35390a: read_alarm destructively clears pending interrupts a=
+nd power-loss flags
 --
 
-commit ee787a668e377f31a7722c1acf8927b88011aa60
+commit ca86574fc774e3c6f6f2d2629b0a0ab8635be21f
 Author: Markus Probst <markus.probst@posteo.de>
-Subject: dt-bindings: rtc: Add pinctrl for S35390A
 
-This commit moves the devicetree bindings for the S-35390A RTC into its own
-schema file. It adds the necessary properties to configure individual pins =
-via
-pinctrl, allowing the interrupt signal to be used for a wakeup alarm.
+rtc: s35390a: Read 24-hour mode on access
 
-> diff --git a/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml b/Doc=
-umentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> new file mode 100644
-> index 0000000000000..f3bf5900fb3ce
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/rtc/sii,s35390a.yaml
-> @@ -0,0 +1,121 @@
+This patch modifies the s35390a driver to read the 24-hour mode flag
+dynamically on access rather than caching it during probe. It aims to preve=
+nt
+out-of-sync issues when the chip is reset while in 12-hour mode.
 
+> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
+> index 575bb256eb258..12ed504db94d8 100644
+> --- a/drivers/rtc/rtc-s35390a.c
+> +++ b/drivers/rtc/rtc-s35390a.c
 [ ... ]
+> @@ -345,14 +350,20 @@ static int s35390a_rtc_read_alarm(struct device *de=
+v, struct rtc_wkalrm *alm)
+>  {
+>  	struct i2c_client *client =3D to_i2c_client(dev);
+>  	struct s35390a *s35390a =3D i2c_get_clientdata(client);
+> -	u8 buf[3], sts;
+> +	u8 buf[3], status1, status2;
+>  	int i, err;
+> =20
+> -	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts)=
+);
+> +	err =3D s35390a_read_status(s35390a, &status1);
 
-> +  wakeup-parent: true
+[Severity: High]
+Does this new s35390a_read_status() call destructively clear pending interr=
+upts
+and power-loss flags?
+
+When s35390a_read_status() executes, it issues an I2C read against the
+S35390A_CMD_STATUS1 register. According to the S-35390A hardware behavior,
+reading STATUS1 automatically clears the POC (Power-On Clear), BLD (Battery=
+ Low
+Detection), INT1, and INT2 flags.
+
+Because s35390a_rtc_read_alarm() does not handle these flags after reading
+STATUS1, it appears this would inadvertently erase any pending alarm wake-up
+events and silently discard power-loss faults.=20
+
+Since reading an alarm can be triggered by unprivileged user-space applicat=
+ions
+via sysfs or RTC ioctls, could this allow a trivial denial of service for R=
+TC
+alarms and power-loss detection?
+
+> +	if (err =3D=3D 1)
+> +		return -EINVAL;
+> +	if (err < 0)
+> +		return err;
 > +
-> +  wakeup-source: true
-> +
-> +  "#clock-cells":
-> +    const: 1
-
-[Severity: Medium]
-The commit message states the change adds pinctrl to allow the interrupt
-signal 1 to be used for a wakeup alarm. However, the schema also introduces
-"#clock-cells" and a "clock" output pin function.
-
-Does this introduce a significant undocumented capability (clock provider
-functionality) which is unstated in the commit description?
-
-[ ... ]
-
-> +          function:
-> +            description: |
-> +              Pin function:
-> +              - ignore:  Preserve the previous state.
-> +              - disable: Disable pin output.
-> +              - wakeup:  Output wakes up the system.
-> +              - clock:   Output clock pulse.
-> +              - pmin1:   Minute periodical output with 50% duty.
-> +              - pmin2:   Minute periodical output L for 7.81 ms.
-> +                         Can only be used with pin int1.
-> +            enum:
-> +              - ignore
-> +              - disable
-> +              - wakeup
-> +              - clock
-> +              - pmin1
-> +              - pmin2
-
-[Severity: Medium]
-The description for the "pmin2" function explicitly states it can only be u=
-sed
-with pin int1.
-
-Because there is no conditional allOf/if/then block at the pinmux node level
-linking them, will a device tree incorrectly using pins =3D "int2"; functio=
-n =3D
-"pmin2"; silently pass schema validation despite being an invalid hardware
-configuration?
-
-[ ... ]
-
-> +required:
-> +  - compatible
-> +  - reg
-
-[Severity: Medium]
-According to the dt-bindings subsystem rules, when hardware gains new provi=
-der
-capabilities, the corresponding standard properties must be added to the
-required list with appropriate constraints.
-
-Should "#clock-cells" be added to this required list to prevent incomplete
-device tree nodes from silently passing schema validation?
-
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +        #address-cells =3D <1>;
-> +        #size-cells =3D <0>;
-> +
-> +        rtc@30 {
-
-[Severity: Medium]
-According to the dt-bindings subsystem rules, when hardware gains new provi=
-der
-capabilities, the corresponding standard properties must appear in the exam=
-ples.
-
-Should the example device tree node be updated to include the required
-"#clock-cells" property?
+> +	err =3D s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(=
+status2));
+>  	if (err < 0)
+>  		return err;
+> =20
+> -	if ((sts & S35390A_INT2_MODE_MASK) !=3D S35390A_INT2_MODE_ALARM) {
+> +	if ((status2 & S35390A_INT2_MODE_MASK) !=3D S35390A_INT2_MODE_ALARM) {
+>  		/*
+>  		 * When the alarm isn't enabled, the register to configure
+>  		 * the alarm time isn't accessible.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-rtc_s35390=
-a_int1-v9-0-b2567a3e4959@posteo.de?part=3D1
+a_int1-v9-0-b2567a3e4959@posteo.de?part=3D4
