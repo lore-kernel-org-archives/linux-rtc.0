@@ -1,98 +1,101 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35A184973B7
-	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 15:17:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC50223DEA;
+	Thu, 17 Sep 2026 18:00:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789658256; cv=none; b=EaDJAy2iE6NACQJr1rVTFSz98ag6igAU7D0qffchKDnjsuEsSOFq0Zn+tKhQ3WowgFrMXQte/JAcrh4zx5LcVYhKhU+XPl8qcMkle1brcNuLiB7XOHY+5COo8D9ouHjYsSyA8An2cTgCklYHlFnB3p/JdjcKkIgXrBc1qlSAj5o=
+	t=1789668043; cv=none; b=ulzfGa7vcq0GV8SIk5QlSzwj8zRCvCL9vOAqMUJlUhGDduGC6lUOGTA/5WAfDFBISgw490yYqJAjbDUPHnVcsX6FRUjmMXeynEQBsPTK2qu1TpUzIVdZ3n/VBvHDoZChnHVrW8QZoOrYlebGPMXsew00ogwNhaFKVxAjWOCIME0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789658256; c=relaxed/simple;
-	bh=yokcjFoYaQjb2AXJXwiS2CgA9icNw4hd0m3OmDjYLh0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lr4mii3ElFn/V8j7YBsnX+bQgFXsF7c04jlmcgnmrL3CAiEkIOd4NvrbWsDcpCoSuXc8MYBsRsU82BAMSfXwPNBnhQbJll/mW4UZG5u7MlhPf5QKaxI3x2pRbF+7/wQ6a88kXRi04Ck5d363p7Xy/JymEmUuYKvCkjxg2pq11j4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=baYHiQhL; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789668043; c=relaxed/simple;
+	bh=SwmFplgdvfZk74xWXHbUdLsf9CUwvb66wjy26upL8Ls=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ui9PmQJxrjmdUnfdOKgH6re0VN6u1Dj8uHgLehxUSa/Lj/ujNNj0OeTobvYWYF7IiixkayQQcSeD3PeKXGxehoLnyoEaZSrZUxyTvMlb1GQCzXt/0atWPziPF/zxkSc148OG9KqYTQm6L2cHelyErFGqcixwibpRoSjuhaeHaNU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LVkG09Hq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="baYHiQhL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 095931F0089F
-	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 15:17:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LVkG09Hq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACBF31F00893;
+	Thu, 17 Sep 2026 18:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789658230;
-	bh=yokcjFoYaQjb2AXJXwiS2CgA9icNw4hd0m3OmDjYLh0=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=baYHiQhLKHIXv5JcbsYM8h8jWAIdy60s6NhCh0ZGU54W95BOiAuC94Ol2AcpHo47g
-	 xOJkjhXStRdOshTWhG385se+mN0mwxSalEgzP9JG2PQIOLJ/oHEIVw0zHQeJ6cCyxv
-	 qfvHypAZ4Aa+PBTDs1xGLwk8gxllOPs9TBclUTaLcaptPXVE/nH6o6dNw9fmKr/Ga+
-	 euX0r0XKcn50B8jtWh1/A5rkcHzzpSCbjKD97mWUlLgkoyhoofyCpgqfsFLMmV7xqx
-	 ARc5Jnmu7agtqFNmn3zlh9R+1V4XybdteMzm34GCd9fCbp5oeKdHFvfY4O6Spsy5NH
-	 56pQ+Rtftr60g==
-Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a60591ae54so1552851a12.3
-        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 08:17:09 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxj/TGpxTPKXPz7YhpOSAR2YXxlbPqzVteS+a1ZPet+OcdkIALCQ+2/8fenchVzZSdrjV3NtbN5OPI=@vger.kernel.org
-X-Gm-Message-State: AFuF++m7Twd9AoCCkCXI2rUCT2VGmvW/yNTvnK4dc+Fu1YAgo4Owj7Wc
-	U7d5wGmMRXA45EjEeCll3+SChuVbpfGHUOXVGzfSPjfpTSxdliqjyPIytA27gb5MKwWHocba5fc
-	EiNibLsJc1qOVe5hX9KhDbcLfAdJ/+w==
-X-Received: by 2002:a05:6402:460c:b0:6a6:8dd:c76b with SMTP id
- 4fb4d7f45d1cf-6aa22247992mr11552271a12.1.1789658228391; Thu, 17 Sep 2026
- 08:17:08 -0700 (PDT)
+	s=k20260515; t=1789668042;
+	bh=bDkA9Is1Jx1AOE6Tvx2VWAovPxbpbhANimFsfanmC0s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=LVkG09HqfsKZmJFS9qmt6OvQIdIMnn38+xzlPNcI19TxAJDAVqDvcv13mx5RhiTJF
+	 BLFpnR+BysQpygTq/jJME04w/nYC6JbWWyngMv/UqyKfFg/XRgx7vghrbUABrl1xVa
+	 gzPWxiGrTTasJL7YDq+byQVo+FUUD/WjlOUBbOLR/Xd71lWSaRrldlsJicJcKWYeHS
+	 hiIJQAirnKUCBG3M/4JbVZfqSp+8BFzJVS57Tp/RKVgvNfoJF+cer2fMfEtKfCDQB9
+	 69UFkPdaOAPFuQu79OdO6zaHZJVHecxL8QaqbdLDMo5FenvMFzH+F34vu3f36Eukda
+	 OZliUmPKbP87Q==
+Date: Thu, 17 Sep 2026 23:30:37 +0530
+From: Vinod Koul <vkoul@kernel.org>
+To: Daniel Matyas <matyasdaniel006@gmail.com>
+Cc: Lee Jones <lee@kernel.org>,
+	=?iso-8859-1?Q?Andr=E9?= Draszik <andre.draszik@linaro.org>,
+	Ulf Hansson <ulfh@kernel.org>, Liang Yang <liang.yang@amlogic.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Richard Weinberger <richard@nod.at>,
+	Vignesh Raghavendra <vigneshr@ti.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Thierry Reding <thierry.reding@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Jose Abreu <joabreu@synopsys.com>,
+	Ray Jui <ray.jui@broadcom.com>,
+	Scott Branden <scott.branden@broadcom.com>,
+	Atish Patra <atishp@rivosinc.com>, Shawn Guo <shawn.guo@linaro.org>,
+	Dmitry Osipenko <digetx@gmail.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
+	Okan Sahin <Okan.Sahin@analog.com>, devicetree@vger.kernel.org,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>,
+	linux-rtc@vger.kernel.org, Ricard Wanderlof <ricardw@axis.com>,
+	patches@opensource.cirrus.com, Lukas Wunner <lukas@wunner.de>,
+	Chunfeng Yun <chunfeng.yun@mediatek.com>,
+	Eugen Hristev <ehristev@kernel.org>,
+	dri-devel@lists.freedesktop.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+	linux@analog.com, linux-input@vger.kernel.org,
+	chrome-platform@lists.linux.dev, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH] dt-bindings: Expand flow lists to block lists
+Message-ID: <aqwqxSxqg7aRjchE@parshuram>
+References: <20260917144028.459053-1-matyasdaniel006@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260917144134.459819-1-matyasdaniel006@gmail.com>
-In-Reply-To: <20260917144134.459819-1-matyasdaniel006@gmail.com>
-From: Rob Herring <robh@kernel.org>
-Date: Thu, 17 Sep 2026 10:16:56 -0500
-X-Gmail-Original-Message-ID: <CAL_JsqLyPK2rJVAyzCtGtrBSTwOKRZ_EAmE1Xd++9DFaxrrmDw@mail.gmail.com>
-X-Gm-Features: AcwNN1WrkKsI-hJClnXnbb72poP7rLqVHTc23ccK3T-HSnvYyjsVzuH4L2tWH2Y
-Message-ID: <CAL_JsqLyPK2rJVAyzCtGtrBSTwOKRZ_EAmE1Xd++9DFaxrrmDw@mail.gmail.com>
-Subject: Re: [PATCH] dt-bindings: Expand flow lists to block lists
-To: Daniel Matyas <matyasdaniel006@gmail.com>
-Cc: Shenghao Ding <shenghao-ding@ti.com>, Kevin Lu <kevin-lu@ti.com>, Baojun Xu <baojun.xu@ti.com>, 
-	Sen Wang <sen@ti.com>, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko@kernel.org>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Chunfeng Yun <chunfeng.yun@mediatek.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Dharma Balasubiramani <dharma.b@microchip.com>, 
-	Jeff LaBundy <jeff@labundy.com>, Simon Glass <sjg@chromium.org>, Linus Walleij <linusw@kernel.org>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, 
-	Jose Abreu <joabreu@synopsys.com>, Atish Patra <atishp@rivosinc.com>, 
-	Shawn Guo <shawn.guo@linaro.org>, Dmitry Osipenko <digetx@gmail.com>, 
-	Ibrahim Tilki <Ibrahim.Tilki@analog.com>, Okan Sahin <Okan.Sahin@analog.com>, 
-	devicetree@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	Ricard Wanderlof <ricardw@axis.com>, patches@opensource.cirrus.com, 
-	Lukas Wunner <lukas@wunner.de>, Eugen Hristev <ehristev@kernel.org>, mfd@lists.linux.dev, 
-	linux-samsung-soc@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	linux-mtd@lists.infradead.org, linux-amlogic@lists.infradead.org, 
-	netdev@vger.kernel.org, linux-pci@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-phy@lists.infradead.org, 
-	linux-tegra@vger.kernel.org, linux-sound@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-watchdog@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260917144028.459053-1-matyasdaniel006@gmail.com>
 
-On Thu, Sep 17, 2026 at 9:41=E2=80=AFAM Daniel Matyas <matyasdaniel006@gmai=
-l.com> wrote:
->
+On 17-09-26, 17:40, Daniel Matyas wrote:
 > Running dt_bindings_check returned:
-> [error] string value is redundantly quoted with any quotes (quoted-string=
-s)
->
-
-That false positive is fixed in newer versions of yamllint since at
-least a year and a half ago. There's also some other quoting checks
-I'd like to turn on, but that bumps the minimum version since unknown
-checks are an error in yamllint.
-
+> [error] string value is redundantly quoted with any quotes (quoted-strings)
+> 
 > The files used quotation marks in flow lists because the strings had
 > commas and these commas were interpreted as separators. Convert flow
 > style lists to block style lists, so that there is no problems with the
 > commas.
 
-If we wanted to fix like this, we should probably just require block
-style everywhere, but I don't think we should do that.
+Acked-by: Vinod Koul <vkoul@kernel.org>
 
-Rob
+
+-- 
+~Vinod
