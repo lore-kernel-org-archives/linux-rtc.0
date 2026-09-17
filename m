@@ -1,58 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from r9206.ps.combzmail.jp (r9206.ps.combzmail.jp [160.16.62.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05D2349AA55
-	for <linux-rtc@vger.kernel.org>; Wed, 16 Sep 2026 21:40:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908B3394797
+	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 02:39:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.16.62.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789594815; cv=none; b=InnhvOfSyzK25Q4rgdgyJLwZZiDxN64953ij5qIocedcY7m0YDYdekAU5vukeA/xI2Z0Kww35dbEHKkvD+WzV9lgf+Rc/qRO3kdV/2O+5fk/DKL6q7AqX3bzGP3ICvEvpb+GfpCzputBjplaaTGX+ccDF8tzkSuigIqJM9r4veg=
+	t=1789612756; cv=none; b=jfvzVqP1tt1IkqhFkGOGkLcF3QmRZeebQYZ9hdXFp4RfcjWOq53oiPRhljYyBNV0JYp+rBy3DpD7iOjrXPOkXGVLw6srbcAWj3C8vGv+VK/8Uf3FoZxTNjOtHVVWNAXd59a8DCXhyGZXn/q6gbjSEYoQHCjQUa6tpKNtqcNSYeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789594815; c=relaxed/simple;
-	bh=HuP4ITEBBPQcLMwGXAlmWUMTIXMPHbhCvViH9fU2Nig=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TEcG70BudWdzfkK1mqPYKz7saEO2QefQCqF+kUMb6oABJvLquExWsYNV91jeVrZnCg9e+oI9Te4zdLoU7QqejpnbMnCG4yQYmT+CQNCTZ8xaPIBagr7GIZs5dG23fasFzmzSMrCKi5nFos4uHKnr9YJgkuK3fGGQgVNmFL7fERY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M0oHQk9k; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M0oHQk9k"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CDB1F000FF;
-	Wed, 16 Sep 2026 21:39:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789594797;
-	bh=HuP4ITEBBPQcLMwGXAlmWUMTIXMPHbhCvViH9fU2Nig=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=M0oHQk9kbFMImyvFJz5DE0Cw5nbNWoKb23D2RbiXav/GEngKDrqTc7IHZzlUthFNx
-	 0UovaZwI8mHh4LOcUU3oZp3DXsT8/vw+lwfiVZZW2aR++Pvr9Fuj6NSv4yrKKvlpyd
-	 LbIf1NOfsMvG2MtKFx347B81KX/rxNEZ5xiD6kWqM0T5ZNob98OQSFxPZQcQa1QPdF
-	 brRlzzphjD61BabyxnIeP1uv+pcP9sR2mmfSbQ8PQHFCb7yBXhHnyxCCsylsbbD/cz
-	 SGio9dkutZKopjp6G6AhM23+LH1P9oabxWzEN8OXn/9Z6vpATcbKsqW1GvAlqhMaqf
-	 nSi3TeklrjlkA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] selftest: rtc: rtctest: make missing UIEs really
- skip
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260916213108.9234-7-wsa+renesas@sang-engineering.com>
-References: <20260916213108.9234-5-wsa+renesas@sang-engineering.com>
- <20260916213108.9234-7-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 21:39:57 +0000
-Message-Id: <20260916213957.92CDB1F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1789612756; c=relaxed/simple;
+	bh=HlizVZr1fDBuiVc3LJZPmbtEuIF/O6EeaRBwsMufKPM=;
+	h=To:From:Subject:Mime-Version:Content-Type:Message-Id:Date; b=fUyblbZWrJWNlll+QjOlCrdCkAq7v41diGZ2z76PNN5UeVBzamjtYpPFa8JW7QCf6rpwCPIs+m+42z4/Soz3mZtAHX67F0SDllRU4BpIJ5IkeE/baSzX4CtnRhQv9cc7kb0HgTZ8tfVBjE1fuWyxsMxkGJHNECuj6QU7CPyq9wE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=knowledgelink-corp.jp; spf=pass smtp.mailfrom=magerr.combzmail.jp; arc=none smtp.client-ip=160.16.62.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=knowledgelink-corp.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9206.ps.combzmail.jp (Postfix, from userid 99)
+	id 7AE1B103756; Thu, 17 Sep 2026 11:25:52 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9206.ps.combzmail.jp 7AE1B103756
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCJUolbCVDJTglaiVzJS8bKEI=?= <info@knowledgelink-corp.jp>
+X-Ip: 6150492787768636
+X-Ip-source: k85gj73p48dnsa9wu0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCTSUkNyQkPFJEOSROGyhCTkc=?=
+ =?ISO-2022-JP?B?GyRCOVRGMBsoQg==?=
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-MagazineId: 3p9w
+X-uId: 6764305539486065704185541035
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20260917022746.7AE1B103756@r9206.ps.combzmail.jp>
+Date: Thu, 17 Sep 2026 11:25:52 +0900 (JST)
 
-> Use the proper framework call to mark a test as skipped. Currently, the
-> test is considered good, only the printout mentions the skip.
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+　
+　中小企業の経営者様へ
+　
+　・社員のモチベーションを上げようと声をかける
+　・現場のトラブルに、自ら先頭に立って対応する
+　
+　もし、社長がこれらを率先しているようであれば
+　残念ながら、その組織の成長はそこで止まります。
+　
+　社長の“優しさ”が、社員の甘えを生み、責任感を奪い
+　「指示待ち人間」を量産する装置になっているからです。
+　
+　
+　4,800社の経営者が衝撃を受けた、
+　良かれと思ってやってしまう「社長のNG行動」の正体。
+　
+　組織を劇的に変えるためのウェビナーです。　
+　もし心当たりがあれば、一度ご視聴ください。　
+　
+　>>視聴予約はこちら
+　https://knowledge-co.jp/shikigaku5/
+　
+----------------------------------------------
+　
+　テーマ ：　それ、危険です 『社長のNG行動』
+　　　　　 〜 その行動が、組織崩壊を招く 〜
+　
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+　日 程　： 9月29日（火）13:00スタート
+　　　　　  10月14日（水）13:00スタート
+　　　　　  ※内容は同じです。
+　　　　　
+　会 場　：Zoom開催
+　定 員　：先着100名（費用は不要）
+----------------------------------------------
+　※経営層の方限定です
+　
+　
+　なぜ、社員は「言われたこと」しかやらないのか。
+　なぜ、次世代のリーダー候補が育たないのか。
+　
+　それは、能力の問題ではなく、
+　
+　良かれと思って続けている「社長の配慮」こそが、
+　組織成長を止める、最大のボトルネックかもしれません。
+　
+　本セミナーでは、4,800社以上が導入した
+　独自の組織論「識学」に基づき、社長の「NG行動」と
+　真の経営者へ脱皮するためのマインドセットを伝授します。
+　
+　
+　【セミナー内容(一部抜粋)】
+　 ○ NG行動3選
+　 ○ なぜ優秀なNo.2や部長が育たないのか
+　 ○ マネジメントスタイルの変革について
+　 ○ 導入企業の事例
+　
+　「管理職が育ったら任せる」ではなく「任せるから育つ」
+　という思考の逆転を提言。
+　
+　現場から「冷たくなった」と思われることを恐れず
+　機能的な階層構造を作ることで
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916213108.9234=
--5-wsa+renesas@sang-engineering.com?part=3D2
+　結果として社員全員を守り
+　利益を最大化させる道筋を明示します。
 
+　「優しさ」で人を動かすのではなく
+　「正しさ」で組織を動かす。
+
+　音声やお顔が表に出ることはございませんので
+　お気軽にご視聴ください。
+　
+　>>視聴予約はこちら
+　https://knowledge-co.jp/shikigaku5/
+　
+　
+-----------------------
+　一般社団法人 ナレッジリンク
+　東京都千代田区神田小川町1-8-3
+　電話：03-5256-7638
+
+　セミナーのご案内が不要な方は大変残念ではございますが、
+　下記URLより手続き下さいませ。
+　
+　メール配信のワンクリック解除はこちら
+　https://fc-knowledgelink-corp.jp/mail/
+　
