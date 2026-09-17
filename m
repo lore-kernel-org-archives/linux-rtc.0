@@ -1,136 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68BCD57EDAE;
-	Thu, 17 Sep 2026 14:11:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C0E753A8B2
+	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 14:27:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789654277; cv=none; b=aEM53Vz0mkZ4kbdJHWXAKwUUTx0nmX1f0abZNcU+tli/luKC/HS8ojhUg1nPjD2b8jFbeZ9kBjhJji3rw5+ntXYSKgZJLD3lhyW1oot8bjDrTrpFGcJeiPkWmqNQ/j1ZTKpGeTm6JpWwgQYgpOwJXc7fAljIUrSc+2qEfIx14Ik=
+	t=1789655233; cv=none; b=Ou/FFIjurwHcOQpommt/EzdHcN0herS/ggUn7pdpNMZo6ueoZ/eAo+2iA2UmWIOzwkgWqd00oG78n88UHXf1a2FV3a+7oLlxavjlDJubMTYRsvFqnMdCHuS37t9aSulzon2BjRclSHEknkQjF11S46pDjfhnHNFgqAdKhDvXxNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789654277; c=relaxed/simple;
-	bh=t9na2Pz0dAVUnrX/AQQRGJZ+47XTDd9EiWqk3djAscI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qutgR28G2m/YuaT8V51ABT/vVY/04oRgbf3zspa2Dfd5hPuztB1hD79HEZ1Gd3qy4Sk2twdc21d4DJiu0zcMkFADdbNOxisyiMwuNsAp3rnlMJQ/luvSAvdA2igosXnlKfT8/KFpcv0642ofq4+qldF8AJug3jldw8LgGTZ26aA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O27fYDs4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789655233; c=relaxed/simple;
+	bh=yT4Adw+HYU+Hwm526vroWsA5fwFd8do9OPOt3aExbw4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LlzUs2MsndOH1b9965XMjbh7NfJj/Od5oMQUfGkH/lEI7c2oiCOjPU27LK8DTg6NMvejt1rMaUAxD6R2AThF2THVVDMO7Zi056VxkY5lE6LVYMUB3sza1IkIYUOQg1JqJ6hd7o8livMuheo2B9JZz0GwppejVJ6d7iFnY048XBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=P2iZJTYG; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O27fYDs4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262FC1F000FF;
-	Thu, 17 Sep 2026 14:11:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789654270;
-	bh=RDBEbZ343eiQ6b96Jzh6LBFtBCiB2Xlm3Jy7KCyBi9I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=O27fYDs4pOu+DVMEC/cCEdwxR7l2kwOTv+9uaW2TIz00m+co8ucHMoP+ipqQv3esS
-	 8dh8/2FZCJMtjvoUMRv1QtohSWRv4rraUFIwM/WSxE03GeO/eIiW/PPaYwbIZsQmiG
-	 EL5BsdJA4HN4GcG2eMxAELYbI77Jg/no/5+SnI0iF31sUGRGKMtR4/Z5eb85lG/tFQ
-	 AY/fqdRTfPwtoMf6wY90hEEoXTkcC9+gLn6M5k0CEIfJz362C/aShRP8bOeVsfjJr0
-	 OOEzoLlf9ugrXTT6Y0U6CI5AcSFw7Hxnr3znu2gql4jGsCyjgb3DEdqvfsFqKXPMzH
-	 RCpmmW3j/85rQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] rtc: Add Raspberry Pi 5 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sander Speetjens" <sander.speetjens@gmail.com>
-Cc: robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, conor+dt@kernel.org, linux-rtc@vger.kernel.org
-In-Reply-To: <20260917135841.841680-3-sander.speetjens@gmail.com>
-References: <20260917135841.841680-1-sander.speetjens@gmail.com>
- <20260917135841.841680-3-sander.speetjens@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 14:11:09 +0000
-Message-Id: <20260917141110.262FC1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="P2iZJTYG"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 395FCC5CD78;
+	Thu, 17 Sep 2026 14:27:52 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id C6CD05FAA3;
+	Thu, 17 Sep 2026 14:27:07 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C377511C78B65;
+	Thu, 17 Sep 2026 16:27:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1789655223; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=NQIErD8RMj3c96Y2peru6EPUda/1WEEQ4CrKh42s+Ao=;
+	b=P2iZJTYGnfnqJojdbtYjMw0NsX3IKbGQZwtyfwF7klzE9sejGGQuU+sMJj5CodLdxxuPyF
+	TWX+uX7+XeAXIgySTKN7/T/ss7RSXNklzznuW4uhjVi6FJmUROnCAXDI9tvz9VflRr/Bhy
+	AFqzDL2d9byn1moj/z+ps/8sIilM8hb2e230YS2v4uMWw5sCAk99HAy8O10ihSESZ/3fab
+	YmdGqWlVwepuGJKIh88GWNWXrkHxuVMCRWbz0UdHLxs1toRqy7VGXAPLv44tC704OaWon0
+	MmeNEYXNNfNNcooGuk3DXQduEQLZx2feOe61ug3DrkxRpwL8sNGC2BFS5c2eXg==
+From: alexandre.belloni@bootlin.com
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Nishanth Menon <nm@ti.com>,
+	Santosh Shilimkar <ssantosh@kernel.org>
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] rtc: omap: remove unused argument
+Date: Thu, 17 Sep 2026 16:26:53 +0200
+Message-ID: <20260917142654.2576889-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Endianness mismatch in Raspberry Pi firmware mailbox payloads
-- [Low] Kconfig dependency allows built-in RTC driver with modular firmware
---
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-commit b1ad8443ceac920191fe490d4fe9a93bc6d9205a
-Author: Sander Speetjens <sander.speetjens@gmail.com>
+omap_rtc_power_off_program takes one argument that is never used. One call
+passes the struct device of the rtc but the other one passes its parent.
+To avoid confusion, stop taking any argument
 
-rtc: Add Raspberry Pi 5 RTC driver
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-omap.c       | 5 ++---
+ drivers/soc/ti/pm33xx.c      | 2 +-
+ include/linux/rtc/rtc-omap.h | 2 +-
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-This commit upstreams the downstream Raspberry Pi 5 RTC driver for the cust=
-om
-DA9091. The driver binds as a child device in the firmware driver probe
-function and uses the firmware mailbox to access the RTC.
+diff --git a/drivers/rtc/rtc-omap.c b/drivers/rtc/rtc-omap.c
+index 0f90065e352c..18492165a19f 100644
+--- a/drivers/rtc/rtc-omap.c
++++ b/drivers/rtc/rtc-omap.c
+@@ -408,7 +408,7 @@ static struct omap_rtc *omap_rtc_power_off_rtc;
+  * generates pmic_pwr_enable control, which can be used to control an external
+  * PMIC.
+  */
+-int omap_rtc_power_off_program(struct device *dev)
++int omap_rtc_power_off_program(void)
+ {
+ 	struct omap_rtc *rtc = omap_rtc_power_off_rtc;
+ 	struct rtc_time tm;
+@@ -481,10 +481,9 @@ EXPORT_SYMBOL(omap_rtc_power_off_program);
+  */
+ static void omap_rtc_power_off(void)
+ {
+-	struct rtc_device *rtc = omap_rtc_power_off_rtc->rtc;
+ 	u32 val;
+ 
+-	omap_rtc_power_off_program(rtc->dev.parent);
++	omap_rtc_power_off_program();
+ 
+ 	/* Set PMIC power enable and EXT_WAKEUP in case PB power on is used */
+ 	omap_rtc_power_off_rtc->type->unlock(omap_rtc_power_off_rtc);
+diff --git a/drivers/soc/ti/pm33xx.c b/drivers/soc/ti/pm33xx.c
+index dc52a2197d24..82979122417d 100644
+--- a/drivers/soc/ti/pm33xx.c
++++ b/drivers/soc/ti/pm33xx.c
+@@ -174,7 +174,7 @@ static struct wkup_m3_wakeup_src rtc_wake_src(void)
+ 
+ static int am33xx_rtc_only_idle(unsigned long wfi_flags)
+ {
+-	omap_rtc_power_off_program(&omap_rtc->dev);
++	omap_rtc_power_off_program();
+ 	am33xx_do_wfi_sram(wfi_flags);
+ 	return 0;
+ }
+diff --git a/include/linux/rtc/rtc-omap.h b/include/linux/rtc/rtc-omap.h
+index 9f03a329e63f..d6ec7c4daea6 100644
+--- a/include/linux/rtc/rtc-omap.h
++++ b/include/linux/rtc/rtc-omap.h
+@@ -3,5 +3,5 @@
+ #ifndef _LINUX_RTCOMAP_H_
+ #define _LINUX_RTCOMAP_H_
+ 
+-int omap_rtc_power_off_program(struct device *dev);
++int omap_rtc_power_off_program(void);
+ #endif /* _LINUX_RTCOMAP_H_ */
+-- 
+2.55.0
 
-[ ... ]
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 05b9233b94189..1a24655fc2d39 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1999,6 +1999,17 @@ config RTC_DRV_R7301
->  	   This driver can also be built as a module. If so, the module
->  	   will be called rtc-r7301.
-> =20
-> +config RTC_DRV_RPI
-> +        tristate "Raspberry Pi RTC"
-> +        depends on ARCH_BRCMSTB || RASPBERRYPI_FIRMWARE || COMPILE_TEST
-
-[Severity: Low]
-Does this dependency allow the RTC driver to be compiled as built-in (=3Dy)
-while RASPBERRYPI_FIRMWARE is compiled as a loadable module (=3Dm)?
-
-If this driver is built-in and the firmware is modular, it looks like the
-unconditional calls to devm_rpi_firmware_get() and rpi_firmware_property()
-in rpi_rtc_probe() will result in a linker error.
-
-> +        default ARCH_BRCMSTB
-> +        help
-> +          If you say yes here you get support for the RTC found on
-> +          Raspberry Pi devices.
-[ ... ]
-> diff --git a/drivers/rtc/rtc-raspberrypi.c b/drivers/rtc/rtc-raspberrypi.c
-> new file mode 100644
-> index 0000000000000..0f5c3f8e9731e
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-raspberrypi.c
-[ ... ]
-> +static int rpi_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D {RTC_TIME, rtc_tm_to_time64(tm)};
-
-[Severity: High]
-Can this payload format cause communication issues on big-endian architectu=
-res?
-
-The Raspberry Pi firmware mailbox expects little-endian data. By passing
-a host-endian u32 array directly to rpi_firmware_property(), both the
-register ID (RTC_TIME) and the timestamp payload will be byte-swapped on
-big-endian machines.
-
-> +
-> +	return rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_SET_RTC_REG,
-> +				     &data, sizeof(data));
-> +}
-[ ... ]
-> +static int rpi_rtc_set_charge_voltage(struct device *dev)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D {RTC_BBAT_CHG_VOLTS, vrtc->bbat_vchg_millivolts * 1000U=
-};
-
-[Severity: High]
-Will this conversion to a host-endian integer cause out-of-spec PMIC
-voltages to be sent on big-endian machines?
-
-Similar to rpi_rtc_set_time(), passing host-endian values to the mailbox
-here will byte-swap the charge voltage target on big-endian systems,
-potentially resulting in hardware misconfiguration.
-
-> +	int err;
-> +
-> +	err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_SET_RTC_REG,
-> +				    &data, sizeof(data));
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917135841.8416=
-80-1-sander.speetjens@gmail.com?part=3D2
