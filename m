@@ -1,49 +1,55 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E876649D59C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1A33B14A2
 	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 18:59:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789671564; cv=none; b=I/DYG6Hcml1moCYjvH0PzYwVJkjXy5AvYS6tgUpkuJxRo7lq+HN/i7esM6rHQ3gLoPLrxhTDkNwQyz5cuQEvDi45GfIiyeUGnTvTtCb2Ybm39N7O5U/N7GE1abjGLlkwCE1kxhDou0bN2m6MvsDpMJJtM2G8VrbWusAVVxdzlIs=
+	t=1789671566; cv=none; b=cKJsekobnSYGN/l3SBkOMf2UgOhXDz6v5vefijDBFTNb/+9JX7ZhzqpiKsw3hxYkZmA39oEI0+b9/SWtSXZC0ToItXIMFUzXeSqez4gubQ7R1c14VBwQjxHlvg7GZgjX1Cvk5XE3hpPpKfcj/K75JTOQrFb+E3NTXcTV5+r+tK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789671564; c=relaxed/simple;
-	bh=u8kouydruPHCgSUHMEw9uc1s122IWPg6r9U9ZRV+K8Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=F2sB49nDmg2Mbqwz7XQQOP587rULyPoqn3m4AdHp83mDtYOpNxVMLlFYjv/HqfixUWx0FxZs7F4CerKnFuZNxIgTabjyg0HFqzduSiMtdE7WYf1jBpawCtGTCTUmL8Feu+0faY5lk1ooC1R+nXwBtaeU/MZ5Ig1PdAMaQBcwlEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=aDM50SwT; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1789671566; c=relaxed/simple;
+	bh=KfcKlga3iduqVUj46FoNFc2uilLHGU4EeE3eYe4ELNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fNH8vpwmuUxFtTpKpvGTZRITYxwsowRDdR+X+xMGbJrvYzyBJCy2Ik7En9+UxU5dOwhVCDO3Mn8Ev0TRtNxPcgJajMqisau1/KTzMqHZhCX+jBQnRApGqGjbmmD+fNWPvuCRpEd62lHneoKOwRNEdJKkAgJG9t9YUXpdSTCoqKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=LOaIoenO; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="aDM50SwT"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="LOaIoenO"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=ZquVgNnFWnWCeG
-	+cjVkP/9mi81ZKnZ3GaAPTVii0NJk=; b=aDM50SwTODebvrClsyMMzFaJrSvgUu
-	p7Y1/cHV6ABjYKFhElW+Z/M2cajBqGopS0V1S6ZcddhbTQsWJ1idfj/OIZYJkOzO
-	o0uMXoM2YmmMjovspE65t5ECeDaFfkJlvow3MAXWWn3GCdWLwbR36nb+pC0IBLO+
-	mSfPE89GLC3wf65QnVcQlT7q6m6SV2ymog2gXCSOpUV+BzePA7W/0y89BaCZvCTx
-	e9naKpRaxY1dpLmqDuIpFxEIFusSvFTGpxmG/nWBlOTp1TRObXnXW3Agyhl31XTt
-	RRzFTznXv0theXaHOUDj6luz03GWFFaVfdpD4da5Q+yVh6azCHi+aAFQ==
-Received: (qmail 2157788 invoked from network); 17 Sep 2026 20:59:16 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Sep 2026 20:59:16 +0200
-X-UD-Smtp-Session: l3s3148p1@KCBlYbJbDMAujnsL
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=OWSWJHpcU4VqZDtiauqprL6s7wDQzwSOM87tKFR7OdE=; b=LOaIoe
+	nOorrep1Gs+Vb2NzfJ+tS7069kGvDRKaXTLHQ97M33Rp5DmvfJb5AeUa1Hr4I+W4
+	J2mz/Efqp9n1z3BAZc9sFE2AuDCJ9Glktd2jonUj15gXmMKARrzMkiWbNDuaVedm
+	nfYV6ohZ3dL8s6E7YCowZds5qbRt5jn0If51SdykHhzIe5q+sTckE1ALa11LtbSE
+	NS4BU/j5utuh7NmZZPsuZXlAIV5HXgWvBwAtsDfstjHv94cXSzM3ED7hJzOwYiAu
+	70y59VXDd2opjvUsppxqB8sSEHY3pXLPMOpxUF4OqQoWXrePjiGIwtYZpsg2zeN2
+	Dm9mpt16ENqOiEBQ==
+Received: (qmail 2157834 invoked from network); 17 Sep 2026 20:59:17 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Sep 2026 20:59:17 +0200
+X-UD-Smtp-Session: l3s3148p1@MRVwYbJbEsAujnsL
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: "Lad Prabhakar" <prabhakar.csengg@gmail.com>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	devicetree@vger.kernel.org,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Conor Dooley <conor.dooley@microchip.com>,
 	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-rtc@vger.kernel.org,
-	Magnus Damm <magnus.damm@gmail.com>,
 	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 0/4] rtc: rzn1: cleanups, R-Car X5H enablement
-Date: Thu, 17 Sep 2026 20:59:03 +0200
-Message-ID: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: [PATCH v4 1/4] dt-bindings: rtc: rzn1: drop unneeded 'start-year' from example
+Date: Thu, 17 Sep 2026 20:59:04 +0200
+Message-ID: <20260917185903.61253-7-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
+References: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -52,39 +58,31 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series adds RTC support for the Renesas R-Car X5H SoC.
+We don't use 'start-year' in upstream DTs because the driver does the
+right thing by default, ranging from 2000 to 2099. So, drop it from the
+example, too.
 
-Changes since v3:
-* clear RTC_FEATURE_UPDATE_INTERRUPT when no irqs
-* added tags
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
 
-Thanks for all the reviews of v3!
+Changes since v3: none
 
-These patches have been tested on the original RZ/N1D board and the new
-X5H Ironhide board. 'rtctest' passed on both SoCs. On X5H, some tests
-are skipped, of course, because no alarms are supported.
+ Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml | 1 -
+ 1 file changed, 1 deletion(-)
 
-'dt_binding_check' and 'dtbs_check' did not find any issues, for both,
-RZ/N1D and R-Car X5H. I also verified for both that it rightfully
-complains when irqs are different from what is expected.
-
-A branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/x5h/rtc-experimental
-
-Looking forward to comments.
-
-
-Wolfram Sang (4):
-  dt-bindings: rtc: rzn1: drop unneeded 'start-year' from example
-  dt-bindings: rtc: rzn1: add SoC names next to their IDs
-  dt-bindings: rtc: rzn1: add R-Car X5H support
-  rtc: rzn1: add R-Car X5H support
-
- .../bindings/rtc/renesas,rzn1-rtc.yaml        | 30 ++++++++---
- drivers/rtc/rtc-rzn1.c                        | 52 +++++++++++++------
- 2 files changed, 57 insertions(+), 25 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+index ea7b039a91e7..e96007981c34 100644
+--- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+@@ -91,5 +91,4 @@ examples:
+         clocks = <&sysctrl R9A06G032_HCLK_RTC>;
+         clock-names = "hclk";
+         power-domains = <&sysctrl>;
+-        start-year = <2000>;
+     };
 -- 
 2.53.0
 
