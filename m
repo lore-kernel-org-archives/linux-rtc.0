@@ -1,136 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE4864AE8D5
-	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 11:25:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4327F4E432B
+	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 12:25:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789644330; cv=none; b=OYgXYMZaZGwDjijsx5+P3wp+z62WecBhegWp2dunCOxu5IFFWwIm+dgwALKtcdFy7vfR51yBpR38VQTM0FnMHDlgM3l0oL+RV+GhpA2APVjAozUfj+8ixtL8M2V1vYiz+sYQ4dof9ZbJAKQpeZbnrsYTUzCu4HKpG6Z4Az59bo8=
+	t=1789647924; cv=none; b=fD4scBsSgJ+b3/KHm+X11oBmqUq4BwCGaVS0HRIb5PPb1ApjP0Bp9dcdgR1ljySE9LSdC8fB6+JmkYD80Va9xgfiWXnhUwDfW9jpG4oykS4Y2oWo6Svini6gaB1ffUGgoXnCIXwqQvUTGaugAZJrpXav/f+kXrEjzJLqFBQ+qjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789644330; c=relaxed/simple;
-	bh=TdCU+qyGIcGjOTKzjn28bOxnJkDRu78a5OjtWenKHVQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iWXeMZpe6lMSiWaFtP52SVe7N6ZjRNwJrrqgKTqk2JgsGZGS2tciF143ThPmFF9p9Rf1iz8t6bjREvI+JenDKU7SmR2COvlcta5xPLkQLh9rlDCGj6UjoJ2YH4YW7ik+jY0/BmtqbgS0x+ona/D1yPe4zw1Z+LNzGbIyGGgdRrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jYV8jABP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789647924; c=relaxed/simple;
+	bh=Uqd5qZEsRqOkUbFbqjWvB0w0LK0SzQ/ZsYEmjy+qwVw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ENF8iCq28xzyRwBmYnqn6M62AHd1W2NNgQg4bfWuqu025pb6X3jPfAWVCwAW1QFFKobQ2yGIkrX43wmxjpfZFtkhJSIHfB7a+Ij1JB9/qgRqBk6SJ/MLA/1Ir11CaWrPKEDrLRGSarEv3AR2apILyF016OQo3jNyt6nD5M34Gnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qVcwQMml; arc=none smtp.client-ip=74.125.225.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jYV8jABP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36BB51F00899;
-	Thu, 17 Sep 2026 11:25:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789644328;
-	bh=TeKZbpWGkEDgIEI6CgT0vPkc77FDrjhOONHQi9MoJZs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jYV8jABP/DTmYIRuoESyGIo7phfMQ3O5dAa+ulrudzGWTGac9rxQeLhXXlV6M7LQC
-	 3HqtrOY/687i/SYcrEDdx0Ad3+zaPSEkZxjlxGNNPM7EqwkbzabwdPzULZgJgEKseF
-	 bC8poXvKf8tPQPKoVZHrNhFHgZxgE8Y3doEdH1jPWqYYyhsJ3wsthHSGHtIpIbPdxh
-	 z/NVWObxK1hG6dxNZUkYAmm0MQ5bWaLGz2nMwGUUztNP8hAImElBEH1xy00rRNMGQR
-	 UgczO2tOthd9xbqxCQLoiQDoe5LytxggpFofP2ouy5NqLVGHd2ByfUqu/BXMBECKs1
-	 nex55T7RFi9iQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/4] rtc: rzn1: add R-Car X5H support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, wsa+renesas@sang-engineering.com
-In-Reply-To: <20260917111349.52250-5-wsa+renesas@sang-engineering.com>
-References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com>
- <20260917111349.52250-5-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 11:25:27 +0000
-Message-Id: <20260917112528.36BB51F00899@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qVcwQMml"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-482f633cd78so426153f8f.1
+        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 05:25:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789647915; x=1790252715; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zh8dnCzgurcfuVXhK01muyhzuo7mZiFtdSNhXSbz6gU=;
+        b=qVcwQMml9qh+H7wiHg+MJtZwbUGHHVWZzc8lfYa3pHYaTsTSF+HpL+bg21lSu5QR6o
+         iDpqnpoMZ7ANUvwuNTxj5pJuSeiBfalJTBN/56SDOy9sLPrVvFT0Hx5vMOXx6Ayo8iFw
+         QFF7ubs3h7ExHfx6TIBab6Z1luyXj1HaYSMoJFj7vQjlAagcqAU6vp4LnNHs8/1/SLYU
+         svZHm9BRvAUuF7Hi+ca9mTYkE3/GKY+LMSryvlU6+OVN2XBRbkWBihZIn+nE+yStVjlo
+         zhRs5ebNXkNSHYkF89H2rCQdrcpFJfKc14itCuAx78T0gNaOT3w9ENy6fMytKZ/uoH3A
+         s7iA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789647915; x=1790252715;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=zh8dnCzgurcfuVXhK01muyhzuo7mZiFtdSNhXSbz6gU=;
+        b=Pqj/ZXVJpMVTpIon0hdWpzzfOgbn83iQVzAjYKcO2UlsIlApZSKCkLrPQ1cA2ZKvzb
+         FXawMHluQn9NjtIy7jYjaolQt0XZDvXlVSIPvZoTCPBGmw5M166SeWWuOuD90Bn8U//7
+         B7h6lwapxie3N4N5KO8VIRKaSwt1YJSpDZA24CLxIg5iJxy7KmITJy3U1RvaR05WHArp
+         3YcG1pkxIoYckw6SsjvrCswUKF3lS9QOxlKr24zJ3V41YfnDZqN8VspY/SkcNidYf4sJ
+         emQdkPV9sdo/WQ+yBB9elyC2x+sLMvm2/SzXnJOWgqkTM0CD+6NZP21B39rHT9Bzf7Az
+         J+GQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxRzamigpz9uqKMzPPA3qI9X8Cc2RzvVEHqyAjlOZAXIp56pimEtaMDIZeh8bA9HgbQvf3xDOtppYY=@vger.kernel.org
+X-Gm-Message-State: AFuF++ket8ktc/gxM+z+5W4dtq42cqCvpBZFKCw/V9gbks3JCVTcSeZd
+	yQryQABSwmJUDV5VTnZ7hjWOQiGX6kIfAGumXEcOFb7kvmr8IFYnVwrJ
+X-Gm-Gg: AYBFou3WZH7MDYn3+ydjuEevFBbFfWU0VUb8DsxR+NNBkZu2uGsQYkb6Jy8JTsMO9MC
+	kjBlmJ7wDPN4YJ+0xZm5g4+gcH/tS/paO6BJvaFVBF0JZcigDxWIgovBIjFXsvLPtKqK1tyrOVB
+	a209xjZL3/NbOKjA71e0KfimiXA0fQI97Rf1LNvoiLoemCgR2ERQTLsx263MMzF+Sfbyi0YLaY1
+	H8V/Z56XzyNy2ZWAcc8+0z4LM9rrU2MaCadaxvTHhxa0LYYHm5fBOAj3gMIMyz++OTJpBrdm5UD
+	Ctga1LidtXSv6//N++qT8uwgym3ufAMfl/NhG/iD2k5DmJsEiMwktvXgtVm5DgocSdqf9VECa4F
+	/lnDhhtrlKw0RFNXeg5xAFb42kyqt85+CObUrl5EtWLfraTrJZcVMqk8JvW2gBErBGr87NVWA1K
+	RjCAr6yAO5Bt7/ePtHIg2VpC0Xh35c8Cjp09j/L2b5JdvU0mE49CC3u1XQ9sEuGwYPVItBp2aeB
+	r3t2b82vmUj6yACMP0pvDXrWVdeCwKaR7JIopEmP7FxVw==
+X-Received: by 2002:a05:6000:40e1:b0:45e:e1a4:c4c3 with SMTP id ffacd0b85a97d-4870cef0c80mr7996798f8f.15.1789647914967;
+        Thu, 17 Sep 2026 05:25:14 -0700 (PDT)
+Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf27ce2sm15276567f8f.20.2026.09.17.05.25.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2026 05:25:14 -0700 (PDT)
+From: Sander Speetjens <sander.speetjens@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonathan Bell <jonathan@raspberrypi.com>,
+	Stefan Wahren <wahrenst@gmx.net>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	sander.speetjens@gmail.com
+Subject: [PATCH v2 1/2] dt-bindings: rtc: Add property for Raspberry Pi 5 RTC
+Date: Thu, 17 Sep 2026 14:21:43 +0200
+Message-ID: <20260917122144.703221-2-sander.speetjens@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260917122144.703221-1-sander.speetjens@gmail.com>
+References: <20260917122144.703221-1-sander.speetjens@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] rtc: rzn1: falsely advertising RTC_FEATURE_UPDATE_INTERRUPT for =
-broken_irqs
---
+Add charging-voltage-millivolt property for the Raspberry Pi 5 RTC.
 
-commit 526064073abaf5e11d2cc3b65e8bf7e6092cd549
-Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
+V1 -> V2: As discussed with Krzysztof Kozlowski, this property is folded into
+the existing raspberrypi,bcm2835-firmware properties.
 
-rtc: rzn1: add R-Car X5H support
+Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
+---
+ .../bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml     | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-The RTC on R-Car X5H is a bit special because interrupts are not wired.
-This creates a dedicated entry for X5H without interrupts.
+diff --git a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
+index 983ea80eaec9..1a0432510bee 100644
+--- a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
++++ b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
+@@ -133,6 +133,11 @@ properties:
+     required:
+       - compatible
+ 
++  charging-voltage-millivolt:
++    $ref: /schemas/rtc/rtc.yaml#/properties/charging-voltage-millivolt
++    minimum: 1300
++    maximum: 5000
++
+ required:
+   - compatible
+   - mboxes
+@@ -171,5 +176,7 @@ examples:
+             touchscreen-size-x = <800>;
+             touchscreen-size-y = <480>;
+         };
++
++        trickle-charge-millivolt = <3300>;
+     };
+ ...
+-- 
+2.55.0
 
-> diff --git a/drivers/rtc/rtc-rzn1.c b/drivers/rtc/rtc-rzn1.c
-> --- a/drivers/rtc/rtc-rzn1.c
-> +++ b/drivers/rtc/rtc-rzn1.c
-
-[ ... ]
-
-> @@ -504,25 +506,39 @@ static int rzn1_rtc_probe(struct platform_device *p=
-dev)
-> =20
->  	spin_lock_init(&rtc->ctl1_access_lock);
-> =20
-> -	ret =3D devm_request_irq(dev, irq, rzn1_rtc_alarm_irq, 0, "RZN1 RTC Ala=
-rm", rtc);
-> -	if (ret)
-> -		return dev_err_probe(dev, ret, "RTC alarm interrupt not available\n");
-> -
-> -	irq =3D platform_get_irq_byname_optional(pdev, "pps");
-> -	if (irq =3D=3D -EPROBE_DEFER)
-> -		return irq;
-> -	if (irq >=3D 0)
-> -		ret =3D devm_request_irq(dev, irq, rzn1_rtc_1s_irq, 0, "RZN1 RTC 1s", =
-rtc);
-> -
-> -	if (irq < 0 || ret) {
-> -		set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
-> -		clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
-> -		dev_warn(dev, "RTC pps interrupt not available. Alarm has only minute =
-accuracy\n");
-> +	if (data->broken_irqs) {
-> +		/* All known broken irqs are on SCMP only variants */
-> +		rtc->rtcdev->ops =3D &rzn1_rtc_ops_scmp_no_alarm;
-> +	} else {
-
-[Severity: Medium]
-Does this branch need to clear the RTC_FEATURE_UPDATE_INTERRUPT bit from
-rtc->rtcdev->features?
-
-Since devm_rtc_allocate_device() allocates the RTC device and
-unconditionally sets RTC_FEATURE_UPDATE_INTERRUPT, drivers that do not
-support hardware update interrupts are expected to clear this bit.
-
-The original code cleared this bit when PPS interrupts were missing, but
-this new branch for broken_irqs skips that clearing logic.
-
-Could this expose false hardware capabilities to userspace when queried
-via RTC_PARAM_FEATURES?
-
-> +		irq =3D platform_get_irq_byname(pdev, "alarm");
-> +		if (irq < 0)
-> +			return irq;
-> +
-> +		ret =3D devm_request_irq(dev, irq, rzn1_rtc_alarm_irq, 0, "RZN1 RTC Al=
-arm", rtc);
-> +		if (ret)
-> +			return dev_err_probe(dev, ret, "RTC alarm interrupt not available\n");
-> +
-> +		irq =3D platform_get_irq_byname_optional(pdev, "pps");
-> +		if (irq =3D=3D -EPROBE_DEFER)
-> +			return irq;
-> +		if (irq >=3D 0)
-> +			ret =3D devm_request_irq(dev, irq, rzn1_rtc_1s_irq, 0, "RZN1 RTC 1s",=
- rtc);
-> +
-> +		if (irq < 0 || ret) {
-> +			set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->rtcdev->features);
-> +			clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->rtcdev->features);
-> +			dev_warn(dev, "RTC pps interrupt not available. Alarm has only minute=
- accuracy\n");
-> +		}
->  	}
-> =20
->  	return devm_rtc_register_device(rtc->rtcdev);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917111349.5225=
-0-1-wsa+renesas@sang-engineering.com?part=3D4
