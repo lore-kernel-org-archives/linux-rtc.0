@@ -1,103 +1,179 @@
-Received: from mail-vs2-f24.google.com (mail-vs2-f24.google.com [74.125.227.24])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821394E1C6F
-	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 12:38:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846574BF95E;
+	Thu, 17 Sep 2026 12:40:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789648733; cv=none; b=BYfReBHRqK0sURLD63k1JNzkJIvVgLTz5CbYkdQdMv/GxIBXqdE1PXD+7EDvrwxLIbP22nlhbuIC8Cij7RhDgNqMg1hJXT7mRuU6c9ICvOxFOMQ578TRZSAq/ausfPr6RLGwXXc2WIJcM4EHZyScow2HUts8ss2DhiJTXy6f1vQ=
+	t=1789648854; cv=none; b=DrViTmN4q4EvZwoMP/uR59kkrxrqIHQCvm3IvyZKrmvTJTs/QTNw12sbjNZpbtDw1vRgxafz2opp8m0A1v81juKYrPsbG3ocyMxgUhNMGissTORZkEn4vukoHbZvwo795k379D3qhKFBjY/5lP6Yi17GUnQoja30eKaj/OlQ6yo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789648733; c=relaxed/simple;
-	bh=pO6Tgcpo7rciPqcfm2I2qKhUQ+kRl0w7xU9/IWEOHiM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YOXHgupSgwyqSR/VPiYMNUtqLsQAgarHSIyH8w6pwRHwb1SLNItMU+KjOQUpHjxdg3jzRyKvr85ZfWxTTmuf8PdUpwhdPpKxBTbZpmCg+UGjJPHGt4KbJIcJB56ImRwTD7p4TlRP9uOx60rR+e9hzNLcQ0XFzmkRx2m7xkIV8QI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs2-f24.google.com with SMTP id 71dfb90a1353d-5c97b28165bso583659e0c.2
-        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 05:38:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789648724; x=1790253524;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=RBQw87BcG/7SW7f/yhCxPa56rKVyuPomBfuHA7K6Ojw=;
-        b=R/FL0DZrfoRggfUZ17mKF2ba6ELFJNg555yEh3n11E3srCfGrudodRI/jxEeWUWG75
-         uQIXn0EeBZ1R60FgRZGBW1prbuL35EPspJFNaWgwKxLWcouxuowxrhraYlloAppQfoj1
-         i6FLjD7G44X3emQU3xZwJqNagoLGcmH1/SYvYDeBoh4cIQTWhJt4YTz6K8r25CJvfw37
-         kwgSgAL0d73nmhBXJpKRTAVwSAr/UUZFw/j5SJmm8ep9uOu1AcViZLKQ6zWJpggui8Al
-         DSwJFhD37GVDjpeZbEeDiURKsjwvbn7P2ybimRwXddg7KaFP0sQHJ0ofIubj9YmzH/SN
-         QjXQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxfDTzr9m8MuV0rGVTml01GtLnQwgfBVTgZXB8ZI+OJGA8wOv3shUkUAcRObOyYVjvV9cpZFTAXX9A=@vger.kernel.org
-X-Gm-Message-State: AFuF++mJXiuH15P2XOVj+PUtthQTSar/ThoEXFzI7UqP0rhhno33Py+J
-	GNRhz217uz1crN5hzzuefGPwgmqQYdantVBiGvN8pc/V8SlBlOdpEOVnMK+5sBzV8lk=
-X-Gm-Gg: AYBFou1MOOJrKYNncAbXY+QB18rNwAXV0tIlmRS0JUHP9QbNWpsDE2FiCPhJGtgYcW9
-	vSMExUBLrjeSn/Ulr+3l3Vsl+e50k5H8dstd5mWC8dwgM9X2qOphWLVXr/DWUlIl7SM0+h28JPi
-	S5gW5rloslxnJ8ogjV4WnQr9NVy9b+mQ6N+8dMI9zNxhErYZUs6Fb8sFgqxbybrHzOWebnrGpv3
-	0G6H0aOkroreHvl5ZKBXc6c8f9AF+yIhNRtoi2frxKvxS3uTJA9ykYCWtEK8MsfBQUlUYE3Tuge
-	YlSW7P3n73p/fYsqklgZyYpJrGRbV7Jr0Y3Ogx4pCBU+OCW4y1JQ3l9wgYoFJCrpOCq0LVQ5+U5
-	x0BewAIi0mYD1tpb0tS4Tjz+6KnamGzuVqtJ2ahsO7RJ9lc5BW2sCx+0FVbLBmBt5/Sfz3tvhVs
-	O3CGQLigl55GnoOVwJ+3NQ/BWDqVebbCsudGF0Ym8NbpXdsks+fZvEaFPjtO9C3jz0Cic6piHP8
-	p4SyxJEJebAUb0xBT4mEz0XX2GoPhu1oaDULA==
-X-Received: by 2002:a05:6122:208d:b0:5c9:a60b:e5a9 with SMTP id 71dfb90a1353d-5c9a60be8bbmr2028925e0c.11.1789648723968;
-        Thu, 17 Sep 2026 05:38:43 -0700 (PDT)
-Received: from mail-ua2-f12.google.com (mail-ua2-f12.google.com. [74.125.226.204])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c9a5438c91sm2428957e0c.16.2026.09.17.05.38.43
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Sep 2026 05:38:43 -0700 (PDT)
-Received: by mail-ua2-f12.google.com with SMTP id a1e0cc1a2514c-97e9d8a79acso498733241.0
-        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 05:38:43 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxe5pbbFfpin7bxryApvKpaPQawiR+vNJyVjxIq6Led9d7N5Q42FOWh9J4nXjflDo66MGtCGiyL5tw=@vger.kernel.org
-X-Received: by 2002:a05:6102:951:b0:7a2:568f:815d with SMTP id
- ada2fe7eead31-7a2568fad44mr791569137.18.1789648723179; Thu, 17 Sep 2026
- 05:38:43 -0700 (PDT)
+	s=arc-20240116; t=1789648854; c=relaxed/simple;
+	bh=eoSBK9p5L59KTc+noX7tdIp3PDNkXYiGoui47nmamdI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FB7+G/oXzwneW3s6zt4QR2z+gPZXcNp3nyMuJRBFZSkVHw2sdEO1GEV5i5OTJMTjahfECSb22jdtx24W0XUXPzETk4tA9mN9hI93cYv5sMKhCDRu3rpvez96dB5KZ6+DaXIrtW8+gOClx/WusLkkfbKPA6mzJHAxpQ7OawXf9J8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AyPt+hop; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AyPt+hop"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22471F00893;
+	Thu, 17 Sep 2026 12:40:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789648840;
+	bh=qZMsgM5pquArY8+ZYtouKuGMvKctqpnDxS8qIYTPpZM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=AyPt+hopSojdJOXCqG2fv8rlUvExggXE6zxmJeKDxHnvRdeU6uKXKJDgXe76BAi+K
+	 dCby35l9tVco4WE90ffgHu49VPjHvvIkWzmKmP/OAatFLTDk6QX9QGit6RfqkrY297
+	 NTvCscqqsU19n/yBC3GSS8Try8MdQvHIzgXOuY9GTumn/X/gGTim3C6cJqUKX9DZzy
+	 g2mr9VkGNUyYORgGiiwZNoL6EjOyuz/+eh+G25Q/nz/H+xoYd6h0IFT0dFQD1yBR5v
+	 JemhWN7yi7KyNBGdVGl7yGRWvdjLum5Q5QsgZ/SVY0bL/0yzfjzVHewaRJymPSteex
+	 KgThLTmzf7FaQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/2] rtc: Add Raspberry Pi 5 RTC driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sander Speetjens" <sander.speetjens@gmail.com>
+Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
+In-Reply-To: <20260917122144.703221-3-sander.speetjens@gmail.com>
+References: <20260917122144.703221-1-sander.speetjens@gmail.com>
+ <20260917122144.703221-3-sander.speetjens@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 17 Sep 2026 12:40:39 +0000
+Message-Id: <20260917124039.F22471F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com> <20260917111349.52250-5-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20260917111349.52250-5-wsa+renesas@sang-engineering.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 17 Sep 2026 14:38:31 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVHirsCAOH1KOuPrr6C1AVFXniG3yqqND8hyZMAJ4R1JQ@mail.gmail.com>
-X-Gm-Features: AcwNN1Uwts9bEPQ2xARX4nkO381zcIEk6hOBCmQmv_bM_450tPFHeji54wCUFmw
-Message-ID: <CAMuHMdVHirsCAOH1KOuPrr6C1AVFXniG3yqqND8hyZMAJ4R1JQ@mail.gmail.com>
-Subject: Re: [PATCH v3 4/4] rtc: rzn1: add R-Car X5H support
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, 
-	Lad Prabhakar <prabhakar.csengg@gmail.com>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, 
-	Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Magnus Damm <magnus.damm@gmail.com>, 
-	linux-rtc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 17 Sept 2026 at 13:14, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> The RTC on R-Car X5H is a bit special because interrupts are not wired.
-> Future R-Car Gen5 SoCs will have them wired again. So, create a
-> dedicated entry for X5H without interrupts.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> ---
->
-> Change since v2:
-> * drop Gen5-family compatible since X5H is not compatible with it
-> * added tag
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Medium] rtc: unconditional dev_err on unsupported platforms
+- [Medium] rtc: dt property name mismatch with schema and standard
+- [Medium] rtc: ignored devm_device_init_wakeup return value
+- [Low] kconfig: missing dependency on RASPBERRYPI_FIRMWARE
+--
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+commit 63b49baa5affb33b58f7190d1f915c0156fa6365
+Author: Sander Speetjens <sander.speetjens@gmail.com>
 
-Gr{oetje,eeting}s,
+rtc: Add Raspberry Pi 5 RTC driver
 
-                        Geert
+This commit upstream supports the Raspberry Pi 5 RTC by interacting with
+the custom DA9091 over the firmware mailbox. It binds as a child of the
+firmware device and configures trickle charging based on device tree
+settings.
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberryp=
+i.c
+> index 0aa322e9a2e73..b284c689f7828 100644
+> --- a/drivers/firmware/raspberrypi.c
+> +++ b/drivers/firmware/raspberrypi.c
+[ ... ]
+> @@ -231,6 +232,21 @@ static void rpi_register_clk_driver(struct device *d=
+ev)
+>  						-1, NULL, 0);
+>  }
+> =20
+> +static void rpi_register_rtc_driver(struct device *dev)
+> +{
+> +	struct device_node *firmware;
+> +
+> +	firmware =3D of_get_compatible_child(dev->of_node,
+> +					   "raspberrypi,firmware-rtc");
+> +	if (firmware) {
+> +		of_node_put(firmware);
+> +		return;
+> +	}
+> +
+> +	rpi_rtc =3D platform_device_register_data(dev, "raspberrypi-rtc",
+> +						-1, NULL, 0);
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+[Severity: Medium]
+Will this unconditionally register the rtc platform device on legacy
+Raspberry Pi models?
+
+If rpi_rtc is registered on all models, the probe function will run
+universally. When rpi_rtc_probe() executes on a model other than the
+Raspberry Pi 5, it prints an error message via dev_err() and aborts:
+
+    if (!model || strncmp(model, "Raspberry Pi 5", 14) !=3D 0) {
+            dev_err(dev, "RTC is only available on Raspberry Pi 5\n");
+            return -ENODEV;
+    }
+
+This seems like it would produce a spurious error message in the kernel log
+on every boot for all older models where the hardware doesn't exist.
+
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 05b9233b94189..382973d46e06d 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+[ ... ]
+> @@ -1999,6 +1999,17 @@ config RTC_DRV_R7301
+>  	   This driver can also be built as a module. If so, the module
+>  	   will be called rtc-r7301.
+> =20
+> +config RTC_DRV_RPI
+> +        tristate "Raspberry Pi RTC"
+> +        depends on ARCH_BRCMSTB || COMPILE_TEST
+> +        default ARCH_BRCMSTB
+
+[Severity: Low]
+Does this configuration allow RTC_DRV_RPI to be built-in when
+RASPBERRYPI_FIRMWARE is built as a module?
+
+The driver calls devm_rpi_firmware_get() and rpi_firmware_property(),
+which are exported by the raspberrypi-firmware module. If the RTC driver
+is built-in and the firmware driver is a module, this will result in an
+undefined reference linker error. Should there be a dependency on
+RASPBERRYPI_FIRMWARE?
+
+> diff --git a/drivers/rtc/rtc-raspberrypi.c b/drivers/rtc/rtc-raspberrypi.c
+> new file mode 100644
+> index 0000000000000..af775ae55a871
+> --- /dev/null
+> +++ b/drivers/rtc/rtc-raspberrypi.c
+[ ... ]
+> +static int rpi_rtc_probe(struct platform_device *pdev)
+> +{
+> +	struct rpi_rtc_data *vrtc;
+> +	struct device *dev =3D &pdev->dev;
+> +	struct rpi_firmware *firmware;
+> +	int ret;
+[ ... ]
+> +	vrtc =3D devm_kzalloc(dev, sizeof(*vrtc), GFP_KERNEL);
+> +	if (!vrtc)
+> +		return -ENOMEM;
+> +
+> +	vrtc->fw =3D firmware;
+> +
+> +	devm_device_init_wakeup(dev);
+
+[Severity: Medium]
+Should the return value of devm_device_init_wakeup() be checked here?
+
+This function registers a devres action and can fail, for instance, due to
+an out of memory condition. By ignoring the integer error code, the driver
+might continue with an uninitialized or broken wakeup state on failure.
+
+> +
+> +	platform_set_drvdata(pdev, vrtc);
+[ ... ]
+> +	rpi_rtc_alarm_clear_pending(dev);
+> +
+> +	vrtc->bbat_vchg_millivolts =3D 0;
+> +	of_property_read_u32(dev->parent->of_node, "trickle-charge-millivolt",
+> +			&vrtc->bbat_vchg_millivolts);
+
+[Severity: Medium]
+Does this device tree property name match the binding schemas?
+
+The standard RTC bindings typically use trickle-voltage-millivolt, and the
+driver's own schema might define charging-voltage-millivolt, but this
+attempts to read trickle-charge-millivolt. If a device tree follows the
+standard schema, this property lookup will fail and leave trickle charging
+silently disabled.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917122144.7032=
+21-1-sander.speetjens@gmail.com?part=3D2
