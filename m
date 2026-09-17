@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67B8E3C9886;
-	Thu, 17 Sep 2026 19:02:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47BC63BD65D
+	for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 19:04:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789671771; cv=none; b=XDFVhH5/vP7VkkwSTyuyC8YU8m+XtbVf3BNQ6CS/glQqemgv/EijnLCqm9HqIP9S315fV0Ad9sDuTcL7IxHc+3HCZBb4/sFAQTVG3sq27/uwlZlQHTU9PSCkZWzerR32ZGK5kvKKI0VzesQU9eygdaqX8Eksc1RF6wDLwxLRDZg=
+	t=1789671867; cv=none; b=FsOvGV+lmnlY0leP4A58a555/VRD1sgE7lN/odEtExeOXG5nkMr9Dpn2/ucSJtzgxcDSbbU9lydAnWz+p/NugJ09enICBgAWkhmJCIpALWnSPawES4DKlTybEv59U5VaI2/bnPKMWgor6hyBev/PsbIudMBD8rley9pzg0xaxYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789671771; c=relaxed/simple;
-	bh=lze+RPk+U6Poc8aKI18GAN3mxw1NYgMwfhGE1coWmwg=;
+	s=arc-20240116; t=1789671867; c=relaxed/simple;
+	bh=UxltFbiU7dgyck/I50r7OVG4tFsIQtl9nWfhUQ5hPeE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SwuWPSiRkTQBEOc2bHVTzixhEggNOXqj6ELDfxCkdw2eOyHljvcPg8DuBc6t6UJU7ALw0FzWxGhE9sfm07mJn3WZhAfXMVzE5juwOt5X9Yj+baweTWDBr3guMEWbj/O64pRmzIdx9XHTba2MP7NUwK//aLonwACPtzBL97xNlqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z20L8S5T; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iFpnUrn7tYqMQWJDyS8haapcb9IccF3WjcOrGKQuLedESDlVoLvYFMNKCDFzjwoDGKbrWjk+eVHgdq6L9D2fAtNdhCdKEKcXo3Ckfotmn3EPtvOF6/UcXw3xv2/bEIKBWc5HXnE3D38gTsv9CsTjNspolfZgT9Wx2BPUlDwbXjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aBJ3rXM9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z20L8S5T"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E06731F00893;
-	Thu, 17 Sep 2026 19:02:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aBJ3rXM9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D000A1F000FF;
+	Thu, 17 Sep 2026 19:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789671770;
-	bh=lze+RPk+U6Poc8aKI18GAN3mxw1NYgMwfhGE1coWmwg=;
+	s=k20260515; t=1789671866;
+	bh=UxltFbiU7dgyck/I50r7OVG4tFsIQtl9nWfhUQ5hPeE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Z20L8S5T7gdAJHTixmsAMpGDCvL0VKnHS2EklEFJcAC3A2PjrFDDnxzEXQiUlNc75
-	 +sHPNrLAw103j6A+Sixdvnvb8CLlVu3P0fn7wyOuGYtTB3GejD5CZQc0YkQk9KP/CA
-	 DIkT+O2J0wdH3VKZRFr0PZnoRTwTgABgXojC4TaLrV1SdJeBB81Bts0nzfcce+wZwS
-	 iASxYMtC1W+cKjNuuy9b4Gk8PtDNJDETdpEQ+N/e4AMoa1Ksze2uuxwUlpn7HUgqUB
-	 gKj9BktoH5VgLg3P6h4PjOPS/1Rs4uyoS+/KX93Rg9L/VrvfZEfwSsLcP6LXSLg460
-	 6nmKe3ik/hG9w==
+	b=aBJ3rXM91DnYxNB9/Hyz9f2TzBBh9oyl5qU70AZKT0nDiEIHxly/1rDMEFKhetFGX
+	 UjLqsaWlj7WPOkNvrM0htnUfa+uFHJbIaqkR/nw1uQESMcIjSWnZlZUwBsIX9fw1b6
+	 Eawk1wADGRWA721zRGfJrMUG+APVECiGg+tn1rRkg6DRxDY+oPPB82njzoKY+nxpKI
+	 s+ycI7WrZewRdRo/P3CoQ/KyemN9IS/h8eFu+bMCJab/W2LjYSUxrZbaIxOdA4oMSV
+	 nAfxOT+kyHxEnH67ZDU/GUlY5veD980SPtEzzRQAAOf2K0BRibPcDTTu4mTLUrlKjl
+	 EnCyzKpaklkQA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
+Subject: Re: [PATCH v4 4/4] rtc: rzn1: add R-Car X5H support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, devicetree@vger.kernel.org, conor+dt@kernel.org, wsa+renesas@sang-engineering.com, robh@kernel.org
-In-Reply-To: <20260917185903.61253-9-wsa+renesas@sang-engineering.com>
+Cc: wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org, "Alexandre
+ Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260917185903.61253-10-wsa+renesas@sang-engineering.com>
 References: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
- <20260917185903.61253-9-wsa+renesas@sang-engineering.com>
+ <20260917185903.61253-10-wsa+renesas@sang-engineering.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 19:02:49 +0000
-Message-Id: <20260917190249.E06731F00893@smtp.kernel.org>
+Date: Thu, 17 Sep 2026 19:04:25 +0000
+Message-Id: <20260917190425.D000A1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -54,5 +55,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917185903.6125=
-3-6-wsa+renesas@sang-engineering.com?part=3D3
+3-6-wsa+renesas@sang-engineering.com?part=3D4
 
