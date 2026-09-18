@@ -1,67 +1,69 @@
-Received: from mail-oi2-f5.google.com (mail-oi2-f5.google.com [74.125.231.197])
+Received: from mail-oa2-f10.google.com (mail-oa2-f10.google.com [74.125.231.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768053F39E4
-	for <linux-rtc@vger.kernel.org>; Fri, 18 Sep 2026 04:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7150F3F39E4
+	for <linux-rtc@vger.kernel.org>; Fri, 18 Sep 2026 04:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789707474; cv=none; b=Q4FkxJwZasaAHJtyjVnDtKwg09rmnMUemRmNPwQoVElHIsrLF4p8ZKHZvpY7S0XyZHd6y+2Vg6X1cUdiUp6oBu/2e5QyHXUoNJ21xfoPHu30Ogzlfw+DNNPigDQl2wLB+5y6znFveGBAhe0ghHHXc3E/CueE31QZjRMw2vN64Vg=
+	t=1789707483; cv=none; b=a9Rx7BENW3UdakIK+h84o2N2RR4AAls2SCfSLjCBeZKLEjaKn1Io4inZozLCbRKNbPd8RuVHHA/QYo0Y9HNCbfkCMHNcRbihWNZt5mQTOM8k2v93ydJ5Cf1gfXLzJ/i/2pEOUC/QNbDv81UFrVu1zgI59tw3k2dHXEIM+Ir3Ucg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789707474; c=relaxed/simple;
-	bh=pKSQ0omTuskZq+kor8UoJ2wNfDWorQkFIo60SsXbA4I=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=KQO6ACFqX9Z43E+MFo+XTKuPhcappAPkpMNVYP0bHBF33J0kesXsYsEsWODOzpXJ4bEE05CBmjUSDJWaTh/nYRzEi+Fyvtc53NGTRBRd3J5YM2Prea0ZoMiwyK17l2BNfkfisuV98J6ri1buPuUTYWjd13fC458tPxfTXxMFsQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=csr8yTRf; arc=none smtp.client-ip=74.125.231.197
+	s=arc-20240116; t=1789707483; c=relaxed/simple;
+	bh=QApoySis0Adh6uF/PzHVfhA1jkpjYHZNgPhek+gBJ7E=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=A8MZKpmBDs8ItObu3+VA72iOfacuMgm1Hxg6iSju1eKALZz8W+xbPshfo5vLfs0pz0yB4BDPPadv8CvmqT+/TmP7tmhgsqGIxkOxYT/pFTYRptpnsea5+CljUyrNIchqM3ukl0ruC6+nrdoWShR0FjqutKTg1nBJ3nc8isBVTkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DNP2ARos; arc=none smtp.client-ip=74.125.231.74
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="csr8yTRf"
-Received: by mail-oi2-f5.google.com with SMTP id 46e09a7af769-80477cb33a7so156762a34.0
-        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 21:57:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DNP2ARos"
+Received: by mail-oa2-f10.google.com with SMTP id 586e51a60fabf-47bbb846425so192849fac.0
+        for <linux-rtc@vger.kernel.org>; Thu, 17 Sep 2026 21:58:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789707472; x=1790312272; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=FL7nLGZapJfQ8aVhLmuBZ6WgKTHLgrmHKnRf7yd+OgQ=;
-        b=csr8yTRf+bRSBK7/gr3+Wdl1pFk5BuUep4Oz0HE/L8o1g96WDkJt5l6BcmAivzh1tu
-         +rRgIJctKKsF33eLzd5Q3qyKWEyxz97crq/NV2sZyNMD/NXRnX8DKYqhcJ+wA0PJECIe
-         koYmOdrpDwCLsukGKOHfNcudXgZA4gx9bcJbnfwxzhi0UjhkJFd9CBn9by69q6DBfAec
-         r3oHs/RwP1wTdmJsUU8jvQ0GaauCA6jm/7jaXpdvGpLay/GBhwXTsmQSJom5NJ0uReCI
-         LWfJ4k6v1hN/1nGK7ZIIxPghf/yr81iUZhcY8wz+a9L3m6le1xWBWOQzyiLLnILyk0FX
-         ZM7Q==
+        d=gmail.com; s=20251104; t=1789707480; x=1790312280; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UqClDMZv+Qp3g2QhTysx0rBLnCkZVZnC/Rs9Rzbs0+0=;
+        b=DNP2ARosjyKw+bY806+Xx3kEQMAbw/NYtfLsiI0AUZtDEjmQT84M/PR3YA2edJbNol
+         GTx07XQgvJ0qpS4WDD9hzWHQQC916mzEzICsB+0tphLjUiLNsdeSGCOj3zX9yloIjg/8
+         SdrUPMEY0YPStVup277lMtnx5rUPNVrZ6jF5K9fJYVpqL8xYpogmW/qhBaEvzk8VunUS
+         ts9AmAHd7jjKeeqEThDdFfN4g0E8MHbh8s1euwqVmdV7aAwD2UdjB0XGqbma/OPWSeKD
+         6Ga4wCa1LKHxqD6EvaxwUFKyvxOk4X7WKZwoKMVi58HJCyD9hUtOVZEIPcx1AGa72OYF
+         Yddw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789707472; x=1790312272;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=FL7nLGZapJfQ8aVhLmuBZ6WgKTHLgrmHKnRf7yd+OgQ=;
-        b=xTxiSnf1q8MRZtvzc/7BJIvJaT6kBF+OK7nwvaWmuARwg5HS1EcxrgNQLrZybA2+EY
-         Mo4G26PfU9aWshVVTUSp/iueIsoU8vxvX0gutJrnDxqIoX1V+c2P/ZDxeVEEaPqRdcp2
-         K0lnzc/F/S3dRSib4oNBOOnHgE75vx2EJY8WUZdqOydxuvFTVCnrqcuUnB3JbI0Xn4lW
-         JwFZAhNMNNbEJKFgQjnuee1mVHDC5wG1z8XTPIITTJolA5TS9VThi8yJcsOdwWQ5zZcg
-         jGihs75gp2++ZJFUb7DVhUpCSmFLIczl8IuyWL3p8XrFmGfhsQFZn8cC9tvpxMIgjQuk
-         qCqg==
-X-Forwarded-Encrypted: i=1; AKwUvBz2WJD5kKvB1laD/Uu2J1BjUWtNhi6uG8NW7lYiqQQmFUqEFqU7sM6WWcCs796XgON90bPwR8oclLY=@vger.kernel.org
-X-Gm-Message-State: AFuF++nR308jV3k1dLHsDR/q0B1eKnAi9wvlNnEjlJxXA4kuCi711Z5K
-	V9kz5EdX/+pg76r6MMEyM3rhkhWhHS7+awqgMXWu8M7Mt/wmt/9InAkG
-X-Gm-Gg: AYBFou1E9HtouRNmnW2Kwa53OK9h2GVC3QdjIONHzb5YoK2K6/T05Q3QPBPWLU9+wm/
-	r09ONvHaB28nridYfbI5Z/IL6+wFsNuUzbKAzBV8jjQULSLUeoXyjOVB8u+E7C8oPTN6mm1jc/A
-	IAXDYA8o6ZSarVk3Q3fIgwAbyBnudzo92A1iAvZN5QJiorrNahGIQXpqQJXtBN5VPhw9sBj7vla
-	J5F0TKJOPyXqWy3eBRDmR5V1gxxo/BUECeF3DFx7YcE/qwsv93BX+Kfg9lYfGbcKOEU8vcZweEN
-	vnI8/OPCNZslDeWCrVPchI+S1dN1SrFoVwqyYuYVQJo+e+VAuWR+hmc86vILgILfli60tUY2hq8
-	VW7cft8hrTRYbHceYeBMEScXlZ2XP2VSmntAtBSLA2k2kr6rjHLJwEZMInfzJUu1suo9QnEAx8N
-	6wx+vlWhDTUoECbe7t9VcLLHCLnV0jfcVNkEjD9ynePEUotNt3oUHHJyhf8aGMd9oPT/kL4un9q
-	Y7Y
-X-Received: by 2002:a05:6820:f007:b0:6b4:3a06:c251 with SMTP id 006d021491bc7-6ca9ad3aa5emr1276873eaf.29.1789707472079;
-        Thu, 17 Sep 2026 21:57:52 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1789707480; x=1790312280;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=UqClDMZv+Qp3g2QhTysx0rBLnCkZVZnC/Rs9Rzbs0+0=;
+        b=wQZjDhj1pDWE6NHqThHd9T4C8y2a99lUxYd8oCjjxbFXXhdeIWuiKwFF2STnn3IVkc
+         K/DhsuiDdrTiE/lko2/e5rXKfygKqZHNJW140RgOZkRz8X+KWGPyyY4SYdwB735VlUx5
+         QuUhls92UNvMUkLub+qq9XbqpvoSnprvq7tksSc+OaI0rPvOBkvAfawyUuF/srnF5BNW
+         B3NshFQ4cZITgEkLWv5LyFzZpQ/bOgqhDZDU7kszjCRSwd69XQEBoclKsYim94Y74iU9
+         Vai5eiX4I7BHMtVe1n15tXDFCpbWmJqFn04dgPIpNV8SwhglhryWvUVIT9S+4Yh+no1V
+         1HpQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwbPLY6hy08ScNAG3UVPH0jatwJqupsY5631pyRXzAxzQKPxIOmgHXZJxII8Hvk4jnB33/ntYvTei4=@vger.kernel.org
+X-Gm-Message-State: AFuF++lIv3ScprW2/QXiVHr+vtmjYu6Xl2HL9FU+V2Nf4ayBhxSwjLyW
+	lBKS++8vo1aUNH69QBQAg1KOQJGwIKLSzqHCclYjUIJpgvam5QQe4BnO2KiPOwI5J0Q=
+X-Gm-Gg: AYBFou3bTpLeL4PX/xKZETcnSkd/f1iv92ZiNno5OABAFT5hSEgR5NUM1kqYB41/JYe
+	9o7cehCIhivo1osacu4tNYNr83vy58ArdU7t1af6Cw84gxNiztXjKmOg2ZGDoI3W5XN6K3yWQsV
+	rrf7H8+A8xW6WGlqvw+OIBUK84FJ25FjL8otXZRqBIVVZdW16URaPPe7zVOymUP4tDWYc7NO7G+
+	z1VJu6R5DbmNOJZ/jc94sQ0FwLlc3mMFIjCI9KNUvnTkDjsP5z98QyBSajf8WI39m8zNvAgn+CN
+	vDOWS7PRBfUitnfFyVsYlLLunrRawUmgeQeLEgt4aiUA/RamdOj8H6WMUrGJGmFuY4Gi9BDqNiV
+	zvCUDQ/kBFXYv86kbJoV2Pzqz4OFfc6CEjVKgejapBDEt8fUvIhUYcBUhySjHG08Fh4feFxn+e3
+	AaFvI9AeR0WR/sTe6xkl5IkVMFvbp0Hzx4BN96ovufQueRPDAJiRlTV+lM1TdZ29mG6BOXT++6C
+	yuD
+X-Received: by 2002:a05:6870:2419:b0:483:b498:9db0 with SMTP id 586e51a60fabf-486e5447154mr1433078fac.14.1789707480336;
+        Thu, 17 Sep 2026 21:58:00 -0700 (PDT)
 Received: from [192.168.18.164] ([2600:8804:5716:d800::b712])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-48739da0d0dsm256318fac.12.2026.09.17.21.57.49
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-48739da0d0dsm256318fac.12.2026.09.17.21.57.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2026 21:57:50 -0700 (PDT)
+        Thu, 17 Sep 2026 21:57:53 -0700 (PDT)
 From: Ryan Brue <ryanbrue.dev@gmail.com>
-Subject: [PATCH 0/2] rtc: mt6397: expose the RTC's spare bytes as nvmem
-Date: Thu, 17 Sep 2026 23:57:45 -0500
-Message-Id: <20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-v1-0-558b8f95cfbc@gmail.com>
+Date: Thu, 17 Sep 2026 23:57:46 -0500
+Subject: [PATCH 1/2] dt-bindings: mfd: mediatek: mt6397: describe the RTC's
+ nvmem layout
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -70,10 +72,9 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2NwQqDMBAFf0X23AWNELG/UnpI9Wn3kFR2E5GK/
- 97Q4zAwc5JBBUb35iTFLiafVKG7NTS9Q1rBMlcm1zrfjt3A+tICtoIvl82yIkRJK8fs+7HaPHH
- aIyIDLvTOh3lYHNXapljk+J8ez+v6AbkEtDF5AAAA
-X-Change-ID: 20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-ee2a326ad7f2
+Message-Id: <20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-v1-1-558b8f95cfbc@gmail.com>
+References: <20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-v1-0-558b8f95cfbc@gmail.com>
+In-Reply-To: <20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-v1-0-558b8f95cfbc@gmail.com>
 To: Sen Chu <sen.chu@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, 
  Macpaul Lin <macpaul.lin@mediatek.com>, Lee Jones <lee@kernel.org>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -87,55 +88,51 @@ Cc: linux-pm@vger.kernel.org, mfd@lists.linux.dev,
  linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
  linux-rtc@vger.kernel.org, Ryan Brue <ryanbrue.dev@gmail.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789707469; l=2221;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789707469; l=1572;
  i=ryanbrue.dev@gmail.com; s=20260906; h=from:subject:message-id;
- bh=pKSQ0omTuskZq+kor8UoJ2wNfDWorQkFIo60SsXbA4I=;
- b=D2wXBjz7609fl7tbdcv1OCK2Vh4M2UOlYFbDFGfPMj9WSbvog4bhWkntuU48WNlEyAVi731X1
- mTV4XKZ/YGDB/yukOfu0K8mkN81aRKfm+RoXS0pYHAKLn1q/1WbZXok
+ bh=QApoySis0Adh6uF/PzHVfhA1jkpjYHZNgPhek+gBJ7E=;
+ b=mjeSErd6IUo2Z5QDXzSoT7MEYbyj3Na50gNAofJEh5wz/azQT61QJzOrgH1djAKYxTLLJUkYV
+ wo88yBIlUloAzlG19N2bRJfn1YRBdEMkcgp1nZ1QQEMSYEmHHj+zw0v
 X-Developer-Key: i=ryanbrue.dev@gmail.com; a=ed25519;
  pk=KsUvVaP//v/2q+ZBuacc7cLbsyEYn+AD71Sn28oZWKo=
 
-Four of the MT6397 RTC's alarm registers use only their low bits. Each alarm
-field lives in the low byte of its own register and the driver masks its
-writes accordingly, so the high byte of four of them is storage the clock and
-the alarm never touch. MediaTek's documentation names them RTC_NEW_SPARE0 to
-RTC_NEW_SPARE3 and assigns the first to a fuel gauge, which is how its PMIC
-battery drivers carry a state of charge across a reboot.
+Four of the MT6397 RTC's alarm registers use only their low bits; the
+high byte of each is storage the clock and the alarm don't touch.
+MediaTek's documentation names them RTC_NEW_SPARE0 to RTC_NEW_SPARE3 and
+assigns the first to a fuel gauge, which is what a battery driver reads
+at boot so that the reported capacity does not jump across a reboot.
 
-These patches describe that layout in the binding and expose all four bytes
-from the RTC driver as a battery-backed nvmem provider. Doing it here rather
-than in the consumer is the point: a write then lands under the same lock the
-alarm paths take, so it can neither be lost inside mtk_rtc_set_alarm()'s
-read-modify-write nor fire the write trigger in the middle of one.
+They sit in the RTC's always-on domain, so the driver can offer them as
+a battery-backed nvmem provider. Allow a board to lay cells out over
+them.
 
-There is no in-tree consumer yet. The one this is for is an MT6397 fuel gauge
-that is not ready to post; its other dependency, the MT6397 PMIC AUXADC, is
-on the list now [1]. Offering the provider ahead of the consumer follows what
-the subsystem already does -- 32 drivers under drivers/rtc register nvmem --
-and it is the part that has to exist before a battery driver can stop reaching
-into this block behind the RTC's back.
-
-Tested on an MT6397, in an Amazon Fire HD 10 (2017). MediaTek's spare map for
-the mt6323 matches, and the alarm field masks are common to every compatible
-this driver binds.
-
-[1] https://lore.kernel.org/all/20260917-rbrue-suez-upstreaming-mt6397-auxadc-v2-0-db35882a6080@gmail.com/
-
+Assisted-by: LLM
 Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
 ---
-Ryan Brue (2):
-      dt-bindings: mfd: mediatek: mt6397: describe the RTC's nvmem layout
-      rtc: mt6397: expose the spare bytes of the alarm registers as nvmem
+ Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
- .../devicetree/bindings/mfd/mediatek,mt6397.yaml   |  9 +++
- drivers/rtc/rtc-mt6397.c                           | 91 +++++++++++++++++++++-
- include/linux/mfd/mt6397/rtc.h                     |  7 ++
- 3 files changed, 106 insertions(+), 1 deletion(-)
----
-base-commit: fd73f4a6659897191fa0d40695fe370925dd3780
-change-id: 20260917-rbrue-suez-upstreaming-mt6397-rtc-nvmem-ee2a326ad7f2
+diff --git a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
+index 3cbc0dc12c31..5c89c589b53c 100644
+--- a/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
++++ b/Documentation/devicetree/bindings/mfd/mediatek,mt6397.yaml
+@@ -81,6 +81,15 @@ properties:
+ 
+       start-year: true
+ 
++      nvmem-layout:
++        $ref: /schemas/nvmem/layouts/nvmem-layout.yaml
++        description:
++          The RTC carries four bytes of storage that neither the clock nor the
++          alarm uses, in the high half of four of the alarm registers, and
++          offers them as a battery-backed nvmem provider. MediaTek's
++          documentation names them RTC_NEW_SPARE0 to RTC_NEW_SPARE3 and gives
++          the first to a fuel gauge.
++
+     required:
+       - compatible
+ 
 
-Best regards,
---  
-Ryan Brue <ryanbrue.dev@gmail.com>
+-- 
+2.55.0
 
