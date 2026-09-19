@@ -1,142 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0815D3624A9;
-	Sat, 19 Sep 2026 07:08:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777DD3D669F;
+	Sat, 19 Sep 2026 09:17:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789801707; cv=none; b=iPhD5+iZh+JQ1UxMAYrLf76//2nDjqhUcXjiU8FAyGYzPu9sY+/RMLwcP9yyqtTZWYFMOIHDzCf4VVOJHSMQaso/i5SIsHzdfx33hnYKQ7sa3HkS4b5mfi4OfCH02teTui6X21MYpZcFNYkGZ6vDlWZFErQ1Ah9WRvraZ/roxjo=
+	t=1789809426; cv=none; b=Z1KPO2Q4J0W15AWWWhl3C4UMvPg+H/nzGDWG/2e97ie/GkdwBsx5tBchK2EzsxT5hgvGiCt0WvxMSK301me0lx20nbVkDfIcdSNReYU8yxD8WhGsjMpzt/ibs7mGU+zRhS0iXYamsgfhWLzlFXvPnUlLtE/SBk66BNTnM6GVroI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789801707; c=relaxed/simple;
-	bh=5MGz3WuTKdMlxJLz4fLHKYHs7Zt62FQYjI6usArljZU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LZjZGC9/jx1bFCCAjPaIhprbj3iauy7fEXpRw6ROzh+mIOc7V37XUl1PySyl9Th3/9gFQrph6zV7O9zt/2F8uR7NI4XXwnNFbi01ZkNMNEtrBpjxAwKQ0RiMUN6NtDhLAVX4+P4h6ux5zq94063RX5zOwTF8Y0x9Ifmippcq1E8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BCh+Q1fk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789809426; c=relaxed/simple;
+	bh=cYORSXUuqD65c95GY1/n/DazfXF+Xhi5Ptoc+KjPJl8=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=soYgohrH5HTWUEwLD6T2f8bFsHfoycEdU6ej4BwjgIfx09txOJAZ99Yrj6rZTId97LCu1y5Vf+mXDBWDh5kPZ3yPN6u5/18X7YKT4aIdTFWBBJnorp8t0anoAjiSKhrKDAipevTK+t97ZMQYVcKG11tgI0Xy/MJIl+6NMBw86ec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=fd7vQLhw; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=rOf28EPd; arc=none smtp.client-ip=103.168.172.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BCh+Q1fk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC9F41F000FF;
-	Sat, 19 Sep 2026 07:08:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789801705;
-	bh=uhaSLRWxWnpOZ1hMGZ3P8vEzC790v0CsHkY9724kydk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=BCh+Q1fkXZMtjVafQ5YGFV+h5db354VNq/ELCWyC4KkM9EOKXmUTlqgi+ma1wXozp
-	 DftsecIquMnGZU/bn7dlqfHB0SFowcKCtqYqFYBKKfUSA8s3K9Rsk5SMYPxnV+DeBV
-	 Y5Sj2gXory2ScdEG5Sx21lZEfxqdEdqZ9ssZyQau7j9QTMvL/H4vwGIsnSHVVKjlqr
-	 r41sO26J5aU+9ztpXEn5Q6cqRxLTKJH0TIlovq31RymcWsd+tEVLn+dCLOvNd83tjr
-	 uc83mnTCusi1VsH/mO2vViF+aXTvauBuk/3UmRhVl0wbrNfua+U/YMiqJx6DLrDv5O
-	 AiKJ0In7NVj/A==
-Message-ID: <457bb3d5-1d73-4acb-9ef0-4e40de6bdc94@kernel.org>
-Date: Sat, 19 Sep 2026 09:08:04 +0200
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="fd7vQLhw";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rOf28EPd"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id C029214000A1;
+	Sat, 19 Sep 2026 05:17:02 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Sat, 19 Sep 2026 05:17:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1789809422;
+	 x=1789895822; bh=TVGm/Byj3e+AhQkHso7bisUdHCmm5Mg4iVX1NG0/Mrs=; b=
+	fd7vQLhwyiBHxxSzBltEX2iDGxTikqqRm5fv25y6SM0LgNn51X0kjD4E2AEvyZx8
+	dANDDRyUJdW22PBMUvj9xJDgKUiH0CK3NzO9G4dLp0o10NVMLaCFcOIQ+wIb/jtr
+	+JNFQ9AzH8CDLU79b6PlGOvDBQ45vfMoVeAw2Iv1MFXfiqDEv2Le96OXqfzK4dyl
+	PcOHaFGBz7MAACBcqMje92N9PuUsow57XfXjMEP78YxrmfcoimJyV5KiB5C+henm
+	7JYSb4b1jbEjanf6S5QDjKe+vm2efM2zo0knPRmogPpmwk7eMQMmm+VxkX9qfxhH
+	C/hSP08F1ntCgGqdfMF++Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789809422; x=
+	1789895822; bh=TVGm/Byj3e+AhQkHso7bisUdHCmm5Mg4iVX1NG0/Mrs=; b=r
+	Of28EPdtrX+7VUeUSOKn7+ap6F/OoWEs9KZWGfUX6M3jghxTAd4MrvDUFuRIN1US
+	zAD1v/nLGTHP6i/gU+s1PI4RQmTwsU+T43bcVa8GssrJwLzy/D6gNemkKM7fhVCz
+	0eqbAebszCps59ORyCGJ53s13Bhp4bL6L2vI0CKHIl4md4P8s4OWIjKZUveIiISE
+	z73qKrFbqn8tKNsvULWRHQrU5wonQIvHgOPoStjV/qBTs/HlogZ148Fn9QoIxZSp
+	dFpjHyKOAt1TR6BJYbISY0tNtcZP/RUpyqqqQtE5sw2eAHX5rpbS2ZbCAxSHiwu5
+	u1Y2DtN/IPPm5WWSfxqTQ==
+X-ME-Sender: <xms:DFOuajmdIy3skBeDg3c80dUvbqjNS56Jcmb45vBTd4WL8acNErQIrQ>
+    <xme:DFOuahr7hXG08GcX3xYbver4vKcXNMXr2THf5-X417Eqe2-QRvwQtu3F_fg8Wp70H
+    ZHEjZSjYPKoeCal7MSSu8ITFeg4v7B9lYBO8LqHjfDteZdXpfkQIQ>
+X-ME-Proxy-Cause: dmFkZTExHf1X7OumjBwuK2pkmw/F3OmI/Rh5w17UJ360JwlWT0zd8dDj4wSfKK6qtf9DXV
+    QULra5QczBVRwKg2ZvVtAKEutL5kNNUFEr7ZdYCp7o4DrzzVF4cfGcKMXfNLNvzbd9oBR0
+    x+EHuZbNjMlWAHWYWGO86RbjEA4tvBvxH4GxTWSRAi+YMU47k9ZvndFvZo0r3yCJ0CQ9Hf
+    TKbTVPg3HFxVBZ2lFIecqfbjyvcfJ8FEiixc2h5eZrZtDuADneWIPiYLHcmHHQgrnUSO9u
+    suI9/xmCMZAJsX5x9GHxwM0fAT6KpTM5yv0GIGCbpDQLCgXejRUHLUed81WmZI56xY9yK0
+    5ScHrwWLHiBvmAVNJJco/j3oTOIToAsvphvWzERGVcQyjDFnkMNWpGlsZj4FieNsQBgeWE
+    QUG/BHBQzaN8P5NKpxDB2s4hxf7io7TazR9sD6+l87qEgKumBP6rV+yYCB2ulkL4+895Z5
+    5UwTsX8x0oF2t2MwD7lypBXiXtIudoejaxXp0LjBYYsBQHD+snIJAmZxDgbTIy0K1DXgGB
+    QLUXCDmK1sIg/J7BvU2YBxzQTT/Uwcbp4lWA94k/JDEz8J4HcOGeuWwoepEfvCQh1i/D90
+    WExckfg27f+bmsB6R8W3Dab7+xNOQvHYYy1kGMSV4ON7l8lcIQNKX9P5BQPg
+X-ME-Proxy: <xmx:DFOuamvxkpWoBPkTAIFD48t-W2mmRutnQc2EjAz_N5PkJo6ZFLgxLQ>
+    <xmx:DFOuam46sVstmzXjUWHHI_NbJmIGF44ubL969F91dSknUPXD0a3_Sw>
+    <xmx:DFOualTIRw5-Yfj0K4aI0yImOF4czpOxCtmqx_HX_Z_m19EXySKYlQ>
+    <xmx:DFOualqqKDOHxOs1drCVxd567lndPMRIaFAyJpcVaM0O_2cyoZNzAg>
+    <xmx:DlOuaqanCGBRigPn6WnPoUfKv_shbuRjELoXRjdxQrd82B7O6-sYq2GQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id F115D32A0087; Sat, 19 Sep 2026 05:16:59 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: Expand flow lists to block lists
-To: Daniel Matyas <matyasdaniel006@gmail.com>, Lee Jones <lee@kernel.org>,
- =?UTF-8?Q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>,
- Ulf Hansson <ulfh@kernel.org>, Liang Yang <liang.yang@amlogic.com>,
- Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Neil Armstrong <neil.armstrong@linaro.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Ray Jui <rjui@broadcom.com>,
- Scott Branden <sbranden@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Will Deacon <will@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Vinod Koul <vkoul@kernel.org>,
- Thierry Reding <thierry.reding@kernel.org>,
- Jonathan Hunter <jonathanh@nvidia.com>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>
-Cc: Jose Abreu <joabreu@synopsys.com>, Ray Jui <ray.jui@broadcom.com>,
- Scott Branden <scott.branden@broadcom.com>, Atish Patra
- <atishp@rivosinc.com>, Shawn Guo <shawn.guo@linaro.org>,
- Dmitry Osipenko <digetx@gmail.com>, Thierry Reding
- <thierry.reding@gmail.com>, Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
- Okan Sahin <Okan.Sahin@analog.com>, devicetree@vger.kernel.org,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@sifive.com>, Conor Dooley <conor@kernel.org>,
- linux-rtc@vger.kernel.org, Ricard Wanderlof <ricardw@axis.com>,
- patches@opensource.cirrus.com, Lukas Wunner <lukas@wunner.de>,
- Chunfeng Yun <chunfeng.yun@mediatek.com>, Eugen Hristev
- <ehristev@kernel.org>, dri-devel@lists.freedesktop.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, linux@analog.com,
- linux-input@vger.kernel.org, chrome-platform@lists.linux.dev,
- linux-riscv@lists.infradead.org
-References: <20260917144028.459053-1-matyasdaniel006@gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20260917144028.459053-1-matyasdaniel006@gmail.com>
-Content-Type: text/plain; charset=UTF-8
+X-ThreadId: ApDcdGHCsDIN
+Date: Sat, 19 Sep 2026 11:16:29 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Karl Mehltretter" <kmehltretter@gmail.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <5515c266-f9cd-405f-b7a8-1ec45d9d902a@app.fastmail.com>
+In-Reply-To: <aq3R5QnCpu_fOq8g@gmail.com>
+References: <20260914212537.1452-1-kmehltretter@gmail.com>
+ <7c020979-cf03-4ece-a7d4-b1475d1400c3@app.fastmail.com>
+ <aqnHDxRIBncNH6qr@gmail.com>
+ <59ba6707-c5d5-4fd8-9200-f910e61d9232@app.fastmail.com>
+ <aq3R5QnCpu_fOq8g@gmail.com>
+Subject: Re: [PATCH] rtc: class: Make the time32 hctosys limit configurable
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On 17/09/2026 16:40, Daniel Matyas wrote:
-> Running dt_bindings_check returned:
-> [error] string value is redundantly quoted with any quotes (quoted-strings)
-> 
-> The files used quotation marks in flow lists because the strings had
-> commas and these commas were interpreted as separators. Convert flow
-> style lists to block style lists, so that there is no problems with the
-> commas.
-> 
-> Signed-off-by: Daniel Matyas <matyasdaniel006@gmail.com>
+On Sat, Sep 19, 2026, at 02:10, Karl Mehltretter wrote:
+> On Wed, Sep 16, 2026 at 08:56:02AM +0100, Arnd Bergmann wrote:
+>> > existing safeguard automatically and prevent restoring it without
+>> > re-enabling the legacy ABI.
+>> 
+>> I'm not following your logic here, what is the safeguard?
+>
+> I meant the existing RTC cutoff. In my glibc test, accepting the
+> 2040 RTC date changes time32 clock_gettime() from success to
+> EOVERFLOW.
 
-Ignore this patch. Daniel sent it THREE times, so we need to respond
-three times that it is wrong.
+I see. I would just not call that a safeguard, it's more of a
+time bomb ;-)
 
-Best regards,
-Krzysztof
+Note that the cutoff was never meant to help systems actually
+run beyond 2038, but instead is only needed on very rare systems
+with a broken RTC implementation that have a random reset
+value if the RTC is enabled in devicetree but the backup battery
+is absent or depleted.
+
+>> With a fixed C library, COMPAT_32BIT_TIME=n should act as a safeguard
+>> to ensure that no interfaces can be used that limit time to y2038
+>> and break unexpectedly in the future. The RTC_HCTOSYS interface
+>
+> Should we try adding an option to build glibc and other libcs without
+> time32 interfaces? Looking at musl's source, its time32 clock_gettime()
+> wrapper also calls the time64 implementation and checks whether the
+> result fits [1].
+
+I think that would be great, we can certainly try again, at least
+with glibc, where at the time the concern was more about the timing
+of behavior changes.
+
+There are two separate questions here:
+
+a) Having a libc build only against the time64 interfaces. As far
+   as I understand, glibc has used linux-3.2 headers as the
+   baseline for kernel compatibility for a long time but one can
+   choose a later version. Building with 5.10+ as the minimum
+   should already avoid the time32 syscalls, but that could at
+   some point be made the minimum header version for 32-bit targets
+   or everything.
+   musl does not specify a minimum kernel version at all and tries
+   to go back as far as possible, so the fallback code is likely
+   to stay indefinitely. Rich also does not like the idea of setting
+   CONFIG_COMPAT_32BIT_TIME=n (ever), and an unpatched musl
+   build will fail in that configuration.
+   
+b) providing 32-bit interfaces to applications: both libraries
+   already provide these as wrappers around the 64-bit internal
+   functions, which is part of the problem here but does mean that
+   it should be possible to just leave those out. On musl this
+   should be very easy (just skip building the compat/time32/
+   directory), on glibc I expect this to be much harder as it
+   interferes with their idea of having __TIMESIZE=64 vs
+   __TIMESIZE=32 as a hardcoded per-architecture setting.
+
+>> actually make it work. Since we have COMPAT_32BIT_TIME as a global
+>> option already, it makes a lot of sense to actually use it here
+>> as well.
+>
+> Could we use COMPAT_32BIT_TIME for the default, but still allow the
+> limit to be enabled? I could split the update into two patches:
+>
+> 1. Add RTC_HCTOSYS_TIME32_LIMIT with default y, as posted. This keeps
+>    the existing RTC date acceptance by default.
+>
+> 2. Change the default, keeping the dependency unchanged:
+>
+>        depends on RTC_HCTOSYS && !64BIT
+>        default COMPAT_32BIT_TIME
+>
+> With RTC_HCTOSYS=y on a 32-bit kernel, the default would allow
+> post-2038 RTC dates when COMPAT_32BIT_TIME=n. Integrators could still
+> enable the limit without re-enabling legacy syscalls.
+>
+> I suggest nominating the first patch for stable. Would default
+> COMPAT_32BIT_TIME also be suitable for stable?
+
+I think the 'default COMPAT_32BIT_TIME' would absolutely make
+sense for stable, since that can only really be set by users that
+have a fully 64-bit userspace already and the limit will
+cause problems for them.
+I would still go one step further and make this
+
+config RTC_HCTOSYS_TIME32_LIMIT
+	bool "Reject RTC dates after the 2038 cutoff"
+	depends on RTC_HCTOSYS && !64BIT && COMPAT_32BIT_TIME
+	default y
+
+to completely disallow it. I think we should wait for Alexandre
+to comment here, as it's his subsystem in the end and I'm sure
+he has an opinion on the matter.
+
+     Arnd
