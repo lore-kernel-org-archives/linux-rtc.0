@@ -1,188 +1,178 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f31.google.com (mail-wr2-f31.google.com [74.125.225.95])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777DD3D669F;
-	Sat, 19 Sep 2026 09:17:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789809426; cv=none; b=Z1KPO2Q4J0W15AWWWhl3C4UMvPg+H/nzGDWG/2e97ie/GkdwBsx5tBchK2EzsxT5hgvGiCt0WvxMSK301me0lx20nbVkDfIcdSNReYU8yxD8WhGsjMpzt/ibs7mGU+zRhS0iXYamsgfhWLzlFXvPnUlLtE/SBk66BNTnM6GVroI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789809426; c=relaxed/simple;
-	bh=cYORSXUuqD65c95GY1/n/DazfXF+Xhi5Ptoc+KjPJl8=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=soYgohrH5HTWUEwLD6T2f8bFsHfoycEdU6ej4BwjgIfx09txOJAZ99Yrj6rZTId97LCu1y5Vf+mXDBWDh5kPZ3yPN6u5/18X7YKT4aIdTFWBBJnorp8t0anoAjiSKhrKDAipevTK+t97ZMQYVcKG11tgI0Xy/MJIl+6NMBw86ec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=fd7vQLhw; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=rOf28EPd; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEB7533E35C
+	for <linux-rtc@vger.kernel.org>; Mon, 21 Sep 2026 08:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.95
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789981024; cv=pass; b=g109eVtCmwvpka7CIXVyLh0aj/f7iCCExj+/66DAxfas7j2BWb+PwyBmU8QRHYOMiBMi49jAevBzvw6PVfRRrEBc5DouxXq8yzZf7OlsTabTWB/l1b6h/RiEjLBu0xGA4YqcdzQH87v8+hyO0pxDvEBtPtMsNBTwc/O+XtY4Af0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789981024; c=relaxed/simple;
+	bh=LIMisOFGt0qIn1CPMIveMR4IC+rDqNbpmZfUtuIDlQo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CH302jQjc6bG02tkVpvvrTwHshVwTxBiwuhlFTgbq4CZwp1wNOI8nccgTQEPcKeydDZrO2nw5VBn+F5C+DF8K4KNDBJ4xzbVN2eJ7PYSN6Xl+Ux8ZaU361yHDNRLVlAR2HIVWqMyYkz/MyoSExrks4UG6ryJNXhwgBTI2v49gZY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r9SmA2aW; arc=pass smtp.client-ip=74.125.225.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="fd7vQLhw";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rOf28EPd"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id C029214000A1;
-	Sat, 19 Sep 2026 05:17:02 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Sat, 19 Sep 2026 05:17:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1789809422;
-	 x=1789895822; bh=TVGm/Byj3e+AhQkHso7bisUdHCmm5Mg4iVX1NG0/Mrs=; b=
-	fd7vQLhwyiBHxxSzBltEX2iDGxTikqqRm5fv25y6SM0LgNn51X0kjD4E2AEvyZx8
-	dANDDRyUJdW22PBMUvj9xJDgKUiH0CK3NzO9G4dLp0o10NVMLaCFcOIQ+wIb/jtr
-	+JNFQ9AzH8CDLU79b6PlGOvDBQ45vfMoVeAw2Iv1MFXfiqDEv2Le96OXqfzK4dyl
-	PcOHaFGBz7MAACBcqMje92N9PuUsow57XfXjMEP78YxrmfcoimJyV5KiB5C+henm
-	7JYSb4b1jbEjanf6S5QDjKe+vm2efM2zo0knPRmogPpmwk7eMQMmm+VxkX9qfxhH
-	C/hSP08F1ntCgGqdfMF++Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789809422; x=
-	1789895822; bh=TVGm/Byj3e+AhQkHso7bisUdHCmm5Mg4iVX1NG0/Mrs=; b=r
-	Of28EPdtrX+7VUeUSOKn7+ap6F/OoWEs9KZWGfUX6M3jghxTAd4MrvDUFuRIN1US
-	zAD1v/nLGTHP6i/gU+s1PI4RQmTwsU+T43bcVa8GssrJwLzy/D6gNemkKM7fhVCz
-	0eqbAebszCps59ORyCGJ53s13Bhp4bL6L2vI0CKHIl4md4P8s4OWIjKZUveIiISE
-	z73qKrFbqn8tKNsvULWRHQrU5wonQIvHgOPoStjV/qBTs/HlogZ148Fn9QoIxZSp
-	dFpjHyKOAt1TR6BJYbISY0tNtcZP/RUpyqqqQtE5sw2eAHX5rpbS2ZbCAxSHiwu5
-	u1Y2DtN/IPPm5WWSfxqTQ==
-X-ME-Sender: <xms:DFOuajmdIy3skBeDg3c80dUvbqjNS56Jcmb45vBTd4WL8acNErQIrQ>
-    <xme:DFOuahr7hXG08GcX3xYbver4vKcXNMXr2THf5-X417Eqe2-QRvwQtu3F_fg8Wp70H
-    ZHEjZSjYPKoeCal7MSSu8ITFeg4v7B9lYBO8LqHjfDteZdXpfkQIQ>
-X-ME-Proxy-Cause: dmFkZTExHf1X7OumjBwuK2pkmw/F3OmI/Rh5w17UJ360JwlWT0zd8dDj4wSfKK6qtf9DXV
-    QULra5QczBVRwKg2ZvVtAKEutL5kNNUFEr7ZdYCp7o4DrzzVF4cfGcKMXfNLNvzbd9oBR0
-    x+EHuZbNjMlWAHWYWGO86RbjEA4tvBvxH4GxTWSRAi+YMU47k9ZvndFvZo0r3yCJ0CQ9Hf
-    TKbTVPg3HFxVBZ2lFIecqfbjyvcfJ8FEiixc2h5eZrZtDuADneWIPiYLHcmHHQgrnUSO9u
-    suI9/xmCMZAJsX5x9GHxwM0fAT6KpTM5yv0GIGCbpDQLCgXejRUHLUed81WmZI56xY9yK0
-    5ScHrwWLHiBvmAVNJJco/j3oTOIToAsvphvWzERGVcQyjDFnkMNWpGlsZj4FieNsQBgeWE
-    QUG/BHBQzaN8P5NKpxDB2s4hxf7io7TazR9sD6+l87qEgKumBP6rV+yYCB2ulkL4+895Z5
-    5UwTsX8x0oF2t2MwD7lypBXiXtIudoejaxXp0LjBYYsBQHD+snIJAmZxDgbTIy0K1DXgGB
-    QLUXCDmK1sIg/J7BvU2YBxzQTT/Uwcbp4lWA94k/JDEz8J4HcOGeuWwoepEfvCQh1i/D90
-    WExckfg27f+bmsB6R8W3Dab7+xNOQvHYYy1kGMSV4ON7l8lcIQNKX9P5BQPg
-X-ME-Proxy: <xmx:DFOuamvxkpWoBPkTAIFD48t-W2mmRutnQc2EjAz_N5PkJo6ZFLgxLQ>
-    <xmx:DFOuam46sVstmzXjUWHHI_NbJmIGF44ubL969F91dSknUPXD0a3_Sw>
-    <xmx:DFOualTIRw5-Yfj0K4aI0yImOF4czpOxCtmqx_HX_Z_m19EXySKYlQ>
-    <xmx:DFOualqqKDOHxOs1drCVxd567lndPMRIaFAyJpcVaM0O_2cyoZNzAg>
-    <xmx:DlOuaqanCGBRigPn6WnPoUfKv_shbuRjELoXRjdxQrd82B7O6-sYq2GQ>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id F115D32A0087; Sat, 19 Sep 2026 05:16:59 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r9SmA2aW"
+Received: by mail-wr2-f31.google.com with SMTP id ffacd0b85a97d-4843c2790ccso1602076f8f.1
+        for <linux-rtc@vger.kernel.org>; Mon, 21 Sep 2026 01:57:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789981018; cv=none;
+        d=google.com; s=arc-20260327;
+        b=IqX4B7mQDWm8JQsLKEKlU+z7bUy7uTJ7hBgOD/t7j2XC4n/i5nZ/93Ljsr4NK7yzRN
+         fsr3dZ1OLkZU1vPPc6LyWz07zNKfXbRxXVuTczZ3rqoVD4eiK2a+ATYNl5C+u+NbGG+C
+         8+FmIieCHi7tAHdWSLdtCoxrVKpcw5zdcBAfnXbNuaNKOer8C0dPaiMEXMQd843JcUPc
+         ON4ogyEyNuV50GV3jTQvs1JsnkdHnHtQmMGsJB/hqpBDXzXU7i15Hwx2cihUychSiOiL
+         2kP0uifAz4de1QX/6c5sA8Q4kZNE2+OnNL0SrsQHz60l/wk4KoKlb39VZs+iKTiRtljO
+         fRJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=qON0nZ3j82CiOmvFqun6r6qqh5dkAemGnmHmfUfUMgI=;
+        fh=g9eoOTH4d0YKB/W+rDO4KGbYFW9lckUu1b7vYQdkvlU=;
+        b=r5hPxVyAa+vJlJ4Ucd7/GuN/O+La1MHCumhdbQlzxGSU+c1TsBFjmrrqJFV778E8Fl
+         KK1TWaHEnhzFIkKmX+jzTas2PSeoe2s+mrQXfDHBrQ1HhShdb3uBYiRkuzHiVigpZ+c4
+         74mjiYo8hamAA0Hq9O/YJL6SCY/xNNJeTV5p0Hk1KVxMh+sJYgNwA9YlDB2wyF4wvEsw
+         I1jp4q7EnaZcK+qKuDfpRLGWHYp1kG5+68NPxNtZBB19PCtuWRrW8GmxQLaGbQpHIibw
+         rbUZqt90SOewX5aDLAHDLXoDdg7YGmlSvlZyOyd9VUhpdwVuhGT+vou6IekBw3qdR9wT
+         E3TQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789981018; x=1790585818; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=qON0nZ3j82CiOmvFqun6r6qqh5dkAemGnmHmfUfUMgI=;
+        b=r9SmA2aWbdtQDOK50ymPvhTVeRUUSayv17P+1q+tWz8l7VTadUph4aJiemMhWNyVHn
+         o9CDznKLNQ3j/hmc977Rg404wDglH1zk9pPC8R7Gyp5q+xq2R8g31HYyXDZkNwGDhiF5
+         ixhHx4puuB9dHflPVvnuIu6Hw1fJKAPrL3fwXKSbBusz06/3GpZYYNCFzo5ginUlyahJ
+         ua/VQW6RaxcBgynx3xaLd5Z+34VZ8Fl7anAK9ziZlugRJFseCBJEj9a6gWDeSgfGLK7q
+         j1FKgDkq/KskJHhoOSwFcVf0GN7iwgdTtmJ6V5GMHu66khVnaHPf5wLL12ZIoCCSDczS
+         XFOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789981018; x=1790585818;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qON0nZ3j82CiOmvFqun6r6qqh5dkAemGnmHmfUfUMgI=;
+        b=NMFmODJBjCOJw1k6srapu1LHasORiwZVtGWk6FhBc1V85PSqm6WkiDcM3zu0Zpfl0I
+         up/5jG/2B7jA+zYCysUaaimNAxa3OSAG8Q1irfpDGpm230+Sml5d5pupJwi+g7iavHoV
+         HdEHu50IcTb3hJIVS90DXfqyn723vlyjoUhIkJo78eFKcRWrMyz2mDom9Zmjjx/T/6Zt
+         QUByaUxN8H9w1nGtEcStLJ8BAz9MqIlfh9NxfHUvx1dgmWLrtp8mjnGtcCAByZd5n1PS
+         pOu1mT6X6X98zX18IQ6iAQPK3KWho0HJ41p9JhJoCn8hpamGru5SFy1cFavfyhncCsqe
+         Hy+g==
+X-Forwarded-Encrypted: i=1; AKwUvByhlHDYzJifHlGeTGcbrTaqSo2fhSt9YmIXAAxRZth3eClSy7dmtabLbQZWYdOwLd77Vl1q3kh/tCg=@vger.kernel.org
+X-Gm-Message-State: AFuF++ljVMTxOgNsh9x96pAzQIjXnE+an/3X7+JBBZ5+prCPvfaDH6Fu
+	tK1fMKi8s6gbs87pCB1U25ZCzyZ7swFM7B+i2fYOsz3oGCxh6wLrZJqUfMCMIq0CvNrA5UO6zLB
+	aqoBtgyUMY+5jxQtfocWxuxjhjcykoUU=
+X-Gm-Gg: AYBFou2BPBxrNE4DZVr/eUWr56IY5cFSEB35B7YdtMNz2Ew5GEAVCWlSwNmUJlBHHOW
+	PSiQWKzV8Och9u2AGkqeQXI+EilHWYi83rkcO8PRj2GYJ4ReGuLHwo7FQMwt62+lYP+EmcEYfuu
+	EYwSvckTYzLpA1t+CeuzJ+gz8x7C3w2AZk/wCUVTjmH0VDEkG9AXTvU+A5eOnJAUxlNKNUvEE7l
+	R/t8TTBQP/bALLxnfqRxLWEFCJCElh72DzStFAGwSiAUR9tvmJ0M2dlZYbYPZPNWzKPL/U/CVoB
+	0z2yF0JysWuTePgzfvj3vtGQv/fLA5VhEwIbusniyK1TJ7ACG7Idl6l1zhv1Tq4eNTzOoig+KqB
+	68Ny5aGMojjNGk4qVdjnMCGhGtDDnCjS5x4eJOjPFBxALhmS9aiuuOmKaAbmwnHpVhcFqpu+r
+X-Received: by 2002:adf:e001:0:20b0:487:21a4:f617 with SMTP id
+ ffacd0b85a97d-48721a4f785mr12067196f8f.19.1789981018022; Mon, 21 Sep 2026
+ 01:56:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: ApDcdGHCsDIN
-Date: Sat, 19 Sep 2026 11:16:29 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Karl Mehltretter" <kmehltretter@gmail.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <5515c266-f9cd-405f-b7a8-1ec45d9d902a@app.fastmail.com>
-In-Reply-To: <aq3R5QnCpu_fOq8g@gmail.com>
-References: <20260914212537.1452-1-kmehltretter@gmail.com>
- <7c020979-cf03-4ece-a7d4-b1475d1400c3@app.fastmail.com>
- <aqnHDxRIBncNH6qr@gmail.com>
- <59ba6707-c5d5-4fd8-9200-f910e61d9232@app.fastmail.com>
- <aq3R5QnCpu_fOq8g@gmail.com>
-Subject: Re: [PATCH] rtc: class: Make the time32 hctosys limit configurable
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20260917185903.61253-6-wsa+renesas@sang-engineering.com> <20260917185903.61253-9-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20260917185903.61253-9-wsa+renesas@sang-engineering.com>
+From: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date: Mon, 21 Sep 2026 09:56:31 +0100
+X-Gm-Features: AcwNN1UuhHZT5-lbDJzHKCaC457x5CxrktdfiOsZEU2bG1XndBnc3Ogxq0Q1bIE
+Message-ID: <CA+V-a8vdkeOP3uh-jObET1oCEOaEsyW4LJ9mxE0tOTqe81Rg_Q@mail.gmail.com>
+Subject: Re: [PATCH v4 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org, 
+	devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Sep 19, 2026, at 02:10, Karl Mehltretter wrote:
-> On Wed, Sep 16, 2026 at 08:56:02AM +0100, Arnd Bergmann wrote:
->> > existing safeguard automatically and prevent restoring it without
->> > re-enabling the legacy ABI.
->> 
->> I'm not following your logic here, what is the safeguard?
+On Thu, Sep 17, 2026 at 7:59=E2=80=AFPM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
 >
-> I meant the existing RTC cutoff. In my glibc test, accepting the
-> 2040 RTC date changes time32 clock_gettime() from success to
-> EOVERFLOW.
-
-I see. I would just not call that a safeguard, it's more of a
-time bomb ;-)
-
-Note that the cutoff was never meant to help systems actually
-run beyond 2038, but instead is only needed on very rare systems
-with a broken RTC implementation that have a random reset
-value if the RTC is enabled in devicetree but the backup battery
-is absent or depleted.
-
->> With a fixed C library, COMPAT_32BIT_TIME=n should act as a safeguard
->> to ensure that no interfaces can be used that limit time to y2038
->> and break unexpectedly in the future. The RTC_HCTOSYS interface
+> The RTC on R-Car X5H is a bit special because interrupts are not wired.
+> Future R-Car Gen5 SoCs will have them wired again. So, create a
+> dedicated entry for X5H without interrupts.
 >
-> Should we try adding an option to build glibc and other libcs without
-> time32 interfaces? Looking at musl's source, its time32 clock_gettime()
-> wrapper also calls the time64 implementation and checks whether the
-> result fits [1].
-
-I think that would be great, we can certainly try again, at least
-with glibc, where at the time the concern was more about the timing
-of behavior changes.
-
-There are two separate questions here:
-
-a) Having a libc build only against the time64 interfaces. As far
-   as I understand, glibc has used linux-3.2 headers as the
-   baseline for kernel compatibility for a long time but one can
-   choose a later version. Building with 5.10+ as the minimum
-   should already avoid the time32 syscalls, but that could at
-   some point be made the minimum header version for 32-bit targets
-   or everything.
-   musl does not specify a minimum kernel version at all and tries
-   to go back as far as possible, so the fallback code is likely
-   to stay indefinitely. Rich also does not like the idea of setting
-   CONFIG_COMPAT_32BIT_TIME=n (ever), and an unpatched musl
-   build will fail in that configuration.
-   
-b) providing 32-bit interfaces to applications: both libraries
-   already provide these as wrappers around the 64-bit internal
-   functions, which is part of the problem here but does mean that
-   it should be possible to just leave those out. On musl this
-   should be very easy (just skip building the compat/time32/
-   directory), on glibc I expect this to be much harder as it
-   interferes with their idea of having __TIMESIZE=64 vs
-   __TIMESIZE=32 as a hardcoded per-architecture setting.
-
->> actually make it work. Since we have COMPAT_32BIT_TIME as a global
->> option already, it makes a lot of sense to actually use it here
->> as well.
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
 >
-> Could we use COMPAT_32BIT_TIME for the default, but still allow the
-> limit to be enabled? I could split the update into two patches:
+> Changes since v3: tag added
 >
-> 1. Add RTC_HCTOSYS_TIME32_LIMIT with default y, as posted. This keeps
->    the existing RTC date acceptance by default.
+>  .../bindings/rtc/renesas,rzn1-rtc.yaml        | 19 +++++++++++++++++--
+>  1 file changed, 17 insertions(+), 2 deletions(-)
 >
-> 2. Change the default, keeping the dependency unchanged:
->
->        depends on RTC_HCTOSYS && !64BIT
->        default COMPAT_32BIT_TIME
->
-> With RTC_HCTOSYS=y on a 32-bit kernel, the default would allow
-> post-2038 RTC dates when COMPAT_32BIT_TIME=n. Integrators could still
-> enable the limit without re-enabling legacy syscalls.
->
-> I suggest nominating the first patch for stable. Would default
-> COMPAT_32BIT_TIME also be suitable for stable?
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-I think the 'default COMPAT_32BIT_TIME' would absolutely make
-sense for stable, since that can only really be set by users that
-have a fully 64-bit userspace already and the limit will
-cause problems for them.
-I would still go one step further and make this
+Cheers,
+Prabhakar
 
-config RTC_HCTOSYS_TIME32_LIMIT
-	bool "Reject RTC dates after the 2038 cutoff"
-	depends on RTC_HCTOSYS && !64BIT && COMPAT_32BIT_TIME
-	default y
-
-to completely disallow it. I think we should wait for Alexandre
-to comment here, as it's his subsystem in the end and I'm sure
-he has an opinion on the matter.
-
-     Arnd
+> diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml =
+b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> index 7ea77cd0bee1..b448725671ec 100644
+> --- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> @@ -23,6 +23,8 @@ properties:
+>            - const: renesas,r9a09g087-rtc  # RZ/N2H
+>            - const: renesas,r9a09g077-rtc  # RZ/T2H
+>
+> +      - const: renesas,r8a78000-rtc   # R-Car X5H
+> +
+>    reg:
+>      maxItems: 1
+>
+> @@ -52,8 +54,6 @@ properties:
+>  required:
+>    - compatible
+>    - reg
+> -  - interrupts
+> -  - interrupt-names
+>    - clocks
+>    - clock-names
+>    - power-domains
+> @@ -66,6 +66,7 @@ allOf:
+>          compatible:
+>            contains:
+>              enum:
+> +              - renesas,r8a78000-rtc
+>                - renesas,r9a09g077-rtc
+>                - renesas,r9a09g087-rtc
+>      then:
+> @@ -75,6 +76,20 @@ allOf:
+>          clock-names:
+>            minItems: 2
+>
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: renesas,r8a78000-rtc
+> +    then:
+> +      properties:
+> +        interrupts: false
+> +        interrupt-names: false
+> +    else:
+> +      required:
+> +        - interrupts
+> +        - interrupt-names
+> +
+>  unevaluatedProperties: false
+>
+>  examples:
+> --
+> 2.53.0
+>
