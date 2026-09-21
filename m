@@ -1,48 +1,47 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE65D514742;
-	Mon, 21 Sep 2026 19:14:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FACC38AC97
+	for <linux-rtc@vger.kernel.org>; Mon, 21 Sep 2026 19:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790018090; cv=none; b=T1L9U2pQrZuKxZ+TOsJl/wssKa/NINRJdCIis6lT4FS4a1ll8EtdpVdPZdSKWpZauu7nvf3NhrNit3b7EV9C7p91cLfyuV4cTnFTpKOPDDIc/UKg2gMc2N5wSakqP/ZiLcFu4euveOkI4kYgfg6XUkcBdI999S9EtxQfJF0rdNM=
+	t=1790018657; cv=none; b=qh3qNq/LMMvt+AU0Gem222Ick9kd2RoBG2wIHq46+JbzcH0wYy3ZMg+3cODTNPrqOSAkZpVdbXhTwU3Tl/u8J+7W6cLIdoWycwhFVRpbv1kHAdvmqesL+wIEuCfMSsBtjm6Qoa8ik9+IJi/DYu1HhjrUKgTmONdPvjSabMqHvvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790018090; c=relaxed/simple;
-	bh=9s0W0k+uY9shGX5XQPu4OZkZ8A8sGtI9MBOeqdn//fE=;
+	s=arc-20240116; t=1790018657; c=relaxed/simple;
+	bh=7CQo//H0Q7Avz6tSf1FrW+CH7bCKd0ShU1A2uXjAJT0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lw3PwFvMCUiC/WHrUDrHA5QLNTP3D4yetpEbhh8jGHzNsOKP7RM+rp5qb40BN7M/b1S5aPmzaRJP/WdoNyFgCyL95m47G8OBL67evYhG/ugQjnubEtDUyowCbeswfwtJQMWfGwmtqi3d9f4xQ++GgdpNRT7iJYTFgu0/Vt7N4Gc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=cW2+Zr2q; arc=none smtp.client-ip=185.246.84.56
+	 Content-Type:Content-Disposition:In-Reply-To; b=IQ9qVfSUBaSrzknCSArVjHMS4O/7hWO6JJdRjwt99Nyf69VzXsqdbnVEzfeRt19E7TQipCLRw26iKDFewzFpXubMo18MKak9Cj99QrmSl2Y0q6Th5VeCz/W0v4KFwoUaqU02FkBzjoKwlhjRta+KTmnWuRJWCLu79KUbhEiF44I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=EMFNeLNg; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="cW2+Zr2q"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="EMFNeLNg"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 4BDD51A0E97;
-	Mon, 21 Sep 2026 19:14:47 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 5526A4E40769;
+	Mon, 21 Sep 2026 19:24:12 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 048A15FFB2;
-	Mon, 21 Sep 2026 19:14:47 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6ECE7103291F3;
-	Mon, 21 Sep 2026 21:14:39 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 1243B5FFB2;
+	Mon, 21 Sep 2026 19:24:12 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1D8A6103291F5;
+	Mon, 21 Sep 2026 21:24:05 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1790018082; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=IutRmbTAc6OTvvdgkkZtC/X/ZDcjhL+70GUhz404HHA=;
-	b=cW2+Zr2qQjzlC4iFQcHd3Ap/QXCbm6L1q3tAeZhMjT6iTN5mSiGylWSUjF4Q0sQA79HpQM
-	SvXwowpuCCT0SB3QG6Rj7vLrmmzrUFHCnZtU/yE7ATDGmegYMQfAGu8nHY3I4OnECi29ui
-	WKRe+8WdZPzzy7nJUaONze1+F+O30gnKKV2KGYZo7PAAmFMbV5Xe/JtDSRFTwBYWwGx+Lz
-	j3n1JdC/BVbXuGNFfx8D4iHAm53OaLwQfuWMk0VIkFGmk+EQ5S7p+46pC1VkQo0u1dRNA6
-	2yR0uS+h9+30mk5FP6swueqif/GIqbIFHFS/Vbkw9o8uq4QMOcSdVGv+K3Ouqw==
-Date: Mon, 21 Sep 2026 21:14:39 +0200
+	t=1790018647; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=e3BrU3adXd7hifuN5T966IaOlrTNSgLHaVwZw2bQJpQ=;
+	b=EMFNeLNg+y40EYrMNTDJwRB17KtfVR4P3kmJl1I3fegJ9k+JHWQJ5pJlGmzYTXy66ni0Fh
+	sSbuL1w77SOp5WCN57Sji5B/iYlyrxuD5m7IpXuzlIYOCPCv6u7ZCXwKi6udRRtpPj5igB
+	KfWEXB9PyfU5Uc4OSld4XgWSdnHPuhyJZ0AfRMZscR2rOigbO4/YmOIr8fjDSemZEWQh+H
+	UAmfFt85OFHoqUDPJLK+RMnbBXC02ZMS1IructHEMAzuNZDAE+55LTP/xZfJ3svkHrY4Be
+	V5aXISTVX4NWuHfqNryVxYy0qgH4e2DaIxD1ySkLcJ4cj+bHnh7l1qk0nja86A==
+Date: Mon, 21 Sep 2026 21:24:05 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: linux-rtc@vger.kernel.org, "Johnny.Fan" <johnny.fan@cixtech.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>,
-	Feng Tang <feng.tang@linux.alibaba.com>, linux-efi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, cix-kernel-upstream@cixtech.com,
-	bob.zhang@cixtech.com, jie.fu@cixtech.com
-Subject: Re: [PATCH v3] rtc: efi: restore alarm support with runtime
- capability probe
-Message-ID: <179001804425.244067.16576957362126597621.b4-ty@b4>
-References: <20260831140014.839222-1-johnny.fan@cixtech.com>
+To: Aamir Ahmed <elb12345@hotmail.co.uk>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Chen-Yu Tsai <wens@kernel.org>, linux-sunxi@lists.linux.dev,
+	Kees Cook <kees@kernel.org>, linux-hardening@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] rtc: ac100: Assign .num before accessing .hws
+Message-ID: <179001863789.246818.15549615355312065254.b4-ty@b4>
+References: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -51,26 +50,30 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260831140014.839222-1-johnny.fan@cixtech.com>
+In-Reply-To: <AS8P251MB00013E724A77A355668B6CCEC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon, 31 Aug 2026 22:00:14 +0800, Johnny.Fan wrote:
-> Restore the EFI RTC alarm functionality (read_alarm/set_alarm and
-> procfs output) that was removed by commit 18a3510bc87d ("rtc: efi:
-> Remove wakeup functionality").
-> 
-> The removal was motivated by the observation that many EFI platforms
-> lack RTC wakeup support while also omitting the RT_PROP table, causing
-> the wakeup capability to be incorrectly advertised.  While that is
-> true, removing the feature entirely also breaks platforms where the
-> wakeup runtime service actually works.
+On Sat, 05 Sep 2026 19:38:08 +0100, Aamir Ahmed wrote:
+> Commit f316cdff8d67 ("clk: Annotate struct clk_hw_onecell_data with
+> __counted_by") annotated the hws member of 'struct clk_hw_onecell_data'
+> with __counted_by, which informs the bounds sanitizer (UBSAN_BOUNDS)
+> about the number of elements in .hws[], so that it can warn when .hws[]
+> is accessed out of bounds. As noted in that change, the __counted_by
+> member must be initialized with the number of elements before the first
+> array access happens, otherwise there will be a warning from each access
+> prior to the initialization because the number of elements is zero.
+> This occurs in ac100_rtc_register_clks() due to .num being assigned only
+> after every clkout clock has been stored in .hws[]. With
+> CONFIG_UBSAN_BOUNDS and a compiler that implements __counted_by (GCC
+> 15.1+ or Clang 20.1+), this triggers an array-index-out-of-bounds report
+> during probe, and with CONFIG_UBSAN_TRAP the first store traps.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/1] rtc: efi: restore alarm support with runtime capability probe
-      https://git.kernel.org/abelloni/c/b430d1f6d80c
+[1/1] rtc: ac100: Assign .num before accessing .hws
+      https://git.kernel.org/abelloni/c/6a4117eee82d
 
 Best regards,
 
