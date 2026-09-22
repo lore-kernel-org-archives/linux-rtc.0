@@ -1,55 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 707D64F93D3;
-	Tue, 22 Sep 2026 15:45:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E9E577E30
+	for <linux-rtc@vger.kernel.org>; Tue, 22 Sep 2026 17:19:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790091957; cv=none; b=JSGnWpozeoXNcIesNxDVKtLiUjPdfEld80Zu0/krPbftChytbk4dwVPirn2lRo0pZVse5mTm3NMm9G5MjjS4LpoYZgr9I6yrG107CPdszUHRKQz3cuXrYqY0RaWCN8xRU9/xFITY52ClsUZURQE3AXXnmrd0u4OXw8KZq+Fh/08=
+	t=1790097596; cv=none; b=CeqNCLFKWo5itQUIj/NhIhwzXraX5F3/I/ZOOg4Ai2Mf09zWEWXsBJaPE/68R/Mnt+gPs9NpuW4VNeyHQn4wBtpbUHr9cL6ie+Fuqw5oaYYLSBc3qqteHH91ommH2OEhp0WzqGQnWEsDIxH5ntchwLahYO1V7PwOzMof1VikD2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790091957; c=relaxed/simple;
-	bh=VYFqxBIbyB8AcZseEeHLI4kw2vkZo4hD06tuQk0zeBI=;
+	s=arc-20240116; t=1790097596; c=relaxed/simple;
+	bh=6wTYl3fPn9nlTqWjvYm7Nq+9tWOEygh9IVzIKdiR2oA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VN1NPkVNaAsJuDreSIM8zOgoyjQvXkGDyrbvRDZUrMl750BcLtmxT9o6W2yYL15FZKtGOjUrJeki3DpUEIZs4A78tEiTYsIE//e/gVmD81Cm5nvBhoZSvcaQu5dgRJDY5rF4JmSck2gaWwUykQ4LnwI9cu20HicZui60WM5JsgE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PZN0gVgq; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=bkueuY3hnDq2bJFZA2O9Ls/CEE07LVnYptGiXpFQIivAl0hFuJDmudQQzDEyad+yQwAFN4XNJserhvyhyBDatp8jtpQwfGtJGGb6WYrAxLMPjkagg/T/Ng4ordydURt5S7nWHuf7xPlZonRAihtWOJXC+A1ktgO0M7RBVSj+qSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R3fpi2YG; arc=none smtp.client-ip=74.125.227.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PZN0gVgq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D30431F000FF;
-	Tue, 22 Sep 2026 15:45:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790091950;
-	bh=VV+D1TTg+nypS71novJcWW8ckPVaKfjhtplAFFx3irU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=PZN0gVgqMvvffTKAv30e20/TZg2qTPisQ9G0Z9l1JmdgLcblHZpkPps5E3LSvbLut
-	 ytiMNuEFPf0/3pcXVxjb+8Aob8HtErzgWRxyhVEYLmhYQ8vLG0TTbBMMkDxYbFQkwl
-	 VUe4PrvyFl+CJDvBFNn+xSok3n2oRLwAKoFFFWiLFR+K+1Ao9Zrvof2xtWzOGIwcKs
-	 Bhw4WEkx+2BSgH9n0smddGHx43kcd65aJ9sW41ykmDJrzWgyClpRD35WOcBbQfxXnf
-	 Otm4k0kvOVtgsI8/a49+6+fmJniIOKIcu5spCMmbLV+F/Eycabeg0ISVzZ3Yc5c3yp
-	 /KNSop71bhHGw==
-Date: Tue, 22 Sep 2026 16:45:43 +0100
-From: Lee Jones <lee@kernel.org>
-To: Matti Vaittinen <mazziesaccount@gmail.com>
-Cc: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-	Matti Vaittinen <matti.vaittinen@linux.dev>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
-	Brian Masney <bmasney+clk@redhat.com>,
-	Jerome Brunet <jbrunet+clk@baylibre.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R3fpi2YG"
+Received: by mail-pj2-f43.google.com with SMTP id 98e67ed59e1d1-39dacf053eeso94989a91.2
+        for <linux-rtc@vger.kernel.org>; Tue, 22 Sep 2026 10:19:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790097594; x=1790702394; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=zCRq4hnTSVTOASY3u8FUiAUCCMw+X4n90vfRzUKE6C0=;
+        b=R3fpi2YGR1iw8Px21lKPuJxQa3xYXCv9Mpn2pp7nvZTr5cx5S8aK5HbtF3oqZWIFQM
+         RMZ3C0IacF5arX5aUdVWDSlMSotuYQA4Op5VFEMGn055iG+3zTrz5B/Kf8iog9lSXhZZ
+         B157y2CkT0mf/XtYGvnhueJQMfUPdVjeLDGegSgXKkejeOexHV8Jc5oDbrKf3Z2qa4mD
+         hts7qgawAiOZuCKQsdQAw5yKxpocn841NQ5Hu1VNYbKlO1f/HGPcNH19kCYQ/UPmaqF9
+         OYKbnmqRDwKR6tzbt0XUMzLli1e6tFFAlATxO9QSteifnJPhfcdMvKQ7lvc6fqOdrGg/
+         xkkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790097594; x=1790702394;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:sender:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zCRq4hnTSVTOASY3u8FUiAUCCMw+X4n90vfRzUKE6C0=;
+        b=RYl2pOGWCG+OX6hMQkEnBBgYTYEMELDVC/oHUXoUPJDAGuyYbRLUatuEXUoT2UFg99
+         9GYW/+ktvuqn0PyxJyu2lS8SUYTWdhPsRMbPMhdG99JDdnsP1Yy6Cdt02mtbD8jTV42/
+         UMF6ItDdCWcMjl0wXVytDJvhP0/gMJuIoadQ9sAX6a6PT9OTXKQQYdyPaZRgC9V8qfr6
+         WMcF95gaC26g4YtE5Gv9RK+FnRPhLZJMkG3ZPJbnvnqnDFSJL0EexzjfW3kIxvmIM1mF
+         gNVLfdBM411L/Dm/TbOtdRxMkWHaio1EtmxGkaVft2SBDjNKhRXEjDYVCI0IPBd7eRva
+         +HZQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxNxd0QemovvI+sH8xLxv9CC7qUDlpRysyiQOnBe8i2aAdkXRQF0Cu0gKv56EavY6dPrurYk5xg9vk=@vger.kernel.org
+X-Gm-Message-State: AFuF++mDGP4Jkjos82Kg1tBim4xPiylw5hPtLjpytkRKem4UhZyqTIox
+	yGqzTuy1QB2vMj+r6otS2Oq0lcHZzEumPgwkS6PO8trTEApJpWei9agl
+X-Gm-Gg: AYBFou2IxZJJxpFTV6/IgjAXal7ZoSrmEZgQ3W6CqjFN/KAbYu67R88dkOqxosFg+Wl
+	F9l09ggM3WCWX6PyDrxkl65fLynxewdvI1Eq2cd3j9IP63H+FQfgbfifixowj8Mq/dJC6LKwp6O
+	ygM0YRhbUIVc1QAklHNw+vAbZWz9KM7hFcZdmbYSFTWOORd799LJ9Wuu+zJEHriL7pn9zPQVh6k
+	Jiytxpguol5DorHFR/cNCaoQGads4/e93FyB/1G36M9vDSAFtaaQseNOQoSKDA6zuQrKHDRX/G1
+	RJT5Fd0H0usL84zpIfGfeby9Gk7FdbfZy53LqE/8JngQy39yrX3fxrmXdJaXF2JdFL/VgxFcM/H
+	hK8eyd4Yj7SaXOBSYA0iPmHasXJx92qEYhUyRBo3PBZnFmTGHYnqcMcHTJ/1yoDdsh/BXkTm/uR
+	fPrsEJrORByZtWZ1T1HqBrLXfnG3r4kvHRLTwwZRWXFOZ/ZapGDbdH6y1frIB1eHGeRIn4qEFfw
+	9uM8at8tJDhKQ==
+X-Received: by 2002:a17:90b:2b4c:b0:39e:1ff0:331b with SMTP id 98e67ed59e1d1-3a07e4f7b61mr128059a91.2.1790097593735;
+        Tue, 22 Sep 2026 10:19:53 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a07ddaf4f5sm336767a91.4.2026.09.22.10.19.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 10:19:53 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Tue, 22 Sep 2026 10:19:52 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Ian Abbott <abbotti@mev.co.uk>,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Rudolf Marek <r.marek@assembler.cz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Chris Snook <chris.snook@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Michael Walle <mwalle@kernel.org>, mfd@lists.linux.dev,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-rtc@vger.kernel.org, Sverdlin@mva-rohm,
-	Alexander <alexander.sverdlin@siemens.com>
-Subject: Re: [PATCH v4 05/10] mfd: Support for ROHM BD73800 PMIC core
-Message-ID: <20260922154543.GA3438784@google.com>
-References: <cover.1789538455.git.mazziesaccount@gmail.com>
- <3e3a25abe337e3f68cde585674019dca439ac897.1789538455.git.mazziesaccount@gmail.com>
+	Andreas Noever <andreas.noever@gmail.com>,
+	Mika Westerberg <westeri@kernel.org>,
+	Yehezkel Bernat <YehezkelShB@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Duncan Sands <duncan.sands@free.fr>,
+	Chas Williams <3chas3@gmail.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>, linux-watchdog@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	intel-wired-lan@lists.osuosl.org, linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] watchdog: Replace __MODULE_STRING() with
+ __stringify()
+Message-ID: <940e0763-9de3-4d55-90cc-8289d5525b17@roeck-us.net>
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-1-c18766690185@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -58,43 +112,21 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3e3a25abe337e3f68cde585674019dca439ac897.1789538455.git.mazziesaccount@gmail.com>
+In-Reply-To: <20260922-module-string-v1-1-c18766690185@suse.com>
 
-On Wed, 16 Sep 2026, Matti Vaittinen wrote:
-
-> From: Matti Vaittinen <mazziesaccount@gmail.com>
+On Tue, Sep 22, 2026 at 03:32:21PM +0200, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> The BD73800 integrates regulators, ADC (intended for accumulating current /
-> voltage / power values), a real-time clock (RTC), clock gate and GPIOs.
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
 > 
-> Add core support for ROHM BD73800 Power Management IC.
-> 
-> Signed-off-by: Matti Vaittinen <mazziesaccount@gmail.com>
-> Acked-by: Lee Jones <lee@kernel.org>
-> Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> 
-> ---
-> Revision history:
->  v3 => v4:
->   - Removed extra whitespace from the end of a file.
->  v2 => v3:
->   - Translated this:
->     https://lore.kernel.org/all/20260813105955.GA1820248@google.com/
->     to an ack. Please, let me know if this isn't ok.
->  v1 => v2:
->   - styling
->   - update copyright years
-> ---
->  drivers/mfd/Kconfig              |  15 +-
->  drivers/mfd/rohm-bd71828.c       | 147 ++++++++++++++-
->  include/linux/mfd/rohm-bd73800.h | 306 +++++++++++++++++++++++++++++++
->  include/linux/mfd/rohm-generic.h |   1 +
->  4 files changed, 461 insertions(+), 8 deletions(-)
->  create mode 100644 include/linux/mfd/rohm-bd73800.h
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Looks okay.
+Applied to watchdog-next.
 
-Let me know when you have all of the Acks and we'll merge it via MFD.
-
--- 
-Lee Jones
+Thanks,
+Guenter
