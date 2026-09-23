@@ -1,88 +1,98 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28C4D2E229F;
-	Wed, 23 Sep 2026 09:46:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFAE249483A;
+	Wed, 23 Sep 2026 10:36:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790156775; cv=none; b=ufy6oV+AlzpdJr6oExqIYAU4evtCkUTudr4HmGA6lvpaY9OwB0eu9ob5uMWaIvWuYcxGvnkYjvLZFB+r1XPKyLI1K9nGdL6CzAK5UTycdGcxO+mwdbGrHaeHz7fWocqTaNrnLup0FC6KWW/5mDZVzYPx56x6v4HdEEF6o44c/dQ=
+	t=1790159795; cv=none; b=SHy8jMMQsf0m7elmCHKbPHI5IpZP7B5EoTCjP4is1wl1dfyPBjyNZ7QiVhYtiQU45OSpTOZN3pjHHbhhJUaGkaEt7faurYrUe4Cnbu/xPZ6yPgeAbiULiV7FgQqMyll623MG/8QGyZCV1zhAp+OS3n9BwFBLYwqm2xLFMrNk9jA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790156775; c=relaxed/simple;
-	bh=PMVYgZO8cP6y5ckMpLn+PFVGTgT8mBDdbyL2LKP5ON4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tAjIfh8a1HxTLBj5q1eqsP3ejsTNnGrkBzMWrKidFEAQXJcsy52lCfd4excAMKRtDYv6PlY3knRUipLtan5hNOKpFXURG2SWgdyAvA7nkuBWwYheX0Ngp1oMsYXivL3g+3o4M8o2GyVqXarefsyK32n2E6MFkhzqb/JHwgq9pIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=M/D1iPoF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790159795; c=relaxed/simple;
+	bh=BNlY5xjtHSj1GEaKqs7rlieTEQ43nPigzufnY7SmXXU=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=boxlFgEUYw1SYtV/5ozPS1+N3fdMdW7GadVQhSfjHDgrDiitnctk0ngvTeaq6foFw3s05uE5hLnhukxqRH1+HXSg6dM3J2TjCn93OFwR75VflIfgT46cAMLw0ufPfvhdUj1BsRTzerPkd+LGZIu/lt/gdriJvzg5n9+9b6wG7NI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SUcE+u5/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="M/D1iPoF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D0A1F000FF;
-	Wed, 23 Sep 2026 09:46:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1790156773;
-	bh=T6Qi8YPK1RXqDrx7q/dk8raUpjNTcrjbKdaAJ9D+O7U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=M/D1iPoFzrqn2W6mcgJ1LRF5Focn/2Y/OUIg5hYwYiMMSR8CT5ZIZD6NWIRtkXhk3
-	 oujVm9FkeETC48xHPmtDrloCMSOmZ/vL27gXOV2pX36pL3yyN4jfhW6fI28IWXFgQc
-	 0QzjkhcjfBTTo3h+lTK1ooSJmJ+pUx4b6t4Eufug=
-Date: Wed, 23 Sep 2026 11:39:59 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Petr Pavlu <petr.pavlu@suse.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
-	H Hartley Sweeten <hsweeten@visionengravers.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Rudolf Marek <r.marek@assembler.cz>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Chris Snook <chris.snook@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Andreas Noever <andreas.noever@gmail.com>,
-	Mika Westerberg <westeri@kernel.org>,
-	Yehezkel Bernat <YehezkelShB@gmail.com>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Duncan Sands <duncan.sands@free.fr>,
-	Chas Williams <3chas3@gmail.com>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Daniel Gomez <da.gomez@kernel.org>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Aaron Tomlin <atomlin@atomlin.com>, linux-watchdog@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
-	intel-wired-lan@lists.osuosl.org, linux-rtc@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-serial@vger.kernel.org,
-	linux-atm-general@lists.sourceforge.net,
-	linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
-Message-ID: <2026092352-demote-rewire-6df6@gregkh>
-References: <20260922-module-string-v1-0-c18766690185@suse.com>
- <20260922-module-string-v1-2-c18766690185@suse.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SUcE+u5/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC5B71F00893;
+	Wed, 23 Sep 2026 10:36:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790159788;
+	bh=Yorwe0EZnqCqSvsfpdyJVKhkzKAvOjuwrv5FciPTH24=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=SUcE+u5/Db/88k9SHmSzQ88Rl5almzeblDWCuZRUNoGlTtSkztC2w8BEBMSdk545Z
+	 qeZ7UczVMu2vyeR/5pOHvTg5vfW3UTZtmjHBRpI1Vfbpzp9HTqjifadDVlfqszQSQW
+	 1GL1A7KesWiPX9347q9s/slxahQ/sDU7hWVh8E83IYNPEREIpWZo6TpE0mGBpwbzzK
+	 Wa0WuKqTkSaBtGoAprCoxEMLmGWOG28PEUVn6vH6OxnDcJhIVvR+9PuD0sx0dXME93
+	 8CLtFBJhR3iaSkJrid85eph6ZiMzTf9tewgH0biVI2q+26jgIOhFWOVmWNLujr9BQ0
+	 6LbxfQTkYwjjQ==
+From: Lee Jones <lee@kernel.org>
+To: Matti Vaittinen <mazziesaccount@gmail.com>, 
+ Matti Vaittinen <mazziesaccount@gmail.com>, 
+ Matti Vaittinen <matti.vaittinen@linux.dev>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Linus Walleij <linusw@kernel.org>, 
+ Bartosz Golaszewski <brgl@kernel.org>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Michael Walle <mwalle@kernel.org>, mfd@lists.linux.dev, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-rtc@vger.kernel.org, Sverdlin@mva-rohm, 
+ Alexander <alexander.sverdlin@siemens.com>
+In-Reply-To: <cover.1789538455.git.mazziesaccount@gmail.com>
+References: <cover.1789538455.git.mazziesaccount@gmail.com>
+Subject: Re: [PATCH v4 00/10] Support ROHM BD73800
+Message-Id: <179015978363.3959854.12736921200463465317.b4-ty@b4>
+Date: Wed, 23 Sep 2026 11:36:23 +0100
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.16-dev-ad80c
 
-On Tue, Sep 22, 2026 at 03:32:22PM +0200, Petr Pavlu wrote:
-> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
-> MODULE_PARM support for older modules" [1] in 2002-12. That change also
-> moved it to the graveyard section at the end of linux/module.h
+On Wed, 16 Sep 2026 09:04:04 +0300, Matti Vaittinen wrote:
+> Add support for the ROHM BD73800 PMIC and compatibles.
 > 
-> Replace the remaining uses of __MODULE_STRING() with __stringify() in
-> preparation for its removal.
+> The ROHM BD73800 is a power management IC which integrates 8 BUCKs and 4
+> LDOs. There is also an ADC and operation amplifier intended for current
+> / temperature measurement and accumulation. RTC and 32.768 kHz clock
+> gate are also included. The PMIC can be customized via OTP and it has
+> options for operating as a main PMIC in multi-PMIC installation. Some
+> of the pins can also be used for GPO or GPI (including interrupt support).
 > 
-> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+> [...]
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Applied, thanks!
+
+[01/10] dt-bindings: mfd: common ROHM PMIC properties
+        commit: 8204b924c6cac2d77af0d000985593d58b8c2ade
+[02/10] dt-bindings: rohm,bd*: Ref common ROHM bindings
+        commit: f6a6d948c2e0bd35aa31f635ec5ef42ac7f804c5
+[03/10] dt-bindings: regulator: ROHM BD73800 regulators
+        commit: f08afff0ddd74e2edb11d4be9cdc7b4919d68ee8
+[04/10] dt-bindings: mfd: ROHM BD73800 PMIC
+        commit: 579eae348f7393f14cc864af8c99f7c675e5b1f2
+[05/10] mfd: Support for ROHM BD73800 PMIC core
+        commit: 6f6ebfdd38126edc6cd3f1427ee261d57a83fff9
+[06/10] rtc: bd70528: Support RTC on ROHM BD73800
+        commit: fcf132b701bc8efdef211588f64434b5fea5750d
+[07/10] regulator: bd71828: Support ROHM BD73800
+        commit: e2be91507689f46f973d3ab83901d5e31dbd650c
+[08/10] clk: bd718x7: Support ROHM BD73800
+        commit: 9dd502dde33c60274e1b4962f05194bc16006d7d
+[09/10] gpio: bd73800: Support ROHM BD73800 PMIC GPIOs
+        commit: 03888668ce533f948a1de975523e2663d723bbe8
+[10/10] MAINTAINERS: Add ROHM BD73800 PMIC files
+        commit: e8e8d60fe8cc35340f6110ff70ef7959de1c3c0b
+
+--
+Lee Jones [李琼斯]
+
