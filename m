@@ -1,72 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 400F336654F;
-	Thu, 24 Sep 2026 22:18:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C403E3C4D
+	for <linux-rtc@vger.kernel.org>; Thu, 24 Sep 2026 22:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790288282; cv=none; b=WQAqrVfO/A8wLkreOTD7xmO+cQphF4Z1HNQxMaXhdNccmUHoMtJ8BrcRn2M80/3jZAYNQKVXpbijOvA+FmWHnRCUBL2yGRv0gbzSy4IK/nQ2B+B9Oip3axF9aMp+DDMQ83pUGniVbeSzlTQ0fJkkdtM6pEkGO4BYW/vt/0Xpt0U=
+	t=1790290030; cv=none; b=M6T9iwRji+8+83QAQ+1Cj2BQcQQwBlNPAVX4Gi/FdFDrl2wBO5oqGSQgWlZdiBMB39eCk40IvKDZTdTcuZDQZjbnVLfVNbvZVJ6/WYSudkT3DKlC10sbn/hrcyWcfN2hXx2MeMwaFNw6d3gP7ZVy3o70i1ig9Fwz1OvjzZEl+rw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790288282; c=relaxed/simple;
-	bh=Ly6agx/gm7eVetVJA2N/XQDufLGUS67WHia7a4jlC78=;
+	s=arc-20240116; t=1790290030; c=relaxed/simple;
+	bh=3boL8lmiQnTY2vDHFbVvb6OzJjBJqYpeoXZfgPLNYmQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mk4A+nrrzS8mwzxAy+VdjDHYWJhPfhc9PCi+Fs4K5+rEgvbDewUTm1BcPIQVVwZrrofJqNbhgN/0cBx1YLnGepQ0EauJPZ4Q85PEErkzMAmYwu4g+vGcJq0hGJIzYr74T2OalIoLWaMe5v9Vg/3hQPCOBK/VKJlbMbtAQ+HEyKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KhPKjz0t; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ul1NpxZrgHUwh10wHztUuZhVdi6RKiR6gga4reMvqzeN6liCL683sDM+eijEI+JU29V7c3UBDnHGtaVL6zzqlRt4JoLz+gH0C4899qPFtzt84hj+/MV5tH8+wto4oxZWEa6orDsmRboXz5qzXnhMFdEkLHljg7MMYp66Vw9dd8k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=So8D3lIi; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KhPKjz0t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FAD31F000FF;
-	Thu, 24 Sep 2026 22:18:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790288280;
-	bh=5sAlvWkSY5zpX/gytWhfTU2B0FkLVxFgi+cyvzeyzrg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=KhPKjz0tZVNGg06MPDzPBHxeFr7pVqmgsg9MNvEIvihTtC3w12kEeZUrzmQFdnv4H
-	 vmLICNx/ny3UQ7vnu09gHk8YhvJDH6fM5Cpe26SpGNezCSDyNaxxWRCR2lXh4K/ZKv
-	 /jsZXiMgrXAxkMVO5U7vJ4kwfoHSCzmh4NUOOCwwZj2vWkxd6bzj5V5UGyBacGm4Up
-	 w7kfJ/NwxesGtUxhqMU+hj+vOTC4pgec+zIx1qwnX8a1MpeieDiZvS8hKc68Cygvmy
-	 3gW3NV3kle5WdX2UZYE14MWv4apYmTL7SbFEJqbwrdAO0TjgrmZlJJILMN3sp+GzP3
-	 Z0yFLULXfgBig==
-Date: Thu, 24 Sep 2026 17:17:59 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Lad Prabhakar <prabhakar.csengg@gmail.com>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
-Message-ID: <179028827857.2011428.11688710471932233481.robh@kernel.org>
-References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com>
- <20260917111349.52250-4-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="So8D3lIi"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id A68F01A100F;
+	Thu, 24 Sep 2026 22:47:03 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 71F4C60738;
+	Thu, 24 Sep 2026 22:47:03 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E6E5210329539;
+	Fri, 25 Sep 2026 00:46:57 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1790290018; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=4vLnKVd7fUckhsJB6yUYdTvrC8vLjUQhIHZYzMS6+W4=;
+	b=So8D3lIi8mQBRKlgSahDn9EPRM4TasG/JdVs5jqU4+YPZBRWqCL4r5EiseaeY9q2SLjuFu
+	lig6lu0H6oGu+zKZ0MQ3nRhyRpA0gXJODN5OyFcqkwC3qHxdozthi8G7bJHEl+GFlmIRET
+	QStdsf2sG24y0AcWR0DnGZvd+sJ/sw226tEMuqfVgy98v9B4lXmDBVuTGRc6WTICKnEYHd
+	nZJ7lCeTJsxXJcJOHDMp4PhwbPA3L2ukjm248sQarxHE1Y+Dnu8SPXVSFia6U3UK4OKAfx
+	wykAXQmVbSOzEmfEX/7T4SIOHiJFhT9/B+U3WJL4pXOzeNynqs1+2kelxy3cWQ==
+Date: Fri, 25 Sep 2026 00:46:57 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Daniel =?iso-8859-1?Q?Via=F1o?= <danividanivi@gmail.com>
+Cc: Michal Simek <michal.simek@amd.com>, linux-rtc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] rtc: zynqmp: Enable crystal oscillator in initialization
+Message-ID: <20260924224657b2d275e7@mail.local>
+References: <20260924071917.80004-1-danividanivi@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260917111349.52250-4-wsa+renesas@sang-engineering.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260924071917.80004-1-danividanivi@gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-
-On Thu, 17 Sep 2026 13:13:47 +0200, Wolfram Sang wrote:
-> The RTC on R-Car X5H is a bit special because interrupts are not wired.
-> Future R-Car Gen5 SoCs will have them wired again. So, create a
-> dedicated entry for X5H without interrupts.
+On 24/09/2026 09:19:16+0200, Daniel Viaño wrote:
+> Enable the RTC crystal oscillator bit in the control register (RTC_CTRL,
+> offset 0x40) during driver initialization.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Although the RTC_OSC_EN macro was defined when the driver was originally
+> introduced, it was never asserted in xlnx_init_rtc(). On cold boots, after
+> battery exhaustion, or on platforms where firmware does not pre-initialize
+> RTC_CTRL, the oscillator remains disabled and the counter never ticks.
+> 
+> Asserting RTC_OSC_EN alongside RTC_BATT_EN ensures the oscillator starts
+> without relying on bootloader initialization. Per the Zynq UltraScale+
+> TRM (UG1085), bit 24 (OSC_CNTRL) is a static level enable for the crystal
+> inverter rather than an edge-triggered reset; re-asserting it when the
+> oscillator is already running is a non-destructive no-op that does not
+> glitch or reset the ticking counters.
+> 
+> Tested on Zynq UltraScale+ hardware, confirming that the counter freezes
+> when RTC_OSC_EN is cleared, advances reliably once enabled, and is
+> unaffected when re-asserted while running.
+> 
+> Fixes: 11143c19eb57 ("rtc: add xilinx zynqmp rtc driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Daniel Viaño <danividanivi@gmail.com>
 > ---
+>  drivers/rtc/rtc-zynqmp.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 > 
-> Change since v2:
-> * handle only X5H for now and do not fall back to generic Gen5
-> 
->  .../bindings/rtc/renesas,rzn1-rtc.yaml        | 19 +++++++++++++++++--
->  1 file changed, 17 insertions(+), 2 deletions(-)
-> 
+> diff --git a/drivers/rtc/rtc-zynqmp.c b/drivers/rtc/rtc-zynqmp.c
+> index 5bcb7536e973..278705ec09f5 100644
+> --- a/drivers/rtc/rtc-zynqmp.c
+> +++ b/drivers/rtc/rtc-zynqmp.c
+> @@ -167,9 +167,12 @@ static void xlnx_init_rtc(struct xlnx_rtc_dev *xrtcdev)
+>  {
+>  	u32 rtc_ctrl;
+>  
+> -	/* Enable RTC switch to battery when VCC_PSAUX is not available */
+> +	/*
+> +	 * Enable crystal oscillator, and enable RTC switch to battery
+> +	 * when VCC_PSAUX is not available.
+> +	 */
+>  	rtc_ctrl = readl(xrtcdev->reg_base + RTC_CTRL);
+> -	rtc_ctrl |= RTC_BATT_EN;
+> +	rtc_ctrl |= RTC_BATT_EN | RTC_OSC_EN;
 
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+No, you need to keep it disabled until you now the time is correct, that
+is in set_time and you need to test for it in read_time and return
+-EINVAL when it is not set.
 
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
