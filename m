@@ -1,161 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2A7348F003;
-	Thu, 24 Sep 2026 13:34:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DDF486B8C;
+	Thu, 24 Sep 2026 15:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790256881; cv=none; b=qOw8PBZsTZqtGYDmNbAIqEdDU8WW/Q5I6MCqaWoBbsyUwmD5RWq7jxizbyQ9FFimkG3UAGbmOpQcTpLps3WmrW/wAEjHjiqFfUcHUmwGTfHSfmAnNEZpZZsKwLoVSVtojYm+w2g1raUlWnh/iMHSPLW/bMUJMK8zvWhrOXZyQms=
+	t=1790262476; cv=none; b=q3x9qB3fqmc0iOclx5F2jUngLwDvfVND9zwtClsoP6kI/qvywif+35PP0RWmfH47uzwLHdvV8GJd79f1pqhrtEpJj6mK+uk0AJT19mnIk1Ujj7d0W76wS5fcce8JChVFXST9kyI70hu4V9BiiwfZGl95UaJqSQ8PiLNnjUqKLEQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790256881; c=relaxed/simple;
-	bh=5F2In7tBxEIgs7mABXiHhSYfk63RbWqXxU1rPwimG/w=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Zj5vmZnoQbIxFVg6CfFtxuUxxyL3r1VBm17H5L1sNYFx5QM0ITR7BEAyu9tBLyLhzWL00kxmI/ppZ1AqkJIwmmlq8augA75pfvAUI56NQgMG2gBcQ3SAUK4bJuTLqlz1HCK07yNlrenOBbF6bmBJ9tIU7FVFFcTppPrYqyelyXI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CFYTsuJI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790262476; c=relaxed/simple;
+	bh=iAEpuWdWh4c0sq8fS9n9pnn4X8j1O9kjjI9s19X8kCc=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=Ilc/rrxn7GQJqWAoDZttKpAlnmVhyR2dUJbQe8uCRtqGOq3BMSUcn+inkaETVZ7zkO/Mq5n5dD3Pe/1gmd/ijYZCT49KDF+NWKh37BPKsV1uG0a2JtB0KUBRS3TmhJcO/WELKylEhn8ulpCEqjlMw5kgpTXDJ1QkfXOGLrCqMG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ZHf3lxY/; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=mLA5j5eI; arc=none smtp.client-ip=202.12.124.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CFYTsuJI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99DFF1F000FF;
-	Thu, 24 Sep 2026 13:34:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790256867;
-	bh=vCVxOTCNFcQYUW13c+WPf80SiNmKoxL2dUmJNQmZznA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CFYTsuJITFYQypIBZp/VfpCAtOJn5O9gmpxox7R0Z+I5Z90/aCzXA1jXYVVoz+veU
-	 Qro0Mpfr+Z8lTRj+RLjlND3lEWckcvhYaoJlrecwWiyrJ308Asp+N95drS6/2BjP5V
-	 ClXWJeByY/8LnzS2j3A/3C+r2c7VjweADhdyVuUQz7o7CzgMs+P7JArmpQGBnSFjvc
-	 F7dMTVH6IsBlDBNOPIjw9WaA7Ey7ddWMZNfmLCtJoGCEc6zNsrpHyz95ZIYDY+I3kH
-	 z5O6i+inGHzwo28AkzaNpf3G7RBH/YqL9/RmgrzeJ0ZVtTnqbT6rUXspaUo9mbtEEG
-	 RInmXAcvGLM5g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 2/2] rtc: Add Raspberry Pi 5 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sander Speetjens" <sander.speetjens@gmail.com>
-Cc: robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260924132217.1281752-3-sander.speetjens@gmail.com>
-References: <20260924132217.1281752-1-sander.speetjens@gmail.com>
- <20260924132217.1281752-3-sander.speetjens@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 24 Sep 2026 13:34:27 +0000
-Message-Id: <20260924133427.99DFF1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ZHf3lxY/";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="mLA5j5eI"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfout.stl.internal (Postfix) with ESMTP id 3E6681D000B9;
+	Thu, 24 Sep 2026 11:07:53 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 24 Sep 2026 11:07:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1790262472;
+	 x=1790348872; bh=DuVmmPWvLFo1tADCTa4YE4tBQUZ9cf+149PFWyAUzgM=; b=
+	ZHf3lxY/yyrbko5Oet6JenwTTu+KozAP2vcXzKEsAWGN/LNQPaqwjrAbTZzkhhUp
+	22cgSZSPL6OcWCk20GOGdozn/pLGU5f3o5lBqkOgyoTebqrV4zOidt2/N6JViYm9
+	ZNndzUxLLP02f0t6v+fjlZskiG8d6S8m6Lv6uN1DBWn6NMMXsx6JM1FwJEL27MLw
+	Dtj2kzBrSegnxm1q5fG8OiIY1wMEh923Nr7wA/Ges8RWXcbOlN2luhqlDhwTrf8U
+	SeWrbldSkaNe0FzUNgslAyqDIZXr4b7H18+q6ZEh+z1wYcmK9EYtfKFqZ7dZ305j
+	xD0/l8/n9D7qzWMHmXHNhA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1790262472; x=
+	1790348872; bh=DuVmmPWvLFo1tADCTa4YE4tBQUZ9cf+149PFWyAUzgM=; b=m
+	LA5j5eIBz0XRFkBc45SQTTk1EUy/mdWfbt9iUyA4NiEiOC1emflavRsHZlHg4uM1
+	V4blotZ8liz3xeVIrWxqribHXn44Yt5WoGUeQdQv7/0i3R57sytARt2q8NfDuy8u
+	zUNU5Ut07dnzKwIIgs6oRCmoRYDZvMxQk9DGJV5rX12bcYj2Nt7MgvcolRsPtbjZ
+	0paZrhIz7btXJTywyHFkvI1WCW+bp5N9dzQlSvclewX7rPoR7exykA/LfwVKdhWM
+	JkXoMtPBXvIxNB3sw47j6S3YMIzE1l1unD5mup60cYLNHauxyhEwbc2oYYkOXVni
+	XNWSXBGcNdIpJ4BOpEOrQ==
+X-ME-Sender: <xms:xjy1aoUyKbQ7WKzw2nTF5Hxn6G7hGh7PdAk1_l6LAop18_T36rOx5A>
+    <xme:xjy1anbUGH3BB0bERDFnYBfbw4y9V--rRhHXbWnRrNUin-_dT-ojnoX4fpLh1cS84
+    W5_PQ4h0Je5UW98ge9N6JsE_5saTGBSIA0AZtmtqgcxDvUfrP6-cWfB>
+X-ME-Proxy-Cause: dmFkZTE2aAilufwqJab6BJLoyNd+iaKF9BZ5znOcgzqil716KvqAiK9K56dhTTjDUlMlue
+    v5FOpw7mi6gH4JI7b0pyFUCUjrEXvJT/1IqrI+U+C8ErCdCI7n5aFVMy8pY9ciLkpGqaad
+    LwfPdHrYOsaojOGVUiP4tSofMwK4gtmKt6uAoqiFIrqZWykBgIHFOV4QYoSbHORHN+UNaT
+    5bI1evCOqjxLB51601DRWi9gx3I2+NiagkBgZv8HOChiPESkejR2EzL3NHkvy/l/GzSoTV
+    CQ3LEdtryiquNAq4s2qAooaXw1qcQGLLqFhH8tfRsjugyNe+RYtJOrLJkeGwQWUpnm2JKo
+    pxYg/ElOzUPOPJlnth9aWweLwiHe3Rf85+NvpDVBkzSV8Vi6o50HeknE4FRGsjrPBwyQqO
+    KBFbh/22rHK0XTAkkdiYl3PjqMasHhRIfW7tKD56xZeSz/P+MHE1FcY7KxKtSub6GGbIkc
+    gUfrJ9hxHJn9zZAjsPPc+uRuIiVU3uYo9oJ8mMe2f5dHUWmLdyryUXADwDt9qcbegGtbJq
+    +YtKSE5ZMsltvKTne6XowF36eT3a6MefgjFOY/FLuaCyOl/74IwVstqe0rynSWryPsdHjE
+    eCARTjVmX6zb+k/+5Mi2XB9cbx0FLWUgig3uOUsR3kEZEuTz7JJxe4DMriPw
+X-ME-Proxy: <xmx:xzy1ategp8acRXGYwyDsXI4PndRc_m7Oli66obWuizR7gtLGDKbzNg>
+    <xmx:xzy1amrzqjb61VZKHtMR4cTBPe1dTdY7wGXwaB0Xze_9f36jlG6Crw>
+    <xmx:xzy1aqDzHbdFTK9uSXJBHTdnDoAwufO4eKSF4brFleo5K-PKgXd4sA>
+    <xmx:xzy1arZhT1NS1GKi_QXKCF9xD9YyKvxl3BaLzG7kUaxDhO6xP8ewig>
+    <xmx:yDy1akJ8LDnhw15fU6DEk8Af6DCkv5nO9xSmaGWnbnYxj8NelgZjYz7t>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 72B0932A008B; Thu, 24 Sep 2026 11:07:50 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-ThreadId: ApDcdGHCsDIN
+Date: Thu, 24 Sep 2026 17:07:30 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+Cc: "Karl Mehltretter" <kmehltretter@gmail.com>, linux-rtc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Message-Id: <d7825e87-93f2-4444-bf3b-45a4127de7a9@app.fastmail.com>
+In-Reply-To: <202609222137059e745547@mail.local>
+References: <20260914212537.1452-1-kmehltretter@gmail.com>
+ <7c020979-cf03-4ece-a7d4-b1475d1400c3@app.fastmail.com>
+ <aqnHDxRIBncNH6qr@gmail.com>
+ <59ba6707-c5d5-4fd8-9200-f910e61d9232@app.fastmail.com>
+ <aq3R5QnCpu_fOq8g@gmail.com>
+ <5515c266-f9cd-405f-b7a8-1ec45d9d902a@app.fastmail.com>
+ <202609222137059e745547@mail.local>
+Subject: Re: [PATCH] rtc: class: Make the time32 hctosys limit configurable
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] rtc: raspberrypi: Missing endianness conversion in firmware commun=
-ication
-- [Medium] rtc: raspberrypi: Incorrect DT node for trickle voltage property
-- [Medium] rtc: raspberrypi: Missing MODULE_ALIAS prevents autoloading
---
+On Tue, Sep 22, 2026, at 23:37, Alexandre Belloni wrote:
+> On 19/09/2026 11:16:29+0200, Arnd Bergmann wrote:
+>> On Sat, Sep 19, 2026, at 02:10, Karl Mehltretter wrote:
+>>
+>> config RTC_HCTOSYS_TIME32_LIMIT
+>> 	bool "Reject RTC dates after the 2038 cutoff"
+>> 	depends on RTC_HCTOSYS && !64BIT && COMPAT_32BIT_TIME
+>> 	default y
+>> 
+>> to completely disallow it. I think we should wait for Alexandre
+>> to comment here, as it's his subsystem in the end and I'm sure
+>> he has an opinion on the matter.
+>> 
+>
+> I gave it some thought for the past month as this is an issue that is
+> regularly brought up.
+>
+> The first thing is that this is an issue that disappears as soon as
+> RTC_HCTOSYS is not used. RTC_HCTOSYS has plenty of issue and one of
+> those is that is doesn't actually work well with NTP. There is a fix for
+> this and it would slow down every boot by a second or two.
 
-commit 2afa604e9b62ac37552a0a69c5399fed7850a086
-Author: Sander Speetjens <sander.speetjens@gmail.com>
+Sure, simply disallowing RTC_HCTOSYS on any build that contains support
+for time32 userspace would also avoid this.
 
-rtc: Add Raspberry Pi 5 RTC driver
+> The main issue is that systemd decided to mandate RTC_HCTOSYS when
+> raising up the issue, the answer is that it is unacceptable to have logs
+> that are not properly dated until userspace sets the system time. But
+> letting userspace set the system time simply solves the issue as it will
+> always set a time that it can handle, even if not correct.
 
-Upstreaming the downstream Raspberry Pi 5 RTC driver. This driver supports
-the custom DA9091, which is accessed through the firmware mailbox.
+Not sure what exactly you are suggesting here. Do you mean we should
+try again to address this in systemd in order to no longer need
+the RTC_HCTOSYS hack?
 
-> diff --git a/drivers/rtc/rtc-raspberrypi.c b/drivers/rtc/rtc-raspberrypi.c
-> new file mode 100644
-> index 0000000000000..494b949374064
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-raspberrypi.c
-[ ... ]
-> +static int rpi_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_TIME };
-> +	int err;
-> +
-> +	err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_GET_RTC_REG,
-> +				    &data, sizeof(data));
-> +	rtc_time64_to_tm(data[1], tm);
-
-[Severity: High]
-Will this driver run correctly on big-endian kernels?
-
-The raw payload returned by the firmware is treated as host-endian here. If
-the firmware expects and returns little-endian payloads (as is common for
-mailbox interfaces), should this code use le32_to_cpu() to prevent byte
-transposition issues?
-
-> +	return err;
-> +}
-> +
-> +static int rpi_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_TIME, rtc_tm_to_time64(tm) };
-
-[Severity: High]
-Similar to rpi_rtc_read_time(), the timestamp and sub-command are placed
-into a host-endian u32 array without conversion.
-
-Should this value be converted to little-endian using cpu_to_le32() before
-sending it to the firmware?
-
-> +
-> +	return rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_SET_RTC_REG,
-> +				     &data, sizeof(data));
-> +}
-[ ... ]
-> +static int rpi_rtc_probe(struct platform_device *pdev)
-> +{
-[ ... ]
-> +	vrtc->rtc->ops =3D &rpi_rtc_ops;
-> +
-> +	rpi_rtc_alarm_clear_pending(dev);
-> +
-> +	vrtc->bbat_vchg_millivolts =3D 0;
-> +	of_property_read_u32(dev->parent->of_node, "trickle-voltage-millivolt",
-> +			     &vrtc->bbat_vchg_millivolts);
-
-[Severity: Medium]
-Does this read the property from the correct device tree node?
-
-It appears this reads trickle-voltage-millivolt from the parent firmware
-node (dev->parent->of_node) instead of the child RTC node. If a correct
-device tree specifies this property on the RTC node to follow DT encapsulat=
-ion
-rules, will that configuration be ignored here?
-
-> +
-> +	rpi_rtc_set_limits(dev);
-> +	rpi_rtc_set_charge_voltage(dev);
-> +
-> +	return devm_rtc_register_device(vrtc->rtc);
-> +}
-> +
-> +static const struct of_device_id rpi_rtc_dt_match[] =3D {
-> +	{ .compatible =3D "raspberrypi,firmware-rtc" },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(of, rpi_rtc_dt_match);
-> +
-> +static struct platform_driver rpi_rtc_driver =3D {
-> +	.driver =3D {
-> +		.name =3D "raspberrypi-rtc",
-> +		.of_match_table =3D of_match_ptr(rpi_rtc_dt_match),
-> +	},
-> +	.probe =3D rpi_rtc_probe
-> +};
-
-[Severity: Medium]
-Will this module autoload correctly on systems using manual registration?
-
-The firmware driver registers a platform device named raspberrypi-rtc, which
-generates a platform:raspberrypi-rtc uevent. Without a matching MODULE_ALIAS
-declaration here, it seems udev might not be able to match the fallback
-device to the driver module.
-
-> +
-> +module_platform_driver(rpi_rtc_driver);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260924132217.1281=
-752-1-sander.speetjens@gmail.com?part=3D2
+      Arnd
