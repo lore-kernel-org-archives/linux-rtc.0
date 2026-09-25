@@ -1,73 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC17352037
-	for <linux-rtc@vger.kernel.org>; Fri, 25 Sep 2026 07:30:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3668845D5D5
+	for <linux-rtc@vger.kernel.org>; Fri, 25 Sep 2026 07:43:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790321430; cv=none; b=OD94v7WYgzL084UGfm0aD2cKiePRlGRkvMT5+OkfbL3WJp3Xkpkbtt1m0I8UvEm8xMc6qfcF1AAIz5uwNsRZeaIcouLgff/SOhXPCZ1K9kgYlc1kjNtjq4J0htjYHPm7eZwQ4Pww/jDK6aTOiTeCXMP35FYxrUQTOVI9GYUqjgg=
+	t=1790322202; cv=none; b=k3CIio1Q1YboQsU2XHT1eoD7xDj69UmIFbJXZzSKGzIN8UNrsfooPo/CEiQc7Sgaynijh72iU2aGs+d7iY2VVziMV9AORXqBpt9JWNlNN61aOuy8ropwTmczYUQN0wvH7xaAay4gQxFcZ2Evm/vg2IZCbqYxoHn0wWE3eZk+z4Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790321430; c=relaxed/simple;
-	bh=kUfO7c9SNRxF6VeHsFriDyux8hyKy08HpoA8irIYN3A=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=l5ikWHsRjkUzrVoF7DqJIRgg2XEbOPzt/EY+UPuFoJK8Wu3jb2KMV1ehN1ub3utc6/5jtAqdlih7rNx02Qwjc5rNeI4EOjx3f5WBAgH02x004lp5AEpgR9HgbfeCK9hIhZqWjYnApwmc6HJ3UqIkwG75//ooI95Atrx+ubj+uUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oMem3cWz; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oMem3cWz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 743F41F00893;
-	Fri, 25 Sep 2026 07:30:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790321428;
-	bh=kUfO7c9SNRxF6VeHsFriDyux8hyKy08HpoA8irIYN3A=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oMem3cWz0YPyDXupPweQgTMU3rJjhynSMPw/THWifDvgtUz3FO7bb6umbXfszNR9G
-	 lTeoF5fay+ZqvR6Mtf0rY4JnD4ZBPBTHhLRf1dk+yh8f4hWHENvdOnl8CmoV4OtH91
-	 OSL6h8aHmJeJpRoO6eWGgObX0OBzI/yX39UbC0A1PSF2cDG5DrP46a8I5xFL0WOmjY
-	 BWqe3EO3URMArQYKryYA92JQDQVoT7idJKHew7IWb2oXa9colKFkwSWiQJGhSZF5EB
-	 UyYqHaAGpGQ9Gmd4lPRDs2Ol9Nr+2gu9SIOKm0gVJkDKSbKD+NeJaniZB1QlbFDo/N
-	 7W5nTIpcJg5fQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] rtc: ma35d1: fix unchecked IRQ error and
- IRQ-before-rtcdev ordering
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Cong Nguyen" <congnt264@gmail.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org
-In-Reply-To: <20260925072345.2632042-1-congnt264@gmail.com>
-References: <20260925072345.2632042-1-congnt264@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 07:30:27 +0000
-Message-Id: <20260925073028.743F41F00893@smtp.kernel.org>
+	s=arc-20240116; t=1790322202; c=relaxed/simple;
+	bh=LdmthTFaZ6Cx7odqrAcqzO4dhbSuBO/RNeKUn9ozC/Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=unIv459agbkBUULJNEv7EstGKUwo1/6c9slMkhKMfbJbLfhGxWPT/Jgc2Ptofo/xaouSPRwfw7+OfYa6LF6nEwXT8puDd/s7/S1F68NbD0leYnOwDBWjkBCuoCszwq0H7/tTL4jT/5b5QEPephvxT15rsQhgbieMFLBGnY2/zQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-98536aec408so677784241.0
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Sep 2026 00:43:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790322194; x=1790926994;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=OHrY14evUZl7TkXTojoWr/b2Uu7Pe/dQ0XVSo++s0Jk=;
+        b=UAr+7tWGyGsa5LKwgfK3hdmiEZAFGjDRrsmJfGEmkxIE/MsfXiHCxMto4QPELvyMfb
+         z85+4ygsZPoIQRteSiSgiCIM/FOaEdR/Wr29xWK1rEZqIz0zIYE8yQN1eE1FJyAlwA1w
+         I5rlTlx53hlj0JKZY+QGjhTktrDdGjgrW7sB00tx0e617hAzNF5g5sXFDGTlx3ku7QH5
+         37dQ0seFmj/kgQGrPUK4t3K1lUoEfBRP1dsI9uB7/K7uGVybuG6LSbN9KLlubQauV/Lh
+         R8qV8i6rjz1iXYO2XcmT1cIxhWpxvN9B/Pg85Isbg2Y2koiFKQ73v3op4hS6tX74LF6n
+         HsdA==
+X-Forwarded-Encrypted: i=1; AKwUvBx4XJsFu3r2X7QHoSc1FQiaoqxRNMYxhyR5BNQpnUstvQv7sRazNv0pJKoMagUjc3joLEii6DUmLGk=@vger.kernel.org
+X-Gm-Message-State: AFuF++nKdr158KDFrP6fc5mbFRvZMPV0Zm/mEFkVEJgiClHs4bo0mEmK
+	oEKUpyqaxnVU5ZDwxmdzV2prh+qT8XwAX0XeOQ2U0bWDA63kxzfFa4wtCunWlZrD
+X-Gm-Gg: AYBFou2o4CETAYr9R7aQGS5Nkk/lmnVoH0Kaj6ymgCwK2hFbcpG8/TrK/f6KB2+VyLU
+	bPD3ZZxsstk+UZE1+5uBqiZtW+DDZXJx4ZA+/WK/M3i5xcsnarRjwnsBuILHlMMFfoyO9uCgeF8
+	1rttRr2RufvRzZq0LMw4uU8G/B732+l5ZnDTqe9UqUbc785K7T9LogEMnkZoaE2T9h5eHtg9Bij
+	lY64A7if4WbKdfUxqeg7xT6coMXr5gq/wqFBpmFYVNS0yDpTLeCSA+RnEkWcc2GNJUSk9ihlZNM
+	1sywl0Ok1NuVB19i8ZvwA2SMVXGMOGnz1ncG5aYObYajHhQRYU+/kV2IKrJwkZf67mfDwPJ307y
+	TAKCxuHp38Tjv+SOsmt0KmjXsHVl4T3+zm2d4WxlgBx2b3KloIk9cxLCb0CIAj6aMeKXs8oKLzP
+	smJ0VCTqVoytzyhXXtn7vuyKqBfFCoz5JMVC82PEb4MtDSPqivX+8yaYrPXYzDIjf1vpeCOWcie
+	Fg58vnBF326RO9qUgCRVasCl1mXlW9VhzwFUnxQ
+X-Received: by 2002:a05:6102:1a02:20b0:7af:efe6:2bbe with SMTP id ada2fe7eead31-7afefe63c7fmr919654137.16.1790322193813;
+        Fri, 25 Sep 2026 00:43:13 -0700 (PDT)
+Received: from mail-vk1-f175.google.com (mail-vk1-f175.google.com. [209.85.221.175])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5cc66536928sm1775382e0c.18.2026.09.25.00.43.12
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Sep 2026 00:43:12 -0700 (PDT)
+Received: by mail-vk1-f175.google.com with SMTP id 71dfb90a1353d-5c83fbd23a5so1593835e0c.1
+        for <linux-rtc@vger.kernel.org>; Fri, 25 Sep 2026 00:43:12 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxGV8ihgSLwnYRzTilZf4ooRLnS96XS0SvvqmSLyVhbLbsoAop1FXbZPNnc7r8SCnpOc/nIGaY2o7g=@vger.kernel.org
+X-Received: by 2002:a05:6102:3246:20b0:797:c1fd:9d87 with SMTP id
+ ada2fe7eead31-7af1c68ce3emr1738158137.2.1790322191996; Fri, 25 Sep 2026
+ 00:43:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com> <20260917111349.52250-4-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20260917111349.52250-4-wsa+renesas@sang-engineering.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 25 Sep 2026 09:43:00 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
+X-Gm-Features: AclHuK85B8akfPcq7Wm9lfgYaHe65iE3-4i39ONPSyetOTvniQxGh_v7KkpSaOQ
+Message-ID: <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, 
+	Lad Prabhakar <prabhakar.csengg@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-> platform_get_irq()'s return goes straight into devm_request_irq()'s
-> unsigned int param unchecked -- a negative -EPROBE_DEFER becomes a
-> huge positive number, so probe fails outright instead of deferring.
->=20
-> The IRQ is also requested before rtc->rtcdev is allocated. devm
-> teardown is LIFO, so unbind or a later probe failure frees rtcdev
-> before the IRQ, and an alarm firing in that window has
-> ma35d1_rtc_interrupt() touch freed memory.
->=20
-> Check irq_num for a negative return, and move the IRQ request to
-> right after devm_rtc_allocate_device() (its irqwork is already
-> initialized there) and before devm_rtc_register_device(), so unbind
-> unregisters the device before the IRQ is freed, not after.
->=20
-> Fixes: dc0684adf3b6 ("rtc: Add driver for Nuvoton ma35d1 rtc controller")
-> Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
-> Link: https://lore.kernel.org/r/20260918161925.2639130-1-congnt264@gmail.=
-com
-> Assisted-by: LLM
-> Signed-off-by: Cong Nguyen <congnt264@gmail.com>
+Hi Wolfram,
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+On Thu, 17 Sept 2026 at 13:14, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> The RTC on R-Car X5H is a bit special because interrupts are not wired.
+> Future R-Car Gen5 SoCs will have them wired again. So, create a
+> dedicated entry for X5H without interrupts.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925072345.2632=
-042-1-congnt264@gmail.com?part=3D1
+> --- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> @@ -23,6 +23,8 @@ properties:
+>            - const: renesas,r9a09g087-rtc  # RZ/N2H
+>            - const: renesas,r9a09g077-rtc  # RZ/T2H
+>
+> +      - const: renesas,r8a78000-rtc   # R-Car X5H
+> +
+>    reg:
+>      maxItems: 1
+>
+> @@ -52,8 +54,6 @@ properties:
+>  required:
+>    - compatible
+>    - reg
+> -  - interrupts
+> -  - interrupt-names
+>    - clocks
+>    - clock-names
+>    - power-domains
+> @@ -66,6 +66,7 @@ allOf:
+>          compatible:
+>            contains:
+>              enum:
+> +              - renesas,r8a78000-rtc
+>                - renesas,r9a09g077-rtc
+>                - renesas,r9a09g087-rtc
+>      then:
+> @@ -75,6 +76,20 @@ allOf:
+>          clock-names:
+>            minItems: 2
+>
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: renesas,r8a78000-rtc
+> +    then:
+> +      properties:
+> +        interrupts: false
+> +        interrupt-names: false
+> +    else:
+> +      required:
+> +        - interrupts
+> +        - interrupt-names
+> +
 
+Sorry for missing this before: the "resets" property is
+completely missing.
+
+>  unevaluatedProperties: false
+>
+>  examples:
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
