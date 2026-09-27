@@ -1,107 +1,91 @@
-Received: from mail-wr2-f35.google.com (mail-wr2-f35.google.com [74.125.225.99])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D8363921FB
-	for <linux-rtc@vger.kernel.org>; Sun, 27 Sep 2026 15:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1686C3909A8;
+	Sun, 27 Sep 2026 15:17:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790521952; cv=none; b=j4uEt0LaUQVBxDs6HNUxEbZgA9/ZbScK5RiuQsYIvMcg8LUJgN9XUvHt6DxOv2zOqZ4tYrtnVVJkPvbqGXVM2NYmzjy79vBcpiQZJYyVPQSeEJAzSHqsuoJRfJFELz0XNPwcihwh4ibweFrZQ7sUrteT1DHA+8Y3880jmwb3XOA=
+	t=1790522281; cv=none; b=P0krPnKA/Fg01Fu6Dahb+uUVjKZDYnufCPlMaR2QypSW5e3ofTqjijt86Uxva52V923MFj9nTeWKAvif31trpfXCINc90KpoNB2Mf6F7luDYb3fTywaA4ViuV3P4MPCwEMwBm1o3ct1p6UdD6u2Twp7Qqdjq4LPaNvtVWbIDc9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790521952; c=relaxed/simple;
-	bh=iGxLkAPjn7iwM0RTaaX+V0ufn+VTyGjgMAZb+r2eUQ4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KZnvOFRczRl1S3l5QgD18p3VpHhy2Hlo67/QcFI53zoRJo6fIxXAvMynA3nIixWzvjXUg1DlWJV0Uj9VemWhBDUhicN+D5RTWgnlk+X1VA8RKfyOkIgTJ/7wPd3AvrCkEAqLQHJykvq3bPQG8Si/J2miLP+K74sVtCppbFpdSaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HWMi1aeo; arc=none smtp.client-ip=74.125.225.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790522281; c=relaxed/simple;
+	bh=0z47+ZtHaVhknMIBcyYP6ZxDTM7cAc5O0YL6wl+j/dg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=OfH3zPn2obc6ZqLjehfPDIOEVR1c6IokTcXUIl3sW4Axcw0NAYYPIZbdr8/UwlYchRSmsC8GZ8RA7ENlYeBltNDixjzS8256Nv1pVkZOemV/m3DfAI0AJIw4TMIHFXnMRx/Xrzh/NjX7082T41TSYR2Q3g/CjjUJxLkg/BUeWwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H8pdhJE9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HWMi1aeo"
-Received: by mail-wr2-f35.google.com with SMTP id ffacd0b85a97d-48881a62e09so1160008f8f.2
-        for <linux-rtc@vger.kernel.org>; Sun, 27 Sep 2026 08:12:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790521949; x=1791126749; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=SnMP+yO9gTVCT1ht/mZTNiN+id9GPVSfGNROClqfyxw=;
-        b=HWMi1aeopCUn6Aq2UZDyb2x1F+VqwuTTzaUTcRuU7ieu0kke368/EzFoKFjO0/hMET
-         2WtdgHBB40342MS/F/mwf/bsFPEFQ8pb42Tunq5NFzshrwE+2y2S3niOG+8nJsWcp88s
-         lz/jP8alWoSs4slRXbA6ZJAkkodkd330OCfiH6yeb1cjwuZUMqrOKsZbJv/fvZv8+W1W
-         1JBVMj08efM6oTNw/LXjH4FOWoR6ujuSrQU+/Pwa8DM29h5agpJSVUTATSkGE7Vc1Cpx
-         gnB/QJ3/UGKeJg2Ye68Ssz5O2Y7htit7KdrHZxTkhXWk0/O2yEYGi9kFXLnL5z+Opuvd
-         ZFwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790521949; x=1791126749;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SnMP+yO9gTVCT1ht/mZTNiN+id9GPVSfGNROClqfyxw=;
-        b=hU/emMkQqs9a2GYFdOv0EjqqyuMykImRxc0Pz49vTovha1A4pDS9GTPmBp4TuyF9c0
-         vxbhzjyiIcviyBvAgb0/NlQz01gCByNVDiXYCKyhpWiF+CbUqrj48+zzrYq5i3hg2apS
-         v5fvFqrbStwwUfSMe75sW1mAmWSO2SqOe1/kQEOI7gK1ypclgkQ+0tjed7/xwCRyA5Nv
-         8SwEwX7ap+BO2HQjRXfjkIH8EZXf73BEffp4OcbApGRK1EG/21D1AARFhtHvyvYeFT2z
-         gm2y1pbVqHx6EVoLSnt8DqFuCljJEqjYKFk7brmnk5FATDJNmWeubOaXzx1o3+BuHkdJ
-         hnWQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzLHcBHuNHi7wss/NNTO7UTCUHh1j48FkbZsFkUlEeCcNrn8NoYjCHka5+xlrF75ddYGyDSeJwsYrU=@vger.kernel.org
-X-Gm-Message-State: AFuF++l9rz7kn68Z8TGwi6JnYpS1U51xC2wlguZu7Yht3DnOTsczqX4c
-	cEpnkxFMKUWkt3eqLIIgfhGm32FsSSTSeFDg0pIk8JMIUiky/eb6Vqrg
-X-Gm-Gg: AYBFou38Dk9LnfbV5RtP7/fa8GNWlhJLNaChbLmvrcmTVs9+OdwHLhfeIXeJ4isgODh
-	Lj3anLAcY24KiGLdivhr5zIcks9LCQtqXq7DkFcTom8PKfAL3SyzR+kWcHBWHwjrHH4+cQzSO1j
-	Niz+JHFDj7IrmuuQD20INSzgKJR6KDJNypqlDwplwL4jMPJKwbyi78iJs6FA4mT9LQ3NjDJFRsX
-	rMthV/9UDPWPJDU1VJi/cffFs/qnf63YGzqnM8snqJsyhXwajq5yeqmw4qO5wqfSxUt5uzi6PHx
-	fwl1AvFCexpGFYL3CQ72suDZv14o3aa6wp5lBQJqRDg7I3nqc/6fsj5M6bxV2XpZRJJn+TBWj76
-	lmFbVJv8Zshc4a8I6Bto649L7PZvxyn9LWV6LHOX1ItUG2Xx8jWUhITsPEmjqqouGZZfGf7362o
-	qyfqUKG5008dOXUeAaQtgctv1q2+plx1+CsAhzoz8YL8h5M3e7qnYqIu0vliy5+u8HaH+f2gPyt
-	bi2O/DTK6XFaaeaIs4IU4Ny3gN4Y8aMx7w6cePEEqU=
-X-Received: by 2002:a05:600c:4694:b0:4a0:54a:bd36 with SMTP id 5b1f17b1804b1-4a0054abee2mr1501255e9.35.1790521948886;
-        Sun, 27 Sep 2026 08:12:28 -0700 (PDT)
-Received: from debian (ip-78-137-176-146.broadband.digiweb.ie. [78.137.176.146])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4887a746c57sm19764208f8f.35.2026.09.27.08.12.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 08:12:28 -0700 (PDT)
-From: Pablo Mazzini <pmazzini@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>
-Cc: Pablo Mazzini <pmazzini@gmail.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	linux-sunxi@lists.linux.dev
-Subject: [PATCH v2 06/11] rtc: sun6i: add Allwinner B288 compatible
-Date: Sun, 27 Sep 2026 16:10:11 +0100
-Message-ID: <20260927151016.186493-7-pmazzini@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260927151016.186493-1-pmazzini@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H8pdhJE9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B9F1F000FF;
+	Sun, 27 Sep 2026 15:17:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790522279;
+	bh=lc2zBsj8ty1DRwiBVnT8cwOo1g9wgLVyjSy8hpLu5NU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=H8pdhJE9aakirbXz53kPALg0R8TPqu7ff8E9Ijst4Xww7sxCmCgaM2DqupCpZBtua
+	 ekSAzVL6WY2QZCnNGQCS1FOqHlqZFs03XPXWfqWhMbHRz0v92UTS9Wiy0VYuSg8x2f
+	 sFmKEAMKxEkUF3YJqX2H0jGDNC3pBZdvOqXuNf2QPM3M4bWv/jyDWf0vRXr7Nj7OvL
+	 rSv70e7w0l06FM0f3oZvh9GTRELKjDwDqZxGuy7oEl7jbWQTTu2QxVmX42TtILJ1gF
+	 UMzy36TtBaoXFxOqPHdJ2rid2BUfMqJ3ExxFmcgSDk0l4AL9i7bPh9KDQ6OTJos+mr
+	 2d/1cW5cj2l1Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 05/11] dt-bindings: rtc: sun6i-a31: add Allwinner
+ B288
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Pablo Mazzini" <pmazzini@gmail.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-sunxi@lists.linux.dev, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-rtc@vger.kernel.org
+In-Reply-To: <20260927151016.186493-6-pmazzini@gmail.com>
 References: <20260927151016.186493-1-pmazzini@gmail.com>
+ <20260927151016.186493-6-pmazzini@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 27 Sep 2026 15:17:57 +0000
+Message-Id: <20260927151759.35B9F1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The driver only uses one alarm interrupt, so no functional change.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] dt-bindings: rtc: missing clock-output-names constraints for sun8i-=
+b288-rtc
+--
 
-Signed-off-by: Pablo Mazzini <pmazzini@gmail.com>
----
- drivers/rtc/rtc-sun6i.c | 1 +
- 1 file changed, 1 insertion(+)
+commit dc864843d6f807d8dbbd6c391ac70a1992bc2e0f
+Author: Pablo Mazzini <pmazzini@gmail.com>
 
-diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
-index 7fc60880e409..cd6ac5bb20cd 100644
---- a/drivers/rtc/rtc-sun6i.c
-+++ b/drivers/rtc/rtc-sun6i.c
-@@ -859,6 +859,7 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
- static const struct of_device_id sun6i_rtc_dt_ids[] = {
- 	{ .compatible = "allwinner,sun6i-a31-rtc" },
- 	{ .compatible = "allwinner,sun8i-a23-rtc" },
-+	{ .compatible = "allwinner,sun8i-b288-rtc" },
- 	{ .compatible = "allwinner,sun8i-h3-rtc" },
- 	{ .compatible = "allwinner,sun8i-r40-rtc" },
- 	{ .compatible = "allwinner,sun8i-v3-rtc" },
--- 
-2.53.0
+dt-bindings: rtc: sun6i-a31: add Allwinner B288
 
+The B288 RTC wires one alarm interrupt, not two.
+
+> diff --git a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rt=
+c.yaml b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> index f2b91186ed377..1699e3576b915 100644
+> --- a/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/allwinner,sun6i-a31-rtc.yaml
+
+[ ... ]
+
+> @@ -162,6 +163,7 @@ allOf:
+>          compatible:
+>            contains:
+>              enum:
+> +              - allwinner,sun8i-b288-rtc
+>                - allwinner,sun8i-r40-rtc
+>                - allwinner,sun50i-h616-rtc
+>                - allwinner,sun50i-r329-rtc
+
+[Severity: Low]
+Does the new allwinner,sun8i-b288-rtc compatible string need to be added to
+one of the clock-output-names conditional blocks as well?
+
+Because it is omitted from the earlier conditional blocks in the allOf
+section that strictly enforce clock-output-names constraints for all other
+compatibles, it falls back to the default allowing 1 to 3 items.
+
+This could allow an incorrect number of clock-output-names in a device tree
+configuration to silently pass dtbs_check.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260927151016.1864=
+93-1-pmazzini@gmail.com?part=3D5
