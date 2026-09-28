@@ -1,107 +1,82 @@
-Received: from mail-vs2-f42.google.com (mail-vs2-f42.google.com [74.125.227.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A51547CC73
-	for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 08:37:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C689A4915B1;
+	Mon, 28 Sep 2026 10:05:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790584629; cv=none; b=ZyVkqttpIBGx2PwpXI4Op/l6nT+tuVZF8ie61BX99z5eAot5Ps8VapOkPlNcs7i80FAURjaJhN1J3USnorxHiNqSQ5uDlUitIL6lTh/6JDj9rGNyab/tpirHBiGyBddS3DDmyBwyN6gfEfO5CyKQc0ZavT2fKyns5bVJrYdmqz0=
+	t=1790589942; cv=none; b=ZRHPxTmcEM65bFdEFa0Ucuvp8j5hCttBnS03EG155dhhWr+oiRuaWhPOBsh4V4Cf8rg0QiyHxHnddV/kSisqKtspFvpqdtHStv6jbTwcVYZJSQeLb5D5wK70WuvPnLPLWB6HaNJSsv/8TLZo24qJsjeUIuxQo+JAOqsE9wQ7qq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790584629; c=relaxed/simple;
-	bh=EX9eicHVwaUoiSZxx714UBw/LKTiMCIyWd9jiYJIXM8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tHdY0zk/ERqz58UMHT3PIOQOE+UXQMk0C3BPX47kRWtbh5IXyjY8Wo4KmofIXIU5yLsDLx8oiw35ykF4becTRjj50dDqSLuiCa05qcpK9t7RnxPTXFvrVXBn6zzngkACQlWJYlH8hqLCNfmPC0mKR0o5HnvfwplOvkbycoatIXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs2-f42.google.com with SMTP id 71dfb90a1353d-5c979c5eca8so2084255e0c.2
-        for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 01:37:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790584626; x=1791189426;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=zyTKehMDkFPkqWKZx92kuclrg3hevtjSeeDpDpZ8x8o=;
-        b=HEAnt0LZw3EIhqsAPC9rS7KuHK/pD5FB9Mvrd8l6OmpULPH+OuIDL5SA4eZj5FMiAM
-         nM0cFEfya7Vxtc6yh8TNL0+NUu2EY2GLzNzh+iIQf6ZfBGwJdrKEtBt9Ug+UHHGb3QBP
-         moPK2tzKWYBNJ+5DkOhnQtp+TiRnnQFucT+7E5J+OoWPFy4blqNjGkMBCFVW4NLRdYLx
-         BkbosbeMl+8SHaaGKlRsWxJM/XT/tLAxEChbrlDh5rtwCiVZ6DCod6GQ4hDpN0yPZDtR
-         YA/3GsrU8kcstdvkJ3HNXkXlLJv9uE9C1lt1q7SyyunkJBOeyhJevGVa8piLFY7C3G+6
-         Ij1A==
-X-Forwarded-Encrypted: i=1; AKwUvBw5SrSTiESMu4hUkDWF7CXitmgo3ilyxkdd2+HKBptKU4MJPJNX8Up9GI3PAZkewTbZuBg3pKEpB7s=@vger.kernel.org
-X-Gm-Message-State: AFq9FYItZZT3p5UZk18zV69g8o/+kPaqaq9pbqlPDVP/rnaMB1Gjl+M+
-	pceV3JMZTQVIuBhnYzQLP+7gc27uTAwpvgoxopEMum4jPQHnePhVzt8/+Ak8uGny
-X-Gm-Gg: AYBFou3YPL2+aWVKEJx+ZpdLctKBTgliL8DEwlT8cK5q7kgIUxrvzK+N0UpYslmiwMr
-	4Nodth3HY4eF199NJKbqTA7j1FLcXEwZQ2J/XYHRosBotyI0s8Fs7vJUNKsUFP6/uWtuxa0+MpX
-	LgASAKKadHmmW1WPVzUTUHqbD5J1Dt475FBGUBAR6kQAY3i/hiJ2tkItukFo9V+xVXgqyhU5lpq
-	js9+jKjEsoHVzJmSRwWNiEpLhR3gbxlS+rV4JgIFut2499XYi5f7/WjG+YDH5w5Y7mOgC9G3fIv
-	5y01Ew61qEU/zqgPMHyPqseIcq92ATC1Qzp2K71CYAcmiostXHYRrEDoTNbKf29jkQUoh/asXBc
-	Dkj+vG7GRdEMyQ+NV2aj/MSqB/g1Gnqiy73v0XVgZ4nAqpDMgTRcNlz6yqpGpaHgBW3wdpTRn6I
-	WB/kwJplfqV4XllKN68gvc6nJn4L0nF84v++XTWhxnmmIa8UTO1tHiyHnDCkkQsqPzfku4cWuJl
-	g3DFbtzcTRHuuQCDetFhwSHLq+Wp8ZOSEG6
-X-Received: by 2002:a05:6122:1307:b0:5ce:b65d:22bd with SMTP id 71dfb90a1353d-5ceb65d285dmr1386093e0c.7.1790584625852;
-        Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
-Received: from mail-vs2-f37.google.com (mail-vs2-f37.google.com. [74.125.227.37])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5cde645680asm8093457e0c.15.2026.09.28.01.37.05
-        for <linux-rtc@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
-Received: by mail-vs2-f37.google.com with SMTP id ada2fe7eead31-7b42f1cbcf3so849801137.1
-        for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxUOeXnkd4WXLdW40URa1n2s0Zz3NhBH7C2BkeFqAL75mGDVU/HXY2RzyosAskcZvavjhRevJVW7jg=@vger.kernel.org
-X-Received: by 2002:a05:6102:4412:b0:7a7:19aa:8a85 with SMTP id
- ada2fe7eead31-7af1eff69c0mr4934230137.32.1790584625197; Mon, 28 Sep 2026
- 01:37:05 -0700 (PDT)
+	s=arc-20240116; t=1790589942; c=relaxed/simple;
+	bh=eAgVLIhlC46EQF1H+SHN3KzrK8z8WrRCtMwu1pBAq5I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WXhEw2hcmaPqikAsy56DNkumfcDhuH4mLvZUtmQKvNISrPVJjWKk1tlU2iNcWvoVIKj4lBZVL2MGptpdm7DiFSkz4ShRyKCIsuafxnC2n4GoO4I2YqkvXZFGUrrS5Alkt/bzO5hT2bMRAE/wrC4iklbMxnxV7ZOuQuqoBYwTZJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GOX3tfQm; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GOX3tfQm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2451F000FF;
+	Mon, 28 Sep 2026 10:05:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790589940;
+	bh=43+YVXyrdWk5fDHV8RByct1Z4fjfr1ARLHxq905/6e8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=GOX3tfQmMrYnoW34ss7TvG8kuqFbajcWZxildni27Q4qyCt3q6MdT0rIg5ciHjuIo
+	 ao/yjWenwFUosPjQn71u4WfnmotIB5tVD7Vdb70ePA6pMmmPU9jAhx2MPsmqDhZ51o
+	 W40AkISe8wpNRrkok7wLzgoO1nNuxOmV9YPC9VoK3HQgMDx0fT8KeoyyOm8zeLII7h
+	 c1Nz/8LwgohFdaLX5VydGVDUD6OHzTWOrYeKc3Xp9QIEq/O7qPdpd+7P+8A8dTOfh1
+	 IUdyrAJxVwfygYSpj3S61JrV7QpenbckymrXTLihS44x9ovfeLwJwgCejCEejqVbms
+	 TftN0U44DYYDQ==
+Date: Mon, 28 Sep 2026 12:05:38 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>, 
+	H Hartley Sweeten <hsweeten@visionengravers.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Rudolf Marek <r.marek@assembler.cz>, Chris Snook <chris.snook@gmail.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Andreas Noever <andreas.noever@gmail.com>, 
+	Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat <YehezkelShB@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
+	Duncan Sands <duncan.sands@free.fr>, Chas Williams <3chas3@gmail.com>, 
+	Luis Chamberlain <mcgrof@kernel.org>, Daniel Gomez <da.gomez@kernel.org>, 
+	Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, 
+	linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, 
+	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org, linux-serial@vger.kernel.org, 
+	linux-atm-general@lists.sourceforge.net, linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
+Message-ID: <aro70o5N7VoXbjsy@zenone.zhora.eu>
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-2-c18766690185@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com>
- <20260917111349.52250-4-wsa+renesas@sang-engineering.com> <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
- <arlA1YuH709wjtHm@ninjato>
-In-Reply-To: <arlA1YuH709wjtHm@ninjato>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 28 Sep 2026 10:36:52 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdU6v6Fu+mTy83TNRoSEjbaaup8sZb0AE1DZbYc0ZGV2_A@mail.gmail.com>
-X-Gm-Features: AclHuK8tJz3nMwMQn-AWIXUGX_sO1CRpFshT3Dx9kEcVgOI32UtUqTiw6p7Mi64
-Message-ID: <CAMuHMdU6v6Fu+mTy83TNRoSEjbaaup8sZb0AE1DZbYc0ZGV2_A@mail.gmail.com>
-Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Lad Prabhakar <prabhakar.csengg@gmail.com>, linux-renesas-soc@vger.kernel.org, 
-	Miquel Raynal <miquel.raynal@bootlin.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
 
-Hi Wolfram,
+Hi Petr,
 
-On Sun, 27 Sept 2026 at 18:14, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> > > +      required:
-> > > +        - interrupts
-> > > +        - interrupt-names
-> > > +
-> >
-> > Sorry for missing this before: the "resets" property is
-> > completely missing.
->
-> Yes. Prabhakar, looking at the N2H and T2H DTSI files, I assume that
-> those also have resets for the RTC and only N1D has none?
+On Tue, Sep 22, 2026 at 03:32:22PM +0200, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
+> 
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
+> 
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
 
-RTC on RZ/T2H and RZ/N2H does not have a reset.
-Please check the MRCTLx registers.
+Acked-by: Andi Shyti <andi.shyti@kernel.org>
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Thanks,
+Andi
