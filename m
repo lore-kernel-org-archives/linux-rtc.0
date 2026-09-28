@@ -1,99 +1,107 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs2-f42.google.com (mail-vs2-f42.google.com [74.125.227.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71DA83B3C1A
-	for <linux-rtc@vger.kernel.org>; Sun, 27 Sep 2026 16:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A51547CC73
+	for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 08:37:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790525662; cv=none; b=QqsR+iAz7PejHj4DfhdbudU/8OKBa3sa3AzfpDm3OzEvr9x4WsG0Hi2BtGzisa22gDBCjqtUkJsQz59YjC+F/QYvF9RNSFoICtvJV8DlTe/gyYVSskWPaa3UAKOPGQskcFDr98wtu84gssZyG3uQQv9HIrJPcDsEZ6QgGLBruEA=
+	t=1790584629; cv=none; b=ZyVkqttpIBGx2PwpXI4Op/l6nT+tuVZF8ie61BX99z5eAot5Ps8VapOkPlNcs7i80FAURjaJhN1J3USnorxHiNqSQ5uDlUitIL6lTh/6JDj9rGNyab/tpirHBiGyBddS3DDmyBwyN6gfEfO5CyKQc0ZavT2fKyns5bVJrYdmqz0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790525662; c=relaxed/simple;
-	bh=EJmIRSbA4D/H5ocTDwMMhwDoh4r9pOXceDFPWqnH6Xo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RswRpIpWJUiVILXF5y3py9y4KjuzURVmkbXbTwAuQG0meSiIhvk2SPGODBRhcBKrsX3yF44frMqlEqyS5NUXV5JaPPi8QQHGJUPac+zzi+3mvVkUa1FiIvJWvaHoD8MuMRLrENR1nmu919rWuQi4Dvm/SGFn13elcZ3x9aIDNk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=j9MJ+A4n; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="j9MJ+A4n"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=sXUo
-	XPzxvaoW40i4S/CxP5jNmg4aFDgXsOGSZjd+z0Y=; b=j9MJ+A4nDOyRUjO5O34e
-	DHRy8B9uVaHI6IItRaiBTIs+WGo3S+am+14Hy/eep7toyvA4Tz6G+gHFEBfszGfr
-	pLS584PlzWkkJvwdbICPmU/+T8O5whu1irJo53enJO19Wtmn2Dxnpz88izjpbyyb
-	8ZdFULCRfCrs7WlhB0G+k6lU57Nv7Q+8eTnMjn0PA5bnNHolbOejGyoeOSqI2kkk
-	fpxJZMMGARDtVxVxzQPgXdmuO7vm8WobSHBbot7kxlCGviim0JzS6vdAz1cU0MdW
-	6WUPOtygTrSAEMJIVvFFuuqTSAGcD3kenmxBIXY2fRtmOjSI/FHPpim9zdpQaJS3
-	HQ==
-Received: (qmail 2691713 invoked from network); 27 Sep 2026 18:14:15 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Sep 2026 18:14:15 +0200
-X-UD-Smtp-Session: l3s3148p1@Wd2qPXlcqLkujnuD
-Date: Sun, 27 Sep 2026 18:14:13 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Lad Prabhakar <prabhakar.csengg@gmail.com>
-Cc: linux-renesas-soc@vger.kernel.org,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
-Message-ID: <arlA1YuH709wjtHm@ninjato>
-References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com>
- <20260917111349.52250-4-wsa+renesas@sang-engineering.com>
- <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
+	s=arc-20240116; t=1790584629; c=relaxed/simple;
+	bh=EX9eicHVwaUoiSZxx714UBw/LKTiMCIyWd9jiYJIXM8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tHdY0zk/ERqz58UMHT3PIOQOE+UXQMk0C3BPX47kRWtbh5IXyjY8Wo4KmofIXIU5yLsDLx8oiw35ykF4becTRjj50dDqSLuiCa05qcpK9t7RnxPTXFvrVXBn6zzngkACQlWJYlH8hqLCNfmPC0mKR0o5HnvfwplOvkbycoatIXg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=74.125.227.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-vs2-f42.google.com with SMTP id 71dfb90a1353d-5c979c5eca8so2084255e0c.2
+        for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 01:37:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790584626; x=1791189426;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=zyTKehMDkFPkqWKZx92kuclrg3hevtjSeeDpDpZ8x8o=;
+        b=HEAnt0LZw3EIhqsAPC9rS7KuHK/pD5FB9Mvrd8l6OmpULPH+OuIDL5SA4eZj5FMiAM
+         nM0cFEfya7Vxtc6yh8TNL0+NUu2EY2GLzNzh+iIQf6ZfBGwJdrKEtBt9Ug+UHHGb3QBP
+         moPK2tzKWYBNJ+5DkOhnQtp+TiRnnQFucT+7E5J+OoWPFy4blqNjGkMBCFVW4NLRdYLx
+         BkbosbeMl+8SHaaGKlRsWxJM/XT/tLAxEChbrlDh5rtwCiVZ6DCod6GQ4hDpN0yPZDtR
+         YA/3GsrU8kcstdvkJ3HNXkXlLJv9uE9C1lt1q7SyyunkJBOeyhJevGVa8piLFY7C3G+6
+         Ij1A==
+X-Forwarded-Encrypted: i=1; AKwUvBw5SrSTiESMu4hUkDWF7CXitmgo3ilyxkdd2+HKBptKU4MJPJNX8Up9GI3PAZkewTbZuBg3pKEpB7s=@vger.kernel.org
+X-Gm-Message-State: AFq9FYItZZT3p5UZk18zV69g8o/+kPaqaq9pbqlPDVP/rnaMB1Gjl+M+
+	pceV3JMZTQVIuBhnYzQLP+7gc27uTAwpvgoxopEMum4jPQHnePhVzt8/+Ak8uGny
+X-Gm-Gg: AYBFou3YPL2+aWVKEJx+ZpdLctKBTgliL8DEwlT8cK5q7kgIUxrvzK+N0UpYslmiwMr
+	4Nodth3HY4eF199NJKbqTA7j1FLcXEwZQ2J/XYHRosBotyI0s8Fs7vJUNKsUFP6/uWtuxa0+MpX
+	LgASAKKadHmmW1WPVzUTUHqbD5J1Dt475FBGUBAR6kQAY3i/hiJ2tkItukFo9V+xVXgqyhU5lpq
+	js9+jKjEsoHVzJmSRwWNiEpLhR3gbxlS+rV4JgIFut2499XYi5f7/WjG+YDH5w5Y7mOgC9G3fIv
+	5y01Ew61qEU/zqgPMHyPqseIcq92ATC1Qzp2K71CYAcmiostXHYRrEDoTNbKf29jkQUoh/asXBc
+	Dkj+vG7GRdEMyQ+NV2aj/MSqB/g1Gnqiy73v0XVgZ4nAqpDMgTRcNlz6yqpGpaHgBW3wdpTRn6I
+	WB/kwJplfqV4XllKN68gvc6nJn4L0nF84v++XTWhxnmmIa8UTO1tHiyHnDCkkQsqPzfku4cWuJl
+	g3DFbtzcTRHuuQCDetFhwSHLq+Wp8ZOSEG6
+X-Received: by 2002:a05:6122:1307:b0:5ce:b65d:22bd with SMTP id 71dfb90a1353d-5ceb65d285dmr1386093e0c.7.1790584625852;
+        Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
+Received: from mail-vs2-f37.google.com (mail-vs2-f37.google.com. [74.125.227.37])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5cde645680asm8093457e0c.15.2026.09.28.01.37.05
+        for <linux-rtc@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
+Received: by mail-vs2-f37.google.com with SMTP id ada2fe7eead31-7b42f1cbcf3so849801137.1
+        for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 01:37:05 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxUOeXnkd4WXLdW40URa1n2s0Zz3NhBH7C2BkeFqAL75mGDVU/HXY2RzyosAskcZvavjhRevJVW7jg=@vger.kernel.org
+X-Received: by 2002:a05:6102:4412:b0:7a7:19aa:8a85 with SMTP id
+ ada2fe7eead31-7af1eff69c0mr4934230137.32.1790584625197; Mon, 28 Sep 2026
+ 01:37:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="gqq7ZMXFblGtRwML"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
+References: <20260917111349.52250-1-wsa+renesas@sang-engineering.com>
+ <20260917111349.52250-4-wsa+renesas@sang-engineering.com> <CAMuHMdWy6ksspwvj8jRxf6_OATU5rS5p92KyG4+sEF+ag7S9NA@mail.gmail.com>
+ <arlA1YuH709wjtHm@ninjato>
+In-Reply-To: <arlA1YuH709wjtHm@ninjato>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 28 Sep 2026 10:36:52 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdU6v6Fu+mTy83TNRoSEjbaaup8sZb0AE1DZbYc0ZGV2_A@mail.gmail.com>
+X-Gm-Features: AclHuK8tJz3nMwMQn-AWIXUGX_sO1CRpFshT3Dx9kEcVgOI32UtUqTiw6p7Mi64
+Message-ID: <CAMuHMdU6v6Fu+mTy83TNRoSEjbaaup8sZb0AE1DZbYc0ZGV2_A@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Lad Prabhakar <prabhakar.csengg@gmail.com>, linux-renesas-soc@vger.kernel.org, 
+	Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
---gqq7ZMXFblGtRwML
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
+On Sun, 27 Sept 2026 at 18:14, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> > > +      required:
+> > > +        - interrupts
+> > > +        - interrupt-names
+> > > +
+> >
+> > Sorry for missing this before: the "resets" property is
+> > completely missing.
+>
+> Yes. Prabhakar, looking at the N2H and T2H DTSI files, I assume that
+> those also have resets for the RTC and only N1D has none?
 
-> > +      required:
-> > +        - interrupts
-> > +        - interrupt-names
-> > +
->=20
-> Sorry for missing this before: the "resets" property is
-> completely missing.
+RTC on RZ/T2H and RZ/N2H does not have a reset.
+Please check the MRCTLx registers.
 
-Yes. Prabhakar, looking at the N2H and T2H DTSI files, I assume that
-those also have resets for the RTC and only N1D has none?
+Gr{oetje,eeting}s,
 
+                        Geert
 
---gqq7ZMXFblGtRwML
-Content-Type: application/pgp-signature; name=signature.asc
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmq5QNUACgkQFA3kzBSg
-KbYqVQ/+JTXX5yQ5EhkWv54M4767sEDS8p28x7peLasQhUa2AvlMJVnGGd3bZq4d
-h+PRN4mD9ILXcfMPn7LT9j4zQJGisF7Ngh7R2v7hOb2a8IH353WV0pcKPK8wb7nT
-vCEBOZf4fQ/upXyu9al6fLfTMspoOybHsVUELsmYxR51+DdmSHElo88EqzuSaagR
-kJEJOPL6yiSm+x9FG2X62pN55JifyV61cTgewrBAbcENnhckmKkjXdkvWjY7Si3Z
-nDF6Uwjnw992v5ntU1v2ZY9DUw0KjFbr88mHKxo/667wzR3B+9Mk+ngWA/2vQbHl
-z/osohkDZ1IBJdJvizqE084Ze7OcXtX78ZLrkw/Ad0ODdKIeOfQtlQLoiCf4UUm2
-RhbOevukaWFIqH8rFu54hseJCypZZRMS0xP76DD1NuKEQahtVbU9HuHs5ksc2L1d
-Jg93AqY/3v8Hwtgys86WBLF+Ft7yuogbY9oy3OS4E36AV6xT8aQifhC83F7hFwW3
-aeuEPyjynDkmGaM94q1x00D54yJ59XQZrQK5x+2x5Zi/CfQ8nI0ZlulVMkO4SnFr
-K/TptfArAJ84WnGWtW9p6uKj/zSywltEJbuRrHo2nrd7Jfp57ZP3/MDoZDLKUonu
-mpu/ug6cTPKkxTztF5OZaYRkHsbCbREf7sKCTbEBnjYMkoS2lQc=
-=qOvE
------END PGP SIGNATURE-----
-
---gqq7ZMXFblGtRwML--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
