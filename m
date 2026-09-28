@@ -1,167 +1,101 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp68.iad3a.emailsrvr.com (smtp68.iad3a.emailsrvr.com [173.203.187.68])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA5B04B0CBB
-	for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 11:44:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E64054EC644;
+	Mon, 28 Sep 2026 16:26:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.203.187.68
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790595887; cv=none; b=hV78kOwd5dXjmkwGx3HnHn1uU2+wyUF/0hMGZzx4HUItkxcozTZnNdDnQathuM49/FPq5xxLzuQFqGkMc4Y9z/ThFAvBR6yNh4uwyt15zQ/51z7/Y2jpcsE0SQ1mFpHkM7jww9IBqp2FICqbUxhkGFVl/9FAV4KE2O4jM2AYz4Y=
+	t=1790612806; cv=none; b=juHdrzbqsA/9e0DVvyeGK1tKv9BGXQSZBr7iVsmNxsg3UnzpNXcrarzK7+0tTr/CmzyEyIaPiWlmposbNg7H1GmDqBQusF8eEMuub5059PS1IFudmurwVD6UvdAysNm8k992A9/6hXz5oBBYVjs2YgCQJ36g1Bx0KIKmjLIFGBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790595887; c=relaxed/simple;
-	bh=/p0VSccA4zU4DeQiVeywobz5EwNE5arEy1oLTPc55ng=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tVUCXoKLolbwMB3h0pMym82YCRTfqqPUd1bTSh587J0LZndUidEMGMxPo+wlF0Z5FyBAqbehFQbTvfZf+hn9+zBSKYLJOlOSIIAMejCFQdKAY5f/Rz9J/Aj/39l7y7JogRgeft/ingrpn/6KcJEYNW76141VQkIzdUJ5nyz5lBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=au6rqKpD; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=dmTG96KY; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1790612806; c=relaxed/simple;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=haU7jckcY+8/MfJ3wr81dqoIqS0ryguJAG3rRU+Ermr59D65B7d86805euUx9Rl412L73nBlA8mnM12UEVQ4pdvNDST3IXFeuiNyRw7/M7YIvchvlTgkPnOhHY5ulXz4uKYPY5z1i5QWlWulzI3X2wUMK1vbAelKbOR7heGzrh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mev.co.uk; spf=pass smtp.mailfrom=mev.co.uk; dkim=pass (1024-bit key) header.d=g001.emailsrvr.com header.i=@g001.emailsrvr.com header.b=knMpqU6M; dkim=pass (1024-bit key) header.d=mev.co.uk header.i=@mev.co.uk header.b=dAAx1Q/7; arc=none smtp.client-ip=173.203.187.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mev.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mev.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="au6rqKpD";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="dmTG96KY"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBA4ke1433615
-	for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 11:44:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=+g1gQEPVu6NTWa1Scj5gCEUL
-	9c3gDqxk89YzewKsiV0=; b=au6rqKpDwMLbn4UyWq13uFvqH3CuRYWGBdBmzyFi
-	gFptUnmPRcaA3d1TN0z90zkM01FPZK7J3dGUQePMrIyCT+KrFZ41i27k6EYPeTE2
-	RC3s8L3gqOFAWBNBnbV66dcOrScRa60UNF7BBEeV/71Kmoyaf1/nbfz5ZyXf6JSP
-	oUKCDk15cwEuYyUxTpFSP9PcGHCEAV3dwHz4KCjGBsSX0nfVL58wwYLYz3B/uayU
-	R3oPJ3DQeis/NxChU7QBaOMpkfaxZWsE5Axbn7jlJ3tv9j3qlegZpeVHXkfmM7Ag
-	SxHC3XvuM8FbnDYAfWPfTapKMcWBHBtC0kaiA0lSpmbYwQ==
-Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gyj2s1bhy-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 11:44:43 +0000 (GMT)
-Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-3425098ae4bso2345079eec.0
-        for <linux-rtc@vger.kernel.org>; Mon, 28 Sep 2026 04:44:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1790595883; x=1791200683; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+g1gQEPVu6NTWa1Scj5gCEUL9c3gDqxk89YzewKsiV0=;
-        b=dmTG96KYmReOxFSyA5ANZXCQUEMSYWXaYcW8M9d6x2h/CrEYJ/Ir5Wzx4+VhpHfpLQ
-         i33GJEibt5h5zflf4hUvuLgOOfDIWOjE9iwHbeRAJITlBqZrQDVFlDKOhQ5Yqtmop3cX
-         nDd5DRx72NHw0qnVxbE3xmFojFGPtVU+DIp4UWQ2YCjDgQAxQSAGFn5annpE4ZXlPn0s
-         qyTmwsUyUFXsUIbh0meu0hQ4rH+y10YIawOVP7wzUzXKou3ymx9W3wq9LnuNXQJ/idlS
-         /WJv7pePAhvGzjh5aCVT9jemWP3bCw31QWJFJO/Q7RZYgQBIfcb4t2QrL9yf4G2Rke88
-         Z3UQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790595883; x=1791200683;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+g1gQEPVu6NTWa1Scj5gCEUL9c3gDqxk89YzewKsiV0=;
-        b=kOC864GqKowdJusiKqz/xdFnbKohmbu9bu4vuRGrmY4Lp6v5gdRHlqU6DK/kumfIT7
-         +Vl6dYT7WULHkcYMIes9bZRq1nUPFawLQP20ttCxCZ0VDOtF1YMWScdy3FKiftS8GNa5
-         mlFkMiA+TLCGDWFl8uO6kMmJpgkMbc9+OOSOoQFxK1QUpu5mzCDz1t6DdM7jVCikgsc7
-         D0JdRW1hMjVqTokNmtBWFatDRfMRwkVpqHqCmBnKeUzCiUsOtYwhsSKDCjDLIy5Als+X
-         Rs/d2xGzCL1ruJBCmCpgxSUWLrVKJ+n5nrdIa8w9UMV0VR7kSTZIS7C27pi6jU6f9XuI
-         VYdQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy1xNV7iWU3zQ/6Xa3FlRBkvCIjbVG12Yhva2l3Pts2oqVvhNQHG8CbLRLjopw1DkTizS+D1k+X5mI=@vger.kernel.org
-X-Gm-Message-State: AFuF++n49qQMJpE4C580uktEUGahVG0/s2tCKBCbzEuPS/Gv+/ML1eLX
-	iuZBtsdK+0aQ7Vu+kPgOCMgJquy91VxRqS3wtAS2qC9oIOVdgpOOH4IqftYCnbXAFGg9hb+XUkF
-	2Y0BAIaLwld8OE+pBAypiHPucG/jNf+MrmjfmWdytC1Ls8E9rDTDbSZAVsrsymho=
-X-Gm-Gg: AYBFou1gCtGHjoXb2cboAQXiA/fFAHT8bkP7wAGhGvi9TEeo6wD9012wV0CITGAbsNz
-	stz3dJD37sh9vpbi6iSejszjFRxw2fGfx5rvZP+egP3cFzLQIW0wmtEtSa10rielfSeWfeYZRhi
-	3UjIdkrRzKwSkOCPSwME96S/h24jiGpoFONtob0k72IcaO02h9ZEYpSxn9HdUa3Nv2Y/5SxO9qK
-	KCb/LeC6y11OU3xB/A7V4qWoZgdf4nH7faNZFkhu8SLh2JqXXUPR4eQoxYhNhWTqiawMADPOIIC
-	DExX7Vi1JuaKbZvOvq6jCIRuyOUWzTkIkST9AJcqO+QUsm9zlxXSjDIUYBSl0oPrt4wIctg61c5
-	4dRYPxJhy2GErtHqVvupuV6vWuyApGqa6iRqnsH0UGw==
-X-Received: by 2002:a05:701b:4591:10b0:143:1bb1:3305 with SMTP id a92af1059eb24-146d0871d4emr8380067c88.22.1790595883166;
-        Mon, 28 Sep 2026 04:44:43 -0700 (PDT)
-X-Received: by 2002:a05:701b:4591:10b0:143:1bb1:3305 with SMTP id a92af1059eb24-146d0871d4emr8380032c88.22.1790595882565;
-        Mon, 28 Sep 2026 04:44:42 -0700 (PDT)
-Received: from QCOM-aGQu4IUr3Y (i-global052.qualcomm.com. [199.106.103.52])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34a1f82e33asm4457920eec.20.2026.09.28.04.44.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2026 04:44:42 -0700 (PDT)
-Date: Mon, 28 Sep 2026 19:44:36 +0800
-From: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Satya Priya <quic_c_skakit@quicinc.com>,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Bartosz Golaszewski <brgl@kernel.org>,
-        Dhruvin Rajpura <dhruvin.rajpura@oss.qualcomm.com>,
-        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx: Document PMM8654AU RTC
-Message-ID: <arpTJAyDAAuAzPrv@QCOM-aGQu4IUr3Y>
-References: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=g001.emailsrvr.com header.i=@g001.emailsrvr.com header.b="knMpqU6M";
+	dkim=pass (1024-bit key) header.d=mev.co.uk header.i=@mev.co.uk header.b="dAAx1Q/7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=g001.emailsrvr.com;
+	s=feedback; t=1790612291;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Date:Subject:To:From:From;
+	b=knMpqU6Mk0kmP+ISs7Cok7X4ebagiVtXT1NiP8qiqgH159TGzqgxajWFaZpSo70uz
+	 X4JvLjhst970T9CuQ/B1UK7DDj94fUZ9D0EuIcMXbSMkMJeSP20XqvG8xys/G508W2
+	 FOaJU8N23FUYtqhMknHHcQaVfBr5pD0xTp3BApkM=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+	s=20221208-6x11dpa4; t=1790612291;
+	bh=dcfqKy8RuwJf19ZxcNaKgTpq2Zkz6O8a3A4laJuSYfM=;
+	h=Date:Subject:To:From:From;
+	b=dAAx1Q/7P23kXEJJmdf1NGwU5hwBxkB9RRRgCV8DxfO9tKEKn3op87rBbKCtMQxor
+	 A7xRjYnmS2/wTvYLr7pPA1i+MhM1dZVN9lyPAynl4YEL0TQoXXoZQxmf7SdxwFhpQQ
+	 4DXajLwgB0+U+CoG1uD67D8LZvzt6Rhe9+Cdueqc=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp17.relay.iad3a.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 02B6C23DAD;
+	Mon, 28 Sep 2026 12:18:06 -0400 (EDT)
+Message-ID: <efbb4382-45eb-41a5-afe3-6c359714aa89@mev.co.uk>
+Date: Mon, 28 Sep 2026 17:18:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA0NiBTYWx0ZWRfX0vaeIsP8FUdq
- tVWaCPj8VvTP1nL25YEQZUGVsG06Ske7ShwkOCi0L/rZIQUvGFFE68JuWR+wvsryyqWaM7450wf
- tgH+MVfFCIHzu11xz7UFycWw1y5pSJ0uRc3o/QrZfqJUaj9gR4KSqAv1uHsZz7PrscvGrxiZG/t
- tVAYkngkuGJa/Eh/w49jmC0G2D5sweN3iF5e75CumKw7Io0KVlBTF+W5gJkRpJY1DSNRXB0Oh5E
- 9uMpZ1nrcoGz0MpkhbXaLfEGfhE8f82+85663rxWu6RAUfyF38WxTI0e3qmWofdeIumb+jZXkop
- jaLzNKHqxmiqBEcjVDvXhoQ2we3sLKBnTjeUf6malgFbMNJ5HOxSCt1EON3c7zXzdkOHWyy2wqP
- sIYKxPbQC2SUIiKQIbNA4d5N2mMfmnpJZmM/vERoecO1oSRDXmBV50NrbeW6X5rij2UqY0uYtSc
- JPceOcTwPh+ZxKLORvQ==
-X-Proofpoint-ORIG-GUID: CeVrxAadZ9pFQ2w5XSEhFgexlPBraM4X
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA0NiBTYWx0ZWRfX1OdDv3qxcIau
- O+aNu3h2CoRhOwGx6sIyZCdRHbDplJn89zDpuj4AiRljbutJM0sOek48RQd9OkF935kCTJkHkIv
- itAVLzy8Put99CYE/VLaFOxikLEUIsQ=
-X-Proofpoint-GUID: CeVrxAadZ9pFQ2w5XSEhFgexlPBraM4X
-X-Authority-Analysis: v=2.4 cv=TptzFzXh c=1 sm=1 tr=0 ts=6aba532b cx=c_pps
- a=cFYjgdjTJScbgFmBucgdfQ==:117 a=b9+bayejhc3NMeqCNyeLQQ==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22
- a=EUspDBNiAAAA:8 a=YW182EFpsI5OemYN5WYA:9 a=CjuIK1q_8ugA:10
- a=scEy_gLbYbu1JhEsrz4S:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-28_03,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609280046
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/3] drivers: Replace __MODULE_STRING() with __stringify()
+To: Petr Pavlu <petr.pavlu@suse.com>,
+ Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck
+ <linux@roeck-us.net>, H Hartley Sweeten <hsweeten@visionengravers.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
+ Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Andreas Noever <andreas.noever@gmail.com>,
+ Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
+ <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
+ Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
+ Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
+ Aaron Tomlin <atomlin@atomlin.com>
+Cc: linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+ netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
+ linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
+ linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260922-module-string-v1-0-c18766690185@suse.com>
+ <20260922-module-string-v1-2-c18766690185@suse.com>
+Content-Language: en-US
+From: Ian Abbott <abbotti@mev.co.uk>
+Organization: MEV Ltd.
+In-Reply-To: <20260922-module-string-v1-2-c18766690185@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Classification-ID: 15bec65d-5b3a-44b5-8eff-f2a711d4e1ec-1-1
 
-On Fri, Sep 04, 2026 at 03:45:41PM +0800, Shawn Guo wrote:
-> Document Qualcomm PMM8654AU PMIC RTC which is compatible with PMK8350
-> RTC.
+On 2026-09-22 14:32, Petr Pavlu wrote:
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 > 
-> Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-
-Hi Alexandre,
-
-I have a DTS series depending on this change and so that being blocked
-for weeks. I will include it into the DTS series to unblock the
-progress (routing it through arm-soc tree).
-
-Shawn
-
-> ---
->  Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml | 3 +++
->  1 file changed, 3 insertions(+)
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
 > 
-> diff --git a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-> index 7497dc3ac5b2..78fa1d5ed028 100644
-> --- a/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-> +++ b/Documentation/devicetree/bindings/rtc/qcom-pm8xxx-rtc.yaml
-> @@ -17,6 +17,9 @@ properties:
->            - qcom,pm8921-rtc
->            - qcom,pm8941-rtc
->            - qcom,pmk8350-rtc
-> +      - items:
-> +          - const: qcom,pmm8654au-rtc
-> +          - const: qcom,pmk8350-rtc
->        - items:
->            - enum:
->                - qcom,pm8018-rtc
-> -- 
-> 2.43.0
-> 
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Acked-by: Ian Abbott <abbotti@mev.co.uk>
+
+-- 
+-=( Ian Abbott <abbotti@mev.co.uk> || MEV Ltd. is a company  )=-
+-=( registered in England & Wales.  Regd. number: 02862268.  )=-
+-=( Regd. addr.: S11 & 12 Building 67, Europa Business Park, )=-
+-=( Bird Hall Lane, STOCKPORT, SK3 0XA, UK. || www.mev.co.uk )=-
+
