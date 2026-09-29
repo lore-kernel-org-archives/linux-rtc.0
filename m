@@ -1,157 +1,132 @@
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332935452A0
-	for <linux-rtc@vger.kernel.org>; Tue, 29 Sep 2026 15:22:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85BA02C237C
+	for <linux-rtc@vger.kernel.org>; Tue, 29 Sep 2026 15:30:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790695347; cv=none; b=KqJj+BHGgeeX45wbuY2m1dlMBCBAJ6CDOIjRnjH6dCtH9MN+/V5nLv0wvH35+zxw2OmkBMBnfqavZag0+/op3GJhQtNL7CrYt4AiGiWtuaQVrO8WhUM+AWm81caNLIRliOHFx5huKzYQCeYkaoSEMAyGKne28O6jocPYfzTw3BE=
+	t=1790695840; cv=none; b=oIxXEafMIcU05jhXMnDvcPlMdqNxtiVcTzfdlW1D4hm7WwygZL2yCsydwJNinMEM0qbsO4fsVRhhjwYqKY7TpVrVHseN6nUUAfuhSztmJrAqGbvttVpZWAijmu4QzH1efO8OPU32YmsqGLT9HN1RF9CkhjUAzSIx6Nn0a/b+trI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790695347; c=relaxed/simple;
-	bh=OjsG17zH5H4/WOovinPDxPeHK+wSrzROs2gPQQfQPRM=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=Vk5sPCgIr0EX9FDs8shQa9iFDi0h0R3yblPLA/trsYsKzZcWZckE4Mc0CXx+Ii+NPPV6E4SWbMi+utZnWlqEmvChMaqnvEoX7JR9VYmrL+LQPEKeUp02me9uU48LblNYYcdh4yZjETQRjGcAG60qBF5IRG9c4s7KS+RdQoNkkGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=HkI6zUV3; arc=none smtp.client-ip=209.85.210.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wakel.bounces.google.com
+	s=arc-20240116; t=1790695840; c=relaxed/simple;
+	bh=kYzGx9n8yuES84EQxhIZd90FIEu7vtnu+GmBbiXaxug=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=MBu+nQUSWp62q4AEQiDO9b/AdmKTTPtgAZwQEjsriBr9S7iPRLIiMW6pb2U1lv+ZEMHH8YlZ5/sw9+TARQ1delyU3Ur9QWVAHp3jiJfx6Jkxpxzi93DelupdToQuLP1GulHycvn10S9vV1RnEW9z9H1tROsUo34r94cqPURTTsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O5HXoohz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HkI6zUV3"
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-86917d18a02so3604126b3a.1
-        for <linux-rtc@vger.kernel.org>; Tue, 29 Sep 2026 08:22:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790695335; x=1791300135; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kABjuCkm1jRA+YVeLsWCevlcr/5DiZk5/ypt1L/HiIo=;
-        b=HkI6zUV3Py6TqPYDZffdaidBH5ViUDmrCMp5kXEB329glVJKCgVWi09AhQ8z0OPyW0
-         1Vh6rvJ4knjvaRAxdHULd1PshngV+xZd9uhsgiMC6g0F8SWSBqAoAHYh588nRj9BRMq5
-         msUmM0A91af8ehtfkPTbYxRzdbjEuz1p2w9/l5el+r7DIIIAmoz+pfCQq2BXc6w0M0vG
-         ijtBSENkTp4PgKiPhqjItOiZh/VDE8PcZEBUedmK19D3zpZjE8HIk9EZwbR0PhlPhqJw
-         /mR/be1owPJz7nWT3byhp9InLwjHYrz1fiIpjnjvX5lq6V84apH30QoXUcZ35G7xGqsB
-         C2yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790695335; x=1791300135;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kABjuCkm1jRA+YVeLsWCevlcr/5DiZk5/ypt1L/HiIo=;
-        b=K2vQmNzYV49NErCl2V0MJF7U/bQ0tfOZvvRY3riKmS7u1et9rBLqUra47BBc23gzTl
-         aOCh9SjlMZslJGRw63PItir0ZI2h+Dqn5zoPB3qviF7za2QFR9Zlw9HyLUr5nozafE8a
-         I/jMXMT9yoP7DV0lx5PxO94Gwy2uomY9pfBPB5BjqXIC3qZEQnMp48zRBpagfhuarXf9
-         ZCV6VS0NubuhdDzkxfBkMy3ydGFw248ICorYjiFknPRPh1VlUlds5gtlhwHTYWWzzusF
-         rZ5ZG9v/nizrBuUX6vqxrYC/XzDPrxet6T4RQKGGUpgoMAokcTZ2vXo6jrbbbkeGWHHW
-         jxIw==
-X-Forwarded-Encrypted: i=1; AKwUvBy1PKBiB1HE3UxsoQNJp2gq7M00NcUU3V5/aUIHHmHI+HixvRDbN5L2qerHySpk9G5AmKOhLDIIf6M=@vger.kernel.org
-X-Gm-Message-State: AFuF++k7aQq9Sok+TBMFKLZgC66gFGyYYWBd3f6/6oj9ClyWmSal1ees
-	dEbBZAtdt/CQCQFUKI9VferL74+8TRgXQAakULFeXAL0RFsB5eY50x4lgP8ofhD3zOqalQExl64
-	IAg==
-X-Received: from pfiu2.prod.google.com ([2002:a05:6a00:1242:b0:882:a5da:e18e])
- (user=wakel job=prod-delivery.src-stubby-dispatcher) by 2002:aa7:88c2:0:b0:857:72ba:ff0b
- with SMTP id d2e1a72fcca58-87e9917f67amr14425858b3a.19.1790695335132; Tue, 29
- Sep 2026 08:22:15 -0700 (PDT)
-Date: Tue, 29 Sep 2026 15:22:12 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O5HXoohz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0CF31F000FF;
+	Tue, 29 Sep 2026 15:30:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790695839;
+	bh=ZhudZKR/fhpfZz6DyzeBPXTNdbNF5H2nW8Tc2qvvUqo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=O5HXoohzUc52ATI8mS80q+EgSqu2NpYWVWUAEWIxdqopsEMD5SrRSQjxmVuM1wDxk
+	 vKvnYkU4wwBT06yTx3glCy3chQW+DSg0aBumisi23Nm7bljyBvpJncTOxXn2ZRDEv7
+	 nhUnXyytvhNnp5z/O5TaMugkRF3Ndr4VwB2orRjYA8eNszGEjkAog//QvlIhOYgICM
+	 q5dGmKO81Ha72A/xonMLnxs5j+rBs6gSpWPcPAstua/l/Ih+aDcg7Gn/Gk+4seMhJr
+	 J6kCU0ZWJfNvKXb1QsKioZjO9DoeRLa90Ql9LHsIu3pPQOcYAyolhA80J3gy57DtzO
+	 tOk5zstbK4Wpw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RESEND] selftests: rtc: fix flaky date_read_loop test
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Wake Liu" <wakel@google.com>
+Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20260929152212.2092062-1-wakel@google.com>
+References: <20260929152212.2092062-1-wakel@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 29 Sep 2026 15:30:38 +0000
+Message-Id: <20260929153038.E0CF31F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.56.0.rc1.315.gc6ed9934b7-goog
-Message-ID: <20260929152212.2092062-1-wakel@google.com>
-Subject: [PATCH RESEND] selftests: rtc: fix flaky date_read_loop test
-From: Wake Liu <wakel@google.com>
-To: Shuah Khan <shuah@kernel.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-kselftest@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-The test case rtc.date_read_loop in rtctest.c fails intermittently because
-it checks that the RTC time does not advance by more than 1 second per loop
-iteration. However, the loop sleeps for 11ms via nanosleep(), and if the
-test thread is descheduled by the OS scheduler (e.g., under heavy system
-load in a VM), more than 1 second can elapse between consecutive RTC reads.
-This causes the next RTC time read to be 2 or more seconds ahead of the
-previous read, triggering a test assertion failure.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] selftests: rtc: preemption race between ioctl and clock_gettime
+- [Medium] selftests: rtc: CLOCK_MONOTONIC does not account for system susp=
+end
+--
 
-To make the test more resilient against OS scheduling delays, measure the
-real elapsed time between iterations using a monotonic clock
-(clock_gettime(CLOCK_MONOTONIC)), and compute the actual number of seconds
-elapsed (delta_s) between consecutive RTC reads. Then dynamically adjust
-the assertion to:
-ASSERT_GE(prev_rtc_read + delta_s + 1, rtc_read);
+commit 470d20b138e75cc7483b890fe5b4c4fbcf96a62c
+Author: Wake Liu <wakel@google.com>
 
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Wake Liu <wakel@google.com>
----
-Hi Shuah, Alexandre,
+selftests: rtc: fix flaky date_read_loop test
 
-This is a resend of a patch that has been Acked by the RTC maintainer
-but does not seem to have been picked up by either tree yet:
-https://lore.kernel.org/all/20260430120313.4078185-1-wakel@google.com/
+This commit modifies the rtc.date_read_loop test to measure real elapsed ti=
+me
+between iterations using CLOCK_MONOTONIC. It then dynamically adjusts the
+test assertion to make the test more resilient against OS scheduling delays.
 
-It applies cleanly on top of current mainline. No code changes since
-the original posting; I have only folded in Alexandre's Acked-by.
+> diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selfte=
+sts/rtc/rtctest.c
+> index 8047d9879039c..54eb5c255a452 100644
+> --- a/tools/testing/selftests/rtc/rtctest.c
+> +++ b/tools/testing/selftests/rtc/rtctest.c
+[ ... ]
+> @@ -126,25 +127,31 @@ TEST_F_TIMEOUT(rtc, date_read_loop, READ_LOOP_DURAT=
+ION_SEC + 2) {
+> =20
+>  	rc =3D ioctl(self->fd, RTC_RD_TIME, &rtc_tm);
+>  	ASSERT_NE(-1, rc);
+> +	clock_gettime(CLOCK_MONOTONIC, &prev_mono);
 
-Since tools/testing/selftests/rtc/ is listed under both the RTC
-subsystem and the kselftest framework in MAINTAINERS, could either
-Shuah (via the kselftest tree) or Alexandre (via the rtc tree) please
-pick it up? I'm happy to go with whichever tree you both prefer.
+[Severity: Medium]
+Does CLOCK_MONOTONIC adequately account for system suspend in this test?
 
-We are still seeing this test fail intermittently in Android VTS
-(about 15-18% of runs on some devices), so it would be great to get
-this merged.
+Since CLOCK_MONOTONIC stops incrementing during suspend while the hardware
+RTC continues ticking, if the system suspends during the sleep loop, could
+the RTC advance significantly without delta_s reflecting it?
 
-Thanks,
-Wake
+Would using CLOCK_BOOTTIME avoid this regression and correctly track elapsed
+time across suspends?
 
- tools/testing/selftests/rtc/rtctest.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+>  	start_rtc_read =3D rtc_time_to_timestamp(&rtc_tm);
+>  	prev_rtc_read =3D start_rtc_read;
+> =20
+>  	do  {
+>  		time_t rtc_read;
+> +		time_t delta_s =3D 0;
+> =20
+>  		rc =3D ioctl(self->fd, RTC_RD_TIME, &rtc_tm);
+>  		ASSERT_NE(-1, rc);
+> +		clock_gettime(CLOCK_MONOTONIC, &cur_mono);
 
-diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
-index 8047d9879039..54eb5c255a45 100644
---- a/tools/testing/selftests/rtc/rtctest.c
-+++ b/tools/testing/selftests/rtc/rtctest.c
-@@ -116,6 +116,7 @@ TEST_F_TIMEOUT(rtc, date_read_loop, READ_LOOP_DURATION_SEC + 2) {
- 	long iter_count = 0;
- 	struct rtc_time rtc_tm;
- 	time_t start_rtc_read, prev_rtc_read;
-+	struct timespec prev_mono, cur_mono;
- 
- 	if (self->fd == -1 && errno == ENOENT)
- 		SKIP(return, "Skipping test since %s does not exist", rtc_file);
-@@ -126,25 +127,31 @@ TEST_F_TIMEOUT(rtc, date_read_loop, READ_LOOP_DURATION_SEC + 2) {
- 
- 	rc = ioctl(self->fd, RTC_RD_TIME, &rtc_tm);
- 	ASSERT_NE(-1, rc);
-+	clock_gettime(CLOCK_MONOTONIC, &prev_mono);
- 	start_rtc_read = rtc_time_to_timestamp(&rtc_tm);
- 	prev_rtc_read = start_rtc_read;
- 
- 	do  {
- 		time_t rtc_read;
-+		time_t delta_s = 0;
- 
- 		rc = ioctl(self->fd, RTC_RD_TIME, &rtc_tm);
- 		ASSERT_NE(-1, rc);
-+		clock_gettime(CLOCK_MONOTONIC, &cur_mono);
- 
- 		rtc_read = rtc_time_to_timestamp(&rtc_tm);
-+		delta_s = cur_mono.tv_sec - prev_mono.tv_sec;
-+
- 		/* Time should not go backwards */
- 		ASSERT_LE(prev_rtc_read, rtc_read);
--		/* Time should not increase more then 1s at a time */
--		ASSERT_GE(prev_rtc_read + 1, rtc_read);
-+		/* Time should not increase more then elapsed time + 1s */
-+		ASSERT_GE(prev_rtc_read + delta_s + 1, rtc_read);
- 
- 		/* Sleep 11ms to avoid killing / overheating the RTC */
- 		nanosleep_with_retries(READ_LOOP_SLEEP_MS * 1000000);
- 
- 		prev_rtc_read = rtc_read;
-+		prev_mono = cur_mono;
- 		iter_count++;
- 	} while (prev_rtc_read <= start_rtc_read + READ_LOOP_DURATION_SEC);
- 
--- 
-2.56.0.rc1.315.gc6ed9934b7-goog
+[Severity: Medium]
+Could a preemption between the ioctl() and clock_gettime() calls cause
+spurious assertion failures?
 
+If the thread is preempted immediately after ioctl(RTC_RD_TIME) in iteration
+N, cur_mono will be delayed. When this delayed cur_mono is assigned to
+prev_mono for iteration N+1, it artificially shrinks the measured delta_s f=
+or
+the next iteration.
+
+Could this make delta_s smaller than the actual elapsed RTC time, causing
+the assertion below to fail?
+
+> =20
+>  		rtc_read =3D rtc_time_to_timestamp(&rtc_tm);
+> +		delta_s =3D cur_mono.tv_sec - prev_mono.tv_sec;
+> +
+>  		/* Time should not go backwards */
+>  		ASSERT_LE(prev_rtc_read, rtc_read);
+> -		/* Time should not increase more then 1s at a time */
+> -		ASSERT_GE(prev_rtc_read + 1, rtc_read);
+> +		/* Time should not increase more then elapsed time + 1s */
+> +		ASSERT_GE(prev_rtc_read + delta_s + 1, rtc_read);
+> =20
+>  		/* Sleep 11ms to avoid killing / overheating the RTC */
+>  		nanosleep_with_retries(READ_LOOP_SLEEP_MS * 1000000);
+> =20
+>  		prev_rtc_read =3D rtc_read;
+> +		prev_mono =3D cur_mono;
+>  		iter_count++;
+>  	} while (prev_rtc_read <=3D start_rtc_read + READ_LOOP_DURATION_SEC);
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929152212.2092=
+062-1-wakel@google.com?part=3D1
