@@ -1,47 +1,52 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 904F43CCFD2;
-	Tue, 29 Sep 2026 21:48:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3CC739CCFE
+	for <linux-rtc@vger.kernel.org>; Tue, 29 Sep 2026 21:51:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790718512; cv=none; b=o5jwmsT8wJakvlBn5cavmSluI0oJKX4vtkMbeFb2WXUVbkus8meFoBXr8wY9LELruvA8K22UxJKObROoDIOfR0Kk61jRelj6o9XtMPqhXCOXoDrzofcquz8VA1THbB/053FS/3MmQMXlu5kji8u06Zp424nImnRIyqNE7JQT9ME=
+	t=1790718701; cv=none; b=YEsRkD5gDOGfiWreCrB+pnAEvgdkg91VLCPxna7igSP+Uuh6yIp7FfKl2QBo8YyMhcm2/4DVeriBQg6r5eRkIzIc1EZXPOjDIf4FLl3rQ8Qgw98RdV9bblcJNGcNOwlFf1taHlkeoNdaw2uz++Tj+T0e+zVnAZsFHWP2q6QITh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790718512; c=relaxed/simple;
-	bh=GWmvwj+nORo0EWQgRL+UgZnBah9OR8tb06mwcbd+pgI=;
+	s=arc-20240116; t=1790718701; c=relaxed/simple;
+	bh=eK2PtC92sJFT88bmeOIAqumkvWEPGHE7U5feJBsglvU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FeCfhtqWLaITEe2fJa9eEOzLT+wLfBKjMt9FrWsHfAc+ixZaGzweBDDkGZkeyPj3djhdu7C6sy3RzRCcdrjx7awam/vTk0taSNQ3+hEFDE4vXUnb3HRcbykJ01m8auwUHldesvhOifRnJs+BvwgK9CFRnAC/Zxiyh3KA7mXvVv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=2x1BvzJA; arc=none smtp.client-ip=185.246.85.4
+	 Content-Type:Content-Disposition:In-Reply-To; b=QgBHGVsZaseWel3PtXHuYVVcPBSsVyEM0Y8VtZQWNkHIs7RU3ElDS162wqutS1hD5Xc2wzVpk1jhwtFAZc0o1Vz64qk+NSj1ThSUfubB9Vq+ERCZSL6QYXaCtaHaBMHqEwTBckeYvjC2CzuW1jpk1BK+a5UnbjttC7MGXlDJyUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Ev0orxJp; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="2x1BvzJA"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Ev0orxJp"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 7AF164E410AF;
-	Tue, 29 Sep 2026 21:48:21 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 9725F1A1062;
+	Tue, 29 Sep 2026 21:51:33 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 4DDE3601BD;
-	Tue, 29 Sep 2026 21:48:21 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 88733103295D5;
-	Tue, 29 Sep 2026 23:48:17 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 53A4E601BD;
+	Tue, 29 Sep 2026 21:51:33 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E8BB1103294BA;
+	Tue, 29 Sep 2026 23:51:26 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1790718500; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=tNY2nMHpXTQMwRb4EtGa7fbXYJPj910XzwZSiKsA6lE=;
-	b=2x1BvzJAZ8G7RebZNCGzug6UcptMR1h+2WFmRk7gJo4Xfw3cREvWJvFIsMysfX2x3t2YZ7
-	m4eIvK7Ff33TB7jsot7FXa4LRCkQoHxRLVrrQtwk8UHigtgxQ2/2kOIQmUj01QmpMu0puX
-	SzpG3FWCWA6Rg6Rz4q7q2rcFos7ebWND3J3znjVrUhFRmBwwuRXox/R+036RoHDUKEB4Im
-	rH/vFLUfh1MwcdZ8kK7wjpKT1mq2mJ4zNYOe2rR5Q5ueLMKfuqrDj5mtVZqgh/f+AQhe8C
-	V9teQPe5fPPYIam2ON3FvKLTnMxUzuZj9mYdgwuaAY8H8lTItR5+COIOs79taA==
-Date: Tue, 29 Sep 2026 23:48:17 +0200
+	t=1790718688; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=tQCEIW6sZfDTGWEqD2K++zvCQ0QP/SxrExfnSipGS3s=;
+	b=Ev0orxJpsQrnvT6TlcsBYv9oV1uuAv/wKlMRV9dOcKf+aB6gZg/IcgxHmRCwWcIRz1oxkf
+	ZsoRXZxnzJXdXXIDDksuGP1N709N3DApfEYx8C31I1R6fssa7YaS4HsijHiyf53KGZf2aw
+	k9slnOhC1hFP438KHgh8oPwLK8jmXdCRvRAEPukc3/liW1mEwWdm+9e770VqVKxXueVv01
+	2dzSmDmdeOAiMQsIOmizAA9cJTrs2VH16RqXqT0lAU81PUUZ17qbOP24181nqEouyJI/Fy
+	y8pvoOPEbyJqCN1y/VaXS4P4UVYV+HmUJ2GrzrB7pjJhzighDdKn4VSLteTPnw==
+Date: Tue, 29 Sep 2026 23:51:26 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Liu Dalin <liudalin@kylinsec.com.cn>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Deng Yingchao <dengyingchao@kylinsec.com.cn>,
-	Qin Yungao <qinyungao@kylinsec.com.cn>,
-	Luo Qiu <luoqiu@kylinsec.com.cn>
-Subject: Re: [PATCH] rtc: rs5c372: add missing error code for unknown RTC type
-Message-ID: <2026092921481727857dc7@mail.local>
-References: <C18300C5767FC690+20260827015846.3314353-1-liudalin@kylinsec.com.cn>
+To: Shawn Guo <shengchao.guo@oss.qualcomm.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Satya Priya <quic_c_skakit@quicinc.com>,
+	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Dhruvin Rajpura <dhruvin.rajpura@oss.qualcomm.com>,
+	linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx: Document PMM8654AU RTC
+Message-ID: <20260929215126558a0a33@mail.local>
+References: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
+ <arpTJAyDAAuAzPrv@QCOM-aGQu4IUr3Y>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -50,41 +55,28 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <C18300C5767FC690+20260827015846.3314353-1-liudalin@kylinsec.com.cn>
+In-Reply-To: <arpTJAyDAAuAzPrv@QCOM-aGQu4IUr3Y>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 27/08/2026 09:58:46+0800, Liu Dalin wrote:
-> In rs5c372_probe(), when an unknown RTC type is encountered in the
-> switch default case, the local variable 'err' is still 0 from its
-> initialization. The subsequent goto to the exit label then returns
-> success, even though probe has failed.
+On 28/09/2026 19:44:36+0800, Shawn Guo wrote:
+> On Fri, Sep 04, 2026 at 03:45:41PM +0800, Shawn Guo wrote:
+> > Document Qualcomm PMM8654AU PMIC RTC which is compatible with PMK8350
+> > RTC.
+> > 
+> > Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
 > 
-> Set err = -ENODEV before jumping to exit to properly report the
-> failure to the caller.
+> Hi Alexandre,
 > 
-> Fixes smatch warnings:
-> - drivers/rtc/rtc-rs5c372.c:860 rs5c372_probe() warn: missing error
->   code 'err'
+> I have a DTS series depending on this change and so that being blocked
+> for weeks. I will include it into the DTS series to unblock the
+> progress (routing it through arm-soc tree).
 > 
-> Fixes: cb26b572dc394 ("[PATCH] Update the rtc-rs5c372 driver")
-> Assisted-by: smatch:2.0 [static analysis]
-> Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
-> ---
->  drivers/rtc/rtc-rs5c372.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
-> index 24bd795d9d95..84407119caba 100644
-> --- a/drivers/rtc/rtc-rs5c372.c
-> +++ b/drivers/rtc/rtc-rs5c372.c
-> @@ -857,6 +857,7 @@ static int rs5c372_probe(struct i2c_client *client)
->  		break;
->  	default:
->  		dev_err(&client->dev, "unknown RTC type\n");
-> +		err = -ENODEV;
 
-But isn't this dead code that will never be reached? In what case would
-you be probed and not match any i2c_device_id?
+Sorry, I didn't realize this was blocking you and was going to apply
+this with super low priority, this can go through soc.
+
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
