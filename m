@@ -1,52 +1,43 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3CC739CCFE
-	for <linux-rtc@vger.kernel.org>; Tue, 29 Sep 2026 21:51:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194824E7802;
+	Tue, 29 Sep 2026 22:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790718701; cv=none; b=YEsRkD5gDOGfiWreCrB+pnAEvgdkg91VLCPxna7igSP+Uuh6yIp7FfKl2QBo8YyMhcm2/4DVeriBQg6r5eRkIzIc1EZXPOjDIf4FLl3rQ8Qgw98RdV9bblcJNGcNOwlFf1taHlkeoNdaw2uz++Tj+T0e+zVnAZsFHWP2q6QITh8=
+	t=1790719212; cv=none; b=JV2PnVT3JlR2xSQzUJ1Kzp/I4oWJH7HWl7zYECz6iqWJVZ6BMYsvjBzUWIJwzoxcEgzR35qdBIury4e2TQXWSS1fDep7MMJNMnoobz0dEUQN7LjbqPFLN1kec9VBXsM8TvKlrHWAPXjd27Ud/FiItUYAFiidSY0ZZJP1ulYjJ2U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790718701; c=relaxed/simple;
-	bh=eK2PtC92sJFT88bmeOIAqumkvWEPGHE7U5feJBsglvU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QgBHGVsZaseWel3PtXHuYVVcPBSsVyEM0Y8VtZQWNkHIs7RU3ElDS162wqutS1hD5Xc2wzVpk1jhwtFAZc0o1Vz64qk+NSj1ThSUfubB9Vq+ERCZSL6QYXaCtaHaBMHqEwTBckeYvjC2CzuW1jpk1BK+a5UnbjttC7MGXlDJyUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Ev0orxJp; arc=none smtp.client-ip=185.246.84.56
+	s=arc-20240116; t=1790719212; c=relaxed/simple;
+	bh=RfvP/Rcc7bthj/POM/GyXTM7UX7zeEg2qL2xnbY8BTw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=psQ0pBUJLafh4PvYHK2VhT5AKasm37rvgeMJWPE6BS+MT3nkDflu/RajN3XLrRLuaxKWmpO7PwBmZigpYbieMk+Jq735TdKVpNgRG7wLD3selWoa48n0QQ9yyp71YxmjEi/rLW1U/ixvvtK/kttZ2s7D8BnD+4uDCYJfTSUz3O0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=BMgwmDIe; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Ev0orxJp"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="BMgwmDIe"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 9725F1A1062;
-	Tue, 29 Sep 2026 21:51:33 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 419CA4E410B4;
+	Tue, 29 Sep 2026 22:00:07 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 53A4E601BD;
-	Tue, 29 Sep 2026 21:51:33 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E8BB1103294BA;
-	Tue, 29 Sep 2026 23:51:26 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 15414601BD;
+	Tue, 29 Sep 2026 22:00:07 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0BE17103295D5;
+	Wed, 30 Sep 2026 00:00:01 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1790718688; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=tQCEIW6sZfDTGWEqD2K++zvCQ0QP/SxrExfnSipGS3s=;
-	b=Ev0orxJpsQrnvT6TlcsBYv9oV1uuAv/wKlMRV9dOcKf+aB6gZg/IcgxHmRCwWcIRz1oxkf
-	ZsoRXZxnzJXdXXIDDksuGP1N709N3DApfEYx8C31I1R6fssa7YaS4HsijHiyf53KGZf2aw
-	k9slnOhC1hFP438KHgh8oPwLK8jmXdCRvRAEPukc3/liW1mEwWdm+9e770VqVKxXueVv01
-	2dzSmDmdeOAiMQsIOmizAA9cJTrs2VH16RqXqT0lAU81PUUZ17qbOP24181nqEouyJI/Fy
-	y8pvoOPEbyJqCN1y/VaXS4P4UVYV+HmUJ2GrzrB7pjJhzighDdKn4VSLteTPnw==
-Date: Tue, 29 Sep 2026 23:51:26 +0200
+	t=1790719202; h=from:subject:date:message-id:to:cc:mime-version:content-type;
+	bh=BpAtl+04mI7CLiVqd2KF2FbkC8J/N7vViwCsafcTwMA=;
+	b=BMgwmDIe/IUtv+ARhNjUyC89eM+zaNanhw27JTyW+b8jHosBJ89/lI/4ZBDxbdD/+/v/Ps
+	hEoHE6LRAU9MVerz3pXKC3nu2Eqkci1M+IlCzdCAuDiitUzQ17IgF8LyP/SSZRj5TlsZnD
+	Nhdh+p55LuqOYavfl6ge3X4r2n6NtbdXAaMFj/E/cuXV2PP6oIbkd13+Dz+xIrqtoeMFo+
+	jAZ8RaxjfR050MiZ+OL0Kd2ZAhnxwyEZ0ocboxL5xhOXGfYhU9//grxkazLWN2jUU14Ir4
+	NVXyrUJHQu1XmNfSwvAfKmzzGOElXucesvwv3f4cHF9SqUalmr4TwSXQr1u3eg==
+Date: Wed, 30 Sep 2026 00:00:00 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Satya Priya <quic_c_skakit@quicinc.com>,
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Dhruvin Rajpura <dhruvin.rajpura@oss.qualcomm.com>,
-	linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: rtc: qcom-pm8xxx: Document PMM8654AU RTC
-Message-ID: <20260929215126558a0a33@mail.local>
-References: <20260904074541.590485-1-shengchao.guo@oss.qualcomm.com>
- <arpTJAyDAAuAzPrv@QCOM-aGQu4IUr3Y>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] RTC fixes for 7.3
+Message-ID: <2026092922000025ba1a22@mail.local>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -55,28 +46,57 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <arpTJAyDAAuAzPrv@QCOM-aGQu4IUr3Y>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 28/09/2026 19:44:36+0800, Shawn Guo wrote:
-> On Fri, Sep 04, 2026 at 03:45:41PM +0800, Shawn Guo wrote:
-> > Document Qualcomm PMM8654AU PMIC RTC which is compatible with PMK8350
-> > RTC.
-> > 
-> > Signed-off-by: Shawn Guo <shengchao.guo@oss.qualcomm.com>
-> 
-> Hi Alexandre,
-> 
-> I have a DTS series depending on this change and so that being blocked
-> for weeks. I will include it into the DTS series to unblock the
-> progress (routing it through arm-soc tree).
-> 
+Hello Linus,
 
-Sorry, I didn't realize this was blocking you and was going to apply
-this with super low priority, this can go through soc.
+Here is a collection of fixes for 7.3, mostly small issues found using
+AI. The efi change is to avoid a regression on some platforms.
 
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+The following changes since commit cee9395acd8043be0644b25c34bfa86623f2b935:
 
+  Linux 7.3-rc1 (2026-08-30 13:34:40 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-7.3-fixes
+
+for you to fetch changes up to 055ef5ce9f67a6a3a1363fa663007f8196cc0fb8:
+
+  rtc: spear: initialize IRQ state before requesting alarm IRQ (2026-09-21 22:46:42 +0200)
+
+----------------------------------------------------------------
+RTC fixes for 7.3
+
+Subsystem:
+ - fix a possible information leak
+
+Drivers:
+ - efi: restore alarm support with runtime capability probe
+
+----------------------------------------------------------------
+Aamir Ahmed (2):
+      rtc: ac100: Assign .num before accessing .hws
+      rtc: ac100: Fix clock provider use-after-free on probe failure
+
+Johnny.Fan (1):
+      rtc: efi: restore alarm support with runtime capability probe
+
+Liu Dalin (1):
+      rtc: dev: zero-initialize struct rtc_wkalrm to prevent information leak
+
+Manush Prajwal (1):
+      rtc: mpfs: fix unchecked devm_clk_get() error pointer in probe()
+
+Runyu Xiao (1):
+      rtc: spear: initialize IRQ state before requesting alarm IRQ
+
+ drivers/rtc/dev.c       |  2 +-
+ drivers/rtc/rtc-ac100.c | 39 ++++++------------------
+ drivers/rtc/rtc-efi.c   | 80 +++++++++++++++++++++++++++++++++++++++++++++++--
+ drivers/rtc/rtc-mpfs.c  |  6 +++-
+ drivers/rtc/rtc-spear.c | 11 +++----
+ 5 files changed, 99 insertions(+), 39 deletions(-)
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
