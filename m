@@ -1,180 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636DD43C048;
-	Wed, 30 Sep 2026 08:03:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 147D544F574
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 08:39:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790755399; cv=none; b=eUAXLoZ3ctI3j0O+B66lEmfkU0RvmFm4NQofHy0VTCdH8vx95Ck9jtveBQeFR5RzFM06xhvCIIgxp5DPLS0WhKBMpcTB4lY0Ipg4Mxl0QbgqFl0sRZ4FJFpuyinP7nOWCCVJ0KA4bqZJmsvoNqchWdFrcqS0EXgoco/Asg4W0qk=
+	t=1790757598; cv=none; b=HEhXUAbzibNReYjuoZCc4ilUcFf4JXh7whTuTDsFvh4OV/7Nzrb1O8eIvscgy4dmORwUDnYy+gE0y8r0v0BSJRfpz4ii/0uDLVTukCHhcNwZU6VR3qfHfg4gUhE6bPT+qSwwUBYxQYeMfXSHE3SF/smEr14nsLOudAGJ3ZaWAxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790755399; c=relaxed/simple;
-	bh=dh+0TD4Q8Ld4/0NaNW/Tm5NmvuVeLeaa9CG7pAVotTM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kLcpPnglMc5ma+tujMo4GSM736+c8djHxbGCvRKVES0kRJkqzPZMkpeNqlF1hvesD4+G1qfO40IpBa+BgT+jUC2NJlv0pPEyz0gdQVtapoy7z7ANit2SQJUUlVhAICdzEIezZfVJJW8lFlNkqEi0zt/coJzkJL/SmDx6fKie5hA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cytV5/Fw; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790757598; c=relaxed/simple;
+	bh=CKwFKnvNGqJJ/q15B+A+DcP7BJRvr0+1X4UoGOdQS7k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=N4Y/OSL0DrCz4CRZMIoWhSvGnJis3e+duZiFKECD+E9OUQrDcLJ8FKlsBIEB+McGlIwSoewLDrYMeF3Y9ywb3z4iM8snzkoUReHUjW+SBtBdBbVUMj+k6MeE94AmQOks2jGqDA/e8HkTmprVqE9WwkBmp+hLSoeWusR95rNw0MA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JBcJKsnH; arc=none smtp.client-ip=74.125.225.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cytV5/Fw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C06F1F000FF;
-	Wed, 30 Sep 2026 08:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790755397;
-	bh=RFXD+3BTcYu1u7ckjfJBPfUkykvdr+iZkbuP/RjYMOE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cytV5/FwO+TKQMoQF2yUXUtBOvFXl3cc+86NwjGnx8omYEumweaOoCav6EMAjLCWL
-	 zwg/IjqY9DfAlH7AJ55fNvpShp/RwqDNgNPmFXwZXpFtVFdPq1/EU6XE282BLez/zD
-	 i5Rv/JTfxbOiAkCSPS8NAc6wsNJoJpAmIa936nU8cBvGn2KhPcMUp4P02nm4+mTDID
-	 KCb8KVAor4vb+oI2SH2VvzQ3+Qs6DcpKhnvjm4n9PpZ3rG60vMKz2zzAnsJsEdo/bo
-	 j+3xAQ2A3JJdJSy7hvlxatdmcrxcrbqiqec948hnXnYnrPvehVTAtyBcsrCfJTgWzn
-	 GsUwYIwiz3bUw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/2] rtc: Add Raspberry Pi 5 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sander Speetjens" <sander.speetjens@gmail.com>
-Cc: linux-rtc@vger.kernel.org, robh@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260930074608.479089-3-sander.speetjens@gmail.com>
-References: <20260930074608.479089-1-sander.speetjens@gmail.com>
- <20260930074608.479089-3-sander.speetjens@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 30 Sep 2026 08:03:17 +0000
-Message-Id: <20260930080317.8C06F1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JBcJKsnH"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48b01c41135so212205f8f.0
+        for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 01:39:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790757592; x=1791362392; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=IGBjcoy4aeNTw10s5CjkbJAmRuqjAutFBgcl06eNiGA=;
+        b=JBcJKsnHQRqMNAcnd413MyS3kW4bHzpbnBDdQacfmEb04UddtkB9ngar9tkELCmSxI
+         tiPOjtzX2w5+K4hcWQd/vNR9HpTodRcVGTlYoxaareTrh0bJOmaOYittId8n2W+k3G1a
+         HHPsvs+x0iV+0F20h7BcmSuIHEiInxaxzFctuJlB95nXWfTo/M9ukGacvI+Z32zEjlul
+         OIBG+fE22qeCgdpeWenHjPzTMsRGHZlB9xchHHQbzIz3qdyjmOep3TpqNjmd014cuXki
+         ep1h+X9oukOcMGsIgdtdguz3KISd6NsJs+S3uIYBMNmxKzR0R5RdJXw3HFIYL3Mu5JYI
+         4QvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790757592; x=1791362392;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=IGBjcoy4aeNTw10s5CjkbJAmRuqjAutFBgcl06eNiGA=;
+        b=H1/MVlEgXdRMQY/THXi74+yfqWquDjG3+zxc+474BnzwbrQdbGxnpK6yksv707KEpO
+         0pcSCTwlPv1MAGW4c9SB8Y1TsrI42VHKsiMJS3qNGaFe3rliPf6ECF4a8Qvs+FOMBD7h
+         G+5DRqM1+ZnFjxExLDrWF4z0BD/3wGnHneGniNXuqTuLnbfJzjRzhs4j4lJO9hI4aB94
+         bY2qBgLP5VX9l5K+WYVfil3QjLUwz/AFYa/UHT19xMCxXVZuZzdgGpYijiqa9lBL6N3w
+         v++gKaDqOnRZgyNmoO754LtICoCSqbLA5xRAz7kCfgJE4vfahXDd7O0CUpKUL0GNBUSt
+         OPOQ==
+X-Forwarded-Encrypted: i=1; AKwUvBy1qc1YA4dkMd2kCM/mS8cXtV3D1eHZyzhxuorHrOMxGuQu6UOIO4x0G79BHRgoCvrySJgmrnJEdG8=@vger.kernel.org
+X-Gm-Message-State: AFq9FYJeeBPMgHC+3aFMm4lRtOjXoqsAMh4VXwdsfrPFIXrfFyhEmyNB
+	GJbDXMVE8s6DqUncpdDVz5rLHxKERWCJiBCjoeMDT28c6W+sAsCridlF
+X-Gm-Gg: AYBFou0rhTbVJOMIF1sA/VNfw8AP6C4JR275dweY1ATg33ad7fSOly9cO0Bfwqh+ZgE
+	/nXSgKvTb/3YwjwiXvRzoDPJIcauanMFq3UUloa5spaLp8EUUjt2NohDz5XB1E83ycs7ticJgVT
+	KVV/oPf/Q3n24YHUS96NODZ3OwYZUY40eoD5TFLfJOxtJGH8pUinunfX7tvI9LyicI4SxvSfGos
+	Vkm5z+97JBLZtbHTEKrueeeEcX02DYMtFpDmalrI5qBAWmHUsatVuoDFyyD66p9mpukCIeZ6XXp
+	co0ManHbMZ8qJ1MdkJubw4o41Yk6gcloST0xoicTDfrxytv8Lx23jNb829CtTaDeUkH5FuGTOn9
+	wEPSuxAIbOF+NEwa8Y434mEcEbLdAow9w7hdBUJ2mZ19InGjM7/DNRxD8YNONGdXUwJ0WlULDzm
+	TASHijxX10ePBinAt0rieYBgYnHQShJzPxeY+aXZ+MG5TzHxHBdmVdhqygeBR4Cq5hFQTqanCxn
+	PDxMgQQAR0tqwwp1oBk7F0g3vPBL47olCuCjKgBTh0HFwErxA+rsnBl
+X-Received: by 2002:a05:6000:2301:b0:488:89ed:4430 with SMTP id ffacd0b85a97d-48b02522f7bmr1523610f8f.33.1790757591711;
+        Wed, 30 Sep 2026 01:39:51 -0700 (PDT)
+Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48b029bfd2bsm1757325f8f.11.2026.09.30.01.39.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Sep 2026 01:39:50 -0700 (PDT)
+From: Sander Speetjens <sander.speetjens@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonathan Bell <jonathan@raspberrypi.com>,
+	Stefan Wahren <wahrenst@gmx.net>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	sander.speetjens@gmail.com,
+	pbrobinson@gmail.com
+Subject: [PATCH v7 0/2] Raspberry Pi 5 RTC driver
+Date: Wed, 30 Sep 2026 10:39:20 +0200
+Message-ID: <20260930083922.484885-1-sander.speetjens@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] rtc: raspberrypi: Inconsistent and incorrect endianness handling i=
-n mailbox payloads
---
+The Raspberry Pi 5 has a battery-backed RTC located
+on the DA9091 PMIC accessed via the I2C bus[1].
+Access to the RTC is provided exclusively through the VideoCore firmware
+mailbox interface (not via a direct I2C register interface).
 
-commit c554fe764e1f4efa5538d88ac395b815f0df4aa3
-Author: Sander Speetjens <sander.speetjens@gmail.com>
-rtc: Add Raspberry Pi 5 RTC driver
+As stated by jamesh on the Rasperry Pi forum [2],
+"There are no plans to release a public datasheet for the DA9091."
+So we are stuck with the firmware interface for now.
+PhilE also states that "The firmware needs full control of the DA9091,
+sometimes with extremely low latency,
+otherwise there's a risk the supply could just cut the power."
 
-This commit upstreams the downstream Raspberry Pi 5 RTC driver. It binds a
-new rtc-raspberrypi driver to the device via the raspberrypi firmware
-driver and accesses the custom DA9091 RTC using the firmware mailbox.
+This series adds:
+  - a DT property for the charging voltage of the RTC battery
+  - the RTC driver that talks to the firmware
 
-> diff --git a/drivers/rtc/rtc-raspberrypi.c b/drivers/rtc/rtc-raspberrypi.c
-> new file mode 100644
-> index 0000000000000..53178d1eaf48c
-> --- /dev/null
-> +++ b/drivers/rtc/rtc-raspberrypi.c
-[ ... ]
-> +static int rpi_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_TIME };
-> +	int err;
-> +
-> +	err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_GET_RTC_REG,
-> +				    &data, sizeof(data));
-> +	rtc_time64_to_tm(le32_to_cpu(data[1]), tm);
+The driver and binding are based on (and largely taken from) the
+downstream Raspberry Pi kernel. The main changes for upstream are
+the addition of a dt binding property for setting the charging voltage and
+binding the driver from the raspberrypi-firmware driver instead of from
+the DT.
 
-[Severity: High]
-Does passing a u32 into an le32_to_cpu() cast here cause a Sparse warning?
-Should data be strictly typed to handle endianness without triggering warni=
-ngs?
+The driver supports time read/write, alarm, and optional trickle
+charging voltage configuration via the device-tree.
 
-> +	return err;
-> +}
-> +
-> +static int rpi_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_TIME, cpu_to_le32(rtc_tm_to_time64(tm)) };
+Testing
+- Hardware: Raspberry Pi 5 Model B revC
+- Kernel: v7.2
+- dt_binding_check: passed
+- Basic RTC operations (read/write time, alarm) verified
 
-[Severity: High]
-Does assigning the __le32 return value of cpu_to_le32() to a u32 array
-trigger a Sparse warning?=20
+[1] https://www.raspberrypi.com/news/introducing-raspberry-pi-5/
+[2] https://forums.raspberrypi.com/viewtopic.php?t=359073
 
-Also, is it intentional that the time value is swapped while the register
-index (RTC_TIME) is sent in host endian format? This could lead to
-inconsistent byte swapping on big-endian architectures.
+Sander Speetjens (2):
+  dt-bindings: rtc: Add property for Raspberry Pi 5 RTC
+  rtc: Add Raspberry Pi 5 RTC driver
 
-> +
-> +	return rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_SET_RTC_REG,
-> +				     &data, sizeof(data));
-> +}
-> +
-> +static int rpi_rtc_alarm_irq_is_enabled(struct device *dev, unsigned cha=
-r *enabled)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_ALARM_ENABLE };
-> +	s32 err =3D 0;
-> +
-> +	err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_GET_RTC_REG,
-> +				    &data, sizeof(data));
-> +	*enabled =3D data[1] & 0x1;
+ .../arm/bcm/raspberrypi,bcm2835-firmware.yaml |   6 +
+ drivers/firmware/raspberrypi.c                |  25 ++
+ drivers/rtc/Kconfig                           |  12 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-raspberrypi.c                 | 279 ++++++++++++++++++
+ 5 files changed, 323 insertions(+)
+ create mode 100644 drivers/rtc/rtc-raspberrypi.c
 
-[Severity: High]
-Can applying a bitmask directly to the unswapped firmware value evaluate the
-wrong byte on big-endian systems?
 
-> +	return err;
-> +}
-[ ... ]
-> +static int rpi_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *ala=
-rm)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_ALARM };
-> +	s32 err =3D 0;
-> +
-> +	err =3D rpi_rtc_alarm_irq_is_enabled(dev, &alarm->enabled);
-> +	if (!err)
-> +		err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_GET_RTC_REG,
-> +					    &data, sizeof(data));
-> +	rtc_time64_to_tm(data[1], &alarm->time);
+base-commit: 93f51579e7df248780214094418f205253383cc5
+-- 
+2.55.0
 
-[Severity: High]
-Unlike in rpi_rtc_read_time(), the alarm time read from firmware here is not
-byte-swapped. Could this lead to corrupted time parsing on big-endian syste=
-ms?
-
-> +
-> +	return err;
-> +}
-> +
-> +static int rpi_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alar=
-m)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_ALARM, rtc_tm_to_time64(&alarm->time) };
-
-[Severity: High]
-Neither the register index nor the alarm time payload appears to be
-byte-swapped here. Does this need a cpu_to_le32() conversion similar to
-rpi_rtc_set_time() to ensure correct behavior on big-endian hardware?
-
-> +	int err;
-> +
-> +	err =3D rpi_firmware_property(vrtc->fw, RPI_FIRMWARE_SET_RTC_REG,
-> +				    &data, sizeof(data));
-[ ... ]
-> +static int rpi_rtc_set_charge_voltage(struct device *dev)
-> +{
-> +	struct rpi_rtc_data *vrtc =3D dev_get_drvdata(dev);
-> +	u32 data[2] =3D { RTC_BBAT_CHG_VOLTS, vrtc->bbat_vchg_millivolts * 1000=
-U };
-
-[Severity: High]
-The voltage configuration payload is transmitted to the firmware in host-en=
-dian
-format without swapping. Does this cause the RTC firmware to receive an inv=
-alid
-charge voltage on big-endian systems?
-
-> +	int err;
-> +
-> +	if (vrtc->bbat_vchg_millivolts !=3D 0 &&
-> +	    (vrtc->bbat_vchg_millivolts < vrtc->bbat_vchg_min_millivolts ||
-> +	    vrtc->bbat_vchg_millivolts > vrtc->bbat_vchg_max_millivolts)) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260930074608.4790=
-89-1-sander.speetjens@gmail.com?part=3D2
