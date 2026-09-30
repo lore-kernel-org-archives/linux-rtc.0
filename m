@@ -1,94 +1,83 @@
-Received: from 0001.3ffe.de (0001.3ffe.de [159.69.201.130])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99794CDA09
-	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 12:06:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.201.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D39A84ED1AB
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 13:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790770008; cv=none; b=aJ0ESKSfD7RPJwlz+lGPWWKcUJW/pObLw6JL+tKbWALKOXhJ+WSyWdwQgU86PY4lbtnEZA1hrdGXfwVbB+zTK87O+qUB3BIKqEHs9fE9jeEVYoLbGsHIIyc9/oc45EZQ3VKLdc8tABf0I7z+H+HknMfi1ERXcY0ram3zlJyzDlE=
+	t=1790774902; cv=none; b=hLet5Z/JZNOfqu1BLzEznQofFSAOJGakS0n7ki3qx1VkX1JTNjbmZzX1O/oEHhBah3M10+GA6A2egEsrLDqYaO3F+gDWbUWH/fmxuIHYBi+rK/1CvpP0F9R0gbY1zOVHjAeNsIUqRVUFys6TrJ23kAisuwXZrGczpK88G7+ZXMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790770008; c=relaxed/simple;
-	bh=0q0PEnm+1aD5Cg8E3Ba8WvLzqyCcgqhW/5fIt+yxjpc=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=TRz5vhH+URcFdiUB5Bsytu32cigg8XfoC/p0W7qvW+jJmpep7XVuiMefFBXZKfaXh4qU5BFXTLtlu5q0OUH/oVZbndLU1BlsyEmt2TIFPY4dkG+K70HmhJX+MYsCNgk6oqhxAcfDKwF6a46R35QeeGo/l/P9oevdSZRWQ6zZA6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=walle.cc; arc=none smtp.client-ip=159.69.201.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=walle.cc
-Received: from localhost (unknown [IPv6:2a02:810b:4320:1000:4685:ff:fe12:5967])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.3ffe.de (Postfix) with ESMTPSA id ABE3E111;
-	Wed, 30 Sep 2026 14:06:44 +0200 (CEST)
+	s=arc-20240116; t=1790774902; c=relaxed/simple;
+	bh=GmzZfGHoDgoAyrR9m4mtLd61BdqL6boC1QSPlsKB1BU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RwWiMmBu0/DNO/w26Hc7KgG5gVavEaspmDOyiFoFLSJdyf021n4Gwd7J5EbUczI0ekirOwLxffBuGRrl4xejy+tTtq/ViRJRFKxtNFnO/uHBWo4TDCwbhcO5gSfCsUCO/p1s589E1MgrRuRO/nIrjLluAjXWXrazJB/aR9Brb/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IzH1PSXY; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IzH1PSXY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8963B1F0089A
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 13:28:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790774893;
+	bh=GmzZfGHoDgoAyrR9m4mtLd61BdqL6boC1QSPlsKB1BU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=IzH1PSXY8/0oM/wtjLZqOcgTL5usqsaiUZN3/ApGwSaS2xyj5OEg85DPdwqtTlSje
+	 iEDeyyTR+NF2EZw/9pcdPRliTndfjUlqeUuDggGVYxFnpWCDLm5lhUFVCan0cZNhFa
+	 4mIQToGL6gbqb5FGv/CGzxerjo3+isn382/UdV+Zc7Sz2DeH4Fij+FcR9TIDawfPo9
+	 FsKMW+4z0FE3NJpZFGECYY/22XVSEn3JRQX5vRZKeppzLlpDuJvAdZELvdML6ua42L
+	 /U239Zz4jeq4Vx4yzGsFKsHh0PBwc202MdH7PVegzc35K6xBpti0lWToDn87daHRDy
+	 pCPQjuqGgyqxQ==
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f15b78so4880329e87.2
+        for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 06:28:13 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBwpYAYlX6KkufaZS/X1yZzpwyoX7qhl/mrXf0EBP/lbgYpgcMKYdkhaqk09Z6hDCYoJMDnuqyMG8aE=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKvGu2pI0ODieNPw4+YkyUqnIkhO6QmsOyoWlf2ewwkEiY73coV
+	SwWbnwFuVwaKDxndp1/6RiDeDhiziHzCUjhTABnh4HimisDA9roDF/0LSBBswzpwSWTctz/ZEOI
+	Jpx3OaoPv4LoupZANS18FfXf6rvtyYGQ=
+X-Received: by 2002:a05:6512:3b9c:b0:5b8:bc5e:b574 with SMTP id
+ 2adb3069b0e04-5ba40612645mr526612e87.44.1790774892330; Wed, 30 Sep 2026
+ 06:28:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <20260918095853.1348694-1-congnt264@gmail.com>
+In-Reply-To: <20260918095853.1348694-1-congnt264@gmail.com>
+From: Linus Walleij <linusw@kernel.org>
+Date: Wed, 30 Sep 2026 15:27:59 +0200
+X-Gmail-Original-Message-ID: <CAD++jLmc6GJP07DJQxH3OGJ1i-6+ksMu=1gEeWkr4JR4xvh29Q@mail.gmail.com>
+X-Gm-Features: AclHuK_-hjzb_iqjk__PsBqyNlJIrjqhdhCusnJbaUiZ1mRhmBrwCTww1yq5FOo
+Message-ID: <CAD++jLmc6GJP07DJQxH3OGJ1i-6+ksMu=1gEeWkr4JR4xvh29Q@mail.gmail.com>
+Subject: Re: [PATCH v2] rtc: stm32: fix clock leak on pinctrl probe failure
+To: Cong Nguyen <congnt264@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Valentin Caron <valentin.caron@foss.st.com>, Antonio Borneo <antonio.borneo@foss.st.com>, 
+	linux-rtc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 30 Sep 2026 14:06:44 +0200
-Message-Id: <DLSMZIXCSAAK.ZBI487G8BST7@kernel.org>
-Subject: Re: [PATCH] rtc: pcf8563: add SMBus support
-Cc: <linux-rtc@vger.kernel.org>, "Alexandre Belloni"
- <alexandre.belloni@bootlin.com>
-From: "Michael Walle" <mwalle@kernel.org>
-To: <sashiko-reviews@lists.linux.dev>
-X-Mailer: aerc 0.20.0
-References: <20260930113126.720555-1-mwalle@kernel.org>
- <20260930114005.2C6661F000FF@smtp.kernel.org>
-In-Reply-To: <20260930114005.2C6661F000FF@smtp.kernel.org>
 
-On Wed Sep 30, 2026 at 1:40 PM CEST, sashiko-bot wrote:
-> [Severity: High]
-> Could removing this check lead to time tearing on restricted SMBus adapte=
-rs?
->
-> While the commit message mentions SMBus controllers supporting block
-> accesses, removing the check entirely delegates bus validation to regmap.=
- If
-> the adapter only supports I2C_FUNC_SMBUS_BYTE_DATA and lacks block transf=
-er
-> capabilities, regmap silently falls back to regmap_smbus_byte:
+On Fri, Sep 18, 2026 at 11:59=E2=80=AFAM Cong Nguyen <congnt264@gmail.com> =
+wrote:
 
-That is actually correct. But I'm not sure how this is handled in
-the RTC subsystem (?). I've looked at other drivers (e.g. ds1307,
-rv3028), which are using regmap and there seems to be no check
-either.
+> A failing devm_pinctrl_register_and_init() or pinctrl_enable() in
+> stm32_rtc_probe() returns directly instead of going through err:,
+> leaking rtc_ck/pclk -- and since -EPROBE_DEFER is routine here, each
+> deferred retry leaks another.
+>
+> Route both through err:, and move the pinctrl setup earlier (right
+> after stm32_rtc_init(), before the RTC device/IRQ are registered) so
+> disabling the clocks there doesn't race a still-live IRQ.
+>
+> Fixes: 16ad2bc09efb ("rtc: stm32: add pinctrl and pinmux interfaces")
+> Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
+> Link: https://lore.kernel.org/r/20260914135401.373D91F000FF@smtp.kernel.o=
+rg
+> Assisted-by: LLM
+> Signed-off-by: Cong Nguyen <congnt264@gmail.com>
 
--michael
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-
-> drivers/base/regmap/regmap-i2c.c:regmap_get_i2c_bus() {
->     ...
->     else if (config->val_bits =3D=3D 8 && config->reg_bits =3D=3D 8 &&
->              i2c_check_functionality(i2c->adapter,
->                                      I2C_FUNC_SMBUS_BYTE_DATA))
->         bus =3D &regmap_smbus_byte;
->     ...
-> }
->
-> Because of this fallback, when pcf8563_rtc_read_time() reads the time:
->
-> drivers/rtc/rtc-pcf8563.c:pcf8563_rtc_read_time() {
->     ...
->     err =3D regmap_bulk_read(pcf8563->regmap, PCF8563_REG_ST1, buf,
->                            sizeof(buf));
->     ...
-> }
->
-> The bulk read executes as a loop of separate single-byte SMBus reads inst=
-ead
-> of an atomic transaction. Since each SMBus byte transaction issues its ow=
-n
-> STOP condition, the RTC's internal register latch is released between rea=
-ds.
->
-> Does this allow the hardware time to roll over mid-read and result in
-> corrupt time data?
->
->>  	pcf8563 =3D devm_kzalloc(&client->dev, sizeof(struct pcf8563),
->>  				GFP_KERNEL);
->>  	if (!pcf8563)
-
+Yours,
+Linus Walleij
