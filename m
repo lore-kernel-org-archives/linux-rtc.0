@@ -1,104 +1,110 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194824E7802;
-	Tue, 29 Sep 2026 22:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA76E1E1A3D;
+	Wed, 30 Sep 2026 01:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.16.166
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790719212; cv=none; b=JV2PnVT3JlR2xSQzUJ1Kzp/I4oWJH7HWl7zYECz6iqWJVZ6BMYsvjBzUWIJwzoxcEgzR35qdBIury4e2TQXWSS1fDep7MMJNMnoobz0dEUQN7LjbqPFLN1kec9VBXsM8TvKlrHWAPXjd27Ud/FiItUYAFiidSY0ZZJP1ulYjJ2U=
+	t=1790730493; cv=none; b=C/dDOaLiJPH+KNv0nZVVlIs4ejmhtCZmXi60mJGcPeWc0+x0eGMQR7fsHxzKwUJPL3zAe1ijn7rwjFFsNptMTNeXfvwvXXZniHzAiVkEdKvB3oYAwB9drBehpIYLR1mvHVwUpmsClWh6A7StBXuVXBieX4NcS6AJjBc2b0Rx7nM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790719212; c=relaxed/simple;
-	bh=RfvP/Rcc7bthj/POM/GyXTM7UX7zeEg2qL2xnbY8BTw=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=psQ0pBUJLafh4PvYHK2VhT5AKasm37rvgeMJWPE6BS+MT3nkDflu/RajN3XLrRLuaxKWmpO7PwBmZigpYbieMk+Jq735TdKVpNgRG7wLD3selWoa48n0QQ9yyp71YxmjEi/rLW1U/ixvvtK/kttZ2s7D8BnD+4uDCYJfTSUz3O0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=BMgwmDIe; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="BMgwmDIe"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 419CA4E410B4;
-	Tue, 29 Sep 2026 22:00:07 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 15414601BD;
-	Tue, 29 Sep 2026 22:00:07 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0BE17103295D5;
-	Wed, 30 Sep 2026 00:00:01 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1790719202; h=from:subject:date:message-id:to:cc:mime-version:content-type;
-	bh=BpAtl+04mI7CLiVqd2KF2FbkC8J/N7vViwCsafcTwMA=;
-	b=BMgwmDIe/IUtv+ARhNjUyC89eM+zaNanhw27JTyW+b8jHosBJ89/lI/4ZBDxbdD/+/v/Ps
-	hEoHE6LRAU9MVerz3pXKC3nu2Eqkci1M+IlCzdCAuDiitUzQ17IgF8LyP/SSZRj5TlsZnD
-	Nhdh+p55LuqOYavfl6ge3X4r2n6NtbdXAaMFj/E/cuXV2PP6oIbkd13+Dz+xIrqtoeMFo+
-	jAZ8RaxjfR050MiZ+OL0Kd2ZAhnxwyEZ0ocboxL5xhOXGfYhU9//grxkazLWN2jUU14Ir4
-	NVXyrUJHQu1XmNfSwvAfKmzzGOElXucesvwv3f4cHF9SqUalmr4TwSXQr1u3eg==
-Date: Wed, 30 Sep 2026 00:00:00 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] RTC fixes for 7.3
-Message-ID: <2026092922000025ba1a22@mail.local>
+	s=arc-20240116; t=1790730493; c=relaxed/simple;
+	bh=70J7NNdFN9iAGf3Qj3JyXlavrQs1w70uu+ZcCSB862w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FwqyetztZj5L6SxYfrc2hOhaB907UphSDjddGwAor9WsnAqsMM3D202WKGIAMj4vmpzncF0I+zRPfUIqBf57muUxhICFKRirQ8eAeefH3SGmu8ScoxND9lyQI3F+9A3pBEI6ZaBMVnu+Zoa1e+tLEwU/+cI5oAF6ds3dJi5OKxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn; spf=pass smtp.mailfrom=kylinsec.com.cn; arc=none smtp.client-ip=54.206.16.166
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinsec.com.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinsec.com.cn
+X-QQ-mid: zesmtpsz6t1790730460t0f88200f
+X-QQ-Originating-IP: OwcfBdNuqctd8CjiAUHOXhQcKMNZu3TocnKPXxHAhGQ=
+Received: from [192.168.21.56] ( [111.8.45.130])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 30 Sep 2026 09:07:37 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 8595862658938292285
+EX-QQ-RecipientCnt: 6
+Message-ID: <E7FFA319011BB387+42ce8b1d-eafe-4cfd-8711-a783b4e068f0@kylinsec.com.cn>
+Date: Wed, 30 Sep 2026 09:07:37 +0800
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Last-TLS-Session-Version: TLSv1.3
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] rtc: rs5c372: add missing error code for unknown RTC type
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Deng Yingchao <dengyingchao@kylinsec.com.cn>,
+ Qin Yungao <qinyungao@kylinsec.com.cn>, Luo Qiu <luoqiu@kylinsec.com.cn>
+References: <C18300C5767FC690+20260827015846.3314353-1-liudalin@kylinsec.com.cn>
+ <2026092921481727857dc7@mail.local>
+Content-Language: en-US
+From: liudalin <liudalin@kylinsec.com.cn>
+In-Reply-To: <2026092921481727857dc7@mail.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpsz:kylinsec.com.cn:qybglogicsvrgz:qybglogicsvrgz6b-0
+X-QQ-XMAILINFO: NSVxyzdiwvnqcyhdX/1KNK14ZSuKaddh6FANlULDrhBfirme/fBOKSNd
+	sVDdEC2orii49lVwODPhSNoMveNnr2M2wT+y8BXiJkfLmd+qNmHPKDQRAx7wVXgK+U645AS
+	yN7tbq0PCnYBsMHcKqwnNZC1WY0EvI2vB2j9xdEvp7v/ya1/a91dEHGqTiKuGvY9CGBxuYh
+	/1IHZ5NWRoJoP4Xzky4dPpfcpiBPsBX81vFd3r5DAEY/0reyblCkwYZ05Ko2M8hOMXvJOpC
+	VdMZmjT6v7oyKt4cEZPxgr9h5+Qnqpp/soNYuVyP5d20r9unGI/V6lgMCcKMRyIeFC2VYoV
+	6BM/ivTT5NlblkpTZRZOiqR5oW1WX84NtQzgllaZlW9hbA4m2ljnT8DE3CtVBgsVcecdg/4
+	I2fE80avT2frnI0s2EUhifGs0oK892tFmd/WmzPyq23aSuJsDW1sQqUws4wQntnkyrdZU/c
+	ZUGsMaQmkkKGFtHKbYt1dsNc9dU9yfSv+KzGykaPRWwJZOlqCuP3nUE8lzbepGEMnzMNHDH
+	QTvtwFNGturglRRlPcczu94lAEp4xaXGYoOzt9HbRtUArhJ21nJnY/pxMnmDaVNAsqKZulB
+	+TLRmmzg+vzYQQ5tLURtApD1iou2VU14paNr/xvLZ3fcIymX6dG/RZ5krcPqqIKZNl4olcJ
+	Zv+WaFbkZuR+GeXPeQHd7/vZ1Z74zW/DWszr5W5NNVRXDYyozJRyiXkJ9ro+fPROopCnmr4
+	9EklKk5KIvEIXQMFwZkAdabYi+HTOjru2ZfynOqZAR/mur6fDMvNPSFTbbxCyXn0ysi27ng
+	Ck89O3XUFyQcTG1QdNw4868PSuFRmSrezc9VBPoFv3EwKIZr0/2tCGldBay+TCVm9ZohJmg
+	PZhBNzfLFw2rDO/ULdKYBauU6eFxrrZwBa9Z1Ga4D6NWOhYZPVtnhe8D1RTrpCQ/txsJm2j
+	tSf+Qm71yL2IL+9SMfYDKalKp07/GWGJnaTwduSnhe3UzQPuUB7zQKfc0tDNbLFXie475FX
+	BZjBbhcBSielT6adffdbYZZk0uuCxi5SsQGwUWNPoklh5LwIs3NrSbx2el8/KUUvmQQXBmg
+	JpEtMi/ZEmEszjJ/G7Q6MM=
+X-QQ-XMRINFO: OD9hHCdaPRBwhLtWeuGpOsVHN6RvCZWPxQ==
+X-QQ-RECHKSPAM: 0
 
-Hello Linus,
 
-Here is a collection of fixes for 7.3, mostly small issues found using
-AI. The efi change is to avoid a regression on some platforms.
+在 2026/9/30 05:48, Alexandre Belloni 写道:
+> On 27/08/2026 09:58:46+0800, Liu Dalin wrote:
+>> In rs5c372_probe(), when an unknown RTC type is encountered in the
+>> switch default case, the local variable 'err' is still 0 from its
+>> initialization. The subsequent goto to the exit label then returns
+>> success, even though probe has failed.
+>>
+>> Set err = -ENODEV before jumping to exit to properly report the
+>> failure to the caller.
+>>
+>> Fixes smatch warnings:
+>> - drivers/rtc/rtc-rs5c372.c:860 rs5c372_probe() warn: missing error
+>>    code 'err'
+>>
+>> Fixes: cb26b572dc394 ("[PATCH] Update the rtc-rs5c372 driver")
+>> Assisted-by: smatch:2.0 [static analysis]
+>> Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
+>> ---
+>>   drivers/rtc/rtc-rs5c372.c | 1 +
+>>   1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/rtc/rtc-rs5c372.c b/drivers/rtc/rtc-rs5c372.c
+>> index 24bd795d9d95..84407119caba 100644
+>> --- a/drivers/rtc/rtc-rs5c372.c
+>> +++ b/drivers/rtc/rtc-rs5c372.c
+>> @@ -857,6 +857,7 @@ static int rs5c372_probe(struct i2c_client *client)
+>>   		break;
+>>   	default:
+>>   		dev_err(&client->dev, "unknown RTC type\n");
+>> +		err = -ENODEV;
+> But isn't this dead code that will never be reached? In what case would
+> you be probed and not match any i2c_device_id?
 
-The following changes since commit cee9395acd8043be0644b25c34bfa86623f2b935:
+Thanks for reviewing.
 
-  Linux 7.3-rc1 (2026-08-30 13:34:40 -0700)
+You are correct that the default case is dead code for current driver logic.
 
-are available in the Git repository at:
+Alternatively we could remove the default case entirely, but keeping it 
+with proper error assignment is safer for future maintenance.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git tags/rtc-7.3-fixes
 
-for you to fetch changes up to 055ef5ce9f67a6a3a1363fa663007f8196cc0fb8:
-
-  rtc: spear: initialize IRQ state before requesting alarm IRQ (2026-09-21 22:46:42 +0200)
-
-----------------------------------------------------------------
-RTC fixes for 7.3
-
-Subsystem:
- - fix a possible information leak
-
-Drivers:
- - efi: restore alarm support with runtime capability probe
-
-----------------------------------------------------------------
-Aamir Ahmed (2):
-      rtc: ac100: Assign .num before accessing .hws
-      rtc: ac100: Fix clock provider use-after-free on probe failure
-
-Johnny.Fan (1):
-      rtc: efi: restore alarm support with runtime capability probe
-
-Liu Dalin (1):
-      rtc: dev: zero-initialize struct rtc_wkalrm to prevent information leak
-
-Manush Prajwal (1):
-      rtc: mpfs: fix unchecked devm_clk_get() error pointer in probe()
-
-Runyu Xiao (1):
-      rtc: spear: initialize IRQ state before requesting alarm IRQ
-
- drivers/rtc/dev.c       |  2 +-
- drivers/rtc/rtc-ac100.c | 39 ++++++------------------
- drivers/rtc/rtc-efi.c   | 80 +++++++++++++++++++++++++++++++++++++++++++++++--
- drivers/rtc/rtc-mpfs.c  |  6 +++-
- drivers/rtc/rtc-spear.c | 11 +++----
- 5 files changed, 99 insertions(+), 39 deletions(-)
-
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
