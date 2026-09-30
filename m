@@ -1,83 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D39A84ED1AB
-	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 13:28:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E82F46D2B3
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 14:35:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790774902; cv=none; b=hLet5Z/JZNOfqu1BLzEznQofFSAOJGakS0n7ki3qx1VkX1JTNjbmZzX1O/oEHhBah3M10+GA6A2egEsrLDqYaO3F+gDWbUWH/fmxuIHYBi+rK/1CvpP0F9R0gbY1zOVHjAeNsIUqRVUFys6TrJ23kAisuwXZrGczpK88G7+ZXMI=
+	t=1790778947; cv=none; b=PhSn2Oty9NnZXLa4tizIej/guiEQs2cWAyTzOomYdf4ShydxOU/mY80PnU8QeYYx6hVszR2jtlWs68rP7Si9HNajGGFd4A9cyBUSHurQiRLngxSA8zJkK/3xJkz4uC4+hwaOPrH8jN+esIIn6iQqShLBK2U25pVoUAxF1jxg4/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790774902; c=relaxed/simple;
-	bh=GmzZfGHoDgoAyrR9m4mtLd61BdqL6boC1QSPlsKB1BU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RwWiMmBu0/DNO/w26Hc7KgG5gVavEaspmDOyiFoFLSJdyf021n4Gwd7J5EbUczI0ekirOwLxffBuGRrl4xejy+tTtq/ViRJRFKxtNFnO/uHBWo4TDCwbhcO5gSfCsUCO/p1s589E1MgrRuRO/nIrjLluAjXWXrazJB/aR9Brb/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IzH1PSXY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790778947; c=relaxed/simple;
+	bh=j55a1kw9VsmlPyzV7trMYtOllxMVAxv9ZYUFLIFgHGw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bMr1WSszHZlusMABdZaXYx00iTjRT06Jrapor8rVOysHEIgATFdrRquhqyKrIjxGdX7OTS9t+VThVyE9oYHclUP7w+rXGHcwrybDvzRkxW/p5MqFVBpPbZDuQXfxm1vgyTu7QToNsdpSxiYm8iqkadh3Rp5WsGq5JH03GCbYGOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ZoiJccVV; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IzH1PSXY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8963B1F0089A
-	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 13:28:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790774893;
-	bh=GmzZfGHoDgoAyrR9m4mtLd61BdqL6boC1QSPlsKB1BU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=IzH1PSXY8/0oM/wtjLZqOcgTL5usqsaiUZN3/ApGwSaS2xyj5OEg85DPdwqtTlSje
-	 iEDeyyTR+NF2EZw/9pcdPRliTndfjUlqeUuDggGVYxFnpWCDLm5lhUFVCan0cZNhFa
-	 4mIQToGL6gbqb5FGv/CGzxerjo3+isn382/UdV+Zc7Sz2DeH4Fij+FcR9TIDawfPo9
-	 FsKMW+4z0FE3NJpZFGECYY/22XVSEn3JRQX5vRZKeppzLlpDuJvAdZELvdML6ua42L
-	 /U239Zz4jeq4Vx4yzGsFKsHh0PBwc202MdH7PVegzc35K6xBpti0lWToDn87daHRDy
-	 pCPQjuqGgyqxQ==
-Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f15b78so4880329e87.2
-        for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 06:28:13 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBwpYAYlX6KkufaZS/X1yZzpwyoX7qhl/mrXf0EBP/lbgYpgcMKYdkhaqk09Z6hDCYoJMDnuqyMG8aE=@vger.kernel.org
-X-Gm-Message-State: AFq9FYKvGu2pI0ODieNPw4+YkyUqnIkhO6QmsOyoWlf2ewwkEiY73coV
-	SwWbnwFuVwaKDxndp1/6RiDeDhiziHzCUjhTABnh4HimisDA9roDF/0LSBBswzpwSWTctz/ZEOI
-	Jpx3OaoPv4LoupZANS18FfXf6rvtyYGQ=
-X-Received: by 2002:a05:6512:3b9c:b0:5b8:bc5e:b574 with SMTP id
- 2adb3069b0e04-5ba40612645mr526612e87.44.1790774892330; Wed, 30 Sep 2026
- 06:28:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ZoiJccVV"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id DFE6E1A107A;
+	Wed, 30 Sep 2026 14:35:32 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id ABB6960749;
+	Wed, 30 Sep 2026 14:35:32 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 9B89710328C6D;
+	Wed, 30 Sep 2026 16:35:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1790778931; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=tfmHOprbipc48o5g0n0twJsbfnYUZmE+VwMcW7xqk9g=;
+	b=ZoiJccVVwgGhb7pvu+TN/0V5eHQoXkydKB6oLo7DRDwYMhc2qI7mJzOUHXf+FGSW0uWFiI
+	2Yi+ImGd3Ygw9BdZzfUE0gkkVUpiwCmF4xLoACsvxzrqXONKUw5pg09GcDduR/eGBZr8qz
+	KMIsuKjRTUDcPmFoOcgBn2aBXrC77rgEfFpp4ThpyZDITUVmFieXRPx9h4CTA+JwVSQd9H
+	oP8tp4Ptii/ix4r4apIbZLYf4O732UQCJcEMRgRb5+y6zKcSxrAjSrbpa1+1IenEpsu+y/
+	McytEnHuw7M69khZhteOnvtn4T8zNYMMQxR8nEzGUK5cx7cacYVd39j9qqt0oA==
+Date: Wed, 30 Sep 2026 16:35:29 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: linux-renesas-soc@vger.kernel.org,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Lad Prabhakar <prabhakar.csengg@gmail.com>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-rtc@vger.kernel.org,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 0/4] rtc: rzn1: cleanups, R-Car X5H enablement
+Message-ID: <179077891178.410237.381734440527302714.b4-ty@b4>
+References: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260918095853.1348694-1-congnt264@gmail.com>
-In-Reply-To: <20260918095853.1348694-1-congnt264@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 30 Sep 2026 15:27:59 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmc6GJP07DJQxH3OGJ1i-6+ksMu=1gEeWkr4JR4xvh29Q@mail.gmail.com>
-X-Gm-Features: AclHuK_-hjzb_iqjk__PsBqyNlJIrjqhdhCusnJbaUiZ1mRhmBrwCTww1yq5FOo
-Message-ID: <CAD++jLmc6GJP07DJQxH3OGJ1i-6+ksMu=1gEeWkr4JR4xvh29Q@mail.gmail.com>
-Subject: Re: [PATCH v2] rtc: stm32: fix clock leak on pinctrl probe failure
-To: Cong Nguyen <congnt264@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Valentin Caron <valentin.caron@foss.st.com>, Antonio Borneo <antonio.borneo@foss.st.com>, 
-	linux-rtc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260917185903.61253-6-wsa+renesas@sang-engineering.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Fri, Sep 18, 2026 at 11:59=E2=80=AFAM Cong Nguyen <congnt264@gmail.com> =
-wrote:
+On Thu, 17 Sep 2026 20:59:03 +0200, Wolfram Sang wrote:
+> This series adds RTC support for the Renesas R-Car X5H SoC.
+> 
+> Changes since v3:
+> * clear RTC_FEATURE_UPDATE_INTERRUPT when no irqs
+> * added tags
+> 
+> Thanks for all the reviews of v3!
+> 
+> [...]
 
-> A failing devm_pinctrl_register_and_init() or pinctrl_enable() in
-> stm32_rtc_probe() returns directly instead of going through err:,
-> leaking rtc_ck/pclk -- and since -EPROBE_DEFER is routine here, each
-> deferred retry leaks another.
->
-> Route both through err:, and move the pinctrl setup earlier (right
-> after stm32_rtc_init(), before the RTC device/IRQ are registered) so
-> disabling the clocks there doesn't race a still-live IRQ.
->
-> Fixes: 16ad2bc09efb ("rtc: stm32: add pinctrl and pinmux interfaces")
-> Reported-by: Sashiko AI review <sashiko-bot@kernel.org>
-> Link: https://lore.kernel.org/r/20260914135401.373D91F000FF@smtp.kernel.o=
-rg
-> Assisted-by: LLM
-> Signed-off-by: Cong Nguyen <congnt264@gmail.com>
+Applied, thanks!
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+[1/4] dt-bindings: rtc: rzn1: drop unneeded 'start-year' from example
+      https://git.kernel.org/abelloni/c/a867106d8a89
+[2/4] dt-bindings: rtc: rzn1: add SoC names next to their IDs
+      https://git.kernel.org/abelloni/c/73defdbfce62
+[3/4] dt-bindings: rtc: rzn1: add R-Car X5H support
+      https://git.kernel.org/abelloni/c/3b3fdc9fd40d
+[4/4] rtc: rzn1: add R-Car X5H support
+      https://git.kernel.org/abelloni/c/cba3b5f4cc00
 
-Yours,
-Linus Walleij
+Best regards,
+
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
