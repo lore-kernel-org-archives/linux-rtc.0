@@ -1,41 +1,41 @@
 Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118AB509F18
-	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 15:32:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2634650255E
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 15:32:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790782347; cv=none; b=U5IRIDBvOy18Kzw5rh5slOymeOtwMNKpnyrg+B01qh/gvm0+m0S1rhR9mzYTODZs11RvvnJUBzr2ZxdvEXih2AKOPL9tJ9ZnYSlatq9s1HgCb+75jwbuLLxgZQCtIglZ2YbqBt/DpjhaOtN5G6Hf+3weRZbHnhKYk2MMpO9UaZo=
+	t=1790782344; cv=none; b=NZJWVfZam4pFZoPw58ZGvj3uRUxpU+7byZB2hIykLo8J2ccLmyGjj6Qejjgfc2ojV8EGOFUbxW6vbmKDqxgYJz5T8OxlbVCRHORdntXsItnWYl3xxyfOJkq2ASefyMZehJrNC9q2I+SsM+O/BZselx1d0xBsWQ+oRc+aOa2+C1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790782347; c=relaxed/simple;
-	bh=FYoQlUDgCRNSVctLBUq2157n5gxHm80aT5LNffMkb04=;
+	s=arc-20240116; t=1790782344; c=relaxed/simple;
+	bh=OU0NdFDUjbJfIufQ3mrj2OLqBXCffXKuAH9iUeuCQGk=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=aZn9ddXlI6MjYfIVJ0fwLf8n6rZnsT3N7rX2odegTy4ZrzcQXvU7RgmNvB53Nb/l4nxe25IQaIeab/uMRMNO+/DCm0bz9YixpAiQg6wIBrvJrJG6rXGijjZo6/8I7DOJL16/IQ4/y7ex8zXNoksFt3j6T1bQzjbb9uiZQeo/8YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=PX1Gu3nR; arc=none smtp.client-ip=185.67.36.66
+	 In-Reply-To:To:Cc; b=Ml5Z62cvM7LzwbQ9cFWGjYHCLQGOJapjdZpEKu1pmid+SB/CTOT3BE/U7gN0ei6OBwxfdUWWhq+weY4WdUz6QT18Rm6wvmoqJ8I1ZRiWTwyRIYW5+xjPvG4pjrA3sDFJ3BNWMdzzY6Li8SQMFcoU2ihPUByO2Twl+CGpkx30hyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=KjUIWU1+; arc=none smtp.client-ip=185.67.36.66
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="PX1Gu3nR"
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="KjUIWU1+"
 Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id 87676240104
-	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 17:31:54 +0200 (CEST)
+	by mout02.posteo.de (Postfix) with ESMTPS id E3501240104
+	for <linux-rtc@vger.kernel.org>; Wed, 30 Sep 2026 17:31:52 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1790782314;
-	bh=ce/UduRNkMNJQ2TzeVdWzc7HEaRTTcY3rIYP1QPIoe4=;
+	s=1984.8680eb; t=1790782312;
+	bh=DaVe63ljG5kZuILIywsAkaB4MezJYtSBdRUA2OCmMxY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:To:Cc:Autocrypt:OpenPGP:From;
-	b=PX1Gu3nRedPy259fMtuZ+Lac3/xjBc0iFb7v60EbKCLC/YMoI4/a55pSNRZPAwnKt
-	 tZN9E2+37jy/f9VDOQG77XDasWjgr/SGq5X2qwc2A621gZe8633lLxV8KWYuHZBxGf
-	 atYsIWLDzTG/rxby1MGQschavpD0I2Dx5qUBzCP8llsVCBx+YQ1/8lT5SBroqrvbqz
-	 b/30B7vMGuTWKxNtencJlPg5IiNAh5WxHkVKtcziTPa8Or3uwbh6eEJjw/gFg8bNlk
-	 2Umb/O/fqKaQG+zYFa5wLyTJtThS+1E17TY+OYR2KvCH7kIdj2dB3R1+tEwcD0CW5k
-	 HeWzucZBJluuA==
+	b=KjUIWU1+Glmm4JxNLGMoSxs6UaU3D4tfLBhDOTDUFA3A0zpCY8AlZtVg0AxjFdtAt
+	 I6JutAJYncsW8BTKnvDS0k34osaD30ALV8sbn1KE7Ahr3magxrBAuJa1jw/sPQESPo
+	 acn5XSD1A84qLl6z7kheT8qQEJy2frcOeHDHVSpIfvjr6GB5RZ1FykOmWf41vpP457
+	 UR/upLGQCdaC2K3ssytdpGdHaxIm0ZB+ZpOjugJN4ZJX08Ufh00ZZcKPKA0CgHLh2I
+	 05WAgb3xqUds9trbUJgPKUN/MhRCYbEsdNZvv9+mo3JJwQkRz08ochQN7cIelOgz6l
+	 c51BCsitMDCKQ==
 Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4hvzYL4ydBz9rxb;
-	Wed, 30 Sep 2026 17:31:50 +0200 (CEST)
+	by submission (posteo.de) with ESMTPSA id 4hvzYK1THLz9rxB;
+	Wed, 30 Sep 2026 17:31:49 +0200 (CEST)
 From: Markus Probst <markus.probst@posteo.de>
-Date: Wed, 30 Sep 2026 15:31:52 +0000
-Subject: [PATCH v10 5/6] rtc: s35390a: Add pinctrl
+Date: Wed, 30 Sep 2026 15:31:50 +0000
+Subject: [PATCH v10 4/6] rtc: s35390a: Read 24-hour mode on access
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -44,7 +44,7 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260930-rtc_s35390a_int1-v10-5-e7b1cbc50a7b@posteo.de>
+Message-Id: <20260930-rtc_s35390a_int1-v10-4-e7b1cbc50a7b@posteo.de>
 References: <20260930-rtc_s35390a_int1-v10-0-e7b1cbc50a7b@posteo.de>
 In-Reply-To: <20260930-rtc_s35390a_int1-v10-0-e7b1cbc50a7b@posteo.de>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>, 
@@ -59,21 +59,21 @@ To: Alexandre Belloni <alexandre.belloni@bootlin.com>,
 Cc: linux-arm-kernel@lists.infradead.org, linux-rtc@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Markus Probst <markus.probst@posteo.de>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=18551;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8692;
  i=markus.probst@posteo.de; h=from:subject:message-id;
- bh=FYoQlUDgCRNSVctLBUq2157n5gxHm80aT5LNffMkb04=;
- b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqvStfFWBG7NZrR5jCUoGnLgS1XugAtCaB4ROKo
- emLrNoszACJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCar0rXxsUgAAAAAAEAA5t
- YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9INbQ//VrrMNiMf1SMI088D0encoAy0mevsa8I
- Q6gquUCfo5GACSjr/COAG8PTpzZtl9SAdjnysR/bFo/YOJHjD+4CFOTLtyB8JN8nn4iDAXN4NHn
- RVJ78d4xoVZjnBKG6dGOaROBdioS0eOqev6KlHyS3Vu8vvAUtsGI5U4W4FIA+qqxxbe4l1a7Bry
- kQ9AzkxS6mopr5XN+fITDPaqNSoHAs01Bf8qcYVc9m3EMsk7ahpG3r4ZwiyvGzaASJ8LJxrtSNl
- KKOH4bPce0YiKBC3svEWf5mRdZnbnD+JEz5cylse4cNmoNNGcud39X/b6PbCneiEkddiauQ3pHt
- dgI/j0zwEYg6lAvz6woPq2LRKcM846zzEz5U+NCdKC6xV4qL8x1EqqqwAlW5iTV7bDQ0qBdkZhP
- XIYdiW+/OuRBG086MtzZuX4stUJMgnVbMthOwnJSG1JvliXkv6q0zhtTSoJB6ZLQzmqh3DRFh7d
- iDokHuyhNF6c3P//yDztJ7i4EM2EnRrLYI/x/1/6Gx8QoOc+Hi02E1r52KczsPbs/mvnaZiDC/K
- 44lR6qDkRk/j8T6RGltDBKqcZabX/3jrSYhyAgYZq4YWj3cYT4US0FZiyy19Sgqf06webbsbBX6
- j5ZPgYNuH2yFgjFTRbp05o88ausPcoAzLnUa+q7/j/ropz9XSrT0=
+ bh=OU0NdFDUjbJfIufQ3mrj2OLqBXCffXKuAH9iUeuCQGk=;
+ b=owEBiQJ2/ZANAwAIATR2H/jnrUPSAcsmYgBqvStfNbbw35PHZsFrmt44mj5HiPINYDyac7uLD
+ mYXPjt6W8OJAk8EAAEIADkWIQSCdBjE9KxY53IwxHM0dh/4561D0gUCar0rXxsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMiwyLDIACgkQNHYf+OetQ9I3mQ//T05fTVvwLyawgkw0qG65EtGN17nF4q0
+ uxVIj9qCa9hF8yIhHwzkb7XrVLkIcAw91N4RKpAGmctjcePNhaq2PhhGpLZkCK0VHjwV2Gbt5Bk
+ 2rV0RQHWWGuvWcUnkRRsf54Hx8TCF9bygsll4/3p3TaeaNbky9D4zbFhEmg26xKbJGQes+wuWu+
+ UmCa8vi9Eu/5xyw4cXH22BxuOlhd53+NHLeHFZnnGcICN8oQwFD24Tlc4/dBP02AYTd0RvcRTkA
+ GI1DE1sBx/bRE7SH4bEcPCumm48pz21bmJfVvD5Zw1yP/y00FuqbmDQJiiAgx3MsolZ843rlc8u
+ Lew1mGevXCRbb+6AqHp+bPpxk/aviE/vXhskd3dSwdKDfqOMFcBrNAzPDdNkCheMPmE8XsryKzp
+ uupvOvGRuJP3Bfd8Vp6cjJihobmMRuJJuKftOl6jgkIereq4tJaApR/BLTtiGxIMRlSOfEIZypx
+ caHTYFn+fbvjqcp2mhxFRFLCe6yPmS6T+I2DEgf0sBnx/x4tEgUvMbqtksmjuBaikkGoiGRtu6D
+ PJhOSHWtCDjV9FCJXVdnm7jjIuTu2NFXLeVgc+rQjz0QMFm8vzlK9GxcWcn42pyvwDo1G3BtnHS
+ jMyBSvePPTbgI6SfteG0xZcLVgC41+Abj5ftoK79+F0PxnVwnjiM=
 X-Developer-Key: i=markus.probst@posteo.de; a=openpgp;
  fpr=827418C4F4AC58E77230C47334761FF8E7AD43D2
 Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
@@ -119,573 +119,245 @@ Autocrypt: addr=markus.probst@posteo.de; prefer-encrypt=mutual;
   aBeNN4ijKZchBXHPgVx+YtWRHfcm4l8=
 OpenPGP: url=https://posteo.de/keys/markus.probst@posteo.de.asc; preference=encrypt
 
-Allow configuration of pin functions, including:
-- keeping the previous configured function
-- disabling output
-- waking up the system
-- minute periodical interrupt (1: 50% duty, 2: 7.81 ms)
+Instead of reading if the 24-hour mode is used on probe once, read it on
+access. This makes it impossible for the mode to be out of sync and fixes
+time corruption if resetting the chip while in 12-hour mode, as
+`s35390a_init` did not update the cached value.
 
-If no function has been configured, fallback to previous behaviour.
-
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+Fixes: 16486d0c1c65 ("rtc: s35390a: handle invalid RTC time")
 Signed-off-by: Markus Probst <markus.probst@posteo.de>
 ---
- drivers/rtc/Kconfig       |   2 +
- drivers/rtc/rtc-s35390a.c | 375 ++++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 313 insertions(+), 64 deletions(-)
+ drivers/rtc/rtc-s35390a.c | 78 +++++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 05b9233b9418..c73c7d9751d9 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -668,7 +668,9 @@ config RTC_DRV_RC5T619
- 
- config RTC_DRV_S35390A
- 	tristate "Seiko Instruments S-35390A"
-+	select PINCTRL
- 	select BITREVERSE
-+	select GENERIC_PINCONF
- 	help
- 	  If you say yes here you will get support for the Seiko
- 	  Instruments S-35390A.
 diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index 12ed504db94d..649d36d37f1f 100644
+index 575bb256eb25..12ed504db94d 100644
 --- a/drivers/rtc/rtc-s35390a.c
 +++ b/drivers/rtc/rtc-s35390a.c
-@@ -12,11 +12,17 @@
- #include <linux/bcd.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/pinctrl/pinctrl.h>
-+#include <linux/pinctrl/pinmux.h>
-+#include <linux/pinctrl/pinconf-generic.h>
-+
-+#define DRIVER_NAME "rtc-s35390a"
- 
- #define S35390A_CMD_STATUS1	0
- #define S35390A_CMD_STATUS2	1
- #define S35390A_CMD_TIME1	2
- #define S35390A_CMD_TIME2	3
-+#define S35390A_CMD_INT1_REG1	4
- #define S35390A_CMD_INT2_REG1	5
- #define S35390A_CMD_FREE_REG    7
- 
-@@ -36,19 +42,38 @@
- #define S35390A_FLAG_POC	BIT(0)
- #define S35390A_FLAG_BLD	BIT(1)
- #define S35390A_FLAG_INT2	BIT(2)
-+#define S35390A_FLAG_INT1	BIT(3)
- #define S35390A_FLAG_24H	BIT(6)
- #define S35390A_FLAG_RESET	BIT(7)
- 
- /* flag for STATUS2 */
- #define S35390A_FLAG_TEST	BIT(0)
- 
-+#define S35390A_INT_MODE_NOINTR	0x00
-+
- /* INT2 pin output mode */
- #define S35390A_INT2_MODE_MASK		0x0E
--#define S35390A_INT2_MODE_NOINTR	0x00
- #define S35390A_INT2_MODE_ALARM		BIT(1) /* INT2AE */
- #define S35390A_INT2_MODE_PMIN_EDG	BIT(2) /* INT2ME */
- #define S35390A_INT2_MODE_FREQ		BIT(3) /* INT2FE */
--#define S35390A_INT2_MODE_PMIN		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
-+#define S35390A_INT2_MODE_PMIN1		(BIT(3) | BIT(2)) /* INT2FE | INT2ME */
-+
-+/* INT1 pin output mode */
-+#define S35390A_INT1_MODE_MASK		0xF0
-+#define S35390A_INT1_MODE_ALARM		BIT(5) /* INT1AE */
-+#define S35390A_INT1_MODE_PMIN_EDG	BIT(6) /* INT1ME */
-+#define S35390A_INT1_MODE_FREQ		BIT(7) /* INT1FE */
-+#define S35390A_INT1_MODE_PMIN1		(BIT(7) | BIT(6)) /* INT1FE | INT1ME */
-+#define S35390A_INT1_MODE_PMIN2		(BIT(7) | BIT(6) | BIT(5)) /* INT1FE | INT1ME | INT1AE */
-+#define S35390A_INT1_MODE_32768KHZ	BIT(4) /* 32kE */
-+
-+#define S35390A_FUNC_IGNORE		0x00
-+#define S35390A_FUNC_DISABLE		0x01
-+#define S35390A_FUNC_WAKEUP		0x02
-+#define S35390A_FUNC_CLOCK		0x03
-+#define S35390A_FUNC_PMIN1		0x04
-+#define S35390A_FUNC_PMIN2		0x05
-+
- 
- static const struct i2c_device_id s35390a_id[] = {
- 	{ .name = "s35390a" },
-@@ -64,6 +89,10 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
+@@ -64,7 +64,6 @@ MODULE_DEVICE_TABLE(of, s35390a_of_match);
  
  struct s35390a {
  	struct i2c_client *client[8];
-+	struct rtc_device *rtc;
-+
-+	struct mutex pinfunction_lock; /* lock preventing concurrent access of pin function */
-+	int pinfunction[2];
+-	int twentyfourhour;
  };
  
  static int s35390a_set_reg(struct s35390a *s35390a, int reg, u8  *buf, int len)
-@@ -165,20 +194,6 @@ static int s35390a_read_status(struct s35390a *s35390a, char *status1)
+@@ -102,9 +101,8 @@ static int s35390a_get_reg(struct s35390a *s35390a, int reg, u8 *buf, int len)
  	return 0;
  }
  
--static int s35390a_disable_test_mode(struct s35390a *s35390a)
--{
--	u8 buf[1];
--
--	if (s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf)) < 0)
--		return -EIO;
--
--	if (!(buf[0] & S35390A_FLAG_TEST))
--		return 0;
--
--	buf[0] &= ~S35390A_FLAG_TEST;
--	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf));
--}
--
- static char s35390a_hr2reg(int hour, bool twentyfourhour)
+-static int s35390a_init(struct s35390a *s35390a)
++static int s35390a_init(struct s35390a *s35390a, u8 *sts)
  {
- 	if (twentyfourhour)
-@@ -281,10 +296,25 @@ static int s35390a_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled
- 	u8 sts;
- 	int err;
+-	u8 buf;
+ 	int ret;
+ 	unsigned initcount = 0;
  
--	if (enabled)
--		sts = S35390A_INT2_MODE_ALARM;
--	else
--		sts = S35390A_INT2_MODE_NOINTR;
-+	guard(mutex)(&s35390a->pinfunction_lock);
-+
-+	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
-+	if (err < 0)
-+		return err;
-+
-+	if (enabled) {
-+		if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP)
-+			sts = (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT1_MODE_ALARM;
-+
-+		if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP)
-+			sts = (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT2_MODE_ALARM;
-+	} else {
-+		if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP)
-+			sts = (sts & ~S35390A_INT1_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+
-+		if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP)
-+			sts = (sts & ~S35390A_INT2_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+	}
+@@ -117,17 +115,17 @@ static int s35390a_init(struct s35390a *s35390a)
+ 	 * The 24H bit is kept over reset, so set it already here.
+ 	 */
+ initialize:
+-	buf = S35390A_FLAG_RESET | S35390A_FLAG_24H;
+-	ret = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
++	*sts = S35390A_FLAG_RESET | S35390A_FLAG_24H;
++	ret = s35390a_set_reg(s35390a, S35390A_CMD_STATUS1, sts, 1);
  
- 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
- 	if (err < 0)
-@@ -305,7 +335,19 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 		alm->time.tm_min, alm->time.tm_hour, alm->time.tm_mday,
- 		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
+ 	if (ret < 0)
+ 		return ret;
  
-+	guard(mutex)(&s35390a->pinfunction_lock);
-+
-+	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
-+	if (err < 0)
-+		return err;
-+
- 	/* disable interrupt (which deasserts the irq line) */
-+	if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP)
-+		status2 = (status2 & ~S35390A_INT1_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+
-+	if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP)
-+		status2 = (status2 & ~S35390A_INT2_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+
- 	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
- 	if (err < 0)
- 		return err;
-@@ -315,16 +357,6 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	if (err < 0)
- 		return err;
+-	ret = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &buf, 1);
++	ret = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, sts, 1);
+ 	if (ret < 0)
+ 		return ret;
  
--	if (alm->enabled)
--		status2 = S35390A_INT2_MODE_ALARM;
--	else
--		status2 = S35390A_INT2_MODE_NOINTR;
--
--	/* set interrupt mode*/
--	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
--	if (err < 0)
--		return err;
--
- 	if (alm->time.tm_wday != -1)
- 		buf[S35390A_ALRM_BYTE_WDAY] = bin2bcd(alm->time.tm_wday) | 0x80;
- 	else
-@@ -340,10 +372,32 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 	for (i = 0; i < 3; ++i)
- 		buf[i] = bitrev8(buf[i]);
- 
--	err = s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf,
--								sizeof(buf));
-+	if (alm->enabled) {
-+		/* set interrupt mode */
-+		if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP)
-+			status2 = (status2 & ~S35390A_INT1_MODE_MASK) | S35390A_INT1_MODE_ALARM;
-+
-+		if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP)
-+			status2 = (status2 & ~S35390A_INT2_MODE_MASK) | S35390A_INT2_MODE_ALARM;
- 
--	return err;
-+		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP) {
-+		err = s35390a_set_reg(s35390a, S35390A_CMD_INT1_REG1, buf, sizeof(buf));
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP) {
-+		err = s35390a_set_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf));
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
+-	if (buf & (S35390A_FLAG_POC | S35390A_FLAG_BLD)) {
++	if (*sts & (S35390A_FLAG_POC | S35390A_FLAG_BLD)) {
+ 		/* Try up to five times to reset the chip */
+ 		if (initcount < 5) {
+ 			++initcount;
+@@ -181,9 +179,9 @@ static int s35390a_disable_test_mode(struct s35390a *s35390a)
+ 	return s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, buf, sizeof(buf));
  }
  
- static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
-@@ -351,7 +405,9 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+-static char s35390a_hr2reg(struct s35390a *s35390a, int hour)
++static char s35390a_hr2reg(int hour, bool twentyfourhour)
+ {
+-	if (s35390a->twentyfourhour)
++	if (twentyfourhour)
+ 		return bin2bcd(hour);
+ 
+ 	if (hour < 12)
+@@ -192,11 +190,11 @@ static char s35390a_hr2reg(struct s35390a *s35390a, int hour)
+ 	return 0x40 | bin2bcd(hour - 12);
+ }
+ 
+-static int s35390a_reg2hr(struct s35390a *s35390a, char reg)
++static int s35390a_reg2hr(char reg, bool twentyfourhour)
+ {
+ 	unsigned hour;
+ 
+-	if (s35390a->twentyfourhour)
++	if (twentyfourhour)
+ 		return bcd2bin(reg & 0x3f);
+ 
+ 	hour = bcd2bin(reg & 0x3f);
+@@ -210,7 +208,7 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct s35390a	*s35390a = i2c_get_clientdata(client);
+-	int i;
++	int i, err;
+ 	u8 buf[7], status;
+ 
+ 	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d mday=%d, "
+@@ -218,14 +216,18 @@ static int s35390a_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 		tm->tm_min, tm->tm_hour, tm->tm_mday, tm->tm_mon, tm->tm_year,
+ 		tm->tm_wday);
+ 
+-	if (s35390a_read_status(s35390a, &status) == 1)
+-		s35390a_init(s35390a);
++	err = s35390a_read_status(s35390a, &status);
++	if (err == 1)
++		err = s35390a_init(s35390a, &status);
++
++	if (err < 0)
++		return err;
+ 
+ 	buf[S35390A_BYTE_YEAR] = bin2bcd(tm->tm_year - 100);
+ 	buf[S35390A_BYTE_MONTH] = bin2bcd(tm->tm_mon + 1);
+ 	buf[S35390A_BYTE_DAY] = bin2bcd(tm->tm_mday);
+ 	buf[S35390A_BYTE_WDAY] = bin2bcd(tm->tm_wday);
+-	buf[S35390A_BYTE_HOURS] = s35390a_hr2reg(s35390a, tm->tm_hour);
++	buf[S35390A_BYTE_HOURS] = s35390a_hr2reg(tm->tm_hour, status & S35390A_FLAG_24H);
+ 	buf[S35390A_BYTE_MINS] = bin2bcd(tm->tm_min);
+ 	buf[S35390A_BYTE_SECS] = bin2bcd(tm->tm_sec);
+ 
+@@ -243,8 +245,11 @@ static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	u8 buf[7], status;
+ 	int i, err;
+ 
+-	if (s35390a_read_status(s35390a, &status) == 1)
++	err = s35390a_read_status(s35390a, &status);
++	if (err == 1)
+ 		return -EINVAL;
++	if (err < 0)
++		return err;
+ 
+ 	err = s35390a_get_reg(s35390a, S35390A_CMD_TIME1, buf, sizeof(buf));
+ 	if (err < 0)
+@@ -256,7 +261,7 @@ static int s35390a_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 
+ 	tm->tm_sec = bcd2bin(buf[S35390A_BYTE_SECS]);
+ 	tm->tm_min = bcd2bin(buf[S35390A_BYTE_MINS]);
+-	tm->tm_hour = s35390a_reg2hr(s35390a, buf[S35390A_BYTE_HOURS]);
++	tm->tm_hour = s35390a_reg2hr(buf[S35390A_BYTE_HOURS], status & S35390A_FLAG_24H);
+ 	tm->tm_wday = bcd2bin(buf[S35390A_BYTE_WDAY]);
+ 	tm->tm_mday = bcd2bin(buf[S35390A_BYTE_DAY]);
+ 	tm->tm_mon = bcd2bin(buf[S35390A_BYTE_MONTH]) - 1;
+@@ -292,7 +297,7 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
  	struct i2c_client *client = to_i2c_client(dev);
  	struct s35390a *s35390a = i2c_get_clientdata(client);
- 	u8 buf[3], status1, status2;
--	int i, err;
-+	int i, err, reg;
-+
-+	guard(mutex)(&s35390a->pinfunction_lock);
+-	u8 buf[3], sts = 0;
++	u8 buf[3], status1, status2 = 0;
+ 	int err, i;
  
- 	err = s35390a_read_status(s35390a, &status1);
- 	if (err == 1)
-@@ -363,18 +419,24 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	dev_dbg(&client->dev, "%s: alm is secs=%d, mins=%d, hours=%d mday=%d, "\
+@@ -301,22 +306,22 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 		alm->time.tm_mon, alm->time.tm_year, alm->time.tm_wday);
+ 
+ 	/* disable interrupt (which deasserts the irq line) */
+-	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
++	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
  	if (err < 0)
  		return err;
  
--	if ((status2 & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
-+	if (s35390a->pinfunction[1] == S35390A_FUNC_WAKEUP &&
-+	    (status2 & S35390A_INT2_MODE_MASK) == S35390A_INT2_MODE_ALARM) {
-+		reg = S35390A_CMD_INT2_REG1;
-+	} else if (s35390a->pinfunction[0] == S35390A_FUNC_WAKEUP &&
-+		   (status2 & S35390A_INT1_MODE_MASK) == S35390A_INT1_MODE_ALARM) {
-+		reg = S35390A_CMD_INT1_REG1;
-+	} else {
+ 	/* clear pending interrupt (in STATUS1 only), if any */
+-	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &sts, sizeof(sts));
++	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS1, &status1, sizeof(status1));
+ 	if (err < 0)
+ 		return err;
+ 
+ 	if (alm->enabled)
+-		sts = S35390A_INT2_MODE_ALARM;
++		status2 = S35390A_INT2_MODE_ALARM;
+ 	else
+-		sts = S35390A_INT2_MODE_NOINTR;
++		status2 = S35390A_INT2_MODE_NOINTR;
+ 
+ 	/* set interrupt mode*/
+-	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
++	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -325,8 +330,8 @@ static int s35390a_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 	else
+ 		buf[S35390A_ALRM_BYTE_WDAY] = 0;
+ 
+-	buf[S35390A_ALRM_BYTE_HOURS] = s35390a_hr2reg(s35390a,
+-			alm->time.tm_hour) | 0x80;
++	buf[S35390A_ALRM_BYTE_HOURS] = s35390a_hr2reg(alm->time.tm_hour,
++						      status1 & S35390A_FLAG_24H) | 0x80;
+ 	buf[S35390A_ALRM_BYTE_MINS] = bin2bcd(alm->time.tm_min) | 0x80;
+ 
+ 	if (alm->time.tm_hour >= 12)
+@@ -345,14 +350,20 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct s35390a *s35390a = i2c_get_clientdata(client);
+-	u8 buf[3], sts;
++	u8 buf[3], status1, status2;
+ 	int i, err;
+ 
+-	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &sts, sizeof(sts));
++	err = s35390a_read_status(s35390a, &status1);
++	if (err == 1)
++		return -EINVAL;
++	if (err < 0)
++		return err;
++
++	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
+ 	if (err < 0)
+ 		return err;
+ 
+-	if ((sts & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
++	if ((status2 & S35390A_INT2_MODE_MASK) != S35390A_INT2_MODE_ALARM) {
  		/*
  		 * When the alarm isn't enabled, the register to configure
  		 * the alarm time isn't accessible.
- 		 */
- 		alm->enabled = 0;
- 		return 0;
--	} else {
--		alm->enabled = 1;
+@@ -381,8 +392,8 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+ 
+ 	if (buf[S35390A_ALRM_BYTE_HOURS] & 0x80)
+ 		alm->time.tm_hour =
+-			s35390a_reg2hr(s35390a,
+-				       buf[S35390A_ALRM_BYTE_HOURS] & ~0x80);
++			s35390a_reg2hr(buf[S35390A_ALRM_BYTE_HOURS] & ~0x80,
++				       status1 & S35390A_FLAG_24H);
+ 
+ 	if (buf[S35390A_ALRM_BYTE_MINS] & 0x80)
+ 		alm->time.tm_min = bcd2bin(buf[S35390A_ALRM_BYTE_MINS] & ~0x80);
+@@ -416,7 +427,7 @@ static int s35390a_rtc_ioctl(struct device *dev, unsigned int cmd,
+ 		break;
+ 	case RTC_VL_CLR:
+ 		/* update flag and clear register */
+-		err = s35390a_init(s35390a);
++		err = s35390a_init(s35390a, &sts);
+ 		if (err < 0)
+ 			return err;
+ 		break;
+@@ -503,11 +514,6 @@ static int s35390a_probe(struct i2c_client *client)
+ 		return err_read;
  	}
  
--	err = s35390a_get_reg(s35390a, S35390A_CMD_INT2_REG1, buf, sizeof(buf));
-+	alm->enabled = 1;
-+
-+	err = s35390a_get_reg(s35390a, reg, buf, sizeof(buf));
- 	if (err < 0)
- 		return err;
- 
-@@ -383,7 +445,7 @@ static int s35390a_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
- 		buf[i] = bitrev8(buf[i]);
- 
- 	/*
--	 * B0 of the three matching registers is an enable flag. Iff it is set
-+	 * B0 of the three matching registers is an enable flag. If it is set
- 	 * the configured value is used for matching.
- 	 */
- 	if (buf[S35390A_ALRM_BYTE_WDAY] & 0x80)
-@@ -464,13 +526,168 @@ static int s35390a_nvmem_write(void *priv, unsigned int offset, void *val,
- 	return s35390a_set_reg(s35390a, S35390A_CMD_FREE_REG, val, bytes);
- }
- 
-+static const struct pinctrl_pin_desc s35390a_pins_desc[] = {
-+	PINCTRL_PIN(0, "int1"),
-+	PINCTRL_PIN(1, "int2"),
-+};
-+
-+static const unsigned int int1_pins[] = { 0 };
-+static const unsigned int int2_pins[] = { 1 };
-+
-+static const struct pingroup s35390a_pin_groups[] = {
-+	PINCTRL_PINGROUP("int1_grp", int1_pins, ARRAY_SIZE(int1_pins)),
-+	PINCTRL_PINGROUP("int2_grp", int2_pins, ARRAY_SIZE(int2_pins)),
-+};
-+
-+static int s35390a_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
-+{
-+	return ARRAY_SIZE(s35390a_pin_groups);
-+}
-+
-+static const char *s35390a_pinctrl_get_group_name(struct pinctrl_dev *pctldev,
-+						  unsigned int group)
-+{
-+	return s35390a_pin_groups[group].name;
-+}
-+
-+static int s35390a_pinctrl_get_group_pins(struct pinctrl_dev *pctldev, unsigned int selector,
-+					  const unsigned int **pins, unsigned int *npins)
-+{
-+	*pins = s35390a_pin_groups[selector].pins;
-+	*npins = s35390a_pin_groups[selector].npins;
-+	return 0;
-+}
-+
-+static const char * const all_groups[] = { "int1_grp", "int2_grp" };
-+static const char * const int1_groups[] = { "int1_grp" };
-+
-+static const struct pinfunction s35390a_functions[] = {
-+	[S35390A_FUNC_IGNORE] = PINCTRL_PINFUNCTION("ignore", all_groups, ARRAY_SIZE(all_groups)),
-+	[S35390A_FUNC_DISABLE] = PINCTRL_PINFUNCTION("disable", all_groups, ARRAY_SIZE(all_groups)),
-+	[S35390A_FUNC_WAKEUP] = PINCTRL_PINFUNCTION("wakeup", all_groups, ARRAY_SIZE(all_groups)),
-+	[S35390A_FUNC_CLOCK] = PINCTRL_PINFUNCTION("clock", all_groups, ARRAY_SIZE(all_groups)),
-+	[S35390A_FUNC_PMIN1] = PINCTRL_PINFUNCTION("pmin1", all_groups, ARRAY_SIZE(all_groups)),
-+	[S35390A_FUNC_PMIN2] = PINCTRL_PINFUNCTION("pmin2", int1_groups, ARRAY_SIZE(int1_groups)),
-+};
-+
-+static int s35390a_pinctrl_get_functions_count(struct pinctrl_dev *pctldev)
-+{
-+	return ARRAY_SIZE(s35390a_functions);
-+}
-+
-+static const char *s35390a_pinctrl_get_function_name(struct pinctrl_dev *pctldev,
-+						     unsigned int selector)
-+{
-+	return s35390a_functions[selector].name;
-+}
-+
-+static int s35390a_pinctrl_get_function_groups(struct pinctrl_dev *pctldev, unsigned int selector,
-+					       const char * const **groups,
-+					       unsigned int * const ngroups)
-+{
-+	*groups = s35390a_functions[selector].groups;
-+	*ngroups = s35390a_functions[selector].ngroups;
-+	return 0;
-+}
-+
-+static int s35390a_pinctrl_set_mux(struct pinctrl_dev *pctldev, unsigned int function,
-+				   unsigned int group)
-+{
-+	int err;
-+	u8 status2, flag, mask;
-+	struct s35390a *s35390a = pinctrl_dev_get_drvdata(pctldev);
-+
-+	mask = group == 0 ? S35390A_INT1_MODE_MASK : S35390A_INT2_MODE_MASK;
-+
-+	guard(mutex)(&s35390a->pinfunction_lock);
-+
-+	dev_dbg(&s35390a->client[0]->dev, "%s: function=%d group=%d\n",
-+		__func__, function, group);
-+
-+	if (function == s35390a->pinfunction[group])
-+		return 0;
-+
-+	if (function != S35390A_FUNC_IGNORE) {
-+		err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, 1);
-+		if (err < 0) {
-+			dev_err(&s35390a->client[0]->dev, "error reading status\n");
-+			return err;
-+		}
-+
-+		switch (function) {
-+		case S35390A_FUNC_DISABLE:
-+		case S35390A_FUNC_CLOCK: /* not implemented */
-+			status2 = (status2 & ~mask) | S35390A_INT_MODE_NOINTR;
-+			break;
-+		case S35390A_FUNC_WAKEUP:
-+			flag = group == 0 ? S35390A_INT1_MODE_ALARM : S35390A_INT2_MODE_ALARM;
-+
-+			if ((status2 & mask) != flag)
-+				status2 = (status2 & ~mask) | S35390A_INT_MODE_NOINTR;
-+
-+			break;
-+		case S35390A_FUNC_PMIN1:
-+			flag = group == 0 ? S35390A_INT1_MODE_PMIN1 : S35390A_INT2_MODE_PMIN1;
-+			status2 = (status2 & ~mask) | flag;
-+			break;
-+
-+		/* INT1 only modes */
-+		case S35390A_FUNC_PMIN2:
-+			if (group == 1)
-+				return -EINVAL;
-+
-+			status2 = (status2 & ~mask) | S35390A_INT1_MODE_PMIN2;
-+			break;
-+		}
-+
-+		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, 1);
-+		if (err < 0) {
-+			dev_err(&s35390a->client[0]->dev, "error setting interrupts\n");
-+			return err;
-+		}
-+	}
-+
-+	s35390a->pinfunction[group] = function;
-+
-+	return 0;
-+}
-+
-+static const struct pinctrl_ops s35390a_pinctrl_ops = {
-+	.get_groups_count = s35390a_pinctrl_get_groups_count,
-+	.get_group_name = s35390a_pinctrl_get_group_name,
-+	.get_group_pins = s35390a_pinctrl_get_group_pins,
-+#if IS_ENABLED(CONFIG_OF)
-+	.dt_node_to_map = pinconf_generic_dt_node_to_map_all,
-+	.dt_free_map = pinconf_generic_dt_free_map
-+#endif
-+};
-+
-+static const struct pinmux_ops s35390a_pinmux_ops = {
-+	.get_functions_count = s35390a_pinctrl_get_functions_count,
-+	.get_function_name = s35390a_pinctrl_get_function_name,
-+	.get_function_groups = s35390a_pinctrl_get_function_groups,
-+	.set_mux = s35390a_pinctrl_set_mux,
-+	.strict = true,
-+};
-+
-+static struct pinctrl_desc s35390a_pinctrl_desc = {
-+	.name = DRIVER_NAME,
-+	.pins = s35390a_pins_desc,
-+	.npins = ARRAY_SIZE(s35390a_pins_desc),
-+	.pctlops = &s35390a_pinctrl_ops,
-+	.pmxops = &s35390a_pinmux_ops,
-+	.owner = THIS_MODULE,
-+};
-+
- static int s35390a_probe(struct i2c_client *client)
- {
--	int err, err_read;
-+	int err;
- 	unsigned int i;
- 	struct s35390a *s35390a;
- 	struct rtc_device *rtc;
--	u8 buf, status1;
-+	struct pinctrl_dev *pctl;
-+	u8 status1, status2;
-+	bool irq = false;
- 	struct device *dev = &client->dev;
- 	struct nvmem_config nvmem_cfg = {
- 		.name = "s35390a_nvram",
-@@ -481,6 +698,7 @@ static int s35390a_probe(struct i2c_client *client)
- 		.reg_read = s35390a_nvmem_read,
- 		.reg_write = s35390a_nvmem_write,
- 	};
-+	int fallback[ARRAY_SIZE(s35390a_pin_groups)];
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
- 		return -ENODEV;
-@@ -489,7 +707,11 @@ static int s35390a_probe(struct i2c_client *client)
- 	if (!s35390a)
- 		return -ENOMEM;
- 
-+	mutex_init(&s35390a->pinfunction_lock);
-+	memset(s35390a->pinfunction, -1, sizeof(s35390a->pinfunction));
-+
- 	s35390a->client[0] = client;
-+
- 	i2c_set_clientdata(client, s35390a);
- 
- 	/* This chip uses multiple addresses, use dummy devices for them */
-@@ -504,33 +726,34 @@ static int s35390a_probe(struct i2c_client *client)
- 		}
- 	}
- 
--	rtc = devm_rtc_allocate_device(dev);
--	if (IS_ERR(rtc))
--		return PTR_ERR(rtc);
+-	if (status1 & S35390A_FLAG_24H)
+-		s35390a->twentyfourhour = 1;
+-	else
+-		s35390a->twentyfourhour = 0;
 -
--	err_read = s35390a_read_status(s35390a, &status1);
--	if (err_read < 0) {
-+	err = s35390a_read_status(s35390a, &status1);
-+	if (err < 0) {
- 		dev_err(dev, "error resetting chip\n");
--		return err_read;
-+		return err;
-+	}
-+
-+	err = s35390a_get_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
-+	if (err < 0)
-+		return dev_err_probe(dev, err, "disabling alarm and test mode failed\n");
-+
-+	if (status1 & S35390A_FLAG_INT1) {
-+		status2 = (status2 & ~S35390A_INT1_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+		irq = true;
- 	}
- 
  	if (status1 & S35390A_FLAG_INT2) {
--		/* disable alarm (and maybe test mode) */
--		buf = 0;
--		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
--		if (err < 0) {
--			dev_err(dev, "error disabling alarm\n");
--			return err;
--		}
--	} else {
--		err = s35390a_disable_test_mode(s35390a);
--		if (err < 0) {
--			dev_err(dev, "error disabling test mode\n");
--			return err;
--		}
-+		status2 = (status2 & ~S35390A_INT2_MODE_MASK) | S35390A_INT_MODE_NOINTR;
-+		irq = true;
- 	}
- 
--	device_set_wakeup_capable(dev, 1);
-+	status2 &= ~S35390A_FLAG_TEST;
-+	err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &status2, sizeof(status2));
-+	if (err < 0)
-+		return dev_err_probe(dev, err, "disabling alarm and test mode failed\n");
-+
-+	rtc = devm_rtc_allocate_device(dev);
-+	if (IS_ERR(rtc))
-+		return PTR_ERR(rtc);
- 
- 	rtc->ops = &s35390a_rtc_ops;
- 	rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
-@@ -539,9 +762,33 @@ static int s35390a_probe(struct i2c_client *client)
- 	set_bit(RTC_FEATURE_ALARM_RES_MINUTE, rtc->features);
- 	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
- 
--	if (status1 & S35390A_FLAG_INT2)
-+	s35390a->rtc = rtc;
-+
-+	device_set_wakeup_capable(dev, 1);
-+
-+	if (irq)
- 		rtc_update_irq(rtc, 1, RTC_AF);
- 
-+	err = devm_pinctrl_register_and_init(dev, &s35390a_pinctrl_desc, s35390a, &pctl);
-+	if (err)
-+		return dev_err_probe(dev, err, "pinctrl register failed\n");
-+
-+	err = pinctrl_enable(pctl);
-+	if (err)
-+		return dev_err_probe(dev, err, "pinctrl enable failed\n");
-+
-+	/* If no pinmux function is defined in DT, fallback to previous behaviour */
-+	fallback[0] = S35390A_FUNC_IGNORE;
-+	fallback[1] = S35390A_FUNC_WAKEUP;
-+
-+	for (i = 0; i < ARRAY_SIZE(s35390a_pin_groups); i++) {
-+		if (s35390a->pinfunction[i] == -1) {
-+			err = s35390a_pinctrl_set_mux(pctl, fallback[i], i);
-+			if (err)
-+				return err;
-+		}
-+	}
-+
- 	nvmem_cfg.priv = s35390a;
- 	err = devm_rtc_nvmem_register(rtc, &nvmem_cfg);
- 	if (err)
-@@ -552,7 +799,7 @@ static int s35390a_probe(struct i2c_client *client)
- 
- static struct i2c_driver s35390a_driver = {
- 	.driver		= {
--		.name	= "rtc-s35390a",
-+		.name	= DRIVER_NAME,
- 		.of_match_table = of_match_ptr(s35390a_of_match),
- 	},
- 	.probe		= s35390a_probe,
+ 		/* disable alarm (and maybe test mode) */
+ 		buf = 0;
 
 -- 
 2.55.0
