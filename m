@@ -1,43 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3945349C9;
-	Thu,  1 Oct 2026 16:14:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26F4B404882
+	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 19:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790871250; cv=none; b=toNhxjvu7BZQErecuOrWgcdiwEFZfhvwh1lp9IAneqZRWPbajGwZBcMdIxHlrDwZD5ri0AWdOnUeTtx81KcZBwPG8uqWvsDaMgS+0G3gvSh3l6ipcMjmTQDi0hsHJOp+sdPcd9OPXcIDTJ58MpUNSeCw/cAKkhmEw9Zt8dL64Vc=
+	t=1790883434; cv=none; b=UbHuB1ZOECFhbh6mUt/HB6Ia1icWOzbjfbQe78zdWSVCm7zJbAFKj9ZX1Gt1S3fxYJ5oLRkhoeno+pFhjiqcNDeEMouPBJKiuNBusiH3U+ts/9PUa5VV1TCUy8K6PZECIXSGQIWvuDTyq2oLhqw2944HodyCfHXBfyraGsq7lmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790871250; c=relaxed/simple;
-	bh=VQXS4+i4Mg4D0PiLXH9P56zA5pOuOFVJpHUxM1UEFcQ=;
+	s=arc-20240116; t=1790883434; c=relaxed/simple;
+	bh=rS6c717NbtnG0l1+5GpH4ytvlZFDwR+VAyuHQIHKXB8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=clHFFvI9KPPHObXxepWOSHLBBz6qajqiTmrAK4FHAScx8Z5iQrE5kOKz0dEHIXUBAVlj54K56y/7frhEHrxQqc0mIFemZbHhHU8bKe2z6NiLGfVCt7g7kV8pGO+3LyzSaCEXnjQqW75xIl1qEOfQmljxZmeljWna6Od6VhYJ9Os=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=glXv0z/M; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=GI4F6PTTVjhKq4xwWseMULGfIIsPuNALz3GcKu2jLS+DnLZolekx2ltrX7ClvXhj0WoE8NyjyUyi6EwUsdujIfZVI5Ba3Q4mj5RRxMK8kBWew4wdHlypnObGfuEiOOBziyQmxf96+TKjJo1FD/WJqshO/YdEZ+84YKWypqcKktw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f0YuNn0P; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="glXv0z/M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7471F000FF;
-	Thu,  1 Oct 2026 16:14:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790871248;
-	bh=ODXZA7pGtjbEYN4/fUySv4jAM+kY1k5++4+TMAJn2yU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=glXv0z/MyYZ8ZR+tBQo9FTbRFIq9f8pT+n/3EZ2KueZCRWlZdGDQEkDTsF31hOtLt
-	 RCXH96zuVe0kc5s/mhLWqkIUfp5IHUMH6Yt4q5Ed1kMNTBx+Tru3g/vF9pbVRUnq9m
-	 HNmD35vsyzQX6adhvul9g23KXgqS06PKla8wMG0vd8FIKfeyzNn82eo8YXQUOFHVqx
-	 3t2O13gtK+vNWhl2bOMklJ+N6/p/9m0TWZgTWYmRDZt4rDSjSwqscI90EU3emkCB7V
-	 M4AE5PG8I1Rtmo9XBCaXtBDgZJ4cT4X8XcunVi8MJewHdBuLOtltPoMhanTTOgSUOH
-	 xjXIGmpzJKpRQ==
-From: Imre Kaloz <kaloz@kernel.org>
-To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	linux-rtc@vger.kernel.org
-Subject: [PATCH 25/38] rtc: m48t35: support the SGI IP35 timekeeper's 1968 year base
-Date: Thu,  1 Oct 2026 18:12:00 +0200
-Message-ID: <7c2b71a1627e49209a8c3311f4283eb92325852c.1790857966.git.kaloz@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <cover.1790857966.git.kaloz@kernel.org>
-References: <cover.1790857966.git.kaloz@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f0YuNn0P"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49e6598dd44so43423215e9.1
+        for <linux-rtc@vger.kernel.org>; Thu, 01 Oct 2026 12:37:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790883429; x=1791488229; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PWKotutjFYkP/VqxUCwmViQ7yB9g4hE1fzeaiZxfDjc=;
+        b=f0YuNn0Pwp8D8D3J7DRKel+KutpcJfFSSEXB+QHbmNxmcsZmhxq7+Ql7sdTX20Fc8F
+         oS7qvYWh0quYn9hVBECLFAO5sUQjkIxRtclXHwt5Aa3Y39B5m3vWPXBF43IoLHZ3iaX1
+         1S6QKCpZfUsBL/J694zgqTGqhcH8N6pYCYqWvbZfsmzDDz9dOydyM3zc8k3iWxKPOTMS
+         zpBBt45gCXpEAcjoFv85eP3gppolQ83ebyiqYPpqKg3O2QlE5ch3CYowQcltmnMkrnm6
+         0LTUKT0Mq2rh6dLyaCMkD1LSTlOgmpxfPGy6GeksCtAbMPXO2WjM3mUBzSAMxuOZreWQ
+         jJPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790883429; x=1791488229;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PWKotutjFYkP/VqxUCwmViQ7yB9g4hE1fzeaiZxfDjc=;
+        b=OGCiEGRxTDb6MQTWds0JsuMjyiS3EFFIyudw4rKcHVYiVxr9GQd93wOhp0UCjtCYSK
+         y2BG4TFOcGM6qM06vB7e3Whe/x/2Q0WdZQxlEBSdkz9R2ybs0dDk7E+F3txoUTAh41kB
+         D7RgLa0o1wxn6M8lW+oz72b4VEvb4s2spGNNKKcZeWdzfBPnlzlypLSRSfAUKMqg9zOX
+         lxny2Vd7gJbg8Lzge/Wk8Y/E8rBD7yYijXNiCVysfovsvgPTMKtFMEtTcYwOy8lcbFk2
+         VTnlBxp2ARbKts9R8wyw2H+zqrztTbc5EWQR7CjTa1+0pLCGEhBWLfPqx/EBnppUCdgf
+         Wl4Q==
+X-Forwarded-Encrypted: i=1; AKwUvBwLPrW2Chv6HlWLsMTLSVef4EFSV0CZl46kpr+XyILZ4iuAhtVyzZM8zpJV7pcJ4LgvHn0WZro7TWY=@vger.kernel.org
+X-Gm-Message-State: AFuF++lBSAxs3vstbaQ3nEX0vkw/NFonldll8tU5TDy70DxZ/AYIkV57
+	6qxCDTz+sqzQWiQuLTcKzYiHmkKMNCa03RoQDcH4W06vIdYGfUxOIkFL
+X-Gm-Gg: AYBFou38JSCLAAyKoo1sgdCdrhjgORZpvp10WoeOlaHS/bt8pyEPv80XY3mXA4CDCdz
+	BLIGnQNMDWPKkFKsa5bJQkXUpZofKpQtUP9qpSjEiZ/r0M2vG6QcqYtXKIMENh0estVIWVUP75I
+	OYWr/eq/2qJYyqImgR0zuNaY+f7Uu1Wz/fz3fPBIv0Znwdw1P+MhRkGcTbT8S8u98NX1cSCt07j
+	Dk8uwUfJIlup8k0w5AfnIjgbkqgIUSrxNkqWxK9PfdzwaZz6+DQsevuFS/tWkEANjm9Zmp1yLYV
+	y9JUA28h7kg87qPU+bDxzffSD1Zq1F5ztIWmihlZlpPDXPk1GhILhwrQbO+hy+ljzMaVUCdECGU
+	8CFrGs6XELvdpxDze6W3m3Lg092Q71jSt0wIQi7EK+witfIeQcP9zPMpHwMiGb8Ix13SFrefFVT
+	BAXzo/84CKCy8bRuXObqXAjn8AhFLUexPSDXWMkttcbZ0M0bAp1ZPFLam3kU4qOeMKHuZBN+W0P
+	jBU2CzxyePq9thBTfiEB2JS4R50Mnxi/2ZOBKmlwVNJKHlYJbQVLRx8
+X-Received: by 2002:a05:600c:620c:b0:49c:fa20:cbfd with SMTP id 5b1f17b1804b1-4a027583fb0mr9480755e9.20.1790883428472;
+        Thu, 01 Oct 2026 12:37:08 -0700 (PDT)
+Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a02770e8f2sm12312315e9.6.2026.10.01.12.37.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Oct 2026 12:37:08 -0700 (PDT)
+From: Sander Speetjens <sander.speetjens@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonathan Bell <jonathan@raspberrypi.com>,
+	Stefan Wahren <wahrenst@gmx.net>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	sander.speetjens@gmail.com,
+	pbrobinson@gmail.com
+Subject: [PATCH v9 1/3] dt-bindings: rtc: Add missing type to trickle-voltage-millivolt
+Date: Thu,  1 Oct 2026 21:37:01 +0200
+Message-ID: <20261001193703.734323-2-sander.speetjens@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261001193703.734323-1-sander.speetjens@gmail.com>
+References: <20261001193703.734323-1-sander.speetjens@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -46,95 +87,28 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The M48T35 of SGI IP35-family machines counts its year from 1968. Take
-the epoch from a platform id table, "rtc-m48t35" for IP27 and
-"rtc-m48t35-ip35" for IP35, and bound the year to the part's century: on
-IP27 a year past 2069 now fails to set.
+The property uses a non-standard unit suffix (-millivolt) that is not
+recognised by the schema tools, so the type is not inferred. Add an
+explicit uint32 reference.
 
-Signed-off-by: Imre Kaloz <kaloz@kernel.org>
+Suggested-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
 ---
- drivers/rtc/rtc-m48t35.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ Documentation/devicetree/bindings/rtc/rtc.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
-index 92f19bf997b2..69c313b4b6e8 100644
---- a/drivers/rtc/rtc-m48t35.c
-+++ b/drivers/rtc/rtc-m48t35.c
-@@ -49,6 +49,7 @@ struct m48t35_priv {
- 	struct m48t35_rtc __iomem *reg;
- 	size_t size;
- 	unsigned long baseaddr;
-+	unsigned int epoch;
- 	spinlock_t lock;
- };
+diff --git a/Documentation/devicetree/bindings/rtc/rtc.yaml b/Documentation/devicetree/bindings/rtc/rtc.yaml
+index efb66df82782..e46d50b1063e 100644
+--- a/Documentation/devicetree/bindings/rtc/rtc.yaml
++++ b/Documentation/devicetree/bindings/rtc/rtc.yaml
+@@ -51,6 +51,7 @@ properties:
+       if trickle charger should be enabled.
  
-@@ -86,10 +87,7 @@ static int m48t35_read_time(struct device *dev, struct rtc_time *tm)
- 	 * Account for differences between how the RTC uses the values
- 	 * and how they are defined in a struct rtc_time;
- 	 */
--	tm->tm_year += 70;
--	if (tm->tm_year <= 69)
--		tm->tm_year += 100;
--
-+	tm->tm_year += priv->epoch - 1900;
- 	tm->tm_mon--;
- 	return 0;
- }
-@@ -108,18 +106,10 @@ static int m48t35_set_time(struct device *dev, struct rtc_time *tm)
- 	min = tm->tm_min;
- 	sec = tm->tm_sec;
- 
--	if (yrs < 1970)
--		return -EINVAL;
--
--	yrs -= 1970;
--	if (yrs > 255)    /* They are unsigned */
-+	if (yrs < priv->epoch || yrs >= priv->epoch + 100)
- 		return -EINVAL;
- 
--	if (yrs > 169)
--		return -EINVAL;
--
--	if (yrs >= 100)
--		yrs -= 100;
-+	yrs -= priv->epoch;
- 
- 	sec = bin2bcd(sec);
- 	min = bin2bcd(min);
-@@ -164,6 +154,7 @@ static int m48t35_probe(struct platform_device *pdev)
- 				     pdev->name))
- 		return -EBUSY;
- 
-+	priv->epoch = platform_get_device_id(pdev)->driver_data;
- 	priv->baseaddr = res->start;
- 	priv->reg = devm_ioremap(&pdev->dev, priv->baseaddr, priv->size);
- 	if (!priv->reg)
-@@ -178,11 +169,20 @@ static int m48t35_probe(struct platform_device *pdev)
- 	return PTR_ERR_OR_ZERO(priv->rtc);
- }
- 
-+/* The year register on SGI IP35-family machines counts from 1968. */
-+static const struct platform_device_id m48t35_id_table[] = {
-+	{ "rtc-m48t35", 1970 },
-+	{ "rtc-m48t35-ip35", 1968 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, m48t35_id_table);
-+
- static struct platform_driver m48t35_platform_driver = {
- 	.driver		= {
- 		.name	= "rtc-m48t35",
- 	},
- 	.probe		= m48t35_probe,
-+	.id_table	= m48t35_id_table,
- };
- 
- module_platform_driver(m48t35_platform_driver);
-@@ -191,3 +191,4 @@ MODULE_AUTHOR("Thomas Bogendoerfer <tsbogend@alpha.franken.de>");
- MODULE_DESCRIPTION("M48T35 RTC driver");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:rtc-m48t35");
-+MODULE_ALIAS("platform:rtc-m48t35-ip35");
+   trickle-voltage-millivolt:
++    $ref: /schemas/types.yaml#/definitions/uint32
+     description:
+       Selected voltage for trickle charger. Should be given
+       if trickle charger should be enabled and the trickle voltage is different
 -- 
-2.47.3
+2.55.0
 
