@@ -1,150 +1,89 @@
-Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D828051C04D
-	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 19:37:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101382DF128
+	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 21:44:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790883435; cv=none; b=VKsDXOd/NirMfQODYWlxatjEuHBYsZXBnoThTUVcHD91fQ3uPvdYwYaTt3X5KHMXIHTRkEfbQWIX6WWSlXDsFU/f8mKm1jgsMtZT3htTE2IKILbWknRtsfxgSh0omSD24eMIwEeQRa94nHxF71jgsjJTqhDU1RVpabVovtqPWZk=
+	t=1790891064; cv=none; b=NVk8BeDNLUicH4UaJ7gTUB+kS+hEG2TLL+U3VQjXDU+XOwPtrPmNcbASUEmzEl/Wz3tWiHNuhDrZToxvgUSeP7q6rR3TBqWKDyLK9OOjT/+X+6gq2PmMpL1HFqPQ+9Zk2XaT4hI6mwB16GjnqLxSsyVwFx/IPZY2lgHLARNGL34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790883435; c=relaxed/simple;
-	bh=23fUV5uH8hymR3s4fLHnOR2V+sJXZxj9F6roRd4iV08=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OBrqCbFNhUci+gl7cW0FL5RqaU26xsASjBK2/EUk3H7gybe1r2k6CPJuqu1b3/TFPzllCo9pK1ZITFqEr2anKQ9esaQ99yDYTPy87FbyAjYRwY9Rn1/kWATuT0O8B46MYLY5WKKXAc+buDnL9/ux7QzEOulWClf+ScW6SYs+SCE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QshqXNRn; arc=none smtp.client-ip=74.125.225.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790891064; c=relaxed/simple;
+	bh=9BXr/n4/ZySZqMqLaZ5551csECR9du4tOg4WTu3M5jo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fAtXcpJuKLyKMKMxnwckcvEbl9olGapALZjsEg68gQqFdpkZ0qstv1kPJsN9Kc5QVy7IpBd99VVEOGkY2cCSjhi69M1G+o9K4RHo5nLKMIh/9JdJL6XkZKKGaE8wiASmHViEkwch7ZHcrZWaP3Q8ogVI6OB+01VkYRrKcRwbX5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=R3tViBMn; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QshqXNRn"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49b912e4b11so41820225e9.3
-        for <linux-rtc@vger.kernel.org>; Thu, 01 Oct 2026 12:37:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790883429; x=1791488229; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qGElhAW7KvUaLn/kwKuU16ekRrncolXMHKfCx7Xylfo=;
-        b=QshqXNRnIO7r7QXS8pg3WJES4jrFq7rWmHpU2xniqyFvka/N55+pAHd2DPJf6IBYio
-         2P5EfTCUjbBXy52+tgVxCaquoVeBteX7arh75X5VF8pQSprz8rmkkUZCLMDrTs7ef2jV
-         T/3W/ShBB39taT2WKhdYjA+u13qXahuLACKC9hArvY4CsGyKxsTeNjNdPQshjEeAec3C
-         kiEaFmKtVP4k/5ZrU1x0BH7OO0zNzGvePP9v2xHahKuMGP7S9du00JU1kw5hy751e5th
-         cCO76If54ZBL2uB4bWKlJ6g7+tq9BBHt0jOD1u2HeNBAbbqywI5j6OYSkJjFz0erL4+1
-         3CtQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790883429; x=1791488229;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qGElhAW7KvUaLn/kwKuU16ekRrncolXMHKfCx7Xylfo=;
-        b=UbGIMYYnLIpxD8+obc/VoFEjWC0gbZNkKdiOup92gmSal1prHmdPqnUTyPsn9GPNPn
-         NM734bmZJDoCMQ5cH4Mu4U+k8ok8A3EpQ0mIcYhr6Qmv36wK1qbwM+WsBq55AbVjXndn
-         VcIShmRkWBxkZ0Dj5yEg9wd+MZw1epEnaoCe2uTKXGzUJKn52gCQ4f0MKHbRsyPmysb6
-         hIj+oIYmR9u07tpMIUyKEugd8Zc0Bmg1NwL3xjxLicLAIft4ozM3u1K8TQN7OvcwS0OY
-         TZxvb+CKdAtI5CZDOPk2oqupTcngnEzWhYYlqQT1ZiOM71Xelb+jim1PuStgHO1Hu0vH
-         3aUQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwgPrE6AZ4Be8oa+HDzBzjscahKDdmIxYajjDxU6k86cJqSj76GmmmqejoakHzr6slR0x6OEC7HvSI=@vger.kernel.org
-X-Gm-Message-State: AFuF++mUHK8hZnUvd1eAs1d88lDetoH+M33nX23jLWkl0NrVqDrVHKLi
-	BrYZUiGzgr7urVKwK64u5K/bDgEVaTh3hfyZ/5qttnba9Ck8U65AqFuD
-X-Gm-Gg: AYBFou3P2VWP/8EXjNZrsPSldZ1tBsfOFfriD96qkaBq1K5g4UokIefm9PTtj+fjBOw
-	wnM+upoGjLCGR2A3MMBN+dUjWd3YxnGJ6iZKUijInPIZ/GQQklo4GbfvZ88xJX4zNyeEQyOA0Bt
-	/5ghwKqm74MtPro3qX8Dj8K1+lHi6njN1hM+bt//iWNRv63geYJjRKaYWeu85fI7hDsX446qoF6
-	CizzV9xIVcp8QfPNaih7Vp97PiqZwd+j7UDMAJvuJJybPl0Y4ZxDKSqdjBIu8USvjEth1RKG4fx
-	urJYWr/ieoSBEhY38K6kt81RBB9vJKL69qgYWL/lJ/C8ZNc1LiBnB8loht89R0+5yPEz1+kI17b
-	RSFd2DCJyEVcwqfrOk46+OFDXUttw2gpKKu/76GI+I/NQkA8X8tcNQOeWp/qOf7zlL7SQBdGFjn
-	KyXp+0BaJX2ew6ICJxl3S6D8Cuk1TPM1BS37RWPtOckozj67di5+niKtZ4IhjoYycZOeUiWmzTM
-	Yw3HUeekm902u4ZfksPRZ6puH+Z1QMjdwCUE/e5ckmq3g==
-X-Received: by 2002:a05:600c:1d09:b0:4a0:37d:9e21 with SMTP id 5b1f17b1804b1-4a0276ed19amr10432355e9.29.1790883429210;
-        Thu, 01 Oct 2026 12:37:09 -0700 (PDT)
-Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a02770e8f2sm12312315e9.6.2026.10.01.12.37.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2026 12:37:08 -0700 (PDT)
-From: Sander Speetjens <sander.speetjens@gmail.com>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Jonathan Bell <jonathan@raspberrypi.com>,
-	Stefan Wahren <wahrenst@gmx.net>,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-rpi-kernel@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	sander.speetjens@gmail.com,
-	pbrobinson@gmail.com,
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v9 2/3] dt-bindings: rtc: Add property for Raspberry Pi 5 RTC
-Date: Thu,  1 Oct 2026 21:37:02 +0200
-Message-ID: <20261001193703.734323-3-sander.speetjens@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261001193703.734323-1-sander.speetjens@gmail.com>
-References: <20261001193703.734323-1-sander.speetjens@gmail.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="R3tViBMn"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 2E3CE4E41AE6
+	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 21:44:19 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id DD8E56035C;
+	Thu,  1 Oct 2026 21:44:18 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 91148103281F9;
+	Thu,  1 Oct 2026 23:44:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1790891054; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=6A4roYCJqLgyAdT2Le0ZQud4Oae8ijT0P6KR6Kzq30k=;
+	b=R3tViBMnrJuNTfgpIHJ1OOBh9i9gAx5hYqOXP99smMbbccvIj1feRb67+84o8ovILCksVe
+	/ha/HI25U+gyXSSpTGZ36yp964RHYKkTlNVNAJl4E8UrGwVW3j5U7fZNm/QI7Vl1aRh7mW
+	gAvycYm+B4rQrNosQHiRKteKyuM4tYPNrgME0Zn93NJHoiGTkyaB+Fvr2a9c94Npji+liX
+	+dE0a2E6k39iF1/hKxs8k0uRC09Tff9Cpik+VJVGc8unHZYPHUYyfae0reC4gctGVzfYbB
+	+TeLo2PVqjTKG9+lQJquvL0NZcIm/cgIN2squO8B7O4I650vitt2ZwiL2EoYFQ==
+Date: Thu, 1 Oct 2026 23:44:12 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Michael Walle <mwalle@kernel.org>
+Cc: sashiko-reviews@lists.linux.dev, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH] rtc: pcf8563: add SMBus support
+Message-ID: <2026100121441258ccde92@mail.local>
+References: <20260930113126.720555-1-mwalle@kernel.org>
+ <20260930114005.2C6661F000FF@smtp.kernel.org>
+ <20260930152513dd617b74@mail.local>
+ <DLTJ9BRUJFAO.XKH3SG306MBJ@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DLTJ9BRUJFAO.XKH3SG306MBJ@kernel.org>
+X-Last-TLS-Session-Version: TLSv1.3
 
-The Raspberry Pi 5 has a built-in RTC that can be battery-backed
-via the VBAT pin. When a rechargeable coin cell is used, the
-hardware requires a trickle-charge voltage to keep the battery
-topped up.
+On 01/10/2026 15:24:07+0200, Michael Walle wrote:
+> On Wed Sep 30, 2026 at 5:25 PM CEST, Alexandre Belloni wrote:
+> >> Because of this fallback, when pcf8563_rtc_read_time() reads the time:
+> >> 
+> >> drivers/rtc/rtc-pcf8563.c:pcf8563_rtc_read_time() {
+> >>     ...
+> >>     err = regmap_bulk_read(pcf8563->regmap, PCF8563_REG_ST1, buf,
+> >>                            sizeof(buf));
+> >>     ...
+> >> }
+> >> 
+> >> The bulk read executes as a loop of separate single-byte SMBus reads instead
+> >> of an atomic transaction. Since each SMBus byte transaction issues its own
+> >> STOP condition, the RTC's internal register latch is released between reads.
+> >> 
+> >> Does this allow the hardware time to roll over mid-read and result in
+> >> corrupt time data?
+> >
+> > This is a valid concern, did you test?
+> 
+> Yes, did you read my first reply? I'm not sure how this is handled
+> in the RTC subsystem. Most regmap converted RTC should fall into
+> this case. How do you propose to handle that? Instead of removing
+> the check, we could just test for either I2C or SMBus block read.
 
-Expose the trickle-voltage-millivolt DT property so the driver can
-program the correct charge voltage for board specific configurations with
-the attached battery.
+For some reason, I didn't get you reply in my inbox. For the RTCs that
+are not latching, we do read the sec register twice. I guess testing for
+I2C or SMBus block read would make more sense here.
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
----
-V8 -> V9: No changes
 
-V7 -> V8: No changes
-
-V6 -> V7: No changes
-
-V5 -> V6: No changes
-
-V4 -> V5: As discussed with Conor Dooley, the reff to uint32 is removed
-and a PR is made on dt-schema adding millivolt to property-units.yaml
-
-V3 -> V4: Add a reff to uint32
-
-V2 -> V3: Fixed the firmware property naming
-
-V1 -> V2: As discussed with Krzysztof Kozlowski, this property is folded into
-the existing raspberrypi,bcm2835-firmware properties.
-
- .../bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml      | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-index 983ea80eaec9..dc71fd57834e 100644
---- a/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-+++ b/Documentation/devicetree/bindings/arm/bcm/raspberrypi,bcm2835-firmware.yaml
-@@ -133,6 +133,11 @@ properties:
-     required:
-       - compatible
- 
-+  trickle-voltage-millivolt:
-+    $ref: /schemas/rtc/rtc.yaml#/properties/trickle-voltage-millivolt
-+    minimum: 1300
-+    maximum: 5000
-+
- required:
-   - compatible
-   - mboxes
-@@ -144,6 +149,7 @@ examples:
-     firmware {
-         compatible = "raspberrypi,bcm2835-firmware", "simple-mfd";
-         mboxes = <&mailbox>;
-+        trickle-voltage-millivolt = <3300>;
- 
-         firmware_clocks: clocks {
-             compatible = "raspberrypi,firmware-clocks";
 -- 
-2.55.0
-
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
