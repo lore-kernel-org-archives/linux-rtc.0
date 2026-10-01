@@ -1,99 +1,140 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED0B359A6D;
-	Thu,  1 Oct 2026 13:24:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D3945349C9;
+	Thu,  1 Oct 2026 16:14:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790861053; cv=none; b=BW/Y+CzTQw6TOm9nV+bgJd4mkm6WsUgV/vuFK6xVAG0cngVFgksoAK2dsohL+OkfBY6XjYm5cjEGY4JouviAm+In5p264xzf4mWTfUgR29KADM8bb9L7kngsVhnQJY8Mr1Npc4VTaA6Hg1FZGtIJds86Khff7iy53HffkdAls6Q=
+	t=1790871250; cv=none; b=toNhxjvu7BZQErecuOrWgcdiwEFZfhvwh1lp9IAneqZRWPbajGwZBcMdIxHlrDwZD5ri0AWdOnUeTtx81KcZBwPG8uqWvsDaMgS+0G3gvSh3l6ipcMjmTQDi0hsHJOp+sdPcd9OPXcIDTJ58MpUNSeCw/cAKkhmEw9Zt8dL64Vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790861053; c=relaxed/simple;
-	bh=X3bEkhlf2gZZ3OnkEQK0X6+xXjV2dWqggmj0Oiskz8I=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Subject:Cc:
-	 References:In-Reply-To; b=IbwiZVFRkYBeCRnZ6+g0tPtvp0zd6UrKYDZigNRkRsPWNbiihJBvPAy3FD0xdTulWd2CCInVwnFX1Z5t3qJ1QkSp9FarCSwbpNcOYhQ5BMQmV4B44RHSsXHaLQIoVqZvhd0cXJoiv+/rP6AYHjsfAnlF9QqGLT6I/hiJU5ikapM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UdrnTc7V; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790871250; c=relaxed/simple;
+	bh=VQXS4+i4Mg4D0PiLXH9P56zA5pOuOFVJpHUxM1UEFcQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=clHFFvI9KPPHObXxepWOSHLBBz6qajqiTmrAK4FHAScx8Z5iQrE5kOKz0dEHIXUBAVlj54K56y/7frhEHrxQqc0mIFemZbHhHU8bKe2z6NiLGfVCt7g7kV8pGO+3LyzSaCEXnjQqW75xIl1qEOfQmljxZmeljWna6Od6VhYJ9Os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=glXv0z/M; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UdrnTc7V"
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id AFBEB1F000FF;
-	Thu,  1 Oct 2026 13:24:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="glXv0z/M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7471F000FF;
+	Thu,  1 Oct 2026 16:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790861052;
-	bh=TxmM7g86vqWg38a4SdLtH6GLKKWCA2S+rsHqVLNPnzs=;
-	h=Date:From:To:Subject:Cc:References:In-Reply-To;
-	b=UdrnTc7VhjcqmAPuMMCl8UmdyGGXQjb9ksYiIoYyXk60Nsxy9YjPk1ByDAlNdbTwM
-	 ld3Dq1HKt/QwlcfrJfb+nvw/mzmpgJN/tVqH9WAV7FCpYK4EOPW8LzdPAcs3neQblU
-	 d8OfwsUKHJFxZAHsNswzMqJUTeeUDTVXVpUCevdMJX1j7luoCajWllVsJvwoBuJr6D
-	 b+ROI88GROPfuG3FejnHNkrHskvNjX3fT89HCVvcR2Weev1AYdtPatP4iWLPHDUZis
-	 TXwM1pRnc6TEuxHkvwsWP+UiUnDzBMTEq+1Zg41URe3XcHmvWu61TVJNWS/geZteO3
-	 eTddDZEOmBrRw==
+	s=k20260515; t=1790871248;
+	bh=ODXZA7pGtjbEYN4/fUySv4jAM+kY1k5++4+TMAJn2yU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=glXv0z/MyYZ8ZR+tBQo9FTbRFIq9f8pT+n/3EZ2KueZCRWlZdGDQEkDTsF31hOtLt
+	 RCXH96zuVe0kc5s/mhLWqkIUfp5IHUMH6Yt4q5Ed1kMNTBx+Tru3g/vF9pbVRUnq9m
+	 HNmD35vsyzQX6adhvul9g23KXgqS06PKla8wMG0vd8FIKfeyzNn82eo8YXQUOFHVqx
+	 3t2O13gtK+vNWhl2bOMklJ+N6/p/9m0TWZgTWYmRDZt4rDSjSwqscI90EU3emkCB7V
+	 M4AE5PG8I1Rtmo9XBCaXtBDgZJ4cT4X8XcunVi8MJewHdBuLOtltPoMhanTTOgSUOH
+	 xjXIGmpzJKpRQ==
+From: Imre Kaloz <kaloz@kernel.org>
+To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org
+Subject: [PATCH 25/38] rtc: m48t35: support the SGI IP35 timekeeper's 1968 year base
+Date: Thu,  1 Oct 2026 18:12:00 +0200
+Message-ID: <7c2b71a1627e49209a8c3311f4283eb92325852c.1790857966.git.kaloz@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <cover.1790857966.git.kaloz@kernel.org>
+References: <cover.1790857966.git.kaloz@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=77375552f6370145b30eb1ccdc2150a0059ef6924f39b36562e21db53e52;
- micalg=pgp-sha384; protocol="application/pgp-signature"
-Date: Thu, 01 Oct 2026 15:24:07 +0200
-Message-Id: <DLTJ9BRUJFAO.XKH3SG306MBJ@kernel.org>
-From: "Michael Walle" <mwalle@kernel.org>
-To: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- <sashiko-reviews@lists.linux.dev>
-Subject: Re: [PATCH] rtc: pcf8563: add SMBus support
-Cc: <linux-rtc@vger.kernel.org>
-X-Mailer: aerc 0.20.0
-References: <20260930113126.720555-1-mwalle@kernel.org>
- <20260930114005.2C6661F000FF@smtp.kernel.org>
- <20260930152513dd617b74@mail.local>
-In-Reply-To: <20260930152513dd617b74@mail.local>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
---77375552f6370145b30eb1ccdc2150a0059ef6924f39b36562e21db53e52
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
+The M48T35 of SGI IP35-family machines counts its year from 1968. Take
+the epoch from a platform id table, "rtc-m48t35" for IP27 and
+"rtc-m48t35-ip35" for IP35, and bound the year to the part's century: on
+IP27 a year past 2069 now fails to set.
 
-On Wed Sep 30, 2026 at 5:25 PM CEST, Alexandre Belloni wrote:
->> Because of this fallback, when pcf8563_rtc_read_time() reads the time:
->>=20
->> drivers/rtc/rtc-pcf8563.c:pcf8563_rtc_read_time() {
->>     ...
->>     err =3D regmap_bulk_read(pcf8563->regmap, PCF8563_REG_ST1, buf,
->>                            sizeof(buf));
->>     ...
->> }
->>=20
->> The bulk read executes as a loop of separate single-byte SMBus reads ins=
-tead
->> of an atomic transaction. Since each SMBus byte transaction issues its o=
-wn
->> STOP condition, the RTC's internal register latch is released between re=
-ads.
->>=20
->> Does this allow the hardware time to roll over mid-read and result in
->> corrupt time data?
->
-> This is a valid concern, did you test?
+Signed-off-by: Imre Kaloz <kaloz@kernel.org>
+---
+ drivers/rtc/rtc-m48t35.c | 29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-Yes, did you read my first reply? I'm not sure how this is handled
-in the RTC subsystem. Most regmap converted RTC should fall into
-this case. How do you propose to handle that? Instead of removing
-the check, we could just test for either I2C or SMBus block read.
+diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+index 92f19bf997b2..69c313b4b6e8 100644
+--- a/drivers/rtc/rtc-m48t35.c
++++ b/drivers/rtc/rtc-m48t35.c
+@@ -49,6 +49,7 @@ struct m48t35_priv {
+ 	struct m48t35_rtc __iomem *reg;
+ 	size_t size;
+ 	unsigned long baseaddr;
++	unsigned int epoch;
+ 	spinlock_t lock;
+ };
+ 
+@@ -86,10 +87,7 @@ static int m48t35_read_time(struct device *dev, struct rtc_time *tm)
+ 	 * Account for differences between how the RTC uses the values
+ 	 * and how they are defined in a struct rtc_time;
+ 	 */
+-	tm->tm_year += 70;
+-	if (tm->tm_year <= 69)
+-		tm->tm_year += 100;
+-
++	tm->tm_year += priv->epoch - 1900;
+ 	tm->tm_mon--;
+ 	return 0;
+ }
+@@ -108,18 +106,10 @@ static int m48t35_set_time(struct device *dev, struct rtc_time *tm)
+ 	min = tm->tm_min;
+ 	sec = tm->tm_sec;
+ 
+-	if (yrs < 1970)
+-		return -EINVAL;
+-
+-	yrs -= 1970;
+-	if (yrs > 255)    /* They are unsigned */
++	if (yrs < priv->epoch || yrs >= priv->epoch + 100)
+ 		return -EINVAL;
+ 
+-	if (yrs > 169)
+-		return -EINVAL;
+-
+-	if (yrs >= 100)
+-		yrs -= 100;
++	yrs -= priv->epoch;
+ 
+ 	sec = bin2bcd(sec);
+ 	min = bin2bcd(min);
+@@ -164,6 +154,7 @@ static int m48t35_probe(struct platform_device *pdev)
+ 				     pdev->name))
+ 		return -EBUSY;
+ 
++	priv->epoch = platform_get_device_id(pdev)->driver_data;
+ 	priv->baseaddr = res->start;
+ 	priv->reg = devm_ioremap(&pdev->dev, priv->baseaddr, priv->size);
+ 	if (!priv->reg)
+@@ -178,11 +169,20 @@ static int m48t35_probe(struct platform_device *pdev)
+ 	return PTR_ERR_OR_ZERO(priv->rtc);
+ }
+ 
++/* The year register on SGI IP35-family machines counts from 1968. */
++static const struct platform_device_id m48t35_id_table[] = {
++	{ "rtc-m48t35", 1970 },
++	{ "rtc-m48t35-ip35", 1968 },
++	{ }
++};
++MODULE_DEVICE_TABLE(platform, m48t35_id_table);
++
+ static struct platform_driver m48t35_platform_driver = {
+ 	.driver		= {
+ 		.name	= "rtc-m48t35",
+ 	},
+ 	.probe		= m48t35_probe,
++	.id_table	= m48t35_id_table,
+ };
+ 
+ module_platform_driver(m48t35_platform_driver);
+@@ -191,3 +191,4 @@ MODULE_AUTHOR("Thomas Bogendoerfer <tsbogend@alpha.franken.de>");
+ MODULE_DESCRIPTION("M48T35 RTC driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:rtc-m48t35");
++MODULE_ALIAS("platform:rtc-m48t35-ip35");
+-- 
+2.47.3
 
-Anyway, I have an SMBus host controller which supports the block
-read, thus it doesn't fall into the single byte read case.
-
--michael
-
---77375552f6370145b30eb1ccdc2150a0059ef6924f39b36562e21db53e52
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iKgEABMJADAWIQTIVZIcOo5wfU/AngkSJzzuPgIf+AUCar5e+BIcbXdhbGxlQGtl
-cm5lbC5vcmcACgkQEic87j4CH/jhlgF/Y8IyyaBQcyjnDWyIDp+bbHMRunlhL/Xr
-Q7ggknk+4hfiJyNkQODvbDVIJubun0OHAX9ArRo7FRsEblq6m05JtDlnrtmWPsq/
-yrgL9SUkZgCt/+yIGpDtvsZkzTRvOM5Oa4M=
-=beSV
------END PGP SIGNATURE-----
-
---77375552f6370145b30eb1ccdc2150a0059ef6924f39b36562e21db53e52--
