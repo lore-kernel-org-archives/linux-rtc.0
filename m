@@ -1,287 +1,186 @@
-Received: from mail-ed2-f31.google.com (mail-ed2-f31.google.com [74.125.228.95])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5102533B969
-	for <linux-rtc@vger.kernel.org>; Fri,  2 Oct 2026 15:02:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.95
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790953352; cv=pass; b=EDYu1IoZJh9wisXrraOyfwbk8tH9hH4fJOXbYcurneEvH7LANWivf6bZ46hcyuhn5d3+kegZt8TBqCSZn1+ztOjACEt2nfpHN0Pu88HNrDs7DEAPKxr68YFHklYFaKxDfIPF0Xqn3FqNUMoLBr24kCDp0jVO0RiCNdAjZtvgekw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790953352; c=relaxed/simple;
-	bh=wUHlRGgabvd/IDc5AahAdhZqyb4TNA1+nSGNQQVi8DE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oYxCuBlmpTD7YrSKpLRvD77cntBlSPSDp9jg9bhCEis24mdr2nZmmywiGC+gsmTm0CLvx2RWNMkfbKZJp0oKAO+7tASC8Bm7+3iGHH2hdMTUzbv1dBmsSxhFyGtVcm+ED7sH8PG4TaRptGKoS7cKR8VOjLa8FeRJNLADe3SfazQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oI5JEaOY; arc=pass smtp.client-ip=74.125.228.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DF494D487C;
+	Fri,  2 Oct 2026 15:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790954402; cv=none; b=P/zNhqWnfLJ3MxTRFr2kVm8sTaflDhEnwTPMlvamxTdY9IQeBSDll2NJT43ruZqg11qvzw1Bbk59OmHSxGtO8byhc/KqvK2emVxP6ENtzKIrARElaGR5vMW+7zWbzp1N+B+ARNY3nr0+QZyixjP/pKvtqbSYtCn5GhF2GvlQfWI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790954402; c=relaxed/simple;
+	bh=ZnrV0+DPiVIACPvAr8Fl0xa8D1+L0vCJwCOpEsnb2ic=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=OkBw6F21Jzt55m/By6wyICk62ada3e/5w0LGSCStHKEB3xn5YQa5Ct7ALdnoZmzOXS17GBBEESxEkjiZY5m1NBpedzHXtG5HYk+A6gNAjIA8uDqRtU6DlPhMNNwdPjPJ79nyKN+z28vwt/Sbu4vwwpZMCplep3GRaKOsSyAcTt4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net; spf=pass smtp.mailfrom=gmx.net; dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b=J9gXLTzz; arc=none smtp.client-ip=212.227.15.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oI5JEaOY"
-Received: by mail-ed2-f31.google.com with SMTP id 4fb4d7f45d1cf-6ae19319854so4580922a12.3
-        for <linux-rtc@vger.kernel.org>; Fri, 02 Oct 2026 08:02:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790953348; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UBDAYlZN267D90MeZabCWxg+624+l3nUs2RrUFcEEm9E/65eEn5Eyvu/5IV15rz9Kn
-         4d4yOIiZCrFBNmLAFOuQwuVff3YLrKDBZw8iqzO6lXT7lTXXgIqBBdt83oajKGk8OtWt
-         L7Rf6jZLZ6qg22lggKVqFiOG8dqF1p9RDmHyt2a4obsGDDvYiRfVj5MgCgVn1hy8hW3v
-         pUHoqTtvp3F3PYZ+ScZYePbhYhW9bnii32WSZ4gqVuzYRkd7wG/LgwfDdXulN+krca1f
-         vzNa4Is7fbv6LzDLvu76xqw4SCwwMoUIOFEG32UyPNkwEgUwXL4f45dOQnIOxdnwdkQj
-         lMag==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=SihQBaFSJZg5WqgvJRRoz+8MQZezDgv4EBMwrc0TG1A=;
-        fh=AV5OEbR65yOqlr3AJTvzlFCd3IG14L1fmuzOVLr818k=;
-        b=XFHdjqP4iKPDO2CGMxmw96VdF4sBb5VsPQz9IXIGZyIpJ0eBAMNxVEeYbfsldLmsfq
-         +EAUylk15x0lHmkcyN7jgfPkLPQ4vj6C+/7jYlR/mQNpVZ1zrIT+HSrsYpz0iMt1n0wa
-         9EyJErxnk7jWx0EB0hWK5Yb6UpOptxRj7uR/YO+wh8PjI74RdPG86jDzpT15ZlzSNN2R
-         YOD5jMpgKPqUOdm7WA7UZCXHIoQTq/UOO7r9cm/Z0YSMh2KKcaH9+o4PQ/YHpZhjUuko
-         SXCZW4gJ0pK8eLXYOnyrrn7gbT3mGOdyjytyT2zBwdwGP1QVmDOZ9PMh5n7FYF1/9XUX
-         VeCg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790953348; x=1791558148; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SihQBaFSJZg5WqgvJRRoz+8MQZezDgv4EBMwrc0TG1A=;
-        b=oI5JEaOYVpNqXqi3RHMRrNeLkMinI0GB3v4IVn1FcaHhTY9xxAXG+xkBf0cg6RJXGa
-         jJOTUcJA1OCPv1HHRbxecCc00gltY9BotipZGWr6wBI7jTU1PGr1GuxktePogRduh4Es
-         gJl2B2AUOY7vpQXKqnO7ElZ59lIpnZjbAnAF0CMARUYnEqgQnOXAoQkW/UGLgnT61Mu5
-         EcZe0Ot6hXr/8GihgenPYv3Qmr1rksKgLgnSMtZRQzeaAMMoX2XEpXqu5/O4QfeTEvvO
-         y7M/eqttl2LbvNwbBYoXKvnv86gbF8QsKqRqYtRen0oDlqgcX6M+G18vXIK5/baMPJb2
-         t+jA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790953348; x=1791558148;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=SihQBaFSJZg5WqgvJRRoz+8MQZezDgv4EBMwrc0TG1A=;
-        b=q85Lgd4H5vVM0hwQcpEreqEo2ofG5nHC4qbVX861sPbDWJn6/69kYudDygSDWlsqdP
-         FDyPUyw1xBNGO5WwaHs3N3YoXh0b6+wvu9Tyb1TKYJGv6G1qjCWx/s0AfMu5/nu4wo5Q
-         vLGf7U38ZPrePSsV6hmdu20bLGadTVcQr9dzZldjBBbSM5A7s4PMheQUe5rqmKxwaIkp
-         m0pgydPVL6gA0eSGY26azicWo+ddGyGZnWECUCyKc6MWYEuZpoh7SZasyXjXD9ifCyUJ
-         LxFVgk/dLor5PU+ADJGZtwvodWpGGFlRUjnkBHJsyaqAo10xSPULgGGPfZnfAbg1CRRa
-         8XKQ==
-X-Forwarded-Encrypted: i=1; AKwUvByil+NJXk1rxafq0o8nWT+uJLkVhaQ+vaLFHZUv1ohiYKTWBH1ePVOtm8IhTfilM3rutIj7qmEjOik=@vger.kernel.org
-X-Gm-Message-State: AFuF++lpIos4m4dfLL5AV+SG4jY8QSkqkXssQCzzKpWAR71V/SUhDoo3
-	NRrNMCB0fPtfIE7VWeLIRhZVsrB6k3cISu9PgrKqPlFUM89dXa10cGAfGTAMcLckmDyGiolKg7N
-	fys4OrR+370BForvfwyW3mgaij9Pod/w=
-X-Gm-Gg: AYBFou1GS1JX14OU8RT/rm7OTGs7nqHt//DoKvYcEFMqBciYGjftj5rtb+itHnXN35v
-	PVwng2mO8fjvXOc/NPFo0f1+7oNarq3VWdBcjKHPzNqtgRQnQPkugi+yB710Rjrn2F16gieM3gF
-	jExzrzg7cJA6YqTG4emfWnYy/Iypswe4x73J4L+q80VRGwbASH9TPB7xKBROZTrlEkYiAIZiFeS
-	xPsZHHf5wss3XzneijQ4fhjLu2rJVbzXeR+idWZkOXSWxx5X5nCz5gShDHm90cYvUJEzEpGfE51
-	jaFwoSZY7LQ2DPYCvHrqNbUyR810DpUiNBuCPD8AMAlgFg2wx1ROVWwDrqmb4K8KcnI=
-X-Received: by 2002:a17:907:3f1b:b0:c24:e1e9:69c with SMTP id
- a640c23a62f3a-c2e4a6bae9fmr245232966b.0.1790953348274; Fri, 02 Oct 2026
- 08:02:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b="J9gXLTzz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.net;
+	s=s31663417; t=1790954393; x=1791559193; i=wahrenst@gmx.net;
+	bh=ZnrV0+DPiVIACPvAr8Fl0xa8D1+L0vCJwCOpEsnb2ic=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=J9gXLTzzFHQ8yDM78hoVDo9Hx0E+j5kisj9MditHgNZVHhBtMCpRpZLtf1wFMISr
+	 7pbHTmztMXzRc0iBWxvE+O+6EMNBXTwgTOsJz3itUt5TRuQOkj69qjhzSP0AuWvvC
+	 CjOQyPMURh5BEWHzYFL+F8YXbd8zA8OvXL5OvEGKuEaHoEbUWBesmXPD1RQHtPsHO
+	 khmv+9ryLltyj4jM8NAsBlNXMAwgNAEa+lMljNZbvJ7xc191pQSUq8FG1BMeGo8Gs
+	 kpdOVD9lBtpXaT8teXSbGf1q6wIbV2i+3EmPpjy6g1iWs2kuwhhmcdd7EEeq7Gk9b
+	 zgvteTFrzPkDtXaPtQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1N2mBa-1wimpx2exI-012LJb; Fri, 02
+ Oct 2026 17:19:53 +0200
+Message-ID: <eae93f2d-913e-43ec-b882-26e33ed96183@gmx.net>
+Date: Fri, 2 Oct 2026 17:19:52 +0200
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261002102419.830595-1-sander.speetjens@gmail.com>
- <20261002102419.830595-4-sander.speetjens@gmail.com> <e49fdbd1-dbe9-4c06-9797-492db689d894@gmx.net>
-In-Reply-To: <e49fdbd1-dbe9-4c06-9797-492db689d894@gmx.net>
-From: Sander Speetjens <sander.speetjens@gmail.com>
-Date: Fri, 2 Oct 2026 17:02:16 +0200
-X-Gm-Features: AclHuK_lgAI88pm0RGCZ7CEgCgYo2LUQXG34CtS9xvBXG_tenjLpNr6v_B2O4bA
-Message-ID: <CAAOJLPES726fWp_6SUaE-S7wGVzG+msEL7RRL2uYbzW7OWbvcQ@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v10 3/3] rtc: Add Raspberry Pi 5 RTC driver
-To: Stefan Wahren <wahrenst@gmx.net>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, Jonathan Bell <jonathan@raspberrypi.com>, 
-	linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	pbrobinson@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+To: Sander Speetjens <sander.speetjens@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Jonathan Bell <jonathan@raspberrypi.com>, linux-rtc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-rpi-kernel@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, pbrobinson@gmail.com
+References: <20261002102419.830595-1-sander.speetjens@gmail.com>
+ <20261002102419.830595-4-sander.speetjens@gmail.com>
+ <e49fdbd1-dbe9-4c06-9797-492db689d894@gmx.net>
+ <CAAOJLPES726fWp_6SUaE-S7wGVzG+msEL7RRL2uYbzW7OWbvcQ@mail.gmail.com>
+Content-Language: en-US
+From: Stefan Wahren <wahrenst@gmx.net>
+Autocrypt: addr=wahrenst@gmx.net; keydata=
+ xjMEZ1dOJBYJKwYBBAHaRw8BAQdA7H2MMG3q8FV7kAPko5vOAeaa4UA1I0hMgga1j5iYTTvN
+ IFN0ZWZhbiBXYWhyZW4gPHdhaHJlbnN0QGdteC5uZXQ+wo8EExYIADcWIQT3FXg+ApsOhPDN
+ NNFuwvLLwiAwigUCZ1dOJAUJB4TOAAIbAwQLCQgHBRUICQoLBRYCAwEAAAoJEG7C8svCIDCK
+ JQ4BAP4Y9uuHAxbAhHSQf6UZ+hl5BDznsZVBJvH8cZe2dSZ6AQCNgoc1Lxw1tvPscuC1Jd1C
+ TZomrGfQI47OiiJ3vGktBc44BGdXTiQSCisGAQQBl1UBBQEBB0B5M0B2E2XxySUQhU6emMYx
+ f5QR/BrEK0hs3bLT6Hb9WgMBCAfCfgQYFggAJhYhBPcVeD4Cmw6E8M000W7C8svCIDCKBQJn
+ V04kBQkHhM4AAhsMAAoJEG7C8svCIDCKJxoA/i+kqD5bphZEucrJHw77ujnOQbiKY2rLb0pE
+ aHMQoiECAQDVbj827W1Yai/0XEABIr8Ci6a+/qZ8Vz6MZzL5GJosAA==
+In-Reply-To: <CAAOJLPES726fWp_6SUaE-S7wGVzG+msEL7RRL2uYbzW7OWbvcQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:dhcFYh6q7jwEjhJyjD/CHus3j939IC3Xqpy8txIDZN/pHrLo+eb
+ MRda3PnCZVayZiu361gf7rCXlvjyspyJXNisfgax6BbfgR5/OrWqs+WonOya4kIc+KHIAhL
+ 9XPwkHGcqdOxO50V6UBqdHeLY2gNgbFV3fIzqzT4HXllIX7qsdLhPW6gZfNvt2JNF05oSS0
+ hnkL9vJVw8sVS7te4ecCw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:0vAJkvHOTnE=;HK8kFeDjWwQ3n1iOQRBNQaV70gx
+ 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
+ azP6ZSL0LSMLqnpcIu79EwM8zXWsXdlry6g==
 
-Hi stefan,
-I was thinking of making the raspberrypi.c firmware a speparate patch,
-what would you think of this?
-Because it overlays with another patch
-(https://lore.kernel.org/linux-arm-kernel/20260919034840.28593-2-triet.hoang.dev@gmail.com/)
+Hi Sander,
 
-Kind regards
+Am 02.10.26 um 17:02 schrieb Sander Speetjens:
+> Hi stefan,
+> I was thinking of making the raspberrypi.c firmware a speparate patch,
+> what would you think of this?
+> Because it overlays with another patch
+> (https://lore.kernel.org/linux-arm-kernel/20260919034840.28593-2-triet.h=
+oang.dev@gmail.com/)
+AFAIK it's not your job to solve these conflicts and sending a separate=20
+patch wouldn't be a solution. The best way would be to get Triet's patch=
+=20
+series applied first. Markus had a objection, which i don't understand.=20
+So I asked him for a explanation.
 
-
-On Fri, 2 Oct 2026 at 15:58, Stefan Wahren <wahrenst@gmx.net> wrote:
+Best regards
 >
-> Hello Sander,
->
-> Am 02.10.26 um 12:24 schrieb Sander Speetjens:
-> > Upstreaming the downstream Raspberry Pi 5 RTC driver.
-> > This driver supports the custom DA9091,
-> > which is accessed through the firmware mailbox.
-> >
-> > Based on code originally written by Jonathan Bell <jonathan@raspberrypi.com>
-> > and Dom Cobley <popcornmix@gmail.com>
-> >
-> > Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
-> in general this patch looks good except a few nits, maybe wait for
-> Alexandre's feedback.
-> After fixing the nits you can add my:
->
-> Reviewed-by: Stefan Wahren <wahrenst@gmx.net>
-> > ---
-> > V9 -> V10:
-> > - Fix sign-off-by
-> > - Change enum to defines
-> > - Change comment in firmware
-> >
-> > V8 -> V9:
-> > - Fix whitespace in Kconfig
-> > - Move RTC regs to firmware header
-> > - Add a warn when getting the min or max charging values fails
-> > - Remove the unused return value of set charge voltage
-> >
-> > V7 -> V8:
-> > - Fix whitespacing errors
-> > - Use of_machine_is_compatible instead of strncmp
-> >
-> > V6 -> V7:
-> > - Move from u32 array to struct
-> > - Fix encapsulation as mentioned by sashiko-bot
-> >
-> > V5 -> V6:
-> > - Add MODULE_ALIAS, as mentioned by sashiko-bot
-> > - Encapsulate the mailbox data in le32_to_cpu or cpu_to_le32, as
-> >    mentioned by sashiko-bot. For good practice
-> >
-> > V4 -> V5: No changes
-> >
-> > V3 -> V4:
-> > - Fix Kconfig depends that disallows having Raspberrypi
-> > firmware built as a module while the rtc driver is built in
-> > - Remove sysfs
-> > - Add limits from firmware properties and check in rpi_rtc_set_charge_voltage
-> >
-> > V2 -> V3:
-> > - Move platform check to firmware and abort before registering
-> > a platform device if on another platform
-> > - Add a dependency on the Raspberry Pi firmware to Kconfig
-> > - Check return value of devm_device_init_wakeup
-> > - Fix property name
-> >
-> > V1 -> V2:
-> > Instead of the original driver, which was directly bound to the device tree.
-> > This driver is bound to the Raspberry Pi firmware device by creating
-> > a child device in the firmware driver probe function.
-> > The child device is then bound to this driver,
-> > which uses the firmware mailbox to access the RTC.
-> >
-> > A couple of minor changes have been made to the driver since it was originally written, including:
-> > - Checking if the model is a Raspberry Pi 5, as the RTC is only present on that model.
-> > - Using the new devm_rpi_firmware_get() and devm_init_wakeup() helper to get the firmware device and avoid leaking memory.
-> > - Using millivolts instead of microvolts for the trickle charge voltage, to match the RTC standard.
-> > - Instead of setting the trickle charge voltage to 0 to disable trickle charging, the property is now optional. If the property is not present, trickle charging is disabled, per the RTC standard.
-> > - Renaming the driver dt match compatible to "raspberrypi,firmware-rtc" to match the other firmware bindings.
-> > - Renaming the driver name to "raspberrypi-rtc" to match the other firmware drivers.
-> >
-> >   drivers/firmware/raspberrypi.c             |  24 ++
-> >   drivers/rtc/Kconfig                        |  12 +
-> >   drivers/rtc/Makefile                       |   1 +
-> >   drivers/rtc/rtc-raspberrypi.c              | 276 +++++++++++++++++++++
-> >   include/soc/bcm2835/raspberrypi-firmware.h |   2 +
-> >   5 files changed, 315 insertions(+)
-> >   create mode 100644 drivers/rtc/rtc-raspberrypi.c
-> >
-> > diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
-> > index 0aa322e9a2e7..f8c83c25eccc 100644
-> > --- a/drivers/firmware/raspberrypi.c
-> > +++ b/drivers/firmware/raspberrypi.c
-> > @@ -24,6 +24,7 @@
-> >
-> >   static struct platform_device *rpi_hwmon;
-> >   static struct platform_device *rpi_clk;
-> > +static struct platform_device *rpi_rtc;
-> >
-> >   struct rpi_firmware {
-> >       struct mbox_client cl;
-> > @@ -231,6 +232,26 @@ static void rpi_register_clk_driver(struct device *dev)
-> >                                               -1, NULL, 0);
-> >   }
-> >
-> > +static void rpi_register_rtc_driver(struct device *dev)
-> > +{
-> > +     struct device_node *firmware;
-> > +
-> > +     // Check if our model of Raspberry Pi board is from the 5th gen
-> > +     // as the RTC is only present on that model.
-> > +     if (!of_machine_is_compatible("brcm,bcm2712"))
-> > +             return;
-> > +
-> > +     firmware = of_get_compatible_child(dev->of_node,
-> > +                                        "raspberrypi,firmware-rtc");
-> > +     if (firmware) {
-> > +             of_node_put(firmware);
-> > +             return;
-> > +     }
-> > +
-> > +     rpi_rtc = platform_device_register_data(dev, "raspberrypi-rtc",
-> > +                                             -1, NULL, 0);
-> > +}
-> > +
-> >   unsigned int rpi_firmware_clk_get_max_rate(struct rpi_firmware *fw, unsigned int id)
-> >   {
-> >       struct rpi_firmware_clk_rate_request msg =
-> > @@ -305,6 +326,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
-> >       rpi_firmware_print_firmware_revision(fw);
-> >       rpi_register_hwmon_driver(dev, fw);
-> >       rpi_register_clk_driver(dev);
-> > +     rpi_register_rtc_driver(dev);
-> >
-> >       return 0;
-> >   }
-> > @@ -327,6 +349,8 @@ static void rpi_firmware_remove(struct platform_device *pdev)
-> >       rpi_hwmon = NULL;
-> >       platform_device_unregister(rpi_clk);
-> >       rpi_clk = NULL;
-> > +     platform_device_unregister(rpi_rtc);
-> > +     rpi_rtc = NULL;
-> >
-> >       rpi_firmware_put(fw);
-> >   }
-> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> > index 05b9233b9418..6dae4c069be2 100644
-> > --- a/drivers/rtc/Kconfig
-> > +++ b/drivers/rtc/Kconfig
-> > @@ -1999,6 +1999,18 @@ config RTC_DRV_R7301
-> >          This driver can also be built as a module. If so, the module
-> >          will be called rtc-r7301.
-> >
-> > +config RTC_DRV_RPI
-> > +     tristate "Raspberry Pi RTC"
-> > +     depends on RASPBERRYPI_FIRMWARE || (COMPILE_TEST && !RASPBERRYPI_FIRMWARE)
-> > +     depends on ARCH_BRCMSTB || COMPILE_TEST
-> > +     default ARCH_BRCMSTB
-> > +     help
-> > +             If you say yes here you get support for the RTC found on
-> > +             Raspberry Pi devices.
-> > +
-> > +             This driver can also be built as a module. If so, the module
-> > +             will be called rtc-raspberrypi.
-> Sorry for my misleading wording. I meant in this case 1 tab and align
-> the rest with spaces just like the other.
-> ...
-> > diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
-> > index 975bef529854..e13994d8281c 100644
-> > --- a/include/soc/bcm2835/raspberrypi-firmware.h
-> > +++ b/include/soc/bcm2835/raspberrypi-firmware.h
-> > @@ -75,6 +75,8 @@ enum rpi_firmware_property_tag {
-> >       RPI_FIRMWARE_GET_THROTTLED =                          0x00030046,
-> >       RPI_FIRMWARE_GET_CLOCK_MEASURED =                     0x00030047,
-> >       RPI_FIRMWARE_NOTIFY_REBOOT =                          0x00030048,
-> > +     RPI_FIRMWARE_GET_RTC_REG =                            0x00030087,
-> > +     RPI_FIRMWARE_SET_RTC_REG =                            0x00038087,
-> Please try to keep the value order. I know it's already messed up,
-> Gregor Herburger send a patch which already address the existing order
-> ("firmware: raspberrypi: reorder rpi_firmware_property_tag enum").
->
-> Best regards
-> >       RPI_FIRMWARE_SET_CLOCK_STATE =                        0x00038001,
-> >       RPI_FIRMWARE_SET_CLOCK_RATE =                         0x00038002,
-> >       RPI_FIRMWARE_SET_VOLTAGE =                            0x00038003,
->
+> Kind regards
