@@ -1,89 +1,170 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101382DF128
-	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 21:44:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF5E344D00D
+	for <linux-rtc@vger.kernel.org>; Fri,  2 Oct 2026 08:32:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790891064; cv=none; b=NVk8BeDNLUicH4UaJ7gTUB+kS+hEG2TLL+U3VQjXDU+XOwPtrPmNcbASUEmzEl/Wz3tWiHNuhDrZToxvgUSeP7q6rR3TBqWKDyLK9OOjT/+X+6gq2PmMpL1HFqPQ+9Zk2XaT4hI6mwB16GjnqLxSsyVwFx/IPZY2lgHLARNGL34=
+	t=1790929945; cv=none; b=UoIoD/R7YbRSeRqB2sUsNG99JKQuudd7kG9aDiM7ZV4Le7mUCH6llC0I3oQmMA2/HKuH6WAAbmE/FkSbhD5YlM0rK3G63sLwCT7TefBLjykYscq2YQFVYxAZCUB/FvoNzbHXbufHDj5FjL2qRCFCgnNvA+GsGbo+JgpNHhAEVOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790891064; c=relaxed/simple;
-	bh=9BXr/n4/ZySZqMqLaZ5551csECR9du4tOg4WTu3M5jo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fAtXcpJuKLyKMKMxnwckcvEbl9olGapALZjsEg68gQqFdpkZ0qstv1kPJsN9Kc5QVy7IpBd99VVEOGkY2cCSjhi69M1G+o9K4RHo5nLKMIh/9JdJL6XkZKKGaE8wiASmHViEkwch7ZHcrZWaP3Q8ogVI6OB+01VkYRrKcRwbX5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=R3tViBMn; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1790929945; c=relaxed/simple;
+	bh=rm25fPbnkxJO7HK0YmIVPZ5xoj6VizjjzCiLuZ4wrBI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=D3uGhPVS4TsEiqu1I1rYv2wBp/DbobbC1OFjsgnWrHIc03meSydrvGS4axptjArovxxsIzJfCBiEjlo5K5AizwXXeHzKkLAT8C39sQKjVfE71xjHceHOyi7HlXVEOj/R4aFp67S7oXDU0PPV1KvC3yfL/SkMqL/kF0E2SV432aE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=gOM8/Y/X; arc=none smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="R3tViBMn"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 2E3CE4E41AE6
-	for <linux-rtc@vger.kernel.org>; Thu,  1 Oct 2026 21:44:19 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id DD8E56035C;
-	Thu,  1 Oct 2026 21:44:18 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 91148103281F9;
-	Thu,  1 Oct 2026 23:44:13 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1790891054; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=6A4roYCJqLgyAdT2Le0ZQud4Oae8ijT0P6KR6Kzq30k=;
-	b=R3tViBMnrJuNTfgpIHJ1OOBh9i9gAx5hYqOXP99smMbbccvIj1feRb67+84o8ovILCksVe
-	/ha/HI25U+gyXSSpTGZ36yp964RHYKkTlNVNAJl4E8UrGwVW3j5U7fZNm/QI7Vl1aRh7mW
-	gAvycYm+B4rQrNosQHiRKteKyuM4tYPNrgME0Zn93NJHoiGTkyaB+Fvr2a9c94Npji+liX
-	+dE0a2E6k39iF1/hKxs8k0uRC09Tff9Cpik+VJVGc8unHZYPHUYyfae0reC4gctGVzfYbB
-	+TeLo2PVqjTKG9+lQJquvL0NZcIm/cgIN2squO8B7O4I650vitt2ZwiL2EoYFQ==
-Date: Thu, 1 Oct 2026 23:44:12 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Michael Walle <mwalle@kernel.org>
-Cc: sashiko-reviews@lists.linux.dev, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH] rtc: pcf8563: add SMBus support
-Message-ID: <2026100121441258ccde92@mail.local>
-References: <20260930113126.720555-1-mwalle@kernel.org>
- <20260930114005.2C6661F000FF@smtp.kernel.org>
- <20260930152513dd617b74@mail.local>
- <DLTJ9BRUJFAO.XKH3SG306MBJ@kernel.org>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="gOM8/Y/X"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e7bcb94d3so56004785e9.2
+        for <linux-rtc@vger.kernel.org>; Fri, 02 Oct 2026 01:32:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1790929941; x=1791534741; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/bn76FEyPAPXjCUYSZydeUnbTPozt7o+Jc45Ge3nFyQ=;
+        b=gOM8/Y/X8QSRBJid0XZciWOdROVf+RMhL25AJV8yolknw87gSL5S/vwYMGFwT7H5hA
+         qXGE9lSVooIes0Vc4UgAG3LG/BZ9xd4DNEI8yalLTbWdnK7zo9E3qC4sQh/WZsg4g+ew
+         TG7vz7RjF0PXObU4LdFW+flyGSQAjElyrsiKimXf/Q7jeIyF6NdrWu8uAkgciAuvZWUo
+         OBv+8tLd9uDIxz+IKaeOrk3a4nX0buiJNmpeFmfK40wb3okDczzjrmsX/z5dAlEIMczF
+         Kckecudd1heVZnr6LXfMIgW2ybIFHdyDhajsaW9wnpYlPuRYwPKB9CVqflmDPXEMfUBh
+         lKMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790929941; x=1791534741;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=/bn76FEyPAPXjCUYSZydeUnbTPozt7o+Jc45Ge3nFyQ=;
+        b=mOymJpuwVNyKnqwk2aa+QYu60x7cRXClWkszDMQIQxc0hNWN7qs5qnYF00yskg9cMK
+         kiZOEan/G2EnwBUCA7AxygOOoXxNO5+8Y5RFNlW/tZ8BvhpN5S+z35aPasXFBHsyEkoY
+         uILnQvR9uhhRZSMYOaAkjx49H3CrIhs2WcQKB0YNEOcSPOiaT/EzOk0lLq+grB5V5wzw
+         KgIqBFzXyWDy/TSeMfZ+qFFx2aexEKBFzT5vH2lNKVOD5KuO65m455lRklK4uKY4mLeo
+         CJEoOspUKLJNofrU+SwSdwVRiT3/oiQyyPfw0P4xjQDCiNKwbOW88aKEtIPEaXDxzNO2
+         Vs6Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxV60Q57L2pwp2C/rFviHUgKDC+LdXTJDGJJd/8piYDAxHVd9Bb+3IAeiRX1rli7XYeByoPCTXNijk=@vger.kernel.org
+X-Gm-Message-State: AFuF++mCfkFj+poZ/+xTrS0aAjRBi8Q07KaUQei5aiQsK/eiqihNyi3M
+	YMeGVONwkj9WWXUNMI/JPpAkCkF281pG5GJXONTO8cRx9d+E4vAM6RAoWAou6Ai38Jw=
+X-Gm-Gg: AYBFou1QPZX3h0pwkJpvzfZz5ROWtg5farY6fANMOT/8d6QUE4K2y4Js1NdcAX6cO4I
+	rOtzZC+VEdyytbu+jm/Jp+dKOMa1kx/qrGIia8yxsxw+yx8+z/m/rek1nd8dIkB/WD63jMC6hHM
+	YOyrbIuD1OEOc7zuUAB1NSgissBkKSS4PbvitSYxUB6k+bJNu+x2zzmri8TZsX3SmqZ6ZZsQpIf
+	r286zT2nlHllAwpdFdwYoz1UKQYWBCtJgGAs1WLyGkrKPowsf3pAES/fwdjsrq8SLf2TsXg5vJh
+	FSasHa3X8/4UzcNiBfvIDnWZtOvA6GNGQSYHi+sl1+Sm4y65/fjVld9ICCUA+9K5Se7A2QVZbHm
+	WHDV69Id7gb4qyLSnZKH1ENRbtAsDueoA1v7ejWeoqweDR7kYiB0loJa3Nr/sSa8vrDyiQg8RUq
+	bvS4K7ncMpTH0f3hGkv38TDnClB9kue4YhN3qwfS9W+0uiRJ0OfIYB1Z7HX21HfFD/lQ==
+X-Received: by 2002:a05:600c:4e41:b0:49c:e27c:6b10 with SMTP id 5b1f17b1804b1-4a0274f9bfbmr42577955e9.3.1790929940907;
+        Fri, 02 Oct 2026 01:32:20 -0700 (PDT)
+Received: from zovi.suse.cz ([2001:af0:8000:1409:193:86:92:181])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a03feed16bsm42507905e9.4.2026.10.02.01.32.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Oct 2026 01:32:20 -0700 (PDT)
+From: Petr Pavlu <petr.pavlu@suse.com>
+To: Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Ian Abbott <abbotti@mev.co.uk>,
+	H Hartley Sweeten <hsweeten@visionengravers.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Rudolf Marek <r.marek@assembler.cz>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Chris Snook <chris.snook@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	=?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Andreas Noever <andreas.noever@gmail.com>,
+	Mika Westerberg <westeri@kernel.org>,
+	Yehezkel Bernat <YehezkelShB@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Duncan Sands <duncan.sands@free.fr>,
+	Chas Williams <3chas3@gmail.com>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-watchdog@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	netdev@vger.kernel.org,
+	intel-wired-lan@lists.osuosl.org,
+	linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	linux-modules@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
+Date: Fri,  2 Oct 2026 10:31:00 +0200
+Message-ID: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DLTJ9BRUJFAO.XKH3SG306MBJ@kernel.org>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20260919-module-string-d64816f203d9
+Content-Transfer-Encoding: 8bit
 
-On 01/10/2026 15:24:07+0200, Michael Walle wrote:
-> On Wed Sep 30, 2026 at 5:25 PM CEST, Alexandre Belloni wrote:
-> >> Because of this fallback, when pcf8563_rtc_read_time() reads the time:
-> >> 
-> >> drivers/rtc/rtc-pcf8563.c:pcf8563_rtc_read_time() {
-> >>     ...
-> >>     err = regmap_bulk_read(pcf8563->regmap, PCF8563_REG_ST1, buf,
-> >>                            sizeof(buf));
-> >>     ...
-> >> }
-> >> 
-> >> The bulk read executes as a loop of separate single-byte SMBus reads instead
-> >> of an atomic transaction. Since each SMBus byte transaction issues its own
-> >> STOP condition, the RTC's internal register latch is released between reads.
-> >> 
-> >> Does this allow the hardware time to roll over mid-read and result in
-> >> corrupt time data?
-> >
-> > This is a valid concern, did you test?
-> 
-> Yes, did you read my first reply? I'm not sure how this is handled
-> in the RTC subsystem. Most regmap converted RTC should fall into
-> this case. How do you propose to handle that? Instead of removing
-> the check, we could just test for either I2C or SMBus block read.
+__MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+MODULE_PARM support for older modules" [1] in 2002-12. That change also
+moved it to the graveyard section at the end of linux/module.h
 
-For some reason, I didn't get you reply in my inbox. For the RTCs that
-are not latching, we do read the sec register twice. I guess testing for
-I2C or SMBus block read would make more sense here.
+Replace the remaining uses of __MODULE_STRING() with __stringify() and
+remove the macro.
 
+Apologies for the wide distribution. Acked-bys are appreciated.
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+[1] https://git.kernel.org/tglx/history/c/136839a1b4
+
+---
+Changes in v2:
+- Rebase on top of next-20260930.
+- Drop 'watchdog: Replace __MODULE_STRING() with __stringify()' since it
+  has already been queued on watchdog-next.
+- Split the hwmon changes into a separate patch.
+- Link to v1: https://patch.msgid.link/20260922-module-string-v1-0-c18766690185@suse.com
+
+---
+Petr Pavlu (3):
+      hwmon: Replace __MODULE_STRING() with __stringify()
+      drivers: Replace __MODULE_STRING() with __stringify()
+      module: Remove obsolete __MODULE_STRING()
+
+ drivers/comedi/comedi_fops.c                          |  5 +++--
+ drivers/gpu/drm/drm_fb_helper.c                       |  3 ++-
+ drivers/hwmon/fschmd.c                                |  3 ++-
+ drivers/hwmon/nct7904.c                               |  5 +++--
+ drivers/hwmon/sch56xx-common.c                        |  3 ++-
+ drivers/hwmon/w83793.c                                |  5 +++--
+ drivers/i2c/busses/i2c-kempld.c                       |  3 ++-
+ drivers/net/ethernet/atheros/atl1e/atl1e_param.c      |  9 +++++----
+ drivers/net/ethernet/atheros/atlx/atl1.c              |  3 ++-
+ drivers/net/ethernet/atheros/atlx/atl2.c              | 11 ++++++-----
+ drivers/net/ethernet/intel/e1000/e1000_param.c        | 15 ++++++++-------
+ drivers/net/ethernet/intel/e1000e/param.c             | 16 ++++++----------
+ drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_param.c |  7 ++++---
+ drivers/platform/cznic/turris-omnia-mcu-watchdog.c    |  3 ++-
+ drivers/rtc/rtc-ds1374.c                              |  3 ++-
+ drivers/thunderbolt/tb.c                              |  3 ++-
+ drivers/thunderbolt/tunnel.c                          |  5 +++--
+ drivers/tty/serial/8250/8250_platform.c               |  3 ++-
+ drivers/usb/atm/speedtch.c                            | 15 ++++++++-------
+ drivers/usb/atm/usbatm.c                              | 17 +++++++++--------
+ include/linux/module.h                                |  4 ----
+ 21 files changed, 76 insertions(+), 65 deletions(-)
+---
+base-commit: 6c2cb8b8b843d216ab549b678a0d8831c43153e0
+change-id: 20260919-module-string-d64816f203d9
