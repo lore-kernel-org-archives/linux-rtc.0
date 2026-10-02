@@ -1,60 +1,64 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E59DC471414;
-	Fri,  2 Oct 2026 09:13:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8152446C840;
+	Fri,  2 Oct 2026 09:14:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932407; cv=none; b=kdJILlBbK8ilbhDE2IMTIMrrjKs9POs6IKYe8ogyDar/vaRxQMWRuODiqCYxr+L9sf4c7xZU8h/y+tOESGMCzrXBK6iBBt4R9qS0yhUWCnGjrPduGvXR0R5nZsO7h8VjOswC4fibvVYbTcDhrKeBsjgyzEPtneEZBoToEzlGv9I=
+	t=1790932489; cv=none; b=XnC5lFqNvjWMFA1wEmLPNz7PS0RqdFWwfa99fAXtDN41dH4aLgUNg3YqVev2fO0F8uuahBjsQXRS4OZ4I+jyCoNu/t2jxHN+1TuO4MwKG3iVKgoid2wSi56gy4ASe6Jlv+zrA8/oDDATpBHgEnVfMLiO0s/gB1zhDrBa+R4EdBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932407; c=relaxed/simple;
-	bh=QRpAZYqVqlg5Htz3AeUWUDDDU3riACvPyTtW+I8GyTQ=;
+	s=arc-20240116; t=1790932489; c=relaxed/simple;
+	bh=//8fxdMsJh6/kGtDdgLOpr6PPslJ7sGIiQGx+p6a4P4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YTTSVeJk3Yyh3DFldqe1Xm2Z9LgU48xgwt2hxq9YtisBjsqQaK3WyEjkYUmGmz8tYo35zjCjfd8cHd4uGAAhWAH0tOfsvd1qzu1RA23Z+xYwchell4430YOuNuBZ5wBzYpJ4sR8kSk/vinr6CzCYhh6wFYettJdljVcNNyfxHh4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GIKSbjma; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=CBKD4B9MWLgDU2WHxBFdUqWLQke3Ho6IbvHCVEgGArpQe3oQyk7hRUH479zE77AdKFqCJ8C6+FFO+J3fKZ9cZjq0c9/Vr9AlO6r/HZo1Cn4/XQxvqKFKLmDvJ4ht7Q2xrbNrAsfwBbYXvtXlbqgTjsX/nMbvKJp0lafTJMGfZAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XpsmJPb0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GIKSbjma"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 783831F000FF;
-	Fri,  2 Oct 2026 09:13:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XpsmJPb0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB5ED1F000FF;
+	Fri,  2 Oct 2026 09:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932405;
-	bh=QRpAZYqVqlg5Htz3AeUWUDDDU3riACvPyTtW+I8GyTQ=;
+	s=k20260515; t=1790932488;
+	bh=//8fxdMsJh6/kGtDdgLOpr6PPslJ7sGIiQGx+p6a4P4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GIKSbjmaVf1rtLZ4wVt1Os0HpieZgM+vfjo8d0tcHCnyxdcRByCbeTNUu6SW/Z2td
-	 MpDHZt6xGbXk/ewCCX+AstKM5QGYfW8/H3h22RgagURCKzn2dLjOgwkp5/9Bz3wYrX
-	 0T4UV06derFgG7QYDEj8/kfkaFTGiF9L55QbJpSREgVdanVQ0Kz7YLs2NBCHHp7BL1
-	 AEwetJXGz4T3KH7NFO6+1ZNNFKFsXGIsDM0iAM1Bu017kPo3h6jGA3PCHn5AUVGER6
-	 HuwIG/9y7+d71l13BUhLozFt88NaoMay+TKRbuq0fbf0L92GkIFREETibf0itcSKh3
-	 piFcLhNek0R1g==
+	b=XpsmJPb0sdEKeIq/UesdQfhLDQk6S9g+A2bIgzdI/7FdfJJvc81oavlWgIC+Qa6dm
+	 2o9HtMRYIQQ/lLZ+hmkUI9dYaMPIFiHwkovmCzfugbzp+0ltHoDsg6H9DTk3DeuEKE
+	 nSaaj5gx5Dai2z9yIUsrzcntO7Dxep0Jr1ol4AUknDlRvPQ797z0Adld5SjYA0WvDI
+	 6KMEeiWciWSZQzrHE15B+5qz+JX0WChssvTgiCd4lKrtE+TY1ToAl9I0PXc0ybKi+I
+	 ZuByXYnVxLI6+aqVGWbrhmtHPn/lhqLRFAg+Gsgd/SjbhG8RO3ODIxvfeNSxquYXDG
+	 ZAUTnGj9psfnw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 3/3] rtc: Add Raspberry Pi 5 RTC driver
+Subject: Re: [PATCH v2 1/3] hwmon: Replace __MODULE_STRING() with
+ __stringify()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sander Speetjens" <sander.speetjens@gmail.com>
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20261001193703.734323-4-sander.speetjens@gmail.com>
-References: <20261001193703.734323-1-sander.speetjens@gmail.com>
- <20261001193703.734323-4-sander.speetjens@gmail.com>
+To: "Petr Pavlu" <petr.pavlu@suse.com>
+Cc: linux-serial@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org, dri-devel@lists.freedesktop.org, intel-wired-lan@lists.osuosl.org, "Petr
+ Pavlu" <petr.pavlu@suse.com>, "Alexandre Belloni" <alexandre.belloni@bootlin.com>, linux-modules@vger.kernel.org
+In-Reply-To: <20261002-module-string-v2-1-fc7438acaf4d@suse.com>
+References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
+ <20261002-module-string-v2-1-fc7438acaf4d@suse.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:13:25 +0000
-Message-Id: <20261002091325.783831F000FF@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:14:47 +0000
+Message-Id: <20261002091447.DB5ED1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 
-> Upstreaming the downstream Raspberry Pi 5 RTC driver.
-> This driver supports the custom DA9091,
-> which is accessed through the firmware mailbox.
+> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
+> MODULE_PARM support for older modules" [1] in 2002-12. That change also
+> moved it to the graveyard section at the end of linux/module.h
 >=20
-> Signed-off-by: Jonathan Bell <jonathan@raspberrypi.com>
-> Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-> Signed-off-by: Sander Speetjens <sander.speetjens@gmail.com>
+> Replace the remaining uses of __MODULE_STRING() with __stringify() in
+> preparation for its removal.
+>=20
+> Link: https://git.kernel.org/tglx/history/c/136839a1b4 [1]
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001193703.7343=
-23-1-sander.speetjens@gmail.com?part=3D3
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261002-module-str=
+ing-v2-0-fc7438acaf4d@suse.com?part=3D1
 
