@@ -1,125 +1,114 @@
 Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE438429037
-	for <linux-rtc@vger.kernel.org>; Mon,  5 Oct 2026 12:24:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0C648643C;
+	Mon,  5 Oct 2026 13:49:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791203083; cv=none; b=QzlOSy4VYrv4wmrINBh1kTW7SsKgfxu+AYGA4rYa6YT1nKN0VWl/6p/qzXmaVy6OAcgslQyuJxdSCf/534lzHDa75OEahOe2jTvcisn/JHOKOvW6FVn8cqZrTVOuOFNcI+17NH6dem7NbjQokii4xtQtwy21BRz1s7KC3BJAeoI=
+	t=1791208198; cv=none; b=kXlqgEXtp44lCe6nZ7yp2Ywy89DvJA155vMGpPmLeFY2Zxkc2pbC9xaFAqiJNUxGvLJDr3AJQ9+/AEe68kOCdTBKBeN5HdP+89INhnZlABgjIueDA9TIKdW5+5LENpSMdmaKztNZS3HkWCe9pYf2aUDXBf4nve5AH4F7R0pdgoM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791203083; c=relaxed/simple;
-	bh=qUOkumMnwJfFMMoM3tWFuUz3pIkaM5fDFt8gDbkFbvY=;
+	s=arc-20240116; t=1791208198; c=relaxed/simple;
+	bh=z8mXgqPbfnrHMfG4x/CaUWbgGlKztCRm8rTge2kpu24=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=elKtCwEN4ExMcMtXvvYBPjKhgR94gdiDKkyTKIHjPYz8oKrEll9yJN+/2iZI1T7Q9eyFgfAesbXRy95Wb9wIwu1eonjsCv5nd7FoV1TRDeN9HafT6XF3KYYAJO+G5TZNfcvT/7DIVmqPnqXkSZQAsBx4ynhvncLxAg/21FJZRV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=uve4j2ti; arc=none smtp.client-ip=185.246.85.4
+	 Content-Type:Content-Disposition:In-Reply-To; b=nwQ/VePAf2rPmoXF1yX411Yz8bIscPDgLbjz2c3cLDl6kohXwln47VAaexmMWjJjqKiHygA+F0wgtLIVb4bcivi2rMZIgEnyLMgEP6T6jNVEvYIZ7Iz8SNRM0CsHbPopHpjQjnoCIS8L4b2z3C2QA4Op7tQj8DCRg4u/0HYnCKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=OUgTN+wb; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="uve4j2ti"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="OUgTN+wb"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id EA1D44E41188
-	for <linux-rtc@vger.kernel.org>; Mon,  5 Oct 2026 12:24:36 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 922364E4117C;
+	Mon,  5 Oct 2026 13:49:53 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id BEF64601A5;
-	Mon,  5 Oct 2026 12:24:36 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 87C3F10330608;
-	Mon,  5 Oct 2026 14:24:31 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 60413601A5;
+	Mon,  5 Oct 2026 13:49:53 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E4DC010330663;
+	Mon,  5 Oct 2026 15:49:47 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1791203072; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=eSOfea8A8CadGj+B4+dbXmXA4L8v/ccUNrJQZSRutdQ=;
-	b=uve4j2tikFGqHz/gGZ4rE3ftBIxN6taEuixfv1OBNCDoY46jLdj2k2VQH7gz/HeJ6Kw0Ft
-	daYnPKuDtYa1bpkCfRnfa+w8gz92E+REpuKuF7yEH4stNtB7PyOYTo1QV5uTdElTixDZs1
-	47FJ6s53yMkF72PuDjh9ZIL9FdPuFgIYwE/bf1erg5fwOVeEdScNXYumi9KsAs0KsX8q7z
-	NN4yj+cAoCjFz3BdeaIwiJkgT6Zvxj2QXDRwNv8vf9V0sGlSt5yVT1S7yRPpDlJV49PWCk
-	VA50zG9rvEI9GeQafT3EbLJ6Gk+ocq9A8wUdoqBZl60wnuP/wNRv4ypz6CeIcQ==
-Date: Mon, 5 Oct 2026 14:24:28 +0200
+	t=1791208188; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=8vA+I9C9/mU7kAI15YDstDuXZm6iy0kIk5yK3NXlhgw=;
+	b=OUgTN+wbXTbIxIDJm7T8feK2nR+kOoXoQGzSHWiTQc0lYbJ+hDsF7ZmEfH7FG96s7xsHjN
+	w6zAzq4cP5/BmkSCqh/sFLuMkFOFiq7+QNJwbHrOVl4Up3V8h2n3V7pjQU7YkTlSZ55Qxi
+	rrVpXR6psvEUeXs7O84DX/62DJL1yvw6YrE0cXjVzKxJsN/mBTTTTNsxRP3EYHGVefJ5WU
+	HEM5cj4dtKzgKSA9eW/pf85pXUZeRoiULwVHFvZTa5uORabLYpKgXFW+KYiW4lZQIjcI90
+	k4oZ+hMZU15Hs1V2glYhwXBr/E17z0146beA+GCMdB1bF2hElNpk0pYh31UREw==
+Date: Mon, 5 Oct 2026 15:49:45 +0200
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2] rtc: ftrtc010: fix cast
-Message-ID: <202610051224282c785760@mail.local>
-References: <20261005111502.159855-1-alexandre.belloni@bootlin.com>
- <20261005112417.A42BE1F000FF@smtp.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: class: Make the time32 hctosys limit configurable
+Message-ID: <202610051349454ed35b56@mail.local>
+References: <20260914212537.1452-1-kmehltretter@gmail.com>
+ <7c020979-cf03-4ece-a7d4-b1475d1400c3@app.fastmail.com>
+ <aqnHDxRIBncNH6qr@gmail.com>
+ <59ba6707-c5d5-4fd8-9200-f910e61d9232@app.fastmail.com>
+ <aq3R5QnCpu_fOq8g@gmail.com>
+ <5515c266-f9cd-405f-b7a8-1ec45d9d902a@app.fastmail.com>
+ <202609222137059e745547@mail.local>
+ <d7825e87-93f2-4444-bf3b-45a4127de7a9@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20261005112417.A42BE1F000FF@smtp.kernel.org>
+In-Reply-To: <d7825e87-93f2-4444-bf3b-45a4127de7a9@app.fastmail.com>
 X-Last-TLS-Session-Version: TLSv1.3
 
-On 05/10/2026 11:24:17+0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] rtc: ftrtc010: 64-bit promotion breaks negative offset wraparound
-> --
+On 24/09/2026 17:07:30+0200, Arnd Bergmann wrote:
+> On Tue, Sep 22, 2026, at 23:37, Alexandre Belloni wrote:
+> > On 19/09/2026 11:16:29+0200, Arnd Bergmann wrote:
+> >> On Sat, Sep 19, 2026, at 02:10, Karl Mehltretter wrote:
+> >>
+> >> config RTC_HCTOSYS_TIME32_LIMIT
+> >> 	bool "Reject RTC dates after the 2038 cutoff"
+> >> 	depends on RTC_HCTOSYS && !64BIT && COMPAT_32BIT_TIME
+> >> 	default y
+> >> 
+> >> to completely disallow it. I think we should wait for Alexandre
+> >> to comment here, as it's his subsystem in the end and I'm sure
+> >> he has an opinion on the matter.
+> >> 
+> >
+> > I gave it some thought for the past month as this is an issue that is
+> > regularly brought up.
+> >
+> > The first thing is that this is an issue that disappears as soon as
+> > RTC_HCTOSYS is not used. RTC_HCTOSYS has plenty of issue and one of
+> > those is that is doesn't actually work well with NTP. There is a fix for
+> > this and it would slow down every boot by a second or two.
 > 
-> commit 2ccc1a04cd44cfcc28a0e0150aa880f011201f5c
-> Author: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Sure, simply disallowing RTC_HCTOSYS on any build that contains support
+> for time32 userspace would also avoid this.
 > 
-> rtc: ftrtc010: fix cast
+> > The main issue is that systemd decided to mandate RTC_HCTOSYS when
+> > raising up the issue, the answer is that it is unacceptable to have logs
+> > that are not properly dated until userspace sets the system time. But
+> > letting userspace set the system time simply solves the issue as it will
+> > always set a time that it can handle, even if not correct.
 > 
-> The hour and minute registers will rollover before the multiplication to
-> convert to a number of seconds can exceed an 32bit integer, there is no
-> need to cast them.
-> 
-> Link: https://patch.msgid.link/20261002105946.8rdteIpO7uWGEcTlS65F8iSi4gsRoXi2kgq8FTSaDPA@z/
-> 
-> > diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
-> > index b29c96be40f4a..c66d4a85f23c1 100644
-> > --- a/drivers/rtc/rtc-ftrtc010.c
-> > +++ b/drivers/rtc/rtc-ftrtc010.c
-> > @@ -72,7 +72,7 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
-> >  	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
-> >  	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
-> >  
-> > -	time = (timeu64_t)(offset + days * 86400 + hour * 3600 + min * 60 + sec);
-> > +	time = offset + (timeu64_t)days * 86400 + hour * 3600 + min * 60 + sec;
-> 
-> [Severity: High]
-> Does this 64-bit promotion break the negative offset wraparound?
-> 
-> In ftrtc010_rtc_set_time(), if the target time is set backwards to a value
-> smaller than the elapsed hardware counter (time < hw_counter), the 64-bit
-> subtraction yields a negative offset that is truncated and stored in the
-> 32-bit offset register as a two's complement value (e.g., 0xFFFFFC18).
-> 
-> The previous implementation explicitly performed offset + hw_counter in
-> 32-bit arithmetic, allowing the negative offset to correctly wrap around
-> modulo 2^32 and yield the correct time.
-> 
-> By removing the outer grouping parentheses and casting days to timeu64_t,
-> the entire addition is promoted to 64-bit arithmetic. Because offset is an
-> unsigned 32-bit integer, it is zero-extended to 64-bit rather than
-> sign-extended, which prevents the necessary 32-bit wraparound.
-> 
-> As a result, the negative offset is added as a massive positive value
-> (e.g., 4,294,967,295), causing the RTC read time to leap about 136 years
-> into the future. Setting the clock backwards triggers this logic error,
-> resulting in corrupted time reading.
+> Not sure what exactly you are suggesting here. Do you mean we should
+> try again to address this in systemd in order to no longer need
+> the RTC_HCTOSYS hack?
 > 
 
-offset is unsigned and is never going to be negative.
+Well I guess we'll get the same answer that this is too late in the boot
+process.
 
-> [ ... ]
-> > @@ -92,8 +92,7 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
-> >  	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
-> >  	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
-> >  
-> > -	offset = time - ((timeu64_t)day * 86400 + (timeu64_t)hour * 3600 +
-> > -			 (timeu64_t)min * 60 + (timeu64_t)sec);
-> > +	offset = time - ((timeu64_t)day * 86400 + hour * 3600 + min * 60 + sec);
-> 
-> [Severity: High]
-> Does setting the time to a value smaller than the elapsed hardware counter
-> generate a two's complement negative offset in this 32-bit unsigned register?
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20261005111502.159855-1-alexandre.belloni@bootlin.com?part=1
+My proposed solution is to have a way to tell the kernel what size of
+time_t userspace actually supports as there is no way to automatically
+detect it. That's why I was thinking a kernel cmdline parameter would
+fit. This would allow us to be 100% correct.
+
+Else, I'm fine with your last proposal. I guess this would leave us with
+two unhandled cases:
+ - 64bit systems with 32 bit userspace that you said we don't want to
+   support
+ - 32bit systems with 64bit time_t userspace that would not work
+   properly with the default configuration.
 
 -- 
 Alexandre Belloni, co-owner and COO, Bootlin
