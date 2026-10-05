@@ -1,77 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9706540961C
-	for <linux-rtc@vger.kernel.org>; Mon,  5 Oct 2026 08:57:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7E5D36A342;
+	Mon,  5 Oct 2026 11:06:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791190673; cv=none; b=uc2gdSKC4apqLKEEbVLsxtKPK7M1n8kHz+yhQqRAJE30rUgK9NEALzGxaSaNJfPJvhx5UvARutYiodzKcIA+1CVGM1d3pW3kQLCXzTzbfcifSGXA+J2oT2psoiez1uoKx53NvtdvKwRUSL/pxbeR6MfdCFJHexEfQD0PT2HaUv4=
+	t=1791198421; cv=none; b=f9cmF4UR5d+muY3IE1IcHevsgKr0VcxZX3WXvEEv3Pvw+XPA0c53cpg/Erl63lcIA/axzKnlMGffjBd566Pb/VdJHwiukugBkKgksYPduwJ6QkeUuEAyvRT6Qk9VcNkiws+2vyxfjU+odRCgVMHlP6w584/qbbORe/eow9zIj8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791190673; c=relaxed/simple;
-	bh=spS4amaSUghfoWNYKzXULKMkyw8l6kQ3ygu1F5jo+UI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XtBeHw1TOJk2A9TBE/S8Wzyj0aiaelD/LsxbKDCJ2KpeIkqtbfKsbTVH6lJwx2cyFzeh1PEc3KRYGrni3w2dR7tea3U351Ih1gf9UrJomKh3FF9Rp/8SkLDdbe2DJcD7DtzV6y36VJ6ZHfhPl5CLjfgpucuIO/ubRsp31hX0kYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AJFklZvA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791198421; c=relaxed/simple;
+	bh=p4kwr6/czL7IDjJjVwIip9/nH/NY0jxDS30CoWJV7DM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=akrW8shERcyjrn8e9PYHkF6Wn/xgroOvOMOK7AWc63NYVK1p8MQ5lVUksMZ/9RHOBqelpG0/hidOUgayXZ//tQQ95F4Nf/12fcFmfJoZjrFABKNPY5hTygpCG2GccoKv2sppL0Bw+5HX/nC3AJMhM79+FvBfgWDUhaVyK7RkuGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=wvRly7Fd; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AJFklZvA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B0CC1F0089B
-	for <linux-rtc@vger.kernel.org>; Mon,  5 Oct 2026 08:57:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791190672;
-	bh=spS4amaSUghfoWNYKzXULKMkyw8l6kQ3ygu1F5jo+UI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=AJFklZvAYuO3wcG1bgghY0fve+Nn3UXIumMwC/7HczhV6TLIhrWip4V1Oz+G/qb8l
-	 S2x4JdLpXyBRYiPNLidktohdQ52Ug8rahaAcHyIs6o/FemWl75ts4lSk5hRGjbWCq5
-	 aPvAamnklx0KtRWOnUB5gYNAovHQ8fci9DyfCEwrZaUnXfKT9d/VwNQO+KqwGKmdlH
-	 Qix1TTJ2CJuPSSyyKMBuy9nF1vX7R6eZ1oade4DuedaJcxGXmSONRy+tElslyubpQo
-	 zoNFptN51mHNBUEntO7QkDIltnnVXi8NYfmLUfcwCdyVRbf+LPZLMSNdxKaW4RAkib
-	 y7gLP+XyANzlA==
-Received: by mail-lr2-f35.google.com with SMTP id 38308e7fff4ca-3a77da28307so14163391fa.1
-        for <linux-rtc@vger.kernel.org>; Mon, 05 Oct 2026 01:57:52 -0700 (PDT)
-X-Gm-Message-State: AFq9FYI0yTZAxaMnP78A4eh3HMMe3RADeFcKCoVj2RfFyKBNd6dCOLJn
-	I0wLI+E6yzum1Y8cc5zKPJQ5mzO4IaAgOsR0glLESSCdSMH9tYi1sR+QxmpvHTRAjIzHuN7GWEu
-	N6RnWSMWsCaWMX5Z6ro2vSaBcpRFJx58=
-X-Received: by 2002:a05:651c:15c1:10b0:3a9:8546:ee13 with SMTP id
- 38308e7fff4ca-3a98546efc0mr5211731fa.19.1791190671011; Mon, 05 Oct 2026
- 01:57:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="wvRly7Fd"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 000B91A1165;
+	Mon,  5 Oct 2026 11:06:53 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B24A0604FE;
+	Mon,  5 Oct 2026 11:06:50 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id E28E1103306F6;
+	Mon,  5 Oct 2026 13:06:47 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1791198409; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=RXTcGIh1GIa5MvGd8v4blk9lxYWyhyiXSKLxHHGBdAc=;
+	b=wvRly7FdIZWbU9n/9R5coztTXPA22gW0b2ROqePniiOFhU0HM62PP8UN6nRppRHc0u8WfQ
+	w0seR/VPdYCWu57lM8RaLuRCHmjmMmecVLrOG02keo89iqY9zeihHWMFMs0eDyiC3M66e6
+	qkY8/4faWVOFyhmzCkgIo3Vr+LknDDwuE5jouglJWB//aHMFe9VBhzZX3BXSu+7h5vtk9Z
+	BkoGIdRI1DiokQY7k/sRJAdrzudCIZ7k0CQ+N8UTwZigXjbLq6GrsREDUBMCGwH+apgGn8
+	pwXl1QeS8V9r5kwb7rQ+529Gq1K8vCnVmj+rRrsW6arcQUJ0kus+uWXiAwU1tg==
+From: alexandre.belloni@bootlin.com
+To: Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Dan Carpenter <error27@gmail.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] rtc: ftrtc010: fix cast
+Date: Mon,  5 Oct 2026 13:06:37 +0200
+Message-ID: <20261005110638.156559-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261004220258.401706-1-rosenp@gmail.com>
-In-Reply-To: <20261004220258.401706-1-rosenp@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 5 Oct 2026 10:57:37 +0200
-X-Gmail-Original-Message-ID: <CAD++jLnMiTqjncmFLR8E4yE8NPcCCmi2sDOviePSLf+ugt_wAA@mail.gmail.com>
-X-Gm-Features: AclHuK848ZkRY_JRmLDz5eE9XGs4RhJPpRikOgh1I8H5_6NBEypIA9x9lrT6SVA
-Message-ID: <CAD++jLnMiTqjncmFLR8E4yE8NPcCCmi2sDOviePSLf+ugt_wAA@mail.gmail.com>
-Subject: Re: [PATCH] rtc: ftrtc010: use devm_platform_ioremap_resource()
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-rtc@vger.kernel.org, Hans Ulli Kroll <ulli.kroll@googlemail.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-	"moderated list:ARM/CORTINA SYSTEMS GEMINI ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, 
-	open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon, Oct 5, 2026 at 12:03=E2=80=AFAM Rosen Penev <rosenp@gmail.com> wrot=
-e:
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-> Replace the open-coded platform_get_resource() plus devm_ioremap()
-> sequence with devm_platform_ioremap_resource(), and propagate its
-> ERR_PTR() directly.
->
-> This also reserves the MMIO region. The only user, gemini.dtsi,
-> describes a single 0x100 window at 0x45000000 that no other node
-> overlaps, so this introduces no conflict.
->
-> Assisted-by: LLM
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+The hour and minute registers will rollover before the multiplication to
+convert to a number of seconds can exceed an 32bit integer, there is no
+need to cast them.
 
-Looks good, thanks Rosen!
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://patch.msgid.link/20261002105946.8rdteIpO7uWGEcTlS65F8iSi4gsRoXi2kgq8FTSaDPA@z/
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-ftrtc010.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/rtc/rtc-ftrtc010.c b/drivers/rtc/rtc-ftrtc010.c
+index b29c96be40f4..5332451bdaa0 100644
+--- a/drivers/rtc/rtc-ftrtc010.c
++++ b/drivers/rtc/rtc-ftrtc010.c
+@@ -72,7 +72,7 @@ static int ftrtc010_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	days = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+ 	offset = readl(rtc->rtc_base + FTRTC010_RTC_RECORD);
+ 
+-	time = (timeu64_t)(offset + days * 86400 + hour * 3600 + min * 60 + sec);
++	time = offset + (timeu64_t)days * 86400 + hour * 3600 + min * 60 + sec;
+ 
+ 	rtc_time64_to_tm(time, tm);
+ 
+@@ -92,8 +92,7 @@ static int ftrtc010_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	hour = readl(rtc->rtc_base + FTRTC010_RTC_HOUR);
+ 	day = readl(rtc->rtc_base + FTRTC010_RTC_DAYS);
+ 
+-	offset = time - ((timeu64_t)day * 86400 + (timeu64_t)hour * 3600 +
+-			 (timeu64_t)min * 60 + (timeu64_t)sec);
++	offset = time - (timeu64_t)day * 86400 + hour * 3600 + min * 60 + sec;
+ 
+ 	writel(offset, rtc->rtc_base + FTRTC010_RTC_RECORD);
+ 	writel(0x01, rtc->rtc_base + FTRTC010_RTC_CR);
+-- 
+2.55.0
+
