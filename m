@@ -1,95 +1,56 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9404131B131
-	for <linux-rtc@vger.kernel.org>; Thu,  8 Oct 2026 20:20:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F2023E0C66;
+	Thu,  8 Oct 2026 20:23:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791490806; cv=none; b=D388dqqjZei2n7vsF2B2hX6bN3VWw0/v8g7pHT5yW6BUMxOWJJ6twvrsy+3qZRNe4cSlgqJdTZ67N/ob/g5OzSg0EWQyjNvDfnnhxd3XmmN0CsWA3YxA5LmtIwdHF1JeNhqZXXOiPhcdOOUSAtVOmPc5JDwFTUrAi8V96IoYqC0=
+	t=1791490999; cv=none; b=bxMBy8jdjdUGtzEYFtbrZW/9wfgEctbcOvgeFaKucGjGQfJgBcwba60COFuzlyhlIbFBJiPX3pmQk95TO3W3y8Cm15751IGtHJGRmZBSsfprZ6ejyhL8sc7cAgWq3c7zLEKIoWsNokFUZd/xK1sikOrxoD00sMx8Qjpw8U2BC+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791490806; c=relaxed/simple;
-	bh=VcW5lX/0GFj4wZ6y5LNa7QfU2FOTMYFQ9Aapc+Wl1B8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rfQz3sUaBxBc5zTU73RtRAoxWSNGnMfTokMIxwDIhP17MczlXOHE4KN2s5f3DVo3gQp5yTAKkKH61YB6lTDG821rIH5HAu4ThONwEG/BGfpHkRUR/6WulmO1lzETJ6BXAv4bo2QsLcjt+F/DDu/gVCOwFDQsOYXTxfBBJ4zQc1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=eDewcVAp; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1791490999; c=relaxed/simple;
+	bh=ODRSas5JN4Tnq7ib7LRLXX0AugPfAlv4Q11N+OaHLjI=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=UwwSfORmPN06ZEN7y3M4HYeTJHoGxedsrNrRCFmmS/jYDtIHX+ZgnszQV6LdVlnsj3GFqMtSex37hXTRilLyoIGHsDljT5LInjMLzQc5t2EBsifH1UdisHwCRN4X11dVpJ4QR2KURhfJTdOs3b92aJG62gf3mGoWq7tp5SCmip8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RycuIvEH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="eDewcVAp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=gIHd/cEMLbu2CQ
-	6QuVPfO/9MhsaaKq2EpnBNUxmUOuA=; b=eDewcVAp+Asle+9iEHW2ujSaLrvgcw
-	dmpoxKmQExy1KK3N4QWPr6pJiRc79mvImAqQHvJdXV44Wgz5vdM/2BBnN+dlF8KC
-	3tylP8i4KLXF8TxO9fuXV8ps/O0jHRslbrsG7VpLVt3WVS1zilIg5dopenwMxaZk
-	YZa/CG7ScScJHhO7RF4sGfS9bBVNb5RZgubkgBs6EfjOOvoWlNxzs19kGi9kkTxa
-	UeRK+NtMUQRhdNC86iGGyEQodV+af7zIbbnv0cvtC/TbHr6f+QrWMA3AY1jeZivv
-	NIiI07jx3/Wj2Po7HoLP8vRKnvfuU2p98BH1ucU0grxySoPBeFg1sb3g==
-Received: (qmail 883508 invoked from network); 8 Oct 2026 22:20:00 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Oct 2026 22:20:00 +0200
-X-UD-Smtp-Session: l3s3148p1@62DL9FldUrbDesiu
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	linux-rtc@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: [PATCH] dt-bindings: rtc: rzn1: add resets property
-Date: Thu,  8 Oct 2026 22:16:53 +0200
-Message-ID: <20261008201953.34307-2-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RycuIvEH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 311DE1F000FF;
+	Thu,  8 Oct 2026 20:23:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791490998;
+	bh=ODRSas5JN4Tnq7ib7LRLXX0AugPfAlv4Q11N+OaHLjI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=RycuIvEHn4JHAeHXTXuL4/SkLaccXPodC7d+r2yKOdEQ3VL1D0JkkEZTacFEp5orp
+	 UUPFmx66X2Not0mqoakB+mI5RbDGKR0mauYClRXFdn+2LU6F+rFs1nojthFrLcXp+f
+	 1pYPFMJeWimB0KxzfHtIsEuxxsCQMuT3I0spg6bkQzJLOtli4OAICXpYg82sWyJm6p
+	 EcT7VPfX1pvxJLOCpu2NFZds7coQNMnJFbTsvA+1P/1W04AF/dbjcG9ypO1WS1/s9r
+	 K6Oi2mURF4B0ulblUxbd55eD2FqXhHxBRIxkM6B4Lm7P1AR1osHPefwJaR+GF39ZrF
+	 NNbFycpu966Ew==
+Message-ID: <sashiko-outbox-164570@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] dt-bindings: rtc: rzn1: add resets property
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>, robh@kernel.org, conor+dt@kernel.org, wsa+renesas@sang-engineering.com, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20261008201953.34307-2-wsa+renesas@sang-engineering.com>
+References: <20261008201953.34307-2-wsa+renesas@sang-engineering.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 08 Oct 2026 20:23:17 +0000
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The RTC on R-Car X5H does have a reset unlike the other versions.
+> The RTC on R-Car X5H does have a reset unlike the other versions.
+>=20
+> Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Passes both DT checks. Kind of fixes 3b3fdc9fd40d ("dt-bindings: rtc:
-rzn1: add R-Car X5H support") in -next, but we don't use Fixes: for
-bindings, or?
-
- .../devicetree/bindings/rtc/renesas,rzn1-rtc.yaml          | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-index b448725671ec..5a869e6c0ae7 100644
---- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-+++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
-@@ -51,6 +51,9 @@ properties:
-   power-domains:
-     maxItems: 1
- 
-+  resets:
-+    maxItems: 1
-+
- required:
-   - compatible
-   - reg
-@@ -85,7 +88,11 @@ allOf:
-       properties:
-         interrupts: false
-         interrupt-names: false
-+      required:
-+        - resets
-     else:
-+      properties:
-+        resets: false
-       required:
-         - interrupts
-         - interrupt-names
--- 
-2.53.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008201953.3430=
+7-2-wsa+renesas@sang-engineering.com?part=3D1
 
