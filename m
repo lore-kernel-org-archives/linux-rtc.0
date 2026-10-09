@@ -1,93 +1,122 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2AD23BBFDD;
-	Fri,  9 Oct 2026 15:07:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A74AA361651;
+	Fri,  9 Oct 2026 15:36:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791558424; cv=none; b=fnDp9yROX12bOQ4hiRWcXKBezUBKcUVlwdO4IHJHnc6Ruby4HMIjjA97TsZ8xzMoAXaQCXVMxsOHTOZvEMp71ZvqM0Rf0z35azi82F5MFO/fcE3AWwugmd9Zwm+bM+aoH9XIvu1Ae3/ItlG7Ch0My6V0Kvmpfynkrbm3CtDLYAw=
+	t=1791560213; cv=none; b=Oyjt+cWyzR3A16+byfZyLdLKwdxRwPYIRVBEgOJt9N0b+rEx1CjD3ruhychHbnDhnHr4cw5SMddqfxtMgb9PMYybmhxkeixPiMDvQ4daj1KXTvI+wOVSSCjH8yR9DxZ+9+A+d9RXUvXqZb+s4yGhP2TqrazNpwkowRGQOa62ydw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791558424; c=relaxed/simple;
-	bh=syDXF0AioumUFpHMrKgYwR5vPezhWmd4BlaBPHWX4BI=;
+	s=arc-20240116; t=1791560213; c=relaxed/simple;
+	bh=84hAe/1TSuKK66QqhSZq5idGiTsPqshLum2RSxTO+RE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SCgv6dqB/q7Xddi0XJZbrPZ95VT2DMiR89OH8RWbfqTqApHZs4xU5B4pF7yTAXWlITLJfpSGQVZHNhqVBkwG8Hj2kqokMaKUQKl1qRy4Ox5p6+7UftrA0YQ2VyhsvTKga3T3Ry/1jDymBuedgqdYstl9uVIkKeOkhGY+6E1BNWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=wFc7OAmY; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=e6/tB0hqw9ESlWzWXS6eHWog5rr3EDdMxKHMr9YmpxfPzOo6OFLjS+XeDtAtOLlbyt8bVUsCyByR3LMlob7xly3ylcrtUg8sXNWZ5wA7zzFqqrjqcq3o5ynePG5jAkhh3nEyi+tpbAbArnTJeXna5P5tTZbjVceMNpAacTPVbhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lXHIK1/r; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="wFc7OAmY"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id EC8781A11AF;
-	Fri,  9 Oct 2026 15:06:58 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id B575E60754;
-	Fri,  9 Oct 2026 15:06:58 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7B5ED11D708AF;
-	Fri,  9 Oct 2026 17:06:56 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1791558417; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=vB6F8gVRv6cs22SSGpo1/RFu98lnOw2jLJ3nHA3QKNU=;
-	b=wFc7OAmYHc66rvEuPys7D9osHIaK7zW3U1iLjK2Zikib9x88BNkMsHPpbMkenaReakBAVq
-	Cqy9Cz/05xniWrIcCRo7eBQp8wrs6jA9aR2tuviDBY0LLSY051XlhtA9AqPYK5B+mlw2Bx
-	V097LOffWzTlS+mPEzXf+olUoDk5wC+/ktFfaFrp16oxRQfyEqRny114juJYR/E0nZN/le
-	JBlIyoDJXZj18kGV2q40Z6CyM578wz3wbAXjw+lcyRFd8j5GhtACvHwt5i9DHHskpuimhY
-	KY3oZnj7NPEXGB/X4hBnRDKW6yJn/KwRylrzd5hIazpgCN6oKHlwwlyKwLyzIA==
-Date: Fri, 9 Oct 2026 17:06:53 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-	Antoni Pokusinski <apokusinski01@gmail.com>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 0/9] rtc: abx80x: add support for abx81x
-Message-ID: <179155837260.478260.9249464271707316286.b4-ty@b4>
-References: <20260916205138.16771-1-apokusinski01@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lXHIK1/r"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D991F000FF;
+	Fri,  9 Oct 2026 15:36:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791560212;
+	bh=qEJJ+7mD4Baz1SpzT1AGFxKG4IHPQFBm1jwu2Ji5JI4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=lXHIK1/reBVeGnlsaBujeu/7RMEPkWbJe/SMH1OVqOCq2Ud4LFiMx9eeXAxmKI2/j
+	 Y7o5bxgp+2EhsNGgg3VdYYfFC+JfLUufUmRSVUvyCMnlZRvjqvd+6VAWTiTDOyz/mB
+	 zwzothjRfR6Ee+KzTSp28t7mKFw63nIXMG78+zzUNz+EIDd+UmB4Nv4RLj4goJxEKQ
+	 kVl3I8TQx/Tars23dqUT4DTrMN7z3L6QPSJ13Y2qCFNFBrcanAh3kw3Zui51frsSPD
+	 FHljlBVJf1p7a7tnfQP09iQPr2yHxypWocM7dakpt6YIvkw1JUnY0+/GUGEuz/q10D
+	 ccVwz0il9hUng==
+Date: Fri, 9 Oct 2026 16:36:43 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Magnus Damm <magnus.damm@gmail.com>, linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: rtc: rzn1: add resets property
+Message-ID: <20261009-7b4b54034fafb7ad60ea917d@squawk>
+References: <20261008201953.34307-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="FWfzAmcVSQzNSq7T"
+Content-Disposition: inline
+In-Reply-To: <20261008201953.34307-2-wsa+renesas@sang-engineering.com>
+
+--FWfzAmcVSQzNSq7T
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260916205138.16771-1-apokusinski01@gmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 16 Sep 2026 22:51:29 +0200, Antoni Pokusinski wrote:
-> This patch series adds support for the ABX81X RTCs, which are essentially
-> SPI versions of the ABX80X RTCs. The first patches (P2-P4) contain bug fixes
-> (added after sashiko's review in v1-v5), then (P5-P8) we have some cleanup and
-> reorganization changes (converting the driver to use the regmap API was
-> needed for this), followed by the actual ABX81X support.
-> 
-> Kind regards,
-> Antoni Pokusinski
-> 
-> [...]
+On Thu, Oct 08, 2026 at 10:16:53PM +0200, Wolfram Sang wrote:
+> The RTC on R-Car X5H does have a reset unlike the other versions.
+>=20
+> Suggested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>=20
+> Passes both DT checks. Kind of fixes 3b3fdc9fd40d ("dt-bindings: rtc:
+> rzn1: add R-Car X5H support") in -next, but we don't use Fixes: for
+> bindings, or?
 
-Applied, thanks!
+If you want, make it more obvious IMO that this is a correction.
 
-[1/9] dt-bindings: rtc: abx80x: document ABX81X RTCs
-      https://git.kernel.org/abelloni/c/953c3d2b5836
-[2/9] rtc: abx80x: fix error check after i2c_smbus_read in read_alarm()
-      https://git.kernel.org/abelloni/c/07c57022afb3
-[3/9] rtc: abx80x: add mutex protection for register writes
-      https://git.kernel.org/abelloni/c/74bff654a4ce
-[4/9] rtc: abx80x: properly handle shared IRQs
-      https://git.kernel.org/abelloni/c/632916c7bde3
-[5/9] rtc: abx80x: add irq to struct abx80x_priv
-      https://git.kernel.org/abelloni/c/00b978f8008e
-[6/9] rtc: abx80x: use regmap instead of I2C specific API
-      https://git.kernel.org/abelloni/c/724320a61325
-[7/9] rtc: abx80x: replace read-modify-write pattern with regmap helpers
-      https://git.kernel.org/abelloni/c/0ba70c2b1e3e
-[8/9] rtc: abx80x: create abx80x_i2c_probe()
-      https://git.kernel.org/abelloni/c/3fcf5a97957b
-[9/9] rtc: abx80x: add support for ABX81X
-      https://git.kernel.org/abelloni/c/8a017ab98412
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+pw-bot: not-applicable
 
-Best regards,
+>=20
+>  .../devicetree/bindings/rtc/renesas,rzn1-rtc.yaml          | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml =
+b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> index b448725671ec..5a869e6c0ae7 100644
+> --- a/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> +++ b/Documentation/devicetree/bindings/rtc/renesas,rzn1-rtc.yaml
+> @@ -51,6 +51,9 @@ properties:
+>    power-domains:
+>      maxItems: 1
+> =20
+> +  resets:
+> +    maxItems: 1
+> +
+>  required:
+>    - compatible
+>    - reg
+> @@ -85,7 +88,11 @@ allOf:
+>        properties:
+>          interrupts: false
+>          interrupt-names: false
+> +      required:
+> +        - resets
+>      else:
+> +      properties:
+> +        resets: false
+>        required:
+>          - interrupts
+>          - interrupt-names
+> --=20
+> 2.53.0
+>=20
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+--FWfzAmcVSQzNSq7T
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaskKCwAKCRB4tDGHoIJi
+0q+hAP9dLmw044mVRadnXQzaTwUaybi6fjTRy4wkphrhQ+x5zAD8DrhowHwPYqOj
+W+ilXoW9KA9RS6akP20Z8eR8OaqVMgM=
+=Ajk1
+-----END PGP SIGNATURE-----
+
+--FWfzAmcVSQzNSq7T--
