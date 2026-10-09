@@ -1,73 +1,131 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE8C44236C;
-	Thu,  8 Oct 2026 22:19:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791498002; cv=none; b=myJ3mdghw33nRuAu2/Cu6sO8xqVgQWDmklHVM4U7HbTzBaGl5QuGH8JwP92o1PVNo2zFoczrT6QqR9eDjDQuam0bOgcb/lb92a5zp1qOmqKJO4EkYHio/D7BOVeJJhSAll0gSNmUiswpmMKs2Fq2UNWvt8DZBd9av9gM34oh5os=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791498002; c=relaxed/simple;
-	bh=c14MBtjHNc4ACORmN1vzES6FImHwToNLRblquggXvjY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LLPS80N9gzPpTBRHcbgyU8vGgfbDRxk7gZzxJSDbJNNNMnX4jU05Nhi0aF/ezCBx1oOztuGczox5XPeFW8pxjxD6iMQHSlQR2lr44OIPEETAI/61vOV/07SJTaF8nmjbRTUMWc3KjfVTSSQy/zVEUMkXjqWcoZ4Eee0FV3SQO0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=coJ70yLR; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9353A4C10D8
+	for <linux-rtc@vger.kernel.org>; Fri,  9 Oct 2026 11:22:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791544962; cv=pass; b=f4TiJGHIGMJ9mMdO1uo7Xf8hejL63Z9u2ayI3RrwahaevfsBAEoq2cZ3wr/lRQLr5BbK3XwcY75tf6WH63TbZlF/z/yr3L16oUljcjePyAZQIHAQGdLx/tl0h+1mO57bt5Re8KV4BQmFpZIoklcBSnPYnu+seRCgIzIQ61lQJG0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791544962; c=relaxed/simple;
+	bh=RA8fsEDD5Aia9QBWoZvERTD0+3MACqfVNv505KJYqjE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nCv2LM03P88Grnsbtl7ngla+SzyuhpWlG09sEnrSlVeJBEg5urqeO9PqoLPIzAhK86zCoPYbY+ZsnZ2BvZbQhmx2iIehvibgcNpGshCUysh7dl+BlJB1tgCwQVDfv44cxaAHN69/iPWQCur3sObpO3YAFUG1DhmZUQKaIlJIE5o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nigauri.org; spf=none smtp.mailfrom=nigauri.org; dkim=pass (2048-bit key) header.d=nigauri-org.20251104.gappssmtp.com header.i=@nigauri-org.20251104.gappssmtp.com header.b=tMNM1F23; arc=pass smtp.client-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nigauri.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nigauri.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="coJ70yLR"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 825431A1199;
-	Thu,  8 Oct 2026 22:19:56 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id A3AD76074E;
-	Thu,  8 Oct 2026 22:19:55 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0D22E11D72422;
-	Fri,  9 Oct 2026 00:19:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1791497991; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=8zuRPMu3NfvVMk5IGAQBKJmMiBz/C5HT/g3jm1/ORc8=;
-	b=coJ70yLRBS6EwEUG4kiWRitMaygmxrxkfKCz/t7niN6G2SDRWemJJ28XwWIdRjHMbrQIK/
-	946ZmiaGTHejjjadEGWfJ98nL7JtV2ELSM+uQuBokgkirm+JIamUHLoBC9n7Ph8psjxCVV
-	u8q6x35ZHGq0u2Ygrvr2s2Yb/gCmEiTXJeUF2Rruy8alZw+/iEnNdNP2CQObEbyJaR8YvZ
-	DAcfxMAOgC3OEqbOrEQrmagCWe4TocJAzKduCw4GD3qyCmIKmRuDe3+E0aN5IAvEJe2WBE
-	m6722NVeKRvmsdUdw/MJmLdZ/+QX6kSIcdLmGHeDL7Q3t8JWtCiFc1VUuQ5A+A==
-Date: Fri, 9 Oct 2026 00:19:47 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-rtc@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	Shuah Khan <shuah@kernel.org>
-Subject: Re: [PATCH 0/3] selftest: rtc: rtctest: improve handling of skipped
- tests
-Message-ID: <20261008221947733e6a69@mail.local>
-References: <20260916213108.9234-5-wsa+renesas@sang-engineering.com>
- <asfzfFuBFVKP5WQA@shikoro>
+	dkim=pass (2048-bit key) header.d=nigauri-org.20251104.gappssmtp.com header.i=@nigauri-org.20251104.gappssmtp.com header.b="tMNM1F23"
+Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-48c4649b35bso5969692f8f.3
+        for <linux-rtc@vger.kernel.org>; Fri, 09 Oct 2026 04:22:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791544942; cv=none;
+        d=google.com; s=arc-20260327;
+        b=X5oalnHQ8wsGl0whpYolEM+Kl+KXdWLWU5pawv/ULwO9zybiT8VbdfjJlj01Im7W30
+         FIdMyLvA3oOhPTrOU+qoIU85Yf31h8QDdaJbqha2VtWYyjJms9kQeI53EdZ/zBGIXQZs
+         aae5O7S/P1Wk0CCnJPXQpdbmsq3SuHhuM/xCpNfaiGCvJCSQRgJJLwKq6vQMrdFQL7PN
+         LMOYa0EbMLHuT1j3EFlZ4jCLjPy93JpzzD0L+f9+kvz3+70zyFHQvEbPKdg4mvcn7iSM
+         nZAZaxhdWriZJrMVcJCwa3NHspX8v0s+N0QQqMZDBfxVmYL+DWdK8W5v7I4qFG77tcH1
+         7lrA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=vjZIfn36vwwRnDJGfxZP6hB0pBi/BfTnn/8/ousp3gQ=;
+        fh=bzPaJf6gC9xEo8c8nfo6ewjhuDVmQgV80kBv5jy5nh8=;
+        b=PokHef1jJPUh+CkL9/Aa2Jg0Aypzb0FMJVPF3s4ffJmKYyggPLTfohcKmWQEYHFP7A
+         x7ekS1K1ijciJKFQ6hrAPeUcG/wOOKfyVb5PHhjWkksBO1FusxHvF6YJevzVOD86nSYC
+         t5wFhznCC1RAVv2hjrTgKOTDjVJrsGFRXVOQPVwh5/vdEQwwwq3/cttJCsuUbJAyDNsF
+         ZPhJmfm6X6NLzoMAUvIUQurqQiP5DKCnhg7AQOqrF1gurWiCRkfnPIfSE0Hf8RWa1TF5
+         lM7HL97KQecyTLs/7r+hXyw6Xu1EbtJ1rZAlHSL5Ib8QLM926EJLemZ2kd93uDdpo/rT
+         d8IA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nigauri-org.20251104.gappssmtp.com; s=20251104; t=1791544942; x=1792149742; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=vjZIfn36vwwRnDJGfxZP6hB0pBi/BfTnn/8/ousp3gQ=;
+        b=tMNM1F23DqkYhX3cNSTqbrxqMBC/HeIMYGg5cie7+Lfcw53AHQrMZmEwIQ7wmVJITu
+         8OafZkSuRq7T/v7rG/p2h1G7b3HAKNuT0yM0LcDFLsANUIPR0K4qtZprRYa+RD02E/WW
+         xygsuzoa+6HB9Bk/v7L+c30ryXcIj6gV34+kIjuZo0wnX6lcNEG64eNDzZI98GdsJnHH
+         q5AeDsYbxIcgb/36d0bZQ3jil/Q5uBHO4qf0Ux+Rgc3Q4vj6I2pDD1xS0S7SiRBviGq8
+         BE57fLIraGJT4TLsqDoH4eOuN4vdkSUDbzxjQY9OWOxsv/5r4L1wdqtCa8ZQWP99cLuK
+         C4cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791544942; x=1792149742;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vjZIfn36vwwRnDJGfxZP6hB0pBi/BfTnn/8/ousp3gQ=;
+        b=NvodjEO26u+84czZYMY2Zpnbg4d+YibpswlCaqGy1CMYRLvzyG/q0U3GCuWqfcyKne
+         c0vk6VKRQC2No6R4krxIDmR6eY+GVbxxlfr/360oTWUH2gXq2hXXCKXeD4aHhnP10cLz
+         eXnY5U521J69p0GON8MItGwqHGEEP0kI7uZFaU6I3nfCJkw1oNxCv8/TscGro9pFQQRa
+         cE0ZjHLstFXsLrrKI+YvY9S49mo5oxRTdSo7UBdlvkYlStjc1Av1hBuo64bczFGfY+LR
+         7AvcJ3Zk+czVbce5jQUjnm8zxrI8WxkhohyH1bwpWLIc3DfpBNhBkZWx6hbGv7PaOcJM
+         jxTQ==
+X-Forwarded-Encrypted: i=1; AKwUvByvlrBvIRF2rFmKiPj6cmEv9FzEDwI0Y3TrrpaOn0T3NwHB/HEmfj2dSWB3/qAvrwk1GKA0K0z1Bq0=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKpqBhf/HTJesggM/0/a+H3+k/Wg88/HV6djG8sARZJ6VVSBc03
+	bXhtuS+nOQBh48pmRlmK0dvAQgcD9DRgoQZB6erKsOvXT5ouD/9n08Uu8vR3/IE8ScQy4JLK3Yp
+	Vv1DV0f8YfuDfOB8bH4gVFlYOqKLw2uBdQhK6cjYnm40+wDX9HIt8/O5uvA==
+X-Gm-Gg: AYBFou1Y4jiUMRB/F8S63Wtg4gKDY/r+I92l9Ep2xpo4cYtpBG/rL+ql8cUDsYLo3jJ
+	lkDMsmjTu3qxm6mhgKDC79pyjrLLpcK1piLkppy24yWGlwxi+4cRkgoiGTkF6J1LtrMU2LSmna4
+	Ry9aLgL4fv5DLfrOtxNihx/Ty2AYb9wQvvndBG7937tSE4brwl4vxvsx9Fs1OJTB2Ni1eU7BgNr
+	LHbUSPqsdrrxq2cXFjRbYgD5p90HBZxMrnVHQvplYnV59/Ql3DXxLKtEmS9CwKUl78ggWwud8yP
+	/u6I/sVdnQiSzhzFherL0uV31jCjET6KiS8AZA==
+X-Received: by 2002:a05:6000:240b:b0:487:169f:d339 with SMTP id
+ ffacd0b85a97d-48dbacef394mr2591008f8f.54.1791544942262; Fri, 09 Oct 2026
+ 04:22:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <asfzfFuBFVKP5WQA@shikoro>
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20261004-pcf8563-irq-data-v1-1-f176763ddf2f@iav.lv>
+In-Reply-To: <20261004-pcf8563-irq-data-v1-1-f176763ddf2f@iav.lv>
+From: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date: Fri, 9 Oct 2026 20:21:55 +0900
+X-Gm-Features: AclHuK8WMU2f9s206E9gcJrWGqo1xWTIQN0qw7OLhbmsPMhw7KL5K4OmY2f9m7Q
+Message-ID: <CABMQnVJzcpMqfa-J_rS9rQksoz3XCKrWYmwiD7JU0zXx6BKyPA@mail.gmail.com>
+Subject: Re: [PATCH] rtc: pcf8563: pass the driver data to the alarm interrupt handler
+To: iav@iav.lv
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 08/10/2026 21:48:16+0200, Wolfram Sang wrote:
-> On Wed, Sep 16, 2026 at 11:31:08PM +0200, Wolfram Sang wrote:
-> > Here are some fixes for issues I found in 'rtctest' while checking RTC
-> > drivers. Details are in the patch descriptions. Patches 1+2 have been
-> > tested on HW. Patch 3 has not been tested, just follows the pattern of
-> > patch 2, but may need more discussion in general. Please read there.
-> > Looking forward to comments!
-> 
-> I guess at least patches 1+2 are good to go? Who would pick them,
-> Alexandre or Shuah?
-> 
+Hi,
 
-We discussed it at LPC, I'll take the patches.
+Thanks for your patch.
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2026=E5=B9=B410=E6=9C=885=E6=97=A5(=E6=9C=88) 8:57 Igor Velkov via B4 Relay=
+ <devnull+iav.iav.lv@kernel.org>:
+>
+> From: Igor Velkov <iav@iav.lv>
+>
+> pcf8563_irq() takes its dev_id as struct pcf8563, but probe still
+> registers the interrupt with the i2c client. The handler then takes the
+> regmap pointer from the wrong structure: the first alarm oopses, the
+> level-low INT is never acknowledged, and the interrupt gets disabled as
+> spurious.
+>
+> Only an RTC that has an interrupt (client->irq > 0) reaches this path.
+>
+> Fixes: 00f1bb9b8486 ("rtc: pcf8563: Switch to regmap")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Igor Velkov <iav@iav.lv>
+> ---
+> Tested on ODROID-HC4, 7.3-rc5, with the INT line wired to GPIOX_5 in the
+> device tree: the alarm interrupt fires once, the alarm flag is cleared,
+> no oops.
+> ---
+>  drivers/rtc/rtc-pcf8563.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+
+Reviewed-by: Nobuhiro Iwamtasu <iwamatsu@nigauri.org>
+
+Best regards
+  Nobuhiro
