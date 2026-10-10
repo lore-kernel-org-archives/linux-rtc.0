@@ -1,59 +1,67 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender-op-o17.zoho.eu (sender-op-o17.zoho.eu [136.143.169.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370793B2AA
-	for <linux-rtc@vger.kernel.org>; Fri,  9 Oct 2026 21:33:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791581602; cv=none; b=bYYw762ogIhnRZVK2nTFZdFUPBA10+x3i0AbiHu0yWTtQ7hKfTKIAnKzO/uVby0JoIB3Izo5AI6H3vggwisQYsxQ1/98fyKMA1VODOHhDexEWKmIfV6mJoY/a5Nt7eMmO5Oswj/vcv8hm+OBajqrJx+ideL8ZHKv2iPUiChidDM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791581602; c=relaxed/simple;
-	bh=dLNm75Os5LsS0z4bDhCf/5sfokluNe4QKBHZ3iXRcZo=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=KvGHmVjuW21Bk/XBvnaE66APWsLygx9+uUJc+tShkqL11Wc2c77Do2jAUeBDtvqAABuvGvjMrVKxMv6ZGQ+BpsSajx1ybWN0I14O7WSOseIJCca/dxxv4WBgRHOT6r7TQNxD7gD7f9h62+PoiebW5DwYwhDZZhYtBE1bN5CHUaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Evf0KJrs; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 505ED33438F;
+	Sat, 10 Oct 2026 04:04:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.169.17
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791605094; cv=pass; b=WbWNoF1DEturKD+iMrun5EzkqaaYTHpRbezR01eMJ3YWQF9Yw7eFWdG2rVUUEZ17RbHE7p8g4P2Qjo/NIys2Pu1FIDDgfViwPVSOORThCJ9hP40KylwI/PoceLBSeDJKfS52Oi2XEazOmJIF0f+2MrGPW7nrrJLbDJBmwbxNeBo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791605094; c=relaxed/simple;
+	bh=CeiPB1g+eDByoXXC1SuXUTzr/qthsow56+fantnejKM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ilx5hvHis2Q7D0eCpHrVUw6Ps8EoSQ9Pq8BYiAPgwMCbEq8T4F1JiHvSC5oqvxTG1Qc7u99ECI/qklTLIDJavj40qZz4EONIvsBpmPiGZxWJ3qDXIy/m7Tmf6Z9sTDHV7ki5JGzYBMBn7tJwNnvFM4R/P4/IQ3qbcDEPsP6eNVo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iav.lv; spf=pass smtp.mailfrom=iav.lv; dkim=pass (1024-bit key) header.d=iav.lv header.i=iav@iav.lv header.b=PtxmiHEE; arc=pass smtp.client-ip=136.143.169.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iav.lv
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iav.lv
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Evf0KJrs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A91741F000FF;
-	Fri,  9 Oct 2026 21:33:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791581601;
-	bh=dLNm75Os5LsS0z4bDhCf/5sfokluNe4QKBHZ3iXRcZo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Evf0KJrslHTDo286LRjSyIteQo1DV4AMGczflCrUwKQNqIvqyGkT1q/RaWQoiNqvy
-	 Ps8MOGNKhxL2Y0aqQYBMtUc5LSXLti3V7yq5jJ740j71kdeVJmWIW/uk++u0X8fRMD
-	 Q3OOZDVkEmpFZ2Zv4spMroAWszPY8X0fmao66cDE3aV7iOuvLUq6vnraA3zkoDgjdd
-	 u7l18R3EPUznCDiBy7O2JEpDdlLXznS4Abedz828CflhltPkQeV1zFlp6yhjsjCtXd
-	 b9p8GOWiajBfE7NwqCxGp2GMO7Ny0wpcS5DIPiR/r4FCFMGROWMJB8D5av6meXDjc6
-	 QfHrOvvouWIeg==
-Message-ID: <sashiko-outbox-166089@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: nvidia-vrs10: remove locking in IRQ handler
-Reply-To: sashiko-reviews@lists.linux.dev
-To: alexandre.belloni@bootlin.com
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261009212347.490403-1-alexandre.belloni@bootlin.com>
-References: <20261009212347.490403-1-alexandre.belloni@bootlin.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 21:33:20 +0000
+	dkim=pass (1024-bit key) header.d=iav.lv header.i=iav@iav.lv header.b="PtxmiHEE"
+ARC-Seal: i=1; a=rsa-sha256; t=1791605068; cv=none; 
+	d=zohomail.eu; s=zohoarc; 
+	b=K16xBdR9qn3AQORmlvyqHOUZtsle22FySZYyU//mCkNdCNgXBAM6R/lUBjvI6HSh+CY7/mVty21qxbA8LprIXDwKz4KwYPzhOWYJV6NvZitv9xca8F5AOfhjXRLuUxFvF1iZAa4RfxAVw78C2xlJZJ61MYjYKNaod7cMNoR7jC8=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+	t=1791605068; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=CeiPB1g+eDByoXXC1SuXUTzr/qthsow56+fantnejKM=; 
+	b=GcQKVF7yzhFf8/QFfUydgyYoKYzsYDtSy82Lw98J6KoTMDgNMtXnFUJQuV821OwTUo1UnQrW31kDUx49K7NoA9A8ZuiwfAz8RbIfftbFw1DXA2SYxyFM8ceMrivyUUVM5ExYFbQXy8kLTiHpraMEGjVYZc2r5BBdsCOVvEyvgGg=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+	dkim=pass  header.i=iav.lv;
+	spf=pass  smtp.mailfrom=iav@iav.lv;
+	dmarc=pass header.from=<iav@iav.lv>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1791605068;
+	s=zoho; d=iav.lv; i=iav@iav.lv;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=CeiPB1g+eDByoXXC1SuXUTzr/qthsow56+fantnejKM=;
+	b=PtxmiHEEnqdomU680bKSWbwPY9Ev8/LenfrcHkuzQnzIZ7aWlYkQnO3fnaQ3Eecg
+	oHWx1WLlgZiNPK2a5K1KFEz1xp4ZkLihIkAN7lMU7ch5jgc1f/m4Ak+UoLU3heYjh8x
+	srXQXkKBEQ+c6DIchpa5xth24qjU16uHUMAup/eM=
+Received: by smtp.zoho.eu with SMTPS id 1791605065290202.21768844090047;
+	Sat, 10 Oct 2026 06:04:25 +0200 (CEST)
+From: Igor Velkov <iav@iav.lv>
+To: John Stultz <jstultz@google.com>, Thomas Gleixner <tglx@kernel.org>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Stephen Boyd <sboyd@kernel.org>, linux-rtc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Igor Velkov <iav@iav.lv>
+Subject: alarmtimer: no way to choose the RTC on boards with two wakeup RTCs
+Date: Sat, 10 Oct 2026 07:04:18 +0300
+Message-ID: <179160505804429.3363580.alarmtimer-rtc@iav.lv>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-> From: Alexandre Belloni <alexandre.belloni@bootlin.com>
->=20
-> Remove locking in the interrupt handler as it is not necessary to be lock=
-ed
-> while calling rtc_update_irq().
->=20
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Hi,
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+alarmtimer_rtc_add_device() binds to the first registered RTC that has
+RTC_FEATURE_ALARM and a wakeup-capable parent, and keeps it. With two such
+RTCs the choice follows probe order: ODROID-N2/N2+ (pcf8563 and meson-vrtc),
+ODROID-HC4 with its RTC add-on, and 11 rockchip boards in v7.3 DT with a
+hym8563/pcf8563 next to an RK808-family PMIC RTC. On HC4 meson-vrtc wins.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009212347.4904=
-03-1-alexandre.belloni@bootlin.com?part=3D1
+I found no DT property, command-line option or sysfs knob to make the choice
+explicit. Is there an intended way? If not, where would such a setting
+belong, and under what name?
 
+Igor
