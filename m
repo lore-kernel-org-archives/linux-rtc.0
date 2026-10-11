@@ -1,64 +1,64 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D91BE46982D
-	for <linux-rtc@vger.kernel.org>; Sun, 11 Oct 2026 22:57:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE56346C4C2
+	for <linux-rtc@vger.kernel.org>; Sun, 11 Oct 2026 22:57:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791759453; cv=none; b=H43hC4u72TfujFcR38AvxgKVYwvVMoHewZ9RudlExNIr6BGTxi8Lyg0Jk/6/DiadDmP75A7mU4TSeT+ycwq+wAgTYAZeBPMsZyPXs+7S0JKBCetil2DwuaU6DGS+34O0jjfeG85OBsLFV068iCJu/DsxQYbhgZO/YpvUDMIXsYg=
+	t=1791759456; cv=none; b=mSNH/s+iiXagnTOd6QSAaYg2WVVe6HjKk3wHLBEytuA2HkLUmxKxYAFK/P0Ym3WUIdOpJF9IsKuJOQ3EmXA9XmuMOFk3DMH+sI4eDZNrdcAwWHIAGhPBLLDqGrsce8Pp22dDpgqrCW17RUughr+5BI5XIcg+4ZxyMySy+EA7KsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791759453; c=relaxed/simple;
-	bh=A3frJRbgFu5+5O2R8VBv3Aa+UByoDPMczSVLagotiBI=;
+	s=arc-20240116; t=1791759456; c=relaxed/simple;
+	bh=iuxXe+oO0FU8wOMUzOslFucRKCsLGWXMFpgraSNUqnw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dxZL0AQVNkd5YHFeuqJYFAo7c7mPAnyenFKxvHdJEQo62OjIXCyI/6G2GZR+PLRPHgw+txf/CkbeP/fVOOR6iFV/5deL2w3GYS8/PqnJ5w8D0/n/wBx75U4l2hiL875TUKyHx9DFA7fF8mfiCZ3xUW1N1/APyi4hstc+imLjfpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iIkgS7s8; arc=none smtp.client-ip=209.85.222.170
+	 MIME-Version; b=AGC2XuOZvAYO75tEqHBXeIQHWLMN7SvhQZLSBGFWl4cXoRyrGnftJ1OrlXid/lCqgJarALuhTxbYJxehQK2XR9zuuu4M3V/wHVElfFxMb4z4XROpm3E/NkBI0SW0JpTfLGfOCuTsEb5t0i9SYEB9O6vcADdDGbIa6opnVCvxZWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fVyge9ZD; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iIkgS7s8"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-93ead211f14so143917685a.1
-        for <linux-rtc@vger.kernel.org>; Sun, 11 Oct 2026 15:57:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fVyge9ZD"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-93e56c287b3so114685085a.0
+        for <linux-rtc@vger.kernel.org>; Sun, 11 Oct 2026 15:57:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791759451; x=1792364251; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791759454; x=1792364254; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=n8uKt/ohPfRzbFT8UsrIleN1or4CaNtgzFDPt385SpQ=;
-        b=iIkgS7s8L8qVDoYxsEHy55/6uIUUhrptjsuVLqn9VmB9b/KPhJmvcf82s5+K0/hb6d
-         x+/N6JRObnVgExwdqmz1p9c8GZzVaWJHZ5UVA2+pLYdG41OXzPVwchkuvdac+4t3o3DE
-         ODVwdwhBiemi7UU0udwe2rnmUJN2Q5yxO7Z5vQJ/iZPv3cV+WZVcS8yJD/oeTOjpm88r
-         /PC4t73E/kLI3poq2pVhVaTdn3kPzxKqdM+HVy3lXlnDvm7wJuYwsiOIumJjV4U5ZR7A
-         r7Y+odcFsrdaCH70TMsd2czw/hJ2BjQmjZSei+6ZFzeeZ96MKDjrhh6C48v1o0ZpdsXj
-         f4LQ==
+        bh=6HbFzXeXg8l+saP+bOvTWuOKTTgvyyirsYJqRDQW8/E=;
+        b=fVyge9ZDApF9GouUn5W04JyJ/G4IDU1Fi+0Xma1yQGbIUttccfmJZdCPXgtaEwjSso
+         XEUOmhEcINJnDfI3F5J1CyO0ryTY3sfD7l25gZCdN5YLTGtbo1y0zpqCDW9ltBR+nMH4
+         iDHNAn2jOOaG9YDytIxH9S/yS5xTEddUDqkYvganIMcXK7c/Ffym0r5nnD3TZCUFIri9
+         17MQLFSF7eBJWufTBK6Zn15FGsj+UJw7LFQJZ7R+Ve0lAxsyYNs6C/Usn+FK55ewFSsq
+         Uh13Jh4EyMXJObRpf8RLPNYW806FHs+48sTZCaG0juYWQg2uI2AK6s0ozzbkpQxzLWWb
+         /7sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791759451; x=1792364251;
+        d=1e100.net; s=20260707; t=1791759454; x=1792364254;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=n8uKt/ohPfRzbFT8UsrIleN1or4CaNtgzFDPt385SpQ=;
-        b=T2opppR0MVsFLMVycKHJRJSGSlBy5lzJWj3hvH7cddthaxg4vxDagH1McjLtzDrrjo
-         RO9ScXGOPQX0MA3W5TV4WTBHL/L/i7XuiSxe2ND4emsD47I6G8RTCFrebOVXAxfrBvAR
-         VA5j/QrPGOpvm7/VkKr9+qHfsT2Yej6GSneSM9N1PA+XKA72YPDI7CvMTUCCxBy3Z/4x
-         0LbDs0GZ1tx/Tzi0eB6DZA07tIsABH9aJA8DJ/gOuBcY4lpAu4FyHMl2U7ptG9ihkEIr
-         dlZV4a4vhSaiP7E4ycX0/j+HSAXck95rycxptedpWiw07KvnA6vEVsxuLoSz6diKldA5
-         wILg==
-X-Gm-Message-State: AFq9FYJ0kHL9VmCwTcrFlsDRetiLt8gt+3a0Cj8WNlQfMkSnIUKYujT+
-	jubYhDmcZoveP0HxrdZWJ+SCEkC/+mu/05Hp1Tt9vQLkTuOeraaGGvA=
-X-Gm-Gg: AYBFou0BVI4gKtUTsV3oQOZ+yEg8eM4OPszM/OQqem2bAuNzX/jGaCxxYyHh0hShG8A
-	1oXuXPXSIoQo9FCGPZMa6nL7BlFz6+gTv2GKuxcwaBVbf/TsChdLEzYTbZFaoTpDxmWXK+2kw3Y
-	zHOtMpqfsJ814IMtIyWipU/77qZ14zXL4iwmm0isFVm+/iIlXnMV+lnw3zA0vwyNuZdCFT2AYqp
-	dOJlZX6GXwz4VWA6lt6cK6DWxhDlSJQ2msCRyaLlyluUt5TxCjHKKC/+xN2+jcV7WQCoKK+NkJF
-	iFbmf3ATHcKyEY9aZN0yuEt66qI8E5tNsZoTeIF4Ryo9yIcvxxr8dQF8QRQua4eNqqLaq58/9pz
-	GiwgdrZVkSiCLJFQxM2rd1wrLpy/l1r8GUy65ucy5GmtvelADlo7UmLDkLmPmhPvurvKN4bypm7
-	Mssw2ZiDNk18tSoU4S+5+OiwoFiB5cqQUNRLP2625d17BrVCJ6tyIxFXIDNf3rnXTliJOVrxGCE
-	RCVVwxTXyE17rSniVvebluwnc4vaL/ATX48BWfA6c22Y5ec0D3nn4j3Tzgr+yJ32IED56QjkNXs
-	Z8ld5IQCS9XyKxjAChl3DCdSXcy+
-X-Received: by 2002:a05:620a:4102:b0:93e:6481:c8e0 with SMTP id af79cd13be357-93ec1351090mr1103172185a.10.1791759450718;
-        Sun, 11 Oct 2026 15:57:30 -0700 (PDT)
+        bh=6HbFzXeXg8l+saP+bOvTWuOKTTgvyyirsYJqRDQW8/E=;
+        b=tkgcKHN9LisekMSr4gN5qTvOT+xuZ7O6I2f8yMwnMcaUibP/1ny0GEcEGCZkZPfMgX
+         vi3Yc88AZmCabdsrIIY51Qh/DsSLstsdUWJbNFzWnlVCImRtnPcy49Tp4OWR7NJfe2sm
+         RkhPogxeaHh3gMZVguC3M3V2wffrcHkmVgSq17ZOUzr3DXwlYgTLXsTRWZRAD8SeqRbE
+         d3d+I5pT8U8O521E613ETEd9w91MdEa00STj2QLH7OiFfdWQlAbkFWNEY1w1+3+O6Qfz
+         nRNtwLxDY4vpjfOrVkseupljJ3MaCVKCJ91Xb0fzX8bgutLJKQPM53dnzG78aya061m5
+         422A==
+X-Gm-Message-State: AFq9FYIa8pTnoVploOaclGtci4dF6oJUvT5vXpOr6HnmdY39AynVznl3
+	8DjuBOzBvQblIc0c+jgp3auxYcRGNbW7IxzhR1RkYym/ZklGbUrSqvQ=
+X-Gm-Gg: AYBFou0HRWU9XlsuXCIlJ/4/zpQv8rQgzETSxZHrCnVViaTIsVq26ODeBpCL2mXEJDz
+	+yS+vpmhd3HsFXpSeBO9QjBGqA/lfu8kpawiEDUA6WWaIUCqmHvIOALEP62Cs/KijyUGSpQ4oPn
+	RDxgWk8BMWkHhqP3ac+oux50rE6p2oYVFlTs7I+ZDql37kpIUvNRKLYYJMfKsVQWNDBKhcNeC82
+	i6ecL8ynDxMNaCI1O6rlWT3PZkPs0a5h6N+BNl4Mvxwfx/akMt38LgGcXb8FolK5YqWoYsdQJ2t
+	4PZYH7quRqq+al3ouipDXHpmBtmey8zyWNM6Qp3hoV8lmjAr2R8WYsN0Tce4S8AA8c+5H3w8Pq7
+	pO0HFng7WtPYcJCRsvSMxvzuO952lVVTHBi7hNGTQP+VEKf/WeO3PZc8G/KGrjinpnogJamJfLW
+	8iqpuJ1MrLv0/LWvyIG3S/HvU5t+HUfmYQnoqIiU26KRqd+IeMp8CzZOuhIX0JgzjvqlRQxTNnb
+	T1kmK3xNmPHsN+64NDzIoQZgolmEdOg7SWjfRYb9BF9DWPfxuj06RbY+LETsvCe7yeTW+JDKjau
+	IO6Y4GSNIDL+gFlWRZc+lu/7rgBL4t/at2Lsqjw=
+X-Received: by 2002:a05:620a:6487:b0:93e:4c1b:a06d with SMTP id af79cd13be357-93ebd1bac2bmr1499673885a.20.1791759453640;
+        Sun, 11 Oct 2026 15:57:33 -0700 (PDT)
 Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93eb98cd599sm723647985a.39.2026.10.11.15.57.29
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93eb98cd599sm723647985a.39.2026.10.11.15.57.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 15:57:29 -0700 (PDT)
+        Sun, 11 Oct 2026 15:57:31 -0700 (PDT)
 From: Myeonghun Pak <mhun512@gmail.com>
 To: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -66,9 +66,9 @@ Cc: linux-rtc@vger.kernel.org,
 	linux-renesas-soc@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Ijae Kim <ae878000@gmail.com>
-Subject: [PATCH 1/2] rtc: renesas-rtca3: Initialize the RTC before requesting interrupts
-Date: Sun, 11 Oct 2026 18:57:24 -0400
-Message-ID: <20261011225657.rtca3-irq-ordering.1@gmail.com>
+Subject: [PATCH 2/2] rtc: renesas-rtca3: Join interrupt handlers before unregistering the RTC
+Date: Sun, 11 Oct 2026 18:57:25 -0400
+Message-ID: <20261011225657.rtca3-irq-ordering.2@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261011225657.rtca3-irq-ordering.0@gmail.com>
 References: <20261011225657.rtca3-irq-ordering.0@gmail.com>
@@ -80,24 +80,24 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The alarm handler passes priv->rtc_dev to rtc_update_irq(), but the RTC
-allocation is managed after the interrupt requests. Devres can therefore
-drop the RTC's allocation reference before freeing and synchronizing the
-alarm IRQ. Masking alarm interrupts in remove does not wait for a handler
-that has already entered, and a pending alarm flag can still be handled.
+Masking AIE and PIE in remove does not wait for an interrupt handler
+that has already entered. Managed RTC unregistration follows remove,
+so such a handler can still report an alarm after the RTC operations
+have been cleared.
 
-Allocate the RTC before requesting the IRQs so that the allocation
-reference remains valid until the IRQs have been freed and synchronized
-on both removal and probe failure. Initialize its operations and time
-range before requesting the IRQs as well, so an early alarm interrupt
-cannot queue RTC work before the operations are available.
+Save the periodic IRQ number and disable both Linux IRQs synchronously
+in remove. Wait for RTC operations under ops_lock before masking the
+sources, and reject subsequent alarm setup and enable requests. This
+prevents a concurrent alarm setup from re-enabling AIE or PIE after
+removal masks them.
 
-This issue was found by static analysis.
+Drop the private spinlock before disabling the IRQs so that a handler
+waiting for it can finish. Neither handler takes ops_lock. The managed
+IRQ actions still release the IRQ resources during devres unwind.
 
-Fixes: d4488377609e ("rtc: renesas-rtca3: Add driver for RTCA-3 available on Renesas RZ/G3S SoC")
+This issue was found by source review.
+
 Assisted-by: LLM
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
 Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 ---
 Compile-tested with Clang 22.1.2, W=1 (arm64). No runtime testing.
@@ -105,36 +105,81 @@ Compile-tested with Clang 22.1.2, W=1 (arm64). No runtime testing.
 One existing FIELD_GET comparison warning also occurs when compiling
 the unmodified driver with the same flags. No new compiler warnings.
 
- drivers/rtc/rtc-renesas-rtca3.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/rtc/rtc-renesas-rtca3.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/rtc/rtc-renesas-rtca3.c b/drivers/rtc/rtc-renesas-rtca3.c
-index b3875d041de5..c304ed60edc6 100644
+index c304ed60edc6..9b177a131c27 100644
 --- a/drivers/rtc/rtc-renesas-rtca3.c
 +++ b/drivers/rtc/rtc-renesas-rtca3.c
-@@ -765,12 +765,6 @@ static int rtca3_probe(struct platform_device *pdev)
- 	if (ret)
- 		return dev_err_probe(dev, ret, "Failed to setup the RTC!\n");
+@@ -121,6 +121,8 @@ struct rtca3_ppb_per_cycle {
+  * @lock: device lock
+  * @ppb: ppb per cycle for each the available adjustment modes
+  * @wakeup_irq: wakeup IRQ
++ * @period_irq: periodic IRQ
++ * @stopping: removal has started, protected by lock
+  */
+ struct rtca3_priv {
+ 	void __iomem *base;
+@@ -131,6 +133,8 @@ struct rtca3_priv {
+ 	spinlock_t lock;
+ 	struct rtca3_ppb_per_cycle ppb;
+ 	int wakeup_irq;
++	int period_irq;
++	bool stopping;
+ };
  
--	ret = rtca3_request_irqs(pdev, priv);
--	if (ret)
--		return ret;
--
--	device_init_wakeup(&pdev->dev, true);
--
- 	priv->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
- 	if (IS_ERR(priv->rtc_dev))
- 		return PTR_ERR(priv->rtc_dev);
-@@ -779,6 +773,12 @@ static int rtca3_probe(struct platform_device *pdev)
- 	priv->rtc_dev->range_min = RTC_TIMESTAMP_BEGIN_2000;
- 	priv->rtc_dev->range_max = RTC_TIMESTAMP_END_2099;
+ static void rtca3_byte_update_bits(struct rtca3_priv *priv, u8 off, u8 mask, u8 val)
+@@ -351,6 +355,9 @@ static int rtca3_alarm_irq_enable(struct device *dev, unsigned int enabled)
  
-+	ret = rtca3_request_irqs(pdev, priv);
-+	if (ret)
-+		return ret;
+ 	guard(spinlock_irqsave)(&priv->lock);
+ 
++	if (priv->stopping)
++		return -ENODEV;
 +
-+	device_init_wakeup(&pdev->dev, true);
-+
- 	return devm_rtc_register_device(priv->rtc_dev);
+ 	return rtca3_alarm_irq_set_helper(priv, RTCA3_RCR1_AIE, enabled);
  }
  
+@@ -392,6 +399,9 @@ static int rtca3_set_alarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	int ret;
+ 
+ 	scoped_guard(spinlock_irqsave, &priv->lock) {
++		if (priv->stopping)
++			return -ENODEV;
++
+ 		tmp = readb(priv->base + RTCA3_RCR2);
+ 		if (!(tmp & RTCA3_RCR2_START))
+ 			return -EPERM;
+@@ -684,6 +694,7 @@ static int rtca3_request_irqs(struct platform_device *pdev, struct rtca3_priv *p
+ 	ret = devm_request_irq(dev, irq, rtca3_periodic_handler, 0, "rtca3-period", priv);
+ 	if (ret)
+ 		return dev_err_probe(dev, ret, "Failed to request period IRQ!\n");
++	priv->period_irq = irq;
+ 
+ 	/*
+ 	 * Driver doesn't implement carry handler. Just get the IRQ here
+@@ -786,13 +797,18 @@ static void rtca3_remove(struct platform_device *pdev)
+ {
+ 	struct rtca3_priv *priv = platform_get_drvdata(pdev);
+ 
+-	guard(spinlock_irqsave)(&priv->lock);
++	/* Wait for RTC operations, including an alarm setup, to finish first. */
++	guard(mutex)(&priv->rtc_dev->ops_lock);
+ 
+-	/*
+-	 * Disable alarm, periodic interrupts. The RTC device cannot
+-	 * power up the system.
+-	 */
+-	rtca3_alarm_irq_set_helper(priv, RTCA3_RCR1_AIE | RTCA3_RCR1_PIE, 0);
++	scoped_guard(spinlock_irqsave, &priv->lock) {
++		priv->stopping = true;
++		/* Disable alarm and periodic interrupt sources. */
++		rtca3_alarm_irq_set_helper(priv, RTCA3_RCR1_AIE | RTCA3_RCR1_PIE, 0);
++	}
++
++	/* Neither handler takes ops_lock. Do not hold priv->lock while waiting. */
++	disable_irq(priv->wakeup_irq);
++	disable_irq(priv->period_irq);
+ }
+ 
+ static int rtca3_suspend(struct device *dev)
