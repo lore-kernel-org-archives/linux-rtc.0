@@ -1,98 +1,231 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E150C51814B;
-	Tue, 13 Oct 2026 14:26:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBEC45013DF
+	for <linux-rtc@vger.kernel.org>; Tue, 13 Oct 2026 14:29:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791901614; cv=none; b=t/BHeGtZ3aDOn2t87hyJ1D8FjIuQMEfuesZT3qK89MRC8+vpC8dSmocowgmMuvn13zZEe1wHNrmbtCKpDzqhA6Qudyo8HhRtQo9zTVDf+77isb5XScKiSX06wTiPI2g+f9B4TtUEpS6rxw1OFXt65EQz7OP4xm4JEFV77b5Z8hY=
+	t=1791901747; cv=none; b=erv3dSQ68RCM+s8wAO0yx+RkcxvN5NMxW6pdJCKqAoJrUjQjmzXQX4bT+Ku2HBEpZw2FAd3WKjzAUJYr7YfvCG6mgcxJON++RRBy9a+TniUO4m3lOBpHS8ILGSBCdRbZZmZtvoYwGGJhSi8tSSDKa0JvK2e+iNME22iPifOTjzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791901614; c=relaxed/simple;
-	bh=XfZVuH37TjJbVLTM/jEvSNl35LQfRki5rmhJIud0Ta0=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=W22b3GDrs2wJr2fAAyV3PK9zi0blscSclNyffSYbSfJicAuhCWkTWp52+uEc6mjMJ05de6VpVybUezhfFuHxex3Tw/hzP6OhSSLFYST9J60P62Doi30CStIMEr4MXO4An9rJ5l+AlCQhxXuSl9Hp/CCveWNIV0svv5iJYSDEeXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M84dz03/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791901747; c=relaxed/simple;
+	bh=7pQLICiwDQGi4veiyWftXynaBIvBK9m2LLGNbUmS5sQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ncVMSjrHybWDN8VreVnZJfEsUEjUuW2T9YGYEpbHrDJJl8qX35DinfqZC+oTtWe0c4goRas2CGif6/8DCEBUQa5jZERyGQNUANB5f6tD+gzCTr+clDP0O6ckegSFuz9vx/pYp7pj7o8UjVGergLHbmEd3D0QxIbef0UTMWPEMCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=KFMNICHw; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M84dz03/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67CAC1F000FF;
-	Tue, 13 Oct 2026 14:26:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791901613;
-	bh=Vu9GFTSwpA+ThnhYFOK02kJtnNFAzU/CFrFuq53MJ60=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=M84dz03/ue983O1uOEriK2mgDcd8I0/vK6Wc4QCEqLcvOhVeUdQBHbaY2nuLf+iK/
-	 XxomRz5py81Ziy9sUEwpXdILr5KvWnvev6t8n7wyw6HkYDK5aoD9KRd8XOOKyvX3rj
-	 GQFYmV+CPCyD+120q7nulE5M9oTcSmjPo88uleWGa83Add7aiqXDFuoeLEX3yUaA9S
-	 V+djX8SDohHXmxu8z+AnJ5ZG5HwMWSwG5XpFun/GHc15TVd3t9wsuZzZ8nS7MEADwm
-	 HOxyxVw/pZ2GfT7d272Ud9GtVDy+bRNWC3M6hvF9U06Dh/vTYKKi+J8Vj14Yq62tZS
-	 EtCRK0fPHxjPg==
-Date: Tue, 13 Oct 2026 16:25:46 +0200 (CEST)
-From: Imre Kaloz <kaloz@kernel.org>
-To: Niklas Cassel <cassel@kernel.org>
-cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-    linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    Lee Jones <lee@kernel.org>, 
-    Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-    Jiri Slaby <jirislaby@kernel.org>, mfd@lists.linux.dev, 
-    linux-serial@vger.kernel.org, 
-    Alexandre Belloni <alexandre.belloni@bootlin.com>, 
-    linux-rtc@vger.kernel.org, Andrew Lunn <andrew+netdev@lunn.ch>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-    Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org, 
-    Damien Le Moal <dlemoal@kernel.org>, linux-ide@vger.kernel.org, 
-    Pavel Machek <pavel@kernel.org>, linux-leds@vger.kernel.org, 
-    Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, 
-    Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH v2 00/53] MIPS: SGI-IP27: add support for the IP35 (Bedrock
- hub) machines
-In-Reply-To: <as4zsLZvV411ooEv@ryzen>
-Message-ID: <24d821f4-63ff-aa35-a36f-a72046fe59a7@kernel.org>
-References: <cover.1791890466.git.kaloz@kernel.org> <as4zsLZvV411ooEv@ryzen>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="KFMNICHw"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id D90AFC653ED
+	for <linux-rtc@vger.kernel.org>; Tue, 13 Oct 2026 14:29:58 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 22FBB60362;
+	Tue, 13 Oct 2026 14:29:03 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id F14E211D716F6;
+	Tue, 13 Oct 2026 16:28:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1791901738; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=/wrEKHXblZ2nx08vVSNmqtW+MawEMZrP73gz4o7xkP8=;
+	b=KFMNICHwjUCttLMRcQ8f8UpYbbNITs9ZkOtn8QztB0HEujRuu4s9DCD8JfJMnbrWabnIiR
+	FBu1xIPD0ScmbWmJoOHORUt5xAFb6MkQLhsji4TL6hT0R7mJ2InhQQAwqqmBCp5YolvENd
+	1Z/OBfIi1oIhzXO6tQjO3pfBPjaWJBG1GCY4O41/79CweGEg9vSeqbTR0KlMtwHsP9bzRQ
+	B8lV+toVrGlLQqtW/863whyGiMmw1rsT1mNxTBtCxSGXzmZpBIYT5xzMxShAtjsu+oP9QY
+	9QKeO5/m5l3DMFVCtF63RmoP9LgQRhONoOEi9/4di32CBDyPTHqLB9QVN1KXVA==
+Date: Tue, 13 Oct 2026 16:28:55 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Imre Kaloz <kaloz@kernel.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Lee Jones <lee@kernel.org>, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v2 30/53] rtc: m48t35: support the SGI IP35 timekeeper's
+ 1968 year base
+Message-ID: <2026101314285588f70d85@mail.local>
+References: <cover.1791890466.git.kaloz@kernel.org>
+ <271bf55b479fbfd9b934e93a13eb8e96eb64e9fb.1791890466.git.kaloz@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323329-1641235930-1791901553=:27186"
+Content-Type: multipart/mixed; boundary="QIi22XUrPanoMPkY"
+Content-Disposition: inline
+In-Reply-To: <271bf55b479fbfd9b934e93a13eb8e96eb64e9fb.1791890466.git.kaloz@kernel.org>
+X-Last-TLS-Session-Version: TLSv1.3
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+--QIi22XUrPanoMPkY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---8323329-1641235930-1791901553=:27186
-Content-Type: text/plain; charset=ISO-8859-7; format=flowed
-Content-Transfer-Encoding: 8BIT
+Hello,
 
-Hello Niklas,
+On 13/10/2026 15:16:50+0200, Imre Kaloz wrote:
+> The M48T35 of SGI IP35-family machines counts its year from 1968. Take
+> the epoch from a platform id table, "rtc-m48t35" for IP27 and
+> "rtc-m48t35-ip35" for IP35, and bound the year to the part's century: on
+> IP27 a year past 2069 now fails to set.
+> 
+> Signed-off-by: Imre Kaloz <kaloz@kernel.org>
+> ---
+>  drivers/rtc/rtc-m48t35.c | 33 +++++++++++++++++++--------------
+>  1 file changed, 19 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+> index 92f19bf997b2..fa228a2bb527 100644
+> --- a/drivers/rtc/rtc-m48t35.c
+> +++ b/drivers/rtc/rtc-m48t35.c
+> @@ -49,6 +49,7 @@ struct m48t35_priv {
+>  	struct m48t35_rtc __iomem *reg;
+>  	size_t size;
+>  	unsigned long baseaddr;
+> +	unsigned int epoch;
+>  	spinlock_t lock;
+>  };
+>  
+> @@ -86,10 +87,7 @@ static int m48t35_read_time(struct device *dev, struct rtc_time *tm)
+>  	 * Account for differences between how the RTC uses the values
+>  	 * and how they are defined in a struct rtc_time;
+>  	 */
+> -	tm->tm_year += 70;
+> -	if (tm->tm_year <= 69)
+> -		tm->tm_year += 100;
+> -
+> +	tm->tm_year += priv->epoch - 1900;
+>  	tm->tm_mon--;
+>  	return 0;
+>  }
+> @@ -108,18 +106,10 @@ static int m48t35_set_time(struct device *dev, struct rtc_time *tm)
+>  	min = tm->tm_min;
+>  	sec = tm->tm_sec;
+>  
+> -	if (yrs < 1970)
+> -		return -EINVAL;
+> -
+> -	yrs -= 1970;
+> -	if (yrs > 255)    /* They are unsigned */
+> -		return -EINVAL;
+> -
+> -	if (yrs > 169)
+> +	if (yrs < priv->epoch || yrs >= priv->epoch + 100)
+>  		return -EINVAL;
+>  
+> -	if (yrs >= 100)
+> -		yrs -= 100;
+> +	yrs -= priv->epoch;
+>  
 
-On Tue, 13 Oct 2026, Niklas Cassel wrote:
 
-> Hello Imre,
->
-> This series is rather large.
->
-> I would recommend you to submit a minimal patch series
-> to get the basic support for your new board, such that
-> it can boot with a ramdisk and serial console.
->
-> Then in the next cycle, send separate series for ata,
-> net, leds, mfc, rtc, etc.
+Instead of open coding, you should use start_secs after setting the rtc
+range in probe(). attached i a patch I refreshed for the
+devm_rtc_allocate_device/devm_rtc_register_device conversion that you
+can include in this series. drivers/rtc/rtc-mt6397.c is an example that
+should be working for you.
 
-Hi Niklas,
+I never sent the patch because it is not clear from the datasheet how
+well leap year calculation works. My guess is that it worked in 2000 but
+fails in 2100.
 
-Thanks for having a look. I checked what the minimum is: 31 of the 53 
-patches (1, 6-24, 26-29, 31-36 and 39) boot a Tezro to a ramdisk with a 
-serial console. Two mfd/ioc3 patches have to be part of that, as they 
-provide the console UARTs (31 for IOC4 on the Tezro, 36 for the IOC3 on 
-the Fuel). The rest separates cleanly into follow-ups: the remaining 
-Bridge fixes (2-5), ioc3-eth (25, 38), rtc (30), the IO8 serial IRQs (37), 
-machine identification and the Odyssey widget (40-44), ata (45-47, 49), 
-the defconfig refresh (48) and the LEDs (50-53).
+>  	sec = bin2bcd(sec);
+>  	min = bin2bcd(min);
+> @@ -149,9 +139,13 @@ static const struct rtc_class_ops m48t35_ops = {
+>  
+>  static int m48t35_probe(struct platform_device *pdev)
+>  {
+> +	const struct platform_device_id *id = platform_get_device_id(pdev);
+>  	struct resource *res;
+>  	struct m48t35_priv *priv;
+>  
+> +	if (!id)
+> +		return -ENODEV;
+> +
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (!res)
+>  		return -ENODEV;
+> @@ -164,6 +158,7 @@ static int m48t35_probe(struct platform_device *pdev)
+>  				     pdev->name))
+>  		return -EBUSY;
+>  
+> +	priv->epoch = id->driver_data;
+>  	priv->baseaddr = res->start;
+>  	priv->reg = devm_ioremap(&pdev->dev, priv->baseaddr, priv->size);
+>  	if (!priv->reg)
+> @@ -178,11 +173,20 @@ static int m48t35_probe(struct platform_device *pdev)
+>  	return PTR_ERR_OR_ZERO(priv->rtc);
+>  }
+>  
+> +/* The year register on SGI IP35-family machines counts from 1968. */
+> +static const struct platform_device_id m48t35_id_table[] = {
+> +	{ "rtc-m48t35", 1970 },
+> +	{ "rtc-m48t35-ip35", 1968 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(platform, m48t35_id_table);
+> +
+>  static struct platform_driver m48t35_platform_driver = {
+>  	.driver		= {
+>  		.name	= "rtc-m48t35",
+>  	},
+>  	.probe		= m48t35_probe,
+> +	.id_table	= m48t35_id_table,
+>  };
+>  
+>  module_platform_driver(m48t35_platform_driver);
+> @@ -191,3 +195,4 @@ MODULE_AUTHOR("Thomas Bogendoerfer <tsbogend@alpha.franken.de>");
+>  MODULE_DESCRIPTION("M48T35 RTC driver");
+>  MODULE_LICENSE("GPL");
+>  MODULE_ALIAS("platform:rtc-m48t35");
+> +MODULE_ALIAS("platform:rtc-m48t35-ip35");
+> -- 
+> 2.47.3
+> 
 
-I¢ll wait for Thomas to say whether he prefers it split that way for v3.
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
+--QIi22XUrPanoMPkY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment;
+	filename=0001-rtc-m48t35-switch-to-devm_rtc_allocate_device.patch
+
+From 7aed40aa17edfdd132ad10f6fb1ca9f1f1ddac07 Mon Sep 17 00:00:00 2001
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Date: Tue, 13 Oct 2026 16:21:06 +0200
+Subject: [PATCH] rtc: m48t35: switch to devm_rtc_allocate_device
+
+Switch to devm_rtc_allocate_device/devm_rtc_register_device, this allows
+for further improvement of the driver.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ drivers/rtc/rtc-m48t35.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/rtc/rtc-m48t35.c b/drivers/rtc/rtc-m48t35.c
+index 92f19bf997b2..0f4a3cb1e1f0 100644
+--- a/drivers/rtc/rtc-m48t35.c
++++ b/drivers/rtc/rtc-m48t35.c
+@@ -173,9 +173,13 @@ static int m48t35_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 
+-	priv->rtc = devm_rtc_device_register(&pdev->dev, "m48t35",
+-				  &m48t35_ops, THIS_MODULE);
+-	return PTR_ERR_OR_ZERO(priv->rtc);
++	priv->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(priv->rtc))
++		return PTR_ERR(priv->rtc);
++
++	priv->rtc->ops = &m48t35_ops;
++
++	return devm_rtc_register_device(priv->rtc);
+ }
+ 
+ static struct platform_driver m48t35_platform_driver = {
+-- 
+2.56.0
 
 
-Thanks,
-Imre
---8323329-1641235930-1791901553=:27186--
+--QIi22XUrPanoMPkY--
