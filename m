@@ -1,145 +1,294 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D59E2DC76A;
-	Mon, 12 Oct 2026 14:13:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 764644BB297
+	for <linux-rtc@vger.kernel.org>; Tue, 13 Oct 2026 06:33:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791814439; cv=none; b=CNSmMxFhw3P904PLD2nNYswBsetNqS5UHGpO9Vt12IQh4ODVbX8yXXz1k5IWz71/Q2oWxn/sIqwIoUs7X556yWMcXyEfzh4QoyiaFPQbaQjpA5KRef5FFi7pMsPbrU32hX8lMi0XbjWfkwqUju9HZw+OzCWsT3WuLdj+rSOwPnM=
+	t=1791873236; cv=none; b=nfYwAB2/ohvzxqf1OapH/BrRiRQwq5iUnEIGBGpP1eXeS7VhfngQo5ZYVMhCYCyLcOBWnnjtlCwLal8HFN23YsHWDM0XMMPM8aMHOhD0KLj9JJQ0IH0JC+TO3cYBOx3b2GG+Lm035y/XlS+8URzJm0EpZuQJ3rU9qBNuVAP6fNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791814439; c=relaxed/simple;
-	bh=sVjwzLwnuDqiviKytairRzYj03flAp468AiTMTx6u1s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZnGQw7zA0AKY232hJ6jPIgZLwZK0a/Eqk3uvcXXHlCt0jeUt2PEDCKhVbqx+d1ImRV0wYpb1/LRkf6uFpmihg8WA3ZT4UuxRIawd5+acFLUEdlvPuvpDu0Ywz88sAE3REtHKcGWnzOap1877ckESFswl5XnOVVjsIidsrmoBcBQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J7B2nYFy; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791873236; c=relaxed/simple;
+	bh=PKDt9a17x5JwDBBG2cr351fvRdaGcmqb74KmAxG/+jI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=DOgvOb7IOzhmaogLQZvjnfA+312A80t73v4mDwWcSZrewoli+mPXvVDL2xHzZKwUhHK5sdTZJSaqdcYlzE+kNVYDHFOO58tVItDoW+b7dk09b+I43Ky9Gt0tTS2xK+hbZsRCMNhxqxwUV+0HKVkqXiqiB8UprOs6+uhn7oJxCgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=myzr4P6w; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J7B2nYFy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740251F0089B;
-	Mon, 12 Oct 2026 14:13:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791814438;
-	bh=zChgm/anlnY6ygtPI9Yk+VQtQC58PsyggIibaqDgkac=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=J7B2nYFybMsRL3Ck30yqtH5FyF+LryI0O9muAH7glRL9PjGCiAVtRMJR+f2DsqY5r
-	 xRCSjD1pC/KgDsa1TXdn1tuZRxGhsNffINpNrCb4ELmHcZHaOAuLKawB8QibV7wbV1
-	 CFy7S1F8WEXeQQt2lfyjgAIQWyrrhhUSLJONRJXWc9dC+0AQwjf7TcvYo4wfmOErED
-	 va/EGB1X6qEWxcnwcEkFSDZwtUI8PBwMTpmnUsdV5HmsAxPhtScgAKucA7cIwM4Bwx
-	 mfO5e8ihXqTvGAghRoSVslKAu+GRq1FRkFVIEPg95pbSCf09gGJGu8fbPwOJpLlBI3
-	 AVyejWw36sY+w==
-Message-ID: <e00ab521-bd98-447a-9553-1f6265b822d9@kernel.org>
-Date: Mon, 12 Oct 2026 09:13:55 -0500
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="myzr4P6w"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-3ab98332238so1257872a91.3
+        for <linux-rtc@vger.kernel.org>; Mon, 12 Oct 2026 23:33:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791873234; x=1792478034; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oTNsy5m2fl3FNNHCS2M1Dkdj9lpqET4GIobo7b5ehNE=;
+        b=myzr4P6wCvoZJlBMOFMxmkdSIEPnMsg6M4vjI+H+7NW2TPn0QXtMC5IBAzW1QRId2J
+         XJE09aNDoZsJQqoZLoR7UfRaP2SXqjc0K4TuV7i2scG4fWwcsg2xHwtWYyduxm7QUvvv
+         Ba5kC7IAZCDUYHYN4Z0TBWGv88XsIYhNa9ESxsqCsjBlICkpXRMSgyp1hjHTlk/+e6mO
+         HkP+xaP9nlpkU21qHiKpO2NMr8zjCRzE5jeILBJUTgQTcvG9nVLMLQMpynjz3w0HNbSe
+         7hkotiRDIXagzJ+5T1eBADkm2Vpk7/JvzZ+s3vMH+WCbH27ScyFS31mqLXGdQGdXIFin
+         HNUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791873234; x=1792478034;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oTNsy5m2fl3FNNHCS2M1Dkdj9lpqET4GIobo7b5ehNE=;
+        b=Hqr26mHkqCT0M/mq07I/r8CsSUxLS+Y6zXBwsrQAMZU/XgVd7xxdMH7geSx9VTNyCb
+         Gjeh6PLB39sKMfAPl4aE5EOL/riwbJr2r1i+43c9BSdYOgY4xHouG8sVm3HK03hL4E51
+         ebo6/Q053tcL06i7lS6dhnQ6Az6CgoC4BXQxt33VtiN+5LHBOCtA+ardcXacbaDDCDW9
+         C6drF1QHXlLetrG6xm2lqLx7tsbkU09A4TPUS4HP3psPsx92Y+x3SZrtJNevhtLLx9+F
+         +cRPjqAOdAOzGvWNfITtU4rN8CrXEw4hK/PL73iNRW6dXX/ZqNqSrk101aKG/6e2oEaT
+         z1Vw==
+X-Forwarded-Encrypted: i=1; AKwUvBwHO2ALQHpykkf1s72bsn0oLETyif5hFKCtNGlA177ZKRjwJ99lSuMkFM9kVdffXwtvI7PcDjiX+cY=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKQpq24l66qtUU1A434p1b3ZD11mclpXUgWWOidWxAwybLXjM9D
+	098Xn8HKLDmj7pTstf7gZpDWL6ue/vK40MW5Im1DvwWVrAeWHrdTfLi/
+X-Gm-Gg: AYBFou0vwR7zLkLJo3NEDp0AquztdNKUDCk+kb4yb1xaP4jIQ6o2hg3NctIa21TnZk4
+	KnvbFoUDX0bmomEpWEKT7UjcH0xeTDlnTK1sHTo65RQ6axwXEQSD5Y3YGxATYTPULU3ZFl+XE9/
+	+pjIhGQBR9yVVPtuhQwTQhzF1xJNpkeA2erxx1S1a9ROV3LMdgN02jXgbGXeP41eor8MYd/XFWL
+	7wakEfpQhr5bTXkW8yh0JJXaEZ/1EImHvLi0Wk1KrxW9x33VIHeAYfVtW1CjYV9QRsWwHf+mWAQ
+	6e3naRg8RppgTArQgs0AzXgdGCdx7LsoPQPRXq5n3MpiNe4fnn7kCoJZJCqpURzQzbHP8KNXuoe
+	flKkQqo8fTDLRBJjoVCqQ1ygrecmnGPFkJ4Ae4HRJa0AhxjJINDpi6ifDOL1nNgS1686xPUZ7Zc
+	5L3M4UAQllubB2hhiiE2U9YjnkgTYknFqmzwEGuynKrzzmqZu2fUb15Du6mvDXxzZ4e6fOnc/aw
+	aJlzI9m6XkqdBCaZfeBGM8L1bs3VGY13S7blRrOId4FI1FeWUo=
+X-Received: by 2002:a17:90b:1dc1:b0:39e:4c7f:7304 with SMTP id 98e67ed59e1d1-3ab3ac9f622mr8108214a91.27.1791873233720;
+        Mon, 12 Oct 2026 23:33:53 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ab38f4863esm23169595a91.11.2026.10.12.23.33.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2026 23:33:53 -0700 (PDT)
+From: a0282524688@gmail.com
+To: lee@kernel.org,
+	Ming Yu <tmyu0@nuvoton.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: linux-kernel@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>,
+	linux-gpio@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	mfd@lists.linux.dev
+Subject: [PATCH v9 05/12] mfd: nct6694: Move module type macros to shared header
+Date: Tue, 13 Oct 2026 14:32:51 +0800
+Message-Id: <20261013063259.2734757-6-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261013063259.2734757-1-a0282524688@gmail.com>
+References: <20261013063259.2734757-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] platform/x86/amd/pmc: Fix RTC reference leak in
- amd_pmc_verify_czn_rtc()
-Content-Language: en-US
-To: Ma Ke <make_ruc2021@163.com>, Shyam-sundar.S-k@amd.com, hansg@kernel.org,
- ilpo.jarvinen@linux.intel.com, alexandre.belloni@bootlin.com
-Cc: platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rtc@vger.kernel.org, akpm@linux-foundation.org, stable@vger.kernel.org
-References: <20261011121759.3267678-1-make_ruc2021@163.com>
-From: Mario Limonciello <superm1@kernel.org>
-In-Reply-To: <20261011121759.3267678-1-make_ruc2021@163.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
+From: Ming Yu <a0282524688@gmail.com>
 
+Each sub-device driver defines the module type used by its own
+commands. The upcoming HIF transport also needs to recognise
+NCT6694_RPT_MOD, as report accesses are served from a separate
+register space rather than through the command mailbox.
 
-On 10/11/26 07:17, Ma Ke wrote:
-> amd_pmc_verify_czn_rtc() opens the RTC with rtc_class_open(), which
-> takes both a device reference and a module reference on the RTC
-> driver. The matching release is rtc_class_close(), and it is never
-> called. Every return path after the device has been opened, the ones
-> that return 0 as well as the ones that report an error, leaves both
-> references behind, so each S0i3 suspend leaks them.
-> 
-> Release the reference with a __free() cleanup on the declaration,
-> which covers every return path without adding labels.
-> 
-> rtc_class_close() does not accept a NULL argument, so the cleanup
-> helper has to guard against one: rtc_class_open() may fail and the
-> declaration still has to be cleaned up.
-> 
-> Found by code review.
-> 
-> Fixes: 59348401ebed ("platform/x86: amd-pmc: Add special handling for timer based S0i3 wakeup")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ma Ke <make_ruc2021@163.com>
+Move all module types into the shared header so that the transports
+and the sub-device drivers use a single set of definitions.
 
-Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
+No functional change.
 
-> ---
-> Changes in v3:
-> - Define DEFINE_FREE(rtc_class_close, ...) in include/linux/rtc.h rather
->    than locally in pmc.c, since it belongs with the API it wraps.
->    Suggested by Ilpo Järvinen.
-> - Guard the cleanup against a NULL rtc_device; rtc_class_close() does not
->    handle one.
-> - Move the __free() declaration to the assignment, as described in the
->    comment in <linux/cleanup.h>.
-> - Cc the RTC maintainer and list, since v3 touches include/linux/rtc.h.
-> 
-> Changes in v2:
-> - Replace the added goto labels with a __free() cleanup on the
->    declaration, as suggested by Mario Limonciello and Ilpo Järvinen.
-> ---
->   drivers/platform/x86/amd/pmc/pmc.c | 5 +++--
->   include/linux/rtc.h                | 2 ++
->   2 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/platform/x86/amd/pmc/pmc.c b/drivers/platform/x86/amd/pmc/pmc.c
-> index 6792aa2c6187..f96e8a358eb7 100644
-> --- a/drivers/platform/x86/amd/pmc/pmc.c
-> +++ b/drivers/platform/x86/amd/pmc/pmc.c
-> @@ -14,6 +14,7 @@
->   #include <linux/array_size.h>
->   #include <linux/bitfield.h>
->   #include <linux/bits.h>
-> +#include <linux/cleanup.h>
->   #include <linux/debugfs.h>
->   #include <linux/delay.h>
->   #include <linux/dmi.h>
-> @@ -648,7 +649,6 @@ static int amd_pmc_wa_irq1(struct amd_pmc_dev *pdev)
->   
->   static int amd_pmc_verify_czn_rtc(struct amd_pmc_dev *pdev, u32 *arg)
->   {
-> -	struct rtc_device *rtc_device;
->   	time64_t then, now, duration;
->   	struct rtc_wkalrm alarm;
->   	struct rtc_time tm;
-> @@ -664,7 +664,8 @@ static int amd_pmc_verify_czn_rtc(struct amd_pmc_dev *pdev, u32 *arg)
->   	if (pdev->major < 64 || (pdev->major == 64 && pdev->minor < 53))
->   		return 0;
->   
-> -	rtc_device = rtc_class_open("rtc0");
-> +	struct rtc_device *rtc_device __free(rtc_class_close) =
-> +		rtc_class_open("rtc0");
->   	if (!rtc_device)
->   		return 0;
->   	rc = rtc_read_next_alarm(rtc_device, &alarm);
-> diff --git a/include/linux/rtc.h b/include/linux/rtc.h
-> index c09fc22819d0..0f43b5027235 100644
-> --- a/include/linux/rtc.h
-> +++ b/include/linux/rtc.h
-> @@ -13,6 +13,7 @@
->   #define _LINUX_RTC_H_
->   
->   
-> +#include <linux/cleanup.h>
->   #include <linux/types.h>
->   #include <linux/interrupt.h>
->   #include <linux/nvmem-provider.h>
-> @@ -201,6 +202,7 @@ extern void rtc_update_irq(struct rtc_device *rtc,
->   
->   extern struct rtc_device *rtc_class_open(const char *name);
->   extern void rtc_class_close(struct rtc_device *rtc);
-> +DEFINE_FREE(rtc_class_close, struct rtc_device *, if (_T) rtc_class_close(_T));
->   
->   extern int rtc_irq_set_state(struct rtc_device *rtc, int enabled);
->   extern int rtc_irq_set_freq(struct rtc_device *rtc, int freq);
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+Changes in v9:
+- Added Andi's Reviewed-by.
+
+Changes in v8:
+- Reworded the commit message to explain why the transport needs the
+  module types.
+
+Changes in v7:
+- None.
+
+Changes in v6:
+- None.
+
+Changes in v5:
+- Split from the monolithic v4 patch to follow the single logical change
+  principle.
+
+ drivers/gpio/gpio-nct6694.c         |  7 -------
+ drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
+ drivers/i2c/busses/i2c-nct6694.c    |  7 -------
+ drivers/net/can/usb/nct6694_canfd.c |  6 ------
+ drivers/rtc/rtc-nct6694.c           |  7 -------
+ drivers/watchdog/nct6694_wdt.c      |  7 -------
+ include/linux/mfd/nct6694.h         |  9 +++++++++
+ 7 files changed, 9 insertions(+), 55 deletions(-)
+
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a8607f0d9915..53bfc5983648 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -13,13 +13,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 GPIO controller.
+- * This defines the module type used for communication with the NCT6694
+- * GPIO controller over the USB interface.
+- */
+-#define NCT6694_GPIO_MOD	0xFF
+-
+ #define NCT6694_GPIO_VER	0x90
+ #define NCT6694_GPIO_VALID	0x110
+ #define NCT6694_GPI_DATA	0x120
+diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+index 9a9a4db434c4..bd4c106305c7 100644
+--- a/drivers/hwmon/nct6694-hwmon.c
++++ b/drivers/hwmon/nct6694-hwmon.c
+@@ -15,13 +15,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 report channel
+- * This defines the module type used for communication with the NCT6694
+- * report channel over the USB interface.
+- */
+-#define NCT6694_RPT_MOD			0xFF
+-
+ /* Report channel */
+ /*
+  * The report channel is used to report the status of the hardware monitor
+@@ -38,13 +31,6 @@
+ #define NCT6694_TIN_STS(x)		(0x6A + (x))
+ #define NCT6694_FIN_STS(x)		(0x6E + (x))
+ 
+-/*
+- * USB command module type for NCT6694 HWMON controller.
+- * This defines the module type used for communication with the NCT6694
+- * HWMON controller over the USB interface.
+- */
+-#define NCT6694_HWMON_MOD		0x00
+-
+ /* Command 00h - Hardware Monitor Control */
+ #define NCT6694_HWMON_CONTROL		0x00
+ #define NCT6694_HWMON_CONTROL_SEL	0x00
+@@ -53,13 +39,6 @@
+ #define NCT6694_HWMON_ALARM		0x02
+ #define NCT6694_HWMON_ALARM_SEL		0x00
+ 
+-/*
+- * USB command module type for NCT6694 PWM controller.
+- * This defines the module type used for communication with the NCT6694
+- * PWM controller over the USB interface.
+- */
+-#define NCT6694_PWM_MOD			0x01
+-
+ /* PWM Command - Manual Control */
+ #define NCT6694_PWM_CONTROL		0x01
+ #define NCT6694_PWM_CONTROL_SEL		0x00
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..ef3329f34246 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -12,13 +12,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 I2C controller.
+- * This defines the module type used for communication with the NCT6694
+- * I2C controller over the USB interface.
+- */
+-#define NCT6694_I2C_MOD			0x03
+-
+ /* Command 00h - I2C Deliver */
+ #define NCT6694_I2C_DELIVER		0x00
+ #define NCT6694_I2C_DELIVER_SEL		0x00
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..262b4c26c9d4 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -18,12 +18,6 @@
+ 
+ #define DEVICE_NAME "nct6694-canfd"
+ 
+-/* USB command module type for NCT6694 CANfd controller.
+- * This defines the module type used for communication with the NCT6694
+- * CANfd controller over the USB interface.
+- */
+-#define NCT6694_CANFD_MOD			0x05
+-
+ /* Command 00h - CAN Setting and Initialization */
+ #define NCT6694_CANFD_SETTING			0x00
+ #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
+diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
+index 35401a0d9cf5..c06902f150c9 100644
+--- a/drivers/rtc/rtc-nct6694.c
++++ b/drivers/rtc/rtc-nct6694.c
+@@ -14,13 +14,6 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 RTC controller.
+- * This defines the module type used for communication with the NCT6694
+- * RTC controller over the USB interface.
+- */
+-#define NCT6694_RTC_MOD		0x08
+-
+ /* Command 00h - RTC Time */
+ #define NCT6694_RTC_TIME	0x0000
+ #define NCT6694_RTC_TIME_SEL	0x00
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..4c06ac105562 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -20,13 +20,6 @@
+ 
+ #define NCT6694_WDT_MAX_DEVS		2
+ 
+-/*
+- * USB command module type for NCT6694 WDT controller.
+- * This defines the module type used for communication with the NCT6694
+- * WDT controller over the USB interface.
+- */
+-#define NCT6694_WDT_MOD			0x07
+-
+ /* Command 00h - WDT Setup */
+ #define NCT6694_WDT_SETUP		0x00
+ #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 69e4652cf16c..d46ae34a497e 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,15 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#define NCT6694_HWMON_MOD	0x00
++#define NCT6694_PWM_MOD		0x01
++#define NCT6694_I2C_MOD		0x03
++#define NCT6694_CANFD_MOD	0x05
++#define NCT6694_WDT_MOD		0x07
++#define NCT6694_RTC_MOD		0x08
++#define NCT6694_RPT_MOD		0xFF
++#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x01
+-- 
+2.34.1
 
