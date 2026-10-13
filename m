@@ -1,122 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B6A23D8916
-	for <linux-rtc@vger.kernel.org>; Tue, 13 Oct 2026 10:15:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870FA4FB9A9;
+	Tue, 13 Oct 2026 12:03:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791886504; cv=none; b=RGZHeQDcXaKDT3nGfMqoMnrF8YZZFFRXmMSwRb362U8S41lh5BxwE6Ves5uupTLdU09/siaYyRsi4WWMWPzY7LbQSFiBbBKyXgecrwWIKxFJYXkVJrktYV7e4NafBuA9nu0myHZjyEcR9meHwXR3du4W6Zjal0FHfLlfGVB8T70=
+	t=1791892992; cv=none; b=nuUPeHOtN3Dd8ynnu6JN46dfNce7GXAFVq6VNrdM96nc82m7koy48JEYRinRVz+UDlRrgf+QIDk5GBCgTTirBnR7kPoY/nU09VUHmCUKdHKbyyPZz+u739XWKSxI4a6aIzE7OduRPoJkpj0hNAoxzBWnVwOcW+Zac/7b38cQUms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791886504; c=relaxed/simple;
-	bh=9AVHA1VGIlP+i6yAoFAUmwTo4Z05lGCNrUKHVrsMLDw=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=myNtXBMux4vYEPjLn4GKd00ix4N5HZLS1iK8XVyhZOELRX44WirTqrw6JX1mQS5OgKtxtex9Df5b43d/z21MHPLBcKV1YJiXV3IoYYyHPosLWo86Tl/OfdcibM+77OpziUuDopCNTO/WPzfvVnroVmt50AImZgB/NxNoWoEi2IY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RPcLkJ07; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791892992; c=relaxed/simple;
+	bh=nsCEk4Xy0Nc/KnAscQDMPn9+yzMDsizp6V9dgG2zarc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sVWU5pLkqIkEutsFLPk1UjYLfKivM2vbPeexlTmG5C7JIremo1+Fqw9gl99HM4RxlgCQp7BzgqNr5ASlvUUQB9an1b7JB7GAyYkVGeed8qC9dvXnJRDJOwNihcu7W76dIHNwlh7BDIkHAhBtyWpMecjTNB500bbP3BLdpHlIm7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ibp9Pc08; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RPcLkJ07"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B5BA1F00893;
-	Tue, 13 Oct 2026 10:15:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ibp9Pc08"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A671F00893;
+	Tue, 13 Oct 2026 12:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791886503;
-	bh=mGOjL2loZ0HJaSYen1+Hp+Dvm6k/ivO64a3d8ecpR+M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RPcLkJ07RBv/zC9ZniHlethr21oX7HP9h1eNbO6PDjHxwSaGvymcJKBISWuUb+RRg
-	 rTlez8c83TYJSG0jw/SRrF6yNVcth9eyS9ffb9cFGi9HtHTBV412fwPcXEu6Ny+CTq
-	 dZ955Z7RAj8uYk5J0WJbheh0qBvh4Q9+McIFR0ZEr1psGDOZPbLpEDPfpHlTzC2WjY
-	 ZHfKte7fLw4Up+wPGuebDok+lt9cgpDVmBw7YA3gkcLKQI3XjLTDnSlM8WROSQsTY+
-	 6lRgxqtFSHm1GN6QtaCaMVNYiQx+JEZEVXUi1tiLMA5Iw8K8AOIikkPxQpLjNmZhj1
-	 3RQnujUFY/Z3Q==
-Message-ID: <sashiko-outbox-169477@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] rtc: ds1685: keep setting PAB until power is
- removed
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Imre Kaloz" <kaloz@kernel.org>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261013094930.574-3-kaloz@kernel.org>
-References: <20261013094930.574-1-kaloz@kernel.org>
- <20261013094930.574-3-kaloz@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 10:15:02 +0000
+	s=k20260515; t=1791892991;
+	bh=f5BzAqkkgihy7La10LmXTE9Yq6YBP0nQKPfTxcUA0g0=;
+	h=From:To:Cc:Subject:Date;
+	b=Ibp9Pc08jJOjT19i0TrZdkrrhGk40hwfoDKNTcUjD4PlBX9lJuI7ZMZAYrtz4lkuG
+	 o9bmawX28Mq6Vlhr2i55Fq8ySCloHrlm0tZltj7Og88REuZ/Ju4rVdENaCzex+E21Z
+	 rj7Fwr+d82t/RcVaJgCfFK3jAksmaFcMwCxd12aRNO2vtmjJsUWrbCO2ROalCZ4PLD
+	 BqJlIK7LBvMtGj4veC+z4eBz6MCCy/nlFtRcp3rnrPzyK/DbsPg5JQqDnd9Zx1KPjI
+	 ChfLl58vpEcMjohwki/wxCHK5ncI8xZnlRlBKY4MywkeVQUxdD1eE6KjGga0YRFSFL
+	 pWe9+DC7wBvQg==
+From: Imre Kaloz <kaloz@kernel.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Joshua Kinard <linux@kumba.dev>,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] rtc: ds1685: power-off fixes
+Date: Tue, 13 Oct 2026 14:02:05 +0200
+Message-ID: <20261013120208.11268-1-kaloz@kernel.org>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] rtc: ds1685: sleep in atomic/poweroff context causes deadlock
---
+Three fixes for ds1685_rtc_poweroff(), on SGI O2 and Octane machines.
 
-commit 4f1dff5106d71cbe4c516d23f941007e8e8aa503
-Author: Imre Kaloz <kaloz@kernel.org>
+Patch 1 arms the wake-up alarm only if an alarm is set, so that stale
+alarm registers no longer power the machine back on.
 
-rtc: ds1685: keep setting PAB until power is removed
+Patch 2 replaces the sleep before the PAB write with a busy wait, as
+power-off handlers must not sleep.
 
-This commit alters the ds1685_rtc_poweroff function to continuously clear
-event flags and set the PAB bit until power is gone, replacing the previous
-busy spin.
+Patch 3 repeats the PAB write, clearing the kickstart and wake-up
+flags with it, until power is removed.
 
-> diff --git a/drivers/rtc/rtc-ds1685.c b/drivers/rtc/rtc-ds1685.c
-> index 94c89333c5d5c..a7828f0d6c09e 100644
-> --- a/drivers/rtc/rtc-ds1685.c
-> +++ b/drivers/rtc/rtc-ds1685.c
-> @@ -1424,15 +1424,21 @@ ds1685_rtc_poweroff(struct platform_device *pdev)
->  			rtc->write(rtc, RTC_EXT_CTRL_4B, ctrl4b);
->  		}
-> =20
-> -		/* Set PAB to 1 in Control 4A to power the system down. */
-> +		/*
-> +		 * Set PAB to 1 in Control 4A to power the system down.  PAB
-> +		 * is cleared again while KF and KSE, or WF and WIE, are set,
-> +		 * so keep clearing the flags and setting PAB until power is
-> +		 * gone.  We do not switch back to bank0.
-> +		 */
->  		dev_warn(&pdev->dev, "Powerdown.\n");
->  		msleep(20);
+Patch 1 was tested on an O2, and the whole series on an Octane.
 
-[Severity: High]
-This problem wasn't introduced by this patch, but ds1685_rtc_poweroff() is
-used as a system power-off handler which executes at the end of the shutdown
-sequence, often with preemption or local interrupts disabled.
+Changes in v2:
+- New patch 2: use mdelay() instead of msleep() before the PAB write.
+- Patch 3 (v1 patch 2): use mdelay() instead of msleep() in the
+  repeat loop.
 
-Does this msleep() trigger a scheduling while atomic bug by delegating to
-schedule_timeout_uninterruptible() in this context?
+v1: https://lore.kernel.org/all/20261013094930.574-1-kaloz@kernel.org/
 
-If local interrupts are disabled, could this also block indefinitely without
-making progress because the scheduler timer tick will not be serviced?
+Imre Kaloz (3):
+  rtc: ds1685: arm the wake-up alarm at power-off only if an alarm is
+    set
+  rtc: ds1685: do not sleep in the power-off handler
+  rtc: ds1685: keep setting PAB until power is removed
 
-> -		rtc->write(rtc, RTC_EXT_CTRL_4A,
-> -			   (ctrl4a | RTC_CTRL_4A_PAB));
-> -
-> -		/* Spin ... we do not switch back to bank0. */
-> -		while(1);
-> -		unreachable();
-> +		while (1) {
-> +			ctrl4a =3D rtc->read(rtc, RTC_EXT_CTRL_4A);
-> +			rtc->write(rtc, RTC_EXT_CTRL_4A,
-> +				   (ctrl4a & ~RTC_CTRL_4A_RWK_MASK) |
-> +				   RTC_CTRL_4A_PAB);
-> +			msleep(100);
+ drivers/rtc/rtc-ds1685.c | 40 ++++++++++++++++++++++++++--------------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
 
-[Severity: High]
-This patch changes the original busy-spin loop into an infinite loop that
-calls msleep(100).
 
-Since this is executing in an atomic power-off context, won't this trigger
-the same scheduling while atomic issue or system deadlock as mentioned
-above?
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+-- 
+2.47.3
 
-Hardware power-off routines typically require busy-waits like mdelay()
-instead of msleep() to avoid yielding the CPU while interrupts are disabled.
-
-> +		}
->  	}
->  }
->  EXPORT_SYMBOL_GPL(ds1685_rtc_poweroff);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013094930.574-=
-1-kaloz@kernel.org?part=3D2
