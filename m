@@ -1,132 +1,196 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933A13ED3D8
-	for <linux-rtc@vger.kernel.org>; Wed, 14 Oct 2026 09:36:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791970582; cv=none; b=sQI9tgA6vYzkOH80xf/I1JLbuPMdbZTUkg5mQoak/I/XD8LN66FLaTll+Sx+Qk009NFfAc3yqjdB8efcsja492E1b6/QzY7SCmztXg4iehWhk4ecu5JHHqZSkvbchXZM12kgu0EZEZQ4Y3DYvvnK24s3OrKEukPEns8dkI4ZsvM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791970582; c=relaxed/simple;
-	bh=Z5ysX779+2BJivXevzHH1XvznaoW04mloJ1QhySlIwY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PKAieCeXDuS8qH3M04r65mARJIMm01+NKezqXvdA0xYw8v0AmmhoEuwuCsdrC/7zvpmjOWluUhMec98Evc9DrWHgufhyW0nr1aUdcOfNwu6V95m+ZVMRyquEkUamkfLccB35iF+uINwQKgox4w8Q/KNhnVPE8yw+SW6rvMOW6pw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=D4h9k2KY; arc=none smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E59C4BB815
+	for <linux-rtc@vger.kernel.org>; Wed, 14 Oct 2026 10:03:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791972211; cv=pass; b=CPXQ8s/1BKBqSNSdvU5pQMJ+oVAQIlwH8aNdS7Z4Rm9WAuLr+uu4YUQ1/flAE4+bNIzD5xu+2H0zG45PQCTzwJAWLTqeikyj02ThS4Cqs4yI9tlUwBHZBcYV0q41bjgFa+tIbt6DGd8/CP2QWxuutqcEZGUSnKkxyt27KAXy95s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791972211; c=relaxed/simple;
+	bh=X4IPUWRzqd3vNvyDbKw42IC1Li/8214eRkoZv4hcu5A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Lf/q/5ulDBeSmQ+Kr7yNMm0hbQrNskAbbAdf6lInmcT6/V/aGxeIDvUfjqZFTNsZPwXXn1lGEx6XzqfSeBANJEepKYSvQPVqfjheNXMgB4Tuqmf+3eK8jjZ5Iv53/wf+WIn9lNHc1kq2ezPKpGVJloUt+tojC4DnaSjUJcqnQVY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z/fTK789; arc=pass smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="D4h9k2KY"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48b0d19cf7eso3880498f8f.1
-        for <linux-rtc@vger.kernel.org>; Wed, 14 Oct 2026 02:36:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z/fTK789"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2e60f9af6e6so6422645ad.3
+        for <linux-rtc@vger.kernel.org>; Wed, 14 Oct 2026 03:03:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791972210; cv=none;
+        d=google.com; s=arc-20260327;
+        b=GwSJj4d0aCx/k132yYncWAcwMMF7d30R2yvNK+nCDFFfzMyXoLEtCe0/YULatFkMSx
+         BxtJ6g5D0c7SqXTSuufafM3krWGuPciEPxEVOIlH1vKb2GO7xB61opeKj3nAtONNvqug
+         5zA1ssNQPnBnIrTEN9cy5tYXmPWGS1k2GxrwM4R+olxW2Q2XBs2O04s2aQ2PVnRoUkn6
+         I/OFuHtezZqXrnW8AIUGHJboh0mBGgRjgih4sRnQxpiJd0EvphypUOHwnvej1oKSICh0
+         98ROW/vDb75li5wPD3+XJ4Nv99KDj0hEokKBBlaqyRcIRp1D9N8wz5IniW4gLynFfSxY
+         dqMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TkBY0USOLdA22gx/2rOX5OcC9aCnCnZClTEGNm0xQJA=;
+        fh=m9uQCJyZ5wz5POfcHLTgF8Htpa8EyPGa2NoYtfbvuq4=;
+        b=CTPrX59wkD+JgmFmILwIEBEG5W5xotH9rB5QjjQRy1KV6bS0lCCpvaJLqhr8k9db0O
+         FQwXv5eCHHAoSMu/2hLgv7UL0TFlqnAdsDvJkPxFUKjwT22FkBimD2oG1aV+/ogy4n2w
+         pQCc+dMmc9nZIpWasJ7sGLkTJcfj7x5X/C2n5XC2jnamyQQ2XLzPvX/LrqjlZnWQM557
+         nGCoUN1bRMpl4YmtlcwmaUCeu/GISU1kQNL8aNHLJboU4CwLcpum5nkprNx3gmLQDUDc
+         2cBbL0+ZDcVcBjDK04BlmooUorZAYB16TDzsfzPgE7S8J39zvjDZcc/hIzFU8HtReIPH
+         IybQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1791970580; x=1792575380; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9nFXolfpittgi2Lah9fQ/bqQ/j+/1tOBiVSyiO7ElMg=;
-        b=D4h9k2KYW0maCX6tsmsmAbBTbeDdlb5KVqZYxV9wP/e97DT6QK8TQKq4I42wueMV0a
-         zE2RtdDtU8d5LBptU2aMNoFDSszAJdZP1rravwftWPtTz7oH0RmXjV1nqk91mu9TQkAX
-         ufJfj8m19qntw2Uu955lFAoHWNN1BGx8VOiRbyd6rOWAuibyEHYTpQULp7Zq0IxGfTRD
-         MctpWNhBsxU45VyxsNAquLRCunBRdU4E/MnypoU/eseCMjj1ajJ2dmDecnvL2R0x0VtR
-         mVdVJM1Pm0mA+T+WIQk3HglCHAZE2vUw7QZhJE/CeYtTti7pqi6FPX2xqTjb//pYNPn5
-         E4RA==
+        d=gmail.com; s=20251104; t=1791972210; x=1792577010; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=TkBY0USOLdA22gx/2rOX5OcC9aCnCnZClTEGNm0xQJA=;
+        b=Z/fTK789A+okaxurLpsVesjB0Mf4XqeL4GmWnKZO3zmvPcFXU0ugZuF4JHf4wLv2hP
+         mnrBcvGrm0PSQB33n0fJgQS7d1bfEuysmJXKkDGofNZrEip4jME6tHFHxBkQEleU4l4J
+         MVc17cz6O606zEn+Rhz2hOwTL97BKUm9KZaQ3Nn6b20Yhf/HWw7AhiOhUdKV5GtmYT5i
+         X/y4BWM7u4zWY+4vtqNMiSKnTrmSAnGgtBT6AygEGHyt6LUDvP9HQQGUxAebCkrTkPxa
+         aAFLGj7w9Dq23AzalUtki4P7fsMPkEKS/F5sUXSQLIUrMQqO4dGQIQsKkwJ48YMiHyYc
+         ySXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791970580; x=1792575380;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=9nFXolfpittgi2Lah9fQ/bqQ/j+/1tOBiVSyiO7ElMg=;
-        b=JcOYdGxuYedH15scr1vuTfYuaqjRc214//q7xvQRJqBXmLf/W6rYs3NX2CohKaHIBi
-         ga9BPd4gZB7JMiPqgRCZHwHUEy6KiVTDg/TpEQ0iMtT7nsyl5OWqX2ORB5OanO5Mdxul
-         MzVRF2c2/yDRyWYIMuJBg5cMmKoIx/LCemY2BXgsarT5BjzphO54prMDu8pqJVXkkVr1
-         VtUUXOvVhjQ1DmwEUTEbCVlK2yENWANh+JgiTJOjaNnXrerHEgXJQZepkBWvUdgMCqvE
-         uZsNMSN02R+WtrER+4wv4mrV217Mu4h1C0uQE6GDnLzpCSMNHllTiAl6JkefVCM6De5l
-         MVyw==
-X-Forwarded-Encrypted: i=1; AKwUvBwTN1pBxkSowwLeWMSBEtnYutMG/JJyrCM3sjAzHNDhQClIzKw1MXYNSlS1AD4TD8SYb6q+eA37CLQ=@vger.kernel.org
-X-Gm-Message-State: AFq9FYI70Q0TjoYSik67wshhR2im2Dg3OZAL1Lw1dzef3FZRzFWj29fS
-	te4Dfl1Y4F1mmpsVoSY1kLaOkyYPdHEo7CcVtk74PiO+29CbFL9s0D3/ZXlckmutWYU=
-X-Gm-Gg: AYBFou2dLdKw19Gm2DsUaPWOkmjjnkibouzo1+Dk9yrquzeAsNBFHv6Mk09C2WoO8Uo
-	F3WkUhnz39yS3fUt/015RYeS1Mrh1+DWFW8Banuboh5AvazBBSRi8cdEpu6lET5F2ZlIS9XbY5e
-	IcSd/BnQ5M/NJs26RlnYI0OlMzRn6VdNwPF2qq9CfgDWfYQo670Mz2bBPa/dACeRk4+IyaMcLyy
-	iyYXXXWsM5OQZuWthknwaBYEXdPg84AcS1wMBqdNLRykxF7wX0SDhtFBPFxBnVqrL84OKFQE/WG
-	FMkFRgZfn4W8ooHNWXr2jOvGbud4hZev+/w5Tn54v+ddI03++ejSLMsA/J1lHdnJfOpNKupD50L
-	ctoZdAYC24k7Z6Hzq2YAnUntFu9ugbZLWmcP3YQHZhm+4AxM/iCnrseYotn5sc6tWF0C1ROTkMD
-	hcGp5QWXoZI3VmA9sqjEisN/2lVmz1IXN3wgnhQgRz1g4jbTs3XWGPvMSXrHC2IsV4Y+Q0ZKEjK
-	fpjpB48kqwVqw0JsYBLOAm6wES6QFzHCqX9XU1L0zSVGNzn/tqcbw1DTbDlC1oboxEfjCCG3AMR
-	7woFY/oa242MzTrH+lMvSZO0Eb0wkV4k4UjX+oXh
-X-Received: by 2002:a05:600c:8a09:20b0:4a1:9c98:b9b8 with SMTP id 5b1f17b1804b1-4a19c98c153mr160846965e9.11.1791970579795;
-        Wed, 14 Oct 2026 02:36:19 -0700 (PDT)
-Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0aaaa3fsm10907378f8f.10.2026.10.14.02.36.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Oct 2026 02:36:19 -0700 (PDT)
-Message-ID: <2e88806e-57dd-47e0-a9ef-a8507d22aa3e@suse.com>
-Date: Wed, 14 Oct 2026 11:36:17 +0200
+        d=1e100.net; s=20260707; t=1791972210; x=1792577010;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=TkBY0USOLdA22gx/2rOX5OcC9aCnCnZClTEGNm0xQJA=;
+        b=ffkT+wbKlFn4anzuqMQ6VyNnefNt4qECm8mToOjiWYz8xVFTCdpAxuwT4+T2aeBZ5F
+         7sDL3PtXSveD2x/Iu9vy9CT09KExjVnbd+N87suoTQ+yY71W/RnpsPOqDfV4qEDzfOgl
+         MKkpyXQgo5Aktin3vdkn2ECK7Fssnxkv8dNob6n0OK3nbCnmOYl3C+goVImz5fq7wS4M
+         Y1teogM/W3FTHmK7l9qdkw/CH/EETSbXjLiBXRtKGlwlrGJLjEC1mNY3iLmjcWfvTBgZ
+         60EQbzALAn+r9OcoZgmgfB+/5FtB7VLkl0c/TWp4/qkI5Zjr1LMG+Y1kp3IM/b2BIiHj
+         kGaQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwD7sc3j6Orby9pP/K1H4TebliCcg9MlbmMf01wLHRKxAxGrh/c4dZWfXq5Aqvv6vDaU10x4p3VTps=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKrZOrBAzukZUXoy8ZaxRi9AvMdWpMjKSAvUv0p1VoTdb6eq46j
+	N1PV4bX/SMT0q9Lpij3pApdSFg1HcuD+wrv1rg8KjomtmoMlRRHohx6yHA6Z7N3mEqlHpTfbByY
+	eyDxETGub/HCzp1ek5A8rJD1VYBhWuYmg6rbVj6m+yA==
+X-Gm-Gg: AYBFou0Wnwfn6FUhgjFob120UcFZPLXJs5u7C/r8zj3su4SB2AfoBME7pIT2P8MEN8i
+	dUm3fMqgT4K8ovVb8ljmEmmPzaTomQQuISECE1AosXyykFOnKCD65fP0QG1/4atwnzvR5vQfM19
+	HePwHyg97i5ZY9g1nDvquHkWAhEsNkY7tSorbHiALl+Y/TuOjkoNbOSfpkvxzGjwgfQiYtzr7GD
+	czczXvLIN0kLJz6SoY4Ay0wUEHo4PgcnfqydTXzFV7tGk7W0W3R4xfabsDOcgZuvceXCKk/Kx9D
+	FhJ2ljfatC/rWu4ftXxCFT3kjXiNKZjG7sM8o2M5iBEsOYZ8t7f6mhAiUCuvMLtSY6cUew==
+X-Received: by 2002:a17:902:c40d:b0:2e2:dc50:16a8 with SMTP id
+ d9443c01a7336-2e842cfd967mr144835445ad.27.1791972209741; Wed, 14 Oct 2026
+ 03:03:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/3] Remove obsolete __MODULE_STRING()
-To: Petr Pavlu <petr.pavlu@suse.com>
-Cc: Wim Van Sebroeck <wim@linux-watchdog.org>,
- Guenter Roeck <linux@roeck-us.net>, Ian Abbott <abbotti@mev.co.uk>,
- H Hartley Sweeten <hsweeten@visionengravers.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Rudolf Marek <r.marek@assembler.cz>, Andi Shyti <andi.shyti@kernel.org>,
- Chris Snook <chris.snook@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- =?UTF-8?Q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Andreas Noever <andreas.noever@gmail.com>,
- Mika Westerberg <westeri@kernel.org>, Yehezkel Bernat
- <YehezkelShB@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Duncan Sands <duncan.sands@free.fr>,
- Chas Williams <3chas3@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-watchdog@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
- linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
-Content-Language: en-US
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <20261002-module-string-v2-0-fc7438acaf4d@suse.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20261012100816.331033-1-pmazzini@gmail.com> <20261012100816.331033-7-pmazzini@gmail.com>
+ <sashiko-outbox-167946@kernel.org>
+In-Reply-To: <sashiko-outbox-167946@kernel.org>
+From: Pablo Mazzini <pmazzini@gmail.com>
+Date: Wed, 14 Oct 2026 11:03:01 +0100
+X-Gm-Features: AclHuK_IjvhnMV0ZgXT4S6uhoftE_NPkdNnWLTaSlgrxF5SaMhOEDanyjwfKrQs
+Message-ID: <CAAxh=juJViKpvj3hBdWE0E2Z5jLLGqc6EWRqD0aZnr40sPHQWA@mail.gmail.com>
+Subject: Re: [PATCH v4 06/11] rtc: sun6i: add Allwinner B288 compatible
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-sunxi@lists.linux.dev, 
+	linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 10/2/26 10:31 AM, Petr Pavlu wrote:
-> __MODULE_STRING() has been an alias for __stringify() since "[PATCH]
-> MODULE_PARM support for older modules" [1] in 2002-12. That change also
-> moved it to the graveyard section at the end of linux/module.h
-> 
-> Replace the remaining uses of __MODULE_STRING() with __stringify() and
-> remove the macro.
-> 
-> Apologies for the wide distribution. Acked-bys are appreciated.
-> 
-> [1] https://git.kernel.org/tglx/history/c/136839a1b4
+These are in sun6i_rtc_clk_init(), which this patch reuses unchanged for
+the B288, so they apply to all the SoCs using it. I can look into it
+separately.
 
-I've queued the second patch ("drivers: Replace __MODULE_STRING() with
-__stringify()") on modules-next for v7.4-rc1. Thanks for the Acked-byes
-and reviews.
-
-The first patch ("hwmon: Replace __MODULE_STRING() with __stringify()")
-should go through the hwmon tree. Once these changes are in mainline,
-I plan to pick up the final patch ("module: Remove obsolete
-__MODULE_STRING()").
-
--- Petr
+On Mon, Oct 12, 2026 at 11:19=E2=80=AFAM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 3 potential issu=
+e(s) to consider:
+> - [High] rtc: sun6i: missing ERR_PTR check causes crash in probe on clk_r=
+egister failure
+> - [Medium] rtc: sun6i: resource leak of losc clock on initialization erro=
+r path
+> - [Low] rtc: sun6i: memory leak of rtc structure in sun6i_rtc_clk_init er=
+ror path
+> --
+>
+> commit 903d00f6b5cb6afede9ad6ad5fca01853d776ce4
+> Author: Pablo Mazzini <pmazzini@gmail.com>
+> Subject: rtc: sun6i: add Allwinner B288 compatible
+>
+> This commit adds support for the Allwinner B288 RTC by reusing the A23
+> clock configuration. It maps the new compatible string
+> allwinner,sun8i-b288-rtc to the existing initialization functions.
+>
+> > diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+> > index 7fc60880e4094..05004e80ac089 100644
+> > --- a/drivers/rtc/rtc-sun6i.c
+> > +++ b/drivers/rtc/rtc-sun6i.c
+> > @@ -350,6 +350,10 @@ static void __init sun8i_a23_rtc_clk_init(struct d=
+evice_node *node)
+> >  CLK_OF_DECLARE_DRIVER(sun8i_a23_rtc_clk, "allwinner,sun8i-a23-rtc",
+> >                     sun8i_a23_rtc_clk_init);
+> >
+> > +/* The B288 RTC clocks are the same as the A23's */
+> > +CLK_OF_DECLARE_DRIVER(sun8i_b288_rtc_clk, "allwinner,sun8i-b288-rtc",
+> > +                   sun8i_a23_rtc_clk_init);
+> > +
+>
+> [Severity: High]
+> Does adding this compatible string expose an issue in the error handling
+> of sun6i_rtc_clk_init on registration failure?
+>
+> If clk_register fails for rtc->losc, the function returns an error
+> pointer and jumps to the err_register label. Since the global sun6i_rtc
+> pointer is already assigned to the allocated rtc struct earlier:
+>
+> sun6i_rtc_clk_init()
+>     /* Yes, I know, this is ugly. */
+>     sun6i_rtc =3D rtc;
+>     ...
+>     rtc->losc =3D clk_register(NULL, &rtc->hw);
+>     if (IS_ERR(rtc->losc)) {
+>         pr_crit("Couldn't register the LOSC clock\n");
+>         goto err_register;
+>     }
+>
+> The probe function sun6i_rtc_probe later fetches this dangling pointer:
+>
+> sun6i_rtc_probe()
+>     struct sun6i_rtc_dev *chip =3D sun6i_rtc;
+>     ...
+>     clk_prepare_enable(chip->losc);
+>
+> Can this lead to a kernel panic when clk_prepare_enable attempts to
+> dereference the error pointer stored in chip->losc?
+>
+> [Severity: Medium]
+> Additionally, if clk_register succeeds for rtc->losc but a later clock
+> registration fails, triggering the jump to err_register, does this
+> cleanup path leak the rtc->losc clock?
+>
+> sun6i_rtc_clk_init()
+> err_register:
+>     clk_hw_unregister_fixed_rate(rtc->int_osc);
+> err:
+>     kfree(clk_data);
+>
+> The err_register path unregisters rtc->int_osc but appears to omit
+> calling clk_unregister(rtc->losc).
+>
+> [Severity: Low]
+> Does the err cleanup path also leak the dynamically allocated rtc
+> structure?
+>
+> sun6i_rtc_clk_init()
+>     rtc =3D kzalloc_obj(*rtc);
+>     ...
+> err:
+>     kfree(clk_data);
+>
+> The error path frees clk_data but seems to omit freeing the allocated
+> rtc structure.
+>
+> [ ... ]
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012100816.33=
+1033-1-pmazzini@gmail.com?part=3D6
