@@ -1,56 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from r9204.ps.combzmail.jp (r9204.ps.combzmail.jp [160.16.62.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26572470438
-	for <linux-rtc@vger.kernel.org>; Wed, 14 Oct 2026 19:40:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB39846A
+	for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 00:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.16.62.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792006860; cv=none; b=ol+4L7J7nIH3dhJVIck+eWk9rDUTK6Qb2uGGL2mvWNyZv2PFsHqzAW76DgSbU1xQGUyI4RpZm97NHiMEp7vsoeDvDu5lgkUWSFxdcS+K32ZLF2o4bj+RkW4BNW3o71zuWPQbXkWGYYrWYXt2CVvXhT8xhcxJ+AsGk16YXimrQTI=
+	t=1792023161; cv=none; b=Vo41CtR55JAfDjDUiG3ODo+e58tb2AL0OkIzbVX93SXKD/0UAAJInsNyeFs1XgcgjoxENVIXYmTzuPbNRiMa9shh2h27V11mDvAkMQQ4WhGSeo4A8La6BYsF0g3qfxEgpHcxbpLVqz7KoAFPcJAOE59SXwe1feyVGZv1jaOs/jA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792006860; c=relaxed/simple;
-	bh=jplaW3YLxQho4h+U2HjNBZx9PjMm/ZSHfj9JorzktFg=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=FhkDYXPpVgMR1e0fyzCovZaXLwOUU0J78Aw+4xsv5b2HZRb0hABOlzWuM3+Jb1NleQdUhnS6iEcLQOOH77QSXCaIHXzO7kIH+v95sxAOHfxwI0bnZEV/ZaeRUGtvpYya0U86S2sVqNa9pDPfZARTEFPrLuY1yN2gCULOe95BbRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gp9V3Jf7; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gp9V3Jf7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 615721F000C4;
-	Wed, 14 Oct 2026 19:40:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792006858;
-	bh=jplaW3YLxQho4h+U2HjNBZx9PjMm/ZSHfj9JorzktFg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Gp9V3Jf7qPUUouYi4FOQWnJjwyqf+81eDmmq+RGQg5ZgLOw1uZI6XJRLfa+5VFTVe
-	 CQknOLmg3YwtgSr0OpB2j5lkiuGKSOIoaVSkRgjcNRHB05Ndh5N/EFMqw46jIgMaoq
-	 IRADo4HtvP5zP6AgQIOoeYJFXGe8YV3GnlbhejJeZvhrBVJZ88QnmjRrfhvFyk19us
-	 a7p0QAzQ0XGjWER5eZA50KFgemN9sCde5I1p/sS20bjHLlWpqK05AUY09+K1hoimED
-	 qELqxuBF1uI9aj0jUgZPGJDed3kOQm8UQWTmaKgA455aie09YiMTTs4xXgPCwB0lln
-	 7+48qYAyxKQLA==
-Message-ID: <sashiko-outbox-171804@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: sun6i: fix error handling in sun6i_rtc_clk_init()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pablo Mazzini" <pmazzini@gmail.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261014193220.38055-1-pmazzini@gmail.com>
-References: <20261014193220.38055-1-pmazzini@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 14 Oct 2026 19:40:57 +0000
+	s=arc-20240116; t=1792023161; c=relaxed/simple;
+	bh=SJeC87t+RJDIlrIcTwuTGon+6x4sWHNtFPC1muZqaFU=;
+	h=To:From:Subject:Mime-Version:Content-Type:Message-Id:Date; b=TNcg37qHvrrZ/vFmzbj3t9J8NMGVXCBnQwcsaqtSZivW9Fw2yguHZ+M86OWFvTk9v0VH4RYU8MTGfCUxwZHNm1GGBd3PbSTLJmiK3EgifxYE8ikLby8su1uUhULnbgSMrE/7tuYhROvlznbY7dmmV0Aaw61cfbt0Y7+rBYhXHk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fc-seminar-online.jp; spf=pass smtp.mailfrom=magerr.combzmail.jp; arc=none smtp.client-ip=160.16.62.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fc-seminar-online.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9204.ps.combzmail.jp (Postfix, from userid 99)
+	id 71C0F103E35; Thu, 15 Oct 2026 09:11:21 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9204.ps.combzmail.jp 71C0F103E35
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCPSJPKzBcOVQ7WTFnO3Y2SBsoQg==?= 
+ =?ISO-2022-JP?B?GyRCQGJMQDJxGyhC?= <info@fc-seminar-online.jp>
+X-Ip: 982072205585453
+X-Ip-source: k85gj7o648dnsaq5u0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCPmMzMjxUJE49Ik8rJHI7WTFnISM/NzUsGyhC?=
+ =?ISO-2022-JP?B?GyRCMys2SCVRITwlSCVKITxKZz04GyhC?=
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-MagazineId: o6q5
+X-uId: 6764315338486066674954221006
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20261015001218.71C0F103E35@r9204.ps.combzmail.jp>
+Date: Thu, 15 Oct 2026 09:11:21 +0900 (JST)
 
-> Set sun6i_rtc only once all clocks are registered, and unwind fully on
-> error.
->=20
-> Signed-off-by: Pablo Mazzini <pmazzini@gmail.com>
+　
+　底堅い社会需要と、公的給付に基づく
+　安定的収益モデルをもつ
+　
+　厚労省許認可 「就労移行支援」事業の
+　新規開業パートナーを募集しています。
+　
+　
+　◇１エリア１企業様限定のエリアパートナー制となります◇
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+　　　　　　　　　　　〜募集エリア〜
+　　　北海道／青森県／岩手県／宮城県／秋田県／山形県／福島県
+　　　茨城県／栃木県／群馬県／埼玉県／千葉県／東京都／神奈川
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261014193220.3805=
-5-1-pmazzini@gmail.com?part=3D1
+　　　新潟県／富山県／石川県／福井県／山梨県／長野県／静岡県／愛知県
 
+　　　三重県／滋賀県／京都府／大阪府／兵庫県／和歌山
+　　　鳥取県／島根県／岡山県／広島県／山口県
+
+　　　徳島県／香川県／愛媛県／高知県
+　　　福岡県／佐賀県／長崎県／熊本県／大分県／宮崎県／鹿児島／沖縄県
+　
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+┃ 厚労省許認可事業　＠10/22(木) Zoom開催　※残り9席
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+　
+　　　　　    −　１エリア１企業 限定　−
+　
+　　　　　　大人の発達障害の働くを支援する
+　 就労移行支援事業「ディーキャリア ITエキスパート」
+　
+　　　　　　 新規開業パートナー募集説明会
+　　　　　https://decoboco-fc.jp/dcareer-it/
+
+　　　　　　　　 　　― 提供 ―
+　　　　　　 　デコボコベース株式会社
+　
+----------------------------------------------------------
+　
+　
+　いつもお世話になります。
+　　
+　厚労省認可の「就労移行支援事業」の
+　新規開業パートナーを募集する
+　
+　オンライン説明会のご案内につきご連絡差し上げました。
+　
+　
+　本事業は、公的給付に基づく安定的な収益モデルと
+　社会需要の拡大と制度の支えにより、
+　景気変動の影響を受けにくいとされています。
+　
+　
+　特別な業界経験は不要で、未経験からでも安心して
+　スタートいただけるサポート体制をご用意しております。
+
+　詳細はこちら＞　https://decoboco-fc.jp/dcareer-it/
+　
+　
+　中長期で腰を据えて取り組める、新たなビジネスをお探しの方は
+　ぜひこの機会にオンライン説明会をご視聴ください。
+　
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+　就労移行支援事業　FC説明会事務局
+　電話：0120-889-859
+　住所：東京都中央区銀座7-13-6
+―――――――――――――――――――――――――――――――
+　本メールのご不要な方には大変ご迷惑をおかけいたしました。
+　下記アドレスより、お手続きをお願いいたします。
+　┗　https://decoboco-fc.jp/mail/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
