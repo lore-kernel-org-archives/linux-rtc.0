@@ -1,117 +1,117 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83403563FA5
-	for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 17:30:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0058B3822B1
+	for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 17:36:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792085454; cv=none; b=syVdJLcVZGgprYXUrrUjXZaBu48w0NMHWZ10SqlOfYSAqsNAMAMYnmzVJNi/fE9PefEX+SP8cdp080qeEaxUMxsJyXAYckp9MCFTSBB2vksvWZqsUf+J9b3Gjq06e1vEJu93CMOsdcoxt5nC2dB1418skZseGhhGOBgLEItByJg=
+	t=1792085790; cv=none; b=LbNuscP1+lU5t0DUKM0MwUNa57f060rbzAxtHBz2yh6/Zb26Su/lapNkgxEbex0X1i4UXC+1wmIhuOK5o4hnIKwBvuz75t30vOrj+46OTQj12fpNZpCjknKAf5wrinLwBGCvhNtHLan7VZeEXaJic7PdYoiCs5OJ7neG48CxKKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792085454; c=relaxed/simple;
-	bh=jzXshqsq8LpTtp/eHftavX8CC47Hi2RgETXeFOYwq6A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TJDakvBt2pHygeGN/VQgY3QDO5sDneQH/JlcGw5UedYH7bqBVVo2Qe83i5BUT1qKFB44+VSgkqg3LCv/1d+p4et/VrHflyjdxqqAEmPO75Fpv6701PIiMXRZ6ef8BA4vr3F8tYXoakqOIlZsJCoPYT9age6Y6u4IsIV/nRAqjBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=XYO+kwr1; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	s=arc-20240116; t=1792085790; c=relaxed/simple;
+	bh=3jsCnk+zhCAmipxcTNTutPyRNzm4Rz2nOrOrLS1oe0k=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=j8e2fIVGDIBXNAkVphzS8kte3/lbokgXWXw08QR9hrpAVGwQWZsEG1PborEcBnF39tFpjbMxP3uek7sShcS35i3ooHMQdfY7ddVWZ6UJNv3Ox8Q2jMNmtJAlsgwrZD3/u2TaNEMlvotBeOTF/4Os3tMMMgnqJrlvaw1X908wg6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PqOr3Rtn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="XYO+kwr1"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-917a707f37eso69149826d6.0
-        for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 10:30:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1792085440; x=1792690240; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=8Ij/yqmblFjl2otRcuDhQ5WPtlcQLmq30NR3nWc3SBE=;
-        b=XYO+kwr1XGq9ffky7iQedv7871Sf2Y4pvTbjHS7Q9wng5YxOySEgCHbulG5rwVPNwg
-         oIZIU/XZgGjCFbJGZ0nKk9/yenG7YK0mCATWX4+Yu5AIg5ErS57SjfrNQSS3FXr7ohrl
-         3ew4yRX1MW/diHWRFQylD39rD0PjNsqvu8Ap/wLlhatctfRJsFHY7M6z4wAd5HvnRdno
-         1hemMZD8UIm9f48RBV8JzPRZXwDCme/0Z25BzQJxoz8D7NFLd4yBfEb0m1hddFTUx62G
-         InHz28+S80Lnm2P+GJhER1zvC7m7zBf9HFY1cr1BoI2Fukg1VBIHluRahQO/1IbyvbmR
-         51vA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792085440; x=1792690240;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=8Ij/yqmblFjl2otRcuDhQ5WPtlcQLmq30NR3nWc3SBE=;
-        b=OPwJL0+gsig/RaKNZeC8QMBhZ0Y038PjCOVZOW6b4shN1wUIXuFZmqIl9NVwKKGTSy
-         BLCHZnn0DF6ukRtk9IUIO7sg60wM7/VfNL3JYtXEIxeMKVmyKZKi5dHviEV/9QES5PLW
-         sM9szVrEH+gBJZ1sVkOY1AqLatfyN9ylNA2vNpcEqqlLg2RIiSdVccxF92meLerJQ0it
-         RTDqTSlB2QpQd33ZcVFKA1WR4A3fOE3xrlCSO86Qs1WhJQQnlDHNXiWunufUzDi+Z8vF
-         7yzYR2r5iAo14ZSe61bMXALOtTaxww0+0f/99P/j4t4eh6af1Ks+eBM3g2manAjpFuUO
-         hexg==
-X-Gm-Message-State: AFq9FYIhDKKilMjc6SE9vBetpNPvnzUCJt4nFaVTmNcKoPCSzyqgiTn0
-	+/hgD1f9vFWby6GqkmWfefBKSg8ntLT6p2KibuQ1Jn8HNGLBtyCCLeZ2fL6pHeJnjsOsnt38Nfn
-	XotBdTl4=
-X-Gm-Gg: AYBFou2DWXb4rd0pOCKfUVxZYw05I9WFBRtxHg3Dgntld/7KOmxFqULmcskS8kJecNm
-	t7De9+gas3v1PGf2F7TayBRCfvKVKiVul9VRastPkawCdmT2LzpFw+k2BSHErThi3jNo+sxHIJ6
-	MQWJLEQxeGNwsB6nNoc7JV0dPoBlfglYDJB/ClrgLIDO7hVMpNxKZHBf97XTgFZl1m6MNoLX1z+
-	4D2acDIbqmLXzcwvbsIXeDSDHBekUmBMkKMoT6O/g7S6hslQ/C3v5BhdfKTNAXe/T0R2W0YHSUL
-	KzLsg23ceW2dEd6GbZ/l8Mv5J2f1UFLERPnFhSjBRMoc3NqOIDm3YVTzKpi9a0BbpdFfDzoRuz7
-	donX3pOCIcTd+LvX4xrekdUCS1fLN73J31lN8kSQH3e56X7RQf62ayn4Z8/J7Zrv2a6NJ7m8BNe
-	UKLfwGIYBhhkkuandXZFiyll/MfVcyLMPYQ15RQihhhnv7Y1s8A4Fi/2b8P/UPCOCvAwLkgoFCO
-	o6wGiqnBiMgqMaPkHYDgspb+a/P838y7IKnpls15WpPR3kUcRSjKuGmvwlvOeItyhyYAKE=
-X-Received: by 2002:a05:620a:4141:b0:93e:d364:ca10 with SMTP id af79cd13be357-93ed364eb7cmr2739104485a.12.1792085438698;
-        Thu, 15 Oct 2026 10:30:38 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F.lan (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93ef50095bbsm825062485a.9.2026.10.15.10.30.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 10:30:36 -0700 (PDT)
-From: Gregory Price <gourry@gourry.net>
-To: linux-rtc@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	kernel-team@meta.com,
-	alexandre.belloni@bootlin.com,
-	rui.zhang@intel.com
-Subject: [RESEND PATCH 0/2] rtc: cmos: Fix ACPI RTC alarm handling
-Date: Thu, 15 Oct 2026 13:30:27 -0400
-Message-ID: <20261015173029.3091872-1-gourry@gourry.net>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PqOr3Rtn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 385571F000C6;
+	Thu, 15 Oct 2026 17:36:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792085777;
+	bh=6cA0/h+EeqsNlnrZbijGnpTC9m+uMARU0WTmlLiW39U=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PqOr3RtnUW3QMTZHtmXM22XOTqs9proqifS+JjZsjE1xas5ippF+0uxl1EcphofoW
+	 KTIfegN/J23leIBJMo58Xu8cfruzrX7NUvbkhWhqWMJ9VPGCpf9U6mpbQxXMZnsJi7
+	 pmyKzg/xR6PI+Szw2ZmmTDi9YW1TmMWO6pEhqvSPae/9g04/uOwO0U8qVI8XKsRfCC
+	 1pzdXYcYo3PEp8Qdn31EcHFS70ACrShusKCAH1jt5pOfYtHoZqJSNud+YvvOKxDNy7
+	 od5L4OqzqlLOV/hT64pJ0kSr0WgE/c5i69QjuxspmrQxce925PDeyliG8QSjWlfgWr
+	 RGcA7utgDrS4g==
+Message-ID: <sashiko-outbox-173258@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [RESEND PATCH 2/2] rtc: cmos: Honor explicit use_acpi_alarm
+ parameter value
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Gregory Price" <gourry@gourry.net>, linux-rtc@vger.kernel.org
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
+In-Reply-To: <20261015173029.3091872-3-gourry@gourry.net>
+References: <20261015173029.3091872-1-gourry@gourry.net>
+ <20261015173029.3091872-3-gourry@gourry.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 15 Oct 2026 17:36:16 +0000
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Resend of the series first posted on September 9.
-https://lore.kernel.org/linux-rtc/20260909225132.1392883-1-gourry@gourry.net/
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] rtc: cmos: unused-but-set variable use_acpi_alarm_explicit on non-x=
+86
+--
 
-RTC update interrupt emulation can stop delivering events when rtc-cmos
-uses the ACPI RTC fixed event. On an affected system, a test that waits
-for five one-second update events completed only 40 of 50 runs. The ACPI
-ff_rt_clk counter stopped at 218, exactly matching the number of events
-delivered to userspace, with the event status set but delivery disabled.
+commit db7f65d5eb781cb5e973c2ace56bd5a4865e78bb
+Author: Gregory Price <gourry@gourry.net>
 
-The ACPI SCI handler disables the fixed event after dispatching the RTC
-interrupt. Because dispatch queues work that rearms the next alarm, the
-handler can disable an event that the worker has already enabled. Move
-the clear and disable operations before dispatch so that rearming always
-wins the race.
+rtc: cmos: Honor explicit use_acpi_alarm parameter value
 
-During diagnosis, an explicit rtc_cmos.use_acpi_alarm=0 argument was also
-found to be ineffective. The automatic platform selection runs after
-parameter parsing and overwrites the explicit false value. Record whether
-the parameter was supplied and skip automatic selection in that case.
+An explicit rtc_cmos.use_acpi_alarm=3D0 command-line argument is ignored on
+systems where use_acpi_alarm_quirks() enables ACPI RTC alarms. This patch u=
+ses
+a custom setter to record whether parsing occurred and skips automatic
+selection when it did.
 
-On the affected system, ACPI mode completed 150 of 150 runs after the
-ordering fix and delivered all 750 requested events. With
-rtc_cmos.use_acpi_alarm=0, sysfs reported N, HPET emulation was active,
-and 100 of 100 runs passed without using the ACPI RTC event.
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index fe514b1aa3433..209aa4ec732c8 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -57,7 +57,28 @@
+>   */
+> =20
+>  static bool use_acpi_alarm;
+> -module_param(use_acpi_alarm, bool, 0444);
+> +static bool use_acpi_alarm_explicit;
+> +
+> +static int set_use_acpi_alarm(const char *val, const struct kernel_param=
+ *kp)
+> +{
+> +	int ret;
+> +
+> +	ret =3D param_set_bool(val, kp);
+> +	if (!ret)
+> +		use_acpi_alarm_explicit =3D true;
 
-The in-tree RTC selftest also passed all 8 tests under VNG with
-rtc_cmos.use_acpi_alarm=0. VNG does not deliver ACPI RTC fixed events, so
-the ACPI ordering fix was tested on hardware.
+[Severity: Low]
+Will this trigger a -Wunused-but-set-variable compiler warning on non-x86
+architectures?
 
-Gregory Price (2):
-  rtc: cmos: Disable ACPI RTC event before handling it
-  rtc: cmos: Honor explicit use_acpi_alarm parameter value
+The file-scoped variable use_acpi_alarm_explicit is declared and unconditio=
+nally
+assigned here, but it appears to only be read inside use_acpi_alarm_quirks(=
+),
+which is wrapped in an #ifdef CONFIG_X86 block.
 
- drivers/rtc/rtc-cmos.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
+On architectures like ARM64 or PowerPC, the variable is written to but never
+read.
 
--- 
-2.56.0
+> +
+> +	return ret;
+> +}
 
+[ ... ]
+
+> @@ -822,6 +843,9 @@ static void rtc_wake_off(struct device *dev)
+>  #ifdef CONFIG_X86
+>  static void use_acpi_alarm_quirks(void)
+>  {
+> +	if (use_acpi_alarm_explicit)
+> +		return;
+> +
+>  	if (acpi_gbl_FADT.flags & ACPI_FADT_FIXED_RTC)
+>  		return;
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261015173029.3091=
+872-1-gourry@gourry.net?part=3D2
