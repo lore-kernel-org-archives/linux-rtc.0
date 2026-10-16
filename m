@@ -1,110 +1,101 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from r9205.ps.combzmail.jp (r9205.ps.combzmail.jp [160.16.62.121])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85D8B47043A
-	for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 21:54:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC6722931FC
+	for <linux-rtc@vger.kernel.org>; Fri, 16 Oct 2026 03:45:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.16.62.121
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792101253; cv=none; b=QWn+FBhgIIuABcLgBuLZ6TxV5Rjd9+oxhj1RvASXLM7FZSxlxl7sKvRE1aHvfIAHvtOjvde8cjJ1Kptwh7Tw6Y76OM9ptXIxWxa4ldP44Ejp7XMsx5IviwUU/vea8ejm9XzgQOV5iRBGQ2FipI8680nPA/24PRBJ39zn8Wko2Es=
+	t=1792122316; cv=none; b=X93bevpCv0vYhLHMUDCtp5aBsDiEC3l0y+qkikRHtpZunCuDXn5Qkuq9gskrgGySeG22vXMxgfe05P7Kh/jA4yutgajEhnEuM0Ak9SQafLkQCKW3+OOt83o41tEE5PzWJePq44fnduc/Qc3jM0pJkPgViibC8wWI+pQG2jtlutQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792101253; c=relaxed/simple;
-	bh=mTWjh1JQrwNxj7ZlXA3XUGEhDVTf88r+HHtbsFOvNXM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JQrbx9iwnoodHu768fRWZ/33S+wpzxDSMa6e3C2c/jfrAnzvvP50w4/MW4fH62cUAuWRgeDwYJ+k5Is+XGhf4X4AbQqO1vjPiW4EnaRtGUnC+dCV8T4XPGpIxeAKbeszXwsBWKgmeCywFs1oBxzuQ7aSjFZNFEeHl09rbS3FyWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=TMfzgqvi; arc=none smtp.client-ip=209.85.222.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="TMfzgqvi"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-93c5b7f5bfaso47627785a.1
-        for <linux-rtc@vger.kernel.org>; Thu, 15 Oct 2026 14:54:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1792101251; x=1792706051; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=9diFlksQ+a3TSPkkbPJqrE0Tb5epfFzmuOiQPjkFUKk=;
-        b=TMfzgqvikSyW26Ic4LvVDgbPDkAAt3MlUnJCDmasOeJYROsQtTnj5I1hBnRPulrLLQ
-         A8UVHn53AJAZfcR5+gO0rEf/KtHekgSMuRHE8g4gHhMZiF2r3rGoQphrKHVACy9lODIj
-         zNLrGUTTyx/zR9ARXdhpxiVKvdbi86dlAXCw41Nw81Cs69VjjfawGBVUHVeFhMJw05di
-         PbIcK79waR5XZedC9In/UNArIzcUoYYLdSgFXX+Z2xz2HOJmp1QKsNIVrN/jpn0MgvRP
-         skdIgKoGrP2z1XMdw7r8P0yF+lNZ0yzXNzcyHOBB+QV6Dx6B/1A+/1LFGvRXmTdUTVQb
-         3MVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792101251; x=1792706051;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=9diFlksQ+a3TSPkkbPJqrE0Tb5epfFzmuOiQPjkFUKk=;
-        b=oHeiXkJrql/iran65/5TF/pcziRTnCX+87nyHRSkMDLZwPxSuizu7FAnDmyLvL+CrM
-         B7VZWeV5dZuIDA5xsrukI/GtHx/GwslVdm0xwJmab7Q/cuGeBouGSX4lcc5Fi+Y2NODi
-         DDWdW3i4enJB/uvNO8Qrb1GbKRCMSQ36sBDS/KJgwTivvKsPRQ0XHHEE788wpOhoVsx9
-         ZrK8+J1xUzSH2qCDr1PzMokt6rtHJ7nWz9x9lGAwMOrDYcFDq2B1bInzpy8uxob8q1ba
-         re9MybIOHzB2AGMvGC4n9dQN55gICra6uFEVV/KO5HrGatbCxPv0OgTH9SBJRJKt47Xl
-         xZ2w==
-X-Gm-Message-State: AFq9FYKkwFQxO4PwQ+oGMzAlmN8+jmg5CaIaQRbG0nR+/gBFvXnf6DEX
-	VDJNZdWyqWljgDQgvQNFbeFs87afDb4ZV1Q/Vm18DW1OiOOVQzEujmdp5irN1Vnz95NXYSMAf0e
-	BlsS0TwM=
-X-Gm-Gg: AYBFou05vLrDaD3E5agyRpyfk/JKYrT2NFghgKFXhTPRWzAtTeL7cW95uLMX74YblqU
-	l8/s+Lk5ODeKCxJXwJXMS59g5s/kHeIQeYasHGZogESQrkCHRjIs+vM5x2518TpgmMUkjo4i9FN
-	+FE+6jun6NMINmKKjhcJ2RU8ZJvEHd8zk3gXopNFUyNHrDN+FjEvY5NEPbG8Wz5mY1lUp7De9RY
-	oJ6Th0IKJen5Ly0FgkqflvtjefeQsHSrL95G/4n7TAzs3GQ0VZF4gyTGUY/RcBZ/Oogaj+8nngH
-	foBEpaIb2un8sXlx4pAnJjQ+Iavnlu1jKDgdFLwekanCdlOf36dYkjjKJY2VL2C+Vk1wuQkWaCH
-	t0L6iKRZygCzZAQLzKFfptXM/H18bXJIM61zkWwVaiDBpVBLNgcNaxKYSZm142+Pa9//iOnyTU6
-	h8w/7NwCHr5H6NMMt/3VaPn1g+zZ7HUZ0CgQguRFFtAmZoDP/JfOgBiZ1bxHiLd54G/HbSqY+2Q
-	1Ih+/7vczF+YmkA4SR2vVNvkb+r35P0C/1E/zD6vqxq5Lg20gGGDSZW7fet2L+99A==
-X-Received: by 2002:a05:620a:4801:b0:93e:5677:317b with SMTP id af79cd13be357-93f17f4a93bmr261885485a.25.1792101251234;
-        Thu, 15 Oct 2026 14:54:11 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91bcbb1af26sm6141716d6.33.2026.10.15.14.54.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 14:54:10 -0700 (PDT)
-Date: Thu, 15 Oct 2026 17:54:09 -0400
-From: Gregory Price <gourry@gourry.net>
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-rtc@vger.kernel.org, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [RESEND PATCH 2/2] rtc: cmos: Honor explicit use_acpi_alarm
- parameter value
-Message-ID: <atFLRRT_RN7etz3I@gourry-fedora-PF4VCD3F>
-References: <20261015173029.3091872-1-gourry@gourry.net>
- <20261015173029.3091872-3-gourry@gourry.net>
- <sashiko-outbox-173258@kernel.org>
+	s=arc-20240116; t=1792122316; c=relaxed/simple;
+	bh=srRzQfpkgn/tYA9hk8txqJ4foT6xZt94eni8u6CdTS0=;
+	h=To:From:Subject:Mime-Version:Content-Type:Message-Id:Date; b=TaqENx1Vupofk9k1wkQcztYbILY8/ISDAN1/k19aml1g3d10PdD+At3COGyHrbroErMzqcRQE49KoXrzpZSO6ReuutkraVSm8wlbMP5ql94t/TYmxodRKRPBq4nFmErzneryEzorrEVS5d0WhlJVKyDr6D+NBL8kkXHQeObDhV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fc-seminar-online.jp; spf=pass smtp.mailfrom=magerr.combzmail.jp; arc=none smtp.client-ip=160.16.62.121
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fc-seminar-online.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=magerr.combzmail.jp
+Received: by r9205.ps.combzmail.jp (Postfix, from userid 99)
+	id B574EC3DAD; Fri, 16 Oct 2026 12:33:15 +0900 (JST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 r9205.ps.combzmail.jp B574EC3DAD
+To: linux-rtc@vger.kernel.org
+From: =?ISO-2022-JP?B?GyRCQFBFZxsoQg==?= =?ISO-2022-JP?B?GyRCPFM0dRsoQg==?= <info@fc-seminar-online.jp>
+X-Ip: 6080882655948045
+X-Ip-source: k85gj74648dnsaq7u0p6gd
+Precedence: bulk
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Subject: =?ISO-2022-JP?B?GyRCJDMkSSRiJE4lVyVtJTAlaSVfJXMlMCEiGyhC?=
+ =?ISO-2022-JP?B?GyRCNjUwaTt2NkgkTkBiTEAycRsoQg==?=
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <sashiko-outbox-173258@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
+X-MagazineId: 46q7
+X-uId: 6764315441486066694349351020
+X-Sender: CombzMailSender
+X-Url: http://www.combzmail.jp/
+Message-Id: <20261016033358.B574EC3DAD@r9205.ps.combzmail.jp>
+Date: Fri, 16 Oct 2026 12:33:15 +0900 (JST)
 
-On Thu, Oct 15, 2026 at 05:36:16PM +0000, sashiko-bot@kernel.org wrote:
-> > +static bool use_acpi_alarm_explicit;
-> > +
-> > +static int set_use_acpi_alarm(const char *val, const struct kernel_param *kp)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = param_set_bool(val, kp);
-> > +	if (!ret)
-> > +		use_acpi_alarm_explicit = true;
-> 
-> [Severity: Low]
-> Will this trigger a -Wunused-but-set-variable compiler warning on non-x86
-> architectures?
-> 
-> The file-scoped variable use_acpi_alarm_explicit is declared and unconditionally
-> assigned here, but it appears to only be read inside use_acpi_alarm_quirks(),
-> which is wrapped in an #ifdef CONFIG_X86 block.
-> 
-> On architectures like ARM64 or PowerPC, the variable is written to but never
-> read.
-> 
+　　
+　新規事業をお考えの経営者様へ
 
-I could not get this to trigger. Neither gcc nor clang would fire this
-warning for a file-scoped static.
+　いつもお世話になります。
+　
+　地域のこども教育にたずさわる、フランチャイズ事業の
+　オンライン説明会をご案内申し上げます。
+　
+　業界未経験・社員1名でスタートできる事業で
+　実際にオーナー様の9割以上は、異業種から新規参入されています。
+　
+　本業の時間を削ることなく、地域の未来を担う
+　子どもたちの成長に貢献できる
+　「ハイブリッド型教育事業」のオンライン説明会です。　
+　
+--- 不況に強く、地域に愛される 「個別指導WAM」---------
 
-~Gregory
+　【日時】
+　　10月22日（木）13：00-14：00
+
+　【詳細】
+　　https://fc-wam-edu.jp/wam2/
+　
+　【最大の特徴】
+　　全国300校舎、継続率97.6％の実績。サイバーエージェント社開発の
+　　教材を活用した「プログラミング×個別指導」という、
+　　他塾にはない独自のハイブリッド教育を提供。
+--------------------------------------------------------
+
+　「少子化」と言われる今、子ども一人あたりにかける
+　教育費は過去最高を更新し続けています。
+　
+　不況下でも削減されにくい安定した収益性を保ちながら、
+　地域社会に「質の高い学びの場」を創る。
+
+　このビジネスモデルの全貌を、教育市場の最新動向を
+　踏まえながら分かりやすくお伝えします。
+　
+　【ご視聴はこちら】
+　　https://fc-wam-edu.jp/wam2/
+　
+　
+　生徒募集や講師採用など、最も手間のかかる部分は
+　本部の成功ノウハウをパッケージ化しているため、
+　
+　業界未経験・社員1名でスタートできます。
+　（実際、オーナー様の9割以上は異業種からの新規参入です）
+　
+　地域の子どもたちの笑顔が届く事業を、この街に残すためにも
+　皆様のご視聴を、心よりお待ちしております。
+　
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+　教育事業FCセミナー事務局
+　電話：0120-889-859
+　住所：東京都中央区銀座7-13-6
+―――――――――――――――――――――――――――――――
+　本メールのご不要な方には大変ご迷惑をおかけいたしました。
+　今後ご案内が不要な方は下記URLよりお手続きをお願いいたします。
+　┗　https://wam-edu-fc.jp/mail/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
