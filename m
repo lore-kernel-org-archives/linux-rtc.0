@@ -1,117 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75BA2344D99;
-	Sun, 18 Oct 2026 14:45:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C14534CCE
+	for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 15:00:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792334743; cv=none; b=A0t3LH01YSG9AWfI1cw0L/fNF003sozZOlYOqqcdOsAz+hwjiiPb/dmlNU3mEIqT1p6T9aP0v9m6cM0cS4Zai8SnIvlDQtFb/tX/2/NWD3umlmqXdEfugoy3jum6R1jnx1aRcIxjLgEiHFfiWfSgZ+qbvjJTKJ2/UxfqGRSfT9o=
+	t=1792335634; cv=none; b=NGfP8EMA35/eFFRa0xVxT1gYyDgL1MrXQWCJBMv1x44D+DJsqbqIar6p01Zavtk4XlZ8+keXfjPYT6lsh/P2qhxOn9f2um3nZZNTWvkiM2KNEkJzTxsDRCPLwMtkcHKb67iAOSWIhygkTZ/++McZ5/3UoKsae1c8FuSQMF7nZ0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792334743; c=relaxed/simple;
-	bh=Exicjpw72yxGFZNIeYecKmnubpF+3pQ6BY+gA5Hudo4=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=oBNoNWxDDaE7usZvh1XPWbMRdeK/rTbN1MB4CGjzTfevQbM7S5gXTSCiqTAWxEZ4B89N3ZDCDE4s7+JQ7YerHuIhEeldjiK0y84rp97hiQ+gapZGGlbaN0WxfPYGfAj5H0CQ7s/UcN9U+GumLkOrYsNL2+LnmeSGa+zcunkViZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jo0vqN79; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792335634; c=relaxed/simple;
+	bh=xRbrP2eD9E7EByFwpgV/lYFTol0PMFEEMAgvqN4yRm4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k9tLTHjfVdyUnRTuWtvkuiAfahdvrwpdQC7OVrsEMeC4mqKdTzzU+ZmVluuifRuo1B2QhHPQgRPhPRVyJu6/Yp0o66hvCsL11rB207o40U1VQmp6oocEwqpqfREtOpk6iAa1qo7NiShV8bYKXZmNp1kV3qhwu7AGXxR2jyRoQ3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JAbOKMWr; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jo0vqN79"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B08C1F000C4;
-	Sun, 18 Oct 2026 14:45:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792334742;
-	bh=jOTtvNqaWW5s4lEfMudGisGHsjmlgCLKUf9TgaqBecE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Jo0vqN79YeEwEYa7C6cdlOULKpEnDFCHVsNPN/aNytwr+xHJ0fKLW58wUjSEU/z/U
-	 3y4vNDwNXv+uxtJluwSGNXl+WAvHWUcAwpQLUnV+SqWiV1Gu6/JXOv6ANdTUGHgUf4
-	 hyZhuys+M87NvcXXX3WPX08tdCx+uPqYMcZ35dQrjCH9WH/0DMm4rk0F1kOEsnw2EW
-	 eufykWQzKdsHwRdbq3MG4Zf7WWzQQRki1fwMneZ5Y7QmpUXiU3Efc8rrI9J165O5rk
-	 /sLEn6ITuHeaa8WfT2ynO2VKf0wJFlwwAqLf08aR/5szd1i2xmbmu9TFxOaIIOtWV9
-	 jR5hOPz9u0aTA==
-Message-ID: <sashiko-outbox-176212@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 3/3] rtc: Add Raspberry Pi 5 RTC driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sander Speetjens" <sander.speetjens@gmail.com>
-Cc: linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, "Alexandre
- Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261018143712.1040152-4-sander.speetjens@gmail.com>
-References: <20261018143712.1040152-1-sander.speetjens@gmail.com>
- <20261018143712.1040152-4-sander.speetjens@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 18 Oct 2026 14:45:41 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JAbOKMWr"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-48c45111bebso752856f8f.0
+        for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 08:00:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792335631; x=1792940431; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LaMWXGY4wl0wzFsEiSc/F+H9DwdFVduiP9XS0WHG/PE=;
+        b=JAbOKMWrojlBhoiJxEKOC/G4S3wJv9zZy+Wb0ivUempI8yBF7fvn/FkTxBzyUCLctH
+         Xxh1C+xIaMDGro5zd4lhBLI3JFz09R6hrhUGK8yzgH4UVtg7UjxGxLsv9AVZDAqsoaJg
+         T7HR827kyxphZwwAjs/fLcmLEATU21exfV0TzkzwBb4sNoralEWR3zmtxuD5YRReRIOg
+         0kZYq3H4EdXx77OuPViCjQkm7YCXtu4wRU36rBtgTRnRVdP/Po3Q+DLo31vRKejHf1st
+         O+DiZX27+ec7P10iNbX/LpyVNZdw1wT1GBnl8+ktE4Ec7K0A3/TAu/k66IgwKh2mdxUu
+         dV3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792335631; x=1792940431;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LaMWXGY4wl0wzFsEiSc/F+H9DwdFVduiP9XS0WHG/PE=;
+        b=ZxACiluH3XhzxRneoEdUobQLT5+8qWNMWhBmP1gbTCBtRDEL69XcRnuzkXP/zYNEeQ
+         D/EoWis+KZV7O3Uz0GxXk5M4KRcml5H/gL9safV7dokYdvh6wrycL+toifTPEOaTTjri
+         DFxQCkdkg9oN0fi40VSO1t6OiGjJZHl/twAI3aZ2BDtR0v2IE2EupQjSa9DGYiwf9Kb+
+         m/TpflXBmmvbqLnPHHDKYGcZzDGAHPGBeOVjnSk1rnV1eHbYYheKvq9H/8Y334ZvhA9z
+         1UWa4kRR/u4LoICDz9aM8208qKeAjDDhgl07eR+de7r5d15mBmCDAt0aXPsvbbv4KFOU
+         idVA==
+X-Forwarded-Encrypted: i=1; AKwUvByvnFmgWrgusbOEJIgR9YOqRdPJudGgNYeOdsE+aQ7ncr5w/ppnUfNPBKs5wjjAkzoO3jnfxapEeig=@vger.kernel.org
+X-Gm-Message-State: AFq9FYKPbrXUbxNaIi2WLy5jtVneJpwA7huweunaN9+qADBBpWlURiJB
+	ueZXzzMizFCG0WbJx3fpAU52iJpDKK9IxmCLtqb6x70hH8Td9Wgx2KOE
+X-Gm-Gg: AYBFou2NENGv9ZCthMdzvuwtKqe/pJghPyD7DizpVlJvVO/mapdn+O5rv/OkNeJp4Eg
+	oilunSGcphXuQ+VAvoqi3E9/GYbOtecGuPil7IfFneJ7K5CSBhCx4QOOOrJKLm3QvPw8UFNEEsm
+	sXD3CeaSipfn+SIopeLqkMDshHdA9z/ELFvN8jty1ZlBat7tiqstZaRY1M1JInmrjjJ8WgQs2Z9
+	qKQ1IXIoeenFN7l01YK3tQJrqtYt5bRehJPx2FLJoTjdF2R/GdTqMne/Pu5Nnh+GjghQmYS6wvL
+	6guCi1HkB3YGt2P+PF0GAwIQGvRzViDDmzdOgwXO+bv5o4nhl64UI4vfFe5wx2fCXG3zkyI80Uk
+	M2qMo4lIkM3eTJrMlp063ujttTD++M3SP2/s5Lnj5MPPT7m8HQ4mUk4nTVhAicqh/6BWU7p1Jr2
+	ERsDwYNU1PsAridUoKaSeyXEY92m0ZRMNrZQmbYzOcqhRNb11BnUQwIBUOU26SGsBqAT3sq470i
+	vW1bTPlHacVChCUw7dNvweOspB9XlZIAwJXm1tMOHK/IQ==
+X-Received: by 2002:a05:600c:c170:b0:4a0:1efa:c74a with SMTP id 5b1f17b1804b1-4a1d76060a7mr97201485e9.20.1792335630619;
+        Sun, 18 Oct 2026 08:00:30 -0700 (PDT)
+Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1c8ad6245sm212868925e9.3.2026.10.18.08.00.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Oct 2026 08:00:30 -0700 (PDT)
+From: Sander Speetjens <sander.speetjens@gmail.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonathan Bell <jonathan@raspberrypi.com>,
+	Stefan Wahren <wahrenst@gmx.net>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	sander.speetjens@gmail.com,
+	pbrobinson@gmail.com
+Subject: [PATCH v13 0/3] Raspberry Pi 5 RTC driver
+Date: Sun, 18 Oct 2026 17:00:25 +0200
+Message-ID: <20261018150028.1047172-1-sander.speetjens@gmail.com>
+X-Mailer: git-send-email 2.56.0
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] rtc: Kconfig RTC_DRV_RPI depends on ARCH_BRCMSTB instead of ARCH=
-_BCM2835
---
+The Raspberry Pi 5 has a battery-backed RTC located
+on the DA9091 PMIC accessed via the I2C bus[1].
+Access to the RTC is provided exclusively through the VideoCore firmware
+mailbox interface (not via a direct I2C register interface).
 
-commit 764db262bbaebd42035bc0933220419e0e4cbc7d
-Author: Sander Speetjens <sander.speetjens@gmail.com>
+As stated by jamesh on the Rasperry Pi forum [2],
+"There are no plans to release a public datasheet for the DA9091."
+So we are stuck with the firmware interface for now.
+PhilE also states that "The firmware needs full control of the DA9091,
+sometimes with extremely low latency,
+otherwise there's a risk the supply could just cut the power."
 
-rtc: Add Raspberry Pi 5 RTC driver
+This series adds:
+  - a DT property for the charging voltage of the RTC battery
+  - the RTC driver that talks to the firmware
 
-This commit adds the Raspberry Pi 5 RTC driver, which accesses the custom
-DA9091 RTC through the Raspberry Pi firmware mailbox, and registers the
-raspberrypi-rtc platform device from drivers/firmware/raspberrypi.c on
-brcm,bcm2712 machines.
+The driver and binding are based on (and largely taken from) the
+downstream Raspberry Pi kernel. The main changes for upstream are
+the addition of a dt binding property for setting the charging voltage and
+binding the driver from the raspberrypi-firmware driver instead of from
+the DT.
 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 05b9233b94189..6adaf425a76bc 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1999,6 +1999,18 @@ config RTC_DRV_R7301
->  	   This driver can also be built as a module. If so, the module
->  	   will be called rtc-r7301.
-> =20
-> +config RTC_DRV_RPI
-> +	tristate "Raspberry Pi RTC"
-> +	depends on RASPBERRYPI_FIRMWARE || (COMPILE_TEST && !RASPBERRYPI_FIRMWA=
-RE)
-> +	depends on ARCH_BRCMSTB || COMPILE_TEST
-> +	default ARCH_BRCMSTB
+The driver supports time read/write, alarm, and optional trickle
+charging voltage configuration via the device-tree.
 
-[Severity: Medium]
-Should RTC_DRV_RPI depend on and default to ARCH_BCM2835 instead of
-ARCH_BRCMSTB (or rely on the RASPBERRYPI_FIRMWARE dependency)?
+Testing
+- Hardware: Raspberry Pi 5 Model B revC
+- Kernel: v7.2
+- dt_binding_check: passed
+- Basic RTC operations (read/write time, alarm) verified
 
-In drivers/firmware/Kconfig, RASPBERRYPI_FIRMWARE is gated on ARCH_BCM2835:
+[1] https://www.raspberrypi.com/news/introducing-raspberry-pi-5/
+[2] https://forums.raspberrypi.com/viewtopic.php?t=359073
 
-config RASPBERRYPI_FIRMWARE
-	tristate "Raspberry Pi Firmware Driver"
-	depends on ARCH_BCM2835 || COMPILE_TEST
-	depends on ARM || ARM64
-	depends on MAILBOX
-	default ARCH_BCM2835
+Sander Speetjens (3):
+  dt-bindings: rtc: Add missing type to trickle-voltage-millivolt
+  dt-bindings: rtc: Add property for Raspberry Pi 5 RTC
+  rtc: Add Raspberry Pi 5 RTC driver
 
-When COMPILE_TEST=3Dn, a configuration with ARCH_BCM2835=3Dy,
-RASPBERRYPI_FIRMWARE=3Dy, and ARCH_BRCMSTB=3Dn will register the
-raspberrypi-rtc platform device in rpi_register_rtc_driver(), but
-RTC_DRV_RPI cannot be enabled. Conversely, with ARCH_BRCMSTB=3Dy and
-ARCH_BCM2835=3Dn, RASPBERRYPI_FIRMWARE cannot be enabled, so RTC_DRV_RPI's
-first dependency is not satisfied.
+ .../arm/bcm/raspberrypi,bcm2835-firmware.yaml |   6 +
+ .../devicetree/bindings/rtc/rtc.yaml          |   1 +
+ drivers/firmware/raspberrypi.c                |  24 ++
+ drivers/rtc/Kconfig                           |  12 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-raspberrypi.c                 | 278 ++++++++++++++++++
+ include/soc/bcm2835/raspberrypi-firmware.h    |   2 +
+ 7 files changed, 324 insertions(+)
+ create mode 100644 drivers/rtc/rtc-raspberrypi.c
 
-> +	help
-> +	  If you say yes here you get support for the RTC found on
-> +	  Raspberry Pi 5th gen devices.
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called rtc-raspberrypi.
-> +
->  config RTC_DRV_STM32
->  	tristate "STM32 RTC"
->  	select REGMAP_MMIO
 
-[ ... ]
+base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
+-- 
+2.56.0
 
->=20
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018143712.1040=
-152-1-sander.speetjens@gmail.com?part=3D3
