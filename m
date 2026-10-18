@@ -1,70 +1,154 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9CE30CD81;
-	Fri, 16 Oct 2026 23:11:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 664C43D411B
+	for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 03:44:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792192265; cv=none; b=gDO412l9PA1808DZvkG1zKx/ND8GOH4psJVDM+6o1J4/e9/KLemnbXmB/Nb84aP0PC19UPMHYJIvXjTxeimHdoVV2R3fn3HvzPKyydajzwf2PZFpcSlkh9ZHcZrQ+qlyLAcM8u8GE+NNizqIfPggskk9FpAhvtM60qPpgaygHaU=
+	t=1792295092; cv=none; b=uuRO21hX820KXiUXnMHKJ41EwurkBn0tPS1l7sB94hpoMz6SB6cxqMKz5CKKyEXXh7pp4Emxw4cLXwAOnWzL9COpa34ddjTVij11KC3kd3JwbeAgeLNFQrFxZGFd5eb4LdKD2ZCH1snS+ZbbuHKGsaVTiYv34G126PyDqW+ldt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792192265; c=relaxed/simple;
-	bh=RyAJ0e0U+Cf17qyn3E9P05x9ivfs8oTxhiBSAoU9TaQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=XQRfaM/IZYwzWRB0sWKupt7hDCuuwXg43gjFMdEmDs8QDxbXR1iEOgnozVM+ESsh+H7KDOJ1aKOBQO6pMzVP2XmGNbXykhN/KQIUDTgMnCt47Jp+889PvU8BbL07aJiWkOOH1ADR8c8vAsV1tgYBMYYSfsV1nQxwC41o/8d7qZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X1cpPaJ5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792295092; c=relaxed/simple;
+	bh=hg7raEooga7xKeO4WaQ+tcvC2LaGZVambn4vonEIGFc=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=rEvclBS0HvUfCDixpkH7mG9CjbLw3n+4ptnThJjwwb73MDFDo7Tv3lRoe2BBBuXBRw2gC5W5Qtk/3y8ZP/6pNvR+lWyTA0hArTdwXYlkNu7fs816pDvlHhoKc2NZ/N/JF9bnj9GPIR9BqgABD7b1fGtNADKMbBVaQqvTrSbzklc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ocWBWudV; arc=none smtp.client-ip=209.85.219.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X1cpPaJ5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 504121F000C4;
-	Fri, 16 Oct 2026 23:11:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792192263;
-	bh=RyAJ0e0U+Cf17qyn3E9P05x9ivfs8oTxhiBSAoU9TaQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=X1cpPaJ5diezWOSDB96Z3yaCIQja0d091uSpZipHrpCr9lOM7SZrUaAxqPmQ7sz5x
-	 9UcGiuLaUWHukY+/7vRdmvB/0L2jeeXgtwTOj/FAn+G9VStyr5IbqLHEiBm17GRsAx
-	 16WnqaZGzVUxR5HI0oa+YDFRROPdUWDTo42KyBMIC2mFnPMinWhwUiuXtOXGD3FnmD
-	 NMNZwRAZ4IQ8LTbeZhcDjaF9Yw1gZ95MbiEbDg4IHQJKp1ViXBjCPf1sSMriEYW1ei
-	 aE7ok9IEjy92L0E6Nq45Zmm761C1B0QcIMbPAdrUU4vqN7Rf+mMesgGQVfhwqXKWr6
-	 CgIZckiHQ2K2A==
-Date: Sat, 17 Oct 2026 01:09:58 +0200 (CEST)
-From: Imre Kaloz <kaloz@kernel.org>
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-    linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    Lee Jones <lee@kernel.org>, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 30/53] rtc: m48t35: support the SGI IP35 timekeeper's
- 1968 year base
-In-Reply-To: <2026101314285588f70d85@mail.local>
-Message-ID: <afff29f4-c16f-beec-9f59-9a7baa9c7355@kernel.org>
-References: <cover.1791890466.git.kaloz@kernel.org> <271bf55b479fbfd9b934e93a13eb8e96eb64e9fb.1791890466.git.kaloz@kernel.org> <2026101314285588f70d85@mail.local>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ocWBWudV"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-91791ec1b83so9498166d6.1
+        for <linux-rtc@vger.kernel.org>; Sat, 17 Oct 2026 20:44:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792295088; x=1792899888; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:content-type:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=T5pPwZ/48zpt+uZ5MPec+XhKwRcnWB3U80AGWU6HU3U=;
+        b=ocWBWudV2MFoM/2sL5ksJSpXpLLDg3cXs5h5j2FF3sNs3EzPwW5btGrbmdmijUXk/L
+         kDFS/gqGgsjN6GEweDJg84RovvZWoAQLIKgSMS7y+CMYn/5XFS4E1ETVEw8/4hm50vz2
+         sES1W6Q74E4Qjt93tAbroAwm6MgM8vtH2dpA6fAxLz4Azy8IR21X8wKHhDAJkZ/LIgzY
+         FaIIoIPZCbieshM4NcyAe+1eFQbPIePd83PzQZvqP4ZQxaVRFKHVs83IYqS0W6mSfsUi
+         uYzuoUt8RsPRc76S9EsS7NikbqGh4ihXGVdPzFsT6SmgUUpcJWXaNcUfLcn9cepC521m
+         Iq4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792295088; x=1792899888;
+        h=content-transfer-encoding:mime-version:content-type:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=T5pPwZ/48zpt+uZ5MPec+XhKwRcnWB3U80AGWU6HU3U=;
+        b=YyCMSThW2G/vsDoggazHqN9zG5n1lcFKWF8qiAlVcmK4+oQ5kZ579H8+FliPYOOEet
+         Ukwp3D2Ph1cfWMeVOCr8dF1ohY94OZM+jIB2EBKEOq4P0Ijv2zBLxysm+vfFNIou3JcP
+         NM3vOj4cYX6khxU/09WZFsuT/gRs8qQ7eWWmvncGU7DfE2wTNlOL1xQIyQzSIaaO01CH
+         ZfhixP+Il/ePeulGe4ham61S5fdkn27eQ+ons7dEIci22bxxlRgcn9tcG09A6RcSiYK2
+         2DXvqm3pGKTruAK8CP2hIBgsVYwapxbk5vhiIEU+Hhec+VOXTABVpae9fJPM0Npwmkgo
+         tEnA==
+X-Forwarded-Encrypted: i=1; AKwUvBzmiRj3+HeSTFEUCgLrQlNfpU4djJG7JWJbm4zlIb51atGDoBy2soe2iO8hXnCaQDoOtLbUGR2yo7Q=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIDMkrx7HsYvlcpVyDgRzTOhN9E1uMNkwocpYPIdZHnIrbXsdcr
+	SJkduXXK6AIxtPmp5zoHYq6n0ECZ1izIuL8t8/v1YhZL8wKqwCcU7eE=
+X-Gm-Gg: AYBFou2Yt48rox0o4frCzUfFTWKqvzhglwrBjQVE+Ba6hANT0sylNcI+/ii5lMHRIzc
+	tmC740Gm2C/6UGWG0X80O30AhmHZ7hJsk/Lq1bqtgL7dXUni1ogOHkFv4g/Zk5Thzc1Ntb+hDJ0
+	z5WKfTsI1TeZNB3ihNhFxJh4fzACY9vAgDlNNpQihko/IvyseSIiP4UTNp6pcW7L7/lqppOkiUT
+	KFl8bkajOc/Daj2hTTMHuL95H99Xa+ImX9huwLAZkeJ3mCIscTOSUdbJPRccdvQffa8K0gzaNcU
+	1szr6qEGJmNEwEJ0LcOxptiyArQ/WLpEBD/uApp03P5C5soETNN9ckNnMStYWp4bfTtbdk/wNrJ
+	F3104uCj6e/3nitETNx36X3TUEIWVaE/9bHmiw/zgR2z7+8FDAv6XdJMF0yG+AJeMkljJM2dz9d
+	RDHEJYmzun9jWk9nwBOk9wmiGtxg5tEa3iwJ2P1uC1AWPY0TlXGWDc/5UzNg/LQw0ZYLK3e8EG/
+	+Hx14bCxlfKxNM+cLt/9MuMkhFWfnun3JwlFrf/eUkX/Zf/fyHq7c3oWDmJAhcWN+nxfDnndv0I
+	16fZC7ij5DRsjoZBHaMEcE2mqKkV
+X-Received: by 2002:a05:6214:2f89:b0:912:588d:55e8 with SMTP id 6a1803df08f44-91bdf0aa995mr67665616d6.9.1792295088031;
+        Sat, 17 Oct 2026 20:44:48 -0700 (PDT)
+Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91bea60e66esm22559866d6.26.2026.10.17.20.44.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Oct 2026 20:44:46 -0700 (PDT)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: Eddie Huang <eddie.huang@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ijae Kim <ae878000@gmail.com>
+Subject: [PATCH] rtc: mt7622: allocate the RTC before requesting its IRQ
+Date: Sat, 17 Oct 2026 23:44:43 -0400
+Message-ID: <179229507333.3965554.17726204422948048488.rtc-mt7622-irq-init-order@gmail.com>
+X-Mailer: git-send-email 2.53.0
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hello Alexandre,
+The alarm handler passes hw->rtc to rtc_update_irq(). Currently, the
+managed IRQ is requested before the RTC is allocated. On detach, devres
+unregisters the RTC and drops its allocation reference before freeing the
+IRQ. If no other references remain, the RTC can be freed while the alarm
+handler is still registered or running.
 
-On Tue, 13 Oct 2026, Alexandre Belloni wrote:
+Allocate the RTC before requesting the IRQ, and initialize the hardware
+and RTC operations before installing the handler. Register the RTC last,
+once these dependencies are ready. Managed cleanup then unregisters the
+RTC, frees the IRQ and waits for running handlers, and finally drops the
+RTC allocation reference. The final irqwork cancellation therefore runs
+after the IRQ producer has stopped.
 
-<snip>
+This issue was identified as part of our ongoing research while
+reviewing kernel code.
 
-> Instead of open coding, you should use start_secs after setting the rtc
-> range in probe(). attached i a patch I refreshed for the
-> devm_rtc_allocate_device/devm_rtc_register_device conversion that you
-> can include in this series. drivers/rtc/rtc-mt6397.c is an example that
-> should be working for you.
->
-> I never sent the patch because it is not clear from the datasheet how
-> well leap year calculation works. My guess is that it worked in 2000 but
-> fails in 2100.
+Fixes: ba5d018135ef ("rtc: mediatek: add driver for RTC on MT7622 SoC")
+Assisted-by: LLM
+Co-developed-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Ijae Kim <ae878000@gmail.com>
+Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 
-Thanks, that is cleaner. In the next posting I'll take your devm
-conversion first and set range_min/range_max and start_secs in probe
-instead of open-coding the epoch.
+---
+Compile-tested with Clang, W=1. No hardware runtime testing.
 
+Based on mainline 0fcb05b72344f40806cbe810de8872f1698bf053.
 
-Thanks,
-Imre
+diff --git a/drivers/rtc/rtc-mt7622.c b/drivers/rtc/rtc-mt7622.c
+index 9e17dd09d567..c86c8cf3f2d7 100644
+--- a/drivers/rtc/rtc-mt7622.c
++++ b/drivers/rtc/rtc-mt7622.c
+@@ -324,11 +324,20 @@
+ 	if (ret)
+ 		return ret;
+ 
++	hw->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(hw->rtc)) {
++		ret = PTR_ERR(hw->rtc);
++		goto err;
++	}
++
+ 	hw->irq = platform_get_irq(pdev, 0);
+ 	if (hw->irq < 0) {
+ 		ret = hw->irq;
+ 		goto err;
+ 	}
++
++	mtk_rtc_hw_init(hw);
++	hw->rtc->ops = &mtk_rtc_ops;
+ 
+ 	ret = devm_request_irq(&pdev->dev, hw->irq, mtk_rtc_alarmirq,
+ 			       0, dev_name(&pdev->dev), hw);
+@@ -337,14 +346,10 @@
+ 		goto err;
+ 	}
+ 
+-	mtk_rtc_hw_init(hw);
+-
+ 	device_init_wakeup(&pdev->dev, true);
+ 
+-	hw->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					   &mtk_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(hw->rtc)) {
+-		ret = PTR_ERR(hw->rtc);
++	ret = devm_rtc_register_device(hw->rtc);
++	if (ret) {
+ 		dev_err(&pdev->dev, "Unable to register device\n");
+ 		goto err;
+ 	}
