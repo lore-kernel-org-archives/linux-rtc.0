@@ -1,76 +1,80 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 718193BED66
-	for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 11:14:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00BB0486434
+	for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 14:37:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792322049; cv=none; b=Mp3opixDskb9qNjfqQoMus1AbwMqrkU5wxMoKv8oPfPsMBmDfsJJIffZxJG2C16QS3lBAwaCmR9EdJjJbh2a07lkh9i2qHF3ayKjyS/U5dtFAzjdTn1ZylPwFYrwj9cCjmFlLLmmXGbnfM1DyI0NqSBvEx0EC4/Fh08MXQ+oNjU=
+	t=1792334274; cv=none; b=QJ4v1gxmG1dQYjO/ZUuLX5MheNzYE0NU6dq0J7p93U9WfDFM87lNek3BCL07IvYzCRZkU5xPogbyJUJmwlD9oKtj1e6dC40cmzrPnUVZdCG/5olwGo7fCRkO95gMY8YgAMkFxhAUtZALa5oDa+ztaHtsg0T4O8/N1UTjHZtSWnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792322049; c=relaxed/simple;
-	bh=fctVlUNxkjbmnVMzce9QkG8geM0AkD1apjhciOP8ows=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sM5+MhD8DrAaua7YJRSnDy1bOyxj0thhyOfAJhJd0tT/7P72gBxCAbRkOarXMoEBhg6OXKbfht5bOg/v4z5mb1/aUrMUbd16hxvZV2+3jIAeOiTK2ko75Vgoh+lgRshaLwK1RTiIC5z0XjyyOpEb/1jn8mG24BlOgQ5j1PudAGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lTuWCOxg; arc=none smtp.client-ip=209.85.128.42
+	s=arc-20240116; t=1792334274; c=relaxed/simple;
+	bh=xRbrP2eD9E7EByFwpgV/lYFTol0PMFEEMAgvqN4yRm4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E1YhmoZEFxeyby2SipCroduKrqUQhpmuDBfpLn31xql+kNHNqP/0KSXGP/VsdYFHkoXccNcnzCWR9KFbH5qwiDtUokT2oOVeP7aUuslLAlmBGzD0eq7g+8UXx0H14WT6wTHQad+i/745E2jksceoZDmFjPcbotM7613JLA7Psns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c+3m8bUY; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lTuWCOxg"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4a1e34ecb02so1679315e9.2
-        for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 04:14:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c+3m8bUY"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-49d05d51553so8461285e9.2
+        for <linux-rtc@vger.kernel.org>; Sun, 18 Oct 2026 07:37:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792322047; x=1792926847; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=fctVlUNxkjbmnVMzce9QkG8geM0AkD1apjhciOP8ows=;
-        b=lTuWCOxgProbE8mHJ9wowS4qKnK6ja/DLvfMZ9jtcqypPq1J8q53ZzbK97XHbnhvgc
-         MLitGDvbEYLZzrYheqMuERPaCg/nZ7IAuQuZSz2k3fAyVy98J1bVkGkHu59olvasf4Iv
-         DCJpBd3u6maPityrvNKrwXVsEV00AzJaQTtzxhunkFtZb8tVLlycoOFbpKwbB5wclNGj
-         yvVqrxGzK3H+N1fhuO11C57XrMHiQVdYBcgQveWj7iHyeiGB7HWAK1BMix2yQkVGtH9s
-         fzX3CTsTnSq7lmqpVqwbxBSE/0k5LME6Lv2Cggm0tVskjI5jx3bjgVMLFGwo7R/pHz2X
-         ae+w==
+        d=gmail.com; s=20251104; t=1792334271; x=1792939071; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LaMWXGY4wl0wzFsEiSc/F+H9DwdFVduiP9XS0WHG/PE=;
+        b=c+3m8bUYh6UulGm7vgmxrs3uD8Bz47hgZS6PryrarnPR8gxkHqJM/ZLBE5WvdmpzrZ
+         4jaWy+Gmn23YiFjfWwFO4G7edsNhFON9cWw+hNbw5g8jR6FpIEh5suy1AIAl6Bf3tpFl
+         V33xHYStDLYnUY/MFPK/m3T6cpeTKfTwSDmuTBJaojsN0G1q5pvytr7k6pQLIa/iFQmG
+         iriBtmsmORBVsR75lf6PJMyiWAAfR2R1scHQvv2iG+W/K0bO4aTwaiinRd6MBidProLU
+         UYa1u1Fmbe43BoWdA28YZ4/2P2urzD1/AwNh1BhSPw1dle3R0qUaPqp9yLVee93kfkd4
+         /vTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792322047; x=1792926847;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fctVlUNxkjbmnVMzce9QkG8geM0AkD1apjhciOP8ows=;
-        b=OZJ9L/O0gjdZyuJbeQbXJwR+XC9wxhqf88OGZ60Xie7xuNiDH92C7dkYXbp679KzcS
-         WmVnDJCaovrC1GoUj9mX3cnBneG+F+pDZ71MfsuQUSPqVdhw6KJgp4sGHHDsyqczDlp+
-         R+dmG44zTXHtS8A3ejU+MXzuwfepGxsD5E2LgZLbkL6GIvIOa2qm2k+zp7pLMMCW0Aqe
-         2PxbOwuOZlRCxgBf0ma9XRS7fs30YzENEOBgYogZyB6NkmNmbSNcq2lVzGteCuHA6+DT
-         IIoZagwN55wfQhIJxsGcOdJnGe5qwKCaq9TZhqVsymMKmjXdMfYRKKyee+JE5BMZIoxj
-         U0ww==
-X-Gm-Message-State: AFq9FYIDu2P+rKA4x5xAtOUkxyzX7b4bGXsTfOWMxbeoLWM7W6ztJ2wg
-	m5CB67Ca+1AWlodEOGxR7ESTXV+wmv/tCWgYaEHk5zY2SSC9tL3r/aCE
-X-Gm-Gg: AYBFou0cYE4pexo39TKEud5uo0H5ZpuYb5wmvJ+PcMd4Tr+1CCiy/TkN6deeNuSwLLd
-	HXbfDir4tm+Vbcg5ilQOSQfo7dP+FTZSAXMkecRQxUwHK/4oO0fTLqlpf8QBrntTqA35rLpOugK
-	w5FaFTHu6sHuTvM1RMQR6WExMtBGz+ETdxCqahvCBkacBq6Xae1iOojkajoE8XRdFqAPntWWtpY
-	S1AfkX4NaiFeLJAoqeWIPFHGGwZe/crw86mGeM8HRiIzoFDA98Qz/YD9qKc7RlVV/s9iL/cDJql
-	KBPcY+nHXazoO1+VZ4FCE90FR0kcLPjUSelNhGlnrX+9WRAYFs2nsd5cU0qhjkwGYDpdqYqzqX7
-	EIz4fH2bJ+7wrMdTYABFGWnqadbhOwC3/ErYMK9rm1Itz0rNa1oXoMy/r1y/QfaWdR5EBBeUD3d
-	m5n6D5fbnBvtkL2G4fBG0Co9Vw5DhCfD6DVTsKu3TYdPta6azrgS8IGRlefBFdOzVFuASvoA==
-X-Received: by 2002:a05:600c:4fce:b0:4a0:1b14:e283 with SMTP id 5b1f17b1804b1-4a1d75ac25cmr109797265e9.1.1792322046507;
-        Sun, 18 Oct 2026 04:14:06 -0700 (PDT)
-Received: from fedora ([94.79.80.142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd9a88bbsm290127415e9.3.2026.10.18.04.14.04
+        d=1e100.net; s=20260707; t=1792334271; x=1792939071;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LaMWXGY4wl0wzFsEiSc/F+H9DwdFVduiP9XS0WHG/PE=;
+        b=cARCAL99LZ+1PcFpEywFm49fYWKnGanHJ4oWy0eg4FvIrcIum5uWGIyBTCrRfnkNW5
+         n+9MijS3/qVMm4ULxCRpE6jxaMpjlDtNUYGwTnuTFIC0Js1qxUGH7jilQ7ICwC8CxrtN
+         /L7YdSkKZCp5bhLiY0O0u/PvuYJ42Xmh5f2p21ze+0VuRb4hHOelBviIPKTFTk0U1o0N
+         PtTfXDFKLQFDOdQrsWpags+RouixFjcWNoqdvsW2NVC6efKS4kgRxSJCUO6UIGeiJ1b/
+         /ed29YIZWGaFKtTfIp4YQg1jzxYjY9C8lch0Wiii8qpl/udQeiQqw8uZYa1b0dHjYBFs
+         TWHw==
+X-Forwarded-Encrypted: i=1; AKwUvBy9t9l0H3rlMFF0AiY9w87aZOwiNDcsBINfBf8bdS1POQjtXh7fd/fy9vrLe72W7bzrJP9R9vLH29I=@vger.kernel.org
+X-Gm-Message-State: AFq9FYLi+d1RuXPzx8kdigsuD2a50jPshbvKWenYIMmH5j2izuq214Zv
+	7LNtJYbZWOHiLEhFYlmIUy35jImRW+nPM9HrD/FhU3lIYsNtBfQHw0yp
+X-Gm-Gg: AYBFou2WYWvQ4OYMv/sgS+oUjJaNjFKprW74PFBKDJOBCV+J2u8I6lX5+EFbuGHDAZL
+	k/P7R+G+tRcVV+fVH++9rzvDAVg2ZIZVo7la8ltjmWJ+f34YppugvuajQBGyQqE7htWnJUn9Szb
+	TSymnr9fJTqQMp5r7JbX9hY1jcfxpJ1k0Hyfwo8zHLbZlOYMxpSRu7hBucriYeVfpiqf135qlN+
+	qGMNkKeihrW/jgfOy/wbODtnpr+BmVZIlU3gjXmGV4LmYSEmrkTl4YUxExAgXhhdXj5bI6hB7dM
+	hFSVwb6d90SOOwxPVcdt3dC9cCE7tgsrNlmiLBafGMWAhMaYMTz5YBdDvUHGVN7C5/Cxi0A50CQ
+	6D5bJDrveUruR+dx6d96gq5HG4CHyvKhbmnO5aJG//8rFujHWhkJBVa1rjuDQtJkytH8VJypXnJ
+	SgicPdI97MfO7ivwMC4F7kE3W2ZsVLrgZVH7HYmtPItKADUcBAwRGLJCJOYvvXGZlUgrHiHQaQ7
+	xlCU7KNDmnYV8ngiVwDAKR5CXJ5NaV3LE5nSDLv798o3A==
+X-Received: by 2002:a05:600c:314f:b0:4a1:e6c5:e44c with SMTP id 5b1f17b1804b1-4a1e6c5e47amr12571315e9.10.1792334270968;
+        Sun, 18 Oct 2026 07:37:50 -0700 (PDT)
+Received: from zeus.localdomain (212.71.14.70.adsl.dyn.edpnet.net. [212.71.14.70])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd510d60sm16559652f8f.58.2026.10.18.07.37.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 04:14:05 -0700 (PDT)
-From: =?UTF-8?q?Alperen=20K=C4=B1l=C4=B1=C3=A7?= <sabri.alperen03@gmail.com>
+        Sun, 18 Oct 2026 07:37:50 -0700 (PDT)
+From: Sander Speetjens <sander.speetjens@gmail.com>
 To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: linux-rtc@vger.kernel.org,
-	John Stultz <jstultz@google.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Miroslav Lichvar <mlichvar@redhat.com>,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: class: Do not inject sleep time without a suspend snapshot
-Date: Sun, 18 Oct 2026 14:13:57 +0300
-Message-ID: <20261018111357.164684-1-sabri.alperen03@gmail.com>
+Cc: Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Jonathan Bell <jonathan@raspberrypi.com>,
+	Stefan Wahren <wahrenst@gmx.net>,
+	linux-rtc@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-rpi-kernel@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	sander.speetjens@gmail.com,
+	pbrobinson@gmail.com
+Subject: [PATCH v12 0/3] Raspberry Pi 5 RTC driver
+Date: Sun, 18 Oct 2026 16:37:09 +0200
+Message-ID: <20261018143712.1040152-1-sander.speetjens@gmail.com>
 X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261003163138.14221-1-sabri.alperen03@gmail.com>
-References: <20261003163138.14221-1-sabri.alperen03@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -79,13 +83,57 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Alexandre,
+The Raspberry Pi 5 has a battery-backed RTC located
+on the DA9091 PMIC accessed via the I2C bus[1].
+Access to the RTC is provided exclusively through the VideoCore firmware
+mailbox interface (not via a direct I2C register interface).
 
-Gentle ping on this patch. It still applies cleanly to v7.3-rc7.
+As stated by jamesh on the Rasperry Pi forum [2],
+"There are no plans to release a public datasheet for the DA9091."
+So we are stuck with the firmware interface for now.
+PhilE also states that "The firmware needs full control of the DA9091,
+sometimes with extremely low latency,
+otherwise there's a risk the supply could just cut the power."
 
-If you would rather see this fixed on the timekeeping side, for example
-by having timekeeping_resume() not leave suspend_timing_needed set when
-a persistent clock exists, I can send a v2 that way.
+This series adds:
+  - a DT property for the charging voltage of the RTC battery
+  - the RTC driver that talks to the firmware
 
-Thanks,
-Alperen
+The driver and binding are based on (and largely taken from) the
+downstream Raspberry Pi kernel. The main changes for upstream are
+the addition of a dt binding property for setting the charging voltage and
+binding the driver from the raspberrypi-firmware driver instead of from
+the DT.
+
+The driver supports time read/write, alarm, and optional trickle
+charging voltage configuration via the device-tree.
+
+Testing
+- Hardware: Raspberry Pi 5 Model B revC
+- Kernel: v7.2
+- dt_binding_check: passed
+- Basic RTC operations (read/write time, alarm) verified
+
+[1] https://www.raspberrypi.com/news/introducing-raspberry-pi-5/
+[2] https://forums.raspberrypi.com/viewtopic.php?t=359073
+
+Sander Speetjens (3):
+  dt-bindings: rtc: Add missing type to trickle-voltage-millivolt
+  dt-bindings: rtc: Add property for Raspberry Pi 5 RTC
+  rtc: Add Raspberry Pi 5 RTC driver
+
+ .../arm/bcm/raspberrypi,bcm2835-firmware.yaml |   6 +
+ .../devicetree/bindings/rtc/rtc.yaml          |   1 +
+ drivers/firmware/raspberrypi.c                |  24 ++
+ drivers/rtc/Kconfig                           |  12 +
+ drivers/rtc/Makefile                          |   1 +
+ drivers/rtc/rtc-raspberrypi.c                 | 278 ++++++++++++++++++
+ include/soc/bcm2835/raspberrypi-firmware.h    |   2 +
+ 7 files changed, 324 insertions(+)
+ create mode 100644 drivers/rtc/rtc-raspberrypi.c
+
+
+base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
+-- 
+2.56.0
+
