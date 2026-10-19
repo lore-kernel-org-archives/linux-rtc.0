@@ -1,53 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792444997;
-	b=29Vhg5pApQFHj7AgznTamVPjOOaBIPjJU9xOzQ2pg3lQwYxpFiZz3QcRhvDCoAIoQfEr
-	 cn0VcFZn1qC5H6295HV23oyOk2b85l+RMdzxvVtlqPUEw9/TgAbxVi6kCJn8OzEo7b3ey
-	 1eNC41CdJuJUI5R4AYtARDet+hs1bQFeJZVTF8Zddb3a5xQHfr6zOwK47AS6ew/bxaHOy
-	 QsyA4hWXnCIVE5+D2/F21SCW4BjBDJUFLs0dsxKTAHxedPvwbsZ4qIXvCRi4QuobkBOHx
-	 RTItrjkM0+ZWM/gNwfnLgzyllprVPSC24PloUSQXNa0pLfnteKRp5mWxqqiDc4oQTow==
+	b=RrTzCz46hkShvNLczlnwmXySoDinVtS0oumESFl7yINHwJ3UePv46DeWJSKIloEwX07j
+	 WvYn4T9LtDA96Q0Gl5hXt33lEYNQr5LX6MOYW8bWD5fSczclqQNrOiPmebQhzzs6opnjD
+	 ATerANhzcsFVdnCW+opAnvnYgFavpPFZNIFS8XgWtKmsSwhlGPDixnC0CYH2k5z9s6TNX
+	 MkT3HcG7fcFw6YRyHW8FgqYRKVkGMu9BuK+wqJ5LORgH8xayTKGAzwL80DX4aP2Iai/FN
+	 QjX8NcLHXkuSDZTl0R6YYcH/veKRNtCjRodo0Lgow2qPpUHHRS5DmDn0wna6oH8CEMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792444997;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=AEV75SmyeVUUmph0vrdjT5L0CsYkpjfEBfbuwyPqkxM=;
-	b=t16ySCzcQ0p7Cs2KWxXqg9Db8iwQLL9hrfrG+Dqtftz2YniVRuWtnTMYkL7HtzYwJkWE
-	 tRpQ9yRYZXxoK3mbdzowsENARAKHwL39PfkFtwn9FMZdloYqVLR2pSy8LG2anoOEhBpbN
-	 3fEUBUtmUPMY4pdXfoS5zxydzO73IdRjYf3/bgDIhEC0BFT7XhCbNiotz6euJudg3o5Uq
-	 es2YjeKlSDg4BqgZlcjC8oXUdcM64sCNiiN4IqfiSDr2aVevs8beeEqksuQtajsKbGVk8
-	 mSk9TlV3grL/ml0WktDbgQHdz5dlrHgXr+cM27fwKqvkAmNbCOomnF+9abti/P3WfmA==
+	bh=klrSlEMt02s04AP2IHR/Im8BGs2laJ600YkO4kFkFdk=;
+	b=j0EO/DqZ99JwZzaB82AMT1dIFgaeqD7OL4Yu9iY3zFtGH9QYOZ/l0mf3ilJIbYKya5+F
+	 /p3iTp73YYbn4eHR97aKBfG/LgXEgUKZRwYz4c+ne+9ZNnxQ6MiiDLXKDnZc+RrNcOx2g
+	 aMgbk2s2DdA3Xb5jgyooo/rRiT08csC/zEhrjsuLj/eH5WJU3WcNpG5CIRAz9djh1HNxr
+	 NR193i+FPH7SrQUs7qgCmv133X7TILRGpgtwjXpDLmn/quhq4ZWDgfQ0+6R+RJ+5vgNs/
+	 RfX2QKvSa1OEBY0aKsRUuEH9J3oYonZTvVulA1azfAHGbjGLSbQSIvu7u47coFuBhHA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Mc/fRDPW";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="XtD/ff1w";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23977606A31A
-	for <linux-rtc@vger.kernel.org>; Mon, 19 Oct 2026 21:23:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA471606A31A
+	for <linux-rtc@vger.kernel.org>; Mon, 19 Oct 2026 21:23:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Mc/fRDPW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5431F000CE;
-	Mon, 19 Oct 2026 21:23:16 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XtD/ff1w
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D271F000CF;
+	Mon, 19 Oct 2026 21:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792444996;
-	bh=AEV75SmyeVUUmph0vrdjT5L0CsYkpjfEBfbuwyPqkxM=;
+	s=k20260515; t=1792444997;
+	bh=klrSlEMt02s04AP2IHR/Im8BGs2laJ600YkO4kFkFdk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Mc/fRDPWN8BCe1RO+1LJH2nHCAgAesMY7BFeSXSz+Ps218rTH3aS/Jk1xzfMeqa2L
-	 snED/w1YbyD0Scph7RkMdsSTN7kRakBjM+tUvK/KroC0ikvdLciAAA66BDYTbybL4u
-	 I4TPhTDiX6ZeXVOnU2XTsOfCJxb02Z+jrwCxNzWniIKyibqOjeq/U6SiV3ZqosMmqd
-	 s+DApvaHHd/npbsPrb0yzTLLENqI69rF1QTmpBz2x3kdYkzMrrJl1rQXo7gcSo96Yj
-	 S9hXCZSRGJBxoANr56COWZK5/C/ORacwzoYtqpRb6gieVY6k9Rq29+7dFhuyQTYkG7
-	 +NuBuNDL4+uwA==
-Message-ID: <sashiko-outbox-178249@kernel.org>
+	b=XtD/ff1wRfM5bbWb+s66ecqyCMm7hNS84G5aQXANzrO5C89WLYbe1fKj3BHmEFCo4
+	 BY0Z/bW0WrSL67hIeIYh5rgjNPzA5TAJo6Da07cunX/4maJzBW/YW8Fi7u812dEDEV
+	 dVyMNLnqW21WefqBQyqf+2IlUJ02ECkF33WOTvbbG3XiP07rlibqv1mZ2YyG1SMFqJ
+	 2E0VlgXn7SDGb/uCLOXmmv5qUFdwzKeWyuEhVB3F2Xqu+WmDAxB0R6LozsmjCIl+ix
+	 JzWzN/PEtczuuaF2ORUOJe6YrKkjGUx+IDhKUPPJpnNeztJwvPc3rvl29OC4JmVFbl
+	 JqnUTHIEiztVg==
+Message-ID: <sashiko-outbox-178250@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/19] rtc: ds1305: use guard
+Subject: Re: [PATCH 03/19] rtc: asm9260: use guard
 Reply-To: sashiko-reviews@lists.linux.dev
 To: alexandre.belloni@bootlin.com
 Cc: linux-rtc@vger.kernel.org
-In-Reply-To: <20261019211827.126262-5-alexandre.belloni@bootlin.com>
+In-Reply-To: <20261019211827.126262-3-alexandre.belloni@bootlin.com>
 References: <20261019211827.126262-1-alexandre.belloni@bootlin.com>
- <20261019211827.126262-5-alexandre.belloni@bootlin.com>
+ <20261019211827.126262-3-alexandre.belloni@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Mon, 19 Oct 2026 21:23:16 +0000
@@ -62,7 +62,7 @@ Precedence: list
 
 > From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 >=20
-> Use guard() to simplify locking
+> Use guard() to simplify error handling
 >=20
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
@@ -70,5 +70,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019211827.1262=
-62-1-alexandre.belloni@bootlin.com?part=3D5
+62-1-alexandre.belloni@bootlin.com?part=3D3
 
