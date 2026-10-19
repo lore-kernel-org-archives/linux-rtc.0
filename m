@@ -1,44 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEDE50841C;
-	Mon, 19 Oct 2026 14:03:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 172A560FF07;
+	Mon, 19 Oct 2026 14:03:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418612; cv=none; b=m26y8lKZsuZY2BmqJa2Ly1v/gFSgI7WucL5mH8KtNbTA7So64tbw+G0ltdXbU8LSTYW95HIpesM1yKGIXfaaaau3/dv4f+0W3aZRY+/gJ6zgdXDnUHsMNXS3P4Kv0I9PiRHnC195ZsC7Hty69DXn7c5VLf7oeyXlN54TSfQP+4E=
+	t=1792418630; cv=none; b=aVJWmtmHU85Usvw31Ezd9vUEDgR3uWZ5noK7pQwLye34NLVL3t5pdmnN/VhID0JsKcB6ysI0rHqeNoh72GywWyBNoVPRohKg9STSgptLhM32CF6xwZG4YRZGEvd0fZVd+IPa8u8JNAaYssAmBPf8d98Bz21OGXHFLLGJJ4koG4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418612; c=relaxed/simple;
-	bh=BcvsgOYZE/XsJ+D+p03Dqf37OQAI3d1cOGaFE1fdTxw=;
+	s=arc-20240116; t=1792418630; c=relaxed/simple;
+	bh=TyijZPZNVQ4NAT0+bvDWX8mxgFZpAbKLiUirdLRWDfQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ohgssXtY0O08pmdRH6kmC0jzLRenVoRASRSkh62JI22BKYv1nePWA7zc1oXzQMAc3cR+aY+U2jKnHZ8vnYzDgfI1a1Golm18Kkq4f0l299k+7Wk3+qXNf/AyyeY39v02aorJCNLGgJSUjahIPfknJ0jZVPxXIiGilQZVqf/u2Og=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nqpfLuB3; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=PLKEOBad9WR8tLrXJD8GZvzFsP2IAWFUsJQh+58fVQBAm/nwcDb7QT6ToB3cQby/CH4TsvGYX/V11ofqH+BGMnrdf7ieApCZ9xo39L9JYg6hHKMOsRzvr/NKIMNhcZMwPX6w9DEfMfWJoAYRbc3m9k4j5eM10SpVZV5ZFIm4UxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dKpJb57h; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nqpfLuB3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7B81F000C4;
-	Mon, 19 Oct 2026 14:03:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dKpJb57h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8831F000C6;
+	Mon, 19 Oct 2026 14:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418609;
-	bh=3XWOh0TlZD3lVy6AJyQ1GhSc9Trgig1dArAlc2AK3/I=;
+	s=k20260515; t=1792418628;
+	bh=a7S47/WW/v4K1F5IJZOTzYM/zCZR3J61VKUez1IAJA8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=nqpfLuB3FIE/Z/N+YcpGlDmc2DAVEroXp720IkqOU6/Y2l4079xYoG0Z9j8f9A55v
-	 PkAmO51uL56pg1PyRuK83gfDGL3o7ODxMWdkkH2rcl8waYvvrxCEC5p1+ksRnKE/xG
-	 aKF3Bct7KhGpqSAfFIW9nwtKtnSchbR6kFI1QiLpt0w2RiQawBlvLi00qxxUdSjqo3
-	 tkGlPmaHf64+9dM1Ly7nFpvVIIXnFc/kYLZfx8am7+SjySomJd9K2e5njEvZcqnzva
-	 WpO0uLRf0v1Dl2nabFnFmj7dPI9YDk9kmRtDt4mu9Ihbiq4iz5MVLguBLQPGGaHZEs
-	 hI2dUc9BiJAKg==
+	b=dKpJb57hBRRKcnd8Fl5XWfTkv0NKaoVakLmhFTJBON3+5QUnE5aI1gDklz8teXBv5
+	 93o2VRVLXFG2fgS2Da0hjp62Nj1pv/6ya4BnI39nVbGZhR3dKc1n42Xh4PZk5/n4YX
+	 ygYIxpXeZLhcbRgGyGXloQsRwMEH7KTODwA6fPMWlSxOrbMfjaTziYUUamTygvMkwv
+	 tdGjK+/52TA0CopFsg9frRffjTn9edx7IVPuVbcz8Bc4lMZRVT1lKZBbUvrDycGu5/
+	 lscHfgR1MTlcemAAus1ceKZKF9rh8gWvDSnI9+D4kf9z/ITbzKtoyD0zHUNnMNYC4F
+	 3bgACbxcUOPjQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
 Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	Sasha Levin <sashal@kernel.org>,
-	florian.fainelli@broadcom.com,
 	linux-rtc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] rtc: brcmstb-waketimer: add missing MODULE_DEVICE_TABLE()
-Date: Mon, 19 Oct 2026 09:51:01 -0400
-Message-ID: <20261019135441.1420968-370-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] rtc: ab-eoz9: add missing MODULE_DEVICE_TABLE()
+Date: Mon, 19 Oct 2026 09:51:15 -0400
+Message-ID: <20261019135441.1420968-384-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -56,67 +54,71 @@ Content-Transfer-Encoding: 8bit
 
 From: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-[ Upstream commit 402c89d28fecd28652a4bfe997f08f6544836381 ]
+[ Upstream commit 7490b8356e52e09c196645912f2c054f79aa5f3a ]
 
-The driver has an OF match table wired to .of_match_table, but does
-not export the table with MODULE_DEVICE_TABLE().
+The driver has a match table for the i2c bus wired into its driver
+structure, but the table is not exported with MODULE_DEVICE_TABLE().
 
-Add the missing MODULE_DEVICE_TABLE(of, ...) entry so module alias
-information is generated for OF based module autoloading.
+Add the missing MODULE_DEVICE_TABLE() entry so module alias information
+is generated for automatic module loading.
 
 This is a source-level fix.  It does not claim dynamic hardware
 reproduction; the evidence is the driver-owned match table, its use by
-the platform driver, and the missing module alias publication.
+the driver registration structure, and the missing module alias
+publication.
 
 Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Link: https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
+Link: https://patch.msgid.link/20260704152528.53258-1-pengpeng@iscas.ac.cn
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **6.12.111** (`pending-6.12`). The one-line OF alias
-publication is missing here, the match table is present, and the
-original mailed hunk applies cleanly.
+This is a one-line `MODULE_DEVICE_TABLE(i2c, ...)` addition on a driver
+that already exists in this 6.12 tree. The I2C ID table is wired up but
+never exported, so i2c-style module autoload is broken.
 
 ===============================================================
 PHASE 1: COMMIT MESSAGE FORENSICS
 ===============================================================
 
 Step 1.1: PARSE THE SUBJECT LINE
-Record: **[rtc / brcmstb-waketimer] [add] [publish missing OF
-MODULE_DEVICE_TABLE so the module can autoload]**
+Record: [rtc: ab-eoz9] [add] [export the existing I2C match table via
+MODULE_DEVICE_TABLE so aliases are generated for autoload]
 
 Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
 Record:
-- **Link:**
-  https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
-- **Signed-off-by:** Pengpeng Hou (author)
-- **Signed-off-by:** Alexandre Belloni (RTC maintainer; applied)
-- **No Fixes:** (expected for this review)
-- **No Cc: stable** (expected)
-- **No Reported-by / Tested-by / Reviewed-by / Acked-by / syzbot**
-- Pipeline markers (`[Upstream commit ...]`, Sasha Levin SOB) ignored
-  per instructions
+- Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn> (author)
+- Link:
+  https://patch.msgid.link/20260704152528.53258-1-pengpeng@iscas.ac.cn
+- Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com> (RTC
+  maintainer)
+- No Fixes: tag (expected for this review queue)
+- No Cc: stable (expected)
+- No Reported-by / Tested-by / Reviewed-by / Acked-by
+- Ignore pipeline SOBs if present
 
 Step 1.3: ANALYZE THE COMMIT BODY TEXT
 Record:
-- **Bug:** OF match table is wired to `.of_match_table` but not exported
-  with `MODULE_DEVICE_TABLE()`, so modpost never emits
-  `of:N*T*Cbrcm,brcmstb-waketimer` aliases.
-- **Symptom:** When `CONFIG_RTC_DRV_BRCMSTB=m`, udev/kmod cannot
-  autoload `rtc-brcmstb-waketimer.ko` from the DT compatible string. The
-  wake-timer/RTC does not bind unless the module is loaded by hand.
-- **Version info:** none in the message. Driver has been in tree since
-  v4.13.
-- **Root cause (author):** missing module-alias publication, evidenced
-  by the driver-owned table and its use by the platform driver.
-  Explicitly a source-level finding, not a live hardware repro.
+- Bug: `abeoz9_id[]` is used as `id_table` but never published with
+  `MODULE_DEVICE_TABLE(i2c, ...)`, so file2alias does not emit
+  `i2c:abeoz9` aliases.
+- Symptom: when `RTC_DRV_ABEOZ9=m`, udev/modprobe will not autoload the
+  module for a non-DT I2C instantiation (`new_device`, board info,
+  etc.).
+- Failure mode: driver stays unloaded; RTC does not appear until a
+  manual `modprobe rtc-ab-eoz9`.
+- Version info: none in the message.
+- Root cause: missing alias publication, not a match-table or probe-
+  logic error.
+- Author explicitly calls this a source-level fix with no dynamic
+  hardware repro.
 
 Step 1.4: DETECT HIDDEN BUG FIXES
-Record: **Not disguised.** It is a real autoload bug, same class as
-adding/publishing a device ID. Not style-only.
+Record: Not hidden. It is a missing-autoload bug. The “source-level”
+wording does not change that `MODULE_DEVICE_TABLE` is the documented way
+I2C drivers publish aliases (`Documentation/i2c/writing-clients.rst`).
 
 ===============================================================
 PHASE 2: DIFF ANALYSIS - LINE BY LINE
@@ -124,42 +126,38 @@ PHASE 2: DIFF ANALYSIS - LINE BY LINE
 
 Step 2.1: INVENTORY THE CHANGES
 Record:
-- **File:** `drivers/rtc/rtc-brcmstb-waketimer.c` (+1 / −0)
-- **Function/site:** after `brcmstb_waketmr_of_match[]` (not inside a
-  function)
-- **Scope:** single-file, one-line surgical change
-- **Upstream SHA (verified):**
-  `402c89d28fecd28652a4bfe997f08f6544836381`
+- File: `drivers/rtc/rtc-ab-eoz9.c` (+1 / -0)
+- One line after `abeoz9_id[]`: `MODULE_DEVICE_TABLE(i2c, abeoz9_id);`
+- No functions changed; table/registration data only
+- Scope: single-file surgical fix
 
 Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
 Record:
-- **Before:** table exists and is assigned to `.of_match_table` via
-  `of_match_ptr()`. Built-in matching still works. Modular autoload does
-  not, because file2alias never sees the table.
-- **After:** `MODULE_DEVICE_TABLE(of, brcmstb_waketmr_of_match)` creates
-  `__mod_of__brcmstb_waketmr_of_match_device_table` as an alias when
-  `MODULE` is set (`include/linux/module.h`). `scripts/mod/file2alias.c`
-  `do_of_entry_multi()` then emits `MODULE_ALIAS("of:N*T*Cbrcm,brcmstb-
-  waketimer")`.
-- **Path affected:** module install / depmod / udev autoload only.
-  Probe, PM, and built-in bind paths are unchanged. When `!MODULE`, the
-  macro is empty.
+- Before: OF table already has `MODULE_DEVICE_TABLE(of,
+  abeoz9_dt_match)`. I2C table exists and is assigned to `.id_table` but
+  is not exported.
+- After: I2C table is also exported. Built-in builds are unchanged
+  (`MODULE_DEVICE_TABLE` is empty when `!MODULE` in
+  `include/linux/module.h`).
+- Path affected: module-alias generation at build time, not
+  probe/runtime.
 
 Step 2.3: IDENTIFY THE BUG MECHANISM
-Record: **[Hardware enablement / missing device ID publication]**
-- Category (h): OF alias not published, so modular bind fails.
-- Not UAF, leak, race, NULL deref, or crash.
+Record:
+- Category: hardware enablement / missing device-ID alias (same class as
+  adding IDs)
+- Mechanism: without the export, `i2c:abeoz9` never appears in module
+  info. `i2c_device_uevent()` uses `MODALIAS=i2c:<name>` when OF/ACPI
+  modalias is unavailable (`drivers/i2c/i2c-core-base.c`). Autoload then
+  fails.
 
 Step 2.4: ASSESS THE FIX QUALITY
 Record:
-- **Quality:** obviously correct; this is the standard pattern (dozens
-  of RTC drivers already have `MODULE_DEVICE_TABLE(of, ...)` in this
-  tree).
-- **Regression risk:** very low. Compile-time alias only.
-  `__maybe_unused` on the table remains valid: built-in + `!CONFIG_OF`
-  still has no C reference; as a module the alias references the table,
-  which is intended.
-- **No API, locking, or data-structure changes.**
+- Obviously correct: one standard macro, same pattern as `rtc-
+  ab-b5ze-s3.c` and most other I2C RTC drivers.
+- Minimal: one line, no unrelated edits.
+- Regression risk: very low. No locking, no probe/remove change, no ABI.
+  Built-in is a no-op.
 
 ===============================================================
 PHASE 3: GIT HISTORY INVESTIGATION
@@ -167,39 +165,36 @@ PHASE 3: GIT HISTORY INVESTIGATION
 
 Step 3.1: BLAME THE CHANGED LINES
 Record:
-- Match table and `.of_match_table` introduced in **`c4f07ecee22ec7`**
-  (“rtc: brcmstb-waketimer: Add Broadcom STB wake-timer”, Brian Norris,
-  2017) — first appears **v4.13-rc1**. Present in this tree (`git merge-
-  base --is-ancestor` succeeded).
-- `__maybe_unused` added in **`ae1247f79ddf8`** (v5.12 era) for
-  `!CONFIG_OF` compile-test. That did not add `MODULE_DEVICE_TABLE`.
-- Bug has been present for the entire life of the driver.
+- Driver added in `67075b63cce26` (“rtc: add AB-RTCMC-32.768kHz-EOZ9 RTC
+  support”, Artem Panfilov, 2019-02-17).
+- Present in v5.2. OF `MODULE_DEVICE_TABLE` was there from day one; I2C
+  export was never added.
+- `abeoz9_id` line `{ "abeoz9" }` last touched by `a47d377e22c4a` (drop
+  explicit `driver_data = 0`).
 
 Step 3.2: FOLLOW THE FIXES: TAG
-Record: **No Fixes: tag.** The introducing commit is `c4f07ecee22ec7`,
-which is in this tree. No later intermediate autoload fix on this file.
+Record: No Fixes: tag. Buggy pattern dates to the introducing commit
+`67075b63cce26`, which is an ancestor of this HEAD.
 
 Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
-Record (this tree, path-limited):
-- `e005a9b35b464` level alarm_irq
-- `d64906b320ce6` `.remove` → `.remove_new`
-- `24304a87158aa` non-wake alarm
-- None of these publish OF aliases.
-- **Standalone** one-line patch; not “X/Y” of a series that this file
-  depends on. Parent of upstream `402c89d28fec` is a sibling RTC
-  autoload fix (`rtc: s32g`), not a prerequisite for this driver.
+Record:
+- Recent file history is unrelated (temperature/undervoltage, probe
+  style, IRQ flags).
+- Not part of a numbered series. Standalone one-liner.
+- Sibling Abracon driver `rtc-ab-b5ze-s3.c` already has both OF and I2C
+  `MODULE_DEVICE_TABLE`.
 
 Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
-Record: Pengpeng Hou is not the RTC maintainer. In this tree the only
-other `drivers/rtc/` commit from that author is unrelated (`rtc: zynqmp:
-Return optional clock lookup errors`). Alexandre Belloni (RTC
-maintainer) applied the patch. Florian Fainelli / Broadcom were on
-To/Cc.
+Record:
+- Pengpeng Hou is not the RTC maintainer. Same-day pattern: `can:
+  ctucanfd: add missing MODULE_DEVICE_TABLE()` is already in this tree
+  as `877e99535dfb9` (upstream `d937bdb244a7`, with Cc: stable).
+- RTC maintainer Alexandre Belloni applied the rtc patch (SOB +
+  “Applied, thanks!”).
 
 Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
-Record: **None.** Needs only `MODULE_DEVICE_TABLE` and the existing
-`of_device_id` table, both present since the driver was added. **Can
-apply standalone.**
+Record: None. Uses existing `abeoz9_id` and the existing
+`MODULE_DEVICE_TABLE` macro. Standalone.
 
 ===============================================================
 PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
@@ -207,277 +202,252 @@ PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
 Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
 Record:
-- **b4 dig -c 402c89d28fec:**
-  https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
-- **b4 dig -a:** single **v1**, 2026-07-04; no v2/v3.
-- Thread (3 messages): original patch; Sashiko bot “no issues”;
-  Alexandre Belloni **“Applied, thanks!”** pointing at
-  `https://git.kernel.org/abelloni/c/402c89d28fec`.
-- **No NAK, no stable nomination, no reviewer risk flags.** WebFetch to
-  lore returned 403; thread recovered via `b4 mbox`.
+- lore fetch via WebFetch returned 403; retrieved with `b4 mbox` msgid
+  `20260704152528.53258-1-pengpeng@iscas.ac.cn`.
+- Thread: original patch + Sashiko bot “no issues” + Alexandre Belloni
+  apply mail.
+- Single revision (PATCH, not v2/v3). Applied as `7490b8356e52` in the
+  RTC tree.
+- Submitted context uses `{ "abeoz9" }`, which matches this 6.12 file
+  (the candidate blob with `{ .name = "abeoz9" }` is a later-mainline
+  context difference only).
+- No NAK. No reviewer-requested Cc: stable.
 
 Step 4.2: CHECK WHO REVIEWED THE PATCH
-Record (b4 dig -w): To/Cc included Alexandre Belloni (RTC maintainer),
-Florian Fainelli, bcm-kernel-feedback-list, linux-rtc, linux-arm-kernel,
-linux-kernel. Maintainer applied it. No human Reviewed-by.
+Record: To: Alexandre Belloni; Cc: linux-rtc, linux-kernel. Maintainer
+applied it. No other human review comments.
 
 Step 4.3: SEARCH FOR THE BUG REPORT
-Record: **No user/syzbot/bugzilla report.** Author states it is source-
-level. Severity from reporters: N/A. Users affected: anyone building
-this driver as a module on DT platforms with `brcm,brcmstb-waketimer`.
+Record: No user/syzbot/bugzilla report. Author states source-level
+evidence only. No in-tree `.dts` user of `abracon,abeoz9` besides
+`trivial-rtc.yaml`.
 
 Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
-Record: Wave of the same one-line OF-alias pattern. This 6.12 tree
-already contains:
-- `330fdd1fb7d09` drm/tve200: add OF module alias for autoloading
-- `2260191fbf7c6` crypto: keembay - publish OF module alias for OCS
-  AES/SM4
-Those are the same bug class, already accepted here. This brcmstb patch
-does not depend on them.
+Record: Batch of missing-`MODULE_DEVICE_TABLE` scans the same day (at
+least CAN PCI + this RTC). CAN one already backported here. This RTC
+patch is self-contained.
 
 Step 4.5: CHECK STABLE MAILING LIST HISTORY
-Record: lore.kernel.org/stable search via WebFetch returned 403.
-**UNVERIFIED** whether this exact patch was discussed on stable@. No
-local evidence it was rejected.
+Record: No stable-list discussion found for this subject. Absence is
+expected; that is why it is in this review queue.
 
 ===============================================================
 PHASE 5: CODE SEMANTIC ANALYSIS
 ===============================================================
 
 Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
-Record: **No function body changed.** Site is `brcmstb_waketmr_of_match`
-/ `brcmstb_waketmr_driver`. Related runtime function:
-`brcmstb_waketmr_probe`.
+Record: No functions modified. Data: `abeoz9_id[]`. Consumers:
+`abeoz9_driver.id_table`. Macro: `MODULE_DEVICE_TABLE`.
 
 Step 5.2: TRACE CALLERS
-Record: `brcmstb_waketmr_probe` is only referenced as `.probe` on
-`brcmstb_waketmr_driver`, registered via `module_platform_driver()`.
-Called from platform/OF device bind (kernel boot or module load), not
-from a syscall directly. Userspace trigger is: DT node present + module
-autoload (or manual `modprobe`).
+Record:
+- `abeoz9_probe` is only referenced from `abeoz9_driver.probe`.
+- I2C core calls it on match. Autoload is the gap before probe.
+- `i2c_device_uevent()`: OF alias if of_node, else ACPI, else `i2c:` +
+  `client->name`.
 
 Step 5.3: TRACE CALLEES
-Record: Probe ioremaps, allocates an RTC device, requests IRQs,
-`device_init_wakeup()`. The new line calls nothing at runtime.
+Record: The new line does not call anything at runtime. file2alias
+consumes `__mod_i2c__abeoz9_id_device_table`.
 
 Step 5.4: FOLLOW THE CALL CHAIN
-Record: DT `compatible = "brcm,brcmstb-waketimer"` (in-tree on several
-BMIPS boards, e.g. `arch/mips/boot/dts/brcm/bcm7435.dtsi`) → OF match →
-probe. **Reachable on real STB hardware.** Autoload is the broken hop
-when `=m`.
+Record:
+- Userspace-reachable: instantiating `abeoz9` on an I2C adapter (sysfs
+  `new_device`, board info) with the driver as a module.
+- DT path already autoloads via existing OF table.
+- `!CONFIG_OF` / no of_node: I2C alias is the only autoload path, and it
+  is missing.
+- Driver does not require DT to probe (`abeoz9_trickle_parse_dt` returns
+  0 if the property is absent).
 
 Step 5.5: SEARCH FOR SIMILAR PATTERNS
-Record: Many RTC drivers already export OF tables (`rtc-zynqmp.c`, `rtc-
-mt7622.c`, …). Historical RTC fixes of the same kind: `206e04ec7539e`
-(mxc_v2), `3fc990a5dbfff` (mt7622). Systematic missing-alias class, not
-a one-off.
+Record: Most I2C RTC drivers already have `MODULE_DEVICE_TABLE(i2c,
+...)`. This driver is the incomplete sibling of `rtc-ab-b5ze-s3`. Same-
+day CAN PCI fix already landed in this tree.
 
 ===============================================================
 PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
 ===============================================================
 
 Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
-Record: **Yes.** `drivers/rtc/rtc-brcmstb-waketimer.c:413-424` has the
-table and `.of_match_table` and **no** `MODULE_DEVICE_TABLE`. `git
-merge-base --is-ancestor 402c89d28fec HEAD` failed (fix not here).
-Introduced v4.13, long before 6.12.
-
-Kconfig in this tree (`drivers/rtc/Kconfig`):
-```
-config RTC_DRV_BRCMSTB
-        tristate "Broadcom STB wake-timer"
-        depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
-        default ARCH_BRCMSTB || BMIPS_GENERIC
-```
-Explicitly modular. Default `y` on the SoCs that have the IP, so the
-common defconfig path is built-in; `=m` is still a supported and
-documented config.
+Record:
+- Tree: `p-6.12-3-gc504cf0baa3d8`, `make kernelversion` = 6.12.111
+  (VERSION 6 / PATCHLEVEL 12 / SUBLEVEL 111).
+- File present. `MODULE_DEVICE_TABLE(of, ...)` at line 567; `abeoz9_id`
+  at 570–573; no `MODULE_DEVICE_TABLE(i2c, ...)`.
+- `7490b8356e52` is not an ancestor of HEAD (`git merge-base --is-
+  ancestor` exit 1).
+- Bug present since v5.2.
 
 Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
-Record: **Clean apply.** Original mailed hunk (3 lines of context
-through `.probe`) — `git apply --check` **rc 0** on this tree. `.remove`
-vs `.remove_new` is later in the struct and is not in the original hunk.
-No rework needed.
+Record: Original mailed patch context is `{ "abeoz9" }`, which is
+exactly this tree. Clean apply. No refactor blocking it.
 
 Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
-Record: **No** commit on this file adds `MODULE_DEVICE_TABLE`. Sibling
-OF-alias backports exist for other drivers (tve200, keembay), not a
-substitute for this one.
+Record: No equivalent fix on `rtc-ab-eoz9.c`. OF alias only.
 
 ===============================================================
 PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 ===============================================================
 
 Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
-Record: **[drivers/rtc — Broadcom STB wake-timer] [PERIPHERAL]** for
-most 6.12 users; **IMPORTANT** on BCM7xxx set-top boxes (alarm/S2/S3/S5
-wake). Not mm/net/block core.
+Record: `drivers/rtc/` I2C RTC. Criticality: PERIPHERAL / driver-
+specific. RTC still matters for wall-clock and wake on boards that use
+this Abracon part.
 
 Step 7.2: ASSESS SUBSYSTEM ACTIVITY
-Record: Driver is mature (2017). Recent local commits are PM/IRQ and
-platform-remove conversion, not a rewrite. Low churn around the match
-table.
+Record: RTC is mature and still getting stable-worthy fixes in this
+tree. This file itself is low-churn.
 
 ===============================================================
 PHASE 8: IMPACT AND RISK ASSESSMENT
 ===============================================================
 
 Step 8.1: DETERMINE WHO IS AFFECTED
-Record: **Driver-specific / config-specific.** Users of Broadcom STB
-wake-timer with `CONFIG_RTC_DRV_BRCMSTB=m`. In-tree DT nodes are on
-BMIPS boards (`bcm7346/7358/7360/7362/7425/7435`). `ARCH_BRCMSTB` also
-exists on ARM and arm64; this tree’s ARM/arm64 dtsi files do not contain
-the compatible string (vendor DTs may). Built-in (`=y`, the Kconfig
-default on those arches) is unaffected.
+Record: Users of Abracon AB-RTCMC-32.768kHz-EOZ9 with
+`RTC_DRV_ABEOZ9=m`. DT boards already autoload. Affected: non-DT I2C
+instantiation, or any path that emits `i2c:abeoz9` rather than the OF
+modalias. Config-specific (`=m` only).
 
 Step 8.2: DETERMINE THE TRIGGER CONDITIONS
 Record:
-- Trigger: modular driver + OF device present + reliance on autoload
-  (normal distro/udev path).
-- Commonness: uncommon vs default `=y`; real whenever someone chooses
-  `=m` (help text documents that).
-- Unprivileged userspace cannot exploit this; it is bind/enablement, not
-  a crash primitive.
+- Trigger: I2C client named `abeoz9` appears while the driver is a
+  module and no OF/ACPI modalias is used.
+- Not every boot on DT systems.
+- Unprivileged users cannot typically create I2C clients; this is not a
+  security trigger.
 
 Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
-Record: **[RTC/wake-timer never binds when built as a module] [MEDIUM]**
-- Not oops/deadlock/corruption/CVE.
-- On affected boxes, RTC alarm and suspend wake from this block can fail
-  to be available until a manual `modprobe`.
-- Fits stable-rules “device ID” / “oh, that’s not good” more than
-  “oops”.
+Record:
+- Failure: module not loaded; RTC absent until manual modprobe. No oops,
+  UAF, or corruption.
+- Severity: MEDIUM for affected hardware (device does not work
+  automatically). LOW globally (niche chip, DT already covered).
+- Still a real user-visible bug, same class as missing device IDs.
 
 Step 8.4: CALCULATE RISK-BENEFIT RATIO
 Record:
-- **Benefit:** medium for modular STB configs (hardware actually gets
-  its driver); low for default `=y` defconfigs.
-- **Risk:** very low (1 line, modpost alias, no runtime behavior change
-  for built-in).
-- **Ratio:** favorable. Same class already merged in this 6.12.y tree.
+- Benefit: medium-low population, high for anyone on the broken autoload
+  path; restores hardware probe without manual load.
+- Risk: very low (one line, no runtime code).
+- Ratio: favorable. Same class already accepted here for ctucanfd.
 
 ===============================================================
 PHASE 9: FINAL SYNTHESIS
 ===============================================================
 
 Step 9.1: COMPILE THE EVIDENCE
-**FOR:**
-- Real autoload bug: OF table used, aliases never generated.
+FOR:
+- Real autoload bug: I2C ID table is used but not exported.
 - One line, obviously correct, maintainer-applied.
-- Driver and buggy code exist in 6.12.111 since v4.13.
+- Driver and bug have been in this 6.12 tree since the v5.2
+  introduction.
 - Original patch applies cleanly here.
-- Device-ID / hardware-enablement exception; wake-timer matters for STB
-  suspend/resume.
-- Identical OF-alias one-liners already in this tree (tve200, keembay).
-- Zero runtime regression path for the default built-in config.
+- Zero runtime change for built-in; aliases only when `=m`.
+- Stable rules allow device-ID additions; this publishes an existing ID.
+- Sibling Abracon RTC already has the I2C export.
+- Same-day CAN `MODULE_DEVICE_TABLE` fix is already in this tree.
 
-**AGAINST:**
-- Not a crash, UAF, deadlock, or security hole.
-- No user report; source-level scan.
-- Kconfig default is built-in on the SoCs that have the hardware, so
-  many production images never hit autoload.
-- Peripheral driver, not core.
+AGAINST:
+- No user report or syzbot; author says source-level only.
+- Not a crash/security/deadlock.
+- DT autoload already works; chip is mainly DT/embedded.
+- No in-tree board DTS users of `abracon,abeoz9`.
 
-**UNRESOLVED:**
-- Whether this SHA was already discussed on stable@ (lore 403).
-- Whether vendor ARM/arm64 brcmstb DTs (not in this tree) also use this
-  compatible.
+UNRESOLVED:
+- Could not fetch lore.kernel.org via WebFetch (403); thread recovered
+  via `b4 mbox`.
+- No stable-list thread found.
 
 Step 9.2: APPLY THE STABLE RULES CHECKLIST
-1. Obviously correct and tested? **PASS** — standard macro; RTC
-   maintainer applied v1 with no objections.
-2. Fixes a real bug that affects users? **PASS** — modular OF autoload
-   does not work; Kconfig allows `=m`.
-3. Important issue? **PASS** (device-ID / hardware-enablement class;
-   functional miss for modular STB RTC/wake). Severity MEDIUM, not
-   CRITICAL.
-4. Small and contained? **PASS** — +1 line, one file.
-5. No new features or APIs? **PASS** — publishes an alias for an
-   existing match table.
-6. Can apply to the local tree? **PASS** — `git apply --check`
-   succeeded; code present; no missing prereqs.
+1. Obviously correct and tested? PASS — one standard macro; maintainer
+   applied; matches documented I2C driver pattern.
+2. Fixes a real bug that affects users? PASS — missing `i2c:abeoz9`
+   alias; module does not autoload on the I2C path.
+3. Important issue? PASS under the device-ID / hardware-enablement
+   exception. User-visible: RTC module does not load. Not a panic.
+4. Small and contained? PASS — +1 line, one file.
+5. No new features or APIs? PASS — existing table, existing macro.
+6. Can apply to the local tree? PASS — buggy code present; mailed
+   context matches 6.12.
 
 Step 9.3: CHECK FOR EXCEPTION CATEGORIES
-Record: **Device ID / OF module alias publication for an existing
-driver** (stable-rules: “or just add a device ID”). Closest match to the
-documented ID-addition exception.
+Record: Device ID / module-alias publication for an existing driver. Not
+a new driver, API, or module parameter.
 
 Step 9.4: MAKE YOUR DECISION
-Backport. The bug is in this tree, the fix is the usual one-line alias
-export, it applies cleanly, and it matches both the written device-ID
-exception and OF-alias fixes already on 6.12.y. Default-y only reduces
-how often it bites; it does not make the modular path fictional.
+YES. The bug exists in this 6.12.111 tree, the fix is a one-line alias
+export with no runtime risk, and it is the same class of hardware-
+enablement stable already takes (including this author’s CAN patch
+already on this branch).
 
-------------------------------------------------
-What the commit solves for this tree
-The 6.12 `rtc-brcmstb-waketimer` driver matches `brcm,brcmstb-waketimer`
-but never asks modpost to emit that alias. Built as a module, the wake-
-timer will not autoload. Adding `MODULE_DEVICE_TABLE(of, ...)` is the
-complete fix.
+What the commit solves for stable users: if `rtc-ab-eoz9` is built as a
+module, I2C instantiation that emits `i2c:abeoz9` (non-DT) never
+autoloads the driver. DT boards already work via the OF table. The extra
+line closes the I2C alias gap.
 
-Risk vs benefit
-Benefit is restoring bind on modular STB configs; risk is essentially
-nil. Context around `.remove_new` does not affect the original hunk.
+Risk vs benefit: benefit is autoload for this RTC on the I2C path; risk
+is essentially nil. No prerequisites. Original mailed hunk matches this
+tree’s `{ "abeoz9" }` initializer.
 
-------------------------------------------------
 Verification:
-- [Phase 1] Parsed tags: Link to msgid, SOB Pengpeng Hou + Alexandre
-  Belloni; no Fixes/Cc stable/Reported-by
-- [Phase 1] Body: missing OF alias; source-level, no hardware repro
-  claimed
-- [Phase 2] Diff: +1 line `MODULE_DEVICE_TABLE(of,
-  brcmstb_waketmr_of_match)` after the match table
-- [Phase 2] `include/linux/module.h`: macro is alias-for-modpost if
-  `MODULE`, empty otherwise
-- [Phase 2] `scripts/mod/file2alias.c` `do_of_entry_multi()`: emits
-  `of:N*T*C<compatible>`
-- [Phase 3] `git blame`: table from `c4f07ecee22ec7` (v4.13-rc1);
-  `__maybe_unused` from `ae1247f79ddf8`
-- [Phase 3] `git merge-base --is-ancestor c4f07ecee22ec HEAD`: intro
-  commit is in this tree
-- [Phase 3] `git merge-base --is-ancestor 402c89d28fec HEAD`: fix is
-  **not** in this tree
-- [Phase 3] `git show 402c89d28fec`: confirmed same +1 line,
-  author/date/message
-- [Phase 3] `git log --oneline -20 -- drivers/rtc/rtc-brcmstb-
-  waketimer.c`: no prior MODULE_DEVICE_TABLE on this file
-- [Phase 4] `b4 dig -c 402c89d28fec`: lore URL + v1-only series
-- [Phase 4] `b4 dig -a`: only v1, 2026-07-04
-- [Phase 4] `b4 dig -w`: Belloni, Fainelli, bcm-kernel-feedback-list,
-  linux-rtc CC’d
-- [Phase 4] `b4 mbox`: Belloni “Applied, thanks!”; Sashiko no issues; no
-  NAK
-- [Phase 4] WebFetch lore: 403; used b4 instead
-- [Phase 4] UNVERIFIED: stable@ thread for this exact subject
-- [Phase 5] Probe only used as platform `.probe`; DT compatible present
-  in `arch/mips/boot/dts/brcm/*.dtsi`
-- [Phase 6] `make kernelversion` / Makefile: **6.12.111**; `git describe
-  HEAD`: p-6.12-3-gc504cf0baa3d8
-- [Phase 6] Local file lines 413–424: table present, MODULE_DEVICE_TABLE
-  absent
-- [Phase 6] `git apply --check` of original hunk: **success (rc 0)**
-- [Phase 6] Same-class already in tree: `330fdd1fb7d09`, `2260191fbf7c6`
-- [Phase 7] MAINTAINERS: RTC subsystem maintained by Alexandre Belloni
-- [Phase 8] Kconfig tristate + `default y` on ARCH_BRCMSTB/BMIPS_GENERIC
-  verified via blame
-- [Phase 8] Failure mode: missing modular bind, not a crash
+- [Phase 1] Parsed tags: author SOB Pengpeng Hou; Link msgid; RTC
+  maintainer SOB Alexandre Belloni; no Fixes/Cc:stable/Reported-by
+- [Phase 1] Body: missing I2C MODULE_DEVICE_TABLE; source-level, no
+  hardware repro claimed
+- [Phase 2] Diff: +1 line `MODULE_DEVICE_TABLE(i2c, abeoz9_id)` after
+  `abeoz9_id[]` in `drivers/rtc/rtc-ab-eoz9.c`
+- [Phase 2] `include/linux/module.h`: macro is alias-only when `MODULE`,
+  empty when built-in
+- [Phase 3] blame: table from `67075b63cce26` (2019); OF export present
+  then; I2C export never added
+- [Phase 3] `git merge-base --is-ancestor 67075b63cce26 HEAD`:
+  introducing commit is in this tree; in v5.2
+- [Phase 3] `git log --oneline --grep='MODULE_DEVICE_TABLE' --
+  drivers/rtc/rtc-ab-eoz9.c`: empty (fix not here)
+- [Phase 3] Same-author `877e99535dfb9` can/ctucanfd MODULE_DEVICE_TABLE
+  already in this tree
+- [Phase 4] `b4 mbox` msgid
+  `20260704152528.53258-1-pengpeng@iscas.ac.cn`: 3 messages; maintainer
+  applied as `7490b8356e52`; mailed hunk uses `{ "abeoz9" }`
+- [Phase 4] WebFetch lore/msgid.link: 403; discussion recovered from
+  mbox and openwall/lkml mirrors
+- [Phase 5] `i2c_device_uevent`: OF first, then ACPI, then
+  `MODALIAS=i2c:` + client name
+- [Phase 5] grep: `abeoz9_probe` only from this driver; no in-tree DTS
+  users besides `trivial-rtc.yaml`
+- [Phase 5] `rtc-ab-b5ze-s3.c` already has both OF and I2C
+  MODULE_DEVICE_TABLE
+- [Phase 6] `git describe HEAD`: `p-6.12-3-gc504cf0baa3d8`; `make
+  kernelversion`: 6.12.111
+- [Phase 6] Local file lines 562–582: OF table exported; I2C table not;
+  `{ "abeoz9" }`
+- [Phase 6] `git merge-base --is-ancestor 7490b8356e52 HEAD`: exit 1
+  (not in this tree)
+- [Phase 7] Kconfig `RTC_DRV_ABEOZ9` is tristate; not set in defconfigs
+  searched
+- [Phase 8] Failure mode: missing module autoload for I2C path, severity
+  MEDIUM for that hardware, not a crash
+- UNVERIFIED: live lore.kernel.org HTML (403); no stable-list hit for
+  this subject
 
 **YES**
 
- drivers/rtc/rtc-brcmstb-waketimer.c | 1 +
+ drivers/rtc/rtc-ab-eoz9.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
-index fb47c32ab5ff4..55c15aad42cff 100644
---- a/drivers/rtc/rtc-brcmstb-waketimer.c
-+++ b/drivers/rtc/rtc-brcmstb-waketimer.c
-@@ -413,6 +413,7 @@ static const __maybe_unused struct of_device_id brcmstb_waketmr_of_match[] = {
- 	{ .compatible = "brcm,brcmstb-waketimer" },
- 	{ /* sentinel */ },
+diff --git a/drivers/rtc/rtc-ab-eoz9.c b/drivers/rtc/rtc-ab-eoz9.c
+index de002f7a39bf4..8dc656bb78bfb 100644
+--- a/drivers/rtc/rtc-ab-eoz9.c
++++ b/drivers/rtc/rtc-ab-eoz9.c
+@@ -549,6 +549,7 @@ static const struct i2c_device_id abeoz9_id[] = {
+ 	{ "abeoz9" },
+ 	{ }
  };
-+MODULE_DEVICE_TABLE(of, brcmstb_waketmr_of_match);
++MODULE_DEVICE_TABLE(i2c, abeoz9_id);
  
- static struct platform_driver brcmstb_waketmr_driver = {
- 	.probe			= brcmstb_waketmr_probe,
+ static struct i2c_driver abeoz9_driver = {
+ 	.driver = {
 -- 
 2.53.0
 
