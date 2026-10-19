@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792444965;
-	b=X22ugu5uIf2qjnnT9a7XCIetVAu9Gd6miVNSKaYPFAphFPJ91d1FvdpQ1KboUckinaNB
-	 QrJXokSuuhMs7EGw3N+SXTucbcMZklCZJKzTkYx/y04Ev+gUk/RYUsmaqKXW3NiUj4sSc
-	 Y32a5fve+D9Pn7L/uWU27bX1G+nEo1889oGhJAODk4hH5byzo2WgAM/4pyug1QzvQUB9D
-	 KGeCo4VYe/m+DfyGjqBbWS4Ke62otpdNPzkMmx20SVmp4xyAtkmp3hD0NCreM6bz8shw0
-	 V+SPhQN4fUGsglFycapXbNUaZMKpsVL4mxSCITI1ftR+WXKB2RA2FYEhQFqp4k3Gy8Q==
+	t=1792444975;
+	b=KgAdj/QZTFddOx3V2gQ27rtbbjGIk/NV0eO7eISBqe0d9eLpWtitOVhAxu20nfxWYe5i
+	 8CqyCe4kQ2jmQeQ/kgMZKemiBr68U9iO4YMWZkOaYnuzSn0YWqMN4FktQC7QfTWNqpppt
+	 rI7H7qNC1sfksP1QJjYw1GyMLdbWWVqwdN5X1vXDelToatf97ZtL/EL0E1HjPV02hQe3A
+	 0goiaHqn8Vg9jxXM4xzVgiig9Ft1x99AWX4JnrziqsQwUWUVuNY7YihaosFfZx6qa89kh
+	 hcxrAmUmzBapI78bzV0SKP+nutuaUljcNijtGLAQj1auyQtX+TSKI2iBsqWvYbCY51A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792444965;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792444975;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Grf75QqlgJA9a8GpEhvZjK2ZUQ7I+c1OgFK6+i5l8HM=;
-	b=FzWFY7qJiDyfdI8zxcDKpTOb/DP8mKlpJK1r6n4bYrEH/Dson1l0I9LdTRo7g7iw5pNa
-	 kMoCaXRXt2r/yvOGEJN/pEds/CgEY5Nb8uEz37Z1kiCI4HPFYfkY2uaoW5djkoxBzjBao
-	 wwh0sD1GXMc0ai1DizRyli4JP1nu5mBBG/KIRUoDlfnpOqshYTulHkNZA9cQaHKSkzExi
-	 FjNUm39Jhdm27LYaz3XAT0SX9BnpOtdzKHC+0Fr+mjdn0A1lzKmOxxBZ7uDGlONmOzjvO
-	 Gnqfbeatt980IGmMtbc4RA9yfu32E/IgkkR+W9DV0qXsx5o8K8x+sUDpNu6403z1VnQ==
+	bh=NHTpSRUhuyeRs1G4gesj7tVGwj9f9J1aUPuG2YUG92k=;
+	b=12dRVBCxlM02C8lM9SWmebUSt5ZAYBVSRWx05ra9cMBo19YrMnX+eS72x2WPxLbL87cO
+	 KUUX1DN4ZvGFenpLuvi5gQ37ZXDFk8GJgQEEOaLOPbJ02iAPuzvh9k5DNsU29ahLJWNkp
+	 g2/pAnUrRBbDF0r1iBB+Uz6JTyLomVeFmYs239EGLvvbJPz0W2JI61wlSLHXAqRoBKLt1
+	 USA14befqCDQ0qVUTnl64sK4VVtIOdrr/5cton0ysooHqvXCDPnhgGaJKJFyqqMYeaxkh
+	 8I4as4M+UsMjEjYTpWUgG3nrYeja7ZcQQQUVxOloqmqSyncS/0l7J008ohJP180DJCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CVzoDu+x;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bTJuGtun;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FDE0606A31A
-	for <linux-rtc@vger.kernel.org>; Mon, 19 Oct 2026 21:22:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE50606A31C
+	for <linux-rtc@vger.kernel.org>; Mon, 19 Oct 2026 21:22:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CVzoDu+x
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B6CE1F000C9;
-	Mon, 19 Oct 2026 21:22:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bTJuGtun
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2A31F000C4;
+	Mon, 19 Oct 2026 21:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792444964;
-	bh=Grf75QqlgJA9a8GpEhvZjK2ZUQ7I+c1OgFK6+i5l8HM=;
+	s=k20260515; t=1792444975;
+	bh=NHTpSRUhuyeRs1G4gesj7tVGwj9f9J1aUPuG2YUG92k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CVzoDu+x5+fNPaoVzjuWg9gmxRy3XmOx2uwskEyIZ0UbeXMV8+N1Q88UGrh0xxcv/
-	 8hQ8SKTIvEwaTWX46NqNqkJ6zawJivtAG5Y57II4MCo/6POOs0aZOr3e2AoMlf8ptF
-	 Gz+ddoghcfJ6a14MVVLaaX/XuDFJXGagF0BgFATo4QA3lG9ZkECz9UjXeuJICWdOBO
-	 f+KO0aV0ILn/rZZxCRuZBU37q1nJAoWe7UJSgQxLr2/+JlaJRvj5YBnjS02xQmntoc
-	 gRi7dMQITKBtsB9TQ+rt19uG4cJvu9RAywq2bZv/4hVKKYvL8xte7yUyc3mu1duFzB
-	 6ic9aJvdm2B9A==
-Message-ID: <sashiko-outbox-178247@kernel.org>
+	b=bTJuGtungKcOHDF0syTpoO/y+/PgRqSq0hmnM5BoerZ+c1tKSw0byjGGzTZk11/Qp
+	 vbgXRK8zodz11zj4xv/FSXoiDQpsv23Mn3yA5sxj96/BvUUzMfEggIUQyxiJjiKUjT
+	 vMGGi12pAE0/JxJAW1xcNR3KrMGwqPudKXwdgbg0HU7oPvutyiy1GU1/ZI6ta6nh3O
+	 rjPBKLYclVa2FuP640rjH0VJjhgG3K9lOumjJRSlyoJp47cQY8g6p/+2DZtmHvM46+
+	 yAafxTWOV4bLFROvIIP6R1XjL6Ev2U+ty1jMWnw1chNo+p1Y9phk7uR7MPrHYAzWcf
+	 wUqxb/QdJnUng==
+Message-ID: <sashiko-outbox-178248@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 18/19] rtc: stm32: use guard
+Subject: Re: [PATCH 16/19] rtc: rx8010: use guard
 Reply-To: sashiko-reviews@lists.linux.dev
 To: alexandre.belloni@bootlin.com
 Cc: linux-rtc@vger.kernel.org
-In-Reply-To: <20261019211827.126262-18-alexandre.belloni@bootlin.com>
+In-Reply-To: <20261019211827.126262-16-alexandre.belloni@bootlin.com>
 References: <20261019211827.126262-1-alexandre.belloni@bootlin.com>
- <20261019211827.126262-18-alexandre.belloni@bootlin.com>
+ <20261019211827.126262-16-alexandre.belloni@bootlin.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 21:22:44 +0000
+Date: Mon, 19 Oct 2026 21:22:54 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -62,7 +62,7 @@ Precedence: list
 
 > From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 >=20
-> Use guard() to simplify locking
+> Use guard() to simplify error handling
 >=20
 > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
@@ -70,5 +70,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019211827.1262=
-62-1-alexandre.belloni@bootlin.com?part=3D18
+62-1-alexandre.belloni@bootlin.com?part=3D16
 
