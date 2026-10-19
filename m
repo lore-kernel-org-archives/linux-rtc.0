@@ -1,42 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68A9C5AA66D;
-	Mon, 19 Oct 2026 13:55:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEDE50841C;
+	Mon, 19 Oct 2026 14:03:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418137; cv=none; b=txFi0TSR1QifF/fnJ/Knm0kW7HLeBzaEasDlzM81Kssci/aqKF9ZHld0qsRavhPpcgtreIWg2aB32tLYqsbk8sl8IwC36f4Wquexznx1T13DtuCon2FlpJnLBRTpLpFe5WephR2qD9/o2LqiAhZS36M53/5FYjhPyCnXRIGiHZs=
+	t=1792418612; cv=none; b=m26y8lKZsuZY2BmqJa2Ly1v/gFSgI7WucL5mH8KtNbTA7So64tbw+G0ltdXbU8LSTYW95HIpesM1yKGIXfaaaau3/dv4f+0W3aZRY+/gJ6zgdXDnUHsMNXS3P4Kv0I9PiRHnC195ZsC7Hty69DXn7c5VLf7oeyXlN54TSfQP+4E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418137; c=relaxed/simple;
-	bh=xtaCHAOAz4a2OS6Vk1eD9fzhFcP81bK6rp40371+RqU=;
+	s=arc-20240116; t=1792418612; c=relaxed/simple;
+	bh=BcvsgOYZE/XsJ+D+p03Dqf37OQAI3d1cOGaFE1fdTxw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aY5BfLsq5fe3oGzngJX3S63qi8C25IIRWF0ozVZIXxwsU6VAc+GzN2CbhBJUYBunAOPemUmiGel3PykACN4JU52r87qo4rGOXR9knW767L759V9p9nSTO4Kcv1TFX8VlHjEtrF15Cqe4K0s1GfSN0Dh5f+zTTSobgRaxOS31lH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JPYoV5Iq; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=ohgssXtY0O08pmdRH6kmC0jzLRenVoRASRSkh62JI22BKYv1nePWA7zc1oXzQMAc3cR+aY+U2jKnHZ8vnYzDgfI1a1Golm18Kkq4f0l299k+7Wk3+qXNf/AyyeY39v02aorJCNLGgJSUjahIPfknJ0jZVPxXIiGilQZVqf/u2Og=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nqpfLuB3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JPYoV5Iq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A2FD1F000C4;
-	Mon, 19 Oct 2026 13:55:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nqpfLuB3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7B81F000C4;
+	Mon, 19 Oct 2026 14:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418134;
-	bh=hqu6bHS4m3fKvIVckbvIo05gJFOI2yEzudMV5O4M1Qo=;
+	s=k20260515; t=1792418609;
+	bh=3XWOh0TlZD3lVy6AJyQ1GhSc9Trgig1dArAlc2AK3/I=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=JPYoV5IqRvb9+i2V8Prl931C6LPPev7UHTZe5vTQk7f8quTagExytIcgED/Vy1yN0
-	 kIer4zMil8qt+CU3D1YUnrQDUIE2MMFjfulMti35INr5fo5HLDnprvfzWdEnjvrlgk
-	 oPt3fzC4FwyOK73j9IPVUDMu3qAL1O/G2BJbSstdNN/pSkkYo9HncsCai4jkzIeFpY
-	 pLflZA4B9nMBJYwVufHD/67dGe+qdfWSZoN/Om5fYk+/ejb9U0cufkUbF6nBiEkLXQ
-	 crknB0LJtJMhN/0M7kvdEU44mWJDoA6HL/HLPEM4soIPGpaEmgssTeOLW8WA17Dcik
-	 y+qU1bgCMCreA==
+	b=nqpfLuB3FIE/Z/N+YcpGlDmc2DAVEroXp720IkqOU6/Y2l4079xYoG0Z9j8f9A55v
+	 PkAmO51uL56pg1PyRuK83gfDGL3o7ODxMWdkkH2rcl8waYvvrxCEC5p1+ksRnKE/xG
+	 aKF3Bct7KhGpqSAfFIW9nwtKtnSchbR6kFI1QiLpt0w2RiQawBlvLi00qxxUdSjqo3
+	 tkGlPmaHf64+9dM1Ly7nFpvVIIXnFc/kYLZfx8am7+SjySomJd9K2e5njEvZcqnzva
+	 WpO0uLRf0v1Dl2nabFnFmj7dPI9YDk9kmRtDt4mu9Ihbiq4iz5MVLguBLQPGGaHZEs
+	 hI2dUc9BiJAKg==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Robert Leussler <robert.leussler@leica-geosystems.com>,
+Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	Sasha Levin <sashal@kernel.org>,
+	florian.fainelli@broadcom.com,
 	linux-rtc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] rtc: ds1307: fix RX8130 wakeup alarm WADA bit for day-of-month mode
-Date: Mon, 19 Oct 2026 09:45:27 -0400
-Message-ID: <20261019135441.1420968-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] rtc: brcmstb-waketimer: add missing MODULE_DEVICE_TABLE()
+Date: Mon, 19 Oct 2026 09:51:01 -0400
+Message-ID: <20261019135441.1420968-370-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -52,408 +54,430 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Robert Leussler <robert.leussler@leica-geosystems.com>
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-[ Upstream commit 878d93aaa596a861dbc8d71f7c38e62a2e805f01 ]
+[ Upstream commit 402c89d28fecd28652a4bfe997f08f6544836381 ]
 
-The RX8130 wakeup alarm never fired when set via
-/sys/class/rtc/rtc0/wakealarm. The root cause is that the WADA bit
-(bit 3) in the Extension register (0x1c) was never set before
-programming the alarm registers.
+The driver has an OF match table wired to .of_match_table, but does
+not export the table with MODULE_DEVICE_TABLE().
 
-Per the RX8130 datasheet:
-WADA=0 - Week alarm: register 0x19 is compared against day-of-week
-WADA=1 - Day alarm:  register 0x19 is compared against day-of-month
+Add the missing MODULE_DEVICE_TABLE(of, ...) entry so module alias
+information is generated for OF based module autoloading.
 
-rx8130_set_alarm() always writes a BCD day-of-month value to alarm
-register 0x19, so WADA must be 1. With WADA=0 the hardware matched the
-day-of-month value (e.g. 15) as a day-of-week index, which is always
-out of range (valid weekdays are 0-6), so the alarm interrupt was never
-asserted.
+This is a source-level fix.  It does not claim dynamic hardware
+reproduction; the evidence is the driver-owned match table, its use by
+the platform driver, and the missing module alias publication.
 
-Fix by setting the WADA bit in rx8130_set_alarm() before writing the
-Extension register back to the device.
-
-This is consistent with rx8130_read_alarm(), which decodes the same
-register under the same assumption (24-hour and day-of-month mode).
-
-Signed-off-by: Robert Leussler <robert.leussler@leica-geosystems.com>
-Link: https://patch.msgid.link/20260721081907.3518648-1-robert.leussler@leica-geosystems.com
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Link: https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-This is a one-line RX8130 wakeup-alarm fix. The buggy `&=` is present in
-this 6.12.111 tree, the datasheet matches the new polarity, and the
-patch applies cleanly.
+The local tree is **6.12.111** (`pending-6.12`). The one-line OF alias
+publication is missing here, the match table is present, and the
+original mailed hunk applies cleanly.
 
----
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+Step 1.1: PARSE THE SUBJECT LINE
+Record: **[rtc / brcmstb-waketimer] [add] [publish missing OF
+MODULE_DEVICE_TABLE so the module can autoload]**
 
-### Step 1.1: PARSE THE SUBJECT LINE
-Record: **[rtc/ds1307] [fix] RX8130 wakeup alarm never fires because
-WADA is not set for day-of-month mode**
-
-### Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
 Record:
-- **Fixes:** none (expected for this review)
-- **Reported-by:** none
-- **Tested-by:** none (author is from Leica Geosystems; they hit this on
-  hardware)
-- **Reviewed-by:** none
-- **Acked-by:** none
-- **Link:** `https://patch.msgid.link/20260721081907.3518648-1-
-  robert.leussler@leica-geosystems.com`
-- **Cc: stable:** none (expected)
-- **Signed-off-by:** Robert Leussler (author); Alexandre Belloni (RTC
-  maintainer). Ignore any Sasha Levin SOB if later added by the
-  pipeline.
+- **Link:**
+  https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
+- **Signed-off-by:** Pengpeng Hou (author)
+- **Signed-off-by:** Alexandre Belloni (RTC maintainer; applied)
+- **No Fixes:** (expected for this review)
+- **No Cc: stable** (expected)
+- **No Reported-by / Tested-by / Reviewed-by / Acked-by / syzbot**
+- Pipeline markers (`[Upstream commit ...]`, Sasha Levin SOB) ignored
+  per instructions
 
-### Step 1.3: ANALYZE THE COMMIT BODY TEXT
+Step 1.3: ANALYZE THE COMMIT BODY TEXT
 Record:
-- **Bug:** RX8130 wakeup alarm never fires when set via
-  `/sys/class/rtc/rtc0/wakealarm`.
-- **Symptom:** scheduled RTC wakeup does not occur; `/IRQ` is never
-  asserted.
-- **Root cause:** `rx8130_set_alarm()` writes BCD day-of-month to alarm
-  register 0x19 but never sets WADA (Extension 0x1c bit 3). With WADA=0
-  the chip compares 0x19 as a week alarm.
-- **Version info:** none in the message. Code has been in-tree since
-  RX8130 support (v4.13); the current `&=` form dates to 2019.
-- **Author’s fix:** `ctl[0] &= WADA` → `ctl[0] |= WADA` so WADA=1 (day-
-  of-month), matching `rx8130_read_alarm()`.
+- **Bug:** OF match table is wired to `.of_match_table` but not exported
+  with `MODULE_DEVICE_TABLE()`, so modpost never emits
+  `of:N*T*Cbrcm,brcmstb-waketimer` aliases.
+- **Symptom:** When `CONFIG_RTC_DRV_BRCMSTB=m`, udev/kmod cannot
+  autoload `rtc-brcmstb-waketimer.ko` from the DT compatible string. The
+  wake-timer/RTC does not bind unless the module is loaded by hand.
+- **Version info:** none in the message. Driver has been in tree since
+  v4.13.
+- **Root cause (author):** missing module-alias publication, evidenced
+  by the driver-owned table and its use by the platform driver.
+  Explicitly a source-level finding, not a live hardware repro.
 
-### Step 1.4: DETECT HIDDEN BUG FIXES
-Record: Not hidden. Explicit hardware-logic fix. The `&=` → `|=` change
-also stops wiping other Extension bits (FSEL/USEL/TE/TSEL), which is
-extra correctness, not a drive-by refactor.
+Step 1.4: DETECT HIDDEN BUG FIXES
+Record: **Not disguised.** It is a real autoload bug, same class as
+adding/publishing a device ID. Not style-only.
 
----
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
-## PHASE 2: DIFF ANALYSIS
-
-### Step 2.1: INVENTORY THE CHANGES
+Step 2.1: INVENTORY THE CHANGES
 Record:
-- File: `drivers/rtc/rtc-ds1307.c` — **1 line changed** (`&=` → `|=`)
-- Function: `rx8130_set_alarm()`
-- Scope: single-file surgical fix
+- **File:** `drivers/rtc/rtc-brcmstb-waketimer.c` (+1 / −0)
+- **Function/site:** after `brcmstb_waketmr_of_match[]` (not inside a
+  function)
+- **Scope:** single-file, one-line surgical change
+- **Upstream SHA (verified):**
+  `402c89d28fecd28652a4bfe997f08f6544836381`
 
-### Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
+Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
 Record:
-- **Before:** after reading Extension/Flag/Control0, `ctl[0] &= BIT(3)`
-  keeps only the current WADA bit (typically 0 from POR) and **clears
-  every other Extension bit**, then writes it back, then programs
-  min/hour/**mday**.
-- **After:** `ctl[0] |= BIT(3)` **sets WADA=1** and **preserves**
-  FSEL/USEL/TE/TSEL, then programs the same mday alarm.
+- **Before:** table exists and is assigned to `.of_match_table` via
+  `of_match_ptr()`. Built-in matching still works. Modular autoload does
+  not, because file2alias never sees the table.
+- **After:** `MODULE_DEVICE_TABLE(of, brcmstb_waketmr_of_match)` creates
+  `__mod_of__brcmstb_waketmr_of_match_device_table` as an alias when
+  `MODULE` is set (`include/linux/module.h`). `scripts/mod/file2alias.c`
+  `do_of_entry_multi()` then emits `MODULE_ALIAS("of:N*T*Cbrcm,brcmstb-
+  waketimer")`.
+- **Path affected:** module install / depmod / udev autoload only.
+  Probe, PM, and built-in bind paths are unchanged. When `!MODULE`, the
+  macro is empty.
 
-### Step 2.3: IDENTIFY THE BUG MECHANISM
+Step 2.3: IDENTIFY THE BUG MECHANISM
+Record: **[Hardware enablement / missing device ID publication]**
+- Category (h): OF alias not published, so modular bind fails.
+- Not UAF, leak, race, NULL deref, or crash.
+
+Step 2.4: ASSESS THE FIX QUALITY
 Record:
-- **Category:** logic / hardware-programming correctness (wrong alarm
-  mode bit).
-- **Mechanism:** RX8130 WADA selects week vs day comparison for register
-  0x19. Driver always writes `bin2bcd(tm_mday)` to 0x19, so WADA must be
-  1. WADA=0 makes the chip treat that BCD value as a week-alarm bitmap,
-  so the alarm either never matches or matches the wrong weekdays.
+- **Quality:** obviously correct; this is the standard pattern (dozens
+  of RTC drivers already have `MODULE_DEVICE_TABLE(of, ...)` in this
+  tree).
+- **Regression risk:** very low. Compile-time alias only.
+  `__maybe_unused` on the table remains valid: built-in + `!CONFIG_OF`
+  still has no C reference; as a module the alias references the table,
+  which is intended.
+- **No API, locking, or data-structure changes.**
 
-Verified from Epson RX8130CE application manual (Table 23):
-- WADA=0 → WEEK is the alarm target
-- WADA=1 → DAY (day-of-month) is the alarm target
-- Example “Day” settings explicitly use WADA=1
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
-### Step 2.4: ASSESS THE FIX QUALITY
+Step 3.1: BLAME THE CHANGED LINES
 Record:
-- **Quality:** obviously correct. One operator change; polarity matches
-  the datasheet and the existing read path (`tm_mday`, comment “day-of-
-  month modes”).
-- **Regression risk:** very low. Only RX8130 `set_alarm`. `|=` is the
-  correct RMW (old `&= BIT(3)` was also clobbering FSEL/TE/TSEL). No
-  API/lock/struct change.
-- The author’s “valid weekdays are 0-6, so mday 15 never matches” is
-  slightly imprecise: week mode is a **bitmap**, so some BCD mday values
-  can match the wrong weekdays. Failure mode is still “alarm broken,”
-  possibly worse than “never fires.”
+- Match table and `.of_match_table` introduced in **`c4f07ecee22ec7`**
+  (“rtc: brcmstb-waketimer: Add Broadcom STB wake-timer”, Brian Norris,
+  2017) — first appears **v4.13-rc1**. Present in this tree (`git merge-
+  base --is-ancestor` succeeded).
+- `__maybe_unused` added in **`ae1247f79ddf8`** (v5.12 era) for
+  `!CONFIG_OF` compile-test. That did not add `MODULE_DEVICE_TABLE`.
+- Bug has been present for the entire life of the driver.
 
----
+Step 3.2: FOLLOW THE FIXES: TAG
+Record: **No Fixes: tag.** The introducing commit is `c4f07ecee22ec7`,
+which is in this tree. No later intermediate autoload fix on this file.
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
+Record (this tree, path-limited):
+- `e005a9b35b464` level alarm_irq
+- `d64906b320ce6` `.remove` → `.remove_new`
+- `24304a87158aa` non-wake alarm
+- None of these publish OF aliases.
+- **Standalone** one-line patch; not “X/Y” of a series that this file
+  depends on. Parent of upstream `402c89d28fec` is a sibling RTC
+  autoload fix (`rtc: s32g`), not a prerequisite for this driver.
 
-### Step 3.1: BLAME THE CHANGED LINES
+Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
+Record: Pengpeng Hou is not the RTC maintainer. In this tree the only
+other `drivers/rtc/` commit from that author is unrelated (`rtc: zynqmp:
+Return optional clock lookup errors`). Alexandre Belloni (RTC
+maintainer) applied the patch. Florian Fainelli / Broadcom were on
+To/Cc.
+
+Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
+Record: **None.** Needs only `MODULE_DEVICE_TABLE` and the existing
+`of_device_id` table, both present since the driver was added. **Can
+apply standalone.**
+
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
+
+Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
 Record:
-- Buggy line `ctl[0] &= RX8130_REG_EXTENSION_WADA` introduced by
-  **3f929cad94338** (“rtc: ds1307: rx8130: Fix alarm handling”, Uwe
-  Kleine-König, 2019-01-25).
-- First appeared: **v5.1-rc1**. Present in this tree (`git merge-base
-  --is-ancestor` succeeded).
-- RX8130 support itself: **ee0981be77045** (v4.13-rc1), which used
-  `ctl[0] &= ~WADA` (explicitly **cleared** WADA).
+- **b4 dig -c 402c89d28fec:**
+  https://patch.msgid.link/20260704121734.54941-1-pengpeng@iscas.ac.cn
+- **b4 dig -a:** single **v1**, 2026-07-04; no v2/v3.
+- Thread (3 messages): original patch; Sashiko bot “no issues”;
+  Alexandre Belloni **“Applied, thanks!”** pointing at
+  `https://git.kernel.org/abelloni/c/402c89d28fec`.
+- **No NAK, no stable nomination, no reviewer risk flags.** WebFetch to
+  lore returned 403; thread recovered via `b4 mbox`.
 
-### Step 3.2: FOLLOW THE FIXES: TAG
-Record: No Fixes: tag. Historical introducer is 3f929cad94338, which is
-in this tree.
+Step 4.2: CHECK WHO REVIEWED THE PATCH
+Record (b4 dig -w): To/Cc included Alexandre Belloni (RTC maintainer),
+Florian Fainelli, bcm-kernel-feedback-list, linux-rtc, linux-arm-kernel,
+linux-kernel. Maintainer applied it. No human Reviewed-by.
 
-That 2019 commit **intended** to “clear WADA for day-of-month,” but:
-1. Its datasheet polarity was inverted vs Epson (it treated WADA=1 as
-   weekdays).
-2. Its diff changed `&= ~WADA` to `&= WADA` (dropped `~`), which does
-   **not** clear WADA; it preserves WADA and zeros other Extension bits.
+Step 4.3: SEARCH FOR THE BUG REPORT
+Record: **No user/syzbot/bugzilla report.** Author states it is source-
+level. Severity from reporters: N/A. Users affected: anyone building
+this driver as a module on DT platforms with `brcm,brcmstb-waketimer`.
 
-Original 2017 code already chose the wrong polarity for mday. The 2019
-change left WADA at POR 0 and made Extension clobber worse.
+Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
+Record: Wave of the same one-line OF-alias pattern. This 6.12 tree
+already contains:
+- `330fdd1fb7d09` drm/tve200: add OF module alias for autoloading
+- `2260191fbf7c6` crypto: keembay - publish OF module alias for OCS
+  AES/SM4
+Those are the same bug class, already accepted here. This brcmstb patch
+does not depend on them.
 
-### Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
-Record (recent on this file in this tree):
-- `e0e6ddc431177` rtc: ds1307: Fix off-by-one issue with wday for rx8130
-  — **time** wday encoding, not alarm WADA. Independent; already here.
-- `204756f016726` rtc: ds1307: Fix wday settings for rx8130 — also time,
-  not alarm.
-- `3f929cad94338` — the buggy alarm handling change.
+Step 4.5: CHECK STABLE MAILING LIST HISTORY
+Record: lore.kernel.org/stable search via WebFetch returned 403.
+**UNVERIFIED** whether this exact patch was discussed on stable@. No
+local evidence it was rejected.
 
-Standalone one-line fix; not patch X/Y.
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
 
-### Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
-Record: Robert Leussler has no other rtc commits in this tree. Alexandre
-Belloni (RTC maintainer) signed off and applied it. Weight comes from
-maintainer application + hardware report, not from a regular-contributor
-history.
+Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
+Record: **No function body changed.** Site is `brcmstb_waketmr_of_match`
+/ `brcmstb_waketmr_driver`. Related runtime function:
+`brcmstb_waketmr_probe`.
 
-### Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
-Record: None. Diff only needs `rx8130_set_alarm()` and
-`RX8130_REG_EXTENSION_WADA`, both present. `git show 878d93aaa596 | git
-apply --check` **succeeded** on this tree.
+Step 5.2: TRACE CALLERS
+Record: `brcmstb_waketmr_probe` is only referenced as `.probe` on
+`brcmstb_waketmr_driver`, registered via `module_platform_driver()`.
+Called from platform/OF device bind (kernel boot or module load), not
+from a syscall directly. Userspace trigger is: DT node present + module
+autoload (or manual `modprobe`).
 
----
+Step 5.3: TRACE CALLEES
+Record: Probe ioremaps, allocates an RTC device, requests IRQs,
+`device_init_wakeup()`. The new line calls nothing at runtime.
 
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+Step 5.4: FOLLOW THE CALL CHAIN
+Record: DT `compatible = "brcm,brcmstb-waketimer"` (in-tree on several
+BMIPS boards, e.g. `arch/mips/boot/dts/brcm/bcm7435.dtsi`) → OF match →
+probe. **Reachable on real STB hardware.** Autoload is the broken hop
+when `=m`.
 
-### Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
+Step 5.5: SEARCH FOR SIMILAR PATTERNS
+Record: Many RTC drivers already export OF tables (`rtc-zynqmp.c`, `rtc-
+mt7622.c`, …). Historical RTC fixes of the same kind: `206e04ec7539e`
+(mxc_v2), `3fc990a5dbfff` (mt7622). Systematic missing-alias class, not
+a one-off.
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
+
+Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
+Record: **Yes.** `drivers/rtc/rtc-brcmstb-waketimer.c:413-424` has the
+table and `.of_match_table` and **no** `MODULE_DEVICE_TABLE`. `git
+merge-base --is-ancestor 402c89d28fec HEAD` failed (fix not here).
+Introduced v4.13, long before 6.12.
+
+Kconfig in this tree (`drivers/rtc/Kconfig`):
+```
+config RTC_DRV_BRCMSTB
+        tristate "Broadcom STB wake-timer"
+        depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
+        default ARCH_BRCMSTB || BMIPS_GENERIC
+```
+Explicitly modular. Default `y` on the SoCs that have the IP, so the
+common defconfig path is built-in; `=m` is still a supported and
+documented config.
+
+Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
+Record: **Clean apply.** Original mailed hunk (3 lines of context
+through `.probe`) — `git apply --check` **rc 0** on this tree. `.remove`
+vs `.remove_new` is later in the struct and is not in the original hunk.
+No rework needed.
+
+Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
+Record: **No** commit on this file adds `MODULE_DEVICE_TABLE`. Sibling
+OF-alias backports exist for other drivers (tve200, keembay), not a
+substitute for this one.
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
+
+Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
+Record: **[drivers/rtc — Broadcom STB wake-timer] [PERIPHERAL]** for
+most 6.12 users; **IMPORTANT** on BCM7xxx set-top boxes (alarm/S2/S3/S5
+wake). Not mm/net/block core.
+
+Step 7.2: ASSESS SUBSYSTEM ACTIVITY
+Record: Driver is mature (2017). Recent local commits are PM/IRQ and
+platform-remove conversion, not a rewrite. Low churn around the match
+table.
+
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
+
+Step 8.1: DETERMINE WHO IS AFFECTED
+Record: **Driver-specific / config-specific.** Users of Broadcom STB
+wake-timer with `CONFIG_RTC_DRV_BRCMSTB=m`. In-tree DT nodes are on
+BMIPS boards (`bcm7346/7358/7360/7362/7425/7435`). `ARCH_BRCMSTB` also
+exists on ARM and arm64; this tree’s ARM/arm64 dtsi files do not contain
+the compatible string (vendor DTs may). Built-in (`=y`, the Kconfig
+default on those arches) is unaffected.
+
+Step 8.2: DETERMINE THE TRIGGER CONDITIONS
 Record:
-- `b4 dig -c 878d93aaa596` → https://patch.msgid.link/20260721081907.351
-  8648-1-robert.leussler@leica-geosystems.com
-- `b4 dig -a`: **v1 only** (no v2/v3)
-- Thread: submission (2026-07-21) → Sashiko AI note on pre-existing FLAG
-  RMW → author reply (2026-08-10): FLAG issue is pre-existing and out of
-  scope → **Alexandre Belloni: “Applied, thanks!”** (2026-08-20), no NAK
-- lore.kernel.org WebFetch returned 403; thread recovered via `b4 dig
-  -m` and openwall/spinics
+- Trigger: modular driver + OF device present + reliance on autoload
+  (normal distro/udev path).
+- Commonness: uncommon vs default `=y`; real whenever someone chooses
+  `=m` (help text documents that).
+- Unprivileged userspace cannot exploit this; it is bind/enablement, not
+  a crash primitive.
 
-### Step 4.2: CHECK WHO REVIEWED THE PATCH
-Record (`b4 dig -w`): To/Cc were Alexandre Belloni, linux-rtc, linux-
-kernel. Maintainer applied it. No other human Reviewed-by.
+Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
+Record: **[RTC/wake-timer never binds when built as a module] [MEDIUM]**
+- Not oops/deadlock/corruption/CVE.
+- On affected boxes, RTC alarm and suspend wake from this block can fail
+  to be available until a manual `modprobe`.
+- Fits stable-rules “device ID” / “oh, that’s not good” more than
+  “oops”.
 
-### Step 4.3: SEARCH FOR THE BUG REPORT
-Record: No bugzilla/syzbot. Concrete userspace trigger in the message
-(`/sys/class/rtc/rtc0/wakealarm`). Author is an RX8130 user (Leica
-Geosystems). Sashiko flagged a **pre-existing** write-0-to-clear FLAG
-RMW (VLF); author correctly kept that separate. That does not weaken
-this WADA fix.
-
-### Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
-Record: Standalone 1/1. Not part of a multi-patch series.
-
-### Step 4.5: CHECK STABLE MAILING LIST HISTORY
-Record: lore.kernel.org/stable WebFetch 403. No other evidence of a
-stable NAK. Absence of prior stable discussion is not a negative.
-
----
-
-## PHASE 5: CODE SEMANTIC ANALYSIS
-
-### Step 5.1: IDENTIFY KEY FUNCTIONS
-Record: `rx8130_set_alarm()` only.
-
-### Step 5.2: TRACE CALLERS
+Step 8.4: CALCULATE RISK-BENEFIT RATIO
 Record:
-- Wired as `rx8130_rtc_ops.set_alarm` in `drivers/rtc/rtc-ds1307.c`
-- RTC core: `rtc_set_alarm()` / `__rtc_set_alarm()` in
-  `drivers/rtc/interface.c`
-- Userspace: `drivers/rtc/sysfs.c` (`wakealarm`), plus `RTC_WKALM_SET` /
-  `RTC_ALM_SET` ioctls
-- Reachable whenever RX8130 alarm IRQ or `wakeup-source` is enabled
-  (chip desc has `.alarm = 1`)
+- **Benefit:** medium for modular STB configs (hardware actually gets
+  its driver); low for default `=y` defconfigs.
+- **Risk:** very low (1 line, modpost alias, no runtime behavior change
+  for built-in).
+- **Ratio:** favorable. Same class already merged in this 6.12.y tree.
 
-### Step 5.3: TRACE CALLEES
-Record: `regmap_bulk_read/write` of Extension+Flag+Control0 and alarm
-min/hour/day, then optional Control0 AIE write. No alloc/locking in this
-function.
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
 
-### Step 5.4: FOLLOW THE CALL CHAIN
-Record: `echo T > /sys/class/rtc/rtc0/wakealarm` or `rtcwake` →
-`rtc_set_alarm` → `rx8130_set_alarm`. Unprivileged access depends on rtc
-device node permissions; typical embedded images use this for suspend
-wakeup. **Yes, userspace-reachable.**
-
-### Step 5.5: SEARCH FOR SIMILAR PATTERNS
-Record: Sibling Epson/MicroCrystal chips also program WADA, with **chip-
-specific polarity** (RX8010 clears WADA while writing mday;
-RV8803/RV3028/RV3032 set WADA). Not a copy-paste of those; RX8130
-datasheet is the authority. No second broken copy in `rtc-ds1307.c`.
-
----
-
-## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-
-### Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
-Record:
-- Tree: **`git describe HEAD` = `p-6.12-3-gc504cf0baa3d8`**, **`make
-  kernelversion` = 6.12.111**
-- Buggy code is here at `drivers/rtc/rtc-ds1307.c:665`: `ctl[0] &=
-  RX8130_REG_EXTENSION_WADA;`
-- `git merge-base --is-ancestor 878d93aaa596 HEAD` → **not an ancestor**
-  (fix not in this tree)
-- `git merge-base --is-ancestor 3f929cad94338 HEAD` → **yes** (bug is in
-  this tree)
-- Bug introduced v5.1 (wrong `&=` form); wrong polarity since v4.13
-
-### Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
-Record: **Clean apply** (`git apply --check` exit 0). Surrounding
-`rx8130_set_alarm()` matches the mainline hunk. No rework needed.
-
-### Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
-Record: wday off-by-one (`e0e6ddc431177`) is already here and is a
-different bug. No existing WADA `|=` fix.
-
----
-
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-
-### Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
-Record: **drivers/rtc** (Epson RX8130 in rtc-ds1307). Criticality:
-**PERIPHERAL** for the kernel as a whole, **IMPORTANT** for boards that
-use this RTC as the wake source.
-
-### Step 7.2: ASSESS SUBSYSTEM ACTIVITY
-Record: rtc-ds1307 still gets real fixes in this tree (OSF, max clock
-rate, wday). Mature driver; this is a long-standing programming error,
-not churn from new code.
-
----
-
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-### Step 8.1: DETERMINE WHO IS AFFECTED
-Record: **Driver-specific / config-specific** — `CONFIG_RTC_DRV_DS1307`
-+ Epson RX8130 (`epson,rx8130` / `rx8130`) with alarm/wakeup wired.
-
-### Step 8.2: DETERMINE THE TRIGGER CONDITIONS
-Record: Any `set_alarm` / `wakealarm` / `rtcwake` on RX8130. Common on
-embedded systems that sleep and wake on RTC. Not a rare error path.
-
-### Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
-Record:
-- Failure: RTC alarm IRQ/`/IRQ` does not fire as intended → **system
-  fails to wake from suspend** at the scheduled time (or wakes on the
-  wrong weekday if the BCD mday happens to look like a week bitmap).
-- Severity: **HIGH** for those devices (lost wakeup; device can stay
-  asleep). Not a KASAN/UAF/panic.
-
-### Step 8.4: CALCULATE RISK-BENEFIT RATIO
-Record:
-- **Benefit:** high for RX8130 users — restores the documented
-  alarm/wakeup path.
-- **Risk:** very low — 1 line, polarity confirmed by datasheet,
-  maintainer applied, no locking/API change.
-- **Ratio:** strongly favors backport.
-
----
-
-## PHASE 9: FINAL SYNTHESIS
-
-### Step 9.1: COMPILE THE EVIDENCE
-
+Step 9.1: COMPILE THE EVIDENCE
 **FOR:**
-- Real user-visible bug: RX8130 `wakealarm` does not work
-- Datasheet-confirmed WADA polarity (0=week, 1=day)
-- Driver always writes `tm_mday`; WADA must be 1
-- Buggy `&=` is in this 6.12.111 tree; fix is not
-- 1-line, obviously correct; apply-check clean
-- RTC maintainer applied after review window; no NAK
-- Also stops Extension-register clobber of FSEL/TE/TSEL
-- Standalone; no prerequisites missing here
+- Real autoload bug: OF table used, aliases never generated.
+- One line, obviously correct, maintainer-applied.
+- Driver and buggy code exist in 6.12.111 since v4.13.
+- Original patch applies cleanly here.
+- Device-ID / hardware-enablement exception; wake-timer matters for STB
+  suspend/resume.
+- Identical OF-alias one-liners already in this tree (tve200, keembay).
+- Zero runtime regression path for the default built-in config.
 
 **AGAINST:**
-- Not a crash/security/corruption issue
-- Only RX8130, not all rtc-ds1307 chips
-- No Fixes:/Cc:stable (expected; not a negative)
-- No second independent reporter beyond the author
+- Not a crash, UAF, deadlock, or security hole.
+- No user report; source-level scan.
+- Kconfig default is built-in on the SoCs that have the hardware, so
+  many production images never hit autoload.
+- Peripheral driver, not core.
 
 **UNRESOLVED:**
-- Could not fetch lore.kernel.org or lore.kernel.org/stable (403);
-  thread recovered via b4/openwall
-- Did not re-test on hardware (author did; commit describes
-  `/sys/class/rtc/rtc0/wakealarm`)
+- Whether this SHA was already discussed on stable@ (lore 403).
+- Whether vendor ARM/arm64 brcmstb DTs (not in this tree) also use this
+  compatible.
 
-### Step 9.2: APPLY THE STABLE RULES CHECKLIST
-1. Obviously correct and tested? **PASS** — datasheet + maintainer apply
-   + hardware report
-2. Fixes a real bug that affects users? **PASS** — wakeup alarm broken
-   on RX8130
-3. Important issue? **PASS** — failed RTC wakeup / wrong-day match; HIGH
-   for this hardware
-4. Small and contained? **PASS** — 1 line, one function
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — clean apply; buggy code
-   present
+Step 9.2: APPLY THE STABLE RULES CHECKLIST
+1. Obviously correct and tested? **PASS** — standard macro; RTC
+   maintainer applied v1 with no objections.
+2. Fixes a real bug that affects users? **PASS** — modular OF autoload
+   does not work; Kconfig allows `=m`.
+3. Important issue? **PASS** (device-ID / hardware-enablement class;
+   functional miss for modular STB RTC/wake). Severity MEDIUM, not
+   CRITICAL.
+4. Small and contained? **PASS** — +1 line, one file.
+5. No new features or APIs? **PASS** — publishes an alias for an
+   existing match table.
+6. Can apply to the local tree? **PASS** — `git apply --check`
+   succeeded; code present; no missing prereqs.
 
-### Step 9.3: CHECK FOR EXCEPTION CATEGORIES
-Record: Not a device-ID/quirk/DT/build/docs exception. Ordinary
-contained driver bugfix.
+Step 9.3: CHECK FOR EXCEPTION CATEGORIES
+Record: **Device ID / OF module alias publication for an existing
+driver** (stable-rules: “or just add a device ID”). Closest match to the
+documented ID-addition exception.
 
-### Step 9.4: MAKE YOUR DECISION
-This 6.12.111 tree has the 2019 `&= WADA` bug. The fix is the smallest
-possible correction so the chip compares day-of-month the way the driver
-already programs it. That is exactly the kind of hardware bug stable
-users of this RTC need.
+Step 9.4: MAKE YOUR DECISION
+Backport. The bug is in this tree, the fix is the usual one-line alias
+export, it applies cleanly, and it matches both the written device-ID
+exception and OF-alias fixes already on 6.12.y. Default-y only reduces
+how often it bites; it does not make the modular path fictional.
 
+------------------------------------------------
+What the commit solves for this tree
+The 6.12 `rtc-brcmstb-waketimer` driver matches `brcm,brcmstb-waketimer`
+but never asks modpost to emit that alias. Built as a module, the wake-
+timer will not autoload. Adding `MODULE_DEVICE_TABLE(of, ...)` is the
+complete fix.
+
+Risk vs benefit
+Benefit is restoring bind on modular STB configs; risk is essentially
+nil. Context around `.remove_new` does not affect the original hunk.
+
+------------------------------------------------
 Verification:
-- [Phase 1] Parsed tags: Link to patch.msgid.link; SOBs Leussler +
-  Belloni; no Fixes/Reported-by/Cc:stable
-- [Phase 2] Diff: 1 line in `rx8130_set_alarm()`, `&=` → `|=` on
-  `RX8130_REG_EXTENSION_WADA`
-- [Phase 2] Datasheet (Epson RX8130CE app manual Table 23): WADA=0 week,
-  WADA=1 day — matches the patch
-- [Phase 3] git blame: line from 3f929cad94338 (v5.1-rc1); original
-  support ee0981be77045 (v4.13) used `&= ~WADA`
-- [Phase 3] git show 3f929cad94338: dropped `~`, inverted polarity vs
-  datasheet
-- [Phase 3] git merge-base --is-ancestor 3f929cad94338 HEAD: yes;
-  878d93aaa596 HEAD: no
-- [Phase 4] b4 dig -c 878d93aaa596: lore msgid 20260721081907.3518648-1
-- [Phase 4] b4 dig -a: v1 only
-- [Phase 4] b4 dig -w: Belloni + linux-rtc + linux-kernel
-- [Phase 4] b4 mbox: Belloni “Applied, thanks!”; Sashiko FLAG note pre-
-  existing, not a NAK
-- [Phase 5] `rx8130_set_alarm` is `rtc_class_ops.set_alarm`; sysfs
-  `wakealarm` calls `rtc_set_alarm()`
-- [Phase 6] git describe HEAD: p-6.12-3-gc504cf0baa3d8; kernelversion
-  6.12.111; line 665 still `&=`
-- [Phase 6] `git apply --check` of 878d93aaa596: clean
-- [Phase 8] Failure mode: RTC wakeup does not fire (or fires on wrong
-  weekdays); HIGH for RX8130 boards
-- UNVERIFIED: live lore.kernel.org/stable HTML (HTTP 403); hardware
-  retest in this environment
+- [Phase 1] Parsed tags: Link to msgid, SOB Pengpeng Hou + Alexandre
+  Belloni; no Fixes/Cc stable/Reported-by
+- [Phase 1] Body: missing OF alias; source-level, no hardware repro
+  claimed
+- [Phase 2] Diff: +1 line `MODULE_DEVICE_TABLE(of,
+  brcmstb_waketmr_of_match)` after the match table
+- [Phase 2] `include/linux/module.h`: macro is alias-for-modpost if
+  `MODULE`, empty otherwise
+- [Phase 2] `scripts/mod/file2alias.c` `do_of_entry_multi()`: emits
+  `of:N*T*C<compatible>`
+- [Phase 3] `git blame`: table from `c4f07ecee22ec7` (v4.13-rc1);
+  `__maybe_unused` from `ae1247f79ddf8`
+- [Phase 3] `git merge-base --is-ancestor c4f07ecee22ec HEAD`: intro
+  commit is in this tree
+- [Phase 3] `git merge-base --is-ancestor 402c89d28fec HEAD`: fix is
+  **not** in this tree
+- [Phase 3] `git show 402c89d28fec`: confirmed same +1 line,
+  author/date/message
+- [Phase 3] `git log --oneline -20 -- drivers/rtc/rtc-brcmstb-
+  waketimer.c`: no prior MODULE_DEVICE_TABLE on this file
+- [Phase 4] `b4 dig -c 402c89d28fec`: lore URL + v1-only series
+- [Phase 4] `b4 dig -a`: only v1, 2026-07-04
+- [Phase 4] `b4 dig -w`: Belloni, Fainelli, bcm-kernel-feedback-list,
+  linux-rtc CC’d
+- [Phase 4] `b4 mbox`: Belloni “Applied, thanks!”; Sashiko no issues; no
+  NAK
+- [Phase 4] WebFetch lore: 403; used b4 instead
+- [Phase 4] UNVERIFIED: stable@ thread for this exact subject
+- [Phase 5] Probe only used as platform `.probe`; DT compatible present
+  in `arch/mips/boot/dts/brcm/*.dtsi`
+- [Phase 6] `make kernelversion` / Makefile: **6.12.111**; `git describe
+  HEAD`: p-6.12-3-gc504cf0baa3d8
+- [Phase 6] Local file lines 413–424: table present, MODULE_DEVICE_TABLE
+  absent
+- [Phase 6] `git apply --check` of original hunk: **success (rc 0)**
+- [Phase 6] Same-class already in tree: `330fdd1fb7d09`, `2260191fbf7c6`
+- [Phase 7] MAINTAINERS: RTC subsystem maintained by Alexandre Belloni
+- [Phase 8] Kconfig tristate + `default y` on ARCH_BRCMSTB/BMIPS_GENERIC
+  verified via blame
+- [Phase 8] Failure mode: missing modular bind, not a crash
 
 **YES**
 
- drivers/rtc/rtc-ds1307.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-brcmstb-waketimer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 9ba5958ca7a6e..d9a8e5045e37d 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -662,7 +662,7 @@ static int rx8130_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/rtc/rtc-brcmstb-waketimer.c b/drivers/rtc/rtc-brcmstb-waketimer.c
+index fb47c32ab5ff4..55c15aad42cff 100644
+--- a/drivers/rtc/rtc-brcmstb-waketimer.c
++++ b/drivers/rtc/rtc-brcmstb-waketimer.c
+@@ -413,6 +413,7 @@ static const __maybe_unused struct of_device_id brcmstb_waketmr_of_match[] = {
+ 	{ .compatible = "brcm,brcmstb-waketimer" },
+ 	{ /* sentinel */ },
+ };
++MODULE_DEVICE_TABLE(of, brcmstb_waketmr_of_match);
  
--	ctl[0] &= RX8130_REG_EXTENSION_WADA;
-+	ctl[0] |= RX8130_REG_EXTENSION_WADA;
- 	ctl[1] &= ~RX8130_REG_FLAG_AF;
- 	ctl[2] &= ~RX8130_REG_CONTROL0_AIE;
- 
+ static struct platform_driver brcmstb_waketmr_driver = {
+ 	.probe			= brcmstb_waketmr_probe,
 -- 
 2.53.0
 
