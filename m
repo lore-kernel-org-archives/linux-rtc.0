@@ -1,63 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792442870;
-	b=3L3RWlQMMVUF8VNWNmqJbQB2vqsD8/ISdQaK6CxZ9Uvk+EJGTcHMHJfxTJM0n5cfjDOy
-	 ORvLSixfTnzawyiwi9sVppL5dqb6AlfWFr5LXoXTi4gJZnbQ8zYaaotz3wFxbX60PCCeB
-	 tpZhDJhS6J0UBCAVwIIJmFw4fFw3sisQ0+jKPHu3TmqR0HKWlRLSzz/2tuk9wpGgieVgh
-	 qb7cxM9UeJiavlccvAV2nP3h2zvqJhUT8rRjjGeRdGRF790hAcK1TaKiiRmi5kNh1tgJJ
-	 vI1n216XUy97kIQsZVeYtu6bi8cbhMRFhNlWkynzJiWXkY7zItiaykxkqcvY60PCguA==
+	t=1792444725;
+	b=rk2cpUTPn0Rwl25SlkLcNvFHTAgxbxEwXXvMjYq2BRr414Ade4Z/7M7WoW1vnLD/psKY
+	 RoAlfOS7A3nx5x6Sk7wPdIdiPSNaAkX5qtvFQjc2Gf5mrf3Xg7Kr52dAt5icC3uf8cfjs
+	 PqD1enohKSqpYl57Rr6H31FkOsxz2HDbjW4ys7HLUdQ1JTKKK/+Nu0yR6X0BR3DjzJO4K
+	 hvlty4bXS6otUYeF2geaf/1TtqeG67E0JP1M9QUtUh2IWc5nDJ45hlFgks0EonRUmA5rn
+	 XRFZIGPI3QFDmo/VgYe1/B4oOKME/jn+bAbfLV2kfgd1fW5YmmEcbWy90ryensGeWfA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792442870;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=KnhFauQRQMdP/HvCz8tr9YCb6Rhc9i5YKUinTTqwk7s=;
-	b=iKNjO4NJpKbhVHmRdWcAnwTKu5eiFtNLyA5HUMSrxuUQqKL9g0u9/KvosV9Q2/Uq2s+T
-	 wOUVMri/9k0goZRPYA6nvSAjkWROUD/qx4VOS/Pi5TUaIRwl5/qZpxsbXbVdyouxhjHrj
-	 bqGiWuvwTswJl5ov5nqVlP+xb5+eaNtzUfDxddCuPnugAhF8vGjymZ86LpigyWdSFJu8P
-	 IzPTnzB7cKcTWiL4MJE9Zi67tu1OS0tSUpBucfDfDuxkxnBV7MKLNc9kSprv1XyRZIptJ
-	 nXAtqCIT7AYUzBif33K+8ftdaVGdcnX9J10/OXIhmXOSczzeZ7aJn9AjOPvTDnL2WjA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792444725;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=erR1br+KTUL8BSxH8eJPmM4IbOdvr3KiMa2SS5dLq1c=;
+	b=pNnlyZ9k83MGs3k4Q31OlIymjwbZYykVL8rtmJ5WKLHK0jIogrJREPZBqQk3nIvCfA4d
+	 V7x7tRLjvEo5Bxajgtg1BJidYZaUFNA7pJ8fAX9p0AAAsQzCdQsQqp0bnhZ/VKmTxETCO
+	 tJXTXcMRSm3MR7hyytJlhJIA2J04aBJcAw6Dgw9nMGGXuRuLBpLhI8J9076whL+89WRHu
+	 xcFoSnEZQnKCjWT1mhj9/Z48fE1aXb/BBwPPgDUAFGNXyjG56dBeepDYfS0vnPbZyrLG3
+	 WVseAy0Gbl38vEe8K66aOI5Lk4Zp2vDG6MTX6vtlDHvzsa8et6G1xIvp6nsZ248MxVQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bootlin.com;
 	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=qOjdJqR3;
-	arc=none smtp.remote-ip=185.246.85.4
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b="XLwhA5p/";
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E26A606A31B;
-	Mon, 19 Oct 2026 20:47:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2E26A606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D838C606A31C;
+	Mon, 19 Oct 2026 21:18:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D838C606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=qOjdJqR3
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=XLwhA5p/
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 8EDA44E4127B;
-	Mon, 19 Oct 2026 20:47:47 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 4648F1A1246;
+	Mon, 19 Oct 2026 21:18:41 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 4225F60582;
-	Mon, 19 Oct 2026 20:47:47 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0751310328C52;
-	Mon, 19 Oct 2026 22:47:44 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 1425260582;
+	Mon, 19 Oct 2026 21:18:41 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 19A0610328C52;
+	Mon, 19 Oct 2026 23:18:36 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1792442866; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=KnhFauQRQMdP/HvCz8tr9YCb6Rhc9i5YKUinTTqwk7s=;
-	b=qOjdJqR3k95ePaXqLDsXj58BeX4o7gJ2DJ0aMsiDBuQR+ZfmEspsHZB2snqQkbGMqc1Gr2
-	rSClNf+7XDf5/yT0i6D2xo3OJ+Q26jBeTvXGJMOv0IwnOuSKx/BfZMx/j3OreZNAMgZH4w
-	rUaiErFutFhSrZc410WOBsHkenIk0HhDxQzstqduil/d2xFk71wa/5U0ge24YhhAjheKwA
-	snfst7Tyj4modqa7nfnbP18pfZ9hO6hseH/SrNsJRE8XBk9z13P67wjsuy50BivnF/orzS
-	+aAVVJUIGvSCX5YpJo4UKP4TV4EFp2+hYSz9DAK2kj7TNx0DOfN4ft/YN3r4Rw==
-Date: Mon, 19 Oct 2026 22:47:44 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Heiko Schocher <hs@nabladev.com>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-kernel@vger.kernel.org,
-	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
-	Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] rtc: rs5c372: add Ricoh R2223x support
-Message-ID: <179244285492.113856.13160350426783860313.b4-ty@b4>
-References: <20260825071927.4090460-1-hs@nabladev.com>
+	t=1792444716; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=erR1br+KTUL8BSxH8eJPmM4IbOdvr3KiMa2SS5dLq1c=;
+	b=XLwhA5p/Jkt3HCDKhY2ThPPZeo9uNUOTiacUXXXrY1W0hD2XA/xNm7oVDhzM2r8NHHCu6u
+	XHANuuq5rgtt2zYHKMHhPvUG1qRGtmqYOiXcBYZP1enekmnZmHQdw5Mf1txaOXjJuoGeGk
+	hIixnXUMOQThn6ouddCC+VXhk/g6IC1HCrZJOuOAwVuwDY70xozYQOaZGStEBHuw2dFUPQ
+	1Wq5Ce6PomZWVzdNcbFWiq3biV2Ywmo99zs1+IRhaYX6jty2FmDr0PrtBhM3ETCriWePZO
+	jo9s34N9UiOMQafKyPxeweCWPu95VMfEP0IFttzNUKECZj/KcRoiDdKW9rK0wQ==
+From: alexandre.belloni@bootlin.com
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 01/19] rtc: introduce rtc_device.ops_lock guard()
+Date: Mon, 19 Oct 2026 23:18:02 +0200
+Message-ID: <20261019211827.126262-1-alexandre.belloni@bootlin.com>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -67,33 +66,33 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260825071927.4090460-1-hs@nabladev.com>
+Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-On Tue, 25 Aug 2026 09:19:15 +0200, Heiko Schocher wrote:
-> The Ricoh R2223x is an I2C RTC from the same family as the r2025sd and
-> r2221tl which the rtc-rs5c372 already supports. It shares the R2x2x
-> control register layout, so only the new type must be added to the driver.
-> 
-> The ricoh R2223x drives a clock output and offers an eco mode that
-> lowers its current consumption while running from the backup supply.
-> 
-> [...]
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Applied, thanks!
+Add guard class for rtc_device.ops_lock locks. This allows to simplify
+error handling in interrupt handlers.
 
-[1/3] dt-bindings: rtc: add ricoh,r2223x binding
-      https://git.kernel.org/abelloni/c/026f8b1d515b
-[2/3] rtc: rs5c372: add support for Ricoh R2223x
-      https://git.kernel.org/abelloni/c/df8a0f6db214
-[3/3] rtc: rs5c372: support eco mode on R2223x
-      https://git.kernel.org/abelloni/c/95e83d98e104
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+---
+ include/linux/rtc.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Best regards,
-
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index 0f43b5027235..169d93520dbd 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -168,6 +168,9 @@ struct rtc_device {
+ #define rtc_lock(d) mutex_lock(&d->ops_lock)
+ #define rtc_unlock(d) mutex_unlock(&d->ops_lock)
+ 
++DEFINE_GUARD(rtc_ops, struct rtc_device *, mutex_lock(&_T->ops_lock),
++	     mutex_unlock(&_T->ops_lock))
++
+ /* useful timestamps */
+ #define RTC_TIMESTAMP_BEGIN_0000	-62167219200ULL /* 0000-01-01 00:00:00 */
+ #define RTC_TIMESTAMP_BEGIN_1900	-2208988800LL /* 1900-01-01 00:00:00 */
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.56.0
+
