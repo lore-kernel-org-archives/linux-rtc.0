@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792485803;
-	b=h7YvU9J+jzOwm33eBpvL/OA9hyu9dBNnXlgUs9B9/uS4XpPvmuUcOR4UCu4/6hS7mzhD
-	 Ay4yPZodhZfTnqOwmfazBR4C1a9hkCYgldc3M3XGI9ZxSDbu2Xkx+R8DMXLluHexXFzBw
-	 3dJm+qZDtphm9a3JfKccdbWep7KXR1TBKWV0U+wLhxTkOgG/bVNYo+5SqM1TShgPC+m3B
-	 L/2tDuUW2vfwQtEDh73Wky+0WdUwePnu0CV45lq3SoJw26K3rHeRDzHhVq5GDKsYhVwDV
-	 suzVfLnYHBTa1atvxmh2p3h+eDzNoS2XXx+fZjqGp14YmLj/UDf7I0M/eNw2abE9cYw==
+	t=1792491468;
+	b=O7iFydEwBEaF7BYa+khdESi01OMNDvw3cpgVdZyvsoJTUPJdNZloJr2PTocDfvnnTGYG
+	 rL9wGtwcv0B5E3KlDWh3m4vjQvJ/HCWsT+llG1TEd+LQ5CkNef0PFWym7syxJg0BaURmR
+	 MJJLEV7wT1PB5eoWzPCPoh8c1kGnhtLpBz54udKmlr9ocZk2oOwYGJnjgvatOu17Resh4
+	 nlYlUXVqeqG/QwyCx0DT/X115y2VXUnmFsPPw1fo5MldNkqfCRGzIiDiU8nhIi86B10nw
+	 pMFlHslGnhm7H3uNSPnukRJl4WeQwWzBv6Y8P5t1rm1Wt7eYpgKaGtra1foGIt86BzQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792485803;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=47wXI6X/DFX8mIjju6bsEKi53u6LPQxpY0EUKLjF04s=;
-	b=QK1xq0v2wok6Rs4I+qSs6j4BuPHmyKk/rp7YG2cJBz4iv9p3bLIdDxT6X7jmwQ5HrPgA
-	 lpPT9BHEmvJOZUyWs3VSjQEXmWyS6F5J3gRysyBHD8rhW9JKPYbWE7UQMso7sW1hFzHB/
-	 KL2Tze34YnHCLsKd61IinmEF7c3H8FqreKAMv6PsU3G/3a3L7HNBq1ebMLgjk31XimfPL
-	 GDG5DIe7MExumZXbn0dg6/kdOnrMr3RMUJVSjqT3y+k91RoN9Pkh3g5Hx790TG540/GN/
-	 fBR32mO7UObU8chc6Sb9huYwT3VfUfedqq4ElO3U0BsA/En09HV+lmzapZINcfcP0Eg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792491468;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=UKzrd54OMkG5fM6Hq82N9GAY/LO634g6mtsK7/1Cxe8=;
+	b=QtXEWvSfCbw+oppjkUioqhtkawpUFU2Zz/fs3tQnTTozPJx7Sz+eClbdHECo8XvFR0Bu
+	 nuesjckmAQGi3WhRjFb/8pajfo2lddSuTBEGwFHDS4iaYBJl11jAmUqZ/Ni9bvhLa56/X
+	 V+KBdIpqDQJ1HUhdPLvPnOPhlP24OKEKs/+y7mv4w1y/62YroTkYWUiOA319HLrVQiE8V
+	 ztlWcmpvsD1r4xXOkYNPeMJOGAYKzw9MeEZh1okXBNKv3gcZSi84tz57nfMOmgjSw8NpY
+	 h+djA9x5+pM+mtRi8br+4cmZy1sR41W84WKTLcMR9/AeAKZVu2diaVD3w+lrm7RX2DQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XCOQ6RqM;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DPfmQr1X;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3AD2606A322
-	for <linux-rtc@vger.kernel.org>; Tue, 20 Oct 2026 08:43:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3FB6606A31A;
+	Tue, 20 Oct 2026 10:17:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XCOQ6RqM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A4F1F000C5;
-	Tue, 20 Oct 2026 08:43:22 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DPfmQr1X
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD311F000C5;
+	Tue, 20 Oct 2026 10:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792485802;
-	bh=47wXI6X/DFX8mIjju6bsEKi53u6LPQxpY0EUKLjF04s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XCOQ6RqMDl560rAddw0C5yYqh/8xSwxCdY7s5OUEFP3s++zp1TcU5RX9rFSStRo9H
-	 13vaKHOahmOzobyNpV8X00wqGaFM95TcpRCGNGOT0B79LIufEiqlS4d/eNoiML/C5w
-	 drU2vqeOVIOwGgY2s+9oi2Hjkx9Zuk6kL72DiIUcpOi1GQQGZtKeSXgvB90wvpzvxj
-	 l3xPtxDoWfF1EhnKKV6I+oO3UYEO3+TDENxDXFofzAo6shvOiHqQOPdSmHlM0Jh0qc
-	 XsMb/SzQAt3EQx6k7rrl80Q2O6LAGlWeb4s6ejaPJ9fGlDJWFFcVYLkypGFOIUlt/l
-	 Ac6m/P+GwHTgQ==
-Message-ID: <sashiko-outbox-178602@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: class: Make the time32 hctosys limit configurable
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Arnd Bergmann" <arnd@kernel.org>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261020080026.2461578-1-arnd@kernel.org>
-References: <20261020080026.2461578-1-arnd@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 20 Oct 2026 08:43:21 +0000
+	s=k20260515; t=1792491467;
+	bh=UKzrd54OMkG5fM6Hq82N9GAY/LO634g6mtsK7/1Cxe8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=DPfmQr1XpGn1F7zlc60wK5nEJ91BJpuKAKsF8lExqKfooOyIiWGPlLylSgVIB3Poo
+	 W1aUFP8Vh9YIT3WRyrmvTfHlzmC40HX5Ur+NoyQ7gtyNPGtRQGFB68UsJZUwXDoVDv
+	 aRwBsDD0kCvXANW+L6bDQ3/5Mh2c5/sAkAeOYYMd2g62dwEHvMDtFX3HOkcj8BMIgN
+	 JhlnxtSw2xd1ansNwlmtGpH+CrpEHCV1TdbILuKeIbCDJOV4kA1mRecsyaV8Wpzycr
+	 Po631d/fNggmeIVEF2+H+R11g2hC4DsFPPl6Y+I3jEqUa5E+ZaGb8/tgnPuu63BBgZ
+	 Gizma9CCv5Ouw==
+Date: Tue, 20 Oct 2026 11:17:43 +0100
+From: Conor Dooley <conor@kernel.org>
+To: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Conor Dooley <conor.dooley@microchip.com>,
+	Daire McNamara <daire.mcnamara@microchip.com>,
+	linux-rtc@vger.kernel.org, linux-riscv@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: mpfs: Fix alarm register word order
+Message-ID: <20261020-frequency-gloating-f9fd455d4fd2@spud>
+References: <20261019151024.2232338-1-pocj8ur4in@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,34 +58,84 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="o3X8iI98+7hL0ZN1"
+Content-Disposition: inline
+In-Reply-To: <20261019151024.2232338-1-pocj8ur4in@gmail.com>
 
-> From: Karl Mehltretter <kmehltretter@gmail.com>
->=20
-> The RTC_HCTOSYS feature faces an impossible dilemma on 32-bit systems:
->=20
->  a) systemd requires RTC_HCTOSYS=3Dy with the correct timestamp
->     for its intended operation
->=20
->  b) broken RTC hardware can produce random future timestamps
->     beyond 2038 at boot time
->=20
->  c) time32 userspace immediately hangs if the time is set to a
->     date beyond 2038 and requires timestamps to be clamped
->=20
->  d) time64 userspace is intended to survive the actual 2038
->     date and requires timestamps to not be clamped
-> [ ... ]
-> Fixes: b3a5ac42ab18 ("rtc: hctosys: Ensure system time doesn't overflow t=
-ime_t")
-> Link: https://lore.kernel.org/all/20220908115337.1604277-1-arnd@kernel.or=
-g/
-> Assisted-by: LLM
-> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+--o3X8iI98+7hL0ZN1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sashiko has reviewed this patch and found no issues.
+On Tue, Oct 20, 2026 at 12:10:24AM +0900, Baek Kyu, Kim wrote:
+> mpfs_rtc_readalarm() swaps the low and high words of the alarm time.
+> The RTC core reads this value during device registration to initialize
+> its alarm timer. This can populate the cached alarm and timer queue
+> with an incorrect expiry time, or leave an enabled hardware alarm out
+> of the timer queue if the decoded time appears to be in the past.
+>=20
+> Read the low 32 bits from ALARM_LOWER_REG and place the masked high
+> 11 bits from ALARM_UPPER_REG in bits 42:32. This matches the layout
+> used by mpfs_rtc_setalarm() and the low/high assembly in
+> mpfs_rtc_readtime(), so the RTC core imports the programmed alarm
+> time correctly during device registration.
+>=20
+> Fixes: 0b31d703598d ("rtc: Add driver for Microchip PolarFire SoC")
+> Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020080026.2461=
-578-1-arnd@kernel.org?part=3D1
+That's very odd, wonder how that happened. Definitely a blindspot when
+it came to testing. This should look the same as reading the time.
 
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+CC: stable@vger.kernel.org
+
+Cheers,
+Conor.
+
+> ---
+> Tested with KUnit under ARM64 QEMU using RAM-backed MMIO and the actual
+> MPFS RTC callbacks and RTC core registration. All ten tests pass with the
+> fix, including importing a preloaded alarm and checking its timer queue
+> entry. Four additional tests covering current-date alarms also pass.
+> No physical MPFS hardware or suspend/wakeup was tested.
+>=20
+>  drivers/rtc/rtc-mpfs.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/rtc/rtc-mpfs.c b/drivers/rtc/rtc-mpfs.c
+> index 60596b0ea9d8..6616ca1f02c7 100644
+> --- a/drivers/rtc/rtc-mpfs.c
+> +++ b/drivers/rtc/rtc-mpfs.c
+> @@ -131,8 +131,8 @@ static int mpfs_rtc_readalarm(struct device *dev, str=
+uct rtc_wkalrm *alrm)
+> =20
+>  	alrm->enabled =3D mode & MODE_WAKE_EN;
+> =20
+> -	time =3D (u64)readl(rtcdev->base + ALARM_LOWER_REG) << 32;
+> -	time |=3D (readl(rtcdev->base + ALARM_UPPER_REG) & ALARM_UPPER_MASK);
+> +	time =3D readl(rtcdev->base + ALARM_LOWER_REG);
+> +	time |=3D ((u64)readl(rtcdev->base + ALARM_UPPER_REG) & ALARM_UPPER_MAS=
+K) << 32;
+>  	rtc_time64_to_tm(time, &alrm->time);
+> =20
+>  	return 0;
+>=20
+> base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
+> --=20
+> 2.55.0
+>=20
+
+--o3X8iI98+7hL0ZN1
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCatc/xwAKCRB4tDGHoIJi
+0mnfAP9WHLFsH9RNlptmvuRa3tCyL3gcyFP1D4ouXo0XLigQXQEAiSt75Wu3OUbv
+ThkSkMDr/yWEXfi5RfyATq3bW78TkAI=
+=vBRu
+-----END PGP SIGNATURE-----
+
+--o3X8iI98+7hL0ZN1--
