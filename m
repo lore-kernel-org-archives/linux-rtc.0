@@ -1,54 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.84.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792491468;
-	b=O7iFydEwBEaF7BYa+khdESi01OMNDvw3cpgVdZyvsoJTUPJdNZloJr2PTocDfvnnTGYG
-	 rL9wGtwcv0B5E3KlDWh3m4vjQvJ/HCWsT+llG1TEd+LQ5CkNef0PFWym7syxJg0BaURmR
-	 MJJLEV7wT1PB5eoWzPCPoh8c1kGnhtLpBz54udKmlr9ocZk2oOwYGJnjgvatOu17Resh4
-	 nlYlUXVqeqG/QwyCx0DT/X115y2VXUnmFsPPw1fo5MldNkqfCRGzIiDiU8nhIi86B10nw
-	 pMFlHslGnhm7H3uNSPnukRJl4WeQwWzBv6Y8P5t1rm1Wt7eYpgKaGtra1foGIt86BzQ==
+	t=1792500087;
+	b=kQxw3BhmlT1jCuzjFjxFjVSv4jHF829c0aNs5wHjCBHQQJ0DSEb9eTFtleSSMiq31bg8
+	 lQy75JHAaXw2/ie6bq4BTx9UeVbl/WjeYotv5wT2iJkEGx6/rLnKYM9ia0GswVo40KN5E
+	 dGhxTChI4lvMFg2+7RN1gl3gWXatDey+uFV0Gs4p038125ifA5tqexiMt3j6Tn1G3gVpX
+	 pIqh0Hre3a5lPt9WhaL7Bq1GmQwhTLv7RF1lACnmjqYwDuFf49BRGgLrSi7keVA89mPUP
+	 xdiN57r4uf7e7E1vsMTAJCFte5lpQ1hHU2Z2zjpkmhrFjzjsUsuSfpVJ0XCudN/8jnA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792491468;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=UKzrd54OMkG5fM6Hq82N9GAY/LO634g6mtsK7/1Cxe8=;
-	b=QtXEWvSfCbw+oppjkUioqhtkawpUFU2Zz/fs3tQnTTozPJx7Sz+eClbdHECo8XvFR0Bu
-	 nuesjckmAQGi3WhRjFb/8pajfo2lddSuTBEGwFHDS4iaYBJl11jAmUqZ/Ni9bvhLa56/X
-	 V+KBdIpqDQJ1HUhdPLvPnOPhlP24OKEKs/+y7mv4w1y/62YroTkYWUiOA319HLrVQiE8V
-	 ztlWcmpvsD1r4xXOkYNPeMJOGAYKzw9MeEZh1okXBNKv3gcZSi84tz57nfMOmgjSw8NpY
-	 h+djA9x5+pM+mtRi8br+4cmZy1sR41W84WKTLcMR9/AeAKZVu2diaVD3w+lrm7RX2DQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792500087;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=cCQtOg6Y7MZjLhYmi+fpS5EWVnteI9TG9obXYcVMP/4=;
+	b=yBMEn9zX0KB2DXApFEepoJOWAlZhF01jug3uc+nS6tz3ER/hXRaVOlX6HwPRnh+sxGdS
+	 5yhVDUqhEkXTrclNscIwS2jYyvpRxUoiCqZVFhpgXUcf6gdglvVVXAKrPDD/tlayoAX8u
+	 +vcRi9La0anQRbNsK7GblI3igm+q/AfzlqJOnfFv1Uh9CqfZG4EQ1unpu4zOJ8XV9KGJR
+	 H/YYT+/RzxgMALXJvu9/qwdwRpDRnl/PAfcGZN9xh2hPz5QtYbZNKNUzdkaBO1MvH/GqZ
+	 PM2UsnDodUjlQn6shOGyLrMOBWSbREAXYsz2OeYKFR/WdJZRmh5rm2DSO5lXMemKeAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DPfmQr1X;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cjfPdTZG;
+	arc=none smtp.remote-ip=185.246.84.56
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3FB6606A31A;
-	Tue, 20 Oct 2026 10:17:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8D42606A31C;
+	Tue, 20 Oct 2026 12:41:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A8D42606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DPfmQr1X
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD311F000C5;
-	Tue, 20 Oct 2026 10:17:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792491467;
-	bh=UKzrd54OMkG5fM6Hq82N9GAY/LO634g6mtsK7/1Cxe8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=DPfmQr1XpGn1F7zlc60wK5nEJ91BJpuKAKsF8lExqKfooOyIiWGPlLylSgVIB3Poo
-	 W1aUFP8Vh9YIT3WRyrmvTfHlzmC40HX5Ur+NoyQ7gtyNPGtRQGFB68UsJZUwXDoVDv
-	 aRwBsDD0kCvXANW+L6bDQ3/5Mh2c5/sAkAeOYYMd2g62dwEHvMDtFX3HOkcj8BMIgN
-	 JhlnxtSw2xd1ansNwlmtGpH+CrpEHCV1TdbILuKeIbCDJOV4kA1mRecsyaV8Wpzycr
-	 Po631d/fNggmeIVEF2+H+R11g2hC4DsFPPl6Y+I3jEqUa5E+ZaGb8/tgnPuu63BBgZ
-	 Gizma9CCv5Ouw==
-Date: Tue, 20 Oct 2026 11:17:43 +0100
-From: Conor Dooley <conor@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=cjfPdTZG
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id 184691A1246;
+	Tue, 20 Oct 2026 12:41:23 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id D86FF60393;
+	Tue, 20 Oct 2026 12:41:22 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4E52C10328C52;
+	Tue, 20 Oct 2026 14:41:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1792500078; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=cCQtOg6Y7MZjLhYmi+fpS5EWVnteI9TG9obXYcVMP/4=;
+	b=cjfPdTZGWbI7kobCzZP3/M/Y59jf88KfZnZHbA4KI+yM+q6IpuNeQCHWt6inBU5Smx+KzO
+	3U/3jftAGPXUaDnJZ2Ub7WhVQSWq8PVIeUyIJw8hoGW+BYDmE+rsmKVV7TfjRQs8c3aO3l
+	YsV8/grT8UFjTkCrNwVzPlcfArFhtdoSKC2qrC7XWwphGOI/FlRsyLvqJ0uQgh4ob1WNkg
+	rT7ol1xSGJSBpeHzDgpKZU+ChWG+lPX15sNrJK598kNsV45QIszDgzFhUX7748Slsqockd
+	bIfuJibvsWhtfq4axhFD+LF55Q/JZ0KB+TWzpcpMgQ4+mTHFS/N6e3t32+mMfA==
+Date: Tue, 20 Oct 2026 14:41:15 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 To: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	Conor Dooley <conor.dooley@microchip.com>,
+Cc: Conor Dooley <conor.dooley@microchip.com>,
 	Daire McNamara <daire.mcnamara@microchip.com>,
 	linux-rtc@vger.kernel.org, linux-riscv@lists.infradead.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] rtc: mpfs: Fix alarm register word order
-Message-ID: <20261020-frequency-gloating-f9fd455d4fd2@spud>
+Message-ID: <179250004574.303413.14716075663642251592.b4-ty@b4>
 References: <20261019151024.2232338-1-pocj8ur4in@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
@@ -59,83 +68,34 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="o3X8iI98+7hL0ZN1"
-Content-Disposition: inline
-In-Reply-To: <20261019151024.2232338-1-pocj8ur4in@gmail.com>
-
---o3X8iI98+7hL0ZN1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20261019151024.2232338-1-pocj8ur4in@gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Tue, Oct 20, 2026 at 12:10:24AM +0900, Baek Kyu, Kim wrote:
+On Tue, 20 Oct 2026 00:10:24 +0900, Baek Kyu, Kim wrote:
 > mpfs_rtc_readalarm() swaps the low and high words of the alarm time.
 > The RTC core reads this value during device registration to initialize
 > its alarm timer. This can populate the cached alarm and timer queue
 > with an incorrect expiry time, or leave an enabled hardware alarm out
 > of the timer queue if the decoded time appears to be in the past.
->=20
+> 
 > Read the low 32 bits from ALARM_LOWER_REG and place the masked high
 > 11 bits from ALARM_UPPER_REG in bits 42:32. This matches the layout
 > used by mpfs_rtc_setalarm() and the low/high assembly in
 > mpfs_rtc_readtime(), so the RTC core imports the programmed alarm
 > time correctly during device registration.
->=20
-> Fixes: 0b31d703598d ("rtc: Add driver for Microchip PolarFire SoC")
-> Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
+> 
+> [...]
 
-That's very odd, wonder how that happened. Definitely a blindspot when
-it came to testing. This should look the same as reading the time.
+Applied, thanks!
 
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-CC: stable@vger.kernel.org
+[1/1] rtc: mpfs: Fix alarm register word order
+      https://git.kernel.org/abelloni/c/d691a96370b6
 
-Cheers,
-Conor.
+Best regards,
 
-> ---
-> Tested with KUnit under ARM64 QEMU using RAM-backed MMIO and the actual
-> MPFS RTC callbacks and RTC core registration. All ten tests pass with the
-> fix, including importing a preloaded alarm and checking its timer queue
-> entry. Four additional tests covering current-date alarms also pass.
-> No physical MPFS hardware or suspend/wakeup was tested.
->=20
->  drivers/rtc/rtc-mpfs.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/rtc/rtc-mpfs.c b/drivers/rtc/rtc-mpfs.c
-> index 60596b0ea9d8..6616ca1f02c7 100644
-> --- a/drivers/rtc/rtc-mpfs.c
-> +++ b/drivers/rtc/rtc-mpfs.c
-> @@ -131,8 +131,8 @@ static int mpfs_rtc_readalarm(struct device *dev, str=
-uct rtc_wkalrm *alrm)
-> =20
->  	alrm->enabled =3D mode & MODE_WAKE_EN;
-> =20
-> -	time =3D (u64)readl(rtcdev->base + ALARM_LOWER_REG) << 32;
-> -	time |=3D (readl(rtcdev->base + ALARM_UPPER_REG) & ALARM_UPPER_MASK);
-> +	time =3D readl(rtcdev->base + ALARM_LOWER_REG);
-> +	time |=3D ((u64)readl(rtcdev->base + ALARM_UPPER_REG) & ALARM_UPPER_MAS=
-K) << 32;
->  	rtc_time64_to_tm(time, &alrm->time);
-> =20
->  	return 0;
->=20
-> base-commit: 58161ead29e50d70a317ea26b472e0c7508e69da
-> --=20
-> 2.55.0
->=20
-
---o3X8iI98+7hL0ZN1
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCatc/xwAKCRB4tDGHoIJi
-0mnfAP9WHLFsH9RNlptmvuRa3tCyL3gcyFP1D4ouXo0XLigQXQEAiSt75Wu3OUbv
-ThkSkMDr/yWEXfi5RfyATq3bW78TkAI=
-=vBRu
------END PGP SIGNATURE-----
-
---o3X8iI98+7hL0ZN1--
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
