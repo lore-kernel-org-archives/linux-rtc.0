@@ -1,55 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.246.85.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792501923;
-	b=XHyurVN+v+PdpzmBiNC5zrv222slhbgSwGMoEmnkcrlmKJYExiVlfdfZdnES8atKFRLe
-	 nQmr14o2e57JmjDQCl3FysclvpyQugRTpFvoJWYDyYqR+q8LL9dtiYw5PDTN9w475PE50
-	 qEzBf8RcAKpW7GQoebr3orTcknpazvpW6D36A19DYAIQ6IrsOXC+0qjaGHXrdsve84lxb
-	 EcpQYR9rnShbRRxjPGTWkuRqEDNgYjHATWCebjpSYJ3ovSLMqigu7f4vtceisNwKE+/gI
-	 4qOu2ENoEUS5O8t+1Y+PrmGpb7jTT51dIDyMtYe6DZ/zmiJfIijO9KGLs1iEU03yQNw==
+	t=1792503726;
+	b=BpFVBwS5vrhrJIvMYtchB7mKHrdIcpGIE4soxMJaZJ4Nd2cQQxShOQYk3G1ftJZR+URZ
+	 KrSvm4QoRBWOWNc2ip8sqNeAjhoChXcn6KHnjLjrUaf7MqCBSXVdBqLV5Qel3qQB5kLyP
+	 mW6N1EZ9nLtzpXlzMX34yilH5tJ03k9MuI3zgFgZZ8bw84Vlra+Ry88fgvCFIqNPrGSa1
+	 m7clcD8LOBWSelZR7sMxTx0Pkj/lYVOmWHZj4Pjw/SjCEVbYyfye68n29HtMDq5NJYb5v
+	 v/cDoW8rJyLifQtnlQJ78reEzMhqcAyZM/k9IIfp7+2q0sBchxE7V2b8icgAP2h7fsQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792501923;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=0/8Hk7GoysrKMa2DfPPd3jtfYGnEQXHj4uVE2dx3+qo=;
-	b=C3yr4tytS9/FSeCL2uTX3wauze2rOGZnBJGHKEh+FyuVoTsp1L96ab98CzDkuyrnCZEd
-	 jTyNOk/R+jMn0rhbD6kAH5RQCo3zMBmIPZ5DsRdfvElM4+omzE89Xhhi15j4d4jMNiDcS
-	 8eYYm7XgtBhKfJWuoXBjM0PwC4rtKbNFtQJM3YQFOaxeomuUhQWYB0MgShFkb8lpGZ+ei
-	 TmRhm/fevUiO+3GrYql5gYFKdm90bhsj7v68wNP67eL92KjOidWRIaltVoIkhZUVyUnmL
-	 kFiCtN4dODaiPhjeczPx3Abnh1W6bdhHztKMS9Ko85lAuw67hmq4bH3AGF1pqTarsEQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792503726;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=zQLnXSYHk6nit6Hb8Rg/xJ/6xtIZRw6yjbUGILEvCYc=;
+	b=gw9BZuYRNRB5OZhjSiYPe31+NwTWAEFEIg1d6Bmmy6/xp4VjIVQEmxCL+M/OeREOYVWz
+	 PdeMtNjHIz7U2C8YX064kGoZXDje03iHSqXSRIa30wJaCtS3l/2zxnYXswkFmSX5DfnDq
+	 x5AgSEBpbr5xkUTB3hB7AkLA+y0LGuZ5Bw5FnYp/EGs1JEcEwttJmMetdjd1fvovCCfDY
+	 WGUUo7rFI/3fYjFZ+qKaSFzkD+bbFAGJKMpq08z0ojn6Kd/soGJ+5BGs09DUFHbWiqezH
+	 dXJV/pRTq0TPpo3B8WZPE7H2laDAH4vSJvxbguQmm9MmVemev3n0LAw6kaznZg2YFAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CKbUdfTS;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=TxB9nsUQ;
+	arc=none smtp.remote-ip=185.246.85.4
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED9860A2622
-	for <linux-rtc@vger.kernel.org>; Tue, 20 Oct 2026 13:12:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3886B606A31C
+	for <linux-rtc@vger.kernel.org>; Tue, 20 Oct 2026 13:42:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3886B606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CKbUdfTS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA5F81F000C4;
-	Tue, 20 Oct 2026 13:12:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792501922;
-	bh=0/8Hk7GoysrKMa2DfPPd3jtfYGnEQXHj4uVE2dx3+qo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CKbUdfTSQyXBx1t9ohIc1xFJNpCBXLFwd5Qf3YHHOVWaMUrYzmFLQcECtwYq3AFH0
-	 Z0Zq/5bQ/H2ZardCUcCbj8VIGGyhOQnZtK66GcM6bYsxoCkZ1jd4yvHk72K0s/V/NJ
-	 TALYOqogBdILcyUk7dTZ+yR5EhggOMQQMJEBBtStQAszzNW60Rt90fVSYs5S5QJW9H
-	 MC6oXL6Z4HvdKgiSqLoFUCQzQyk+qcXBU9jgvJBVXsVxGt7yav794AMbAqn3UNumZx
-	 +cUof2MfCSSUPEdlUjzPM5127JSBh+fePO93P5OwyPGvTHViB6armSSLvMJQao+T7y
-	 KMdjoTaKMsoqg==
-Message-ID: <sashiko-outbox-179002@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] rtc: pcf2127: arm the alarm IRQ as a wake IRQ
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aristo Chen" <aristo.chen@canonical.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261020125124.1097546-1-aristo.chen@canonical.com>
-References: <20261020125124.1097546-1-aristo.chen@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 20 Oct 2026 13:12:02 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=TxB9nsUQ
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id C57684E41259
+	for <linux-rtc@vger.kernel.org>; Tue, 20 Oct 2026 13:42:02 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 9400A60393;
+	Tue, 20 Oct 2026 13:42:02 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7F86D10328934;
+	Tue, 20 Oct 2026 15:42:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1792503722; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=zQLnXSYHk6nit6Hb8Rg/xJ/6xtIZRw6yjbUGILEvCYc=;
+	b=TxB9nsUQ0uMjPU/p3ETb/1rgqrdR1yFhl+aaIewcQOsX6ORKF5lShoBQN/FpqNIlgZX/yU
+	EqsK1amwd6QOkmC/YpdDNAixJ4VR9n9h3XKyY1ZTtY3/SAG0z92Rjt00AIxWj21L9z1GZb
+	zuBbqldX+PFlq1/fxDKZfXT7pu/mpfpY2csmVKwcm5k0WW8lagipomozQay+ITp81+Rgds
+	cGwi5DlR9MzHTbPRhZ2ZebyoS76OGL5e2dXRHv+rLaI82eQKUQ3JWHheOUNdaJ7aTf24Ut
+	gJH0DHJHxs9LE9M2XdN7vUxOvNav//N2WPGhzxNGjWo3vAVWFM7XgjBwfIElBQ==
+Date: Tue, 20 Oct 2026 15:42:01 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: chenguoming88s@gmail.com
+Cc: linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rtc: ds1307: drop redundant dev_set_drvdata() in probe
+Message-ID: <179250371148.320299.13336543969308066261.b4-ty@b4>
+References: <20260821131644.71794-1-chenguoming88s@gmail.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,92 +64,33 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260821131644.71794-1-chenguoming88s@gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] rtc: pcf2127: duplicate wake IRQ registration in pcf2127_probe()=
- on I2C
---
+On Fri, 21 Aug 2026 21:16:44 +0800, chenguoming88s@gmail.com wrote:
+> i2c_set_clientdata() is a thin wrapper around
+> dev_set_drvdata(&client->dev, ...), so calling both in ds1307_probe()
+> stores the same driver-data pointer twice. The two calls were introduced
+> together in the regmap conversion in commit 11e5890b5342c ("rtc: ds1307:
+> convert driver to regmap").
+> 
+> Keep i2c_set_clientdata(), which matches the convention used by every
+> other I2C RTC driver in the subsystem, and drop the redundant
+> dev_set_drvdata().
+> 
+> [...]
 
-commit bb7257d310771e0aa92e0b399681a4feb16cf42a
-Author: Aristo Chen <aristo.chen@canonical.com>
+Applied, thanks!
 
-rtc: pcf2127: arm the alarm IRQ as a wake IRQ
+[1/1] rtc: ds1307: drop redundant dev_set_drvdata() in probe
+      https://git.kernel.org/abelloni/c/0bbeed584e92
 
-This commit registers the RTC alarm IRQ with devm_pm_set_wake_irq() in
-pcf2127_probe() so the PM core arms the interrupt as a wakeup source
-during system suspend.
+Best regards,
 
-> diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-> index ff2023908f5a3..51d8aebf34069 100644
-> --- a/drivers/rtc/rtc-pcf2127.c
-> +++ b/drivers/rtc/rtc-pcf2127.c
-[ ... ]
-> @@ -1251,6 +1252,12 @@ static int pcf2127_probe(struct device *dev, struc=
-t regmap *regmap,
->  	if (alarm_irq > 0 || device_property_read_bool(dev, "wakeup-source")) {
->  		device_init_wakeup(dev, true);
->  		set_bit(RTC_FEATURE_ALARM, pcf2127->rtc->features);
-> +
-> +		if (alarm_irq > 0) {
-> +			ret =3D devm_pm_set_wake_irq(dev, alarm_irq);
-> +			if (ret)
-> +				dev_warn(dev, "failed to set wake IRQ: %d\n", ret);
-> +		}
->  	}
-> =20
->  	if (pcf2127->cfg->has_int_a_b) {
-
-[Severity: Medium]
-Can calling devm_pm_set_wake_irq() unconditionally here trigger a kernel
-warning when an I2C-attached PCF2127/2129/2131 has both interrupts and
-wakeup-source specified in its device tree node (or has I2C_CLIENT_WAKE set
-via ACPI)?
-
-For I2C devices, of_i2c_get_board_info() in drivers/i2c/i2c-core-of.c sets
-I2C_CLIENT_WAKE when wakeup-source is present:
-
-    if (of_property_read_bool(node, "wakeup-source"))
-            info->flags |=3D I2C_CLIENT_WAKE;
-
-Before invoking the driver probe callback (pcf2127_i2c_probe() ->
-pcf2127_probe()), i2c_device_probe() in drivers/i2c/i2c-core-base.c already
-initializes the wake IRQ when I2C_CLIENT_WAKE is set:
-
-    if (client->flags & I2C_CLIENT_WAKE) {
-            int wakeirq;
-
-            wakeirq =3D fwnode_irq_get_byname(fwnode, "wakeup");
-            if (wakeirq =3D=3D -EPROBE_DEFER) {
-                    status =3D dev_err_probe(dev, wakeirq, "can't get wakei=
-rq\n");
-                    goto put_sync_adapter;
-            }
-
-            device_init_wakeup(&client->dev, true);
-
-            if (wakeirq > 0 && wakeirq !=3D client->irq)
-                    status =3D dev_pm_set_dedicated_wake_irq(dev, wakeirq);
-            else if (client->irq > 0)
-                    status =3D dev_pm_set_wake_irq(dev, client->irq);
-
-When pcf2127_probe() then calls devm_pm_set_wake_irq(dev, alarm_irq),
-dev_pm_attach_wake_irq() in drivers/base/power/wakeirq.c sees
-dev->power.wakeirq is already initialized and fires dev_WARN_ONCE():
-
-    spin_lock_irqsave(&dev->power.lock, flags);
-    if (dev_WARN_ONCE(dev, dev->power.wakeirq,
-                      "wake irq already initialized\n")) {
-            spin_unlock_irqrestore(&dev->power.lock, flags);
-            return -EEXIST;
-    }
-
-returning -EEXIST and printing the warning in pcf2127_probe().
-
-Would it make sense to skip calling devm_pm_set_wake_irq() when the bus core
-has already configured the wakeup source (or when dev->power.wakeirq is
-already set)?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020125124.1097=
-546-1-aristo.chen@canonical.com?part=3D1
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
