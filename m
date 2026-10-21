@@ -1,63 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792566840;
-	b=QMScO1mmk3zzFS4vI4CUEFxp8wt0Ywc4inEcdhpCwPzuNAofzF4nwbw5Czxvgq+8Oyte
-	 LN/sODSeKP3jzRMggrcCJSfdpCHDvmADYFFNnGuCxOR8xsypmY621SeosMfd0bDrhxERz
-	 +cIBdn0f2K/D+X9c9KOlq+v8GiR90Ji80TX+rBEpVv9kquMrGYZjuaro57dw1RW+bhGop
-	 HLWgxugRVAxFX4jEi8N+qZuJcsZ6g8n7tC0UjS+rMUD/86QwD9nSh7dy2qlhZTOCQucr/
-	 iBGLQIRfzMdZwVnhLD+lq/S686D1oYzBkNLPt53wnGt6NvnuQV4Wwcw4qh4LHsDTPEA==
+	t=1792573629;
+	b=rJumeTl39JHTbqjLTwfTxJUB5jCU8SoP6Xt42Vtog9CeFnGWvaT5vzBFwePrgjlgwM/Y
+	 i0i2FHbX9uUuB04slTejOoyhkGrBAIfdDHoZvM/zb83VW+Mcah4/YNr1OTMxFoFdM1d6D
+	 dFKf7ywiJMU7Dl8SRYf/GA1Yw3XSSOWFrIvS/Xv4vZOJUmp/PRNwDSNYyoIi2+w0Iwt9Z
+	 lbe+r5JeFSJUXuaexh6K5p+OXmvadm37Yp0RauPNBWSLLFwXcQrxeENaX61zJn1lvvCvO
+	 jZGEVloxlO0v5vN2gKqYdABbETtGxJRW2dhS95V5LhQjQFDIVTc5rP0twOsC0HbuxoA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792566840;
-	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
-	bh=BWwjQzcNdHdkRB5j/U4h6P+LV+nTL5ji/UH06kwPew0=;
-	b=Yx7Da+T4etXZT1S1UBG+pCwKU+iVobQHGWjVNEWNdWzeaIAoNx0iJNUXy7ZLHct0KdVF
-	 +LxlkFS9hc1fj163RE7TRPOSaevqpMEwdRaEATgmd+LroepgfsFi3NmScxlQGhN/ebJ5Y
-	 7FAFgxybmmyNBTPqQjeR1A9X6EWnyjFO6KpqIGngwvGXmr+UFSC0obvHb0IM1+RjmlRfZ
-	 s8xJ9ANleFH1IrDwZXtOsKxNzkYQIVX/baH27gUcIbszb55fnO9WGd9VyQxBOBXNdVeR5
-	 7cd9oNwozNcVPX2wEhZ+EkRFnDKpKtEoe8oKghs6VxdwsVLYXLl+joPGZZ7AJEhOzDg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792573629;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=rg0LSI4npnBDUHtGy7KX4tR0xQfgXS+TF5Cj0A9UQlA=;
+	b=TwReF0pqTdL156r1ljAVacn3FKYqMOkoZvCi5WusGSUgovFNjyx8XCN8rA3MD/j+Skg3
+	 mIV3JwvsqZqrvj9xKeM3wWFkgly+FhRNyxHbDZ2p4TmMC2SIZ7BO0p8v6Lc2XIZQrovF/
+	 86k0YDC4YAbZAaesDpJm1I1MQgikWhOOtf0i3O+has/Ats5Q/baZYUP1UZapDSmrV2Vjj
+	 XrjK3IoW7IsWOo/lUM/N4neMQAp39fD/8DKyAWlSFH0XLKsEyJTo4CZOLcd5BCdHfu9RA
+	 PgGaDlEPmmJXWrW1UnbuxoFQflcUR1uDAUVtvhT+l4763yVqXZ2j7Kqxb7V1sLQiozA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bootlin.com;
-	spf=pass smtp.mailfrom=bootlin.com;
-	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=0ovLg2Nr;
-	arc=none smtp.remote-ip=185.171.202.116
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="dyuS/W3e";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24D1606A31A
-	for <linux-rtc@vger.kernel.org>; Wed, 21 Oct 2026 07:13:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C24D1606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59655606A31A;
+	Wed, 21 Oct 2026 09:07:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=0ovLg2Nr
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id AED67C5CD72;
-	Wed, 21 Oct 2026 07:14:54 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id CEB2B606E3;
-	Wed, 21 Oct 2026 07:13:55 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3306310328D20;
-	Wed, 21 Oct 2026 09:13:52 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1792566834; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 in-reply-to:references; bh=BWwjQzcNdHdkRB5j/U4h6P+LV+nTL5ji/UH06kwPew0=;
-	b=0ovLg2Nr8xmCZ0LDSoNViWsGYL3O1202DVoW2TUVpZYdWbSdLaVVsDFMM0MDevQ/07q6ZT
-	bF2k/6WOQZsEwQX5p0FD+37dL/dauwCXK/0O4O20UR192LPY3RHdV8+kqKFyd2oAjvw1cX
-	SzjYKnsHSCaRnUY6ngRYU2Stz+URQDSX1pz63PtStS5R4zGQA63miLGq0PUOyFyRr98a/5
-	2tU9ULZ0wgk2tbPqU2H/lV/xc2c1vuZikq81wkAehZ/vtjru7QF10KNqQuU4QusQMt4U6x
-	x3KcCtLQBdp8RpvzuSlwPUoJ7GzNLOjbm+L8p7ohapDXirHbVCLLaUxxNwfliw==
-Date: Wed, 21 Oct 2026 09:13:51 +0200
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Akashdeep Kaur <a-kaur@ti.com>
-Cc: praneeth@ti.com, nm@ti.com, vigneshr@ti.com, linux-rtc@vger.kernel.org,
-	linux-kernel@vger.kernel.org, sebin.francis@ti.com,
-	s-tripathi1@ti.com, vishalm@ti.com, k-willis@ti.com
-Subject: Re: [PATCH 0/2] rtc: Prevent hctosys from using invalid RTC time
-Message-ID: <202610210713515313f800@mail.local>
-References: <20261021042435.3895543-1-a-kaur@ti.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dyuS/W3e
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFFE11F000C9;
+	Wed, 21 Oct 2026 09:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792573629;
+	bh=rg0LSI4npnBDUHtGy7KX4tR0xQfgXS+TF5Cj0A9UQlA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=dyuS/W3ea7Wx2GQYveNRK6A4clR9WKquzSo7emGhmilDJhGfkRm482JLiSIwwvRnx
+	 tRz4YkGWU3RkgKsj26EjGPNpY38Ya01YaNDP0hCT90bnF7P5q+D7Py9DsMI5woYLHu
+	 wWbIaBLbHYHuXIVgoDtWJ0GLSihrVcRJkLfNz8gTGWeofTATdXiiLIVoIqZpPBnzRO
+	 XCtataIa6A8TKYyIOUu2+EzZ1bNvRfuGc+c8P/3T4KJasoornuP0Gp+q4aozA5S8bU
+	 fB3ivzGfBxENRbMhT6L4jvtekd5apDXWVnfilDfcEojbQzi8sh0s8xZWFvkeCBEgDP
+	 PUnDjzchRcszg==
+From: Imre Kaloz <kaloz@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-mips@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Lee Jones <lee@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	mfd@lists.linux.dev,
+	linux-serial@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	linux-rtc@vger.kernel.org,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Niklas Cassel <cassel@kernel.org>,
+	linux-ide@vger.kernel.org,
+	Pavel Machek <pavel@kernel.org>,
+	linux-leds@vger.kernel.org,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	linux-pci@vger.kernel.org,
+	Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v2 00/53] MIPS: SGI-IP27: add support for the IP35 (Bedrock hub) machines
+Date: Wed, 21 Oct 2026 11:05:55 +0200
+Message-ID: <20261021090556.21168-1-kaloz@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261020145611.4e277615@kernel.org>
+References: <cover.1791890466.git.kaloz@kernel.org> <20261020110619.12774a1c@kernel.org> <20261020204214.28625-1-kaloz@kernel.org> <20261020145611.4e277615@kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -67,40 +79,28 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261021042435.3895543-1-a-kaur@ti.com>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: 8bit
 
-Hello,
-
-On 21/10/2026 09:54:33+0530, Akashdeep Kaur wrote:
-> The kernel's boot-time RTC synchronization blindly trusts the RTC 
-> value when setting system time, but RTCs may have invalid time 
-> depending on the boot path:
+On Tue, 20 Oct 2026 14:56:11 -0700 Jakub Kicinski wrote:
+> I don't think you answered my question, or at least I'm too daft 
+> to catch what you mean. IP35 was not supported so nobody is using
+> it with Linux today. You're adding the support, and since it's 
+> a platform discontinued 20 years ago there's 0 chance of real users 
+> of any of this code.
 > 
-> - On first cold boot: RTC may have lost power, time is invalid
-> - After low-power mode (RTC-only) cold boot: RTC retained power, time 
->   is valid
-> 
-> On normal cold boot where bootloader or NTP has already established 
-> correct time, boot-time sync (triggered when RTC driver loads as 
-> module or probes at boot) can overwrite it with invalid RTC data, 
-> causing time rollback to 1970. However, on boot from RTC-only power 
-> mode, the RTC has valid time and boot-time sync should work to 
-> restore system time from RTC.
-> 
-> This series adds a flag that drivers set dynamically per-boot to 
-> indicate whether RTC has valid time. Drivers check at probe if RTC 
-> retained power through this specific boot. Boot-time sync checks this 
-> flag before setting system time. This enables correct behavior for 
-> both boot paths while keeping PM suspend/resume compensation 
-> unaffected.
+> What am I missing?
 
-The proper way to do this is to return -EINVAL in read_time until you
-know the date is correct. There is no need for an extra flag for the core.
+The users are the people running these machines, the same population
+as for IP27 and IP30, and the ioc3-eth driver in net/ exists for them
+today. The series was developed and tested on a Fuel and a Tezro in
+regular use, so "nobody is using it with Linux" is true only in the
+sense that the support isn't merged yet; that was equally true of IP30
+when it went in for 5.5, and of every port before it.
 
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+The kernel's test for a platform isn't commercial relevance, it's a
+maintainer, which Thomas is, and testers, which this series has. If
+netdev doesn't want to spend time on it, say so and I'll ask Thomas to
+take the two ioc3-eth patches through the MIPS tree.
+
+
+Imre
