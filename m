@@ -1,55 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.171.202.116
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792565491;
-	b=oasb+aq4sSdgQMahbRa7O/9TRaXgYWDC/afBHUZEcaLZBp2n+NmwL6EyM3mSqYJ2MUIR
-	 DuGRrEUpi+rdvweSt/QNmdJu0TKpZ1F0kKQQLloyzIhQIYKCptZV1MXo6Q5/329JiHVLs
-	 ti30W0YqoIXcrzCIDJDHnzncmYzNeQXcNswHR7LVBW7JhOjP1gAyRSA85Paarr0ovWX9g
-	 ZTz89dp0QB94tZKp7z9Uo3Ms9RrIUE+ck7aPnyMK0ar1gAXWQB7uAJac/xBUkvL2sarQ/
-	 oSE37JDatwIhlJaLAbDuaRTDCM+fnaxpRVHUsoBCV7nfd74DG2Or+f/qZnQ22CAYiPA==
+	t=1792566840;
+	b=QMScO1mmk3zzFS4vI4CUEFxp8wt0Ywc4inEcdhpCwPzuNAofzF4nwbw5Czxvgq+8Oyte
+	 LN/sODSeKP3jzRMggrcCJSfdpCHDvmADYFFNnGuCxOR8xsypmY621SeosMfd0bDrhxERz
+	 +cIBdn0f2K/D+X9c9KOlq+v8GiR90Ji80TX+rBEpVv9kquMrGYZjuaro57dw1RW+bhGop
+	 HLWgxugRVAxFX4jEi8N+qZuJcsZ6g8n7tC0UjS+rMUD/86QwD9nSh7dy2qlhZTOCQucr/
+	 iBGLQIRfzMdZwVnhLD+lq/S686D1oYzBkNLPt53wnGt6NvnuQV4Wwcw4qh4LHsDTPEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792565491;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ImvLXKzJwx2vO76faC40IRBOnncpzbrn7E6eJ1I/5fI=;
-	b=ZA8nr9WGfrXSQYu1aCa1nAkfrxNwwyuvCTvLpJCpN0rgCa7O/wXXLHneaM8P6x9jsEXo
-	 YrpQsht2zdwOHQYbvjvE3Ae7/wKOccBqVZyraYetLKUfbAUIof4PAwAkkux/Lyrzh3b3w
-	 pVOdmgJnYseYuuVBJ1k4NnguKE7aGar49n5SihKRqdvnlsmWIRZaSuqYswdSYFijEAXYU
-	 HFO0yWfmFhoHZPSQN/rEMy+KJ0S4d8XlSZhl0y7BOREzHQZS43CF9PxC3cgc5yh61w6AZ
-	 kPdYHWRH48eN0ND6i9hOcG/eiVHSbCl78nTRAop9B8FWuwQQCLEoUgcuG2hCs9EBI1g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792566840;
+	h=DMARC-Filter:Received:Received:Received:DKIM-Signature:Date:From:To:
+	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Last-TLS-Session-Version;
+	bh=BWwjQzcNdHdkRB5j/U4h6P+LV+nTL5ji/UH06kwPew0=;
+	b=Yx7Da+T4etXZT1S1UBG+pCwKU+iVobQHGWjVNEWNdWzeaIAoNx0iJNUXy7ZLHct0KdVF
+	 +LxlkFS9hc1fj163RE7TRPOSaevqpMEwdRaEATgmd+LroepgfsFi3NmScxlQGhN/ebJ5Y
+	 7FAFgxybmmyNBTPqQjeR1A9X6EWnyjFO6KpqIGngwvGXmr+UFSC0obvHb0IM1+RjmlRfZ
+	 s8xJ9ANleFH1IrDwZXtOsKxNzkYQIVX/baH27gUcIbszb55fnO9WGd9VyQxBOBXNdVeR5
+	 7cd9oNwozNcVPX2wEhZ+EkRFnDKpKtEoe8oKghs6VxdwsVLYXLl+joPGZZ7AJEhOzDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=elZUQ30Z;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=bootlin.com;
+	spf=pass smtp.mailfrom=bootlin.com;
+	dkim=pass header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=0ovLg2Nr;
+	arc=none smtp.remote-ip=185.171.202.116
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 194B8606A319
-	for <linux-rtc@vger.kernel.org>; Wed, 21 Oct 2026 06:51:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C24D1606A31A
+	for <linux-rtc@vger.kernel.org>; Wed, 21 Oct 2026 07:13:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C24D1606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=elZUQ30Z
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3061F000C9;
-	Wed, 21 Oct 2026 06:51:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792565490;
-	bh=ImvLXKzJwx2vO76faC40IRBOnncpzbrn7E6eJ1I/5fI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=elZUQ30Zez10eqJEiEmJUuPO5rnALizBKdXnGK+bedz+DYhfIpzd4u7MNaUA+rbRH
-	 M3vxMehlIndYc7sbOEi2WnZXD5o+bWPF4PC9HQwWAvqmjs1XTABLznAtyyhicJLE0d
-	 nwlbW8IQvh9tcE8htH3/31MB5CJB/AueRmm3ELvxulwGR8/VX8cIlEqietubxQm8of
-	 vKQRTTbAgjJe+XdWiIWa3NT56pLVvRWCc6zdma+y5q+TOQ8lPFksy5lbIhl/OfxSSs
-	 VLY5dFogYCyHjJhNMOwT7wNQG3yg8FWWc305fhiEKuJQdsXeJ5DX9afYbBORrmPVX/
-	 3Gqx2XjS8fAiQ==
-Message-ID: <sashiko-outbox-179847@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] rtc: pcf2127: arm the alarm IRQ as a wake IRQ
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aristo Chen" <aristo.chen@canonical.com>
-Cc: linux-rtc@vger.kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261021064432.551943-1-aristo.chen@canonical.com>
-References: <20261021064432.551943-1-aristo.chen@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 06:51:30 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=bootlin.com header.i=@bootlin.com header.a=rsa-sha256 header.s=dkim header.b=0ovLg2Nr
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id AED67C5CD72;
+	Wed, 21 Oct 2026 07:14:54 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id CEB2B606E3;
+	Wed, 21 Oct 2026 07:13:55 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 3306310328D20;
+	Wed, 21 Oct 2026 09:13:52 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1792566834; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 in-reply-to:references; bh=BWwjQzcNdHdkRB5j/U4h6P+LV+nTL5ji/UH06kwPew0=;
+	b=0ovLg2Nr8xmCZ0LDSoNViWsGYL3O1202DVoW2TUVpZYdWbSdLaVVsDFMM0MDevQ/07q6ZT
+	bF2k/6WOQZsEwQX5p0FD+37dL/dauwCXK/0O4O20UR192LPY3RHdV8+kqKFyd2oAjvw1cX
+	SzjYKnsHSCaRnUY6ngRYU2Stz+URQDSX1pz63PtStS5R4zGQA63miLGq0PUOyFyRr98a/5
+	2tU9ULZ0wgk2tbPqU2H/lV/xc2c1vuZikq81wkAehZ/vtjru7QF10KNqQuU4QusQMt4U6x
+	x3KcCtLQBdp8RpvzuSlwPUoJ7GzNLOjbm+L8p7ohapDXirHbVCLLaUxxNwfliw==
+Date: Wed, 21 Oct 2026 09:13:51 +0200
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: Akashdeep Kaur <a-kaur@ti.com>
+Cc: praneeth@ti.com, nm@ti.com, vigneshr@ti.com, linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org, sebin.francis@ti.com,
+	s-tripathi1@ti.com, vishalm@ti.com, k-willis@ti.com
+Subject: Re: [PATCH 0/2] rtc: Prevent hctosys from using invalid RTC time
+Message-ID: <202610210713515313f800@mail.local>
+References: <20261021042435.3895543-1-a-kaur@ti.com>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,37 +66,41 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261021042435.3895543-1-a-kaur@ti.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-> When an alarm IRQ is available, the driver calls device_init_wakeup(),
-> so the RTC shows up as wakeup capable and enabled, but it never marks
-> the IRQ itself as a wakeup interrupt. The PM core therefore disables
-> the IRQ for the whole system suspend, and the alarm cannot wake the
-> system: "rtcwake -m mem" on this RTC only resumes once another wakeup
-> source fires.
->=20
-> On the i.MX93 11x11 FRDM board the PCF2131 alarm is routed through a
-> PCAL6524 GPIO expander. Without a wakeup request on the expander pin,
-> the expander's own interrupt is not armed for wakeup either, so the
-> alarm never reaches the CPU. The BBNSM RTC on the same board uses
-> devm_pm_set_wake_irq() and wakes the system as expected.
->=20
-> Register the alarm IRQ with devm_pm_set_wake_irq() so that the PM core
-> arms it whenever the device may wake the system. A failure is not
-> fatal: the RTC keeps working, only wakeup from it is unavailable.
->=20
-> The I2C core already sets up the wake IRQ before probe for clients
-> flagged I2C_CLIENT_WAKE, which a "wakeup-source" DT property or a
-> wake-capable ACPI interrupt sets. Those boards can already wake from
-> the alarm, so skip the call for them: a second registration would only
-> trigger a "wake irq already initialized" warning.
->=20
-> Fixes: 8a914bac44be ("rtc: pcf2127: add alarm support")
-> Assisted-by: LLM
-> Signed-off-by: Aristo Chen <aristo.chen@canonical.com>
+Hello,
 
-Sashiko has reviewed this patch and found no issues.
+On 21/10/2026 09:54:33+0530, Akashdeep Kaur wrote:
+> The kernel's boot-time RTC synchronization blindly trusts the RTC 
+> value when setting system time, but RTCs may have invalid time 
+> depending on the boot path:
+> 
+> - On first cold boot: RTC may have lost power, time is invalid
+> - After low-power mode (RTC-only) cold boot: RTC retained power, time 
+>   is valid
+> 
+> On normal cold boot where bootloader or NTP has already established 
+> correct time, boot-time sync (triggered when RTC driver loads as 
+> module or probes at boot) can overwrite it with invalid RTC data, 
+> causing time rollback to 1970. However, on boot from RTC-only power 
+> mode, the RTC has valid time and boot-time sync should work to 
+> restore system time from RTC.
+> 
+> This series adds a flag that drivers set dynamically per-boot to 
+> indicate whether RTC has valid time. Drivers check at probe if RTC 
+> retained power through this specific boot. Boot-time sync checks this 
+> flag before setting system time. This enables correct behavior for 
+> both boot paths while keeping PM suspend/resume compensation 
+> unaffected.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021064432.5519=
-43-1-aristo.chen@canonical.com?part=3D1
+The proper way to do this is to return -EINVAL in read_time until you
+know the date is correct. There is no need for an extra flag for the core.
 
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
