@@ -1,55 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792791130;
-	b=ipdq1CDex7vdAstNI5JaT2ZdQ7pgB/DZf5y0GmmLyW8DmNjfU4sY2cBI+FF9J4JjRdMd
-	 8gO+LAPGlweergmJP8PwJKP5LX4w/QHAcGgXieqD7/VYmw4IjfgYsnu5jjPY/7dEMbUw0
-	 p/Ppg+Xta7Yxhru3bICDO/yzljh0ZgFSyC5/S3O4kRiLmGvjI8JcTpQ4HJtgkZmiy+kbe
-	 RpUeSHNpv5GK9rRRn6FWenDPFgpLuldr9mvufcpXESExi4rN9l/T8ZY1eO5uZ+i2NCXtx
-	 tz1uv1Q+pO6jcMBWxU7IpHgnvcFDmagDhYDTrVE5eN/49/LBW0CiM1L2kv7NgowabtQ==
+	t=1792839895;
+	b=M+kg64LuKx5ZOHkgIw3eNs+4j/Qo0UJBBBJItFVzGoZ4i1YbHmcsx2tXCd3lvimqUq6Y
+	 yYEho2a7TBTXwRGE/6WjMANQIR7UNoTozrjlq0ZAKSITN+W7bipjHKd1RuYBi846sSgxY
+	 EO0VPvGN6N1yjlrhww1UyPNLHbUuzbtoAR7z0LJ16YXorGaW8Qm5uBJMBRHbJyw6k+W1E
+	 CUJGZUc1wjX1NXrYAGZtgPeviV+IRtHleVQKoNlzWFq5FHf9tdXPRnjk2/1y/9fQ0+tyE
+	 XN/5r74xUolDpGagGNAH6ZWk33UIUow5Ly3pF7Fb2iGK4S+DGjOu6pmuCzsU+ReIQfA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792791130;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=sIDTIjBH0yKempnz4+GHGCRHHKh/0sKc6A8hE/FtTLU=;
-	b=EKGoAgqHoosqwrtlHLUxp4LbTaY5DBOTYLSa9tt8vXl6mS1lc79W1gbq1vQWtkyc0/tS
-	 SO8UGbvLd7Ucq2E01kyVVZkwW1qCWniRLGkNiANzjqtWQN0/cTlJEtI8GXAwtYKdiVBwT
-	 u31A9hzhSY+qERiQkapmKS6zzcsYEK0t56g99Hm8A8i/qugYpBglYRQarGEWAFyyEe8HC
-	 zebtCr7rkzN5P5SIfmSTBVKI6Glj8KEiaBvenK0Fo1+6QJUUivtvqMmUEpmwU2uyRtolL
-	 preQPwffdcheWcR3hpk1qREBg+PXmeqsv51JTnIHMhAIn6WIwfezI3HfycYgliuVTiA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792839895;
+	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Virus-Scanned;
+	bh=PX2qqghAmlmyFbFP9sa3fJAYCvxqqZstFsLQ6nRFC/g=;
+	b=odcmpkPyM8b+DStNO1DZfD3Io5Vxpl9fJPG/YeuBRknz8RfVhShAUOXUNDCquYeefU3R
+	 97aDrkwDYYGkKfhyqJk/xPeAxe2giqeDgDqJ0Ws2UVKxVq/gxKtUN4UKL7ZkY9ggLtg2O
+	 CNb2sTDz/0R7dZ2j8+S4Ddy4+Sa2/h3Q5xbLjqoE/fSA6EX/39EUJNNcgzi1q3IAr68O8
+	 Z/UVAui4z3r6+SvM34jFW0KKNgkQ6hiiZ4P6Hs3hetrBuzmSZciHr9aWbsWPtNgz/Wbus
+	 jhx8QE94h7JRrscEjqLpOCYZwI0lxd3BnXQ0+9H86h1JAqHf5k0TeMC7LkeummV8ecA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="PTjL9PI/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=nxp.com;
+	spf=pass smtp.mailfrom=nxp.com;
+	arc=none smtp.remote-ip=92.121.34.13
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020BF606A322
-	for <linux-rtc@vger.kernel.org>; Fri, 23 Oct 2026 21:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PTjL9PI/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63BA41F01828;
-	Fri, 23 Oct 2026 21:32:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792791129;
-	bh=sIDTIjBH0yKempnz4+GHGCRHHKh/0sKc6A8hE/FtTLU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PTjL9PI/oszF2zWC6XNpsmbotzNfteRdXf/d66IIuqFkqnW0f0vyLfW597Y/NnEiV
-	 1x8Dt/yje7MSgb0LSUD0ac6se88eanr16QW/6ZkR3hdlSsnJk7oM0eXIyBZRQzXMcB
-	 YK9NTME1F7Qh/KkQMF47VcVs/sIYxVvwfSbLTtxZZNU9DRtFVO0W2LdnIdaqEukdbj
-	 XwEBjqJDMKh8qKEl2M9dVkZTlqPYRnae7eV7ZergIJbTI0/X5YiGbkzSesp1OPd/Ck
-	 GMB+t6AJpWeSWtCJD/uaCtHHB4GAGV99wB5buuNp2dpxl6U9zUn0vt3tK9EeoBRJ7x
-	 HmjhXn3/X9Ihw==
-Message-ID: <sashiko-outbox-183262@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] ACPI: TAD: introduce acpi_has_rtc()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Hamza Mahfooz" <hamzamahfooz@linux.microsoft.com>, linux-rtc@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261023212218.2568858-1-hamzamahfooz@linux.microsoft.com>
-References: <20261023212218.2568858-1-hamzamahfooz@linux.microsoft.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 23 Oct 2026 21:32:08 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0747B606A31A;
+	Sat, 24 Oct 2026 11:04:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0747B606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 7B81B1A0169;
+	Sat, 24 Oct 2026 13:04:47 +0200 (CEST)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 457121A0088;
+	Sat, 24 Oct 2026 13:04:47 +0200 (CEST)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 59046180006C;
+	Sat, 24 Oct 2026 19:04:44 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	potin.lai.pt@gmail.com
+Cc: pankit.garg@nxp.com,
+	vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v11 1/2] dt-bindings: rtc: Add pcf85053 support
+Date: Sat, 24 Oct 2026 16:34:36 +0530
+Message-Id: <20261024110437.2851275-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -58,26 +64,180 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-> The same RTC may also be accessible by other means, like the EFI
-> GetTime() and SetTime() runtime services used by rtc-efi, which are best
-> avoided if there is a native ACPI interface to the RTC.
->=20
-> To allow other RTC drivers to stand down in that case, add an exported
-> helper, acpi_has_rtc(), that returns true if there is a TAD the driver
-> will register an RTC class device for.
->=20
-> The helper looks for a platform device matching the driver's ID table
-> whose _GCP indicates real time support, like acpi_tad_probe() checks,
-> instead of checking whether the driver has bound to such a device, so
-> that callers need not depend on the order in which drivers are probed.
->=20
-> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+Add device tree bindings for NXP PCF85053 RTC chip.
 
-Sashiko has reviewed this patch and found no issues.
+Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+---
+V10 -> V11: - no changes
+V9 -> V10: - Add description for the active-low level alarm interrupt.
+	   - Move the PCF85053 MAINTAINERS entry to the driver patch.
+V8 -> V9: - Document optional CLKOUT clock provider and add it to the example.
+	  - Disallow interrupts and nxp,write-access on the secondary interface.
+	  - Describe the alarm interrupt as active-low level triggered.
+	  - Use 'const' for the single compatible string.
+V7 -> V8: - Use 'unevaluatedProperties: false' instead of 'additionalProperties:
+	    false'.
+	  - Fix typo in 'nxp,interface' description ("ready only" -> "read only").
+V6 -> V7: - no changes
+	  - Added Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+V5 -> V6: - Dropped driver-specific commentary from property descriptions.
+	  - Simplified and clarified descriptions for better readability.
+V4 -> V5: - Updated schema validation logic to enforce correct combinations of
+            'nxp,interface' and 'nxp,write-access' using oneOf clauses.
+          - Refined property descriptions for clarity and hardware alignment.
+V3 -> V4: Add dedicated nxp,pcf85053.yaml.
+          Remove entry from trivial-rtc.yaml.
+V2 -> V3: Moved MAINTAINERS file changes to the driver patch
+V1 -> V2: Handled dt-bindings by trivial-rtc.yaml
+---
+ .../devicetree/bindings/rtc/nxp,pcf85053.yaml | 132 ++++++++++++++++++
+ 1 file changed, 132 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023212218.2568=
-858-1-hamzamahfooz@linux.microsoft.com?part=3D1
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+new file mode 100644
+index 000000000000..960f871b6334
+--- /dev/null
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85053.yaml
+@@ -0,0 +1,132 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++# Copyright 2025-2026 NXP
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/rtc/nxp,pcf85053.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: NXP PCF85053 Real Time Clock
++
++maintainers:
++  - Pankit Garg <pankit.garg@nxp.com>
++  - Lakshay Piplani <lakshay.piplani@nxp.com>
++
++properties:
++  compatible:
++    const: nxp,pcf85053
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++    description: |
++      Alarm interrupt output. The ALRT pin is active-low and should be
++      configured as a level-low interrupt.
++
++  "#clock-cells":
++    const: 0
++    description: |
++      Present when the CLKOUT pin is exposed as a clock provider. In a
++      dual-host configuration, only one PCF85053 interface node should
++      expose CLKOUT as a clock provider.
++
++  clock-output-names:
++    maxItems: 1
++
++  nxp,interface:
++    $ref: /schemas/types.yaml#/definitions/string
++    enum: [ primary, secondary ]
++    description: |
++      Identifies this host's logical role in a multi-host topology for the
++      PCF85053 RTC. The device exposes a "TWO" ownership bit in the CTRL
++      register that gates which host may write the time registers.
++        - "primary": Designated host that *may* claim write ownership (set
++          CTRL.TWO=1) **if** write-access is explicitly requested.
++        - "secondary": Peer host that writes only when CTRL.TWO=0 (default).
++
++      This property determines the intended role of the host in relation to
++      the write ownership.
++
++      The actual role depends on whether 'nxp,write-access' is also specified.
++      Supported configurations are:
++        1. Primary with 'nxp,write-access' -> primary claims write ownership.
++        2. Primary without 'nxp,write-access' -> secondary owns time-register writes.
++        3. Secondary (must not specify 'nxp,write-access') -> secondary may write
++           the time registers when CTRL.TWO=0.
++
++  nxp,write-access:
++    type: boolean
++    description: |
++      Indicates that write ownership of the PCF85053 RTC should be claimed by setting
++      CTRL.TWO=1. This property is only valid when acting as the primary interface
++      (nxp,interface="primary").
++
++required:
++  - compatible
++  - reg
++  - nxp,interface
++
++unevaluatedProperties: false
++
++allOf:
++  - $ref: rtc.yaml#
++  - if:
++      properties:
++        nxp,interface:
++          const: secondary
++    then:
++      properties:
++        # The secondary interface has read-only access to the control and
++        # status registers, so it cannot service or clear the alarm IRQ and
++        # cannot claim write ownership.
++        interrupts: false
++        nxp,write-access: false
++
++examples:
++  # Single host example.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        #clock-cells = <0>;
++        clock-output-names = "pcf85053-clkout";
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++      };
++    };
++
++  # Dual-host example: one primary that claims writes; one secondary that never claims writes.
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c0 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "primary";
++        nxp,write-access;
++        interrupt-parent = <&gpio2>;
++        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++      };
++    };
++
++    i2c1 {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      rtc@6f {
++        compatible = "nxp,pcf85053";
++        reg = <0x6f>;
++        nxp,interface = "secondary";
++      };
++    };
+-- 
+2.25.1
 
