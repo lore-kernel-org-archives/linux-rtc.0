@@ -1,57 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=13.77.154.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793012986;
-	b=ne0ComB6nMeIxxcRAczM9EG5AUoM/LugS5Di8fBRH3S3VVb3HnjHIIBbMTUCbYaqkuNj
-	 1bmLlRsbb6e+BxkcYoZIhQpKjB1I8wx8IxprGj5EvG8C2KMEPR3Xn4PHCTFR4AskRY8Wm
-	 Cd0s74IJFX3K1ge46ogmUpvLN8sFvFKILCsLCD0U8Epd/laSOIJuWpgshv7iCHAMEmKUw
-	 HTkzA8v57Zp6eTHelAOL1fJLu8D+edFqB0NtdMe7Sxke+XzdQ9kNS7KUJ7r0ARVWB9oSs
-	 tfUOv6OuHyBC0K2/KbQTf5M8FIuOaM87Vl3EuyPbkiTPY9jUVU1+4i915i4NglIjIcA==
+	t=1793025296;
+	b=2wWun32pmcnWhko3Rddk/1mFCxICGm+xsomCnZJ1Kl4mHg5STUkxtBKRhzhzCWofp0Tu
+	 GLFFH7+2tZ/PG4eBLyXf4Fu+r5JUQu81iYcp0xtiDJLAKbi7mJOvjahvG00d5+P682m/o
+	 Euk4dGSGmj0DOKCWkaCsQBnaHKKGd3nQah7khfw9lpIGK7TgzxfvmooRE6Wl6Mt46zz+s
+	 ORqKR3xzVak0nWZp7GoZowpM+nuAPb+3fJ7uYtMTEEXU2KfGemduF7rfvDehkhsERBuo3
+	 fal985mTUE+5H9fy96/sdtOMG2xXkfslVQOEkUNre3opRwQgHOiJkTMFuHaFeCyjyPg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793012986;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=g1aM7wiYf05GeMmErOn9gJUgMdfYPRR7Pr6pPLWq3hc=;
-	b=z2d90w/h8KKYy8m9uGsPJt2HgM3BzX3GqSc/o841pbjTY+qfOjneaU1z5X3PGdYkDVh6
-	 2BW9nwQlx/rQxRQUJZZlCctunMSsQ0iXnf6E/sXYgJMwnfr3ognCbhj1hKusEeuP0kpS3
-	 x6O2Uq4xjeM704SapdepiJOtPhQ1q0LxC1c4bTggpx6mPI8ABnnhkzhBpNYvtHYOW5d87
-	 bY3df25Hy/hqan3JB+f1ifhcA7RFkqukzzFp9xf9oIHZWEau4hep+Btg0KT8KpdstcU3z
-	 U2CEoJ7r6Bt1giWKlEcCb92HW6P8hYHf4oLfbX2zpvDyKPcP0JcBkR5X65a1i2D1Bfw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793025296;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
+	bh=Z3enWDQudpSNbKvA16GqEe3rRa33DMzA4M8NFFeCVw8=;
+	b=lgLsQmaanJHMHYcRh6cUuC1dtU9Nkv9GDn29Wpul3lrM9wVH3Q7M7J4Kbq+lPjTtWsJD
+	 p43p5G7hEMmZiD9YBC01HYPVkkLr277vd8gEjXhmEzNARO9opp/nAC4N1vDK2Kq7Kvm90
+	 X24UewZ3zS1lNstavAaAvmrWlohd8Pi7dyefd4ASayls0kdc3dfuaTfvl/FCyhntSIjBa
+	 sf0w+frvLV13RB4Yrec5Y9yiX2yuhGaN04lHTc3WYr229AS1v6S1N6MEbu9Z4bmL8K/5E
+	 Za1DfK0I2H05V02oUI00fHBl/1nB5QCg87+dAEo7NO67Zk8Lpel9JLAuBFOrsuMjcBg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b501FKTf;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C3E0606A31A;
-	Mon, 26 Oct 2026 11:09:46 +0000 (UTC)
+	dmarc=pass header.from=linux.microsoft.com;
+	spf=pass smtp.mailfrom=linux.microsoft.com;
+	dkim=pass header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=OeLsKJR0;
+	arc=none smtp.remote-ip=13.77.154.182
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C2DD0606A31A
+	for <linux-rtc@vger.kernel.org>; Mon, 26 Oct 2026 14:34:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C2DD0606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b501FKTf
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A351F031E0;
-	Mon, 26 Oct 2026 11:09:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793012986;
-	bh=g1aM7wiYf05GeMmErOn9gJUgMdfYPRR7Pr6pPLWq3hc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b501FKTfHEoV7pO5pAg7zuCzuUtwq9zzFHgN51YK6e4ahHcDTJHZWBuj953yhfJut
-	 oJyG8Smg0oNL9biF1VF91sJXxiWmCHFHUqqCrGk4F+0Bmg44Lw5uHidT84v3plm+FP
-	 5ejko4yprdYWn6lovNsefUglV3Rbu2wlxdf085ZuDbJfAjsTeajQX1TxViJjAZ4KnI
-	 uJJyx7rYYJMIcQpUploWRTwIeVPI3RpXPy7oZHCMcYoKMKiiSfOH9aqNCgnfki/1my
-	 0cBZZINuZ3U2I5/7MTYISO+V+rbiy9HStAIdeYPlFK3xd5pIOVNGdh2tWEVJzLA7sb
-	 1L4BeZr1NNd8A==
-Message-ID: <sashiko-outbox-185064@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 5/5] rtc: pcf85363: add watchdog support with
- configurable step size
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>, linux-rtc@vger.kernel.org, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org
-Cc: robh@kernel.org, conor+dt@kernel.org, "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261026094712.205214-5-lakshay.piplani@nxp.com>
-References: <20261026094712.205214-1-lakshay.piplani@nxp.com>
- <20261026094712.205214-5-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 11:09:45 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=OeLsKJR0
+Received: by linux.microsoft.com (Postfix, from userid 1216)
+	id 4A3B920B7166; Mon, 26 Oct 2026 07:34:45 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4A3B920B7166
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1793025285;
+	bh=Z3enWDQudpSNbKvA16GqEe3rRa33DMzA4M8NFFeCVw8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OeLsKJR08xUqkZJOlGTgmbCQd5bJE3TWpl5r6iYJsqIMN3IM5unwEJsseRnA1UDA0
+	 C7++WQ6geo46BPU2pkbogRW949JMaotxck/zFHRlVwvAJ1c9btD6D4Gk7TS5RZ3n07
+	 +usalLKIma65dM4pW33tI7KNFp7XAXfADegKRNbY=
+Date: Mon, 26 Oct 2026 10:34:45 -0400
+From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-rtc@vger.kernel.org,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH v2 2/2] rtc: efi: defer to the ACPI TAD if it can drive
+ the RTC
+Message-ID: <at9lBfs9Ll0jImUP@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20261023212218.2568858-1-hamzamahfooz@linux.microsoft.com>
+ <20261023212218.2568858-2-hamzamahfooz@linux.microsoft.com>
+ <sashiko-outbox-183260@kernel.org>
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -60,95 +59,72 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <sashiko-outbox-183260@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] rtc: pcf85363: spurious WDF handling in pcf85363_rtc_handle_irq()
---
+On Fri, Oct 23, 2026 at 09:30:11PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] rtc: efi: ACPI_TAD dependency disables RTC_DRV_EFI in arm64 defconfig
+> --
+> 
+> commit 43949693bace16600c49e8c7dd525850e1286516
+> Author: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+> 
+> rtc: efi: defer to the ACPI TAD if it can drive the RTC
+> 
+> This commit updates efi_rtc_probe() in drivers/rtc/rtc-efi.c to return
+> -ENODEV when acpi_has_rtc() is true, and makes RTC_DRV_EFI depend on
+> !ACPI || ACPI_TAD.
+> 
+> > diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> > index 1e863f1d36fd5..26f057f52ce59 100644
+> > --- a/drivers/rtc/Kconfig
+> > +++ b/drivers/rtc/Kconfig
+> > @@ -1262,10 +1262,14 @@ config RTC_DRV_DA9063
+> >  config RTC_DRV_EFI
+> >  	tristate "EFI RTC"
+> >  	depends on EFI && !X86
+> > +	depends on !ACPI || ACPI_TAD
+> 
+> [Severity: High]
+> Does adding "depends on !ACPI || ACPI_TAD" here cause CONFIG_RTC_DRV_EFI=y
+> to be silently dropped in arch/arm64/configs/defconfig (and existing
+> configurations with CONFIG_ACPI=y and CONFIG_ACPI_TAD=n)?
+> 
+> In drivers/acpi/Kconfig, ACPI_TAD has no default and depends on SYSFS and
+> PM_SLEEP:
+> 
+> config ACPI_TAD
+> 	tristate "ACPI Time and Alarm (TAD) Device Support"
+> 	depends on SYSFS && PM_SLEEP
+> 
+> In arch/arm64/configs/defconfig, CONFIG_ACPI=y and CONFIG_RTC_DRV_EFI=y are
+> enabled without setting CONFIG_ACPI_TAD, so this dependency causes Kconfig
+> to drop CONFIG_RTC_DRV_EFI while leaving CONFIG_ACPI_TAD disabled,
+> resulting in neither rtc-efi nor acpi-tad being built. It also prevents
+> enabling CONFIG_RTC_DRV_EFI when CONFIG_ACPI=y and CONFIG_PM_SLEEP=n (or
+> CONFIG_SYSFS=n).
+> 
+> Since include/linux/acpi.h already provides an inline stub for
+> acpi_has_rtc() when !IS_REACHABLE(CONFIG_ACPI_TAD):
+> 
+> #if IS_REACHABLE(CONFIG_ACPI_TAD)
+> bool acpi_has_rtc(void);
+> #else
+> static inline bool acpi_has_rtc(void) { return false; }
+> #endif
+> 
+> should this use "depends on ACPI_TAD || !ACPI_TAD" instead to avoid the
 
-commit 16cc51c19e1316f4895386e586c6d2ab87d77232
-Author: Lakshay Piplani <lakshay.piplani@nxp.com>
+Ya this seems like a better fit since it deals with the reachablity issue
+while not making acpi-tad a hard requirement for rtc-efi.
 
-rtc: pcf85363: add watchdog support with configurable step size
-
-This commit adds alarm-only watchdog support to the PCF85263/PCF85363 RTC
-driver using the watchdog subsystem, with dynamic 1 Hz and 0.25 Hz step
-selection, interrupt handling via INTA, and suspend/resume support.
-
-> diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-> index 71b82f92a0031..e5ebfad1a2cea 100644
-> --- a/drivers/rtc/rtc-pcf85363.c
-> +++ b/drivers/rtc/rtc-pcf85363.c
-
-[ ... ]
-
-> @@ -540,6 +572,21 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, =
-void *dev_id)
->  		}
->  	}
-> =20
-> +	if (flags & FLAGS_WDF) {
-> +		dev_warn_ratelimited(&pcf85363->rtc->dev,
-> +				     "watchdog timer expired\n");
-> +
-> +		err =3D pcf85363_clear_flags(pcf85363, FLAGS_WDF);
-> +		if (err) {
-> +			dev_err_ratelimited(&pcf85363->rtc->dev,
-> +					    "failed to clear watchdog flag: %d\n",
-> +					    err);
-> +			ack_failed =3D true;
-> +		} else {
-> +			handled =3D true;
-> +		}
-> +	}
-
-[Severity: Medium]
-Can pcf85363_rtc_handle_irq() in drivers/rtc/rtc-pcf85363.c log false
-"watchdog timer expired" warnings and return spurious IRQ_HANDLED on a
-shared interrupt line when FLAGS_WDF is latched in CTRL_FLAGS while
-INT_WDIE is masked in CTRL_INTA_EN?
-
-On PCF85263/PCF85363, CTRL_FLAGS latches FLAGS_WDF whenever the CTRL_WDOG
-counter reaches 0, regardless of whether INT_WDIE is set in CTRL_INTA_EN
-(which only controls routing of WDF to the INTA pin).
-
-In pcf85363_suspend(), INT_WDIE is masked while the CTRL_WDOG counter is
-left running in repeat mode:
-
-	/* Disconnect WDF from the wakeup-capable INTA line; keep counting. */
-	ret =3D regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN, INT_WDIE, 0);
-	if (ret)
-		return ret;
-
-	wd->suspended =3D true;
-
-During any system sleep longer than the watchdog timeout, the counter
-expires and latches FLAGS_WDF. On wakeup, resume_device_irqs() in
-dpm_resume_noirq() re-enables device interrupts before dpm_resume() runs
-pcf85363_resume(). If an RTC alarm (FLAGS_A1F), timestamp (FLAGS_TSR1F,
-FLAGS_TSR2F, FLAGS_TSR3F), battery switch-over (FLAGS_BSF), or another
-device on a shared IRQ line fires before pcf85363_resume() runs,
-pcf85363_rtc_handle_irq() executes while wd->suspended is still true and
-INT_WDIE is still masked, reporting a false watchdog expiry and setting
-handled =3D true.
-
-A similar state can also occur in two other paths:
-
-1. In pcf85363_probe(), INT_WDIE is masked and only FLAGS_A2F | FLAGS_PIF
-are cleared before devm_request_threaded_irq() is called. When
-CONFIG_WATCHDOG=3Dn, pcf85363_watchdog_init() returns early without clearing
-a stale FLAGS_WDF or halting a bootloader- or battery-backed CTRL_WDOG
-counter.
-
-2. In pcf85363_wdt_stop(), CTRL_WDOG is halted and INT_WDIE is masked
-without clearing any FLAGS_WDF that latched concurrently (or that latches
-later if writing CTRL_WDOG fails while masking INT_WDIE succeeds).
-
-Should pcf85363_rtc_handle_irq() ignore (or silently clear without setting
-handled =3D true or logging a warning) FLAGS_WDF when the watchdog interrupt
-is not armed, and should pcf85363_probe() and pcf85363_wdt_stop() also
-ensure FLAGS_WDF is cleared when masking INT_WDIE?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261026094712.2052=
-14-1-lakshay.piplani@nxp.com?part=3D5
+> CONFIG_RTC_DRV_EFI=y and CONFIG_ACPI_TAD=m reachability mismatch, or if
+> ACPI_TAD is meant to be required whenever ACPI is enabled, should ACPI_TAD
+> and defconfig be updated accordingly?
+> 
+> -- 
+> Sashiko AI review · https://sashiko.dev/#/patchset/20261023212218.2568858-1-hamzamahfooz@linux.microsoft.com?part=2
