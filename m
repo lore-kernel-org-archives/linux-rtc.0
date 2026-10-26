@@ -1,56 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.13
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792840560;
-	b=xAipjK4vWoq1n7QqK1W7FK93tjXVP5uMW4FzF3I5SwpBMsCjs47kZtzvthnO75/OCug+
-	 XUF0wqlVWz1YNlIkdFzH2qK0ySvC4NzEBrgnsg17Zii2hLM6UQDetH+xUk2ZY6bbJvZrd
-	 pixS93X2I8O+EzqACyk1DIiBH4peUwnJc8lUgmZtE7oZGc49/5IeI7R+uklNPLPXCK91y
-	 SFhRKrT75puuHtNYuNjbE/TrP135bpFRMfwhPZytmzZyZJe64g5kE0UuaDI6jhu0aAS2n
-	 eFc5HMMZj+ePXiiZUMTZjfplicZFUVNU63wCsr3rKSkUixourvmtrx5JZk20TeX7YTw==
+	t=1793008049;
+	b=jOfvSa9Wlf4ErQHe+DznPgci/4kntEUD5FnN0mYNVNt/qDNzvSCQs4QMFR7bgjhfmjhR
+	 KeYZ+RVcqDzL84Qtfi8Reiw7Ta8uiuNDrnXPIR9evZ+NSruJZqyjC8C8a3zEMzLZqMIDg
+	 oZsDT4fgSQY8FK6E+Z+OVqj5bT6qhDt1srC01YiBZ9Dk+kn75txYlbyXJoZLhGMY2C2kE
+	 ayxKh/QbhOshI4juwvI2K362RtkSfLy2UL6ioF2VtgNOzKquzG1MNMqQUJfCduVPMoGWT
+	 EHSKcjb0+tHPFNAOUocQxMjD9I7a7Exs/eNmqjcGFOF4deR+V7WkbAYERxG2l9j90yA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792840560;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Uv9OuFZcoijfSi6ItFy3FKY8YbjFJsKZty0nZOHkh10=;
-	b=t+DFLCwqug97QOAdcMQX5cG8kynnL/7cghWmj86tgDh9seSY/rIfww1odSVfz6ogpAXc
-	 5Bd9sarhpv9f442FId22JsVsdKtw1lC6WJh1kB6E1O09Oo1Mnk8cAVfcDX2WZSAgcaRYp
-	 aF70dAnYz6NlXnbH+/XH+LncdgLLta8guKZYpFnVy75mBYAoW2mOW8ZHUuBCE4rS7V0AV
-	 P/aa5KQGPfwCl58f4A0rsIgqHw6uUqM5B5AdfdWavq1yapBmurv+FNxvUsrogHEybjvCs
-	 t01TW/CCMyJYc8u1IIxkSfNtsE8OmRAYKr7QCpPtyP6M6MteC9CorIsN2ubQLEiNCiA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793008049;
+	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-Virus-Scanned;
+	bh=noJMziJjnsO4goZkWtPhdnAaZOZV5rE6hJVNsup0CJ8=;
+	b=VQvlWnsGbzYs8xr2Xau70ocDThAr6CzGPi8JO8iTBkjpoOindpDNq+srKJNRDKprsSvV
+	 sF6whAIzFXorRpRgSz9jGsbS6FpX4hXTOCmqqzSGYsDCNSdg++71vlcOBwFNEwXyRniZr
+	 cF4zZIX25VG4AxeMpXgvhZL6/1KG4euQqgZk0EtoQSXRuQxutlbZTPATllzTAWfxNHQU6
+	 HKfy06OQZzoMFwlyPW3mvjiYx8dWuHFlb46AycMD2E81guqNlL2p0XK9O/rziOpyFA9VZ
+	 vxxyEbc9ndopSxf82s9ZphEdE2EPg5l4lPyIW7ZV+c8zM5sk0X86o+puzTmZrxeqh2g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LN8yS375;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=nxp.com;
+	spf=pass smtp.mailfrom=nxp.com;
+	arc=none smtp.remote-ip=92.121.34.13
+Received: from inva020.nxp.com (inva020.nxp.com [92.121.34.13])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79908606A31A
-	for <linux-rtc@vger.kernel.org>; Sat, 24 Oct 2026 11:16:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LN8yS375
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51051F01825;
-	Sat, 24 Oct 2026 11:15:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792840560;
-	bh=Uv9OuFZcoijfSi6ItFy3FKY8YbjFJsKZty0nZOHkh10=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LN8yS375KC3v28Sy7yOkIRZGNC+qB+2fYoQZHGBWVtfCj91K5Xlmyvi7qvGWDCr6t
-	 VF28lNeX54BUNPC/XNy4qqH4bxjwz9DVDxYcIiuCM45kkptR764jDgEUKJ+NfwAzUE
-	 mW2xfT9qhgMqot1IGJ6kuemZ/j8SdQQ8YiZ8FJNCqr4WJq9FFKyEuuR3ZaEVvSmtBb
-	 QGP6W2Klmh71QgJ9KI1zoqosZYDVh5B9kG+LnO/EwoDbc1QyDP0hdWiPzkb8/PCpyv
-	 nHf9zLaBtQBh+TVKd8Zw9yUbXIklZl0Ml9OzOH9CBIKl2MTLDRUGOe54qIorXEDVjR
-	 fxBUkUhmBAV7A==
-Message-ID: <sashiko-outbox-183676@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 2/2] rtc: Add NXP PCF85053 driver support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lakshay Piplani" <lakshay.piplani@nxp.com>, linux-rtc@vger.kernel.org
-Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261024110437.2851275-2-lakshay.piplani@nxp.com>
-References: <20261024110437.2851275-1-lakshay.piplani@nxp.com>
- <20261024110437.2851275-2-lakshay.piplani@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 24 Oct 2026 11:15:59 +0000
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649F9606A32C;
+	Mon, 26 Oct 2026 09:47:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 649F9606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 72C051A0057;
+	Mon, 26 Oct 2026 10:47:21 +0100 (CET)
+Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
+	by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 3B5681A0059;
+	Mon, 26 Oct 2026 10:47:21 +0100 (CET)
+Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 2CFB4180006C;
+	Mon, 26 Oct 2026 17:47:18 +0800 (+08)
+From: Lakshay Piplani <lakshay.piplani@nxp.com>
+To: alexandre.belloni@bootlin.com,
+	linux-rtc@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	devicetree@vger.kernel.org,
+	wim@linux-watchdog.org,
+	linux-watchdog@vger.kernel.org,
+	linux@roeck-us.net
+Cc: vikash.bansal@nxp.com,
+	priyanka.jain@nxp.com,
+	Lakshay Piplani <lakshay.piplani@nxp.com>
+Subject: [PATCH v8 1/5] dt-bindings: rtc: nxp,pcf85363: add timestamp mode config
+Date: Mon, 26 Oct 2026 15:17:08 +0530
+Message-Id: <20261026094712.205214-1-lakshay.piplani@nxp.com>
+X-Mailer: git-send-email 2.25.1
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -59,24 +64,143 @@ List-Subscribe: <mailto:linux-rtc+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
-> PCF85053 is i2c based RTC which supports timer and calendar
-> functionality.
->=20
-> Features supported:
-> 1. Read/Write time
-> 2. Get/Set Alarm
-> 3. Wakeup Source
-> 4. Generate up to 32768Hz clock output
-> 5. Primary/Secondary i2c bus
->=20
-> Signed-off-by: Daniel Aguirre <daniel.aguirre@nxp.com>
-> Signed-off-by: Pankit Garg <pankit.garg@nxp.com>
-> Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+NXP PCF85263/PCF85363 provides three timestamp registers (TSR1-TSR3)
+which latch the current time when a selected event occurs. Add a
+vendor specific property, nxp,timestamp-mode, to select the event
+source for each register.
 
-Sashiko has reviewed this patch and found no issues.
+Also introduce a new header 'pcf85363-tsr.h' to expose
+macros for timestamp mode fields, improving readability
+of device tree file.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261024110437.2851=
-275-1-lakshay.piplani@nxp.com?part=3D2
+Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+
+V7 -> V8:
+- No change.
+
+V6 -> V7:
+- No change.
+
+V5 -> V6:
+- No change
+
+V4 -> V5:
+- No change
+
+V3 -> V4:
+- Added Reviewed-by tag in commit message (previously only in changelog) 
+
+V2 -> V3:
+- No changes in v3
+- Added Reviewed-by: Rob Herring <robh@kernel.org>
+
+V1 -> V2:
+- Addressed review comments from Rob Herring:
+  * use $ref: /schemas/types.yaml#/definitions/uint32-array
+  * tuple form with exactly 3 items (TSR1/TSR2/TSR3), per items decimal enums
+  * define 'nxp,timestamp-mode' clearly
+  * drop watchdog related vendor properties
+  * remove watchdog related vendor properties from i2c example
+
+ .../devicetree/bindings/rtc/nxp,pcf85363.yaml | 23 ++++++++++++++-
+ include/dt-bindings/rtc/pcf85363-tsr.h        | 28 +++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 include/dt-bindings/rtc/pcf85363-tsr.h
+
+diff --git a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+index 52aa3e2091e9..cf9c155162d6 100644
+--- a/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
++++ b/Documentation/devicetree/bindings/rtc/nxp,pcf85363.yaml
+@@ -4,7 +4,7 @@
+ $id: http://devicetree.org/schemas/rtc/nxp,pcf85363.yaml#
+ $schema: http://devicetree.org/meta-schemas/core.yaml#
+ 
+-title: Philips PCF85263/PCF85363 Real Time Clock
++title: NXP PCF85263/PCF85363 Real Time Clock
+ 
+ maintainers:
+   - Alexandre Belloni <alexandre.belloni@bootlin.com>
+@@ -39,6 +39,24 @@ properties:
+   start-year: true
+   wakeup-source: true
+ 
++  nxp,timestamp-mode:
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    items:
++      - enum: [0, 1, 2] # TSR1: NONE, FE, LE
++        description: TSR1 mode
++      - enum: [0, 1, 2, 3, 4, 5] # TSR2: NONE, FB, LB, LV, FE, LE
++        description: TSR2 mode
++      - enum: [0, 1, 2, 3] # TSR3: NONE, FB, LB, LV
++        description: TSR3 mode
++    description: |
++      Defines timestamp modes for TSR1, TSR2, and TSR3.
++      Use macros from <dt-bindings/rtc/pcf85363-tsr.h>.
++
++      Each value corresponds to a mode constant:
++        - TSR1: NONE, FE, LE
++        - TSR2: NONE, FB, LB, LV, FE, LE
++        - TSR3: NONE, FB, LB, LV
++
+ required:
+   - compatible
+   - reg
+@@ -47,6 +65,7 @@ additionalProperties: false
+ 
+ examples:
+   - |
++    #include <dt-bindings/rtc/pcf85363-tsr.h>
+     i2c {
+         #address-cells = <1>;
+         #size-cells = <0>;
+@@ -56,5 +75,7 @@ examples:
+             reg = <0x51>;
+             #clock-cells = <0>;
+             quartz-load-femtofarads = <12500>;
++            wakeup-source;
++            nxp,timestamp-mode = <PCF85363_TSR1_FE PCF85363_TSR2_LB PCF85363_TSR3_LV>;
+         };
+     };
+diff --git a/include/dt-bindings/rtc/pcf85363-tsr.h b/include/dt-bindings/rtc/pcf85363-tsr.h
+new file mode 100644
+index 000000000000..1fb5b9b3601e
+--- /dev/null
++++ b/include/dt-bindings/rtc/pcf85363-tsr.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause */
++/*
++ * Copyright 2025 NXP
++ */
++
++#ifndef _DT_BINDINGS_RTC_PCF85363_TSR_H
++#define _DT_BINDINGS_RTC_PCF85363_TSR_H
++
++/* TSR1 modes */
++#define PCF85363_TSR1_NONE 0x00
++#define PCF85363_TSR1_FE 0x01
++#define PCF85363_TSR1_LE 0x02
++
++/* TSR2 modes */
++#define PCF85363_TSR2_NONE 0x00
++#define PCF85363_TSR2_FB 0x01
++#define PCF85363_TSR2_LB 0x02
++#define PCF85363_TSR2_LV 0x03
++#define PCF85363_TSR2_FE 0x04
++#define PCF85363_TSR2_LE 0x05
++
++/* TSR3 modes */
++#define PCF85363_TSR3_NONE 0x00
++#define PCF85363_TSR3_FB 0x01
++#define PCF85363_TSR3_LB 0x02
++#define PCF85363_TSR3_LV 0x03
++
++#endif /* _DT_BINDINGS_RTC_PCF85363_TSR_H */
+-- 
+2.25.1
 
