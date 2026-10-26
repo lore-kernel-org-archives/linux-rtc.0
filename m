@@ -1,22 +1,22 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=92.121.34.21
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793008052;
-	b=G9WSQ8j1fpd3FJOPDj0NkfHR14IVQ0FzI9leAIf7O1W3T41gT5sSHb1Hsb7FfNJ/wOcp
-	 KyTu/z2AQecDY65aLqgyEl1xEC1iuaUeIFQRJUabeQ49q4tcjW4neno8JIaiaEQt+nP8w
-	 qOXwucqTZWWLqnS98mXcpaf2oRqChvIZWBcofmZasIG8iHxcCFx/hprZpMf4nFmJ8AAvm
-	 e8AZ1EYOy6bsp0VdERhYjW+0JD0dRRIAfwBR4P/pyOd3FTdGMZBVP1mK5MVKQBGvzYefH
-	 +qtRVP/hiwrZRQEA5fWdXz0xWHfcB2uYI2+zEBL3otqDeNkym/lY60Hg+REkxLen8VA==
+	t=1793008057;
+	b=RAZysjp8ouOTG/z8sXYCqZuFYw4LhoVrDKwIGWZ5ywn5t/x26gPeZWh6kvma/92w3OSA
+	 f+OO1N+HvWi8ty1fHdTZfyp7n/GFYkHidV3/bd0QVzKn7Fwp0t3omj6EBGiZ3XsBcDk87
+	 ZMqjXVN2E1iZpf84cN5w+7GTi3bKmmM4qy3hAYnyc7zlK/9aJKO9HhU+KkoGYytpktX1u
+	 vIo9quBikBjlduFKmwudCzplVzqm9IiNnROpc/UHMchTdOgI+D5nBlQA1CCEGgN6MlJTV
+	 79JsYyWvuC4sJUuKBVFytmNQZahhwnkQOWc/3S8zgHJOV8FDmGuavExTKjyoFaVksEg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793008052;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793008057;
 	h=DMARC-Filter:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-Virus-Scanned;
-	bh=FwZcDRqY3Jap7dLMReoLtXkcEqUnbrA7ktdDihwA5iE=;
-	b=QVRR1p67TUeHkdkRLYPNgo3/0UmpCdT401aeBhtyu6umQJ7kb2yaaAxhoU/16HpM+btN
-	 ZoiU1FeDJvDKwO+AaT4wBy8bioMQqWJU5/oF5iUY2qwtpLMzLiFiETgTixCHMT7yPtDqE
-	 rglMBkN6fec6sAzuo4Wdpr07+MDVvbUmQfdkgaQ1rsp9ub3rz/zrOuSjM8KjttZeoOOd2
-	 FzZr8ZYPSemL5AlJSgzxTXfMWGMBdji72UdnGqzVNhsOeeLJ0aL3n2cGUuGphUbb/KdeR
-	 vb5BNiURL7xCoYZndfbtIwK7nr7OEXG1vxnGfdAJsnc8Wya3OAfrMT6L3oLNymz05Iw==
+	bh=/4OyWBSiuO45BkDbOuk4pFfmA1dcpqgf6P8uiTQvkN4=;
+	b=rpts+sSHovgLJ5YAO+fCMsvbGkvkhNrDb/+jTOR2aRHwJRTKU7Nq6MLG8r1hPv/OjA8I
+	 pyhZMk7Z7EXb4TjzjgTgojmWoAWL+R8cpudGgeL0gNFUOcormerE/j109iCWOiopb1bde
+	 1hkMYcndnopY1vD+sEAX7KDypf+hekPKJzyB10xOY8GecV5s+7CY6nINS8d0c1YLYppkD
+	 tzFn99I/9ncvK3aaN6V+AZkTzW4zoWojlBPy/rVPiUpdcsbppw7H4nrN4SFhIeq3ajg2c
+	 Rx+xzd4HXjJQAHrCxjuiTCd51eGnCBHsHMAdgpkZNCeRVDQvvTP8oW7kjAUuZcn/9JQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nxp.com;
 	spf=pass smtp.mailfrom=nxp.com;
@@ -24,20 +24,20 @@ ARC-Authentication-Results: i=1; smtp.subspace.kernel.org;
 Received: from inva021.nxp.com (inva021.nxp.com [92.121.34.21])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15A27606A326;
-	Mon, 26 Oct 2026 09:47:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 15A27606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20E4160A2622;
+	Mon, 26 Oct 2026 09:47:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 20E4160A2622
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Received: from inva021.nxp.com (localhost [127.0.0.1])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id E76EB200037;
-	Mon, 26 Oct 2026 10:47:24 +0100 (CET)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 52628200051;
+	Mon, 26 Oct 2026 10:47:29 +0100 (CET)
 Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id B252320004C;
-	Mon, 26 Oct 2026 10:47:24 +0100 (CET)
+	by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id EA12220004C;
+	Mon, 26 Oct 2026 10:47:28 +0100 (CET)
 Received: from lsv03900.swis.in-blr01.nxp.com (lsv03900.swis.in-blr01.nxp.com [10.12.177.15])
-	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id B15DC180006C;
-	Mon, 26 Oct 2026 17:47:21 +0800 (+08)
+	by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id E150A180006C;
+	Mon, 26 Oct 2026 17:47:25 +0800 (+08)
 From: Lakshay Piplani <lakshay.piplani@nxp.com>
 To: alexandre.belloni@bootlin.com,
 	linux-rtc@vger.kernel.org,
@@ -52,9 +52,9 @@ To: alexandre.belloni@bootlin.com,
 Cc: vikash.bansal@nxp.com,
 	priyanka.jain@nxp.com,
 	Lakshay Piplani <lakshay.piplani@nxp.com>
-Subject: [PATCH v8 2/5] rtc: pcf85363: support reporting battery switch-over via RTC_VL
-Date: Mon, 26 Oct 2026 15:17:09 +0530
-Message-Id: <20261026094712.205214-2-lakshay.piplani@nxp.com>
+Subject: [PATCH v8 3/5] rtc: pcf85363: add timestamp support with configurable timestamp mode
+Date: Mon, 26 Oct 2026 15:17:10 +0530
+Message-Id: <20261026094712.205214-3-lakshay.piplani@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20261026094712.205214-1-lakshay.piplani@nxp.com>
 References: <20261026094712.205214-1-lakshay.piplani@nxp.com>
@@ -70,55 +70,60 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: ClamAV using ClamSMTP
 
-Report battery switch-over on PCF85263/PCF85363 through the standard
-RTC_VL_* ioctls: RTC_VL_READ exposes the BSF flag and RTC_VL_CLR clears
-it. The flag is cached before it is cleared so it survives re-arming, and
-it is collected from both the IRQ handler and RTC_VL_READ so poll-only
-setups still see it.
+Add support for the timestamp capture registers on PCF85263/PCF85363,
+which latch the time on selected events (TS pin or battery switch-over).
+The capture source is selected via the nxp,timestamp-mode device tree
+property and latched values are exported through read-only sysfs
+attributes, refreshed on read so poll-only boards still latch events.
 
-CTRL_FLAGS is write-0-to-clear, so a read-modify-write can drop an
-unrelated flag. Add pcf85363_clear_flags(), which writes the complement
-of the mask to clear only the requested bits.
+The two capture families need different handling: first-event modes hold
+the value until the flag is cleared, so it is cached before clearing;
+last-event modes overwrite on every event, so the flag is cleared first
+and the block re-read until two reads agree.
 
-Probe no longer blanket-clears CTRL_FLAGS, so pre-existing events are
-preserved. As the battery-backed registers can hold stale flags across a
-power cycle and storm the level-triggered INTA line, probe masks off only
-the interrupt sources and Alarm2 enables this driver never services and
-clears their flags, and the IRQ handler clears any unserviced A2F/PIF
-flags.
+While at it, register the attributes with rtc_add_group(), preserve
+CTRL_INTA_EN with regmap_update_bits() instead of overwriting it, only
+clear RTC_FEATURE_ALARM when no interrupt is available, and make the
+nvmem_config array probe-local since it is patched per-device.
 
 Signed-off-by: Lakshay Piplani <lakshay.piplani@nxp.com>
 ---
 
 V7 -> V8:
-- No change.
+- Classify the timestamp capture modes from the value read back from
+  TSR_mode instead of from the device tree property, so a last-event
+  mode left configured by firmware still gets the torn-read handling
+  and the timestamp interrupt when "nxp,timestamp-mode" is absent.
 
 V6 -> V7:
-- Track IRQ acknowledgement failures in the threaded handler and return
-  IRQ_NONE when an asserted source cannot be serviced or cleared, so the
-  genirq spurious-interrupt detector can shut down a permanently stuck
-  INTA line instead of looping forever. Apply the policy consistently to
-  the A1F, battery-switch and unserviced A2F/PIF paths, and only mark the
-  interrupt handled when a source was actually cleared.
-- Use dev_err_ratelimited() on the flag-clear failure paths so an I/O
-  error on the level-triggered line cannot flood the log.
+- Separate data errors from acknowledgement failures in the shared
+  IRQ policy from patch 2: a last-event flag clear is the
+  acknowledgement, so the source is marked handled once the clear
+  succeeds and a later read failure is logged and skipped instead of
+  reported as an ack failure.
+- Leave a first-event flag asserted on a read failure so a later IRQ
+  or sysfs read can retry instead of dropping the event.
 
 V5 -> V6:
-- Mask INT_WDIE alongside the other unused INTA sources at probe so a
-  battery-backed watchdog-enable left by the bootloader cannot storm the
-  level-triggered INTA line before watchdog support is added later in
-  the series
+- Return -EPROBE_DEFER from probe when the IRQ request is deferred
+  instead of silently disabling alarms; on any other failure warn and
+  keep RTC timekeeping alive with interrupt-driven alarms disabled
+- Configure the INTA pin and keep RTC_FEATURE_ALARM for
+  wakeup-source-only boards (INTA routed to a PMIC) so rtcwake still
+  works even without our own IRQ line
 
 V4 -> V5:
-- Add pcf85363_clear_flags() for the write-0-to-clear CTRL_FLAGS register
-  and use it everywhere, so a read-modify-write no longer drops flags.
-- Cache BSF before clearing it and collect it from both the IRQ handler
-  and RTC_VL_READ so poll-only setups still observe it.
-- Latch pending events in probe instead of blanket-clearing CTRL_FLAGS,
-  and mask/clear only the unused INTA sources to avoid an interrupt storm.
-- Propagate register-access errors out of pcf85363_collect_events(); the
-  IRQ handler logs them but still acknowledges the interrupt.
-- Serialise the cached event state with a mutex.
+- Handle first-event (cache before clearing) and last-event (clear, then
+  re-read until stable, -EAGAIN on a torn read) capture modes separately,
+  and propagate register-access errors, surfaced on the sysfs read path.
+- Refresh the cache on sysfs read so poll-only boards still latch events.
+- Treat a failed DT_TS_MODE write as fatal, and drive the TS pin only for
+  the TS-pin modes: set TSPM and leave TSIM at its reset default.
+- Preserve CTRL_INTA_EN via regmap_update_bits(); enable INT_TSRIE only
+  when a timestamp mode is configured, and check the INTA writes.
+- Clear RTC_FEATURE_ALARM only when no interrupt is available.
+- Make the nvmem_config array probe-local, mask the reserved seconds bit,
+  and don't hardcode IRQF_TRIGGER_LOW for a firmware-node interrupt.
 
 V3 -> V4:
 - No changes in v4.
@@ -143,285 +148,587 @@ V1 -> V2:
 - Use dev_dbg instead of dev_info for debug related print messages
 - Minor cleanup and comments.
 
- drivers/rtc/rtc-pcf85363.c | 205 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 191 insertions(+), 14 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 425 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 372 insertions(+), 53 deletions(-)
 
 diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index ccc7834e5759..00f37ffcca26 100644
+index 00f37ffcca26..db832cad0b0b 100644
 --- a/drivers/rtc/rtc-pcf85363.c
 +++ b/drivers/rtc/rtc-pcf85363.c
-@@ -14,6 +14,8 @@
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/bcd.h>
-+#include <linux/device.h>
-+#include <linux/mutex.h>
+@@ -5,6 +5,10 @@
+  * Driver for NXP PCF85363 real-time clock.
+  *
+  * Copyright (C) 2017 Eric Nelson
++ *
++ * Copyright 2025-2026 NXP
++ * Added support for timestamps, battery switch-over,
++ * watchdog, offset calibration.
+  */
+ #include <linux/module.h>
+ #include <linux/i2c.h>
+@@ -18,6 +22,9 @@
+ #include <linux/mutex.h>
  #include <linux/of.h>
  #include <linux/regmap.h>
++#include <linux/string.h>
++
++#include <dt-bindings/rtc/pcf85363-tsr.h>
  
-@@ -113,6 +115,9 @@
+ /*
+  * Date/Time registers
+@@ -102,22 +109,54 @@
+ #define PIN_IO_INTA_OUT	2
+ #define PIN_IO_INTA_HIZ	3
+ 
++#define PIN_IO_TSPM     GENMASK(3, 2)
++#define PIN_IO_TSIM     BIT(4)
++
+ #define OSC_CAP_SEL	GENMASK(1, 0)
+ #define OSC_CAP_6000	0x01
+ #define OSC_CAP_12500	0x02
+ 
+ #define STOP_EN_STOP	BIT(0)
+ 
++#define RTCM_BIT        BIT(4)
++
+ #define RESET_CPR	0xa4
+ 
+ #define NVRAM_SIZE	0x40
+ 
++#define TSR1_MASK       0x03
++#define TSR2_MASK       0x07
++#define TSR3_MASK       0x03
++#define TSR1_SHIFT      0
++#define TSR2_SHIFT      2
++#define TSR3_SHIFT      6
++/* All implemented TSR_mode fields; bit 5 is not used by the device. */
++#define TS_MODE_MASK	((TSR1_MASK << TSR1_SHIFT) | \
++			 (TSR2_MASK << TSR2_SHIFT) | \
++			 (TSR3_MASK << TSR3_SHIFT))
++
++#define PCF85363_NUM_TS		3
++/* Bytes latched per timestamp register (sec, min, hour, day, mon, year). */
++#define PCF85363_TS_LEN		6
++/* Bit 7 of the seconds byte is reserved, not time data; mask it off. */
++#define PCF85363_SEC_MASK	0x7F
++#define PCF85363_TS_READ_RETRIES	3
++
++/* Cached timestamp; the flag is cleared once the value is copied here. */
++struct pcf85363_ts {
++	bool valid;
++	u8 regs[PCF85363_TS_LEN];
++};
++
  struct pcf85363 {
  	struct rtc_device	*rtc;
  	struct regmap		*regmap;
-+	/* Serialises access to the cached event state below. */
-+	struct mutex		lock;
-+	bool			bsf;
+ 	/* Serialises access to the cached event state below. */
+ 	struct mutex		lock;
+ 	bool			bsf;
++	struct pcf85363_ts	ts[PCF85363_NUM_TS];
++	/* Per-TSR: true when the register uses a last-event capture mode. */
++	bool			ts_last_event[PCF85363_NUM_TS];
  };
  
  struct pcf85x63_config {
-@@ -120,6 +125,15 @@ struct pcf85x63_config {
- 	unsigned int num_nvram;
- };
- 
-+/*
-+ * CTRL_FLAGS is write-0-to-clear, so write the complement of the mask to
-+ * clear only the requested bits without disturbing the others.
-+ */
-+static int pcf85363_clear_flags(struct pcf85363 *pcf85363, u8 mask)
-+{
-+	return regmap_write(pcf85363->regmap, CTRL_FLAGS, (u8)~mask);
-+}
-+
- static int pcf85363_load_capacitance(struct pcf85363 *pcf85363, struct device_node *node)
- {
- 	u32 load = 7000;
-@@ -253,7 +267,7 @@ static int _pcf85363_rtc_alarm_irq_enable(struct pcf85363 *pcf85363, unsigned
- 		return ret;
- 
- 	/* clear current flags */
--	return regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_A1F, 0);
-+	return pcf85363_clear_flags(pcf85363, FLAGS_A1F);
- }
- 
- static int pcf85363_rtc_alarm_irq_enable(struct device *dev,
-@@ -292,9 +306,41 @@ static int pcf85363_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -306,23 +345,131 @@ static int pcf85363_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  	return _pcf85363_rtc_alarm_irq_enable(pcf85363, alrm->enabled);
  }
  
-+/*
-+ * Latch a pending battery-switch event into the software cache. Runs from
-+ * the IRQ handler and the RTC_VL_READ path, so it is seen with or without
-+ * an interrupt line. BSF is cached before it is cleared so it survives
-+ * re-arming. Caller must hold pcf85363->lock. Returns a negative errno on
-+ * a register-access failure, otherwise the handled flag mask.
-+ */
-+static int pcf85363_collect_events(struct pcf85363 *pcf85363)
-+{
-+	unsigned int flags;
-+	int handled = 0;
-+	int ret;
++static const u8 pcf85363_ts_base[PCF85363_NUM_TS] = {
++	DT_TIMESTAMP1, DT_TIMESTAMP2, DT_TIMESTAMP3,
++};
 +
-+	ret = regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
++static const u8 pcf85363_ts_flag[PCF85363_NUM_TS] = {
++	FLAGS_TSR1F, FLAGS_TSR2F, FLAGS_TSR3F,
++};
++
++/* Mark which TSRs use a last-event mode; those need torn-read handling. */
++static void pcf85363_classify_ts_modes(struct pcf85363 *pcf85363, u8 tsmode)
++{
++	u8 m1 = (tsmode >> TSR1_SHIFT) & TSR1_MASK;
++	u8 m2 = (tsmode >> TSR2_SHIFT) & TSR2_MASK;
++	u8 m3 = (tsmode >> TSR3_SHIFT) & TSR3_MASK;
++
++	pcf85363->ts_last_event[0] = (m1 == PCF85363_TSR1_LE);
++	pcf85363->ts_last_event[1] = (m2 == PCF85363_TSR2_LB ||
++				      m2 == PCF85363_TSR2_LV ||
++				      m2 == PCF85363_TSR2_LE);
++	pcf85363->ts_last_event[2] = (m3 == PCF85363_TSR3_LB ||
++				      m3 == PCF85363_TSR3_LV);
++}
++
++/*
++ * Last-event registers can change under us; re-read the block until two
++ * consecutive reads agree, then publish the stable value. Reject a torn
++ * read with -EAGAIN once the retry budget is exhausted.
++ */
++static int pcf85363_read_ts_stable(struct pcf85363 *pcf85363, int i)
++{
++	u8 prev[PCF85363_TS_LEN], cur[PCF85363_TS_LEN];
++	int retries, ret;
++
++	ret = regmap_bulk_read(pcf85363->regmap, pcf85363_ts_base[i],
++			       prev, PCF85363_TS_LEN);
 +	if (ret)
 +		return ret;
 +
-+	if (flags & FLAGS_BSF) {
-+		pcf85363->bsf = true;
-+
-+		ret = pcf85363_clear_flags(pcf85363, FLAGS_BSF);
++	for (retries = 0; retries < PCF85363_TS_READ_RETRIES; retries++) {
++		ret = regmap_bulk_read(pcf85363->regmap, pcf85363_ts_base[i],
++				       cur, PCF85363_TS_LEN);
 +		if (ret)
 +			return ret;
 +
-+		handled |= FLAGS_BSF;
++		if (!memcmp(prev, cur, PCF85363_TS_LEN)) {
++			memcpy(pcf85363->ts[i].regs, cur, PCF85363_TS_LEN);
++			return 0;
++		}
++
++		memcpy(prev, cur, PCF85363_TS_LEN);
 +	}
 +
-+	return handled;
++	return -EAGAIN;
 +}
 +
- static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ /*
+- * Latch a pending battery-switch event into the software cache. Runs from
+- * the IRQ handler and the RTC_VL_READ path, so it is seen with or without
+- * an interrupt line. BSF is cached before it is cleared so it survives
+- * re-arming. Caller must hold pcf85363->lock. Returns a negative errno on
+- * a register-access failure, otherwise the handled flag mask.
++ * Latch pending events into the cache. First-event modes hold the value
++ * until the flag is cleared, so cache before clearing; last-event modes
++ * overwrite every event, so clear first then read until stable. Runs from
++ * the IRQ and sysfs paths; caller holds the lock. Returns a negative errno
++ * on a register-access failure (including -EAGAIN for a torn last-event
++ * read), otherwise the handled flag mask.
+  */
+ static int pcf85363_collect_events(struct pcf85363 *pcf85363)
  {
- 	struct pcf85363 *pcf85363 = i2c_get_clientdata(dev_id);
-+	bool ack_failed = false;
-+	bool handled = false;
  	unsigned int flags;
- 	int err;
+ 	int handled = 0;
+-	int ret;
++	int i, ret;
  
-@@ -302,16 +348,108 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
- 	if (err)
+ 	ret = regmap_read(pcf85363->regmap, CTRL_FLAGS, &flags);
+ 	if (ret)
+ 		return ret;
+ 
++	for (i = 0; i < PCF85363_NUM_TS; i++) {
++		if (!(flags & pcf85363_ts_flag[i]))
++			continue;
++
++		if (pcf85363->ts_last_event[i]) {
++			/*
++			 * Clearing the flag acknowledges the interrupt, so mark
++			 * the source handled as soon as the clear succeeds. A
++			 * later data-read failure is a data error, not an
++			 * acknowledgment failure: log it and move on to the
++			 * remaining flags instead of returning an error.
++			 */
++			ret = pcf85363_clear_flags(pcf85363,
++						   pcf85363_ts_flag[i]);
++			if (ret)
++				return ret;
++
++			handled |= pcf85363_ts_flag[i];
++
++			ret = pcf85363_read_ts_stable(pcf85363, i);
++			if (ret) {
++				dev_warn_ratelimited(&pcf85363->rtc->dev,
++						     "timestamp %d read failed: %d\n",
++						     i + 1, ret);
++				continue;
++			}
++
++			pcf85363->ts[i].valid = true;
++		} else {
++			/*
++			 * First-event data stays latched while its flag is
++			 * set. Leave the flag asserted on a read failure so a
++			 * later IRQ or sysfs read can retry.
++			 */
++			ret = regmap_bulk_read(pcf85363->regmap,
++					       pcf85363_ts_base[i],
++					       pcf85363->ts[i].regs,
++					       PCF85363_TS_LEN);
++			if (ret)
++				return ret;
++
++			pcf85363->ts[i].valid = true;
++
++			ret = pcf85363_clear_flags(pcf85363,
++						   pcf85363_ts_flag[i]);
++			if (ret)
++				return ret;
++
++			handled |= pcf85363_ts_flag[i];
++		}
++	}
++
+ 	if (flags & FLAGS_BSF) {
+ 		pcf85363->bsf = true;
+ 
+@@ -349,8 +496,11 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
  		return IRQ_NONE;
  
-+	if (flags) {
-+		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
-+			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
-+			(flags & FLAGS_BSF) ? " [BSF]" : "");
-+	}
+ 	if (flags) {
+-		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s\n",
++		dev_dbg(&pcf85363->rtc->dev, "IRQ flags: 0x%02x%s%s%s%s%s\n",
+ 			flags, (flags & FLAGS_A1F) ? " [A1F]" : "",
++			(flags & FLAGS_TSR1F) ? " [TSR1F]" : "",
++			(flags & FLAGS_TSR2F) ? " [TSR2F]" : "",
++			(flags & FLAGS_TSR3F) ? " [TSR3F]" : "",
+ 			(flags & FLAGS_BSF) ? " [BSF]" : "");
+ 	}
+ 
+@@ -367,7 +517,7 @@ static irqreturn_t pcf85363_rtc_handle_irq(int irq, void *dev_id)
+ 		}
+ 	}
+ 
+-	if (flags & FLAGS_BSF) {
++	if (flags & (FLAGS_TSR1F | FLAGS_TSR2F | FLAGS_TSR3F | FLAGS_BSF)) {
+ 		guard(mutex)(&pcf85363->lock);
+ 
+ 		err = pcf85363_collect_events(pcf85363);
+@@ -517,12 +667,88 @@ static const struct pcf85x63_config pcf_85363_config = {
+ 	.num_nvram = 2
+ };
+ 
++/* Six BCD bytes; bit 7 of the seconds byte is reserved, not time data. */
++static ssize_t pcf85363_format_timestamp(const u8 *regs, char *buf)
++{
++	struct rtc_time tm;
 +
- 	if (flags & FLAGS_A1F) {
--		rtc_update_irq(pcf85363->rtc, 1, RTC_IRQF | RTC_AF);
--		regmap_update_bits(pcf85363->regmap, CTRL_FLAGS, FLAGS_A1F, 0);
--		return IRQ_HANDLED;
-+		err = pcf85363_clear_flags(pcf85363, FLAGS_A1F);
-+		if (err) {
-+			dev_err_ratelimited(&pcf85363->rtc->dev,
-+					    "failed to clear alarm flag: %d\n",
-+					    err);
-+			ack_failed = true;
-+		} else {
-+			rtc_update_irq(pcf85363->rtc, 1, RTC_IRQF | RTC_AF);
-+			handled = true;
-+		}
-+	}
++	tm.tm_sec = bcd2bin(regs[0] & PCF85363_SEC_MASK);
++	tm.tm_min = bcd2bin(regs[1]);
++	tm.tm_hour = bcd2bin(regs[2]);
++	tm.tm_mday = bcd2bin(regs[3]);
++	tm.tm_mon = bcd2bin(regs[4]) - 1;
++	tm.tm_year = bcd2bin(regs[5]) + 100;
 +
-+	if (flags & FLAGS_BSF) {
-+		guard(mutex)(&pcf85363->lock);
-+
-+		err = pcf85363_collect_events(pcf85363);
-+		if (err < 0) {
-+			dev_err_ratelimited(&pcf85363->rtc->dev,
-+					    "failed to collect events: %d\n",
-+					    err);
-+			ack_failed = true;
-+		} else if (err) {
-+			handled = true;
-+		}
-+	}
-+
-+	/*
-+	 * Clear flags this handler does not service (e.g. A2F/PIF); otherwise
-+	 * they hold the level-triggered INTA line asserted and storm the IRQ.
-+	 */
-+	if (flags & (FLAGS_A2F | FLAGS_PIF)) {
-+		err = pcf85363_clear_flags(pcf85363, FLAGS_A2F | FLAGS_PIF);
-+		if (err) {
-+			dev_err_ratelimited(&pcf85363->rtc->dev,
-+					    "failed to clear unhandled flags: %d\n",
-+					    err);
-+			ack_failed = true;
-+		} else {
-+			handled = true;
-+		}
-+	}
-+
-+	/*
-+	 * If any asserted source could not be serviced or cleared, the INTA
-+	 * line stays asserted; return IRQ_NONE so the spurious-IRQ detector can
-+	 * disable a permanently stuck line instead of looping forever.
-+	 */
-+	if (ack_failed)
-+		return IRQ_NONE;
-+
-+	return handled ? IRQ_HANDLED : IRQ_NONE;
++	return sysfs_emit(buf, "%04d-%02d-%02d %02d:%02d:%02d\n",
++			  tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++			  tm.tm_hour, tm.tm_min, tm.tm_sec);
 +}
 +
-+static int pcf85363_rtc_ioctl(struct device *dev,
-+			      unsigned int cmd, unsigned long arg)
++/* Refresh from hardware first so poll-only setups still latch events. */
++static ssize_t pcf85363_timestamp_show(struct device *dev, char *buf,
++				       unsigned int index)
 +{
 +	struct pcf85363 *pcf85363 = dev_get_drvdata(dev);
 +	int ret;
 +
-+	switch (cmd) {
-+	case RTC_VL_READ: {
-+		u32 status = 0;
++	guard(mutex)(&pcf85363->lock);
 +
-+		guard(mutex)(&pcf85363->lock);
++	ret = pcf85363_collect_events(pcf85363);
++	if (ret < 0)
++		return ret;
 +
-+		/* Refresh so a poll-only setup still latches the BSF flag. */
-+		ret = pcf85363_collect_events(pcf85363);
-+		if (ret < 0)
-+			return ret;
++	if (!pcf85363->ts[index].valid)
++		return sysfs_emit(buf, "00-00-00 00:00:00\n");
 +
-+		if (pcf85363->bsf)
-+			status |= RTC_VL_BACKUP_SWITCH;
++	return pcf85363_format_timestamp(pcf85363->ts[index].regs, buf);
++}
 +
-+		return put_user(status, (u32 __user *)arg);
- 	}
++static ssize_t timestamp1_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, 0);
++}
++static DEVICE_ATTR_RO(timestamp1);
++
++static ssize_t timestamp2_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, 1);
++}
++static DEVICE_ATTR_RO(timestamp2);
++
++static ssize_t timestamp3_show(struct device *dev,
++			       struct device_attribute *attr, char *buf)
++{
++	return pcf85363_timestamp_show(dev, buf, 2);
++}
++static DEVICE_ATTR_RO(timestamp3);
++
++static struct attribute *pcf85363_attrs[] = {
++	&dev_attr_timestamp1.attr,
++	&dev_attr_timestamp2.attr,
++	&dev_attr_timestamp3.attr,
++	NULL,
++};
++
++static const struct attribute_group pcf85363_attr_group = {
++	.attrs = pcf85363_attrs,
++};
++
+ static int pcf85363_probe(struct i2c_client *client)
+ {
+-	struct pcf85363 *pcf85363;
+ 	const struct pcf85x63_config *config = &pcf_85363_config;
+ 	const void *data = of_device_get_match_data(&client->dev);
+-	static struct nvmem_config nvmem_cfg[] = {
++	struct device *dev = &client->dev;
++	struct pcf85363 *pcf85363;
++	int irq_a = client->irq;
++	bool ts_mode_configured = false;
++	bool wakeup_source;
++	int ret, i, err;
++	u32 tsr_mode[3];
++	unsigned int val;
++
++	struct nvmem_config nvmem_cfg[] = {
+ 		{
+ 			.name = "pcf85x63-",
+ 			.word_size = 1,
+@@ -539,29 +765,84 @@ static int pcf85363_probe(struct i2c_client *client)
+ 			.reg_write = pcf85363_nvram_write,
+ 		},
+ 	};
+-	int ret, i, err;
+-	bool wakeup_source;
  
--	return IRQ_NONE;
-+	case RTC_VL_CLR: {
-+		guard(mutex)(&pcf85363->lock);
-+
-+		ret = pcf85363_clear_flags(pcf85363, FLAGS_BSF);
-+		if (ret)
-+			return ret;
-+
-+		pcf85363->bsf = false;
-+
-+		return 0;
-+	}
-+
-+	default:
-+		return -ENOIOCTLCMD;
-+	}
- }
+ 	if (data)
+ 		config = data;
  
- static const struct rtc_class_ops rtc_ops = {
-+	.ioctl  = pcf85363_rtc_ioctl,
- 	.read_time	= pcf85363_rtc_read_time,
- 	.set_time	= pcf85363_rtc_set_time,
- 	.read_alarm	= pcf85363_rtc_read_alarm,
-@@ -412,6 +550,10 @@ static int pcf85363_probe(struct i2c_client *client)
+-	pcf85363 = devm_kzalloc(&client->dev, sizeof(struct pcf85363),
+-				GFP_KERNEL);
++	pcf85363 = devm_kzalloc(&client->dev, sizeof(*pcf85363), GFP_KERNEL);
  	if (!pcf85363)
  		return -ENOMEM;
  
-+	ret = devm_mutex_init(&client->dev, &pcf85363->lock);
-+	if (ret)
-+		return ret;
-+
+-	ret = devm_mutex_init(&client->dev, &pcf85363->lock);
++	ret = devm_mutex_init(dev, &pcf85363->lock);
+ 	if (ret)
+ 		return ret;
+ 
  	pcf85363->regmap = devm_regmap_init_i2c(client, &config->regmap);
- 	if (IS_ERR(pcf85363->regmap)) {
- 		dev_err(&client->dev, "regmap allocation failed\n");
-@@ -435,17 +577,52 @@ static int pcf85363_probe(struct i2c_client *client)
+-	if (IS_ERR(pcf85363->regmap)) {
+-		dev_err(&client->dev, "regmap allocation failed\n");
+-		return PTR_ERR(pcf85363->regmap);
+-	}
++
++	if (IS_ERR(pcf85363->regmap))
++		return dev_err_probe(dev, PTR_ERR(pcf85363->regmap), "regmap init failed\n");
  
- 	wakeup_source = device_property_read_bool(&client->dev,
- 						  "wakeup-source");
--	if (client->irq > 0 || wakeup_source) {
--		err = regmap_write(pcf85363->regmap, CTRL_FLAGS, 0);
--		if (err)
--			return dev_err_probe(&client->dev, err,
--					     "failed to clear flags\n");
+ 	i2c_set_clientdata(client, pcf85363);
  
--		err = regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
-+	/*
-+	 * Latch and clear any battery-switch event that occurred before
-+	 * probe (for example while the main supply was off) instead of
-+	 * blanket clearing CTRL_FLAGS, so the cached state is preserved.
-+	 */
-+	scoped_guard(mutex, &pcf85363->lock) {
-+		ret = pcf85363_collect_events(pcf85363);
-+		if (ret < 0)
-+			return dev_err_probe(&client->dev, ret,
-+					     "Failed to latch boot-time events\n");
++	ret = regmap_update_bits(pcf85363->regmap, CTRL_FUNCTION, RTCM_BIT, 0);
++	if (ret)
++		return dev_err_probe(dev, ret, "Failed to enable RTC mode\n");
++
++	if (!device_property_read_u32_array(dev, "nxp,timestamp-mode", tsr_mode, 3)) {
++		bool ts_pin_used;
++
++		tsr_mode[0] &= TSR1_MASK;
++		tsr_mode[1] &= TSR2_MASK;
++		tsr_mode[2] &= TSR3_MASK;
++
++		val = (tsr_mode[2] << TSR3_SHIFT) |
++		      (tsr_mode[1] << TSR2_SHIFT) |
++		      (tsr_mode[0] << TSR1_SHIFT);
++
++		ret = regmap_write(pcf85363->regmap, DT_TS_MODE, val);
++		if (ret)
++			return dev_err_probe(dev, ret,
++					     "Failed to write timestamp mode register\n");
++
++		/*
++		 * Only the TS-pin capture modes drive the TS pin. Select the
++		 * timestamp function (TSPM) for those and leave the input mode
++		 * (TSIM) at its reset default rather than forcing the
++		 * mechanical-switch detector. TSPM = 11b is the TS pin input
++		 * mode, so the field mask doubles as the value to program.
++		 */
++		ts_pin_used = tsr_mode[0] == PCF85363_TSR1_FE ||
++			      tsr_mode[0] == PCF85363_TSR1_LE ||
++			      tsr_mode[1] == PCF85363_TSR2_FE ||
++			      tsr_mode[1] == PCF85363_TSR2_LE;
++
++		if (ts_pin_used) {
++			ret = regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
++						 PIN_IO_TSPM, PIN_IO_TSPM);
++			if (ret)
++				return dev_err_probe(dev, ret,
++						     "Failed to configure TS pin\n");
++		}
++
++		dev_dbg(dev, "Timestamp mode set: TSR1=0x%x TSR2=0x%x TSR3=0x%x\n",
++			tsr_mode[0], tsr_mode[1], tsr_mode[2]);
 +	}
 +
 +	/*
-+	 * Battery-backed registers can retain stale state across a power cycle.
-+	 * A stale asserted flag would storm the level-triggered INTA line, so
-+	 * disable only the interrupt sources and Alarm2 enables this driver
-+	 * never services and clear their flags; leave the managed sources
-+	 * (A1IE, BSIE) and Alarm1 for their own paths to arm. WDIE is masked
-+	 * too so a bootloader-armed watchdog cannot storm INTA before the
-+	 * driver is ready to service it.
++	 * Classify from the effective hardware configuration rather than from
++	 * the property, which may be absent while firmware has already
++	 * programmed a capture mode. A last-event mode left behind that way
++	 * still needs the torn-read handling and the timestamp interrupt.
 +	 */
-+	ret = regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
-+				 INT_WDIE | INT_A2IE | INT_OIE | INT_PIE | INT_ILP,
-+				 0);
++	ret = regmap_read(pcf85363->regmap, DT_TS_MODE, &val);
 +	if (ret)
-+		return dev_err_probe(&client->dev, ret,
-+				     "Failed to mask unused INTA sources\n");
++		return dev_err_probe(dev, ret,
++				     "Failed to read timestamp mode register\n");
 +
-+	ret = regmap_update_bits(pcf85363->regmap, DT_ALARM_EN,
-+				 ALRM_MIN_A2E | ALRM_HR_A2E | ALRM_DAY_A2E, 0);
-+	if (ret)
-+		return dev_err_probe(&client->dev, ret,
-+				     "Failed to mask Alarm2 enables\n");
++	pcf85363_classify_ts_modes(pcf85363, val);
 +
-+	ret = pcf85363_clear_flags(pcf85363, FLAGS_A2F | FLAGS_PIF);
-+	if (ret)
-+		return dev_err_probe(&client->dev, ret,
-+				     "Failed to clear stale flags\n");
++	ts_mode_configured = val & TS_MODE_MASK;
 +
-+	if (client->irq > 0 || wakeup_source) {
-+		ret = regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
- 					 PIN_IO_INTAPM, PIN_IO_INTA_OUT);
--		if (err)
--			return dev_err_probe(&client->dev, err,
--					     "failed to set interrupt pin mode\n");
-+		if (ret)
-+			return dev_err_probe(&client->dev, ret,
-+					     "Failed to configure INTA pin\n");
+ 	pcf85363->rtc = devm_rtc_allocate_device(&client->dev);
+ 	if (IS_ERR(pcf85363->rtc))
+ 		return PTR_ERR(pcf85363->rtc);
+@@ -575,80 +856,118 @@ static int pcf85363_probe(struct i2c_client *client)
+ 	pcf85363->rtc->range_min = RTC_TIMESTAMP_BEGIN_2000;
+ 	pcf85363->rtc->range_max = RTC_TIMESTAMP_END_2099;
+ 
+-	wakeup_source = device_property_read_bool(&client->dev,
+-						  "wakeup-source");
++	wakeup_source = device_property_read_bool(dev, "wakeup-source");
+ 
+ 	/*
+-	 * Latch and clear any battery-switch event that occurred before
+-	 * probe (for example while the main supply was off) instead of
+-	 * blanket clearing CTRL_FLAGS, so the cached state is preserved.
++	 * Latch pre-probe events instead of blanket-clearing CTRL_FLAGS, so
++	 * pre-existing timestamps and the battery-switch flag are not lost.
+ 	 */
+ 	scoped_guard(mutex, &pcf85363->lock) {
+ 		ret = pcf85363_collect_events(pcf85363);
+ 		if (ret < 0)
+-			return dev_err_probe(&client->dev, ret,
++			return dev_err_probe(dev, ret,
+ 					     "Failed to latch boot-time events\n");
  	}
  
- 	if (client->irq > 0) {
+ 	/*
+ 	 * Battery-backed registers can retain stale state across a power cycle.
+ 	 * A stale asserted flag would storm the level-triggered INTA line, so
+-	 * disable only the interrupt sources and Alarm2 enables this driver
+-	 * never services and clear their flags; leave the managed sources
+-	 * (A1IE, BSIE) and Alarm1 for their own paths to arm. WDIE is masked
+-	 * too so a bootloader-armed watchdog cannot storm INTA before the
+-	 * driver is ready to service it.
++	 * disable the interrupt sources and Alarm2 enables this driver does not
++	 * arm here and clear their flags; leave the managed sources (A1IE, BSIE,
++	 * TSRIE) and Alarm1 for their own paths to arm. WDIE is masked too so a
++	 * bootloader-armed watchdog cannot storm INTA before the driver is ready
++	 * to service it.
+ 	 */
+ 	ret = regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
+ 				 INT_WDIE | INT_A2IE | INT_OIE | INT_PIE | INT_ILP,
+ 				 0);
+ 	if (ret)
+-		return dev_err_probe(&client->dev, ret,
+-				     "Failed to mask unused INTA sources\n");
++		return dev_err_probe(dev, ret, "Failed to mask unused INTA sources\n");
+ 
+ 	ret = regmap_update_bits(pcf85363->regmap, DT_ALARM_EN,
+ 				 ALRM_MIN_A2E | ALRM_HR_A2E | ALRM_DAY_A2E, 0);
+ 	if (ret)
+-		return dev_err_probe(&client->dev, ret,
+-				     "Failed to mask Alarm2 enables\n");
++		return dev_err_probe(dev, ret, "Failed to mask Alarm2 enables\n");
+ 
+ 	ret = pcf85363_clear_flags(pcf85363, FLAGS_A2F | FLAGS_PIF);
+ 	if (ret)
+-		return dev_err_probe(&client->dev, ret,
+-				     "Failed to clear stale flags\n");
++		return dev_err_probe(dev, ret, "Failed to clear stale flags\n");
+ 
+-	if (client->irq > 0 || wakeup_source) {
+-		ret = regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
+-					 PIN_IO_INTAPM, PIN_IO_INTA_OUT);
+-		if (ret)
+-			return dev_err_probe(&client->dev, ret,
+-					     "Failed to configure INTA pin\n");
+-	}
+-
+-	if (client->irq > 0) {
++	if (irq_a > 0) {
+ 		unsigned long irqflags = IRQF_TRIGGER_LOW;
+ 
+ 		if (dev_fwnode(&client->dev))
+ 			irqflags = 0;
+-		ret = devm_request_threaded_irq(&client->dev, client->irq,
+-						NULL, pcf85363_rtc_handle_irq,
++
++		ret = devm_request_threaded_irq(dev, irq_a, NULL,
++						pcf85363_rtc_handle_irq,
+ 						irqflags | IRQF_ONESHOT,
+-						"pcf85363", client);
++						"pcf85363-inta", client);
++		/*
++		 * Let the driver core retry when the interrupt provider is not
++		 * ready yet; only a genuine failure disables interrupt-driven
++		 * alarms while leaving RTC timekeeping (and any wakeup-source
++		 * path) intact.
++		 */
++		if (ret == -EPROBE_DEFER)
++			return ret;
+ 		if (ret) {
+-			dev_warn(&client->dev,
+-				 "unable to request IRQ, alarms disabled\n");
+-			client->irq = 0;
++			dev_warn(dev, "unable to request IRQ, alarms disabled: %d\n",
++				 ret);
++			irq_a = 0;
+ 		}
+ 	}
+ 
+-	if (client->irq > 0 || wakeup_source) {
+-		device_init_wakeup(&client->dev, true);
++	if (irq_a > 0 || wakeup_source) {
++		/*
++		 * The alarm can be delivered either through our own IRQ line or
++		 * via an external wakeup path (INTA routed to a PMIC), so route
++		 * INTA to its interrupt output and keep the alarm feature in
++		 * both cases; rtcwake relies on it for wakeup-source-only boards.
++		 */
++		ret = regmap_update_bits(pcf85363->regmap, CTRL_PIN_IO,
++					 PIN_IO_INTAPM, PIN_IO_INTA_OUT);
++		if (ret)
++			return dev_err_probe(dev, ret,
++					     "Failed to configure INTA pin\n");
++
++		if (irq_a > 0) {
++			u8 inta_en = INT_BSIE;
++
++			/*
++			 * Enable the timestamp interrupt only when a capture
++			 * mode is configured; always enable battery-switch.
++			 * Only relevant when we service the IRQ ourselves.
++			 */
++			if (ts_mode_configured)
++				inta_en |= INT_TSRIE;
++
++			ret = regmap_update_bits(pcf85363->regmap, CTRL_INTA_EN,
++						 INT_BSIE | INT_TSRIE, inta_en);
++			if (ret)
++				return dev_err_probe(dev, ret,
++						     "Failed to enable INTA sources\n");
++		}
++
++		device_init_wakeup(dev, true);
+ 		set_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+ 	} else {
++		/*
++		 * Neither an interrupt line nor a wakeup source: the alarm
++		 * cannot be delivered, so drop the alarm feature.
++		 */
+ 		clear_bit(RTC_FEATURE_ALARM, pcf85363->rtc->features);
+ 	}
+ 
++	dev_set_drvdata(&pcf85363->rtc->dev, pcf85363);
++
++	ret = rtc_add_group(pcf85363->rtc, &pcf85363_attr_group);
++	if (ret)
++		return ret;
++
+ 	ret = devm_rtc_register_device(pcf85363->rtc);
++	if (ret)
++		return dev_err_probe(dev, ret, "RTC registration failed\n");
+ 
+ 	for (i = 0; i < config->num_nvram; i++) {
+ 		nvmem_cfg[i].priv = pcf85363;
 -- 
 2.25.1
 
