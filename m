@@ -1,73 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793098959;
-	b=o17Tno36sy0lpSToR/MQlvRpHKyrGZjWW92Yz8eBI66jAhkCTv5pwIW5xj4JPfFqOEcp
-	 t4SZRBvb5BfkURgFcW/pQylpCxmuaPUoUjnVsScTburpJqSZ6li7Q6jT3vtNiUhKm+ZET
-	 SYzwZgzkkTjm225PH51VJprLM0GAgOZYjoHfJ9hzLM7YisWGjrY07rF7vob+2l3Rc/jvN
-	 SKpaxjdbHl0cgkfLnpcULbzE8YDX08W0v5aPaFgs6hInHJutQl5b3QJ1apbzbzzPRBR4M
-	 jvWsI5nSPA6KVCb1zDBPJ5gozbUG4pa1mdf7/1D2aTJ2p9uHr5S2XcPkQ38yLtv620g==
+	t=1793102002;
+	b=Aa7Yl055eAubOrPbluQgmVxOMmHKOmXIq3/b0NQ2L3pB9o/yB/XCIMxDQDQqJAedCf5B
+	 AxtGJb55DLQhMWxIObemQa3K5KheiPMj4a0wny9LoS0N8YPECgYb7QdTy/tUSWEpvb3me
+	 uZUGSPptILgmn7RHVUjpSlNkWxpPsrU2autVXBo0DqMF9WjAzFac1fExTKQNcO+PO+PYZ
+	 +z1BzcNleS3ov0FVYyDLvY1PJRVqxvms2hl3T7c5KmkB6gNXq4S9Q948eVwYBVXnQ4/ad
+	 uSRZuAK3nul6h9vRGQ+D71sfTIrCb9Pd+eyb562fuW6bJMRVUHo9OZsUBmwIpFvxjbg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793098959;
-	h=Received:DKIM-Signature:Received:Received:X-ME-Sender:
-	 X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type:Content-Transfer-Encoding;
-	bh=S8N/j869HNpgdeP7/QOiEpi1UDU+4/5IbfLyzxRncAg=;
-	b=maJL23ATdGQW+ORMmOLBTjP0K6zSdRl9eM88N8V7RWzdc/Phptc3ju1Rju9ZmtjcB5wt
-	 hFL1NuLoehmomEtmyvJfP5zVMYvlKk2ck9y2nyYPhCwuF+CCt3qzZNHaf4K6SrYIJ6QqK
-	 QxZRjMRNkB4IYMxCbmKV6IkGZL2mjxl1AJP4HNdzfMFgtT42LNYCpWJcx8iUs764dEqgU
-	 lUPygnYdAhwJnZByS+PX2MfFhFI7/MgrPPOuKte1/ANpF9c0NWS4bKTNowH4o3/3g4Et1
-	 IAR3n1mihQifDrMK4eeiNz8vBM+YkQ+Jyjcxt/el7ocMIz9/WQWo8QVoxDZtSOXeqHQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793102002;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=eW571iO5qUDWhqnb/V2rwsfuoMvwgati36UAaHCNbvk=;
+	b=EcOkIm5kmWqQVbrpjaD3t5TgFDM18S7Ay7Inq581PF9rzoFRMLT3Y5nF5qWXqQDbeocw
+	 7LJv1TghmDkFrThc/h9dwJK0cuOpWgDfi3EcegA72GEUudX8t55znxSvW20IFUHLfhYkK
+	 a5f0/MTGB8ahDcoMNjbY4q0N5l9nMDzSxAET9jNhGikDV+hSqidmovInE//TWHLmM91qE
+	 vKMrr95hwQ5ntR+VaKavGrNZl1AhK38HEksRp9sZERA+wkyYAN1/3xVzai0avAbrMkhj0
+	 Y3n+/Jufnx87Z8kKKutwOsw6za8nII6z6c5xOccVVAC11SdWka33M7S3oQKrmPCnMXw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dncX0fas;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ofM0RcTa;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 049A1606A321
-	for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 11:02:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 256DC606A31D
+	for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 11:53:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dncX0fas
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0719C1F031E2;
-	Tue, 27 Oct 2026 11:02:37 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ofM0RcTa
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFFC11F031E7
+	for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 11:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793098958;
-	bh=S8N/j869HNpgdeP7/QOiEpi1UDU+4/5IbfLyzxRncAg=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=dncX0fas7PcpQWT+nwEfarx1wQDoTniDjmYWRDC0U8dT9cnhGcOjgIRuIXKop3Qcl
-	 Ik/BcRaPP/VB0wD8Xprq6jUfrjTU5lxOYCuUL5VYTwlANg240GnrO8zO2S48VnP0kv
-	 QarObIXuWa4XxEyUJOlRvU6qpc5AJpHQuNwBidhuy46Y4w7je68xUNg53Sps218IRu
-	 Yk5NISxLSMMc2sC6F+0sNwLUY7yv1zePGQ4Nvp1DHeEMNCgH4mZkwDxZSVW1bLiPw9
-	 GFpdWMuGkVYvCr9pduzi7wUnlgB2OFJq8OSbLxtiOwl/uBGiVg6ZBxXr16h70U/enA
-	 U89ksbc9vcN+A==
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 738821980047;
-	Tue, 27 Oct 2026 07:02:36 -0400 (EDT)
-Received: from ams-imap-11 ([10.64.2.31])
-  by ams-compute-02.internal (MEProxy); Tue, 27 Oct 2026 07:02:36 -0400
-X-ME-Sender: <xms:yoTgakgu_mMIKfyQ47EieUj_B330f4LH8rRYN9U7UcrVmjDJx7as7w>
-    <xme:yoTgan04veaTiDvKWadmHmvWcBApQz1ZvA9-7y7b-j1PL7iWvuGl_-SEtq_YFpDl4
-    aALQamk2X0hxxdogei06l2_Uv_msyVSPRH62yp-pMVNVzknhfbpYdU>
-X-ME-Proxy-Cause: dmFkZTFm99AU2XCv5XYW+MYlmeCZ9R1fW0lgfMXyRRSlHAPwKK7hKrQFekQzXnNPXdSnqf
-    HSwSW77+GeBivgAdTB7qHdcQffgmQ47HmTpAGgur7vpbUkIzzxrIdyLebJyZE0Q/KNRG5K
-    IJqwVnX+IkPAG2l0JkuGSb+i6wGfgQxPjIggcMtC/tHA04yh872g/XL713UULD9YS/6ZvY
-    7prmSMosqHUriYB8GXYO9qtVHleuOMHD2BXi9mim9oah3iCDey1he/GQRGv8jM9Z4WSCsX
-    W5Apn91qjwH8uEm2uNA1Lxuh1KCSoNGooRjKi9iNfseeszgsBG1Idf0zAEKguEoeGkiPDu
-    26VFY9WoUjR9Q4K8yrRU2tSie+6+ay3SEHNl+6NXtKnjqk9faowKoaklFS4isww3cjs+bQ
-    DcXl6atWEWAgjeEyGcpVjFFWlakxltQFW6OBnw+ZuuHZmBxgRZje193O22me/JsU1fbMti
-    nXXrG1Yy+3xNRF3sO7ngfSS2w/ZY/AKmFVUIstv4g9OAOibZsSkxCpIfKvMSr75lIBgebr
-    L5iORZ1EURmwYX5gn+p1/SInDjzsDM3yU2gjjZuCxvv/TLekLwzbGT5PJMovzlGV/9ixa4
-    3r2wo9Eizp0I4iNZXrG9ARIsCRNCHWXOTSuOn21iodUvWLEUQ5ikHa4XotcA
-X-ME-Proxy: <xmx:zITgalGwRXqGAZTmJYbeGWqvPkGo_5lj8QOkS05tr-ZS-4ACZUjfgQ>
-    <xmx:zITgasncjnNenxeenaz5ArplLQiM67N20wYAVlbtNSD_w2B2tGd5fw>
-    <xmx:zITgapZzwFC3w4QtCKiRZ_cXlqaXcHPCqZo-AxGJML2K1dmpG4hqFA>
-    <xmx:zITgahFpwXp7mzpkUdLKwT26CU_5jBkKBko7OYQAxW9ha8b3Z3H3fQ>
-    <xmx:zITgaqLWH-qZTyQjVvWKZW5vj5S90Fas1yEXpSJljebiT6Gyu2zjDcyX>
-Feedback-ID: ice86485a:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id C4F92F80090; Tue, 27 Oct 2026 07:02:34 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=k20260515; t=1793102001;
+	bh=eW571iO5qUDWhqnb/V2rwsfuoMvwgati36UAaHCNbvk=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=ofM0RcTa0CwBxEvlJOqowo/YO17DqYJ6necpPeND9VQ/86GbNxcpw1bdV1UY3kVqk
+	 3bm6WhatvEfxQ2CF040xXt5MmkN8x/mNKjkglvn2VvWugS62o8f2Ks0miZTyk7Povl
+	 o18DoyHmI5YPa808QCyTV3IGOvwCYplAiM1jPoEjb/gsPkxG/kpBsdr3lAitC/v79A
+	 0CbrDv4pBbI/sPhtOcCLgknsXaDI7Xcrl42QtR9fYk4Fz2Vcxo94X/5Mh7XkO8Qreb
+	 xU+Rnr9qCttHe5wqCJkOdJB4iPfaVw5onwlbHmft9bqN3Anf3sN0awKg0sC2TM3mI7
+	 HCfdX/68S4Mew==
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5be4fea434bso686768e87.1
+        for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 04:53:21 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzkLSDnDvNZkRbnUx0Eh/7mk0DpA+ahBMcc6fKbYZeLgugQF48GNRoro2OSP+K9qEsatEvmWJW+iMI=@vger.kernel.org
+X-Gm-Message-State: AFq9FYIYF2mPoZH0BHWKcLrhzECEu2wizUqjmBU+WFB0N0uG07c4DaGY
+	ubDLJXXD+mE2Zkm0qIltZsO+eekoMGUOob8a4cxN7NnBXwYlvctYPC4ymuyxxdE0dCrv79JAcDm
+	+oDkpUTvV/AuPHkrPZ/7HRBXOWPgXytU=
+X-Received: by 2002:a05:6512:318d:b0:5bf:c79d:68f with SMTP id
+ 2adb3069b0e04-5bfc79d06f3mr475833e87.2.1793102000095; Tue, 27 Oct 2026
+ 04:53:20 -0700 (PDT)
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -77,22 +59,24 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Tue, 27 Oct 2026 12:02:13 +0100
-From: "Ard Biesheuvel" <ardb@kernel.org>
-To: "Hamza Mahfooz" <hamzamahfooz@linux.microsoft.com>,
- "Linux ACPI" <linux-acpi@vger.kernel.org>, linux-rtc@vger.kernel.org
-Cc: "Rafael J . Wysocki" <rafael@kernel.org>, "Len Brown" <lenb@kernel.org>,
- "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-Message-Id: <8214320a-d7fd-43b8-bc77-bc8425642c21@app.fastmail.com>
-In-Reply-To: <20261026152103.3109313-1-hamzamahfooz@linux.microsoft.com>
 References: <20261026152103.3109313-1-hamzamahfooz@linux.microsoft.com>
+In-Reply-To: <20261026152103.3109313-1-hamzamahfooz@linux.microsoft.com>
+From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
+Date: Tue, 27 Oct 2026 12:53:07 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0g0B7HC5SV_VpBNnS0UffJn8w9_gsXpATkYhHFOBkAasg@mail.gmail.com>
+X-Gm-Features: AclHuK-sPybzziVNvnjpKHMy_0ZM8EP9Kiy6CfDmwTeb6pCFjhVTy3qaKz6xdf8
+Message-ID: <CAJZ5v0g0B7HC5SV_VpBNnS0UffJn8w9_gsXpATkYhHFOBkAasg@mail.gmail.com>
 Subject: Re: [PATCH v3 1/2] ACPI: TAD: introduce acpi_has_rtc()
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+Cc: linux-acpi@vger.kernel.org, linux-rtc@vger.kernel.org, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Ard Biesheuvel <ardb@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello Hamza,
-
-On Mon, 26 Oct 2026, at 16:21, Hamza Mahfooz wrote:
+On Mon, Oct 26, 2026 at 4:21=E2=80=AFPM Hamza Mahfooz
+<hamzamahfooz@linux.microsoft.com> wrote:
+>
 > The same RTC may also be accessible by other means, like the EFI
 > GetTime() and SetTime() runtime services used by rtc-efi, which are best
 > avoided if there is a native ACPI interface to the RTC.
@@ -109,21 +93,98 @@ On Mon, 26 Oct 2026, at 16:21, Hamza Mahfooz wrote:
 > Suggested-by: Ard Biesheuvel <ardb@kernel.org>
 > Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
 > ---
-> v1: 
-> https://lore.kernel.org/r/20261022211304.2285792-1-hamzamahfooz@linux.microsoft.com/
+> v1: https://lore.kernel.org/r/20261022211304.2285792-1-hamzamahfooz@linux=
+.microsoft.com/
 > v2:
 > - Rename acpi_tad_rtc_available() to acpi_has_rtc(), move it to within
 >   acpi-tad (which allows us to simplify it quite a bit) and declare it
 >   in linux/acpi.h. (Ard)
 > - Add acpi_disabled check. (Ard)
+> ---
+>  drivers/acpi/acpi_tad.c | 38 ++++++++++++++++++++++++++++++++++++++
+>  include/linux/acpi.h    |  6 ++++++
+>  2 files changed, 44 insertions(+)
+>
+> diff --git a/drivers/acpi/acpi_tad.c b/drivers/acpi/acpi_tad.c
+> index 45459a4ca..eea4d2123 100644
+> --- a/drivers/acpi/acpi_tad.c
+> +++ b/drivers/acpi/acpi_tad.c
+> @@ -899,6 +899,44 @@ static const struct acpi_device_id acpi_tad_ids[] =
+=3D {
+>         {}
+>  };
+>
+> +static int acpi_tad_rtc_match(struct device *dev, const void *data)
+> +{
+> +       unsigned long long caps;
+> +       acpi_status status;
+> +
+> +       if (!acpi_match_device(acpi_tad_ids, dev))
+> +               return 0;
+> +
+> +       status =3D acpi_evaluate_integer(ACPI_HANDLE(dev), "_GCP", NULL, =
+&caps);
+> +
+> +       return ACPI_SUCCESS(status) && (caps & ACPI_TAD_RT);
+> +}
+> +
+> +/**
+> + * acpi_has_rtc - Check if the RTC should be driven via the ACPI TAD
+> + *
+> + * Check if there is a TAD implementing the real time methods that this =
+driver
+> + * will register an RTC class device for.
+> + *
+> + * Return: %true if the RTC should be driven via the ACPI TAD, %false ot=
+herwise.
+> + */
+> +bool acpi_has_rtc(void)
+> +{
+> +       struct device *dev;
+> +
+> +       if (acpi_disabled || !IS_ENABLED(CONFIG_RTC_CLASS))
+> +               return false;
 
-Next time, please use a cover latter when sending a series, so that you
-can capture these changelogs in one place.
+You may as well put these new functions under the existing
+CONFIG_RTC_CLASS #ifdef so they don't get compiled unnecessarily, and
+add an empty stub for acpi_has_rtc() in the !CONFIG_RTC_CLASS case.
 
-The series looks good to me:
+The IS_ENABLED(CONFIG_RTC_CLASS) check above will not be necessary any
+more then.
 
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Apart from the above, the patch looks fine to me.
 
-I'll let Rafael and Alexandre decide how to queue this, once they are
-happy with the patches as well.
-
+> +
+> +       dev =3D bus_find_device(&platform_bus_type, NULL, NULL,
+> +                             acpi_tad_rtc_match);
+> +       if (!dev)
+> +               return false;
+> +
+> +       put_device(dev);
+> +       return true;
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_has_rtc);
+> +
+>  static struct platform_driver acpi_tad_driver =3D {
+>         .driver =3D {
+>                 .name =3D "acpi-tad",
+> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+> index ddacac812..71524a821 100644
+> --- a/include/linux/acpi.h
+> +++ b/include/linux/acpi.h
+> @@ -1553,6 +1553,12 @@ extern bool acpi_has_watchdog(void);
+>  static inline bool acpi_has_watchdog(void) { return false; }
+>  #endif
+>
+> +#if IS_REACHABLE(CONFIG_ACPI_TAD)
+> +bool acpi_has_rtc(void);
+> +#else
+> +static inline bool acpi_has_rtc(void) { return false; }
+> +#endif
+> +
+>  #ifdef CONFIG_ACPI_SPCR_TABLE
+>  extern bool qdf2400_e44_present;
+>  int acpi_parse_spcr(bool enable_earlycon, bool enable_console);
+> --
+> 2.56.0
+>
