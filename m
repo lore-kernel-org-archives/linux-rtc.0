@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793139004;
-	b=qVcbQ6aypTMWxTWsvndRG4r+RP94GuF7x/BTcH4p5JStL0lvuJVy4QVndRg/FGZuALLS
-	 X4e0dAAe6NfMxUjFC4fPBGI3LNiw2EsSuZthI5yARJsHAdjK2ifMbqRHSwKhw8ZFzCuz9
-	 MqkxKZYTYXvr8AO1AlmTi6FeGsggO9e6jVqQwTy69MPxOyshkQIWjU+cPmgymkFWOZtqY
-	 Fz/JwH18Gd6eGHseAoJ+T4zzUvLCJEqz4aLM6M5M6f0aghjyt/UiQhiK2GBUp0Q1fyqp3
-	 GZJ1yy5w7MH5VdJmkwR5tOGXy6QmCk2T8iw7xpENbXMOIBg7GarhbrSWhJE1R0u41gw==
+	t=1793139400;
+	b=SRRfXGdPBnlAM8q09Ax/t7ifCTCHwkQXb70IHWZFFMuYY1suEAvQJbHF0qML5frLQbkR
+	 x62cx9As8OZBg5GAVrdmlvkXZszLuBASBETuBkREPvbvJWJqLEQ3gfCu6H8iZStn4riaY
+	 ORcq/OBi6ABh0SX8oC0dfdF04xwiETDv7EDPFm0XcQ0xEQ6jnnAq1egDZYPpac+KvnGtz
+	 +NnN/jQOe4b4lOlteahC2sskvhKOm8GAFxJQR18IyMSADSV6AykbHcdR/YDc0ywQbVgpO
+	 Wj5Y/QsxTUHjxu73nqCzL26wG3hS0fmKt9Jy3QwQpvqR6abzg4fHmcmmDdMyupr9M7w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793139004;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793139400;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=XFTQghqJVdMBxY4xaMoPjjc/z+KDCrgt/x8GNui9tgY=;
-	b=k4zL/KIuTTIN9fsXvj1/mD+4A4CV7x5f4TsYRTpEYWDVpMvWpNaRZ5tiKbLCw0fh/KAS
-	 j+tFSqfAe+tBGv1b6dLIf7nebMYENmzoewd+qJMCPIjOmbNfKYw4trrGaFXdzvKuk246a
-	 9HvcMSCGiIFZBSkKCc7ZkFIqYVSiFnN0K1zf38UwX4Nsx8qjQf6bVf9XegIU941FXkzEA
-	 +rwOwDTjBmR30o/CTcx5WJ90TDhHTBE2qsRtRVJFH1ZuNNZghD+JVYG93RtdySODDcEwo
-	 h4AIO5UJmZhGPuD8CWJHOeU//AWojkrXnKf8eRdTjUtxNToQPRBIsIUEGy9EJ29uvFw==
+	bh=sGwHasL/cHgvBUqOb3Kkysi8QsO6SXiTCBk+sCYPDNk=;
+	b=1NGmEBXOr9/O18YIkov9Wr1Rh9KrSwqX21WdTpEAxqecwK/iT6GUuSTVxmRPGPCHg7Yb
+	 SspgunMlwbIcyujG4T2vwsnFcxm28T5z31il6i5tzws62wZbeB9R1Ouax0PK01Y+fKLwl
+	 wN+zXa9V+paPckJJ9UMY8VCR+HW05YZlMPw8rxP11Gi35DgfAvOCvy7EXv0epRbkzmlxC
+	 6f28VgzlWcpCbE9DPOSw7y5okBOAsQ8qvIoFX46KAutMAj5bcru/NhieMulhvIk4Awfvk
+	 xTfwwYOsS2CjQwIch0axWhtonuUVYPG9UYzPGDAfjEe3zPdQSVvDdBUTQ1Y6hwU/nIw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IXFH0fI4;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UGTH+fxr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79956606A31A
-	for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 22:10:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B82606A31A
+	for <linux-rtc@vger.kernel.org>; Tue, 27 Oct 2026 22:16:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IXFH0fI4
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE041F01825;
-	Tue, 27 Oct 2026 22:10:03 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UGTH+fxr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 896F41F01825;
+	Tue, 27 Oct 2026 22:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793139004;
-	bh=XFTQghqJVdMBxY4xaMoPjjc/z+KDCrgt/x8GNui9tgY=;
+	s=k20260515; t=1793139399;
+	bh=sGwHasL/cHgvBUqOb3Kkysi8QsO6SXiTCBk+sCYPDNk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IXFH0fI4vUVEU73ZksmOE8A/hMfzZfoZqeYZlD+KPJY/ABoZhC+rTtYevIgWFrOqF
-	 A86ELqrS/4bUIqCrbcLa11peaNML4RW8wJE0t7emhpThuJZFSdaybVMT1FFPbEfIhf
-	 bsuKpEN/OQZjCVHNZyreXiTWccUQbgFj+nZAT0o+k2QIZyYxyj0MWuUQCgk5Gg53xS
-	 ZVey2JIrQ8EuKaNv8gZfwzaYPXn3n5tIDERkR0auD4e71icRlilwUE9QkTBC60v7Ha
-	 nxVHL4xBRr5JEzWXLGI4aAWbdOLEbpIjQDSe+FshL2WzA66CytE+clgKVkTB0hV73A
-	 w8neAfNpxUSVw==
-Message-ID: <sashiko-outbox-187144@kernel.org>
+	b=UGTH+fxrq4vTYsXt3nc9Od0XjyrOcjeMorTDYcWd5BjaBOZQzI/zj98Zz2Ro6utFS
+	 B5ibftifvP8vzkTsTT3ck39/rpHIMnkaIlWqAVXWrUG2UpKNEjBoWcTHveyFYI8J+3
+	 3KqzI7Wf0D/bR5SN5rikGiiFw6yMuZRTV6+l1l66P4n5Uer+wH7HpWL0822LpsFnxP
+	 Qtng+acv6Buwh3L3TheqcSwHilLLdSYdyzvzwSdm3/ToqVUnwpYP/4IwN81lelssvs
+	 sE2mcVhhBs5s5qIz7pWK82t0U3jovSn8o1H9HcSfX6pR7YpFjBONq//qz1EgrBPpEq
+	 bn2AEbAvhWuWg==
+Message-ID: <sashiko-outbox-187146@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] rtc: efi: defer to the ACPI TAD if it can drive
- the RTC
+Subject: Re: [PATCH v4 1/2] ACPI: TAD: introduce acpi_has_rtc()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Hamza Mahfooz" <hamzamahfooz@linux.microsoft.com>, linux-rtc@vger.kernel.org
 Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>
-In-Reply-To: <20261027220537.3443104-3-hamzamahfooz@linux.microsoft.com>
+In-Reply-To: <20261027220537.3443104-2-hamzamahfooz@linux.microsoft.com>
 References: <20261027220537.3443104-1-hamzamahfooz@linux.microsoft.com>
- <20261027220537.3443104-3-hamzamahfooz@linux.microsoft.com>
+ <20261027220537.3443104-2-hamzamahfooz@linux.microsoft.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 22:10:03 +0000
+Date: Tue, 27 Oct 2026 22:16:39 +0000
 X-Mailing-List: linux-rtc@vger.kernel.org
 List-Id: <linux-rtc.vger.kernel.org>
 List-Post: <mailto:linux-rtc@vger.kernel.org>
@@ -61,26 +60,26 @@ List-Unsubscribe: <mailto:linux-rtc+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-rtc+owner@vger.kernel.org>
 Precedence: list
 
-> EFI runtime services are best avoided where possible, and ACPI defines a
-> standard interface to the RTC in the form of the Time and Alarm Device
-> (TAD), which the acpi-tad driver has been exposing as an RTC class
-> device since commit 8a1e7f4b1764 ("ACPI: TAD: Add RTC class device
-> interface").
+> The same RTC may also be accessible by other means, like the EFI
+> GetTime() and SetTime() runtime services used by rtc-efi, which are best
+> avoided if there is a native ACPI interface to the RTC.
 >=20
-> So, make rtc-efi decline to probe, before calling GetTime(), if
-> acpi_has_rtc() says that the RTC can be driven via the TAD.
+> To allow other RTC drivers to stand down in that case, add an exported
+> helper, acpi_has_rtc(), that returns true if there is a TAD the driver
+> will register an RTC class device for.
 >=20
-> Also, to ensure that acpi_has_rtc() is always reachable from rtc-efi
-> when ACPI_TAD is enabled, make RTC_DRV_EFI depend on
-> ACPI_TAD || !ACPI_TAD.
+> The helper looks for a platform device matching the driver's ID table
+> whose _GCP indicates real time support, like acpi_tad_probe() checks,
+> instead of checking whether the driver has bound to such a device, so
+> that callers need not depend on the order in which drivers are probed.
 >=20
 > Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-> Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+> Reviewed-by: Ard Biesheuvel <ardb@kernel.org> (v3)
 > Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027220537.3443=
-104-1-hamzamahfooz@linux.microsoft.com?part=3D2
+104-1-hamzamahfooz@linux.microsoft.com?part=3D1
 
